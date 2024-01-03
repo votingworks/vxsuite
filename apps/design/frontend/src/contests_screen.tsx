@@ -12,6 +12,7 @@ import {
   MainContent,
   MainHeader,
   Breadcrumbs,
+  Icons,
 } from '@votingworks/ui';
 import {
   Redirect,
@@ -24,6 +25,7 @@ import {
   AnyContest,
   Candidate,
   CandidateContest,
+  CandidateId,
   ContestId,
   DistrictId,
   Election,
@@ -45,7 +47,7 @@ import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { TabPanel, TabBar } from './tabs';
 import { getElection, updateElection } from './api';
-import { generateId, replaceAtIndex } from './utils';
+import { generateId, reorderElement, replaceAtIndex } from './utils';
 
 const FILTER_ALL = 'all';
 const FILTER_NONPARTISAN = 'nonpartisan';
@@ -243,6 +245,13 @@ function ContestForm({
         // so it will only be called on initial render.
         createBlankCandidateContest
   );
+  const [reorderCandidateState, setReorderCandidateState] = useState<
+    | {
+        fromIndex: number;
+        toIndex: number;
+      }
+    | undefined
+  >();
   const updateElectionMutation = updateElection.useMutation();
   const history = useHistory();
   const contestRoutes = routes.election(electionId).contests;
@@ -398,86 +407,146 @@ function ContestForm({
               <Table>
                 <thead>
                   <tr>
+                    <TH />
                     <TH>Name</TH>
                     <TH>Party</TH>
                     <TH />
                   </tr>
                 </thead>
                 <tbody>
-                  {contest.candidates.map((candidate, index) => (
-                    <tr key={candidate.id}>
-                      <TD>
-                        <input
-                          aria-label={`Candidate ${index + 1} Name`}
-                          type="text"
-                          value={candidate.name}
-                          // eslint-disable-next-line jsx-a11y/no-autofocus
-                          autoFocus
-                          onChange={(e) =>
-                            setContest({
-                              ...contest,
-                              candidates: replaceAtIndex(
-                                contest.candidates,
-                                index,
-                                {
-                                  ...candidate,
-                                  name: e.target.value,
-                                }
-                              ),
-                            })
-                          }
-                        />
-                      </TD>
-                      <TD>
-                        <SearchSelect
-                          ariaLabel={`Candidate ${index + 1} Party`}
-                          options={[
-                            {
-                              value: '' as PartyId,
-                              label: 'No Party Affiliation',
-                            },
-                            ...savedElection.parties.map((party) => ({
-                              value: party.id,
-                              label: party.name,
-                            })),
-                          ]}
-                          // Only support one party per candidate for now
-                          value={candidate.partyIds?.[0] ?? ('' as PartyId)}
-                          onChange={(value) =>
-                            setContest({
-                              ...contest,
-                              candidates: replaceAtIndex(
-                                contest.candidates,
-                                index,
-                                {
-                                  ...candidate,
-                                  partyIds: value ? [value] : undefined,
-                                }
-                              ),
-                            })
-                          }
-                          style={{ minWidth: '12rem !important' }}
-                        />
-                      </TD>
-                      <TD>
-                        <Button
-                          icon="Delete"
-                          variant="danger"
-                          fill="transparent"
-                          onPress={() =>
-                            setContest({
-                              ...contest,
-                              candidates: contest.candidates.filter(
-                                (_, i) => i !== index
-                              ),
-                            })
-                          }
+                  {contest.candidates.map((candidate, index) => {
+                    return (
+                      <tr
+                        style={{
+                          border:
+                            reorderCandidateState?.toIndex === index
+                              ? '1px solid red'
+                              : undefined,
+                        }}
+                        key={candidate.id}
+                        draggable
+                        onDragStart={(e) => {
+                          console.log('tr', e);
+                          setReorderCandidateState({
+                            fromIndex: index,
+                            toIndex: index,
+                          });
+                        }}
+                        onDragEnter={(e) => {
+                          console.log('enter', e);
+                          e.preventDefault();
+                          assert(reorderCandidateState !== undefined);
+                          setReorderCandidateState({
+                            ...reorderCandidateState,
+                            toIndex: index,
+                          });
+                        }}
+                        onDragOver={(e) => {
+                          e.preventDefault();
+                        }}
+                        onDragEnd={() => {
+                          setReorderCandidateState(undefined);
+                        }}
+                        onDrop={(e) => {
+                          console.log(e);
+                          assert(reorderCandidateState !== undefined);
+                          console.log('drop', reorderCandidateState);
+                          setContest({
+                            ...contest,
+                            candidates: reorderElement(
+                              contest.candidates,
+                              reorderCandidateState.fromIndex,
+                              reorderCandidateState.toIndex
+                            ),
+                          });
+                        }}
+                      >
+                        <TD
+                          style={{
+                            cursor: 'grab',
+                          }}
                         >
-                          Remove
-                        </Button>
-                      </TD>
-                    </tr>
-                  ))}
+                          <Icons.Grip />
+                        </TD>
+                        <TD
+                          draggable
+                          onDragStart={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                          }}
+                        >
+                          <input
+                            aria-label={`Candidate ${index + 1} Name`}
+                            type="text"
+                            value={candidate.name}
+                            // eslint-disable-next-line jsx-a11y/no-autofocus
+                            autoFocus
+                            onChange={(e) =>
+                              setContest({
+                                ...contest,
+                                candidates: replaceAtIndex(
+                                  contest.candidates,
+                                  index,
+                                  {
+                                    ...candidate,
+                                    name: e.target.value,
+                                  }
+                                ),
+                              })
+                            }
+                          />
+                        </TD>
+                        <TD>
+                          <SearchSelect
+                            ariaLabel={`Candidate ${index + 1} Party`}
+                            options={[
+                              {
+                                value: '' as PartyId,
+                                label: 'No Party Affiliation',
+                              },
+                              ...savedElection.parties.map((party) => ({
+                                value: party.id,
+                                label: party.name,
+                              })),
+                            ]}
+                            // Only support one party per candidate for now
+                            value={candidate.partyIds?.[0] ?? ('' as PartyId)}
+                            onChange={(value) =>
+                              setContest({
+                                ...contest,
+                                candidates: replaceAtIndex(
+                                  contest.candidates,
+                                  index,
+                                  {
+                                    ...candidate,
+                                    partyIds: value ? [value] : undefined,
+                                  }
+                                ),
+                              })
+                            }
+                            style={{ minWidth: '12rem !important' }}
+                          />
+                        </TD>
+                        <TD>
+                          <Button
+                            icon="Delete"
+                            variant="danger"
+                            fill="transparent"
+                            onPress={() =>
+                              setContest({
+                                ...contest,
+                                candidates: contest.candidates.filter(
+                                  (_, i) => i !== index
+                                ),
+                              })
+                            }
+                          >
+                            Remove
+                          </Button>
+                        </TD>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </Table>
             )}

@@ -39,3 +39,14 @@ export function downloadFile(filePath: string): void {
   element.click();
   document.body.removeChild(element);
 }
+
+export function reorderElement<T>(
+  array: readonly T[],
+  fromIndex: number,
+  toIndex: number
+): T[] {
+  const result = [...array];
+  const [removed] = result.splice(fromIndex, 1);
+  result.splice(toIndex, 0, removed);
+  return result;
+}

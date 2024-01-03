@@ -34,6 +34,7 @@ import {
   faEject,
   faFileArrowUp,
   faFileArrowDown,
+  faGrip,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -164,6 +165,10 @@ export const Icons = {
 
   Contrast(props) {
     return <FaIcon {...props} type={faCircleHalfStroke} />;
+  },
+
+  Grip(props) {
+    return <FaIcon {...props} type={faGrip} />;
   },
 
   Danger(props) {
