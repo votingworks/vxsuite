@@ -68,6 +68,9 @@ export function UiStringsAudioContextProvider(
     if (isEnabled) {
       reset();
     } else {
+      // Pausing here isn't strictly necessary, since we're disconnecting the
+      // context destination node from any inputs, but this makes sure any
+      // active audio streams don't continue to "play" in the background.
       setIsPaused(true);
       webAudioContextRef.current?.destination.disconnect();
     }

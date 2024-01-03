@@ -13,6 +13,10 @@
  *    100 dB SPL, in increments no greater than 10 dB
  */
 
+const DEFAULT_VOLUME_DB_SPL = 65;
+const MIN_VOLUME_DB_SPL = 20;
+const MAX_VOLUME_DB_SPL = 100;
+
 /**
  * Minimum allowed gain to achieve a minimum SPL of 20 dB, as prescribed in
  * VVSG 2.0, section 7.1-K,
@@ -20,7 +24,7 @@
  * Assumes a 0 dB gain represents the 65 dB SPL midpoint of the default 60-70
  * dB range prescribed in the VVSG spec.
  */
-export const MIN_GAIN_DB = -45;
+export const MIN_GAIN_DB = MIN_VOLUME_DB_SPL - DEFAULT_VOLUME_DB_SPL;
 
 /**
  * Default gain applied, assuming a 0 dB gain represents the 65 dB midpoint of
@@ -35,7 +39,7 @@ export const DEFAULT_GAIN_DB = 0;
  * Assumes a 0 dB gain represents the 65 dB SPL midpoint of the default 60-70
  * dB range prescribed in the VVSG spec.
  */
-export const MAX_GAIN_DB = 35;
+export const MAX_GAIN_DB = MAX_VOLUME_DB_SPL - DEFAULT_VOLUME_DB_SPL;
 
 /**
  * Amount of gain to add/subtract at a time when increasing/decreasing audio
