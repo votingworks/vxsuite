@@ -8,7 +8,7 @@
   "main": "build/index.js",
   "types": "build/index.d.js",
   "scripts": {
-    "build": "tsc --build tsconfig.build.json",
+    "build": "playwright install chromium && tsc --build tsconfig.build.json",
     "clean": "rm -rf build *.tsbuildinfo",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
