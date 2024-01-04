@@ -8,9 +8,7 @@ import {
   AdminTallyReportByPartyProps,
 } from '@votingworks/ui';
 import { tmpNameSync } from 'tmp';
-import { readFile } from 'fs/promises';
-import { pdfToPageImages } from '../test/images';
-import { renderToPdf } from '.';
+import { renderToPdf } from './render';
 
 const { electionDefinition } = electionFamousNames2021Fixtures;
 const { election } = electionDefinition;
@@ -35,9 +33,5 @@ test('rendered tally report matches snapshot', async () => {
   const pdfPath = tmpNameSync();
   await renderToPdf(<AdminTallyReportByParty {...testReportProps} />, pdfPath);
 
-  const imagePaths = await pdfToPageImages(pdfPath);
-  for (const imagePath of imagePaths) {
-    const imageBuffer = await readFile(imagePath);
-    expect(imageBuffer).toMatchImageSnapshot();
-  }
+  await expect(pdfPath).toMatchPdfSnapshot();
 });

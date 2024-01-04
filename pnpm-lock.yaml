@@ -4318,6 +4318,9 @@ importers:
       pdfjs-dist:
         specifier: 2.3.200
         version: 2.3.200(webpack@4.46.0)
+      tmp:
+        specifier: ^0.2.1
+        version: 0.2.1
     devDependencies:
       '@jest/types':
         specifier: ^29.6.1
@@ -4328,6 +4331,9 @@ importers:
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
+      '@types/jest-image-snapshot':
+        specifier: ^6.4.0
+        version: 6.4.0
       '@types/node':
         specifier: 16.18.23
         version: 16.18.23
@@ -4355,6 +4361,9 @@ importers:
       jest:
         specifier: ^29.6.2
         version: 29.6.2(@types/node@16.18.23)
+      jest-image-snapshot:
+        specifier: ^6.4.0
+        version: 6.4.0(jest@29.6.2)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -4364,9 +4373,6 @@ importers:
       lint-staged:
         specifier: 11.0.0
         version: 11.0.0
-      tmp:
-        specifier: ^0.2.1
-        version: 0.2.1
       ts-jest:
         specifier: 29.1.1
         version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.17.11)(jest@29.6.2)(typescript@5.2.2)

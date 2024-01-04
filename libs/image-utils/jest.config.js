@@ -5,4 +5,5 @@ const shared = require('../../jest.config.shared');
  */
 module.exports = {
   ...shared,
+  coveragePathIgnorePatterns: ['src/jest_pdf_snapshot.ts'],
 };

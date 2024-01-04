@@ -21,14 +21,11 @@ import {
   getBallotStylesByPrecinctId,
   numBallotPositions,
 } from '@votingworks/utils';
-import { tmpNameSync } from 'tmp';
-import { readFileSync, writeFileSync } from 'fs';
 import {
   createPrecinctTestDeck,
   createTestDeckTallyReport,
   getTallyReportResults,
 } from './test_decks';
-import { pdfToPageImages } from '../test/images';
 
 function expectedTestDeckPages(
   ballots: BallotLayout[],
@@ -275,12 +272,6 @@ test('createTestDeckTallyReport', async () => {
     ballots,
     generatedAtTime: new Date('2021-01-01T00:00:00.000Z'),
   });
-  const reportDocumentPath = tmpNameSync();
-  writeFileSync(reportDocumentPath, reportDocumentBuffer);
 
-  const imagePaths = await pdfToPageImages(reportDocumentPath);
-  for (const imagePath of imagePaths) {
-    const imageBuffer = readFileSync(imagePath);
-    expect(imageBuffer).toMatchImageSnapshot();
-  }
+  await expect(reportDocumentBuffer).toMatchPdfSnapshot();
 });
