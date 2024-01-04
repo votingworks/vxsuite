@@ -1,13 +1,19 @@
 /* eslint-disable max-classes-per-file */
+import { Buffer } from 'buffer';
+import fs from 'fs';
 import { Server } from 'http';
 import { AddressInfo } from 'net';
+import path from 'path';
 import * as tmp from 'tmp';
 import * as grout from '@votingworks/grout';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
+import { assertDefined } from '@votingworks/basics';
 import { buildApp } from '../src/app';
 import type { Api } from '../src/app';
 import { MinimalGoogleCloudTranslationClient } from '../src/language_and_audio/translator';
 import { MinimalGoogleCloudTextToSpeechClient } from '../src/language_and_audio/speech_synthesizer';
-import { createWorkspace } from '../src/workspace';
+import { Workspace, createWorkspace } from '../src/workspace';
+import { processNextBackgroundTaskIfAny } from '../src/worker/worker';
 
 tmp.setGracefulCleanup();
 
@@ -83,4 +89,31 @@ export class MockGoogleCloudTextToSpeechClient
         undefined,
       ])
   );
+}
+
+export async function exportElectionPackage({
+  apiClient,
+  electionId,
+  workspace,
+}: {
+  apiClient: ApiClient;
+  electionId: string;
+  workspace: Workspace;
+}): Promise<Buffer> {
+  await apiClient.exportElectionPackage({ electionId });
+  await suppressingConsoleOutput(() =>
+    processNextBackgroundTaskIfAny(workspace)
+  );
+
+  const electionPackage = await apiClient.getElectionPackage({
+    electionId,
+  });
+  const electionPackageFileName = assertDefined(
+    electionPackage.url?.match(/election-package-[0-9a-z]{10}\.zip$/)?.[0]
+  );
+  const electionPackageContents = fs.readFileSync(
+    path.join(workspace.assetDirectoryPath, electionPackageFileName)
+  );
+
+  return electionPackageContents;
 }

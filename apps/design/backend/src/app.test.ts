@@ -1,6 +1,4 @@
-import fs from 'fs';
 import JsZip from 'jszip';
-import path from 'path';
 import { assert, assertDefined } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
@@ -30,7 +28,11 @@ import {
   safeParseSystemSettings,
 } from '@votingworks/types';
 import { getBallotStylesByPrecinctId } from '@votingworks/utils';
-import { ApiClient, testSetupHelpers } from '../test/helpers';
+import {
+  ApiClient,
+  exportElectionPackage,
+  testSetupHelpers,
+} from '../test/helpers';
 import { hasSplits, Precinct } from './store';
 import { processNextBackgroundTaskIfAny } from './worker/worker';
 
@@ -305,20 +307,11 @@ test('Election package export', async () => {
   });
   const { election: appElection } = await apiClient.getElection({ electionId });
 
-  await apiClient.exportElectionPackage({ electionId });
-  await suppressingConsoleOutput(() =>
-    processNextBackgroundTaskIfAny(workspace)
-  );
-
-  const electionPackage = await apiClient.getElectionPackage({
+  const electionPackageContents = await exportElectionPackage({
+    apiClient,
     electionId,
+    workspace,
   });
-  const electionPackageFileName = assertDefined(
-    electionPackage.url?.match(/election-package-[0-9a-z]{10}\.zip$/)?.[0]
-  );
-  const electionPackageContents = fs.readFileSync(
-    path.join(workspace.assetDirectoryPath, electionPackageFileName)
-  );
 
   // Check contents of generated zip file
 
@@ -476,6 +469,44 @@ test('Export test decks', async () => {
     layoutOptions: DEFAULT_LAYOUT_OPTIONS,
   });
 });
+
+test('Consistency of election hash across exports', async () => {
+  const baseElectionDefinition =
+    electionFamousNames2021Fixtures.electionDefinition;
+  const { apiClient, workspace } = setupApp();
+
+  const electionId = (
+    await apiClient.createElection({
+      electionData: baseElectionDefinition.electionData,
+    })
+  ).unsafeUnwrap();
+
+  const allBallotsOutput = await apiClient.exportAllBallots({
+    electionId,
+  });
+
+  const testDecksOutput = await apiClient.exportTestDecks({
+    electionId,
+  });
+
+  const electionPackageContents = await exportElectionPackage({
+    apiClient,
+    electionId,
+    workspace,
+  });
+  const zip = await JsZip.loadAsync(electionPackageContents);
+  const electionDefinitionFromElectionPackage = safeParseElectionDefinition(
+    await assertDefined(zip.file('election.json')).async('text')
+  ).unsafeUnwrap();
+
+  expect([
+    ...new Set([
+      allBallotsOutput.electionHash,
+      testDecksOutput.electionHash,
+      electionDefinitionFromElectionPackage.electionHash,
+    ]),
+  ]).toHaveLength(1);
+}, 30_000);
 
 describe('Ballot style generation', () => {
   const districts: District[] = [
