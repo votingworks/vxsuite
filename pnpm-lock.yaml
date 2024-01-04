@@ -4161,6 +4161,9 @@ importers:
       '@types/react-dom':
         specifier: ^18.2.7
         version: 18.2.7
+      '@votingworks/fixtures':
+        specifier: workspace:*
+        version: link:../../fixtures
       '@votingworks/monorepo-utils':
         specifier: workspace:*
         version: link:../../monorepo-utils
