@@ -4,11 +4,10 @@ import { AddressInfo } from 'net';
 import * as tmp from 'tmp';
 import * as grout from '@votingworks/grout';
 import { buildApp } from '../src/app';
-import { Store } from '../src/store';
 import type { Api } from '../src/app';
 import { MinimalGoogleCloudTranslationClient } from '../src/language_and_audio/translator';
 import { MinimalGoogleCloudTextToSpeechClient } from '../src/language_and_audio/speech_synthesizer';
-import { Workspace } from '../src/workspace';
+import { createWorkspace } from '../src/workspace';
 
 tmp.setGracefulCleanup();
 
@@ -19,9 +18,7 @@ export function testSetupHelpers() {
   const servers: Server[] = [];
 
   function setupApp() {
-    const assetDirectoryPath = tmp.dirSync().name;
-    const store = Store.fileStore(tmp.fileSync().name);
-    const workspace: Workspace = { assetDirectoryPath, store };
+    const workspace = createWorkspace(tmp.dirSync().name);
     const app = buildApp({ workspace });
     const server = app.listen();
     servers.push(server);
