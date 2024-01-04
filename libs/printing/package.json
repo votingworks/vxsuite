@@ -31,17 +31,13 @@
     ]
   },
   "dependencies": {
-    "@types/puppeteer": "^7.0.4",
     "@votingworks/basics": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/ui": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "debug": "4.3.4",
-    "jest-environment-jsdom": "^29.6.2",
-    "normalize.css": "^8.0.1",
     "playwright": "^1.40.1",
-    "puppeteer": "^21.6.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "styled-components": "^5.3.11"
