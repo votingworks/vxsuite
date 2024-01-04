@@ -9,6 +9,7 @@ import {
   GlobalStyles,
   VxThemeProvider,
 } from '@votingworks/ui';
+import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 
 const HTML_DOCTYPE = '<!DOCTYPE html>';
 
@@ -64,6 +65,7 @@ export async function renderToPdf(
     // is on by default, but causes fonts to render more awkwardly at higher
     // resolutions, so we disable it
     args: ['--font-render-hinting=none'],
+    executablePath: OPTIONAL_EXECUTABLE_PATH_OVERRIDE,
   });
   const context = await browser.newContext();
   const page = await context.newPage();

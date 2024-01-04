@@ -8,10 +8,11 @@
   "main": "build/index.js",
   "types": "build/index.d.js",
   "scripts": {
-    "build": "playwright install chromium && tsc --build tsconfig.build.json",
+    "build": "tsc --build tsconfig.build.json",
     "clean": "rm -rf build *.tsbuildinfo",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
+    "postinstall": "test -f /usr/bin/chromium || playwright install --with-deps chromium",
     "pre-commit": "lint-staged",
     "test": "is-ci test:ci test:watch",
     "test:ci": "TZ=UTC pnpm build && pnpm test:coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
