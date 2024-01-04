@@ -5,14 +5,13 @@ import { processBackgroundTask } from './tasks';
 
 export async function processNextBackgroundTaskIfAny(
   workspace: Workspace
-): Promise<void> {
+): Promise<{ wasTaskProcessed: boolean }> {
   const { store } = workspace;
 
   const nextTask = store.getOldestQueuedBackgroundTask();
 
   if (!nextTask) {
-    await sleep(1000);
-    return;
+    return { wasTaskProcessed: false };
   }
 
   /* eslint-disable no-console */
@@ -27,18 +26,23 @@ export async function processNextBackgroundTaskIfAny(
     console.log(
       `❌ Error processing background task ${nextTask.id}:\n${errorMessage}\n${errorStack}`
     );
-    return;
+    return { wasTaskProcessed: true };
   }
   store.completeBackgroundTask(nextTask.id);
   console.log(`✅ Finished processing background task ${nextTask.id}`);
+  return { wasTaskProcessed: true };
   /* eslint-enable no-console */
 }
 
 export function start({ workspace }: { workspace: Workspace }): void {
-  setTimeout(async () => {
+  process.nextTick(async () => {
     // eslint-disable-next-line no-constant-condition
     while (true) {
-      await processNextBackgroundTaskIfAny(workspace);
+      const { wasTaskProcessed } =
+        await processNextBackgroundTaskIfAny(workspace);
+      if (!wasTaskProcessed) {
+        await sleep(1000);
+      }
     }
   });
 }
