@@ -11,6 +11,7 @@ import {
   layOutAllBallotStyles,
   LayoutOptions,
 } from '@votingworks/hmpb-layout';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   AdjudicationReason,
   AnyContest,
@@ -244,7 +245,9 @@ test('Election package management', async () => {
   );
 
   // Complete an export
-  await processNextBackgroundTaskIfAny({ log: jest.fn(), workspace });
+  await suppressingConsoleOutput(() =>
+    processNextBackgroundTaskIfAny(workspace)
+  );
   const electionPackageAfterExport = await apiClient.getElectionPackage({
     electionId,
   });
@@ -303,7 +306,9 @@ test('Election package export', async () => {
   const { election: appElection } = await apiClient.getElection({ electionId });
 
   await apiClient.exportElectionPackage({ electionId });
-  await processNextBackgroundTaskIfAny({ log: jest.fn(), workspace });
+  await suppressingConsoleOutput(() =>
+    processNextBackgroundTaskIfAny(workspace)
+  );
 
   const electionPackage = await apiClient.getElectionPackage({
     electionId,

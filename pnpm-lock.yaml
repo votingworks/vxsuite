@@ -1207,6 +1207,9 @@ importers:
       '@votingworks/image-utils':
         specifier: workspace:*
         version: link:../../../libs/image-utils
+      '@votingworks/test-utils':
+        specifier: workspace:*
+        version: link:../../../libs/test-utils
       esbuild:
         specifier: 0.17.11
         version: 0.17.11

@@ -75,6 +75,7 @@
     "@votingworks/ballot-interpreter": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
+    "@votingworks/test-utils": "workspace:*",
     "esbuild": "0.17.11",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
