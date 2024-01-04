@@ -31,7 +31,7 @@ export function ExportScreen(): JSX.Element | null {
   const exportElectionPackageMutation = exportElectionPackage.useMutation();
   const exportTestDecksMutation = exportTestDecks.useMutation();
 
-  const [exportError, setExportError] = useState<string | undefined>(undefined);
+  const [exportError, setExportError] = useState<string>();
 
   useQueryChangeListener(electionPackageQuery, {
     onChange: (currentElectionPackage, previousElectionPackage) => {
