@@ -1,4 +1,3 @@
-import { iter } from '@votingworks/basics';
 import { readFile } from 'fs/promises';
 import { tmpNameSync } from 'tmp';
 import { Buffer } from 'buffer';
@@ -16,16 +15,12 @@ export async function toMatchPdfSnapshot(
   const pdfContents =
     typeof received === 'string' ? await readFile(received) : received;
   const pdfPages = pdfToImages(pdfContents, { scale: 200 / 72 });
-  iter(pdfPages)
-    .map(async ({ page }) => {
-      const path = tmpNameSync({ postfix: '.png' });
-      await writeImageData(path, page);
-      return path;
-    })
-    .map(async (path) => {
-      const imageBuffer = await readFile(path);
-      expect(imageBuffer).toMatchImageSnapshot();
-    });
+  for await (const { page } of pdfPages) {
+    const path = tmpNameSync({ postfix: '.png' });
+    await writeImageData(path, page);
+    const imageBuffer = await readFile(path);
+    expect(imageBuffer).toMatchImageSnapshot();
+  }
 
   return {
     pass: true,
