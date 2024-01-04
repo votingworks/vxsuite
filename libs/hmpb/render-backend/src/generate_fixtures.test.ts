@@ -13,6 +13,8 @@ import {
   famousNamesDir,
   famousNamesFixtures,
   generalElectionFixtures,
+  primaryElectionDir,
+  primaryElectionFixtures,
 } from './ballot_fixtures';
 
 function normalizePdf(pdf: string): string {
@@ -116,4 +118,26 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
       }
     });
   }
+
+  test(`primary election fixtures`, async () => {
+    const { electionDefinition } = primaryElectionFixtures;
+    const savedElection = fs.readFileSync(
+      join(primaryElectionDir, 'election.json'),
+      'utf8'
+    );
+    expect(safeParseElection(savedElection).ok()).toEqual(
+      electionDefinition.election
+    );
+
+    const { fishParty, mammalParty } = primaryElectionFixtures;
+    const ballots = {
+      'fish-blank-ballot': fishParty.blankBallot,
+      'fish-marked-ballot': fishParty.markedBallot,
+      'mammal-blank-ballot': mammalParty.blankBallot,
+      'mammal-marked-ballot': mammalParty.markedBallot,
+    } as const;
+    for (const [label, document] of Object.entries(ballots)) {
+      await checkBallotFixture(primaryElectionDir, label, document);
+    }
+  });
 });
