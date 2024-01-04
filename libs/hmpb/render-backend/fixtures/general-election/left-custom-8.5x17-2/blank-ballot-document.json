@@ -1798,7 +1798,7 @@
           "x": 0,
           "y": 0,
           "width": 542.0571428571428,
-          "height": 760.3636363636366,
+          "height": 797.4545454545456,
           "children": [
             {
               "type": "Rectangle",
@@ -1851,7 +1851,7 @@
                           "width": 155.62285714285713,
                           "height": 10,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
@@ -2306,7 +2306,7 @@
                           "width": 155.62285714285713,
                           "height": 10,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
@@ -2822,7 +2822,7 @@
                           "width": 155.62285714285713,
                           "height": 10,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
@@ -3215,7 +3215,7 @@
                           "width": 155.62285714285713,
                           "height": 10,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
@@ -4325,7 +4325,7 @@
                           "width": 155.62285714285713,
                           "height": 10,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
@@ -4973,7 +4973,7 @@
                           "width": 155.62285714285713,
                           "height": 10,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
@@ -5159,7 +5159,7 @@
                           "width": 155.62285714285713,
                           "height": 10,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
@@ -5279,7 +5279,7 @@
                           "width": 155.62285714285713,
                           "height": 10,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
@@ -5494,14 +5494,14 @@
               "x": 384.68571428571425,
               "y": 120.54545454545456,
               "width": 192.34285714285713,
-              "height": 760.3636363636364,
+              "height": 797.4545454545455,
               "children": [
                 {
                   "type": "Rectangle",
                   "x": 0,
                   "y": 9.272727272727273,
                   "width": 192.34285714285713,
-                  "height": 324.5454545454547,
+                  "height": 343.0909090909092,
                   "stroke": "black",
                   "strokeWidth": 0.5,
                   "children": [
@@ -5518,7 +5518,7 @@
                       "x": 5.245714285714285,
                       "y": 5.5636363636363635,
                       "width": 181.85142857142856,
-                      "height": 21.25,
+                      "height": 31.25,
                       "children": [
                         {
                           "type": "TextBox",
@@ -5540,77 +5540,24 @@
                           "width": 181.85142857142856,
                           "height": 10,
                           "textLines": [
-                            "Vote for not more than 4"
+                            "Vote for up to 4"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
                           "lineHeight": 8
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Rectangle",
-                      "x": 0,
-                      "y": 18.545454545454547,
-                      "width": 192.34285714285713,
-                      "height": 18.545454545454547,
-                      "children": [
-                        {
-                          "type": "Bubble",
-                          "x": 10.285714285714285,
-                          "y": 13.865454545454547,
-                          "width": 14.4,
-                          "height": 9.36,
-                          "borderRadius": 5.040000000000001,
-                          "stroke": "black",
-                          "strokeWidth": 0.5,
-                          "fill": "none",
-                          "gridPosition": {
-                            "type": "option",
-                            "sheetNumber": 1,
-                            "side": "front",
-                            "contestId": "county-commissioners",
-                            "column": 22,
-                            "row": 8,
-                            "optionId": "argent"
-                          }
                         },
                         {
-                          "type": "Rectangle",
-                          "x": 30.599999999999998,
-                          "y": 10.2,
-                          "width": 152.99999999999997,
-                          "height": 17.5,
-                          "children": [
-                            {
-                              "type": "TextBox",
-                              "x": 0,
-                              "y": 0,
-                              "width": 152.99999999999997,
-                              "height": 10,
-                              "textLines": [
-                                "Camille Argent"
-                              ],
-                              "fontSize": 8,
-                              "fontWeight": 700,
-                              "lineHeight": 8,
-                              "align": "left"
-                            },
-                            {
-                              "type": "TextBox",
-                              "x": 0,
-                              "y": 10,
-                              "width": 152.99999999999997,
-                              "height": 7.5,
-                              "textLines": [
-                                "Federalist"
-                              ],
-                              "fontSize": 8,
-                              "fontWeight": 400,
-                              "lineHeight": 6,
-                              "align": "left"
-                            }
-                          ]
+                          "type": "TextBox",
+                          "x": 0,
+                          "y": 21.25,
+                          "width": 181.85142857142856,
+                          "height": 10,
+                          "textLines": [
+                            "4 will be elected"
+                          ],
+                          "fontSize": 8,
+                          "fontWeight": 400,
+                          "lineHeight": 8
                         }
                       ]
                     },
@@ -5638,7 +5585,7 @@
                             "contestId": "county-commissioners",
                             "column": 22,
                             "row": 9,
-                            "optionId": "witherspoonsmithson"
+                            "optionId": "argent"
                           }
                         },
                         {
@@ -5655,7 +5602,7 @@
                               "width": 152.99999999999997,
                               "height": 10,
                               "textLines": [
-                                "Chloe Witherspoon-Smithson"
+                                "Camille Argent"
                               ],
                               "fontSize": 8,
                               "fontWeight": 700,
@@ -5704,7 +5651,7 @@
                             "contestId": "county-commissioners",
                             "column": 22,
                             "row": 10,
-                            "optionId": "bainbridge"
+                            "optionId": "witherspoonsmithson"
                           }
                         },
                         {
@@ -5721,7 +5668,7 @@
                               "width": 152.99999999999997,
                               "height": 10,
                               "textLines": [
-                                "Clayton Bainbridge"
+                                "Chloe Witherspoon-Smithson"
                               ],
                               "fontSize": 8,
                               "fontWeight": 700,
@@ -5770,7 +5717,7 @@
                             "contestId": "county-commissioners",
                             "column": 22,
                             "row": 11,
-                            "optionId": "hennessey"
+                            "optionId": "bainbridge"
                           }
                         },
                         {
@@ -5787,7 +5734,7 @@
                               "width": 152.99999999999997,
                               "height": 10,
                               "textLines": [
-                                "Charlene Hennessey"
+                                "Clayton Bainbridge"
                               ],
                               "fontSize": 8,
                               "fontWeight": 700,
@@ -5801,7 +5748,7 @@
                               "width": 152.99999999999997,
                               "height": 7.5,
                               "textLines": [
-                                "People’s"
+                                "Federalist"
                               ],
                               "fontSize": 8,
                               "fontWeight": 400,
@@ -5836,7 +5783,7 @@
                             "contestId": "county-commissioners",
                             "column": 22,
                             "row": 12,
-                            "optionId": "savoy"
+                            "optionId": "hennessey"
                           }
                         },
                         {
@@ -5853,7 +5800,7 @@
                               "width": 152.99999999999997,
                               "height": 10,
                               "textLines": [
-                                "Eric Savoy"
+                                "Charlene Hennessey"
                               ],
                               "fontSize": 8,
                               "fontWeight": 700,
@@ -5902,7 +5849,7 @@
                             "contestId": "county-commissioners",
                             "column": 22,
                             "row": 13,
-                            "optionId": "tawa"
+                            "optionId": "savoy"
                           }
                         },
                         {
@@ -5919,7 +5866,7 @@
                               "width": 152.99999999999997,
                               "height": 10,
                               "textLines": [
-                                "Susan Tawa"
+                                "Eric Savoy"
                               ],
                               "fontSize": 8,
                               "fontWeight": 700,
@@ -5968,7 +5915,7 @@
                             "contestId": "county-commissioners",
                             "column": 22,
                             "row": 14,
-                            "optionId": "tawa-mary"
+                            "optionId": "tawa"
                           }
                         },
                         {
@@ -5985,7 +5932,7 @@
                               "width": 152.99999999999997,
                               "height": 10,
                               "textLines": [
-                                "Mary Tawa"
+                                "Susan Tawa"
                               ],
                               "fontSize": 8,
                               "fontWeight": 700,
@@ -6034,6 +5981,72 @@
                             "contestId": "county-commissioners",
                             "column": 22,
                             "row": 15,
+                            "optionId": "tawa-mary"
+                          }
+                        },
+                        {
+                          "type": "Rectangle",
+                          "x": 30.599999999999998,
+                          "y": 10.2,
+                          "width": 152.99999999999997,
+                          "height": 17.5,
+                          "children": [
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 0,
+                              "width": 152.99999999999997,
+                              "height": 10,
+                              "textLines": [
+                                "Mary Tawa"
+                              ],
+                              "fontSize": 8,
+                              "fontWeight": 700,
+                              "lineHeight": 8,
+                              "align": "left"
+                            },
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 10,
+                              "width": 152.99999999999997,
+                              "height": 7.5,
+                              "textLines": [
+                                "People’s"
+                              ],
+                              "fontSize": 8,
+                              "fontWeight": 400,
+                              "lineHeight": 6,
+                              "align": "left"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Rectangle",
+                      "x": 0,
+                      "y": 166.90909090909093,
+                      "width": 192.34285714285713,
+                      "height": 18.545454545454547,
+                      "children": [
+                        {
+                          "type": "Bubble",
+                          "x": 10.285714285714285,
+                          "y": 13.865454545454547,
+                          "width": 14.4,
+                          "height": 9.36,
+                          "borderRadius": 5.040000000000001,
+                          "stroke": "black",
+                          "strokeWidth": 0.5,
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "county-commissioners",
+                            "column": 22,
+                            "row": 16,
                             "optionId": "rangel-damian"
                           }
                         },
@@ -6079,72 +6092,6 @@
                     {
                       "type": "Rectangle",
                       "x": 0,
-                      "y": 166.90909090909093,
-                      "width": 192.34285714285713,
-                      "height": 18.545454545454547,
-                      "children": [
-                        {
-                          "type": "Bubble",
-                          "x": 10.285714285714285,
-                          "y": 13.865454545454547,
-                          "width": 14.4,
-                          "height": 9.36,
-                          "borderRadius": 5.040000000000001,
-                          "stroke": "black",
-                          "strokeWidth": 0.5,
-                          "fill": "none",
-                          "gridPosition": {
-                            "type": "option",
-                            "sheetNumber": 1,
-                            "side": "front",
-                            "contestId": "county-commissioners",
-                            "column": 22,
-                            "row": 16,
-                            "optionId": "altman"
-                          }
-                        },
-                        {
-                          "type": "Rectangle",
-                          "x": 30.599999999999998,
-                          "y": 10.2,
-                          "width": 152.99999999999997,
-                          "height": 17.5,
-                          "children": [
-                            {
-                              "type": "TextBox",
-                              "x": 0,
-                              "y": 0,
-                              "width": 152.99999999999997,
-                              "height": 10,
-                              "textLines": [
-                                "Valarie Altman"
-                              ],
-                              "fontSize": 8,
-                              "fontWeight": 700,
-                              "lineHeight": 8,
-                              "align": "left"
-                            },
-                            {
-                              "type": "TextBox",
-                              "x": 0,
-                              "y": 10,
-                              "width": 152.99999999999997,
-                              "height": 7.5,
-                              "textLines": [
-                                "Constitution"
-                              ],
-                              "fontSize": 8,
-                              "fontWeight": 400,
-                              "lineHeight": 6,
-                              "align": "left"
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Rectangle",
-                      "x": 0,
                       "y": 185.45454545454547,
                       "width": 192.34285714285713,
                       "height": 18.545454545454547,
@@ -6166,7 +6113,7 @@
                             "contestId": "county-commissioners",
                             "column": 22,
                             "row": 17,
-                            "optionId": "moore"
+                            "optionId": "altman"
                           }
                         },
                         {
@@ -6183,7 +6130,7 @@
                               "width": 152.99999999999997,
                               "height": 10,
                               "textLines": [
-                                "Helen Moore"
+                                "Valarie Altman"
                               ],
                               "fontSize": 8,
                               "fontWeight": 700,
@@ -6232,6 +6179,72 @@
                             "contestId": "county-commissioners",
                             "column": 22,
                             "row": 18,
+                            "optionId": "moore"
+                          }
+                        },
+                        {
+                          "type": "Rectangle",
+                          "x": 30.599999999999998,
+                          "y": 10.2,
+                          "width": 152.99999999999997,
+                          "height": 17.5,
+                          "children": [
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 0,
+                              "width": 152.99999999999997,
+                              "height": 10,
+                              "textLines": [
+                                "Helen Moore"
+                              ],
+                              "fontSize": 8,
+                              "fontWeight": 700,
+                              "lineHeight": 8,
+                              "align": "left"
+                            },
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 10,
+                              "width": 152.99999999999997,
+                              "height": 7.5,
+                              "textLines": [
+                                "Constitution"
+                              ],
+                              "fontSize": 8,
+                              "fontWeight": 400,
+                              "lineHeight": 6,
+                              "align": "left"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Rectangle",
+                      "x": 0,
+                      "y": 222.54545454545456,
+                      "width": 192.34285714285713,
+                      "height": 18.545454545454547,
+                      "children": [
+                        {
+                          "type": "Bubble",
+                          "x": 10.285714285714285,
+                          "y": 13.865454545454547,
+                          "width": 14.4,
+                          "height": 9.36,
+                          "borderRadius": 5.040000000000001,
+                          "stroke": "black",
+                          "strokeWidth": 0.5,
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "county-commissioners",
+                            "column": 22,
+                            "row": 19,
                             "optionId": "schreiner"
                           }
                         },
@@ -6277,63 +6290,6 @@
                     {
                       "type": "Rectangle",
                       "x": 0,
-                      "y": 222.54545454545456,
-                      "width": 192.34285714285713,
-                      "height": 18.545454545454547,
-                      "children": [
-                        {
-                          "type": "Bubble",
-                          "x": 10.285714285714285,
-                          "y": 13.865454545454547,
-                          "width": 14.4,
-                          "height": 9.36,
-                          "borderRadius": 5.040000000000001,
-                          "stroke": "black",
-                          "strokeWidth": 0.5,
-                          "fill": "none",
-                          "gridPosition": {
-                            "type": "write-in",
-                            "sheetNumber": 1,
-                            "side": "front",
-                            "contestId": "county-commissioners",
-                            "column": 22,
-                            "row": 19,
-                            "writeInIndex": 0,
-                            "writeInArea": {
-                              "x": 22.75,
-                              "y": 18.75,
-                              "width": 9,
-                              "height": 0.45
-                            }
-                          }
-                        },
-                        {
-                          "type": "Rectangle",
-                          "x": 30.599999999999998,
-                          "y": 23.181818181818183,
-                          "width": 152.99999999999997,
-                          "height": 0.5,
-                          "fill": "black"
-                        },
-                        {
-                          "type": "TextBox",
-                          "x": 30.599999999999998,
-                          "y": 24.109090909090913,
-                          "width": 148.6285714285714,
-                          "height": 18.545454545454547,
-                          "textLines": [
-                            "write-in"
-                          ],
-                          "fontSize": 7,
-                          "fontWeight": 400,
-                          "lineHeight": 7,
-                          "align": "left"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Rectangle",
-                      "x": 0,
                       "y": 241.09090909090912,
                       "width": 192.34285714285713,
                       "height": 18.545454545454547,
@@ -6355,7 +6311,7 @@
                             "contestId": "county-commissioners",
                             "column": 22,
                             "row": 20,
-                            "writeInIndex": 1,
+                            "writeInIndex": 0,
                             "writeInArea": {
                               "x": 22.75,
                               "y": 19.75,
@@ -6412,7 +6368,7 @@
                             "contestId": "county-commissioners",
                             "column": 22,
                             "row": 21,
-                            "writeInIndex": 2,
+                            "writeInIndex": 1,
                             "writeInArea": {
                               "x": 22.75,
                               "y": 20.75,
@@ -6469,10 +6425,67 @@
                             "contestId": "county-commissioners",
                             "column": 22,
                             "row": 22,
-                            "writeInIndex": 3,
+                            "writeInIndex": 2,
                             "writeInArea": {
                               "x": 22.75,
                               "y": 21.75,
+                              "width": 9,
+                              "height": 0.45
+                            }
+                          }
+                        },
+                        {
+                          "type": "Rectangle",
+                          "x": 30.599999999999998,
+                          "y": 23.181818181818183,
+                          "width": 152.99999999999997,
+                          "height": 0.5,
+                          "fill": "black"
+                        },
+                        {
+                          "type": "TextBox",
+                          "x": 30.599999999999998,
+                          "y": 24.109090909090913,
+                          "width": 148.6285714285714,
+                          "height": 18.545454545454547,
+                          "textLines": [
+                            "write-in"
+                          ],
+                          "fontSize": 7,
+                          "fontWeight": 400,
+                          "lineHeight": 7,
+                          "align": "left"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Rectangle",
+                      "x": 0,
+                      "y": 296.72727272727275,
+                      "width": 192.34285714285713,
+                      "height": 18.545454545454547,
+                      "children": [
+                        {
+                          "type": "Bubble",
+                          "x": 10.285714285714285,
+                          "y": 13.865454545454547,
+                          "width": 14.4,
+                          "height": 9.36,
+                          "borderRadius": 5.040000000000001,
+                          "stroke": "black",
+                          "strokeWidth": 0.5,
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "county-commissioners",
+                            "column": 22,
+                            "row": 23,
+                            "writeInIndex": 3,
+                            "writeInArea": {
+                              "x": 22.75,
+                              "y": 22.75,
                               "width": 9,
                               "height": 0.45
                             }
@@ -6507,7 +6520,7 @@
                 {
                   "type": "Rectangle",
                   "x": 0,
-                  "y": 343.0909090909091,
+                  "y": 361.6363636363637,
                   "width": 192.34285714285713,
                   "height": 83.45454545454547,
                   "stroke": "black",
@@ -6548,7 +6561,7 @@
                           "width": 181.85142857142856,
                           "height": 10,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
@@ -6579,7 +6592,7 @@
                             "side": "front",
                             "contestId": "county-registrar-of-wills",
                             "column": 22,
-                            "row": 26,
+                            "row": 27,
                             "optionId": "ramachandrani"
                           }
                         },
@@ -6645,11 +6658,11 @@
                             "side": "front",
                             "contestId": "county-registrar-of-wills",
                             "column": 22,
-                            "row": 27,
+                            "row": 28,
                             "writeInIndex": 0,
                             "writeInArea": {
                               "x": 22.75,
-                              "y": 26.75,
+                              "y": 27.75,
                               "width": 9,
                               "height": 0.45
                             }
@@ -6684,7 +6697,7 @@
                 {
                   "type": "Rectangle",
                   "x": 0,
-                  "y": 435.81818181818187,
+                  "y": 454.3636363636364,
                   "width": 192.34285714285713,
                   "height": 102,
                   "stroke": "black",
@@ -6725,7 +6738,7 @@
                           "width": 181.85142857142856,
                           "height": 10,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
@@ -6756,7 +6769,7 @@
                             "side": "front",
                             "contestId": "city-mayor",
                             "column": 22,
-                            "row": 31,
+                            "row": 32,
                             "optionId": "white"
                           }
                         },
@@ -6822,7 +6835,7 @@
                             "side": "front",
                             "contestId": "city-mayor",
                             "column": 22,
-                            "row": 32,
+                            "row": 33,
                             "optionId": "seldon"
                           }
                         },
@@ -6888,11 +6901,11 @@
                             "side": "front",
                             "contestId": "city-mayor",
                             "column": 22,
-                            "row": 33,
+                            "row": 34,
                             "writeInIndex": 0,
                             "writeInArea": {
                               "x": 22.75,
-                              "y": 32.75,
+                              "y": 33.75,
                               "width": 9,
                               "height": 0.45
                             }
@@ -6927,9 +6940,9 @@
                 {
                   "type": "Rectangle",
                   "x": 0,
-                  "y": 547.0909090909091,
+                  "y": 565.6363636363636,
                   "width": 192.34285714285713,
-                  "height": 213.27272727272734,
+                  "height": 231.81818181818184,
                   "stroke": "black",
                   "strokeWidth": 0.5,
                   "children": [
@@ -6946,7 +6959,7 @@
                       "x": 5.245714285714285,
                       "y": 5.5636363636363635,
                       "width": 181.85142857142856,
-                      "height": 21.25,
+                      "height": 31.25,
                       "children": [
                         {
                           "type": "TextBox",
@@ -6968,77 +6981,24 @@
                           "width": 181.85142857142856,
                           "height": 10,
                           "textLines": [
-                            "Vote for not more than 3"
+                            "Vote for up to 3"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
                           "lineHeight": 8
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Rectangle",
-                      "x": 0,
-                      "y": 18.545454545454547,
-                      "width": 192.34285714285713,
-                      "height": 18.545454545454547,
-                      "children": [
-                        {
-                          "type": "Bubble",
-                          "x": 10.285714285714285,
-                          "y": 13.865454545454547,
-                          "width": 14.4,
-                          "height": 9.36,
-                          "borderRadius": 5.040000000000001,
-                          "stroke": "black",
-                          "strokeWidth": 0.5,
-                          "fill": "none",
-                          "gridPosition": {
-                            "type": "option",
-                            "sheetNumber": 1,
-                            "side": "front",
-                            "contestId": "city-council",
-                            "column": 22,
-                            "row": 37,
-                            "optionId": "eagle"
-                          }
                         },
                         {
-                          "type": "Rectangle",
-                          "x": 30.599999999999998,
-                          "y": 10.2,
-                          "width": 152.99999999999997,
-                          "height": 17.5,
-                          "children": [
-                            {
-                              "type": "TextBox",
-                              "x": 0,
-                              "y": 0,
-                              "width": 152.99999999999997,
-                              "height": 10,
-                              "textLines": [
-                                "Harvey Eagle"
-                              ],
-                              "fontSize": 8,
-                              "fontWeight": 700,
-                              "lineHeight": 8,
-                              "align": "left"
-                            },
-                            {
-                              "type": "TextBox",
-                              "x": 0,
-                              "y": 10,
-                              "width": 152.99999999999997,
-                              "height": 7.5,
-                              "textLines": [
-                                "Federalist"
-                              ],
-                              "fontSize": 8,
-                              "fontWeight": 400,
-                              "lineHeight": 6,
-                              "align": "left"
-                            }
-                          ]
+                          "type": "TextBox",
+                          "x": 0,
+                          "y": 21.25,
+                          "width": 181.85142857142856,
+                          "height": 10,
+                          "textLines": [
+                            "3 will be elected"
+                          ],
+                          "fontSize": 8,
+                          "fontWeight": 400,
+                          "lineHeight": 8
                         }
                       ]
                     },
@@ -7065,8 +7025,8 @@
                             "side": "front",
                             "contestId": "city-council",
                             "column": 22,
-                            "row": 38,
-                            "optionId": "rupp"
+                            "row": 39,
+                            "optionId": "eagle"
                           }
                         },
                         {
@@ -7083,7 +7043,7 @@
                               "width": 152.99999999999997,
                               "height": 10,
                               "textLines": [
-                                "Randall Rupp"
+                                "Harvey Eagle"
                               ],
                               "fontSize": 8,
                               "fontWeight": 700,
@@ -7131,8 +7091,8 @@
                             "side": "front",
                             "contestId": "city-council",
                             "column": 22,
-                            "row": 39,
-                            "optionId": "shry"
+                            "row": 40,
+                            "optionId": "rupp"
                           }
                         },
                         {
@@ -7149,7 +7109,7 @@
                               "width": 152.99999999999997,
                               "height": 10,
                               "textLines": [
-                                "Carroll Shry"
+                                "Randall Rupp"
                               ],
                               "fontSize": 8,
                               "fontWeight": 700,
@@ -7197,8 +7157,8 @@
                             "side": "front",
                             "contestId": "city-council",
                             "column": 22,
-                            "row": 40,
-                            "optionId": "barker"
+                            "row": 41,
+                            "optionId": "shry"
                           }
                         },
                         {
@@ -7215,7 +7175,7 @@
                               "width": 152.99999999999997,
                               "height": 10,
                               "textLines": [
-                                "Beverly Barker"
+                                "Carroll Shry"
                               ],
                               "fontSize": 8,
                               "fontWeight": 700,
@@ -7229,7 +7189,7 @@
                               "width": 152.99999999999997,
                               "height": 7.5,
                               "textLines": [
-                                "People’s"
+                                "Federalist"
                               ],
                               "fontSize": 8,
                               "fontWeight": 400,
@@ -7263,8 +7223,8 @@
                             "side": "front",
                             "contestId": "city-council",
                             "column": 22,
-                            "row": 41,
-                            "optionId": "davis"
+                            "row": 42,
+                            "optionId": "barker"
                           }
                         },
                         {
@@ -7281,7 +7241,7 @@
                               "width": 152.99999999999997,
                               "height": 10,
                               "textLines": [
-                                "Donald Davis"
+                                "Beverly Barker"
                               ],
                               "fontSize": 8,
                               "fontWeight": 700,
@@ -7329,7 +7289,73 @@
                             "side": "front",
                             "contestId": "city-council",
                             "column": 22,
-                            "row": 42,
+                            "row": 43,
+                            "optionId": "davis"
+                          }
+                        },
+                        {
+                          "type": "Rectangle",
+                          "x": 30.599999999999998,
+                          "y": 10.2,
+                          "width": 152.99999999999997,
+                          "height": 17.5,
+                          "children": [
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 0,
+                              "width": 152.99999999999997,
+                              "height": 10,
+                              "textLines": [
+                                "Donald Davis"
+                              ],
+                              "fontSize": 8,
+                              "fontWeight": 700,
+                              "lineHeight": 8,
+                              "align": "left"
+                            },
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 10,
+                              "width": 152.99999999999997,
+                              "height": 7.5,
+                              "textLines": [
+                                "People’s"
+                              ],
+                              "fontSize": 8,
+                              "fontWeight": 400,
+                              "lineHeight": 6,
+                              "align": "left"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Rectangle",
+                      "x": 0,
+                      "y": 129.8181818181818,
+                      "width": 192.34285714285713,
+                      "height": 18.545454545454547,
+                      "children": [
+                        {
+                          "type": "Bubble",
+                          "x": 10.285714285714285,
+                          "y": 13.865454545454547,
+                          "width": 14.4,
+                          "height": 9.36,
+                          "borderRadius": 5.040000000000001,
+                          "stroke": "black",
+                          "strokeWidth": 0.5,
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "option",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "city-council",
+                            "column": 22,
+                            "row": 44,
                             "optionId": "smith"
                           }
                         },
@@ -7375,63 +7401,6 @@
                     {
                       "type": "Rectangle",
                       "x": 0,
-                      "y": 129.8181818181818,
-                      "width": 192.34285714285713,
-                      "height": 18.545454545454547,
-                      "children": [
-                        {
-                          "type": "Bubble",
-                          "x": 10.285714285714285,
-                          "y": 13.865454545454547,
-                          "width": 14.4,
-                          "height": 9.36,
-                          "borderRadius": 5.040000000000001,
-                          "stroke": "black",
-                          "strokeWidth": 0.5,
-                          "fill": "none",
-                          "gridPosition": {
-                            "type": "write-in",
-                            "sheetNumber": 1,
-                            "side": "front",
-                            "contestId": "city-council",
-                            "column": 22,
-                            "row": 43,
-                            "writeInIndex": 0,
-                            "writeInArea": {
-                              "x": 22.75,
-                              "y": 42.75,
-                              "width": 9,
-                              "height": 0.45
-                            }
-                          }
-                        },
-                        {
-                          "type": "Rectangle",
-                          "x": 30.599999999999998,
-                          "y": 23.181818181818183,
-                          "width": 152.99999999999997,
-                          "height": 0.5,
-                          "fill": "black"
-                        },
-                        {
-                          "type": "TextBox",
-                          "x": 30.599999999999998,
-                          "y": 24.109090909090913,
-                          "width": 148.6285714285714,
-                          "height": 18.545454545454547,
-                          "textLines": [
-                            "write-in"
-                          ],
-                          "fontSize": 7,
-                          "fontWeight": 400,
-                          "lineHeight": 7,
-                          "align": "left"
-                        }
-                      ]
-                    },
-                    {
-                      "type": "Rectangle",
-                      "x": 0,
                       "y": 148.36363636363637,
                       "width": 192.34285714285713,
                       "height": 18.545454545454547,
@@ -7452,11 +7421,11 @@
                             "side": "front",
                             "contestId": "city-council",
                             "column": 22,
-                            "row": 44,
-                            "writeInIndex": 1,
+                            "row": 45,
+                            "writeInIndex": 0,
                             "writeInArea": {
                               "x": 22.75,
-                              "y": 43.75,
+                              "y": 44.75,
                               "width": 9,
                               "height": 0.45
                             }
@@ -7509,11 +7478,68 @@
                             "side": "front",
                             "contestId": "city-council",
                             "column": 22,
-                            "row": 45,
+                            "row": 46,
+                            "writeInIndex": 1,
+                            "writeInArea": {
+                              "x": 22.75,
+                              "y": 45.75,
+                              "width": 9,
+                              "height": 0.45
+                            }
+                          }
+                        },
+                        {
+                          "type": "Rectangle",
+                          "x": 30.599999999999998,
+                          "y": 23.181818181818183,
+                          "width": 152.99999999999997,
+                          "height": 0.5,
+                          "fill": "black"
+                        },
+                        {
+                          "type": "TextBox",
+                          "x": 30.599999999999998,
+                          "y": 24.109090909090913,
+                          "width": 148.6285714285714,
+                          "height": 18.545454545454547,
+                          "textLines": [
+                            "write-in"
+                          ],
+                          "fontSize": 7,
+                          "fontWeight": 400,
+                          "lineHeight": 7,
+                          "align": "left"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "Rectangle",
+                      "x": 0,
+                      "y": 185.45454545454547,
+                      "width": 192.34285714285713,
+                      "height": 18.545454545454547,
+                      "children": [
+                        {
+                          "type": "Bubble",
+                          "x": 10.285714285714285,
+                          "y": 13.865454545454547,
+                          "width": 14.4,
+                          "height": 9.36,
+                          "borderRadius": 5.040000000000001,
+                          "stroke": "black",
+                          "strokeWidth": 0.5,
+                          "fill": "none",
+                          "gridPosition": {
+                            "type": "write-in",
+                            "sheetNumber": 1,
+                            "side": "front",
+                            "contestId": "city-council",
+                            "column": 22,
+                            "row": 47,
                             "writeInIndex": 2,
                             "writeInArea": {
                               "x": 22.75,
-                              "y": 44.75,
+                              "y": 46.75,
                               "width": 9,
                               "height": 0.45
                             }
@@ -7559,7 +7585,7 @@
             {
               "type": "Rectangle",
               "x": 34.97142857142857,
-              "y": 880.909090909091,
+              "y": 918.0000000000001,
               "width": 542.0571428571428,
               "height": 222.54545454545456,
               "children": [
@@ -7638,7 +7664,7 @@
                             "side": "front",
                             "contestId": "judicial-robert-demergue",
                             "column": 30,
-                            "row": 48,
+                            "row": 50,
                             "optionId": "judicial-robert-demergue-option-yes"
                           }
                         },
@@ -7681,7 +7707,7 @@
                             "side": "front",
                             "contestId": "judicial-robert-demergue",
                             "column": 30,
-                            "row": 49,
+                            "row": 51,
                             "optionId": "judicial-robert-demergue-option-no"
                           }
                         },
@@ -7778,7 +7804,7 @@
                             "side": "front",
                             "contestId": "judicial-elmer-hull",
                             "column": 30,
-                            "row": 52,
+                            "row": 54,
                             "optionId": "judicial-elmer-hull-option-yes"
                           }
                         },
@@ -7821,7 +7847,7 @@
                             "side": "front",
                             "contestId": "judicial-elmer-hull",
                             "column": 30,
-                            "row": 53,
+                            "row": 55,
                             "optionId": "judicial-elmer-hull-option-no"
                           }
                         },
@@ -7920,7 +7946,7 @@
                             "side": "front",
                             "contestId": "question-a",
                             "column": 30,
-                            "row": 56,
+                            "row": 58,
                             "optionId": "question-a-option-yes"
                           }
                         },
@@ -7963,7 +7989,7 @@
                             "side": "front",
                             "contestId": "question-a",
                             "column": 30,
-                            "row": 57,
+                            "row": 59,
                             "optionId": "question-a-option-no"
                           }
                         },
@@ -8081,20 +8107,12 @@
                   "y": 10.342285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 0,
-                  "y": 11.491428571428573,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
                   "fill": "white"
                 },
                 {
                   "type": "Rectangle",
                   "x": 0,
-                  "y": 12.64057142857143,
+                  "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "white"
@@ -8102,6 +8120,14 @@
                 {
                   "type": "Rectangle",
                   "x": 0,
+                  "y": 12.64057142857143,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 0,
                   "y": 13.789714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
@@ -8113,20 +8139,12 @@
                   "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 0,
-                  "y": 16.088,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
                   "fill": "white"
                 },
                 {
                   "type": "Rectangle",
                   "x": 0,
-                  "y": 17.23714285714286,
+                  "y": 16.088,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "white"
@@ -8134,10 +8152,18 @@
                 {
                   "type": "Rectangle",
                   "x": 0,
-                  "y": 18.386285714285716,
+                  "y": 17.23714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 0,
+                  "y": 18.386285714285716,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -8281,28 +8307,12 @@
                   "y": 10.342285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 1.1491428571428572,
                   "y": 11.491428571428573,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 1.1491428571428572,
-                  "y": 12.64057142857143,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 1.1491428571428572,
-                  "y": 13.789714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "black"
@@ -8310,6 +8320,22 @@
                 {
                   "type": "Rectangle",
                   "x": 1.1491428571428572,
+                  "y": 12.64057142857143,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 1.1491428571428572,
+                  "y": 13.789714285714286,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 1.1491428571428572,
                   "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
@@ -8321,28 +8347,12 @@
                   "y": 16.088,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 1.1491428571428572,
-                  "y": 17.23714285714286,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 1.1491428571428572,
-                  "y": 18.386285714285716,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
                   "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 1.1491428571428572,
-                  "y": 19.53542857142857,
+                  "y": 17.23714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "white"
@@ -8350,6 +8360,22 @@
                 {
                   "type": "Rectangle",
                   "x": 1.1491428571428572,
+                  "y": 18.386285714285716,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 1.1491428571428572,
+                  "y": 19.53542857142857,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 1.1491428571428572,
                   "y": 20.68457142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
@@ -8473,20 +8499,12 @@
                   "y": 9.193142857142858,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 2.2982857142857145,
                   "y": 10.342285714285715,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 2.2982857142857145,
-                  "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "black"
@@ -8494,10 +8512,18 @@
                 {
                   "type": "Rectangle",
                   "x": 2.2982857142857145,
-                  "y": 12.64057142857143,
+                  "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 2.2982857142857145,
+                  "y": 12.64057142857143,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -8529,28 +8555,12 @@
                   "y": 17.23714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 2.2982857142857145,
-                  "y": 18.386285714285716,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 2.2982857142857145,
-                  "y": 19.53542857142857,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
                   "fill": "white"
                 },
                 {
                   "type": "Rectangle",
                   "x": 2.2982857142857145,
-                  "y": 20.68457142857143,
+                  "y": 18.386285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "black"
@@ -8558,6 +8568,22 @@
                 {
                   "type": "Rectangle",
                   "x": 2.2982857142857145,
+                  "y": 19.53542857142857,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 2.2982857142857145,
+                  "y": 20.68457142857143,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 2.2982857142857145,
                   "y": 21.833714285714287,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
@@ -8673,20 +8699,12 @@
                   "y": 9.193142857142858,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 3.4474285714285715,
-                  "y": 10.342285714285715,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
                   "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 3.4474285714285715,
-                  "y": 11.491428571428573,
+                  "y": 10.342285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "white"
@@ -8694,10 +8712,18 @@
                 {
                   "type": "Rectangle",
                   "x": 3.4474285714285715,
-                  "y": 12.64057142857143,
+                  "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 3.4474285714285715,
+                  "y": 12.64057142857143,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -8713,20 +8739,12 @@
                   "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 3.4474285714285715,
                   "y": 16.088,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 3.4474285714285715,
-                  "y": 17.23714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "white"
@@ -8734,6 +8752,14 @@
                 {
                   "type": "Rectangle",
                   "x": 3.4474285714285715,
+                  "y": 17.23714285714286,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 3.4474285714285715,
                   "y": 18.386285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
@@ -8873,20 +8899,12 @@
                   "y": 9.193142857142858,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 4.596571428571429,
-                  "y": 10.342285714285715,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
                   "fill": "white"
                 },
                 {
                   "type": "Rectangle",
                   "x": 4.596571428571429,
-                  "y": 11.491428571428573,
+                  "y": 10.342285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "white"
@@ -8894,6 +8912,14 @@
                 {
                   "type": "Rectangle",
                   "x": 4.596571428571429,
+                  "y": 11.491428571428573,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 4.596571428571429,
                   "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
@@ -8913,28 +8939,12 @@
                   "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
                   "x": 4.596571428571429,
                   "y": 16.088,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 4.596571428571429,
-                  "y": 17.23714285714286,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 4.596571428571429,
-                  "y": 18.386285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "white"
@@ -8942,6 +8952,22 @@
                 {
                   "type": "Rectangle",
                   "x": 4.596571428571429,
+                  "y": 17.23714285714286,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 4.596571428571429,
+                  "y": 18.386285714285716,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 4.596571428571429,
                   "y": 19.53542857142857,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
@@ -9073,28 +9099,12 @@
                   "y": 9.193142857142858,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 5.745714285714286,
                   "y": 10.342285714285715,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 5.745714285714286,
-                  "y": 11.491428571428573,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 5.745714285714286,
-                  "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "white"
@@ -9102,23 +9112,7 @@
                 {
                   "type": "Rectangle",
                   "x": 5.745714285714286,
-                  "y": 13.789714285714286,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 5.745714285714286,
-                  "y": 14.938857142857144,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 5.745714285714286,
-                  "y": 16.088,
+                  "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "white"
@@ -9126,10 +9120,42 @@
                 {
                   "type": "Rectangle",
                   "x": 5.745714285714286,
-                  "y": 17.23714285714286,
+                  "y": 12.64057142857143,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 5.745714285714286,
+                  "y": 13.789714285714286,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 5.745714285714286,
+                  "y": 14.938857142857144,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 5.745714285714286,
+                  "y": 16.088,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 5.745714285714286,
+                  "y": 17.23714285714286,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -9481,28 +9507,12 @@
                   "y": 10.342285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
                   "x": 8.044,
                   "y": 11.491428571428573,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 8.044,
-                  "y": 12.64057142857143,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 8.044,
-                  "y": 13.789714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "black"
@@ -9510,6 +9520,22 @@
                 {
                   "type": "Rectangle",
                   "x": 8.044,
+                  "y": 12.64057142857143,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 8.044,
+                  "y": 13.789714285714286,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 8.044,
                   "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
@@ -9521,20 +9547,12 @@
                   "y": 16.088,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 8.044,
-                  "y": 17.23714285714286,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
                   "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 8.044,
-                  "y": 18.386285714285716,
+                  "y": 17.23714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "white"
@@ -9542,6 +9560,14 @@
                 {
                   "type": "Rectangle",
                   "x": 8.044,
+                  "y": 18.386285714285716,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 8.044,
                   "y": 19.53542857142857,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
@@ -9617,7 +9643,7 @@
                   "y": 1.1491428571428572,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -9641,7 +9667,7 @@
                   "y": 4.596571428571429,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -9649,7 +9675,7 @@
                   "y": 5.745714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -9673,7 +9699,7 @@
                   "y": 9.193142857142858,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -9689,7 +9715,7 @@
                   "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -9697,7 +9723,7 @@
                   "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -9713,7 +9739,7 @@
                   "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -9721,7 +9747,7 @@
                   "y": 16.088,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -9761,7 +9787,7 @@
                   "y": 21.833714285714287,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -9769,7 +9795,7 @@
                   "y": 22.982857142857146,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -9777,7 +9803,7 @@
                   "y": 24.132,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -9785,7 +9811,7 @@
                   "y": 25.28114285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -9817,7 +9843,7 @@
                   "y": 1.1491428571428572,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -9833,7 +9859,7 @@
                   "y": 3.4474285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -9841,7 +9867,7 @@
                   "y": 4.596571428571429,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -9865,7 +9891,7 @@
                   "y": 8.044,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -9873,7 +9899,7 @@
                   "y": 9.193142857142858,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -9881,7 +9907,7 @@
                   "y": 10.342285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -9905,7 +9931,7 @@
                   "y": 13.789714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -9929,7 +9955,7 @@
                   "y": 17.23714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -9937,7 +9963,7 @@
                   "y": 18.386285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -9961,7 +9987,7 @@
                   "y": 21.833714285714287,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -9985,7 +10011,7 @@
                   "y": 25.28114285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -9993,7 +10019,7 @@
                   "y": 26.430285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10001,7 +10027,7 @@
                   "y": 27.579428571428572,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10017,7 +10043,7 @@
                   "y": 1.1491428571428572,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10033,7 +10059,7 @@
                   "y": 3.4474285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10065,7 +10091,7 @@
                   "y": 8.044,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10081,7 +10107,7 @@
                   "y": 10.342285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10097,7 +10123,7 @@
                   "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10105,7 +10131,7 @@
                   "y": 13.789714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10113,7 +10139,7 @@
                   "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10129,7 +10155,7 @@
                   "y": 17.23714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10137,7 +10163,7 @@
                   "y": 18.386285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10161,7 +10187,7 @@
                   "y": 21.833714285714287,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10177,7 +10203,7 @@
                   "y": 24.132,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10217,7 +10243,7 @@
                   "y": 1.1491428571428572,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10225,7 +10251,7 @@
                   "y": 2.2982857142857145,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10233,7 +10259,7 @@
                   "y": 3.4474285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10241,7 +10267,7 @@
                   "y": 4.596571428571429,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10273,7 +10299,7 @@
                   "y": 9.193142857142858,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10289,7 +10315,7 @@
                   "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10305,7 +10331,7 @@
                   "y": 13.789714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10313,7 +10339,7 @@
                   "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10321,7 +10347,7 @@
                   "y": 16.088,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10329,7 +10355,7 @@
                   "y": 17.23714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10337,7 +10363,7 @@
                   "y": 18.386285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10353,7 +10379,7 @@
                   "y": 20.68457142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10393,7 +10419,7 @@
                   "y": 26.430285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10417,7 +10443,7 @@
                   "y": 1.1491428571428572,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10433,7 +10459,7 @@
                   "y": 3.4474285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10441,7 +10467,7 @@
                   "y": 4.596571428571429,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10449,7 +10475,7 @@
                   "y": 5.745714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10465,7 +10491,7 @@
                   "y": 8.044,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10473,7 +10499,7 @@
                   "y": 9.193142857142858,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10481,7 +10507,7 @@
                   "y": 10.342285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10497,7 +10523,7 @@
                   "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10513,7 +10539,7 @@
                   "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10529,7 +10555,7 @@
                   "y": 17.23714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10537,7 +10563,7 @@
                   "y": 18.386285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10545,7 +10571,7 @@
                   "y": 19.53542857142857,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10553,7 +10579,7 @@
                   "y": 20.68457142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10569,7 +10595,7 @@
                   "y": 22.982857142857146,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10609,7 +10635,7 @@
                   "y": 0,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10625,7 +10651,7 @@
                   "y": 2.2982857142857145,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10641,7 +10667,7 @@
                   "y": 4.596571428571429,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10681,7 +10707,7 @@
                   "y": 10.342285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10697,7 +10723,7 @@
                   "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10705,7 +10731,7 @@
                   "y": 13.789714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10713,7 +10739,7 @@
                   "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10721,7 +10747,7 @@
                   "y": 16.088,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10737,7 +10763,7 @@
                   "y": 18.386285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10777,20 +10803,12 @@
                   "y": 24.132,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 14.938857142857144,
-                  "y": 25.28114285714286,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
                   "fill": "white"
                 },
                 {
                   "type": "Rectangle",
                   "x": 14.938857142857144,
-                  "y": 26.430285714285716,
+                  "y": 25.28114285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "white"
@@ -10798,10 +10816,18 @@
                 {
                   "type": "Rectangle",
                   "x": 14.938857142857144,
-                  "y": 27.579428571428572,
+                  "y": 26.430285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 14.938857142857144,
+                  "y": 27.579428571428572,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10817,7 +10843,7 @@
                   "y": 1.1491428571428572,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10849,7 +10875,7 @@
                   "y": 5.745714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10865,7 +10891,7 @@
                   "y": 8.044,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10873,7 +10899,7 @@
                   "y": 9.193142857142858,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10881,7 +10907,7 @@
                   "y": 10.342285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10889,7 +10915,7 @@
                   "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10905,7 +10931,7 @@
                   "y": 13.789714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10945,7 +10971,7 @@
                   "y": 19.53542857142857,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10961,7 +10987,7 @@
                   "y": 21.833714285714287,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10969,7 +10995,7 @@
                   "y": 22.982857142857146,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -10977,7 +11003,7 @@
                   "y": 24.132,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -10985,7 +11011,7 @@
                   "y": 25.28114285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -11001,7 +11027,7 @@
                   "y": 27.579428571428572,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -11025,7 +11051,7 @@
                   "y": 2.2982857142857145,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -11033,7 +11059,7 @@
                   "y": 3.4474285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -11041,7 +11067,7 @@
                   "y": 4.596571428571429,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -11089,7 +11115,7 @@
                   "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -11097,7 +11123,7 @@
                   "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -11105,7 +11131,7 @@
                   "y": 13.789714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -11113,7 +11139,7 @@
                   "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -11121,7 +11147,7 @@
                   "y": 16.088,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -11129,7 +11155,7 @@
                   "y": 17.23714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -11153,7 +11179,7 @@
                   "y": 20.68457142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -11161,7 +11187,7 @@
                   "y": 21.833714285714287,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -11177,31 +11203,31 @@
                   "y": 24.132,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 17.23714285714286,
-                  "y": 25.28114285714286,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 17.23714285714286,
-                  "y": 26.430285714285716,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
                   "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 17.23714285714286,
+                  "y": 25.28114285714286,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 17.23714285714286,
+                  "y": 26.430285714285716,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 17.23714285714286,
                   "y": 27.579428571428572,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -11225,7 +11251,7 @@
                   "y": 2.2982857142857145,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -11249,7 +11275,7 @@
                   "y": 5.745714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -11265,7 +11291,7 @@
                   "y": 8.044,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -11273,7 +11299,7 @@
                   "y": 9.193142857142858,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -11281,7 +11307,7 @@
                   "y": 10.342285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -11297,7 +11323,7 @@
                   "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -11305,7 +11331,7 @@
                   "y": 13.789714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -11385,7 +11411,7 @@
                   "y": 25.28114285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -11393,7 +11419,7 @@
                   "y": 26.430285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -11473,7 +11499,7 @@
                   "y": 9.193142857142858,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -11489,7 +11515,7 @@
                   "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -11497,7 +11523,7 @@
                   "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -11577,7 +11603,7 @@
                   "y": 24.132,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -11585,7 +11611,7 @@
                   "y": 25.28114285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -11689,7 +11715,7 @@
                   "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -11697,7 +11723,7 @@
                   "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -11713,7 +11739,7 @@
                   "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -11801,7 +11827,7 @@
                   "y": 27.579428571428572,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -11873,7 +11899,7 @@
                   "y": 9.193142857142858,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -11881,7 +11907,7 @@
                   "y": 10.342285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -11889,7 +11915,7 @@
                   "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -11897,7 +11923,7 @@
                   "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -11905,7 +11931,7 @@
                   "y": 13.789714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -11913,7 +11939,7 @@
                   "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -11977,7 +12003,7 @@
                   "y": 24.132,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12001,7 +12027,7 @@
                   "y": 27.579428571428572,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12073,7 +12099,7 @@
                   "y": 9.193142857142858,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12081,7 +12107,7 @@
                   "y": 10.342285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12089,7 +12115,7 @@
                   "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12097,7 +12123,7 @@
                   "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12129,7 +12155,7 @@
                   "y": 17.23714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12177,7 +12203,7 @@
                   "y": 24.132,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12185,7 +12211,7 @@
                   "y": 25.28114285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12201,7 +12227,7 @@
                   "y": 27.579428571428572,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12281,7 +12307,7 @@
                   "y": 10.342285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12289,7 +12315,7 @@
                   "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12297,7 +12323,7 @@
                   "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12305,7 +12331,7 @@
                   "y": 13.789714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12321,7 +12347,7 @@
                   "y": 16.088,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12337,7 +12363,7 @@
                   "y": 18.386285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12361,7 +12387,7 @@
                   "y": 21.833714285714287,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12385,7 +12411,7 @@
                   "y": 25.28114285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12393,7 +12419,7 @@
                   "y": 26.430285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12401,7 +12427,7 @@
                   "y": 27.579428571428572,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12489,7 +12515,7 @@
                   "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12529,7 +12555,7 @@
                   "y": 17.23714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12553,7 +12579,7 @@
                   "y": 20.68457142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12561,7 +12587,7 @@
                   "y": 21.833714285714287,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12585,7 +12611,7 @@
                   "y": 25.28114285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12673,7 +12699,7 @@
                   "y": 9.193142857142858,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12697,7 +12723,7 @@
                   "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12713,7 +12739,7 @@
                   "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12721,7 +12747,7 @@
                   "y": 16.088,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12729,7 +12755,7 @@
                   "y": 17.23714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12737,7 +12763,7 @@
                   "y": 18.386285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12753,7 +12779,7 @@
                   "y": 20.68457142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12793,7 +12819,7 @@
                   "y": 26.430285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12913,7 +12939,7 @@
                   "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12929,7 +12955,7 @@
                   "y": 17.23714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12937,7 +12963,7 @@
                   "y": 18.386285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12945,7 +12971,7 @@
                   "y": 19.53542857142857,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -12953,7 +12979,7 @@
                   "y": 20.68457142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -12969,7 +12995,7 @@
                   "y": 22.982857142857146,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -15508,28 +15534,12 @@
                   "y": 10.342285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 0,
-                  "y": 11.491428571428573,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 0,
-                  "y": 12.64057142857143,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
                   "fill": "white"
                 },
                 {
                   "type": "Rectangle",
                   "x": 0,
-                  "y": 13.789714285714286,
+                  "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "black"
@@ -15537,6 +15547,22 @@
                 {
                   "type": "Rectangle",
                   "x": 0,
+                  "y": 12.64057142857143,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 0,
+                  "y": 13.789714285714286,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 0,
                   "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
@@ -15716,28 +15742,12 @@
                   "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 1.1491428571428572,
                   "y": 12.64057142857143,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 1.1491428571428572,
-                  "y": 13.789714285714286,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 1.1491428571428572,
-                  "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "black"
@@ -15745,6 +15755,22 @@
                 {
                   "type": "Rectangle",
                   "x": 1.1491428571428572,
+                  "y": 13.789714285714286,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 1.1491428571428572,
+                  "y": 14.938857142857144,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 1.1491428571428572,
                   "y": 16.088,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
@@ -15916,36 +15942,12 @@
                   "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 2.2982857142857145,
                   "y": 12.64057142857143,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 2.2982857142857145,
-                  "y": 13.789714285714286,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 2.2982857142857145,
-                  "y": 14.938857142857144,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 2.2982857142857145,
-                  "y": 16.088,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "black"
@@ -15953,10 +15955,34 @@
                 {
                   "type": "Rectangle",
                   "x": 2.2982857142857145,
-                  "y": 17.23714285714286,
+                  "y": 13.789714285714286,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 2.2982857142857145,
+                  "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 2.2982857142857145,
+                  "y": 16.088,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 2.2982857142857145,
+                  "y": 17.23714285714286,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -16132,20 +16158,12 @@
                   "y": 13.789714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 3.4474285714285715,
                   "y": 14.938857142857144,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 3.4474285714285715,
-                  "y": 16.088,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "black"
@@ -16153,10 +16171,18 @@
                 {
                   "type": "Rectangle",
                   "x": 3.4474285714285715,
-                  "y": 17.23714285714286,
+                  "y": 16.088,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 3.4474285714285715,
+                  "y": 17.23714285714286,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -16340,28 +16366,12 @@
                   "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
                   "x": 4.596571428571429,
                   "y": 16.088,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 4.596571428571429,
-                  "y": 17.23714285714286,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 4.596571428571429,
-                  "y": 18.386285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "black"
@@ -16369,6 +16379,22 @@
                 {
                   "type": "Rectangle",
                   "x": 4.596571428571429,
+                  "y": 17.23714285714286,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 4.596571428571429,
+                  "y": 18.386285714285716,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 4.596571428571429,
                   "y": 19.53542857142857,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
@@ -16508,44 +16534,12 @@
                   "y": 10.342285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 5.745714285714286,
                   "y": 11.491428571428573,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 5.745714285714286,
-                  "y": 12.64057142857143,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 5.745714285714286,
-                  "y": 13.789714285714286,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 5.745714285714286,
-                  "y": 14.938857142857144,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 5.745714285714286,
-                  "y": 16.088,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "black"
@@ -16553,6 +16547,38 @@
                 {
                   "type": "Rectangle",
                   "x": 5.745714285714286,
+                  "y": 12.64057142857143,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 5.745714285714286,
+                  "y": 13.789714285714286,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 5.745714285714286,
+                  "y": 14.938857142857144,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 5.745714285714286,
+                  "y": 16.088,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 5.745714285714286,
                   "y": 17.23714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
@@ -16564,28 +16590,12 @@
                   "y": 18.386285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 5.745714285714286,
-                  "y": 19.53542857142857,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
                   "fill": "white"
                 },
                 {
                   "type": "Rectangle",
                   "x": 5.745714285714286,
-                  "y": 20.68457142857143,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 5.745714285714286,
-                  "y": 21.833714285714287,
+                  "y": 19.53542857142857,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "white"
@@ -16593,6 +16603,22 @@
                 {
                   "type": "Rectangle",
                   "x": 5.745714285714286,
+                  "y": 20.68457142857143,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 5.745714285714286,
+                  "y": 21.833714285714287,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 5.745714285714286,
                   "y": 22.982857142857146,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
@@ -16916,28 +16942,12 @@
                   "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 8.044,
-                  "y": 12.64057142857143,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
                   "fill": "white"
                 },
                 {
                   "type": "Rectangle",
                   "x": 8.044,
-                  "y": 13.789714285714286,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "black"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 8.044,
-                  "y": 14.938857142857144,
+                  "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "white"
@@ -16945,6 +16955,22 @@
                 {
                   "type": "Rectangle",
                   "x": 8.044,
+                  "y": 13.789714285714286,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 8.044,
+                  "y": 14.938857142857144,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 8.044,
                   "y": 16.088,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
@@ -16956,7 +16982,7 @@
                   "y": 17.23714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -16964,20 +16990,12 @@
                   "y": 18.386285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 8.044,
                   "y": 19.53542857142857,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 8.044,
-                  "y": 20.68457142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
                   "fill": "white"
@@ -16985,6 +17003,14 @@
                 {
                   "type": "Rectangle",
                   "x": 8.044,
+                  "y": 20.68457142857143,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 8.044,
                   "y": 21.833714285714287,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
@@ -17108,7 +17134,7 @@
                   "y": 10.342285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -17124,7 +17150,7 @@
                   "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -17132,7 +17158,7 @@
                   "y": 13.789714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -17140,7 +17166,7 @@
                   "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -17148,7 +17174,7 @@
                   "y": 16.088,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -17236,7 +17262,7 @@
                   "y": 0,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -17244,7 +17270,7 @@
                   "y": 1.1491428571428572,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -17252,7 +17278,7 @@
                   "y": 2.2982857142857145,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -17260,7 +17286,7 @@
                   "y": 3.4474285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -17268,7 +17294,7 @@
                   "y": 4.596571428571429,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -17300,7 +17326,7 @@
                   "y": 9.193142857142858,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -17316,7 +17342,7 @@
                   "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -17324,7 +17350,7 @@
                   "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -17348,7 +17374,7 @@
                   "y": 16.088,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -17356,7 +17382,7 @@
                   "y": 17.23714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -17364,7 +17390,7 @@
                   "y": 18.386285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -17404,27 +17430,27 @@
                   "y": 24.132,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 10.342285714285715,
-                  "y": 25.28114285714286,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
-                  "fill": "white"
-                },
-                {
-                  "type": "Rectangle",
-                  "x": 10.342285714285715,
-                  "y": 26.430285714285716,
-                  "width": 1.1491428571428572,
-                  "height": 1.1491428571428572,
                   "fill": "black"
                 },
                 {
                   "type": "Rectangle",
                   "x": 10.342285714285715,
+                  "y": 25.28114285714286,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "white"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 10.342285714285715,
+                  "y": 26.430285714285716,
+                  "width": 1.1491428571428572,
+                  "height": 1.1491428571428572,
+                  "fill": "black"
+                },
+                {
+                  "type": "Rectangle",
+                  "x": 10.342285714285715,
                   "y": 27.579428571428572,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
@@ -17444,7 +17470,7 @@
                   "y": 1.1491428571428572,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -17476,7 +17502,7 @@
                   "y": 5.745714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -17500,7 +17526,7 @@
                   "y": 9.193142857142858,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -17508,7 +17534,7 @@
                   "y": 10.342285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -17516,7 +17542,7 @@
                   "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -17524,7 +17550,7 @@
                   "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -17532,7 +17558,7 @@
                   "y": 13.789714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -17540,7 +17566,7 @@
                   "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -17564,7 +17590,7 @@
                   "y": 18.386285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -17572,7 +17598,7 @@
                   "y": 19.53542857142857,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -17580,7 +17606,7 @@
                   "y": 20.68457142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -17596,7 +17622,7 @@
                   "y": 22.982857142857146,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -17604,7 +17630,7 @@
                   "y": 24.132,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -17612,7 +17638,7 @@
                   "y": 25.28114285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -17700,7 +17726,7 @@
                   "y": 9.193142857142858,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -17716,7 +17742,7 @@
                   "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -17724,7 +17750,7 @@
                   "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -17732,7 +17758,7 @@
                   "y": 13.789714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -17892,7 +17918,7 @@
                   "y": 8.044,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -17908,7 +17934,7 @@
                   "y": 10.342285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -17924,7 +17950,7 @@
                   "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -18044,7 +18070,7 @@
                   "y": 1.1491428571428572,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -18236,7 +18262,7 @@
                   "y": 0,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -18244,7 +18270,7 @@
                   "y": 1.1491428571428572,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -18436,7 +18462,7 @@
                   "y": 0,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -18460,7 +18486,7 @@
                   "y": 3.4474285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -18468,7 +18494,7 @@
                   "y": 4.596571428571429,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -18492,7 +18518,7 @@
                   "y": 8.044,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -18508,7 +18534,7 @@
                   "y": 10.342285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -18540,7 +18566,7 @@
                   "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -18556,7 +18582,7 @@
                   "y": 17.23714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -18580,7 +18606,7 @@
                   "y": 20.68457142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -18612,7 +18638,7 @@
                   "y": 25.28114285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -18652,7 +18678,7 @@
                   "y": 2.2982857142857145,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -18660,7 +18686,7 @@
                   "y": 3.4474285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -18708,7 +18734,7 @@
                   "y": 10.342285714285715,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -18716,7 +18742,7 @@
                   "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -18724,7 +18750,7 @@
                   "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -18732,7 +18758,7 @@
                   "y": 13.789714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -18756,7 +18782,7 @@
                   "y": 17.23714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -18820,7 +18846,7 @@
                   "y": 26.430285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -18916,7 +18942,7 @@
                   "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -18940,7 +18966,7 @@
                   "y": 14.938857142857144,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -18948,7 +18974,7 @@
                   "y": 16.088,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -18956,7 +18982,7 @@
                   "y": 17.23714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -19004,7 +19030,7 @@
                   "y": 24.132,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -19012,7 +19038,7 @@
                   "y": 25.28114285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -19020,7 +19046,7 @@
                   "y": 26.430285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -19116,7 +19142,7 @@
                   "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -19124,7 +19150,7 @@
                   "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -19156,7 +19182,7 @@
                   "y": 17.23714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -19228,7 +19254,7 @@
                   "y": 27.579428571428572,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -19316,7 +19342,7 @@
                   "y": 11.491428571428573,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -19348,7 +19374,7 @@
                   "y": 16.088,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -19420,7 +19446,7 @@
                   "y": 26.430285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -19524,7 +19550,7 @@
                   "y": 12.64057142857143,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -19532,7 +19558,7 @@
                   "y": 13.789714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -19556,7 +19582,7 @@
                   "y": 17.23714285714286,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "white"
+                  "fill": "black"
                 },
                 {
                   "type": "Rectangle",
@@ -19764,7 +19790,7 @@
                   "y": 18.386285714285716,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -19804,7 +19830,7 @@
                   "y": 24.132,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -19972,7 +19998,7 @@
                   "y": 19.53542857142857,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",
@@ -19996,7 +20022,7 @@
                   "y": 22.982857142857146,
                   "width": 1.1491428571428572,
                   "height": 1.1491428571428572,
-                  "fill": "black"
+                  "fill": "white"
                 },
                 {
                   "type": "Rectangle",

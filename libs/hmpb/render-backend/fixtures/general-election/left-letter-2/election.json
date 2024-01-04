@@ -3358,7 +3358,7 @@
                           "Sheet": 1,
                           "Side": "front",
                           "X": 22,
-                          "Y": 20,
+                          "Y": 21,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3374,7 +3374,7 @@
                           "Sheet": 1,
                           "Side": "front",
                           "X": 22,
-                          "Y": 21,
+                          "Y": 22,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3390,7 +3390,7 @@
                           "Sheet": 1,
                           "Side": "front",
                           "X": 22,
-                          "Y": 22,
+                          "Y": 23,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3406,7 +3406,7 @@
                           "Sheet": 1,
                           "Side": "front",
                           "X": 22,
-                          "Y": 23,
+                          "Y": 24,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3422,7 +3422,7 @@
                           "Sheet": 1,
                           "Side": "front",
                           "X": 22,
-                          "Y": 24,
+                          "Y": 25,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3438,7 +3438,7 @@
                           "Sheet": 1,
                           "Side": "front",
                           "X": 22,
-                          "Y": 25,
+                          "Y": 26,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3454,7 +3454,7 @@
                           "Sheet": 1,
                           "Side": "front",
                           "X": 22,
-                          "Y": 26,
+                          "Y": 27,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3470,7 +3470,7 @@
                           "Sheet": 1,
                           "Side": "front",
                           "X": 22,
-                          "Y": 27,
+                          "Y": 28,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3486,7 +3486,7 @@
                           "Sheet": 1,
                           "Side": "front",
                           "X": 22,
-                          "Y": 28,
+                          "Y": 29,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3502,7 +3502,7 @@
                           "Sheet": 1,
                           "Side": "front",
                           "X": 22,
-                          "Y": 29,
+                          "Y": 30,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3518,7 +3518,7 @@
                           "Sheet": 1,
                           "Side": "front",
                           "X": 22,
-                          "Y": 30,
+                          "Y": 31,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3528,33 +3528,6 @@
                     {
                       "@type": "BallotDefinition.PhysicalContestOption",
                       "ContestOptionId": "county-commissioners-option-write-in-0",
-                      "OptionPosition": [
-                        {
-                          "@type": "BallotDefinition.OptionPosition",
-                          "Sheet": 1,
-                          "Side": "front",
-                          "X": 22,
-                          "Y": 31,
-                          "H": 0,
-                          "W": 0,
-                          "NumberVotes": 1
-                        }
-                      ],
-                      "WriteInPosition": [
-                        {
-                          "@type": "BallotDefinition.WriteInPosition",
-                          "Sheet": 1,
-                          "Side": "front",
-                          "X": 22.75,
-                          "Y": 30.75,
-                          "W": 9,
-                          "H": 0.45
-                        }
-                      ]
-                    },
-                    {
-                      "@type": "BallotDefinition.PhysicalContestOption",
-                      "ContestOptionId": "county-commissioners-option-write-in-1",
                       "OptionPosition": [
                         {
                           "@type": "BallotDefinition.OptionPosition",
@@ -3581,7 +3554,7 @@
                     },
                     {
                       "@type": "BallotDefinition.PhysicalContestOption",
-                      "ContestOptionId": "county-commissioners-option-write-in-2",
+                      "ContestOptionId": "county-commissioners-option-write-in-1",
                       "OptionPosition": [
                         {
                           "@type": "BallotDefinition.OptionPosition",
@@ -3608,7 +3581,7 @@
                     },
                     {
                       "@type": "BallotDefinition.PhysicalContestOption",
-                      "ContestOptionId": "county-commissioners-option-write-in-3",
+                      "ContestOptionId": "county-commissioners-option-write-in-2",
                       "OptionPosition": [
                         {
                           "@type": "BallotDefinition.OptionPosition",
@@ -3628,6 +3601,33 @@
                           "Side": "front",
                           "X": 22.75,
                           "Y": 33.75,
+                          "W": 9,
+                          "H": 0.45
+                        }
+                      ]
+                    },
+                    {
+                      "@type": "BallotDefinition.PhysicalContestOption",
+                      "ContestOptionId": "county-commissioners-option-write-in-3",
+                      "OptionPosition": [
+                        {
+                          "@type": "BallotDefinition.OptionPosition",
+                          "Sheet": 1,
+                          "Side": "front",
+                          "X": 22,
+                          "Y": 35,
+                          "H": 0,
+                          "W": 0,
+                          "NumberVotes": 1
+                        }
+                      ],
+                      "WriteInPosition": [
+                        {
+                          "@type": "BallotDefinition.WriteInPosition",
+                          "Sheet": 1,
+                          "Side": "front",
+                          "X": 22.75,
+                          "Y": 34.75,
                           "W": 9,
                           "H": 0.45
                         }
@@ -3798,7 +3798,7 @@
                           "Sheet": 1,
                           "Side": "back",
                           "X": 22,
-                          "Y": 3,
+                          "Y": 4,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3814,7 +3814,7 @@
                           "Sheet": 1,
                           "Side": "back",
                           "X": 22,
-                          "Y": 4,
+                          "Y": 5,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3830,7 +3830,7 @@
                           "Sheet": 1,
                           "Side": "back",
                           "X": 22,
-                          "Y": 5,
+                          "Y": 6,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3846,7 +3846,7 @@
                           "Sheet": 1,
                           "Side": "back",
                           "X": 22,
-                          "Y": 6,
+                          "Y": 7,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3862,7 +3862,7 @@
                           "Sheet": 1,
                           "Side": "back",
                           "X": 22,
-                          "Y": 7,
+                          "Y": 8,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3878,7 +3878,7 @@
                           "Sheet": 1,
                           "Side": "back",
                           "X": 22,
-                          "Y": 8,
+                          "Y": 9,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3888,33 +3888,6 @@
                     {
                       "@type": "BallotDefinition.PhysicalContestOption",
                       "ContestOptionId": "city-council-option-write-in-0",
-                      "OptionPosition": [
-                        {
-                          "@type": "BallotDefinition.OptionPosition",
-                          "Sheet": 1,
-                          "Side": "back",
-                          "X": 22,
-                          "Y": 9,
-                          "H": 0,
-                          "W": 0,
-                          "NumberVotes": 1
-                        }
-                      ],
-                      "WriteInPosition": [
-                        {
-                          "@type": "BallotDefinition.WriteInPosition",
-                          "Sheet": 1,
-                          "Side": "back",
-                          "X": 22.75,
-                          "Y": 8.75,
-                          "W": 9,
-                          "H": 0.45
-                        }
-                      ]
-                    },
-                    {
-                      "@type": "BallotDefinition.PhysicalContestOption",
-                      "ContestOptionId": "city-council-option-write-in-1",
                       "OptionPosition": [
                         {
                           "@type": "BallotDefinition.OptionPosition",
@@ -3941,7 +3914,7 @@
                     },
                     {
                       "@type": "BallotDefinition.PhysicalContestOption",
-                      "ContestOptionId": "city-council-option-write-in-2",
+                      "ContestOptionId": "city-council-option-write-in-1",
                       "OptionPosition": [
                         {
                           "@type": "BallotDefinition.OptionPosition",
@@ -3961,6 +3934,33 @@
                           "Side": "back",
                           "X": 22.75,
                           "Y": 10.75,
+                          "W": 9,
+                          "H": 0.45
+                        }
+                      ]
+                    },
+                    {
+                      "@type": "BallotDefinition.PhysicalContestOption",
+                      "ContestOptionId": "city-council-option-write-in-2",
+                      "OptionPosition": [
+                        {
+                          "@type": "BallotDefinition.OptionPosition",
+                          "Sheet": 1,
+                          "Side": "back",
+                          "X": 22,
+                          "Y": 12,
+                          "H": 0,
+                          "W": 0,
+                          "NumberVotes": 1
+                        }
+                      ],
+                      "WriteInPosition": [
+                        {
+                          "@type": "BallotDefinition.WriteInPosition",
+                          "Sheet": 1,
+                          "Side": "back",
+                          "X": 22.75,
+                          "Y": 11.75,
                           "W": 9,
                           "H": 0.45
                         }
@@ -3993,7 +3993,7 @@
                           "Sheet": 1,
                           "Side": "back",
                           "X": 30,
-                          "Y": 14,
+                          "Y": 15,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4009,7 +4009,7 @@
                           "Sheet": 1,
                           "Side": "back",
                           "X": 30,
-                          "Y": 15,
+                          "Y": 16,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4043,7 +4043,7 @@
                           "Sheet": 1,
                           "Side": "back",
                           "X": 30,
-                          "Y": 18,
+                          "Y": 19,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4059,7 +4059,7 @@
                           "Sheet": 1,
                           "Side": "back",
                           "X": 30,
-                          "Y": 19,
+                          "Y": 20,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4093,7 +4093,7 @@
                           "Sheet": 1,
                           "Side": "back",
                           "X": 30,
-                          "Y": 22,
+                          "Y": 23,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4109,7 +4109,7 @@
                           "Sheet": 1,
                           "Side": "back",
                           "X": 30,
-                          "Y": 23,
+                          "Y": 24,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4143,7 +4143,7 @@
                           "Sheet": 1,
                           "Side": "back",
                           "X": 30,
-                          "Y": 28,
+                          "Y": 29,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4159,7 +4159,7 @@
                           "Sheet": 1,
                           "Side": "back",
                           "X": 30,
-                          "Y": 29,
+                          "Y": 30,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4193,7 +4193,7 @@
                           "Sheet": 1,
                           "Side": "back",
                           "X": 30,
-                          "Y": 32,
+                          "Y": 33,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4209,7 +4209,7 @@
                           "Sheet": 1,
                           "Side": "back",
                           "X": 30,
-                          "Y": 33,
+                          "Y": 34,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1

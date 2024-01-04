@@ -1852,7 +1852,7 @@
                           "width": 152.12571428571425,
                           "height": 11.25,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 9,
                           "fontWeight": 400,
@@ -2309,7 +2309,7 @@
                           "width": 152.12571428571425,
                           "height": 11.25,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 9,
                           "fontWeight": 400,
@@ -2827,7 +2827,7 @@
                           "width": 152.12571428571425,
                           "height": 11.25,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 9,
                           "fontWeight": 400,
@@ -3220,7 +3220,7 @@
                           "width": 152.12571428571425,
                           "height": 11.25,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 9,
                           "fontWeight": 400,
@@ -4339,7 +4339,7 @@
                           "width": 178.35428571428568,
                           "height": 11.25,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 9,
                           "fontWeight": 400,
@@ -4987,7 +4987,7 @@
                           "width": 178.35428571428568,
                           "height": 11.25,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 9,
                           "fontWeight": 400,
@@ -5173,7 +5173,7 @@
                           "width": 178.35428571428568,
                           "height": 11.25,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 9,
                           "fontWeight": 400,
@@ -5293,7 +5293,7 @@
                           "width": 178.35428571428568,
                           "height": 11.25,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 9,
                           "fontWeight": 400,
@@ -12233,7 +12233,7 @@
                       "x": 6.994285714285714,
                       "y": 7.418181818181819,
                       "width": 152.12571428571425,
-                      "height": 25,
+                      "height": 36.25,
                       "children": [
                         {
                           "type": "TextBox",
@@ -12255,7 +12255,20 @@
                           "width": 152.12571428571425,
                           "height": 11.25,
                           "textLines": [
-                            "Vote for not more than 4"
+                            "Vote for up to 4"
+                          ],
+                          "fontSize": 9,
+                          "fontWeight": 400,
+                          "lineHeight": 9
+                        },
+                        {
+                          "type": "TextBox",
+                          "x": 0,
+                          "y": 25,
+                          "width": 152.12571428571425,
+                          "height": 11.25,
+                          "textLines": [
+                            "4 will be elected"
                           ],
                           "fontSize": 9,
                           "fontWeight": 400,
@@ -13286,7 +13299,7 @@
                           "width": 152.12571428571425,
                           "height": 11.25,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 9,
                           "fontWeight": 400,
@@ -13476,7 +13489,7 @@
                           "width": 152.12571428571425,
                           "height": 11.25,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 9,
                           "fontWeight": 400,
@@ -13719,7 +13732,7 @@
                       "x": 6.994285714285714,
                       "y": 7.418181818181819,
                       "width": 178.35428571428568,
-                      "height": 25,
+                      "height": 36.25,
                       "children": [
                         {
                           "type": "TextBox",
@@ -13741,7 +13754,20 @@
                           "width": 178.35428571428568,
                           "height": 11.25,
                           "textLines": [
-                            "Vote for not more than 3"
+                            "Vote for up to 3"
+                          ],
+                          "fontSize": 9,
+                          "fontWeight": 400,
+                          "lineHeight": 9
+                        },
+                        {
+                          "type": "TextBox",
+                          "x": 0,
+                          "y": 25,
+                          "width": 178.35428571428568,
+                          "height": 11.25,
+                          "textLines": [
+                            "3 will be elected"
                           ],
                           "fontSize": 9,
                           "fontWeight": 400,

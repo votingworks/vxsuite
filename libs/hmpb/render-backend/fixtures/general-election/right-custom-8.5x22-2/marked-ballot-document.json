@@ -2171,7 +2171,7 @@
                           "width": 181.85142857142856,
                           "height": 10,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
@@ -2623,7 +2623,7 @@
                           "width": 181.85142857142856,
                           "height": 10,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
@@ -3139,7 +3139,7 @@
                           "width": 181.85142857142856,
                           "height": 10,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
@@ -3532,7 +3532,7 @@
                           "width": 155.62285714285713,
                           "height": 10,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
@@ -4642,7 +4642,7 @@
                           "width": 155.62285714285713,
                           "height": 10,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
@@ -5290,7 +5290,7 @@
                           "width": 155.62285714285713,
                           "height": 10,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
@@ -5476,7 +5476,7 @@
                           "width": 155.62285714285713,
                           "height": 10,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
@@ -5596,7 +5596,7 @@
                           "width": 155.62285714285713,
                           "height": 10,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
@@ -5835,7 +5835,7 @@
                       "x": 5.245714285714285,
                       "y": 5.525581395348837,
                       "width": 155.62285714285713,
-                      "height": 21.25,
+                      "height": 31.25,
                       "children": [
                         {
                           "type": "TextBox",
@@ -5857,7 +5857,20 @@
                           "width": 155.62285714285713,
                           "height": 10,
                           "textLines": [
-                            "Vote for not more than 4"
+                            "Vote for up to 4"
+                          ],
+                          "fontSize": 8,
+                          "fontWeight": 400,
+                          "lineHeight": 8
+                        },
+                        {
+                          "type": "TextBox",
+                          "x": 0,
+                          "y": 21.25,
+                          "width": 155.62285714285713,
+                          "height": 10,
+                          "textLines": [
+                            "4 will be elected"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
@@ -6878,7 +6891,7 @@
                           "width": 155.62285714285713,
                           "height": 10,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
@@ -7068,7 +7081,7 @@
                           "width": 155.62285714285713,
                           "height": 10,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
@@ -7302,7 +7315,7 @@
                       "x": 5.245714285714285,
                       "y": 5.525581395348837,
                       "width": 155.62285714285713,
-                      "height": 21.25,
+                      "height": 31.25,
                       "children": [
                         {
                           "type": "TextBox",
@@ -7324,7 +7337,20 @@
                           "width": 155.62285714285713,
                           "height": 10,
                           "textLines": [
-                            "Vote for not more than 3"
+                            "Vote for up to 3"
+                          ],
+                          "fontSize": 8,
+                          "fontWeight": 400,
+                          "lineHeight": 8
+                        },
+                        {
+                          "type": "TextBox",
+                          "x": 0,
+                          "y": 21.25,
+                          "width": 155.62285714285713,
+                          "height": 10,
+                          "textLines": [
+                            "3 will be elected"
                           ],
                           "fontSize": 8,
                           "fontWeight": 400,
