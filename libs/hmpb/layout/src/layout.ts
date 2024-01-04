@@ -368,7 +368,7 @@ export function TimingMarkGrid({ m }: { m: Measurements }): AnyElement {
 // school district, then change the election title. In the future, we might
 // support customization like this by allowing custom content for different
 // precinct splits or by using different ballot templates.
-function modifyElectionTitleForNhSchoolElections(
+function getElectionTitleOrNhSchoolElectionTitle(
   election: Election,
   ballotStyle: BallotStyle
 ): string {
@@ -430,7 +430,7 @@ function HeaderAndInstructions({
         }`
       : '';
 
-  const electionTitle = modifyElectionTitleForNhSchoolElections(
+  const electionTitle = getElectionTitleOrNhSchoolElectionTitle(
     election,
     ballotStyle
   );
