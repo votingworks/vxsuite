@@ -4,5 +4,6 @@ export * from './date_string';
 export * from './election_strings';
 export * from './language_override';
 export * from './number_string';
+export * from './read_on_load';
 export * from './ui_strings_context';
 export * from './utils';
