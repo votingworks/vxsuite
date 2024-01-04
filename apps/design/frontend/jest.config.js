@@ -13,7 +13,7 @@ module.exports = {
   coverageThreshold: {
     global: {
       branches: -160,
-      lines: -362,
+      lines: -348,
     },
   },
   setupFiles: ['react-app-polyfill/jsdom'],

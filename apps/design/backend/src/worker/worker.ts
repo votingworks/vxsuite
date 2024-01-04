@@ -1,45 +1,48 @@
 import { extractErrorMessage, sleep } from '@votingworks/basics';
 
-import { BackgroundTask, Store } from '../store';
+import { Workspace } from '../workspace';
+import { processBackgroundTask } from './tasks';
 
-async function processBackgroundTask(
-  _store: Store, // eslint-disable-line @typescript-eslint/no-unused-vars
-  _task: BackgroundTask // eslint-disable-line @typescript-eslint/no-unused-vars
-): Promise<void> {
-  // Simulate a long-running operation
-  // TODO(arsalan): Implement actual processing logic
-  await sleep(3000);
-}
+export async function processNextBackgroundTaskIfAny(
+  workspace: Workspace
+): Promise<{ wasTaskProcessed: boolean }> {
+  const { store } = workspace;
 
-async function processBackgroundTasks(store: Store): Promise<void> {
-  // eslint-disable-next-line no-constant-condition
-  while (true) {
-    const nextTask = store.getOldestQueuedBackgroundTask();
+  const nextTask = store.getOldestQueuedBackgroundTask();
 
-    if (!nextTask) {
-      await sleep(1000);
-      continue;
-    }
-
-    store.startBackgroundTask(nextTask.id);
-    process.stdout.write(`⏳ Processing background task ${nextTask.id}...\n`);
-    try {
-      await processBackgroundTask(store, nextTask);
-    } catch (error) {
-      const errorMessage = extractErrorMessage(error);
-      store.completeBackgroundTask(nextTask.id, errorMessage);
-      process.stdout.write(
-        `❌ Error processing background task ${nextTask.id}:\n${errorMessage}\n`
-      );
-      continue;
-    }
-    store.completeBackgroundTask(nextTask.id);
-    process.stdout.write(
-      `✅ Finished processing background task ${nextTask.id}\n`
-    );
+  if (!nextTask) {
+    return { wasTaskProcessed: false };
   }
+
+  /* eslint-disable no-console */
+  store.startBackgroundTask(nextTask.id);
+  console.log(`⏳ Processing background task ${nextTask.id}...`);
+  try {
+    await processBackgroundTask(workspace, nextTask);
+  } catch (error) {
+    const errorMessage = extractErrorMessage(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    store.completeBackgroundTask(nextTask.id, errorMessage);
+    console.log(
+      `❌ Error processing background task ${nextTask.id}:\n${errorMessage}\n${errorStack}`
+    );
+    return { wasTaskProcessed: true };
+  }
+  store.completeBackgroundTask(nextTask.id);
+  console.log(`✅ Finished processing background task ${nextTask.id}`);
+  return { wasTaskProcessed: true };
+  /* eslint-enable no-console */
 }
 
-export function start({ store }: { store: Store }): void {
-  setTimeout(() => processBackgroundTasks(store));
+export function start({ workspace }: { workspace: Workspace }): void {
+  process.nextTick(async () => {
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const { wasTaskProcessed } =
+        await processNextBackgroundTaskIfAny(workspace);
+      if (!wasTaskProcessed) {
+        await sleep(1000);
+      }
+    }
+  });
 }

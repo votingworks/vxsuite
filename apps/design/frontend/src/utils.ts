@@ -39,3 +39,16 @@ export function replaceAtIndex<T>(
 ): T[] {
   return array.map((value, i) => (i === index ? newValue : value));
 }
+
+/**
+ * Downloads a file given a file path
+ */
+export function downloadFile(filePath: string): void {
+  const element = document.createElement('a');
+  element.setAttribute('href', filePath);
+  element.setAttribute('download', '');
+  element.style.display = 'none';
+  document.body.appendChild(element);
+  element.click();
+  document.body.removeChild(element);
+}

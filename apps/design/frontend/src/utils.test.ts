@@ -1,5 +1,5 @@
 import { range } from '@votingworks/basics';
-import { nextId } from './utils';
+import { downloadFile, nextId } from './utils';
 
 test('nextId', () => {
   expect(nextId('prefix-')).toEqual('prefix-1');
@@ -15,4 +15,9 @@ test('nextId', () => {
   expect(
     nextId('prefix-', ['custom', 'prefix-2', 'id123', 'prefix-1'])
   ).toEqual('prefix-3');
+});
+
+test('downloadFile cleans up temporary anchor tag', () => {
+  downloadFile('http://localhost:1234/file.zip');
+  expect(document.getElementsByTagName('a')).toHaveLength(0);
 });

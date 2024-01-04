@@ -93,6 +93,7 @@
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/grout-test-utils": "workspace:*",
     "@votingworks/monorepo-utils": "workspace:*",
+    "@votingworks/test-utils": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "history": "4.10.1",
     "is-ci-cli": "2.2.0",
