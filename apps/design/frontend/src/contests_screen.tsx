@@ -13,6 +13,7 @@ import {
   MainHeader,
   Breadcrumbs,
   Icons,
+  LoadingButton,
 } from '@votingworks/ui';
 import {
   Redirect,
@@ -27,6 +28,7 @@ import {
   CandidateContest,
   CandidateId,
   ContestId,
+  Contests,
   DistrictId,
   Election,
   Id,
@@ -34,7 +36,7 @@ import {
   PartyId,
   YesNoContest,
 } from '@votingworks/types';
-import { assert, find } from '@votingworks/basics';
+import { assert, assertDefined, find } from '@votingworks/basics';
 import {
   FieldName,
   Form,
@@ -48,6 +50,7 @@ import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { TabPanel, TabBar } from './tabs';
 import { getElection, updateElection } from './api';
 import { generateId, reorderElement, replaceAtIndex } from './utils';
+import { ReorderableList, ReorderableTr } from './reorderable_list';
 
 const FILTER_ALL = 'all';
 const FILTER_NONPARTISAN = 'nonpartisan';
@@ -55,8 +58,12 @@ const FILTER_NONPARTISAN = 'nonpartisan';
 function ContestsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getElectionQuery = getElection.useQuery(electionId);
+  const updateElectionMutation = updateElection.useMutation();
   const [filterDistrictId, setFilterDistrictId] = useState(FILTER_ALL);
   const [filterPartyId, setFilterPartyId] = useState(FILTER_ALL);
+  const [reorderedContests, setReorderedContests] = useState<
+    Contests | undefined
+  >();
 
   if (!getElectionQuery.isSuccess) {
     return null;
@@ -78,10 +85,41 @@ function ContestsTab(): JSX.Element | null {
     return matchesDistrict && matchesParty;
   });
 
+  const canReorder =
+    filterDistrictId === FILTER_ALL &&
+    filterPartyId === FILTER_ALL &&
+    contests.length > 0;
+  const isReordering = reorderedContests !== undefined;
+
+  const contestsToShow = isReordering ? reorderedContests : filteredContests;
+
   const districtIdToName = new Map(
     districts.map((district) => [district.id, district.name])
   );
   const partyIdToName = new Map(parties.map((party) => [party.id, party.name]));
+
+  function onReorderContests(fromIndex: number, toIndex: number) {
+    console.log('reorder', fromIndex, toIndex);
+    assert(reorderedContests !== undefined);
+    setReorderedContests(reorderElement(reorderedContests, fromIndex, toIndex));
+  }
+
+  function onSaveReorderedContests() {
+    updateElectionMutation.mutate(
+      {
+        electionId,
+        election: {
+          ...election,
+          contests: assertDefined(reorderedContests),
+        },
+      },
+      {
+        onSuccess: () => {
+          setReorderedContests(undefined);
+        },
+      }
+    );
+  }
 
   return (
     <TabPanel>
@@ -93,6 +131,7 @@ function ContestsTab(): JSX.Element | null {
           variant="primary"
           icon="Add"
           to={contestRoutes.addContest.path}
+          disabled={isReordering}
         >
           Add Contest
         </LinkButton>
@@ -109,6 +148,7 @@ function ContestsTab(): JSX.Element | null {
               value={filterDistrictId}
               onChange={(value) => setFilterDistrictId(value ?? FILTER_ALL)}
               style={{ minWidth: '8rem' }}
+              disabled={isReordering}
             />
             {election.type === 'primary' && (
               <SearchSelect
@@ -123,13 +163,33 @@ function ContestsTab(): JSX.Element | null {
                 value={filterPartyId}
                 onChange={(value) => setFilterPartyId(value ?? FILTER_ALL)}
                 style={{ minWidth: '8rem' }}
+                disabled={isReordering}
               />
             )}
           </React.Fragment>
         )}
+        <div style={{ marginLeft: 'auto' }}>
+          {isReordering ? (
+            <Button
+              onPress={onSaveReorderedContests}
+              variant="primary"
+              icon="Done"
+              disabled={updateElectionMutation.isLoading}
+            >
+              Save
+            </Button>
+          ) : (
+            <Button
+              onPress={() => setReorderedContests(contests)}
+              disabled={!canReorder}
+            >
+              Reorder Contests
+            </Button>
+          )}
+        </div>
       </TableActionsRow>
       {contests.length > 0 &&
-        (filteredContests.length === 0 ? (
+        (contestsToShow.length === 0 ? (
           <React.Fragment>
             <P>
               There are no contests for the district
@@ -158,32 +218,49 @@ function ContestsTab(): JSX.Element | null {
               </tr>
             </thead>
             <tbody>
-              {filteredContests.map((contest) => (
-                <tr key={contest.id}>
-                  <TD>{contest.title}</TD>
-                  <TD>
-                    {contest.type === 'candidate'
-                      ? 'Candidate Contest'
-                      : 'Ballot Measure'}
-                  </TD>
-                  <TD nowrap>{districtIdToName.get(contest.districtId)}</TD>
-                  {election.type === 'primary' && (
-                    <TD nowrap>
-                      {contest.type === 'candidate' &&
-                        contest.partyId !== undefined &&
-                        partyIdToName.get(contest.partyId)}
+              <ReorderableList
+                disabled={!isReordering}
+                onReorder={onReorderContests}
+              >
+                {contestsToShow.map((contest) => (
+                  <ReorderableTr key={contest.id}>
+                    <TD>{contest.title}</TD>
+                    <TD>
+                      {contest.type === 'candidate'
+                        ? 'Candidate Contest'
+                        : 'Ballot Measure'}
                     </TD>
-                  )}
-                  <TD nowrap>
-                    <LinkButton
-                      icon="Edit"
-                      to={contestRoutes.editContest(contest.id).path}
-                    >
-                      Edit
-                    </LinkButton>
-                  </TD>
-                </tr>
-              ))}
+                    <TD nowrap>{districtIdToName.get(contest.districtId)}</TD>
+                    {election.type === 'primary' && (
+                      <TD nowrap>
+                        {contest.type === 'candidate' &&
+                          contest.partyId !== undefined &&
+                          partyIdToName.get(contest.partyId)}
+                      </TD>
+                    )}
+                    <TD nowrap style={{ textAlign: 'right' }}>
+                      {isReordering ? (
+                        <Button
+                          icon="Grip"
+                          fill="transparent"
+                          onPress={() => {
+                            // Just for show
+                          }}
+                        >
+                          &nbsp;
+                        </Button>
+                      ) : (
+                        <LinkButton
+                          icon="Edit"
+                          to={contestRoutes.editContest(contest.id).path}
+                        >
+                          Edit
+                        </LinkButton>
+                      )}
+                    </TD>
+                  </ReorderableTr>
+                ))}
+              </ReorderableList>
             </tbody>
           </Table>
         ))}
