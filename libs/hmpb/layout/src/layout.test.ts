@@ -1,5 +1,17 @@
-import { BallotPaperSize } from '@votingworks/types';
-import { gridForPaper, layOutInColumns } from './layout';
+import {
+  BallotPaperSize,
+  BallotType,
+  District,
+  DistrictId,
+  Election,
+} from '@votingworks/types';
+import { electionGeneral } from '@votingworks/fixtures';
+import {
+  DEFAULT_LAYOUT_OPTIONS,
+  gridForPaper,
+  layOutAllBallotStyles,
+  layOutInColumns,
+} from './layout';
 
 test('layoutInColumns', () => {
   const a1 = { id: 'a', height: 1 } as const;
@@ -198,4 +210,68 @@ test('gridForPaper', () => {
     rows: 53,
     columns: 34,
   });
+});
+
+test('NH school district election special case', () => {
+  const districts: District[] = [
+    {
+      id: 'district-1' as DistrictId,
+      name: 'A Town District',
+    },
+    {
+      id: 'district-2' as DistrictId,
+      name: 'A School District',
+    },
+  ];
+  const precinctIds = electionGeneral.precincts
+    .slice(0, 1)
+    .map((precinct) => precinct.id);
+  const election: Election = {
+    ...electionGeneral,
+    title: 'Annual Town Election',
+    districts,
+    ballotStyles: [
+      {
+        id: '1',
+        precincts: precinctIds,
+        districts: ['district-1'] as DistrictId[],
+      },
+      {
+        id: '2',
+        precincts: precinctIds,
+        districts: ['district-2'] as DistrictId[],
+      },
+      {
+        id: '3',
+        precincts: precinctIds,
+        districts: ['district-1', 'district-2'] as DistrictId[],
+      },
+    ],
+  };
+  const { ballots } = layOutAllBallotStyles({
+    election,
+    ballotMode: 'test',
+    ballotType: BallotType.Precinct,
+    layoutOptions: DEFAULT_LAYOUT_OPTIONS,
+  }).unsafeUnwrap();
+  const [townBallotStyle, schoolBallotStyle, combinedBallotStyle] =
+    election.ballotStyles;
+  const townBallot = ballots.find(
+    (ballot) => ballot.gridLayout.ballotStyleId === townBallotStyle.id
+  );
+  const schoolBallot = ballots.find(
+    (ballot) => ballot.gridLayout.ballotStyleId === schoolBallotStyle.id
+  );
+  const combinedBallot = ballots.find(
+    (ballot) => ballot.gridLayout.ballotStyleId === combinedBallotStyle.id
+  );
+  const expectedSchoolElectionTitle = 'Annual School District Election';
+  expect(JSON.stringify(townBallot)).toContain(election.title);
+  expect(JSON.stringify(townBallot)).not.toContain(expectedSchoolElectionTitle);
+  expect(JSON.stringify(schoolBallot)).toContain(expectedSchoolElectionTitle);
+  expect(JSON.stringify(schoolBallot)).not.toContain(election.title);
+  expect(JSON.stringify(combinedBallot)).toContain(election.title);
+  expect(JSON.stringify(combinedBallot)).not.toContain(
+    expectedSchoolElectionTitle
+  );
 });

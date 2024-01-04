@@ -1,6 +1,7 @@
 import {
   assert,
   assertDefined,
+  find,
   iter,
   lines,
   ok,
@@ -360,6 +361,32 @@ export function TimingMarkGrid({ m }: { m: Measurements }): AnyElement {
   };
 }
 
+// Special case hack for NH school election ballots (which need to be visually
+// differentiated from town election ballots but also need to be scanned on the
+// same scanner, and therefore must use the same election definition). if a
+// ballot style only has a single district that appears to correspond to a
+// school district, then change the election title. In the future, we might
+// support customization like this by allowing custom content for different
+// precinct splits or by using different ballot templates.
+function modifyElectionTitleForNhSchoolElections(
+  election: Election,
+  ballotStyle: BallotStyle
+): string {
+  if (ballotStyle.districts.length === 1) {
+    const district = find(
+      election.districts,
+      (d) => ballotStyle.districts[0] === d.id
+    );
+    // Match district names like "ABC School District" or "XYZ Schools"
+    // or "SAU #1" (SAU = school administrative unit)
+    if (district.name.match(/\bschool(s?)|sau\b/i)) {
+      return 'Annual School District Election';
+    }
+  }
+
+  return election.title;
+}
+
 function HeaderAndInstructions({
   election,
   ballotStyle,
@@ -393,7 +420,7 @@ function HeaderAndInstructions({
     [BallotType.Precinct]: '',
     [BallotType.Provisional]: ' Provisional',
   };
-  const title = `${ballotModeLabel[ballotMode]}${ballotTypeLabel[ballotType]} Ballot`;
+  const ballotTitle = `${ballotModeLabel[ballotMode]}${ballotTypeLabel[ballotType]} Ballot`;
   const party =
     election.type === 'primary'
       ? ` • ${
@@ -403,6 +430,10 @@ function HeaderAndInstructions({
         }`
       : '';
 
+  const electionTitle = modifyElectionTitleForNhSchoolElections(
+    election,
+    ballotStyle
+  );
   const date = Intl.DateTimeFormat('en-US', {
     month: 'long',
     day: 'numeric',
@@ -424,14 +455,14 @@ function HeaderAndInstructions({
         width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
         textGroups: [
           {
-            text: `${title}${party}`,
+            text: `${ballotTitle}${party}`,
             fontStyle: {
               ...m.FontStyles.H1,
               lineHeight: m.FontStyles.H1.lineHeight * 0.85,
             },
           },
           {
-            text: `${election.title} • ${date}`,
+            text: `${electionTitle} • ${date}`,
             fontStyle: m.FontStyles.H3,
           },
           {
@@ -1475,6 +1506,7 @@ function ContestColumnsChunk({
 
   return [section, columnPositions];
 }
+
 export const BALLOT_MODES = ['official', 'test', 'sample'] as const;
 export type BallotMode = (typeof BALLOT_MODES)[number];
 
