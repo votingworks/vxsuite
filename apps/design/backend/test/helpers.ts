@@ -109,8 +109,10 @@ export async function exportElectionPackage({
     electionId,
   });
   const electionPackageFileName = assertDefined(
-    electionPackage.url?.match(/election-package-[0-9a-z]{10}\.zip$/)?.[0]
-  );
+    assertDefined(electionPackage.url).match(
+      /election-package-[0-9a-z]{10}\.zip$/
+    )
+  )[0];
   const electionPackageContents = fs.readFileSync(
     path.join(workspace.assetDirectoryPath, electionPackageFileName)
   );
