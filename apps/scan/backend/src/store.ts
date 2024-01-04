@@ -28,8 +28,6 @@ import {
   PollsTransitionType,
 } from '@votingworks/types';
 import { assert, assertDefined, Optional, typedAs } from '@votingworks/basics';
-import * as fs from 'fs-extra';
-import { sha256 } from 'js-sha256';
 import { DateTime } from 'luxon';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
@@ -136,14 +134,6 @@ export class Store {
 
   getDbPath(): string {
     return this.client.getDatabasePath();
-  }
-
-  /**
-   * Gets the sha256 digest of the current schema file.
-   */
-  static getSchemaDigest(): string {
-    const schemaSql = fs.readFileSync(SchemaPath, 'utf-8');
-    return sha256(schemaSql);
   }
 
   /**
