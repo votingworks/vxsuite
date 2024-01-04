@@ -43,6 +43,19 @@ export interface UiStringsAudioContextProviderProps {
   children: React.ReactNode;
 }
 
+let webAudioContext: AudioContext | undefined;
+function getWebAudioContextInstance() {
+  if (!window.AudioContext) {
+    return undefined;
+  }
+
+  if (!webAudioContext) {
+    webAudioContext = new AudioContext();
+  }
+
+  return webAudioContext;
+}
+
 export function UiStringsAudioContextProvider(
   props: UiStringsAudioContextProviderProps
 ): JSX.Element {
@@ -54,9 +67,7 @@ export function UiStringsAudioContextProvider(
   );
   const [gainDb, setGainDb] = React.useState<number>(DEFAULT_GAIN_DB);
 
-  const webAudioContextRef = React.useRef(
-    window.AudioContext ? new AudioContext() : undefined
-  );
+  const webAudioContextRef = React.useRef(getWebAudioContextInstance());
 
   const reset = React.useCallback(() => {
     setGainDb(DEFAULT_GAIN_DB);
