@@ -1,6 +1,7 @@
-import fs from 'fs/promises';
+import { createWriteStream } from 'fs';
 import JsZip from 'jszip';
 import path from 'path';
+import { pipeline } from 'stream/promises';
 import { z } from 'zod';
 import { throwIllegalValue } from '@votingworks/basics';
 import { layOutAllBallotStyles } from '@votingworks/hmpb-layout';
@@ -40,7 +41,10 @@ async function generateElectionPackage(
   const displayElectionHash = getDisplayElectionHash(electionDefinition);
   const fileName = `election-package-${displayElectionHash}.zip`;
   const filePath = path.join(assetDirectoryPath, fileName);
-  await fs.writeFile(filePath, await zip.generateAsync({ type: 'nodebuffer' }));
+  await pipeline(
+    zip.generateNodeStream({ streamFiles: true }),
+    createWriteStream(filePath)
+  );
   store.setElectionPackageUrl({
     electionId,
     electionPackageUrl: `http://localhost:${PORT}/${fileName}`,
