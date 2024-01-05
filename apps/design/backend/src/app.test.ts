@@ -9,7 +9,6 @@ import {
   layOutAllBallotStyles,
   LayoutOptions,
 } from '@votingworks/hmpb-layout';
-import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import {
   AdjudicationReason,
   AnyContest,
@@ -20,21 +19,24 @@ import {
   DistrictId,
   Election,
   ElectionType,
+  LanguageCode,
   Parties,
   Party,
   PartyId,
   SystemSettings,
+  UiStringsPackageSchema,
   safeParseElectionDefinition,
+  safeParseJson,
   safeParseSystemSettings,
 } from '@votingworks/types';
 import { getBallotStylesByPrecinctId } from '@votingworks/utils';
 import {
   ApiClient,
   exportElectionPackage,
+  processNextBackgroundTaskIfAny,
   testSetupHelpers,
 } from '../test/helpers';
 import { hasSplits, Precinct } from './store';
-import { processNextBackgroundTaskIfAny } from './worker/worker';
 import { FULL_TEST_DECK_TALLY_REPORT_FILE_NAME } from './test_decks';
 
 const { setupApp, cleanup } = testSetupHelpers();
@@ -248,9 +250,7 @@ test('Election package management', async () => {
   );
 
   // Complete an export
-  await suppressingConsoleOutput(() =>
-    processNextBackgroundTaskIfAny(workspace)
-  );
+  await processNextBackgroundTaskIfAny(workspace);
   const electionPackageAfterExport = await apiClient.getElectionPackage({
     electionId,
   });
@@ -314,14 +314,53 @@ test('Election package export', async () => {
     workspace,
   });
 
-  // Check contents of generated zip file
+  // Check overall structure of zip file
 
   const zip = await JsZip.loadAsync(electionPackageContents);
-
   expect(Object.keys(zip.files)).toEqual([
+    'appStrings.json',
     'election.json',
     'systemSettings.json',
   ]);
+
+  // Check appStrings.json
+
+  const appStrings = safeParseJson(
+    await assertDefined(zip.file('appStrings.json')).async('text'),
+    UiStringsPackageSchema
+  ).unsafeUnwrap();
+
+  const languageCodes = Object.keys(appStrings).sort();
+  expect(languageCodes).toEqual([
+    LanguageCode.ENGLISH,
+    LanguageCode.SPANISH,
+    LanguageCode.CHINESE_SIMPLIFIED,
+    LanguageCode.CHINESE_TRADITIONAL,
+  ]);
+
+  const appStringKeys = Object.keys(
+    appStrings[LanguageCode.ENGLISH] ?? {}
+  ).sort();
+  expect(appStringKeys.length).toBeGreaterThan(0);
+
+  for (const languageCode of Object.values(LanguageCode)) {
+    if (languageCode === LanguageCode.ENGLISH) {
+      continue;
+    }
+    for (const key of appStringKeys) {
+      const appStringInLanguage = assertDefined(
+        appStrings[languageCode]?.[key]
+      );
+      const appStringInEnglish = assertDefined(
+        appStrings[LanguageCode.ENGLISH]?.[key]
+      );
+      expect(appStringInLanguage).toEqual(
+        `${appStringInEnglish} (in ${languageCode})`
+      );
+    }
+  }
+
+  // Check election.json
 
   const electionDefinition = safeParseElectionDefinition(
     await assertDefined(zip.file('election.json')).async('text')
@@ -345,11 +384,13 @@ test('Election package export', async () => {
     gridLayouts: expect.any(Array),
   });
 
+  // Check systemSettings.json
+
   const systemSettings = safeParseSystemSettings(
     await assertDefined(zip.file('systemSettings.json')).async('text')
   ).unsafeUnwrap();
   expect(systemSettings).toEqual(mockSystemSettings);
-});
+}, 30_000);
 
 // Rendering an SVG to PDF and then generating the PDF takes about 3s per
 // ballot, so we mock the PDF content generation, which means we'll just
