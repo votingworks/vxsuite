@@ -51,7 +51,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectGetMachineConfig({
     screenOrientation: 'portrait',
   });
-  apiMock.expectSetAcceptingPaperState();
+  apiMock.setPaperHandlerState('not_accepting_paper');
   const expectedElectionHash = electionDefinition.electionHash.substring(0, 10);
   const reload = jest.fn();
   apiMock.expectGetSystemSettings();
@@ -204,6 +204,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.mockApiClient.startCardlessVoterSession
     .expectCallWith({ ballotStyleId: '12', precinctId: '23' })
     .resolves();
+  apiMock.expectSetAcceptingPaperState();
   userEvent.click(await screen.findByText('12'));
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
@@ -215,6 +216,7 @@ test('MarkAndPrint end-to-end flow', async () => {
     ballotStyleId: '12',
     precinctId: '23',
   });
+  apiMock.setPaperHandlerState('waiting_for_ballot_data');
 
   await findByTextWithMarkup('Number of contests on your ballot: 20');
   screen.getByText(/Center Springfield/);
