@@ -461,41 +461,6 @@ export interface CardTally {
 }
 
 /**
- * For primary reports, we need card counts split by party.
- */
-export type CardCountsByParty = Record<string, Tabulation.CardCounts>;
-
-interface TallyReportResultsBase {
-  contestIds: ContestId[];
-  scannedResults: Tabulation.ElectionResults;
-  manualResults?: Tabulation.ManualElectionResults;
-}
-
-/**
- * Results for a tally report not split by party, usually for a general or
- * as a data intermediate in tabulation code.
- */
-export type SingleTallyReportResults = TallyReportResultsBase & {
-  hasPartySplits: false;
-  cardCounts: Tabulation.CardCounts;
-};
-
-/**
- * Results for a tally report split by party, used for primary elections.
- */
-export type PartySplitTallyReportResults = TallyReportResultsBase & {
-  hasPartySplits: true;
-  cardCountsByParty: CardCountsByParty;
-};
-
-/**
- * Data necessary to display a frontend tally report.
- */
-export type TallyReportResults =
-  | SingleTallyReportResults
-  | PartySplitTallyReportResults;
-
-/**
  * An error involving the correspondence between the fields in a cast vote record and the election
  * definition
  */

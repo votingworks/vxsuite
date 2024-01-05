@@ -3,8 +3,8 @@ import {
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { Logger, fakeLogger } from '@votingworks/logging';
+import { buildMockCardCounts } from '@votingworks/utils';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
-import { getMockCardCounts } from '../../../test/helpers/mock_results';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { screen, within } from '../../../test/react_testing_library';
 import {
@@ -38,22 +38,22 @@ test('displays report (primary)', async () => {
       {
         precinctId: 'precinct-1',
         partyId: '0',
-        ...getMockCardCounts(5),
+        ...buildMockCardCounts(5),
       },
       {
         precinctId: 'precinct-1',
         partyId: '1',
-        ...getMockCardCounts(10),
+        ...buildMockCardCounts(10),
       },
       {
         precinctId: 'precinct-2',
         partyId: '0',
-        ...getMockCardCounts(15),
+        ...buildMockCardCounts(15),
       },
       {
         precinctId: 'precinct-2',
         partyId: '1',
-        ...getMockCardCounts(20),
+        ...buildMockCardCounts(20),
       },
     ]
   );
@@ -100,19 +100,19 @@ test('displays report (general)', async () => {
     [
       {
         precinctId: '20',
-        ...getMockCardCounts(5),
+        ...buildMockCardCounts(5),
       },
       {
         precinctId: '21',
-        ...getMockCardCounts(10),
+        ...buildMockCardCounts(10),
       },
       {
         precinctId: '22',
-        ...getMockCardCounts(15),
+        ...buildMockCardCounts(15),
       },
       {
         precinctId: '23',
-        ...getMockCardCounts(20),
+        ...buildMockCardCounts(20),
       },
     ]
   );

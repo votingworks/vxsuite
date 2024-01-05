@@ -35,6 +35,7 @@ import {
 } from '../test/helpers';
 import { hasSplits, Precinct } from './store';
 import { processNextBackgroundTaskIfAny } from './worker/worker';
+import { FULL_TEST_DECK_TALLY_REPORT_FILE_NAME } from './test_decks';
 
 const { setupApp, cleanup } = testSetupHelpers();
 
@@ -450,11 +451,12 @@ test('Export test decks', async () => {
       getBallotStylesByPrecinctId(electionDefinition, precinct.id).length > 0
   );
   expect(Object.keys(zip.files).sort()).toEqual(
-    precinctsWithBallots
-      .map(
+    [
+      ...precinctsWithBallots.map(
         (precinct) => `${precinct.name.replaceAll(' ', '_')}-test-ballots.pdf`
-      )
-      .sort()
+      ),
+      FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
+    ].sort()
   );
 
   // We test the actual test deck content in test_decks.ts

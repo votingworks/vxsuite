@@ -1,6 +1,6 @@
-import 'normalize.css';
 import { createGlobalStyle, css } from 'styled-components';
 import { VX_DEFAULT_FONT_FAMILY_DECLARATION } from './fonts/font_family';
+import { NORMALIZE_CSS } from './normalize.css';
 
 // TODO(kofi): Move to ./ui_strings/audio_only.tsx once all relevant code is
 // updated to use that component.
@@ -24,14 +24,16 @@ export interface GlobalStylesProps {
  * Common global styling for VxSuite apps.
  *
  * TODO: Copied from old App.css files in the frontend packages - could probably
- * use some cleanup and de-duping with the normalize.css styles we're already
- * importing.
+ * use some cleanup and de-duping with the normalize.css inlined below.
  *
  * TODO: Hardcode base64-encoded versions of our font files and reference here,
  * so that everything's centralized and we don't have to have duplicate
  * copies in each app's package.
  */
 export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
+
+${NORMALIZE_CSS}
+
   *,
   *::before,
   *::after {

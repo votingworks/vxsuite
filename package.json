@@ -40,19 +40,19 @@
     "@storybook/react-vite": "^7.2.2",
     "@storybook/theming": "^7.2.2",
     "@storybook/types": "^7.2.2",
-    "@typescript-eslint/parser": "6.7.0",
     "@types/eslint": "8.4.1",
+    "@typescript-eslint/parser": "6.7.0",
     "eslint": "8.49.0",
     "husky": "^7.0.0",
     "lint-staged": "11.0.0",
     "ora": "^5.2.0",
+    "postcss-styled-syntax": "^0.4.0",
     "prettier": "^3.0.3",
     "sort-package-json": "^1.50.0",
     "storybook": "^7.2.2",
-    "typescript": "5.2.2",
-    "postcss-styled-syntax": "^0.4.0",
     "stylelint": "^15.10.2",
-    "stylelint-config-standard": "^34.0.0"
+    "stylelint-config-standard": "^34.0.0",
+    "typescript": "5.2.2"
   },
   "pnpm": {
     "overrides": {

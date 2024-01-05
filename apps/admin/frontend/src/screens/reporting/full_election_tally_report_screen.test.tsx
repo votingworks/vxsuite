@@ -1,7 +1,7 @@
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { Logger, fakeLogger } from '@votingworks/logging';
+import { buildSimpleMockTallyReportResults } from '@votingworks/utils';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
-import { getSimpleMockTallyResults } from '../../../test/helpers/mock_results';
 import {
   FullElectionTallyReportScreen,
   TITLE,
@@ -32,7 +32,7 @@ test('displays report', async () => {
       filter: {},
       groupBy: {},
     },
-    [getSimpleMockTallyResults({ election, scannedBallotCount: 11 })]
+    [buildSimpleMockTallyReportResults({ election, scannedBallotCount: 11 })]
   );
 
   renderInAppContext(<FullElectionTallyReportScreen />, {

@@ -51,12 +51,16 @@ interface GenerateTestDeckParams {
   election: Election;
   precinctId?: PrecinctId;
   markingMethod: TestDeckBallot['markingMethod'];
+  includeOvervotedBallots?: boolean;
+  includeBlankBallots?: boolean;
 }
 
 export function generateTestDeckBallots({
   election,
   precinctId,
   markingMethod,
+  includeOvervotedBallots = true,
+  includeBlankBallots = true,
 }: GenerateTestDeckParams): TestDeckBallot[] {
   const precincts: string[] = precinctId
     ? [precinctId]
@@ -106,8 +110,7 @@ export function generateTestDeckBallots({
         });
       }
 
-      if (markingMethod === 'hand') {
-        // Overvoted ballot
+      if (includeOvervotedBallots && markingMethod === 'hand') {
         // Generates a minimally overvoted ballot - a single overvote in the
         // first contest where an overvote is possible. Does not overvote
         // candidate contests where you must select a write-in to overvote. See
@@ -133,19 +136,20 @@ export function generateTestDeckBallots({
           });
         }
 
-        // Blank ballot x2
-        ballots.push({
-          ballotStyleId: ballotStyle.id,
-          precinctId: currentPrecinctId,
-          markingMethod,
-          votes: {},
-        });
-        ballots.push({
-          ballotStyleId: ballotStyle.id,
-          precinctId: currentPrecinctId,
-          markingMethod,
-          votes: {},
-        });
+        if (includeBlankBallots) {
+          ballots.push({
+            ballotStyleId: ballotStyle.id,
+            precinctId: currentPrecinctId,
+            markingMethod,
+            votes: {},
+          });
+          ballots.push({
+            ballotStyleId: ballotStyle.id,
+            precinctId: currentPrecinctId,
+            markingMethod,
+            votes: {},
+          });
+        }
       }
     }
   }

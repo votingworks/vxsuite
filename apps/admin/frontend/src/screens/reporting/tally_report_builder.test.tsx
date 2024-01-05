@@ -1,11 +1,11 @@
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { expectPrint } from '@votingworks/test-utils';
+import { buildSimpleMockTallyReportResults } from '@votingworks/utils';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { TallyReportBuilder } from './tally_report_builder';
 import { screen, waitFor, within } from '../../../test/react_testing_library';
-import { getSimpleMockTallyResults } from '../../../test/helpers/mock_results';
 import { canonicalizeFilter, canonicalizeGroupBy } from '../../utils/reporting';
 
 let apiMock: ApiMock;
@@ -65,25 +65,46 @@ test('happy path', async () => {
     [
       {
         precinctId: 'precinct-1',
-        ...getSimpleMockTallyResults({ election, scannedBallotCount: 10 }),
+        ...buildSimpleMockTallyReportResults({
+          election,
+          scannedBallotCount: 10,
+          cardCountsByParty: {
+            '0': 3,
+            '1': 7,
+          },
+        }),
       },
       {
         precinctId: 'precinct-2',
-        ...getSimpleMockTallyResults({ election, scannedBallotCount: 20 }),
+        ...buildSimpleMockTallyReportResults({
+          election,
+          scannedBallotCount: 20,
+          cardCountsByParty: {
+            '0': 9,
+            '1': 11,
+          },
+        }),
       },
     ]
   );
   userEvent.click(screen.getButton('Generate Report'));
 
-  await screen.findByText('Unofficial Precinct 1 Absentee Ballot Tally Report');
-  const precinct1Page = screen
-    .getByText('Unofficial Precinct 1 Absentee Ballot Tally Report')
-    .closest('section')!;
+  await screen.findAllByText('Ballot Counts');
+  const precinct1MammalPage = screen
+    .getAllByText('Unofficial Precinct 1 Absentee Ballot Tally Report')
+    .map((element) => element.closest('section')!)
+    .find(
+      (page) =>
+        !!within(page).queryByText('Mammal Party Example Primary Election')
+    )!;
   expect(
-    within(precinct1Page).getByTestId('total-ballot-count')
-  ).toHaveTextContent('10');
+    within(precinct1MammalPage).getByTestId('total-ballot-count')
+  ).toHaveTextContent('3');
 
-  screen.getByText('Unofficial Precinct 2 Absentee Ballot Tally Report');
+  const precinct2Pages = screen
+    .getAllByText('Unofficial Precinct 2 Absentee Ballot Tally Report')
+    .map((element) => element.closest('section')!);
+  expect(precinct2Pages).toHaveLength(3);
 
   // Change Report Parameters
   userEvent.click(screen.getByLabelText('Remove Absentee'));
@@ -105,30 +126,50 @@ test('happy path', async () => {
     [
       {
         precinctId: 'precinct-1',
-        ...getSimpleMockTallyResults({ election, scannedBallotCount: 10 }),
+        ...buildSimpleMockTallyReportResults({
+          election,
+          scannedBallotCount: 30,
+          cardCountsByParty: {
+            '0': 17,
+            '1': 23,
+          },
+        }),
       },
       {
         precinctId: 'precinct-2',
-        ...getSimpleMockTallyResults({ election, scannedBallotCount: 20 }),
+        ...buildSimpleMockTallyReportResults({
+          election,
+          scannedBallotCount: 40,
+          cardCountsByParty: {
+            '0': 27,
+            '1': 13,
+          },
+        }),
       },
     ]
   );
   userEvent.click(screen.getButton('Generate Report'));
 
-  await screen.findByText('Unofficial Precinct 1 Precinct Ballot Tally Report');
-  screen.getByText('Unofficial Precinct 2 Precinct Ballot Tally Report');
+  await screen.findAllByText('Ballot Counts');
+  expect(
+    screen.getAllByText('Unofficial Precinct 1 Precinct Ballot Tally Report')
+  ).toHaveLength(3);
+  expect(
+    screen.getAllByText('Unofficial Precinct 2 Precinct Ballot Tally Report')
+  ).toHaveLength(3);
 
   // Print Report
   userEvent.click(screen.getButton('Print Report'));
   await expectPrint((printResult) => {
-    printResult.getByText('Unofficial Precinct 1 Precinct Ballot Tally Report');
-    const printedPrecinct1Page = printResult
-      .getByText('Unofficial Precinct 1 Precinct Ballot Tally Report')
-      .closest('section')!;
+    const printedPrecinct1MammalPage = printResult
+      .getAllByText('Unofficial Precinct 1 Precinct Ballot Tally Report')
+      .map((element) => element.closest('section')!)
+      .find(
+        (page) =>
+          !!within(page).queryByText('Mammal Party Example Primary Election')
+      )!;
     expect(
-      within(printedPrecinct1Page).getByTestId('total-ballot-count')
-    ).toHaveTextContent('10');
-
-    printResult.getByText('Unofficial Precinct 2 Precinct Ballot Tally Report');
+      within(printedPrecinct1MammalPage).getByTestId('total-ballot-count')
+    ).toHaveTextContent('17');
   });
 });

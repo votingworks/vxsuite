@@ -10,7 +10,6 @@ import type {
   WriteInCandidateRecord,
   WriteInAdjudicationContext,
   ScannerBatch,
-  TallyReportResults,
   WriteInAdjudicationQueueMetadata,
   WriteInImageView,
   ExportDataError,
@@ -438,11 +437,11 @@ export function createApiMock(
         filter?: Admin.FrontendReportingFilter;
         groupBy?: Tabulation.GroupBy;
       },
-      results: Tabulation.GroupList<TallyReportResults>,
+      results: Tabulation.GroupList<Admin.TallyReportResults>,
       deferResult = false
     ) {
       const { promise, resolve } =
-        deferred<Tabulation.GroupList<TallyReportResults>>();
+        deferred<Tabulation.GroupList<Admin.TallyReportResults>>();
       apiClient.getResultsForTallyReports
         .expectCallWith(input)
         .returns(promise);

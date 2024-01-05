@@ -1,4 +1,4 @@
-import { Id, Tabulation } from '@votingworks/types';
+import { Admin, Id, Tabulation } from '@votingworks/types';
 import { assert, assertDefined } from '@votingworks/basics';
 import {
   coalesceGroupsAcrossParty,
@@ -11,12 +11,6 @@ import {
   mergeTabulationGroupMaps,
 } from '@votingworks/utils';
 import { Store } from '../store';
-import {
-  CardCountsByParty,
-  PartySplitTallyReportResults,
-  SingleTallyReportResults,
-  TallyReportResults,
-} from '../types';
 import { tabulateElectionResults } from './full_results';
 import { tabulateManualResults } from './manual_results';
 import { rootDebug } from '../util/debug';
@@ -61,7 +55,7 @@ export async function tabulateTallyReportResults({
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
-}): Promise<Tabulation.GroupList<TallyReportResults>> {
+}): Promise<Tabulation.GroupList<Admin.TallyReportResults>> {
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
@@ -102,7 +96,7 @@ export async function tabulateTallyReportResults({
 
   debug('organizing scanned and manual results together');
   const allSingleTallyReportResultsWithoutContestIds: Tabulation.GroupList<
-    Omit<SingleTallyReportResults, 'contestIds'>
+    Omit<Admin.SingleTallyReportResults, 'contestIds'>
   > = groupMapToGroupList(
     mergeTabulationGroupMaps(
       allScannedResults,
@@ -134,7 +128,7 @@ export async function tabulateTallyReportResults({
   assert(election.type === 'primary');
   debug('grouping results across party for primary election reports');
   const allPartySplitReportResultsWithoutContestIds: Tabulation.GroupList<
-    Omit<PartySplitTallyReportResults, 'contestIds'>
+    Omit<Admin.PartySplitTallyReportResults, 'contestIds'>
   > = coalesceGroupsAcrossParty(
     allSingleTallyReportResultsWithoutContestIds,
     groupBy,
@@ -162,7 +156,7 @@ export async function tabulateTallyReportResults({
         : undefined;
 
       // maintain split for card counts
-      const cardCountsByParty: CardCountsByParty = reportsByParty.reduce(
+      const cardCountsByParty: Admin.CardCountsByParty = reportsByParty.reduce(
         (ccByParty, partyTallyReportResults) => {
           assert(partyTallyReportResults.partyId !== undefined);
           return {

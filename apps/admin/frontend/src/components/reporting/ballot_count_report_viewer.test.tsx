@@ -16,10 +16,10 @@ import { LogEventId, fakeLogger } from '@votingworks/logging';
 import { Admin, Tabulation } from '@votingworks/types';
 import { act } from 'react-dom/test-utils';
 import { mockUsbDriveStatus } from '@votingworks/ui';
+import { buildMockCardCounts } from '@votingworks/utils';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { screen, within } from '../../../test/react_testing_library';
 import { renderInAppContext } from '../../../test/render_in_app_context';
-import { getMockCardCounts } from '../../../test/helpers/mock_results';
 import { BallotCountReportViewer } from './ballot_count_report_viewer';
 
 let apiMock: ApiMock;
@@ -28,11 +28,11 @@ const MOCK_VOTING_METHOD_CARD_COUNTS: Tabulation.GroupList<Tabulation.CardCounts
   [
     {
       votingMethod: 'absentee',
-      ...getMockCardCounts(1, undefined, 3),
+      ...buildMockCardCounts(1, undefined, 3),
     },
     {
       votingMethod: 'precinct',
-      ...getMockCardCounts(0, undefined, 1),
+      ...buildMockCardCounts(0, undefined, 1),
     },
   ];
 
@@ -285,7 +285,7 @@ test('displays custom filter rather than specific title when necessary', async (
       filter,
       groupBy: {},
     },
-    [getMockCardCounts(5, undefined, 10)]
+    [buildMockCardCounts(5, undefined, 10)]
   );
 
   renderInAppContext(

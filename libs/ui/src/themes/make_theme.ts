@@ -284,9 +284,18 @@ interface SizeThemeParams {
   sizeMode: SizeMode;
 }
 
+// When using `libs/ui` in a server environment, we don't have access to
+// the window. The pixel ratio isn't used in enough places for this to be
+// important, but setting it to a reasonable value here.
+const WINDOWLESS_DEVICE_PIXEL_RATIO = 144;
+
 /** PPI calculation functions by screen type: */
 const devicePixelsPerInch: Record<ScreenType, () => number> = {
-  builtIn: () => window.devicePixelRatio * PIXELS_PER_INCH_WEB,
+  builtIn: () =>
+    // istanbul ignore next
+    typeof window === 'undefined'
+      ? WINDOWLESS_DEVICE_PIXEL_RATIO
+      : window.devicePixelRatio * PIXELS_PER_INCH_WEB,
   elo13: () => SCREEN_WIDTH_PIXELS_ELO_13 / SCREEN_WIDTH_INCHES_ELO_13,
   elo15: () => SCREEN_WIDTH_PIXELS_ELO_15 / SCREEN_WIDTH_INCHES_ELO_15,
   lenovoThinkpad15: () =>
