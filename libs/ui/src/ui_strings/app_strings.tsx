@@ -5,6 +5,9 @@ import { UiString } from './ui_string';
 
 // TODO(kofi): Add lint rule to ensure object keys match uiStringKey props.
 
+// After updating this file, run `pnpm build[:app-strings-catalog]` from `libs/ui`
+// to generate libs/ui/src/ui_strings/app_strings_catalog/latest.json
+
 /* istanbul ignore next - mostly presentational, tested via apps where relevant */
 export const appStrings = {
   // TODO(kofi): Fill out.
@@ -148,7 +151,7 @@ export const appStrings = {
   instructionsBmdInvalidatedBallot: () => (
     <UiString uiStringKey="instructionsBmdInvalidatedBallot">
       You have indicated your ballot needs changes. Please alert a poll worker
-      to invalidate your incorrect ballot and restart your voting session.
+      to invalidate the incorrect ballot sheet.
     </UiString>
   ),
 
