@@ -1188,8 +1188,11 @@ dependencies = [
  "crossterm",
  "image",
  "lazy_static",
+ "neon",
  "ratatui",
  "rayon",
+ "serde",
+ "serde_json",
  "users",
 ]
 

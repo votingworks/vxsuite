@@ -1,4 +1,5 @@
 import * as customScanner from '@votingworks/custom-scanner';
+import * as pdi from '@votingworks/pdi-rs';
 import { LogEventId, Logger, LogSource } from '@votingworks/logging';
 import * as dotenv from 'dotenv';
 import * as dotenvExpand from 'dotenv-expand';
@@ -14,8 +15,10 @@ import {
   isFeatureFlagEnabled,
   isIntegrationTest,
 } from '@votingworks/utils';
+import { ok } from '@votingworks/basics';
 import { NODE_ENV, SCAN_WORKSPACE } from './globals';
-import * as customStateMachine from './scanners/custom/state_machine';
+// import * as customStateMachine from './scanners/custom/state_machine';
+import * as pdiStateMachine from './scanners/pdi/state_machine';
 import * as server from './server';
 import { createWorkspace, Workspace } from './util/workspace';
 
@@ -77,9 +80,68 @@ async function main(): Promise<number> {
   const workspace = await resolveWorkspace();
   const usbDrive = detectUsbDrive(logger);
 
+  const openPdiScanner: typeof customScanner.openScanner = async () => {
+    console.log('openPdiScanner');
+    const result = await customScanner.openScanner();
+    if (result.isErr()) {
+      console.log('openPdiScanner: error', result.err());
+      return result;
+    }
+
+    const pdiScanner = pdi.openScanner();
+    pdiScanner.setResolution(200);
+    pdiScanner.setColorDepth(pdi.ColorDepth.Bitonal);
+    pdiScanner.setFeederEnabled(true);
+
+    const scanner = result.ok();
+    return ok({
+      connect() {
+        return scanner.connect();
+      },
+
+      disconnect() {
+        return scanner.disconnect();
+      },
+
+      getReleaseVersion(releaseType) {
+        return scanner.getReleaseVersion(releaseType);
+      },
+
+      getStatus() {
+        try {
+          console.log('last event', pdiScanner.getLastScannerEvent());
+          // console.log('status', pdiScanner.getStatus());
+        } catch (e) {
+          console.log('getStatus failed', e);
+        }
+        console.log(
+          'pollForStatus: has scanned document?',
+          pdiScanner.getLastScannedDocument()
+        );
+        return scanner.getStatus();
+      },
+
+      getStatusRaw() {
+        return scanner.getStatusRaw();
+      },
+
+      move(movement) {
+        return scanner.move(movement);
+      },
+
+      scan(scanParameters, options) {
+        return scanner.scan(scanParameters, options);
+      },
+
+      resetHardware() {
+        return scanner.resetHardware();
+      },
+    });
+  };
+
   const precinctScannerStateMachine =
-    customStateMachine.createPrecinctScannerStateMachine({
-      createCustomClient: customScanner.openScanner,
+    pdiStateMachine.createPrecinctScannerStateMachine({
+      createCustomClient: openPdiScanner,
       auth,
       workspace,
       logger,

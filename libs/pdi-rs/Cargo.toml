@@ -2,6 +2,11 @@
 name = "pdi-rs"
 version = "0.1.0"
 edition = "2021"
+exclude = ["build/rust_addon.node"]
+
+[lib]
+crate-type = ["cdylib"]
+path = "src/lib.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -14,6 +19,9 @@ image = { version = "0.24.7", default-features = false, features = [
     "jpeg",
 ] }
 lazy_static = "1.4.0"
+neon = { workspace = true }
 ratatui = "0.23.0"
 rayon = "1.5.3"
+serde = { workspace = true }
+serde_json = { workspace = true }
 users = "0.11.0"

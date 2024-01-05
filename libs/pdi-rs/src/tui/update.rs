@@ -3,7 +3,7 @@ use std::time::Duration;
 use anyhow::Result;
 use crossterm::event::{self, Event::Key, KeyCode::Char};
 
-use crate::pdiscan::EjectDirection;
+use crate::pdiscan::{EjectDirection, Event};
 
 use super::{
     app::App,
@@ -12,6 +12,28 @@ use super::{
 
 pub(crate) fn update(app: &mut App) -> Result<()> {
     if let Some(ref scanner) = app.get_scanner() {
+        match scanner.wait_for_event(Duration::from_millis(1)) {
+            Ok(Event::BeginScan) => {
+                app.log("📄 Scanning document…");
+            }
+            Ok(Event::EndScan) => {
+                app.log("📄 Finished scanning document.");
+            }
+            Ok(Event::AbortScan) => {
+                app.log("⚠️ Scan aborted.");
+            }
+            Ok(Event::EjectPaused) => {
+                app.log("📄 Eject paused.");
+            }
+            Ok(Event::EjectResumed) => {
+                app.log("📄 Eject resumed.");
+            }
+            Ok(Event::FeederDisabled) => {
+                app.log("⛔︎ Feeder disabled.");
+            }
+            Err(_) => {}
+        }
+
         if let Ok(document) = scanner.wait_for_document(Duration::from_millis(1)) {
             let next_scan_index = app.increment_scan_index();
             let front_filename = format!("side-a-{:03}.jpeg", next_scan_index);
@@ -41,7 +63,14 @@ pub(crate) fn update(app: &mut App) -> Result<()> {
         }
 
         if let Ok(error) = scanner.wait_for_error(Duration::from_millis(1)) {
-            app.log(format!("⚠️ Scanner error: {:?}", error));
+            app.log(format!(
+                "⚠️ Scanner error: {} ({:?})",
+                error.short_description, error.error_type
+            ));
+            app.log(format!("⚠️ Description: {}", error.long_description));
+            if !error.extra_info.is_empty() {
+                app.log(format!("⚠️ Additional information: {}", error.extra_info));
+            }
         }
     }
 

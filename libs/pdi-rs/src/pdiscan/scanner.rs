@@ -1,18 +1,20 @@
 #![allow(dead_code)]
 
 use std::{
-    cell::RefCell,
+    borrow::{Borrow, BorrowMut},
+    f32::consts::E,
     ffi::{c_char, c_int, c_long, c_uint, c_void},
     ops::Deref,
     ptr::null_mut,
     sync::{
-        mpsc::{self, Receiver, Sender},
+        mpsc::{self, Receiver, RecvTimeoutError, Sender},
         Arc, Mutex,
     },
     time::Duration,
 };
 
 use image::{DynamicImage, GenericImageView};
+use serde::Serialize;
 
 use crate::pdiscan::{
     dib::read_bitmap_from_ptr,
@@ -50,6 +52,10 @@ extern "C" fn page_process_callback(
     e_buf: pd_buffer_types,
     user_data: *mut c_void,
 ) {
+    eprint!(
+        "page_process_callback: page_number: {}, e_page: {:?}, e_proc: {:?}, i_element: {}, i_max_elements: {}, i_size: {}, p_buf: {:?}, e_buf: {:?}, user_data: {:?}",
+        page_number, e_page, e_proc, i_element, i_max_elements, i_size, p_buf, e_buf, user_data
+    );
 }
 
 #[no_mangle]
@@ -67,7 +73,14 @@ extern "C" fn scanning_error_callback(
         }
     };
 
-    scanner.scanning_error_callback(scanning_error);
+    // IMPORTANT: this is the scanning handle that was passed to
+    // `PdInstallCallback` in `Scanner::connect`.
+    let scanning_handle = user_data;
+    if let Ok(error) =
+        Error::try_from_pdiscan_error_callback(scanning_handle, scanning_error, extra_info)
+    {
+        scanner.scanning_error_callback(error);
+    }
 }
 
 #[derive(Clone)]
@@ -216,7 +229,8 @@ pub enum EjectDirection {
     BackHold,
 }
 
-#[derive(Debug, PartialEq, Default)]
+#[derive(Debug, PartialEq, Default, Serialize)]
+#[serde(rename_all = "camelCase")]
 pub struct ScannerStatus {
     pub rear_left_sensor_covered: bool,
     pub rear_right_sensor_covered: bool,
@@ -241,6 +255,16 @@ pub struct ScannerStatus {
     pub in_diagnostic_mode: bool,
     pub document_in_scanner: bool,
     pub calibration_of_unit_needed: bool,
+}
+
+#[derive(Debug)]
+pub enum Event {
+    BeginScan,
+    EndScan,
+    EjectPaused,
+    EjectResumed,
+    AbortScan,
+    FeederDisabled,
 }
 
 fn get_string_tag_value(scanning_handle: ScanningHandle, tag_id: pdiscan_tags) -> Result<String> {
@@ -292,13 +316,17 @@ fn set_long_tag_value(
 
 #[derive(Debug)]
 pub struct Scanner {
-    inner: RefCell<ScannerInner>,
+    inner: Arc<Mutex<ScannerInner>>,
     settings: Settings,
+    event_tx: Sender<Event>,
+    event_rx: Receiver<Event>,
     scan_tx: Sender<ScanDocument>,
     scan_rx: Receiver<ScanDocument>,
-    error_tx: Sender<pdiscan_errors>,
-    error_rx: Receiver<pdiscan_errors>,
+    error_tx: Sender<Error>,
+    error_rx: Receiver<Error>,
 }
+
+unsafe impl Sync for Scanner {}
 
 #[derive(Debug)]
 struct ScannerInner {
@@ -307,6 +335,8 @@ struct ScannerInner {
     eject_direction: EjectDirection,
     eject_delay: Duration,
 }
+
+unsafe impl Send for ScannerInner {}
 
 impl Scanner {
     pub fn connect(settings: Settings) -> Result<Arc<Self>> {
@@ -318,8 +348,8 @@ impl Scanner {
                     "scanner already connected",
                     "scanner already connected",
                     "",
-                    file!(),
-                    line!() as i64,
+                    Some(file!().to_string()),
+                    Some(line!() as i64),
                 ));
             }
         }
@@ -385,7 +415,9 @@ impl Scanner {
                 scanning_handle,
                 pd_callback_types::PD_CALLBACK_TYPE_SCANNING_ERROR,
                 callback_ptr,
-                null_mut(),
+                // IMPORTANT: this handle is used in `scanning_error_callback`
+                // to query the scanner for the error that occurred.
+                scanning_handle,
             )
         };
 
@@ -414,16 +446,25 @@ impl Scanner {
             settings.duplex_mode as i64,
         )?;
 
+        set_long_tag_value(
+            scanning_handle,
+            pdiscan_tags::PDISCAN_TAG_CONTROL_MESSAGES,
+            1,
+        )?;
+
         let (scan_tx, scan_rx) = mpsc::channel();
         let (error_tx, error_rx) = mpsc::channel();
+        let (event_tx, event_rx) = mpsc::channel();
         let scanner = Self {
-            inner: RefCell::new(ScannerInner {
+            inner: Arc::new(Mutex::new(ScannerInner {
                 scanning_handle,
                 connected: true,
                 eject_direction: EjectDirection::default(),
-                eject_delay: Duration::from_millis(0),
-            }),
+                eject_delay: Duration::ZERO,
+            })),
             settings,
+            event_tx,
+            event_rx,
             scan_tx,
             scan_rx,
             error_tx,
@@ -439,7 +480,8 @@ impl Scanner {
     }
 
     fn scanning_handle(&self) -> *mut c_void {
-        self.inner.borrow().scanning_handle
+        let inner = self.inner.lock();
+        inner.as_ref().unwrap().scanning_handle
     }
 
     pub fn set_feeder_enabled(&self, enabled: bool) -> Result<()> {
@@ -463,19 +505,23 @@ impl Scanner {
     }
 
     pub fn set_eject_direction(&self, eject_direction: EjectDirection) {
-        self.inner.borrow_mut().eject_direction = eject_direction;
+        let mut inner = self.inner.lock();
+        inner.borrow_mut().as_deref_mut().unwrap().eject_direction = eject_direction;
     }
 
     pub fn get_eject_direction(&self) -> EjectDirection {
-        self.inner.borrow().eject_direction
+        let inner = self.inner.lock();
+        inner.borrow().as_deref().unwrap().eject_direction
     }
 
     pub fn set_eject_delay(&self, eject_delay: Duration) {
-        self.inner.borrow_mut().eject_delay = eject_delay;
+        let mut inner = self.inner.lock();
+        inner.borrow_mut().as_deref_mut().unwrap().eject_delay = eject_delay;
     }
 
     pub fn get_eject_delay(&self) -> Duration {
-        self.inner.borrow().eject_delay
+        let inner = self.inner.lock();
+        inner.borrow().as_deref().unwrap().eject_delay
     }
 
     pub fn get_scanner_name(&self) -> Result<String> {
@@ -510,8 +556,8 @@ impl Scanner {
                     "invalid color depth",
                     format!("color depth value from scanner is invalid: {e}"),
                     "",
-                    file!(),
-                    line!() as i64,
+                    Some(file!().to_string()),
+                    Some(line!() as i64),
                 )
             })
     }
@@ -542,8 +588,8 @@ impl Scanner {
                 "invalid duplex mode",
                 format!("duplex mode value from scanner is invalid: {e}"),
                 "",
-                file!(),
-                line!() as i64,
+                Some(file!().to_string()),
+                Some(line!() as i64),
             )
         })
     }
@@ -606,8 +652,8 @@ impl Scanner {
                 "invalid scanner status",
                 format!("invalid scanner status: {scanner_status_buffer:?}"),
                 "",
-                file!(),
-                line!() as i64,
+                Some(file!().to_string()),
+                Some(line!() as i64),
             ));
         }
 
@@ -660,6 +706,13 @@ impl Scanner {
         Ok(())
     }
 
+    pub fn wait_for_event(
+        &self,
+        timeout: Duration,
+    ) -> std::result::Result<Event, RecvTimeoutError> {
+        self.event_rx.recv_timeout(timeout)
+    }
+
     pub fn wait_for_document(&self, timeout: Duration) -> Result<ScanDocument> {
         self.scan_rx.recv_timeout(timeout).map_err(|e| {
             Error::new(
@@ -667,23 +720,17 @@ impl Scanner {
                 "error waiting for document",
                 format!("error waiting for document: {e}"),
                 "",
-                file!(),
-                line!() as i64,
+                Some(file!().to_string()),
+                Some(line!() as i64),
             )
         })
     }
 
-    pub fn wait_for_error(&self, timeout: Duration) -> Result<pdiscan_errors> {
-        self.error_rx.recv_timeout(timeout).map_err(|e| {
-            Error::new(
-                ErrorType::AbortScan,
-                "error waiting for error",
-                format!("error waiting for error: {e}"),
-                "",
-                file!(),
-                line!() as i64,
-            )
-        })
+    pub fn wait_for_error(
+        &self,
+        timeout: Duration,
+    ) -> std::result::Result<Error, RecvTimeoutError> {
+        self.error_rx.recv_timeout(timeout)
     }
 
     pub fn reject_and_hold_document_front(&self) -> Result<()> {
@@ -737,9 +784,61 @@ impl Scanner {
         }
     }
 
-    fn scanning_error_callback(&self, scanning_error: pdiscan_errors) {
-        if let Err(e) = self.error_tx.send(scanning_error) {
-            eprintln!("error sending scanning error to channel: {e}");
+    fn scanning_error_callback(&self, error: Error) {
+        match error {
+            Error {
+                error_type: ErrorType::BeginScan,
+                ..
+            } => {
+                if let Err(e) = self.event_tx.send(Event::BeginScan) {
+                    eprintln!("error sending begin scan event to channel: {e}");
+                }
+            }
+            Error {
+                error_type: ErrorType::EndScan,
+                ..
+            } => {
+                if let Err(e) = self.event_tx.send(Event::EndScan) {
+                    eprintln!("error sending end scan event to channel: {e}");
+                }
+            }
+            Error {
+                error_type: ErrorType::AbortScan,
+                ..
+            } => {
+                if let Err(e) = self.event_tx.send(Event::AbortScan) {
+                    eprintln!("error sending abort scan event to channel: {e}");
+                }
+            }
+            Error {
+                error_type: ErrorType::EjectPaused,
+                ..
+            } => {
+                if let Err(e) = self.event_tx.send(Event::EjectPaused) {
+                    eprintln!("error sending eject paused event to channel: {e}");
+                }
+            }
+            Error {
+                error_type: ErrorType::EjectResumed,
+                ..
+            } => {
+                if let Err(e) = self.event_tx.send(Event::EjectResumed) {
+                    eprintln!("error sending eject resumed event to channel: {e}");
+                }
+            }
+            Error {
+                error_type: ErrorType::FeederDisabled,
+                ..
+            } => {
+                if let Err(e) = self.event_tx.send(Event::FeederDisabled) {
+                    eprintln!("error sending feeder disabled event to channel: {e}");
+                }
+            }
+            error => {
+                if let Err(e) = self.error_tx.send(error) {
+                    eprintln!("error sending scanning error to channel: {e}");
+                }
+            }
         }
     }
 
@@ -756,7 +855,8 @@ impl Scanner {
             return Err(Error::try_from_pdiscan_error(self.scanning_handle(), errno).unwrap());
         }
 
-        let mut inner = self.inner.borrow_mut();
+        let mut inner = self.inner.lock();
+        let inner = inner.as_deref_mut().unwrap();
         inner.scanning_handle = std::ptr::null_mut();
         inner.connected = false;
         Ok(())
@@ -827,6 +927,45 @@ impl From<ColorDepth> for pd_color_depths {
             ColorDepth::GrayInfrared8Bit => pd_color_depths::PD_COLOR_DEPTH_8_BIT_GRAYIR,
             ColorDepth::GrayUltraviolet8Bit => pd_color_depths::PD_COLOR_DEPTH_8_BIT_GRAYUV,
             ColorDepth::ColorGray32Bit => pd_color_depths::PD_COLOR_DEPTH_32_BIT_COLORGRAY,
+        }
+    }
+}
+
+impl TryFrom<u8> for ColorDepth {
+    type Error = String;
+
+    fn try_from(value: u8) -> std::result::Result<Self, Self::Error> {
+        match value {
+            color_depth if color_depth == ColorDepth::Bitonal as u8 => Ok(ColorDepth::Bitonal),
+            color_depth if color_depth == ColorDepth::Grayscale4Bit as u8 => {
+                Ok(ColorDepth::Grayscale4Bit)
+            }
+            color_depth if color_depth == ColorDepth::Grayscale8Bit as u8 => {
+                Ok(ColorDepth::Grayscale8Bit)
+            }
+            color_depth if color_depth == ColorDepth::Color8Bit as u8 => Ok(ColorDepth::Color8Bit),
+            color_depth if color_depth == ColorDepth::Color24Bit as u8 => {
+                Ok(ColorDepth::Color24Bit)
+            }
+            color_depth if color_depth == ColorDepth::GrayDual8Bit as u8 => {
+                Ok(ColorDepth::GrayDual8Bit)
+            }
+            color_depth if color_depth == ColorDepth::GrayRed8Bit as u8 => {
+                Ok(ColorDepth::GrayRed8Bit)
+            }
+            color_depth if color_depth == ColorDepth::GrayBlue8Bit as u8 => {
+                Ok(ColorDepth::GrayBlue8Bit)
+            }
+            color_depth if color_depth == ColorDepth::GrayInfrared8Bit as u8 => {
+                Ok(ColorDepth::GrayInfrared8Bit)
+            }
+            color_depth if color_depth == ColorDepth::GrayUltraviolet8Bit as u8 => {
+                Ok(ColorDepth::GrayUltraviolet8Bit)
+            }
+            color_depth if color_depth == ColorDepth::ColorGray32Bit as u8 => {
+                Ok(ColorDepth::ColorGray32Bit)
+            }
+            _ => Err("invalid color depth".to_string()),
         }
     }
 }

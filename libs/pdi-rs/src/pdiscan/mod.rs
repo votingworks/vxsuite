@@ -9,5 +9,5 @@ mod scanner;
 pub use error::Error;
 pub use result::Result;
 pub use scanner::{
-    ColorDepth, DuplexMode, EjectDirection, ScanMode, Scanner, ScannerStatus, Settings,
+    ColorDepth, DuplexMode, EjectDirection, Event, ScanMode, Scanner, ScannerStatus, Settings,
 };
