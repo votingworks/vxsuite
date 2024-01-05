@@ -339,8 +339,6 @@ function loadMetadataAndInterpretBallot(
     'Expected precinctSelection to be defined in store'
   );
 
-  // Hardcoded until isLivemode is moved from frontend store to backend store
-  const testMode = true;
   const { markThresholds, precinctScanAdjudicationReasons } = assertDefined(
     store.getSystemSettings()
   );
@@ -349,7 +347,7 @@ function loadMetadataAndInterpretBallot(
     {
       electionDefinition,
       precinctSelection,
-      testMode,
+      testMode: store.getTestMode(),
       markThresholds,
       adjudicationReasons: precinctScanAdjudicationReasons,
     },
