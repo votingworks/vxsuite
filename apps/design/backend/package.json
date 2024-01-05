@@ -18,7 +18,7 @@
     "lint:fix": "pnpm type-check && eslint . --fix",
     "pre-commit": "lint-staged",
     "start": "node ./build/index.js & node ./build/worker/index.js",
-    "test": "is-ci test:ci test:watch",
+    "test": "TZ=UTC is-ci test:ci test:watch",
     "test:ci": "jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
     "test:coverage": "jest --coverage",
     "test:debug": "node --inspect-brk $(which jest) --runInBand --no-cache",
