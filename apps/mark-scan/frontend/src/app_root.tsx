@@ -155,7 +155,7 @@ export function AppRoot({
   const machineConfigQuery = getMachineConfig.useQuery();
 
   const devices = useDevices({ hardware, logger });
-  const { accessibleController, computer } = devices;
+  const { computer } = devices;
 
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const authStatusQuery = getAuthStatus.useQuery();
@@ -551,7 +551,6 @@ export function AppRoot({
         <InsertCardScreen
           appPrecinct={precinctSelection}
           electionDefinition={optionalElectionDefinition}
-          showNoAccessibleControllerWarning={!accessibleController}
           showNoChargerAttachedWarning={!computer.batteryIsCharging}
           isLiveMode={!isTestMode}
           pollsState={pollsState}

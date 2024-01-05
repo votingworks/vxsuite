@@ -37,48 +37,6 @@ const lowBatteryErrorScreenText = 'No Power Detected and Battery is Low';
 const noPowerDetectedWarningText = 'No Power Detected.';
 
 describe('Displays setup warning messages and errors screens', () => {
-  it('Displays warning if Accessible Controller connection is lost', async () => {
-    apiMock.expectGetMachineConfig();
-    const hardware = MemoryHardware.buildStandard();
-    hardware.setAccessibleControllerConnected(true);
-
-    apiMock.expectGetElectionDefinition(electionGeneralDefinition);
-    apiMock.expectGetElectionState({
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-      pollsState: 'polls_open',
-    });
-
-    render(
-      <App
-        hardware={hardware}
-        apiClient={apiMock.mockApiClient}
-        reload={jest.fn()}
-      />
-    );
-    const accessibleControllerWarningText =
-      'Voting with an accessible controller is not currently available.';
-
-    // Start on Insert Card screen
-    await screen.findByText(insertCardScreenText);
-    expect(screen.queryByText(accessibleControllerWarningText)).toBeFalsy();
-
-    // Disconnect Accessible Controller
-    act(() => {
-      hardware.setAccessibleControllerConnected(false);
-    });
-    await advanceTimersAndPromises();
-    screen.getByText(accessibleControllerWarningText);
-    screen.getByText(insertCardScreenText);
-
-    // Reconnect Accessible Controller
-    act(() => {
-      hardware.setAccessibleControllerConnected(true);
-    });
-    await advanceTimersAndPromises();
-    expect(screen.queryByText(accessibleControllerWarningText)).toBeFalsy();
-    screen.getByText(insertCardScreenText);
-  });
-
   it('Displays error screen if Card Reader connection is lost', async () => {
     apiMock.expectGetMachineConfig();
     const hardware = MemoryHardware.buildStandard();
