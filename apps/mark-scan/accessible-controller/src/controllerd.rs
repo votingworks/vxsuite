@@ -3,7 +3,10 @@ use std::{
     io, thread,
     time::{Duration, Instant},
 };
-use uinput::{event::keyboard, Device};
+use uinput::{
+    event::{keyboard, Keyboard},
+    Device,
+};
 
 const POLL_INTERVAL: Duration = Duration::from_millis(10);
 const MAX_ECHO_RESPONSE_WAIT: Duration = Duration::from_secs(1);
@@ -25,8 +28,6 @@ enum CommandError {
     KeypressError(#[from] uinput::Error),
     #[error("Button value invalid: {0}")]
     InvalidButton(u8),
-    #[error("Button unsupported: {0:?}")]
-    UnsupportedButton(Button),
     #[error("Invalid CRC16 value: expected {expected:x}, actual {actual:x}")]
     InvalidCrc { expected: u16, actual: u16 },
 }
@@ -197,7 +198,7 @@ enum Action {
     Pressed = 0x01,
 }
 
-fn send_key(device: &mut Device, key: keyboard::Key) -> Result<(), CommandError> {
+fn send_key(device: &mut Device, key: Keyboard) -> Result<(), CommandError> {
     device.click(&key)?;
     device.synchronize().unwrap();
     Ok(())
@@ -206,29 +207,39 @@ fn send_key(device: &mut Device, key: keyboard::Key) -> Result<(), CommandError>
 fn handle_command(device: &mut Device, data: &[u8]) -> Result<(), CommandError> {
     let ButtonStatusCommand { button, action } = data.try_into()?;
 
-    let key: keyboard::Key;
+    let key: Keyboard;
     match action {
         Action::Pressed => match button {
             Button::Select => {
-                key = keyboard::Key::Enter;
+                key = uinput::event::Keyboard::Key(keyboard::Key::Enter);
             }
             Button::Left => {
-                key = keyboard::Key::Left;
+                key = uinput::event::Keyboard::Key(keyboard::Key::Left);
             }
             Button::Right => {
-                key = keyboard::Key::Right;
+                key = uinput::event::Keyboard::Key(keyboard::Key::Right);
             }
             Button::Up => {
-                key = keyboard::Key::Up;
+                key = uinput::event::Keyboard::Key(keyboard::Key::Up);
             }
             Button::Down => {
-                key = keyboard::Key::Down;
+                key = uinput::event::Keyboard::Key(keyboard::Key::Down);
             }
-            Button::Help => {
-                key = keyboard::Key::Q;
+            Button::Help => key = uinput::event::Keyboard::Misc(keyboard::Misc::Help),
+            Button::RateDown => {
+                key = uinput::event::Keyboard::Key(keyboard::Key::LeftBrace);
             }
-            _ => {
-                return Err(CommandError::UnsupportedButton(button));
+            Button::RateUp => {
+                key = uinput::event::Keyboard::Key(keyboard::Key::RightBrace);
+            }
+            Button::VolumeDown => {
+                key = uinput::event::Keyboard::Misc(keyboard::Misc::VolumeDown);
+            }
+            Button::VolumeUp => {
+                key = uinput::event::Keyboard::Misc(keyboard::Misc::VolumeUp);
+            }
+            Button::Pause => {
+                key = uinput::event::Keyboard::Misc(keyboard::Misc::Pause);
             }
         },
         Action::Released => {
@@ -317,9 +328,6 @@ fn main() {
                 match port.read(serial_buf.as_mut_slice()) {
                     Ok(size) => match handle_command(&mut device, &serial_buf[..size]) {
                         Ok(_) => (),
-                        Err(e) if matches!(e, CommandError::UnsupportedButton(_)) => {
-                            println!("[warn] {e}")
-                        }
                         Err(e) => {
                             eprintln!("Unexpected error handling command: {e}")
                         }
@@ -360,27 +368,6 @@ mod tests {
         match handle_command(&mut device, &bad_data) {
             Err(CommandError::UnexpectedDataLength(length)) => {
                 assert_eq!(length, bad_data_length as u16)
-            }
-            result => panic!("Unexpected result: {result:?}"),
-        }
-    }
-
-    #[test]
-    fn test_unsupported_button() {
-        let mut device = create_virtual_device();
-
-        let data = [
-            0x30,
-            0x00,
-            0x02,
-            Button::RateUp as u8,
-            Action::Pressed as u8,
-            0x72,
-            0xaf,
-        ];
-        match handle_command(&mut device, &data) {
-            Err(CommandError::UnsupportedButton(button)) => {
-                assert_eq!(button, Button::RateUp)
             }
             result => panic!("Unexpected result: {result:?}"),
         }
