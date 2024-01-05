@@ -1,35 +1,44 @@
-import { useContext } from 'react';
-
 import { Button, P } from '@votingworks/ui';
+import { useHistory } from 'react-router-dom';
+import { useEffect } from 'react';
 import { confirmInvalidateBallot } from '../api';
-import { BallotContext } from '../contexts/ballot_context';
 import { CenteredPageLayout } from '../components/centered_page_layout';
 
-export function RemoveInvalidatedBallotPage(): JSX.Element {
-  const { resetBallot, endVoterSession } = useContext(BallotContext);
+interface Props {
+  paperPresent: boolean;
+}
+
+export function RemoveInvalidatedBallotPage(props: Props): JSX.Element {
+  const { paperPresent } = props;
 
   const confirmInvalidateBallotMutation = confirmInvalidateBallot.useMutation();
 
-  async function onPressContinue() {
-    // Reset session and ballot before changing the state machine state. If done
-    // in the reverse order the screen will flicker
-    await endVoterSession();
-    resetBallot();
+  const history = useHistory();
+  useEffect(() => {
+    history.push('/ready-to-review');
+  });
+
+  function onPressContinue() {
     confirmInvalidateBallotMutation.mutate(undefined);
   }
 
   return (
     <CenteredPageLayout
-      title="Remove Ballot"
+      title={paperPresent ? 'Remove Ballot' : 'Ballot Removed'}
       buttons={
-        <Button onPress={onPressContinue}>Start a New Voter Session</Button>
+        <Button disabled={paperPresent} onPress={onPressContinue}>
+          Continue
+        </Button>
       }
       voterFacing={false}
     >
-      <P>
-        Remove the ballot and press below to start a new voter session. Remember
-        to spoil the old ballot.
-      </P>
+      {paperPresent ? (
+        <P>Please remove the incorrect ballot.</P>
+      ) : (
+        <P>
+          The incorrect ballot has been removed. Remember to spoil the ballot.
+        </P>
+      )}
     </CenteredPageLayout>
   );
 }
