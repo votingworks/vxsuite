@@ -15,14 +15,17 @@ import {
 
 import { PORT } from '../globals';
 import { BackgroundTask } from '../store';
-import { Workspace } from '../workspace';
+import { WorkerContext } from './context';
 
 async function generateElectionPackage(
-  { assetDirectoryPath, store }: Workspace,
+  { workspace }: WorkerContext,
   { electionId }: { electionId: Id }
 ): Promise<void> {
+  const { assetDirectoryPath, store } = workspace;
+
   const { election, layoutOptions, systemSettings } =
     store.getElection(electionId);
+
   const { electionDefinition } = layOutAllBallotStyles({
     election,
     // Ballot type and ballot mode shouldn't change the election definition, so it doesn't matter
@@ -52,7 +55,7 @@ async function generateElectionPackage(
 }
 
 export async function processBackgroundTask(
-  workspace: Workspace,
+  context: WorkerContext,
   { taskName, payload }: BackgroundTask
 ): Promise<void> {
   switch (taskName) {
@@ -61,7 +64,7 @@ export async function processBackgroundTask(
         payload,
         z.object({ electionId: z.string() })
       ).unsafeUnwrap();
-      await generateElectionPackage(workspace, parsedPayload);
+      await generateElectionPackage(context, parsedPayload);
       break;
     }
     /* istanbul ignore next: Compile-time check for completeness */
