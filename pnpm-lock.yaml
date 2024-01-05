@@ -2303,6 +2303,9 @@ importers:
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../../../libs/logging
+      '@votingworks/pdi-rs':
+        specifier: workspace:*
+        version: link:../../../libs/pdi-rs
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils
@@ -4771,7 +4774,15 @@ importers:
         specifier: 5.2.2
         version: 5.2.2
 
-  libs/pdi-rs: {}
+  libs/pdi-rs:
+    dependencies:
+      zod:
+        specifier: 3.14.4
+        version: 3.14.4
+    devDependencies:
+      cargo-cp-artifact:
+        specifier: ^0.1
+        version: 0.1.7
 
   libs/res-to-ts:
     dependencies:

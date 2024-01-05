@@ -5,6 +5,7 @@ use crossterm::{
 };
 
 mod pdiscan;
+mod pdiscan_next;
 mod tui;
 
 fn startup() -> Result<()> {

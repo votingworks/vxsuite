@@ -207,12 +207,17 @@ impl From<ErrorType> for pdiscan_errors {
 #[derive(Debug)]
 #[allow(dead_code)]
 pub struct Error {
-    error_type: ErrorType,
-    short_description: String,
-    long_description: String,
-    extra_info: String,
-    source_file_name: String,
-    source_file_line_number: i64,
+    pub error_type: ErrorType,
+    pub short_description: String,
+    pub long_description: String,
+    pub extra_info: String,
+    pub source: Option<ErrorSource>,
+}
+
+#[derive(Debug)]
+pub struct ErrorSource {
+    pub file_name: String,
+    pub file_line_number: i64,
 }
 
 impl std::fmt::Display for Error {
@@ -230,24 +235,30 @@ impl Error {
         long_description: LD,
         extra_info: EI,
         source_file_name: SFN,
-        source_file_line_number: i64,
+        source_file_line_number: Option<i64>,
     ) -> Self
     where
         SD: Into<String>,
         LD: Into<String>,
         EI: Into<String>,
-        SFN: Into<String>,
+        SFN: Into<Option<String>>,
     {
+        let source = source_file_name.into().map(|file_name| ErrorSource {
+            file_name,
+            file_line_number: source_file_line_number.unwrap_or(0),
+        });
         Self {
             error_type,
             short_description: short_description.into(),
             long_description: long_description.into(),
             extra_info: extra_info.into(),
-            source_file_name: source_file_name.into(),
-            source_file_line_number,
+            source,
         }
     }
 
+    /// Gets the error information for the last error that occurred.  This
+    /// function assumes that the error has just occurred, and the extra
+    /// information (if there was any) is still available from PDIScan.
     pub(crate) fn try_from_pdiscan_error(
         scanning_handle: *mut c_void,
         error_code: pdiscan_errors,
@@ -255,7 +266,7 @@ impl Error {
         let error_type: ErrorType = error_code.try_into()?;
         let mut short_description: [c_char; 256] = [0; 256];
         let mut long_description: [c_char; 256] = [0; 256];
-        let mut extra_info: [c_char; 256] = [0; 256];
+        let mut extra_info: [c_char; 5000] = [0; 5000];
         let mut source_file_name: [c_char; 256] = [0; 256];
         let mut source_file_line_number: c_long = 0;
 
@@ -290,7 +301,41 @@ impl Error {
             long_description,
             extra_info,
             source_file_name,
-            source_file_line_number,
+            Some(source_file_line_number),
+        ))
+    }
+
+    pub(crate) fn try_from_pdiscan_error_callback(
+        scanning_handle: *mut c_void,
+        error_code: pdiscan_errors,
+        extra_info: *const c_char,
+    ) -> std::result::Result<Error, String> {
+        let error_type: ErrorType = error_code.try_into()?;
+        let mut short_description: [c_char; 256] = [0; 256];
+        let mut long_description: [c_char; 256] = [0; 256];
+
+        let short_description = unsafe {
+            PdGetErrorShortDescription(scanning_handle, error_code, short_description.as_mut_ptr());
+            string_from_c_char_slice(&short_description)
+        };
+
+        let long_description = unsafe {
+            PdGetErrorLongDescription(scanning_handle, error_code, long_description.as_mut_ptr());
+            string_from_c_char_slice(&long_description)
+        };
+
+        let extra_info = unsafe {
+            let cstr = std::ffi::CStr::from_ptr(extra_info).to_bytes();
+            std::str::from_utf8(cstr).unwrap().to_string()
+        };
+
+        Ok(Error::new(
+            error_type,
+            short_description,
+            long_description,
+            extra_info,
+            None,
+            None,
         ))
     }
 }
