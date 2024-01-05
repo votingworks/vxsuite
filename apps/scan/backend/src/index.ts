@@ -1,9 +1,11 @@
+import { Buffer } from 'buffer';
 import * as customScanner from '@votingworks/custom-scanner';
+import * as pdi from '@votingworks/pdi-rs';
 import {
-  LogEventId,
   BaseLogger,
-  LogSource,
+  LogEventId,
   Logger,
+  LogSource,
 } from '@votingworks/logging';
 import { detectUsbDrive } from '@votingworks/usb-drive';
 import {
@@ -70,8 +72,8 @@ async function main(): Promise<number> {
   const printer = await getPrinter(logger);
 
   const precinctScannerStateMachine =
-    customStateMachine.createPrecinctScannerStateMachine({
-      createCustomClient: customScanner.openScanner,
+    pdiStateMachine.createPrecinctScannerStateMachine({
+      createCustomClient: openPdiScanner,
       auth,
       workspace,
       logger,

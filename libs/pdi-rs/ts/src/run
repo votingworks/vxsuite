@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+
+require('esbuild-runner/register');
+require('./index').main(process.argv.slice(2));

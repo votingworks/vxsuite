@@ -2369,6 +2369,9 @@ importers:
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../../../libs/logging
+      '@votingworks/pdi-rs':
+        specifier: workspace:*
+        version: link:../../../libs/pdi-rs
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../../libs/printing
@@ -5094,7 +5097,27 @@ importers:
         specifier: 5.2.2
         version: 5.2.2
 
-  libs/pdi-rs: {}
+  libs/pdi-rs:
+    dependencies:
+      '@votingworks/basics':
+        specifier: workspace:*
+        version: link:../basics
+      '@votingworks/image-utils':
+        specifier: workspace:*
+        version: link:../image-utils
+      zod:
+        specifier: 3.14.4
+        version: 3.14.4
+    devDependencies:
+      '@types/node':
+        specifier: 16.18.23
+        version: 16.18.23
+      cargo-cp-artifact:
+        specifier: ^0.1
+        version: 0.1.7
+      esbuild-runner:
+        specifier: 2.2.2
+        version: 2.2.2(esbuild@0.17.11)
 
   libs/printing:
     dependencies:
