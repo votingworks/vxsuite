@@ -32,6 +32,7 @@
     { "path": "../../../libs/grout/tsconfig.build.json" },
     { "path": "../../../libs/image-utils/tsconfig.build.json" },
     { "path": "../../../libs/logging/tsconfig.build.json" },
+    { "path": "../../../libs/pdi-rs/tsconfig.build.json" },
     { "path": "../../../libs/printing/tsconfig.build.json" },
     { "path": "../../../libs/test-utils/tsconfig.build.json" },
     { "path": "../../../libs/types/tsconfig.build.json" },
