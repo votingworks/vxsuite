@@ -3,7 +3,7 @@ use std::time::Duration;
 use anyhow::Result;
 use crossterm::event::{self, Event::Key, KeyCode::Char};
 
-use crate::pdiscan::EjectDirection;
+use crate::pdiscan::{EjectDirection, Event};
 
 use super::{
     app::App,
@@ -12,6 +12,28 @@ use super::{
 
 pub(crate) fn update(app: &mut App) -> Result<()> {
     if let Some(ref scanner) = app.get_scanner() {
+        match scanner.wait_for_event(Duration::from_millis(1)) {
+            Ok(Event::BeginScan) => {
+                app.log("📄 Scanning document…");
+            }
+            Ok(Event::EndScan) => {
+                app.log("📄 Finished scanning document.");
+            }
+            Ok(Event::AbortScan) => {
+                app.log("⚠️ Scan aborted.");
+            }
+            Ok(Event::EjectPaused) => {
+                app.log("📄 Eject paused.");
+            }
+            Ok(Event::EjectResumed) => {
+                app.log("📄 Eject resumed.");
+            }
+            Ok(Event::FeederDisabled) => {
+                app.log("⛔︎ Feeder disabled.");
+            }
+            Err(_) => {}
+        }
+
         if let Ok(document) = scanner.wait_for_document(Duration::from_millis(1)) {
             let next_scan_index = app.increment_scan_index();
             let front_filename = format!("side-a-{:03}.jpeg", next_scan_index);
@@ -41,7 +63,14 @@ pub(crate) fn update(app: &mut App) -> Result<()> {
         }
 
         if let Ok(error) = scanner.wait_for_error(Duration::from_millis(1)) {
-            app.log(format!("⚠️ Scanner error: {:?}", error));
+            app.log(format!(
+                "⚠️ Scanner error: {} ({:?})",
+                error.short_description, error.error_type
+            ));
+            app.log(format!("⚠️ Description: {}", error.long_description));
+            if !error.extra_info.is_empty() {
+                app.log(format!("⚠️ Additional information: {}", error.extra_info));
+            }
         }
     }
 
@@ -65,6 +94,72 @@ pub(crate) fn update(app: &mut App) -> Result<()> {
                     scanner.set_feeder_enabled(false)?;
                     app.log("⛔︎ Auto-scan disabled.");
                     app.set_auto_scan_config(AutoScanConfig::Disabled);
+                }
+                (Char('S'), Some(scanner), _, _) => {
+                    let status = scanner.get_scanner_status()?;
+                    app.log("📄 Scanner status:");
+                    app.log(format!(
+                        "Rear left sensor covered: {}",
+                        status.rear_left_sensor_covered
+                    ));
+                    app.log(format!(
+                        "Rear right sensor covered: {}",
+                        status.rear_right_sensor_covered
+                    ));
+                    app.log(format!(
+                        "Brander position sensor covered: {}",
+                        status.brander_position_sensor_covered
+                    ));
+                    app.log(format!("High-speed mode: {}", status.high_speed_mode));
+                    app.log(format!("Download needed: {}", status.download_needed));
+                    app.log(format!(
+                        "Scanner enabled: {}",
+                        status.scanner_feeder_enabled
+                    ));
+                    app.log(format!(
+                        "Front left sensor covered: {}",
+                        status.front_left_sensor_covered
+                    ));
+                    app.log(format!(
+                        "Front M1 sensor covered: {}",
+                        status.front_m1_sensor_covered
+                    ));
+                    app.log(format!(
+                        "Front M2 sensor covered: {}",
+                        status.front_m2_sensor_covered
+                    ));
+                    app.log(format!(
+                        "Front M3 sensor covered: {}",
+                        status.front_m3_sensor_covered
+                    ));
+                    app.log(format!(
+                        "Front M4 sensor covered: {}",
+                        status.front_m4_sensor_covered
+                    ));
+                    app.log(format!(
+                        "Front M5 sensor covered: {}",
+                        status.front_m5_sensor_covered
+                    ));
+                    app.log(format!(
+                        "Front right sensor covered: {}",
+                        status.front_right_sensor_covered
+                    ));
+                    app.log(format!("Scanner ready: {}", status.scanner_ready));
+                    app.log(format!("XMT aborted (com error): {}", status.xmt_aborted));
+                    app.log(format!("Document jam: {}", status.ticket_jam));
+                    app.log(format!(
+                        "Scan array pixel error: {}",
+                        status.scan_array_pixel_error
+                    ));
+                    app.log(format!("In diagnostic mode: {}", status.in_diagnostic_mode));
+                    app.log(format!(
+                        "Document in scanner: {}",
+                        status.document_in_scanner
+                    ));
+                    app.log(format!(
+                        "Calibration of unit needed: {}",
+                        status.calibration_of_unit_needed
+                    ));
                 }
                 (Char('w'), Some(_), _, WatchStatusConfig::Disabled) => {
                     app.log("👀 Watching scanner status.");

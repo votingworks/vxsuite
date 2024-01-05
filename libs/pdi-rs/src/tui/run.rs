@@ -93,6 +93,7 @@ pub(crate) fn run() -> Result<()> {
                 scanner.set_resolution(200)?;
                 scanner.set_color_depth(ColorDepth::Bitonal)?;
                 scanner.set_duplex_mode(DuplexMode::Duplex)?; // or DuplexMode::Simplex
+                scanner.set_eject_direction(crate::pdiscan::EjectDirection::BackDrop);
 
                 let status = scanner.get_scanner_status()?;
 

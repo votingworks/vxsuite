@@ -45,6 +45,10 @@ pub(crate) fn ui(app: &App, f: &mut Frame<'_>) {
                         Span::raw(" Enable auto-scan"),
                     ]),
                     Line::from(vec![
+                        Span::raw("  S").bold(),
+                        Span::raw(" Log current scanner status once"),
+                    ]),
+                    Line::from(vec![
                         Span::raw("  w").bold(),
                         Span::raw(match watch_status {
                             WatchStatusConfig::Disabled => " Start watching scanner status",
@@ -147,6 +151,10 @@ pub(crate) fn ui(app: &App, f: &mut Frame<'_>) {
                     Line::from(vec![
                         Span::raw("  s").bold(),
                         Span::raw(" Disable auto-scan"),
+                    ]),
+                    Line::from(vec![
+                        Span::raw("  S").bold(),
+                        Span::raw("Log current scanner status once"),
                     ]),
                     Line::from(vec![
                         Span::raw("  w").bold(),
