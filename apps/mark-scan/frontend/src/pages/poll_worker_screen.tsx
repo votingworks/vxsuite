@@ -236,6 +236,13 @@ export function PollWorkerScreen({
   }
 
   if (
+    stateMachineState === 'accepting_paper' ||
+    stateMachineState === 'loading_paper'
+  ) {
+    return <LoadPaperPage />;
+  }
+
+  if (
     hasVotes &&
     pollWorkerAuth.cardlessVoterUser &&
     // It's expected there are votes in app state if the state machine reports a blank page after printing.
@@ -250,7 +257,7 @@ export function PollWorkerScreen({
             <H1
               aria-label={`Ballot style ${pollWorkerAuth.cardlessVoterUser.ballotStyleId} has been activated.`}
             >
-              Ballot Contains Votes
+              Voting Session in Progress
             </H1>
             <P>
               Remove card to allow voter to continue voting, or reset ballot.
@@ -279,13 +286,6 @@ export function PollWorkerScreen({
       return (
         <PaperHandlerHardwareCheckDisabledScreen message="Remove the poll worker card to continue." />
       );
-    }
-
-    if (
-      stateMachineState === 'accepting_paper' ||
-      stateMachineState === 'loading_paper'
-    ) {
-      return <LoadPaperPage />;
     }
 
     const { precinctId, ballotStyleId } = pollWorkerAuth.cardlessVoterUser;
@@ -379,11 +379,7 @@ export function PollWorkerScreen({
                           key={precinct.id}
                           aria-label={`Activate Voter Session for Precinct ${precinct.name}`}
                           onPress={() => {
-                            setAcceptingPaperStateMutation.mutate(undefined, {
-                              onSuccess() {
-                                setSelectedCardlessVoterPrecinctId(precinct.id);
-                              },
-                            });
+                            setSelectedCardlessVoterPrecinctId(precinct.id);
                           }}
                           variant={
                             selectedCardlessVoterPrecinctId === precinct.id
