@@ -227,7 +227,6 @@ export function createApiMock() {
     // Mocked version of a real method on the API client
     expectSetAcceptingPaperState(): void {
       mockApiClient.setAcceptingPaperState.expectCallWith().resolves();
-      setPaperHandlerState('accepting_paper');
     },
 
     // Helper on the mock API client; does not exist on real API client
