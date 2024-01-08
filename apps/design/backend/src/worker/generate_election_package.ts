@@ -8,13 +8,16 @@ import { assertDefined } from '@votingworks/basics';
 import { layOutAllBallotStyles } from '@votingworks/hmpb-layout';
 import {
   BallotType,
+  Election,
   ElectionPackageFileName,
+  ElectionStringKey,
   getDisplayElectionHash,
   Id,
   LanguageCode,
   safeParseJson,
   UiStringsPackage,
 } from '@votingworks/types';
+import { format } from '@votingworks/utils';
 
 import { PORT } from '../globals';
 import { GoogleCloudTranslator } from '../language_and_audio/translator';
@@ -55,6 +58,22 @@ async function translateAppStrings(
   return appStrings;
 }
 
+function translateVxElectionStrings(election: Election): UiStringsPackage {
+  const electionDate = new Date(election.date);
+  const vxElectionStrings: UiStringsPackage = {};
+  for (const languageCode of Object.values(LanguageCode)) {
+    vxElectionStrings[languageCode] = {};
+    const electionDateInLanguage = format.localeLongDate(
+      electionDate,
+      languageCode
+    );
+    assertDefined(vxElectionStrings[languageCode])[
+      ElectionStringKey.ELECTION_DATE
+    ] = electionDateInLanguage;
+  }
+  return vxElectionStrings;
+}
+
 export async function generateElectionPackage(
   { translator, workspace }: WorkerContext,
   { electionId }: { electionId: Id }
@@ -70,6 +89,12 @@ export async function generateElectionPackage(
   zip.file(
     ElectionPackageFileName.APP_STRINGS,
     JSON.stringify(appStrings, null, 2)
+  );
+
+  const vxElectionStrings = translateVxElectionStrings(election);
+  zip.file(
+    ElectionPackageFileName.VX_ELECTION_STRINGS,
+    JSON.stringify(vxElectionStrings, null, 2)
   );
 
   const { electionDefinition } = layOutAllBallotStyles({

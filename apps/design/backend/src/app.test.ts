@@ -18,6 +18,7 @@ import {
   District,
   DistrictId,
   Election,
+  ElectionStringKey,
   ElectionType,
   LanguageCode,
   Parties,
@@ -317,10 +318,11 @@ test('Election package export', async () => {
   // Check overall structure of zip file
 
   const zip = await JsZip.loadAsync(electionPackageContents);
-  expect(Object.keys(zip.files)).toEqual([
+  expect(Object.keys(zip.files).sort()).toEqual([
     'appStrings.json',
     'election.json',
     'systemSettings.json',
+    'vxElectionStrings.json',
   ]);
 
   // Check appStrings.json
@@ -358,6 +360,19 @@ test('Election package export', async () => {
         `${appStringInEnglish} (in ${languageCode})`
       );
     }
+  }
+
+  // Check vxElectionStrings.json
+
+  const vxElectionStrings = safeParseJson(
+    await assertDefined(zip.file('vxElectionStrings.json')).async('text'),
+    UiStringsPackageSchema
+  ).unsafeUnwrap();
+
+  for (const languageCode of Object.values(LanguageCode)) {
+    expect(
+      vxElectionStrings[languageCode]?.[ElectionStringKey.ELECTION_DATE]
+    ).toBeDefined();
   }
 
   // Check election.json
