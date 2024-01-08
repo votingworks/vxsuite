@@ -1,23 +1,13 @@
+import { Dictionary } from '@votingworks/types';
 import makeDebug from 'debug';
+import { LogEventId, getDetailsForEventId } from './log_event_ids';
+import { CLIENT_SIDE_LOG_SOURCES, LogSource } from './log_source';
 import {
-  Dictionary,
-  ElectionDefinition,
-  EventLogging,
-  safeParse,
-  safeParseJson,
-} from '@votingworks/types';
-import { z } from 'zod';
-import { assert } from '@votingworks/basics';
-import {
-  LogLine,
   LogDisposition,
   LogDispositionStandardTypes,
+  LogLine,
   LoggingUserRole,
-  DEVICE_TYPES_FOR_APP,
-  LogLineSchema,
 } from './types';
-import { CLIENT_SIDE_LOG_SOURCES, LogSource } from './log_source';
-import { LogEventId, getDetailsForEventId } from './log_event_ids';
 
 export const LOGS_ROOT_LOCATION = '/var/log';
 export const LOG_NAME = 'vx-logs';
@@ -30,24 +20,15 @@ interface LogData extends Dictionary<string | boolean | number> {
   disposition?: LogDisposition;
 }
 
-export function extractAdditionalKeysFromObj(
-  innerObj: Dictionary<string>,
-  outerObj: Dictionary<string>
-): Dictionary<string> {
-  const baseDict: Dictionary<string> = {};
-  return Object.keys(outerObj)
-    .filter((key) => !(key in innerObj))
-    .reduce((res, nextKey) => {
-      res[nextKey] = outerObj[nextKey];
-      return res;
-    }, baseDict);
-}
-
 export class Logger {
   constructor(
     private readonly source: LogSource,
     private readonly kiosk?: KioskBrowser.Kiosk
   ) {}
+
+  getSource(): LogSource {
+    return this.source;
+  }
 
   async log(
     eventId: LogEventId,
@@ -92,91 +73,5 @@ export class Logger {
       // eslint-disable-next-line no-console
       console.log(JSON.stringify(logLine));
     }
-  }
-
-  buildCDFLog(
-    electionDefinition: ElectionDefinition,
-    rawLogFileContents: string,
-    machineId: string,
-    codeVersion: string,
-    currentUser: LoggingUserRole
-  ): string {
-    if (!CLIENT_SIDE_LOG_SOURCES.includes(this.source)) {
-      void this.log(LogEventId.LogConversionToCdfComplete, currentUser, {
-        message: 'The current application is not able to export logs.',
-        result: 'Log file not converted to CDF format.',
-        disposition: 'failure',
-      });
-      throw new Error('Can only export CDF logs from a frontend app.');
-    }
-
-    const allEvents: EventLogging.Event[] = [];
-    const logs = rawLogFileContents.split('\n').filter((l) => l !== '');
-    for (const [idx, log] of logs.entries()) {
-      const decodedLogResult = safeParseJson(log, LogLineSchema);
-      if (decodedLogResult.isErr()) {
-        void this.log(LogEventId.LogConversionToCdfLogLineError, currentUser, {
-          message: `Malformed log line identified, log line will be ignored: ${log} `,
-          result: 'Log line will not be included in CDF output',
-          disposition: 'failure',
-        });
-        continue;
-      }
-      const decodedLog = decodedLogResult.ok();
-      assert(typeof decodedLog['timeLogWritten'] === 'string'); // While this is not enforced in the LogLine type the zod schema will enforce it is always present so we know this to be true.
-
-      const rawDecodedObject = JSON.parse(log);
-      const customInformation = extractAdditionalKeysFromObj(
-        decodedLog,
-        rawDecodedObject
-      );
-
-      const standardDispositionResult = safeParse(
-        z.nativeEnum(EventLogging.EventDispositionType),
-        decodedLog.disposition
-      );
-      const disposition = standardDispositionResult.isOk()
-        ? standardDispositionResult.ok()
-        : decodedLog.disposition === ''
-        ? EventLogging.EventDispositionType.Na
-        : EventLogging.EventDispositionType.Other;
-      const cdfEvent: EventLogging.Event = {
-        '@type': 'EventLogging.Event',
-        Id: decodedLog.eventId,
-        Disposition: disposition,
-        OtherDisposition:
-          disposition === 'other' ? decodedLog.disposition : undefined,
-        Sequence: idx.toString(),
-        TimeStamp: decodedLog['timeLogWritten'],
-        Type: decodedLog.eventType,
-        Description: decodedLog.message,
-        Details: JSON.stringify({
-          ...customInformation,
-          source: decodedLog.source,
-        }),
-        UserId: decodedLog.user,
-      };
-      allEvents.push(cdfEvent);
-    }
-
-    const currentDevice: EventLogging.Device = {
-      '@type': 'EventLogging.Device',
-      Type: DEVICE_TYPES_FOR_APP[this.source],
-      Id: machineId,
-      Version: codeVersion,
-      Event: allEvents,
-    };
-    const eventElectionLog: EventLogging.ElectionEventLog = {
-      '@type': 'EventLogging.ElectionEventLog',
-      Device: [currentDevice],
-      ElectionId: electionDefinition.electionHash,
-      GeneratedTime: new Date().toISOString(),
-    };
-
-    void this.log(LogEventId.LogConversionToCdfComplete, currentUser, {
-      message: 'Log file successfully converted to CDF format.',
-      disposition: 'success',
-    });
-    return JSON.stringify(eventElectionLog);
   }
 }
