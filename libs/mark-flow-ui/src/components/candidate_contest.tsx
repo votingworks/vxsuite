@@ -28,6 +28,7 @@ import {
   AudioOnly,
   electionStrings,
   ButtonPressEvent,
+  ReadOnLoad,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
@@ -214,6 +215,13 @@ export function CandidateContest({
 
   const hasReachedMaxSelections = contest.seats === vote.length;
 
+  const writeInModalTitle = (
+    <React.Fragment>
+      {appStrings.labelWriteInTitleCaseColon()}{' '}
+      {electionStrings.contestTitle(contest)}
+    </React.Fragment>
+  );
+
   const modalActions = (
     <React.Fragment>
       <Button
@@ -330,7 +338,7 @@ export function CandidateContest({
         <Modal
           centerContent
           content={
-            <P id="modalaudiofocus">
+            <P>
               {appStrings.warningOvervoteCandidateContest()}
               <AudioOnly>
                 {appStrings.instructionsBmdSelectToContinue()}
@@ -343,7 +351,7 @@ export function CandidateContest({
               autoFocus
               onPress={closeAttemptedVoteAlert}
             >
-              {appStrings.buttonOkay() /* TODO(kofi): Exclude from audio: */}
+              {appStrings.buttonOkay()}
               <AudioOnly>
                 {appStrings.instructionsBmdSelectToContinue()}
               </AudioOnly>
@@ -354,11 +362,7 @@ export function CandidateContest({
       {writeInPendingRemoval && (
         <Modal
           centerContent
-          content={
-            <P id="modalaudiofocus">
-              {appStrings.promptBmdConfirmRemoveWriteIn()}
-            </P>
-          }
+          content={<P>{appStrings.promptBmdConfirmRemoveWriteIn()}</P>}
           actions={
             <React.Fragment>
               <Button
@@ -379,36 +383,41 @@ export function CandidateContest({
       {writeInCandidateModalIsOpen && (
         <Modal
           modalWidth={ModalWidth.Wide}
-          title={
-            <React.Fragment>
-              {appStrings.labelWriteInTitleCaseColon()}{' '}
-              {electionStrings.contestTitle(contest)}
-            </React.Fragment>
-          }
+          disableAutoplayAudio
+          title={writeInModalTitle}
           content={
             <div>
-              <div id="modalaudiofocus">
+              <div>
                 <P>
                   <Caption>
                     <Icons.Info /> {appStrings.labelBmdWriteInForm()}
                   </Caption>
-                  <AudioOnly>
-                    {appStrings.instructionsBmdWriteInFormNavigation()}
-                  </AudioOnly>
                 </P>
               </div>
               <WriteInModalBody>
                 <WriteInForm>
                   <TouchTextInput value={writeInCandidateName} />
-                  <P align="right">
-                    <Caption>
-                      {writeInCharsRemaining === 0 && (
-                        <Icons.Warning color="warning" />
-                      )}{' '}
-                      {appStrings.labelCharactersRemaining()}{' '}
-                      {writeInCharsRemaining}
-                    </Caption>
-                  </P>
+                  <ReadOnLoad>
+                    {/*
+                     * Re-render the modal title and form label as hidden,
+                     * audio-only elements to enable grouping together content
+                     * that needs to be read on modal open:
+                     */}
+                    <AudioOnly>
+                      {writeInModalTitle}
+                      {appStrings.labelBmdWriteInForm()}
+                      {appStrings.instructionsBmdWriteInFormNavigation()}
+                    </AudioOnly>
+                    <P align="right">
+                      <Caption>
+                        {writeInCharsRemaining === 0 && (
+                          <Icons.Warning color="warning" />
+                        )}{' '}
+                        {appStrings.labelCharactersRemaining()}{' '}
+                        <NumberString value={writeInCharsRemaining} />
+                      </Caption>
+                    </P>
+                  </ReadOnLoad>
                   <VirtualKeyboard
                     onBackspace={onKeyboardBackspace}
                     onKeyPress={onKeyboardInput}

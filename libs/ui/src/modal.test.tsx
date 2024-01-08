@@ -1,10 +1,29 @@
 import React from 'react';
 import userEvent from '@testing-library/user-event';
+import { mockOf } from '@votingworks/test-utils';
 import { render, screen, within } from '../test/react_testing_library';
 import { Modal, ModalWidth } from './modal';
 import { Button } from './button';
 import { fontSizeTheme } from './themes';
 import { FONT_SIZES, LARGE_DISPLAY_FONT_SIZE } from './globals';
+import { ReadOnLoad, ReadOnLoadProps } from './ui_strings/read_on_load';
+
+jest.mock(
+  './ui_strings/read_on_load',
+  (): typeof import('./ui_strings/read_on_load') => ({
+    ...jest.requireActual('./ui_strings/read_on_load'),
+    ReadOnLoad: jest.fn(),
+  })
+);
+
+const mockReadOnLoad = mockOf(ReadOnLoad);
+const MOCK_READ_ON_LOAD_TEST_ID = 'mockReadOnLoad';
+
+beforeEach(() => {
+  mockReadOnLoad.mockImplementation((props: ReadOnLoadProps) => (
+    <div data-testid={MOCK_READ_ON_LOAD_TEST_ID} {...props} />
+  ));
+});
 
 describe('Modal', () => {
   it('renders a modal with content and actions', () => {
@@ -37,6 +56,10 @@ describe('Modal', () => {
     const modal = screen.getByRole('alertdialog');
     const content = within(modal).getByText('Do you want to do the thing?');
     expect(content).toHaveStyle(`
+      align-items: inherit;
+      justify-content: inherit;
+    `);
+    expect(content.parentElement).toHaveStyle(`
       align-items: center;
       justify-content: center;
     `);
@@ -100,4 +123,35 @@ describe('Modal', () => {
     expect(onAfterOpen).toHaveBeenCalledTimes(1);
     (window.requestAnimationFrame as jest.Mock).mockRestore();
   });
+});
+
+it('triggers screen reader for title and content by default', () => {
+  render(
+    <Modal
+      title={<span>TITLE</span>}
+      content={<span>Content!</span>}
+      actions={<span>Do not read this</span>}
+    />
+  );
+
+  const readOnLoadElement = screen.getByTestId(MOCK_READ_ON_LOAD_TEST_ID);
+
+  expect(readOnLoadElement).toHaveTextContent(/^TITLE.?Content!$/);
+});
+
+it("doesn't trigger screen reader when autoplay is disabled", () => {
+  render(
+    <Modal
+      disableAutoplayAudio
+      title={<span>TITLE</span>}
+      content={<span>Content!</span>}
+      actions={<span>Do not read this</span>}
+    />
+  );
+
+  expect(
+    screen.queryByTestId(MOCK_READ_ON_LOAD_TEST_ID)
+  ).not.toBeInTheDocument();
+  screen.getByText('TITLE');
+  screen.getByText('Content!');
 });
