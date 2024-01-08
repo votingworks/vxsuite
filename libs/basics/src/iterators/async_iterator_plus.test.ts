@@ -321,11 +321,6 @@ test('toMap property', async () => {
   );
 });
 
-test('toSet', async () => {
-  expect(await iter([]).async().toSet()).toEqual(new Set());
-  expect(await iter([1, 2, 3]).async().toSet()).toEqual(new Set([1, 2, 3]));
-});
-
 test('toMap from iterable', async () => {
   expect(
     await iter(integers({ from: 1, through: 10 }))
@@ -337,6 +332,22 @@ test('toMap from iterable', async () => {
       [1, new Set([1, 3, 5, 7, 9])],
     ])
   );
+});
+
+test('toSet', async () => {
+  expect(await iter([]).async().toSet()).toEqual(new Set());
+  expect(await iter([1, 2, 3]).async().toSet()).toEqual(new Set([1, 2, 3]));
+});
+
+test('toString', async () => {
+  expect(await iter([]).async().toString()).toEqual('');
+  expect(await iter([1, 2, 3]).async().toString()).toEqual('123');
+  expect(await iter([1, 2, 3]).async().toString(' ')).toEqual('1 2 3');
+  expect(
+    await iter([{ toString: (): string => 'hello' }, 'world'])
+      .async()
+      .toString(', ')
+  ).toEqual('hello, world');
 });
 
 test('first', async () => {

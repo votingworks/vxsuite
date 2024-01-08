@@ -6,7 +6,7 @@ async function asString<T>(
   input: JsonStreamInput<T>,
   options?: JsonStreamOptions
 ) {
-  return (await iter(jsonStream<T>(input, options)).toArray()).join('');
+  return await iter(jsonStream<T>(input, options)).toString();
 }
 
 test('number', async () => {

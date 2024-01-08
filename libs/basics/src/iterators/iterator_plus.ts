@@ -379,6 +379,10 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     return new Set(this.iterable);
   }
 
+  toString(separator = ''): string {
+    return this.toArray().join(separator);
+  }
+
   windows(groupSize: 0): never;
   windows(groupSize: 1): IteratorPlus<[T]>;
   windows(groupSize: 2): IteratorPlus<[T, T]>;

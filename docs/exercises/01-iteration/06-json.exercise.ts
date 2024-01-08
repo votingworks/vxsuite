@@ -140,7 +140,5 @@ function extractNamesFromContactsSolutionInner(): AsyncGenerator<string> {
 // in a real application you would want to use the AsyncGenerator directly. Otherwise
 // you would be building up a huge string in memory.
 async function extractNamesFromContactsSolution(): Promise<string> {
-  return (await iter(extractNamesFromContactsSolutionInner()).toArray()).join(
-    ''
-  );
+  return await iter(extractNamesFromContactsSolutionInner()).toString();
 }
