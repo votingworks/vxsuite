@@ -1469,7 +1469,7 @@
                           "width": 148.6285714285714,
                           "height": 12.5,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 10,
                           "fontWeight": 400,
@@ -1690,7 +1690,7 @@
                           "width": 148.6285714285714,
                           "height": 12.5,
                           "textLines": [
-                            "Vote for 1"
+                            "Vote for not more than 1"
                           ],
                           "fontSize": 10,
                           "fontWeight": 400,

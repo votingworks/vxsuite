@@ -118,6 +118,7 @@ export function renderDocumentToPdf(document: Document): PDFKit.PDFDocument {
   return pdf;
 }
 
+/* istanbul ignore next */
 export function main(): void {
   const USAGE = `Usage: ./bin/render-ballot <ballot-document.json> <ballot-output.pdf>`;
   const args = process.argv.slice(2);

@@ -7,8 +7,8 @@ module.exports = {
   ...shared,
   coverageThreshold: {
     global: {
-      branches: -18,
-      lines: -63,
+      branches: -16,
+      lines: -30,
     },
   },
   coveragePathIgnorePatterns: ['src/index.ts', 'src/generate_fixtures.ts'],
