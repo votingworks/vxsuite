@@ -79,6 +79,7 @@ export function convertVxfPrecincts(election: Election): Precinct[] {
         id: `${precinct.id}-split-${index + 1}`,
         name: `${precinct.name} - Split ${index + 1}`,
         districtIds: ballotStyle.districts,
+        nhCustomContent: {},
       })),
     };
   });
@@ -162,7 +163,9 @@ function buildApi({ workspace }: { workspace: Workspace }) {
     async exportAllBallots(input: {
       electionId: Id;
     }): Promise<{ zipContents: Buffer; electionHash: string }> {
-      const { election, layoutOptions } = store.getElection(input.electionId);
+      const { election, layoutOptions, nhCustomContent } = store.getElection(
+        input.electionId
+      );
 
       const zip = new JsZip();
 
@@ -176,6 +179,7 @@ function buildApi({ workspace }: { workspace: Workspace }) {
             ballotType,
             ballotMode,
             layoutOptions,
+            nhCustomContent,
           }).unsafeUnwrap();
 
           // Election definition doesn't change across ballot types/modes
@@ -210,12 +214,15 @@ function buildApi({ workspace }: { workspace: Workspace }) {
       ballotType: BallotType;
       ballotMode: BallotMode;
     }): Promise<Buffer> {
-      const { election, layoutOptions } = store.getElection(input.electionId);
+      const { election, layoutOptions, nhCustomContent } = store.getElection(
+        input.electionId
+      );
       const { ballots } = layOutAllBallotStyles({
         election,
         ballotType: input.ballotType,
         ballotMode: input.ballotMode,
         layoutOptions,
+        nhCustomContent,
       }).unsafeUnwrap();
       const { document } = find(
         ballots,
@@ -239,12 +246,15 @@ function buildApi({ workspace }: { workspace: Workspace }) {
     async exportTestDecks(input: {
       electionId: Id;
     }): Promise<{ zipContents: Buffer; electionHash: string }> {
-      const { election, layoutOptions } = store.getElection(input.electionId);
+      const { election, layoutOptions, nhCustomContent } = store.getElection(
+        input.electionId
+      );
       const { electionDefinition, ballots } = layOutAllBallotStyles({
         election,
         ballotType: BallotType.Precinct,
         ballotMode: 'test',
         layoutOptions,
+        nhCustomContent,
       }).unsafeUnwrap();
 
       const zip = new JsZip();

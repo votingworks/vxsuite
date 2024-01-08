@@ -17,17 +17,20 @@ export function BallotScreen(): JSX.Element | null {
     return null; // Initial loading state
   }
 
-  const { election, layoutOptions } = getElectionQuery.data;
-  const precinct = getPrecinctById({ election, precinctId });
-  const ballotStyle = getBallotStyle({ election, ballotStyleId });
+  const { election, layoutOptions, nhCustomContent } = getElectionQuery.data;
+  const precinct = assertDefined(getPrecinctById({ election, precinctId }));
+  const ballotStyle = assertDefined(
+    getBallotStyle({ election, ballotStyleId })
+  );
 
   return (
     <Screen>
       <BallotViewer
         election={election}
-        precinct={assertDefined(precinct)}
-        ballotStyle={assertDefined(ballotStyle)}
+        precinct={precinct}
+        ballotStyle={ballotStyle}
         layoutOptions={layoutOptions}
+        nhCustomContent={nhCustomContent[ballotStyle.id]}
       />
     </Screen>
   );

@@ -447,6 +447,7 @@ function PrecinctForm({
             id: generateId(),
             name: nextId(`${name} - Split `),
             districtIds: [],
+            nhCustomContent: {},
           },
         ],
       });
@@ -460,11 +461,13 @@ function PrecinctForm({
             id: `${id}-split-1`,
             name: `${name} - Split 1`,
             districtIds,
+            nhCustomContent: {},
           },
           {
             id: `${id}-split-2`,
             name: `${name} - Split 2`,
             districtIds: [],
+            nhCustomContent: {},
           },
         ],
       });
@@ -553,6 +556,25 @@ function PrecinctForm({
                         })
                       }
                     />
+                    <InputGroup label="Election Title Override">
+                      <input
+                        type="text"
+                        value={split.nhCustomContent.electionTitle ?? ''}
+                        onChange={(e) =>
+                          setPrecinct({
+                            ...precinct,
+                            splits: replaceAtIndex(precinct.splits, index, {
+                              ...split,
+                              nhCustomContent: {
+                                ...split.nhCustomContent,
+                                electionTitle: e.target.value,
+                              },
+                            }),
+                          })
+                        }
+                      />
+                    </InputGroup>
+
                     <Button onPress={() => onRemoveSplitPress(index)}>
                       Remove Split
                     </Button>
