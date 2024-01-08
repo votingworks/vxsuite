@@ -1,7 +1,14 @@
 /* istanbul ignore file - tested via Mark/Mark-Scan */
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import styled from 'styled-components';
-import { Screen, Button, appStrings, AudioOnly, Wobble } from '@votingworks/ui';
+import {
+  Screen,
+  Button,
+  appStrings,
+  AudioOnly,
+  Wobble,
+  ReadOnLoad,
+} from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
 
@@ -91,8 +98,7 @@ export function StartPage(props: StartPageProps): JSX.Element {
   return (
     <Screen>
       <Body>
-        {/* TODO(kofi): Create a component for this 'audiofocus' functionality */}
-        <div id="audiofocus">
+        <ReadOnLoad>
           <ElectionInfoContainer>
             <ElectionInfo
               electionDefinition={electionDefinition}
@@ -102,7 +108,7 @@ export function StartPage(props: StartPageProps): JSX.Element {
             />
           </ElectionInfoContainer>
           <AudioOnly>{appStrings.instructionsBmdBallotNavigation()}</AudioOnly>
-        </div>
+        </ReadOnLoad>
         <StartVotingButtonContainer>
           {startVotingButton}
         </StartVotingButtonContainer>
