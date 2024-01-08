@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   ElectionDefinition,
   PollsState,
@@ -19,7 +19,6 @@ import {
 } from '@votingworks/ui';
 
 import { throwIllegalValue } from '@votingworks/basics';
-import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 
 interface Props {
   appPrecinct: PrecinctSelection;
@@ -38,8 +37,6 @@ export function InsertCardScreen({
   pollsState,
   showNoAccessibleControllerWarning,
 }: Props): JSX.Element | null {
-  useEffect(triggerAudioFocus, []);
-
   const mainText = (() => {
     switch (pollsState) {
       case 'polls_closed_initial':
@@ -75,7 +72,7 @@ export function InsertCardScreen({
     <Screen>
       {!isLiveMode && <TestMode />}
       <Main centerChild>
-        <Prose textCenter id="audiofocus">
+        <Prose textCenter>
           {showNoChargerAttachedWarning && (
             <Caption>
               <Icons.Warning color="warning" />{' '}
