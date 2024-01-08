@@ -30,7 +30,6 @@ test('renders correctly', async () => {
           showNoChargerAttachedWarning={false}
           isLiveMode={false}
           pollsState="polls_closed_initial"
-          showNoAccessibleControllerWarning={false}
         />
       </QueryClientProvider>
     </ApiClientContext.Provider>

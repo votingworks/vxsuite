@@ -27,7 +27,6 @@ interface Props {
   showNoChargerAttachedWarning: boolean;
   isLiveMode: boolean;
   pollsState: PollsState;
-  showNoAccessibleControllerWarning: boolean;
 }
 
 export function InsertCardScreen({
@@ -36,7 +35,6 @@ export function InsertCardScreen({
   showNoChargerAttachedWarning,
   isLiveMode,
   pollsState,
-  showNoAccessibleControllerWarning,
 }: Props): JSX.Element | null {
   useEffect(triggerAudioFocus, []);
 
@@ -87,11 +85,6 @@ export function InsertCardScreen({
             <InsertCardImage />
           </P>
           {mainText}
-          {showNoAccessibleControllerWarning && (
-            <Caption>
-              Voting with an accessible controller is not currently available.
-            </Caption>
-          )}
         </Prose>
       </Main>
       <ElectionInfoBar
