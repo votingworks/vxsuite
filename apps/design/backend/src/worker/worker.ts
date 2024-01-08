@@ -1,12 +1,15 @@
 import { extractErrorMessage, sleep } from '@votingworks/basics';
 
+import { GoogleCloudSpeechSynthesizer } from '../language_and_audio/speech_synthesizer';
+import { GoogleCloudTranslator } from '../language_and_audio/translator';
 import { Workspace } from '../workspace';
+import { WorkerContext } from './context';
 import { processBackgroundTask } from './tasks';
 
 export async function processNextBackgroundTaskIfAny(
-  workspace: Workspace
+  context: WorkerContext
 ): Promise<{ wasTaskProcessed: boolean }> {
-  const { store } = workspace;
+  const { store } = context.workspace;
 
   const nextTask = store.getOldestQueuedBackgroundTask();
 
@@ -18,7 +21,7 @@ export async function processNextBackgroundTaskIfAny(
   store.startBackgroundTask(nextTask.id);
   console.log(`⏳ Processing background task ${nextTask.id}...`);
   try {
-    await processBackgroundTask(workspace, nextTask);
+    await processBackgroundTask(context, nextTask);
   } catch (error) {
     const errorMessage = extractErrorMessage(error);
     const errorStack = error instanceof Error ? error.stack : undefined;
@@ -35,11 +38,20 @@ export async function processNextBackgroundTaskIfAny(
 }
 
 export function start({ workspace }: { workspace: Workspace }): void {
+  const { store } = workspace;
+  const speechSynthesizer = new GoogleCloudSpeechSynthesizer({ store });
+  const translator = new GoogleCloudTranslator({ store });
+  const context: WorkerContext = {
+    speechSynthesizer,
+    translator,
+    workspace,
+  };
+
   process.nextTick(async () => {
     // eslint-disable-next-line no-constant-condition
     while (true) {
       const { wasTaskProcessed } =
-        await processNextBackgroundTaskIfAny(workspace);
+        await processNextBackgroundTaskIfAny(context);
       if (!wasTaskProcessed) {
         await sleep(1000);
       }

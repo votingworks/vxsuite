@@ -10,10 +10,17 @@ import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
 import { buildApp } from '../src/app';
 import type { Api } from '../src/app';
-import { MinimalGoogleCloudTranslationClient } from '../src/language_and_audio/translator';
-import { MinimalGoogleCloudTextToSpeechClient } from '../src/language_and_audio/speech_synthesizer';
+import {
+  GoogleCloudTranslator,
+  MinimalGoogleCloudTranslationClient,
+} from '../src/language_and_audio/translator';
+import {
+  GoogleCloudSpeechSynthesizer,
+  MinimalGoogleCloudTextToSpeechClient,
+} from '../src/language_and_audio/speech_synthesizer';
 import { Workspace, createWorkspace } from '../src/workspace';
-import { processNextBackgroundTaskIfAny } from '../src/worker/worker';
+import { WorkerContext } from '../src/worker/context';
+import * as worker from '../src/worker/worker';
 
 tmp.setGracefulCleanup();
 
@@ -91,6 +98,29 @@ export class MockGoogleCloudTextToSpeechClient
   );
 }
 
+export async function processNextBackgroundTaskIfAny(
+  workspace: Workspace
+): Promise<void> {
+  const { store } = workspace;
+  const speechSynthesizer = new GoogleCloudSpeechSynthesizer({
+    store,
+    textToSpeechClient: new MockGoogleCloudTextToSpeechClient(),
+  });
+  const translator = new GoogleCloudTranslator({
+    store,
+    translationClient: new MockGoogleCloudTranslationClient(),
+  });
+  const context: WorkerContext = {
+    speechSynthesizer,
+    translator,
+    workspace,
+  };
+
+  await suppressingConsoleOutput(() =>
+    worker.processNextBackgroundTaskIfAny(context)
+  );
+}
+
 export async function exportElectionPackage({
   apiClient,
   electionId,
@@ -101,9 +131,7 @@ export async function exportElectionPackage({
   workspace: Workspace;
 }): Promise<Buffer> {
   await apiClient.exportElectionPackage({ electionId });
-  await suppressingConsoleOutput(() =>
-    processNextBackgroundTaskIfAny(workspace)
-  );
+  await processNextBackgroundTaskIfAny(workspace);
 
   const electionPackage = await apiClient.getElectionPackage({
     electionId,
