@@ -3,8 +3,9 @@ import styled from 'styled-components';
 
 import {
   Caption,
-  Font,
   H2,
+  NumberString,
+  ReadOnLoad,
   appStrings,
   electionStrings,
 } from '@votingworks/ui';
@@ -29,6 +30,7 @@ const Container = styled.div`
 
 const ContestInfo = styled.div`
   display: flex;
+  flex-direction: row-reverse;
   gap: 0.5rem;
   justify-content: space-between;
 `;
@@ -39,9 +41,9 @@ function Breadcrumbs(props: BreadcrumbMetadata) {
   return (
     <Caption noWrap>
       {appStrings.labelContestNumber()}{' '}
-      <Font weight="bold">{contestNumber}</Font> |{' '}
+      <NumberString weight="bold" value={contestNumber} /> |{' '}
       {appStrings.labelTotalContests()}{' '}
-      <Font weight="bold">{ballotContestCount}</Font>{' '}
+      <NumberString weight="bold" value={ballotContestCount} />{' '}
     </Caption>
   );
 }
@@ -51,18 +53,18 @@ export function ContestHeader(props: ContestHeaderProps): JSX.Element {
 
   return (
     <Container id="contest-header">
-      <div id="audiofocus">
+      <ReadOnLoad>
         <ContestInfo>
+          {breadcrumbs && <Breadcrumbs {...breadcrumbs} />}
           <Caption weight="semiBold">
             {electionStrings.districtName(district)}
           </Caption>
-          {breadcrumbs && <Breadcrumbs {...breadcrumbs} />}
         </ContestInfo>
         <div>
           <H2 as="h1">{electionStrings.contestTitle(contest)}</H2>
         </div>
         {children}
-      </div>
+      </ReadOnLoad>
     </Container>
   );
 }

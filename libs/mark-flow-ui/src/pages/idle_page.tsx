@@ -12,6 +12,7 @@ import {
   appStrings,
   AudioOnly,
   NumberString,
+  ReadOnLoad,
 } from '@votingworks/ui';
 
 import {
@@ -61,14 +62,7 @@ export function IdlePage({
           <Loading>{appStrings.noteBmdClearingBallot()}</Loading>
         ) : (
           <Font align="center">
-            {/*
-             * TODO(kofi): the old "audiofocus" pattern only works for one-time
-             * readouts of static text. Need to introduce configurable
-             * functionality for re-initiating speech when text gets
-             * added/replaced (e.g. when we move from this text to
-             * "Clearing ballot" above).
-             */}
-            <div id="audiofocus">
+            <ReadOnLoad>
               <H1>{appStrings.titleBmdIdleScreen()}</H1>
               <P>{idleTimeoutWarningStringFn()}</P>
               <AudioOnly>
@@ -84,7 +78,7 @@ export function IdlePage({
                   </P>
                 </React.Fragment>
               )}
-            </div>
+            </ReadOnLoad>
             <Button autoFocus variant="primary" onPress={onDismiss}>
               {appStrings.buttonStillVoting()}
             </Button>
