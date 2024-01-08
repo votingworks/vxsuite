@@ -118,11 +118,11 @@ function DistrictForm({
   districtId?: string;
   savedElection: Election;
   savedPrecincts?: Precinct[];
-}): JSX.Element {
+}): JSX.Element | null {
   const savedDistricts = savedElection.districts;
-  const [district, setDistrict] = useState<District>(
+  const [district, setDistrict] = useState<District | undefined>(
     districtId
-      ? find(savedDistricts, (d) => d.id === districtId)
+      ? savedDistricts.find((d) => d.id === districtId)
       : // To make mocked IDs predictable in tests, we pass a function here
         // so it will only be called on intial render.
         createBlankDistrict
@@ -132,7 +132,15 @@ function DistrictForm({
   const history = useHistory();
   const geographyRoutes = routes.election(electionId).geography;
 
+  // After deleting a district, this component may re-render briefly with no
+  // district before redirecting to the districts list. We can just render
+  // nothing in that case.
+  if (!district) {
+    return null;
+  }
+
   function onSavePress() {
+    assert(district);
     const newDistricts = districtId
       ? savedElection.districts.map((d) => (d.id === districtId ? district : d))
       : [...savedDistricts, district];

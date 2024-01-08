@@ -80,6 +80,7 @@ test('CRUD elections', async () => {
     ballotStyles: [],
     precincts: [],
     layoutOptions: DEFAULT_LAYOUT_OPTIONS,
+    nhCustomContent: {},
     createdAt: expect.any(String),
   });
 
@@ -124,6 +125,7 @@ test('CRUD elections', async () => {
       name: precinct.name,
       districtIds: ['district-1'],
     })),
+    nhCustomContent: {},
     createdAt: expect.any(String),
   });
 
@@ -467,6 +469,7 @@ test('Export all ballots', async () => {
       ballotType: expectedBallotType,
       ballotMode: expectedBallotMode,
       layoutOptions,
+      nhCustomContent: {},
     });
   }
 });
@@ -510,6 +513,7 @@ test('Export test decks', async () => {
     ballotType: BallotType.Precinct,
     ballotMode: 'test',
     layoutOptions: DEFAULT_LAYOUT_OPTIONS,
+    nhCustomContent: {},
   });
 });
 
@@ -711,23 +715,31 @@ describe('Ballot style generation', () => {
             id: 'precinct-2-split-1',
             name: 'Precinct 2 - Split 1',
             districtIds: [district1.id, district2.id],
+            nhCustomContent: {
+              electionTitle: 'Custom Election Title 1',
+            },
           },
           {
             id: 'precinct-2-split-2',
             name: 'Precinct 2 - Split 2',
             districtIds: [district1.id, district3.id],
+            nhCustomContent: {
+              electionTitle: 'Custom Election Title 2',
+            },
           },
           {
             id: 'precinct-2-split-3',
             name: 'Precinct 2 - Split 3',
             // Should share a ballot style with precinct-1, since same districts assigned
             districtIds: [district1.id],
+            nhCustomContent: {},
           },
           {
             id: 'precinct-2-split-4',
             name: 'Precinct 2 - Split 4',
             // Shouldn't get a ballot style, since no districts assigned
             districtIds: [],
+            nhCustomContent: {},
           },
         ],
       },
@@ -744,7 +756,9 @@ describe('Ballot style generation', () => {
       contests,
     });
 
-    const { ballotStyles } = await apiClient.getElection({ electionId });
+    const { ballotStyles, nhCustomContent } = await apiClient.getElection({
+      electionId,
+    });
     const [precinct1, precinct2] = precincts;
     assert(hasSplits(precinct2));
     const [split1, split2, split3] = precinct2.splits;
@@ -771,6 +785,14 @@ describe('Ballot style generation', () => {
         precinctsOrSplits: [{ precinctId: precinct2.id, splitId: split2.id }],
       },
     ]);
+    expect(nhCustomContent).toEqual({
+      'ballot-style-2': {
+        electionTitle: 'Custom Election Title 1',
+      },
+      'ballot-style-3': {
+        electionTitle: 'Custom Election Title 2',
+      },
+    });
   });
 
   test('Primary election, no splits', async () => {
@@ -872,23 +894,27 @@ describe('Ballot style generation', () => {
             id: 'precinct-1-split-1',
             name: 'Precinct 1 - Split 1',
             districtIds: [district1.id, district2.id],
+            nhCustomContent: {},
           },
           {
             id: 'precinct-1-split-2',
             name: 'Precinct 1 - Split 2',
             districtIds: [district1.id, district3.id],
+            nhCustomContent: {},
           },
           {
             id: 'precinct-1-split-3',
             name: 'Precinct 1 - Split 3',
             // Shouldn't get a ballot style, since no districts assigned
             districtIds: [],
+            nhCustomContent: {},
           },
           {
             id: 'precinct-1-split-4',
             name: 'Precinct 1 - Split 4',
             // Should share a ballot style with precinct-2, since same districts assigned
             districtIds: [district2.id],
+            nhCustomContent: {},
           },
         ],
       },

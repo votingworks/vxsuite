@@ -34,6 +34,7 @@ export const famousNamesFixtures = (() => {
     ballotType: BallotType.Precinct,
     ballotMode: 'test',
     layoutOptions: DEFAULT_LAYOUT_OPTIONS,
+    nhCustomContent: {},
   }).unsafeUnwrap();
 
   const { precinctId, document: ballot, gridLayout } = ballots[0];
@@ -88,6 +89,7 @@ export const generalElectionFixtures = (() => {
             bubblePosition,
             layoutDensity,
           },
+          nhCustomContent: {},
         }).unsafeUnwrap();
 
         // Has ballot measures
@@ -191,6 +193,7 @@ export const primaryElectionFixtures = (() => {
     ballotType: BallotType.Precinct,
     ballotMode: 'test',
     layoutOptions: DEFAULT_LAYOUT_OPTIONS,
+    nhCustomContent: {},
   }).unsafeUnwrap();
 
   function makePartyFixtures(partyLabel: string, ballotStyle: BallotStyle) {

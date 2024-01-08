@@ -13,7 +13,7 @@ import { DEFAULT_SYSTEM_SETTINGS, Election } from '@votingworks/types';
 
 export const electionId = 'election-id-1';
 
-function makeElectionRecord(baseElection: Election): ElectionRecord {
+export function makeElectionRecord(baseElection: Election): ElectionRecord {
   const precincts = convertVxfPrecincts(baseElection);
   const ballotStyles = generateBallotStyles(baseElection, precincts);
   const election: Election = {
@@ -33,6 +33,7 @@ function makeElectionRecord(baseElection: Election): ElectionRecord {
     ballotStyles,
     layoutOptions: DEFAULT_LAYOUT_OPTIONS,
     createdAt: new Date().toISOString(),
+    nhCustomContent: {},
   };
 }
 
