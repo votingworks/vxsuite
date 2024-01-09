@@ -94,7 +94,9 @@ test('`waiting_for_invalidated_ballot_confirmation` state renders ballot invalid
     />
   );
 
-  apiMock.setPaperHandlerState('waiting_for_invalidated_ballot_confirmation');
+  apiMock.setPaperHandlerState(
+    'waiting_for_invalidated_ballot_confirmation.paper_present'
+  );
   apiMock.setAuthStatusCardlessVoterLoggedInWithDefaults(electionDefinition);
   await screen.findByText('Ask a Poll Worker for Help');
 });
@@ -115,7 +117,9 @@ test('`waiting_for_invalidated_ballot_confirmation` state renders ballot invalid
     />
   );
 
-  apiMock.setPaperHandlerState('waiting_for_invalidated_ballot_confirmation');
+  apiMock.setPaperHandlerState(
+    'waiting_for_invalidated_ballot_confirmation.paper_present'
+  );
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
     cardlessVoterUserParams: {
       ballotStyleId: electionDefinition.election.ballotStyles[0].id,

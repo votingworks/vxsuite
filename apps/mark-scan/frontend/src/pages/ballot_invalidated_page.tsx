@@ -8,13 +8,19 @@ interface Props {
   authStatus:
     | InsertedSmartCardAuth.CardlessVoterLoggedIn
     | InsertedSmartCardAuth.PollWorkerLoggedIn;
+  paperPresent: boolean;
 }
 
-export function BallotInvalidatedPage({ authStatus }: Props): JSX.Element {
+export function BallotInvalidatedPage({
+  authStatus,
+  paperPresent,
+}: Props): JSX.Element {
   return (
     <AskPollWorkerPage
       authStatus={authStatus}
-      pollWorkerPage={<RemoveInvalidatedBallotPage />}
+      pollWorkerPage={
+        <RemoveInvalidatedBallotPage paperPresent={paperPresent} />
+      }
     >
       <P>{appStrings.instructionsBmdInvalidatedBallot()}</P>
     </AskPollWorkerPage>

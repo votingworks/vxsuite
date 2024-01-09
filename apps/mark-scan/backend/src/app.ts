@@ -34,7 +34,6 @@ import {
 } from '@votingworks/backend';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
-import makeDebug from 'debug';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { getMachineConfig } from './machine_config';
 import { Workspace, constructAuthMachineState } from './util/workspace';
@@ -43,8 +42,6 @@ import {
   SimpleServerStatus,
 } from './custom-paper-handler';
 import { ElectionState } from './types';
-
-const debug = makeDebug('mark-scan:app-backend');
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(
@@ -257,14 +254,12 @@ export function buildApi(
     validateBallot(): void {
       assert(stateMachine);
 
-      debug('API validate');
       stateMachine.validateBallot();
     },
 
     invalidateBallot(): void {
       assert(stateMachine);
 
-      debug('API invalidate');
       stateMachine.invalidateBallot();
     },
 

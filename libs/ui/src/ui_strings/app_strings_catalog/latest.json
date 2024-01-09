@@ -32,7 +32,7 @@
   "instructionsBmdCastBallotStep1": "1. Verify your official ballot.",
   "instructionsBmdCastBallotStep2": "2. Scan your official ballot.",
   "instructionsBmdContestNavigation": "To navigate through the contest choices, use the down button. To move to the next contest, use the right button.",
-  "instructionsBmdInvalidatedBallot": "You have indicated your ballot needs changes. Please alert a poll worker to invalidate your incorrect ballot and restart your voting session.",
+  "instructionsBmdInvalidatedBallot": "You have indicated your ballot needs changes. Please alert a poll worker to invalidate the incorrect ballot sheet.",
   "instructionsBmdLoadPaper": "Please feed one sheet of paper into the front input tray. The printer will automatically grab the paper when positioned correctly.",
   "instructionsBmdPaperJam": "Please alert a poll worker to clear the jam, opening the printer cover or ballot box if necessary.",
   "instructionsBmdReviewPageChangingVotes": "To change your vote in any contest, use the select button to navigate to that contest. When you are finished making your ballot selections and ready to print your ballot, use the right button to print your ballot.",

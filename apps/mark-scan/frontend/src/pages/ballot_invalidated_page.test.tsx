@@ -2,7 +2,7 @@ import userEvent from '@testing-library/user-event';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { ElectionDefinition, InsertedSmartCardAuth } from '@votingworks/types';
 import { VxRenderResult } from '@votingworks/ui';
-import { render as renderWithBallotContext } from '../../test/test_utils';
+import { render } from '../../test/test_utils';
 import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client';
 import { screen } from '../../test/react_testing_library';
 import { BallotInvalidatedPage } from './ballot_invalidated_page';
@@ -24,27 +24,46 @@ function renderWithAuthAndBallotContext(
   electionDefinition: ElectionDefinition,
   authStatus:
     | InsertedSmartCardAuth.CardlessVoterLoggedIn
-    | InsertedSmartCardAuth.PollWorkerLoggedIn
+    | InsertedSmartCardAuth.PollWorkerLoggedIn,
+  paperPresent: boolean = true
 ): VxRenderResult {
-  return renderWithBallotContext(
-    <BallotInvalidatedPage authStatus={authStatus} />,
+  return render(
+    <BallotInvalidatedPage
+      authStatus={authStatus}
+      paperPresent={paperPresent}
+    />,
     {
-      precinctId: electionDefinition.election.precincts[0].id,
-      ballotStyleId: electionDefinition.election.ballotStyles[0].id,
       apiMock,
     }
   );
 }
 
 describe('with poll worker auth', () => {
-  test('calls confirmInvalidateBallot button is clicked', async () => {
+  test('renders the correct message when paper is present', () => {
     const electionDefinition = electionGeneralDefinition;
-    apiMock.expectConfirmInvalidateBallot();
     const auth = fakePollWorkerAuth(electionDefinition);
     renderWithAuthAndBallotContext(electionDefinition, auth);
 
-    await screen.findByText('Remove Ballot');
-    userEvent.click(screen.getByText('Start a New Voter Session'));
+    screen.getByText('Please remove the incorrect ballot.');
+  });
+
+  test('renders the correct message when paper is not present', () => {
+    const electionDefinition = electionGeneralDefinition;
+    const auth = fakePollWorkerAuth(electionDefinition);
+    renderWithAuthAndBallotContext(electionDefinition, auth, false);
+
+    screen.getByText(
+      'The incorrect ballot has been removed. Remember to spoil the ballot.'
+    );
+  });
+
+  test('calls confirmInvalidateBallot when button is clicked', () => {
+    const electionDefinition = electionGeneralDefinition;
+    apiMock.expectConfirmInvalidateBallot();
+    const auth = fakePollWorkerAuth(electionDefinition);
+    renderWithAuthAndBallotContext(electionDefinition, auth, false);
+
+    userEvent.click(screen.getByText('Continue'));
   });
 });
 

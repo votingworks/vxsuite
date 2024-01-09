@@ -457,10 +457,24 @@ export function AppRoot({
     }
 
     if (
-      isPollWorkerAuth(authStatus) &&
-      // Ballot invalidation requires BallotContext, handled below
-      stateMachineState !== 'waiting_for_invalidated_ballot_confirmation'
+      (isPollWorkerAuth(authStatus) || isCardlessVoterAuth(authStatus)) &&
+      (stateMachineState ===
+        'waiting_for_invalidated_ballot_confirmation.paper_present' ||
+        stateMachineState ===
+          'waiting_for_invalidated_ballot_confirmation.paper_absent')
     ) {
+      return (
+        <BallotInvalidatedPage
+          authStatus={authStatus}
+          paperPresent={
+            stateMachineState ===
+            'waiting_for_invalidated_ballot_confirmation.paper_present'
+          }
+        />
+      );
+    }
+
+    if (isPollWorkerAuth(authStatus)) {
       if (stateMachineState === 'paper_reloaded') {
         return <PaperReloadedPage />;
       }
@@ -485,12 +499,7 @@ export function AppRoot({
     }
 
     if (pollsState === 'polls_open') {
-      if (
-        isCardlessVoterAuth(authStatus) ||
-        // Special case poll worker auth because both poll worker auth and BallotContext are needed to invalidate the ballot
-        (isPollWorkerAuth(authStatus) &&
-          stateMachineState === 'waiting_for_invalidated_ballot_confirmation')
-      ) {
+      if (isCardlessVoterAuth(authStatus)) {
         if (
           !isFeatureFlagEnabled(
             BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
@@ -508,16 +517,9 @@ export function AppRoot({
         let ballotContextProviderChild = <Ballot />;
         // Pages that condition on state machine state aren't nested under Ballot because Ballot uses
         // frontend browser routing for flow control and is completely independent of the state machine.
-        // We still want to nest pages that condition on the state machine under BallotContext so we render them here.
+        // We still want to nest some pages that condition on the state machine under BallotContext so we render them here.
         if (stateMachineState === 'presenting_ballot') {
           ballotContextProviderChild = <ValidateBallotPage />;
-        }
-        if (
-          stateMachineState === 'waiting_for_invalidated_ballot_confirmation'
-        ) {
-          ballotContextProviderChild = (
-            <BallotInvalidatedPage authStatus={authStatus} />
-          );
         }
 
         return (
