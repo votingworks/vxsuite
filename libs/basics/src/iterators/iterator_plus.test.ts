@@ -240,11 +240,6 @@ test('toMap property', () => {
   );
 });
 
-test('toSet', () => {
-  expect(iter([]).toSet()).toEqual(new Set());
-  expect(iter([1, 2, 3]).toSet()).toEqual(new Set([1, 2, 3]));
-});
-
 test('toMap from iterable', () => {
   expect(iter(integers({ from: 1, through: 10 })).toMap((a) => a % 2)).toEqual(
     new Map([
@@ -252,6 +247,20 @@ test('toMap from iterable', () => {
       [1, new Set([1, 3, 5, 7, 9])],
     ])
   );
+});
+
+test('toSet', () => {
+  expect(iter([]).toSet()).toEqual(new Set());
+  expect(iter([1, 2, 3]).toSet()).toEqual(new Set([1, 2, 3]));
+});
+
+test('toString', () => {
+  expect(iter([]).toString()).toEqual('');
+  expect(iter([1, 2, 3]).toString()).toEqual('123');
+  expect(iter([1, 2, 3]).toString(' ')).toEqual('1 2 3');
+  expect(
+    iter([{ toString: (): string => 'hello' }, 'world']).toString(', ')
+  ).toEqual('hello, world');
 });
 
 test('first', () => {

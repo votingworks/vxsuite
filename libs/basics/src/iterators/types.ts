@@ -497,6 +497,12 @@ export interface IteratorPlus<T> extends Iterable<T> {
   toSet(): Set<T>;
 
   /**
+   * Returns a string representation of `this` by joining elements with
+   * `separator`. Consumes the entire contained iterable.
+   */
+  toString(separator?: string): string;
+
+  /**
    * Throws an error because `groupSize` must be greater than 0.
    */
   windows(groupSize: 0): never;
@@ -1120,6 +1126,12 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    * ```
    */
   toSet(): Promise<Set<T>>;
+
+  /**
+   * Returns a string representation of `this` by joining elements with
+   * `separator`. Consumes the entire contained iterable.
+   */
+  toString(separator?: string): Promise<string>;
 
   /**
    * Throws an error because `groupSize` must be greater than 0.

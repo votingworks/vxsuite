@@ -391,6 +391,10 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     return set;
   }
 
+  async toString(separator = ''): Promise<string> {
+    return (await this.toArray()).join(separator);
+  }
+
   windows(groupSize: 0): never;
   windows(groupSize: 1): AsyncIteratorPlus<[T]>;
   windows(groupSize: 2): AsyncIteratorPlus<[T, T]>;

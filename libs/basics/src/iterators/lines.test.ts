@@ -112,7 +112,7 @@ test('lines (async)', async () => {
   ).toEqual(['abc', 'de']);
 
   const input = createReadStream(__filename);
-  expect((await lines(input).toArray()).join('\n')).toEqual(
+  expect(await lines(input).toString('\n')).toEqual(
     await readFile(__filename, 'utf8')
   );
 
