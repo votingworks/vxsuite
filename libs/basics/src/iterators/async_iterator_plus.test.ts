@@ -339,15 +339,18 @@ test('toSet', async () => {
   expect(await iter([1, 2, 3]).async().toSet()).toEqual(new Set([1, 2, 3]));
 });
 
-test('toString', async () => {
-  expect(await iter([]).async().toString()).toEqual('');
-  expect(await iter([1, 2, 3]).async().toString()).toEqual('123');
-  expect(await iter([1, 2, 3]).async().toString(' ')).toEqual('1 2 3');
+test('join', async () => {
+  expect(await iter([]).async().join()).toEqual('');
+  expect(await iter([1, 2, 3]).async().join()).toEqual('123');
+  expect(await iter([1, 2, 3]).async().join(' ')).toEqual('1 2 3');
   expect(
     await iter([{ toString: (): string => 'hello' }, 'world'])
       .async()
-      .toString(', ')
+      .join(', ')
   ).toEqual('hello, world');
+
+  // `toString` is an alias for `join`
+  expect(await iter(['a', 'b', 'c']).async().toString()).toEqual('abc');
 });
 
 test('first', async () => {

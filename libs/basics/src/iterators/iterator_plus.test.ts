@@ -254,13 +254,16 @@ test('toSet', () => {
   expect(iter([1, 2, 3]).toSet()).toEqual(new Set([1, 2, 3]));
 });
 
-test('toString', () => {
-  expect(iter([]).toString()).toEqual('');
-  expect(iter([1, 2, 3]).toString()).toEqual('123');
-  expect(iter([1, 2, 3]).toString(' ')).toEqual('1 2 3');
+test('join', () => {
+  expect(iter([]).join()).toEqual('');
+  expect(iter([1, 2, 3]).join()).toEqual('123');
+  expect(iter([1, 2, 3]).join(' ')).toEqual('1 2 3');
   expect(
-    iter([{ toString: (): string => 'hello' }, 'world']).toString(', ')
+    iter([{ toString: (): string => 'hello' }, 'world']).join(', ')
   ).toEqual('hello, world');
+
+  // `toString` is an alias for `join`
+  expect(iter(['a', 'b', 'c']).toString()).toEqual('abc');
 });
 
 test('first', () => {

@@ -220,6 +220,10 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     return (await this.iterable[Symbol.asyncIterator]().next()).done ?? true;
   }
 
+  async join(separator = ''): Promise<string> {
+    return (await this.toArray()).join(separator);
+  }
+
   async last(): Promise<T | undefined> {
     let lastElement: T | undefined;
     for await (const it of this.iterable) {
@@ -391,8 +395,8 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     return set;
   }
 
-  async toString(separator = ''): Promise<string> {
-    return (await this.toArray()).join(separator);
+  toString(separator?: string): Promise<string> {
+    return this.join(separator);
   }
 
   windows(groupSize: 0): never;
