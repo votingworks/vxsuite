@@ -35,24 +35,6 @@ exports[`Modal can configure a wider max width 1`] = `
   padding: 1rem;
 }
 
-.c2 {
-  -webkit-align-items: inherit;
-  -webkit-box-align: inherit;
-  -ms-flex-align: inherit;
-  align-items: inherit;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-box-pack: inherit;
-  -webkit-justify-content: inherit;
-  -ms-flex-pack: inherit;
-  justify-content: inherit;
-}
-
 @media (min-width:480px) {
   .c0 {
     position: static;
@@ -99,12 +81,7 @@ exports[`Modal can configure a wider max width 1`] = `
   <div
     class="c1"
   >
-    <div
-      class="c2"
-      data-testid="mockReadOnLoad"
-    >
-      Do you want to do the thing?
-    </div>
+    Do you want to do the thing?
   </div>
 </div>
 `;
@@ -141,24 +118,6 @@ exports[`Modal can configure fullscreen 1`] = `
   -ms-flex-direction: column;
   flex-direction: column;
   overflow: auto;
-}
-
-.c2 {
-  -webkit-align-items: inherit;
-  -webkit-box-align: inherit;
-  -ms-flex-align: inherit;
-  align-items: inherit;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-direction: column;
-  -ms-flex-direction: column;
-  flex-direction: column;
-  -webkit-box-pack: inherit;
-  -webkit-justify-content: inherit;
-  -ms-flex-pack: inherit;
-  justify-content: inherit;
 }
 
 @media (min-width:480px) {
@@ -207,12 +166,7 @@ exports[`Modal can configure fullscreen 1`] = `
   <div
     class="c1"
   >
-    <div
-      class="c2"
-      data-testid="mockReadOnLoad"
-    >
-      Do you want to do the thing?
-    </div>
+    Do you want to do the thing?
   </div>
 </div>
 `;

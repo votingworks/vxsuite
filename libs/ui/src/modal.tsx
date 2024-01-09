@@ -9,6 +9,7 @@ import { Theme } from './themes';
 import { ButtonBar } from './button_bar';
 import { H2 } from './typography';
 import { ReadOnLoad } from './ui_strings/read_on_load';
+import { useAudioContext } from './ui_strings/audio_context';
 
 /**
  * Controls the maximum width the modal can expand to.
@@ -148,6 +149,9 @@ export function Modal({
   themeDeprecated,
   title,
 }: ModalProps): JSX.Element {
+  const isInVoterAudioContext = !!useAudioContext();
+  const shouldPlayAudioOnOpen = isInVoterAudioContext && !disableAutoplayAudio;
+
   const modalContent = (
     <React.Fragment>
       {title && <H2 as="h1">{title}</H2>}
@@ -195,10 +199,10 @@ export function Modal({
       overlayClassName="_"
     >
       <ModalContent centerContent={centerContent} fullscreen={fullscreen}>
-        {disableAutoplayAudio ? (
-          modalContent
-        ) : (
+        {shouldPlayAudioOnOpen ? (
           <ReadOnOpen>{modalContent}</ReadOnOpen>
+        ) : (
+          modalContent
         )}
       </ModalContent>
       {actions && <ButtonBar as="div">{actions}</ButtonBar>}

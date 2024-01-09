@@ -7,6 +7,11 @@ import { Button } from './button';
 import { fontSizeTheme } from './themes';
 import { FONT_SIZES, LARGE_DISPLAY_FONT_SIZE } from './globals';
 import { ReadOnLoad, ReadOnLoadProps } from './ui_strings/read_on_load';
+import { UiStringsAudioContextProvider } from './ui_strings/audio_context';
+import {
+  UiStringsReactQueryApi,
+  createUiStringsApi,
+} from './hooks/ui_strings_api';
 
 jest.mock(
   './ui_strings/read_on_load',
@@ -56,10 +61,6 @@ describe('Modal', () => {
     const modal = screen.getByRole('alertdialog');
     const content = within(modal).getByText('Do you want to do the thing?');
     expect(content).toHaveStyle(`
-      align-items: inherit;
-      justify-content: inherit;
-    `);
-    expect(content.parentElement).toHaveStyle(`
       align-items: center;
       justify-content: center;
     `);
@@ -125,33 +126,62 @@ describe('Modal', () => {
   });
 });
 
-it('triggers screen reader for title and content by default', () => {
-  render(
-    <Modal
-      title={<span>TITLE</span>}
-      content={<span>Content!</span>}
-      actions={<span>Do not read this</span>}
-    />
-  );
-
-  const readOnLoadElement = screen.getByTestId(MOCK_READ_ON_LOAD_TEST_ID);
-
-  expect(readOnLoadElement).toHaveTextContent(/^TITLE.?Content!$/);
-});
-
-it("doesn't trigger screen reader when autoplay is disabled", () => {
+it('no automatic screen reader in non-voter-audio context', () => {
   render(
     <Modal
       disableAutoplayAudio
       title={<span>TITLE</span>}
       content={<span>Content!</span>}
-      actions={<span>Do not read this</span>}
     />
   );
 
+  screen.getByText('TITLE');
+  screen.getByText('Content!');
   expect(
     screen.queryByTestId(MOCK_READ_ON_LOAD_TEST_ID)
   ).not.toBeInTheDocument();
-  screen.getByText('TITLE');
-  screen.getByText('Content!');
+});
+
+describe('when in voter audio context', () => {
+  const mockUiStringsApi: UiStringsReactQueryApi = createUiStringsApi(() => ({
+    getAudioClips: jest.fn(),
+    getAvailableLanguages: jest.fn(),
+    getUiStringAudioIds: jest.fn(),
+    getUiStrings: jest.fn(),
+  }));
+
+  it('triggers screen reader for title and content by default', () => {
+    render(
+      <UiStringsAudioContextProvider api={mockUiStringsApi}>
+        <Modal
+          title={<span>TITLE</span>}
+          content={<span>Content!</span>}
+          actions={<span>Do not read this</span>}
+        />
+      </UiStringsAudioContextProvider>
+    );
+
+    const readOnLoadElement = screen.getByTestId(MOCK_READ_ON_LOAD_TEST_ID);
+
+    expect(readOnLoadElement).toHaveTextContent(/^TITLE.?Content!$/);
+  });
+
+  it("doesn't trigger screen reader when autoplay is disabled", () => {
+    render(
+      <UiStringsAudioContextProvider api={mockUiStringsApi}>
+        <Modal
+          disableAutoplayAudio
+          title={<span>TITLE</span>}
+          content={<span>Content!</span>}
+          actions={<span>Do not read this</span>}
+        />
+      </UiStringsAudioContextProvider>
+    );
+
+    expect(
+      screen.queryByTestId(MOCK_READ_ON_LOAD_TEST_ID)
+    ).not.toBeInTheDocument();
+    screen.getByText('TITLE');
+    screen.getByText('Content!');
+  });
 });
