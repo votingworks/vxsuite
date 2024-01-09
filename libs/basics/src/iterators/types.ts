@@ -250,6 +250,12 @@ export interface IteratorPlus<T> extends Iterable<T> {
   isEmpty(): boolean;
 
   /**
+   * Returns a string representation of `this` by joining elements with
+   * `separator`. Consumes the entire contained iterable.
+   */
+  join(separator?: string): string;
+
+  /**
    * Returns the last element of `this` or `undefined` if `this` is empty.
    * Consumes the entire contained iterable.
    *
@@ -497,8 +503,7 @@ export interface IteratorPlus<T> extends Iterable<T> {
   toSet(): Set<T>;
 
   /**
-   * Returns a string representation of `this` by joining elements with
-   * `separator`. Consumes the entire contained iterable.
+   * Alias for {@link join}.
    */
   toString(separator?: string): string;
 
@@ -936,6 +941,12 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
   isEmpty(): Promise<boolean>;
 
   /**
+   * Returns a string representation of `this` by joining elements with
+   * `separator`. Consumes the entire contained iterable.
+   */
+  join(separator?: string): Promise<string>;
+
+  /**
    * Returns the last element of `this` or `undefined` if `this` is empty.
    * Consumes the entire contained iterable.
    *
@@ -1128,8 +1139,7 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
   toSet(): Promise<Set<T>>;
 
   /**
-   * Returns a string representation of `this` by joining elements with
-   * `separator`. Consumes the entire contained iterable.
+   * Alias for {@link join}.
    */
   toString(separator?: string): Promise<string>;
 

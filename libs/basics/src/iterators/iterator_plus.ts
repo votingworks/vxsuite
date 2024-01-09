@@ -222,6 +222,10 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     return this.iterable[Symbol.iterator]().next().done ?? true;
   }
 
+  join(separator = ''): string {
+    return this.toArray().join(separator);
+  }
+
   last(): T | undefined {
     let lastElement: T | undefined;
     for (const it of this.iterable) {
@@ -379,8 +383,8 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     return new Set(this.iterable);
   }
 
-  toString(separator = ''): string {
-    return this.toArray().join(separator);
+  toString(separator?: string): string {
+    return this.join(separator);
   }
 
   windows(groupSize: 0): never;
