@@ -9,6 +9,7 @@ import {
   useScreenInfo,
   appStrings,
   AudioOnly,
+  ReadOnLoad,
 } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
@@ -19,7 +20,7 @@ import { Review, ReviewProps } from '../components/review';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 import { DisplaySettingsButton } from '../components/display_settings_button';
 
-const ContentHeader = styled.div`
+const ContentHeader = styled(ReadOnLoad)`
   padding: 0.5rem 0.75rem 0;
 `;
 
@@ -64,7 +65,7 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
   return (
     <Screen flexDirection={screenInfo.isPortrait ? 'column' : 'row'}>
       <Main flexColumn>
-        <ContentHeader id="audiofocus">
+        <ContentHeader>
           <H1>{appStrings.titleBmdReviewScreen()}</H1>
           <AudioOnly>
             {appStrings.instructionsBmdReviewPageNavigation()}{' '}

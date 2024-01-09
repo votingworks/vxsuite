@@ -1,4 +1,4 @@
-import { ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import ReactModal from 'react-modal';
 import styled from 'styled-components';
 import { rgba } from 'polished';
@@ -8,6 +8,8 @@ import { assert } from '@votingworks/basics';
 import { Theme } from './themes';
 import { ButtonBar } from './button_bar';
 import { H2 } from './typography';
+import { ReadOnLoad } from './ui_strings/read_on_load';
+import { useAudioContext } from './ui_strings/audio_context';
 
 /**
  * Controls the maximum width the modal can expand to.
@@ -85,6 +87,13 @@ const ModalContent = styled('div')<ModalContentInterface>`
   padding: ${({ fullscreen }) => !fullscreen && '1rem'};
 `;
 
+const ReadOnOpen = styled(ReadOnLoad)`
+  align-items: inherit;
+  display: flex;
+  flex-direction: column;
+  justify-content: inherit;
+`;
+
 /** Props for {@link Modal}. */
 export interface ModalProps {
   ariaLabel?: string;
@@ -94,6 +103,14 @@ export interface ModalProps {
   ariaHideApp?: boolean;
   content?: ReactNode;
   centerContent?: boolean;
+  /**
+   * Disables automatic audio readout of the modal title and content on open.
+   *
+   * Useful if only a portion of the modal content needs to be read out. Clients
+   * can manually mark the appropriate content with {@link ReadOnLoad} in that
+   * case.
+   */
+  disableAutoplayAudio?: boolean;
   /**
    * Modal actions go here, most likely buttons. The primary action (such as
    * "Save") should be first under a fragment, and the secondary actions (such
@@ -117,42 +134,31 @@ export interface ModalProps {
   title?: ReactNode;
 }
 
-/* istanbul ignore next - unclear why this isn't covered */
-function focusModalAudio() {
-  window.setTimeout(() => {
-    const element = document.getElementById('modalaudiofocus');
-    if (element) {
-      element.focus();
-      element.click();
-    }
-  }, 10);
-}
-
-/* istanbul ignore next - unclear why this isn't covered */
-function focusScreenAudio() {
-  window.setTimeout(() => {
-    const element = document.getElementById('audiofocus');
-    if (element) {
-      element.focus();
-      element.click();
-    }
-  }, 10);
-}
-
 export function Modal({
   actions,
   ariaLabel = 'Alert Modal',
   centerContent,
   content,
+  disableAutoplayAudio,
   fullscreen = false,
   ariaHideApp = true,
-  onAfterOpen = focusModalAudio,
-  onAfterClose = focusScreenAudio,
+  onAfterOpen,
+  onAfterClose,
   onOverlayClick,
   modalWidth,
   themeDeprecated,
   title,
 }: ModalProps): JSX.Element {
+  const isInVoterAudioContext = !!useAudioContext();
+  const shouldPlayAudioOnOpen = isInVoterAudioContext && !disableAutoplayAudio;
+
+  const modalContent = (
+    <React.Fragment>
+      {title && <H2 as="h1">{title}</H2>}
+      {content}
+    </React.Fragment>
+  );
+
   /* istanbul ignore next - can't get document.getElementById working in test */
   const appElement =
     document.getElementById('root') ??
@@ -193,8 +199,11 @@ export function Modal({
       overlayClassName="_"
     >
       <ModalContent centerContent={centerContent} fullscreen={fullscreen}>
-        {title && <H2 as="h1">{title}</H2>}
-        {content}
+        {shouldPlayAudioOnOpen ? (
+          <ReadOnOpen>{modalContent}</ReadOnOpen>
+        ) : (
+          modalContent
+        )}
       </ModalContent>
       {actions && <ButtonBar as="div">{actions}</ButtonBar>}
     </ReactModal>

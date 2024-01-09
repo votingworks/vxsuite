@@ -7,6 +7,7 @@ import {
   InsertBallotImage,
   Main,
   P,
+  ReadOnLoad,
   Screen,
   VerifyBallotImage,
   appStrings,
@@ -69,7 +70,7 @@ export function CastBallotPage({
   return (
     <Screen>
       <Main padded>
-        <div id="audiofocus">
+        <ReadOnLoad>
           <H1>{appStrings.titleBmdCastBallotScreen()}</H1>
           <P>{appStrings.instructionsBmdCastBallotPreamble()}</P>
           <Instructions>
@@ -89,7 +90,7 @@ export function CastBallotPage({
           <P>
             <Icons.Info /> {appStrings.noteAskPollWorkerForHelp()}
           </P>
-        </div>
+        </ReadOnLoad>
         <Done>
           <Button
             onPress={hidePostVotingInstructions}

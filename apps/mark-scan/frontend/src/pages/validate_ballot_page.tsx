@@ -10,6 +10,7 @@ import {
   Button,
   appStrings,
   AudioOnly,
+  ReadOnLoad,
 } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
@@ -27,7 +28,7 @@ import {
 
 import { BallotContext } from '../contexts/ballot_context';
 
-const ContentHeader = styled.div`
+const ContentHeader = styled(ReadOnLoad)`
   padding: 0.5rem 0.75rem 0;
 `;
 
@@ -77,7 +78,7 @@ export function ValidateBallotPage(): JSX.Element | null {
   return (
     <Screen>
       <Main flexColumn>
-        <ContentHeader id="audiofocus">
+        <ContentHeader>
           <H1>{appStrings.titleBmdReviewScreen()}</H1>
           <AudioOnly>
             {appStrings.instructionsBmdReviewPageNavigation()}{' '}

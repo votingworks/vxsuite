@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 import {
   BallotStyleId,
@@ -50,7 +50,6 @@ import type { MachineConfig } from '@votingworks/mark-scan-backend';
 import styled from 'styled-components';
 import { find, throwIllegalValue } from '@votingworks/basics';
 
-import { triggerAudioFocus } from '../utils/trigger_audio_focus';
 import { DiagnosticsScreen } from './diagnostics_screen';
 import { LoadPaperPage } from './load_paper_page';
 import {
@@ -124,11 +123,7 @@ function UpdatePollsButton({
       {isConfirmationModalOpen && (
         <Modal
           title={`Confirm ${action}`}
-          content={
-            <Prose id="modalaudiofocus">
-              <P>{explanationText}</P>
-            </Prose>
-          }
+          content={<P>{explanationText}</P>}
           actions={
             <React.Fragment>
               <Button variant="primary" onPress={confirmUpdate}>
@@ -203,9 +198,6 @@ export function PollWorkerScreen({
     : [];
   /*
    * Various state parameters to handle controlling when certain modals on the page are open or not.
-   * If you are adding a new modal make sure to add the new parameter to the triggerAudiofocus useEffect
-   * dependency. This will retrigger the audio to explain landing on the PollWorker homepage
-   * when the modal closes.
    */
   const [isConfirmingEnableLiveMode, setIsConfirmingEnableLiveMode] = useState(
     !isLiveMode && isElectionDay
@@ -214,17 +206,6 @@ export function PollWorkerScreen({
     return setIsConfirmingEnableLiveMode(false);
   }
   const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(false);
-
-  /*
-   * Trigger audiofocus for the PollWorker screen landing page. This occurs when
-   * the component first renders, or any of the modals in the page are closed. If you
-   * add a new modal to this component add it's state parameter as a dependency here.
-   */
-  useEffect(() => {
-    if (!isConfirmingEnableLiveMode) {
-      triggerAudioFocus();
-    }
-  }, [isConfirmingEnableLiveMode]);
 
   const canSelectBallotStyle = pollsState === 'polls_open';
   const [isHidingSelectBallotStyle, setIsHidingSelectBallotStyle] =
@@ -295,7 +276,7 @@ export function PollWorkerScreen({
       return (
         <Screen>
           <Main centerChild padded>
-            <Prose id="audiofocus">
+            <Prose>
               <FullScreenIconWrapper align="center">
                 <Icons.Done color="success" />
               </FullScreenIconWrapper>
@@ -485,7 +466,7 @@ export function PollWorkerScreen({
           centerContent
           title="Switch to Official Ballot Mode and reset the Ballots Printed count?"
           content={
-            <Prose textCenter id="modalaudiofocus">
+            <Prose textCenter>
               <P>
                 Today is election day and this machine is in{' '}
                 <Font noWrap weight="bold">

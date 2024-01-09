@@ -10,6 +10,7 @@ import {
   PrintingBallotImage,
   appStrings,
   Font,
+  ReadOnLoad,
 } from '@votingworks/ui';
 
 import {
@@ -86,11 +87,11 @@ export function PrintPage({
   return (
     <Screen>
       <Main centerChild padded>
-        <Font align="center" id="audiofocus">
+        <Font align="center">
           <PrintingBallotImage />
-          <div>
+          <ReadOnLoad>
             <H1>{appStrings.titleBmdPrintScreen()}</H1>
-          </div>
+          </ReadOnLoad>
         </Font>
       </Main>
     </Screen>

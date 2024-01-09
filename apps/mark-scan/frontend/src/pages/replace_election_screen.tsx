@@ -64,7 +64,7 @@ export function ReplaceElectionScreen({
   return (
     <Screen>
       <Main padded centerChild>
-        <Prose id="audiofocus">
+        <Prose>
           <H1>
             <Icons.Danger color="danger" /> This card is configured for a
             different election.

@@ -134,7 +134,7 @@ export function YesNoContest({
         <Modal
           centerContent
           content={
-            <P id="modalaudiofocus">
+            <P>
               {appStrings.warningOvervoteYesNoContest()}
               <AudioOnly>
                 {appStrings.instructionsBmdSelectToContinue()}
