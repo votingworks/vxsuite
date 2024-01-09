@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs-extra';
-import { join, resolve } from 'path';
-import { SheetOf } from '@votingworks/types';
+import { dirname, resolve } from 'path';
+import { SheetOf, mapSheet } from '@votingworks/types';
 import { BatchControl, BatchScanner } from './fujitsu_scanner';
 
 type Batch = ReadonlyArray<SheetOf<string>>;
@@ -56,12 +56,10 @@ export function parseBatchesFromEnv(env?: string): Batch[] | undefined {
     const batches = parseBatches(
       readFileSync(batchManifestPath, 'utf8').split('\n')
     ).map((batch) =>
-      batch.map(
-        (sheet) =>
-          [
-            resolve(process.cwd(), join(batchManifestPath, '..'), sheet[0]),
-            resolve(process.cwd(), join(batchManifestPath, '..'), sheet[1]),
-          ] as SheetOf<string>
+      batch.map((sheet) =>
+        mapSheet(sheet, (imagePath) =>
+          resolve(process.cwd(), dirname(batchManifestPath), imagePath)
+        )
       )
     );
     return batches;
