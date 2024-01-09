@@ -27,7 +27,7 @@ import {
   Id,
   PrecinctId,
 } from '@votingworks/types';
-import { assert, find } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import type { Precinct } from '@votingworks/design-backend';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
@@ -43,7 +43,7 @@ import {
   FieldName,
 } from './layout';
 import { getElection, updateElection, updatePrecincts } from './api';
-import { generateId, hasSplits, nextId, replaceAtIndex } from './utils';
+import { generateId, hasSplits, replaceAtIndex } from './utils';
 
 function DistrictsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
@@ -406,10 +406,10 @@ function PrecinctForm({
   precinctId?: PrecinctId;
   savedPrecincts: Precinct[];
   districts: readonly District[];
-}): JSX.Element {
-  const [precinct, setPrecinct] = useState<Precinct>(
+}): JSX.Element | null {
+  const [precinct, setPrecinct] = useState<Precinct | undefined>(
     precinctId
-      ? find(savedPrecincts, (p) => p.id === precinctId)
+      ? savedPrecincts.find((p) => p.id === precinctId)
       : // To make mocked IDs predictable in tests, we pass a function here
         // so it will only be called on intial render.
         createBlankPrecinct
@@ -418,7 +418,15 @@ function PrecinctForm({
   const history = useHistory();
   const geographyRoutes = routes.election(electionId).geography;
 
+  // After deleting a precinct, this component may re-render briefly with no
+  // precinct before redirecting to the precincts list. We can just render
+  // nothing in that case.
+  if (!precinct) {
+    return null;
+  }
+
   function onSavePress() {
+    assert(precinct);
     const newPrecincts = precinctId
       ? savedPrecincts.map((p) => (p.id === precinctId ? precinct : p))
       : [...savedPrecincts, precinct];
@@ -436,6 +444,7 @@ function PrecinctForm({
   }
 
   function onAddSplitPress() {
+    assert(precinct);
     if (hasSplits(precinct)) {
       const { id, name, splits } = precinct;
       setPrecinct({
@@ -445,7 +454,7 @@ function PrecinctForm({
           ...splits,
           {
             id: generateId(),
-            name: nextId(`${name} - Split `),
+            name: '',
             districtIds: [],
             nhCustomContent: {},
           },
@@ -458,14 +467,14 @@ function PrecinctForm({
         name,
         splits: [
           {
-            id: `${id}-split-1`,
-            name: `${name} - Split 1`,
+            id: generateId(),
+            name: '',
             districtIds,
             nhCustomContent: {},
           },
           {
-            id: `${id}-split-2`,
-            name: `${name} - Split 2`,
+            id: generateId(),
+            name: '',
             districtIds: [],
             nhCustomContent: {},
           },
@@ -475,7 +484,7 @@ function PrecinctForm({
   }
 
   function onRemoveSplitPress(index: number) {
-    assert(hasSplits(precinct));
+    assert(precinct && hasSplits(precinct));
     const { splits, ...rest } = precinct;
     const newSplits = splits.filter((_, i) => i !== index);
     if (newSplits.length > 1) {
@@ -486,7 +495,7 @@ function PrecinctForm({
     } else {
       setPrecinct({
         ...rest,
-        districtIds: splits[0].districtIds,
+        districtIds: newSplits[0].districtIds,
       });
     }
   }
