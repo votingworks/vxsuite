@@ -20,7 +20,7 @@ export type SimpleStatus =
   | 'transition_interpretation'
   | 'waiting_for_ballot_data'
   | 'waiting_for_invalidated_ballot_confirmation.paper_present'
-  | 'waiting_for_invalidated_ballot_confirmation.paper_nowhere';
+  | 'waiting_for_invalidated_ballot_confirmation.paper_absent';
 
 export const SimpleStatusSchema: z.ZodSchema<SimpleStatus> = z.union([
   z.literal('accepting_paper'),
@@ -42,7 +42,7 @@ export const SimpleStatusSchema: z.ZodSchema<SimpleStatus> = z.union([
   z.literal('transition_interpretation'),
   z.literal('waiting_for_ballot_data'),
   z.literal('waiting_for_invalidated_ballot_confirmation.paper_present'),
-  z.literal('waiting_for_invalidated_ballot_confirmation.paper_nowhere'),
+  z.literal('waiting_for_invalidated_ballot_confirmation.paper_absent'),
 ]);
 
 export type SimpleServerStatus = SimpleStatus | 'no_hardware';

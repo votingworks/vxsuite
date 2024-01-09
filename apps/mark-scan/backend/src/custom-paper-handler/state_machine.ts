@@ -591,10 +591,10 @@ export function buildMachine(
               paper_present: {
                 invoke: pollPaperStatus(),
                 on: {
-                  NO_PAPER_ANYWHERE: 'paper_nowhere',
+                  NO_PAPER_ANYWHERE: 'paper_absent',
                 },
               },
-              paper_nowhere: {
+              paper_absent: {
                 on: {
                   POLLWORKER_CONFIRMED_INVALIDATED_BALLOT: 'done',
                 },
@@ -834,9 +834,9 @@ export async function getPaperHandlerStateMachine({
         ):
           return 'waiting_for_invalidated_ballot_confirmation.paper_present';
         case state.matches(
-          'voting_flow.waiting_for_invalidated_ballot_confirmation.paper_nowhere'
+          'voting_flow.waiting_for_invalidated_ballot_confirmation.paper_absent'
         ):
-          return 'waiting_for_invalidated_ballot_confirmation.paper_nowhere';
+          return 'waiting_for_invalidated_ballot_confirmation.paper_absent';
         case state.matches('voting_flow.presenting_ballot'):
           return 'presenting_ballot';
         case state.matches('voting_flow.eject_to_front'):

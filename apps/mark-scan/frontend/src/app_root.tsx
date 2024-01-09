@@ -461,7 +461,7 @@ export function AppRoot({
       (stateMachineState ===
         'waiting_for_invalidated_ballot_confirmation.paper_present' ||
         stateMachineState ===
-          'waiting_for_invalidated_ballot_confirmation.paper_nowhere')
+          'waiting_for_invalidated_ballot_confirmation.paper_absent')
     ) {
       return (
         <BallotInvalidatedPage
