@@ -252,7 +252,7 @@ export function PollWorkerScreen({
   ) {
     return (
       <Screen>
-        <Main centerChild>
+        <Main padded centerChild>
           <Text center>
             <H1
               aria-label={`Ballot style ${pollWorkerAuth.cardlessVoterUser.ballotStyleId} has been activated.`}
