@@ -6,20 +6,25 @@ import {
   MainContent,
   MainHeader,
   SegmentedButton,
-  FileInputButton,
 } from '@votingworks/ui';
-import { Buffer } from 'buffer';
 import { useHistory, useParams } from 'react-router-dom';
-import DomPurify from 'dompurify';
+import styled from 'styled-components';
 import { deleteElection, getElection, updateElection } from './api';
 import { FieldName, Form, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { routes } from './routes';
+import { ImageInput } from './image_input';
 
 type ElectionInfo = Pick<
   Election,
   'title' | 'date' | 'type' | 'state' | 'county' | 'seal'
 >;
+
+const SealImageInput = styled(ImageInput)`
+  img {
+    width: 10rem;
+  }
+`;
 
 function hasBlankElectionInfo(election: Election): boolean {
   return (
@@ -128,40 +133,12 @@ function ElectionInfoForm({
       </InputGroup>
       <div>
         <FieldName>Seal</FieldName>
-        {electionInfo.seal && (
-          <img
-            src={`data:image/svg+xml;base64,${Buffer.from(
-              electionInfo.seal
-            ).toString('base64')}`}
-            alt="Seal"
-            style={{ maxWidth: '10rem', marginBottom: '1rem' }}
-          />
-        )}
-        {(isEditing || !electionInfo.seal) && (
-          <FileInputButton
-            accept="image/svg+xml"
-            onChange={(e) => {
-              const file = e.target.files?.[0];
-              if (!file) {
-                return;
-              }
-              const reader = new FileReader();
-              reader.onload = (e2) => {
-                const svgContents = e2.target?.result;
-                if (typeof svgContents === 'string') {
-                  const seal = DomPurify.sanitize(svgContents, {
-                    USE_PROFILES: { svg: true },
-                  });
-                  setElectionInfo({ ...electionInfo, seal });
-                }
-              };
-              reader.readAsText(file);
-            }}
-            disabled={!isEditing}
-          >
-            Upload Seal Image
-          </FileInputButton>
-        )}
+        <SealImageInput
+          value={electionInfo.seal}
+          onChange={(seal) => setElectionInfo({ ...electionInfo, seal })}
+          disabled={!isEditing}
+          buttonLabel="Upload Seal Image"
+        />
       </div>
 
       {isEditing ? (

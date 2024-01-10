@@ -518,11 +518,11 @@ export const LabelButton = styled.label`
   ${buttonStyles}
 
   &:hover {
-    ${(p) => css(hoverStyles(p))}
+    ${(p) => !p.disabled && css(hoverStyles(p))}
   }
 
-  &:active {
-    ${(p) => css(activeStyles(p))}
+  &:active:enabled {
+    ${(p) => !p.disabled && css(activeStyles(p))}
   }
 `;
 

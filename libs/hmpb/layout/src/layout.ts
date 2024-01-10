@@ -55,6 +55,8 @@ const debug = makeDebug('layout');
  */
 export interface NhCustomContent {
   electionTitle?: string;
+  clerkSignatureImage?: string;
+  clerkSignatureCaption?: string;
 }
 export type NhCustomContentByBallotStyle = Record<
   BallotStyleId,
@@ -428,6 +430,53 @@ function HeaderAndInstructions({
     timeZone: 'UTC',
   }).format(new Date(election.date));
 
+  const clerkSignatureRowHeight = m.HEADER_ROW_HEIGHT - 1.5;
+  const clerkSignatureColumnWidth = nhCustomContent.clerkSignatureImage
+    ? 6.5
+    : 0;
+  const clerkSignatureBlock: Rectangle | undefined =
+    nhCustomContent.clerkSignatureImage
+      ? {
+          type: 'Rectangle',
+          ...gridPoint(
+            {
+              row: (m.HEADER_ROW_HEIGHT - 0.25 - clerkSignatureRowHeight) / 2,
+              column:
+                m.CONTENT_AREA_COLUMN_WIDTH - clerkSignatureColumnWidth - 0.5,
+            },
+            m
+          ),
+          width: gridWidth(clerkSignatureColumnWidth, m),
+          height: gridHeight(clerkSignatureRowHeight, m),
+          children: [
+            {
+              type: 'Image',
+              ...gridPoint({ row: 0, column: 0 }, m),
+              width: gridWidth(clerkSignatureColumnWidth, m),
+              height: gridHeight(clerkSignatureRowHeight - 0.5, m),
+              contents: nhCustomContent.clerkSignatureImage,
+            },
+            TextBlock({
+              ...gridPoint(
+                {
+                  row: clerkSignatureRowHeight - 0.5,
+                  column: 0,
+                },
+                m
+              ),
+              width: gridWidth(clerkSignatureColumnWidth, m),
+              textGroups: [
+                {
+                  text: nhCustomContent.clerkSignatureCaption ?? '',
+                  fontStyle: m.FontStyles.BODY,
+                },
+              ],
+              align: 'center',
+            }),
+          ],
+        }
+      : undefined;
+
   const header: Rectangle = {
     type: 'Rectangle',
     ...gridPoint({ row: 0, column: 0 }, m),
@@ -439,7 +488,10 @@ function HeaderAndInstructions({
           { row: m.HEADER_ROW_HEIGHT / 15, column: sealRowHeight + 1.5 },
           m
         ),
-        width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH - 1, m),
+        width: gridWidth(
+          m.CONTENT_AREA_COLUMN_WIDTH - 1 - clerkSignatureColumnWidth,
+          m
+        ),
         textGroups: [
           {
             text: `${ballotTitle}${party}`,
@@ -471,6 +523,7 @@ function HeaderAndInstructions({
         height: gridHeight(sealRowHeight, m),
         contents: election.seal,
       },
+      ...(clerkSignatureBlock ? [clerkSignatureBlock] : []),
     ],
   };
 

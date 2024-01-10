@@ -58,6 +58,7 @@ const StyledContainer = styled.div<{ color?: CardColor }>`
 
 const StyledContent = styled.div`
   padding: ${(p) => (p.theme.sizeMode === 'desktop' ? '1rem' : '0.5rem')};
+  height: 100%;
 
   /* Shrink padding if there's a footer: */
   &:not(:last-child) {

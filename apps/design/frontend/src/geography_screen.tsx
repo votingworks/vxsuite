@@ -28,7 +28,8 @@ import {
   PrecinctId,
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
-import type { Precinct } from '@votingworks/design-backend';
+import type { Precinct, PrecinctSplit } from '@votingworks/design-backend';
+import styled from 'styled-components';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { TabPanel, TabBar } from './tabs';
@@ -44,6 +45,7 @@ import {
 } from './layout';
 import { getElection, updateElection, updatePrecincts } from './api';
 import { generateId, hasSplits, replaceAtIndex } from './utils';
+import { ImageInput } from './image_input';
 
 function DistrictsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
@@ -396,6 +398,12 @@ function PrecinctsTab(): JSX.Element | null {
   );
 }
 
+const ClerkSignatureImageInput = styled(ImageInput)`
+  img {
+    height: 4rem;
+  }
+`;
+
 function createBlankPrecinct(): Precinct {
   return {
     name: '',
@@ -451,43 +459,47 @@ function PrecinctForm({
     );
   }
 
+  function setSplits(splits: PrecinctSplit[]) {
+    assert(precinct);
+    setPrecinct({
+      id: precinct.id,
+      name: precinct.name,
+      splits,
+    });
+  }
+
+  function setSplit(index: number, split: PrecinctSplit) {
+    assert(precinct && hasSplits(precinct));
+    setSplits(replaceAtIndex(precinct.splits, index, split));
+  }
+
   function onAddSplitPress() {
     assert(precinct);
     if (hasSplits(precinct)) {
-      const { id, name, splits } = precinct;
-      setPrecinct({
-        id,
-        name,
-        splits: [
-          ...splits,
-          {
-            id: generateId(),
-            name: '',
-            districtIds: [],
-            nhCustomContent: {},
-          },
-        ],
-      });
+      setSplits([
+        ...precinct.splits,
+        {
+          id: generateId(),
+          name: '',
+          districtIds: [],
+          nhCustomContent: {},
+        },
+      ]);
     } else {
-      const { id, name, districtIds } = precinct;
-      setPrecinct({
-        id,
-        name,
-        splits: [
-          {
-            id: generateId(),
-            name: '',
-            districtIds,
-            nhCustomContent: {},
-          },
-          {
-            id: generateId(),
-            name: '',
-            districtIds: [],
-            nhCustomContent: {},
-          },
-        ],
-      });
+      setSplits([
+        {
+          id: generateId(),
+          name: '',
+          districtIds: precinct.districtIds,
+          nhCustomContent: {},
+        },
+        {
+          id: generateId(),
+          name: '',
+          districtIds: [],
+          nhCustomContent: {},
+        },
+      ]);
     }
   }
 
@@ -540,19 +552,13 @@ function PrecinctForm({
             <React.Fragment>
               {precinct.splits.map((split, index) => (
                 <Card key={split.id}>
-                  <Column style={{ gap: '1rem' }}>
+                  <Column style={{ gap: '1rem', height: '100%' }}>
                     <InputGroup label="Name">
                       <input
                         type="text"
                         value={split.name}
                         onChange={(e) =>
-                          setPrecinct({
-                            ...precinct,
-                            splits: replaceAtIndex(precinct.splits, index, {
-                              ...split,
-                              name: e.target.value,
-                            }),
-                          })
+                          setSplit(index, { ...split, name: e.target.value })
                         }
                       />
                     </InputGroup>
@@ -564,12 +570,9 @@ function PrecinctForm({
                       }))}
                       value={[...split.districtIds]}
                       onChange={(districtIds) =>
-                        setPrecinct({
-                          ...precinct,
-                          splits: replaceAtIndex(precinct.splits, index, {
-                            ...split,
-                            districtIds: districtIds as DistrictId[],
-                          }),
+                        setSplit(index, {
+                          ...split,
+                          districtIds: districtIds as DistrictId[],
                         })
                       }
                     />
@@ -578,21 +581,56 @@ function PrecinctForm({
                         type="text"
                         value={split.nhCustomContent.electionTitle ?? ''}
                         onChange={(e) =>
-                          setPrecinct({
-                            ...precinct,
-                            splits: replaceAtIndex(precinct.splits, index, {
-                              ...split,
-                              nhCustomContent: {
-                                ...split.nhCustomContent,
-                                electionTitle: e.target.value,
-                              },
-                            }),
+                          setSplit(index, {
+                            ...split,
+                            nhCustomContent: {
+                              ...split.nhCustomContent,
+                              electionTitle: e.target.value,
+                            },
                           })
                         }
                       />
                     </InputGroup>
 
-                    <Button onPress={() => onRemoveSplitPress(index)}>
+                    <div>
+                      <FieldName>Clerk Signature Image</FieldName>
+                      <ClerkSignatureImageInput
+                        value={split.nhCustomContent.clerkSignatureImage}
+                        onChange={(value) =>
+                          setSplit(index, {
+                            ...split,
+                            nhCustomContent: {
+                              ...split.nhCustomContent,
+                              clerkSignatureImage: value,
+                            },
+                          })
+                        }
+                        buttonLabel="Upload Image"
+                      />
+                    </div>
+
+                    <InputGroup label="Clerk Signature Caption">
+                      <input
+                        type="text"
+                        value={
+                          split.nhCustomContent.clerkSignatureCaption ?? ''
+                        }
+                        onChange={(e) =>
+                          setSplit(index, {
+                            ...split,
+                            nhCustomContent: {
+                              ...split.nhCustomContent,
+                              clerkSignatureCaption: e.target.value,
+                            },
+                          })
+                        }
+                      />
+                    </InputGroup>
+
+                    <Button
+                      style={{ marginTop: 'auto' }}
+                      onPress={() => onRemoveSplitPress(index)}
+                    >
                       Remove Split
                     </Button>
                   </Column>

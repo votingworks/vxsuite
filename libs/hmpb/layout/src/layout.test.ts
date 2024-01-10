@@ -213,7 +213,7 @@ test('gridForPaper', () => {
   });
 });
 
-test('NH school district election special case', () => {
+test('NH custom content', () => {
   const districts: District[] = [
     {
       id: 'district-1' as DistrictId,
@@ -254,9 +254,14 @@ test('NH school district election special case', () => {
   const nhCustomContent: NhCustomContentByBallotStyle = {
     [townBallotStyle.id]: {
       electionTitle: 'Annual Town Election',
+      clerkSignatureImage: '<svg>town clerk signature image data</svg>',
+      clerkSignatureCaption: 'Town Clerk',
     },
     [schoolBallotStyle.id]: {
       electionTitle: 'Annual School District Election',
+      clerkSignatureImage:
+        '<svg>school district clerk signature image data</svg>',
+      clerkSignatureCaption: 'School District Clerk',
     },
   };
   const { ballots } = layOutAllBallotStyles({
@@ -267,36 +272,38 @@ test('NH school district election special case', () => {
     nhCustomContent,
   }).unsafeUnwrap();
 
-  const townBallot = ballots.find(
-    (ballot) => ballot.gridLayout.ballotStyleId === townBallotStyle.id
+  const townBallot = JSON.stringify(
+    ballots.find(
+      (ballot) => ballot.gridLayout.ballotStyleId === townBallotStyle.id
+    )
   );
-  expect(JSON.stringify(townBallot)).toContain(
-    nhCustomContent[townBallotStyle.id].electionTitle
-  );
-  expect(JSON.stringify(townBallot)).not.toContain(
-    nhCustomContent[schoolBallotStyle.id].electionTitle
-  );
-  expect(JSON.stringify(townBallot)).not.toContain(election.title);
+  const townContent = nhCustomContent[townBallotStyle.id];
+  expect(townBallot).toContain(townContent.electionTitle);
+  expect(townBallot).toContain(townContent.clerkSignatureImage);
+  expect(townBallot).toContain(townContent.clerkSignatureCaption);
+  expect(townBallot).not.toContain(election.title);
 
-  const schoolBallot = ballots.find(
-    (ballot) => ballot.gridLayout.ballotStyleId === schoolBallotStyle.id
+  const schoolBallot = JSON.stringify(
+    ballots.find(
+      (ballot) => ballot.gridLayout.ballotStyleId === schoolBallotStyle.id
+    )
   );
-  expect(JSON.stringify(schoolBallot)).toContain(
-    nhCustomContent[schoolBallotStyle.id].electionTitle
-  );
-  expect(JSON.stringify(schoolBallot)).not.toContain(
-    nhCustomContent[townBallotStyle.id].electionTitle
-  );
+  const schoolContent = nhCustomContent[schoolBallotStyle.id];
+  expect(schoolBallot).toContain(schoolContent.electionTitle);
+  expect(schoolBallot).toContain(schoolContent.clerkSignatureImage);
+  expect(schoolBallot).toContain(schoolContent.clerkSignatureCaption);
   expect(JSON.stringify(schoolBallot)).not.toContain(election.title);
 
-  const combinedBallot = ballots.find(
-    (ballot) => ballot.gridLayout.ballotStyleId === combinedBallotStyle.id
+  const combinedBallot = JSON.stringify(
+    ballots.find(
+      (ballot) => ballot.gridLayout.ballotStyleId === combinedBallotStyle.id
+    )
   );
-  expect(JSON.stringify(combinedBallot)).toContain(election.title);
-  expect(JSON.stringify(combinedBallot)).not.toContain(
-    nhCustomContent[townBallotStyle.id].electionTitle
-  );
-  expect(JSON.stringify(combinedBallot)).not.toContain(
-    nhCustomContent[schoolBallotStyle.id].electionTitle
-  );
+  expect(combinedBallot).toContain(election.title);
+  expect(combinedBallot).not.toContain(townContent.electionTitle);
+  expect(combinedBallot).not.toContain(townContent.clerkSignatureImage);
+  expect(combinedBallot).not.toContain(townContent.clerkSignatureCaption);
+  expect(combinedBallot).not.toContain(schoolContent.electionTitle);
+  expect(combinedBallot).not.toContain(schoolContent.clerkSignatureImage);
+  expect(combinedBallot).not.toContain(schoolContent.clerkSignatureCaption);
 });

@@ -119,9 +119,7 @@ test('edit and save election', async () => {
     'src',
     `data:image/svg+xml;base64,${Buffer.from(election.seal).toString('base64')}`
   );
-  expect(
-    within(sealInput).queryByLabelText('Upload Seal Image')
-  ).not.toBeInTheDocument();
+  expect(within(sealInput).getByLabelText('Upload Seal Image')).toBeDisabled();
 
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
 

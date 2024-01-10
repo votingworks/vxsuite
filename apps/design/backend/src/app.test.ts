@@ -731,7 +731,9 @@ describe('Ballot style generation', () => {
             name: 'Precinct 2 - Split 1',
             districtIds: [district1.id, district2.id],
             nhCustomContent: {
-              electionTitle: 'Custom Election Title 1',
+              electionTitle: 'Annual Town Election',
+              clerkSignatureImage: '<svg>town clerk signature image data</svg>',
+              clerkSignatureCaption: 'Town Clerk',
             },
           },
           {
@@ -739,7 +741,10 @@ describe('Ballot style generation', () => {
             name: 'Precinct 2 - Split 2',
             districtIds: [district1.id, district3.id],
             nhCustomContent: {
-              electionTitle: 'Custom Election Title 2',
+              electionTitle: 'Annual School District Election',
+              clerkSignatureImage:
+                '<svg>school district clerk signature image data</svg>',
+              clerkSignatureCaption: 'School District Clerk',
             },
           },
           {
@@ -802,10 +807,15 @@ describe('Ballot style generation', () => {
     ]);
     expect(nhCustomContent).toEqual({
       'ballot-style-2': {
-        electionTitle: 'Custom Election Title 1',
+        electionTitle: 'Annual Town Election',
+        clerkSignatureImage: '<svg>town clerk signature image data</svg>',
+        clerkSignatureCaption: 'Town Clerk',
       },
       'ballot-style-3': {
-        electionTitle: 'Custom Election Title 2',
+        electionTitle: 'Annual School District Election',
+        clerkSignatureImage:
+          '<svg>school district clerk signature image data</svg>',
+        clerkSignatureCaption: 'School District Clerk',
       },
     });
   });

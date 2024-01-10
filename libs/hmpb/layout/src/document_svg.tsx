@@ -70,10 +70,22 @@ export function SvgTextBox({
           key={textLine + index}
           // Adjust x coordinate if textAnchor is 'end' so that the overall
           // content box location stays the same, since 'end' moves the text to
-          // the other side of the x coordinate.
-          x={align === 'left' ? 0 : width}
+          // the other side of the x coordinate. Similarly for 'middle'.
+          x={
+            {
+              left: 0,
+              center: width / 2,
+              right: width,
+            }[align]
+          }
           y={(index + 1) * lineHeight}
-          textAnchor={align === 'left' ? 'start' : 'end'}
+          textAnchor={
+            {
+              left: 'start',
+              center: 'middle',
+              right: 'end',
+            }[align]
+          }
           {...textProps}
         >
           {textLine}
