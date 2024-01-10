@@ -25,7 +25,7 @@ import { DisplaySettingsButton } from '../components/display_settings_button';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 import { VoteUpdateInteractionMethod } from '../config/types';
 
-interface ContestPageProps {
+export interface ContestPageProps {
   contests: ContestsWithMsEitherNeither;
   electionDefinition?: ElectionDefinition;
   getContestUrl: (contestIndex: number) => string;
