@@ -46,7 +46,7 @@ function setInternationalizedUiStrings(params: {
 
 /**
  * Sets the default English language string for the given ballot content text.
- * Used for content that will be spoken, but not translated, like ballot
+ * Used for content that will be spoken, but not translated, like ballot style.
  */
 function setStaticUiString(params: {
   uiStrings: UiStringsPackage;
