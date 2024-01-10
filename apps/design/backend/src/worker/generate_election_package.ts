@@ -4,23 +4,23 @@ import JsZip from 'jszip';
 import path from 'path';
 import { pipeline } from 'stream/promises';
 import { z } from 'zod';
-import { assertDefined } from '@votingworks/basics';
 import { layOutAllBallotStyles } from '@votingworks/hmpb-layout';
 import {
   BallotType,
-  Election,
   ElectionPackageFileName,
-  ElectionStringKey,
   getDisplayElectionHash,
   Id,
   LanguageCode,
   safeParseJson,
   UiStringsPackage,
 } from '@votingworks/types';
-import { format } from '@votingworks/utils';
 
 import { PORT } from '../globals';
-import { GoogleCloudTranslator } from '../language_and_audio/translator';
+import {
+  extractAndTranslateElectionStrings,
+  GoogleCloudTranslator,
+  setUiString,
+} from '../language_and_audio';
 import { WorkerContext } from './context';
 
 async function translateAppStrings(
@@ -46,32 +46,16 @@ async function translateAppStrings(
 
   const appStrings: UiStringsPackage = {};
   for (const languageCode of Object.values(LanguageCode)) {
-    appStrings[languageCode] = {};
     const appStringsInLanguage =
       languageCode === LanguageCode.ENGLISH
         ? appStringsInEnglish
         : await translator.translateText(appStringsInEnglish, languageCode);
     for (const [i, key] of appStringKeys.entries()) {
-      assertDefined(appStrings[languageCode])[key] = appStringsInLanguage[i];
+      setUiString(appStrings, languageCode, key, appStringsInLanguage[i]);
     }
   }
-  return appStrings;
-}
 
-function translateVxElectionStrings(election: Election): UiStringsPackage {
-  const electionDate = new Date(election.date);
-  const vxElectionStrings: UiStringsPackage = {};
-  for (const languageCode of Object.values(LanguageCode)) {
-    vxElectionStrings[languageCode] = {};
-    const electionDateInLanguage = format.localeLongDate(
-      electionDate,
-      languageCode
-    );
-    assertDefined(vxElectionStrings[languageCode])[
-      ElectionStringKey.ELECTION_DATE
-    ] = electionDateInLanguage;
-  }
-  return vxElectionStrings;
+  return appStrings;
 }
 
 export async function generateElectionPackage(
@@ -91,7 +75,8 @@ export async function generateElectionPackage(
     JSON.stringify(appStrings, null, 2)
   );
 
-  const vxElectionStrings = translateVxElectionStrings(election);
+  const { electionStrings, vxElectionStrings } =
+    await extractAndTranslateElectionStrings(translator, election);
   zip.file(
     ElectionPackageFileName.VX_ELECTION_STRINGS,
     JSON.stringify(vxElectionStrings, null, 2)
@@ -105,6 +90,7 @@ export async function generateElectionPackage(
     ballotMode: 'test',
     layoutOptions,
     nhCustomContent,
+    translatedElectionStrings: electionStrings,
   }).unsafeUnwrap();
   zip.file(ElectionPackageFileName.ELECTION, electionDefinition.electionData);
 
