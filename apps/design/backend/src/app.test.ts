@@ -12,6 +12,7 @@ import {
 import {
   AdjudicationReason,
   AnyContest,
+  BallotDefinition,
   BallotType,
   Contests,
   DEFAULT_SYSTEM_SETTINGS,
@@ -27,6 +28,7 @@ import {
   SystemSettings,
   UiStringsPackageSchema,
   safeParseElectionDefinition,
+  safeParseElectionDefinitionExtended,
   safeParseJson,
   safeParseSystemSettings,
 } from '@votingworks/types';
@@ -34,11 +36,42 @@ import { getBallotStylesByPrecinctId } from '@votingworks/utils';
 import {
   ApiClient,
   exportElectionPackage,
+  mockCloudTranslatedText,
   processNextBackgroundTaskIfAny,
   testSetupHelpers,
 } from '../test/helpers';
 import { hasSplits, Precinct } from './store';
 import { FULL_TEST_DECK_TALLY_REPORT_FILE_NAME } from './test_decks';
+
+function expectTextToBeTranslated(
+  internationalizedText: BallotDefinition.InternationalizedText,
+  expectedTranslatedText: (
+    englishText: string,
+    languageCode: string
+  ) => string = mockCloudTranslatedText
+) {
+  const text = internationalizedText.Text;
+
+  expect(text).toHaveLength(4);
+  expect(text.map((entry) => entry.Language).sort()).toEqual([
+    LanguageCode.ENGLISH,
+    LanguageCode.SPANISH,
+    LanguageCode.CHINESE_SIMPLIFIED,
+    LanguageCode.CHINESE_TRADITIONAL,
+  ]);
+
+  const englishText = assertDefined(
+    text.find((entry) => entry.Language === LanguageCode.ENGLISH)
+  ).Content;
+  for (const entry of text) {
+    if (entry.Language === LanguageCode.ENGLISH) {
+      continue;
+    }
+    expect(entry.Content).toEqual(
+      expectedTranslatedText(englishText, entry.Language)
+    );
+  }
+}
 
 const { setupApp, cleanup } = testSetupHelpers();
 
@@ -318,7 +351,6 @@ test('Election package export', async () => {
   });
 
   // Check overall structure of zip file
-
   const zip = await JsZip.loadAsync(electionPackageContents);
   expect(Object.keys(zip.files).sort()).toEqual([
     'appStrings.json',
@@ -327,7 +359,9 @@ test('Election package export', async () => {
     'vxElectionStrings.json',
   ]);
 
+  //
   // Check appStrings.json
+  //
 
   const appStrings = safeParseJson(
     await assertDefined(zip.file('appStrings.json')).async('text'),
@@ -364,7 +398,9 @@ test('Election package export', async () => {
     }
   }
 
+  //
   // Check vxElectionStrings.json
+  //
 
   const vxElectionStrings = safeParseJson(
     await assertDefined(zip.file('vxElectionStrings.json')).async('text'),
@@ -377,7 +413,9 @@ test('Election package export', async () => {
     ).toBeDefined();
   }
 
+  //
   // Check election.json
+  //
 
   const electionDefinition = safeParseElectionDefinition(
     await assertDefined(zip.file('election.json')).async('text')
@@ -401,7 +439,47 @@ test('Election package export', async () => {
     gridLayouts: expect.any(Array),
   });
 
+  // Check election string translation
+
+  const { cdfElection } = safeParseElectionDefinitionExtended(
+    await assertDefined(zip.file('election.json')).async('text')
+  ).unsafeUnwrap();
+  assert(cdfElection !== undefined);
+
+  // Check candidate names
+  for (const candidate of assertDefined(cdfElection.Election[0].Candidate)) {
+    expectTextToBeTranslated(
+      candidate.BallotName,
+      (englishText) => englishText
+    );
+  }
+
+  // Check contest titles
+  for (const contest of assertDefined(cdfElection.Election[0].Contest)) {
+    expectTextToBeTranslated(contest.BallotTitle);
+  }
+
+  // Check county name, district names, precinct names, and state name
+  for (const gpUnit of cdfElection.GpUnit) {
+    expectTextToBeTranslated(gpUnit.Name);
+  }
+
+  // Check election title
+  expectTextToBeTranslated(cdfElection.Election[0].Name);
+
+  // Check party full names
+  for (const party of cdfElection.Party) {
+    expectTextToBeTranslated(party.Name);
+  }
+
+  // Check party names
+  for (const party of cdfElection.Party) {
+    expectTextToBeTranslated(party.vxBallotLabel);
+  }
+
+  //
   // Check systemSettings.json
+  //
 
   const systemSettings = safeParseSystemSettings(
     await assertDefined(zip.file('systemSettings.json')).async('text')
@@ -485,6 +563,7 @@ test('Export all ballots', async () => {
       ballotMode: expectedBallotMode,
       layoutOptions,
       nhCustomContent: {},
+      translatedElectionStrings: expect.any(Object),
     });
   }
 });
@@ -529,6 +608,7 @@ test('Export test decks', async () => {
     ballotMode: 'test',
     layoutOptions: DEFAULT_LAYOUT_OPTIONS,
     nhCustomContent: {},
+    translatedElectionStrings: expect.any(Object),
   });
 });
 
