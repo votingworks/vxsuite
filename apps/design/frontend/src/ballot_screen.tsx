@@ -30,7 +30,7 @@ export function BallotScreen(): JSX.Element | null {
         precinct={precinct}
         ballotStyle={ballotStyle}
         layoutOptions={layoutOptions}
-        nhCustomContent={nhCustomContent[ballotStyle.id]}
+        nhCustomContent={nhCustomContent[ballotStyle.id] ?? {}}
       />
     </Screen>
   );
