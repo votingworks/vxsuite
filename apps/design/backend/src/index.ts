@@ -3,6 +3,10 @@ import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { WORKSPACE } from './globals';
 import * as server from './server';
 import { createWorkspace } from './workspace';
+import {
+  GoogleCloudSpeechSynthesizer,
+  GoogleCloudTranslator,
+} from './language_and_audio';
 
 export type {
   BallotStyle,
@@ -28,9 +32,11 @@ function main(): Promise<number> {
   }
   const workspacePath = resolve(WORKSPACE);
   const workspace = createWorkspace(workspacePath);
+  const { store } = workspace;
+  const speechSynthesizer = new GoogleCloudSpeechSynthesizer({ store });
+  const translator = new GoogleCloudTranslator({ store });
 
-  server.start({ workspace });
-
+  server.start({ speechSynthesizer, translator, workspace });
   return Promise.resolve(0);
 }
 
