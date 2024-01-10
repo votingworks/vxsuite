@@ -7,9 +7,7 @@ export function setUiString(
   stringKey: string | [string, string],
   stringInLanguage: string
 ): void {
-  if (!uiStrings[languageCode]) {
-    uiStrings[languageCode] = {}; // eslint-disable-line no-param-reassign
-  }
+  uiStrings[languageCode] ??= {}; // eslint-disable-line no-param-reassign
   const uiStringsInLanguage = assertDefined(uiStrings[languageCode]);
 
   // Single-value key
@@ -19,9 +17,7 @@ export function setUiString(
   }
 
   // Two-value key
-  if (!uiStringsInLanguage[stringKey[0]]) {
-    uiStringsInLanguage[stringKey[0]] = {};
-  }
+  uiStringsInLanguage[stringKey[0]] ??= {};
   const subStructure = uiStringsInLanguage[stringKey[0]];
   assert(subStructure !== undefined && typeof subStructure === 'object');
   subStructure[stringKey[1]] = stringInLanguage;

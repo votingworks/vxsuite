@@ -1,3 +1,4 @@
+import { assert } from '@votingworks/basics';
 import {
   CandidateContest,
   Election,
@@ -8,7 +9,6 @@ import {
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
 
-import { assert } from '@votingworks/basics';
 import { GoogleCloudTranslator } from './translator';
 import { setUiString } from './utils';
 
@@ -108,15 +108,14 @@ const electionStringExtractorFns: Record<
       .filter(
         (contest): contest is CandidateContest => contest.type === 'candidate'
       )
-      .map((contest) =>
+      .flatMap((contest) =>
         contest.candidates.map(
           (candidate): ElectionString => ({
             stringKey: [ElectionStringKey.CANDIDATE_NAME, candidate.id],
             stringInEnglish: candidate.name,
           })
         )
-      )
-      .flat();
+      );
   },
   [ElectionStringKey.CONTEST_DESCRIPTION](election) {
     return election.contests
@@ -129,7 +128,7 @@ const electionStringExtractorFns: Record<
   [ElectionStringKey.CONTEST_OPTION_LABEL](election) {
     return election.contests
       .filter((contest): contest is YesNoContest => contest.type === 'yesno')
-      .map((contest): ElectionString[] => [
+      .flatMap((contest): ElectionString[] => [
         {
           stringKey: [
             ElectionStringKey.CONTEST_OPTION_LABEL,
@@ -144,8 +143,7 @@ const electionStringExtractorFns: Record<
           ],
           stringInEnglish: contest.noOption.label,
         },
-      ])
-      .flat();
+      ]);
   },
   [ElectionStringKey.CONTEST_TITLE](election) {
     return election.contests.map((contest) => ({
@@ -223,9 +221,9 @@ function getElectionStringConfig({
 }
 
 function extractElectionStrings(election: Election): ElectionString[] {
-  return Object.values(electionStringExtractorFns)
-    .map((extractorFn) => extractorFn(election))
-    .flat();
+  return Object.values(electionStringExtractorFns).flatMap((extractorFn) =>
+    extractorFn(election)
+  );
 }
 
 export async function extractAndTranslateElectionStrings(

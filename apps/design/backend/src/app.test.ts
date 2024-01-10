@@ -1,5 +1,5 @@
 import JsZip from 'jszip';
-import { assert, assertDefined } from '@votingworks/basics';
+import { assert, assertDefined, find } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryDefinition,
@@ -60,8 +60,9 @@ function expectTextToBeTranslated(
     LanguageCode.CHINESE_TRADITIONAL,
   ]);
 
-  const englishText = assertDefined(
-    text.find((entry) => entry.Language === LanguageCode.ENGLISH)
+  const englishText = find(
+    text,
+    (entry) => entry.Language === LanguageCode.ENGLISH
   ).Content;
   for (const entry of text) {
     if (entry.Language === LanguageCode.ENGLISH) {
