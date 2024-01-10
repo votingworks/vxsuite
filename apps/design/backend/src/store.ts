@@ -219,7 +219,7 @@ export function generateBallotStyles(
   }
 }
 
-export function assignCustomContentToBallotStyles(
+export function getNhCustomContentByBallotStyle(
   precincts: Precinct[],
   ballotStyles: BallotStyle[]
 ): NhCustomContentByBallotStyle {
@@ -273,7 +273,7 @@ function hydrateElection(row: {
   const precincts: Precinct[] = JSON.parse(row.precinctData);
   const layoutOptions = JSON.parse(row.layoutOptionsData);
   const ballotStyles = generateBallotStyles(rawElection, precincts);
-  const nhCustomContent = assignCustomContentToBallotStyles(
+  const nhCustomContent = getNhCustomContentByBallotStyle(
     precincts,
     ballotStyles
   );

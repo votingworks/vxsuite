@@ -124,7 +124,7 @@ function DistrictForm({
     districtId
       ? savedDistricts.find((d) => d.id === districtId)
       : // To make mocked IDs predictable in tests, we pass a function here
-        // so it will only be called on intial render.
+        // so it will only be called on initial render.
         createBlankDistrict
   );
   const updateElectionMutation = updateElection.useMutation();
@@ -419,7 +419,7 @@ function PrecinctForm({
     precinctId
       ? savedPrecincts.find((p) => p.id === precinctId)
       : // To make mocked IDs predictable in tests, we pass a function here
-        // so it will only be called on intial render.
+        // so it will only be called on initial render.
         createBlankPrecinct
   );
   const updatePrecinctsMutation = updatePrecincts.useMutation();
