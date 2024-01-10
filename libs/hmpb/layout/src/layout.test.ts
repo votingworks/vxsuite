@@ -270,6 +270,7 @@ test('NH custom content', () => {
     ballotType: BallotType.Precinct,
     layoutOptions: DEFAULT_LAYOUT_OPTIONS,
     nhCustomContent,
+    translatedElectionStrings: {},
   }).unsafeUnwrap();
 
   const townBallot = JSON.stringify(

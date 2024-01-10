@@ -30,8 +30,10 @@ export async function main(
   }
   const vxfElectionString = readFileSync(vxfPath, 'utf8');
   const vxfElection = safeParseElection(vxfElectionString).unsafeUnwrap();
-  const cdfBallotDefinition =
-    convertVxfElectionToCdfBallotDefinition(vxfElection);
+  const cdfBallotDefinition = convertVxfElectionToCdfBallotDefinition(
+    vxfElection,
+    {}
+  );
   stdout.write(`${JSON.stringify(cdfBallotDefinition, null, 2)}\n`);
   return 0;
 }
