@@ -30,7 +30,7 @@ export interface TextBox extends ElementBase {
   fontSize: number;
   fontWeight: number;
   lineHeight: number;
-  align?: 'left' | 'right';
+  align?: 'left' | 'right' | 'center';
 }
 
 export interface Image extends ElementBase {

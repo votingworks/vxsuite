@@ -12,6 +12,7 @@ import {
   MainContent,
   MainHeader,
   Breadcrumbs,
+  FileInputButton,
 } from '@votingworks/ui';
 import {
   Switch,
@@ -29,6 +30,8 @@ import {
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import type { Precinct, PrecinctSplit } from '@votingworks/design-backend';
+import DomPurify from 'dompurify';
+import { Buffer } from 'buffer';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { TabPanel, TabBar } from './tabs';
@@ -545,7 +548,7 @@ function PrecinctForm({
               {precinct.splits.map((split, index) => {
                 return (
                   <Card key={split.id}>
-                    <Column style={{ gap: '1rem' }}>
+                    <Column style={{ gap: '1rem', height: '100%' }}>
                       <InputGroup label="Name">
                         <input
                           type="text"
@@ -585,7 +588,67 @@ function PrecinctForm({
                         />
                       </InputGroup>
 
-                      <Button onPress={() => onRemoveSplitPress(index)}>
+                      <div>
+                        <FieldName>Clerk Signature Image</FieldName>
+                        {split.nhCustomContent.clerkSignatureImage && (
+                          <img
+                            src={`data:image/svg+xml;base64,${Buffer.from(
+                              split.nhCustomContent.clerkSignatureImage
+                            ).toString('base64')}`}
+                            alt="Clerk Signature"
+                            style={{ height: '3rem', marginBottom: '0.5rem' }}
+                          />
+                        )}
+                        <FileInputButton
+                          accept="image/svg+xml"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            const reader = new FileReader();
+                            reader.onload = (e2) => {
+                              const svgContents = e2.target?.result;
+                              if (typeof svgContents === 'string') {
+                                const image = DomPurify.sanitize(svgContents, {
+                                  USE_PROFILES: { svg: true },
+                                });
+                                setSplit(index, {
+                                  ...split,
+                                  nhCustomContent: {
+                                    ...split.nhCustomContent,
+                                    clerkSignatureImage: image,
+                                  },
+                                });
+                              }
+                            };
+                            reader.readAsText(file);
+                          }}
+                        >
+                          Upload Image
+                        </FileInputButton>
+                      </div>
+
+                      <InputGroup label="Clerk Signature Caption">
+                        <input
+                          type="text"
+                          value={
+                            split.nhCustomContent.clerkSignatureCaption ?? ''
+                          }
+                          onChange={(e) =>
+                            setSplit(index, {
+                              ...split,
+                              nhCustomContent: {
+                                ...split.nhCustomContent,
+                                clerkSignatureCaption: e.target.value,
+                              },
+                            })
+                          }
+                        />
+                      </InputGroup>
+
+                      <Button
+                        style={{ marginTop: 'auto' }}
+                        onPress={() => onRemoveSplitPress(index)}
+                      >
                         Remove Split
                       </Button>
                     </Column>
