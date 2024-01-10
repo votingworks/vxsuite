@@ -12,7 +12,6 @@ import {
   MainContent,
   MainHeader,
   Breadcrumbs,
-  FileInputButton,
 } from '@votingworks/ui';
 import {
   Switch,
@@ -30,8 +29,7 @@ import {
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import type { Precinct, PrecinctSplit } from '@votingworks/design-backend';
-import DomPurify from 'dompurify';
-import { Buffer } from 'buffer';
+import styled from 'styled-components';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { TabPanel, TabBar } from './tabs';
@@ -47,6 +45,7 @@ import {
 } from './layout';
 import { getElection, updateElection, updatePrecincts } from './api';
 import { generateId, hasSplits, replaceAtIndex } from './utils';
+import { ImageInput } from './image_input';
 
 function DistrictsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
@@ -399,6 +398,12 @@ function PrecinctsTab(): JSX.Element | null {
   );
 }
 
+const ClerkSignatureImageInput = styled(ImageInput)`
+  img {
+    height: 4rem;
+  }
+`;
+
 function createBlankPrecinct(): Precinct {
   return {
     name: '',
@@ -545,116 +550,92 @@ function PrecinctForm({
         <Row style={{ gap: '1rem', flexWrap: 'wrap' }}>
           {hasSplits(precinct) ? (
             <React.Fragment>
-              {precinct.splits.map((split, index) => {
-                return (
-                  <Card key={split.id}>
-                    <Column style={{ gap: '1rem', height: '100%' }}>
-                      <InputGroup label="Name">
-                        <input
-                          type="text"
-                          value={split.name}
-                          onChange={(e) =>
-                            setSplit(index, { ...split, name: e.target.value })
-                          }
-                        />
-                      </InputGroup>
-                      <CheckboxGroup
-                        label="Districts"
-                        options={districts.map((district) => ({
-                          value: district.id,
-                          label: district.name,
-                        }))}
-                        value={[...split.districtIds]}
-                        onChange={(districtIds) =>
+              {precinct.splits.map((split, index) => (
+                <Card key={split.id}>
+                  <Column style={{ gap: '1rem', height: '100%' }}>
+                    <InputGroup label="Name">
+                      <input
+                        type="text"
+                        value={split.name}
+                        onChange={(e) =>
+                          setSplit(index, { ...split, name: e.target.value })
+                        }
+                      />
+                    </InputGroup>
+                    <CheckboxGroup
+                      label="Districts"
+                      options={districts.map((district) => ({
+                        value: district.id,
+                        label: district.name,
+                      }))}
+                      value={[...split.districtIds]}
+                      onChange={(districtIds) =>
+                        setSplit(index, {
+                          ...split,
+                          districtIds: districtIds as DistrictId[],
+                        })
+                      }
+                    />
+                    <InputGroup label="Election Title Override">
+                      <input
+                        type="text"
+                        value={split.nhCustomContent.electionTitle ?? ''}
+                        onChange={(e) =>
                           setSplit(index, {
                             ...split,
-                            districtIds: districtIds as DistrictId[],
+                            nhCustomContent: {
+                              ...split.nhCustomContent,
+                              electionTitle: e.target.value,
+                            },
                           })
                         }
                       />
-                      <InputGroup label="Election Title Override">
-                        <input
-                          type="text"
-                          value={split.nhCustomContent.electionTitle ?? ''}
-                          onChange={(e) =>
-                            setSplit(index, {
-                              ...split,
-                              nhCustomContent: {
-                                ...split.nhCustomContent,
-                                electionTitle: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </InputGroup>
+                    </InputGroup>
 
-                      <div>
-                        <FieldName>Clerk Signature Image</FieldName>
-                        {split.nhCustomContent.clerkSignatureImage && (
-                          <img
-                            src={`data:image/svg+xml;base64,${Buffer.from(
-                              split.nhCustomContent.clerkSignatureImage
-                            ).toString('base64')}`}
-                            alt="Clerk Signature"
-                            style={{ height: '3rem', marginBottom: '0.5rem' }}
-                          />
-                        )}
-                        <FileInputButton
-                          accept="image/svg+xml"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (!file) return;
-                            const reader = new FileReader();
-                            reader.onload = (e2) => {
-                              const svgContents = e2.target?.result;
-                              if (typeof svgContents === 'string') {
-                                const image = DomPurify.sanitize(svgContents, {
-                                  USE_PROFILES: { svg: true },
-                                });
-                                setSplit(index, {
-                                  ...split,
-                                  nhCustomContent: {
-                                    ...split.nhCustomContent,
-                                    clerkSignatureImage: image,
-                                  },
-                                });
-                              }
-                            };
-                            reader.readAsText(file);
-                          }}
-                        >
-                          Upload Image
-                        </FileInputButton>
-                      </div>
+                    <div>
+                      <FieldName>Clerk Signature Image</FieldName>
+                      <ClerkSignatureImageInput
+                        value={split.nhCustomContent.clerkSignatureImage}
+                        onChange={(value) =>
+                          setSplit(index, {
+                            ...split,
+                            nhCustomContent: {
+                              ...split.nhCustomContent,
+                              clerkSignatureImage: value,
+                            },
+                          })
+                        }
+                        buttonLabel="Upload Image"
+                      />
+                    </div>
 
-                      <InputGroup label="Clerk Signature Caption">
-                        <input
-                          type="text"
-                          value={
-                            split.nhCustomContent.clerkSignatureCaption ?? ''
-                          }
-                          onChange={(e) =>
-                            setSplit(index, {
-                              ...split,
-                              nhCustomContent: {
-                                ...split.nhCustomContent,
-                                clerkSignatureCaption: e.target.value,
-                              },
-                            })
-                          }
-                        />
-                      </InputGroup>
+                    <InputGroup label="Clerk Signature Caption">
+                      <input
+                        type="text"
+                        value={
+                          split.nhCustomContent.clerkSignatureCaption ?? ''
+                        }
+                        onChange={(e) =>
+                          setSplit(index, {
+                            ...split,
+                            nhCustomContent: {
+                              ...split.nhCustomContent,
+                              clerkSignatureCaption: e.target.value,
+                            },
+                          })
+                        }
+                      />
+                    </InputGroup>
 
-                      <Button
-                        style={{ marginTop: 'auto' }}
-                        onPress={() => onRemoveSplitPress(index)}
-                      >
-                        Remove Split
-                      </Button>
-                    </Column>
-                  </Card>
-                );
-              })}
+                    <Button
+                      style={{ marginTop: 'auto' }}
+                      onPress={() => onRemoveSplitPress(index)}
+                    >
+                      Remove Split
+                    </Button>
+                  </Column>
+                </Card>
+              ))}
               <div>
                 <Button icon="Add" onPress={onAddSplitPress}>
                   Add Split

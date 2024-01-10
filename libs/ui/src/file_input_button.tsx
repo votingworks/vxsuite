@@ -51,7 +51,7 @@ export function FileInputButton({
     input?.blur();
   }
   return (
-    <LabelButtonContainer {...buttonProps}>
+    <LabelButtonContainer {...buttonProps} disabled={disabled}>
       <HiddenFileInput
         {...rest}
         accept={accept}
