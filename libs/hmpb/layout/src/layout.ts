@@ -29,6 +29,7 @@ import {
   Precinct,
   PrecinctId,
   safeParseElectionDefinition,
+  UiStringsPackage,
 } from '@votingworks/types';
 import makeDebug from 'debug';
 import {
@@ -1825,6 +1826,7 @@ interface LayoutAllBallotStylesParams {
   ballotMode: BallotMode;
   layoutOptions: LayoutOptions;
   nhCustomContent: NhCustomContentByBallotStyle;
+  translatedElectionStrings: UiStringsPackage;
 }
 
 function layOutAllBallotStylesHelper({
@@ -1868,6 +1870,7 @@ export function layOutAllBallotStyles({
   ballotMode,
   layoutOptions,
   nhCustomContent,
+  translatedElectionStrings,
 }: LayoutAllBallotStylesParams): Result<
   { ballots: BallotLayout[]; electionDefinition: ElectionDefinition },
   Error
@@ -1887,6 +1890,7 @@ export function layOutAllBallotStyles({
       ballotMode,
       layoutOptions,
       nhCustomContent,
+      translatedElectionStrings,
     }).map((layout) => layout.gridLayout);
     // All precincts for a given ballot style have the same grid layout
     const gridLayouts = uniqueBy(
@@ -1900,7 +1904,8 @@ export function layOutAllBallotStyles({
     };
 
     const cdfElection = convertVxfElectionToCdfBallotDefinition(
-      electionWithGridLayouts
+      electionWithGridLayouts,
+      translatedElectionStrings
     );
 
     const electionDefinition = safeParseElectionDefinition(
@@ -1915,6 +1920,7 @@ export function layOutAllBallotStyles({
         electionHash: electionDefinition.electionHash,
         layoutOptions,
         nhCustomContent,
+        translatedElectionStrings,
       }),
       electionDefinition,
     });
