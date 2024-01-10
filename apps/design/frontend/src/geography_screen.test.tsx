@@ -9,6 +9,7 @@ import { District, DistrictId } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { assert } from '@votingworks/basics';
 import { electionGeneral } from '@votingworks/fixtures';
+import { Buffer } from 'buffer';
 import {
   MockApiClient,
   createMockApiClient,
@@ -22,7 +23,7 @@ import {
 import { makeIdFactory } from '../test/id_helpers';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
-import { render, screen, within } from '../test/react_testing_library';
+import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { GeographyScreen } from './geography_screen';
 import { hasSplits } from './utils';
 
@@ -343,6 +344,8 @@ describe('Precincts tab', () => {
           districtIds: [election.districts[0].id],
           nhCustomContent: {
             electionTitle: 'Custom Election Title',
+            clerkSignatureImage: '<svg>clerk signature image data</svg>',
+            clerkSignatureCaption: 'Clerk Caption',
           },
         },
         {
@@ -402,6 +405,7 @@ describe('Precincts tab', () => {
     const split1NameInput = within(split1Card).getByLabelText('Name');
     expect(split1NameInput).toHaveValue('');
     userEvent.type(split1NameInput, changedPrecinct.splits[0].name);
+
     // Selected districts carry over to first precinct split
     within(split1Card).getByRole('checkbox', {
       name: election.districts[0].name,
@@ -417,6 +421,7 @@ describe('Precincts tab', () => {
       name: election.districts[2].name,
       checked: false,
     });
+
     const split1ElectionTitleInput = within(split1Card).getByLabelText(
       'Election Title Override'
     );
@@ -424,6 +429,36 @@ describe('Precincts tab', () => {
     userEvent.type(
       split1ElectionTitleInput,
       changedPrecinct.splits[0].nhCustomContent.electionTitle!
+    );
+
+    const split1ClerkSignatureField = within(split1Card).getByText(
+      'Clerk Signature Image'
+    ).parentElement!;
+    userEvent.upload(
+      within(split1ClerkSignatureField).getByLabelText('Upload Image'),
+      new File(
+        [changedPrecinct.splits[0].nhCustomContent.clerkSignatureImage!],
+        'signature.svg'
+      )
+    );
+    await waitFor(() =>
+      expect(
+        within(split1ClerkSignatureField).getByRole('img')
+      ).toHaveAttribute(
+        'src',
+        `data:image/svg+xml;base64,${Buffer.from(
+          changedPrecinct.splits[0].nhCustomContent.clerkSignatureImage!
+        ).toString('base64')}`
+      )
+    );
+
+    const split1ClerkSignatureCaptionInput = within(split1Card).getByLabelText(
+      'Clerk Signature Caption'
+    );
+    expect(split1ClerkSignatureCaptionInput).toHaveValue('');
+    userEvent.type(
+      split1ClerkSignatureCaptionInput,
+      changedPrecinct.splits[0].nhCustomContent.clerkSignatureCaption!
     );
 
     for (const district of election.districts) {
