@@ -180,7 +180,7 @@ describe('PickDateTimeModal', () => {
           userEvent.click(screen.getByText('Save'));
 
           // Expect a changed date
-          expect(onSave).toHaveBeenCalledWith(aDate.set(dateTime.toObject()));
+          expect(onSave).toHaveBeenCalledWith(dateTime);
         }
       ),
       { numRuns: 50 }
