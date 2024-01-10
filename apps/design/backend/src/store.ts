@@ -1,7 +1,9 @@
 import {
   Optional,
   assert,
+  find,
   groupBy,
+  iter,
   throwIllegalValue,
   unique,
 } from '@votingworks/basics';
@@ -9,6 +11,8 @@ import { Client as DbClient } from '@votingworks/db';
 import {
   DEFAULT_LAYOUT_OPTIONS,
   LayoutOptions,
+  NhCustomContent,
+  NhCustomContentByBallotStyle,
 } from '@votingworks/hmpb-layout';
 import {
   Id,
@@ -35,6 +39,7 @@ export interface ElectionRecord {
   systemSettings: SystemSettings;
   layoutOptions: LayoutOptions;
   createdAt: Iso8601Timestamp;
+  nhCustomContent: NhCustomContentByBallotStyle;
 }
 
 // We create new types for precincts that can be split, since the existing
@@ -56,6 +61,7 @@ export interface PrecinctSplit {
   id: Id;
   name: string;
   districtIds: readonly DistrictId[];
+  nhCustomContent: NhCustomContent;
 }
 export type Precinct = PrecinctWithoutSplits | PrecinctWithSplits;
 
@@ -213,6 +219,42 @@ export function generateBallotStyles(
   }
 }
 
+export function getNhCustomContentByBallotStyle(
+  precincts: Precinct[],
+  ballotStyles: BallotStyle[]
+): NhCustomContentByBallotStyle {
+  return Object.fromEntries(
+    ballotStyles.map((ballotStyle) => {
+      const splitsWithCustomContent = iter(ballotStyle.precinctsOrSplits)
+        .filterMap((precinctOrSplit) => {
+          if (precinctOrSplit.splitId) {
+            const precinct = find(
+              precincts,
+              (p) => p.id === precinctOrSplit.precinctId
+            );
+            assert(hasSplits(precinct));
+            const split = find(
+              precinct.splits,
+              (s) => s.id === precinctOrSplit.splitId
+            );
+            if (Object.keys(split.nhCustomContent).length > 0) {
+              return split;
+            }
+          }
+          return undefined;
+        })
+        .toArray();
+      assert(
+        splitsWithCustomContent.length <= 1,
+        `Cannot apply NH custom content to multiple precinct splits that have the same ballot style. Splits with same ballot style: ${splitsWithCustomContent
+          .map((s) => s.name)
+          .join(', ')}`
+      );
+      return [ballotStyle.id, splitsWithCustomContent[0]?.nhCustomContent];
+    })
+  );
+}
+
 function convertSqliteTimestampToIso8601(
   sqliteTimestamp: string
 ): Iso8601Timestamp {
@@ -231,6 +273,10 @@ function hydrateElection(row: {
   const precincts: Precinct[] = JSON.parse(row.precinctData);
   const layoutOptions = JSON.parse(row.layoutOptionsData);
   const ballotStyles = generateBallotStyles(rawElection, precincts);
+  const nhCustomContent = getNhCustomContentByBallotStyle(
+    precincts,
+    ballotStyles
+  );
   // Fill in our precinct/ballot style overrides in the VXF election format.
   // This is important for pieces of the code that rely on the VXF election
   // (e.g. rendering ballots)
@@ -259,6 +305,7 @@ function hydrateElection(row: {
     ballotStyles,
     systemSettings,
     layoutOptions,
+    nhCustomContent,
     createdAt: convertSqliteTimestampToIso8601(row.createdAt),
   };
 }

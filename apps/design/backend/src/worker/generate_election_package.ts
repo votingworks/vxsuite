@@ -80,7 +80,7 @@ export async function generateElectionPackage(
 ): Promise<void> {
   const { assetDirectoryPath, store } = workspace;
 
-  const { election, layoutOptions, systemSettings } =
+  const { election, layoutOptions, systemSettings, nhCustomContent } =
     store.getElection(electionId);
 
   const zip = new JsZip();
@@ -104,6 +104,7 @@ export async function generateElectionPackage(
     ballotType: BallotType.Precinct,
     ballotMode: 'test',
     layoutOptions,
+    nhCustomContent,
   }).unsafeUnwrap();
   zip.file(ElectionPackageFileName.ELECTION, electionDefinition.electionData);
 

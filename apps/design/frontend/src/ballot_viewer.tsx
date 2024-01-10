@@ -27,6 +27,7 @@ import {
   LayoutOptions,
   BallotMode,
   SvgBubble,
+  NhCustomContent,
 } from '@votingworks/hmpb-layout';
 import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
@@ -411,11 +412,13 @@ export function BallotViewer({
   precinct,
   ballotStyle,
   layoutOptions,
+  nhCustomContent,
 }: {
   election: Election;
   precinct: Precinct;
   ballotStyle: BallotStyle;
   layoutOptions: LayoutOptions;
+  nhCustomContent: NhCustomContent;
 }): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const ballotRoutes = routes.election(electionId).ballots;
@@ -448,6 +451,7 @@ export function BallotViewer({
     ballotType,
     ballotMode,
     layoutOptions,
+    nhCustomContent,
   });
 
   if (ballotResult.isErr()) {

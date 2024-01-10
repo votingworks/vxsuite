@@ -240,7 +240,7 @@ function ContestForm({
     contestId
       ? find(savedContests, (c) => c.id === contestId)
       : // To make mocked IDs predictable in tests, we pass a function here
-        // so it will only be called on intial render.
+        // so it will only be called on initial render.
         createBlankCandidateContest
   );
   const updateElectionMutation = updateElection.useMutation();
@@ -673,7 +673,7 @@ function PartyForm({
     partyId
       ? find(savedParties, (p) => p.id === partyId)
       : // To make mocked IDs predictable in tests, we pass a function here
-        // so it will only be called on intial render.
+        // so it will only be called on initial render.
         createBlankParty
   );
   const updateElectionMutation = updateElection.useMutation();

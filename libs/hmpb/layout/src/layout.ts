@@ -1,7 +1,6 @@
 import {
   assert,
   assertDefined,
-  find,
   iter,
   lines,
   ok,
@@ -15,6 +14,7 @@ import {
   ballotPaperDimensions,
   BallotPaperSize,
   BallotStyle,
+  BallotStyleId,
   BallotType,
   Contests,
   convertVxfElectionToCdfBallotDefinition,
@@ -46,6 +46,20 @@ import {
 } from './encode_metadata';
 
 const debug = makeDebug('layout');
+
+/**
+ * Custom content overrides specific to NH elections. Until we have a more
+ * robust ballot template/content management system, we use these NH-specific
+ * types to keep the customization contained and avoid building a premature
+ * abstraction around ballot customizations.
+ */
+export interface NhCustomContent {
+  electionTitle?: string;
+}
+export type NhCustomContentByBallotStyle = Record<
+  BallotStyleId,
+  NhCustomContent
+>;
 
 export const FontWeights = {
   NORMAL: 400,
@@ -361,32 +375,6 @@ export function TimingMarkGrid({ m }: { m: Measurements }): AnyElement {
   };
 }
 
-// Special case hack for NH school election ballots (which need to be visually
-// differentiated from town election ballots but also need to be scanned on the
-// same scanner, and therefore must use the same election definition). if a
-// ballot style only has a single district that appears to correspond to a
-// school district, then change the election title. In the future, we might
-// support customization like this by allowing custom content for different
-// precinct splits or by using different ballot templates.
-function getElectionTitleOrNhSchoolElectionTitle(
-  election: Election,
-  ballotStyle: BallotStyle
-): string {
-  if (ballotStyle.districts.length === 1) {
-    const district = find(
-      election.districts,
-      (d) => ballotStyle.districts[0] === d.id
-    );
-    // Match district names like "ABC School District" or "XYZ Schools"
-    // or "SAU #1" (SAU = school administrative unit)
-    if (district.name.match(/\bschool(s?)|sau\b/i)) {
-      return 'Annual School District Election';
-    }
-  }
-
-  return election.title;
-}
-
 function HeaderAndInstructions({
   election,
   ballotStyle,
@@ -394,6 +382,7 @@ function HeaderAndInstructions({
   pageNumber,
   ballotType,
   ballotMode,
+  nhCustomContent,
   m,
 }: {
   election: Election;
@@ -402,6 +391,7 @@ function HeaderAndInstructions({
   pageNumber: number;
   ballotType: BallotType;
   ballotMode: BallotMode;
+  nhCustomContent: NhCustomContent;
   m: Measurements;
 }): Rectangle | null {
   if (pageNumber % 2 === 0) {
@@ -430,10 +420,7 @@ function HeaderAndInstructions({
         }`
       : '';
 
-  const electionTitle = getElectionTitleOrNhSchoolElectionTitle(
-    election,
-    ballotStyle
-  );
+  const electionTitle = nhCustomContent.electionTitle ?? election.title;
   const date = Intl.DateTimeFormat('en-US', {
     month: 'long',
     day: 'numeric',
@@ -1548,6 +1535,7 @@ interface LayOutBallotParams {
   ballotMode: BallotMode;
   electionHash?: string;
   layoutOptions: LayoutOptions;
+  nhCustomContent: NhCustomContent;
 }
 
 function layOutBallotHelper({
@@ -1558,6 +1546,7 @@ function layOutBallotHelper({
   ballotMode,
   electionHash,
   layoutOptions,
+  nhCustomContent,
 }: LayOutBallotParams): BallotLayout {
   const { bubblePosition, layoutDensity } = layoutOptions;
   const m = measurements(election.ballotLayout.paperSize, layoutDensity);
@@ -1589,6 +1578,7 @@ function layOutBallotHelper({
       pageNumber,
       ballotType,
       ballotMode,
+      nhCustomContent,
       m,
     });
     const headerAndInstructionsRowHeight = headerAndInstructions
@@ -1781,6 +1771,7 @@ interface LayoutAllBallotStylesParams {
   ballotType: BallotType;
   ballotMode: BallotMode;
   layoutOptions: LayoutOptions;
+  nhCustomContent: NhCustomContentByBallotStyle;
 }
 
 function layOutAllBallotStylesHelper({
@@ -1789,6 +1780,7 @@ function layOutAllBallotStylesHelper({
   ballotMode,
   electionHash,
   layoutOptions,
+  nhCustomContent,
 }: LayoutAllBallotStylesParams & { electionHash?: string }): BallotLayout[] {
   return election.ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precincts.map((precinctId) => {
@@ -1801,6 +1793,7 @@ function layOutAllBallotStylesHelper({
         ballotMode,
         electionHash,
         layoutOptions,
+        nhCustomContent: nhCustomContent[ballotStyle.id] ?? {},
       });
     })
   );
@@ -1821,6 +1814,7 @@ export function layOutAllBallotStyles({
   ballotType,
   ballotMode,
   layoutOptions,
+  nhCustomContent,
 }: LayoutAllBallotStylesParams): Result<
   { ballots: BallotLayout[]; electionDefinition: ElectionDefinition },
   Error
@@ -1839,6 +1833,7 @@ export function layOutAllBallotStyles({
       ballotType,
       ballotMode,
       layoutOptions,
+      nhCustomContent,
     }).map((layout) => layout.gridLayout);
     // All precincts for a given ballot style have the same grid layout
     const gridLayouts = uniqueBy(
@@ -1866,6 +1861,7 @@ export function layOutAllBallotStyles({
         ballotMode,
         electionHash: electionDefinition.electionHash,
         layoutOptions,
+        nhCustomContent,
       }),
       electionDefinition,
     });

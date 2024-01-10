@@ -27,7 +27,7 @@ import {
   Id,
   PrecinctId,
 } from '@votingworks/types';
-import { assert, find } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import type { Precinct } from '@votingworks/design-backend';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
@@ -43,7 +43,7 @@ import {
   FieldName,
 } from './layout';
 import { getElection, updateElection, updatePrecincts } from './api';
-import { generateId, hasSplits, nextId, replaceAtIndex } from './utils';
+import { generateId, hasSplits, replaceAtIndex } from './utils';
 
 function DistrictsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
@@ -118,13 +118,13 @@ function DistrictForm({
   districtId?: string;
   savedElection: Election;
   savedPrecincts?: Precinct[];
-}): JSX.Element {
+}): JSX.Element | null {
   const savedDistricts = savedElection.districts;
-  const [district, setDistrict] = useState<District>(
+  const [district, setDistrict] = useState<District | undefined>(
     districtId
-      ? find(savedDistricts, (d) => d.id === districtId)
+      ? savedDistricts.find((d) => d.id === districtId)
       : // To make mocked IDs predictable in tests, we pass a function here
-        // so it will only be called on intial render.
+        // so it will only be called on initial render.
         createBlankDistrict
   );
   const updateElectionMutation = updateElection.useMutation();
@@ -132,7 +132,15 @@ function DistrictForm({
   const history = useHistory();
   const geographyRoutes = routes.election(electionId).geography;
 
+  // After deleting a district, this component may re-render briefly with no
+  // district before redirecting to the districts list. We can just render
+  // nothing in that case.
+  if (!district) {
+    return null;
+  }
+
   function onSavePress() {
+    assert(district);
     const newDistricts = districtId
       ? savedElection.districts.map((d) => (d.id === districtId ? district : d))
       : [...savedDistricts, district];
@@ -406,19 +414,27 @@ function PrecinctForm({
   precinctId?: PrecinctId;
   savedPrecincts: Precinct[];
   districts: readonly District[];
-}): JSX.Element {
-  const [precinct, setPrecinct] = useState<Precinct>(
+}): JSX.Element | null {
+  const [precinct, setPrecinct] = useState<Precinct | undefined>(
     precinctId
-      ? find(savedPrecincts, (p) => p.id === precinctId)
+      ? savedPrecincts.find((p) => p.id === precinctId)
       : // To make mocked IDs predictable in tests, we pass a function here
-        // so it will only be called on intial render.
+        // so it will only be called on initial render.
         createBlankPrecinct
   );
   const updatePrecinctsMutation = updatePrecincts.useMutation();
   const history = useHistory();
   const geographyRoutes = routes.election(electionId).geography;
 
+  // After deleting a precinct, this component may re-render briefly with no
+  // precinct before redirecting to the precincts list. We can just render
+  // nothing in that case.
+  if (!precinct) {
+    return null;
+  }
+
   function onSavePress() {
+    assert(precinct);
     const newPrecincts = precinctId
       ? savedPrecincts.map((p) => (p.id === precinctId ? precinct : p))
       : [...savedPrecincts, precinct];
@@ -436,6 +452,7 @@ function PrecinctForm({
   }
 
   function onAddSplitPress() {
+    assert(precinct);
     if (hasSplits(precinct)) {
       const { id, name, splits } = precinct;
       setPrecinct({
@@ -445,8 +462,9 @@ function PrecinctForm({
           ...splits,
           {
             id: generateId(),
-            name: nextId(`${name} - Split `),
+            name: '',
             districtIds: [],
+            nhCustomContent: {},
           },
         ],
       });
@@ -457,14 +475,16 @@ function PrecinctForm({
         name,
         splits: [
           {
-            id: `${id}-split-1`,
-            name: `${name} - Split 1`,
+            id: generateId(),
+            name: '',
             districtIds,
+            nhCustomContent: {},
           },
           {
-            id: `${id}-split-2`,
-            name: `${name} - Split 2`,
+            id: generateId(),
+            name: '',
             districtIds: [],
+            nhCustomContent: {},
           },
         ],
       });
@@ -472,7 +492,7 @@ function PrecinctForm({
   }
 
   function onRemoveSplitPress(index: number) {
-    assert(hasSplits(precinct));
+    assert(precinct && hasSplits(precinct));
     const { splits, ...rest } = precinct;
     const newSplits = splits.filter((_, i) => i !== index);
     if (newSplits.length > 1) {
@@ -483,7 +503,7 @@ function PrecinctForm({
     } else {
       setPrecinct({
         ...rest,
-        districtIds: splits[0].districtIds,
+        districtIds: newSplits[0].districtIds,
       });
     }
   }
@@ -553,6 +573,25 @@ function PrecinctForm({
                         })
                       }
                     />
+                    <InputGroup label="Election Title Override">
+                      <input
+                        type="text"
+                        value={split.nhCustomContent.electionTitle ?? ''}
+                        onChange={(e) =>
+                          setPrecinct({
+                            ...precinct,
+                            splits: replaceAtIndex(precinct.splits, index, {
+                              ...split,
+                              nhCustomContent: {
+                                ...split.nhCustomContent,
+                                electionTitle: e.target.value,
+                              },
+                            }),
+                          })
+                        }
+                      />
+                    </InputGroup>
+
                     <Button onPress={() => onRemoveSplitPress(index)}>
                       Remove Split
                     </Button>
