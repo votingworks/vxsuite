@@ -1,4 +1,5 @@
 import { mockFunction } from '@votingworks/test-utils';
+import { LogEventId, fakeLogger } from '@votingworks/logging';
 import { detectPrinter } from './printer';
 import { BROTHER_THERMAL_PRINTER_CONFIG, HP_LASER_PRINTER_CONFIG } from '.';
 
@@ -25,7 +26,8 @@ afterEach(() => {
 });
 
 test('status and configuration', async () => {
-  const printer = detectPrinter();
+  const logger = fakeLogger();
+  const printer = detectPrinter(logger);
 
   // no printer connected
   mockGetConnectedDeviceUris.expectCallWith().returns([]);
@@ -39,6 +41,7 @@ test('status and configuration', async () => {
   // unsupported printer connected
   mockGetConnectedDeviceUris.expectCallWith().returns([unsupportedPrinterUri]);
   expect(await printer.status()).toEqual({ connected: false });
+  expect(logger.log).toHaveBeenCalledTimes(0);
 
   // supported printer connected leads to configure
   mockGetConnectedDeviceUris.expectCallWith().returns([supportedPrinterUri1]);
@@ -52,6 +55,15 @@ test('status and configuration', async () => {
     connected: true,
     config,
   });
+  expect(logger.log).toHaveBeenCalledTimes(1);
+  expect(logger.log).toHaveBeenLastCalledWith(
+    LogEventId.PrinterConfigurationAdded,
+    'system',
+    {
+      message: 'A supported printer was discovered and configured for use.',
+      uri: supportedPrinterUri1,
+    }
+  );
 
   // supported printer does not configure again
   mockGetConnectedDeviceUris.expectCallWith().returns([supportedPrinterUri1]);
@@ -74,4 +86,13 @@ test('status and configuration', async () => {
   expect(await printer.status()).toEqual({
     connected: false,
   });
+  expect(logger.log).toHaveBeenCalledTimes(2);
+  expect(logger.log).toHaveBeenLastCalledWith(
+    LogEventId.PrinterConfigurationRemoved,
+    'system',
+    {
+      message: 'The previously configured printer is no longer detected.',
+      uri: supportedPrinterUri1,
+    }
+  );
 });

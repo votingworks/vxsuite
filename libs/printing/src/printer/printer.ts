@@ -1,4 +1,5 @@
 import { assertDefined } from '@votingworks/basics';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { rootDebug } from '../utils/debug';
 import { getConnectedDeviceUris } from './device_uri';
 import { configurePrinter } from './configure';
@@ -12,7 +13,7 @@ interface PrinterDevice {
   uri?: string;
 }
 
-export function detectPrinter(): Printer {
+export function detectPrinter(logger: Logger): Printer {
   const printerDevice: PrinterDevice = {};
 
   return {
@@ -22,7 +23,11 @@ export function detectPrinter(): Printer {
       if (printerDevice.uri) {
         // check if the printer was disconnected
         if (!connectedUris.includes(printerDevice.uri)) {
-          debug('printer detached');
+          debug('printer disconnected');
+          void logger.log(LogEventId.PrinterConfigurationRemoved, 'system', {
+            message: 'The previously configured printer is no longer detected.',
+            uri: printerDevice.uri,
+          });
           printerDevice.uri = undefined;
         }
       }
@@ -33,6 +38,11 @@ export function detectPrinter(): Printer {
           const config = getPrinterConfig(uri);
           if (config) {
             debug('supported printer attached: %s', uri);
+            void logger.log(LogEventId.PrinterConfigurationAdded, 'system', {
+              message:
+                'A supported printer was discovered and configured for use.',
+              uri,
+            });
             await configurePrinter({ config, uri });
             printerDevice.uri = uri;
             break;

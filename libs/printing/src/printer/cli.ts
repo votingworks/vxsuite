@@ -1,6 +1,7 @@
 /* istanbul ignore file */
 import { sleep } from '@votingworks/basics';
 import { readFileSync } from 'fs';
+import { LogSource, Logger } from '@votingworks/logging';
 import { detectPrinter } from './printer';
 import { Printer } from './types';
 
@@ -32,7 +33,7 @@ const USAGE = `Usage: printer status
 export async function main(args: string[]): Promise<number> {
   const { stdout, stderr } = process;
   const command = args[2];
-  const printer = detectPrinter();
+  const printer = detectPrinter(new Logger(LogSource.System));
   switch (command) {
     case 'status': {
       await printStatus(printer, stdout);
