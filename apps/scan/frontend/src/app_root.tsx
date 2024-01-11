@@ -14,7 +14,6 @@ import {
 import { Logger } from '@votingworks/logging';
 
 import { assert } from '@votingworks/basics';
-import { PrecinctReportDestination } from '@votingworks/types';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
 import { ElectionManagerScreen } from './screens/election_manager_screen';
 import { InvalidCardScreen } from './screens/invalid_card_screen';
@@ -34,7 +33,6 @@ import {
   checkPin,
   getAuthStatus,
   getConfig,
-  getMachineConfig,
   getPollsInfo,
   getScannerStatus,
   getUsbDriveStatus,
@@ -47,22 +45,16 @@ import { SystemAdministratorScreen } from './screens/system_administrator_screen
 export interface Props {
   hardware: Hardware;
   logger: Logger;
-  precinctReportDestination: PrecinctReportDestination;
 }
 
-export function AppRoot({
-  hardware,
-  logger,
-  precinctReportDestination,
-}: Props): JSX.Element | null {
-  const machineConfigQuery = getMachineConfig.useQuery();
+export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
   const authStatusQuery = getAuthStatus.useQuery();
   const configQuery = getConfig.useQuery();
   const pollsInfoQuery = getPollsInfo.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const checkPinMutation = checkPin.useMutation();
 
-  const { computer, printer: printerInfo } = useDevices({
+  const { computer } = useDevices({
     hardware,
     logger,
   });
@@ -78,7 +70,6 @@ export function AppRoot({
 
   if (
     !(
-      machineConfigQuery.isSuccess &&
       authStatusQuery.isSuccess &&
       configQuery.isSuccess &&
       scannerStatusQuery.isSuccess &&
@@ -89,7 +80,6 @@ export function AppRoot({
     return <LoadingConfigurationScreen />;
   }
 
-  const machineConfig = machineConfigQuery.data;
   const authStatus = authStatusQuery.data;
   const {
     electionDefinition,
@@ -226,15 +216,9 @@ export function AppRoot({
   if (isPollWorkerAuth(authStatus)) {
     return (
       <PollWorkerScreen
-        machineConfig={machineConfig}
-        electionDefinition={electionDefinition}
-        precinctSelection={precinctSelection}
         scannedBallotCount={scannerStatus.ballotsCounted}
         pollsInfo={pollsInfo}
-        printerInfo={printerInfo}
-        isLiveMode={!isTestMode}
         logger={logger}
-        precinctReportDestination={precinctReportDestination}
       />
     );
   }

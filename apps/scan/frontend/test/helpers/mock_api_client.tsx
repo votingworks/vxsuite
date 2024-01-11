@@ -8,7 +8,6 @@ import {
   PollsState,
   PollsTransitionType,
   PrecinctSelection,
-  Tabulation,
 } from '@votingworks/types';
 import { createMockClient } from '@votingworks/grout-test-utils';
 import type {
@@ -27,6 +26,10 @@ import {
 } from '@votingworks/test-utils';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { TestErrorBoundary } from '@votingworks/ui';
+import {
+  BROTHER_THERMAL_PRINTER_CONFIG,
+  type PrinterStatus,
+} from '@votingworks/printing';
 import { mockUsbDriveStatus } from './mock_usb_drive';
 import { getCurrentTime } from '../../src/utils/get_current_time';
 import { mockPollsInfo } from './mock_polls_info';
@@ -64,10 +67,20 @@ export function createApiMock() {
     mockApiClient.getAuthStatus.expectRepeatedCallsWith().resolves(authStatus);
   }
 
+  function setPrinterStatus(printerStatus: Partial<PrinterStatus>): void {
+    mockApiClient.getPrinterStatus.expectRepeatedCallsWith().resolves({
+      connected: true,
+      config: BROTHER_THERMAL_PRINTER_CONFIG,
+      ...printerStatus,
+    });
+  }
+
   return {
     mockApiClient,
 
     setAuthStatus,
+
+    setPrinterStatus,
 
     authenticateAsSystemAdministrator() {
       setAuthStatus({
@@ -161,12 +174,6 @@ export function createApiMock() {
         .resolves();
     },
 
-    expectGetScannerResultsByParty(
-      results: Tabulation.GroupList<Tabulation.ElectionResults>
-    ): void {
-      mockApiClient.getScannerResultsByParty.expectCallWith().resolves(results);
-    },
-
     expectExportCastVoteRecordsToUsbDrive(input: {
       mode: 'full_export' | 'polls_closing';
     }): void {
@@ -194,6 +201,10 @@ export function createApiMock() {
           electionHashPrefix: 'electionHashPrefix',
         },
       });
+    },
+
+    expectPrintReport(numPages = 1) {
+      mockApiClient.printReport.expectCallWith().resolves(numPages);
     },
   };
 }

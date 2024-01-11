@@ -45,9 +45,3 @@ export function mockPollsInfo(
     },
   };
 }
-
-export function mockGetCurrentTime(mockDate: Date = new Date()): void {
-  jest.mock('../../src/utils/get_current_time', () => ({
-    getCurrentTime: () => mockDate.getTime(),
-  }));
-}

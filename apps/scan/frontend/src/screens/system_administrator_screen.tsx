@@ -15,6 +15,7 @@ import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Screen } from '../components/layout';
 import { LiveCheckButton } from '../components/live_check_button';
 import { transitionPolls, unconfigureElection, logOut } from '../api';
+import { getCurrentTime } from '../utils/get_current_time';
 
 interface SystemAdministratorScreenProps {
   authStatus: AuthStatus;
@@ -67,7 +68,7 @@ export function SystemAdministratorScreen({
               ? () =>
                   transitionPollsMutation.mutateAsync({
                     type: 'pause_voting',
-                    time: Date.now(),
+                    time: getCurrentTime(),
                   })
               : undefined
           }
