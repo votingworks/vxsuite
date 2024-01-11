@@ -316,10 +316,10 @@ export function AppRoot({
         case 'Pause':
           audioControls.togglePause();
           break;
-        case 'AudioVolumeDown':
+        case '-':
           audioControls.decreaseVolume();
           break;
-        case 'AudioVolumeUp':
+        case '=':
           audioControls.increaseVolume();
           break;
         default:

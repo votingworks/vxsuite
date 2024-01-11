@@ -233,10 +233,10 @@ fn handle_command(device: &mut Device, data: &[u8]) -> Result<(), CommandError> 
                 key = uinput::event::Keyboard::Key(keyboard::Key::RightBrace);
             }
             Button::VolumeDown => {
-                key = uinput::event::Keyboard::Misc(keyboard::Misc::VolumeDown);
+                key = uinput::event::Keyboard::Key(keyboard::Key::Minus);
             }
             Button::VolumeUp => {
-                key = uinput::event::Keyboard::Misc(keyboard::Misc::VolumeUp);
+                key = uinput::event::Keyboard::Key(keyboard::Key::Equal);
             }
             Button::Pause => {
                 key = uinput::event::Keyboard::Misc(keyboard::Misc::Pause);
