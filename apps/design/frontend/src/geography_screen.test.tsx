@@ -438,7 +438,8 @@ describe('Precincts tab', () => {
       within(split1ClerkSignatureField).getByLabelText('Upload Image'),
       new File(
         [changedPrecinct.splits[0].nhCustomContent.clerkSignatureImage!],
-        'signature.svg'
+        'signature.svg',
+        { type: 'image/svg+xml' }
       )
     );
     await waitFor(() =>
