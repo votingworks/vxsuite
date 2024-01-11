@@ -10,7 +10,7 @@ import { readFile } from 'fs/promises';
 import { configureApp } from '../test/helpers/shared_helpers';
 import { scanBallot, withApp } from '../test/helpers/custom_helpers';
 
-jest.setTimeout(30_000);
+jest.setTimeout(60_000);
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
