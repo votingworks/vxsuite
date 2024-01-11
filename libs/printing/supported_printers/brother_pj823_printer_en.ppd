@@ -1,0 +1,570 @@
+*PPD-Adobe: "4.3"
+
+*%================================================
+*%	Copyright(C) 2005-2022 Brother Industries, Ltd.
+*%	"Brother PJ-823 CUPS"
+*%================================================
+
+*%==== General Information Keywords ========================
+*FormatVersion: "4.3"
+*FileVersion: "1.00"
+*LanguageVersion: English
+*LanguageEncoding: ISOLatin1
+*PCFileName: "PJ-823.PPD"
+*Manufacturer: "Brother"
+*Product: "(PJ-823)"
+*1284DeviceID: "MFG: Brother;MDL: PJ-823"
+*cupsVersion: 1.1
+*cupsManualCopies: True
+*cupsFilter: "application/vnd.cups-postscript 0 brother_lpdwrapper_pj823"
+*cupsModelNumber: 1
+*ModelName: "Brother PJ-823"
+*ShortNickName: "Brother PJ-823"
+*NickName: "Brother PJ-823 CUPS"
+*PSVersion: "(3010.106) 3"
+
+*%==== Basic Device Capabilities =============
+*LanguageLevel: "3"
+*ColorDevice: False
+*DefaultColorSpace: Gray
+*FileSystem: False
+*Throughput: "12"
+*LandscapeOrientation: Plus90
+*VariablePaperSize: False
+*TTRasterizer: Type42
+*FreeVM: "1700000"
+
+*%==== Media Selection ======================
+*OpenGroup: Paper
+
+*OpenUI *PageSize/Paper Size: PickOne
+*OrderDependency: 11 AnySetup *PageSize
+*DefaultPageSize: Letter
+*PageSize A4/A4:												"          "
+*PageSize A5/A5:												"          "
+*PageSize RollA4/A4 (Roll):										"          "
+*PageSize PerfA4/A4 (Perforated Roll):							"          "
+*PageSize RetractA4/A4 (Perforated Roll Retract):				"          "
+*PageSize Legal/US Legal:										"          "
+*PageSize RollLegal/US Legal (Roll):							"          "
+*PageSize PerfLegal/US Legal (Perforated Roll):					"          "
+*PageSize RetractLegal/US Legal (Perforated Roll Retract):		"          "
+*PageSize Letter/US Letter:										"          "
+*PageSize RollLetter/US Letter (Roll):							"          "
+*PageSize PerfLetter/US Letter (Perforated Roll):				"          "
+*PageSize RetractLetter/US Letter (Perforated Roll Retract):	"          "
+*PageSize ContinuousLetter/Infinite:							"          "
+*CloseUI: *PageSize
+
+*OpenUI *PageRegion: PickOne
+*OrderDependency: 12 AnySetup *PageRegion
+*DefaultPageRegion: Letter
+*PageRegion A4/A4:												"          "
+*PageRegion A5/A5:												"          "
+*PageRegion RollA4/A4 (Roll):									"          "
+*PageRegion PerfA4/A4 (Perforated Roll):						"          "
+*PageRegion RetractA4/A4 (Perforated Roll Retract):				"          "
+*PageRegion Legal/US Legal:										"          "
+*PageRegion RollLegal/US Legal (Roll):							"          "
+*PageRegion PerfLegal/US Legal (Perforated Roll):				"          "
+*PageRegion RetractLegal/US Legal (Perforated Roll Retract):	"          "
+*PageRegion Letter/US Letter:									"          "
+*PageRegion RollLetter/US Letter (Roll):						"          "
+*PageRegion PerfLetter/US Letter (Perforated Roll):				"          "
+*PageRegion RetractLetter/US Letter (Perforated Roll Retract):	"          "
+*PageRegion ContinuousLetter/Infinite:							"          "
+*CloseUI: *PageRegion
+
+*DefaultImageableArea: Letter
+*ImageableArea A4/A4:												"9.72 42.48 585.72  834.48"
+*ImageableArea A5/A5:												"9.72 42.48 410     588.44"
+*ImageableArea RollA4/A4 (Roll):									"9.72 18    585.72  809.28"
+*ImageableArea PerfA4/A4 (Perforated Roll):							"9.72 46.8  585.72  809.28"
+*ImageableArea RetractA4/A4 (Perforated Roll Retract):				"9.72 43.68 585.72  836.28"
+*ImageableArea Legal/US Legal:										"10.32  16.8 601.68 1000.8"
+*ImageableArea RollLegal/US Legal (Roll):							"10.32    18 601.68  975.6"
+*ImageableArea PerfLegal/US Legal (Perforated Roll):				"10.32  46.8 601.68  975.6"
+*ImageableArea RetractLegal/US Legal (Perforated Roll Retract):		"10.32    18 601.68   1002"
+*ImageableArea Letter/US Letter:									"10.32  16.8 601.68  784.8"
+*ImageableArea RollLetter/US Letter (Roll):							"10.32    18 601.68  759.6"
+*ImageableArea PerfLetter/US Letter (Perforated Roll):				"10.32  46.8 601.68  759.6"
+*ImageableArea RetractLetter/US Letter (Perforated Roll Retract):	"10.32    18 601.68    786"
+*ImageableArea ContinuousLetter/Infinite:							"10.32     0 601.68   1008"
+
+*%==== Information About Media Sizes ========
+*DefaultPaperDimension: Letter
+*PaperDimension A4/A4:												"595.44  841.68"
+*PaperDimension A5/A5:												"419.53	 595.44"
+*PaperDimension RollA4/A4 (Roll):									"595.44  843.48"
+*PaperDimension PerfA4/A4 (Perforated Roll):						"595.44  843.48"
+*PaperDimension RetractA4/A4 (Perforated Roll Retract):				"595.44  843.48"
+*PaperDimension Legal/US Legal:										"612    1008"
+*PaperDimension RollLegal/US Legal (Roll):							"612  1009.8"
+*PaperDimension PerfLegal/US Legal (Perforated Roll):				"612  1009.8"
+*PaperDimension RetractLegal/US Legal (Perforated Roll Retract):	"612  1009.8"
+*PaperDimension Letter/US Letter:									"612     792"
+*PaperDimension RollLetter/US Letter (Roll):						"612   793.8"
+*PaperDimension PerfLetter/US Letter (Perforated Roll):				"612   793.8"
+*PaperDimension RetractLetter/US Letter (Perforated Roll Retract):	"612   793.8"
+*PaperDimension ContinuousLetter/Infinite:							"612   1008"
+
+*CloseGroup: Media
+
+*% ============ Print Density =============================
+*OpenUI *BrDensity/Density: PickOne
+*OrderDependency: 21 AnySetup  *BrDensity
+*DefaultBrDensity: 6
+*BrDensity 0/0: "          "
+*BrDensity 1/1: "          "
+*BrDensity 2/2: "          "
+*BrDensity 3/3: "          "
+*BrDensity 4/4: "          "
+*BrDensity 5/5: "          "
+*BrDensity 6/6: "          "
+*BrDensity 7/7: "          "
+*BrDensity 8/8: "          "
+*BrDensity 9/9: "          "
+*BrDensity 10/10: "          "
+*CloseUI: *BrDensity
+
+*OpenUI *BrBrightness/Brightness: PickOne
+*OrderDependency: 25 AnySetup  *BrBrightness
+*DefaultBrBrightness: 0
+*BrBrightness 50/50: "          "
+*BrBrightness 49/49: "          "
+*BrBrightness 48/48: "          "
+*BrBrightness 47/47: "          "
+*BrBrightness 46/46: "          "
+*BrBrightness 45/45: "          "
+*BrBrightness 44/44: "          "
+*BrBrightness 43/43: "          "
+*BrBrightness 42/42: "          "
+*BrBrightness 41/41: "          "
+*BrBrightness 40/40: "          "
+*BrBrightness 39/39: "          "
+*BrBrightness 38/38: "          "
+*BrBrightness 37/37: "          "
+*BrBrightness 36/36: "          "
+*BrBrightness 35/35: "          "
+*BrBrightness 34/34: "          "
+*BrBrightness 33/33: "          "
+*BrBrightness 32/32: "          "
+*BrBrightness 31/31: "          "
+*BrBrightness 30/30: "          "
+*BrBrightness 29/29: "          "
+*BrBrightness 28/28: "          "
+*BrBrightness 27/27: "          "
+*BrBrightness 26/26: "          "
+*BrBrightness 25/25: "          "
+*BrBrightness 24/24: "          "
+*BrBrightness 23/23: "          "
+*BrBrightness 22/22: "          "
+*BrBrightness 21/21: "          "
+*BrBrightness 20/20: "          "
+*BrBrightness 19/19: "          "
+*BrBrightness 18/18: "          "
+*BrBrightness 17/17: "          "
+*BrBrightness 16/16: "          "
+*BrBrightness 15/15: "          "
+*BrBrightness 14/14: "          "
+*BrBrightness 13/13: "          "
+*BrBrightness 12/12: "          "
+*BrBrightness 11/11: "          "
+*BrBrightness 10/10: "          "
+*BrBrightness 9/9: "          "
+*BrBrightness 8/8: "          "
+*BrBrightness 7/7: "          "
+*BrBrightness 6/6: "          "
+*BrBrightness 5/5: "          "
+*BrBrightness 4/4: "          "
+*BrBrightness 3/3: "          "
+*BrBrightness 2/2: "          "
+*BrBrightness 1/1: "          "
+*BrBrightness 0/0: "          "
+*BrBrightness -1/-1: "          "
+*BrBrightness -2/-2: "          "
+*BrBrightness -3/-3: "          "
+*BrBrightness -4/-4: "          "
+*BrBrightness -5/-5: "          "
+*BrBrightness -6/-6: "          "
+*BrBrightness -7/-7: "          "
+*BrBrightness -8/-8: "          "
+*BrBrightness -9/-9: "          "
+*BrBrightness -10/-10: "          "
+*BrBrightness -11/-11: "          "
+*BrBrightness -12/-12: "          "
+*BrBrightness -13/-13: "          "
+*BrBrightness -14/-14: "          "
+*BrBrightness -15/-15: "          "
+*BrBrightness -16/-16: "          "
+*BrBrightness -17/-17: "          "
+*BrBrightness -18/-18: "          "
+*BrBrightness -19/-19: "          "
+*BrBrightness -20/-20: "          "
+*BrBrightness -21/-21: "          "
+*BrBrightness -22/-22: "          "
+*BrBrightness -23/-23: "          "
+*BrBrightness -24/-24: "          "
+*BrBrightness -25/-25: "          "
+*BrBrightness -26/-26: "          "
+*BrBrightness -27/-27: "          "
+*BrBrightness -28/-28: "          "
+*BrBrightness -29/-29: "          "
+*BrBrightness -30/-30: "          "
+*BrBrightness -31/-31: "          "
+*BrBrightness -32/-32: "          "
+*BrBrightness -33/-33: "          "
+*BrBrightness -34/-34: "          "
+*BrBrightness -35/-35: "          "
+*BrBrightness -36/-36: "          "
+*BrBrightness -37/-37: "          "
+*BrBrightness -38/-38: "          "
+*BrBrightness -39/-39: "          "
+*BrBrightness -40/-40: "          "
+*BrBrightness -41/-41: "          "
+*BrBrightness -42/-42: "          "
+*BrBrightness -43/-43: "          "
+*BrBrightness -44/-44: "          "
+*BrBrightness -45/-45: "          "
+*BrBrightness -46/-46: "          "
+*BrBrightness -47/-47: "          "
+*BrBrightness -48/-48: "          "
+*BrBrightness -49/-49: "          "
+*BrBrightness -50/-50: "          "
+*CloseUI: *BrBrightness
+
+*OpenUI *BrContrast/Contrast: PickOne
+*OrderDependency: 26 AnySetup  *BrContrast
+*DefaultBrContrast: 0
+*BrContrast 50/50: "          "
+*BrContrast 49/49: "          "
+*BrContrast 48/48: "          "
+*BrContrast 47/47: "          "
+*BrContrast 46/46: "          "
+*BrContrast 45/45: "          "
+*BrContrast 44/44: "          "
+*BrContrast 43/43: "          "
+*BrContrast 42/42: "          "
+*BrContrast 41/41: "          "
+*BrContrast 40/40: "          "
+*BrContrast 39/39: "          "
+*BrContrast 38/38: "          "
+*BrContrast 37/37: "          "
+*BrContrast 36/36: "          "
+*BrContrast 35/35: "          "
+*BrContrast 34/34: "          "
+*BrContrast 33/33: "          "
+*BrContrast 32/32: "          "
+*BrContrast 31/31: "          "
+*BrContrast 30/30: "          "
+*BrContrast 29/29: "          "
+*BrContrast 28/28: "          "
+*BrContrast 27/27: "          "
+*BrContrast 26/26: "          "
+*BrContrast 25/25: "          "
+*BrContrast 24/24: "          "
+*BrContrast 23/23: "          "
+*BrContrast 22/22: "          "
+*BrContrast 21/21: "          "
+*BrContrast 20/20: "          "
+*BrContrast 19/19: "          "
+*BrContrast 18/18: "          "
+*BrContrast 17/17: "          "
+*BrContrast 16/16: "          "
+*BrContrast 15/15: "          "
+*BrContrast 14/14: "          "
+*BrContrast 13/13: "          "
+*BrContrast 12/12: "          "
+*BrContrast 11/11: "          "
+*BrContrast 10/10: "          "
+*BrContrast 9/9: "          "
+*BrContrast 8/8: "          "
+*BrContrast 7/7: "          "
+*BrContrast 6/6: "          "
+*BrContrast 5/5: "          "
+*BrContrast 4/4: "          "
+*BrContrast 3/3: "          "
+*BrContrast 2/2: "          "
+*BrContrast 1/1: "          "
+*BrContrast 0/0: "          "
+*BrContrast -1/-1: "          "
+*BrContrast -2/-2: "          "
+*BrContrast -3/-3: "          "
+*BrContrast -4/-4: "          "
+*BrContrast -5/-5: "          "
+*BrContrast -6/-6: "          "
+*BrContrast -7/-7: "          "
+*BrContrast -8/-8: "          "
+*BrContrast -9/-9: "          "
+*BrContrast -10/-10: "          "
+*BrContrast -11/-11: "          "
+*BrContrast -12/-12: "          "
+*BrContrast -13/-13: "          "
+*BrContrast -14/-14: "          "
+*BrContrast -15/-15: "          "
+*BrContrast -16/-16: "          "
+*BrContrast -17/-17: "          "
+*BrContrast -18/-18: "          "
+*BrContrast -19/-19: "          "
+*BrContrast -20/-20: "          "
+*BrContrast -21/-21: "          "
+*BrContrast -22/-22: "          "
+*BrContrast -23/-23: "          "
+*BrContrast -24/-24: "          "
+*BrContrast -25/-25: "          "
+*BrContrast -26/-26: "          "
+*BrContrast -27/-27: "          "
+*BrContrast -28/-28: "          "
+*BrContrast -29/-29: "          "
+*BrContrast -30/-30: "          "
+*BrContrast -31/-31: "          "
+*BrContrast -32/-32: "          "
+*BrContrast -33/-33: "          "
+*BrContrast -34/-34: "          "
+*BrContrast -35/-35: "          "
+*BrContrast -36/-36: "          "
+*BrContrast -37/-37: "          "
+*BrContrast -38/-38: "          "
+*BrContrast -39/-39: "          "
+*BrContrast -40/-40: "          "
+*BrContrast -41/-41: "          "
+*BrContrast -42/-42: "          "
+*BrContrast -43/-43: "          "
+*BrContrast -44/-44: "          "
+*BrContrast -45/-45: "          "
+*BrContrast -46/-46: "          "
+*BrContrast -47/-47: "          "
+*BrContrast -48/-48: "          "
+*BrContrast -49/-49: "          "
+*BrContrast -50/-50: "          "
+*CloseUI: *BrContrast
+
+*% ============ 2 Ply Mode ================================
+*OpenUI *Br2PlyMode/2-ply Mode: PickOne
+*OrderDependency: 22 AnySetup  *Br2PlyMode
+*DefaultBr2PlyMode: OFF
+*Br2PlyMode OFF/Disable: "          "
+*Br2PlyMode ON/Enable: "          "
+*CloseUI: *Br2PlyMode
+
+
+*% ============ Form Feed Mode =============================
+*OpenUI *BrFormFeedMode/Form Feed Mode: PickOne
+*OrderDependency: 23 AnySetup  *BrFormFeedMode
+*DefaultBrFormFeedMode: BrFixed
+*BrFormFeedMode BrNofeed/No Feed: "          "
+*BrFormFeedMode BrFixed/Fixed Page: "          "
+*BrFormFeedMode BrEndofpage/End of Page: "          "
+*BrFormFeedMode BrEndofpageretract/End of Page Retract: "          "
+*CloseUI: *BrFormFeedMode
+
+
+*OpenUI *BrExtraFeedMode/No Feed Mode Extra Feed: PickOne
+*OrderDependency: 24 AnySetup  *BrExtraFeedMode
+*DefaultBrExtraFeedMode: BrOneinch
+*BrExtraFeedMode BrNone/None: "          "
+*BrExtraFeedMode BrHalfinch/1/2 inch (12.7 mm): "          "
+*BrExtraFeedMode BrOneinch/1 inch (25.4 mm): "          "
+*BrExtraFeedMode BrOneandhalfinch/1-1/2 inches (38.1 mm): "          "
+*BrExtraFeedMode BrTwoinch/2 inches (50.8 mm): "          "
+*CloseUI: *BrExtraFeedMode
+
+
+*% ============ Dash Line Print ============================
+*OpenUI *BrDashLine/Dash Line Print: PickOne
+*OrderDependency: 25 AnySetup  *BrDashLine
+*DefaultBrDashLine: OFF
+*BrDashLine OFF/Disable: "          "
+*BrDashLine ON/Enable: "          "
+*CloseUI: *BrDashLine
+
+*% ============ Halftone ===================================
+*OpenUI *BrHalftonePattern/Halftone: PickOne
+*OrderDependency: 26 AnySetup  *BrHalftonePattern
+*DefaultBrHalftonePattern: BrDither
+*BrHalftonePattern BrBinary/Binary: "          "
+*BrHalftonePattern BrDither/Dither: "          "
+*BrHalftonePattern BrErrorDiffusion/Error Diffusion: "          "
+*CloseUI: *BrHalftonePattern
+
+
+*% ============ Negative Print =============================
+*OpenUI *BrNegativePrint/Negative Printing: PickOne
+*OrderDependency: 27 AnySetup  *BrNegativePrint
+*DefaultBrNegativePrint: OFF
+*BrNegativePrint OFF/OFF: "          "
+*BrNegativePrint ON/ON: "          "
+*CloseUI: *BrNegativePrint
+
+
+*% ============ Mirror Printing ============================
+*OpenUI *BrMirror/Mirror Printing: PickOne
+*OrderDependency: 28 AnySetup  *BrMirror
+*DefaultBrMirror: OFF
+*BrMirror OFF/OFF: "          "
+*BrMirror ON/ON: "          "
+*CloseUI: *BrMirror
+
+
+*%==== Resolution Features =================================
+*%OpenUI *Resolution/Resolution: PickOne
+*%OrderDependency: 29 AnySetup *Resolution
+*%DefaultResolution: Normal
+*%Resolution	Normal/Normal(200 * 200dpi): "          "
+*%CloseUI: *Resolution
+
+
+*% ============ Printing speed ============================
+*OpenUI *BrSpeed/Printing Speed: PickOne
+*OrderDependency: 30 AnySetup  *BrSpeed
+*DefaultBrSpeed: PRD
+*BrSpeed 3sp/1.1 ips/27 mm/s: "          "
+*BrSpeed 2sp/1.9 ips/48 mm/s: "          "
+*BrSpeed 1sp/2.7 ips/70 mm/s: "          "
+*BrSpeed 0sp/3.5 ips/90 mm/s: "          "
+*BrSpeed 5sp/Fast (Draft Quality): "          "
+*BrSpeed 4sp/Fast (Line Conversion): "          "
+*BrSpeed PRD/Printer default: "          "
+*CloseUI: *BrSpeed
+
+
+*% ============ Case  ====================================
+*OpenUI *BrCase/Printer Case: PickOne
+*OrderDependency: 31 AnySetup  *BrCase
+*DefaultBrCase: PRD
+*BrCase OFF/OFF: "          "
+*BrCase ON1/PA-RC-001: "          "
+*BrCase ON2/PA-RC-001(anti curl): "          "
+*BrCase ON3/PA-RC-001(Short Feed): "          "
+*BrCase PRD/Printer default: "          "
+*CloseUI: *BrCase
+
+
+*%==== UI Restriction Features =================================
+*% Paper Type and Form Feed Mode
+*UIConstraints: *PageSize A4 *BrFormFeedMode BrEndofpageretract
+*UIConstraints: *PageSize A5 *BrFormFeedMode BrEndofpageretract
+*UIConstraints: *PageSize Legal *BrFormFeedMode BrEndofpageretract
+*UIConstraints: *PageSize Letter *BrFormFeedMode BrEndofpageretract
+
+*UIConstraints: *PageSize RollA4 *BrFormFeedMode BrEndofpage
+*UIConstraints: *PageSize RollA4 *BrFormFeedMode BrEndofpageretract
+*UIConstraints: *PageSize RollLegal *BrFormFeedMode BrEndofpage
+*UIConstraints: *PageSize RollLegal *BrFormFeedMode BrEndofpageretract
+*UIConstraints: *PageSize RollLetter *BrFormFeedMode BrEndofpage
+*UIConstraints: *PageSize RollLetter *BrFormFeedMode BrEndofpageretract
+
+*UIConstraints: *PageSize PerfA4 *BrFormFeedMode BrNofeed
+*UIConstraints: *PageSize PerfA4 *BrFormFeedMode BrFixed
+*UIConstraints: *PageSize PerfA4 *BrFormFeedMode BrEndofpageretract
+*UIConstraints: *PageSize PerfLetter *BrFormFeedMode BrNofeed
+*UIConstraints: *PageSize PerfLetter *BrFormFeedMode BrFixed
+*UIConstraints: *PageSize PerfLetter *BrFormFeedMode BrEndofpageretract
+*UIConstraints: *PageSize PerfLegal *BrFormFeedMode BrNofeed
+*UIConstraints: *PageSize PerfLegal *BrFormFeedMode BrFixed
+*UIConstraints: *PageSize PerfLegal *BrFormFeedMode BrEndofpageretract
+
+*UIConstraints: *PageSize RetractA4 *BrFormFeedMode BrNofeed
+*UIConstraints: *PageSize RetractA4 *BrFormFeedMode BrFixed
+*UIConstraints: *PageSize RetractA4 *BrFormFeedMode BrEndofpage
+*UIConstraints: *PageSize RetractLetter *BrFormFeedMode BrNofeed
+*UIConstraints: *PageSize RetractLetter *BrFormFeedMode BrFixed
+*UIConstraints: *PageSize RetractLetter *BrFormFeedMode BrEndofpage
+*UIConstraints: *PageSize RetractLegal *BrFormFeedMode BrNofeed
+*UIConstraints: *PageSize RetractLegal *BrFormFeedMode BrFixed
+*UIConstraints: *PageSize RetractLegal *BrFormFeedMode BrEndofpage
+
+*UIConstraints: *PageSize ContinuousLetter *BrFormFeedMode BrFixed
+*UIConstraints: *PageSize ContinuousLetter *BrFormFeedMode BrEndofpage
+*UIConstraints: *PageSize ContinuousLetter *BrFormFeedMode BrEndofpageretract
+
+*% Paper Type and Dash Line Print
+*UIConstraints: *PageSize A4 *BrDashLine ON
+*UIConstraints: *PageSize A5 *BrDashLine ON
+*UIConstraints: *PageSize Legal *BrDashLine ON
+*UIConstraints: *PageSize Letter *BrDashLine ON
+
+*UIConstraints: *PageSize PerfA4 *BrDashLine ON
+*UIConstraints: *PageSize PerfLetter *BrDashLine ON
+*UIConstraints: *PageSize PerfLegal *BrDashLine ON
+
+*UIConstraints: *PageSize RetractA4 *BrDashLine ON
+*UIConstraints: *PageSize RetractLetter *BrDashLine ON
+*UIConstraints: *PageSize RetractLegal *BrDashLine ON
+
+*UIConstraints: *PageSize ContinuousLetter *BrDashLine ON
+
+*% Form Feed Mode and Dash Line Print
+*UIConstraints: *BrFormFeedMode BrNofeed *BrDashLine ON
+*UIConstraints: *BrFormFeedMode BrEndofpage *BrDashLine ON
+*UIConstraints: *BrFormFeedMode BrEndofpageretract *BrDashLine ON
+
+
+*DefaultFont: Courier
+*Font AvantGarde-Book: Standard "(001.006S)" Standard ROM
+*Font AvantGarde-BookOblique: Standard "(001.006S)" Standard ROM
+*Font AvantGarde-Demi: Standard "(001.007S)" Standard ROM
+*Font AvantGarde-DemiOblique: Standard "(001.007S)" Standard ROM
+*Font Bookman-Demi: Standard "(001.004S)" Standard ROM
+*Font Bookman-DemiItalic: Standard "(001.004S)" Standard ROM
+*Font Bookman-Light: Standard "(001.004S)" Standard ROM
+*Font Bookman-LightItalic: Standard "(001.004S)" Standard ROM
+*Font Courier: Standard "(002.004S)" Standard ROM
+*Font Courier-Bold: Standard "(002.004S)" Standard ROM
+*Font Courier-BoldOblique: Standard "(002.004S)" Standard ROM
+*Font Courier-Oblique: Standard "(002.004S)" Standard ROM
+*Font Helvetica: Standard "(001.006S)" Standard ROM
+*Font Helvetica-Bold: Standard "(001.007S)" Standard ROM
+*Font Helvetica-BoldOblique: Standard "(001.007S)" Standard ROM
+*Font Helvetica-Narrow: Standard "(001.006S)" Standard ROM
+*Font Helvetica-Narrow-Bold: Standard "(001.007S)" Standard ROM
+*Font Helvetica-Narrow-BoldOblique: Standard "(001.007S)" Standard ROM
+*Font Helvetica-Narrow-Oblique: Standard "(001.006S)" Standard ROM
+*Font Helvetica-Oblique: Standard "(001.006S)" Standard ROM
+*Font NewCenturySchlbk-Bold: Standard "(001.009S)" Standard ROM
+*Font NewCenturySchlbk-BoldItalic: Standard "(001.007S)" Standard ROM
+*Font NewCenturySchlbk-Italic: Standard "(001.006S)" Standard ROM
+*Font NewCenturySchlbk-Roman: Standard "(001.007S)" Standard ROM
+*Font Palatino-Bold: Standard "(001.005S)" Standard ROM
+*Font Palatino-BoldItalic: Standard "(001.005S)" Standard ROM
+*Font Palatino-Italic: Standard "(001.005S)" Standard ROM
+*Font Palatino-Roman: Standard "(001.005S)" Standard ROM
+*Font Times-Bold: Standard "(001.007S)" Standard ROM
+*Font Times-BoldItalic: Standard "(001.009S)" Standard ROM
+*Font Times-Italic: Standard "(001.007S)" Standard ROM
+*Font Times-Roman: Standard "(001.007S)" Standard ROM
+*Font ZapfChancery-MediumItalic: Standard "(001.007S)" Standard ROM
+*Font ZapfDingbats: Special "(001.004S)" Special ROM
+*Font Symbol: Special "(001.007S)" Special ROM
+*Font Alaska: Standard "(001.005)" Standard ROM
+*Font AlaskaExtrabold: Standard "(001.005)" Standard ROM
+*Font AntiqueOakland: Standard "(001.005)" Standard ROM
+*Font AntiqueOakland-Bold: Standard "(001.005)" Standard ROM
+*Font AntiqueOakland-Oblique: Standard "(001.005)" Standard ROM
+*Font ClevelandCondensed: Standard "(001.005)" Standard ROM
+*Font Connecticut: Standard "(001.005)" Standard ROM
+*Font Guatemala-Antique: Standard "(001.005)" Standard ROM
+*Font Guatemala-Bold: Standard "(001.005)" Standard ROM
+*Font Guatemala-Italic: Standard "(001.005)" Standard ROM
+*Font Guatemala-BoldItalic: Standard "(001.005)" Standard ROM
+
+*Font LetterGothic: Standard "(001.005)" Standard ROM
+*Font LetterGothic-Bold: Standard "(001.005)" Standard ROM
+*Font LetterGothic-Oblique: Standard "(001.005)" Standard ROM
+*Font Maryland: Standard "(001.005)" Standard ROM
+*Font Oklahoma: Standard "(001.005)" Standard ROM
+*Font Oklahoma-Bold: Standard "(001.005)" Standard ROM
+*Font Oklahoma-Oblique: Standard "(001.005)" Standard ROM
+*Font Oklahoma-BoldOblique: Standard "(001.005)" Standard ROM
+*Font Utah: Standard "(001.005)" Standard ROM
+*Font Utah-Bold: Standard "(001.005)" Standard ROM
+*Font Utah-Oblique: Standard "(001.005)" Standard ROM
+*Font Utah-BoldOblique: Standard "(001.005)" Standard ROM
+*Font UtahCondensed: Standard "(001.005)" Standard ROM
+*Font UtahCondensed-Bold: Standard "(001.005)" Standard ROM
+*Font UtahCondensed-Oblique: Standard "(001.004)" Standard ROM
+*Font UtahCondensed-BoldOblique: Standard "(001.005)" Standard ROM
+*Font BermudaScript: Standard "(001.005)" Standard ROM
+*Font Germany: Standard "(001.005)" Standard ROM
+*Font SanDiego: Standard "(001.005)" Standard ROM
+*Font US-Roman: Standard "(001.005)" Standard ROM
