@@ -1,7 +1,10 @@
 import { Buffer } from 'buffer';
 import { LanguageCode } from '@votingworks/types';
 
-import { MockGoogleCloudTextToSpeechClient } from '../../test/helpers';
+import {
+  mockCloudSynthesizedSpeech,
+  MockGoogleCloudTextToSpeechClient,
+} from '../../test/helpers';
 import { Store } from '../store';
 import {
   GoogleCloudSpeechSynthesizer,
@@ -21,7 +24,7 @@ test('GoogleCloudSpeechSynthesizer', async () => {
     LanguageCode.ENGLISH
   );
   expect(Buffer.from(audioClipBase64, 'base64').toString('utf-8')).toEqual(
-    'Do you like apples? (audio)'
+    mockCloudSynthesizedSpeech('Do you like apples?')
   );
   expect(textToSpeechClient.synthesizeSpeech).toHaveBeenCalledTimes(1);
   expect(textToSpeechClient.synthesizeSpeech).toHaveBeenNthCalledWith(
@@ -39,7 +42,7 @@ test('GoogleCloudSpeechSynthesizer', async () => {
     LanguageCode.ENGLISH
   );
   expect(Buffer.from(audioClipBase64, 'base64').toString('utf-8')).toEqual(
-    'Do you like apples? (audio)'
+    mockCloudSynthesizedSpeech('Do you like apples?')
   );
   expect(textToSpeechClient.synthesizeSpeech).not.toHaveBeenCalled();
 });
@@ -57,6 +60,6 @@ test('GoogleCloudSpeechSynthesizer text cleaning', async () => {
     LanguageCode.ENGLISH
   );
   expect(Buffer.from(audioClipBase64, 'base64').toString('utf-8')).toEqual(
-    'Do you prefer apple pie or orange marmalade? (audio)'
+    mockCloudSynthesizedSpeech('Do you prefer apple pie or orange marmalade?')
   );
 });

@@ -20,6 +20,10 @@ import { ballotPaperDimensions, getContests } from '../../election_utils';
 import { Id, safeParse } from '../../generic';
 import { safeParseInt } from '../../numeric';
 import { LanguageCode } from '../../language_code';
+import {
+  ElectionStringKey,
+  UiStringsPackage,
+} from '../../ui_string_translations';
 
 function dateString(date: Date) {
   const isoString = date.toISOString();
@@ -36,19 +40,69 @@ function officeId(contestId: Vxf.ContestId): string {
   return `office-${contestId}`;
 }
 
+function getUiString(
+  uiStrings: UiStringsPackage,
+  languageCode: LanguageCode,
+  stringKey: string | [string, string]
+): string | undefined {
+  const uiStringsInLanguage = uiStrings[languageCode];
+  if (!uiStringsInLanguage) {
+    return undefined;
+  }
+
+  // Single-value key
+  if (typeof stringKey === 'string') {
+    const uiString = uiStringsInLanguage[stringKey];
+    return uiString && typeof uiString === 'string' ? uiString : undefined;
+  }
+
+  // Two-value key
+  const subStructure = uiStringsInLanguage[stringKey[0]];
+  return subStructure && typeof subStructure === 'object'
+    ? subStructure[stringKey[1]]
+    : undefined;
+}
+
 export function convertVxfElectionToCdfBallotDefinition(
-  vxfElection: Vxf.Election
+  vxfElection: Vxf.Election,
+  translatedElectionStrings: UiStringsPackage
 ): Cdf.BallotDefinition {
-  function text(content: string): Cdf.InternationalizedText {
-    return {
-      '@type': 'BallotDefinition.InternationalizedText',
-      Text: [
-        {
+  function text(
+    content: string,
+    stringKey: ElectionStringKey | [ElectionStringKey, string] | 'other'
+  ): Cdf.InternationalizedText {
+    const cdfText: Cdf.LanguageString[] = [];
+    for (const languageCode of Object.values(LanguageCode)) {
+      if (languageCode === LanguageCode.ENGLISH) {
+        cdfText.push({
           '@type': 'BallotDefinition.LanguageString',
           Language: LanguageCode.ENGLISH,
           Content: content,
-        },
-      ],
+        });
+        continue;
+      }
+
+      if (stringKey === 'other') {
+        continue;
+      }
+
+      const stringInLanguage = getUiString(
+        translatedElectionStrings,
+        languageCode,
+        stringKey
+      );
+      if (stringInLanguage) {
+        cdfText.push({
+          '@type': 'BallotDefinition.LanguageString',
+          Language: languageCode,
+          Content: stringInLanguage,
+        });
+      }
+    }
+
+    return {
+      '@type': 'BallotDefinition.InternationalizedText',
+      Text: cdfText,
     };
   }
 
@@ -89,7 +143,7 @@ export function convertVxfElectionToCdfBallotDefinition(
                 split: {
                   '@type': 'BallotDefinition.ReportingUnit',
                   '@id': `${precinct.id}-split-${index + 1}`,
-                  Name: text(`${precinct.name} - Split ${index + 1}`),
+                  Name: text(`${precinct.name} - Split ${index + 1}`, 'other'),
                   Type: Cdf.ReportingUnitType.SplitPrecinct,
                 },
                 ballotStyles,
@@ -232,7 +286,7 @@ export function convertVxfElectionToCdfBallotDefinition(
       (contest): Cdf.Office => ({
         '@type': 'BallotDefinition.Office',
         '@id': officeId(contest.id),
-        Name: text(contest.title), // Not used, but required
+        Name: text(contest.title, 'other'), // Not used, but required
         Term: {
           '@type': 'BallotDefinition.Term',
           Label: assertDefined(contest.termDescription),
@@ -252,7 +306,7 @@ export function convertVxfElectionToCdfBallotDefinition(
         StartDate: electionDate,
         EndDate: electionDate,
         Type: vxfElection.type as Cdf.ElectionType,
-        Name: text(vxfElection.title),
+        Name: text(vxfElection.title, ElectionStringKey.ELECTION_TITLE),
 
         Candidate: vxfElection.contests
           .filter(
@@ -264,7 +318,10 @@ export function convertVxfElectionToCdfBallotDefinition(
             (candidate): Cdf.Candidate => ({
               '@type': 'BallotDefinition.Candidate',
               '@id': candidate.id,
-              BallotName: text(candidate.name),
+              BallotName: text(candidate.name, [
+                ElectionStringKey.CANDIDATE_NAME,
+                candidate.id,
+              ]),
             })
           ),
 
@@ -277,7 +334,10 @@ export function convertVxfElectionToCdfBallotDefinition(
                 '@id': contest.id,
                 ElectionDistrictId: contest.districtId,
                 Name: contest.title,
-                BallotTitle: text(contest.title),
+                BallotTitle: text(contest.title, [
+                  ElectionStringKey.CONTEST_TITLE,
+                  contest.id,
+                ]),
                 VotesAllowed: contest.seats,
                 ContestOption: [
                   ...contest.candidates.map(
@@ -315,18 +375,30 @@ export function convertVxfElectionToCdfBallotDefinition(
                 '@id': contest.id,
                 ElectionDistrictId: contest.districtId,
                 Name: contest.title,
-                BallotTitle: text(contest.title),
-                FullText: text(contest.description),
+                BallotTitle: text(contest.title, [
+                  ElectionStringKey.CONTEST_TITLE,
+                  contest.id,
+                ]),
+                FullText: text(contest.description, [
+                  ElectionStringKey.CONTEST_DESCRIPTION,
+                  contest.id,
+                ]),
                 ContestOption: [
                   {
                     '@type': 'BallotDefinition.BallotMeasureOption',
                     '@id': contest.yesOption.id,
-                    Selection: text(contest.yesOption.label),
+                    Selection: text(contest.yesOption.label, [
+                      ElectionStringKey.CONTEST_OPTION_LABEL,
+                      contest.yesOption.id,
+                    ]),
                   },
                   {
                     '@type': 'BallotDefinition.BallotMeasureOption',
                     '@id': contest.noOption.id,
-                    Selection: text(contest.noOption.label),
+                    Selection: text(contest.noOption.label, [
+                      ElectionStringKey.CONTEST_OPTION_LABEL,
+                      contest.noOption.id,
+                    ]),
                   },
                 ],
               };
@@ -368,23 +440,23 @@ export function convertVxfElectionToCdfBallotDefinition(
     Party: vxfElection.parties.map((party) => ({
       '@type': 'BallotDefinition.Party',
       '@id': party.id,
-      Name: text(party.fullName),
-      Abbreviation: text(party.abbrev),
-      vxBallotLabel: text(party.name),
+      Name: text(party.fullName, [ElectionStringKey.PARTY_FULL_NAME, party.id]),
+      Abbreviation: text(party.abbrev, 'other'),
+      vxBallotLabel: text(party.name, [ElectionStringKey.PARTY_NAME, party.id]),
     })),
 
     GpUnit: [
       {
         '@type': 'BallotDefinition.ReportingUnit',
         '@id': stateId,
-        Name: text(vxfElection.state),
+        Name: text(vxfElection.state, ElectionStringKey.STATE_NAME),
         Type: Cdf.ReportingUnitType.State,
         ComposingGpUnitIds: [vxfElection.county.id],
       },
       {
         '@type': 'BallotDefinition.ReportingUnit',
         '@id': vxfElection.county.id,
-        Name: text(vxfElection.county.name),
+        Name: text(vxfElection.county.name, ElectionStringKey.COUNTY_NAME),
         Type: Cdf.ReportingUnitType.County,
         ComposingGpUnitIds: vxfElection.districts.map(
           (district) => district.id
@@ -394,7 +466,10 @@ export function convertVxfElectionToCdfBallotDefinition(
         (district): Cdf.ReportingUnit => ({
           '@type': 'BallotDefinition.ReportingUnit',
           '@id': district.id,
-          Name: text(district.name),
+          Name: text(district.name, [
+            ElectionStringKey.DISTRICT_NAME,
+            district.id,
+          ]),
           // Since we represent multiple real-world entities as districts in VXF,
           // we can't know the actual type to use here
           Type: Cdf.ReportingUnitType.Other,
@@ -413,7 +488,10 @@ export function convertVxfElectionToCdfBallotDefinition(
         (precinct): Cdf.ReportingUnit => ({
           '@type': 'BallotDefinition.ReportingUnit',
           '@id': precinct.id,
-          Name: text(precinct.name),
+          Name: text(precinct.name, [
+            ElectionStringKey.PRECINCT_NAME,
+            precinct.id,
+          ]),
           Type: Cdf.ReportingUnitType.Precinct,
           ComposingGpUnitIds: precinctSplits
             .get(precinct.id)

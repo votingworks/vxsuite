@@ -19,38 +19,17 @@ import {
   MinimalGoogleCloudTextToSpeechClient,
 } from '../src/language_and_audio/speech_synthesizer';
 import { Workspace, createWorkspace } from '../src/workspace';
-import { WorkerContext } from '../src/worker/context';
 import * as worker from '../src/worker/worker';
 
 tmp.setGracefulCleanup();
 
 export type ApiClient = grout.Client<Api>;
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function testSetupHelpers() {
-  const servers: Server[] = [];
-
-  function setupApp() {
-    const workspace = createWorkspace(tmp.dirSync().name);
-    const app = buildApp({ workspace });
-    const server = app.listen();
-    servers.push(server);
-    const { port } = server.address() as AddressInfo;
-    const baseUrl = `http://localhost:${port}/api`;
-    const apiClient = grout.createClient<Api>({ baseUrl });
-    return { apiClient, workspace };
-  }
-
-  function cleanup() {
-    for (const server of servers) {
-      server.close();
-    }
-  }
-
-  return {
-    setupApp,
-    cleanup,
-  };
+export function mockCloudTranslatedText(
+  englishText: string,
+  languageCode: string
+): string {
+  return `${englishText} (in ${languageCode})`;
 }
 
 export class MockGoogleCloudTranslationClient
@@ -71,13 +50,20 @@ export class MockGoogleCloudTranslationClient
       Promise.resolve([
         {
           translations: input.contents.map((text) => ({
-            translatedText: `${text} (in ${input.targetLanguageCode})`,
+            translatedText: mockCloudTranslatedText(
+              text,
+              input.targetLanguageCode
+            ),
           })),
         },
         undefined,
         undefined,
       ])
   );
+}
+
+export function mockCloudSynthesizedSpeech(text: string): string {
+  return `${text} (audio)`;
 }
 
 export class MockGoogleCloudTextToSpeechClient
@@ -91,11 +77,47 @@ export class MockGoogleCloudTextToSpeechClient
       [{ audioContent: string | Uint8Array }, undefined, undefined]
     > =>
       Promise.resolve([
-        { audioContent: `${input.input.text} (audio)` },
+        { audioContent: mockCloudSynthesizedSpeech(input.input.text) },
         undefined,
         undefined,
       ])
   );
+}
+
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function testSetupHelpers() {
+  const servers: Server[] = [];
+
+  function setupApp() {
+    const workspace = createWorkspace(tmp.dirSync().name);
+    const { store } = workspace;
+    const speechSynthesizer = new GoogleCloudSpeechSynthesizer({
+      store,
+      textToSpeechClient: new MockGoogleCloudTextToSpeechClient(),
+    });
+    const translator = new GoogleCloudTranslator({
+      store,
+      translationClient: new MockGoogleCloudTranslationClient(),
+    });
+    const app = buildApp({ speechSynthesizer, translator, workspace });
+    const server = app.listen();
+    servers.push(server);
+    const { port } = server.address() as AddressInfo;
+    const baseUrl = `http://localhost:${port}/api`;
+    const apiClient = grout.createClient<Api>({ baseUrl });
+    return { apiClient, workspace };
+  }
+
+  function cleanup() {
+    for (const server of servers) {
+      server.close();
+    }
+  }
+
+  return {
+    setupApp,
+    cleanup,
+  };
 }
 
 export async function processNextBackgroundTaskIfAny(
@@ -110,14 +132,13 @@ export async function processNextBackgroundTaskIfAny(
     store,
     translationClient: new MockGoogleCloudTranslationClient(),
   });
-  const context: WorkerContext = {
-    speechSynthesizer,
-    translator,
-    workspace,
-  };
 
   await suppressingConsoleOutput(() =>
-    worker.processNextBackgroundTaskIfAny(context)
+    worker.processNextBackgroundTaskIfAny({
+      speechSynthesizer,
+      translator,
+      workspace,
+    })
   );
 }
 

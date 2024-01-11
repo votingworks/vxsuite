@@ -48,6 +48,8 @@
   "devDependencies": {
     "@types/jest": "^29.5.3",
     "@types/kiosk-browser": "workspace:*",
+    "@types/lodash.clonedeep": "^4.5.9",
+    "@types/lodash.set": "^4.3.7",
     "@types/luxon": "^3.0.0",
     "@types/node": "16.18.23",
     "@types/react": "18.2.18",
@@ -63,6 +65,8 @@
     "jest-junit": "^16.0.0",
     "jest-watch-typeahead": "^2.2.2",
     "lint-staged": "11.0.0",
+    "lodash.clonedeep": "^4.5.0",
+    "lodash.set": "^4.3.2",
     "sort-package-json": "^1.50.0",
     "ts-jest": "29.1.1"
   },

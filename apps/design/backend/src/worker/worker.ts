@@ -1,8 +1,5 @@
 import { extractErrorMessage, sleep } from '@votingworks/basics';
 
-import { GoogleCloudSpeechSynthesizer } from '../language_and_audio/speech_synthesizer';
-import { GoogleCloudTranslator } from '../language_and_audio/translator';
-import { Workspace } from '../workspace';
 import { WorkerContext } from './context';
 import { processBackgroundTask } from './tasks';
 
@@ -37,16 +34,7 @@ export async function processNextBackgroundTaskIfAny(
   /* eslint-enable no-console */
 }
 
-export function start({ workspace }: { workspace: Workspace }): void {
-  const { store } = workspace;
-  const speechSynthesizer = new GoogleCloudSpeechSynthesizer({ store });
-  const translator = new GoogleCloudTranslator({ store });
-  const context: WorkerContext = {
-    speechSynthesizer,
-    translator,
-    workspace,
-  };
-
+export function start(context: WorkerContext): void {
   process.nextTick(async () => {
     // eslint-disable-next-line no-constant-condition
     while (true) {

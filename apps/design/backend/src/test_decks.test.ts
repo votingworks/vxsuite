@@ -79,6 +79,7 @@ describe('createPrecinctTestDeck', () => {
       ballotMode: 'test',
       layoutOptions: DEFAULT_LAYOUT_OPTIONS,
       nhCustomContent: {},
+      translatedElectionStrings: {},
     }).unsafeUnwrap();
     const testDeckDocument = createPrecinctTestDeck({
       election,
@@ -110,6 +111,7 @@ describe('createPrecinctTestDeck', () => {
       ballotMode: 'test',
       layoutOptions: DEFAULT_LAYOUT_OPTIONS,
       nhCustomContent: {},
+      translatedElectionStrings: {},
     }).unsafeUnwrap();
     const testDeckDocument = createPrecinctTestDeck({
       election,
@@ -157,6 +159,7 @@ describe('getTallyReportResults', () => {
       ballotMode: 'test',
       layoutOptions: DEFAULT_LAYOUT_OPTIONS,
       nhCustomContent: {},
+      translatedElectionStrings: {},
     }).unsafeUnwrap();
 
     const tallyReportResults = await getTallyReportResults({
@@ -209,6 +212,7 @@ describe('getTallyReportResults', () => {
       ballotMode: 'test',
       layoutOptions: DEFAULT_LAYOUT_OPTIONS,
       nhCustomContent: {},
+      translatedElectionStrings: {},
     }).unsafeUnwrap();
 
     const tallyReportResults = await getTallyReportResults({
@@ -270,6 +274,7 @@ test('createTestDeckTallyReport', async () => {
     ballotMode: 'test',
     layoutOptions: DEFAULT_LAYOUT_OPTIONS,
     nhCustomContent: {},
+    translatedElectionStrings: {},
   }).unsafeUnwrap();
 
   const reportDocumentBuffer = await createTestDeckTallyReport({

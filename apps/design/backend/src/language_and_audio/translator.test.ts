@@ -1,6 +1,9 @@
 import { LanguageCode } from '@votingworks/types';
 
-import { MockGoogleCloudTranslationClient } from '../../test/helpers';
+import {
+  mockCloudTranslatedText,
+  MockGoogleCloudTranslationClient,
+} from '../../test/helpers';
 import { Store } from '../store';
 import { GoogleCloudTranslator } from './translator';
 
@@ -14,8 +17,8 @@ test('GoogleCloudTranslator', async () => {
     LanguageCode.SPANISH
   );
   expect(translatedTextArray).toEqual([
-    `Do you like apples? (in ${LanguageCode.SPANISH})`,
-    `Do you like oranges? (in ${LanguageCode.SPANISH})`,
+    mockCloudTranslatedText('Do you like apples?', LanguageCode.SPANISH),
+    mockCloudTranslatedText('Do you like oranges?', LanguageCode.SPANISH),
   ]);
   expect(translationClient.translateText).toHaveBeenCalledTimes(1);
   expect(translationClient.translateText).toHaveBeenNthCalledWith(
@@ -33,9 +36,9 @@ test('GoogleCloudTranslator', async () => {
     LanguageCode.SPANISH
   );
   expect(translatedTextArray).toEqual([
-    `Do you like apples? (in ${LanguageCode.SPANISH})`,
-    `Do you like bananas? (in ${LanguageCode.SPANISH})`,
-    `Do you like oranges? (in ${LanguageCode.SPANISH})`,
+    mockCloudTranslatedText('Do you like apples?', LanguageCode.SPANISH),
+    mockCloudTranslatedText('Do you like bananas?', LanguageCode.SPANISH),
+    mockCloudTranslatedText('Do you like oranges?', LanguageCode.SPANISH),
   ]);
   expect(translationClient.translateText).toHaveBeenCalledTimes(1);
   expect(translationClient.translateText).toHaveBeenNthCalledWith(
@@ -53,9 +56,9 @@ test('GoogleCloudTranslator', async () => {
     LanguageCode.SPANISH
   );
   expect(translatedTextArray).toEqual([
-    `Do you like apples? (in ${LanguageCode.SPANISH})`,
-    `Do you like bananas? (in ${LanguageCode.SPANISH})`,
-    `Do you like oranges? (in ${LanguageCode.SPANISH})`,
+    mockCloudTranslatedText('Do you like apples?', LanguageCode.SPANISH),
+    mockCloudTranslatedText('Do you like bananas?', LanguageCode.SPANISH),
+    mockCloudTranslatedText('Do you like oranges?', LanguageCode.SPANISH),
   ]);
   expect(translationClient.translateText).not.toHaveBeenCalled();
 
@@ -66,9 +69,18 @@ test('GoogleCloudTranslator', async () => {
     LanguageCode.CHINESE_TRADITIONAL
   );
   expect(translatedTextArray).toEqual([
-    `Do you like apples? (in ${LanguageCode.CHINESE_TRADITIONAL})`,
-    `Do you like bananas? (in ${LanguageCode.CHINESE_TRADITIONAL})`,
-    `Do you like oranges? (in ${LanguageCode.CHINESE_TRADITIONAL})`,
+    mockCloudTranslatedText(
+      'Do you like apples?',
+      LanguageCode.CHINESE_TRADITIONAL
+    ),
+    mockCloudTranslatedText(
+      'Do you like bananas?',
+      LanguageCode.CHINESE_TRADITIONAL
+    ),
+    mockCloudTranslatedText(
+      'Do you like oranges?',
+      LanguageCode.CHINESE_TRADITIONAL
+    ),
   ]);
   expect(translationClient.translateText).toHaveBeenCalledTimes(1);
   expect(translationClient.translateText).toHaveBeenNthCalledWith(

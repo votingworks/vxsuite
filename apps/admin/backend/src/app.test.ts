@@ -190,7 +190,7 @@ test('configuring with a CDF election', async () => {
   mockSystemAdministratorAuth(auth);
 
   const { electionData, electionHash } = safeParseElectionDefinition(
-    JSON.stringify(convertVxfElectionToCdfBallotDefinition(electionGeneral))
+    JSON.stringify(convertVxfElectionToCdfBallotDefinition(electionGeneral, {}))
   ).unsafeUnwrap();
   const electionPackage = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionData,

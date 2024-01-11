@@ -25,7 +25,8 @@ import {
   FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
   createTestDeckTallyReport,
 } from './test_decks';
-import { Workspace } from './workspace';
+import { AppContext } from './context';
+import { extractAndTranslateElectionStrings } from './language_and_audio';
 
 export function createBlankElection(): Election {
   return {
@@ -94,7 +95,7 @@ function streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
   });
 }
 
-function buildApi({ workspace }: { workspace: Workspace }) {
+function buildApi({ translator, workspace }: AppContext) {
   const { store } = workspace;
 
   return grout.createApi({
@@ -180,6 +181,9 @@ function buildApi({ workspace }: { workspace: Workspace }) {
             ballotMode,
             layoutOptions,
             nhCustomContent,
+            translatedElectionStrings: (
+              await extractAndTranslateElectionStrings(translator, election)
+            ).electionStrings,
           }).unsafeUnwrap();
 
           // Election definition doesn't change across ballot types/modes
@@ -223,6 +227,9 @@ function buildApi({ workspace }: { workspace: Workspace }) {
         ballotMode: input.ballotMode,
         layoutOptions,
         nhCustomContent,
+        translatedElectionStrings: (
+          await extractAndTranslateElectionStrings(translator, election)
+        ).electionStrings,
       }).unsafeUnwrap();
       const { document } = find(
         ballots,
@@ -255,6 +262,9 @@ function buildApi({ workspace }: { workspace: Workspace }) {
         ballotMode: 'test',
         layoutOptions,
         nhCustomContent,
+        translatedElectionStrings: (
+          await extractAndTranslateElectionStrings(translator, election)
+        ).electionStrings,
       }).unsafeUnwrap();
 
       const zip = new JsZip();
@@ -289,10 +299,10 @@ function buildApi({ workspace }: { workspace: Workspace }) {
 }
 export type Api = ReturnType<typeof buildApi>;
 
-export function buildApp({ workspace }: { workspace: Workspace }): Application {
+export function buildApp(context: AppContext): Application {
   const app: Application = express();
-  const api = buildApi({ workspace });
+  const api = buildApi(context);
   app.use('/api', grout.buildRouter(api, express));
-  app.use(express.static(workspace.assetDirectoryPath));
+  app.use(express.static(context.workspace.assetDirectoryPath));
   return app;
 }
