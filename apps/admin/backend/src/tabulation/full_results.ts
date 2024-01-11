@@ -16,27 +16,41 @@ import {
 import { tabulateManualResults } from './manual_results';
 import { rootDebug } from '../util/debug';
 import { assertIsBackendFilter } from '../util/filters';
+import { TallyCache, TallyCacheKey } from './tally_cache';
 
 const debug = rootDebug.extend('tabulation');
 
 /**
  * Tabulate cast vote records with no write-in adjudication information.
  */
-export function tabulateCastVoteRecords({
+export async function tabulateCastVoteRecords({
   electionId,
   store,
   filter = {},
   groupBy = {},
+  tallyCache,
 }: {
   electionId: Id;
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
+  tallyCache?: TallyCache;
 }): Promise<Tabulation.ElectionResultsGroupMap> {
   assertIsBackendFilter(filter);
   const {
     electionDefinition: { election },
   } = assertDefined(store.getElection(electionId));
+
+  // check cache for existing results
+  const cacheKey: TallyCacheKey = {
+    electionId,
+    filter,
+    groupBy,
+  };
+  const existingResults = tallyCache?.get(cacheKey);
+  if (existingResults) {
+    return Promise.resolve(existingResults);
+  }
 
   // i.e. what pages need to be included on a report
   debug('determining what election result groups we expect, if any');
@@ -49,12 +63,16 @@ export function tabulateCastVoteRecords({
     : undefined;
 
   debug('tabulating filtered cast vote records from the store');
-  return tabulateFilteredCastVoteRecords({
+  const results = await tabulateFilteredCastVoteRecords({
     cvrs: store.getCastVoteRecords({ electionId, filter }),
     election,
     groupBy,
     expectedGroups,
   });
+  if (tallyCache) {
+    tallyCache.set(cacheKey, results);
+  }
+  return results;
 }
 
 /**
@@ -67,6 +85,7 @@ export async function tabulateElectionResults({
   groupBy = {},
   includeWriteInAdjudicationResults,
   includeManualResults,
+  tallyCache,
 }: {
   electionId: Id;
   store: Store;
@@ -74,6 +93,7 @@ export async function tabulateElectionResults({
   groupBy?: Tabulation.GroupBy;
   includeWriteInAdjudicationResults?: boolean;
   includeManualResults?: boolean;
+  tallyCache?: TallyCache;
 }): Promise<Tabulation.ElectionResultsGroupMap> {
   debug('tabulating election results');
   const {
@@ -86,6 +106,7 @@ export async function tabulateElectionResults({
     store,
     filter,
     groupBy,
+    tallyCache,
   });
 
   // replace bucketed write-in counts with write-in adjudication data

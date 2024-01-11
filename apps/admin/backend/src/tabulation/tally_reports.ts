@@ -14,6 +14,7 @@ import { Store } from '../store';
 import { tabulateElectionResults } from './full_results';
 import { tabulateManualResults } from './manual_results';
 import { rootDebug } from '../util/debug';
+import { TallyCache } from './tally_cache';
 
 const debug = rootDebug.extend('tabulation');
 
@@ -50,11 +51,13 @@ export async function tabulateTallyReportResults({
   store,
   filter = {},
   groupBy = {},
+  tallyCache,
 }: {
   electionId: Id;
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
+  tallyCache?: TallyCache;
 }): Promise<Tabulation.GroupList<Admin.TallyReportResults>> {
   const {
     electionDefinition: { election },
@@ -78,6 +81,7 @@ export async function tabulateTallyReportResults({
     groupBy: primarySensitiveGroupBy,
     includeWriteInAdjudicationResults: true,
     includeManualResults: false,
+    tallyCache,
   });
 
   debug('tabulating manual election results for tally report');

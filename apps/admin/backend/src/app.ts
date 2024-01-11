@@ -97,6 +97,7 @@ import { convertFrontendFilter as convertFrontendFilterUtil } from './util/filte
 import { buildElectionResultsReport } from './util/cdf_results';
 import { tabulateElectionResults } from './tabulation/full_results';
 import { NODE_ENV, REAL_USB_DRIVE_GLOB_PATTERN } from './globals';
+import { TallyCache } from './tabulation/tally_cache';
 
 const debug = rootDebug.extend('app');
 
@@ -152,6 +153,7 @@ function buildApi({
   usbDrive: UsbDrive;
 }) {
   const { store } = workspace;
+  const tallyCache = new TallyCache();
 
   async function getUserRole() {
     const authStatus = await auth.getAuthStatus(
@@ -513,6 +515,7 @@ function buildApi({
           errorDetails: JSON.stringify(importResult.err()),
         });
       } else {
+        tallyCache.clear();
         const { alreadyPresent: numAlreadyPresent, newlyAdded: numNewlyAdded } =
           importResult.ok();
         let message = `Successfully imported ${numNewlyAdded} cast vote record(s).`;
@@ -536,6 +539,7 @@ function buildApi({
       const electionId = loadCurrentElectionIdOrThrow(workspace);
       store.deleteCastVoteRecordFiles(electionId);
       store.setElectionResultsOfficial(electionId, false);
+      tallyCache.clear();
       await logger.log(
         LogEventId.ClearImportedCastVoteRecordsComplete,
         userRole,
@@ -574,6 +578,7 @@ function buildApi({
 
     async adjudicateWriteIn(input: WriteInAdjudicationAction): Promise<void> {
       await adjudicateWriteIn(input, store, logger);
+      tallyCache.clear();
     },
 
     getWriteInAdjudicationQueueMetadata(
@@ -745,6 +750,7 @@ function buildApi({
         store,
         filter: convertFrontendFilter(input.filter),
         groupBy: input.groupBy,
+        tallyCache,
       });
     },
 
@@ -764,6 +770,7 @@ function buildApi({
           store,
           filter: convertFrontendFilter(input.filter),
           groupBy: input.groupBy,
+          tallyCache,
         }),
       });
 
@@ -835,6 +842,7 @@ function buildApi({
           store,
           includeWriteInAdjudicationResults: true,
           includeManualResults: true,
+          tallyCache,
         })
       )[0];
       assert(electionResults);

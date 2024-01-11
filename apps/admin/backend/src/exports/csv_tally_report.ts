@@ -25,6 +25,7 @@ import {
   getCsvMetadataRowValues,
 } from './csv_shared';
 import { tabulateManualResults } from '../tabulation/manual_results';
+import { TallyCache } from '../tabulation/tally_cache';
 
 // eslint-disable-next-line vx/gts-no-return-type-only-generics
 function assertIsOptional<T>(_value?: unknown): asserts _value is Optional<T> {
@@ -221,10 +222,12 @@ export async function* generateTallyReportCsv({
   store,
   filter = {},
   groupBy = {},
+  tallyCache,
 }: {
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
+  tallyCache?: TallyCache;
 }): AsyncGenerator<string> {
   const electionId = store.getCurrentElectionId();
   assert(electionId !== undefined);
@@ -244,6 +247,7 @@ export async function* generateTallyReportCsv({
     groupBy,
     includeManualResults: false,
     includeWriteInAdjudicationResults: true,
+    tallyCache,
   });
   const manualTabulationResult = tabulateManualResults({
     electionId,
