@@ -197,11 +197,6 @@ declare namespace KioskBrowser {
     code: string;
   }
 
-  export interface SignParams {
-    signatureType: string;
-    payload: string;
-  }
-
   export interface Observable<T> {
     subscribe(callback: (value: T) => void): () => void;
   }
@@ -259,8 +254,6 @@ declare namespace KioskBrowser {
     totp: {
       get(): Promise<TotpInfo | undefined>;
     };
-
-    sign(params: SignParams): Promise<string>;
 
     // speech dispatcher
     speak(text: string, options: SpeakOptions): Promise<void>;
