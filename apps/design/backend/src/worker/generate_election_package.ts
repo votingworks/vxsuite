@@ -1,62 +1,21 @@
 import { createWriteStream } from 'fs';
-import fs from 'fs/promises';
 import JsZip from 'jszip';
 import path from 'path';
 import { pipeline } from 'stream/promises';
-import { z } from 'zod';
 import { layOutAllBallotStyles } from '@votingworks/hmpb-layout';
 import {
   BallotType,
   ElectionPackageFileName,
   getDisplayElectionHash,
   Id,
-  LanguageCode,
-  safeParseJson,
-  UiStringsPackage,
 } from '@votingworks/types';
 
 import { PORT } from '../globals';
 import {
   extractAndTranslateElectionStrings,
-  GoogleCloudTranslator,
-  setUiString,
+  translateAppStrings,
 } from '../language_and_audio';
 import { WorkerContext } from './context';
-
-async function translateAppStrings(
-  translator: GoogleCloudTranslator
-): Promise<UiStringsPackage> {
-  const appStringsCatalogFileContents = await fs.readFile(
-    path.join(
-      __dirname,
-      // TODO: Account for system version
-      '../../../../../libs/ui/src/ui_strings/app_strings_catalog/latest.json'
-    ),
-    'utf-8'
-  );
-  const appStringsCatalog = safeParseJson(
-    appStringsCatalogFileContents,
-    z.record(z.string())
-  ).unsafeUnwrap();
-
-  const appStringKeys = Object.keys(appStringsCatalog).sort();
-  const appStringsInEnglish = appStringKeys.map(
-    (key) => appStringsCatalog[key]
-  );
-
-  const appStrings: UiStringsPackage = {};
-  for (const languageCode of Object.values(LanguageCode)) {
-    const appStringsInLanguage =
-      languageCode === LanguageCode.ENGLISH
-        ? appStringsInEnglish
-        : await translator.translateText(appStringsInEnglish, languageCode);
-    for (const [i, key] of appStringKeys.entries()) {
-      setUiString(appStrings, languageCode, key, appStringsInLanguage[i]);
-    }
-  }
-
-  return appStrings;
-}
 
 export async function generateElectionPackage(
   { translator, workspace }: WorkerContext,
