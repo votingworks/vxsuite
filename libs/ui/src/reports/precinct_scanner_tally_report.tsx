@@ -21,7 +21,7 @@ interface Props {
   pollsTransition: StandardPollsTransitionType;
   isLiveMode: boolean;
   pollsTransitionedTime: number;
-  currentTime: number;
+  reportPrintedTime: number;
   precinctScannerMachineId: string;
 }
 
@@ -38,7 +38,7 @@ export function PrecinctScannerTallyReport({
   pollsTransition,
   isLiveMode,
   pollsTransitionedTime,
-  currentTime,
+  reportPrintedTime,
   precinctScannerMachineId,
 }: Props): JSX.Element {
   const { election } = electionDefinition;
@@ -59,7 +59,7 @@ export function PrecinctScannerTallyReport({
           pollsTransition={pollsTransition}
           isLiveMode={isLiveMode}
           pollsTransitionedTime={pollsTransitionedTime}
-          currentTime={currentTime}
+          reportPrintedTime={reportPrintedTime}
           precinctScannerMachineId={precinctScannerMachineId}
         />
         <TallyReportColumns>

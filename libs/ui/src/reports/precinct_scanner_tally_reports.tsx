@@ -11,7 +11,6 @@ import {
   getEmptyElectionResults,
 } from '@votingworks/utils';
 import { ThemeProvider } from 'styled-components';
-import { PrecinctScannerTallyQrCode } from './precinct_scanner_tally_qrcode';
 import { PrecinctScannerTallyReport } from './precinct_scanner_tally_report';
 import { tallyReportThemeFn } from './tally_report';
 
@@ -22,9 +21,8 @@ export interface PrecinctScannerTallyReportsProps {
   pollsTransition: StandardPollsTransitionType;
   isLiveMode: boolean;
   pollsTransitionedTime: number;
+  reportPrintedTime: number;
   precinctScannerMachineId: string;
-  signedQuickResultsReportingUrl: string;
-  totalBallotsScanned: number;
 }
 
 /**
@@ -37,11 +35,9 @@ export function PrecinctScannerTallyReports({
   pollsTransition,
   isLiveMode,
   pollsTransitionedTime,
+  reportPrintedTime,
   precinctScannerMachineId,
-  signedQuickResultsReportingUrl,
-  totalBallotsScanned,
 }: PrecinctScannerTallyReportsProps): JSX.Element {
-  const currentTime = Date.now();
   const { election } = electionDefinition;
   const combinedResults = combineElectionResults({
     election,
@@ -54,10 +50,6 @@ export function PrecinctScannerTallyReports({
       ? precinctSelection.precinctId
       : undefined
   );
-  const showQuickResults =
-    electionDefinition.election.quickResultsReportingUrl &&
-    totalBallotsScanned > 0 &&
-    pollsTransition === 'close_polls';
 
   return (
     <ThemeProvider theme={tallyReportThemeFn}>
@@ -83,18 +75,11 @@ export function PrecinctScannerTallyReports({
             pollsTransition={pollsTransition}
             isLiveMode={isLiveMode}
             pollsTransitionedTime={pollsTransitionedTime}
-            currentTime={currentTime}
+            reportPrintedTime={reportPrintedTime}
             precinctScannerMachineId={precinctScannerMachineId}
           />
         );
       })}
-      {showQuickResults && (
-        <PrecinctScannerTallyQrCode
-          pollsTransitionedTime={pollsTransitionedTime}
-          election={electionDefinition.election}
-          signedQuickResultsReportingUrl={signedQuickResultsReportingUrl}
-        />
-      )}
     </ThemeProvider>
   );
 }

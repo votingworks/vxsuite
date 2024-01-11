@@ -11,7 +11,7 @@ import { render, screen } from '../../test/react_testing_library';
 import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
 
 const pollsTransitionedTime = new Date('2022-10-31T16:23:00.000Z').getTime();
-const currentTime = new Date('2022-10-31T16:24:00.000Z').getTime();
+const reportPrintedTime = new Date('2022-10-31T16:24:00.000Z').getTime();
 
 const { electionDefinition: generalElectionDefinition } =
   electionFamousNames2021Fixtures;
@@ -24,7 +24,7 @@ test('general election, all precincts, polls open, test mode', () => {
       pollsTransition="open_polls"
       isLiveMode={false}
       pollsTransitionedTime={pollsTransitionedTime}
-      currentTime={currentTime}
+      reportPrintedTime={reportPrintedTime}
       precinctScannerMachineId="SC-01-000"
     />
   );
@@ -55,7 +55,7 @@ test('primary election, single precinct, polls closed, live mode', () => {
       pollsTransition="close_polls"
       isLiveMode
       pollsTransitionedTime={pollsTransitionedTime}
-      currentTime={currentTime}
+      reportPrintedTime={reportPrintedTime}
       precinctScannerMachineId="SC-01-000"
     />
   );

@@ -23,7 +23,7 @@ const {
 } = electionFamousNames2021Fixtures;
 
 const pollsTransitionedTime = new Date(2021, 8, 19, 11, 5).getTime();
-const currentTime = new Date(2021, 8, 19, 11, 6).getTime();
+const reportPrintedTime = new Date(2021, 8, 19, 11, 6).getTime();
 
 const generalElectionResults = buildElectionResultsFixture({
   election: generalElectionDefinition.election,
@@ -49,7 +49,7 @@ test('renders as expected for a single precinct in a general election', () => {
   render(
     <PrecinctScannerTallyReport
       pollsTransitionedTime={pollsTransitionedTime}
-      currentTime={currentTime}
+      reportPrintedTime={reportPrintedTime}
       precinctScannerMachineId="SC-01-000"
       electionDefinition={generalElectionDefinition}
       precinctSelection={singlePrecinctSelectionFor(
@@ -117,7 +117,7 @@ test('renders as expected for all precincts in a primary election', () => {
   render(
     <PrecinctScannerTallyReport
       pollsTransitionedTime={pollsTransitionedTime}
-      currentTime={currentTime}
+      reportPrintedTime={reportPrintedTime}
       precinctScannerMachineId="SC-01-000"
       electionDefinition={electionTwoPartyPrimaryDefinition}
       precinctSelection={ALL_PRECINCTS_SELECTION}
@@ -165,7 +165,7 @@ test('displays only passed contests', () => {
   render(
     <PrecinctScannerTallyReport
       pollsTransitionedTime={pollsTransitionedTime}
-      currentTime={currentTime}
+      reportPrintedTime={reportPrintedTime}
       precinctScannerMachineId="SC-01-000"
       electionDefinition={electionTwoPartyPrimaryDefinition}
       precinctSelection={ALL_PRECINCTS_SELECTION}

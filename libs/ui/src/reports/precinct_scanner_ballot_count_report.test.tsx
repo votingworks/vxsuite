@@ -5,10 +5,9 @@ import { render, screen } from '../../test/react_testing_library';
 import { PrecinctScannerBallotCountReport } from './precinct_scanner_ballot_count_report';
 
 const pollsTransitionedTime = new Date(2021, 8, 19, 11, 5).getTime();
-const currentTime = new Date(2021, 8, 19, 11, 6).getTime();
+const reportPrintedTime = new Date(2021, 8, 19, 11, 6).getTime();
 
 test('renders info properly', () => {
-  jest.useFakeTimers().setSystemTime(currentTime);
   render(
     <PrecinctScannerBallotCountReport
       electionDefinition={electionGeneralDefinition}
@@ -16,6 +15,7 @@ test('renders info properly', () => {
       totalBallotsScanned={23}
       pollsTransition="pause_voting"
       pollsTransitionedTime={pollsTransitionedTime}
+      reportPrintedTime={reportPrintedTime}
       isLiveMode={false}
       precinctScannerMachineId="SC-01-000"
     />
