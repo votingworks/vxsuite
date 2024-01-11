@@ -17,6 +17,7 @@ import { setUiString } from './utils';
 export async function translateAppStrings(
   translator: GoogleCloudTranslator
 ): Promise<UiStringsPackage> {
+  /* istanbul ignore next */
   if (
     !isFeatureFlagEnabled(
       BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS

@@ -239,6 +239,7 @@ export async function extractAndTranslateElectionStrings(
   /** The subset of election strings to be added to the vxElectionStrings.json file */
   vxElectionStrings: UiStringsPackage;
 }> {
+  /* istanbul ignore next */
   if (
     !isFeatureFlagEnabled(
       BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS

@@ -32,7 +32,11 @@ import {
   safeParseJson,
   safeParseSystemSettings,
 } from '@votingworks/types';
-import { getBallotStylesByPrecinctId } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  getBallotStylesByPrecinctId,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
 import {
   ApiClient,
   exportElectionPackage,
@@ -74,9 +78,25 @@ function expectTextToBeTranslated(
   }
 }
 
+const mockFeatureFlagger = getFeatureFlagMock();
+
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+  };
+});
+
 const { setupApp, cleanup } = testSetupHelpers();
 
 afterAll(cleanup);
+
+beforeEach(() => {
+  mockFeatureFlagger.resetFeatureFlags();
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
+  );
+});
 
 test('CRUD elections', async () => {
   const { apiClient } = setupApp();
