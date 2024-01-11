@@ -1,7 +1,4 @@
-import {
-  ConverterClientTypeSchema,
-  PrecinctReportDestinationSchema,
-} from '@votingworks/types';
+import { ConverterClientTypeSchema } from '@votingworks/types';
 import { ZodSchema } from 'zod';
 import { throwIllegalValue } from '@votingworks/basics';
 import { asBoolean } from './as_boolean';
@@ -54,8 +51,6 @@ export enum BooleanEnvironmentVariableName {
 export enum StringEnvironmentVariableName {
   // Converter for input/output files in VxAdmin
   CONVERTER = 'REACT_APP_VX_CONVERTER',
-  // How reports are expected in VxScan,
-  PRECINCT_REPORT_DESTINATION = 'REACT_APP_VX_PRECINCT_REPORT_DESTINATION',
 }
 
 export interface BooleanEnvironmentConfig {
@@ -108,8 +103,6 @@ export function getEnvironmentVariable(
         .REACT_APP_VX_CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_REDUNDANT_METADATA;
     case StringEnvironmentVariableName.CONVERTER:
       return process.env.REACT_APP_VX_CONVERTER;
-    case StringEnvironmentVariableName.PRECINCT_REPORT_DESTINATION:
-      return process.env.REACT_APP_VX_PRECINCT_REPORT_DESTINATION;
     case BooleanEnvironmentVariableName.DISABLE_BALLOT_BOX_CHECK:
       return process.env.REACT_APP_VX_DISABLE_BALLOT_BOX_CHECK;
     case BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK:
@@ -244,12 +237,6 @@ export function getStringEnvVarConfig(
         name,
         defaultValue: 'ms-sems',
         zodSchema: ConverterClientTypeSchema,
-      };
-    case StringEnvironmentVariableName.PRECINCT_REPORT_DESTINATION:
-      return {
-        name,
-        defaultValue: 'thermal-sheet-printer',
-        zodSchema: PrecinctReportDestinationSchema,
       };
     /* c8 ignore next 2 */
     default:
