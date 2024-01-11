@@ -1,9 +1,12 @@
 import path from 'path';
+import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { assertDefined } from '@votingworks/basics';
 
 import { WORKSPACE } from '../globals';
-import * as worker from './worker';
 import { createWorkspace } from '../workspace';
+import * as worker from './worker';
+
+loadEnvVarsFromDotenvFiles();
 
 async function main(): Promise<void> {
   const workspacePath = path.resolve(assertDefined(WORKSPACE));

@@ -171,12 +171,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
-      dotenv-expand:
-        specifier: 9.0.0
-        version: 9.0.0
       express:
         specifier: 4.18.2
         version: 4.18.2
@@ -708,12 +702,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
-      dotenv-expand:
-        specifier: 9.0.0
-        version: 9.0.0
       express:
         specifier: 4.18.2
         version: 4.18.2
@@ -1104,6 +1092,9 @@ importers:
       '@google-cloud/translate':
         specifier: ^8.0.2
         version: 8.0.2
+      '@votingworks/backend':
+        specifier: workspace:*
+        version: link:../../../libs/backend
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
@@ -1496,12 +1487,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
-      dotenv-expand:
-        specifier: 9.0.0
-        version: 9.0.0
       express:
         specifier: 4.18.2
         version: 4.18.2
@@ -1913,12 +1898,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
-      dotenv-expand:
-        specifier: 9.0.0
-        version: 9.0.0
       express:
         specifier: 4.18.2
         version: 4.18.2
@@ -2342,12 +2321,6 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
-      dotenv:
-        specifier: 16.3.1
-        version: 16.3.1
-      dotenv-expand:
-        specifier: 9.0.0
-        version: 9.0.0
       express:
         specifier: 4.18.2
         version: 4.18.2
@@ -2935,6 +2908,12 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
+      dotenv:
+        specifier: 16.3.1
+        version: 16.3.1
+      dotenv-expand:
+        specifier: 9.0.0
+        version: 9.0.0
       fs-extra:
         specifier: 11.1.1
         version: 11.1.1

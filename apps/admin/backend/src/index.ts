@@ -1,42 +1,12 @@
 // Import the rest of our application.
-import fs from 'fs';
 import { Logger, LogSource, LogEventId } from '@votingworks/logging';
-import * as dotenv from 'dotenv';
-import * as dotenvExpand from 'dotenv-expand';
-
-import { isIntegrationTest } from '@votingworks/utils';
-import { NODE_ENV } from './globals';
+import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import * as server from './server';
 
 export type { Api } from './app';
 export * from './types';
 
-const isTestEnvironment = NODE_ENV === 'test' || isIntegrationTest();
-
-// https://github.com/bkeepers/dotenv#what-other-env-files-can-i-use
-const dotenvPath = '.env';
-const dotenvFiles: string[] = [
-  `${dotenvPath}.${NODE_ENV}.local`,
-  // Don't include `.env.local` for `test` environment
-  // since normally you expect tests to produce the same
-  // results for everyone
-  !isTestEnvironment ? `${dotenvPath}.local` : '',
-  `${dotenvPath}.${NODE_ENV}`,
-  dotenvPath,
-  !isTestEnvironment ? `../../../${dotenvPath}.local` : '',
-  `../../../${dotenvPath}`,
-].filter(Boolean);
-
-// Load environment variables from .env* files. Suppress warnings using silent
-// if this file is missing. dotenv will never modify any environment variables
-// that have already been set.  Variable expansion is supported in .env files.
-// https://github.com/motdotla/dotenv
-// https://github.com/motdotla/dotenv-expand
-for (const dotenvFile of dotenvFiles) {
-  if (fs.existsSync(dotenvFile)) {
-    dotenvExpand.expand(dotenv.config({ path: dotenvFile }));
-  }
-}
+loadEnvVarsFromDotenvFiles();
 
 const logger = new Logger(LogSource.VxAdminService);
 
