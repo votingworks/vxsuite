@@ -34,14 +34,20 @@
   "dependencies": {
     "@votingworks/basics": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/logging": "workspace:*",
+    "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/ui": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "debug": "4.3.4",
+    "moment": "2.29.1",
     "playwright": "^1.40.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "styled-components": "^5.3.11"
+    "styled-components": "^5.3.11",
+    "tmp": "^0.2.1",
+    "tmp-promise": "^3.0.3",
+    "zod": "3.14.4"
   },
   "devDependencies": {
     "@types/debug": "4.1.8",
@@ -63,7 +69,6 @@
     "jest-watch-typeahead": "^2.2.2",
     "lint-staged": "11.0.0",
     "sort-package-json": "^1.50.0",
-    "tmp": "^0.2.1",
     "ts-jest": "29.1.1"
   },
   "packageManager": "pnpm@8.1.0"

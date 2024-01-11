@@ -4785,6 +4785,12 @@ importers:
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
+      '@votingworks/logging':
+        specifier: workspace:*
+        version: link:../logging
+      '@votingworks/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
       '@votingworks/types':
         specifier: workspace:*
         version: link:../types
@@ -4797,6 +4803,9 @@ importers:
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
+      moment:
+        specifier: 2.29.1
+        version: 2.29.1
       playwright:
         specifier: ^1.40.1
         version: 1.40.1
@@ -4809,6 +4818,15 @@ importers:
       styled-components:
         specifier: ^5.3.11
         version: 5.3.11(react-dom@18.2.0)(react-is@18.2.0)(react@18.2.0)
+      tmp:
+        specifier: ^0.2.1
+        version: 0.2.1
+      tmp-promise:
+        specifier: ^3.0.3
+        version: 3.0.3
+      zod:
+        specifier: 3.14.4
+        version: 3.14.4
     devDependencies:
       '@types/debug':
         specifier: 4.1.8
@@ -4867,9 +4885,6 @@ importers:
       sort-package-json:
         specifier: ^1.50.0
         version: 1.50.0
-      tmp:
-        specifier: ^0.2.1
-        version: 0.2.1
       ts-jest:
         specifier: 29.1.1
         version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.2.2)
@@ -21829,6 +21844,12 @@ packages:
   /titleize@3.0.0:
     resolution: {integrity: sha512-KxVu8EYHDPBdUYdKZdKtU2aj2XfEx9AfjXxE/Aj0vT06w2icA09Vus1rh6eSu1y01akYg6BjIK/hxyLJINoMLQ==}
     engines: {node: '>=12'}
+
+  /tmp-promise@3.0.3:
+    resolution: {integrity: sha512-RwM7MoPojPxsOBYnyd2hy0bxtIlVrihNs9pj5SUvY8Zz1sQcQG2tG1hSr8PDxfgEB8RNKDhqbIlroIarSNDNsQ==}
+    dependencies:
+      tmp: 0.2.1
+    dev: false
 
   /tmp@0.2.1:
     resolution: {integrity: sha512-76SUhtfqR2Ijn+xllcI5P1oyannHNHByD80W1q447gU3mp9G9PSpGdWmjUOHRDPiHYacIk66W7ubDTuPF3BEtQ==}
