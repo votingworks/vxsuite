@@ -1,6 +1,7 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Optional } from '@votingworks/basics';
+import { LanguageCode } from '@votingworks/types';
 import {
   UiStringsApiClient,
   UiStringsReactQueryApi,
@@ -46,6 +47,16 @@ export function newTestContext(
     getUiStringAudioIds: jest.fn(),
     getUiStrings: jest.fn(),
   };
+
+  // Set up default mock for `getAvailableLanguages` to unblock initial render.
+  mockBackendApi.getAvailableLanguages.mockResolvedValue([
+    LanguageCode.ENGLISH,
+  ]);
+
+  // Set up remaining initial mocks for convenience:
+  mockBackendApi.getUiStrings.mockResolvedValue(null);
+  mockBackendApi.getUiStringAudioIds.mockResolvedValue(null);
+  mockBackendApi.getAudioClips.mockResolvedValue([]);
 
   const mockUiStringsApi: UiStringsReactQueryApi = createUiStringsApi(
     () => mockBackendApi

@@ -310,6 +310,34 @@ export const appStrings = {
     </UiString>
   ),
 
+  labelKeyboardComma: () => (
+    <UiString uiStringKey="labelKeyboardComma">,</UiString>
+  ),
+
+  labelKeyboardDelete: () => (
+    <UiString uiStringKey="labelKeyboardDelete">delete</UiString>
+  ),
+
+  labelKeyboardDoubleQuote: () => (
+    <UiString uiStringKey="labelKeyboardDoubleQuote">"</UiString>
+  ),
+
+  labelKeyboardHyphen: () => (
+    <UiString uiStringKey="labelKeyboardHyphen">-</UiString>
+  ),
+
+  labelKeyboardPeriod: () => (
+    <UiString uiStringKey="labelKeyboardPeriod">.</UiString>
+  ),
+
+  labelKeyboardSingleQuote: () => (
+    <UiString uiStringKey="labelKeyboardSingleQuote">'</UiString>
+  ),
+
+  labelKeyboardSpaceBar: () => (
+    <UiString uiStringKey="labelKeyboardSpaceBar">space</UiString>
+  ),
+
   labelNumBallotContests: () => (
     <UiString uiStringKey="labelNumBallotContests">
       Number of contests on your ballot:
@@ -401,6 +429,58 @@ export const appStrings = {
   labelWriteInParenthesized: () => (
     <UiString uiStringKey="labelWriteInParenthesized">(write-in)</UiString>
   ),
+
+  letterA: () => <UiString uiStringKey="letterA">A</UiString>,
+
+  letterB: () => <UiString uiStringKey="letterB">B</UiString>,
+
+  letterC: () => <UiString uiStringKey="letterC">C</UiString>,
+
+  letterD: () => <UiString uiStringKey="letterD">D</UiString>,
+
+  letterE: () => <UiString uiStringKey="letterE">E</UiString>,
+
+  letterF: () => <UiString uiStringKey="letterF">F</UiString>,
+
+  letterG: () => <UiString uiStringKey="letterG">G</UiString>,
+
+  letterH: () => <UiString uiStringKey="letterH">H</UiString>,
+
+  letterI: () => <UiString uiStringKey="letterI">I</UiString>,
+
+  letterJ: () => <UiString uiStringKey="letterJ">J</UiString>,
+
+  letterK: () => <UiString uiStringKey="letterK">K</UiString>,
+
+  letterL: () => <UiString uiStringKey="letterL">L</UiString>,
+
+  letterM: () => <UiString uiStringKey="letterM">M</UiString>,
+
+  letterN: () => <UiString uiStringKey="letterN">N</UiString>,
+
+  letterO: () => <UiString uiStringKey="letterO">O</UiString>,
+
+  letterP: () => <UiString uiStringKey="letterP">P</UiString>,
+
+  letterQ: () => <UiString uiStringKey="letterQ">Q</UiString>,
+
+  letterR: () => <UiString uiStringKey="letterR">R</UiString>,
+
+  letterS: () => <UiString uiStringKey="letterS">S</UiString>,
+
+  letterT: () => <UiString uiStringKey="letterT">T</UiString>,
+
+  letterU: () => <UiString uiStringKey="letterU">U</UiString>,
+
+  letterV: () => <UiString uiStringKey="letterV">V</UiString>,
+
+  letterW: () => <UiString uiStringKey="letterW">W</UiString>,
+
+  letterX: () => <UiString uiStringKey="letterX">X</UiString>,
+
+  letterY: () => <UiString uiStringKey="letterY">Y</UiString>,
+
+  letterZ: () => <UiString uiStringKey="letterZ">Z</UiString>,
 
   noteAskPollWorkerForHelp: () => (
     <UiString uiStringKey="noteAskPollWorkerForHelp">

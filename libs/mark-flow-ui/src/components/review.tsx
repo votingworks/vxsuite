@@ -17,11 +17,11 @@ import {
   Icons,
   VoterContestSummary,
   Button,
-  AudioOnly,
   appStrings,
   CandidatePartyList,
   electionStrings,
   NumberString,
+  WithAltAudio,
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
@@ -212,16 +212,12 @@ export function Review({
               selectionsAreEditable && (
                 <Button tabIndex={-1} onPress={() => onChangeClick(contest.id)}>
                   <Caption>
-                    {/*
-                     * TODO(kofi): Add a <NoAudio> wrapper component for
-                     * display-only strings that shouldn't be read out loud by
-                     * the speech engine.
-                     */}
-                    <Icons.Edit /> {appStrings.buttonChange()}
+                    <WithAltAudio
+                      audioText={appStrings.buttonBmdReviewCardAction()}
+                    >
+                      <Icons.Edit /> {appStrings.buttonChange()}
+                    </WithAltAudio>
                   </Caption>
-                  <AudioOnly>
-                    {appStrings.buttonBmdReviewCardAction()}
-                  </AudioOnly>
                 </Button>
               )
             }

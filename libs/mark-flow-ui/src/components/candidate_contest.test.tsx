@@ -7,10 +7,46 @@ import {
   advanceTimers,
   advanceTimersAndPromises,
   hasTextAcrossElements,
+  mockOf,
 } from '@votingworks/test-utils';
+import { VirtualKeyboard, VirtualKeyboardProps } from '@votingworks/ui';
 import { screen, within, render } from '../../test/react_testing_library';
 import { CandidateContest } from './candidate_contest';
 import { VoteUpdateInteractionMethod } from '../config/types';
+
+jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
+  ...jest.requireActual('@votingworks/ui'),
+  VirtualKeyboard: jest.fn(),
+}));
+
+function setUpMockVirtualKeyboard() {
+  let checkIsKeyDisabled: (key: string) => boolean;
+  let fireBackspaceEvent: () => void;
+  let fireKeyPressEvent: (key: string) => void;
+
+  mockOf(VirtualKeyboard)
+    .mockReset()
+    .mockImplementation((props: VirtualKeyboardProps) => {
+      const { keyDisabled, onBackspace, onKeyPress } = props;
+
+      checkIsKeyDisabled = keyDisabled;
+      fireBackspaceEvent = onBackspace;
+      fireKeyPressEvent = onKeyPress;
+
+      return <div data-testid="MockVirtualKeyboard" />;
+    });
+
+  return {
+    checkIsKeyDisabled: (key: string) => checkIsKeyDisabled(key),
+    fireBackspaceEvent: () => act(() => fireBackspaceEvent()),
+    fireKeyPressEvents: (chars: string) =>
+      act(() => {
+        for (const char of chars) {
+          fireKeyPressEvent(char);
+        }
+      }),
+  };
+}
 
 const electionDefinition = electionGeneralDefinition;
 
@@ -31,6 +67,7 @@ const candidateContestWithWriteIns = electionDefinition.election.contests.find(
 
 beforeEach(() => {
   jest.useFakeTimers();
+  setUpMockVirtualKeyboard();
 });
 
 test('shows up-to-date vote counter - single-seat contest', () => {
@@ -251,14 +288,10 @@ describe('supports multi-seat contests', () => {
 });
 
 describe('supports write-in candidates', () => {
-  function typeKeysInVirtualKeyboard(chars: string): void {
-    for (const i of chars) {
-      const key = i === ' ' ? 'space' : i;
-      userEvent.click(screen.getByText(key).closest('button')!);
-    }
-  }
-
   test('updates votes when a write-in candidate is selected', () => {
+    const { fireBackspaceEvent, fireKeyPressEvents } =
+      setUpMockVirtualKeyboard();
+
     const updateVote = jest.fn();
     render(
       <CandidateContest
@@ -280,10 +313,10 @@ describe('supports write-in candidates', () => {
     modal.getByText(hasTextAcrossElements(/characters remaining: 40/i));
 
     // type LIZARD PEOPLE, then backspace to remove the E, then add it back
-    typeKeysInVirtualKeyboard('LIZARD PEOPLE');
-    userEvent.click(modal.getByText(/delete/i).closest('button')!);
+    fireKeyPressEvents('LIZARD PEOPLE');
+    fireBackspaceEvent();
     modal.getByText(hasTextAcrossElements(/characters remaining: 28/i));
-    typeKeysInVirtualKeyboard('E');
+    fireKeyPressEvents('E');
     modal.getByText(hasTextAcrossElements(/characters remaining: 27/i));
 
     userEvent.click(modal.getByText('Accept'));
@@ -330,6 +363,8 @@ describe('supports write-in candidates', () => {
   });
 
   test('displays warning if write-in candidate name is too long', () => {
+    const { fireKeyPressEvents } = setUpMockVirtualKeyboard();
+
     const updateVote = jest.fn();
     render(
       <CandidateContest
@@ -348,7 +383,7 @@ describe('supports write-in candidates', () => {
     modal.getByRole('heading', {
       name: `Write-In: ${candidateContestWithWriteIns.title}`,
     });
-    typeKeysInVirtualKeyboard('JACOB JOHANSON JINGLEHEIMMER SCHMIDTT');
+    fireKeyPressEvents('JACOB JOHANSON JINGLEHEIMMER SCHMIDTT');
     modal.getByText(hasTextAcrossElements(/characters remaining: 3/i));
     userEvent.click(modal.getByText('Cancel'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
@@ -385,6 +420,9 @@ describe('supports write-in candidates', () => {
   });
 
   test('prevents writing more than the allowed number of characters', () => {
+    const { checkIsKeyDisabled, fireKeyPressEvents } =
+      setUpMockVirtualKeyboard();
+
     const updateVote = jest.fn();
     render(
       <CandidateContest
@@ -405,12 +443,10 @@ describe('supports write-in candidates', () => {
     });
     const writeInCandidate =
       "JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, THAT'S MY NAME TOO";
-    typeKeysInVirtualKeyboard(writeInCandidate);
+    fireKeyPressEvents(writeInCandidate);
     modal.getByText(hasTextAcrossElements(/characters remaining: 0/i));
 
-    expect(
-      modal.getByText('space').closest('button')!.hasAttribute('disabled')
-    ).toEqual(true);
+    expect(checkIsKeyDisabled(' ')).toEqual(true);
     userEvent.click(modal.getByText('Accept'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 

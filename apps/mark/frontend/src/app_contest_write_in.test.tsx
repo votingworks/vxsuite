@@ -1,14 +1,15 @@
-import { expectPrint } from '@votingworks/test-utils';
+import { expectPrint, mockOf } from '@votingworks/test-utils';
 import { ALL_PRECINCTS_SELECTION, MemoryHardware } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-  within,
-} from '../test/react_testing_library';
+  ContestPage,
+  ContestPageProps,
+  VoteUpdateInteractionMethod,
+} from '@votingworks/mark-flow-ui';
+import { ContestId, OptionalVote, VotesDict } from '@votingworks/types';
+import { useHistory } from 'react-router-dom';
+import { act, fireEvent, render, screen } from '../test/react_testing_library';
 import { App } from './app';
 
 import {
@@ -21,20 +22,46 @@ import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
 
-/**
- * HACK: The modal library we're using applies an `aria-hidden` attribute
- * to the root element when a modal is open and removes it when the modal
- * is closed, but this isn't happening in the jest environment, for some
- * reason. Works as expected in production.
- * We're removing the attribute here to make sure our getByRole queries work
- * properly.
- */
-async function hackActuallyCleanUpReactModal() {
-  await waitFor(() => {
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-  });
+jest.mock(
+  '@votingworks/mark-flow-ui',
+  (): typeof import('@votingworks/mark-flow-ui') => ({
+    ...jest.requireActual('@votingworks/mark-flow-ui'),
+    ContestPage: jest.fn(),
+  })
+);
 
-  window.document.body.firstElementChild?.removeAttribute('aria-hidden');
+/**
+ * Mocks the mark-flow-ui {@link ContestPage} to avoid re-testing the write-in
+ * modal, which is already covered in mark-flow-ui.
+ * This allows us to just test the glue code for handling write-in vote updates.
+ */
+function setUpMockContestPage() {
+  let fireUpdateVoteEvent: ContestPageProps['updateVote'];
+  let routerHistory: ReturnType<typeof useHistory>;
+  let latestVotes: VotesDict;
+
+  mockOf(ContestPage)
+    .mockReset()
+    .mockImplementation((props: ContestPageProps) => {
+      const { updateVote, votes } = props;
+      routerHistory = useHistory();
+
+      fireUpdateVoteEvent = updateVote;
+      latestVotes = votes;
+
+      return <div data-testid="MockMarkFlowUiContestPage" />;
+    });
+
+  return {
+    fireUpdateVoteEvent: (contestId: ContestId, vote: OptionalVote) =>
+      act(() =>
+        fireUpdateVoteEvent(contestId, vote, VoteUpdateInteractionMethod.Touch)
+      ),
+    getLatestVotes: () => latestVotes,
+    goToReviewPage: () => {
+      routerHistory.location.pathname = '/review';
+    },
+  };
 }
 
 beforeEach(() => {
@@ -42,6 +69,7 @@ beforeEach(() => {
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
+  setUpMockContestPage();
 });
 
 afterEach(() => {
@@ -60,6 +88,9 @@ it('Single Seat Contest with Write In', async () => {
     isTestMode: false,
   });
 
+  const { fireUpdateVoteEvent, getLatestVotes, goToReviewPage } =
+    setUpMockContestPage();
+
   render(
     <App
       hardware={hardware}
@@ -68,10 +99,6 @@ it('Single Seat Contest with Write In', async () => {
     />
   );
   await advanceTimersAndPromises();
-
-  function getWithinKeyboard(text: string) {
-    return within(screen.getByTestId('virtual-keyboard')).getByText(text);
-  }
 
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
@@ -85,74 +112,30 @@ it('Single Seat Contest with Write In', async () => {
 
   // ====================== END CONTEST SETUP ====================== //
 
-  // Advance to Single-Seat Contest with Write-In
-  while (!screen.queryByText(singleSeatContestWithWriteIn.title)) {
-    fireEvent.click(screen.getByText('Next'));
-    advanceTimers();
-  }
-
-  // Test Write-In Candidate Modal Cancel
-  fireEvent.click(
-    screen.getByText('add write-in candidate').closest('button')!
-  );
-  fireEvent.click(screen.getByText('Cancel'));
-
-  // Add Write-In Candidate
-  fireEvent.click(
-    screen.getByText('add write-in candidate').closest('button')!
-  );
-  screen.getByRole('heading', {
-    name: `Write-In: ${singleSeatContestWithWriteIn.title}`,
+  // Verify write-in votes are round-tripped to/from mark-flow-ui ContestPage
+  fireUpdateVoteEvent(singleSeatContestWithWriteIn.id, [
+    { id: 'write-in', name: 'BOB', isWriteIn: true, writeInIndex: 0 },
+  ]);
+  expect(getLatestVotes()).toEqual({
+    [singleSeatContestWithWriteIn.id]: [
+      { id: 'write-in', name: 'BOB', isWriteIn: true, writeInIndex: 0 },
+    ],
   });
 
-  // Enter Write-in Candidate Name
-  fireEvent.click(getWithinKeyboard('B'));
-  fireEvent.click(getWithinKeyboard('O'));
-  fireEvent.click(getWithinKeyboard('V'));
-  fireEvent.click(getWithinKeyboard('delete'));
-  fireEvent.click(getWithinKeyboard('B'));
-  fireEvent.click(screen.getByText('Accept'));
-  advanceTimers();
+  fireUpdateVoteEvent(singleSeatContestWithWriteIn.id, []);
+  expect(getLatestVotes()).toEqual({ [singleSeatContestWithWriteIn.id]: [] });
 
-  // Remove Write-In Candidate
-  fireEvent.click(screen.getByText('BOB').closest('button')!);
-  fireEvent.click(screen.getButton('Yes'));
-  advanceTimers();
-
-  // Add Different Write-In Candidate
-  fireEvent.click(
-    screen.getByText('add write-in candidate').closest('button')!
-  );
-  fireEvent.click(getWithinKeyboard('S').closest('button')!);
-  fireEvent.click(getWithinKeyboard('A').closest('button')!);
-  fireEvent.click(getWithinKeyboard('L').closest('button')!);
-  fireEvent.click(screen.getByText('Accept'));
-
-  await hackActuallyCleanUpReactModal();
-
-  screen.getByRole('option', { name: /SAL/, selected: true });
-
-  // Try to Select Other Candidate when max candidates are selected.
-  fireEvent.click(
-    screen
-      .getByText(singleSeatContestWithWriteIn.candidates[0].name)
-      .closest('button')!
-  );
-  within(screen.getByRole('alertdialog')).getByText(/you must first deselect/i);
-  fireEvent.click(screen.getByText('Okay'));
-
-  // Try to add another write-in when max candidates are selected.
-  fireEvent.click(
-    screen.getByText('add write-in candidate').closest('button')!
-  );
-  within(screen.getByRole('alertdialog')).getByText(/you must first deselect/i);
-  fireEvent.click(screen.getByText('Okay'));
+  fireUpdateVoteEvent(singleSeatContestWithWriteIn.id, [
+    { id: 'write-in', name: 'SAL', isWriteIn: true, writeInIndex: 0 },
+  ]);
+  expect(getLatestVotes()).toEqual({
+    [singleSeatContestWithWriteIn.id]: [
+      { id: 'write-in', name: 'SAL', isWriteIn: true, writeInIndex: 0 },
+    ],
+  });
 
   // Go to review page and confirm write in exists
-  while (!screen.queryByText('Review Your Votes')) {
-    fireEvent.click(screen.getByText('Next'));
-    advanceTimers();
-  }
+  act(() => goToReviewPage());
 
   // Review Screen
   await screen.findByText('Review Your Votes');
