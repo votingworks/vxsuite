@@ -64,10 +64,12 @@ export async function configureApp(
     electionPackage = electionFamousNames2021Fixtures.electionJson.toElectionPackage(),
     precinctId,
     testMode = false,
+    openPolls = true,
   }: {
     electionPackage?: ElectionPackage;
     precinctId?: PrecinctId;
     testMode?: boolean;
+    openPolls?: boolean;
   } = {}
 ): Promise<void> {
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
@@ -92,10 +94,12 @@ export async function configureApp(
       : ALL_PRECINCTS_SELECTION,
   });
   await apiClient.setTestMode({ isTestMode: testMode });
-  await apiClient.transitionPolls({
-    type: 'open_polls',
-    time: Date.now(),
-  });
+  if (openPolls) {
+    await apiClient.transitionPolls({
+      type: 'open_polls',
+      time: Date.now(),
+    });
+  }
 
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({

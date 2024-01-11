@@ -38,10 +38,8 @@ const BALLOT_TYPE_TO_VOTING_METHOD: Record<
 
 export async function getScannerResults({
   store,
-  splitByParty,
 }: {
   store: Store;
-  splitByParty: boolean;
 }): Promise<Tabulation.GroupList<Tabulation.ElectionResults>> {
   const electionDefinition = store.getElectionDefinition();
   assert(electionDefinition);
@@ -109,10 +107,7 @@ export async function getScannerResults({
   return groupMapToGroupList(
     await tabulateCastVoteRecords({
       election,
-      groupBy:
-        election.type === 'primary' && splitByParty
-          ? { groupByParty: true }
-          : undefined,
+      groupBy: election.type === 'primary' ? { groupByParty: true } : undefined,
       cvrs,
     })
   );

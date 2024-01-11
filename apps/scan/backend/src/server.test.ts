@@ -37,13 +37,14 @@ test('start passes the state machine and workspace to `buildApp`', async () => {
     workspace,
   });
 
-  expect(buildAppMock).toHaveBeenCalledWith(
-    expect.anything(), // auth
-    precinctScannerStateMachine,
+  expect(buildAppMock).toHaveBeenCalledWith({
+    auth: expect.anything(),
+    machine: precinctScannerStateMachine,
     workspace,
-    expect.anything(), // usb
-    logger
-  );
+    usbDrive: expect.anything(),
+    printer: expect.anything(),
+    logger,
+  });
   expect(listen).toHaveBeenNthCalledWith(1, PORT, expect.any(Function));
 
   const callback = listen.mock.calls[0][1];
@@ -74,13 +75,14 @@ test('start uses its own logger if none is provided', async () => {
     workspace,
   });
 
-  expect(buildAppMock).toHaveBeenCalledWith(
-    expect.anything(), // auth
-    precinctScannerStateMachine,
+  expect(buildAppMock).toHaveBeenCalledWith({
+    auth: expect.anything(),
+    machine: precinctScannerStateMachine,
     workspace,
-    expect.anything(), // usb
-    expect.any(Logger)
-  );
+    usbDrive: expect.anything(),
+    printer: expect.anything(),
+    logger: expect.anything(),
+  });
   expect(listen).toHaveBeenNthCalledWith(1, PORT, expect.any(Function));
 
   const callback = listen.mock.calls[0][1];

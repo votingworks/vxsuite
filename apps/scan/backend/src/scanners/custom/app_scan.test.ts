@@ -7,15 +7,11 @@ import {
 } from '@votingworks/types';
 import waitForExpect from 'wait-for-expect';
 import { assertDefined, err, ok, sleep, typedAs } from '@votingworks/basics';
-import {
-  electionFamousNames2021Fixtures,
-  electionGridLayoutNewHampshireTestBallotFixtures,
-} from '@votingworks/fixtures';
+import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { Logger } from '@votingworks/logging';
 import { ErrorCode, ScannerStatus, mocks } from '@votingworks/custom-scanner';
 import {
   BooleanEnvironmentVariableName,
-  getEmptyElectionResults,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
@@ -138,14 +134,6 @@ test('configure and scan hmpb', async () => {
       // Test waiting for automatic transition back to no_paper
       await waitForStatus(apiClient, { state: 'no_paper', ballotsCounted: 1 });
 
-      // Check the ballot appears in the results
-      const results = await apiClient.getScannerResultsByParty();
-      expect(results).toHaveLength(1);
-      expect(results[0].cardCounts).toEqual({
-        bmd: 0,
-        hmpb: [1],
-      });
-
       checkLogs(logger);
     }
   );
@@ -183,14 +171,6 @@ test('configure and scan bmd ballot', async () => {
         state: 'accepted',
         interpretation,
         ballotsCounted: 1,
-      });
-
-      // Check the ballot appears in the results
-      const results = await apiClient.getScannerResultsByParty();
-      expect(results).toHaveLength(1);
-      expect(results[0].cardCounts).toEqual({
-        bmd: 1,
-        hmpb: [],
       });
 
       checkLogs(logger);
@@ -251,15 +231,6 @@ test('ballot needs review - return', async () => {
         state: 'no_paper',
       });
 
-      // Check the results
-      const results = await apiClient.getScannerResultsByParty();
-      expect(results).toHaveLength(1);
-      expect(results[0]).toEqual(
-        getEmptyElectionResults(
-          electionGridLayoutNewHampshireTestBallotFixtures.election
-        )
-      );
-
       // Make sure the ballot was still recorded in the db for backup purposes
       expect(Array.from(workspace.store.forEachSheet())).toHaveLength(1);
 
@@ -302,13 +273,6 @@ test('invalid ballot rejected', async () => {
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_NO_PAPER));
       await waitForStatus(apiClient, { state: 'no_paper' });
-
-      // Check the results
-      const results = await apiClient.getScannerResultsByParty();
-      expect(results).toHaveLength(1);
-      expect(results[0]).toEqual(
-        getEmptyElectionResults(electionFamousNames2021Fixtures.election)
-      );
 
       // Make sure the ballot was still recorded in the db for backup purposes
       expect(Array.from(workspace.store.forEachSheet())).toHaveLength(1);
