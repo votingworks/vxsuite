@@ -1,4 +1,5 @@
 import { resolve } from 'path';
+import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { WORKSPACE } from './globals';
 import * as server from './server';
 import { createWorkspace } from './workspace';
@@ -16,6 +17,8 @@ export type { Api } from './app';
 // Frontend tests import these for generating test data
 export { generateBallotStyles } from './store';
 export { createBlankElection, convertVxfPrecincts } from './app';
+
+loadEnvVarsFromDotenvFiles();
 
 function main(): Promise<number> {
   if (!WORKSPACE) {

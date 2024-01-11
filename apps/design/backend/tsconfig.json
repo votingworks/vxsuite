@@ -18,6 +18,7 @@
     "noUncheckedIndexedAccess": false
   },
   "references": [
+    { "path": "../../../libs/backend/tsconfig.build.json" },
     { "path": "../../../libs/basics/tsconfig.build.json" },
     { "path": "../../../libs/ballot-interpreter/tsconfig.build.json" },
     { "path": "../../../libs/db/tsconfig.build.json" },
