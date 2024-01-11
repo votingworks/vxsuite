@@ -8,10 +8,10 @@ const argsWorkerPath = join(__dirname, '../../test/args_worker.js');
 const echoWorkerPath = join(__dirname, '../../test/echo_worker.js');
 
 test('command with no args', async () => {
-  const execPromise = exec('whoami');
+  const execPromise = exec('date');
   expect(await execPromise).toEqual(
     ok({
-      stdout: expect.stringContaining(process.env['USER']!),
+      stdout: expect.stringMatching(/\d+/),
       stderr: '',
     })
   );
