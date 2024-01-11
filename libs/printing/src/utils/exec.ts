@@ -1,6 +1,8 @@
+import { Result, err, ok } from '@votingworks/basics';
+import { Buffer } from 'buffer';
 import { spawn } from 'child_process';
 import makeDebug from 'debug';
-import { Buffer } from 'buffer';
+import { Readable } from 'stream';
 
 const debug = makeDebug('kiosk-browser:exec');
 
@@ -57,8 +59,13 @@ export async function exec(
   file: string,
   // eslint-disable-next-line default-param-last
   args: readonly string[] = [],
-  stdin?: string | Buffer
-): Promise<{ stdout: string; stderr: string }> {
+  stdin?:
+    | string
+    | Buffer
+    | NodeJS.ReadableStream
+    | Iterable<Buffer | string>
+    | AsyncIterable<Buffer | string>
+): Promise<Result<{ stdout: string; stderr: string }, ExecError>> {
   const child = spawn(file, args);
   let stdout = '';
   let stderr = '';
@@ -81,11 +88,10 @@ export async function exec(
 
   if (stdin) {
     debug('stdin passed to exec, feeding it in now.');
-    child.stdin.write(stdin);
-    child.stdin.end();
+    Readable.from(stdin).pipe(child.stdin);
   }
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     child.on('close', (code, signal) => {
       debug(
         'process %d exited with code=%d, signal=%s (command=%s args=%o)',
@@ -96,19 +102,19 @@ export async function exec(
         args
       );
 
-      if (code === 0) {
-        resolve({ stdout, stderr });
-      } else {
-        reject(
-          makeExecError({
-            code: /* istanbul ignore next */ code ?? 1,
-            signal,
-            stdout,
-            stderr,
-            cmd: `${file} ${args.join(' ')}`,
-          })
-        );
-      }
+      resolve(
+        code === 0
+          ? ok({ stdout, stderr })
+          : err(
+              makeExecError({
+                code: /* istanbul ignore next */ code ?? 1,
+                signal,
+                stdout,
+                stderr,
+                cmd: `${file} ${args.join(' ')}`,
+              })
+            )
+      );
     });
   });
 }

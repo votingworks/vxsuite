@@ -1,7 +1,8 @@
+import { ok } from '@votingworks/basics';
 import { mockOf } from '@votingworks/test-utils';
+import { BROTHER_THERMAL_PRINTER_CONFIG, getPpdPath } from '.';
 import { exec } from '../utils/exec';
 import { DEFAULT_MANAGED_PRINTER_NAME, configurePrinter } from './configure';
-import { BROTHER_THERMAL_PRINTER_CONFIG, getPpdPath } from '.';
 
 jest.mock('../utils/exec');
 
@@ -14,10 +15,12 @@ beforeEach(() => {
 });
 
 test('calls lpadmin with expected args', async () => {
-  execMock.mockResolvedValueOnce({
-    stdout: '',
-    stderr: '',
-  });
+  execMock.mockResolvedValueOnce(
+    ok({
+      stdout: '',
+      stderr: '',
+    })
+  );
 
   const uri = 'usb://Make/Model';
   const config = BROTHER_THERMAL_PRINTER_CONFIG;

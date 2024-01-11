@@ -17,7 +17,7 @@ async function printStatus(printer: Printer, stdout: NodeJS.WriteStream) {
   }
 }
 
-async function watchPrinter(printer: Printer): Promise<void> {
+async function watchPrinter(printer: Printer): Promise<never> {
   const { stdout } = process;
   for (;;) {
     await printStatus(printer, stdout);

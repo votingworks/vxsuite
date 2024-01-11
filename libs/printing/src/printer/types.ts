@@ -44,7 +44,13 @@ export interface PrintOptions {
   raw?: { [key: string]: string };
 }
 
-export type PrintProps = PrintOptions & { data: Buffer };
+export type PrintProps = PrintOptions & {
+  data:
+    | Buffer
+    | NodeJS.ReadableStream
+    | Iterable<Buffer>
+    | AsyncIterable<Buffer>;
+};
 
 export type PrintFunction = (props: PrintProps) => Promise<void>;
 

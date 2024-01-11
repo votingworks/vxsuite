@@ -4858,9 +4858,6 @@ importers:
       '@types/jest-image-snapshot':
         specifier: ^6.4.0
         version: 6.4.0
-      '@types/memorystream':
-        specifier: ^0.3.4
-        version: 0.3.4
       '@types/node':
         specifier: 16.18.23
         version: 16.18.23
@@ -4906,9 +4903,6 @@ importers:
       lint-staged:
         specifier: 11.0.0
         version: 11.0.0
-      memorystream:
-        specifier: ^0.3.1
-        version: 0.3.1
       sort-package-json:
         specifier: ^1.50.0
         version: 1.50.0
@@ -11161,12 +11155,6 @@ packages:
 
   /@types/mdx@2.0.3:
     resolution: {integrity: sha512-IgHxcT3RC8LzFLhKwP3gbMPeaK7BM9eBH46OdapPA7yvuIUJ8H6zHZV53J8hGZcTSnt95jANt+rTBNUUc22ACQ==}
-    dev: true
-
-  /@types/memorystream@0.3.4:
-    resolution: {integrity: sha512-AVVe8unTnhTecg9GmRVddQFvi5K7+QcvLTfUstT+5dhQ633+JX4bK/sKaHTj8Z5RUOoVNS6u1gfby29ArDj4Gw==}
-    dependencies:
-      '@types/node': 16.18.23
     dev: true
 
   /@types/micromatch@4.0.2:
@@ -18371,11 +18359,6 @@ packages:
     resolution: {integrity: sha512-qVQ/CjkMyMInPaaRMrwWNDvf6boRZXaT/DbQeMYcCWuXPEBf1v8qChOc9OlEVQp2uOvRXa1Qu30fLmKhY6NipA==}
     dependencies:
       readable-stream: 1.0.34
-    dev: true
-
-  /memorystream@0.3.1:
-    resolution: {integrity: sha512-S3UwM3yj5mtUSEfP41UZmt/0SCoVYUcU1rkXv+BQ5Ig8ndL4sPoJNBUJERafdPb5jjHJGuMgytgKvKIf58XNBw==}
-    engines: {node: '>= 0.10.0'}
     dev: true
 
   /meow@10.1.5:

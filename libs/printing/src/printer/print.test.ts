@@ -1,8 +1,9 @@
+import { ok } from '@votingworks/basics';
 import { mockOf } from '@votingworks/test-utils';
 import { Buffer } from 'buffer';
 import { exec } from '../utils/exec';
-import { print } from './print';
 import { DEFAULT_MANAGED_PRINTER_NAME } from './configure';
+import { print } from './print';
 import { PrintSides } from './types';
 
 jest.mock('../utils/exec');
@@ -16,7 +17,7 @@ beforeEach(() => {
 });
 
 test('prints with defaults', async () => {
-  execMock.mockResolvedValueOnce({ stdout: '', stderr: '' });
+  execMock.mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
 
   await print({ data: Buffer.of() });
 
@@ -28,7 +29,7 @@ test('prints with defaults', async () => {
 });
 
 test('allows specifying other sided-ness', async () => {
-  execMock.mockResolvedValueOnce({ stdout: '', stderr: '' });
+  execMock.mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
 
   await print({ data: Buffer.of(), sides: PrintSides.OneSided });
 
@@ -40,7 +41,7 @@ test('allows specifying other sided-ness', async () => {
 });
 
 test('prints a specified number of copies', async () => {
-  execMock.mockResolvedValueOnce({ stdout: '', stderr: '' });
+  execMock.mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
 
   await print({ data: Buffer.of(), copies: 3 });
 
@@ -59,7 +60,7 @@ test('prints a specified number of copies', async () => {
 });
 
 test('passes through raw options', async () => {
-  execMock.mockResolvedValueOnce({ stdout: '', stderr: '' });
+  execMock.mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
 
   await print({ data: Buffer.of(), raw: { 'fit-to-page': 'true' } });
 
@@ -78,7 +79,7 @@ test('passes through raw options', async () => {
 });
 
 test('rejects invalid raw options', async () => {
-  execMock.mockResolvedValueOnce({ stdout: '', stderr: '' });
+  execMock.mockResolvedValueOnce(ok({ stdout: '', stderr: '' }));
 
   await expect(
     print({ data: Buffer.of(), raw: { 'fit to page': 'true' } })
