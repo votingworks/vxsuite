@@ -1,3 +1,4 @@
+import { ok } from '@votingworks/basics';
 import { mockOf } from '@votingworks/test-utils';
 import { exec } from '../utils/exec';
 import { getConnectedDeviceUris } from './device_uri';
@@ -23,37 +24,38 @@ const LPINFO_EXAMPLE_OUTPUT_MULTIPLE_PRINTERS = `${[
   'direct usb://HP/LaserJet%20Pro%20M404-M405?serial=PHBBJ08819',
 ].join('\n')}\n`;
 
-test('calls lpinfo and parses output', async () => {
-  const testCases: Array<{ stdout: string; expected: string[] }> = [
-    {
-      stdout: LPINFO_EXAMPLE_OUTPUT_NO_PRINTERS,
-      expected: [],
-    },
-    {
-      stdout: LPINFO_EXAMPLE_OUTPUT_SINGLE_PRINTER,
-      expected: ['usb://Brother/PJ-822?serial=000K2G613155'],
-    },
-    {
-      stdout: LPINFO_EXAMPLE_OUTPUT_MULTIPLE_PRINTERS,
-      expected: [
-        'usb://Brother/PJ-822?serial=000K2G613155',
-        'usb://HP/LaserJet%20Pro%20M404-M405?serial=PHBBJ08819',
-      ],
-    },
-  ];
-
-  for (const { stdout, expected } of testCases) {
-    execMock.mockResolvedValueOnce({
+test.each([
+  {
+    name: 'no printers',
+    stdout: LPINFO_EXAMPLE_OUTPUT_NO_PRINTERS,
+    expected: [],
+  },
+  {
+    name: 'single printer',
+    stdout: LPINFO_EXAMPLE_OUTPUT_SINGLE_PRINTER,
+    expected: ['usb://Brother/PJ-822?serial=000K2G613155'],
+  },
+  {
+    name: 'multiple printers',
+    stdout: LPINFO_EXAMPLE_OUTPUT_MULTIPLE_PRINTERS,
+    expected: [
+      'usb://Brother/PJ-822?serial=000K2G613155',
+      'usb://HP/LaserJet%20Pro%20M404-M405?serial=PHBBJ08819',
+    ],
+  },
+])('$name: calls lpinfo and parses output', async ({ stdout, expected }) => {
+  execMock.mockResolvedValueOnce(
+    ok({
       stdout,
       stderr: '',
-    });
+    })
+  );
 
-    expect(await getConnectedDeviceUris()).toEqual(expected);
+  expect(await getConnectedDeviceUris()).toEqual(expected);
 
-    expect(execMock).toHaveBeenCalledWith('lpinfo', [
-      '--include-schemes',
-      'usb',
-      '-v',
-    ]);
-  }
+  expect(execMock).toHaveBeenCalledWith('lpinfo', [
+    '--include-schemes',
+    'usb',
+    '-v',
+  ]);
 });

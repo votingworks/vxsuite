@@ -28,5 +28,5 @@ export async function configurePrinter({
   ];
 
   debug('configuring printer with lpadmin: args=%o', lpadminConfigureArgs);
-  await exec('lpadmin', lpadminConfigureArgs);
+  (await exec('lpadmin', lpadminConfigureArgs)).unsafeUnwrap();
 }

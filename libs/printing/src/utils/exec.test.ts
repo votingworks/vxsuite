@@ -1,134 +1,82 @@
-import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
-import { EventEmitter } from 'events';
-import MemoryStream from 'memorystream';
 import { Buffer } from 'buffer';
-import { mockOf } from '@votingworks/test-utils';
+import { join } from 'path';
+import { Readable } from 'stream';
+import { err, iter, ok, sleep } from '@votingworks/basics';
 import { exec } from './exec';
 
-jest.mock('child_process');
-
-type FakeChildProcess = ChildProcessWithoutNullStreams & {
-  endStdout(data?: string | Buffer): Promise<void>;
-  endStderr(data?: string | Buffer): Promise<void>;
-};
-
-function fakeChildProcess(stdinData?: string | Buffer): FakeChildProcess {
-  const result = new EventEmitter() as FakeChildProcess;
-  const stdin = new MemoryStream(stdinData);
-  const stdout = new MemoryStream();
-  const stderr = new MemoryStream();
-
-  Object.defineProperties(result, {
-    stdin: {
-      value: stdin,
-    },
-
-    stdout: {
-      value: stdout,
-    },
-
-    stderr: {
-      value: stderr,
-    },
-
-    endStdout: {
-      value: async (data?: string | Buffer): Promise<void> =>
-        new Promise((resolve) => {
-          stdout.end(data, () => {
-            resolve();
-          });
-        }),
-    },
-
-    endStderr: {
-      value: async (data?: string | Buffer): Promise<void> =>
-        new Promise((resolve) => {
-          stderr.end(data, () => {
-            resolve();
-          });
-        }),
-    },
-  });
-
-  return result;
-}
+const argsWorkerPath = join(__dirname, '../../test/args_worker.js');
+const echoWorkerPath = join(__dirname, '../../test/echo_worker.js');
 
 test('command with no args', async () => {
-  // Set up child process.
-  const child = fakeChildProcess();
-  mockOf(spawn).mockReturnValueOnce(child);
-
-  // Start and finish child process.
-  const execPromise = exec('ls');
-  child.emit('close', 0, null);
-
-  // Check the results.
-  expect(await execPromise).toEqual({ stdout: '', stderr: '' });
-  expect(spawn).toHaveBeenCalledWith('ls', []);
+  const execPromise = exec('whoami');
+  expect(await execPromise).toEqual(
+    ok({
+      stdout: expect.stringContaining(process.env['USER']!),
+      stderr: '',
+    })
+  );
 });
 
 test('command with args', async () => {
-  // Set up child process.
-  const child = fakeChildProcess();
-  mockOf(spawn).mockReturnValueOnce(child);
-
-  // Start and finish child process.
-  const execPromise = exec('ls', ['-la']);
-  child.emit('close', 0, null);
-
-  // Check the results.
-  expect(await execPromise).toEqual({ stdout: '', stderr: '' });
-  expect(spawn).toHaveBeenCalledWith('ls', ['-la']);
-});
-
-test('command printing stdout', async () => {
-  // Set up child process.
-  const child = fakeChildProcess();
-  mockOf(spawn).mockReturnValueOnce(child);
-
-  // Start and finish child process.
-  const execPromise = exec('ls', ['-la']);
-  await child.endStdout('README.md\n');
-  child.emit('close', 0, null);
-
-  // Check the results.
-  expect(await execPromise).toEqual({ stdout: 'README.md\n', stderr: '' });
-  expect(spawn).toHaveBeenCalledWith('ls', ['-la']);
+  const execPromise = exec('node', [argsWorkerPath, 'foo', 'bar']);
+  expect(await execPromise).toEqual(
+    ok({ stdout: '["foo","bar"]', stderr: '' })
+  );
 });
 
 test('failed command printing stderr', async () => {
-  // Set up child process.
-  const child = fakeChildProcess();
-  mockOf(spawn).mockReturnValueOnce(child);
-
-  // Start and finish child process.
-  const execPromise = exec('ls', ['-x']);
-  await child.endStderr('unknown option "-x"');
-  child.emit('close', 1, null);
-
-  // Check the results.
-  await expect(execPromise).rejects.toThrowError(
-    expect.objectContaining({
-      stderr: 'unknown option "-x"',
-      code: 1,
-    }) as Error
+  const execPromise = exec('sh', ['-c', 'echo "hello" >&2; exit 1']);
+  expect(await execPromise).toEqual(
+    err(
+      expect.objectContaining({
+        stderr: 'hello\n',
+        code: 1,
+      })
+    )
   );
-  expect(spawn).toHaveBeenCalledWith('ls', ['-x']);
 });
 
-test('command with stdin', async () => {
-  // Set up child process.
-  const child = fakeChildProcess();
-  mockOf(spawn).mockReturnValueOnce(child);
-  child.stdin.write = jest.fn();
-  child.stdin.end = jest.fn();
-
-  // Start and finish child process.
-  const execPromise = exec('lpr', ['-P', 'VxPrinter'], 'foobarbaz to print');
-  child.emit('close', 0, null);
-  await execPromise;
-
-  // Check the results.
-  expect(child.stdin.write).toHaveBeenCalledWith('foobarbaz to print');
-  expect(child.stdin.end).toHaveBeenCalled();
+test.each([
+  {
+    name: 'command with string stdin',
+    stdin: 'foobarbaz to print',
+  },
+  {
+    name: 'command with buffer stdin',
+    stdin: Buffer.from('foobarbaz to print'),
+  },
+  {
+    name: 'command with stream stdin',
+    stdin: Readable.from(
+      (async function* gen() {
+        yield 'foo';
+        yield 'bar';
+        await sleep(1);
+        yield 'baz';
+        yield ' to print';
+      })()
+    ),
+  },
+  {
+    name: 'command with async iterable stdin',
+    stdin: (async function* gen() {
+      yield 'foo';
+      yield 'bar';
+      await sleep(1);
+      yield 'baz';
+      yield ' to print';
+    })(),
+  },
+  {
+    name: 'command with iterable stdin',
+    stdin: iter(['foo', 'bar', 'baz']).chain([' to print']),
+  },
+])('$name', async ({ stdin }) => {
+  const execPromise = exec('node', [echoWorkerPath], stdin);
+  expect(await execPromise).toEqual(
+    ok({
+      stdout: 'foobarbaz to print',
+      stderr: '',
+    })
+  );
 });

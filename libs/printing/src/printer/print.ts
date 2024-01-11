@@ -32,7 +32,8 @@ export async function print({
   }
 
   debug('printing via lpr with args=%o', lprOptions);
-  debug('data length is %d', data.length);
-  const { stdout, stderr } = await exec('lpr', lprOptions, data);
+  const { stdout, stderr } = (
+    await exec('lpr', lprOptions, data)
+  ).unsafeUnwrap();
   debug('`lpr` succeeded with stdout=%s stderr=%s', stdout, stderr);
 }
