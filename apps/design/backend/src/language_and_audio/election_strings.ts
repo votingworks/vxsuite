@@ -7,7 +7,11 @@ import {
   UiStringsPackage,
   YesNoContest,
 } from '@votingworks/types';
-import { format } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  format,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 
 import { GoogleCloudTranslator } from './translator';
 import { setUiString } from './utils';
@@ -235,6 +239,17 @@ export async function extractAndTranslateElectionStrings(
   /** The subset of election strings to be added to the vxElectionStrings.json file */
   vxElectionStrings: UiStringsPackage;
 }> {
+  if (
+    !isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
+    )
+  ) {
+    return {
+      electionStrings: {},
+      vxElectionStrings: {},
+    };
+  }
+
   const untranslatedElectionStrings = extractElectionStrings(election);
   const electionStringsNotToTranslate = untranslatedElectionStrings.filter(
     (electionString) => {

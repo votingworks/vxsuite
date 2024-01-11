@@ -6,6 +6,10 @@ import {
   safeParseJson,
   UiStringsPackage,
 } from '@votingworks/types';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 
 import { GoogleCloudTranslator } from './translator';
 import { setUiString } from './utils';
@@ -13,6 +17,14 @@ import { setUiString } from './utils';
 export async function translateAppStrings(
   translator: GoogleCloudTranslator
 ): Promise<UiStringsPackage> {
+  if (
+    !isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
+    )
+  ) {
+    return {};
+  }
+
   const appStringsCatalogFileContents = await fs.readFile(
     path.join(
       __dirname,

@@ -46,6 +46,8 @@ export enum BooleanEnvironmentVariableName {
   DISABLE_BALLOT_BOX_CHECK = 'REACT_APP_VX_DISABLE_BALLOT_BOX_CHECK',
   // Allows VxMarkScan to run without a connection to the Custom paper handler
   SKIP_PAPER_HANDLER_HARDWARE_CHECK = 'REACT_APP_VX_SKIP_PAPER_HANDLER_HARDWARE_CHECK',
+  // Enables cloud translation and speech synthesis when exporting election packages from VxDesign
+  ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS = 'REACT_APP_VX_ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS',
 }
 
 // This is not fully generic since string variables may want the getter to return a custom type.
@@ -112,6 +114,9 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_DISABLE_BALLOT_BOX_CHECK;
     case BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK:
       return process.env.REACT_APP_VX_SKIP_PAPER_HANDLER_HARDWARE_CHECK;
+    case BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS:
+      return process.env
+        .REACT_APP_VX_ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS;
     /* c8 ignore next 2 */
     default:
       throwIllegalValue(name);
@@ -216,6 +221,12 @@ export function getBooleanEnvVarConfig(
       return {
         name,
         allowInProduction: false,
+        autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS:
+      return {
+        name,
+        allowInProduction: true,
         autoEnableInDevelopment: false,
       };
     /* c8 ignore next 2 */
