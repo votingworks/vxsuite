@@ -13,12 +13,13 @@ import {
 import { PORT } from '../globals';
 import {
   extractAndTranslateElectionStrings,
+  generateAudioIdsAndClips,
   translateAppStrings,
 } from '../language_and_audio';
 import { WorkerContext } from './context';
 
 export async function generateElectionPackage(
-  { translator, workspace }: WorkerContext,
+  { speechSynthesizer, translator, workspace }: WorkerContext,
   { electionId }: { electionId: Id }
 ): Promise<void> {
   const { assetDirectoryPath, store } = workspace;
@@ -57,6 +58,17 @@ export async function generateElectionPackage(
     ElectionPackageFileName.SYSTEM_SETTINGS,
     JSON.stringify(systemSettings, null, 2)
   );
+
+  const { uiStringAudioIds, uiStringAudioClips } = generateAudioIdsAndClips({
+    appStrings,
+    electionStrings,
+    speechSynthesizer,
+  });
+  zip.file(
+    ElectionPackageFileName.AUDIO_IDS,
+    JSON.stringify(uiStringAudioIds, null, 2)
+  );
+  zip.file(ElectionPackageFileName.AUDIO_CLIPS, uiStringAudioClips);
 
   const displayElectionHash = getDisplayElectionHash(electionDefinition);
   const fileName = `election-package-${displayElectionHash}.zip`;
