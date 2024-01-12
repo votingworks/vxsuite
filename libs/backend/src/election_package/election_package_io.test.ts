@@ -231,7 +231,7 @@ test('readElectionPackageFromFile loads UI string audio IDs', async () => {
 
   const pkg = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionData,
-    [ElectionPackageFileName.UI_STRING_AUDIO_IDS]: JSON.stringify(audioIds),
+    [ElectionPackageFileName.AUDIO_IDS]: JSON.stringify(audioIds),
   });
   const file = saveTmpFile(pkg);
 
