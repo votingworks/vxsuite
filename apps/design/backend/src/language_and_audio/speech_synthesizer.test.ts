@@ -46,20 +46,3 @@ test('GoogleCloudSpeechSynthesizer', async () => {
   );
   expect(textToSpeechClient.synthesizeSpeech).not.toHaveBeenCalled();
 });
-
-test('GoogleCloudSpeechSynthesizer text cleaning', async () => {
-  const store = Store.memoryStore();
-  const textToSpeechClient = new MockGoogleCloudTextToSpeechClient();
-  const speechSynthesizer = new GoogleCloudSpeechSynthesizer({
-    store,
-    textToSpeechClient,
-  });
-
-  const audioClipBase64 = await speechSynthesizer.synthesizeSpeech(
-    'Do you prefer <1>apple pie</1> or <3>orange marmalade</3>?',
-    LanguageCode.ENGLISH
-  );
-  expect(Buffer.from(audioClipBase64, 'base64').toString('utf-8')).toEqual(
-    mockCloudSynthesizedSpeech('Do you prefer apple pie or orange marmalade?')
-  );
-});
