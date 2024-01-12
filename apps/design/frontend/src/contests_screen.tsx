@@ -13,7 +13,6 @@ import {
   MainHeader,
   Breadcrumbs,
   Icons,
-  LoadingButton,
 } from '@votingworks/ui';
 import {
   Redirect,
@@ -26,7 +25,6 @@ import {
   AnyContest,
   Candidate,
   CandidateContest,
-  CandidateId,
   ContestId,
   Contests,
   DistrictId,
@@ -50,7 +48,7 @@ import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { TabPanel, TabBar } from './tabs';
 import { getElection, updateElection } from './api';
 import { generateId, reorderElement, replaceAtIndex } from './utils';
-import { ReorderableList, ReorderableTr } from './reorderable_list';
+import { ReorderableTable } from './reorderable_list';
 
 const FILTER_ALL = 'all';
 const FILTER_NONPARTISAN = 'nonpartisan';
@@ -98,9 +96,11 @@ function ContestsTab(): JSX.Element | null {
   );
   const partyIdToName = new Map(parties.map((party) => [party.id, party.name]));
 
-  function onReorderContests(fromIndex: number, toIndex: number) {
-    console.log('reorder', fromIndex, toIndex);
+  function onReorderContests(fromId: string, toId: string) {
     assert(reorderedContests !== undefined);
+    const fromIndex = reorderedContests.findIndex((c) => c.id === fromId);
+    const toIndex = reorderedContests.findIndex((c) => c.id === toId);
+    console.log('reorder', fromId, toId, fromIndex, toIndex);
     setReorderedContests(reorderElement(reorderedContests, fromIndex, toIndex));
   }
 
@@ -207,7 +207,10 @@ function ContestsTab(): JSX.Element | null {
             </P>
           </React.Fragment>
         ) : (
-          <Table>
+          <ReorderableTable
+            disabled={!isReordering}
+            onReorder={onReorderContests}
+          >
             <thead>
               <tr>
                 <TH>Title</TH>
@@ -218,51 +221,36 @@ function ContestsTab(): JSX.Element | null {
               </tr>
             </thead>
             <tbody>
-              <ReorderableList
-                disabled={!isReordering}
-                onReorder={onReorderContests}
-              >
-                {contestsToShow.map((contest) => (
-                  <ReorderableTr key={contest.id}>
-                    <TD>{contest.title}</TD>
-                    <TD>
-                      {contest.type === 'candidate'
-                        ? 'Candidate Contest'
-                        : 'Ballot Measure'}
+              {contestsToShow.map((contest) => (
+                <tr key={contest.id}>
+                  <TD>{contest.title}</TD>
+                  <TD>
+                    {contest.type === 'candidate'
+                      ? 'Candidate Contest'
+                      : 'Ballot Measure'}
+                  </TD>
+                  <TD nowrap>{districtIdToName.get(contest.districtId)}</TD>
+                  {election.type === 'primary' && (
+                    <TD nowrap>
+                      {contest.type === 'candidate' &&
+                        contest.partyId !== undefined &&
+                        partyIdToName.get(contest.partyId)}
                     </TD>
-                    <TD nowrap>{districtIdToName.get(contest.districtId)}</TD>
-                    {election.type === 'primary' && (
-                      <TD nowrap>
-                        {contest.type === 'candidate' &&
-                          contest.partyId !== undefined &&
-                          partyIdToName.get(contest.partyId)}
-                      </TD>
-                    )}
+                  )}
+                  {!isReordering && (
                     <TD nowrap style={{ textAlign: 'right' }}>
-                      {isReordering ? (
-                        <Button
-                          icon="Grip"
-                          fill="transparent"
-                          onPress={() => {
-                            // Just for show
-                          }}
-                        >
-                          &nbsp;
-                        </Button>
-                      ) : (
-                        <LinkButton
-                          icon="Edit"
-                          to={contestRoutes.editContest(contest.id).path}
-                        >
-                          Edit
-                        </LinkButton>
-                      )}
+                      <LinkButton
+                        icon="Edit"
+                        to={contestRoutes.editContest(contest.id).path}
+                      >
+                        Edit
+                      </LinkButton>
                     </TD>
-                  </ReorderableTr>
-                ))}
-              </ReorderableList>
+                  )}
+                </tr>
+              ))}
             </tbody>
-          </Table>
+          </ReorderableTable>
         ))}
     </TabPanel>
   );
