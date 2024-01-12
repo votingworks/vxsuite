@@ -32,7 +32,7 @@ export function createElectionPackageZipArchive(
   }
   if (electionPackage.uiStringAudioIds) {
     jsZip.file(
-      ElectionPackageFileName.UI_STRING_AUDIO_IDS,
+      ElectionPackageFileName.AUDIO_IDS,
       JSON.stringify(electionPackage.uiStringAudioIds, null, 2)
     );
   }

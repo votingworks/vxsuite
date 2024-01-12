@@ -13,18 +13,17 @@ import { UiStringsPackage } from './ui_string_translations';
 export enum ElectionPackageFileName {
   APP_STRINGS = 'appStrings.json',
   AUDIO_CLIPS = 'audioClips.jsonl',
+  AUDIO_IDS = 'audioIds.json',
   ELECTION = 'election.json',
   METADATA = 'metadata.json',
   SYSTEM_SETTINGS = 'systemSettings.json',
-  UI_STRING_AUDIO_IDS = 'uiStringAudioIds.json',
   VX_ELECTION_STRINGS = 'vxElectionStrings.json',
 }
 
 export interface ElectionPackage {
   electionDefinition: ElectionDefinition;
   metadata?: ElectionPackageMetadata; // TODO(kofi): Make required
-  // TODO(kevin) once all machines support system settings, make systemSettings required
-  systemSettings?: SystemSettings;
+  systemSettings?: SystemSettings; // TODO(kevin): Make required
   uiStringAudioClips?: UiStringAudioClips; // TODO(kofi): Make required
   uiStringAudioIds?: UiStringAudioIdsPackage; // TODO(kofi): Make required
   uiStrings?: UiStringsPackage; // TODO(kofi): Make required
