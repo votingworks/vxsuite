@@ -1,6 +1,4 @@
 /* eslint-disable max-classes-per-file */
-import { Buffer } from 'buffer';
-import fs from 'fs';
 import { Server } from 'http';
 import { AddressInfo } from 'net';
 import path from 'path';
@@ -64,6 +62,10 @@ export class MockGoogleCloudTranslationClient
 
 export function mockCloudSynthesizedSpeech(text: string): string {
   return `${text} (audio)`;
+}
+
+export function isMockCloudSynthesizedSpeech(audioContent: string): boolean {
+  return audioContent.endsWith(' (audio)');
 }
 
 export class MockGoogleCloudTextToSpeechClient
@@ -150,7 +152,7 @@ export async function exportElectionPackage({
   apiClient: ApiClient;
   electionId: string;
   workspace: Workspace;
-}): Promise<Buffer> {
+}): Promise<string> {
   await apiClient.exportElectionPackage({ electionId });
   await processNextBackgroundTaskIfAny(workspace);
 
@@ -162,9 +164,10 @@ export async function exportElectionPackage({
       /election-package-[0-9a-z]{10}\.zip$/
     )
   )[0];
-  const electionPackageContents = fs.readFileSync(
-    path.join(workspace.assetDirectoryPath, electionPackageFileName)
+  const electionPackageFilePath = path.join(
+    workspace.assetDirectoryPath,
+    electionPackageFileName
   );
 
-  return electionPackageContents;
+  return electionPackageFilePath;
 }
