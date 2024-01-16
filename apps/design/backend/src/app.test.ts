@@ -15,6 +15,7 @@ import {
   AdjudicationReason,
   AnyContest,
   BallotType,
+  CandidateContest,
   Contests,
   DEFAULT_SYSTEM_SETTINGS,
   District,
@@ -174,6 +175,54 @@ test('CRUD elections', async () => {
   await apiClient.deleteElection({ electionId });
 
   expect(await apiClient.listElections()).toEqual([election2]);
+});
+
+test('Updating contests with candidate rotation', async () => {
+  const { apiClient } = setupApp();
+  const electionId = (
+    await apiClient.createElection({
+      electionData:
+        electionFamousNames2021Fixtures.electionDefinition.electionData,
+    })
+  ).unsafeUnwrap();
+  const electionRecord = await apiClient.getElection({ electionId });
+  const contest = electionRecord.election.contests.find(
+    (c): c is CandidateContest =>
+      c.type === 'candidate' && c.candidates.length > 2
+  )!;
+  expect(contest.candidates.map((c) => c.name)).toMatchInlineSnapshot(`
+[
+  "Winston Churchill",
+  "Oprah Winfrey",
+  "Louis Armstrong",
+]
+`);
+
+  // Update with no changes just to trigger candidate rotation
+  await apiClient.updateElection({
+    electionId,
+    election: electionRecord.election,
+  });
+
+  const updatedElectionRecord = await apiClient.getElection({ electionId });
+  const updatedContest = updatedElectionRecord.election.contests.find(
+    (c): c is CandidateContest => c.id === contest.id
+  )!;
+  expect(updatedContest.candidates.map((c) => c.name)).toMatchInlineSnapshot(`
+[
+  "Louis Armstrong",
+  "Winston Churchill",
+  "Oprah Winfrey",
+]
+`);
+
+  // Rotation logic is tested in candidate_rotation.test.ts
+  // Here we just want to make sure that rotation occurred.
+  expect(updatedContest.candidates).not.toEqual(contest.candidates);
+  expect(updatedContest.candidates.length).toEqual(contest.candidates.length);
+  expect(new Set(updatedContest.candidates)).toEqual(
+    new Set(contest.candidates)
+  );
 });
 
 test('Update system settings', async () => {
