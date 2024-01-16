@@ -1,3 +1,4 @@
+import { assertDefined } from '@votingworks/basics';
 import { LanguageCode } from '@votingworks/types';
 
 import { Store, TaskName } from './store';
@@ -191,4 +192,57 @@ test('Background task processing - starting and completing tasks', () => {
     startedAt: expect.any(Date),
     taskName,
   });
+});
+
+test('Background task processing - requeuing interrupted tasks', () => {
+  const store = Store.memoryStore();
+  const taskName = 'some_task_name' as TaskName;
+
+  const task1Id = store.createBackgroundTask(taskName, {
+    somePayload: 1,
+  });
+  const task2Id = store.createBackgroundTask(taskName, {
+    somePayload: 2,
+  });
+  const task3Id = store.createBackgroundTask(taskName, {
+    somePayload: 3,
+  });
+  const task4Id = store.createBackgroundTask(taskName, {
+    somePayload: 4,
+  });
+
+  store.startBackgroundTask(task1Id);
+  store.completeBackgroundTask(task1Id);
+  store.startBackgroundTask(task2Id);
+  store.startBackgroundTask(task3Id);
+
+  function expectTaskToBeQueued(taskId: string): void {
+    const task = assertDefined(store.getBackgroundTask(taskId));
+    expect(task.startedAt).not.toBeDefined();
+    expect(task.completedAt).not.toBeDefined();
+  }
+
+  function expectTaskToBeStartedButNotCompleted(taskId: string): void {
+    const task = assertDefined(store.getBackgroundTask(taskId));
+    expect(task.startedAt).toBeDefined();
+    expect(task.completedAt).not.toBeDefined();
+  }
+
+  function expectTaskToBeCompleted(taskId: string): void {
+    const task = assertDefined(store.getBackgroundTask(taskId));
+    expect(task.startedAt).toBeDefined();
+    expect(task.completedAt).toBeDefined();
+  }
+
+  expectTaskToBeCompleted(task1Id);
+  expectTaskToBeStartedButNotCompleted(task2Id);
+  expectTaskToBeStartedButNotCompleted(task3Id);
+  expectTaskToBeQueued(task4Id);
+
+  store.requeueInterruptedBackgroundTasks();
+
+  expectTaskToBeCompleted(task1Id);
+  expectTaskToBeQueued(task2Id);
+  expectTaskToBeQueued(task3Id);
+  expectTaskToBeQueued(task4Id);
 });
