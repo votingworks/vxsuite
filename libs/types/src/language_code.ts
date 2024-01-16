@@ -10,3 +10,7 @@ export enum LanguageCode {
 
 export const LanguageCodeSchema: z.ZodType<LanguageCode> =
   z.nativeEnum(LanguageCode);
+
+export function isLanguageCode(value: string): value is LanguageCode {
+  return Object.values(LanguageCode).includes(value as LanguageCode);
+}

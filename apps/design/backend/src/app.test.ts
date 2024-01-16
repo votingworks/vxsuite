@@ -1,5 +1,7 @@
+import { Buffer } from 'buffer';
 import JsZip from 'jszip';
-import { assert, assertDefined, find } from '@votingworks/basics';
+import get from 'lodash.get';
+import { assert, assertDefined } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryDefinition,
@@ -12,7 +14,6 @@ import {
 import {
   AdjudicationReason,
   AnyContest,
-  BallotDefinition,
   BallotType,
   Contests,
   DEFAULT_SYSTEM_SETTINGS,
@@ -26,57 +27,25 @@ import {
   Party,
   PartyId,
   SystemSettings,
-  UiStringsPackageSchema,
-  safeParseElectionDefinition,
-  safeParseElectionDefinitionExtended,
-  safeParseJson,
-  safeParseSystemSettings,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
   getBallotStylesByPrecinctId,
   getFeatureFlagMock,
 } from '@votingworks/utils';
+import { readElectionPackageFromFile } from '@votingworks/backend';
+import { countObjectLeaves, getObjectLeaves } from '@votingworks/test-utils';
 import {
   ApiClient,
   exportElectionPackage,
+  isMockCloudSynthesizedSpeech,
   mockCloudTranslatedText,
   processNextBackgroundTaskIfAny,
   testSetupHelpers,
 } from '../test/helpers';
 import { hasSplits, Precinct } from './store';
 import { FULL_TEST_DECK_TALLY_REPORT_FILE_NAME } from './test_decks';
-
-function expectTextToBeTranslated(
-  internationalizedText: BallotDefinition.InternationalizedText,
-  expectedTranslatedText: (
-    englishText: string,
-    languageCode: string
-  ) => string = mockCloudTranslatedText
-) {
-  const text = internationalizedText.Text;
-
-  expect(text).toHaveLength(4);
-  expect(text.map((entry) => entry.Language).sort()).toEqual([
-    LanguageCode.ENGLISH,
-    LanguageCode.SPANISH,
-    LanguageCode.CHINESE_SIMPLIFIED,
-    LanguageCode.CHINESE_TRADITIONAL,
-  ]);
-
-  const englishText = find(
-    text,
-    (entry) => entry.Language === LanguageCode.ENGLISH
-  ).Content;
-  for (const entry of text) {
-    if (entry.Language === LanguageCode.ENGLISH) {
-      continue;
-    }
-    expect(entry.Content).toEqual(
-      expectedTranslatedText(englishText, entry.Language)
-    );
-  }
-}
+import { forEachUiString } from './language_and_audio';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -365,85 +334,36 @@ test('Election package export', async () => {
   });
   const { election: appElection } = await apiClient.getElection({ electionId });
 
-  const electionPackageContents = await exportElectionPackage({
+  const electionPackageFilePath = await exportElectionPackage({
     apiClient,
     electionId,
     workspace,
   });
 
-  // Check overall structure of zip file
-  const zip = await JsZip.loadAsync(electionPackageContents);
-  expect(Object.keys(zip.files).sort()).toEqual([
-    'appStrings.json',
-    'election.json',
-    'systemSettings.json',
-    'vxElectionStrings.json',
-  ]);
-
-  //
-  // Check appStrings.json
-  //
-
-  const appStrings = safeParseJson(
-    await assertDefined(zip.file('appStrings.json')).async('text'),
-    UiStringsPackageSchema
+  const {
+    electionDefinition,
+    systemSettings,
+    uiStringAudioClips,
+    uiStringAudioIds,
+    uiStrings,
+  } = (
+    await readElectionPackageFromFile(electionPackageFilePath)
   ).unsafeUnwrap();
-
-  const languageCodes = Object.keys(appStrings).sort();
-  expect(languageCodes).toEqual([
-    LanguageCode.ENGLISH,
-    LanguageCode.SPANISH,
-    LanguageCode.CHINESE_SIMPLIFIED,
-    LanguageCode.CHINESE_TRADITIONAL,
-  ]);
-
-  const appStringKeys = Object.keys(
-    appStrings[LanguageCode.ENGLISH] ?? {}
-  ).sort();
-  expect(appStringKeys.length).toBeGreaterThan(0);
-
-  for (const languageCode of Object.values(LanguageCode)) {
-    if (languageCode === LanguageCode.ENGLISH) {
-      continue;
-    }
-    for (const key of appStringKeys) {
-      const appStringInLanguage = assertDefined(
-        appStrings[languageCode]?.[key]
-      );
-      const appStringInEnglish = assertDefined(
-        appStrings[LanguageCode.ENGLISH]?.[key]
-      );
-      expect(appStringInLanguage).toEqual(
-        `${appStringInEnglish} (in ${languageCode})`
-      );
-    }
-  }
+  assert(systemSettings !== undefined);
+  assert(uiStringAudioClips !== undefined);
+  assert(uiStringAudioIds !== undefined);
+  assert(uiStrings !== undefined);
 
   //
-  // Check vxElectionStrings.json
+  // Check election definition
   //
-
-  const vxElectionStrings = safeParseJson(
-    await assertDefined(zip.file('vxElectionStrings.json')).async('text'),
-    UiStringsPackageSchema
-  ).unsafeUnwrap();
-
-  for (const languageCode of Object.values(LanguageCode)) {
-    expect(
-      vxElectionStrings[languageCode]?.[ElectionStringKey.ELECTION_DATE]
-    ).toBeDefined();
-  }
-
-  //
-  // Check election.json
-  //
-
-  const electionDefinition = safeParseElectionDefinition(
-    await assertDefined(zip.file('election.json')).async('text')
-  ).unsafeUnwrap();
 
   expect(electionDefinition.election).toEqual({
     ...baseElectionDefinition.election,
+
+    // Ballot styles are generated in the app, ignoring the ones in the inputted election
+    // definition
+    ballotStyles: appElection.ballotStyles,
 
     // The date in the election fixture has a timezone, even though it shouldn't
     date: baseElectionDefinition.election.date.replace(
@@ -451,61 +371,120 @@ test('Election package export', async () => {
       '00:00:00Z'
     ),
 
-    // Ballot styles are generated in the app, ignoring the ones in the inputted election
-    // definition
-    ballotStyles: appElection.ballotStyles,
-
     // The base election definition should have been extended with grid layouts. The correctness of
     // the grid layouts is tested by libs/ballot-interpreter tests.
     gridLayouts: expect.any(Array),
   });
 
-  // Check election string translation
+  //
+  // Check system settings
+  //
 
-  const { cdfElection } = safeParseElectionDefinitionExtended(
-    await assertDefined(zip.file('election.json')).async('text')
-  ).unsafeUnwrap();
-  assert(cdfElection !== undefined);
+  expect(systemSettings).toEqual(mockSystemSettings);
 
-  // Check candidate names
-  for (const candidate of assertDefined(cdfElection.Election[0].Candidate)) {
-    expectTextToBeTranslated(
-      candidate.BallotName,
-      (englishText) => englishText
+  //
+  // Check UI strings
+  //
+
+  for (const languageCode of Object.values(LanguageCode)) {
+    expect(countObjectLeaves(uiStrings[languageCode] ?? {})).toBeGreaterThan(
+      // A number high enough to give us confidence that we've exported both app and election strings
+      200
     );
   }
 
-  // Check contest titles
-  for (const contest of assertDefined(cdfElection.Election[0].Contest)) {
-    expectTextToBeTranslated(contest.BallotTitle);
+  for (const electionStringKey of Object.values(ElectionStringKey)) {
+    // The current election definition doesn't include any yes-no contests
+    if (
+      electionStringKey === ElectionStringKey.CONTEST_DESCRIPTION ||
+      electionStringKey === ElectionStringKey.CONTEST_OPTION_LABEL
+    ) {
+      continue;
+    }
+
+    expect(
+      assertDefined(uiStrings[LanguageCode.ENGLISH])[electionStringKey]
+    ).toBeDefined();
   }
 
-  // Check county name, district names, precinct names, and state name
-  for (const gpUnit of cdfElection.GpUnit) {
-    expectTextToBeTranslated(gpUnit.Name);
-  }
+  const stringsInEnglish: Array<{
+    stringKey: string | [string, string];
+    stringInEnglish: string;
+  }> = [];
+  forEachUiString(
+    uiStrings,
+    ({ languageCode, stringKey, stringInLanguage }) => {
+      if (languageCode === LanguageCode.ENGLISH) {
+        stringsInEnglish.push({ stringKey, stringInEnglish: stringInLanguage });
+      }
+    }
+  );
 
-  // Check election title
-  expectTextToBeTranslated(cdfElection.Election[0].Name);
+  // Verify that strings were translated as expected
+  for (const languageCode of Object.values(LanguageCode)) {
+    if (languageCode === LanguageCode.ENGLISH) {
+      continue;
+    }
 
-  // Check party full names
-  for (const party of cdfElection.Party) {
-    expectTextToBeTranslated(party.Name);
-  }
-
-  // Check party names
-  for (const party of cdfElection.Party) {
-    expectTextToBeTranslated(party.vxBallotLabel);
+    for (const { stringKey, stringInEnglish } of stringsInEnglish) {
+      const stringInLanguage = get(uiStrings, [languageCode, stringKey].flat());
+      if (
+        Array.isArray(stringKey) &&
+        stringKey[0] === ElectionStringKey.BALLOT_STYLE_ID
+      ) {
+        expect(stringInLanguage).not.toBeDefined();
+      } else if (
+        Array.isArray(stringKey) &&
+        stringKey[0] === ElectionStringKey.CANDIDATE_NAME
+      ) {
+        expect(stringInLanguage).toBeDefined();
+        expect(stringInLanguage).toEqual(stringInEnglish);
+      } else if (stringKey === ElectionStringKey.ELECTION_DATE) {
+        expect(stringInLanguage).toBeDefined();
+      } else {
+        expect(stringInLanguage).toBeDefined();
+        expect(stringInLanguage).toEqual(
+          mockCloudTranslatedText(stringInEnglish, languageCode)
+        );
+      }
+    }
   }
 
   //
-  // Check systemSettings.json
+  // Check uiStringAudioIds.json
   //
 
-  const systemSettings = safeParseSystemSettings(
-    await assertDefined(zip.file('systemSettings.json')).async('text')
-  ).unsafeUnwrap();
-  expect(systemSettings).toEqual(mockSystemSettings);
+  expect(countObjectLeaves(uiStringAudioIds)).toEqual(
+    countObjectLeaves(uiStrings)
+  );
+
+  //
+  // Check audioClips.jsonl
+  //
+
+  const audioIds: Set<string> = new Set(
+    getObjectLeaves(uiStringAudioIds)
+      .flat()
+      .filter((audioId): audioId is string => {
+        assert(typeof audioId === 'string');
+        return !(audioId.startsWith('{{') && audioId.endsWith('}}'));
+      })
+  );
+  const audioIdsInAudioClipsFile = new Set(
+    uiStringAudioClips.map(({ id }) => id)
+  );
+  expect(audioIdsInAudioClipsFile.size).toEqual(audioIds.size);
+  for (const audioId of audioIds) {
+    expect(audioIdsInAudioClipsFile.has(audioId)).toEqual(true);
+  }
+
+  for (const { dataBase64 } of uiStringAudioClips) {
+    expect(
+      isMockCloudSynthesizedSpeech(
+        Buffer.from(dataBase64, 'base64').toString('utf-8')
+      )
+    ).toEqual(true);
+  }
 }, 30_000);
 
 // Rendering an SVG to PDF and then generating the PDF takes about 3s per
@@ -652,21 +631,20 @@ test('Consistency of election hash across exports', async () => {
     electionId,
   });
 
-  const electionPackageContents = await exportElectionPackage({
+  const electionPackageFilePath = await exportElectionPackage({
     apiClient,
     electionId,
     workspace,
   });
-  const zip = await JsZip.loadAsync(electionPackageContents);
-  const electionDefinitionFromElectionPackage = safeParseElectionDefinition(
-    await assertDefined(zip.file('election.json')).async('text')
+  const { electionDefinition } = (
+    await readElectionPackageFromFile(electionPackageFilePath)
   ).unsafeUnwrap();
 
   expect([
     ...new Set([
       allBallotsOutput.electionHash,
       testDecksOutput.electionHash,
-      electionDefinitionFromElectionPackage.electionHash,
+      electionDefinition.electionHash,
     ]),
   ]).toHaveLength(1);
 }, 30_000);

@@ -137,7 +137,7 @@ async function readElectionPackageFromBuffer(
     let uiStringAudioIds: UiStringAudioIdsPackage | undefined;
     const audioIdsEntry = maybeGetFileByName(
       entries,
-      ElectionPackageFileName.UI_STRING_AUDIO_IDS
+      ElectionPackageFileName.AUDIO_IDS
     );
     if (audioIdsEntry) {
       uiStringAudioIds = safeParseJson(
