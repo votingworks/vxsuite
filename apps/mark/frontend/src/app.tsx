@@ -3,27 +3,14 @@ import { BrowserRouter } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
 import { getHardware } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import {
-  AppBase,
-  Button,
-  ErrorBoundary,
-  H1,
-  P,
-  Prose,
-  UiStringsContextProvider,
-} from '@votingworks/ui';
+import { QueryClient } from '@tanstack/react-query';
+import { AppBase, Button, ErrorBoundary, H1, P, Prose } from '@votingworks/ui';
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 
 import { AppRoot, Props as AppRootProps } from './app_root';
-import {
-  ApiClient,
-  ApiClientContext,
-  createApiClient,
-  createQueryClient,
-  uiStringsApi,
-} from './api';
+import { ApiClient, createApiClient, createQueryClient } from './api';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
+import { ApiProvider } from './api_provider';
 
 window.oncontextmenu = (e: MouseEvent): void => {
   e.preventDefault();
@@ -75,17 +62,14 @@ export function App({
           }
           logger={logger}
         >
-          <ApiClientContext.Provider value={apiClient}>
-            <QueryClientProvider client={queryClient}>
-              <UiStringsContextProvider
-                api={uiStringsApi}
-                disabled={!enableStringTranslation}
-              >
-                <AppRoot hardware={hardware} reload={reload} logger={logger} />
-                <SessionTimeLimitTracker />
-              </UiStringsContextProvider>
-            </QueryClientProvider>
-          </ApiClientContext.Provider>
+          <ApiProvider
+            queryClient={queryClient}
+            apiClient={apiClient}
+            enableStringTranslation={enableStringTranslation}
+          >
+            <AppRoot hardware={hardware} reload={reload} logger={logger} />
+            <SessionTimeLimitTracker />
+          </ApiProvider>
         </ErrorBoundary>
       </BrowserRouter>
     </AppBase>

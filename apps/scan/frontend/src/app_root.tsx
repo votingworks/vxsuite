@@ -13,8 +13,7 @@ import {
 } from '@votingworks/utils';
 import { Logger } from '@votingworks/logging';
 
-import { assert, err } from '@votingworks/basics';
-import type { LogsResultType } from '@votingworks/backend';
+import { assert } from '@votingworks/basics';
 import { PrecinctReportDestination } from '@votingworks/types';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
 import { ElectionManagerScreen } from './screens/election_manager_screen';
@@ -39,7 +38,6 @@ import {
   getPollsInfo,
   getScannerStatus,
   getUsbDriveStatus,
-  exportLogsToUsb,
 } from './api';
 import { VoterScreen } from './screens/voter_screen';
 import { LoginPromptScreen } from './screens/login_prompt_screen';
@@ -63,15 +61,6 @@ export function AppRoot({
   const pollsInfoQuery = getPollsInfo.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const checkPinMutation = checkPin.useMutation();
-  const exportLogsToUsbMutation = exportLogsToUsb.useMutation();
-
-  async function doExportLogs(): Promise<LogsResultType> {
-    try {
-      return await exportLogsToUsbMutation.mutateAsync();
-    } catch (e) {
-      return err('copy-failed');
-    }
-  }
 
   const { computer, printer: printerInfo } = useDevices({
     hardware,
@@ -164,7 +153,6 @@ export function AppRoot({
     return (
       <SystemAdministratorScreen
         authStatus={authStatus}
-        doExportLogs={doExportLogs}
         electionDefinition={electionDefinition}
         pollsState={pollsState}
         logger={logger}
@@ -212,7 +200,6 @@ export function AppRoot({
         scannerStatus={scannerStatus}
         usbDrive={usbDrive}
         logger={logger}
-        doExportLogs={doExportLogs}
       />
     );
   }

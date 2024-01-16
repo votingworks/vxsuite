@@ -1,17 +1,15 @@
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ok } from '@votingworks/basics';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { renderHook, waitFor } from '../test/react_testing_library';
 import {
   ApiClient,
-  ApiClientContext,
   configureElectionPackageFromUsb,
   createApiClient,
   uiStringsApi,
   unconfigureMachine,
 } from './api';
+import { ApiProvider } from './api_provider';
 
-const queryClient = new QueryClient();
 const mockBackendApi: ApiClient = {
   ...createApiClient(),
   configureElectionPackageFromUsb: jest.fn(),
@@ -21,11 +19,7 @@ const mockBackendApi: ApiClient = {
 function QueryWrapper(props: { children: React.ReactNode }) {
   const { children } = props;
 
-  return (
-    <ApiClientContext.Provider value={mockBackendApi}>
-      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
-    </ApiClientContext.Provider>
-  );
+  return <ApiProvider apiClient={mockBackendApi}>{children}</ApiProvider>;
 }
 
 const mockOnConfigurationChange = jest.spyOn(

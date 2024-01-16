@@ -14,6 +14,7 @@ import {
   USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
   createUiStringsApi,
+  createSystemCallApi,
 } from '@votingworks/ui';
 
 export type ApiClient = grout.Client<Api>;
@@ -340,9 +341,4 @@ export const supportsUltrasonic = {
   },
 } as const;
 
-export const exportLogsToUsb = {
-  useMutation() {
-    const apiClient = useApiClient();
-    return useMutation(apiClient.exportLogsToUsb);
-  },
-} as const;
+export const systemCallApi = createSystemCallApi(useApiClient);

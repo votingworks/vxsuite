@@ -1,9 +1,8 @@
 import userEvent from '@testing-library/user-event';
-import { QueryClientProvider } from '@tanstack/react-query';
 import { render, screen } from '../../../test/react_testing_library';
 import { PatDeviceCalibrationPage } from './pat_device_calibration_page';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
-import { ApiClientContext, createQueryClient } from '../../api';
+import { ApiProvider } from '../../api_provider';
 
 let apiMock: ApiMock;
 
@@ -32,11 +31,9 @@ function identifyInputs() {
 
 function renderComponent() {
   render(
-    <ApiClientContext.Provider value={apiMock.mockApiClient}>
-      <QueryClientProvider client={createQueryClient()}>
-        <PatDeviceCalibrationPage />
-      </QueryClientProvider>
-    </ApiClientContext.Provider>
+    <ApiProvider apiClient={apiMock.mockApiClient}>
+      <PatDeviceCalibrationPage />
+    </ApiProvider>
   );
 }
 

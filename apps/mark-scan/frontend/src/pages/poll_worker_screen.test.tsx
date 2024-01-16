@@ -18,7 +18,6 @@ import {
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
-import { QueryClientProvider } from '@tanstack/react-query';
 import { fireEvent, screen } from '../../test/react_testing_library';
 
 import { render } from '../../test/test_utils';
@@ -26,12 +25,12 @@ import { render } from '../../test/test_utils';
 import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import { fakeDevices } from '../../test/helpers/fake_devices';
-import { ApiClientContext, createQueryClient } from '../api';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import {
   fakeCardlessVoterAuth,
   fakePollWorkerAuth,
 } from '../../test/helpers/fake_auth';
+import { ApiProvider } from '../api_provider';
 
 const { election } = electionGeneralDefinition;
 
@@ -62,28 +61,26 @@ function renderScreen(
   electionDefinition: ElectionDefinition = electionGeneralDefinition
 ) {
   return render(
-    <ApiClientContext.Provider value={apiMock.mockApiClient}>
-      <QueryClientProvider client={createQueryClient()}>
-        <PollWorkerScreen
-          pollWorkerAuth={pollWorkerAuth}
-          activateCardlessVoterSession={jest.fn()}
-          resetCardlessVoterSession={jest.fn()}
-          electionDefinition={electionDefinition}
-          hasVotes={false}
-          isLiveMode={false}
-          pollsState="polls_open"
-          ballotsPrintedCount={0}
-          machineConfig={fakeMachineConfig()}
-          hardware={MemoryHardware.buildStandard()}
-          devices={fakeDevices()}
-          reload={jest.fn()}
-          precinctSelection={singlePrecinctSelectionFor(
-            electionDefinition.election.precincts[0].id
-          )}
-          {...props}
-        />
-      </QueryClientProvider>
-    </ApiClientContext.Provider>
+    <ApiProvider apiClient={apiMock.mockApiClient}>
+      <PollWorkerScreen
+        pollWorkerAuth={pollWorkerAuth}
+        activateCardlessVoterSession={jest.fn()}
+        resetCardlessVoterSession={jest.fn()}
+        electionDefinition={electionDefinition}
+        hasVotes={false}
+        isLiveMode={false}
+        pollsState="polls_open"
+        ballotsPrintedCount={0}
+        machineConfig={fakeMachineConfig()}
+        hardware={MemoryHardware.buildStandard()}
+        devices={fakeDevices()}
+        reload={jest.fn()}
+        precinctSelection={singlePrecinctSelectionFor(
+          electionDefinition.election.precincts[0].id
+        )}
+        {...props}
+      />
+    </ApiProvider>
   );
 }
 

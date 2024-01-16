@@ -6,7 +6,6 @@ import type {
   MachineConfig,
   ElectionState,
 } from '@votingworks/mark-backend';
-import { QueryClientProvider } from '@tanstack/react-query';
 import {
   ElectionPackageConfigurationError,
   BallotStyleId,
@@ -28,9 +27,9 @@ import {
 import { err, ok, Result } from '@votingworks/basics';
 import { TestErrorBoundary } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { ApiClientContext, createQueryClient } from '../../src/api';
 import { fakeMachineConfig } from './fake_machine_config';
 import { initialElectionState } from '../../src/app_root';
+import { ApiProvider } from '../../src/api_provider';
 
 interface CardlessVoterUserParams {
   ballotStyleId: BallotStyleId;
@@ -247,11 +246,7 @@ export function provideApi(
 ): JSX.Element {
   return (
     <TestErrorBoundary>
-      <ApiClientContext.Provider value={apiMock.mockApiClient}>
-        <QueryClientProvider client={createQueryClient()}>
-          {children}
-        </QueryClientProvider>
-      </ApiClientContext.Provider>
+      <ApiProvider apiClient={apiMock.mockApiClient}>{children}</ApiProvider>
     </TestErrorBoundary>
   );
 }
