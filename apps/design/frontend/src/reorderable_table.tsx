@@ -15,23 +15,23 @@ import {
   useSortable,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
-import { Icons, TD, Table } from '@votingworks/ui';
-import { assert, assertDefined } from '@votingworks/basics';
+import { Icons, TD, TH, Table } from '@votingworks/ui';
 
-export const ReorderableTr = styled.tr<{ isDragging?: boolean }>`
-  background: ${(p) =>
-    p.isDragging ? p.theme.colors.primaryContainer : undefined};
-`;
+const ReorderableTableContext = React.createContext<{
+  disabled?: boolean;
+}>({});
 
-export const DragHandle = styled.div<{ isDragging?: boolean }>`
+const DragHandle = styled.div<{ isDragging?: boolean }>`
   cursor: ${(p) => (p.isDragging ? 'grabbing' : 'grab')};
   padding: 0.7rem 0;
 `;
 
-export function ReorderableTableRowWrapper({
-  element,
+export function ReorderableTableRow({
+  rowId,
+  children,
 }: {
-  element: React.ReactElement;
+  rowId: string;
+  children: React.ReactNode;
 }): JSX.Element {
   const {
     attributes,
@@ -40,15 +40,13 @@ export function ReorderableTableRowWrapper({
     setNodeRef,
     transform,
     transition,
-  } = useSortable({ id: assertDefined(element.key) });
+  } = useSortable({ id: rowId });
+  const { disabled } = React.useContext(ReorderableTableContext);
   const theme = useTheme();
 
-  const { children, style, ...rest } = element.props;
   return (
     <tr
-      {...rest}
       style={{
-        ...(style ?? {}),
         transform: transform
           ? `translate3d(${transform.x}px, ${transform.y}px, 0)`
           : undefined,
@@ -57,21 +55,39 @@ export function ReorderableTableRowWrapper({
       }}
       ref={setNodeRef}
     >
-      <TD>
-        <DragHandle {...attributes} {...listeners} isDragging={isDragging}>
-          <Icons.Grip />
-        </DragHandle>
-      </TD>
+      {!disabled && (
+        <TD>
+          <DragHandle {...attributes} {...listeners} isDragging={isDragging}>
+            <Icons.Grip />
+          </DragHandle>
+        </TD>
+      )}
+      {children}
+    </tr>
+  );
+}
+
+export function ReorderableTableHeaderRow({
+  children,
+}: {
+  children: React.ReactNode;
+}): JSX.Element {
+  const { disabled } = React.useContext(ReorderableTableContext);
+  return (
+    <tr>
+      {!disabled && <TH />}
       {children}
     </tr>
   );
 }
 
 export function ReorderableTable({
+  rowIds,
   children,
   onReorder,
   disabled,
 }: {
+  rowIds: string[];
   children: React.ReactNode;
   onReorder: (fromId: string, toId: string) => void;
   disabled?: boolean;
@@ -83,59 +99,25 @@ export function ReorderableTable({
     })
   );
 
-  let [thead, tbody] = React.Children.toArray(children) as Array<
-    React.ReactHTMLElement<HTMLElement>
-  >;
-  assert(React.isValidElement(thead) && React.isValidElement(tbody));
-  thead = disabled
-    ? thead
-    : React.cloneElement(
-        thead,
-        thead.props,
-        React.Children.map(
-          thead.props.children,
-          (tr) =>
-            React.isValidElement(tr) &&
-            React.cloneElement(tr, assertDefined(tr).props, [
-              <th key="drag-handle-header" />,
-              ...React.Children.toArray(tr.props.children),
-            ])
-        )
-      );
-
-  const items =
-    React.Children.map(
-      tbody.props.children,
-      (child) => React.isValidElement(child) && { id: assertDefined(child.key) }
-    ) ?? [];
-  tbody = disabled
-    ? tbody
-    : React.cloneElement(
-        tbody,
-        tbody.props,
-        React.Children.map(tbody.props.children, (child) => {
-          assert(React.isValidElement(child));
-          return <ReorderableTableRowWrapper element={child} />;
-        })
-      );
-
   return (
-    <DndContext
-      sensors={sensors}
-      onDragEnd={(e: DragEndEvent) => {
-        if (e.over) {
-          onReorder(e.active.id as string, e.over.id as string);
-        }
-      }}
-      modifiers={[restrictToVerticalAxis]}
-      accessibility={{ container: document.body }}
-    >
-      <SortableContext items={items} strategy={verticalListSortingStrategy}>
-        <Table>
-          {thead}
-          {tbody}
-        </Table>
-      </SortableContext>
-    </DndContext>
+    <ReorderableTableContext.Provider value={{ disabled }}>
+      <DndContext
+        sensors={sensors}
+        onDragEnd={(e: DragEndEvent) => {
+          if (e.over) {
+            onReorder(e.active.id as string, e.over.id as string);
+          }
+        }}
+        modifiers={[restrictToVerticalAxis]}
+        accessibility={{ container: document.body }}
+      >
+        <SortableContext
+          items={rowIds.map((id) => ({ id }))}
+          strategy={verticalListSortingStrategy}
+        >
+          <Table>{children}</Table>
+        </SortableContext>
+      </DndContext>
+    </ReorderableTableContext.Provider>
   );
 }

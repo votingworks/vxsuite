@@ -12,7 +12,6 @@ import {
   MainContent,
   MainHeader,
   Breadcrumbs,
-  Icons,
 } from '@votingworks/ui';
 import {
   Redirect,
@@ -48,7 +47,11 @@ import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { TabPanel, TabBar } from './tabs';
 import { getElection, updateElection } from './api';
 import { generateId, reorderElement, replaceAtIndex } from './utils';
-import { ReorderableTable } from './reorderable_list';
+import {
+  ReorderableTable,
+  ReorderableTableHeaderRow,
+  ReorderableTableRow,
+} from './reorderable_table';
 
 const FILTER_ALL = 'all';
 const FILTER_NONPARTISAN = 'nonpartisan';
@@ -100,7 +103,6 @@ function ContestsTab(): JSX.Element | null {
     assert(reorderedContests !== undefined);
     const fromIndex = reorderedContests.findIndex((c) => c.id === fromId);
     const toIndex = reorderedContests.findIndex((c) => c.id === toId);
-    console.log('reorder', fromId, toId, fromIndex, toIndex);
     setReorderedContests(reorderElement(reorderedContests, fromIndex, toIndex));
   }
 
@@ -170,14 +172,19 @@ function ContestsTab(): JSX.Element | null {
         )}
         <div style={{ marginLeft: 'auto' }}>
           {isReordering ? (
-            <Button
-              onPress={onSaveReorderedContests}
-              variant="primary"
-              icon="Done"
-              disabled={updateElectionMutation.isLoading}
-            >
-              Save
-            </Button>
+            <Row style={{ gap: '0.5rem' }}>
+              <Button onPress={() => setReorderedContests(undefined)}>
+                Cancel
+              </Button>
+              <Button
+                onPress={onSaveReorderedContests}
+                variant="primary"
+                icon="Done"
+                disabled={updateElectionMutation.isLoading}
+              >
+                Save
+              </Button>
+            </Row>
           ) : (
             <Button
               onPress={() => setReorderedContests(contests)}
@@ -208,21 +215,22 @@ function ContestsTab(): JSX.Element | null {
           </React.Fragment>
         ) : (
           <ReorderableTable
+            rowIds={contestsToShow.map((contest) => contest.id)}
             disabled={!isReordering}
             onReorder={onReorderContests}
           >
             <thead>
-              <tr>
+              <ReorderableTableHeaderRow>
                 <TH>Title</TH>
                 <TH>Type</TH>
                 <TH>District</TH>
                 {election.type === 'primary' && <TH>Party</TH>}
                 <TH />
-              </tr>
+              </ReorderableTableHeaderRow>
             </thead>
             <tbody>
               {contestsToShow.map((contest) => (
-                <tr key={contest.id}>
+                <ReorderableTableRow key={contest.id} rowId={contest.id}>
                   <TD>{contest.title}</TD>
                   <TD>
                     {contest.type === 'candidate'
@@ -237,17 +245,17 @@ function ContestsTab(): JSX.Element | null {
                         partyIdToName.get(contest.partyId)}
                     </TD>
                   )}
-                  {!isReordering && (
-                    <TD nowrap style={{ textAlign: 'right' }}>
+                  <TD nowrap style={{ textAlign: 'right' }}>
+                    {!isReordering && (
                       <LinkButton
                         icon="Edit"
                         to={contestRoutes.editContest(contest.id).path}
                       >
                         Edit
                       </LinkButton>
-                    </TD>
-                  )}
-                </tr>
+                    )}
+                  </TD>
+                </ReorderableTableRow>
               ))}
             </tbody>
           </ReorderableTable>
@@ -310,13 +318,6 @@ function ContestForm({
         // so it will only be called on initial render.
         createBlankCandidateContest
   );
-  const [reorderCandidateState, setReorderCandidateState] = useState<
-    | {
-        fromIndex: number;
-        toIndex: number;
-      }
-    | undefined
-  >();
   const updateElectionMutation = updateElection.useMutation();
   const history = useHistory();
   const contestRoutes = routes.election(electionId).contests;
@@ -472,7 +473,6 @@ function ContestForm({
               <Table>
                 <thead>
                   <tr>
-                    <TH />
                     <TH>Name</TH>
                     <TH>Party</TH>
                     <TH />
@@ -481,65 +481,8 @@ function ContestForm({
                 <tbody>
                   {contest.candidates.map((candidate, index) => {
                     return (
-                      <tr
-                        style={{
-                          border:
-                            reorderCandidateState?.toIndex === index
-                              ? '1px solid red'
-                              : undefined,
-                        }}
-                        key={candidate.id}
-                        draggable
-                        onDragStart={(e) => {
-                          console.log('tr', e);
-                          setReorderCandidateState({
-                            fromIndex: index,
-                            toIndex: index,
-                          });
-                        }}
-                        onDragEnter={(e) => {
-                          console.log('enter', e);
-                          e.preventDefault();
-                          assert(reorderCandidateState !== undefined);
-                          setReorderCandidateState({
-                            ...reorderCandidateState,
-                            toIndex: index,
-                          });
-                        }}
-                        onDragOver={(e) => {
-                          e.preventDefault();
-                        }}
-                        onDragEnd={() => {
-                          setReorderCandidateState(undefined);
-                        }}
-                        onDrop={(e) => {
-                          console.log(e);
-                          assert(reorderCandidateState !== undefined);
-                          console.log('drop', reorderCandidateState);
-                          setContest({
-                            ...contest,
-                            candidates: reorderElement(
-                              contest.candidates,
-                              reorderCandidateState.fromIndex,
-                              reorderCandidateState.toIndex
-                            ),
-                          });
-                        }}
-                      >
-                        <TD
-                          style={{
-                            cursor: 'grab',
-                          }}
-                        >
-                          <Icons.Grip />
-                        </TD>
-                        <TD
-                          draggable
-                          onDragStart={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                          }}
-                        >
+                      <tr key={candidate.id}>
+                        <TD>
                           <input
                             aria-label={`Candidate ${index + 1} Name`}
                             type="text"
