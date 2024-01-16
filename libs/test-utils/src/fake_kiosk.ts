@@ -79,7 +79,6 @@ export function fakeKiosk({
     totp: {
       get: jest.fn(),
     },
-    sign: jest.fn(),
     speak: jest.fn().mockResolvedValue(undefined),
     cancelSpeak: jest.fn().mockResolvedValue(undefined),
     log: jest.fn(),

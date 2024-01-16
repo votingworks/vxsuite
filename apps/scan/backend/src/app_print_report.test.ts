@@ -1,0 +1,169 @@
+import { assert, iter } from '@votingworks/basics';
+import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
+import { BROTHER_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
+import { pdfToImages } from '@votingworks/image-utils';
+import { readFile } from 'fs/promises';
+import { configureApp } from '../test/helpers/shared_helpers';
+import { scanBallot, withApp } from '../test/helpers/custom_helpers';
+
+jest.setTimeout(60_000);
+
+const mockFeatureFlagger = getFeatureFlagMock();
+
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+  };
+});
+
+beforeEach(() => {
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  );
+});
+
+const reportPrintedTime = new Date('2021-01-01T00:00:00.000Z');
+jest.mock('./util/get_current_time', () => ({
+  getCurrentTime: () => reportPrintedTime.getTime(),
+}));
+
+test('can print and re-print polls opened report', async () => {
+  await withApp(
+    {},
+    async ({
+      apiClient,
+      mockScanner,
+      mockUsbDrive,
+      mockPrinterHandler,
+      mockAuth,
+      workspace,
+    }) => {
+      mockPrinterHandler.connectPrinter(BROTHER_THERMAL_PRINTER_CONFIG);
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        testMode: true,
+        openPolls: false,
+      });
+
+      // printing report before polls opened should fail
+      await suppressingConsoleOutput(async () => {
+        await expect(apiClient.printReport()).rejects.toThrow();
+      });
+
+      // initial polls opened report
+      await apiClient.transitionPolls({
+        type: 'open_polls',
+        time: new Date('2021-01-01T00:00:00.000Z').getTime(),
+      });
+      await apiClient.printReport();
+      const initialReportPath = mockPrinterHandler.getLastPrintPath();
+      assert(initialReportPath !== undefined);
+      await expect(initialReportPath).toMatchPdfSnapshot();
+
+      // allows re-printing identical polls opened report
+      await apiClient.printReport();
+      const reprintedReportPath = mockPrinterHandler.getLastPrintPath();
+      assert(reprintedReportPath !== undefined);
+      const initialReportPdfPages = await iter(
+        pdfToImages(await readFile(initialReportPath))
+      ).toArray();
+      const reprintedReportPdfPages = await iter(
+        pdfToImages(await readFile(reprintedReportPath))
+      ).toArray();
+      // compare PdfPage objects, which include image data, instead of the raw
+      // PDF file data, because that may contain extraneous metadata
+      expect(initialReportPdfPages).toEqual(reprintedReportPdfPages);
+
+      // scan a ballot
+      await scanBallot(mockScanner, apiClient, workspace.store, 0);
+
+      // you should not be able to print polls opened reports after scanning
+      await suppressingConsoleOutput(async () => {
+        await expect(apiClient.printReport()).rejects.toThrow();
+      });
+    }
+  );
+});
+
+test('can print voting paused and voting resumed reports', async () => {
+  await withApp(
+    {},
+    async ({
+      apiClient,
+      mockScanner,
+      mockUsbDrive,
+      mockPrinterHandler,
+      mockAuth,
+      workspace,
+    }) => {
+      mockPrinterHandler.connectPrinter(BROTHER_THERMAL_PRINTER_CONFIG);
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        testMode: true,
+      });
+
+      await scanBallot(mockScanner, apiClient, workspace.store, 0);
+
+      const time = new Date('2021-01-01T00:00:00.000Z').getTime();
+
+      // pause voting
+      await apiClient.transitionPolls({
+        type: 'pause_voting',
+        time,
+      });
+      await apiClient.printReport();
+      await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot();
+
+      // resume voting
+      await apiClient.transitionPolls({
+        type: 'resume_voting',
+        time,
+      });
+      await apiClient.printReport();
+      await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot();
+    }
+  );
+});
+
+test('can tabulate results and print polls closed report', async () => {
+  await withApp(
+    {},
+    async ({
+      apiClient,
+      mockScanner,
+      mockUsbDrive,
+      mockPrinterHandler,
+      mockAuth,
+      workspace,
+    }) => {
+      mockPrinterHandler.connectPrinter(BROTHER_THERMAL_PRINTER_CONFIG);
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        testMode: true,
+      });
+
+      await scanBallot(mockScanner, apiClient, workspace.store, 0);
+      await scanBallot(mockScanner, apiClient, workspace.store, 1);
+      await scanBallot(mockScanner, apiClient, workspace.store, 2);
+
+      const time = new Date('2021-01-01T00:00:00.000Z').getTime();
+
+      // pause voting
+      await apiClient.transitionPolls({
+        type: 'close_polls',
+        time,
+      });
+      await apiClient.printReport();
+      await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot();
+    }
+  );
+});
+
+/**
+ * TODO: Add test coverage for results in a primary election. This will require
+ * more robust mocking of ballots for scanning that creates or copies marked
+ * ballot images from the HMPB rendering library. Currently we are only testing
+ * with ballot images that were individually created and added as fixtures.
+ * */

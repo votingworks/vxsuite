@@ -7,7 +7,6 @@ import {
   ExportCastVoteRecordsToUsbDriveError,
   PrecinctSelection,
   SinglePrecinctSelection,
-  Tabulation,
 } from '@votingworks/types';
 import {
   getPollsTransitionDestinationState,
@@ -32,6 +31,7 @@ import {
 } from '@votingworks/basics';
 import { InsertedSmartCardAuthApi, LiveCheck } from '@votingworks/auth';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
+import { Printer, PrinterStatus } from '@votingworks/printing';
 import {
   PrecinctScannerStateMachine,
   PrecinctScannerConfig,
@@ -42,16 +42,24 @@ import {
 import { constructAuthMachineState } from './util/construct_auth_machine_state';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
-import { getScannerResults } from './util/results';
+import { printReport } from './print_report';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function buildApi(
-  auth: InsertedSmartCardAuthApi,
-  machine: PrecinctScannerStateMachine,
-  workspace: Workspace,
-  usbDrive: UsbDrive,
-  logger: Logger
-) {
+export function buildApi({
+  auth,
+  machine,
+  workspace,
+  usbDrive,
+  printer,
+  logger,
+}: {
+  auth: InsertedSmartCardAuthApi;
+  machine: PrecinctScannerStateMachine;
+  workspace: Workspace;
+  usbDrive: UsbDrive;
+  printer: Printer;
+  logger: Logger;
+}) {
   const { store } = workspace;
 
   async function getUserRole() {
@@ -349,11 +357,13 @@ export function buildApi(
       return exportResult;
     },
 
-    async getScannerResultsByParty(): Promise<
-      Tabulation.GroupList<Tabulation.ElectionResults>
-    > {
-      const results = await getScannerResults({ store, splitByParty: true });
-      return results;
+    getPrinterStatus(): Promise<PrinterStatus> {
+      return printer.status();
+    },
+
+    async printReport(): Promise<number> {
+      const numPages = await printReport({ store, printer });
+      return numPages;
     },
 
     getScannerStatus(): PrecinctScannerStatus {
@@ -391,15 +401,23 @@ export function buildApi(
 
 export type Api = ReturnType<typeof buildApi>;
 
-export function buildApp(
-  auth: InsertedSmartCardAuthApi,
-  machine: PrecinctScannerStateMachine,
-  workspace: Workspace,
-  usbDrive: UsbDrive,
-  logger: Logger
-): Application {
+export function buildApp({
+  auth,
+  machine,
+  workspace,
+  usbDrive,
+  printer,
+  logger,
+}: {
+  auth: InsertedSmartCardAuthApi;
+  machine: PrecinctScannerStateMachine;
+  workspace: Workspace;
+  printer: Printer;
+  usbDrive: UsbDrive;
+  logger: Logger;
+}): Application {
   const app: Application = express();
-  const api = buildApi(auth, machine, workspace, usbDrive, logger);
+  const api = buildApi({ auth, machine, workspace, usbDrive, printer, logger });
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express);
   return app;

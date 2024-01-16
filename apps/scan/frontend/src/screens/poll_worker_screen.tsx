@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 
 import {
   Button,
-  Loading,
-  DEFAULT_NUMBER_POLL_REPORT_COPIES,
   CenteredLargeProse,
+  Loading,
   LoadingAnimation,
   H1,
   P,
@@ -16,12 +15,7 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import {
-  PollsTransitionType,
-  ElectionDefinition,
-  PrecinctSelection,
-  PrecinctReportDestination,
-} from '@votingworks/types';
+import { PollsTransitionType } from '@votingworks/types';
 import {
   getLogEventIdForPollsTransition,
   LogEventId,
@@ -42,15 +36,14 @@ import type {
 import { ScreenMainCenterChild, Screen } from '../components/layout';
 import {
   exportCastVoteRecordsToUsbDrive,
-  getScannerResultsByParty,
   getUsbDriveStatus,
   transitionPolls as apiTransitionPolls,
+  printTallyReport,
+  getPrinterStatus,
 } from '../api';
-import { MachineConfig } from '../config/types';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 import { LiveCheckButton } from '../components/live_check_button';
 import { CastVoteRecordSyncRequiredModal } from './cast_vote_record_sync_required_screen';
-import { printReport } from '../utils/print_report';
 import { ReprintReportButton } from '../components/reprint_report_button';
 import { getCurrentTime } from '../utils/get_current_time';
 
@@ -85,15 +78,9 @@ const BallotsAlreadyScannedScreen = (
 );
 
 export interface PollWorkerScreenProps {
-  machineConfig: MachineConfig;
-  electionDefinition: ElectionDefinition;
-  precinctSelection: PrecinctSelection;
   scannedBallotCount: number;
   pollsInfo: PrecinctScannerPollsInfo;
-  isLiveMode: boolean;
-  printerInfo?: KioskBrowser.PrinterInfo;
   logger: Logger;
-  precinctReportDestination: PrecinctReportDestination;
 }
 
 const ButtonGrid = styled.div`
@@ -104,19 +91,14 @@ const ButtonGrid = styled.div`
 `;
 
 export function PollWorkerScreen({
-  machineConfig,
-  electionDefinition,
-  precinctSelection,
   scannedBallotCount,
   pollsInfo,
-  isLiveMode,
-  printerInfo,
   logger,
-  precinctReportDestination,
 }: PollWorkerScreenProps): JSX.Element {
-  const scannerResultsByPartyQuery = getScannerResultsByParty.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
+  const printerStatusQuery = getPrinterStatus.useQuery();
   const transitionPollsMutation = apiTransitionPolls.useMutation();
+  const printTallyReportMutation = printTallyReport.useMutation();
   const exportCastVoteRecordsMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();
   const [numReportPages, setNumReportPages] = useState<number>();
@@ -128,7 +110,6 @@ export function PollWorkerScreen({
     isCastVoteRecordSyncRequiredModalOpen,
     setIsCastVoteRecordSyncRequiredModalOpen,
   ] = useState(false);
-  const needsToAttachPrinterToTransitionPolls = !printerInfo && !!window.kiosk;
   const { pollsState } = pollsInfo;
 
   function initialPollWorkerFlowState(): Optional<PollWorkerFlowState> {
@@ -161,6 +142,20 @@ export function PollWorkerScreen({
       ? pollsInfo.lastPollsTransition
       : undefined;
 
+  if (!usbDriveStatusQuery.isSuccess || !printerStatusQuery.isSuccess) {
+    return (
+      <ScreenMainCenterChild infoBarMode="pollworker">
+        <CenteredLargeProse>
+          <Loading />
+        </CenteredLargeProse>
+      </ScreenMainCenterChild>
+    );
+  }
+
+  const usbDriveStatus = usbDriveStatusQuery.data;
+  const printerStatus = printerStatusQuery.data;
+  const needsToAttachPrinterToTransitionPolls = !printerStatus?.connected;
+
   function showAllPollWorkerActions() {
     return setPollWorkerFlowState(undefined);
   }
@@ -181,31 +176,16 @@ export function PollWorkerScreen({
         return;
       }
 
+      setPollWorkerFlowState('polls_transition_processing');
+
       const pollsTransitionTime = getCurrentTime();
       await transitionPollsMutation.mutateAsync({
         type: pollsTransitionType,
         time: pollsTransitionTime,
       });
-      setPollWorkerFlowState('polls_transition_processing');
 
-      assert(scannerResultsByPartyQuery.data);
-      await printReport({
-        pollsTransitionInfo: {
-          type: pollsTransitionType,
-          time: pollsTransitionTime,
-          ballotCount: scannedBallotCount,
-        },
-        electionDefinition,
-        precinctSelection,
-        isLiveMode,
-        machineConfig,
-        scannerResultsByParty: scannerResultsByPartyQuery.data,
-        copies:
-          precinctReportDestination === 'thermal-sheet-printer'
-            ? 1
-            : DEFAULT_NUMBER_POLL_REPORT_COPIES,
-        numPagesCallback: setNumReportPages,
-      });
+      const numPages = await printTallyReportMutation.mutateAsync();
+      setNumReportPages(numPages);
 
       if (pollsTransitionType === 'close_polls' && scannedBallotCount > 0) {
         (
@@ -241,7 +221,7 @@ export function PollWorkerScreen({
   }
 
   function closePolls() {
-    if (usbDriveStatusQuery.data?.doesUsbDriveRequireCastVoteRecordSync) {
+    if (usbDriveStatus.doesUsbDriveRequireCastVoteRecordSync) {
       setIsCastVoteRecordSyncRequiredModalOpen(true);
       return;
     }
@@ -254,19 +234,6 @@ export function PollWorkerScreen({
 
   function resumeVoting() {
     return transitionPolls('resume_voting');
-  }
-
-  if (
-    !scannerResultsByPartyQuery.isSuccess ||
-    scannerResultsByPartyQuery.isFetching
-  ) {
-    return (
-      <ScreenMainCenterChild infoBarMode="pollworker">
-        <CenteredLargeProse>
-          <Loading />
-        </CenteredLargeProse>
-      </ScreenMainCenterChild>
-    );
   }
 
   if (isShowingBallotsAlreadyScannedScreen) {
@@ -393,25 +360,22 @@ export function PollWorkerScreen({
       <ScreenMainCenterChild infoBarMode="pollworker">
         <CenteredLargeProse>
           {primaryText && <H1>{primaryText}</H1>}
-          {precinctReportDestination === 'thermal-sheet-printer' && (
-            <P>
-              Insert{' '}
-              {numReportPages
-                ? `${numReportPages} ${pluralize(
-                    'sheet',
-                    numReportPages
-                  )} of paper`
-                : 'paper'}{' '}
-              into the printer to print the report.
-            </P>
-          )}
+          <P>
+            Insert{' '}
+            {numReportPages
+              ? `${numReportPages} ${pluralize(
+                  'sheet',
+                  numReportPages
+                )} of paper`
+              : 'paper'}{' '}
+            into the printer to print the report.
+          </P>
           <P>
             Remove the poll worker card once you have printed all necessary
             reports.
           </P>
           <P>
             <ReprintReportButton
-              printerInfo={printerInfo}
               lastPollsTransition={lastPollsTransition}
               scannedBallotCount={scannedBallotCount}
               isAdditional
@@ -444,7 +408,6 @@ export function PollWorkerScreen({
     <React.Fragment>
       {pollsInfo.pollsState !== 'polls_closed_initial' && (
         <ReprintReportButton
-          printerInfo={printerInfo}
           scannedBallotCount={scannedBallotCount}
           lastPollsTransition={pollsInfo.lastPollsTransition}
           isAdditional={false}

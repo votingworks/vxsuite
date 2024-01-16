@@ -27,6 +27,10 @@ import { Server } from 'http';
 import { AddressInfo } from 'net';
 import tmp from 'tmp';
 import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
+import {
+  MemoryPrinterHandler,
+  createMockPrinterHandler,
+} from '@votingworks/printing';
 import { Api, buildApp } from '../../src/app';
 import { InterpretFn } from '../../src/interpret';
 import {
@@ -59,6 +63,7 @@ export async function withApp(
     mockScanner: jest.Mocked<CustomScanner>;
     workspace: Workspace;
     mockUsbDrive: MockUsbDrive;
+    mockPrinterHandler: MemoryPrinterHandler;
     logger: Logger;
     server: Server;
   }) => Promise<void>
@@ -69,6 +74,7 @@ export async function withApp(
     preconfiguredWorkspace ?? createWorkspace(tmp.dirSync().name);
   const mockScanner = mocks.fakeCustomScanner();
   const mockUsbDrive = createMockUsbDrive();
+  const mockPrinterHandler = createMockPrinterHandler();
   const deferredConnect = deferred<void>();
   async function createCustomClient(): Promise<
     Result<CustomScanner, ErrorCode>
@@ -95,13 +101,14 @@ export async function withApp(
       ...delays,
     },
   });
-  const app = buildApp(
-    mockAuth,
-    precinctScannerMachine,
+  const app = buildApp({
+    auth: mockAuth,
+    machine: precinctScannerMachine,
     workspace,
-    mockUsbDrive.usbDrive,
-    logger
-  );
+    usbDrive: mockUsbDrive.usbDrive,
+    printer: mockPrinterHandler.printer,
+    logger,
+  });
 
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
@@ -121,6 +128,7 @@ export async function withApp(
       mockScanner,
       workspace,
       mockUsbDrive,
+      mockPrinterHandler,
       logger,
       server,
     });

@@ -12,6 +12,7 @@ import {
   isIntegrationTest,
 } from '@votingworks/utils';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
+import { detectPrinter } from '@votingworks/printing';
 import { SCAN_WORKSPACE } from './globals';
 import * as customStateMachine from './scanners/custom/state_machine';
 import * as server from './server';
@@ -51,6 +52,7 @@ async function main(): Promise<number> {
   });
   const workspace = await resolveWorkspace();
   const usbDrive = detectUsbDrive(logger);
+  const printer = detectPrinter(logger);
 
   const precinctScannerStateMachine =
     customStateMachine.createPrecinctScannerStateMachine({
@@ -66,6 +68,7 @@ async function main(): Promise<number> {
     precinctScannerStateMachine,
     workspace,
     usbDrive,
+    printer,
     logger,
   });
 

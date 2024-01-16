@@ -1,18 +1,10 @@
-import {
-  singlePrecinctSelectionFor,
-  MemoryHardware,
-  buildElectionResultsFixture,
-} from '@votingworks/utils';
+import { singlePrecinctSelectionFor, MemoryHardware } from '@votingworks/utils';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import {
-  fakeKiosk,
   advanceTimersAndPromises,
-  expectPrint,
   fakeSystemAdministratorUser,
   mockOf,
-  hasTextAcrossElements,
-  deferNextPrint,
 } from '@votingworks/test-utils';
 import {
   electionGeneralDefinition,
@@ -33,7 +25,6 @@ import {
   POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
 } from './config/globals';
 import { scannerStatus } from '../test/helpers/helpers';
-import { REPRINT_REPORT_TIMEOUT_SECONDS } from './screens/poll_worker_screen';
 import { SELECT_PRECINCT_TEXT } from './screens/election_manager_screen';
 import {
   ApiMock,
@@ -42,7 +33,6 @@ import {
 } from '../test/helpers/mock_api_client';
 import { App, AppProps } from './app';
 import { DisplaySettingsManager } from './components/display_settings_manager';
-import { mockGetCurrentTime } from '../test/helpers/mock_polls_info';
 
 jest.mock(
   './components/display_settings_manager',
@@ -54,8 +44,6 @@ jest.mock(
 let apiMock: ApiMock;
 
 jest.setTimeout(20000);
-
-let kiosk = fakeKiosk();
 
 function renderApp(props: Partial<AppProps> = {}) {
   const hardware = MemoryHardware.build({
@@ -90,13 +78,14 @@ async function hackActuallyCleanUpReactModal() {
   window.document.body.firstElementChild?.removeAttribute('aria-hidden');
 }
 
-mockGetCurrentTime();
+const currentTime = new Date();
+
+jest.mock('./utils/get_current_time', () => ({
+  getCurrentTime: () => currentTime.getTime(),
+}));
 
 beforeEach(() => {
   jest.useFakeTimers();
-
-  kiosk = fakeKiosk();
-  window.kiosk = kiosk;
 
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
@@ -197,6 +186,7 @@ test('election manager must set precinct', async () => {
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatus({ connected: true });
   renderApp();
   await screen.findByText('No Precinct Selected');
 
@@ -222,7 +212,6 @@ test('election manager must set precinct', async () => {
   screen.getByText('Center Springfield');
 
   // Poll Worker card can be used to open polls now
-  apiMock.expectGetScannerResultsByParty([]);
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to open the polls?');
 });
@@ -235,6 +224,7 @@ test('election manager and poll worker configuration', async () => {
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.setPrinterStatus({ connected: true });
   const { logger } = renderApp();
   await screen.findByText('Polls Closed');
 
@@ -281,18 +271,14 @@ test('election manager and poll worker configuration', async () => {
     })
   );
   apiMock.removeCard();
-  await advanceTimersAndPromises(1);
 
   // Open the polls
   apiMock.expectGetScannerStatus(statusNoPaper);
-  apiMock.expectGetScannerResultsByParty([]);
-  apiMock.authenticateAsPollWorker(electionDefinition);
-  await screen.findByText('Do you want to open the polls?');
-
   apiMock.expectTransitionPolls('open_polls');
+  apiMock.expectPrintReport();
   apiMock.expectGetPollsInfo('polls_open');
+  apiMock.authenticateAsPollWorker(electionDefinition);
   userEvent.click(await screen.findByText('Yes, Open the Polls'));
-  await expectPrint();
   await screen.findByText(
     'Remove the poll worker card once you have printed all necessary reports.'
   );
@@ -332,15 +318,15 @@ test('election manager and poll worker configuration', async () => {
 
   // Open the polls again
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.expectTransitionPolls('open_polls');
+  apiMock.expectPrintReport();
+  apiMock.expectGetPollsInfo('polls_open');
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to open the polls?');
-  apiMock.expectTransitionPolls('open_polls');
-  apiMock.expectGetPollsInfo('polls_open');
   userEvent.click(await screen.findByText('Yes, Open the Polls'));
 
   await hackActuallyCleanUpReactModal();
 
-  await expectPrint();
   await screen.findByText(
     'Remove the poll worker card once you have printed all necessary reports.'
   );
@@ -400,24 +386,6 @@ async function scanBallot() {
   expect(screen.getByTestId('ballot-count').textContent).toEqual('1');
 }
 
-const mockMammalPartyResults = buildElectionResultsFixture({
-  election: electionTwoPartyPrimaryDefinition.election,
-  cardCounts: {
-    bmd: 1,
-    hmpb: [],
-  },
-  contestResultsSummaries: {
-    'best-animal-mammal': {
-      type: 'candidate',
-      ballots: 1,
-      officialOptionTallies: {
-        horse: 1,
-      },
-    },
-  },
-  includeGenericWriteIn: true,
-});
-
 test('voter can cast a ballot that scans successfully ', async () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
   apiMock.expectCheckUltrasonicSupported(false);
@@ -427,6 +395,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatus({ connected: true });
   renderApp();
   await screen.findByText(/Insert Your Ballot/i);
   screen.getByText('Scan one ballot sheet at a time.');
@@ -442,33 +411,17 @@ test('voter can cast a ballot that scans successfully ', async () => {
 
   // Insert a pollworker card
   apiMock.expectGetScannerStatus(statusBallotCounted);
-  apiMock.expectGetScannerResultsByParty([
-    {
-      partyId: '0',
-      ...mockMammalPartyResults,
-    },
-  ]);
   apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'polls_closing' });
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to close the polls?');
 
   // Close Polls
   apiMock.expectTransitionPolls('close_polls');
+  apiMock.expectPrintReport();
   apiMock.expectGetPollsInfo('polls_closed_final');
   userEvent.click(await screen.findByText('Yes, Close the Polls'));
-  const { resolve: resolveClosePrint } = deferNextPrint();
   await screen.findByText('Closing Polls…');
-  resolveClosePrint();
   await screen.findByText('Polls are closed.');
-  await expectPrint((printResult) => {
-    expect(
-      printResult.getAllByText(`Test Polls Closed Report for All Precincts`)
-    ).toHaveLength(3); // report for each party and a non-partisan report
-
-    // confirm results are in report
-    const mammalReport = printResult.getByTestId('tally-report-0-undefined');
-    within(mammalReport).getByText(hasTextAcrossElements('Horse1'));
-  });
 
   // Simulate unmounted usb drive
   apiMock.expectGetUsbDriveStatus('ejected');
@@ -633,16 +586,16 @@ test('scanning is not triggered when polls closed or cards present', async () =>
   apiMock.expectGetScannerStatus(
     scannerStatus({ state: 'hardware_ready_to_scan' })
   );
+  apiMock.setPrinterStatus({ connected: true });
   renderApp();
   await screen.findByText('Polls Closed');
-  apiMock.expectGetScannerResultsByParty([]);
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to open the polls?');
   // Open Polls
   apiMock.expectTransitionPolls('open_polls');
+  apiMock.expectPrintReport();
   apiMock.expectGetPollsInfo('polls_open');
   userEvent.click(screen.getByText('Yes, Open the Polls'));
-  await expectPrint();
   await screen.findByText('Polls are open.');
 
   // Once we remove the poll worker card, scanning should start
@@ -659,24 +612,23 @@ test('poll worker can open and close polls without scanning any ballots', async 
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatus({ connected: true });
   renderApp();
   await screen.findByText('Polls Closed');
 
   // Open Polls Flow
-  apiMock.expectGetScannerResultsByParty([]);
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to open the polls?');
   apiMock.expectTransitionPolls('open_polls');
+  apiMock.expectPrintReport();
   apiMock.expectGetPollsInfo('polls_open');
   userEvent.click(screen.getByRole('button', { name: 'Yes, Open the Polls' }));
   await screen.findByText('Polls are open.');
-  await expectPrint();
+  apiMock.expectPrintReport();
   userEvent.click(
     screen.getByRole('button', { name: 'Print Additional Polls Opened Report' })
   );
   await screen.findByText('Printing Report…');
-  await expectPrint();
-  await advanceTimersAndPromises(REPRINT_REPORT_TIMEOUT_SECONDS);
   await screen.findByText('Polls are open.');
   screen.getByRole('button', { name: 'Print Additional Polls Opened Report' });
   screen.getByText('Remove the poll worker card', { exact: false });
@@ -687,16 +639,15 @@ test('poll worker can open and close polls without scanning any ballots', async 
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectTransitionPolls('close_polls');
+  apiMock.expectPrintReport();
   apiMock.expectGetPollsInfo('polls_closed_final');
   userEvent.click(screen.getByRole('button', { name: 'Yes, Close the Polls' }));
   await screen.findByText('Polls are closed.');
-  await expectPrint();
+  apiMock.expectPrintReport();
   userEvent.click(
     screen.getByRole('button', { name: 'Print Additional Polls Closed Report' })
   );
   await screen.findByText('Printing Report…');
-  await expectPrint();
-  await advanceTimersAndPromises(REPRINT_REPORT_TIMEOUT_SECONDS);
   await screen.findByText('Polls are closed.');
   screen.getByRole('button', { name: 'Print Additional Polls Closed Report' });
   screen.getByText('Remove the poll worker card', { exact: false });
@@ -712,16 +663,16 @@ test('open polls, scan ballot, close polls, save results', async () => {
   apiMock.expectGetPollsInfo();
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatus({ connected: true });
   renderApp();
   await screen.findByText('Polls Closed');
   // Open Polls Flow
-  apiMock.expectGetScannerResultsByParty([]);
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to open the polls?');
   apiMock.expectTransitionPolls('open_polls');
+  apiMock.expectPrintReport();
   apiMock.expectGetPollsInfo('polls_open');
   userEvent.click(await screen.findByText('Yes, Open the Polls'));
-  await expectPrint();
   await screen.findByText(
     'Remove the poll worker card once you have printed all necessary reports.'
   );
@@ -731,34 +682,18 @@ test('open polls, scan ballot, close polls, save results', async () => {
   await scanBallot();
 
   // Close Polls
-  apiMock.expectGetScannerResultsByParty([
-    {
-      partyId: '0',
-      ...mockMammalPartyResults,
-    },
-  ]);
   apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'polls_closing' });
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectTransitionPolls('close_polls');
+  apiMock.expectPrintReport();
   apiMock.expectGetPollsInfo('polls_closed_final');
   userEvent.click(await screen.findByText('Yes, Close the Polls'));
-  const { resolve: resolveClosePrint } = deferNextPrint();
   await screen.findByText('Closing Polls…');
-  resolveClosePrint();
   await screen.findByText('Polls are closed.');
   await screen.findByText(
     'Remove the poll worker card once you have printed all necessary reports.'
   );
-  await expectPrint((printResult) => {
-    expect(
-      printResult.getAllByText(`Test Polls Closed Report for All Precincts`)
-    ).toHaveLength(3); // report for each party and a non-partisan report
-
-    // confirm scanned results are in report
-    const mammalReport = printResult.getByTestId('tally-report-0-undefined');
-    within(mammalReport).getByText(hasTextAcrossElements('Horse1'));
-  });
 
   apiMock.removeCard();
   await screen.findByText('Polls Closed');
@@ -769,17 +704,17 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   apiMock.expectGetPollsInfo();
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatus({ connected: true });
   renderApp();
   await screen.findByText('Polls Closed');
 
   // Open Polls
-  apiMock.expectGetScannerResultsByParty([]);
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to open the polls?');
   apiMock.expectTransitionPolls('open_polls');
+  apiMock.expectPrintReport();
   apiMock.expectGetPollsInfo('polls_open');
   userEvent.click(await screen.findByText('Yes, Open the Polls'));
-  await expectPrint();
   await screen.findByText(
     'Remove the poll worker card once you have printed all necessary reports.'
   );
@@ -791,12 +726,10 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   await screen.findByText('Do you want to close the polls?');
   userEvent.click(await screen.findByText('No'));
   apiMock.expectTransitionPolls('pause_voting');
+  apiMock.expectPrintReport();
   apiMock.expectGetPollsInfo('polls_paused');
   userEvent.click(await screen.findByText('Pause Voting'));
-  const { resolve: resolvePausePrint } = deferNextPrint();
   await screen.findByText('Pausing Voting…');
-  resolvePausePrint();
-  await expectPrint();
   await screen.findByText(
     'Remove the poll worker card once you have printed all necessary reports.'
   );
@@ -807,12 +740,10 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to resume voting?');
   apiMock.expectTransitionPolls('resume_voting');
+  apiMock.expectPrintReport();
   apiMock.expectGetPollsInfo('polls_open', { type: 'resume_voting' });
   userEvent.click(await screen.findByText('Yes, Resume Voting'));
-  const { resolve: resolveResumePrint } = deferNextPrint();
   await screen.findByText('Resuming Voting…');
-  resolveResumePrint();
-  await expectPrint();
   await screen.findByText(
     'Remove the poll worker card once you have printed all necessary reports.'
   );
@@ -823,12 +754,10 @@ test('poll worker can open, pause, unpause, and close poll without scanning any 
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Do you want to close the polls?');
   apiMock.expectTransitionPolls('close_polls');
+  apiMock.expectPrintReport();
   apiMock.expectGetPollsInfo('polls_closed_final');
   userEvent.click(await screen.findByText('Yes, Close the Polls'));
-  const { resolve: resolveClosePrint } = deferNextPrint();
   await screen.findByText('Closing Polls…');
-  resolveClosePrint();
-  await expectPrint();
   await screen.findByText(
     'Remove the poll worker card once you have printed all necessary reports.'
   );

@@ -79,9 +79,8 @@ const reportArgs: PrecinctScannerTallyReportsProps = {
   pollsTransition: 'close_polls',
   isLiveMode: false,
   pollsTransitionedTime: Date.now(),
+  reportPrintedTime: Date.now(),
   precinctScannerMachineId: 'VX-00-000',
-  signedQuickResultsReportingUrl: 'foobar',
-  totalBallotsScanned: 3450,
 };
 
 export const PrecinctTallyReports: Story = {

@@ -21,6 +21,7 @@ import {
   safeParseElectionDefinitionExtended,
   testCdfBallotDefinition,
 } from '@votingworks/types';
+import { createMockPrinterHandler } from '@votingworks/printing';
 import { Store } from './store';
 import { buildApi } from './app';
 import { createWorkspace } from './util/workspace';
@@ -38,6 +39,7 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 const store = Store.memoryStore();
 const workspace = createWorkspace(tmp.dirSync().name, { store });
 const mockUsbDrive = createMockUsbDrive();
+const { printer } = createMockPrinterHandler();
 const mockAuth = buildMockInsertedSmartCardAuth();
 const electionPackage = safeParseElectionDefinitionExtended(
   JSON.stringify(testCdfBallotDefinition)
@@ -48,13 +50,14 @@ afterEach(() => {
 });
 
 runUiStringApiTests({
-  api: buildApi(
-    mockAuth,
-    createPrecinctScannerStateMachineMock(),
+  api: buildApi({
+    auth: mockAuth,
+    machine: createPrecinctScannerStateMachineMock(),
     workspace,
-    mockUsbDrive.usbDrive,
-    fakeLogger()
-  ),
+    usbDrive: mockUsbDrive.usbDrive,
+    printer,
+    logger: fakeLogger(),
+  }),
   store: store.getUiStringsStore(),
 });
 
@@ -74,13 +77,14 @@ describe('configureFromElectionPackageOnUsbDrive', () => {
     );
   });
 
-  const api = buildApi(
-    mockAuth,
-    createPrecinctScannerStateMachineMock(),
+  const api = buildApi({
+    auth: mockAuth,
+    machine: createPrecinctScannerStateMachineMock(),
     workspace,
-    mockUsbDrive.usbDrive,
-    fakeLogger()
-  );
+    usbDrive: mockUsbDrive.usbDrive,
+    printer,
+    logger: fakeLogger(),
+  });
 
   runUiStringMachineConfigurationTests({
     electionPackage,
@@ -91,13 +95,14 @@ describe('configureFromElectionPackageOnUsbDrive', () => {
 });
 
 describe('unconfigureElection', () => {
-  const api = buildApi(
-    mockAuth,
-    createPrecinctScannerStateMachineMock(),
+  const api = buildApi({
+    auth: mockAuth,
+    machine: createPrecinctScannerStateMachineMock(),
     workspace,
-    mockUsbDrive.usbDrive,
-    fakeLogger()
-  );
+    usbDrive: mockUsbDrive.usbDrive,
+    printer,
+    logger: fakeLogger(),
+  });
 
   runUiStringMachineDeconfigurationTests({
     runUnconfigureMachine: () => api.unconfigureElection(),

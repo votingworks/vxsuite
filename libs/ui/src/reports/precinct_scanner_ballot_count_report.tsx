@@ -48,6 +48,7 @@ interface Props {
   totalBallotsScanned: number;
   pollsTransition: PollsSuspensionTransitionType;
   pollsTransitionedTime: number;
+  reportPrintedTime: number;
   isLiveMode: boolean;
   precinctScannerMachineId: string;
 }
@@ -58,11 +59,10 @@ export function PrecinctScannerBallotCountReport({
   totalBallotsScanned,
   pollsTransition,
   pollsTransitionedTime,
+  reportPrintedTime,
   isLiveMode,
   precinctScannerMachineId,
 }: Props): JSX.Element {
-  const currentTime = Date.now();
-
   return (
     <ThemeProvider theme={tallyReportThemeFn}>
       <TallyReport data-testid="ballot-count-report">
@@ -73,7 +73,7 @@ export function PrecinctScannerBallotCountReport({
             pollsTransition={pollsTransition}
             isLiveMode={isLiveMode}
             pollsTransitionedTime={pollsTransitionedTime}
-            currentTime={currentTime}
+            reportPrintedTime={reportPrintedTime}
             precinctScannerMachineId={precinctScannerMachineId}
           />
           <Contents>

@@ -1,11 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Route } from 'react-router-dom';
 
-import {
-  StringEnvironmentVariableName,
-  getEnvironmentVariable,
-  getHardware,
-} from '@votingworks/utils';
+import { getHardware } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { QueryClient } from '@tanstack/react-query';
 import {
@@ -17,8 +13,7 @@ import {
   Icons,
   P,
 } from '@votingworks/ui';
-import { PrecinctReportDestination } from '@votingworks/types';
-import { assertDefined, Optional } from '@votingworks/basics';
+import { assertDefined } from '@votingworks/basics';
 import { AppRoot, Props as AppRootProps } from './app_root';
 import { ApiClient, createApiClient, createQueryClient } from './api';
 import { ScanAppBase } from './scan_app_base';
@@ -28,18 +23,11 @@ import { DisplaySettingsScreen } from './screens/display_settings_screen';
 import { DisplaySettingsManager } from './components/display_settings_manager';
 import { ApiProvider } from './api_provider';
 
-const DEFAULT_PRECINCT_REPORT_DESTINATION: PrecinctReportDestination =
-  'laser-printer';
-const envPrecinctReportDestination = getEnvironmentVariable(
-  StringEnvironmentVariableName.PRECINCT_REPORT_DESTINATION
-) as Optional<PrecinctReportDestination>;
-
 export interface AppProps {
   hardware?: AppRootProps['hardware'];
   logger?: AppRootProps['logger'];
   apiClient?: ApiClient;
   queryClient?: QueryClient;
-  precinctReportDestination?: PrecinctReportDestination;
   enableStringTranslation?: boolean;
 }
 
@@ -48,8 +36,6 @@ export function App({
   logger = new Logger(LogSource.VxScanFrontend, window.kiosk),
   apiClient = createApiClient(),
   queryClient = createQueryClient(),
-  precinctReportDestination = envPrecinctReportDestination ??
-    DEFAULT_PRECINCT_REPORT_DESTINATION,
   enableStringTranslation,
 }: AppProps): JSX.Element {
   return (
@@ -86,11 +72,7 @@ export function App({
               <DisplaySettingsScreen />
             </Route>
             <Route path={Paths.APP_ROOT} exact>
-              <AppRoot
-                hardware={hardware}
-                logger={logger}
-                precinctReportDestination={precinctReportDestination}
-              />
+              <AppRoot hardware={hardware} logger={logger} />
             </Route>
             <SessionTimeLimitTracker />
             <DisplaySettingsManager />

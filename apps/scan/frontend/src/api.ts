@@ -17,6 +17,8 @@ import {
   createSystemCallApi,
 } from '@votingworks/ui';
 
+const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
+
 export type ApiClient = grout.Client<Api>;
 
 export function createApiClient(): ApiClient {
@@ -149,6 +151,18 @@ export const getUsbDriveStatus = {
   },
 } as const;
 
+export const getPrinterStatus = {
+  queryKey(): QueryKey {
+    return ['getPrinterStatus'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getPrinterStatus(), {
+      refetchInterval: PRINTER_STATUS_POLLING_INTERVAL_MS,
+    });
+  },
+} as const;
+
 export const ejectUsbDrive = {
   useMutation() {
     const apiClient = useApiClient();
@@ -265,6 +279,13 @@ export const transitionPolls = {
   },
 } as const;
 
+export const printTallyReport = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.printReport);
+  },
+} as const;
+
 export const recordBallotBagReplaced = {
   useMutation() {
     const apiClient = useApiClient();
@@ -281,18 +302,6 @@ export const exportCastVoteRecordsToUsbDrive = {
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.exportCastVoteRecordsToUsbDrive);
-  },
-} as const;
-
-export const getScannerResultsByParty = {
-  queryKey(): QueryKey {
-    return ['getScannerResultsByParty'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () =>
-      apiClient.getScannerResultsByParty()
-    );
   },
 } as const;
 
@@ -313,14 +322,7 @@ export const getScannerStatus = {
 export const acceptBallot = {
   useMutation() {
     const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.acceptBallot, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(
-          getScannerResultsByParty.queryKey()
-        );
-      },
-    });
+    return useMutation(apiClient.acceptBallot);
   },
 } as const;
 

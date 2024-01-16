@@ -1,5 +1,4 @@
 export * from './precinct_scanner_ballot_count_report';
-export * from './precinct_scanner_tally_qrcode';
 export * from './precinct_scanner_tally_report';
 export * from './precinct_scanner_tally_reports';
 export * from './tally_report_metadata';

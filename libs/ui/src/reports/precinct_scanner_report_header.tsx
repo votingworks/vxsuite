@@ -47,7 +47,7 @@ interface Props {
   pollsTransition: PollsTransitionType;
   isLiveMode: boolean;
   pollsTransitionedTime: number;
-  currentTime: number;
+  reportPrintedTime: number;
   precinctScannerMachineId: string;
 }
 
@@ -58,7 +58,7 @@ export function PrecinctScannerReportHeader({
   pollsTransition,
   isLiveMode,
   pollsTransitionedTime,
-  currentTime,
+  reportPrintedTime,
   precinctScannerMachineId,
 }: Props): JSX.Element {
   const { election } = electionDefinition;
@@ -104,7 +104,7 @@ export function PrecinctScannerReportHeader({
           </HeaderData>
           <HeaderData>
             <Font weight="bold">Report Printed: </Font>
-            {formatFullDateTimeZone(DateTime.fromMillis(currentTime), {
+            {formatFullDateTimeZone(DateTime.fromMillis(reportPrintedTime), {
               includeWeekday: false,
             })}
           </HeaderData>
