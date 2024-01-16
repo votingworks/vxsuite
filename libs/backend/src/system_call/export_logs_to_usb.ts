@@ -1,12 +1,17 @@
-import { err, ok } from '@votingworks/basics';
+import { Result, err, ok } from '@votingworks/basics';
 import { UsbDrive } from '@votingworks/usb-drive';
 import * as fs from 'fs/promises';
 import { join } from 'path';
 
-import { LogsResultType } from '@votingworks/types';
 import { execFile } from '../exec';
 
 const LOG_DIR = '/var/log/votingworks';
+
+/** type of return value from exporting logs */
+export type LogsResultType = Result<
+  void,
+  'no-logs-directory' | 'no-usb-drive' | 'copy-failed'
+>;
 
 /**
  * Copies the logs directory to a USB drive.

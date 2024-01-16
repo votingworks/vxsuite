@@ -2,6 +2,7 @@ import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Optional } from '@votingworks/basics';
 import { LanguageCode } from '@votingworks/types';
+import type { SystemCallApi as SystemCallApiClient } from '@votingworks/backend';
 import {
   UiStringsApiClient,
   UiStringsReactQueryApi,
@@ -19,7 +20,6 @@ import { UiStringsContextProvider } from '../src/ui_strings/ui_strings_context';
 import { render, RenderResult } from './react_testing_library';
 import { QUERY_CLIENT_DEFAULT_OPTIONS } from '../src';
 import {
-  SystemCallApiClient,
   SystemCallReactQueryApi,
   createSystemCallApi,
   SystemCallContextProvider,
