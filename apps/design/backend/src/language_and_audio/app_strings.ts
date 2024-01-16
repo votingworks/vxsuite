@@ -3,6 +3,7 @@ import path from 'path';
 import { z } from 'zod';
 import {
   LanguageCode,
+  MachineVersion,
   safeParseJson,
   UiStringsPackage,
 } from '@votingworks/types';
@@ -15,7 +16,8 @@ import { GoogleCloudTranslator } from './translator';
 import { setUiString } from './utils';
 
 export async function translateAppStrings(
-  translator: GoogleCloudTranslator
+  translator: GoogleCloudTranslator,
+  machineVersion: MachineVersion
 ): Promise<UiStringsPackage> {
   /* istanbul ignore next */
   if (
@@ -29,8 +31,7 @@ export async function translateAppStrings(
   const appStringsCatalogFileContents = await fs.readFile(
     path.join(
       __dirname,
-      // TODO: Account for system version
-      '../../../../../libs/ui/src/ui_strings/app_strings_catalog/latest.json'
+      `../../../../../libs/ui/src/ui_strings/app_strings_catalog/${machineVersion}.json`
     ),
     'utf-8'
   );
