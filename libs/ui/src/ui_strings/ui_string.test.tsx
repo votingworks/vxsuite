@@ -8,8 +8,8 @@ import {
 import {
   TEST_UI_STRING_TRANSLATIONS,
   testUiStrings,
-} from '../../test/ui_strings/test_strings';
-import { newTestContext } from '../../test/ui_strings/test_utils';
+} from '../../test/test_ui_strings';
+import { newTestContext } from '../../test/test_context';
 import { UiString } from './ui_string';
 
 const { getLanguageContext, mockBackendApi, render } = newTestContext();

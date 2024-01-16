@@ -3,7 +3,7 @@ import { mockOf } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
 import { LanguageCode } from '@votingworks/types';
 import { WithAltAudio } from './with_alt_audio';
-import { newTestContext } from '../../test/ui_strings/test_utils';
+import { newTestContext } from '../../test/test_context';
 import { useAudioContext } from './audio_context';
 import { AudioOnly } from './audio_only';
 import { act, screen, waitFor } from '../../test/react_testing_library';

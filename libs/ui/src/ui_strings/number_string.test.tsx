@@ -5,7 +5,7 @@ import {
   render as renderWithoutContext,
   screen,
 } from '../../test/react_testing_library';
-import { newTestContext } from '../../test/ui_strings/test_utils';
+import { newTestContext } from '../../test/test_context';
 import { NumberString } from './number_string';
 
 test('formats based on current language code', async () => {

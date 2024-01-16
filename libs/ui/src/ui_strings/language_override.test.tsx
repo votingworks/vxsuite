@@ -5,7 +5,7 @@ import {
   screen,
   waitFor,
 } from '../../test/react_testing_library';
-import { newTestContext } from '../../test/ui_strings/test_utils';
+import { newTestContext } from '../../test/test_context';
 import { InEnglish, LanguageOverride } from './language_override';
 import { Button, appStrings } from '..';
 

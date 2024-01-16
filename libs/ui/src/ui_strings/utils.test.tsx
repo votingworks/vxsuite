@@ -18,7 +18,7 @@ import {
   PrecinctSelectionName,
   PrimaryElectionTitlePrefix,
 } from './utils';
-import { newTestContext } from '../../test/ui_strings/test_utils';
+import { newTestContext } from '../../test/test_context';
 import { H1 } from '..';
 import { screen } from '../../test/react_testing_library';
 

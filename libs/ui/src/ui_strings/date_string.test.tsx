@@ -6,7 +6,7 @@ import {
   render as renderWithoutContext,
   screen,
 } from '../../test/react_testing_library';
-import { newTestContext } from '../../test/ui_strings/test_utils';
+import { newTestContext } from '../../test/test_context';
 import { DateString } from './date_string';
 
 const TEST_DATE = new Date('2023/10/12');

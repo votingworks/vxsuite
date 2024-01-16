@@ -10,7 +10,7 @@ import { LanguageCode } from '@votingworks/types';
 
 import { act, render, screen, waitFor } from '../test/react_testing_library';
 import { US_ENGLISH_KEYMAP, VirtualKeyboard } from './virtual_keyboard';
-import { newTestContext as newUiStringsTestContext } from '../test/ui_strings/test_utils';
+import { newTestContext as newUiStringsTestContext } from '../test/test_context';
 import { AudioOnly } from './ui_strings/audio_only';
 import { useCurrentLanguage } from './hooks/use_current_language';
 

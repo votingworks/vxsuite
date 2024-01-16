@@ -10,7 +10,7 @@ import {
   TEST_UI_STRING_TRANSLATIONS,
   testUiStrings,
   NumPlanets,
-} from '../../test/ui_strings/test_strings';
+} from '../../test/test_ui_strings';
 import {
   Caption,
   H4,
