@@ -31,6 +31,7 @@ import { Api } from '../src';
 import { createWorkspace } from '../src/util/workspace';
 import { buildApp } from '../src/app';
 import { deleteTmpFileAfterTestSuiteCompletes } from './cleanup';
+import { TestTallyCache } from './tally_cache';
 
 type ActualDirectory = string;
 type MockFileTree = MockFile | MockDirectory | ActualDirectory;
@@ -135,6 +136,7 @@ export function buildTestEnvironment(workspaceRoot?: string) {
     workspace,
     logger,
     usbDrive: mockUsbDrive.usbDrive,
+    tallyCache: new TestTallyCache(),
   });
   // port 0 will bind to a random, free port assigned by the OS
   const server = app.listen();

@@ -34,7 +34,7 @@ export async function tabulateCastVoteRecords({
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
-  tallyCache?: TallyCache;
+  tallyCache: TallyCache;
 }): Promise<Tabulation.ElectionResultsGroupMap> {
   assertIsBackendFilter(filter);
   const {
@@ -47,32 +47,27 @@ export async function tabulateCastVoteRecords({
     filter,
     groupBy,
   };
-  const existingResults = tallyCache?.get(cacheKey);
-  if (existingResults) {
-    return Promise.resolve(existingResults);
-  }
 
-  // i.e. what pages need to be included on a report
-  debug('determining what election result groups we expect, if any');
-  const expectedGroups = groupBySupportsZeroSplits(groupBy)
-    ? store.getTabulationGroups({
-        electionId,
-        groupBy,
-        filter,
-      })
-    : undefined;
+  return tallyCache.getOrSet(cacheKey, async () => {
+    // i.e. what pages need to be included on a report
+    debug('determining what election result groups we expect, if any');
+    const expectedGroups = groupBySupportsZeroSplits(groupBy)
+      ? store.getTabulationGroups({
+          electionId,
+          groupBy,
+          filter,
+        })
+      : undefined;
 
-  debug('tabulating filtered cast vote records from the store');
-  const results = await tabulateFilteredCastVoteRecords({
-    cvrs: store.getCastVoteRecords({ electionId, filter }),
-    election,
-    groupBy,
-    expectedGroups,
+    debug('tabulating filtered cast vote records from the store');
+    const results = await tabulateFilteredCastVoteRecords({
+      cvrs: store.getCastVoteRecords({ electionId, filter }),
+      election,
+      groupBy,
+      expectedGroups,
+    });
+    return results;
   });
-  if (tallyCache) {
-    tallyCache.set(cacheKey, results);
-  }
-  return results;
 }
 
 /**
@@ -93,7 +88,7 @@ export async function tabulateElectionResults({
   groupBy?: Tabulation.GroupBy;
   includeWriteInAdjudicationResults?: boolean;
   includeManualResults?: boolean;
-  tallyCache?: TallyCache;
+  tallyCache: TallyCache;
 }): Promise<Tabulation.ElectionResultsGroupMap> {
   debug('tabulating election results');
   const {

@@ -9,6 +9,7 @@ import {
 import { generateTallyReportCsv } from './csv_tally_report';
 import { iterableToString, parseCsv } from '../../test/csv';
 import { Store } from '../store';
+import { TestTallyCache } from '../../test/tally_cache';
 
 test('uses appropriate headers', async () => {
   const store = Store.memoryStore();
@@ -205,6 +206,7 @@ test('uses appropriate headers', async () => {
       store,
       filter: testCase.filter,
       groupBy: testCase.groupBy,
+      tallyCache: new TestTallyCache(),
     });
     const fileContents = await iterableToString(iterable);
     const { headers, rows } = parseCsv(fileContents);
@@ -239,6 +241,7 @@ test('includes rows for empty but known result groups', async () => {
     store,
     filter: {},
     groupBy: { groupByPrecinct: true },
+    tallyCache: new TestTallyCache(),
   });
   const fileContents = await iterableToString(iterable);
   const { rows } = parseCsv(fileContents);
@@ -261,6 +264,7 @@ test('included contests are specific to each results group', async () => {
     store,
     filter: {},
     groupBy: { groupByBallotStyle: true },
+    tallyCache: new TestTallyCache(),
   });
   const fileContents = await iterableToString(iterable);
   const { rows } = parseCsv(fileContents);
@@ -296,6 +300,7 @@ test('included contests are restricted by the overall export filter', async () =
   const iterable = generateTallyReportCsv({
     store,
     filter: { ballotStyleIds: ['1M'] },
+    tallyCache: new TestTallyCache(),
   });
   const fileContents = await iterableToString(iterable);
   const { rows } = parseCsv(fileContents);
@@ -324,6 +329,7 @@ test('does not include results groups when they are excluded by the filter', asy
   const byVotingMethodIterable = generateTallyReportCsv({
     store,
     groupBy: { groupByVotingMethod: true },
+    tallyCache: new TestTallyCache(),
   });
   const byVotingMethodFileContents = await iterableToString(
     byVotingMethodIterable
@@ -341,6 +347,7 @@ test('does not include results groups when they are excluded by the filter', asy
     store,
     groupBy: { groupByVotingMethod: true },
     filter: { votingMethods: ['precinct'] },
+    tallyCache: new TestTallyCache(),
   });
   const precinctFileContests = await iterableToString(precinctIterable);
   const { rows: precinctRows } = parseCsv(precinctFileContests);
@@ -413,6 +420,7 @@ test('incorporates manual data', async () => {
 
   const iterable = generateTallyReportCsv({
     store,
+    tallyCache: new TestTallyCache(),
   });
   const fileContents = await iterableToString(iterable);
   const { rows } = parseCsv(fileContents);
@@ -507,6 +515,7 @@ test('separate rows for manual data when grouping by an incompatible dimension',
     const iterable = generateTallyReportCsv({
       store,
       groupBy,
+      tallyCache: new TestTallyCache(),
     });
 
     const fileContents = await iterableToString(iterable);
@@ -544,6 +553,7 @@ test('separate rows for manual data when grouping by an incompatible dimension',
   const iterable = generateTallyReportCsv({
     store,
     groupBy: { groupByScanner: true },
+    tallyCache: new TestTallyCache(),
   });
 
   const fileContents = await iterableToString(iterable);

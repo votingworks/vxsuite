@@ -9,6 +9,7 @@ import { start } from './server';
 import { createWorkspace } from './util/workspace';
 import { PORT } from './globals';
 import { buildApp } from './app';
+import { TestTallyCache } from '../test/tally_cache';
 
 beforeEach(() => {
   jest.restoreAllMocks();
@@ -19,7 +20,8 @@ test('starts with default logger and port', async () => {
   const workspace = createWorkspace(dirSync().name);
   const logger = fakeLogger();
   const { usbDrive } = createMockUsbDrive();
-  const app = buildApp({ auth, workspace, logger, usbDrive });
+  const tallyCache = new TestTallyCache();
+  const app = buildApp({ auth, workspace, logger, usbDrive, tallyCache });
 
   // don't actually listen
   jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
@@ -42,7 +44,8 @@ test('start with config options', async () => {
   const workspace = createWorkspace(dirSync().name);
   const logger = fakeLogger();
   const { usbDrive } = createMockUsbDrive();
-  const app = buildApp({ auth, workspace, logger, usbDrive });
+  const tallyCache = new TestTallyCache();
+  const app = buildApp({ auth, workspace, logger, usbDrive, tallyCache });
 
   // don't actually listen
   jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
@@ -63,7 +66,8 @@ test('errors on start with no workspace', async () => {
   const workspace = createWorkspace(dirSync().name);
   const logger = fakeLogger();
   const { usbDrive } = createMockUsbDrive();
-  const app = buildApp({ auth, workspace, logger, usbDrive });
+  const tallyCache = new TestTallyCache();
+  const app = buildApp({ auth, workspace, logger, usbDrive, tallyCache });
 
   // start up the server
   try {

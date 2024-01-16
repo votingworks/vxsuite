@@ -1,7 +1,7 @@
 import { getEmptyElectionResults } from '@votingworks/utils';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
-import { TallyCache, TallyCacheKey } from './tally_cache';
+import { RealTallyCache, TallyCacheKey } from './tally_cache';
 import { tabulateCastVoteRecords } from './full_results';
 import { Store } from '../store';
 
@@ -16,8 +16,8 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
   tabulateCastVoteRecords: () => mockTabulateFilteredCastVoteRecords(),
 }));
 
-test('TallyCache', () => {
-  const cache = new TallyCache();
+test('TallyCache', async () => {
+  const cache = new RealTallyCache();
   const key: TallyCacheKey = {
     electionId: '123',
     filter: {
@@ -45,16 +45,26 @@ test('TallyCache', () => {
     absentee: getEmptyElectionResults(electionTwoPartyPrimaryFixtures.election),
   };
 
-  cache.set(key, mockGroupedElectionResults);
-  expect(cache.get(key)).toEqual(mockGroupedElectionResults);
-  expect(cache.get(duplicateKey)).toEqual(mockGroupedElectionResults);
+  const mockValue = jest.fn().mockResolvedValue(mockGroupedElectionResults);
+
+  expect(await cache.getOrSet(key, mockValue)).toEqual(
+    mockGroupedElectionResults
+  );
+  expect(mockValue).toHaveBeenCalledTimes(1);
+  expect(await cache.getOrSet(duplicateKey, mockValue)).toEqual(
+    mockGroupedElectionResults
+  );
+  expect(mockValue).toHaveBeenCalledTimes(1);
 
   cache.clear();
-  expect(cache.get(key)).toBeUndefined();
+  expect(await cache.getOrSet(key, mockValue)).toEqual(
+    mockGroupedElectionResults
+  );
+  expect(mockValue).toHaveBeenCalledTimes(2);
 });
 
 test('CVR tabulation employs caching', async () => {
-  const tallyCache = new TallyCache();
+  const tallyCache = new RealTallyCache();
   const store = Store.memoryStore();
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const { electionData } = electionDefinition;

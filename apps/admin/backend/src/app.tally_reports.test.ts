@@ -156,6 +156,11 @@ test('general, full election, write in adjudication', async () => {
       },
     },
   });
+
+  await apiClient.clearCastVoteRecordFiles();
+  expect(await apiClient.getResultsForTallyReports()).not.toEqual(
+    wiaFullElectionTallyReportList
+  );
 });
 
 test('general, reports by voting method, manual data', async () => {

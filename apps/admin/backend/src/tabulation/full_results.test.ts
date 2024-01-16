@@ -23,6 +23,7 @@ import {
   addMockCvrFileToStore,
 } from '../../test/mock_cvr_file';
 import { adjudicateWriteIn } from '../adjudication';
+import { TestTallyCache } from '../../test/tally_cache';
 
 // mock SKIP_CVR_ELECTION_HASH_CHECK to allow us to use old cvr fixtures
 const featureFlagMock = getFeatureFlagMock();
@@ -246,6 +247,7 @@ test('tabulateCastVoteRecords', async () => {
       store,
       filter,
       groupBy,
+      tallyCache: new TestTallyCache(),
     });
 
     for (const [groupKey, tally] of expected) {
@@ -272,6 +274,7 @@ test('tabulateElectionResults - includes empty groups', async () => {
     electionId,
     store,
     groupBy: { groupByPrecinct: true, groupByVotingMethod: true },
+    tallyCache: new TestTallyCache(),
   });
   expect(Object.keys(groupedElectionResults)).toEqual([
     'root&precinctId=precinct-1&votingMethod=precinct',
@@ -312,6 +315,7 @@ test('tabulateElectionResults - write-in handling', async () => {
     await tabulateElectionResults({
       electionId,
       store,
+      tallyCache: new TestTallyCache(),
     })
   )[GROUP_KEY_ROOT];
   assert(overallResultsPreAdjudication);
@@ -431,6 +435,7 @@ test('tabulateElectionResults - write-in handling', async () => {
     await tabulateElectionResults({
       electionId,
       store,
+      tallyCache: new TestTallyCache(),
     })
   )[GROUP_KEY_ROOT];
   assert(overallResultsScreenWiaNoDetail);
@@ -475,6 +480,7 @@ test('tabulateElectionResults - write-in handling', async () => {
       electionId,
       store,
       includeWriteInAdjudicationResults: true,
+      tallyCache: new TestTallyCache(),
     })
   )[GROUP_KEY_ROOT];
   assert(overallResultsScreenWiaDetail);
@@ -574,6 +580,7 @@ test('tabulateElectionResults - write-in handling', async () => {
       store,
       includeWriteInAdjudicationResults: true,
       includeManualResults: true,
+      tallyCache: new TestTallyCache(),
     })
   )[GROUP_KEY_ROOT];
   assert(overallResultsScreenAndManualWiaDetail);
@@ -645,6 +652,7 @@ test('tabulateElectionResults - write-in handling', async () => {
       electionId,
       store,
       includeManualResults: true,
+      tallyCache: new TestTallyCache(),
     })
   )[GROUP_KEY_ROOT];
   assert(overallResultsScreenAndManualWiaNoDetail);
@@ -733,6 +741,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
       store,
       filter: { votingMethods: ['absentee'] },
       includeWriteInAdjudicationResults: true,
+      tallyCache: new TestTallyCache(),
     })
   )[GROUP_KEY_ROOT];
   assert(absenteeResults);
@@ -776,6 +785,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
       store,
       filter: { votingMethods: ['precinct'] },
       includeWriteInAdjudicationResults: true,
+      tallyCache: new TestTallyCache(),
     })
   )[GROUP_KEY_ROOT];
   assert(precinctResults);
@@ -791,6 +801,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
     store,
     groupBy: { groupByVotingMethod: true },
     includeWriteInAdjudicationResults: true,
+    tallyCache: new TestTallyCache(),
   });
   const absenteeResultsGroup = groupedResults['root&votingMethod=absentee'];
   const precinctResultsGroup = groupedResults['root&votingMethod=precinct'];
@@ -841,6 +852,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
       filter: { votingMethods: ['absentee'] },
       includeWriteInAdjudicationResults: true,
       includeManualResults: true,
+      tallyCache: new TestTallyCache(),
     })
   )[GROUP_KEY_ROOT];
   assert(absenteeResultsWithManual);
@@ -888,6 +900,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
       filter: { votingMethods: ['precinct'] },
       includeWriteInAdjudicationResults: true,
       includeManualResults: true,
+      tallyCache: new TestTallyCache(),
     })
   )[GROUP_KEY_ROOT];
   assert(precinctResultsWithManual);

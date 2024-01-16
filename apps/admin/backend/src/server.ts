@@ -12,6 +12,7 @@ import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildApp } from './app';
 import { rootDebug } from './util/debug';
+import { RealTallyCache } from './tabulation/tally_cache';
 
 const debug = rootDebug.extend('server');
 
@@ -80,6 +81,7 @@ export async function start({
       logger,
       usbDrive: resolvedUsbDrive,
       workspace: resolvedWorkspace,
+      tallyCache: new RealTallyCache(),
     });
   }
   /* c8 ignore stop */

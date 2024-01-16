@@ -227,7 +227,7 @@ export async function* generateTallyReportCsv({
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
-  tallyCache?: TallyCache;
+  tallyCache: TallyCache;
 }): AsyncGenerator<string> {
   const electionId = store.getCurrentElectionId();
   assert(electionId !== undefined);

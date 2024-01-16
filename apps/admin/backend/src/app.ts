@@ -146,14 +146,15 @@ function buildApi({
   workspace,
   logger,
   usbDrive,
+  tallyCache,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
   usbDrive: UsbDrive;
+  tallyCache: TallyCache;
 }) {
   const { store } = workspace;
-  const tallyCache = new TallyCache();
 
   async function getUserRole() {
     const authStatus = await auth.getAuthStatus(
@@ -904,14 +905,16 @@ export function buildApp({
   workspace,
   logger,
   usbDrive,
+  tallyCache,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
   usbDrive: UsbDrive;
+  tallyCache: TallyCache;
 }): Application {
   const app: Application = express();
-  const api = buildApi({ auth, workspace, logger, usbDrive });
+  const api = buildApi({ auth, workspace, logger, usbDrive, tallyCache });
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express);
   return app;

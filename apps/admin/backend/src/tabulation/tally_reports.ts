@@ -57,7 +57,7 @@ export async function tabulateTallyReportResults({
   store: Store;
   filter?: Tabulation.Filter;
   groupBy?: Tabulation.GroupBy;
-  tallyCache?: TallyCache;
+  tallyCache: TallyCache;
 }): Promise<Tabulation.GroupList<Admin.TallyReportResults>> {
   const {
     electionDefinition: { election },
