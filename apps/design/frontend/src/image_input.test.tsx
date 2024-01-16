@@ -42,21 +42,17 @@ describe('ImageInput', () => {
   });
 
   test.each(['png', 'jpeg'])('converts %s images to SVG', async (imageType) => {
-    // Mock Image so we can test getting the dimensions of the uploaded PNG
-    window.Image = class Image extends window.Image {
-      constructor() {
-        super();
-        // @ts-expect-error we're not using the event arg in onload
-        setTimeout(() => this.onload(), 0);
-        Object.defineProperties(this, {
-          naturalWidth: { value: 1 },
-          naturalHeight: { value: 2 },
-        });
-      }
+    // Mock Image so we can test getting the dimensions of the uploaded image
+    HTMLImageElement.prototype.decode = function decode() {
+      Object.defineProperties(this, {
+        naturalWidth: { value: 1 },
+        naturalHeight: { value: 2 },
+      });
+      return Promise.resolve();
     };
     const onChange = jest.fn();
-    const imageContents = 'test png contents';
-    const pngFile = new File([imageContents], `image.${imageType}`, {
+    const imageContents = 'test image contents';
+    const imageFile = new File([imageContents], `image.${imageType}`, {
       type: `image/${imageType}`,
     });
     const svgContents = `<svg viewBox="0 0 1 2" height="2" width="1" xmlns="http://www.w3.org/2000/svg">
@@ -68,7 +64,7 @@ describe('ImageInput', () => {
       <ImageInput value={undefined} onChange={onChange} buttonLabel="Upload" />
     );
     const input = screen.getByLabelText('Upload');
-    userEvent.upload(input, pngFile);
+    userEvent.upload(input, imageFile);
     await waitFor(() => expect(onChange).toHaveBeenCalledWith(svgContents));
   });
 

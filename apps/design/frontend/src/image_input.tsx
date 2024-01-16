@@ -8,15 +8,13 @@ const MAX_IMAGE_UPLOAD_BYTES = 5 * 1_000 * 1_000; // 5 MB
 const ALLOWED_IMAGE_TYPES = ['image/svg+xml', 'image/png', 'image/jpeg'];
 
 async function loadSvgImage(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onload = (e) => {
       /* istanbul ignore next */
       const contents = e.target?.result;
-      if (typeof contents === 'string') {
-        resolve(contents);
-      }
-      reject(new Error('Could not read file contents'));
+      assert(typeof contents === 'string');
+      resolve(contents);
     };
     reader.readAsText(file);
   });
@@ -25,13 +23,10 @@ async function loadSvgImage(file: File): Promise<string> {
 async function getBitmapImageDimensions(
   imageDataUrl: string
 ): Promise<{ width: number; height: number }> {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      resolve({ width: img.naturalWidth, height: img.naturalHeight });
-    };
-    img.src = imageDataUrl;
-  });
+  const img = new Image();
+  img.src = imageDataUrl;
+  await img.decode();
+  return { width: img.naturalWidth, height: img.naturalHeight };
 }
 
 async function bitmapImageToSvg(imageDataUrl: string) {
