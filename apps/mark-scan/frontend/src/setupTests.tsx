@@ -28,6 +28,7 @@ jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
     printElementWhenReady: fakePrintElementWhenReady,
     printElement: fakePrintElement,
     printElementToPdf: fakePrintElementToPdf,
+    useAudioControls: jest.fn(),
   };
 });
 
