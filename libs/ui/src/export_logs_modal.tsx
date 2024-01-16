@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   isElectionManagerAuth,
   isSystemAdministratorAuth,
@@ -7,8 +7,7 @@ import {
 import { LogEventId, Logger } from '@votingworks/logging';
 
 import { DippedSmartCardAuth, InsertedSmartCardAuth } from '@votingworks/types';
-import { LogsResultType } from '@votingworks/backend';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Button } from './button';
 import { Modal } from './modal';
@@ -16,12 +15,12 @@ import { Modal } from './modal';
 import { Loading } from './loading';
 import { UsbImage } from './graphics';
 import { P } from './typography';
+import { SystemCallContext } from './system_call_api';
 
 export interface ExportLogsModalProps {
   usbDriveStatus: UsbDriveStatus;
   auth: DippedSmartCardAuth.AuthStatus | InsertedSmartCardAuth.AuthStatus;
   logger: Logger;
-  onExportLogs: () => Promise<LogsResultType>;
   onClose: () => void;
 }
 
@@ -37,18 +36,21 @@ export function ExportLogsModal({
   auth,
   logger,
   onClose,
-  onExportLogs,
 }: ExportLogsModalProps): JSX.Element {
   assert(isSystemAdministratorAuth(auth) || isElectionManagerAuth(auth)); // TODO(auth) should this check for a specific user type
   const userRole = auth.user.role;
 
+  const { api } = assertDefined(useContext(SystemCallContext));
+
+  const exportLogsToUsbMutation = api.exportLogsToUsb.useMutation();
   const [currentState, setCurrentState] = useState(ModalState.Init);
   const [errorMessage, setErrorMessage] = useState('');
 
   async function exportLogs() {
     setCurrentState(ModalState.Saving);
 
-    const result = await onExportLogs();
+    const result = await exportLogsToUsbMutation.mutateAsync();
+
     await logger.log(LogEventId.FileSaved, userRole, {
       disposition: result.isOk() ? 'success' : 'failure',
       message: result.isOk()
