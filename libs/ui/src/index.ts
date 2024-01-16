@@ -62,6 +62,7 @@ export * from './react_query';
 export * from './reboot_to_bios_button';
 export * from './rotate_card_image';
 export * from './segmented_button';
+export * from './system_call_api';
 export * from './themes/render_with_themes';
 export * from './themes/vx_theme_provider';
 export * from './screen';

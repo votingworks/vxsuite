@@ -3,8 +3,8 @@
 import { LanguageCode, UiStringsPackage } from '@votingworks/types';
 
 import React from 'react';
-import { UiString } from '../../src/ui_strings/ui_string';
-import { Font } from '../../src/typography';
+import { UiString } from '../src/ui_strings/ui_string';
+import { Font } from '../src/typography';
 
 export const TEST_UI_STRING_KEY = 'numPlanets';
 
