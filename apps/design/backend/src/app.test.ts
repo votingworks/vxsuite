@@ -391,6 +391,7 @@ test('Election package export', async () => {
 
   const {
     electionDefinition,
+    metadata,
     systemSettings,
     uiStringAudioClips,
     uiStringAudioIds,
@@ -398,10 +399,17 @@ test('Election package export', async () => {
   } = (
     await readElectionPackageFromFile(electionPackageFilePath)
   ).unsafeUnwrap();
+  assert(metadata !== undefined);
   assert(systemSettings !== undefined);
   assert(uiStringAudioClips !== undefined);
   assert(uiStringAudioIds !== undefined);
   assert(uiStrings !== undefined);
+
+  //
+  // Check metadata
+  //
+
+  expect(metadata.version).toEqual('latest');
 
   //
   // Check election definition
