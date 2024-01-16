@@ -19,12 +19,21 @@ import {
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import type { MachineConfig } from '@votingworks/admin-backend';
-import { mockUsbDriveStatus, TestErrorBoundary } from '@votingworks/ui';
+import {
+  mockUsbDriveStatus,
+  SystemCallContextProvider,
+  TestErrorBoundary,
+} from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { render as testRender, RenderResult } from './react_testing_library';
 import { AppContext } from '../src/contexts/app_context';
 import { Iso8601Timestamp } from '../src/config/types';
-import { ApiClient, ApiClientContext, createQueryClient } from '../src/api';
+import {
+  ApiClient,
+  ApiClientContext,
+  createQueryClient,
+  systemCallApi,
+} from '../src/api';
 import { ApiMock } from './helpers/mock_api_client';
 
 export const eitherNeitherElectionDefinition =
@@ -68,7 +77,9 @@ export function renderRootElement(
     <TestErrorBoundary>
       <ApiClientContext.Provider value={apiClient}>
         <QueryClientProvider client={queryClient}>
-          {component}
+          <SystemCallContextProvider api={systemCallApi}>
+            {component}
+          </SystemCallContextProvider>
         </QueryClientProvider>
       </ApiClientContext.Provider>
     </TestErrorBoundary>

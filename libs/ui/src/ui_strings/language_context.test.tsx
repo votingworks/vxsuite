@@ -1,8 +1,8 @@
 import { LanguageCode } from '@votingworks/types';
 import { act } from 'react-dom/test-utils';
 import { waitFor } from '../../test/react_testing_library';
-import { newTestContext } from '../../test/ui_strings/test_utils';
-import { TEST_UI_STRING_TRANSLATIONS } from '../../test/ui_strings/test_strings';
+import { newTestContext } from '../../test/test_context';
+import { TEST_UI_STRING_TRANSLATIONS } from '../../test/test_ui_strings';
 import {
   DEFAULT_I18NEXT_NAMESPACE,
   DEFAULT_LANGUAGE_CODE,

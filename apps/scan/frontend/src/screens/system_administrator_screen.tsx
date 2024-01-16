@@ -12,14 +12,12 @@ import { AuthStatus } from '@votingworks/types/src/auth/inserted_smart_card_auth
 import { ElectionDefinition, PollsState } from '@votingworks/types';
 import { Logger } from '@votingworks/logging';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import type { LogsResultType } from '@votingworks/backend';
 import { Screen } from '../components/layout';
 import { LiveCheckButton } from '../components/live_check_button';
 import { transitionPolls, unconfigureElection, logOut } from '../api';
 
 interface SystemAdministratorScreenProps {
   authStatus: AuthStatus;
-  doExportLogs: () => Promise<LogsResultType>;
   electionDefinition?: ElectionDefinition;
   pollsState: PollsState;
   logger: Logger;
@@ -28,7 +26,6 @@ interface SystemAdministratorScreenProps {
 
 export function SystemAdministratorScreen({
   authStatus,
-  doExportLogs,
   electionDefinition,
   pollsState,
   logger,
@@ -47,7 +44,6 @@ export function SystemAdministratorScreen({
         usbDriveStatus={usbDrive}
         auth={authStatus}
         logger={logger}
-        onExportLogs={doExportLogs}
       />
     </React.Fragment>
   );

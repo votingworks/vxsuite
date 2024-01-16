@@ -11,6 +11,7 @@ import {
 import {
   QUERY_CLIENT_DEFAULT_OPTIONS,
   USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
+  createSystemCallApi,
   createUiStringsApi,
 } from '@votingworks/ui';
 import { deepEqual } from '@votingworks/basics';
@@ -382,3 +383,5 @@ export const setPatDeviceIsCalibrated = {
     });
   },
 } as const;
+
+export const systemCallApi = createSystemCallApi(useApiClient);

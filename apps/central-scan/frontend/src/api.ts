@@ -5,6 +5,7 @@ import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
   USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
+  createSystemCallApi,
 } from '@votingworks/ui';
 import {
   QueryClient,
@@ -213,9 +214,4 @@ export const exportCastVoteRecordsToUsbDrive = {
   },
 } as const;
 
-export const exportLogsToUsb = {
-  useMutation() {
-    const apiClient = useApiClient();
-    return useMutation(apiClient.exportLogsToUsb);
-  },
-} as const;
+export const systemCallApi = createSystemCallApi(useApiClient);

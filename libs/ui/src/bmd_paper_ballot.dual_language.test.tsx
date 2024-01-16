@@ -14,7 +14,7 @@ import { mockOf } from '@votingworks/test-utils';
 import { generateBallotStyleId } from '@votingworks/utils';
 import { assertDefined, find } from '@votingworks/basics';
 import { BmdPaperBallot } from './bmd_paper_ballot';
-import { newTestContext as newUiStringsTestContext } from '../test/ui_strings/test_utils';
+import { newTestContext as newUiStringsTestContext } from '../test/test_context';
 import { UiString, UiStringProps } from './ui_strings/ui_string';
 import { useLanguageContext } from './ui_strings/language_context';
 import { act, screen, waitFor } from '../test/react_testing_library';

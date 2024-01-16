@@ -11,14 +11,13 @@ import {
 import { MachineConfig } from '@votingworks/mark-scan-backend';
 
 import { randomBallotId } from '@votingworks/utils';
-import { QueryClientProvider } from '@tanstack/react-query';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
-import { ApiClientContext, createQueryClient } from '../src/api';
 import { render as testRender } from './react_testing_library';
 
 import { BallotContext } from '../src/contexts/ballot_context';
 import { fakeMachineConfig } from './helpers/fake_machine_config';
 import { ApiMock, createApiMock } from './helpers/mock_api_client';
+import { ApiProvider } from '../src/api_provider';
 
 export function render(
   component: React.ReactNode,
@@ -60,28 +59,26 @@ export function render(
 ): ReturnType<typeof testRender> {
   return {
     ...testRender(
-      <ApiClientContext.Provider value={apiMock.mockApiClient}>
-        <QueryClientProvider client={createQueryClient()}>
-          <BallotContext.Provider
-            value={{
-              ballotStyleId,
-              contests,
-              electionDefinition,
-              generateBallotId,
-              isCardlessVoter,
-              isLiveMode,
-              machineConfig,
-              endVoterSession,
-              precinctId,
-              resetBallot,
-              updateVote,
-              votes,
-            }}
-          >
-            <Router history={history}>{component}</Router>
-          </BallotContext.Provider>
-        </QueryClientProvider>
-      </ApiClientContext.Provider>
+      <ApiProvider apiClient={apiMock.mockApiClient}>
+        <BallotContext.Provider
+          value={{
+            ballotStyleId,
+            contests,
+            electionDefinition,
+            generateBallotId,
+            isCardlessVoter,
+            isLiveMode,
+            machineConfig,
+            endVoterSession,
+            precinctId,
+            resetBallot,
+            updateVote,
+            votes,
+          }}
+        >
+          <Router history={history}>{component}</Router>
+        </BallotContext.Provider>
+      </ApiProvider>
     ),
   };
 }

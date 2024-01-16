@@ -1,5 +1,3 @@
-import { ok } from '@votingworks/basics';
-import type { LogsResultType } from '@votingworks/backend';
 import { ElectionDefinition } from '@votingworks/types';
 import {
   Button,
@@ -50,7 +48,6 @@ export interface ElectionManagerScreenProps {
   scannerStatus: PrecinctScannerStatus;
   usbDrive: UsbDriveStatus;
   logger: Logger;
-  doExportLogs: () => Promise<LogsResultType>;
 }
 
 export function ElectionManagerScreen({
@@ -58,7 +55,6 @@ export function ElectionManagerScreen({
   scannerStatus,
   usbDrive,
   logger,
-  doExportLogs,
 }: ElectionManagerScreenProps): JSX.Element | null {
   const supportsUltrasonicQuery = supportsUltrasonic.useQuery();
   const configQuery = getConfig.useQuery();
@@ -188,7 +184,6 @@ export function ElectionManagerScreen({
           usbDriveStatus={usbDrive}
           auth={authStatus}
           logger={logger}
-          onExportLogs={doExportLogs}
         />
       </P>
     </React.Fragment>
@@ -328,10 +323,6 @@ export function ElectionManagerScreen({
 /* istanbul ignore next */
 export function DefaultPreview(): JSX.Element {
   const { electionDefinition } = usePreviewContext();
-  // eslint-disable-next-line @typescript-eslint/require-await
-  const doExportLogs: () => Promise<LogsResultType> = async () => {
-    return ok();
-  };
   return (
     <ElectionManagerScreen
       electionDefinition={electionDefinition}
@@ -341,7 +332,6 @@ export function DefaultPreview(): JSX.Element {
       }}
       usbDrive={{ status: 'no_drive' }}
       logger={new Logger(LogSource.VxScanFrontend)}
-      doExportLogs={doExportLogs}
     />
   );
 }

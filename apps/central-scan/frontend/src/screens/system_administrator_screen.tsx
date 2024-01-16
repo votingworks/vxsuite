@@ -10,27 +10,15 @@ import {
   ExportLogsButton,
 } from '@votingworks/ui';
 import { useContext } from 'react';
-import type { LogsResultType } from '@votingworks/backend';
-import { err } from '@votingworks/basics';
 import { NavigationScreen } from '../navigation_screen';
 import { AppContext } from '../contexts/app_context';
-import { exportLogsToUsb, logOut, unconfigure } from '../api';
+import { logOut, unconfigure } from '../api';
 
 export function SystemAdministratorScreen(): JSX.Element {
   const { auth, electionDefinition, logger, usbDriveStatus } =
     useContext(AppContext);
   const unconfigureMutation = unconfigure.useMutation();
   const logOutMutation = logOut.useMutation();
-  const exportLogsToUsbMutation = exportLogsToUsb.useMutation();
-
-  async function doExportLogs(): Promise<LogsResultType> {
-    try {
-      return await exportLogsToUsbMutation.mutateAsync();
-    } catch (e) {
-      /* istanbul ignore next */
-      return err('copy-failed');
-    }
-  }
 
   return (
     <NavigationScreen title="System Administrator">
@@ -56,7 +44,6 @@ export function SystemAdministratorScreen(): JSX.Element {
         usbDriveStatus={usbDriveStatus}
         auth={auth}
         logger={logger}
-        onExportLogs={doExportLogs}
       />
       <H2>Date and Time</H2>
       <P>

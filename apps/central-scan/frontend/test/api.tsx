@@ -3,9 +3,9 @@ import type { Api } from '@votingworks/central-scan-backend';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import { DippedSmartCardAuth } from '@votingworks/types';
 import { QueryClientProvider } from '@tanstack/react-query';
-import { TestErrorBoundary } from '@votingworks/ui';
+import { SystemCallContextProvider, TestErrorBoundary } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { ApiClientContext, createQueryClient } from '../src/api';
+import { ApiClientContext, createQueryClient, systemCallApi } from '../src/api';
 
 export type MockApiClient = MockClient<Api>;
 
@@ -37,7 +37,9 @@ export function provideApi(
     <TestErrorBoundary>
       <ApiClientContext.Provider value={apiMock}>
         <QueryClientProvider client={createQueryClient()}>
-          {children}
+          <SystemCallContextProvider api={systemCallApi}>
+            {children}
+          </SystemCallContextProvider>
         </QueryClientProvider>
       </ApiClientContext.Provider>
     </TestErrorBoundary>

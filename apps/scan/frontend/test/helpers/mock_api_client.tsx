@@ -18,7 +18,6 @@ import type {
   PrecinctScannerConfig,
   PrecinctScannerStatus,
 } from '@votingworks/scan-backend';
-import { QueryClientProvider } from '@tanstack/react-query';
 import { ok } from '@votingworks/basics';
 import {
   fakeElectionManagerUser,
@@ -28,10 +27,10 @@ import {
 } from '@votingworks/test-utils';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { TestErrorBoundary } from '@votingworks/ui';
-import { ApiClientContext, createQueryClient } from '../../src/api';
 import { mockUsbDriveStatus } from './mock_usb_drive';
 import { getCurrentTime } from '../../src/utils/get_current_time';
 import { mockPollsInfo } from './mock_polls_info';
+import { ApiProvider } from '../../src/api_provider';
 
 export const machineConfig: MachineConfig = {
   machineId: '0002',
@@ -207,11 +206,7 @@ export function provideApi(
 ): JSX.Element {
   return (
     <TestErrorBoundary>
-      <ApiClientContext.Provider value={apiMock.mockApiClient}>
-        <QueryClientProvider client={createQueryClient()}>
-          {children}
-        </QueryClientProvider>
-      </ApiClientContext.Provider>
+      <ApiProvider apiClient={apiMock.mockApiClient}>{children}</ApiProvider>
     </TestErrorBoundary>
   );
 }

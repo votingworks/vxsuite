@@ -31,6 +31,7 @@ import {
   createUiStringsApi,
   readSignedElectionPackageFromUsb,
   configureUiStrings,
+  createSystemCallApi,
 } from '@votingworks/backend';
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
@@ -272,6 +273,11 @@ export function buildApi(
     ...createUiStringsApi({
       logger,
       store: workspace.store.getUiStringsStore(),
+    }),
+
+    ...createSystemCallApi({
+      usbDrive,
+      machineId: getMachineConfig().machineId,
     }),
 
     async setPollsState(input: { pollsState: PollsState }) {

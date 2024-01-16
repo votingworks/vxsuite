@@ -2,7 +2,6 @@ import {
   electionGeneralDefinition,
   electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
-import { QueryClientProvider } from '@tanstack/react-query';
 import userEvent from '@testing-library/user-event';
 import { screen } from '../../test/react_testing_library';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
@@ -12,7 +11,7 @@ import {
   ReplaceElectionScreenProps,
 } from './replace_election_screen';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { ApiClientContext, createQueryClient } from '../api';
+import { ApiProvider } from '../api_provider';
 
 const machineElectionDefinition = electionGeneralDefinition;
 const authElectionHash = electionTwoPartyPrimaryDefinition.electionHash.slice(
@@ -32,20 +31,18 @@ afterEach(() => {
 
 function renderScreen(props: Partial<ReplaceElectionScreenProps> = {}) {
   return render(
-    <ApiClientContext.Provider value={apiMock.mockApiClient}>
-      <QueryClientProvider client={createQueryClient()}>
-        <ReplaceElectionScreen
-          ballotsPrintedCount={0}
-          // Election hashes must differ for this screen to be rendered
-          authElectionHash={authElectionHash}
-          electionDefinition={machineElectionDefinition}
-          machineConfig={fakeMachineConfig()}
-          isLoading={false}
-          isError={false}
-          {...props}
-        />
-      </QueryClientProvider>
-    </ApiClientContext.Provider>
+    <ApiProvider apiClient={apiMock.mockApiClient} noAudio>
+      <ReplaceElectionScreen
+        ballotsPrintedCount={0}
+        // Election hashes must differ for this screen to be rendered
+        authElectionHash={authElectionHash}
+        electionDefinition={machineElectionDefinition}
+        machineConfig={fakeMachineConfig()}
+        isLoading={false}
+        isError={false}
+        {...props}
+      />
+    </ApiProvider>
   );
 }
 
