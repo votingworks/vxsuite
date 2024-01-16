@@ -5,7 +5,7 @@ import {
 } from '@votingworks/auth';
 import { Result, assert, assertDefined, ok } from '@votingworks/basics';
 import {
-  createLogsApi,
+  createSystemCallApi,
   readSignedElectionPackageFromUsb,
   exportCastVoteRecordsToUsbDrive,
 } from '@votingworks/backend';
@@ -259,7 +259,10 @@ function buildApi({
       return exportResult;
     },
 
-    ...createLogsApi({ usbDrive, machineId: getMachineConfig().machineId }),
+    ...createSystemCallApi({
+      usbDrive,
+      machineId: getMachineConfig().machineId,
+    }),
   });
 }
 

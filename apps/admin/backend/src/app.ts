@@ -49,7 +49,7 @@ import {
   FileSystemEntry,
   FileSystemEntryType,
   ListDirectoryOnUsbDriveError,
-  createLogsApi,
+  createSystemCallApi,
   listDirectoryOnUsbDrive,
   readElectionPackageFromFile,
 } from '@votingworks/backend';
@@ -879,7 +879,10 @@ function buildApi({
       });
     },
 
-    ...createLogsApi({ usbDrive, machineId: getMachineConfig().machineId }),
+    ...createSystemCallApi({
+      usbDrive,
+      machineId: getMachineConfig().machineId,
+    }),
   });
 }
 

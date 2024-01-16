@@ -1,6 +1,5 @@
 import { useState, useContext } from 'react';
-import { assert, err } from '@votingworks/basics';
-import type { LogsResultType } from '@votingworks/backend';
+import { assert } from '@votingworks/basics';
 import {
   Button,
   CurrentDateAndTime,
@@ -24,7 +23,6 @@ import {
   unconfigure,
   exportCastVoteRecordsToUsbDrive,
   ejectUsbDrive,
-  exportLogsToUsb,
 } from '../api';
 import { NavigationScreen } from '../navigation_screen';
 
@@ -51,15 +49,6 @@ export function SettingsScreen({
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const exportCastVoteRecordsToUsbDriveMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();
-  const exportLogsToUsbMutation = exportLogsToUsb.useMutation();
-
-  async function doExportLogs(): Promise<LogsResultType> {
-    try {
-      return await exportLogsToUsbMutation.mutateAsync();
-    } catch (e) {
-      return err('copy-failed');
-    }
-  }
 
   async function unconfigureMachine() {
     try {
@@ -130,7 +119,6 @@ export function SettingsScreen({
           usbDriveStatus={usbDriveStatus}
           auth={auth}
           logger={logger}
-          onExportLogs={doExportLogs}
         />
       </ButtonRow>
 

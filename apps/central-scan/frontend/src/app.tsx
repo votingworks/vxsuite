@@ -2,7 +2,13 @@ import { getHardware } from '@votingworks/utils';
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { Logger, LogSource } from '@votingworks/logging';
-import { AppBase, ErrorBoundary, H1, P } from '@votingworks/ui';
+import {
+  AppBase,
+  ErrorBoundary,
+  H1,
+  P,
+  SystemCallContextProvider,
+} from '@votingworks/ui';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AppRoot, AppRootProps } from './app_root';
 import {
@@ -10,6 +16,7 @@ import {
   ApiClientContext,
   createApiClient,
   createQueryClient,
+  systemCallApi,
 } from './api';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
 
@@ -44,8 +51,10 @@ export function App({
         >
           <ApiClientContext.Provider value={apiClient}>
             <QueryClientProvider client={queryClient}>
-              <AppRoot hardware={hardware} logger={logger} />
-              <SessionTimeLimitTracker />
+              <SystemCallContextProvider api={systemCallApi}>
+                <AppRoot hardware={hardware} logger={logger} />
+                <SessionTimeLimitTracker />
+              </SystemCallContextProvider>
             </QueryClientProvider>
           </ApiClientContext.Provider>
         </ErrorBoundary>

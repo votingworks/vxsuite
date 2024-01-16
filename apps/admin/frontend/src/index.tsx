@@ -8,11 +8,22 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { AppBase, ErrorBoundary, H1, P } from '@votingworks/ui';
+import {
+  AppBase,
+  ErrorBoundary,
+  H1,
+  P,
+  SystemCallContextProvider,
+} from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import { LogSource, Logger } from '@votingworks/logging';
 import { App } from './app';
-import { ApiClientContext, createApiClient, createQueryClient } from './api';
+import {
+  ApiClientContext,
+  createApiClient,
+  createQueryClient,
+  systemCallApi,
+} from './api';
 
 /* Copied from old App.css */
 const PRINT_FONT_SIZE_PX = 14;
@@ -47,14 +58,19 @@ root.render(
       >
         <ApiClientContext.Provider value={apiClient}>
           <QueryClientProvider client={queryClient}>
-            <App logger={logger} />
-            {isFeatureFlagEnabled(
-              BooleanEnvironmentVariableName.ENABLE_REACT_QUERY_DEVTOOLS
-            ) && (
-              <div className="no-print">
-                <ReactQueryDevtools initialIsOpen={false} position="top-left" />
-              </div>
-            )}
+            <SystemCallContextProvider api={systemCallApi}>
+              <App logger={logger} />
+              {isFeatureFlagEnabled(
+                BooleanEnvironmentVariableName.ENABLE_REACT_QUERY_DEVTOOLS
+              ) && (
+                <div className="no-print">
+                  <ReactQueryDevtools
+                    initialIsOpen={false}
+                    position="top-left"
+                  />
+                </div>
+              )}
+            </SystemCallContextProvider>
           </QueryClientProvider>
         </ApiClientContext.Provider>
       </ErrorBoundary>

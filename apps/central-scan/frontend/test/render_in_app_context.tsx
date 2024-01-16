@@ -1,7 +1,7 @@
 import { electionGeneralDefinition as testElectionDefinition } from '@votingworks/fixtures';
 import { LogSource, Logger } from '@votingworks/logging';
 import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
-import { TestErrorBoundary } from '@votingworks/ui';
+import { SystemCallContextProvider, TestErrorBoundary } from '@votingworks/ui';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
 import { Router } from 'react-router-dom';
@@ -12,7 +12,12 @@ import {
 } from '@votingworks/test-utils';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { render, RenderResult } from './react_testing_library';
-import { ApiClient, ApiClientContext, createQueryClient } from '../src/api';
+import {
+  ApiClient,
+  ApiClientContext,
+  createQueryClient,
+  systemCallApi,
+} from '../src/api';
 import { AppContext, AppContextInterface } from '../src/contexts/app_context';
 
 interface RenderInAppContextParams {
@@ -73,17 +78,19 @@ export function wrapInAppContext(
     <TestErrorBoundary>
       <ApiClientContext.Provider value={apiClient}>
         <QueryClientProvider client={queryClient}>
-          <AppContext.Provider
-            value={makeAppContext({
-              electionDefinition,
-              machineConfig: { machineId, codeVersion: 'TEST' },
-              usbDriveStatus,
-              auth,
-              logger,
-            })}
-          >
-            <Router history={history}>{component}</Router>
-          </AppContext.Provider>
+          <SystemCallContextProvider api={systemCallApi}>
+            <AppContext.Provider
+              value={makeAppContext({
+                electionDefinition,
+                machineConfig: { machineId, codeVersion: 'TEST' },
+                usbDriveStatus,
+                auth,
+                logger,
+              })}
+            >
+              <Router history={history}>{component}</Router>
+            </AppContext.Provider>
+          </SystemCallContextProvider>
         </QueryClientProvider>
       </ApiClientContext.Provider>
     </TestErrorBoundary>
