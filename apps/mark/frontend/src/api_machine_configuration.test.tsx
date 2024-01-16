@@ -22,7 +22,7 @@ function QueryWrapper(props: { children: React.ReactNode }) {
   const { children } = props;
 
   return (
-    <ApiProvider queryClient={queryClient} apiClient={mockBackendApi}>
+    <ApiProvider queryClient={queryClient} apiClient={mockBackendApi} noAudio>
       {children}
     </ApiProvider>
   );

@@ -31,7 +31,7 @@ afterEach(() => {
 
 function renderScreen(props: Partial<ReplaceElectionScreenProps> = {}) {
   return render(
-    <ApiProvider apiClient={apiMock.mockApiClient}>
+    <ApiProvider apiClient={apiMock.mockApiClient} noAudio>
       <ReplaceElectionScreen
         ballotsPrintedCount={0}
         // Election hashes must differ for this screen to be rendered

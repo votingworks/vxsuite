@@ -31,7 +31,7 @@ function identifyInputs() {
 
 function renderComponent() {
   render(
-    <ApiProvider apiClient={apiMock.mockApiClient}>
+    <ApiProvider apiClient={apiMock.mockApiClient} noAudio>
       <PatDeviceCalibrationPage />
     </ApiProvider>
   );

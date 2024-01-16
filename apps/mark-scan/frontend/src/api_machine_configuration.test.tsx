@@ -19,7 +19,11 @@ const mockBackendApi: ApiClient = {
 function QueryWrapper(props: { children: React.ReactNode }) {
   const { children } = props;
 
-  return <ApiProvider apiClient={mockBackendApi}>{children}</ApiProvider>;
+  return (
+    <ApiProvider apiClient={mockBackendApi} noAudio>
+      {children}
+    </ApiProvider>
+  );
 }
 
 const mockOnConfigurationChange = jest.spyOn(

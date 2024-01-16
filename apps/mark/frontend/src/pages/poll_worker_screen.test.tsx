@@ -63,7 +63,7 @@ function renderScreen(
   electionDefinition: ElectionDefinition = electionGeneralDefinition
 ) {
   return render(
-    <ApiProvider apiClient={apiMock.mockApiClient}>
+    <ApiProvider apiClient={apiMock.mockApiClient} noAudio>
       <PollWorkerScreen
         pollWorkerAuth={pollWorkerAuth}
         activateCardlessVoterSession={jest.fn()}

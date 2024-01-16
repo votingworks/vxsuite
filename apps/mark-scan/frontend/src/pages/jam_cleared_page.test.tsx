@@ -14,7 +14,7 @@ afterEach(() => {
 
 test('ends cardless voter session if entering resetting_state_machine_after_jam state', () => {
   render(
-    <ApiProvider apiClient={apiMock.mockApiClient}>
+    <ApiProvider apiClient={apiMock.mockApiClient} noAudio>
       <JamClearedPage stateMachineState="resetting_state_machine_after_jam" />
     </ApiProvider>
   );

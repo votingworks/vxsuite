@@ -16,11 +16,13 @@ export function ApiProvider({
   queryClient = createQueryClient(),
   apiClient,
   enableStringTranslation,
+  noAudio,
   children,
 }: {
   queryClient?: QueryClient;
   apiClient: ApiClient;
   enableStringTranslation?: boolean;
+  noAudio?: boolean;
   children: React.ReactNode;
 }): JSX.Element {
   return (
@@ -30,6 +32,7 @@ export function ApiProvider({
           <UiStringsContextProvider
             api={uiStringsApi}
             disabled={!enableStringTranslation}
+            noAudio={noAudio}
           >
             {children}
           </UiStringsContextProvider>

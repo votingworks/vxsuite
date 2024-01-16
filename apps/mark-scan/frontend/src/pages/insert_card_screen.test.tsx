@@ -21,7 +21,7 @@ afterEach(() => {
 
 test('renders correctly', async () => {
   render(
-    <ApiProvider apiClient={apiMock.mockApiClient}>
+    <ApiProvider apiClient={apiMock.mockApiClient} noAudio>
       <InsertCardScreen
         appPrecinct={ALL_PRECINCTS_SELECTION}
         electionDefinition={electionDefinition}

@@ -27,6 +27,7 @@ export interface Props {
   apiClient?: ApiClient;
   queryClient?: QueryClient;
   enableStringTranslation?: boolean;
+  noAudio?: boolean;
 }
 
 export function App({
@@ -36,6 +37,7 @@ export function App({
   /* istanbul ignore next */ apiClient = createApiClient(),
   queryClient = createQueryClient(),
   enableStringTranslation,
+  noAudio,
 }: Props): JSX.Element {
   return (
     <AppBase
@@ -66,6 +68,7 @@ export function App({
             queryClient={queryClient}
             apiClient={apiClient}
             enableStringTranslation={enableStringTranslation}
+            noAudio={noAudio}
           >
             <AppRoot hardware={hardware} reload={reload} logger={logger} />
             <SessionTimeLimitTracker />
