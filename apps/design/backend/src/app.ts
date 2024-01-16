@@ -27,6 +27,7 @@ import {
 } from './test_decks';
 import { AppContext } from './context';
 import { extractAndTranslateElectionStrings } from './language_and_audio';
+import { rotateCandidates } from './candidate_rotation';
 
 export function createBlankElection(): Election {
   return {
@@ -136,6 +137,7 @@ function buildApi({ translator, workspace }: AppContext) {
       store.updateElection(input.electionId, {
         ...election,
         ...input.election,
+        contests: input.election.contests.map(rotateCandidates),
       });
     },
 
