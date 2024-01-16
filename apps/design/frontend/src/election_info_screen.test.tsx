@@ -145,7 +145,9 @@ test('edit and save election', async () => {
 
   userEvent.upload(
     within(sealInput).getByLabelText('Upload Seal Image'),
-    new File(['<svg>updated seal</svg>'], 'new_seal.svg')
+    new File(['<svg>updated seal</svg>'], 'new_seal.svg', {
+      type: 'image/svg+xml',
+    })
   );
   await waitFor(() =>
     expect(within(sealInput).getByRole('img')).toHaveAttribute(
