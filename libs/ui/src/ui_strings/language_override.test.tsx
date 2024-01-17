@@ -9,20 +9,9 @@ import { newTestContext } from '../../test/test_context';
 import { InEnglish, LanguageOverride } from './language_override';
 import { Button, appStrings } from '..';
 
-const { getLanguageContext, mockBackendApi, render } = newTestContext();
-
-beforeEach(() => {
-  mockBackendApi.getAvailableLanguages.mockResolvedValueOnce([
-    LanguageCode.ENGLISH,
-    LanguageCode.SPANISH,
-  ]);
-});
-
-afterEach(() => {
-  jest.resetAllMocks();
-});
-
 test('LanguageOverride overrides current active language', async () => {
+  const { getLanguageContext, mockBackendApi, render } = newTestContext();
+
   const testTranslations: UiStringsPackage = {
     [LanguageCode.ENGLISH]: { buttonOkay: 'Cool beans' },
     [LanguageCode.SPANISH]: { buttonOkay: 'Bueno' },
@@ -44,6 +33,8 @@ test('LanguageOverride overrides current active language', async () => {
 });
 
 test('LanguageOverride is no-op when parent context is missing', async () => {
+  const { mockBackendApi } = newTestContext();
+
   const testTranslations: UiStringsPackage = {
     [LanguageCode.ENGLISH]: { buttonOkay: 'Cool beans' },
     [LanguageCode.SPANISH]: { buttonOkay: 'Bueno' },
@@ -62,6 +53,8 @@ test('LanguageOverride is no-op when parent context is missing', async () => {
 });
 
 test('InEnglish forces English translation', async () => {
+  const { getLanguageContext, mockBackendApi, render } = newTestContext();
+
   const testTranslations: UiStringsPackage = {
     [LanguageCode.ENGLISH]: { buttonOkay: 'Cool beans' },
     [LanguageCode.SPANISH]: { buttonOkay: 'Bueno' },
