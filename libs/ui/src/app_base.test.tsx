@@ -8,9 +8,9 @@ import { act, render } from '@testing-library/react';
 import { AppBaseProps, AppBase as OriginalAppBase } from './app_base';
 import { makeTheme } from './themes/make_theme';
 import {
-  ThemeManagerContext,
-  ThemeManagerContextInterface,
-} from './theme_manager_context';
+  DisplaySettingsManagerContext,
+  DisplaySettingsManagerContextInterface,
+} from './display_settings_manager_context';
 
 function AppBase(props: AppBaseProps) {
   return <OriginalAppBase {...props} disableFontsForTests />;
@@ -112,10 +112,10 @@ test('renders with enableScroll', () => {
 
 test('implements ThemeManagerContext interface', () => {
   let currentTheme: UiTheme | null = null;
-  let manager: ThemeManagerContextInterface | null = null;
+  let manager: DisplaySettingsManagerContextInterface | null = null;
 
   function TestComponent(): JSX.Element {
-    manager = React.useContext(ThemeManagerContext);
+    manager = React.useContext(DisplaySettingsManagerContext);
 
     return (
       <ThemeConsumer>

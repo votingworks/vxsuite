@@ -7,7 +7,7 @@ import { ColorSettings, ColorSettingsProps } from './color_settings';
 import { SizeSettings, SizeSettingsProps } from './size_settings';
 import { H2 } from '../typography';
 import { Button } from '../button';
-import { ThemeManagerContext } from '../theme_manager_context';
+import { DisplaySettingsManagerContext } from '../display_settings_manager_context';
 import { useScreenInfo } from '../hooks/use_screen_info';
 import { appStrings } from '../ui_strings';
 
@@ -67,7 +67,7 @@ export function DisplaySettings(props: DisplaySettingsProps): JSX.Element {
     'displaySettingsColor'
   );
 
-  const { resetThemes } = React.useContext(ThemeManagerContext);
+  const { resetThemes } = React.useContext(DisplaySettingsManagerContext);
 
   return (
     <Container>
