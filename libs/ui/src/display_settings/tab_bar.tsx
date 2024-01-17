@@ -37,6 +37,7 @@ const TabLabel = styled.span`
 const TAB_LABELS: Record<SettingsPaneId, JSX.Element> = {
   displaySettingsColor: appStrings.titleDisplaySettingsColor(),
   displaySettingsSize: appStrings.titleDisplaySettingsSize(),
+  displaySettingsSensoryToggle: appStrings.titleDisplaySettingsSensoryToggle(),
 };
 
 /**

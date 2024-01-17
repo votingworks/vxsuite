@@ -27,6 +27,7 @@ export type VxRenderOptions = RenderOptions & {
   vxTheme?: {
     colorMode?: ColorMode;
     sizeMode?: SizeMode;
+    isVisualModeDisabled?: boolean;
   };
 };
 
@@ -52,6 +53,7 @@ export function renderWithThemes(
       <AppBase
         defaultColorMode={vxTheme.colorMode ?? 'contrastMedium'}
         defaultSizeMode={vxTheme.sizeMode ?? 'touchSmall'}
+        defaultIsVisualModeDisabled={vxTheme.isVisualModeDisabled ?? false}
         disableFontsForTests
         {...props}
       />

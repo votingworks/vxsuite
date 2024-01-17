@@ -3,7 +3,12 @@ import { BrowserRouter } from 'react-router-dom';
 import { getHardware } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { QueryClient } from '@tanstack/react-query';
-import { AppBase, AppErrorBoundary } from '@votingworks/ui';
+import {
+  AppBase,
+  AppErrorBoundary,
+  useCurrentTheme,
+  VisualModeDisabledOverlay,
+} from '@votingworks/ui';
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 
 import { AppRoot, Props as AppRootProps } from './app_root';
@@ -41,6 +46,8 @@ export function App({
   enableStringTranslation,
   noAudio,
 }: Props): JSX.Element {
+  const currentTheme = useCurrentTheme();
+
   return (
     <AppBase
       defaultColorMode={DEFAULT_COLOR_MODE}
@@ -61,6 +68,9 @@ export function App({
               showRestartButton
               logger={logger}
             >
+              {currentTheme.isVisualModeDisabled && (
+                <VisualModeDisabledOverlay />
+              )}
               <AppRoot hardware={hardware} reload={reload} logger={logger} />
               <SessionTimeLimitTracker />
             </AppErrorBoundary>

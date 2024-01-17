@@ -12,6 +12,12 @@ import { UiString } from './ui_string';
 export const appStrings = {
   // TODO(kofi): Fill out.
 
+  audioOnlyModeEnabled: () => (
+    <UiString uiStringKey="titleAudioOnlyModeEnabled">
+      Audio-Only Mode is Enabled
+    </UiString>
+  ),
+
   buttonAccept: () => <UiString uiStringKey="buttonAccept">Accept</UiString>,
 
   buttonAddWriteIn: () => (
@@ -51,7 +57,7 @@ export const appStrings = {
   buttonDone: () => <UiString uiStringKey="buttonDone">Done</UiString>,
 
   buttonDisplaySettings: () => (
-    <UiString uiStringKey="buttonDisplaySettings">Color/Size</UiString>
+    <UiString uiStringKey="buttonDisplaySettings">Display Settings</UiString>
   ),
 
   buttonMore: () => <UiString uiStringKey="buttonMore">More</UiString>,
@@ -701,6 +707,24 @@ export const appStrings = {
 
   titleDisplaySettingsSize: () => (
     <UiString uiStringKey="titleDisplaySettingsSize">Text Size</UiString>
+  ),
+
+  titleDisplaySettingsSensoryToggle: () => (
+    <UiString uiStringKey="titleDisplaySettingsSensoryToggle">
+      Accessibility Modes
+    </UiString>
+  ),
+
+  titleEnableAudioOnlyMode: () => (
+    <UiString uiStringKey="titleEnableAudioOnlyMode">
+      Enable Audio-Only Mode
+    </UiString>
+  ),
+
+  titleExitAudioOnlyMode: () => (
+    <UiString uiStringKey="titleExitAudioOnlyMode">
+      Exit Audio-Only Mode
+    </UiString>
   ),
 
   titleInternalConnectionProblem: () => (

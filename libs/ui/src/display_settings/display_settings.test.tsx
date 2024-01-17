@@ -21,6 +21,10 @@ test('changes tab pane on tab bar events', () => {
   userEvent.click(screen.getByRole('tab', { name: /size/i }));
 
   screen.getByRole('radiogroup', { name: 'Text Size Settings' });
+
+  userEvent.click(screen.getByRole('tab', { name: /accessibility modes/i }));
+
+  screen.getByRole('button', { name: 'Enable Audio-Only Mode' });
 });
 
 test('resets button resets global theme', () => {

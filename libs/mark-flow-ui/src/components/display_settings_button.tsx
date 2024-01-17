@@ -16,7 +16,10 @@ export function DisplaySettingsButton(): JSX.Element | null {
   const history = useHistory();
 
   return (
-    <Button onPress={history.push} value={Paths.DISPLAY_SETTINGS}>
+    <Button
+      onPress={(target: string) => history.push(target)}
+      value={Paths.DISPLAY_SETTINGS}
+    >
       <LabelContainer>
         <Icons.Display />
         {appStrings.buttonDisplaySettings()}

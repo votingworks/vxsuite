@@ -25,4 +25,13 @@ test('fires change event with settings pane id', () => {
     'displaySettingsColor',
     buttonPressEventMatcher()
   );
+
+  userEvent.click(
+    screen.getByRole('tab', { name: 'Accessibility Modes', selected: false })
+  );
+
+  expect(onChange).toHaveBeenCalledWith<[SettingsPaneId, SyntheticEvent]>(
+    'displaySettingsSensoryToggle',
+    buttonPressEventMatcher()
+  );
 });

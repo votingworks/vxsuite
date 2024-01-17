@@ -11,6 +11,7 @@ import { DisplaySettingsManagerContext } from '../display_settings_manager_conte
 import { useScreenInfo } from '../hooks/use_screen_info';
 import { appStrings } from '../ui_strings';
 import { Header } from './header';
+import { SensoryToggleSettings } from './sensory_toggle_settings';
 
 export interface DisplaySettingsProps {
   /** @default ['contrastLow', 'contrastMedium', 'contrastHighLight', 'contrastHighDark'] */
@@ -71,6 +72,9 @@ export function DisplaySettings(props: DisplaySettingsProps): JSX.Element {
         )}
         {activePaneId === 'displaySettingsSize' && (
           <SizeSettings sizeModes={sizeModes} />
+        )}
+        {activePaneId === 'displaySettingsSensoryToggle' && (
+          <SensoryToggleSettings />
         )}
       </ActivePaneContainer>
       <Footer>
