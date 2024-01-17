@@ -654,4 +654,14 @@ export class Store {
       taskId
     );
   }
+
+  requeueInterruptedBackgroundTasks(): void {
+    this.client.run(
+      `
+      update background_tasks
+      set started_at = null
+      where started_at is not null and completed_at is null
+      `
+    );
+  }
 }
