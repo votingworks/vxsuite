@@ -1,8 +1,8 @@
 import { DefaultTheme, ThemeContext } from 'styled-components';
 import React from 'react';
 import {
-  ThemeManagerContext,
-  ThemeManagerContextInterface,
+  DisplaySettingsManagerContext,
+  DisplaySettingsManagerContextInterface,
 } from '@votingworks/ui';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { advanceTimersAndPromises } from '@votingworks/test-utils';
@@ -20,12 +20,12 @@ import { scannerStatus } from '../../test/helpers/helpers';
 
 let apiMock: ApiMock;
 let currentTheme: DefaultTheme;
-let themeManager: ThemeManagerContextInterface;
+let displaySettingsManager: DisplaySettingsManagerContextInterface;
 let scannerStatusQuery: ReturnType<typeof getScannerStatus.useQuery>;
 
 function TestThemeInspector(): null {
   currentTheme = React.useContext(ThemeContext);
-  themeManager = React.useContext(ThemeManagerContext);
+  displaySettingsManager = React.useContext(DisplaySettingsManagerContext);
 
   scannerStatusQuery = getScannerStatus.useQuery();
 
@@ -69,8 +69,8 @@ afterEach(() => {
 test('Resets theme when election official logs in', async () => {
   // Simulate changing display settings as voter:
   act(() => {
-    themeManager.setColorMode('contrastLow');
-    themeManager.setSizeMode('touchExtraLarge');
+    displaySettingsManager.setColorMode('contrastLow');
+    displaySettingsManager.setSizeMode('touchExtraLarge');
   });
 
   expect(currentTheme).toEqual(
@@ -93,8 +93,8 @@ test('Resets theme when election official logs in', async () => {
 
   // Simulate changing display settings as Election Manager:
   act(() => {
-    themeManager.setColorMode('contrastHighDark');
-    themeManager.setSizeMode('touchSmall');
+    displaySettingsManager.setColorMode('contrastHighDark');
+    displaySettingsManager.setSizeMode('touchSmall');
   });
   await waitFor(() =>
     expect(currentTheme).toEqual(
@@ -127,8 +127,8 @@ test('Resets theme after successful scan', async () => {
 
       // Simulate initial voter display settings:
       act(() => {
-        themeManager.setColorMode('contrastHighDark');
-        themeManager.setSizeMode('touchExtraLarge');
+        displaySettingsManager.setColorMode('contrastHighDark');
+        displaySettingsManager.setSizeMode('touchExtraLarge');
       });
       expect(currentTheme).toEqual(
         expect.objectContaining<Partial<DefaultTheme>>({
