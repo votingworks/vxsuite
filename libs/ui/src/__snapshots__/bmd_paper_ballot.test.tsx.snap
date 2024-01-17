@@ -297,27 +297,21 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
         <h4
           class="c3"
         >
-          <span
-            class=""
-          >
+          <span>
             Unofficial TEST Ballot
           </span>
         </h4>
         <h5
           class="c4"
         >
-          <span
-            class=""
-          >
+          <span>
             General Election
           </span>
         </h5>
         <p
           class="c5"
         >
-          <span
-            class=""
-          >
+          <span>
             <span
               class="c6"
             >
@@ -325,16 +319,12 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
             </span>
           </span>
           <br />
-          <span
-            class=""
-          >
+          <span>
             Franklin County
           </span>
           ,
            
-          <span
-            class=""
-          >
+          <span>
             State of Hamilton
           </span>
         </p>
@@ -366,25 +356,19 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
           <div>
             <div>
               <div>
-                <span
-                  class=""
-                >
+                <span>
                   Precinct
                 </span>
               </div>
               <strong>
-                <span
-                  class=""
-                >
+                <span>
                   North Springfield
                 </span>
               </strong>
             </div>
             <div>
               <div>
-                <span
-                  class=""
-                >
+                <span>
                   Ballot Style
                 </span>
               </div>
@@ -394,9 +378,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
             </div>
             <div>
               <div>
-                <span
-                  class=""
-                >
+                <span>
                   Ballot ID
                 </span>
               </div>
@@ -422,9 +404,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               President and Vice-President
             </span>
           </h6>
@@ -434,17 +414,13 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 Joseph Barchi and Joseph Hallaren
               </span>
             </span>
              
             (
-            <span
-              class=""
-            >
+            <span>
               Federalist
             </span>
             )
@@ -456,9 +432,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Representative, District 6
             </span>
           </h6>
@@ -469,9 +443,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
               class="c17"
             >
               [
-              <span
-                class=""
-              >
+              <span>
                 no selection
               </span>
               ]
@@ -484,9 +456,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Lieutenant Governor
             </span>
           </h6>
@@ -496,17 +466,13 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 Chris Norberg
               </span>
             </span>
              
             (
-            <span
-              class=""
-            >
+            <span>
               Federalist
             </span>
             )
@@ -518,9 +484,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Senator, District 31
             </span>
           </h6>
@@ -531,9 +495,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
               class="c17"
             >
               [
-              <span
-                class=""
-              >
+              <span>
                 no selection
               </span>
               ]
@@ -546,9 +508,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Assembly Member, District 54
             </span>
           </h6>
@@ -559,9 +519,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
               class="c17"
             >
               [
-              <span
-                class=""
-              >
+              <span>
                 no selection
               </span>
               ]
@@ -574,9 +532,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Registrar of Wills
             </span>
           </h6>
@@ -587,9 +543,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
               class="c17"
             >
               [
-              <span
-                class=""
-              >
+              <span>
                 no selection
               </span>
               ]
@@ -602,9 +556,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Retain Robert Demergue as Chief Justice?
             </span>
           </h6>
@@ -615,9 +567,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
               class="c17"
             >
               [
-              <span
-                class=""
-              >
+              <span>
                 no selection
               </span>
               ]
@@ -630,9 +580,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Question A: Recovery of Property Damages
             </span>
           </h6>
@@ -642,9 +590,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 Yes
               </span>
             </span>
@@ -656,9 +602,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Question B: Separation of Powers
             </span>
           </h6>
@@ -668,9 +612,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 No
               </span>
             </span>
@@ -682,9 +624,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Proposition 1: Gambling in Franklin and Fromwit Counties
             </span>
           </h6>
@@ -695,9 +635,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
               class="c17"
             >
               [
-              <span
-                class=""
-              >
+              <span>
                 no selection
               </span>
               ]
@@ -710,9 +648,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Measure 102: Vehicle Abatement Program
             </span>
           </h6>
@@ -723,9 +659,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
               class="c17"
             >
               [
-              <span
-                class=""
-              >
+              <span>
                 no selection
               </span>
               ]
