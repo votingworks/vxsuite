@@ -6,16 +6,16 @@ import * as tmp from 'tmp';
 import * as grout from '@votingworks/grout';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
+import { LanguageCode } from '@votingworks/types';
 import { buildApp } from '../src/app';
 import type { Api } from '../src/app';
 import {
-  GoogleCloudTranslator,
-  MinimalGoogleCloudTranslationClient,
-} from '../src/language_and_audio/translator';
-import {
   GoogleCloudSpeechSynthesizer,
+  GoogleCloudTranslator,
   MinimalGoogleCloudTextToSpeechClient,
-} from '../src/language_and_audio/speech_synthesizer';
+  MinimalGoogleCloudTranslationClient,
+  TranslationOverrides,
+} from '../src/language_and_audio';
 import { Workspace, createWorkspace } from '../src/workspace';
 import * as worker from '../src/worker/worker';
 
@@ -86,6 +86,12 @@ export class MockGoogleCloudTextToSpeechClient
   );
 }
 
+const globalTranslationOverrides: TranslationOverrides = {
+  [LanguageCode.CHINESE_SIMPLIFIED]: {},
+  [LanguageCode.CHINESE_TRADITIONAL]: {},
+  [LanguageCode.SPANISH]: {},
+};
+
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function testSetupHelpers() {
   const servers: Server[] = [];
@@ -98,6 +104,7 @@ export function testSetupHelpers() {
       textToSpeechClient: new MockGoogleCloudTextToSpeechClient(),
     });
     const translator = new GoogleCloudTranslator({
+      globalTranslationOverrides,
       store,
       translationClient: new MockGoogleCloudTranslationClient(),
     });
@@ -131,6 +138,7 @@ export async function processNextBackgroundTaskIfAny(
     textToSpeechClient: new MockGoogleCloudTextToSpeechClient(),
   });
   const translator = new GoogleCloudTranslator({
+    globalTranslationOverrides,
     store,
     translationClient: new MockGoogleCloudTranslationClient(),
   });

@@ -1,30 +1,30 @@
 import { extractErrorMessage } from '@votingworks/basics';
-import { LanguageCode } from '@votingworks/types';
+import { LanguageCode, NonEnglishLanguageCode } from '@votingworks/types';
 
-import { GoogleCloudTranslator } from '../src/language_and_audio/translator';
+import { GoogleCloudTranslator } from '../src/language_and_audio';
 import { Store } from '../src/store';
 
-const languageCodes: Set<string> = (() => {
-  const nonEnglishLanguageCodes = new Set<string>(Object.values(LanguageCode));
-  nonEnglishLanguageCodes.delete(LanguageCode.ENGLISH);
-  return nonEnglishLanguageCodes;
+const nonEnglishLanguageCodes: Set<string> = (() => {
+  const set = new Set<string>(Object.values(LanguageCode));
+  set.delete(LanguageCode.ENGLISH);
+  return set;
 })();
 const usageMessage = `Usage: translate-text 'Text to translate' <target-language-code>
 
 Arguments:
-  <target-language-code>\t${[...languageCodes].sort().join(' | ')}`;
+  <target-language-code>\t${[...nonEnglishLanguageCodes].sort().join(' | ')}`;
 
 interface TranslateTextInput {
-  targetLanguageCode: LanguageCode;
+  targetLanguageCode: NonEnglishLanguageCode;
   text: string;
 }
 
 function parseCommandLineArgs(args: readonly string[]): TranslateTextInput {
-  if (args.length !== 2 || !languageCodes.has(args[1])) {
+  if (args.length !== 2 || !nonEnglishLanguageCodes.has(args[1])) {
     console.error(usageMessage);
     process.exit(1);
   }
-  const [text, targetLanguageCode] = args as [string, LanguageCode];
+  const [text, targetLanguageCode] = args as [string, NonEnglishLanguageCode];
   return { targetLanguageCode, text };
 }
 
