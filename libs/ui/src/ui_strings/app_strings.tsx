@@ -13,7 +13,7 @@ export const appStrings = {
   // TODO(kofi): Fill out.
 
   audioOnlyModeEnabled: () => (
-    <UiString uiStringKey="titleAudioOnlyModeEnabled">
+    <UiString uiStringKey="audioOnlyModeEnabled">
       Audio-Only Mode is Enabled
     </UiString>
   ),

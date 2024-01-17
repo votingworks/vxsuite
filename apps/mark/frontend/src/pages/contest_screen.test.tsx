@@ -25,7 +25,7 @@ it('Renders ContestScreen', () => {
   screen.getByRole('heading', { name: firstContestTitle });
   screen.getButton(/next/i);
   screen.getButton(/back/i);
-  screen.getByRole('button', { name: 'Color/Size' });
+  screen.getByRole('button', { name: 'Display Settings' });
 });
 
 it('Renders ContestScreen in Landscape orientation', () => {
@@ -70,6 +70,6 @@ it('renders display settings button', () => {
 
   expect(history.location.pathname).toEqual('/contests/0');
 
-  userEvent.click(screen.getButton(/color.+size/i));
+  userEvent.click(screen.getButton(/display settings/i));
   expect(history.location.pathname).toEqual(Paths.DISPLAY_SETTINGS);
 });
