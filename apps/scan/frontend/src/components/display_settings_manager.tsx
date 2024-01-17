@@ -1,5 +1,8 @@
 import React from 'react';
-import { ThemeManagerContext, useQueryChangeListener } from '@votingworks/ui';
+import {
+  DisplaySettingsManagerContext,
+  useQueryChangeListener,
+} from '@votingworks/ui';
 import { DefaultTheme, ThemeContext } from 'styled-components';
 import { getAuthStatus, getScannerStatus } from '../api';
 
@@ -8,7 +11,9 @@ import { getAuthStatus, getScannerStatus } from '../api';
  * resetting/restoring voter display settings as needed.
  */
 export function DisplaySettingsManager(): JSX.Element | null {
-  const themeManager = React.useContext(ThemeManagerContext);
+  const displaySettingsManager = React.useContext(
+    DisplaySettingsManagerContext
+  );
   const currentTheme = React.useContext(ThemeContext);
 
   const authStatusQuery = getAuthStatus.useQuery();
@@ -23,13 +28,13 @@ export function DisplaySettingsManager(): JSX.Element | null {
       // Reset to default theme when election official logs in:
       if (previousStatus === 'logged_out') {
         setVoterSessionTheme(currentTheme);
-        themeManager.resetThemes();
+        displaySettingsManager.resetThemes();
       }
 
       // Reset to previous voter settings when election official logs out:
       if (newStatus === 'logged_out' && voterSessionTheme) {
-        themeManager.setColorMode(voterSessionTheme.colorMode);
-        themeManager.setSizeMode(voterSessionTheme.sizeMode);
+        displaySettingsManager.setColorMode(voterSessionTheme.colorMode);
+        displaySettingsManager.setSizeMode(voterSessionTheme.sizeMode);
         setVoterSessionTheme(null);
       }
     },
@@ -42,7 +47,7 @@ export function DisplaySettingsManager(): JSX.Element | null {
     select: ({ state }) => state,
     onChange: (newState, previousState) => {
       if (previousState && newState === 'no_paper') {
-        themeManager.resetThemes();
+        displaySettingsManager.resetThemes();
       }
     },
   });

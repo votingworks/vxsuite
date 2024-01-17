@@ -1,8 +1,8 @@
 import { DefaultTheme, ThemeContext } from 'styled-components';
 import React from 'react';
 import {
-  ThemeManagerContext,
-  ThemeManagerContextInterface,
+  DisplaySettingsManagerContext,
+  DisplaySettingsManagerContextInterface,
 } from '@votingworks/ui';
 import {
   fakeCardlessVoterUser,
@@ -24,11 +24,11 @@ const ACTIVE_VOTING_SESSION_VOTES: VotesDict = {};
 const NEW_VOTING_SESSION_VOTES = undefined;
 
 let currentTheme: DefaultTheme;
-let themeManager: ThemeManagerContextInterface;
+let displaySettingsManager: DisplaySettingsManagerContextInterface;
 
 function TestHookWrapper(props: UseDisplaySettingsManagerParams): null {
   currentTheme = React.useContext(ThemeContext);
-  themeManager = React.useContext(ThemeManagerContext);
+  displaySettingsManager = React.useContext(DisplaySettingsManagerContext);
 
   useDisplaySettingsManager(props);
 
@@ -57,8 +57,8 @@ test('Resets theme when election official logs in', () => {
 
   // Simulate changing display settings as voter:
   act(() => {
-    themeManager.setColorMode('contrastLow');
-    themeManager.setSizeMode('touchExtraLarge');
+    displaySettingsManager.setColorMode('contrastLow');
+    displaySettingsManager.setSizeMode('touchExtraLarge');
   });
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<DefaultTheme>>({
@@ -84,8 +84,8 @@ test('Resets theme when election official logs in', () => {
 
   // Simulate changing display settings as Election Manager:
   act(() => {
-    themeManager.setColorMode('contrastHighDark');
-    themeManager.setSizeMode('touchSmall');
+    displaySettingsManager.setColorMode('contrastHighDark');
+    displaySettingsManager.setSizeMode('touchSmall');
   });
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<DefaultTheme>>({
@@ -128,8 +128,8 @@ test('Resets theme to default if returning to a new voter session', () => {
 
   // Simulate changing display settings as voter:
   act(() => {
-    themeManager.setColorMode('contrastLow');
-    themeManager.setSizeMode('touchExtraLarge');
+    displaySettingsManager.setColorMode('contrastLow');
+    displaySettingsManager.setSizeMode('touchExtraLarge');
   });
 
   expect(currentTheme).toEqual(
@@ -151,8 +151,8 @@ test('Resets theme to default if returning to a new voter session', () => {
     />
   );
   act(() => {
-    themeManager.setColorMode('contrastHighDark');
-    themeManager.setSizeMode('touchSmall');
+    displaySettingsManager.setColorMode('contrastHighDark');
+    displaySettingsManager.setSizeMode('touchSmall');
   });
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<DefaultTheme>>({
