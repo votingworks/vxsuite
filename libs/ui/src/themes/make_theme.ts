@@ -491,10 +491,12 @@ export function makeTheme({
   colorMode = 'contrastMedium',
   screenType = 'builtIn',
   sizeMode = 'touchSmall',
+  isVisualModeDisabled = false,
 }: {
   colorMode?: ColorMode;
   screenType?: ScreenType;
   sizeMode?: SizeMode;
+  isVisualModeDisabled?: boolean;
 }): UiTheme {
   return {
     colorMode,
@@ -502,5 +504,6 @@ export function makeTheme({
     screenType,
     sizeMode,
     sizes: sizeThemes[sizeMode]({ screenType, sizeMode }),
+    isVisualModeDisabled,
   };
 }

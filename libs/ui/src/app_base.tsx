@@ -24,6 +24,7 @@ export interface AppBaseProps {
   children: React.ReactNode;
   defaultColorMode: ColorMode;
   defaultSizeMode: SizeMode;
+  defaultIsVisualModeDisabled?: boolean;
   disableFontsForTests?: boolean;
   enableScroll?: boolean;
   isTouchscreen?: boolean;
@@ -40,6 +41,7 @@ export function AppBase(props: AppBaseProps): JSX.Element {
     children,
     defaultColorMode,
     defaultSizeMode,
+    defaultIsVisualModeDisabled = false,
     disableFontsForTests,
     enableScroll = false,
     isTouchscreen = false,
@@ -50,6 +52,8 @@ export function AppBase(props: AppBaseProps): JSX.Element {
 
   const [colorMode, setColorMode] = React.useState<ColorMode>(defaultColorMode);
   const [sizeMode, setSizeMode] = React.useState<SizeMode>(defaultSizeMode);
+  const [isVisualModeDisabled, setIsVisualModeDisabled] =
+    React.useState<boolean>(defaultIsVisualModeDisabled);
   const [fontsLoaded, setFontsLoaded] = React.useState(false);
 
   React.useEffect(() => {
@@ -86,12 +90,14 @@ export function AppBase(props: AppBaseProps): JSX.Element {
         resetThemes,
         setColorMode,
         setSizeMode,
+        setIsVisualModeDisabled,
       }}
     >
       <VxThemeProvider
         colorMode={colorMode}
         screenType={screenType}
         sizeMode={sizeMode}
+        isVisualModeDisabled={isVisualModeDisabled}
       >
         <GlobalStyles
           enableScroll={enableScroll}
