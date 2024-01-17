@@ -11,8 +11,7 @@ export function DateString(props: DateStringProps): JSX.Element {
   const languageContext = useLanguageContext();
 
   return (
-    // TODO(kofi): fetch audio IDs for the given date.
-    <Font data-audio-ids={undefined} {...rest}>
+    <Font {...rest}>
       {format.localeLongDate(value, languageContext?.currentLanguageCode)}
     </Font>
   );

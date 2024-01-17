@@ -7,6 +7,7 @@ import {
 } from '../../test/react_testing_library';
 import { newTestContext } from '../../test/test_context';
 import { NumberString } from './number_string';
+import { UiStringAudioDataAttributeName } from './with_audio';
 
 test('formats based on current language code', async () => {
   const { getLanguageContext, mockBackendApi, render } = newTestContext();
@@ -36,4 +37,15 @@ test('uses default language code with language context', async () => {
   );
 
   await screen.findByRole('heading', { name: '100,000' });
+});
+
+test('renders with audio data attributes', async () => {
+  const { I18N_KEY, LANGUAGE_CODE } = UiStringAudioDataAttributeName;
+  const { render } = newTestContext();
+
+  render(<NumberString value={23} />);
+
+  const element = await screen.findByText('23');
+  expect(element).toHaveAttribute(I18N_KEY, 'number.23');
+  expect(element).toHaveAttribute(LANGUAGE_CODE, LanguageCode.ENGLISH);
 });
