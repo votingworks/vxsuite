@@ -211,35 +211,35 @@ fn handle_command(device: &mut Device, data: &[u8]) -> Result<(), CommandError> 
     match action {
         Action::Pressed => match button {
             Button::Select => {
-                key = uinput::event::Keyboard::Key(keyboard::Key::Enter);
+                key = Keyboard::Key(keyboard::Key::Enter);
             }
             Button::Left => {
-                key = uinput::event::Keyboard::Key(keyboard::Key::Left);
+                key = Keyboard::Key(keyboard::Key::Left);
             }
             Button::Right => {
-                key = uinput::event::Keyboard::Key(keyboard::Key::Right);
+                key = Keyboard::Key(keyboard::Key::Right);
             }
             Button::Up => {
-                key = uinput::event::Keyboard::Key(keyboard::Key::Up);
+                key = Keyboard::Key(keyboard::Key::Up);
             }
             Button::Down => {
-                key = uinput::event::Keyboard::Key(keyboard::Key::Down);
+                key = Keyboard::Key(keyboard::Key::Down);
             }
-            Button::Help => key = uinput::event::Keyboard::Misc(keyboard::Misc::Help),
+            Button::Help => key = Keyboard::Misc(keyboard::Misc::Help),
             Button::RateDown => {
-                key = uinput::event::Keyboard::Key(keyboard::Key::LeftBrace);
+                key = Keyboard::Key(keyboard::Key::LeftBrace);
             }
             Button::RateUp => {
-                key = uinput::event::Keyboard::Key(keyboard::Key::RightBrace);
+                key = Keyboard::Key(keyboard::Key::RightBrace);
             }
             Button::VolumeDown => {
-                key = uinput::event::Keyboard::Key(keyboard::Key::Minus);
+                key = Keyboard::Key(keyboard::Key::Minus);
             }
             Button::VolumeUp => {
-                key = uinput::event::Keyboard::Key(keyboard::Key::Equal);
+                key = Keyboard::Key(keyboard::Key::Equal);
             }
             Button::Pause => {
-                key = uinput::event::Keyboard::Misc(keyboard::Misc::Pause);
+                key = Keyboard::Misc(keyboard::Misc::Pause);
             }
         },
         Action::Released => {
@@ -296,7 +296,7 @@ fn create_virtual_device() -> Device {
         .unwrap()
         .name("Accessible Controller Daemon Virtual Device")
         .unwrap()
-        .event(uinput::event::Keyboard::All)
+        .event(Keyboard::All)
         .unwrap()
         .create()
         .unwrap()
@@ -326,12 +326,11 @@ fn main() {
             let mut serial_buf: Vec<u8> = vec![0; 1000];
             loop {
                 match port.read(serial_buf.as_mut_slice()) {
-                    Ok(size) => match handle_command(&mut device, &serial_buf[..size]) {
-                        Ok(_) => (),
-                        Err(e) => {
-                            eprintln!("Unexpected error handling command: {e}")
+                    Ok(size) => {
+                        if let Err(e) = handle_command(&mut device, &serial_buf[..size]) {
+                            eprintln!("Unexpected error handling command: {e}");
                         }
-                    },
+                    }
                     // Timeout error just means no event was sent in the current polling period
                     Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
                     Err(e) => eprintln!("{e:?}"),
