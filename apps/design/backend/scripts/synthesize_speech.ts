@@ -3,7 +3,7 @@ import fs from 'fs';
 import { extractErrorMessage } from '@votingworks/basics';
 import { LanguageCode } from '@votingworks/types';
 
-import { GoogleCloudSpeechSynthesizer } from '../src/language_and_audio/speech_synthesizer';
+import { GoogleCloudSpeechSynthesizer } from '../src/language_and_audio';
 import { Store } from '../src/store';
 
 const languageCodes: string[] = Object.values(LanguageCode);
