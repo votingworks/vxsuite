@@ -10,6 +10,7 @@ import { Button } from '../button';
 import { DisplaySettingsManagerContext } from '../display_settings_manager_context';
 import { useScreenInfo } from '../hooks/use_screen_info';
 import { appStrings } from '../ui_strings';
+import { Header } from './header';
 
 export interface DisplaySettingsProps {
   /** @default ['contrastLow', 'contrastMedium', 'contrastHighLight', 'contrastHighDark'] */
@@ -23,21 +24,6 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   height: 100vh;
-`;
-
-interface HeaderProps {
-  portrait?: boolean;
-}
-
-/* istanbul ignore next */
-const Header = styled.div<HeaderProps>`
-  align-items: ${(p) => (p.portrait ? 'stretch' : 'center')};
-  border-bottom: ${(p) => p.theme.sizes.bordersRem.hairline}rem dotted
-    ${(p) => p.theme.colors.outline};
-  display: flex;
-  flex-direction: ${(p) => (p.portrait ? 'column' : 'row')};
-  gap: ${(p) => (p.portrait ? 0.25 : 0.5)}rem;
-  padding: 0.25rem 0.5rem 0.5rem;
 `;
 
 const ActivePaneContainer = styled.div`
