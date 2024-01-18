@@ -2,7 +2,7 @@ import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import type { ElectionRecord } from '@votingworks/design-backend';
 import { CandidateContest, YesNoContest } from '@votingworks/types';
-import { assert } from '@votingworks/basics';
+import { assert, iter } from '@votingworks/basics';
 import {
   MockApiClient,
   createMockApiClient,
@@ -534,5 +534,87 @@ describe('Contests tab', () => {
       .closest('tr')!;
     within(changedContestRow).getByText(changedDistrict.name);
     within(changedContestRow).getByText('Ballot Measure');
+  });
+
+  test('reordering contests', async () => {
+    const { election } = generalElectionRecord;
+    Element.prototype.scrollIntoView = jest.fn();
+
+    apiMock.getElection
+      .expectCallWith({ electionId })
+      .resolves(generalElectionRecord);
+    renderScreen();
+
+    await screen.findByRole('heading', { name: 'Contests' });
+
+    function getRowOrder() {
+      return screen
+        .getAllByRole('row')
+        .slice(1) // Skip header row
+        .map((row) => row.childNodes[0].textContent);
+    }
+
+    const originalOrder = getRowOrder();
+
+    userEvent.click(screen.getByRole('button', { name: 'Reorder Contests' }));
+    expect(screen.getByRole('button', { name: 'Add Contest' })).toBeDisabled();
+
+    userEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    expect(getRowOrder()).toEqual(originalOrder);
+
+    userEvent.click(screen.getByRole('button', { name: 'Reorder Contests' }));
+
+    const [contest1Title, contest2Title, contest3Title] = originalOrder;
+    const contest1Row = screen.getByText(contest1Title!).closest('tr')!;
+    expect(
+      within(contest1Row).getByRole('button', { name: 'Move Up' })
+    ).toBeDisabled();
+    userEvent.click(
+      within(contest1Row).getByRole('button', { name: 'Move Down' })
+    );
+
+    const contest3Row = screen.getByText(contest3Title!).closest('tr')!;
+    userEvent.click(
+      within(contest3Row).getByRole('button', { name: 'Move Up' })
+    );
+
+    const lastContestRow = iter(screen.getAllByRole('row')).last()!;
+    expect(
+      within(lastContestRow).getByRole('button', { name: 'Move Down' })
+    ).toBeDisabled();
+
+    const newOrder = [
+      contest2Title,
+      contest3Title,
+      contest1Title,
+      ...originalOrder.slice(3),
+    ];
+    expect(getRowOrder()).toEqual(newOrder);
+
+    const reorderedElectionRecord: ElectionRecord = {
+      ...generalElectionRecord,
+      election: {
+        ...election,
+        contests: [
+          election.contests[1],
+          election.contests[2],
+          election.contests[0],
+          ...election.contests.slice(3),
+        ],
+      },
+    };
+    apiMock.updateElection
+      .expectCallWith({
+        electionId,
+        election: reorderedElectionRecord.election,
+      })
+      .resolves();
+    apiMock.getElection
+      .expectCallWith({ electionId })
+      .resolves(reorderedElectionRecord);
+    userEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    await screen.findByRole('button', { name: 'Reorder Contests' });
+    expect(getRowOrder()).toEqual(newOrder);
   });
 });

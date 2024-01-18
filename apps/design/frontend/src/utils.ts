@@ -1,3 +1,4 @@
+import { assert } from '@votingworks/basics';
 import type { Precinct, PrecinctWithSplits } from '@votingworks/design-backend';
 import { customAlphabet } from 'nanoid';
 
@@ -38,4 +39,21 @@ export function downloadFile(filePath: string): void {
   document.body.appendChild(element);
   element.click();
   document.body.removeChild(element);
+}
+
+/**
+ * Returns a copy of the given array with the element at fromIndex
+ * moved to toIndex.
+ */
+export function reorderElement<T>(
+  array: readonly T[],
+  fromIndex: number,
+  toIndex: number
+): T[] {
+  assert(fromIndex >= 0 && fromIndex < array.length);
+  assert(toIndex >= 0 && toIndex < array.length);
+  const result = [...array];
+  const [removed] = result.splice(fromIndex, 1);
+  result.splice(toIndex, 0, removed);
+  return result;
 }
