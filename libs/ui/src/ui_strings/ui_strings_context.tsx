@@ -3,7 +3,6 @@ import React from 'react';
 import { UiStringsReactQueryApi } from '../hooks/ui_strings_api';
 import { LanguageContextProvider } from './language_context';
 import { UiStringsAudioContextProvider } from './audio_context';
-import { KeyboardShortcutHandlers } from './keyboard_shortcut_handlers';
 
 export interface UiStringsContextProviderProps {
   api: UiStringsReactQueryApi;
@@ -21,20 +20,13 @@ export function UiStringsContextProvider(
     return children;
   }
 
-  const content = (
-    <React.Fragment>
-      <KeyboardShortcutHandlers />
-      {children}
-    </React.Fragment>
-  );
-
   return (
     <LanguageContextProvider api={api}>
       {noAudio ? (
-        content
+        children
       ) : (
         <UiStringsAudioContextProvider api={api}>
-          {content}
+          {children}
         </UiStringsAudioContextProvider>
       )}
     </LanguageContextProvider>

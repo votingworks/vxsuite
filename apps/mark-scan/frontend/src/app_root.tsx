@@ -30,7 +30,6 @@ import {
   useDevices,
   UnlockMachineScreen,
   ThemeManagerContext,
-  useAudioControls,
 } from '@votingworks/ui';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
@@ -150,7 +149,6 @@ export function AppRoot({
   const { votes } = votingState;
 
   const history = useHistory();
-  const audioControls = useAudioControls();
 
   const themeManager = React.useContext(ThemeManagerContext);
 
@@ -300,35 +298,6 @@ export function AppRoot({
     }
   }, [endCardlessVoterSessionMutateAsync]);
 
-  const handleKeyboardAudioEvent = useCallback(
-    (event: KeyboardEvent) => {
-      switch (event.key) {
-        // See definitions in controllerd.rs
-        case 'Help':
-          audioControls.replay();
-          break;
-        case '[':
-          audioControls.decreasePlaybackRate();
-          break;
-        case ']':
-          audioControls.increasePlaybackRate();
-          break;
-        case 'Pause':
-          audioControls.togglePause();
-          break;
-        case '-':
-          audioControls.decreaseVolume();
-          break;
-        case '=':
-          audioControls.increaseVolume();
-          break;
-        default:
-        // No op
-      }
-    },
-    [audioControls]
-  );
-
   // Handle Keyboard Input
   useEffect(() => {
     document.documentElement.setAttribute(
@@ -337,13 +306,11 @@ export function AppRoot({
     );
 
     document.addEventListener('keydown', handleKeyboardEvent);
-    document.addEventListener('keydown', handleKeyboardAudioEvent);
 
     return () => {
       document.removeEventListener('keydown', handleKeyboardEvent);
-      document.removeEventListener('keydown', handleKeyboardAudioEvent);
     };
-  }, [handleKeyboardAudioEvent]);
+  }, []);
 
   useDisplaySettingsManager({ authStatus, votes });
 
