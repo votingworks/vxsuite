@@ -13,6 +13,7 @@
   "include": ["src", "test", ".storybook/*", "./i18next-parser.config.ts"],
   "exclude": [],
   "references": [
+    { "path": "../backend/tsconfig.build.json" },
     { "path": "../ballot-encoder/tsconfig.build.json" },
     { "path": "../backend/tsconfig.build.json" },
     { "path": "../basics/tsconfig.build.json" },

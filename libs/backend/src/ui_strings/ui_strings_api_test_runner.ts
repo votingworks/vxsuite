@@ -1,11 +1,8 @@
 /* istanbul ignore file - test util */
 
-import {
-  LanguageCode,
-  UiStringAudioClips,
-  UiStringsApi,
-} from '@votingworks/types';
+import { LanguageCode, UiStringAudioClips } from '@votingworks/types';
 import { UiStringsStore } from './ui_strings_store';
+import { UiStringsApi } from './ui_strings_api';
 
 /** Shared tests for the {@link UiStringsApi} and underlying store. */
 export function runUiStringApiTests(params: {
