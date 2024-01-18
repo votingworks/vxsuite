@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import {
   ContestOptionId,
   DEFAULT_SYSTEM_SETTINGS,
@@ -23,6 +24,7 @@ test('adjudicateVote', () => {
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
   store.setCurrentElectionId(electionId);
 
@@ -109,6 +111,7 @@ test('adjudicateWriteIn', async () => {
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
   store.setCurrentElectionId(electionId);
 

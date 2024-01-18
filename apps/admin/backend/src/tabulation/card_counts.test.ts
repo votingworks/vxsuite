@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { Admin, DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
 import {
@@ -22,6 +23,7 @@ test('tabulateScannedCardCounts - grouping', () => {
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
   store.setCurrentElectionId(electionId);
 
@@ -172,6 +174,7 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
   store.setCurrentElectionId(electionId);
 
@@ -239,6 +242,7 @@ test('tabulateFullCardCounts - manual results', () => {
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
   store.setCurrentElectionId(electionId);
 
@@ -376,6 +380,7 @@ test('tabulateFullCardCounts - blankBallots', () => {
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
   store.setCurrentElectionId(electionId);
 

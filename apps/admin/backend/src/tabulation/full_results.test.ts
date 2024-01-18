@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   electionTwoPartyPrimaryFixtures,
@@ -55,6 +56,7 @@ test('tabulateCastVoteRecords', async () => {
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
   store.setCurrentElectionId(electionId);
 
@@ -265,6 +267,7 @@ test('tabulateElectionResults - includes empty groups', async () => {
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
   store.setCurrentElectionId(electionId);
 
@@ -294,6 +297,7 @@ test('tabulateElectionResults - write-in handling', async () => {
   const electionId = store.addElection({
     electionData: electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
   store.setCurrentElectionId(electionId);
 
@@ -700,6 +704,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
   store.setCurrentElectionId(electionId);
   const importResult = await importCastVoteRecords(

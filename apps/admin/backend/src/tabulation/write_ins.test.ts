@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryDefinition,
@@ -151,6 +152,7 @@ test('tabulateWriteInTallies', () => {
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
   store.setCurrentElectionId(electionId);
 

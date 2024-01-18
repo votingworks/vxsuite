@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { buildManualResultsFixture } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
@@ -51,6 +52,7 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
       electionData:
         electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
       systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+      electionPackageFileContents: Buffer.of(),
     });
     store.setCurrentElectionId(electionId);
 
@@ -77,6 +79,7 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
     const electionId = store.addElection({
       electionData,
       systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+      electionPackageFileContents: Buffer.of(),
     });
     store.setCurrentElectionId(electionId);
 
