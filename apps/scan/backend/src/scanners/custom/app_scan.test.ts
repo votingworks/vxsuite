@@ -100,7 +100,9 @@ beforeEach(() => {
 
 test('configure and scan hmpb', async () => {
   await withApp(
-    {},
+    {
+      delays: { DELAY_ACCEPTED_RESET_TO_NO_PAPER: 1500 },
+    },
     async ({ apiClient, mockScanner, mockUsbDrive, logger, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         electionPackage:
