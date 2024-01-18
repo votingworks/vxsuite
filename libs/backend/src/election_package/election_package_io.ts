@@ -59,12 +59,12 @@ export interface ElectionPackageError {
 }
 
 async function readElectionPackageFromBuffer(
-  source: Buffer
+  fileContents: Buffer
 ): Promise<Result<ElectionPackage, ElectionPackageError>> {
   try {
-    const zipfile = await openZip(source);
+    const zipFile = await openZip(fileContents);
     const zipName = 'election package';
-    const entries = getEntries(zipfile);
+    const entries = getEntries(zipFile);
     const electionEntry = getFileByName(
       entries,
       ElectionPackageFileName.ELECTION,
@@ -212,13 +212,21 @@ async function readElectionPackageFromBuffer(
 }
 
 /**
+ * An {@link ElectionPackage} object, with the raw contents of the zip file included
+ */
+export type ElectionPackageWithFileContents = ElectionPackage & {
+  fileContents: Buffer;
+};
+
+/**
  * Attempts to read an election package from the given filepath and parse the contents.
  */
 export async function readElectionPackageFromFile(
   path: string
-): Promise<Result<ElectionPackage, ElectionPackageError>> {
+): Promise<Result<ElectionPackageWithFileContents, ElectionPackageError>> {
   const fileContents = await fs.readFile(path);
-  return readElectionPackageFromBuffer(fileContents);
+  const result = await readElectionPackageFromBuffer(fileContents);
+  return result.isErr() ? result : ok({ ...result.ok(), fileContents });
 }
 
 async function getMostRecentElectionPackageFilepath(
