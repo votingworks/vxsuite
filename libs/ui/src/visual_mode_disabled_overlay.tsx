@@ -33,7 +33,7 @@ export function VisualModeDisabledOverlay(): JSX.Element {
   return (
     <Overlay aria-hidden>
       <Header portrait={screenInfo.isPortrait}>
-        <H2 as="h1">{appStrings.audioOnlyModeEnabled()}</H2>
+        <H2 as="h1">{appStrings.titleAudioOnlyModeEnabled()}</H2>
       </Header>
       <ButtonContainer>
         <Button
@@ -42,7 +42,7 @@ export function VisualModeDisabledOverlay(): JSX.Element {
             displaySettingsManager.setIsVisualModeDisabled(false);
           }}
         >
-          {appStrings.titleExitAudioOnlyMode()}
+          {appStrings.buttonExitAudioOnlyMode()}
         </Button>
       </ButtonContainer>
     </Overlay>

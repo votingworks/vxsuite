@@ -12,12 +12,6 @@ import { UiString } from './ui_string';
 export const appStrings = {
   // TODO(kofi): Fill out.
 
-  audioOnlyModeEnabled: () => (
-    <UiString uiStringKey="audioOnlyModeEnabled">
-      Audio-Only Mode is Enabled
-    </UiString>
-  ),
-
   buttonAccept: () => <UiString uiStringKey="buttonAccept">Accept</UiString>,
 
   buttonAddWriteIn: () => (
@@ -58,6 +52,18 @@ export const appStrings = {
 
   buttonDisplaySettings: () => (
     <UiString uiStringKey="buttonDisplaySettings">Display Settings</UiString>
+  ),
+
+  buttonEnableAudioOnlyMode: () => (
+    <UiString uiStringKey="buttonEnableAudioOnlyMode">
+      Enable Audio-Only Mode
+    </UiString>
+  ),
+
+  buttonExitAudioOnlyMode: () => (
+    <UiString uiStringKey="buttonExitAudioOnlyMode">
+      Exit Audio-Only Mode
+    </UiString>
   ),
 
   buttonMore: () => <UiString uiStringKey="buttonMore">More</UiString>,
@@ -641,6 +647,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  titleAudioOnlyModeEnabled: () => (
+    <UiString uiStringKey="titleAudioOnlyModeEnabled">
+      Audio-Only Mode is Enabled
+    </UiString>
+  ),
+
   titleBallotBagFull: () => (
     <UiString uiStringKey="titleBallotBagFull">Ballot Bag Full</UiString>
   ),
@@ -712,18 +724,6 @@ export const appStrings = {
   titleDisplaySettingsSensoryToggle: () => (
     <UiString uiStringKey="titleDisplaySettingsSensoryToggle">
       Accessibility Modes
-    </UiString>
-  ),
-
-  titleEnableAudioOnlyMode: () => (
-    <UiString uiStringKey="titleEnableAudioOnlyMode">
-      Enable Audio-Only Mode
-    </UiString>
-  ),
-
-  titleExitAudioOnlyMode: () => (
-    <UiString uiStringKey="titleExitAudioOnlyMode">
-      Exit Audio-Only Mode
     </UiString>
   ),
 

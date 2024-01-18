@@ -23,8 +23,8 @@ export function SensoryToggleSettings(): JSX.Element {
             }}
           >
             {theme.isVisualModeDisabled
-              ? appStrings.titleExitAudioOnlyMode()
-              : appStrings.titleEnableAudioOnlyMode()}
+              ? appStrings.buttonExitAudioOnlyMode()
+              : appStrings.buttonEnableAudioOnlyMode()}
           </Button>
         </SettingsPane>
       )}
