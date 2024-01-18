@@ -51,15 +51,11 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
   chain<U>(other: AsyncIterable<U>): AsyncIteratorPlus<T | U> {
     const iterable = this.intoInner();
     return new AsyncIteratorPlusImpl(
-      (async function* gen() {
-        for await (const value of iterable) {
-          yield value;
-        }
-        for await (const value of other) {
-          yield value;
-        }
+      (async function* gen(): AsyncIterableIterator<T | U> {
+        yield* iterable;
+        yield* other;
       })()
-    ) as AsyncIteratorPlus<T | U>;
+    );
   }
 
   chunks(groupSize: 1): AsyncIteratorPlus<[T]>;
@@ -114,14 +110,14 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
   enumerate(): AsyncIteratorPlus<[number, T]> {
     const iterable = this.intoInner();
     return new AsyncIteratorPlusImpl(
-      (async function* gen(): AsyncGenerator<[number, T]> {
+      (async function* gen(): AsyncIterableIterator<[number, T]> {
         let index = 0;
         for await (const value of iterable) {
           yield [index, value];
           index += 1;
         }
       })()
-    ) as AsyncIteratorPlus<[number, T]>;
+    );
   }
 
   async every(predicate: (item: T) => MaybePromise<unknown>): Promise<boolean> {
@@ -136,14 +132,14 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
   filter(fn: (value: T) => MaybePromise<unknown>): AsyncIteratorPlus<T> {
     const iterable = this.intoInner();
     return new AsyncIteratorPlusImpl(
-      (async function* gen(): AsyncGenerator<T> {
+      (async function* gen(): AsyncIterableIterator<T> {
         for await (const value of iterable) {
           if (await fn(value)) {
             yield value;
           }
         }
       })()
-    ) as AsyncIteratorPlus<T>;
+    );
   }
 
   filterMap<U extends NonNullable<unknown>>(
@@ -151,7 +147,7 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
   ): AsyncIteratorPlus<U> {
     const iterable = this.intoInner();
     return new AsyncIteratorPlusImpl(
-      (async function* gen(): AsyncGenerator<U> {
+      (async function* gen(): AsyncIterableIterator<U> {
         let index = 0;
         for await (const value of iterable) {
           const mapped = await fn(value, index);
@@ -161,7 +157,7 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
           index += 1;
         }
       })()
-    ) as AsyncIteratorPlus<U>;
+    );
   }
 
   async find(
@@ -188,14 +184,14 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
   ): AsyncIteratorPlus<U> {
     const iterable = this.intoInner();
     return new AsyncIteratorPlusImpl(
-      (async function* gen() {
+      (async function* gen(): AsyncIterableIterator<U> {
         let index = 0;
         for await (const value of iterable) {
           yield* await fn(value, index);
           index += 1;
         }
       })()
-    ) as AsyncIteratorPlus<U>;
+    );
   }
 
   groupBy(
@@ -203,7 +199,7 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
   ): AsyncIteratorPlus<T[]> {
     const iterable = this.intoInner();
     return new AsyncIteratorPlusImpl(
-      (async function* gen() {
+      (async function* gen(): AsyncIterableIterator<T[]> {
         let group: T[] = [];
         let previous: T | undefined;
         let isFirst = true;
@@ -221,7 +217,7 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
           yield group;
         }
       })()
-    ) as AsyncIteratorPlus<T[]>;
+    );
   }
 
   async isEmpty(): Promise<boolean> {
@@ -246,17 +242,17 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
   ): AsyncIteratorPlus<U> {
     const iterable = this.intoInner();
     return new AsyncIteratorPlusImpl(
-      (async function* gen() {
+      (async function* gen(): AsyncIterableIterator<U> {
         let index = 0;
         for await (const value of iterable) {
           yield await fn(value, index);
           index += 1;
         }
       })()
-    ) as AsyncIteratorPlus<U>;
+    );
   }
 
-  max(): Promise<T extends number ? T | undefined : unknown>;
+  max(): Promise<T | undefined>;
   max(compareFn: (a: T, b: T) => MaybePromise<number>): Promise<T | undefined>;
   max(
     compareFn: (a: T, b: T) => MaybePromise<number> = (a, b) =>
@@ -269,7 +265,7 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     return this.minBy(async (item) => -(await fn(item)));
   }
 
-  min(): Promise<T extends number ? T | undefined : unknown>;
+  min(): Promise<T | undefined>;
   min(compareFn: (a: T, b: T) => MaybePromise<number>): Promise<T | undefined>;
   async min(
     compareFn: (a: T, b: T) => MaybePromise<number> = (a, b) =>
@@ -313,13 +309,13 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
   rev(): AsyncIteratorPlus<T> {
     const toArrayPromise = this.toArray();
     return new AsyncIteratorPlusImpl(
-      (async function* gen() {
+      (async function* gen(): AsyncIterableIterator<T> {
         const array = await toArrayPromise;
         for (let i = array.length - 1; i >= 0; i -= 1) {
           yield array[i] as T;
         }
       })()
-    ) as AsyncIteratorPlus<T>;
+    );
   }
 
   async some(predicate: (item: T) => MaybePromise<unknown>): Promise<boolean> {
@@ -344,7 +340,7 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
   skip(count: number): AsyncIteratorPlus<T> {
     const iterable = this.intoInner();
     return new AsyncIteratorPlusImpl(
-      (async function* gen() {
+      (async function* gen(): AsyncIterableIterator<T> {
         let remaining = count;
         for await (const value of iterable) {
           if (remaining <= 0) {
@@ -354,13 +350,13 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
           }
         }
       })()
-    ) as AsyncIteratorPlus<T>;
+    );
   }
 
   take(count: number): AsyncIteratorPlus<T> {
     const iterable = this.intoInner();
     return new AsyncIteratorPlusImpl(
-      (async function* gen() {
+      (async function* gen(): AsyncIterableIterator<T> {
         let remaining = count;
         for await (const value of iterable) {
           if (remaining <= 0) {
@@ -371,7 +367,7 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
           }
         }
       })()
-    ) as AsyncIteratorPlus<T>;
+    );
   }
 
   async toArray(): Promise<T[]> {
@@ -422,7 +418,7 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
 
     const iterable = this.intoInner();
     return new AsyncIteratorPlusImpl(
-      (async function* gen() {
+      (async function* gen(): AsyncIterableIterator<T[]> {
         const window: T[] = [];
         for await (const value of iterable) {
           window.push(value);
@@ -464,7 +460,7 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
   ): AsyncIteratorPlus<unknown[]> {
     const iterable = this.intoInner();
     return new AsyncIteratorPlusImpl(
-      (async function* gen() {
+      (async function* gen(): AsyncIterableIterator<unknown[]> {
         const iterators = [iterable, ...others].map(
           (it) =>
             /* istanbul ignore next */
@@ -520,7 +516,7 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
   ): AsyncIteratorPlus<unknown[]> {
     const iterable = this.intoInner();
     return new AsyncIteratorPlusImpl(
-      (async function* gen() {
+      (async function* gen(): AsyncIterableIterator<unknown[]> {
         const iterators = [iterable, ...others].map((it) =>
           it[Symbol.asyncIterator]()
         );

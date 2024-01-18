@@ -292,7 +292,7 @@ export interface IteratorPlus<T> extends Iterable<T> {
    * expect(iter([]).max()).toBeUndefined();
    * ```
    */
-  max(): T extends number ? T | undefined : unknown;
+  max(): T | undefined;
 
   /**
    * Returns the maximum element of `this` or `undefined` if `this` is empty.
@@ -334,7 +334,7 @@ export interface IteratorPlus<T> extends Iterable<T> {
    * expect(iter([]).min()).toBeUndefined();
    * ```
    */
-  min(): T extends number ? T | undefined : unknown;
+  min(): T | undefined;
 
   /**
    * Returns the minimum element of `this` or `undefined` if `this` is empty.
@@ -979,10 +979,31 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
 
   /**
    * Returns the maximum element of `this` or `undefined` if `this` is empty.
-   * Comparison happens using `compareFn` if provided, otherwise using `>` and
-   * `<`. Consumes the entire contained iterable.
+   * Consumes the entire contained iterable.
+   *
+   * @example
+   *
+   * ```ts
+   * const maximumLineLength = await lines(process.stdin)
+   *   .map((line) => line.length)
+   *   .max();
+   * ```
    */
-  max(compareFn?: (a: T, b: T) => MaybePromise<number>): Promise<T | undefined>;
+  max(): Promise<T | undefined>;
+
+  /**
+   * Returns the maximum element of `this` or `undefined` if `this` is empty.
+   * Comparison happens using `compareFn`. Consumes the entire contained
+   * iterable.
+   *
+   * @example
+   *
+   * ```ts
+   * const maximumLineLength = await lines(process.stdin)
+   *   .max((line1, line2) => line1.length - line2.length);
+   * ```
+   */
+  max(compareFn: (a: T, b: T) => MaybePromise<number>): Promise<T | undefined>;
 
   /**
    * Returns the element of `this` whose return value from `fn` is the maximum.

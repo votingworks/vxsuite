@@ -62,15 +62,11 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
   chain<U>(other: Iterable<U>): IteratorPlus<T | U> {
     const iterable = this.intoInner();
     return new IteratorPlusImpl(
-      (function* gen(): Generator<T | U> {
-        for (const value of iterable) {
-          yield value;
-        }
-        for (const value of other) {
-          yield value;
-        }
+      (function* gen(): IterableIterator<T | U> {
+        yield* iterable;
+        yield* other;
       })()
-    ) as IteratorPlus<T | U>;
+    );
   }
 
   chunks(groupSize: 1): IteratorPlus<[T]>;
@@ -85,13 +81,13 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     );
     const iterable = this.intoInner();
     const iterator = iterable[Symbol.iterator]();
-    let group: T[] = [];
 
     const result: IterableIterator<T[]> = {
       [Symbol.iterator](): IterableIterator<T[]> {
         return result;
       },
       next() {
+        const group: T[] = [];
         while (group.length < groupSize) {
           const { value, done } = iterator.next();
           if (done) {
@@ -102,9 +98,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
         if (group.length === 0) {
           return { value: undefined, done: true };
         }
-        const value = group;
-        group = [];
-        return { value, done: false };
+        return { value: group, done: false };
       },
     };
 
@@ -123,7 +117,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
   enumerate(): IteratorPlus<[number, T]> {
     const iterable = this.intoInner();
     return new IteratorPlusImpl(
-      (function* gen(): Generator<[number, T]> {
+      (function* gen(): IterableIterator<[number, T]> {
         let index = 0;
         for (const value of iterable) {
           yield [index, value];
@@ -147,7 +141,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
   filter(fn: (value: T) => unknown): IteratorPlus<T> {
     const iterable = this.intoInner();
     return new IteratorPlusImpl(
-      (function* gen() {
+      (function* gen(): IterableIterator<T> {
         for (const value of iterable) {
           if (fn(value)) {
             yield value;
@@ -162,7 +156,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
   ): IteratorPlus<U> {
     const iterable = this.intoInner();
     return new IteratorPlusImpl(
-      (function* gen() {
+      (function* gen(): IterableIterator<U> {
         let index = 0;
         for (const value of iterable) {
           const result = fn(value, index);
@@ -192,7 +186,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
   flatMap<U>(fn: (value: T, index: number) => Iterable<U>): IteratorPlus<U> {
     const iterable = this.intoInner();
     return new IteratorPlusImpl(
-      (function* gen() {
+      (function* gen(): IterableIterator<U> {
         let index = 0;
         for (const value of iterable) {
           yield* fn(value, index);
@@ -205,7 +199,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
   groupBy(predicate: (a: T, b: T) => boolean): IteratorPlus<T[]> {
     const iterable = this.intoInner();
     return new IteratorPlusImpl(
-      (function* gen() {
+      (function* gen(): IterableIterator<T[]> {
         let group: T[] = [];
         let previous: T | undefined;
         let isFirst = true;
@@ -246,7 +240,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
   map<U>(fn: (value: T, index: number) => U): IteratorPlus<U> {
     const iterable = this.intoInner();
     return new IteratorPlusImpl(
-      (function* gen() {
+      (function* gen(): IterableIterator<U> {
         let index = 0;
         for (const value of iterable) {
           yield fn(value, index);
@@ -256,7 +250,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     );
   }
 
-  max(): T extends number ? T | undefined : unknown;
+  max(): T | undefined;
   max(compareFn: (a: T, b: T) => number): T | undefined;
   max(
     compareFn: (a: T, b: T) => number = (a, b) => (a < b ? -1 : a > b ? 1 : 0)
@@ -311,7 +305,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
   rev(): IteratorPlus<T> {
     const iterable = this.intoInner();
     return new IteratorPlusImpl(
-      (function* gen() {
+      (function* gen(): IterableIterator<T> {
         const array = [...iterable];
         for (let i = array.length - 1; i >= 0; i -= 1) {
           yield array[i] as T;
@@ -323,7 +317,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
   skip(count: number): IteratorPlus<T> {
     const iterable = this.intoInner();
     return new IteratorPlusImpl(
-      (function* gen() {
+      (function* gen(): IterableIterator<T> {
         let remaining = count;
         for (const value of iterable) {
           if (remaining <= 0) {
@@ -358,7 +352,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
   take(count: number): IteratorPlus<T> {
     const iterable = this.intoInner();
     return new IteratorPlusImpl(
-      (function* gen() {
+      (function* gen(): IterableIterator<T> {
         let remaining = count;
         for (const value of iterable) {
           if (remaining <= 0) {
@@ -410,7 +404,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
 
     const iterable = this.intoInner();
     return new IteratorPlusImpl(
-      (function* gen() {
+      (function* gen(): IterableIterator<T[]> {
         const window: T[] = [];
         for (const value of iterable) {
           window.push(value);
@@ -447,7 +441,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
   zip(...others: Array<Iterable<unknown>>): IteratorPlus<unknown[]> {
     const iterable = this.intoInner();
     return new IteratorPlusImpl(
-      (function* gen() {
+      (function* gen(): IterableIterator<unknown[]> {
         const iterators = [iterable, ...others].map((it) =>
           it[Symbol.iterator]()
         );
@@ -495,7 +489,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
   zipMin(...others: Array<Iterable<unknown>>): IteratorPlus<unknown[]> {
     const iterable = this.intoInner();
     return new IteratorPlusImpl(
-      (function* gen() {
+      (function* gen(): IterableIterator<unknown[]> {
         const iterators = [iterable, ...others].map((it) =>
           it[Symbol.iterator]()
         );
