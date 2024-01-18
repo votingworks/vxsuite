@@ -100,7 +100,9 @@ beforeEach(() => {
 
 test('configure and scan hmpb', async () => {
   await withApp(
-    {},
+    {
+      delays: { DELAY_ACCEPTED_RESET_TO_NO_PAPER: 1500 },
+    },
     async ({ apiClient, mockScanner, mockUsbDrive, logger, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         electionPackage:
@@ -114,6 +116,7 @@ test('configure and scan hmpb', async () => {
       };
 
       simulateScan(mockScanner, await ballotImages.completeHmpb());
+      await waitForStatus(apiClient, { state: 'scanning' });
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation,
@@ -152,7 +155,7 @@ test('configure and scan bmd ballot', async () => {
       };
 
       simulateScan(mockScanner, await ballotImages.completeBmd());
-      await expectStatus(apiClient, { state: 'scanning' });
+      await waitForStatus(apiClient, { state: 'scanning' });
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation,

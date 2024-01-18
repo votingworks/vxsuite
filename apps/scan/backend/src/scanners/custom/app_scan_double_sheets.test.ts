@@ -14,7 +14,6 @@ import {
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import {
   configureApp,
-  expectStatus,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import {
@@ -48,7 +47,7 @@ test('insert second ballot before first ballot accept', async () => {
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       mockScanner.scan.mockResolvedValue(ok(await ballotImages.completeBmd()));
-      await expectStatus(apiClient, { state: 'scanning' });
+      await waitForStatus(apiClient, { state: 'scanning' });
 
       mockScanner.getStatus.mockResolvedValue(
         ok(mocks.MOCK_BOTH_SIDES_HAVE_PAPER)

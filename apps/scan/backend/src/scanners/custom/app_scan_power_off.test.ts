@@ -110,7 +110,9 @@ test('scanner powered off after accepting', async () => {
     type: 'ValidSheet',
   };
   await withApp(
-    {},
+    {
+      delays: { DELAY_ACCEPTED_RESET_TO_NO_PAPER: 1500 },
+    },
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
 
