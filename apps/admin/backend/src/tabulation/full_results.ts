@@ -82,6 +82,7 @@ const tabulateCastVoteRecordsMemoized = memoize(
  * Clears the memoized results of tabulating cast vote records.
  */
 export function clearTabulationCache(): void {
+  /* c8 ignore next 1 */
   tabulateCastVoteRecordsMemoized.cache.clear?.();
 }
 
