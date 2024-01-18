@@ -90,7 +90,7 @@ test('pre-fetches audio clips when within audio context', async () => {
   );
 });
 
-test('handles missing audio ID mappings', async () => {
+test('skips pre-fetch for missing audio ID mappings', async () => {
   const { mockBackendApi, render } = newTestContext();
 
   mockBackendApi.getUiStringAudioIds.mockResolvedValue({});
@@ -100,6 +100,4 @@ test('handles missing audio ID mappings', async () => {
   await screen.findByText('Mayor');
 
   expect(mockBackendApi.getAudioClips).not.toHaveBeenCalled();
-
-  // TODO(kofi): Update to verify logging once added.
 });

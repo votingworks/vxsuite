@@ -48,19 +48,17 @@ function PrefetchAudioClips(props: {
   const { api, i18nKey, languageCode } = props;
 
   const audioIdsQuery = api.getAudioIds.useQuery(languageCode);
-  const audioIdMappings = audioIdsQuery.isFetching
-    ? undefined
-    : audioIdsQuery.data;
-
-  if (!audioIdMappings) {
+  if (!audioIdsQuery.isSuccess) {
     return null;
   }
 
-  const mappedValues = getDeepValue(audioIdMappings, i18nKey);
+  const mappedValues = getDeepValue(audioIdsQuery.data, i18nKey);
 
-  // TODO(kofi): Log invalid/missing audio ID mappings. Worth adding server-side
-  // election package validation during configuration to make this fallback
-  // unlikely in prod.
+  // Default to empty audio IDs array to make this a no-op if mappings don't
+  // exist fo the given `i18nKey`. The missing audio should be logged/handled
+  // appropriately during audio playback.
+  // NOTE: This should only happen in dev environments, since it would indicate
+  // an invalid election package was used to configure the current machine.
   const audioIds = Array.isArray(mappedValues) ? mappedValues : [];
 
   return audioIds.map((audioId) => (
