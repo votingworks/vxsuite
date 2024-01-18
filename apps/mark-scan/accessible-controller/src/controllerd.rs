@@ -198,7 +198,7 @@ enum Action {
     Pressed = 0x01,
 }
 
-fn send_key(device: &mut Device, key: Keyboard) -> Result<(), CommandError> {
+fn send_key(device: &mut Device, key: keyboard::Key) -> Result<(), CommandError> {
     device.click(&key)?;
     device.synchronize().unwrap();
     Ok(())
@@ -207,39 +207,39 @@ fn send_key(device: &mut Device, key: Keyboard) -> Result<(), CommandError> {
 fn handle_command(device: &mut Device, data: &[u8]) -> Result<(), CommandError> {
     let ButtonStatusCommand { button, action } = data.try_into()?;
 
-    let key: Keyboard;
+    let key: keyboard::Key;
     match action {
         Action::Pressed => match button {
             Button::Select => {
-                key = Keyboard::Key(keyboard::Key::Enter);
+                key = keyboard::Key::Enter;
             }
             Button::Left => {
-                key = Keyboard::Key(keyboard::Key::Left);
+                key = keyboard::Key::Left;
             }
             Button::Right => {
-                key = Keyboard::Key(keyboard::Key::Right);
+                key = keyboard::Key::Right;
             }
             Button::Up => {
-                key = Keyboard::Key(keyboard::Key::Up);
+                key = keyboard::Key::Up;
             }
             Button::Down => {
-                key = Keyboard::Key(keyboard::Key::Down);
+                key = keyboard::Key::Down;
             }
-            Button::Help => key = Keyboard::Misc(keyboard::Misc::Help),
+            Button::Help => key = keyboard::Key::R,
             Button::RateDown => {
-                key = Keyboard::Key(keyboard::Key::LeftBrace);
+                key = keyboard::Key::LeftBrace;
             }
             Button::RateUp => {
-                key = Keyboard::Key(keyboard::Key::RightBrace);
+                key = keyboard::Key::RightBrace;
             }
             Button::VolumeDown => {
-                key = Keyboard::Key(keyboard::Key::Minus);
+                key = keyboard::Key::Minus;
             }
             Button::VolumeUp => {
-                key = Keyboard::Key(keyboard::Key::Equal);
+                key = keyboard::Key::Equal;
             }
             Button::Pause => {
-                key = Keyboard::Misc(keyboard::Misc::Pause);
+                key = keyboard::Key::P;
             }
         },
         Action::Released => {
