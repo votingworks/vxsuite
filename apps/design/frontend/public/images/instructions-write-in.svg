@@ -11,6 +11,6 @@
     <path d="M233.78,72.45A26.16,26.16,0,0,1,248,62.11a40.65,40.65,0,0,1,10.13-1.17l0,11.53Z" style="fill: #b3b3b3;stroke: #000;stroke-miterlimit: 10;stroke-width: 2px"/>
     <path d="M258.14,68.73a18.2,18.2,0,0,0-14,3.77l14,0Z" style="fill: #d9d9d9;stroke: #000;stroke-linecap: round;stroke-linejoin: round;stroke-width: 2px"/>
   </g>
-  <text transform="translate(65.84 65.79)" style="font-size: 16px;fill: #221f1f;font-family: HelveticaNeue, Helvetica Neue">write-in</text>
+  <text transform="translate(65.84 65.79)" style="font-size: 16px;fill: #221f1f;font-family: sans-serif">write-in</text>
   <ellipse cx="36.33" cy="36.52" rx="23.12" ry="15.24"/>
 </svg>

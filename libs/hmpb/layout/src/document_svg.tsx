@@ -9,8 +9,6 @@ import {
   TextBox,
 } from './document_types';
 
-export const FONT_FAMILY = 'HelveticaNeue';
-
 interface SvgRectangleProps extends Omit<Rectangle, 'type' | 'children'> {
   children?: React.ReactNode;
 }
@@ -127,6 +125,7 @@ interface SvgPageProps extends Omit<Page, 'children'> {
   height: number;
   stroke?: Color;
   strokeWidth?: number;
+  fontFamily?: string;
   children: React.ReactNode;
 }
 
@@ -138,15 +137,20 @@ export function SvgPage({
   stroke,
   strokeWidth,
   children,
+  fontFamily,
 }: SvgPageProps): JSX.Element {
   return (
     <svg
+      // Disable common ligatures to avoid `fi` being rendered as a ligature.
+      // Note that this CSS only works on the frontend, so I manually removed
+      // the ligatures from the Roboto-Bold font that we use on the backend.
+      style={{ fontVariantLigatures: 'no-common-ligatures' }}
       x={x}
       y={y}
       width={width}
       height={height}
       viewBox={`0 0 ${width} ${height}`}
-      fontFamily={FONT_FAMILY}
+      fontFamily={fontFamily}
     >
       <rect
         width={width}
