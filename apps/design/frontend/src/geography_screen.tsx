@@ -141,11 +141,12 @@ function DistrictForm({
     return null;
   }
 
-  function onSavePress() {
-    assert(district);
+  function onSavePress(updatedDistrict: District) {
     const newDistricts = districtId
-      ? savedElection.districts.map((d) => (d.id === districtId ? district : d))
-      : [...savedDistricts, district];
+      ? savedElection.districts.map((d) =>
+          d.id === districtId ? updatedDistrict : d
+        )
+      : [...savedDistricts, updatedDistrict];
     updateElectionMutation.mutate(
       {
         electionId,
@@ -162,10 +163,11 @@ function DistrictForm({
     );
   }
 
-  function onDeletePress() {
-    assert(districtId !== undefined);
+  function onDeletePress(districtIdToRemove: DistrictId) {
     assert(savedPrecincts !== undefined);
-    const newDistricts = savedDistricts.filter((d) => d.id !== districtId);
+    const newDistricts = savedDistricts.filter(
+      (d) => d.id !== districtIdToRemove
+    );
     // When deleting a district, we need to remove it from any precincts that
     // reference it
     updatePrecinctsMutation.mutate(
@@ -178,14 +180,16 @@ function DistrictForm({
               splits: precinct.splits.map((split) => ({
                 ...split,
                 districtIds: split.districtIds.filter(
-                  (id) => id !== districtId
+                  (id) => id !== districtIdToRemove
                 ),
               })),
             };
           }
           return {
             ...precinct,
-            districtIds: precinct.districtIds.filter((id) => id !== districtId),
+            districtIds: precinct.districtIds.filter(
+              (id) => id !== districtIdToRemove
+            ),
           };
         }),
       },
@@ -227,7 +231,7 @@ function DistrictForm({
           <Button
             variant="primary"
             icon="Done"
-            onPress={onSavePress}
+            onPress={() => onSavePress(district)}
             disabled={updateElectionMutation.isLoading}
           >
             Save
@@ -238,7 +242,7 @@ function DistrictForm({
             <Button
               variant="danger"
               icon="Delete"
-              onPress={onDeletePress}
+              onPress={() => onDeletePress(districtId as DistrictId)}
               disabled={updateElectionMutation.isLoading}
             >
               Delete District
@@ -441,11 +445,10 @@ function PrecinctForm({
     return null;
   }
 
-  function onSavePress() {
-    assert(precinct);
+  function onSavePress(updatedPrecinct: Precinct) {
     const newPrecincts = precinctId
-      ? savedPrecincts.map((p) => (p.id === precinctId ? precinct : p))
-      : [...savedPrecincts, precinct];
+      ? savedPrecincts.map((p) => (p.id === precinctId ? updatedPrecinct : p))
+      : [...savedPrecincts, updatedPrecinct];
     updatePrecinctsMutation.mutate(
       {
         electionId,
@@ -520,9 +523,8 @@ function PrecinctForm({
     }
   }
 
-  function onDeletePress() {
-    assert(precinctId !== undefined);
-    const newPrecincts = savedPrecincts.filter((p) => p.id !== precinctId);
+  function onDeletePress(id: PrecinctId) {
+    const newPrecincts = savedPrecincts.filter((p) => p.id !== id);
     updatePrecinctsMutation.mutate(
       {
         electionId,
@@ -678,7 +680,7 @@ function PrecinctForm({
           <Button
             variant="primary"
             icon="Done"
-            onPress={onSavePress}
+            onPress={() => onSavePress(precinct)}
             disabled={updatePrecinctsMutation.isLoading}
           >
             Save
@@ -689,7 +691,7 @@ function PrecinctForm({
             <Button
               variant="danger"
               icon="Delete"
-              onPress={onDeletePress}
+              onPress={() => onDeletePress(precinctId)}
               disabled={updatePrecinctsMutation.isLoading}
             >
               Delete Precinct

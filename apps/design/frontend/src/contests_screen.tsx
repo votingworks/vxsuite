@@ -33,7 +33,7 @@ import {
   PartyId,
   YesNoContest,
 } from '@votingworks/types';
-import { assert, assertDefined, find } from '@votingworks/basics';
+import { assert, find } from '@votingworks/basics';
 import styled from 'styled-components';
 import {
   FieldName,
@@ -64,9 +64,7 @@ function ContestsTab(): JSX.Element | null {
   const updateElectionMutation = updateElection.useMutation();
   const [filterDistrictId, setFilterDistrictId] = useState(FILTER_ALL);
   const [filterPartyId, setFilterPartyId] = useState(FILTER_ALL);
-  const [reorderedContests, setReorderedContests] = useState<
-    Contests | undefined
-  >();
+  const [reorderedContests, setReorderedContests] = useState<Contests>();
 
   if (!getElectionQuery.isSuccess) {
     return null;
@@ -101,13 +99,13 @@ function ContestsTab(): JSX.Element | null {
   );
   const partyIdToName = new Map(parties.map((party) => [party.id, party.name]));
 
-  function onSaveReorderedContests() {
+  function onSaveReorderedContests(updatedContests: Contests) {
     updateElectionMutation.mutate(
       {
         electionId,
         election: {
           ...election,
-          contests: assertDefined(reorderedContests),
+          contests: updatedContests,
         },
       },
       {
@@ -172,7 +170,7 @@ function ContestsTab(): JSX.Element | null {
                 Cancel
               </Button>
               <Button
-                onPress={onSaveReorderedContests}
+                onPress={() => onSaveReorderedContests(reorderedContests)}
                 variant="primary"
                 icon="Done"
                 disabled={updateElectionMutation.isLoading}
@@ -346,11 +344,10 @@ function ContestForm({
   const history = useHistory();
   const contestRoutes = routes.election(electionId).contests;
 
-  function onSavePress() {
-    assert(contest !== undefined);
+  function onSavePress(updatedContest: AnyContest) {
     const newContests = contestId
-      ? savedContests.map((c) => (c.id === contestId ? contest : c))
-      : [...savedContests, contest];
+      ? savedContests.map((c) => (c.id === contestId ? updatedContest : c))
+      : [...savedContests, updatedContest];
     updateElectionMutation.mutate(
       {
         electionId,
@@ -367,9 +364,8 @@ function ContestForm({
     );
   }
 
-  function onDeletePress() {
-    assert(contestId !== undefined);
-    const newContests = savedContests.filter((c) => c.id !== contestId);
+  function onDeletePress(id: ContestId) {
+    const newContests = savedContests.filter((c) => c.id !== id);
     updateElectionMutation.mutate(
       {
         electionId,
@@ -613,7 +609,7 @@ function ContestForm({
         <FormActionsRow>
           <LinkButton to={contestRoutes.root.path}>Cancel</LinkButton>
           <Button
-            onPress={onSavePress}
+            onPress={() => onSavePress(contest)}
             variant="primary"
             icon="Done"
             disabled={updateElectionMutation.isLoading}
@@ -623,7 +619,11 @@ function ContestForm({
         </FormActionsRow>
         {contestId && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
-            <Button variant="danger" icon="Delete" onPress={onDeletePress}>
+            <Button
+              variant="danger"
+              icon="Delete"
+              onPress={() => onDeletePress(contestId)}
+            >
               Delete Contest
             </Button>
           </FormActionsRow>
@@ -779,10 +779,10 @@ function PartyForm({
   const history = useHistory();
   const partyRoutes = routes.election(electionId).contests.parties;
 
-  function onSavePress() {
+  function onSavePress(updatedParty: Party) {
     const newParties = partyId
-      ? savedParties.map((p) => (p.id === partyId ? party : p))
-      : [...savedParties, party];
+      ? savedParties.map((p) => (p.id === partyId ? updatedParty : p))
+      : [...savedParties, updatedParty];
     updateElectionMutation.mutate(
       {
         electionId,
@@ -799,9 +799,8 @@ function PartyForm({
     );
   }
 
-  function onDeletePress() {
-    assert(partyId !== undefined);
-    const newParties = savedParties.filter((p) => p.id !== partyId);
+  function onDeletePress(id: PartyId) {
+    const newParties = savedParties.filter((p) => p.id !== id);
     // When deleting a party, we need to remove it from any contests/candidates
     // that reference it
     updateElectionMutation.mutate(
@@ -867,7 +866,7 @@ function PartyForm({
         <FormActionsRow>
           <LinkButton to={partyRoutes.root.path}>Cancel</LinkButton>
           <Button
-            onPress={onSavePress}
+            onPress={() => onSavePress(party)}
             variant="primary"
             icon="Done"
             disabled={updateElectionMutation.isLoading}
@@ -877,7 +876,11 @@ function PartyForm({
         </FormActionsRow>
         {partyId && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
-            <Button variant="danger" icon="Delete" onPress={onDeletePress}>
+            <Button
+              variant="danger"
+              icon="Delete"
+              onPress={() => onDeletePress(partyId)}
+            >
               Delete Party
             </Button>
           </FormActionsRow>
