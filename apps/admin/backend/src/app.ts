@@ -95,7 +95,10 @@ import { generateBallotCountReportCsv } from './exports/csv_ballot_count_report'
 import { adjudicateWriteIn } from './adjudication';
 import { convertFrontendFilter as convertFrontendFilterUtil } from './util/filters';
 import { buildElectionResultsReport } from './util/cdf_results';
-import { tabulateElectionResults } from './tabulation/full_results';
+import {
+  clearTabulationCache,
+  tabulateElectionResults,
+} from './tabulation/full_results';
 import { NODE_ENV, REAL_USB_DRIVE_GLOB_PATTERN } from './globals';
 
 const debug = rootDebug.extend('app');
@@ -513,6 +516,7 @@ function buildApi({
           errorDetails: JSON.stringify(importResult.err()),
         });
       } else {
+        clearTabulationCache();
         const { alreadyPresent: numAlreadyPresent, newlyAdded: numNewlyAdded } =
           importResult.ok();
         let message = `Successfully imported ${numNewlyAdded} cast vote record(s).`;
@@ -536,6 +540,7 @@ function buildApi({
       const electionId = loadCurrentElectionIdOrThrow(workspace);
       store.deleteCastVoteRecordFiles(electionId);
       store.setElectionResultsOfficial(electionId, false);
+      clearTabulationCache();
       await logger.log(
         LogEventId.ClearImportedCastVoteRecordsComplete,
         userRole,

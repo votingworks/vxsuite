@@ -6,6 +6,7 @@ import {
   WriteInRecord,
 } from './types';
 import { type Store } from './store';
+import { clearTabulationCache } from './tabulation/full_results';
 
 /**
  * Manipulates adjudication records so that a particular vote in a cast vote
@@ -185,6 +186,11 @@ export async function adjudicateWriteIn(
       initialWriteInRecord.candidateId
     );
   }
+
+  // adjudicating a write-in will change the way ballot marks are tabulated
+  // if a valid write-in is adjudicated as invalid, or an unmarked write-in is
+  // adjudicated as valid. for simplicity, reset the cache after any adjudication
+  clearTabulationCache();
 
   await logWriteInAdjudication({
     initialWriteInRecord,

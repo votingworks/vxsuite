@@ -8,6 +8,8 @@ import {
   groupBySupportsZeroSplits,
 } from '@votingworks/utils';
 import { assert, assertDefined } from '@votingworks/basics';
+import memoize from 'lodash.memoize';
+import hash from 'object-hash';
 import { Store } from '../store';
 import {
   modifyElectionResultsWithWriteInSummary,
@@ -58,6 +60,32 @@ export function tabulateCastVoteRecords({
 }
 
 /**
+ * Memoized version of `tabulateCastVoteRecords`.
+ */
+const tabulateCastVoteRecordsMemoized = memoize(
+  tabulateCastVoteRecords,
+  ({ electionId, filter, groupBy }) =>
+    hash(
+      {
+        electionId,
+        filter,
+        groupBy,
+      },
+      {
+        unorderedArrays: true,
+        unorderedObjects: true,
+      }
+    )
+);
+
+/**
+ * Clears the memoized results of tabulating cast vote records.
+ */
+export function clearTabulationCache(): void {
+  tabulateCastVoteRecordsMemoized.cache.clear?.();
+}
+
+/**
  * Tabulate election results including all scanned and adjudicated information.
  */
 export async function tabulateElectionResults({
@@ -81,7 +109,7 @@ export async function tabulateElectionResults({
   } = assertDefined(store.getElection(electionId));
 
   debug('tabulating CVRs, ignoring write-in adjudication results');
-  let groupedElectionResults = await tabulateCastVoteRecords({
+  let groupedElectionResults = await tabulateCastVoteRecordsMemoized({
     electionId,
     store,
     filter,
