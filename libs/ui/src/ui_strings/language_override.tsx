@@ -17,7 +17,6 @@ export interface LanguageOverrideProps {
  * setting.
  *
  * NOTE: This will also affect the audio language, when voter audio is enabled.
- * TODO(kofi): Add audio data overrides.
  */
 export function LanguageOverride(
   props: LanguageOverrideProps

@@ -1478,27 +1478,21 @@ exports[`L&A (logic and accuracy) flow 2`] = `
         <h4
           class="c3"
         >
-          <span
-            class=""
-          >
+          <span>
             Unofficial TEST Ballot
           </span>
         </h4>
         <h5
           class="c4"
         >
-          <span
-            class=""
-          >
+          <span>
             Mock General Election Choctaw 2020
           </span>
         </h5>
         <p
           class="c5"
         >
-          <span
-            class=""
-          >
+          <span>
             <span
               class="c6"
             >
@@ -1506,16 +1500,12 @@ exports[`L&A (logic and accuracy) flow 2`] = `
             </span>
           </span>
           <br />
-          <span
-            class=""
-          >
+          <span>
             Choctaw County
           </span>
           ,
            
-          <span
-            class=""
-          >
+          <span>
             State of Mississippi
           </span>
         </p>
@@ -1547,25 +1537,19 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           <div>
             <div>
               <div>
-                <span
-                  class=""
-                >
+                <span>
                   Precinct
                 </span>
               </div>
               <strong>
-                <span
-                  class=""
-                >
+                <span>
                   District 5
                 </span>
               </strong>
             </div>
             <div>
               <div>
-                <span
-                  class=""
-                >
+                <span>
                   Ballot Style
                 </span>
               </div>
@@ -1575,9 +1559,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
             </div>
             <div>
               <div>
-                <span
-                  class=""
-                >
+                <span>
                   Ballot ID
                 </span>
               </div>
@@ -1603,9 +1585,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               President
             </span>
           </h6>
@@ -1615,17 +1595,13 @@ exports[`L&A (logic and accuracy) flow 2`] = `
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 Presidential Electors for Joe Biden for President and Kamala Harris for Vice President
               </span>
             </span>
              
             (
-            <span
-              class=""
-            >
+            <span>
               Democrat
             </span>
             )
@@ -1637,9 +1613,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Senate 
             </span>
           </h6>
@@ -1649,17 +1623,13 @@ exports[`L&A (logic and accuracy) flow 2`] = `
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 Mike Espy
               </span>
             </span>
              
             (
-            <span
-              class=""
-            >
+            <span>
               Democrat
             </span>
             )
@@ -1671,9 +1641,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               1st Congressional District
             </span>
           </h6>
@@ -1683,17 +1651,13 @@ exports[`L&A (logic and accuracy) flow 2`] = `
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 Antonia Eliason
               </span>
             </span>
              
             (
-            <span
-              class=""
-            >
+            <span>
               Democrat
             </span>
             )
@@ -1705,9 +1669,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Supreme Court District 3(Northern) Position 3
             </span>
           </h6>
@@ -1717,17 +1679,13 @@ exports[`L&A (logic and accuracy) flow 2`] = `
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 Josiah Dennis Coleman
               </span>
             </span>
              
             (
-            <span
-              class=""
-            >
+            <span>
               Nonpartisan
             </span>
             )
@@ -1739,9 +1697,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Election Commissioner 05
             </span>
           </h6>
@@ -1751,17 +1707,13 @@ exports[`L&A (logic and accuracy) flow 2`] = `
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 Ouida A Loper
               </span>
             </span>
              
             (
-            <span
-              class=""
-            >
+            <span>
               Independent
             </span>
             )
@@ -1773,9 +1725,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               School Board 05
             </span>
           </h6>
@@ -1785,9 +1735,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 Michael D Thomas
               </span>
             </span>
@@ -1800,9 +1748,7 @@ exports[`L&A (logic and accuracy) flow 2`] = `
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Ballot Measure 2
 House Concurrent Resolution No. 47
             </span>
@@ -1813,9 +1759,7 @@ House Concurrent Resolution No. 47
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 YES
               </span>
             </span>
@@ -1827,9 +1771,7 @@ House Concurrent Resolution No. 47
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Ballot Measure 3
 House Bill 1796 - Flag Referendum
             </span>
@@ -1840,9 +1782,7 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 YES
               </span>
             </span>
@@ -1854,9 +1794,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Ballot Measure 1
             </span>
           </h6>
@@ -1866,9 +1804,7 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A
               </span>
             </span>
@@ -1880,9 +1816,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Ballot Measure 1
             </span>
           </h6>
@@ -1892,9 +1826,7 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 FOR Initiative Measure No. 65
               </span>
             </span>
@@ -1925,27 +1857,21 @@ House Bill 1796 - Flag Referendum
         <h4
           class="c3"
         >
-          <span
-            class=""
-          >
+          <span>
             Unofficial TEST Ballot
           </span>
         </h4>
         <h5
           class="c4"
         >
-          <span
-            class=""
-          >
+          <span>
             Mock General Election Choctaw 2020
           </span>
         </h5>
         <p
           class="c5"
         >
-          <span
-            class=""
-          >
+          <span>
             <span
               class="c6"
             >
@@ -1953,16 +1879,12 @@ House Bill 1796 - Flag Referendum
             </span>
           </span>
           <br />
-          <span
-            class=""
-          >
+          <span>
             Choctaw County
           </span>
           ,
            
-          <span
-            class=""
-          >
+          <span>
             State of Mississippi
           </span>
         </p>
@@ -1994,25 +1916,19 @@ House Bill 1796 - Flag Referendum
           <div>
             <div>
               <div>
-                <span
-                  class=""
-                >
+                <span>
                   Precinct
                 </span>
               </div>
               <strong>
-                <span
-                  class=""
-                >
+                <span>
                   District 5
                 </span>
               </strong>
             </div>
             <div>
               <div>
-                <span
-                  class=""
-                >
+                <span>
                   Ballot Style
                 </span>
               </div>
@@ -2022,9 +1938,7 @@ House Bill 1796 - Flag Referendum
             </div>
             <div>
               <div>
-                <span
-                  class=""
-                >
+                <span>
                   Ballot ID
                 </span>
               </div>
@@ -2050,9 +1964,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               President
             </span>
           </h6>
@@ -2062,17 +1974,13 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 Presidential Electors for Donald J. Trump for President and Michael R. Pence for Vice President
               </span>
             </span>
              
             (
-            <span
-              class=""
-            >
+            <span>
               Republican
             </span>
             )
@@ -2084,9 +1992,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Senate 
             </span>
           </h6>
@@ -2096,17 +2002,13 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 Cindy Hyde-Smith
               </span>
             </span>
              
             (
-            <span
-              class=""
-            >
+            <span>
               Republican
             </span>
             )
@@ -2118,9 +2020,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               1st Congressional District
             </span>
           </h6>
@@ -2130,17 +2030,13 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 Trent Kelly
               </span>
             </span>
              
             (
-            <span
-              class=""
-            >
+            <span>
               Republican
             </span>
             )
@@ -2152,9 +2048,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Supreme Court District 3(Northern) Position 3
             </span>
           </h6>
@@ -2164,17 +2058,13 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 Percy L. Lynchard
               </span>
             </span>
              
             (
-            <span
-              class=""
-            >
+            <span>
               Nonpartisan
             </span>
             )
@@ -2186,9 +2076,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Election Commissioner 05
             </span>
           </h6>
@@ -2198,9 +2086,7 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 Wayne McLeod
               </span>
             </span>
@@ -2213,9 +2099,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               School Board 05
             </span>
           </h6>
@@ -2228,9 +2112,7 @@ House Bill 1796 - Flag Referendum
               WRITE-IN
             </span>
              
-            <span
-              class=""
-            >
+            <span>
               (write-in)
             </span>
           </span>
@@ -2241,9 +2123,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Ballot Measure 2
 House Concurrent Resolution No. 47
             </span>
@@ -2254,9 +2134,7 @@ House Concurrent Resolution No. 47
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 NO
               </span>
             </span>
@@ -2268,9 +2146,7 @@ House Concurrent Resolution No. 47
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Ballot Measure 3
 House Bill 1796 - Flag Referendum
             </span>
@@ -2281,9 +2157,7 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 NO
               </span>
             </span>
@@ -2295,9 +2169,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Ballot Measure 1
             </span>
           </h6>
@@ -2307,9 +2179,7 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A
               </span>
             </span>
@@ -2321,9 +2191,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Ballot Measure 1
             </span>
           </h6>
@@ -2333,9 +2201,7 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 FOR Alternative Measure 65 A
               </span>
             </span>
@@ -2366,27 +2232,21 @@ House Bill 1796 - Flag Referendum
         <h4
           class="c3"
         >
-          <span
-            class=""
-          >
+          <span>
             Unofficial TEST Ballot
           </span>
         </h4>
         <h5
           class="c4"
         >
-          <span
-            class=""
-          >
+          <span>
             Mock General Election Choctaw 2020
           </span>
         </h5>
         <p
           class="c5"
         >
-          <span
-            class=""
-          >
+          <span>
             <span
               class="c6"
             >
@@ -2394,16 +2254,12 @@ House Bill 1796 - Flag Referendum
             </span>
           </span>
           <br />
-          <span
-            class=""
-          >
+          <span>
             Choctaw County
           </span>
           ,
            
-          <span
-            class=""
-          >
+          <span>
             State of Mississippi
           </span>
         </p>
@@ -2435,25 +2291,19 @@ House Bill 1796 - Flag Referendum
           <div>
             <div>
               <div>
-                <span
-                  class=""
-                >
+                <span>
                   Precinct
                 </span>
               </div>
               <strong>
-                <span
-                  class=""
-                >
+                <span>
                   District 5
                 </span>
               </strong>
             </div>
             <div>
               <div>
-                <span
-                  class=""
-                >
+                <span>
                   Ballot Style
                 </span>
               </div>
@@ -2463,9 +2313,7 @@ House Bill 1796 - Flag Referendum
             </div>
             <div>
               <div>
-                <span
-                  class=""
-                >
+                <span>
                   Ballot ID
                 </span>
               </div>
@@ -2491,9 +2339,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               President
             </span>
           </h6>
@@ -2503,17 +2349,13 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 Presidential Electors for Phil Collins for President and Bill Parker for Vice President
               </span>
             </span>
              
             (
-            <span
-              class=""
-            >
+            <span>
               Independent
             </span>
             )
@@ -2525,9 +2367,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Senate 
             </span>
           </h6>
@@ -2537,17 +2377,13 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 Jimmy Edwards
               </span>
             </span>
              
             (
-            <span
-              class=""
-            >
+            <span>
               Libertarian
             </span>
             )
@@ -2559,9 +2395,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               1st Congressional District
             </span>
           </h6>
@@ -2574,9 +2408,7 @@ House Bill 1796 - Flag Referendum
               WRITE-IN
             </span>
              
-            <span
-              class=""
-            >
+            <span>
               (write-in)
             </span>
           </span>
@@ -2587,9 +2419,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Supreme Court District 3(Northern) Position 3
             </span>
           </h6>
@@ -2602,9 +2432,7 @@ House Bill 1796 - Flag Referendum
               WRITE-IN
             </span>
              
-            <span
-              class=""
-            >
+            <span>
               (write-in)
             </span>
           </span>
@@ -2615,9 +2443,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Election Commissioner 05
             </span>
           </h6>
@@ -2630,9 +2456,7 @@ House Bill 1796 - Flag Referendum
               WRITE-IN
             </span>
              
-            <span
-              class=""
-            >
+            <span>
               (write-in)
             </span>
           </span>
@@ -2643,9 +2467,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               School Board 05
             </span>
           </h6>
@@ -2655,9 +2477,7 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 Michael D Thomas
               </span>
             </span>
@@ -2670,9 +2490,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Ballot Measure 2
 House Concurrent Resolution No. 47
             </span>
@@ -2683,9 +2501,7 @@ House Concurrent Resolution No. 47
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 YES
               </span>
             </span>
@@ -2697,9 +2513,7 @@ House Concurrent Resolution No. 47
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Ballot Measure 3
 House Bill 1796 - Flag Referendum
             </span>
@@ -2710,9 +2524,7 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 YES
               </span>
             </span>
@@ -2724,9 +2536,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Ballot Measure 1
             </span>
           </h6>
@@ -2736,9 +2546,7 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 FOR APPROVAL OF EITHER Initiative No. 65 OR Alternative Measure No. 65 A
               </span>
             </span>
@@ -2750,9 +2558,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Ballot Measure 1
             </span>
           </h6>
@@ -2762,9 +2568,7 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 FOR Initiative Measure No. 65
               </span>
             </span>
@@ -2795,27 +2599,21 @@ House Bill 1796 - Flag Referendum
         <h4
           class="c3"
         >
-          <span
-            class=""
-          >
+          <span>
             Unofficial TEST Ballot
           </span>
         </h4>
         <h5
           class="c4"
         >
-          <span
-            class=""
-          >
+          <span>
             Mock General Election Choctaw 2020
           </span>
         </h5>
         <p
           class="c5"
         >
-          <span
-            class=""
-          >
+          <span>
             <span
               class="c6"
             >
@@ -2823,16 +2621,12 @@ House Bill 1796 - Flag Referendum
             </span>
           </span>
           <br />
-          <span
-            class=""
-          >
+          <span>
             Choctaw County
           </span>
           ,
            
-          <span
-            class=""
-          >
+          <span>
             State of Mississippi
           </span>
         </p>
@@ -2864,25 +2658,19 @@ House Bill 1796 - Flag Referendum
           <div>
             <div>
               <div>
-                <span
-                  class=""
-                >
+                <span>
                   Precinct
                 </span>
               </div>
               <strong>
-                <span
-                  class=""
-                >
+                <span>
                   District 5
                 </span>
               </strong>
             </div>
             <div>
               <div>
-                <span
-                  class=""
-                >
+                <span>
                   Ballot Style
                 </span>
               </div>
@@ -2892,9 +2680,7 @@ House Bill 1796 - Flag Referendum
             </div>
             <div>
               <div>
-                <span
-                  class=""
-                >
+                <span>
                   Ballot ID
                 </span>
               </div>
@@ -2920,9 +2706,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               President
             </span>
           </h6>
@@ -2935,9 +2719,7 @@ House Bill 1796 - Flag Referendum
               WRITE-IN
             </span>
              
-            <span
-              class=""
-            >
+            <span>
               (write-in)
             </span>
           </span>
@@ -2948,9 +2730,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Senate 
             </span>
           </h6>
@@ -2963,9 +2743,7 @@ House Bill 1796 - Flag Referendum
               WRITE-IN
             </span>
              
-            <span
-              class=""
-            >
+            <span>
               (write-in)
             </span>
           </span>
@@ -2976,9 +2754,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               1st Congressional District
             </span>
           </h6>
@@ -2988,17 +2764,13 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 Antonia Eliason
               </span>
             </span>
              
             (
-            <span
-              class=""
-            >
+            <span>
               Democrat
             </span>
             )
@@ -3010,9 +2782,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Supreme Court District 3(Northern) Position 3
             </span>
           </h6>
@@ -3022,17 +2792,13 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 Josiah Dennis Coleman
               </span>
             </span>
              
             (
-            <span
-              class=""
-            >
+            <span>
               Nonpartisan
             </span>
             )
@@ -3044,9 +2810,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Election Commissioner 05
             </span>
           </h6>
@@ -3056,17 +2820,13 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 Ouida A Loper
               </span>
             </span>
              
             (
-            <span
-              class=""
-            >
+            <span>
               Independent
             </span>
             )
@@ -3078,9 +2838,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               School Board 05
             </span>
           </h6>
@@ -3093,9 +2851,7 @@ House Bill 1796 - Flag Referendum
               WRITE-IN
             </span>
              
-            <span
-              class=""
-            >
+            <span>
               (write-in)
             </span>
           </span>
@@ -3106,9 +2862,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Ballot Measure 2
 House Concurrent Resolution No. 47
             </span>
@@ -3119,9 +2873,7 @@ House Concurrent Resolution No. 47
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 NO
               </span>
             </span>
@@ -3133,9 +2885,7 @@ House Concurrent Resolution No. 47
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Ballot Measure 3
 House Bill 1796 - Flag Referendum
             </span>
@@ -3146,9 +2896,7 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 NO
               </span>
             </span>
@@ -3160,9 +2908,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Ballot Measure 1
             </span>
           </h6>
@@ -3172,9 +2918,7 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 AGAINST BOTH Initiative Measure No. 65 AND Alternative Measure No. 65 A
               </span>
             </span>
@@ -3186,9 +2930,7 @@ House Bill 1796 - Flag Referendum
           <h6
             class="c13 c14"
           >
-            <span
-              class=""
-            >
+            <span>
               Ballot Measure 1
             </span>
           </h6>
@@ -3198,9 +2940,7 @@ House Bill 1796 - Flag Referendum
             <span
               class="c16"
             >
-              <span
-                class=""
-              >
+              <span>
                 FOR Alternative Measure 65 A
               </span>
             </span>

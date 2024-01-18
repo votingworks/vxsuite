@@ -12,10 +12,15 @@ export type UiStringsApiClient = {
 };
 
 function createReactQueryApi(getApiClient: () => UiStringsApiClient) {
-  function createBatchAudioClipsClient(languageCode: LanguageCode) {
+  function createBatchAudioClipsClient(params: {
+    apiClient: UiStringsApiClient;
+    languageCode: LanguageCode;
+  }) {
+    const { apiClient, languageCode } = params;
+
     return batcher.create({
       fetcher: (queries: Array<{ id: string }>) =>
-        getApiClient().getAudioClips({
+        apiClient.getAudioClips({
           audioIds: queries.map((q) => q.id),
           languageCode,
         }),
@@ -30,13 +35,17 @@ function createReactQueryApi(getApiClient: () => UiStringsApiClient) {
     ReturnType<typeof createBatchAudioClipsClient>
   >();
 
-  function getBatchAudioClipsClient(languageCode: LanguageCode) {
+  function getBatchAudioClipsClient(params: {
+    apiClient: UiStringsApiClient;
+    languageCode: LanguageCode;
+  }) {
+    const { languageCode } = params;
     const existingBatchClient = batchAudioClipsClients.get(languageCode);
     if (existingBatchClient) {
       return existingBatchClient;
     }
 
-    const newBatchClient = createBatchAudioClipsClient(languageCode);
+    const newBatchClient = createBatchAudioClipsClient(params);
 
     batchAudioClipsClients.set(languageCode, newBatchClient);
     return newBatchClient;
@@ -54,7 +63,10 @@ function createReactQueryApi(getApiClient: () => UiStringsApiClient) {
       },
 
       useQuery(params: { id: string; languageCode: LanguageCode }) {
-        const batchClient = getBatchAudioClipsClient(params.languageCode);
+        const batchClient = getBatchAudioClipsClient({
+          apiClient: getApiClient(),
+          languageCode: params.languageCode,
+        });
 
         return useQuery(this.getQueryKey(params), () =>
           batchClient.fetch({ id: params.id })

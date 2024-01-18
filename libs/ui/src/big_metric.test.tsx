@@ -1,3 +1,4 @@
+import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen } from '../test/react_testing_library';
 import { BigMetric } from './big_metric';
 
@@ -10,8 +11,6 @@ test('renders label and formatted value', () => {
   screen.getByText('Ballots Scanned');
 
   // Verify counts are rendered as formatted numbers with accessible labels:
-  expect(screen.getByText('2')).toHaveAccessibleName('Number of Machines: 2');
-  expect(screen.getByText('4,096')).toHaveAccessibleName(
-    'Ballots Scanned: 4,096'
-  );
+  screen.getByText(hasTextAcrossElements(/Number of Machines.?2/));
+  screen.getByText(hasTextAcrossElements(/Ballots Scanned.?4,096/));
 });

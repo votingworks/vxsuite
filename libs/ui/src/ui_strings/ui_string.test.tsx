@@ -11,6 +11,7 @@ import {
 } from '../../test/test_ui_strings';
 import { newTestContext } from '../../test/test_context';
 import { UiString } from './ui_string';
+import { UiStringAudioDataAttributeName } from './with_audio';
 
 const { getLanguageContext, mockBackendApi, render } = newTestContext();
 
@@ -59,4 +60,19 @@ test('renders within optional element type override', async () => {
   );
 
   await screen.findByRole('heading', { name: 'Pluto' });
+});
+
+test('renders with audio data attributes', async () => {
+  const { I18N_KEY, LANGUAGE_CODE } = UiStringAudioDataAttributeName;
+
+  render(
+    <UiString as="h1" uiStringKey="planetName" uiStringSubKey="planet9">
+      Fallback text
+    </UiString>
+  );
+
+  const pluto = await screen.findByRole('heading', { name: 'Pluto' });
+  const container = pluto.parentElement;
+  expect(container).toHaveAttribute(I18N_KEY, 'planetName.planet9');
+  expect(container).toHaveAttribute(LANGUAGE_CODE, LanguageCode.ENGLISH);
 });

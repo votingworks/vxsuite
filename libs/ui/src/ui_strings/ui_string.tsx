@@ -1,9 +1,9 @@
 import React from 'react';
 import { Trans } from 'react-i18next';
-import styled from 'styled-components';
 
 import { ReactUiString } from './types';
 import { useLanguageContext } from './language_context';
+import { WithAudio } from './with_audio';
 
 export interface UiStringProps {
   as?: string | React.ComponentType<never>;
@@ -12,10 +12,6 @@ export interface UiStringProps {
   uiStringKey: string;
   uiStringSubKey?: string;
 }
-
-const Container = styled.span`
-  /* TODO(kofi): Override font-family for non-latin character sets. */
-`;
 
 export function UiString(props: UiStringProps): JSX.Element {
   const { as, children, pluralCount, uiStringKey, uiStringSubKey } = props;
@@ -29,18 +25,18 @@ export function UiString(props: UiStringProps): JSX.Element {
   if (!languageContext) {
     // Enable tests to run without the need for a UiStringContext:
     return (
-      <Container>
+      <WithAudio i18nKey={i18nKey}>
         <Trans i18nKey={i18nKey} count={pluralCount} parent={as}>
           {children}
         </Trans>
-      </Container>
+      </WithAudio>
     );
   }
 
   const { currentLanguageCode, i18next, translationFunction } = languageContext;
 
   return (
-    <Container data-audio-ids={'' /* TODO(kofi): fetch audio IDs */}>
+    <WithAudio i18nKey={i18nKey}>
       <Trans
         i18nKey={i18nKey}
         count={pluralCount}
@@ -51,6 +47,6 @@ export function UiString(props: UiStringProps): JSX.Element {
       >
         {children}
       </Trans>
-    </Container>
+    </WithAudio>
   );
 }
