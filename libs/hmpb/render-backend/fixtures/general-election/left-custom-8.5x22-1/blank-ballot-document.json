@@ -2011,14 +2011,14 @@
                   "type": "Rectangle",
                   "x": 8.742857142857142,
                   "y": 4.604651162790698,
-                  "width": 122.39999999999999,
+                  "width": 131.14285714285714,
                   "height": 41.75,
                   "children": [
                     {
                       "type": "TextBox",
                       "x": 0,
                       "y": 0,
-                      "width": 122.39999999999999,
+                      "width": 131.14285714285714,
                       "height": 13.75,
                       "textLines": [
                         "Instructions"
@@ -2031,7 +2031,7 @@
                       "type": "TextBox",
                       "x": 0,
                       "y": 13.75,
-                      "width": 122.39999999999999,
+                      "width": 131.14285714285714,
                       "height": 10,
                       "textLines": [
                         "To Vote:"
@@ -2044,7 +2044,7 @@
                       "type": "TextBox",
                       "x": 0,
                       "y": 23.75,
-                      "width": 122.39999999999999,
+                      "width": 131.14285714285714,
                       "height": 18,
                       "textLines": [
                         "To vote, completely fill in the",
@@ -2068,14 +2068,14 @@
                   "type": "Rectangle",
                   "x": 227.3142857142857,
                   "y": 9.209302325581396,
-                  "width": 209.82857142857142,
+                  "width": 227.3142857142857,
                   "height": 36,
                   "children": [
                     {
                       "type": "TextBox",
                       "x": 0,
                       "y": 0,
-                      "width": 209.82857142857142,
+                      "width": 227.3142857142857,
                       "height": 10,
                       "textLines": [
                         "To Vote for a Write-In:"
@@ -2088,7 +2088,7 @@
                       "type": "TextBox",
                       "x": 0,
                       "y": 10,
-                      "width": 209.82857142857142,
+                      "width": 227.3142857142857,
                       "height": 26,
                       "textLines": [
                         "To vote for a person whose name is not on the ballot,",

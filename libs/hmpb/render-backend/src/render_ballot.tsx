@@ -22,8 +22,7 @@ import { DOMParser, XMLSerializer } from '@xmldom/xmldom';
 const ASSETS_DIR = join(__dirname, '../assets');
 // These font names need to be exactly of the pattern FontName[-Bold] in order
 // for svg-to-pdfkit to find them (see https://github.com/alafr/SVG-to-PDFKit#fonts).
-// We set fontFamily = HelveticaNeue in the SvgPage component in document_svg.tsx.
-const FONTS = ['HelveticaNeue', 'HelveticaNeue-Bold'];
+const FONTS = ['Roboto', 'Roboto-Bold'];
 
 function removeSvgWidthAndHeight(svg: string): string {
   const parsed = new DOMParser().parseFromString(svg, 'image/svg+xml');
@@ -76,7 +75,7 @@ function AnyElement(props: AnyElement): JSX.Element {
 
 function renderPageToSvg(page: Page, width: number, height: number): string {
   const pageElement = (
-    <SvgPage {...page} width={width} height={height}>
+    <SvgPage {...page} width={width} height={height} fontFamily="Roboto">
       {page.children.map((child, index) => (
         <AnyElement key={index} {...child} />
       ))}
@@ -107,7 +106,7 @@ export function renderDocumentToPdf(document: Document): PDFKit.PDFDocument {
     autoFirstPage: false,
   });
   for (const font of FONTS) {
-    pdf.registerFont(font, join(ASSETS_DIR, `fonts/${font}.woff`));
+    pdf.registerFont(font, join(ASSETS_DIR, `fonts/${font}.ttf`));
   }
 
   for (const svgPage of svgPages) {

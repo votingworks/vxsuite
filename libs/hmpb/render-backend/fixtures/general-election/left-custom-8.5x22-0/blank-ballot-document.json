@@ -2011,14 +2011,14 @@
                   "type": "Rectangle",
                   "x": 8.742857142857142,
                   "y": 4.604651162790698,
-                  "width": 122.39999999999999,
-                  "height": 56.75,
+                  "width": 131.14285714285714,
+                  "height": 47.75,
                   "children": [
                     {
                       "type": "TextBox",
                       "x": 0,
                       "y": 0,
-                      "width": 122.39999999999999,
+                      "width": 131.14285714285714,
                       "height": 16.25,
                       "textLines": [
                         "Instructions"
@@ -2031,7 +2031,7 @@
                       "type": "TextBox",
                       "x": 0,
                       "y": 16.25,
-                      "width": 122.39999999999999,
+                      "width": 131.14285714285714,
                       "height": 11.25,
                       "textLines": [
                         "To Vote:"
@@ -2044,12 +2044,11 @@
                       "type": "TextBox",
                       "x": 0,
                       "y": 27.5,
-                      "width": 122.39999999999999,
-                      "height": 29.25,
+                      "width": 131.14285714285714,
+                      "height": 20.25,
                       "textLines": [
                         "To vote, completely fill in",
-                        "the oval next to your",
-                        "choice."
+                        "the oval next to your choice."
                       ],
                       "fontSize": 9,
                       "fontWeight": 400,
@@ -2069,14 +2068,14 @@
                   "type": "Rectangle",
                   "x": 227.3142857142857,
                   "y": 9.209302325581396,
-                  "width": 209.82857142857142,
+                  "width": 227.3142857142857,
                   "height": 49.5,
                   "children": [
                     {
                       "type": "TextBox",
                       "x": 0,
                       "y": 0,
-                      "width": 209.82857142857142,
+                      "width": 227.3142857142857,
                       "height": 11.25,
                       "textLines": [
                         "To Vote for a Write-In:"
@@ -2089,13 +2088,13 @@
                       "type": "TextBox",
                       "x": 0,
                       "y": 11.25,
-                      "width": 209.82857142857142,
+                      "width": 227.3142857142857,
                       "height": 38.25,
                       "textLines": [
                         "To vote for a person whose name is not on the",
-                        "ballot, write the person’s name on the",
-                        "\"write-in\" line and completely fill in the oval",
-                        "to the left of the line."
+                        "ballot, write the person’s name on the \"write-in\"",
+                        "line and completely fill in the oval to the left of",
+                        "the line."
                       ],
                       "fontSize": 9,
                       "fontWeight": 400,
@@ -23074,14 +23073,14 @@
                   "type": "Rectangle",
                   "x": 8.742857142857142,
                   "y": 4.604651162790698,
-                  "width": 122.39999999999999,
-                  "height": 56.75,
+                  "width": 131.14285714285714,
+                  "height": 47.75,
                   "children": [
                     {
                       "type": "TextBox",
                       "x": 0,
                       "y": 0,
-                      "width": 122.39999999999999,
+                      "width": 131.14285714285714,
                       "height": 16.25,
                       "textLines": [
                         "Instructions"
@@ -23094,7 +23093,7 @@
                       "type": "TextBox",
                       "x": 0,
                       "y": 16.25,
-                      "width": 122.39999999999999,
+                      "width": 131.14285714285714,
                       "height": 11.25,
                       "textLines": [
                         "To Vote:"
@@ -23107,12 +23106,11 @@
                       "type": "TextBox",
                       "x": 0,
                       "y": 27.5,
-                      "width": 122.39999999999999,
-                      "height": 29.25,
+                      "width": 131.14285714285714,
+                      "height": 20.25,
                       "textLines": [
                         "To vote, completely fill in",
-                        "the oval next to your",
-                        "choice."
+                        "the oval next to your choice."
                       ],
                       "fontSize": 9,
                       "fontWeight": 400,
@@ -23132,14 +23130,14 @@
                   "type": "Rectangle",
                   "x": 227.3142857142857,
                   "y": 9.209302325581396,
-                  "width": 209.82857142857142,
+                  "width": 227.3142857142857,
                   "height": 49.5,
                   "children": [
                     {
                       "type": "TextBox",
                       "x": 0,
                       "y": 0,
-                      "width": 209.82857142857142,
+                      "width": 227.3142857142857,
                       "height": 11.25,
                       "textLines": [
                         "To Vote for a Write-In:"
@@ -23152,13 +23150,13 @@
                       "type": "TextBox",
                       "x": 0,
                       "y": 11.25,
-                      "width": 209.82857142857142,
+                      "width": 227.3142857142857,
                       "height": 38.25,
                       "textLines": [
                         "To vote for a person whose name is not on the",
-                        "ballot, write the person’s name on the",
-                        "\"write-in\" line and completely fill in the oval",
-                        "to the left of the line."
+                        "ballot, write the person’s name on the \"write-in\"",
+                        "line and completely fill in the oval to the left of",
+                        "the line."
                       ],
                       "fontSize": 9,
                       "fontWeight": 400,
