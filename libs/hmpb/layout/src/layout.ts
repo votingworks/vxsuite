@@ -547,7 +547,7 @@ function HeaderAndInstructions({
       },
       TextBlock({
         ...gridPoint({ row: 0.25, column: 0.5 }, m),
-        width: gridWidth(7, m),
+        width: gridWidth(7.5, m),
         textGroups: [
           {
             text: 'Instructions',
@@ -578,7 +578,7 @@ function HeaderAndInstructions({
       },
       TextBlock({
         ...gridPoint({ row: 0.5, column: 13 }, m),
-        width: gridWidth(12, m),
+        width: gridWidth(13, m),
         textGroups: [
           {
             text: 'To Vote for a Write-In:',
