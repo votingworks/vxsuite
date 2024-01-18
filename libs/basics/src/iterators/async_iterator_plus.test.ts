@@ -137,13 +137,14 @@ test('zip', async () => {
     [3, 6],
   ]);
 
-  const numbers = iter(naturals()).async();
-  expect(await numbers.zip(numbers).take(5).toArray()).toEqual([
-    [1, 2],
-    [3, 4],
-    [5, 6],
-    [7, 8],
-    [9, 10],
+  expect(
+    await naturals().async().zip(naturals().async()).take(5).toArray()
+  ).toEqual([
+    [1, 1],
+    [2, 2],
+    [3, 3],
+    [4, 4],
+    [5, 5],
   ]);
 });
 
@@ -716,4 +717,12 @@ test('windows', async () => {
     ['u', 's'],
     ['s', 't'],
   ]);
+});
+
+test('single ownership', async () => {
+  const it = iter([1, 2, 3]).async();
+  expect(await it.toArray()).toEqual([1, 2, 3]);
+  await expect(it.toArray()).rejects.toThrowError(
+    'inner iterable has already been taken'
+  );
 });
