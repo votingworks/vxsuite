@@ -25,6 +25,7 @@ import {
   Candidate,
   CandidateContest,
   ContestId,
+  Contests,
   DistrictId,
   Election,
   Id,
@@ -33,6 +34,8 @@ import {
   YesNoContest,
 } from '@votingworks/types';
 import { assert, find } from '@votingworks/basics';
+import styled from 'styled-components';
+import { Flipper, Flipped } from 'react-flip-toolkit';
 import {
   FieldName,
   Form,
@@ -45,7 +48,13 @@ import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { TabPanel, TabBar } from './tabs';
 import { getElection, updateElection } from './api';
-import { generateId, replaceAtIndex } from './utils';
+import { generateId, reorderElement, replaceAtIndex } from './utils';
+
+const ReorderableTr = styled.tr<{ isReordering: boolean }>`
+  &:hover {
+    background-color: ${(p) => p.isReordering && p.theme.colors.containerLow};
+  }
+`;
 
 const FILTER_ALL = 'all';
 const FILTER_NONPARTISAN = 'nonpartisan';
@@ -53,8 +62,10 @@ const FILTER_NONPARTISAN = 'nonpartisan';
 function ContestsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
   const getElectionQuery = getElection.useQuery(electionId);
+  const updateElectionMutation = updateElection.useMutation();
   const [filterDistrictId, setFilterDistrictId] = useState(FILTER_ALL);
   const [filterPartyId, setFilterPartyId] = useState(FILTER_ALL);
+  const [reorderedContests, setReorderedContests] = useState<Contests>();
 
   if (!getElectionQuery.isSuccess) {
     return null;
@@ -76,10 +87,35 @@ function ContestsTab(): JSX.Element | null {
     return matchesDistrict && matchesParty;
   });
 
+  const canReorder =
+    filterDistrictId === FILTER_ALL &&
+    filterPartyId === FILTER_ALL &&
+    contests.length > 0;
+  const isReordering = reorderedContests !== undefined;
+
+  const contestsToShow = isReordering ? reorderedContests : filteredContests;
+
   const districtIdToName = new Map(
     districts.map((district) => [district.id, district.name])
   );
   const partyIdToName = new Map(parties.map((party) => [party.id, party.name]));
+
+  function onSaveReorderedContests(updatedContests: Contests) {
+    updateElectionMutation.mutate(
+      {
+        electionId,
+        election: {
+          ...election,
+          contests: updatedContests,
+        },
+      },
+      {
+        onSuccess: () => {
+          setReorderedContests(undefined);
+        },
+      }
+    );
+  }
 
   return (
     <TabPanel>
@@ -91,6 +127,7 @@ function ContestsTab(): JSX.Element | null {
           variant="primary"
           icon="Add"
           to={contestRoutes.addContest.path}
+          disabled={isReordering}
         >
           Add Contest
         </LinkButton>
@@ -107,6 +144,7 @@ function ContestsTab(): JSX.Element | null {
               value={filterDistrictId}
               onChange={(value) => setFilterDistrictId(value ?? FILTER_ALL)}
               style={{ minWidth: '8rem' }}
+              disabled={isReordering}
             />
             {election.type === 'primary' && (
               <SearchSelect
@@ -121,13 +159,38 @@ function ContestsTab(): JSX.Element | null {
                 value={filterPartyId}
                 onChange={(value) => setFilterPartyId(value ?? FILTER_ALL)}
                 style={{ minWidth: '8rem' }}
+                disabled={isReordering}
               />
             )}
           </React.Fragment>
         )}
+        <div style={{ marginLeft: 'auto' }}>
+          {isReordering ? (
+            <Row style={{ gap: '0.5rem' }}>
+              <Button onPress={() => setReorderedContests(undefined)}>
+                Cancel
+              </Button>
+              <Button
+                onPress={() => onSaveReorderedContests(reorderedContests)}
+                variant="primary"
+                icon="Done"
+                disabled={updateElectionMutation.isLoading}
+              >
+                Save
+              </Button>
+            </Row>
+          ) : (
+            <Button
+              onPress={() => setReorderedContests(contests)}
+              disabled={!canReorder}
+            >
+              Reorder Contests
+            </Button>
+          )}
+        </div>
       </TableActionsRow>
       {contests.length > 0 &&
-        (filteredContests.length === 0 ? (
+        (contestsToShow.length === 0 ? (
           <React.Fragment>
             <P>
               There are no contests for the district
@@ -145,45 +208,93 @@ function ContestsTab(): JSX.Element | null {
             </P>
           </React.Fragment>
         ) : (
-          <Table>
-            <thead>
-              <tr>
-                <TH>Title</TH>
-                <TH>Type</TH>
-                <TH>District</TH>
-                {election.type === 'primary' && <TH>Party</TH>}
-                <TH />
-              </tr>
-            </thead>
-            <tbody>
-              {filteredContests.map((contest) => (
-                <tr key={contest.id}>
-                  <TD>{contest.title}</TD>
-                  <TD>
-                    {contest.type === 'candidate'
-                      ? 'Candidate Contest'
-                      : 'Ballot Measure'}
-                  </TD>
-                  <TD nowrap>{districtIdToName.get(contest.districtId)}</TD>
-                  {election.type === 'primary' && (
-                    <TD nowrap>
-                      {contest.type === 'candidate' &&
-                        contest.partyId !== undefined &&
-                        partyIdToName.get(contest.partyId)}
-                    </TD>
-                  )}
-                  <TD nowrap>
-                    <LinkButton
-                      icon="Edit"
-                      to={contestRoutes.editContest(contest.id).path}
-                    >
-                      Edit
-                    </LinkButton>
-                  </TD>
+          // Flipper/Flip are used to animate the reordering of contest rows
+          /* @ts-expect-error: TS doesn't think Flipper is a valid component */
+          <Flipper
+            flipKey={contestsToShow.map((contest) => contest.id).join(',')}
+            // Custom spring parameters to speed up the duration of the animation
+            // See https://github.com/aholachek/react-flip-toolkit/issues/100#issuecomment-551056183
+            spring={{ stiffness: 439, damping: 42 }}
+          >
+            <Table>
+              <thead>
+                <tr>
+                  <TH>Title</TH>
+                  <TH>Type</TH>
+                  <TH>District</TH>
+                  {election.type === 'primary' && <TH>Party</TH>}
+                  <TH />
                 </tr>
-              ))}
-            </tbody>
-          </Table>
+              </thead>
+              <tbody>
+                {contestsToShow.map((contest, index) => (
+                  <Flipped key={contest.id} flipId={contest.id}>
+                    <ReorderableTr key={contest.id} isReordering={isReordering}>
+                      <TD>{contest.title}</TD>
+                      <TD>
+                        {contest.type === 'candidate'
+                          ? 'Candidate Contest'
+                          : 'Ballot Measure'}
+                      </TD>
+                      <TD nowrap>{districtIdToName.get(contest.districtId)}</TD>
+                      {election.type === 'primary' && (
+                        <TD nowrap>
+                          {contest.type === 'candidate' &&
+                            contest.partyId !== undefined &&
+                            partyIdToName.get(contest.partyId)}
+                        </TD>
+                      )}
+                      <TD nowrap style={{ height: '3rem' }}>
+                        <Row
+                          style={{ gap: '0.5rem', justifyContent: 'flex-end' }}
+                        >
+                          {isReordering ? (
+                            <React.Fragment>
+                              <Button
+                                aria-label="Move Up"
+                                icon="ChevronUp"
+                                disabled={index === 0}
+                                onPress={() =>
+                                  setReorderedContests(
+                                    reorderElement(
+                                      reorderedContests,
+                                      index,
+                                      index - 1
+                                    )
+                                  )
+                                }
+                              />
+                              <Button
+                                aria-label="Move Down"
+                                icon="ChevronDown"
+                                disabled={index === contestsToShow.length - 1}
+                                onPress={() =>
+                                  setReorderedContests(
+                                    reorderElement(
+                                      reorderedContests,
+                                      index,
+                                      index + 1
+                                    )
+                                  )
+                                }
+                              />
+                            </React.Fragment>
+                          ) : (
+                            <LinkButton
+                              icon="Edit"
+                              to={contestRoutes.editContest(contest.id).path}
+                            >
+                              Edit
+                            </LinkButton>
+                          )}
+                        </Row>
+                      </TD>
+                    </ReorderableTr>
+                  </Flipped>
+                ))}
+              </tbody>
+            </Table>
+          </Flipper>
         ))}
     </TabPanel>
   );
@@ -247,11 +358,10 @@ function ContestForm({
   const history = useHistory();
   const contestRoutes = routes.election(electionId).contests;
 
-  function onSavePress() {
-    assert(contest !== undefined);
+  function onSavePress(updatedContest: AnyContest) {
     const newContests = contestId
-      ? savedContests.map((c) => (c.id === contestId ? contest : c))
-      : [...savedContests, contest];
+      ? savedContests.map((c) => (c.id === contestId ? updatedContest : c))
+      : [...savedContests, updatedContest];
     updateElectionMutation.mutate(
       {
         electionId,
@@ -268,9 +378,8 @@ function ContestForm({
     );
   }
 
-  function onDeletePress() {
-    assert(contestId !== undefined);
-    const newContests = savedContests.filter((c) => c.id !== contestId);
+  function onDeletePress(id: ContestId) {
+    const newContests = savedContests.filter((c) => c.id !== id);
     updateElectionMutation.mutate(
       {
         electionId,
@@ -514,7 +623,7 @@ function ContestForm({
         <FormActionsRow>
           <LinkButton to={contestRoutes.root.path}>Cancel</LinkButton>
           <Button
-            onPress={onSavePress}
+            onPress={() => onSavePress(contest)}
             variant="primary"
             icon="Done"
             disabled={updateElectionMutation.isLoading}
@@ -524,7 +633,11 @@ function ContestForm({
         </FormActionsRow>
         {contestId && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
-            <Button variant="danger" icon="Delete" onPress={onDeletePress}>
+            <Button
+              variant="danger"
+              icon="Delete"
+              onPress={() => onDeletePress(contestId)}
+            >
               Delete Contest
             </Button>
           </FormActionsRow>
@@ -680,10 +793,10 @@ function PartyForm({
   const history = useHistory();
   const partyRoutes = routes.election(electionId).contests.parties;
 
-  function onSavePress() {
+  function onSavePress(updatedParty: Party) {
     const newParties = partyId
-      ? savedParties.map((p) => (p.id === partyId ? party : p))
-      : [...savedParties, party];
+      ? savedParties.map((p) => (p.id === partyId ? updatedParty : p))
+      : [...savedParties, updatedParty];
     updateElectionMutation.mutate(
       {
         electionId,
@@ -700,9 +813,8 @@ function PartyForm({
     );
   }
 
-  function onDeletePress() {
-    assert(partyId !== undefined);
-    const newParties = savedParties.filter((p) => p.id !== partyId);
+  function onDeletePress(id: PartyId) {
+    const newParties = savedParties.filter((p) => p.id !== id);
     // When deleting a party, we need to remove it from any contests/candidates
     // that reference it
     updateElectionMutation.mutate(
@@ -768,7 +880,7 @@ function PartyForm({
         <FormActionsRow>
           <LinkButton to={partyRoutes.root.path}>Cancel</LinkButton>
           <Button
-            onPress={onSavePress}
+            onPress={() => onSavePress(party)}
             variant="primary"
             icon="Done"
             disabled={updateElectionMutation.isLoading}
@@ -778,7 +890,11 @@ function PartyForm({
         </FormActionsRow>
         {partyId && (
           <FormActionsRow style={{ marginTop: '1rem' }}>
-            <Button variant="danger" icon="Delete" onPress={onDeletePress}>
+            <Button
+              variant="danger"
+              icon="Delete"
+              onPress={() => onDeletePress(partyId)}
+            >
               Delete Party
             </Button>
           </FormActionsRow>

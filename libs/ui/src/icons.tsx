@@ -34,6 +34,8 @@ import {
   faEject,
   faFileArrowUp,
   faFileArrowDown,
+  faChevronUp,
+  faChevronDown,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -186,10 +188,6 @@ export const Icons = {
     return <FaIcon {...props} type={faCheckCircle} />;
   },
 
-  DownChevron(props) {
-    return <FaIcon {...props} type={faChevronCircleDown} />;
-  },
-
   Edit(props) {
     return <FaIcon {...props} type={faPencil} />;
   },
@@ -234,11 +232,27 @@ export const Icons = {
     return <FaIcon {...props} type={faCircleQuestion} />;
   },
 
-  RightChevron(props) {
+  ChevronCircleDown(props) {
+    return <FaIcon {...props} type={faChevronCircleDown} />;
+  },
+
+  ChevronCircleUp(props) {
+    return <FaIcon {...props} type={faChevronCircleUp} />;
+  },
+
+  ChevronDown(props) {
+    return <FaIcon {...props} type={faChevronDown} />;
+  },
+
+  ChevronUp(props) {
+    return <FaIcon {...props} type={faChevronUp} />;
+  },
+
+  ChevronRight(props) {
     return <FaIcon {...props} type={faChevronRight} />;
   },
 
-  LeftChevron(props) {
+  ChevronLeft(props) {
     return <FaIcon {...props} type={faChevronLeft} />;
   },
 
@@ -260,10 +274,6 @@ export const Icons = {
 
   TextSize(props) {
     return <FaIcon {...props} type={faTextHeight} />;
-  },
-
-  UpChevron(props) {
-    return <FaIcon {...props} type={faChevronCircleUp} />;
   },
 
   Warning(props) {

@@ -182,7 +182,7 @@ export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
             {canScrollUp && (
               <Control onPress={onScrollUp} variant="primary">
                 <ControlLabel>
-                  <Icons.UpChevron />
+                  <Icons.ChevronCircleUp />
                   {appStrings.buttonMore()}
                 </ControlLabel>
               </Control>
@@ -192,7 +192,7 @@ export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
               <Control onPress={onScrollDown} variant="primary">
                 <ControlLabel>
                   {appStrings.buttonMore()}
-                  <Icons.DownChevron />
+                  <Icons.ChevronCircleDown />
                 </ControlLabel>
               </Control>
             )}

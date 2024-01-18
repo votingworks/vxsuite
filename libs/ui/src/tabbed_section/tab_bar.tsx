@@ -57,7 +57,7 @@ export function TabBar<Id extends string = string>(
           onPress={() => onChange(paneId)}
           role="tab"
           variant={activePaneId === paneId ? 'primary' : 'neutral'}
-          rightIcon="RightChevron"
+          rightIcon="ChevronRight"
           active={activePaneId === paneId}
         >
           {label}

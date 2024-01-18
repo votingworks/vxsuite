@@ -53,7 +53,7 @@ export function NavLink({
       color="inverseNeutral"
       rightIcon={
         isActive ? (
-          <Icons.RightChevron style={{ marginLeft: 'auto' }} />
+          <Icons.ChevronRight style={{ marginLeft: 'auto' }} />
         ) : undefined
       }
       {...linkButtonProps}

@@ -58,7 +58,7 @@ export function ElectionNavScreen({
               to="/"
               fill="transparent"
               color="inverseNeutral"
-              icon="LeftChevron"
+              icon="ChevronLeft"
             >
               All Elections
             </LinkButton>
