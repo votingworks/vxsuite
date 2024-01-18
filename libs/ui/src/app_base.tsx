@@ -6,7 +6,6 @@ import { GlobalStyles } from './global_styles';
 import { ThemeManagerContext } from './theme_manager_context';
 import { VxThemeProvider } from './themes/vx_theme_provider';
 import { loadFonts, unloadFonts } from './fonts/load_fonts';
-import { KeyboardShortcutHandlers } from './ui_strings';
 
 declare module 'styled-components' {
   /**
@@ -94,7 +93,6 @@ export function AppBase(props: AppBaseProps): JSX.Element {
         screenType={screenType}
         sizeMode={sizeMode}
       >
-        <KeyboardShortcutHandlers />
         <GlobalStyles
           enableScroll={enableScroll}
           isTouchscreen={isTouchscreen}

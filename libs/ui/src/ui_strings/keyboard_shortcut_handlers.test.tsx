@@ -3,7 +3,7 @@ import { AudioControls, LanguageCode } from '@votingworks/types';
 import { advancePromises, fakeUseAudioControls } from '@votingworks/test-utils';
 import { newTestContext } from '../../test/test_context';
 import { KeyboardShortcutHandlers } from './keyboard_shortcut_handlers';
-import { act, screen, waitFor } from '../../test/react_testing_library';
+import { act, render, screen, waitFor } from '../../test/react_testing_library';
 import { useCurrentLanguage } from '../hooks/use_current_language';
 
 const { CHINESE_SIMPLIFIED, ENGLISH, SPANISH } = LanguageCode;
@@ -17,7 +17,7 @@ jest.mock(
 );
 
 test('Shift+L switches display language', async () => {
-  const { mockBackendApi, render } = newTestContext();
+  const { mockBackendApi, render: renderWithContext } = newTestContext();
 
   mockBackendApi.getAvailableLanguages.mockResolvedValue([
     CHINESE_SIMPLIFIED,
@@ -32,7 +32,7 @@ test('Shift+L switches display language', async () => {
     return null;
   }
 
-  render(
+  renderWithContext(
     <div>
       <KeyboardShortcutHandlers />
       <CurrentLanguageConsumer />
@@ -68,13 +68,7 @@ test.each([
 ])(
   '"$key" key calls expected audioControls function',
   async ({ key, expectedFnCall }) => {
-    const { render } = newTestContext();
-
-    render(
-      <div>
-        <KeyboardShortcutHandlers />
-      </div>
-    );
+    render(<KeyboardShortcutHandlers />);
 
     await act(async () => {
       userEvent.keyboard(key);
