@@ -155,4 +155,15 @@ test('shows configuration error', async () => {
     );
   userEvent.click(screen.getByText('election-package.zip'));
   await screen.findByText('Invalid system settings file.');
+
+  apiMock.apiClient.configure
+    .expectCallWith({ electionFilePath: '/election-package.zip' })
+    .resolves(
+      err({
+        type: 'invalid-metadata',
+        message: 'Bad metatdata',
+      })
+    );
+  userEvent.click(screen.getByText('election-package.zip'));
+  await screen.findByText('Invalid metadata file.');
 });

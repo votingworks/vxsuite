@@ -67,6 +67,8 @@ function SelectElectionPackage({
                     return 'Invalid election definition file.';
                   case 'invalid-system-settings':
                     return 'Invalid system settings file.';
+                  case 'invalid-metadata':
+                    return 'Invalid metadata file.';
                   default:
                     /* istanbul ignore next */
                     return throwIllegalValue(configureError.type);

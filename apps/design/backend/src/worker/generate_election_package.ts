@@ -6,6 +6,7 @@ import { layOutAllBallotStyles } from '@votingworks/hmpb-layout';
 import {
   BallotType,
   ElectionPackageFileName,
+  ElectionPackageMetadata,
   getDisplayElectionHash,
   Id,
 } from '@votingworks/types';
@@ -29,7 +30,12 @@ export async function generateElectionPackage(
 
   const zip = new JsZip();
 
-  const appStrings = await translateAppStrings(translator);
+  const metadata: ElectionPackageMetadata = {
+    version: 'latest',
+  };
+  zip.file(ElectionPackageFileName.METADATA, JSON.stringify(metadata, null, 2));
+
+  const appStrings = await translateAppStrings(translator, metadata.version);
   zip.file(
     ElectionPackageFileName.APP_STRINGS,
     JSON.stringify(appStrings, null, 2)

@@ -40,6 +40,8 @@ import {
   safeParseElectionDefinitionExtended,
   safeParseJson,
   safeParseSystemSettings,
+  ElectionPackageMetadata,
+  ElectionPackageMetadataSchema,
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { UsbDrive } from '@votingworks/usb-drive';
@@ -48,7 +50,11 @@ import { UsbDrive } from '@votingworks/usb-drive';
  * An error from parsing an election package.
  */
 export interface ElectionPackageError {
-  type: 'invalid-zip' | 'invalid-election' | 'invalid-system-settings';
+  type:
+    | 'invalid-election'
+    | 'invalid-metadata'
+    | 'invalid-system-settings'
+    | 'invalid-zip';
   message: string;
 }
 
@@ -64,6 +70,28 @@ async function readElectionPackageFromBuffer(
       ElectionPackageFileName.ELECTION,
       zipName
     );
+
+    // Metadata:
+
+    let metadata: ElectionPackageMetadata | undefined;
+    const metadataEntry = maybeGetFileByName(
+      entries,
+      ElectionPackageFileName.METADATA
+    );
+    if (metadataEntry) {
+      const metadataText = await readTextEntry(metadataEntry);
+      const metadataResult = safeParseJson(
+        metadataText,
+        ElectionPackageMetadataSchema
+      );
+      if (metadataResult.isErr()) {
+        return err({
+          type: 'invalid-metadata',
+          message: metadataResult.err().message,
+        });
+      }
+      metadata = metadataResult.ok();
+    }
 
     // System Settings:
 
@@ -165,11 +193,11 @@ async function readElectionPackageFromBuffer(
       }
     }
 
-    // TODO(kofi): Load metadata file from zip package.
     // TODO(kofi): Verify package version matches machine build version.
 
     return ok({
       electionDefinition,
+      metadata,
       systemSettings,
       uiStrings,
       uiStringAudioIds,

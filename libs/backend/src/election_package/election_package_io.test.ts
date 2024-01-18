@@ -3,6 +3,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionPackage,
   ElectionPackageFileName,
+  ElectionPackageMetadata,
   ElectionStringKey,
   InsertedSmartCardAuth,
   LanguageCode,
@@ -283,6 +284,29 @@ test('readElectionPackageFromFile loads UI string audio clips', async () => {
   });
 });
 
+test('readElectionPackageFromFile reads metadata', async () => {
+  const { electionDefinition } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
+  const { electionData } = electionDefinition;
+  const metadata: ElectionPackageMetadata = { version: 'latest' };
+
+  const pkg = await zipFile({
+    [ElectionPackageFileName.ELECTION]: electionData,
+    [ElectionPackageFileName.METADATA]: JSON.stringify(metadata),
+  });
+  const file = saveTmpFile(pkg);
+
+  expect(
+    (await readElectionPackageFromFile(file)).unsafeUnwrap()
+  ).toEqual<ElectionPackage>({
+    electionDefinition,
+    metadata,
+    systemSettings: DEFAULT_SYSTEM_SETTINGS,
+    uiStringAudioClips: [],
+    uiStrings: {},
+  });
+});
+
 test('readElectionPackageFromFile errors when an election.json is not present', async () => {
   const pkg = await zipFile({});
   const file = saveTmpFile(pkg);
@@ -333,6 +357,23 @@ test('readElectionPackageFromFile errors when given invalid system settings', as
     err({
       type: 'invalid-system-settings',
       message: 'Unexpected token o in JSON at position 1',
+    })
+  );
+});
+
+test('readElectionPackageFromFile errors when given invalid metadata', async () => {
+  const pkg = await zipFile({
+    [ElectionPackageFileName.ELECTION]:
+      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
+        .electionData,
+    [ElectionPackageFileName.METADATA]: 'asdf',
+  });
+  const file = saveTmpFile(pkg);
+
+  expect(await readElectionPackageFromFile(file)).toEqual(
+    err({
+      type: 'invalid-metadata',
+      message: 'Unexpected token a in JSON at position 0',
     })
   );
 });
