@@ -172,17 +172,27 @@ export class Store {
   addElection({
     electionData,
     systemSettingsData,
+    electionPackageFileContents,
   }: {
     electionData: string;
     systemSettingsData: string;
+    electionPackageFileContents: Buffer;
   }): Id {
     const id = uuid();
     this.withTransaction(() => {
       this.client.run(
-        'insert into elections (id, election_data, system_settings_data) values (?, ?, ?)',
+        `
+        insert into elections (
+          id,
+          election_data,
+          system_settings_data,
+          election_package_file_contents
+        ) values (?, ?, ?, ?)
+        `,
         id,
         electionData,
-        systemSettingsData
+        systemSettingsData,
+        electionPackageFileContents
       );
       this.createElectionMetadataRecords(id);
     });
@@ -252,6 +262,19 @@ export class Store {
       createdAt: convertSqliteTimestampToIso8601(result.createdAt),
       isOfficialResults: result.isOfficialResults === 1,
     };
+  }
+
+  getElectionPackageFileContents(electionId: string): Buffer | undefined {
+    const result = this.client.one(
+      `
+      select
+        election_package_file_contents as electionPackageFileContents
+      from elections
+      where id = ?
+      `,
+      electionId
+    ) as { electionPackageFileContents: Buffer } | undefined;
+    return result?.electionPackageFileContents;
   }
 
   /**
