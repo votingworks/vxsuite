@@ -16,16 +16,17 @@ export function KeyboardShortcutHandlers(): React.ReactNode {
 
   React.useEffect(() => {
     function onKeyPress(event: KeyboardEvent) {
-      const currentLanguageIndex = availableLanguages.findIndex(
-        (l) => l === currentLanguageCode
-      );
-      const nextIndex = (currentLanguageIndex + 1) % availableLanguages.length;
-
       switch (event.key) {
-        // Shift+L: Switch to next available display/audio language:
-        case 'L':
+        case 'L': {
+          const currentLanguageIndex = availableLanguages.findIndex(
+            (l) => l === currentLanguageCode
+          );
+          const nextIndex =
+            (currentLanguageIndex + 1) % availableLanguages.length;
+
           setLanguage(availableLanguages[nextIndex]);
           break;
+        }
         case 'R':
           audioControls.replay();
           break;
