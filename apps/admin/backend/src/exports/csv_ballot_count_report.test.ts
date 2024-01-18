@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
@@ -20,6 +21,7 @@ test('uses appropriate headers', async () => {
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
   store.setCurrentElectionId(electionId);
 
@@ -162,6 +164,7 @@ test('includes rows for empty but known result groups', async () => {
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
   store.setCurrentElectionId(electionId);
 
@@ -186,6 +189,7 @@ test('does not include results groups when they are excluded by the filter', asy
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
   store.setCurrentElectionId(electionId);
 
@@ -230,6 +234,7 @@ test('excludes Manual column if no manual data exists', async () => {
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
   store.setCurrentElectionId(electionId);
 
@@ -254,6 +259,7 @@ test('can include sheet counts', async () => {
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
   store.setCurrentElectionId(electionId);
 

@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import {
   electionPrimaryPrecinctSplitsFixtures,
   electionTwoPartyPrimaryFixtures,
@@ -6,11 +7,13 @@ import {
   CandidateContest,
   Tabulation,
   DEFAULT_SYSTEM_SETTINGS,
+  ElectionPackageFileName,
 } from '@votingworks/types';
 import { find, typedAs } from '@votingworks/basics';
 import { promises as fs } from 'fs';
 import { join } from 'path';
 import { tmpNameSync } from 'tmp';
+import { zipFile } from '@votingworks/test-utils';
 import { Store } from './store';
 import {
   ElectionRecord,
@@ -34,22 +37,38 @@ test('create a memory store', () => {
   expect(store.getDbPath()).toEqual(':memory:');
 });
 
-test('add an election', () => {
+test('add an election', async () => {
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const systemSettings = DEFAULT_SYSTEM_SETTINGS;
+  const electionPackageFileContents = await zipFile({
+    [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
+    [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(systemSettings),
+  });
+
   const store = Store.memoryStore();
   const electionId = store.addElection({
-    electionData:
-      electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
+    electionData: electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents,
   });
 
   store.assertElectionExists(electionId);
   expect(store.getElections().map((r) => r.id)).toContain(electionId);
-  expect(store.getElection(electionId)).toMatchObject({
-    electionDefinition: expect.anything(),
-    id: electionId,
+
+  expect(store.getElection(electionId)).toEqual({
     createdAt: expect.anything(),
+    electionDefinition,
+    id: electionId,
+    isOfficialResults: false,
   });
-  expect(store.getElection('not-an-id')).toEqual(undefined);
+  expect(store.getElectionPackageFileContents(electionId)).toEqual(
+    electionPackageFileContents
+  );
+
+  expect(store.getElection('nonexistent-id')).toEqual(undefined);
+  expect(store.getElectionPackageFileContents('nonexistent-id')).toEqual(
+    undefined
+  );
 });
 
 test('assert election exists', () => {
@@ -65,6 +84,7 @@ test('setElectionResultsOfficial', () => {
     electionData:
       electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
 
   expect(store.getElection(electionId)).toEqual(
@@ -102,6 +122,7 @@ test('current election id', () => {
     electionData:
       electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
 
   expect(store.getCurrentElectionId()).toBeUndefined();
@@ -119,6 +140,7 @@ test('saveSystemSettings and getSystemSettings write and read system settings', 
     electionData:
       electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
   const retrievedSystemSettings = store.getSystemSettings(electionId);
   expect(retrievedSystemSettings).toEqual(DEFAULT_SYSTEM_SETTINGS);
@@ -130,6 +152,7 @@ test('scanner batches', () => {
     electionData:
       electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
   expect(store.getScannerBatches(electionId)).toEqual([]);
 
@@ -154,6 +177,7 @@ test('manual results', () => {
   const electionId = store.addElection({
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
   const contestId = 'zoo-council-mammal';
   const writeInCandidate = store.addWriteInCandidate({
@@ -282,6 +306,7 @@ describe('getTabulationGroups', () => {
   const electionId = store.addElection({
     electionData: electionPrimaryPrecinctSplitsFixtures.asText(),
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
   const { election } = electionPrimaryPrecinctSplitsFixtures;
 
@@ -461,6 +486,7 @@ describe('getFilteredContests', () => {
   const electionId = store.addElection({
     electionData: electionPrimaryPrecinctSplitsFixtures.asText(),
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
   });
   const { election } = electionPrimaryPrecinctSplitsFixtures;
 

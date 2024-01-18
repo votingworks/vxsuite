@@ -1,7 +1,6 @@
 import { fakeLogger } from '@votingworks/logging';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  ElectionPackage,
   ElectionPackageFileName,
   ElectionPackageMetadata,
   ElectionStringKey,
@@ -47,6 +46,7 @@ import {
   mockElectionPackageFileTree,
 } from './test_utils';
 import {
+  ElectionPackageWithFileContents,
   readElectionPackageFromFile,
   readSignedElectionPackageFromUsb,
 } from './election_package_io';
@@ -100,12 +100,13 @@ test('readElectionPackageFromFile reads an election package without system setti
   });
   const file = saveTmpFile(pkg);
   expect((await readElectionPackageFromFile(file)).unsafeUnwrap()).toEqual(
-    typedAs<ElectionPackage>({
+    typedAs<ElectionPackageWithFileContents>({
       electionDefinition:
         electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: {},
       uiStringAudioClips: [],
+      fileContents: expect.any(Buffer),
     })
   );
 });
@@ -121,12 +122,13 @@ test('readElectionPackageFromFile reads an election package with system settings
   });
   const file = saveTmpFile(pkg);
   expect((await readElectionPackageFromFile(file)).unsafeUnwrap()).toEqual(
-    typedAs<ElectionPackage>({
+    typedAs<ElectionPackageWithFileContents>({
       electionDefinition:
         electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
       systemSettings: DEFAULT_SYSTEM_SETTINGS,
       uiStrings: {},
       uiStringAudioClips: [],
+      fileContents: expect.any(Buffer),
     })
   );
 });
@@ -164,12 +166,13 @@ test('readElectionPackageFromFile loads available ui strings', async () => {
 
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
-  ).toEqual<ElectionPackage>({
+  ).toEqual<ElectionPackageWithFileContents>({
     electionDefinition:
       safeParseElectionDefinition(testCdfElectionData).unsafeUnwrap(),
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     uiStrings: expectedUiStrings,
     uiStringAudioClips: [],
+    fileContents: expect.any(Buffer),
   });
 });
 
@@ -205,12 +208,13 @@ test('readElectionPackageFromFile loads vx election strings', async () => {
 
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
-  ).toEqual<ElectionPackage>({
+  ).toEqual<ElectionPackageWithFileContents>({
     electionDefinition:
       safeParseElectionDefinition(testCdfElectionData).unsafeUnwrap(),
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     uiStrings: expectedUiStrings,
     uiStringAudioClips: [],
+    fileContents: expect.any(Buffer),
   });
 });
 
@@ -247,12 +251,13 @@ test('readElectionPackageFromFile loads UI string audio IDs', async () => {
 
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
-  ).toEqual<ElectionPackage>({
+  ).toEqual<ElectionPackageWithFileContents>({
     electionDefinition,
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     uiStrings: {},
     uiStringAudioIds: expectedAudioIds,
     uiStringAudioClips: [],
+    fileContents: expect.any(Buffer),
   });
 });
 
@@ -276,11 +281,12 @@ test('readElectionPackageFromFile loads UI string audio clips', async () => {
 
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
-  ).toEqual<ElectionPackage>({
+  ).toEqual<ElectionPackageWithFileContents>({
     electionDefinition,
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     uiStrings: {},
     uiStringAudioClips: audioClips,
+    fileContents: expect.any(Buffer),
   });
 });
 
@@ -298,12 +304,13 @@ test('readElectionPackageFromFile reads metadata', async () => {
 
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
-  ).toEqual<ElectionPackage>({
+  ).toEqual<ElectionPackageWithFileContents>({
     electionDefinition,
     metadata,
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     uiStringAudioClips: [],
     uiStrings: {},
+    fileContents: expect.any(Buffer),
   });
 });
 
