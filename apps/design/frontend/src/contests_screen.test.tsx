@@ -538,7 +538,10 @@ describe('Contests tab', () => {
 
   test('reordering contests', async () => {
     const { election } = generalElectionRecord;
-    Element.prototype.scrollIntoView = jest.fn();
+    // Mock needed for react-flip-toolkit
+    window.matchMedia = jest.fn().mockImplementation(() => ({
+      matches: false,
+    }));
 
     apiMock.getElection
       .expectCallWith({ electionId })
