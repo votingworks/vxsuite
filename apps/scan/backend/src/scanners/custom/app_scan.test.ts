@@ -116,6 +116,7 @@ test('configure and scan hmpb', async () => {
       };
 
       simulateScan(mockScanner, await ballotImages.completeHmpb());
+      await waitForStatus(apiClient, { state: 'scanning' });
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation,
@@ -154,7 +155,7 @@ test('configure and scan bmd ballot', async () => {
       };
 
       simulateScan(mockScanner, await ballotImages.completeBmd());
-      await expectStatus(apiClient, { state: 'scanning' });
+      await waitForStatus(apiClient, { state: 'scanning' });
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation,
