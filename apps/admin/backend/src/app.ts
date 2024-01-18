@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import { isMatch } from 'micromatch';
 import { LogEventId, Logger } from '@votingworks/logging';
 import {
@@ -11,7 +12,6 @@ import {
   SystemSettings,
   Tabulation,
   TEST_JURISDICTION,
-  ElectionPackage,
 } from '@votingworks/types';
 import {
   assert,
@@ -32,7 +32,7 @@ import {
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
-import { createReadStream, createWriteStream, promises as fs } from 'fs';
+import { createReadStream, promises as fs } from 'fs';
 import path, { join } from 'path';
 import {
   ELECTION_PACKAGE_FOLDER,
@@ -42,9 +42,9 @@ import {
   isIntegrationTest,
 } from '@votingworks/utils';
 import { dirSync } from 'tmp';
-import ZipStream from 'zip-stream';
 import {
   ElectionPackageError,
+  ElectionPackageWithFileContents,
   ExportDataError,
   FileSystemEntry,
   FileSystemEntryType,
@@ -54,6 +54,7 @@ import {
   readElectionPackageFromFile,
 } from '@votingworks/backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
+import ZipStream from 'zip-stream';
 import {
   CastVoteRecordFileRecord,
   CvrFileImportInfo,
@@ -246,7 +247,6 @@ function buildApi({
       assert(electionRecord);
       const { electionDefinition, id: electionId } = electionRecord;
       const { election, electionHash } = electionDefinition;
-      const systemSettings = store.getSystemSettings(electionId);
 
       const tempDirectory = dirSync().name;
       try {
@@ -257,27 +257,12 @@ function buildApi({
           tempDirectory,
           electionPackageFileName
         );
-
-        const electionPackageZipStream = new ZipStream();
-        const electionPackageZipPromise = deferred<void>();
-        electionPackageZipStream.on('error', electionPackageZipPromise.reject);
-        electionPackageZipStream.on('end', electionPackageZipPromise.resolve);
-        electionPackageZipStream.pipe(
-          createWriteStream(tempDirectoryElectionPackageFilePath)
+        await fs.writeFile(
+          tempDirectoryElectionPackageFilePath,
+          assertDefined(
+            workspace.store.getElectionPackageFileContents(electionId)
+          )
         );
-        await addFileToZipStream(electionPackageZipStream, {
-          path: ElectionPackageFileName.ELECTION,
-          contents: electionDefinition.electionData,
-        });
-        await addFileToZipStream(electionPackageZipStream, {
-          path: ElectionPackageFileName.SYSTEM_SETTINGS,
-          contents: JSON.stringify(systemSettings, null, 2),
-        });
-
-        // TODO(kofi): Include translation/audio files in the package export.
-
-        electionPackageZipStream.finish();
-        await electionPackageZipPromise.promise;
 
         const usbDriveElectionPackageDirectoryRelativePath = join(
           generateElectionBasedSubfolderName(election, electionHash),
@@ -369,7 +354,7 @@ function buildApi({
         'Can only import election packages from removable media in production'
       );
 
-      let electionPackage: ElectionPackage;
+      let electionPackage: ElectionPackageWithFileContents;
       if (input.electionFilePath.endsWith('.json')) {
         const electionDefinitionResult = safeParseElectionDefinition(
           await fs.readFile(input.electionFilePath, 'utf8')
@@ -380,9 +365,34 @@ function buildApi({
             message: electionDefinitionResult.err().toString(),
           });
         }
+        const electionDefinition = electionDefinitionResult.ok();
+        const systemSettings = DEFAULT_SYSTEM_SETTINGS;
+
+        const zipStream = new ZipStream();
+        const zipPromise = deferred<void>();
+        const chunks: Buffer[] = [];
+        zipStream.on('error', zipPromise.reject);
+        zipStream.on('end', zipPromise.resolve);
+        zipStream.on('data', (chunk) => {
+          assert(Buffer.isBuffer(chunk));
+          chunks.push(chunk);
+        });
+        await addFileToZipStream(zipStream, {
+          path: ElectionPackageFileName.ELECTION,
+          contents: electionDefinition.electionData,
+        });
+        await addFileToZipStream(zipStream, {
+          path: ElectionPackageFileName.SYSTEM_SETTINGS,
+          contents: JSON.stringify(systemSettings, null, 2),
+        });
+        zipStream.finish();
+        await zipPromise.promise;
+        const fileContents = Buffer.concat(chunks);
+
         electionPackage = {
-          electionDefinition: electionDefinitionResult.ok(),
-          systemSettings: DEFAULT_SYSTEM_SETTINGS,
+          electionDefinition,
+          systemSettings,
+          fileContents,
         };
       } else {
         const electionPackageResult = await readElectionPackageFromFile(
@@ -394,10 +404,12 @@ function buildApi({
         electionPackage = electionPackageResult.ok();
       }
 
-      const { electionDefinition, systemSettings } = electionPackage;
+      const { electionDefinition, systemSettings, fileContents } =
+        electionPackage;
       const electionId = store.addElection({
         electionData: electionDefinition.electionData,
         systemSettingsData: JSON.stringify(systemSettings),
+        electionPackageFileContents: fileContents,
       });
       store.setCurrentElectionId(electionId);
       await logger.log(
