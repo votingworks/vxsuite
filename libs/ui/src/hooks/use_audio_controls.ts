@@ -1,15 +1,5 @@
+import { AudioControls } from '@votingworks/types';
 import { useAudioContext } from '../ui_strings/audio_context';
-
-export interface AudioControls {
-  decreasePlaybackRate: () => void;
-  decreaseVolume: () => void;
-  increasePlaybackRate: () => void;
-  increaseVolume: () => void;
-  replay: () => void;
-  reset: () => void;
-  setIsEnabled: (enabled: boolean) => void;
-  togglePause: () => void;
-}
 
 function noOp() {}
 

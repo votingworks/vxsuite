@@ -1,7 +1,8 @@
 import { renderHook } from '@testing-library/react';
 import { assert } from '@votingworks/basics';
+import { AudioControls } from '@votingworks/types';
 import { UiStringsAudioContext } from '../ui_strings/audio_context';
-import { AudioControls, useAudioControls } from './use_audio_controls';
+import { useAudioControls } from './use_audio_controls';
 import { UiStringsReactQueryApi, createUiStringsApi } from './ui_strings_api';
 
 test('returns external-facing audio context API', () => {

@@ -3,7 +3,10 @@ use std::{
     io, thread,
     time::{Duration, Instant},
 };
-use uinput::{event::keyboard, Device};
+use uinput::{
+    event::{keyboard, Keyboard},
+    Device,
+};
 
 const POLL_INTERVAL: Duration = Duration::from_millis(10);
 const MAX_ECHO_RESPONSE_WAIT: Duration = Duration::from_secs(1);
@@ -25,8 +28,6 @@ enum CommandError {
     KeypressError(#[from] uinput::Error),
     #[error("Button value invalid: {0}")]
     InvalidButton(u8),
-    #[error("Button unsupported: {0:?}")]
-    UnsupportedButton(Button),
     #[error("Invalid CRC16 value: expected {expected:x}, actual {actual:x}")]
     InvalidCrc { expected: u16, actual: u16 },
 }
@@ -224,11 +225,21 @@ fn handle_command(device: &mut Device, data: &[u8]) -> Result<(), CommandError> 
             Button::Down => {
                 key = keyboard::Key::Down;
             }
-            Button::Help => {
-                key = keyboard::Key::Q;
+            Button::Help => key = keyboard::Key::R,
+            Button::RateDown => {
+                key = keyboard::Key::LeftBrace;
             }
-            _ => {
-                return Err(CommandError::UnsupportedButton(button));
+            Button::RateUp => {
+                key = keyboard::Key::RightBrace;
+            }
+            Button::VolumeDown => {
+                key = keyboard::Key::Minus;
+            }
+            Button::VolumeUp => {
+                key = keyboard::Key::Equal;
+            }
+            Button::Pause => {
+                key = keyboard::Key::P;
             }
         },
         Action::Released => {
@@ -285,7 +296,7 @@ fn create_virtual_device() -> Device {
         .unwrap()
         .name("Accessible Controller Daemon Virtual Device")
         .unwrap()
-        .event(uinput::event::Keyboard::All)
+        .event(Keyboard::All)
         .unwrap()
         .create()
         .unwrap()
@@ -315,15 +326,11 @@ fn main() {
             let mut serial_buf: Vec<u8> = vec![0; 1000];
             loop {
                 match port.read(serial_buf.as_mut_slice()) {
-                    Ok(size) => match handle_command(&mut device, &serial_buf[..size]) {
-                        Ok(_) => (),
-                        Err(e) if matches!(e, CommandError::UnsupportedButton(_)) => {
-                            println!("[warn] {e}")
+                    Ok(size) => {
+                        if let Err(e) = handle_command(&mut device, &serial_buf[..size]) {
+                            eprintln!("Unexpected error handling command: {e}");
                         }
-                        Err(e) => {
-                            eprintln!("Unexpected error handling command: {e}")
-                        }
-                    },
+                    }
                     // Timeout error just means no event was sent in the current polling period
                     Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
                     Err(e) => eprintln!("{e:?}"),
@@ -360,27 +367,6 @@ mod tests {
         match handle_command(&mut device, &bad_data) {
             Err(CommandError::UnexpectedDataLength(length)) => {
                 assert_eq!(length, bad_data_length as u16)
-            }
-            result => panic!("Unexpected result: {result:?}"),
-        }
-    }
-
-    #[test]
-    fn test_unsupported_button() {
-        let mut device = create_virtual_device();
-
-        let data = [
-            0x30,
-            0x00,
-            0x02,
-            Button::RateUp as u8,
-            Action::Pressed as u8,
-            0x72,
-            0xaf,
-        ];
-        match handle_command(&mut device, &data) {
-            Err(CommandError::UnsupportedButton(button)) => {
-                assert_eq!(button, Button::RateUp)
             }
             result => panic!("Unexpected result: {result:?}"),
         }
