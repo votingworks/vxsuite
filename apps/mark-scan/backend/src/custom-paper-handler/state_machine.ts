@@ -39,6 +39,7 @@ import {
   DEVICE_STATUS_POLLING_INTERVAL_MS,
   DEVICE_STATUS_POLLING_TIMEOUT_MS,
   RESET_AFTER_JAM_DELAY_MS,
+  SUCCESS_NOTIFICATION_DURATION_MS,
 } from './constants';
 import {
   isPaperInScanner,
@@ -614,11 +615,17 @@ export function buildMachine(
               await context.driver.ejectBallotToRear();
             },
             on: {
-              NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
+              NO_PAPER_ANYWHERE: 'ballot_accepted',
               PAPER_JAM: 'jammed',
             },
             after: {
               [DELAY_BEFORE_DECLARING_REAR_JAM_MS]: 'jammed',
+            },
+          },
+          ballot_accepted: {
+            after: {
+              [SUCCESS_NOTIFICATION_DURATION_MS]:
+                'resetting_state_machine_after_success',
             },
           },
           eject_to_front: {
@@ -847,6 +854,8 @@ export async function getPaperHandlerStateMachine({
           return 'jam_cleared';
         case state.matches('voting_flow.resetting_state_machine_after_jam'):
           return 'resetting_state_machine_after_jam';
+        case state.matches('voting_flow.ballot_accepted'):
+          return 'ballot_accepted';
         case state.matches('voting_flow.resetting_state_machine_after_success'):
           return 'resetting_state_machine_after_success';
         case state.matches('voting_flow.transition_interpretation'):

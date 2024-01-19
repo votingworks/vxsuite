@@ -13,6 +13,7 @@ export const RESET_AFTER_JAM_DELAY_MS = 3_000;
 // declaring a jam state during rear ejection. Expected time for a successful
 // ballot cast is is about 3.5 seconds.
 export const DELAY_BEFORE_DECLARING_REAR_JAM_MS = 7_000;
+export const SUCCESS_NOTIFICATION_DURATION_MS = 5_000;
 
 export const SCAN_DPI = 72;
 export const PRINT_DPI = 200;
