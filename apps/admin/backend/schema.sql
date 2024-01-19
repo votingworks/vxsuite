@@ -225,3 +225,41 @@ create table settings (
 );
 
 insert into settings default values;
+
+-- to track data changes in order to invalidate cached data
+create table data_versions (
+  election_id varchar(36),
+  cvrs_data_version integer,
+  primary key (election_id),
+  foreign key (election_id) references elections(id)
+    on delete cascade
+);
+
+create trigger cvr_file_added after insert on cvr_files
+begin
+  insert into data_versions (election_id, cvrs_data_version)
+    values (new.election_id, 1)
+  on conflict (election_id) do update set 
+    cvrs_data_version = data_versions.cvrs_data_version + 1;
+end;
+
+create trigger cvr_file_removed after delete on cvr_files
+begin
+  update data_versions
+    set cvrs_data_version = data_versions.cvrs_data_version + 1
+    where election_id = old.election_id;
+end;
+
+create trigger adjudication_added before insert on vote_adjudications
+begin
+  update data_versions
+    set cvrs_data_version = data_versions.cvrs_data_version + 1
+    where election_id = new.election_id;
+end;
+
+create trigger adjudication_removed before delete on vote_adjudications
+begin
+  update data_versions
+    set cvrs_data_version = data_versions.cvrs_data_version + 1
+    where election_id = old.election_id;
+end;

@@ -4,6 +4,11 @@ import { Client } from '@votingworks/grout';
 import { tmpNameSync } from 'tmp';
 import { readFileSync } from 'fs';
 import { assert } from '@votingworks/basics';
+import { modifyCastVoteRecordExport } from '@votingworks/backend';
+import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -11,6 +16,19 @@ import {
 } from '../test/app';
 import { parseCsv } from '../test/csv';
 import { Api } from './app';
+
+// enable us to use modified fixtures that don't pass authentication
+const featureFlagMock = getFeatureFlagMock();
+jest.mock('@votingworks/utils', () => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+      featureFlagMock.isEnabled(flag),
+  };
+});
+featureFlagMock.enableFeatureFlag(
+  BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION
+);
 
 async function getParsedExport({
   apiClient,
@@ -54,12 +72,11 @@ it('uses and clears CVR tabulation cache appropriately', async () => {
     true
   );
 
+  // adding a CVR file should should clear the cache
   const loadFileResult = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordExport.asDirectoryPath(),
   });
   loadFileResult.assertOk('load file failed');
-
-  // the cache should be cleared when a new file is loaded
   const resultsExport = await getParsedExport({
     apiClient,
   });
@@ -73,16 +90,29 @@ it('uses and clears CVR tabulation cache appropriately', async () => {
   expect(tabulationSpy).toHaveBeenCalledTimes(2);
   expect(resultsExportFromCache).toEqual(resultsExport);
 
-  // different report parameters should be tabulated separately
-  const resultsExportByVotingMethod = await getParsedExport({
+  // adding another CVR file should should clear the cache again
+  const loadFileAgainResult = await apiClient.addCastVoteRecordFile({
+    path: await modifyCastVoteRecordExport(
+      castVoteRecordExport.asDirectoryPath(),
+      {
+        castVoteRecordModifier: (castVoteRecord) => ({
+          ...castVoteRecord,
+          UniqueId: `${castVoteRecord.UniqueId}'`,
+        }),
+      }
+    ),
+  });
+  loadFileAgainResult.assertOk('load file failed');
+  const doubledResultsExport = await getParsedExport({
     apiClient,
-    groupBy: { groupByVotingMethod: true },
   });
   expect(tabulationSpy).toHaveBeenCalledTimes(3);
-  expect(resultsExportByVotingMethod).not.toEqual(resultsExport);
+  expect(doubledResultsExport).not.toEqual(resultsExport);
 
-  // write-in adjudication should clear the cache
-  const [writeInId] = await apiClient.getWriteInAdjudicationQueue();
+  // adjudicating a mark as a non-vote (by invalidating a write-in) should clear the cache
+  const [writeInId] = await apiClient.getWriteInAdjudicationQueue({
+    contestId: 'State-Representatives-Hillsborough-District-34-b1012d38',
+  });
   assert(writeInId !== undefined);
   await apiClient.adjudicateWriteIn({
     writeInId,
@@ -92,13 +122,27 @@ it('uses and clears CVR tabulation cache appropriately', async () => {
     apiClient,
   });
   expect(tabulationSpy).toHaveBeenCalledTimes(4);
-  expect(resultsExportAfterAdjudication).not.toEqual(resultsExport);
+  expect(resultsExportAfterAdjudication).not.toEqual(doubledResultsExport);
 
-  // clearing CVR files should clear the cache
+  // adjudicating a mark a vote (by un-invalidating a write-in) should clear the cache
+  await apiClient.adjudicateWriteIn({
+    writeInId,
+    type: 'official-candidate',
+    candidateId: 'Obadiah-Carrigan-5c95145a',
+  });
+  const resultsExportAfterReAdjudication = await getParsedExport({
+    apiClient,
+  });
+  expect(tabulationSpy).toHaveBeenCalledTimes(5);
+  expect(resultsExportAfterReAdjudication).not.toEqual(
+    resultsExportAfterAdjudication
+  );
+
+  // deleting CVR files should clear the cache
   await apiClient.clearCastVoteRecordFiles();
   const clearedResultsExport = await getParsedExport({
     apiClient,
   });
-  expect(tabulationSpy).toHaveBeenCalledTimes(5);
+  expect(tabulationSpy).toHaveBeenCalledTimes(6);
   expect(clearedResultsExport).toEqual(zeroExport);
 });

@@ -64,9 +64,10 @@ export function tabulateCastVoteRecords({
  */
 const tabulateCastVoteRecordsMemoized = memoize(
   tabulateCastVoteRecords,
-  ({ electionId, filter, groupBy }) =>
+  ({ store, electionId, filter, groupBy }) =>
     hash(
       {
+        cvrsDataVersion: store.getCastVoteRecordsDataVersion(electionId),
         electionId,
         filter,
         groupBy,
@@ -77,14 +78,6 @@ const tabulateCastVoteRecordsMemoized = memoize(
       }
     )
 );
-
-/**
- * Clears the memoized results of tabulating cast vote records.
- */
-export function clearTabulationCache(): void {
-  /* c8 ignore next 1 */
-  tabulateCastVoteRecordsMemoized.cache.clear?.();
-}
 
 /**
  * Tabulate election results including all scanned and adjudicated information.
