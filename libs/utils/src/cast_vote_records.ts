@@ -41,8 +41,8 @@ export function getCurrentSnapshot(cvr: CVR.CVR): Optional<CVR.CVRSnapshot> {
 /**
  * Because there is no place for "Absentee" vs. "Precinct" ballot on the CDF
  * for cast vote records, we shove it into the `OtherStatus` field of the
- * `CVRSnapshot`. This tool formats that metadata, which can be spread into
- * a `CVRSnapshot`.
+ * `CVRSnapshot`. This tool formats that metadata, which can then be included
+ * in a `CVRSnapshot`.
  */
 export function buildCVRSnapshotBallotTypeMetadata(
   ballotType: BallotType
