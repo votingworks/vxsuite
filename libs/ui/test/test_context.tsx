@@ -25,12 +25,12 @@ import {
   SystemCallContextProvider,
 } from '../src/system_call_api';
 
-type BackendApiClient = UiStringsApiClient & SystemCallApiClient;
+type ApiClient = UiStringsApiClient & SystemCallApiClient;
 
 export interface TestContext {
   getAudioContext: () => Optional<UiStringsAudioContextInterface>;
   getLanguageContext: () => Optional<LanguageContextInterface>;
-  mockBackendApi: jest.Mocked<BackendApiClient>;
+  mockApiClient: jest.Mocked<ApiClient>;
   render: (ui: React.ReactElement) => RenderResult;
 }
 
@@ -70,20 +70,24 @@ export function newTestContext(
   mockUiStringsApiClient.getAudioClips.mockResolvedValue([]);
 
   const mockSystemCallApiClient: jest.Mocked<SystemCallApiClient> = {
+    reboot: jest.fn(),
+    rebootToBios: jest.fn(),
+    powerDown: jest.fn(),
+    setClock: jest.fn(),
     exportLogsToUsb: jest.fn(),
   };
 
-  const mockBackendApi = {
+  const mockApiClient = {
     ...mockUiStringsApiClient,
     ...mockSystemCallApiClient,
   } as const;
 
   const mockReactQueryUiStringsApi: UiStringsReactQueryApi = createUiStringsApi(
-    () => mockBackendApi
+    () => mockApiClient
   );
 
   const mockReactQuerySystemCallApi: SystemCallReactQueryApi =
-    createSystemCallApi(() => mockBackendApi);
+    createSystemCallApi(() => mockApiClient);
 
   const queryClient = new QueryClient({
     defaultOptions: QUERY_CLIENT_DEFAULT_OPTIONS,
@@ -119,7 +123,7 @@ export function newTestContext(
   }
 
   return {
-    mockBackendApi,
+    mockApiClient,
     render: (ui) => render(<Wrapper>{ui}</Wrapper>),
     getAudioContext: () => currentAudioContext,
     getLanguageContext: () => currentLanguageContext,

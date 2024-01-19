@@ -28,16 +28,14 @@ const electionManagerAuthStatus: DippedSmartCardAuth.ElectionManagerLoggedIn = {
   sessionExpiresAt: fakeSessionExpiresAt(),
 };
 
-const { mockBackendApi, render } = newTestContext({
+const { mockApiClient, render } = newTestContext({
   skipUiStringsApi: true,
 });
 
 test('renders no log file found when usb is mounted but no log file on machine', async () => {
   const logger = fakeLogger();
 
-  mockBackendApi.exportLogsToUsb.mockResolvedValueOnce(
-    err('no-logs-directory')
-  );
+  mockApiClient.exportLogsToUsb.mockResolvedValueOnce(err('no-logs-directory'));
 
   render(
     <ExportLogsButton
@@ -49,7 +47,7 @@ test('renders no log file found when usb is mounted but no log file on machine',
   userEvent.click(screen.getByText('Save Log File'));
   userEvent.click(screen.getByText('Save'));
   await screen.findByText('Failed to save log file. no-logs-directory');
-  expect(mockBackendApi.exportLogsToUsb).toHaveBeenCalledTimes(1);
+  expect(mockApiClient.exportLogsToUsb).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.FileSaved,
     'election_manager',
@@ -87,7 +85,7 @@ test('render no usb found screen when there is not a mounted usb drive', async (
 test('successful save raw logs flow', async () => {
   const logger = fakeLogger();
 
-  mockBackendApi.exportLogsToUsb.mockResolvedValueOnce(ok());
+  mockApiClient.exportLogsToUsb.mockResolvedValueOnce(ok());
 
   render(
     <ExportLogsButton
@@ -105,7 +103,7 @@ test('successful save raw logs flow', async () => {
   userEvent.click(screen.getByText('Close'));
   expect(screen.queryByRole('alertdialog')).toBeFalsy();
 
-  expect(mockBackendApi.exportLogsToUsb).toHaveBeenCalledTimes(1);
+  expect(mockApiClient.exportLogsToUsb).toHaveBeenCalledTimes(1);
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.FileSaved,
     'election_manager',

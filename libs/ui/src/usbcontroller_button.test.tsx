@@ -15,7 +15,6 @@ beforeAll(() => {
 
 afterAll(() => {
   jest.useRealTimers();
-  delete window.kiosk;
 });
 
 test('shows No USB if usb absent', () => {

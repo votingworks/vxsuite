@@ -10,10 +10,10 @@ import { NumberString } from './number_string';
 import { UiStringAudioDataAttributeName } from './with_audio';
 
 test('formats based on current language code', async () => {
-  const { getLanguageContext, mockBackendApi, render } = newTestContext();
+  const { getLanguageContext, mockApiClient, render } = newTestContext();
 
-  mockBackendApi.getAvailableLanguages.mockResolvedValue([]);
-  mockBackendApi.getUiStrings.mockResolvedValue({});
+  mockApiClient.getAvailableLanguages.mockResolvedValue([]);
+  mockApiClient.getUiStrings.mockResolvedValue({});
 
   render(
     <H1>

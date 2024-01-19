@@ -17,9 +17,9 @@ jest.mock(
 );
 
 test('Shift+L switches display language', async () => {
-  const { mockBackendApi, render: renderWithContext } = newTestContext();
+  const { mockApiClient, render: renderWithContext } = newTestContext();
 
-  mockBackendApi.getAvailableLanguages.mockResolvedValue([
+  mockApiClient.getAvailableLanguages.mockResolvedValue([
     CHINESE_SIMPLIFIED,
     ENGLISH,
     SPANISH,

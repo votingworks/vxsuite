@@ -61,9 +61,9 @@ test('uses language code from closest language context', async () => {
 });
 
 test('pre-fetches audio clips when within audio context', async () => {
-  const { getLanguageContext, mockBackendApi, render } = newTestContext();
+  const { getLanguageContext, mockApiClient, render } = newTestContext();
 
-  mockBackendApi.getUiStringAudioIds.mockImplementation((input) => {
+  mockApiClient.getUiStringAudioIds.mockImplementation((input) => {
     if (input.languageCode === SPANISH) {
       return Promise.resolve({
         contestTitle: {
@@ -83,7 +83,7 @@ test('pre-fetches audio clips when within audio context', async () => {
   act(() => getLanguageContext()?.setLanguage(SPANISH));
 
   await waitFor(() =>
-    expect(mockBackendApi.getAudioClips).toHaveBeenLastCalledWith({
+    expect(mockApiClient.getAudioClips).toHaveBeenLastCalledWith({
       languageCode: LanguageCode.SPANISH,
       audioIds: ['foo_es', 'bar_es'],
     })
@@ -91,13 +91,13 @@ test('pre-fetches audio clips when within audio context', async () => {
 });
 
 test('skips pre-fetch for missing audio ID mappings', async () => {
-  const { mockBackendApi, render } = newTestContext();
+  const { mockApiClient, render } = newTestContext();
 
-  mockBackendApi.getUiStringAudioIds.mockResolvedValue({});
+  mockApiClient.getUiStringAudioIds.mockResolvedValue({});
 
   render(<WithAudio i18nKey="contestTitle.contest1">Mayor</WithAudio>);
 
   await screen.findByText('Mayor');
 
-  expect(mockBackendApi.getAudioClips).not.toHaveBeenCalled();
+  expect(mockApiClient.getAudioClips).not.toHaveBeenCalled();
 });

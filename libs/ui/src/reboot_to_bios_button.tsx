@@ -1,9 +1,9 @@
 import { LogEventId, Logger } from '@votingworks/logging';
-import { assert } from '@votingworks/basics';
 import { useState } from 'react';
 import { Button } from './button';
 import { Loading } from './loading';
 import { Modal } from './modal';
+import { useSystemCallApi } from './system_call_api';
 
 interface Props {
   logger: Logger;
@@ -14,13 +14,16 @@ interface Props {
  */
 export function RebootToBiosButton({ logger }: Props): JSX.Element {
   const [isRebooting, setIsRebooting] = useState(false);
+
+  const api = useSystemCallApi();
+  const rebootToBiosMutation = api.rebootToBios.useMutation();
+
   async function reboot() {
-    assert(window.kiosk);
     await logger.log(LogEventId.RebootMachine, 'system_administrator', {
       message: 'User trigged a reboot of the machine to BIOS screen…',
     });
     setIsRebooting(true);
-    await window.kiosk.rebootToBios();
+    rebootToBiosMutation.mutate();
   }
 
   if (isRebooting) {

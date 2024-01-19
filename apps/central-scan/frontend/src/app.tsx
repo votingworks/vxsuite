@@ -1,12 +1,9 @@
 import { getHardware } from '@votingworks/utils';
-import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { Logger, LogSource } from '@votingworks/logging';
 import {
   AppBase,
-  ErrorBoundary,
-  H1,
-  P,
+  AppErrorBoundary,
   SystemCallContextProvider,
 } from '@votingworks/ui';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -40,13 +37,8 @@ export function App({
         defaultSizeMode="desktop"
         screenType="lenovoThinkpad15"
       >
-        <ErrorBoundary
-          errorMessage={
-            <React.Fragment>
-              <H1>Something went wrong</H1>
-              <P>Please restart the machine.</P>
-            </React.Fragment>
-          }
+        <AppErrorBoundary
+          restartMessage="Please restart the machine."
           logger={logger}
         >
           <ApiClientContext.Provider value={apiClient}>
@@ -57,7 +49,7 @@ export function App({
               </SystemCallContextProvider>
             </QueryClientProvider>
           </ApiClientContext.Provider>
-        </ErrorBoundary>
+        </AppErrorBoundary>
       </AppBase>
     </BrowserRouter>
   );

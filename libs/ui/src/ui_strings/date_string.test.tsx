@@ -14,10 +14,10 @@ const ENGLISH_FORMAT = format.localeLongDate(TEST_DATE, LanguageCode.ENGLISH);
 const SPANISH_FORMAT = format.localeLongDate(TEST_DATE, LanguageCode.SPANISH);
 
 test('formats based on current language code', async () => {
-  const { getLanguageContext, mockBackendApi, render } = newTestContext();
+  const { getLanguageContext, mockApiClient, render } = newTestContext();
 
-  mockBackendApi.getAvailableLanguages.mockResolvedValue([]);
-  mockBackendApi.getUiStrings.mockResolvedValue({});
+  mockApiClient.getAvailableLanguages.mockResolvedValue([]);
+  mockApiClient.getUiStrings.mockResolvedValue({});
 
   render(
     <H1>

@@ -8,17 +8,17 @@ import {
   DEFAULT_LANGUAGE_CODE,
 } from './language_context';
 
-const { getLanguageContext, mockBackendApi, render } = newTestContext();
+const { getLanguageContext, mockApiClient, render } = newTestContext();
 
 beforeEach(() => {
   jest.resetAllMocks();
 
-  mockBackendApi.getAvailableLanguages.mockResolvedValueOnce([
+  mockApiClient.getAvailableLanguages.mockResolvedValueOnce([
     LanguageCode.ENGLISH,
     LanguageCode.CHINESE_TRADITIONAL,
   ]);
 
-  mockBackendApi.getUiStrings.mockImplementation(({ languageCode }) =>
+  mockApiClient.getUiStrings.mockImplementation(({ languageCode }) =>
     Promise.resolve(TEST_UI_STRING_TRANSLATIONS[languageCode] || null)
   );
 });

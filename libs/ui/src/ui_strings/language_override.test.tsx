@@ -10,13 +10,13 @@ import { InEnglish, LanguageOverride } from './language_override';
 import { Button, appStrings } from '..';
 
 test('LanguageOverride overrides current active language', async () => {
-  const { getLanguageContext, mockBackendApi, render } = newTestContext();
+  const { getLanguageContext, mockApiClient, render } = newTestContext();
 
   const testTranslations: UiStringsPackage = {
     [LanguageCode.ENGLISH]: { buttonOkay: 'Cool beans' },
     [LanguageCode.SPANISH]: { buttonOkay: 'Bueno' },
   };
-  mockBackendApi.getUiStrings.mockImplementation(({ languageCode }) =>
+  mockApiClient.getUiStrings.mockImplementation(({ languageCode }) =>
     Promise.resolve(testTranslations[languageCode] || null)
   );
 
@@ -33,13 +33,13 @@ test('LanguageOverride overrides current active language', async () => {
 });
 
 test('LanguageOverride is no-op when parent context is missing', async () => {
-  const { mockBackendApi } = newTestContext();
+  const { mockApiClient } = newTestContext();
 
   const testTranslations: UiStringsPackage = {
     [LanguageCode.ENGLISH]: { buttonOkay: 'Cool beans' },
     [LanguageCode.SPANISH]: { buttonOkay: 'Bueno' },
   };
-  mockBackendApi.getUiStrings.mockImplementation(({ languageCode }) =>
+  mockApiClient.getUiStrings.mockImplementation(({ languageCode }) =>
     Promise.resolve(testTranslations[languageCode] || null)
   );
 
@@ -53,13 +53,13 @@ test('LanguageOverride is no-op when parent context is missing', async () => {
 });
 
 test('InEnglish forces English translation', async () => {
-  const { getLanguageContext, mockBackendApi, render } = newTestContext();
+  const { getLanguageContext, mockApiClient, render } = newTestContext();
 
   const testTranslations: UiStringsPackage = {
     [LanguageCode.ENGLISH]: { buttonOkay: 'Cool beans' },
     [LanguageCode.SPANISH]: { buttonOkay: 'Bueno' },
   };
-  mockBackendApi.getUiStrings.mockImplementation(({ languageCode }) =>
+  mockApiClient.getUiStrings.mockImplementation(({ languageCode }) =>
     Promise.resolve(testTranslations[languageCode] || null)
   );
 

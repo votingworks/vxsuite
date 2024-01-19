@@ -88,15 +88,16 @@ test('renders date and time settings modal', async () => {
   userEvent.selectOptions(selectYear, optionYear);
 
   // Save Date and Timezone
+  apiMock.mockApiClient.setClock
+    .expectCallWith({
+      isoDatetime: '2025-10-31T00:00:00.000+00:00',
+      ianaZone: 'UTC',
+    })
+    .resolves();
   apiMock.expectLogOut();
   // eslint-disable-next-line @typescript-eslint/require-await
   await act(async () => {
     userEvent.click(within(screen.getByTestId('modal')).getByText('Save'));
-  });
-  expect(window.kiosk?.setClock).toHaveBeenCalledWith({
-    isoDatetime: '2025-10-31T00:00:00.000+00:00',
-    // eslint-disable-next-line vx/gts-identifiers
-    IANAZone: 'UTC',
   });
 });
 

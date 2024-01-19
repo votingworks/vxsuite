@@ -187,11 +187,6 @@ declare namespace KioskBrowser {
     filename: string;
   }
 
-  export interface SetClockParams {
-    isoDatetime: string;
-    IANAZone: string;
-  }
-
   export interface TotpInfo {
     isoDatetime: string;
     code: string;
@@ -249,8 +244,6 @@ declare namespace KioskBrowser {
     readFile(path: string): Promise<Uint8Array>;
     readFile(path: string, encoding: string): Promise<string>;
 
-    setClock(params: SetClockParams): Promise<void>;
-
     totp: {
       get(): Promise<TotpInfo | undefined>;
     };
@@ -258,14 +251,6 @@ declare namespace KioskBrowser {
     // speech dispatcher
     speak(text: string, options: SpeakOptions): Promise<void>;
     cancelSpeak(): Promise<void>;
-
-    reboot(): Promise<void>;
-
-    rebootToBios(): Promise<void>;
-
-    powerDown(): Promise<void>;
-
-    prepareToBootFromUsb(): Promise<boolean>;
 
     showOpenDialog(options?: OpenDialogOptions): Promise<{
       canceled: boolean;
