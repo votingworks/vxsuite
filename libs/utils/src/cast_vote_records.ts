@@ -62,7 +62,7 @@ export function buildCVRSnapshotBallotTypeMetadata(
  * record. We have the ballot type serialized within the `OtherStatus` field
  * of `CVRSnapshot`, this helper is for easier access to that data. It returns
  * undefined if the data is not present - callers are responsible for making
- * against the data existing if necessary.
+ * sure that the data exists.
  */
 export function getCastVoteRecordBallotType(
   cvr: CVR.CVR
