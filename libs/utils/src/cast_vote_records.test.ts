@@ -515,10 +515,13 @@ test('getCastVoteRecordBallotType', () => {
     CVRSnapshot: [],
   };
 
-  function buildMockCvr(
-    otherStatus?: string,
-    status = [CVR.CVRStatus.Other]
-  ): CVR.CVR {
+  function buildMockCvr({
+    otherStatus,
+    status,
+  }: {
+    otherStatus?: string;
+    status?: CVR.CVRStatus[];
+  }): CVR.CVR {
     return {
       ...cvr,
       CVRSnapshot: [
@@ -534,21 +537,37 @@ test('getCastVoteRecordBallotType', () => {
   // missing snapshot
   expect(getCastVoteRecordBallotType(cvr)).toBeUndefined();
   // "Status" undefined
-  expect(
-    getCastVoteRecordBallotType(buildMockCvr('{}', undefined))
-  ).toBeUndefined();
+  expect(getCastVoteRecordBallotType(buildMockCvr({}))).toBeUndefined();
   // "Status" doesn't include "Other"
-  expect(getCastVoteRecordBallotType(buildMockCvr('{}', []))).toBeUndefined();
+  expect(
+    getCastVoteRecordBallotType(buildMockCvr({ status: [] }))
+  ).toBeUndefined();
   // "Status" includes "Other" but "OtherStatus" is undefined
-  expect(getCastVoteRecordBallotType(buildMockCvr(undefined))).toBeUndefined();
+  expect(
+    getCastVoteRecordBallotType(buildMockCvr({ status: [CVR.CVRStatus.Other] }))
+  ).toBeUndefined();
   // bad JSON
-  expect(getCastVoteRecordBallotType(buildMockCvr('{sdfasd'))).toBeUndefined();
+  expect(
+    getCastVoteRecordBallotType(
+      buildMockCvr({ status: [CVR.CVRStatus.Other], otherStatus: '{sdfasd' })
+    )
+  ).toBeUndefined();
   // bad schema
   expect(
-    getCastVoteRecordBallotType(buildMockCvr('{"ballotType":"early"}'))
+    getCastVoteRecordBallotType(
+      buildMockCvr({
+        status: [CVR.CVRStatus.Other],
+        otherStatus: '{"ballotType":"early"}',
+      })
+    )
   ).toBeUndefined();
 
   expect(
-    getCastVoteRecordBallotType(buildMockCvr('{"ballotType":"precinct"}'))
+    getCastVoteRecordBallotType(
+      buildMockCvr({
+        status: [CVR.CVRStatus.Other],
+        otherStatus: '{"ballotType":"precinct"}',
+      })
+    )
   ).toEqual(BallotType.Precinct);
 });
