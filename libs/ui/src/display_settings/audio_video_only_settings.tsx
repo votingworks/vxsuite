@@ -5,16 +5,14 @@ import { Button } from '../button';
 import { DisplaySettingsManagerContext } from '../display_settings_manager_context';
 import { appStrings } from '../ui_strings';
 
-export interface SensoryToggleSettingsProps {}
-
-export function SensoryToggleSettings(): JSX.Element {
+export function AudioVideoOnlySettings(): JSX.Element {
   const displaySettingsManager = React.useContext(
     DisplaySettingsManagerContext
   );
   return (
     <ThemeConsumer>
       {(theme) => (
-        <SettingsPane id="displaySettingsSensoryToggle">
+        <SettingsPane id="displaySettingsAudioVideoOnly">
           <Button
             onPress={() => {
               displaySettingsManager.setIsVisualModeDisabled(

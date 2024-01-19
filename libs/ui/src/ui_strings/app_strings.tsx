@@ -721,9 +721,9 @@ export const appStrings = {
     <UiString uiStringKey="titleDisplaySettingsSize">Text Size</UiString>
   ),
 
-  titleDisplaySettingsSensoryToggle: () => (
-    <UiString uiStringKey="titleDisplaySettingsSensoryToggle">
-      Accessibility Modes
+  titleDisplaySettingsAudioVideoOnly: () => (
+    <UiString uiStringKey="titleDisplaySettingsAudioVideoOnly">
+      Audio/Video Only
     </UiString>
   ),
 

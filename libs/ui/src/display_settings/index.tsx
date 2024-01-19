@@ -11,7 +11,7 @@ import { DisplaySettingsManagerContext } from '../display_settings_manager_conte
 import { useScreenInfo } from '../hooks/use_screen_info';
 import { appStrings } from '../ui_strings';
 import { Header } from './header';
-import { SensoryToggleSettings } from './sensory_toggle_settings';
+import { AudioVideoOnlySettings } from './audio_video_only_settings';
 
 export interface DisplaySettingsProps {
   /** @default ['contrastLow', 'contrastMedium', 'contrastHighLight', 'contrastHighDark'] */
@@ -19,6 +19,7 @@ export interface DisplaySettingsProps {
   onClose: () => void;
   /** @default ['touchSmall', 'touchMedium', 'touchLarge', 'touchExtraLarge'] */
   sizeModes?: SizeSettingsProps['sizeModes'];
+  allowAudioVideoOnlyToggles?: boolean;
 }
 
 const Container = styled.div`
@@ -46,7 +47,7 @@ const Footer = styled.div`
  * well as theme-dependent global styles.
  */
 export function DisplaySettings(props: DisplaySettingsProps): JSX.Element {
-  const { colorModes, onClose, sizeModes } = props;
+  const { colorModes, allowAudioVideoOnlyToggles, onClose, sizeModes } = props;
 
   const screenInfo = useScreenInfo();
 
@@ -64,6 +65,7 @@ export function DisplaySettings(props: DisplaySettingsProps): JSX.Element {
           activePaneId={activePaneId}
           grow={!screenInfo.isPortrait}
           onChange={setActivePaneId}
+          allowAudioVideoOnlyToggles={allowAudioVideoOnlyToggles}
         />
       </Header>
       <ActivePaneContainer>
@@ -73,8 +75,8 @@ export function DisplaySettings(props: DisplaySettingsProps): JSX.Element {
         {activePaneId === 'displaySettingsSize' && (
           <SizeSettings sizeModes={sizeModes} />
         )}
-        {activePaneId === 'displaySettingsSensoryToggle' && (
-          <SensoryToggleSettings />
+        {activePaneId === 'displaySettingsAudioVideoOnly' && (
+          <AudioVideoOnlySettings />
         )}
       </ActivePaneContainer>
       <Footer>

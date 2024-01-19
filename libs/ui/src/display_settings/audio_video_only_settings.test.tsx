@@ -2,7 +2,7 @@ import { UiTheme } from '@votingworks/types';
 import { ThemeConsumer } from 'styled-components';
 import userEvent from '@testing-library/user-event';
 import { render, screen } from '../../test/react_testing_library';
-import { SensoryToggleSettings } from './sensory_toggle_settings';
+import { AudioVideoOnlySettings } from './audio_video_only_settings';
 
 test('visual mode is disabled when button is pressed', () => {
   let currentTheme: UiTheme | null = null;
@@ -12,7 +12,7 @@ test('visual mode is disabled when button is pressed', () => {
       <ThemeConsumer>
         {(theme) => {
           currentTheme = theme;
-          return <SensoryToggleSettings />;
+          return <AudioVideoOnlySettings />;
         }}
       </ThemeConsumer>
     );

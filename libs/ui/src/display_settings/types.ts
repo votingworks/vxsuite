@@ -2,6 +2,6 @@
 export const PANE_IDS = [
   'displaySettingsColor',
   'displaySettingsSize',
-  'displaySettingsSensoryToggle',
+  'displaySettingsAudioVideoOnly',
 ] as const;
 export type SettingsPaneId = (typeof PANE_IDS)[number];
