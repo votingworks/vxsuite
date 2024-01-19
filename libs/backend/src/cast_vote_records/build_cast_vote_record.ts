@@ -29,7 +29,7 @@ import {
 } from '@votingworks/types';
 import {
   UNMARKED_WRITE_IN_SELECTION_POSITION_OTHER_STATUS,
-  buildCVRSnapshotBallotStyleMetadata,
+  buildCVRSnapshotBallotTypeMetadata,
   getContestById,
   getMarkStatus,
 } from '@votingworks/utils';
@@ -466,7 +466,7 @@ function buildOriginalSnapshot({
     '@id': `${castVoteRecordId}-original`,
     '@type': 'CVR.CVRSnapshot',
     Type: CVR.CVRType.Original,
-    ...buildCVRSnapshotBallotStyleMetadata(ballotType),
+    ...buildCVRSnapshotBallotTypeMetadata(ballotType),
     CVRContest: [...marksByContest.entries()].map(
       ([contestId, contestMarks]) => ({
         '@type': 'CVR.CVRContest',
@@ -588,7 +588,7 @@ export function buildCastVoteRecord({
           '@type': 'CVR.CVRSnapshot',
           '@id': `${castVoteRecordId}-original`,
           Type: CVR.CVRType.Original,
-          ...buildCVRSnapshotBallotStyleMetadata(ballotMetadata.ballotType),
+          ...buildCVRSnapshotBallotTypeMetadata(ballotMetadata.ballotType),
           CVRContest: buildCVRContestsFromVotes({
             votes: interpretation.votes,
             electionDefinition,
@@ -623,7 +623,7 @@ export function buildCastVoteRecord({
     '@type': 'CVR.CVRSnapshot',
     '@id': `${castVoteRecordId}-modified`,
     Type: CVR.CVRType.Modified,
-    ...buildCVRSnapshotBallotStyleMetadata(ballotMetadata.ballotType),
+    ...buildCVRSnapshotBallotTypeMetadata(ballotMetadata.ballotType),
     CVRContest: [
       ...buildCVRContestsFromVotes({
         votes: interpretations[0].votes,

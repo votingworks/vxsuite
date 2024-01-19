@@ -27,7 +27,7 @@ import {
 } from '@votingworks/types';
 import {
   allContestOptions,
-  buildCVRSnapshotBallotStyleMetadata,
+  buildCVRSnapshotBallotTypeMetadata,
   hasWriteIns,
 } from '@votingworks/utils';
 import {
@@ -281,7 +281,7 @@ export function* generateCvrs({
                   {
                     '@type': 'CVR.CVRSnapshot',
                     '@id': `${castVoteRecordId}-modified`,
-                    ...buildCVRSnapshotBallotStyleMetadata(ballotType),
+                    ...buildCVRSnapshotBallotTypeMetadata(ballotType),
                     Type: CVR.CVRType.Modified,
                     CVRContest: buildCVRContestsFromVotes({
                       electionDefinition,
@@ -343,7 +343,7 @@ export function* generateCvrs({
                       '@type': 'CVR.CVRSnapshot',
                       '@id': `${castVoteRecordId}-modified`,
                       Type: CVR.CVRType.Modified,
-                      ...buildCVRSnapshotBallotStyleMetadata(ballotType),
+                      ...buildCVRSnapshotBallotTypeMetadata(ballotType),
                       CVRContest: [
                         ...buildCVRContestsFromVotes({
                           electionDefinition,

@@ -4,7 +4,7 @@ import { dirSync } from 'tmp';
 import { BallotType, CVR } from '@votingworks/types';
 
 import {
-  buildCVRSnapshotBallotStyleMetadata,
+  buildCVRSnapshotBallotTypeMetadata,
   convertCastVoteRecordVotesToTabulationVotes,
   getCastVoteRecordBallotType,
   getCurrentSnapshot,
@@ -484,8 +484,8 @@ test('isCastVoteRecordWriteInValid', () => {
   ).toBeTruthy();
 });
 
-test('buildCVRSnapshotBallotStyleMetadata', () => {
-  expect(buildCVRSnapshotBallotStyleMetadata(BallotType.Precinct)).toEqual({
+test('buildCVRSnapshotBallotTypeMetadata', () => {
+  expect(buildCVRSnapshotBallotTypeMetadata(BallotType.Precinct)).toEqual({
     Status: [CVR.CVRStatus.Other],
     OtherStatus: '{"ballotType":"precinct"}',
   });

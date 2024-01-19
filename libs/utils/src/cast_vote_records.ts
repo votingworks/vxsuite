@@ -44,7 +44,7 @@ export function getCurrentSnapshot(cvr: CVR.CVR): Optional<CVR.CVRSnapshot> {
  * `CVRSnapshot`. This tool formats that metadata, which can be spread into
  * a `CVRSnapshot`.
  */
-export function buildCVRSnapshotBallotStyleMetadata(
+export function buildCVRSnapshotBallotTypeMetadata(
   ballotType: BallotType
 ): Pick<CVR.CVRSnapshot, 'Status' | 'OtherStatus'> {
   return {
