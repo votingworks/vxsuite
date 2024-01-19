@@ -12,6 +12,7 @@ import {
   safeParseJson,
   CastVoteRecordExportFileName,
   CandidateContest,
+  BallotType,
 } from '@votingworks/types';
 import { readFileSync } from 'fs';
 import { join } from 'path';
@@ -43,6 +44,7 @@ import {
 } from './tabulation';
 import {
   convertCastVoteRecordVotesToTabulationVotes,
+  getCastVoteRecordBallotType,
   getCurrentSnapshot,
   getExportedCastVoteRecordIds,
 } from '../cast_vote_records';
@@ -63,7 +65,7 @@ function castVoteRecordToTabulationCastVoteRecord(
     votes: convertCastVoteRecordVotesToTabulationVotes(
       assertDefined(getCurrentSnapshot(castVoteRecord))
     ),
-    votingMethod: castVoteRecord.vxBallotType,
+    votingMethod: assertDefined(getCastVoteRecordBallotType(castVoteRecord)),
   };
 }
 
@@ -649,7 +651,7 @@ describe('tabulateCastVoteRecords', () => {
     const someMetadata = {
       ballotStyleId: '1M',
       precinctId: 'precinct-1',
-      votingMethod: CVR.vxBallotType.Precinct,
+      votingMethod: BallotType.Precinct,
       batchId: 'batch-1',
       scannerId: 'scanner-1',
     } as const;

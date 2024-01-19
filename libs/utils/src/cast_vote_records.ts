@@ -7,14 +7,20 @@ import {
   Optional,
   Result,
   throwIllegalValue,
+  typedAs,
 } from '@votingworks/basics';
 import {
   AnyContest,
+  BallotType,
   CastVoteRecordExportFileName,
   ContestId,
   ContestOptionId,
   Contests,
   CVR,
+  CVRSnapshotOtherStatus,
+  CVRSnapshotOtherStatusSchema,
+  safeParse,
+  safeParseJson,
   Side,
   Tabulation,
 } from '@votingworks/types';
@@ -30,6 +36,57 @@ export function getCurrentSnapshot(cvr: CVR.CVR): Optional<CVR.CVRSnapshot> {
   return cvr.CVRSnapshot.find(
     (snapshot) => snapshot['@id'] === cvr.CurrentSnapshotId
   );
+}
+
+/**
+ * Because there is no place for "Absentee" vs. "Precinct" ballot on the CDF
+ * for cast vote records, we shove it into the `OtherStatus` field of the
+ * `CVRSnapshot`. This tool formats that metadata, which can then be included
+ * in a `CVRSnapshot`.
+ */
+export function buildCVRSnapshotBallotTypeMetadata(
+  ballotType: BallotType
+): Pick<CVR.CVRSnapshot, 'Status' | 'OtherStatus'> {
+  return {
+    Status: [CVR.CVRStatus.Other],
+    OtherStatus: JSON.stringify(
+      typedAs<CVRSnapshotOtherStatus>({
+        ballotType,
+      })
+    ),
+  };
+}
+
+/**
+ * Extracts the ballot type (e.g. absentee vs. precinct) from a cast vote
+ * record. We have the ballot type serialized within the `OtherStatus` field
+ * of `CVRSnapshot`, this helper is for easier access to that data. It returns
+ * undefined if the data is not present - callers are responsible for making
+ * sure that the data exists.
+ */
+export function getCastVoteRecordBallotType(
+  cvr: CVR.CVR
+): Optional<BallotType> {
+  const currentSnapshot = getCurrentSnapshot(cvr);
+  if (
+    !currentSnapshot ||
+    !currentSnapshot.Status ||
+    !currentSnapshot.Status.includes(CVR.CVRStatus.Other) ||
+    !currentSnapshot.OtherStatus
+  ) {
+    return;
+  }
+
+  const otherStatusParseJsonResult = safeParseJson(currentSnapshot.OtherStatus);
+  if (otherStatusParseJsonResult.isErr()) return;
+
+  const otherStatusParseResult = safeParse(
+    CVRSnapshotOtherStatusSchema,
+    otherStatusParseJsonResult.ok()
+  );
+  if (otherStatusParseResult.isErr()) return;
+
+  return otherStatusParseResult.ok().ballotType;
 }
 
 /**

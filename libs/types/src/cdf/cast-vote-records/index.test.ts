@@ -11,7 +11,6 @@ import {
   CVRType,
   IndicationStatus,
   ReportingUnitType,
-  vxBallotType,
 } from '.';
 import {
   findUnusedDefinitions,
@@ -108,7 +107,6 @@ const castVoteRecordReport: CastVoteRecordReport = {
       BallotSheetId: '1',
       BatchSequenceId: 1,
       UniqueId: 'a8932',
-      vxBallotType: vxBallotType.Precinct,
       ElectionId: '1',
     },
     // More ballots go here...

@@ -10,6 +10,7 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
 } from '@votingworks/fixtures';
 import {
+  BallotType,
   CVR,
   DEFAULT_SYSTEM_SETTINGS,
   TEST_JURISDICTION,
@@ -18,6 +19,7 @@ import * as grout from '@votingworks/grout';
 import {
   BooleanEnvironmentVariableName,
   convertCastVoteRecordVotesToTabulationVotes,
+  getCastVoteRecordBallotType,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { EventEmitter } from 'events';
@@ -235,7 +237,7 @@ test('going through the whole process works', async () => {
     expect(cvr.BallotStyleUnitId).toEqual('town-id-00701-precinct-id-');
     expect(cvr.CreatingDeviceId).toEqual('000');
     expect(cvr.BallotSheetId).toEqual('1');
-    expect(cvr.vxBallotType).toEqual(CVR.vxBallotType.Precinct);
+    expect(getCastVoteRecordBallotType(cvr)).toEqual(BallotType.Precinct);
     expect(convertCastVoteRecordVotesToTabulationVotes(cvr.CVRSnapshot[0]))
       .toMatchInlineSnapshot(`
       {

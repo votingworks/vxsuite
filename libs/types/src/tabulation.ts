@@ -1,13 +1,13 @@
 import {
   AnyContest,
   BallotStyleId,
+  BallotType,
   Candidate,
   CandidateId,
   ContestId,
   ContestOptionId,
   PrecinctId,
 } from './election';
-import * as CVR from './cdf/cast-vote-records/index';
 import { Id } from './generic';
 
 export interface ContestResultsMetadata {
@@ -45,7 +45,7 @@ export type CandidateContestResults = ContestResultsBase & {
  */
 export type ContestResults = YesNoContestResults | CandidateContestResults;
 
-export type VotingMethod = `${CVR.vxBallotType}`;
+export type VotingMethod = `${BallotType}`;
 export const SUPPORTED_VOTING_METHODS: VotingMethod[] = [
   'precinct',
   'absentee',

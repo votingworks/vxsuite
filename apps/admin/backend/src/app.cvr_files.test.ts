@@ -13,7 +13,6 @@ import {
   CastVoteRecordExportFileName,
 } from '@votingworks/types';
 import path, { basename } from 'path';
-import { vxBallotType } from '@votingworks/types/src/cdf/cast-vote-records';
 import {
   BooleanEnvironmentVariableName,
   SCANNER_RESULTS_FOLDER,
@@ -121,7 +120,7 @@ test('happy path - mock election flow', async () => {
 
   // insert a USB drive
   const testExportDirectoryName = 'TEST__machine_0000__2022-09-24_18-00-00';
-  const testExportTimestamp = '2023-12-19T18:29:19.088Z';
+  const testExportTimestamp = '2023-12-19T22:06:17.045Z';
   insertUsbDrive(
     mockCastVoteRecordFileTree(electionDefinition, {
       [testExportDirectoryName]: castVoteRecordExport.asDirectoryPath(),
@@ -675,7 +674,7 @@ test('error if cast vote records from different files share same ballot id but h
     {
       castVoteRecordModifier: (castVoteRecord) => ({
         ...castVoteRecord,
-        vxBallotType: vxBallotType.Provisional,
+        BallotSheetId: '2',
       }),
       numCastVoteRecordsToKeep: 10,
     }

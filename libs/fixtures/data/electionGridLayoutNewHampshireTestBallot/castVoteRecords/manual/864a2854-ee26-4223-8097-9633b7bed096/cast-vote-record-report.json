@@ -621,7 +621,6 @@
       "ElectionId": "20bf89eed3f48b4cbbe29cfa42a126a31179316979915fb820456ee8ab79e9e1",
       "BatchId": "378f6a69-62d3-4184-a1a7-3a5d90083e21",
       "UniqueId": "864a2854-ee26-4223-8097-9633b7bed096",
-      "vxBallotType": "precinct",
       "BallotSheetId": "1",
       "CurrentSnapshotId": "864a2854-ee26-4223-8097-9633b7bed096-modified",
       "CVRSnapshot": [
@@ -629,6 +628,8 @@
           "@type": "CVR.CVRSnapshot",
           "@id": "864a2854-ee26-4223-8097-9633b7bed096-modified",
           "Type": "modified",
+          "Status": ["other"],
+          "OtherStatus": "{\"ballotType\":\"precinct\"}",
           "CVRContest": [
             {
               "@type": "CVR.CVRContest",

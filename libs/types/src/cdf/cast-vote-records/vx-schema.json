@@ -119,8 +119,7 @@
         "BallotStyleUnitId",
         "BatchId",
         "CreatingDeviceId",
-        "UniqueId",
-        "vxBallotType"
+        "UniqueId"
       ],
       "additionalProperties": false,
       "properties": {
@@ -186,10 +185,6 @@
         },
         "UniqueId": {
           "type": "string"
-        },
-        "vxBallotType": {
-          "description": "Indicates whether the ballot is an absentee or precinct ballot.",
-          "$ref": "#/definitions/CVR.vxBallotType"
         }
       },
       "type": "object"
@@ -1019,11 +1014,6 @@
         "rcv",
         "super-majority"
       ],
-      "type": "string"
-    },
-    "CVR.vxBallotType": {
-      "description": "Used in CVR::vxBallotType to indicate whether the ballot is an absentee or precinct ballot.",
-      "enum": ["precinct", "absentee", "provisional"],
       "type": "string"
     }
   }

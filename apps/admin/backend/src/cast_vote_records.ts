@@ -31,6 +31,7 @@ import {
   castVoteRecordHasValidContestReferences,
   convertCastVoteRecordVotesToTabulationVotes,
   generateElectionBasedSubfolderName,
+  getCastVoteRecordBallotType,
   isFeatureFlagEnabled,
   parseCastVoteRecordReportExportDirectoryName,
   SCANNER_RESULTS_FOLDER,
@@ -294,6 +295,8 @@ export async function importCastVoteRecords(
         votes,
         electionDefinition
       );
+      const votingMethod = getCastVoteRecordBallotType(castVoteRecord);
+      assert(votingMethod);
       const addCastVoteRecordResult = store.addCastVoteRecordFileEntry({
         ballotId: castVoteRecord.UniqueId as BallotId,
         cvr: {
@@ -304,7 +307,7 @@ export async function importCastVoteRecords(
             : { type: 'bmd' },
           precinctId: castVoteRecord.BallotStyleUnitId,
           votes,
-          votingMethod: castVoteRecord.vxBallotType,
+          votingMethod,
         },
         cvrFileId: importId,
         electionId,

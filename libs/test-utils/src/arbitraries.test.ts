@@ -8,8 +8,6 @@ import fc from 'fast-check';
 import { assert } from '@votingworks/basics';
 import { arbitraryDateTime } from '.';
 import {
-  arbitraryCastVoteRecord,
-  arbitraryCastVoteRecords,
   arbitraryCandidateContest,
   arbitraryElection,
   arbitraryElectionDefinition,
@@ -115,35 +113,6 @@ test('arbitraryElectionDefinition makes valid election definitions', () => {
         electionDefinition.electionData
       ).unsafeUnwrap();
       expect(parsed).toEqual(electionDefinition);
-    })
-  );
-});
-
-test('arbitraryCastVoteRecord(s) makes valid CVRs', () => {
-  // specify whether it's a test ballot
-  fc.assert(
-    fc.property(
-      arbitraryCastVoteRecord({ testBallot: fc.constant(true) }),
-      (cvr) => {
-        expect(cvr._testBallot).toEqual(true);
-      }
-    )
-  );
-
-  // specify the election
-  const election = fc.sample(arbitraryElection(), 1)[0]!;
-  const testBallot = fc.sample(fc.boolean())[0]!;
-  fc.assert(
-    fc.property(arbitraryCastVoteRecords({ election, testBallot }), (cvrs) => {
-      for (const cvr of cvrs) {
-        expect(election.precincts.map(({ id }) => id)).toContain(
-          cvr._precinctId
-        );
-        expect(election.ballotStyles.map(({ id }) => id)).toContain(
-          cvr._ballotStyleId
-        );
-        expect(cvr._testBallot).toEqual(testBallot);
-      }
     })
   );
 });

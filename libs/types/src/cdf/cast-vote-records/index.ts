@@ -486,22 +486,6 @@ export enum VoteVariation {
 export const VoteVariationSchema = z.nativeEnum(VoteVariation);
 
 /**
- * Used in CVR::vxBallotType to indicate whether the ballot is an absentee or precinct ballot.
- */
-export enum vxBallotType {
-  Precinct = 'precinct',
-
-  Absentee = 'absentee',
-
-  Provisional = 'provisional',
-}
-
-/**
- * Schema for {@link vxBallotType}.
- */
-export const vxBallotTypeSchema = z.nativeEnum(vxBallotType);
-
-/**
  * Annotation is used to record annotations made by one or more adjudicators.CVRSnapshot includes Annotation.
  */
 export interface Annotation {
@@ -690,11 +674,6 @@ export interface CVR {
    * The sequence number for this CVR. This represents the ordinal number that this CVR was processed by the tabulating device.
    */
   readonly UniqueId: string;
-
-  /**
-   * Indicates whether the ballot is an absentee or precinct ballot.
-   */
-  readonly vxBallotType: vxBallotType;
 }
 
 /**
@@ -716,7 +695,6 @@ export const CVRSchema: z.ZodSchema<CVR> = z.object({
   ElectionId: z.string(),
   PartyIds: z.optional(z.array(z.string())),
   UniqueId: z.string(),
-  vxBallotType: z.lazy(/* istanbul ignore next */ () => vxBallotTypeSchema),
 });
 
 /**
