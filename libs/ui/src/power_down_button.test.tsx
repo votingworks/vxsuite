@@ -1,12 +1,11 @@
 import userEvent from '@testing-library/user-event';
-import { fakeKiosk } from '@votingworks/test-utils';
 import { Logger, LogSource } from '@votingworks/logging';
-import { render, screen, waitFor } from '../test/react_testing_library';
-
+import { screen, waitFor } from '../test/react_testing_library';
+import { newTestContext } from '../test/test_context';
 import { PowerDownButton } from './power_down_button';
 
-beforeEach(() => {
-  window.kiosk = fakeKiosk();
+const { mockApiClient, render } = newTestContext({
+  skipUiStringsApi: true,
 });
 
 test('renders as expected.', async () => {
@@ -19,5 +18,5 @@ test('renders as expected.', async () => {
 
   userEvent.click(screen.getByText('Power Down'));
   await screen.findByText(/Powering Down/);
-  await waitFor(() => expect(window.kiosk!.powerDown).toHaveBeenCalledTimes(1));
+  await waitFor(() => expect(mockApiClient.powerDown).toHaveBeenCalledTimes(1));
 });

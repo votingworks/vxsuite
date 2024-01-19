@@ -124,8 +124,6 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
     case 'no_drive':
     case 'ejected':
     case 'error':
-      // When run not through kiosk mode let the user save the file
-      // on the machine for internal debugging use
       return (
         <Modal
           title="No USB Drive Detected"

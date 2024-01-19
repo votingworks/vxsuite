@@ -1,7 +1,13 @@
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { LogEventId, fakeLogger } from '@votingworks/logging';
-import { render, screen } from '../test/react_testing_library';
-import { ErrorBoundary, TestErrorBoundary } from './error_boundary';
+import userEvent from '@testing-library/user-event';
+import { render, screen, waitFor } from '../test/react_testing_library';
+import {
+  AppErrorBoundary,
+  ErrorBoundary,
+  TestErrorBoundary,
+} from './error_boundary';
+import { newTestContext } from '../test/test_context';
 
 function ThrowError({ error }: { error?: unknown }): JSX.Element {
   throw error ?? new Error('Whoa!');
@@ -73,5 +79,47 @@ test('TestErrorBoundary shows caught error message', async () => {
     );
     await screen.findByText('Test Error Boundary');
     screen.getByText('Error: Whoa!');
+  });
+});
+
+test('AppErrorBoundary shows "Something went wrong" when something goes wrong', async () => {
+  const logger = fakeLogger();
+  await suppressingConsoleOutput(async () => {
+    render(
+      <AppErrorBoundary
+        restartMessage="Please restart the machine."
+        logger={logger}
+      >
+        <ThrowError />
+      </AppErrorBoundary>
+    );
+    await screen.findByText('Something went wrong');
+    await screen.findByText('Please restart the machine.');
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+    expect(logger.log).toHaveBeenCalled();
+  });
+});
+
+const { mockApiClient, render: renderWithApi } = newTestContext({
+  skipUiStringsApi: true,
+});
+
+test('AppErrorBoundary can show a restart button', async () => {
+  await suppressingConsoleOutput(async () => {
+    renderWithApi(
+      <AppErrorBoundary
+        restartMessage="Please restart the machine."
+        showRestartButton
+      >
+        <ThrowError />
+      </AppErrorBoundary>
+    );
+    await screen.findByText('Something went wrong');
+    await screen.findByText('Please restart the machine.');
+    const restartButton = await screen.findByRole('button');
+    userEvent.click(restartButton);
+    await waitFor(() => {
+      expect(mockApiClient.reboot).toHaveBeenCalledTimes(1);
+    });
   });
 });

@@ -10,9 +10,7 @@ import {
 } from '@votingworks/utils';
 import {
   AppBase,
-  ErrorBoundary,
-  H1,
-  P,
+  AppErrorBoundary,
   SystemCallContextProvider,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
@@ -47,13 +45,8 @@ root.render(
       {/* TODO: Move these wrappers down a level into <App> so that we can 1) test the ErrorBoundary
       and 2) be more consistent with other Vx apps. This will require updating test utils to not
       render their own providers when rendering <App> */}
-      <ErrorBoundary
-        errorMessage={
-          <React.Fragment>
-            <H1>Something went wrong</H1>
-            <P>Please restart the machine.</P>
-          </React.Fragment>
-        }
+      <AppErrorBoundary
+        restartMessage="Please restart the machine."
         logger={logger}
       >
         <ApiClientContext.Provider value={apiClient}>
@@ -73,7 +66,7 @@ root.render(
             </SystemCallContextProvider>
           </QueryClientProvider>
         </ApiClientContext.Provider>
-      </ErrorBoundary>
+      </AppErrorBoundary>
       <DevDock />
     </AppBase>
   </React.StrictMode>

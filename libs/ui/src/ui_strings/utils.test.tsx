@@ -43,11 +43,9 @@ const CANDIDATE: Readonly<Candidate> = {
 };
 
 test('CandidatePartyList - single-party association', async () => {
-  const { mockBackendApi, render } = newTestContext();
-  mockBackendApi.getAvailableLanguages.mockResolvedValue([
-    LanguageCode.SPANISH,
-  ]);
-  mockBackendApi.getUiStrings.mockResolvedValue({
+  const { mockApiClient, render } = newTestContext();
+  mockApiClient.getAvailableLanguages.mockResolvedValue([LanguageCode.SPANISH]);
+  mockApiClient.getUiStrings.mockResolvedValue({
     partyName: {
       party1: 'Libertad',
       party2: 'Federalista',
@@ -71,11 +69,9 @@ test('CandidatePartyList - single-party association', async () => {
 });
 
 test('CandidatePartyList - multi-party association', async () => {
-  const { mockBackendApi, render } = newTestContext();
-  mockBackendApi.getAvailableLanguages.mockResolvedValue([
-    LanguageCode.SPANISH,
-  ]);
-  mockBackendApi.getUiStrings.mockResolvedValue({
+  const { mockApiClient, render } = newTestContext();
+  mockApiClient.getAvailableLanguages.mockResolvedValue([LanguageCode.SPANISH]);
+  mockApiClient.getUiStrings.mockResolvedValue({
     partyName: {
       party1: 'Libertad',
       party2: 'Federalista',
@@ -104,9 +100,9 @@ test('CandidatePartyList - multi-party association', async () => {
 });
 
 test('PrecinctSelectionName - all-precinct selection', async () => {
-  const { mockBackendApi, render } = newTestContext();
-  mockBackendApi.getAvailableLanguages.mockResolvedValue([]);
-  mockBackendApi.getUiStrings.mockResolvedValue(null);
+  const { mockApiClient, render } = newTestContext();
+  mockApiClient.getAvailableLanguages.mockResolvedValue([]);
+  mockApiClient.getUiStrings.mockResolvedValue(null);
 
   render(
     <H1>
@@ -131,11 +127,9 @@ test('PrecinctSelectionName - single-precinct selection', async () => {
     selectedPrecinct,
   ];
 
-  const { mockBackendApi, render } = newTestContext();
-  mockBackendApi.getAvailableLanguages.mockResolvedValue([
-    LanguageCode.SPANISH,
-  ]);
-  mockBackendApi.getUiStrings.mockResolvedValue({
+  const { mockApiClient, render } = newTestContext();
+  mockApiClient.getAvailableLanguages.mockResolvedValue([LanguageCode.SPANISH]);
+  mockApiClient.getUiStrings.mockResolvedValue({
     precinctName: {
       precinctIdOldTown: 'Ciutat Vella',
     },
@@ -159,11 +153,9 @@ test('PrecinctSelectionName - no selection', async () => {
     { id: 'precinctA', name: 'New Town' },
   ];
 
-  const { mockBackendApi, render } = newTestContext();
-  mockBackendApi.getAvailableLanguages.mockResolvedValue([
-    LanguageCode.SPANISH,
-  ]);
-  mockBackendApi.getUiStrings.mockResolvedValue({
+  const { mockApiClient, render } = newTestContext();
+  mockApiClient.getAvailableLanguages.mockResolvedValue([LanguageCode.SPANISH]);
+  mockApiClient.getUiStrings.mockResolvedValue({
     precinctName: {
       precinctB: 'Ciutat Vella',
     },
@@ -200,11 +192,9 @@ test('PrimaryElectionTitlePrefix - party-specific ballot', async () => {
     parties: [...electionGeneral.parties, myParty],
   };
 
-  const { mockBackendApi, render } = newTestContext();
-  mockBackendApi.getAvailableLanguages.mockResolvedValue([
-    LanguageCode.SPANISH,
-  ]);
-  mockBackendApi.getUiStrings.mockResolvedValue({
+  const { mockApiClient, render } = newTestContext();
+  mockApiClient.getAvailableLanguages.mockResolvedValue([LanguageCode.SPANISH]);
+  mockApiClient.getUiStrings.mockResolvedValue({
     partyName: {
       itsMyParty: 'Lloro Si Quiero',
     },
@@ -227,9 +217,9 @@ test('PrecinctSelectionName - non-party-specific ballot', async () => {
   const election = electionGeneral;
   const ballotStyle = assertDefined(election.ballotStyles[0]);
 
-  const { mockBackendApi, render } = newTestContext();
-  mockBackendApi.getAvailableLanguages.mockResolvedValue([]);
-  mockBackendApi.getUiStrings.mockResolvedValue({});
+  const { mockApiClient, render } = newTestContext();
+  mockApiClient.getAvailableLanguages.mockResolvedValue([]);
+  mockApiClient.getUiStrings.mockResolvedValue({});
 
   render(
     <H1>

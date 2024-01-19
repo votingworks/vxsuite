@@ -1,8 +1,12 @@
 import userEvent from '@testing-library/user-event';
-import { fakeKiosk } from '@votingworks/test-utils';
 import { createMemoryHistory } from 'history';
 import { err, ok } from '@votingworks/basics';
-import { screen, waitFor, within } from '../../test/react_testing_library';
+import {
+  screen,
+  waitFor,
+  waitForElementToBeRemoved,
+  within,
+} from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { SettingsScreenProps, SettingsScreen } from './settings_screen';
 import { createMockApiClient, MockApiClient } from '../../test/api';
@@ -92,7 +96,6 @@ test('backup error shows message', async () => {
 
 test('clicking "Update Date and Time" shows modal to set clock', async () => {
   jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
-  window.kiosk = fakeKiosk();
 
   renderScreen();
 
@@ -111,15 +114,16 @@ test('clicking "Update Date and Time" shows modal to set clock', async () => {
   userEvent.selectOptions(selectYear, '2025');
 
   // Save date
+  mockApiClient.setClock
+    .expectCallWith({
+      isoDatetime: '2025-10-31T00:00:00.000+00:00',
+
+      ianaZone: 'UTC',
+    })
+    .resolves();
   mockApiClient.logOut.expectCallWith().resolves();
   userEvent.click(within(modal).getByRole('button', { name: 'Save' }));
-  await waitFor(() => {
-    expect(window.kiosk?.setClock).toHaveBeenCalledWith({
-      isoDatetime: '2025-10-31T00:00:00.000+00:00',
-      // eslint-disable-next-line vx/gts-identifiers
-      IANAZone: 'UTC',
-    });
-  });
+  await waitForElementToBeRemoved(screen.queryByRole('alertdialog'));
 
   jest.useRealTimers();
 });

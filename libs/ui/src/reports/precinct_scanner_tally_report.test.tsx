@@ -13,10 +13,6 @@ import { render, screen, within } from '../../test/react_testing_library';
 
 import { PrecinctScannerTallyReport } from './precinct_scanner_tally_report';
 
-afterEach(() => {
-  window.kiosk = undefined;
-});
-
 const {
   election: generalElection,
   electionDefinition: generalElectionDefinition,

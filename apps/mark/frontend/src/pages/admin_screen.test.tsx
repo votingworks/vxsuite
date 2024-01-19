@@ -2,7 +2,6 @@ import {
   asElectionDefinition,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import { fakeKiosk } from '@votingworks/test-utils';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
@@ -10,7 +9,7 @@ import {
 import { fakeLogger } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { act, screen, within } from '../../test/react_testing_library';
+import { screen, within } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
 import { election, defaultPrecinctId } from '../../test/helpers/election';
 
@@ -29,12 +28,10 @@ let apiMock: ApiMock;
 beforeEach(() => {
   jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
   window.location.href = '/';
-  window.kiosk = fakeKiosk();
   apiMock = createApiMock();
 });
 
 afterEach(() => {
-  window.kiosk = undefined;
   apiMock.mockApiClient.assertComplete();
 });
 
@@ -81,19 +78,18 @@ test('renders date and time settings modal', async () => {
   userEvent.selectOptions(selectYear, optionYear);
 
   // Save Date and Timezone
+  apiMock.mockApiClient.setClock
+    .expectCallWith({
+      isoDatetime: '2025-10-31T00:00:00.000+00:00',
+      ianaZone: 'UTC',
+    })
+    .resolves();
   apiMock.expectLogOut();
-  // eslint-disable-next-line @typescript-eslint/require-await
-  await act(async () => {
-    userEvent.click(within(screen.getByTestId('modal')).getByText('Save'));
-  });
-  expect(window.kiosk?.setClock).toHaveBeenCalledWith({
-    isoDatetime: '2025-10-31T00:00:00.000+00:00',
-    // eslint-disable-next-line vx/gts-identifiers
-    IANAZone: 'UTC',
-  });
 
-  // Date is reset to system time after save to kiosk-browser
-  screen.getByText(startDate);
+  userEvent.click(within(screen.getByTestId('modal')).getByText('Save'));
+
+  // Date is reset to system time after save
+  await screen.findByText(startDate);
 });
 
 test('can switch the precinct', () => {

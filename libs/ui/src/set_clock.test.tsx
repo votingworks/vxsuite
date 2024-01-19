@@ -1,11 +1,10 @@
 import { DateTime } from 'luxon';
 import fc from 'fast-check';
-import { arbitraryDateTime, fakeKiosk } from '@votingworks/test-utils';
+import { arbitraryDateTime } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import {
   act,
   cleanup,
-  render,
   screen,
   waitFor,
   within,
@@ -17,6 +16,7 @@ import {
   SetClockButton,
   CurrentDateAndTime,
 } from './set_clock';
+import { newTestContext } from '../test/test_context';
 
 function getSelect(testId: string): HTMLSelectElement {
   return screen.getByTestId(testId);
@@ -33,6 +33,8 @@ const aDate = DateTime.fromObject(
   },
   { zone: 'America/Los_Angeles' }
 );
+
+const { mockApiClient, render } = newTestContext({ skipUiStringsApi: true });
 
 describe('PickDateTimeModal', () => {
   test('shows pickers for the datetime parts of the given time', () => {
@@ -191,11 +193,6 @@ describe('PickDateTimeModal', () => {
 describe('SetClockButton', () => {
   beforeAll(() => {
     jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
-    window.kiosk = fakeKiosk();
-  });
-
-  afterAll(() => {
-    window.kiosk = undefined;
   });
 
   test('renders date and time settings modal when clicked', async () => {
@@ -211,7 +208,7 @@ describe('SetClockButton', () => {
     // Cancel date change
     userEvent.click(within(screen.getByTestId('modal')).getByText('Cancel'));
     expect(screen.queryByTestId('modal')).not.toBeInTheDocument();
-    expect(window.kiosk?.setClock).not.toHaveBeenCalled();
+    expect(mockApiClient.setClock).not.toHaveBeenCalled();
 
     // Open Modal and change date again
     userEvent.click(screen.getByText('Update Date and Time'));
@@ -270,9 +267,8 @@ describe('SetClockButton', () => {
     await waitFor(() =>
       expect(screen.queryByTestId('modal')).not.toBeInTheDocument()
     );
-    expect(window.kiosk?.setClock).toHaveBeenCalledWith({
-      // eslint-disable-next-line vx/gts-identifiers
-      IANAZone: 'America/Chicago',
+    expect(mockApiClient.setClock).toHaveBeenCalledWith({
+      ianaZone: 'America/Chicago',
       isoDatetime: '2025-02-03T23:21:00.000-06:00',
     });
     expect(logOut).toHaveBeenCalledTimes(1);
@@ -310,9 +306,8 @@ describe('SetClockButton', () => {
     await waitFor(() =>
       expect(screen.queryByTestId('modal')).not.toBeInTheDocument()
     );
-    expect(window.kiosk?.setClock).toHaveBeenLastCalledWith({
-      // eslint-disable-next-line vx/gts-identifiers
-      IANAZone: 'America/Los_Angeles',
+    expect(mockApiClient.setClock).toHaveBeenLastCalledWith({
+      ianaZone: 'America/Los_Angeles',
       isoDatetime: '2020-10-21T11:00:00.000-07:00',
     });
     expect(logOut).toHaveBeenCalledTimes(2);

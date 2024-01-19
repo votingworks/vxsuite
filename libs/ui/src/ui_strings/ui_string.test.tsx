@@ -13,15 +13,15 @@ import { newTestContext } from '../../test/test_context';
 import { UiString } from './ui_string';
 import { UiStringAudioDataAttributeName } from './with_audio';
 
-const { getLanguageContext, mockBackendApi, render } = newTestContext();
+const { getLanguageContext, mockApiClient, render } = newTestContext();
 
 beforeEach(() => {
-  mockBackendApi.getAvailableLanguages.mockResolvedValue([
+  mockApiClient.getAvailableLanguages.mockResolvedValue([
     LanguageCode.ENGLISH,
     LanguageCode.SPANISH,
   ]);
 
-  mockBackendApi.getUiStrings.mockImplementation(({ languageCode }) =>
+  mockApiClient.getUiStrings.mockImplementation(({ languageCode }) =>
     Promise.resolve(TEST_UI_STRING_TRANSLATIONS[languageCode] || null)
   );
 });

@@ -2,9 +2,13 @@ import userEvent from '@testing-library/user-event';
 import { fakeKiosk, mockOf } from '@votingworks/test-utils';
 import { fakeLogger } from '@votingworks/logging';
 import { isVxDev } from '@votingworks/utils';
-import { render, screen } from '../test/react_testing_library';
+import {
+  screen,
+  waitForElementToBeRemoved,
+} from '../test/react_testing_library';
 
 import { SystemAdministratorScreenContents } from './system_administrator_screen_contents';
+import { newTestContext } from '../test/test_context';
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
@@ -12,6 +16,8 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
     isVxDev: jest.fn(),
   };
 });
+
+const { render, mockApiClient } = newTestContext({ skipUiStringsApi: true });
 
 beforeEach(() => {
   mockOf(isVxDev).mockImplementation(() => false);
@@ -174,8 +180,9 @@ test('Reset Polls to Paused rendered if callback and flag specified', () => {
   screen.getByRole('button', { name: 'Reset Polls to Paused' });
 });
 
-test('Set Date and Time button', () => {
+test('Set Date and Time button', async () => {
   const logOut = jest.fn();
+  mockApiClient.setClock.mockResolvedValueOnce(undefined as never);
   render(
     <SystemAdministratorScreenContents
       logger={fakeLogger()}
@@ -189,5 +196,6 @@ test('Set Date and Time button', () => {
   userEvent.click(screen.getByRole('button', { name: 'Set Date and Time' }));
   screen.getByRole('heading', { name: 'Set Date and Time' });
   userEvent.click(screen.getByRole('button', { name: 'Save' }));
+  await waitForElementToBeRemoved(screen.queryByRole('alertdialog'));
   expect(logOut).toBeCalledTimes(1);
 });

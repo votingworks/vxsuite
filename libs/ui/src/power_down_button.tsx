@@ -1,10 +1,10 @@
 import { LogEventId, Logger } from '@votingworks/logging';
-import { assert } from '@votingworks/basics';
 import { useState } from 'react';
 import { UserRole } from '@votingworks/types';
 import { Button } from './button';
 import { Loading } from './loading';
 import { Modal } from './modal';
+import { useSystemCallApi } from './system_call_api';
 
 interface Props {
   logger: Logger;
@@ -16,13 +16,15 @@ interface Props {
  */
 export function PowerDownButton({ logger, userRole }: Props): JSX.Element {
   const [isPoweringDown, setIsPoweringDown] = useState(false);
+  const api = useSystemCallApi();
+  const powerDownMutation = api.powerDown.useMutation();
+
   async function reboot() {
-    assert(window.kiosk);
     await logger.log(LogEventId.PowerDown, userRole, {
       message: 'User triggered the machine to power down.',
     });
     setIsPoweringDown(true);
-    await window.kiosk.powerDown();
+    powerDownMutation.mutate();
   }
 
   if (isPoweringDown) {

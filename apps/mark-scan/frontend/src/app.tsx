@@ -1,10 +1,9 @@
 import { BrowserRouter } from 'react-router-dom';
 
-import { assertDefined } from '@votingworks/basics';
 import { getHardware } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { QueryClient } from '@tanstack/react-query';
-import { AppBase, Button, ErrorBoundary, H1, P, Text } from '@votingworks/ui';
+import { AppBase, AppErrorBoundary } from '@votingworks/ui';
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 
 import { AppRoot, Props as AppRootProps } from './app_root';
@@ -30,6 +29,9 @@ export interface Props {
   noAudio?: boolean;
 }
 
+const RESTART_MESSAGE =
+  'Ask a poll worker to restart the ballot marking device.';
+
 export function App({
   hardware = getHardware(),
   reload = () => window.location.reload(),
@@ -47,33 +49,23 @@ export function App({
       screenType={DEFAULT_SCREEN_TYPE}
     >
       <BrowserRouter>
-        <ErrorBoundary
-          errorMessage={
-            <Text center>
-              <H1>Something went wrong</H1>
-              <P>Ask a poll worker to restart the ballot marking device.</P>
-              <P>
-                <Button
-                  onPress={() => assertDefined(window.kiosk).reboot()}
-                  variant="primary"
-                >
-                  Restart
-                </Button>
-              </P>
-            </Text>
-          }
-          logger={logger}
-        >
+        <AppErrorBoundary restartMessage={RESTART_MESSAGE} logger={logger}>
           <ApiProvider
             queryClient={queryClient}
             apiClient={apiClient}
             enableStringTranslation={enableStringTranslation}
             noAudio={noAudio}
           >
-            <AppRoot hardware={hardware} reload={reload} logger={logger} />
-            <SessionTimeLimitTracker />
+            <AppErrorBoundary
+              restartMessage={RESTART_MESSAGE}
+              showRestartButton
+              logger={logger}
+            >
+              <AppRoot hardware={hardware} reload={reload} logger={logger} />
+              <SessionTimeLimitTracker />
+            </AppErrorBoundary>
           </ApiProvider>
-        </ErrorBoundary>
+        </AppErrorBoundary>
       </BrowserRouter>
     </AppBase>
   );

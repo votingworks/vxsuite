@@ -54,8 +54,6 @@ it('will throw an error when using default api', async () => {
   await suppressingConsoleOutput(async () => {
     render(<App hardware={hardware} />);
     await screen.findByText('Something went wrong');
-    userEvent.click(await screen.findButton('Restart'));
-    expect(window.kiosk?.reboot).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -65,6 +63,7 @@ it('Displays error boundary if the api returns an unexpected error', async () =>
   apiMock.expectGetElectionState();
   apiMock.expectGetMachineConfigToError();
   const hardware = MemoryHardware.buildStandard();
+  apiMock.mockApiClient.reboot.expectCallWith().resolves();
   await suppressingConsoleOutput(async () => {
     render(
       <App
@@ -75,6 +74,7 @@ it('Displays error boundary if the api returns an unexpected error', async () =>
     );
     await advanceTimersAndPromises();
     screen.getByText('Something went wrong');
+    userEvent.click(screen.getButton('Restart'));
   });
 });
 

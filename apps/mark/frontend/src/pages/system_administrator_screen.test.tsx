@@ -1,6 +1,5 @@
 import { fakeLogger } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
-import { fakeKiosk } from '@votingworks/test-utils';
 import { screen, waitFor } from '../../test/react_testing_library';
 
 import { render } from '../../test/test_utils';
@@ -16,11 +15,9 @@ let apiMock: ApiMock;
 beforeEach(() => {
   jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
   apiMock = createApiMock();
-  window.kiosk = fakeKiosk();
 });
 
 afterEach(() => {
-  window.kiosk = undefined;
   apiMock.mockApiClient.assertComplete();
 });
 
@@ -57,13 +54,14 @@ test('Can set date and time', async () => {
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior
   userEvent.click(screen.getButton('Set Date and Time'));
+  apiMock.mockApiClient.setClock
+    .expectCallWith({
+      isoDatetime: '2020-10-31T00:00:00.000+00:00',
+      ianaZone: 'UTC',
+    })
+    .resolves();
   apiMock.expectLogOut();
   userEvent.click(screen.getButton('Save'));
-  expect(window.kiosk?.setClock).toHaveBeenCalledWith({
-    isoDatetime: '2020-10-31T00:00:00.000+00:00',
-    // eslint-disable-next-line vx/gts-identifiers
-    IANAZone: 'UTC',
-  });
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );

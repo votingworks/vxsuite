@@ -20,6 +20,7 @@ import { H2, P } from './typography';
 import { Icons } from './icons';
 import { Card } from './card';
 import { ScreenInfo, useScreenInfo } from './hooks/use_screen_info';
+import { useSystemCallApi } from './system_call_api';
 
 const Form = styled(Card).attrs({ color: 'neutral' })<{
   screenInfo: ScreenInfo;
@@ -354,17 +355,16 @@ export function SetClockButton({
   const [isSettingClock, setIsSettingClock] = useState(false);
   const systemDate = useNow();
 
+  const api = useSystemCallApi();
+  const setClockMutation = api.setClock.useMutation();
+
   async function setClock(date: DateTime) {
     setIsSettingClock(true);
     try {
-      if (window.kiosk) {
-        await window.kiosk.setClock({
-          isoDatetime: date.toISO(),
-          // TODO: Rename to `ianaZone` in kiosk-browser and update here.
-          // eslint-disable-next-line vx/gts-identifiers
-          IANAZone: date.zoneName,
-        });
-      }
+      await setClockMutation.mutateAsync({
+        isoDatetime: date.toISO(),
+        ianaZone: date.zoneName,
+      });
       setIsModalOpen(false);
     } finally {
       setIsSettingClock(false);

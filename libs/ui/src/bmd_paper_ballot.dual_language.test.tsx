@@ -104,12 +104,11 @@ function expectSingleLanguageString(params: MockUiStringOutput) {
   ).not.toBeInTheDocument();
 }
 
-const { getLanguageContext, mockBackendApi, render } =
-  newUiStringsTestContext();
+const { getLanguageContext, mockApiClient, render } = newUiStringsTestContext();
 
 beforeEach(() => {
-  mockBackendApi.getAvailableLanguages.mockResolvedValueOnce(ballotLanguages);
-  mockBackendApi.getUiStrings.mockResolvedValue(null);
+  mockApiClient.getAvailableLanguages.mockResolvedValueOnce(ballotLanguages);
+  mockApiClient.getUiStrings.mockResolvedValue(null);
 
   mockUiStringRenderer.mockImplementation((props: UiStringProps) => {
     const { uiStringKey, uiStringSubKey } = props;
