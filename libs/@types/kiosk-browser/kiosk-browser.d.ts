@@ -244,10 +244,6 @@ declare namespace KioskBrowser {
     readFile(path: string): Promise<Uint8Array>;
     readFile(path: string, encoding: string): Promise<string>;
 
-    totp: {
-      get(): Promise<TotpInfo | undefined>;
-    };
-
     // speech dispatcher
     speak(text: string, options: SpeakOptions): Promise<void>;
     cancelSpeak(): Promise<void>;
