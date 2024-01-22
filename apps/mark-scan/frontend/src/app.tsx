@@ -6,7 +6,6 @@ import { QueryClient } from '@tanstack/react-query';
 import {
   AppBase,
   AppErrorBoundary,
-  useCurrentTheme,
   VisualModeDisabledOverlay,
 } from '@votingworks/ui';
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
@@ -46,8 +45,6 @@ export function App({
   enableStringTranslation,
   noAudio,
 }: Props): JSX.Element {
-  const currentTheme = useCurrentTheme();
-
   return (
     <AppBase
       defaultColorMode={DEFAULT_COLOR_MODE}
@@ -68,9 +65,7 @@ export function App({
               showRestartButton
               logger={logger}
             >
-              {currentTheme.isVisualModeDisabled && (
-                <VisualModeDisabledOverlay />
-              )}
+              <VisualModeDisabledOverlay />
               <AppRoot hardware={hardware} reload={reload} logger={logger} />
               <SessionTimeLimitTracker />
             </AppErrorBoundary>
