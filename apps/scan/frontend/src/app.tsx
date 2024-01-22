@@ -1,6 +1,5 @@
 import { BrowserRouter, Route } from 'react-router-dom';
 
-import { getHardware } from '@votingworks/utils';
 import { Logger, LogSource } from '@votingworks/logging';
 import { QueryClient } from '@tanstack/react-query';
 import { AppErrorBoundary } from '@votingworks/ui';
@@ -14,7 +13,6 @@ import { DisplaySettingsManager } from './components/display_settings_manager';
 import { ApiProvider } from './api_provider';
 
 export interface AppProps {
-  hardware?: AppRootProps['hardware'];
   logger?: AppRootProps['logger'];
   apiClient?: ApiClient;
   queryClient?: QueryClient;
@@ -24,7 +22,6 @@ export interface AppProps {
 const RESTART_MESSAGE = 'Ask a poll worker to restart the scanner.';
 
 export function App({
-  hardware = getHardware(),
   logger = new Logger(LogSource.VxScanFrontend, window.kiosk),
   apiClient = createApiClient(),
   queryClient = createQueryClient(),
@@ -48,7 +45,7 @@ export function App({
                 <DisplaySettingsScreen />
               </Route>
               <Route path={Paths.APP_ROOT} exact>
-                <AppRoot hardware={hardware} logger={logger} />
+                <AppRoot logger={logger} />
               </Route>
               <SessionTimeLimitTracker />
               <DisplaySettingsManager />

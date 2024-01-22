@@ -30,6 +30,7 @@ import {
   BROTHER_THERMAL_PRINTER_CONFIG,
   type PrinterStatus,
 } from '@votingworks/printing';
+import type { BatteryInfo } from '@votingworks/backend';
 import { mockUsbDriveStatus } from './mock_usb_drive';
 import { getCurrentTime } from '../../src/utils/get_current_time';
 import { mockPollsInfo } from './mock_polls_info';
@@ -75,12 +76,22 @@ export function createApiMock() {
     });
   }
 
+  function setBatteryInfo(batteryInfo?: Partial<BatteryInfo>): void {
+    mockApiClient.getBatteryInfo.expectRepeatedCallsWith().resolves({
+      level: 1,
+      discharging: false,
+      ...(batteryInfo ?? {}),
+    });
+  }
+
   return {
     mockApiClient,
 
     setAuthStatus,
 
     setPrinterStatus,
+
+    setBatteryInfo,
 
     authenticateAsSystemAdministrator() {
       setAuthStatus({

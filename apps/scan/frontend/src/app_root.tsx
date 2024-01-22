@@ -1,12 +1,7 @@
 import { useState } from 'react';
 
+import { SetupCardReaderPage, UnlockMachineScreen } from '@votingworks/ui';
 import {
-  SetupCardReaderPage,
-  useDevices,
-  UnlockMachineScreen,
-} from '@votingworks/ui';
-import {
-  Hardware,
   isSystemAdministratorAuth,
   isElectionManagerAuth,
   isPollWorkerAuth,
@@ -36,6 +31,7 @@ import {
   getPollsInfo,
   getScannerStatus,
   getUsbDriveStatus,
+  systemCallApi,
 } from './api';
 import { VoterScreen } from './screens/voter_screen';
 import { LoginPromptScreen } from './screens/login_prompt_screen';
@@ -43,21 +39,17 @@ import { CastVoteRecordSyncRequiredScreen } from './screens/cast_vote_record_syn
 import { SystemAdministratorScreen } from './screens/system_administrator_screen';
 
 export interface Props {
-  hardware: Hardware;
   logger: Logger;
 }
 
-export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
+export function AppRoot({ logger }: Props): JSX.Element | null {
   const authStatusQuery = getAuthStatus.useQuery();
   const configQuery = getConfig.useQuery();
   const pollsInfoQuery = getPollsInfo.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const checkPinMutation = checkPin.useMutation();
 
-  const { computer } = useDevices({
-    hardware,
-    logger,
-  });
+  const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
 
   const scannerStatusQuery = getScannerStatus.useQuery({
     refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
@@ -74,7 +66,8 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
       configQuery.isSuccess &&
       scannerStatusQuery.isSuccess &&
       usbDriveStatusQuery.isSuccess &&
-      pollsInfoQuery.isSuccess
+      pollsInfoQuery.isSuccess &&
+      batteryInfoQuery.isSuccess
     )
   ) {
     return <LoadingConfigurationScreen />;
@@ -91,6 +84,8 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
   } = configQuery.data;
   const scannerStatus = scannerStatusQuery.data;
   const usbDrive = usbDriveStatusQuery.data;
+  const batteryInfo = batteryInfoQuery.data;
+  const batteryIsCharging = batteryInfo ? !batteryInfo.discharging : true;
   const pollsInfo = pollsInfoQuery.data;
   const { pollsState } = pollsInfo;
 
@@ -154,7 +149,7 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
   if (scannerStatus.state === 'disconnected') {
     return (
       <SetupScannerScreen
-        batteryIsCharging={computer.batteryIsCharging}
+        batteryIsCharging={batteryIsCharging}
         scannedBallotCount={scannerStatus.ballotsCounted}
       />
     );
@@ -231,7 +226,7 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
       <PollsNotOpenScreen
         isLiveMode={!isTestMode}
         pollsState={pollsState}
-        showNoChargerWarning={!computer.batteryIsCharging}
+        showNoChargerWarning={!batteryIsCharging}
         scannedBallotCount={scannerStatus.ballotsCounted}
       />
     );
@@ -259,7 +254,7 @@ export function AppRoot({ hardware, logger }: Props): JSX.Element | null {
       systemSettings={systemSettings}
       isTestMode={isTestMode}
       isSoundMuted={isSoundMuted}
-      batteryIsCharging={computer.batteryIsCharging}
+      batteryIsCharging={batteryIsCharging}
     />
   );
 }

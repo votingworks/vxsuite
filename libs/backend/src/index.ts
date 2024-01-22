@@ -1,5 +1,6 @@
 /* istanbul ignore file */
 export * from './cast_vote_records';
+export * from './detect_devices';
 export * from './dotenv';
 export * from './election_package';
 export * from './exporter';

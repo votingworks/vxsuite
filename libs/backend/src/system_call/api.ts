@@ -6,6 +6,7 @@ import { reboot } from './reboot';
 import { rebootToBios } from './reboot_to_bios';
 import { powerDown } from './power_down';
 import { setClock } from './set_clock';
+import { getBatteryInfo } from './get_battery_info';
 
 function buildApi({
   usbDrive,
@@ -20,6 +21,7 @@ function buildApi({
     rebootToBios,
     powerDown,
     setClock,
+    getBatteryInfo,
   });
 }
 

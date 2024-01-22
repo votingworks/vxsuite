@@ -1,4 +1,4 @@
-import { singlePrecinctSelectionFor, MemoryHardware } from '@votingworks/utils';
+import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { fakeLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import {
@@ -46,20 +46,9 @@ let apiMock: ApiMock;
 jest.setTimeout(20000);
 
 function renderApp(props: Partial<AppProps> = {}) {
-  const hardware = MemoryHardware.build({
-    connectPrinter: true,
-    connectPrecinctScanner: true,
-  });
   const logger = fakeLogger();
-  render(
-    <App
-      hardware={hardware}
-      logger={logger}
-      apiClient={apiMock.mockApiClient}
-      {...props}
-    />
-  );
-  return { hardware, logger };
+  render(<App logger={logger} apiClient={apiMock.mockApiClient} {...props} />);
+  return { logger };
 }
 
 /**
@@ -89,6 +78,7 @@ beforeEach(() => {
 
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
+  apiMock.setBatteryInfo();
   apiMock.removeCard(); // Set a default auth state of no card inserted.
 
   mockOf(DisplaySettingsManager).mockReturnValue(null);

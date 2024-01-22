@@ -1,8 +1,14 @@
 import type { SystemCallApi as SystemCallApiClient } from '@votingworks/backend';
-import { renderHook } from '@testing-library/react';
+import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ok } from '@votingworks/basics';
-import { createSystemCallApi, useSystemCallApi } from './system_call_api';
+import {
+  BATTERY_POLLING_INTERVAL_GROUT,
+  createSystemCallApi,
+  useSystemCallApi,
+} from './system_call_api';
+
+jest.useFakeTimers();
 
 const queryClient = new QueryClient();
 function QueryWrapper(props: { children: React.ReactNode }) {
@@ -19,6 +25,7 @@ const mockApiClient: jest.Mocked<SystemCallApiClient> = {
   powerDown: jest.fn(),
   setClock: jest.fn(),
   exportLogsToUsb: jest.fn(),
+  getBatteryInfo: jest.fn(),
 };
 const api = createSystemCallApi(() => mockApiClient);
 
@@ -79,6 +86,27 @@ describe('React Query API calls the right client methods', () => {
     mockApiClient.exportLogsToUsb.mockResolvedValueOnce(ok());
     (await mutation.current.mutateAsync()).unsafeUnwrap();
     expect(mockApiClient.exportLogsToUsb).toHaveBeenCalledTimes(1);
+  });
+
+  test('getBatteryInfo', async () => {
+    mockApiClient.getBatteryInfo.mockResolvedValue({
+      level: 0.5,
+      discharging: true,
+    });
+    const { result: query } = renderHook(() => api.getBatteryInfo.useQuery(), {
+      wrapper: QueryWrapper,
+    });
+
+    await waitFor(() => {
+      expect(query.current.data).toEqual({
+        level: 0.5,
+        discharging: true,
+      });
+    });
+    expect(mockApiClient.getBatteryInfo).toHaveBeenCalledTimes(1);
+
+    jest.advanceTimersByTime(BATTERY_POLLING_INTERVAL_GROUT);
+    expect(mockApiClient.getBatteryInfo).toHaveBeenCalledTimes(2);
   });
 });
 
