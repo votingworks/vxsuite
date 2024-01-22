@@ -1,8 +1,10 @@
 import React from 'react';
 
 import { Optional } from '@votingworks/basics';
-import { useMutation } from '@tanstack/react-query';
+import { QueryKey, useMutation, useQuery } from '@tanstack/react-query';
 import type { SystemCallApi as SystemCallApiClient } from '@votingworks/backend';
+
+export const BATTERY_POLLING_INTERVAL_GROUT = 3000;
 
 /**
  * `useMutation` only accepts async functions, but some backend system calls
@@ -43,6 +45,17 @@ function createReactQueryApi(getApiClient: () => SystemCallApiClient) {
       useMutation: () => {
         const apiClient = getApiClient();
         return useMutation(apiClient.exportLogsToUsb);
+      },
+    },
+    getBatteryInfo: {
+      queryKey(): QueryKey {
+        return ['getBatteryInfo'];
+      },
+      useQuery() {
+        const apiClient = getApiClient();
+        return useQuery(this.queryKey(), () => apiClient.getBatteryInfo(), {
+          refetchInterval: BATTERY_POLLING_INTERVAL_GROUT,
+        });
       },
     },
   };

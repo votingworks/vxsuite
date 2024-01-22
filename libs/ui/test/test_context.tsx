@@ -75,6 +75,7 @@ export function newTestContext(
     powerDown: jest.fn(),
     setClock: jest.fn(),
     exportLogsToUsb: jest.fn(),
+    getBatteryInfo: jest.fn(),
   };
 
   const mockApiClient = {
