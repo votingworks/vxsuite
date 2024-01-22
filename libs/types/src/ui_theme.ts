@@ -111,6 +111,7 @@ export interface UiTheme {
   readonly screenType: ScreenType;
   readonly sizeMode: SizeMode;
   readonly sizes: SizeTheme;
+  readonly isVisualModeDisabled: boolean;
 }
 
 export type ColorPalette = Record<string, ColorString>;

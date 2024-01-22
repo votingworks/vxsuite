@@ -23,6 +23,21 @@ test('changes tab pane on tab bar events', () => {
   screen.getByRole('radiogroup', { name: 'Text Size Settings' });
 });
 
+test('renders "Audio/Video Only" tab when enabled', () => {
+  render(<DisplaySettings onClose={jest.fn()} allowAudioVideoOnlyToggles />);
+
+  userEvent.click(screen.getByRole('tab', { name: /Audio\/Video Only/i }));
+  screen.getByRole('button', { name: 'Enable Audio-Only Mode' });
+});
+
+test('does not render "Audio/Video Only" tab when not enabled', () => {
+  render(
+    <DisplaySettings onClose={jest.fn()} allowAudioVideoOnlyToggles={false} />
+  );
+
+  expect(screen.queryByText('Audio/Video Only')).toBeNull();
+});
+
 test('resets button resets global theme', () => {
   let currentTheme: UiTheme | null = null;
 

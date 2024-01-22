@@ -7,9 +7,11 @@ import { ColorSettings, ColorSettingsProps } from './color_settings';
 import { SizeSettings, SizeSettingsProps } from './size_settings';
 import { H2 } from '../typography';
 import { Button } from '../button';
-import { ThemeManagerContext } from '../theme_manager_context';
+import { DisplaySettingsManagerContext } from '../display_settings_manager_context';
 import { useScreenInfo } from '../hooks/use_screen_info';
 import { appStrings } from '../ui_strings';
+import { Header } from './header';
+import { AudioVideoOnlySettings } from './audio_video_only_settings';
 
 export interface DisplaySettingsProps {
   /** @default ['contrastLow', 'contrastMedium', 'contrastHighLight', 'contrastHighDark'] */
@@ -17,27 +19,13 @@ export interface DisplaySettingsProps {
   onClose: () => void;
   /** @default ['touchSmall', 'touchMedium', 'touchLarge', 'touchExtraLarge'] */
   sizeModes?: SizeSettingsProps['sizeModes'];
+  allowAudioVideoOnlyToggles?: boolean;
 }
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   height: 100vh;
-`;
-
-interface HeaderProps {
-  portrait?: boolean;
-}
-
-/* istanbul ignore next */
-const Header = styled.div<HeaderProps>`
-  align-items: ${(p) => (p.portrait ? 'stretch' : 'center')};
-  border-bottom: ${(p) => p.theme.sizes.bordersRem.hairline}rem dotted
-    ${(p) => p.theme.colors.outline};
-  display: flex;
-  flex-direction: ${(p) => (p.portrait ? 'column' : 'row')};
-  gap: ${(p) => (p.portrait ? 0.25 : 0.5)}rem;
-  padding: 0.25rem 0.5rem 0.5rem;
 `;
 
 const ActivePaneContainer = styled.div`
@@ -59,7 +47,7 @@ const Footer = styled.div`
  * well as theme-dependent global styles.
  */
 export function DisplaySettings(props: DisplaySettingsProps): JSX.Element {
-  const { colorModes, onClose, sizeModes } = props;
+  const { colorModes, allowAudioVideoOnlyToggles, onClose, sizeModes } = props;
 
   const screenInfo = useScreenInfo();
 
@@ -67,7 +55,7 @@ export function DisplaySettings(props: DisplaySettingsProps): JSX.Element {
     'displaySettingsColor'
   );
 
-  const { resetThemes } = React.useContext(ThemeManagerContext);
+  const { resetThemes } = React.useContext(DisplaySettingsManagerContext);
 
   return (
     <Container>
@@ -77,6 +65,7 @@ export function DisplaySettings(props: DisplaySettingsProps): JSX.Element {
           activePaneId={activePaneId}
           grow={!screenInfo.isPortrait}
           onChange={setActivePaneId}
+          allowAudioVideoOnlyToggles={allowAudioVideoOnlyToggles}
         />
       </Header>
       <ActivePaneContainer>
@@ -85,6 +74,9 @@ export function DisplaySettings(props: DisplaySettingsProps): JSX.Element {
         )}
         {activePaneId === 'displaySettingsSize' && (
           <SizeSettings sizeModes={sizeModes} />
+        )}
+        {activePaneId === 'displaySettingsAudioVideoOnly' && (
+          <AudioVideoOnlySettings />
         )}
       </ActivePaneContainer>
       <Footer>

@@ -9,6 +9,7 @@ export interface TabBarProps {
   className?: string;
   grow?: boolean;
   onChange: (selectedPaneId: SettingsPaneId) => void;
+  allowAudioVideoOnlyToggles?: boolean;
 }
 
 interface ContainerProps {
@@ -37,6 +38,8 @@ const TabLabel = styled.span`
 const TAB_LABELS: Record<SettingsPaneId, JSX.Element> = {
   displaySettingsColor: appStrings.titleDisplaySettingsColor(),
   displaySettingsSize: appStrings.titleDisplaySettingsSize(),
+  displaySettingsAudioVideoOnly:
+    appStrings.titleDisplaySettingsAudioVideoOnly(),
 };
 
 /**
@@ -44,8 +47,13 @@ const TAB_LABELS: Record<SettingsPaneId, JSX.Element> = {
  * unselected tabs and manually handle arrow keys cycling through the tabs.
  */
 export function TabBar(props: TabBarProps): JSX.Element {
-  const { activePaneId, className, grow, onChange } = props;
-
+  const {
+    activePaneId,
+    allowAudioVideoOnlyToggles: allowAudioVisualModeToggles,
+    className,
+    grow,
+    onChange,
+  } = props;
   return (
     <Container
       aria-label="Display settings"
@@ -53,19 +61,25 @@ export function TabBar(props: TabBarProps): JSX.Element {
       grow={grow}
       role="tablist"
     >
-      {[...PANE_IDS].map((paneId) => (
-        <Button
-          aria-controls={paneId}
-          aria-selected={activePaneId === paneId}
-          key={paneId}
-          onPress={onChange}
-          role="tab"
-          value={paneId}
-          variant={activePaneId === paneId ? 'primary' : 'neutral'}
-        >
-          <TabLabel>{TAB_LABELS[paneId]}</TabLabel>
-        </Button>
-      ))}
+      {[...PANE_IDS]
+        .filter((paneId) =>
+          paneId === 'displaySettingsAudioVideoOnly'
+            ? allowAudioVisualModeToggles
+            : true
+        )
+        .map((paneId) => (
+          <Button
+            aria-controls={paneId}
+            aria-selected={activePaneId === paneId}
+            key={paneId}
+            onPress={onChange}
+            role="tab"
+            value={paneId}
+            variant={activePaneId === paneId ? 'primary' : 'neutral'}
+          >
+            <TabLabel>{TAB_LABELS[paneId]}</TabLabel>
+          </Button>
+        ))}
     </Container>
   );
 }

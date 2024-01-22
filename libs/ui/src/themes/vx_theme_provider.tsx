@@ -8,6 +8,7 @@ import { makeTheme } from './make_theme';
 export interface VxThemeProviderProps {
   children: React.ReactNode;
   colorMode?: ColorMode;
+  isVisualModeDisabled?: boolean;
   sizeMode?: SizeMode;
   screenType?: ScreenType;
 }
@@ -20,7 +21,8 @@ export interface VxThemeProviderProps {
  * inherited from the parent theme.
  */
 export function VxThemeProvider(props: VxThemeProviderProps): JSX.Element {
-  const { children, colorMode, sizeMode, screenType } = props;
+  const { children, colorMode, isVisualModeDisabled, sizeMode, screenType } =
+    props;
 
   return (
     <ThemeProvider
@@ -29,6 +31,8 @@ export function VxThemeProvider(props: VxThemeProviderProps): JSX.Element {
           colorMode: colorMode || theme?.colorMode,
           sizeMode: sizeMode || theme?.sizeMode,
           screenType: screenType || theme?.screenType,
+          isVisualModeDisabled:
+            isVisualModeDisabled || theme?.isVisualModeDisabled,
         })
       }
     >

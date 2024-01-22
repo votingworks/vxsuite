@@ -2,7 +2,7 @@ import React from 'react';
 import { DefaultTheme, ThemeContext } from 'styled-components';
 
 import { isCardlessVoterAuth } from '@votingworks/utils';
-import { ThemeManagerContext } from '@votingworks/ui';
+import { DisplaySettingsManagerContext } from '@votingworks/ui';
 import { InsertedSmartCardAuth, VotesDict } from '@votingworks/types';
 
 export interface UseDisplaySettingsManagerParams {
@@ -17,7 +17,9 @@ export function useDisplaySettingsManager(
 
   const previousAuthStatus = React.useRef<InsertedSmartCardAuth.AuthStatus>();
 
-  const themeManager = React.useContext(ThemeManagerContext);
+  const displaySettingsManager = React.useContext(
+    DisplaySettingsManagerContext
+  );
   const currentTheme = React.useContext(ThemeContext);
   const [voterSessionTheme, setVoterSessionTheme] =
     React.useState<DefaultTheme | null>(null);
@@ -33,7 +35,7 @@ export function useDisplaySettingsManager(
     // non-voter-facing screens are not optimised for larger text sizes:
     if (wasPreviouslyLoggedInAsVoter && !isLoggedInAsVoter) {
       setVoterSessionTheme(currentTheme);
-      themeManager.resetThemes();
+      displaySettingsManager.resetThemes();
     }
 
     if (
@@ -44,16 +46,22 @@ export function useDisplaySettingsManager(
       if (isVotingSessionActive) {
         // Reset to previous display settings for the active voter session when
         // when election official logs out:
-        themeManager.setColorMode(voterSessionTheme.colorMode);
-        themeManager.setSizeMode(voterSessionTheme.sizeMode);
+        displaySettingsManager.setColorMode(voterSessionTheme.colorMode);
+        displaySettingsManager.setSizeMode(voterSessionTheme.sizeMode);
       } else {
         // [VVSG 2.0 7.1-A] Reset themes to default if this is a new voting
         // session:
-        themeManager.resetThemes();
+        displaySettingsManager.resetThemes();
       }
       setVoterSessionTheme(null);
     }
 
     previousAuthStatus.current = authStatus;
-  }, [authStatus, currentTheme, themeManager, voterSessionTheme, votes]);
+  }, [
+    authStatus,
+    currentTheme,
+    displaySettingsManager,
+    voterSessionTheme,
+    votes,
+  ]);
 }

@@ -51,7 +51,19 @@ export const appStrings = {
   buttonDone: () => <UiString uiStringKey="buttonDone">Done</UiString>,
 
   buttonDisplaySettings: () => (
-    <UiString uiStringKey="buttonDisplaySettings">Color/Size</UiString>
+    <UiString uiStringKey="buttonDisplaySettings">Display Settings</UiString>
+  ),
+
+  buttonEnableAudioOnlyMode: () => (
+    <UiString uiStringKey="buttonEnableAudioOnlyMode">
+      Enable Audio-Only Mode
+    </UiString>
+  ),
+
+  buttonExitAudioOnlyMode: () => (
+    <UiString uiStringKey="buttonExitAudioOnlyMode">
+      Exit Audio-Only Mode
+    </UiString>
   ),
 
   buttonMore: () => <UiString uiStringKey="buttonMore">More</UiString>,
@@ -635,6 +647,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  titleAudioOnlyModeEnabled: () => (
+    <UiString uiStringKey="titleAudioOnlyModeEnabled">
+      Audio-Only Mode is Enabled
+    </UiString>
+  ),
+
   titleBallotBagFull: () => (
     <UiString uiStringKey="titleBallotBagFull">Ballot Bag Full</UiString>
   ),
@@ -701,6 +719,12 @@ export const appStrings = {
 
   titleDisplaySettingsSize: () => (
     <UiString uiStringKey="titleDisplaySettingsSize">Text Size</UiString>
+  ),
+
+  titleDisplaySettingsAudioVideoOnly: () => (
+    <UiString uiStringKey="titleDisplaySettingsAudioVideoOnly">
+      Audio/Video Only
+    </UiString>
   ),
 
   titleInternalConnectionProblem: () => (

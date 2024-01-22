@@ -3,7 +3,7 @@ import { SizeMode, TouchSizeMode } from '@votingworks/types';
 import { ThemeConsumer } from 'styled-components';
 import { SettingsPane } from './settings_pane';
 import { RadioGroup } from '../radio_group';
-import { ThemeManagerContext } from '../theme_manager_context';
+import { DisplaySettingsManagerContext } from '../display_settings_manager_context';
 import { ThemeLabel } from './theme_label';
 import { useScreenInfo } from '../hooks/use_screen_info';
 import { appStrings } from '../ui_strings';
@@ -33,7 +33,7 @@ export function SizeSettings(props: SizeSettingsProps): JSX.Element {
 
   const screenInfo = useScreenInfo();
 
-  const { setSizeMode } = React.useContext(ThemeManagerContext);
+  const { setSizeMode } = React.useContext(DisplaySettingsManagerContext);
 
   const orderedSizeModes = (
     Object.keys(ORDERED_SIZE_MODE_LABELS) as TouchSizeMode[]

@@ -15,7 +15,13 @@ test('renders all available display settings tabs', () => {
 
 test('fires change event with settings pane id', () => {
   const onChange = jest.fn();
-  render(<TabBar activePaneId="displaySettingsSize" onChange={onChange} />);
+  render(
+    <TabBar
+      activePaneId="displaySettingsSize"
+      onChange={onChange}
+      allowAudioVideoOnlyToggles
+    />
+  );
 
   expect(onChange).not.toHaveBeenCalled();
 
@@ -23,6 +29,15 @@ test('fires change event with settings pane id', () => {
 
   expect(onChange).toHaveBeenCalledWith<[SettingsPaneId, SyntheticEvent]>(
     'displaySettingsColor',
+    buttonPressEventMatcher()
+  );
+
+  userEvent.click(
+    screen.getByRole('tab', { name: 'Audio/Video Only', selected: false })
+  );
+
+  expect(onChange).toHaveBeenCalledWith<[SettingsPaneId, SyntheticEvent]>(
+    'displaySettingsAudioVideoOnly',
     buttonPressEventMatcher()
   );
 });

@@ -29,7 +29,7 @@ import {
   useDevices,
   usePrevious,
   UnlockMachineScreen,
-  ThemeManagerContext,
+  DisplaySettingsManagerContext,
 } from '@votingworks/ui';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
@@ -151,7 +151,9 @@ export function AppRoot({
 
   const history = useHistory();
 
-  const themeManager = React.useContext(ThemeManagerContext);
+  const displaySettingsManager = React.useContext(
+    DisplaySettingsManagerContext
+  );
 
   const machineConfigQuery = getMachineConfig.useQuery();
 
@@ -231,10 +233,10 @@ export function AppRoot({
       if (!newShowPostVotingInstructions) {
         // [VVSG 2.0 7.1-A] Reset to default theme when voter is done marking
         // their ballot:
-        themeManager.resetThemes();
+        displaySettingsManager.resetThemes();
       }
     },
-    [history, themeManager]
+    [history, displaySettingsManager]
   );
 
   const hidePostVotingInstructions = useCallback(() => {
