@@ -1,35 +1,26 @@
 /* eslint-disable no-console */
 import { electionGeneralDefinition } from '@votingworks/fixtures';
-import { fakeKiosk, suppressingConsoleOutput } from '@votingworks/test-utils';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 
 import userEvent from '@testing-library/user-event';
 
 import { ServerError } from '@votingworks/grout';
 import { fakeLogger } from '@votingworks/logging';
 import { PrecinctScannerConfig } from '@votingworks/scan-backend';
-import { act, render, screen, waitFor } from '../test/react_testing_library';
+import { render, screen, waitFor } from '../test/react_testing_library';
 import {
   ApiMock,
   createApiMock,
   statusNoPaper,
 } from '../test/helpers/mock_api_client';
 import { App, AppProps } from './app';
-import { buildStandardScanHardware } from '../test/helpers/build_app';
 
 let apiMock: ApiMock;
 
 function renderApp(props: Partial<AppProps> = {}) {
-  const hardware = buildStandardScanHardware();
   const logger = fakeLogger();
-  render(
-    <App
-      hardware={hardware}
-      logger={logger}
-      apiClient={apiMock.mockApiClient}
-      {...props}
-    />
-  );
-  return { hardware, logger };
+  render(<App logger={logger} apiClient={apiMock.mockApiClient} {...props} />);
+  return { logger };
 }
 
 beforeEach(() => {
@@ -38,7 +29,6 @@ beforeEach(() => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.removeCard(); // Set a default auth state of no card inserted.
-  window.kiosk = fakeKiosk();
 });
 
 afterEach(() => {
@@ -50,6 +40,7 @@ test('when backend does not respond shows error screen', async () => {
     .expectCallWith()
     .throws(new ServerError('not responding'));
   apiMock.expectGetPollsInfo();
+  apiMock.setBatteryInfo();
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.mockApiClient.reboot.expectCallWith().resolves();
   await suppressingConsoleOutput(async () => {
@@ -64,6 +55,7 @@ test('backend fails to unconfigure', async () => {
   apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo();
+  apiMock.setBatteryInfo();
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
   apiMock.mockApiClient.unconfigureElection
@@ -107,6 +99,7 @@ test.each<{
   async ({ defaultConfigOverrides, expectedHeadingWhenNoCard }) => {
     apiMock.expectGetConfig(defaultConfigOverrides);
     apiMock.expectGetPollsInfo();
+    apiMock.setBatteryInfo();
     apiMock.expectGetScannerStatus(statusNoPaper);
     renderApp();
 
@@ -143,6 +136,7 @@ test.each<{
 test('show card backwards screen when card connection error occurs', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo();
+  apiMock.setBatteryInfo();
   apiMock.expectGetScannerStatus(statusNoPaper);
   renderApp();
 
@@ -161,14 +155,12 @@ test('show card backwards screen when card connection error occurs', async () =>
 test('shows internal wiring message when there is no scanner, but tablet is plugged in', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo();
-  const hardware = buildStandardScanHardware();
-  hardware.setPrecinctScannerConnected(false);
-  hardware.setBatteryDischarging(false);
+  apiMock.setBatteryInfo();
   apiMock.expectGetScannerStatus({
     ...statusNoPaper,
     state: 'disconnected',
   });
-  renderApp({ hardware });
+  renderApp();
   await screen.findByRole('heading', { name: 'Internal Connection Problem' });
   screen.getByText('Please ask a poll worker for help.');
 });
@@ -176,32 +168,28 @@ test('shows internal wiring message when there is no scanner, but tablet is plug
 test('shows power cable message when there is no scanner and tablet is not plugged in', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo();
-  const hardware = buildStandardScanHardware();
-  hardware.setPrecinctScannerConnected(false);
-  hardware.setBatteryDischarging(true);
+  apiMock.setBatteryInfo({ discharging: true });
   apiMock.expectGetScannerStatus({
     ...statusNoPaper,
     state: 'disconnected',
   });
-  renderApp({ hardware });
+  renderApp();
   await screen.findByRole('heading', { name: 'No Power Detected' });
   screen.getByText('Please ask a poll worker to plug in the power cord.');
 
   apiMock.expectGetScannerStatus(statusNoPaper);
-  act(() => hardware.setPrecinctScannerConnected(true));
   await screen.findByRole('heading', { name: 'Polls Closed' });
 });
 
 test('shows instructions to restart when the scanner client crashed', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo('polls_open');
-  const hardware = buildStandardScanHardware();
-  hardware.setPrecinctScannerConnected(false);
+  apiMock.setBatteryInfo();
   apiMock.expectGetScannerStatus({
     ...statusNoPaper,
     state: 'unrecoverable_error',
   });
-  renderApp({ hardware });
+  renderApp();
   await screen.findByRole('heading', { name: 'Ballot Not Counted' });
   screen.getByText('Ask a poll worker to restart the scanner.');
 });
@@ -209,23 +197,18 @@ test('shows instructions to restart when the scanner client crashed', async () =
 test('App shows warning message to connect to power when disconnected', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo();
+  apiMock.setBatteryInfo({ discharging: true });
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.setPrinterStatus({ connected: true });
 
-  const hardware = buildStandardScanHardware();
-  hardware.setBatteryDischarging(true);
-  hardware.setBatteryLevel(0.9);
-
-  renderApp({ hardware });
+  renderApp();
   await screen.findByText('Polls Closed');
   await screen.findByText('No Power Detected.');
   await screen.findByText(
     'Please ask a poll worker to plug in the power cord.'
   );
   // Plug in power and see that warning goes away
-  act(() => {
-    hardware.setBatteryDischarging(false);
-  });
+  apiMock.setBatteryInfo({ discharging: false });
   await waitFor(() => {
     expect(screen.queryByText('No Power Detected.')).toBeNull();
   });
@@ -245,8 +228,7 @@ test('App shows warning message to connect to power when disconnected', async ()
   // There should be no warning about power
   expect(screen.queryByText('No Power Detected.')).toBeNull();
   // Disconnect from power and check for warning
-  act(() => {
-    hardware.setBatteryDischarging(true);
-  });
+  apiMock.setBatteryInfo({ discharging: true });
+
   await screen.findByText('No Power Detected.');
 });
