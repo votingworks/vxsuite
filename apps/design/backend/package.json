@@ -20,7 +20,7 @@
     "start": "node ./build/index.js & node ./build/worker/index.js",
     "test": "TZ=UTC is-ci test:ci test:watch",
     "test:ci": "jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
-    "test:coverage": "jest --coverage",
+    "test:coverage": "TZ=UTC jest --coverage",
     "test:debug": "node --inspect-brk $(which jest) --runInBand --no-cache",
     "test:watch": "jest --watch",
     "type-check": "tsc --build"
