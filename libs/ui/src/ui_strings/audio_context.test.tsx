@@ -209,6 +209,36 @@ test('enable/disable API', () => {
   expect(result.current?.playbackRate).toEqual(DEFAULT_PLAYBACK_RATE);
 });
 
+test('setIsPaused', () => {
+  const { result } = renderHook(useAudioContext, {
+    wrapper: TestContextWrapper,
+  });
+
+  act(() => result.current?.setIsEnabled(true));
+
+  jest.resetAllMocks();
+
+  // Changing from `false` to `true` should suspend the web audio context:
+  act(() => result.current?.setIsPaused(true));
+  expect(mockWebAudioContext.suspend).toHaveBeenCalled();
+  expect(mockWebAudioContext.resume).not.toHaveBeenCalled();
+  expect(mockWebAudioContext.destination.disconnect).not.toHaveBeenCalled();
+
+  jest.resetAllMocks();
+
+  // Changing from `true` to `true` should be a no-op:
+  act(() => result.current?.setIsPaused(true));
+  expect(mockWebAudioContext.resume).not.toHaveBeenCalled();
+  expect(mockWebAudioContext.suspend).not.toHaveBeenCalled();
+  expect(mockWebAudioContext.destination.disconnect).not.toHaveBeenCalled();
+
+  // Changing from `true` to `false` should resume the web audio context:
+  act(() => result.current?.setIsPaused(false));
+  expect(mockWebAudioContext.resume).toHaveBeenCalled();
+  expect(mockWebAudioContext.suspend).not.toHaveBeenCalled();
+  expect(mockWebAudioContext.destination.disconnect).not.toHaveBeenCalled();
+});
+
 test('togglePause', () => {
   const { result } = renderHook(useAudioContext, {
     wrapper: TestContextWrapper,
