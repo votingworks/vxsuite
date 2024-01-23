@@ -244,12 +244,16 @@ export function getNhCustomContentByBallotStyle(
           return undefined;
         })
         .toArray();
-      assert(
-        splitsWithCustomContent.length <= 1,
-        `Cannot apply NH custom content to multiple precinct splits that have the same ballot style. Splits with same ballot style: ${splitsWithCustomContent
-          .map((s) => s.name)
-          .join(', ')}`
-      );
+      /* istanbul ignore next */
+      if (splitsWithCustomContent.length > 1) {
+        // TODO validate this when saving custom content, not loading it
+        // eslint-disable-next-line no-console
+        console.error(
+          `Warning: Multiple precinct splits that have the same ballot style have different NH custom content. Splits with same ballot style: ${splitsWithCustomContent
+            .map((s) => s.name)
+            .join(', ')}`
+        );
+      }
       return [ballotStyle.id, splitsWithCustomContent[0]?.nhCustomContent];
     })
   );
