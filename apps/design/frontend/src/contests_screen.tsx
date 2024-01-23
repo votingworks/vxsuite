@@ -228,7 +228,11 @@ function ContestsTab(): JSX.Element | null {
               </thead>
               <tbody>
                 {contestsToShow.map((contest, index) => (
-                  <Flipped key={contest.id} flipId={contest.id}>
+                  <Flipped
+                    key={contest.id}
+                    flipId={contest.id}
+                    shouldFlip={() => isReordering}
+                  >
                     <ReorderableTr key={contest.id} isReordering={isReordering}>
                       <TD>{contest.title}</TD>
                       <TD>

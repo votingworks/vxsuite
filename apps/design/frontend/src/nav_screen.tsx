@@ -26,7 +26,7 @@ export function NavScreen({
         <AppLogo appName="VxDesign" />
         {navContent}
       </LeftNav>
-      <Main>{children}</Main>
+      <Main flexColumn>{children}</Main>
     </Screen>
   );
 }
