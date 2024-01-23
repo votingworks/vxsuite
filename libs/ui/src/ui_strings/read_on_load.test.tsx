@@ -1,15 +1,11 @@
-import { Optional, assert } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import { act } from 'react-dom/test-utils';
 import React from 'react';
 import { createMemoryHistory } from 'history';
 import { Route, Router } from 'react-router-dom';
 import { ReadOnLoad } from './read_on_load';
 import { render, screen } from '../../test/react_testing_library';
-import {
-  UiStringsAudioContextInterface,
-  UiStringsAudioContextProvider,
-  useAudioContext,
-} from './audio_context';
+import { UiStringsAudioContextProvider } from './audio_context';
 import {
   UiStringsReactQueryApi,
   createUiStringsApi,
@@ -22,76 +18,44 @@ const mockUiStringsApi: UiStringsReactQueryApi = createUiStringsApi(() => ({
   getUiStrings: jest.fn(),
 }));
 
-function renderWithClickListener(ui: React.ReactNode) {
+function newRenderer() {
   const mockOnClick = jest.fn();
-  const result = render(<div onClickCapture={mockOnClick}>{ui}</div>);
+
+  function renderWithClickListener(ui: React.ReactNode) {
+    return render(<div onClickCapture={mockOnClick}>{ui}</div>);
+  }
 
   return {
     mockOnClick,
-    result,
+    renderWithClickListener,
   };
 }
 
-let audioContext: Optional<UiStringsAudioContextInterface>;
-function TestContextConsumer() {
-  audioContext = useAudioContext();
-
-  return null;
-}
-
-afterEach(() => {
-  audioContext = undefined;
-});
-
 test('is no-op when audio context is absent', () => {
-  const { mockOnClick } = renderWithClickListener(
-    <ReadOnLoad>Bonjour!</ReadOnLoad>
-  );
+  const { mockOnClick, renderWithClickListener } = newRenderer();
+
+  renderWithClickListener(<ReadOnLoad>Bonjour!</ReadOnLoad>);
 
   screen.getByText('Bonjour!');
-  expect(mockOnClick).not.toHaveBeenCalled();
-});
-
-test('is no-op when audio playback is disabled', () => {
-  const testHistory = createMemoryHistory();
-
-  const { mockOnClick } = renderWithClickListener(
-    <UiStringsAudioContextProvider api={mockUiStringsApi}>
-      <Router history={testHistory}>
-        <TestContextConsumer />
-        <ReadOnLoad>Bonjour!</ReadOnLoad>
-      </Router>
-    </UiStringsAudioContextProvider>
-  );
-
-  screen.getByText('Bonjour!');
-  expect(audioContext?.isEnabled).toEqual(false);
-  expect(mockOnClick).not.toHaveBeenCalled();
-
-  // Should still be a no-op for subsequent URL changes:
-  act(() => testHistory.push('/new-url'));
   expect(mockOnClick).not.toHaveBeenCalled();
 });
 
 test('triggers click actions on render', () => {
-  const { mockOnClick } = renderWithClickListener(
-    <UiStringsAudioContextProvider api={mockUiStringsApi}>
-      <TestContextConsumer />
-      <ReadOnLoad>Bonjour!</ReadOnLoad>
-      <div>Comment allez-vous?</div>
-    </UiStringsAudioContextProvider>
-  );
-
-  screen.getByText('Bonjour!');
-  expect(mockOnClick).not.toHaveBeenCalled();
+  const { mockOnClick, renderWithClickListener } = newRenderer();
 
   mockOnClick.mockImplementation((event: MouseEvent) => {
     assert(event.target instanceof HTMLElement);
     expect(event.target.textContent).toEqual('Bonjour!');
   });
 
-  act(() => audioContext?.setIsEnabled(true));
+  renderWithClickListener(
+    <UiStringsAudioContextProvider api={mockUiStringsApi}>
+      <ReadOnLoad>Bonjour!</ReadOnLoad>
+      <div>Comment allez-vous?</div>
+    </UiStringsAudioContextProvider>
+  );
 
+  screen.getByText('Bonjour!');
   expect(mockOnClick).toHaveBeenCalled();
 });
 
@@ -99,10 +63,16 @@ test('triggers click event on URL change', () => {
   const testHistory = createMemoryHistory();
   testHistory.push('/contests/1');
 
-  const { mockOnClick } = renderWithClickListener(
+  const { mockOnClick, renderWithClickListener } = newRenderer();
+
+  mockOnClick.mockImplementation((event: MouseEvent) => {
+    assert(event.target instanceof HTMLElement);
+    expect(event.target.textContent).toMatch(/^President.?Vote for 1$/);
+  });
+
+  renderWithClickListener(
     <UiStringsAudioContextProvider api={mockUiStringsApi}>
       <Router history={testHistory}>
-        <TestContextConsumer />
         <ReadOnLoad>
           <div>
             <Route path="/contests/1">President</Route>
@@ -116,15 +86,6 @@ test('triggers click event on URL change', () => {
   );
 
   screen.getByText('President');
-  expect(mockOnClick).not.toHaveBeenCalled();
-
-  mockOnClick.mockImplementation((event: MouseEvent) => {
-    assert(event.target instanceof HTMLElement);
-    expect(event.target.textContent).toMatch(/^President.?Vote for 1$/);
-  });
-
-  act(() => audioContext?.setIsEnabled(true));
-
   expect(mockOnClick).toHaveBeenCalled();
 
   mockOnClick.mockReset();
