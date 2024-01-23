@@ -1,9 +1,15 @@
 import * as batcher from '@yornaath/batshit';
 
-import { QueryClient, QueryKey, useQuery } from '@tanstack/react-query';
+import {
+  QueryClient,
+  QueryKey,
+  useQueries,
+  useQuery,
+} from '@tanstack/react-query';
 import { LanguageCode } from '@votingworks/types';
 import type { UiStringsApi } from '@votingworks/backend';
 import * as grout from '@votingworks/grout';
+import { assertDefined } from '@votingworks/basics';
 
 export type UiStringsApiClient = grout.Client<UiStringsApi>;
 
@@ -107,12 +113,30 @@ function createReactQueryApi(getApiClient: () => UiStringsApiClient) {
         return [this.queryKeyPrefix, languageCode];
       },
 
-      useQuery(languageCode: LanguageCode) {
+      useQueries(languageCodes: LanguageCode[]) {
         const apiClient = getApiClient();
 
-        return useQuery(this.getQueryKey(languageCode), () =>
-          apiClient.getUiStringAudioIds({ languageCode })
-        );
+        const queries = useQueries({
+          queries: languageCodes.map((languageCode) => ({
+            queryKey: this.getQueryKey(languageCode),
+            queryFn: () => apiClient.getUiStringAudioIds({ languageCode }),
+          })),
+        });
+
+        const indexedQueries: Partial<
+          Record<LanguageCode, (typeof queries)[number]>
+        > = {};
+        for (let i = 0; i < languageCodes.length; i += 1) {
+          const languageCode = languageCodes[i];
+          indexedQueries[languageCode] = queries[i];
+        }
+
+        return indexedQueries;
+      },
+
+      useQuery(languageCode: LanguageCode) {
+        const queries = this.useQueries([languageCode]);
+        return assertDefined(queries[languageCode]);
       },
     },
 

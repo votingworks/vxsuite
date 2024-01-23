@@ -3,6 +3,7 @@ import React from 'react';
 import { UiStringsReactQueryApi } from '../hooks/ui_strings_api';
 import { LanguageContextProvider } from './language_context';
 import { UiStringsAudioContextProvider } from './audio_context';
+import { UiStringScreenReader } from './ui_string_screen_reader';
 import { KeyboardShortcutHandlers } from './keyboard_shortcut_handlers';
 
 export interface UiStringsContextProviderProps {
@@ -34,7 +35,7 @@ export function UiStringsContextProvider(
         content
       ) : (
         <UiStringsAudioContextProvider api={api}>
-          {content}
+          <UiStringScreenReader>{content}</UiStringScreenReader>
         </UiStringsAudioContextProvider>
       )}
     </LanguageContextProvider>
