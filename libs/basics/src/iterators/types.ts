@@ -1,4 +1,4 @@
-import { MaybePromise } from '../types';
+import { MaybePromise, Optional } from '../types';
 
 /**
  * An iterable with a number of convenience methods for chaining. Many methods are
@@ -381,6 +381,34 @@ export interface IteratorPlus<T> extends Iterable<T> {
    * ```
    */
   partition(predicate: (item: T) => unknown): [truthy: T[], falsy: T[]];
+
+  /**
+   * Reduces elements from `this` using `fn`. Consumes the entire contained
+   * iterable.
+   *
+   * @example
+   *
+   * ```ts
+   * expect(integers().take(0).reduce((a, b) => a + b)).toBeUndefined();
+   * expect(integers().take(10).reduce((a, b) => a + b)).toEqual(45);
+   * ```
+   */
+  reduce(fn: (accumulator: T, value: T, index: number) => T): Optional<T>;
+
+  /**
+   * Reduces elements from `this` using `fn` starting with a provided initial
+   * value. Consumes the entire contained iterable.
+   *
+   * @example
+   *
+   * ```ts
+   * expect(integers().take(10).reduce((a, b) => a + b, 0)).toEqual(45);
+   * ```
+   */
+  reduce<U>(
+    fn: (accumulator: U, value: T, index: number) => U,
+    initialValue: U
+  ): U;
 
   /**
    * Yields elements in reverse order. Consumes the entire contained iterable.
@@ -1034,6 +1062,37 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
   partition(
     predicate: (item: T) => unknown
   ): Promise<[truthy: T[], falsy: T[]]>;
+
+  /**
+   * Reduces elements from `this` using `fn`. Consumes the entire contained
+   * iterable.
+   *
+   * @example
+   *
+   * ```ts
+   * const input = fs.createReadStream('file.txt', { encoding: 'utf8' });
+   * const longestLine = await lines(input).reduce((a, b) => a.length > b.length ? a : b);
+   * ```
+   */
+  reduce(
+    fn: (accumulator: T, value: T, index: number) => MaybePromise<T>
+  ): Promise<Optional<T>>;
+
+  /**
+   * Reduces elements from `this` using `fn` starting with a provided initial
+   * value. Consumes the entire contained iterable.
+   *
+   * @example
+   *
+   * ```ts
+   * const input = fs.createReadStream('file.txt', { encoding: 'utf8' });
+   * const longestLine = await lines(input).reduce((a, b) => a.length > b.length ? a : b, '');
+   * ```
+   */
+  reduce<U>(
+    fn: (accumulator: U, value: T, index: number) => MaybePromise<U>,
+    initialValue: U
+  ): Promise<U>;
 
   /**
    * Yields elements in reverse order. Consumes the entire contained iterable.
