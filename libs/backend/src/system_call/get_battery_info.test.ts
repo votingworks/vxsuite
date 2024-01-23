@@ -1,77 +1,103 @@
 import { mockOf } from '@votingworks/test-utils';
-import { readFile } from 'fs/promises';
-import { getBatteryInfo } from './get_battery_info';
+import { createReadStream } from 'fs';
+import { writeFile } from 'fs/promises';
+import { Readable } from 'stream';
+import { tmpNameSync } from 'tmp';
+import { getBatteryInfo, parseBatteryInfo } from './get_battery_info';
 
-jest.mock('fs/promises');
+jest.mock('fs', () => ({
+  ...jest.requireActual('fs'),
+  createReadStream: jest.fn(),
+}));
+const { createReadStream: realCreateReadStream } = jest.requireActual('fs');
+const createReadStreamMock = mockOf(createReadStream) as jest.Mock;
 
-const readFileMock = mockOf(readFile);
+createReadStreamMock.mockImplementation(realCreateReadStream);
 
 test('parses battery info to determine battery level and charging status', async () => {
-  readFileMock.mockResolvedValueOnce(`
+  const batteryInfo = await parseBatteryInfo(
+    Readable.from(`
 POWER_SUPPLY_ENERGY_NOW=800
 POWER_SUPPLY_ENERGY_FULL=1000
 POWER_SUPPLY_STATUS=Charging
-`);
-  await expect(getBatteryInfo()).resolves.toEqual({
+`)
+  );
+  expect(batteryInfo).toEqual({
     level: 0.8,
     discharging: false,
   });
 });
 
 test('parses battery status "Full" to indicate battery is not discharging', async () => {
-  readFileMock.mockResolvedValue(`
+  const batteryInfo = await parseBatteryInfo(
+    Readable.from(`
 POWER_SUPPLY_ENERGY_NOW=800
 POWER_SUPPLY_ENERGY_FULL=1000
 POWER_SUPPLY_STATUS=Full
-  `);
-  await expect(getBatteryInfo()).resolves.toEqual({
+  `)
+  );
+  expect(batteryInfo).toEqual({
     level: 0.8,
     discharging: false,
   });
 });
 
 test('parses battery status "Unknown" to indicate battery is not discharging', async () => {
-  readFileMock.mockResolvedValue(`
+  const batteryInfo = await parseBatteryInfo(
+    Readable.from(`
 POWER_SUPPLY_ENERGY_NOW=800
 POWER_SUPPLY_ENERGY_FULL=1000
 POWER_SUPPLY_STATUS=Unknown
-  `);
-  await expect(getBatteryInfo()).resolves.toEqual({
+  `)
+  );
+  expect(batteryInfo).toEqual({
     level: 0.8,
     discharging: false,
   });
 });
 
 test('parses battery status "Discharging" to indicate battery is discharging', async () => {
-  readFileMock.mockResolvedValue(`
+  const batteryInfo = await parseBatteryInfo(
+    Readable.from(`
 POWER_SUPPLY_ENERGY_NOW=800
 POWER_SUPPLY_ENERGY_FULL=1000
 POWER_SUPPLY_STATUS=Discharging
-  `);
-  await expect(getBatteryInfo()).resolves.toEqual({
+  `)
+  );
+  expect(batteryInfo).toEqual({
     level: 0.8,
     discharging: true,
   });
 });
 
 test('can read battery info for a battery at a different path', async () => {
-  // BAT0 does not exist
-  readFileMock.mockRejectedValueOnce(new Error('ENOENT'));
-
-  // BAT1 exists
-  readFileMock.mockResolvedValueOnce(`
+  const bat1File = tmpNameSync();
+  await writeFile(
+    bat1File,
+    `
 POWER_SUPPLY_ENERGY_NOW=800
 POWER_SUPPLY_ENERGY_FULL=1000
 POWER_SUPPLY_STATUS=Discharging
-`);
+  `
+  );
+
+  // BAT0 does not exist
+  createReadStreamMock.mockImplementationOnce(() => {
+    throw new Error('ENOENT');
+  });
+
+  // BAT1 exists
+  createReadStreamMock.mockReturnValueOnce(
+    realCreateReadStream(bat1File, 'utf8')
+  );
 
   expect(await getBatteryInfo()).toEqual({ level: 0.8, discharging: true });
-  expect(readFileMock).toHaveBeenNthCalledWith(
+  expect(createReadStreamMock).toHaveBeenNthCalledWith(
     1,
     '/sys/class/power_supply/BAT0/uevent',
     'utf8'
   );
-  expect(readFileMock).toHaveBeenNthCalledWith(
+  expect(createReadStreamMock).toHaveBeenNthCalledWith(
     2,
     '/sys/class/power_supply/BAT1/uevent',
     'utf8'
@@ -79,6 +105,12 @@ POWER_SUPPLY_STATUS=Discharging
 });
 
 test('returns undefined if the power_supply "files" are not present', async () => {
-  readFileMock.mockRejectedValue(new Error('ENOENT'));
+  createReadStreamMock
+    .mockImplementationOnce(() => {
+      throw new Error('ENOENT');
+    })
+    .mockImplementationOnce(() => {
+      throw new Error('ENOENT');
+    });
   expect(await getBatteryInfo()).toBeUndefined();
 });

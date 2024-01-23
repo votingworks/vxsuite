@@ -1,6 +1,6 @@
-import { Optional } from '@votingworks/basics';
+import { Optional, lines } from '@votingworks/basics';
 import { safeParseNumber } from '@votingworks/types';
-import { readFile } from 'fs/promises';
+import { createReadStream } from 'fs';
 
 enum BatteryStatus {
   Charging = 'Charging',
@@ -11,30 +11,30 @@ enum BatteryStatus {
 }
 
 /**
- * Information about the computer battery. `level` is a number between 0 and 1.
- * `discharging` means that the computer is not plugged in and is running on
- * battery power.
+ * Information about the computer battery.
  */
 export interface BatteryInfo {
+  /** A number between 0 (empty) and 1 (full). */
   level: number;
+
+  /** Whether the computer is unplugged and running on battery power. */
   discharging: boolean;
 }
 
 /**
  * Parses battery info text in `uevent` format.
  */
-function parseBatteryInfo(batteryInfoText: string): BatteryInfo {
-  const batteryInfo = batteryInfoText
-    .trim()
-    .split('\n')
-    .reduce((data, line) => {
-      const [key, value] = line.split('=');
-      // some keys in the `uevent` file lack values
-      if (key && value) {
-        data.set(key, value);
-      }
-      return data;
-    }, new Map<string, string>());
+export async function parseBatteryInfo(
+  batteryInfoInput: AsyncIterable<string>
+): Promise<BatteryInfo> {
+  const batteryInfo = await lines(batteryInfoInput).reduce((data, line) => {
+    const [key, value] = line.split('=');
+    // some keys in the `uevent` file lack values
+    if (key && value) {
+      data.set(key, value);
+    }
+    return data;
+  }, new Map<string, string>());
   const energyNow = batteryInfo.get('POWER_SUPPLY_ENERGY_NOW');
   const energyFull = batteryInfo.get('POWER_SUPPLY_ENERGY_FULL');
   const status = batteryInfo.get('POWER_SUPPLY_STATUS') as BatteryStatus;
@@ -51,8 +51,11 @@ function parseBatteryInfo(batteryInfoText: string): BatteryInfo {
 export async function getBatteryInfo(): Promise<Optional<BatteryInfo>> {
   for (const batteryPath of ['BAT0', 'BAT1']) {
     try {
-      return parseBatteryInfo(
-        await readFile(`/sys/class/power_supply/${batteryPath}/uevent`, 'utf8')
+      return await parseBatteryInfo(
+        createReadStream(
+          `/sys/class/power_supply/${batteryPath}/uevent`,
+          'utf8'
+        )
       );
     } catch {
       // ignore missing paths
