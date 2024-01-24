@@ -125,7 +125,7 @@ export function SearchSelect<T extends string = string>({
       value={
         Array.isArray(value)
           ? value.map((v) => findOption(options, v))
-          : value
+          : value !== undefined
           ? findOption(options, value)
           : null
       }
