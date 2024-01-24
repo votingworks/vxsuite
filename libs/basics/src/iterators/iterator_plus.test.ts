@@ -467,6 +467,44 @@ test('windows', () => {
   ]);
 });
 
+test('reduce', () => {
+  expect(
+    integers()
+      .take(0)
+      .reduce((a, b) => a + b)
+  ).toBeUndefined();
+  expect(
+    integers()
+      .take(5)
+      .reduce((a, b) => a + b)
+  ).toEqual(10);
+
+  const fn1 = jest.fn((a, b) => b);
+  iter(['a', 'b', 'c']).reduce(fn1);
+  expect(fn1).toHaveBeenCalledTimes(2);
+  expect(fn1).toHaveBeenNthCalledWith(1, 'a', 'b', 0);
+  expect(fn1).toHaveBeenNthCalledWith(2, 'b', 'c', 1);
+
+  const fn2 = jest.fn((a, b) => b);
+  iter(['a', 'b', 'c']).reduce(fn2, 'z');
+  expect(fn2).toHaveBeenCalledTimes(3);
+  expect(fn2).toHaveBeenNthCalledWith(1, 'z', 'a', 0);
+  expect(fn2).toHaveBeenNthCalledWith(2, 'a', 'b', 1);
+  expect(fn2).toHaveBeenNthCalledWith(3, 'b', 'c', 2);
+
+  fc.assert(
+    fc.property(
+      fc.array(fc.anything(), { minLength: 1 }),
+      fc.array(fc.anything()),
+      (arr, init) => {
+        expect(
+          iter(arr).reduce<unknown[]>((acc, value) => [...acc, value], init)
+        ).toEqual(arr.reduce<unknown[]>((acc, value) => [...acc, value], init));
+      }
+    )
+  );
+});
+
 test('single ownership', () => {
   const it = iter([1, 2, 3]);
   expect(it.toArray()).toEqual([1, 2, 3]);

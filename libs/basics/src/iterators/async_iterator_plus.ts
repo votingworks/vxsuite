@@ -1,5 +1,5 @@
 import { assert } from '../assert';
-import { MaybePromise } from '../types';
+import { MaybePromise, Optional } from '../types';
 import { AsyncIteratorPlus } from './types';
 
 /**
@@ -304,6 +304,31 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
       }
     }
     return [left, right];
+  }
+
+  reduce(
+    fn: (accumulator: T, value: T, index: number) => MaybePromise<T>
+  ): Promise<Optional<T>>;
+  reduce<U>(
+    fn: (accumulator: U, value: T, index: number) => MaybePromise<U>,
+    initialValue: U
+  ): Promise<U>;
+  async reduce<U>(
+    fn: (accumulator: T | U, value: T, index: number) => MaybePromise<U>,
+    initialValue?: U
+  ): Promise<Optional<T> | U> {
+    const iterable = this.intoInner();
+    const iterator = iterable[Symbol.asyncIterator]();
+    let accumulator: Optional<T | U> =
+      initialValue === undefined ? (await iterator.next()).value : initialValue;
+    for (
+      let index = 0, next = await iterator.next();
+      !next.done;
+      index += 1, next = await iterator.next()
+    ) {
+      accumulator = await fn(accumulator as T | U, next.value, index);
+    }
+    return accumulator;
   }
 
   rev(): AsyncIteratorPlus<T> {

@@ -719,6 +719,55 @@ test('windows', async () => {
   ]);
 });
 
+test('reduce', async () => {
+  expect(
+    await integers()
+      .async()
+      .take(0)
+      .reduce((a, b) => a + b)
+  ).toBeUndefined();
+  expect(
+    await integers()
+      .async()
+      .take(5)
+      .reduce((a, b) => a + b)
+  ).toEqual(10);
+
+  const fn1 = jest.fn((a, b) => b);
+  await iter(['a', 'b', 'c']).async().reduce(fn1);
+  expect(fn1).toHaveBeenCalledTimes(2);
+  expect(fn1).toHaveBeenNthCalledWith(1, 'a', 'b', 0);
+  expect(fn1).toHaveBeenNthCalledWith(2, 'b', 'c', 1);
+
+  const fn2 = jest.fn((a, b) => b);
+  await iter(['a', 'b', 'c']).async().reduce(fn2, 'z');
+  expect(fn2).toHaveBeenCalledTimes(3);
+  expect(fn2).toHaveBeenNthCalledWith(1, 'z', 'a', 0);
+  expect(fn2).toHaveBeenNthCalledWith(2, 'a', 'b', 1);
+  expect(fn2).toHaveBeenNthCalledWith(3, 'b', 'c', 2);
+
+  await fc.assert(
+    fc.asyncProperty(
+      fc.array(fc.anything(), { minLength: 1 }),
+      fc.array(fc.anything()),
+      fc.boolean(),
+      async (arr, init, usePromiseResolve) => {
+        expect(
+          await iter(arr)
+            .async()
+            .reduce<unknown[]>(
+              (acc, value) =>
+                usePromiseResolve
+                  ? Promise.resolve([...acc, value])
+                  : [...acc, value],
+              init
+            )
+        ).toEqual(arr.reduce<unknown[]>((acc, value) => [...acc, value], init));
+      }
+    )
+  );
+});
+
 test('single ownership', async () => {
   const it = iter([1, 2, 3]).async();
   expect(await it.toArray()).toEqual([1, 2, 3]);

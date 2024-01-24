@@ -1,4 +1,4 @@
-import { MaybePromise } from '../types';
+import { MaybePromise, Optional } from '../types';
 
 /**
  * An iterable with a number of convenience methods for chaining. Many methods are
@@ -381,6 +381,34 @@ export interface IteratorPlus<T> extends Iterable<T> {
    * ```
    */
   partition(predicate: (item: T) => unknown): [truthy: T[], falsy: T[]];
+
+  /**
+   * Reduces elements from `this` using `fn`. Consumes the entire contained
+   * iterable.
+   *
+   * @example
+   *
+   * ```ts
+   * expect(naturals().take(0).reduce((acc, n) => acc * n)).toBeUndefined();
+   * expect(naturals().take(10).reduce((acc, n) => acc * n)).toEqual(3_628_800);
+   * ```
+   */
+  reduce(fn: (accumulator: T, value: T, index: number) => T): Optional<T>;
+
+  /**
+   * Reduces elements from `this` using `fn` starting with a provided initial
+   * value. Consumes the entire contained iterable.
+   *
+   * @example
+   *
+   * ```ts
+   * expect(naturals().take(10).reduce((acc, n) => acc * n, 1)).toEqual(3_628_800);
+   * ```
+   */
+  reduce<U>(
+    fn: (accumulator: U, value: T, index: number) => U,
+    initialValue: U
+  ): U;
 
   /**
    * Yields elements in reverse order. Consumes the entire contained iterable.
@@ -1034,6 +1062,41 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
   partition(
     predicate: (item: T) => unknown
   ): Promise<[truthy: T[], falsy: T[]]>;
+
+  /**
+   * Reduces elements from `this` using `fn`. Consumes the entire contained
+   * iterable.
+   *
+   * @example
+   *
+   * ```ts
+   * const input = fs.createReadStream('numbers.txt', { encoding: 'utf8' });
+   * const product = await lines(input)
+   *   .map(parseInt)
+   *   .reduce((acc, n) => acc * n);
+   * ```
+   */
+  reduce(
+    fn: (accumulator: T, value: T, index: number) => MaybePromise<T>
+  ): Promise<Optional<T>>;
+
+  /**
+   * Reduces elements from `this` using `fn` starting with a provided initial
+   * value. Consumes the entire contained iterable.
+   *
+   * @example
+   *
+   * ```ts
+   * const input = fs.createReadStream('numbers.txt', { encoding: 'utf8' });
+   * const product = await lines(input)
+   *   .map(parseInt)
+   *   .reduce((acc, n) => acc * n, 1);
+   * ```
+   */
+  reduce<U>(
+    fn: (accumulator: U, value: T, index: number) => MaybePromise<U>,
+    initialValue: U
+  ): Promise<U>;
 
   /**
    * Yields elements in reverse order. Consumes the entire contained iterable.

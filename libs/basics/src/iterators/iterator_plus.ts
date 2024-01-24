@@ -1,4 +1,5 @@
 import { assert } from '../assert';
+import { Optional } from '../types';
 import { AsyncIteratorPlusImpl } from './async_iterator_plus';
 import { AsyncIteratorPlus, IteratorPlus } from './types';
 
@@ -300,6 +301,29 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
       }
     }
     return [left, right];
+  }
+
+  reduce(fn: (accumulator: T, value: T, index: number) => T): Optional<T>;
+  reduce<U>(
+    fn: (accumulator: U, value: T, index: number) => U,
+    initialValue: U
+  ): U;
+  reduce<U>(
+    fn: (accumulator: T | U, value: T, index: number) => T | U,
+    initialValue?: U
+  ): Optional<T> | U {
+    const iterable = this.intoInner();
+    const iterator = iterable[Symbol.iterator]();
+    let accumulator: Optional<T | U> =
+      initialValue === undefined ? iterator.next().value : initialValue;
+    for (
+      let index = 0, next = iterator.next();
+      !next.done;
+      index += 1, next = iterator.next()
+    ) {
+      accumulator = fn(accumulator as T | U, next.value, index);
+    }
+    return accumulator;
   }
 
   rev(): IteratorPlus<T> {
