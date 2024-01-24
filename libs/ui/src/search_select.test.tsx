@@ -255,3 +255,19 @@ test('multi disabled', () => {
   screen.getByText('Apple');
   screen.getByText('Pear');
 });
+
+test('empty option', () => {
+  render(
+    <ControlledSingleSelect
+      options={[{ value: '', label: 'None' }, ...options]}
+      ariaLabel="Choose Fruit"
+      value="apple"
+    />
+  );
+
+  screen.getByText('Apple');
+  userEvent.click(screen.getByText('Apple'));
+  userEvent.click(screen.getByText('None'));
+  expect(screen.queryByText('Apple')).not.toBeInTheDocument();
+  screen.getByText('None');
+});
