@@ -43,6 +43,7 @@
     "@xmldom/xmldom": "^0.8.1",
     "js-sha256": "^0.9.0",
     "pdfkit": "^0.13.0",
+    "playwright": "^1.40.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "svg-to-pdfkit": "^0.1.8"

@@ -4411,6 +4411,9 @@ importers:
       pdfkit:
         specifier: ^0.13.0
         version: 0.13.0
+      playwright:
+        specifier: ^1.40.1
+        version: 1.40.1
       react:
         specifier: 18.2.0
         version: 18.2.0
