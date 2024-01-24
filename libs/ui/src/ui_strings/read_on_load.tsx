@@ -41,7 +41,7 @@ export function ReadOnLoad(props: ReadOnLoadProps): JSX.Element {
   const currentUrl = location?.pathname;
 
   const audioContext = useAudioContext();
-  const isInAudioContext = !!audioContext;
+  const isInAudioContext = Boolean(audioContext);
 
   const containerRef = React.useRef<HTMLDivElement>(null);
 
