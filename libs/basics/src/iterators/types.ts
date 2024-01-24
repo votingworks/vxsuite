@@ -1085,8 +1085,10 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    * @example
    *
    * ```ts
-   * const input = fs.createReadStream('file.txt', { encoding: 'utf8' });
-   * const longestLine = await lines(input).reduce((a, b) => a.length > b.length ? a : b, '');
+   * const input = fs.createReadStream('numbers.txt', { encoding: 'utf8' });
+   * const product = await lines(input)
+   *   .map(parseInt)
+   *   .reduce((acc, n) => acc * n, 1);
    * ```
    */
   reduce<U>(
