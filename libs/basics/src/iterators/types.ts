@@ -389,8 +389,8 @@ export interface IteratorPlus<T> extends Iterable<T> {
    * @example
    *
    * ```ts
-   * expect(integers().take(0).reduce((a, b) => a + b)).toBeUndefined();
-   * expect(integers().take(10).reduce((a, b) => a + b)).toEqual(45);
+   * expect(naturals().take(0).reduce((acc, n) => acc * n)).toBeUndefined();
+   * expect(naturals().take(10).reduce((acc, n) => acc * n)).toEqual(3_628_800);
    * ```
    */
   reduce(fn: (accumulator: T, value: T, index: number) => T): Optional<T>;
@@ -402,7 +402,7 @@ export interface IteratorPlus<T> extends Iterable<T> {
    * @example
    *
    * ```ts
-   * expect(integers().take(10).reduce((a, b) => a + b, 0)).toEqual(45);
+   * expect(naturals().take(10).reduce((acc, n) => acc * n, 1)).toEqual(3_628_800);
    * ```
    */
   reduce<U>(
