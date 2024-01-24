@@ -1,20 +1,8 @@
 import { AudioControls } from '@votingworks/types';
 import { useAudioContext } from '../ui_strings/audio_context';
+import { useUiStringScreenReaderContext } from '../ui_strings/ui_string_screen_reader';
 
 function noOp() {}
-
-/**
- * Replays the current or last-played audio by re-triggering a focus event on
- * the currently active element, if any.
- */
-function replay() {
-  const { activeElement } = window.document;
-
-  if (activeElement instanceof HTMLElement) {
-    activeElement.blur();
-    activeElement.focus();
-  }
-}
 
 /**
  * Provides an API for modifying UiString screen reader audio settings.
@@ -24,6 +12,7 @@ function replay() {
  */
 export function useAudioControls(): AudioControls {
   const audioContext = useAudioContext();
+  const screenReaderContext = useUiStringScreenReaderContext();
 
   return {
     decreasePlaybackRate: audioContext?.decreasePlaybackRate || noOp,
@@ -31,7 +20,7 @@ export function useAudioControls(): AudioControls {
     increasePlaybackRate: audioContext?.increasePlaybackRate || noOp,
     increaseVolume: audioContext?.increaseVolume || noOp,
     reset: audioContext?.reset || noOp,
-    replay,
+    replay: screenReaderContext?.replay || noOp,
     setIsEnabled: audioContext?.setIsEnabled || noOp,
     togglePause: audioContext?.togglePause || noOp,
   };

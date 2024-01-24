@@ -41,18 +41,18 @@ export function ReadOnLoad(props: ReadOnLoadProps): JSX.Element {
   const currentUrl = location?.pathname;
 
   const audioContext = useAudioContext();
-  const isAudioEnabled = audioContext?.isEnabled;
+  const isInAudioContext = Boolean(audioContext);
 
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    if (!containerRef.current || !isAudioEnabled) {
+    if (!containerRef.current || !isInAudioContext) {
       return;
     }
 
     containerRef.current.focus();
     containerRef.current.click();
-  }, [currentUrl, isAudioEnabled]);
+  }, [currentUrl, isInAudioContext]);
 
   return (
     <div className={className} ref={containerRef}>

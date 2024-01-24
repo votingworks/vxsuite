@@ -24,9 +24,11 @@ export interface UiStringsAudioContextInterface {
   increasePlaybackRate: () => void;
   increaseVolume: () => void;
   isEnabled: boolean;
+  isPaused: boolean;
   playbackRate: number;
   reset: () => void;
   setIsEnabled: (enabled: boolean) => void;
+  setIsPaused: (paused: boolean) => void;
   togglePause: () => void;
   webAudioContext?: AudioContext;
 }
@@ -136,9 +138,11 @@ export function UiStringsAudioContextProvider(
         increasePlaybackRate,
         increaseVolume,
         isEnabled,
+        isPaused,
         playbackRate,
         reset,
         setIsEnabled,
+        setIsPaused,
         togglePause,
         webAudioContext: webAudioContextRef.current,
       }}
