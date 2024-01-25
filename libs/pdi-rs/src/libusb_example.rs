@@ -3,9 +3,9 @@ use rand::Rng;
 use std::{process::exit, thread, time::Duration};
 use tracing_subscriber::prelude::*;
 
-use crate::pdi_client::{Command, PdiClient};
+use crate::pdiscan_next::{pdi_client::PdiClient, transfer::Command};
 
-mod pdi_client;
+mod pdiscan_next;
 
 #[derive(Debug, Parser)]
 struct Config {
@@ -148,7 +148,29 @@ fn main_request_response() -> color_eyre::Result<()> {
     Ok(())
 }
 
+fn main_watch_status() -> color_eyre::Result<()> {
+    let config = Config::parse();
+    setup(&config)?;
+
+    let Ok(mut client) = PdiClient::open() else {
+        tracing::error!("failed to open device");
+        exit(-1);
+    };
+
+    let mut status = client.get_scanner_status(None)?;
+    loop {
+        let new_status = client.get_scanner_status(None)?;
+        if new_status != status {
+            println!("status changed: {:#?}", new_status);
+            status = new_status;
+        }
+
+        std::thread::sleep(std::time::Duration::from_millis(100));
+    }
+}
+
 fn main() -> color_eyre::Result<()> {
     // main_threaded()
     main_request_response()
+    // main_watch_status()
 }
