@@ -1,13 +1,8 @@
-import { assert, assertDefined, range } from '@votingworks/basics';
+import { assertDefined, range } from '@votingworks/basics';
 import { writeFile } from 'fs/promises';
-import { chromium } from 'playwright';
+import { Browser, BrowserContext, chromium } from 'playwright';
 import React, { CSSProperties } from 'react';
 import ReactDom from 'react-dom/server';
-
-const boxStyle: CSSProperties = {
-  padding: '2rem',
-  border: '1px solid black',
-};
 
 interface MiniElection {
   title: string;
@@ -17,17 +12,77 @@ interface MiniElection {
   }>;
 }
 
-function measureElement(element: JSX.Element, id?: string): PixelDimensions {
-  if (id) {
-    return {
-      width: 100,
-      height: 400,
-    };
+interface PixelDimensions {
+  width: number;
+  height: number;
+}
+
+const contentSlot = <div id="content-slot" style={{ height: '100%' }} />;
+
+type FrameComponent<P> = (
+  props: P & {
+    pageNumber: number;
+    totalPages: number;
+    children: JSX.Element;
   }
-  return {
-    width: 100,
-    height: 200,
-  };
+) => JSX.Element;
+
+interface PagedElementResult<P> {
+  currentPageElement: JSX.Element;
+  nextPageProps?: P;
+}
+
+type ContentComponent<P> = (
+  props: P & { dimensions: PixelDimensions }
+) => Promise<PagedElementResult<P>>;
+
+interface PageTemplate<P> {
+  frameComponent: FrameComponent<P>;
+  contentComponent: ContentComponent<P>;
+}
+
+const boxStyle: CSSProperties = {
+  padding: '2rem',
+  border: '1px solid black',
+};
+
+let browserSingleton: Browser;
+let contextSingleton: BrowserContext;
+
+async function browserContext() {
+  if (browserSingleton && contextSingleton) {
+    return { browser: browserSingleton, context: contextSingleton };
+  }
+  browserSingleton = await chromium.launch({
+    args: ['--font-render-hinting=none'],
+  });
+  contextSingleton = await browserSingleton.newContext();
+  return browserContext();
+}
+
+async function cleanupBrowserContext() {
+  if (browserSingleton && contextSingleton) {
+    await contextSingleton.close();
+    await browserSingleton.close();
+  }
+}
+
+async function measureElement(
+  element: JSX.Element,
+  id?: string
+): Promise<PixelDimensions> {
+  const documentHtml = ReactDom.renderToStaticMarkup(
+    <html>
+      <body>{element}</body>
+    </html>
+  );
+  const { context } = await browserContext();
+  const page = await context.newPage();
+  await page.setContent(`<!DOCTYPE html>${documentHtml}`);
+  const node = page.locator(id ? `#${id}` : 'body > *').first();
+  const dimensions = assertDefined(await node.boundingBox());
+  await page.close();
+  return dimensions;
 }
 
 function DocumentPage({ children }: { children: React.ReactNode }) {
@@ -57,25 +112,21 @@ function Header({ children }: { children: React.ReactNode }) {
   return <div style={boxStyle}>{children}</div>;
 }
 
-function PagedContent({
+async function PagedContent({
   children,
   dimensions,
 }: {
-  children: React.ReactNode;
-  dimensions?: PixelDimensions;
-}): PagedElement | null {
-  if (!dimensions) {
-    return (
-      <div id="paged-content" style={{ flexGrow: 1 }}>
-        {children}
-      </div>
-    );
-  }
-
-  const measuredChildren = React.Children.toArray(children).map((child) => ({
-    child,
-    ...measureElement(<div style={{ width: dimensions.width }}>{child}</div>),
-  }));
+  children: JSX.Element[];
+  dimensions: PixelDimensions;
+}): Promise<PagedElementResult<{ children: JSX.Element[] }>> {
+  const measuredChildren = await Promise.all(
+    children.map(async (child) => ({
+      child,
+      ...(await measureElement(
+        <div style={{ width: dimensions.width }}>{child}</div>
+      )),
+    }))
+  );
 
   const pageChildren: React.ReactNode[] = [];
   let heightUsed = 0;
@@ -89,36 +140,21 @@ function PagedContent({
     heightUsed += nextChild.height;
   }
 
-  // If we can fit all of our children on this page, return one element
-  // If we can fit some of our children on this page, return one element with nextPageProps
-  // If we can't fit any of our children on this page, return null
-
-  const pageElement =
+  const currentPageElement =
     pageChildren.length > 0 ? (
-      <div id="paged-content" style={{ flexGrow: 1 }}>
-        {pageChildren}
-      </div>
-    ) : null;
-  const nextPageChildren =
+      <div>{pageChildren}</div>
+    ) : (
+      <div>This page left intentionally blank</div>
+    );
+  const nextPageProps =
     measuredChildren.length > 0
-      ? measuredChildren.map(({ child }) => child)
-      : null;
+      ? { children: measuredChildren.map(({ child }) => child) }
+      : undefined;
 
-  return (
-    pageElement && {
-      ...pageElement,
-      nextPageChildren,
-    }
-  );
-}
-
-interface PixelDimensions {
-  width: number;
-  height: number;
-}
-
-interface PagedElement extends JSX.Element {
-  nextPageChildren?: React.ReactNode;
+  return {
+    currentPageElement,
+    nextPageProps,
+  };
 }
 
 function Footer({ children }: { children: React.ReactNode }) {
@@ -138,23 +174,21 @@ function Contest({ contest }: { contest: MiniElection['contests'][0] }) {
   );
 }
 
-function BallotPageTemplate({
+function BallotPageFrame({
   election,
   pageNumber,
   totalPages,
+  children,
 }: {
   election: MiniElection;
   pageNumber: number;
   totalPages: number;
+  children: JSX.Element;
 }) {
   return (
     <DocumentPage>
-      <Header>{election.title}</Header>
-      <PagedContent>
-        {election.contests.map((contest) => (
-          <Contest key={contest.title} contest={contest} />
-        ))}
-      </PagedContent>
+      {pageNumber % 2 === 1 && <Header>{election.title}</Header>}
+      <div style={{ flex: 1 }}>{children}</div>
       <Footer>
         Page: {pageNumber}/{totalPages}
       </Footer>
@@ -162,116 +196,204 @@ function BallotPageTemplate({
   );
 }
 
-function mapElement(
-  element: JSX.Element,
-  fn: (element: JSX.Element) => JSX.Element
-): JSX.Element {
-  const mappedElement = fn(element);
-  const children =
-    'children' in mappedElement.props
-      ? React.Children.map(mappedElement.props.children, (child) => {
-          if (typeof child === 'string' || !React.isValidElement(child)) {
-            return child;
-          }
-          return mapElement(child, fn);
-        })
-      : undefined;
-  if (typeof mappedElement.type === 'string') {
-    return mappedElement;
-  }
-  const expandedElement = mappedElement.type({
-    ...mappedElement.props,
-    children,
+async function BallotPageContent({
+  election,
+  dimensions,
+}: {
+  election: MiniElection;
+  dimensions: PixelDimensions;
+}): Promise<PagedElementResult<{ election: MiniElection }>> {
+  const contestElements = election.contests.map((contest) => (
+    <Contest key={contest.title} contest={contest} />
+  ));
+  const pagedContentResult = await PagedContent({
+    children: contestElements,
+    dimensions,
   });
-  return mapElement(expandedElement, fn);
+  return {
+    ...pagedContentResult,
+    nextPageProps: pagedContentResult.nextPageProps && {
+      election: {
+        ...election,
+        contests: pagedContentResult.nextPageProps.children.map(
+          (child) => child.props.contest as MiniElection['contests'][0]
+        ),
+      },
+    },
+  };
 }
 
-function findElement(
-  element: JSX.Element,
-  fn: (element: JSX.Element) => boolean
-): JSX.Element | null {
-  if (fn(element)) {
-    return element;
-  }
-  if ('children' in element.props) {
-    const foundChild = React.Children.toArray(element.props.children).find(
-      (child) => React.isValidElement(child) && fn(child)
-    );
-    if (foundChild) {
-      return foundChild as JSX.Element;
-    }
-  }
-  const expandedElement = element.type(element.props);
-  return findElement(expandedElement, fn);
-}
+const ballotPageTemplate: PageTemplate<{ election: MiniElection }> = {
+  frameComponent: BallotPageFrame,
+  contentComponent: BallotPageContent,
+};
 
-function paginateBallot(ballotTemplate: JSX.Element): JSX.Element[] {
-  const pagedContentForPages: JSX.Element[] = [];
-  let nextPagedContentChildren: React.ReactNode;
+// function BallotPageTemplate({
+//   election,
+//   pageNumber,
+//   totalPages,
+// }: {
+//   election: MiniElection;
+//   pageNumber: number;
+//   totalPages: number;
+// }) {
+//   return (
+//     <DocumentPage>
+//       {pageNumber % 2 === 1 && <Header>{election.title}</Header>}
+//       <PagedContent>
+//       </PagedContent>
+//       <Footer>
+//         Page: {pageNumber}/{totalPages}
+//       </Footer>
+//     </DocumentPage>
+//   );
+// }
+
+// function mapElement(
+//   element: JSX.Element,
+//   fn: (element: JSX.Element) => JSX.Element
+// ): JSX.Element {
+//   const mappedElement = fn(element);
+//   const children =
+//     'children' in mappedElement.props
+//       ? React.Children.map(mappedElement.props.children, (child) => {
+//           if (typeof child === 'string' || !React.isValidElement(child)) {
+//             return child;
+//           }
+//           return mapElement(child, fn);
+//         })
+//       : undefined;
+//   if (typeof mappedElement.type === 'string') {
+//     return mappedElement;
+//   }
+//   const expandedElement = {
+//     ...mappedElement.type({
+//       ...mappedElement.props,
+//       children,
+//     }),
+//     key: mappedElement.key,
+//   } as const;
+//   return mapElement(expandedElement, fn);
+// }
+
+// function findElement(
+//   element: JSX.Element,
+//   fn: (element: JSX.Element) => boolean
+// ): JSX.Element | null {
+//   if (fn(element)) {
+//     return element;
+//   }
+//   if ('children' in element.props) {
+//     const foundChild = React.Children.toArray(element.props.children).find(
+//       (child) => React.isValidElement(child) && fn(child)
+//     );
+//     if (foundChild) {
+//       return foundChild as JSX.Element;
+//     }
+//   }
+//   const expandedElement = element.type(element.props);
+//   return findElement(expandedElement, fn);
+// }
+
+async function paginateDocumentContent<P extends Record<string, unknown>>(
+  pageTemplate: PageTemplate<P>,
+  props: P
+): Promise<JSX.Element[]> {
+  const pagedContentResults: Array<PagedElementResult<P>> = [];
+
+  const { frameComponent, contentComponent } = pageTemplate;
   do {
-    const pageWithNoPagedContent = mapElement(ballotTemplate, (element) => {
-      if (element.type === PagedContent) {
-        return React.cloneElement(element, element.props, []);
-      }
-      return element;
+    const pageFrame = frameComponent({
+      // eslint-disable-next-line vx/gts-spread-like-types
+      ...props,
+      pageNumber: pagedContentResults.length + 1,
+      totalPages: 0,
+      children: contentSlot,
     });
-    const pagedContentDimensions = measureElement(
-      pageWithNoPagedContent,
-      'paged-content'
+    const contentSlotDimensions = await measureElement(
+      pageFrame,
+      contentSlot.props.id
     );
-    const pagedContentElement = findElement(
-      ballotTemplate,
-      (element) => element.type === PagedContent
-    );
-    assert(pagedContentElement);
-    const { nextPageChildren, ...pagedContentElementForThisPage } =
-      pagedContentElement.type({
-        ...pagedContentElement.props,
-        children:
-          nextPagedContentChildren ?? pagedContentElement.props.children,
-        dimensions: pagedContentDimensions,
-      });
-    console.log({
-      nextPageChildren,
-      pagedContentElementForThisPage,
+    const currentPageProps: P =
+      pagedContentResults[pagedContentResults.length - 1]?.nextPageProps ??
+      props;
+    const pagedContentResult = await contentComponent({
+      // eslint-disable-next-line vx/gts-spread-like-types
+      ...currentPageProps,
+      dimensions: contentSlotDimensions,
     });
+    pagedContentResults.push(pagedContentResult);
+  } while (pagedContentResults[pagedContentResults.length - 1].nextPageProps);
 
-    nextPagedContentChildren = nextPageChildren;
-    pagedContentForPages.push(pagedContentElementForThisPage);
-  } while (nextPagedContentChildren);
-
-  console.log(pagedContentForPages);
-  return pagedContentForPages.map((pagedContent, i) => {
-    const ballotPage = React.cloneElement(ballotTemplate, {
-      ...ballotTemplate.props,
-      key: i,
+  return pagedContentResults.map((pagedContentResult, i) =>
+    frameComponent({
+      // eslint-disable-next-line vx/gts-spread-like-types
+      ...props,
       pageNumber: i + 1,
-      totalPages: pagedContentForPages.length,
-    });
-    return mapElement(ballotPage, (element) => {
-      if (element.type === PagedContent) {
-        return pagedContent;
-      }
-      return element;
-    });
-  });
+      totalPages: pagedContentResults.length,
+      children: pagedContentResult.currentPageElement,
+    })
+  );
+
+  //   const pageTemplate = React.cloneElement(ballotTemplate, {
+  //     ...ballotTemplate.props,
+  //     pageNumber: pagedContentForPages.length + 1,
+  //     totalPages: pagedContentForPages.length + 1,
+  //   });
+  //   const pageWithNoPagedContent = mapElement(pageTemplate, (element) => {
+  //     if (element.type === PagedContent) {
+  //       return React.cloneElement(element, element.props, []);
+  //     }
+  //     return element;
+  //   });
+  //   const pagedContentDimensions = measureElement(
+  //     pageWithNoPagedContent,
+  //     'paged-content'
+  //   );
+  //   const pagedContentElement = findElement(
+  //     ballotTemplate,
+  //     (element) => element.type === PagedContent
+  //   );
+  //   assert(pagedContentElement);
+  //   const { nextPageChildren, ...pagedContentElementForThisPage } =
+  //     pagedContentElement.type({
+  //       ...pagedContentElement.props,
+  //       children:
+  //         nextPagedContentChildren ?? pagedContentElement.props.children,
+  //       dimensions: pagedContentDimensions,
+  //     });
+
+  //   nextPagedContentChildren = nextPageChildren;
+  //   pagedContentForPages.push(pagedContentElementForThisPage);
+  // } while (nextPagedContentChildren);
+
+  // return pagedContentForPages.map((pagedContent, i) => {
+  //   const ballotPage = React.cloneElement(ballotTemplate, {
+  //     ...ballotTemplate.props,
+  //     key: i,
+  //     pageNumber: i + 1,
+  //     totalPages: pagedContentForPages.length,
+  //   });
+  //   return mapElement(ballotPage, (element) => {
+  //     if (element.type === PagedContent) {
+  //       return pagedContent;
+  //     }
+  //     return element;
+  //   });
+  // });
 }
 
 async function renderBallot(election: MiniElection) {
-  const ballotTemplate = (
-    <BallotPageTemplate election={election} pageNumber={0} totalPages={0} />
-  );
-  const ballotPages = paginateBallot(ballotTemplate);
+  const ballotPages = await paginateDocumentContent(ballotPageTemplate, {
+    election,
+  });
   const documentHtml = ReactDom.renderToStaticMarkup(
     <html>
       <head></head>
       <body>{ballotPages}</body>
     </html>
   );
-  const browser = await chromium.launch({
-    args: ['--font-render-hinting=none'],
-  });
-  const context = await browser.newContext();
+  const { context } = await browserContext();
   const page = await context.newPage();
 
   await page.setContent(`<!DOCTYPE html>${documentHtml}`);
@@ -285,9 +407,9 @@ async function renderBallot(election: MiniElection) {
     },
     printBackground: true,
   });
+  await page.close();
 
-  await context.close();
-  await browser.close();
+  await cleanupBrowserContext();
 
   return pdfBuffer;
 }
@@ -300,10 +422,12 @@ async function main() {
       candidates: range(0, 5).map((j) => `Candidate ${i + 1}-${j + 1}`),
     })),
   };
+  const t1 = Date.now();
   const ballotPdf = await renderBallot(election);
+  const t2 = Date.now();
   const outputPath = 'ballot.pdf';
   await writeFile(outputPath, ballotPdf);
-  console.log(`Rendered ballot to ${outputPath}`);
+  console.log(`Rendered ballot to ${outputPath} in ${t2 - t1}ms`);
 }
 
 main().catch((err) => {
