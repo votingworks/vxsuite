@@ -125,7 +125,13 @@ export function newTestContext(
 
   return {
     mockApiClient,
-    render: (ui) => render(<Wrapper>{ui}</Wrapper>),
+    render: (ui) => {
+      const result = render(<Wrapper>{ui}</Wrapper>);
+      return {
+        ...result,
+        rerender: (newUi) => result.rerender(<Wrapper>{newUi}</Wrapper>),
+      };
+    },
     getAudioContext: () => currentAudioContext,
     getLanguageContext: () => currentLanguageContext,
   };
