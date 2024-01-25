@@ -1,23 +1,124 @@
-/* istanbul ignore file - pending implementation. */
-
 import React from 'react';
 
 import { LanguageCode } from '@votingworks/types';
+import { assertDefined } from '@votingworks/basics';
+
+import { useAudioContext } from './audio_context';
+import { AudioPlayer, newAudioPlayer } from './audio_player';
 
 export interface ClipParams {
   audioId: string;
   languageCode: LanguageCode;
 }
 
-export interface PlayAudioClipsProps {
+type PlayAudioClipProps = ClipParams & {
+  onDone: () => void;
+};
+
+function PlayAudioClip(props: PlayAudioClipProps) {
+  const { audioId, languageCode, onDone } = props;
+  const [audioPlayer, setAudioPlayer] = React.useState<AudioPlayer>();
+  const { api, gainDb, playbackRate, webAudioContext } = assertDefined(
+    useAudioContext()
+  );
+
+  const audioOutputRef = React.useRef<AudioPlayer>();
+  const gainDbRef = React.useRef<number>(gainDb);
+  const onDoneRef = React.useRef(onDone);
+  const playbackRateRef = React.useRef<number>(playbackRate);
+
+  const { data: clip, isSuccess: hasClipLoaded } = api.getAudioClip.useQuery({
+    id: audioId,
+    languageCode,
+  });
+
+  //
+  // Create audio player when clip data is loaded:
+  //
+  playbackRateRef.current = playbackRate;
+  gainDbRef.current = gainDb;
+  React.useEffect(() => {
+    setAudioPlayer(undefined);
+
+    if (!hasClipLoaded || !clip || !webAudioContext) {
+      return;
+    }
+
+    // TODO(kofi): assert that the requested clip data exists in the backend.
+
+    void (async () => {
+      setAudioPlayer(
+        await newAudioPlayer({
+          clip,
+          gainDb: gainDbRef.current,
+          playbackRate: playbackRateRef.current,
+          webAudioContext,
+        })
+      );
+    })();
+  }, [clip, hasClipLoaded, webAudioContext]);
+
+  //
+  // Start playback when audio player is ready:
+  //
+  onDoneRef.current = onDone;
+  React.useEffect(() => {
+    if (!audioPlayer) {
+      return;
+    }
+
+    void (async () => {
+      await audioPlayer.play();
+      onDoneRef.current();
+    })();
+
+    return () => void audioPlayer.stop();
+  }, [audioPlayer]);
+
+  //
+  // Adjust playback rate and volume when user settings change:
+  //
+  audioOutputRef.current = audioPlayer;
+  React.useEffect(() => {
+    audioOutputRef.current?.setPlaybackRate(playbackRate);
+  }, [playbackRate]);
+  React.useEffect(() => {
+    audioOutputRef.current?.setVolume(gainDb);
+  }, [gainDb]);
+
+  return null;
+}
+
+export interface PlayAudioQueueProps {
   clips: ClipParams[];
 }
 
-export function PlayAudioClips(props: PlayAudioClipsProps): React.ReactNode {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function PlayAudioClips(props: PlayAudioQueueProps): React.ReactNode {
   const { clips } = props;
+  const [clipIndex, setClipIndex] = React.useState(0);
+  const clipIndexRef = React.useRef(clipIndex);
 
-  // TODO(kofi): Flesh out.
+  //
+  // Initialize/reset on `clips` prop update:
+  //
+  React.useEffect(() => {
+    setClipIndex(0);
+  }, [clips]);
 
-  return null;
+  //
+  // Advance to next clip in the queue when current clip is done playing:
+  //
+  clipIndexRef.current = clipIndex;
+  const onClipDone = React.useCallback(() => {
+    if (clipIndexRef.current < clips.length) {
+      setClipIndex(clipIndexRef.current + 1);
+    }
+  }, [clips]);
+
+  const currentClip = clips[clipIndex];
+  if (!currentClip) {
+    return null;
+  }
+
+  return <PlayAudioClip {...currentClip} onDone={onClipDone} />;
 }
