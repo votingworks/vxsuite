@@ -86,7 +86,7 @@ fn main_threaded() -> color_eyre::Result<()> {
     });
 
     let Ok(mut client) = PdiClient::open() else {
-        tracing::error!("Failed to open device");
+        tracing::error!("failed to open device");
         exit(-1);
     };
 
@@ -131,7 +131,7 @@ fn main_request_response() -> color_eyre::Result<()> {
     setup(&config)?;
 
     let Ok(mut client) = PdiClient::open() else {
-        tracing::error!("Failed to open device");
+        tracing::error!("failed to open device");
         exit(-1);
     };
 
