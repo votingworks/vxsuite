@@ -170,7 +170,7 @@ describe('playback rate API', () => {
   });
 });
 
-test('enable/disable API', () => {
+test('setIsEnabled', () => {
   const { result } = renderHook(useAudioContext, {
     wrapper: TestContextWrapper,
   });
@@ -207,6 +207,18 @@ test('enable/disable API', () => {
   expect(result.current?.isEnabled).toEqual(true);
   expect(result.current?.gainDb).toEqual(DEFAULT_GAIN_DB);
   expect(result.current?.playbackRate).toEqual(DEFAULT_PLAYBACK_RATE);
+});
+
+test('toggleEnabled', () => {
+  const { result } = renderHook(useAudioContext, {
+    wrapper: TestContextWrapper,
+  });
+
+  act(() => result.current?.toggleEnabled());
+  expect(result.current?.isEnabled).toEqual(true);
+
+  act(() => result.current?.toggleEnabled());
+  expect(result.current?.isEnabled).toEqual(false);
 });
 
 test('setIsPaused', () => {

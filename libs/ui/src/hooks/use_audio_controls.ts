@@ -22,6 +22,7 @@ export function useAudioControls(): AudioControls {
     reset: audioContext?.reset || noOp,
     replay: screenReaderContext?.replay || noOp,
     setIsEnabled: audioContext?.setIsEnabled || noOp,
+    toggleEnabled: audioContext?.toggleEnabled || noOp,
     togglePause: audioContext?.togglePause || noOp,
   };
 }

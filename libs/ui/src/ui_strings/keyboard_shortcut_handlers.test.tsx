@@ -59,9 +59,10 @@ test('Shift+L switches display language', async () => {
 });
 
 test.each([
+  { key: 'M', expectedFnCall: audioControls.toggleEnabled },
   { key: 'R', expectedFnCall: audioControls.replay },
-  { key: '[[', expectedFnCall: audioControls.decreasePlaybackRate },
-  { key: ']]', expectedFnCall: audioControls.increasePlaybackRate },
+  { key: ',', expectedFnCall: audioControls.decreasePlaybackRate },
+  { key: '.', expectedFnCall: audioControls.increasePlaybackRate },
   { key: 'P', expectedFnCall: audioControls.togglePause },
   { key: '-', expectedFnCall: audioControls.decreaseVolume },
   { key: '=', expectedFnCall: audioControls.increaseVolume },

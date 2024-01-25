@@ -27,13 +27,16 @@ export function KeyboardShortcutHandlers(): React.ReactNode {
           setLanguage(availableLanguages[nextIndex]);
           break;
         }
+        case 'M':
+          audioControls.toggleEnabled();
+          break;
         case 'R':
           audioControls.replay();
           break;
-        case '[':
+        case ',':
           audioControls.decreasePlaybackRate();
           break;
-        case ']':
+        case '.':
           audioControls.increasePlaybackRate();
           break;
         case 'P':

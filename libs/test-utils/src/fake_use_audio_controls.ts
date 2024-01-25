@@ -9,6 +9,7 @@ export function fakeUseAudioControls(): AudioControls {
     reset: jest.fn(),
     replay: jest.fn(),
     setIsEnabled: jest.fn(),
+    toggleEnabled: jest.fn(),
     togglePause: jest.fn(),
   };
 }

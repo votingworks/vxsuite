@@ -227,10 +227,10 @@ fn handle_command(device: &mut Device, data: &[u8]) -> Result<(), CommandError> 
             }
             Button::Help => key = keyboard::Key::R,
             Button::RateDown => {
-                key = keyboard::Key::LeftBrace;
+                key = keyboard::Key::Comma;
             }
             Button::RateUp => {
-                key = keyboard::Key::RightBrace;
+                key = keyboard::Key::Dot;
             }
             Button::VolumeDown => {
                 key = keyboard::Key::Minus;
