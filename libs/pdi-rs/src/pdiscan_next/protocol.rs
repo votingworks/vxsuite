@@ -1,0 +1,681 @@
+const PACKET_DATA_START: &'static [u8] = &[0x02];
+const PACKET_DATA_END: &'static [u8] = &[0x03];
+
+#[derive(Debug)]
+pub enum ResolutionTableType {
+    Default,
+    Native,
+    Half,
+}
+
+impl TryFrom<u8> for ResolutionTableType {
+    type Error = ();
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(Self::Native),
+            1 => Ok(Self::Half),
+            _ => Err(()),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub enum Outgoing {
+    GetTestStringRequest,
+    GetFirmwareVersionRequest,
+    GetScannerStatusRequest,
+    EnableFeederRequest,
+    DisableFeederRequest,
+
+    /// This command stops the normal (default) mode, whereby the feed rollers
+    /// are momentarily reversed (at document insertion) to allow document
+    /// straightening. This is the DEFAULT mode.
+    ///
+    /// `<ESC> O = (1BH) (4FH)`
+    DisableMomentaryReverseOnFeedAtInputRequest,
+
+    GetSerialNumberRequest,
+    SetSerialNumberRequest([u8; 8]),
+
+    GetScannerSettingsRequest,
+    GetRequiredInputSensorsRequest,
+    SetRequiredInputSensorsRequest(u8),
+
+    IncreaseTopCISSensorThresholdBy1Request,
+    DecreaseTopCISSensorThresholdBy1Request,
+    IncreaseBottomCISSensorThresholdBy1Request,
+    DecreaseBottomCISSensorThresholdBy1Request,
+
+    GetCalibrationInformationRequest {
+        resolution_table_type: ResolutionTableType,
+    },
+}
+
+#[derive(Debug)]
+pub enum Incoming {
+    GetTestStringResponse(String),
+    GetFirmwareVersionResponse(Version),
+    GetScannerStatusResponse(Status),
+    GetSetSerialNumberResponse([u8; 8]),
+    GetSetRequiredInputSensorsResponse {
+        /// The number of input sensors required.
+        current_sensors_required: u8,
+
+        /// Total number of sensors available.
+        total_sensors_available: u8,
+    },
+
+    AdjustTopCISSensorThresholdResponse {
+        percent_white_threshold: u8,
+    },
+    AdjustBottomCISSensorThresholdResponse {
+        percent_white_threshold: u8,
+    },
+
+    GetCalibrationInformationResponse {
+        white_calibration_table: Vec<u8>,
+        black_calibration_table: Vec<u8>,
+    },
+}
+
+#[derive(Debug)]
+pub enum Packet {
+    Outgoing(Outgoing),
+    Incoming(Incoming),
+}
+
+pub mod parsers {
+    use std::{mem::size_of, str::from_utf8};
+
+    use nom::{
+        branch::alt,
+        bytes::complete::{tag, take, take_until},
+        character::is_digit,
+        combinator::{map, map_res},
+        number::complete::{be_u16, le_u16, le_u8},
+        sequence::{tuple, Tuple},
+        IResult,
+    };
+
+    use super::{
+        crc, Command, Incoming, Outgoing, Packet, ResolutionTableType, Status, Version,
+        PACKET_DATA_END, PACKET_DATA_START,
+    };
+
+    pub fn any_packet<'a>(input: &'a [u8]) -> IResult<&'a [u8], Packet> {
+        alt((
+            map(any_outgoing, |request| Packet::Outgoing(request)),
+            map(any_incoming, |response| Packet::Incoming(response)),
+        ))(input)
+    }
+
+    pub fn any_outgoing<'a>(input: &'a [u8]) -> IResult<&'a [u8], Outgoing> {
+        alt((
+            map(get_test_string_request, |_| Outgoing::GetTestStringRequest),
+            map(get_firmware_version_request, |_| {
+                Outgoing::GetFirmwareVersionRequest
+            }),
+            map(get_scanner_status_request, |_| {
+                Outgoing::GetScannerStatusRequest
+            }),
+            map(enable_feeder_request, |_| Outgoing::EnableFeederRequest),
+            map(disable_feeder_request, |_| Outgoing::DisableFeederRequest),
+            map(disable_momentary_reverse_on_feed_at_input_request, |_| {
+                Outgoing::DisableMomentaryReverseOnFeedAtInputRequest
+            }),
+            map(get_serial_number_request, |_| {
+                Outgoing::GetSerialNumberRequest
+            }),
+            map(set_serial_number_request, |serial_number| {
+                Outgoing::SetSerialNumberRequest(*serial_number)
+            }),
+            map(get_scanner_settings_request, |_| {
+                Outgoing::GetScannerSettingsRequest
+            }),
+            map(get_input_sensors_required_request, |_| {
+                Outgoing::GetRequiredInputSensorsRequest
+            }),
+            map(set_input_sensors_required_request, |sensors| {
+                Outgoing::SetRequiredInputSensorsRequest(sensors)
+            }),
+            map(increase_top_cis_threshold_by_1_request, |_| {
+                Outgoing::IncreaseTopCISSensorThresholdBy1Request
+            }),
+            map(decrease_top_cis_threshold_by_1_request, |_| {
+                Outgoing::DecreaseTopCISSensorThresholdBy1Request
+            }),
+            map(increase_bottom_cis_threshold_by_1_request, |_| {
+                Outgoing::IncreaseBottomCISSensorThresholdBy1Request
+            }),
+            map(decrease_bottom_cis_threshold_by_1_request, |_| {
+                Outgoing::DecreaseBottomCISSensorThresholdBy1Request
+            }),
+            map(
+                get_calibration_information_request,
+                |resolution_table_type| Outgoing::GetCalibrationInformationRequest {
+                    resolution_table_type,
+                },
+            ),
+        ))(input)
+    }
+
+    pub fn any_incoming<'a>(input: &'a [u8]) -> IResult<&'a [u8], Incoming> {
+        alt((
+            map(get_test_string_response, |test_string| {
+                Incoming::GetTestStringResponse(test_string.to_owned())
+            }),
+            map(get_firmware_version_response, |version| {
+                Incoming::GetFirmwareVersionResponse(version)
+            }),
+            map(get_scanner_status_response, |status| {
+                Incoming::GetScannerStatusResponse(status)
+            }),
+            map(get_set_serial_number_response, |serial_number| {
+                Incoming::GetSetSerialNumberResponse(serial_number)
+            }),
+            map(
+                get_set_input_sensors_required_response,
+                |(current_sensors_required, total_sensors_available)| {
+                    Incoming::GetSetRequiredInputSensorsResponse {
+                        current_sensors_required,
+                        total_sensors_available,
+                    }
+                },
+            ),
+            map(
+                adjust_top_bitonal_threshold_response,
+                |percent_white_threshold| Incoming::AdjustTopCISSensorThresholdResponse {
+                    percent_white_threshold,
+                },
+            ),
+            map(
+                adjust_bottom_bitonal_threshold_response,
+                |percent_white_threshold| Incoming::AdjustBottomCISSensorThresholdResponse {
+                    percent_white_threshold,
+                },
+            ),
+            map(
+                get_calibration_information_response,
+                |(white_calibration_table, black_calibration_table)| {
+                    Incoming::GetCalibrationInformationResponse {
+                        white_calibration_table,
+                        black_calibration_table,
+                    }
+                },
+            ),
+        ))(input)
+    }
+
+    fn packet_start(input: &[u8]) -> IResult<&[u8], &[u8]> {
+        tag(PACKET_DATA_START)(input)
+    }
+
+    fn packet_body(input: &[u8]) -> IResult<&[u8], &[u8]> {
+        take_until(PACKET_DATA_END)(input)
+    }
+
+    fn packet_end(input: &[u8]) -> IResult<&[u8], &[u8]> {
+        tag(PACKET_DATA_END)(input)
+    }
+
+    fn packet<'a, O, List: Tuple<&'a [u8], O, nom::error::Error<&'a [u8]>>>(
+        mut l: List,
+    ) -> impl FnMut(&'a [u8]) -> IResult<&'a [u8], O> {
+        move |i: &'a [u8]| {
+            let (i, _) = packet_start(i)?;
+            let (i, o) = l.parse(i)?;
+            let (i, _) = packet_end(i)?;
+            Ok((i, o))
+        }
+    }
+
+    fn decimal_digit(input: &[u8]) -> IResult<&[u8], u8> {
+        map_res(take(1usize), |bytes: &[u8]| {
+            if let [byte, ..] = bytes {
+                if is_digit(*byte) {
+                    Ok(*byte - b'0')
+                } else {
+                    Err(nom::Err::Failure(nom::error::Error::new(
+                        bytes,
+                        nom::error::ErrorKind::Digit,
+                    )))
+                }
+            } else {
+                Err(nom::Err::Failure(nom::error::Error::new(
+                    bytes,
+                    nom::error::ErrorKind::Digit,
+                )))
+            }
+        })(input)
+    }
+
+    fn hex_digit(input: &[u8]) -> IResult<&[u8], u8> {
+        map_res(take(1usize), |bytes: &[u8]| {
+            if let [byte, ..] = bytes {
+                if is_digit(*byte) {
+                    Ok(*byte - b'0')
+                } else if b'a' <= *byte && *byte <= b'f' {
+                    Ok(*byte - b'a' + 10)
+                } else if b'A' <= *byte && *byte <= b'F' {
+                    Ok(*byte - b'A' + 10)
+                } else {
+                    Err(nom::Err::Failure(nom::error::Error::new(
+                        bytes,
+                        nom::error::ErrorKind::Digit,
+                    )))
+                }
+            } else {
+                Err(nom::Err::Failure(nom::error::Error::new(
+                    bytes,
+                    nom::error::ErrorKind::Digit,
+                )))
+            }
+        })(input)
+    }
+
+    fn hex_byte(input: &[u8]) -> IResult<&[u8], u8> {
+        map(tuple((hex_digit, hex_digit)), |(hi, lo)| (hi << 4) | lo)(input)
+    }
+
+    pub fn get_test_string_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"D");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    pub fn get_test_string_response<'a>(input: &'a [u8]) -> IResult<&'a [u8], &'a str> {
+        map_res(packet((tag(b"D"), packet_body)), |(_, test_string)| {
+            from_utf8(test_string)
+        })(input)
+    }
+
+    pub fn get_firmware_version_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"V");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    pub fn get_firmware_version_response<'a>(input: &'a [u8]) -> IResult<&'a [u8], Version> {
+        map(
+            packet((
+                tag(b"V"),
+                map_res(take(4usize), |bytes| from_utf8(bytes)),
+                map_res(take(2usize), |bytes| from_utf8(bytes)),
+                map_res(take(2usize), |bytes| from_utf8(bytes)),
+                map_res(take(1usize), |bytes| from_utf8(bytes)),
+            )),
+            |(_, product_id, major, minor, cpld_version)| {
+                Version::new(
+                    product_id.to_owned(),
+                    major.to_owned(),
+                    minor.to_owned(),
+                    cpld_version.to_owned(),
+                )
+            },
+        )(input)
+    }
+
+    pub fn get_scanner_status_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"Q");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    pub fn get_scanner_status_response(input: &[u8]) -> IResult<&[u8], Status> {
+        map(
+            packet((tag(b"Q"), le_u8, le_u8, le_u8)),
+            |(_, byte0, byte1, byte2)| {
+                Status::new(
+                    byte0 & 0b0000_0001 != 0,
+                    byte0 & 0b0000_0010 != 0,
+                    byte0 & 0b0000_0100 != 0,
+                    byte0 & 0b0000_1000 != 0,
+                    byte0 & 0b0001_0000 != 0,
+                    byte0 & 0b0100_0000 != 0,
+                    byte1 & 0b0000_0001 != 0,
+                    byte1 & 0b0000_0010 != 0,
+                    byte1 & 0b0000_0100 != 0,
+                    byte1 & 0b0000_1000 != 0,
+                    byte1 & 0b0001_0000 != 0,
+                    byte1 & 0b0010_0000 != 0,
+                    byte1 & 0b0100_0000 != 0,
+                    byte2 & 0b0000_0001 != 0,
+                    byte2 & 0b0000_0010 != 0,
+                    byte2 & 0b0000_0100 != 0,
+                    byte2 & 0b0000_1000 != 0,
+                    byte2 & 0b0001_0000 != 0,
+                    byte2 & 0b0010_0000 != 0,
+                    byte2 & 0b0100_0000 != 0,
+                )
+            },
+        )(input)
+    }
+
+    pub fn enable_feeder_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"8");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    pub fn disable_feeder_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"9");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    pub fn disable_momentary_reverse_on_feed_at_input_request<'a>(
+        input: &'a [u8],
+    ) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"\x1bO");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    pub fn get_serial_number_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"*");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    pub fn set_serial_number_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], &'a [u8; 8]> {
+        map_res(
+            tuple((packet((tag(b"*"), take(8usize))), le_u8)),
+            |((_, serial_number), actual_crc)| {
+                if actual_crc == crc(serial_number) {
+                    if let Ok(serial_number) = serial_number.try_into() {
+                        return Ok(serial_number);
+                    }
+                }
+
+                Err(nom::Err::Failure(nom::error::Error::new(
+                    serial_number,
+                    nom::error::ErrorKind::Verify,
+                )))
+            },
+        )(input)
+    }
+
+    pub fn get_set_serial_number_response<'a>(input: &'a [u8]) -> IResult<&'a [u8], [u8; 8]> {
+        map_res(packet((tag(b"*"), take(8usize))), |(_, serial_number)| {
+            serial_number.try_into()
+        })(input)
+    }
+
+    pub fn get_scanner_settings_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"I");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    pub fn get_input_sensors_required_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"\x1bs");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    pub fn set_input_sensors_required_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], u8> {
+        map_res(
+            tuple((packet((tag(b"s"), take(1usize))), le_u8)),
+            |((_, sensors), actual_crc)| {
+                if actual_crc == crc(sensors) {
+                    if let [sensors, ..] = sensors {
+                        return Ok(*sensors);
+                    }
+                }
+
+                Err(nom::Err::Failure(nom::error::Error::new(
+                    sensors,
+                    nom::error::ErrorKind::Verify,
+                )))
+            },
+        )(input)
+    }
+
+    pub fn get_set_input_sensors_required_response<'a>(
+        input: &'a [u8],
+    ) -> IResult<&'a [u8], (u8, u8)> {
+        map(
+            packet((tag(b"s"), decimal_digit, decimal_digit)),
+            |(_, current, total)| (current, total),
+        )(input)
+    }
+
+    pub fn increase_top_cis_threshold_by_1_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"\x1b+");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    pub fn decrease_top_cis_threshold_by_1_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"\x1b-");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    pub fn increase_bottom_cis_threshold_by_1_request<'a>(
+        input: &'a [u8],
+    ) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"\x1b>");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    pub fn decrease_bottom_cis_threshold_by_1_request<'a>(
+        input: &'a [u8],
+    ) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"\x1b<");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    pub fn adjust_top_bitonal_threshold_response<'a>(input: &'a [u8]) -> IResult<&'a [u8], u8> {
+        map(
+            packet((tag(b"XT "), hex_byte)),
+            |(_, percent_white_threshold)| percent_white_threshold,
+        )(input)
+    }
+
+    pub fn adjust_bottom_bitonal_threshold_response<'a>(input: &'a [u8]) -> IResult<&'a [u8], u8> {
+        map(
+            packet((tag(b"XB "), hex_byte)),
+            |(_, percent_white_threshold)| percent_white_threshold,
+        )(input)
+    }
+
+    pub fn get_calibration_information_request<'a>(
+        input: &'a [u8],
+    ) -> IResult<&'a [u8], ResolutionTableType> {
+        let default_type_command = Command::new(b"W");
+        let native_type_command = Command::new(b"W0");
+        let half_type_command = Command::new(b"W1");
+        alt((
+            map(tag(default_type_command.to_bytes().as_slice()), |_| {
+                ResolutionTableType::Default
+            }),
+            map(tag(native_type_command.to_bytes().as_slice()), |_| {
+                ResolutionTableType::Native
+            }),
+            map(tag(half_type_command.to_bytes().as_slice()), |_| {
+                ResolutionTableType::Half
+            }),
+        ))(input)
+    }
+
+    pub fn get_calibration_information_response<'a>(
+        input: &'a [u8],
+    ) -> IResult<&'a [u8], (Vec<u8>, Vec<u8>)> {
+        let (input, _) = packet_start(input)?;
+        let (input, _) = tag(b"W")(input)?;
+        let (input, pixel_count) = le_u16(input)?;
+        let (input, white_calibration_table) = take(pixel_count)(input)?;
+        let (input, white_calibration_table_checksum) = le_u16(input)?;
+        // dbg!(
+        //     white_calibration_table.len(),
+        //     white_calibration_table,
+        //     white_calibration_table_checksum
+        // );
+        let (input, black_calibration_table) = take(pixel_count)(input)?;
+        let (input, black_calibration_table_checksum) = le_u16(input)?;
+        // dbg!(
+        //     black_calibration_table.len(),
+        //     black_calibration_table,
+        //     black_calibration_table_checksum,
+        //     input
+        // );
+        let (input, _) = packet_end(input)?;
+
+        // dbg!(
+        //     "HI THERE",
+        //     white_calibration_table_checksum,
+        //     black_calibration_table_checksum,
+        // );
+        Ok((
+            input,
+            (
+                white_calibration_table.to_vec(),
+                black_calibration_table.to_vec(),
+            ),
+        ))
+    }
+}
+
+#[derive(Debug)]
+pub struct Version {
+    product_id: String,
+    major: String,
+    minor: String,
+    cpld_version: String,
+}
+
+impl Version {
+    const fn new(product_id: String, major: String, minor: String, cpld_version: String) -> Self {
+        Self {
+            product_id,
+            major,
+            minor,
+            cpld_version,
+        }
+    }
+}
+
+/// The status of the scanner.
+///
+/// Note: bit 7 of each byte is always set to 1.
+#[derive(Debug, PartialEq)]
+pub struct Status {
+    /// Byte 0, Bit 0 (0x01)
+    rear_left_sensor_covered: bool,
+    /// Byte 0, Bit 1 (0x02) – omitted in UltraScan
+    rear_right_sensor_covered: bool,
+    /// Byte 0, Bit 2 (0x04)
+    brander_position_sensor_covered: bool,
+    /// Byte 0, Bit 3 (0x08)
+    hi_speed_mode: bool,
+    /// Byte 0, Bit 4 (0x10)
+    download_needed: bool,
+    /// Byte 0, Bit 5 (0x20) – not defined
+    /// future_use: bool,
+    /// Byte 0, Bit 6 (0x40)
+    scanner_enabled: bool,
+
+    /// Byte 1, Bit 0 (0x01)
+    front_left_sensor_covered: bool,
+    /// Byte 1, Bit 1 (0x02) – omitted in UltraScan
+    front_m1_sensor_covered: bool,
+    /// Byte 1, Bit 2 (0x04) – omitted in UltraScan
+    front_m2_sensor_covered: bool,
+    /// Byte 1, Bit 3 (0x08) – omitted in UltraScan
+    front_m3_sensor_covered: bool,
+    /// Byte 1, Bit 4 (0x10) – omitted in UltraScan
+    front_m4_sensor_covered: bool,
+    /// Byte 1, Bit 5 (0x20) – omitted in Duplex and UltraScan
+    front_m5_sensor_covered: bool,
+    /// Byte 1, Bit 6 (0x40) – omitted in Duplex and UltraScan
+    front_right_sensor_covered: bool,
+
+    /// Byte 2, Bit 0 (0x01)
+    scanner_ready: bool,
+    /// Byte 2, Bit 1 (0x02) – com error
+    xmt_aborted: bool,
+    /// Byte 2, Bit 2 (0x04)
+    document_jam: bool,
+    /// Byte 2, Bit 3 (0x08)
+    scan_array_pixel_error: bool,
+    /// Byte 2, Bit 4 (0x10)
+    in_diagnostic_mode: bool,
+    /// Byte 2, Bit 5 (0x20)
+    document_in_scanner: bool,
+    /// Byte 2, Bit 6 (0x40)
+    calibration_of_unit_needed: bool,
+}
+
+impl Status {
+    pub const fn new(
+        rear_left_sensor_covered: bool,
+        rear_right_sensor_covered: bool,
+        brander_position_sensor_covered: bool,
+        hi_speed_mode: bool,
+        download_needed: bool,
+        scanner_enabled: bool,
+        front_left_sensor_covered: bool,
+        front_m1_sensor_covered: bool,
+        front_m2_sensor_covered: bool,
+        front_m3_sensor_covered: bool,
+        front_m4_sensor_covered: bool,
+        front_m5_sensor_covered: bool,
+        front_right_sensor_covered: bool,
+        scanner_ready: bool,
+        xmt_aborted: bool,
+        document_jam: bool,
+        scan_array_pixel_error: bool,
+        in_diagnostic_mode: bool,
+        document_in_scanner: bool,
+        calibration_of_unit_needed: bool,
+    ) -> Self {
+        Self {
+            rear_left_sensor_covered,
+            rear_right_sensor_covered,
+            brander_position_sensor_covered,
+            hi_speed_mode,
+            download_needed,
+            scanner_enabled,
+            front_left_sensor_covered,
+            front_m1_sensor_covered,
+            front_m2_sensor_covered,
+            front_m3_sensor_covered,
+            front_m4_sensor_covered,
+            front_m5_sensor_covered,
+            front_right_sensor_covered,
+            scanner_ready,
+            xmt_aborted,
+            document_jam,
+            scan_array_pixel_error,
+            in_diagnostic_mode,
+            document_in_scanner,
+            calibration_of_unit_needed,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct Command<'a> {
+    data: &'a [u8],
+}
+
+impl<'a> Command<'a> {
+    pub const fn new(data: &'a [u8]) -> Self {
+        Self { data }
+    }
+
+    pub fn to_bytes(&self) -> Vec<u8> {
+        let mut bytes = Vec::with_capacity(self.data.len() + 2);
+        bytes.extend_from_slice(PACKET_DATA_START);
+        bytes.extend_from_slice(self.data);
+        bytes.extend_from_slice(PACKET_DATA_END);
+        bytes.push(crc(self.data));
+        bytes
+    }
+}
+
+fn crc(data: &[u8]) -> u8 {
+    const POLYNOMIAL: u8 = 0x97;
+    data.iter().fold(0, |crc, byte| {
+        let mut crc = crc ^ byte;
+        for _ in 0..8 {
+            if crc & 0x80 != 0 {
+                crc = (crc << 1) ^ POLYNOMIAL;
+            } else {
+                crc <<= 1;
+            }
+        }
+        crc
+    })
+}

@@ -13,6 +13,8 @@ use rusb::{
     Context, DeviceHandle, UsbContext,
 };
 
+use crate::pdiscan_next::protocol::Command;
+
 extern "system" fn libusb_transfer_callback(transfer: *mut libusb_transfer) {
     tracing::debug!("libusb_transfer_callback: transfer={transfer:?}");
     let handler = unsafe { &mut *((*transfer).user_data as *mut Handler) };
@@ -324,42 +326,5 @@ impl Drop for Input {
         unsafe {
             libusb_free_transfer(self.transfer);
         }
-    }
-}
-
-#[derive(Debug)]
-pub struct Command<'a> {
-    data: &'a [u8],
-}
-
-impl<'a> Command<'a> {
-    pub const fn new(data: &'a [u8]) -> Self {
-        Self { data }
-    }
-
-    pub fn to_bytes(&self) -> Vec<u8> {
-        const START_BYTE: u8 = 0x02;
-        const END_BYTE: u8 = 0x03;
-        let mut bytes = Vec::with_capacity(self.data.len() + 2);
-        bytes.push(START_BYTE);
-        bytes.extend_from_slice(self.data);
-        bytes.push(END_BYTE);
-        bytes.push(self.crc());
-        bytes
-    }
-
-    fn crc(&self) -> u8 {
-        const POLYNOMIAL: u8 = 0x97;
-        self.data.iter().fold(0, |crc, byte| {
-            let mut crc = crc ^ byte;
-            for _ in 0..8 {
-                if crc & 0x80 != 0 {
-                    crc = (crc << 1) ^ POLYNOMIAL;
-                } else {
-                    crc <<= 1;
-                }
-            }
-            crc
-        })
     }
 }

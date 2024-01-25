@@ -1,17 +1,12 @@
-use std::{pin::Pin, str::from_utf8, sync::mpsc::RecvTimeoutError, time::Instant};
-
-use nom::{
-    bytes::complete::{tag, take, take_until},
-    combinator::{map, map_res},
-    number::complete::le_u8,
-    sequence::tuple,
-    IResult,
-};
 use rusb::{Context, Device, UsbContext};
+use std::{pin::Pin, sync::mpsc::RecvTimeoutError, time::Instant};
 
 use crate::pdiscan_next::transfer::Handler;
 
-use super::transfer::{Command, Event};
+use super::{
+    protocol::{parsers, Command, Status, Version},
+    transfer::Event,
+};
 
 const VENDOR_ID: u16 = 0x0bd7;
 const PRODUCT_ID: u16 = 0xa002;
@@ -166,11 +161,11 @@ impl PdiClient {
 
         match event {
             Event::Completed { data, .. } => {
-                if let Ok((&[], test_string)) = parse_test_string_response(&data) {
+                if let Ok((&[], test_string)) = parsers::get_test_string_response(&data) {
                     self.get_test_string_response = Some(test_string.to_owned());
-                } else if let Ok((&[], version)) = parse_firmware_version_response(&data) {
+                } else if let Ok((&[], version)) = parsers::get_firmware_version_response(&data) {
                     self.get_firmware_version_response = Some(version);
-                } else if let Ok((&[], status)) = parse_scanner_status(&data) {
+                } else if let Ok((&[], status)) = parsers::get_scanner_status_response(&data) {
                     self.get_scanner_status_response = Some(status);
                 } else {
                     tracing::warn!("unknown data from scanner: {data:?}");
@@ -189,185 +184,5 @@ impl Drop for PdiClient {
     fn drop(&mut self) {
         tracing::trace!("PdiClient::drop: calling stop_handle_events_thread");
         self.transfer_handler.stop_handle_events_thread();
-    }
-}
-
-fn parse_test_string_response<'a>(input: &'a [u8]) -> IResult<&'a [u8], &'a str> {
-    map(
-        tuple((
-            tag("\x02D"),
-            map_res(take_until("\x03"), |bytes| from_utf8(bytes)),
-            tag("\x03"),
-        )),
-        |(_, test_string, _)| test_string,
-    )(input)
-}
-
-fn parse_firmware_version_response<'a>(input: &'a [u8]) -> IResult<&'a [u8], Version> {
-    map(
-        tuple((
-            tag("\x02V"),
-            map_res(take(4usize), |bytes| from_utf8(bytes)),
-            map_res(take(2usize), |bytes| from_utf8(bytes)),
-            map_res(take(2usize), |bytes| from_utf8(bytes)),
-            map_res(take(1usize), |bytes| from_utf8(bytes)),
-            tag("\x03"),
-        )),
-        |(_, product_id, major, minor, cpld_version, _)| {
-            Version::new(
-                product_id.to_owned(),
-                major.to_owned(),
-                minor.to_owned(),
-                cpld_version.to_owned(),
-            )
-        },
-    )(input)
-}
-
-fn parse_scanner_status(input: &[u8]) -> IResult<&[u8], Status> {
-    map(
-        tuple((tag("\x02Q"), le_u8, le_u8, le_u8, tag("\x03"))),
-        |(_, byte0, byte1, byte2, _)| {
-            Status::new(
-                byte0 & 0b0000_0001 != 0,
-                byte0 & 0b0000_0010 != 0,
-                byte0 & 0b0000_0100 != 0,
-                byte0 & 0b0000_1000 != 0,
-                byte0 & 0b0001_0000 != 0,
-                byte0 & 0b0100_0000 != 0,
-                byte1 & 0b0000_0001 != 0,
-                byte1 & 0b0000_0010 != 0,
-                byte1 & 0b0000_0100 != 0,
-                byte1 & 0b0000_1000 != 0,
-                byte1 & 0b0001_0000 != 0,
-                byte1 & 0b0010_0000 != 0,
-                byte1 & 0b0100_0000 != 0,
-                byte2 & 0b0000_0001 != 0,
-                byte2 & 0b0000_0010 != 0,
-                byte2 & 0b0000_0100 != 0,
-                byte2 & 0b0000_1000 != 0,
-                byte2 & 0b0001_0000 != 0,
-                byte2 & 0b0010_0000 != 0,
-                byte2 & 0b0100_0000 != 0,
-            )
-        },
-    )(input)
-}
-
-#[derive(Debug)]
-pub struct Version {
-    product_id: String,
-    major: String,
-    minor: String,
-    cpld_version: String,
-}
-
-impl Version {
-    const fn new(product_id: String, major: String, minor: String, cpld_version: String) -> Self {
-        Self {
-            product_id,
-            major,
-            minor,
-            cpld_version,
-        }
-    }
-}
-
-/// The status of the scanner.
-///
-/// Note: bit 7 of each byte is always set to 1.
-#[derive(Debug, PartialEq)]
-pub struct Status {
-    /// Byte 0, Bit 0 (0x01)
-    rear_left_sensor_covered: bool,
-    /// Byte 0, Bit 1 (0x02) – omitted in UltraScan
-    rear_right_sensor_covered: bool,
-    /// Byte 0, Bit 2 (0x04)
-    brander_position_sensor_covered: bool,
-    /// Byte 0, Bit 3 (0x08)
-    hi_speed_mode: bool,
-    /// Byte 0, Bit 4 (0x10)
-    download_needed: bool,
-    /// Byte 0, Bit 5 (0x20) – not defined
-    /// future_use: bool,
-    /// Byte 0, Bit 6 (0x40)
-    scanner_enabled: bool,
-
-    /// Byte 1, Bit 0 (0x01)
-    front_left_sensor_covered: bool,
-    /// Byte 1, Bit 1 (0x02) – omitted in UltraScan
-    front_m1_sensor_covered: bool,
-    /// Byte 1, Bit 2 (0x04) – omitted in UltraScan
-    front_m2_sensor_covered: bool,
-    /// Byte 1, Bit 3 (0x08) – omitted in UltraScan
-    front_m3_sensor_covered: bool,
-    /// Byte 1, Bit 4 (0x10) – omitted in UltraScan
-    front_m4_sensor_covered: bool,
-    /// Byte 1, Bit 5 (0x20) – omitted in Duplex and UltraScan
-    front_m5_sensor_covered: bool,
-    /// Byte 1, Bit 6 (0x40) – omitted in Duplex and UltraScan
-    front_right_sensor_covered: bool,
-
-    /// Byte 2, Bit 0 (0x01)
-    scanner_ready: bool,
-    /// Byte 2, Bit 1 (0x02) – com error
-    xmt_aborted: bool,
-    /// Byte 2, Bit 2 (0x04)
-    document_jam: bool,
-    /// Byte 2, Bit 3 (0x08)
-    scan_array_pixel_error: bool,
-    /// Byte 2, Bit 4 (0x10)
-    in_diagnostic_mode: bool,
-    /// Byte 2, Bit 5 (0x20)
-    document_in_scanner: bool,
-    /// Byte 2, Bit 6 (0x40)
-    calibration_of_unit_needed: bool,
-}
-
-impl Status {
-    pub const fn new(
-        rear_left_sensor_covered: bool,
-        rear_right_sensor_covered: bool,
-        brander_position_sensor_covered: bool,
-        hi_speed_mode: bool,
-        download_needed: bool,
-        scanner_enabled: bool,
-        front_left_sensor_covered: bool,
-        front_m1_sensor_covered: bool,
-        front_m2_sensor_covered: bool,
-        front_m3_sensor_covered: bool,
-        front_m4_sensor_covered: bool,
-        front_m5_sensor_covered: bool,
-        front_right_sensor_covered: bool,
-        scanner_ready: bool,
-        xmt_aborted: bool,
-        document_jam: bool,
-        scan_array_pixel_error: bool,
-        in_diagnostic_mode: bool,
-        document_in_scanner: bool,
-        calibration_of_unit_needed: bool,
-    ) -> Self {
-        Self {
-            rear_left_sensor_covered,
-            rear_right_sensor_covered,
-            brander_position_sensor_covered,
-            hi_speed_mode,
-            download_needed,
-            scanner_enabled,
-            front_left_sensor_covered,
-            front_m1_sensor_covered,
-            front_m2_sensor_covered,
-            front_m3_sensor_covered,
-            front_m4_sensor_covered,
-            front_m5_sensor_covered,
-            front_right_sensor_covered,
-            scanner_ready,
-            xmt_aborted,
-            document_jam,
-            scan_array_pixel_error,
-            in_diagnostic_mode,
-            document_in_scanner,
-            calibration_of_unit_needed,
-        }
     }
 }

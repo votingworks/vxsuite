@@ -3,7 +3,7 @@ use rand::Rng;
 use std::{process::exit, thread, time::Duration};
 use tracing_subscriber::prelude::*;
 
-use crate::pdiscan_next::{pdi_client::PdiClient, transfer::Command};
+use crate::pdiscan_next::{pdi_client::PdiClient, protocol::Command};
 
 mod pdiscan_next;
 

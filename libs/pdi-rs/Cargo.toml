@@ -24,6 +24,10 @@ path = "src/get_pdi_status.rs"
 name = "libusb-example"
 path = "src/libusb_example.rs"
 
+[[bin]]
+name = "parse-traffic"
+path = "src/parse_traffic.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -32,6 +36,7 @@ chrono = "0.4.31"
 clap = { workspace = true }
 color-eyre = { workspace = true }
 crc16 = { workspace = true }
+csv = { workspace = true }
 crossterm = "0.27.0"
 image = { version = "0.24.7", default-features = false, features = [
     "bmp",
