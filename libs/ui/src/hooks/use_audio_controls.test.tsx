@@ -20,6 +20,7 @@ test('returns external-facing audio context API', () => {
     increaseVolume: jest.fn(),
     reset: jest.fn(),
     setIsEnabled: jest.fn(),
+    toggleEnabled: jest.fn(),
     togglePause: jest.fn(),
   } as const;
 

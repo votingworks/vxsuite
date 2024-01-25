@@ -29,6 +29,7 @@ export interface UiStringsAudioContextInterface {
   reset: () => void;
   setIsEnabled: (enabled: boolean) => void;
   setIsPaused: (paused: boolean) => void;
+  toggleEnabled: () => void;
   togglePause: () => void;
   webAudioContext?: AudioContext;
 }
@@ -128,6 +129,11 @@ export function UiStringsAudioContextProvider(
     [isPaused]
   );
 
+  const toggleEnabled = React.useCallback(
+    () => setIsEnabled(!isEnabled),
+    [isEnabled]
+  );
+
   return (
     <UiStringsAudioContext.Provider
       value={{
@@ -143,6 +149,7 @@ export function UiStringsAudioContextProvider(
         reset,
         setIsEnabled,
         setIsPaused,
+        toggleEnabled,
         togglePause,
         webAudioContext: webAudioContextRef.current,
       }}
