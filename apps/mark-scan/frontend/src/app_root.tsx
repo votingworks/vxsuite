@@ -77,7 +77,6 @@ import { BlankPageInterpretationPage } from './pages/blank_page_interpretation_p
 import { PaperReloadedPage } from './pages/paper_reloaded_page';
 import { PatDeviceCalibrationPage } from './pages/pat_device_identification/pat_device_calibration_page';
 import { CastingBallotPage } from './pages/casting_ballot_page';
-import { BallotSuccessfullyCastPage } from './pages/ballot_successfully_cast_page';
 
 interface VotingState {
   votes?: VotesDict;
@@ -506,23 +505,15 @@ export function AppRoot({
         if (
           !isFeatureFlagEnabled(
             BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
-          )
-        ) {
-          if (
-            stateMachineState === 'ejecting_to_rear' ||
+          ) &&
+          (stateMachineState === 'ejecting_to_rear' ||
+            stateMachineState === 'resetting_state_machine_after_success' ||
             // Cardless voter auth is ended in the backend when the voting session ends but the frontend
             // may have a stale value. Cardless voter auth + 'not_accepting_paper' state means the frontend
             // is stale, so we want to render the previous loading screen until the frontend auth status updates.
-            stateMachineState === 'not_accepting_paper'
-          ) {
-            return <CastingBallotPage />;
-          }
-          if (
-            stateMachineState === 'ballot_accepted' ||
-            stateMachineState === 'resetting_state_machine_after_success'
-          ) {
-            return <BallotSuccessfullyCastPage />;
-          }
+            stateMachineState === 'not_accepting_paper')
+        ) {
+          return <CastingBallotPage />;
         }
 
         let ballotContextProviderChild = <Ballot />;

@@ -787,12 +787,6 @@ export const appStrings = {
     <UiString uiStringKey="titleScannerProcessingScreen">Please wait…</UiString>
   ),
 
-  titleBallotSuccessfullyCastPage: () => (
-    <UiString uiStringKey="titleBallotSuccessfullyCastPage">
-      Your ballot was cast!
-    </UiString>
-  ),
-
   titleScannerSuccessScreen: () => (
     <UiString uiStringKey="titleScannerSuccessScreen">
       Your ballot was counted!
