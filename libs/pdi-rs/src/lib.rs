@@ -1,20 +1,13 @@
-use std::{
-    borrow::BorrowMut,
-    ops::{Deref, DerefMut},
-    sync::Arc,
-    time::Duration,
-};
+use std::{sync::Arc, time::Duration};
 
 use image_data::ImageData;
 use neon::prelude::*;
 use neon_serde3 as neon_serde;
 use pdiscan::{ColorDepth, Event, Scanner, Settings};
 
-mod custom;
 mod image_data;
 mod pdiscan;
 mod pdiscan_next;
-mod usb;
 
 impl Finalize for Scanner {}
 

@@ -3,7 +3,7 @@ use rand::Rng;
 use std::{process::exit, thread, time::Duration};
 use tracing_subscriber::prelude::*;
 
-use crate::pdi_client::PdiClient;
+use crate::pdi_client::{Command, PdiClient};
 
 mod pdi_client;
 
@@ -13,12 +13,13 @@ struct Config {
     log_level: tracing::Level,
 }
 
-#[tracing::instrument]
-fn main() -> color_eyre::Result<()> {
+fn setup(config: &Config) -> color_eyre::Result<()> {
     color_eyre::install()?;
+    setup_logging(config)?;
+    Ok(())
+}
 
-    let config = Config::parse();
-
+fn setup_logging(config: &Config) -> color_eyre::Result<()> {
     let stderr_log = tracing_subscriber::fmt::layer()
         .with_writer(std::io::stderr)
         .pretty();
@@ -38,6 +39,14 @@ fn main() -> color_eyre::Result<()> {
         )
         .with(stderr_log)
         .init();
+
+    Ok(())
+}
+
+#[tracing::instrument]
+fn main_threaded() -> color_eyre::Result<()> {
+    let config = Config::parse();
+    setup(&config)?;
 
     let (tx, rx) = std::sync::mpsc::channel();
     let (tx2, rx2) = std::sync::mpsc::channel();
@@ -98,11 +107,11 @@ fn main() -> color_eyre::Result<()> {
         }
 
         if let Ok(_) = rx.try_recv() {
-            client.send_command(b"D");
+            client.send_command(Command::new(b"D"));
         }
 
         if let Ok(_) = rx2.try_recv() {
-            client.send_command(b"V");
+            client.send_command(Command::new(b"V"));
         }
     }
 
@@ -115,4 +124,31 @@ fn main() -> color_eyre::Result<()> {
     tracing::trace!("exiting");
 
     Ok(())
+}
+
+fn main_request_response() -> color_eyre::Result<()> {
+    let config = Config::parse();
+    setup(&config)?;
+
+    let Ok(mut client) = PdiClient::open() else {
+        tracing::error!("Failed to open device");
+        exit(-1);
+    };
+
+    println!("get_test_string result: {:?}", client.get_test_string(None));
+    println!(
+        "get_firmware_version result: {:#?}",
+        client.get_firmware_version(None)
+    );
+    println!(
+        "get_scanner_status result: {:#?}",
+        client.get_scanner_status(None)
+    );
+
+    Ok(())
+}
+
+fn main() -> color_eyre::Result<()> {
+    // main_threaded()
+    main_request_response()
 }
