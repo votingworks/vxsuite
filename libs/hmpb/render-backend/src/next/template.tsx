@@ -1,6 +1,6 @@
 import { assertDefined, range } from '@votingworks/basics';
 import { writeFile } from 'fs/promises';
-import { Browser, BrowserContext, chromium } from 'playwright';
+import { Browser, BrowserContext, Page, chromium } from 'playwright';
 import React, { CSSProperties } from 'react';
 import ReactDom from 'react-dom/server';
 
@@ -48,16 +48,22 @@ const boxStyle: CSSProperties = {
 
 let browserSingleton: Browser;
 let contextSingleton: BrowserContext;
+let pageSingleton: Page;
 
-async function browserContext() {
-  if (browserSingleton && contextSingleton) {
-    return { browser: browserSingleton, context: contextSingleton };
+async function browserPage() {
+  if (browserSingleton && contextSingleton && pageSingleton) {
+    return {
+      browser: browserSingleton,
+      context: contextSingleton,
+      page: pageSingleton,
+    };
   }
   browserSingleton = await chromium.launch({
     args: ['--font-render-hinting=none'],
   });
   contextSingleton = await browserSingleton.newContext();
-  return browserContext();
+  pageSingleton = await contextSingleton.newPage();
+  return browserPage();
 }
 
 async function cleanupBrowserContext() {
@@ -67,21 +73,36 @@ async function cleanupBrowserContext() {
   }
 }
 
-async function measureElement(
+async function measureElements(
+  elements: JSX.Element[]
+): Promise<PixelDimensions[]> {
+  const documentHtml = ReactDom.renderToStaticMarkup(
+    <html>
+      <body>{elements}</body>
+    </html>
+  );
+  const { page } = await browserPage();
+  await page.setContent(`<!DOCTYPE html>${documentHtml}`);
+  const nodes = await page.locator('body > *').all();
+  const dimensions = await Promise.all(
+    nodes.map(async (node) => assertDefined(await node.boundingBox()))
+  );
+  return dimensions;
+}
+
+async function measureElementById(
   element: JSX.Element,
-  id?: string
+  id: string
 ): Promise<PixelDimensions> {
   const documentHtml = ReactDom.renderToStaticMarkup(
     <html>
       <body>{element}</body>
     </html>
   );
-  const { context } = await browserContext();
-  const page = await context.newPage();
+  const { page } = await browserPage();
   await page.setContent(`<!DOCTYPE html>${documentHtml}`);
-  const node = page.locator(id ? `#${id}` : 'body > *').first();
+  const node = page.locator(`#${id}`).first();
   const dimensions = assertDefined(await node.boundingBox());
-  await page.close();
   return dimensions;
 }
 
@@ -119,14 +140,17 @@ async function PagedContent({
   children: JSX.Element[];
   dimensions: PixelDimensions;
 }): Promise<PagedElementResult<{ children: JSX.Element[] }>> {
-  const measuredChildren = await Promise.all(
-    children.map(async (child) => ({
-      child,
-      ...(await measureElement(
-        <div style={{ width: dimensions.width }}>{child}</div>
-      )),
-    }))
+  const measurements = await measureElements(
+    children.map((child, i) => (
+      <div key={i} style={{ width: dimensions.width }}>
+        {child}
+      </div>
+    ))
   );
+  const measuredChildren = children.map((child, i) => ({
+    child,
+    ...measurements[i],
+  }));
 
   const pageChildren: React.ReactNode[] = [];
   let heightUsed = 0;
@@ -186,7 +210,7 @@ function BallotPageFrame({
   children: JSX.Element;
 }) {
   return (
-    <DocumentPage>
+    <DocumentPage key={pageNumber}>
       {pageNumber % 2 === 1 && <Header>{election.title}</Header>}
       <div style={{ flex: 1 }}>{children}</div>
       <Footer>
@@ -228,73 +252,6 @@ const ballotPageTemplate: PageTemplate<{ election: MiniElection }> = {
   contentComponent: BallotPageContent,
 };
 
-// function BallotPageTemplate({
-//   election,
-//   pageNumber,
-//   totalPages,
-// }: {
-//   election: MiniElection;
-//   pageNumber: number;
-//   totalPages: number;
-// }) {
-//   return (
-//     <DocumentPage>
-//       {pageNumber % 2 === 1 && <Header>{election.title}</Header>}
-//       <PagedContent>
-//       </PagedContent>
-//       <Footer>
-//         Page: {pageNumber}/{totalPages}
-//       </Footer>
-//     </DocumentPage>
-//   );
-// }
-
-// function mapElement(
-//   element: JSX.Element,
-//   fn: (element: JSX.Element) => JSX.Element
-// ): JSX.Element {
-//   const mappedElement = fn(element);
-//   const children =
-//     'children' in mappedElement.props
-//       ? React.Children.map(mappedElement.props.children, (child) => {
-//           if (typeof child === 'string' || !React.isValidElement(child)) {
-//             return child;
-//           }
-//           return mapElement(child, fn);
-//         })
-//       : undefined;
-//   if (typeof mappedElement.type === 'string') {
-//     return mappedElement;
-//   }
-//   const expandedElement = {
-//     ...mappedElement.type({
-//       ...mappedElement.props,
-//       children,
-//     }),
-//     key: mappedElement.key,
-//   } as const;
-//   return mapElement(expandedElement, fn);
-// }
-
-// function findElement(
-//   element: JSX.Element,
-//   fn: (element: JSX.Element) => boolean
-// ): JSX.Element | null {
-//   if (fn(element)) {
-//     return element;
-//   }
-//   if ('children' in element.props) {
-//     const foundChild = React.Children.toArray(element.props.children).find(
-//       (child) => React.isValidElement(child) && fn(child)
-//     );
-//     if (foundChild) {
-//       return foundChild as JSX.Element;
-//     }
-//   }
-//   const expandedElement = element.type(element.props);
-//   return findElement(expandedElement, fn);
-// }
-
 async function paginateDocumentContent<P extends Record<string, unknown>>(
   pageTemplate: PageTemplate<P>,
   props: P
@@ -310,7 +267,7 @@ async function paginateDocumentContent<P extends Record<string, unknown>>(
       totalPages: 0,
       children: contentSlot,
     });
-    const contentSlotDimensions = await measureElement(
+    const contentSlotDimensions = await measureElementById(
       pageFrame,
       contentSlot.props.id
     );
@@ -334,53 +291,6 @@ async function paginateDocumentContent<P extends Record<string, unknown>>(
       children: pagedContentResult.currentPageElement,
     })
   );
-
-  //   const pageTemplate = React.cloneElement(ballotTemplate, {
-  //     ...ballotTemplate.props,
-  //     pageNumber: pagedContentForPages.length + 1,
-  //     totalPages: pagedContentForPages.length + 1,
-  //   });
-  //   const pageWithNoPagedContent = mapElement(pageTemplate, (element) => {
-  //     if (element.type === PagedContent) {
-  //       return React.cloneElement(element, element.props, []);
-  //     }
-  //     return element;
-  //   });
-  //   const pagedContentDimensions = measureElement(
-  //     pageWithNoPagedContent,
-  //     'paged-content'
-  //   );
-  //   const pagedContentElement = findElement(
-  //     ballotTemplate,
-  //     (element) => element.type === PagedContent
-  //   );
-  //   assert(pagedContentElement);
-  //   const { nextPageChildren, ...pagedContentElementForThisPage } =
-  //     pagedContentElement.type({
-  //       ...pagedContentElement.props,
-  //       children:
-  //         nextPagedContentChildren ?? pagedContentElement.props.children,
-  //       dimensions: pagedContentDimensions,
-  //     });
-
-  //   nextPagedContentChildren = nextPageChildren;
-  //   pagedContentForPages.push(pagedContentElementForThisPage);
-  // } while (nextPagedContentChildren);
-
-  // return pagedContentForPages.map((pagedContent, i) => {
-  //   const ballotPage = React.cloneElement(ballotTemplate, {
-  //     ...ballotTemplate.props,
-  //     key: i,
-  //     pageNumber: i + 1,
-  //     totalPages: pagedContentForPages.length,
-  //   });
-  //   return mapElement(ballotPage, (element) => {
-  //     if (element.type === PagedContent) {
-  //       return pagedContent;
-  //     }
-  //     return element;
-  //   });
-  // });
 }
 
 async function renderBallot(election: MiniElection) {
@@ -389,11 +299,10 @@ async function renderBallot(election: MiniElection) {
   });
   const documentHtml = ReactDom.renderToStaticMarkup(
     <html>
-      <head></head>
       <body>{ballotPages}</body>
     </html>
   );
-  const { context } = await browserContext();
+  const { context } = await browserPage();
   const page = await context.newPage();
 
   await page.setContent(`<!DOCTYPE html>${documentHtml}`);
@@ -407,9 +316,6 @@ async function renderBallot(election: MiniElection) {
     },
     printBackground: true,
   });
-  await page.close();
-
-  await cleanupBrowserContext();
 
   return pdfBuffer;
 }
@@ -422,15 +328,19 @@ async function main() {
       candidates: range(0, 5).map((j) => `Candidate ${i + 1}-${j + 1}`),
     })),
   };
+  await browserPage();
   const t1 = Date.now();
   const ballotPdf = await renderBallot(election);
   const t2 = Date.now();
+  await cleanupBrowserContext();
   const outputPath = 'ballot.pdf';
   await writeFile(outputPath, ballotPdf);
+  // eslint-disable-next-line no-console
   console.log(`Rendered ballot to ${outputPath} in ${t2 - t1}ms`);
 }
 
 main().catch((err) => {
+  // eslint-disable-next-line no-console
   console.error(err);
   process.exit(1);
 });
