@@ -4,8 +4,6 @@ import { UiStringAudioClip } from '@votingworks/types';
 
 export interface AudioPlayerParams {
   clip: UiStringAudioClip;
-  gainDb: number;
-  playbackRate: number;
   webAudioContext: AudioContext;
 }
 

@@ -22,11 +22,6 @@ function PlayAudioClip(props: PlayAudioClipProps) {
     useAudioContext()
   );
 
-  const audioOutputRef = React.useRef<AudioPlayer>();
-  const gainDbRef = React.useRef<number>(gainDb);
-  const onDoneRef = React.useRef(onDone);
-  const playbackRateRef = React.useRef<number>(playbackRate);
-
   const { data: clip, isSuccess: hasClipLoaded } = api.getAudioClip.useQuery({
     id: audioId,
     languageCode,
@@ -35,8 +30,6 @@ function PlayAudioClip(props: PlayAudioClipProps) {
   //
   // Create audio player when clip data is loaded:
   //
-  playbackRateRef.current = playbackRate;
-  gainDbRef.current = gainDb;
   React.useEffect(() => {
     setAudioPlayer(undefined);
 
@@ -47,21 +40,33 @@ function PlayAudioClip(props: PlayAudioClipProps) {
     // TODO(kofi): assert that the requested clip data exists in the backend.
 
     void (async () => {
-      setAudioPlayer(
-        await newAudioPlayer({
-          clip,
-          gainDb: gainDbRef.current,
-          playbackRate: playbackRateRef.current,
-          webAudioContext,
-        })
-      );
+      setAudioPlayer(await newAudioPlayer({ clip, webAudioContext }));
     })();
   }, [clip, hasClipLoaded, webAudioContext]);
 
   //
+  // Set/update playback rate and volume when audio player is ready or when user
+  // settings change:
+  //
+  React.useEffect(() => {
+    audioPlayer?.setPlaybackRate(playbackRate);
+  }, [audioPlayer, playbackRate]);
+  React.useEffect(() => {
+    audioPlayer?.setVolume(gainDb);
+  }, [audioPlayer, gainDb]);
+
+  //
+  // Store `onDone` callback ref to avoid re-running the "start playback" effect
+  // when it changes:
+  //
+  const onDoneRef = React.useRef(onDone);
+  React.useEffect(() => {
+    onDoneRef.current = onDone;
+  });
+
+  //
   // Start playback when audio player is ready:
   //
-  onDoneRef.current = onDone;
   React.useEffect(() => {
     if (!audioPlayer) {
       return;
@@ -74,17 +79,6 @@ function PlayAudioClip(props: PlayAudioClipProps) {
 
     return () => void audioPlayer.stop();
   }, [audioPlayer]);
-
-  //
-  // Adjust playback rate and volume when user settings change:
-  //
-  audioOutputRef.current = audioPlayer;
-  React.useEffect(() => {
-    audioOutputRef.current?.setPlaybackRate(playbackRate);
-  }, [playbackRate]);
-  React.useEffect(() => {
-    audioOutputRef.current?.setVolume(gainDb);
-  }, [gainDb]);
 
   return null;
 }
