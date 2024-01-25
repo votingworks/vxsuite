@@ -1,5 +1,6 @@
 import { ALL_PRECINCTS_SELECTION, MemoryHardware } from '@votingworks/utils';
 import { fakeKiosk } from '@votingworks/test-utils';
+import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import { electionDefinition } from '../test/helpers/election';
 import { render, screen } from '../test/react_testing_library';
 import { App } from './app';
@@ -205,3 +206,35 @@ test('`paper_reloaded` state renders PaperReloadedPage', async () => {
     'The ballot sheet has been loaded. Remove the poll worker card to continue.'
   );
 });
+
+const testSpecs: Array<{
+  state: SimpleServerStatus;
+}> = [
+  { state: 'ballot_accepted' },
+  { state: 'resetting_state_machine_after_success' },
+];
+
+test.each(testSpecs)(
+  '$state state renders BallotSuccessfullyCastPage',
+  async ({ state }) => {
+    apiMock.mockApiClient.getElectionState.reset();
+    apiMock.expectGetElectionState({
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      pollsState: 'polls_open',
+      isTestMode: false,
+    });
+    apiMock.setAuthStatusCardlessVoterLoggedInWithDefaults(electionDefinition);
+    apiMock.setPaperHandlerState(state);
+
+    render(
+      <App
+        hardware={hardware}
+        apiClient={apiMock.mockApiClient}
+        reload={jest.fn()}
+      />
+    );
+
+    await screen.findByText('Your ballot was cast!');
+    await screen.findByText('Thank you for voting.');
+  }
+);

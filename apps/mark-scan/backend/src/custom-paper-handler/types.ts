@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export type SimpleStatus =
   | 'accepting_paper'
+  | 'ballot_accepted'
   | 'blank_page_interpretation'
   | 'ejecting_to_front'
   | 'ejecting_to_rear'
@@ -24,6 +25,7 @@ export type SimpleStatus =
 
 export const SimpleStatusSchema: z.ZodSchema<SimpleStatus> = z.union([
   z.literal('accepting_paper'),
+  z.literal('ballot_accepted'),
   z.literal('blank_page_interpretation'),
   z.literal('ejecting_to_front'),
   z.literal('ejecting_to_rear'),
