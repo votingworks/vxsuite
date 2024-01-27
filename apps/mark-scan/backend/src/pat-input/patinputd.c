@@ -9,6 +9,7 @@
 #include <string.h>
 
 #include "vsapgpio.h"
+#include "logging.h"
 
 bool should_exit_cleanly = false;
 char *pat_is_connected_gpio_number = "478";
@@ -38,12 +39,20 @@ void emit(int fd, int type, int code, int val)
 
 void interrupt(int signal)
 {
-  printf("Got exit signal %d\n", signal);
   should_exit_cleanly = true;
+}
+
+void close_fd_with_logging(int fd)
+{
+  if (close(fd) != 0)
+  {
+    log_error("close-file-descriptor-error");
+  }
 }
 
 int main(void)
 {
+  log_action("process-started", NA);
   struct uinput_setup usetup;
 
   int uinput_fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
@@ -52,6 +61,8 @@ int main(void)
    * The ioctls below will enable the device that is about to be
    * created, to pass key events.
    */
+  // print_log("creating-uinput-virtual-device");
+  log_action("create-virtual-uinput-device-init", NA);
   ioctl(uinput_fd, UI_SET_EVBIT, EV_KEY);
   ioctl(uinput_fd, UI_SET_KEYBIT, KEY_1);
   ioctl(uinput_fd, UI_SET_KEYBIT, KEY_2);
@@ -66,7 +77,9 @@ int main(void)
 
   ioctl(uinput_fd, UI_DEV_SETUP, &usetup);
   ioctl(uinput_fd, UI_DEV_CREATE);
+  log_action("create-virtual-uinput-device-complete", SUCCESS);
 
+  log_action("connect-to-pat-input-init", NA);
   export_pin(pat_is_connected_gpio_number);
   export_pin(pat_a_signal_gpio_number);
   export_pin(pat_b_signal_gpio_number);
@@ -78,15 +91,12 @@ int main(void)
   int is_connected_value_fd = get_pin_value_fd(pat_is_connected_gpio_number);
   bool is_connected = get_bool_pin_value(is_connected_value_fd);
 
-  printf("Initial PAT device is connected: %s\n", is_connected ? "true" : "false");
-
   int a_signal_fd = get_pin_value_fd(pat_a_signal_gpio_number);
   bool a_signal = get_bool_pin_value(a_signal_fd);
-  printf("Initial A value: %s\n", a_signal ? "true" : "false");
 
   int b_signal_fd = get_pin_value_fd(pat_b_signal_gpio_number);
   bool b_signal = get_bool_pin_value(b_signal_fd);
-  printf("Initial B value: %s\n", b_signal ? "true" : "false");
+  log_action("connect-to-pat-input-complete", SUCCESS);
 
   signal(SIGINT, interrupt);
 
@@ -102,7 +112,6 @@ int main(void)
     // Only emit keyboard event when signal changes
     if (new_a_signal && !a_signal)
     {
-      printf("'A' signal triggered\n");
       /* Key press, report the event, send key release, and report again */
       emit(uinput_fd, EV_KEY, KEY_1, 1);
       emit(uinput_fd, EV_SYN, SYN_REPORT, 0);
@@ -112,7 +121,6 @@ int main(void)
 
     if (new_b_signal && !b_signal)
     {
-      printf("'B' signal triggered\n");
       /* Key press, report the event, send key release, and report again */
       emit(uinput_fd, EV_KEY, KEY_2, 1);
       emit(uinput_fd, EV_SYN, SYN_REPORT, 0);
@@ -123,29 +131,20 @@ int main(void)
     a_signal = new_a_signal;
     b_signal = new_b_signal;
 
-    if (close(a_signal_fd) != 0)
-    {
-      perror("Failed to close A signal file descriptor\n");
-    }
-
-    if (close(b_signal_fd) != 0)
-    {
-      perror("Failed to close B signal file descriptor\n");
-    }
+    close_fd_with_logging(a_signal_fd);
+    close_fd_with_logging(b_signal_fd);
 
     // Sleep accepts integer seconds only and we want to poll more frequently
     nanosleep(&interval_timespec, &rem);
   }
 
-  printf("Unexporting pins\n");
   unexport_pin(pat_is_connected_gpio_number);
   unexport_pin(pat_a_signal_gpio_number);
   unexport_pin(pat_b_signal_gpio_number);
 
-  printf("Closing GPIO sysfs file descriptors\n");
-  close(a_signal);
-  close(b_signal);
-  close(is_connected_value_fd);
+  close_fd_with_logging(a_signal_fd);
+  close_fd_with_logging(b_signal_fd);
+  close_fd_with_logging(is_connected_value_fd);
 
   /*
    * Events are unlikely to have been sent recently, but we still
@@ -155,9 +154,9 @@ int main(void)
    */
   sleep(1);
 
-  printf("Cleaning up virtual device\n");
   ioctl(uinput_fd, UI_DEV_DESTROY);
-  close(uinput_fd);
+  close_fd_with_logging(uinput_fd);
 
+  log_action("process-terminated", NA);
   return 0;
 }

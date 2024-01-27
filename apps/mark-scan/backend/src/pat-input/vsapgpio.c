@@ -4,71 +4,87 @@
 #include <fcntl.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
+
+#include "logging.h"
 
 const int MAX_PIN_NUMBER_DIGITS = 3;
+const int MAX_LOG_MESSAGE_SIZE = 512;
 
 int ascii_to_int(int ascii_char)
 {
   return ascii_char - '0';
 }
 
-void unexport_pin(char *pin)
+int get_fd(char *filepath, char *operation_name, int permission)
 {
-  // Unexport the pin by writing to /sys/class/gpio/unexport
-  int fd = open("/sys/class/gpio/unexport", O_WRONLY);
+  char log_message[MAX_LOG_MESSAGE_SIZE];
+  if (512 - strlen(filepath) >= 0)
+  {
+    sprintf(log_message, "Failed to open file descriptor for %s", filepath);
+  }
+
+  int fd = open(filepath, permission);
   if (fd == -1)
   {
-    perror("Unable to open /sys/class/gpio/unexport");
+    print_log("sysfs-open-fd", "system-action", log_message, operation_name, FAILURE);
     exit(1);
   }
+  // get_fd is called from a loop, so only log on failure to reduce spam
+  return fd;
+}
 
-  if (write(fd, pin, MAX_PIN_NUMBER_DIGITS) != MAX_PIN_NUMBER_DIGITS)
+void write_to_sysfs_pin_file(int fd, char *pin, char *operation_name)
+{
+  char log_message[16];
+  sprintf(log_message, "pin #%s", pin);
+  int bytes_written = write(fd, pin, MAX_PIN_NUMBER_DIGITS);
+  if (bytes_written != MAX_PIN_NUMBER_DIGITS)
   {
-    perror("Error writing to /sys/class/gpio/unexport");
+    print_log("syfs-write-file", "system-action", log_message, "export-pin", FAILURE);
     exit(1);
   }
+  print_log("syfs-write-file", "system-action", log_message, "export-pin", SUCCESS);
+}
 
+void unexport_pin(char *pin)
+{
+  char log_message[10];
+  sprintf(log_message, "pin #%s", pin);
+  // Unexport the pin by writing to /sys/class/gpio/unexport
+  print_log("gpio-pin-operation-init", "system-action", log_message, "unexport-pin", NA);
+  int fd = get_fd("/sys/class/gpio/unexport", "unexport-pin", O_WRONLY);
+  write_to_sysfs_pin_file(fd, pin, "unexport-pin");
   close(fd);
+  print_log("gpio-pin-operation-complete", "system-action", log_message, "unexport-pin", SUCCESS);
 }
 
 void export_pin(char *pin)
 {
   // Export the desired pin by writing to /sys/class/gpio/export
-  int fd = open("/sys/class/gpio/export", O_WRONLY);
-  if (fd == -1)
-  {
-    perror("Unable to open /sys/class/gpio/export");
-    exit(1);
-  }
-
-  if (write(fd, pin, MAX_PIN_NUMBER_DIGITS) != MAX_PIN_NUMBER_DIGITS)
-  {
-    perror("Error writing to /sys/class/gpio/export");
-    exit(1);
-  }
-
+  char log_message[16];
+  sprintf(log_message, "pin #%s", pin);
+  print_log("gpio-pin-operation-init", "system-action", log_message, "export-pin", NA);
+  int fd = get_fd("/sys/class/gpio/export", "export-pin", O_WRONLY);
+  write_to_sysfs_pin_file(fd, pin, "export-pin");
   close(fd);
+  print_log("gpio-pin-operation-complete", "system-action", log_message, "export-pin", SUCCESS);
 }
 
 void set_pin_direction_in(char *pin)
 {
+  char log_message[16];
+  sprintf(log_message, "pin #%s", pin);
+  print_log("gpio-pin-operation-init", "system-action", log_message, "set-direction", NA);
   char path[strlen("/sys/class/gpio/gpio/direction") + MAX_PIN_NUMBER_DIGITS];
   sprintf(path, "/sys/class/gpio/gpio%s/direction", pin);
-  printf("Attempting to open fd to path: %s\n", path);
-  int fd = open(path, O_WRONLY);
-  if (fd == -1)
+  int fd = get_fd(path, "set-direction", O_WRONLY);
+  if (write(fd, "in", 2) != 2)
   {
-    perror("Unable to open pin direction fd");
     exit(1);
   }
-
-  if (write(fd, "in", 3) != 3)
-  {
-    perror("Error writing to pin direction file");
-    exit(1);
-  }
-
   close(fd);
+  print_log("gpio-pin-operation-complete", "system-action", log_message, "set-direction", SUCCESS);
 }
 
 // Gets a file descriptor for a pin's value file at /sys/class/gpio/gpio<pin_number>/value
@@ -78,13 +94,7 @@ int get_pin_value_fd(char *pin)
   sprintf(value_path,
           "/sys/class/gpio/gpio%s/value",
           pin);
-  int fd = open(value_path, O_RDONLY);
-  if (fd == -1)
-  {
-    perror("Unable to open value pin");
-    exit(1);
-  }
-
+  int fd = get_fd(value_path, "get-pin-value", O_RDONLY);
   return fd;
 }
 
