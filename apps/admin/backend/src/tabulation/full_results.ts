@@ -18,6 +18,7 @@ import {
 import { tabulateManualResults } from './manual_results';
 import { rootDebug } from '../util/debug';
 import { assertIsBackendFilter } from '../util/filters';
+import { LeastRecentlyUsedMap } from '../util/lru_map';
 
 const debug = rootDebug.extend('tabulation');
 
@@ -58,6 +59,9 @@ export function tabulateCastVoteRecords({
     expectedGroups,
   });
 }
+
+// Replace the default `Map` cache with an LRU cache to avoid memory leaks.
+memoize.Cache = LeastRecentlyUsedMap;
 
 /**
  * Memoized version of `tabulateCastVoteRecords`.
