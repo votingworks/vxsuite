@@ -8,6 +8,8 @@ import {
   groupBySupportsZeroSplits,
 } from '@votingworks/utils';
 import { assert, assertDefined } from '@votingworks/basics';
+import memoize from 'lodash.memoize';
+import hash from 'object-hash';
 import { Store } from '../store';
 import {
   modifyElectionResultsWithWriteInSummary,
@@ -16,6 +18,7 @@ import {
 import { tabulateManualResults } from './manual_results';
 import { rootDebug } from '../util/debug';
 import { assertIsBackendFilter } from '../util/filters';
+import { LeastRecentlyUsedMap } from '../util/lru_map';
 
 const debug = rootDebug.extend('tabulation');
 
@@ -57,6 +60,29 @@ export function tabulateCastVoteRecords({
   });
 }
 
+// Replace the default `Map` cache with an LRU cache to avoid memory leaks.
+memoize.Cache = LeastRecentlyUsedMap;
+
+/**
+ * Memoized version of `tabulateCastVoteRecords`.
+ */
+const tabulateCastVoteRecordsMemoized = memoize(
+  tabulateCastVoteRecords,
+  ({ store, electionId, filter, groupBy }) =>
+    hash(
+      {
+        cvrsDataVersion: store.getCastVoteRecordsDataVersion(electionId),
+        electionId,
+        filter,
+        groupBy,
+      },
+      {
+        unorderedArrays: true,
+        unorderedObjects: true,
+      }
+    )
+);
+
 /**
  * Tabulate election results including all scanned and adjudicated information.
  */
@@ -81,7 +107,7 @@ export async function tabulateElectionResults({
   } = assertDefined(store.getElection(electionId));
 
   debug('tabulating CVRs, ignoring write-in adjudication results');
-  let groupedElectionResults = await tabulateCastVoteRecords({
+  let groupedElectionResults = await tabulateCastVoteRecordsMemoized({
     electionId,
     store,
     filter,

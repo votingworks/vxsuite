@@ -2499,6 +2499,20 @@ export class Store {
     );
   }
 
+  getCastVoteRecordsDataVersion(electionId: Id): number {
+    const row = this.client.one(
+      `
+        select
+          cvrs_data_version as cvrsDataVersion
+        from data_versions
+        where election_id = ?
+      `,
+      electionId
+    ) as Optional<{ cvrsDataVersion: number }>;
+
+    return row ? row.cvrsDataVersion : 0;
+  }
+
   /* c8 ignore start */
   getDebugSummary(): Map<string, number> {
     const tableNameRows = this.client.all(
