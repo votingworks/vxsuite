@@ -2,7 +2,7 @@
 FORCE:
 
 build: FORCE
-	pnpm install && pnpm build
+	pnpm install && pnpm build && ./build-patinputd.sh
 
 bootstrap: build
 
@@ -10,3 +10,6 @@ install:
 
 run:
 	pnpm start
+
+run-pat-daemon:
+	./build/patinputd
