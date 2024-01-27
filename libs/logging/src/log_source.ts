@@ -10,6 +10,8 @@ export enum LogSource {
   VxMarkBackend = 'vx-mark-backend',
   VxMarkScanFrontend = 'vx-mark-scan-frontend',
   VxMarkScanBackend = 'vx-mark-scan-backend',
+  VxMarkScanPatDaemon = 'vx-mark-scan-pat-daemon',
+  VxMarkScanControllerDaemon = 'vx-mark-scan-controller-daemon',
   VxBallotActivationFrontend = 'vx-ballot-activation-frontend',
   VxBallotActivationService = 'vx-ballot-activation-service',
   VxScanService = 'vx-scan-service',

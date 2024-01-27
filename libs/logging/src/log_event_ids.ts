@@ -21,6 +21,8 @@ export enum LogEventId {
   MachineShutdownInit = 'machine-shutdown-init',
   MachineShutdownComplete = 'machine-shutdown-complete',
   UsbDeviceChangeDetected = 'usb-device-change-detected',
+  ProcessStarted = 'process-started',
+  ProcessTerminated = 'process-terminated',
 
   // Auth logs
   AuthPinEntry = 'auth-pin-entry',
@@ -134,8 +136,30 @@ export enum LogEventId {
   ScannerStateChanged = 'scanner-state-machine-transition',
   PaperHandlerStateChanged = 'paper-handler-state-machine-transition',
 
+  // Voting events
+  VoteCast = 'vote-cast',
+  BallotInvalidated = 'ballot-invalidated',
+
   // VxMarkScan logs
   PatDeviceError = 'pat-device-error',
+  BlankInterpretation = 'blank-sheet-interpretation',
+  PaperHandlerConnection = 'paper-handler-connection',
+  SysfsOpenFd = 'sysfs-open-fd',
+  SysfsWriteFile = 'sysfs-write-file',
+  GpioPinOperationInit = 'gpio-pin-operation-init',
+  GpioPinOperationComplete = 'gpio-pin-operation-complete',
+  CloseFileDescriptorError = 'close-file-descriptor-error',
+  CreateVirtualUinputDeviceInit = 'create-virtual-uinput-device-init',
+  CreateVirtualUinputDeviceComplete = 'create-virtual-uinput-device-complete',
+  ConnectToPatInputInit = 'connect-to-pat-input-init',
+  ConnectToPatInputComplete = 'connect-to-pat-input-complete',
+  ControllerConnectionInit = 'controller-connection-init',
+  ControllerConnectionComplete = 'controller-connection-complete',
+  ControllerHandshakeInit = 'controller-handshake-init',
+  ControllerHandshakeComplete = 'controller-handshake-complete',
+  ErrorSettingSigintHandler = 'error-setting-sigint-handler',
+  UnexpectedErrorHandlingCommand = 'unexpected-error-handling-command',
+  UnexpectedErrorOnSerialPortRead = 'unexpected-error-on-serial-port-read',
 
   // All machines
   UnknownError = 'unknown-error',
@@ -283,6 +307,28 @@ const UsbDeviceChangeDetected: LogDetails = {
   eventType: LogEventType.SystemStatus,
   documentationMessage:
     'A message from the machine kernel about an externally-connected USB device, usually when a new device is connected or disconnected.',
+};
+
+const ProcessStarted: LogDetails = {
+  eventId: LogEventId.ProcessStarted,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'A VotingWorks-authored process (eg. hardware daemon) has been started.',
+  restrictInDocumentationToApps: [
+    LogSource.VxMarkScanControllerDaemon,
+    LogSource.VxMarkScanPatDaemon,
+  ],
+};
+
+const ProcessTerminated: LogDetails = {
+  eventId: LogEventId.ProcessTerminated,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'A VotingWorks-authored process (eg. hardware daemon) has been terminated.',
+  restrictInDocumentationToApps: [
+    LogSource.VxMarkScanControllerDaemon,
+    LogSource.VxMarkScanPatDaemon,
+  ],
 };
 
 const ApplicationStartup: LogDetails = {
@@ -900,6 +946,20 @@ const PaperHandlerStateChanged: LogDetails = {
   restrictInDocumentationToApps: [LogSource.VxMarkScanBackend],
 };
 
+const VoteCast: LogDetails = {
+  eventId: LogEventId.VoteCast,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'Vote was cast on a BMD.',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanBackend],
+};
+
+const BallotInvalidated: LogDetails = {
+  eventId: LogEventId.BallotInvalidated,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'A vote was canceled during verification.',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanBackend],
+};
+
 const InitialElectionPackageLoaded: LogDetails = {
   eventId: LogEventId.InitialElectionPackageLoaded,
   eventType: LogEventType.UserAction,
@@ -941,6 +1001,153 @@ const PatDeviceError: LogDetails = {
   documentationMessage:
     'VxMarkScan encountered an error with the built-in PAT device port or the device itself',
   restrictInDocumentationToApps: [LogSource.VxMarkScanBackend],
+};
+
+const BlankInterpretation: LogDetails = {
+  eventId: LogEventId.BlankInterpretation,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'Interpretation of a printed ballot was blank.',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanBackend],
+};
+
+const PaperHandlerConnection: LogDetails = {
+  eventId: LogEventId.PaperHandlerConnection,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'Connection to paper handler device was resolved.',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanBackend],
+};
+
+const SysfsOpenFd: LogDetails = {
+  eventId: LogEventId.SysfsOpenFd,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'An attempt was made to open a file descriptor for the sysfs GPIO interface.',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanPatDaemon],
+};
+
+const SysfsWriteFile: LogDetails = {
+  eventId: LogEventId.SysfsWriteFile,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'An attempt was made to interact with the sysfs GPIO interface by writing to a file.',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanPatDaemon],
+};
+
+const GpioPinOperationInit: LogDetails = {
+  eventId: LogEventId.GpioPinOperationInit,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'A GPIO pin operation was attempted (export, unexport, or set direction)',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanPatDaemon],
+};
+
+const GpioPinOperationComplete: LogDetails = {
+  eventId: LogEventId.GpioPinOperationComplete,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'A GPIO pin operation was completed (export, unexport, or set direction)',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanPatDaemon],
+};
+
+const CloseFileDescriptorError: LogDetails = {
+  eventId: LogEventId.CloseFileDescriptorError,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'An error occurred when closing a file descriptor.',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanPatDaemon],
+};
+
+const CreateVirtualUinputDeviceInit: LogDetails = {
+  eventId: LogEventId.CreateVirtualUinputDeviceInit,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'A hardware daemon attempted to create a uinput virtual device.',
+  restrictInDocumentationToApps: [
+    LogSource.VxMarkScanPatDaemon,
+    LogSource.VxMarkScanControllerDaemon,
+  ],
+};
+
+const CreateVirtualUinputDeviceComplete: LogDetails = {
+  eventId: LogEventId.CreateVirtualUinputDeviceComplete,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'A hardware daemon finished creating a uinput virtual device.',
+  restrictInDocumentationToApps: [
+    LogSource.VxMarkScanPatDaemon,
+    LogSource.VxMarkScanControllerDaemon,
+  ],
+};
+
+const ConnectToPatInputInit: LogDetails = {
+  eventId: LogEventId.ConnectToPatInputInit,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'mark-scan PAT daemon initiated connection to the PAT device input.',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanPatDaemon],
+};
+
+const ConnectToPatInputComplete: LogDetails = {
+  eventId: LogEventId.ConnectToPatInputComplete,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'mark-scan PAT daemon completed connection to the PAT device input.',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanPatDaemon],
+};
+
+const ControllerConnectionInit: LogDetails = {
+  eventId: LogEventId.ControllerConnectionInit,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'mark-scan controller daemon initiated connection to the accessible controller.',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanControllerDaemon],
+};
+
+const ControllerConnectionComplete: LogDetails = {
+  eventId: LogEventId.ControllerConnectionComplete,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'mark-scan controller daemon completed connection to the accessible controller.',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanControllerDaemon],
+};
+
+const ControllerHandshakeInit: LogDetails = {
+  eventId: LogEventId.ControllerHandshakeInit,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'mark-scan controller daemon initiated handshake with controller.',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanControllerDaemon],
+};
+
+const ControllerHandshakeComplete: LogDetails = {
+  eventId: LogEventId.ControllerHandshakeComplete,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'mark-scan controller daemon received handshake response from controller.',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanControllerDaemon],
+};
+
+const ErrorSettingSigintHandler: LogDetails = {
+  eventId: LogEventId.ErrorSettingSigintHandler,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage:
+    'mark-scan controller daemon encountered an error when setting SIGINT handler.',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanControllerDaemon],
+};
+
+const UnexpectedErrorHandlingCommand: LogDetails = {
+  eventId: LogEventId.UnexpectedErrorHandlingCommand,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage:
+    'mark-scan controller daemon encountered an error when handling data resulting from a button press.',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanControllerDaemon],
+};
+
+const UnexpectedErrorOnSerialPortRead: LogDetails = {
+  eventId: LogEventId.UnexpectedErrorOnSerialPortRead,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage:
+    'mark-scan controller daemon encountered an error when attempting to read from the serial port.',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanControllerDaemon],
 };
 
 const UnknownError: LogDetails = {
@@ -1150,6 +1357,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ScannerStateChanged;
     case LogEventId.PaperHandlerStateChanged:
       return PaperHandlerStateChanged;
+    case LogEventId.VoteCast:
+      return VoteCast;
+    case LogEventId.BallotInvalidated:
+      return BallotInvalidated;
     case LogEventId.InitialElectionPackageLoaded:
       return InitialElectionPackageLoaded;
     case LogEventId.SystemSettingsSaveInitiated:
@@ -1162,6 +1373,46 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return WriteInAdjudicated;
     case LogEventId.PatDeviceError:
       return PatDeviceError;
+    case LogEventId.ProcessStarted:
+      return ProcessStarted;
+    case LogEventId.ProcessTerminated:
+      return ProcessTerminated;
+    case LogEventId.BlankInterpretation:
+      return BlankInterpretation;
+    case LogEventId.PaperHandlerConnection:
+      return PaperHandlerConnection;
+    case LogEventId.SysfsOpenFd:
+      return SysfsOpenFd;
+    case LogEventId.SysfsWriteFile:
+      return SysfsWriteFile;
+    case LogEventId.GpioPinOperationInit:
+      return GpioPinOperationInit;
+    case LogEventId.GpioPinOperationComplete:
+      return GpioPinOperationComplete;
+    case LogEventId.CloseFileDescriptorError:
+      return CloseFileDescriptorError;
+    case LogEventId.CreateVirtualUinputDeviceInit:
+      return CreateVirtualUinputDeviceInit;
+    case LogEventId.CreateVirtualUinputDeviceComplete:
+      return CreateVirtualUinputDeviceComplete;
+    case LogEventId.ConnectToPatInputInit:
+      return ConnectToPatInputInit;
+    case LogEventId.ConnectToPatInputComplete:
+      return ConnectToPatInputComplete;
+    case LogEventId.ControllerConnectionInit:
+      return ControllerConnectionInit;
+    case LogEventId.ControllerConnectionComplete:
+      return ControllerConnectionComplete;
+    case LogEventId.ControllerHandshakeInit:
+      return ControllerHandshakeInit;
+    case LogEventId.ControllerHandshakeComplete:
+      return ControllerHandshakeComplete;
+    case LogEventId.ErrorSettingSigintHandler:
+      return ErrorSettingSigintHandler;
+    case LogEventId.UnexpectedErrorHandlingCommand:
+      return UnexpectedErrorHandlingCommand;
+    case LogEventId.UnexpectedErrorOnSerialPortRead:
+      return UnexpectedErrorOnSerialPortRead;
     case LogEventId.UnknownError:
       return UnknownError;
 
