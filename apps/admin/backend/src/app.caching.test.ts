@@ -124,7 +124,7 @@ it('uses and clears CVR tabulation cache appropriately', async () => {
   expect(tabulationSpy).toHaveBeenCalledTimes(4);
   expect(resultsExportAfterAdjudication).not.toEqual(doubledResultsExport);
 
-  // adjudicating a mark a vote (by un-invalidating a write-in) should clear the cache
+  // adjudicating a mark as a vote (by un-invalidating a write-in) should clear the cache
   await apiClient.adjudicateWriteIn({
     writeInId,
     type: 'official-candidate',
