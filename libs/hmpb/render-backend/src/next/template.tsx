@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import { assertDefined, range } from '@votingworks/basics';
+import { assertDefined, iter, range } from '@votingworks/basics';
 import { writeFile } from 'fs/promises';
 import React, { CSSProperties } from 'react';
 import styled from 'styled-components';
@@ -54,6 +54,7 @@ const markHeight = 0.0625 * ppi;
 function TimingMark() {
   return (
     <div
+      data-type="TimingMark"
       style={{
         width: `${markWidth}px`,
         height: `${markHeight}px`,
@@ -151,11 +152,11 @@ async function PagedContent(
       ))}
     </>
   );
-  const measurements = await document.measureElements('body > div');
-  const measuredChildren = children.map((child, i) => ({
-    child,
-    ...measurements[i],
-  }));
+  const childElements = await document.inspectElements('body > div');
+  const measuredChildren = iter(children)
+    .zip(childElements)
+    .map(([child, element]) => ({ child, ...element }))
+    .toArray();
 
   const pageChildren: React.ReactNode[] = [];
   let heightUsed = 0;
@@ -196,13 +197,28 @@ const ContestBox = styled.div`
   padding: 1rem;
 `;
 
+const Bubble = styled.div`
+  display: inline-block;
+  width: 15px;
+  height: 8px;
+  border-radius: 8px;
+  border: 1px solid black;
+`;
+
 function Contest({ contest }: { contest: MiniElection['contests'][0] }) {
   return (
     <ContestBox className="contest" data-title={contest.title}>
       <div>{contest.title}</div>
-      <ul>
+      <ul style={{ listStyleType: 'none' }}>
         {contest.candidates.map((candidate) => (
-          <li key={candidate}>{candidate}</li>
+          <li key={candidate}>
+            <Bubble
+              data-type="Bubble"
+              data-contest={contest.title}
+              data-candidate={candidate}
+            />{' '}
+            {candidate}
+          </li>
         ))}
       </ul>
     </ContestBox>
@@ -221,7 +237,7 @@ function BallotPageFrame({
   children: JSX.Element;
 }) {
   return (
-    <BallotPage key={pageNumber}>
+    <BallotPage key={pageNumber} data-page={pageNumber}>
       <TimingMarkGrid>
         {pageNumber % 2 === 1 && <Header>{election.title}</Header>}
         <div style={{ flex: 1 }}>{children}</div>

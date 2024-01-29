@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer';
+import { assertDefined } from '@votingworks/basics';
 import {
   PdfOptions,
   PixelDimensions,
@@ -46,7 +47,7 @@ async function paginateBallotContent<P extends Record<string, unknown>>(
       children: contentSlot,
     });
     await document.setBodyContent(pageFrame);
-    const [contentSlotDimensions] = await document.measureElements(
+    const [contentSlotElement] = await document.inspectElements(
       `#${contentSlot.props.id}`
     );
     const currentPageProps: P =
@@ -56,7 +57,10 @@ async function paginateBallotContent<P extends Record<string, unknown>>(
       {
         // eslint-disable-next-line vx/gts-spread-like-types
         ...currentPageProps,
-        dimensions: contentSlotDimensions,
+        dimensions: {
+          width: contentSlotElement.width,
+          height: contentSlotElement.height,
+        },
       },
       document
     );
@@ -74,14 +78,68 @@ async function paginateBallotContent<P extends Record<string, unknown>>(
   );
 }
 
-async function extractLayoutInfo(document: RenderDocument) {
-  // We need to get the contest bubble positions by page and then convert those
-  // into grid positions by figuring out where the timing marks are
-  const positions = await document.measureElements('.contest');
-  const titles = await document.getAttributeFromElements(
-    '.contest',
-    'data-title'
+interface ContestOptionLayout {
+  contest: string;
+  candidate: string;
+  column: number;
+  row: number;
+}
+
+async function extractLayoutInfo(
+  document: RenderDocument
+): Promise<ContestOptionLayout[]> {
+  const pages = await document.inspectElements('[data-page]');
+  const optionLayoutsPerPage = await Promise.all(
+    pages.map(async (_, i) => {
+      const pageNumber = i + 1;
+      const timingMarkElements = await document.inspectElements(
+        `[data-page="${pageNumber}"] [data-type="TimingMark"]`
+      );
+
+      const minX = Math.min(...timingMarkElements.map((mark) => mark.x));
+      const minY = Math.min(...timingMarkElements.map((mark) => mark.y));
+      const maxX = Math.max(...timingMarkElements.map((mark) => mark.x));
+      const maxY = Math.max(...timingMarkElements.map((mark) => mark.y));
+      const gridWidth = maxX - minX;
+      const gridHeight = maxY - minY;
+      const originX = minX + timingMarkElements[0].width / 2;
+      const originY = minY + timingMarkElements[0].height / 2;
+      // There are two overlayed timing marks in each corner, don't double count them
+      const numRows =
+        timingMarkElements.filter((mark) => mark.x === minX).length - 2;
+      const numColumns =
+        timingMarkElements.filter((mark) => mark.y === minY).length - 2;
+      const columnWidth = gridWidth / numColumns;
+      const rowHeight = gridHeight / numRows;
+
+      function pixelPointToGridPoint(
+        x: number,
+        y: number
+      ): { column: number; row: number } {
+        return {
+          column: (x - originX) / columnWidth,
+          row: (y - originY) / rowHeight,
+        };
+      }
+
+      const bubbles = await document.inspectElements(
+        `[data-page="${pageNumber}"] [data-type="Bubble"]`
+      );
+      const optionLayouts = bubbles.map((bubble) => ({
+        contest: assertDefined(bubble.data.contest),
+        candidate: assertDefined(bubble.data.candidate),
+        ...pixelPointToGridPoint(bubble.x, bubble.y),
+      }));
+      return optionLayouts;
+    })
   );
+
+  return optionLayoutsPerPage.flat();
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+function electionHashFromLayoutInfo(layoutInfo: ContestOptionLayout[]): string {
+  return 'fake-election-hash'; // Not important for this proof of concept
 }
 
 export async function renderBallotToPdf<P extends Record<string, unknown>>(
@@ -94,8 +152,9 @@ export async function renderBallotToPdf<P extends Record<string, unknown>>(
   const t1 = Date.now();
   const pages = await paginateBallotContent(template, props, document);
   await document.setBodyContent(<>{pages}</>);
-  // const layoutInfo = await extractLayoutInfo(document);
-  // const electionHash = await electionHashFromLayoutInfo(layoutInfo);
+  const layoutInfo = await extractLayoutInfo(document);
+  console.log(layoutInfo);
+  const electionHash = await electionHashFromLayoutInfo(layoutInfo);
   // const pagesWithQrCodes = await addQrCodes(pages, electionHash);
   const pdf = await document.renderToPdf(options);
   const t2 = Date.now();

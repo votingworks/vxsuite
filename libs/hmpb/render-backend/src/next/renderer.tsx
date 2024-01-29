@@ -1,4 +1,3 @@
-import { assertDefined } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { Page, chromium } from 'playwright';
 import ReactDomServer from 'react-dom/server';
@@ -67,31 +66,22 @@ async function createDocument(page: Page) {
       }, htmlContent);
     },
 
-    async measureElements(
-      selector: string
-    ): Promise<Array<Dimensions<Pixels>>> {
-      const nodes = await page
-        .locator(selector)
-        .and(page.locator(':not(style)'))
-        .all();
-      const dimensions = await Promise.all(
-        nodes.map(async (node) => assertDefined(await node.boundingBox()))
-      );
-      return dimensions;
-    },
-
-    async getAttributeFromElements(
-      selector: string,
-      attributeName: string
-    ): Promise<Array<string | null>> {
-      const nodes = await page
-        .locator(selector)
-        .and(page.locator(':not(style)'))
-        .all();
-      const attributes = await Promise.all(
-        nodes.map(async (node) => await node.getAttribute(attributeName))
-      );
-      return attributes;
+    async inspectElements(selector: string) {
+      // eslint-disable-next-line @typescript-eslint/no-shadow
+      return await page.evaluate((selector) => {
+        const nodes = Array.from(document.querySelectorAll(selector));
+        return nodes.map((node) => {
+          const bounds = node.getBoundingClientRect();
+          return {
+            x: bounds.x,
+            y: bounds.y,
+            width: bounds.width,
+            height: bounds.height,
+            // @ts-expect-error - dataset attribute exists
+            data: node.dataset,
+          };
+        });
+      }, selector);
     },
 
     async renderToPdf(options: PdfOptions): Promise<Buffer> {
