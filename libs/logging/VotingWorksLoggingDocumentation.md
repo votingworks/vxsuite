@@ -434,6 +434,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** A vote was canceled during verification.  
 **Machines:** vx-mark-scan-backend
+### poll-worker-confirmed-ballot-removal
+**Type:** [user-action](#user-action)  
+**Description:** A poll worker confirmed the invalid ballot was removed during ballot invalidation.  
+**Machines:** vx-mark-scan-frontend
 ### pat-device-error
 **Type:** [system-status](#system-status)  
 **Description:** VxMarkScan encountered an error with the built-in PAT device port or the device itself  

@@ -141,6 +141,7 @@ export enum LogEventId {
   BallotInvalidated = 'ballot-invalidated',
 
   // VxMarkScan logs
+  PollWorkerConfirmedBallotRemoval = 'poll-worker-confirmed-ballot-removal',
   PatDeviceError = 'pat-device-error',
   BlankInterpretation = 'blank-sheet-interpretation',
   PaperHandlerConnection = 'paper-handler-connection',
@@ -995,6 +996,14 @@ const WriteInAdjudicated: LogDetails = {
   restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
 
+const PollWorkerConfirmedBallotRemoval: LogDetails = {
+  eventId: LogEventId.PollWorkerConfirmedBallotRemoval,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'A poll worker confirmed the invalid ballot was removed during ballot invalidation.',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanFrontend],
+};
+
 const PatDeviceError: LogDetails = {
   eventId: LogEventId.PatDeviceError,
   eventType: LogEventType.SystemStatus,
@@ -1371,6 +1380,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return SystemSettingsRetrieved;
     case LogEventId.WriteInAdjudicated:
       return WriteInAdjudicated;
+    case LogEventId.PollWorkerConfirmedBallotRemoval:
+      return PollWorkerConfirmedBallotRemoval;
     case LogEventId.PatDeviceError:
       return PatDeviceError;
     case LogEventId.ProcessStarted:
