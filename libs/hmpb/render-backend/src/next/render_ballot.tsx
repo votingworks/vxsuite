@@ -6,7 +6,9 @@ import {
   RenderDocument,
 } from './renderer';
 
-export const contentSlot = <div id="content-slot" style={{ height: '100%' }} />;
+export const contentSlot = (
+  <div id="content-slot" style={{ height: '100%', width: '100%' }} />
+);
 
 export type FrameComponent<P> = (
   props: P & { children: JSX.Element; pageNumber: number; totalPages: number }
@@ -92,11 +94,12 @@ export async function renderBallotToPdf<P extends Record<string, unknown>>(
   const t1 = Date.now();
   const pages = await paginateBallotContent(template, props, document);
   await document.setBodyContent(<>{pages}</>);
-  const layoutInfo = await extractLayoutInfo(document);
+  // const layoutInfo = await extractLayoutInfo(document);
   // const electionHash = await electionHashFromLayoutInfo(layoutInfo);
   // const pagesWithQrCodes = await addQrCodes(pages, electionHash);
   const pdf = await document.renderToPdf(options);
   const t2 = Date.now();
+  // eslint-disable-next-line no-console
   console.log(`Rendered document in ${t2 - t1}ms`);
   await document.dispose();
   await renderer.cleanup();

@@ -42,7 +42,12 @@ async function createDocument(page: Page) {
           }}
         />
       </head>
-      <body style={{ fontFamily: 'Vx Roboto' }}></body>
+      <body
+        style={{
+          fontFamily: 'Vx Roboto',
+          margin: 0,
+        }}
+      ></body>
     </html>
   );
   await page.setContent(`<!DOCTYPE html>${pageContents}`);

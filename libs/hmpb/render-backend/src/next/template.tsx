@@ -29,35 +29,101 @@ const pageDimensions: InchDimensions = {
 };
 
 const pageMargins = {
-  top: 0.25,
-  right: 0.25,
-  bottom: 0.25,
-  left: 0.25,
+  top: 0.125,
+  right: 0.125,
+  bottom: 0.125,
+  left: 0.125,
 } as const;
 
-function BallotPage({ children }: { children: React.ReactNode }) {
+const contentAreaDimensions: InchDimensions = {
+  width: pageDimensions.width - pageMargins.left - pageMargins.right,
+  height: pageDimensions.height - pageMargins.top - pageMargins.bottom,
+};
+
+const BallotPage = styled.div`
+  height: ${contentAreaDimensions.height}in;
+  width: ${contentAreaDimensions.width}in;
+  break-after: page;
+  overflow: hidden;
+`;
+
+const ppi = 96;
+const markWidth = 0.1875 * ppi;
+const markHeight = 0.0625 * ppi;
+
+function TimingMark() {
   return (
     <div
       style={{
-        // lineHeight: 1.2,
-        height: `${
-          pageDimensions.height - pageMargins.top - pageMargins.bottom
-        }in`,
-        width: `${
-          pageDimensions.width - pageMargins.left - pageMargins.right
-        }in`,
-        breakAfter: 'page',
+        width: `${markWidth}px`,
+        height: `${markHeight}px`,
+        backgroundColor: 'black',
+      }}
+    />
+  );
+}
+
+function TimingMarkGrid({ children }: { children: React.ReactNode }) {
+  const columnsPerInch = 4;
+  const rowsPerInch = 4;
+
+  const gridRows = pageDimensions.height * rowsPerInch - 3;
+  const gridColumns = pageDimensions.width * columnsPerInch;
+
+  const timingMarkRow = (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
       }}
     >
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          height: '100%',
-        }}
-      >
-        {children}
+      {range(0, gridColumns).map((i) => (
+        <TimingMark key={i} />
+      ))}
+    </div>
+  );
+  const timingMarkColumn = (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        position: 'relative',
+        top: `-${markHeight}px`,
+        height: `calc(100% + ${2 * markHeight}px)`,
+      }}
+    >
+      {range(0, gridRows).map((i) => (
+        <TimingMark key={i} />
+      ))}
+    </div>
+  );
+
+  return (
+    <div
+      style={{
+        height: '100%',
+        width: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
+      {timingMarkRow}
+      <div style={{ flex: 1, display: 'flex' }}>
+        {timingMarkColumn}
+        <div
+          style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            padding: '0.1in',
+          }}
+        >
+          {children}
+        </div>
+        {timingMarkColumn}
       </div>
+      {timingMarkRow}
     </div>
   );
 }
@@ -156,11 +222,13 @@ function BallotPageFrame({
 }) {
   return (
     <BallotPage key={pageNumber}>
-      {pageNumber % 2 === 1 && <Header>{election.title}</Header>}
-      <div style={{ flex: 1 }}>{children}</div>
-      <Footer>
-        Page: {pageNumber}/{totalPages}
-      </Footer>
+      <TimingMarkGrid>
+        {pageNumber % 2 === 1 && <Header>{election.title}</Header>}
+        <div style={{ flex: 1 }}>{children}</div>
+        <Footer>
+          Page: {pageNumber}/{totalPages}
+        </Footer>
+      </TimingMarkGrid>
     </BallotPage>
   );
 }
