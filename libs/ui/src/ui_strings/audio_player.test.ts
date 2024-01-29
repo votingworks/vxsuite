@@ -18,7 +18,6 @@ import {
   DEFAULT_PLAYBACK_RATE,
   MAX_PLAYBACK_RATE,
   MIN_PLAYBACK_RATE,
-  PLAYBACK_RATE_INCREMENT_AMOUNT,
 } from './audio_playback_rate';
 
 const SILENT_SAMPLE_VALUE = SILENT_SAMPLE_ABSOLUTE_VALUE_THRESHOLD;
@@ -328,10 +327,8 @@ test('setPlaybackRate()', async () => {
   const minPlaybackRateGrainSize = mockGrainPlayer.grainSize;
   const minPlaybackRateGrainOverlap = mockGrainPlayer.overlap;
 
-  const slowishPlaybackRate =
-    DEFAULT_PLAYBACK_RATE - PLAYBACK_RATE_INCREMENT_AMOUNT;
-  player.setPlaybackRate(slowishPlaybackRate);
-  expect(mockGrainPlayer.playbackRate).toEqual(slowishPlaybackRate);
+  player.setPlaybackRate(DEFAULT_PLAYBACK_RATE);
+  expect(mockGrainPlayer.playbackRate).toEqual(DEFAULT_PLAYBACK_RATE);
   expect(mockGrainPlayer.grainSize).not.toEqual(minPlaybackRateGrainSize);
   expect(mockGrainPlayer.overlap).not.toEqual(minPlaybackRateGrainOverlap);
 

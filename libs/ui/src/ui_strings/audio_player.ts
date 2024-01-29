@@ -46,11 +46,6 @@ const RATE_CONFIG_VERY_SLOW: RateBasedConfig = {
   grainSizeSeconds: 0.02,
 };
 
-const RATE_CONFIG_SLOW: RateBasedConfig = {
-  grainOverlapSeconds: 0.05,
-  grainSizeSeconds: 0.1,
-};
-
 const RATE_CONFIG_DEFAULT: RateBasedConfig = {
   grainOverlapSeconds: 0.05,
   grainSizeSeconds: 0.1,
@@ -125,8 +120,6 @@ export async function newAudioPlayer(
     let config = RATE_CONFIG_DEFAULT;
     if (playbackRate < 0.75) {
       config = RATE_CONFIG_VERY_SLOW;
-    } else if (playbackRate < 1) {
-      config = RATE_CONFIG_SLOW;
     }
 
     player.playbackRate = playbackRate;
