@@ -61,7 +61,6 @@ int main(void)
    * The ioctls below will enable the device that is about to be
    * created, to pass key events.
    */
-  // print_log("creating-uinput-virtual-device");
   log_action("create-virtual-uinput-device-init", NA);
   ioctl(uinput_fd, UI_SET_EVBIT, EV_KEY);
   ioctl(uinput_fd, UI_SET_KEYBIT, KEY_1);

@@ -33,9 +33,20 @@ char *disposition_enum_to_str(int disposition)
   return na;
 }
 
-void print_log(char *event_id, char *event_type, char *message, char *operation, int disposition)
+char *action = "action";
+char *status = "status";
+char *event_type_enum_to_str(int event_type)
 {
-  print_log_common(event_id, event_type, message, operation, disposition_enum_to_str(disposition));
+  if (event_type == ACTION)
+  {
+    return action;
+  }
+  return status;
+}
+
+void print_log(char *event_id, int event_type, char *message, char *operation, int disposition)
+{
+  print_log_common(event_id, event_type_enum_to_str(event_type), message, operation, disposition_enum_to_str(disposition));
 }
 
 // Convenience function for logging an action with less information

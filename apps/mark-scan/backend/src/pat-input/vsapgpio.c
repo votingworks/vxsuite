@@ -27,7 +27,7 @@ int get_fd(char *filepath, char *operation_name, int permission)
   int fd = open(filepath, permission);
   if (fd == -1)
   {
-    print_log("sysfs-open-fd", "system-action", log_message, operation_name, FAILURE);
+    print_log("sysfs-open-fd", ACTION, log_message, operation_name, FAILURE);
     exit(1);
   }
   // get_fd is called from a loop, so only log on failure to reduce spam
@@ -41,10 +41,10 @@ void write_to_sysfs_pin_file(int fd, char *pin, char *operation_name)
   int bytes_written = write(fd, pin, MAX_PIN_NUMBER_DIGITS);
   if (bytes_written != MAX_PIN_NUMBER_DIGITS)
   {
-    print_log("syfs-write-file", "system-action", log_message, "export-pin", FAILURE);
+    print_log("syfs-write-file", ACTION, log_message, "export-pin", FAILURE);
     exit(1);
   }
-  print_log("syfs-write-file", "system-action", log_message, "export-pin", SUCCESS);
+  print_log("syfs-write-file", ACTION, log_message, "export-pin", SUCCESS);
 }
 
 void unexport_pin(char *pin)
@@ -52,11 +52,11 @@ void unexport_pin(char *pin)
   char log_message[10];
   sprintf(log_message, "pin #%s", pin);
   // Unexport the pin by writing to /sys/class/gpio/unexport
-  print_log("gpio-pin-operation-init", "system-action", log_message, "unexport-pin", NA);
+  print_log("gpio-pin-operation-init", ACTION, log_message, "unexport-pin", NA);
   int fd = get_fd("/sys/class/gpio/unexport", "unexport-pin", O_WRONLY);
   write_to_sysfs_pin_file(fd, pin, "unexport-pin");
   close(fd);
-  print_log("gpio-pin-operation-complete", "system-action", log_message, "unexport-pin", SUCCESS);
+  print_log("gpio-pin-operation-complete", ACTION, log_message, "unexport-pin", SUCCESS);
 }
 
 void export_pin(char *pin)
@@ -64,18 +64,18 @@ void export_pin(char *pin)
   // Export the desired pin by writing to /sys/class/gpio/export
   char log_message[16];
   sprintf(log_message, "pin #%s", pin);
-  print_log("gpio-pin-operation-init", "system-action", log_message, "export-pin", NA);
+  print_log("gpio-pin-operation-init", ACTION, log_message, "export-pin", NA);
   int fd = get_fd("/sys/class/gpio/export", "export-pin", O_WRONLY);
   write_to_sysfs_pin_file(fd, pin, "export-pin");
   close(fd);
-  print_log("gpio-pin-operation-complete", "system-action", log_message, "export-pin", SUCCESS);
+  print_log("gpio-pin-operation-complete", ACTION, log_message, "export-pin", SUCCESS);
 }
 
 void set_pin_direction_in(char *pin)
 {
   char log_message[16];
   sprintf(log_message, "pin #%s", pin);
-  print_log("gpio-pin-operation-init", "system-action", log_message, "set-direction", NA);
+  print_log("gpio-pin-operation-init", ACTION, log_message, "set-direction", NA);
   char path[strlen("/sys/class/gpio/gpio/direction") + MAX_PIN_NUMBER_DIGITS];
   sprintf(path, "/sys/class/gpio/gpio%s/direction", pin);
   int fd = get_fd(path, "set-direction", O_WRONLY);
@@ -84,7 +84,7 @@ void set_pin_direction_in(char *pin)
     exit(1);
   }
   close(fd);
-  print_log("gpio-pin-operation-complete", "system-action", log_message, "set-direction", SUCCESS);
+  print_log("gpio-pin-operation-complete", ACTION, log_message, "set-direction", SUCCESS);
 }
 
 // Gets a file descriptor for a pin's value file at /sys/class/gpio/gpio<pin_number>/value
