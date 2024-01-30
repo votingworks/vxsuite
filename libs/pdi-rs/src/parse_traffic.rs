@@ -1,4 +1,4 @@
-use std::{fmt, io};
+use std::{fmt, io, ops::Not};
 
 use bitter::{BigEndianReader, BitReader};
 use color_eyre::owo_colors::OwoColorize;
@@ -141,21 +141,24 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         if let Endpoint::InAlt = endpoint {
             let data: Vec<_> = packet.data.0.iter().map(|byte| *byte ^ 0x33).collect();
             let mut reader = BigEndianReader::new(data.as_slice());
-            let mut last_side = Side::Bottom;
+            let mut next_side = Side::Top;
 
             for _ in 0..data.len() {
-                let image_data = if let Side::Top = last_side {
-                    &mut bottom_image_data
-                } else {
+                let image_data = if let Side::Top = next_side {
                     &mut top_image_data
+                } else {
+                    &mut bottom_image_data
                 };
 
-                for _ in 0..8 {
-                    let bit = reader.read_bit().unwrap();
-                    image_data.push(if bit { 0x00u8 } else { 0xffu8 });
+                for _ in 0..u8::BITS {
+                    image_data.push(if reader.read_bit().unwrap_or_default() {
+                        u8::MIN
+                    } else {
+                        u8::MAX
+                    });
                 }
 
-                last_side = match last_side {
+                next_side = match next_side {
                     Side::Top => Side::Bottom,
                     Side::Bottom => Side::Top,
                 }
