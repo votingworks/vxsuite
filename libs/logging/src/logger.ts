@@ -1,7 +1,7 @@
 import { Dictionary } from '@votingworks/types';
 import makeDebug from 'debug';
 import { LogEventId, getDetailsForEventId } from './log_event_ids';
-import { CLIENT_SIDE_LOG_SOURCES, LogSource } from './log_source';
+import { CLIENT_SIDE_LOG_SOURCES, LogSource } from './base_types/log_source';
 import {
   LogDisposition,
   LogDispositionStandardTypes,

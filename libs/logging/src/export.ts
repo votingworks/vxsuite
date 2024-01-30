@@ -9,7 +9,7 @@ import {
 import { JsonStreamInput, jsonStream } from '@votingworks/utils';
 import { z } from 'zod';
 import { LogEventId } from './log_event_ids';
-import { CLIENT_SIDE_LOG_SOURCES } from './log_source';
+import { CLIENT_SIDE_LOG_SOURCES } from './base_types/log_source';
 import { type Logger } from './logger';
 import { DEVICE_TYPES_FOR_APP, LogLineSchema, LoggingUserRole } from './types';
 
