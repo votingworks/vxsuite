@@ -1434,6 +1434,7 @@ name = "pdi-rs"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "bitter",
  "chrono",
  "clap",
  "color-eyre",

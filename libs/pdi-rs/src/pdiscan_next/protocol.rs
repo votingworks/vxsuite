@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 const PACKET_DATA_START: &'static [u8] = &[0x02];
 const PACKET_DATA_END: &'static [u8] = &[0x03];
 
@@ -15,6 +17,33 @@ impl TryFrom<u8> for ResolutionTableType {
         match value {
             0 => Ok(Self::Native),
             1 => Ok(Self::Half),
+            _ => Err(()),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum Side {
+    Top,
+    Bottom,
+}
+
+impl From<Side> for u8 {
+    fn from(side: Side) -> Self {
+        match side {
+            Side::Top => b'T',
+            Side::Bottom => b'B',
+        }
+    }
+}
+
+impl TryFrom<u8> for Side {
+    type Error = ();
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            b'T' => Ok(Self::Top),
+            b'B' => Ok(Self::Bottom),
             _ => Err(()),
         }
     }
@@ -39,8 +68,38 @@ pub enum Outgoing {
     SetSerialNumberRequest([u8; 8]),
 
     GetScannerSettingsRequest,
+
+    /// When this command is sent without arguments, it will report the number
+    /// of entry sensors that need to be covered before the scanner will
+    /// initiate a scan. This command also reports the number of entry sensors
+    /// available in the scanner.
+    ///
+    /// `<ESC> s = (1BH) (73H)`
+    ///
+    /// # Response Format
+    ///
+    /// `(73H) <’Current Sensors Needed’> <’Total Input Sensors’>`
     GetRequiredInputSensorsRequest,
-    SetRequiredInputSensorsRequest(u8),
+
+    /// In case an additional byte is added to this command, it will set the
+    /// number of sensors needed to start a scan. This additional byte can be no
+    /// less than 1 and not greater than the maximum number of sensors.
+    ///
+    /// `<ESC> s <’Number of Sensors’>`
+    ///
+    /// # Response Format
+    ///
+    /// `(73H) <’Current Sensors Needed’> <’Total Input Sensors’>`
+    ///
+    /// The values are single characters, ascii decimal digit. As an example,
+    /// for PageScan 5 Simplex, the esc-s command will return:
+    ///
+    /// `<esc>s37`
+    ///
+    /// Meaning 7 sensors available, 3 need to be covered to initiate a scan.
+    SetRequiredInputSensorsRequest {
+        sensors: u8,
+    },
 
     IncreaseTopCISSensorThresholdBy1Request,
     DecreaseTopCISSensorThresholdBy1Request,
@@ -50,6 +109,98 @@ pub enum Outgoing {
     GetCalibrationInformationRequest {
         resolution_table_type: ResolutionTableType,
     },
+
+    SetScannerImageDensityToHalfNativeResolutionRequest,
+    SetScannerToDuplexModeRequest,
+    DisablePickOnCommandModeRequest,
+    DisableEjectPauseRequest,
+    TransmitInLowBitsPerPixelRequest,
+    DisableAutoRunOutAtEndOfScanRequest,
+    ConfigureMotorToRunAtHalfSpeedRequest,
+    ConfigureMotorToRunAtFullSpeedRequest,
+
+    /// This command sets the threshold offset value to a specific value (in RAM
+    /// only) – data format is a hexadecimal percentage followed by the
+    /// hexadecimal representation of either ASCII “T” for the top array, or
+    /// ASCII “B” for the bottom array of a duplex scanner. This command does
+    /// not save threshold to ROM. This command has no effect on the PS4 color
+    /// scanner models were bi-tonal mode is not an option.
+    ///
+    /// `<ESC>% = (1BH) (25H)`
+    SetThresholdToANewValueRequest {
+        side: Side,
+        new_threshold: u8,
+    },
+
+    /// This command sets the maximum expected length of a document. If a
+    /// scanned document is longer than this value, then a paper jam will be
+    /// reported.
+    ///
+    /// `<ESC> D <Scan Length Byte>= (1BH) (44H) (Hex Scan Length Byte)`
+    ///
+    /// The Hex Scan Length Byte is calculated by dividing the scan length (in
+    /// inches) by 0.1 (“the default unit”), converting this decimal number to
+    /// its hex equivalent, and then add 20 (hex) to eliminate control code
+    /// characters.
+    ///
+    /// # Example:
+    ///
+    /// To scan 5.0 inches of a form, the scan length byte is calculated:
+    ///
+    /// `(5.0”/0.1 = 50D = 32H) (32H + 20H = 52H)`
+    /// `<ESC> D <Scan Length Byte>= (1BH) (44H) (52H)`
+    ///
+    /// In case document lengths of over 22.3 inches are used, one can add one
+    /// additional byte to this command.
+    ///
+    /// `<ESC>D<Scan Length Byte><Unit Byte>`
+    ///
+    /// This Unit Byte will overrule the default unit of 0.1”. The unit used
+    /// will be: `(Unit Byte – ‘0’) * 5 + 10 in 1/100 of inch`. So a value of 10
+    /// is 0.1 inch.
+    ///
+    /// # Example:
+    ///
+    /// `(1BH)(44H)(52H)(32H)`
+    /// The unit in this case is: `(32H – 30H) * 5 + 10 = 20 or 0.2 inch` for
+    /// the unit. The length set will be `(52H – 20H) * 0.20 = 10.0 inch`.
+    ///
+    /// # Response
+    ///
+    /// No response
+    SetLengthOfDocumentToScanRequest {
+        length_byte: u8,
+        unit_byte: Option<u8>,
+    },
+
+    /// This command allows selection of a delay interval from the time a
+    /// document is inserted into the scanner and the intake of the document for
+    /// scanning. It gives a user the ability to straighten or adjust the
+    /// document position. The command is followed by a single byte with hex
+    /// value between 32 (20 hex) and 232 (E8 hex), from which 32 is subtracted
+    /// to yield a final value between 0 and 200. This value is multiplied by 16
+    /// msec to give a delay time between 0 and 3.2 sec. Values outside the
+    /// legal range result in reversion to a default delay of 1 msec.
+    ///
+    /// # Example:
+    /// `<ESC> j = (1BH) (6AH)`
+    ///
+    /// # Response
+    ///
+    /// No response.
+    SetScanDelayIntervalForDocumentFeedRequest {
+        delay_interval: Duration,
+    },
+
+    /// This command causes the scanner’s motor to run in the forward direction
+    /// (ejecting a document from the rear of the unit). Motor runs until exit
+    /// sensors say that document has been ejected, or runs for a max run time
+    /// of about 4 seconds. ASCII character 3 = (33H)
+    ///
+    /// # Response
+    ///
+    /// No response.
+    EjectDocumentToBackOfScannerRequest,
 }
 
 #[derive(Debug)]
@@ -77,6 +228,10 @@ pub enum Incoming {
         white_calibration_table: Vec<u8>,
         black_calibration_table: Vec<u8>,
     },
+
+    BeginScanEvent,
+    EndScanEvent,
+    DoubleFeedEvent,
 }
 
 #[derive(Debug)]
@@ -86,20 +241,20 @@ pub enum Packet {
 }
 
 pub mod parsers {
-    use std::{mem::size_of, str::from_utf8};
+    use std::{str::from_utf8, time::Duration};
 
     use nom::{
         branch::alt,
         bytes::complete::{tag, take, take_until},
         character::is_digit,
         combinator::{map, map_res},
-        number::complete::{be_u16, le_u16, le_u8},
+        number::complete::{le_u16, le_u8},
         sequence::{tuple, Tuple},
         IResult,
     };
 
     use super::{
-        crc, Command, Incoming, Outgoing, Packet, ResolutionTableType, Status, Version,
+        crc, Command, Incoming, Outgoing, Packet, ResolutionTableType, Side, Status, Version,
         PACKET_DATA_END, PACKET_DATA_START,
     };
 
@@ -112,51 +267,103 @@ pub mod parsers {
 
     pub fn any_outgoing<'a>(input: &'a [u8]) -> IResult<&'a [u8], Outgoing> {
         alt((
-            map(get_test_string_request, |_| Outgoing::GetTestStringRequest),
-            map(get_firmware_version_request, |_| {
-                Outgoing::GetFirmwareVersionRequest
-            }),
-            map(get_scanner_status_request, |_| {
-                Outgoing::GetScannerStatusRequest
-            }),
-            map(enable_feeder_request, |_| Outgoing::EnableFeederRequest),
-            map(disable_feeder_request, |_| Outgoing::DisableFeederRequest),
-            map(disable_momentary_reverse_on_feed_at_input_request, |_| {
-                Outgoing::DisableMomentaryReverseOnFeedAtInputRequest
-            }),
-            map(get_serial_number_request, |_| {
-                Outgoing::GetSerialNumberRequest
-            }),
-            map(set_serial_number_request, |serial_number| {
-                Outgoing::SetSerialNumberRequest(*serial_number)
-            }),
-            map(get_scanner_settings_request, |_| {
-                Outgoing::GetScannerSettingsRequest
-            }),
-            map(get_input_sensors_required_request, |_| {
-                Outgoing::GetRequiredInputSensorsRequest
-            }),
-            map(set_input_sensors_required_request, |sensors| {
-                Outgoing::SetRequiredInputSensorsRequest(sensors)
-            }),
-            map(increase_top_cis_threshold_by_1_request, |_| {
-                Outgoing::IncreaseTopCISSensorThresholdBy1Request
-            }),
-            map(decrease_top_cis_threshold_by_1_request, |_| {
-                Outgoing::DecreaseTopCISSensorThresholdBy1Request
-            }),
-            map(increase_bottom_cis_threshold_by_1_request, |_| {
-                Outgoing::IncreaseBottomCISSensorThresholdBy1Request
-            }),
-            map(decrease_bottom_cis_threshold_by_1_request, |_| {
-                Outgoing::DecreaseBottomCISSensorThresholdBy1Request
-            }),
-            map(
-                get_calibration_information_request,
-                |resolution_table_type| Outgoing::GetCalibrationInformationRequest {
-                    resolution_table_type,
-                },
-            ),
+            alt((
+                map(get_test_string_request, |_| Outgoing::GetTestStringRequest),
+                map(get_firmware_version_request, |_| {
+                    Outgoing::GetFirmwareVersionRequest
+                }),
+                map(get_scanner_status_request, |_| {
+                    Outgoing::GetScannerStatusRequest
+                }),
+                map(enable_feeder_request, |_| Outgoing::EnableFeederRequest),
+                map(disable_feeder_request, |_| Outgoing::DisableFeederRequest),
+                map(disable_momentary_reverse_on_feed_at_input_request, |_| {
+                    Outgoing::DisableMomentaryReverseOnFeedAtInputRequest
+                }),
+                map(get_serial_number_request, |_| {
+                    Outgoing::GetSerialNumberRequest
+                }),
+                map(set_serial_number_request, |serial_number| {
+                    Outgoing::SetSerialNumberRequest(*serial_number)
+                }),
+                map(get_scanner_settings_request, |_| {
+                    Outgoing::GetScannerSettingsRequest
+                }),
+                map(get_input_sensors_required_request, |_| {
+                    Outgoing::GetRequiredInputSensorsRequest
+                }),
+                map(set_input_sensors_required_request, |sensors| {
+                    Outgoing::SetRequiredInputSensorsRequest { sensors }
+                }),
+                map(increase_top_cis_threshold_by_1_request, |_| {
+                    Outgoing::IncreaseTopCISSensorThresholdBy1Request
+                }),
+                map(decrease_top_cis_threshold_by_1_request, |_| {
+                    Outgoing::DecreaseTopCISSensorThresholdBy1Request
+                }),
+                map(increase_bottom_cis_threshold_by_1_request, |_| {
+                    Outgoing::IncreaseBottomCISSensorThresholdBy1Request
+                }),
+                map(decrease_bottom_cis_threshold_by_1_request, |_| {
+                    Outgoing::DecreaseBottomCISSensorThresholdBy1Request
+                }),
+                map(
+                    get_calibration_information_request,
+                    |resolution_table_type| Outgoing::GetCalibrationInformationRequest {
+                        resolution_table_type,
+                    },
+                ),
+                map(
+                    set_scanner_image_density_to_half_native_resolution_request,
+                    |_| Outgoing::SetScannerImageDensityToHalfNativeResolutionRequest,
+                ),
+                map(set_scanner_to_duplex_mode_request, |_| {
+                    Outgoing::SetScannerToDuplexModeRequest
+                }),
+                map(disable_pick_on_command_mode_request, |_| {
+                    Outgoing::DisablePickOnCommandModeRequest
+                }),
+                map(disable_eject_pause_request, |_| {
+                    Outgoing::DisableEjectPauseRequest
+                }),
+                map(transmit_in_low_bits_per_pixel_request, |_| {
+                    Outgoing::TransmitInLowBitsPerPixelRequest
+                }),
+            )),
+            alt((
+                map(disable_auto_run_out_at_end_of_scan_request, |_| {
+                    Outgoing::DisableAutoRunOutAtEndOfScanRequest
+                }),
+                map(configure_motor_to_run_at_half_speed_request, |_| {
+                    Outgoing::ConfigureMotorToRunAtHalfSpeedRequest
+                }),
+                map(configure_motor_to_run_at_full_speed_request, |_| {
+                    Outgoing::ConfigureMotorToRunAtFullSpeedRequest
+                }),
+                map(
+                    set_threshold_to_a_new_value_request,
+                    |(side, new_threshold)| Outgoing::SetThresholdToANewValueRequest {
+                        side,
+                        new_threshold,
+                    },
+                ),
+                map(
+                    set_length_of_document_to_scan_request,
+                    |(length_byte, unit_byte)| Outgoing::SetLengthOfDocumentToScanRequest {
+                        length_byte,
+                        unit_byte,
+                    },
+                ),
+                map(
+                    set_scan_delay_interval_for_document_feed_request,
+                    |delay_interval| Outgoing::SetScanDelayIntervalForDocumentFeedRequest {
+                        delay_interval,
+                    },
+                ),
+                map(eject_document_to_back_of_scanner_request, |_| {
+                    Outgoing::EjectDocumentToBackOfScannerRequest
+                }),
+            )),
         ))(input)
     }
 
@@ -204,6 +411,9 @@ pub mod parsers {
                     }
                 },
             ),
+            map(begin_scan_event, |_| Incoming::BeginScanEvent),
+            map(end_scan_event, |_| Incoming::EndScanEvent),
+            map(double_feed_event, |_| Incoming::DoubleFeedEvent),
         ))(input)
     }
 
@@ -407,12 +617,10 @@ pub mod parsers {
 
     pub fn set_input_sensors_required_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], u8> {
         map_res(
-            tuple((packet((tag(b"s"), take(1usize))), le_u8)),
+            tuple((packet((tag(b"\x1bs"), le_u8)), le_u8)),
             |((_, sensors), actual_crc)| {
-                if actual_crc == crc(sensors) {
-                    if let [sensors, ..] = sensors {
-                        return Ok(*sensors);
-                    }
+                if actual_crc == crc(&[0x1b, b's', sensors]) && is_digit(sensors) {
+                    return Ok(sensors - b'0');
                 }
 
                 Err(nom::Err::Failure(nom::error::Error::new(
@@ -499,14 +707,14 @@ pub mod parsers {
         let (input, white_calibration_table_checksum) = le_u16(input)?;
         // dbg!(
         //     white_calibration_table.len(),
-        //     white_calibration_table,
+        //     // white_calibration_table,
         //     white_calibration_table_checksum
         // );
         let (input, black_calibration_table) = take(pixel_count)(input)?;
         let (input, black_calibration_table_checksum) = le_u16(input)?;
         // dbg!(
         //     black_calibration_table.len(),
-        //     black_calibration_table,
+        //     // black_calibration_table,
         //     black_calibration_table_checksum,
         //     input
         // );
@@ -524,6 +732,201 @@ pub mod parsers {
                 black_calibration_table.to_vec(),
             ),
         ))
+    }
+
+    fn set_scanner_image_density_to_half_native_resolution_request<'a>(
+        input: &'a [u8],
+    ) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"A");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    fn set_scanner_to_duplex_mode_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"J");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    fn disable_pick_on_command_mode_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"\x1bY");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    fn disable_eject_pause_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"N");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    fn transmit_in_low_bits_per_pixel_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"z");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    fn disable_auto_run_out_at_end_of_scan_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"\x1bd");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    fn configure_motor_to_run_at_half_speed_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"j");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    fn configure_motor_to_run_at_full_speed_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"k");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    fn set_threshold_to_a_new_value_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], (Side, u8)> {
+        map_res(
+            tuple((packet((tag(b"\x1b%"), le_u8, le_u8)), le_u8)),
+            |((_, side, new_threshold), actual_crc)| {
+                let Ok(side) = Side::try_from(side) else {
+                    return Err(nom::Err::Failure(nom::error::Error::new(
+                        input,
+                        nom::error::ErrorKind::Verify,
+                    )));
+                };
+
+                if actual_crc == crc(&[0x1b, b'%', side.into(), new_threshold]) {
+                    return Ok((side, new_threshold));
+                }
+
+                Err(nom::Err::Failure(nom::error::Error::new(
+                    input,
+                    nom::error::ErrorKind::Verify,
+                )))
+            },
+        )(input)
+    }
+
+    fn set_length_of_document_to_scan_request<'a>(
+        input: &'a [u8],
+    ) -> IResult<&'a [u8], (u8, Option<u8>)> {
+        let (input, _) = packet_start(input)?;
+        let body = input;
+        let (input, tag_bytes) = tag(b"\x1bD")(input)?;
+        let (input, length_byte) = le_u8(input)?;
+        let (input, unit_byte) = alt((
+            map(tuple((le_u8, packet_end)), |(unit_byte, _)| Some(unit_byte)),
+            map(packet_end, |_| None),
+        ))(input)?;
+        let (input, actual_crc) = le_u8(input)?;
+        let body = &body[..tag_bytes.len() + 1 + if unit_byte.is_some() { 1 } else { 0 }];
+
+        if actual_crc != crc(body) {
+            return Err(nom::Err::Failure(nom::error::Error::new(
+                input,
+                nom::error::ErrorKind::Verify,
+            )));
+        }
+
+        Ok((input, (length_byte, unit_byte)))
+    }
+
+    fn set_scan_delay_interval_for_document_feed_request<'a>(
+        input: &'a [u8],
+    ) -> IResult<&'a [u8], Duration> {
+        map_res(
+            tuple((packet((tag(b"\x1bj"), le_u8)), le_u8)),
+            |((_, delay_interval), actual_crc)| {
+                if delay_interval < 0x20 || delay_interval > 0xe8 {
+                    return Err(nom::Err::Failure(nom::error::Error::new(
+                        input,
+                        nom::error::ErrorKind::Verify,
+                    )));
+                }
+
+                if actual_crc != crc(&[0x1b, b'j', delay_interval]) {
+                    return Err(nom::Err::Failure(nom::error::Error::new(
+                        input,
+                        nom::error::ErrorKind::Verify,
+                    )));
+                }
+
+                let delay_interval = delay_interval - 0x20;
+                Ok(Duration::from_millis(16) * delay_interval.into())
+            },
+        )(input)
+    }
+
+    fn begin_scan_event<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+        map(packet((tag(b"#30"),)), |_| ())(input)
+    }
+
+    fn end_scan_event<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+        map(packet((tag(b"#31"),)), |_| ())(input)
+    }
+
+    fn double_feed_event<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+        map(packet((tag(b"#33"),)), |_| ())(input)
+    }
+
+    /// This command causes the scanner to eject a form (after scanning) at the
+    /// front input throat of the scanner, but form remains gripped by the
+    /// scanner input rollers. ASCII character 1 = (31H)
+    ///
+    /// # Response
+    ///
+    /// No response.
+    fn eject_document_to_front_of_scanner_and_hold_in_input_rollers_request<'a>(
+        input: &'a [u8],
+    ) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"1");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    /// This command causes the scanner’s motor to run in the forward direction
+    /// (ejecting a document from the rear of the unit). Motor runs until exit
+    /// sensors say that document has been ejected, or runs for a max run time
+    /// of about 4 seconds. ASCII character 3 = (33H)
+    ///
+    /// # Response
+    ///
+    /// No response.
+    fn eject_document_to_back_of_scanner_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"3");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    /// This command causes the scanner’s motor to run in the reverse direction
+    /// (clearing a document from the front entrance of the scanner). Motor runs
+    /// until front sensors indicate form has exited, or for a max run time of
+    /// about 4 seconds. ASCII character 4 = (34H)
+    ///
+    /// # Response
+    ///
+    /// No response.
+    fn eject_document_to_the_front_of_scanners_request<'a>(
+        input: &'a [u8],
+    ) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"4");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    /// This command causes the scanner to eject a document held in escrow (rear
+    /// rollers), by advancing the feed mechanism only enough to release the
+    /// document. ASCII character 7 = (37H)
+    ///
+    /// # Response
+    ///
+    /// No response.
+    fn eject_escrow_document_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"7");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    /// On receipt of this command, the scanner will re-scan a document in
+    /// escrow position (held by rear set of rollers), and re-transmit the data.
+    /// ASCII character [ = (5BH)
+    ///
+    /// # Response
+    ///
+    /// No response.
+    fn rescan_document_held_in_escrow_position_request<'a>(
+        input: &'a [u8],
+    ) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"[");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
     }
 }
 

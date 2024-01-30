@@ -1,5 +1,9 @@
 use std::{fmt, io};
 
+use bitter::{BigEndianReader, BitReader};
+use color_eyre::owo_colors::OwoColorize;
+use image::{DynamicImage, ImageBuffer, Luma};
+use pdiscan_next::protocol::Side;
 use serde::Deserialize;
 
 use crate::pdiscan_next::protocol;
@@ -36,13 +40,18 @@ struct HexString(Vec<u8>);
 
 impl fmt::Debug for HexString {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        const MAX_LENGTH: usize = 100;
         write!(f, "<")?;
 
-        for (i, byte) in self.0.iter().enumerate() {
+        for (i, byte) in self.0.iter().take(MAX_LENGTH).enumerate() {
             if i > 0 {
                 write!(f, " ")?;
             }
             write!(f, "{:02x}", byte)?;
+        }
+
+        if self.0.len() > MAX_LENGTH {
+            write!(f, " …")?;
         }
 
         write!(f, ">")
@@ -112,8 +121,14 @@ impl fmt::Display for Endpoint {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    const WIDTH: u32 = 1728;
+    const APPROXIMATE_HEIGHT: u32 = 2400;
+
     // Build the CSV reader and iterate over each record.
     let mut rdr = csv::Reader::from_reader(io::stdin());
+    let mut top_image_data = Vec::with_capacity((WIDTH * APPROXIMATE_HEIGHT) as usize);
+    let mut bottom_image_data = Vec::with_capacity((WIDTH * APPROXIMATE_HEIGHT) as usize);
+
     for result in rdr.deserialize() {
         let packet: Packet = result?;
 
@@ -123,7 +138,68 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let endpoint = Endpoint::from(packet.endpoint_address.0);
 
+        if let Endpoint::InAlt = endpoint {
+            let data: Vec<_> = packet.data.0.iter().map(|byte| *byte ^ 0x33).collect();
+            let mut reader = BigEndianReader::new(data.as_slice());
+            let mut last_side = Side::Bottom;
+
+            for _ in 0..data.len() {
+                let image_data = if let Side::Top = last_side {
+                    &mut bottom_image_data
+                } else {
+                    &mut top_image_data
+                };
+
+                for _ in 0..8 {
+                    let bit = reader.read_bit().unwrap();
+                    image_data.push(if bit { 0x00u8 } else { 0xffu8 });
+                }
+
+                last_side = match last_side {
+                    Side::Top => Side::Bottom,
+                    Side::Bottom => Side::Top,
+                }
+            }
+            continue;
+        }
+
         match protocol::parsers::any_packet(&packet.data.0.as_slice()) {
+            Ok(([], protocol::Packet::Incoming(protocol::Incoming::BeginScanEvent))) => {
+                println!(
+                    "{endpoint} {incoming:?}",
+                    incoming = protocol::Incoming::BeginScanEvent
+                );
+                top_image_data.clear();
+                bottom_image_data.clear();
+            }
+            Ok(([], protocol::Packet::Incoming(protocol::Incoming::EndScanEvent))) => {
+                println!(
+                    "{endpoint} {incoming:?}",
+                    incoming = protocol::Incoming::EndScanEvent
+                );
+
+                let height = top_image_data.len() as u32 / WIDTH;
+                let mut top_image = ImageBuffer::new(WIDTH, height);
+                let mut bottom_image = ImageBuffer::new(WIDTH, height);
+
+                for (image_data, image) in [
+                    (&top_image_data, &mut top_image),
+                    (&bottom_image_data, &mut bottom_image),
+                ] {
+                    for (y, image_row) in image_data.chunks_exact(WIDTH as usize).enumerate() {
+                        for (x, pixel) in image_row.iter().enumerate() {
+                            image.put_pixel(x as u32, y as u32, Luma([*pixel]));
+                        }
+                    }
+                }
+
+                let top_image = DynamicImage::ImageLuma8(top_image).fliph();
+                let bottom_image = DynamicImage::ImageLuma8(bottom_image);
+
+                for (side, image) in [(Side::Top, top_image), (Side::Bottom, bottom_image)] {
+                    image.save(format!("image-{side:?}.bmp"))?;
+                }
+            }
             Ok(([], protocol::Packet::Incoming(incoming))) => {
                 println!("{endpoint} {incoming:?}");
             }
@@ -131,12 +207,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 println!("{endpoint} {outgoing:?}");
             }
             Ok((remaining, parsed)) => {
-                println!("{endpoint} {parsed:?} REMAINING: {remaining:?}");
+                println!("{endpoint} {parsed:?} REMAINING: {remaining:02x?}");
             }
             Err(_) => {
                 println!(
                     "{endpoint} UNKNOWN {packet:?} (string: {string:?}) (length: {length})",
-                    string = String::from_utf8_lossy(&packet.data.0.as_slice()),
+                    string =
+                        String::from_utf8_lossy(&packet.data.0[..100.min(packet.data.0.len())]),
                     length = packet.data.0.len(),
                 );
             }
