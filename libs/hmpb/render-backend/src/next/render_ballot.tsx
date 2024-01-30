@@ -24,14 +24,36 @@ export interface PagedElementResult<P> {
 
 export type ContentComponent<P> = (
   props: P & { dimensions: PixelDimensions },
+  // The content component is passed the document so that it can measure
+  // elements in order to determine how much content fits on each page.
   document: RenderDocument
 ) => Promise<PagedElementResult<P>>;
 
+/**
+ * A page template consists of two interlocking pieces:
+ * - A frame component (imagine it like a picture frame) that is rendered on each page
+ * - A content component that knows how to render a page at a time of content
+ * within the frame. Given a set of props (e.g. list of contests) the content component returns two items:
+ *     - The content element for the current page (e.g. the contest boxes for this page)
+ *     - The props for the next page (e.g. the contests that didn't fit on this page)
+ */
 export interface BallotPageTemplate<P> {
   frameComponent: FrameComponent<P>;
   contentComponent: ContentComponent<P>;
 }
 
+/**
+ * To paginate ballot content, we go through the following steps:
+ *
+ * Render the content for each page:
+ * - Render the frame on the first page
+ * - Measure how much space is available inside the frame for content
+ * - Render the content for this page (given the available space) and save it
+ * - If we still have content left to render, repeat with the next page
+ *
+ * Once we have the content for each page, we render the content into the frame
+ * for each page, passing in the page number and total number of pages.
+ */
 async function paginateBallotContent<P extends Record<string, unknown>>(
   pageTemplate: BallotPageTemplate<P>,
   props: P,
@@ -87,6 +109,13 @@ interface ContestOptionLayout {
   row: number;
 }
 
+/**
+ * We rely on data-* attributes to locate and identify timing marks and contest
+ * option bubbles within the DOM after the ballot has been rendered. This allows
+ * the template to focus on rendering declaratively without worry about absolute
+ * positions. We'll probably want to have some layer of abstraction for
+ * templates to use to ensure they get the data-* attributes right.
+ */
 async function extractLayoutInfo(
   document: RenderDocument
 ): Promise<ContestOptionLayout[]> {
@@ -144,6 +173,12 @@ function electionHashFromLayoutInfo(layoutInfo: ContestOptionLayout[]): string {
   return 'fake-election-hash'; // Not important for this proof of concept
 }
 
+/**
+ * To add QR codes, we could do it the way we did it previously, restarting the
+ * whole rendering process with an electionHash prop passed in. However, since
+ * we've already broken the seal on mutation, why not just swap in the QR code
+ * element directly?
+ */
 async function addQrCodes(document: RenderDocument, electionHash: string) {
   const pages = await document.inspectElements('[data-page]');
   for (const i of pages.keys()) {
@@ -164,18 +199,28 @@ async function addQrCodes(document: RenderDocument, electionHash: string) {
   }
 }
 
+/**
+ * Given a ballot page template, which specifies the layout for an individual
+ * ballot page, and props (i.e. the election content), render a ballot PDF.
+ */
 export async function renderBallotToPdf<P extends Record<string, unknown>>(
   template: BallotPageTemplate<P>,
   props: P,
   options: PdfOptions
 ): Promise<Buffer> {
   const renderer = await createRenderer();
-  const document = await renderer.createDocument();
   const t1 = Date.now();
+  // Creating a new browser page is slow, so we're going to reuse the same page
+  // throughout the process. This means we'll mutate the page content, so it
+  // requires some careful thinking to track the state of the page. Not our
+  // normal approach, but I think worthwhile for the performance gain, since
+  // we'll be rendering many ballots at once (each with their own page).
+  const document = await renderer.createDocument();
   const pages = await paginateBallotContent(template, props, document);
   await document.setContent('body', <>{pages}</>);
   const layoutInfo = await extractLayoutInfo(document);
-  // console.log(layoutInfo);
+  // Normally we'd need to have layout info from all ballots to compute the
+  // election hash - we're simplifying here
   const electionHash = electionHashFromLayoutInfo(layoutInfo);
   await addQrCodes(document, electionHash);
   const pdf = await document.renderToPdf(options);

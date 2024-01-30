@@ -61,6 +61,9 @@ async function createDocument(page: Page) {
       sheet.seal();
       const htmlContent =
         ReactDomServer.renderToString(<>{style}</>) + elementHtml;
+      // Using the Playwright API to query/manipulate the DOM is much slower
+      // than running JS directly in the browser. We use `evaluate` to run the
+      // given function in the browser and return the result.
       await page.evaluate(
         // eslint-disable-next-line @typescript-eslint/no-shadow
         ([selector, content]) => {
@@ -72,6 +75,9 @@ async function createDocument(page: Page) {
     },
 
     async inspectElements(selector: string) {
+      // Using the Playwright API to query/manipulate the DOM is much slower
+      // than running JS directly in the browser. We use `evaluate` to run the
+      // given function in the browser and return the result.
       // eslint-disable-next-line @typescript-eslint/no-shadow
       return await page.evaluate((selector) => {
         const nodes = Array.from(document.querySelectorAll(selector));
