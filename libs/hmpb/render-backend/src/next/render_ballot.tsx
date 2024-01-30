@@ -11,6 +11,8 @@ export const contentSlot = (
   <div id="content-slot" style={{ height: '100%', width: '100%' }} />
 );
 
+export const qrCodeSlot = <div data-type="QrCodeSlot" />;
+
 export type FrameComponent<P> = (
   props: P & { children: JSX.Element; pageNumber: number; totalPages: number }
 ) => JSX.Element;
@@ -46,7 +48,7 @@ async function paginateBallotContent<P extends Record<string, unknown>>(
       totalPages: 0,
       children: contentSlot,
     });
-    await document.setBodyContent(pageFrame);
+    await document.setContent('body', pageFrame);
     const [contentSlotElement] = await document.inspectElements(
       `#${contentSlot.props.id}`
     );
@@ -142,6 +144,26 @@ function electionHashFromLayoutInfo(layoutInfo: ContestOptionLayout[]): string {
   return 'fake-election-hash'; // Not important for this proof of concept
 }
 
+async function addQrCodes(document: RenderDocument, electionHash: string) {
+  const pages = await document.inspectElements('[data-page]');
+  for (const i of pages.keys()) {
+    const pageNumber = i + 1;
+    const qrCode = (
+      <div style={{ border: '1px solid green' }}>
+        QR code
+        <br />
+        {electionHash}
+        <br />
+        {pageNumber}
+      </div>
+    );
+    await document.setContent(
+      `[data-page="${pageNumber}"] [data-type="QrCodeSlot"]`,
+      qrCode
+    );
+  }
+}
+
 export async function renderBallotToPdf<P extends Record<string, unknown>>(
   template: BallotPageTemplate<P>,
   props: P,
@@ -151,11 +173,11 @@ export async function renderBallotToPdf<P extends Record<string, unknown>>(
   const document = await renderer.createDocument();
   const t1 = Date.now();
   const pages = await paginateBallotContent(template, props, document);
-  await document.setBodyContent(<>{pages}</>);
+  await document.setContent('body', <>{pages}</>);
   const layoutInfo = await extractLayoutInfo(document);
-  console.log(layoutInfo);
-  const electionHash = await electionHashFromLayoutInfo(layoutInfo);
-  // const pagesWithQrCodes = await addQrCodes(pages, electionHash);
+  // console.log(layoutInfo);
+  const electionHash = electionHashFromLayoutInfo(layoutInfo);
+  await addQrCodes(document, electionHash);
   const pdf = await document.renderToPdf(options);
   const t2 = Date.now();
   // eslint-disable-next-line no-console

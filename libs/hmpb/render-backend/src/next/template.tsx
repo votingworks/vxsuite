@@ -1,19 +1,15 @@
 import { Buffer } from 'buffer';
 import { assertDefined, iter, range } from '@votingworks/basics';
 import { writeFile } from 'fs/promises';
-import React, { CSSProperties } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import {
   BallotPageTemplate,
   PagedElementResult,
+  qrCodeSlot,
   renderBallotToPdf,
 } from './render_ballot';
 import { InchDimensions, PixelDimensions, RenderDocument } from './renderer';
-
-const boxStyle: CSSProperties = {
-  padding: '2rem',
-  border: '1px solid black',
-};
 
 export interface MiniElection {
   title: string;
@@ -130,7 +126,9 @@ function TimingMarkGrid({ children }: { children: React.ReactNode }) {
 }
 
 function Header({ children }: { children: React.ReactNode }) {
-  return <div style={boxStyle}>{children}</div>;
+  return (
+    <div style={{ padding: '1rem', border: '1px solid black' }}>{children}</div>
+  );
 }
 
 async function PagedContent(
@@ -143,7 +141,8 @@ async function PagedContent(
   },
   document: RenderDocument
 ): Promise<PagedElementResult<{ children: JSX.Element[] }>> {
-  await document.setBodyContent(
+  await document.setContent(
+    'body',
     <>
       {children.map((child, i) => (
         <div key={i} style={{ width: dimensions.width }}>
@@ -188,7 +187,19 @@ async function PagedContent(
 }
 
 function Footer({ children }: { children: React.ReactNode }) {
-  return <div style={boxStyle}>{children}</div>;
+  return (
+    <div
+      style={{
+        padding: '1rem',
+        border: '1px solid black',
+        display: 'flex',
+        justifyContent: 'space-between',
+      }}
+    >
+      {children}
+      <div>{qrCodeSlot}</div>
+    </div>
+  );
 }
 
 const ContestBox = styled.div`
@@ -309,7 +320,7 @@ async function main() {
   const outputPath = 'ballot.pdf';
   await writeFile(outputPath, ballotPdf);
   // eslint-disable-next-line no-console
-  console.log(`Rendered ballot to ${outputPath} in ${t2 - t1}ms`);
+  console.log(`Rendered and saved ballot to ${outputPath} in ${t2 - t1}ms`);
 }
 
 main().catch((err) => {

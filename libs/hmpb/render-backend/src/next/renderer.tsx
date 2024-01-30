@@ -52,7 +52,7 @@ async function createDocument(page: Page) {
   await page.setContent(`<!DOCTYPE html>${pageContents}`);
 
   return {
-    async setBodyContent(element: JSX.Element): Promise<void> {
+    async setContent(selector: string, element: JSX.Element): Promise<void> {
       const sheet = new ServerStyleSheet();
       const elementHtml = ReactDomServer.renderToString(
         sheet.collectStyles(element)
@@ -61,9 +61,14 @@ async function createDocument(page: Page) {
       sheet.seal();
       const htmlContent =
         ReactDomServer.renderToString(<>{style}</>) + elementHtml;
-      await page.evaluate((content) => {
-        document.body.innerHTML = content;
-      }, htmlContent);
+      await page.evaluate(
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        ([selector, content]) => {
+          const node = document.querySelector(selector);
+          if (node) node.innerHTML = content;
+        },
+        [selector, htmlContent]
+      );
     },
 
     async inspectElements(selector: string) {
