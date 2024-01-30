@@ -10,7 +10,13 @@
     "skipLibCheck": true,
     "noUncheckedIndexedAccess": false
   },
-  "include": ["src", "test", ".storybook/*", "./i18next-parser.config.ts"],
+  "include": [
+    "scripts",
+    "src",
+    "test",
+    ".storybook/*",
+    "./i18next-parser.config.ts"
+  ],
   "exclude": [],
   "references": [
     { "path": "../backend/tsconfig.build.json" },

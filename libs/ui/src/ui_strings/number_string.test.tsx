@@ -1,5 +1,6 @@
 import { LanguageCode } from '@votingworks/types';
-import { H1 } from '..';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
+import { H1, TestErrorBoundary } from '..';
 import {
   act,
   render as renderWithoutContext,
@@ -10,7 +11,9 @@ import { NumberString } from './number_string';
 import { UiStringAudioDataAttributeName } from './with_audio';
 
 test('formats based on current language code', async () => {
-  const { getLanguageContext, mockApiClient, render } = newTestContext();
+  const { getLanguageContext, mockApiClient, render } = newTestContext({
+    uiStringsApiOptions: { noAudio: true },
+  });
 
   mockApiClient.getAvailableLanguages.mockResolvedValue([]);
   mockApiClient.getUiStrings.mockResolvedValue({});
@@ -46,6 +49,21 @@ test('renders with audio data attributes', async () => {
   render(<NumberString value={23} />);
 
   const element = await screen.findByText('23');
-  expect(element).toHaveAttribute(I18N_KEY, 'number.23');
+  expect(element).toHaveAttribute(I18N_KEY, `number23`);
   expect(element).toHaveAttribute(LANGUAGE_CODE, LanguageCode.ENGLISH);
+});
+
+test('throws on unsupported number in audio context', async () => {
+  const { render } = newTestContext();
+
+  await suppressingConsoleOutput(async () => {
+    render(
+      <TestErrorBoundary>
+        <NumberString value={9999} />
+      </TestErrorBoundary>
+    );
+
+    await screen.findByText(/test error boundary/i);
+    screen.getByText(/no audio available/i);
+  });
 });
