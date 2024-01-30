@@ -5,7 +5,7 @@ import { Font, FontProps } from '../typography';
 import { WithAudio } from './with_audio';
 import {
   MAXIMUM_SUPPORTED_NUMBER_FOR_TTS,
-  NUMBER_STRINGS_BASE_I18N_KEY,
+  getI18nKeyForNumber,
 } from './number_strings';
 import { useAudioContext } from './audio_context';
 
@@ -43,7 +43,7 @@ export function NumberString(props: NumberStringProps): JSX.Element {
 
   return (
     <Font {...rest}>
-      <WithAudio i18nKey={`${NUMBER_STRINGS_BASE_I18N_KEY}.${value}`}>
+      <WithAudio i18nKey={getI18nKeyForNumber(value)}>
         {format.count(value, languageContext?.currentLanguageCode)}
       </WithAudio>
     </Font>

@@ -28,7 +28,9 @@ export function main(): void {
   appStringsCatalog = addNumberStrings(appStringsCatalog);
 
   const sortedAppStringsCatalog: UiStringTranslations = {};
-  for (const appStringKey of Object.keys(appStringsCatalog).sort()) {
+  for (const appStringKey of Object.keys(appStringsCatalog).sort((a, b) =>
+    a.localeCompare(b, undefined, { numeric: true })
+  )) {
     sortedAppStringsCatalog[appStringKey] = appStringsCatalog[appStringKey];
   }
 

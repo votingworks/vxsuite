@@ -49,7 +49,7 @@ test('renders with audio data attributes', async () => {
   render(<NumberString value={23} />);
 
   const element = await screen.findByText('23');
-  expect(element).toHaveAttribute(I18N_KEY, 'number.23');
+  expect(element).toHaveAttribute(I18N_KEY, `number23`);
   expect(element).toHaveAttribute(LANGUAGE_CODE, LanguageCode.ENGLISH);
 });
 

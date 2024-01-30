@@ -1,4 +1,4 @@
-import { Dictionary, UiStringTranslations } from '@votingworks/types';
+import { UiStringTranslations } from '@votingworks/types';
 
 /**
  * The maximum number for which we generate audio.
@@ -10,19 +10,22 @@ import { Dictionary, UiStringTranslations } from '@votingworks/types';
 export const MAXIMUM_SUPPORTED_NUMBER_FOR_TTS = 45;
 export const NUMBER_STRINGS_BASE_I18N_KEY = 'number';
 
+export function getI18nKeyForNumber(value: number): string {
+  return `${NUMBER_STRINGS_BASE_I18N_KEY}${value}`;
+}
+
 /**
  * Generates a partial {@link UiStringTranslations} string catalog for a limited
  * set of numbers for which we need to generate audio (numbers from 0 to
  * {@link MAXIMUM_SUPPORTED_NUMBER_FOR_TTS}).
  */
 export function generateNumberStringsCatalog(): UiStringTranslations {
-  const numberStrings: Dictionary<string> = {};
+  const catalog: UiStringTranslations = {};
 
   for (let i = 0; i <= MAXIMUM_SUPPORTED_NUMBER_FOR_TTS; i += 1) {
-    const numberString = i.toString();
-    const i18nSubKey = numberString;
-    numberStrings[i18nSubKey] = numberString;
+    const i18nKey = getI18nKeyForNumber(i);
+    catalog[i18nKey] = i.toString();
   }
 
-  return { [NUMBER_STRINGS_BASE_I18N_KEY]: numberStrings };
+  return catalog;
 }
