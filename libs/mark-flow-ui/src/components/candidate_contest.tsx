@@ -92,30 +92,43 @@ export function CandidateContest({
   const [writeInCandidateModalIsOpen, setWriteInCandidateModalIsOpen] =
     useState(false);
   const [writeInCandidateName, setWriteInCandidateName] = useState('');
-  const [deselectedCandidate, setDeselectedCandidate] = useState('');
+  const [recentlyDeselectedCandidate, setRecentlyDeselectedCandidate] =
+    useState('');
+  const [recentlySelectedCandidate, setRecentlySelectedCandidate] =
+    useState('');
 
   const screenInfo = useScreenInfo();
 
   useEffect(() => {
-    if (deselectedCandidate !== '') {
+    if (recentlyDeselectedCandidate !== '') {
       const timer = setTimeout(() => {
-        setDeselectedCandidate('');
+        setRecentlyDeselectedCandidate('');
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [deselectedCandidate]);
+  }, [recentlyDeselectedCandidate]);
+
+  useEffect(() => {
+    if (recentlySelectedCandidate !== '') {
+      const timer = setTimeout(() => {
+        setRecentlySelectedCandidate('');
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [recentlySelectedCandidate]);
 
   function addCandidateToVote(id: string, event: ButtonPressEvent) {
     const { candidates } = contest;
     const candidate = findCandidateById(candidates, id);
     assert(candidate);
     updateVote(contest.id, [...vote, candidate], getInteractionMethod(event));
+    setRecentlySelectedCandidate(id);
   }
 
   function removeCandidateFromVote(id: string, event: ButtonPressEvent) {
     const newVote = vote.filter((c) => c.id !== id);
     updateVote(contest.id, newVote, getInteractionMethod(event));
-    setDeselectedCandidate(id);
+    setRecentlyDeselectedCandidate(id);
   }
 
   function handleUpdateSelection(event: ButtonPressEvent, candidateId: string) {
@@ -263,11 +276,35 @@ export function CandidateContest({
                 handleChangeVoteAlert(candidate);
               }
               let prefixAudioText: ReactNode = null;
+              let suffixAudioText: ReactNode = null;
               if (isChecked) {
                 prefixAudioText = appStrings.labelSelected();
-              } else if (deselectedCandidate === candidate.id) {
+
+                if (recentlySelectedCandidate === candidate.id) {
+                  suffixAudioText = (
+                    <React.Fragment>
+                      {appStrings.labelNumVotesRemaining()}{' '}
+                      <NumberString
+                        value={contest.seats - vote.length}
+                        weight="bold"
+                      />
+                    </React.Fragment>
+                  );
+                }
+              } else if (recentlyDeselectedCandidate === candidate.id) {
                 prefixAudioText = appStrings.labelDeselected();
+
+                suffixAudioText = (
+                  <React.Fragment>
+                    {appStrings.labelNumVotesRemaining()}{' '}
+                    <NumberString
+                      value={contest.seats - vote.length}
+                      weight="bold"
+                    />
+                  </React.Fragment>
+                );
               }
+
               return (
                 <ContestChoiceButton
                   key={candidate.id}
@@ -283,10 +320,13 @@ export function CandidateContest({
                     </React.Fragment>
                   }
                   caption={
-                    <CandidatePartyList
-                      candidate={candidate}
-                      electionParties={election.parties}
-                    />
+                    <React.Fragment>
+                      <CandidatePartyList
+                        candidate={candidate}
+                        electionParties={election.parties}
+                      />
+                      <AudioOnly>{suffixAudioText}</AudioOnly>
+                    </React.Fragment>
                   }
                 />
               );
