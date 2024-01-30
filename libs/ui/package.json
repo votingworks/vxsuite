@@ -35,7 +35,7 @@
       "stylelint --quiet --fix",
       "eslint --quiet --fix"
     ],
-    "(app_strings.tsx|number_strings.ts)": [
+    "(app_strings.tsx|number_strings.ts|finalize_app_strings_catalog.ts)": [
       "pnpm build:app-strings-catalog"
     ],
     "package.json": [

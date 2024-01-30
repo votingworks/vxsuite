@@ -5,10 +5,13 @@ import {
   UiStringTranslationsSchema,
   safeParseJson,
 } from '@votingworks/types';
+import path from 'path';
 import { generateNumberStringsCatalog } from '../src/ui_strings/number_strings';
 
-const APP_STRINGS_CATALOG_FILE_PATH =
-  './src/ui_strings/app_strings_catalog/latest.json';
+const APP_STRINGS_CATALOG_FILE_PATH = path.join(
+  __dirname,
+  '../src/ui_strings/app_strings_catalog/latest.json'
+);
 
 function addNumberStrings(
   baseAppStringsCatalog: UiStringTranslations
