@@ -13,9 +13,13 @@ use uinput::{
     event::{keyboard, Keyboard},
     Device,
 };
+use vx_logging::{
+    log_event_enums::EventId,
+    types::{Disposition, EventType},
+};
 
 mod logging;
-use logging::{log, Disposition, EventType, Log};
+use logging::{log, MarkScanLog};
 
 const POLL_INTERVAL: Duration = Duration::from_millis(50);
 const MAX_ECHO_RESPONSE_WAIT: Duration = Duration::from_secs(5);
@@ -264,8 +268,8 @@ fn validate_connection(port: &mut Box<dyn SerialPort>) -> Result<(), io::Error> 
     let echo_command = EchoCommand::new(vec![0x01, 0x02, 0x03, 0x04, 0x05]);
     let echo_command: Vec<u8> = echo_command.into();
     match port.write(&echo_command) {
-        Ok(_) => log(Log {
-            event_id: "controller-handshake-init".to_string(),
+        Ok(_) => log(MarkScanLog {
+            event_id: EventId::ControllerHandshakeInit,
             event_type: EventType::SystemAction,
             ..Default::default()
         }),
@@ -284,8 +288,8 @@ fn validate_connection(port: &mut Box<dyn SerialPort>) -> Result<(), io::Error> 
                     "Received different response from echo command: {echo_response:x?}"
                 );
 
-                log(Log {
-                    event_id: "controller-handshake-complete".to_string(),
+                log(MarkScanLog {
+                    event_id: EventId::ControllerHandshakeComplete,
                     event_type: EventType::SystemAction,
                     disposition: Disposition::Success,
                     ..Default::default()
@@ -294,8 +298,8 @@ fn validate_connection(port: &mut Box<dyn SerialPort>) -> Result<(), io::Error> 
             }
             Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
             Err(e) => {
-                log(Log {
-                    event_id: "controller-handshake-complete".to_string(),
+                log(MarkScanLog {
+                    event_id: EventId::ControllerHandshakeComplete,
                     message: format!("Error reading echo response: {e:?}"),
                     event_type: EventType::SystemAction,
                     disposition: Disposition::Failure,
@@ -311,8 +315,8 @@ fn validate_connection(port: &mut Box<dyn SerialPort>) -> Result<(), io::Error> 
         thread::sleep(POLL_INTERVAL);
     }
 
-    log(Log {
-        event_id: "controller-handshake-complete".to_string(),
+    log(MarkScanLog {
+        event_id: EventId::ControllerHandshakeComplete,
         message: "No echo response received".to_string(),
         event_type: EventType::SystemAction,
         disposition: Disposition::Failure,
@@ -336,21 +340,23 @@ fn create_virtual_device() -> Device {
 }
 
 fn main() {
-    log(Log {
-        event_id: "process-started".to_string(),
+    log(MarkScanLog {
+        event_id: EventId::ProcessStarted,
         message: format!("Opened controller serial port at {DEVICE_PATH}"),
         event_type: EventType::SystemAction,
         ..Default::default()
     });
 
     let running = Arc::new(AtomicBool::new(true));
-    let r = running.clone();
 
-    if let Err(e) = ctrlc::set_handler(move || {
-        r.store(false, Ordering::SeqCst);
+    if let Err(e) = ctrlc::set_handler({
+        let running = running.clone();
+        move || {
+            running.store(false, Ordering::SeqCst);
+        }
     }) {
-        log(Log {
-            event_id: "error-setting-sigint-handler".to_string(),
+        log(MarkScanLog {
+            event_id: EventId::ErrorSettingSigintHandler,
             message: e.to_string(),
             event_type: EventType::SystemStatus,
             ..Default::default()
@@ -358,8 +364,8 @@ fn main() {
     }
 
     // Create virtual device for keypress events
-    log(Log {
-        event_id: "create-virtual-uinput-device-init".to_string(),
+    log(MarkScanLog {
+        event_id: EventId::CreateVirtualUinputDeviceInit,
         event_type: EventType::SystemAction,
         ..Default::default()
     });
@@ -367,15 +373,15 @@ fn main() {
 
     // Wait for virtual device to register
     thread::sleep(Duration::from_secs(1));
-    log(Log {
-        event_id: "create-virtual-uinput-device-complete".to_string(),
+    log(MarkScanLog {
+        event_id: EventId::CreateVirtualUinputDeviceComplete,
         disposition: Disposition::Success,
         event_type: EventType::SystemAction,
         ..Default::default()
     });
 
-    log(Log {
-        event_id: "controller-connection-init".to_string(),
+    log(MarkScanLog {
+        event_id: EventId::ControllerConnectionInit,
         event_type: EventType::SystemAction,
         ..Default::default()
     });
@@ -389,8 +395,8 @@ fn main() {
         Ok(mut port) => {
             validate_connection(&mut port).unwrap();
 
-            log(Log {
-                event_id: "controller-connection-complete".to_string(),
+            log(MarkScanLog {
+                event_id: EventId::ControllerConnectionComplete,
                 message: format!("Receiving data on {DEVICE_PATH} at {DEVICE_BAUD_RATE} baud"),
                 event_type: EventType::SystemAction,
                 disposition: Disposition::Success,
@@ -400,8 +406,8 @@ fn main() {
             let mut serial_buf: Vec<u8> = vec![0; 1000];
             loop {
                 if !running.load(Ordering::SeqCst) {
-                    log(Log {
-                        event_id: "process-terminated".to_string(),
+                    log(MarkScanLog {
+                        event_id: EventId::ProcessTerminated,
                         event_type: EventType::SystemAction,
                         ..Default::default()
                     });
@@ -410,9 +416,11 @@ fn main() {
                 match port.read(serial_buf.as_mut_slice()) {
                     Ok(size) => {
                         if let Err(e) = handle_command(&mut device, &serial_buf[..size]) {
-                            log(Log {
-                                event_id: "unexpected-error-handling-command".to_string(),
-                                message: e.to_string(),
+                            log(MarkScanLog {
+                                event_id: EventId::UnknownError,
+                                message: format!(
+                                    "Unexpected error when handling controller command: {e}"
+                                ),
                                 event_type: EventType::SystemStatus,
                                 ..Default::default()
                             });
@@ -421,9 +429,9 @@ fn main() {
                     // Timeout error just means no event was sent in the current polling period
                     Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
                     Err(e) => {
-                        log(Log {
-                            event_id: "unexpected-error-on-serial-port-read".to_string(),
-                            message: e.to_string(),
+                        log(MarkScanLog {
+                            event_id: EventId::UnknownError,
+                            message: format!("Unexpected error when opening serial port: {e}"),
                             event_type: EventType::SystemStatus,
                             ..Default::default()
                         });
@@ -432,13 +440,14 @@ fn main() {
             }
         }
         Err(e) => {
-            log(Log {
-                event_id: "controller-connection-complete".to_string(),
+            log(MarkScanLog {
+                event_id: EventId::ControllerConnectionComplete,
                 message: format!("Failed to open {DEVICE_PATH}. Error: {e}"),
                 event_type: EventType::SystemAction,
                 disposition: Disposition::Failure,
                 ..Default::default()
             });
+            exit(1);
         }
     }
 }

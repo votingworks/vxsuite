@@ -1,60 +1,42 @@
-use serde::{Deserialize, Serialize};
+use vx_logging::{
+    log_event_enums::EventId,
+    print_log,
+    types::{Disposition, EventType, Log},
+};
 
 const APP_NAME: &str = "vx-mark-scan-controller-daemon";
 
-#[derive(Serialize, Deserialize)]
-#[serde(rename = "event-type")]
-pub enum EventType {
-    #[serde(rename = "system-action")]
-    SystemAction,
-    #[serde(rename = "system-status")]
-    SystemStatus,
-}
+// This module's purpose is to wrap vx_logging functionality and
+// provide defaults specific to this app.
 
-#[derive(Serialize, Deserialize)]
-#[serde(rename = "disposition")]
-pub enum Disposition {
-    #[serde(rename = "success")]
-    Success,
-    #[serde(rename = "failure")]
-    Failure,
-    #[serde(rename = "n/a")]
-    NA,
-}
-
-#[derive(Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct Log {
-    pub source: String,
-    #[serde(rename = "event-id")]
-    pub event_id: String,
-    pub message: String,
-    #[serde(rename = "event-type")]
+pub struct MarkScanLog {
+    pub event_id: EventId,
     pub event_type: EventType,
-    pub user: String,
+    pub message: String,
     pub disposition: Disposition,
+    // `source` and `user` are omitted because they will always be the same
 }
 
-impl Default for Log {
+impl Default for MarkScanLog {
     fn default() -> Self {
         Self {
-            source: APP_NAME.to_string(),
-            event_id: "".to_string(),
-            message: "".to_string(),
+            event_id: EventId::Unspecified,
             event_type: EventType::SystemStatus,
-            user: "system".to_string(),
+            message: "".to_string(),
             disposition: Disposition::NA,
         }
     }
 }
 
-pub fn log(log: Log) -> () {
-    match serde_json::to_string(&log) {
-        Ok(json) => {
-            println!("{}", json);
-        }
-        Err(e) => {
-            println!("Error serializing log: {e}");
-        }
-    }
+pub fn log(log: MarkScanLog) {
+    let full_log = Log {
+        source: APP_NAME.to_string(),
+        user: "system".to_string(),
+        event_id: log.event_id,
+        event_type: log.event_type,
+        message: log.message,
+        disposition: log.disposition,
+    };
+
+    print_log(full_log);
 }

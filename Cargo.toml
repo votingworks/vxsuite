@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
   "libs/ballot-interpreter",
+  "libs/logging",
   "libs/types-rs",
   "apps/mark-scan/accessible-controller",
 ]
@@ -17,6 +18,7 @@ image = "0.24.5"
 imageproc = "0.23.0"
 itertools = "0.10.5"
 log = "0.4.17"
+vx-logging = { path = "libs/logging" }
 logging_timer = "1.1.0"
 neon = { version = "0.10", default-features = false, features = ["napi-6"] }
 num_enum = "0.7.1"

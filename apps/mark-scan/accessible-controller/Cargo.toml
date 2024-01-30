@@ -15,4 +15,5 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 serialport = { workspace = true }
 thiserror = { workspace = true }
+vx-logging = { workspace = true }
 uinput = { workspace = true }

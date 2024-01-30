@@ -3,8 +3,8 @@ import fs from 'fs/promises';
 import { assert } from '@votingworks/basics';
 import {
   configFilepath,
-  logEventIdsOutputFile,
-  logEventIdsTemplateFile,
+  logEventIdsOutputFilepath,
+  logEventIdsTemplateFilepath,
 } from './filepaths';
 import { LogEventType } from '../src/base_types/log_event_types';
 import { LogSource } from '../src/base_types/log_source';
@@ -93,8 +93,8 @@ function getTypedConfig(tomlConfig: toml.JsonMap): ParsedConfig {
 }
 
 async function prepareOutputFile(): Promise<void> {
-  await fs.copyFile(logEventIdsTemplateFile, logEventIdsOutputFile);
-  await fs.appendFile(logEventIdsOutputFile, '\n');
+  await fs.copyFile(logEventIdsTemplateFilepath, logEventIdsOutputFilepath);
+  await fs.appendFile(logEventIdsOutputFilepath, '\n');
 }
 
 // formatLogEventIdEnum generates an enum where the member name is a title-case event ID and the value is a kebab-case event ID
@@ -200,10 +200,13 @@ async function main(): Promise<void> {
   const configString = await fs.readFile(configFilepath);
   const untypedConfig = toml.parse(configString.toString());
   const typedConfig = getTypedConfig(untypedConfig);
-  await fs.appendFile(logEventIdsOutputFile, formatLogEventIdEnum(typedConfig));
-  await fs.appendFile(logEventIdsOutputFile, formatLogDetails(typedConfig));
   await fs.appendFile(
-    logEventIdsOutputFile,
+    logEventIdsOutputFilepath,
+    formatLogEventIdEnum(typedConfig)
+  );
+  await fs.appendFile(logEventIdsOutputFilepath, formatLogDetails(typedConfig));
+  await fs.appendFile(
+    logEventIdsOutputFilepath,
     formatGetDetailsForEventId(typedConfig)
   );
 }
