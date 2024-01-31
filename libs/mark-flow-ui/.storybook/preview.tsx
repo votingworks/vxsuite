@@ -107,7 +107,9 @@ function StoryWrapper(props: {
     sizeMode: TouchSizeMode;
   };
 
-  const { setColorMode, setSizeMode } = React.useContext(DisplaySettingsManagerContext);
+  const { setColorMode, setSizeMode } = React.useContext(
+    DisplaySettingsManagerContext
+  );
 
   React.useEffect(() => {
     setColorMode(globals.colorMode);
@@ -136,7 +138,6 @@ export const decorators: DecoratorFunction[] = [
       <AppBase
         defaultColorMode={globals.colorMode}
         defaultSizeMode={globals.sizeMode}
-        enableScroll
       >
         <StoryWrapper context={context}>
           <Story />

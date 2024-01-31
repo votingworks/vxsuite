@@ -25,7 +25,7 @@ export async function renderToPdf(
         sizeMode="desktop"
         screenType="builtIn"
       >
-        <GlobalStyles isTouchscreen={false} enableScroll={false} />
+        <GlobalStyles isTouchscreen={false} />
       </VxThemeProvider>
       {document}
     </React.Fragment>

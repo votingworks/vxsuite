@@ -8,11 +8,14 @@ import {
 
 import { AppBase, DisplaySettingsManagerContext } from '../src';
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
+import { createGlobalStyle } from 'styled-components';
 
 // TODO: Find the storybook.js type declaration for this. Doesn't seem to be in
 // the @storybook/types repo.
 interface ToolbarItem<T> {
-  value: T, title: string, left?: string
+  value: T;
+  title: string;
+  left?: string;
 }
 
 type ScreenTypeToolBarItem = ToolbarItem<ScreenType>;
@@ -29,23 +32,29 @@ const screenTypeToolBarItems: Record<ScreenType, ScreenTypeToolBarItem> = {
   lenovoThinkpad15: { title: 'Lenovo Thinkpad 15"', value: 'lenovoThinkpad15' },
 };
 
-const DEFAULT_SIZE_MODE: SizeMode = "desktop";
+const DEFAULT_SIZE_MODE: SizeMode = 'desktop';
 const sizeThemeToolBarItems: Record<SizeMode, SizeModeToolBarItem> = {
-  desktop: { title: 'Desktop', value: 'desktop'},
-  touchSmall: { title: 'Small (Touch)', value: 'touchSmall'},
-  touchMedium: { title: 'Medium (Touch)', value: 'touchMedium'},
-  touchLarge: { title: 'Large (Touch)', value: 'touchLarge'},
-  touchExtraLarge: { title: 'Extra Large (Touch)', value: 'touchExtraLarge'},
-}
+  desktop: { title: 'Desktop', value: 'desktop' },
+  touchSmall: { title: 'Small (Touch)', value: 'touchSmall' },
+  touchMedium: { title: 'Medium (Touch)', value: 'touchMedium' },
+  touchLarge: { title: 'Large (Touch)', value: 'touchLarge' },
+  touchExtraLarge: { title: 'Extra Large (Touch)', value: 'touchExtraLarge' },
+};
 
 const DEFAULT_COLOR_MODE: ColorMode = 'desktop';
 const colorThemeToolBarItems: Record<ColorMode, ColorModeToolBarItem> = {
-  desktop: { title: 'Desktop', value: 'desktop'},
-  contrastHighLight: { title: 'High Contrast - Light', value: 'contrastHighLight'},
-  contrastHighDark: { title: 'High Contrast - Dark', value: 'contrastHighDark'},
-  contrastMedium: { title: 'Medium Contrast', value: 'contrastMedium'},
-  contrastLow: { title: 'Low Contrast', value: 'contrastLow'},
-}
+  desktop: { title: 'Desktop', value: 'desktop' },
+  contrastHighLight: {
+    title: 'High Contrast - Light',
+    value: 'contrastHighLight',
+  },
+  contrastHighDark: {
+    title: 'High Contrast - Dark',
+    value: 'contrastHighDark',
+  },
+  contrastMedium: { title: 'Medium Contrast', value: 'contrastMedium' },
+  contrastLow: { title: 'Low Contrast', value: 'contrastLow' },
+};
 
 /**
  * Defines global types that are passed through the story context to all stories
@@ -132,6 +141,12 @@ function StoryWrapper(props: {
   return <React.Fragment>{children}</React.Fragment>;
 }
 
+const StoryGlobalStyle = createGlobalStyle`
+  html, body {
+    overflow: auto !important;
+  }
+`;
+
 // Decorators allow us to wrap stories in custom components, provide context
 // data, or modify the existing story context, if needed, to enable proper
 // rendering, or to add any desired visual scaffolding.
@@ -147,10 +162,10 @@ export const decorators: DecoratorFunction[] = [
     };
     return (
       <React.StrictMode>
+        <StoryGlobalStyle />
         <AppBase
           defaultColorMode={globals.colorMode}
           defaultSizeMode={globals.sizeMode}
-          enableScroll
           screenType={globals.screenType}
           isTouchscreen={['elo13', 'elo15'].includes(globals.screenType)}
         >

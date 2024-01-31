@@ -14,7 +14,6 @@ export const AUDIO_ONLY_STYLES = css`
 `;
 
 export interface GlobalStylesProps {
-  enableScroll: boolean;
   isTouchscreen: boolean;
 }
 
@@ -67,7 +66,7 @@ ${NORMALIZE_CSS}
   body,
   #root {
     height: 100%;
-    overflow: ${(p) => (p.enableScroll ? 'auto' : 'hidden')};
+    overflow: hidden;
     touch-action: none;
   }
 

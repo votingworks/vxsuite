@@ -68,26 +68,6 @@ test('renders with selected themes', () => {
   );
 });
 
-test('renders with enableScroll', () => {
-  const { container } = render(
-    <AppBase
-      enableScroll
-      defaultColorMode="contrastMedium"
-      defaultSizeMode="touchSmall"
-    >
-      <div>foo</div>
-    </AppBase>
-  );
-
-  expect(container).toContainHTML('<div>foo</div>');
-
-  const htmlNode = document.body.parentElement;
-  assert(htmlNode);
-  const computedStyles = window.getComputedStyle(htmlNode);
-
-  expect(computedStyles.overflow).toEqual('auto');
-});
-
 test('implements ThemeManagerContext interface', () => {
   let currentTheme: UiTheme | null = null;
   let manager: DisplaySettingsManagerContextInterface | null = null;
