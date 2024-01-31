@@ -51,8 +51,96 @@ impl TryFrom<u8> for Side {
 
 #[derive(Debug)]
 pub enum Outgoing {
+    /// This command requests a hard-coded test string from the scanner.
+    ///
+    /// `ASCII character D = (44H)`
+    ///
+    /// # Response
+    ///
+    /// `D Test Message USB 1.1/2.0 Communication`
     GetTestStringRequest,
+
+    /// This command causes the scanner to return 10 bytes representing the
+    /// scanner firmware version number and the CPLD version number.
+    ///
+    /// `ASCII character V = (56H)`
+    ///
+    /// # Response
+    ///
+    /// ## Format
+    ///
+    /// `V <Scanner Firmware Version Number>`
+    ///
+    /// ## Firmware Version Number Byte Format
+    ///
+    /// - Bytes 8-5: Product ID
+    /// - Bytes 4-3: Major Version
+    /// - Bytes 2-1: Minor Version
+    /// - Byte 0: CPLD Version
     GetFirmwareVersionRequest,
+
+    /// Return firmware build date and time.
+    ///
+    /// `<ESC> V = (1BH) (56H)`
+    ///
+    /// # Response Format
+    ///
+    /// `(58H) <3 bytes> (20H) <2 bytes> (20H) <4 bytes> (2FH) <2 bytes> (3AH) <2 bytes> (3AH) <2 bytes>`
+    ///
+    /// The 3 bytes that follow the (58H) are ASCII characters representing the
+    /// month. The 2 bytes that follow the first (20H) are ASCII characters
+    /// representing the day. The 4 bytes that follow the second (20H) are ASCII
+    /// characters representing the year. The 2 bytes that follow the (2FH) are
+    /// ASCII characters representing the hour, in 24-hour time. The 2 bytes
+    /// that follow the first (3AH) are ASCII characters representing the
+    /// minute, and the last 2 bytes are an ASCII character representing the
+    /// second.
+    ///
+    /// ## Example
+    ///
+    /// `XMar 01 2010/13:15:01`
+    GetCurrentFirmwareBuildVersionString,
+
+    /// This command causes the scanner to return three bytes of status information.
+    ///
+    /// `ASCII character Q = (51H)`
+    ///
+    /// # Response
+    ///
+    /// `Q <Byte 0> <Byte 1> <Byte 2>`
+    ///
+    /// ## Byte 0
+    ///
+    /// - Bit 0 (0x01): Rear Left Sensor Covered = 1
+    /// - Bit 1 (0x02): Rear Right Sensor Covered = 1 (Omitted in Ultrascan)
+    /// - Bit 2 (0x04): Brander Position Sensor Covered = 1
+    /// - Bit 3 (0x08): Hi Speed Mode = 1
+    /// - Bit 4 (0x10): Download Needed = 1
+    /// - Bit 5 (0x20): Future Use (not defined) = 1
+    /// - Bit 6 (0x40): Scanner Enabled = 1
+    /// - Bit 7 (0x80): Always Set to 1
+    ///
+    /// ## Byte 1
+    ///
+    /// - Bit 0 (0x01): Front (1) Left Sensor Covered = 1
+    /// - Bit 1 (0x02): Front (2) (M1) Sensor Covered = 1 (Omitted in Ultrascan)
+    /// - Bit 2 (0x04): Front (3) (M2) Sensor Covered = 1 (Omitted in Ultrascan)
+    /// - Bit 3 (0x08): Front (4) (M3) Sensor Covered = 1 (Omitted in Ultrascan)
+    /// - Bit 4 (0x10): Front (5) (M4) Sensor Covered = 1 (Omitted in Ultrascan)
+    /// - Bit 5 (0x20): Front (6) (M5) Sensor Covered = 1 (Omitted in Duplex and Ultrascan units)
+    /// - Bit 6 (0x40): Front (7) (M6) Sensor Covered = 1 (Omitted in Duplex and Ultrascan units)
+    /// - Bit 7 (0x80): Always Set to 1
+    ///
+    /// ## Byte 2
+    ///
+    /// - Bit 0 (0x01): Scanner Ready = 1
+    /// - Bit 1 (0x02): XMT Aborted (Com Error) = 1
+    /// - Bit 2 (0x04): Document Jam = 1
+    /// - Bit 3 (0x08): Scan Array (Pixel) Error = 1
+    /// - Bit 4 (0x10): In Diagnostic Mode = 1
+    /// - Bit 5 (0x20): Doc in Scanner = 1
+    /// - Bit 6 (0x40): Calibration of unit needed = 1
+    /// - Bit 7 (0x80): Always Set to 1
     GetScannerStatusRequest,
     EnableFeederRequest,
 
@@ -72,9 +160,62 @@ pub enum Outgoing {
     /// `<ESC> O = (1BH) (4FH)`
     DisableMomentaryReverseOnFeedAtInputRequest,
 
+    /// This command enables the application to generate a scanner serial
+    /// number, and to save it in scanner Flash memory. The command will also
+    /// return the serial number stored in Flash. If the command is issued by
+    /// itself (no serial number following the (*) command), the present serial
+    /// number is returned. If the command is issued followed by an 8-digit
+    /// number, the stored serial number will be changed to this new value.
+    ///
+    /// Case 1: Retrieve present Serial Number
+    ///
+    /// `ASCII character * = (2AH)`
+    ///
+    /// # Response
+    ///
+    /// `* <Flash Serial Number (8 bytes)>`
+    ///
+    /// The 8 bytes are returned as the ASCII values of the serial number (0-9 and A-F)
     GetSerialNumberRequest,
+
+    /// This command enables the application to generate a scanner serial
+    /// number, and to save it in scanner Flash memory. The command will also
+    /// return the serial number stored in Flash. If the command is issued by
+    /// itself (no serial number following the (*) command), the present serial
+    /// number is returned. If the command is issued followed by an 8-digit
+    /// number, the stored serial number will be changed to this new value.
+    ///
+    /// Case 2: Set and Retrieve new Serial Number
+    ///
+    /// `ASCII character * = (2AH) / <8-digit serial number in ASCII Format>`
+    ///
+    /// # Response
+    ///
+    /// `*<Flash Serial Number (8 bytes)>` (The serial number entered is echoed back)
+    ///
+    /// The 8 bytes are returned as the ASCII values of the serial number.
     SetSerialNumberRequest([u8; 8]),
 
+    /// The ‘I’ command returns the present scanner setup status.
+    ///
+    /// `ASCII character I = (49H)`
+    ///
+    /// # Response
+    ///
+    /// ```
+    /// I <DPI Setting Low Byte>/<DPI Setting Hi Byte>/
+    /// <Num of Bits per Pixel Low Byte>/< Num of Bits per Pixel Hi Byte>/ <Total Array Pixels Low Byte>/<Total Array Pixels Hi Byte>/
+    /// <Num of Arrays Low Byte>/< Num of Arrays Hi Byte>/
+    /// <Calibration Status Low Byte>/<Calibration Status Hi Byte>
+    /// ```
+    ///
+    /// If present: `<Number of Calibration Tables Low Byte>/<Number of Calibration Tables High Byte>`
+    /// Where:
+    /// - DPI Setting = 100 or 200 dots per inch (PS4), or 150 or 300 DPI (US)
+    /// - Num of Bits per Pixel = 1 (Bi-tonal) or 8 (Eight-bit Grayscale)
+    /// - Total Array Pixels = 1728 pixels (PS4) for single-sided scanning; 3456 for double-sided scanning
+    /// - Num of Arrays = 1 (Front/top array), 2 = (Back/bottom array), 3 = (Front & Back Arrays
+    /// - Calibration Status = 1 (Calibration needed), 0 (Calibration OK)
     GetScannerSettingsRequest,
 
     /// When this command is sent without arguments, it will report the number
@@ -268,10 +409,148 @@ pub enum Outgoing {
 
 #[derive(Debug)]
 pub enum Incoming {
+    /// This command requests a hard-coded test string from the scanner.
+    ///
+    /// `ASCII character D = (44H)`
+    ///
+    /// # Response
+    ///
+    /// `D Test Message USB 1.1/2.0 Communication`
     GetTestStringResponse(String),
+
+    /// This command causes the scanner to return 10 bytes representing the
+    /// scanner firmware version number and the CPLD version number.
+    ///
+    /// `ASCII character V = (56H)`
+    ///
+    /// # Response
+    ///
+    /// ## Format
+    ///
+    /// `V <Scanner Firmware Version Number>`
+    ///
+    /// ## Firmware Version Number Byte Format
+    ///
+    /// - Bytes 8-5: Product ID
+    /// - Bytes 4-3: Major Version
+    /// - Bytes 2-1: Minor Version
+    /// - Byte 0: CPLD Version
     GetFirmwareVersionResponse(Version),
+
+    /// Return firmware build date and time.
+    ///
+    /// `<ESC> V = (1BH) (56H)`
+    ///
+    /// # Response Format
+    ///
+    /// `(58H) <3 bytes> (20H) <2 bytes> (20H) <4 bytes> (2FH) <2 bytes> (3AH) <2 bytes> (3AH) <2 bytes>`
+    ///
+    /// The 3 bytes that follow the (58H) are ASCII characters representing the
+    /// month. The 2 bytes that follow the first (20H) are ASCII characters
+    /// representing the day. The 4 bytes that follow the second (20H) are ASCII
+    /// characters representing the year. The 2 bytes that follow the (2FH) are
+    /// ASCII characters representing the hour, in 24-hour time. The 2 bytes
+    /// that follow the first (3AH) are ASCII characters representing the
+    /// minute, and the last 2 bytes are an ASCII character representing the
+    /// second.
+    ///
+    /// ## Example
+    ///
+    /// `XMar 01 2010/13:15:01`
+    GetCurrentFirmwareBuildVersionStringResponse(String),
+
+    /// This command causes the scanner to return three bytes of status information.
+    ///
+    /// `ASCII character Q = (51H)`
+    ///
+    /// # Response
+    ///
+    /// `Q <Byte 0> <Byte 1> <Byte 2>`
+    ///
+    /// ## Byte 0
+    ///
+    /// - Bit 0 (0x01): Rear Left Sensor Covered = 1
+    /// - Bit 1 (0x02): Rear Right Sensor Covered = 1 (Omitted in Ultrascan)
+    /// - Bit 2 (0x04): Brander Position Sensor Covered = 1
+    /// - Bit 3 (0x08): Hi Speed Mode = 1
+    /// - Bit 4 (0x10): Download Needed = 1
+    /// - Bit 5 (0x20): Future Use (not defined) = 1
+    /// - Bit 6 (0x40): Scanner Enabled = 1
+    /// - Bit 7 (0x80): Always Set to 1
+    ///
+    /// ## Byte 1
+    ///
+    /// - Bit 0 (0x01): Front (1) Left Sensor Covered = 1
+    /// - Bit 1 (0x02): Front (2) (M1) Sensor Covered = 1 (Omitted in Ultrascan)
+    /// - Bit 2 (0x04): Front (3) (M2) Sensor Covered = 1 (Omitted in Ultrascan)
+    /// - Bit 3 (0x08): Front (4) (M3) Sensor Covered = 1 (Omitted in Ultrascan)
+    /// - Bit 4 (0x10): Front (5) (M4) Sensor Covered = 1 (Omitted in Ultrascan)
+    /// - Bit 5 (0x20): Front (6) (M5) Sensor Covered = 1 (Omitted in Duplex and Ultrascan units)
+    /// - Bit 6 (0x40): Front (7) (M6) Sensor Covered = 1 (Omitted in Duplex and Ultrascan units)
+    /// - Bit 7 (0x80): Always Set to 1
+    ///
+    /// ## Byte 2
+    ///
+    /// - Bit 0 (0x01): Scanner Ready = 1
+    /// - Bit 1 (0x02): XMT Aborted (Com Error) = 1
+    /// - Bit 2 (0x04): Document Jam = 1
+    /// - Bit 3 (0x08): Scan Array (Pixel) Error = 1
+    /// - Bit 4 (0x10): In Diagnostic Mode = 1
+    /// - Bit 5 (0x20): Doc in Scanner = 1
+    /// - Bit 6 (0x40): Calibration of unit needed = 1
+    /// - Bit 7 (0x80): Always Set to 1
     GetScannerStatusResponse(Status),
+
+    /// This command enables the application to generate a scanner serial
+    /// number, and to save it in scanner Flash memory. The command will also
+    /// return the serial number stored in Flash. If the command is issued by
+    /// itself (no serial number following the (*) command), the present serial
+    /// number is returned. If the command is issued followed by an 8-digit
+    /// number, the stored serial number will be changed to this new value.
+    ///
+    /// Case 1: Retrieve present Serial Number
+    ///
+    /// `ASCII character * = (2AH)`
+    ///
+    /// # Response
+    ///
+    /// `* <Flash Serial Number (8 bytes)>`
+    ///
+    /// The 8 bytes are returned as the ASCII values of the serial number (0-9 and A-F)
+    ///
+    /// Case 2: Set and Retrieve new Serial Number
+    ///
+    /// `ASCII character * = (2AH) / <8-digit serial number in ASCII Format>`
+    ///
+    /// # Response
+    ///
+    /// `*<Flash Serial Number (8 bytes)>` (The serial number entered is echoed back)
+    ///
+    /// The 8 bytes are returned as the ASCII values of the serial number.
     GetSetSerialNumberResponse([u8; 8]),
+
+    /// The ‘I’ command returns the present scanner setup status.
+    ///
+    /// `ASCII character I = (49H)`
+    ///
+    /// # Response
+    ///
+    /// ```
+    /// I <DPI Setting Low Byte>/<DPI Setting Hi Byte>/
+    /// <Num of Bits per Pixel Low Byte>/< Num of Bits per Pixel Hi Byte>/ <Total Array Pixels Low Byte>/<Total Array Pixels Hi Byte>/
+    /// <Num of Arrays Low Byte>/< Num of Arrays Hi Byte>/
+    /// <Calibration Status Low Byte>/<Calibration Status Hi Byte>
+    /// ```
+    ///
+    /// If present: `<Number of Calibration Tables Low Byte>/<Number of Calibration Tables High Byte>`
+    /// Where:
+    /// - DPI Setting = 100 or 200 dots per inch (PS4), or 150 or 300 DPI (US)
+    /// - Num of Bits per Pixel = 1 (Bi-tonal) or 8 (Eight-bit Grayscale)
+    /// - Total Array Pixels = 1728 pixels (PS4) for single-sided scanning; 3456 for double-sided scanning
+    /// - Num of Arrays = 1 (Front/top array), 2 = (Back/bottom array), 3 = (Front & Back Arrays
+    /// - Calibration Status = 1 (Calibration needed), 0 (Calibration OK)
+    GetScannerSettingsResponse(Settings),
+
     GetSetRequiredInputSensorsResponse {
         /// The number of input sensors required.
         current_sensors_required: u8,
@@ -304,7 +583,10 @@ pub enum Packet {
 }
 
 pub mod parsers {
-    use std::{str::from_utf8, time::Duration};
+    use std::{
+        str::from_utf8,
+        time::{Duration, Instant},
+    };
 
     use nom::{
         branch::alt,
@@ -317,8 +599,8 @@ pub mod parsers {
     };
 
     use super::{
-        crc, Command, Incoming, Outgoing, Packet, ResolutionTableType, Side, Status, Version,
-        PACKET_DATA_END, PACKET_DATA_START,
+        crc, CalibrationStatus, Command, Incoming, Outgoing, Packet, ResolutionTableType, Settings,
+        Side, Status, Version, PACKET_DATA_END, PACKET_DATA_START,
     };
 
     pub fn any_packet<'a>(input: &'a [u8]) -> IResult<&'a [u8], Packet> {
@@ -334,6 +616,9 @@ pub mod parsers {
                 map(get_test_string_request, |_| Outgoing::GetTestStringRequest),
                 map(get_firmware_version_request, |_| {
                     Outgoing::GetFirmwareVersionRequest
+                }),
+                map(get_current_firmware_build_version_string_request, |_| {
+                    Outgoing::GetCurrentFirmwareBuildVersionString
                 }),
                 map(get_scanner_status_request, |_| {
                     Outgoing::GetScannerStatusRequest
@@ -376,6 +661,8 @@ pub mod parsers {
                         resolution_table_type,
                     },
                 ),
+            )),
+            alt((
                 map(
                     set_scanner_image_density_to_half_native_resolution_request,
                     |_| Outgoing::SetScannerImageDensityToHalfNativeResolutionRequest,
@@ -393,8 +680,6 @@ pub mod parsers {
                 map(disable_eject_pause_request, |_| {
                     Outgoing::DisableEjectPauseRequest
                 }),
-            )),
-            alt((
                 map(transmit_in_low_bits_per_pixel_request, |_| {
                     Outgoing::TransmitInLowBitsPerPixelRequest
                 }),
@@ -442,8 +727,17 @@ pub mod parsers {
             map(get_firmware_version_response, |version| {
                 Incoming::GetFirmwareVersionResponse(version)
             }),
+            map(
+                get_current_firmware_build_version_string_response,
+                |version| {
+                    Incoming::GetCurrentFirmwareBuildVersionStringResponse(version.to_owned())
+                },
+            ),
             map(get_scanner_status_response, |status| {
                 Incoming::GetScannerStatusResponse(status)
+            }),
+            map(get_scanner_settings_response, |settings| {
+                Incoming::GetScannerSettingsResponse(settings)
             }),
             map(get_set_serial_number_response, |serial_number| {
                 Incoming::GetSetSerialNumberResponse(serial_number)
@@ -499,12 +793,16 @@ pub mod parsers {
     fn packet<'a, O, List: Tuple<&'a [u8], O, nom::error::Error<&'a [u8]>>>(
         mut l: List,
     ) -> impl FnMut(&'a [u8]) -> IResult<&'a [u8], O> {
-        move |i: &'a [u8]| {
-            delimited(packet_start, |i| l.parse(i), packet_end)(i)
-            // let (i, _) = packet_start(i)?;
-            // let (i, o) = l.parse(i)?;
-            // let (i, _) = packet_end(i)?;
-            // Ok((i, o))
+        move |i: &'a [u8]| delimited(packet_start, |i| l.parse(i), packet_end)(i)
+    }
+
+    fn extract_packet_body<'a>(input: &'a [u8]) -> Option<&'a [u8]> {
+        if input.len() >= PACKET_DATA_START.len() + PACKET_DATA_END.len() {
+            let start = PACKET_DATA_START.len();
+            let end = input.len() - PACKET_DATA_END.len();
+            Some(&input[start..end])
+        } else {
+            None
         }
     }
 
@@ -592,6 +890,48 @@ pub mod parsers {
         )(input)
     }
 
+    pub fn get_current_firmware_build_version_string_request<'a>(
+        input: &'a [u8],
+    ) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"\x1bV");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    pub fn get_current_firmware_build_version_string_response<'a>(
+        input: &'a [u8],
+    ) -> IResult<&'a [u8], &'a str> {
+        if let Ok(([], _)) = packet((
+            tag(b"X"),
+            take(3usize),
+            tag(b" "),
+            take(2usize),
+            tag(b" "),
+            take(4usize),
+            tag(b"/"),
+            take(2usize),
+            tag(b":"),
+            take(2usize),
+            tag(b":"),
+            take(2usize),
+        ))(input)
+        {
+            if let Some(body) = extract_packet_body(input) {
+                return match from_utf8(&input[b"X".len()..]) {
+                    Ok(string) => Ok((&[], string)),
+                    Err(_) => Err(nom::Err::Failure(nom::error::Error::new(
+                        body,
+                        nom::error::ErrorKind::Verify,
+                    ))),
+                };
+            }
+        }
+
+        return Err(nom::Err::Error(nom::error::Error::new(
+            input,
+            nom::error::ErrorKind::Eof,
+        )));
+    }
+
     pub fn get_scanner_status_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
         let command = Command::new(b"Q");
         map(tag(command.to_bytes().as_slice()), |_| ())(input)
@@ -622,6 +962,38 @@ pub mod parsers {
                     byte2 & 0b0001_0000 != 0,
                     byte2 & 0b0010_0000 != 0,
                     byte2 & 0b0100_0000 != 0,
+                )
+            },
+        )(input)
+    }
+
+    pub fn get_scanner_settings_response(input: &[u8]) -> IResult<&[u8], Settings> {
+        map(
+            packet((
+                tag(b"I"),
+                le_u16,
+                le_u16,
+                le_u16,
+                le_u16,
+                map_res(le_u16, TryInto::try_into),
+                alt((map(le_u16, Some), map(take(0usize), |_| None))),
+            )),
+            |(
+                _,
+                dpi_setting,
+                bits_per_pixel,
+                total_array_pixels,
+                num_of_arrays,
+                calibration_status,
+                number_of_calibration_tables,
+            )| {
+                Settings::new(
+                    dpi_setting,
+                    bits_per_pixel,
+                    total_array_pixels,
+                    num_of_arrays,
+                    calibration_status,
+                    number_of_calibration_tables,
                 )
             },
         )(input)
@@ -1132,6 +1504,54 @@ impl Status {
             in_diagnostic_mode,
             document_in_scanner,
             calibration_of_unit_needed,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct Settings {
+    dpi_setting: u16,
+    bits_per_pixel: u16,
+    total_array_pixels: u16,
+    num_of_arrays: u16,
+    calibration_status: CalibrationStatus,
+    number_of_calibration_tables: Option<u16>,
+}
+
+impl Settings {
+    pub const fn new(
+        dpi_setting: u16,
+        bits_per_pixel: u16,
+        total_array_pixels: u16,
+        num_of_arrays: u16,
+        calibration_status: CalibrationStatus,
+        number_of_calibration_tables: Option<u16>,
+    ) -> Self {
+        Self {
+            dpi_setting,
+            bits_per_pixel,
+            total_array_pixels,
+            num_of_arrays,
+            calibration_status,
+            number_of_calibration_tables,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub enum CalibrationStatus {
+    CalibrationNeeded,
+    CalibrationOk,
+}
+
+impl TryFrom<u16> for CalibrationStatus {
+    type Error = ();
+
+    fn try_from(value: u16) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(Self::CalibrationOk),
+            1 => Ok(Self::CalibrationNeeded),
+            _ => Err(()),
         }
     }
 }

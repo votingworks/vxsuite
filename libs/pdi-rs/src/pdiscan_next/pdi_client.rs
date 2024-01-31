@@ -8,7 +8,7 @@ use std::{
 use crate::pdiscan_next::transfer::Handler;
 
 use super::{
-    protocol::{parsers, Command, Incoming, Side, Status, Version},
+    protocol::{parsers, Command, Incoming, Settings, Side, Status, Version},
     transfer::Event,
 };
 
@@ -53,6 +53,7 @@ pub struct PdiClient {
     get_test_string_response: Option<String>,
     get_firmware_version_response: Option<Version>,
     get_scanner_status_response: Option<Status>,
+    get_scanner_settings_response: Option<Settings>,
     get_serial_number_response: Option<Incoming>,
     get_required_input_sensors_response: Option<Incoming>,
     adjust_top_cis_sensor_threshold_by_1_response: Option<Incoming>,
@@ -96,6 +97,7 @@ impl PdiClient {
             get_test_string_response: None,
             get_firmware_version_response: None,
             get_scanner_status_response: None,
+            get_scanner_settings_response: None,
             get_serial_number_response: None,
             get_required_input_sensors_response: None,
             adjust_top_cis_sensor_threshold_by_1_response: None,
@@ -358,6 +360,28 @@ impl PdiClient {
 
             if let Some(status) = self.get_scanner_status_response.take() {
                 return Ok(status);
+            }
+        }
+    }
+
+    pub fn get_scanner_settings(
+        &mut self,
+        timeout: impl Into<Option<std::time::Duration>>,
+    ) -> Result<Settings> {
+        if let Some(settings) = self.get_scanner_settings_response.take() {
+            tracing::warn!("get_scanner_settings: found a cached response: {settings:?}");
+        }
+
+        self.validate_and_send_command(Command::new(b"I"), parsers::get_scanner_settings_request)?;
+
+        let timeout = timeout.into();
+        let deadline = timeout.map(|timeout| Instant::now() + timeout);
+
+        loop {
+            self.await_event(deadline)?;
+
+            if let Some(settings) = self.get_scanner_settings_response.take() {
+                return Ok(settings);
             }
         }
     }
@@ -773,6 +797,9 @@ impl PdiClient {
             }
             Incoming::GetScannerStatusResponse(status) => {
                 self.get_scanner_status_response = Some(status);
+            }
+            Incoming::GetScannerSettingsResponse(settings) => {
+                self.get_scanner_settings_response = Some(settings);
             }
             Incoming::GetSetSerialNumberResponse(serial_number) => {
                 self.get_serial_number_response = Some(Incoming::GetSetSerialNumberResponse(
