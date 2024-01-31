@@ -8,7 +8,8 @@ import {
   useQuery,
   useQueryClient,
 } from '@tanstack/react-query';
-import { Id } from '@votingworks/types';
+import { BallotType, Id } from '@votingworks/types';
+import { BallotMode } from '@votingworks/hmpb-layout';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -157,10 +158,23 @@ export const exportAllBallots = {
   },
 } as const;
 
-export const exportBallot = {
-  useMutation() {
+interface GetBallotPreviewInput {
+  electionId: Id;
+  precinctId: string;
+  ballotStyleId: string;
+  ballotType: BallotType;
+  ballotMode: BallotMode;
+}
+
+export const getBallotPreviewPdf = {
+  queryKey(input: GetBallotPreviewInput): QueryKey {
+    return ['getBallotPreviewPdf', input];
+  },
+  useQuery(input: GetBallotPreviewInput) {
     const apiClient = useApiClient();
-    return useMutation(apiClient.exportBallot);
+    return useQuery(this.queryKey(input), () =>
+      apiClient.getBallotPreviewPdf(input)
+    );
   },
 } as const;
 

@@ -17,7 +17,7 @@ export function BallotScreen(): JSX.Element | null {
     return null; // Initial loading state
   }
 
-  const { election, layoutOptions, nhCustomContent } = getElectionQuery.data;
+  const { election } = getElectionQuery.data;
   const precinct = assertDefined(getPrecinctById({ election, precinctId }));
   const ballotStyle = assertDefined(
     getBallotStyle({ election, ballotStyleId })
@@ -29,8 +29,6 @@ export function BallotScreen(): JSX.Element | null {
         election={election}
         precinct={precinct}
         ballotStyle={ballotStyle}
-        layoutOptions={layoutOptions}
-        nhCustomContent={nhCustomContent[ballotStyle.id] ?? {}}
       />
     </Screen>
   );
