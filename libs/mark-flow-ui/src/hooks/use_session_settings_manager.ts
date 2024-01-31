@@ -10,7 +10,7 @@ export interface UseDisplaySettingsManagerParams {
   votes?: VotesDict;
 }
 
-export function useDisplaySettingsManager(
+export function useSessionSettingsManager(
   params: UseDisplaySettingsManagerParams
 ): void {
   const { authStatus, votes } = params;

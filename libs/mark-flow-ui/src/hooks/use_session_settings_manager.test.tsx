@@ -12,9 +12,9 @@ import {
 import { VotesDict } from '@votingworks/types';
 import { act, render } from '../../test/react_testing_library';
 import {
-  UseDisplaySettingsManagerParams,
-  useDisplaySettingsManager,
-} from './use_display_settings_manager';
+  UseSessionSettingsManagerParams,
+  useSessionSettingsManager,
+} from './use_session_settings_manager';
 
 const DEFAULT_THEME: Partial<DefaultTheme> = {
   colorMode: 'contrastMedium',
@@ -26,11 +26,11 @@ const NEW_VOTING_SESSION_VOTES = undefined;
 let currentTheme: DefaultTheme;
 let displaySettingsManager: DisplaySettingsManagerContextInterface;
 
-function TestHookWrapper(props: UseDisplaySettingsManagerParams): null {
+function TestHookWrapper(props: UseSessionSettingsManagerParams): null {
   currentTheme = React.useContext(ThemeContext);
   displaySettingsManager = React.useContext(DisplaySettingsManagerContext);
 
-  useDisplaySettingsManager(props);
+  useSessionSettingsManager(props);
 
   return null;
 }

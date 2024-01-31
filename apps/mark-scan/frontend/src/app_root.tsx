@@ -36,7 +36,7 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   mergeMsEitherNeitherContests,
   useBallotStyleManager,
-  useDisplaySettingsManager,
+  useSessionSettingsManager,
 } from '@votingworks/mark-flow-ui';
 import type { ElectionState } from '@votingworks/mark-scan-backend';
 import {
@@ -315,7 +315,7 @@ export function AppRoot({
     };
   }, []);
 
-  useDisplaySettingsManager({ authStatus, votes });
+  useSessionSettingsManager({ authStatus, votes });
 
   useBallotStyleManager({
     currentBallotStyleId: ballotStyleId,
