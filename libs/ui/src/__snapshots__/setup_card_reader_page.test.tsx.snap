@@ -81,10 +81,6 @@ exports[`renders SetupCardReaderPage with no useEffect trigger as expected 1`] =
 }
 
 @media print {
-
-}
-
-@media print {
   .c0 {
     display: none;
   }

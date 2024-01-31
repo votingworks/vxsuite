@@ -13,10 +13,6 @@ exports[`renders Prose with defaults 1`] = `
 
 }
 
-@media print {
-
-}
-
 <div
   class="c0"
 >
@@ -67,10 +63,6 @@ exports[`renders Prose with right-aligned text 1`] = `
 
 }
 
-@media print {
-
-}
-
 <div
   class="c0"
 >
@@ -111,10 +103,6 @@ exports[`renders Prose with with non-default options 1`] = `
 .c0 {
   margin: 0 auto;
   text-align: center;
-}
-
-@media print {
-
 }
 
 @media print {

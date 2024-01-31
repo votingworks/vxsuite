@@ -261,10 +261,6 @@ exports[`no votes 1`] = `
 
 }
 
-@media print {
-
-}
-
 @media screen {
   .c0 {
     display: none;
@@ -939,10 +935,6 @@ exports[`with votes 1`] = `
 
 }
 
-@media print {
-
-}
-
 <div>
   <div
     aria-hidden="true"
@@ -1598,10 +1590,6 @@ exports[`without votes and inline seal 1`] = `
   .c0 {
     display: none;
   }
-}
-
-@media print {
-
 }
 
 @media print {

@@ -64,10 +64,6 @@ exports[`renders InputGroup 1`] = `
 
 }
 
-@media print {
-
-}
-
 <div
   class="c0"
 >
