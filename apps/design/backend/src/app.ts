@@ -8,14 +8,16 @@ import {
   BallotPaperSize,
   SystemSettings,
   BallotType,
+  getBallotStyle,
 } from '@votingworks/types';
 import express, { Application } from 'express';
-import { assertDefined, find, groupBy, ok, Result } from '@votingworks/basics';
+import { assertDefined, groupBy, ok, Result } from '@votingworks/basics';
 import {
   BallotMode,
   BALLOT_MODES,
   layOutAllBallotStyles,
   LayoutOptions,
+  layOutBallot,
 } from '@votingworks/hmpb-layout';
 import JsZip from 'jszip';
 import { renderDocumentToPdf } from '@votingworks/hmpb-render-backend';
@@ -213,35 +215,38 @@ function buildApi({ translator, workspace }: AppContext) {
       };
     },
 
-    async exportBallot(input: {
+    async getBallotPreviewPdf(input: {
       electionId: Id;
       precinctId: string;
       ballotStyleId: string;
       ballotType: BallotType;
       ballotMode: BallotMode;
-    }): Promise<Buffer> {
+    }): Promise<Result<Buffer, Error>> {
       const { election, layoutOptions, nhCustomContent } = store.getElection(
         input.electionId
       );
-      const { ballots } = layOutAllBallotStyles({
+      const precinct = assertDefined(
+        getPrecinctById({ election, precinctId: input.precinctId })
+      );
+      const ballotStyle = assertDefined(
+        getBallotStyle({
+          election,
+          ballotStyleId: input.ballotStyleId,
+        })
+      );
+      const ballotResult = layOutBallot({
         election,
+        precinct,
+        ballotStyle,
         ballotType: input.ballotType,
         ballotMode: input.ballotMode,
         layoutOptions,
         nhCustomContent,
-        translatedElectionStrings: (
-          await extractAndTranslateElectionStrings(translator, election)
-        ).electionStrings,
-      }).unsafeUnwrap();
-      const { document } = find(
-        ballots,
-        ({ precinctId, gridLayout }) =>
-          precinctId === input.precinctId &&
-          gridLayout.ballotStyleId === input.ballotStyleId
-      );
-      const pdf = renderDocumentToPdf(document);
+      });
+      if (ballotResult.isErr()) return ballotResult;
+      const pdf = renderDocumentToPdf(ballotResult.ok().document);
       pdf.end();
-      return streamToBuffer(pdf);
+      return ok(await streamToBuffer(pdf));
     },
 
     getElectionPackage({ electionId }: { electionId: Id }): ElectionPackage {
