@@ -52,7 +52,7 @@ root.render(
               {isFeatureFlagEnabled(
                 BooleanEnvironmentVariableName.ENABLE_REACT_QUERY_DEVTOOLS
               ) && (
-                <div className="no-print">
+                <div>
                   <ReactQueryDevtools
                     initialIsOpen={false}
                     position="top-left"

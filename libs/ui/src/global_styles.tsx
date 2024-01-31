@@ -166,19 +166,4 @@ ${NORMALIZE_CSS}
   .screen-reader-only {
     ${AUDIO_ONLY_STYLES}
   }
-
-  /* TODO: Create components for these: */
-  .print-only {
-    display: none;
-  }
-
-  @media print {
-    .print-only {
-      display: block;
-    }
-
-    .no-print {
-      display: none;
-    }
-  }
 `;
