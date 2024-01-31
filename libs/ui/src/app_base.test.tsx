@@ -23,9 +23,9 @@ function AppBase(props: AppBaseProps) {
 test('renders with touchscreen-specific styles', () => {
   const { container } = render(
     <AppBase
-      isTouchscreen
       defaultColorMode="contrastMedium"
       defaultSizeMode="touchSmall"
+      screenType="elo13"
     >
       <div>foo</div>
     </AppBase>

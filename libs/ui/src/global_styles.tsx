@@ -1,4 +1,5 @@
 import { createGlobalStyle, css } from 'styled-components';
+import { isTouchscreen } from '@votingworks/types';
 import { VX_DEFAULT_FONT_FAMILY_DECLARATION } from './fonts/font_family';
 import { NORMALIZE_CSS } from './normalize.css';
 
@@ -13,10 +14,6 @@ export const AUDIO_ONLY_STYLES = css`
   width: 1px;
 `;
 
-export interface GlobalStylesProps {
-  isTouchscreen: boolean;
-}
-
 /**
  * Common global styling for VxSuite apps.
  *
@@ -27,7 +24,7 @@ export interface GlobalStylesProps {
  * so that everything's centralized and we don't have to have duplicate
  * copies in each app's package.
  */
-export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
+export const GlobalStyles = createGlobalStyle`
 
 ${NORMALIZE_CSS}
 
@@ -147,7 +144,7 @@ ${NORMALIZE_CSS}
    * triggers (e.g. RadioGroup). */
   :root {
     --focus-outline: ${(p) =>
-      p.isTouchscreen
+      isTouchscreen(p.theme.screenType)
         ? `${p.theme.colors.primary} dashed ${p.theme.sizes.bordersRem.medium}rem`
         : `${p.theme.colors.primary} solid ${p.theme.sizes.bordersRem.medium}rem`}
   }

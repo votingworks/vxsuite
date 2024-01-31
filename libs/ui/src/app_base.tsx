@@ -26,7 +26,6 @@ export interface AppBaseProps {
   defaultSizeMode: SizeMode;
   defaultIsVisualModeDisabled?: boolean;
   disableFontsForTests?: boolean;
-  isTouchscreen?: boolean;
   screenType?: ScreenType;
 }
 
@@ -40,7 +39,6 @@ export function AppBase(props: AppBaseProps): JSX.Element {
     defaultSizeMode,
     defaultIsVisualModeDisabled = false,
     disableFontsForTests,
-    isTouchscreen = false,
     screenType = 'builtIn',
   } = props;
 
@@ -93,7 +91,7 @@ export function AppBase(props: AppBaseProps): JSX.Element {
         sizeMode={sizeMode}
         isVisualModeDisabled={isVisualModeDisabled}
       >
-        <GlobalStyles isTouchscreen={isTouchscreen} />
+        <GlobalStyles />
         {children}
       </VxThemeProvider>
     </DisplaySettingsManagerContext.Provider>

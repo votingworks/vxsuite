@@ -45,7 +45,6 @@ export function App({
     <AppBase
       defaultColorMode={DEFAULT_COLOR_MODE}
       defaultSizeMode={DEFAULT_SIZE_MODE}
-      isTouchscreen
       screenType={DEFAULT_SCREEN_TYPE}
     >
       <BrowserRouter>
