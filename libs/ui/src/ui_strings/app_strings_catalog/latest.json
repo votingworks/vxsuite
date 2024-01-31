@@ -183,6 +183,7 @@
   "number44": "44",
   "number45": "45",
   "promptBmdConfirmRemoveWriteIn": "Do you want to deselect and remove your write-in candidate?",
+  "promptBmdSoundDiagnosticScreen": "Press the select button to confirm sound is working.",
   "titleAudioOnlyModeEnabled": "Audio-Only Mode is Enabled",
   "titleBallotBagFull": "Ballot Bag Full",
   "titleBallotId": "Ballot ID",

@@ -1,17 +1,20 @@
 import userEvent from '@testing-library/user-event';
 import { DateTime } from 'luxon';
-import {
-  render,
-  screen,
-  waitFor,
-  within,
-} from '../../test/react_testing_library';
-import { fakeTts } from '../../test/helpers/fake_tts';
-import { AriaScreenReader } from '../utils/ScreenReader';
+import { fakeUseAudioControls, mockOf } from '@votingworks/test-utils';
+import { ReadOnLoad } from '@votingworks/ui';
+import { render, screen, within } from '../../test/react_testing_library';
 import {
   AccessibleControllerDiagnosticScreen,
   AccessibleControllerDiagnosticProps,
 } from './accessible_controller_diagnostic_screen';
+
+const mockAudioControls = fakeUseAudioControls();
+
+jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
+  ...jest.requireActual('@votingworks/ui'),
+  ReadOnLoad: jest.fn(),
+  useAudioControls: () => mockAudioControls,
+}));
 
 const now = DateTime.fromISO('2022-03-23T11:23:00.000Z');
 
@@ -22,7 +25,6 @@ function renderScreen(
     <AccessibleControllerDiagnosticScreen
       onComplete={jest.fn()}
       onCancel={jest.fn()}
-      screenReader={new AriaScreenReader(fakeTts())}
       {...props}
     />
   );
@@ -30,16 +32,22 @@ function renderScreen(
 
 jest.useFakeTimers();
 
+const MOCK_READ_ON_LOAD_TEST_ID = 'mockReadOnLoad';
+
+beforeEach(() => {
+  mockOf(ReadOnLoad).mockImplementation((props) => (
+    <div data-testid={MOCK_READ_ON_LOAD_TEST_ID} {...props} />
+  ));
+});
+
 describe('Accessible Controller Diagnostic Screen', () => {
   beforeEach(() => {
     jest.setSystemTime(new Date(now.toISO()));
   });
 
   it('yields a success result when all steps are completed', async () => {
-    const mockTts = fakeTts();
-    const screenReader = new AriaScreenReader(mockTts);
     const onComplete = jest.fn();
-    renderScreen({ onComplete, screenReader });
+    renderScreen({ onComplete });
 
     screen.getByText('Accessible Controller Test');
 
@@ -100,12 +108,18 @@ describe('Accessible Controller Diagnostic Screen', () => {
     // doesn't work
     userEvent.keyboard('{Enter}');
     expect(onComplete).not.toHaveBeenCalled();
+    expect(
+      screen.queryByTestId(MOCK_READ_ON_LOAD_TEST_ID)
+    ).not.toBeInTheDocument();
+
     // Then play sound and confirm
     userEvent.keyboard('{ArrowRight}');
-    await waitFor(() => expect(mockTts.speak).toHaveBeenCalled());
-    // Should unmute to speak and then restore muted state
-    expect(mockTts.unmute).toHaveBeenCalled();
-    expect(mockTts.toggleMuted).toHaveBeenCalledWith(true);
+    expect(mockAudioControls.setIsEnabled).toHaveBeenCalledTimes(1);
+    expect(mockAudioControls.setIsEnabled).toHaveBeenCalledWith(true);
+    expect(screen.getByTestId(MOCK_READ_ON_LOAD_TEST_ID)).toHaveTextContent(
+      'Press the select button to confirm sound is working.'
+    );
+
     userEvent.keyboard('{Enter}');
 
     expect(onComplete).toHaveBeenCalledWith({
