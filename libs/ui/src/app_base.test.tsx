@@ -34,28 +34,6 @@ test('renders with touchscreen-specific styles', () => {
   expect(container).toContainHTML('<div>foo</div>');
 });
 
-test('renders with legacy font sizes', () => {
-  const { container } = render(
-    <AppBase
-      legacyBaseFontSizePx={48}
-      legacyPrintFontSizePx={18}
-      defaultColorMode="contrastMedium"
-      defaultSizeMode="touchSmall"
-    >
-      <div>foo</div>
-    </AppBase>
-  );
-
-  expect(container).toContainHTML('<div>foo</div>');
-
-  const htmlNode = document.body.parentElement;
-  assert(htmlNode);
-  const computedStyles = window.getComputedStyle(htmlNode);
-
-  expect(computedStyles.fontSize).toEqual('48px');
-  // TODO: Figure out how to test @media print styles.
-});
-
 test('renders with selected themes', () => {
   const { container } = render(
     <AppBase

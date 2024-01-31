@@ -16,8 +16,6 @@ export const AUDIO_ONLY_STYLES = css`
 export interface GlobalStylesProps {
   enableScroll: boolean;
   isTouchscreen: boolean;
-  legacyBaseFontSizePx?: number;
-  legacyPrintFontSizePx?: number;
 }
 
 /**
@@ -46,7 +44,7 @@ ${NORMALIZE_CSS}
     line-height: 1;
     color: ${(p) => p.theme.colors.onBackground};
     font-family: ${VX_DEFAULT_FONT_FAMILY_DECLARATION};
-    font-size: ${(p) => p.legacyBaseFontSizePx || p.theme.sizes.fontDefault}px;
+    font-size: ${(p) => p.theme.sizes.fontDefault}px;
     font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
@@ -57,9 +55,7 @@ ${NORMALIZE_CSS}
     html {
       background: #fff;
       color: #000;
-
-      /* Adjust printed ballot font-size */
-      font-size: ${(p) => p.legacyPrintFontSizePx ?? 16}px !important;
+      font-size: 16px !important;
     }
   }
 

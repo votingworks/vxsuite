@@ -28,8 +28,6 @@ export interface AppBaseProps {
   disableFontsForTests?: boolean;
   enableScroll?: boolean;
   isTouchscreen?: boolean;
-  legacyBaseFontSizePx?: number;
-  legacyPrintFontSizePx?: number;
   screenType?: ScreenType;
 }
 
@@ -45,8 +43,6 @@ export function AppBase(props: AppBaseProps): JSX.Element {
     disableFontsForTests,
     enableScroll = false,
     isTouchscreen = false,
-    legacyBaseFontSizePx,
-    legacyPrintFontSizePx,
     screenType = 'builtIn',
   } = props;
 
@@ -102,8 +98,6 @@ export function AppBase(props: AppBaseProps): JSX.Element {
         <GlobalStyles
           enableScroll={enableScroll}
           isTouchscreen={isTouchscreen}
-          legacyBaseFontSizePx={legacyBaseFontSizePx}
-          legacyPrintFontSizePx={legacyPrintFontSizePx}
         />
         {children}
       </VxThemeProvider>

@@ -23,9 +23,6 @@ import {
   systemCallApi,
 } from './api';
 
-/* Copied from old App.css */
-const PRINT_FONT_SIZE_PX = 14;
-
 const apiClient = createApiClient();
 const queryClient = createQueryClient();
 
@@ -40,7 +37,6 @@ root.render(
       defaultColorMode="desktop"
       defaultSizeMode="desktop"
       screenType="lenovoThinkpad15"
-      legacyPrintFontSizePx={PRINT_FONT_SIZE_PX}
     >
       {/* TODO: Move these wrappers down a level into <App> so that we can 1) test the ErrorBoundary
       and 2) be more consistent with other Vx apps. This will require updating test utils to not
