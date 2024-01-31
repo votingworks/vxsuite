@@ -1,4 +1,7 @@
-import { CandidateContest as CandidateContestInterface } from '@votingworks/types';
+import {
+  CandidateContest as CandidateContestInterface,
+  getCandidateParties,
+} from '@votingworks/types';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 
 import { act } from 'react-dom/test-utils';
@@ -502,9 +505,29 @@ describe('audio cues', () => {
     );
 
     // the candidate is now selected
-    expect(firstCandidateChoice).toHaveAccessibleName(
-      new RegExp(`Selected.+${candidate.name}`, 'i')
-    );
+    screen.getByRole('option', {
+      name: new RegExp(`Selected.+${candidate.name}.+votes remaining.+0`, 'i'),
+      selected: true,
+    });
+
+    //
+    // Expect the "votes remaining" suffix to get cleared after a moment:
+    //
+
+    advanceTimers(1);
+
+    const lastCandidateParty = getCandidateParties(
+      electionDefinition.election.parties,
+      candidate
+    ).slice(-1)[0];
+
+    screen.getByRole('option', {
+      name: new RegExp(
+        `^Selected.+${candidate.name}.+${lastCandidateParty.name}$`,
+        'i'
+      ),
+      selected: true,
+    });
 
     // deselect the candidate and manually update the vote
     userEvent.click(firstCandidateChoice);
@@ -518,14 +541,24 @@ describe('audio cues', () => {
     );
 
     // the candidate is no longer selected
-    expect(firstCandidateChoice).toHaveAccessibleName(
-      new RegExp(`Deselected.+${candidate.name}`, 'i')
-    );
+    screen.getByRole('option', {
+      name: new RegExp(
+        `Deselected.+${candidate.name}.+votes remaining.+1`,
+        'i'
+      ),
+      selected: false,
+    });
 
-    // after a short delay, the candidate is no longer selected/deselected
+    //
+    // Expect the "deselected" audio prefix and "votes remaining" suffix to get
+    // cleared after a moment:
+    //
+
     advanceTimers(1);
-    expect(firstCandidateChoice).toHaveAccessibleName(
-      expect.stringContaining(candidate.name)
-    );
+
+    screen.getByRole('option', {
+      name: new RegExp(`^${candidate.name}.+${lastCandidateParty.name}$`, 'i'),
+      selected: false,
+    });
   });
 });
