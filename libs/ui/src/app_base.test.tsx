@@ -34,6 +34,21 @@ test('renders with touchscreen-specific styles', () => {
   expect(container).toContainHTML('<div>foo</div>');
 });
 
+// Not sure how to test the actual scrollbars styling, so just rendering for
+// coverage
+test('renders with showScrollBars=true', () => {
+  const { container } = render(
+    <AppBase
+      defaultColorMode="contrastMedium"
+      defaultSizeMode="touchSmall"
+      showScrollBars
+    >
+      <div>foo</div>
+    </AppBase>
+  );
+  expect(container).toContainHTML('<div>foo</div>');
+});
+
 test('renders with selected themes', () => {
   const { container } = render(
     <AppBase
