@@ -33,8 +33,6 @@ export enum FileType {
   TallyReport = 'TallyReport',
   BallotCountReport = 'BallotCountReport',
   WriteInAdjudicationReport = 'WriteInAdjudicationReport',
-  LogicAndAccuracyPackage = 'LogicAndAccuracyPackage',
-  TestDeckTallyReport = 'TestDeckTallyReport',
   Ballot = 'Ballot',
   Results = 'Results',
 }
@@ -87,14 +85,6 @@ export function SaveFrontendFileModal({
         isOfficialResults ? 'Official' : 'Unofficial'
       } Ballot Count Report`;
       fileName = 'ballot count report';
-      break;
-    case FileType.LogicAndAccuracyPackage:
-      title = 'Logic & Accuracy Package';
-      fileName = 'logic and accuracy package';
-      break;
-    case FileType.TestDeckTallyReport:
-      title = 'Test Deck Tally Report';
-      fileName = 'test deck tally report';
       break;
     case FileType.Ballot:
       title = 'Ballot';

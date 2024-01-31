@@ -35,7 +35,7 @@ test('render no usb found screen when there is not a valid mounted usb drive', (
         onClose={closeFn}
         generateFileContent={jest.fn()}
         defaultFilename="file"
-        fileType={FileType.TestDeckTallyReport}
+        fileType={FileType.TallyReport}
       />,
       {
         usbDriveStatus: mockUsbDriveStatus(status),
@@ -44,7 +44,7 @@ test('render no usb found screen when there is not a valid mounted usb drive', (
     );
     getByText('No USB Drive Detected');
     getByText(
-      'Please insert a USB drive where you would like the save the test deck tally report.'
+      'Please insert a USB drive where you would like the save the tally report.'
     );
     getByAltText('Insert USB Image');
 
