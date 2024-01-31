@@ -1,6 +1,10 @@
 use clap::Parser;
 use rand::Rng;
-use std::{process::exit, thread, time::Duration};
+use std::{
+    process::exit,
+    thread,
+    time::{Duration, Instant},
+};
 use tracing_subscriber::prelude::*;
 
 use crate::pdiscan_next::{pdi_client::PdiClient, protocol::Command};
@@ -148,6 +152,57 @@ fn main_request_response() -> color_eyre::Result<()> {
     Ok(())
 }
 
+fn main_scan_loop() -> color_eyre::Result<()> {
+    let config = Config::parse();
+    setup(&config)?;
+
+    let Ok(mut client) = PdiClient::open() else {
+        tracing::error!("failed to open device");
+        exit(-1);
+    };
+
+    println!("send_connect result: {:?}", client.send_connect());
+    println!(
+        "send_enable_scan_commands result: {:?}",
+        client.send_enable_scan_commands()
+    );
+
+    loop {
+        println!("waiting for begin scan…");
+        loop {
+            match client.await_event(Instant::now() + Duration::from_millis(10)) {
+                Err(pdiscan_next::pdi_client::Error::RecvTimeout(_)) => {}
+                Err(e) => return Err(e.into()),
+                Ok(_) => {}
+            }
+
+            if let Ok(_) = client.begin_scan_rx.try_recv() {
+                break;
+            }
+        }
+
+        println!("waiting for end scan…");
+        loop {
+            match client.await_event(Instant::now() + Duration::from_millis(10)) {
+                Err(pdiscan_next::pdi_client::Error::RecvTimeout(_)) => {}
+                Err(e) => return Err(e.into()),
+                Ok(_) => {}
+            }
+
+            if let Ok(_) = client.end_scan_rx.try_recv() {
+                break;
+            }
+        }
+
+        // std::thread::sleep(std::time::Duration::from_millis(10));
+        println!("ejecting document to back of scanner…");
+        client.eject_document_to_back_of_scanner()?;
+        // client.get_test_string(std::time::Duration::from_millis(200))?;
+    }
+
+    Ok(())
+}
+
 fn main_watch_status() -> color_eyre::Result<()> {
     let config = Config::parse();
     setup(&config)?;
@@ -171,6 +226,7 @@ fn main_watch_status() -> color_eyre::Result<()> {
 
 fn main() -> color_eyre::Result<()> {
     // main_threaded()
-    main_request_response()
+    // main_request_response()
     // main_watch_status()
+    main_scan_loop()
 }
