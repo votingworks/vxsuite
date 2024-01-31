@@ -28,8 +28,6 @@ export const routerPaths = {
   ballotCountReportPrecinct: '/reports/ballot-count/precinct',
   ballotCountReportVotingMethod: '/reports/ballot-count/voting-method',
   tallyWriteInReport: '/reports/tally-reports/writein',
-  logicAndAccuracy: '/logic-and-accuracy',
-  testDecks: '/logic-and-accuracy/test-decks',
   writeIns: '/write-ins',
   writeInsAdjudication: ({
     contestId,

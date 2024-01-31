@@ -16,7 +16,6 @@ import type { ManualResultsVotingMethod } from '@votingworks/admin-backend';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
 import { ElectionScreen } from '../screens/election_screen';
-import { PrintTestDeckScreen } from '../screens/print_test_deck_screen';
 import { UnconfiguredScreen } from '../screens/unconfigured_screen';
 import { TallyScreen } from '../screens/tally_screen';
 import { TallyWriteInReportScreen } from '../screens/reporting/write_in_adjudication_report_screen';
@@ -25,13 +24,11 @@ import { ManualDataEntryScreen } from '../screens/manual_data_entry_screen';
 import { SmartcardsScreen } from '../screens/smartcards_screen';
 import { MachineLockedScreen } from '../screens/machine_locked_screen';
 import { WriteInsSummaryScreen } from '../screens/write_ins_summary_screen';
-import { LogicAndAccuracyScreen } from '../screens/logic_and_accuracy_screen';
 import { SettingsScreen } from '../screens/settings_screen';
 import { ReportsScreen } from '../screens/reporting/reports_screen';
 import { SmartcardTypeRegExPattern } from '../config/types';
 import { SmartcardModal } from './smartcard_modal';
 import { checkPin } from '../api';
-import { canViewAndPrintBallots } from '../utils/can_view_and_print_ballots';
 import { WriteInsAdjudicationScreen } from '../screens/write_ins_adjudication_screen';
 import { TallyReportBuilder } from '../screens/reporting/tally_report_builder';
 import { BallotCountReportBuilder } from '../screens/reporting/ballot_count_report_builder';
@@ -198,14 +195,6 @@ export function AppRoutes(): JSX.Element {
       </Route>
       <Route exact path={[routerPaths.tallyWriteInReport]}>
         <TallyWriteInReportScreen />
-      </Route>
-      {election && canViewAndPrintBallots(election) && (
-        <Route exact path={routerPaths.logicAndAccuracy}>
-          <LogicAndAccuracyScreen />
-        </Route>
-      )}
-      <Route exact path={[routerPaths.testDecks]}>
-        <PrintTestDeckScreen />
       </Route>
       <Route exact path={routerPaths.settings}>
         <SettingsScreen />
