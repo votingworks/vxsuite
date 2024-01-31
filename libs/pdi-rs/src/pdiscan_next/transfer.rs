@@ -112,7 +112,7 @@ impl Handler {
             // SAFETY: we're passing ownership of `buffer` to libusb, which will free
             // it when freeing the transfer because we set the `LIBUSB_TRANSFER_FREE_BUFFER`
             // flag below.
-            let buffer = Box::leak(vec![0; 4096].into_boxed_slice());
+            let buffer = Box::leak(vec![0; 16_384].into_boxed_slice());
 
             unsafe {
                 let transfer_handler_ptr = self as *const _ as *mut _;

@@ -55,6 +55,14 @@ pub enum Outgoing {
     GetFirmwareVersionRequest,
     GetScannerStatusRequest,
     EnableFeederRequest,
+
+    /// This command sets a duplex scanner to scan only the backside (bottom) of the document.
+    ///
+    /// `ASCII character H = (48H)`
+    ///
+    /// # Response
+    ///
+    /// No response.
     DisableFeederRequest,
 
     /// This command stops the normal (default) mode, whereby the feed rollers
@@ -110,13 +118,58 @@ pub enum Outgoing {
         resolution_table_type: ResolutionTableType,
     },
 
+    /// This command sets the scanner mode for scanning documents at one half of
+    /// the scanner’s native resolution. For the Pagescan 5 this will mean 200
+    /// dpi, for the Ultrascan this will mean 150 dpi, and for the color scanner
+    /// this will mean 200 or 300 dpi depending on the model. This is the
+    /// DEFAULT mode.
+    ///
+    /// `ASCII character A = (41H)`
+    ///
+    /// # Response
+    ///
+    /// No response.
     SetScannerImageDensityToHalfNativeResolutionRequest,
+
+    /// This command sets the scanner mode for scanning documents at the full
+    /// native resolution. For the Pagescan 5 this will mean 400 dpi, for the
+    /// Ultrascan this will mean 300 dpi, and for the color scanner this will
+    /// mean either 400 or 600 dpi depending on the model.
+    ///
+    /// `ASCII character B = (42H)`
+    ///
+    /// # Response
+    ///
+    /// No response.
+    SetScannerImageDensityToNativeResolutionRequest,
+
     SetScannerToDuplexModeRequest,
     DisablePickOnCommandModeRequest,
     DisableEjectPauseRequest,
     TransmitInLowBitsPerPixelRequest,
     DisableAutoRunOutAtEndOfScanRequest,
+
+    /// This command will set the motor to run at half speed. The scanner will
+    /// then continue to run the motor at half speed until either the ‘k’, run
+    /// motor at full speed, command is issued or the power to the scanner is
+    /// cycled.
+    ///
+    /// `ASCII character j = (6AH)`
+    ///
+    /// # Response
+    ///
+    /// No response.
     ConfigureMotorToRunAtHalfSpeedRequest,
+
+    /// This command will set the motor to run at full speed. The scanner
+    /// normally runs the motor at full speed unless the ‘j’, run motor at half
+    /// speed, command is issued. This is the DEFAULT mode.
+    ///
+    /// `ASCII character k = (6BH)`
+    ///
+    /// # Response
+    ///
+    /// No response.
     ConfigureMotorToRunAtFullSpeedRequest,
 
     /// This command sets the threshold offset value to a specific value (in RAM
@@ -127,6 +180,16 @@ pub enum Outgoing {
     /// scanner models were bi-tonal mode is not an option.
     ///
     /// `<ESC>% = (1BH) (25H)`
+    ///
+    /// # Example Command
+    ///
+    /// `(1BH) (25H) (54H) <hexadecimal value of threshold>`
+    ///
+    /// This example would set the Top threshold to the desired value.
+    ///
+    /// # Response Format
+    ///
+    /// `(58H) (54H) (20H) <2 Bytes (current)>`
     SetThresholdToANewValueRequest {
         side: Side,
         new_threshold: u8,
@@ -249,7 +312,7 @@ pub mod parsers {
         character::is_digit,
         combinator::{map, map_res},
         number::complete::{le_u16, le_u8},
-        sequence::{tuple, Tuple},
+        sequence::{delimited, tuple, Tuple},
         IResult,
     };
 
@@ -317,6 +380,10 @@ pub mod parsers {
                     set_scanner_image_density_to_half_native_resolution_request,
                     |_| Outgoing::SetScannerImageDensityToHalfNativeResolutionRequest,
                 ),
+                map(
+                    set_scanner_image_density_to_native_resolution_request,
+                    |_| Outgoing::SetScannerImageDensityToNativeResolutionRequest,
+                ),
                 map(set_scanner_to_duplex_mode_request, |_| {
                     Outgoing::SetScannerToDuplexModeRequest
                 }),
@@ -326,11 +393,11 @@ pub mod parsers {
                 map(disable_eject_pause_request, |_| {
                     Outgoing::DisableEjectPauseRequest
                 }),
+            )),
+            alt((
                 map(transmit_in_low_bits_per_pixel_request, |_| {
                     Outgoing::TransmitInLowBitsPerPixelRequest
                 }),
-            )),
-            alt((
                 map(disable_auto_run_out_at_end_of_scan_request, |_| {
                     Outgoing::DisableAutoRunOutAtEndOfScanRequest
                 }),
@@ -433,10 +500,11 @@ pub mod parsers {
         mut l: List,
     ) -> impl FnMut(&'a [u8]) -> IResult<&'a [u8], O> {
         move |i: &'a [u8]| {
-            let (i, _) = packet_start(i)?;
-            let (i, o) = l.parse(i)?;
-            let (i, _) = packet_end(i)?;
-            Ok((i, o))
+            delimited(packet_start, |i| l.parse(i), packet_end)(i)
+            // let (i, _) = packet_start(i)?;
+            // let (i, o) = l.parse(i)?;
+            // let (i, _) = packet_end(i)?;
+            // Ok((i, o))
         }
     }
 
@@ -734,49 +802,64 @@ pub mod parsers {
         ))
     }
 
-    fn set_scanner_image_density_to_half_native_resolution_request<'a>(
+    pub fn set_scanner_image_density_to_half_native_resolution_request<'a>(
         input: &'a [u8],
     ) -> IResult<&'a [u8], ()> {
         let command = Command::new(b"A");
         map(tag(command.to_bytes().as_slice()), |_| ())(input)
     }
 
-    fn set_scanner_to_duplex_mode_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+    pub fn set_scanner_image_density_to_native_resolution_request<'a>(
+        input: &'a [u8],
+    ) -> IResult<&'a [u8], ()> {
+        let command = Command::new(b"B");
+        map(tag(command.to_bytes().as_slice()), |_| ())(input)
+    }
+
+    pub fn set_scanner_to_duplex_mode_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
         let command = Command::new(b"J");
         map(tag(command.to_bytes().as_slice()), |_| ())(input)
     }
 
-    fn disable_pick_on_command_mode_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+    pub fn disable_pick_on_command_mode_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
         let command = Command::new(b"\x1bY");
         map(tag(command.to_bytes().as_slice()), |_| ())(input)
     }
 
-    fn disable_eject_pause_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+    pub fn disable_eject_pause_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
         let command = Command::new(b"N");
         map(tag(command.to_bytes().as_slice()), |_| ())(input)
     }
 
-    fn transmit_in_low_bits_per_pixel_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+    pub fn transmit_in_low_bits_per_pixel_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
         let command = Command::new(b"z");
         map(tag(command.to_bytes().as_slice()), |_| ())(input)
     }
 
-    fn disable_auto_run_out_at_end_of_scan_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+    pub fn disable_auto_run_out_at_end_of_scan_request<'a>(
+        input: &'a [u8],
+    ) -> IResult<&'a [u8], ()> {
         let command = Command::new(b"\x1bd");
         map(tag(command.to_bytes().as_slice()), |_| ())(input)
     }
 
-    fn configure_motor_to_run_at_half_speed_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+    pub fn configure_motor_to_run_at_half_speed_request<'a>(
+        input: &'a [u8],
+    ) -> IResult<&'a [u8], ()> {
         let command = Command::new(b"j");
         map(tag(command.to_bytes().as_slice()), |_| ())(input)
     }
 
-    fn configure_motor_to_run_at_full_speed_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+    pub fn configure_motor_to_run_at_full_speed_request<'a>(
+        input: &'a [u8],
+    ) -> IResult<&'a [u8], ()> {
         let command = Command::new(b"k");
         map(tag(command.to_bytes().as_slice()), |_| ())(input)
     }
 
-    fn set_threshold_to_a_new_value_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], (Side, u8)> {
+    pub fn set_threshold_to_a_new_value_request<'a>(
+        input: &'a [u8],
+    ) -> IResult<&'a [u8], (Side, u8)> {
         map_res(
             tuple((packet((tag(b"\x1b%"), le_u8, le_u8)), le_u8)),
             |((_, side, new_threshold), actual_crc)| {
@@ -799,7 +882,7 @@ pub mod parsers {
         )(input)
     }
 
-    fn set_length_of_document_to_scan_request<'a>(
+    pub fn set_length_of_document_to_scan_request<'a>(
         input: &'a [u8],
     ) -> IResult<&'a [u8], (u8, Option<u8>)> {
         let (input, _) = packet_start(input)?;
@@ -823,7 +906,7 @@ pub mod parsers {
         Ok((input, (length_byte, unit_byte)))
     }
 
-    fn set_scan_delay_interval_for_document_feed_request<'a>(
+    pub fn set_scan_delay_interval_for_document_feed_request<'a>(
         input: &'a [u8],
     ) -> IResult<&'a [u8], Duration> {
         map_res(
@@ -849,15 +932,15 @@ pub mod parsers {
         )(input)
     }
 
-    fn begin_scan_event<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+    pub fn begin_scan_event<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
         map(packet((tag(b"#30"),)), |_| ())(input)
     }
 
-    fn end_scan_event<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+    pub fn end_scan_event<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
         map(packet((tag(b"#31"),)), |_| ())(input)
     }
 
-    fn double_feed_event<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+    pub fn double_feed_event<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
         map(packet((tag(b"#33"),)), |_| ())(input)
     }
 
@@ -868,7 +951,7 @@ pub mod parsers {
     /// # Response
     ///
     /// No response.
-    fn eject_document_to_front_of_scanner_and_hold_in_input_rollers_request<'a>(
+    pub fn eject_document_to_front_of_scanner_and_hold_in_input_rollers_request<'a>(
         input: &'a [u8],
     ) -> IResult<&'a [u8], ()> {
         let command = Command::new(b"1");
@@ -883,7 +966,7 @@ pub mod parsers {
     /// # Response
     ///
     /// No response.
-    fn eject_document_to_back_of_scanner_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+    pub fn eject_document_to_back_of_scanner_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
         let command = Command::new(b"3");
         map(tag(command.to_bytes().as_slice()), |_| ())(input)
     }
@@ -896,7 +979,7 @@ pub mod parsers {
     /// # Response
     ///
     /// No response.
-    fn eject_document_to_the_front_of_scanners_request<'a>(
+    pub fn eject_document_to_the_front_of_scanners_request<'a>(
         input: &'a [u8],
     ) -> IResult<&'a [u8], ()> {
         let command = Command::new(b"4");
@@ -910,7 +993,7 @@ pub mod parsers {
     /// # Response
     ///
     /// No response.
-    fn eject_escrow_document_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+    pub fn eject_escrow_document_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
         let command = Command::new(b"7");
         map(tag(command.to_bytes().as_slice()), |_| ())(input)
     }
@@ -922,7 +1005,7 @@ pub mod parsers {
     /// # Response
     ///
     /// No response.
-    fn rescan_document_held_in_escrow_position_request<'a>(
+    pub fn rescan_document_held_in_escrow_position_request<'a>(
         input: &'a [u8],
     ) -> IResult<&'a [u8], ()> {
         let command = Command::new(b"[");
@@ -939,7 +1022,12 @@ pub struct Version {
 }
 
 impl Version {
-    const fn new(product_id: String, major: String, minor: String, cpld_version: String) -> Self {
+    pub const fn new(
+        product_id: String,
+        major: String,
+        minor: String,
+        cpld_version: String,
+    ) -> Self {
         Self {
             product_id,
             major,
