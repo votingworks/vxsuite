@@ -1,4 +1,11 @@
-import { expectPrintToPdf, fakeKiosk, mockOf } from '@votingworks/test-utils';
+import {
+  expectPrintToPdf,
+  fakeKiosk,
+  mockOf,
+  fakePrintElement,
+  fakePrintElementWhenReady,
+  fakePrintElementToPdf,
+} from '@votingworks/test-utils';
 import { ALL_PRECINCTS_SELECTION, MemoryHardware } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
@@ -30,6 +37,13 @@ jest.mock(
     ContestPage: jest.fn(),
   })
 );
+
+jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
+  ...jest.requireActual('@votingworks/ui'),
+  printElementWhenReady: fakePrintElementWhenReady,
+  printElement: fakePrintElement,
+  printElementToPdf: fakePrintElementToPdf,
+}));
 
 /**
  * Mocks the mark-flow-ui {@link ContestPage} to avoid re-testing the write-in

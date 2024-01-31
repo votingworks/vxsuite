@@ -4,6 +4,9 @@ import {
   fakeKiosk,
   expectPrintToPdf,
   hasTextAcrossElements,
+  fakePrintElement,
+  fakePrintElementWhenReady,
+  fakePrintElementToPdf,
 } from '@votingworks/test-utils';
 import { MemoryHardware, singlePrecinctSelectionFor } from '@votingworks/utils';
 import { fakeLogger } from '@votingworks/logging';
@@ -25,6 +28,13 @@ import {
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { configureFromUsbThenRemove } from '../test/helpers/election_package';
 import { getMockInterpretation } from '../test/helpers/interpretation';
+
+jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
+  ...jest.requireActual('@votingworks/ui'),
+  printElementWhenReady: fakePrintElementWhenReady,
+  printElement: fakePrintElement,
+  printElementToPdf: fakePrintElementToPdf,
+}));
 
 let apiMock: ApiMock;
 let kiosk = fakeKiosk();

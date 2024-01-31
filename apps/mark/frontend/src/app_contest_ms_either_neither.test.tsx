@@ -8,6 +8,8 @@ import {
 } from '@votingworks/types';
 import {
   expectPrint,
+  fakePrintElement,
+  fakePrintElementWhenReady,
   hasTextAcrossElements,
   PrintRenderResult,
 } from '@votingworks/test-utils';
@@ -29,6 +31,12 @@ import { withMarkup } from '../test/helpers/with_markup';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+
+jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
+  ...jest.requireActual('@votingworks/ui'),
+  printElementWhenReady: fakePrintElementWhenReady,
+  printElement: fakePrintElement,
+}));
 
 let apiMock: ApiMock;
 

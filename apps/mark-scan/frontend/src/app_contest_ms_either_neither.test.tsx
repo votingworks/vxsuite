@@ -10,6 +10,9 @@ import {
   expectPrintToPdf,
   hasTextAcrossElements,
   PrintRenderResult,
+  fakePrintElement,
+  fakePrintElementWhenReady,
+  fakePrintElementToPdf,
 } from '@votingworks/test-utils';
 
 import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
@@ -29,6 +32,13 @@ import { withMarkup } from '../test/helpers/with_markup';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+
+jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
+  ...jest.requireActual('@votingworks/ui'),
+  printElementWhenReady: fakePrintElementWhenReady,
+  printElement: fakePrintElement,
+  printElementToPdf: fakePrintElementToPdf,
+}));
 
 let apiMock: ApiMock;
 const electionDefinition = electionWithMsEitherNeitherDefinition;
