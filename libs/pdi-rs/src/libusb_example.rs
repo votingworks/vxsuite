@@ -224,9 +224,27 @@ fn main_watch_status() -> color_eyre::Result<()> {
     }
 }
 
+fn main_get_scanner_settings() -> color_eyre::Result<()> {
+    let config = Config::parse();
+    setup(&config)?;
+
+    let Ok(mut client) = PdiClient::open() else {
+        tracing::error!("failed to open device");
+        exit(-1);
+    };
+
+    println!(
+        "get_scanner_settings result: {:?}",
+        client.get_scanner_settings(Duration::from_secs(1))
+    );
+
+    Ok(())
+}
+
 fn main() -> color_eyre::Result<()> {
     // main_threaded()
     // main_request_response()
     // main_watch_status()
-    main_scan_loop()
+    // main_scan_loop()
+    main_get_scanner_settings()
 }
