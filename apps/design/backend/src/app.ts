@@ -21,6 +21,7 @@ import {
 } from '@votingworks/hmpb-layout';
 import JsZip from 'jszip';
 import { renderDocumentToPdf } from '@votingworks/hmpb-render-backend';
+import { dirname } from 'path';
 import { ElectionPackage, ElectionRecord, Precinct } from './store';
 import {
   createPrecinctTestDeck,
@@ -311,5 +312,9 @@ export function buildApp(context: AppContext): Application {
   const api = buildApi(context);
   app.use('/api', grout.buildRouter(api, express));
   app.use(express.static(context.workspace.assetDirectoryPath));
+  const pdfjsDistBuildPath = dirname(
+    require.resolve('pdfjs-dist/package.json')
+  );
+  app.use('/pdfjs-dist', express.static(pdfjsDistBuildPath));
   return app;
 }
