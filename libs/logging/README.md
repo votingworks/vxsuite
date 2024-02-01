@@ -26,40 +26,58 @@ failure. If not specified the disposition will be n/a.
 
 ## Defining Log Events
 
-Look at the example `LogEventId` declarations to understand how to declare a new
-event ID. You must specify a `LogEventType` and `documentationMessage` string
-for all event IDs. If you are logging an action that takes some time it is best
-practice to have two `LogEventId` definitions, one ending the suffix `-init` to
-log the beginning of the action, and a second with the suffix `-complete` to
-mark the end of the action. The `-complete` log should almost always be logged
-with either a success or failure disposition.
+Each log has its own entry in the `LogEventId` enum and corresponding
+`LogDetails`. These types are specified in
+[`config/log_event_details.toml`](config/log_event_details.toml). Resulting
+TypeScript types and Rust enums are found in the generated files
+[log_event_ids.ts](src /log_event_ids.ts) and
+[log_event_enums.rs](types-rust/src/log_event_enums.rs) respectively.
 
-You can optionally provide a `defaultMessage` for a `LogEventId` which will be
-the message included on the log line if one is not specified in the call to
-`log`.
+To add a log event, add a new entry to `log_event_details.toml`. Each entry must
+specify `eventId`, `eventType` and `documentationMessage`. If you are logging an
+action that takes some time it is best practice to have two `LogEventId`
+definitions, one ending the suffix `-init` to log the beginning of the action,
+and a second with the suffix `-complete` to mark the end of the action. The
+`-complete` log should almost always be logged with either a success or failure
+disposition.
+
+You can optionally provide a `defaultMessage` for a log which will be the
+message included on the log line if one is not specified in the call to `log`.
+
+## Generating TypeScript and Rust types
+
+After adding your entry to `log_event_details.toml` you'll need to regenerate
+the type and enum files:
+
+```
+// Generate TypeScript and Rust types
+pnpm build:generate-log-details
+// Generate VotingWorksLoggingDocumentation.md
+pnpm build:generate-docs
+```
 
 ## Example
 
 The following example shows how to define logs for, and actually log, an event
-to import data. First we define the `LogEventId` entries for an `init` and
+to import data. First we define the TOML log entries for an `init` and
 `complete` log.
 
-```ts
-const ImportDataInit: LogDetails = {
-  eventId: LogEventId.ImportDataInit,
-  eventType: LogEventType.UserAction,
-  documentationMessage: 'A request to import data.',
-  defaultMessage: 'Importing data...',
-};
-const ImportDataComplete: LogDetails = {
-  eventId: LogEventId.ImportDataComplete,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'Data has finished being imported to the system. Success or failure is indicated by the disposition.',
-};
+```toml
+[ImportDataInit]
+eventId = "import-data-init"
+eventType = "user-action"
+documentationMessage = "A request to import data."
+defaultMessage = "Importing data..."
+
+[ImportDataComplete]
+eventId = "import-data-complete"
+eventType = "user-action"
+documentationMessage = "Data has finished being imported to the system. Success or failure is indicated by the disposition."
+defaultMessage = "Importing data..."
 ```
 
-Then in the application you can log these events as followed
+Then after type generation, in the application you can log these events as
+follows
 
 ```ts
 const { logger, currentUserSession } = useContext(AppContext);
@@ -77,6 +95,25 @@ try {
     message: 'Error importing data.',
     disposition: 'failure',
     errorMessage: err.message,
+  });
+}
+```
+
+```rs
+use vx_logging::{
+    print_log, set_app_name,
+    types::{EventType, Log},
+    Disposition, EventId,
+};
+set_app_name("VxAppName".to_string());
+
+fn do_something() {
+  // ...
+  print_log(Log {
+      event_id: EventId::ImportDataComplete,
+      event_type: EventType::UserAction,
+      disposition: Disposition::Success,
+      ..Default::default()
   });
 }
 ```

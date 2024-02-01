@@ -214,6 +214,8 @@ pub enum EventId {
     ScannerEvent,
     #[serde(rename = "scanner-state-machine-transition")]
     ScannerStateChanged,
+    #[serde(rename = "pat-device-error")]
+    PatDeviceError,
     #[serde(rename = "paper-handler-state-machine-transition")]
     PaperHandlerStateChanged,
     #[serde(rename = "vote-cast")]
@@ -222,22 +224,10 @@ pub enum EventId {
     BallotInvalidated,
     #[serde(rename = "poll-worker-confirmed-ballot-removal")]
     PollWorkerConfirmedBallotRemoval,
-    #[serde(rename = "pat-device-error")]
-    PatDeviceError,
     #[serde(rename = "blank-sheet-interpretation")]
     BlankInterpretation,
     #[serde(rename = "paper-handler-connection")]
     PaperHandlerConnection,
-    #[serde(rename = "sysfs-open-fd")]
-    SysfsOpenFd,
-    #[serde(rename = "sysfs-write-file")]
-    SysfsWriteFile,
-    #[serde(rename = "gpio-pin-operation-init")]
-    GpioPinOperationInit,
-    #[serde(rename = "gpio-pin-operation-complete")]
-    GpioPinOperationComplete,
-    #[serde(rename = "close-file-descriptor-error")]
-    CloseFileDescriptorError,
     #[serde(rename = "create-virtual-uinput-device-init")]
     CreateVirtualUinputDeviceInit,
     #[serde(rename = "create-virtual-uinput-device-complete")]
@@ -256,10 +246,6 @@ pub enum EventId {
     ControllerHandshakeComplete,
     #[serde(rename = "error-setting-sigint-handler")]
     ErrorSettingSigintHandler,
-    #[serde(rename = "unexpected-error-handling-command")]
-    UnexpectedErrorHandlingCommand,
-    #[serde(rename = "unexpected-error-on-serial-port-read")]
-    UnexpectedErrorOnSerialPortRead,
     #[serde(rename = "unexpected-hardware-device-response")]
     UnexpectedHardwareDeviceResponse,
     #[serde(rename = "unknown-error")]

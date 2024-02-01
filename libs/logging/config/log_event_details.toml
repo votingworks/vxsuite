@@ -1,4 +1,6 @@
 # Configuration for log event details
+
+# Election configuration logs
 [ElectionConfigured]
 eventId = "election-configured"
 eventType = "user-action"
@@ -11,6 +13,7 @@ eventType = "user-action"
 defaultMessage = "Application has been unconfigured from the previous election."
 documentationMessage = "The user has unconfigured current machine to remove the current election definition, and all other data."
 
+# System level logs
 [MachineBootInit]
 eventId = "machine-boot-init"
 eventType = "system-action"
@@ -54,6 +57,7 @@ restrictInDocumentationToApps = [
   "vx-mark-scan-pat-daemon",
 ]
 
+# Auth logs
 [AuthPinEntry]
 eventId = "auth-pin-entry"
 eventType = "user-action"
@@ -74,6 +78,7 @@ eventId = "auth-logout"
 eventType = "user-action"
 documentationMessage = "A user logged out (or failed to log out)."
 
+# USB related logs
 [UsbDriveDetected]
 eventId = "usb-drive-detected"
 eventType = "application-status"
@@ -119,11 +124,13 @@ eventId = "usb-drive-format-complete"
 eventType = "application-status"
 documentationMessage = "Attempt to reformat USB drive complete. Success or failure indicated by disposition."
 
+# App Startup
 [ApplicationStartup]
 eventId = "application-startup"
 eventType = "application-status"
 documentationMessage = "Application finished starting up, success or failure indicated by disposition."
 
+# External Device Related Logs
 [PrinterConfigurationAdded]
 eventId = "printer-config-added"
 eventType = "application-status"
@@ -149,6 +156,7 @@ eventId = "device-unattached"
 eventType = "application-status"
 documentationMessage = "Application saw a device unattached from the system."
 
+# Storage logs
 [LoadFromStorage]
 eventId = "load-from-storage"
 eventType = "application-action"
@@ -164,6 +172,7 @@ eventId = "file-saved"
 eventType = "user-action"
 documentationMessage = 'File is saved to a USB drive. Success or failure indicated by disposition. Type of file specified with "fileType" key. For success logs the saved filename specified with "filename" key.'
 
+# VxAdmin-specific user action logs
 [SaveElectionPackageInit]
 eventId = "save-election-package-init"
 eventType = "user-action"
@@ -329,6 +338,7 @@ eventType = "user-action"
 documentationMessage = "User adjudicated a write-in."
 restrictInDocumentationToApps = ["vx-admin-service"]
 
+# VxCentralScan-specific user action logs
 [TogglingTestMode]
 eventId = "toggle-test-mode-init"
 eventType = "user-action"
@@ -511,6 +521,7 @@ eventType = "user-action"
 documentationMessage = "The election package has been read from the USB drive. Success or failure indicated by disposition."
 restrictInDocumentationToApps = ["vx-central-scan-frontend", "vx-scan-frontend"]
 
+# Scanners, central and precinct
 [ExportCastVoteRecordsInit]
 eventId = "export-cast-vote-records-init"
 eventType = "user-action"
@@ -523,6 +534,7 @@ eventType = "user-action"
 documentationMessage = "Cast vote records have been exported to a USB drive (or failed to be exported)."
 restrictInDocumentationToApps = ["vx-central-scan-service", "vx-scan-backend"]
 
+# Precinct Machine (VxMark, VxScan, VxMarkScan) State
 [PollsOpened]
 eventId = "polls-opened"
 eventType = "user-action"
@@ -595,6 +607,13 @@ eventType = "application-status"
 documentationMessage = "Precinct scanner state machine transitioned states."
 restrictInDocumentationToApps = ["vx-scan-backend"]
 
+# VxMarkScan logs
+[PatDeviceError]
+eventId = "pat-device-error"
+eventType = "system-status"
+documentationMessage = "VxMarkScan encountered an error with the built-in PAT device port or the device itself"
+restrictInDocumentationToApps = ["vx-mark-scan-backend"]
+
 [PaperHandlerStateChanged]
 eventId = "paper-handler-state-machine-transition"
 eventType = "application-status"
@@ -619,12 +638,6 @@ eventType = "user-action"
 documentationMessage = "A poll worker confirmed the invalid ballot was removed during ballot invalidation."
 restrictInDocumentationToApps = ["vx-mark-scan-frontend"]
 
-[PatDeviceError]
-eventId = "pat-device-error"
-eventType = "system-status"
-documentationMessage = "VxMarkScan encountered an error with the built-in PAT device port or the device itself"
-restrictInDocumentationToApps = ["vx-mark-scan-backend"]
-
 [BlankInterpretation]
 eventId = "blank-sheet-interpretation"
 eventType = "system-status"
@@ -636,36 +649,6 @@ eventId = "paper-handler-connection"
 eventType = "system-status"
 documentationMessage = "Connection to paper handler device was resolved."
 restrictInDocumentationToApps = ["vx-mark-scan-backend"]
-
-[SysfsOpenFd]
-eventId = "sysfs-open-fd"
-eventType = "system-action"
-documentationMessage = "An attempt was made to open a file descriptor for the sysfs GPIO interface."
-restrictInDocumentationToApps = ["vx-mark-scan-pat-daemon"]
-
-[SysfsWriteFile]
-eventId = "sysfs-write-file"
-eventType = "system-action"
-documentationMessage = "An attempt was made to interact with the sysfs GPIO interface by writing to a file."
-restrictInDocumentationToApps = ["vx-mark-scan-pat-daemon"]
-
-[GpioPinOperationInit]
-eventId = "gpio-pin-operation-init"
-eventType = "system-action"
-documentationMessage = "A GPIO pin operation was attempted (export, unexport, or set direction)"
-restrictInDocumentationToApps = ["vx-mark-scan-pat-daemon"]
-
-[GpioPinOperationComplete]
-eventId = "gpio-pin-operation-complete"
-eventType = "system-action"
-documentationMessage = "A GPIO pin operation was completed (export, unexport, or set direction)"
-restrictInDocumentationToApps = ["vx-mark-scan-pat-daemon"]
-
-[CloseFileDescriptorError]
-eventId = "close-file-descriptor-error"
-eventType = "system-status"
-documentationMessage = "An error occurred when closing a file descriptor."
-restrictInDocumentationToApps = ["vx-mark-scan-pat-daemon"]
 
 [CreateVirtualUinputDeviceInit]
 eventId = "create-virtual-uinput-device-init"
@@ -733,7 +716,7 @@ eventType = "system-status"
 documentationMessage = "A connected hardware device returned an unexpected response."
 restrictInDocumentationToApps = ["vx-mark-scan-pat-daemon"]
 
-
+# All machines
 [UnknownError]
 eventId = "unknown-error"
 eventType = "application-status"
@@ -743,5 +726,7 @@ restrictInDocumentationToApps = [
   "vx-central-scan-frontend",
   "vx-mark-frontend",
   "vx-mark-scan-frontend",
+  "vx-mark-scan-pat-daemon",
+  "vx-mark-scan-controller-daemon",
   "vx-scan-frontend",
 ]

@@ -42,6 +42,14 @@ IDs are logged with each log to identify the log being written.
 **Type:** [system-status](#system-status)  
 **Description:** A message from the machine kernel about an externally-connected USB device, usually when a new device is connected or disconnected.  
 **Machines:** All
+### process-started
+**Type:** [system-action](#system-action)  
+**Description:** A VotingWorks-authored process (eg. hardware daemon) has been started.  
+**Machines:** vx-mark-scan-controller-daemon, vx-mark-scan-pat-daemon
+### process-terminated
+**Type:** [system-action](#system-action)  
+**Description:** A VotingWorks-authored process (eg. hardware daemon) has been terminated.  
+**Machines:** vx-mark-scan-controller-daemon, vx-mark-scan-pat-daemon
 ### auth-pin-entry
 **Type:** [user-action](#user-action)  
 **Description:** A user entered a PIN to log in.  
@@ -414,15 +422,75 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)  
 **Description:** Precinct scanner state machine transitioned states.  
 **Machines:** vx-scan-backend
-### paper-handler-state-machine-transition
-**Type:** [application-status](#application-status)  
-**Description:** Precinct print/scan BMD state machine transitioned states.  
-**Machines:** vx-mark-scan-backend
 ### pat-device-error
 **Type:** [system-status](#system-status)  
 **Description:** VxMarkScan encountered an error with the built-in PAT device port or the device itself  
 **Machines:** vx-mark-scan-backend
+### paper-handler-state-machine-transition
+**Type:** [application-status](#application-status)  
+**Description:** Precinct print/scan BMD state machine transitioned states.  
+**Machines:** vx-mark-scan-backend
+### vote-cast
+**Type:** [user-action](#user-action)  
+**Description:** Vote was cast on a BMD.  
+**Machines:** vx-mark-scan-backend
+### ballot-invalidated
+**Type:** [user-action](#user-action)  
+**Description:** A vote was canceled during verification.  
+**Machines:** vx-mark-scan-backend
+### poll-worker-confirmed-ballot-removal
+**Type:** [user-action](#user-action)  
+**Description:** A poll worker confirmed the invalid ballot was removed during ballot invalidation.  
+**Machines:** vx-mark-scan-frontend
+### blank-sheet-interpretation
+**Type:** [system-status](#system-status)  
+**Description:** Interpretation of a printed ballot was blank.  
+**Machines:** vx-mark-scan-backend
+### paper-handler-connection
+**Type:** [system-status](#system-status)  
+**Description:** Connection to paper handler device was resolved.  
+**Machines:** vx-mark-scan-backend
+### create-virtual-uinput-device-init
+**Type:** [system-action](#system-action)  
+**Description:** A hardware daemon attempted to create a uinput virtual device.  
+**Machines:** vx-mark-scan-pat-daemon, vx-mark-scan-controller-daemon
+### create-virtual-uinput-device-complete
+**Type:** [system-action](#system-action)  
+**Description:** A hardware daemon finished creating a uinput virtual device.  
+**Machines:** vx-mark-scan-pat-daemon, vx-mark-scan-controller-daemon
+### connect-to-pat-input-init
+**Type:** [system-action](#system-action)  
+**Description:** mark-scan PAT daemon initiated connection to the PAT device input.  
+**Machines:** vx-mark-scan-pat-daemon
+### connect-to-pat-input-complete
+**Type:** [system-action](#system-action)  
+**Description:** mark-scan PAT daemon completed connection to the PAT device input.  
+**Machines:** vx-mark-scan-pat-daemon
+### controller-connection-init
+**Type:** [system-action](#system-action)  
+**Description:** mark-scan controller daemon initiated connection to the accessible controller.  
+**Machines:** vx-mark-scan-controller-daemon
+### controller-connection-complete
+**Type:** [system-action](#system-action)  
+**Description:** mark-scan controller daemon completed connection to the accessible controller.  
+**Machines:** vx-mark-scan-controller-daemon
+### controller-handshake-init
+**Type:** [system-action](#system-action)  
+**Description:** mark-scan controller daemon initiated handshake with controller.  
+**Machines:** vx-mark-scan-controller-daemon
+### controller-handshake-complete
+**Type:** [system-action](#system-action)  
+**Description:** mark-scan controller daemon received handshake response from controller.  
+**Machines:** vx-mark-scan-controller-daemon
+### error-setting-sigint-handler
+**Type:** [system-status](#system-status)  
+**Description:** mark-scan controller daemon encountered an error when setting SIGINT handler.  
+**Machines:** vx-mark-scan-controller-daemon
+### unexpected-hardware-device-response
+**Type:** [system-status](#system-status)  
+**Description:** A connected hardware device returned an unexpected response.  
+**Machines:** vx-mark-scan-pat-daemon
 ### unknown-error
 **Type:** [application-status](#application-status)  
 **Description:** Machine encountered an unknown error.  
-**Machines:** vx-admin-frontend, vx-central-scan-frontend, vx-mark-frontend, vx-mark-scan-frontend, vx-scan-frontend
+**Machines:** vx-admin-frontend, vx-central-scan-frontend, vx-mark-frontend, vx-mark-scan-frontend, vx-mark-scan-pat-daemon, vx-mark-scan-controller-daemon, vx-scan-frontend
