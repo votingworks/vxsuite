@@ -404,7 +404,44 @@ pub enum Outgoing {
     /// # Response
     ///
     /// No response.
-    EjectDocumentToBackOfScannerRequest,
+    EjectDocumentToRearOfScannerRequest,
+
+    /// This command causes the scanner to eject a form (after scanning) at the
+    /// front input throat of the scanner, but form remains gripped by the
+    /// scanner input rollers. ASCII character 1 = (31H)
+    ///
+    /// # Response
+    ///
+    /// No response.
+    EjectDocumentToFrontOfScannerAndHoldInInputRollersRequest,
+
+    /// This command causes the scanner’s motor to run in the reverse direction
+    /// (clearing a document from the front entrance of the scanner). Motor runs
+    /// until front sensors indicate form has exited, or for a max run time of
+    /// about 4 seconds. ASCII character 4 = (34H)
+    ///
+    /// # Response
+    ///
+    /// No response.
+    EjectDocumentToFrontOfScannerRequest,
+
+    /// This command causes the scanner to eject a document held in escrow (rear
+    /// rollers), by advancing the feed mechanism only enough to release the
+    /// document. ASCII character 7 = (37H)
+    ///
+    /// # Response
+    ///
+    /// No response.
+    EjectEscrowDocumentRequest,
+
+    /// On receipt of this command, the scanner will re-scan a document in
+    /// escrow position (held by rear set of rollers), and re-transmit the data.
+    /// ASCII character [ = (5BH)
+    ///
+    /// # Response
+    ///
+    /// No response.
+    RescanDocumentHeldInEscrowPositionRequest,
 }
 
 #[derive(Debug)]
@@ -583,14 +620,11 @@ pub enum Packet {
 }
 
 pub mod parsers {
-    use std::{
-        str::from_utf8,
-        time::{Duration, Instant},
-    };
+    use std::{str::from_utf8, time::Duration};
 
     use nom::{
         branch::alt,
-        bytes::complete::{tag, take, take_until},
+        bytes::complete::{tag, take, take_until, take_while_m_n},
         character::is_digit,
         combinator::{map, map_res},
         number::complete::{le_u16, le_u8},
@@ -599,9 +633,17 @@ pub mod parsers {
     };
 
     use super::{
-        crc, CalibrationStatus, Command, Incoming, Outgoing, Packet, ResolutionTableType, Settings,
-        Side, Status, Version, PACKET_DATA_END, PACKET_DATA_START,
+        crc, Incoming, Outgoing, Packet, ResolutionTableType, Settings, Side, Status, Version,
+        PACKET_DATA_END, PACKET_DATA_START,
     };
+
+    macro_rules! simple_request {
+        ($name:ident, $tag:expr) => {
+            pub fn $name<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
+                map(packet_with_crc((tag($tag),)), |_| ())(input)
+            }
+        };
+    }
 
     pub fn any_packet<'a>(input: &'a [u8]) -> IResult<&'a [u8], Packet> {
         alt((
@@ -712,8 +754,21 @@ pub mod parsers {
                         delay_interval,
                     },
                 ),
-                map(eject_document_to_back_of_scanner_request, |_| {
-                    Outgoing::EjectDocumentToBackOfScannerRequest
+                map(eject_document_to_rear_of_scanner_request, |_| {
+                    Outgoing::EjectDocumentToRearOfScannerRequest
+                }),
+                map(
+                    eject_document_to_front_of_scanner_and_hold_in_input_rollers_request,
+                    |_| Outgoing::EjectDocumentToFrontOfScannerAndHoldInInputRollersRequest,
+                ),
+                map(eject_document_to_front_of_scanner_request, |_| {
+                    Outgoing::EjectDocumentToFrontOfScannerRequest
+                }),
+                map(eject_escrow_document_request, |_| {
+                    Outgoing::EjectEscrowDocumentRequest
+                }),
+                map(rescan_document_held_in_escrow_position_request, |_| {
+                    Outgoing::RescanDocumentHeldInEscrowPositionRequest
                 }),
             )),
         ))(input)
@@ -791,9 +846,9 @@ pub mod parsers {
     }
 
     fn packet<'a, O, List: Tuple<&'a [u8], O, nom::error::Error<&'a [u8]>>>(
-        mut l: List,
+        mut list: List,
     ) -> impl FnMut(&'a [u8]) -> IResult<&'a [u8], O> {
-        move |i: &'a [u8]| delimited(packet_start, |i| l.parse(i), packet_end)(i)
+        move |input: &'a [u8]| delimited(packet_start, |input| list.parse(input), packet_end)(input)
     }
 
     fn extract_packet_body<'a>(input: &'a [u8]) -> Option<&'a [u8]> {
@@ -806,23 +861,47 @@ pub mod parsers {
         }
     }
 
+    fn packet_with_crc<'a, O, List: Tuple<&'a [u8], O, nom::error::Error<&'a [u8]>>>(
+        list: List,
+    ) -> impl FnMut(&'a [u8]) -> IResult<&'a [u8], O> {
+        let mut parse_packet = packet(list);
+
+        move |input: &'a [u8]| {
+            let packet_body = match extract_packet_body(&input[..input.len() - 1]) {
+                Some(body) => body,
+                None => {
+                    return Err(nom::Err::Failure(nom::error::Error::new(
+                        input,
+                        nom::error::ErrorKind::Eof,
+                    )))
+                }
+            };
+
+            let (input, packet) = parse_packet(input)?;
+            let (input, actual_crc) = le_u8(input)?;
+            if actual_crc == crc(packet_body) {
+                Ok((input, packet))
+            } else {
+                Err(nom::Err::Failure(nom::error::Error::new(
+                    input,
+                    nom::error::ErrorKind::Verify,
+                )))
+            }
+        }
+    }
+
     fn decimal_digit(input: &[u8]) -> IResult<&[u8], u8> {
         map_res(take(1usize), |bytes: &[u8]| {
             if let [byte, ..] = bytes {
                 if is_digit(*byte) {
-                    Ok(*byte - b'0')
-                } else {
-                    Err(nom::Err::Failure(nom::error::Error::new(
-                        bytes,
-                        nom::error::ErrorKind::Digit,
-                    )))
+                    return Ok(*byte - b'0');
                 }
-            } else {
-                Err(nom::Err::Failure(nom::error::Error::new(
-                    bytes,
-                    nom::error::ErrorKind::Digit,
-                )))
             }
+
+            Err(nom::Err::Failure(nom::error::Error::new(
+                bytes,
+                nom::error::ErrorKind::Digit,
+            )))
         })(input)
     }
 
@@ -854,10 +933,7 @@ pub mod parsers {
         map(tuple((hex_digit, hex_digit)), |(hi, lo)| (hi << 4) | lo)(input)
     }
 
-    pub fn get_test_string_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"D");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
+    simple_request!(get_test_string_request, b"D");
 
     pub fn get_test_string_response<'a>(input: &'a [u8]) -> IResult<&'a [u8], &'a str> {
         map_res(packet((tag(b"D"), packet_body)), |(_, test_string)| {
@@ -865,10 +941,7 @@ pub mod parsers {
         })(input)
     }
 
-    pub fn get_firmware_version_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"V");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
+    simple_request!(get_firmware_version_request, b"V");
 
     pub fn get_firmware_version_response<'a>(input: &'a [u8]) -> IResult<&'a [u8], Version> {
         map(
@@ -890,12 +963,7 @@ pub mod parsers {
         )(input)
     }
 
-    pub fn get_current_firmware_build_version_string_request<'a>(
-        input: &'a [u8],
-    ) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"\x1bV");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
+    simple_request!(get_current_firmware_build_version_string_request, b"\x1bV");
 
     pub fn get_current_firmware_build_version_string_response<'a>(
         input: &'a [u8],
@@ -932,10 +1000,7 @@ pub mod parsers {
         )));
     }
 
-    pub fn get_scanner_status_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"Q");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
+    simple_request!(get_scanner_status_request, b"Q");
 
     pub fn get_scanner_status_response(input: &[u8]) -> IResult<&[u8], Status> {
         map(
@@ -999,43 +1064,15 @@ pub mod parsers {
         )(input)
     }
 
-    pub fn enable_feeder_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"8");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
-
-    pub fn disable_feeder_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"9");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
-
-    pub fn disable_momentary_reverse_on_feed_at_input_request<'a>(
-        input: &'a [u8],
-    ) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"\x1bO");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
-
-    pub fn get_serial_number_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"*");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
+    simple_request!(enable_feeder_request, b"8");
+    simple_request!(disable_feeder_request, b"9");
+    simple_request!(disable_momentary_reverse_on_feed_at_input_request, b"\x1bO");
+    simple_request!(get_serial_number_request, b"*");
 
     pub fn set_serial_number_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], &'a [u8; 8]> {
-        map_res(
-            tuple((packet((tag(b"*"), take(8usize))), le_u8)),
-            |((_, serial_number), actual_crc)| {
-                if actual_crc == crc(serial_number) {
-                    if let Ok(serial_number) = serial_number.try_into() {
-                        return Ok(serial_number);
-                    }
-                }
-
-                Err(nom::Err::Failure(nom::error::Error::new(
-                    serial_number,
-                    nom::error::ErrorKind::Verify,
-                )))
-            },
+        map(
+            packet_with_crc((tag(b"*"), map_res(take(8usize), TryInto::try_into))),
+            |(_, serial_number)| serial_number,
         )(input)
     }
 
@@ -1045,29 +1082,13 @@ pub mod parsers {
         })(input)
     }
 
-    pub fn get_scanner_settings_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"I");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
-
-    pub fn get_input_sensors_required_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"\x1bs");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
+    simple_request!(get_scanner_settings_request, b"I");
+    simple_request!(get_input_sensors_required_request, b"\x1bs");
 
     pub fn set_input_sensors_required_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], u8> {
-        map_res(
-            tuple((packet((tag(b"\x1bs"), le_u8)), le_u8)),
-            |((_, sensors), actual_crc)| {
-                if actual_crc == crc(&[0x1b, b's', sensors]) && is_digit(sensors) {
-                    return Ok(sensors - b'0');
-                }
-
-                Err(nom::Err::Failure(nom::error::Error::new(
-                    sensors,
-                    nom::error::ErrorKind::Verify,
-                )))
-            },
+        map(
+            packet_with_crc((tag(b"\x1bs"), decimal_digit)),
+            |(_, sensors)| sensors,
         )(input)
     }
 
@@ -1080,29 +1101,10 @@ pub mod parsers {
         )(input)
     }
 
-    pub fn increase_top_cis_threshold_by_1_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"\x1b+");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
-
-    pub fn decrease_top_cis_threshold_by_1_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"\x1b-");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
-
-    pub fn increase_bottom_cis_threshold_by_1_request<'a>(
-        input: &'a [u8],
-    ) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"\x1b>");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
-
-    pub fn decrease_bottom_cis_threshold_by_1_request<'a>(
-        input: &'a [u8],
-    ) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"\x1b<");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
+    simple_request!(increase_top_cis_threshold_by_1_request, b"\x1b+");
+    simple_request!(decrease_top_cis_threshold_by_1_request, b"\x1b-");
+    simple_request!(increase_bottom_cis_threshold_by_1_request, b"\x1b>");
+    simple_request!(decrease_bottom_cis_threshold_by_1_request, b"\x1b<");
 
     pub fn adjust_top_bitonal_threshold_response<'a>(input: &'a [u8]) -> IResult<&'a [u8], u8> {
         map(
@@ -1121,17 +1123,14 @@ pub mod parsers {
     pub fn get_calibration_information_request<'a>(
         input: &'a [u8],
     ) -> IResult<&'a [u8], ResolutionTableType> {
-        let default_type_command = Command::new(b"W");
-        let native_type_command = Command::new(b"W0");
-        let half_type_command = Command::new(b"W1");
         alt((
-            map(tag(default_type_command.to_bytes().as_slice()), |_| {
+            map(packet_with_crc((tag(b"W"),)), |_| {
                 ResolutionTableType::Default
             }),
-            map(tag(native_type_command.to_bytes().as_slice()), |_| {
+            map(packet_with_crc((tag(b"W0"),)), |_| {
                 ResolutionTableType::Native
             }),
-            map(tag(half_type_command.to_bytes().as_slice()), |_| {
+            map(packet_with_crc((tag(b"W1"),)), |_| {
                 ResolutionTableType::Half
             }),
         ))(input)
@@ -1174,124 +1173,55 @@ pub mod parsers {
         ))
     }
 
-    pub fn set_scanner_image_density_to_half_native_resolution_request<'a>(
-        input: &'a [u8],
-    ) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"A");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
-
-    pub fn set_scanner_image_density_to_native_resolution_request<'a>(
-        input: &'a [u8],
-    ) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"B");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
-
-    pub fn set_scanner_to_duplex_mode_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"J");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
-
-    pub fn disable_pick_on_command_mode_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"\x1bY");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
-
-    pub fn disable_eject_pause_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"N");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
-
-    pub fn transmit_in_low_bits_per_pixel_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"z");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
-
-    pub fn disable_auto_run_out_at_end_of_scan_request<'a>(
-        input: &'a [u8],
-    ) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"\x1bd");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
-
-    pub fn configure_motor_to_run_at_half_speed_request<'a>(
-        input: &'a [u8],
-    ) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"j");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
-
-    pub fn configure_motor_to_run_at_full_speed_request<'a>(
-        input: &'a [u8],
-    ) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"k");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
+    simple_request!(
+        set_scanner_image_density_to_half_native_resolution_request,
+        b"A"
+    );
+    simple_request!(set_scanner_image_density_to_native_resolution_request, b"B");
+    simple_request!(set_scanner_to_duplex_mode_request, b"J");
+    simple_request!(disable_pick_on_command_mode_request, b"\x1bY");
+    simple_request!(disable_eject_pause_request, b"N");
+    simple_request!(transmit_in_low_bits_per_pixel_request, b"z");
+    simple_request!(disable_auto_run_out_at_end_of_scan_request, b"\x1bd");
+    simple_request!(configure_motor_to_run_at_half_speed_request, b"j");
+    simple_request!(configure_motor_to_run_at_full_speed_request, b"k");
 
     pub fn set_threshold_to_a_new_value_request<'a>(
         input: &'a [u8],
     ) -> IResult<&'a [u8], (Side, u8)> {
-        map_res(
-            tuple((packet((tag(b"\x1b%"), le_u8, le_u8)), le_u8)),
-            |((_, side, new_threshold), actual_crc)| {
-                let Ok(side) = Side::try_from(side) else {
-                    return Err(nom::Err::Failure(nom::error::Error::new(
-                        input,
-                        nom::error::ErrorKind::Verify,
-                    )));
-                };
-
-                if actual_crc == crc(&[0x1b, b'%', side.into(), new_threshold]) {
-                    return Ok((side, new_threshold));
-                }
-
-                Err(nom::Err::Failure(nom::error::Error::new(
-                    input,
-                    nom::error::ErrorKind::Verify,
-                )))
-            },
+        map(
+            packet_with_crc((tag(b"\x1b%"), map_res(le_u8, TryInto::try_into), le_u8)),
+            |(_, side, new_threshold)| (side, new_threshold),
         )(input)
     }
 
     pub fn set_length_of_document_to_scan_request<'a>(
         input: &'a [u8],
     ) -> IResult<&'a [u8], (u8, Option<u8>)> {
-        let (input, _) = packet_start(input)?;
-        let body = input;
-        let (input, tag_bytes) = tag(b"\x1bD")(input)?;
-        let (input, length_byte) = le_u8(input)?;
-        let (input, unit_byte) = alt((
-            map(tuple((le_u8, packet_end)), |(unit_byte, _)| Some(unit_byte)),
-            map(packet_end, |_| None),
-        ))(input)?;
-        let (input, actual_crc) = le_u8(input)?;
-        let body = &body[..tag_bytes.len() + 1 + if unit_byte.is_some() { 1 } else { 0 }];
-
-        if actual_crc != crc(body) {
-            return Err(nom::Err::Failure(nom::error::Error::new(
-                input,
-                nom::error::ErrorKind::Verify,
-            )));
-        }
-
-        Ok((input, (length_byte, unit_byte)))
+        map(
+            packet_with_crc((
+                tag(b"\x1bD"),
+                le_u8,
+                map(
+                    take_while_m_n(0, 1, |byte| byte != PACKET_DATA_END[0]),
+                    |bytes: &'a [u8]| match bytes {
+                        [unit_byte] => Some(*unit_byte),
+                        [] => None,
+                        _ => unreachable!(),
+                    },
+                ),
+            )),
+            |(_, length_byte, unit_byte)| (length_byte, unit_byte),
+        )(input)
     }
 
     pub fn set_scan_delay_interval_for_document_feed_request<'a>(
         input: &'a [u8],
     ) -> IResult<&'a [u8], Duration> {
         map_res(
-            tuple((packet((tag(b"\x1bj"), le_u8)), le_u8)),
-            |((_, delay_interval), actual_crc)| {
+            packet_with_crc((tag(b"\x1bj"), le_u8)),
+            |(_, delay_interval)| {
                 if delay_interval < 0x20 || delay_interval > 0xe8 {
-                    return Err(nom::Err::Failure(nom::error::Error::new(
-                        input,
-                        nom::error::ErrorKind::Verify,
-                    )));
-                }
-
-                if actual_crc != crc(&[0x1b, b'j', delay_interval]) {
                     return Err(nom::Err::Failure(nom::error::Error::new(
                         input,
                         nom::error::ErrorKind::Verify,
@@ -1304,85 +1234,17 @@ pub mod parsers {
         )(input)
     }
 
-    pub fn begin_scan_event<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
-        map(packet((tag(b"#30"),)), |_| ())(input)
-    }
-
-    pub fn end_scan_event<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
-        map(packet((tag(b"#31"),)), |_| ())(input)
-    }
-
-    pub fn double_feed_event<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
-        map(packet((tag(b"#33"),)), |_| ())(input)
-    }
-
-    /// This command causes the scanner to eject a form (after scanning) at the
-    /// front input throat of the scanner, but form remains gripped by the
-    /// scanner input rollers. ASCII character 1 = (31H)
-    ///
-    /// # Response
-    ///
-    /// No response.
-    pub fn eject_document_to_front_of_scanner_and_hold_in_input_rollers_request<'a>(
-        input: &'a [u8],
-    ) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"1");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
-
-    /// This command causes the scanner’s motor to run in the forward direction
-    /// (ejecting a document from the rear of the unit). Motor runs until exit
-    /// sensors say that document has been ejected, or runs for a max run time
-    /// of about 4 seconds. ASCII character 3 = (33H)
-    ///
-    /// # Response
-    ///
-    /// No response.
-    pub fn eject_document_to_back_of_scanner_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"3");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
-
-    /// This command causes the scanner’s motor to run in the reverse direction
-    /// (clearing a document from the front entrance of the scanner). Motor runs
-    /// until front sensors indicate form has exited, or for a max run time of
-    /// about 4 seconds. ASCII character 4 = (34H)
-    ///
-    /// # Response
-    ///
-    /// No response.
-    pub fn eject_document_to_the_front_of_scanners_request<'a>(
-        input: &'a [u8],
-    ) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"4");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
-
-    /// This command causes the scanner to eject a document held in escrow (rear
-    /// rollers), by advancing the feed mechanism only enough to release the
-    /// document. ASCII character 7 = (37H)
-    ///
-    /// # Response
-    ///
-    /// No response.
-    pub fn eject_escrow_document_request<'a>(input: &'a [u8]) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"7");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
-
-    /// On receipt of this command, the scanner will re-scan a document in
-    /// escrow position (held by rear set of rollers), and re-transmit the data.
-    /// ASCII character [ = (5BH)
-    ///
-    /// # Response
-    ///
-    /// No response.
-    pub fn rescan_document_held_in_escrow_position_request<'a>(
-        input: &'a [u8],
-    ) -> IResult<&'a [u8], ()> {
-        let command = Command::new(b"[");
-        map(tag(command.to_bytes().as_slice()), |_| ())(input)
-    }
+    simple_request!(begin_scan_event, b"#30");
+    simple_request!(end_scan_event, b"#31");
+    simple_request!(double_feed_event, b"#33");
+    simple_request!(
+        eject_document_to_front_of_scanner_and_hold_in_input_rollers_request,
+        b"1"
+    );
+    simple_request!(eject_document_to_rear_of_scanner_request, b"3");
+    simple_request!(eject_document_to_front_of_scanner_request, b"4");
+    simple_request!(eject_escrow_document_request, b"7");
+    simple_request!(rescan_document_held_in_escrow_position_request, b"[");
 }
 
 #[derive(Debug)]
@@ -1589,4 +1451,20 @@ fn crc(data: &[u8]) -> u8 {
         }
         crc
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_crc() {
+        assert_eq!(crc(b"123456789"), 0x31);
+    }
+
+    #[test]
+    fn test_command_to_bytes() {
+        let command = Command::new(b"V");
+        assert_eq!(command.to_bytes(), b"\x02V\x03\x31");
+    }
 }
