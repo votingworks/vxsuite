@@ -13,7 +13,7 @@ use rusb::{
     Context, DeviceHandle, UsbContext,
 };
 
-use crate::pdiscan_next::protocol::Command;
+use crate::pdiscan::protocol::packets::Command;
 
 extern "system" fn libusb_transfer_callback(transfer: *mut libusb_transfer) {
     tracing::debug!("libusb_transfer_callback: transfer={transfer:?}");
@@ -145,7 +145,7 @@ impl Handler {
                 let _entered =
                     tracing::span!(tracing::Level::TRACE, "handle_events_thread").entered();
                 loop {
-                    if let Ok(_) = quit_rx.try_recv() {
+                    if quit_rx.try_recv().is_ok() {
                         tracing::trace!("thread::spawn: quitting handle events thread");
                         break;
                     }

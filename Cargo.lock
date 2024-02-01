@@ -1190,17 +1190,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "neon-serde3"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "82cc4314b64e35f90f2d817d17bee06a63d3eba36058e0dc73ad21f24cf5033c"
-dependencies = [
- "neon",
- "num",
- "serde",
-]
-
-[[package]]
 name = "nix"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1442,9 +1431,6 @@ dependencies = [
  "crossterm",
  "csv",
  "image",
- "lazy_static",
- "neon",
- "neon-serde3",
  "nom",
  "psutil",
  "rand 0.8.5",
