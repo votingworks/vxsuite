@@ -3,18 +3,38 @@ import React from 'react';
 import {
   DisplaySettingsManagerContext,
   DisplaySettingsManagerContextInterface,
+  LanguageControls,
+  useCurrentLanguage,
 } from '@votingworks/ui';
 import {
   fakeCardlessVoterUser,
   fakeElectionManagerUser,
   fakeSessionExpiresAt,
+  fakeUseAudioControls,
+  mockOf,
 } from '@votingworks/test-utils';
-import { VotesDict } from '@votingworks/types';
+import { AudioControls, LanguageCode, VotesDict } from '@votingworks/types';
 import { act, render } from '../../test/react_testing_library';
 import {
   UseSessionSettingsManagerParams,
   useSessionSettingsManager,
 } from './use_session_settings_manager';
+
+const mockAudioControls = fakeUseAudioControls();
+const mockLanguageControls: jest.Mocked<LanguageControls> = {
+  reset: jest.fn(),
+  setLanguage: jest.fn(),
+};
+
+jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
+  ...jest.requireActual('@votingworks/ui'),
+  ReadOnLoad: jest.fn(),
+  useAudioControls: () => mockAudioControls,
+  useCurrentLanguage: jest.fn(),
+  useLanguageControls: () => mockLanguageControls,
+}));
+
+const mockUseCurrentLanguage = mockOf(useCurrentLanguage);
 
 const DEFAULT_THEME: Partial<DefaultTheme> = {
   colorMode: 'contrastMedium',
@@ -22,6 +42,7 @@ const DEFAULT_THEME: Partial<DefaultTheme> = {
 };
 const ACTIVE_VOTING_SESSION_VOTES: VotesDict = {};
 const NEW_VOTING_SESSION_VOTES = undefined;
+const { CHINESE_SIMPLIFIED, SPANISH } = LanguageCode;
 
 let currentTheme: DefaultTheme;
 let displaySettingsManager: DisplaySettingsManagerContextInterface;
@@ -35,7 +56,20 @@ function TestHookWrapper(props: UseSessionSettingsManagerParams): null {
   return null;
 }
 
-test('Resets theme when election official logs in', () => {
+afterEach(() => {
+  // Catch any unexpected audio control usage:
+  for (const method of Object.keys(mockAudioControls) as Array<
+    keyof AudioControls
+  >) {
+    if (method === 'reset') {
+      continue;
+    }
+
+    expect(mockAudioControls[method]).not.toHaveBeenCalled();
+  }
+});
+
+test('Resets settings when election official logs in', () => {
   const { rerender } = render(
     <TestHookWrapper
       authStatus={{
@@ -54,8 +88,11 @@ test('Resets theme when election official logs in', () => {
       sizeMode: 'touchMedium',
     })
   );
+  expect(mockLanguageControls.reset).not.toHaveBeenCalled();
+  expect(mockLanguageControls.setLanguage).not.toHaveBeenCalled();
+  expect(mockAudioControls.reset).not.toHaveBeenCalled();
 
-  // Simulate changing display settings as voter:
+  // Simulate changing session settings as voter:
   act(() => {
     displaySettingsManager.setColorMode('contrastLow');
     displaySettingsManager.setSizeMode('touchExtraLarge');
@@ -66,8 +103,9 @@ test('Resets theme when election official logs in', () => {
       sizeMode: 'touchExtraLarge',
     })
   );
+  mockUseCurrentLanguage.mockReturnValue(SPANISH);
 
-  // Should reset display settings on Election Manager login:
+  // Should reset session settings on Election Manager login:
   rerender(
     <TestHookWrapper
       authStatus={{
@@ -81,8 +119,10 @@ test('Resets theme when election official logs in', () => {
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<DefaultTheme>>(DEFAULT_THEME)
   );
+  expect(mockLanguageControls.reset).toHaveBeenCalled();
+  expect(mockAudioControls.reset).not.toHaveBeenCalled();
 
-  // Simulate changing display settings as Election Manager:
+  // Simulate changing session settings as Election Manager:
   act(() => {
     displaySettingsManager.setColorMode('contrastHighDark');
     displaySettingsManager.setSizeMode('touchSmall');
@@ -93,6 +133,7 @@ test('Resets theme when election official logs in', () => {
       sizeMode: 'touchSmall',
     })
   );
+  mockUseCurrentLanguage.mockReturnValue(CHINESE_SIMPLIFIED);
 
   // Should return to voter settings on return to voter session:
   rerender(
@@ -111,6 +152,8 @@ test('Resets theme when election official logs in', () => {
       sizeMode: 'touchExtraLarge',
     })
   );
+  expect(mockLanguageControls.setLanguage).toHaveBeenCalledWith(SPANISH);
+  expect(mockAudioControls.reset).not.toHaveBeenCalled();
 });
 
 test('Resets theme to default if returning to a new voter session', () => {
@@ -126,11 +169,12 @@ test('Resets theme to default if returning to a new voter session', () => {
     { vxTheme: DEFAULT_THEME }
   );
 
-  // Simulate changing display settings as voter:
+  // Simulate changing session settings as voter:
   act(() => {
     displaySettingsManager.setColorMode('contrastLow');
     displaySettingsManager.setSizeMode('touchExtraLarge');
   });
+  mockUseCurrentLanguage.mockReturnValue(SPANISH);
 
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<DefaultTheme>>({
@@ -150,6 +194,7 @@ test('Resets theme to default if returning to a new voter session', () => {
       votes={ACTIVE_VOTING_SESSION_VOTES}
     />
   );
+  mockUseCurrentLanguage.mockReturnValue(CHINESE_SIMPLIFIED);
   act(() => {
     displaySettingsManager.setColorMode('contrastHighDark');
     displaySettingsManager.setSizeMode('touchSmall');
@@ -160,6 +205,10 @@ test('Resets theme to default if returning to a new voter session', () => {
       sizeMode: 'touchSmall',
     })
   );
+
+  mockLanguageControls.reset.mockReset();
+  mockLanguageControls.setLanguage.mockReset();
+  mockAudioControls.reset.mockReset();
 
   // Should reset to default if voter session has been reset:
   rerender(
@@ -175,4 +224,7 @@ test('Resets theme to default if returning to a new voter session', () => {
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<DefaultTheme>>(DEFAULT_THEME)
   );
+  expect(mockLanguageControls.reset).toHaveBeenCalled();
+  expect(mockLanguageControls.setLanguage).not.toHaveBeenCalled();
+  expect(mockAudioControls.reset).toHaveBeenCalled();
 });

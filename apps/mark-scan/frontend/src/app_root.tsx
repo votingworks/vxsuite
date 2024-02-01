@@ -30,6 +30,8 @@ import {
   useDevices,
   UnlockMachineScreen,
   DisplaySettingsManagerContext,
+  useAudioControls,
+  useLanguageControls,
 } from '@votingworks/ui';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
@@ -154,6 +156,8 @@ export function AppRoot({
   const displaySettingsManager = React.useContext(
     DisplaySettingsManagerContext
   );
+  const { reset: resetAudioSettings } = useAudioControls();
+  const { reset: resetLanguage } = useLanguageControls();
 
   const machineConfigQuery = getMachineConfig.useQuery();
 
@@ -225,12 +229,14 @@ export function AppRoot({
       history.push('/');
 
       if (!newShowPostVotingInstructions) {
-        // [VVSG 2.0 7.1-A] Reset to default theme when voter is done marking
+        // [VVSG 2.0 7.1-A] Reset to default settings when voter is done marking
         // their ballot:
         displaySettingsManager.resetThemes();
+        resetAudioSettings();
+        resetLanguage();
       }
     },
-    [history, displaySettingsManager]
+    [history, displaySettingsManager, resetAudioSettings, resetLanguage]
   );
 
   const unconfigure = useCallback(async () => {

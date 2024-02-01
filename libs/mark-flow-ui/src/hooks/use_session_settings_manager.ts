@@ -1,67 +1,97 @@
 import React from 'react';
-import { DefaultTheme, ThemeContext } from 'styled-components';
+import { DefaultTheme } from 'styled-components';
 
 import { isCardlessVoterAuth } from '@votingworks/utils';
-import { DisplaySettingsManagerContext } from '@votingworks/ui';
-import { InsertedSmartCardAuth, VotesDict } from '@votingworks/types';
+import {
+  DisplaySettingsManagerContext,
+  useAudioControls,
+  useCurrentLanguage,
+  useCurrentTheme,
+  useLanguageControls,
+} from '@votingworks/ui';
+import {
+  InsertedSmartCardAuth,
+  LanguageCode,
+  VotesDict,
+} from '@votingworks/types';
 
-export interface UseDisplaySettingsManagerParams {
+export interface UseSessionSettingsManagerParams {
   authStatus: InsertedSmartCardAuth.AuthStatus;
   votes?: VotesDict;
 }
 
+interface VoterSettings {
+  language: LanguageCode;
+  theme: DefaultTheme;
+}
+
 export function useSessionSettingsManager(
-  params: UseDisplaySettingsManagerParams
+  params: UseSessionSettingsManagerParams
 ): void {
   const { authStatus, votes } = params;
 
-  const previousAuthStatus = React.useRef<InsertedSmartCardAuth.AuthStatus>();
+  const previousAuthStatusRef =
+    React.useRef<InsertedSmartCardAuth.AuthStatus>();
+  const voterSettingsRef = React.useRef<VoterSettings>();
 
   const displaySettingsManager = React.useContext(
     DisplaySettingsManagerContext
   );
-  const currentTheme = React.useContext(ThemeContext);
-  const [voterSessionTheme, setVoterSessionTheme] =
-    React.useState<DefaultTheme | null>(null);
+  const currentTheme = useCurrentTheme();
+
+  const { reset: resetAudioSettings } = useAudioControls();
+  const { reset: resetLanguage, setLanguage } = useLanguageControls();
+  const currentLanguage = useCurrentLanguage();
 
   React.useEffect(() => {
     const wasPreviouslyLoggedInAsVoter =
-      previousAuthStatus.current &&
-      isCardlessVoterAuth(previousAuthStatus.current);
+      previousAuthStatusRef.current &&
+      isCardlessVoterAuth(previousAuthStatusRef.current);
     const isLoggedInAsVoter = isCardlessVoterAuth(authStatus);
     const isVotingSessionActive = !!votes;
 
-    // Reset to default theme when election official logs in, since
-    // non-voter-facing screens are not optimised for larger text sizes:
+    // Reset to default settings and disable audio when election official logs
+    // in during a voter session:
     if (wasPreviouslyLoggedInAsVoter && !isLoggedInAsVoter) {
-      setVoterSessionTheme(currentTheme);
+      voterSettingsRef.current = {
+        language: currentLanguage,
+        theme: currentTheme,
+      };
       displaySettingsManager.resetThemes();
+      resetLanguage();
     }
 
     if (
       !wasPreviouslyLoggedInAsVoter &&
       isLoggedInAsVoter &&
-      voterSessionTheme
+      voterSettingsRef.current
     ) {
+      const voterSettings = voterSettingsRef.current;
       if (isVotingSessionActive) {
         // Reset to previous display settings for the active voter session when
         // when election official logs out:
-        displaySettingsManager.setColorMode(voterSessionTheme.colorMode);
-        displaySettingsManager.setSizeMode(voterSessionTheme.sizeMode);
+        displaySettingsManager.setColorMode(voterSettings.theme.colorMode);
+        displaySettingsManager.setSizeMode(voterSettings.theme.sizeMode);
+        setLanguage(voterSettings.language);
       } else {
         // [VVSG 2.0 7.1-A] Reset themes to default if this is a new voting
         // session:
         displaySettingsManager.resetThemes();
+        resetAudioSettings();
+        resetLanguage();
       }
-      setVoterSessionTheme(null);
+      voterSettingsRef.current = undefined;
     }
 
-    previousAuthStatus.current = authStatus;
+    previousAuthStatusRef.current = authStatus;
   }, [
     authStatus,
+    currentLanguage,
     currentTheme,
     displaySettingsManager,
-    voterSessionTheme,
+    resetAudioSettings,
+    resetLanguage,
+    setLanguage,
     votes,
   ]);
 }
