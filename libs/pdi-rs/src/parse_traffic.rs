@@ -1,14 +1,14 @@
-use std::{fmt, io, ops::Not};
+use std::{fmt, io};
 
 use bitter::{BigEndianReader, BitReader};
-use color_eyre::owo_colors::OwoColorize;
 use image::{DynamicImage, ImageBuffer, Luma};
-use pdiscan_next::protocol::Side;
 use serde::Deserialize;
 
-use crate::pdiscan_next::protocol;
-
-mod pdiscan_next;
+use pdi_rs::pdiscan::protocol::{
+    self,
+    packets::{Incoming, Packet},
+    types::Side,
+};
 
 const ENDPOINT_OUT: u8 = 0x05;
 const ENDPOINT_IN: u8 = 0x85;
@@ -30,9 +30,9 @@ impl<'de> Deserialize<'de> for HexByte {
     {
         let s: String = Deserialize::deserialize(deserializer)?;
         let s = s.trim_start_matches("0x");
-        return Ok(HexByte(u8::from_str_radix(s, 16).map_err(|e| {
+        Ok(HexByte(u8::from_str_radix(s, 16).map_err(|e| {
             serde::de::Error::custom(format!("failed to parse hex byte: {e}"))
-        })?));
+        })?))
     }
 }
 
@@ -64,7 +64,7 @@ impl<'de> Deserialize<'de> for HexString {
         D: serde::Deserializer<'de>,
     {
         let s: String = Deserialize::deserialize(deserializer)?;
-        return Ok(HexString(
+        Ok(HexString(
             s.as_bytes()
                 .chunks_exact(2)
                 .map(|chunk| {
@@ -79,12 +79,12 @@ impl<'de> Deserialize<'de> for HexString {
                     })
                 })
                 .collect::<Result<Vec<u8>, _>>()?,
-        ));
+        ))
     }
 }
 
 #[derive(Debug, Deserialize)]
-struct Packet {
+struct RawPacket {
     transfer_type: HexByte,
     endpoint_address: HexByte,
     data: HexString,
@@ -130,7 +130,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut bottom_image_data = Vec::with_capacity((WIDTH * APPROXIMATE_HEIGHT) as usize);
 
     for result in rdr.deserialize() {
-        let packet: Packet = result?;
+        let packet: RawPacket = result?;
 
         if packet.transfer_type.0 != BULK_TRANSFER || packet.data.0.is_empty() {
             continue;
@@ -166,20 +166,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             continue;
         }
 
-        match protocol::parsers::any_packet(&packet.data.0.as_slice()) {
-            Ok(([], protocol::Packet::Incoming(protocol::Incoming::BeginScanEvent))) => {
+        match protocol::parse_packet(&packet.data.0) {
+            Ok(([], Packet::Incoming(Incoming::BeginScanEvent))) => {
                 println!(
                     "{endpoint} {incoming:?}",
-                    incoming = protocol::Incoming::BeginScanEvent
+                    incoming = Incoming::BeginScanEvent
                 );
                 top_image_data.clear();
                 bottom_image_data.clear();
             }
-            Ok(([], protocol::Packet::Incoming(protocol::Incoming::EndScanEvent))) => {
-                println!(
-                    "{endpoint} {incoming:?}",
-                    incoming = protocol::Incoming::EndScanEvent
-                );
+            Ok(([], Packet::Incoming(Incoming::EndScanEvent))) => {
+                println!("{endpoint} {incoming:?}", incoming = Incoming::EndScanEvent);
 
                 let height = top_image_data.len() as u32 / WIDTH;
                 let mut top_image = ImageBuffer::new(WIDTH, height);
@@ -203,10 +200,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     image.save(format!("image-{side:?}.bmp"))?;
                 }
             }
-            Ok(([], protocol::Packet::Incoming(incoming))) => {
+            Ok(([], Packet::Incoming(incoming))) => {
                 println!("{endpoint} {incoming:?}");
             }
-            Ok(([], protocol::Packet::Outgoing(outgoing))) => {
+            Ok(([], Packet::Outgoing(outgoing))) => {
                 println!("{endpoint} {outgoing:?}");
             }
             Ok((remaining, parsed)) => {

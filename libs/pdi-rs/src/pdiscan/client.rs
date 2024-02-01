@@ -5,10 +5,14 @@ use std::{
     time::{Duration, Instant},
 };
 
-use crate::pdiscan_next::transfer::Handler;
+use crate::pdiscan::transfer::Handler;
 
 use super::{
-    protocol::{parsers, Command, Incoming, Settings, Side, Status, Version},
+    protocol::{
+        packets::{Command, Incoming},
+        parsers,
+        types::{Settings, Side, Status, Version},
+    },
     transfer::Event,
 };
 
@@ -282,8 +286,7 @@ impl PdiClient {
     }
 
     pub fn send_command(&mut self, command: Command) {
-        self.transfer_handler
-            .submit_transfer(&command.to_bytes().as_slice());
+        self.transfer_handler.submit_transfer(&command.to_bytes());
     }
 
     pub fn validate_and_send_command<O>(
@@ -291,7 +294,7 @@ impl PdiClient {
         command: Command,
         parser: impl Fn(&[u8]) -> nom::IResult<&[u8], O>,
     ) -> Result<()> {
-        let Ok(([], _)) = parser(&command.to_bytes().as_slice()) else {
+        let Ok(([], _)) = parser(&command.to_bytes()) else {
             return Err(Error::ValidateRequest);
         };
         self.send_command(command);
@@ -568,7 +571,7 @@ impl PdiClient {
     /// dpi, for the Ultrascan this will mean 150 dpi, and for the color scanner
     /// this will mean 200 or 300 dpi depending on the model. This is the
     /// DEFAULT mode.
-    fn set_scanner_image_density_to_half_native_resolution(&mut self) -> Result<()> {
+    pub fn set_scanner_image_density_to_half_native_resolution(&mut self) -> Result<()> {
         self.validate_and_send_command(
             Command::new(b"A"),
             parsers::set_scanner_image_density_to_half_native_resolution_request,
@@ -579,53 +582,53 @@ impl PdiClient {
     /// native resolution. For the Pagescan 5 this will mean 400 dpi, for the
     /// Ultrascan this will mean 300 dpi, and for the color scanner this will
     /// mean either 400 or 600 dpi depending on the model.
-    fn set_scanner_image_density_to_native_resolution(&mut self) -> Result<()> {
+    pub fn set_scanner_image_density_to_native_resolution(&mut self) -> Result<()> {
         self.validate_and_send_command(
             Command::new(b"B"),
             parsers::set_scanner_image_density_to_native_resolution_request,
         )
     }
 
-    fn set_scanner_to_duplex_mode(&mut self) -> Result<()> {
+    pub fn set_scanner_to_duplex_mode(&mut self) -> Result<()> {
         self.validate_and_send_command(
             Command::new(b"J"),
             parsers::set_scanner_to_duplex_mode_request,
         )
     }
 
-    fn disable_pick_on_command_mode(&mut self) -> Result<()> {
+    pub fn disable_pick_on_command_mode(&mut self) -> Result<()> {
         self.validate_and_send_command(
             Command::new(b"\x1bY"),
             parsers::disable_pick_on_command_mode_request,
         )
     }
 
-    fn disable_eject_pause(&mut self) -> Result<()> {
+    pub fn disable_eject_pause(&mut self) -> Result<()> {
         self.validate_and_send_command(Command::new(b"N"), parsers::disable_eject_pause_request)
     }
 
-    fn transmit_in_low_bits_per_pixel(&mut self) -> Result<()> {
+    pub fn transmit_in_low_bits_per_pixel(&mut self) -> Result<()> {
         self.validate_and_send_command(
             Command::new(b"z"),
             parsers::transmit_in_low_bits_per_pixel_request,
         )
     }
 
-    fn disable_auto_run_out_at_end_of_scan(&mut self) -> Result<()> {
+    pub fn disable_auto_run_out_at_end_of_scan(&mut self) -> Result<()> {
         self.validate_and_send_command(
             Command::new(b"\x1bd"),
             parsers::disable_auto_run_out_at_end_of_scan_request,
         )
     }
 
-    fn configure_motor_to_run_at_full_speed_request(&mut self) -> Result<()> {
+    pub fn configure_motor_to_run_at_full_speed_request(&mut self) -> Result<()> {
         self.validate_and_send_command(
             Command::new(b"k"),
             parsers::configure_motor_to_run_at_full_speed_request,
         )
     }
 
-    fn set_threshold_to_a_new_value(
+    pub fn set_threshold_to_a_new_value(
         &mut self,
         side: Side,
         threshold: u8,
@@ -694,9 +697,9 @@ impl PdiClient {
     }
 
     pub fn set_length_of_document_to_scan(&mut self, length_inches: f32) -> Result<()> {
-        assert!(length_inches >= 0.0 && length_inches <= 22.3);
+        assert!((0.0..=22.3).contains(&length_inches));
 
-        for unit_byte in b'0'..b'9' {
+        for unit_byte in b'0'..=b'9' {
             let unit_inches = (((unit_byte - b'0') * 5 + 10) as f32) / 10.0;
             let length_byte = 0x20 as f32 + (10.0 * length_inches) / unit_inches;
 

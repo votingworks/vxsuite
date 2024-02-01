@@ -1,0 +1,217 @@
+#[derive(Debug)]
+pub enum ResolutionTableType {
+    Default,
+    Native,
+    Half,
+}
+
+impl TryFrom<u8> for ResolutionTableType {
+    type Error = ();
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(Self::Native),
+            1 => Ok(Self::Half),
+            _ => Err(()),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum Side {
+    Top,
+    Bottom,
+}
+
+impl From<Side> for u8 {
+    fn from(side: Side) -> Self {
+        match side {
+            Side::Top => b'T',
+            Side::Bottom => b'B',
+        }
+    }
+}
+
+impl TryFrom<u8> for Side {
+    type Error = ();
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            b'T' => Ok(Self::Top),
+            b'B' => Ok(Self::Bottom),
+            _ => Err(()),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct Version {
+    pub product_id: String,
+    pub major: String,
+    pub minor: String,
+    pub cpld_version: String,
+}
+
+impl Version {
+    pub const fn new(
+        product_id: String,
+        major: String,
+        minor: String,
+        cpld_version: String,
+    ) -> Self {
+        Self {
+            product_id,
+            major,
+            minor,
+            cpld_version,
+        }
+    }
+}
+
+/// The status of the scanner.
+///
+/// Note: bit 7 of each byte is always set to 1.
+#[derive(Debug, PartialEq)]
+pub struct Status {
+    /// Byte 0, Bit 0 (0x01)
+    pub rear_left_sensor_covered: bool,
+    /// Byte 0, Bit 1 (0x02) – omitted in UltraScan
+    pub rear_right_sensor_covered: bool,
+    /// Byte 0, Bit 2 (0x04)
+    pub brander_position_sensor_covered: bool,
+    /// Byte 0, Bit 3 (0x08)
+    pub hi_speed_mode: bool,
+    /// Byte 0, Bit 4 (0x10)
+    pub download_needed: bool,
+    /// Byte 0, Bit 5 (0x20) – not defined
+    /// future_use: bool,
+    /// Byte 0, Bit 6 (0x40)
+    pub scanner_enabled: bool,
+
+    /// Byte 1, Bit 0 (0x01)
+    pub front_left_sensor_covered: bool,
+    /// Byte 1, Bit 1 (0x02) – omitted in UltraScan
+    pub front_m1_sensor_covered: bool,
+    /// Byte 1, Bit 2 (0x04) – omitted in UltraScan
+    pub front_m2_sensor_covered: bool,
+    /// Byte 1, Bit 3 (0x08) – omitted in UltraScan
+    pub front_m3_sensor_covered: bool,
+    /// Byte 1, Bit 4 (0x10) – omitted in UltraScan
+    pub front_m4_sensor_covered: bool,
+    /// Byte 1, Bit 5 (0x20) – omitted in Duplex and UltraScan
+    pub front_m5_sensor_covered: bool,
+    /// Byte 1, Bit 6 (0x40) – omitted in Duplex and UltraScan
+    pub front_right_sensor_covered: bool,
+
+    /// Byte 2, Bit 0 (0x01)
+    pub scanner_ready: bool,
+    /// Byte 2, Bit 1 (0x02) – com error
+    pub xmt_aborted: bool,
+    /// Byte 2, Bit 2 (0x04)
+    pub document_jam: bool,
+    /// Byte 2, Bit 3 (0x08)
+    pub scan_array_pixel_error: bool,
+    /// Byte 2, Bit 4 (0x10)
+    pub in_diagnostic_mode: bool,
+    /// Byte 2, Bit 5 (0x20)
+    pub document_in_scanner: bool,
+    /// Byte 2, Bit 6 (0x40)
+    pub calibration_of_unit_needed: bool,
+}
+
+impl Status {
+    #[allow(clippy::too_many_arguments)]
+    pub const fn new(
+        rear_left_sensor_covered: bool,
+        rear_right_sensor_covered: bool,
+        brander_position_sensor_covered: bool,
+        hi_speed_mode: bool,
+        download_needed: bool,
+        scanner_enabled: bool,
+        front_left_sensor_covered: bool,
+        front_m1_sensor_covered: bool,
+        front_m2_sensor_covered: bool,
+        front_m3_sensor_covered: bool,
+        front_m4_sensor_covered: bool,
+        front_m5_sensor_covered: bool,
+        front_right_sensor_covered: bool,
+        scanner_ready: bool,
+        xmt_aborted: bool,
+        document_jam: bool,
+        scan_array_pixel_error: bool,
+        in_diagnostic_mode: bool,
+        document_in_scanner: bool,
+        calibration_of_unit_needed: bool,
+    ) -> Self {
+        Self {
+            rear_left_sensor_covered,
+            rear_right_sensor_covered,
+            brander_position_sensor_covered,
+            hi_speed_mode,
+            download_needed,
+            scanner_enabled,
+            front_left_sensor_covered,
+            front_m1_sensor_covered,
+            front_m2_sensor_covered,
+            front_m3_sensor_covered,
+            front_m4_sensor_covered,
+            front_m5_sensor_covered,
+            front_right_sensor_covered,
+            scanner_ready,
+            xmt_aborted,
+            document_jam,
+            scan_array_pixel_error,
+            in_diagnostic_mode,
+            document_in_scanner,
+            calibration_of_unit_needed,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct Settings {
+    pub dpi_setting: u16,
+    pub bits_per_pixel: u16,
+    pub total_array_pixels: u16,
+    pub num_of_arrays: u16,
+    pub calibration_status: CalibrationStatus,
+    pub number_of_calibration_tables: Option<u16>,
+}
+
+impl Settings {
+    pub const fn new(
+        dpi_setting: u16,
+        bits_per_pixel: u16,
+        total_array_pixels: u16,
+        num_of_arrays: u16,
+        calibration_status: CalibrationStatus,
+        number_of_calibration_tables: Option<u16>,
+    ) -> Self {
+        Self {
+            dpi_setting,
+            bits_per_pixel,
+            total_array_pixels,
+            num_of_arrays,
+            calibration_status,
+            number_of_calibration_tables,
+        }
+    }
+}
+
+#[derive(Debug)]
+pub enum CalibrationStatus {
+    CalibrationNeeded,
+    CalibrationOk,
+}
+
+impl TryFrom<u16> for CalibrationStatus {
+    type Error = ();
+
+    fn try_from(value: u16) -> Result<Self, Self::Error> {
+        match value {
+            0 => Ok(Self::CalibrationOk),
+            1 => Ok(Self::CalibrationNeeded),
+            _ => Err(()),
+        }
+    }
+}

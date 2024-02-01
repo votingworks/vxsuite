@@ -1,33 +1,100 @@
-use anyhow::Result;
-use crossterm::{
-    execute,
-    terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen},
+use clap::Parser;
+use std::{
+    process::exit,
+    time::{Duration, Instant},
 };
+use tracing_subscriber::prelude::*;
 
-mod pdiscan;
-mod pdiscan_next;
-mod tui;
+use pdi_rs::pdiscan::{self, client::PdiClient};
 
-fn startup() -> Result<()> {
-    enable_raw_mode()?;
-    execute!(std::io::stderr(), EnterAlternateScreen)?;
+#[derive(Debug, Parser)]
+struct Config {
+    #[clap(long, env = "LOG_LEVEL", default_value = "warn")]
+    log_level: tracing::Level,
+}
+
+fn setup(config: &Config) -> color_eyre::Result<()> {
+    color_eyre::install()?;
+    setup_logging(config)?;
     Ok(())
 }
 
-fn shutdown() -> Result<()> {
-    execute!(std::io::stderr(), LeaveAlternateScreen)?;
-    disable_raw_mode()?;
+fn setup_logging(config: &Config) -> color_eyre::Result<()> {
+    let stderr_log = tracing_subscriber::fmt::layer()
+        .with_writer(std::io::stderr)
+        .pretty();
+
+    tracing_subscriber::registry()
+        .with(
+            tracing_subscriber::EnvFilter::builder()
+                .with_default_directive(
+                    format!(
+                        "{}={}",
+                        env!("CARGO_BIN_NAME").replace('-', "_"),
+                        config.log_level
+                    )
+                    .parse()?,
+                )
+                .from_env_lossy(),
+        )
+        .with(stderr_log)
+        .init();
+
     Ok(())
 }
 
-fn main() -> Result<()> {
-    // setup terminal
-    startup()?;
+fn main_scan_loop() -> color_eyre::Result<()> {
+    let config = Config::parse();
+    setup(&config)?;
 
-    let result = tui::run();
+    let Ok(mut client) = PdiClient::open() else {
+        tracing::error!("failed to open device");
+        exit(-1);
+    };
 
-    // teardown terminal before unwrapping Result of app run
-    shutdown()?;
+    println!("send_connect result: {:?}", client.send_connect());
+    println!(
+        "send_enable_scan_commands result: {:?}",
+        client.send_enable_scan_commands()
+    );
 
-    result
+    loop {
+        println!("waiting for begin scan…");
+        loop {
+            match client.await_event(Instant::now() + Duration::from_millis(10)) {
+                Err(pdiscan::client::Error::RecvTimeout(_)) => {}
+                Err(e) => return Err(e.into()),
+                Ok(_) => {}
+            }
+
+            if client.begin_scan_rx.try_recv().is_ok() {
+                break;
+            }
+        }
+
+        println!("waiting for end scan…");
+        loop {
+            match client.await_event(Instant::now() + Duration::from_millis(10)) {
+                Err(pdiscan::client::Error::RecvTimeout(_)) => {}
+                Err(e) => return Err(e.into()),
+                Ok(_) => {}
+            }
+
+            if client.end_scan_rx.try_recv().is_ok() {
+                break;
+            }
+        }
+
+        // std::thread::sleep(std::time::Duration::from_millis(10));
+        println!("ejecting document to back of scanner…");
+        client.eject_document_to_back_of_scanner()?;
+        // client.get_test_string(std::time::Duration::from_millis(200))?;
+    }
+}
+
+pub fn main() -> color_eyre::Result<()> {
+    // main_threaded()
+    // main_request_response()
+    // main_watch_status()
+    main_scan_loop()
 }
