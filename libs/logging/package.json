@@ -14,6 +14,7 @@
     "type-check": "tsc --build",
     "build": "tsc --build tsconfig.build.json",
     "build:generate-docs": "pnpx esbuild-runner --cache ./scripts/generate_documentation.ts",
+    "build:generate-types": "pnpx esbuild-runner ./scripts/generate_types_from_toml.ts && eslint src/log_event_ids.ts --fix",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
@@ -38,6 +39,7 @@
     ]
   },
   "dependencies": {
+    "@iarna/toml": "^2.2.5",
     "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
