@@ -1,7 +1,7 @@
 import React from 'react';
 import getDeepValue from 'lodash.get';
 
-import { Optional, assert, assertDefined } from '@votingworks/basics';
+import { Optional, assertDefined } from '@votingworks/basics';
 import { LanguageCode, LanguageCodeSchema } from '@votingworks/types';
 import { useAudioContext } from './audio_context';
 import { ClipParams, PlayAudioClips } from './play_audio_clips';
@@ -99,7 +99,12 @@ export function UiStringScreenReader(
     }
 
     const { target } = activeEvent;
-    assert(target instanceof HTMLElement);
+
+    /* istanbul ignore next - tough to test firing click events on non-elements */
+    if (!(target instanceof Element)) {
+      setActiveEvent(undefined);
+      return;
+    }
 
     // Ignore event if the target element has since been removed from the DOM.
     // (e.g. a button click event that triggers page navigation.)

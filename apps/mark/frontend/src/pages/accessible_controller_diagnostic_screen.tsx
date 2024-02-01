@@ -1,15 +1,19 @@
 import { useEffect, useState } from 'react';
-import { Button, Font, H1, Main, P, Prose, Screen } from '@votingworks/ui';
+import {
+  AudioOnly,
+  Button,
+  Font,
+  H1,
+  Main,
+  P,
+  Prose,
+  ReadOnLoad,
+  Screen,
+  appStrings,
+  useAudioControls,
+} from '@votingworks/ui';
 import { DateTime } from 'luxon';
 import styled from 'styled-components';
-import { ScreenReader } from '../config/types';
-import {
-  AriaScreenReader,
-  KioskTextToSpeech,
-  SpeechSynthesisTextToSpeech,
-} from '../utils/ScreenReader';
-import { memoize } from '../utils/memoize';
-import { getUsEnglishVoice } from '../utils/voices';
 
 type ButtonName = 'Up' | 'Down' | 'Left' | 'Right' | 'Select';
 
@@ -175,44 +179,32 @@ function AccessibleControllerButtonDiagnostic({
 }
 
 interface AccessibleControllerSoundDiagnosticProps {
-  screenReader?: ScreenReader;
   onSuccess: () => void;
   onFailure: (message: string) => void;
 }
 
 function AccessibleControllerSoundDiagnostic({
-  // TODO(kofi): Replace screen reader functionality with pre-generated audio.
-  screenReader = new AriaScreenReader(
-    /* istanbul ignore next */
-    window.kiosk
-      ? new KioskTextToSpeech()
-      : new SpeechSynthesisTextToSpeech(memoize(getUsEnglishVoice))
-  ),
   onSuccess,
   onFailure,
 }: AccessibleControllerSoundDiagnosticProps) {
-  const [hasPlayedAudio, setHasPlayedAudio] = useState(false);
+  const [hasTriggeredAudio, setHasTriggeredAudio] = useState(false);
+  const { setIsEnabled: setAudioEnabled } = useAudioControls();
 
   useEffect(() => {
-    async function handleKeyDown(event: KeyboardEvent) {
+    function handleKeyDown(event: KeyboardEvent) {
       event.stopPropagation();
       if (event.key === 'ArrowRight') {
-        const wasMuted = screenReader.isMuted();
-        screenReader.unmute();
-        setHasPlayedAudio(true);
-        await screenReader.speak(
-          'Press the select button to confirm sound is working.'
-        );
-        screenReader.toggleMuted(wasMuted);
+        setAudioEnabled(true);
+        setHasTriggeredAudio(true);
       }
-      if (event.key === 'Enter' && hasPlayedAudio) {
+      if (event.key === 'Enter' && hasTriggeredAudio) {
         onSuccess();
       }
     }
     document.addEventListener('keydown', handleKeyDown, { capture: true });
     return () =>
       document.removeEventListener('keydown', handleKeyDown, { capture: true });
-  }, [screenReader, onSuccess, hasPlayedAudio]);
+  }, [hasTriggeredAudio, onSuccess, setAudioEnabled]);
 
   return (
     <StepInnerContainer>
@@ -223,6 +215,11 @@ function AccessibleControllerSoundDiagnostic({
           <li>Press the right button to play sound.</li>
           <li>Press the select button to confirm sound is working.</li>
         </ol>
+        {hasTriggeredAudio && (
+          <ReadOnLoad>
+            <AudioOnly>{appStrings.promptBmdSoundDiagnosticScreen()}</AudioOnly>
+          </ReadOnLoad>
+        )}
         <Button onPress={() => onFailure('Sound is not working.')}>
           Sound is Not Working
         </Button>
@@ -246,13 +243,11 @@ export type AccessibleControllerDiagnosticResults =
 export interface AccessibleControllerDiagnosticProps {
   onComplete: (results: AccessibleControllerDiagnosticResults) => void;
   onCancel: () => void;
-  screenReader?: ScreenReader;
 }
 
 export function AccessibleControllerDiagnosticScreen({
   onComplete,
   onCancel,
-  screenReader,
 }: AccessibleControllerDiagnosticProps): JSX.Element {
   const [step, setStep] = useState(0);
 
@@ -286,7 +281,6 @@ export function AccessibleControllerDiagnosticScreen({
     )),
     <AccessibleControllerSoundDiagnostic
       key="sound"
-      screenReader={screenReader}
       onSuccess={passTest}
       onFailure={failTest}
     />,

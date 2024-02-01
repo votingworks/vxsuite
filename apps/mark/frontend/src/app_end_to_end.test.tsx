@@ -3,6 +3,8 @@ import {
   expectPrint,
   fakeElectionManagerUser,
   fakeKiosk,
+  fakePrintElement,
+  fakePrintElementWhenReady,
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import { MemoryHardware, singlePrecinctSelectionFor } from '@votingworks/utils';
@@ -26,6 +28,12 @@ import {
 } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { configureFromUsbThenRemove } from '../test/helpers/election_package';
+
+jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
+  ...jest.requireActual('@votingworks/ui'),
+  printElementWhenReady: fakePrintElementWhenReady,
+  printElement: fakePrintElement,
+}));
 
 let apiMock: ApiMock;
 let kiosk = fakeKiosk();

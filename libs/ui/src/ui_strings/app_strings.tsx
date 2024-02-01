@@ -8,10 +8,7 @@ import { UiString } from './ui_string';
 // After updating this file, run `pnpm build[:app-strings-catalog]` from `libs/ui`
 // to generate libs/ui/src/ui_strings/app_strings_catalog/latest.json
 
-/* istanbul ignore next - mostly presentational, tested via apps where relevant */
 export const appStrings = {
-  // TODO(kofi): Fill out.
-
   buttonAccept: () => <UiString uiStringKey="buttonAccept">Accept</UiString>,
 
   buttonAddWriteIn: () => (
@@ -644,6 +641,12 @@ export const appStrings = {
   promptBmdConfirmRemoveWriteIn: () => (
     <UiString uiStringKey="promptBmdConfirmRemoveWriteIn">
       Do you want to deselect and remove your write-in candidate?
+    </UiString>
+  ),
+
+  promptBmdSoundDiagnosticScreen: () => (
+    <UiString uiStringKey="promptBmdSoundDiagnosticScreen">
+      Press the select button to confirm sound is working.
     </UiString>
   ),
 
