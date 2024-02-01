@@ -9,7 +9,11 @@ path = "src/controllerd.rs"
 
 [dependencies]
 crc16 = { workspace = true }
+ctrlc = { workspace = true }
 num_enum = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
 serialport = { workspace = true }
 thiserror = { workspace = true }
+vx-logging = { workspace = true }
 uinput = { workspace = true }

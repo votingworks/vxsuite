@@ -1,15 +1,23 @@
 use serialport::{self, SerialPort};
 use std::{
-    io, thread,
+    io,
+    process::exit,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
+    thread,
     time::{Duration, Instant},
 };
 use uinput::{
     event::{keyboard, Keyboard},
     Device,
 };
+use vx_logging::{print_log, set_app_name, Disposition, EventId, EventType, Log};
 
-const POLL_INTERVAL: Duration = Duration::from_millis(10);
-const MAX_ECHO_RESPONSE_WAIT: Duration = Duration::from_secs(1);
+const APP_NAME: &str = "vx-mark-scan-controller-daemon";
+const POLL_INTERVAL: Duration = Duration::from_millis(50);
+const MAX_ECHO_RESPONSE_WAIT: Duration = Duration::from_secs(5);
 const UINPUT_PATH: &str = "/dev/uinput";
 const DEVICE_PATH: &str = "/dev/ttyACM1";
 const DEVICE_BAUD_RATE: u32 = 9600;
@@ -255,7 +263,11 @@ fn validate_connection(port: &mut Box<dyn SerialPort>) -> Result<(), io::Error> 
     let echo_command = EchoCommand::new(vec![0x01, 0x02, 0x03, 0x04, 0x05]);
     let echo_command: Vec<u8> = echo_command.into();
     match port.write(&echo_command) {
-        Ok(_) => println!("Echo command sent"),
+        Ok(_) => print_log(Log {
+            event_id: EventId::ControllerHandshakeInit,
+            event_type: EventType::SystemAction,
+            ..Default::default()
+        }),
         Err(error) => eprintln!("{error:?}"),
     }
 
@@ -271,11 +283,24 @@ fn validate_connection(port: &mut Box<dyn SerialPort>) -> Result<(), io::Error> 
                     "Received different response from echo command: {echo_response:x?}"
                 );
 
-                println!("Received valid echo command response");
+                print_log(Log {
+                    event_id: EventId::ControllerHandshakeComplete,
+                    event_type: EventType::SystemAction,
+                    disposition: Disposition::Success,
+                    ..Default::default()
+                });
                 return Ok(());
             }
             Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
-            Err(e) => eprintln!("Error reading echo response: {e:?}"),
+            Err(e) => {
+                print_log(Log {
+                    event_id: EventId::ControllerHandshakeComplete,
+                    message: format!("Error reading echo response: {e:?}"),
+                    event_type: EventType::SystemAction,
+                    disposition: Disposition::Failure,
+                    ..Default::default()
+                });
+            }
         }
 
         if start_time.elapsed() >= MAX_ECHO_RESPONSE_WAIT {
@@ -285,6 +310,13 @@ fn validate_connection(port: &mut Box<dyn SerialPort>) -> Result<(), io::Error> 
         thread::sleep(POLL_INTERVAL);
     }
 
+    print_log(Log {
+        event_id: EventId::ControllerHandshakeComplete,
+        message: "No echo response received".to_string(),
+        event_type: EventType::SystemAction,
+        disposition: Disposition::Failure,
+        ..Default::default()
+    });
     Err(io::Error::new(
         io::ErrorKind::TimedOut,
         "No echo response received",
@@ -303,42 +335,113 @@ fn create_virtual_device() -> Device {
 }
 
 fn main() {
+    set_app_name(APP_NAME.to_string());
+    print_log(Log {
+        event_id: EventId::ProcessStarted,
+        event_type: EventType::SystemAction,
+        ..Default::default()
+    });
+
+    let running = Arc::new(AtomicBool::new(true));
+
+    if let Err(e) = ctrlc::set_handler({
+        let running = running.clone();
+        move || {
+            running.store(false, Ordering::SeqCst);
+        }
+    }) {
+        print_log(Log {
+            event_id: EventId::ErrorSettingSigintHandler,
+            message: e.to_string(),
+            event_type: EventType::SystemStatus,
+            ..Default::default()
+        });
+    }
+
+    // Create virtual device for keypress events
+    print_log(Log {
+        event_id: EventId::CreateVirtualUinputDeviceInit,
+        event_type: EventType::SystemAction,
+        ..Default::default()
+    });
+    let mut device = create_virtual_device();
+    // Wait for virtual device to register
+    thread::sleep(Duration::from_secs(1));
+    print_log(Log {
+        event_id: EventId::CreateVirtualUinputDeviceComplete,
+        disposition: Disposition::Success,
+        event_type: EventType::SystemAction,
+        ..Default::default()
+    });
+
+    print_log(Log {
+        event_id: EventId::ControllerConnectionInit,
+        event_type: EventType::SystemAction,
+        ..Default::default()
+    });
+
     // Open the serial port
     let port = serialport::new(DEVICE_PATH, DEVICE_BAUD_RATE)
         .timeout(POLL_INTERVAL)
         .open();
 
-    println!("Opened controller serial port at {DEVICE_PATH}");
-
-    // Create virtual device for keypress events
-    let mut device = create_virtual_device();
-    println!("Created virtual device");
-
-    // Wait for virtual device to register
-    thread::sleep(Duration::from_secs(1));
-
     match port {
         Ok(mut port) => {
             validate_connection(&mut port).unwrap();
 
-            println!("Receiving data on {DEVICE_PATH} at {DEVICE_BAUD_RATE} baud");
+            print_log(Log {
+                event_id: EventId::ControllerConnectionComplete,
+                message: format!("Receiving data on {DEVICE_PATH} at {DEVICE_BAUD_RATE} baud"),
+                event_type: EventType::SystemAction,
+                disposition: Disposition::Success,
+                ..Default::default()
+            });
 
             let mut serial_buf: Vec<u8> = vec![0; 1000];
             loop {
+                if !running.load(Ordering::SeqCst) {
+                    print_log(Log {
+                        event_id: EventId::ProcessTerminated,
+                        event_type: EventType::SystemAction,
+                        ..Default::default()
+                    });
+                    exit(0);
+                }
                 match port.read(serial_buf.as_mut_slice()) {
                     Ok(size) => {
                         if let Err(e) = handle_command(&mut device, &serial_buf[..size]) {
-                            eprintln!("Unexpected error handling command: {e}");
+                            print_log(Log {
+                                event_id: EventId::UnknownError,
+                                message: format!(
+                                    "Unexpected error when handling controller command: {e}"
+                                ),
+                                event_type: EventType::SystemStatus,
+                                ..Default::default()
+                            });
                         }
                     }
                     // Timeout error just means no event was sent in the current polling period
                     Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
-                    Err(e) => eprintln!("{e:?}"),
+                    Err(e) => {
+                        print_log(Log {
+                            event_id: EventId::UnknownError,
+                            message: format!("Unexpected error when opening serial port: {e}"),
+                            event_type: EventType::SystemStatus,
+                            ..Default::default()
+                        });
+                    }
                 }
             }
         }
         Err(e) => {
-            panic!(r#"Failed to open "{DEVICE_PATH}". Error: {e}"#);
+            print_log(Log {
+                event_id: EventId::ControllerConnectionComplete,
+                message: format!("Failed to open {DEVICE_PATH}. Error: {e}"),
+                event_type: EventType::SystemAction,
+                disposition: Disposition::Failure,
+                ..Default::default()
+            });
+            exit(1);
         }
     }
 }
