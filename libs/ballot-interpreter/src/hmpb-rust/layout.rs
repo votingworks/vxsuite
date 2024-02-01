@@ -1,7 +1,7 @@
 use itertools::Itertools;
 use serde::Serialize;
 use types_rs::election::{ContestId, GridLayout, GridLocation, GridPosition, OptionId};
-use types_rs::geometry::{GridUnit, Point, Rect, SubGridUnit};
+use types_rs::geometry::{Point, Rect, SubGridUnit};
 
 use crate::{ballot_card::BallotSide, timing_marks::TimingMarkGrid};
 
@@ -27,53 +27,45 @@ fn build_option_layout(
     grid_position: &GridPosition,
 ) -> Option<InterpretedContestOptionLayout> {
     // Option bounding box parameters
-    let column_offset = -(grid_layout.option_bounds_from_target_mark.left as i32);
-    let row_offset = -(grid_layout.option_bounds_from_target_mark.top as i32);
-    let width: GridUnit = grid_layout.option_bounds_from_target_mark.left
+    let column_offset = -grid_layout.option_bounds_from_target_mark.left;
+    let row_offset = -grid_layout.option_bounds_from_target_mark.top;
+    let width: SubGridUnit = grid_layout.option_bounds_from_target_mark.left
         + grid_layout.option_bounds_from_target_mark.right;
-    let height: GridUnit = grid_layout.option_bounds_from_target_mark.top
+    let height: SubGridUnit = grid_layout.option_bounds_from_target_mark.top
         + grid_layout.option_bounds_from_target_mark.bottom;
 
-    let clamp_row =
-        |row: GridUnit| -> GridUnit { row.clamp(0, grid.geometry.grid_size.height - 1) };
-    let clamp_column =
-        |column: GridUnit| -> GridUnit { column.clamp(0, grid.geometry.grid_size.width - 1) };
+    let clamp_row = |row: SubGridUnit| -> SubGridUnit {
+        row.clamp(0.0, grid.geometry.grid_size.height as SubGridUnit - 1.0)
+    };
+    let clamp_column = |column: SubGridUnit| -> SubGridUnit {
+        column.clamp(0.0, grid.geometry.grid_size.width as SubGridUnit - 1.0)
+    };
 
     let bubble_location = grid_position.location();
 
-    let top_left_location: Point<GridUnit> = Point::new(
+    let top_left_location: Point<SubGridUnit> = Point::new(
         clamp_column(bubble_location.column + column_offset),
         clamp_row(bubble_location.row + row_offset),
     );
-    let bottom_left_location: Point<GridUnit> = Point::new(
+    let bottom_left_location: Point<SubGridUnit> = Point::new(
         clamp_column(bubble_location.column + column_offset),
         clamp_row(bubble_location.row + row_offset + height),
     );
-    let top_right_location: Point<GridUnit> = Point::new(
+    let top_right_location: Point<SubGridUnit> = Point::new(
         clamp_column(bubble_location.column + column_offset + width),
         clamp_row(bubble_location.row + row_offset),
     );
-    let bottom_right_location: Point<GridUnit> = Point::new(
+    let bottom_right_location: Point<SubGridUnit> = Point::new(
         clamp_column(bubble_location.column + column_offset + width),
         clamp_row(bubble_location.row + row_offset + height),
     );
 
-    let top_left_point = grid.point_for_location(
-        top_left_location.x as SubGridUnit,
-        top_left_location.y as SubGridUnit,
-    )?;
-    let bottom_left_point = grid.point_for_location(
-        bottom_left_location.x as SubGridUnit,
-        bottom_left_location.y as SubGridUnit,
-    )?;
-    let top_right_point = grid.point_for_location(
-        top_right_location.x as SubGridUnit,
-        top_right_location.y as SubGridUnit,
-    )?;
-    let bottom_right_point = grid.point_for_location(
-        bottom_right_location.x as SubGridUnit,
-        bottom_right_location.y as SubGridUnit,
-    )?;
+    let top_left_point = grid.point_for_location(top_left_location.x, top_left_location.y)?;
+    let bottom_left_point =
+        grid.point_for_location(bottom_left_location.x, bottom_left_location.y)?;
+    let top_right_point = grid.point_for_location(top_right_location.x, top_right_location.y)?;
+    let bottom_right_point =
+        grid.point_for_location(bottom_right_location.x, bottom_right_location.y)?;
 
     // We use the furthest points to determine the bounding box so we enclose
     // content that may have moved further away when skewed.

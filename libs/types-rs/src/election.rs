@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     ballot_card::BallotSide,
-    geometry::{GridUnit, SubGridRect},
+    geometry::{SubGridRect, SubGridUnit},
     idtype::idtype,
 };
 
@@ -60,7 +60,7 @@ pub struct Precinct {
 #[serde(rename_all = "camelCase")]
 pub struct GridLayout {
     pub ballot_style_id: BallotStyleId,
-    pub option_bounds_from_target_mark: Outset<GridUnit>,
+    pub option_bounds_from_target_mark: Outset<SubGridUnit>,
     pub grid_positions: Vec<GridPosition>,
 }
 
@@ -90,8 +90,8 @@ pub enum GridPosition {
     Option {
         sheet_number: u32,
         side: BallotSide,
-        column: GridUnit,
-        row: GridUnit,
+        column: SubGridUnit,
+        row: SubGridUnit,
         contest_id: ContestId,
         option_id: OptionId,
     },
@@ -101,8 +101,8 @@ pub enum GridPosition {
     WriteIn {
         sheet_number: u32,
         side: BallotSide,
-        column: GridUnit,
-        row: GridUnit,
+        column: SubGridUnit,
+        row: SubGridUnit,
         contest_id: ContestId,
         write_in_index: u32,
         write_in_area: SubGridRect,
@@ -160,12 +160,12 @@ impl GridPosition {
 #[derive(Debug, Clone, Copy, Serialize, PartialEq)]
 pub struct GridLocation {
     pub side: BallotSide,
-    pub column: GridUnit,
-    pub row: GridUnit,
+    pub column: SubGridUnit,
+    pub row: SubGridUnit,
 }
 
 impl GridLocation {
-    pub const fn new(side: BallotSide, column: GridUnit, row: GridUnit) -> Self {
+    pub const fn new(side: BallotSide, column: SubGridUnit, row: SubGridUnit) -> Self {
         Self { side, column, row }
     }
 }
@@ -190,10 +190,10 @@ mod tests {
 
     #[test]
     fn test_grid_location() {
-        let location = GridLocation::new(BallotSide::Front, 1, 2);
+        let location = GridLocation::new(BallotSide::Front, 1.0, 2.0);
         assert_eq!(location.side, BallotSide::Front);
-        assert_eq!(location.column, 1);
-        assert_eq!(location.row, 2);
+        assert_eq!(location.column, 1.0);
+        assert_eq!(location.row, 2.0);
     }
 
     #[test]
@@ -201,14 +201,14 @@ mod tests {
         let position = GridPosition::Option {
             sheet_number: 1,
             side: BallotSide::Front,
-            column: 1,
-            row: 2,
+            column: 1.0,
+            row: 2.0,
             contest_id: ContestId::from("contest-1".to_string()),
             option_id: OptionId::from("option-1".to_string()),
         };
         assert_eq!(position.location().side, BallotSide::Front);
-        assert_eq!(position.location().column, 1);
-        assert_eq!(position.location().row, 2);
+        assert_eq!(position.location().column, 1.0);
+        assert_eq!(position.location().row, 2.0);
         assert_eq!(position.sheet_number(), 1);
     }
 
@@ -234,8 +234,8 @@ mod tests {
             } => {
                 assert_eq!(sheet_number, 1);
                 assert_eq!(side, BallotSide::Front);
-                assert_eq!(column, 1);
-                assert_eq!(row, 2);
+                assert_eq!(column, 1.0);
+                assert_eq!(row, 2.0);
                 assert_eq!(contest_id, ContestId::from("contest-1".to_string()));
                 assert_eq!(option_id, OptionId::from("option-1".to_string()));
             }
@@ -272,8 +272,8 @@ mod tests {
             } => {
                 assert_eq!(sheet_number, 1);
                 assert_eq!(side, BallotSide::Front);
-                assert_eq!(column, 1);
-                assert_eq!(row, 2);
+                assert_eq!(column, 1.0);
+                assert_eq!(row, 2.0);
                 assert_eq!(contest_id, ContestId::from("contest-1".to_string()));
                 assert_eq!(write_in_index, 3);
                 assert_eq!(
