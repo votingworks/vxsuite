@@ -16,6 +16,8 @@ import {
   MIN_GAIN_DB,
 } from './audio_volume';
 
+export const DEFAULT_AUDIO_ENABLED_STATE = true;
+
 export interface UiStringsAudioContextInterface {
   api: UiStringsReactQueryApi;
   decreasePlaybackRate: () => void;
@@ -63,7 +65,7 @@ export function UiStringsAudioContextProvider(
   props: UiStringsAudioContextProviderProps
 ): JSX.Element {
   const { api, children } = props;
-  const [isEnabled, setIsEnabled] = React.useState(false);
+  const [isEnabled, setIsEnabled] = React.useState(DEFAULT_AUDIO_ENABLED_STATE);
   const [isPaused, setIsPaused] = React.useState(true);
   const [playbackRate, setPlaybackRate] = React.useState<number>(
     DEFAULT_PLAYBACK_RATE
@@ -72,15 +74,20 @@ export function UiStringsAudioContextProvider(
 
   const webAudioContextRef = React.useRef(getWebAudioContextInstance());
 
-  const reset = React.useCallback(() => {
+  const resetPlaybackSettings = React.useCallback(() => {
     setGainDb(DEFAULT_GAIN_DB);
     setPlaybackRate(DEFAULT_PLAYBACK_RATE);
     setIsPaused(false);
   }, []);
 
+  const reset = React.useCallback(() => {
+    resetPlaybackSettings();
+    setIsEnabled(DEFAULT_AUDIO_ENABLED_STATE);
+  }, [resetPlaybackSettings]);
+
   React.useEffect(() => {
     if (isEnabled) {
-      reset();
+      resetPlaybackSettings();
     } else {
       // Pausing here isn't strictly necessary, since we're disconnecting the
       // context destination node from any inputs, but this makes sure any
@@ -88,7 +95,7 @@ export function UiStringsAudioContextProvider(
       setIsPaused(true);
       webAudioContextRef.current?.destination.disconnect();
     }
-  }, [isEnabled, reset]);
+  }, [isEnabled, resetPlaybackSettings]);
 
   React.useEffect(() => {
     if (!webAudioContextRef.current) {
