@@ -15,6 +15,7 @@
     "build": "tsc --build tsconfig.build.json",
     "build:generate-docs": "pnpx esbuild-runner --cache ./scripts/generate_documentation.ts",
     "build:generate-types": "pnpx esbuild-runner ./scripts/generate_types_from_toml.ts && eslint src/log_event_ids.ts --fix",
+    "build:generate-rust-enums": "pnpx esbuild-runner ./scripts/generate_rust_enums_from_toml.ts && rustfmt types-rust/src/log_event_enums.rs",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
