@@ -731,7 +731,7 @@ impl PdiClient {
     pub fn eject_document_to_back_of_scanner(&mut self) -> Result<()> {
         self.validate_and_send_command(
             Command::new(b"3"),
-            parsers::eject_document_to_back_of_scanner_request,
+            parsers::eject_document_to_rear_of_scanner_request,
         )
     }
 
