@@ -1,6 +1,7 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 import {
+  DEFAULT_AUDIO_ENABLED_STATE,
   UiStringsAudioContextProvider,
   useAudioContext,
 } from './audio_context';
@@ -175,36 +176,28 @@ test('setIsEnabled', () => {
     wrapper: TestContextWrapper,
   });
 
-  expect(result.current?.isEnabled).toEqual(false);
+  expect(result.current?.isEnabled).toEqual(DEFAULT_AUDIO_ENABLED_STATE);
 
-  jest.resetAllMocks();
+  act(() => result.current?.setIsEnabled(!DEFAULT_AUDIO_ENABLED_STATE));
+  expect(result.current?.isEnabled).toEqual(!DEFAULT_AUDIO_ENABLED_STATE);
+  expect(result.current?.isPaused).toEqual(!result.current?.isEnabled);
 
-  act(() => result.current?.setIsEnabled(true));
+  act(() => result.current?.setIsEnabled(DEFAULT_AUDIO_ENABLED_STATE));
+  expect(result.current?.isEnabled).toEqual(DEFAULT_AUDIO_ENABLED_STATE);
+  expect(result.current?.isPaused).toEqual(!result.current?.isEnabled);
 
-  expect(result.current?.isEnabled).toEqual(true);
-  expect(mockWebAudioContext.resume).toHaveBeenCalled();
-  expect(mockWebAudioContext.suspend).not.toHaveBeenCalled();
-  expect(mockWebAudioContext.destination.disconnect).not.toHaveBeenCalled();
-
-  jest.resetAllMocks();
+  // Re-enabling should reset all playback settings:
 
   act(() => result.current?.setIsEnabled(false));
-
-  expect(result.current?.isEnabled).toEqual(false);
-  expect(mockWebAudioContext.suspend).toHaveBeenCalled();
-  expect(mockWebAudioContext.resume).not.toHaveBeenCalled();
-  expect(mockWebAudioContext.destination.disconnect).toHaveBeenCalled();
-
-  jest.resetAllMocks();
-
-  // Re-enabling should reset all settings:
-
   act(() => result.current?.increasePlaybackRate());
   act(() => result.current?.decreaseVolume());
 
+  expect(result.current?.isPaused).toEqual(true);
+
   act(() => result.current?.setIsEnabled(true));
 
   expect(result.current?.isEnabled).toEqual(true);
+  expect(result.current?.isPaused).toEqual(false);
   expect(result.current?.gainDb).toEqual(DEFAULT_GAIN_DB);
   expect(result.current?.playbackRate).toEqual(DEFAULT_PLAYBACK_RATE);
 });
@@ -215,10 +208,10 @@ test('toggleEnabled', () => {
   });
 
   act(() => result.current?.toggleEnabled());
-  expect(result.current?.isEnabled).toEqual(true);
+  expect(result.current?.isEnabled).toEqual(!DEFAULT_AUDIO_ENABLED_STATE);
 
   act(() => result.current?.toggleEnabled());
-  expect(result.current?.isEnabled).toEqual(false);
+  expect(result.current?.isEnabled).toEqual(DEFAULT_AUDIO_ENABLED_STATE);
 });
 
 test('setIsPaused', () => {
@@ -283,15 +276,12 @@ test('reset', () => {
   act(() => result.current?.setIsEnabled(true));
   act(() => result.current?.increasePlaybackRate());
   act(() => result.current?.decreaseVolume());
-  act(() => result.current?.togglePause());
-
-  jest.resetAllMocks();
+  act(() => result.current?.setIsPaused(false));
 
   act(() => result.current?.reset());
 
+  expect(result.current?.isEnabled).toEqual(DEFAULT_AUDIO_ENABLED_STATE);
   expect(result.current?.gainDb).toEqual(DEFAULT_GAIN_DB);
   expect(result.current?.playbackRate).toEqual(DEFAULT_PLAYBACK_RATE);
-  expect(mockWebAudioContext.resume).toHaveBeenCalled();
-  expect(mockWebAudioContext.suspend).not.toHaveBeenCalled();
-  expect(mockWebAudioContext.destination.disconnect).not.toHaveBeenCalled();
+  expect(result.current?.isPaused).toEqual(false);
 });

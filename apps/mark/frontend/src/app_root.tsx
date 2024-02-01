@@ -30,13 +30,15 @@ import {
   usePrevious,
   UnlockMachineScreen,
   DisplaySettingsManagerContext,
+  useAudioControls,
+  useLanguageControls,
 } from '@votingworks/ui';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   mergeMsEitherNeitherContests,
   CastBallotPage,
-  useDisplaySettingsManager,
+  useSessionSettingsManager,
   useBallotStyleManager,
 } from '@votingworks/mark-flow-ui';
 import type { ElectionState } from '@votingworks/mark-backend';
@@ -154,6 +156,8 @@ export function AppRoot({
   const displaySettingsManager = React.useContext(
     DisplaySettingsManagerContext
   );
+  const { reset: resetAudioSettings } = useAudioControls();
+  const { reset: resetLanguage } = useLanguageControls();
 
   const machineConfigQuery = getMachineConfig.useQuery();
 
@@ -231,12 +235,14 @@ export function AppRoot({
       history.push('/');
 
       if (!newShowPostVotingInstructions) {
-        // [VVSG 2.0 7.1-A] Reset to default theme when voter is done marking
+        // [VVSG 2.0 7.1-A] Reset to default settings when voter is done marking
         // their ballot:
         displaySettingsManager.resetThemes();
+        resetAudioSettings();
+        resetLanguage();
       }
     },
-    [history, displaySettingsManager]
+    [history, displaySettingsManager, resetAudioSettings, resetLanguage]
   );
 
   const hidePostVotingInstructions = useCallback(() => {
@@ -360,7 +366,7 @@ export function AppRoot({
     };
   }, []);
 
-  useDisplaySettingsManager({ authStatus, votes });
+  useSessionSettingsManager({ authStatus, votes });
 
   useBallotStyleManager({
     currentBallotStyleId: ballotStyleId,

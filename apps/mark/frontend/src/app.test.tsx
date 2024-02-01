@@ -10,7 +10,7 @@ import fetchMock from 'fetch-mock';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import {
   useBallotStyleManager,
-  useDisplaySettingsManager,
+  useSessionSettingsManager,
 } from '@votingworks/mark-flow-ui';
 import userEvent from '@testing-library/user-event';
 import { screen } from '../test/react_testing_library';
@@ -25,7 +25,7 @@ jest.mock(
   (): typeof import('@votingworks/mark-flow-ui') => ({
     ...jest.requireActual('@votingworks/mark-flow-ui'),
     useBallotStyleManager: jest.fn(),
-    useDisplaySettingsManager: jest.fn(),
+    useSessionSettingsManager: jest.fn(),
   })
 );
 
@@ -39,7 +39,7 @@ beforeEach(() => {
 
 afterEach(() => {
   apiMock.mockApiClient.assertComplete();
-  mockOf(useDisplaySettingsManager).mockReset();
+  mockOf(useSessionSettingsManager).mockReset();
 });
 
 it('will throw an error when using default api', async () => {
@@ -110,7 +110,7 @@ it('uses display settings management hook', async () => {
 
   await advanceTimersAndPromises();
 
-  expect(mockOf(useDisplaySettingsManager)).toBeCalled();
+  expect(mockOf(useSessionSettingsManager)).toBeCalled();
 });
 
 it('uses ballot style management hook', async () => {
