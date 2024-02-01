@@ -6,7 +6,7 @@ import {
   generateCdfLogDocumentationFileContent,
   generateMarkdownDocumentationContent,
 } from './log_documentation';
-import { LogSource } from './log_source';
+import { LogSource } from './base_types/log_source';
 
 jest.useFakeTimers().setSystemTime(new Date('2020-07-24T00:00:00.000Z'));
 

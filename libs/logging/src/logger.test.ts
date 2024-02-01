@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 import { fakeKiosk } from '@votingworks/test-utils';
 import { LogEventId } from './log_event_ids';
-import { LogEventType } from './log_event_types';
-import { CLIENT_SIDE_LOG_SOURCES, LogSource } from './log_source';
+import { LogEventType } from './base_types/log_event_types';
+import { CLIENT_SIDE_LOG_SOURCES, LogSource } from './base_types/log_source';
 import { Logger } from './logger';
 import { DEVICE_TYPES_FOR_APP, LogDispositionStandardTypes } from './types';
 

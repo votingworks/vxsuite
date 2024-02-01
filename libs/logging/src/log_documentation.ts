@@ -4,8 +4,8 @@ import {
   getDocumentationForEventType,
   LogEventType,
   LogEventTypeDocumentation,
-} from './log_event_types';
-import { LogSource } from './log_source';
+} from './base_types/log_event_types';
+import { LogSource } from './base_types/log_source';
 
 export function generateMarkdownDocumentationContent(): string {
   const allEventTypes: LogEventTypeDocumentation[] = Object.values(
