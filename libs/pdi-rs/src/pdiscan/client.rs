@@ -11,24 +11,37 @@ use super::{
     protocol::{
         packets::{Command, Incoming},
         parsers,
-        types::{Settings, Side, Status, Version},
+        types::{
+            ColorMode, Direction, EjectMotion, Resolution, ScanSideMode, Settings, Side, Speed,
+            Status, Version,
+        },
     },
     transfer::Event,
 };
 
+/// Vendor ID for the PDI scanner.
 const VENDOR_ID: u16 = 0x0bd7;
+
+/// Product ID for the PDI scanner.
 const PRODUCT_ID: u16 = 0xa002;
+
+/// The endpoint for sending commands to the scanner.
 const ENDPOINT_OUT: u8 = 0x05;
-const ENDPOINT_IN: u8 = 0x85;
-const ENDPOINT_IN_ALT: u8 = 0x86;
+
+/// The primary endpoint for receiving responses from the scanner.
+const ENDPOINT_IN_PRIMARY: u8 = 0x85;
+
+/// The alternate endpoint for receiving responses from the scanner, used to
+/// receive image data.
+const ENDPOINT_IN_IMAGE_DATA: u8 = 0x86;
 
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
     #[error("libusb error: {0}")]
     Usb(#[from] rusb::Error),
 
-    #[error("failed to validate request")]
-    ValidateRequest,
+    #[error("failed to validate request: {0}")]
+    ValidateRequest(String),
 
     #[error("failed to receive response: {0}")]
     RecvTimeout(#[from] RecvTimeoutError),
@@ -60,8 +73,7 @@ pub struct PdiClient {
     get_scanner_settings_response: Option<Settings>,
     get_serial_number_response: Option<Incoming>,
     get_required_input_sensors_response: Option<Incoming>,
-    adjust_top_cis_sensor_threshold_by_1_response: Option<Incoming>,
-    adjust_bottom_cis_sensor_threshold_by_1_response: Option<Incoming>,
+    adjust_bitonal_threshold_by_1_response: Option<Incoming>,
 
     begin_scan_tx: std::sync::mpsc::Sender<()>,
     pub begin_scan_rx: std::sync::mpsc::Receiver<()>,
@@ -84,7 +96,7 @@ impl PdiClient {
         device_handle.claim_interface(0)?;
 
         let output_endpoint = ENDPOINT_OUT;
-        let input_endpoints = &[ENDPOINT_IN, ENDPOINT_IN_ALT];
+        let input_endpoints = &[ENDPOINT_IN_PRIMARY, ENDPOINT_IN_IMAGE_DATA];
 
         let (tx, rx) = std::sync::mpsc::channel();
         let (begin_scan_tx, begin_scan_rx) = std::sync::mpsc::channel();
@@ -104,8 +116,7 @@ impl PdiClient {
             get_scanner_settings_response: None,
             get_serial_number_response: None,
             get_required_input_sensors_response: None,
-            adjust_top_cis_sensor_threshold_by_1_response: None,
-            adjust_bottom_cis_sensor_threshold_by_1_response: None,
+            adjust_bitonal_threshold_by_1_response: None,
             begin_scan_tx,
             begin_scan_rx,
             end_scan_tx,
@@ -117,12 +128,15 @@ impl PdiClient {
         Ok(client)
     }
 
+    /// Connects to the scanner using the same commands that were captured by
+    /// wireshark from the `scan_demo` program. Some of them may not be
+    /// necessary, but they're included for now.
     pub fn send_connect(&mut self) -> Result<()> {
         let timeout = Duration::from_secs(5);
         let deadline = Instant::now() + timeout;
 
         // OUT DisableFeederRequest
-        self.disable_feeder()?;
+        self.set_feeder_enabled(false)?;
         // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 4f 03 c7> } (string: "\u{2}O\u{3}�") (length: 4)
         self.send_command(Command::new(b"O"));
         // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 1b 55 03 a0> } (string: "\u{2}\u{1b}U\u{3}�") (length: 5)
@@ -159,7 +173,7 @@ impl PdiClient {
         self.validate_and_send_command(Command::new(b"I"), parsers::get_scanner_settings_request)?;
         // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 49 96 01 01 00 00 1b 03 00 00 00 02 00 03> } (string: "\u{2}I�\u{1}\u{1}\0\0\u{1b}\u{3}\0\0\0\u{2}\0\u{3}") (length: 15)
         self.await_event(deadline)?;
-        // OUT GetCalibrationInformationRequest { resolution_table_type: Native }
+        // OUT GetCalibrationInformationRequest { resolution: Some(Native) }
         self.validate_and_send_command(
             Command::new(b"W0"),
             parsers::get_calibration_information_request,
@@ -168,7 +182,7 @@ impl PdiClient {
         self.await_event(deadline)?;
         // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 57 80 0d 18 a3 a3 a3 a3 a3 a5 a4 ab af aa ac ad b4 b6 b2 b4 b4 b9 b7 b3 b5 b5 b8 b9 b5 b6 b7 bd b9 b8 b7 bb bf bd b9 ba bb c0 bb bc bb bf c0 bc bb ba be c1 bb bb ba bf c0 ba bb bd c1 c1 bb be bf c3 c0 bc c0 bf c3 c2 be bf be c3 be be bb c0 c3 c0 bf be c1 c4 bd bd bd c2 c2 be bf bd c0 c1 bd bf bd …> } (string: "\u{2}W�\r\u{18}�������������������������������������������������������������������¾��þ��������Ľ���¾�������") (length: 6922)
         self.await_event(deadline)?;
-        // OUT GetCalibrationInformationRequest { resolution_table_type: Half }
+        // OUT GetCalibrationInformationRequest { resolution: Some(Half) }
         self.validate_and_send_command(
             Command::new(b"W1"),
             parsers::get_calibration_information_request,
@@ -193,16 +207,16 @@ impl PdiClient {
         self.await_event(deadline)?;
         // OUT IncreaseTopCISSensorThresholdBy1Request
         // IN AdjustTopCISSensorThresholdResponse { percent_white_threshold: 76 }
-        self.increase_top_cis_sensor_threshold_by_1(timeout)?;
+        self.adjust_bitonal_threshold_by_1(Side::Top, Direction::Increase, timeout)?;
         // OUT DecreaseTopCISSensorThresholdBy1Request
         // IN AdjustTopCISSensorThresholdResponse { percent_white_threshold: 75 }
-        self.decrease_top_cis_sensor_threshold_by_1(timeout)?;
+        self.adjust_bitonal_threshold_by_1(Side::Top, Direction::Decrease, timeout)?;
         // OUT IncreaseBottomCISSensorThresholdBy1Request
         // IN AdjustBottomCISSensorThresholdResponse { percent_white_threshold: 76 }
-        self.increase_bottom_cis_sensor_threshold_by_1(timeout)?;
+        self.adjust_bitonal_threshold_by_1(Side::Bottom, Direction::Increase, timeout)?;
         // OUT DecreaseBottomCISSensorThresholdBy1Request
         // IN AdjustBottomCISSensorThresholdResponse { percent_white_threshold: 75 }
-        self.decrease_bottom_cis_sensor_threshold_by_1(timeout)?;
+        self.adjust_bitonal_threshold_by_1(Side::Bottom, Direction::Decrease, timeout)?;
         // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 23 34 03 60> } (string: "\u{2}#4\u{3}`") (length: 5)
         self.send_command(Command::new(b"#4"));
         // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 58 32 30 32 38 03> } (string: "\u{2}X2028\u{3}") (length: 7)
@@ -235,13 +249,16 @@ impl PdiClient {
         Ok(())
     }
 
+    /// Sends the same commands to enable scanning that were captured by
+    /// wireshark from the `scan_demo` program. Some of them may not be
+    /// necessary, but they're included for now.
     pub fn send_enable_scan_commands(&mut self) -> Result<()> {
         let timeout = Duration::from_secs(5);
 
         // OUT SetScannerImageDensityToHalfNativeResolutionRequest
-        self.set_scanner_image_density_to_half_native_resolution()?;
+        self.set_scan_resolution(Resolution::Half)?;
         // OUT SetScannerToDuplexModeRequest
-        self.set_scanner_to_duplex_mode()?;
+        self.set_scan_side_mode(ScanSideMode::Duplex)?;
         // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 67 03 79> } (string: "\u{2}g\u{3}y") (length: 4)
         self.send_command(Command::new(b"g"));
         // OUT DisablePickOnCommandModeRequest
@@ -257,17 +274,17 @@ impl PdiClient {
         // OUT DisableEjectPauseRequest
         self.disable_eject_pause()?;
         // OUT TransmitInLowBitsPerPixelRequest
-        self.transmit_in_low_bits_per_pixel()?;
+        self.set_color_mode(ColorMode::LowColor)?;
         // OUT DisableAutoRunOutAtEndOfScanRequest
         self.disable_auto_run_out_at_end_of_scan()?;
         // OUT ConfigureMotorToRunAtFullSpeedRequest
-        self.configure_motor_to_run_at_full_speed_request()?;
+        self.set_motor_speed(Speed::Full)?;
         // OUT SetThresholdToANewValueRequest { side: Top, new_threshold: 75 }
         // IN AdjustTopCISSensorThresholdResponse { percent_white_threshold: 75 }
-        self.set_threshold_to_a_new_value(Side::Top, 75, timeout)?;
+        self.set_threshold(Side::Top, 75, timeout)?;
         // OUT SetThresholdToANewValueRequest { side: Bottom, new_threshold: 75 }
         // IN AdjustBottomCISSensorThresholdResponse { percent_white_threshold: 75 }
-        self.set_threshold_to_a_new_value(Side::Bottom, 75, timeout)?;
+        self.set_threshold(Side::Bottom, 75, timeout)?;
         // OUT SetRequiredInputSensorsRequest { sensors: 2 }
         self.set_required_input_sensors(2)?;
         // OUT SetLengthOfDocumentToScanRequest { length_byte: 32, unit_byte: None }
@@ -280,27 +297,38 @@ impl PdiClient {
         // IN GetTestStringResponse(" Test Message USB 1.1/2.0 Communication")
         self.get_test_string(timeout)?;
         // OUT EnableFeederRequest
-        self.enable_feeder()?;
+        self.set_feeder_enabled(true)?;
 
         Ok(())
     }
 
-    pub fn send_command(&mut self, command: Command) {
+    /// Send a command to the scanner, but don't wait for a response.
+    fn send_command(&mut self, command: Command) {
         self.transfer_handler.submit_transfer(&command.to_bytes());
     }
 
-    pub fn validate_and_send_command<O>(
+    /// Validate that a command can be properly validated by the associated
+    /// parser and then send it to the scanner.
+    fn validate_and_send_command<O>(
         &mut self,
         command: Command,
         parser: impl Fn(&[u8]) -> nom::IResult<&[u8], O>,
     ) -> Result<()> {
         let Ok(([], _)) = parser(&command.to_bytes()) else {
-            return Err(Error::ValidateRequest);
+            return Err(Error::ValidateRequest(format!(
+                "command failed to validate: {command:?}"
+            )));
         };
         self.send_command(command);
         Ok(())
     }
 
+    /// Gets a hardcoded test string from the scanner. It should always return
+    /// " Test Message USB 1.1/2.0 Communication".
+    ///
+    /// If a timeout is provided, the function will return an error if the
+    /// response is not received within the timeout. Pass `None` to wait
+    /// indefinitely.
     pub fn get_test_string(
         &mut self,
         timeout: impl Into<Option<std::time::Duration>>,
@@ -323,6 +351,11 @@ impl PdiClient {
         }
     }
 
+    /// Get the firmware version from the scanner.
+    ///
+    /// If a timeout is provided, the function will return an error if the
+    /// response is not received within the timeout. Pass `None` to wait
+    /// indefinitely.
     pub fn get_firmware_version(
         &mut self,
         timeout: impl Into<Option<std::time::Duration>>,
@@ -345,6 +378,11 @@ impl PdiClient {
         }
     }
 
+    /// Get the scanner status, such as whether the sensors detect paper.
+    ///
+    /// If a timeout is provided, the function will return an error if the
+    /// response is not received within the timeout. Pass `None` to wait
+    /// indefinitely.
     pub fn get_scanner_status(
         &mut self,
         timeout: impl Into<Option<std::time::Duration>>,
@@ -367,6 +405,11 @@ impl PdiClient {
         }
     }
 
+    /// Get the scanner settings, pixels per inch and bits per pixel.
+    ///
+    /// If a timeout is provided, the function will return an error if the
+    /// response is not received within the timeout. Pass `None` to wait
+    /// indefinitely.
     pub fn get_scanner_settings(
         &mut self,
         timeout: impl Into<Option<std::time::Duration>>,
@@ -389,6 +432,12 @@ impl PdiClient {
         }
     }
 
+    /// Gets the number of input sensors that must be covered to initiate
+    /// scanning when the feeder is enabled.
+    ///
+    /// If a timeout is provided, the function will return an error if the
+    /// response is not received within the timeout. Pass `None` to wait
+    /// indefinitely.
     pub fn get_required_input_sensors(
         &mut self,
         timeout: impl Into<Option<std::time::Duration>>,
@@ -414,14 +463,30 @@ impl PdiClient {
         }
     }
 
-    pub fn enable_feeder(&mut self) -> Result<()> {
-        self.validate_and_send_command(Command::new(b"8"), parsers::enable_feeder_request)
+    /// Sets the number of input sensors that must be covered to initiate
+    /// scanning when the feeder is enabled.
+    pub fn set_required_input_sensors(&mut self, sensors: u8) -> Result<()> {
+        let mut body = b"\x1bs".to_vec();
+        body.push(sensors + b'0');
+        self.validate_and_send_command(
+            Command::new(body.as_slice()),
+            parsers::set_input_sensors_required_request,
+        )
     }
 
-    pub fn disable_feeder(&mut self) -> Result<()> {
-        self.validate_and_send_command(Command::new(b"9"), parsers::disable_feeder_request)
+    /// Enables or disables the feeder. When the feeder is disabled, the scanner
+    /// will not attempt to scan documents. When the feeder is enabled, the
+    /// scanner will attempt to scan documents when the required number of input
+    /// sensors are covered.
+    pub fn set_feeder_enabled(&mut self, enabled: bool) -> Result<()> {
+        if enabled {
+            self.validate_and_send_command(Command::new(b"8"), parsers::enable_feeder_request)
+        } else {
+            self.validate_and_send_command(Command::new(b"9"), parsers::disable_feeder_request)
+        }
     }
 
+    /// Gets the serial number of the scanner.
     pub fn get_serial_number(
         &mut self,
         timeout: impl Into<Option<std::time::Duration>>,
@@ -446,154 +511,43 @@ impl PdiClient {
         }
     }
 
-    pub fn increase_top_cis_sensor_threshold_by_1(
-        &mut self,
-        timeout: impl Into<Option<std::time::Duration>>,
-    ) -> Result<u8> {
-        if let Some(response) = self.adjust_top_cis_sensor_threshold_by_1_response.take() {
-            tracing::warn!(
-                "increase_top_cis_sensor_threshold_by_1: found a cached response: {response:?}"
-            );
-        }
-
-        self.validate_and_send_command(
-            Command::new(b"\x1b+"),
-            parsers::increase_top_cis_threshold_by_1_request,
-        )?;
-
-        let timeout = timeout.into();
-        let deadline = timeout.map(|timeout| Instant::now() + timeout);
-
-        loop {
-            self.await_event(deadline)?;
-
-            if let Some(Incoming::AdjustTopCISSensorThresholdResponse {
-                percent_white_threshold,
-            }) = self.adjust_top_cis_sensor_threshold_by_1_response.take()
-            {
-                return Ok(percent_white_threshold);
-            }
+    /// Sets the resolution of the scanner to either half or native. The native
+    /// resolution for the Pagescan 5 is 400 DPI, and the half resolution is 200
+    /// DPI.
+    pub fn set_scan_resolution(&mut self, resolution: Resolution) -> Result<()> {
+        match resolution {
+            Resolution::Half => self.validate_and_send_command(
+                Command::new(b"A"),
+                parsers::set_scanner_image_density_to_half_native_resolution_request,
+            ),
+            Resolution::Medium => self.validate_and_send_command(
+                Command::new(b"@"),
+                parsers::set_scanner_image_density_to_medium_resolution_request,
+            ),
+            Resolution::Native => self.validate_and_send_command(
+                Command::new(b"B"),
+                parsers::set_scanner_image_density_to_native_resolution_request,
+            ),
         }
     }
 
-    pub fn decrease_top_cis_sensor_threshold_by_1(
-        &mut self,
-        timeout: impl Into<Option<std::time::Duration>>,
-    ) -> Result<u8> {
-        if let Some(response) = self.adjust_top_cis_sensor_threshold_by_1_response.take() {
-            tracing::warn!(
-                "decrease_top_cis_sensor_threshold_by_1: found a cached response: {response:?}"
-            );
+    /// Sets the scanner to either duplex mode, top-only simplex mode, or
+    /// bottom-only simplex mode.
+    pub fn set_scan_side_mode(&mut self, scan_side_mode: ScanSideMode) -> Result<()> {
+        match scan_side_mode {
+            ScanSideMode::Duplex => self.validate_and_send_command(
+                Command::new(b"J"),
+                parsers::set_scanner_to_duplex_mode_request,
+            ),
+            ScanSideMode::SimplexTopOnly => self.validate_and_send_command(
+                Command::new(b"G"),
+                parsers::set_scanner_to_top_only_simplex_mode_request,
+            ),
+            ScanSideMode::SimplexBottomOnly => self.validate_and_send_command(
+                Command::new(b"H"),
+                parsers::set_scanner_to_bottom_only_simplex_mode_request,
+            ),
         }
-
-        self.validate_and_send_command(
-            Command::new(b"\x1b-"),
-            parsers::decrease_top_cis_threshold_by_1_request,
-        )?;
-
-        let timeout = timeout.into();
-        let deadline = timeout.map(|timeout| Instant::now() + timeout);
-
-        loop {
-            self.await_event(deadline)?;
-
-            if let Some(Incoming::AdjustTopCISSensorThresholdResponse {
-                percent_white_threshold,
-            }) = self.adjust_top_cis_sensor_threshold_by_1_response.take()
-            {
-                return Ok(percent_white_threshold);
-            }
-        }
-    }
-
-    pub fn increase_bottom_cis_sensor_threshold_by_1(
-        &mut self,
-        timeout: impl Into<Option<std::time::Duration>>,
-    ) -> Result<u8> {
-        if let Some(response) = self.adjust_bottom_cis_sensor_threshold_by_1_response.take() {
-            tracing::warn!(
-                "increase_bottom_cis_sensor_threshold_by_1: found a cached response: {response:?}"
-            );
-        }
-
-        self.validate_and_send_command(
-            Command::new(b"\x1b>"),
-            parsers::increase_bottom_cis_threshold_by_1_request,
-        )?;
-
-        let timeout = timeout.into();
-        let deadline = timeout.map(|timeout| Instant::now() + timeout);
-
-        loop {
-            self.await_event(deadline)?;
-
-            if let Some(Incoming::AdjustBottomCISSensorThresholdResponse {
-                percent_white_threshold,
-            }) = self.adjust_bottom_cis_sensor_threshold_by_1_response.take()
-            {
-                return Ok(percent_white_threshold);
-            }
-        }
-    }
-
-    pub fn decrease_bottom_cis_sensor_threshold_by_1(
-        &mut self,
-        timeout: impl Into<Option<std::time::Duration>>,
-    ) -> Result<u8> {
-        if let Some(response) = self.adjust_bottom_cis_sensor_threshold_by_1_response.take() {
-            tracing::warn!(
-                "decrease_bottom_cis_sensor_threshold_by_1: found a cached response: {response:?}"
-            );
-        }
-
-        self.validate_and_send_command(
-            Command::new(b"\x1b<"),
-            parsers::decrease_bottom_cis_threshold_by_1_request,
-        )?;
-
-        let timeout = timeout.into();
-        let deadline = timeout.map(|timeout| Instant::now() + timeout);
-
-        loop {
-            self.await_event(deadline)?;
-
-            if let Some(Incoming::AdjustBottomCISSensorThresholdResponse {
-                percent_white_threshold,
-            }) = self.adjust_bottom_cis_sensor_threshold_by_1_response.take()
-            {
-                return Ok(percent_white_threshold);
-            }
-        }
-    }
-
-    /// This command sets the scanner mode for scanning documents at one half of
-    /// the scanner’s native resolution. For the Pagescan 5 this will mean 200
-    /// dpi, for the Ultrascan this will mean 150 dpi, and for the color scanner
-    /// this will mean 200 or 300 dpi depending on the model. This is the
-    /// DEFAULT mode.
-    pub fn set_scanner_image_density_to_half_native_resolution(&mut self) -> Result<()> {
-        self.validate_and_send_command(
-            Command::new(b"A"),
-            parsers::set_scanner_image_density_to_half_native_resolution_request,
-        )
-    }
-
-    /// This command sets the scanner mode for scanning documents at the full
-    /// native resolution. For the Pagescan 5 this will mean 400 dpi, for the
-    /// Ultrascan this will mean 300 dpi, and for the color scanner this will
-    /// mean either 400 or 600 dpi depending on the model.
-    pub fn set_scanner_image_density_to_native_resolution(&mut self) -> Result<()> {
-        self.validate_and_send_command(
-            Command::new(b"B"),
-            parsers::set_scanner_image_density_to_native_resolution_request,
-        )
-    }
-
-    pub fn set_scanner_to_duplex_mode(&mut self) -> Result<()> {
-        self.validate_and_send_command(
-            Command::new(b"J"),
-            parsers::set_scanner_to_duplex_mode_request,
-        )
     }
 
     pub fn disable_pick_on_command_mode(&mut self) -> Result<()> {
@@ -607,11 +561,21 @@ impl PdiClient {
         self.validate_and_send_command(Command::new(b"N"), parsers::disable_eject_pause_request)
     }
 
-    pub fn transmit_in_low_bits_per_pixel(&mut self) -> Result<()> {
-        self.validate_and_send_command(
-            Command::new(b"z"),
-            parsers::transmit_in_low_bits_per_pixel_request,
-        )
+    /// Sets the color mode of the scanner to either native or low color. The
+    /// native color mode is 24-bit color for color scanners, and 8-bit
+    /// grayscale for grayscale scanners. The low color mode is 8-bit color for
+    /// color scanners, and 1-bit bitonal for grayscale scanners.
+    pub fn set_color_mode(&mut self, color_mode: ColorMode) -> Result<()> {
+        match color_mode {
+            ColorMode::Native => self.validate_and_send_command(
+                Command::new(b"y"),
+                parsers::transmit_in_native_bits_per_pixel_request,
+            ),
+            ColorMode::LowColor => self.validate_and_send_command(
+                Command::new(b"z"),
+                parsers::transmit_in_low_bits_per_pixel_request,
+            ),
+        }
     }
 
     pub fn disable_auto_run_out_at_end_of_scan(&mut self) -> Result<()> {
@@ -621,35 +585,70 @@ impl PdiClient {
         )
     }
 
-    pub fn configure_motor_to_run_at_full_speed_request(&mut self) -> Result<()> {
-        self.validate_and_send_command(
-            Command::new(b"k"),
-            parsers::configure_motor_to_run_at_full_speed_request,
-        )
+    /// Sets the motor speed to either full or half speed.
+    pub fn set_motor_speed(&mut self, speed: Speed) -> Result<()> {
+        match speed {
+            Speed::Full => self.validate_and_send_command(
+                Command::new(b"k"),
+                parsers::configure_motor_to_run_at_full_speed_request,
+            ),
+            Speed::Half => self.validate_and_send_command(
+                Command::new(b"j"),
+                parsers::configure_motor_to_run_at_half_speed_request,
+            ),
+        }
     }
 
-    pub fn set_threshold_to_a_new_value(
+    /// Adjusts the bitonal threshold by 1. The threshold is a percentage of the
+    /// luminosity that must be detected before the scanner will consider a
+    /// pixel to be white. The threshold is adjusted separately for the top and
+    /// bottom sensors.
+    pub fn adjust_bitonal_threshold_by_1(
+        &mut self,
+        side: Side,
+        adjustment: Direction,
+        timeout: impl Into<Option<std::time::Duration>>,
+    ) -> Result<u8> {
+        let command = match (side, adjustment) {
+            (Side::Top, Direction::Increase) => Command::new(b"\x1b+"),
+            (Side::Top, Direction::Decrease) => Command::new(b"\x1b-"),
+            (Side::Bottom, Direction::Increase) => Command::new(b"\x1b>"),
+            (Side::Bottom, Direction::Decrease) => Command::new(b"\x1b<"),
+        };
+
+        self.validate_and_send_command(command, parsers::adjust_bitonal_threshold_by_1_request)?;
+
+        let timeout = timeout.into();
+        let deadline = timeout.map(|timeout| Instant::now() + timeout);
+
+        loop {
+            self.await_event(deadline)?;
+
+            match self.adjust_bitonal_threshold_by_1_response.take() {
+                Some(Incoming::AdjustBitonalThresholdResponse {
+                    side: side_response,
+                    percent_white_threshold,
+                }) if side_response == side => return Ok(percent_white_threshold),
+                Some(response) => {
+                    self.adjust_bitonal_threshold_by_1_response = Some(response);
+                }
+                None => {}
+            }
+        }
+    }
+
+    /// Sets the bitonal threshold for the top or bottom sensor. The threshold
+    /// is a percentage of the luminosity that must be detected before the
+    /// scanner will consider a pixel to be white. The threshold is adjusted
+    /// separately for the top and bottom sensors.
+    pub fn set_threshold(
         &mut self,
         side: Side,
         threshold: u8,
         timeout: impl Into<Option<std::time::Duration>>,
     ) -> Result<u8> {
-        match side {
-            Side::Top => {
-                if let Some(response) = self.adjust_top_cis_sensor_threshold_by_1_response.take() {
-                    tracing::warn!(
-                        "decrease_top_cis_sensor_threshold_by_1: found a cached response: {response:?}"
-                    );
-                }
-            }
-            Side::Bottom => {
-                if let Some(response) = self.adjust_bottom_cis_sensor_threshold_by_1_response.take()
-                {
-                    tracing::warn!(
-                        "decrease_bottom_cis_sensor_threshold_by_1: found a cached response: {response:?}"
-                    );
-                }
-            }
+        if let Some(response) = self.adjust_bitonal_threshold_by_1_response.take() {
+            tracing::warn!("set_threshold: found a cached response: {response:?}");
         }
 
         let mut body = b"\x1b%".to_vec();
@@ -657,7 +656,7 @@ impl PdiClient {
         body.push(threshold);
         self.validate_and_send_command(
             Command::new(body.as_slice()),
-            parsers::set_threshold_to_a_new_value_request,
+            parsers::set_bitonal_threshold_request,
         )?;
 
         let timeout = timeout.into();
@@ -666,38 +665,33 @@ impl PdiClient {
         loop {
             self.await_event(deadline)?;
 
-            match side {
-                Side::Top => {
-                    if let Some(Incoming::AdjustTopCISSensorThresholdResponse {
-                        percent_white_threshold,
-                    }) = self.adjust_top_cis_sensor_threshold_by_1_response.take()
-                    {
-                        return Ok(percent_white_threshold);
-                    }
+            match self.adjust_bitonal_threshold_by_1_response.take() {
+                Some(Incoming::AdjustBitonalThresholdResponse {
+                    side: side_response,
+                    percent_white_threshold,
+                }) if side_response == side => return Ok(percent_white_threshold),
+                Some(response) => {
+                    self.adjust_bitonal_threshold_by_1_response = Some(response);
                 }
-                Side::Bottom => {
-                    if let Some(Incoming::AdjustBottomCISSensorThresholdResponse {
-                        percent_white_threshold,
-                    }) = self.adjust_bottom_cis_sensor_threshold_by_1_response.take()
-                    {
-                        return Ok(percent_white_threshold);
-                    }
-                }
+                None => {}
             }
         }
     }
 
-    pub fn set_required_input_sensors(&mut self, sensors: u8) -> Result<()> {
-        let mut body = b"\x1bs".to_vec();
-        body.push(sensors + b'0');
-        self.validate_and_send_command(
-            Command::new(body.as_slice()),
-            parsers::set_input_sensors_required_request,
-        )
-    }
-
+    /// Sets the maximum length of the document to scan. The length is specified
+    /// in inches. The scanner will not attempt to scan a document longer than
+    /// the specified length, and will consider the document to be jammed if it
+    /// is longer than the specified length.
     pub fn set_length_of_document_to_scan(&mut self, length_inches: f32) -> Result<()> {
-        assert!((0.0..=22.3).contains(&length_inches));
+        println!("module path: {:?}", module_path!());
+        const MIN_LENGTH: f32 = 0.0;
+        const MAX_LENGTH: f32 = 22.3;
+
+        if !(MIN_LENGTH..=MAX_LENGTH).contains(&length_inches) {
+            return Err(Error::ValidateRequest(format!(
+                "length of document to scan must be between {MIN_LENGTH} and {MAX_LENGTH} inches: {length_inches}"
+            )));
+        }
 
         for unit_byte in b'0'..=b'9' {
             let unit_inches = (((unit_byte - b'0') * 5 + 10) as f32) / 10.0;
@@ -716,12 +710,21 @@ impl PdiClient {
             }
         }
 
-        Err(Error::ValidateRequest)
+        Err(Error::ValidateRequest(format!(
+            "unable to find a valid unit byte value for length of document to scan: {length_inches} inches"
+        )))
     }
 
     pub fn set_scan_delay_interval_for_document_feed(&mut self, duration: Duration) -> Result<()> {
-        let duration_ms = duration.as_millis();
-        assert!(duration_ms <= 3200);
+        const MIN_MILLIS: u128 = 0;
+        const MAX_MILLIS: u128 = 3200;
+
+        let duration_ms = match duration.as_millis() {
+            millis @ MIN_MILLIS..=MAX_MILLIS => millis,
+            _ => return Err(Error::ValidateRequest(format!(
+                "scan delay interval must be between {MIN_MILLIS} and {MAX_MILLIS} milliseconds: {duration:?}"
+            ))),
+        };
 
         let mut body = b"\x1bj".to_vec();
         body.push((duration_ms / 16) as u8 + 0x20);
@@ -731,11 +734,22 @@ impl PdiClient {
         )
     }
 
-    pub fn eject_document_to_back_of_scanner(&mut self) -> Result<()> {
-        self.validate_and_send_command(
-            Command::new(b"3"),
-            parsers::eject_document_to_rear_of_scanner_request,
-        )
+    /// Ejects the document from the scanner according to the specified motion.
+    pub fn eject_document(&mut self, eject_motion: EjectMotion) -> Result<()> {
+        match eject_motion {
+            EjectMotion::ToRear => self.validate_and_send_command(
+                Command::new(b"3"),
+                parsers::eject_document_to_rear_of_scanner_request,
+            ),
+            EjectMotion::ToFront => self.validate_and_send_command(
+                Command::new(b"4"),
+                parsers::eject_document_to_front_of_scanner_request,
+            ),
+            EjectMotion::ToFrontAndHold => self.validate_and_send_command(
+                Command::new(b"1"),
+                parsers::eject_document_to_front_of_scanner_and_hold_in_input_rollers_request,
+            ),
+        }
     }
 
     pub fn await_event(&mut self, deadline: impl Into<Option<std::time::Instant>>) -> Result<()> {
@@ -754,11 +768,7 @@ impl PdiClient {
 
         match event {
             Event::Completed { endpoint, data } => {
-                eprintln!(
-                    "completed event: endpoint={endpoint} byte length={}",
-                    data.len()
-                );
-                if endpoint == ENDPOINT_IN_ALT {
+                if endpoint == ENDPOINT_IN_IMAGE_DATA {
                     // image data
                     tracing::debug!("receiving image data: {} bytes", data.len());
                 } else {
@@ -804,36 +814,14 @@ impl PdiClient {
             Incoming::GetScannerSettingsResponse(settings) => {
                 self.get_scanner_settings_response = Some(settings);
             }
-            Incoming::GetSetSerialNumberResponse(serial_number) => {
-                self.get_serial_number_response = Some(Incoming::GetSetSerialNumberResponse(
-                    serial_number.to_owned(),
-                ));
+            response @ Incoming::GetSetSerialNumberResponse(..) => {
+                self.get_serial_number_response = Some(response);
             }
-            Incoming::GetSetRequiredInputSensorsResponse {
-                current_sensors_required,
-                total_sensors_available,
-            } => {
-                self.get_required_input_sensors_response =
-                    Some(Incoming::GetSetRequiredInputSensorsResponse {
-                        current_sensors_required,
-                        total_sensors_available,
-                    });
+            response @ Incoming::GetSetRequiredInputSensorsResponse { .. } => {
+                self.get_required_input_sensors_response = Some(response);
             }
-            Incoming::AdjustTopCISSensorThresholdResponse {
-                percent_white_threshold,
-            } => {
-                self.adjust_top_cis_sensor_threshold_by_1_response =
-                    Some(Incoming::AdjustTopCISSensorThresholdResponse {
-                        percent_white_threshold,
-                    });
-            }
-            Incoming::AdjustBottomCISSensorThresholdResponse {
-                percent_white_threshold,
-            } => {
-                self.adjust_bottom_cis_sensor_threshold_by_1_response =
-                    Some(Incoming::AdjustBottomCISSensorThresholdResponse {
-                        percent_white_threshold,
-                    });
+            response @ Incoming::AdjustBitonalThresholdResponse { .. } => {
+                self.adjust_bitonal_threshold_by_1_response = Some(response);
             }
             _ => {
                 tracing::warn!("unhandled incoming: {incoming:?}");

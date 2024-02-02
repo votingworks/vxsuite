@@ -1,10 +1,11 @@
 use std::time::Duration;
 
-use super::types::{ResolutionTableType, Settings, Side, Status, Version};
+use super::types::{BitonalAdjustment, Resolution, Settings, Side, Status, Version};
 
 pub(crate) const PACKET_DATA_START: &[u8] = &[0x02];
 pub(crate) const PACKET_DATA_END: &[u8] = &[0x03];
 
+/// All possible commands that can be sent to the scanner.
 #[derive(Debug)]
 pub enum Outgoing {
     /// This command requests a hard-coded test string from the scanner.
@@ -98,6 +99,14 @@ pub enum Outgoing {
     /// - Bit 6 (0x40): Calibration of unit needed = 1
     /// - Bit 7 (0x80): Always Set to 1
     GetScannerStatusRequest,
+
+    /// This command enables the scanner to process documents.
+    ///
+    /// `ASCII character 8 = (38H)`
+    ///
+    /// # Response
+    ///
+    /// No response.
     EnableFeederRequest,
 
     /// This command sets a duplex scanner to scan only the backside (bottom) of the document.
@@ -206,13 +215,86 @@ pub enum Outgoing {
         sensors: u8,
     },
 
-    IncreaseTopCISSensorThresholdBy1Request,
-    DecreaseTopCISSensorThresholdBy1Request,
-    IncreaseBottomCISSensorThresholdBy1Request,
-    DecreaseBottomCISSensorThresholdBy1Request,
+    /// Whenever a calibration procedure is performed, the bi-tonal (B/W)
+    /// threshold is set to 75% of the average white value for all pixels (See
+    /// Hardware Calibration Section 3.5).
+    ///
+    /// The bi-tonal threshold can be adjusted on a % basis (1 step = 1%), from
+    /// its calibrated or present value, by issuing the following commands:
+    ///
+    /// - `<ESC> ‘+’ = (1BH) (2BH)`: Command to increase the Top CIS threshold by a single step.
+    /// - `<ESC> ‘-’ = (1BH) (2DH)`: Command to decrease the Top CIS threshold by a single step.
+    /// - `<ESC> ‘>’ = (1BH) (3EH)`: Command to increase the threshold of Top
+    /// CIS (simplex units) by five steps, or increase the Bottom CIS threshold
+    /// (duplex units) by one step.
+    /// - `<ESC> ‘<’ = (1BH) (3CH)`: Command to decrease the threshold of Top
+    /// CIS (simplex units) by five steps, or decrease the Bottom CIS threshold
+    /// (duplex units) by one step.
+    ///
+    /// After execution of any (above) threshold adjustment command, the new
+    /// threshold value is ‘echoed-back’ to the user - using the ’X’ (58H)
+    /// character (for a text message), followed by a ‘T’ (54H) character (for
+    /// top array - for simplex scanners), followed by a ‘SP’ (20H) character
+    /// and concluding with 2 bytes representing the hex value of the new
+    /// threshold.
+    ///
+    /// # Response
+    ///
+    /// `(58H) (54H) (20H) <2 Bytes (new)>`
+    ///
+    /// ## Example:
+    ///
+    /// ```plaintext
+    /// <58H>/<54H>/<20H>/<34H>/<35H>
+    ///                   └─────┬───┘
+    ///                  Represents 45H
+    /// ```
+    ///
+    /// New threshold = 45H = 69D = 69% of white value.
+    ///
+    /// Following any threshold adjustment, the new value is stored (in RAM),
+    /// and will remain in effect, provided the unit is not powered-down or
+    /// reset. The host must issue a ‘Save Command’, to permanently save a new
+    /// (or existing) threshold level in Flash memory. The Format of the Save
+    /// Command is:
+    ///
+    /// `<ESC> ‘$’ = (1BH) (24H)`
+    ///
+    /// After execution of the save command, the response format is similar to
+    /// the response used for threshold adjustment, except that 2 additional
+    /// bytes are inserted to indicate the value of the last default
+    /// (calibration) threshold.
+    AdjustBitonalThresholdBy1Request(BitonalAdjustment),
 
+    /// The ‘W’ command returns the present scanner calibration information.
+    ///
+    /// `ASCII character W = (57H)`
+    ///
+    /// # Response
+    ///
+    /// ```plaintext
+    /// W <Num of Top array pixels Low Byte>/< Num of Top array pixels Hi Byte>/
+    /// <Top White Cal Value pixel 1>/< Top White Cal Value pixel 2>/..../<Top White Cal Value last pixel>/<Low order Checksum Byte>/<Hi order Checksum Byte>/<Top Black Cal Value pixel 1>/< Top Black Cal Value pixel 2>/..../<Top Black Cal Value last pixel>/<Low order Checksum Byte>/<Hi order Checksum Byte>
+    /// ```
+    ///
+    /// If the scanner has both top and bottom arrays (Duplex Unit), the
+    /// following additional information is sent:
+    ///
+    /// ```plaintext
+    /// W <Num of Bottom array pixels Low Byte>/< Num of Bottom array pixels Hi Byte>/<Bottom White Cal Value pixel 1>/<Bottom White Cal Value pixel 2>/..../<Bottom White Cal Value last pixel>/<Low order Checksum Byte>/<Hi order Checksum Byte>/<Bottom Black Cal Value pixel 1>/<Bottom Black Cal Value pixel 2>/..../<Bottom Black Cal Value last pixel>/<Low order Checksum Byte>/<Hi order Checksum Byte>
+    /// ```
+    ///
+    /// Where: Number of top or bottom array pixels = 15552 (PS4C600), 10368
+    /// (OS4C400), 1728 (PS4), 1024 (US).
+    ///
+    /// Note: The color scanner has two sets of calibration tables. One table
+    /// for the native resolution scanning and one table for half resolution
+    /// scanning. The ‘W’ command has a parameter that will specify which table
+    /// is desired. If none is specified then only the full native resolution
+    /// table will be returned. The parameter can be either a 0 or a 1, where 0
+    /// means the native table and 1 means the half resolution table.
     GetCalibrationInformationRequest {
-        resolution_table_type: ResolutionTableType,
+        resolution: Option<Resolution>,
     },
 
     /// This command sets the scanner mode for scanning documents at one half of
@@ -240,7 +322,36 @@ pub enum Outgoing {
     /// No response.
     SetScannerImageDensityToNativeResolutionRequest,
 
+    /// This command sets a duplex scanner to scan both sides of a document
+    /// (duplex mode).
+    ///
+    /// `ASCII character J = (4AH)`
+    ///
+    /// # Response
+    ///
+    /// No response.
     SetScannerToDuplexModeRequest,
+
+    /// This command sets a duplex scanner to scan only the front-side (top) of the document.
+    /// This is the DEFAULT mode.
+    ///
+    /// `ASCII character G = (47H)`
+    ///
+    /// # Response
+    ///
+    /// No response.
+    SetScannerToFrontOnlySimplexModeRequest,
+
+    /// This command sets a duplex scanner to scan only the back-side (bottom)
+    /// of the document.
+    ///
+    /// `ASCII character H = (48H)`
+    ///
+    /// # Response
+    ///
+    /// No response.
+    SetScannerToBackOnlySimplexModeRequest,
+
     DisablePickOnCommandModeRequest,
     DisableEjectPauseRequest,
     TransmitInLowBitsPerPixelRequest,
@@ -400,6 +511,8 @@ pub enum Outgoing {
     RescanDocumentHeldInEscrowPositionRequest,
 }
 
+/// All possible incoming data from the scanner, including responses to commands
+/// and unsolicited messages.
 #[derive(Debug)]
 pub enum Incoming {
     /// This command requests a hard-coded test string from the scanner.
@@ -544,6 +657,16 @@ pub enum Incoming {
     /// - Calibration Status = 1 (Calibration needed), 0 (Calibration OK)
     GetScannerSettingsResponse(Settings),
 
+    /// When this command is sent without arguments, it will report the number
+    /// of entry sensors that need to be covered before the scanner will
+    /// initiate a scan. This command also reports the number of entry sensors
+    /// available in the scanner.
+    ///
+    /// `<ESC> s = (1BH) (73H)`
+    ///
+    /// # Response Format
+    ///
+    /// `(73H) <’Current Sensors Needed’> <’Total Input Sensors’>`
     GetSetRequiredInputSensorsResponse {
         /// The number of input sensors required.
         current_sensors_required: u8,
@@ -552,54 +675,153 @@ pub enum Incoming {
         total_sensors_available: u8,
     },
 
-    AdjustTopCISSensorThresholdResponse {
-        percent_white_threshold: u8,
-    },
-    AdjustBottomCISSensorThresholdResponse {
+    /// Whenever a calibration procedure is performed, the bi-tonal (B/W)
+    /// threshold is set to 75% of the average white value for all pixels (See
+    /// Hardware Calibration Section 3.5).
+    ///
+    /// The bi-tonal threshold can be adjusted on a % basis (1 step = 1%), from
+    /// its calibrated or present value, by issuing the following commands:
+    ///
+    /// - `<ESC> ‘+’ = (1BH) (2BH)`: Command to increase the Top CIS threshold by a single step.
+    /// - `<ESC> ‘-’ = (1BH) (2DH)`: Command to decrease the Top CIS threshold by a single step.
+    /// - `<ESC> ‘>’ = (1BH) (3EH)`: Command to increase the threshold of Top
+    /// CIS (simplex units) by five steps, or increase the Bottom CIS threshold
+    /// (duplex units) by one step.
+    /// - `<ESC> ‘<’ = (1BH) (3CH)`: Command to decrease the threshold of Top
+    /// CIS (simplex units) by five steps, or decrease the Bottom CIS threshold
+    /// (duplex units) by one step.
+    ///
+    /// After execution of any (above) threshold adjustment command, the new
+    /// threshold value is ‘echoed-back’ to the user - using the ’X’ (58H)
+    /// character (for a text message), followed by a ‘T’ (54H) character (for
+    /// top array - for simplex scanners), followed by a ‘SP’ (20H) character
+    /// and concluding with 2 bytes representing the hex value of the new
+    /// threshold.
+    ///
+    /// # Response
+    ///
+    /// `(58H) (54H) (20H) <2 Bytes (new)>`
+    ///
+    /// ## Example:
+    ///
+    /// ```plaintext
+    /// <58H>/<54H>/<20H>/<34H>/<35H>
+    ///                   └─────┬───┘
+    ///                  Represents 45H
+    /// ```
+    ///
+    /// New threshold = 45H = 69D = 69% of white value.
+    ///
+    /// Following any threshold adjustment, the new value is stored (in RAM),
+    /// and will remain in effect, provided the unit is not powered-down or
+    /// reset. The host must issue a ‘Save Command’, to permanently save a new
+    /// (or existing) threshold level in Flash memory. The Format of the Save
+    /// Command is:
+    ///
+    /// `<ESC> ‘$’ = (1BH) (24H)`
+    ///
+    /// After execution of the save command, the response format is similar to
+    /// the response used for threshold adjustment, except that 2 additional
+    /// bytes are inserted to indicate the value of the last default
+    /// (calibration) threshold.
+    AdjustBitonalThresholdResponse {
+        side: Side,
         percent_white_threshold: u8,
     },
 
+    /// The ‘W’ command returns the present scanner calibration information.
+    ///
+    /// `ASCII character W = (57H)`
+    ///
+    /// # Response
+    ///
+    /// ```plaintext
+    /// W <Num of Top array pixels Low Byte>/< Num of Top array pixels Hi Byte>/
+    /// <Top White Cal Value pixel 1>/< Top White Cal Value pixel 2>/..../<Top White Cal Value last pixel>/<Low order Checksum Byte>/<Hi order Checksum Byte>/<Top Black Cal Value pixel 1>/< Top Black Cal Value pixel 2>/..../<Top Black Cal Value last pixel>/<Low order Checksum Byte>/<Hi order Checksum Byte>
+    /// ```
+    ///
+    /// If the scanner has both top and bottom arrays (Duplex Unit), the
+    /// following additional information is sent:
+    ///
+    /// ```plaintext
+    /// W <Num of Bottom array pixels Low Byte>/< Num of Bottom array pixels Hi Byte>/<Bottom White Cal Value pixel 1>/<Bottom White Cal Value pixel 2>/..../<Bottom White Cal Value last pixel>/<Low order Checksum Byte>/<Hi order Checksum Byte>/<Bottom Black Cal Value pixel 1>/<Bottom Black Cal Value pixel 2>/..../<Bottom Black Cal Value last pixel>/<Low order Checksum Byte>/<Hi order Checksum Byte>
+    /// ```
+    ///
+    /// Where: Number of top or bottom array pixels = 15552 (PS4C600), 10368
+    /// (OS4C400), 1728 (PS4), 1024 (US).
+    ///
+    /// Note: The color scanner has two sets of calibration tables. One table
+    /// for the native resolution scanning and one table for half resolution
+    /// scanning. The ‘W’ command has a parameter that will specify which table
+    /// is desired. If none is specified then only the full native resolution
+    /// table will be returned. The parameter can be either a 0 or a 1, where 0
+    /// means the native table and 1 means the half resolution table.
     GetCalibrationInformationResponse {
         white_calibration_table: Vec<u8>,
         black_calibration_table: Vec<u8>,
     },
 
+    /// An unsolicited message from the scanner indicating that the scanner is
+    /// initiating a scan.
     BeginScanEvent,
+
+    /// An unsolicited message from the scanner indicating that the scanner has
+    /// completed a scan and has sent the image data.
     EndScanEvent,
+
+    /// An unsolicited message from the scanner indicating that the scanner has
+    /// detected a double feed, i.e. two documents were fed into the scanner at
+    /// the same time.
     DoubleFeedEvent,
 }
 
+/// All possible incoming or outgoing data between the host and the scanner.
 #[derive(Debug)]
 pub enum Packet {
+    /// Packets sent from the host to the scanner.
     Outgoing(Outgoing),
+
+    /// Packets sent from the scanner to the host.
     Incoming(Incoming),
 }
 
+/// Encapsulates a command to be sent to the scanner. Commands sent to the
+/// scanner are always wrapped in a packet with a start and end byte, and are
+/// followed by a CRC byte:
+///
+/// ```plaintext
+/// <STX = 0x02> <body> <ETX 0x03> <CRC = crc(body)>
+/// ```
 #[derive(Debug)]
 pub struct Command<'a> {
-    data: &'a [u8],
+    body: &'a [u8],
 }
 
 impl<'a> Command<'a> {
-    pub const fn new(data: &'a [u8]) -> Self {
-        Self { data }
+    pub const fn new(body: &'a [u8]) -> Self {
+        Self { body }
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {
-        let mut bytes = Vec::with_capacity(self.data.len() + 2);
+        let mut bytes = Vec::with_capacity(self.body.len() + 2);
         bytes.extend_from_slice(PACKET_DATA_START);
-        bytes.extend_from_slice(self.data);
+        bytes.extend_from_slice(self.body);
         bytes.extend_from_slice(PACKET_DATA_END);
-        bytes.push(crc(self.data));
+        bytes.push(crc(self.body));
         bytes
     }
 }
 
+/// Computes the CRC for the given data. This is used to verify the integrity of
+/// the data sent to the scanner. It is only used for requests, not responses.
+///
+/// The generator polynomial of 0x97 was provided by PDI and seems to be an
+/// arbitrary choice. Otherwise, this implementation of CRC-8 is standard.
 pub(crate) fn crc(data: &[u8]) -> u8 {
     const POLYNOMIAL: u8 = 0x97;
     data.iter().fold(0, |crc, byte| {
         let mut crc = crc ^ byte;
-        for _ in 0..8 {
+        for _ in 0..u8::BITS {
             if crc & 0x80 != 0 {
                 crc = (crc << 1) ^ POLYNOMIAL;
             } else {

@@ -86,8 +86,8 @@ fn main_scan_loop() -> color_eyre::Result<()> {
         }
 
         // std::thread::sleep(std::time::Duration::from_millis(10));
-        println!("ejecting document to back of scanner…");
-        client.eject_document_to_back_of_scanner()?;
+        println!("accepting document…");
+        client.eject_document(pdiscan::protocol::types::EjectMotion::ToRear)?;
         // client.get_test_string(std::time::Duration::from_millis(200))?;
     }
 }
