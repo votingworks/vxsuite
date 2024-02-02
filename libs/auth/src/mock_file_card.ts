@@ -207,7 +207,7 @@ export class MockFileCard implements Card {
 
   readData(): Promise<Buffer> {
     const { data } = readFromMockFile();
-    return Promise.resolve(data ?? Buffer.from([]));
+    return Promise.resolve(data ?? Buffer.of());
   }
 
   writeData(data: Buffer): Promise<void> {

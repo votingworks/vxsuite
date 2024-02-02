@@ -23,12 +23,12 @@ export async function runCommand(
     assert(command[0] !== undefined);
     const childProcess = spawn(command[0], command.slice(1));
 
-    let stdout: Buffer = Buffer.from([]);
+    let stdout: Buffer = Buffer.of();
     childProcess.stdout.on('data', (data) => {
       stdout = Buffer.concat([stdout, data]);
     });
 
-    let stderr: Buffer = Buffer.from([]);
+    let stderr: Buffer = Buffer.of();
     childProcess.stderr.on('data', (data) => {
       stderr = Buffer.concat([stderr, data]);
     });

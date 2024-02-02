@@ -124,7 +124,7 @@ test('openssl - no standard output', async () => {
   });
 
   const response = await openssl(['some', 'command']);
-  expect(response).toEqual(Buffer.from([]));
+  expect(response).toEqual(Buffer.of());
 });
 
 test('openssl - error creating temporary file', async () => {

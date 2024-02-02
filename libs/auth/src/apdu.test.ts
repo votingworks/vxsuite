@@ -114,13 +114,13 @@ test('CardCommand with data requiring multiple APDUs', () => {
       Buffer.alloc(110, 3),
     ]),
     Buffer.concat([
-      Buffer.from([
+      Buffer.of(
         0x00,
         0x01,
         0x02,
         0x03,
-        0x5a, // 90 (600 - 255 - 255) in hex
-      ]),
+        0x5a // 90 (600 - 255 - 255) in hex
+      ),
       Buffer.alloc(90, 3),
     ]),
   ]);
@@ -147,8 +147,8 @@ test.each<{ valueLength: number; expectedTlvLength: Byte[] }>([
   'constructTlv value length handling - $valueLength',
   ({ valueLength, expectedTlvLength }) => {
     const value = Buffer.alloc(valueLength);
-    const tlv = constructTlv(0x01, Buffer.from(value));
-    expect(tlv).toEqual(Buffer.from([0x01, ...expectedTlvLength, ...value]));
+    const tlv = constructTlv(0x01, value);
+    expect(tlv).toEqual(Buffer.of(0x01, ...expectedTlvLength, ...value));
   }
 );
 

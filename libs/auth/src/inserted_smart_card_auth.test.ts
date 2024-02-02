@@ -1001,12 +1001,12 @@ test('Reading card data as string', async () => {
     logger: mockLogger,
   });
 
-  mockCard.readData.expectCallWith().resolves(Buffer.from([]));
+  mockCard.readData.expectCallWith().resolves(Buffer.of());
   expect(
     await auth.readCardData(defaultMachineState, { schema: ElectionSchema })
   ).toEqual(ok(undefined));
 
-  mockCard.readData.expectCallWith().resolves(Buffer.from([]));
+  mockCard.readData.expectCallWith().resolves(Buffer.of());
   expect(await auth.readCardDataAsString()).toEqual(ok(undefined));
 });
 

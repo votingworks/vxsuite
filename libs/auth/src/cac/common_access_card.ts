@@ -84,10 +84,27 @@ export function buildGenerateSignatureCardCommand(
   const challengeHash = Buffer.from(sha256.arrayBuffer(message));
   assert(challengeHash.byteLength === 32);
 
-  const asn1Sha256MagicValue = Buffer.from([
-    0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03,
-    0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20,
-  ]);
+  const asn1Sha256MagicValue = Buffer.of(
+    0x30,
+    0x31,
+    0x30,
+    0x0d,
+    0x06,
+    0x09,
+    0x60,
+    0x86,
+    0x48,
+    0x01,
+    0x65,
+    0x03,
+    0x04,
+    0x02,
+    0x01,
+    0x05,
+    0x00,
+    0x04,
+    0x20
+  );
   assert(asn1Sha256MagicValue.byteLength === 19);
 
   const expectedPaddedMessageLength = 256;
@@ -120,7 +137,7 @@ export function buildGenerateSignatureCardCommand(
 
       Buffer.concat([
         constructTlv(GENERAL_AUTHENTICATE.CHALLENGE_TAG, paddedMessage),
-        constructTlv(GENERAL_AUTHENTICATE.RESPONSE_TAG, Buffer.from([])),
+        constructTlv(GENERAL_AUTHENTICATE.RESPONSE_TAG, Buffer.of()),
       ])
     ),
   });
@@ -528,7 +545,7 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
           PUT_DATA.CERT_INFO_TAG,
           Buffer.of(PUT_DATA.CERT_INFO_UNCOMPRESSED)
         ),
-        constructTlv(PUT_DATA.ERROR_DETECTION_CODE_TAG, Buffer.from([])),
+        constructTlv(PUT_DATA.ERROR_DETECTION_CODE_TAG, Buffer.of()),
       ])
     );
   }
