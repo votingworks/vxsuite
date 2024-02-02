@@ -167,12 +167,12 @@ export class JavaCard implements Card {
     this.cardReader = new CardReader({
       onReaderStatusChange: async (readerStatus) => {
         switch (readerStatus) {
-          case 'no_card': {
-            this.cardStatus = { status: 'no_card' };
-            return;
-          }
           case 'no_card_reader': {
             this.cardStatus = { status: 'no_card_reader' };
+            return;
+          }
+          case 'no_card': {
+            this.cardStatus = { status: 'no_card' };
             return;
           }
           case 'card_error': {

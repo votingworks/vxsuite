@@ -51,9 +51,9 @@ function cardStatusToProgrammableCard(
   cardStatus: CardStatus
 ): DippedSmartCardAuthTypes.ProgrammableCard {
   switch (cardStatus.status) {
-    case 'card_error':
-    case 'no_card':
     case 'no_card_reader':
+    case 'no_card':
+    case 'card_error':
     case 'unknown_error': {
       return { status: cardStatus.status };
     }
@@ -443,8 +443,8 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                 return { status: 'logged_out', reason: 'no_card_reader' };
               }
               // TODO: Consider an alternative screen on the frontend for unknown errors
-              case 'unknown_error':
-              case 'no_card': {
+              case 'no_card':
+              case 'unknown_error': {
                 return { status: 'logged_out', reason: 'machine_locked' };
               }
               case 'card_error': {
