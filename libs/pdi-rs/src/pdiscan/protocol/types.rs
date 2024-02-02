@@ -1,23 +1,16 @@
-#[derive(Debug)]
-pub enum ResolutionTableType {
-    Default,
+#[derive(Debug, Clone, Copy)]
+pub enum Resolution {
+    /// 400 DPI for Pagescan 5
     Native,
+
+    /// 300 DPI, only compatible with Pagescan 5
+    Medium,
+
+    /// 200 DPI for Pagescan 5
     Half,
 }
 
-impl TryFrom<u8> for ResolutionTableType {
-    type Error = ();
-
-    fn try_from(value: u8) -> Result<Self, Self::Error> {
-        match value {
-            0 => Ok(Self::Native),
-            1 => Ok(Self::Half),
-            _ => Err(()),
-        }
-    }
-}
-
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Side {
     Top,
     Bottom,
@@ -42,6 +35,57 @@ impl TryFrom<u8> for Side {
             _ => Err(()),
         }
     }
+}
+
+#[derive(Debug, Clone, Copy, Default)]
+pub enum ColorMode {
+    /// 24-bit color for the color scanner, or 8-bit grayscale for the grayscale
+    /// scanner.
+    Native,
+
+    /// 8-bit grayscale for the color scanner, or 1-bit bitonal for the grayscale
+    /// scanner.
+    #[default]
+    LowColor,
+}
+
+#[derive(Debug, Clone, Copy, Default)]
+pub enum Speed {
+    #[default]
+    Full,
+    Half,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum Direction {
+    Increase,
+    Decrease,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct BitonalAdjustment {
+    pub side: Side,
+    pub direction: Direction,
+}
+
+impl BitonalAdjustment {
+    pub const fn new(side: Side, direction: Direction) -> Self {
+        Self { side, direction }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum ScanSideMode {
+    Duplex,
+    SimplexTopOnly,
+    SimplexBottomOnly,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum EjectMotion {
+    ToRear,
+    ToFront,
+    ToFrontAndHold,
 }
 
 #[derive(Debug)]
