@@ -3,8 +3,8 @@ import { DateTime } from 'luxon';
 import { z } from 'zod';
 import { assert, err, ok } from '@votingworks/basics';
 import {
-  electionTwoPartyPrimaryDefinition,
   electionGeneralDefinition,
+  electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
   fakeLogger,
@@ -143,7 +143,7 @@ async function logInAsPollWorker(
   mockOf(mockLogger.log).mockClear();
 }
 
-test('no card reader', async () => {
+test('No card reader', async () => {
   const auth = new InsertedSmartCardAuth({
     card: mockCard,
     config: defaultConfig,
@@ -1001,12 +1001,12 @@ test('Reading card data as string', async () => {
     logger: mockLogger,
   });
 
-  mockCard.readData.expectCallWith().resolves(Buffer.from([]));
+  mockCard.readData.expectCallWith().resolves(Buffer.of());
   expect(
     await auth.readCardData(defaultMachineState, { schema: ElectionSchema })
   ).toEqual(ok(undefined));
 
-  mockCard.readData.expectCallWith().resolves(Buffer.from([]));
+  mockCard.readData.expectCallWith().resolves(Buffer.of());
   expect(await auth.readCardDataAsString()).toEqual(ok(undefined));
 });
 

@@ -34,16 +34,12 @@ import {
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
   GENERAL_AUTHENTICATE,
   GENERATE_ASYMMETRIC_KEY_PAIR,
-  GENERATE_RSA_PUBLIC_KEY_RESPONSE_TAG,
   GET_DATA,
   isIncorrectDataFieldParameters,
   isIncorrectPinStatusWord,
   isSecurityConditionNotSatisfiedStatusWord,
   pivDataObjectId,
   PUT_DATA,
-  RSA_PUBLIC_KEY_EXPONENT_TAG,
-  RSA_PUBLIC_KEY_MODULUS_TAG,
-  SEQUENCE_TAG,
   VERIFY,
 } from '../piv';
 import {
@@ -76,6 +72,8 @@ export const CARD_DOD_CERT = {
  */
 export const DEFAULT_PIN = '77777777';
 
+const SEQUENCE_TAG = 0x30;
+
 /**
  * Builds a command for generating a signature using the specified private key.
  */
@@ -86,10 +84,27 @@ export function buildGenerateSignatureCardCommand(
   const challengeHash = Buffer.from(sha256.arrayBuffer(message));
   assert(challengeHash.byteLength === 32);
 
-  const asn1Sha256MagicValue = Buffer.from([
-    0x30, 0x31, 0x30, 0x0d, 0x06, 0x09, 0x60, 0x86, 0x48, 0x01, 0x65, 0x03,
-    0x04, 0x02, 0x01, 0x05, 0x00, 0x04, 0x20,
-  ]);
+  const asn1Sha256MagicValue = Buffer.of(
+    0x30,
+    0x31,
+    0x30,
+    0x0d,
+    0x06,
+    0x09,
+    0x60,
+    0x86,
+    0x48,
+    0x01,
+    0x65,
+    0x03,
+    0x04,
+    0x02,
+    0x01,
+    0x05,
+    0x00,
+    0x04,
+    0x20
+  );
   assert(asn1Sha256MagicValue.byteLength === 19);
 
   const expectedPaddedMessageLength = 256;
@@ -122,7 +137,7 @@ export function buildGenerateSignatureCardCommand(
 
       Buffer.concat([
         constructTlv(GENERAL_AUTHENTICATE.CHALLENGE_TAG, paddedMessage),
-        constructTlv(GENERAL_AUTHENTICATE.RESPONSE_TAG, Buffer.from([])),
+        constructTlv(GENERAL_AUTHENTICATE.RESPONSE_TAG, Buffer.of()),
       ])
     ),
   });
@@ -466,15 +481,15 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
     );
 
     const [, , rsaPublicKeyTlv] = parseTlv(
-      GENERATE_RSA_PUBLIC_KEY_RESPONSE_TAG,
+      GENERATE_ASYMMETRIC_KEY_PAIR.RESPONSE_TAG,
       generateKeyPairResponse
     );
     const [modulusTag, modulusLength, modulusValue] = parseTlv(
-      RSA_PUBLIC_KEY_MODULUS_TAG,
+      GENERATE_ASYMMETRIC_KEY_PAIR.RESPONSE_RSA_MODULUS_TAG,
       rsaPublicKeyTlv
     );
     const [, , exponentValue] = parseTlv(
-      RSA_PUBLIC_KEY_EXPONENT_TAG,
+      GENERATE_ASYMMETRIC_KEY_PAIR.RESPONSE_RSA_EXPONENT_TAG,
       rsaPublicKeyTlv.subarray(
         modulusTag.length + modulusLength.length + modulusValue.length
       )
@@ -530,7 +545,7 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
           PUT_DATA.CERT_INFO_TAG,
           Buffer.of(PUT_DATA.CERT_INFO_UNCOMPRESSED)
         ),
-        constructTlv(PUT_DATA.ERROR_DETECTION_CODE_TAG, Buffer.from([])),
+        constructTlv(PUT_DATA.ERROR_DETECTION_CODE_TAG, Buffer.of()),
       ])
     );
   }

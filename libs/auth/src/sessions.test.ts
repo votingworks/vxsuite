@@ -1,4 +1,5 @@
 import { DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS } from '@votingworks/types';
+
 import { computeSessionEndTime, SessionConfig } from './sessions';
 
 test('computeSessionEndTime with default config params', () => {

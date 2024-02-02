@@ -33,7 +33,9 @@ import {
 import { computeCardLockoutEndTime } from './lockout';
 import { computeSessionEndTime } from './sessions';
 
-type CheckPinResponseExtended = CheckPinResponse | { response: 'error' };
+type CheckPinResponseExtended =
+  | CheckPinResponse
+  | { response: 'error'; error: unknown };
 
 type AuthAction =
   | { type: 'check_card_reader'; cardStatus: CardStatus }
@@ -49,9 +51,9 @@ function cardStatusToProgrammableCard(
   cardStatus: CardStatus
 ): DippedSmartCardAuthTypes.ProgrammableCard {
   switch (cardStatus.status) {
-    case 'card_error':
-    case 'no_card':
     case 'no_card_reader':
+    case 'no_card':
+    case 'card_error':
     case 'unknown_error': {
       return { status: cardStatus.status };
     }
@@ -127,14 +129,20 @@ async function logAuthEventIfNecessary(
           newAuthStatus.wrongPinEnteredAt !==
             previousAuthStatus.wrongPinEnteredAt
         ) {
-          await logger.log(
-            LogEventId.AuthPinEntry,
-            previousAuthStatus.user.role,
-            {
-              disposition: LogDispositionStandardTypes.Failure,
-              message: 'User entered incorrect PIN.',
-            }
-          );
+          await logger.log(LogEventId.AuthPinEntry, newAuthStatus.user.role, {
+            disposition: LogDispositionStandardTypes.Failure,
+            message: 'User entered incorrect PIN.',
+          });
+        } else if (
+          newAuthStatus.error &&
+          newAuthStatus.error.erroredAt !== previousAuthStatus.error?.erroredAt
+        ) {
+          await logger.log(LogEventId.AuthPinEntry, newAuthStatus.user.role, {
+            disposition: LogDispositionStandardTypes.Failure,
+            message: `Error checking PIN: ${extractErrorMessage(
+              newAuthStatus.error.error
+            )}`,
+          });
         }
       } else if (newAuthStatus.status === 'remove_card') {
         await logger.log(LogEventId.AuthPinEntry, newAuthStatus.user.role, {
@@ -142,7 +150,6 @@ async function logAuthEventIfNecessary(
           message: 'User entered correct PIN.',
         });
       }
-      // PIN check errors are logged in checkPin, where we have access to the full error message
       return;
     }
 
@@ -212,13 +219,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     try {
       checkPinResponse = await this.card.checkPin(input.pin);
     } catch (error) {
-      const userRole =
-        'user' in this.authStatus ? this.authStatus.user.role : 'unknown';
-      await this.logger.log(LogEventId.AuthPinEntry, userRole, {
-        disposition: LogDispositionStandardTypes.Failure,
-        message: `Error checking PIN: ${extractErrorMessage(error)}`,
-      });
-      checkPinResponse = { response: 'error' };
+      checkPinResponse = { response: 'error', error };
     }
     await this.updateAuthStatus(machineState, {
       type: 'check_pin',
@@ -442,8 +443,8 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                 return { status: 'logged_out', reason: 'no_card_reader' };
               }
               // TODO: Consider an alternative screen on the frontend for unknown errors
-              case 'unknown_error':
-              case 'no_card': {
+              case 'no_card':
+              case 'unknown_error': {
                 return { status: 'logged_out', reason: 'machine_locked' };
               }
               case 'card_error': {
@@ -566,7 +567,13 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
             };
           }
           case 'error': {
-            return { ...currentAuthStatus, error: true };
+            return {
+              ...currentAuthStatus,
+              error: {
+                error: action.checkPinResponse.error,
+                erroredAt: new Date(),
+              },
+            };
           }
           /* istanbul ignore next: Compile-time check for completeness */
           default: {

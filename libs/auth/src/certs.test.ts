@@ -16,7 +16,7 @@ import { openssl } from './cryptography';
 
 jest.mock('./cryptography');
 
-const cert = Buffer.from([]);
+const cert = Buffer.of();
 const electionHash =
   '43939f8d6b94dd85827c1d151d0b75f4617e934979d53b6d5ce2abf4535a93d4';
 const jurisdiction = TEST_JURISDICTION;

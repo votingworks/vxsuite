@@ -118,7 +118,7 @@ export class CardReader {
    */
   async transmit(command: CardCommand): Promise<Buffer> {
     const apdus = command.asCommandApdus();
-    let data: Buffer = Buffer.from([]);
+    let data: Buffer = Buffer.of();
     let moreDataAvailable = false;
     let moreDataLength: Byte = 0x00;
 

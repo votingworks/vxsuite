@@ -257,13 +257,13 @@ test('MockFileCard data reading and writing', async () => {
     },
   });
 
-  expect(await card.readData()).toEqual(Buffer.from([]));
+  expect(await card.readData()).toEqual(Buffer.of());
   await card.writeData(Buffer.from('Hey! How is it going?', 'utf-8'));
   expect((await card.readData()).toString('utf-8')).toEqual(
     'Hey! How is it going?'
   );
   await card.clearData();
-  expect(await card.readData()).toEqual(Buffer.from([]));
+  expect(await card.readData()).toEqual(Buffer.of());
 });
 
 test('MockFileCard resiliency to deletion of underlying file', async () => {

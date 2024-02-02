@@ -340,14 +340,14 @@ test('Non-ready card statuses', async () => {
   mockCardReader.setReaderStatus('no_card');
   expect(await javaCard.getCardStatus()).toEqual({ status: 'no_card' });
 
-  mockCardReader.setReaderStatus('no_card_reader');
-  expect(await javaCard.getCardStatus()).toEqual({ status: 'no_card_reader' });
-
   mockCardReader.setReaderStatus('card_error');
   expect(await javaCard.getCardStatus()).toEqual({ status: 'card_error' });
 
   mockCardReader.setReaderStatus('unknown_error');
   expect(await javaCard.getCardStatus()).toEqual({ status: 'unknown_error' });
+
+  mockCardReader.setReaderStatus('no_card_reader');
+  expect(await javaCard.getCardStatus()).toEqual({ status: 'no_card_reader' });
 });
 
 test.each<{

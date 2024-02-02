@@ -74,9 +74,7 @@ export const DEFAULT_PIN = '000000';
  * The PIN unblocking key or PUK. Typically a sensitive value but not for us given our modification
  * to OpenFIPS201 to clear all PIN-gated keys on PIN reset, which invalidates the card.
  */
-export const PUK = Buffer.from([
-  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-]);
+export const PUK = Buffer.of(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
 
 /**
  * The max number of incorrect PIN attempts before the card is completely locked and needs to be
@@ -169,12 +167,12 @@ export class JavaCard implements Card {
     this.cardReader = new CardReader({
       onReaderStatusChange: async (readerStatus) => {
         switch (readerStatus) {
-          case 'no_card': {
-            this.cardStatus = { status: 'no_card' };
-            return;
-          }
           case 'no_card_reader': {
             this.cardStatus = { status: 'no_card_reader' };
+            return;
+          }
+          case 'no_card': {
+            this.cardStatus = { status: 'no_card' };
             return;
           }
           case 'card_error': {
@@ -358,7 +356,7 @@ export class JavaCard implements Card {
           // OpenFIPS201 treats an empty data object as a non-existent one, so when we clear an
           // object by writing an empty buffer, subsequent retrievals return a file-not-found
           // response instead of a success response with an empty buffer
-          chunks.push(Buffer.from([]));
+          chunks.push(Buffer.of());
           continue;
         }
         throw error;
@@ -388,7 +386,7 @@ export class JavaCard implements Card {
 
   async clearData(): Promise<void> {
     // No need to explicitly call this.selectApplet here since this.writeData does so internally
-    await this.writeData(Buffer.from([]));
+    await this.writeData(Buffer.of());
   }
 
   /**
@@ -521,13 +519,13 @@ export class JavaCard implements Card {
           PUT_DATA.CERT_INFO_TAG,
           Buffer.of(PUT_DATA.CERT_INFO_UNCOMPRESSED)
         ),
-        constructTlv(PUT_DATA.ERROR_DETECTION_CODE_TAG, Buffer.from([])),
+        constructTlv(PUT_DATA.ERROR_DETECTION_CODE_TAG, Buffer.of()),
       ])
     );
   }
 
   private async clearCert(certObjectId: Buffer): Promise<void> {
-    await this.putData(certObjectId, Buffer.from([]));
+    await this.putData(certObjectId, Buffer.of());
   }
 
   /**
@@ -558,7 +556,7 @@ export class JavaCard implements Card {
           GENERAL_AUTHENTICATE.DYNAMIC_AUTHENTICATION_TEMPLATE_TAG,
           Buffer.concat([
             constructTlv(GENERAL_AUTHENTICATE.CHALLENGE_TAG, challengeHash),
-            constructTlv(GENERAL_AUTHENTICATE.RESPONSE_TAG, Buffer.from([])),
+            constructTlv(GENERAL_AUTHENTICATE.RESPONSE_TAG, Buffer.of()),
           ])
         ),
       })
