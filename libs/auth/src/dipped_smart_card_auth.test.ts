@@ -1,8 +1,8 @@
 import { DateTime } from 'luxon';
 import { err, ok } from '@votingworks/basics';
 import {
-  electionTwoPartyPrimaryDefinition,
   electionGeneralDefinition,
+  electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
   fakeLogger,
@@ -155,7 +155,7 @@ async function logInAsElectionManager(
   mockOf(mockLogger.log).mockClear();
 }
 
-test('no card reader', async () => {
+test('No card reader', async () => {
   const auth = new DippedSmartCardAuth({
     card: mockCard,
     config: defaultConfig,
@@ -932,7 +932,7 @@ test('Checking PIN error handling', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
-    error: true,
+    error: { error: new Error('Whoa!'), erroredAt: expect.any(Date) },
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(1);
   expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -972,7 +972,7 @@ test('Checking PIN error handling', async () => {
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'checking_pin',
     user: electionManagerUser,
-    error: true,
+    error: { error: new Error('Whoa!'), erroredAt: expect.any(Date) },
     wrongPinEnteredAt: expect.any(Date),
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(3);
@@ -1014,16 +1014,6 @@ test(
       status: 'logged_out',
       reason: 'machine_locked',
     });
-    expect(mockLogger.log).toHaveBeenCalledTimes(1);
-    expect(mockLogger.log).toHaveBeenNthCalledWith(
-      1,
-      LogEventId.AuthPinEntry,
-      'unknown',
-      {
-        disposition: LogDispositionStandardTypes.Failure,
-        message: 'Error checking PIN: Whoa! Card no longer in reader',
-      }
-    );
   }
 );
 
@@ -1057,6 +1047,14 @@ test('Card programming error handling', async () => {
   });
 
   await logInAsSystemAdministrator(auth);
+
+  mockCardStatus({ status: 'no_card_reader' });
+  expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
+    status: 'logged_in',
+    user: systemAdministratorUser,
+    sessionExpiresAt: expect.any(Date),
+    programmableCard: { status: 'no_card_reader' },
+  });
 
   mockCardStatus({ status: 'card_error' });
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({

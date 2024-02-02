@@ -4,6 +4,7 @@ import {
   SystemAdministratorUser,
 } from '@votingworks/types';
 import { Buffer } from 'buffer';
+
 import { ResponseApduError } from './apdu';
 
 interface SystemAdministratorCardDetails {
