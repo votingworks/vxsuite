@@ -23,7 +23,7 @@ export interface LoggedOut {
 export interface CheckingPin {
   readonly status: 'checking_pin';
   readonly user: SystemAdministratorUser | ElectionManagerUser;
-  readonly error?: true;
+  readonly error?: { error: unknown; erroredAt: Date };
   readonly lockedOutUntil?: Date;
   readonly wrongPinEnteredAt?: Date;
 }
