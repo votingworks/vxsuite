@@ -1,4 +1,4 @@
-import { Router } from 'react-router-dom';
+import { Link, Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import {
@@ -16,7 +16,9 @@ test('LeftNav renders a list of nav items in a sidebar', () => {
   render(
     <Router history={history}>
       <LeftNav>
-        <AppLogo appName="VxApp" />
+        <Link to="/">
+          <AppLogo appName="VxApp" />
+        </Link>
         <NavList>
           <NavListItem>
             <NavLink to="/foo" isActive>

@@ -1,6 +1,5 @@
 import React from 'react';
-import { useRouteMatch } from 'react-router-dom';
-
+import { Link, useRouteMatch } from 'react-router-dom';
 import {
   AppLogo,
   LeftNav,
@@ -33,7 +32,9 @@ export function Sidebar(props: SidebarProps): JSX.Element {
 
   return (
     <LeftNav>
-      <AppLogo appName="VxAdmin" />
+      <Link to="/">
+        <AppLogo appName="VxAdmin" />
+      </Link>
       <NavList>
         {navItems.map(({ label, routerPath }) => (
           <NavListItem key={routerPath}>
