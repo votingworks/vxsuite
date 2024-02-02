@@ -36,6 +36,10 @@ export function createQueryClient(): QueryClient {
         // In test, we only want to refetch when we explicitly invalidate. In
         // dev/prod, it's fine to refetch more aggressively.
         refetchOnMount: process.env.NODE_ENV !== 'test',
+        useErrorBoundary: true,
+      },
+      mutations: {
+        useErrorBoundary: true,
       },
     },
   });
