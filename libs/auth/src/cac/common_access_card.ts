@@ -34,16 +34,12 @@ import {
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
   GENERAL_AUTHENTICATE,
   GENERATE_ASYMMETRIC_KEY_PAIR,
-  GENERATE_RSA_PUBLIC_KEY_RESPONSE_TAG,
   GET_DATA,
   isIncorrectDataFieldParameters,
   isIncorrectPinStatusWord,
   isSecurityConditionNotSatisfiedStatusWord,
   pivDataObjectId,
   PUT_DATA,
-  RSA_PUBLIC_KEY_EXPONENT_TAG,
-  RSA_PUBLIC_KEY_MODULUS_TAG,
-  SEQUENCE_TAG,
   VERIFY,
 } from '../piv';
 import {
@@ -75,6 +71,8 @@ export const CARD_DOD_CERT = {
  * Default PIN that is used for test CAC cards by DoD
  */
 export const DEFAULT_PIN = '77777777';
+
+const SEQUENCE_TAG = 0x30;
 
 /**
  * Builds a command for generating a signature using the specified private key.
@@ -466,15 +464,15 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
     );
 
     const [, , rsaPublicKeyTlv] = parseTlv(
-      GENERATE_RSA_PUBLIC_KEY_RESPONSE_TAG,
+      GENERATE_ASYMMETRIC_KEY_PAIR.RESPONSE_TAG,
       generateKeyPairResponse
     );
     const [modulusTag, modulusLength, modulusValue] = parseTlv(
-      RSA_PUBLIC_KEY_MODULUS_TAG,
+      GENERATE_ASYMMETRIC_KEY_PAIR.RESPONSE_RSA_MODULUS_TAG,
       rsaPublicKeyTlv
     );
     const [, , exponentValue] = parseTlv(
-      RSA_PUBLIC_KEY_EXPONENT_TAG,
+      GENERATE_ASYMMETRIC_KEY_PAIR.RESPONSE_RSA_EXPONENT_TAG,
       rsaPublicKeyTlv.subarray(
         modulusTag.length + modulusLength.length + modulusValue.length
       )
