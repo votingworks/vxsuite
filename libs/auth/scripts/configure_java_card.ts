@@ -113,7 +113,7 @@ function configureKeySlotCommandApdu(
   accessMode: Byte
 ): CommandApdu {
   return new CommandApdu({
-    cla: { secure: true },
+    cla: { secureMessaging: true },
     ins: PUT_DATA_ADMIN.INS,
     p1: PUT_DATA_ADMIN.P1,
     p2: PUT_DATA_ADMIN.P2,
@@ -148,7 +148,7 @@ function configureKeySlotCommandApdu(
 
 function configureDataObjectSlotCommandApdu(objectId: Buffer): CommandApdu {
   return new CommandApdu({
-    cla: { secure: true },
+    cla: { secureMessaging: true },
     ins: PUT_DATA_ADMIN.INS,
     p1: PUT_DATA_ADMIN.P1,
     p2: PUT_DATA_ADMIN.P2,
@@ -175,7 +175,7 @@ async function runAppletConfigurationCommands(): Promise<void> {
   const apdus = [
     // Set PIN
     new CommandApdu({
-      cla: { secure: true },
+      cla: { secureMessaging: true },
       ins: CHANGE_REFERENCE_DATA_ADMIN.INS,
       p1: CHANGE_REFERENCE_DATA_ADMIN.P1,
       p2: CHANGE_REFERENCE_DATA_ADMIN.P2_PIN,
@@ -184,7 +184,7 @@ async function runAppletConfigurationCommands(): Promise<void> {
 
     // Set PUK
     new CommandApdu({
-      cla: { secure: true },
+      cla: { secureMessaging: true },
       ins: CHANGE_REFERENCE_DATA_ADMIN.INS,
       p1: CHANGE_REFERENCE_DATA_ADMIN.P1,
       p2: CHANGE_REFERENCE_DATA_ADMIN.P2_PUK,
@@ -193,7 +193,7 @@ async function runAppletConfigurationCommands(): Promise<void> {
 
     // Configure max incorrect PIN attempts
     new CommandApdu({
-      cla: { secure: true },
+      cla: { secureMessaging: true },
       ins: PUT_DATA_ADMIN.INS,
       p1: PUT_DATA_ADMIN.P1,
       p2: PUT_DATA_ADMIN.P2,
