@@ -4,6 +4,7 @@ import { asHexString, Byte } from '@votingworks/types';
 
 import {
   CardCommand,
+  ClaParams,
   CommandApdu,
   constructTlv,
   parseTlv,
@@ -11,14 +12,14 @@ import {
 } from './apdu';
 
 test.each<{
-  cla?: { chained?: boolean; secure?: boolean };
+  cla?: ClaParams;
   expectedFirstByte: Byte;
 }>([
   { cla: undefined, expectedFirstByte: 0x00 },
   { cla: {}, expectedFirstByte: 0x00 },
   { cla: { chained: true }, expectedFirstByte: 0x10 },
-  { cla: { secure: true }, expectedFirstByte: 0x0c },
-  { cla: { chained: true, secure: true }, expectedFirstByte: 0x1c },
+  { cla: { secureMessaging: true }, expectedFirstByte: 0x04 },
+  { cla: { chained: true, secureMessaging: true }, expectedFirstByte: 0x14 },
 ])('CommandApdu CLA handling - $cla', ({ cla, expectedFirstByte }) => {
   const apdu = new CommandApdu({
     cla,

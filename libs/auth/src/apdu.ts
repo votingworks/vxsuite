@@ -25,14 +25,26 @@ export const MAX_RESPONSE_APDU_DATA_LENGTH = MAX_APDU_LENGTH - 2;
  * Because APDUs have a max length, commands involving larger amounts of data have to be sent as
  * multiple, chained APDUs. The APDU CLA indicates whether more data has yet to be provided.
  *
- * The CLA also indicates whether the APDU is being sent over a GlobalPlatform Secure Channel,
- * typically used for initial card configuration.
+ * The CLA also indicates whether the APDU is a secure messaging APDU, i.e., being sent over a
+ * secure channel. Secure channels are typically used for initial card configuration.
  */
 const CLA = {
   STANDARD: 0x00,
   CHAINED: 0x10,
-  SECURE: 0x0c,
-  SECURE_CHAINED: 0x1c,
+
+  /**
+   * There are two kinds of Java Card secure messaging: GlobalPlatform format and ISO 7816-4
+   * format. The former is supported by all of our Java Card stock, old JCOP 3 and new JCOP 4,
+   * while the latter is only supported by our old JCOP 3 Java Card stock.
+   *
+   * The CLA for GlobalPlatform format secure messaging is 0x04; the CLA for ISO 7816-4 format
+   * secure messaging is 0x0c.
+   *
+   * See https://globalplatform.org/wp-content/uploads/2018/05/GPC_CardSpecification_v2.3.1_PublicRelease_CC.pdf,
+   * 11.1.4 Class Byte Encoding, for more context.
+   */
+  SECURE_MESSAGING: 0x04,
+  SECURE_MESSAGING_CHAINED: 0x14,
 } as const;
 
 /**
@@ -82,23 +94,26 @@ function splitEvery2Characters(s: string): string[] {
 }
 
 /**
+ * Params for an APDU CLA. See {@link CLA} for more context.
+ */
+export interface ClaParams {
+  chained?: boolean;
+  secureMessaging?: boolean;
+}
+
+interface CommandApduInputBase {
+  cla?: ClaParams;
+  ins: Byte;
+  p1: Byte;
+  p2: Byte;
+}
+
+/**
  * The input to a {@link CommandApdu}
  */
-export type CommandApduInput =
-  | {
-      cla?: { chained?: boolean; secure?: boolean };
-      ins: Byte;
-      p1: Byte;
-      p2: Byte;
-      data: Buffer;
-    }
-  | {
-      cla?: { chained?: boolean; secure?: boolean };
-      ins: Byte;
-      p1: Byte;
-      p2: Byte;
-      lc: Byte;
-    };
+type CommandApduInput =
+  | (CommandApduInputBase & { data: Buffer })
+  | (CommandApduInputBase & { lc: Byte });
 
 /**
  * An APDU, or application protocol data unit, is the communication unit between a smart card
@@ -154,12 +169,21 @@ export class CommandApdu {
       : hexString;
   }
 
-  private determineCla(input: { chained?: boolean; secure?: boolean } = {}) {
-    if (input.secure) {
-      return input.chained ? CLA.SECURE_CHAINED : CLA.SECURE;
+  private determineCla(input: ClaParams = {}) {
+    if (input.secureMessaging) {
+      return input.chained
+        ? CLA.SECURE_MESSAGING_CHAINED
+        : CLA.SECURE_MESSAGING;
     }
     return input.chained ? CLA.CHAINED : CLA.STANDARD;
   }
+}
+
+interface CardCommandInput {
+  ins: Byte;
+  p1: Byte;
+  p2: Byte;
+  data?: Buffer;
 }
 
 /**
@@ -178,7 +202,7 @@ export class CardCommand {
   /** Data */
   private readonly data: Buffer;
 
-  constructor(input: { ins: Byte; p1: Byte; p2: Byte; data?: Buffer }) {
+  constructor(input: CardCommandInput) {
     this.ins = input.ins;
     this.p1 = input.p1;
     this.p2 = input.p2;
