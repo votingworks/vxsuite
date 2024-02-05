@@ -683,7 +683,6 @@ impl PdiClient {
     /// the specified length, and will consider the document to be jammed if it
     /// is longer than the specified length.
     pub fn set_length_of_document_to_scan(&mut self, length_inches: f32) -> Result<()> {
-        println!("module path: {:?}", module_path!());
         const MIN_LENGTH: f32 = 0.0;
         const MAX_LENGTH: f32 = 22.3;
 

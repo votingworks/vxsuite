@@ -1,5 +1,9 @@
 import { z } from 'zod';
-import * as addon from './rust_addon';
+import * as path from 'path';
+import { spawn } from 'child_process';
+import { createInterface } from 'readline';
+
+let addon: any;
 
 export type ScannedDocument = addon.ScannedDocument;
 
@@ -98,4 +102,43 @@ export interface ScannerStatus {
   inDiagnosticMode: boolean;
   documentInScanner: boolean;
   calibrationOfUnitNeeded: boolean;
+}
+
+const BINARY_PATH = path.join(__dirname, '../../../../target/release/pdictl');
+
+interface PdictlCommand {
+  commandType: 'exit' | 'connect' | 'enable_scanning';
+}
+
+interface PdictlOutgoing {
+  outgoingType: 'ok' | 'error' | 'scan_complete';
+}
+
+export function main() {
+  const pdictl = spawn(BINARY_PATH);
+
+  const rl = createInterface(pdictl.stdout);
+  rl.on('line', (line) => {
+    console.log('Received raw', line);
+    const outgoing = JSON.parse(line) as PdictlOutgoing;
+    console.log('Received outgoing', outgoing);
+  });
+
+  pdictl.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`);
+  });
+
+  pdictl.on('close', (code) => {
+    console.log(`child process exited with code ${code}`);
+  });
+
+  const command1: PdictlCommand = { commandType: 'connect' };
+  console.log('Sending command', command1);
+  pdictl.stdin.write(JSON.stringify(command1));
+  pdictl.stdin.write('\n');
+
+  const command2: PdictlCommand = { commandType: 'enable_scanning' };
+  console.log('Sending command', command2);
+  pdictl.stdin.write(JSON.stringify(command2));
+  pdictl.stdin.write('\n');
 }

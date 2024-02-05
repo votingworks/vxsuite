@@ -4985,9 +4985,15 @@ importers:
         specifier: 3.14.4
         version: 3.14.4
     devDependencies:
+      '@types/node':
+        specifier: 16.18.23
+        version: 16.18.23
       cargo-cp-artifact:
         specifier: ^0.1
         version: 0.1.7
+      esbuild-runner:
+        specifier: 2.2.2
+        version: 2.2.2(esbuild@0.17.11)
 
   libs/printing:
     dependencies:

@@ -12,8 +12,7 @@
   ],
   "scripts": {
     "benchmark": "jest --runInBand --projects benchmarks",
-    "build": "pnpm install:rust-addon && pnpm build:rust-addon && pnpm build:ts",
-    "build:rust-addon": "cargo-cp-artifact -nc build/rust_addon.node -- cargo build --message-format=json-render-diagnostics --release --offline",
+    "build": "pnpm install:rust-addon && pnpm build:ts",
     "build:ts": "tsc --build tsconfig.build.json",
     "clean": "cargo clean && rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "install:rust-addon": "cargo fetch",
@@ -43,7 +42,9 @@
     "zod": "3.14.4"
   },
   "devDependencies": {
-    "cargo-cp-artifact": "^0.1"
+    "@types/node": "16.18.23",
+    "cargo-cp-artifact": "^0.1",
+    "esbuild-runner": "2.2.2"
   },
   "packageManager": "pnpm@8.1.0"
 }
