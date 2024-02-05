@@ -22,7 +22,7 @@ import {
   isSystemAdministratorAuth,
   isElectionManagerAuth,
 } from '@votingworks/utils';
-import { useRouteMatch } from 'react-router-dom';
+import { Link, useRouteMatch } from 'react-router-dom';
 import { AppContext } from './contexts/app_context';
 import { ejectUsbDrive, logOut } from './api';
 
@@ -62,7 +62,7 @@ const CentralScanAppLogo = styled(AppLogo)`
     width: 2rem;
   }
 
-  a {
+  span {
     font-size: ${(p) => p.theme.sizes.headingsRem.h3}rem;
   }
 `;
@@ -86,7 +86,9 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
   return (
     <Screen flexDirection="row">
       <LeftNav>
-        <CentralScanAppLogo appName="VxCentralScan" />
+        <Link to="/">
+          <CentralScanAppLogo appName="VxCentralScan" />
+        </Link>
         {isElectionManagerAuth(auth) && electionDefinition && (
           <NavList>
             <NavListItem>

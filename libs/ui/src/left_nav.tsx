@@ -1,5 +1,4 @@
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
 import { LinkButton, LinkButtonProps } from './link_button';
 import { Icons } from './icons';
 
@@ -12,6 +11,14 @@ export const LeftNav = styled.nav`
   width: 12rem;
   display: flex;
   flex-direction: column;
+
+  a {
+    text-decoration: none;
+
+    &:hover {
+      filter: none;
+    }
+  }
 `;
 
 /**
@@ -82,11 +89,10 @@ const LogoContainer = styled.div`
     width: 2.5rem;
   }
 
-  a {
+  span {
     font-size: ${(p) => p.theme.sizes.headingsRem.h2}rem;
     font-weight: ${(p) => p.theme.sizes.fontWeight.bold};
     color: ${(p) => p.theme.colors.onInverse};
-    text-decoration: none;
   }
 `;
 
@@ -117,8 +123,8 @@ function LogoCircleWhiteOnPurple() {
 }
 
 /**
- * An app name and logo link for the top of a LeftNav. Requires the logo image
- * to be in the app's /public/images directory.
+ * An app name and logo for the top of a LeftNav. Wrap in a Link to make it a
+ * link to the home page.
  */
 export function AppLogo({
   appName,
@@ -130,7 +136,7 @@ export function AppLogo({
   return (
     <LogoContainer className={className}>
       <LogoCircleWhiteOnPurple />
-      <Link to="/">{appName}</Link>
+      <span>{appName}</span>
     </LogoContainer>
   );
 }

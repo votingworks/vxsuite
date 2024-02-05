@@ -10,7 +10,7 @@ import {
   NavList,
   Screen,
 } from '@votingworks/ui';
-import { useRouteMatch } from 'react-router-dom';
+import { Link, useRouteMatch } from 'react-router-dom';
 import { electionNavRoutes } from './routes';
 
 export function NavScreen({
@@ -23,7 +23,9 @@ export function NavScreen({
   return (
     <Screen flexDirection="row">
       <LeftNav style={{ width: '14rem' }}>
-        <AppLogo appName="VxDesign" />
+        <Link to="/">
+          <AppLogo appName="VxDesign" />
+        </Link>
         {navContent}
       </LeftNav>
       <Main flexColumn>{children}</Main>
