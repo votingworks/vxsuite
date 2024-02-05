@@ -4,7 +4,7 @@ use nom::{
     branch::alt,
     bytes::complete::{tag, take, take_until, take_while_m_n},
     character::is_digit,
-    combinator::{map, map_res},
+    combinator::{map, map_res, value},
     number::complete::{le_u16, le_u8},
     sequence::{delimited, tuple, Tuple},
     IResult,
@@ -29,7 +29,7 @@ macro_rules! simple_request {
 macro_rules! simple_response {
     ($name:ident, $tag:expr) => {
         pub fn $name(input: &[u8]) -> IResult<&[u8], ()> {
-            map(packet((tag($tag),)), |_| ())(input)
+            value((), packet((tag($tag),)))(input)
         }
     };
 }
@@ -155,53 +155,117 @@ pub fn any_outgoing(input: &[u8]) -> IResult<&[u8], Outgoing> {
 /// Parses any incoming packet.
 pub fn any_incoming(input: &[u8]) -> IResult<&[u8], Incoming> {
     alt((
-        map(get_test_string_response, |test_string| {
-            Incoming::GetTestStringResponse(test_string.to_owned())
-        }),
-        map(get_firmware_version_response, |version| {
-            Incoming::GetFirmwareVersionResponse(version)
-        }),
-        map(
-            get_current_firmware_build_version_string_response,
-            |version| Incoming::GetCurrentFirmwareBuildVersionStringResponse(version.to_owned()),
-        ),
-        map(get_scanner_status_response, |status| {
-            Incoming::GetScannerStatusResponse(status)
-        }),
-        map(get_scanner_settings_response, |settings| {
-            Incoming::GetScannerSettingsResponse(settings)
-        }),
-        map(get_set_serial_number_response, |serial_number| {
-            Incoming::GetSetSerialNumberResponse(serial_number)
-        }),
-        map(
-            get_set_input_sensors_required_response,
-            |(current_sensors_required, total_sensors_available)| {
-                Incoming::GetSetRequiredInputSensorsResponse {
-                    current_sensors_required,
-                    total_sensors_available,
-                }
-            },
-        ),
-        map(
-            adjust_bitonal_threshold_response,
-            |(side, percent_white_threshold)| Incoming::AdjustBitonalThresholdResponse {
-                side,
-                percent_white_threshold,
-            },
-        ),
-        map(
-            get_calibration_information_response,
-            |(white_calibration_table, black_calibration_table)| {
-                Incoming::GetCalibrationInformationResponse {
-                    white_calibration_table,
-                    black_calibration_table,
-                }
-            },
-        ),
-        map(begin_scan_event, |_| Incoming::BeginScanEvent),
-        map(end_scan_event, |_| Incoming::EndScanEvent),
-        map(double_feed_event, |_| Incoming::DoubleFeedEvent),
+        alt((
+            map(get_test_string_response, |test_string| {
+                Incoming::GetTestStringResponse(test_string.to_owned())
+            }),
+            map(get_firmware_version_response, |version| {
+                Incoming::GetFirmwareVersionResponse(version)
+            }),
+            map(
+                get_current_firmware_build_version_string_response,
+                |version| {
+                    Incoming::GetCurrentFirmwareBuildVersionStringResponse(version.to_owned())
+                },
+            ),
+            map(get_scanner_status_response, |status| {
+                Incoming::GetScannerStatusResponse(status)
+            }),
+            map(get_scanner_settings_response, |settings| {
+                Incoming::GetScannerSettingsResponse(settings)
+            }),
+            map(get_set_serial_number_response, |serial_number| {
+                Incoming::GetSetSerialNumberResponse(serial_number)
+            }),
+            map(
+                get_set_input_sensors_required_response,
+                |(current_sensors_required, total_sensors_available)| {
+                    Incoming::GetSetRequiredInputSensorsResponse {
+                        current_sensors_required,
+                        total_sensors_available,
+                    }
+                },
+            ),
+            map(
+                adjust_bitonal_threshold_response,
+                |(side, percent_white_threshold)| Incoming::AdjustBitonalThresholdResponse {
+                    side,
+                    percent_white_threshold,
+                },
+            ),
+            map(
+                get_calibration_information_response,
+                |(white_calibration_table, black_calibration_table)| {
+                    Incoming::GetCalibrationInformationResponse {
+                        white_calibration_table,
+                        black_calibration_table,
+                    }
+                },
+            ),
+        )),
+        alt((
+            alt((
+                value(Incoming::ScannerOkayEvent, scanner_okay_event),
+                value(Incoming::DocumentJamEvent, document_jam_event),
+                value(Incoming::CalibrationNeededEvent, calibration_needed_event),
+                value(
+                    Incoming::ScannerCommandErrorEvent,
+                    scanner_command_error_event,
+                ),
+                value(Incoming::ReadErrorEvent, read_error_event),
+                value(
+                    Incoming::MsdNeedsCalibrationEvent,
+                    msd_needs_calibration_event,
+                ),
+                value(
+                    Incoming::MsdNotFoundOrOldFirmwareEvent,
+                    msd_not_found_or_old_firmware_event,
+                ),
+                value(Incoming::FifoOverflowEvent, fifo_overflow_event),
+                value(Incoming::CoverOpenEvent, cover_open_event),
+                value(Incoming::CoverClosedEvent, cover_closed_event),
+                value(
+                    Incoming::CommandPacketCrcErrorEvent,
+                    command_packet_crc_error_event,
+                ),
+            )),
+            alt((
+                value(Incoming::FpgaOutOfDateEvent, fpga_out_of_date_event),
+                value(Incoming::CalibrationOkEvent, calibration_ok_event),
+                value(
+                    Incoming::CalibrationShortCalibrationDocumentEvent,
+                    calibration_short_calibration_document_event,
+                ),
+                value(
+                    Incoming::CalibrationDocumentRemovedEvent,
+                    calibration_document_removed_event,
+                ),
+                value(
+                    Incoming::CalibrationPixelErrorFrontArrayBlack,
+                    calibration_pixel_error_front_array_black,
+                ),
+                value(
+                    Incoming::CalibrationPixelErrorFrontArrayWhite,
+                    calibration_pixel_error_front_array_white,
+                ),
+                value(Incoming::CalibrationTimeoutError, calibration_timeout_error),
+                value(
+                    Incoming::CalibrationSpeedValueError,
+                    calibration_speed_value_error,
+                ),
+                value(
+                    Incoming::CalibrationSpeedBoxError,
+                    calibration_speed_box_error,
+                ),
+                value(Incoming::BeginScanEvent, begin_scan_event),
+                value(Incoming::EndScanEvent, end_scan_event),
+                value(Incoming::DoubleFeedEvent, double_feed_event),
+            )),
+            alt((
+                value(Incoming::CoverOpenEvent, cover_open_event_alternate),
+                value(Incoming::CoverClosedEvent, cover_closed_event_alternate),
+            )),
+        )),
     ))(input)
 }
 
@@ -694,6 +758,10 @@ simple_response!(calibration_speed_box_error, b"#1C");
 simple_response!(begin_scan_event, b"#30");
 simple_response!(end_scan_event, b"#31");
 simple_response!(double_feed_event, b"#33");
+
+// Some responses don't match the documentation. These are what we've seen in practice.
+simple_response!(cover_open_event_alternate, b"#34");
+simple_response!(cover_closed_event_alternate, b"#35");
 
 #[cfg(test)]
 mod tests {

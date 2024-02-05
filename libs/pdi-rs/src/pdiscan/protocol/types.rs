@@ -88,7 +88,7 @@ pub enum EjectMotion {
     ToFrontAndHold,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Version {
     pub product_id: String,
     pub major: String,
@@ -115,7 +115,7 @@ impl Version {
 /// The status of the scanner.
 ///
 /// Note: bit 7 of each byte is always set to 1.
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct Status {
     /// Byte 0, Bit 0 (0x01)
     pub rear_left_sensor_covered: bool,
@@ -212,7 +212,7 @@ impl Status {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Settings {
     pub dpi_setting: u16,
     pub bits_per_pixel: u16,
@@ -242,7 +242,7 @@ impl Settings {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum CalibrationStatus {
     CalibrationNeeded,
     CalibrationOk,
