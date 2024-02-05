@@ -6,7 +6,7 @@ pub(crate) const PACKET_DATA_START: &[u8] = &[0x02];
 pub(crate) const PACKET_DATA_END: &[u8] = &[0x03];
 
 /// All possible commands that can be sent to the scanner.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Outgoing {
     /// This command requests a hard-coded test string from the scanner.
     ///
@@ -513,7 +513,7 @@ pub enum Outgoing {
 
 /// All possible incoming data from the scanner, including responses to commands
 /// and unsolicited messages.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Incoming {
     /// This command requests a hard-coded test string from the scanner.
     ///
@@ -760,6 +760,27 @@ pub enum Incoming {
         white_calibration_table: Vec<u8>,
         black_calibration_table: Vec<u8>,
     },
+
+    ScannerOkayEvent,
+    DocumentJamEvent,
+    CalibrationNeededEvent,
+    ScannerCommandErrorEvent,
+    ReadErrorEvent,
+    MsdNeedsCalibrationEvent,
+    MsdNotFoundOrOldFirmwareEvent,
+    FifoOverflowEvent,
+    CoverOpenEvent,
+    CoverClosedEvent,
+    CommandPacketCrcErrorEvent,
+    FpgaOutOfDateEvent,
+    CalibrationOkEvent,
+    CalibrationShortCalibrationDocumentEvent,
+    CalibrationDocumentRemovedEvent,
+    CalibrationPixelErrorFrontArrayBlack,
+    CalibrationPixelErrorFrontArrayWhite,
+    CalibrationTimeoutError,
+    CalibrationSpeedValueError,
+    CalibrationSpeedBoxError,
 
     /// An unsolicited message from the scanner indicating that the scanner is
     /// initiating a scan.
