@@ -1094,9 +1094,9 @@ function CandidateContest({
         // rectangle is adjusted accordingly.
         writeInArea: {
           x: gridColumn + optionLabelColumn - 1,
-          y: gridRow + optionRow - 0.25 - (m.WRITE_IN_ROW_HEIGHT - 1) / 2,
+          y: gridRow + optionRow - 0.15 - (m.WRITE_IN_ROW_HEIGHT - 1) / 2,
           width: width - 2,
-          height: 0.45 + (m.WRITE_IN_ROW_HEIGHT - 1) / 2,
+          height: 0.3 + (m.WRITE_IN_ROW_HEIGHT - 1) / 2,
         },
       };
       optionPositions.push(optionPosition);
