@@ -4,11 +4,11 @@ import {
   H1,
   P,
   Icons,
-  LinkButton,
   Button,
   MainContent,
   MainHeader,
   FileInputButton,
+  Table,
 } from '@votingworks/ui';
 import { FormEvent } from 'react';
 import { useHistory } from 'react-router-dom';
@@ -17,19 +17,15 @@ import { listElections, createElection } from './api';
 import { Column, Row } from './layout';
 import { NavScreen } from './nav_screen';
 
-const ElectionList = styled.ul`
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+const ButtonRow = styled.tr`
+  cursor: pointer;
 
-  li {
-    button {
-      width: 100%;
-      text-align: left;
-    }
+  & td {
+    padding: 0.75rem 0.5rem;
+  }
+
+  &:hover {
+    background-color: ${(p) => p.theme.colors.containerLow};
   }
 `;
 
@@ -77,26 +73,38 @@ export function ElectionsScreen(): JSX.Element | null {
         <H1>Elections</H1>
       </MainHeader>
       <MainContent>
-        <Column style={{ gap: '1rem', width: '25rem' }}>
+        <Column style={{ gap: '1rem' }}>
           {elections.length === 0 ? (
             <P>
               <Icons.Info /> You haven&apos;t created any elections yet.
             </P>
           ) : (
-            <ElectionList>
-              {elections.map(({ id, election }) => (
-                <li key={id}>
-                  <LinkButton to={`/elections/${id}`}>
-                    {election.title
-                      ? election.title +
-                        (election.date
-                          ? ` - ${new Date(election.date).toLocaleDateString()}`
-                          : '')
-                      : 'Untitled Election'}
-                  </LinkButton>
-                </li>
-              ))}
-            </ElectionList>
+            <Table>
+              <thead>
+                <tr>
+                  <th>Title</th>
+                  <th>Date</th>
+                  <th>Jurisdiction</th>
+                  <th>State</th>
+                </tr>
+              </thead>
+              <tbody>
+                {elections.map(({ id, election }) => (
+                  <ButtonRow
+                    key={id}
+                    onClick={() => history.push(`/elections/${id}`)}
+                  >
+                    <td>{election.title || 'Untitled Election'}</td>
+                    <td>
+                      {election.date &&
+                        new Date(election.date).toLocaleDateString()}
+                    </td>
+                    <td>{election.county.name}</td>
+                    <td>{election.state}</td>
+                  </ButtonRow>
+                ))}
+              </tbody>
+            </Table>
           )}
           <Row style={{ gap: '0.5rem' }}>
             <Button
