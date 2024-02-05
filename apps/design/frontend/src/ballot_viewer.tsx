@@ -140,28 +140,10 @@ function WriteInOptionBoxes({
           return (
             <rect
               key={gridPosition.contestId + gridPosition.writeInIndex}
-              x={
-                (gridPosition.column -
-                  optionBoundsFromTargetMark.left +
-                  pageMarginGridUnits) *
-                xScale
-              }
-              y={
-                (gridPosition.row -
-                  optionBoundsFromTargetMark.top +
-                  pageMarginGridUnits) *
-                yScale
-              }
-              width={
-                (optionBoundsFromTargetMark.right +
-                  optionBoundsFromTargetMark.left) *
-                xScale
-              }
-              height={
-                (optionBoundsFromTargetMark.bottom +
-                  optionBoundsFromTargetMark.top) *
-                yScale
-              }
+              x={(gridPosition.writeInArea.x + pageMarginGridUnits) * xScale}
+              y={(gridPosition.writeInArea.y + pageMarginGridUnits) * yScale}
+              width={gridPosition.writeInArea.width * xScale}
+              height={gridPosition.writeInArea.height * yScale}
               fill="none"
               stroke="blue"
               strokeWidth={0.5}
