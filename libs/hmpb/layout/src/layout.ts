@@ -189,7 +189,7 @@ export function measurements(
   density: LayoutDensity
 ) {
   const grid = gridForPaper(paperSize);
-  const HEADER_ROW_HEIGHT = [3.5, 3, 2.5][density];
+  const HEADER_ROW_HEIGHT = [3.75, 3, 2.5][density];
   const INSTRUCTIONS_ROW_HEIGHT = [3.5, 3, 2.5][density];
   const HEADER_AND_INSTRUCTIONS_ROW_HEIGHT =
     HEADER_ROW_HEIGHT + INSTRUCTIONS_ROW_HEIGHT;
@@ -198,9 +198,10 @@ export function measurements(
   const CONTENT_AREA_ROW_HEIGHT = grid.rows - TIMING_MARKS_ROW_HEIGHT * 2 + 1;
   const CONTENT_AREA_COLUMN_WIDTH = grid.columns - 3;
   const GUTTER_WIDTH = 0.5;
-  const CONTEST_COLUMN_WIDTH = 9.5;
+  const CONTEST_COLUMN_WIDTH =
+    (CONTENT_AREA_COLUMN_WIDTH - GUTTER_WIDTH * 2) / 3;
   const CONTEST_PADDING = [0.5, 0.4, 0.3][density];
-  const CONTEST_ROW_MARGIN = 0.5;
+  const CONTEST_ROW_MARGIN = 0.4;
   const MAX_CONTEST_ROW_HEIGHT =
     CONTENT_AREA_ROW_HEIGHT - CONTEST_ROW_MARGIN * 2 - FOOTER_ROW_HEIGHT;
   const WRITE_IN_ROW_HEIGHT = [2, 1, 1][density];
@@ -293,11 +294,11 @@ function gridHeight(gridUnits: number, m: Measurements): number {
 }
 
 function yToRow(y: number, m: Measurements): number {
-  return Math.round((y / m.ROW_GAP) * 10) / 10;
+  return y / m.ROW_GAP;
 }
 
 function xToColumn(x: number, m: Measurements): number {
-  return Math.round((x / m.COLUMN_GAP) * 10) / 10;
+  return x / m.COLUMN_GAP;
 }
 
 export function OptionBubble({
@@ -875,13 +876,7 @@ function CandidateContest({
 }): [Rectangle, GridPosition[]] {
   assert(contest.type === 'candidate');
 
-  // Temp hack until we can change the timing mark grid dimensions since they
-  // don't evenly divide into three columns: expand the last contest column (if
-  // bubbles on left) or first contest column (if bubbles on right)
-  const width = (bubblePosition === 'left' ? gridColumn > 20 : gridColumn < 10)
-    ? m.CONTENT_AREA_COLUMN_WIDTH -
-      2 * (m.CONTEST_COLUMN_WIDTH + m.GUTTER_WIDTH)
-    : m.CONTEST_COLUMN_WIDTH;
+  const width = m.CONTEST_COLUMN_WIDTH;
 
   const heading = TextBlock({
     ...gridPoint({ row: m.CONTEST_PADDING, column: m.CONTEST_PADDING }, m),
@@ -1661,13 +1656,7 @@ function layOutBallotHelper({
           contest,
           row: 0,
           gridRow: 0,
-          gridColumn:
-            // Temp hack: Because we change the width of the first or last
-            // column of candidate contests to fit evenly into three columns
-            // within CandidateContest, we need to trigger the smallest width
-            // option to get the largest possible height of the contest here,
-            // regardless of which column it ends up in.
-            bubblePosition === 'left' ? 0 : 20,
+          gridColumn: 0,
           pageNumber: 0,
           bubblePosition,
           m,
