@@ -1,6 +1,7 @@
 import toml from '@iarna/toml';
 import { createReadStream, createWriteStream } from 'fs';
 import { pipeline } from 'stream/promises';
+import { execFileSync } from 'child_process';
 import {
   configFilepath,
   rustEnumsTemplateFilepath,
@@ -39,6 +40,8 @@ async function main(): Promise<void> {
     yield* createReadStream(rustEnumsTemplateFilepath);
     yield* formatLogEventIdEnum(typedConfig);
   }, out);
+
+  execFileSync('rustfmt', [rustEnumsOutputFilepath]);
 }
 
 void main();
