@@ -26,10 +26,6 @@ export interface AppBaseProps {
   defaultSizeMode: SizeMode;
   defaultIsVisualModeDisabled?: boolean;
   disableFontsForTests?: boolean;
-  enableScroll?: boolean;
-  isTouchscreen?: boolean;
-  legacyBaseFontSizePx?: number;
-  legacyPrintFontSizePx?: number;
   screenType?: ScreenType;
 }
 
@@ -43,10 +39,6 @@ export function AppBase(props: AppBaseProps): JSX.Element {
     defaultSizeMode,
     defaultIsVisualModeDisabled = false,
     disableFontsForTests,
-    enableScroll = false,
-    isTouchscreen = false,
-    legacyBaseFontSizePx,
-    legacyPrintFontSizePx,
     screenType = 'builtIn',
   } = props;
 
@@ -99,12 +91,7 @@ export function AppBase(props: AppBaseProps): JSX.Element {
         sizeMode={sizeMode}
         isVisualModeDisabled={isVisualModeDisabled}
       >
-        <GlobalStyles
-          enableScroll={enableScroll}
-          isTouchscreen={isTouchscreen}
-          legacyBaseFontSizePx={legacyBaseFontSizePx}
-          legacyPrintFontSizePx={legacyPrintFontSizePx}
-        />
+        <GlobalStyles />
         {children}
       </VxThemeProvider>
     </DisplaySettingsManagerContext.Provider>

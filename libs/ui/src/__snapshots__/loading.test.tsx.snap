@@ -35,10 +35,6 @@ exports[`Renders Loading with defaults 1`] = `
 
 }
 
-@media print {
-
-}
-
 <div
   class="c0"
 >

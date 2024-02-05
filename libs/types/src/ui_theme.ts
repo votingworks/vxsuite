@@ -1,6 +1,11 @@
 /** Supported screen types for VxSuite apps. */
 export type ScreenType = 'builtIn' | 'elo13' | 'elo15' | 'lenovoThinkpad15';
 
+/** Returns true if screenType is a touch screen */
+export function isTouchscreen(screenType: ScreenType): boolean {
+  return ['elo13', 'elo15'].includes(screenType);
+}
+
 /**  VVSG 2.0 compliant color modes used for voter-facing touchscreen apps. */
 export const TOUCH_COLOR_MODES = [
   'contrastHighDark',

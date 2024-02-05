@@ -38,10 +38,6 @@ exports[`Renders HorizontalRule with custom green color 1`] = `
 
 }
 
-@media print {
-
-}
-
 <p
   class="c0"
   color="#00FF00"
@@ -88,10 +84,6 @@ exports[`Renders HorizontalRule with defaults 1`] = `
 
 }
 
-@media print {
-
-}
-
 <p
   class="c0"
 >
@@ -119,10 +111,6 @@ exports[`Renders HorizontalRule without children 1`] = `
   flex: 1;
   border-top: 1px solid;
   content: '';
-}
-
-@media print {
-
 }
 
 @media print {

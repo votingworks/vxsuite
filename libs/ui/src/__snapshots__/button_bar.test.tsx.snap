@@ -44,10 +44,6 @@ exports[`renders ButtonBar 1`] = `
 
 }
 
-@media print {
-
-}
-
 @media (min-width:480px) {
   .c0 > *:only-child {
     -webkit-box-flex: initial;

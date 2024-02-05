@@ -20,7 +20,6 @@ export function ScanAppBase({ children }: AppBaseProps): JSX.Element {
     <AppBase
       defaultColorMode={DEFAULT_COLOR_MODE}
       defaultSizeMode={DEFAULT_SIZE_MODE}
-      isTouchscreen
       screenType={DEFAULT_SCREEN_TYPE}
     >
       {children}

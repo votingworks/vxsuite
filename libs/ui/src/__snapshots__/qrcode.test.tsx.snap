@@ -15,10 +15,6 @@ exports[`renders QRCode 1`] = `
 
 }
 
-@media print {
-
-}
-
 <div
   class="c0"
 >

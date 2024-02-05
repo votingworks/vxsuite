@@ -31,10 +31,6 @@ exports[`renders ProgressEllipsis 1`] = `
 
 }
 
-@media print {
-
-}
-
 <div>
   <span
     class="c0"

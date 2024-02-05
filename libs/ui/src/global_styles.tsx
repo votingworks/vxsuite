@@ -1,4 +1,5 @@
 import { createGlobalStyle, css } from 'styled-components';
+import { isTouchscreen } from '@votingworks/types';
 import { VX_DEFAULT_FONT_FAMILY_DECLARATION } from './fonts/font_family';
 import { NORMALIZE_CSS } from './normalize.css';
 
@@ -13,13 +14,6 @@ export const AUDIO_ONLY_STYLES = css`
   width: 1px;
 `;
 
-export interface GlobalStylesProps {
-  enableScroll: boolean;
-  isTouchscreen: boolean;
-  legacyBaseFontSizePx?: number;
-  legacyPrintFontSizePx?: number;
-}
-
 /**
  * Common global styling for VxSuite apps.
  *
@@ -30,7 +24,7 @@ export interface GlobalStylesProps {
  * so that everything's centralized and we don't have to have duplicate
  * copies in each app's package.
  */
-export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
+export const GlobalStyles = createGlobalStyle`
 
 ${NORMALIZE_CSS}
 
@@ -46,7 +40,7 @@ ${NORMALIZE_CSS}
     line-height: 1;
     color: ${(p) => p.theme.colors.onBackground};
     font-family: ${VX_DEFAULT_FONT_FAMILY_DECLARATION};
-    font-size: ${(p) => p.legacyBaseFontSizePx || p.theme.sizes.fontDefault}px;
+    font-size: ${(p) => p.theme.sizes.fontDefault}px;
     font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
     -moz-osx-font-smoothing: grayscale;
     -webkit-font-smoothing: antialiased;
@@ -57,9 +51,7 @@ ${NORMALIZE_CSS}
     html {
       background: #fff;
       color: #000;
-
-      /* Adjust printed ballot font-size */
-      font-size: ${(p) => p.legacyPrintFontSizePx ?? 16}px !important;
+      font-size: 16px !important;
     }
   }
 
@@ -71,7 +63,7 @@ ${NORMALIZE_CSS}
   body,
   #root {
     height: 100%;
-    overflow: ${(p) => (p.enableScroll ? 'auto' : 'hidden')};
+    overflow: hidden;
     touch-action: none;
   }
 
@@ -152,7 +144,7 @@ ${NORMALIZE_CSS}
    * triggers (e.g. RadioGroup). */
   :root {
     --focus-outline: ${(p) =>
-      p.isTouchscreen
+      isTouchscreen(p.theme.screenType)
         ? `${p.theme.colors.primary} dashed ${p.theme.sizes.bordersRem.medium}rem`
         : `${p.theme.colors.primary} solid ${p.theme.sizes.bordersRem.medium}rem`}
   }
@@ -173,20 +165,5 @@ ${NORMALIZE_CSS}
   /* TODO(kofi): Update consumers to use the newer <AudioOnly> component. */
   .screen-reader-only {
     ${AUDIO_ONLY_STYLES}
-  }
-
-  /* TODO: Create components for these: */
-  .print-only {
-    display: none;
-  }
-
-  @media print {
-    .print-only {
-      display: block;
-    }
-
-    .no-print {
-      display: none;
-    }
   }
 `;

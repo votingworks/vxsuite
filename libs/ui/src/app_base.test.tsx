@@ -23,37 +23,15 @@ function AppBase(props: AppBaseProps) {
 test('renders with touchscreen-specific styles', () => {
   const { container } = render(
     <AppBase
-      isTouchscreen
       defaultColorMode="contrastMedium"
       defaultSizeMode="touchSmall"
+      screenType="elo13"
     >
       <div>foo</div>
     </AppBase>
   );
 
   expect(container).toContainHTML('<div>foo</div>');
-});
-
-test('renders with legacy font sizes', () => {
-  const { container } = render(
-    <AppBase
-      legacyBaseFontSizePx={48}
-      legacyPrintFontSizePx={18}
-      defaultColorMode="contrastMedium"
-      defaultSizeMode="touchSmall"
-    >
-      <div>foo</div>
-    </AppBase>
-  );
-
-  expect(container).toContainHTML('<div>foo</div>');
-
-  const htmlNode = document.body.parentElement;
-  assert(htmlNode);
-  const computedStyles = window.getComputedStyle(htmlNode);
-
-  expect(computedStyles.fontSize).toEqual('48px');
-  // TODO: Figure out how to test @media print styles.
 });
 
 test('renders with selected themes', () => {
@@ -88,26 +66,6 @@ test('renders with selected themes', () => {
   expect(parseCssColor(computedStyles.color)).toEqual(
     parseCssColor(expectedTheme.colors.onBackground)
   );
-});
-
-test('renders with enableScroll', () => {
-  const { container } = render(
-    <AppBase
-      enableScroll
-      defaultColorMode="contrastMedium"
-      defaultSizeMode="touchSmall"
-    >
-      <div>foo</div>
-    </AppBase>
-  );
-
-  expect(container).toContainHTML('<div>foo</div>');
-
-  const htmlNode = document.body.parentElement;
-  assert(htmlNode);
-  const computedStyles = window.getComputedStyle(htmlNode);
-
-  expect(computedStyles.overflow).toEqual('auto');
 });
 
 test('implements ThemeManagerContext interface', () => {
