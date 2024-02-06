@@ -45,6 +45,7 @@ import {
   encodeMetadataInQrCode,
   QrCodeData,
 } from './encode_metadata';
+import { loudonZoningMap } from './loudon_zoning_map';
 
 const debug = makeDebug('layout');
 
@@ -1208,14 +1209,18 @@ function BallotMeasure({
 
   const width = m.CONTENT_AREA_COLUMN_WIDTH;
 
-  const heading = TextBlock({
-    ...gridPoint({ row: m.CONTEST_PADDING, column: m.CONTEST_PADDING }, m),
-    width: gridWidth(
-      width -
-        2 * m.CONTEST_PADDING -
-        (m.BALLOT_MEASURE_OPTION_POSITION === 'inline' ? 2 : 0),
-      m
-    ),
+  // Temporary special case for Loudon County's zoning map amendment. Remove
+  // this after the 3/12/2024 election.
+  const includeImage = contest.title === 'Amendment No. 2024-12';
+  const headingWidth = gridWidth(
+    width -
+      2 * m.CONTEST_PADDING -
+      (m.BALLOT_MEASURE_OPTION_POSITION === 'inline' ? 2 : 0),
+    m
+  );
+  const headingText = TextBlock({
+    ...gridPoint({ row: 0, column: 0 }, m),
+    width: headingWidth,
     textGroups: [
       {
         text: contest.title,
@@ -1227,6 +1232,24 @@ function BallotMeasure({
       },
     ],
   });
+  const imageRowHeight = 29;
+  const image: Image | undefined = includeImage
+    ? {
+        type: 'Image',
+        x: 0,
+        y: headingText.height,
+        width: gridHeight(imageRowHeight * (663 / 1024), m),
+        height: gridHeight(imageRowHeight, m),
+        contents: loudonZoningMap,
+      }
+    : undefined;
+  const heading: Rectangle = {
+    type: 'Rectangle',
+    ...gridPoint({ row: m.CONTEST_PADDING, column: m.CONTEST_PADDING }, m),
+    width: headingWidth,
+    height: headingText.height + (image ? image.height : 0),
+    children: [headingText, ...(image ? [image] : [])],
+  };
   const headingRowHeight = Math.round(
     yToRow(heading.height, m) + m.CONTEST_PADDING
   );
