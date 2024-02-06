@@ -1,5 +1,7 @@
 import React from 'react';
 import { Buffer } from 'buffer';
+import { DOMParser } from '@xmldom/xmldom';
+import { assertDefined } from '@votingworks/basics';
 import {
   Bubble,
   Color,
@@ -48,6 +50,38 @@ export function SvgBubble({
   return <SvgRectangle {...props} />;
 }
 
+/**
+ * Given an HTML string (wrapped in <html> tags), returns an array of tspan elements
+ * that apply the proper text formatting based on the HTML tags used.
+ */
+function convertHtmlTagsToSpans(html: string): React.ReactNode[] {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const spans = Array.from(assertDefined(doc.firstChild).childNodes).map(
+    (node, index) => {
+      return (
+        <tspan
+          // eslint-disable-next-line react/no-array-index-key
+          key={`span${index}`}
+          fontWeight={node.nodeName === 'b' ? 700 : undefined}
+          textDecoration={
+            node.nodeName === 'u'
+              ? 'underline'
+              : node.nodeName === 'i'
+              ? 'italic'
+              : node.nodeName === 's'
+              ? 'line-through'
+              : undefined
+          }
+        >
+          {node.textContent}
+        </tspan>
+      );
+    }
+  );
+  return spans;
+}
+
 type SvgTextBoxProps = Omit<TextBox, 'type'>;
 
 export function SvgTextBox({
@@ -62,33 +96,37 @@ export function SvgTextBox({
 }: SvgTextBoxProps): JSX.Element {
   return (
     <svg x={x} y={y} width={width} height={height}>
-      {textLines.map((textLine, index) => (
-        <text
-          // eslint-disable-next-line react/no-array-index-key
-          key={textLine + index}
-          // Adjust x coordinate if textAnchor is 'end' so that the overall
-          // content box location stays the same, since 'end' moves the text to
-          // the other side of the x coordinate. Similarly for 'middle'.
-          x={
-            {
-              left: 0,
-              center: width / 2,
-              right: width,
-            }[align]
-          }
-          y={(index + 1) * lineHeight}
-          textAnchor={
-            {
-              left: 'start',
-              center: 'middle',
-              right: 'end',
-            }[align]
-          }
-          {...textProps}
-        >
-          {textLine}
-        </text>
-      ))}
+      {textLines.map((textLine, index) => {
+        const isHtml =
+          textLine.startsWith('<html>') && textLine.endsWith('</html>');
+        return (
+          <text
+            // eslint-disable-next-line react/no-array-index-key
+            key={textLine + index}
+            // Adjust x coordinate if textAnchor is 'end' so that the overall
+            // content box location stays the same, since 'end' moves the text to
+            // the other side of the x coordinate. Similarly for 'middle'.
+            x={
+              {
+                left: 0,
+                center: width / 2,
+                right: width,
+              }[align]
+            }
+            y={(index + 1) * lineHeight}
+            textAnchor={
+              {
+                left: 'start',
+                center: 'middle',
+                right: 'end',
+              }[align]
+            }
+            {...textProps}
+          >
+            {isHtml ? convertHtmlTagsToSpans(textLine) : textLine}
+          </text>
+        );
+      })}
     </svg>
   );
 }

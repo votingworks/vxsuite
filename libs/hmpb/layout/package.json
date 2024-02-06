@@ -36,6 +36,7 @@
     "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
+    "@xmldom/xmldom": "^0.8.1",
     "buffer": "^6.0.3",
     "debug": "4.3.4",
     "dotenv": "16.3.1",

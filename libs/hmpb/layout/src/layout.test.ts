@@ -12,6 +12,8 @@ import {
   gridForPaper,
   layOutAllBallotStyles,
   layOutInColumns,
+  measurements,
+  textWrap,
 } from './layout';
 
 test('layoutInColumns', () => {
@@ -307,4 +309,67 @@ test('NH custom content', () => {
   expect(combinedBallot).not.toContain(schoolContent.electionTitle);
   expect(combinedBallot).not.toContain(schoolContent.clerkSignatureImage);
   expect(combinedBallot).not.toContain(schoolContent.clerkSignatureCaption);
+});
+
+test('textWrap', () => {
+  const m = measurements(BallotPaperSize.Letter, 0);
+  expect(
+    textWrap('This is a long line of text with no tags', m.FontStyles.BODY, 40)
+  ).toEqual(['This is', 'a long', 'line of', 'text', 'with no', 'tags']);
+  expect(
+    textWrap(
+      'This is a long line of text with no line break',
+      m.FontStyles.BODY,
+      60
+    )
+  ).toEqual(['This is a', 'long line of', 'text with no', 'line break']);
+  expect(
+    textWrap(
+      'This is a long line\n of text with a line break',
+      m.FontStyles.BODY,
+      60
+    )
+  ).toEqual(['This is a', 'long line', 'of text with', 'a line break']);
+
+  expect(
+    textWrap(
+      '<html>This is a long <b>line</b> of text</html>',
+      m.FontStyles.BODY,
+      20
+    )
+  ).toEqual([
+    '<html>This</html>',
+    '<html>is a</html>',
+    '<html>long</html>',
+    '<html><b>line</b></html>',
+    '<html>of</html>',
+    '<html>text</html>',
+  ]);
+
+  expect(
+    textWrap(
+      '<html>This line has <b>nested tags for <i>complex</i> styles</b> and is long and needs wrapping </html>',
+      m.FontStyles.BODY,
+      100
+    )
+  ).toEqual([
+    '<html>This line has <b>nested</b></html>',
+    '<html><b>tags for <i>complex</i></b></html>',
+    '<html><b>styles</b> and is long</html>',
+    '<html>and needs wrapping </html>',
+  ]);
+
+  expect(
+    textWrap('<html>This line has\nline breaks</html>', m.FontStyles.BODY, 100)
+  ).toEqual(['<html>This line has</html>', '<html>line breaks</html>']);
+
+  expect(() =>
+    textWrap(
+      '<html>Here is a mismatched <b>tag</i></b></html>',
+      m.FontStyles.BODY,
+      100
+    )
+  ).toThrowError(
+    'Unexpected closing tag </i> in word "<b>tag</i></b></html>" (expected </b>)'
+  );
 });
