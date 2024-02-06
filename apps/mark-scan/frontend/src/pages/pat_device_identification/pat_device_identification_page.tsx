@@ -1,6 +1,15 @@
-import { Main, Screen, P, Font, Button } from '@votingworks/ui';
+import {
+  Main,
+  Screen,
+  P,
+  Font,
+  Button,
+  ReadOnLoad as BaseReadOnLoad,
+  appStrings,
+} from '@votingworks/ui';
 import { useCallback, useState, useEffect } from 'react';
 import { ButtonFooter } from '@votingworks/mark-flow-ui';
+import styled from 'styled-components';
 import {
   DiagnosticScreenHeader,
   StepContainer,
@@ -14,11 +23,26 @@ export interface Props {
   onExitCalibration: () => void;
 }
 
+// Using explicit step IDs instead of a numeric index to ensure that the
+// dependent `appStrings` are updated accordingly if steps are ever added or
+// removed.
+enum StepId {
+  ONE = 'one',
+  TWO = 'two',
+  THREE = 'three',
+}
+
+const ReadOnLoad = styled(BaseReadOnLoad)`
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+`;
+
 export function PatDeviceIdentificationPage({
   onAllInputsIdentified,
   onExitCalibration,
 }: Props): JSX.Element {
-  const [step, setStep] = useState(0);
+  const [currentStepId, setCurrentStepId] = useState(StepId.ONE);
 
   useEffect(() => {
     // During PAT identification the voter triggers PAT inputs to identify them. We don't
@@ -33,33 +57,46 @@ export function PatDeviceIdentificationPage({
     };
   }, []);
 
-  const nextStep = useCallback(() => {
-    setStep(step + 1);
-  }, [step, setStep]);
+  const goToStep2 = useCallback(() => setCurrentStepId(StepId.TWO), []);
+  const goToStep3 = useCallback(() => setCurrentStepId(StepId.THREE), []);
 
-  const steps = [
-    <PatIntroductionStep onStepCompleted={nextStep} key={0} />,
-    <IdentifyInputStep inputName="Move" onStepCompleted={nextStep} key={1} />,
-    <IdentifyInputStep
-      inputName="Select"
-      onStepCompleted={onAllInputsIdentified}
-      key={2}
-    />,
-  ];
+  const steps: Record<StepId, JSX.Element> = {
+    one: <PatIntroductionStep onStepCompleted={goToStep2} />,
+    two: <IdentifyInputStep inputName="Move" onStepCompleted={goToStep3} />,
+    three: (
+      <IdentifyInputStep
+        inputName="Select"
+        onStepCompleted={onAllInputsIdentified}
+      />
+    ),
+  };
+
+  const statusStrings: Record<StepId, JSX.Element> = {
+    one: appStrings.noteBmdPatCalibrationStep1(),
+    two: appStrings.noteBmdPatCalibrationStep2(),
+    three: appStrings.noteBmdPatCalibrationStep3(),
+  };
 
   return (
     <Screen>
       <Main centerChild>
-        <DiagnosticScreenHeader>
-          <P>
-            <Font weight="bold">PAT Device Identification</Font> &mdash; Step{' '}
-            {step + 1} of {steps.length}
-          </P>
-        </DiagnosticScreenHeader>
-        <StepContainer fullWidth>{steps[step]}</StepContainer>
+        <ReadOnLoad>
+          <DiagnosticScreenHeader>
+            <P>
+              <Font weight="bold">
+                {appStrings.titleBmdPatCalibrationIdentificationPage()}
+              </Font>
+              <br />
+              {statusStrings[currentStepId]}
+            </P>
+          </DiagnosticScreenHeader>
+          <StepContainer fullWidth>{steps[currentStepId]}</StepContainer>
+        </ReadOnLoad>
       </Main>
       <ButtonFooter>
-        <Button onPress={onExitCalibration}>Skip Identification</Button>
+        <Button onPress={onExitCalibration}>
+          {appStrings.buttonBmdSkipPatCalibration()}
+        </Button>
       </ButtonFooter>
     </Screen>
   );

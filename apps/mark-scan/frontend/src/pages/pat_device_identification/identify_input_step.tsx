@@ -1,10 +1,23 @@
-import { useCallback, useState, useEffect } from 'react';
-import { H1, Icons, P } from '@votingworks/ui';
+import React, { useCallback, useState, useEffect } from 'react';
+import { H1, Icons, P, ReadOnLoad, appStrings } from '@votingworks/ui';
 import { throwIllegalValue } from '@votingworks/basics';
 import { behaviorToKeypressMap, validKeypressValues } from './constants';
 import { PortraitStepInnerContainer } from './portrait_step_inner_container';
 
 export type InputBehavior = 'Move' | 'Select';
+
+const identifyInputAppStrings: Readonly<
+  Record<InputBehavior, () => JSX.Element>
+> = {
+  Move: appStrings.titleBmdPatCalibrationIdentifyMoveInput,
+  Select: appStrings.titleBmdPatCalibrationIdentifySelectInput,
+};
+
+const inputNameAppStrings: Readonly<Record<InputBehavior, () => JSX.Element>> =
+  {
+    Move: appStrings.bmdPatDeviceInputNameMove,
+    Select: appStrings.bmdPatDeviceInputNameSelect,
+  };
 
 // Each input identification step is broken into these sub-steps, named Phases for disambiguation
 type InputIdentificationPhase =
@@ -28,6 +41,11 @@ export function IdentifyInputStep({
 }): JSX.Element {
   const [inputIdentificationPhase, setInputIdentificationPhase] =
     useState<InputIdentificationPhase>('unidentified');
+
+  // Reset phase when target input method changes:
+  React.useEffect(() => {
+    setInputIdentificationPhase('unidentified');
+  }, [inputName]);
 
   const handleInput = useCallback(
     (event: KeyboardEvent) => {
@@ -74,25 +92,35 @@ export function IdentifyInputStep({
     };
   });
 
-  let headerContent = '';
-  let bodyContent = '';
-  let icon = null;
+  let headerContent: React.ReactNode = null;
+  let bodyContent: React.ReactNode = null;
+  let icon: React.ReactNode = null;
 
   switch (inputIdentificationPhase) {
     case 'unidentified':
-      headerContent = `Identify the "${inputName}" Input`;
-      bodyContent = 'Try an input to continue.';
+      headerContent = identifyInputAppStrings[inputName]();
+      bodyContent = appStrings.instructionsBmdPatCalibrationTryInput();
       icon = <Icons.Question />;
       break;
     case 'identified':
-      headerContent = `"${inputName}" Input Identified`;
-      bodyContent = 'Trigger the input again to continue.';
-      icon = <Icons.Done />;
+      headerContent = (
+        <React.Fragment>
+          {appStrings.labelBmdPatCalibrationInputIdentified()}{' '}
+          {inputNameAppStrings[inputName]()}
+        </React.Fragment>
+      );
+      bodyContent = appStrings.instructionsBmdPatCalibrationTriggerInputAgain();
+      icon = <Icons.Done color="success" />;
       break;
     case 'other_input':
-      headerContent = `"${getOtherInputName(inputName)}" Input Triggered`;
-      bodyContent = 'Try the other input.';
-      icon = <Icons.Danger />;
+      headerContent = (
+        <React.Fragment>
+          {appStrings.labelBmdPatCalibrationInputTriggered()}{' '}
+          {inputNameAppStrings[getOtherInputName(inputName)]()}
+        </React.Fragment>
+      );
+      bodyContent = appStrings.instructionsBmdPatCalibrationTryOtherInput();
+      icon = <Icons.Danger color="warning" />;
       break;
     /* istanbul ignore next - compile time check for completeness */
     default:
@@ -101,9 +129,15 @@ export function IdentifyInputStep({
 
   return (
     <PortraitStepInnerContainer>
-      {icon}
-      <H1>{headerContent}</H1>
-      {bodyContent && <P>{bodyContent}</P>}
+      {/*
+       * Include `key` to trigger a remount (to re-trigger screen reader audio)
+       * when the current phase content changes.
+       */}
+      <ReadOnLoad key={inputIdentificationPhase}>
+        {icon}
+        <H1>{headerContent}</H1>
+        <P>{bodyContent}</P>
+      </ReadOnLoad>
     </PortraitStepInnerContainer>
   );
 }
