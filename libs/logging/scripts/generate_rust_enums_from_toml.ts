@@ -1,5 +1,7 @@
 import toml from '@iarna/toml';
-import fs from 'fs/promises';
+import { createReadStream, createWriteStream } from 'fs';
+import { pipeline } from 'stream/promises';
+import { execFileSync } from 'child_process';
 import {
   configFilepath,
   rustEnumsTemplateFilepath,
@@ -7,41 +9,39 @@ import {
 } from './filepaths';
 import { ParsedConfig, getTypedConfig } from './types';
 
-async function prepareOutputFile(): Promise<void> {
-  await fs.copyFile(rustEnumsTemplateFilepath, rustEnumsOutputFilepath);
-}
-
-function formatLogEventIdEnum(config: ParsedConfig): string {
+function* formatLogEventIdEnum(config: ParsedConfig): Generator<string> {
   const entries = Object.entries(config);
-  let output = `
+  yield `
     #[derive(Serialize, Deserialize)]
     pub enum EventId {
   `;
 
-  output += `// A value for use in a Log's Default trait
+  yield `// A value for use in a Log's Default trait
   #[serde(rename = "unspecified")]
     Unspecified,
   // Generated enum values
   `;
 
   for (const [enumMember, logDetails] of entries) {
-    output += `#[serde(rename = "${logDetails.eventId}")]
+    yield `#[serde(rename = "${logDetails.eventId}")]
       ${enumMember},`;
   }
-  output += '}';
-  return output;
+  yield '}';
 }
 
 async function main(): Promise<void> {
-  await prepareOutputFile();
-
-  const configString = await fs.readFile(configFilepath);
-  const untypedConfig = toml.parse(configString.toString());
-  const typedConfig = getTypedConfig(untypedConfig);
-  await fs.appendFile(
-    rustEnumsOutputFilepath,
-    formatLogEventIdEnum(typedConfig)
+  const untypedConfig = await toml.parse.stream(
+    createReadStream(configFilepath)
   );
+  const typedConfig = getTypedConfig(untypedConfig);
+  const out = createWriteStream(rustEnumsOutputFilepath);
+
+  await pipeline(async function* makeRustFile() {
+    yield* createReadStream(rustEnumsTemplateFilepath);
+    yield* formatLogEventIdEnum(typedConfig);
+  }, out);
+
+  execFileSync('rustfmt', [rustEnumsOutputFilepath]);
 }
 
 void main();
