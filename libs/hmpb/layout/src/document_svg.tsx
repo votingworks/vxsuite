@@ -50,25 +50,13 @@ export function SvgBubble({
   return <SvgRectangle {...props} />;
 }
 
-function splitIntoHtmlSpans(html: string): React.ReactNode[] {
-  // Remove any <html> and </html> tags in the line
-  // eslint-disable-next-line no-param-reassign
-  html = html.replace(/<\/?html>/, '');
-
-  // DOMParser breaks if there's a closing tag with no opening tag, so fix that
-  // It doesn't mind unclosed tags, so we don't need to fix those
-  const firstClosingTag = html.match(/<\/\w+>/)?.[0];
-  const firstClosingTagIndex = firstClosingTag
-    ? html.indexOf(firstClosingTag)
-    : Infinity;
-  const firstOpeningTagIndex = html.search(/<\w+>/);
-  if (firstClosingTagIndex < firstOpeningTagIndex) {
-    // eslint-disable-next-line no-param-reassign
-    html = assertDefined(firstClosingTag).replace('</', '<') + html;
-  }
-
+/**
+ * Given an HTML string (wrapped in <html> tags), returns an array of tspan elements
+ * that apply the proper text formatting based on the HTML tags used.
+ */
+function convertHtmlTagsToSpans(html: string): React.ReactNode[] {
   const parser = new DOMParser();
-  const doc = parser.parseFromString(`<html>${html}</html>`, 'text/html');
+  const doc = parser.parseFromString(html, 'text/html');
   const spans = Array.from(assertDefined(doc.firstChild).childNodes).map(
     (node, index) => {
       return (
@@ -106,12 +94,11 @@ export function SvgTextBox({
   align = 'left',
   ...textProps
 }: SvgTextBoxProps): JSX.Element {
-  const isHtml =
-    textLines[0].startsWith('<html>') &&
-    textLines[textLines.length - 1].endsWith('</html>');
   return (
     <svg x={x} y={y} width={width} height={height}>
       {textLines.map((textLine, index) => {
+        const isHtml =
+          textLine.startsWith('<html>') && textLine.endsWith('</html>');
         return (
           <text
             // eslint-disable-next-line react/no-array-index-key
@@ -136,7 +123,7 @@ export function SvgTextBox({
             }
             {...textProps}
           >
-            {isHtml ? splitIntoHtmlSpans(textLine) : textLine}
+            {isHtml ? convertHtmlTagsToSpans(textLine) : textLine}
           </text>
         );
       })}
