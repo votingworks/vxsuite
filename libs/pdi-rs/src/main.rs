@@ -113,6 +113,13 @@ fn main_scan_loop() -> color_eyre::Result<()> {
     });
 
     let mut client: Option<PdiClient> = None;
+    // client.reset()?;
+
+    // println!("send_connect result: {:?}", client.send_connect());
+    // println!(
+    //     "send_enable_scan_commands result: {:?}",
+    //     client.send_enable_scan_commands()
+    // );
 
     loop {
         match stdin_rx.try_recv() {

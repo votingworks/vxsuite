@@ -1,6 +1,9 @@
 use std::time::Duration;
 
-use super::types::{BitonalAdjustment, Resolution, Settings, Side, Status, Version};
+use super::types::{
+    BitonalAdjustment, DoubleFeedDetectionCalibrationType, Resolution, Settings, Side, Status,
+    Version,
+};
 
 pub(crate) const PACKET_DATA_START: &[u8] = &[0x02];
 pub(crate) const PACKET_DATA_END: &[u8] = &[0x03];
@@ -509,6 +512,16 @@ pub enum Outgoing {
     ///
     /// No response.
     RescanDocumentHeldInEscrowPositionRequest,
+
+    EnableDoubleFeedDetectionRequest,
+    DisableDoubleFeedDetectionRequest,
+    CalibrateDoubleFeedDetectionRequest(DoubleFeedDetectionCalibrationType),
+    SetDoubleFeedDetectionSensitivityRequest {
+        percentage: u8,
+    },
+    SetDoubleFeedDetectionMinimumDocumentLengthRequest {
+        length_in_hundredths_of_an_inch: u8,
+    },
 }
 
 /// All possible incoming data from the scanner, including responses to commands
@@ -794,6 +807,14 @@ pub enum Incoming {
     /// detected a double feed, i.e. two documents were fed into the scanner at
     /// the same time.
     DoubleFeedEvent,
+
+    /// An unsolicited message from the scanner indicating that the scanner has
+    /// completed the double-feed detection calibration.
+    DoubleFeedCalibrationCompleteEvent,
+
+    /// An unsolicited message from the scanner indicating that the scanner has
+    /// timed out waiting for paper during double-feed detection calibration.
+    DoubleFeedCalibrationTimedOutEvent,
 }
 
 /// All possible incoming or outgoing data between the host and the scanner.
