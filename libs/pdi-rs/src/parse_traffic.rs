@@ -30,7 +30,7 @@ impl<'de> Deserialize<'de> for HexByte {
     {
         let s: String = Deserialize::deserialize(deserializer)?;
         let s = s.trim_start_matches("0x");
-        Ok(HexByte(u8::from_str_radix(s, 16).map_err(|e| {
+        Ok(Self(u8::from_str_radix(s, 16).map_err(|e| {
             serde::de::Error::custom(format!("failed to parse hex byte: {e}"))
         })?))
     }
@@ -47,7 +47,7 @@ impl fmt::Debug for HexString {
             if i > 0 {
                 write!(f, " ")?;
             }
-            write!(f, "{:02x}", byte)?;
+            write!(f, "{byte:02x}")?;
         }
 
         if self.0.len() > MAX_LENGTH {
@@ -64,7 +64,7 @@ impl<'de> Deserialize<'de> for HexString {
         D: serde::Deserializer<'de>,
     {
         let s: String = Deserialize::deserialize(deserializer)?;
-        Ok(HexString(
+        Ok(Self(
             s.as_bytes()
                 .chunks_exact(2)
                 .map(|chunk| {
@@ -101,10 +101,10 @@ enum Endpoint {
 impl From<u8> for Endpoint {
     fn from(endpoint: u8) -> Self {
         match endpoint {
-            ENDPOINT_OUT => Endpoint::Out,
-            ENDPOINT_IN => Endpoint::In,
-            ENDPOINT_IN_ALT => Endpoint::InAlt,
-            _ => Endpoint::Unknown,
+            ENDPOINT_OUT => Self::Out,
+            ENDPOINT_IN => Self::In,
+            ENDPOINT_IN_ALT => Self::InAlt,
+            _ => Self::Unknown,
         }
     }
 }
@@ -112,10 +112,10 @@ impl From<u8> for Endpoint {
 impl fmt::Display for Endpoint {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            Endpoint::Out => write!(f, "OUT"),
-            Endpoint::In => write!(f, "IN"),
-            Endpoint::InAlt => write!(f, "IN_ALT"),
-            Endpoint::Unknown => write!(f, "UNKNOWN"),
+            Self::Out => write!(f, "OUT"),
+            Self::In => write!(f, "IN"),
+            Self::InAlt => write!(f, "IN_ALT"),
+            Self::Unknown => write!(f, "UNKNOWN"),
         }
     }
 }
@@ -138,13 +138,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let endpoint = Endpoint::from(packet.endpoint_address.0);
 
-        if let Endpoint::InAlt = endpoint {
+        if matches!(endpoint, Endpoint::InAlt) {
             let data: Vec<_> = packet.data.0.iter().map(|byte| *byte ^ 0x33).collect();
             let mut reader = BigEndianReader::new(data.as_slice());
             let mut next_side = Side::Top;
 
             for _ in 0..data.len() {
-                let image_data = if let Side::Top = next_side {
+                let image_data = if next_side == Side::Top {
                     &mut top_image_data
                 } else {
                     &mut bottom_image_data

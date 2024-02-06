@@ -1,5 +1,4 @@
 use clap::Parser;
-use serde_json::Result;
 use std::{
     io::{self, Write},
     process::exit,
@@ -7,7 +6,7 @@ use std::{
 };
 use tracing_subscriber::prelude::*;
 
-use pdi_rs::pdiscan::{self, client::PdiClient};
+use pdi_rs::pdiscan::{self, client::Client};
 
 #[derive(Debug, Parser)]
 struct Config {
@@ -112,7 +111,7 @@ fn main_scan_loop() -> color_eyre::Result<()> {
         }
     });
 
-    let mut client: Option<PdiClient> = None;
+    let mut client: Option<Client> = None;
     // client.reset()?;
 
     // println!("send_connect result: {:?}", client.send_connect());
@@ -137,10 +136,10 @@ fn main_scan_loop() -> color_eyre::Result<()> {
                         })?;
                     }
                     (None, Command::Connect) => {
-                        client = match PdiClient::open() {
+                        client = match Client::open() {
                             Ok(mut client) => {
                                 match client.send_connect() {
-                                    Ok(_) => {
+                                    Ok(()) => {
                                         wrap_outgoing(&Outgoing::Ok)?;
                                     }
                                     Err(e) => {
@@ -163,7 +162,7 @@ fn main_scan_loop() -> color_eyre::Result<()> {
                     }
                     (Some(client), Command::EnableScanning) => {
                         match client.send_enable_scan_commands() {
-                            Ok(_) => {
+                            Ok(()) => {
                                 wrap_outgoing(&Outgoing::Ok)?;
                             }
                             Err(e) => {
@@ -189,19 +188,18 @@ fn main_scan_loop() -> color_eyre::Result<()> {
 
         if let Some(client) = &mut client {
             match client.await_event(Instant::now() + Duration::from_millis(10)) {
-                Err(pdiscan::client::Error::RecvTimeout(_)) => {}
+                Ok(()) | Err(pdiscan::client::Error::RecvTimeout(_)) => {}
                 Err(e) => {
                     tracing::error!("error: {e:?}");
                     exit(-1);
                 }
-                Ok(_) => {}
             }
 
-            if let Ok(_) = client.begin_scan_rx.try_recv() {
+            if client.begin_scan_rx.try_recv().is_ok() {
                 // println!("begin scan");
             }
 
-            if let Ok(_) = client.end_scan_rx.try_recv() {
+            if client.end_scan_rx.try_recv().is_ok() {
                 wrap_outgoing(&Outgoing::ScanComplete {
                     image_data: "".to_string(),
                 })?;
@@ -215,7 +213,7 @@ fn main_scan_loop() -> color_eyre::Result<()> {
     //         match client.await_event(Instant::now() + Duration::from_millis(10)) {
     //             Err(pdiscan::client::Error::RecvTimeout(_)) => {}
     //             Err(e) => return Err(e.into()),
-    //             Ok(_) => {}
+    //             Ok(()) => {}
     //         }
 
     //         if client.begin_scan_rx.try_recv().is_ok() {
@@ -228,7 +226,7 @@ fn main_scan_loop() -> color_eyre::Result<()> {
     //         match client.await_event(Instant::now() + Duration::from_millis(10)) {
     //             Err(pdiscan::client::Error::RecvTimeout(_)) => {}
     //             Err(e) => return Err(e.into()),
-    //             Ok(_) => {}
+    //             Ok(()) => {}
     //         }
 
     //         if client.end_scan_rx.try_recv().is_ok() {

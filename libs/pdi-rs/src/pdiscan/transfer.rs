@@ -17,7 +17,7 @@ use crate::pdiscan::protocol::packets::Command;
 
 extern "system" fn libusb_transfer_callback(transfer: *mut libusb_transfer) {
     tracing::debug!("libusb_transfer_callback: transfer={transfer:?}");
-    let handler = unsafe { &mut *((*transfer).user_data as *mut Handler) };
+    let handler = unsafe { &mut *(*transfer).user_data.cast::<Handler>() };
 
     handler.on_transfer_teardown(transfer);
 
@@ -58,18 +58,20 @@ pub enum Event {
 }
 
 impl Event {
-    pub fn endpoint(&self) -> u8 {
+    #[must_use]
+    pub const fn endpoint(&self) -> u8 {
         match self {
-            Self::Completed { endpoint, .. } => *endpoint,
-            Self::Cancelled { endpoint } => *endpoint,
+            Self::Completed { endpoint, .. } | Self::Cancelled { endpoint } => *endpoint,
         }
     }
 
-    pub fn is_in(&self) -> bool {
+    #[must_use]
+    pub const fn is_in(&self) -> bool {
         self.endpoint() & 0x80 != 0
     }
 
-    pub fn is_out(&self) -> bool {
+    #[must_use]
+    pub const fn is_out(&self) -> bool {
         !self.is_in()
     }
 }
@@ -108,7 +110,7 @@ impl Handler {
 
     #[tracing::instrument]
     pub fn start_handle_events_thread(&mut self) {
-        for input in self.inputs.iter() {
+        for input in &self.inputs {
             // SAFETY: we're passing ownership of `buffer` to libusb, which will free
             // it when freeing the transfer because we set the `LIBUSB_TRANSFER_FREE_BUFFER`
             // flag below.
@@ -168,7 +170,7 @@ impl Handler {
                 "cancelling pending transfers: {}",
                 self.pending_transfers.len()
             );
-            for pending_transfer in self.pending_transfers.iter() {
+            for pending_transfer in &self.pending_transfers {
                 tracing::debug!("cancelling pending transfer: {pending_transfer:?}");
                 unsafe { libusb_cancel_transfer(*pending_transfer) };
             }
@@ -239,11 +241,12 @@ impl Handler {
         if unsafe { (*transfer).status } == LIBUSB_TRANSFER_COMPLETED {
             match unsafe { (*transfer).endpoint } {
                 endpoint if endpoint == self.output_endpoint => {
-                    tracing::debug!("transfer completed on OUT endpoint")
+                    tracing::debug!("transfer completed on OUT endpoint");
                 }
                 endpoint if self.inputs.iter().any(|input| input.endpoint == endpoint) => {
                     tracing::debug!("transfer completed on IN endpoint");
 
+                    #[allow(clippy::cast_sign_loss)]
                     let actual_length = unsafe { (*transfer).actual_length } as usize;
 
                     tracing::debug!("received bytes: {actual_length}");
@@ -267,7 +270,7 @@ impl Handler {
                     self.pending_transfers.push(transfer);
                 }
                 endpoint => {
-                    tracing::warn!("transfer completed on unknown endpoint: {endpoint:02x}")
+                    tracing::warn!("transfer completed on unknown endpoint: {endpoint:02x}");
                 }
             }
         }

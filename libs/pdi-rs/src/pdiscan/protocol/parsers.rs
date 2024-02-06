@@ -2,7 +2,7 @@ use std::{str::from_utf8, time::Duration};
 
 use nom::{
     branch::alt,
-    bytes::complete::{tag, take, take_until, take_while1, take_while_m_n},
+    bytes::complete::{tag, take, take_until, take_while_m_n},
     character::is_digit,
     combinator::{map, map_res, value},
     multi::many1,
@@ -13,13 +13,22 @@ use nom::{
 
 use super::{
     packets::{crc, Incoming, Packet, PACKET_DATA_END, PACKET_DATA_START},
-    types::{BitonalAdjustment, Direction, DoubleFeedDetectionCalibrationType, Resolution, Side},
+    types::{
+        BitonalAdjustment, ClampedPercentage, Direction, DoubleFeedDetectionCalibrationType,
+        Resolution, Side,
+    },
     Outgoing, Settings, Status, Version,
 };
 
 /// Creates a simple request parser with no payload.
 macro_rules! simple_request {
     ($name:ident, $tag:expr) => {
+        /// Parses a simple request with no payload.
+        ///
+        /// # Errors
+        ///
+        /// Returns an error if the data does not follow the packet format with
+        /// the given tag or if the CRC byte is incorrect.
         pub fn $name(input: &[u8]) -> IResult<&[u8], ()> {
             map(packet_with_crc((tag($tag),)), |_| ())(input)
         }
@@ -29,6 +38,12 @@ macro_rules! simple_request {
 /// Creates a simple response parser with no payload.
 macro_rules! simple_response {
     ($name:ident, $tag:expr) => {
+        /// Parses a simple response with no payload.
+        ///
+        /// # Errors
+        ///
+        /// Returns an error if the data does not follow the packet format with
+        /// the given tag.
         pub fn $name(input: &[u8]) -> IResult<&[u8], ()> {
             value((), packet((tag($tag),)))(input)
         }
@@ -36,6 +51,10 @@ macro_rules! simple_response {
 }
 
 /// Parses any packet.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match any known packet.
 pub fn any_packet(input: &[u8]) -> IResult<&[u8], Packet> {
     alt((
         map(any_outgoing, Packet::Outgoing),
@@ -44,279 +63,375 @@ pub fn any_packet(input: &[u8]) -> IResult<&[u8], Packet> {
 }
 
 /// Parses any outgoing packet.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match any known outgoing packet.
 pub fn any_outgoing(input: &[u8]) -> IResult<&[u8], Outgoing> {
     alt((
+        any_status_request,
+        any_configuration_request,
         alt((
-            map(get_test_string_request, |_| Outgoing::GetTestStringRequest),
-            map(get_firmware_version_request, |_| {
-                Outgoing::GetFirmwareVersionRequest
-            }),
-            map(get_current_firmware_build_version_string_request, |_| {
-                Outgoing::GetCurrentFirmwareBuildVersionString
-            }),
-            map(get_scanner_status_request, |_| {
-                Outgoing::GetScannerStatusRequest
-            }),
-            map(enable_feeder_request, |_| Outgoing::EnableFeederRequest),
-            map(disable_feeder_request, |_| Outgoing::DisableFeederRequest),
-            map(disable_momentary_reverse_on_feed_at_input_request, |_| {
-                Outgoing::DisableMomentaryReverseOnFeedAtInputRequest
-            }),
-            map(get_serial_number_request, |_| {
-                Outgoing::GetSerialNumberRequest
-            }),
-            map(set_serial_number_request, |serial_number| {
-                Outgoing::SetSerialNumberRequest(*serial_number)
-            }),
-            map(get_scanner_settings_request, |_| {
-                Outgoing::GetScannerSettingsRequest
-            }),
-            map(get_input_sensors_required_request, |_| {
-                Outgoing::GetRequiredInputSensorsRequest
-            }),
-            map(set_input_sensors_required_request, |sensors| {
-                Outgoing::SetRequiredInputSensorsRequest { sensors }
-            }),
-            map(adjust_bitonal_threshold_by_1_request, |adjustment| {
-                Outgoing::AdjustBitonalThresholdBy1Request(adjustment)
-            }),
-            map(get_calibration_information_request, |resolution| {
-                Outgoing::GetCalibrationInformationRequest { resolution }
-            }),
+            value(Outgoing::EnableFeederRequest, enable_feeder_request),
+            value(Outgoing::DisableFeederRequest, disable_feeder_request),
         )),
         alt((
-            map(
-                set_scanner_image_density_to_half_native_resolution_request,
-                |_| Outgoing::SetScannerImageDensityToHalfNativeResolutionRequest,
+            value(
+                Outgoing::EjectDocumentToRearOfScannerRequest,
+                eject_document_to_rear_of_scanner_request,
             ),
-            map(
-                set_scanner_image_density_to_native_resolution_request,
-                |_| Outgoing::SetScannerImageDensityToNativeResolutionRequest,
-            ),
-            map(set_scanner_to_duplex_mode_request, |_| {
-                Outgoing::SetScannerToDuplexModeRequest
-            }),
-            map(disable_pick_on_command_mode_request, |_| {
-                Outgoing::DisablePickOnCommandModeRequest
-            }),
-            map(disable_eject_pause_request, |_| {
-                Outgoing::DisableEjectPauseRequest
-            }),
-            map(transmit_in_low_bits_per_pixel_request, |_| {
-                Outgoing::TransmitInLowBitsPerPixelRequest
-            }),
-            map(disable_auto_run_out_at_end_of_scan_request, |_| {
-                Outgoing::DisableAutoRunOutAtEndOfScanRequest
-            }),
-            map(configure_motor_to_run_at_half_speed_request, |_| {
-                Outgoing::ConfigureMotorToRunAtHalfSpeedRequest
-            }),
-            map(configure_motor_to_run_at_full_speed_request, |_| {
-                Outgoing::ConfigureMotorToRunAtFullSpeedRequest
-            }),
-            map(set_bitonal_threshold_request, |(side, new_threshold)| {
-                Outgoing::SetThresholdToANewValueRequest {
-                    side,
-                    new_threshold,
-                }
-            }),
-            map(
-                set_length_of_document_to_scan_request,
-                |(length_byte, unit_byte)| Outgoing::SetLengthOfDocumentToScanRequest {
-                    length_byte,
-                    unit_byte,
-                },
-            ),
-            map(
-                set_scan_delay_interval_for_document_feed_request,
-                |delay_interval| Outgoing::SetScanDelayIntervalForDocumentFeedRequest {
-                    delay_interval,
-                },
-            ),
-            map(eject_document_to_rear_of_scanner_request, |_| {
-                Outgoing::EjectDocumentToRearOfScannerRequest
-            }),
-            map(
+            value(
+                Outgoing::EjectDocumentToFrontOfScannerAndHoldInInputRollersRequest,
                 eject_document_to_front_of_scanner_and_hold_in_input_rollers_request,
-                |_| Outgoing::EjectDocumentToFrontOfScannerAndHoldInInputRollersRequest,
-            ),
-            map(eject_document_to_front_of_scanner_request, |_| {
-                Outgoing::EjectDocumentToFrontOfScannerRequest
-            }),
-            map(eject_escrow_document_request, |_| {
-                Outgoing::EjectEscrowDocumentRequest
-            }),
-            map(rescan_document_held_in_escrow_position_request, |_| {
-                Outgoing::RescanDocumentHeldInEscrowPositionRequest
-            }),
-        )),
-        alt((
-            value(
-                Outgoing::EnableDoubleFeedDetectionRequest,
-                enable_double_feed_detection_request,
             ),
             value(
-                Outgoing::DisableDoubleFeedDetectionRequest,
-                disable_double_feed_detection_request,
+                Outgoing::EjectDocumentToFrontOfScannerRequest,
+                eject_document_to_front_of_scanner_request,
             ),
-            map(
-                calibrate_double_feed_detection_request,
-                |calibration_type| Outgoing::CalibrateDoubleFeedDetectionRequest(calibration_type),
+            value(
+                Outgoing::EjectEscrowDocumentRequest,
+                eject_escrow_document_request,
             ),
-            map(
-                set_double_feed_detection_sensitivity_request,
-                |percentage| Outgoing::SetDoubleFeedDetectionSensitivityRequest { percentage },
-            ),
-            map(
-                set_double_feed_detection_minimum_document_length_request,
-                |length_in_hundredths_of_an_inch| {
-                    Outgoing::SetDoubleFeedDetectionMinimumDocumentLengthRequest {
-                        length_in_hundredths_of_an_inch,
-                    }
-                },
+            value(
+                Outgoing::RescanDocumentHeldInEscrowPositionRequest,
+                rescan_document_held_in_escrow_position_request,
             ),
         )),
     ))(input)
 }
 
+/// Parses any request for status information.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match any known status request.
+fn any_status_request(input: &[u8]) -> IResult<&[u8], Outgoing> {
+    alt((
+        value(Outgoing::GetTestStringRequest, get_test_string_request),
+        value(
+            Outgoing::GetFirmwareVersionRequest,
+            get_firmware_version_request,
+        ),
+        value(
+            Outgoing::GetCurrentFirmwareBuildVersionString,
+            get_current_firmware_build_version_string_request,
+        ),
+        value(
+            Outgoing::GetScannerStatusRequest,
+            get_scanner_status_request,
+        ),
+        value(Outgoing::GetSerialNumberRequest, get_serial_number_request),
+        value(
+            Outgoing::GetScannerSettingsRequest,
+            get_scanner_settings_request,
+        ),
+        value(
+            Outgoing::GetRequiredInputSensorsRequest,
+            get_input_sensors_required_request,
+        ),
+        map(get_calibration_information_request, |resolution| {
+            Outgoing::GetCalibrationInformationRequest { resolution }
+        }),
+    ))(input)
+}
+
+/// Parses any request to configure the scanner.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match any known configuration request.
+fn any_configuration_request(input: &[u8]) -> IResult<&[u8], Outgoing> {
+    alt((
+        any_double_feed_detection_configuration_request,
+        any_threshold_configuration_request,
+        value(
+            Outgoing::DisableMomentaryReverseOnFeedAtInputRequest,
+            disable_momentary_reverse_on_feed_at_input_request,
+        ),
+        map(set_serial_number_request, |serial_number| {
+            Outgoing::SetSerialNumberRequest(*serial_number)
+        }),
+        map(set_input_sensors_required_request, |sensors| {
+            Outgoing::SetRequiredInputSensorsRequest { sensors }
+        }),
+        value(
+            Outgoing::SetScannerImageDensityToHalfNativeResolutionRequest,
+            set_scanner_image_density_to_half_native_resolution_request,
+        ),
+        value(
+            Outgoing::SetScannerImageDensityToNativeResolutionRequest,
+            set_scanner_image_density_to_native_resolution_request,
+        ),
+        value(
+            Outgoing::SetScannerToDuplexModeRequest,
+            set_scanner_to_duplex_mode_request,
+        ),
+        value(
+            Outgoing::DisablePickOnCommandModeRequest,
+            disable_pick_on_command_mode_request,
+        ),
+        value(
+            Outgoing::DisableEjectPauseRequest,
+            disable_eject_pause_request,
+        ),
+        value(
+            Outgoing::TransmitInLowBitsPerPixelRequest,
+            transmit_in_low_bits_per_pixel_request,
+        ),
+        value(
+            Outgoing::DisableAutoRunOutAtEndOfScanRequest,
+            disable_auto_run_out_at_end_of_scan_request,
+        ),
+        value(
+            Outgoing::ConfigureMotorToRunAtHalfSpeedRequest,
+            configure_motor_to_run_at_half_speed_request,
+        ),
+        value(
+            Outgoing::ConfigureMotorToRunAtFullSpeedRequest,
+            configure_motor_to_run_at_full_speed_request,
+        ),
+        map(
+            set_length_of_document_to_scan_request,
+            |(length_byte, unit_byte)| Outgoing::SetLengthOfDocumentToScanRequest {
+                length_byte,
+                unit_byte,
+            },
+        ),
+        map(
+            set_scan_delay_interval_for_document_feed_request,
+            |delay_interval| Outgoing::SetScanDelayIntervalForDocumentFeedRequest {
+                delay_interval,
+            },
+        ),
+    ))(input)
+}
+
+/// Parses any requests to adjust the bitonal threshold.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match any known bitonal threshold
+/// adjustment request.
+fn any_threshold_configuration_request(input: &[u8]) -> IResult<&[u8], Outgoing> {
+    alt((
+        map(adjust_bitonal_threshold_by_1_request, |adjustment| {
+            Outgoing::AdjustBitonalThresholdBy1Request(adjustment)
+        }),
+        map(set_bitonal_threshold_request, |(side, new_threshold)| {
+            Outgoing::SetThresholdToANewValueRequest {
+                side,
+                new_threshold,
+            }
+        }),
+    ))(input)
+}
+
+/// Parses any requests to configure double feed detection (DFD/MSD).
+///
+/// # Errors
+///
+/// Returns an error if the input does not match any known double feed detection
+/// configuration request.
+fn any_double_feed_detection_configuration_request(input: &[u8]) -> IResult<&[u8], Outgoing> {
+    alt((
+        value(
+            Outgoing::EnableDoubleFeedDetectionRequest,
+            enable_double_feed_detection_request,
+        ),
+        value(
+            Outgoing::DisableDoubleFeedDetectionRequest,
+            disable_double_feed_detection_request,
+        ),
+        map(
+            calibrate_double_feed_detection_request,
+            Outgoing::CalibrateDoubleFeedDetectionRequest,
+        ),
+        map(
+            set_double_feed_detection_sensitivity_request,
+            |percentage| Outgoing::SetDoubleFeedDetectionSensitivityRequest { percentage },
+        ),
+        map(
+            set_double_feed_detection_minimum_document_length_request,
+            |length_in_hundredths_of_an_inch| {
+                Outgoing::SetDoubleFeedDetectionMinimumDocumentLengthRequest {
+                    length_in_hundredths_of_an_inch,
+                }
+            },
+        ),
+    ))(input)
+}
+
 /// Parses any incoming packet.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match any known incoming packet.
 pub fn any_incoming(input: &[u8]) -> IResult<&[u8], Incoming> {
+    alt((any_event, any_response))(input)
+}
+
+/// Parses any incoming response to a request.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match any known response packet.
+fn any_response(input: &[u8]) -> IResult<&[u8], Incoming> {
+    alt((
+        map(get_test_string_response, |test_string| {
+            Incoming::GetTestStringResponse(test_string.to_owned())
+        }),
+        map(
+            get_firmware_version_response,
+            Incoming::GetFirmwareVersionResponse,
+        ),
+        map(
+            get_current_firmware_build_version_string_response,
+            |version| Incoming::GetCurrentFirmwareBuildVersionStringResponse(version.to_owned()),
+        ),
+        map(
+            get_scanner_status_response,
+            Incoming::GetScannerStatusResponse,
+        ),
+        map(
+            get_scanner_settings_response,
+            Incoming::GetScannerSettingsResponse,
+        ),
+        map(
+            get_set_serial_number_response,
+            Incoming::GetSetSerialNumberResponse,
+        ),
+        map(
+            get_set_input_sensors_required_response,
+            |(current_sensors_required, total_sensors_available)| {
+                Incoming::GetSetRequiredInputSensorsResponse {
+                    current_sensors_required,
+                    total_sensors_available,
+                }
+            },
+        ),
+        map(
+            adjust_bitonal_threshold_response,
+            |(side, percent_white_threshold)| Incoming::AdjustBitonalThresholdResponse {
+                side,
+                percent_white_threshold,
+            },
+        ),
+        map(
+            get_calibration_information_response,
+            |(white_calibration_table, black_calibration_table)| {
+                Incoming::GetCalibrationInformationResponse {
+                    white_calibration_table,
+                    black_calibration_table,
+                }
+            },
+        ),
+    ))(input)
+}
+
+/// Parses any event, aka an "unsolicited message".
+///
+/// # Errors
+///
+/// Returns an error if the input does not match any known event packet.
+fn any_event(input: &[u8]) -> IResult<&[u8], Incoming> {
     alt((
         alt((
-            map(get_test_string_response, |test_string| {
-                Incoming::GetTestStringResponse(test_string.to_owned())
-            }),
-            map(get_firmware_version_response, |version| {
-                Incoming::GetFirmwareVersionResponse(version)
-            }),
-            map(
-                get_current_firmware_build_version_string_response,
-                |version| {
-                    Incoming::GetCurrentFirmwareBuildVersionStringResponse(version.to_owned())
-                },
+            value(Incoming::ScannerOkayEvent, scanner_okay_event),
+            value(Incoming::DocumentJamEvent, document_jam_event),
+            value(Incoming::CalibrationNeededEvent, calibration_needed_event),
+            value(
+                Incoming::ScannerCommandErrorEvent,
+                scanner_command_error_event,
             ),
-            map(get_scanner_status_response, |status| {
-                Incoming::GetScannerStatusResponse(status)
-            }),
-            map(get_scanner_settings_response, |settings| {
-                Incoming::GetScannerSettingsResponse(settings)
-            }),
-            map(get_set_serial_number_response, |serial_number| {
-                Incoming::GetSetSerialNumberResponse(serial_number)
-            }),
-            map(
-                get_set_input_sensors_required_response,
-                |(current_sensors_required, total_sensors_available)| {
-                    Incoming::GetSetRequiredInputSensorsResponse {
-                        current_sensors_required,
-                        total_sensors_available,
-                    }
-                },
+            value(Incoming::ReadErrorEvent, read_error_event),
+            value(
+                Incoming::MsdNeedsCalibrationEvent,
+                msd_needs_calibration_event,
             ),
-            map(
-                adjust_bitonal_threshold_response,
-                |(side, percent_white_threshold)| Incoming::AdjustBitonalThresholdResponse {
-                    side,
-                    percent_white_threshold,
-                },
+            value(
+                Incoming::MsdNotFoundOrOldFirmwareEvent,
+                msd_not_found_or_old_firmware_event,
             ),
-            map(
-                get_calibration_information_response,
-                |(white_calibration_table, black_calibration_table)| {
-                    Incoming::GetCalibrationInformationResponse {
-                        white_calibration_table,
-                        black_calibration_table,
-                    }
-                },
+            value(Incoming::FifoOverflowEvent, fifo_overflow_event),
+            value(Incoming::CoverOpenEvent, cover_open_event),
+            value(Incoming::CoverClosedEvent, cover_closed_event),
+            value(
+                Incoming::CommandPacketCrcErrorEvent,
+                command_packet_crc_error_event,
             ),
         )),
         alt((
-            alt((
-                value(Incoming::ScannerOkayEvent, scanner_okay_event),
-                value(Incoming::DocumentJamEvent, document_jam_event),
-                value(Incoming::CalibrationNeededEvent, calibration_needed_event),
-                value(
-                    Incoming::ScannerCommandErrorEvent,
-                    scanner_command_error_event,
-                ),
-                value(Incoming::ReadErrorEvent, read_error_event),
-                value(
-                    Incoming::MsdNeedsCalibrationEvent,
-                    msd_needs_calibration_event,
-                ),
-                value(
-                    Incoming::MsdNotFoundOrOldFirmwareEvent,
-                    msd_not_found_or_old_firmware_event,
-                ),
-                value(Incoming::FifoOverflowEvent, fifo_overflow_event),
-                value(Incoming::CoverOpenEvent, cover_open_event),
-                value(Incoming::CoverClosedEvent, cover_closed_event),
-                value(
-                    Incoming::CommandPacketCrcErrorEvent,
-                    command_packet_crc_error_event,
-                ),
-            )),
-            alt((
-                value(Incoming::FpgaOutOfDateEvent, fpga_out_of_date_event),
-                value(Incoming::CalibrationOkEvent, calibration_ok_event),
-                value(
-                    Incoming::CalibrationShortCalibrationDocumentEvent,
-                    calibration_short_calibration_document_event,
-                ),
-                value(
-                    Incoming::CalibrationDocumentRemovedEvent,
-                    calibration_document_removed_event,
-                ),
-                value(
-                    Incoming::CalibrationPixelErrorFrontArrayBlack,
-                    calibration_pixel_error_front_array_black,
-                ),
-                value(
-                    Incoming::CalibrationPixelErrorFrontArrayWhite,
-                    calibration_pixel_error_front_array_white,
-                ),
-                value(Incoming::CalibrationTimeoutError, calibration_timeout_error),
-                value(
-                    Incoming::CalibrationSpeedValueError,
-                    calibration_speed_value_error,
-                ),
-                value(
-                    Incoming::CalibrationSpeedBoxError,
-                    calibration_speed_box_error,
-                ),
-                value(Incoming::BeginScanEvent, begin_scan_event),
-                value(Incoming::EndScanEvent, end_scan_event),
-                value(Incoming::DoubleFeedEvent, double_feed_event),
-            )),
-            alt((
-                value(Incoming::CoverOpenEvent, cover_open_event_alternate),
-                value(Incoming::CoverClosedEvent, cover_closed_event_alternate),
-            )),
-            alt((
-                value(
-                    Incoming::DoubleFeedCalibrationCompleteEvent,
-                    double_feed_calibration_complete_event,
-                ),
-                value(
-                    Incoming::DoubleFeedCalibrationTimedOutEvent,
-                    double_feed_calibration_timed_out_event,
-                ),
-            )),
+            value(Incoming::FpgaOutOfDateEvent, fpga_out_of_date_event),
+            value(Incoming::CalibrationOkEvent, calibration_ok_event),
+            value(
+                Incoming::CalibrationShortCalibrationDocumentEvent,
+                calibration_short_calibration_document_event,
+            ),
+            value(
+                Incoming::CalibrationDocumentRemovedEvent,
+                calibration_document_removed_event,
+            ),
+            value(
+                Incoming::CalibrationPixelErrorFrontArrayBlack,
+                calibration_pixel_error_front_array_black,
+            ),
+            value(
+                Incoming::CalibrationPixelErrorFrontArrayWhite,
+                calibration_pixel_error_front_array_white,
+            ),
+            value(Incoming::CalibrationTimeoutError, calibration_timeout_error),
+            value(
+                Incoming::CalibrationSpeedValueError,
+                calibration_speed_value_error,
+            ),
+            value(
+                Incoming::CalibrationSpeedBoxError,
+                calibration_speed_box_error,
+            ),
+            value(Incoming::BeginScanEvent, begin_scan_event),
+            value(Incoming::EndScanEvent, end_scan_event),
+            value(Incoming::DoubleFeedEvent, double_feed_event),
+        )),
+        alt((
+            value(Incoming::CoverOpenEvent, cover_open_event_alternate),
+            value(Incoming::CoverClosedEvent, cover_closed_event_alternate),
+        )),
+        alt((
+            value(
+                Incoming::DoubleFeedCalibrationCompleteEvent,
+                double_feed_calibration_complete_event,
+            ),
+            value(
+                Incoming::DoubleFeedCalibrationTimedOutEvent,
+                double_feed_calibration_timed_out_event,
+            ),
         )),
     ))(input)
 }
 
 /// Parses the start marker of a packet.
+///
+/// # Errors
+///
+/// Returns an error if the input does not start with the packet start marker.
 fn packet_start(input: &[u8]) -> IResult<&[u8], &[u8]> {
     tag(PACKET_DATA_START)(input)
 }
 
 /// Parses until the end marker of a packet.
+///
+/// # Errors
+///
+/// Returns an error if the input does not contain the end marker of a packet.
 fn packet_body(input: &[u8]) -> IResult<&[u8], &[u8]> {
     take_until(PACKET_DATA_END)(input)
 }
 
 /// Parses the end marker of a packet.
+///
+/// # Errors
+///
+/// Returns an error if the input does not end with the packet end marker.
 fn packet_end(input: &[u8]) -> IResult<&[u8], &[u8]> {
     tag(PACKET_DATA_END)(input)
 }
@@ -350,14 +465,11 @@ fn packet_with_crc<'a, O, List: Tuple<&'a [u8], O, nom::error::Error<&'a [u8]>>>
     let mut parse_packet = packet(list);
 
     move |input: &[u8]| {
-        let packet_body = match extract_packet_body(&input[..input.len() - 1]) {
-            Some(body) => body,
-            None => {
-                return Err(nom::Err::Failure(nom::error::Error::new(
-                    input,
-                    nom::error::ErrorKind::Eof,
-                )))
-            }
+        let Some(packet_body) = extract_packet_body(&input[..input.len() - 1]) else {
+            return Err(nom::Err::Failure(nom::error::Error::new(
+                input,
+                nom::error::ErrorKind::Eof,
+            )));
         };
 
         let (input, packet) = parse_packet(input)?;
@@ -383,6 +495,10 @@ fn packet_with_crc<'a, O, List: Tuple<&'a [u8], O, nom::error::Error<&'a [u8]>>>
 /// assert_eq!(decimal_digit(b"0"), Ok((&b""[..], 0)));
 /// assert_eq!(decimal_digit(b"9"), Ok((&b""[..], 9)));
 /// ```
+///
+/// # Errors
+///
+/// Returns an error if the input does not start with a decimal digit.
 pub fn decimal_digit(input: &[u8]) -> IResult<&[u8], u8> {
     map_res(take(1usize), |bytes: &[u8]| {
         if let [byte, ..] = bytes {
@@ -408,12 +524,16 @@ pub fn decimal_digit(input: &[u8]) -> IResult<&[u8], u8> {
 /// assert_eq!(decimal_number(b"0"), Ok((&b""[..], 0)));
 /// assert_eq!(decimal_number(b"123"), Ok((&b""[..], 123)));
 /// ```
+///
+/// # Errors
+///
+/// Returns an error if the input does not start with a decimal digit.
 pub fn decimal_number(input: &[u8]) -> IResult<&[u8], u16> {
     let (input, digits) = many1(decimal_digit)(input)?;
 
     let mut number = 0;
     for digit in digits {
-        number = number * 10 + digit as u16;
+        number = number * 10 + u16::from(digit);
     }
 
     Ok((input, number))
@@ -434,16 +554,23 @@ pub fn decimal_number(input: &[u8]) -> IResult<&[u8], u16> {
 ///   nom::error::ErrorKind::MapRes,
 /// ))));
 /// ```
-pub fn decimal_percentage(input: &[u8]) -> IResult<&[u8], u8> {
+///
+/// # Errors
+///
+/// Returns an error if the input does not start with a decimal digit, or if the
+/// number is an invalid percentage.
+pub fn decimal_percentage(input: &[u8]) -> IResult<&[u8], ClampedPercentage> {
     map_res(decimal_number, |number| {
-        if number > 100 {
-            Err(nom::Err::Failure(nom::error::Error::new(
-                input,
-                nom::error::ErrorKind::Verify,
-            )))
-        } else {
-            Ok(number as u8)
+        if let Ok(number) = u8::try_from(number) {
+            if let Some(percentage) = ClampedPercentage::new(number) {
+                return Ok(percentage);
+            }
         }
+
+        Err(nom::Err::Failure(nom::error::Error::new(
+            input,
+            nom::error::ErrorKind::Verify,
+        )))
     })(input)
 }
 
@@ -458,6 +585,10 @@ pub fn decimal_percentage(input: &[u8]) -> IResult<&[u8], u8> {
 /// assert_eq!(hex_digit(b"f"), Ok((&b""[..], 15)));
 /// assert_eq!(hex_digit(b"F"), Ok((&b""[..], 15)));
 /// ```
+///
+/// # Errors
+///
+/// Returns an error if the input does not start with a hexadecimal digit.
 pub fn hex_digit(input: &[u8]) -> IResult<&[u8], u8> {
     map_res(take(1usize), |bytes: &[u8]| {
         if let [byte, ..] = bytes {
@@ -493,6 +624,10 @@ pub fn hex_digit(input: &[u8]) -> IResult<&[u8], u8> {
 /// assert_eq!(hex_byte(b"0f"), Ok((&b""[..], 15)));
 /// assert_eq!(hex_byte(b"ff"), Ok((&b""[..], 255)));
 /// ```
+///
+/// # Errors
+///
+/// Returns an error if the input does not start with two hexadecimal digits.
 pub fn hex_byte(input: &[u8]) -> IResult<&[u8], u8> {
     map(tuple((hex_digit, hex_digit)), |(hi, lo)| (hi << 4) | lo)(input)
 }
@@ -510,6 +645,10 @@ simple_request!(get_test_string_request, b"D");
 /// assert_eq!(get_test_string_response(b"\x02D\x03"), Ok((&b""[..], "")));
 /// assert_eq!(get_test_string_response(b"\x02DHello, World!\x03"), Ok((&b""[..], "Hello, World!")));
 /// ```
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
 pub fn get_test_string_response(input: &[u8]) -> IResult<&[u8], &str> {
     map_res(packet((tag(b"D"), packet_body)), |(_, test_string)| {
         from_utf8(test_string)
@@ -518,6 +657,11 @@ pub fn get_test_string_response(input: &[u8]) -> IResult<&[u8], &str> {
 
 simple_request!(get_firmware_version_request, b"V");
 
+/// Parses the response to a firmware version request.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
 pub fn get_firmware_version_response(input: &[u8]) -> IResult<&[u8], Version> {
     map(
         packet((
@@ -540,6 +684,11 @@ pub fn get_firmware_version_response(input: &[u8]) -> IResult<&[u8], Version> {
 
 simple_request!(get_current_firmware_build_version_string_request, b"\x1bV");
 
+/// Parses the response to a current firmware build version string request.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
 pub fn get_current_firmware_build_version_string_response(input: &[u8]) -> IResult<&[u8], &str> {
     if let Ok(([], _)) = packet((
         tag(b"X"),
@@ -557,13 +706,11 @@ pub fn get_current_firmware_build_version_string_response(input: &[u8]) -> IResu
     ))(input)
     {
         if let Some(body) = extract_packet_body(input) {
-            return match from_utf8(&input[b"X".len()..]) {
-                Ok(string) => Ok((&[], string)),
-                Err(_) => Err(nom::Err::Failure(nom::error::Error::new(
-                    body,
-                    nom::error::ErrorKind::Verify,
-                ))),
-            };
+            return from_utf8(&input[b"X".len()..])
+                .map(|string| (&[] as &[u8], string))
+                .map_err(|_| {
+                    nom::Err::Failure(nom::error::Error::new(body, nom::error::ErrorKind::Verify))
+                });
         }
     }
 
@@ -575,6 +722,11 @@ pub fn get_current_firmware_build_version_string_response(input: &[u8]) -> IResu
 
 simple_request!(get_scanner_status_request, b"Q");
 
+/// Parses the response to a scanner status request.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
 pub fn get_scanner_status_response(input: &[u8]) -> IResult<&[u8], Status> {
     map(
         packet((tag(b"Q"), le_u8, le_u8, le_u8)),
@@ -607,6 +759,11 @@ pub fn get_scanner_status_response(input: &[u8]) -> IResult<&[u8], Status> {
 
 simple_request!(get_scanner_settings_request, b"I");
 
+/// Parses the response to a scanner settings request.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
 pub fn get_scanner_settings_response(input: &[u8]) -> IResult<&[u8], Settings> {
     map(
         packet((
@@ -642,6 +799,11 @@ pub fn get_scanner_settings_response(input: &[u8]) -> IResult<&[u8], Settings> {
 simple_request!(enable_double_feed_detection_request, b"n");
 simple_request!(disable_double_feed_detection_request, b"o");
 
+/// Parses a request to calibrate the double feed detection.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
 pub fn calibrate_double_feed_detection_request(
     input: &[u8],
 ) -> IResult<&[u8], DoubleFeedDetectionCalibrationType> {
@@ -651,13 +813,25 @@ pub fn calibrate_double_feed_detection_request(
     )(input)
 }
 
-pub fn set_double_feed_detection_sensitivity_request(input: &[u8]) -> IResult<&[u8], u8> {
+/// Parses a request to set the double feed detection calibration.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
+pub fn set_double_feed_detection_sensitivity_request(
+    input: &[u8],
+) -> IResult<&[u8], ClampedPercentage> {
     map(
         packet_with_crc((tag(b"n3A"), decimal_percentage)),
         |(_, sensitivity)| sensitivity,
     )(input)
 }
 
+/// Parses a request to set the double feed detection sensitivity.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
 pub fn set_double_feed_detection_minimum_document_length_request(
     input: &[u8],
 ) -> IResult<&[u8], u8> {
@@ -665,13 +839,13 @@ pub fn set_double_feed_detection_minimum_document_length_request(
         packet_with_crc((
             tag(b"n3B"),
             map_res(decimal_number, |number| {
-                if !(10..=250).contains(&number) {
+                if (10..=250).contains(&number) {
+                    Ok(number as u8)
+                } else {
                     Err(nom::Err::Failure(nom::error::Error::new(
                         input,
                         nom::error::ErrorKind::Verify,
                     )))
-                } else {
-                    Ok(number as u8)
                 }
             }),
         )),
@@ -685,6 +859,11 @@ simple_request!(disable_feeder_request, b"9");
 simple_request!(disable_momentary_reverse_on_feed_at_input_request, b"\x1bO");
 simple_request!(get_serial_number_request, b"*");
 
+/// Parses a request to set the serial number.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
 pub fn set_serial_number_request(input: &[u8]) -> IResult<&[u8], &[u8; 8]> {
     map(
         packet_with_crc((tag(b"*"), map_res(take(8usize), TryInto::try_into))),
@@ -692,6 +871,11 @@ pub fn set_serial_number_request(input: &[u8]) -> IResult<&[u8], &[u8; 8]> {
     )(input)
 }
 
+/// Parses a response to a request to get or set the serial number.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
 pub fn get_set_serial_number_response(input: &[u8]) -> IResult<&[u8], [u8; 8]> {
     map_res(packet((tag(b"*"), take(8usize))), |(_, serial_number)| {
         serial_number.try_into()
@@ -700,6 +884,11 @@ pub fn get_set_serial_number_response(input: &[u8]) -> IResult<&[u8], [u8; 8]> {
 
 simple_request!(get_input_sensors_required_request, b"\x1bs");
 
+/// Parses a request to set the input sensors required to initiate a scan.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
 pub fn set_input_sensors_required_request(input: &[u8]) -> IResult<&[u8], u8> {
     map(
         packet_with_crc((tag(b"\x1bs"), decimal_digit)),
@@ -707,6 +896,12 @@ pub fn set_input_sensors_required_request(input: &[u8]) -> IResult<&[u8], u8> {
     )(input)
 }
 
+/// Parses a response to a request to get or set the input sensors required to
+/// initiate a scan.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
 pub fn get_set_input_sensors_required_response(input: &[u8]) -> IResult<&[u8], (u8, u8)> {
     map(
         packet((tag(b"s"), decimal_digit, decimal_digit)),
@@ -714,29 +909,36 @@ pub fn get_set_input_sensors_required_response(input: &[u8]) -> IResult<&[u8], (
     )(input)
 }
 
+/// Parses a request to adjust the bitonal threshold by 1.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
 pub fn adjust_bitonal_threshold_by_1_request(input: &[u8]) -> IResult<&[u8], BitonalAdjustment> {
     map(
         packet_with_crc((
             tag(b"\x1b"),
             alt((
-                map(tag(b"+"), |_| (Side::Top, Direction::Increase)),
-                map(tag(b"-"), |_| (Side::Top, Direction::Decrease)),
-                map(tag(b">"), |_| (Side::Bottom, Direction::Increase)),
-                map(tag(b"<"), |_| (Side::Bottom, Direction::Decrease)),
+                value((Side::Top, Direction::Increase), tag(b"+")),
+                value((Side::Top, Direction::Decrease), tag(b"-")),
+                value((Side::Bottom, Direction::Increase), tag(b">")),
+                value((Side::Bottom, Direction::Decrease), tag(b"<")),
             )),
         )),
         |(_, (side, direction))| BitonalAdjustment::new(side, direction),
     )(input)
 }
 
+/// Parses a response to a request to adjust the bitonal threshold by 1.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
 pub fn adjust_bitonal_threshold_response(input: &[u8]) -> IResult<&[u8], (Side, u8)> {
     map(
         packet((
             tag(b"X"),
-            alt((
-                map(tag(b"T"), |_| Side::Top),
-                map(tag(b"B"), |_| Side::Bottom),
-            )),
+            alt((value(Side::Top, tag(b"T")), value(Side::Bottom, tag(b"B")))),
             tag(b" "),
             hex_byte,
         )),
@@ -744,19 +946,29 @@ pub fn adjust_bitonal_threshold_response(input: &[u8]) -> IResult<&[u8], (Side, 
     )(input)
 }
 
+/// Parses a request to get the calibration information.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
 pub fn get_calibration_information_request(input: &[u8]) -> IResult<&[u8], Option<Resolution>> {
     alt((
-        map(packet_with_crc((tag(b"W"),)), |_| None),
-        map(packet_with_crc((tag(b"W0"),)), |_| Some(Resolution::Native)),
-        map(packet_with_crc((tag(b"W1"),)), |_| Some(Resolution::Half)),
+        value(None, packet_with_crc((tag(b"W"),))),
+        value(Some(Resolution::Native), packet_with_crc((tag(b"W0"),))),
+        value(Some(Resolution::Half), packet_with_crc((tag(b"W1"),))),
     ))(input)
 }
 
-// TODO: This implementation corresponds to the documentation, but it doesn't
-// seem to match the actual behavior of the scanner. The scanner seems to
-// return an extra byte at the end of the packet, which is not accounted for
-// here.
+/// Parses a response to a request to get the calibration information.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
 pub fn get_calibration_information_response(input: &[u8]) -> IResult<&[u8], (Vec<u8>, Vec<u8>)> {
+    // TODO: This implementation corresponds to the documentation, but it doesn't
+    // seem to match the actual behavior of the scanner. The scanner seems to
+    // return an extra byte at the end of the packet, which is not accounted for
+    // here.
     let (input, _) = packet_start(input)?;
     let (input, _) = tag(b"W")(input)?;
     let (input, pixel_count) = le_u16(input)?;
@@ -808,13 +1020,27 @@ simple_request!(disable_auto_run_out_at_end_of_scan_request, b"\x1bd");
 simple_request!(configure_motor_to_run_at_half_speed_request, b"j");
 simple_request!(configure_motor_to_run_at_full_speed_request, b"k");
 
-pub fn set_bitonal_threshold_request(input: &[u8]) -> IResult<&[u8], (Side, u8)> {
+/// Parses a request to set the bitonal threshold to a new value.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
+pub fn set_bitonal_threshold_request(input: &[u8]) -> IResult<&[u8], (Side, ClampedPercentage)> {
     map(
-        packet_with_crc((tag(b"\x1b%"), map_res(le_u8, TryInto::try_into), le_u8)),
+        packet_with_crc((
+            tag(b"\x1b%"),
+            map_res(le_u8, TryInto::try_into),
+            map_res(le_u8, TryInto::try_into),
+        )),
         |(_, side, new_threshold)| (side, new_threshold),
     )(input)
 }
 
+/// Parses a request to set the length of the document to scan.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
 pub fn set_length_of_document_to_scan_request(input: &[u8]) -> IResult<&[u8], (u8, Option<u8>)> {
     map(
         packet_with_crc((
@@ -833,6 +1059,11 @@ pub fn set_length_of_document_to_scan_request(input: &[u8]) -> IResult<&[u8], (u
     )(input)
 }
 
+/// Parses a request to set the scan delay interval for document feed.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
 pub fn set_scan_delay_interval_for_document_feed_request(input: &[u8]) -> IResult<&[u8], Duration> {
     map_res(
         packet_with_crc((tag(b"\x1bj"), le_u8)),
@@ -908,7 +1139,7 @@ mod tests {
     fn test_packet_with_crc() {
         let input = b"\x02D\x03\xb4";
         let (remainder, (tag,)) = packet_with_crc((tag(b"D"),))(input).unwrap();
-        assert_eq!(remainder, [],);
+        assert_eq!(remainder, []);
         assert_eq!(tag, b"D");
     }
 

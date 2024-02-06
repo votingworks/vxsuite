@@ -1,8 +1,8 @@
 use std::time::Duration;
 
 use super::types::{
-    BitonalAdjustment, DoubleFeedDetectionCalibrationType, Resolution, Settings, Side, Status,
-    Version,
+    BitonalAdjustment, ClampedPercentage, DoubleFeedDetectionCalibrationType, Resolution, Settings,
+    Side, Status, Version,
 };
 
 pub(crate) const PACKET_DATA_START: &[u8] = &[0x02];
@@ -403,7 +403,7 @@ pub enum Outgoing {
     /// `(58H) (54H) (20H) <2 Bytes (current)>`
     SetThresholdToANewValueRequest {
         side: Side,
-        new_threshold: u8,
+        new_threshold: ClampedPercentage,
     },
 
     /// This command sets the maximum expected length of a document. If a
@@ -517,7 +517,7 @@ pub enum Outgoing {
     DisableDoubleFeedDetectionRequest,
     CalibrateDoubleFeedDetectionRequest(DoubleFeedDetectionCalibrationType),
     SetDoubleFeedDetectionSensitivityRequest {
-        percentage: u8,
+        percentage: ClampedPercentage,
     },
     SetDoubleFeedDetectionMinimumDocumentLengthRequest {
         length_in_hundredths_of_an_inch: u8,
@@ -840,10 +840,12 @@ pub struct Command<'a> {
 }
 
 impl<'a> Command<'a> {
+    #[must_use]
     pub const fn new(body: &'a [u8]) -> Self {
         Self { body }
     }
 
+    #[must_use]
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut bytes = Vec::with_capacity(self.body.len() + 2);
         bytes.extend_from_slice(PACKET_DATA_START);
@@ -864,10 +866,10 @@ pub(crate) fn crc(data: &[u8]) -> u8 {
     data.iter().fold(0, |crc, byte| {
         let mut crc = crc ^ byte;
         for _ in 0..u8::BITS {
-            if crc & 0x80 != 0 {
-                crc = (crc << 1) ^ POLYNOMIAL;
-            } else {
+            if crc & 0x80 == 0 {
                 crc <<= 1;
+            } else {
+                crc = (crc << 1) ^ POLYNOMIAL;
             }
         }
         crc
