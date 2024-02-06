@@ -362,4 +362,14 @@ test('textWrap', () => {
   expect(
     textWrap('<html>This line has\nline breaks</html>', m.FontStyles.BODY, 100)
   ).toEqual(['<html>This line has</html>', '<html>line breaks</html>']);
+
+  expect(() =>
+    textWrap(
+      '<html>Here is a mismatched <b>tag</i></b></html>',
+      m.FontStyles.BODY,
+      100
+    )
+  ).toThrowError(
+    'Unexpected closing tag </i> in word "<b>tag</i></b></html>" (expected </b>)'
+  );
 });

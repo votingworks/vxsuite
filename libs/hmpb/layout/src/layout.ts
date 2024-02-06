@@ -92,6 +92,18 @@ export function textWidth(text: string, fontStyle: FontStyle): number {
 
 const HTML_TAG_REGEX = /<\/?\w+>/g;
 
+function openingTag(tag: string): string {
+  return tag.replace(/^<\/?/, '<');
+}
+
+function closingTag(tag: string): string {
+  return tag.replace(/^<\/?/, '</');
+}
+
+function isClosingTag(tag: string): boolean {
+  return tag.startsWith('</');
+}
+
 export function textWrap(
   text: string,
   fontStyle: FontStyle,
@@ -127,10 +139,7 @@ export function textWrap(
     } else {
       // Close any tags that are open in this line before breaking
       const extraCloseTags = isHtml
-        ? [...tagStack]
-            .reverse()
-            .map((tag) => tag.replace('<', '</'))
-            .join('')
+        ? [...tagStack].reverse().map(closingTag).join('')
         : '';
       results.push(currentLine + extraCloseTags);
 
@@ -143,8 +152,15 @@ export function textWrap(
     if (isHtml) {
       const htmlTagsInWord = word.match(HTML_TAG_REGEX) ?? [];
       for (const tag of htmlTagsInWord) {
-        if (tag.startsWith('</')) {
-          tagStack.pop();
+        if (isClosingTag(tag)) {
+          const expectedTag = tagStack.pop();
+          if (expectedTag !== openingTag(tag)) {
+            throw new Error(
+              `Unexpected closing tag ${tag} in word "${word}" (expected ${
+                expectedTag ? closingTag(expectedTag) : 'none'
+              })`
+            );
+          }
         } else {
           tagStack.push(tag);
         }
