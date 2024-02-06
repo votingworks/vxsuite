@@ -13,7 +13,7 @@ test('advances to next step', () => {
     />
   );
 
-  screen.getByText('PAT Device Identification');
+  screen.getByText('Personal Assistive Technology Device Identification');
   screen.getByText('Trigger any input to continue.');
   userEvent.keyboard('1');
   screen.getByText('Identify the "Move" Input');

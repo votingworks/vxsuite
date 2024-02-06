@@ -1,4 +1,13 @@
-import { Main, Screen, H1, P, Button, Icons } from '@votingworks/ui';
+import {
+  Main,
+  Screen,
+  H1,
+  P,
+  Button,
+  Icons,
+  ReadOnLoad,
+  appStrings,
+} from '@votingworks/ui';
 import { ButtonFooter } from '@votingworks/mark-flow-ui';
 import { PortraitStepInnerContainer } from './portrait_step_inner_container';
 
@@ -15,17 +24,19 @@ export function ConfirmExitPatDeviceIdentificationPage({
     <Screen>
       <Main centerChild>
         <PortraitStepInnerContainer>
-          <Icons.Done />
-          <H1>Device Inputs Identified</H1>
-          <P>You may continue with voting or go back to the previous screen.</P>
+          <ReadOnLoad>
+            <Icons.Done color="success" />
+            <H1>{appStrings.titleBmdPatCalibrationConfirmExitScreen()}</H1>
+            <P>{appStrings.instructionsBmdPatCalibrationConfirmExitScreen()}</P>
+          </ReadOnLoad>
         </PortraitStepInnerContainer>
       </Main>
       <ButtonFooter>
         <Button icon="Previous" onPress={onPressBack}>
-          Back
+          {appStrings.buttonBack()}
         </Button>
         <Button variant="primary" rightIcon="Next" onPress={onPressContinue}>
-          Continue with Voting
+          {appStrings.buttonContinueVoting()}
         </Button>
       </ButtonFooter>
     </Screen>

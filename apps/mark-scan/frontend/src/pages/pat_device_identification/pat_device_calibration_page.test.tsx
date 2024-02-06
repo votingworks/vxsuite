@@ -40,7 +40,7 @@ function renderComponent() {
 test('can restart the device ID flow', () => {
   renderComponent();
 
-  screen.getByText('PAT Device Identification');
+  screen.getByText('Personal Assistive Technology Device Identification');
 
   identifyInputs();
   userEvent.click(screen.getByText('Back'));
@@ -51,7 +51,7 @@ test('can restart the device ID flow', () => {
 test('sets backend calibration state if "Skip" button is pressed', () => {
   renderComponent();
 
-  screen.getByText('PAT Device Identification');
+  screen.getByText('Personal Assistive Technology Device Identification');
   apiMock.expectSetPatDeviceIsCalibrated();
   userEvent.click(screen.getByText('Skip Identification'));
 });
@@ -59,7 +59,7 @@ test('sets backend calibration state if "Skip" button is pressed', () => {
 test('sets backend calibration state if "Continue with Voting" button is pressed', () => {
   renderComponent();
 
-  screen.getByText('PAT Device Identification');
+  screen.getByText('Personal Assistive Technology Device Identification');
 
   identifyInputs();
   apiMock.expectSetPatDeviceIsCalibrated();

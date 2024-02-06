@@ -9,6 +9,14 @@ import { UiString } from './ui_string';
 // to generate libs/ui/src/ui_strings/app_strings_catalog/latest.json
 
 export const appStrings = {
+  bmdPatDeviceInputNameMove: () => (
+    <UiString uiStringKey="bmdPatDeviceInputNameMove">"Move"</UiString>
+  ),
+
+  bmdPatDeviceInputNameSelect: () => (
+    <UiString uiStringKey="bmdPatDeviceInputNameSelect">"Select"</UiString>
+  ),
+
   buttonAccept: () => <UiString uiStringKey="buttonAccept">Accept</UiString>,
 
   buttonAddWriteIn: () => (
@@ -35,6 +43,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  buttonBmdSkipPatCalibration: () => (
+    <UiString uiStringKey="buttonBmdSkipPatCalibration">
+      Skip Identification
+    </UiString>
+  ),
+
   buttonCancel: () => <UiString uiStringKey="buttonCancel">Cancel</UiString>,
 
   buttonCastBallotAsIs: () => (
@@ -44,6 +58,10 @@ export const appStrings = {
   buttonChange: () => <UiString uiStringKey="buttonChange">Change</UiString>,
 
   buttonClose: () => <UiString uiStringKey="buttonClose">Close</UiString>,
+
+  buttonContinueVoting: () => (
+    <UiString uiStringKey="buttonContinueVoting">Continue with Voting</UiString>
+  ),
 
   buttonDone: () => <UiString uiStringKey="buttonDone">Done</UiString>,
 
@@ -178,6 +196,36 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsBmdPatCalibrationConfirmExitScreen: () => (
+    <UiString uiStringKey="instructionsBmdPatCalibrationConfirmExitScreen">
+      You may continue with voting or go back to the previous screen.
+    </UiString>
+  ),
+
+  instructionsBmdPatCalibrationIntroStep: () => (
+    <UiString uiStringKey="instructionsBmdPatCalibrationIntroStep">
+      Trigger any input to continue.
+    </UiString>
+  ),
+
+  instructionsBmdPatCalibrationTriggerInputAgain: () => (
+    <UiString uiStringKey="instructionsBmdPatCalibrationTriggerInputAgain">
+      Trigger the input again to continue.
+    </UiString>
+  ),
+
+  instructionsBmdPatCalibrationTryInput: () => (
+    <UiString uiStringKey="instructionsBmdPatCalibrationTryInput">
+      Try an input to continue.
+    </UiString>
+  ),
+
+  instructionsBmdPatCalibrationTryOtherInput: () => (
+    <UiString uiStringKey="instructionsBmdPatCalibrationTryOtherInput">
+      Try the other input.
+    </UiString>
+  ),
+
   instructionsBmdReviewPageNavigation: () => (
     <UiString uiStringKey="instructionsBmdReviewPageNavigation">
       To review your votes, advance through the ballot contests using the up and
@@ -250,6 +298,18 @@ export const appStrings = {
 
   labelBallotStyle: () => (
     <UiString uiStringKey="labelBallotStyle">Ballot style:</UiString>
+  ),
+
+  labelBmdPatCalibrationInputIdentified: () => (
+    <UiString uiStringKey="labelBmdPatCalibrationInputIdentified">
+      Input Identified:
+    </UiString>
+  ),
+
+  labelBmdPatCalibrationInputTriggered: () => (
+    <UiString uiStringKey="labelBmdPatCalibrationInputTriggered">
+      Input Triggered:
+    </UiString>
   ),
 
   labelBmdSecondsRemaining: () => (
@@ -698,6 +758,36 @@ export const appStrings = {
     </UiString>
   ),
 
+  titleBmdPatCalibrationConfirmExitScreen: () => (
+    <UiString uiStringKey="titleBmdPatCalibrationConfirmExitScreen">
+      Device Inputs Identified
+    </UiString>
+  ),
+
+  titleBmdPatCalibrationIdentificationPage: () => (
+    <UiString uiStringKey="titleBmdPatCalibrationIdentificationPage">
+      Personal Assistive Technology Device Identification
+    </UiString>
+  ),
+
+  titleBmdPatCalibrationIdentifyMoveInput: () => (
+    <UiString uiStringKey="titleBmdPatCalibrationIdentifyMoveInput">
+      Identify the "Move" Input
+    </UiString>
+  ),
+
+  titleBmdPatCalibrationIdentifySelectInput: () => (
+    <UiString uiStringKey="titleBmdPatCalibrationIdentifySelectInput">
+      Identify the "Select" Input
+    </UiString>
+  ),
+
+  titleBmdPatCalibrationIntroStep: () => (
+    <UiString uiStringKey="titleBmdPatCalibrationIntroStep">
+      Test Your Device
+    </UiString>
+  ),
+
   titleBmdPrintScreen: () => (
     <UiString uiStringKey="titleBmdPrintScreen">
       Printing Your Official Ballot...
@@ -734,6 +824,26 @@ export const appStrings = {
     <UiString uiStringKey="titleInternalConnectionProblem">
       Internal Connection Problem
     </UiString>
+  ),
+
+  noteBmdPatCalibrationIntroStep: () => (
+    <UiString uiStringKey="noteBmdPatCalibrationIntroStep">
+      Your device's two inputs can be used to <Font weight="bold">Move</Font>{' '}
+      focus between two items on the screen and{' '}
+      <Font weight="bold">Select</Font> an item.
+    </UiString>
+  ),
+
+  noteBmdPatCalibrationStep1: () => (
+    <UiString uiStringKey="noteBmdPatCalibrationStep1">Step 1 of 3</UiString>
+  ),
+
+  noteBmdPatCalibrationStep2: () => (
+    <UiString uiStringKey="noteBmdPatCalibrationStep2">Step 2 of 3</UiString>
+  ),
+
+  noteBmdPatCalibrationStep3: () => (
+    <UiString uiStringKey="noteBmdPatCalibrationStep3">Step 3 of 3</UiString>
   ),
 
   titleModalAreYouSure: () => (

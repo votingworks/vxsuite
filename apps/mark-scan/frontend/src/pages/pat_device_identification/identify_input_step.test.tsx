@@ -35,7 +35,9 @@ test.each(testSpecs)(
 
     screen.getByText(`Identify the "${desiredInput}" Input`);
     userEvent.keyboard(desiredKey);
-    screen.getByText(`"${desiredInput}" Input Identified`);
+    screen.getByRole('heading', {
+      name: `Input Identified: "${desiredInput}"`,
+    });
     screen.getByText('Trigger the input again to continue.');
 
     expect(onStepCompleted).not.toHaveBeenCalled();
@@ -55,13 +57,17 @@ test.each(testSpecs)(
       />
     );
 
-    screen.getByText(`Identify the "${desiredInput}" Input`);
+    screen.getByRole('heading', {
+      name: `Identify the "${desiredInput}" Input`,
+    });
     userEvent.keyboard(otherKey);
-    screen.getByText(`"${otherInput}" Input Triggered`);
+    screen.getByRole('heading', { name: `Input Triggered: "${otherInput}"` });
     screen.getByText('Try the other input.');
 
     userEvent.keyboard(desiredKey);
-    screen.getByText(`"${desiredInput}" Input Identified`);
+    screen.getByRole('heading', {
+      name: `Input Identified: "${desiredInput}"`,
+    });
     screen.getByText('Trigger the input again to continue.');
   }
 );
