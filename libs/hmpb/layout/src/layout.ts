@@ -36,6 +36,7 @@ import {
   AnyElement,
   Bubble,
   Document,
+  Image,
   Page,
   Rectangle,
   TextBox,
@@ -402,6 +403,21 @@ function HeaderAndInstructions({
   }
 
   const sealRowHeight = m.HEADER_ROW_HEIGHT - 0.5;
+  const sealBlock: Image | undefined = election.seal
+    ? {
+        type: 'Image',
+        ...gridPoint(
+          {
+            row: (m.HEADER_ROW_HEIGHT - 0.25 - sealRowHeight) / 2,
+            column: 0.5,
+          },
+          m
+        ),
+        width: gridWidth(sealRowHeight, m),
+        height: gridHeight(sealRowHeight, m),
+        contents: election.seal,
+      }
+    : undefined;
 
   const ballotModeLabel: Record<BallotMode, string> = {
     sample: 'Sample',
@@ -486,7 +502,10 @@ function HeaderAndInstructions({
     children: [
       TextBlock({
         ...gridPoint(
-          { row: m.HEADER_ROW_HEIGHT / 15, column: sealRowHeight + 1.5 },
+          {
+            row: m.HEADER_ROW_HEIGHT / 15,
+            column: sealBlock ? sealRowHeight + 1.5 : 0,
+          },
           m
         ),
         width: gridWidth(
@@ -511,19 +530,7 @@ function HeaderAndInstructions({
           },
         ],
       }),
-      {
-        type: 'Image',
-        ...gridPoint(
-          {
-            row: (m.HEADER_ROW_HEIGHT - 0.25 - sealRowHeight) / 2,
-            column: 0.5,
-          },
-          m
-        ),
-        width: gridWidth(sealRowHeight, m),
-        height: gridHeight(sealRowHeight, m),
-        contents: election.seal,
-      },
+      ...(sealBlock ? [sealBlock] : []),
       ...(clerkSignatureBlock ? [clerkSignatureBlock] : []),
     ],
   };
