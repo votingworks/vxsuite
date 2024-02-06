@@ -1,5 +1,7 @@
 import React from 'react';
 import { Buffer } from 'buffer';
+import { DOMParser } from '@xmldom/xmldom';
+import { assertDefined } from '@votingworks/basics';
 import {
   Bubble,
   Color,
@@ -48,6 +50,50 @@ export function SvgBubble({
   return <SvgRectangle {...props} />;
 }
 
+function splitIntoHtmlSpans(html: string): React.ReactNode[] {
+  // Remove any <html> and </html> tags in the line
+  // eslint-disable-next-line no-param-reassign
+  html = html.replace(/<\/?html>/, '');
+
+  // DOMParser breaks if there's a closing tag with no opening tag, so fix that
+  // It doesn't mind unclosed tags, so we don't need to fix those
+  const firstClosingTag = html.match(/<\/\w+>/)?.[0];
+  const firstClosingTagIndex = firstClosingTag
+    ? html.indexOf(firstClosingTag)
+    : Infinity;
+  const firstOpeningTagIndex = html.search(/<\w+>/);
+  if (firstClosingTagIndex < firstOpeningTagIndex) {
+    // eslint-disable-next-line no-param-reassign
+    html = assertDefined(firstClosingTag).replace('</', '<') + html;
+  }
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(`<html>${html}</html>`, 'text/html');
+  const spans = Array.from(assertDefined(doc.firstChild).childNodes).map(
+    (node, index) => {
+      return (
+        <tspan
+          // eslint-disable-next-line react/no-array-index-key
+          key={`span${index}`}
+          fontWeight={node.nodeName === 'b' ? 700 : undefined}
+          textDecoration={
+            node.nodeName === 'u'
+              ? 'underline'
+              : node.nodeName === 'i'
+              ? 'italic'
+              : node.nodeName === 's'
+              ? 'line-through'
+              : undefined
+          }
+        >
+          {node.textContent}
+        </tspan>
+      );
+    }
+  );
+  return spans;
+}
+
 type SvgTextBoxProps = Omit<TextBox, 'type'>;
 
 export function SvgTextBox({
@@ -60,35 +106,40 @@ export function SvgTextBox({
   align = 'left',
   ...textProps
 }: SvgTextBoxProps): JSX.Element {
+  const isHtml =
+    textLines[0].startsWith('<html>') &&
+    textLines[textLines.length - 1].endsWith('</html>');
   return (
     <svg x={x} y={y} width={width} height={height}>
-      {textLines.map((textLine, index) => (
-        <text
-          // eslint-disable-next-line react/no-array-index-key
-          key={textLine + index}
-          // Adjust x coordinate if textAnchor is 'end' so that the overall
-          // content box location stays the same, since 'end' moves the text to
-          // the other side of the x coordinate. Similarly for 'middle'.
-          x={
-            {
-              left: 0,
-              center: width / 2,
-              right: width,
-            }[align]
-          }
-          y={(index + 1) * lineHeight}
-          textAnchor={
-            {
-              left: 'start',
-              center: 'middle',
-              right: 'end',
-            }[align]
-          }
-          {...textProps}
-        >
-          {textLine}
-        </text>
-      ))}
+      {textLines.map((textLine, index) => {
+        return (
+          <text
+            // eslint-disable-next-line react/no-array-index-key
+            key={textLine + index}
+            // Adjust x coordinate if textAnchor is 'end' so that the overall
+            // content box location stays the same, since 'end' moves the text to
+            // the other side of the x coordinate. Similarly for 'middle'.
+            x={
+              {
+                left: 0,
+                center: width / 2,
+                right: width,
+              }[align]
+            }
+            y={(index + 1) * lineHeight}
+            textAnchor={
+              {
+                left: 'start',
+                center: 'middle',
+                right: 'end',
+              }[align]
+            }
+            {...textProps}
+          >
+            {isHtml ? splitIntoHtmlSpans(textLine) : textLine}
+          </text>
+        );
+      })}
     </svg>
   );
 }

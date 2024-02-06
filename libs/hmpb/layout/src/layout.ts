@@ -88,7 +88,13 @@ function characterWidth(character: string, fontStyle: FontStyle): number {
 }
 
 export function textWidth(text: string, fontStyle: FontStyle): number {
-  return iter(text.split('').map((c) => characterWidth(c, fontStyle))).sum();
+  return iter(
+    text
+      // Don't count the width of HTML tags
+      .replaceAll(/<\/?\w+>/g, '')
+      .split('')
+      .map((c) => characterWidth(c, fontStyle))
+  ).sum();
 }
 
 function wrapLine(line: string, fontStyle: FontStyle, width: number): string[] {
