@@ -10,7 +10,7 @@ pub enum Resolution {
     Half,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Side {
     Top,
     Bottom,
@@ -69,6 +69,7 @@ pub struct BitonalAdjustment {
 }
 
 impl BitonalAdjustment {
+    #[must_use]
     pub const fn new(side: Side, direction: Direction) -> Self {
         Self { side, direction }
     }
@@ -97,6 +98,7 @@ pub struct Version {
 }
 
 impl Version {
+    #[must_use]
     pub const fn new(
         product_id: String,
         major: String,
@@ -115,7 +117,7 @@ impl Version {
 /// The status of the scanner.
 ///
 /// Note: bit 7 of each byte is always set to 1.
-#[derive(Debug, PartialEq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone)]
 pub struct Status {
     /// Byte 0, Bit 0 (0x01)
     pub rear_left_sensor_covered: bool,
@@ -165,6 +167,7 @@ pub struct Status {
 
 impl Status {
     #[allow(clippy::too_many_arguments)]
+    #[must_use]
     pub const fn new(
         rear_left_sensor_covered: bool,
         rear_right_sensor_covered: bool,
@@ -223,6 +226,7 @@ pub struct Settings {
 }
 
 impl Settings {
+    #[must_use]
     pub const fn new(
         dpi_setting: u16,
         bits_per_pixel: u16,
@@ -275,5 +279,51 @@ impl TryFrom<u8> for DoubleFeedDetectionCalibrationType {
             2 => Ok(Self::DoubleSheet),
             _ => Err(()),
         }
+    }
+}
+
+/// A percentage value clamped to the range 0..=100.
+#[derive(Debug, Clone, Copy)]
+pub struct ClampedPercentage(u8);
+
+impl ClampedPercentage {
+    /// Create a new `ClampedPercentage` if the value is in the range 0..=100.
+    #[must_use]
+    pub const fn new(value: u8) -> Option<Self> {
+        if value <= 100 {
+            Some(Self(value))
+        } else {
+            None
+        }
+    }
+
+    /// Create a new `ClampedPercentage` without checking the value. The
+    /// caller must ensure that the value is in the range 0..=100.
+    #[must_use]
+    pub const fn new_unchecked(value: u8) -> Self {
+        Self(value)
+    }
+
+    /// Get the value as a percentage.
+    ///
+    /// # Example
+    ///
+    /// ```
+    /// use pdiscan::protocol::types::ClampedPercentage;
+    ///
+    /// let percentage = ClampedPercentage::new(50).unwrap();
+    /// assert_eq!(percentage.value(), 50);
+    /// ```
+    #[must_use]
+    pub const fn value(&self) -> u8 {
+        self.0
+    }
+}
+
+impl TryFrom<u8> for ClampedPercentage {
+    type Error = ();
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        ClampedPercentage::new(value).ok_or(())
     }
 }
