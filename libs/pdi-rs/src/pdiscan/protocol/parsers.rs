@@ -2,9 +2,10 @@ use std::{str::from_utf8, time::Duration};
 
 use nom::{
     branch::alt,
-    bytes::complete::{tag, take, take_until, take_while_m_n},
+    bytes::complete::{tag, take, take_until, take_while1, take_while_m_n},
     character::is_digit,
     combinator::{map, map_res, value},
+    multi::many1,
     number::complete::{le_u16, le_u8},
     sequence::{delimited, tuple, Tuple},
     IResult,
@@ -12,7 +13,7 @@ use nom::{
 
 use super::{
     packets::{crc, Incoming, Packet, PACKET_DATA_END, PACKET_DATA_START},
-    types::{BitonalAdjustment, Direction, Resolution, Side},
+    types::{BitonalAdjustment, Direction, DoubleFeedDetectionCalibrationType, Resolution, Side},
     Outgoing, Settings, Status, Version,
 };
 
@@ -149,6 +150,32 @@ pub fn any_outgoing(input: &[u8]) -> IResult<&[u8], Outgoing> {
                 Outgoing::RescanDocumentHeldInEscrowPositionRequest
             }),
         )),
+        alt((
+            value(
+                Outgoing::EnableDoubleFeedDetectionRequest,
+                enable_double_feed_detection_request,
+            ),
+            value(
+                Outgoing::DisableDoubleFeedDetectionRequest,
+                disable_double_feed_detection_request,
+            ),
+            map(
+                calibrate_double_feed_detection_request,
+                |calibration_type| Outgoing::CalibrateDoubleFeedDetectionRequest(calibration_type),
+            ),
+            map(
+                set_double_feed_detection_sensitivity_request,
+                |percentage| Outgoing::SetDoubleFeedDetectionSensitivityRequest { percentage },
+            ),
+            map(
+                set_double_feed_detection_minimum_document_length_request,
+                |length_in_hundredths_of_an_inch| {
+                    Outgoing::SetDoubleFeedDetectionMinimumDocumentLengthRequest {
+                        length_in_hundredths_of_an_inch,
+                    }
+                },
+            ),
+        )),
     ))(input)
 }
 
@@ -265,6 +292,16 @@ pub fn any_incoming(input: &[u8]) -> IResult<&[u8], Incoming> {
                 value(Incoming::CoverOpenEvent, cover_open_event_alternate),
                 value(Incoming::CoverClosedEvent, cover_closed_event_alternate),
             )),
+            alt((
+                value(
+                    Incoming::DoubleFeedCalibrationCompleteEvent,
+                    double_feed_calibration_complete_event,
+                ),
+                value(
+                    Incoming::DoubleFeedCalibrationTimedOutEvent,
+                    double_feed_calibration_timed_out_event,
+                ),
+            )),
         )),
     ))(input)
 }
@@ -358,6 +395,55 @@ pub fn decimal_digit(input: &[u8]) -> IResult<&[u8], u8> {
             bytes,
             nom::error::ErrorKind::Digit,
         )))
+    })(input)
+}
+
+/// Parses a sequence of decimal digits as a single number.
+///
+/// # Example
+///
+/// ```
+/// use pdi_rs::pdiscan::protocol::parsers::decimal_number;
+///
+/// assert_eq!(decimal_number(b"0"), Ok((&b""[..], 0)));
+/// assert_eq!(decimal_number(b"123"), Ok((&b""[..], 123)));
+/// ```
+pub fn decimal_number(input: &[u8]) -> IResult<&[u8], u16> {
+    let (input, digits) = many1(decimal_digit)(input)?;
+
+    let mut number = 0;
+    for digit in digits {
+        number = number * 10 + digit as u16;
+    }
+
+    Ok((input, number))
+}
+
+/// Parses a sequence of decimal digits as a single number, and verifies that
+/// the number is less than or equal to 100.
+///
+/// # Example
+///
+/// ```
+/// use pdi_rs::pdiscan::protocol::parsers::decimal_percentage;
+///
+/// assert_eq!(decimal_percentage(b"0"), Ok((&b""[..], 0)));
+/// assert_eq!(decimal_percentage(b"100"), Ok((&b""[..], 100)));
+/// assert_eq!(decimal_percentage(b"101"), Err(nom::Err::Error(nom::error::Error::new(
+///    &b"101"[..],
+///   nom::error::ErrorKind::MapRes,
+/// ))));
+/// ```
+pub fn decimal_percentage(input: &[u8]) -> IResult<&[u8], u8> {
+    map_res(decimal_number, |number| {
+        if number > 100 {
+            Err(nom::Err::Failure(nom::error::Error::new(
+                input,
+                nom::error::ErrorKind::Verify,
+            )))
+        } else {
+            Ok(number as u8)
+        }
     })(input)
 }
 
@@ -553,6 +639,47 @@ pub fn get_scanner_settings_response(input: &[u8]) -> IResult<&[u8], Settings> {
     )(input)
 }
 
+simple_request!(enable_double_feed_detection_request, b"n");
+simple_request!(disable_double_feed_detection_request, b"o");
+
+pub fn calibrate_double_feed_detection_request(
+    input: &[u8],
+) -> IResult<&[u8], DoubleFeedDetectionCalibrationType> {
+    map_res(
+        packet_with_crc((tag(b"n1"), decimal_digit)),
+        |(_, calibration_type)| calibration_type.try_into(),
+    )(input)
+}
+
+pub fn set_double_feed_detection_sensitivity_request(input: &[u8]) -> IResult<&[u8], u8> {
+    map(
+        packet_with_crc((tag(b"n3A"), decimal_percentage)),
+        |(_, sensitivity)| sensitivity,
+    )(input)
+}
+
+pub fn set_double_feed_detection_minimum_document_length_request(
+    input: &[u8],
+) -> IResult<&[u8], u8> {
+    map(
+        packet_with_crc((
+            tag(b"n3B"),
+            map_res(decimal_number, |number| {
+                if !(10..=250).contains(&number) {
+                    Err(nom::Err::Failure(nom::error::Error::new(
+                        input,
+                        nom::error::ErrorKind::Verify,
+                    )))
+                } else {
+                    Ok(number as u8)
+                }
+            }),
+        )),
+        |(_, length_in_hundredths_of_an_inch)| length_in_hundredths_of_an_inch,
+    )(input)
+}
+
+simple_request!(reset_request, b"0");
 simple_request!(enable_feeder_request, b"8");
 simple_request!(disable_feeder_request, b"9");
 simple_request!(disable_momentary_reverse_on_feed_at_input_request, b"\x1bO");
@@ -758,6 +885,10 @@ simple_response!(calibration_speed_box_error, b"#1C");
 simple_response!(begin_scan_event, b"#30");
 simple_response!(end_scan_event, b"#31");
 simple_response!(double_feed_event, b"#33");
+
+// undocumented DFD-related events
+simple_response!(double_feed_calibration_complete_event, b"#90");
+simple_response!(double_feed_calibration_timed_out_event, b"#9A");
 
 // Some responses don't match the documentation. These are what we've seen in practice.
 simple_response!(cover_open_event_alternate, b"#34");

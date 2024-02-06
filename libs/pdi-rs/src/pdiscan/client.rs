@@ -170,9 +170,8 @@ impl PdiClient {
         // IN GetSetSerialNumberResponse([48, 48, 48, 48, 48, 48, 48, 48])
         self.get_serial_number(timeout)?;
         // OUT GetScannerSettingsRequest
-        self.validate_and_send_command(Command::new(b"I"), parsers::get_scanner_settings_request)?;
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 49 96 01 01 00 00 1b 03 00 00 00 02 00 03> } (string: "\u{2}I�\u{1}\u{1}\0\0\u{1b}\u{3}\0\0\0\u{2}\0\u{3}") (length: 15)
-        self.await_event(deadline)?;
+        // IN GetScannerSettingsResponse(Settings { dpi_setting: 406, bits_per_pixel: 1, total_array_pixels: 6912, num_of_arrays: 3, calibration_status: CalibrationOk, number_of_calibration_tables: Some(2) })
+        self.get_scanner_settings(timeout)?;
         // OUT GetCalibrationInformationRequest { resolution: Some(Native) }
         self.validate_and_send_command(
             Command::new(b"W0"),
@@ -263,14 +262,14 @@ impl PdiClient {
         self.send_command(Command::new(b"g"));
         // OUT DisablePickOnCommandModeRequest
         self.disable_pick_on_command_mode()?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 6f 03 24> } (string: "\u{2}o\u{3}$") (length: 4)
-        self.send_command(Command::new(b"o"));
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 6e 33 41 35 30 03 7f> } (string: "\u{2}n3A50\u{3}\u{7f}") (length: 8)
-        self.send_command(Command::new(b"n3A50"));
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 6e 33 42 34 30 03 05> } (string: "\u{2}n3B40\u{3}\u{5}") (length: 8)
-        self.send_command(Command::new(b"n3B40"));
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 6e 03 b3> } (string: "\u{2}n\u{3}�") (length: 4)
-        self.send_command(Command::new(b"n"));
+        // OUT DisableDoubleFeedDetectionRequest
+        self.set_double_feed_detection_enabled(false)?;
+        // OUT SetDoubleFeedDetectionSensitivityRequest { percentage: 50 }
+        self.set_double_feed_sensitivity(50)?;
+        // OUT SetDoubleFeedDetectionMinimumDocumentLengthRequest { length_in_hundredths_of_an_inch: 40 }
+        self.set_double_feed_detection_minimum_document_length(40)?;
+        // OUT EnableDoubleFeedDetectionRequest
+        self.set_double_feed_detection_enabled(true)?;
         // OUT DisableEjectPauseRequest
         self.disable_eject_pause()?;
         // OUT TransmitInLowBitsPerPixelRequest
@@ -321,6 +320,10 @@ impl PdiClient {
         };
         self.send_command(command);
         Ok(())
+    }
+
+    pub fn reset(mut self) -> Result<()> {
+        self.validate_and_send_command(Command::new(b"0"), parsers::reset_request)
     }
 
     /// Gets a hardcoded test string from the scanner. It should always return
@@ -461,6 +464,41 @@ impl PdiClient {
                 return Ok((current_sensors_required, total_sensors_available));
             }
         }
+    }
+
+    pub fn set_double_feed_detection_enabled(&mut self, enabled: bool) -> Result<()> {
+        if enabled {
+            self.validate_and_send_command(
+                Command::new(b"n"),
+                parsers::enable_double_feed_detection_request,
+            )
+        } else {
+            self.validate_and_send_command(
+                Command::new(b"o"),
+                parsers::disable_double_feed_detection_request,
+            )
+        }
+    }
+
+    pub fn set_double_feed_sensitivity(&mut self, percentage: u8) -> Result<()> {
+        let mut body = b"n3A".to_vec();
+        body.extend_from_slice(percentage.to_string().as_bytes());
+        self.validate_and_send_command(
+            Command::new(body.as_slice()),
+            parsers::set_double_feed_detection_sensitivity_request,
+        )
+    }
+
+    pub fn set_double_feed_detection_minimum_document_length(
+        &mut self,
+        length_in_hundredths_of_an_inch: u8,
+    ) -> Result<()> {
+        let mut body = b"n3B".to_vec();
+        body.extend_from_slice(length_in_hundredths_of_an_inch.to_string().as_bytes());
+        self.validate_and_send_command(
+            Command::new(body.as_slice()),
+            parsers::set_double_feed_detection_minimum_document_length_request,
+        )
     }
 
     /// Sets the number of input sensors that must be covered to initiate

@@ -259,3 +259,21 @@ impl TryFrom<u16> for CalibrationStatus {
         }
     }
 }
+
+#[derive(Debug, Clone)]
+pub enum DoubleFeedDetectionCalibrationType {
+    SingleSheet,
+    DoubleSheet,
+}
+
+impl TryFrom<u8> for DoubleFeedDetectionCalibrationType {
+    type Error = ();
+
+    fn try_from(value: u8) -> Result<Self, Self::Error> {
+        match value {
+            1 => Ok(Self::SingleSheet),
+            2 => Ok(Self::DoubleSheet),
+            _ => Err(()),
+        }
+    }
+}
