@@ -37,6 +37,12 @@ impl TryFrom<u8> for Side {
     }
 }
 
+impl PartialEq<Side> for &Side {
+    fn eq(&self, other: &Side) -> bool {
+        **self == *other
+    }
+}
+
 #[derive(Debug, Clone, Copy, Default)]
 pub enum ColorMode {
     /// 24-bit color for the color scanner, or 8-bit grayscale for the grayscale
@@ -278,6 +284,15 @@ impl TryFrom<u8> for DoubleFeedDetectionCalibrationType {
             1 => Ok(Self::SingleSheet),
             2 => Ok(Self::DoubleSheet),
             _ => Err(()),
+        }
+    }
+}
+
+impl From<DoubleFeedDetectionCalibrationType> for u8 {
+    fn from(value: DoubleFeedDetectionCalibrationType) -> Self {
+        match value {
+            DoubleFeedDetectionCalibrationType::SingleSheet => 1,
+            DoubleFeedDetectionCalibrationType::DoubleSheet => 2,
         }
     }
 }

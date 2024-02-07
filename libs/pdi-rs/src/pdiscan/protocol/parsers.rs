@@ -77,6 +77,16 @@ pub fn any_outgoing(input: &[u8]) -> IResult<&[u8], Outgoing> {
         )),
         alt((
             value(
+                Outgoing::TurnArrayLightSourceOnRequest,
+                turn_array_light_source_on_request,
+            ),
+            value(
+                Outgoing::TurnArrayLightSourceOffRequest,
+                turn_array_light_source_off_request,
+            ),
+        )),
+        alt((
+            value(
                 Outgoing::EjectDocumentToRearOfScannerRequest,
                 eject_document_to_rear_of_scanner_request,
             ),
@@ -242,6 +252,22 @@ fn any_double_feed_detection_configuration_request(input: &[u8]) -> IResult<&[u8
             Outgoing::DisableDoubleFeedDetectionRequest,
             disable_double_feed_detection_request,
         ),
+        value(
+            Outgoing::GetDoubleFeedDetectionLEDIntensityRequest,
+            get_double_feed_detection_led_intensity_request,
+        ),
+        value(
+            Outgoing::GetDoubleFeedDetectionSingleSheetCalibrationValueRequest,
+            get_double_feed_detection_single_sheet_calibration_value_request,
+        ),
+        value(
+            Outgoing::GetDoubleFeedDetectionDoubleSheetCalibrationValueRequest,
+            get_double_feed_detection_double_sheet_calibration_value_request,
+        ),
+        value(
+            Outgoing::GetDoubleFeedDetectionDoubleSheetThresholdValueRequest,
+            get_double_feed_detection_double_sheet_threshold_value_request,
+        ),
         map(
             calibrate_double_feed_detection_request,
             Outgoing::CalibrateDoubleFeedDetectionRequest,
@@ -324,6 +350,10 @@ fn any_response(input: &[u8]) -> IResult<&[u8], Incoming> {
                     black_calibration_table,
                 }
             },
+        ),
+        map(
+            get_double_feed_detection_led_intensity_response,
+            Incoming::GetDoubleFeedDetectionLedIntensityResponse,
         ),
     ))(input)
 }
@@ -827,7 +857,81 @@ pub fn set_double_feed_detection_sensitivity_request(
     )(input)
 }
 
-/// Parses a request to set the double feed detection sensitivity.
+simple_request!(get_double_feed_detection_led_intensity_request, b"n3a30");
+
+/// Parses a response to a request to get the double feed detection LED intensity.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
+pub fn get_double_feed_detection_led_intensity_response(input: &[u8]) -> IResult<&[u8], u16> {
+    map(
+        packet((tag(b"n3a30="), decimal_number)),
+        |(_, intensity)| intensity,
+    )(input)
+}
+
+simple_request!(
+    get_double_feed_detection_single_sheet_calibration_value_request,
+    b"n3a10"
+);
+
+/// Parses a response to a request to get the double feed detection LED intensity.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
+pub fn get_double_feed_detection_single_sheet_calibration_value_response(
+    input: &[u8],
+) -> IResult<&[u8], u16> {
+    map(
+        packet((tag(b"n3a10="), decimal_number)),
+        |(_, intensity)| intensity,
+    )(input)
+}
+
+simple_request!(
+    get_double_feed_detection_double_sheet_calibration_value_request,
+    b"n3a20"
+);
+
+/// Parses a response to a request to get the double feed detection double sheet
+/// calibration value.
+pub fn get_double_feed_detection_double_sheet_calibration_value_response(
+    input: &[u8],
+) -> IResult<&[u8], u16> {
+    map(
+        packet((tag(b"n3a20="), decimal_number)),
+        |(_, intensity)| intensity,
+    )(input)
+}
+
+simple_request!(
+    get_double_feed_detection_double_sheet_threshold_value_request,
+    b"n3a90"
+);
+
+/// Parses a response to a request to get the double feed detection threshold
+/// value.
+pub fn get_double_feed_detection_threshold_value_response(input: &[u8]) -> IResult<&[u8], u16> {
+    map(
+        packet((tag(b"n3a90="), decimal_number)),
+        |(_, intensity)| intensity,
+    )(input)
+}
+
+simple_request!(get_double_feed_detection_sensors_count_request, b"n3a40");
+
+/// Parses a response to a request to get the double feed detection sensors count.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
+pub fn get_double_feed_detection_sensors_count_response(input: &[u8]) -> IResult<&[u8], u8> {
+    map(packet((tag(b"n3a40="), decimal_digit)), |(_, count)| count)(input)
+}
+
+/// Parses a request to set the double feed detection minimum document length.
 ///
 /// # Errors
 ///
@@ -1087,6 +1191,8 @@ simple_request!(
 );
 simple_request!(eject_document_to_rear_of_scanner_request, b"3");
 simple_request!(eject_document_to_front_of_scanner_request, b"4");
+simple_request!(turn_array_light_source_on_request, b"5");
+simple_request!(turn_array_light_source_off_request, b"6");
 simple_request!(eject_escrow_document_request, b"7");
 simple_request!(rescan_document_held_in_escrow_position_request, b"[");
 
