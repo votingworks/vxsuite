@@ -60,12 +60,13 @@ macro_rules! extract_needle {
         let mut needle = None;
         for (index, response) in $haystack.iter().enumerate() {
             #[allow(unused_variables)]
-            if let $matcher = response {
+            if matches!(response, $matcher) {
                 needle = Some($haystack.swap_remove(index));
                 break;
             }
         }
 
+        #[allow(clippy::equatable_if_let)]
         if let Some($matcher) = needle {
             $consequent;
         }
