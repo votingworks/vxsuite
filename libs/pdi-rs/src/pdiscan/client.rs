@@ -631,12 +631,18 @@ impl Client {
         }
     }
 
+    /// Gets the intensity of the double feed detection LED.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the response is not received within
+    /// the timeout.
     pub fn get_double_feed_detection_led_intensity(
         &mut self,
         timeout: impl Into<Option<std::time::Duration>>,
     ) -> Result<u16> {
         self.validate_and_send_command_unchecked(
-            b"n3C",
+            b"n3a30",
             parsers::get_double_feed_detection_led_intensity_request,
         );
 
@@ -648,6 +654,90 @@ impl Client {
 
             extract_needle!(
                 Incoming::GetDoubleFeedDetectionLedIntensityResponse(intensity) => return Ok(intensity),
+                self.pending_responses,
+            );
+        }
+    }
+
+    /// Gets the double sheet detection calibration value for a single sheet of paper. This value
+    /// should be lower than the value for two sheets of paper.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the response is not received within the timeout.
+    pub fn get_double_feed_detection_single_sheet_calibration_value(
+        &mut self,
+        timeout: impl Into<Option<std::time::Duration>>,
+    ) -> Result<u16> {
+        self.validate_and_send_command_unchecked(
+            b"n3a10",
+            parsers::get_double_feed_detection_single_sheet_calibration_value_request,
+        );
+
+        let timeout = timeout.into();
+        let deadline = timeout.map(|timeout| Instant::now() + timeout);
+
+        loop {
+            self.await_event(deadline)?;
+
+            extract_needle!(
+                Incoming::GetDoubleFeedDetectionSingleSheetCalibrationValueResponse(value) => return Ok(value),
+                self.pending_responses,
+            );
+        }
+    }
+
+    /// Gets the double sheet detection calibration value for two sheets of paper. This value
+    /// should be higher than the value for a single sheet of paper.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the response is not received within the timeout.
+    pub fn get_double_feed_detection_double_sheet_calibration_value(
+        &mut self,
+        timeout: impl Into<Option<std::time::Duration>>,
+    ) -> Result<u16> {
+        self.validate_and_send_command_unchecked(
+            b"n3a20",
+            parsers::get_double_feed_detection_double_sheet_calibration_value_request,
+        );
+
+        let timeout = timeout.into();
+        let deadline = timeout.map(|timeout| Instant::now() + timeout);
+
+        loop {
+            self.await_event(deadline)?;
+
+            extract_needle!(
+                Incoming::GetDoubleFeedDetectionDoubleSheetCalibrationValueResponse(value) => return Ok(value),
+                self.pending_responses,
+            );
+        }
+    }
+
+    /// Gets the double sheet detection threshold value. Values above this threshold are considered
+    /// to be double feeds.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error if the response is not received within the timeout.
+    pub fn get_double_feed_detection_double_sheet_threshold_value(
+        &mut self,
+        timeout: impl Into<Option<std::time::Duration>>,
+    ) -> Result<u16> {
+        self.validate_and_send_command_unchecked(
+            b"n3a90",
+            parsers::get_double_feed_detection_double_sheet_threshold_value_request,
+        );
+
+        let timeout = timeout.into();
+        let deadline = timeout.map(|timeout| Instant::now() + timeout);
+
+        loop {
+            self.await_event(deadline)?;
+
+            extract_needle!(
+                Incoming::GetDoubleFeedDetectionDoubleSheetThresholdValueResponse(value) => return Ok(value),
                 self.pending_responses,
             );
         }
