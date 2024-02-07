@@ -91,8 +91,11 @@ pub struct Client {
     event_rx: std::sync::mpsc::Receiver<Event>,
     begin_scan_tx: std::sync::mpsc::Sender<()>,
     pub begin_scan_rx: std::sync::mpsc::Receiver<()>,
-    end_scan_tx: std::sync::mpsc::Sender<()>,
-    pub end_scan_rx: std::sync::mpsc::Receiver<()>,
+    end_scan_tx: std::sync::mpsc::Sender<(Vec<u8>, Vec<u8>)>,
+    pub end_scan_rx: std::sync::mpsc::Receiver<(Vec<u8>, Vec<u8>)>,
+
+    /// Image data
+    image_data: Option<(Vec<u8>, Vec<u8>)>,
 }
 
 impl Client {
@@ -140,6 +143,7 @@ impl Client {
             begin_scan_rx,
             end_scan_tx,
             end_scan_rx,
+            image_data: None,
         };
 
         client.transfer_handler.start_handle_events_thread();
@@ -292,13 +296,13 @@ impl Client {
         // OUT DisablePickOnCommandModeRequest
         self.disable_pick_on_command_mode();
         // OUT DisableDoubleFeedDetectionRequest
-        self.set_double_feed_detection_enabled(false);
+        // self.set_double_feed_detection_enabled(false);
         // OUT SetDoubleFeedDetectionSensitivityRequest { percentage: 50 }
         self.set_double_feed_sensitivity(50)?;
         // OUT SetDoubleFeedDetectionMinimumDocumentLengthRequest { length_in_hundredths_of_an_inch: 40 }
         self.set_double_feed_detection_minimum_document_length(40)?;
         // OUT EnableDoubleFeedDetectionRequest
-        self.set_double_feed_detection_enabled(true);
+        // self.set_double_feed_detection_enabled(true);
         // OUT DisableEjectPauseRequest
         self.disable_eject_pause();
         // OUT TransmitInLowBitsPerPixelRequest
@@ -1105,7 +1109,6 @@ impl Client {
         match event {
             Event::Completed { endpoint, data } => {
                 if endpoint == ENDPOINT_IN_IMAGE_DATA {
-                    // image data
                     tracing::debug!("receiving image data: {} bytes", data.len());
                 } else {
                     match parsers::any_incoming(&data) {
@@ -1133,11 +1136,17 @@ impl Client {
         tracing::debug!("incoming message: {incoming:?}");
         match incoming {
             Incoming::BeginScanEvent => {
+                self.image_data = Some((Vec::new(), Vec::new()));
                 self.begin_scan_tx.send(()).unwrap();
             }
-            Incoming::EndScanEvent => {
-                self.end_scan_tx.send(()).unwrap();
-            }
+            Incoming::EndScanEvent => match self.image_data.take() {
+                Some(image_data) => {
+                    self.end_scan_tx.send(image_data).unwrap();
+                }
+                None => {
+                    tracing::error!("end scan without corresponding begin scan");
+                }
+            },
             response @ Incoming::GetTestStringResponse(_)
             | response @ Incoming::GetFirmwareVersionResponse(_)
             | response @ Incoming::GetScannerStatusResponse(_)

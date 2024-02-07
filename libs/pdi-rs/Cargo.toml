@@ -15,6 +15,7 @@ path = "src/parse_traffic.rs"
 
 [dependencies]
 anyhow = "1.0.75"
+base64 = { workspace = true }
 bitter = { workspace = true }
 chrono = "0.4.31"
 clap = { workspace = true }

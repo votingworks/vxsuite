@@ -1,7 +1,8 @@
 import { z } from 'zod';
 import * as path from 'path';
-import { spawn } from 'child_process';
+import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { createInterface } from 'readline';
+import { Deferred, assert, deferred } from '@votingworks/basics';
 
 let addon: any;
 
@@ -106,39 +107,100 @@ export interface ScannerStatus {
 
 const BINARY_PATH = path.join(__dirname, '../../../../target/release/pdictl');
 
-interface PdictlCommand {
+interface EnableMsdCommand {
+  commandType: 'enable_msd';
+  enable: boolean;
+}
+
+interface CalibrateMsdCommand {
+  commandType: 'calibrate_msd';
+  calibrationType: 'single' | 'double';
+}
+
+interface GetMsdCalibrationConfig {
+  commandType: 'get_msd_calibration_config';
+}
+
+interface GetScannerStatus {
+  commandType: 'get_scanner_status';
+}
+
+interface OtherCommand {
   commandType: 'exit' | 'connect' | 'enable_scanning';
 }
+
+type PdictlCommand =
+  | EnableMsdCommand
+  | CalibrateMsdCommand
+  | GetMsdCalibrationConfig
+  | GetScannerStatus
+  | OtherCommand;
 
 interface PdictlOutgoing {
   outgoingType: 'ok' | 'error' | 'scan_complete';
 }
 
-export function main() {
-  const pdictl = spawn(BINARY_PATH);
+class ScannerClient {
+  pdictl?: ChildProcessWithoutNullStreams;
+  pendingRequest?: Deferred<unknown>;
 
-  const rl = createInterface(pdictl.stdout);
-  rl.on('line', (line) => {
-    console.log('Received raw', line);
-    const outgoing = JSON.parse(line) as PdictlOutgoing;
-    console.log('Received outgoing', outgoing);
-  });
+  private sendCommand(command: PdictlCommand) {
+    assert(this.pdictl !== undefined);
 
-  pdictl.stderr.on('data', (data) => {
-    console.error(`stderr: ${data}`);
-  });
+    this.pendingRequest = deferred();
+    this.pdictl.stdin.write(JSON.stringify(command));
+    this.pdictl.stdin.write('\n');
+  }
 
-  pdictl.on('close', (code) => {
-    console.log(`child process exited with code ${code}`);
-  });
+  async connect(): Promise<unknown> {
+    this.pdictl = spawn(BINARY_PATH);
 
-  const command1: PdictlCommand = { commandType: 'connect' };
-  console.log('Sending command', command1);
-  pdictl.stdin.write(JSON.stringify(command1));
-  pdictl.stdin.write('\n');
+    const rl = createInterface(this.pdictl.stdout);
+    rl.on('line', (line) => {
+      const outgoing = JSON.parse(line) as PdictlOutgoing;
+      console.log('Received response from scanner', outgoing);
+      this.pendingRequest?.resolve(outgoing);
+      this.pendingRequest = undefined;
+    });
 
-  const command2: PdictlCommand = { commandType: 'enable_scanning' };
-  console.log('Sending command', command2);
-  pdictl.stdin.write(JSON.stringify(command2));
-  pdictl.stdin.write('\n');
+    this.pdictl.stderr.on('data', (data) => {
+      console.error(`stderr: ${data}`);
+    });
+
+    this.pdictl.on('close', (code) => {
+      console.log(`child process exited with code ${code}`);
+    });
+
+    this.sendCommand({ commandType: 'connect' });
+
+    const connectResult = await this.pendingRequest?.promise;
+    return connectResult;
+  }
+
+  async getScannerStatus(): Promise<unknown> {
+    assert(this.pdictl !== undefined);
+
+    this.sendCommand({
+      commandType: 'get_scanner_status',
+    });
+    const result = await this.pendingRequest?.promise;
+    return result;
+  }
+
+  async enableScanning(): Promise<unknown> {
+    assert(this.pdictl !== undefined);
+
+    this.sendCommand({
+      commandType: 'enable_scanning',
+    });
+    const result = await this.pendingRequest?.promise;
+    return result;
+  }
+}
+
+export async function main() {
+  const scannerClient = new ScannerClient();
+  await scannerClient.connect();
+  // await scannerClient.getScannerStatus();
+  await scannerClient.enableScanning();
 }

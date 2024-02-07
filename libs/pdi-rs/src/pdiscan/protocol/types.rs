@@ -1,3 +1,5 @@
+use serde::{Deserialize, Serialize};
+
 #[derive(Debug, Clone, Copy)]
 pub enum Resolution {
     /// 400 DPI for Pagescan 5
@@ -123,7 +125,8 @@ impl Version {
 /// The status of the scanner.
 ///
 /// Note: bit 7 of each byte is always set to 1.
-#[derive(Debug, PartialEq, Eq, Clone)]
+#[derive(Debug, PartialEq, Eq, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Status {
     /// Byte 0, Bit 0 (0x01)
     pub rear_left_sensor_covered: bool,
@@ -270,9 +273,12 @@ impl TryFrom<u16> for CalibrationStatus {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub enum DoubleFeedDetectionCalibrationType {
+    #[serde(rename = "single")]
     SingleSheet,
+
+    #[serde(rename = "double")]
     DoubleSheet,
 }
 
