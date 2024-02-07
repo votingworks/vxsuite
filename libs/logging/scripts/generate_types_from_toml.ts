@@ -1,15 +1,27 @@
+import yargs from 'yargs/yargs';
+import { promisify } from 'node:util';
+import { exec as callbackExec } from 'child_process';
 import toml from '@iarna/toml';
 import fs from 'fs/promises';
 import {
   configFilepath,
   logEventIdsOutputFilepath,
   logEventIdsTemplateFilepath,
+  checkTypescriptOutputTempFilepath,
 } from './filepaths';
-import { ParsedConfig, ParsedLogDetails, getTypedConfig } from './types';
+import {
+  GenerateTypesArgs,
+  ParsedConfig,
+  ParsedLogDetails,
+  diffAndCleanUp,
+  getTypedConfig,
+} from './types';
 
-async function prepareOutputFile(): Promise<void> {
-  await fs.copyFile(logEventIdsTemplateFilepath, logEventIdsOutputFilepath);
-  await fs.appendFile(logEventIdsOutputFilepath, '\n');
+const exec = promisify(callbackExec);
+
+async function prepareOutputFile(filepath: string): Promise<void> {
+  await fs.copyFile(logEventIdsTemplateFilepath, filepath);
+  await fs.appendFile(filepath, '\n');
 }
 
 // formatLogEventIdEnum generates an enum where by convention the member name
@@ -110,21 +122,39 @@ function formatGetDetailsForEventId(config: ParsedConfig): string {
   return output;
 }
 
+const argv: GenerateTypesArgs = yargs(process.argv.slice(2)).options({
+  check: {
+    type: 'boolean',
+    description:
+      'Check that generated output equals the existing file on disk. Does not overwrite existing file.',
+  },
+}).argv as GenerateTypesArgs;
+
 async function main(): Promise<void> {
-  await prepareOutputFile();
+  const { check } = argv;
+  const filepath = check
+    ? checkTypescriptOutputTempFilepath
+    : logEventIdsOutputFilepath;
+  await prepareOutputFile(filepath);
 
   const configString = await fs.readFile(configFilepath);
   const untypedConfig = toml.parse(configString.toString());
   const typedConfig = getTypedConfig(untypedConfig);
-  await fs.appendFile(
-    logEventIdsOutputFilepath,
-    formatLogEventIdEnum(typedConfig)
-  );
-  await fs.appendFile(logEventIdsOutputFilepath, formatLogDetails(typedConfig));
-  await fs.appendFile(
-    logEventIdsOutputFilepath,
-    formatGetDetailsForEventId(typedConfig)
-  );
+  await fs.appendFile(filepath, formatLogEventIdEnum(typedConfig));
+  await fs.appendFile(filepath, formatLogDetails(typedConfig));
+  await fs.appendFile(filepath, formatGetDetailsForEventId(typedConfig));
+
+  const { stderr } = await exec(`eslint ${filepath} --fix`);
+  if (stderr) {
+    throw new Error(`Error running eslint: ${stderr}`);
+  }
+
+  if (check) {
+    await diffAndCleanUp(
+      checkTypescriptOutputTempFilepath,
+      logEventIdsOutputFilepath
+    );
+  }
 }
 
 void main();

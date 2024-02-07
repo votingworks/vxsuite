@@ -1,5 +1,7 @@
 import toml from '@iarna/toml';
 import { assert } from '@votingworks/basics';
+import { exec } from 'child_process';
+import fs from 'fs';
 import { LogEventType } from '../src/base_types/log_event_types';
 import { LogSource } from '../src/base_types/log_source';
 import { BaseLogEventDetails } from '../src';
@@ -84,4 +86,31 @@ export function getTypedConfig(tomlConfig: toml.JsonMap): ParsedConfig {
     typedConfig[titleCaseEventId] = getTypedEntry(untypedEntry);
   }
   return typedConfig;
+}
+
+export interface GenerateTypesArgs {
+  check?: boolean;
+}
+
+export function diffAndCleanUp(
+  tempFile: string,
+  existingFile: string
+): Promise<void> {
+  return new Promise((resolve) => {
+    exec(`diff ${tempFile} ${existingFile}`, (error, stdout) => {
+      // An error with code 1 is expected when a diff exists
+      fs.rmSync(tempFile);
+      if (error) {
+        if (error.code === 1) {
+          throw new Error(
+            `Diff found between generated types and existing types on disk. Did you run pnpm build:generate-types and commit the output?\n${stdout}`
+          );
+        }
+
+        throw new Error(`Unexpected error when running diff: ${error}`);
+      }
+
+      resolve();
+    });
+  });
 }

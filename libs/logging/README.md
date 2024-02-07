@@ -51,7 +51,7 @@ the type and enum files:
 
 ```
 // Generate TypeScript and Rust types
-pnpm build:generate-log-details
+pnpm build:generate-types
 // Generate VotingWorksLoggingDocumentation.md
 pnpm build:generate-docs
 ```
