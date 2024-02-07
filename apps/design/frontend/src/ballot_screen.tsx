@@ -103,7 +103,13 @@ function PdfViewer({ pdfData }: { pdfData?: Buffer }) {
   const [numPages, setNumPages] = useState<number>();
   const [zoom, setZoom] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
-  const file = useMemo(() => pdfData && { data: pdfData }, [pdfData]);
+
+  const file = useMemo(
+    // Copy the buffer since react-pdf drains it, which can cause an error on
+    // re-render
+    () => pdfData && { data: Buffer.from(pdfData) },
+    [pdfData]
+  );
 
   function onScroll(e: React.UIEvent<HTMLDivElement>) {
     if (!numPages) return;
@@ -166,10 +172,6 @@ function PdfViewer({ pdfData }: { pdfData?: Buffer }) {
             onLoadSuccess={(result) => setNumPages(result.numPages)}
             // Hide the built in loading message
             loading=""
-            // Every once in a while an error message will flash, but the PDF
-            // still loads correctly moments later. I couldn't figure out why,
-            // so I'm just hiding the error message for now.
-            error=""
           >
             {numPages &&
               range(1, numPages + 1).map((pageNumber) => (

@@ -172,8 +172,11 @@ export const getBallotPreviewPdf = {
   },
   useQuery(input: GetBallotPreviewInput) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(input), () =>
-      apiClient.getBallotPreviewPdf(input)
+    return useQuery(
+      this.queryKey(input),
+      () => apiClient.getBallotPreviewPdf(input),
+      // Never cache PDFs, that way we don't have to worry about invalidating them
+      { staleTime: 0, cacheTime: 0 }
     );
   },
 } as const;
