@@ -588,7 +588,7 @@ function HeaderAndInstructions({
             },
           },
           {
-            text: 'To vote for a person whose name is not on the ballot, write the person’s name on the "write-in" line and completely fill in the oval to the left of the line.',
+            text: 'To vote for a person whose name is not on the ballot, write the person’s name on the "write-in" line and completely fill in the oval next to the line.',
             fontStyle: m.FontStyles.SMALL,
           },
         ],
