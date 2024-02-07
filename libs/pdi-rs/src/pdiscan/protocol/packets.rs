@@ -821,6 +821,10 @@ pub enum Incoming {
     /// calibration value for a double sheet.
     GetDoubleFeedDetectionDoubleSheetCalibrationValueResponse(u16),
 
+    /// Response to the `n3a90` command to get the double feed detection
+    /// threshold value.
+    GetDoubleFeedDetectionDoubleSheetThresholdValueResponse(u16),
+
     ScannerOkayEvent,
     DocumentJamEvent,
     CalibrationNeededEvent,
