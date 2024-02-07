@@ -1333,9 +1333,6 @@ importers:
       path:
         specifier: ^0.12.7
         version: 0.12.7
-      pdfjs-dist:
-        specifier: 3.11.174
-        version: 3.11.174
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -1346,7 +1343,7 @@ importers:
         specifier: ^7.1.0
         version: 7.1.0(react-dom@18.2.0)(react@18.2.0)
       react-pdf:
-        specifier: ^7.7.0
+        specifier: 7.7.0
         version: 7.7.0(@types/react@18.2.18)(react-dom@18.2.0)(react@18.2.0)
       react-router-dom:
         specifier: ^5.3.4

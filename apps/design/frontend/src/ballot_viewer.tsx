@@ -25,7 +25,8 @@ import { getBallotPreviewPdf } from './api';
 import { ElectionIdParams, routes } from './routes';
 import { Column, FieldName as BaseFieldName, Row } from './layout';
 
-pdfjs.GlobalWorkerOptions.workerSrc = '/pdfjs-dist/build/pdf.worker.min.js';
+// Worker file must be copied from pdfjs-dist into public directory
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 const FieldName = styled(BaseFieldName)`
   font-weight: ${(p) => p.theme.sizes.fontWeight.bold};
