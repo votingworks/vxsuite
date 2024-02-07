@@ -12,8 +12,8 @@ use super::{
         packets::{Command, Incoming},
         parsers,
         types::{
-            ClampedPercentage, ColorMode, Direction, EjectMotion, Resolution, ScanSideMode,
-            Settings, Side, Speed, Status, Version,
+            ClampedPercentage, ColorMode, Direction, DoubleFeedDetectionCalibrationType,
+            EjectMotion, Resolution, ScanSideMode, Settings, Side, Speed, Status, Version,
         },
     },
     transfer::Event,
@@ -52,6 +52,26 @@ pub enum Error {
 
 pub type Result<T> = std::result::Result<T, Error>;
 
+macro_rules! extract_needle {
+    (
+        $matcher:pat => $consequent:expr,
+        $haystack:expr,
+    ) => {{
+        let mut needle = None;
+        for (index, response) in $haystack.iter().enumerate() {
+            #[allow(unused_variables)]
+            if let $matcher = response {
+                needle = Some($haystack.swap_remove(index));
+                break;
+            }
+        }
+
+        if let Some($matcher) = needle {
+            $consequent;
+        }
+    }};
+}
+
 #[derive(Debug)]
 pub struct Client {
     /// We need to keep the device around so that it doesn't get dropped and
@@ -64,17 +84,10 @@ pub struct Client {
     /// remains valid.
     transfer_handler: Pin<Box<Handler>>,
 
+    pending_responses: Vec<Incoming>,
+
     /// Receiver for events from the transfer handler.
     event_rx: std::sync::mpsc::Receiver<Event>,
-
-    get_test_string_response: Option<String>,
-    get_firmware_version_response: Option<Version>,
-    get_scanner_status_response: Option<Status>,
-    get_scanner_settings_response: Option<Settings>,
-    get_serial_number_response: Option<Incoming>,
-    get_required_input_sensors_response: Option<Incoming>,
-    adjust_bitonal_threshold_by_1_response: Option<Incoming>,
-
     begin_scan_tx: std::sync::mpsc::Sender<()>,
     pub begin_scan_rx: std::sync::mpsc::Receiver<()>,
     end_scan_tx: std::sync::mpsc::Sender<()>,
@@ -121,13 +134,7 @@ impl Client {
                 tx,
             )),
             event_rx: rx,
-            get_test_string_response: None,
-            get_firmware_version_response: None,
-            get_scanner_status_response: None,
-            get_scanner_settings_response: None,
-            get_serial_number_response: None,
-            get_required_input_sensors_response: None,
-            adjust_bitonal_threshold_by_1_response: None,
+            pending_responses: Vec::new(),
             begin_scan_tx,
             begin_scan_rx,
             end_scan_tx,
@@ -381,10 +388,6 @@ impl Client {
         &mut self,
         timeout: impl Into<Option<std::time::Duration>>,
     ) -> Result<String> {
-        if let Some(test_string) = self.get_test_string_response.take() {
-            tracing::warn!("get_test_string: found a cached response: {test_string:?}");
-        }
-
         self.validate_and_send_command_unchecked(b"D", parsers::get_test_string_request);
 
         let timeout = timeout.into();
@@ -393,9 +396,10 @@ impl Client {
         loop {
             self.await_event(deadline)?;
 
-            if let Some(test_string) = self.get_test_string_response.take() {
-                return Ok(test_string);
-            }
+            extract_needle!(
+                Incoming::GetTestStringResponse(test_string) => return Ok(test_string),
+                self.pending_responses,
+            );
         }
     }
 
@@ -413,10 +417,6 @@ impl Client {
         &mut self,
         timeout: impl Into<Option<std::time::Duration>>,
     ) -> Result<Version> {
-        if let Some(version) = self.get_firmware_version_response.take() {
-            tracing::warn!("get_firmware_version: found a cached response: {version:?}");
-        }
-
         self.validate_and_send_command_unchecked(b"V", parsers::get_firmware_version_request);
 
         let timeout = timeout.into();
@@ -425,9 +425,10 @@ impl Client {
         loop {
             self.await_event(deadline)?;
 
-            if let Some(version) = self.get_firmware_version_response.take() {
-                return Ok(version);
-            }
+            extract_needle!(
+                Incoming::GetFirmwareVersionResponse(version) => return Ok(version),
+                self.pending_responses,
+            );
         }
     }
 
@@ -445,10 +446,6 @@ impl Client {
         &mut self,
         timeout: impl Into<Option<std::time::Duration>>,
     ) -> Result<Status> {
-        if let Some(status) = self.get_scanner_status_response.take() {
-            tracing::warn!("get_scanner_status: found a cached response: {status:?}");
-        }
-
         self.validate_and_send_command_unchecked(b"Q", parsers::get_scanner_status_request);
 
         let timeout = timeout.into();
@@ -457,9 +454,10 @@ impl Client {
         loop {
             self.await_event(deadline)?;
 
-            if let Some(status) = self.get_scanner_status_response.take() {
-                return Ok(status);
-            }
+            extract_needle!(
+                Incoming::GetScannerStatusResponse(status) => return Ok(status),
+                self.pending_responses,
+            );
         }
     }
 
@@ -477,10 +475,6 @@ impl Client {
         &mut self,
         timeout: impl Into<Option<std::time::Duration>>,
     ) -> Result<Settings> {
-        if let Some(settings) = self.get_scanner_settings_response.take() {
-            tracing::warn!("get_scanner_settings: found a cached response: {settings:?}");
-        }
-
         self.validate_and_send_command_unchecked(b"I", parsers::get_scanner_settings_request);
 
         let timeout = timeout.into();
@@ -489,9 +483,10 @@ impl Client {
         loop {
             self.await_event(deadline)?;
 
-            if let Some(settings) = self.get_scanner_settings_response.take() {
-                return Ok(settings);
-            }
+            extract_needle!(
+                Incoming::GetScannerSettingsResponse(settings) => return Ok(settings),
+                self.pending_responses,
+            );
         }
     }
 
@@ -521,13 +516,13 @@ impl Client {
         loop {
             self.await_event(deadline)?;
 
-            if let Some(Incoming::GetSetRequiredInputSensorsResponse {
-                current_sensors_required,
-                total_sensors_available,
-            }) = self.get_required_input_sensors_response.take()
-            {
-                return Ok((current_sensors_required, total_sensors_available));
-            }
+            extract_needle!(
+                Incoming::GetSetRequiredInputSensorsResponse {
+                    current_sensors_required,
+                    total_sensors_available,
+                } => return Ok((current_sensors_required, total_sensors_available)),
+                self.pending_responses,
+            );
         }
     }
 
@@ -595,6 +590,84 @@ impl Client {
         )
     }
 
+    /// Calibrates the double feed detection. The calibration type parameter
+    /// specifies the type of calibration to perform. The timeout parameter
+    /// specifies the maximum amount of time to wait for the calibration to
+    /// complete. If the calibration does not complete within the timeout, the
+    /// function will return an error.
+    ///
+    /// Note that the PDI scanner also has its own internal timeout for waiting
+    /// for paper to be inserted. If the calibration is not completed within the
+    /// timeout, the scanner will return a
+    /// [`Incoming::DoubleFeedCalibrationTimedOutEvent`] event.
+    pub fn calibrate_double_feed_detection(
+        &mut self,
+        calibration_type: DoubleFeedDetectionCalibrationType,
+        timeout: impl Into<Option<std::time::Duration>>,
+    ) -> Result<()> {
+        let timeout = timeout.into();
+        let deadline = timeout.map(|timeout| Instant::now() + timeout);
+
+        let mut body = b"n1".to_vec();
+        body.extend_from_slice(u8::from(calibration_type).to_string().as_bytes());
+        self.validate_and_send_command(
+            &Command::new(body.as_slice()),
+            parsers::calibrate_double_feed_detection_request,
+        )?;
+
+        loop {
+            self.await_event(deadline)?;
+
+            extract_needle!(
+                Incoming::DoubleFeedCalibrationCompleteEvent => return Ok(()),
+                self.pending_responses,
+            );
+
+            extract_needle!(
+                Incoming::DoubleFeedCalibrationTimedOutEvent =>
+                    return Err(Error::RecvTimeout(RecvTimeoutError::Timeout)),
+                self.pending_responses,
+            );
+        }
+    }
+
+    pub fn get_double_feed_detection_led_intensity(
+        &mut self,
+        timeout: impl Into<Option<std::time::Duration>>,
+    ) -> Result<u16> {
+        self.validate_and_send_command_unchecked(
+            b"n3C",
+            parsers::get_double_feed_detection_led_intensity_request,
+        );
+
+        let timeout = timeout.into();
+        let deadline = timeout.map(|timeout| Instant::now() + timeout);
+
+        loop {
+            self.await_event(deadline)?;
+
+            extract_needle!(
+                Incoming::GetDoubleFeedDetectionLedIntensityResponse(intensity) => return Ok(intensity),
+                self.pending_responses,
+            );
+        }
+    }
+
+    /// Enables or disables the array light source.
+    pub fn set_array_light_source_enabled(&mut self, enabled: bool) {
+        if enabled {
+            self.validate_and_send_command_unchecked(
+                b"5",
+                parsers::turn_array_light_source_on_request,
+            );
+        } else {
+            self.validate_and_send_command_unchecked(
+                b"6",
+                parsers::turn_array_light_source_off_request,
+            );
+        }
+    }
+
     /// Sets the number of input sensors that must be covered to initiate
     /// scanning when the feeder is enabled.
     ///
@@ -632,10 +705,6 @@ impl Client {
         &mut self,
         timeout: impl Into<Option<std::time::Duration>>,
     ) -> Result<String> {
-        if let Some(response) = self.get_serial_number_response.take() {
-            tracing::warn!("get_serial_number: found a cached response: {response:?}");
-        }
-
         self.validate_and_send_command_unchecked(b"*", parsers::get_serial_number_request);
 
         let timeout = timeout.into();
@@ -644,11 +713,11 @@ impl Client {
         loop {
             self.await_event(deadline)?;
 
-            if let Some(Incoming::GetSetSerialNumberResponse(serial_number)) =
-                self.get_serial_number_response.take()
-            {
-                return Ok(std::str::from_utf8(&serial_number)?.to_owned());
-            }
+            extract_needle!(
+                Incoming::GetSetSerialNumberResponse(serial_number) =>
+                    return Ok(std::str::from_utf8(&serial_number)?.to_owned()),
+                self.pending_responses,
+            );
         }
     }
 
@@ -773,15 +842,12 @@ impl Client {
         loop {
             self.await_event(deadline)?;
 
-            match self.adjust_bitonal_threshold_by_1_response.take() {
-                Some(Incoming::AdjustBitonalThresholdResponse {
-                    side: side_response,
-                    percent_white_threshold,
-                }) if side_response == side => return Ok(percent_white_threshold),
-                Some(response) => {
-                    self.adjust_bitonal_threshold_by_1_response = Some(response);
-                }
-                None => {}
+            if let Some(Incoming::AdjustBitonalThresholdResponse {
+                percent_white_threshold,
+                ..
+            }) = self.get_pending_adjust_bitonal_threshold_response(side)
+            {
+                return Ok(percent_white_threshold);
             }
         }
     }
@@ -800,10 +866,6 @@ impl Client {
         threshold: ClampedPercentage,
         timeout: impl Into<Option<std::time::Duration>>,
     ) -> Result<u8> {
-        if let Some(response) = self.adjust_bitonal_threshold_by_1_response.take() {
-            tracing::warn!("set_threshold: found a cached response: {response:?}");
-        }
-
         let mut body = b"\x1b%".to_vec();
         body.push(side.into());
         body.push(threshold.value());
@@ -818,16 +880,36 @@ impl Client {
         loop {
             self.await_event(deadline)?;
 
-            match self.adjust_bitonal_threshold_by_1_response.take() {
-                Some(Incoming::AdjustBitonalThresholdResponse {
-                    side: side_response,
-                    percent_white_threshold,
-                }) if side_response == side => return Ok(percent_white_threshold),
-                Some(response) => {
-                    self.adjust_bitonal_threshold_by_1_response = Some(response);
-                }
-                None => {}
+            if let Some(Incoming::AdjustBitonalThresholdResponse {
+                percent_white_threshold,
+                ..
+            }) = self.get_pending_adjust_bitonal_threshold_response(side)
+            {
+                return Ok(percent_white_threshold);
             }
+        }
+    }
+
+    fn get_pending_adjust_bitonal_threshold_response(&mut self, side: Side) -> Option<Incoming> {
+        let mut response: Option<Incoming> = None;
+
+        extract_needle!(
+            needle @ Incoming::AdjustBitonalThresholdResponse { .. } => response = Some(needle),
+            self.pending_responses,
+        );
+
+        match response {
+            Some(Incoming::AdjustBitonalThresholdResponse {
+                side: side_response,
+                ..
+            }) if side_response == side => response,
+
+            Some(response) => {
+                self.pending_responses.push(response);
+                None
+            }
+
+            None => None,
         }
     }
 
@@ -965,26 +1047,17 @@ impl Client {
             Incoming::EndScanEvent => {
                 self.end_scan_tx.send(()).unwrap();
             }
-            Incoming::GetTestStringResponse(test_string) => {
-                self.get_test_string_response = Some(test_string);
-            }
-            Incoming::GetFirmwareVersionResponse(version) => {
-                self.get_firmware_version_response = Some(version);
-            }
-            Incoming::GetScannerStatusResponse(status) => {
-                self.get_scanner_status_response = Some(status);
-            }
-            Incoming::GetScannerSettingsResponse(settings) => {
-                self.get_scanner_settings_response = Some(settings);
-            }
-            response @ Incoming::GetSetSerialNumberResponse(..) => {
-                self.get_serial_number_response = Some(response);
-            }
-            response @ Incoming::GetSetRequiredInputSensorsResponse { .. } => {
-                self.get_required_input_sensors_response = Some(response);
-            }
-            response @ Incoming::AdjustBitonalThresholdResponse { .. } => {
-                self.adjust_bitonal_threshold_by_1_response = Some(response);
+            response @ Incoming::GetTestStringResponse(_)
+            | response @ Incoming::GetFirmwareVersionResponse(_)
+            | response @ Incoming::GetScannerStatusResponse(_)
+            | response @ Incoming::AdjustBitonalThresholdResponse { .. }
+            | response @ Incoming::GetSetSerialNumberResponse(..)
+            | response @ Incoming::GetScannerSettingsResponse(_)
+            | response @ Incoming::GetSetRequiredInputSensorsResponse { .. }
+            | response @ Incoming::DoubleFeedCalibrationCompleteEvent
+            | response @ Incoming::DoubleFeedCalibrationTimedOutEvent
+            | response @ Incoming::GetDoubleFeedDetectionLedIntensityResponse(_) => {
+                self.pending_responses.push(response);
             }
             _ => {
                 tracing::warn!("unhandled incoming: {incoming:?}");

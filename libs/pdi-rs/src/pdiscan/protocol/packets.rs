@@ -466,6 +466,27 @@ pub enum Outgoing {
         delay_interval: Duration,
     },
 
+    /// This command turns-on the scan head (sense array) light source for a
+    /// period of 10 seconds or until the ‘6’, turn array light source off,
+    /// command is received.
+    ///
+    /// `ASCII character 5 = (35H)`
+    ///
+    /// # Response
+    ///
+    /// No response.
+    TurnArrayLightSourceOnRequest,
+
+    /// This command turns-off the sense array light source. This is the DEFAULT
+    /// mode.
+    ///
+    /// `ASCII character 6 = (36H)`
+    ///
+    /// # Response
+    ///
+    /// No response.
+    TurnArrayLightSourceOffRequest,
+
     /// This command causes the scanner’s motor to run in the forward direction
     /// (ejecting a document from the rear of the unit). Motor runs until exit
     /// sensors say that document has been ejected, or runs for a max run time
@@ -522,6 +543,20 @@ pub enum Outgoing {
     SetDoubleFeedDetectionMinimumDocumentLengthRequest {
         length_in_hundredths_of_an_inch: u8,
     },
+
+    /// Requests the double feed detection LED intensity (`n3a30`).
+    GetDoubleFeedDetectionLEDIntensityRequest,
+
+    /// Requests the double feed detection calibration value for a single sheet
+    /// (`n3a30`).
+    GetDoubleFeedDetectionSingleSheetCalibrationValueRequest,
+
+    /// Requests the double feed detection calibration value for a double sheet
+    /// (`n3a20`).
+    GetDoubleFeedDetectionDoubleSheetCalibrationValueRequest,
+
+    /// Requests the double feed detection threshold value (`n3a10`).
+    GetDoubleFeedDetectionDoubleSheetThresholdValueRequest,
 }
 
 /// All possible incoming data from the scanner, including responses to commands
@@ -773,6 +808,18 @@ pub enum Incoming {
         white_calibration_table: Vec<u8>,
         black_calibration_table: Vec<u8>,
     },
+
+    /// Response to the `n3a30` command to get the LED intensity for double feed
+    /// detection.
+    GetDoubleFeedDetectionLedIntensityResponse(u16),
+
+    /// Response to the `n3a10` command to get the double feed detection
+    /// calibration value for a single sheet.
+    GetDoubleFeedDetectionSingleSheetCalibrationValueResponse(u16),
+
+    /// Response to the `n3a20` command to get the double feed detection
+    /// calibration value for a double sheet.
+    GetDoubleFeedDetectionDoubleSheetCalibrationValueResponse(u16),
 
     ScannerOkayEvent,
     DocumentJamEvent,
