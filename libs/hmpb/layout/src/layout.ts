@@ -2,7 +2,6 @@ import {
   assert,
   assertDefined,
   iter,
-  lines,
   ok,
   range,
   Result,
@@ -92,28 +91,86 @@ export function textWidth(text: string, fontStyle: FontStyle): number {
   return iter(text.split('').map((c) => characterWidth(c, fontStyle))).sum();
 }
 
-function wrapLine(line: string, fontStyle: FontStyle, width: number): string[] {
-  const words = line.split(' ');
-  const results: string[] = [];
-  let currentLine = '';
-  for (const word of words) {
-    const extendedLine =
-      currentLine.length > 0 ? [currentLine, word].join(' ') : word;
-    if (textWidth(extendedLine, fontStyle) <= width) {
-      currentLine = extendedLine;
-    } else {
-      results.push(currentLine);
-      currentLine = word;
-    }
-  }
-  results.push(currentLine);
-  return results;
+const HTML_TAG_REGEX = /<\/?\w+>/g;
+
+function toOpeningTag(tag: string): string {
+  return tag.replace(/^<\/?/, '<');
 }
 
-function textWrap(text: string, fontStyle: FontStyle, width: number): string[] {
-  return lines(text)
-    .flatMap((line) => wrapLine(line, fontStyle, width))
-    .toArray();
+function toClosingTag(tag: string): string {
+  return tag.replace(/^<\/?/, '</');
+}
+
+function isClosingTag(tag: string): boolean {
+  return tag.startsWith('</');
+}
+
+export function textWrap(
+  text: string,
+  fontStyle: FontStyle,
+  width: number
+): string[] {
+  const isHtml = text.startsWith('<html>') && text.endsWith('</html>');
+  // Keep track of open tags so we can split lines in the middle of open tags.
+  // When we split a line in the middle of an open tag, we want to close the tag
+  // for that line, then reopen it again on the next line. This assumes we're
+  // only supporting inline tags like <b>, <u>, etc.
+  const tagStack = [];
+
+  // Split on a space character or newline, preserving the newline as its own
+  // "word" in the result
+  const words = text.split(/ |(\r?\n)/).filter((word) => word !== undefined);
+
+  const results: string[] = [];
+  let currentLine = '';
+
+  for (const word of words) {
+    const isLineBreak = word.match(/\r?\n/);
+    const currentLineWithoutTags = currentLine.replaceAll(HTML_TAG_REGEX, '');
+    const extendedLine = [currentLine, word].join(
+      currentLineWithoutTags.length > 0 ? ' ' : ''
+    );
+    const extendedLineWithoutTags = extendedLine.replaceAll(HTML_TAG_REGEX, '');
+    if (
+      !isLineBreak &&
+      textWidth(isHtml ? extendedLineWithoutTags : extendedLine, fontStyle) <=
+        width
+    ) {
+      currentLine = extendedLine;
+    } else {
+      // Close any tags that are open in this line before breaking
+      const extraCloseTags = isHtml
+        ? [...tagStack].reverse().map(toClosingTag).join('')
+        : '';
+      results.push(currentLine + extraCloseTags);
+
+      // Start the next line with any tags that were open in the previous line
+      const extraOpenTags = isHtml ? tagStack.join('') : '';
+      currentLine = extraOpenTags + (isLineBreak ? '' : word);
+    }
+
+    // Update the open tag stack based on the word we just processed
+    if (isHtml) {
+      const htmlTagsInWord = word.match(HTML_TAG_REGEX) ?? [];
+      for (const tag of htmlTagsInWord) {
+        if (isClosingTag(tag)) {
+          const expectedTag = tagStack.pop();
+          if (expectedTag !== toOpeningTag(tag)) {
+            throw new Error(
+              `Unexpected closing tag ${tag} in word "${word}" (expected ${
+                expectedTag ? toClosingTag(expectedTag) : 'none'
+              })`
+            );
+          }
+        } else {
+          tagStack.push(tag);
+        }
+      }
+    }
+  }
+
+  results.push(currentLine);
+  return results;
 }
 
 function textHeight(textLines: string[], fontStyle: FontStyle): number {
