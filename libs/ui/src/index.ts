@@ -94,6 +94,7 @@ export * from './print_element';
 export * from './change_precinct_button';
 export * from './export_logs_modal';
 export * from './graphics';
+export * from './task_screen';
 export * from './types';
 export * from './unconfigured_election_screen';
 export * from './usb_drive';

@@ -26,6 +26,10 @@ import {
   LabelledText,
   H1,
   Font,
+  TaskContent,
+  TaskControls,
+  TaskHeader,
+  TaskScreen,
 } from '@votingworks/ui';
 import {
   isElectionManagerAuth,
@@ -47,12 +51,6 @@ import {
   setManualResults,
 } from '../api';
 import { normalizeWriteInName } from '../utils/write_ins';
-import {
-  TaskContent,
-  TaskControls,
-  TaskHeader,
-  TaskScreen,
-} from './task_screen';
 
 export const TITLE = 'Edit Tallies';
 

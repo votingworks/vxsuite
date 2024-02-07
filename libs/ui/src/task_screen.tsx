@@ -1,5 +1,6 @@
-import { Main, Screen } from '@votingworks/ui';
 import styled from 'styled-components';
+import { Screen } from './screen';
+import { Main } from './main';
 
 interface TaskScreenProps {
   children: React.ReactNode;
