@@ -447,7 +447,7 @@ function HeaderAndInstructions({
     timeZone: 'UTC',
   }).format(new Date(election.date));
 
-  const clerkSignatureRowHeight = m.HEADER_ROW_HEIGHT - 1.5;
+  const clerkSignatureRowHeight = m.HEADER_ROW_HEIGHT - m.HEADER_ROW_HEIGHT / 4;
   const clerkSignatureColumnWidth = nhCustomContent.clerkSignatureImage
     ? 6.5
     : 0;
@@ -595,7 +595,7 @@ function HeaderAndInstructions({
             },
           },
           {
-            text: 'To vote for a person whose name is not on the ballot, write the person’s name on the "write-in" line and completely fill in the oval to the left of the line.',
+            text: 'To vote for a person whose name is not on the ballot, write the person’s name on the "write-in" line and completely fill in the oval next to the line.',
             fontStyle: m.FontStyles.SMALL,
           },
         ],
