@@ -1,7 +1,6 @@
 import { useParams } from 'react-router-dom';
 import { assertDefined } from '@votingworks/basics';
 import { getPrecinctById, getBallotStyle } from '@votingworks/types';
-import { Screen } from '@votingworks/ui';
 import { getElection } from './api';
 import { BallotViewer } from './ballot_viewer';
 
@@ -24,12 +23,10 @@ export function BallotScreen(): JSX.Element | null {
   );
 
   return (
-    <Screen>
-      <BallotViewer
-        election={election}
-        precinct={precinct}
-        ballotStyle={ballotStyle}
-      />
-    </Screen>
+    <BallotViewer
+      election={election}
+      precinct={precinct}
+      ballotStyle={ballotStyle}
+    />
   );
 }

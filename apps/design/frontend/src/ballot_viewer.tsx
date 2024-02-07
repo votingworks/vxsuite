@@ -11,14 +11,19 @@ import {
 } from '@votingworks/types';
 import styled from 'styled-components';
 import {
-  Breadcrumbs,
   Button,
   Card,
   H1,
   Icons,
+  LinkButton,
+  MainWrapper,
   RadioGroup,
+  TaskContent,
+  TaskControls,
+  TaskHeader,
+  TaskScreen,
 } from '@votingworks/ui';
-import { gridForPaper, BallotMode } from '@votingworks/hmpb-layout';
+import { BallotMode } from '@votingworks/hmpb-layout';
 import { useParams } from 'react-router-dom';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { getBallotPreviewPdf } from './api';
@@ -32,32 +37,22 @@ const FieldName = styled(BaseFieldName)`
   font-weight: ${(p) => p.theme.sizes.fontWeight.bold};
 `;
 
-const Container = styled.div`
-  display: flex;
-  height: 100%;
-  width: 100%;
-`;
-
 const Controls = styled.div`
   display: flex;
   flex-direction: column;
-  min-width: 15rem;
+  min-width: 18rem;
   background: ${({ theme }) => theme.colors.inverseBackground};
   color: ${({ theme }) => theme.colors.onInverse};
   height: 100%;
-  padding: 1rem;
+  padding: 0.5rem 1rem;
   gap: 1rem;
   justify-items: stretch;
-  overflow-y: auto;
-
-  a {
-    color: ${({ theme }) => theme.colors.inversePrimary};
-  }
 `;
 
 const Viewer = styled.div`
   flex: 1;
   background: ${({ theme }) => theme.colors.containerHigh};
+  overflow: hidden;
 
   /* Make sure overflow can scroll horizontally */
   min-width: 0;
@@ -108,7 +103,7 @@ function PdfViewer({ pdfData }: { pdfData?: Buffer }) {
   const [numPages, setNumPages] = useState<number>();
   const [zoom, setZoom] = useState(1);
   const [currentPage, setCurrentPage] = useState(1);
-  const file = useMemo(() => ({ data: pdfData }), [pdfData]);
+  const file = useMemo(() => pdfData && { data: pdfData }, [pdfData]);
 
   function onScroll(e: React.UIEvent<HTMLDivElement>) {
     if (!numPages) return;
@@ -168,6 +163,10 @@ function PdfViewer({ pdfData }: { pdfData?: Buffer }) {
             onLoadSuccess={(result) => setNumPages(result.numPages)}
             // Hide the built in loading message
             loading=""
+            // Every once in a while an error message will flash, but the PDF
+            // still loads correctly moments later. I couldn't figure out why,
+            // so I'm just hiding the error message for now.
+            error=""
           >
             {numPages &&
               range(1, numPages + 1).map((pageNumber) => (
@@ -223,108 +222,112 @@ export function BallotViewer({
   });
 
   const { paperSize } = election.ballotLayout;
-  const grid = gridForPaper(paperSize);
 
   const { title } = ballotRoutes.viewBallot(ballotStyle.id, precinct.id);
 
   return (
-    <Container>
-      <Controls>
-        <section>
-          <Breadcrumbs
-            currentTitle={title}
-            parentRoutes={[ballotRoutes.root]}
-          />
-          <H1 style={{ marginTop: 0 }}>{title}</H1>
-          <Column style={{ gap: '1rem' }}>
-            <div>
-              <FieldName>Ballot Style</FieldName>
-              {ballotStyle.id}
-            </div>
-
-            <div>
-              <FieldName>Precinct</FieldName>
-              {precinct.name}
-            </div>
-
-            {election.type === 'primary' && (
-              <div>
-                <FieldName>Party</FieldName>
-                {
-                  assertDefined(
-                    getPartyForBallotStyle({
-                      election,
-                      ballotStyleId: ballotStyle.id,
-                    })
-                  ).fullName
-                }
-              </div>
-            )}
-
-            <div>
-              <FieldName>Page Size</FieldName>
-              {paperSizeLabels[paperSize]}{' '}
-            </div>
-
-            <RadioGroup
-              label="Ballot Type"
-              options={[
-                { value: BallotType.Precinct, label: 'Precinct' },
-                { value: BallotType.Absentee, label: 'Absentee' },
-              ]}
-              value={ballotType}
-              onChange={setBallotType}
-              inverse
+    <TaskScreen>
+      <MainWrapper>
+        <TaskControls>
+          <TaskHeader>
+            <H1 style={{ marginTop: 0 }}>{title}</H1>
+            <LinkButton
+              to={ballotRoutes.root.path}
+              icon="X"
+              color="inverseNeutral"
+              fill="transparent"
+              aria-label="Close"
+              style={{ fontSize: '1.5rem' }}
             />
+          </TaskHeader>
 
-            <RadioGroup
-              label="Tabulation Mode"
-              options={[
-                { value: 'official', label: 'Official Ballot' },
-                { value: 'test', label: 'L&A Test Ballot' },
-                { value: 'sample', label: 'Sample Ballot' },
-              ]}
-              value={ballotMode}
-              onChange={setBallotMode}
-              inverse
-            />
-
-            <div>
-              <FieldName>Timing Mark Grid</FieldName>
+          <Controls>
+            <Column style={{ gap: '1rem' }}>
               <div>
-                {grid.columns} columns x {grid.rows} rows
+                <FieldName>Ballot Style</FieldName>
+                {ballotStyle.id}
               </div>
-            </div>
-          </Column>
-        </section>
-      </Controls>
-      <Viewer>
-        {(() => {
-          if (!getBallotPreviewPdfQuery.isSuccess) {
-            return <PdfViewer />;
-          }
 
-          const ballotResult = getBallotPreviewPdfQuery.data;
+              <div>
+                <FieldName>Precinct</FieldName>
+                {precinct.name}
+              </div>
 
-          if (ballotResult.isErr()) {
-            return (
-              <Row
-                style={{
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: '100%',
-                }}
-              >
-                <Card color="danger">
-                  Error: {ballotResult.err().message ?? 'Something went wrong'}
-                </Card>
-              </Row>
-            );
-          }
+              {election.type === 'primary' && (
+                <div>
+                  <FieldName>Party</FieldName>
+                  {
+                    assertDefined(
+                      getPartyForBallotStyle({
+                        election,
+                        ballotStyleId: ballotStyle.id,
+                      })
+                    ).fullName
+                  }
+                </div>
+              )}
 
-          return <PdfViewer pdfData={ballotResult.ok()} />;
-        })()}
-      </Viewer>
-    </Container>
+              <div>
+                <FieldName>Page Size</FieldName>
+                {paperSizeLabels[paperSize]}{' '}
+              </div>
+
+              <RadioGroup
+                label="Ballot Type"
+                options={[
+                  { value: BallotType.Precinct, label: 'Precinct' },
+                  { value: BallotType.Absentee, label: 'Absentee' },
+                ]}
+                value={ballotType}
+                onChange={setBallotType}
+                inverse
+              />
+
+              <RadioGroup
+                label="Tabulation Mode"
+                options={[
+                  { value: 'official', label: 'Official Ballot' },
+                  { value: 'test', label: 'L&A Test Ballot' },
+                  { value: 'sample', label: 'Sample Ballot' },
+                ]}
+                value={ballotMode}
+                onChange={setBallotMode}
+                inverse
+              />
+            </Column>
+          </Controls>
+        </TaskControls>
+        <TaskContent style={{ display: 'flex' }}>
+          <Viewer>
+            {(() => {
+              if (!getBallotPreviewPdfQuery.isSuccess) {
+                return <PdfViewer />;
+              }
+
+              const ballotResult = getBallotPreviewPdfQuery.data;
+
+              if (ballotResult.isErr()) {
+                return (
+                  <Row
+                    style={{
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      height: '100%',
+                    }}
+                  >
+                    <Card color="danger">
+                      Error:{' '}
+                      {ballotResult.err().message ?? 'Something went wrong'}
+                    </Card>
+                  </Row>
+                );
+              }
+
+              return <PdfViewer pdfData={ballotResult.ok()} />;
+            })()}
+          </Viewer>
+        </TaskContent>
+      </MainWrapper>
+    </TaskScreen>
   );
 }
