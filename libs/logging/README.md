@@ -105,7 +105,7 @@ use vx_logging::{
     types::{EventType, Log},
     Disposition, EventId,
 };
-set_app_name("VxAppName".to_string());
+set_app_name("VxAppName");
 
 fn do_something() {
   // ...

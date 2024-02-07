@@ -8,8 +8,8 @@ pub fn print_log(log: Log) {
     }
 }
 
-pub fn set_app_name(app_name: String) {
-    APP_NAME.set(app_name).unwrap();
+pub fn set_app_name(app_name: impl Into<String>) {
+    APP_NAME.set(app_name.into()).unwrap();
 }
 
 mod log_event_enums;
