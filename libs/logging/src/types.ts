@@ -6,8 +6,8 @@ import {
 } from '@votingworks/types';
 import { z } from 'zod';
 import { LogEventId } from './log_event_ids';
-import { LogSource } from './log_source';
-import { LogEventType } from './log_event_types';
+import { LogSource } from './base_types/log_source';
+import { LogEventType } from './base_types/log_event_types';
 
 export enum LogDispositionStandardTypes {
   Success = 'success',

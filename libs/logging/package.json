@@ -13,14 +13,17 @@
   "scripts": {
     "type-check": "tsc --build",
     "build": "tsc --build tsconfig.build.json",
-    "build:generate-docs": "pnpx esbuild-runner --cache ./scripts/generate_documentation.ts",
+    "build:generate-docs": "pnpm esr --cache ./scripts/generate_documentation.ts",
+    "build:generate-typescript-types": "pnpm esr --cache ./scripts/generate_types_from_toml.ts",
+    "build:generate-rust-types": "pnpm esr --cache ./scripts/generate_rust_enums_from_toml.ts",
+    "build:generate-types": "pnpm build:generate-typescript-types && pnpm build:generate-rust-types",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "test": "is-ci test:ci test:watch",
     "test:watch": "TZ=UTC jest --watch",
     "test:coverage": "TZ=UTC jest --coverage",
-    "test:ci": "TZ=UTC pnpm build && pnpm test:coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
+    "test:ci": "TZ=UTC pnpm build && pnpm test:coverage --reporters=default --reporters=jest-junit --maxWorkers=6 && pnpm build:generate-typescript-types --check && pnpm build:generate-rust-types --check",
     "pre-commit": "lint-staged"
   },
   "lint-staged": {
@@ -38,6 +41,7 @@
     ]
   },
   "dependencies": {
+    "@iarna/toml": "^2.2.5",
     "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
