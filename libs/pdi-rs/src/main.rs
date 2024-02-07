@@ -6,7 +6,12 @@ use std::{
 };
 use tracing_subscriber::prelude::*;
 
-use pdi_rs::pdiscan::{self, client::Client};
+use base64::{engine::general_purpose::STANDARD, Engine as _};
+use pdi_rs::pdiscan::{
+    self,
+    client::Client,
+    protocol::types::{DoubleFeedDetectionCalibrationType, Status},
+};
 
 #[derive(Debug, Parser)]
 struct Config {
@@ -46,6 +51,7 @@ fn setup_logging(config: &Config) -> color_eyre::Result<()> {
 
 #[derive(Debug, serde::Deserialize)]
 #[serde(tag = "commandType")]
+#[serde(rename_all = "camelCase")]
 enum Command {
     #[serde(rename = "exit")]
     Exit,
@@ -55,6 +61,21 @@ enum Command {
 
     #[serde(rename = "enable_scanning")]
     EnableScanning,
+
+    #[serde(rename = "enable_msd")]
+    EnableMsd { enable: bool },
+
+    #[serde(rename = "calibrate_msd")]
+    #[serde(rename_all = "camelCase")]
+    CalibrateMsd {
+        calibration_type: DoubleFeedDetectionCalibrationType,
+    },
+
+    #[serde(rename = "get_msd_calibration_config")]
+    GetMsdCalibrationConfig,
+
+    #[serde(rename = "get_scanner_status")]
+    GetScannerStatus,
 }
 
 #[derive(Debug, serde::Serialize)]
@@ -67,7 +88,20 @@ enum Outgoing {
     Err { message: String },
 
     #[serde(rename = "scan_complete")]
-    ScanComplete { image_data: String },
+    ScanComplete { image_data: (String, String) },
+
+    #[serde(rename = "msd_calibration_config")]
+    #[serde(rename_all = "camelCase")]
+    MsdCalibrationConfig {
+        led_intensity: u16,
+        single_sheet_calibration_value: u16,
+        double_sheet_calibration_value: u16,
+        threshold_value: u16,
+    },
+
+    #[serde(rename = "scanner_status")]
+    #[serde(rename_all = "camelCase")]
+    ScannerStatus { status: Status },
 }
 
 fn wrap_outgoing(outgoing: &Outgoing) -> color_eyre::Result<()> {
@@ -172,7 +206,54 @@ fn main_scan_loop() -> color_eyre::Result<()> {
                             }
                         }
                     }
-                    (None, Command::EnableScanning) => {
+                    (Some(client), Command::EnableMsd { enable }) => {
+                        client.set_double_feed_detection_enabled(enable);
+                        wrap_outgoing(&Outgoing::Ok)?;
+                    }
+                    (Some(client), Command::CalibrateMsd { calibration_type }) => {
+                        match client.calibrate_double_feed_detection(calibration_type, None) {
+                            Ok(()) => {
+                                wrap_outgoing(&Outgoing::Ok)?;
+                            }
+                            Err(e) => {
+                                wrap_outgoing(&Outgoing::Err {
+                                    message: e.to_string(),
+                                })?;
+                            }
+                        }
+                    }
+                    (Some(client), Command::GetMsdCalibrationConfig) => {
+                        match client.get_double_feed_detection_single_sheet_calibration_value(
+                            Duration::from_secs(1),
+                        ) {
+                            Ok(single_sheet_calibration_value) => {
+                                wrap_outgoing(&Outgoing::MsdCalibrationConfig {
+                                    led_intensity: 0,
+                                    single_sheet_calibration_value,
+                                    double_sheet_calibration_value: 0,
+                                    threshold_value: 0,
+                                })?;
+                            }
+                            Err(e) => {
+                                wrap_outgoing(&Outgoing::Err {
+                                    message: e.to_string(),
+                                })?;
+                            }
+                        }
+                    }
+                    (Some(client), Command::GetScannerStatus) => {
+                        match client.get_scanner_status(Duration::from_secs(1)) {
+                            Ok(status) => {
+                                wrap_outgoing(&Outgoing::ScannerStatus { status })?;
+                            }
+                            Err(e) => {
+                                wrap_outgoing(&Outgoing::Err {
+                                    message: e.to_string(),
+                                })?;
+                            }
+                        }
+                    }
+                    (None, _) => {
                         wrap_outgoing(&Outgoing::Err {
                             message: "scanner not connected".to_string(),
                         })?;
@@ -199,9 +280,12 @@ fn main_scan_loop() -> color_eyre::Result<()> {
                 // println!("begin scan");
             }
 
-            if client.end_scan_rx.try_recv().is_ok() {
+            if let Ok((front_image_data, back_image_data)) = client.end_scan_rx.try_recv() {
                 wrap_outgoing(&Outgoing::ScanComplete {
-                    image_data: "".to_string(),
+                    image_data: (
+                        STANDARD.encode(front_image_data),
+                        STANDARD.encode(back_image_data),
+                    ),
                 })?;
             }
         }
