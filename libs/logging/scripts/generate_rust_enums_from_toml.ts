@@ -2,12 +2,19 @@ import toml from '@iarna/toml';
 import { createReadStream, createWriteStream } from 'fs';
 import { pipeline } from 'stream/promises';
 import { execFileSync } from 'child_process';
+import yargs from 'yargs';
 import {
   configFilepath,
   rustEnumsTemplateFilepath,
   rustEnumsOutputFilepath,
+  checkRustOutputTempFilepath,
 } from './filepaths';
-import { ParsedConfig, getTypedConfig } from './types';
+import {
+  GenerateTypesArgs,
+  ParsedConfig,
+  diffAndCleanUp,
+  getTypedConfig,
+} from './types';
 
 function* formatLogEventIdEnum(config: ParsedConfig): Generator<string> {
   const entries = Object.entries(config);
@@ -29,19 +36,35 @@ function* formatLogEventIdEnum(config: ParsedConfig): Generator<string> {
   yield '}';
 }
 
+const argv: GenerateTypesArgs = yargs(process.argv.slice(2)).options({
+  check: {
+    type: 'boolean',
+    description:
+      'Check that generated output equals the existing file on disk. Does not overwrite existing file.',
+  },
+}).argv as GenerateTypesArgs;
+
 async function main(): Promise<void> {
+  const { check } = argv;
+  const filepath = check
+    ? checkRustOutputTempFilepath
+    : rustEnumsOutputFilepath;
   const untypedConfig = await toml.parse.stream(
     createReadStream(configFilepath)
   );
   const typedConfig = getTypedConfig(untypedConfig);
-  const out = createWriteStream(rustEnumsOutputFilepath);
+  const out = createWriteStream(filepath);
 
   await pipeline(async function* makeRustFile() {
     yield* createReadStream(rustEnumsTemplateFilepath);
     yield* formatLogEventIdEnum(typedConfig);
   }, out);
 
-  execFileSync('rustfmt', [rustEnumsOutputFilepath]);
+  execFileSync('rustfmt', [filepath]);
+
+  if (check) {
+    await diffAndCleanUp(checkRustOutputTempFilepath, rustEnumsOutputFilepath);
+  }
 }
 
 void main();

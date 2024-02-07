@@ -1,6 +1,6 @@
 import toml from '@iarna/toml';
 import { assert } from '@votingworks/basics';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import fs from 'fs';
 import { LogEventType } from '../src/base_types/log_event_types';
 import { LogSource } from '../src/base_types/log_source';
@@ -32,16 +32,16 @@ function getTypedEntry(untypedEntry: toml.AnyJson): ParsedLogDetails {
   );
   assert(
     'eventType' in value && typeof value.eventType === 'string',
-    'Log config entry is missing eventType'
+    `Log config entry ${value.eventId} is missing eventType`
   );
   assert(
     isLogEventType(value.eventType),
-    `Unknown eventType ${value.eventType}`
+    `Unknown eventType ${value.eventType} in log config centry ${value.eventId}`
   );
   assert(
     'documentationMessage' in value &&
       typeof value.documentationMessage === 'string',
-    'Log config entry is missing documentationMessage'
+    `Log config entry ${value.eventId} is missing documentationMessage`
   );
 
   const entry: ParsedLogDetails = {
@@ -96,8 +96,10 @@ export function diffAndCleanUp(
   tempFile: string,
   existingFile: string
 ): Promise<void> {
+  // Use callback version of execFile because TypeScript infers error type.
+  // try/catch with execFileSync or promisified execFile requires type narrowing
   return new Promise((resolve) => {
-    exec(`diff ${tempFile} ${existingFile}`, (error, stdout) => {
+    execFile('diff', [tempFile, existingFile], (error, stdout) => {
       // An error with code 1 is expected when a diff exists
       fs.rmSync(tempFile);
       if (error) {
