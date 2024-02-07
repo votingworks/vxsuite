@@ -56,6 +56,7 @@ export const NoResultsNotice = styled(H5)`
 
 export const GenerateButtonWrapper = styled.div`
   margin-left: auto;
+  margin-bottom: 1rem;
 
   button {
     min-width: 15rem;

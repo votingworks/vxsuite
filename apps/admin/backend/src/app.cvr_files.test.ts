@@ -94,7 +94,16 @@ async function expectCastVoteRecordCount(
   apiClient: Client<Api>,
   count: number
 ): Promise<void> {
-  expect(getSheetCount((await apiClient.getCardCounts())[0]!)).toEqual(count);
+  expect(
+    getSheetCount(
+      (
+        await apiClient.getCardCounts({
+          filter: {},
+          groupBy: {},
+        })
+      )[0]!
+    )
+  ).toEqual(count);
 }
 
 test('happy path - mock election flow', async () => {

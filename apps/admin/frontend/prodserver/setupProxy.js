@@ -20,7 +20,7 @@ module.exports = function (app) {
   app.use(proxy('/dock', { target: 'http://localhost:3004/' }));
 
   const pdfjsDistBuildPath = dirname(
-    resolve.sync('pdfjs-dist', { basedir: join(__dirname, '../../../../libs/image-utils') })
+    resolve.sync('pdfjs-dist', { basedir: join(__dirname, '..') })
   );
   app.use('/pdfjs-dist', express.static(pdfjsDistBuildPath));
 };

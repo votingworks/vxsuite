@@ -35,6 +35,7 @@ import {
 } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import type { PrinterStatus } from '@votingworks/printing';
 
 const mockRect: Rect = {
   width: 1000,
@@ -57,6 +58,21 @@ export function createMockApiClient(): MockApiClient {
 export function createApiMock(
   apiClient: MockApiClient = createMockApiClient()
 ) {
+  function setPrinterStatus(printerStatus: Partial<PrinterStatus>): void {
+    apiClient.getPrinterStatus.expectRepeatedCallsWith().resolves({
+      connected: true,
+      // the below is copied from libs/printing to avoid importing a backend package
+      config: {
+        label: 'HP LaserJet Pro M404n',
+        vendorId: 1008,
+        productId: 49450,
+        baseDeviceUri: 'usb://HP/LaserJet%20Pro%20M404-M405',
+        ppd: 'generic-postscript-driver.ppd',
+      },
+      ...printerStatus,
+    });
+  }
+
   return {
     apiClient,
 
@@ -65,6 +81,8 @@ export function createApiMock(
     setAuthStatus(authStatus: DippedSmartCardAuth.AuthStatus) {
       apiClient.getAuthStatus.expectRepeatedCallsWith().resolves(authStatus);
     },
+
+    setPrinterStatus,
 
     async authenticateAsSystemAdministrator() {
       // first verify that we're logged out
@@ -404,26 +422,18 @@ export function createApiMock(
         .resolves(ok([]));
     },
 
-    expectGetCardCounts(
-      input: {
-        filter?: Admin.FrontendReportingFilter;
-        groupBy?: Tabulation.GroupBy;
-      },
-      results: Array<Tabulation.GroupOf<Tabulation.CardCounts>>,
-      deferResult = false
-    ) {
-      const { promise, resolve } =
-        deferred<Tabulation.GroupList<Tabulation.CardCounts>>();
+    expectGetTotalBallotCount(count: number, deferResult = false) {
+      const { promise, resolve } = deferred<number>();
 
-      apiClient.getCardCounts.expectCallWith(input).returns(promise);
+      apiClient.getTotalBallotCount.expectCallWith().returns(promise);
 
       if (!deferResult) {
-        resolve(results);
+        resolve(count);
       }
 
       return {
         resolve: () => {
-          resolve(results);
+          resolve(count);
         },
       };
     },
@@ -434,8 +444,8 @@ export function createApiMock(
 
     expectGetResultsForTallyReports(
       input: {
-        filter?: Admin.FrontendReportingFilter;
-        groupBy?: Tabulation.GroupBy;
+        filter: Admin.FrontendReportingFilter;
+        groupBy: Tabulation.GroupBy;
       },
       results: Tabulation.GroupList<Admin.TallyReportResults>,
       deferResult = false

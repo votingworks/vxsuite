@@ -1,7 +1,6 @@
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { ElectionDefinition } from '@votingworks/types';
-import { buildMockCardCounts } from '@votingworks/utils';
 import { ReportsScreen } from './reports_screen';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
@@ -25,7 +24,7 @@ const electionDefinition = electionTwoPartyPrimaryDefinition;
 describe('ballot count summary text', () => {
   test('unlocked mode', async () => {
     apiMock.expectGetCastVoteRecordFileMode('unlocked');
-    apiMock.expectGetCardCounts({}, [buildMockCardCounts(0)]);
+    apiMock.expectGetTotalBallotCount(3000);
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -41,7 +40,7 @@ describe('ballot count summary text', () => {
 
   test('official mode', async () => {
     apiMock.expectGetCastVoteRecordFileMode('official');
-    apiMock.expectGetCardCounts({}, [buildMockCardCounts(3000)]);
+    apiMock.expectGetTotalBallotCount(3000);
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -57,7 +56,7 @@ describe('ballot count summary text', () => {
 
   test('test mode', async () => {
     apiMock.expectGetCastVoteRecordFileMode('test');
-    apiMock.expectGetCardCounts({}, [buildMockCardCounts(3000)]);
+    apiMock.expectGetTotalBallotCount(3000);
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -77,7 +76,7 @@ describe('showing WIA report link', () => {
 
   test('shown when election has write-in contests', async () => {
     apiMock.expectGetCastVoteRecordFileMode('test');
-    apiMock.expectGetCardCounts({}, [buildMockCardCounts(3000)]);
+    apiMock.expectGetTotalBallotCount(3000);
 
     renderInAppContext(<ReportsScreen />, {
       electionDefinition,
@@ -89,7 +88,7 @@ describe('showing WIA report link', () => {
 
   test('not shown when election does not write-in contests', async () => {
     apiMock.expectGetCastVoteRecordFileMode('test');
-    apiMock.expectGetCardCounts({}, [buildMockCardCounts(3000)]);
+    apiMock.expectGetTotalBallotCount(3000);
 
     const electionDefinitionWithoutWriteIns: ElectionDefinition = {
       ...electionDefinition,

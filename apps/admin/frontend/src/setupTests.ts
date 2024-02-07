@@ -11,6 +11,11 @@ import {
   fakePrintElementToPdf as mockPrintElementToPdf,
 } from '@votingworks/test-utils';
 import { configure } from '../test/react_testing_library';
+import {
+  MockDocument,
+  MockPage,
+  setMockPdfNumPages,
+} from '../test/react_pdf_mocks';
 
 configure({ asyncUtilTimeout: 5_000 });
 
@@ -33,3 +38,17 @@ afterEach(() => {
 jest.mock('styled-components', () =>
   jest.requireActual('styled-components/dist/styled-components.browser.cjs.js')
 );
+
+jest.mock('react-pdf', (): typeof import('react-pdf') => {
+  const original = jest.requireActual('react-pdf');
+  return {
+    ...original,
+    pdfjs: { GlobalWorkerOptions: { workerSrc: '/mock', workerPort: 3000 } },
+    Document: MockDocument,
+    Page: MockPage,
+  };
+});
+
+afterEach(() => {
+  setMockPdfNumPages(1);
+});

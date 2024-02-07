@@ -5,6 +5,7 @@ export function combineGroupSpecifierAndFilter(
   filter: Tabulation.Filter
 ): Tabulation.Filter {
   return {
+    ...filter,
     ballotStyleIds: group.ballotStyleId
       ? [group.ballotStyleId]
       : filter.ballotStyleIds,

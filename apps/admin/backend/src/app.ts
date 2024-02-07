@@ -32,12 +32,14 @@ import {
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
+import { Printer, PrinterStatus } from '@votingworks/printing';
 import { createReadStream, promises as fs } from 'fs';
 import path, { join } from 'path';
 import {
   ELECTION_PACKAGE_FOLDER,
   generateElectionBasedSubfolderName,
   generateFilenameForElectionPackage,
+  getBallotCount,
   groupMapToGroupList,
   isIntegrationTest,
 } from '@votingworks/utils';
@@ -98,6 +100,25 @@ import { convertFrontendFilter as convertFrontendFilterUtil } from './util/filte
 import { buildElectionResultsReport } from './util/cdf_results';
 import { tabulateElectionResults } from './tabulation/full_results';
 import { NODE_ENV, REAL_USB_DRIVE_GLOB_PATTERN } from './globals';
+import {
+  exportWriteInAdjudicationReportPdf,
+  generateWriteInAdjudicationReportPreview,
+  printWriteInAdjudicationReport,
+} from './reports/write_in_adjudication_report';
+import {
+  BallotCountReportPreview,
+  BallotCountReportSpec,
+  exportBallotCountReportPdf,
+  generateBallotCountReportPreview,
+  printBallotCountReport,
+} from './reports/ballot_count_report';
+import {
+  TallyReportSpec,
+  TallyReportPreview,
+  generateTallyReportPreview,
+  printTallyReport,
+  exportTallyReportPdf,
+} from './reports/tally_report';
 
 const debug = rootDebug.extend('app');
 
@@ -146,11 +167,13 @@ function buildApi({
   workspace,
   logger,
   usbDrive,
+  printer,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
   usbDrive: UsbDrive;
+  printer: Printer;
 }) {
   const { store } = workspace;
 
@@ -175,6 +198,40 @@ function buildApi({
       electionDefinition: { election },
     } = assertDefined(store.getElection(electionId));
     return convertFrontendFilterUtil(filter, election);
+  }
+
+  async function getTallyReportResults(
+    input: Pick<TallyReportSpec, 'filter' | 'groupBy'>
+  ): Promise<Tabulation.GroupList<Admin.TallyReportResults>> {
+    const electionId = loadCurrentElectionIdOrThrow(workspace);
+    return tabulateTallyReportResults({
+      electionId,
+      store,
+      filter: convertFrontendFilter(input.filter),
+      groupBy: input.groupBy,
+    });
+  }
+
+  function getCardCounts(
+    input: Pick<BallotCountReportSpec, 'filter' | 'groupBy'>
+  ): Tabulation.GroupList<Tabulation.CardCounts> {
+    const electionId = loadCurrentElectionIdOrThrow(workspace);
+    return groupMapToGroupList(
+      tabulateFullCardCounts({
+        electionId,
+        store,
+        filter: convertFrontendFilter(input.filter),
+        groupBy: input.groupBy,
+      })
+    );
+  }
+
+  function getElectionWriteInSummary(): Tabulation.ElectionWriteInSummary {
+    const electionId = loadCurrentElectionIdOrThrow(workspace);
+    return getOverallElectionWriteInSummary({
+      electionId,
+      store,
+    });
   }
 
   return grout.createApi({
@@ -209,6 +266,10 @@ function buildApi({
 
     unprogramCard() {
       return auth.unprogramCard(constructAuthMachineState(workspace));
+    },
+
+    getPrinterStatus(): Promise<PrinterStatus> {
+      return printer.status();
     },
 
     /* c8 ignore start */
@@ -728,40 +789,52 @@ function buildApi({
       });
     },
 
-    getCardCounts(
-      input: {
-        groupBy?: Tabulation.GroupBy;
-        filter?: Admin.FrontendReportingFilter;
-      } = {}
-    ): Array<Tabulation.GroupOf<Tabulation.CardCounts>> {
-      const electionId = loadCurrentElectionIdOrThrow(workspace);
-      return groupMapToGroupList(
-        tabulateFullCardCounts({
-          electionId,
-          store,
-          groupBy: input.groupBy,
-          filter: convertFrontendFilter(input.filter),
-        })
-      );
+    getScannerBatches(): ScannerBatch[] {
+      return store.getScannerBatches(loadCurrentElectionIdOrThrow(workspace));
     },
 
     async getResultsForTallyReports(
-      input: {
-        filter?: Admin.FrontendReportingFilter;
-        groupBy?: Tabulation.GroupBy;
-      } = {}
+      input: Pick<TallyReportSpec, 'filter' | 'groupBy'> = {
+        filter: {},
+        groupBy: {},
+      }
     ): Promise<Tabulation.GroupList<Admin.TallyReportResults>> {
-      const electionId = loadCurrentElectionIdOrThrow(workspace);
-      return tabulateTallyReportResults({
-        electionId,
+      return getTallyReportResults(input);
+    },
+
+    async getTallyReportPreview(
+      input: TallyReportSpec
+    ): Promise<TallyReportPreview> {
+      return generateTallyReportPreview({
         store,
-        filter: convertFrontendFilter(input.filter),
-        groupBy: input.groupBy,
+        allTallyReportResults: await getTallyReportResults(input),
+        ...input,
+        logger,
+        userRole: assertDefined(await getUserRole()),
       });
     },
 
-    getScannerBatches(): ScannerBatch[] {
-      return store.getScannerBatches(loadCurrentElectionIdOrThrow(workspace));
+    async printTallyReport(input: TallyReportSpec): Promise<void> {
+      return printTallyReport({
+        store,
+        allTallyReportResults: await getTallyReportResults(input),
+        ...input,
+        logger,
+        userRole: assertDefined(await getUserRole()),
+        printer,
+      });
+    },
+
+    async exportTallyReportPdf(
+      input: TallyReportSpec & { path: string }
+    ): Promise<ExportDataResult> {
+      return await exportTallyReportPdf({
+        store,
+        allTallyReportResults: await getTallyReportResults(input),
+        ...input,
+        logger,
+        userRole: assertDefined(await getUserRole()),
+      });
     },
 
     async exportTallyReportCsv(input: {
@@ -787,38 +860,6 @@ function buildApi({
           message: `${
             exportFileResult.isOk() ? 'Saved' : 'Failed to save'
           } tally report CSV file to ${input.path} on the USB drive.`,
-          filename: input.path,
-        }
-      );
-
-      return exportFileResult;
-    },
-
-    async exportBallotCountReportCsv(input: {
-      path: string;
-      filter?: Admin.FrontendReportingFilter;
-      groupBy?: Tabulation.GroupBy;
-      includeSheetCounts?: boolean;
-    }): Promise<ExportDataResult> {
-      debug('exporting ballot count report CSV file: %o', input);
-      const exportFileResult = await exportFile({
-        path: input.path,
-        data: generateBallotCountReportCsv({
-          store,
-          filter: convertFrontendFilter(input.filter),
-          groupBy: input.groupBy,
-          includeSheetCounts: input.includeSheetCounts,
-        }),
-      });
-
-      await logger.log(
-        LogEventId.FileSaved,
-        assertDefined(await getUserRole()),
-        {
-          disposition: exportFileResult.isOk() ? 'success' : 'failure',
-          message: `${
-            exportFileResult.isOk() ? 'Saved' : 'Failed to save'
-          } ballot count report CSV file to ${input.path} on the USB drive.`,
           filename: input.path,
         }
       );
@@ -883,11 +924,120 @@ function buildApi({
       return exportFileResult;
     },
 
-    getElectionWriteInSummary(): Tabulation.ElectionWriteInSummary {
-      const electionId = loadCurrentElectionIdOrThrow(workspace);
-      return getOverallElectionWriteInSummary({
-        electionId,
+    getCardCounts(
+      input: Pick<BallotCountReportSpec, 'filter' | 'groupBy'>
+    ): Array<Tabulation.GroupOf<Tabulation.CardCounts>> {
+      return getCardCounts(input);
+    },
+
+    getTotalBallotCount(): number {
+      const [cardCounts] = getCardCounts({
+        filter: {},
+        groupBy: {},
+      });
+
+      return cardCounts ? getBallotCount(cardCounts) : 0;
+    },
+
+    async getBallotCountReportPreview(
+      input: BallotCountReportSpec
+    ): Promise<BallotCountReportPreview> {
+      return generateBallotCountReportPreview({
         store,
+        allCardCounts: getCardCounts(input),
+        ...input,
+        logger,
+        userRole: assertDefined(await getUserRole()),
+      });
+    },
+
+    async printBallotCountReport(input: BallotCountReportSpec): Promise<void> {
+      return printBallotCountReport({
+        store,
+        allCardCounts: getCardCounts(input),
+        ...input,
+        logger,
+        userRole: assertDefined(await getUserRole()),
+        printer,
+      });
+    },
+
+    async exportBallotCountReportPdf(
+      input: BallotCountReportSpec & { path: string }
+    ): Promise<ExportDataResult> {
+      return exportBallotCountReportPdf({
+        store,
+        allCardCounts: getCardCounts(input),
+        ...input,
+        logger,
+        userRole: assertDefined(await getUserRole()),
+      });
+    },
+
+    async exportBallotCountReportCsv(input: {
+      path: string;
+      filter?: Admin.FrontendReportingFilter;
+      groupBy?: Tabulation.GroupBy;
+      includeSheetCounts?: boolean;
+    }): Promise<ExportDataResult> {
+      debug('exporting ballot count report CSV file: %o', input);
+      const exportFileResult = await exportFile({
+        path: input.path,
+        data: generateBallotCountReportCsv({
+          store,
+          filter: convertFrontendFilter(input.filter),
+          groupBy: input.groupBy,
+          includeSheetCounts: input.includeSheetCounts,
+        }),
+      });
+
+      await logger.log(
+        LogEventId.FileSaved,
+        assertDefined(await getUserRole()),
+        {
+          disposition: exportFileResult.isOk() ? 'success' : 'failure',
+          message: `${
+            exportFileResult.isOk() ? 'Saved' : 'Failed to save'
+          } ballot count report CSV file to ${input.path} on the USB drive.`,
+          filename: input.path,
+        }
+      );
+
+      return exportFileResult;
+    },
+
+    getElectionWriteInSummary(): Tabulation.ElectionWriteInSummary {
+      return getElectionWriteInSummary();
+    },
+
+    async getWriteInAdjudicationReportPreview(): Promise<Buffer> {
+      return generateWriteInAdjudicationReportPreview({
+        store,
+        electionWriteInSummary: getElectionWriteInSummary(),
+        logger,
+        userRole: assertDefined(await getUserRole()),
+      });
+    },
+
+    async printWriteInAdjudicationReport(): Promise<void> {
+      return printWriteInAdjudicationReport({
+        store,
+        electionWriteInSummary: getElectionWriteInSummary(),
+        logger,
+        userRole: assertDefined(await getUserRole()),
+        printer,
+      });
+    },
+
+    async exportWriteInAdjudicationReportPdf(input: {
+      path: string;
+    }): Promise<ExportDataResult> {
+      return exportWriteInAdjudicationReportPdf({
+        store,
+        electionWriteInSummary: getElectionWriteInSummary(),
+        logger,
+        userRole: assertDefined(await getUserRole()),
+        path: input.path,
       });
     },
 
@@ -911,14 +1061,16 @@ export function buildApp({
   workspace,
   logger,
   usbDrive,
+  printer,
 }: {
   auth: DippedSmartCardAuthApi;
   workspace: Workspace;
   logger: Logger;
   usbDrive: UsbDrive;
+  printer: Printer;
 }): Application {
   const app: Application = express();
-  const api = buildApi({ auth, workspace, logger, usbDrive });
+  const api = buildApi({ auth, workspace, logger, usbDrive, printer });
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express);
   return app;

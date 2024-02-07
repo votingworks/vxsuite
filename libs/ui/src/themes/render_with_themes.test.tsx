@@ -125,6 +125,41 @@ describe('RenderResult API', () => {
     expect(foundButtons).toEqual(expectedButtons);
   });
 
+  test('queryButton()', () => {
+    const { queryByRole, queryButton } = renderWithThemes(
+      <div>
+        <Button onPress={jest.fn()}>Ignore me</Button>
+        <Button onPress={jest.fn()}>Find me</Button>
+      </div>
+    );
+
+    const expectedButton = queryByRole('button', { name: 'Find me' });
+    const foundButton = queryButton('Find me');
+    expect(foundButton).toEqual(expectedButton);
+
+    const otherButton = queryButton('Ignore me');
+    expect(otherButton).not.toBe(foundButton);
+  });
+
+  test('queryAllButtons()', () => {
+    const { queryAllByRole, queryAllButtons } = renderWithThemes(
+      <div>
+        <Button onPress={jest.fn()} disabled>
+          Find us both
+        </Button>
+        <Button onPress={jest.fn()}>Ignore me</Button>
+        <Button variant="primary" onPress={jest.fn()}>
+          Find us both
+        </Button>
+      </div>
+    );
+
+    const expectedButtons = queryAllByRole('button', { name: 'Find us both' });
+    const foundButtons = queryAllButtons('Find us both');
+    expect(foundButtons).toHaveLength(2);
+    expect(foundButtons).toEqual(expectedButtons);
+  });
+
   test('useSparinglyIncludeHidden option includes hidden buttons', async () => {
     const { getAllButtons, getButton, findAllButtons, findButton } =
       renderWithThemes(

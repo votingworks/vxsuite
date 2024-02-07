@@ -1,4 +1,4 @@
-import { assert, err, ok } from '@votingworks/basics';
+import { assert, err, ok, typedAs } from '@votingworks/basics';
 import {
   electionTwoPartyPrimaryFixtures,
   electionGeneral,
@@ -14,6 +14,7 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { suppressingConsoleOutput, zipFile } from '@votingworks/test-utils';
+import { HP_LASER_PRINTER_CONFIG, PrinterStatus } from '@votingworks/printing';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -364,4 +365,31 @@ test('usbDrive', async () => {
   const error = new Error('format failed');
   usbDrive.format.expectCallWith('system_administrator').throws(error);
   expect(await apiClient.formatUsbDrive()).toEqual(err(error));
+});
+
+test('printer status', async () => {
+  const { mockPrinterHandler, apiClient } = buildTestEnvironment();
+
+  expect(await apiClient.getPrinterStatus()).toEqual(
+    typedAs<PrinterStatus>({
+      connected: false,
+    })
+  );
+
+  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+
+  expect(await apiClient.getPrinterStatus()).toEqual(
+    typedAs<PrinterStatus>({
+      connected: true,
+      config: HP_LASER_PRINTER_CONFIG,
+    })
+  );
+
+  mockPrinterHandler.disconnectPrinter();
+
+  expect(await apiClient.getPrinterStatus()).toEqual(
+    typedAs<PrinterStatus>({
+      connected: false,
+    })
+  );
 });

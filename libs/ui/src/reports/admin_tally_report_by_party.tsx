@@ -102,6 +102,7 @@ export function AdminTallyReportByParty({
         isForLogicAndAccuracyTesting={isForLogicAndAccuracyTesting}
         subtitle={title ? partyElectionTitle : undefined}
         cardCountsOverride={partyCardCounts}
+        generatedAtTime={generatedAtTime}
         customFilter={customFilter}
         includeSignatureLines={includeSignatureLines}
       />
@@ -126,6 +127,7 @@ export function AdminTallyReportByParty({
         isOfficial={isOfficial}
         isForLogicAndAccuracyTesting={isForLogicAndAccuracyTesting}
         subtitle={title ? nonpartisanElectionTitle : undefined}
+        generatedAtTime={generatedAtTime}
         customFilter={customFilter}
         includeSignatureLines={includeSignatureLines}
       />

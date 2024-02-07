@@ -1,4 +1,4 @@
-import React, { useContext, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 
 import {
   Button,
@@ -9,7 +9,7 @@ import {
 } from '@votingworks/ui';
 import { sleep } from '@votingworks/basics';
 import { Loading } from './loading';
-import { AppContext } from '../contexts/app_context';
+import { getPrinterStatus } from '../api';
 
 const DEFAULT_PROGRESS_MODAL_DELAY_SECONDS = 3;
 
@@ -65,14 +65,16 @@ export function PrintButton({
   children,
   ...rest
 }: React.PropsWithChildren<PrintButtonProps>): JSX.Element {
+  const printerStatusQuery = getPrinterStatus.useQuery();
+
   const makeCancelable = useCancelablePromise();
-  const { hasPrinterAttached } = useContext(AppContext);
   const [isShowingConnectPrinterModal, setIsShowingConnectPrinterModal] =
     useState(false);
   const [isShowingDefaultProgressModal, setIsShowingDefaultProgressModal] =
     useState(false);
 
-  const needsPrinter = Boolean(window.kiosk) && !hasPrinterAttached;
+  const needsPrinter =
+    printerStatusQuery.isSuccess && !printerStatusQuery.data.connected;
 
   const handlePrint = useCallback(async () => {
     setIsShowingConnectPrinterModal(false);
@@ -95,6 +97,7 @@ export function PrintButton({
   return (
     <React.Fragment>
       <Button
+        disabled={!printerStatusQuery.isSuccess}
         onPress={
           needsPrinter
             ? () => setIsShowingConnectPrinterModal(true)

@@ -5,6 +5,7 @@ import { Server } from 'http';
 import { dirSync } from 'tmp';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
+import { createMockPrinterHandler } from '@votingworks/printing';
 import { start } from './server';
 import { createWorkspace } from './util/workspace';
 import { PORT } from './globals';
@@ -19,7 +20,8 @@ test('starts with default logger and port', async () => {
   const workspace = createWorkspace(dirSync().name);
   const logger = fakeLogger();
   const { usbDrive } = createMockUsbDrive();
-  const app = buildApp({ auth, workspace, logger, usbDrive });
+  const { printer } = createMockPrinterHandler();
+  const app = buildApp({ auth, workspace, logger, usbDrive, printer });
 
   // don't actually listen
   jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
@@ -42,7 +44,8 @@ test('start with config options', async () => {
   const workspace = createWorkspace(dirSync().name);
   const logger = fakeLogger();
   const { usbDrive } = createMockUsbDrive();
-  const app = buildApp({ auth, workspace, logger, usbDrive });
+  const { printer } = createMockPrinterHandler();
+  const app = buildApp({ auth, workspace, logger, usbDrive, printer });
 
   // don't actually listen
   jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
@@ -63,7 +66,8 @@ test('errors on start with no workspace', async () => {
   const workspace = createWorkspace(dirSync().name);
   const logger = fakeLogger();
   const { usbDrive } = createMockUsbDrive();
-  const app = buildApp({ auth, workspace, logger, usbDrive });
+  const { printer } = createMockPrinterHandler();
+  const app = buildApp({ auth, workspace, logger, usbDrive, printer });
 
   // start up the server
   try {

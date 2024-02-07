@@ -12,10 +12,7 @@ import {
   fakePrinterInfo,
   fakeSessionExpiresAt,
 } from '@votingworks/test-utils';
-import {
-  buildMockCardCounts,
-  buildSimpleMockTallyReportResults,
-} from '@votingworks/utils';
+import { buildSimpleMockTallyReportResults } from '@votingworks/utils';
 import {
   fireEvent,
   screen,
@@ -238,7 +235,7 @@ test('marking results as official', async () => {
 
   // unofficial on reports screen
   apiMock.expectGetCastVoteRecordFileMode('official');
-  apiMock.expectGetCardCounts({}, [buildMockCardCounts(0)]);
+  apiMock.expectGetTotalBallotCount(0);
   userEvent.click(screen.getButton('Reports'));
   screen.getByRole('heading', { name: 'Unofficial Tally Reports' });
   screen.getByRole('heading', { name: 'Unofficial Ballot Count Reports' });
@@ -390,7 +387,7 @@ test('election manager UI has expected nav', async () => {
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetManualResultsMetadata([]);
-  apiMock.expectGetCardCounts({}, [buildMockCardCounts(100)]);
+  apiMock.expectGetTotalBallotCount(100);
   renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 

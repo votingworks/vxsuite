@@ -208,6 +208,7 @@ test('general, reports by voting method, manual data', async () => {
   // Case 1: incorporating manual results alongside scanned results
   const votingMethodTallyReportList = await apiClient.getResultsForTallyReports(
     {
+      filter: {},
       groupBy: { groupByVotingMethod: true },
     }
   );
@@ -269,6 +270,7 @@ test('general, reports by voting method, manual data', async () => {
   // Case 3: incorporating manual results as separate reports due to grouping
   const batchGroupedTallyReportResult =
     await apiClient.getResultsForTallyReports({
+      filter: {},
       groupBy: { groupByBatch: true, groupByVotingMethod: true },
     });
   expect(batchGroupedTallyReportResult).toMatchObject(
@@ -422,6 +424,7 @@ test('primary, reports by ballot style', async () => {
   loadFileResult.assertOk('load file failed');
 
   const ballotStyleTallyReportList = await apiClient.getResultsForTallyReports({
+    filter: {},
     groupBy: { groupByBallotStyle: true },
   });
   expect(ballotStyleTallyReportList).toHaveLength(2);
