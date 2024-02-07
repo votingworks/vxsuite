@@ -431,7 +431,7 @@ function HeaderAndInstructions({
     timeZone: 'UTC',
   }).format(new Date(election.date));
 
-  const clerkSignatureRowHeight = m.HEADER_ROW_HEIGHT - 1.5;
+  const clerkSignatureRowHeight = m.HEADER_ROW_HEIGHT - m.HEADER_ROW_HEIGHT / 4;
   const clerkSignatureColumnWidth = nhCustomContent.clerkSignatureImage
     ? 6.5
     : 0;
