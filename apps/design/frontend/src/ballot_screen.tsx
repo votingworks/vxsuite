@@ -115,6 +115,7 @@ function PdfViewer({ pdfData }: { pdfData?: Buffer }) {
     const scrollProgress = (scrollTop + pageHeight / 6) / scrollHeight;
     setCurrentPage(Math.floor(scrollProgress * numPages) + 1);
   }
+
   const loading = (
     <Row
       style={{
@@ -140,6 +141,7 @@ function PdfViewer({ pdfData }: { pdfData?: Buffer }) {
         </div>
         <Row style={{ gap: '0.5rem', alignItems: 'center' }}>
           <Button
+            aria-label="Zoom Out"
             icon="ZoomOut"
             color="inverseNeutral"
             fill="transparent"
@@ -147,6 +149,7 @@ function PdfViewer({ pdfData }: { pdfData?: Buffer }) {
           />
           <span>{format.percent(zoom)}</span>
           <Button
+            aria-label="Zoom In"
             icon="ZoomIn"
             color="inverseNeutral"
             fill="transparent"
