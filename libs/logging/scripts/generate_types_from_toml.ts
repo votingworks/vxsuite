@@ -3,6 +3,8 @@ import { promisify } from 'node:util';
 import { exec as callbackExec } from 'child_process';
 import toml from '@iarna/toml';
 import fs from 'fs/promises';
+import { createReadStream, createWriteStream } from 'fs';
+import { pipeline } from 'stream/promises';
 import {
   configFilepath,
   logEventIdsOutputFilepath,
@@ -12,7 +14,6 @@ import {
 import {
   GenerateTypesArgs,
   ParsedConfig,
-  ParsedLogDetails,
   diffAndCleanUp,
   getTypedConfig,
 } from './types';
@@ -30,25 +31,17 @@ async function prepareOutputFile(filepath: string): Promise<void> {
 // export enum LogEventId {
 //   MyEventId = 'my-event-id',
 // }
-function formatLogEventIdEnum(config: ParsedConfig): string {
+function* formatLogEventIdEnum(config: ParsedConfig): Generator<string> {
   const entries = Object.entries(config);
-  let output = 'export enum LogEventId {\n';
+  yield 'export enum LogEventId {\n';
   for (const [enumMember, logDetails] of entries) {
-    output += `${enumMember} = '${logDetails.eventId}',\n`;
+    yield `${enumMember} = '${logDetails.eventId}',\n`;
   }
-  output += '}\n';
-  return output;
+  yield '}\n';
 }
 
 // capitalize capitalizes the first character of a string and lower cases the remainder
 function capitalize(input: string): string {
-  if (input.length === 0) {
-    return '';
-  }
-  if (input.length === 1) {
-    return input.toUpperCase();
-  }
-
   return input.charAt(0).toUpperCase() + input.slice(1).toLowerCase();
 }
 
@@ -57,45 +50,26 @@ function kebabCaseToTitleCase(input: string): string {
   return input.split('-').map(capitalize).join('');
 }
 
-// formatSingleLogDetails generates TypeScript `LogDetails` for a single log eg.
-// const ConfirmedBallot: LogDetails = {
-//   eventId: 'ConfirmedBallot',
-//   eventType: 'user-action',
-//   documentationMessage: 'User confirmed the ballot is correct.',
-// }
-function formatSingleLogDetail(
-  titleCaseEventId: string,
-  singleConfig: ParsedLogDetails
-): string {
-  let output = `
+function* formatLogDetails(config: ParsedConfig): Generator<string> {
+  const entries = Object.entries(config);
+  for (const [titleCaseEventId, details] of entries) {
+    yield `
     const ${titleCaseEventId}: LogDetails = {
       eventId: LogEventId.${titleCaseEventId},
-      eventType: LogEventType.${kebabCaseToTitleCase(singleConfig.eventType)},
-      documentationMessage: '${singleConfig.documentationMessage}',
+      eventType: LogEventType.${kebabCaseToTitleCase(details.eventType)},
+      documentationMessage: '${details.documentationMessage}',
   `;
-  if (singleConfig.defaultMessage) {
-    output += `defaultMessage: '${singleConfig.defaultMessage}',`;
-  }
-  if (singleConfig.restrictInDocumentationToApps) {
-    output += `restrictInDocumentationToApps: [${singleConfig.restrictInDocumentationToApps.map(
-      (logSource: string) => `LogSource.${kebabCaseToTitleCase(logSource)}`
-    )}],
+    if (details.defaultMessage) {
+      yield `defaultMessage: '${details.defaultMessage}',`;
+    }
+    if (details.restrictInDocumentationToApps) {
+      yield `restrictInDocumentationToApps: [${details.restrictInDocumentationToApps.map(
+        (logSource: string) => `LogSource.${kebabCaseToTitleCase(logSource)}`
+      )}],
     `;
+    }
+    yield '};\n\n';
   }
-  output += '};\n\n';
-  return output;
-}
-
-// formatLogDetails generates TypeScript `LogDetails` for all logs in a config
-// See `formatSingleLogDetail`
-function formatLogDetails(config: ParsedConfig): string {
-  const entries = Object.entries(config);
-  let output = '';
-  for (const [titleCaseEventId, details] of entries) {
-    output += formatSingleLogDetail(titleCaseEventId, details);
-  }
-
-  return output;
 }
 
 // formatGetDetailsForEventId generates a function that returns a log's
@@ -137,12 +111,20 @@ async function main(): Promise<void> {
     : logEventIdsOutputFilepath;
   await prepareOutputFile(filepath);
 
-  const configString = await fs.readFile(configFilepath);
-  const untypedConfig = toml.parse(configString.toString());
+  const untypedConfig = await toml.parse.stream(
+    createReadStream(configFilepath)
+  );
   const typedConfig = getTypedConfig(untypedConfig);
-  await fs.appendFile(filepath, formatLogEventIdEnum(typedConfig));
-  await fs.appendFile(filepath, formatLogDetails(typedConfig));
-  await fs.appendFile(filepath, formatGetDetailsForEventId(typedConfig));
+
+  const out = createWriteStream(filepath);
+
+  await pipeline(async function* makeRustFile() {
+    yield* createReadStream(logEventIdsTemplateFilepath);
+    yield* '\n';
+    yield* formatLogEventIdEnum(typedConfig);
+    yield* formatLogDetails(typedConfig);
+    yield* formatGetDetailsForEventId(typedConfig);
+  }, out);
 
   const { stderr } = await exec(`eslint ${filepath} --fix`);
   if (stderr) {
