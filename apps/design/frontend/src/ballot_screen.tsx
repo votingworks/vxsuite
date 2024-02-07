@@ -25,6 +25,7 @@ import {
 } from '@votingworks/ui';
 import { BallotMode } from '@votingworks/hmpb-layout';
 import { Document, Page, pdfjs } from 'react-pdf';
+import { format } from '@votingworks/utils';
 import { getElection, getBallotPreviewPdf } from './api';
 import { routes } from './routes';
 import { Column, FieldName as BaseFieldName, Row } from './layout';
@@ -86,7 +87,7 @@ const PdfControls = styled.div`
   top: 0;
   z-index: 1;
   width: 100%;
-  padding: 0.25rem 1rem;
+  padding: 0.25rem 0.25rem 0.25rem 1rem;
   background-color: ${(p) => p.theme.colors.inverseContainer};
   color: ${(p) => p.theme.colors.onInverse};
   display: flex;
@@ -144,7 +145,7 @@ function PdfViewer({ pdfData }: { pdfData?: Buffer }) {
             fill="transparent"
             onPress={() => setZoom(Math.max(zoom - ZOOM_STEP, MIN_ZOOM))}
           />
-          <span>{zoom * 100}%</span>
+          <span>{format.percent(zoom)}</span>
           <Button
             icon="ZoomIn"
             color="inverseNeutral"
