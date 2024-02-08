@@ -44,6 +44,7 @@ export * from './input_group';
 export * from './insert_ballot_image';
 export * from './insert_card_image';
 export * from './labelled_text';
+export * from './language_settings';
 export * from './left_nav';
 export * from './link_button';
 export * from './list';
