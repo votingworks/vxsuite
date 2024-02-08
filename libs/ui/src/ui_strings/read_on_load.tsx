@@ -50,6 +50,19 @@ export function ReadOnLoad(props: ReadOnLoadProps): JSX.Element {
       return;
     }
 
+    // Clear pre-existing active focus first, if any.
+    // Avoids any controls that trigger the render of a `ReadOnLoad` component
+    // holding focus and preventing the following `focus`/`click` events from
+    // working (e.g. persistent page navigation buttons).
+    const { activeElement } = document;
+    if (
+      activeElement instanceof HTMLElement ||
+      /* istanbul ignore next */
+      activeElement instanceof SVGElement
+    ) {
+      activeElement.blur();
+    }
+
     containerRef.current.focus();
     containerRef.current.click();
   }, [currentUrl, isInAudioContext]);

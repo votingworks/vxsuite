@@ -99,3 +99,28 @@ test('triggers click event on URL change', () => {
   screen.getByText('Mayor');
   expect(mockOnClick).toHaveBeenCalled();
 });
+
+test('clears any pre-existing focus first', () => {
+  const { mockOnClick, renderWithClickListener } = newRenderer();
+
+  mockOnClick.mockImplementation((event: MouseEvent) => {
+    assert(event.target instanceof HTMLElement);
+    expect(event.target.textContent).toEqual('Akwaaba!');
+  });
+
+  const previouslyFocusedElement = document.createElement('button');
+  document.body.appendChild(previouslyFocusedElement);
+  previouslyFocusedElement.focus();
+
+  const activeElementBlurSpy = jest.spyOn(previouslyFocusedElement, 'blur');
+
+  renderWithClickListener(
+    <UiStringsAudioContextProvider api={mockUiStringsApi}>
+      <ReadOnLoad>Akwaaba!</ReadOnLoad>
+    </UiStringsAudioContextProvider>
+  );
+
+  screen.getByText('Akwaaba!');
+  expect(activeElementBlurSpy).toHaveBeenCalled();
+  expect(mockOnClick).toHaveBeenCalled();
+});
