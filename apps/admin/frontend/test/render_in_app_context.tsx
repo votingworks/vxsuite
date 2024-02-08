@@ -117,7 +117,6 @@ export function renderInAppContext(
       codeVersion: 'dev',
     },
     hasCardReaderAttached = true,
-    hasPrinterAttached = true,
     logger = new Logger(LogSource.VxAdminFrontend),
     apiMock,
     queryClient,
@@ -137,7 +136,6 @@ export function renderInAppContext(
         auth,
         machineConfig,
         hasCardReaderAttached,
-        hasPrinterAttached,
         logger,
       }}
     >

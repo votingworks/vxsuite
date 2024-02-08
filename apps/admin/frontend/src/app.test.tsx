@@ -8,14 +8,8 @@ import {
 import { err } from '@votingworks/basics';
 import {
   fakeElectionManagerUser,
-  fakeKiosk,
-  fakePrinterInfo,
   fakeSessionExpiresAt,
 } from '@votingworks/test-utils';
-import {
-  buildMockCardCounts,
-  buildSimpleMockTallyReportResults,
-} from '@votingworks/utils';
 import {
   fireEvent,
   screen,
@@ -38,7 +32,6 @@ jest.mock('@votingworks/ballot-encoder', () => {
   };
 });
 
-let mockKiosk!: jest.Mocked<KioskBrowser.Kiosk>;
 let apiMock: ApiMock;
 
 beforeEach(() => {
@@ -49,12 +42,6 @@ beforeEach(() => {
     value: { assign: jest.fn() },
   });
   window.location.href = '/';
-
-  mockKiosk = fakeKiosk();
-  window.kiosk = mockKiosk;
-  mockKiosk.getPrinterInfo.mockResolvedValue([
-    fakePrinterInfo({ name: 'VxPrinter', connected: true }),
-  ]);
 
   apiMock = createApiMock();
   // Set default auth status to logged out.
@@ -69,7 +56,6 @@ beforeEach(() => {
 
 afterEach(() => {
   jest.useRealTimers();
-  delete window.kiosk;
   apiMock.assertComplete();
 });
 
@@ -226,10 +212,10 @@ test('authentication works', async () => {
 
 test('marking results as official', async () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
-  const { election } = electionDefinition;
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({
     electionDefinition,
+    isOfficialResults: false,
   });
 
   renderApp();
@@ -238,23 +224,10 @@ test('marking results as official', async () => {
 
   // unofficial on reports screen
   apiMock.expectGetCastVoteRecordFileMode('official');
-  apiMock.expectGetCardCounts({}, [buildMockCardCounts(0)]);
+  apiMock.expectGetTotalBallotCount(1000);
   userEvent.click(screen.getButton('Reports'));
   screen.getByRole('heading', { name: 'Unofficial Tally Reports' });
   screen.getByRole('heading', { name: 'Unofficial Ballot Count Reports' });
-
-  // unofficial on report
-  apiMock.expectGetResultsForTallyReports({ filter: {}, groupBy: {} }, [
-    buildSimpleMockTallyReportResults({
-      election,
-      scannedBallotCount: 100,
-    }),
-  ]);
-  apiMock.expectGetScannerBatches([]);
-  userEvent.click(screen.getButton('Full Election Tally Report'));
-  await screen.findByText(
-    'Unofficial Mammal Party Example Primary Election Tally Report'
-  );
 
   // mark results official
   userEvent.click(screen.getButton('Reports'));
@@ -263,7 +236,13 @@ test('marking results as official', async () => {
     electionDefinition,
     isOfficialResults: true,
   });
-  userEvent.click(screen.getButton(MARK_RESULTS_OFFICIAL_BUTTON_TEXT));
+  const markOfficialButton = screen.getButton(
+    MARK_RESULTS_OFFICIAL_BUTTON_TEXT
+  );
+  await waitFor(() => {
+    expect(markOfficialButton).toBeEnabled();
+  });
+  userEvent.click(markOfficialButton);
   userEvent.click(
     within(await screen.findByRole('alertdialog')).getButton(
       MARK_RESULTS_OFFICIAL_BUTTON_TEXT
@@ -273,12 +252,6 @@ test('marking results as official', async () => {
   // official on reports screen
   await screen.findByRole('heading', { name: 'Official Tally Reports' });
   screen.getByRole('heading', { name: 'Official Ballot Count Reports' });
-
-  // official on report
-  userEvent.click(screen.getButton('Full Election Tally Report'));
-  await screen.findByText(
-    'Official Mammal Party Example Primary Election Tally Report'
-  );
 });
 
 test('removing election resets cvr and manual data files', async () => {
@@ -390,7 +363,7 @@ test('election manager UI has expected nav', async () => {
   apiMock.expectGetCastVoteRecordFileMode('unlocked');
   apiMock.expectGetCastVoteRecordFiles([]);
   apiMock.expectGetManualResultsMetadata([]);
-  apiMock.expectGetCardCounts({}, [buildMockCardCounts(100)]);
+  apiMock.expectGetTotalBallotCount(100);
   renderApp();
   await apiMock.authenticateAsElectionManager(eitherNeitherElectionDefinition);
 

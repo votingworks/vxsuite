@@ -23,7 +23,6 @@ export interface AppContextInterface {
   auth: DippedSmartCardAuth.AuthStatus;
   machineConfig: MachineConfig;
   hasCardReaderAttached: boolean;
-  hasPrinterAttached: boolean;
   logger: Logger;
 }
 
@@ -40,7 +39,6 @@ const appContext: AppContextInterface = {
     codeVersion: 'dev',
   },
   hasCardReaderAttached: true,
-  hasPrinterAttached: true,
   logger: new Logger(LogSource.VxAdminFrontend),
 };
 /* eslint-enable @typescript-eslint/require-await */
