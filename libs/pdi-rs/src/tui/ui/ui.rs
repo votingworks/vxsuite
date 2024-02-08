@@ -11,14 +11,14 @@ use super::{
 
 pub(crate) type Frame<'a> = ratatui::Frame<'a, CrosstermBackend<std::io::Stderr>>;
 
-pub(crate) fn ui(app: &mut App, f: &mut Frame<'_>) {
+pub(crate) fn ui(app: &mut App, frame: &mut Frame<'_>) {
     let rects = Layout::default()
-        .direction(Direction::Horizontal)
+        .direction(Direction::Vertical)
         .constraints([Constraint::Percentage(50), Constraint::Percentage(50)].as_ref())
-        .split(f.size());
+        .split(frame.size());
     let auto_scan_config = app.get_auto_scan_config();
     let watch_status_config = app.get_watch_status_config();
-    f.render_widget(
+    frame.render_widget(
         widgets::Paragraph::new(Text::from(
             match (
                 app.connection_state(),
@@ -213,7 +213,7 @@ pub(crate) fn ui(app: &mut App, f: &mut Frame<'_>) {
     );
 
     let log_entries = app.log_entries(rects[1].height as usize);
-    f.render_widget(
+    frame.render_widget(
         widgets::Paragraph::new(Text::from(
             log_entries
                 .iter()

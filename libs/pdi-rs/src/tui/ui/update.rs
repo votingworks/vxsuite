@@ -102,9 +102,7 @@ pub(crate) fn update(app: &mut App) -> Result<()> {
                 (Char('s'), Some(client), AutoScanConfig::Disabled, _) => {
                     client.set_feeder_enabled(true);
                     app.log("✨ Auto-scan enabled.");
-                    app.set_auto_scan_config(AutoScanConfig::Enabled(Some(
-                        EjectMotion::ToFrontAndHold,
-                    )));
+                    app.set_auto_scan_config(AutoScanConfig::Enabled(Some(EjectMotion::ToRear)));
                 }
                 (Char('s'), Some(client), AutoScanConfig::Enabled(_), _) => {
                     client.set_feeder_enabled(false);
