@@ -5,13 +5,12 @@ import {
   H1,
   Icons,
   InsertBallotImage,
-  Main,
   P,
   ReadOnLoad,
-  Screen,
   VerifyBallotImage,
   appStrings,
 } from '@votingworks/ui';
+import { VoterScreen } from '../components/voter_screen';
 
 const Instructions = styled.ol`
   display: flex;
@@ -54,12 +53,6 @@ const InstructionImageContainer = styled.div`
   }
 `;
 
-const Done = styled.div`
-  position: absolute;
-  right: 1rem;
-  bottom: 1rem;
-`;
-
 interface Props {
   hidePostVotingInstructions: () => void;
 }
@@ -68,39 +61,39 @@ export function CastBallotPage({
   hidePostVotingInstructions,
 }: Props): JSX.Element {
   return (
-    <Screen>
-      <Main padded>
-        <ReadOnLoad>
-          <H1>{appStrings.titleBmdCastBallotScreen()}</H1>
-          <P>{appStrings.instructionsBmdCastBallotPreamble()}</P>
-          <Instructions>
-            <ListItem>
-              <InstructionImageContainer>
-                <VerifyBallotImage />
-              </InstructionImageContainer>
-              <span>{appStrings.instructionsBmdCastBallotStep1()}</span>
-            </ListItem>
-            <ListItem>
-              <InstructionImageContainer>
-                <InsertBallotImage disableAnimation />
-              </InstructionImageContainer>
-              <span>{appStrings.instructionsBmdCastBallotStep2()}</span>
-            </ListItem>
-          </Instructions>
-          <P>
-            <Icons.Info /> {appStrings.noteAskPollWorkerForHelp()}
-          </P>
-        </ReadOnLoad>
-        <Done>
-          <Button
-            onPress={hidePostVotingInstructions}
-            variant="primary"
-            icon="Done"
-          >
-            {appStrings.buttonDone()}
-          </Button>
-        </Done>
-      </Main>
-    </Screen>
+    <VoterScreen
+      actionButtons={
+        <Button
+          onPress={hidePostVotingInstructions}
+          variant="primary"
+          icon="Done"
+        >
+          {appStrings.buttonDone()}
+        </Button>
+      }
+      padded
+    >
+      <ReadOnLoad>
+        <H1>{appStrings.titleBmdCastBallotScreen()}</H1>
+        <P>{appStrings.instructionsBmdCastBallotPreamble()}</P>
+        <Instructions>
+          <ListItem>
+            <InstructionImageContainer>
+              <VerifyBallotImage />
+            </InstructionImageContainer>
+            <span>{appStrings.instructionsBmdCastBallotStep1()}</span>
+          </ListItem>
+          <ListItem>
+            <InstructionImageContainer>
+              <InsertBallotImage disableAnimation />
+            </InstructionImageContainer>
+            <span>{appStrings.instructionsBmdCastBallotStep2()}</span>
+          </ListItem>
+        </Instructions>
+        <P>
+          <Icons.Info /> {appStrings.noteAskPollWorkerForHelp()}
+        </P>
+      </ReadOnLoad>
+    </VoterScreen>
   );
 }

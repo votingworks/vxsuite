@@ -1,6 +1,4 @@
 import {
-  Main,
-  Screen,
   P,
   Font,
   Button,
@@ -8,7 +6,7 @@ import {
   appStrings,
 } from '@votingworks/ui';
 import { useCallback, useState, useEffect } from 'react';
-import { ButtonFooter } from '@votingworks/mark-flow-ui';
+import { VoterScreen } from '@votingworks/mark-flow-ui';
 import styled from 'styled-components';
 import {
   DiagnosticScreenHeader,
@@ -78,26 +76,26 @@ export function PatDeviceIdentificationPage({
   };
 
   return (
-    <Screen>
-      <Main centerChild>
-        <ReadOnLoad>
-          <DiagnosticScreenHeader>
-            <P>
-              <Font weight="bold">
-                {appStrings.titleBmdPatCalibrationIdentificationPage()}
-              </Font>
-              <br />
-              {statusStrings[currentStepId]}
-            </P>
-          </DiagnosticScreenHeader>
-          <StepContainer fullWidth>{steps[currentStepId]}</StepContainer>
-        </ReadOnLoad>
-      </Main>
-      <ButtonFooter>
+    <VoterScreen
+      actionButtons={
         <Button onPress={onExitCalibration}>
           {appStrings.buttonBmdSkipPatCalibration()}
         </Button>
-      </ButtonFooter>
-    </Screen>
+      }
+      centerContent
+    >
+      <ReadOnLoad>
+        <DiagnosticScreenHeader>
+          <P>
+            <Font weight="bold">
+              {appStrings.titleBmdPatCalibrationIdentificationPage()}
+            </Font>
+            <br />
+            {statusStrings[currentStepId]}
+          </P>
+        </DiagnosticScreenHeader>
+        <StepContainer fullWidth>{steps[currentStepId]}</StepContainer>
+      </ReadOnLoad>
+    </VoterScreen>
   );
 }

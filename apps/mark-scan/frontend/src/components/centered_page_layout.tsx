@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { Font, H1, Main, ReadOnLoad, Screen } from '@votingworks/ui';
-import { ButtonFooter } from '@votingworks/mark-flow-ui';
+import { VoterScreen, ButtonFooter } from '@votingworks/mark-flow-ui';
 
 export interface CenteredPageLayoutProps {
   buttons?: React.ReactNode;
@@ -22,10 +22,18 @@ export function CenteredPageLayout(
     </Font>
   );
 
+  if (voterFacing) {
+    return (
+      <VoterScreen actionButtons={buttons} centerContent padded>
+        <ReadOnLoad>{mainContent}</ReadOnLoad>
+      </VoterScreen>
+    );
+  }
+
   return (
     <Screen>
       <Main padded centerChild>
-        {voterFacing ? <ReadOnLoad>{mainContent}</ReadOnLoad> : mainContent}
+        {mainContent}
       </Main>
       {buttons && <ButtonFooter>{buttons}</ButtonFooter>}
     </Screen>

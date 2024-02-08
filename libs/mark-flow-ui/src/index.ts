@@ -3,6 +3,7 @@ export * from './components/button_footer';
 export * from './components/contest';
 export * from './components/display_settings_button';
 export * from './components/review';
+export * from './components/voter_screen';
 export * from './config/globals';
 export * from './config/types';
 export * from './hooks/use_ballot_style_manager';

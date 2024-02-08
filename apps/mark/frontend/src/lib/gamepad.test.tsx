@@ -6,6 +6,7 @@ import {
   fireEvent,
   render,
   screen,
+  waitFor,
 } from '../../test/react_testing_library';
 import { App } from '../app';
 
@@ -87,10 +88,16 @@ it('gamepad controls work', async () => {
   expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
 
   // test the edge case of rolling over
-  handleGamepadButtonDown('DPadUp');
-  expect(document.activeElement!.textContent).toEqual('Next');
-  handleGamepadButtonDown('DPadDown');
-  expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
+
+  await waitFor(() => {
+    handleGamepadButtonDown('DPadUp');
+    expect(getActiveElement()).toHaveTextContent(contest0candidate1.name);
+  });
+
+  await waitFor(() => {
+    handleGamepadButtonDown('DPadDown');
+    expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
+  });
 
   handleGamepadButtonDown('DPadRight');
   await advanceTimersAndPromises();

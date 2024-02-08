@@ -15,6 +15,7 @@ import {
   faInfoCircle,
   faMinusCircle,
   faPencil,
+  faLanguage,
   faXmark,
   faMagnifyingGlassPlus,
   faMagnifyingGlassMinus,
@@ -206,6 +207,10 @@ export const Icons = {
 
   Import(props) {
     return <FaIcon {...props} type={faFileArrowUp} />;
+  },
+
+  Language(props) {
+    return <FaIcon {...props} type={faLanguage} />;
   },
 
   Loading(props) {

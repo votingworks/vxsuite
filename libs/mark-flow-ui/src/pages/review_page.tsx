@@ -2,11 +2,8 @@
 import styled from 'styled-components';
 import {
   LinkButton,
-  Main,
-  Screen,
   H1,
   WithScrollButtons,
-  useScreenInfo,
   appStrings,
   AudioOnly,
   ReadOnLoad,
@@ -15,10 +12,9 @@ import {
 import { assert } from '@votingworks/basics';
 
 import { ElectionDefinition, PrecinctId, VotesDict } from '@votingworks/types';
-import { ButtonFooter } from '../components/button_footer';
 import { Review, ReviewProps } from '../components/review';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
-import { DisplaySettingsButton } from '../components/display_settings_button';
+import { VoterScreen } from '../components/voter_screen';
 
 const ContentHeader = styled(ReadOnLoad)`
   padding: 0.5rem 0.75rem 0;
@@ -43,8 +39,6 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
     votes,
   } = props;
 
-  const screenInfo = useScreenInfo();
-
   assert(
     electionDefinition,
     'electionDefinition is required to render ReviewPage'
@@ -60,32 +54,24 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
     </LinkButton>
   );
 
-  const settingsButton = <DisplaySettingsButton />;
-
   return (
-    <Screen flexDirection={screenInfo.isPortrait ? 'column' : 'row'}>
-      <Main flexColumn>
-        <ContentHeader>
-          <H1>{appStrings.titleBmdReviewScreen()}</H1>
-          <AudioOnly>
-            {appStrings.instructionsBmdReviewPageNavigation()}{' '}
-            {appStrings.instructionsBmdReviewPageChangingVotes()}
-          </AudioOnly>
-        </ContentHeader>
-        <WithScrollButtons>
-          <Review
-            election={electionDefinition.election}
-            contests={contests}
-            precinctId={precinctId}
-            votes={votes}
-            returnToContest={returnToContest}
-          />
-        </WithScrollButtons>
-      </Main>
-      <ButtonFooter>
-        {settingsButton}
-        {printMyBallotButton}
-      </ButtonFooter>
-    </Screen>
+    <VoterScreen actionButtons={printMyBallotButton}>
+      <ContentHeader>
+        <H1>{appStrings.titleBmdReviewScreen()}</H1>
+        <AudioOnly>
+          {appStrings.instructionsBmdReviewPageNavigation()}{' '}
+          {appStrings.instructionsBmdReviewPageChangingVotes()}
+        </AudioOnly>
+      </ContentHeader>
+      <WithScrollButtons>
+        <Review
+          election={electionDefinition.election}
+          contests={contests}
+          precinctId={precinctId}
+          votes={votes}
+          returnToContest={returnToContest}
+        />
+      </WithScrollButtons>
+    </VoterScreen>
   );
 }

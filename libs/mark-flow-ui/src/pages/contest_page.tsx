@@ -10,20 +10,14 @@ import {
   PrecinctId,
   VotesDict,
 } from '@votingworks/types';
-import {
-  Screen,
-  LinkButton,
-  useScreenInfo,
-  appStrings,
-  Button,
-} from '@votingworks/ui';
+import { LinkButton, appStrings, Button } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 
 import { Contest, ContestProps } from '../components/contest';
-import { ButtonFooter } from '../components/button_footer';
-import { DisplaySettingsButton } from '../components/display_settings_button';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
 import { VoteUpdateInteractionMethod } from '../config/types';
+import { BreadcrumbMetadata, Breadcrumbs } from '../components/contest_header';
+import { VoterScreen } from '../components/voter_screen';
 
 export interface ContestPageProps {
   contests: ContestsWithMsEitherNeither;
@@ -56,8 +50,6 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     votes,
   } = props;
 
-  const screenInfo = useScreenInfo();
-
   // eslint-disable-next-line vx/gts-safe-number-parse
   const currentContestIndex = parseInt(contestNumber, 10);
   const contest = contests[currentContestIndex];
@@ -79,8 +71,12 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
 
   const vote = votes[contest.id];
 
-  const ballotContestNumber = currentContestIndex + 1;
-  const ballotContestsLength = contests.length;
+  const breadcrumbsMetadata: BreadcrumbMetadata | undefined = isReviewMode
+    ? undefined
+    : {
+        contestNumber: currentContestIndex + 1,
+        ballotContestCount: contests.length,
+      };
 
   const isVoteComplete = (() => {
     switch (contest.type) {
@@ -163,34 +159,31 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     </LinkButton>
   );
 
-  const settingsButton = <DisplaySettingsButton />;
-
   return (
-    <Screen flexDirection={screenInfo.isPortrait ? 'column' : 'row'}>
+    <VoterScreen
+      actionButtons={
+        <React.Fragment>
+          {isReviewMode ? (
+            reviewScreenButton
+          ) : (
+            <React.Fragment>
+              {previousContestButton}
+              {nextContestButton}
+            </React.Fragment>
+          )}
+        </React.Fragment>
+      }
+      breadcrumbs={
+        breadcrumbsMetadata && <Breadcrumbs {...breadcrumbsMetadata} />
+      }
+    >
       <Contest
-        breadcrumbs={{
-          ballotContestCount: ballotContestsLength,
-          contestNumber: ballotContestNumber,
-        }}
         election={electionDefinition.election}
+        breadcrumbs={breadcrumbsMetadata}
         contest={contest}
         votes={votes}
         updateVote={handleUpdateVote}
       />
-      <ButtonFooter>
-        {isReviewMode ? (
-          <React.Fragment>
-            {settingsButton}
-            {reviewScreenButton}
-          </React.Fragment>
-        ) : (
-          <React.Fragment>
-            {previousContestButton}
-            {settingsButton}
-            {nextContestButton}
-          </React.Fragment>
-        )}
-      </ButtonFooter>
-    </Screen>
+    </VoterScreen>
   );
 }
