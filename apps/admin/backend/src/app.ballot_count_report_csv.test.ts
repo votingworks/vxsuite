@@ -62,6 +62,9 @@ it('logs success if export succeeds', async () => {
   const offLimitsPath = '/root/hidden';
   const failedExportResult = await apiClient.exportBallotCountReportCsv({
     path: offLimitsPath,
+    filter: {},
+    groupBy: {},
+    includeSheetCounts: false,
   });
   expect(failedExportResult.isErr()).toEqual(true);
   expect(logger.log).toHaveBeenLastCalledWith(
@@ -91,6 +94,9 @@ it('logs failure if export fails', async () => {
   const path = tmpNameSync();
   const exportResult = await apiClient.exportBallotCountReportCsv({
     path,
+    filter: {},
+    groupBy: {},
+    includeSheetCounts: false,
   });
   expect(exportResult.isOk()).toEqual(true);
   expect(logger.log).toHaveBeenLastCalledWith(
@@ -106,8 +112,8 @@ it('logs failure if export fails', async () => {
 
 async function getParsedExport({
   apiClient,
-  groupBy,
-  filter,
+  groupBy = {},
+  filter = {},
 }: {
   apiClient: Client<Api>;
   groupBy?: Tabulation.GroupBy;
@@ -118,6 +124,7 @@ async function getParsedExport({
     path,
     groupBy,
     filter,
+    includeSheetCounts: false,
   });
   expect(exportResult.isOk()).toEqual(true);
   return parseCsv(readFileSync(path, 'utf-8').toString());

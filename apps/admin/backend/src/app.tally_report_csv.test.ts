@@ -52,8 +52,8 @@ async function getParsedExport({
   filter,
 }: {
   apiClient: Client<Api>;
-  groupBy?: Tabulation.GroupBy;
-  filter?: Tabulation.Filter;
+  groupBy: Tabulation.GroupBy;
+  filter: Tabulation.Filter;
 }): Promise<ReturnType<typeof parseCsv>> {
   const path = tmpNameSync();
   const exportResult = await apiClient.exportTallyReportCsv({
@@ -79,7 +79,11 @@ it('exports expected results for full election', async () => {
   loadFileResult.assertOk('load file failed');
 
   const path = tmpNameSync();
-  const exportResult = await apiClient.exportTallyReportCsv({ path });
+  const exportResult = await apiClient.exportTallyReportCsv({
+    filter: {},
+    groupBy: {},
+    path,
+  });
   expect(exportResult.isOk()).toEqual(true);
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.FileSaved,
@@ -146,6 +150,8 @@ it('logs failure if export fails for some reason', async () => {
 
   const offLimitsPath = '/root/hidden';
   const failedExportResult = await apiClient.exportTallyReportCsv({
+    filter: {},
+    groupBy: {},
     path: offLimitsPath,
   });
   expect(failedExportResult.isErr()).toEqual(true);
@@ -214,6 +220,7 @@ it('incorporates wia and manual data (grouping by voting method)', async () => {
   // check initial export, without wia and manual data
   const { headers: headersInitial, rows: rowsInitial } = await getParsedExport({
     apiClient,
+    filter: {},
     groupBy,
   });
   expect(headersInitial).toEqual([
@@ -316,6 +323,7 @@ it('incorporates wia and manual data (grouping by voting method)', async () => {
   // check final export, with wia and manual data
   const { headers: headersFinal, rows: rowsFinal } = await getParsedExport({
     apiClient,
+    filter: {},
     groupBy,
   });
   expect(headersFinal).toEqual([

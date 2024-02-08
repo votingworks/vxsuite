@@ -19,10 +19,8 @@ import {
   generateCastVoteRecordExportDirectoryName,
   generateElectionBasedSubfolderName,
   getFeatureFlagMock,
-  getSheetCount,
 } from '@votingworks/utils';
 import { mockOf } from '@votingworks/test-utils';
-import { Client } from '@votingworks/grout';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import {
   CastVoteRecordExportModifications,
@@ -38,7 +36,6 @@ import {
   mockCastVoteRecordFileTree,
   mockElectionManagerAuth,
 } from '../test/app';
-import { Api } from './app';
 import {
   ListCastVoteRecordExportsOnUsbDriveResult,
   listCastVoteRecordExportsOnUsbDrive,
@@ -90,13 +87,6 @@ async function getOfficialReportPath(): Promise<string> {
   );
 }
 
-async function expectCastVoteRecordCount(
-  apiClient: Client<Api>,
-  count: number
-): Promise<void> {
-  expect(getSheetCount((await apiClient.getCardCounts())[0]!)).toEqual(count);
-}
-
 test('happy path - mock election flow', async () => {
   const { apiClient, auth, mockUsbDrive, logger } = buildTestEnvironment();
   const { usbDrive, insertUsbDrive, removeUsbDrive } = mockUsbDrive;
@@ -106,6 +96,7 @@ test('happy path - mock election flow', async () => {
   // initially, no files or cast vote records
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual('unlocked');
+  expect(await apiClient.getTotalBallotCount()).toEqual(0);
   usbDrive.status.expectRepeatedCallsWith().resolves({ status: 'no_drive' });
   expect(await apiClient.listCastVoteRecordFilesOnUsb()).toEqual([]);
   expect(logger.log).toHaveBeenLastCalledWith(
@@ -183,7 +174,7 @@ test('happy path - mock election flow', async () => {
     }),
   ]);
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual('test');
-  await expectCastVoteRecordCount(apiClient, 184);
+  expect(await apiClient.getTotalBallotCount()).toEqual(184);
 
   // check write-in records were created
   expect(await apiClient.getWriteInAdjudicationQueue()).toHaveLength(80);
@@ -200,7 +191,7 @@ test('happy path - mock election flow', async () => {
   // remove CVR files, expect clear state
   await apiClient.clearCastVoteRecordFiles();
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
-  await expectCastVoteRecordCount(apiClient, 0);
+  expect(await apiClient.getTotalBallotCount()).toEqual(0);
 
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual('unlocked');
 
@@ -263,7 +254,7 @@ test('happy path - mock election flow', async () => {
   removeUsbDrive();
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
-  await expectCastVoteRecordCount(apiClient, 184);
+  expect(await apiClient.getTotalBallotCount()).toEqual(184);
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual('official');
 });
 
@@ -292,7 +283,7 @@ test('adding a file with BMD cast vote records', async () => {
     }),
   ]);
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual('test');
-  await expectCastVoteRecordCount(apiClient, 112);
+  expect(await apiClient.getTotalBallotCount()).toEqual(112);
 
   // check that no write-in records were created
   expect(await apiClient.getWriteInAdjudicationQueue()).toHaveLength(0);
@@ -328,7 +319,7 @@ test('handles duplicate exports', async () => {
     fileName: basename(exportDirectoryPath),
   });
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
-  await expectCastVoteRecordCount(apiClient, 184);
+  expect(await apiClient.getTotalBallotCount()).toEqual(184);
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.ImportCastVoteRecordsComplete,
     'election_manager',
@@ -357,7 +348,7 @@ test('handles file with previously added entries by adding only the new entries'
     })
   ).assertOk('expected to load cast vote record report successfully');
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
-  await expectCastVoteRecordCount(apiClient, 10);
+  expect(await apiClient.getTotalBallotCount()).toEqual(10);
 
   // create file that is duplicate but with new entries
   const laterReportDirectoryPath = await modifyCastVoteRecordExport(
@@ -376,7 +367,7 @@ test('handles file with previously added entries by adding only the new entries'
     fileName: basename(laterReportDirectoryPath),
   });
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(2);
-  await expectCastVoteRecordCount(apiClient, 20);
+  expect(await apiClient.getTotalBallotCount()).toEqual(20);
 });
 
 test(
@@ -470,7 +461,7 @@ test('error if path to report is not valid', async () => {
   );
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
-  await expectCastVoteRecordCount(apiClient, 0);
+  expect(await apiClient.getTotalBallotCount()).toEqual(0);
 });
 
 test('cast vote records authentication error', async () => {
@@ -502,7 +493,7 @@ test('cast vote records authentication error', async () => {
     }
   );
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
-  await expectCastVoteRecordCount(apiClient, 0);
+  expect(await apiClient.getTotalBallotCount()).toEqual(0);
 });
 
 test('cast vote records authentication error ignored if SKIP_CAST_VOTE_RECORDS_AUTHENTICATION is enabled', async () => {
@@ -548,7 +539,7 @@ test('error if report metadata is not parseable', async () => {
   });
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
-  await expectCastVoteRecordCount(apiClient, 0);
+  expect(await apiClient.getTotalBallotCount()).toEqual(0);
 });
 
 test('error if adding test report while in official mode', async () => {
@@ -618,7 +609,7 @@ test('error if a cast vote record not parseable', async () => {
   });
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
-  await expectCastVoteRecordCount(apiClient, 0);
+  expect(await apiClient.getTotalBallotCount()).toEqual(0);
 });
 
 test('error if a cast vote record is somehow invalid', async () => {
@@ -651,7 +642,7 @@ test('error if a cast vote record is somehow invalid', async () => {
   });
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
-  await expectCastVoteRecordCount(apiClient, 0);
+  expect(await apiClient.getTotalBallotCount()).toEqual(0);
 });
 
 test('error if cast vote records from different files share same ballot id but have different data', async () => {
@@ -667,7 +658,7 @@ test('error if cast vote records from different files share same ballot id but h
   ).assertOk('expected to load cast vote record report successfully');
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
-  await expectCastVoteRecordCount(apiClient, 184);
+  expect(await apiClient.getTotalBallotCount()).toEqual(184);
 
   const reportDirectoryPath = await modifyCastVoteRecordExport(
     castVoteRecordExport.asDirectoryPath(),
@@ -689,7 +680,7 @@ test('error if cast vote records from different files share same ballot id but h
   });
 
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(1);
-  await expectCastVoteRecordCount(apiClient, 184);
+  expect(await apiClient.getTotalBallotCount()).toEqual(184);
 });
 
 test('specifying path to metadata file instead of path to export directory (for manual file selection)', async () => {

@@ -1,5 +1,4 @@
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
-import { Tabulation } from '@votingworks/types';
 import { Client } from '@votingworks/grout';
 import { tmpNameSync } from 'tmp';
 import { readFileSync } from 'fs';
@@ -32,18 +31,14 @@ featureFlagMock.enableFeatureFlag(
 
 async function getParsedExport({
   apiClient,
-  groupBy,
-  filter,
 }: {
   apiClient: Client<Api>;
-  groupBy?: Tabulation.GroupBy;
-  filter?: Tabulation.Filter;
 }): Promise<ReturnType<typeof parseCsv>> {
   const path = tmpNameSync();
   const exportResult = await apiClient.exportTallyReportCsv({
     path,
-    groupBy,
-    filter,
+    filter: {},
+    groupBy: {},
   });
   expect(exportResult.isOk()).toEqual(true);
   return parseCsv(readFileSync(path, 'utf-8').toString());
