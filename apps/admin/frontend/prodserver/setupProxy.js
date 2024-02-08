@@ -18,9 +18,4 @@ module.exports = function (app) {
   app.use(proxy('/admin', { target: 'http://localhost:3004/' }));
   app.use(proxy('/api', { target: 'http://localhost:3004/' }));
   app.use(proxy('/dock', { target: 'http://localhost:3004/' }));
-
-  const pdfjsDistBuildPath = dirname(
-    resolve.sync('pdfjs-dist', { basedir: join(__dirname, '../../../../libs/image-utils') })
-  );
-  app.use('/pdfjs-dist', express.static(pdfjsDistBuildPath));
 };
