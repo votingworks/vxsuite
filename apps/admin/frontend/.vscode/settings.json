@@ -1,6 +1,5 @@
 {
   "editor.tabSize": 2,
-  "eslint.packageManager": "pnpm",
   "eslint.validate": [
     "javascript",
     "javascriptreact",
