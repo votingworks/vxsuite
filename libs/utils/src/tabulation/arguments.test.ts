@@ -52,6 +52,22 @@ test('combineGroupSpecifierAndFilter', () => {
   }
 });
 
+test('combineGroupSpecifierAndFilter does not remove extension filters', () => {
+  type ExtendedFilter = Tabulation.Filter & { extra: string[] };
+
+  const filter: ExtendedFilter = {
+    extra: ['extra'],
+    precinctIds: ['precinct-1', 'precinct-2'],
+  };
+
+  expect(
+    combineGroupSpecifierAndFilter({ precinctId: 'precinct-1' }, filter)
+  ).toEqual({
+    extra: ['extra'],
+    precinctIds: ['precinct-1'],
+  });
+});
+
 test('groupBySupportsZeroSplits', () => {
   expect(groupBySupportsZeroSplits({})).toEqual(true);
   expect(groupBySupportsZeroSplits({ groupByPrecinct: true })).toEqual(true);
