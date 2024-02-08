@@ -1,4 +1,5 @@
 use clap::Parser;
+use image::EncodableLayout;
 use std::{
     io::{self, Write},
     process::exit,
@@ -10,7 +11,10 @@ use base64::{engine::general_purpose::STANDARD, Engine as _};
 use pdi_rs::pdiscan::{
     self,
     client::Client,
-    protocol::types::{DoubleFeedDetectionCalibrationType, Status},
+    protocol::{
+        image::Sheet,
+        types::{DoubleFeedDetectionCalibrationType, ScanSideMode, Status},
+    },
 };
 
 #[derive(Debug, Parser)]
@@ -280,13 +284,22 @@ fn main_scan_loop() -> color_eyre::Result<()> {
                 // println!("begin scan");
             }
 
-            if let Ok((front_image_data, back_image_data)) = client.end_scan_rx.try_recv() {
-                wrap_outgoing(&Outgoing::ScanComplete {
-                    image_data: (
-                        STANDARD.encode(front_image_data),
-                        STANDARD.encode(back_image_data),
-                    ),
-                })?;
+            if let Ok(raw_image_data) = client.end_scan_rx.try_recv() {
+                match raw_image_data.try_decode_scan(1728, ScanSideMode::Duplex) {
+                    Ok(Sheet::Duplex(top_page, bottom_page)) => {
+                        wrap_outgoing(&Outgoing::ScanComplete {
+                            image_data: (
+                                STANDARD.encode(top_page.to_image().unwrap().as_bytes()),
+                                STANDARD.encode(bottom_page.to_image().unwrap().as_bytes()),
+                            ),
+                        })?;
+                    }
+                    _ => {
+                        wrap_outgoing(&Outgoing::Err {
+                            message: "unexpected image data".to_string(),
+                        })?;
+                    }
+                }
             }
         }
     }

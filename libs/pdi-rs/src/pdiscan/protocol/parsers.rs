@@ -575,14 +575,23 @@ pub fn decimal_number(input: &[u8]) -> IResult<&[u8], u16> {
 /// # Example
 ///
 /// ```
-/// use pdi_rs::pdiscan::protocol::parsers::decimal_percentage;
+/// use pdi_rs::pdiscan::protocol::{parsers::decimal_percentage, types::ClampedPercentage};
 ///
-/// assert_eq!(decimal_percentage(b"0"), Ok((&b""[..], 0)));
-/// assert_eq!(decimal_percentage(b"100"), Ok((&b""[..], 100)));
-/// assert_eq!(decimal_percentage(b"101"), Err(nom::Err::Error(nom::error::Error::new(
-///    &b"101"[..],
-///   nom::error::ErrorKind::MapRes,
-/// ))));
+/// assert_eq!(
+///     decimal_percentage(b"0"),
+///     Ok((&b""[..], ClampedPercentage::new_unchecked(0)))
+/// );
+/// assert_eq!(
+///     decimal_percentage(b"100"),
+///     Ok((&b""[..], ClampedPercentage::new_unchecked(100)))
+/// );
+/// assert_eq!(
+///     decimal_percentage(b"101"),
+///     Err(nom::Err::Error(nom::error::Error::new(
+///        &b"101"[..],
+///       nom::error::ErrorKind::MapRes,
+///     )))
+/// );
 /// ```
 ///
 /// # Errors

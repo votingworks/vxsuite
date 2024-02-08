@@ -1,3 +1,4 @@
+pub mod image;
 pub mod packets;
 pub mod parsers;
 pub mod types;

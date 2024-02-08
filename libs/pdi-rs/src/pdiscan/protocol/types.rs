@@ -90,6 +90,16 @@ pub enum ScanSideMode {
     SimplexBottomOnly,
 }
 
+impl ScanSideMode {
+    #[must_use]
+    pub const fn page_count(&self) -> u32 {
+        match self {
+            Self::Duplex => 2,
+            Self::SimplexTopOnly | Self::SimplexBottomOnly => 1,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub enum EjectMotion {
     ToRear,
@@ -304,7 +314,7 @@ impl From<DoubleFeedDetectionCalibrationType> for u8 {
 }
 
 /// A percentage value clamped to the range 0..=100.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ClampedPercentage(u8);
 
 impl ClampedPercentage {
@@ -330,7 +340,7 @@ impl ClampedPercentage {
     /// # Example
     ///
     /// ```
-    /// use pdiscan::protocol::types::ClampedPercentage;
+    /// use pdi_rs::pdiscan::protocol::types::ClampedPercentage;
     ///
     /// let percentage = ClampedPercentage::new(50).unwrap();
     /// assert_eq!(percentage.value(), 50);

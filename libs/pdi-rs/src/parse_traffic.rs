@@ -1,13 +1,12 @@
 use std::{fmt, io};
 
-use bitter::{BigEndianReader, BitReader};
-use image::{DynamicImage, ImageBuffer, Luma};
 use serde::Deserialize;
 
 use pdi_rs::pdiscan::protocol::{
     self,
+    image::{RawImageData, Sheet},
     packets::{Incoming, Packet},
-    types::Side,
+    types::ScanSideMode,
 };
 
 const ENDPOINT_OUT: u8 = 0x05;
@@ -122,14 +121,12 @@ impl fmt::Display for Endpoint {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     const WIDTH: u32 = 1728;
-    const APPROXIMATE_HEIGHT: u32 = 2400;
 
     // Build the CSV reader and iterate over each record.
     let mut rdr = csv::Reader::from_reader(io::stdin());
-    let mut top_image_data = Vec::with_capacity((WIDTH * APPROXIMATE_HEIGHT) as usize);
-    let mut bottom_image_data = Vec::with_capacity((WIDTH * APPROXIMATE_HEIGHT) as usize);
+    let mut raw_image_data = RawImageData::new();
 
-    for result in rdr.deserialize() {
+    for (index, result) in rdr.deserialize().enumerate() {
         let packet: RawPacket = result?;
 
         if packet.transfer_type.0 != BULK_TRANSFER || packet.data.0.is_empty() {
@@ -139,30 +136,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         let endpoint = Endpoint::from(packet.endpoint_address.0);
 
         if matches!(endpoint, Endpoint::InAlt) {
-            let data: Vec<_> = packet.data.0.iter().map(|byte| *byte ^ 0x33).collect();
-            let mut reader = BigEndianReader::new(data.as_slice());
-            let mut next_side = Side::Top;
-
-            for _ in 0..data.len() {
-                let image_data = if next_side == Side::Top {
-                    &mut top_image_data
-                } else {
-                    &mut bottom_image_data
-                };
-
-                for _ in 0..u8::BITS {
-                    image_data.push(if reader.read_bit().unwrap_or_default() {
-                        u8::MIN
-                    } else {
-                        u8::MAX
-                    });
-                }
-
-                next_side = match next_side {
-                    Side::Top => Side::Bottom,
-                    Side::Bottom => Side::Top,
-                }
-            }
+            raw_image_data.extend_from_slice(&packet.data.0);
             continue;
         }
 
@@ -172,32 +146,53 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     "{endpoint} {incoming:?}",
                     incoming = Incoming::BeginScanEvent
                 );
-                top_image_data.clear();
-                bottom_image_data.clear();
+                raw_image_data = RawImageData::new();
             }
             Ok(([], Packet::Incoming(Incoming::EndScanEvent))) => {
                 println!("{endpoint} {incoming:?}", incoming = Incoming::EndScanEvent);
 
-                let height = top_image_data.len() as u32 / WIDTH;
-                let mut top_image = ImageBuffer::new(WIDTH, height);
-                let mut bottom_image = ImageBuffer::new(WIDTH, height);
-
-                for (image_data, image) in [
-                    (&top_image_data, &mut top_image),
-                    (&bottom_image_data, &mut bottom_image),
+                for scan_mode in [
+                    ScanSideMode::SimplexTopOnly,
+                    ScanSideMode::SimplexBottomOnly,
+                    ScanSideMode::Duplex,
                 ] {
-                    for (y, image_row) in image_data.chunks_exact(WIDTH as usize).enumerate() {
-                        for (x, pixel) in image_row.iter().enumerate() {
-                            image.put_pixel(x as u32, y as u32, Luma([*pixel]));
+                    if let Ok(sheet) = raw_image_data.try_decode_scan(WIDTH, scan_mode) {
+                        match sheet {
+                            Sheet::Simplex(page) => match page.to_image() {
+                                Some(image) => {
+                                    image.save(format!("image-{index}-{scan_mode:?}.png"))?;
+                                }
+                                None => {
+                                    println!("Failed to convert page to {scan_mode:?} image");
+                                }
+                            },
+                            Sheet::Duplex(top, bottom) => {
+                                match top.to_image() {
+                                    Some(image) => {
+                                        image
+                                            .save(format!("image-{index}-{scan_mode:?}-top.png"))?;
+                                    }
+                                    None => {
+                                        println!(
+                                            "Failed to convert top page to {scan_mode:?} image"
+                                        );
+                                    }
+                                }
+                                match bottom.to_image() {
+                                    Some(image) => {
+                                        image.save(format!(
+                                            "image-{index}-{scan_mode:?}-bottom.png"
+                                        ))?;
+                                    }
+                                    None => {
+                                        println!(
+                                            "Failed to convert bottom page to {scan_mode:?} image"
+                                        );
+                                    }
+                                }
+                            }
                         }
                     }
-                }
-
-                let top_image = DynamicImage::ImageLuma8(top_image).fliph();
-                let bottom_image = DynamicImage::ImageLuma8(bottom_image);
-
-                for (side, image) in [(Side::Top, top_image), (Side::Bottom, bottom_image)] {
-                    image.save(format!("image-{side:?}.bmp"))?;
                 }
             }
             Ok(([], Packet::Incoming(incoming))) => {

@@ -15,8 +15,10 @@ use super::{
     log::LogEntry,
 };
 
+const MAX_LOG_LENGTH: usize = 500;
+
 // App state
-pub(crate) struct App<'a> {
+pub struct App<'a> {
     client: Option<Client>,
     log: Vec<LogEntry<'a>>,
     next_scan_index: usize,
@@ -34,9 +36,9 @@ impl<'a> App<'a> {
             client: None,
             log: vec![],
             next_scan_index: 1,
-            auto_scan: Default::default(),
-            auto_eject_delay: Default::default(),
-            watch_status: Default::default(),
+            auto_scan: AutoScanConfig::default(),
+            auto_eject_delay: Duration::default(),
+            watch_status: WatchStatusConfig::default(),
             should_connect: false,
             should_disconnect: false,
             should_quit: false,
@@ -69,7 +71,6 @@ impl<'a> App<'a> {
 
         self.log.push(log_entry);
 
-        const MAX_LOG_LENGTH: usize = 500;
         if self.log.len() > MAX_LOG_LENGTH {
             self.log.drain(0..self.log.len() - MAX_LOG_LENGTH);
         }
@@ -79,7 +80,7 @@ impl<'a> App<'a> {
         &self.log[self.log.len().saturating_sub(count)..]
     }
 
-    pub fn connection_state(&self) -> ConnectionState {
+    pub const fn connection_state(&self) -> ConnectionState {
         if self.should_connect {
             ConnectionState::Connecting
         } else if self.client.is_none() {
@@ -97,7 +98,7 @@ impl<'a> App<'a> {
         self.client = scanner;
     }
 
-    pub fn get_auto_scan_config(&self) -> AutoScanConfig {
+    pub const fn get_auto_scan_config(&self) -> AutoScanConfig {
         self.auto_scan
     }
 
@@ -105,7 +106,7 @@ impl<'a> App<'a> {
         self.auto_scan = config;
     }
 
-    pub fn auto_eject_delay(&self) -> Duration {
+    pub const fn auto_eject_delay(&self) -> Duration {
         self.auto_eject_delay
     }
 
@@ -117,7 +118,7 @@ impl<'a> App<'a> {
         self.auto_eject_delay = self.auto_eject_delay.saturating_sub(EJECT_DELAY_STEP);
     }
 
-    pub fn get_watch_status_config(&self) -> WatchStatusConfig {
+    pub const fn get_watch_status_config(&self) -> WatchStatusConfig {
         self.watch_status
     }
 
@@ -131,7 +132,7 @@ impl<'a> App<'a> {
         index
     }
 
-    pub fn should_connect(&self) -> bool {
+    pub const fn should_connect(&self) -> bool {
         self.should_connect
     }
 
@@ -139,7 +140,7 @@ impl<'a> App<'a> {
         self.should_connect = should_connect;
     }
 
-    pub fn should_disconnect(&self) -> bool {
+    pub const fn should_disconnect(&self) -> bool {
         self.should_disconnect
     }
 
@@ -147,7 +148,7 @@ impl<'a> App<'a> {
         self.should_disconnect = should_disconnect;
     }
 
-    pub fn should_quit(&self) -> bool {
+    pub const fn should_quit(&self) -> bool {
         self.should_quit
     }
 
@@ -166,7 +167,7 @@ impl<'a> App<'a> {
                 }
 
                 match client.await_event(deadline) {
-                    Ok(_) | Err(Error::RecvTimeout(_)) => {}
+                    Ok(()) | Err(Error::RecvTimeout(_)) => {}
                     Err(_) => return Err(RecvTimeoutError::Disconnected),
                 }
 
@@ -194,7 +195,7 @@ impl<'a> App<'a> {
                 }
 
                 match client.await_event(deadline) {
-                    Ok(_) | Err(Error::RecvTimeout(_)) => {}
+                    Ok(()) | Err(Error::RecvTimeout(_)) => {}
                     Err(_) => return Err(RecvTimeoutError::Disconnected),
                 }
 
@@ -218,7 +219,7 @@ impl<'a> App<'a> {
     }
 }
 
-pub(crate) enum ConnectionState {
+pub enum ConnectionState {
     Disconnected,
     Connecting,
     Connected,

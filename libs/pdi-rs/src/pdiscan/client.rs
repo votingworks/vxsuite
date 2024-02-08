@@ -9,6 +9,7 @@ use crate::pdiscan::transfer::Handler;
 
 use super::{
     protocol::{
+        image::RawImageData,
         packets::{Command, Incoming},
         parsers,
         types::{
@@ -91,11 +92,11 @@ pub struct Client {
     event_rx: std::sync::mpsc::Receiver<Event>,
     begin_scan_tx: std::sync::mpsc::Sender<()>,
     pub begin_scan_rx: std::sync::mpsc::Receiver<()>,
-    end_scan_tx: std::sync::mpsc::Sender<(Vec<u8>, Vec<u8>)>,
-    pub end_scan_rx: std::sync::mpsc::Receiver<(Vec<u8>, Vec<u8>)>,
+    end_scan_tx: std::sync::mpsc::Sender<RawImageData>,
+    pub end_scan_rx: std::sync::mpsc::Receiver<RawImageData>,
 
     /// Image data
-    image_data: Option<(Vec<u8>, Vec<u8>)>,
+    raw_image_data: Option<RawImageData>,
 }
 
 impl Client {
@@ -143,7 +144,7 @@ impl Client {
             begin_scan_rx,
             end_scan_tx,
             end_scan_rx,
-            image_data: None,
+            raw_image_data: None,
         };
 
         client.transfer_handler.start_handle_events_thread();
@@ -1110,6 +1111,10 @@ impl Client {
             Event::Completed { endpoint, data } => {
                 if endpoint == ENDPOINT_IN_IMAGE_DATA {
                     tracing::debug!("receiving image data: {} bytes", data.len());
+                    self.raw_image_data.as_mut().map_or_else(
+                        || tracing::warn!("received image data without corresponding begin scan"),
+                        |raw_image_data| raw_image_data.extend_from_slice(&data),
+                    );
                 } else {
                     match parsers::any_incoming(&data) {
                         Ok(([], incoming)) => {
@@ -1136,27 +1141,27 @@ impl Client {
         tracing::debug!("incoming message: {incoming:?}");
         match incoming {
             Incoming::BeginScanEvent => {
-                self.image_data = Some((Vec::new(), Vec::new()));
+                self.raw_image_data = Some(RawImageData::new());
                 self.begin_scan_tx.send(()).unwrap();
             }
-            Incoming::EndScanEvent => match self.image_data.take() {
-                Some(image_data) => {
-                    self.end_scan_tx.send(image_data).unwrap();
+            Incoming::EndScanEvent => match self.raw_image_data.take() {
+                Some(raw_image_data) => {
+                    self.end_scan_tx.send(raw_image_data).unwrap();
                 }
                 None => {
                     tracing::error!("end scan without corresponding begin scan");
                 }
             },
-            response @ Incoming::GetTestStringResponse(_)
-            | response @ Incoming::GetFirmwareVersionResponse(_)
-            | response @ Incoming::GetScannerStatusResponse(_)
-            | response @ Incoming::AdjustBitonalThresholdResponse { .. }
-            | response @ Incoming::GetSetSerialNumberResponse(..)
-            | response @ Incoming::GetScannerSettingsResponse(_)
-            | response @ Incoming::GetSetRequiredInputSensorsResponse { .. }
-            | response @ Incoming::DoubleFeedCalibrationCompleteEvent
-            | response @ Incoming::DoubleFeedCalibrationTimedOutEvent
-            | response @ Incoming::GetDoubleFeedDetectionLedIntensityResponse(_) => {
+            response @ (Incoming::GetTestStringResponse(_)
+            | Incoming::GetFirmwareVersionResponse(_)
+            | Incoming::GetScannerStatusResponse(_)
+            | Incoming::AdjustBitonalThresholdResponse { .. }
+            | Incoming::GetSetSerialNumberResponse(..)
+            | Incoming::GetScannerSettingsResponse(_)
+            | Incoming::GetSetRequiredInputSensorsResponse { .. }
+            | Incoming::DoubleFeedCalibrationCompleteEvent
+            | Incoming::DoubleFeedCalibrationTimedOutEvent
+            | Incoming::GetDoubleFeedDetectionLedIntensityResponse(_)) => {
                 self.pending_responses.push(response);
             }
             _ => {
