@@ -1,6 +1,8 @@
 import { screen } from '@testing-library/react';
 import type {
   Api,
+  BallotCountReportSpec,
+  BallotCountReportWarning,
   CastVoteRecordFileMetadata,
   CastVoteRecordFileRecord,
   CvrFileMode,
@@ -13,11 +15,15 @@ import type {
   WriteInAdjudicationQueueMetadata,
   WriteInImageView,
   ExportDataError,
+  TallyReportSpec,
+  TallyReportWarning,
 } from '@votingworks/admin-backend';
 import { FileSystemEntry, FileSystemEntryType } from '@votingworks/backend';
 import { Result, deferred, ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
+import { Buffer } from 'buffer';
 import {
+  MockFunction,
   fakeElectionManagerUser,
   fakeSessionExpiresAt,
   fakeSystemAdministratorUser,
@@ -35,6 +41,7 @@ import {
 } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import type { PrinterStatus } from '@votingworks/printing';
 
 const mockRect: Rect = {
   width: 1000,
@@ -49,6 +56,31 @@ export function createMockApiClient(): MockApiClient {
   return createMockClient<Api>();
 }
 
+function createDeferredMock<T, U>(
+  fn: MockFunction<(callsWith: T) => Promise<U>>
+): (params: { expectCallWith: T; returnValue: U; deferred?: boolean }) => {
+  resolve: () => void;
+} {
+  return (params: {
+    expectCallWith: T;
+    returnValue: U;
+    deferred?: boolean;
+  }) => {
+    const { promise, resolve } = deferred<U>();
+    fn.expectCallWith(params.expectCallWith).returns(promise);
+
+    if (!params.deferred) {
+      resolve(params.returnValue);
+    }
+
+    return {
+      resolve: () => {
+        resolve(params.returnValue);
+      },
+    };
+  };
+}
+
 /**
  * Creates a VxAdmin specific wrapper around commonly used methods from the Grout
  * mock API client to make it easier to use for our specific test needs
@@ -57,6 +89,21 @@ export function createMockApiClient(): MockApiClient {
 export function createApiMock(
   apiClient: MockApiClient = createMockApiClient()
 ) {
+  function setPrinterStatus(printerStatus: Partial<PrinterStatus>): void {
+    apiClient.getPrinterStatus.expectRepeatedCallsWith().resolves({
+      connected: true,
+      // the below is copied from libs/printing to avoid importing a backend package
+      config: {
+        label: 'HP LaserJet Pro M404n',
+        vendorId: 1008,
+        productId: 49450,
+        baseDeviceUri: 'usb://HP/LaserJet%20Pro%20M404-M405',
+        ppd: 'generic-postscript-driver.ppd',
+      },
+      ...printerStatus,
+    });
+  }
+
   return {
     apiClient,
 
@@ -65,6 +112,8 @@ export function createApiMock(
     setAuthStatus(authStatus: DippedSmartCardAuth.AuthStatus) {
       apiClient.getAuthStatus.expectRepeatedCallsWith().resolves(authStatus);
     },
+
+    setPrinterStatus,
 
     async authenticateAsSystemAdministrator() {
       // first verify that we're logged out
@@ -363,67 +412,18 @@ export function createApiMock(
       apiClient.saveElectionPackageToUsb.expectCallWith().resolves(result);
     },
 
-    expectExportTallyReportCsv({
-      path,
-      filter,
-      groupBy,
-    }: {
-      path: string;
-      filter?: Admin.FrontendReportingFilter;
-      groupBy?: Tabulation.GroupBy;
-    }) {
-      apiClient.exportTallyReportCsv
-        .expectCallWith({ path, groupBy, filter })
-        .resolves(ok([]));
-    },
+    expectGetTotalBallotCount(count: number, deferResult = false) {
+      const { promise, resolve } = deferred<number>();
 
-    expectExportBallotCountReportCsv({
-      path,
-      filter,
-      groupBy,
-      includeSheetCounts,
-    }: {
-      path: string;
-      filter?: Admin.FrontendReportingFilter;
-      groupBy?: Tabulation.GroupBy;
-      includeSheetCounts?: boolean;
-    }) {
-      apiClient.exportBallotCountReportCsv
-        .expectCallWith({
-          path,
-          groupBy,
-          filter,
-          includeSheetCounts: Boolean(includeSheetCounts),
-        })
-        .resolves(ok([]));
-    },
-
-    expectExportCdfElectionResultsReport({ path }: { path: string }) {
-      apiClient.exportCdfElectionResultsReport
-        .expectCallWith({ path })
-        .resolves(ok([]));
-    },
-
-    expectGetCardCounts(
-      input: {
-        filter?: Admin.FrontendReportingFilter;
-        groupBy?: Tabulation.GroupBy;
-      },
-      results: Array<Tabulation.GroupOf<Tabulation.CardCounts>>,
-      deferResult = false
-    ) {
-      const { promise, resolve } =
-        deferred<Tabulation.GroupList<Tabulation.CardCounts>>();
-
-      apiClient.getCardCounts.expectCallWith(input).returns(promise);
+      apiClient.getTotalBallotCount.expectCallWith().returns(promise);
 
       if (!deferResult) {
-        resolve(results);
+        resolve(count);
       }
 
       return {
         resolve: () => {
-          resolve(results);
+          resolve(count);
         },
       };
     },
@@ -434,8 +434,8 @@ export function createApiMock(
 
     expectGetResultsForTallyReports(
       input: {
-        filter?: Admin.FrontendReportingFilter;
-        groupBy?: Tabulation.GroupBy;
+        filter: Admin.FrontendReportingFilter;
+        groupBy: Tabulation.GroupBy;
       },
       results: Tabulation.GroupList<Admin.TallyReportResults>,
       deferResult = false
@@ -457,11 +457,71 @@ export function createApiMock(
       };
     },
 
-    expectGetElectionWriteInSummary(
-      summary: Tabulation.ElectionWriteInSummary
-    ) {
-      apiClient.getElectionWriteInSummary.expectCallWith().resolves(summary);
+    expectGetTallyReportPreview({
+      reportSpec,
+      warning,
+      pdfContent,
+    }: {
+      reportSpec: TallyReportSpec;
+      warning?: TallyReportWarning;
+      pdfContent?: string;
+    }) {
+      apiClient.getTallyReportPreview.expectCallWith(reportSpec).resolves({
+        pdf: Buffer.from(pdfContent ?? 'mock-pdf'),
+        warning: warning ?? { type: 'none' },
+      });
     },
+
+    expectPrintTallyReport: createDeferredMock(apiClient.printTallyReport),
+    expectExportTallyReportPdf: createDeferredMock(
+      apiClient.exportTallyReportPdf
+    ),
+    expectExportTallyReportCsv: createDeferredMock(
+      apiClient.exportTallyReportCsv
+    ),
+    expectExportCdfReport: createDeferredMock(
+      apiClient.exportCdfElectionResultsReport
+    ),
+
+    expectGetBallotCountReportPreview({
+      reportSpec,
+      warning,
+      pdfContent,
+    }: {
+      reportSpec: BallotCountReportSpec;
+      warning?: BallotCountReportWarning;
+      pdfContent?: string;
+    }) {
+      apiClient.getBallotCountReportPreview
+        .expectCallWith(reportSpec)
+        .resolves({
+          pdf: Buffer.from(pdfContent ?? 'mock-pdf'),
+          warning: warning ?? { type: 'none' },
+        });
+    },
+
+    expectPrintBallotCountReport: createDeferredMock(
+      apiClient.printBallotCountReport
+    ),
+    expectExportBallotCountReportPdf: createDeferredMock(
+      apiClient.exportBallotCountReportPdf
+    ),
+    expectExportBallotCountReportCsv: createDeferredMock(
+      apiClient.exportBallotCountReportCsv
+    ),
+
+    expectGetWriteInAdjudicationReportPreview(pdfContent: string) {
+      apiClient.getWriteInAdjudicationReportPreview
+        .expectCallWith()
+        .resolves(Buffer.from(pdfContent));
+    },
+
+    expectPrintWriteInAdjudicationReport: createDeferredMock(
+      apiClient.printWriteInAdjudicationReport
+    ),
+    expectExportWriteInAdjudicationReportPdf: createDeferredMock(
+      apiClient.exportWriteInAdjudicationReportPdf
+    ),
   };
 }
 

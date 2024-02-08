@@ -3,20 +3,11 @@ import {
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import {
-  deferNextPrint,
-  expectPrint,
-  expectPrintToPdf,
-  fakeKiosk,
-  hasTextAcrossElements,
-  simulateErrorOnNextPrint,
-} from '@votingworks/test-utils';
-import { waitFor, waitForElementToBeRemoved } from '@testing-library/react';
-import { LogEventId, fakeLogger } from '@votingworks/logging';
-import { Admin } from '@votingworks/types';
-import { act } from 'react-dom/test-utils';
+import { waitForElementToBeRemoved } from '@testing-library/react';
+import { fakeLogger } from '@votingworks/logging';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { buildSimpleMockTallyReportResults } from '@votingworks/utils';
+import { TallyReportSpec } from '@votingworks/admin-backend';
+import { ok } from '@votingworks/basics';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { screen, within } from '../../../test/react_testing_library';
 import { renderInAppContext } from '../../../test/render_in_app_context';
@@ -26,14 +17,13 @@ let apiMock: ApiMock;
 
 beforeEach(() => {
   apiMock = createApiMock();
+  apiMock.setPrinterStatus({ connected: true });
   apiMock.expectGetCastVoteRecordFileMode('official');
-  apiMock.expectGetScannerBatches([]);
-  window.kiosk = fakeKiosk();
 });
 
 afterEach(() => {
+  jest.useRealTimers();
   apiMock.assertComplete();
-  window.kiosk = undefined;
 });
 
 const ACTION_BUTTON_LABELS = [
@@ -42,14 +32,21 @@ const ACTION_BUTTON_LABELS = [
   'Export Report CSV',
 ];
 
+const CDF_BUTTON_LABEL = 'Export CDF Report';
+
+const MOCK_REPORT_SPEC: TallyReportSpec = {
+  filter: {},
+  groupBy: { groupByVotingMethod: true },
+  includeSignatureLines: false,
+};
+
 test('disabled shows disabled buttons and no preview', () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   renderInAppContext(
     <TallyReportViewer
       disabled
-      filter={{}}
-      groupBy={{}}
       autoGenerateReport={false}
+      {...MOCK_REPORT_SPEC}
     />,
     { apiMock, electionDefinition }
   );
@@ -57,30 +54,22 @@ test('disabled shows disabled buttons and no preview', () => {
   for (const buttonLabel of ACTION_BUTTON_LABELS) {
     expect(screen.getButton(buttonLabel)).toBeDisabled();
   }
+
+  // no preview API call mocked => it's not loading the preview
 });
 
 test('when auto-generation is on, it loads the preview automatically', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { election } = electionDefinition;
-  apiMock.expectGetResultsForTallyReports(
-    {
-      filter: {},
-      groupBy: {},
-    },
-    [
-      buildSimpleMockTallyReportResults({
-        election,
-        scannedBallotCount: 10,
-      }),
-    ]
-  );
+  apiMock.expectGetTallyReportPreview({
+    reportSpec: MOCK_REPORT_SPEC,
+    pdfContent: 'Unofficial Lincoln Municipal General Election Tally Report',
+  });
 
   renderInAppContext(
     <TallyReportViewer
       disabled={false}
-      filter={{}}
-      groupBy={{}}
       autoGenerateReport
+      {...MOCK_REPORT_SPEC}
     />,
     { apiMock, electionDefinition }
   );
@@ -88,25 +77,23 @@ test('when auto-generation is on, it loads the preview automatically', async () 
   await screen.findByText(
     'Unofficial Lincoln Municipal General Election Tally Report'
   );
-  expect(screen.getByTestId('total-ballot-count')).toHaveTextContent('10');
   expect(
     screen.queryByRole('button', { name: 'Generate Report' })
   ).not.toBeInTheDocument();
   for (const buttonLabel of ACTION_BUTTON_LABELS) {
     expect(screen.getButton(buttonLabel)).toBeEnabled();
   }
+  expect(screen.queryButton(CDF_BUTTON_LABEL)).not.toBeInTheDocument();
 });
 
 test('when auto-generation is off, it requires a button press to load the report', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { election } = electionDefinition;
 
   renderInAppContext(
     <TallyReportViewer
       disabled={false}
-      filter={{}}
-      groupBy={{}}
       autoGenerateReport={false}
+      {...MOCK_REPORT_SPEC}
     />,
     { apiMock, electionDefinition }
   );
@@ -115,51 +102,33 @@ test('when auto-generation is off, it requires a button press to load the report
   for (const buttonLabel of ACTION_BUTTON_LABELS) {
     expect(screen.getButton(buttonLabel)).toBeDisabled();
   }
-  expect(
-    screen.queryByText(
-      'Unofficial Lincoln Municipal General Election Tally Report'
-    )
-  ).not.toBeInTheDocument();
 
-  apiMock.expectGetResultsForTallyReports(
-    {
-      filter: {},
-      groupBy: {},
-    },
-    [
-      buildSimpleMockTallyReportResults({
-        election,
-        scannedBallotCount: 10,
-      }),
-    ]
-  );
+  apiMock.expectGetTallyReportPreview({
+    reportSpec: MOCK_REPORT_SPEC,
+    pdfContent: 'Unofficial Lincoln Municipal General Election Tally Report',
+  });
   userEvent.click(screen.getButton('Generate Report'));
   await screen.findByText(
     'Unofficial Lincoln Municipal General Election Tally Report'
   );
-  expect(screen.getByTestId('total-ballot-count')).toHaveTextContent('10');
   expect(screen.getButton('Generate Report')).toBeDisabled();
   for (const buttonLabel of ACTION_BUTTON_LABELS) {
     expect(screen.getButton(buttonLabel)).toBeEnabled();
   }
 });
 
-test('shows no results warning when no results', async () => {
+test('shows no results warning and prevents actions when no results', async () => {
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
-  apiMock.expectGetResultsForTallyReports(
-    {
-      filter: {},
-      groupBy: { groupByBatch: true },
-    },
-    []
-  );
+  apiMock.expectGetTallyReportPreview({
+    reportSpec: MOCK_REPORT_SPEC,
+    warning: { type: 'no-reports-match-filter' },
+  });
 
   renderInAppContext(
     <TallyReportViewer
       disabled={false}
-      filter={{}}
-      groupBy={{ groupByBatch: true }}
       autoGenerateReport
+      {...MOCK_REPORT_SPEC}
     />,
     { apiMock, electionDefinition }
   );
@@ -179,27 +148,17 @@ test('shows no results warning when no results', async () => {
 
 test('printing report', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { election } = electionDefinition;
-  apiMock.expectGetResultsForTallyReports(
-    {
-      filter: {},
-      groupBy: {},
-    },
-    [
-      buildSimpleMockTallyReportResults({
-        election,
-        scannedBallotCount: 10,
-      }),
-    ]
-  );
+  apiMock.expectGetTallyReportPreview({
+    reportSpec: MOCK_REPORT_SPEC,
+    pdfContent: 'Unofficial Lincoln Municipal General Election Tally Report',
+  });
 
   const logger = fakeLogger();
   renderInAppContext(
     <TallyReportViewer
       disabled={false}
-      filter={{}}
-      groupBy={{}}
       autoGenerateReport
+      {...MOCK_REPORT_SPEC}
     />,
     { apiMock, electionDefinition, logger }
   );
@@ -208,151 +167,33 @@ test('printing report', async () => {
     'Unofficial Lincoln Municipal General Election Tally Report'
   );
 
-  const { resolve: resolvePrint } = deferNextPrint();
+  const { resolve } = apiMock.expectPrintTallyReport({
+    expectCallWith: MOCK_REPORT_SPEC,
+    returnValue: undefined,
+    deferred: true,
+  });
   userEvent.click(screen.getButton('Print Report'));
   const modal = await screen.findByRole('alertdialog');
-  await within(modal).findByText('Printing Report');
-  resolvePrint();
+  await within(modal).findByText('Printing');
+  resolve();
   await waitForElementToBeRemoved(screen.queryByRole('alertdialog'));
-  await expectPrint((printResult) => {
-    printResult.getByText(
-      'Unofficial Lincoln Municipal General Election Tally Report'
-    );
-    expect(printResult.getByTestId('total-ballot-count')).toHaveTextContent(
-      '10'
-    );
-  });
-  expect(logger.log).toHaveBeenLastCalledWith(
-    LogEventId.TallyReportPrinted,
-    'election_manager',
-    {
-      disposition: 'success',
-      message: 'User printed a tally report.',
-      filter: '{}',
-      groupBy: '{}',
-    }
-  );
 });
 
-test('print failure logging', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { election } = electionDefinition;
-  apiMock.expectGetResultsForTallyReports(
-    {
-      filter: {},
-      groupBy: {},
-    },
-    [
-      buildSimpleMockTallyReportResults({
-        election,
-        scannedBallotCount: 10,
-      }),
-    ]
-  );
-
-  const logger = fakeLogger();
-  renderInAppContext(
-    <TallyReportViewer
-      disabled={false}
-      filter={{}}
-      groupBy={{}}
-      autoGenerateReport
-    />,
-    { apiMock, electionDefinition, logger }
-  );
-
-  await screen.findByText(
-    'Unofficial Lincoln Municipal General Election Tally Report'
-  );
-
-  simulateErrorOnNextPrint(new Error('printer broken'));
-  userEvent.click(screen.getButton('Print Report'));
-  await waitFor(() => {
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.TallyReportPrinted,
-      'election_manager',
-      {
-        disposition: 'failure',
-        message:
-          'User attempted to print a tally report, but an error occurred: printer broken',
-        filter: '{}',
-        groupBy: '{}',
-      }
-    );
-  });
-});
-
-test('displays custom filter rather than specific title when necessary', async () => {
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { election } = electionDefinition;
-  const filter: Admin.FrontendReportingFilter = {
-    ballotStyleIds: ['1'],
-    precinctIds: ['23'],
-    votingMethods: ['absentee'],
-  };
-
-  apiMock.expectGetResultsForTallyReports(
-    {
-      filter,
-      groupBy: {},
-    },
-    [
-      buildSimpleMockTallyReportResults({
-        election,
-        scannedBallotCount: 10,
-      }),
-    ]
-  );
-
-  renderInAppContext(
-    <TallyReportViewer
-      disabled={false}
-      filter={filter}
-      groupBy={{}}
-      autoGenerateReport
-    />,
-    { apiMock, electionDefinition }
-  );
-
-  await screen.findByText('Unofficial Custom Filter Tally Report');
-  screen.getByText(hasTextAcrossElements('Voting Method: Absentee'));
-  screen.getByText(hasTextAcrossElements('Ballot Style: 1'));
-  screen.getByText(hasTextAcrossElements('Precinct: North Lincoln'));
-});
-
-test('exporting report PDF', async () => {
+test('exporting PDF', async () => {
   jest.useFakeTimers();
   jest.setSystemTime(new Date('2023-09-06T21:45:08Z'));
-  const mockKiosk = fakeKiosk();
-  window.kiosk = mockKiosk;
 
   const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { election } = electionDefinition;
-  apiMock.expectGetResultsForTallyReports(
-    {
-      filter: {},
-      groupBy: {
-        groupByVotingMethod: true,
-        groupByPrecinct: true,
-      },
-    },
-    [
-      buildSimpleMockTallyReportResults({
-        election,
-        scannedBallotCount: 10,
-      }),
-    ]
-  );
+  apiMock.expectGetTallyReportPreview({
+    reportSpec: MOCK_REPORT_SPEC,
+    pdfContent: 'Unofficial Lincoln Municipal General Election Tally Report',
+  });
 
   renderInAppContext(
     <TallyReportViewer
       disabled={false}
-      filter={{}}
-      groupBy={{
-        groupByVotingMethod: true,
-        groupByPrecinct: true,
-      }}
       autoGenerateReport
+      {...MOCK_REPORT_SPEC}
     />,
     {
       apiMock,
@@ -361,31 +202,128 @@ test('exporting report PDF', async () => {
     }
   );
 
-  await waitFor(() => {
-    expect(screen.getButton('Export Report PDF')).toBeEnabled();
-  });
+  await screen.findByText(
+    'Unofficial Lincoln Municipal General Election Tally Report'
+  );
+
   userEvent.click(screen.getButton('Export Report PDF'));
   const modal = await screen.findByRole('alertdialog');
-  within(modal).getByText('Save Unofficial Tally Report');
+  within(modal).getByText('Save Tally Report');
   within(modal).getByText(
-    /tally-reports-by-precinct-and-voting-method__2023-09-06_21-45-08\.pdf/
+    /unofficial-tally-reports-by-voting-method__2023-09-06_21-45-08\.pdf/
   );
+
+  const { resolve } = apiMock.expectExportTallyReportPdf({
+    expectCallWith: {
+      path: 'test-mount-point/franklin-county_lincoln-municipal-general-election_d44db90b8b/reports/unofficial-tally-reports-by-voting-method__2023-09-06_21-45-08.pdf',
+      ...MOCK_REPORT_SPEC,
+    },
+    returnValue: ok([]),
+    deferred: true,
+  });
   userEvent.click(within(modal).getButton('Save'));
-  await screen.findByText('Saving Unofficial Tally Report');
-  act(() => {
-    jest.advanceTimersByTime(2000);
+  await screen.findByText('Saving Tally Report');
+  resolve();
+  await screen.findByText('Tally Report Saved');
+});
+
+test('exporting CSV', async () => {
+  jest.useFakeTimers();
+  jest.setSystemTime(new Date('2023-09-06T21:45:08Z'));
+
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  apiMock.expectGetTallyReportPreview({
+    reportSpec: MOCK_REPORT_SPEC,
+    pdfContent: 'Unofficial Lincoln Municipal General Election Tally Report',
   });
-  await screen.findByText('Unofficial Tally Report Saved');
 
-  expect(mockKiosk.writeFile).toHaveBeenCalledTimes(1);
-  await expectPrintToPdf((pdfResult) => {
-    pdfResult.getByText(
-      'Unofficial Lincoln Municipal General Election Tally Report'
-    );
-    expect(pdfResult.getByTestId('total-ballot-count')).toHaveTextContent('10');
+  renderInAppContext(
+    <TallyReportViewer
+      disabled={false}
+      autoGenerateReport
+      {...MOCK_REPORT_SPEC}
+    />,
+    {
+      apiMock,
+      electionDefinition,
+      usbDriveStatus: mockUsbDriveStatus('mounted'),
+    }
+  );
+
+  await screen.findByText(
+    'Unofficial Lincoln Municipal General Election Tally Report'
+  );
+
+  userEvent.click(screen.getButton('Export Report CSV'));
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText('Save Tally Report');
+  within(modal).getByText(
+    /unofficial-tally-report-by-voting-method__2023-09-06_21-45-08\.csv/
+  );
+
+  const { resolve } = apiMock.expectExportTallyReportCsv({
+    expectCallWith: {
+      path: 'test-mount-point/franklin-county_lincoln-municipal-general-election_d44db90b8b/reports/unofficial-tally-report-by-voting-method__2023-09-06_21-45-08.csv',
+      filter: MOCK_REPORT_SPEC.filter,
+      groupBy: MOCK_REPORT_SPEC.groupBy,
+    },
+    returnValue: ok([]),
+    deferred: true,
+  });
+  userEvent.click(within(modal).getButton('Save'));
+  await screen.findByText('Saving Tally Report');
+  resolve();
+  await screen.findByText('Tally Report Saved');
+});
+
+test('when full election report - allows CDF export and includes signature lines', async () => {
+  jest.useFakeTimers();
+  jest.setSystemTime(new Date('2023-09-06T21:45:08Z'));
+
+  const { electionDefinition } = electionFamousNames2021Fixtures;
+  apiMock.expectGetTallyReportPreview({
+    reportSpec: {
+      filter: {},
+      groupBy: {},
+      includeSignatureLines: true,
+    },
+    pdfContent: 'Unofficial Lincoln Municipal General Election Tally Report',
   });
 
-  userEvent.click(screen.getButton('Close'));
+  renderInAppContext(
+    <TallyReportViewer
+      disabled={false}
+      autoGenerateReport
+      filter={{}}
+      groupBy={{}}
+    />,
+    {
+      apiMock,
+      electionDefinition,
+      usbDriveStatus: mockUsbDriveStatus('mounted'),
+    }
+  );
 
-  jest.useRealTimers();
+  await screen.findByText(
+    'Unofficial Lincoln Municipal General Election Tally Report'
+  );
+
+  userEvent.click(screen.getButton('Export CDF Report'));
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText('Save CDF Election Results Report');
+  within(modal).getByText(
+    /unofficial-cdf-election-results-report__2023-09-06_21-45-08\.json/
+  );
+
+  const { resolve } = apiMock.expectExportCdfReport({
+    expectCallWith: {
+      path: 'test-mount-point/franklin-county_lincoln-municipal-general-election_d44db90b8b/reports/unofficial-cdf-election-results-report__2023-09-06_21-45-08.json',
+    },
+    returnValue: ok([]),
+    deferred: true,
+  });
+  userEvent.click(within(modal).getButton('Save'));
+  await screen.findByText('Saving CDF Election Results Report');
+  resolve();
+  await screen.findByText('CDF Election Results Report Saved');
 });

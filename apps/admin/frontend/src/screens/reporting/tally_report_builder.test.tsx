@@ -1,7 +1,5 @@
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { expectPrint } from '@votingworks/test-utils';
-import { buildSimpleMockTallyReportResults } from '@votingworks/utils';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { TallyReportBuilder } from './tally_report_builder';
@@ -12,6 +10,7 @@ let apiMock: ApiMock;
 
 beforeEach(() => {
   apiMock = createApiMock();
+  apiMock.setPrinterStatus({ connected: true });
 });
 
 afterEach(() => {
@@ -20,7 +19,6 @@ afterEach(() => {
 
 test('happy path', async () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
-  const { election } = electionDefinition;
 
   apiMock.expectGetCastVoteRecordFileMode('official');
   apiMock.expectGetScannerBatches([]);
@@ -53,58 +51,20 @@ test('happy path', async () => {
   expect(precinctCheckbox).toBeChecked();
 
   // Load Preview
-  apiMock.expectGetResultsForTallyReports(
-    {
+  apiMock.expectGetTallyReportPreview({
+    reportSpec: {
       filter: canonicalizeFilter({
         votingMethods: ['absentee'],
       }),
       groupBy: canonicalizeGroupBy({
         groupByPrecinct: true,
       }),
+      includeSignatureLines: false,
     },
-    [
-      {
-        precinctId: 'precinct-1',
-        ...buildSimpleMockTallyReportResults({
-          election,
-          scannedBallotCount: 10,
-          cardCountsByParty: {
-            '0': 3,
-            '1': 7,
-          },
-        }),
-      },
-      {
-        precinctId: 'precinct-2',
-        ...buildSimpleMockTallyReportResults({
-          election,
-          scannedBallotCount: 20,
-          cardCountsByParty: {
-            '0': 9,
-            '1': 11,
-          },
-        }),
-      },
-    ]
-  );
+    pdfContent: 'Absentee Ballot Tally Report Mock Preview',
+  });
   userEvent.click(screen.getButton('Generate Report'));
-
-  await screen.findAllByText('Ballot Counts');
-  const precinct1MammalPage = screen
-    .getAllByText('Unofficial Precinct 1 Absentee Ballot Tally Report')
-    .map((element) => element.closest('section')!)
-    .find(
-      (page) =>
-        !!within(page).queryByText('Mammal Party Example Primary Election')
-    )!;
-  expect(
-    within(precinct1MammalPage).getByTestId('total-ballot-count')
-  ).toHaveTextContent('3');
-
-  const precinct2Pages = screen
-    .getAllByText('Unofficial Precinct 2 Absentee Ballot Tally Report')
-    .map((element) => element.closest('section')!);
-  expect(precinct2Pages).toHaveLength(3);
+  await screen.findByText('Absentee Ballot Tally Report Mock Preview');
 
   // Change Report Parameters
   userEvent.click(screen.getByLabelText('Remove Absentee'));
@@ -114,62 +74,19 @@ test('happy path', async () => {
   );
 
   // Refresh Preview
-  apiMock.expectGetResultsForTallyReports(
-    {
+  apiMock.expectGetTallyReportPreview({
+    reportSpec: {
       filter: canonicalizeFilter({
         votingMethods: ['precinct'],
       }),
       groupBy: canonicalizeGroupBy({
         groupByPrecinct: true,
       }),
+      includeSignatureLines: false,
     },
-    [
-      {
-        precinctId: 'precinct-1',
-        ...buildSimpleMockTallyReportResults({
-          election,
-          scannedBallotCount: 30,
-          cardCountsByParty: {
-            '0': 17,
-            '1': 23,
-          },
-        }),
-      },
-      {
-        precinctId: 'precinct-2',
-        ...buildSimpleMockTallyReportResults({
-          election,
-          scannedBallotCount: 40,
-          cardCountsByParty: {
-            '0': 27,
-            '1': 13,
-          },
-        }),
-      },
-    ]
-  );
+    pdfContent: 'Precinct Ballot Tally Report Mock Preview',
+  });
   userEvent.click(screen.getButton('Generate Report'));
 
-  await screen.findAllByText('Ballot Counts');
-  expect(
-    screen.getAllByText('Unofficial Precinct 1 Precinct Ballot Tally Report')
-  ).toHaveLength(3);
-  expect(
-    screen.getAllByText('Unofficial Precinct 2 Precinct Ballot Tally Report')
-  ).toHaveLength(3);
-
-  // Print Report
-  userEvent.click(screen.getButton('Print Report'));
-  await expectPrint((printResult) => {
-    const printedPrecinct1MammalPage = printResult
-      .getAllByText('Unofficial Precinct 1 Precinct Ballot Tally Report')
-      .map((element) => element.closest('section')!)
-      .find(
-        (page) =>
-          !!within(page).queryByText('Mammal Party Example Primary Election')
-      )!;
-    expect(
-      within(printedPrecinct1MammalPage).getByTestId('total-ballot-count')
-    ).toHaveTextContent('17');
-  });
+  await screen.findByText('Precinct Ballot Tally Report Mock Preview');
 });

@@ -1,6 +1,5 @@
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { Logger, fakeLogger } from '@votingworks/logging';
-import { buildSimpleMockTallyReportResults } from '@votingworks/utils';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import {
   FullElectionTallyReportScreen,
@@ -19,21 +18,21 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  delete window.kiosk;
   apiMock.assertComplete();
 });
 
 test('displays report', async () => {
-  const { election, electionDefinition } = electionFamousNames2021Fixtures;
+  const { electionDefinition } = electionFamousNames2021Fixtures;
   apiMock.expectGetCastVoteRecordFileMode('official');
-  apiMock.expectGetScannerBatches([]);
-  apiMock.expectGetResultsForTallyReports(
-    {
+  apiMock.setPrinterStatus({ connected: true });
+  apiMock.expectGetTallyReportPreview({
+    reportSpec: {
       filter: {},
       groupBy: {},
+      includeSignatureLines: true,
     },
-    [buildSimpleMockTallyReportResults({ election, scannedBallotCount: 11 })]
-  );
+    pdfContent: 'Full Election Tally Report Mock Preview',
+  });
 
   renderInAppContext(<FullElectionTallyReportScreen />, {
     electionDefinition,
@@ -43,16 +42,13 @@ test('displays report', async () => {
     isOfficialResults: true,
   });
 
+  await screen.findByText('Full Election Tally Report Mock Preview');
+
   screen.getByRole('heading', { name: TITLE });
   expect(screen.getByRole('link', { name: 'Reports' })).toHaveAttribute(
     'href',
     '/reports'
   );
 
-  await screen.findByTestId('tally-report');
-  screen.getByText('Official Lincoln Municipal General Election Tally Report');
-  expect(screen.getByTestId('total-ballot-count')).toHaveTextContent('11');
-
-  // for the full election tally report only, we display the "Certification Signatures" section
-  screen.getByText('Certification Signatures:');
+  screen.getButton('Export CDF Report');
 });
