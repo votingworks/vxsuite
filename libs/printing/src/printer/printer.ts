@@ -1,11 +1,16 @@
 import { assertDefined } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { rootDebug } from '../utils/debug';
 import { getConnectedDeviceUris } from './device_uri';
 import { configurePrinter } from './configure';
 import { Printer } from './types';
 import { print as printData } from './print';
 import { getPrinterConfig } from './supported';
+import { MockFilePrinter } from './mocks/file_printer';
 
 const debug = rootDebug.extend('manager');
 
@@ -14,6 +19,11 @@ interface PrinterDevice {
 }
 
 export function detectPrinter(logger: Logger): Printer {
+  // Mock USB drives for development and integration tests
+  if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_PRINTER)) {
+    return new MockFilePrinter();
+  }
+
   const printerDevice: PrinterDevice = {};
 
   return {

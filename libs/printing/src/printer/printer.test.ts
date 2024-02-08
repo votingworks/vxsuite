@@ -1,7 +1,21 @@
 import { mockFunction } from '@votingworks/test-utils';
 import { LogEventId, fakeLogger } from '@votingworks/logging';
+import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
 import { detectPrinter } from './printer';
 import { BROTHER_THERMAL_PRINTER_CONFIG, HP_LASER_PRINTER_CONFIG } from '.';
+import { MockFilePrinter } from './mocks/file_printer';
+
+const featureFlagMock = getFeatureFlagMock();
+jest.mock('@votingworks/utils', () => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+      featureFlagMock.isEnabled(flag),
+  };
+});
 
 const mockConfigurePrinter = mockFunction('configurePrinter');
 jest.mock('./configure', (): typeof import('./configure') => ({
@@ -95,4 +109,13 @@ test('status and configuration', async () => {
       uri: supportedPrinterUri1,
     }
   );
+});
+
+test('uses mock file printer when feature flag is set', () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_PRINTER
+  );
+
+  const printer = detectPrinter(fakeLogger());
+  expect(printer).toBeInstanceOf(MockFilePrinter);
 });
