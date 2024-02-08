@@ -5,13 +5,11 @@ import {
   P,
   appStrings,
 } from '@votingworks/ui';
-import { DisplaySettingsButton } from '@votingworks/mark-flow-ui';
 import { CenteredPageLayout } from '../components/centered_page_layout';
 
 export function BallotSuccessfullyCastPage(): JSX.Element {
-  const settingsButton = <DisplaySettingsButton />;
   return (
-    <CenteredPageLayout voterFacing buttons={settingsButton}>
+    <CenteredPageLayout voterFacing>
       <FullScreenIconWrapper>
         <Icons.Done color="success" />
       </FullScreenIconWrapper>

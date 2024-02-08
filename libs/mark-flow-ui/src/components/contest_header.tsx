@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import {
+  AudioOnly,
   Caption,
   H2,
   NumberString,
@@ -28,22 +29,20 @@ const Container = styled.div`
   padding: 0.25rem 0.5rem 0.5rem;
 `;
 
-const ContestInfo = styled.div`
-  display: flex;
-  flex-direction: row-reverse;
-  gap: 0.5rem;
-  justify-content: space-between;
-`;
-
-function Breadcrumbs(props: BreadcrumbMetadata) {
+export function Breadcrumbs(props: BreadcrumbMetadata): React.ReactNode {
   const { ballotContestCount, contestNumber } = props;
 
   return (
     <Caption noWrap>
       {appStrings.labelContestNumber()}{' '}
-      <NumberString weight="bold" value={contestNumber} /> |{' '}
-      {appStrings.labelTotalContests()}{' '}
-      <NumberString weight="bold" value={ballotContestCount} />{' '}
+      <NumberString weight="bold" value={contestNumber} />
+      {ballotContestCount && (
+        <React.Fragment>
+          {' '}
+          | {appStrings.labelTotalContests()}{' '}
+          <NumberString weight="bold" value={ballotContestCount} />{' '}
+        </React.Fragment>
+      )}
     </Caption>
   );
 }
@@ -54,12 +53,21 @@ export function ContestHeader(props: ContestHeaderProps): JSX.Element {
   return (
     <Container id="contest-header">
       <ReadOnLoad>
-        <ContestInfo>
-          {breadcrumbs && <Breadcrumbs {...breadcrumbs} />}
+        {/*
+         * NOTE: This is visually rendered elsewhere in the screen footer, but
+         * needs to be spoken on contest navigation for the benefit of
+         * vision-impaired voters:
+         */}
+        {breadcrumbs && (
+          <AudioOnly>
+            <Breadcrumbs {...breadcrumbs} />
+          </AudioOnly>
+        )}
+        <div>
           <Caption weight="semiBold">
             {electionStrings.districtName(district)}
           </Caption>
-        </ContestInfo>
+        </div>
         <div>
           <H2 as="h1">{electionStrings.contestTitle(contest)}</H2>
         </div>

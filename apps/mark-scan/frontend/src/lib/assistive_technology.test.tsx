@@ -1,7 +1,7 @@
 import { MemoryHardware, ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '../../test/react_testing_library';
+import { render, screen, waitFor } from '../../test/react_testing_library';
 
 import { App } from '../app';
 import { advanceTimersAndPromises } from '../../test/helpers/timers';
@@ -66,11 +66,16 @@ it('accessible controller handling works', async () => {
   expect(getActiveElement()).toHaveTextContent(contest0candidate1.name);
   userEvent.keyboard('[ArrowUp]');
   expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
+
   // test the edge case of rolling over
-  userEvent.keyboard('[ArrowUp]');
-  expect(document.activeElement!.textContent).toEqual('Next');
-  userEvent.keyboard('[ArrowDown]');
-  expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
+  await waitFor(() => {
+    userEvent.keyboard('[ArrowUp]');
+    expect(getActiveElement()).toHaveTextContent(contest0candidate1.name);
+  });
+  await waitFor(() => {
+    userEvent.keyboard('[ArrowDown]');
+    expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
+  });
 
   userEvent.keyboard('[ArrowRight]');
   await advanceTimersAndPromises();

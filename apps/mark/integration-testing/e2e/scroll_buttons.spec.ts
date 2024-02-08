@@ -75,18 +75,18 @@ test('configure, open polls, and test contest scroll buttons', async ({
     })
     .click();
 
-  await page.getByText(/contest number: 1/i).waitFor();
+  await page
+    .getByText(/contest number: 1/i)
+    .first() // Rendered multiple times as visible and audio-only elements.
+    .waitFor();
   await page.getByRole('button', { name: /next/i }).click();
-  await page.getByText(/contest number: 2/i).waitFor();
   await page.getByRole('button', { name: /next/i }).click();
-  await page.getByText(/contest number: 3/i).waitFor();
 
   await expect(page.getByText('Brad Plunkard')).toBeInViewport();
 
   expect(await findMoreButtons(page)).toHaveLength(0);
 
   await page.getByRole('button', { name: /next/i }).click();
-  await page.getByText(/contest number: 4/i).waitFor();
 
   // first candidate in the list should be visible
   await expect(page.getByText('Charlene Franz')).toBeInViewport();

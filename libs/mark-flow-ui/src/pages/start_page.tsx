@@ -2,7 +2,6 @@
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import styled from 'styled-components';
 import {
-  Screen,
   Button,
   appStrings,
   AudioOnly,
@@ -18,18 +17,8 @@ import {
   PrecinctId,
 } from '@votingworks/types';
 import { ElectionInfo } from '../components/election_info';
-import { DisplaySettingsButton } from '../components/display_settings_button';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
-
-const Body = styled.div`
-  align-items: center;
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  gap: 1rem;
-  justify-content: center;
-  padding: 0.5rem;
-`;
+import { VoterScreen } from '../components/voter_screen';
 
 const ElectionInfoContainer = styled.div`
   @media (orientation: portrait) {
@@ -45,16 +34,6 @@ const StartVotingButtonContainer = styled.div`
 const StartVotingButton = styled(Button)`
   font-size: 1.2rem;
   line-height: 2rem;
-`;
-
-const Footer = styled.div`
-  align-items: center;
-  border-top: ${(p) => p.theme.sizes.bordersRem.thick}rem solid
-    ${(p) => p.theme.colors.outline};
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  padding: 0.5rem;
 `;
 
 export interface StartPageProps {
@@ -96,26 +75,21 @@ export function StartPage(props: StartPageProps): JSX.Element {
   );
 
   return (
-    <Screen>
-      <Body>
-        <ReadOnLoad>
-          <ElectionInfoContainer>
-            <ElectionInfo
-              electionDefinition={electionDefinition}
-              ballotStyleId={ballotStyleId}
-              precinctSelection={singlePrecinctSelectionFor(precinctId)}
-              contestCount={contests.length}
-            />
-          </ElectionInfoContainer>
-          <AudioOnly>{appStrings.instructionsBmdBallotNavigation()}</AudioOnly>
-        </ReadOnLoad>
-        <StartVotingButtonContainer>
-          {startVotingButton}
-        </StartVotingButtonContainer>
-      </Body>
-      <Footer>
-        <DisplaySettingsButton />
-      </Footer>
-    </Screen>
+    <VoterScreen centerContent padded>
+      <ReadOnLoad>
+        <ElectionInfoContainer>
+          <ElectionInfo
+            electionDefinition={electionDefinition}
+            ballotStyleId={ballotStyleId}
+            precinctSelection={singlePrecinctSelectionFor(precinctId)}
+            contestCount={contests.length}
+          />
+        </ElectionInfoContainer>
+        <AudioOnly>{appStrings.instructionsBmdBallotNavigation()}</AudioOnly>
+      </ReadOnLoad>
+      <StartVotingButtonContainer>
+        {startVotingButton}
+      </StartVotingButtonContainer>
+    </VoterScreen>
   );
 }
