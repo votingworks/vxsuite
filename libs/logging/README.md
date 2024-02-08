@@ -101,20 +101,31 @@ try {
 
 ```rs
 use vx_logging::{
-    print_log, set_app_name,
-    types::{EventType, Log},
+    log, set_app_name,
     Disposition, EventId,
+    EventType, Log,
 };
-set_app_name("VxAppName".to_string());
 
-fn do_something() {
-  // ...
-  print_log(Log {
-      event_id: EventId::ImportDataComplete,
-      event_type: EventType::UserAction,
-      disposition: Disposition::Success,
-      ..Default::default()
-  });
+// run this once at the start of the application
+set_app_name("VxAppName");
+
+fn import_something(file_name: &PathBuf) {
+    log!(EventId::ImportDataInit, "starting to import some data from file: {file_name}");
+
+    match do_import(file_name) {
+        Ok(_) => log!(
+            event_id: EventId::ImportDataComplete,
+            event_type: EventType::UserAction,
+            disposition: Disposition::Success,
+            message: format!("Imported data from file: {file_name}"),
+        ),
+        Err(e) => log!(
+            event_id: EventId::ImportDataComplete,
+            event_type: EventType::UserAction,
+            disposition: Disposition::Failure,
+            message: format!("Error importing data from file: {file_name} ({e})"),
+        ),
+    }
 }
 ```
 

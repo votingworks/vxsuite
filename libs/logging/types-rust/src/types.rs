@@ -61,7 +61,7 @@ impl Default for Log {
             user: User::System,
             event_id: EventId::Unspecified,
             event_type: EventType::SystemStatus,
-            message: "".to_string(),
+            message: String::new(),
             disposition: Disposition::NA,
         }
     }
