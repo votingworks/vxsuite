@@ -1,6 +1,10 @@
 import { expect, test } from '@playwright/test';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
 import {
+  HP_LASER_PRINTER_CONFIG,
+  getMockFilePrinterHandler,
+} from '@votingworks/printing';
+import {
   SCANNER_RESULTS_FOLDER,
   generateElectionBasedSubfolderName,
 } from '@votingworks/utils';
@@ -10,7 +14,7 @@ import {
 } from '@votingworks/fixtures';
 import { readFileSync, readdirSync } from 'fs';
 import { join } from 'path';
-import { assertDefined } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import { zipFile } from '@votingworks/test-utils';
 import { ElectionPackageFileName } from '@votingworks/types';
 import {
@@ -19,13 +23,22 @@ import {
   logInAsSystemAdministrator,
   logOut,
 } from './support/auth';
+import {
+  PAGE_SCROLL_DELTA_Y,
+  pdfToText,
+  replaceLineBreaks,
+  replaceReportDates,
+} from './support/pdf';
 
 test.beforeEach(async ({ page }) => {
   await forceLogOutAndResetElectionDefinition(page);
+  getMockFilePrinterHandler().cleanup();
+  getMockFileUsbDriveHandler().cleanup();
 });
 
 test('viewing and exporting reports', async ({ page }) => {
   const usbHandler = getMockFileUsbDriveHandler();
+  const printerHandler = getMockFilePrinterHandler();
   const electionDefinition = electionTwoPartyPrimaryDefinition;
   const { election, electionHash, electionData } = electionDefinition;
   const electionPackage = await zipFile({
@@ -80,28 +93,34 @@ test('viewing and exporting reports', async ({ page }) => {
   await expect(page.getByText('Unofficial Tally Reports')).toBeVisible();
   await page.getByText('Full Election Tally Report').click();
 
-  // Check Preview
-  const reportTitles = [
-    ['Unofficial Mammal Party Example Primary Election Tally Report', '56'],
-    ['Unofficial Fish Party Example Primary Election Tally Report', '56'],
-    [
-      'Unofficial Example Primary Election Nonpartisan Contests Tally Report',
-      '112',
-    ],
-  ];
-  for (const [title, totalBallotCount] of reportTitles) {
-    const section = page.locator('section', { hasText: title });
-    await expect(section).toBeVisible();
-    await expect(section.getByTestId('total-ballot-count')).toHaveText(
-      totalBallotCount
-    );
-  }
+  // Check pagination
+  await page.getByText('Page: 1/3').waitFor();
+  await page.getByTestId('pdf-scroller').click();
+  await page.mouse.wheel(0, PAGE_SCROLL_DELTA_Y);
+  await page.getByText('Page: 2/3').waitFor();
+  await page.mouse.wheel(0, PAGE_SCROLL_DELTA_Y);
+  await page.getByText('Page: 3/3').waitFor();
 
-  // Check CSV Export
-  await page.getByRole('button', { name: 'Export Report CSV' }).click();
-  await page.getByText('Save Results').waitFor();
+  // Check Print
+  await page.getByRole('button', { name: 'Print Report' }).click();
+  await page.getByText('Please connect the printer.').waitFor();
+  printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  await page.getByText('You may continue printing.').waitFor();
+  await page.getByRole('button', { name: 'Continue' }).click();
+  await page.getByText('Printing').waitFor();
+  await expect(page.getByText('Printing')).toHaveCount(0);
+
+  const printPath = printerHandler.getLastPrintPath();
+  assert(printPath !== undefined);
+  expect(replaceReportDates(await pdfToText(printPath))).toMatchSnapshot({
+    name: 'full-election-tally-report.pdf.txt',
+  });
+
+  // Check PDF Export
+  await page.getByRole('button', { name: 'Export Report PDF' }).click();
+  await page.getByText('Save Tally Report').waitFor();
   await page.getByRole('button', { name: 'Save', exact: true }).click();
-  await page.getByText('Results Saved').waitFor();
+  await page.getByText('Tally Report Saved').waitFor();
   await page.getByRole('button', { name: 'Close' }).click();
 
   const exportedReportDirectory = join(
@@ -109,10 +128,28 @@ test('viewing and exporting reports', async ({ page }) => {
     electionDirectory,
     'reports'
   );
-  const exportedReportFilename = readdirSync(exportedReportDirectory)[0];
+  const exportedPdfFilename = readdirSync(exportedReportDirectory).filter(
+    (file) => file.endsWith('.pdf')
+  )[0];
   expect(
-    readFileSync(join(exportedReportDirectory, exportedReportFilename))
-  ).toMatchSnapshot();
+    replaceReportDates(
+      await pdfToText(join(exportedReportDirectory, exportedPdfFilename))
+    )
+  ).toMatchSnapshot({ name: 'full-election-tally-report.pdf.txt' });
+
+  // Check CSV Export
+  await page.getByRole('button', { name: 'Export Report CSV' }).click();
+  await page.getByText('Save Tally Report').waitFor();
+  await page.getByRole('button', { name: 'Save', exact: true }).click();
+  await page.getByText('Tally Report Saved').waitFor();
+  await page.getByRole('button', { name: 'Close' }).click();
+
+  const exportedCsvFilename = readdirSync(exportedReportDirectory).filter(
+    (file) => file.endsWith('.csv')
+  )[0];
+  expect(
+    readFileSync(join(exportedReportDirectory, exportedCsvFilename))
+  ).toMatchSnapshot({ name: 'full-election-tally-report.csv' });
 
   // Mark Official
   await page.getByRole('button', { name: 'Reports' }).click();
@@ -132,10 +169,17 @@ test('viewing and exporting reports', async ({ page }) => {
   ).toBeDisabled();
   await expect(page.getByText('Official Tally Reports')).toBeVisible();
 
+  // Check report shows official
   await page.getByText('Full Election Tally Report').click();
-  await page
-    .getByText('Official Mammal Party Example Primary Election Tally Report')
-    .waitFor();
+  await page.getByRole('button', { name: 'Print Report' }).click();
+  await page.getByText('Printing').waitFor();
+  await expect(page.getByText('Printing')).toHaveCount(0);
+
+  const printPathOfficial = printerHandler.getLastPrintPath();
+  assert(printPathOfficial !== undefined);
+  expect(replaceLineBreaks(await pdfToText(printPathOfficial))).toContain(
+    'Official Mammal Party Example Primary Election Tally Report'
+  );
 
   await page.getByText('Tally', { exact: true }).click();
   await expect(page.getByRole('button', { name: 'Load CVRs' })).toBeDisabled();
