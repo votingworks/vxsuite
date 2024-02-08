@@ -11,6 +11,10 @@ path = "src/main.rs"
 name = "pdi-parse-traffic"
 path = "src/parse_traffic.rs"
 
+[[bin]]
+name = "pdi-tui"
+path = "src/tui/main.rs"
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
