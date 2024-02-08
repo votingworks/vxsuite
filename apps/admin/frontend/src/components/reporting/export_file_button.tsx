@@ -1,24 +1,41 @@
 import React, { useContext, useState } from 'react';
 import { Button } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
-import { Admin, Tabulation } from '@votingworks/types';
-import path from 'path';
+import { join } from 'path';
 import { generateElectionBasedSubfolderName } from '@votingworks/utils';
+import { UseMutationResult } from '@tanstack/react-query';
+import type { ExportDataResult } from '@votingworks/admin-backend';
+import { Election } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context';
-import { exportTallyReportCsv, getCastVoteRecordFileMode } from '../../api';
+import { getCastVoteRecordFileMode } from '../../api';
 import { SaveBackendFileModal } from '../save_backend_file_modal';
-import {
-  REPORT_SUBFOLDER,
-  generateTallyReportCsvFilename,
-} from '../../utils/reporting';
+import { REPORT_SUBFOLDER } from '../../utils/reporting';
 
-export function ExportTallyReportCsvButton({
-  filter,
-  groupBy,
+export function ExportFileButton<T extends { [key: string]: unknown }>({
+  buttonText,
+  exportMutation,
+  exportParameters,
+  generateFilename,
+  fileType,
+  fileTypeTitle,
   disabled,
 }: {
-  filter: Admin.FrontendReportingFilter;
-  groupBy: Tabulation.GroupBy;
+  buttonText: string;
+  exportMutation: UseMutationResult<
+    ExportDataResult,
+    unknown,
+    T & { path: string },
+    unknown
+  >;
+  exportParameters: T;
+  generateFilename: (props: {
+    election: Election;
+    isTestMode: boolean;
+    isOfficialResults: boolean;
+    time: Date;
+  }) => string;
+  fileType: string;
+  fileTypeTitle: string;
   disabled?: boolean;
 }): JSX.Element {
   const { electionDefinition, isOfficialResults } = useContext(AppContext);
@@ -38,19 +55,17 @@ export function ExportTallyReportCsvButton({
     setExportDate(undefined);
   }
 
-  const exportResultsCsvMutation = exportTallyReportCsv.useMutation();
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const isTestMode = castVoteRecordFileModeQuery.data === 'test';
 
-  const defaultFilename = generateTallyReportCsvFilename({
+  const defaultFilename = generateFilename({
     election,
-    filter,
-    groupBy,
     isTestMode,
     isOfficialResults,
-    time: exportDate,
+    time: exportDate ?? new Date(),
   });
-  const defaultFilePath = path.join(
+
+  const defaultFilePath = join(
     generateElectionBasedSubfolderName(
       electionDefinition.election,
       electionDefinition.electionHash
@@ -62,23 +77,23 @@ export function ExportTallyReportCsvButton({
   return (
     <React.Fragment>
       <Button disabled={disabled} onPress={openModal}>
-        Export Report CSV
+        {buttonText}
       </Button>
       {isSaveModalOpen && (
         <SaveBackendFileModal
-          saveFileStatus={exportResultsCsvMutation.status}
+          saveFileStatus={exportMutation.status}
           saveFile={({ path: savePath }) =>
-            exportResultsCsvMutation.mutate({
+            exportMutation.mutate({
               path: savePath,
-              filter,
-              groupBy,
+              // eslint-disable-next-line vx/gts-spread-like-types
+              ...exportParameters,
             })
           }
-          saveFileResult={exportResultsCsvMutation.data}
-          resetSaveFileResult={exportResultsCsvMutation.reset}
+          saveFileResult={exportMutation.data}
+          resetSaveFileResult={exportMutation.reset}
           onClose={closeModal}
-          fileType="results"
-          fileTypeTitle="Results"
+          fileType={fileType}
+          fileTypeTitle={fileTypeTitle}
           defaultRelativePath={defaultFilePath}
         />
       )}
