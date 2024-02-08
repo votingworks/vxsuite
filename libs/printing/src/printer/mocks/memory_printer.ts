@@ -1,19 +1,13 @@
-import { MockFunction, mockFunction } from '@votingworks/test-utils';
 import { tmpName } from 'tmp-promise';
 import { writeFile } from 'fs/promises';
 import { rmSync } from 'fs';
 import {
   MockPrintJob,
-  PrintFunction,
   PrintProps,
   Printer,
   PrinterConfig,
+  PrinterStatus,
 } from '../types';
-
-interface MockedPrinter {
-  status: MockFunction<Printer['status']>;
-  print: PrintFunction;
-}
 
 /**
  * A mock of the UsbDrive interface. See createMockUsbDrive for details.
@@ -27,14 +21,28 @@ export interface MemoryPrinterHandler {
   cleanup(): void;
 }
 
+interface MockPrinterState {
+  status: PrinterStatus;
+  printJobHistory: MockPrintJob[];
+}
+
 /**
  * Creates a mock of the Printer interface. Stores print jobs as temporary
  * PDF files.
  */
 export function createMockPrinterHandler(): MemoryPrinterHandler {
-  const printJobs: MockPrintJob[] = [];
+  const mockPrinterState: MockPrinterState = {
+    status: {
+      connected: false,
+    },
+    printJobHistory: [],
+  };
 
   async function mockPrint(props: PrintProps): Promise<void> {
+    if (!mockPrinterState.status.connected) {
+      throw new Error('cannot print without printer connected');
+    }
+
     const { data, ...options } = props;
 
     const filename = await tmpName({
@@ -44,47 +52,44 @@ export function createMockPrinterHandler(): MemoryPrinterHandler {
 
     await writeFile(filename, data);
 
-    printJobs.push({
+    mockPrinterState.printJobHistory.push({
       filename,
       options,
     });
   }
 
-  const printer: MockedPrinter = {
-    status: mockFunction('status'),
+  const printer: Printer = {
+    status: () => Promise.resolve(mockPrinterState.status),
     print: mockPrint,
   } satisfies Printer;
-
-  printer.status.expectRepeatedCallsWith().resolves({
-    connected: false,
-  });
 
   return {
     printer,
 
     connectPrinter(config: PrinterConfig) {
-      printer.status.reset();
-      printer.status.expectRepeatedCallsWith().resolves({
+      mockPrinterState.status = {
         connected: true,
         config,
-      });
+      };
     },
 
     disconnectPrinter() {
-      printer.status.reset();
-      printer.status.expectRepeatedCallsWith().resolves({ connected: false });
+      mockPrinterState.status = {
+        connected: false,
+      };
     },
 
     getPrintJobHistory() {
-      return printJobs;
+      return mockPrinterState.printJobHistory;
     },
 
     getLastPrintPath() {
-      return printJobs[printJobs.length - 1]?.filename;
+      const { printJobHistory } = mockPrinterState;
+      return printJobHistory[printJobHistory.length - 1]?.filename;
     },
 
     cleanup() {
-      for (const printJob of printJobs) {
+      for (const printJob of mockPrinterState.printJobHistory) {
         rmSync(printJob.filename);
       }
     },
