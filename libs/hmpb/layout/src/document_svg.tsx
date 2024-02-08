@@ -50,6 +50,28 @@ export function SvgBubble({
   return <SvgRectangle {...props} />;
 }
 
+function convertNodeToSpan(node: ChildNode): React.ReactNode {
+  if (node.nodeType === node.TEXT_NODE) {
+    return node.textContent;
+  }
+  return (
+    <tspan
+      fontWeight={node.nodeName === 'b' ? 700 : undefined}
+      textDecoration={
+        node.nodeName === 'u'
+          ? 'underline'
+          : node.nodeName === 'i'
+          ? 'italic'
+          : node.nodeName === 's'
+          ? 'line-through'
+          : undefined
+      }
+    >
+      {Array.from(node.childNodes).map(convertNodeToSpan)}
+    </tspan>
+  );
+}
+
 /**
  * Given an HTML string (wrapped in <html> tags), returns an array of tspan elements
  * that apply the proper text formatting based on the HTML tags used.
@@ -58,26 +80,7 @@ function convertHtmlTagsToSpans(html: string): React.ReactNode[] {
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
   const spans = Array.from(assertDefined(doc.firstChild).childNodes).map(
-    (node, index) => {
-      return (
-        <tspan
-          // eslint-disable-next-line react/no-array-index-key
-          key={`span${index}`}
-          fontWeight={node.nodeName === 'b' ? 700 : undefined}
-          textDecoration={
-            node.nodeName === 'u'
-              ? 'underline'
-              : node.nodeName === 'i'
-              ? 'italic'
-              : node.nodeName === 's'
-              ? 'line-through'
-              : undefined
-          }
-        >
-          {node.textContent}
-        </tspan>
-      );
-    }
+    convertNodeToSpan
   );
   return spans;
 }
