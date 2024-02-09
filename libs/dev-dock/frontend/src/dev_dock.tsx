@@ -539,6 +539,13 @@ function DevDock() {
   const [isOpen, setIsOpen] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const apiClient = useApiClient();
+
+  const getMachineTypeQuery = useQuery(
+    ['getMachineType'],
+    async () => (await apiClient.getMachineType()) ?? null
+  );
+
   function onKeyDown(event: KeyboardEvent): void {
     if (event.key === 'd' && event.metaKey) {
       setIsOpen((previousIsOpen) => !previousIsOpen);

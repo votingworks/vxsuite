@@ -419,6 +419,6 @@ export function buildApp({
   const app: Application = express();
   const api = buildApi({ auth, machine, workspace, usbDrive, printer, logger });
   app.use('/api', grout.buildRouter(api, express));
-  useDevDockRouter(app, express);
+  useDevDockRouter(app, express, 'scan');
   return app;
 }

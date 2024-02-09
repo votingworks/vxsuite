@@ -18,7 +18,7 @@ import {
   electionGeneral,
 } from '@votingworks/fixtures';
 import { Server } from 'http';
-import { Api, useDevDockRouter } from './dev_dock_api';
+import { Api, MachineType, useDevDockRouter } from './dev_dock_api';
 
 const TEST_DEV_DOCK_FILE_PATH = '/tmp/dev-dock.test.json';
 
@@ -33,12 +33,12 @@ jest.mock('@votingworks/utils', () => {
 
 let server: Server;
 
-function setup() {
+function setup(machineType: MachineType = 'scan') {
   if (fs.existsSync(TEST_DEV_DOCK_FILE_PATH)) {
     fs.unlinkSync(TEST_DEV_DOCK_FILE_PATH);
   }
   const app = express();
-  useDevDockRouter(app, express, TEST_DEV_DOCK_FILE_PATH);
+  useDevDockRouter(app, express, machineType, TEST_DEV_DOCK_FILE_PATH);
   server = app.listen();
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/dock`;
@@ -162,4 +162,14 @@ test('usb drive mock endpoints', async () => {
 
   await apiClient.clearUsbDrive();
   await expect(apiClient.getUsbDriveStatus()).resolves.toEqual('removed');
+});
+
+test('machine type', async () => {
+  const { apiClient: apiClientMark } = setup('mark');
+  expect(await apiClientMark.getMachineType()).toEqual('mark');
+
+  server.close();
+
+  const { apiClient: apiClientScan } = setup('scan');
+  expect(await apiClientScan.getMachineType()).toEqual('scan');
 });

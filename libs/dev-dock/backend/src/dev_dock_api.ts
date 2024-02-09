@@ -22,6 +22,13 @@ export interface DevDockElectionInfo {
   path: string;
 }
 
+export type MachineType =
+  | 'mark'
+  | 'mark-scan'
+  | 'scan'
+  | 'central-scan'
+  | 'admin';
+
 // Convert paths relative to the VxSuite root to absolute paths
 function electionPathToAbsolute(path: string) {
   return isAbsolute(path)
@@ -53,7 +60,7 @@ function readDevDockFileContents(devDockFilePath: string): DevDockFileContents {
   ) as DevDockFileContents;
 }
 
-function buildApi(devDockFilePath: string) {
+function buildApi(devDockFilePath: string, machineType: MachineType) {
   const usbHandler = getMockFileUsbDriveHandler();
 
   return grout.createApi({
@@ -113,6 +120,10 @@ function buildApi(devDockFilePath: string) {
     clearUsbDrive(): void {
       usbHandler.clearData();
     },
+
+    getMachineType(): MachineType {
+      return machineType;
+    },
   });
 }
 
@@ -127,6 +138,7 @@ export type Api = ReturnType<typeof buildApi>;
 export function useDevDockRouter(
   app: Express.Application,
   express: typeof Express,
+  machineType: MachineType,
   /* istanbul ignore next */
   devDockFilePath: string = DEV_DOCK_FILE_PATH
 ): void {
@@ -139,7 +151,7 @@ export function useDevDockRouter(
     fs.writeFileSync(devDockFilePath, '{}');
   }
 
-  const api = buildApi(devDockFilePath);
+  const api = buildApi(devDockFilePath, machineType);
 
   // Set a default election if one is not already set
   if (!api.getElection()) {
