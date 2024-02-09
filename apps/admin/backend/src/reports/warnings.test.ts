@@ -12,6 +12,7 @@ import {
 } from '@votingworks/fixtures';
 import { Admin, ContestId, Tabulation } from '@votingworks/types';
 import {
+  BallotCountReportWarning,
   TallyReportWarning,
   getBallotCountReportWarning,
   getTallyReportWarning,
@@ -23,9 +24,11 @@ describe('getBallotCountReportWarning', () => {
       getBallotCountReportWarning({
         allCardCounts: [],
       })
-    ).toEqual({
-      type: 'no-reports-match-filter',
-    });
+    ).toEqual(
+      typedAs<BallotCountReportWarning>({
+        type: 'no-reports-match-filter',
+      })
+    );
   });
 
   test("doesn't give a warning on zero report", () => {
@@ -33,9 +36,11 @@ describe('getBallotCountReportWarning', () => {
       getBallotCountReportWarning({
         allCardCounts: [getEmptyCardCounts()],
       })
-    ).toEqual({
-      type: 'none',
-    });
+    ).toEqual(
+      typedAs<BallotCountReportWarning>({
+        type: 'none',
+      })
+    );
   });
 });
 
@@ -46,9 +51,11 @@ describe('getTallyReportWarning', () => {
         allTallyReports: [],
         election: electionTwoPartyPrimary,
       })
-    ).toEqual({
-      type: 'no-reports-match-filter',
-    });
+    ).toEqual(
+      typedAs<TallyReportWarning>({
+        type: 'no-reports-match-filter',
+      })
+    );
   });
 
   test("doesn't give a warning on zero report", () => {
@@ -63,9 +70,11 @@ describe('getTallyReportWarning', () => {
         ],
         election,
       })
-    ).toEqual({
-      type: 'none',
-    });
+    ).toEqual(
+      typedAs<TallyReportWarning>({
+        type: 'none',
+      })
+    );
   });
 
   test('does give warning when contest has votes all for one option', () => {
