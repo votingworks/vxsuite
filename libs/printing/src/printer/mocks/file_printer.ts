@@ -19,6 +19,7 @@ export const DEFAULT_MOCK_USB_DRIVE_DIR = '/tmp/mock-printer';
 export const DEV_MOCK_PRINTER_DIR = join(__dirname, '../../../dev-workspace');
 
 function getMockPrinterPath(): string {
+  // istanbul ignore next
   if (process.env.NODE_ENV === 'development') {
     return DEV_MOCK_PRINTER_DIR;
   }
