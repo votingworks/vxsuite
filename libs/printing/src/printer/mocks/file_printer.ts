@@ -119,6 +119,7 @@ export class MockFilePrinter implements Printer {
 interface MockFilePrinterHandler {
   connectPrinter: (config: PrinterConfig) => void;
   disconnectPrinter: () => void;
+  getPrinterStatus(): PrinterStatus;
   getDataPath: () => string;
   getLastPrintPath: () => Optional<string>;
   cleanup: () => void;
@@ -137,6 +138,7 @@ export function getMockFilePrinterHandler(): MockFilePrinterHandler {
         connected: false,
       });
     },
+    getPrinterStatus: () => readFromMockFile(),
     getDataPath: getMockPrinterOutputPath,
     getLastPrintPath() {
       const printPaths = readdirSync(getMockPrinterOutputPath(), {
