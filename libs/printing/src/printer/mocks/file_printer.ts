@@ -16,8 +16,13 @@ import { PrintProps, Printer, PrinterConfig, PrinterStatus } from '../types';
 export const MOCK_PRINTER_STATE_FILENAME = 'state.json';
 export const MOCK_PRINTER_OUTPUT_DIRNAME = 'prints';
 export const DEFAULT_MOCK_USB_DRIVE_DIR = '/tmp/mock-printer';
+export const DEV_MOCK_PRINTER_DIR = join(__dirname, '../../../dev-workspace');
 
 function getMockPrinterPath(): string {
+  if (process.env.NODE_ENV === 'development') {
+    return DEV_MOCK_PRINTER_DIR;
+  }
+
   return DEFAULT_MOCK_USB_DRIVE_DIR;
 }
 
