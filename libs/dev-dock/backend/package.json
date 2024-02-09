@@ -34,6 +34,7 @@
     "@votingworks/auth": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/grout": "workspace:*",
+    "@votingworks/printing": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/usb-drive": "workspace:*",
     "@votingworks/utils": "workspace:*"

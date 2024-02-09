@@ -3803,6 +3803,9 @@ importers:
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../grout
+      '@votingworks/printing':
+        specifier: workspace:*
+        version: link:../../printing
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../types

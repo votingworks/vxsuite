@@ -13,6 +13,13 @@ import {
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
+import {
+  BROTHER_THERMAL_PRINTER_CONFIG,
+  HP_LASER_PRINTER_CONFIG,
+  PrinterConfig,
+  PrinterStatus,
+  getMockFilePrinterHandler,
+} from '@votingworks/printing';
 import { execFile } from './utils';
 
 export type DevDockUserRole = Exclude<UserRole, 'cardless_voter'>;
@@ -28,6 +35,14 @@ export type MachineType =
   | 'scan'
   | 'central-scan'
   | 'admin';
+
+export const DEFAULT_PRINTERS: Record<MachineType, Optional<PrinterConfig>> = {
+  admin: HP_LASER_PRINTER_CONFIG,
+  mark: undefined, // not yet implemented
+  scan: BROTHER_THERMAL_PRINTER_CONFIG,
+  'mark-scan': undefined,
+  'central-scan': undefined,
+};
 
 // Convert paths relative to the VxSuite root to absolute paths
 function electionPathToAbsolute(path: string) {
@@ -62,6 +77,7 @@ function readDevDockFileContents(devDockFilePath: string): DevDockFileContents {
 
 function buildApi(devDockFilePath: string, machineType: MachineType) {
   const usbHandler = getMockFileUsbDriveHandler();
+  const printerHandler = getMockFilePrinterHandler();
 
   return grout.createApi({
     setElection(input: { path: string }): void {
@@ -119,6 +135,20 @@ function buildApi(devDockFilePath: string, machineType: MachineType) {
 
     clearUsbDrive(): void {
       usbHandler.clearData();
+    },
+
+    getPrinterStatus(): PrinterStatus {
+      return printerHandler.getPrinterStatus();
+    },
+
+    connectPrinter(): void {
+      const config = DEFAULT_PRINTERS[machineType];
+      assert(config);
+      printerHandler.connectPrinter(config);
+    },
+
+    disconnectPrinter(): void {
+      printerHandler.disconnectPrinter();
     },
 
     getMachineType(): MachineType {

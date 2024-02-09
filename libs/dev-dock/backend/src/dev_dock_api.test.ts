@@ -18,7 +18,14 @@ import {
   electionGeneral,
 } from '@votingworks/fixtures';
 import { Server } from 'http';
-import { Api, MachineType, useDevDockRouter } from './dev_dock_api';
+import { typedAs } from '@votingworks/basics';
+import { PrinterStatus } from '@votingworks/printing';
+import {
+  Api,
+  MachineType,
+  DEFAULT_PRINTERS,
+  useDevDockRouter,
+} from './dev_dock_api';
 
 const TEST_DEV_DOCK_FILE_PATH = '/tmp/dev-dock.test.json';
 
@@ -173,3 +180,30 @@ test('machine type', async () => {
   const { apiClient: apiClientScan } = setup('scan');
   expect(await apiClientScan.getMachineType()).toEqual('scan');
 });
+
+test.each(typedAs<MachineType[]>(['admin', 'scan']))(
+  'printer for machine type %s',
+  async (machineType) => {
+    const { apiClient } = setup(machineType);
+    await expect(apiClient.getPrinterStatus()).resolves.toEqual(
+      typedAs<PrinterStatus>({
+        connected: false,
+      })
+    );
+
+    await apiClient.connectPrinter();
+    await expect(apiClient.getPrinterStatus()).resolves.toEqual(
+      typedAs<PrinterStatus>({
+        connected: true,
+        config: DEFAULT_PRINTERS[machineType]!,
+      })
+    );
+
+    await apiClient.disconnectPrinter();
+    await expect(apiClient.getPrinterStatus()).resolves.toEqual(
+      typedAs<PrinterStatus>({
+        connected: false,
+      })
+    );
+  }
+);
