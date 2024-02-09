@@ -8,6 +8,7 @@ import {
   isIntegrationTest,
 } from '@votingworks/utils';
 import { detectUsbDrive, UsbDrive } from '@votingworks/usb-drive';
+import { Printer, detectPrinter } from '@votingworks/printing';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildApp } from './app';
@@ -24,6 +25,7 @@ export interface StartOptions {
   port: number | string;
   workspace: Workspace;
   usbDrive?: UsbDrive;
+  printer?: Printer;
 }
 
 /**
@@ -35,6 +37,7 @@ export async function start({
   port = PORT,
   workspace,
   usbDrive,
+  printer,
 }: Partial<StartOptions>): Promise<Server> {
   debug('starting server...');
   let resolvedWorkspace = workspace;
@@ -57,6 +60,7 @@ export async function start({
 
   /* c8 ignore start */
   const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
+  const resolvedPrinter = printer ?? detectPrinter(logger);
   /* c8 ignore stop */
 
   let resolvedApp = app;
@@ -79,6 +83,7 @@ export async function start({
       auth,
       logger,
       usbDrive: resolvedUsbDrive,
+      printer: resolvedPrinter,
       workspace: resolvedWorkspace,
     });
   }

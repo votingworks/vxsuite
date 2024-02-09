@@ -9,6 +9,7 @@ test('memory printer', async () => {
   const { printer } = printerHandler;
 
   expect(await printer.status()).toEqual({ connected: false });
+  await expect(printer.print({ data: Buffer.from('') })).rejects.toThrow();
 
   const config = HP_LASER_PRINTER_CONFIG;
   printerHandler.connectPrinter(config);

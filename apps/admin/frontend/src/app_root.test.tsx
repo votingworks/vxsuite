@@ -1,4 +1,4 @@
-import { MemoryHardware, NullPrinter } from '@votingworks/utils';
+import { NullPrinter } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
 import { BrowserRouter, Route } from 'react-router-dom';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
@@ -36,7 +36,6 @@ test('renders without crashing', async () => {
         render={(props) => (
           <AppRoot
             printer={new NullPrinter()}
-            hardware={MemoryHardware.buildStandard()}
             logger={new Logger(LogSource.VxAdminFrontend)}
             {...props}
           />

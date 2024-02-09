@@ -17,6 +17,8 @@ import {
 import * as grout from '@votingworks/grout';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 
+const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
+
 export type ApiClient = grout.Client<Api>;
 
 export function createApiClient(): ApiClient {
@@ -140,6 +142,18 @@ export const unprogramCard = {
         // necessary
         await queryClient.invalidateQueries(getAuthStatus.queryKey());
       },
+    });
+  },
+} as const;
+
+export const getPrinterStatus = {
+  queryKey(): QueryKey {
+    return ['getPrinterStatus'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getPrinterStatus(), {
+      refetchInterval: PRINTER_STATUS_POLLING_INTERVAL_MS,
     });
   },
 } as const;
@@ -392,21 +406,13 @@ export const getManualResultsMetadata = {
   },
 } as const;
 
-type GetCardCountsInput = QueryInput<'getCardCounts'>;
-export const getCardCounts = {
-  queryKey(input?: GetCardCountsInput): QueryKey {
-    return input ? ['getCardCounts', input] : ['getCardCounts'];
+export const getTotalBallotCount = {
+  queryKey(): QueryKey {
+    return ['getTotalBallotCount'];
   },
-  useQuery(
-    input: GetCardCountsInput = {},
-    options: { enabled: boolean } = { enabled: true }
-  ) {
+  useQuery() {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(input),
-      () => apiClient.getCardCounts(input),
-      options
-    );
+    return useQuery(this.queryKey(), () => apiClient.getTotalBallotCount());
   },
 } as const;
 
@@ -417,38 +423,6 @@ export const getScannerBatches = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getScannerBatches());
-  },
-} as const;
-
-type GetResultsForTallyReports = QueryInput<'getResultsForTallyReports'>;
-export const getResultsForTallyReports = {
-  queryKey(input?: GetResultsForTallyReports): QueryKey {
-    return input
-      ? ['getResultsForTallyReports', input]
-      : ['getResultsForTallyReports'];
-  },
-  useQuery(
-    input: GetResultsForTallyReports,
-    options: { enabled: boolean } = { enabled: true }
-  ) {
-    const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(input),
-      () => apiClient.getResultsForTallyReports(input),
-      options
-    );
-  },
-} as const;
-
-export const getElectionWriteInSummary = {
-  queryKey(): QueryKey {
-    return ['getElectionWriteInSummary'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () =>
-      apiClient.getElectionWriteInSummary()
-    );
   },
 } as const;
 
@@ -468,6 +442,82 @@ export const listPotentialElectionPackagesOnUsbDrive = {
   },
 } as const;
 
+type GetTallyReportPreviewInput = QueryInput<'getTallyReportPreview'>;
+export const getTallyReportPreview = {
+  queryKey(input?: GetTallyReportPreviewInput): QueryKey {
+    return input ? ['getTallyReportPreview', input] : ['getTallyReportPreview'];
+  },
+  useQuery(
+    input: GetTallyReportPreviewInput,
+    options: { enabled: boolean } = { enabled: true }
+  ) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      () => apiClient.getTallyReportPreview(input),
+      // We avoid caching previews because cache invalidation for reports is
+      // tricky and therefore risky. The benefit is also minimal because the
+      // backend is already caching its most expensive computations.
+      {
+        cacheTime: 0,
+        staleTime: 0,
+        refetchOnWindowFocus: false,
+        ...options,
+      }
+    );
+  },
+} as const;
+
+type GetBallotCountReportPreviewInput =
+  QueryInput<'getBallotCountReportPreview'>;
+export const getBallotCountReportPreview = {
+  queryKey(input?: GetBallotCountReportPreviewInput): QueryKey {
+    return input
+      ? ['getBallotCountReportPreview', input]
+      : ['getBallotCountReportPreview'];
+  },
+  useQuery(
+    input: GetBallotCountReportPreviewInput,
+    options: { enabled: boolean } = { enabled: true }
+  ) {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(input),
+      () => apiClient.getBallotCountReportPreview(input),
+      // We avoid caching previews because cache invalidation for reports is
+      // tricky and therefore risky. The benefit is also minimal because the
+      // backend is already caching its most expensive computations.
+      {
+        cacheTime: 0,
+        staleTime: 0,
+        refetchOnWindowFocus: false,
+        ...options,
+      }
+    );
+  },
+} as const;
+
+export const getWriteInAdjudicationReportPreview = {
+  queryKey(): QueryKey {
+    return ['getWriteInAdjudicationReportPreview'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getWriteInAdjudicationReportPreview(),
+      // We avoid caching previews because cache invalidation for reports is
+      // tricky and therefore risky. The benefit is also minimal because the
+      // backend is already caching its most expensive computations.
+      {
+        cacheTime: 0,
+        staleTime: 0,
+        refetchOnWindowFocus: false,
+      }
+    );
+  },
+} as const;
+
 // Grouped Invalidations
 
 function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
@@ -479,10 +529,8 @@ function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
     // scanner batches are generated from cast vote records
     queryClient.invalidateQueries(getScannerBatches.queryKey()),
 
-    // results endpoints relying on cast vote records (all)
-    queryClient.invalidateQueries(getCardCounts.queryKey()),
-    queryClient.invalidateQueries(getResultsForTallyReports.queryKey()),
-    queryClient.invalidateQueries(getElectionWriteInSummary.queryKey()),
+    // total ballot count may be affected
+    queryClient.invalidateQueries(getTotalBallotCount.queryKey()),
 
     // write-in queues
     queryClient.invalidateQueries(getWriteInAdjudicationQueue.queryKey()),
@@ -497,10 +545,6 @@ function invalidateWriteInQueries(queryClient: QueryClient) {
     queryClient.invalidateQueries(
       getWriteInAdjudicationQueueMetadata.queryKey()
     ),
-
-    // results endpoints relying on write-ins
-    queryClient.invalidateQueries(getResultsForTallyReports.queryKey()),
-    queryClient.invalidateQueries(getElectionWriteInSummary.queryKey()),
   ];
 
   return Promise.all(invalidations);
@@ -512,10 +556,8 @@ function invalidateManualResultsQueries(queryClient: QueryClient) {
     queryClient.invalidateQueries(getManualResults.queryKey()),
     queryClient.invalidateQueries(getManualResultsMetadata.queryKey()),
 
-    // results queries that include manual results
-    queryClient.invalidateQueries(getResultsForTallyReports.queryKey()),
-    queryClient.invalidateQueries(getCardCounts.queryKey()),
-    queryClient.invalidateQueries(getElectionWriteInSummary.queryKey()),
+    // total ballot count may be affected
+    queryClient.invalidateQueries(getTotalBallotCount.queryKey()),
   ]);
 }
 
@@ -654,17 +696,31 @@ export const adjudicateWriteIn = {
   },
 } as const;
 
+export const saveElectionPackageToUsb = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.saveElectionPackageToUsb);
+  },
+} as const;
+
+export const printTallyReport = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.printTallyReport);
+  },
+} as const;
+
+export const exportTallyReportPdf = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.exportTallyReportPdf);
+  },
+} as const;
+
 export const exportTallyReportCsv = {
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.exportTallyReportCsv);
-  },
-} as const;
-
-export const exportBallotCountReportCsv = {
-  useMutation() {
-    const apiClient = useApiClient();
-    return useMutation(apiClient.exportBallotCountReportCsv);
   },
 } as const;
 
@@ -675,10 +731,38 @@ export const exportCdfElectionResultsReport = {
   },
 } as const;
 
-export const saveElectionPackageToUsb = {
+export const printBallotCountReport = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.saveElectionPackageToUsb);
+    return useMutation(apiClient.printBallotCountReport);
+  },
+} as const;
+
+export const exportBallotCountReportPdf = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.exportBallotCountReportPdf);
+  },
+} as const;
+
+export const exportBallotCountReportCsv = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.exportBallotCountReportCsv);
+  },
+} as const;
+
+export const printWriteInAdjudicationReport = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.printWriteInAdjudicationReport);
+  },
+} as const;
+
+export const exportWriteInAdjudicationReportPdf = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.exportWriteInAdjudicationReportPdf);
   },
 } as const;
 

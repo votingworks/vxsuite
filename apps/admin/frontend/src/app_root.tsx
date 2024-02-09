@@ -1,7 +1,6 @@
 import { Logger } from '@votingworks/logging';
 import { Printer, ConverterClientType } from '@votingworks/types';
-import { Hardware, randomBallotId } from '@votingworks/utils';
-import { useDevices } from '@votingworks/ui';
+import { randomBallotId } from '@votingworks/utils';
 
 import { AppContext } from './contexts/app_context';
 import { AppRoutes } from './components/app_routes';
@@ -14,7 +13,6 @@ import {
 
 export interface Props {
   printer: Printer;
-  hardware: Hardware;
   logger: Logger;
   converter?: ConverterClientType;
   generateBallotId?: () => string;
@@ -22,13 +20,10 @@ export interface Props {
 
 export function AppRoot({
   printer,
-  hardware,
   converter,
   logger,
   generateBallotId = randomBallotId,
 }: Props): JSX.Element | null {
-  const { printer: printerInfo } = useDevices({ hardware, logger });
-
   const authStatusQuery = getAuthStatus.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const getMachineConfigQuery = getMachineConfig.useQuery();
@@ -66,7 +61,6 @@ export function AppRoot({
         auth: authStatusQuery.data,
         machineConfig: getMachineConfigQuery.data,
         hasCardReaderAttached,
-        hasPrinterAttached: !!printerInfo,
         logger,
       }}
     >

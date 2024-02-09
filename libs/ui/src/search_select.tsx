@@ -200,6 +200,7 @@ export function SearchSelect<T extends string = string>({
           // Always match longest option width
           width: 'max-content',
           minWidth: '100%',
+          zIndex: 10,
         }),
         menuList: (baseStyles) => ({
           ...baseStyles,

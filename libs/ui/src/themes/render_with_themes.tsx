@@ -110,6 +110,14 @@ export interface VxQueryFunctions {
     buttonText: string | RegExp,
     opts?: ButtonQueryOptions
   ): ReturnType<queries.FindByRole>;
+  queryButton(
+    buttonText: string | RegExp,
+    opts?: ButtonQueryOptions
+  ): ReturnType<queries.QueryByRole>;
+  queryAllButtons(
+    buttonText: string | RegExp,
+    opts?: ButtonQueryOptions
+  ): ReturnType<queries.AllByRole>;
 }
 
 /**
@@ -152,6 +160,21 @@ function getVxQueryFunctions<S extends ScopedQueryFunctions<typeof queries>>(
     },
     findButton(buttonText: string | RegExp, opts: ButtonQueryOptions = {}) {
       return scopedQueryFunctions.findByRole('button', {
+        name: buttonText,
+        hidden: opts.useSparinglyIncludeHidden,
+      });
+    },
+    queryButton(buttonText: string | RegExp, opts: ButtonQueryOptions = {}) {
+      return scopedQueryFunctions.queryByRole('button', {
+        name: buttonText,
+        hidden: opts.useSparinglyIncludeHidden,
+      });
+    },
+    queryAllButtons(
+      buttonText: string | RegExp,
+      opts: ButtonQueryOptions = {}
+    ) {
+      return scopedQueryFunctions.queryAllByRole('button', {
         name: buttonText,
         hidden: opts.useSparinglyIncludeHidden,
       });

@@ -11,27 +11,59 @@ const CertificationSignaturesContainer = styled.div`
   }
 `;
 
-const Signatures = styled.div`
+const SignatureLines = styled.div`
   display: flex;
+  gap: 0.3in;
+`;
 
-  & > div {
-    flex: 1;
-    margin-top: 2em;
-    margin-right: 0.3in;
-    border-bottom: 1px solid #000;
-    padding-bottom: 1px;
+const SignatureLine = styled.div`
+  flex: 1;
+  margin-top: 2em;
+  border-bottom: 1px solid #000;
+`;
 
-    &::before {
-      font-family: 'Noto Emoji', sans-serif;
-      font-size: 1em;
-      content: '✖️';
-    }
+const SvgContainer = styled.div`
+  width: 1.2em;
+  height: 1.2em;
+  margin-left: 2px;
 
-    &:last-child {
-      margin-right: 0;
-    }
+  svg {
+    width: 100%;
+    height: 100%;
   }
 `;
+
+function SignatureX(): JSX.Element {
+  return (
+    <SvgContainer>
+      <svg
+        width="50"
+        height="40"
+        viewBox="0 0 50 40"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <rect
+          id="forwardslash"
+          width="10"
+          height="48"
+          x="15"
+          y="-4"
+          transform="rotate(-45 20 20)"
+          fill="#000000"
+        />
+        <rect
+          id="backslash"
+          width="10"
+          height="48"
+          x="15"
+          y="-4"
+          transform="rotate(45 20 20)"
+          fill="black"
+        />
+      </svg>
+    </SvgContainer>
+  );
+}
 
 export function CertificationSignatures(): JSX.Element {
   return (
@@ -41,11 +73,17 @@ export function CertificationSignatures(): JSX.Element {
         undersigned, do hereby certify the election was conducted in accordance
         with the laws of the state.
       </p>
-      <Signatures>
-        <div />
-        <div />
-        <div />
-      </Signatures>
+      <SignatureLines>
+        <SignatureLine>
+          <SignatureX />
+        </SignatureLine>
+        <SignatureLine>
+          <SignatureX />
+        </SignatureLine>
+        <SignatureLine>
+          <SignatureX />
+        </SignatureLine>
+      </SignatureLines>
     </CertificationSignaturesContainer>
   );
 }

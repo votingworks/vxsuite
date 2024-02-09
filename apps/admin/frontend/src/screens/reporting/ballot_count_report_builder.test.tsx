@@ -3,9 +3,6 @@ import {
   electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
-import { expectPrint } from '@votingworks/test-utils';
-import { Tabulation } from '@votingworks/types';
-import { buildMockCardCounts } from '@votingworks/utils';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { screen, waitFor, within } from '../../../test/react_testing_library';
@@ -16,6 +13,7 @@ let apiMock: ApiMock;
 
 beforeEach(() => {
   apiMock = createApiMock();
+  apiMock.setPrinterStatus({ connected: true });
 });
 
 afterEach(() => {
@@ -24,33 +22,6 @@ afterEach(() => {
 
 test('happy path', async () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
-
-  function getMockCardCountList(
-    multiplier: number
-  ): Tabulation.GroupList<Tabulation.CardCounts> {
-    return [
-      {
-        precinctId: 'precinct-1',
-        partyId: '0',
-        ...buildMockCardCounts(1 * multiplier),
-      },
-      {
-        precinctId: 'precinct-1',
-        partyId: '1',
-        ...buildMockCardCounts(2 * multiplier),
-      },
-      {
-        precinctId: 'precinct-2',
-        partyId: '0',
-        ...buildMockCardCounts(3 * multiplier),
-      },
-      {
-        precinctId: 'precinct-2',
-        partyId: '1',
-        ...buildMockCardCounts(4 * multiplier),
-      },
-    ];
-  }
 
   apiMock.expectGetCastVoteRecordFileMode('test');
   apiMock.expectGetScannerBatches([]);
@@ -95,8 +66,8 @@ test('happy path', async () => {
   expect(partyCheckbox).toBeChecked();
 
   // Load Preview
-  apiMock.expectGetCardCounts(
-    {
+  apiMock.expectGetBallotCountReportPreview({
+    reportSpec: {
       filter: canonicalizeFilter({
         votingMethods: ['absentee'],
       }),
@@ -104,16 +75,14 @@ test('happy path', async () => {
         groupByPrecinct: true,
         groupByParty: true,
       }),
+      includeSheetCounts: false,
     },
-    getMockCardCountList(1)
-  );
+    pdfContent: 'Test Unofficial Absentee Ballot Ballot Count Report',
+  });
   userEvent.click(screen.getButton('Generate Report'));
 
   await screen.findByText(
     'Test Unofficial Absentee Ballot Ballot Count Report'
-  );
-  expect(screen.getByTestId('footer-ballot-count-total')).toHaveTextContent(
-    '10'
   );
 
   // Change Report Parameters
@@ -124,8 +93,8 @@ test('happy path', async () => {
   );
 
   // Refresh Preview
-  apiMock.expectGetCardCounts(
-    {
+  apiMock.expectGetBallotCountReportPreview({
+    reportSpec: {
       filter: canonicalizeFilter({
         votingMethods: ['precinct'],
       }),
@@ -133,32 +102,15 @@ test('happy path', async () => {
         groupByPrecinct: true,
         groupByParty: true,
       }),
+      includeSheetCounts: false,
     },
-    getMockCardCountList(2)
-  );
+    pdfContent: 'Test Unofficial Precinct Ballot Ballot Count Report',
+  });
   userEvent.click(screen.getByText('Generate Report'));
 
   await screen.findByText(
     'Test Unofficial Precinct Ballot Ballot Count Report'
   );
-  expect(screen.getByTestId('footer-ballot-count-total')).toHaveTextContent(
-    '20'
-  );
-  expect(screen.getByTestId('footer-ballot-count-bmd')).toHaveTextContent('20');
-  expect(
-    screen.queryByTestId('footer-ballot-count-manual')
-  ).not.toBeInTheDocument();
-
-  // Print Report
-  userEvent.click(screen.getButton('Print Report'));
-  await expectPrint((printResult) => {
-    printResult.getByText(
-      'Test Unofficial Precinct Ballot Ballot Count Report'
-    );
-    expect(
-      printResult.getByTestId('footer-ballot-count-total')
-    ).toHaveTextContent('20');
-  });
 });
 
 test('does not show party options for non-primary elections', () => {

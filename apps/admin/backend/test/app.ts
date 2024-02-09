@@ -27,6 +27,7 @@ import {
 } from '@votingworks/utils';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { writeFileSync } from 'fs';
+import { createMockPrinterHandler } from '@votingworks/printing';
 import { Api } from '../src';
 import { createWorkspace } from '../src/util/workspace';
 import { buildApp } from '../src/app';
@@ -130,11 +131,13 @@ export function buildTestEnvironment(workspaceRoot?: string) {
     })();
   const workspace = createWorkspace(resolvedWorkspaceRoot);
   const mockUsbDrive = createMockUsbDrive();
+  const mockPrinterHandler = createMockPrinterHandler();
   const app = buildApp({
     auth,
     workspace,
     logger,
     usbDrive: mockUsbDrive.usbDrive,
+    printer: mockPrinterHandler.printer,
   });
   // port 0 will bind to a random, free port assigned by the OS
   const server = app.listen();
@@ -153,5 +156,6 @@ export function buildTestEnvironment(workspaceRoot?: string) {
     app,
     apiClient,
     mockUsbDrive,
+    mockPrinterHandler,
   };
 }

@@ -1,85 +1,92 @@
-import { advancePromises, fakeKiosk } from '@votingworks/test-utils';
-
 import userEvent from '@testing-library/user-event';
-import {
-  waitFor,
-  screen,
-  within,
-  render,
-  act,
-} from '../../test/react_testing_library';
-import { PrintButton } from './print_button';
+import { waitFor, screen, within, act } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import { PrintButton } from './print_button';
 
 jest.useFakeTimers();
 
+let apiMock: ApiMock;
+
+beforeEach(() => {
+  apiMock = createApiMock();
+});
+
+afterEach(() => {
+  apiMock.assertComplete();
+});
+
 test('happy path flow', async () => {
-  window.kiosk = fakeKiosk();
   const mockPrint = jest.fn();
-  renderInAppContext(<PrintButton print={mockPrint}>Print</PrintButton>, {
-    hasPrinterAttached: true,
+  apiMock.setPrinterStatus({
+    connected: true,
   });
+  renderInAppContext(<PrintButton print={mockPrint}>Print</PrintButton>, {
+    apiMock,
+  });
+  await waitFor(() => expect(screen.getButton('Print')).not.toBeDisabled());
+
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-  userEvent.click(screen.getByRole('button', { name: 'Print' }));
-  within(screen.getByRole('alertdialog')).getByText('Printing');
+  userEvent.click(screen.getButton('Print'));
+  await within(screen.getByRole('alertdialog')).findByText('Printing');
   expect(mockPrint).toHaveBeenCalledTimes(1);
   act(() => {
     jest.advanceTimersByTime(3000);
   });
   await waitFor(() => {
-    expect(screen.queryByText('Printing')).not.toBeInTheDocument();
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
-  delete window.kiosk;
 });
 
-test('does not expect a printer attached in browser mode', async () => {
+test('prompts user to attach printer if not connected', async () => {
   const mockPrint = jest.fn();
+  apiMock.setPrinterStatus({
+    connected: false,
+  });
   renderInAppContext(<PrintButton print={mockPrint}>Print</PrintButton>, {
-    hasPrinterAttached: false,
+    apiMock,
   });
-  userEvent.click(screen.getByRole('button', { name: 'Print' }));
+  await waitFor(() => expect(screen.getButton('Print')).not.toBeDisabled());
+
+  // try printing and give up (press "Close")
+  userEvent.click(screen.getButton('Print'));
+  let modal = screen.getByRole('alertdialog');
+  within(modal).getByText('The printer is not connected.');
+  expect(mockPrint).not.toHaveBeenCalled();
+  expect(within(modal).getButton('Continue')).toBeDisabled();
+  userEvent.click(within(modal).getButton('Close'));
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+
+  // try printing and connect printer (press "Continue")
+  userEvent.click(screen.getButton('Print'));
+  modal = screen.getByRole('alertdialog');
+  expect(within(modal).getButton('Continue')).toBeDisabled();
+  apiMock.setPrinterStatus({
+    connected: true,
+  });
   await waitFor(() => {
-    expect(mockPrint).toHaveBeenCalled();
+    expect(within(modal).getButton('Continue')).not.toBeDisabled();
   });
+  userEvent.click(within(modal).getButton('Continue'));
+  await screen.findByText('Printing');
+  expect(mockPrint).toHaveBeenCalledTimes(1);
 });
 
 test('has option to not show the default progress modal', async () => {
   const mockPrint = jest.fn();
-  render(
-    <PrintButton print={mockPrint} useDefaultProgressModal={false}>
-      Print
-    </PrintButton>
-  );
-  userEvent.click(screen.getByRole('button', { name: 'Print' }));
-  expect(mockPrint).toHaveBeenCalled();
-  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-  expect(screen.queryByText('Printing')).not.toBeInTheDocument();
-
-  // to prevent test warnings for state updates after teardown
-  await advancePromises();
-});
-
-test('shows printer not connected warning', () => {
-  window.kiosk = fakeKiosk();
-  const mockPrint = jest.fn();
+  apiMock.setPrinterStatus({
+    connected: true,
+  });
   renderInAppContext(
     <PrintButton print={mockPrint} useDefaultProgressModal={false}>
       Print
     </PrintButton>,
-    { hasPrinterAttached: false }
+    { apiMock }
   );
-  userEvent.click(screen.getByRole('button', { name: 'Print' }));
-  const modal = screen.getByRole('alertdialog');
-  within(modal).getByText('The printer is not connected.');
-  expect(mockPrint).not.toHaveBeenCalled();
-  expect(
-    within(modal).queryByRole('button', { name: 'Continue' })
-  ).toBeDisabled();
-  userEvent.click(within(modal).getByRole('button', { name: 'Close' }));
+  await waitFor(() => expect(screen.getButton('Print')).not.toBeDisabled());
+
+  userEvent.click(screen.getButton('Print'));
+  expect(mockPrint).toHaveBeenCalled();
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-
-  delete window.kiosk;
+  expect(screen.queryByText('Printing')).not.toBeInTheDocument();
 });
-
-// The path in which you connect a printer and select "Continue" from the
-// PrinterNotConnectedModal is covered in app.test.tsx

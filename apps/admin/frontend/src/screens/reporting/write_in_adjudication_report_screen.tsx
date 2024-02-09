@@ -1,117 +1,56 @@
-import { useContext, useMemo } from 'react';
-import { isElectionManagerAuth } from '@votingworks/utils';
-import { assert, assertDefined } from '@votingworks/basics';
-import { LogEventId } from '@votingworks/logging';
-import {
-  printElement,
-  printElementToPdf,
-  WriteInAdjudicationReport,
-} from '@votingworks/ui';
-import { AppContext } from '../../contexts/app_context';
 import { NavigationScreen } from '../../components/navigation_screen';
-import { FileType } from '../../components/save_frontend_file_modal';
-import { PrintButton } from '../../components/print_button';
 import {
-  getCastVoteRecordFileMode,
-  getElectionWriteInSummary,
+  exportWriteInAdjudicationReportPdf,
+  getWriteInAdjudicationReportPreview,
+  printWriteInAdjudicationReport,
 } from '../../api';
 import {
   ExportActions,
-  PreviewContainer,
-  PreviewLoading,
-  PreviewReportPages,
   reportParentRoutes,
 } from '../../components/reporting/shared';
-import { ExportReportPdfButton } from '../../components/reporting/export_report_pdf_button';
+import { PrintButton } from '../../components/print_button';
+import { PdfViewer } from '../../components/reporting/pdf_viewer';
+import { ExportFileButton } from '../../components/reporting/export_file_button';
 import { generateReportFilename } from '../../utils/reporting';
 
 export const TITLE = 'Write-In Adjudication Report';
 
 export function TallyWriteInReportScreen(): JSX.Element {
-  const { electionDefinition, isOfficialResults, auth, logger } =
-    useContext(AppContext);
-  assert(electionDefinition);
-  const { election } = electionDefinition;
-  assert(isElectionManagerAuth(auth));
-  const userRole = auth.user.role;
+  const previewQuery = getWriteInAdjudicationReportPreview.useQuery();
+  const printMutation = printWriteInAdjudicationReport.useMutation();
+  const pdfExportMutation = exportWriteInAdjudicationReportPdf.useMutation();
 
-  const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
-  const writeInSummaryQuery = getElectionWriteInSummary.useQuery();
-  const isTestMode = castVoteRecordFileModeQuery.data === 'test';
-  const report = useMemo(() => {
-    if (!writeInSummaryQuery.isSuccess) return undefined;
-
-    return (
-      <WriteInAdjudicationReport
-        election={election}
-        electionWriteInSummary={writeInSummaryQuery.data}
-        isOfficial={isOfficialResults}
-        isTest={isTestMode}
-        generatedAtTime={new Date(writeInSummaryQuery.dataUpdatedAt)}
-      />
-    );
-  }, [
-    election,
-    isOfficialResults,
-    isTestMode,
-    writeInSummaryQuery.data,
-    writeInSummaryQuery.dataUpdatedAt,
-    writeInSummaryQuery.isSuccess,
-  ]);
-
-  async function printReport() {
-    assert(report);
-
-    try {
-      await printElement(report, {
-        sides: 'one-sided',
-      });
-      await logger.log(LogEventId.TallyReportPrinted, userRole, {
-        message: `User printed the write-in adjudication report.`,
-        disposition: 'success',
-      });
-    } catch (error) {
-      assert(error instanceof Error);
-      await logger.log(LogEventId.TallyReportPrinted, userRole, {
-        message: `Error in attempting to print the write-in adjudication report: ${error.message}`,
-        disposition: 'failure',
-        result: 'User shown error.',
-      });
-    }
-  }
-
-  const reportPdfFilename = generateReportFilename({
-    election,
-    filter: {},
-    groupBy: {},
-    type: 'write-in-adjudication-report',
-    isTestMode: castVoteRecordFileModeQuery.data === 'test',
-    isOfficialResults,
-    extension: 'pdf',
-    time: new Date(),
-  });
+  const isPreviewLoading = !previewQuery.isSuccess;
 
   return (
     <NavigationScreen title={TITLE} parentRoutes={reportParentRoutes}>
       <ExportActions>
-        <PrintButton disabled={!report} print={printReport} variant="primary">
+        <PrintButton
+          disabled={isPreviewLoading}
+          print={() => printMutation.mutateAsync()}
+          variant="primary"
+        >
           Print Report
         </PrintButton>{' '}
-        <ExportReportPdfButton
-          electionDefinition={electionDefinition}
-          generateReportPdf={() => printElementToPdf(assertDefined(report))}
-          defaultFilename={reportPdfFilename}
-          disabled={!report}
-          fileType={FileType.WriteInAdjudicationReport}
+        <ExportFileButton
+          buttonText="Export Report PDF"
+          exportMutation={pdfExportMutation}
+          exportParameters={{}}
+          generateFilename={(sharedFilenameProps) =>
+            generateReportFilename({
+              filter: {},
+              groupBy: {},
+              type: 'write-in-adjudication-report',
+              extension: 'pdf',
+              ...sharedFilenameProps,
+            })
+          }
+          fileType="write-in adjudication report"
+          fileTypeTitle="Write-In Adjudication Report"
+          disabled={isPreviewLoading}
         />
       </ExportActions>
-      <PreviewContainer>
-        {report ? (
-          <PreviewReportPages>{report}</PreviewReportPages>
-        ) : (
-          <PreviewLoading />
-        )}
-      </PreviewContainer>
+      <PdfViewer pdfData={previewQuery.data} />
     </NavigationScreen>
   );
 }

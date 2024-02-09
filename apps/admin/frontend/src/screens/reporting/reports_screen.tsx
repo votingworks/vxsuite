@@ -1,11 +1,7 @@
 import { useContext } from 'react';
 import pluralize from 'pluralize';
 
-import {
-  format,
-  isElectionManagerAuth,
-  getBallotCount,
-} from '@votingworks/utils';
+import { format, isElectionManagerAuth } from '@votingworks/utils';
 import { LinkButton, H2, P, Font, H3, Icons } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
@@ -14,7 +10,7 @@ import { AppContext } from '../../contexts/app_context';
 
 import { NavigationScreen } from '../../components/navigation_screen';
 import { routerPaths } from '../../router_paths';
-import { getCardCounts, getCastVoteRecordFileMode } from '../../api';
+import { getTotalBallotCount, getCastVoteRecordFileMode } from '../../api';
 import { MarkResultsOfficialButton } from '../../components/mark_official_button';
 import { OfficialResultsCard } from '../../components/official_results_card';
 
@@ -28,20 +24,18 @@ export function ReportsScreen(): JSX.Element {
   assert(isElectionManagerAuth(auth));
   assert(electionDefinition && typeof configuredAt === 'string');
 
-  const cardCountsQuery = getCardCounts.useQuery();
+  const totalBallotCountQuery = getTotalBallotCount.useQuery();
   const castVoteRecordFileModeQuery = getCastVoteRecordFileMode.useQuery();
   const statusPrefix = isOfficialResults ? 'Official' : 'Unofficial';
 
   const fileMode = castVoteRecordFileModeQuery.data;
-  const totalBallotCount = cardCountsQuery.data
-    ? getBallotCount(cardCountsQuery.data[0])
-    : 0;
 
   const electionHasWriteInContest = electionDefinition.election.contests.some(
     (c) => c.type === 'candidate' && c.allowWriteIns
   );
 
-  const ballotCountSummaryText = cardCountsQuery.isSuccess ? (
+  const totalBallotCount = totalBallotCountQuery.data ?? 0;
+  const ballotCountSummaryText = totalBallotCountQuery.isSuccess ? (
     <P>
       <Font weight="bold">
         {format.count(totalBallotCount)}

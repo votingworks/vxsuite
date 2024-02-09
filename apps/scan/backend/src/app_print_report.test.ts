@@ -1,12 +1,10 @@
-import { assert, iter } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { BROTHER_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import { pdfToImages } from '@votingworks/image-utils';
-import { readFile } from 'fs/promises';
 import { configureApp } from '../test/helpers/shared_helpers';
 import { scanBallot, withApp } from '../test/helpers/custom_helpers';
 
@@ -62,21 +60,17 @@ test('can print and re-print polls opened report', async () => {
       await apiClient.printReport();
       const initialReportPath = mockPrinterHandler.getLastPrintPath();
       assert(initialReportPath !== undefined);
-      await expect(initialReportPath).toMatchPdfSnapshot();
+      await expect(initialReportPath).toMatchPdfSnapshot({
+        customSnapshotIdentifier: 'polls-opened-report',
+      });
 
       // allows re-printing identical polls opened report
       await apiClient.printReport();
       const reprintedReportPath = mockPrinterHandler.getLastPrintPath();
       assert(reprintedReportPath !== undefined);
-      const initialReportPdfPages = await iter(
-        pdfToImages(await readFile(initialReportPath))
-      ).toArray();
-      const reprintedReportPdfPages = await iter(
-        pdfToImages(await readFile(reprintedReportPath))
-      ).toArray();
-      // compare PdfPage objects, which include image data, instead of the raw
-      // PDF file data, because that may contain extraneous metadata
-      expect(initialReportPdfPages).toEqual(reprintedReportPdfPages);
+      await expect(reprintedReportPath).toMatchPdfSnapshot({
+        customSnapshotIdentifier: 'polls-opened-report',
+      });
 
       // scan a ballot
       await scanBallot(mockScanner, apiClient, workspace.store, 0);
@@ -115,7 +109,9 @@ test('can print voting paused and voting resumed reports', async () => {
         time,
       });
       await apiClient.printReport();
-      await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot();
+      await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
+        customSnapshotIdentifier: 'voting-paused-report',
+      });
 
       // resume voting
       await apiClient.transitionPolls({
@@ -123,7 +119,9 @@ test('can print voting paused and voting resumed reports', async () => {
         time,
       });
       await apiClient.printReport();
-      await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot();
+      await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
+        customSnapshotIdentifier: 'voting-resumed-report',
+      });
     }
   );
 });
@@ -150,13 +148,15 @@ test('can tabulate results and print polls closed report', async () => {
 
       const time = new Date('2021-01-01T00:00:00.000Z').getTime();
 
-      // pause voting
+      // close polls
       await apiClient.transitionPolls({
         type: 'close_polls',
         time,
       });
       await apiClient.printReport();
-      await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot();
+      await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
+        customSnapshotIdentifier: 'polls-closed-report',
+      });
     }
   );
 });

@@ -1,12 +1,9 @@
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
-import {
-  expectPrint,
-  fakeKiosk,
-  fakePrinterInfo,
-} from '@votingworks/test-utils';
 import { fakeLogger, Logger } from '@votingworks/logging';
 
 import userEvent from '@testing-library/user-event';
+import { ok } from '@votingworks/basics';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import {
@@ -18,24 +15,18 @@ import {
   waitForElementToBeRemoved,
   within,
 } from '../../../test/react_testing_library';
+import { hackActuallyCleanUpReactModal } from '../../../test/react_modal_cleanup';
 
-let mockKiosk: jest.Mocked<KioskBrowser.Kiosk>;
 let logger: Logger;
 let apiMock: ApiMock;
 
 beforeEach(() => {
   jest.useFakeTimers();
-  mockKiosk = fakeKiosk();
-  mockKiosk.getPrinterInfo.mockResolvedValue([
-    fakePrinterInfo({ connected: true, name: 'VxPrinter' }),
-  ]);
-  window.kiosk = mockKiosk;
   logger = fakeLogger();
   apiMock = createApiMock();
 });
 
 afterAll(() => {
-  delete window.kiosk;
   apiMock.assertComplete();
 });
 
@@ -43,59 +34,40 @@ test('renders provided data', async () => {
   const { electionDefinition } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   apiMock.expectGetCastVoteRecordFileMode('official');
-  apiMock.expectGetElectionWriteInSummary({
-    contestWriteInSummaries: {
-      'Sheriff-4243fe0b': {
-        contestId: 'Sheriff-4243fe0b',
-        totalTally: 50,
-        pendingTally: 10,
-        invalidTally: 5,
-        candidateTallies: {
-          'Edward-Randolph-bf4c848a': {
-            id: 'Edward-Randolph-bf4c848a',
-            name: 'Edward Randolph',
-            tally: 20,
-          },
-          rando: {
-            id: 'rando',
-            name: 'Random Write-In',
-            tally: 15,
-            isWriteIn: true,
-          },
-        },
-      },
-    },
-  });
+  apiMock.setPrinterStatus({ connected: true });
+  apiMock.expectGetWriteInAdjudicationReportPreview(
+    'Mock Write-In Adjudication Report'
+  );
   renderInAppContext(<TallyWriteInReportScreen />, {
     electionDefinition,
     logger,
     apiMock,
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
+  await screen.findByText('Mock Write-In Adjudication Report');
 
-  screen.getByRole('heading', { name: TITLE });
+  await screen.findByRole('heading', { name: TITLE });
   expect(screen.getByRole('link', { name: 'Reports' })).toHaveAttribute(
     'href',
     '/reports'
   );
 
-  const report = await screen.findByTestId('write-in-tally-report');
-  within(report).getByText(
-    'Unofficial General Election Write‑In Adjudication Report'
-  );
-  expect(
-    within(report).getByText('Random Write-In').closest('tr')!
-  ).toHaveTextContent('15');
+  apiMock.apiClient.printWriteInAdjudicationReport.expectCallWith().resolves();
+  userEvent.click(screen.getButton('Print Report'));
+  const printModal = await screen.findByRole('alertdialog');
+  await waitForElementToBeRemoved(printModal);
+  await hackActuallyCleanUpReactModal();
 
-  userEvent.click(screen.getByText('Print Report'));
-  await expectPrint((printed) => {
-    printed.getByText(
-      'Unofficial General Election Write‑In Adjudication Report'
-    );
-    expect(
-      printed.getByText('Random Write-In').closest('tr')!
-    ).toHaveTextContent('15');
-  });
-  await waitForElementToBeRemoved(screen.getByRole('alertdialog'));
-
-  expect(screen.getButton('Export Report PDF')).toBeEnabled();
+  jest.setSystemTime(new Date('2021-01-01T00:00:00Z'));
+  apiMock.apiClient.exportWriteInAdjudicationReportPdf
+    .expectCallWith({
+      path: 'test-mount-point/test-ballot_general-election_ff0f661780/reports/unofficial-full-election-write-in-adjudication-report__2021-01-01_00-00-00.pdf',
+    })
+    .resolves(ok([]));
+  userEvent.click(screen.getButton('Export Report PDF'));
+  const exportModal = await screen.findByRole('alertdialog');
+  userEvent.click(within(exportModal).getButton('Save'));
+  await screen.findByText('Write-In Adjudication Report Saved');
+  userEvent.click(within(exportModal).getButton('Close'));
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 });
