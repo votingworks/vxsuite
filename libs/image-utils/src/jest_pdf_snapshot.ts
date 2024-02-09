@@ -27,9 +27,7 @@ export async function toMatchPdfSnapshot(
   const pdfContents =
     typeof received === 'string' ? await readFile(received) : received;
   const pdfPages = pdfToImages(pdfContents, { scale: 200 / 72 });
-  let pageNumber = 0;
-  for await (const { page } of pdfPages) {
-    pageNumber += 1;
+  for await (const { page, pageNumber } of pdfPages) {
     const path = tmpNameSync({ postfix: '.png' });
     await writeImageData(path, page);
     const imageBuffer = await readFile(path);
