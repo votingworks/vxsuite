@@ -56,6 +56,24 @@ export function createMockApiClient(): MockApiClient {
   return createMockClient<Api>();
 }
 
+/**
+ * Takes an API client mock function and returns a function that can be used to
+ * expect a call with a specific parameter and return a specific value, with
+ * the option to defer the resolution. Useful for testing loading states.
+ *
+ * @example
+ *
+ * const { resolve } = expectPrintTallyReport({
+ *  expectCallWith: reportSpec,
+ *  returnValue: ok([]),
+ *  defer: true,
+ * })
+ *
+ * userEvent.click(screen.getButton('Print'));
+ * await screen.findByText('Printing');
+ * resolve();
+ * await screen.findByText('Printed');
+ */
 function createDeferredMock<T, U>(
   fn: MockFunction<(callsWith: T) => Promise<U>>
 ): (params: { expectCallWith: T; returnValue: U; deferred?: boolean }) => {
