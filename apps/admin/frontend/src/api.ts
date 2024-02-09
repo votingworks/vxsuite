@@ -455,6 +455,9 @@ export const getTallyReportPreview = {
     return useQuery(
       this.queryKey(input),
       () => apiClient.getTallyReportPreview(input),
+      // We avoid caching previews because cache invalidation for reports is
+      // tricky and therefore risky. The benefit is also minimal because the
+      // backend is already caching its most expensive computations.
       {
         cacheTime: 0,
         staleTime: 0,
@@ -481,6 +484,9 @@ export const getBallotCountReportPreview = {
     return useQuery(
       this.queryKey(input),
       () => apiClient.getBallotCountReportPreview(input),
+      // We avoid caching previews because cache invalidation for reports is
+      // tricky and therefore risky. The benefit is also minimal because the
+      // backend is already caching its most expensive computations.
       {
         cacheTime: 0,
         staleTime: 0,
@@ -500,6 +506,9 @@ export const getWriteInAdjudicationReportPreview = {
     return useQuery(
       this.queryKey(),
       () => apiClient.getWriteInAdjudicationReportPreview(),
+      // We avoid caching previews because cache invalidation for reports is
+      // tricky and therefore risky. The benefit is also minimal because the
+      // backend is already caching its most expensive computations.
       {
         cacheTime: 0,
         staleTime: 0,
