@@ -111,7 +111,15 @@ export function renderDocumentToPdf(document: Document): PDFKit.PDFDocument {
 
   for (const svgPage of svgPages) {
     pdf.addPage();
-    SvgToPdf(pdf, svgPage, 0, 0);
+    SvgToPdf(pdf, svgPage, 0, 0, {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      colorCallback: (color, raw) => {
+        console.log('color', color, raw);
+        if (raw === 'black') return [[0, 0, 0, 100], 1];
+        return color;
+      },
+    });
   }
 
   return pdf;
