@@ -500,7 +500,7 @@ function PrinterMockControl() {
   const status = getPrinterStatusQuery.data ?? undefined;
 
   function onPrinterClick() {
-    if (status?.connected === true) {
+    if (status?.connected) {
       disconnectPrinterMutation.mutate();
     } else {
       connectPrinterMutation.mutate();
