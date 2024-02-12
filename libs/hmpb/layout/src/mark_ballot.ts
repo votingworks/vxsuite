@@ -8,7 +8,7 @@ import {
   WriteInCandidate,
 } from '@votingworks/types';
 import { AnyElement, Bubble, Document } from './document_types';
-import { FontStyle, FontWeights, textWidth } from './layout';
+import { BLACK, FontStyle, FontWeights, textWidth } from './layout';
 
 function mapDocument(
   document: Document,
@@ -105,7 +105,7 @@ export function markBallot({
 
         const writeInLine = find(
           element.children,
-          (child) => child.type === 'Rectangle' && child.fill === 'black'
+          (child) => child.type === 'Rectangle' && child.fill === BLACK
         );
         const fontStyle: FontStyle = {
           fontSize: 10,

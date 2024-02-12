@@ -10,6 +10,7 @@ import {
   Rectangle,
   TextBox,
 } from './document_types';
+import { BLACK } from '.';
 
 interface SvgRectangleProps extends Omit<Rectangle, 'type' | 'children'> {
   children?: React.ReactNode;
@@ -101,6 +102,7 @@ export function SvgTextBox({
           textLine.startsWith('<html>') && textLine.endsWith('</html>');
         return (
           <text
+            fill={BLACK}
             // eslint-disable-next-line react/no-array-index-key
             key={textLine + index}
             // Adjust x coordinate if textAnchor is 'end' so that the overall

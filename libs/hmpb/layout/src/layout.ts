@@ -46,6 +46,8 @@ import {
   QrCodeData,
 } from './encode_metadata';
 
+export const BLACK = 'black';
+
 const debug = makeDebug('layout');
 
 /**
@@ -381,9 +383,9 @@ export function OptionBubble({
     width: bubbleWidth,
     height: bubbleHeight,
     borderRadius: 0.07 * PPI,
-    stroke: 'black',
+    stroke: BLACK,
     strokeWidth: 0.5,
-    fill: isFilled ? 'black' : 'none',
+    fill: isFilled ? BLACK : 'none',
     gridPosition,
   };
 }
@@ -406,7 +408,7 @@ function TimingMark({
     y: center.y - markHeight / 2,
     width: markWidth,
     height: markHeight,
-    fill: 'black',
+    fill: BLACK,
   };
 }
 
@@ -597,7 +599,7 @@ function HeaderAndInstructions({
     ...gridPoint({ row: m.HEADER_ROW_HEIGHT, column: 0 }, m),
     width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH, m),
     height: gridHeight(m.INSTRUCTIONS_ROW_HEIGHT, m),
-    stroke: 'black',
+    stroke: BLACK,
     strokeWidth: 0.5,
     fill: '#ededed',
     children: [
@@ -607,7 +609,7 @@ function HeaderAndInstructions({
         ...gridPoint({ row: 0, column: 0 }, m),
         width: gridWidth(m.CONTENT_AREA_COLUMN_WIDTH, m),
         height: 2,
-        fill: 'black',
+        fill: BLACK,
       },
       TextBlock({
         ...gridPoint({ row: 0.25, column: 0.5 }, m),
@@ -685,7 +687,7 @@ function QrCode({
   width,
   height,
   qrCodeData,
-  fill = 'black',
+  fill = BLACK,
 }: {
   x: number;
   y: number;
@@ -731,7 +733,7 @@ function PlaceholderQrCode({
     y,
     width,
     height,
-    stroke: 'black',
+    stroke: BLACK,
     strokeWidth: 1,
   };
 }
@@ -883,7 +885,7 @@ export function Footer({
         ),
         height: gridHeight(m.FOOTER_ROW_HEIGHT, m),
         fill: '#ededed',
-        stroke: 'black',
+        stroke: BLACK,
         strokeWidth: 0.5,
         children: [
           // Thicker top border
@@ -895,7 +897,7 @@ export function Footer({
               m
             ),
             height: 2,
-            fill: 'black',
+            fill: BLACK,
           },
           TextBlock({
             ...gridPoint({ row: m.FOOTER_ROW_HEIGHT / 8, column: 0.5 }, m),
@@ -1131,7 +1133,7 @@ function CandidateContest({
             ),
             width: gridWidth(width - 2.25, m),
             height: m.WRITE_IN_ROW_HEIGHT * 0.5,
-            fill: 'black',
+            fill: BLACK,
           },
           {
             type: 'TextBox',
@@ -1169,7 +1171,7 @@ function CandidateContest({
       ...gridPoint({ row, column: 0 }, m),
       width: gridWidth(width, m),
       height: contestHeight,
-      stroke: 'black',
+      stroke: BLACK,
       strokeWidth: 0.5,
       children: [
         // Thicker top border
@@ -1178,7 +1180,7 @@ function CandidateContest({
           ...gridPoint({ row: 0, column: 0 }, m),
           width: gridWidth(width, m),
           height: 2,
-          fill: 'black',
+          fill: BLACK,
         },
         heading,
         ...options,
@@ -1323,7 +1325,7 @@ function BallotMeasure({
       ...gridPoint({ row, column: 0 }, m),
       width: gridWidth(width, m),
       height: contestHeight,
-      stroke: 'black',
+      stroke: BLACK,
       strokeWidth: 0.5,
       children: [
         // Thicker top border
@@ -1332,7 +1334,7 @@ function BallotMeasure({
           ...gridPoint({ row: 0, column: 0 }, m),
           width: gridWidth(width, m),
           height: 2,
-          fill: 'black',
+          fill: BLACK,
         },
         heading,
         ...options,
