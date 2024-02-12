@@ -7,6 +7,7 @@ import { LanguageCode } from './language_code';
  * spoken.
  */
 export enum ElectionStringKey {
+  BALLOT_LANGUAGE = 'ballotLanguage',
   BALLOT_STYLE_ID = 'ballotStyleId',
   CANDIDATE_NAME = 'candidateName',
   CONTEST_DESCRIPTION = 'contestDescription',

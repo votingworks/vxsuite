@@ -29,6 +29,14 @@ const ORIGINAL_ELECTION: Readonly<BallotDefinition.Election> = assertDefined(
  * key changes.
  */
 const tests: Record<ElectionStringKey, () => void> = {
+  [ElectionStringKey.BALLOT_LANGUAGE]() {
+    const uiStrings = extractCdfUiStrings(testCdfBallotDefinition);
+
+    expect(
+      uiStrings[LanguageCode.ENGLISH]?.[ElectionStringKey.BALLOT_LANGUAGE]
+    ).toBeUndefined();
+  },
+
   [ElectionStringKey.BALLOT_STYLE_ID]() {
     const uiStrings = extractCdfUiStrings({
       ...testCdfBallotDefinition,

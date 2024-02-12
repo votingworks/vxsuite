@@ -6,6 +6,7 @@ import { useCurrentLanguage } from '../hooks/use_current_language';
 import { useAvailableLanguages } from '../hooks/use_available_languages';
 import { useLanguageControls } from '../hooks/use_language_controls';
 import { Button } from '../button';
+import { electionStrings } from '../ui_strings';
 
 export function LanguageModalButton(): React.ReactNode {
   const currentLanguageCode = useCurrentLanguage();
@@ -29,11 +30,7 @@ export function LanguageModalButton(): React.ReactNode {
 
   return (
     <Button icon="Language" onPress={onPress}>
-      {/* TODO(kofi): Use a UiString from the election package to enable audio */}
-      {new Intl.DisplayNames([currentLanguageCode], {
-        type: 'language',
-        style: 'narrow',
-      }).of(currentLanguageCode)}
+      {electionStrings.ballotLanguage(currentLanguageCode)}
     </Button>
   );
 }

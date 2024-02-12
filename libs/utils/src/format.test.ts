@@ -71,3 +71,42 @@ test('formats percentages properly', () => {
   expect(format.percent(0.591, { maximumFractionDigits: 2 })).toEqual('59.1%');
   expect(format.percent(0.5999, { maximumFractionDigits: 1 })).toEqual('60%');
 });
+
+describe('languageDisplayName()', () => {
+  const { ENGLISH, SPANISH } = LanguageCode;
+
+  test('happy paths', () => {
+    expect(format.languageDisplayName({ languageCode: SPANISH })).toMatch(
+      /^español \(ee\. uu\.\)/i
+    );
+
+    expect(
+      format.languageDisplayName({
+        displayLanguageCode: ENGLISH,
+        languageCode: SPANISH,
+      })
+    ).toMatch(/^spanish \(us\)/i);
+
+    expect(
+      format.languageDisplayName({
+        displayLanguageCode: ENGLISH,
+        languageCode: SPANISH,
+        style: 'long',
+      })
+    ).toMatch(/^spanish \(united states\)/i);
+  });
+
+  test('is compatible with all Vx languages', () => {
+    for (const languageCode of Object.values(LanguageCode) as LanguageCode[]) {
+      expect(() => format.languageDisplayName({ languageCode })).not.toThrow();
+    }
+  });
+
+  test('throws for unsupported languages', () => {
+    expect(() =>
+      format.languageDisplayName({
+        languageCode: 'not-a-language' as LanguageCode,
+      })
+    ).toThrow();
+  });
+});
