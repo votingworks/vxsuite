@@ -16,8 +16,14 @@ import { PrintProps, Printer, PrinterConfig, PrinterStatus } from '../types';
 export const MOCK_PRINTER_STATE_FILENAME = 'state.json';
 export const MOCK_PRINTER_OUTPUT_DIRNAME = 'prints';
 export const DEFAULT_MOCK_USB_DRIVE_DIR = '/tmp/mock-printer';
+export const DEV_MOCK_PRINTER_DIR = join(__dirname, '../../../dev-workspace');
 
 function getMockPrinterPath(): string {
+  // istanbul ignore next
+  if (process.env.NODE_ENV === 'development') {
+    return DEV_MOCK_PRINTER_DIR;
+  }
+
   return DEFAULT_MOCK_USB_DRIVE_DIR;
 }
 
@@ -119,6 +125,7 @@ export class MockFilePrinter implements Printer {
 interface MockFilePrinterHandler {
   connectPrinter: (config: PrinterConfig) => void;
   disconnectPrinter: () => void;
+  getPrinterStatus(): PrinterStatus;
   getDataPath: () => string;
   getLastPrintPath: () => Optional<string>;
   cleanup: () => void;
@@ -137,6 +144,7 @@ export function getMockFilePrinterHandler(): MockFilePrinterHandler {
         connected: false,
       });
     },
+    getPrinterStatus: () => readFromMockFile(),
     getDataPath: getMockPrinterOutputPath,
     getLastPrintPath() {
       const printPaths = readdirSync(getMockPrinterOutputPath(), {

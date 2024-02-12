@@ -348,6 +348,6 @@ export function buildApp(
   const app: Application = express();
   const api = buildApi(auth, usbDrive, logger, workspace, stateMachine);
   app.use('/api', grout.buildRouter(api, express));
-  useDevDockRouter(app, express);
+  useDevDockRouter(app, express, 'mark-scan');
   return app;
 }

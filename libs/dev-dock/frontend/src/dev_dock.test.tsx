@@ -54,6 +54,7 @@ let mockKiosk!: jest.Mocked<KioskBrowser.Kiosk>;
 
 beforeEach(() => {
   mockApiClient = createMockClient<Api>();
+  mockApiClient.getMachineType.expectCallWith().resolves('central-scan');
   mockApiClient.getCardStatus.expectCallWith().resolves(noCardStatus);
   mockApiClient.getUsbDriveStatus.expectCallWith().resolves('removed');
   mockApiClient.getElection.expectCallWith().resolves({
@@ -82,6 +83,7 @@ test('renders nothing if dev dock is disabled', () => {
   mockApiClient.getCardStatus.reset();
   mockApiClient.getElection.reset();
   mockApiClient.getUsbDriveStatus.reset();
+  mockApiClient.getMachineType.reset();
   featureFlagMock.disableFeatureFlag(
     BooleanEnvironmentVariableName.ENABLE_DEV_DOCK
   );
@@ -93,7 +95,7 @@ test('card mock controls', async () => {
   render(<DevDock apiClient={mockApiClient} />);
 
   // Card controls should enable once status loads
-  const systemAdminControl = screen.getByRole('button', {
+  const systemAdminControl = await screen.findByRole('button', {
     name: 'System Admin',
   });
   await waitFor(() => {
@@ -175,7 +177,7 @@ test('disabled card mock controls if card mocks are disabled', async () => {
   );
   render(<DevDock apiClient={mockApiClient} />);
 
-  screen.getByText('Smart card mocks disabled');
+  await screen.findByText('Smart card mocks disabled');
   const systemAdminControl = screen.getByRole('button', {
     name: 'System Admin',
   });
@@ -196,7 +198,7 @@ test('disabled card mock controls if card mocks are disabled', async () => {
 
 test('election selector', async () => {
   render(<DevDock apiClient={mockApiClient} />);
-  const electionSelector = screen.getByRole('combobox');
+  const electionSelector = await screen.findByRole('combobox');
   await waitFor(() => {
     expect(electionSelector).toHaveValue(
       'libs/fixtures/data/electionGeneral/election.json'
@@ -225,7 +227,7 @@ test('election selector', async () => {
 
 test('USB drive controls', async () => {
   render(<DevDock apiClient={mockApiClient} />);
-  const usbDriveControl = screen.getByRole('button', {
+  const usbDriveControl = await screen.findByRole('button', {
     name: 'USB Drive',
   });
   await waitFor(() => expect(usbDriveControl).toBeEnabled());
@@ -257,7 +259,7 @@ test('disabled USB drive controls if USB drive mocks are disabled', async () => 
   );
   render(<DevDock apiClient={mockApiClient} />);
 
-  screen.getByText('USB mock disabled');
+  await screen.findByText('USB mock disabled');
   const usbDriveControl = screen.getByRole('button', {
     name: 'USB Drive',
   });
@@ -274,7 +276,7 @@ test('disabled USB drive controls if USB drive mocks are disabled', async () => 
 
 test('screenshot button', async () => {
   render(<DevDock apiClient={mockApiClient} />);
-  const screenshotButton = screen.getByRole('button', {
+  const screenshotButton = await screen.findByRole('button', {
     name: 'Capture Screenshot',
   });
 
@@ -289,4 +291,67 @@ test('screenshot button', async () => {
     expect(mockKiosk.saveAs).toHaveBeenCalled();
     expect(fileWriter.write).toHaveBeenCalledWith(screenshotBuffer);
   });
+});
+
+test('printer mock control', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_PRINTER
+  );
+
+  mockApiClient.getMachineType.reset();
+  mockApiClient.getMachineType.expectCallWith().resolves('admin');
+  mockApiClient.getPrinterStatus.expectCallWith().resolves({
+    connected: false,
+  });
+
+  render(<DevDock apiClient={mockApiClient} />);
+  const printerButton = await screen.findByRole('button', {
+    name: 'Printer',
+  });
+
+  mockApiClient.connectPrinter.expectCallWith().resolves();
+  mockApiClient.getPrinterStatus.expectCallWith().resolves({
+    connected: true,
+    config: {
+      label: 'mock',
+      vendorId: 0,
+      productId: 0,
+      baseDeviceUri: 'mock://',
+      ppd: 'mock.ppd',
+    },
+  });
+  userEvent.click(printerButton);
+  await waitFor(() => mockApiClient.assertComplete());
+
+  mockApiClient.disconnectPrinter.expectCallWith().resolves();
+  mockApiClient.getPrinterStatus.expectCallWith().resolves({
+    connected: false,
+  });
+  userEvent.click(printerButton);
+  await waitFor(() => mockApiClient.assertComplete());
+
+  featureFlagMock.disableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_PRINTER
+  );
+});
+
+test('printer mock when disabled', async () => {
+  featureFlagMock.disableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_PRINTER
+  );
+
+  mockApiClient.getMachineType.reset();
+  mockApiClient.getMachineType.expectCallWith().resolves('admin');
+  mockApiClient.getPrinterStatus.expectCallWith().resolves({
+    connected: false,
+  });
+
+  render(<DevDock apiClient={mockApiClient} />);
+  const printerButton = await screen.findByRole('button', {
+    name: 'Printer',
+  });
+
+  expect(printerButton).toBeDisabled();
+  screen.getByText('Printer mock disabled');
+  userEvent.click(printerButton);
 });

@@ -10,13 +10,18 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import styled from 'styled-components';
 import * as grout from '@votingworks/grout';
 import { assert, assertDefined, uniqueBy } from '@votingworks/basics';
-import type { Api, DevDockUserRole } from '@votingworks/dev-dock-backend';
+import type {
+  Api,
+  DevDockUserRole,
+  MachineType,
+} from '@votingworks/dev-dock-backend';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faCamera,
   faCaretDown,
   faCaretUp,
   faCircleDown,
+  faPrint,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   isFeatureFlagEnabled,
@@ -453,6 +458,79 @@ function ScreenshotControls({
   );
 }
 
+const PrinterButton = styled.button<{ isConnected: boolean }>`
+  position: relative;
+  background-color: white;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+  border: ${(props) =>
+    props.isConnected
+      ? `4px solid ${Colors.ACTIVE}`
+      : `1px solid ${Colors.BORDER}`};
+  color: ${(props) => (props.isConnected ? Colors.ACTIVE : Colors.TEXT)};
+  &:disabled {
+    color: ${Colors.DISABLED};
+    border-color: ${Colors.DISABLED};
+  }
+`;
+
+const APPS_WITH_PRINTER: MachineType[] = ['admin', 'scan'];
+
+function PrinterMockControl() {
+  const queryClient = useQueryClient();
+  const apiClient = useApiClient();
+  const getPrinterStatusQuery = useQuery(['getPrinterStatus'], () =>
+    apiClient.getPrinterStatus()
+  );
+  const connectPrinterMutation = useMutation(apiClient.connectPrinter, {
+    onSuccess: async () =>
+      await queryClient.invalidateQueries(['getPrinterStatus']),
+  });
+  const disconnectPrinterMutation = useMutation(apiClient.disconnectPrinter, {
+    onSuccess: async () =>
+      await queryClient.invalidateQueries(['getPrinterStatus']),
+  });
+
+  const status = getPrinterStatusQuery.data ?? undefined;
+
+  function onPrinterClick() {
+    if (status?.connected) {
+      disconnectPrinterMutation.mutate();
+    } else {
+      connectPrinterMutation.mutate();
+    }
+  }
+
+  const isFeatureEnabled = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.USE_MOCK_PRINTER
+  );
+
+  const disabled = !isFeatureEnabled || !getPrinterStatusQuery.isSuccess;
+
+  const isConnected = status?.connected === true;
+  return (
+    <PrinterButton
+      onClick={onPrinterClick}
+      isConnected={isConnected}
+      disabled={disabled}
+      aria-label="Printer"
+    >
+      <FontAwesomeIcon icon={faPrint} size="2xl" />
+      {!isFeatureEnabled && (
+        <UsbMocksDisabledMessage>
+          <p>Printer mock disabled</p>
+        </UsbMocksDisabledMessage>
+      )}
+    </PrinterButton>
+  );
+}
+
 const Container = styled.div`
   position: fixed;
   top: 0;
@@ -539,6 +617,13 @@ function DevDock() {
   const [isOpen, setIsOpen] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const apiClient = useApiClient();
+
+  const getMachineTypeQuery = useQuery(
+    ['getMachineType'],
+    async () => (await apiClient.getMachineType()) ?? null
+  );
+
   function onKeyDown(event: KeyboardEvent): void {
     if (event.key === 'd' && event.metaKey) {
       setIsOpen((previousIsOpen) => !previousIsOpen);
@@ -552,6 +637,9 @@ function DevDock() {
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
+
+  if (!getMachineTypeQuery.isSuccess) return null;
+  const machineType = getMachineTypeQuery.data;
 
   return (
     <Container ref={containerRef} className={isOpen ? '' : 'closed'}>
@@ -570,6 +658,7 @@ function DevDock() {
           </Column>
           <Column>
             <ScreenshotControls containerRef={containerRef} />
+            {APPS_WITH_PRINTER.includes(machineType) && <PrinterMockControl />}
           </Column>
         </Row>
       </Content>

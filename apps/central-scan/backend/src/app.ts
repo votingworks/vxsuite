@@ -293,7 +293,7 @@ export function buildCentralScannerApp({
     importer,
   });
   app.use('/api', grout.buildRouter(api, express));
-  useDevDockRouter(app, express);
+  useDevDockRouter(app, express, 'central-scan');
 
   const deprecatedApiRouter = express.Router();
   deprecatedApiRouter.use(express.raw());

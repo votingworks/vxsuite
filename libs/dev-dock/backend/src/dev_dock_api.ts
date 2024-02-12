@@ -13,6 +13,13 @@ import {
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
+import {
+  BROTHER_THERMAL_PRINTER_CONFIG,
+  HP_LASER_PRINTER_CONFIG,
+  PrinterConfig,
+  PrinterStatus,
+  getMockFilePrinterHandler,
+} from '@votingworks/printing';
 import { execFile } from './utils';
 
 export type DevDockUserRole = Exclude<UserRole, 'cardless_voter'>;
@@ -21,6 +28,21 @@ export interface DevDockElectionInfo {
   title: string;
   path: string;
 }
+
+export type MachineType =
+  | 'mark'
+  | 'mark-scan'
+  | 'scan'
+  | 'central-scan'
+  | 'admin';
+
+export const DEFAULT_PRINTERS: Record<MachineType, Optional<PrinterConfig>> = {
+  admin: HP_LASER_PRINTER_CONFIG,
+  mark: undefined, // not yet implemented
+  scan: BROTHER_THERMAL_PRINTER_CONFIG,
+  'mark-scan': undefined,
+  'central-scan': undefined,
+};
 
 // Convert paths relative to the VxSuite root to absolute paths
 function electionPathToAbsolute(path: string) {
@@ -53,8 +75,9 @@ function readDevDockFileContents(devDockFilePath: string): DevDockFileContents {
   ) as DevDockFileContents;
 }
 
-function buildApi(devDockFilePath: string) {
+function buildApi(devDockFilePath: string, machineType: MachineType) {
   const usbHandler = getMockFileUsbDriveHandler();
+  const printerHandler = getMockFilePrinterHandler();
 
   return grout.createApi({
     setElection(input: { path: string }): void {
@@ -113,6 +136,24 @@ function buildApi(devDockFilePath: string) {
     clearUsbDrive(): void {
       usbHandler.clearData();
     },
+
+    getPrinterStatus(): PrinterStatus {
+      return printerHandler.getPrinterStatus();
+    },
+
+    connectPrinter(): void {
+      const config = DEFAULT_PRINTERS[machineType];
+      assert(config);
+      printerHandler.connectPrinter(config);
+    },
+
+    disconnectPrinter(): void {
+      printerHandler.disconnectPrinter();
+    },
+
+    getMachineType(): MachineType {
+      return machineType;
+    },
   });
 }
 
@@ -127,6 +168,7 @@ export type Api = ReturnType<typeof buildApi>;
 export function useDevDockRouter(
   app: Express.Application,
   express: typeof Express,
+  machineType: MachineType,
   /* istanbul ignore next */
   devDockFilePath: string = DEV_DOCK_FILE_PATH
 ): void {
@@ -139,7 +181,7 @@ export function useDevDockRouter(
     fs.writeFileSync(devDockFilePath, '{}');
   }
 
-  const api = buildApi(devDockFilePath);
+  const api = buildApi(devDockFilePath, machineType);
 
   // Set a default election if one is not already set
   if (!api.getElection()) {

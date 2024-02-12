@@ -1069,6 +1069,6 @@ export function buildApp({
   const app: Application = express();
   const api = buildApi({ auth, workspace, logger, usbDrive, printer });
   app.use('/api', grout.buildRouter(api, express));
-  useDevDockRouter(app, express);
+  useDevDockRouter(app, express, 'admin');
   return app;
 }
