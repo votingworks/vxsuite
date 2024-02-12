@@ -14,6 +14,10 @@ export const AUDIO_ONLY_STYLES = css`
   width: 1px;
 `;
 
+export interface GlobalStylesProps {
+  showScrollBars?: boolean;
+}
+
 /**
  * Common global styling for VxSuite apps.
  *
@@ -24,7 +28,7 @@ export const AUDIO_ONLY_STYLES = css`
  * so that everything's centralized and we don't have to have duplicate
  * copies in each app's package.
  */
-export const GlobalStyles = createGlobalStyle`
+export const GlobalStyles = createGlobalStyle<GlobalStylesProps>`
 
 ${NORMALIZE_CSS}
 
@@ -157,9 +161,9 @@ ${NORMALIZE_CSS}
     opacity: 1;
   }
 
-  /* Hide scrollbars as Chrome on Linux displays them by default. This style also hides scrollbars when printing. */
+  /* Hide scrollbars as Chrome on Linux displays them by default. */
   ::-webkit-scrollbar {
-    display: none;
+    ${(p) => (p.showScrollBars ? '' : 'display: none;')}
   }
 
   /* TODO(kofi): Update consumers to use the newer <AudioOnly> component. */

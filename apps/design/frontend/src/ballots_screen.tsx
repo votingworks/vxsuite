@@ -25,8 +25,7 @@ import { Form, FormActionsRow, NestedTr } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { hasSplits } from './utils';
-import { BallotScreen } from './ballot_screen';
-import { paperSizeLabels } from './ballot_viewer';
+import { BallotScreen, paperSizeLabels } from './ballot_screen';
 import { TabBar, TabPanel } from './tabs';
 
 function BallotDesignForm({

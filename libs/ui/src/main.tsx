@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { assert } from '@votingworks/basics';
 
-interface Props {
+export interface MainProps {
   padded?: boolean;
   centerChild?: boolean;
   flexRow?: boolean;
@@ -11,7 +11,7 @@ interface Props {
 /**
  * The main content area of a page in the app (not including navigation).
  */
-export const Main = styled('main')<Props>`
+export const Main = styled('main')<MainProps>`
   display: ${({ centerChild, flexRow, flexColumn }) => {
     assert(
       !(flexRow && flexColumn),

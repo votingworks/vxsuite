@@ -26,6 +26,7 @@ export interface AppBaseProps {
   defaultSizeMode: SizeMode;
   defaultIsVisualModeDisabled?: boolean;
   disableFontsForTests?: boolean;
+  showScrollBars?: boolean;
   screenType?: ScreenType;
 }
 
@@ -39,6 +40,7 @@ export function AppBase(props: AppBaseProps): JSX.Element {
     defaultSizeMode,
     defaultIsVisualModeDisabled = false,
     disableFontsForTests,
+    showScrollBars = false,
     screenType = 'builtIn',
   } = props;
 
@@ -91,7 +93,7 @@ export function AppBase(props: AppBaseProps): JSX.Element {
         sizeMode={sizeMode}
         isVisualModeDisabled={isVisualModeDisabled}
       >
-        <GlobalStyles />
+        <GlobalStyles showScrollBars={showScrollBars} />
         {children}
       </VxThemeProvider>
     </DisplaySettingsManagerContext.Provider>

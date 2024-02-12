@@ -1378,6 +1378,9 @@ importers:
       react-flip-toolkit:
         specifier: ^7.1.0
         version: 7.1.0(react-dom@18.2.0)(react@18.2.0)
+      react-pdf:
+        specifier: 7.7.0
+        version: 7.7.0(@types/react@18.2.18)(react-dom@18.2.0)(react@18.2.0)
       react-router-dom:
         specifier: ^5.3.4
         version: 5.3.4(react@18.2.0)
@@ -19541,6 +19544,17 @@ packages:
       node-ensure: 0.0.0
       webpack: 4.47.0
       worker-loader: 2.0.0(webpack@4.47.0)
+    dev: false
+
+  /pdfjs-dist@3.11.174:
+    resolution: {integrity: sha512-TdTZPf1trZ8/UFu5Cx/GXB7GZM30LT+wWUNfsi6Bq8ePLnb+woNKtDymI2mxZYBpMbonNFqKmiz684DIfnd8dA==}
+    engines: {node: '>=18'}
+    optionalDependencies:
+      canvas: 2.11.2
+      path2d-polyfill: 2.0.1
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
     dev: false
 
   /pdfjs-dist@3.11.174:

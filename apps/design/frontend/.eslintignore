@@ -7,3 +7,4 @@
 *.d.ts
 *.config.js
 *.config.ts
+/public

@@ -56,7 +56,11 @@ export function App({
   apiClient?: ApiClient;
 }): JSX.Element {
   return (
-    <AppBase defaultColorMode="desktop" defaultSizeMode="desktop">
+    <AppBase
+      defaultColorMode="desktop"
+      defaultSizeMode="desktop"
+      showScrollBars
+    >
       <ErrorBoundary errorMessage={<ErrorScreen />}>
         <ApiClientContext.Provider value={apiClient}>
           <QueryClientProvider client={createQueryClient()}>
