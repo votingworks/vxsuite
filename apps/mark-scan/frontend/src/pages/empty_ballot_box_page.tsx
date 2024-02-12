@@ -11,19 +11,21 @@ import {
 } from '@votingworks/ui';
 import React from 'react';
 import styled from 'styled-components';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { AskPollWorkerPage } from './ask_poll_worker_page';
 import { confirmBallotBoxEmptied } from '../api';
 import { CenteredPageLayout } from '../components/centered_page_layout';
 
 interface Props {
   authStatus: InsertedSmartCardAuth.AuthStatus;
+  logger: Logger;
 }
 
 const ConfirmButtonWrapper = styled.div`
   padding-top: 1em;
 `;
 
-function ConfirmBallotBoxEmptied(): JSX.Element {
+function ConfirmBallotBoxEmptied({ logger }: { logger: Logger }): JSX.Element {
   const confirmBallotBoxEmptiedMutation = confirmBallotBoxEmptied.useMutation();
 
   // No translation - poll worker page
@@ -34,7 +36,10 @@ function ConfirmBallotBoxEmptied(): JSX.Element {
       <ConfirmButtonWrapper>
         <Button
           variant="primary"
-          onPress={() => confirmBallotBoxEmptiedMutation.mutate()}
+          onPress={async () => {
+            await logger.log(LogEventId.BallotBoxEmptied, 'poll_worker');
+            confirmBallotBoxEmptiedMutation.mutate();
+          }}
         >
           Yes, Ballot Box is Empty
         </Button>
@@ -43,12 +48,12 @@ function ConfirmBallotBoxEmptied(): JSX.Element {
   );
 }
 
-export function EmptyBallotBoxPage({ authStatus }: Props): JSX.Element {
+export function EmptyBallotBoxPage({ authStatus, logger }: Props): JSX.Element {
   return (
     <AskPollWorkerPage
       authStatus={authStatus}
       hideTitle
-      pollWorkerPage={<ConfirmBallotBoxEmptied />}
+      pollWorkerPage={<ConfirmBallotBoxEmptied logger={logger} />}
     >
       <React.Fragment>
         <Font align="center">

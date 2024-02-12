@@ -455,7 +455,7 @@ export function AppRoot({
     }
 
     if (stateMachineState === 'empty_ballot_box') {
-      return <EmptyBallotBoxPage authStatus={authStatus} />;
+      return <EmptyBallotBoxPage authStatus={authStatus} logger={logger} />;
     }
 
     if (isPollWorkerAuth(authStatus) || isCardlessVoterAuth(authStatus)) {
