@@ -80,6 +80,7 @@ import { PaperReloadedPage } from './pages/paper_reloaded_page';
 import { PatDeviceCalibrationPage } from './pages/pat_device_identification/pat_device_calibration_page';
 import { CastingBallotPage } from './pages/casting_ballot_page';
 import { BallotSuccessfullyCastPage } from './pages/ballot_successfully_cast_page';
+import { EmptyBallotBoxPage } from './pages/empty_ballot_box_page';
 
 interface VotingState {
   votes?: VotesDict;
@@ -367,6 +368,7 @@ export function AppRoot({
   if (computer.batteryIsLow && !computer.batteryIsCharging) {
     return <SetupPowerPage />;
   }
+
   if (authStatus.status === 'checking_pin') {
     return (
       <UnlockMachineScreen
@@ -452,6 +454,10 @@ export function AppRoot({
       return <WrongElectionScreen />;
     }
 
+    if (stateMachineState === 'empty_ballot_box') {
+      return <EmptyBallotBoxPage authStatus={authStatus} />;
+    }
+
     if (isPollWorkerAuth(authStatus) || isCardlessVoterAuth(authStatus)) {
       if (stateMachineState === 'blank_page_interpretation') {
         // Blank page interpretation handling must take priority over PollWorkerScreen.
@@ -463,24 +469,23 @@ export function AppRoot({
       if (stateMachineState === 'pat_device_connected') {
         return <PatDeviceCalibrationPage />;
       }
-    }
 
-    if (
-      (isPollWorkerAuth(authStatus) || isCardlessVoterAuth(authStatus)) &&
-      (stateMachineState ===
-        'waiting_for_invalidated_ballot_confirmation.paper_present' ||
+      if (
         stateMachineState ===
-          'waiting_for_invalidated_ballot_confirmation.paper_absent')
-    ) {
-      return (
-        <BallotInvalidatedPage
-          authStatus={authStatus}
-          paperPresent={
-            stateMachineState ===
-            'waiting_for_invalidated_ballot_confirmation.paper_present'
-          }
-        />
-      );
+          'waiting_for_invalidated_ballot_confirmation.paper_present' ||
+        stateMachineState ===
+          'waiting_for_invalidated_ballot_confirmation.paper_absent'
+      ) {
+        return (
+          <BallotInvalidatedPage
+            authStatus={authStatus}
+            paperPresent={
+              stateMachineState ===
+              'waiting_for_invalidated_ballot_confirmation.paper_present'
+            }
+          />
+        );
+      }
     }
 
     if (isPollWorkerAuth(authStatus)) {
@@ -523,12 +528,12 @@ export function AppRoot({
           ) {
             return <CastingBallotPage />;
           }
-          if (
-            stateMachineState === 'ballot_accepted' ||
-            stateMachineState === 'resetting_state_machine_after_success'
-          ) {
-            return <BallotSuccessfullyCastPage />;
-          }
+        }
+        if (
+          stateMachineState === 'ballot_accepted' ||
+          stateMachineState === 'resetting_state_machine_after_success'
+        ) {
+          return <BallotSuccessfullyCastPage />;
         }
 
         let ballotContextProviderChild = <Ballot />;

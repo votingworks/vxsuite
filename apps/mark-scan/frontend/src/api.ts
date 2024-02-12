@@ -372,6 +372,15 @@ export const confirmInvalidateBallot = {
   },
 } as const;
 
+export const confirmBallotBoxEmptied = {
+  useMutation() {
+    const apiClient = useApiClient();
+    // There are no queries to invalidate because ballot box
+    // capacity isn't exposed to the frontend.
+    return useMutation(apiClient.confirmBallotBoxEmptied);
+  },
+} as const;
+
 export const setPatDeviceIsCalibrated = {
   useMutation() {
     const apiClient = useApiClient();
