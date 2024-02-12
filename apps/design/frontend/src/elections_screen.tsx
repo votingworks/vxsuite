@@ -97,7 +97,9 @@ export function ElectionsScreen(): JSX.Element | null {
                     <td>{election.title || 'Untitled Election'}</td>
                     <td>
                       {election.date &&
-                        new Date(election.date).toLocaleDateString()}
+                        new Date(election.date).toLocaleDateString(undefined, {
+                          timeZone: 'UTC',
+                        })}
                     </td>
                     <td>{election.county.name}</td>
                     <td>{election.state}</td>
