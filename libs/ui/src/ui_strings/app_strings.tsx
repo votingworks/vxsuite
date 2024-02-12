@@ -642,6 +642,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  noteBmdBallotBoxIsFull: () => (
+    <UiString uiStringKey="noteBmdBallotBoxIsFull">
+      A poll worker must empty the full ballot box.
+    </UiString>
+  ),
+
   noteScannerReplaceFullBallotBag: () => (
     <UiString uiStringKey="noteScannerReplaceFullBallotBag">
       A poll worker must replace the full ballot bag with a new empty ballot
@@ -714,6 +720,10 @@ export const appStrings = {
     <UiString uiStringKey="titleAudioOnlyModeEnabled">
       Audio-Only Mode is Enabled
     </UiString>
+  ),
+
+  titleBallotBoxFull: () => (
+    <UiString uiStringKey="titleBallotBoxFull">Ballot Box Full</UiString>
   ),
 
   titleBallotBagFull: () => (
