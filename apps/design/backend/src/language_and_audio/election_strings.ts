@@ -40,6 +40,14 @@ type ElectionStringConfig =
   | ElectionStringConfigTranslatable;
 
 const electionStringConfigs: Record<ElectionStringKey, ElectionStringConfig> = {
+  [ElectionStringKey.BALLOT_LANGUAGE]: {
+    translatable: true,
+    translationsCanBeStoredInCdf: false,
+    customTranslationMethod: (p) =>
+      format.languageDisplayName({
+        languageCode: p.languageCode,
+      }),
+  },
   [ElectionStringKey.BALLOT_STYLE_ID]: {
     translatable: false,
   },
@@ -101,6 +109,14 @@ const electionStringExtractorFns: Record<
   ElectionStringKey,
   (election: Election) => ElectionString[]
 > = {
+  [ElectionStringKey.BALLOT_LANGUAGE]() {
+    return [
+      {
+        stringKey: ElectionStringKey.BALLOT_LANGUAGE,
+        stringInEnglish: 'English',
+      },
+    ];
+  },
   [ElectionStringKey.BALLOT_STYLE_ID](election) {
     return election.ballotStyles.map((ballotStyle) => ({
       stringKey: [ElectionStringKey.BALLOT_STYLE_ID, ballotStyle.id],

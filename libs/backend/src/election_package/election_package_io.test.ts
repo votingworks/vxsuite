@@ -179,10 +179,12 @@ test('readElectionPackageFromFile loads available ui strings', async () => {
 test('readElectionPackageFromFile loads vx election strings', async () => {
   const vxElectionStrings: UiStringsPackage = {
     [LanguageCode.ENGLISH]: {
+      [ElectionStringKey.BALLOT_LANGUAGE]: 'English',
       [ElectionStringKey.ELECTION_DATE]: 'The Day The Earth Stood Still',
       [ElectionStringKey.ELECTION_TITLE]: 'Should be overridden by CDF string',
     },
     [LanguageCode.SPANISH]: {
+      [ElectionStringKey.BALLOT_LANGUAGE]: 'Español',
       [ElectionStringKey.ELECTION_DATE]: 'El día que la Tierra se detuvo',
     },
   };
@@ -198,10 +200,12 @@ test('readElectionPackageFromFile loads vx election strings', async () => {
   const expectedCdfStrings = extractCdfUiStrings(testCdfBallotDefinition);
   const expectedUiStrings: UiStringsPackage = {
     [LanguageCode.ENGLISH]: {
+      [ElectionStringKey.BALLOT_LANGUAGE]: 'English',
       [ElectionStringKey.ELECTION_DATE]: 'The Day The Earth Stood Still',
       ...assertDefined(expectedCdfStrings[LanguageCode.ENGLISH]),
     },
     [LanguageCode.SPANISH]: {
+      [ElectionStringKey.BALLOT_LANGUAGE]: 'Español',
       [ElectionStringKey.ELECTION_DATE]: 'El día que la Tierra se detuvo',
     },
   };
