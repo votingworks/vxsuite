@@ -740,7 +740,7 @@ export const appStrings = {
 
   titleBmdAskForHelpScreen: () => (
     <UiString uiStringKey="titleBmdAskForHelpScreen">
-      Ask a Poll Worker for Help
+      Notify a Poll Worker
     </UiString>
   ),
 
