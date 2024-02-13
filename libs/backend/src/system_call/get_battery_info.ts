@@ -1,4 +1,4 @@
-import { Optional, lines } from '@votingworks/basics';
+import { lines } from '@votingworks/basics';
 import { safeParseNumber } from '@votingworks/types';
 import { createReadStream } from 'fs';
 
@@ -46,9 +46,10 @@ export async function parseBatteryInfo(
 }
 
 /**
- * Get battery info for the main system battery.
+ * Get battery info for the main system battery. If no battery info is found,
+ * returns null (react-query doesn't accept `undefined`).
  */
-export async function getBatteryInfo(): Promise<Optional<BatteryInfo>> {
+export async function getBatteryInfo(): Promise<BatteryInfo | null> {
   for (const batteryPath of ['BAT0', 'BAT1']) {
     try {
       return await parseBatteryInfo(
@@ -61,5 +62,5 @@ export async function getBatteryInfo(): Promise<Optional<BatteryInfo>> {
       // ignore missing paths
     }
   }
-  return undefined;
+  return null;
 }
