@@ -259,10 +259,14 @@ name = "controllerd"
 version = "0.1.0"
 dependencies = [
  "crc16",
+ "ctrlc",
  "num_enum",
+ "serde",
+ "serde_json",
  "serialport",
  "thiserror",
  "uinput",
+ "vx-logging",
 ]
 
 [[package]]
@@ -332,6 +336,16 @@ name = "crunchy"
 version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a81dae078cea95a014a339291cec439d2f232ebe854a9d672b796c6afafa9b7"
+
+[[package]]
+name = "ctrlc"
+version = "3.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b467862cc8610ca6fc9a1532d7777cee0804e678ab45410897b9396495994a0b"
+dependencies = [
+ "nix 0.27.1",
+ "windows-sys 0.52.0",
+]
 
 [[package]]
 name = "custom_derive"
@@ -902,6 +916,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "nix"
+version = "0.27.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2eb04e9c688eff1c89d72b407f168cf79bb9e867a9d3323ed6c01519eb9cc053"
+dependencies = [
+ "bitflags 2.4.1",
+ "cfg-if 1.0.0",
+ "libc",
+]
+
+[[package]]
 name = "num"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1019,6 +1044,15 @@ name = "paste"
 version = "1.0.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "de3145af08024dea9fa9914f381a17b8fc6034dfb00f3a84013f7ff43f29ed4c"
+
+[[package]]
+name = "patinputd"
+version = "0.1.0"
+dependencies = [
+ "ctrlc",
+ "uinput",
+ "vx-logging",
+]
 
 [[package]]
 name = "pkg-config"
