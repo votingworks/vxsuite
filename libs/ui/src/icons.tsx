@@ -100,7 +100,7 @@ function iconColor(theme: UiTheme, color?: IconColor) {
   }[color];
 }
 
-export function FaIcon(props: InnerProps): JSX.Element {
+function FaIcon(props: InnerProps): JSX.Element {
   const { pulse, spin, type, color, style = {} } = props;
   const theme = useTheme();
 
