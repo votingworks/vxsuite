@@ -264,9 +264,7 @@ export function PollWorkerScreen({
         BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
       )
     ) {
-      return (
-        <PaperHandlerHardwareCheckDisabledScreen message="Remove the poll worker card to continue." />
-      );
+      return <PaperHandlerHardwareCheckDisabledScreen />;
     }
 
     const { precinctId, ballotStyleId } = pollWorkerAuth.cardlessVoterUser;
