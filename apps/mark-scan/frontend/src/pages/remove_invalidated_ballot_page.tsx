@@ -31,6 +31,7 @@ export function RemoveInvalidatedBallotPage(props: Props): JSX.Element {
         </Button>
       }
       voterFacing={false}
+      textAlign="left"
     >
       {paperPresent ? (
         <P>Please remove the incorrect ballot.</P>
