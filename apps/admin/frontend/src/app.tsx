@@ -2,6 +2,7 @@ import { getPrinter, getConverterClientType } from '@votingworks/utils';
 import { BrowserRouter } from 'react-router-dom';
 import './App.css';
 import { LogSource, Logger } from '@votingworks/logging';
+import { BatteryLowAlert } from '@votingworks/ui';
 import { AppRoot, Props as AppRootProps } from './app_root';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
 
@@ -22,6 +23,7 @@ export function App({
         logger={logger}
       />
       <SessionTimeLimitTracker />
+      <BatteryLowAlert />
     </BrowserRouter>
   );
 }
