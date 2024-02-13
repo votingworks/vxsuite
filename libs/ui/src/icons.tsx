@@ -37,6 +37,12 @@ import {
   faFileArrowDown,
   faChevronUp,
   faChevronDown,
+  faBatteryFull,
+  faBatteryThreeQuarters,
+  faBatteryHalf,
+  faBatteryQuarter,
+  faBatteryEmpty,
+  faBolt,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -94,7 +100,7 @@ function iconColor(theme: UiTheme, color?: IconColor) {
   }[color];
 }
 
-function FaIcon(props: InnerProps): JSX.Element {
+export function FaIcon(props: InnerProps): JSX.Element {
   const { pulse, spin, type, color, style = {} } = props;
   const theme = useTheme();
 
@@ -123,6 +129,30 @@ export const Icons = {
 
   Backspace(props) {
     return <FaIcon {...props} type={faDeleteLeft} />;
+  },
+
+  BatteryFull(props) {
+    return <FaIcon {...props} type={faBatteryFull} />;
+  },
+
+  BatteryThreeQuarters(props) {
+    return <FaIcon {...props} type={faBatteryThreeQuarters} />;
+  },
+
+  BatteryHalf(props) {
+    return <FaIcon {...props} type={faBatteryHalf} />;
+  },
+
+  BatteryQuarter(props) {
+    return <FaIcon {...props} type={faBatteryQuarter} />;
+  },
+
+  BatteryEmpty(props) {
+    return <FaIcon {...props} type={faBatteryEmpty} />;
+  },
+
+  Bolt(props) {
+    return <FaIcon {...props} type={faBolt} />;
   },
 
   CaretDown(props) {

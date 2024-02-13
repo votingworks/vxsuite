@@ -17,8 +17,8 @@ import {
   useAudioContext,
 } from '../src/ui_strings/audio_context';
 import { UiStringsContextProvider } from '../src/ui_strings/ui_strings_context';
-import { render, RenderResult } from './react_testing_library';
-import { QUERY_CLIENT_DEFAULT_OPTIONS } from '../src';
+import { RenderResult, render } from './react_testing_library';
+import { QUERY_CLIENT_DEFAULT_OPTIONS, VxRenderOptions } from '../src';
 import {
   SystemCallReactQueryApi,
   createSystemCallApi,
@@ -31,7 +31,10 @@ export interface TestContext {
   getAudioContext: () => Optional<UiStringsAudioContextInterface>;
   getLanguageContext: () => Optional<LanguageContextInterface>;
   mockApiClient: jest.Mocked<ApiClient>;
-  render: (ui: React.ReactElement) => RenderResult;
+  render: (
+    ui: React.ReactElement,
+    renderOptions?: VxRenderOptions
+  ) => RenderResult;
 }
 
 export function newTestContext(
@@ -125,8 +128,8 @@ export function newTestContext(
 
   return {
     mockApiClient,
-    render: (ui) => {
-      const result = render(<Wrapper>{ui}</Wrapper>);
+    render: (ui, renderOptions) => {
+      const result = render(<Wrapper>{ui}</Wrapper>, renderOptions);
       return {
         ...result,
         rerender: (newUi) => result.rerender(<Wrapper>{newUi}</Wrapper>),
