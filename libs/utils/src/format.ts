@@ -1,3 +1,4 @@
+import { assertDefined } from '@votingworks/basics';
 import { LanguageCode } from '@votingworks/types';
 
 export const DEFAULT_LOCALE: LanguageCode = LanguageCode.ENGLISH;
@@ -70,4 +71,34 @@ export function localeDate(time?: number | Date): string {
     day: 'numeric',
     year: 'numeric',
   }).format(time);
+}
+
+export function languageDisplayName(params: {
+  languageCode: LanguageCode;
+
+  /** @default {@link params.languageCode} */
+  displayLanguageCode?: LanguageCode;
+
+  /** @default 'narrow' */
+  style?: Intl.RelativeTimeFormatStyle;
+}): string {
+  const {
+    languageCode,
+    displayLanguageCode = languageCode,
+    style = 'narrow',
+  } = params;
+
+  return assertDefined(
+    // TODO(kofi): This util doesn't currently have a comprehensive list of
+    // native language names for all languages, so probably better to find a
+    // reliably sourced list and hardcode the mappings instead.
+    // This at least works for the top 10 spoken in the US and is sufficient for
+    // cert.
+    new Intl.DisplayNames([displayLanguageCode], {
+      style,
+      type: 'language',
+      fallback: 'none',
+    }).of(languageCode),
+    `unexpected missing language display name for ${languageCode} in ${displayLanguageCode}`
+  );
 }

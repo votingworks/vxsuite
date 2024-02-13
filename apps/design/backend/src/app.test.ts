@@ -498,6 +498,8 @@ test('Election package export', async () => {
         expect(stringInLanguage).toEqual(stringInEnglish);
       } else if (stringKey === ElectionStringKey.ELECTION_DATE) {
         expect(stringInLanguage).toBeDefined();
+      } else if (stringKey === ElectionStringKey.BALLOT_LANGUAGE) {
+        expect(stringInLanguage).toBeDefined();
       } else {
         expect(stringInLanguage).toBeDefined();
         expect(stringInLanguage).toEqual(

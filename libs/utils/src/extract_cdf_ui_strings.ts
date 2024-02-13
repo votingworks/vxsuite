@@ -66,6 +66,11 @@ const extractorFns: Record<
     uiStrings: UiStringsPackage
   ) => void
 > = {
+  [ElectionStringKey.BALLOT_LANGUAGE]() {
+    // No-Op: This election string is not available via CDF.
+    // It is currently extracted directly from the
+    // `@votingworks/types/ElectionPackageFileName.VX_ELECTION_STRINGS` file.
+  },
   [ElectionStringKey.BALLOT_STYLE_ID](cdfElection, uiStrings) {
     for (const ballotStyle of assertDefined(cdfElection.Election[0])
       .BallotStyle) {
@@ -162,12 +167,10 @@ const extractorFns: Record<
     }
   },
 
-  [ElectionStringKey.ELECTION_DATE](_cdfElection, uiStrings) {
+  [ElectionStringKey.ELECTION_DATE]() {
     // No-Op: This election string is not available via CDF.
     // It is currently extracted directly from the
     // `@votingworks/types/ElectionPackageFileName.VX_ELECTION_STRINGS` file.
-
-    return uiStrings;
   },
 
   [ElectionStringKey.ELECTION_TITLE](cdfElection, uiStrings) {
