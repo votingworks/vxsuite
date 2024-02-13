@@ -16,14 +16,14 @@ To build:
 
 ```
 cd apps/mark-scan/accessible-controller
-cargo build
+make build
 ```
 
 To run:
 
 ```
-// From vxsuite root
-sudo ./target/debug/controllerd
+// From apps/mark-scan/accessible-controller
+sudo ./target/release/controllerd
 ```
 
 To test:
