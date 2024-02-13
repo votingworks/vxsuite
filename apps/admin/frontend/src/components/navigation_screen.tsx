@@ -37,11 +37,13 @@ const SYSTEM_ADMIN_NAV_ITEMS: readonly NavItem[] = [
   { label: 'Election', routerPath: routerPaths.election },
   { label: 'Smartcards', routerPath: routerPaths.smartcards },
   { label: 'Settings', routerPath: routerPaths.settings },
+  { label: 'Diagnostics', routerPath: routerPaths.hardwareDiagnostics },
 ];
 
 const SYSTEM_ADMIN_NAV_ITEMS_NO_ELECTION: readonly NavItem[] = [
   { label: 'Election', routerPath: routerPaths.election },
   { label: 'Settings', routerPath: routerPaths.settings },
+  { label: 'Diagnostics', routerPath: routerPaths.hardwareDiagnostics },
 ];
 
 const ELECTION_MANAGER_NAV_ITEMS: readonly NavItem[] = [
