@@ -57,11 +57,10 @@ function convertNodeToSpan(node: ChildNode): React.ReactNode {
   return (
     <tspan
       fontWeight={node.nodeName === 'b' ? 700 : undefined}
+      fontStyle={node.nodeName === 'i' ? 'italic' : undefined}
       textDecoration={
         node.nodeName === 'u'
           ? 'underline'
-          : node.nodeName === 'i'
-          ? 'italic'
           : node.nodeName === 's'
           ? 'line-through'
           : undefined

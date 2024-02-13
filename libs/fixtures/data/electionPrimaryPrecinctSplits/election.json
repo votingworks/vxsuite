@@ -224,7 +224,7 @@
       "districtId": "water-1",
       "type": "yesno",
       "title": "Water District 1 Fishing",
-      "description": "Should fishing be banned in all city owned lakes and rivers?",
+      "description": "<html>Should fishing be <b><i>banned in\nall</i></b> <s>city</s> owned <u>lakes and rivers</u>?</html>",
       "yesOption": {
         "id": "water-1-fishing-ban-fishing",
         "label": "YES"

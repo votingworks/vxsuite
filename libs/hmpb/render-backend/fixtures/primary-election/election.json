@@ -698,7 +698,7 @@
               {
                 "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
-                "Content": "Should fishing be banned in all city owned lakes and rivers?"
+                "Content": "<html>Should fishing be <b><i>banned in\nall</i></b> <s>city</s> owned <u>lakes and rivers</u>?</html>"
               }
             ]
           },
@@ -999,7 +999,7 @@
                           "Sheet": 1,
                           "Side": "front",
                           "X": 2,
-                          "Y": 21,
+                          "Y": 22,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -1015,7 +1015,7 @@
                           "Sheet": 1,
                           "Side": "front",
                           "X": 2,
-                          "Y": 22,
+                          "Y": 23,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -1227,7 +1227,7 @@
                           "Sheet": 1,
                           "Side": "front",
                           "X": 2,
-                          "Y": 21,
+                          "Y": 22,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -1243,7 +1243,7 @@
                           "Sheet": 1,
                           "Side": "front",
                           "X": 2,
-                          "Y": 22,
+                          "Y": 23,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -1940,7 +1940,7 @@
                           "Sheet": 1,
                           "Side": "front",
                           "X": 2,
-                          "Y": 21,
+                          "Y": 22,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -1956,7 +1956,7 @@
                           "Sheet": 1,
                           "Side": "front",
                           "X": 2,
-                          "Y": 22,
+                          "Y": 23,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2167,7 +2167,7 @@
                           "Sheet": 1,
                           "Side": "front",
                           "X": 2,
-                          "Y": 21,
+                          "Y": 22,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2183,7 +2183,7 @@
                           "Sheet": 1,
                           "Side": "front",
                           "X": 2,
-                          "Y": 22,
+                          "Y": 23,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
