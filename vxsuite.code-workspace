@@ -57,6 +57,14 @@
       "path": "apps/mark-scan/integration-testing"
     },
     {
+      "name": "apps/mark-scan/accessible-controller",
+      "path": "apps/mark-scan/accessible-controller"
+    },
+    {
+      "name": "apps/mark-scan/pat-device-input",
+      "path": "apps/mark-scan/pat-device-input"
+    },
+    {
       "name": "apps/scan/backend",
       "path": "apps/scan/backend"
     },
