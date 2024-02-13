@@ -11,6 +11,7 @@ import {
   H1,
   Route,
   Breadcrumbs,
+  BatteryDisplay,
 } from '@votingworks/ui';
 import {
   BooleanEnvironmentVariableName,
@@ -140,6 +141,7 @@ export function NavigationScreen({
                 <Button onPress={() => logOutMutation.mutate()} icon="Lock">
                   Lock Machine
                 </Button>
+                <BatteryDisplay />
               </React.Fragment>
             )}
           </HeaderActions>
