@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDomServer from 'react-dom/server';
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
-import fs, { readFileSync } from 'fs';
+import fs, { createReadStream, createWriteStream, readFileSync } from 'fs';
 import PdfDocument from 'pdfkit';
 import SvgToPdf from 'svg-to-pdfkit';
 import { safeParseJson } from '@votingworks/types';
@@ -18,6 +18,10 @@ import {
 } from '@votingworks/hmpb-layout';
 import { join } from 'path';
 import { DOMParser, XMLSerializer } from '@xmldom/xmldom';
+import { tmpNameSync } from 'tmp';
+import { finished } from 'stream/promises';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 
 const ASSETS_DIR = join(__dirname, '../assets');
 // These font names need to be exactly of the pattern FontName[-Bold] in order
@@ -115,6 +119,33 @@ export function renderDocumentToPdf(document: Document): PDFKit.PDFDocument {
   }
 
   return pdf;
+}
+
+/**
+ * Given a PDFKit document, convert it to grayscale and return a read stream to
+ * the resulting PDF. Consumes the input PDF.
+ */
+
+export async function convertPdfToGrayscale(
+  pdf: PDFKit.PDFDocument
+): Promise<fs.ReadStream> {
+  const tmpPdfFilePath = tmpNameSync();
+  const fileStream = createWriteStream(tmpPdfFilePath);
+  pdf.pipe(fileStream);
+  pdf.end();
+  await finished(fileStream);
+  const tmpGrayscalePdfFilePath = tmpNameSync();
+  await promisify(exec)(`
+    gs \
+      -sOutputFile=${tmpGrayscalePdfFilePath} \
+      -sDEVICE=pdfwrite \
+      -sColorConversionStrategy=Gray \
+      -dProcessColorModel=/DeviceGray \
+      -dNOPAUSE \
+      -dBATCH \
+      ${tmpPdfFilePath}
+  `);
+  return createReadStream(tmpGrayscalePdfFilePath);
 }
 
 /* istanbul ignore next */
