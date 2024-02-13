@@ -21,6 +21,11 @@ const IconContainer = styled.div`
   gap: 4px;
 `;
 
+const BatteryPercentText = styled(Font)`
+  font-size: 0.8em;
+  line-height: 0.9;
+`;
+
 function getBatteryIcon(batteryInfo: BatteryInfoType): JSX.Element {
   assert(
     batteryInfo.level >= 0 && batteryInfo.level <= 1,
@@ -63,9 +68,9 @@ export function BatteryDisplay(): JSX.Element {
           <Icons.Bolt style={{ fontSize: '0.8em' }} />
         )}
       </IconContainer>
-      <Font weight="semiBold" style={{ fontSize: '0.8em', lineHeight: '0.9' }}>
+      <BatteryPercentText weight="semiBold">
         {batteryInfo ? format.percent(batteryInfo.level) : '—-%'}
-      </Font>
+      </BatteryPercentText>
     </BatteryInfo>
   );
 }
