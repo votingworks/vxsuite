@@ -1,0 +1,51 @@
+{
+  "name": "@votingworks/pdi-rs",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Scanner interface for the PDI PageScan 5",
+  "license": "AGPL-3.0",
+  "author": "VotingWorks Eng <eng@voting.works>",
+  "main": "build/index.js",
+  "types": "build/index.d.js",
+  "files": [
+    "build"
+  ],
+  "scripts": {
+    "benchmark": "jest --runInBand --projects benchmarks",
+    "build": "pnpm install:rust-addon && pnpm build:ts",
+    "build:ts": "tsc --build tsconfig.build.json",
+    "clean": "cargo clean && rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
+    "install:rust-addon": "cargo fetch",
+    "lint": "pnpm type-check && eslint .",
+    "lint:fix": "pnpm type-check && eslint . --fix",
+    "pre-commit": "lint-staged",
+    "test": "pnpm test:rust-addon && pnpm test:ts",
+    "test:ci": "pnpm build && pnpm test:ts:coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
+    "test:rust-addon": "cargo test",
+    "test:ts": "is-ci test:ci test:ts:watch",
+    "test:ts:coverage": "jest --coverage",
+    "test:ts:watch": "jest --watch",
+    "type-check": "tsc --build"
+  },
+  "lint-staged": {
+    "*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)": [
+      "prettier --write"
+    ],
+    "*.+(js|jsx|ts|tsx)": [
+      "eslint --quiet --fix"
+    ],
+    "package.json": [
+      "sort-package-json"
+    ]
+  },
+  "dependencies": {
+    "@votingworks/basics": "workspace:*",
+    "zod": "3.14.4"
+  },
+  "devDependencies": {
+    "@types/node": "16.18.23",
+    "cargo-cp-artifact": "^0.1",
+    "esbuild-runner": "2.2.2"
+  },
+  "packageManager": "pnpm@8.1.0"
+}

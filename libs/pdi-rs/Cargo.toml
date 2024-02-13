@@ -1,0 +1,41 @@
+[package]
+name = "pdi-rs"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "pdictl"
+path = "src/main.rs"
+
+[[bin]]
+name = "pdi-parse-traffic"
+path = "src/parse_traffic.rs"
+
+[[bin]]
+name = "pdi-tui"
+path = "src/tui/main.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+anyhow = { workspace = true }
+base64 = { workspace = true }
+bitter = { workspace = true }
+chrono = { workspace = true }
+clap = { workspace = true }
+color-eyre = { workspace = true }
+crc16 = { workspace = true }
+csv = { workspace = true }
+crossterm = { workspace = true }
+image = { workspace = true }
+nom = { workspace = true }
+psutil = { workspace = true }
+rand = { workspace = true }
+ratatui = { workspace = true }
+rayon = { workspace = true }
+rusb = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
