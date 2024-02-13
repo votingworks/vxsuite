@@ -600,10 +600,10 @@ test('battery display and alert', async () => {
   // initial battery level in nav bar
   await screen.findByText('100%');
 
-  apiMock.setBatteryInfo({ level: 0.15, discharging: true });
+  apiMock.setBatteryInfo({ level: 0.1, discharging: true });
   const warning = await screen.findByRole('alertdialog');
   within(warning).getByText('Low Battery Warning');
 
   // updated battery level in nav bar
-  await screen.findByText('15%');
+  await screen.findByText('10%');
 });

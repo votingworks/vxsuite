@@ -1,93 +1,65 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { format } from '@votingworks/utils';
+import { Optional, iter } from '@votingworks/basics';
 import { Modal } from './modal';
-import { useQueryChangeListener } from './hooks/use_change_listener';
 import { useSystemCallApi } from './system_call_api';
 import { Button } from './button';
-import { H1, P } from './typography';
+import { P } from './typography';
 import { Icons } from './icons';
 
-interface BatteryWarning {
-  level: number;
-  canDismiss: boolean;
-}
+const WARNING_THRESHOLDS: number[] = [0.05, 0.1];
 
-const BATTERY_WARNINGS: BatteryWarning[] = [
-  { level: 0.15, canDismiss: true },
-  { level: 0.1, canDismiss: true },
-  { level: 0.05, canDismiss: true },
-  { level: 0.01, canDismiss: false },
-];
-
-function roundLevel(n: number): number {
-  return Math.round(n * 100) / 100;
+function getApplicableThreshold(level: number): Optional<number> {
+  return iter(WARNING_THRESHOLDS)
+    .filter((threshold) => level <= threshold)
+    .min();
 }
 
 /**
- * A helper for SessionTimeLimitTracker
+ * Modal that displays a warning when the battery is low.
  */
 export function BatteryLowAlert(): JSX.Element | null {
   const systemCallApi = useSystemCallApi();
   const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
   const batteryInfo = batteryInfoQuery.data;
-  const [currentWarning, setCurrentWarning] = useState<BatteryWarning>();
 
-  useQueryChangeListener(batteryInfoQuery, {
-    onChange: (newBatteryInfo, previousBatteryInfo) => {
-      if (!newBatteryInfo) return;
+  const [displayedWarning, setDisplayedWarning] = useState<number>();
 
-      // if the battery's charging, dismiss any existing warnings
-      if (!newBatteryInfo.discharging) {
-        setCurrentWarning(undefined);
-        return;
-      }
-
-      // if the rounded battery level hasn't changed, don't do anything
-      // unless the battery just started discharging
-      const newLevel = roundLevel(newBatteryInfo.level);
-      if (
-        previousBatteryInfo &&
-        newLevel === roundLevel(previousBatteryInfo.level) &&
-        previousBatteryInfo.discharging
-      ) {
-        return;
-      }
-
-      // if there is an applicable warning, show it
-      const applicableWarning = BATTERY_WARNINGS.find(
-        (w) => w.level === newLevel
-      );
-      if (applicableWarning) {
-        setCurrentWarning(applicableWarning);
-      }
-    },
-  });
+  const applicableThreshold = batteryInfo
+    ? getApplicableThreshold(batteryInfo.level)
+    : undefined;
+  const discharging = batteryInfo ? batteryInfo.discharging : false;
+  useEffect(() => {
+    if (discharging && applicableThreshold) {
+      setDisplayedWarning(applicableThreshold);
+    } else {
+      setDisplayedWarning(undefined);
+    }
+  }, [applicableThreshold, discharging]);
 
   if (!batteryInfo) {
     return null;
   }
 
-  if (!currentWarning) {
+  if (!displayedWarning) {
     return null;
   }
 
   return (
     <Modal
+      title={
+        <React.Fragment>
+          <Icons.BatteryQuarter color="danger" /> Low Battery Warning
+        </React.Fragment>
+      }
       actions={
-        currentWarning.canDismiss ? (
-          <Button onPress={() => setCurrentWarning(undefined)}>Dismiss</Button>
-        ) : undefined
+        <Button onPress={() => setDisplayedWarning(undefined)}>Dismiss</Button>
       }
       content={
-        <React.Fragment>
-          <H1>
-            <Icons.BatteryQuarter color="danger" /> Low Battery Warning
-          </H1>
-          <P>
-            The battery is at {format.percent(batteryInfo.level)} and is not
-            charging. Please connect the power supply.
-          </P>
-        </React.Fragment>
+        <P>
+          The battery is at {format.percent(batteryInfo.level)} and is not
+          charging. Please connect the power supply.
+        </P>
       }
     />
   );
