@@ -38,19 +38,28 @@ export interface StartOptions {
   stateMachine?: PaperHandlerStateMachine;
 }
 
-async function resolveDriver(): Promise<
-  PaperHandlerDriverInterface | undefined
-> {
+async function resolveDriver(
+  logger: Logger
+): Promise<PaperHandlerDriverInterface | undefined> {
   const driver = await getPaperHandlerDriver();
 
-  if (
-    isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
-    ) &&
-    !driver
-  ) {
-    debug('No paper handler found. Starting server with mock driver');
-    return new MockPaperHandlerDriver();
+  if (!driver) {
+    await logger.log(LogEventId.PaperHandlerConnection, 'system', {
+      disposition: 'failure',
+    });
+
+    if (
+      isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+      )
+    ) {
+      debug('No paper handler found. Starting server with mock driver');
+      return new MockPaperHandlerDriver();
+    }
+  } else {
+    await logger.log(LogEventId.PaperHandlerConnection, 'system', {
+      disposition: 'success',
+    });
   }
 
   return driver;
@@ -67,7 +76,7 @@ export async function start({
 }: StartOptions): Promise<Server> {
   /* istanbul ignore next */
   const resolvedAuth = auth ?? getDefaultAuth(logger);
-  const driver = await resolveDriver();
+  const driver = await resolveDriver(logger);
   let patConnectionStatusReader = new PatConnectionStatusReader(logger);
   const canReadPatConnectionStatus = await patConnectionStatusReader.open();
 
