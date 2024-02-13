@@ -475,6 +475,7 @@ export function AppRoot({
       return (
         <BallotInvalidatedPage
           authStatus={authStatus}
+          logger={logger}
           paperPresent={
             stateMachineState ===
             'waiting_for_invalidated_ballot_confirmation.paper_present'

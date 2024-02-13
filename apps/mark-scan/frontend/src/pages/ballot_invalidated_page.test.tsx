@@ -2,6 +2,7 @@ import userEvent from '@testing-library/user-event';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { ElectionDefinition, InsertedSmartCardAuth } from '@votingworks/types';
 import { VxRenderResult } from '@votingworks/ui';
+import { Logger, fakeLogger } from '@votingworks/logging';
 import { render } from '../../test/test_utils';
 import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client';
 import { screen } from '../../test/react_testing_library';
@@ -12,7 +13,9 @@ import {
 } from '../../test/helpers/fake_auth';
 
 let apiMock: ApiMock;
+let logger: Logger;
 beforeEach(() => {
+  logger = fakeLogger();
   apiMock = createApiMock();
 });
 
@@ -29,6 +32,7 @@ function renderWithAuthAndBallotContext(
 ): VxRenderResult {
   return render(
     <BallotInvalidatedPage
+      logger={logger}
       authStatus={authStatus}
       paperPresent={paperPresent}
     />,
