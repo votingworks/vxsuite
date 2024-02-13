@@ -18,7 +18,10 @@ import {
   LayoutOptions,
 } from '@votingworks/hmpb-layout';
 import JsZip from 'jszip';
-import { renderDocumentToPdf } from '@votingworks/hmpb-render-backend';
+import {
+  convertPdfToGrayscale,
+  renderDocumentToPdf,
+} from '@votingworks/hmpb-render-backend';
 import { ElectionPackage, ElectionRecord, Precinct } from './store';
 import {
   createPrecinctTestDeck,
@@ -197,12 +200,12 @@ function buildApi({ translator, workspace }: AppContext) {
               getPrecinctById({ election, precinctId })
             );
             const pdf = renderDocumentToPdf(document);
+            const grayscalePdf = await convertPdfToGrayscale(pdf);
             const fileName = `${ballotMode}-${ballotType}-ballot-${precinct.name.replaceAll(
               ' ',
               '_'
             )}-${ballotStyleId}.pdf`;
-            zip.file(fileName, pdf);
-            pdf.end();
+            zip.file(fileName, grayscalePdf);
           }
         }
       }
@@ -279,12 +282,12 @@ function buildApi({ translator, workspace }: AppContext) {
         });
         if (!testDeckDocument) continue;
         const pdf = renderDocumentToPdf(testDeckDocument);
+        const grayscalePdf = await convertPdfToGrayscale(pdf);
         const fileName = `${precinct.name.replaceAll(
           ' ',
           '_'
         )}-test-ballots.pdf`;
-        zip.file(fileName, pdf);
-        pdf.end();
+        zip.file(fileName, grayscalePdf);
       }
 
       zip.file(

@@ -2,7 +2,8 @@ import { join } from 'path';
 import * as fs from 'fs';
 import { Document } from '@votingworks/hmpb-layout';
 import { finished } from 'stream/promises';
-import { renderDocumentToPdf } from './render_ballot';
+import { writeFile } from 'fs/promises';
+import { convertPdfToGrayscale, renderDocumentToPdf } from './render_ballot';
 import {
   allBubbleBallotDir,
   allBubbleBallotFixtures,
@@ -19,7 +20,8 @@ import {
 async function generateBallotFixture(
   fixtureDir: string,
   label: string,
-  document: Document
+  document: Document,
+  options: { convertToGrayscale: boolean } = { convertToGrayscale: false }
 ) {
   // eslint-disable-next-line no-console
   console.log(
@@ -30,10 +32,16 @@ async function generateBallotFixture(
     JSON.stringify(document, null, 2)
   );
   const pdf = renderDocumentToPdf(document);
-  const fileStream = fs.createWriteStream(join(fixtureDir, `${label}.pdf`));
-  pdf.pipe(fileStream);
-  pdf.end();
-  await finished(fileStream);
+  const outputPdfPath = join(fixtureDir, `${label}.pdf`);
+  if (options.convertToGrayscale) {
+    const grayscalePdf = await convertPdfToGrayscale(pdf);
+    await writeFile(outputPdfPath, grayscalePdf);
+  } else {
+    const fileStream = fs.createWriteStream(outputPdfPath);
+    pdf.pipe(fileStream);
+    pdf.end();
+    await finished(fileStream);
+  }
 }
 
 async function generateAllBubbleBallotFixtures() {
@@ -117,7 +125,9 @@ async function generatePrimaryElectionFixtures() {
       [`${partyLabel}-other-precinct-blank-ballot`]: otherPrecinctBlankBallot,
     } as const;
     for (const [label, document] of Object.entries(ballots)) {
-      await generateBallotFixture(primaryElectionDir, label, document);
+      await generateBallotFixture(primaryElectionDir, label, document, {
+        convertToGrayscale: true,
+      });
     }
   }
 }

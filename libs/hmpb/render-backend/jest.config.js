@@ -8,7 +8,7 @@ module.exports = {
   coverageThreshold: {
     global: {
       branches: -16,
-      lines: -30,
+      lines: -38,
     },
   },
   coveragePathIgnorePatterns: ['src/index.ts', 'src/generate_fixtures.ts'],

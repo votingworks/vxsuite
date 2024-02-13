@@ -36,6 +36,7 @@
     ]
   },
   "dependencies": {
+    "@types/tmp": "0.2.4",
     "@votingworks/basics": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/hmpb-layout": "workspace:*",
@@ -45,7 +46,8 @@
     "pdfkit": "^0.13.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
-    "svg-to-pdfkit": "^0.1.8"
+    "svg-to-pdfkit": "^0.1.8",
+    "tmp": "^0.2.1"
   },
   "devDependencies": {
     "@jest/types": "^29.6.1",
@@ -55,7 +57,6 @@
     "@types/react": "18.2.18",
     "@types/react-dom": "^18.2.7",
     "@types/svg-to-pdfkit": "^0.1.0",
-    "@types/tmp": "0.2.4",
     "esbuild": "0.17.11",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
@@ -65,7 +66,6 @@
     "jest-watch-typeahead": "^2.2.2",
     "lint-staged": "11.0.0",
     "sort-package-json": "^1.50.0",
-    "tmp": "^0.2.1",
     "ts-jest": "29.1.1"
   },
   "engines": {
