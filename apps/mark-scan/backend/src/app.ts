@@ -281,6 +281,8 @@ export function buildApi(
 
       workspace.store.setBallotsCastSinceLastBoxChange(0);
       stateMachine.confirmBallotBoxEmptied();
+
+      await logger.log(LogEventId.BallotBoxEmptied, 'poll_worker');
     },
 
     ...createUiStringsApi({
