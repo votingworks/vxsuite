@@ -60,8 +60,10 @@ export class GoogleCloudSpeechSynthesizer implements SpeechSynthesizer {
     text: string,
     languageCode: LanguageCode
   ): Promise<string> {
-    const audioClipBase64FromCache =
-      this.store.getAudioClipBase64FromCache(text);
+    const audioClipBase64FromCache = this.store.getAudioClipBase64FromCache({
+      languageCode,
+      text,
+    });
     if (audioClipBase64FromCache) {
       return audioClipBase64FromCache;
     }
@@ -71,6 +73,7 @@ export class GoogleCloudSpeechSynthesizer implements SpeechSynthesizer {
       languageCode
     );
     this.store.addSpeechSynthesisCacheEntry({
+      languageCode,
       text,
       audioClipBase64,
     });

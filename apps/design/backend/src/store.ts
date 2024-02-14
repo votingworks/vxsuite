@@ -568,31 +568,39 @@ export class Store {
     );
   }
 
-  getAudioClipBase64FromCache(text: string): Optional<string> {
+  getAudioClipBase64FromCache(key: {
+    languageCode: LanguageCode;
+    text: string;
+  }): Optional<string> {
     const cacheEntry = this.client.one(
       `
       select
         audio_clip_base64 as audioClipBase64
       from speech_synthesis_cache
       where
-        source_text = ?
+        language_code = ?
+        and source_text = ?
       `,
-      text
+      key.languageCode,
+      key.text
     ) as Optional<{ audioClipBase64: string }>;
     return cacheEntry?.audioClipBase64;
   }
 
   addSpeechSynthesisCacheEntry(cacheEntry: {
+    languageCode: LanguageCode;
     text: string;
     audioClipBase64: string;
   }): void {
     this.client.run(
       `
       insert or replace into speech_synthesis_cache (
+        language_code,
         source_text,
         audio_clip_base64
-      ) values (?, ?)
+      ) values (?, ?, ?)
       `,
+      cacheEntry.languageCode,
       cacheEntry.text,
       cacheEntry.audioClipBase64
     );
