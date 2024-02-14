@@ -66,29 +66,47 @@ test('Translation cache', () => {
 });
 
 test('Speech synthesis cache', () => {
+  const { ENGLISH, SPANISH } = LanguageCode;
   const store = Store.memoryStore();
 
-  expect(store.getAudioClipBase64FromCache('Happy birthday!')).toEqual(
-    undefined
-  );
+  expect(
+    store.getAudioClipBase64FromCache({ languageCode: ENGLISH, text: 'cliché' })
+  ).toEqual(undefined);
+  expect(
+    store.getAudioClipBase64FromCache({ languageCode: SPANISH, text: 'cliché' })
+  ).toEqual(undefined);
 
   // Add an audio clip
   store.addSpeechSynthesisCacheEntry({
-    text: 'Happy birthday!',
+    languageCode: ENGLISH,
+    text: 'cliché',
     audioClipBase64: 'SomeBase64Value',
   });
-  expect(store.getAudioClipBase64FromCache('Happy birthday!')).toEqual(
-    'SomeBase64Value'
-  );
+  expect(
+    store.getAudioClipBase64FromCache({ languageCode: ENGLISH, text: 'cliché' })
+  ).toEqual('SomeBase64Value');
+  expect(
+    store.getAudioClipBase64FromCache({ languageCode: SPANISH, text: 'cliché' })
+  ).toBeUndefined();
 
   // Update the audio clip
   store.addSpeechSynthesisCacheEntry({
-    text: 'Happy birthday!',
+    languageCode: ENGLISH,
+    text: 'cliché',
     audioClipBase64: 'AnotherBase64Value',
   });
-  expect(store.getAudioClipBase64FromCache('Happy birthday!')).toEqual(
-    'AnotherBase64Value'
-  );
+  store.addSpeechSynthesisCacheEntry({
+    languageCode: SPANISH,
+    text: 'cliché',
+    audioClipBase64: 'OtroValorBase64',
+  });
+
+  expect(
+    store.getAudioClipBase64FromCache({ languageCode: ENGLISH, text: 'cliché' })
+  ).toEqual('AnotherBase64Value');
+  expect(
+    store.getAudioClipBase64FromCache({ languageCode: SPANISH, text: 'cliché' })
+  ).toEqual('OtroValorBase64');
 });
 
 test('Background task processing - task creation and retrieval', () => {

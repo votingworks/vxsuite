@@ -33,6 +33,8 @@ create unique index idx_translation_cache on translation_cache (
 );
 
 create table speech_synthesis_cache (
-  source_text text primary key,
-  audio_clip_base64 text not null
+  language_code text not null,
+  source_text text not null,
+  audio_clip_base64 text not null,
+  primary key (language_code, source_text)
 );
