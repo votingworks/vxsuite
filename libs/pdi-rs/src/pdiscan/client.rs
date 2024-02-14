@@ -5,10 +5,11 @@ use std::{
     time::{Duration, Instant},
 };
 
-use crate::pdiscan::transfer::Handler;
+use crate::pdiscan::{protocol::image::Sheet, transfer::Handler};
 
 use super::{
     protocol::{
+        image::{RawImageData, ScanPage},
         packets::{Command, Incoming},
         parsers,
         types::{
@@ -91,11 +92,11 @@ pub struct Client {
     event_rx: std::sync::mpsc::Receiver<Event>,
     begin_scan_tx: std::sync::mpsc::Sender<()>,
     pub begin_scan_rx: std::sync::mpsc::Receiver<()>,
-    end_scan_tx: std::sync::mpsc::Sender<(Vec<u8>, Vec<u8>)>,
-    pub end_scan_rx: std::sync::mpsc::Receiver<(Vec<u8>, Vec<u8>)>,
+    end_scan_tx: std::sync::mpsc::Sender<(ScanPage, ScanPage)>,
+    pub end_scan_rx: std::sync::mpsc::Receiver<(ScanPage, ScanPage)>,
 
     /// Image data
-    image_data: Option<(Vec<u8>, Vec<u8>)>,
+    image_data: Option<RawImageData>,
 }
 
 impl Client {
@@ -1110,6 +1111,11 @@ impl Client {
             Event::Completed { endpoint, data } => {
                 if endpoint == ENDPOINT_IN_IMAGE_DATA {
                     tracing::debug!("receiving image data: {} bytes", data.len());
+                    if let Some(image_data) = self.image_data.as_mut() {
+                        image_data.extend_from_slice(&data);
+                    } else {
+                        tracing::warn!("received image data without corresponding begin scan");
+                    }
                 } else {
                     match parsers::any_incoming(&data) {
                         Ok(([], incoming)) => {
@@ -1136,13 +1142,21 @@ impl Client {
         tracing::debug!("incoming message: {incoming:?}");
         match incoming {
             Incoming::BeginScanEvent => {
-                self.image_data = Some((Vec::new(), Vec::new()));
+                self.image_data = Some(RawImageData::new());
                 self.begin_scan_tx.send(()).unwrap();
             }
             Incoming::EndScanEvent => match self.image_data.take() {
-                Some(image_data) => {
-                    self.end_scan_tx.send(image_data).unwrap();
-                }
+                Some(image_data) => match image_data.try_decode_scan(1728, ScanSideMode::Duplex) {
+                    Ok(Sheet::Duplex(top, bottom)) => {
+                        self.end_scan_tx.send((top, bottom)).unwrap();
+                    }
+                    Ok(Sheet::Simplex(image)) => {
+                        tracing::error!("simplex scan received in duplex mode: {image:?}");
+                    }
+                    Err(e) => {
+                        tracing::error!("failed to decode scan: {e:?}");
+                    }
+                },
                 None => {
                     tracing::error!("end scan without corresponding begin scan");
                 }

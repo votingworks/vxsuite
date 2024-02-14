@@ -3,107 +3,95 @@ import * as path from 'path';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { createInterface } from 'readline';
 import { Deferred, assert, deferred } from '@votingworks/basics';
+import {
+  createImageData,
+  toRgba,
+  writeImageData,
+} from '@votingworks/image-utils';
+import fs from 'fs/promises';
+import { SheetOf } from '../../../types/src';
 
-let addon: any;
+interface Scanner {
+  /**
+   * Create a new scanner process and connect to the scanner.
+   */
+  connect(): Promise<void>;
 
-export type ScannedDocument = addon.ScannedDocument;
+  /**
+   * Gracefully shut down the scanner process. Maybe not needed?
+   */
+  quit(): Promise<void>;
+
+  /**
+   * Kill the scanner process. This should be used when the scanner process is
+   * unresponsive or we encounter an unexpected error.
+   */
+  kill(): Promise<void>;
+
+  /**
+   * Tell the scanner that it should scan paper it sees or not.
+   */
+  setScanningEnabled(enabled: boolean): Promise<void>;
+
+  /**
+   * Tell the scanner that it should check for multiple sheets.
+   *
+   * No success message back from this
+   */
+  setMultiSheetDetectionEnabled(enabled: boolean): Promise<void>;
+
+  /**
+   * Kicks off calibration. Response will come back as an event.
+   */
+  calibrateMultiSheetDetection(
+    singleOrDouble: 'single' | 'double'
+  ): Promise<void>;
+
+  on(event: Event.BeginScan, listener: () => void): void;
+  on(event: Event.EndScan, listener: () => void): void;
+  on(event: Event.DocumentJam, listener: () => void): void;
+  on(
+    event: Event.ScannedImages,
+    listener: (images: SheetOf<Uint8Array>) => void
+  ): void;
+  on(event: Event.MsdCalibrationSucceeded, listener: () => void): void;
+  on(event: Event.MsdCalibrationFailed, listener: () => void): void;
+}
 
 export enum Event {
+  /**
+   * The scanner has started scanning a document.
+   */
   BeginScan = 'beginScan',
+
+  /**
+   * The scanner has finished scanning a document. Happens regardless of success.
+   */
   EndScan = 'endScan',
-  AbortScan = 'abortScan',
-  EjectPaused = 'ejectPaused',
-  EjectResumed = 'ejectResumed',
-  FeederDisabled = 'feederDisabled',
+
+  /**
+   * Happens when the scanner detects a jam.
+   */
+  DocumentJam = 'documentJam',
+
+  /**
+   * The scanner has generated images. Only happens on successful scan (Rust updates to be made
+   * still).
+   */
+  ScannedImages = 'scannedImages',
+
+  /**
+   * The scanner has successfully calibrated multi-sheet detection.
+   */
+  MsdCalibrationSucceeded = 'msdCalibrationSucceeded',
+
+  /**
+   * The scanner has failed to calibrate multi-sheet detection.
+   */
+  MsdCalibrationFailed = 'msdCalibrationFailed',
 }
 
 export const EventSchema = z.nativeEnum(Event);
-
-export class Scanner {
-  private constructor(private internalScanner: addon.Scanner) {}
-
-  /**
-   * Connect to the scanner.
-   */
-  static open(): Scanner {
-    return new Scanner(addon.openScanner());
-  }
-
-  getStatus(): ScannerStatus {
-    return addon.getScannerStatus(this.internalScanner) as ScannerStatus;
-  }
-
-  setResolution(resolution: number): void {
-    addon.setResolution(this.internalScanner, resolution);
-  }
-
-  setColorDepth(colorDepth: ColorDepth): void {
-    addon.setColorDepth(this.internalScanner, colorDepth);
-  }
-
-  setFeederEnabled(feederEnabled: boolean): void {
-    addon.setFeederEnabled(this.internalScanner, feederEnabled);
-  }
-
-  getLastScannedDocument(): addon.ScannedDocument | undefined {
-    return addon.getLastScannedDocument(this.internalScanner);
-  }
-
-  getLastScannerEvent(): Event | undefined {
-    const event = addon.getLastScannerEvent(this.internalScanner);
-    return event ? EventSchema.parse(event) : undefined;
-  }
-
-  acceptDocumentBack(): void {
-    addon.acceptDocumentBack(this.internalScanner);
-  }
-
-  rejectDocumentFront(): void {
-    addon.rejectDocumentFront(this.internalScanner);
-  }
-
-  rejectAndHoldDocumentFront(): void {
-    addon.rejectAndHoldDocumentFront(this.internalScanner);
-  }
-}
-
-export enum ColorDepth {
-  Bitonal,
-  Grayscale4Bit,
-  Grayscale8Bit,
-  Color8Bit,
-  Color24Bit,
-  GrayDual8Bit,
-  GrayRed8Bit,
-  GrayBlue8Bit,
-  GrayInfrared8Bit,
-  GrayUltraviolet8Bit,
-  ColorGray32Bit,
-}
-
-export interface ScannerStatus {
-  rearLeftSensorCovered: boolean;
-  rearRightSensorCovered: boolean;
-  branderPositionSensorCovered: boolean;
-  highSpeedMode: boolean;
-  downloadNeeded: boolean;
-  coverOpen: boolean;
-  scannerFeederEnabled: boolean;
-  frontLeftSensorCovered: boolean;
-  frontM1SensorCovered: boolean;
-  frontM2SensorCovered: boolean;
-  frontM3SensorCovered: boolean;
-  frontM4SensorCovered: boolean;
-  frontM5SensorCovered: boolean;
-  frontRightSensorCovered: boolean;
-  scannerReady: boolean;
-  xmtAborted: boolean;
-  ticketJam: boolean;
-  scanArrayPixelError: boolean;
-  inDiagnosticMode: boolean;
-  documentInScanner: boolean;
-  calibrationOfUnitNeeded: boolean;
-}
 
 const BINARY_PATH = path.join(__dirname, '../../../../target/release/pdictl');
 
@@ -136,9 +124,24 @@ type PdictlCommand =
   | GetScannerStatus
   | OtherCommand;
 
-interface PdictlOutgoing {
-  outgoingType: 'ok' | 'error' | 'scan_complete';
+interface PdictlOutgoingScanComplete {
+  outgoingType: 'scan_complete';
+  imageData: [string, string];
 }
+
+interface PdictlOutgoingError {
+  outgoingType: 'error';
+  message: string;
+}
+
+interface PdictlOutgoingOk {
+  outgoingType: 'ok';
+}
+
+type PdictlOutgoing =
+  | PdictlOutgoingScanComplete
+  | PdictlOutgoingError
+  | PdictlOutgoingOk;
 
 class ScannerClient {
   pdictl?: ChildProcessWithoutNullStreams;
@@ -156,9 +159,48 @@ class ScannerClient {
     this.pdictl = spawn(BINARY_PATH);
 
     const rl = createInterface(this.pdictl.stdout);
-    rl.on('line', (line) => {
+    rl.on('line', async (line) => {
       const outgoing = JSON.parse(line) as PdictlOutgoing;
       console.log('Received response from scanner', outgoing);
+      if (outgoing.outgoingType === 'scan_complete') {
+        const [frontBase64, backBase64] = outgoing.imageData;
+        const frontBuffer = Buffer.from(frontBase64, 'base64');
+        const backBuffer = Buffer.from(backBase64, 'base64');
+        const dateString = new Date().toISOString();
+
+        const grayscaleFrontImageData = createImageData(
+          Uint8ClampedArray.from(frontBuffer),
+          1728,
+          frontBuffer.length / 1728
+        );
+        const rgbaFrontImageData = toRgba(
+          grayscaleFrontImageData
+        ).unsafeUnwrap();
+        writeImageData(
+          path.join(__dirname, 'images', `front-${dateString}.png`),
+          rgbaFrontImageData
+        );
+
+        const grayscaleBackImageData = createImageData(
+          Uint8ClampedArray.from(backBuffer),
+          1728,
+          backBuffer.length / 1728
+        );
+        const rgbaBackImageData = toRgba(grayscaleBackImageData).unsafeUnwrap();
+        writeImageData(
+          path.join(__dirname, 'images', `back-${dateString}.png`),
+          rgbaBackImageData
+        );
+
+        // await fs.writeFile(
+        //   path.join(__dirname, 'images', `front-${dateString}.jpg`),
+        //   frontImageData
+        // );
+        // await fs.writeFile(
+        //   path.join(__dirname, 'images', `back-${dateString}.jpg`),
+        //   backImageData
+        // );
+      }
       this.pendingRequest?.resolve(outgoing);
       this.pendingRequest = undefined;
     });

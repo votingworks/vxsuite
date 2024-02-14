@@ -1,4 +1,5 @@
 use clap::Parser;
+use image::EncodableLayout;
 use std::{
     io::{self, Write},
     process::exit,
@@ -88,6 +89,7 @@ enum Outgoing {
     Err { message: String },
 
     #[serde(rename = "scan_complete")]
+    #[serde(rename_all = "camelCase")]
     ScanComplete { image_data: (String, String) },
 
     #[serde(rename = "msd_calibration_config")]
@@ -280,11 +282,17 @@ fn main_scan_loop() -> color_eyre::Result<()> {
                 // println!("begin scan");
             }
 
-            if let Ok((front_image_data, back_image_data)) = client.end_scan_rx.try_recv() {
+            if let Ok((top_page, bottom_page)) = client.end_scan_rx.try_recv() {
+                let top_image = top_page.to_image().unwrap();
+                let bottom_image = bottom_page.to_image().unwrap();
+
+                top_image.save("top.png")?;
+                bottom_image.save("bottom.png")?;
+
                 wrap_outgoing(&Outgoing::ScanComplete {
                     image_data: (
-                        STANDARD.encode(front_image_data),
-                        STANDARD.encode(back_image_data),
+                        STANDARD.encode(top_page.to_image().unwrap().as_bytes()),
+                        STANDARD.encode(bottom_page.to_image().unwrap().as_bytes()),
                     ),
                 })?;
             }

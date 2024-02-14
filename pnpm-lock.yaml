@@ -4984,6 +4984,9 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
+      '@votingworks/image-utils':
+        specifier: workspace:*
+        version: link:../image-utils
       zod:
         specifier: 3.14.4
         version: 3.14.4

@@ -40,6 +40,7 @@
   },
   "dependencies": {
     "@votingworks/basics": "workspace:*",
+    "@votingworks/image-utils": "workspace:*",
     "zod": "3.14.4"
   },
   "devDependencies": {

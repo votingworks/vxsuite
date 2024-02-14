@@ -90,6 +90,15 @@ pub enum ScanSideMode {
     SimplexBottomOnly,
 }
 
+impl ScanSideMode {
+    pub const fn page_count(&self) -> u8 {
+        match self {
+            Self::Duplex => 2,
+            Self::SimplexTopOnly | Self::SimplexBottomOnly => 1,
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub enum EjectMotion {
     ToRear,
