@@ -263,10 +263,7 @@ fn validate_connection(port: &mut Box<dyn SerialPort>) -> Result<(), io::Error> 
     let echo_command = EchoCommand::new(vec![0x01, 0x02, 0x03, 0x04, 0x05]);
     let echo_command: Vec<u8> = echo_command.into();
     match port.write(&echo_command) {
-        Ok(_) => log!(
-            event_id: EventId::ControllerHandshakeInit,
-            event_type: EventType::SystemAction
-        ),
+        Ok(_) => log!(EventId::ControllerHandshakeInit; EventType::SystemAction),
         Err(error) => eprintln!("{error:?}"),
     }
 
@@ -333,8 +330,8 @@ fn create_virtual_device() -> Device {
 fn main() {
     set_app_name(APP_NAME.to_string());
     log!(
-        event_id: EventId::ProcessStarted,
-        event_type: EventType::SystemAction
+        EventId::ProcessStarted;
+        EventType::SystemAction
     );
 
     let running = Arc::new(AtomicBool::new(true));
@@ -354,8 +351,8 @@ fn main() {
 
     // Create virtual device for keypress events
     log!(
-        event_id: EventId::CreateVirtualUinputDeviceInit,
-        event_type: EventType::SystemAction
+        EventId::CreateVirtualUinputDeviceInit;
+        EventType::SystemAction
     );
     let mut device = create_virtual_device();
     // Wait for virtual device to register
@@ -367,8 +364,8 @@ fn main() {
     );
 
     log!(
-        event_id: EventId::ControllerConnectionInit,
-        event_type: EventType::SystemAction
+        EventId::ControllerConnectionInit;
+        EventType::SystemAction
     );
 
     // Open the serial port
@@ -391,8 +388,8 @@ fn main() {
             loop {
                 if !running.load(Ordering::SeqCst) {
                     log!(
-                        event_id: EventId::ProcessTerminated,
-                        event_type: EventType::SystemAction
+                        EventId::ProcessTerminated;
+                        EventType::SystemAction
                     );
                     exit(0);
                 }

@@ -54,6 +54,13 @@ macro_rules! log {
             ..Default::default()
         });
     };
+    ($event_id:expr; $event_type:expr) => {
+        $crate::print_log(&$crate::Log {
+            event_id: $event_id,
+            event_type: $event_type,
+            ..Default::default()
+        });
+    };
     ($event_id:expr, $($format_args:tt)*) => {
         $crate::print_log(&$crate::Log {
             event_id: $event_id,

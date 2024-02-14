@@ -52,8 +52,8 @@ fn set_up_pins() -> io::Result<()> {
 fn main() {
     set_app_name(APP_NAME);
     log!(
-        event_id: EventId::ProcessStarted,
-        event_type: EventType::SystemAction
+        EventId::ProcessStarted;
+        EventType::SystemAction
     );
 
     let running = Arc::new(AtomicBool::new(true));
@@ -73,8 +73,8 @@ fn main() {
 
     // Create virtual device for keypress events
     log!(
-          event_id: EventId::CreateVirtualUinputDeviceInit,
-          event_type: EventType::SystemAction
+          EventId::CreateVirtualUinputDeviceInit;
+          EventType::SystemAction
     );
     let mut device = create_virtual_device();
     // Wait for virtual device to register
