@@ -1,5 +1,8 @@
 use std::{
-    sync::mpsc::{RecvTimeoutError, TryRecvError},
+    sync::{
+        mpsc::{RecvTimeoutError, TryRecvError},
+        Arc,
+    },
     time::Duration,
 };
 
@@ -7,7 +10,10 @@ use ratatui::text::Line;
 
 use pdi_rs::pdiscan::{
     client::{Client, Error},
-    protocol::{types::EjectMotion, Event},
+    protocol::{
+        types::{ColorMode, EjectMotion, Resolution, ScanSideMode, Status},
+        Event,
+    },
 };
 
 use super::{
@@ -15,12 +21,23 @@ use super::{
     log::LogEntry,
 };
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone)]
 pub enum Route {
     Disconnected,
-    Main,
-    AutoScan,
-    Calibrate,
+    Main { client: Arc<Client> },
+    AutoScan { client: Arc<Client> },
+    Calibrate { client: Arc<Client> },
+}
+
+impl Route {
+    pub fn client(&self) -> Option<Arc<Client>> {
+        match &self {
+            Self::Calibrate { client } | Self::AutoScan { client } | Self::Main { client } => {
+                Some(client.clone())
+            }
+            Self::Disconnected => None,
+        }
+    }
 }
 
 const MAX_LOG_LENGTH: usize = 500;
@@ -28,7 +45,6 @@ const MAX_LOG_LENGTH: usize = 500;
 // App state
 pub struct App<'a> {
     navigation_stack: Vec<Route>,
-    client: Option<Client>,
     log: Vec<LogEntry<'a>>,
     next_scan_index: usize,
     auto_scan: AutoScanConfig,
@@ -43,7 +59,6 @@ impl<'a> App<'a> {
     pub fn new() -> Self {
         Self {
             navigation_stack: vec![Route::Disconnected],
-            client: None,
             log: vec![],
             next_scan_index: 1,
             auto_scan: AutoScanConfig::default(),
@@ -94,10 +109,10 @@ impl<'a> App<'a> {
         &self.log[self.log.len().saturating_sub(count)..]
     }
 
-    pub const fn connection_state(&self) -> ConnectionState {
+    pub fn connection_state(&self) -> ConnectionState {
         if self.should_connect {
             ConnectionState::Connecting
-        } else if self.client.is_none() {
+        } else if self.client().is_none() {
             ConnectionState::Disconnected
         } else {
             ConnectionState::Connected
@@ -105,17 +120,34 @@ impl<'a> App<'a> {
     }
 
     pub fn disconnect_client(&mut self) -> bool {
+        let client = self.client();
         self.navigation_stack.clear();
         self.navigation_stack.push(Route::Disconnected);
-        self.client.take().is_some()
+        client.is_some()
     }
 
-    pub fn get_client(&mut self) -> Option<&mut Client> {
-        self.client.as_mut()
+    pub fn on_connect(&mut self, mut client: Client) {
+        client.set_scan_resolution(Resolution::Half);
+        client.set_color_mode(ColorMode::LowColor);
+        client.set_scan_side_mode(ScanSideMode::Duplex);
+
+        let status = client.get_scanner_status(None).unwrap();
+
+        if status.rear_left_sensor_covered {
+            client.eject_document(EjectMotion::ToFront);
+        }
+
+        self.navigation_stack.push(Route::Main {
+            client: Arc::new(client),
+        });
     }
 
-    pub fn set_client(&mut self, scanner: Option<Client>) {
-        self.client = scanner;
+    pub fn get_scanner_status(&mut self) -> Option<Status> {
+        let Some(mut client) = self.client() else {
+            return None;
+        };
+
+        client.get_scanner_status(None).ok()
     }
 
     pub const fn get_auto_scan_config(&self) -> AutoScanConfig {
@@ -176,7 +208,7 @@ impl<'a> App<'a> {
         &mut self,
         timeout: impl Into<Option<Duration>>,
     ) -> Result<Event, RecvTimeoutError> {
-        if let Some(client) = &mut self.client {
+        if let Some(client) = self.client() {
             return match client.await_event(timeout) {
                 Ok(event) => Ok(event),
                 Err(Error::RecvTimeout(_)) => Err(RecvTimeoutError::Timeout),
@@ -188,7 +220,7 @@ impl<'a> App<'a> {
     }
 
     pub fn eject_document(&mut self, eject_motion: EjectMotion) -> Result<(), TryRecvError> {
-        let Some(client) = &mut self.client else {
+        let Some(mut client) = self.client() else {
             return Err(TryRecvError::Disconnected);
         };
 
@@ -197,23 +229,43 @@ impl<'a> App<'a> {
         Ok(())
     }
 
+    pub fn current_route(&self) -> Option<Route> {
+        self.navigation_stack.last().cloned()
+    }
+
+    pub fn set_feeder_enabled(&mut self, enabled: bool) -> Result<(), TryRecvError> {
+        let Some(client) = self.client() else {
+            return Err(TryRecvError::Disconnected);
+        };
+
+        client.set_feeder_enabled(enabled);
+
+        Ok(())
+    }
+
+    fn client(&self) -> Option<Arc<Client>> {
+        self.current_route()?.client()
+    }
+
     pub fn navigate_to_calibration_menu(&mut self) {
-        self.navigation_stack.push(Route::Calibrate);
+        let Some(client) = self.client() else {
+            return;
+        };
+
+        self.navigation_stack.push(Route::Calibrate { client });
     }
 
     pub fn navigate_back(&mut self) {
+        let client = self.client();
+
         self.navigation_stack.pop();
+
         if self.navigation_stack.is_empty() {
-            self.navigation_stack.push(if self.client.is_some() {
-                Route::Main
-            } else {
-                Route::Disconnected
+            self.navigation_stack.push(match client {
+                Some(client) => Route::Main { client },
+                None => Route::Disconnected,
             });
         }
-    }
-
-    pub fn current_route(&self) -> Route {
-        *self.navigation_stack.last().unwrap()
     }
 }
 

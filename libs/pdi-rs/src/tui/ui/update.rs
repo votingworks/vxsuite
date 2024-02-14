@@ -5,7 +5,7 @@ use crossterm::event::{self, Event::Key, KeyCode::Char, KeyModifiers};
 use pdi_rs::pdiscan::protocol::{types::EjectMotion, Event};
 
 use super::{
-    app::App,
+    app::{App, ConnectionState},
     config::{AutoScanConfig, WatchStatusConfig},
 };
 
@@ -27,69 +27,6 @@ pub(crate) fn update(app: &mut App) -> Result<()> {
         Err(_) => {}
     }
 
-    if let Some(client) = app.get_client() {
-        // match client.await_event(Instant::now() + Duration::from_millis(1)) {
-        //     Ok(Event::BeginScan) => {
-        //         app.log("📄 Scanning document…");
-        //     }
-        //     Ok(Event::EndScan) => {
-        //         app.log("📄 Finished scanning document.");
-        //     }
-        //     Ok(Event::AbortScan) => {
-        //         app.log("⚠️ Scan aborted.");
-        //     }
-        //     Ok(Event::EjectPaused) => {
-        //         app.log("📄 Eject paused.");
-        //     }
-        //     Ok(Event::EjectResumed) => {
-        //         app.log("📄 Eject resumed.");
-        //     }
-        //     Ok(Event::FeederDisabled) => {
-        //         app.log("⛔︎ Feeder disabled.");
-        //     }
-        //     Err(_) => {}
-        // }
-
-        // if let Ok(document) = client.wait_for_document(Duration::from_millis(1)) {
-        //     let next_scan_index = app.increment_scan_index();
-        //     let front_filename = format!("side-a-{:03}.jpeg", next_scan_index);
-        //     let back_filename = format!("side-b-{:03}.jpeg", next_scan_index);
-
-        //     if let Some(image) = document.front_side_image {
-        //         match image.save(front_filename.clone()) {
-        //             Ok(_) => {
-        //                 app.log(format!("✨ Saved front image as '{}'.", front_filename));
-        //             }
-        //             Err(e) => {
-        //                 app.log(format!("⚠️ Error saving front image: {:?}", e));
-        //             }
-        //         }
-        //     }
-
-        //     if let Some(image) = document.back_side_image {
-        //         match image.save(back_filename.clone()) {
-        //             Ok(_) => {
-        //                 app.log(format!("✨ Saved back image as '{}'.", back_filename));
-        //             }
-        //             Err(e) => {
-        //                 app.log(format!("⚠️ Error saving back image: {:?}", e));
-        //             }
-        //         }
-        //     }
-        // }
-
-        // if let Ok(error) = client.wait_for_error(Duration::from_millis(1)) {
-        //     app.log(format!(
-        //         "⚠️ Scanner error: {} ({:?})",
-        //         error.short_description, error.error_type
-        //     ));
-        //     app.log(format!("⚠️ Description: {}", error.long_description));
-        //     if !error.extra_info.is_empty() {
-        //         app.log(format!("⚠️ Additional information: {}", error.extra_info));
-        //     }
-        // }
-    }
-
     if event::poll(Duration::from_millis(50))? {
         if let Key(key) = event::read()? {
             let auto_scan_config = app.get_auto_scan_config();
@@ -98,25 +35,41 @@ pub(crate) fn update(app: &mut App) -> Result<()> {
             match (
                 key.modifiers,
                 key.code,
-                app.get_client(),
+                app.connection_state(),
                 auto_scan_config,
                 watch_status_config,
             ) {
-                (KeyModifiers::NONE, Char('c'), None, _, _) => app.connect(),
-                (KeyModifiers::NONE, Char('d'), Some(_), _, _) => app.disconnect(),
+                (KeyModifiers::NONE, Char('c'), ConnectionState::Disconnected, _, _) => {
+                    app.connect()
+                }
+                (KeyModifiers::NONE, Char('d'), ConnectionState::Connected, _, _) => {
+                    app.disconnect()
+                }
                 (KeyModifiers::NONE, Char('q'), _, _, _) => app.quit(),
-                (KeyModifiers::NONE, Char('s'), Some(client), AutoScanConfig::Disabled, _) => {
-                    client.set_feeder_enabled(true);
+                (
+                    KeyModifiers::NONE,
+                    Char('s'),
+                    ConnectionState::Connected,
+                    AutoScanConfig::Disabled,
+                    _,
+                ) => {
+                    app.set_feeder_enabled(true);
                     app.log("✨ Auto-scan enabled.");
                     app.set_auto_scan_config(AutoScanConfig::Enabled(Some(EjectMotion::ToRear)));
                 }
-                (KeyModifiers::NONE, Char('s'), Some(client), AutoScanConfig::Enabled(_), _) => {
-                    client.set_feeder_enabled(false);
+                (
+                    KeyModifiers::NONE,
+                    Char('s'),
+                    ConnectionState::Connected,
+                    AutoScanConfig::Enabled(_),
+                    _,
+                ) => {
+                    app.set_feeder_enabled(false);
                     app.log("⛔︎ Auto-scan disabled.");
                     app.set_auto_scan_config(AutoScanConfig::Disabled);
                 }
-                (KeyModifiers::NONE, Char('S'), Some(client), _, _) => {
-                    let status = client.get_scanner_status(None)?;
+                (KeyModifiers::NONE, Char('S'), ConnectionState::Connected, _, _) => {
+                    let status = app.get_scanner_status().unwrap();
                     app.log("📄 Scanner status:");
                     app.log(format!(
                         "Rear left sensor covered: {}",
@@ -178,11 +131,23 @@ pub(crate) fn update(app: &mut App) -> Result<()> {
                         status.calibration_of_unit_needed
                     ));
                 }
-                (KeyModifiers::NONE, Char('w'), Some(_), _, WatchStatusConfig::Disabled) => {
+                (
+                    KeyModifiers::NONE,
+                    Char('w'),
+                    ConnectionState::Connected,
+                    _,
+                    WatchStatusConfig::Disabled,
+                ) => {
                     app.log("👀 Watching scanner status.");
                     app.set_watch_status_config(WatchStatusConfig::Enabled);
                 }
-                (KeyModifiers::NONE, Char('w'), Some(_), _, WatchStatusConfig::Enabled) => {
+                (
+                    KeyModifiers::NONE,
+                    Char('w'),
+                    ConnectionState::Connected,
+                    _,
+                    WatchStatusConfig::Enabled,
+                ) => {
                     app.log("👀 Stopped watching scanner status.");
                     app.set_watch_status_config(WatchStatusConfig::Disabled);
                 }
@@ -204,19 +169,25 @@ pub(crate) fn update(app: &mut App) -> Result<()> {
                     app.set_auto_scan_config(AutoScanConfig::Enabled(Some(EjectMotion::ToRear)));
                     app.log("📄 Will drop paper out back after scan.");
                 }
-                (KeyModifiers::NONE, Char('B'), Some(_), AutoScanConfig::Enabled(_), _) => {
+                (
+                    KeyModifiers::NONE,
+                    Char('B'),
+                    ConnectionState::Connected,
+                    AutoScanConfig::Enabled(_),
+                    _,
+                ) => {
                     app.set_auto_scan_config(AutoScanConfig::Enabled(None));
                     app.log("📄 Will hold paper out back after scan.");
                 }
-                (KeyModifiers::NONE, Char('a'), Some(_), _, _) => {
+                (KeyModifiers::NONE, Char('a'), ConnectionState::Connected, _, _) => {
                     app.eject_document(EjectMotion::ToRear)?;
                     app.log("📄 Accepted & dropped sheet into scanner.");
                 }
-                (KeyModifiers::NONE, Char('r'), Some(_), _, _) => {
+                (KeyModifiers::NONE, Char('r'), ConnectionState::Connected, _, _) => {
                     app.eject_document(EjectMotion::ToFrontAndHold)?;
                     app.log("📄 Rejected & held document out front.");
                 }
-                (KeyModifiers::NONE, Char('R'), Some(_), _, _) => {
+                (KeyModifiers::NONE, Char('R'), ConnectionState::Connected, _, _) => {
                     app.eject_document(EjectMotion::ToFront)?;
                     app.log("📄 Rejected & dropped document out front.");
                 }

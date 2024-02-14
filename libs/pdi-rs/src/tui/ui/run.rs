@@ -1,10 +1,7 @@
 use anyhow::Result;
 use ratatui::{prelude::CrosstermBackend, Terminal};
 
-use pdi_rs::pdiscan::{
-    client::Client,
-    protocol::types::{ColorMode, EjectMotion, Resolution, ScanSideMode},
-};
+use pdi_rs::pdiscan::client::Client;
 
 use crate::ui::app::ConnectionState;
 
@@ -45,20 +42,14 @@ pub(crate) fn run() -> Result<()> {
                     None
                 }
             };
-            app.set_client(client);
-            if let Some(client) = app.get_client() {
-                client.set_scan_resolution(Resolution::Half);
-                client.set_color_mode(ColorMode::LowColor);
-                client.set_scan_side_mode(ScanSideMode::Duplex);
 
-                let status = client.get_scanner_status(None)?;
-
-                if status.rear_left_sensor_covered {
-                    client.eject_document(EjectMotion::ToFront);
-                }
-
-                last_status = Some(status);
+            if let Some(client) = client {
+                app.on_connect(client);
+                assert_eq!(app.connection_state(), ConnectionState::Connected);
             }
+
+            last_status = app.get_scanner_status();
+
             app.set_should_connect(false);
         }
 
@@ -72,194 +63,185 @@ pub(crate) fn run() -> Result<()> {
         }
 
         if let WatchStatusConfig::Enabled = app.get_watch_status_config() {
-            if let Some(client) = app.get_client() {
-                if let Some(ref prev_status) = last_status {
-                    if let Ok(current_status) = client.get_scanner_status(None) {
-                        if current_status.brander_position_sensor_covered
-                            != prev_status.brander_position_sensor_covered
-                        {
-                            app.log(format!(
-                                "👀 Brander position sensor covered: {:?} → {:?}",
-                                prev_status.brander_position_sensor_covered,
-                                current_status.brander_position_sensor_covered
-                            ));
-                        }
-
-                        if current_status.calibration_of_unit_needed
-                            != prev_status.calibration_of_unit_needed
-                        {
-                            app.log(format!(
-                                "👀 Calibration of unit needed: {:?} → {:?}",
-                                prev_status.calibration_of_unit_needed,
-                                current_status.calibration_of_unit_needed
-                            ));
-                        }
-
-                        // if current_status.cover_open != prev_status.cover_open {
-                        //     app.log(format!(
-                        //         "👀 Cover open: {:?} → {:?}",
-                        //         prev_status.cover_open, current_status.cover_open
-                        //     ));
-                        // }
-
-                        if current_status.document_in_scanner != prev_status.document_in_scanner {
-                            app.log(format!(
-                                "👀 Document in scanner: {:?} → {:?}",
-                                prev_status.document_in_scanner, current_status.document_in_scanner
-                            ));
-                        }
-
-                        if current_status.download_needed != prev_status.download_needed {
-                            app.log(format!(
-                                "👀 Download needed: {:?} → {:?}",
-                                prev_status.download_needed, current_status.download_needed
-                            ));
-                        }
-
-                        if current_status.front_left_sensor_covered
-                            != prev_status.front_left_sensor_covered
-                        {
-                            app.log(format!(
-                                "👀 Front left sensor covered: {:?} → {:?}",
-                                prev_status.front_left_sensor_covered,
-                                current_status.front_left_sensor_covered
-                            ));
-                        }
-
-                        if current_status.front_m1_sensor_covered
-                            != prev_status.front_m1_sensor_covered
-                        {
-                            app.log(format!(
-                                "👀 Front M1 sensor covered: {:?} → {:?}",
-                                prev_status.front_m1_sensor_covered,
-                                current_status.front_m1_sensor_covered
-                            ));
-                        }
-
-                        if current_status.front_m2_sensor_covered
-                            != prev_status.front_m2_sensor_covered
-                        {
-                            app.log(format!(
-                                "👀 Front M2 sensor covered: {:?} → {:?}",
-                                prev_status.front_m2_sensor_covered,
-                                current_status.front_m2_sensor_covered
-                            ));
-                        }
-
-                        if current_status.front_m3_sensor_covered
-                            != prev_status.front_m3_sensor_covered
-                        {
-                            app.log(format!(
-                                "👀 Front M3 sensor covered: {:?} → {:?}",
-                                prev_status.front_m3_sensor_covered,
-                                current_status.front_m3_sensor_covered
-                            ));
-                        }
-
-                        if current_status.front_m4_sensor_covered
-                            != prev_status.front_m4_sensor_covered
-                        {
-                            app.log(format!(
-                                "👀 Front M4 sensor covered: {:?} → {:?}",
-                                prev_status.front_m4_sensor_covered,
-                                current_status.front_m4_sensor_covered
-                            ));
-                        }
-
-                        if current_status.front_m5_sensor_covered
-                            != prev_status.front_m5_sensor_covered
-                        {
-                            app.log(format!(
-                                "👀 Front M5 sensor covered: {:?} → {:?}",
-                                prev_status.front_m5_sensor_covered,
-                                current_status.front_m5_sensor_covered
-                            ));
-                        }
-
-                        if current_status.front_right_sensor_covered
-                            != prev_status.front_right_sensor_covered
-                        {
-                            app.log(format!(
-                                "👀 Front right sensor covered: {:?} → {:?}",
-                                prev_status.front_right_sensor_covered,
-                                current_status.front_right_sensor_covered
-                            ));
-                        }
-
-                        // if current_status.high_speed_mode != prev_status.high_speed_mode {
-                        //     app.log(format!(
-                        //         "👀 High speed mode: {:?} → {:?}",
-                        //         prev_status.high_speed_mode, current_status.high_speed_mode
-                        //     ));
-                        // }
-
-                        if current_status.in_diagnostic_mode != prev_status.in_diagnostic_mode {
-                            app.log(format!(
-                                "👀 In diagnostic mode: {:?} → {:?}",
-                                prev_status.in_diagnostic_mode, current_status.in_diagnostic_mode
-                            ));
-                        }
-
-                        if current_status.rear_left_sensor_covered
-                            != prev_status.rear_left_sensor_covered
-                        {
-                            app.log(format!(
-                                "👀 Rear left sensor covered: {:?} → {:?}",
-                                prev_status.rear_left_sensor_covered,
-                                current_status.rear_left_sensor_covered
-                            ));
-                        }
-
-                        if current_status.rear_right_sensor_covered
-                            != prev_status.rear_right_sensor_covered
-                        {
-                            app.log(format!(
-                                "👀 Rear right sensor covered: {:?} → {:?}",
-                                prev_status.rear_right_sensor_covered,
-                                current_status.rear_right_sensor_covered
-                            ));
-                        }
-
-                        if current_status.scan_array_pixel_error
-                            != prev_status.scan_array_pixel_error
-                        {
-                            app.log(format!(
-                                "👀 Scan array pixel error: {:?} → {:?}",
-                                prev_status.scan_array_pixel_error,
-                                current_status.scan_array_pixel_error
-                            ));
-                        }
-
-                        if current_status.scanner_enabled != prev_status.scanner_enabled {
-                            app.log(format!(
-                                "👀 Scanner feeder enabled: {:?} → {:?}",
-                                prev_status.scanner_enabled, current_status.scanner_enabled
-                            ));
-                        }
-
-                        if current_status.scanner_ready != prev_status.scanner_ready {
-                            app.log(format!(
-                                "👀 Scanner ready: {:?} → {:?}",
-                                prev_status.scanner_ready, current_status.scanner_ready
-                            ));
-                        }
-
-                        if current_status.document_jam != prev_status.document_jam {
-                            app.log(format!(
-                                "👀 Document jam: {:?} → {:?}",
-                                prev_status.document_jam, current_status.document_jam
-                            ));
-                        }
-
-                        if current_status.xmt_aborted != prev_status.xmt_aborted {
-                            app.log(format!(
-                                "👀 XMT aborted: {:?} → {:?}",
-                                prev_status.xmt_aborted, current_status.xmt_aborted
-                            ));
-                        }
-
-                        last_status = Some(current_status);
+            if let Some(ref prev_status) = last_status {
+                if let Some(current_status) = app.get_scanner_status() {
+                    if current_status.brander_position_sensor_covered
+                        != prev_status.brander_position_sensor_covered
+                    {
+                        app.log(format!(
+                            "👀 Brander position sensor covered: {:?} → {:?}",
+                            prev_status.brander_position_sensor_covered,
+                            current_status.brander_position_sensor_covered
+                        ));
                     }
+
+                    if current_status.calibration_of_unit_needed
+                        != prev_status.calibration_of_unit_needed
+                    {
+                        app.log(format!(
+                            "👀 Calibration of unit needed: {:?} → {:?}",
+                            prev_status.calibration_of_unit_needed,
+                            current_status.calibration_of_unit_needed
+                        ));
+                    }
+
+                    // if current_status.cover_open != prev_status.cover_open {
+                    //     app.log(format!(
+                    //         "👀 Cover open: {:?} → {:?}",
+                    //         prev_status.cover_open, current_status.cover_open
+                    //     ));
+                    // }
+
+                    if current_status.document_in_scanner != prev_status.document_in_scanner {
+                        app.log(format!(
+                            "👀 Document in scanner: {:?} → {:?}",
+                            prev_status.document_in_scanner, current_status.document_in_scanner
+                        ));
+                    }
+
+                    if current_status.download_needed != prev_status.download_needed {
+                        app.log(format!(
+                            "👀 Download needed: {:?} → {:?}",
+                            prev_status.download_needed, current_status.download_needed
+                        ));
+                    }
+
+                    if current_status.front_left_sensor_covered
+                        != prev_status.front_left_sensor_covered
+                    {
+                        app.log(format!(
+                            "👀 Front left sensor covered: {:?} → {:?}",
+                            prev_status.front_left_sensor_covered,
+                            current_status.front_left_sensor_covered
+                        ));
+                    }
+
+                    if current_status.front_m1_sensor_covered != prev_status.front_m1_sensor_covered
+                    {
+                        app.log(format!(
+                            "👀 Front M1 sensor covered: {:?} → {:?}",
+                            prev_status.front_m1_sensor_covered,
+                            current_status.front_m1_sensor_covered
+                        ));
+                    }
+
+                    if current_status.front_m2_sensor_covered != prev_status.front_m2_sensor_covered
+                    {
+                        app.log(format!(
+                            "👀 Front M2 sensor covered: {:?} → {:?}",
+                            prev_status.front_m2_sensor_covered,
+                            current_status.front_m2_sensor_covered
+                        ));
+                    }
+
+                    if current_status.front_m3_sensor_covered != prev_status.front_m3_sensor_covered
+                    {
+                        app.log(format!(
+                            "👀 Front M3 sensor covered: {:?} → {:?}",
+                            prev_status.front_m3_sensor_covered,
+                            current_status.front_m3_sensor_covered
+                        ));
+                    }
+
+                    if current_status.front_m4_sensor_covered != prev_status.front_m4_sensor_covered
+                    {
+                        app.log(format!(
+                            "👀 Front M4 sensor covered: {:?} → {:?}",
+                            prev_status.front_m4_sensor_covered,
+                            current_status.front_m4_sensor_covered
+                        ));
+                    }
+
+                    if current_status.front_m5_sensor_covered != prev_status.front_m5_sensor_covered
+                    {
+                        app.log(format!(
+                            "👀 Front M5 sensor covered: {:?} → {:?}",
+                            prev_status.front_m5_sensor_covered,
+                            current_status.front_m5_sensor_covered
+                        ));
+                    }
+
+                    if current_status.front_right_sensor_covered
+                        != prev_status.front_right_sensor_covered
+                    {
+                        app.log(format!(
+                            "👀 Front right sensor covered: {:?} → {:?}",
+                            prev_status.front_right_sensor_covered,
+                            current_status.front_right_sensor_covered
+                        ));
+                    }
+
+                    // if current_status.high_speed_mode != prev_status.high_speed_mode {
+                    //     app.log(format!(
+                    //         "👀 High speed mode: {:?} → {:?}",
+                    //         prev_status.high_speed_mode, current_status.high_speed_mode
+                    //     ));
+                    // }
+
+                    if current_status.in_diagnostic_mode != prev_status.in_diagnostic_mode {
+                        app.log(format!(
+                            "👀 In diagnostic mode: {:?} → {:?}",
+                            prev_status.in_diagnostic_mode, current_status.in_diagnostic_mode
+                        ));
+                    }
+
+                    if current_status.rear_left_sensor_covered
+                        != prev_status.rear_left_sensor_covered
+                    {
+                        app.log(format!(
+                            "👀 Rear left sensor covered: {:?} → {:?}",
+                            prev_status.rear_left_sensor_covered,
+                            current_status.rear_left_sensor_covered
+                        ));
+                    }
+
+                    if current_status.rear_right_sensor_covered
+                        != prev_status.rear_right_sensor_covered
+                    {
+                        app.log(format!(
+                            "👀 Rear right sensor covered: {:?} → {:?}",
+                            prev_status.rear_right_sensor_covered,
+                            current_status.rear_right_sensor_covered
+                        ));
+                    }
+
+                    if current_status.scan_array_pixel_error != prev_status.scan_array_pixel_error {
+                        app.log(format!(
+                            "👀 Scan array pixel error: {:?} → {:?}",
+                            prev_status.scan_array_pixel_error,
+                            current_status.scan_array_pixel_error
+                        ));
+                    }
+
+                    if current_status.scanner_enabled != prev_status.scanner_enabled {
+                        app.log(format!(
+                            "👀 Scanner feeder enabled: {:?} → {:?}",
+                            prev_status.scanner_enabled, current_status.scanner_enabled
+                        ));
+                    }
+
+                    if current_status.scanner_ready != prev_status.scanner_ready {
+                        app.log(format!(
+                            "👀 Scanner ready: {:?} → {:?}",
+                            prev_status.scanner_ready, current_status.scanner_ready
+                        ));
+                    }
+
+                    if current_status.document_jam != prev_status.document_jam {
+                        app.log(format!(
+                            "👀 Document jam: {:?} → {:?}",
+                            prev_status.document_jam, current_status.document_jam
+                        ));
+                    }
+
+                    if current_status.xmt_aborted != prev_status.xmt_aborted {
+                        app.log(format!(
+                            "👀 XMT aborted: {:?} → {:?}",
+                            prev_status.xmt_aborted, current_status.xmt_aborted
+                        ));
+                    }
+
+                    last_status = Some(current_status);
                 }
             }
         }

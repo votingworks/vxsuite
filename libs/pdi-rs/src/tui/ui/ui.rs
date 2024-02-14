@@ -22,12 +22,11 @@ pub(crate) fn ui(app: &mut App, frame: &mut Frame<'_>) {
         widgets::Paragraph::new(Text::from(
             match (
                 app.connection_state(),
-                app.get_client(),
                 auto_scan_config,
                 watch_status_config,
             ) {
-                (ConnectionState::Connecting, _, _, _) => vec![],
-                (ConnectionState::Disconnected, _, _, _) => {
+                (ConnectionState::Connecting, _, _) => vec![],
+                (ConnectionState::Disconnected, _, _) => {
                     vec![
                         Line::from(" "),
                         Line::from(Span::raw("  Commands:").bold()),
@@ -38,7 +37,7 @@ pub(crate) fn ui(app: &mut App, frame: &mut Frame<'_>) {
                         Line::from(vec![Span::raw("  q").bold(), Span::raw(" Quit")]),
                     ]
                 }
-                (ConnectionState::Connected, _, AutoScanConfig::Disabled, watch_status) => vec![
+                (ConnectionState::Connected, AutoScanConfig::Disabled, watch_status) => vec![
                     Line::from(" "),
                     Line::from(Span::raw("  Commands:").bold()),
                     Line::from(vec![
@@ -81,7 +80,6 @@ pub(crate) fn ui(app: &mut App, frame: &mut Frame<'_>) {
                 ],
                 (
                     ConnectionState::Connected,
-                    Some(_),
                     AutoScanConfig::Enabled(eject_motion),
                     watch_status,
                 ) => {
