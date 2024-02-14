@@ -76,6 +76,7 @@
     "@types/stream-chopper": "workspace:*",
     "@types/stream-json": "^1.7.3",
     "@types/tmp": "0.2.4",
+    "@votingworks/fs": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",

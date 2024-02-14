@@ -10,7 +10,7 @@ import {
   Table,
   UsbDriveImage,
 } from '@votingworks/ui';
-import type { FileSystemEntry } from '@votingworks/backend';
+import type { FileSystemEntry } from '@votingworks/fs';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { Loading } from '../components/loading';
 import { NavigationScreen } from '../components/navigation_screen';

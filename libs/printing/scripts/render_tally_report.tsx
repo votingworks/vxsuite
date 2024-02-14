@@ -1,6 +1,5 @@
 import React from 'react';
-import { safeParseElectionDefinition } from '@votingworks/types';
-import { readFileSync } from 'fs';
+import { readElection } from '@votingworks/fs';
 import { AdminTallyReportByParty } from '@votingworks/ui';
 import { buildSimpleMockTallyReportResults } from '@votingworks/utils';
 import { renderToPdf } from '../src';
@@ -13,9 +12,7 @@ export async function main(args: readonly string[]): Promise<void> {
 
   const electionPath = args[0];
   const outputPath = args[1];
-  const electionDefinition = safeParseElectionDefinition(
-    readFileSync(electionPath, 'utf8')
-  ).unsafeUnwrap();
+  const electionDefinition = (await readElection(electionPath)).unsafeUnwrap();
   const { election } = electionDefinition;
 
   await renderToPdf(

@@ -33,6 +33,7 @@
   "dependencies": {
     "@votingworks/auth": "workspace:*",
     "@votingworks/basics": "workspace:*",
+    "@votingworks/fs": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/printing": "workspace:*",
     "@votingworks/types": "workspace:*",
