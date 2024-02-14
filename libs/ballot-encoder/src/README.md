@@ -65,8 +65,8 @@ is encoded as follows:
 - **Test Ballot?:** This is a single bit that is set if the ballot is a test
   ballot, unset otherwise (`C.isTestMode`).
   - Size: 1 bit.
-- **Ballot Type:** One of the `BallotType` values, e.g. `Precinct` or `Absentee`
-  (`C.ballotType`).
+- **Ballot Type:** One of the `BallotType` values, e.g. `Precinct`, `Absentee`,
+  or `Provisional` (`C.ballotType`).
   - Size: 4 bits.
 - **Ballot ID Set?:** This bit is true if there is a ballot id, unset otherwise
   (`C.ballotId`).
@@ -75,7 +75,7 @@ is encoded as follows:
   dynamic-length string whose maximum length is 255 bytes (`C.ballotId`).
   - Size: `(1 + bytes(C.ballotId)) * 8` bits.
 
-## Completed Ballot Encoding
+## Completed BMD Ballot Encoding
 
 A "completed ballot" is one that has been filled out by a voter. See
 `CompletedBallot` in [election.ts](../../types/src/election.ts) for the data
@@ -85,7 +85,7 @@ encoded as follows:
 
 - **Prelude:** This is the literal string `VX` encoded as UTF-8 bytes, followed
   by the integer 2 encoded as uint8. In binary, this is
-  `01010110 01011000 00000002`. This must be at the start of the encoded data,
+  `01010110 01011000 00000010`. This must be at the start of the encoded data,
   or the data does not represent a valid v2-encoded ballot.
   - Size: 24 bits.
 - **Election Hash:** This is a fixed-length hexadecimal string 20 characters
@@ -129,12 +129,12 @@ paper ballot. See `HMPBBallotPageMetadata` in [index.ts](./index.ts). Given
 metadata `H` and election definition `ED`, `H` is encoded as follows:
 
 - **Prelude:** This is the literal string `VP` encoded as UTF-8 bytes, followed
-  by the version number encoded as uint8 (e.g. 1). In binary, this is
-  `01010110 01011000 00000001`. This must be at the start of the encoded data,
-  or the data does not represent a valid v1-encoded HMPB metadata.
+  by the version number (currently, 2) encoded as uint8. In binary, this is
+  `01010110 01010000 00000010`. This must be at the start of the encoded data,
+  or the data does not represent a valid v2-encoded HMPB metadata.
   - Size: 24 bits.
 - **Election Hash:** This is a fixed-length hexadecimal string 20 characters
   long (`ED.electionHash.slice(0, 20)`).
   - Size: `20 * 4` bits.
 - **Ballot Config:** The encoding of a `BallotConfig` derived from `H` and `ED`
-  goes here.
+  goes here. Note: `ballotId` is never included in the config for HMPB.
