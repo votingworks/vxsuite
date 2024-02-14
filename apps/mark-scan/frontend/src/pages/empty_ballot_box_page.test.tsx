@@ -29,7 +29,7 @@ test('requires poll worker auth', () => {
     apiMock,
   });
 
-  userEvent.click(screen.getByText('Insert a poll worker card to continue.'));
+  screen.getByText('Insert a poll worker card to continue.');
 });
 
 test('calls expectConfirmBallotBoxEmptied when button is clicked', () => {
