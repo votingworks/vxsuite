@@ -458,6 +458,23 @@ export function AppRoot({
       return <EmptyBallotBoxPage authStatus={authStatus} logger={logger} />;
     }
 
+    if (
+      !isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+      )
+    ) {
+      if (stateMachineState === 'ejecting_to_rear') {
+        return <CastingBallotPage />;
+      }
+    }
+
+    if (
+      stateMachineState === 'ballot_accepted' ||
+      stateMachineState === 'resetting_state_machine_after_success'
+    ) {
+      return <BallotSuccessfullyCastPage />;
+    }
+
     if (isPollWorkerAuth(authStatus) || isCardlessVoterAuth(authStatus)) {
       if (stateMachineState === 'blank_page_interpretation') {
         // Blank page interpretation handling must take priority over PollWorkerScreen.
@@ -514,28 +531,6 @@ export function AppRoot({
 
     if (pollsState === 'polls_open') {
       if (isCardlessVoterAuth(authStatus)) {
-        if (
-          !isFeatureFlagEnabled(
-            BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
-          )
-        ) {
-          if (
-            stateMachineState === 'ejecting_to_rear' ||
-            // Cardless voter auth is ended in the backend when the voting session ends but the frontend
-            // may have a stale value. Cardless voter auth + 'not_accepting_paper' state means the frontend
-            // is stale, so we want to render the previous loading screen until the frontend auth status updates.
-            stateMachineState === 'not_accepting_paper'
-          ) {
-            return <CastingBallotPage />;
-          }
-        }
-        if (
-          stateMachineState === 'ballot_accepted' ||
-          stateMachineState === 'resetting_state_machine_after_success'
-        ) {
-          return <BallotSuccessfullyCastPage />;
-        }
-
         let ballotContextProviderChild = <Ballot />;
         // Pages that condition on state machine state aren't nested under Ballot because Ballot uses
         // frontend browser routing for flow control and is completely independent of the state machine.
