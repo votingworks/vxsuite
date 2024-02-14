@@ -588,3 +588,22 @@ test('usb formatting flows', async () => {
   apiMock.expectGetUsbDriveStatus('no_drive');
   await screen.findByText('No USB Drive Detected');
 });
+
+test('battery display and alert', async () => {
+  const { renderApp } = buildApp(apiMock);
+  apiMock.expectGetCurrentElectionMetadata();
+  apiMock.expectListPotentialElectionPackagesOnUsbDrive();
+  renderApp();
+
+  await apiMock.authenticateAsSystemAdministrator();
+
+  // initial battery level in nav bar
+  await screen.findByText('100%');
+
+  apiMock.setBatteryInfo({ level: 0.1, discharging: true });
+  const warning = await screen.findByRole('alertdialog');
+  within(warning).getByText('Low Battery Warning');
+
+  // updated battery level in nav bar
+  await screen.findByText('10%');
+});

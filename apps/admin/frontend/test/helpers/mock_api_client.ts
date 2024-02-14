@@ -18,7 +18,11 @@ import type {
   TallyReportSpec,
   TallyReportWarning,
 } from '@votingworks/admin-backend';
-import { FileSystemEntry, FileSystemEntryType } from '@votingworks/backend';
+import {
+  BatteryInfo,
+  FileSystemEntry,
+  FileSystemEntryType,
+} from '@votingworks/backend';
 import { Result, deferred, ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import { Buffer } from 'buffer';
@@ -50,10 +54,20 @@ const mockRect: Rect = {
   y: 0,
 };
 
-export type MockApiClient = MockClient<Api>;
+type MockApiClient = Omit<MockClient<Api>, 'getBatteryInfo'> & {
+  // Because this is polled so frequently, we opt for a standard jest mock instead of a
+  // libs/test-utils mock since the latter requires every call to be explicitly mocked
+  getBatteryInfo: jest.Mock;
+};
 
 export function createMockApiClient(): MockApiClient {
-  return createMockClient<Api>();
+  const mockApiClient = createMockClient<Api>();
+  // For some reason, using an object spread to override the polling methods breaks the rest
+  // of the mockApiClient, so we override like this instead
+  (mockApiClient.getBatteryInfo as unknown as jest.Mock) = jest.fn(() =>
+    Promise.resolve({ level: 1, discharging: false })
+  );
+  return mockApiClient as unknown as MockApiClient;
 }
 
 /**
@@ -197,6 +211,14 @@ export function createApiMock(
       }
     ) {
       apiClient.getMachineConfig.expectCallWith().resolves(machineConfig);
+    },
+
+    setBatteryInfo(batteryInfo?: Partial<BatteryInfo>) {
+      apiClient.getBatteryInfo.mockResolvedValue({
+        level: 0.5,
+        discharging: false,
+        ...(batteryInfo || {}),
+      });
     },
 
     expectGetUsbDriveStatus(status: UsbDriveStatus['status']): void {

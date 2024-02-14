@@ -37,6 +37,7 @@ import { SinglePrecinctTallyReportScreen } from '../screens/reporting/single_pre
 import { PrecinctBallotCountReport } from '../screens/reporting/precinct_ballot_count_report_screen';
 import { VotingMethodBallotCountReport } from '../screens/reporting/voting_method_ballot_count_report_screen';
 import { FullElectionTallyReportScreen } from '../screens/reporting/full_election_tally_report_screen';
+import { HardwareDiagnosticsScreen } from '../screens/hardware_diagnostics_screen';
 
 export function AppRoutes(): JSX.Element {
   const { electionDefinition, configuredAt, auth, hasCardReaderAttached } =
@@ -94,6 +95,9 @@ export function AppRoutes(): JSX.Element {
             <Route exact path={routerPaths.settings}>
               <SettingsScreen />
             </Route>
+            <Route exact path={routerPaths.hardwareDiagnostics}>
+              <HardwareDiagnosticsScreen />
+            </Route>
             <Redirect to={routerPaths.election} />
           </Switch>
           <SmartcardModal />
@@ -122,6 +126,9 @@ export function AppRoutes(): JSX.Element {
           </Route>
           <Route exact path={routerPaths.settings}>
             <SettingsScreen />
+          </Route>
+          <Route exact path={routerPaths.hardwareDiagnostics}>
+            <HardwareDiagnosticsScreen />
           </Route>
           <Redirect to={routerPaths.election} />
         </Switch>

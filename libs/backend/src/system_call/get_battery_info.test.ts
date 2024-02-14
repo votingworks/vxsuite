@@ -104,7 +104,7 @@ POWER_SUPPLY_STATUS=Discharging
   );
 });
 
-test('returns undefined if the power_supply "files" are not present', async () => {
+test('returns null if the power_supply "files" are not present', async () => {
   createReadStreamMock
     .mockImplementationOnce(() => {
       throw new Error('ENOENT');
@@ -112,5 +112,5 @@ test('returns undefined if the power_supply "files" are not present', async () =
     .mockImplementationOnce(() => {
       throw new Error('ENOENT');
     });
-  expect(await getBatteryInfo()).toBeUndefined();
+  expect(await getBatteryInfo()).toBeNull();
 });

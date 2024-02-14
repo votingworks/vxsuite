@@ -112,3 +112,5 @@ export * from './checkbox';
 export * from './utils/pin_length';
 export * from './test-utils/mock_usb_drive';
 export * from './fonts/roboto';
+export * from './battery_display';
+export * from './battery_low_alert';
