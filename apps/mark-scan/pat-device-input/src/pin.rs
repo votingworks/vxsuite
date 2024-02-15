@@ -53,23 +53,36 @@ impl Pin {
 
     pub fn is_active(&self) -> bool {
         let filepath = format!("/sys/class/gpio/gpio{self}/value");
-        let mut file = File::open(filepath).unwrap();
+        let Ok(mut file) = File::open(filepath) else {
+            log!(
+                EventId::PatDeviceError,
+                "Failed to open file for pin {self}",
+            );
+            return false;
+        };
+
         let mut buf = [0; 1];
-        file.read_exact(&mut buf).unwrap();
-        let string_value = from_utf8(&buf).unwrap();
+        if let Err(e) = file.read_exact(&mut buf) {
+            log!(
+                EventId::PatDeviceError,
+                "Failed to read file for pin {self}: {e}",
+            );
+            return false;
+        }
 
         // Pin status does not follow boolean convention. We translate to typical
         // boolean convention here.
         // 1 is the default state, 0 is actioned state
         // connection status: 1 when PAT device is not plugged in, 0 when plugged in
         // A/B signal: 1 when no signal is sent from device, 0 when signal is sent
-        match string_value {
-            "0" => true,
-            "1" => false,
+        match buf[0] {
+            b'0' => true,
+            b'1' => false,
             _ => {
                 log!(
                     EventId::PatDeviceError,
-                    "Unexpected value for pin #{self}: {string_value}",
+                    "Unexpected value for pin #{self}: {char}",
+                    char = buf[0] as char,
                 );
                 false
             }
