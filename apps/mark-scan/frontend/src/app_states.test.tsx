@@ -99,7 +99,7 @@ test('`waiting_for_invalidated_ballot_confirmation` state renders ballot invalid
     'waiting_for_invalidated_ballot_confirmation.paper_present'
   );
   apiMock.setAuthStatusCardlessVoterLoggedInWithDefaults(electionDefinition);
-  await screen.findByText('Notify a Poll Worker');
+  await screen.findByText('Ask a Poll Worker for Help');
 });
 
 test('`waiting_for_invalidated_ballot_confirmation` state renders ballot invalidation page with poll worker auth', async () => {
@@ -143,7 +143,7 @@ test('`blank_page_interpretation` state renders BlankPageInterpretationPage for 
 
   apiMock.setPaperHandlerState('blank_page_interpretation');
   apiMock.setAuthStatusCardlessVoterLoggedInWithDefaults(electionDefinition);
-  await screen.findByText('Notify a Poll Worker');
+  await screen.findByText('Ask a Poll Worker for Help');
   screen.getByText('There was a problem interpreting your ballot.');
 });
 
