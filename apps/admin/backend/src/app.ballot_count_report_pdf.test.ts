@@ -261,7 +261,7 @@ test('ballot count report logging', async () => {
   // successful print
   await apiClient.printBallotCountReport(MOCK_REPORT_SPEC);
   expect(logger.log).lastCalledWith(
-    LogEventId.TallyReportPrinted,
+    LogEventId.ElectionReportPrinted,
     'election_manager',
     {
       message: `User printed a ballot count report.`,
@@ -273,7 +273,7 @@ test('ballot count report logging', async () => {
   mockPrinterHandler.disconnectPrinter();
   await apiClient.printBallotCountReport(MOCK_REPORT_SPEC);
   expect(logger.log).lastCalledWith(
-    LogEventId.TallyReportPrinted,
+    LogEventId.ElectionReportPrinted,
     'election_manager',
     {
       message: `Error in attempting to print ballot count report: cannot print without printer connected`,
@@ -284,7 +284,7 @@ test('ballot count report logging', async () => {
   // preview
   await apiClient.getBallotCountReportPreview(MOCK_REPORT_SPEC);
   expect(logger.log).lastCalledWith(
-    LogEventId.TallyReportPreviewed,
+    LogEventId.ElectionReportPreviewed,
     'election_manager',
     {
       message: `User previewed a ballot count report.`,

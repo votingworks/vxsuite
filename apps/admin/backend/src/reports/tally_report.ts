@@ -118,7 +118,7 @@ export async function generateTallyReportPreview({
   const {
     electionDefinition: { election },
   } = electionRecord;
-  await logger.log(LogEventId.TallyReportPreviewed, userRole, {
+  await logger.log(LogEventId.ElectionReportPreviewed, userRole, {
     message: `User previewed a tally report.`,
     disposition: 'success',
   });
@@ -147,13 +147,13 @@ export async function printTallyReport({
 
   try {
     await printer.print({ data: await renderToPdf(report) });
-    await logger.log(LogEventId.TallyReportPrinted, userRole, {
+    await logger.log(LogEventId.ElectionReportPrinted, userRole, {
       message: `User printed a tally report.`,
       disposition: 'success',
     });
   } catch (error) {
     assert(error instanceof Error);
-    await logger.log(LogEventId.TallyReportPrinted, userRole, {
+    await logger.log(LogEventId.ElectionReportPrinted, userRole, {
       message: `Error in attempting to print tally report: ${error.message}`,
       disposition: 'failure',
     });

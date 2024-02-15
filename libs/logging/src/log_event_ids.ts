@@ -39,8 +39,6 @@ export enum LogEventId {
   PrinterConnectionUpdate = 'printer-connection-update',
   DeviceAttached = 'device-attached',
   DeviceUnattached = 'device-unattached',
-  LoadFromStorage = 'load-from-storage',
-  SaveToStorage = 'save-to-storage',
   FileSaved = 'file-saved',
   SaveElectionPackageInit = 'save-election-package-init',
   SaveElectionPackageComplete = 'save-election-package-complete',
@@ -53,17 +51,12 @@ export enum LogEventId {
   ImportCastVoteRecordsComplete = 'import-cast-vote-records-complete',
   ClearImportedCastVoteRecordsInit = 'clear-imported-cast-vote-records-init',
   ClearImportedCastVoteRecordsComplete = 'clear-imported-cast-vote-records-complete',
-  RecomputingTally = 'recompute-tally-init',
-  RecomputedTally = 'recompute-tally-complete',
   ManualTallyDataEdited = 'manual-tally-data-edited',
   ManualTallyDataRemoved = 'manual-tally-data-removed',
   MarkedTallyResultsOfficial = 'marked-tally-results-official',
-  TallyReportPreviewed = 'tally-report-previewed',
-  TallyReportPrinted = 'tally-report-printed',
+  ElectionReportPreviewed = 'election-report-previewed',
+  ElectionReportPrinted = 'election-report-printed',
   ConvertingResultsToSemsFormat = 'converting-to-sems',
-  TestDeckPrinted = 'test-deck-printed',
-  TestDeckTallyReportPrinted = 'test-deck-tally-report-printed',
-  TestDeckTallyReportSavedToPdf = 'test-deck-tally-report-saved-to-pdf',
   InitialElectionPackageLoaded = 'initial-election-package-loaded',
   SystemSettingsSaveInitiated = 'system-settings-save-initiated',
   SystemSettingsSaved = 'system-settings-saved',
@@ -109,7 +102,6 @@ export enum LogEventId {
   ResetPollsToPaused = 'reset-polls-to-paused',
   BallotBagReplaced = 'ballot-bag-replaced',
   BallotBoxEmptied = 'ballot-box-emptied',
-  TallyReportClearedFromCard = 'tally-report-cleared-from-card',
   PrecinctConfigurationChanged = 'precinct-configuration-changed',
   ScannerBatchStarted = 'scanner-batch-started',
   ScannerBatchEnded = 'scanner-batch-ended',
@@ -132,6 +124,8 @@ export enum LogEventId {
   ControllerHandshakeComplete = 'controller-handshake-complete',
   ErrorSettingSigintHandler = 'error-setting-sigint-handler',
   UnexpectedHardwareDeviceResponse = 'unexpected-hardware-device-response',
+  DiagnosticInit = 'diagnostic-init',
+  DiagnosticComplete = 'diagnostic-complete',
   UnknownError = 'unknown-error',
 }
 
@@ -332,20 +326,6 @@ const DeviceUnattached: LogDetails = {
   documentationMessage: 'Application saw a device unattached from the system.',
 };
 
-const LoadFromStorage: LogDetails = {
-  eventId: LogEventId.LoadFromStorage,
-  eventType: LogEventType.ApplicationAction,
-  documentationMessage:
-    'A piece of information (current election, loaded CVR files, etc.) is loaded from storage. May happen as an automated action when an application starts up, or as a result of a user action.',
-};
-
-const SaveToStorage: LogDetails = {
-  eventId: LogEventId.SaveToStorage,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'A piece of information is saved to storage, usually resulting from a user action for example a user loading CVR files results in those files being saved to storage.',
-};
-
 const FileSaved: LogDetails = {
   eventId: LogEventId.FileSaved,
   eventType: LogEventType.UserAction,
@@ -440,23 +420,6 @@ const ClearImportedCastVoteRecordsComplete: LogDetails = {
   restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
 
-const RecomputingTally: LogDetails = {
-  eventId: LogEventId.RecomputingTally,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'New cast vote record files seen, initiating recomputation of tally data.',
-  defaultMessage: 'New cast vote record files seen, recomputing tally data...',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
-};
-
-const RecomputedTally: LogDetails = {
-  eventId: LogEventId.RecomputedTally,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'Tally recomputed with new cast vote record files, success or failure indicated by disposition.',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
-};
-
 const ManualTallyDataEdited: LogDetails = {
   eventId: LogEventId.ManualTallyDataEdited,
   eventType: LogEventType.UserAction,
@@ -481,17 +444,17 @@ const MarkedTallyResultsOfficial: LogDetails = {
   restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
 
-const TallyReportPreviewed: LogDetails = {
-  eventId: LogEventId.TallyReportPreviewed,
+const ElectionReportPreviewed: LogDetails = {
+  eventId: LogEventId.ElectionReportPreviewed,
   eventType: LogEventType.UserAction,
-  documentationMessage: 'Tally Report previewed and viewed in the app.',
+  documentationMessage: 'Report previewed by the user.',
   restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
 };
 
-const TallyReportPrinted: LogDetails = {
-  eventId: LogEventId.TallyReportPrinted,
+const ElectionReportPrinted: LogDetails = {
+  eventId: LogEventId.ElectionReportPrinted,
   eventType: LogEventType.UserAction,
-  documentationMessage: 'Tally Report printed.',
+  documentationMessage: 'Report printed by the user.',
   restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
 };
 
@@ -501,30 +464,6 @@ const ConvertingResultsToSemsFormat: LogDetails = {
   documentationMessage:
     'Initiating conversion of tally results to SEMS file format.',
   defaultMessage: 'Converting tally results to SEMS file format...',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
-};
-
-const TestDeckPrinted: LogDetails = {
-  eventId: LogEventId.TestDeckPrinted,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'User printed the test deck. Success or failure indicated by disposition.',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
-};
-
-const TestDeckTallyReportPrinted: LogDetails = {
-  eventId: LogEventId.TestDeckTallyReportPrinted,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'User printed the test deck tally report. Success or failure indicated by disposition.',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
-};
-
-const TestDeckTallyReportSavedToPdf: LogDetails = {
-  eventId: LogEventId.TestDeckTallyReportSavedToPdf,
-  eventType: LogEventType.UserAction,
-  documentationMessage:
-    'User attempted to save the test deck tally report as PDF. Success or failure indicated by subsequent FileSaved log disposition.',
   restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
 };
 
@@ -928,14 +867,6 @@ const BallotBoxEmptied: LogDetails = {
   restrictInDocumentationToApps: [LogSource.VxMarkScanFrontend],
 };
 
-const TallyReportClearedFromCard: LogDetails = {
-  eventId: LogEventId.TallyReportClearedFromCard,
-  eventType: LogEventType.ApplicationAction,
-  documentationMessage:
-    'The tally report has been cleared from the poll worker card.',
-  restrictInDocumentationToApps: [LogSource.VxMarkFrontend],
-};
-
 const PrecinctConfigurationChanged: LogDetails = {
   eventId: LogEventId.PrecinctConfigurationChanged,
   eventType: LogEventType.UserAction,
@@ -1114,6 +1045,18 @@ const UnexpectedHardwareDeviceResponse: LogDetails = {
   restrictInDocumentationToApps: [LogSource.VxMarkScanPatDaemon],
 };
 
+const DiagnosticInit: LogDetails = {
+  eventId: LogEventId.DiagnosticInit,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'The user has started a hardware diagnostic.',
+};
+
+const DiagnosticComplete: LogDetails = {
+  eventId: LogEventId.DiagnosticComplete,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'The user has completed a hardware diagnostic.',
+};
+
 const UnknownError: LogDetails = {
   eventId: LogEventId.UnknownError,
   eventType: LogEventType.ApplicationStatus,
@@ -1185,10 +1128,6 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return DeviceAttached;
     case LogEventId.DeviceUnattached:
       return DeviceUnattached;
-    case LogEventId.LoadFromStorage:
-      return LoadFromStorage;
-    case LogEventId.SaveToStorage:
-      return SaveToStorage;
     case LogEventId.FileSaved:
       return FileSaved;
     case LogEventId.SaveElectionPackageInit:
@@ -1213,28 +1152,18 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ClearImportedCastVoteRecordsInit;
     case LogEventId.ClearImportedCastVoteRecordsComplete:
       return ClearImportedCastVoteRecordsComplete;
-    case LogEventId.RecomputingTally:
-      return RecomputingTally;
-    case LogEventId.RecomputedTally:
-      return RecomputedTally;
     case LogEventId.ManualTallyDataEdited:
       return ManualTallyDataEdited;
     case LogEventId.ManualTallyDataRemoved:
       return ManualTallyDataRemoved;
     case LogEventId.MarkedTallyResultsOfficial:
       return MarkedTallyResultsOfficial;
-    case LogEventId.TallyReportPreviewed:
-      return TallyReportPreviewed;
-    case LogEventId.TallyReportPrinted:
-      return TallyReportPrinted;
+    case LogEventId.ElectionReportPreviewed:
+      return ElectionReportPreviewed;
+    case LogEventId.ElectionReportPrinted:
+      return ElectionReportPrinted;
     case LogEventId.ConvertingResultsToSemsFormat:
       return ConvertingResultsToSemsFormat;
-    case LogEventId.TestDeckPrinted:
-      return TestDeckPrinted;
-    case LogEventId.TestDeckTallyReportPrinted:
-      return TestDeckTallyReportPrinted;
-    case LogEventId.TestDeckTallyReportSavedToPdf:
-      return TestDeckTallyReportSavedToPdf;
     case LogEventId.InitialElectionPackageLoaded:
       return InitialElectionPackageLoaded;
     case LogEventId.SystemSettingsSaveInitiated:
@@ -1325,8 +1254,6 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return BallotBagReplaced;
     case LogEventId.BallotBoxEmptied:
       return BallotBoxEmptied;
-    case LogEventId.TallyReportClearedFromCard:
-      return TallyReportClearedFromCard;
     case LogEventId.PrecinctConfigurationChanged:
       return PrecinctConfigurationChanged;
     case LogEventId.ScannerBatchStarted:
@@ -1371,6 +1298,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ErrorSettingSigintHandler;
     case LogEventId.UnexpectedHardwareDeviceResponse:
       return UnexpectedHardwareDeviceResponse;
+    case LogEventId.DiagnosticInit:
+      return DiagnosticInit;
+    case LogEventId.DiagnosticComplete:
+      return DiagnosticComplete;
     case LogEventId.UnknownError:
       return UnknownError;
     /* istanbul ignore next - compile time check for completeness */

@@ -278,8 +278,8 @@ describe('buildCdfLog', () => {
     expect(cdfLogDevice.Version).toEqual('codeversion');
     expect(cdfLogDevice.Type).toEqual('ems');
     const events = cdfLogDevice.Event!;
-    // There are 35 log lines in the sample file.
-    expect(events).toHaveLength(35);
+    // There are 25 log lines in the sample file.
+    expect(events).toHaveLength(24);
     // There should be one auth-login log from the application logging.
     expect(events.filter((e) => e.Id === LogEventId.AuthLogin)).toHaveLength(1);
     // There should be 11 device-attached logs from the application logging.
@@ -299,7 +299,7 @@ describe('buildCdfLog', () => {
         "Details": "{"host":"ubuntu","source":"vx-admin-frontend"}",
         "Disposition": "success",
         "Id": "auth-logout",
-        "Sequence": "31",
+        "Sequence": "23",
         "TimeStamp": "2021-12-12T15:22:14.250052-08:00",
         "Type": "user-action",
         "UserId": "election_manager",
@@ -315,7 +315,7 @@ describe('buildCdfLog', () => {
         "Details": "{"host":"ubuntu","source":"system"}",
         "Disposition": "na",
         "Id": "usb-device-change-detected",
-        "Sequence": "25",
+        "Sequence": "17",
         "TimeStamp": "2021-12-12T15:22:07.667632-08:00",
         "Type": "system-status",
         "UserId": "system",

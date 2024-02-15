@@ -90,7 +90,7 @@ export async function generateBallotCountReportPreview({
   ...reportProps
 }: BallotCountReportPreviewProps): Promise<BallotCountReportPreview> {
   const report = buildBallotCountReport(reportProps);
-  await logger.log(LogEventId.TallyReportPreviewed, userRole, {
+  await logger.log(LogEventId.ElectionReportPreviewed, userRole, {
     message: `User previewed a ballot count report.`,
     disposition: 'success',
   });
@@ -116,13 +116,13 @@ export async function printBallotCountReport({
 
   try {
     await printer.print({ data: await renderToPdf(report) });
-    await logger.log(LogEventId.TallyReportPrinted, userRole, {
+    await logger.log(LogEventId.ElectionReportPrinted, userRole, {
       message: `User printed a ballot count report.`,
       disposition: 'success',
     });
   } catch (error) {
     assert(error instanceof Error);
-    await logger.log(LogEventId.TallyReportPrinted, userRole, {
+    await logger.log(LogEventId.ElectionReportPrinted, userRole, {
       message: `Error in attempting to print ballot count report: ${error.message}`,
       disposition: 'failure',
     });

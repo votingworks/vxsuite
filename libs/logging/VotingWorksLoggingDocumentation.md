@@ -122,14 +122,6 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)  
 **Description:** Application saw a device unattached from the system.  
 **Machines:** All
-### load-from-storage
-**Type:** [application-action](#application-action)  
-**Description:** A piece of information (current election, loaded CVR files, etc.) is loaded from storage. May happen as an automated action when an application starts up, or as a result of a user action.  
-**Machines:** All
-### save-to-storage
-**Type:** [user-action](#user-action)  
-**Description:** A piece of information is saved to storage, usually resulting from a user action for example a user loading CVR files results in those files being saved to storage.  
-**Machines:** All
 ### file-saved
 **Type:** [user-action](#user-action)  
 **Description:** File is saved to a USB drive. Success or failure indicated by disposition. Type of file specified with "fileType" key. For success logs the saved filename specified with "filename" key.  
@@ -178,14 +170,6 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** Imported cast vote records have been cleared (or failed to be cleared).  
 **Machines:** vx-admin-service
-### recompute-tally-init
-**Type:** [user-action](#user-action)  
-**Description:** New cast vote record files seen, initiating recomputation of tally data.  
-**Machines:** vx-admin-frontend
-### recompute-tally-complete
-**Type:** [user-action](#user-action)  
-**Description:** Tally recomputed with new cast vote record files, success or failure indicated by disposition.  
-**Machines:** vx-admin-frontend
 ### manual-tally-data-edited
 **Type:** [user-action](#user-action)  
 **Description:** User added or edited manually entered tally data to be included in the results alongside loaded CVR files.  
@@ -198,29 +182,17 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** User marked the tally results as official. This disables loading more CVR files or editing manual tally data.  
 **Machines:** vx-admin-service
-### tally-report-previewed
+### election-report-previewed
 **Type:** [user-action](#user-action)  
-**Description:** Tally Report previewed and viewed in the app.  
+**Description:** Report previewed by the user.  
 **Machines:** vx-admin-frontend
-### tally-report-printed
+### election-report-printed
 **Type:** [user-action](#user-action)  
-**Description:** Tally Report printed.  
+**Description:** Report printed by the user.  
 **Machines:** vx-admin-frontend
 ### converting-to-sems
 **Type:** [user-action](#user-action)  
 **Description:** Initiating conversion of tally results to SEMS file format.  
-**Machines:** vx-admin-frontend
-### test-deck-printed
-**Type:** [user-action](#user-action)  
-**Description:** User printed the test deck. Success or failure indicated by disposition.  
-**Machines:** vx-admin-frontend
-### test-deck-tally-report-printed
-**Type:** [user-action](#user-action)  
-**Description:** User printed the test deck tally report. Success or failure indicated by disposition.  
-**Machines:** vx-admin-frontend
-### test-deck-tally-report-saved-to-pdf
-**Type:** [user-action](#user-action)  
-**Description:** User attempted to save the test deck tally report as PDF. Success or failure indicated by subsequent FileSaved log disposition.  
 **Machines:** vx-admin-frontend
 ### initial-election-package-loaded
 **Type:** [user-action](#user-action)  
@@ -402,10 +374,6 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** Poll worker confirmed that they emptied the ballot box.  
 **Machines:** vx-mark-scan-frontend
-### tally-report-cleared-from-card
-**Type:** [application-action](#application-action)  
-**Description:** The tally report has been cleared from the poll worker card.  
-**Machines:** vx-mark-frontend
 ### precinct-configuration-changed
 **Type:** [user-action](#user-action)  
 **Description:** User has changed the precinct setting.  
@@ -494,6 +462,14 @@ IDs are logged with each log to identify the log being written.
 **Type:** [system-status](#system-status)  
 **Description:** A connected hardware device returned an unexpected response.  
 **Machines:** vx-mark-scan-pat-daemon
+### diagnostic-init
+**Type:** [user-action](#user-action)  
+**Description:** The user has started a hardware diagnostic.  
+**Machines:** All
+### diagnostic-complete
+**Type:** [user-action](#user-action)  
+**Description:** The user has completed a hardware diagnostic.  
+**Machines:** All
 ### unknown-error
 **Type:** [application-status](#application-status)  
 **Description:** Machine encountered an unknown error.  

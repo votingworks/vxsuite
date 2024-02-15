@@ -63,10 +63,6 @@ pub enum EventId {
     DeviceAttached,
     #[serde(rename = "device-unattached")]
     DeviceUnattached,
-    #[serde(rename = "load-from-storage")]
-    LoadFromStorage,
-    #[serde(rename = "save-to-storage")]
-    SaveToStorage,
     #[serde(rename = "file-saved")]
     FileSaved,
     #[serde(rename = "save-election-package-init")]
@@ -91,28 +87,18 @@ pub enum EventId {
     ClearImportedCastVoteRecordsInit,
     #[serde(rename = "clear-imported-cast-vote-records-complete")]
     ClearImportedCastVoteRecordsComplete,
-    #[serde(rename = "recompute-tally-init")]
-    RecomputingTally,
-    #[serde(rename = "recompute-tally-complete")]
-    RecomputedTally,
     #[serde(rename = "manual-tally-data-edited")]
     ManualTallyDataEdited,
     #[serde(rename = "manual-tally-data-removed")]
     ManualTallyDataRemoved,
     #[serde(rename = "marked-tally-results-official")]
     MarkedTallyResultsOfficial,
-    #[serde(rename = "tally-report-previewed")]
-    TallyReportPreviewed,
-    #[serde(rename = "tally-report-printed")]
-    TallyReportPrinted,
+    #[serde(rename = "election-report-previewed")]
+    ElectionReportPreviewed,
+    #[serde(rename = "election-report-printed")]
+    ElectionReportPrinted,
     #[serde(rename = "converting-to-sems")]
     ConvertingResultsToSemsFormat,
-    #[serde(rename = "test-deck-printed")]
-    TestDeckPrinted,
-    #[serde(rename = "test-deck-tally-report-printed")]
-    TestDeckTallyReportPrinted,
-    #[serde(rename = "test-deck-tally-report-saved-to-pdf")]
-    TestDeckTallyReportSavedToPdf,
     #[serde(rename = "initial-election-package-loaded")]
     InitialElectionPackageLoaded,
     #[serde(rename = "system-settings-save-initiated")]
@@ -203,8 +189,6 @@ pub enum EventId {
     BallotBagReplaced,
     #[serde(rename = "ballot-box-emptied")]
     BallotBoxEmptied,
-    #[serde(rename = "tally-report-cleared-from-card")]
-    TallyReportClearedFromCard,
     #[serde(rename = "precinct-configuration-changed")]
     PrecinctConfigurationChanged,
     #[serde(rename = "scanner-batch-started")]
@@ -249,6 +233,10 @@ pub enum EventId {
     ErrorSettingSigintHandler,
     #[serde(rename = "unexpected-hardware-device-response")]
     UnexpectedHardwareDeviceResponse,
+    #[serde(rename = "diagnostic-init")]
+    DiagnosticInit,
+    #[serde(rename = "diagnostic-complete")]
+    DiagnosticComplete,
     #[serde(rename = "unknown-error")]
     UnknownError,
 }
