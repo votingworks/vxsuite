@@ -328,7 +328,7 @@ fn create_virtual_device() -> Device {
 }
 
 fn main() {
-    set_app_name(APP_NAME.to_string());
+    set_app_name(APP_NAME);
     log!(
         EventId::ProcessStarted;
         EventType::SystemAction
