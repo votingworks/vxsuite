@@ -1,12 +1,16 @@
 import { assertDefined, iter, range } from '@votingworks/basics';
 import React from 'react';
 import styled from 'styled-components';
+import { BallotPageTemplate, PagedElementResult } from './render_ballot';
+import { RenderScratchpad } from './renderer';
 import {
-  BallotPageTemplate,
-  PagedElementResult,
-  qrCodeSlot,
-} from './render_ballot';
-import { InchDimensions, PixelDimensions, RenderDocument } from './renderer';
+  Bubble,
+  Page,
+  QrCodeSlot,
+  TIMING_MARK_DIMENSIONS,
+  TimingMark,
+} from './ballot_components';
+import { InchDimensions, PixelDimensions } from './types';
 
 export interface MiniElection {
   title: string;
@@ -27,35 +31,6 @@ export const pageMargins = {
   bottom: 0.125,
   left: 0.125,
 } as const;
-
-const contentAreaDimensions: InchDimensions = {
-  width: pageDimensions.width - pageMargins.left - pageMargins.right,
-  height: pageDimensions.height - pageMargins.top - pageMargins.bottom,
-};
-
-const BallotPage = styled.div`
-  height: ${contentAreaDimensions.height}in;
-  width: ${contentAreaDimensions.width}in;
-  break-after: page;
-  overflow: hidden;
-`;
-
-const ppi = 96;
-const markWidth = 0.1875 * ppi;
-const markHeight = 0.0625 * ppi;
-
-function TimingMark() {
-  return (
-    <div
-      data-type="TimingMark"
-      style={{
-        width: `${markWidth}px`,
-        height: `${markHeight}px`,
-        backgroundColor: 'black',
-      }}
-    />
-  );
-}
 
 function TimingMarkGrid({ children }: { children: React.ReactNode }) {
   const columnsPerInch = 4;
@@ -83,8 +58,8 @@ function TimingMarkGrid({ children }: { children: React.ReactNode }) {
         flexDirection: 'column',
         justifyContent: 'space-between',
         position: 'relative',
-        top: `-${markHeight}px`,
-        height: `calc(100% + ${2 * markHeight}px)`,
+        top: `-${TIMING_MARK_DIMENSIONS.height}in`,
+        height: `calc(100% + ${2 * TIMING_MARK_DIMENSIONS.height}in)`,
       }}
     >
       {range(0, gridRows).map((i) => (
@@ -139,7 +114,9 @@ function Footer({ children }: { children: React.ReactNode }) {
       }}
     >
       {children}
-      <div>{qrCodeSlot}</div>
+      <div>
+        <QrCodeSlot />
+      </div>
     </div>
   );
 }
@@ -150,26 +127,14 @@ const ContestBox = styled.div`
   padding: 1rem;
 `;
 
-const Bubble = styled.div`
-  display: inline-block;
-  width: 15px;
-  height: 8px;
-  border-radius: 8px;
-  border: 1px solid black;
-`;
-
 function Contest({ contest }: { contest: MiniElection['contests'][0] }) {
   return (
-    <ContestBox className="contest" data-title={contest.title}>
+    <ContestBox className="contest">
       <div>{contest.title}</div>
       <ul style={{ listStyleType: 'none' }}>
         {contest.candidates.map((candidate) => (
           <li key={candidate}>
-            <Bubble
-              data-type="Bubble"
-              data-contest={contest.title}
-              data-candidate={candidate}
-            />{' '}
+            <Bubble contestId={contest.title} optionId={candidate} />{' '}
             {candidate}
           </li>
         ))}
@@ -190,7 +155,12 @@ function BallotPageFrame({
   children: JSX.Element;
 }): JSX.Element {
   return (
-    <BallotPage key={pageNumber} data-page={pageNumber}>
+    <Page
+      key={pageNumber}
+      pageNumber={pageNumber}
+      dimensions={pageDimensions}
+      margins={pageMargins}
+    >
       <TimingMarkGrid>
         {pageNumber % 2 === 1 && <Header>{election.title}</Header>}
         <div style={{ flex: 1 }}>{children}</div>
@@ -198,7 +168,7 @@ function BallotPageFrame({
           Page: {pageNumber}/{totalPages}
         </Footer>
       </TimingMarkGrid>
-    </BallotPage>
+    </Page>
   );
 }
 
@@ -218,26 +188,26 @@ async function BallotPageContent(
     election: MiniElection;
     dimensions: PixelDimensions;
   },
-  document: RenderDocument
+  scratchpad: RenderScratchpad
 ): Promise<PagedElementResult<{ election: MiniElection }>> {
   const contestElements = election.contests.map((contest) => (
     <Contest key={contest.title} contest={contest} />
   ));
 
-  // Measure the contest boxes. This overwrites the current content of the document!
-  // We're basically using the document as a measuring scratchpad during this
-  // layout phase of the rendering.
-  await document.setContent(
-    'body',
+  const contestMeasurements = await scratchpad.measureElements(
     <>
       {contestElements.map((contest, i) => (
-        <div key={i} style={{ width: dimensions.width }}>
+        <div
+          className="contestWrapper"
+          key={i}
+          style={{ width: dimensions.width }}
+        >
           {contest}
         </div>
       ))}
-    </>
+    </>,
+    '.contestWrapper'
   );
-  const contestMeasurements = await document.inspectElements('body > div');
   const measuredContests = iter(contestElements)
     .zip(contestMeasurements)
     .map(([element, measurements]) => ({ element, ...measurements }))

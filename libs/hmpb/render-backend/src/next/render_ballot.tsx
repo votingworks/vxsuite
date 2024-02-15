@@ -2,16 +2,19 @@ import { Buffer } from 'buffer';
 import { assertDefined } from '@votingworks/basics';
 import {
   PdfOptions,
-  PixelDimensions,
   createRenderer,
   RenderDocument,
+  RenderScratchpad,
 } from './renderer';
-
-export const contentSlot = (
-  <div id="content-slot" style={{ height: '100%', width: '100%' }} />
-);
-
-export const qrCodeSlot = <div data-type="QrCodeSlot" />;
+import {
+  BUBBLE_CLASS,
+  CONTENT_SLOT_CLASS,
+  ContentSlot,
+  PAGE_CLASS,
+  QR_CODE_SLOT_CLASS,
+  TIMING_MARK_CLASS,
+} from './ballot_components';
+import { PixelDimensions } from './types';
 
 export type FrameComponent<P> = (
   props: P & { children: JSX.Element; pageNumber: number; totalPages: number }
@@ -24,9 +27,9 @@ export interface PagedElementResult<P> {
 
 export type ContentComponent<P> = (
   props: P & { dimensions: PixelDimensions },
-  // The content component is passed the document so that it can measure
+  // The content component is passed the scratchpad so that it can measure
   // elements in order to determine how much content fits on each page.
-  document: RenderDocument
+  scratchpad: RenderScratchpad
 ) => Promise<PagedElementResult<P>>;
 
 /**
@@ -57,7 +60,7 @@ export interface BallotPageTemplate<P> {
 async function paginateBallotContent<P extends Record<string, unknown>>(
   pageTemplate: BallotPageTemplate<P>,
   props: P,
-  document: RenderDocument
+  scratchpad: RenderScratchpad
 ): Promise<JSX.Element[]> {
   const pagedContentResults: Array<PagedElementResult<P>> = [];
 
@@ -68,11 +71,11 @@ async function paginateBallotContent<P extends Record<string, unknown>>(
       ...props,
       pageNumber: pagedContentResults.length + 1,
       totalPages: 0,
-      children: contentSlot,
+      children: <ContentSlot />,
     });
-    await document.setContent('body', pageFrame);
-    const [contentSlotElement] = await document.inspectElements(
-      `#${contentSlot.props.id}`
+    const [contentSlotElement] = await scratchpad.measureElements(
+      pageFrame,
+      `.${CONTENT_SLOT_CLASS}`
     );
     const currentPageProps: P =
       pagedContentResults[pagedContentResults.length - 1]?.nextPageProps ??
@@ -86,7 +89,7 @@ async function paginateBallotContent<P extends Record<string, unknown>>(
           height: contentSlotElement.height,
         },
       },
-      document
+      scratchpad
     );
     pagedContentResults.push(pagedContentResult);
   } while (pagedContentResults[pagedContentResults.length - 1].nextPageProps);
@@ -119,12 +122,12 @@ interface ContestOptionLayout {
 async function extractLayoutInfo(
   document: RenderDocument
 ): Promise<ContestOptionLayout[]> {
-  const pages = await document.inspectElements('[data-page]');
+  const pages = await document.inspectElements(`.${PAGE_CLASS}`);
   const optionLayoutsPerPage = await Promise.all(
     pages.map(async (_, i) => {
       const pageNumber = i + 1;
       const timingMarkElements = await document.inspectElements(
-        `[data-page="${pageNumber}"] [data-type="TimingMark"]`
+        `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${TIMING_MARK_CLASS}`
       );
 
       const minX = Math.min(...timingMarkElements.map((mark) => mark.x));
@@ -154,11 +157,11 @@ async function extractLayoutInfo(
       }
 
       const bubbles = await document.inspectElements(
-        `[data-page="${pageNumber}"] [data-type="Bubble"]`
+        `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${BUBBLE_CLASS}`
       );
       const optionLayouts = bubbles.map((bubble) => ({
-        contest: assertDefined(bubble.data.contest),
-        candidate: assertDefined(bubble.data.candidate),
+        contest: assertDefined(bubble.data.contestId),
+        candidate: assertDefined(bubble.data.optionId),
         ...pixelPointToGridPoint(bubble.x, bubble.y),
       }));
       return optionLayouts;
@@ -180,7 +183,7 @@ function electionHashFromLayoutInfo(layoutInfo: ContestOptionLayout[]): string {
  * element directly?
  */
 async function addQrCodes(document: RenderDocument, electionHash: string) {
-  const pages = await document.inspectElements('[data-page]');
+  const pages = await document.inspectElements(`.${PAGE_CLASS}`);
   for (const i of pages.keys()) {
     const pageNumber = i + 1;
     const qrCode = (
@@ -193,7 +196,7 @@ async function addQrCodes(document: RenderDocument, electionHash: string) {
       </div>
     );
     await document.setContent(
-      `[data-page="${pageNumber}"] [data-type="QrCodeSlot"]`,
+      `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${QR_CODE_SLOT_CLASS}`,
       qrCode
     );
   }
@@ -210,13 +213,11 @@ export async function renderBallotToPdf<P extends Record<string, unknown>>(
 ): Promise<Buffer> {
   const renderer = await createRenderer();
   const t1 = Date.now();
-  // Creating a new browser page is slow, so we're going to reuse the same page
-  // throughout the process. This means we'll mutate the page content, so it
-  // requires some careful thinking to track the state of the page. Not our
-  // normal approach, but I think worthwhile for the performance gain, since
-  // we'll be rendering many ballots at once (each with their own page).
-  const document = await renderer.createDocument();
-  const pages = await paginateBallotContent(template, props, document);
+  const [scratchpad, document] = await Promise.all([
+    renderer.createScratchpad(),
+    renderer.createDocument(),
+  ]);
+  const pages = await paginateBallotContent(template, props, scratchpad);
   await document.setContent('body', <>{pages}</>);
   const layoutInfo = await extractLayoutInfo(document);
   // Normally we'd need to have layout info from all ballots to compute the
@@ -227,7 +228,7 @@ export async function renderBallotToPdf<P extends Record<string, unknown>>(
   const t2 = Date.now();
   // eslint-disable-next-line no-console
   console.log(`Rendered document in ${t2 - t1}ms`);
-  await document.dispose();
+  await Promise.all([scratchpad.dispose(), document.dispose()]);
   await renderer.cleanup();
   return pdf;
 }
