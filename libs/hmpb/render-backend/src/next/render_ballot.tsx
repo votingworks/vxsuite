@@ -2,9 +2,9 @@ import { Buffer } from 'buffer';
 import { assertDefined } from '@votingworks/basics';
 import {
   PdfOptions,
-  createRenderer,
   RenderDocument,
   RenderScratchpad,
+  Renderer,
 } from './renderer';
 import {
   BUBBLE_CLASS,
@@ -207,17 +207,15 @@ async function addQrCodes(document: RenderDocument, electionHash: string) {
  * ballot page, and props (i.e. the election content), render a ballot PDF.
  */
 export async function renderBallotToPdf<P extends Record<string, unknown>>(
+  renderer: Renderer,
   template: BallotPageTemplate<P>,
   props: P,
   options: PdfOptions
 ): Promise<Buffer> {
-  const renderer = await createRenderer();
   const t1 = Date.now();
-  const [scratchpad, document] = await Promise.all([
-    renderer.createScratchpad(),
-    renderer.createDocument(),
-  ]);
+  const scratchpad = renderer.createScratchpad();
   const pages = await paginateBallotContent(template, props, scratchpad);
+  const document = scratchpad.convertToDocument();
   await document.setContent('body', <>{pages}</>);
   const layoutInfo = await extractLayoutInfo(document);
   // Normally we'd need to have layout info from all ballots to compute the
@@ -228,7 +226,7 @@ export async function renderBallotToPdf<P extends Record<string, unknown>>(
   const t2 = Date.now();
   // eslint-disable-next-line no-console
   console.log(`Rendered document in ${t2 - t1}ms`);
-  await Promise.all([scratchpad.dispose(), document.dispose()]);
+  await document.dispose();
   await renderer.cleanup();
   return pdf;
 }

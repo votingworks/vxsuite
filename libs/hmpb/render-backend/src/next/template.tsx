@@ -59,10 +59,11 @@ function TimingMarkGrid({ children }: { children: React.ReactNode }) {
         justifyContent: 'space-between',
         position: 'relative',
         top: `-${TIMING_MARK_DIMENSIONS.height}in`,
+        border: '1px solid red',
         height: `calc(100% + ${2 * TIMING_MARK_DIMENSIONS.height}in)`,
       }}
     >
-      {range(0, gridRows).map((i) => (
+      {range(0, gridRows - 2).map((i) => (
         <TimingMark key={i} />
       ))}
     </div>
@@ -86,6 +87,7 @@ function TimingMarkGrid({ children }: { children: React.ReactNode }) {
             display: 'flex',
             flexDirection: 'column',
             padding: '0.1in',
+            border: '1px solid blue',
           }}
         >
           {children}

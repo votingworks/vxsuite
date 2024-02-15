@@ -1,42 +1,26 @@
 import { Buffer } from 'buffer';
-import { Page, chromium } from 'playwright';
+import type { Page as PlaywrightPage } from 'playwright';
 import ReactDomServer from 'react-dom/server';
-import {
-  ROBOTO_REGULAR_FONT_DECLARATIONS,
-  ROBOTO_ITALIC_FONT_DECLARATIONS,
-} from '@votingworks/ui';
 import { ServerStyleSheet } from 'styled-components';
+import { assert } from '@votingworks/basics';
 import { InchDimensions, PixelMeasurements } from './types';
+import { globalStyleElements } from './global_styles';
 
 export interface PdfOptions {
   pageDimensions: InchDimensions;
 }
 
-const emptyPageContentsWithFonts = `<!DOCTYPE html>${ReactDomServer.renderToStaticMarkup(
+export const emptyPageContentsWithFonts = `<!DOCTYPE html>${ReactDomServer.renderToStaticMarkup(
   <html>
-    <head>
-      <style
-        type="text/css"
-        dangerouslySetInnerHTML={{
-          __html: [
-            ROBOTO_REGULAR_FONT_DECLARATIONS,
-            ROBOTO_ITALIC_FONT_DECLARATIONS,
-          ].join('\n'),
-        }}
-      />
-    </head>
-    <body
-      style={{
-        fontFamily: 'Vx Roboto',
-        margin: 0,
-      }}
-    ></body>
+    <head>{globalStyleElements}</head>
+    <body />
   </html>
 )}`;
 
-async function createDocument(page: Page) {
-  await page.setContent(emptyPageContentsWithFonts);
+export type Page = Pick<PlaywrightPage, 'evaluate' | 'close' | 'pdf'>;
 
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function createDocument(page: Page) {
   return {
     async setContent(selector: string, element: JSX.Element): Promise<void> {
       const sheet = new ServerStyleSheet();
@@ -102,52 +86,32 @@ async function createDocument(page: Page) {
 
 export type RenderDocument = Awaited<ReturnType<typeof createDocument>>;
 
-async function createScratchpad(page: Page) {
-  const document = await createDocument(page);
-
+// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+export function createScratchpad(document: RenderDocument) {
+  let hasBeenConvertedToDocument = false;
   return {
     async measureElements(
       content: JSX.Element,
       selector: string
     ): Promise<PixelMeasurements[]> {
+      assert(
+        !hasBeenConvertedToDocument,
+        'Scratchpad has been converted to a document'
+      );
       await document.setContent('body', content);
       return await document.inspectElements(selector);
     },
 
-    async dispose(): Promise<void> {
-      await document.dispose();
+    convertToDocument(): RenderDocument {
+      hasBeenConvertedToDocument = true;
+      return document;
     },
   };
 }
 
 export type RenderScratchpad = Awaited<ReturnType<typeof createScratchpad>>;
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export async function createRenderer() {
-  const browser = await chromium.launch({
-    // font hinting (https://fonts.google.com/knowledge/glossary/hinting)
-    // is on by default, but causes fonts to render more awkwardly at higher
-    // resolutions, so we disable it
-    args: ['--font-render-hinting=none'],
-  });
-  const context = await browser.newContext();
-
-  return {
-    async createDocument(): Promise<RenderDocument> {
-      const page = await context.newPage();
-      return await createDocument(page);
-    },
-
-    async createScratchpad(): Promise<RenderScratchpad> {
-      const page = await context.newPage();
-      return await createScratchpad(page);
-    },
-
-    async cleanup(): Promise<void> {
-      await context.close();
-      await browser.close();
-    },
-  };
+export interface Renderer {
+  createScratchpad(): RenderScratchpad;
+  cleanup(): Promise<void>;
 }
-
-export type Renderer = Awaited<ReturnType<typeof createRenderer>>;

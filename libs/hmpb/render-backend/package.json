@@ -16,7 +16,7 @@
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "pre-commit": "lint-staged",
-    "start": "node ./build/index.js",
+    "start": "vite -c vite.config.ts src/next",
     "test": "is-ci test:ci test:watch",
     "test:ci": "jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
     "test:coverage": "jest --coverage",
@@ -42,6 +42,7 @@
     "@votingworks/types": "workspace:*",
     "@votingworks/ui": "workspace:^",
     "@xmldom/xmldom": "^0.8.1",
+    "buffer": "^6.0.3",
     "js-sha256": "^0.9.0",
     "pdfkit": "^0.13.0",
     "playwright": "^1.40.1",
@@ -60,6 +61,7 @@
     "@types/styled-components": "^5.1.26",
     "@types/svg-to-pdfkit": "^0.1.0",
     "@types/tmp": "0.2.4",
+    "@votingworks/monorepo-utils": "workspace:^",
     "esbuild": "0.17.11",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
@@ -70,7 +72,8 @@
     "lint-staged": "11.0.0",
     "sort-package-json": "^1.50.0",
     "tmp": "^0.2.1",
-    "ts-jest": "29.1.1"
+    "ts-jest": "29.1.1",
+    "vite": "4.5.0"
   },
   "engines": {
     "node": ">= 12"

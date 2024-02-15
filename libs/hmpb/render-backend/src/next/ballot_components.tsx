@@ -10,7 +10,7 @@ export const TIMING_MARK_DIMENSIONS: InchDimensions = {
 const StyledTimingMark = styled.div`
   width: ${TIMING_MARK_DIMENSIONS.width}in;
   height: ${TIMING_MARK_DIMENSIONS.height}in;
-  backgroundcolor: black;
+  background-color: black;
 `;
 
 export const TIMING_MARK_CLASS = 'timing-mark';
@@ -86,14 +86,14 @@ export function Page({
       style={{
         width: `${dimensions.width}in`,
         height: `${dimensions.height}in`,
-        paddingLeft: `${margins.left}in`,
-        paddingRight: `${margins.right}in`,
         paddingTop: `${margins.top}in`,
+        paddingRight: `${margins.right}in`,
         paddingBottom: `${margins.bottom}in`,
-        breakAfter: 'page',
+        paddingLeft: `${margins.left}in`,
+        backgroundColor: 'white',
       }}
     >
-      <div style={{ height: '100%', overflow: 'hidden' }}>{children}</div>
+      <div style={{ height: '100%' }}>{children}</div>
     </div>
   );
 }

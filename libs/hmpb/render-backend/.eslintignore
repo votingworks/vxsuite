@@ -1,3 +1,4 @@
 build
 jest.config.js
 coverage
+*.config.ts
