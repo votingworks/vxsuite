@@ -394,14 +394,12 @@ fn main() {
                 }
                 match port.read(serial_buf.as_mut_slice()) {
                     Ok(size) => match handle_command(&serial_buf[..size]) {
-                        Ok(key_option) => {
-                            if key_option.is_some() {
-                                let key = key_option.unwrap();
-                                if let Err(err) = send_key(&mut device, key) {
-                                    log!(EventId::UnknownError, "Error sending key: {err}");
-                                }
+                        Ok(Some(key)) => {
+                            if let Err(err) = send_key(&mut device, key) {
+                                log!(EventId::UnknownError, "Error sending key: {err}");
                             }
                         }
+                        Ok(None) => {}
                         Err(err) => log!(
                             event_id: EventId::UnknownError,
                             message: format!(
@@ -438,8 +436,6 @@ fn main() {
 mod tests {
     use super::*;
 
-    const DEVICE_WAIT_DURATION: Duration = Duration::from_millis(100);
-
     #[test]
     fn test_handle_command_packet_length_error() {
         let bad_data = [0x01];
@@ -463,10 +459,6 @@ mod tests {
 
     #[test]
     fn test_handle_command_success() {
-        // In prod we wait 1s for the device to register.
-        // We can afford to be riskier to speed up tests.
-        thread::sleep(DEVICE_WAIT_DURATION);
-
         let data = [
             0x30,
             0x00,
@@ -476,8 +468,6 @@ mod tests {
             0xc8,
             0x37,
         ];
-        let key_option = handle_command(&data).unwrap();
-        assert!(key_option.is_some());
-        assert_eq!(key_option.unwrap(), keyboard::Key::R);
+        assert_eq!(handle_command(&data).unwrap().unwrap(), keyboard::Key::R);
     }
 }
