@@ -148,6 +148,7 @@ async function generateDevKeysAndCerts({
   const nonVxAdminMachineTypes: MachineType[] = [
     'central-scan',
     'mark',
+    'mark-scan',
     'scan',
   ];
   for (const machineType of nonVxAdminMachineTypes) {

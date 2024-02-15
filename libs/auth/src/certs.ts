@@ -14,7 +14,10 @@ const VX_IANA_ENTERPRISE_OID = '1.3.6.1.4.1.59817';
  * Instead of overloading existing X.509 cert fields, we're using our own custom cert fields.
  */
 const VX_CUSTOM_CERT_FIELD = {
-  /** One of: admin, central-scan, mark, scan, card (the first four referring to machines) */
+  /**
+   * One of: admin, central-scan, mark, mark-scan, scan, card (the first five referring to
+   * machines)
+   */
   COMPONENT: `${VX_IANA_ENTERPRISE_OID}.1`,
   /** Format: {state-2-letter-abbreviation}.{county-or-town} (e.g. ms.warren or ca.los-angeles) */
   JURISDICTION: `${VX_IANA_ENTERPRISE_OID}.2`,
@@ -46,6 +49,10 @@ interface VxMarkCustomCertFields {
   component: 'mark';
 }
 
+interface VxMarkScanCustomCertFields {
+  component: 'mark-scan';
+}
+
 interface VxScanCustomCertFields {
   component: 'scan';
 }
@@ -74,6 +81,7 @@ export type CustomCertFields =
   | VxAdminCustomCertFields
   | VxCentralScanCustomCertFields
   | VxMarkCustomCertFields
+  | VxMarkScanCustomCertFields
   | VxScanCustomCertFields
   | CardCustomCertFields;
 
@@ -106,6 +114,11 @@ const VxCentralScanCustomCertFieldsSchema: z.ZodSchema<VxCentralScanCustomCertFi
 const VxMarkCustomCertFieldsSchema: z.ZodSchema<VxMarkCustomCertFields> =
   z.object({
     component: z.literal('mark'),
+  });
+
+const VxMarkScanCustomCertFieldsSchema: z.ZodSchema<VxMarkScanCustomCertFields> =
+  z.object({
+    component: z.literal('mark-scan'),
   });
 
 const VxScanCustomCertFieldsSchema: z.ZodSchema<VxScanCustomCertFields> =
@@ -144,6 +157,7 @@ const CustomCertFieldsSchema: z.ZodSchema<CustomCertFields> = z.union([
   VxAdminCustomCertFieldsSchema,
   VxCentralScanCustomCertFieldsSchema,
   VxMarkCustomCertFieldsSchema,
+  VxMarkScanCustomCertFieldsSchema,
   VxScanCustomCertFieldsSchema,
   CardCustomCertFieldsSchema,
 ]);
