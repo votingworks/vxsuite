@@ -51,10 +51,7 @@ fn set_up_pins() -> io::Result<()> {
 
 fn main() {
     set_app_name(APP_NAME);
-    log!(
-        EventId::ProcessStarted;
-        EventType::SystemAction
-    );
+    log!(EventId::ProcessStarted; EventType::SystemAction);
 
     let running = Arc::new(AtomicBool::new(true));
 
@@ -72,15 +69,11 @@ fn main() {
     }
 
     // Create virtual device for keypress events
-    log!(
-          EventId::CreateVirtualUinputDeviceInit;
-          EventType::SystemAction
-    );
+    log!(EventId::CreateVirtualUinputDeviceInit; EventType::SystemAction);
     let mut device = create_virtual_device();
     // Wait for virtual device to register
     thread::sleep(Duration::from_secs(1));
     log!(
-
         event_id: EventId::CreateVirtualUinputDeviceComplete,
         disposition: Disposition::Success,
         event_type: EventType::SystemAction
@@ -104,16 +97,13 @@ fn main() {
     let mut signal_b = SIGNAL_B_PIN.is_active();
 
     log!(
-        event_id: EventId::ConnectToPatInputInit,
-        message: format!("Connected to PAT with initial values [is_connected={is_connected}], [signal_a={signal_a}], [signal_b={signal_b}]")
+        EventId::ConnectToPatInputInit,
+        "Connected to PAT with initial values [is_connected={is_connected}], [signal_a={signal_a}], [signal_b={signal_b}]"
     );
 
     loop {
         if !running.load(Ordering::SeqCst) {
-            log!(
-                event_id: EventId::ProcessTerminated,
-                event_type: EventType::SystemAction
-            );
+            log!(EventId::ProcessTerminated; EventType::SystemAction);
             IS_CONNECTED_PIN.tear_down();
             SIGNAL_A_PIN.tear_down();
             SIGNAL_B_PIN.tear_down();

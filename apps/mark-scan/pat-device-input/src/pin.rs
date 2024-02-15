@@ -28,7 +28,7 @@ impl Pin {
     }
 
     fn set_direction_in(&self) -> io::Result<()> {
-        let filepath = format!("/sys/class/gpio/gpio{}/direction", self);
+        let filepath = format!("/sys/class/gpio/gpio{self}/direction");
         fs::write(filepath, b"in")
     }
 
