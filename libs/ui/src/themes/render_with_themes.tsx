@@ -17,7 +17,7 @@ import {
   within,
 } from '@testing-library/react';
 
-import { ColorMode, SizeMode } from '@votingworks/types';
+import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 import { AppBase } from '../app_base';
 
 /**
@@ -26,6 +26,7 @@ import { AppBase } from '../app_base';
 export type VxRenderOptions = RenderOptions & {
   vxTheme?: {
     colorMode?: ColorMode;
+    screenType?: ScreenType;
     sizeMode?: SizeMode;
     isVisualModeDisabled?: boolean;
   };
@@ -55,6 +56,7 @@ export function renderWithThemes(
         defaultSizeMode={vxTheme.sizeMode ?? 'touchSmall'}
         defaultIsVisualModeDisabled={vxTheme.isVisualModeDisabled ?? false}
         disableFontsForTests
+        screenType={vxTheme.screenType}
         {...props}
       />
     );

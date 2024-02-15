@@ -103,3 +103,29 @@ test('desktop, inverse', () => {
   expect(option).toHaveStyle(`color: ${theme.colors.onInverse}`);
   expect(option).toHaveStyle(`border-width: ${theme.sizes.bordersRem.thin}rem`);
 });
+
+test('works with accessible controller interaction pattern', () => {
+  const onChange = jest.fn();
+
+  render(
+    <RadioGroup
+      label="Pick a card:"
+      onChange={onChange}
+      options={[
+        { value: 'hearts-4', label: 'Four of Hearts' },
+        { value: 'diamonds-jack', label: 'Jack of Diamonds' },
+      ]}
+      value="diamonds-jack"
+    />,
+    { vxTheme: { screenType: 'elo15' } }
+  );
+
+  expect(
+    screen.queryByRole('radio', { hidden: false })
+  ).not.toBeInTheDocument();
+  expect(screen.getAllByRole('radio', { hidden: true })).toHaveLength(2);
+
+  screen.getButton('Jack of Diamonds');
+  userEvent.click(screen.getButton('Four of Hearts'));
+  expect(onChange).toBeCalledWith('hearts-4');
+});
