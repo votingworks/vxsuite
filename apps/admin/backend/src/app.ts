@@ -79,6 +79,9 @@ import {
   WriteInCandidateRecord,
   WriteInAdjudicationContext,
   WriteInImageView,
+  DiagnosticsHardware,
+  DiagnosticsOutcome,
+  DiagnosticsRecord,
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
@@ -124,6 +127,7 @@ import {
   printTallyReport,
   exportTallyReportPdf,
 } from './reports/tally_report';
+import { printTestPage } from './reports/test_print';
 
 const debug = rootDebug.extend('app');
 
@@ -1040,6 +1044,33 @@ function buildApi({
         logger,
         userRole: assertDefined(await getUserRole()),
         path: input.path,
+      });
+    },
+
+    async addDiagnosticRecord(input: {
+      hardware: DiagnosticsHardware;
+      outcome: DiagnosticsOutcome;
+    }): Promise<void> {
+      store.addDiagnosticRecord(input);
+      void logger.log(
+        LogEventId.DiagnosticComplete,
+        assertDefined(await getUserRole()),
+        {
+          disposition: input.outcome === 'pass' ? 'success' : 'failure',
+          message: `Diagnostic test for the ${input.hardware} completed with outcome: ${input.outcome}.`,
+        }
+      );
+    },
+
+    getDiagnosticRecords(): DiagnosticsRecord[] {
+      return store.getDiagnosticRecords();
+    },
+
+    async printTestPage(): Promise<void> {
+      await printTestPage({
+        printer,
+        logger,
+        userRole: assertDefined(await getUserRole()),
       });
     },
 

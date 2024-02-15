@@ -227,6 +227,13 @@ create table settings (
 
 insert into settings default values;
 
+create table diagnostics (
+  id integer primary key,
+  hardware text not null,
+  outcome text not null check (outcome = 'pass' or outcome = 'fail'),
+  timestamp number not null
+);
+
 -- to track data changes in order to invalidate cached data
 create table data_versions (
   election_id varchar(36),
