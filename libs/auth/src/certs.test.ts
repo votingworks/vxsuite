@@ -291,6 +291,11 @@ test.each<{
     expectedSubject: '/C=US/ST=CA/O=VotingWorks/1.3.6.1.4.1.59817.1=mark/',
   },
   {
+    machineType: 'mark-scan',
+    jurisdiction: undefined,
+    expectedSubject: '/C=US/ST=CA/O=VotingWorks/1.3.6.1.4.1.59817.1=mark-scan/',
+  },
+  {
     machineType: 'scan',
     jurisdiction: undefined,
     expectedSubject: '/C=US/ST=CA/O=VotingWorks/1.3.6.1.4.1.59817.1=scan/',
@@ -322,6 +327,11 @@ test.each<{
   {
     description: 'provided unneeded jurisdiction for VxMark',
     machineType: 'mark',
+    jurisdiction,
+  },
+  {
+    description: 'provided unneeded jurisdiction for VxMarkScan',
+    machineType: 'mark-scan',
     jurisdiction,
   },
   {
