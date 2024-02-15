@@ -4,7 +4,8 @@ import React from 'react';
 import styled, { DefaultTheme } from 'styled-components';
 
 import {
-  LanguageModalButton,
+  LanguageSettingsButton,
+  LanguageSettingsScreen,
   Main,
   Screen,
   useScreenInfo,
@@ -102,7 +103,15 @@ const BreadcrumbsContainer = styled.div`
 export function VoterScreen(props: VoterScreenProps): JSX.Element {
   const { actionButtons, breadcrumbs, centerContent, children, padded } = props;
 
+  const [showLanguageSettings, setShowLanguageSettings] = React.useState(false);
+
   const screenInfo = useScreenInfo();
+
+  if (showLanguageSettings) {
+    return (
+      <LanguageSettingsScreen onDone={() => setShowLanguageSettings(false)} />
+    );
+  }
 
   const optionalBreadcrumbs = breadcrumbs && (
     <BreadcrumbsContainer>{breadcrumbs}</BreadcrumbsContainer>
@@ -110,7 +119,7 @@ export function VoterScreen(props: VoterScreenProps): JSX.Element {
 
   const menuButtons = (
     <React.Fragment>
-      <LanguageModalButton />
+      <LanguageSettingsButton onPress={() => setShowLanguageSettings(true)} />
       <DisplaySettingsButton />
     </React.Fragment>
   );

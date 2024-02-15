@@ -1,32 +1,18 @@
-/* istanbul ignore file - stub implementation */
-
 import React from 'react';
 
 import { useCurrentLanguage } from '../hooks/use_current_language';
-import { useAvailableLanguages } from '../hooks/use_available_languages';
-import { useLanguageControls } from '../hooks/use_language_controls';
 import { Button } from '../button';
 import { electionStrings } from '../ui_strings';
 
-export function LanguageModalButton(): React.ReactNode {
+export interface LanguageSettingsButtonProps {
+  onPress: () => void;
+}
+
+export function LanguageSettingsButton(
+  props: LanguageSettingsButtonProps
+): React.ReactNode {
+  const { onPress } = props;
   const currentLanguageCode = useCurrentLanguage();
-  const availableLanguages = useAvailableLanguages();
-  const { setLanguage } = useLanguageControls();
-
-  // TODO(kofi): Let clients trigger navigation to a language settings screen
-  // instead:
-  const onPress = React.useCallback(() => {
-    const currentLanguageIndex = availableLanguages.findIndex(
-      (l) => l === currentLanguageCode
-    );
-    const nextIndex = (currentLanguageIndex + 1) % availableLanguages.length;
-
-    setLanguage(availableLanguages[nextIndex]);
-  }, [availableLanguages, currentLanguageCode, setLanguage]);
-
-  if (availableLanguages.length < 2) {
-    return null;
-  }
 
   return (
     <Button icon="Language" onPress={onPress}>
