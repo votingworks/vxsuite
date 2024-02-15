@@ -208,7 +208,7 @@ enum Action {
 
 fn send_key(device: &mut Device, key: keyboard::Key) -> Result<(), CommandError> {
     device.click(&key)?;
-    device.synchronize().unwrap();
+    device.synchronize()?;
     Ok(())
 }
 

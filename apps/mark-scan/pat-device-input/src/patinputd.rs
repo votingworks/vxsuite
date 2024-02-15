@@ -27,7 +27,7 @@ const SIGNAL_B_PIN: Pin = Pin::new(476);
 
 fn send_key(device: &mut Device, key: keyboard::Key) -> Result<(), uinput::Error> {
     device.click(&key)?;
-    device.synchronize().unwrap();
+    device.synchronize()?;
     Ok(())
 }
 
@@ -114,10 +114,20 @@ fn main() {
         let new_signal_b = SIGNAL_B_PIN.is_active();
 
         if new_signal_a && !signal_a {
-            send_key(&mut device, keyboard::Key::_1).unwrap();
+            if let Err(err) = send_key(&mut device, keyboard::Key::_1) {
+                log!(
+                    EventId::PatDeviceError,
+                    "Error sending 1 keypress event: {err}"
+                );
+            }
         }
         if new_signal_b && !signal_b {
-            send_key(&mut device, keyboard::Key::_2).unwrap();
+            if let Err(err) = send_key(&mut device, keyboard::Key::_2) {
+                log!(
+                    EventId::PatDeviceError,
+                    "Error sending 2 keypress event: {err}"
+                );
+            }
         }
 
         signal_a = new_signal_a;
