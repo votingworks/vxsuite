@@ -11,6 +11,7 @@ import { Printer } from './types';
 import { print as printData } from './print';
 import { getPrinterConfig } from './supported';
 import { MockFilePrinter } from './mocks/file_printer';
+import { CUPS_DEFAULT_IPP_URI, getPrinterRichStatus } from './status';
 
 const debug = rootDebug.extend('manager');
 
@@ -63,9 +64,14 @@ export function detectPrinter(logger: Logger): Printer {
       if (!printerDevice.uri) {
         return { connected: false };
       }
+
+      const config = assertDefined(getPrinterConfig(printerDevice.uri));
       return {
         connected: true,
-        config: assertDefined(getPrinterConfig(printerDevice.uri)),
+        config,
+        richStatus: config.supportsIpp
+          ? await getPrinterRichStatus(CUPS_DEFAULT_IPP_URI)
+          : undefined,
       };
     },
 

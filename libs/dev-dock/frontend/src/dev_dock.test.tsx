@@ -318,6 +318,7 @@ test('printer mock control', async () => {
       productId: 0,
       baseDeviceUri: 'mock://',
       ppd: 'mock.ppd',
+      supportsIpp: false,
     },
   });
   userEvent.click(printerButton);

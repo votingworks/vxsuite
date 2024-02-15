@@ -22,6 +22,7 @@ export * from './generic';
 export * from './geometry';
 export * from './image';
 export * from './interpretation';
+export * from './ipp_printing';
 export * from './language_code';
 export * from './numeric';
 export * from './polls';

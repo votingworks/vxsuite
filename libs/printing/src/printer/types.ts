@@ -1,3 +1,4 @@
+import { PrinterRichStatus } from '@votingworks/types';
 import { Buffer } from 'buffer';
 
 export interface PrinterConfig {
@@ -6,6 +7,12 @@ export interface PrinterConfig {
   productId: number;
   baseDeviceUri: string;
   ppd: string;
+  /**
+   * Whether the printer supports IPP (Internet Printing Protocol). When a
+   * printer supports IPP, we can use the IPP protocol to query the printer for
+   * its status beyond just whether it's connected or not.
+   */
+  supportsIpp: boolean;
 }
 
 export type PrinterStatus =
@@ -15,6 +22,11 @@ export type PrinterStatus =
   | {
       connected: true;
       config: PrinterConfig;
+      /**
+       * The rich status of the printer, if the printer supports IPP. The value
+       * may be undefined for an IPP printer if it is still being queried.
+       */
+      richStatus?: PrinterRichStatus;
     };
 
 export enum PrintSides {

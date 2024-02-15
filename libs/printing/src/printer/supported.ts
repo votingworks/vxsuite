@@ -11,6 +11,7 @@ export const PrinterConfigSchema: z.ZodSchema<PrinterConfig> = z.object({
   productId: z.number().nonnegative(),
   baseDeviceUri: z.string(),
   ppd: z.string(),
+  supportsIpp: z.boolean(),
 });
 
 const RELATIVE_PATH_TO_SUPPORTED_PRINTERS = '../../supported_printers';
