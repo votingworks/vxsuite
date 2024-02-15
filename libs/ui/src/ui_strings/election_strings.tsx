@@ -18,7 +18,7 @@ import { format } from '@votingworks/utils';
 import { UiString } from './ui_string';
 import { Pre } from '../typography';
 import { DateString } from './date_string';
-import { LanguageOverride } from './language_override';
+import { InEnglish, LanguageOverride } from './language_override';
 
 type ContestWithDescription = ContestLike & {
   description: string;
@@ -38,15 +38,19 @@ export const electionStrings = {
   ),
 
   [Key.BALLOT_STYLE_ID]: (id: BallotStyleId) => (
-    <UiString uiStringKey={Key.BALLOT_STYLE_ID} uiStringSubKey={id}>
-      {id}
-    </UiString>
+    <InEnglish>
+      <UiString uiStringKey={Key.BALLOT_STYLE_ID} uiStringSubKey={id}>
+        {id}
+      </UiString>
+    </InEnglish>
   ),
 
   [Key.CANDIDATE_NAME]: (candidate: Candidate) => (
-    <UiString uiStringKey={Key.CANDIDATE_NAME} uiStringSubKey={candidate.id}>
-      {candidate.name}
-    </UiString>
+    <InEnglish>
+      <UiString uiStringKey={Key.CANDIDATE_NAME} uiStringSubKey={candidate.id}>
+        {candidate.name}
+      </UiString>
+    </InEnglish>
   ),
 
   [Key.CONTEST_DESCRIPTION]: (contest: ContestWithDescription) => (
