@@ -1,25 +1,17 @@
-import { Text, Main, Screen, H1, P } from '@votingworks/ui';
+import { Main, Screen, H1, P, Font } from '@votingworks/ui';
 
-interface Props {
-  message?: string;
-}
-export function PaperHandlerHardwareCheckDisabledScreen({
-  message,
-}: Props): JSX.Element {
+export function PaperHandlerHardwareCheckDisabledScreen(): JSX.Element {
   return (
     <Screen>
       <Main padded centerChild>
-        <Text center>
-          <H1>Hardware Check Disabled</H1>
-        </Text>
-        <Text>
+        <H1>Hardware Check Disabled</H1>
+        <Font align="left">
           <P>
-            The paper handler hardware check is disabled for development.
-            Functionality that relies on hardware, like the paper load and print
-            flows, will not work.
+            The paper handler hardware check is disabled for development. Some
+            hardware flows may be unsupported.
           </P>
-          {message && <P>{message}</P>}
-        </Text>
+          <P>Remove the poll worker card to continue.</P>
+        </Font>
       </Main>
     </Screen>
   );

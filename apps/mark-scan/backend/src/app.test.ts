@@ -3,9 +3,11 @@ import {
   electionFamousNames2021Fixtures,
   systemSettings,
   electionTwoPartyPrimaryFixtures,
+  electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import {
   fakeElectionManagerUser,
+  fakePollWorkerUser,
   fakeSessionExpiresAt,
   mockOf,
   suppressingConsoleOutput,
@@ -93,6 +95,16 @@ function mockElectionManagerAuth(electionDefinition: ElectionDefinition) {
     Promise.resolve({
       status: 'logged_in',
       user: fakeElectionManagerUser(electionDefinition),
+      sessionExpiresAt: fakeSessionExpiresAt(),
+    })
+  );
+}
+
+function mockPollWorkerAuth(electionDefinition: ElectionDefinition) {
+  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+    Promise.resolve({
+      status: 'logged_in',
+      user: fakePollWorkerUser(electionDefinition),
       sessionExpiresAt: fakeSessionExpiresAt(),
     })
   );
@@ -347,4 +359,23 @@ test('printing a ballot increments the printed ballot count', async () => {
 
   await apiClient.printBallot({ pdfData: Buffer.from('pdf data') });
   await expectElectionState({ ballotsPrintedCount: 1 });
+});
+
+test('empty ballot box requires poll worker auth', async () => {
+  await configureMachine(mockUsbDrive, electionGeneralDefinition);
+
+  await expect(apiClient.confirmBallotBoxEmptied()).rejects.toThrow(
+    'Expected pollworker auth'
+  );
+});
+
+test('empty ballot box', async () => {
+  await configureMachine(mockUsbDrive, electionGeneralDefinition);
+  mockPollWorkerAuth(electionGeneralDefinition);
+
+  await apiClient.confirmBallotBoxEmptied();
+  expect(logger.log).toHaveBeenLastCalledWith(
+    LogEventId.BallotBoxEmptied,
+    'poll_worker'
+  );
 });

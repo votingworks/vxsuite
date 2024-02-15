@@ -47,7 +47,10 @@ export function UiStringScreenReader(
     EMPTY_UI_STRING_QUEUE
   );
 
-  const { api, isEnabled, setIsPaused } = assertDefined(useAudioContext());
+  const { api, isEnabled, setIsPaused } = assertDefined(
+    useAudioContext(),
+    'Audio context not defined'
+  );
   const currentLanguageCode = useCurrentLanguage();
 
   const activeLanguages = uiStringQueue.map((s) => s.languageCode);
@@ -159,7 +162,10 @@ export function UiStringScreenReader(
   const isDataReady = Object.values(audioIdQueries).every((q) => q.isSuccess);
   if (isDataReady) {
     clipQueue = uiStringQueue.flatMap(({ i18nKey, languageCode }) => {
-      const audioIdMappings = assertDefined(audioIdQueries[languageCode]).data;
+      const audioIdMappings = assertDefined(
+        audioIdQueries[languageCode],
+        `audioIdQueries[${languageCode}] not defined`
+      ).data;
       const matchingAudioIds = getDeepValue(audioIdMappings, i18nKey);
 
       if (!Array.isArray(matchingAudioIds)) {

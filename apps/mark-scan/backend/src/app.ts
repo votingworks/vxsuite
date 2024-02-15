@@ -24,6 +24,7 @@ import {
   BooleanEnvironmentVariableName,
   isElectionManagerAuth,
   isFeatureFlagEnabled,
+  isPollWorkerAuth,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 
@@ -268,6 +269,20 @@ export function buildApi(
       assert(stateMachine);
 
       stateMachine.confirmInvalidateBallot();
+    },
+
+    async confirmBallotBoxEmptied(): Promise<void> {
+      assert(stateMachine);
+
+      const authStatus = await auth.getAuthStatus(
+        constructAuthMachineState(workspace)
+      );
+      assert(isPollWorkerAuth(authStatus), 'Expected pollworker auth');
+
+      workspace.store.setBallotsCastSinceLastBoxChange(0);
+      stateMachine.confirmBallotBoxEmptied();
+
+      await logger.log(LogEventId.BallotBoxEmptied, 'poll_worker');
     },
 
     ...createUiStringsApi({

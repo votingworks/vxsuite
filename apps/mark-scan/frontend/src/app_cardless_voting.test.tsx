@@ -220,6 +220,7 @@ test('Cardless Voting Flow', async () => {
   await screen.findByText('Casting Ballot...');
 
   apiMock.setAuthStatusLoggedOut();
+  apiMock.setPaperHandlerState('not_accepting_paper');
   await screen.findByText('Insert Card');
 });
 

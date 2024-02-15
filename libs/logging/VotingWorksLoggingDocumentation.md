@@ -398,6 +398,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** User confirmed that they replaced the ballot bag.  
 **Machines:** vx-scan-frontend
+### ballot-box-emptied
+**Type:** [user-action](#user-action)  
+**Description:** Poll worker confirmed that they emptied the ballot box.  
+**Machines:** vx-mark-scan-frontend
 ### tally-report-cleared-from-card
 **Type:** [application-action](#application-action)  
 **Description:** The tally report has been cleared from the poll worker card.  

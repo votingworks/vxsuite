@@ -15,5 +15,7 @@ export const RESET_AFTER_JAM_DELAY_MS = 3_000;
 export const DELAY_BEFORE_DECLARING_REAR_JAM_MS = 7_000;
 export const SUCCESS_NOTIFICATION_DURATION_MS = 5_000;
 
+export const MAX_BALLOT_BOX_CAPACITY = 200;
+
 export const SCAN_DPI = 72;
 export const PRINT_DPI = 200;

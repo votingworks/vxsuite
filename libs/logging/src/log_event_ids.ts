@@ -108,6 +108,7 @@ export enum LogEventId {
   PollsClosed = 'polls-closed',
   ResetPollsToPaused = 'reset-polls-to-paused',
   BallotBagReplaced = 'ballot-bag-replaced',
+  BallotBoxEmptied = 'ballot-box-emptied',
   TallyReportClearedFromCard = 'tally-report-cleared-from-card',
   PrecinctConfigurationChanged = 'precinct-configuration-changed',
   ScannerBatchStarted = 'scanner-batch-started',
@@ -919,6 +920,14 @@ const BallotBagReplaced: LogDetails = {
   restrictInDocumentationToApps: [LogSource.VxScanFrontend],
 };
 
+const BallotBoxEmptied: LogDetails = {
+  eventId: LogEventId.BallotBoxEmptied,
+  eventType: LogEventType.UserAction,
+  documentationMessage:
+    'Poll worker confirmed that they emptied the ballot box.',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanFrontend],
+};
+
 const TallyReportClearedFromCard: LogDetails = {
   eventId: LogEventId.TallyReportClearedFromCard,
   eventType: LogEventType.ApplicationAction,
@@ -1314,6 +1323,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ResetPollsToPaused;
     case LogEventId.BallotBagReplaced:
       return BallotBagReplaced;
+    case LogEventId.BallotBoxEmptied:
+      return BallotBoxEmptied;
     case LogEventId.TallyReportClearedFromCard:
       return TallyReportClearedFromCard;
     case LogEventId.PrecinctConfigurationChanged:

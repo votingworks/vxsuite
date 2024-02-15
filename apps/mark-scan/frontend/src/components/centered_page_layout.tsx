@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Font, H1, Main, ReadOnLoad, Screen } from '@votingworks/ui';
+import { Align, Font, H2, Main, ReadOnLoad, Screen } from '@votingworks/ui';
 import { VoterScreen, ButtonFooter } from '@votingworks/mark-flow-ui';
 
 export interface CenteredPageLayoutProps {
@@ -8,16 +8,17 @@ export interface CenteredPageLayoutProps {
   children: React.ReactNode;
   title?: React.ReactNode;
   voterFacing: boolean;
+  textAlign?: Align;
 }
 
 export function CenteredPageLayout(
   props: CenteredPageLayoutProps
 ): JSX.Element {
-  const { buttons, children, title, voterFacing } = props;
+  const { buttons, children, title, textAlign, voterFacing } = props;
 
   const mainContent = (
-    <Font align="center">
-      {title && <H1>{title}</H1>}
+    <Font align={textAlign || 'center'}>
+      {title && <H2 as="h1">{title}</H2>}
       {children}
     </Font>
   );

@@ -201,6 +201,8 @@ pub enum EventId {
     ResetPollsToPaused,
     #[serde(rename = "ballot-bag-replaced")]
     BallotBagReplaced,
+    #[serde(rename = "ballot-box-emptied")]
+    BallotBoxEmptied,
     #[serde(rename = "tally-report-cleared-from-card")]
     TallyReportClearedFromCard,
     #[serde(rename = "precinct-configuration-changed")]

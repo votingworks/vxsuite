@@ -4,7 +4,7 @@ import DomPurify from 'dompurify';
 
 import { SizeTheme } from '@votingworks/types';
 
-type Align = 'left' | 'center' | 'right';
+export type Align = 'left' | 'center' | 'right';
 type HeadingType = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6';
 
 /** Props for {@link Font}, {@link P}, and {@link Caption}. */

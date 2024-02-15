@@ -216,6 +216,10 @@ export function createApiMock() {
       mockApiClient.confirmInvalidateBallot.expectCallWith().resolves();
     },
 
+    expectConfirmBallotBoxEmptied(): void {
+      mockApiClient.confirmBallotBoxEmptied.expectCallWith().resolves();
+    },
+
     // Some e2e tests repeatedly reset voter session. Each time a voter session is activated
     // setAcceptingPaperState is called.
     expectRepeatedSetAcceptingPaperState(): void {

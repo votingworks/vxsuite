@@ -29,7 +29,12 @@ import {
 } from '@votingworks/ballot-interpreter';
 import { LogEventId, LogLine, Logger } from '@votingworks/logging';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { isCardlessVoterAuth, isPollWorkerAuth } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  isCardlessVoterAuth,
+  isFeatureFlagEnabled,
+  isPollWorkerAuth,
+} from '@votingworks/utils';
 import { Workspace, constructAuthMachineState } from '../util/workspace';
 import { SimpleServerStatus } from './types';
 import {
@@ -38,6 +43,7 @@ import {
   DELAY_BEFORE_DECLARING_REAR_JAM_MS,
   DEVICE_STATUS_POLLING_INTERVAL_MS,
   DEVICE_STATUS_POLLING_TIMEOUT_MS,
+  MAX_BALLOT_BOX_CAPACITY,
   RESET_AFTER_JAM_DELAY_MS,
   SUCCESS_NOTIFICATION_DURATION_MS,
 } from './constants';
@@ -91,7 +97,7 @@ type PaperHandlerStatusEvent =
   | { type: 'VOTER_INITIATED_PRINT'; pdfData: Buffer }
   | { type: 'PAPER_IN_OUTPUT' }
   | { type: 'PAPER_IN_INPUT' }
-  | { type: 'POLLWORKER_CONFIRMED_INVALIDATED_BALLOT' }
+  | { type: 'POLL_WORKER_CONFIRMED_INVALIDATED_BALLOT' }
   | { type: 'SCANNING' }
   | { type: 'SET_INTERPRETATION_FIXTURE' }
   | { type: 'VOTER_VALIDATED_BALLOT' }
@@ -103,7 +109,8 @@ type PaperHandlerStatusEvent =
   | { type: 'PAT_DEVICE_DISCONNECTED' }
   | { type: 'VOTER_CONFIRMED_PAT_DEVICE_CALIBRATION' }
   | { type: 'PAT_DEVICE_NO_STATUS_CHANGE' }
-  | { type: 'PAT_DEVICE_STATUS_UNHANDLED' };
+  | { type: 'PAT_DEVICE_STATUS_UNHANDLED' }
+  | { type: 'POLL_WORKER_CONFIRMED_BALLOT_BOX_EMPTIED' };
 
 const debug = makeDebug('mark-scan:state-machine');
 const debugEvents = debug.extend('events');
@@ -118,6 +125,7 @@ export interface PaperHandlerStateMachine {
   validateBallot(): void;
   invalidateBallot(): void;
   confirmInvalidateBallot(): void;
+  confirmBallotBoxEmptied(): void;
   setPatDeviceIsCalibrated(): void;
   setInterpretationFixture(): void;
 }
@@ -581,7 +589,13 @@ export function buildMachine(
               VOTER_VALIDATED_BALLOT: 'eject_to_rear',
               VOTER_INVALIDATED_BALLOT:
                 'waiting_for_invalidated_ballot_confirmation',
-              NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
+              NO_PAPER_ANYWHERE: {
+                cond: () =>
+                  !isFeatureFlagEnabled(
+                    BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+                  ),
+                target: 'resetting_state_machine_after_success',
+              },
             },
           },
           waiting_for_invalidated_ballot_confirmation: {
@@ -595,7 +609,7 @@ export function buildMachine(
               },
               paper_absent: {
                 on: {
-                  POLLWORKER_CONFIRMED_INVALIDATED_BALLOT: 'done',
+                  POLL_WORKER_CONFIRMED_INVALIDATED_BALLOT: 'done',
                 },
               },
               done: {
@@ -611,6 +625,14 @@ export function buildMachine(
           eject_to_rear: {
             invoke: pollPaperStatus(),
             entry: async (context) => {
+              if (
+                isFeatureFlagEnabled(
+                  BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+                )
+              ) {
+                return;
+              }
+
               await context.driver.parkPaper();
               await context.driver.ejectBallotToRear();
             },
@@ -623,6 +645,12 @@ export function buildMachine(
             },
           },
           ballot_accepted: {
+            entry: (context) => {
+              const { store } = context.workspace;
+              context.workspace.store.setBallotsCastSinceLastBoxChange(
+                store.getBallotsCastSinceLastBoxChange() + 1
+              );
+            },
             after: {
               [SUCCESS_NOTIFICATION_DURATION_MS]:
                 'resetting_state_machine_after_success',
@@ -688,7 +716,21 @@ export function buildMachine(
                 isPatDeviceConnected: false,
               });
             },
-            always: 'not_accepting_paper',
+            always: [
+              {
+                target: 'empty_ballot_box',
+                cond: (context) =>
+                  context.workspace.store.getBallotsCastSinceLastBoxChange() >=
+                  MAX_BALLOT_BOX_CAPACITY,
+              },
+              { target: 'not_accepting_paper' },
+            ],
+          },
+          // The flow to empty a full ballot box. Can only occur at the end of a voting session.
+          empty_ballot_box: {
+            on: {
+              POLL_WORKER_CONFIRMED_BALLOT_BOX_EMPTIED: 'not_accepting_paper',
+            },
           },
         },
       },
@@ -858,6 +900,8 @@ export async function getPaperHandlerStateMachine({
           return 'ballot_accepted';
         case state.matches('voting_flow.resetting_state_machine_after_success'):
           return 'resetting_state_machine_after_success';
+        case state.matches('voting_flow.empty_ballot_box'):
+          return 'empty_ballot_box';
         case state.matches('voting_flow.transition_interpretation'):
           return 'interpreting';
         case state.matches('voting_flow.blank_page_interpretation'):
@@ -925,7 +969,13 @@ export async function getPaperHandlerStateMachine({
 
     confirmInvalidateBallot(): void {
       machineService.send({
-        type: 'POLLWORKER_CONFIRMED_INVALIDATED_BALLOT',
+        type: 'POLL_WORKER_CONFIRMED_INVALIDATED_BALLOT',
+      });
+    },
+
+    confirmBallotBoxEmptied(): void {
+      machineService.send({
+        type: 'POLL_WORKER_CONFIRMED_BALLOT_BOX_EMPTIED',
       });
     },
   };

@@ -571,6 +571,12 @@ eventType = "user-action"
 documentationMessage = "User confirmed that they replaced the ballot bag."
 restrictInDocumentationToApps = ["vx-scan-frontend"]
 
+[BallotBoxEmptied]
+eventId = "ballot-box-emptied"
+eventType = "user-action"
+documentationMessage = "Poll worker confirmed that they emptied the ballot box."
+restrictInDocumentationToApps = ["vx-mark-scan-frontend"]
+
 [TallyReportClearedFromCard]
 eventId = "tally-report-cleared-from-card"
 eventType = "application-action"

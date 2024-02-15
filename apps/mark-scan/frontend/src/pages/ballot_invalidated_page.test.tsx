@@ -1,6 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
-import { ElectionDefinition, InsertedSmartCardAuth } from '@votingworks/types';
+import { InsertedSmartCardAuth } from '@votingworks/types';
 import { VxRenderResult } from '@votingworks/ui';
 import { render } from '../../test/test_utils';
 import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client';
@@ -21,7 +21,6 @@ afterEach(() => {
 });
 
 function renderWithAuthAndBallotContext(
-  electionDefinition: ElectionDefinition,
   authStatus:
     | InsertedSmartCardAuth.CardlessVoterLoggedIn
     | InsertedSmartCardAuth.PollWorkerLoggedIn,
@@ -42,7 +41,7 @@ describe('with poll worker auth', () => {
   test('renders the correct message when paper is present', () => {
     const electionDefinition = electionGeneralDefinition;
     const auth = fakePollWorkerAuth(electionDefinition);
-    renderWithAuthAndBallotContext(electionDefinition, auth);
+    renderWithAuthAndBallotContext(auth);
 
     screen.getByText('Please remove the incorrect ballot.');
   });
@@ -50,7 +49,7 @@ describe('with poll worker auth', () => {
   test('renders the correct message when paper is not present', () => {
     const electionDefinition = electionGeneralDefinition;
     const auth = fakePollWorkerAuth(electionDefinition);
-    renderWithAuthAndBallotContext(electionDefinition, auth, false);
+    renderWithAuthAndBallotContext(auth, false);
 
     screen.getByText(
       'The incorrect ballot has been removed. Remember to spoil the ballot.'
@@ -61,7 +60,7 @@ describe('with poll worker auth', () => {
     const electionDefinition = electionGeneralDefinition;
     apiMock.expectConfirmInvalidateBallot();
     const auth = fakePollWorkerAuth(electionDefinition);
-    renderWithAuthAndBallotContext(electionDefinition, auth, false);
+    renderWithAuthAndBallotContext(auth, false);
 
     userEvent.click(screen.getByText('Continue'));
   });
@@ -72,7 +71,7 @@ describe('with cardless voter auth', () => {
     const electionDefinition = electionGeneralDefinition;
 
     const auth = fakeCardlessVoterLoggedInAuth(electionDefinition);
-    renderWithAuthAndBallotContext(electionDefinition, auth);
+    renderWithAuthAndBallotContext(auth);
 
     await screen.findByText('Ask a Poll Worker for Help');
     await screen.findByText('Insert a poll worker card to continue.');

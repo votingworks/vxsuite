@@ -6,6 +6,7 @@ export type SimpleStatus =
   | 'blank_page_interpretation'
   | 'ejecting_to_front'
   | 'ejecting_to_rear'
+  | 'empty_ballot_box'
   | 'interpreting'
   | 'jam_cleared'
   | 'jammed'
@@ -29,6 +30,7 @@ export const SimpleStatusSchema: z.ZodSchema<SimpleStatus> = z.union([
   z.literal('blank_page_interpretation'),
   z.literal('ejecting_to_front'),
   z.literal('ejecting_to_rear'),
+  z.literal('empty_ballot_box'),
   z.literal('interpreting'),
   z.literal('jam_cleared'),
   z.literal('jammed'),

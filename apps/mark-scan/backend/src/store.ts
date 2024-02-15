@@ -313,4 +313,35 @@ export class Store {
       ballotsPrintedCount
     );
   }
+
+  /**
+   * Gets the number of ballots cast since the last ballot box change
+   */
+  getBallotsCastSinceLastBoxChange(): number {
+    const electionRow = this.client.one(
+      'select ballots_cast_since_last_ballot_box_change as ballotsCastSinceLastBoxChange from election'
+    ) as { ballotsCastSinceLastBoxChange: number } | undefined;
+
+    if (!electionRow) {
+      // 0 will be the default once an election is defined
+      return 0;
+    }
+
+    return electionRow.ballotsCastSinceLastBoxChange;
+  }
+
+  /**
+   * Sets the number of ballots cast since the last ballot box change
+   */
+  setBallotsCastSinceLastBoxChange(ballotsCastCount: number): void {
+    // istanbul ignore next
+    if (!this.hasElection()) {
+      throw new Error('Cannot set ballots cast count without an election.');
+    }
+
+    this.client.run(
+      'update election set ballots_cast_since_last_ballot_box_change = ?',
+      ballotsCastCount
+    );
+  }
 }

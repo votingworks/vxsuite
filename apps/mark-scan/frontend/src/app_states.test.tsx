@@ -207,6 +207,21 @@ test('`paper_reloaded` state renders PaperReloadedPage', async () => {
   );
 });
 
+test('`empty_ballot_box` state renders EmptyBallotBoxPage', async () => {
+  apiMock.setAuthStatusCardlessVoterLoggedInWithDefaults(electionDefinition);
+
+  render(
+    <App
+      hardware={hardware}
+      apiClient={apiMock.mockApiClient}
+      reload={jest.fn()}
+    />
+  );
+
+  apiMock.setPaperHandlerState('empty_ballot_box');
+  await screen.findByText('Ballot Box Full');
+});
+
 const testSpecs: Array<{
   state: SimpleServerStatus;
 }> = [

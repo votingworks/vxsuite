@@ -7,6 +7,7 @@ create table election (
   is_test_mode boolean not null default true,
   polls_state text not null default "polls_closed_initial",
   ballots_printed_count integer not null default 0,
+  ballots_cast_since_last_ballot_box_change integer not null default 0,
   created_at timestamp not null default current_timestamp
 );
 
