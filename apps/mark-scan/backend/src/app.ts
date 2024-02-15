@@ -264,8 +264,10 @@ export function buildApi(
       stateMachine.invalidateBallot();
     },
 
-    confirmInvalidateBallot(): void {
+    async confirmInvalidateBallot(): Promise<void> {
       assert(stateMachine);
+
+      await logger.log(LogEventId.BallotInvalidated, 'poll_worker');
 
       stateMachine.confirmInvalidateBallot();
     },
