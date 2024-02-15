@@ -212,7 +212,7 @@ fn send_key(device: &mut Device, key: keyboard::Key) -> Result<(), CommandError>
     Ok(())
 }
 
-fn handle_command(device: &mut Device, data: &[u8]) -> Result<(), CommandError> {
+fn handle_command(data: &[u8]) -> Result<Option<keyboard::Key>, CommandError> {
     let ButtonStatusCommand { button, action } = data.try_into()?;
 
     let key: keyboard::Key;
@@ -252,11 +252,10 @@ fn handle_command(device: &mut Device, data: &[u8]) -> Result<(), CommandError> 
         },
         Action::Released => {
             // Button release is a no-op since we already sent the keypress event
-            return Ok(());
+            return Ok(None);
         }
     }
-
-    send_key(device, key)
+    Ok(Some(key))
 }
 
 fn validate_connection(port: &mut Box<dyn SerialPort>) -> Result<(), io::Error> {
@@ -394,17 +393,23 @@ fn main() {
                     exit(0);
                 }
                 match port.read(serial_buf.as_mut_slice()) {
-                    Ok(size) => {
-                        if let Err(e) = handle_command(&mut device, &serial_buf[..size]) {
-                            log!(
-                                event_id: EventId::UnknownError,
-                                message: format!(
-                                    "Unexpected error when handling controller command: {e}"
-                                ),
-                                event_type: EventType::SystemStatus
-                            );
+                    Ok(size) => match handle_command(&serial_buf[..size]) {
+                        Ok(key_option) => {
+                            if key_option.is_some() {
+                                let key = key_option.unwrap();
+                                if let Err(err) = send_key(&mut device, key) {
+                                    log!(EventId::UnknownError, "Error sending key: {err}");
+                                }
+                            }
                         }
-                    }
+                        Err(err) => log!(
+                            event_id: EventId::UnknownError,
+                            message: format!(
+                                "Unexpected error when handling controller command: {err}"
+                            ),
+                            event_type: EventType::SystemStatus
+                        ),
+                    },
                     // Timeout error just means no event was sent in the current polling period
                     Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
                     Err(e) => {
@@ -437,9 +442,8 @@ mod tests {
 
     #[test]
     fn test_handle_command_packet_length_error() {
-        let mut device = create_virtual_device();
         let bad_data = [0x01];
-        match handle_command(&mut device, &bad_data) {
+        match handle_command(&bad_data) {
             Err(CommandError::UnexpectedPacketSize(size)) => assert_eq!(size, 1),
             result => panic!("Unexpected result: {result:?}"),
         }
@@ -448,9 +452,8 @@ mod tests {
     #[test]
     fn test_handle_command_data_length() {
         let bad_data_length: u8 = 0x03;
-        let mut device = create_virtual_device();
         let bad_data = [0x30, 0x00, bad_data_length, 0x00, 0x00, 0x00, 0x00];
-        match handle_command(&mut device, &bad_data) {
+        match handle_command(&bad_data) {
             Err(CommandError::UnexpectedDataLength(length)) => {
                 assert_eq!(length, bad_data_length as u16)
             }
@@ -460,7 +463,6 @@ mod tests {
 
     #[test]
     fn test_handle_command_success() {
-        let mut device = create_virtual_device();
         // In prod we wait 1s for the device to register.
         // We can afford to be riskier to speed up tests.
         thread::sleep(DEVICE_WAIT_DURATION);
@@ -474,6 +476,8 @@ mod tests {
             0xc8,
             0x37,
         ];
-        handle_command(&mut device, &data).unwrap();
+        let key_option = handle_command(&data).unwrap();
+        assert!(key_option.is_some());
+        assert_eq!(key_option.unwrap(), keyboard::Key::R);
     }
 }
