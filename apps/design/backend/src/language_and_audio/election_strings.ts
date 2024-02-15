@@ -52,10 +52,7 @@ const electionStringConfigs: Record<ElectionStringKey, ElectionStringConfig> = {
     translatable: false,
   },
   [ElectionStringKey.CANDIDATE_NAME]: {
-    translatable: true,
-    translationsCanBeStoredInCdf: true,
-    // Don't attempt to cloud translate candidate names
-    customTranslationMethod: ({ stringInEnglish }) => stringInEnglish,
+    translatable: false,
   },
   [ElectionStringKey.CONTEST_DESCRIPTION]: {
     translatable: true,

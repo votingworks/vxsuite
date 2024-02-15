@@ -494,8 +494,7 @@ test('Election package export', async () => {
         Array.isArray(stringKey) &&
         stringKey[0] === ElectionStringKey.CANDIDATE_NAME
       ) {
-        expect(stringInLanguage).toBeDefined();
-        expect(stringInLanguage).toEqual(stringInEnglish);
+        expect(stringInLanguage).not.toBeDefined();
       } else if (stringKey === ElectionStringKey.ELECTION_DATE) {
         expect(stringInLanguage).toBeDefined();
       } else if (stringKey === ElectionStringKey.BALLOT_LANGUAGE) {
