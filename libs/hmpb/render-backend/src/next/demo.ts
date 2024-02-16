@@ -1,8 +1,8 @@
 import { writeFile } from 'fs/promises';
-import { range } from '@votingworks/basics';
 import { renderBallotToPdf } from './render_ballot';
-import { MiniElection, ballotPageTemplate, pageDimensions } from './template';
+import { ballotPageTemplate, pageDimensions } from './template';
 import { createPlaywrightRenderer } from './playwright_renderer';
+import { exampleBallotProps } from './browser_preview';
 
 /**
  * There are three layers to this rendering stack:
@@ -24,19 +24,12 @@ import { createPlaywrightRenderer } from './playwright_renderer';
  * below and branching out from there.
  */
 async function main() {
-  const election: MiniElection = {
-    title: 'Mini Election',
-    contests: range(0, 10).map((i) => ({
-      title: `Contest ${i + 1}`,
-      candidates: range(0, 5).map((j) => `Candidate ${i + 1}-${j + 1}`),
-    })),
-  };
   const t1 = Date.now();
   const renderer = await createPlaywrightRenderer();
   const ballotPdf = await renderBallotToPdf(
     renderer,
     ballotPageTemplate,
-    { election },
+    exampleBallotProps,
     { pageDimensions }
   );
   const t2 = Date.now();

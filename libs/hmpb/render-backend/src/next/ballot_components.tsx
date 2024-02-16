@@ -32,8 +32,21 @@ export function ContentSlot(): JSX.Element {
 
 export const QR_CODE_SLOT_CLASS = 'qr-code-slot';
 
+export const QR_CODE_SIZE: InchDimensions = {
+  width: 0.5,
+  height: 0.5,
+};
+
 export function QrCodeSlot(): JSX.Element {
-  return <div className={QR_CODE_SLOT_CLASS} />;
+  return (
+    <div
+      className={QR_CODE_SLOT_CLASS}
+      style={{
+        height: `${QR_CODE_SIZE.height}in`,
+        width: `${QR_CODE_SIZE.width}in`,
+      }}
+    />
+  );
 }
 
 const BUBBLE_DIMENSIONS: InchDimensions = {

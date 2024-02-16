@@ -3,7 +3,7 @@ import {
   ROBOTO_ITALIC_FONT_DECLARATIONS,
 } from '@votingworks/ui';
 
-const globalStyles = `
+const baseStyles = `
   *,
   *::before,
   *::after {
@@ -13,14 +13,39 @@ const globalStyles = `
   html {
     box-sizing: border-box;
     font-family: Vx Roboto;
+    font-variant-ligatures: none;
+    font-size: 12pt;
+    line-height: 1.2;
   }
 
   body {
     margin: 0;
   }
+
+  h1, h2, h3, h4, h5, h6 {
+    margin: 0;
+  }
+  h1 {
+    font-size: 1.8em;
+  }
+  h2 {
+    font-size: 1.5em;
+  }
+  h3 {
+    font-size: 1.2em;
+  }
+  h4 {
+    font-size: 1.125em;
+  }
+  h5 {
+    font-size: 1.075em;
+  }
+  h6 {
+    font-size: 1em;
+  }
 `;
 
-export const globalStyleElements = (
+export const baseStyleElements = (
   <>
     <style
       type="text/css"
@@ -34,7 +59,7 @@ export const globalStyleElements = (
     <style
       type="text/css"
       dangerouslySetInnerHTML={{
-        __html: globalStyles,
+        __html: baseStyles,
       }}
     />
   </>

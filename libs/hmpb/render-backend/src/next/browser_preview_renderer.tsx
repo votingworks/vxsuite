@@ -7,7 +7,7 @@ import {
   createDocument,
   createScratchpad,
 } from './renderer';
-import { globalStyleElements } from './global_styles';
+import { baseStyleElements } from './base_styles';
 
 function browserPage(): Page {
   return {
@@ -30,7 +30,7 @@ function browserPage(): Page {
 function createBrowserPreviewDocument(): RenderDocument {
   document.head.innerHTML += ReactDomServer.renderToString(
     <>
-      {globalStyleElements}
+      {baseStyleElements}
       <style type="text/css">
         {`
         body {

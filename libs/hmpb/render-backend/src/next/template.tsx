@@ -1,6 +1,16 @@
 import { assertDefined, iter, range } from '@votingworks/basics';
+import { Buffer } from 'buffer';
 import React from 'react';
 import styled from 'styled-components';
+import {
+  BallotStyle,
+  BallotType,
+  CandidateContest,
+  Election,
+  Precinct,
+  getPartyForBallotStyle,
+} from '@votingworks/types';
+import { BallotMode } from '@votingworks/hmpb-layout';
 import { BallotPageTemplate, PagedElementResult } from './render_ballot';
 import { RenderScratchpad } from './renderer';
 import {
@@ -12,12 +22,12 @@ import {
 } from './ballot_components';
 import { InchDimensions, PixelDimensions } from './types';
 
-export interface MiniElection {
-  title: string;
-  contests: Array<{
-    title: string;
-    candidates: string[];
-  }>;
+export interface BallotProps {
+  election: Election;
+  ballotStyle: BallotStyle;
+  precinct: Precinct;
+  ballotType: BallotType;
+  ballotMode: BallotMode;
 }
 
 export const pageDimensions: InchDimensions = {
@@ -59,7 +69,6 @@ function TimingMarkGrid({ children }: { children: React.ReactNode }) {
         justifyContent: 'space-between',
         position: 'relative',
         top: `-${TIMING_MARK_DIMENSIONS.height}in`,
-        border: '1px solid red',
         height: `calc(100% + ${2 * TIMING_MARK_DIMENSIONS.height}in)`,
       }}
     >
@@ -79,15 +88,22 @@ function TimingMarkGrid({ children }: { children: React.ReactNode }) {
       }}
     >
       {timingMarkRow}
-      <div style={{ flex: 1, display: 'flex' }}>
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          // Prevent this flex item from overflowing its container
+          // https://stackoverflow.com/a/66689926
+          minHeight: 0,
+        }}
+      >
         {timingMarkColumn}
         <div
           style={{
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
-            padding: '0.1in',
-            border: '1px solid blue',
+            padding: '0.125in',
           }}
         >
           {children}
@@ -99,9 +115,72 @@ function TimingMarkGrid({ children }: { children: React.ReactNode }) {
   );
 }
 
-function Header({ children }: { children: React.ReactNode }) {
+function Header({
+  election,
+  ballotStyle,
+  precinct,
+  ballotType,
+  ballotMode,
+}: BallotProps) {
+  const ballotModeLabel: Record<BallotMode, string> = {
+    sample: 'Sample',
+    test: 'Test',
+    official: 'Official',
+  };
+
+  const ballotTypeLabel: Record<BallotType, string> = {
+    [BallotType.Absentee]: ' Absentee',
+    [BallotType.Precinct]: '',
+    [BallotType.Provisional]: ' Provisional',
+  };
+
+  const ballotTitle = `${ballotModeLabel[ballotMode]}${ballotTypeLabel[ballotType]} Ballot`;
+
+  const party =
+    election.type === 'primary'
+      ? assertDefined(
+          getPartyForBallotStyle({ election, ballotStyleId: ballotStyle.id })
+        ).fullName
+      : undefined;
+
+  const date = Intl.DateTimeFormat('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    timeZone: 'UTC',
+  }).format(new Date(election.date));
+
   return (
-    <div style={{ padding: '1rem', border: '1px solid black' }}>{children}</div>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'auto 1fr',
+          gap: '0.75rem',
+          alignItems: 'center',
+        }}
+      >
+        <img
+          style={{ height: '100%', marginTop: '0.125rem' }}
+          src={`data:image/svg+xml;base64,${Buffer.from(election.seal).toString(
+            'base64'
+          )}`}
+        />
+        <div>
+          <h1>
+            {ballotTitle}
+            {party && ` • ${party}`}
+          </h1>
+          <h3>
+            {election.title} • {date}
+          </h3>
+          <div>
+            {precinct.name}, {election.county.name}, {election.state}
+          </div>
+        </div>
+      </div>
+      <div>Instructions</div>
+    </div>
   );
 }
 
@@ -129,15 +208,15 @@ const ContestBox = styled.div`
   padding: 1rem;
 `;
 
-function Contest({ contest }: { contest: MiniElection['contests'][0] }) {
+function Contest({ contest }: { contest: CandidateContest }) {
   return (
     <ContestBox className="contest">
       <div>{contest.title}</div>
       <ul style={{ listStyleType: 'none' }}>
         {contest.candidates.map((candidate) => (
-          <li key={candidate}>
-            <Bubble contestId={contest.title} optionId={candidate} />{' '}
-            {candidate}
+          <li key={candidate.id} style={{ display: 'flex' }}>
+            <Bubble contestId={contest.title} optionId={candidate.id} />{' '}
+            {candidate.name}
           </li>
         ))}
       </ul>
@@ -147,11 +226,14 @@ function Contest({ contest }: { contest: MiniElection['contests'][0] }) {
 
 function BallotPageFrame({
   election,
+  ballotStyle,
+  precinct,
+  ballotType,
+  ballotMode,
   pageNumber,
   totalPages,
   children,
-}: {
-  election: MiniElection;
+}: BallotProps & {
   pageNumber: number;
   totalPages: number;
   children: JSX.Element;
@@ -164,8 +246,25 @@ function BallotPageFrame({
       margins={pageMargins}
     >
       <TimingMarkGrid>
-        {pageNumber % 2 === 1 && <Header>{election.title}</Header>}
-        <div style={{ flex: 1 }}>{children}</div>
+        {pageNumber === 1 && (
+          <Header
+            election={election}
+            ballotStyle={ballotStyle}
+            precinct={precinct}
+            ballotType={ballotType}
+            ballotMode={ballotMode}
+          />
+        )}
+        <div
+          style={{
+            flex: 1,
+            // Prevent this flex item from overflowing its container
+            // https://stackoverflow.com/a/66689926
+            minHeight: 0,
+          }}
+        >
+          {children}
+        </div>
         <Footer>
           Page: {pageNumber}/{totalPages}
         </Footer>
@@ -186,15 +285,16 @@ async function BallotPageContent(
   {
     election,
     dimensions,
-  }: {
-    election: MiniElection;
-    dimensions: PixelDimensions;
-  },
+    ...props
+  }: BallotProps & { dimensions: PixelDimensions },
   scratchpad: RenderScratchpad
-): Promise<PagedElementResult<{ election: MiniElection }>> {
-  const contestElements = election.contests.map((contest) => (
-    <Contest key={contest.title} contest={contest} />
-  ));
+): Promise<PagedElementResult<BallotProps>> {
+  const contestElements = election.contests.map(
+    (contest) =>
+      contest.type === 'candidate' && (
+        <Contest key={contest.title} contest={contest} />
+      )
+  );
 
   const contestMeasurements = await scratchpad.measureElements(
     <>
@@ -237,6 +337,7 @@ async function BallotPageContent(
   const nextPageProps =
     measuredContests.length > 0
       ? {
+          ...props,
           election: {
             ...election,
             contests: election.contests.slice(pageContests.length),
@@ -250,9 +351,7 @@ async function BallotPageContent(
   };
 }
 
-export const ballotPageTemplate: BallotPageTemplate<{
-  election: MiniElection;
-}> = {
+export const ballotPageTemplate: BallotPageTemplate<BallotProps> = {
   frameComponent: BallotPageFrame,
   contentComponent: BallotPageContent,
 };

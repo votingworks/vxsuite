@@ -11,6 +11,7 @@ import {
   CONTENT_SLOT_CLASS,
   ContentSlot,
   PAGE_CLASS,
+  QR_CODE_SIZE,
   QR_CODE_SLOT_CLASS,
   TIMING_MARK_CLASS,
 } from './ballot_components';
@@ -40,7 +41,7 @@ export type ContentComponent<P> = (
  *     - The content element for the current page (e.g. the contest boxes for this page)
  *     - The props for the next page (e.g. the contests that didn't fit on this page)
  */
-export interface BallotPageTemplate<P> {
+export interface BallotPageTemplate<P extends object> {
   frameComponent: FrameComponent<P>;
   contentComponent: ContentComponent<P>;
 }
@@ -57,7 +58,7 @@ export interface BallotPageTemplate<P> {
  * Once we have the content for each page, we render the content into the frame
  * for each page, passing in the page number and total number of pages.
  */
-async function paginateBallotContent<P extends Record<string, unknown>>(
+async function paginateBallotContent<P extends object>(
   pageTemplate: BallotPageTemplate<P>,
   props: P,
   scratchpad: RenderScratchpad
@@ -73,10 +74,11 @@ async function paginateBallotContent<P extends Record<string, unknown>>(
       totalPages: 0,
       children: <ContentSlot />,
     });
-    const [contentSlotElement] = await scratchpad.measureElements(
+    const [contentSlotMeasurements] = await scratchpad.measureElements(
       pageFrame,
       `.${CONTENT_SLOT_CLASS}`
     );
+    console.log(contentSlotMeasurements);
     const currentPageProps: P =
       pagedContentResults[pagedContentResults.length - 1]?.nextPageProps ??
       props;
@@ -85,8 +87,8 @@ async function paginateBallotContent<P extends Record<string, unknown>>(
         // eslint-disable-next-line vx/gts-spread-like-types
         ...currentPageProps,
         dimensions: {
-          width: contentSlotElement.width,
-          height: contentSlotElement.height,
+          width: contentSlotMeasurements.width,
+          height: contentSlotMeasurements.height,
         },
       },
       scratchpad
@@ -187,12 +189,15 @@ async function addQrCodes(document: RenderDocument, electionHash: string) {
   for (const i of pages.keys()) {
     const pageNumber = i + 1;
     const qrCode = (
-      <div style={{ border: '1px solid green' }}>
-        QR code
-        <br />
-        {electionHash}
-        <br />
-        {pageNumber}
+      <div
+        style={{
+          border: '1px solid black',
+          height: `${QR_CODE_SIZE.height}in`,
+          width: `${QR_CODE_SIZE.width}in`,
+          fontSize: '7pt',
+        }}
+      >
+        QR code {electionHash} pg{pageNumber}
       </div>
     );
     await document.setContent(
@@ -206,7 +211,7 @@ async function addQrCodes(document: RenderDocument, electionHash: string) {
  * Given a ballot page template, which specifies the layout for an individual
  * ballot page, and props (i.e. the election content), render a ballot PDF.
  */
-export async function renderBallotToPdf<P extends Record<string, unknown>>(
+export async function renderBallotToPdf<P extends object>(
   renderer: Renderer,
   template: BallotPageTemplate<P>,
   props: P,

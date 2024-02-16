@@ -1,24 +1,26 @@
 import './polyfills';
-import { range } from '@votingworks/basics';
-import { MiniElection, ballotPageTemplate, pageDimensions } from './template';
+import { BallotType } from '@votingworks/types';
+import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { BallotProps, ballotPageTemplate, pageDimensions } from './template';
 import { renderBallotToPdf } from './render_ballot';
 import { createBrowserPreviewRenderer } from './browser_preview_renderer';
 
+const { election } = electionFamousNames2021Fixtures;
+const ballotStyle = election.ballotStyles[0];
+const precinct = election.precincts[0];
+export const exampleBallotProps: BallotProps = {
+  election,
+  ballotStyle,
+  precinct,
+  ballotType: BallotType.Precinct,
+  ballotMode: 'official',
+};
+
 export async function main(): Promise<void> {
-  const election: MiniElection = {
-    title: 'Mini Election',
-    contests: range(0, 10).map((i) => ({
-      title: `Contest ${i + 1}`,
-      candidates: range(0, 5).map((j) => `Candidate ${i + 1}-${j + 1}`),
-    })),
-  };
   const renderer = createBrowserPreviewRenderer();
-  await renderBallotToPdf(
-    renderer,
-    ballotPageTemplate,
-    { election },
-    { pageDimensions }
-  );
+  await renderBallotToPdf(renderer, ballotPageTemplate, exampleBallotProps, {
+    pageDimensions,
+  });
 }
 
 main().catch((err) => {

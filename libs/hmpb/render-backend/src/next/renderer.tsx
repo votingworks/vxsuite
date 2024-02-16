@@ -4,7 +4,7 @@ import ReactDomServer from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';
 import { assert } from '@votingworks/basics';
 import { InchDimensions, PixelMeasurements } from './types';
-import { globalStyleElements } from './global_styles';
+import { baseStyleElements } from './base_styles';
 
 export interface PdfOptions {
   pageDimensions: InchDimensions;
@@ -12,7 +12,7 @@ export interface PdfOptions {
 
 export const emptyPageContentsWithFonts = `<!DOCTYPE html>${ReactDomServer.renderToStaticMarkup(
   <html>
-    <head>{globalStyleElements}</head>
+    <head>{baseStyleElements}</head>
     <body />
   </html>
 )}`;
