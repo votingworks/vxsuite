@@ -518,6 +518,16 @@ export const getWriteInAdjudicationReportPreview = {
   },
 } as const;
 
+export const getDiagnosticRecords = {
+  queryKey(): QueryKey {
+    return ['getDiagnosticRecords'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getDiagnosticRecords());
+  },
+} as const;
+
 // Grouped Invalidations
 
 function invalidateCastVoteRecordQueries(queryClient: QueryClient) {
@@ -763,6 +773,25 @@ export const exportWriteInAdjudicationReportPdf = {
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.exportWriteInAdjudicationReportPdf);
+  },
+} as const;
+
+export const addDiagnosticRecord = {
+  useMutation() {
+    const queryClient = useQueryClient();
+    const apiClient = useApiClient();
+    return useMutation(apiClient.addDiagnosticRecord, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getDiagnosticRecords.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const printTestPage = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.printTestPage);
   },
 } as const;
 
