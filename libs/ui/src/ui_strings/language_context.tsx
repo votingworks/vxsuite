@@ -28,7 +28,6 @@ export function useLanguageContext(): Optional<LanguageContextInterface> {
 
 const i18nextInitPromise = i18next.use(initReactI18next).init({
   lng: DEFAULT_LANGUAGE_CODE,
-  fallbackLng: DEFAULT_LANGUAGE_CODE,
   supportedLngs: Object.values(LanguageCode),
   interpolation: {
     escapeValue: false, // Sanitization already handled by React.

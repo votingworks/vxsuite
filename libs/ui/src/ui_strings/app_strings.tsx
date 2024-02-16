@@ -264,6 +264,14 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsLanguageSettingsScreen: () => (
+    <UiString uiStringKey="instructionsLanguageSettingsScreen">
+      Use the up and down buttons to navigate through the available ballot
+      languages. To select a language, use the select button. When you're done,
+      use the right button to continue voting.
+    </UiString>
+  ),
+
   instructionsScannerAskForRestart: () => (
     <UiString uiStringKey="instructionsScannerAskForRestart">
       Ask a poll worker to restart the scanner.
@@ -827,6 +835,12 @@ export const appStrings = {
   titleDisplaySettingsAudioVideoOnly: () => (
     <UiString uiStringKey="titleDisplaySettingsAudioVideoOnly">
       Audio/Video Only
+    </UiString>
+  ),
+
+  titleLanguageSettingsScreen: () => (
+    <UiString uiStringKey="titleLanguageSettingsScreen">
+      Select Your Ballot Language
     </UiString>
   ),
 

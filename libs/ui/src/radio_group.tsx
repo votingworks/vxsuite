@@ -1,6 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Button } from './button';
+
+import { isTouchscreen } from '@votingworks/types';
+
+import { Button, ButtonProps } from './button';
+import { useCurrentTheme } from './hooks/use_current_theme';
 
 /** Option value type for the RadioGroup component. */
 type RadioGroupValue = string | number;
@@ -72,7 +76,7 @@ const StyledButton = styled(Button)`
   &[disabled] {
     ${(p) => p.color === 'neutral' && `filter: none;`}
   }
-`;
+` as <T>(props: ButtonProps<T>) => React.ReactElement;
 
 // Use an invisible radio input to handle the user interaction and checked
 // state. This ensures that we maintain the recommended a11y interaction pattern
@@ -121,6 +125,14 @@ export function RadioGroupWithRef<T extends RadioGroupValue>(
     value,
   } = props;
 
+  // The native radio input is currently incompatible with both BMD accessible
+  // controllers' custom navigation and the screen reader, so we drop it in
+  // voting machine UIs (currently identified by touch-specific themes) and
+  // rely solely on the button to trigger option selection.
+  const shouldUseNativeRadioInteraction = !isTouchscreen(
+    useCurrentTheme().screenType
+  );
+
   return (
     <OuterContainer aria-label={label} ref={ref}>
       {!hideLabel && <LabelContainer aria-hidden>{label}</LabelContainer>}
@@ -133,6 +145,7 @@ export function RadioGroupWithRef<T extends RadioGroupValue>(
                 aria-labelledby={`${option.value}-label`}
                 checked={isSelected}
                 disabled={disabled}
+                hidden={!shouldUseNativeRadioInteraction}
                 name={label}
                 onChange={(e) => {
                   onChange(option.value);
@@ -159,9 +172,11 @@ export function RadioGroupWithRef<T extends RadioGroupValue>(
                 }
                 fill={isSelected ? 'tinted' : 'outlined'}
                 icon={isSelected ? 'CircleDot' : 'Circle'}
-                tabIndex={-1}
-                // Interaction will be handled by the radio input
-                onPress={() => {}}
+                // Keyboard navigation will be handled by the radio input,
+                // when `shouldUseNativeRadioInteraction === true`:
+                tabIndex={shouldUseNativeRadioInteraction ? -1 : undefined}
+                onPress={(newValue: T) => onChange(newValue)}
+                value={option.value}
               >
                 {option.label}
               </StyledButton>
