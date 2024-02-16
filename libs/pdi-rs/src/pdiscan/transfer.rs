@@ -1,4 +1,9 @@
-use std::thread;
+use std::{
+    ffi::c_void,
+    ptr::NonNull,
+    sync::{atomic::AtomicBool, mpsc},
+    thread,
+};
 
 use rusb::{
     constants::{
@@ -7,7 +12,7 @@ use rusb::{
         LIBUSB_TRANSFER_OVERFLOW, LIBUSB_TRANSFER_STALL, LIBUSB_TRANSFER_TIMED_OUT,
     },
     ffi::{
-        libusb_alloc_transfer, libusb_cancel_transfer, libusb_fill_bulk_transfer,
+        self, libusb_alloc_transfer, libusb_cancel_transfer, libusb_fill_bulk_transfer,
         libusb_free_transfer, libusb_handle_events, libusb_submit_transfer, libusb_transfer,
     },
     Context, DeviceHandle, UsbContext,
@@ -77,12 +82,116 @@ impl Event {
 }
 
 #[derive(Debug)]
+struct Transfer {
+    ptr: NonNull<libusb_transfer>,
+    buffer: Vec<u8>,
+}
+
+impl Transfer {
+    pub fn bulk(device: &DeviceHandle<Context>, endpoint: u8, mut buffer: Vec<u8>) -> Self {
+        let ptr = NonNull::new(unsafe { ffi::libusb_alloc_transfer(0) })
+            .expect("libusb_alloc_transfer failed");
+
+        let length = if endpoint & ffi::constants::LIBUSB_ENDPOINT_DIR_MASK
+            == ffi::constants::LIBUSB_ENDPOINT_OUT
+        {
+            // for OUT endpoints: the currently valid data in the buffer
+            buffer.len()
+        } else {
+            // for IN endpoints: the full capacity
+            buffer.capacity()
+        }
+        .try_into()
+        .unwrap();
+
+        let user_data = Box::into_raw(Box::new(AtomicBool::new(false))).cast::<c_void>();
+
+        unsafe {
+            ffi::libusb_fill_bulk_transfer(
+                ptr.as_ptr(),
+                device.as_raw(),
+                endpoint,
+                buffer.as_mut_ptr(),
+                length,
+                Self::libusb_callback,
+                user_data,
+                0,
+            );
+        }
+
+        Self { ptr, buffer }
+    }
+
+    fn transfer(&self) -> &ffi::libusb_transfer {
+        // Safety: transfer remains valid as long as self
+        unsafe { self.ptr.as_ref() }
+    }
+
+    pub fn as_raw(&mut self) -> *mut libusb_transfer {
+        self.ptr.as_ptr()
+    }
+
+    pub fn buffer(&mut self) -> &Vec<u8> {
+        &self.buffer
+    }
+
+    fn completed_flag(&self) -> &AtomicBool {
+        // Safety: transfer and user_data remain valid as long as self
+        unsafe { &*self.transfer().user_data.cast::<AtomicBool>() }
+    }
+
+    /// Prerequisite: self.buffer ans self.ptr are both correctly set
+    fn swap_buffer(&mut self, new_buf: Vec<u8>) -> Vec<u8> {
+        let transfer_struct = unsafe { self.ptr.as_mut() };
+
+        let data = std::mem::replace(&mut self.buffer, new_buf);
+
+        // Update transfer struct for new buffer
+        transfer_struct.actual_length = 0; // TODO: Is this necessary?
+        transfer_struct.buffer = self.buffer.as_mut_ptr();
+        transfer_struct.length = self.buffer.capacity() as i32;
+
+        data
+    }
+
+    // Step 3 of async API
+    fn submit(&mut self) -> Result<()> {
+        self.completed_flag().store(false, Ordering::SeqCst);
+        let errno = unsafe { ffi::libusb_submit_transfer(self.ptr.as_ptr()) };
+
+        match errno {
+            0 => Ok(()),
+            LIBUSB_ERROR_NO_DEVICE => Err(Error::Disconnected),
+            LIBUSB_ERROR_BUSY => {
+                unreachable!("We shouldn't be calling submit on transfers already submitted!")
+            }
+            LIBUSB_ERROR_NOT_SUPPORTED => Err(Error::Other("Transfer not supported")),
+            LIBUSB_ERROR_INVALID_PARAM => {
+                Err(Error::Other("Transfer size bigger than OS supports"))
+            }
+            _ => Err(Error::Errno("Error while submitting transfer: ", errno)),
+        }
+    }
+
+    fn cancel(&mut self) {
+        unsafe {
+            ffi::libusb_cancel_transfer(self.ptr.as_ptr());
+        }
+    }
+
+    extern "system" fn libusb_callback(transfer: *mut libusb_transfer) {
+        tracing::debug!("libusb_callback: transfer={transfer:?}");
+        let handler = unsafe { &mut *(*transfer).user_data.cast::<Handler>() };
+    }
+}
+
+#[derive(Debug)]
 pub(crate) struct Handler {
     device_handle: DeviceHandle<Context>,
     output_endpoint: u8,
     inputs: Vec<Input>,
     handle_events_thread: Option<(thread::JoinHandle<()>, std::sync::mpsc::Sender<()>)>,
-    pending_transfers: Vec<*mut libusb_transfer>,
+    pending_transfers: Vec<Transfer>,
     tx: std::sync::mpsc::Sender<Event>,
 }
 
@@ -111,36 +220,28 @@ impl Handler {
     #[tracing::instrument]
     pub fn start_handle_events_thread(&mut self) {
         for input in &self.inputs {
-            // SAFETY: we're passing ownership of `buffer` to libusb, which will free
-            // it when freeing the transfer because we set the `LIBUSB_TRANSFER_FREE_BUFFER`
-            // flag below.
-            let buffer = Box::leak(vec![0; 16_384].into_boxed_slice());
-
             unsafe {
                 let transfer_handler_ptr = self as *const _ as *mut _;
                 tracing::trace!("transfer_handler_ptr={transfer_handler_ptr:?}");
 
                 libusb_fill_bulk_transfer(
-                    input.transfer,
+                    input.transfer.as_raw(),
                     self.device_handle.as_raw(),
                     input.endpoint,
-                    buffer.as_mut_ptr(),
-                    buffer.len() as i32,
+                    input.transfer.buffer().as_mut_ptr(),
+                    input.transfer.buffer().len() as i32,
                     libusb_transfer_callback,
                     transfer_handler_ptr,
                     0,
                 );
 
-                // SAFETY: ensure that `buffer` is freed when the transfer is freed.
-                (*input.transfer).flags |= LIBUSB_TRANSFER_FREE_BUFFER;
-
                 tracing::debug!("submitting input transfer: {:?}", input.transfer);
-                libusb_submit_transfer(input.transfer);
+                libusb_submit_transfer(input.transfer.as_raw());
                 self.pending_transfers.push(input.transfer);
             }
         }
 
-        let (quit_tx, quit_rx) = std::sync::mpsc::channel();
+        let (quit_tx, quit_rx) = mpsc::channel();
         let ctx = self.device_handle.context().clone();
         self.handle_events_thread = Some((
             thread::spawn(move || {
@@ -172,7 +273,7 @@ impl Handler {
             );
             for pending_transfer in &self.pending_transfers {
                 tracing::debug!("cancelling pending transfer: {pending_transfer:?}");
-                unsafe { libusb_cancel_transfer(*pending_transfer) };
+                unsafe { libusb_cancel_transfer(pending_transfer.as_raw()) };
             }
             self.pending_transfers.clear();
             tracing::debug!("sending quit message");
@@ -188,18 +289,9 @@ impl Handler {
 
     #[tracing::instrument]
     pub fn submit_transfer(&mut self, data: &[u8]) {
-        // SAFETY: we're passing ownership of `transfer` to libusb, which will free
-        // it when it's done with it because we set the `LIBUSB_TRANSFER_FREE_TRANSFER`
-        // flag below.
-        let transfer = unsafe { libusb_alloc_transfer(0) };
-
-        assert!(
-            !transfer.is_null(),
-            "send_command: libusb_alloc_transfer failed"
-        );
-
         let command = Command::new(data);
         let bytes = command.to_bytes();
+        let transfer = Transfer::bulk(bytes);
 
         // SAFETY: we leak `bytes` because we're passing ownership to libusb.
         // libusb will free the buffer when it's done with it because we set the
@@ -220,10 +312,6 @@ impl Handler {
                 transfer_handler_ptr,
                 0,
             );
-
-            // SAFETY: ensure that both `bytes` and `transfer` are freed when the
-            // transfer is complete.
-            (*transfer).flags |= LIBUSB_TRANSFER_FREE_BUFFER | LIBUSB_TRANSFER_FREE_TRANSFER;
 
             // pass ownership of `transfer` and `bytes` to libusb
             libusb_submit_transfer(transfer);
@@ -304,30 +392,14 @@ impl Handler {
 #[derive(Debug)]
 struct Input {
     endpoint: u8,
-    transfer: *mut libusb_transfer,
+    transfer: Transfer,
 }
 
 impl Input {
     pub fn new(endpoint: u8) -> Self {
-        let transfer = unsafe { libusb_alloc_transfer(0) };
-
-        assert!(
-            !transfer.is_null(),
-            "PdiClientInput::new: libusb_alloc_transfer failed"
-        );
-
-        Self { endpoint, transfer }
-    }
-}
-
-impl Drop for Input {
-    fn drop(&mut self) {
-        tracing::trace!(
-            "PdiClientInput::drop: freeing transfer: {:?}",
-            self.transfer
-        );
-        unsafe {
-            libusb_free_transfer(self.transfer);
+        Self {
+            endpoint,
+            transfer: Transfer::bulk(),
         }
     }
 }

@@ -28,6 +28,7 @@ image = { version = "0.24.7", default-features = false, features = [
     "jpeg",
     "png",
 ] }
+libc = { workspace = true }
 nom = "7.1.3"
 psutil = "3.3.0"
 rand = "0.8.5"

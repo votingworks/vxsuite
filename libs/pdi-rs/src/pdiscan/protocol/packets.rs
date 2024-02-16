@@ -1,8 +1,11 @@
 use std::time::Duration;
 
-use super::types::{
-    BitonalAdjustment, ClampedPercentage, DoubleFeedDetectionCalibrationType, Resolution, Settings,
-    Side, Status, Version,
+use super::{
+    parsers,
+    types::{
+        BitonalAdjustment, ClampedPercentage, Direction, DoubleFeedDetectionCalibrationType,
+        Resolution, Settings, Side, Status, Version,
+    },
 };
 
 pub(crate) const PACKET_DATA_START: &[u8] = &[0x02];
@@ -112,9 +115,9 @@ pub enum Outgoing {
     /// No response.
     EnableFeederRequest,
 
-    /// This command sets a duplex scanner to scan only the backside (bottom) of the document.
+    /// This command disables the scanner from processing documents. This is the DEFAULT mode.
     ///
-    /// `ASCII character H = (48H)`
+    /// `ASCII character 9 = (39H)`
     ///
     /// # Response
     ///
@@ -343,7 +346,7 @@ pub enum Outgoing {
     /// # Response
     ///
     /// No response.
-    SetScannerToFrontOnlySimplexModeRequest,
+    SetScannerToTopOnlySimplexModeRequest,
 
     /// This command sets a duplex scanner to scan only the back-side (bottom)
     /// of the document.
@@ -353,10 +356,11 @@ pub enum Outgoing {
     /// # Response
     ///
     /// No response.
-    SetScannerToBackOnlySimplexModeRequest,
+    SetScannerToBottomOnlySimplexModeRequest,
 
     DisablePickOnCommandModeRequest,
     DisableEjectPauseRequest,
+    TransmitInNativeBitsPerPixelRequest,
     TransmitInLowBitsPerPixelRequest,
     DisableAutoRunOutAtEndOfScanRequest,
 
@@ -545,7 +549,7 @@ pub enum Outgoing {
     },
 
     /// Requests the double feed detection LED intensity (`n3a30`).
-    GetDoubleFeedDetectionLEDIntensityRequest,
+    GetDoubleFeedDetectionLedIntensityRequest,
 
     /// Requests the double feed detection calibration value for a single sheet
     /// (`n3a30`).
@@ -557,6 +561,210 @@ pub enum Outgoing {
 
     /// Requests the double feed detection threshold value (`n3a10`).
     GetDoubleFeedDetectionDoubleSheetThresholdValueRequest,
+
+    RawPacket(Vec<u8>),
+}
+
+macro_rules! checked {
+    ($command:expr, $parser:expr) => {{
+        let command = $command;
+        if let Ok(([], _)) = $parser(&command.to_bytes()) {
+            command.to_bytes()
+        } else {
+            panic!("Command {:?} failed to parse", command)
+        }
+    }};
+}
+
+impl Outgoing {
+    pub fn to_bytes(&self) -> Vec<u8> {
+        match &self {
+            Outgoing::GetTestStringRequest => {
+                checked!(Command::new(b"D"), parsers::get_test_string_response)
+            }
+            Outgoing::GetFirmwareVersionRequest => {
+                checked!(Command::new(b"V"), parsers::get_firmware_version_request)
+            }
+            Outgoing::GetCurrentFirmwareBuildVersionString => checked!(
+                Command::new(b"\x1BV"),
+                parsers::get_current_firmware_build_version_string_request
+            ),
+            Outgoing::GetScannerStatusRequest => {
+                checked!(Command::new(b"Q"), parsers::get_scanner_status_request)
+            }
+            Outgoing::EnableFeederRequest => {
+                checked!(Command::new(b"8"), parsers::enable_feeder_request)
+            }
+            Outgoing::DisableFeederRequest => {
+                checked!(Command::new(b"9"), parsers::disable_feeder_request)
+            }
+            Outgoing::DisableMomentaryReverseOnFeedAtInputRequest => checked!(
+                Command::new(b"\x1BO"),
+                parsers::disable_momentary_reverse_on_feed_at_input_request
+            ),
+            Outgoing::GetSerialNumberRequest => {
+                checked!(Command::new(b"*"), parsers::get_serial_number_request)
+            }
+            Outgoing::SetSerialNumberRequest(serial_number) => checked!(
+                Command::new(b"*").with_data(serial_number),
+                parsers::set_serial_number_request
+            ),
+            Outgoing::GetScannerSettingsRequest => {
+                checked!(Command::new(b"I"), parsers::get_scanner_settings_request)
+            }
+            Outgoing::GetRequiredInputSensorsRequest => checked!(
+                Command::new(b"\x1Bs"),
+                parsers::get_set_input_sensors_required_response
+            ),
+            Outgoing::SetRequiredInputSensorsRequest { sensors } => checked!(
+                Command::new(b"\x1Bs").with_data(&[*sensors + b'0']),
+                parsers::get_set_input_sensors_required_response
+            ),
+            Outgoing::AdjustBitonalThresholdBy1Request(BitonalAdjustment { side, direction }) => {
+                checked!(
+                    Command::new(match (side, direction) {
+                        (Side::Top, Direction::Increase) => b"\x1B+",
+                        (Side::Top, Direction::Decrease) => b"\x1B-",
+                        (Side::Bottom, Direction::Increase) => b"\x1B>",
+                        (Side::Bottom, Direction::Decrease) => b"\x1B<",
+                    }),
+                    parsers::adjust_bitonal_threshold_by_1_request
+                )
+            }
+            Outgoing::GetCalibrationInformationRequest { resolution } => checked!(
+                Command::new(match resolution {
+                    Some(Resolution::Half) => b"W1",
+                    Some(Resolution::Native) => b"W0",
+                    Some(Resolution::Medium) | None => b"W",
+                }),
+                parsers::get_calibration_information_request
+            ),
+            Outgoing::SetScannerImageDensityToHalfNativeResolutionRequest => checked!(
+                Command::new(b"A"),
+                parsers::set_scanner_image_density_to_half_native_resolution_request
+            ),
+            Outgoing::SetScannerImageDensityToNativeResolutionRequest => checked!(
+                Command::new(b"B"),
+                parsers::set_scanner_image_density_to_native_resolution_request
+            ),
+            Outgoing::SetScannerToDuplexModeRequest => checked!(
+                Command::new(b"J"),
+                parsers::set_scanner_to_duplex_mode_request
+            ),
+            Outgoing::SetScannerToTopOnlySimplexModeRequest => checked!(
+                Command::new(b"G"),
+                parsers::set_scanner_to_top_only_simplex_mode_request
+            ),
+            Outgoing::SetScannerToBottomOnlySimplexModeRequest => checked!(
+                Command::new(b"H"),
+                parsers::set_scanner_to_bottom_only_simplex_mode_request
+            ),
+            Outgoing::DisablePickOnCommandModeRequest => todo!(),
+            Outgoing::DisableEjectPauseRequest => todo!(),
+            Outgoing::TransmitInNativeBitsPerPixelRequest => checked!(
+                Command::new(b"y"),
+                parsers::transmit_in_native_bits_per_pixel_request
+            ),
+            Outgoing::TransmitInLowBitsPerPixelRequest => checked!(
+                Command::new(b"z"),
+                parsers::transmit_in_low_bits_per_pixel_request
+            ),
+            Outgoing::DisableAutoRunOutAtEndOfScanRequest => checked!(
+                Command::new(b"\x1bd"),
+                parsers::disable_auto_run_out_at_end_of_scan_request
+            ),
+            Outgoing::ConfigureMotorToRunAtHalfSpeedRequest => checked!(
+                Command::new(b"j"),
+                parsers::configure_motor_to_run_at_half_speed_request
+            ),
+            Outgoing::ConfigureMotorToRunAtFullSpeedRequest => checked!(
+                Command::new(b"k"),
+                parsers::configure_motor_to_run_at_full_speed_request
+            ),
+            Outgoing::SetThresholdToANewValueRequest {
+                side,
+                new_threshold,
+            } => checked!(
+                Command::new(b"\x1B%").with_data(&[(*side).into(), new_threshold.value()]),
+                parsers::set_bitonal_threshold_request
+            ),
+            Outgoing::SetLengthOfDocumentToScanRequest {
+                length_byte,
+                unit_byte,
+            } => checked!(
+                Command::new(b"\x1BD").with_data(
+                    &unit_byte.map_or_else(|| vec![*length_byte], |unit| vec![*length_byte, unit])
+                ),
+                parsers::set_length_of_document_to_scan_request
+            ),
+            Outgoing::SetScanDelayIntervalForDocumentFeedRequest { delay_interval } => checked!(
+                Command::new(b"\x1Bj").with_data(delay_interval.as_millis().to_string().as_bytes()),
+                parsers::set_scan_delay_interval_for_document_feed_request
+            ),
+            Outgoing::TurnArrayLightSourceOnRequest => checked!(
+                Command::new(b"5"),
+                parsers::turn_array_light_source_on_request
+            ),
+            Outgoing::TurnArrayLightSourceOffRequest => checked!(
+                Command::new(b"6"),
+                parsers::turn_array_light_source_off_request
+            ),
+            Outgoing::EjectDocumentToRearOfScannerRequest => checked!(
+                Command::new(b"3"),
+                parsers::eject_document_to_rear_of_scanner_request
+            ),
+            Outgoing::EjectDocumentToFrontOfScannerAndHoldInInputRollersRequest => checked!(
+                Command::new(b"1"),
+                parsers::eject_document_to_front_of_scanner_and_hold_in_input_rollers_request
+            ),
+            Outgoing::EjectDocumentToFrontOfScannerRequest => checked!(
+                Command::new(b"4"),
+                parsers::eject_document_to_front_of_scanner_request
+            ),
+            Outgoing::EjectEscrowDocumentRequest => todo!(),
+            Outgoing::RescanDocumentHeldInEscrowPositionRequest => todo!(),
+            Outgoing::EnableDoubleFeedDetectionRequest => checked!(
+                Command::new(b"n"),
+                parsers::enable_double_feed_detection_request
+            ),
+            Outgoing::DisableDoubleFeedDetectionRequest => checked!(
+                Command::new(b"o"),
+                parsers::disable_double_feed_detection_request
+            ),
+            Outgoing::CalibrateDoubleFeedDetectionRequest(calibration_type) => checked!(
+                Command::new(b"n1").with_data(u8::from(*calibration_type).to_string().as_bytes()),
+                parsers::calibrate_double_feed_detection_request
+            ),
+            Outgoing::SetDoubleFeedDetectionSensitivityRequest { percentage } => checked!(
+                Command::new(b"n3A").with_data(percentage.value().to_string().as_bytes()),
+                parsers::set_double_feed_detection_sensitivity_request
+            ),
+            Outgoing::SetDoubleFeedDetectionMinimumDocumentLengthRequest {
+                length_in_hundredths_of_an_inch,
+            } => checked!(
+                Command::new(b"n3B")
+                    .with_data(length_in_hundredths_of_an_inch.to_string().as_bytes()),
+                parsers::set_double_feed_detection_minimum_document_length_request
+            ),
+            Outgoing::GetDoubleFeedDetectionLedIntensityRequest => checked!(
+                Command::new(b"n3a30"),
+                parsers::get_double_feed_detection_led_intensity_request
+            ),
+            Outgoing::GetDoubleFeedDetectionSingleSheetCalibrationValueRequest => checked!(
+                Command::new(b"n3a10"),
+                parsers::get_double_feed_detection_single_sheet_calibration_value_request
+            ),
+            Outgoing::GetDoubleFeedDetectionDoubleSheetCalibrationValueRequest => checked!(
+                Command::new(b"n3a20"),
+                parsers::get_double_feed_detection_double_sheet_calibration_value_request
+            ),
+            Outgoing::GetDoubleFeedDetectionDoubleSheetThresholdValueRequest => checked!(
+                Command::new(b"n3a90"),
+                parsers::get_double_feed_detection_double_sheet_threshold_value_request
+            ),
+            Outgoing::RawPacket(data) => checked!(Command::new(&data), parsers::raw_outgoing),
+        }
+    }
 }
 
 /// All possible incoming data from the scanner, including responses to commands
@@ -866,6 +1074,11 @@ pub enum Incoming {
     /// An unsolicited message from the scanner indicating that the scanner has
     /// timed out waiting for paper during double-feed detection calibration.
     DoubleFeedCalibrationTimedOutEvent,
+
+    ImageData(Vec<u8>),
+
+    /// Incoming data of an unknown type.
+    Unknown(Vec<u8>),
 }
 
 /// All possible incoming or outgoing data between the host and the scanner.
@@ -886,23 +1099,28 @@ pub enum Packet {
 /// <STX = 0x02> <body> <ETX 0x03> <CRC = crc(body)>
 /// ```
 #[derive(Debug)]
-pub struct Command<'a> {
-    body: &'a [u8],
+pub struct Command {
+    body: Vec<u8>,
 }
 
-impl<'a> Command<'a> {
+impl Command {
     #[must_use]
-    pub const fn new(body: &'a [u8]) -> Self {
-        Self { body }
+    pub fn new(tag: &[u8]) -> Self {
+        Self { body: tag.to_vec() }
+    }
+
+    pub fn with_data(mut self, data: &[u8]) -> Self {
+        self.body.extend_from_slice(data);
+        self
     }
 
     #[must_use]
     pub fn to_bytes(&self) -> Vec<u8> {
         let mut bytes = Vec::with_capacity(self.body.len() + 2);
         bytes.extend_from_slice(PACKET_DATA_START);
-        bytes.extend_from_slice(self.body);
+        bytes.extend_from_slice(&self.body);
         bytes.extend_from_slice(PACKET_DATA_END);
-        bytes.push(crc(self.body));
+        bytes.push(crc(&self.body));
         bytes
     }
 }

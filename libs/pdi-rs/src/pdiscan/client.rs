@@ -1,11 +1,13 @@
 use rusb::{Context, Device, UsbContext};
 use std::{
-    pin::Pin,
-    sync::mpsc::RecvTimeoutError,
+    sync::{mpsc::RecvTimeoutError, Arc},
     time::{Duration, Instant},
 };
 
-use crate::pdiscan::{protocol::image::Sheet, transfer::Handler};
+use crate::{
+    pdiscan::protocol::image::Sheet,
+    rusb_async::{self, TransferPool},
+};
 
 use super::{
     protocol::{
@@ -17,7 +19,7 @@ use super::{
             EjectMotion, Resolution, ScanSideMode, Settings, Side, Speed, Status, Version,
         },
     },
-    transfer::Event,
+    // transfer::Event,
 };
 
 /// Vendor ID for the PDI scanner.
@@ -37,9 +39,18 @@ const ENDPOINT_IN_PRIMARY: u8 = 0x85;
 const ENDPOINT_IN_IMAGE_DATA: u8 = 0x86;
 
 #[derive(Debug, thiserror::Error)]
+pub enum UsbError {
+    #[error("rusb error: {0}")]
+    Rusb(rusb::Error),
+
+    #[error("rusb_async error: {0}")]
+    RusbAsync(rusb_async::Error),
+}
+
+#[derive(Debug, thiserror::Error)]
 pub enum Error {
-    #[error("libusb error: {0}")]
-    Usb(#[from] rusb::Error),
+    #[error("usb error: {0}")]
+    Usb(#[from] UsbError),
 
     #[error("failed to validate request: {0}")]
     ValidateRequest(String),
@@ -49,6 +60,18 @@ pub enum Error {
 
     #[error("UTF-8 error: {0}")]
     Utf8(#[from] std::str::Utf8Error),
+}
+
+impl From<rusb::Error> for Error {
+    fn from(err: rusb::Error) -> Self {
+        Self::Usb(UsbError::Rusb(err))
+    }
+}
+
+impl From<rusb_async::Error> for Error {
+    fn from(err: rusb_async::Error) -> Self {
+        Self::Usb(UsbError::RusbAsync(err))
+    }
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -74,7 +97,6 @@ macro_rules! extract_needle {
     }};
 }
 
-#[derive(Debug)]
 pub struct Client {
     /// We need to keep the device around so that it doesn't get dropped and
     /// closed, but we don't actually need to do anything with it.
@@ -84,12 +106,14 @@ pub struct Client {
     /// and handling the callbacks. It needs to be pinned because it passes
     /// a pointer to itself to libusb, and we need to ensure that the pointer
     /// remains valid.
-    transfer_handler: Pin<Box<Handler>>,
+    // transfer_handler: Pin<Box<Handler>>,
+    transfer_pool: TransferPool<Context>,
 
     pending_responses: Vec<Incoming>,
 
     /// Receiver for events from the transfer handler.
-    event_rx: std::sync::mpsc::Receiver<Event>,
+    // event_rx: std::sync::mpsc::Receiver<Event>,
+    event_rx: std::sync::mpsc::Receiver<()>,
     begin_scan_tx: std::sync::mpsc::Sender<()>,
     pub begin_scan_rx: std::sync::mpsc::Receiver<()>,
     end_scan_tx: std::sync::mpsc::Sender<(ScanPage, ScanPage)>,
@@ -132,12 +156,15 @@ impl Client {
         let (end_scan_tx, end_scan_rx) = std::sync::mpsc::channel();
         let mut client = Self {
             _device: device,
-            transfer_handler: Box::pin(Handler::new(
-                device_handle,
-                output_endpoint,
-                input_endpoints,
-                tx,
-            )),
+            // transfer_handler: Box::pin(Handler::new(
+            //     device_handle,
+            //     output_endpoint,
+            //     input_endpoints,
+            //     tx,
+            // )),
+
+            // TODO: don't panic. `rusb_async` doesn't expose its error type
+            transfer_pool: TransferPool::new(Arc::new(device_handle)).unwrap(),
             event_rx: rx,
             pending_responses: Vec::new(),
             begin_scan_tx,
@@ -147,135 +174,201 @@ impl Client {
             image_data: None,
         };
 
-        client.transfer_handler.start_handle_events_thread();
+        // client.transfer_handler.start_handle_events_thread();
 
         Ok(client)
     }
 
-    /// Connects to the scanner using the same commands that were captured by
-    /// wireshark from the `scan_demo` program. Some of them may not be
-    /// necessary, but they're included for now.
-    ///
-    /// # Errors
-    ///
-    /// This function will return an error if any of the commands fail to
-    /// validate or if the response is not received within the timeout.
-    pub fn send_connect(&mut self) -> Result<()> {
-        let timeout = Duration::from_secs(5);
-        let deadline = Instant::now() + timeout;
+    // /// Connects to the scanner using the same commands that were captured by
+    // /// wireshark from the `scan_demo` program. Some of them may not be
+    // /// necessary, but they're included for now.
+    // ///
+    // /// # Errors
+    // ///
+    // /// This function will return an error if any of the commands fail to
+    // /// validate or if the response is not received within the timeout.
+    // pub fn send_connect(&mut self) -> Result<()> {
+    //     use nom::bytes::complete::{tag, take_while};
 
-        // OUT DisableFeederRequest
-        self.set_feeder_enabled(false);
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 4f 03 c7> } (string: "\u{2}O\u{3}�") (length: 4)
-        self.send_command(&Command::new(b"O"));
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 1b 55 03 a0> } (string: "\u{2}\u{1b}U\u{3}�") (length: 5)
-        self.send_command(&Command::new(b"\x1bU"));
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 1b 4b 03 1b> } (string: "\u{2}\u{1b}K\u{3}\u{1b}") (length: 5)
-        self.send_command(&Command::new(b"\x1bK"));
-        // OUT GetFirmwareVersionRequest
-        // IN GetFirmwareVersionResponse(Version { product_id: "9072", major: "20", minor: "28", cpld_version: "X" })
-        self.get_firmware_version(timeout)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 3c 30 30 38 03 29> } (string: "\u{2}<008\u{3})") (length: 7)
-        self.send_command(&Command::new(b"<008"));
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 3c 30 30 38 30 30 30 30 38 30 32 32 03> } (string: "\u{2}<00800008022\u{3}") (length: 14)
-        self.await_event(deadline)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 3c 30 33 38 03 cb> } (string: "\u{2}<038\u{3}�") (length: 7)
-        self.send_command(&Command::new(b"<038"));
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 3c 30 33 38 30 30 30 36 38 44 38 30 03> } (string: "\u{2}<03800068D80\u{3}") (length: 14)
-        self.await_event(deadline)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 3c 30 31 34 03 42> } (string: "\u{2}<014\u{3}B") (length: 7)
-        self.send_command(&Command::new(b"<014"));
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 3c 30 31 34 30 30 30 30 30 30 30 30 03> } (string: "\u{2}<01400000000\u{3}") (length: 14)
-        self.await_event(deadline)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 3c 30 30 37 03 bf> } (string: "\u{2}<007\u{3}�") (length: 7)
-        self.send_command(&Command::new(b"<007"));
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 3c 30 30 37 33 33 33 33 33 33 33 33 03> } (string: "\u{2}<00733333333\u{3}") (length: 14)
-        self.await_event(deadline)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 3c 30 30 39 03 be> } (string: "\u{2}<009\u{3}�") (length: 7)
-        self.send_command(&Command::new(b"<009"));
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 3c 30 30 39 30 30 30 30 30 30 30 38 03> } (string: "\u{2}<00900000008\u{3}") (length: 14)
-        self.await_event(deadline)?;
-        // OUT GetSerialNumberRequest
-        // IN GetSetSerialNumberResponse([48, 48, 48, 48, 48, 48, 48, 48])
-        self.get_serial_number(timeout)?;
-        // OUT GetScannerSettingsRequest
-        // IN GetScannerSettingsResponse(Settings { dpi_setting: 406, bits_per_pixel: 1, total_array_pixels: 6912, num_of_arrays: 3, calibration_status: CalibrationOk, number_of_calibration_tables: Some(2) })
-        self.get_scanner_settings(timeout)?;
-        // OUT GetCalibrationInformationRequest { resolution: Some(Native) }
-        self.validate_and_send_command_unchecked(
-            b"W0",
-            parsers::get_calibration_information_request,
-        );
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 57 80 0d 08 bf bf b8 bb ba bf b9 b5 b4 b7 bb b7 b5 b4 b8 bb b5 b8 b6 b9 bb b7 b7 b6 ba bb b7 b6 b5 bc ba b7 b8 b6 bb bb b6 b9 b8 bf ba b9 b8 b8 bf bb b9 ba bb bf bc b9 ba bb bf bd bd ba be c2 bb bd ba bf c0 bd be bc c2 c0 bb bd bc c1 c2 bc bd be c4 c1 bd bc be c2 c1 bd bf bf c4 c1 bf c0 c0 c4 bf …> } (string: "\u{2}W�\r\u{8}�����������������������������������������������������������»�������������¼�����������������Ŀ") (length: 6922)
-        self.await_event(deadline)?;
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 57 80 0d 18 a3 a3 a3 a3 a3 a5 a4 ab af aa ac ad b4 b6 b2 b4 b4 b9 b7 b3 b5 b5 b8 b9 b5 b6 b7 bd b9 b8 b7 bb bf bd b9 ba bb c0 bb bc bb bf c0 bc bb ba be c1 bb bb ba bf c0 ba bb bd c1 c1 bb be bf c3 c0 bc c0 bf c3 c2 be bf be c3 be be bb c0 c3 c0 bf be c1 c4 bd bd bd c2 c2 be bf bd c0 c1 bd bf bd …> } (string: "\u{2}W�\r\u{18}�������������������������������������������������������������������¾��þ��������Ľ���¾�������") (length: 6922)
-        self.await_event(deadline)?;
-        // OUT GetCalibrationInformationRequest { resolution: Some(Half) }
-        self.validate_and_send_command_unchecked(
-            b"W1",
-            parsers::get_calibration_information_request,
-        );
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 57 c0 06 08 b0 b0 b0 af b4 af b4 b1 b2 b6 b3 b7 b2 b6 b5 b5 b8 b5 b9 b6 b4 bb b7 ba b7 b8 bc b9 bf ba ba bc ba bf b9 bd bc bc c1 bc bf be be c0 be c0 bc be be bc c2 bd be c0 bf c1 be c0 c0 c0 c3 c0 c3 bf c2 c2 c1 c4 c0 c4 c5 c2 c8 c2 c4 c4 c3 c6 c2 c6 c3 c3 c8 c3 c6 c6 c3 c8 c4 c8 c3 c5 c6 c3 c9 …> } (string: "\u{2}W�\u{6}\u{8}��������������������������������������������������½����������ÿ�������������������������������") (length: 3466)
-        self.await_event(deadline)?;
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 57 c0 06 18 a9 a9 a9 a9 a9 af ae b2 b1 af b5 b0 b6 b3 b4 b9 b6 b8 b7 b8 b9 b4 bb b6 b7 b8 b7 bc b8 ba b8 ba be b8 bb b9 b8 bb bb be ba bb bd bb bf bb be be bc c0 bc bd bd bb bf bb be bb bd bd bc bf be bf c1 bf c2 c0 c1 bf be c2 be c0 c1 bf c2 bd c2 c1 c0 c2 be c4 bf be c1 be c3 bf c1 c0 c1 c2 bf …> } (string: "\u{2}W�\u{6}\u{18}�����������������������������������������������������������������������¾���½���¾Ŀ���ÿ���¿") (length: 3466)
-        self.await_event(deadline)?;
-        // OUT GetScannerStatusRequest
-        // IN GetScannerStatusResponse(Status { rear_left_sensor_covered: false, rear_right_sensor_covered: false, brander_position_sensor_covered: false, hi_speed_mode: true, download_needed: false, scanner_enabled: false, front_left_sensor_covered: false, front_m1_sensor_covered: false, front_m2_sensor_covered: false, front_m3_sensor_covered: false, front_m4_sensor_covered: false, front_m5_sensor_covered: false, front_right_sensor_covered: false, scanner_ready: true, xmt_aborted: false, document_jam: false, scan_array_pixel_error: false, in_diagnostic_mode: false, document_in_scanner: false, calibration_of_unit_needed: false })
-        self.get_scanner_status(timeout)?;
-        // OUT GetRequiredInputSensorsRequest
-        // IN GetSetRequiredInputSensorsResponse { current_sensors_required: 2, total_sensors_available: 5 }
-        self.get_required_input_sensors(timeout)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 6e 33 61 31 30 30 03 7a> } (string: "\u{2}n3a100\u{3}z") (length: 9)
-        self.send_command(&Command::new(b"n3a100"));
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 6e 33 61 31 30 30 3d 35 30 03> } (string: "\u{2}n3a100=50\u{3}") (length: 11)
-        self.await_event(deadline)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 6e 33 61 31 30 31 03 ed> } (string: "\u{2}n3a101\u{3}�") (length: 9)
-        self.send_command(&Command::new(b"n3a101"));
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 6e 33 61 31 30 31 3d 34 30 03> } (string: "\u{2}n3a101=40\u{3}") (length: 11)
-        self.await_event(deadline)?;
-        // OUT IncreaseTopCISSensorThresholdBy1Request
-        // IN AdjustTopCISSensorThresholdResponse { percent_white_threshold: 76 }
-        self.adjust_bitonal_threshold_by_1(Side::Top, Direction::Increase, timeout)?;
-        // OUT DecreaseTopCISSensorThresholdBy1Request
-        // IN AdjustTopCISSensorThresholdResponse { percent_white_threshold: 75 }
-        self.adjust_bitonal_threshold_by_1(Side::Top, Direction::Decrease, timeout)?;
-        // OUT IncreaseBottomCISSensorThresholdBy1Request
-        // IN AdjustBottomCISSensorThresholdResponse { percent_white_threshold: 76 }
-        self.adjust_bitonal_threshold_by_1(Side::Bottom, Direction::Increase, timeout)?;
-        // OUT DecreaseBottomCISSensorThresholdBy1Request
-        // IN AdjustBottomCISSensorThresholdResponse { percent_white_threshold: 75 }
-        self.adjust_bitonal_threshold_by_1(Side::Bottom, Direction::Decrease, timeout)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 23 34 03 60> } (string: "\u{2}#4\u{3}`") (length: 5)
-        self.send_command(&Command::new(b"#4"));
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 58 32 30 32 38 03> } (string: "\u{2}X2028\u{3}") (length: 7)
-        self.await_event(deadline)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 23 35 03 f7> } (string: "\u{2}#5\u{3}�") (length: 5)
-        self.send_command(&Command::new(b"#5"));
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 58 36 35 38 35 36 31 35 37 03> } (string: "\u{2}X65856157\u{3}") (length: 11)
-        self.await_event(deadline)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 23 33 03 ab> } (string: "\u{2}#3\u{3}�") (length: 5)
-        self.send_command(&Command::new(b"#3"));
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 58 31 30 30 35 03> } (string: "\u{2}X1005\u{3}") (length: 7)
-        self.await_event(deadline)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 23 30 03 85> } (string: "\u{2}#0\u{3}�") (length: 5)
-        self.send_command(&Command::new(b"#0"));
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 58 35 38 03> } (string: "\u{2}X58\u{3}") (length: 5)
-        self.await_event(deadline)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 23 31 03 12> } (string: "\u{2}#1\u{3}\u{12}") (length: 5)
-        self.send_command(&Command::new(b"#1"));
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 58 43 03> } (string: "\u{2}XC\u{3}") (length: 4)
-        self.await_event(deadline)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 23 32 03 3c> } (string: "\u{2}#2\u{3}<") (length: 5)
-        self.send_command(&Command::new(b"#2"));
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 58 34 34 39 39 35 03> } (string: "\u{2}X44995\u{3}") (length: 8)
-        self.await_event(deadline)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 23 36 03 d9> } (string: "\u{2}#6\u{3}�") (length: 5)
-        self.send_command(&Command::new(b"#6"));
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 58 34 03> } (string: "\u{2}X4\u{3}") (length: 4)
-        self.await_event(deadline)?;
+    //     let timeout = Duration::from_secs(5);
+    //     let deadline = Instant::now() + timeout;
 
-        Ok(())
-    }
+    //     fn match_unknown_packet_starting_with<'a>(
+    //         prefix: &'a [u8],
+    //     ) -> impl Fn(&'a [u8]) -> nom::IResult<&'a [u8], ()> {
+    //         move |input| {
+    //             let (input, _) = tag(prefix)(input)?;
+    //             let (input, _) = take_while(|_| true)(input)?;
+    //             Ok((input, ()))
+    //         }
+    //     }
+
+    //     // OUT DisableFeederRequest
+    //     self.set_feeder_enabled(false);
+    //     // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 4f 03 c7> } (string: "\u{2}O\u{3}�") (length: 4)
+    //     self.send_command(&Command::new(b"O"));
+    //     // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 1b 55 03 a0> } (string: "\u{2}\u{1b}U\u{3}�") (length: 5)
+    //     self.send_command(&Command::new(b"\x1bU"));
+    //     // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 1b 4b 03 1b> } (string: "\u{2}\u{1b}K\u{3}\u{1b}") (length: 5)
+    //     self.send_command(&Command::new(b"\x1bK"));
+    //     // OUT GetFirmwareVersionRequest
+    //     // IN GetFirmwareVersionResponse(Version { product_id: "9072", major: "20", minor: "28", cpld_version: "X" })
+    //     self.get_firmware_version(timeout)?;
+    //     // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 3c 30 30 38 03 29> } (string: "\u{2}<008\u{3})") (length: 7)
+    //     self.send_command(&Command::new(b"<008"));
+    //     // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 3c 30 30 38 30 30 30 30 38 30 32 32 03> } (string: "\u{2}<00800008022\u{3}") (length: 14)
+    //     self.poll_for_matching_response(
+    //         deadline.saturating_duration_since(Instant::now()),
+    //         |input| match_unknown_packet_starting_with(b"\x02<")(input),
+    //     )?;
+    //     // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 3c 30 33 38 03 cb> } (string: "\u{2}<038\u{3}�") (length: 7)
+    //     self.send_command(&Command::new(b"<038"));
+    //     // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 3c 30 33 38 30 30 30 36 38 44 38 30 03> } (string: "\u{2}<03800068D80\u{3}") (length: 14)
+    //     self.poll_for_matching_response(
+    //         deadline.saturating_duration_since(Instant::now()),
+    //         |input| match_unknown_packet_starting_with(b"\x02<")(input),
+    //     )?;
+    //     // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 3c 30 31 34 03 42> } (string: "\u{2}<014\u{3}B") (length: 7)
+    //     self.send_command(&Command::new(b"<014"));
+    //     // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 3c 30 31 34 30 30 30 30 30 30 30 30 03> } (string: "\u{2}<01400000000\u{3}") (length: 14)
+    //     self.poll_for_matching_response(
+    //         deadline.saturating_duration_since(Instant::now()),
+    //         |input| match_unknown_packet_starting_with(b"\x02<")(input),
+    //     )?;
+    //     // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 3c 30 30 37 03 bf> } (string: "\u{2}<007\u{3}�") (length: 7)
+    //     self.send_command(&Command::new(b"<007"));
+    //     // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 3c 30 30 37 33 33 33 33 33 33 33 33 03> } (string: "\u{2}<00733333333\u{3}") (length: 14)
+    //     self.poll_for_matching_response(
+    //         deadline.saturating_duration_since(Instant::now()),
+    //         |input| match_unknown_packet_starting_with(b"\x02<")(input),
+    //     )?;
+    //     // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 3c 30 30 39 03 be> } (string: "\u{2}<009\u{3}�") (length: 7)
+    //     self.send_command(&Command::new(b"<009"));
+    //     // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 3c 30 30 39 30 30 30 30 30 30 30 38 03> } (string: "\u{2}<00900000008\u{3}") (length: 14)
+    //     self.poll_for_matching_response(
+    //         deadline.saturating_duration_since(Instant::now()),
+    //         |input| match_unknown_packet_starting_with(b"\x02<")(input),
+    //     )?;
+    //     // OUT GetSerialNumberRequest
+    //     // IN GetSetSerialNumberResponse([48, 48, 48, 48, 48, 48, 48, 48])
+    //     self.get_serial_number(timeout)?;
+    //     // OUT GetScannerSettingsRequest
+    //     // IN GetScannerSettingsResponse(Settings { dpi_setting: 406, bits_per_pixel: 1, total_array_pixels: 6912, num_of_arrays: 3, calibration_status: CalibrationOk, number_of_calibration_tables: Some(2) })
+    //     self.get_scanner_settings(timeout)?;
+    //     // OUT GetCalibrationInformationRequest { resolution: Some(Native) }
+    //     self.validate_and_send_command_unchecked(
+    //         b"W0",
+    //         parsers::get_calibration_information_request,
+    //     );
+    //     // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 57 80 0d 08 bf bf b8 bb ba bf b9 b5 b4 b7 bb b7 b5 b4 b8 bb b5 b8 b6 b9 bb b7 b7 b6 ba bb b7 b6 b5 bc ba b7 b8 b6 bb bb b6 b9 b8 bf ba b9 b8 b8 bf bb b9 ba bb bf bc b9 ba bb bf bd bd ba be c2 bb bd ba bf c0 bd be bc c2 c0 bb bd bc c1 c2 bc bd be c4 c1 bd bc be c2 c1 bd bf bf c4 c1 bf c0 c0 c4 bf …> } (string: "\u{2}W�\r\u{8}�����������������������������������������������������������»�������������¼�����������������Ŀ") (length: 6922)
+    //     self.poll_for_matching_response(
+    //         deadline.saturating_duration_since(Instant::now()),
+    //         |input| match_unknown_packet_starting_with(b"\x02W")(input),
+    //     )?;
+    //     // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 57 80 0d 18 a3 a3 a3 a3 a3 a5 a4 ab af aa ac ad b4 b6 b2 b4 b4 b9 b7 b3 b5 b5 b8 b9 b5 b6 b7 bd b9 b8 b7 bb bf bd b9 ba bb c0 bb bc bb bf c0 bc bb ba be c1 bb bb ba bf c0 ba bb bd c1 c1 bb be bf c3 c0 bc c0 bf c3 c2 be bf be c3 be be bb c0 c3 c0 bf be c1 c4 bd bd bd c2 c2 be bf bd c0 c1 bd bf bd …> } (string: "\u{2}W�\r\u{18}�������������������������������������������������������������������¾��þ��������Ľ���¾�������") (length: 6922)
+    //     self.poll_for_matching_response(
+    //         deadline.saturating_duration_since(Instant::now()),
+    //         |input| match_unknown_packet_starting_with(b"\x02W")(input),
+    //     )?;
+    //     // OUT GetCalibrationInformationRequest { resolution: Some(Half) }
+    //     self.validate_and_send_command_unchecked(
+    //         b"W1",
+    //         parsers::get_calibration_information_request,
+    //     );
+    //     // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 57 c0 06 08 b0 b0 b0 af b4 af b4 b1 b2 b6 b3 b7 b2 b6 b5 b5 b8 b5 b9 b6 b4 bb b7 ba b7 b8 bc b9 bf ba ba bc ba bf b9 bd bc bc c1 bc bf be be c0 be c0 bc be be bc c2 bd be c0 bf c1 be c0 c0 c0 c3 c0 c3 bf c2 c2 c1 c4 c0 c4 c5 c2 c8 c2 c4 c4 c3 c6 c2 c6 c3 c3 c8 c3 c6 c6 c3 c8 c4 c8 c3 c5 c6 c3 c9 …> } (string: "\u{2}W�\u{6}\u{8}��������������������������������������������������½����������ÿ�������������������������������") (length: 3466)
+    //     self.poll_for_matching_response(
+    //         deadline.saturating_duration_since(Instant::now()),
+    //         |input| match_unknown_packet_starting_with(b"\x02W")(input),
+    //     )?;
+    //     // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 57 c0 06 18 a9 a9 a9 a9 a9 af ae b2 b1 af b5 b0 b6 b3 b4 b9 b6 b8 b7 b8 b9 b4 bb b6 b7 b8 b7 bc b8 ba b8 ba be b8 bb b9 b8 bb bb be ba bb bd bb bf bb be be bc c0 bc bd bd bb bf bb be bb bd bd bc bf be bf c1 bf c2 c0 c1 bf be c2 be c0 c1 bf c2 bd c2 c1 c0 c2 be c4 bf be c1 be c3 bf c1 c0 c1 c2 bf …> } (string: "\u{2}W�\u{6}\u{18}�����������������������������������������������������������������������¾���½���¾Ŀ���ÿ���¿") (length: 3466)
+    //     self.poll_for_matching_response(
+    //         deadline.saturating_duration_since(Instant::now()),
+    //         |input| match_unknown_packet_starting_with(b"\x02W")(input),
+    //     )?;
+    //     // OUT GetScannerStatusRequest
+    //     // IN GetScannerStatusResponse(Status { rear_left_sensor_covered: false, rear_right_sensor_covered: false, brander_position_sensor_covered: false, hi_speed_mode: true, download_needed: false, scanner_enabled: false, front_left_sensor_covered: false, front_m1_sensor_covered: false, front_m2_sensor_covered: false, front_m3_sensor_covered: false, front_m4_sensor_covered: false, front_m5_sensor_covered: false, front_right_sensor_covered: false, scanner_ready: true, xmt_aborted: false, document_jam: false, scan_array_pixel_error: false, in_diagnostic_mode: false, document_in_scanner: false, calibration_of_unit_needed: false })
+    //     self.get_scanner_status(timeout)?;
+    //     // OUT GetRequiredInputSensorsRequest
+    //     // IN GetSetRequiredInputSensorsResponse { current_sensors_required: 2, total_sensors_available: 5 }
+    //     self.get_required_input_sensors(timeout)?;
+    //     // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 6e 33 61 31 30 30 03 7a> } (string: "\u{2}n3a100\u{3}z") (length: 9)
+    //     self.send_command(&Command::new(b"n3a100"));
+    //     // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 6e 33 61 31 30 30 3d 35 30 03> } (string: "\u{2}n3a100=50\u{3}") (length: 11)
+    //     self.poll_for_matching_response(
+    //         deadline.saturating_duration_since(Instant::now()),
+    //         |input| match_unknown_packet_starting_with(b"\x02n")(input),
+    //     )?;
+    //     // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 6e 33 61 31 30 31 03 ed> } (string: "\u{2}n3a101\u{3}�") (length: 9)
+    //     self.send_command(&Command::new(b"n3a101"));
+    //     // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 6e 33 61 31 30 31 3d 34 30 03> } (string: "\u{2}n3a101=40\u{3}") (length: 11)
+    //     self.poll_for_matching_response(
+    //         deadline.saturating_duration_since(Instant::now()),
+    //         |input| match_unknown_packet_starting_with(b"\x02n")(input),
+    //     )?;
+    //     // OUT IncreaseTopCISSensorThresholdBy1Request
+    //     // IN AdjustTopCISSensorThresholdResponse { percent_white_threshold: 76 }
+    //     self.adjust_bitonal_threshold_by_1(Side::Top, Direction::Increase, timeout)?;
+    //     // OUT DecreaseTopCISSensorThresholdBy1Request
+    //     // IN AdjustTopCISSensorThresholdResponse { percent_white_threshold: 75 }
+    //     self.adjust_bitonal_threshold_by_1(Side::Top, Direction::Decrease, timeout)?;
+    //     // OUT IncreaseBottomCISSensorThresholdBy1Request
+    //     // IN AdjustBottomCISSensorThresholdResponse { percent_white_threshold: 76 }
+    //     self.adjust_bitonal_threshold_by_1(Side::Bottom, Direction::Increase, timeout)?;
+    //     // OUT DecreaseBottomCISSensorThresholdBy1Request
+    //     // IN AdjustBottomCISSensorThresholdResponse { percent_white_threshold: 75 }
+    //     self.adjust_bitonal_threshold_by_1(Side::Bottom, Direction::Decrease, timeout)?;
+    //     // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 23 34 03 60> } (string: "\u{2}#4\u{3}`") (length: 5)
+    //     self.send_command(&Command::new(b"#4"));
+    //     // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 58 32 30 32 38 03> } (string: "\u{2}X2028\u{3}") (length: 7)
+    //     self.poll_for_matching_response(
+    //         deadline.saturating_duration_since(Instant::now()),
+    //         |input| match_unknown_packet_starting_with(b"\x02X")(input),
+    //     )?;
+    //     // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 23 35 03 f7> } (string: "\u{2}#5\u{3}�") (length: 5)
+    //     self.send_command(&Command::new(b"#5"));
+    //     // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 58 36 35 38 35 36 31 35 37 03> } (string: "\u{2}X65856157\u{3}") (length: 11)
+    //     self.poll_for_matching_response(
+    //         deadline.saturating_duration_since(Instant::now()),
+    //         |input| match_unknown_packet_starting_with(b"\x02X")(input),
+    //     )?;
+    //     // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 23 33 03 ab> } (string: "\u{2}#3\u{3}�") (length: 5)
+    //     self.send_command(&Command::new(b"#3"));
+    //     // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 58 31 30 30 35 03> } (string: "\u{2}X1005\u{3}") (length: 7)
+    //     self.poll_for_matching_response(
+    //         deadline.saturating_duration_since(Instant::now()),
+    //         |input| match_unknown_packet_starting_with(b"\x02X")(input),
+    //     )?;
+    //     // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 23 30 03 85> } (string: "\u{2}#0\u{3}�") (length: 5)
+    //     self.send_command(&Command::new(b"#0"));
+    //     // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 58 35 38 03> } (string: "\u{2}X58\u{3}") (length: 5)
+    //     self.poll_for_matching_response(
+    //         deadline.saturating_duration_since(Instant::now()),
+    //         |input| match_unknown_packet_starting_with(b"\x02X")(input),
+    //     )?;
+    //     // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 23 31 03 12> } (string: "\u{2}#1\u{3}\u{12}") (length: 5)
+    //     self.send_command(&Command::new(b"#1"));
+    //     // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 58 43 03> } (string: "\u{2}XC\u{3}") (length: 4)
+    //     self.poll_for_matching_response(
+    //         deadline.saturating_duration_since(Instant::now()),
+    //         |input| match_unknown_packet_starting_with(b"\x02X")(input),
+    //     )?;
+    //     // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 23 32 03 3c> } (string: "\u{2}#2\u{3}<") (length: 5)
+    //     self.send_command(&Command::new(b"#2"));
+    //     // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 58 34 34 39 39 35 03> } (string: "\u{2}X44995\u{3}") (length: 8)
+    //     self.poll_for_matching_response(
+    //         deadline.saturating_duration_since(Instant::now()),
+    //         |input| match_unknown_packet_starting_with(b"\x02X")(input),
+    //     )?;
+    //     // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 23 36 03 d9> } (string: "\u{2}#6\u{3}�") (length: 5)
+    //     self.send_command(&Command::new(b"#6"));
+    //     // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 58 34 03> } (string: "\u{2}X4\u{3}") (length: 4)
+    //     self.poll_for_matching_response(
+    //         deadline.saturating_duration_since(Instant::now()),
+    //         |input| match_unknown_packet_starting_with(b"\x02X")(input),
+    //     )?;
+
+    //     Ok(())
+    // }
 
     /// Sends the same commands to enable scanning that were captured by
     /// wireshark from the `scan_demo` program. Some of them may not be
@@ -337,7 +430,12 @@ impl Client {
 
     /// Send a command to the scanner, but don't wait for a response.
     fn send_command(&mut self, command: &Command) {
-        self.transfer_handler.submit_transfer(&command.to_bytes());
+        // self.transfer_handler.submit_transfer(&command.to_bytes());
+        self.transfer_pool
+            .submit_bulk(ENDPOINT_OUT, command.to_bytes())
+            .unwrap();
+
+        self.transfer_pool.poll(Duration::from_millis(10)).unwrap();
     }
 
     /// Validate that a command can be properly validated by the associated
@@ -390,22 +488,43 @@ impl Client {
     ///
     /// This function will return an error if the response is not received within
     /// the timeout.
-    pub fn get_test_string(
-        &mut self,
-        timeout: impl Into<Option<std::time::Duration>>,
-    ) -> Result<String> {
+    pub fn get_test_string(&mut self, timeout: Duration) -> Result<String> {
         self.validate_and_send_command_unchecked(b"D", parsers::get_test_string_request);
+        self.poll_for_matching_response(timeout, |input| {
+            parsers::get_test_string_response(input)
+                .map(|(remaining, response)| (remaining, response.to_string()))
+        })
+    }
 
-        let timeout = timeout.into();
-        let deadline = timeout.map(|timeout| Instant::now() + timeout);
+    fn poll_for_matching_response<O>(
+        &mut self,
+        timeout: Duration,
+        matcher: impl Fn(&[u8]) -> nom::IResult<&[u8], O>,
+    ) -> Result<O> {
+        let deadline = Instant::now() + timeout;
+        let mut buffer = vec![0; 16_384];
 
         loop {
-            self.await_event(deadline)?;
+            self.transfer_pool
+                .submit_bulk(ENDPOINT_IN_PRIMARY, buffer)
+                .unwrap();
 
-            extract_needle!(
-                Incoming::GetTestStringResponse(test_string) => return Ok(test_string),
-                self.pending_responses,
-            );
+            let transfer = self
+                .transfer_pool
+                .poll(deadline.saturating_duration_since(Instant::now()))?;
+
+            match matcher(transfer.data()) {
+                Ok(([], response)) => return Ok(response),
+                Ok((remaining, _)) => {
+                    tracing::warn!("expected response did not match, remaining: {remaining:?}");
+                }
+                Err(err) => {
+                    tracing::error!("error parsing response: {err}");
+                }
+            }
+
+            // reuse the buffer for the next transfer
+            buffer = transfer.into_vec();
         }
     }
 
@@ -419,23 +538,9 @@ impl Client {
     ///
     /// This function will return an error if the response is not received within
     /// the timeout.
-    pub fn get_firmware_version(
-        &mut self,
-        timeout: impl Into<Option<std::time::Duration>>,
-    ) -> Result<Version> {
+    pub fn get_firmware_version(&mut self, timeout: Duration) -> Result<Version> {
         self.validate_and_send_command_unchecked(b"V", parsers::get_firmware_version_request);
-
-        let timeout = timeout.into();
-        let deadline = timeout.map(|timeout| Instant::now() + timeout);
-
-        loop {
-            self.await_event(deadline)?;
-
-            extract_needle!(
-                Incoming::GetFirmwareVersionResponse(version) => return Ok(version),
-                self.pending_responses,
-            );
-        }
+        self.poll_for_matching_response(timeout, parsers::get_firmware_version_response)
     }
 
     /// Get the scanner status, such as whether the sensors detect paper.
@@ -448,23 +553,9 @@ impl Client {
     ///
     /// This function will return an error if the response is not received within
     /// the timeout.
-    pub fn get_scanner_status(
-        &mut self,
-        timeout: impl Into<Option<std::time::Duration>>,
-    ) -> Result<Status> {
+    pub fn get_scanner_status(&mut self, timeout: Duration) -> Result<Status> {
         self.validate_and_send_command_unchecked(b"Q", parsers::get_scanner_status_request);
-
-        let timeout = timeout.into();
-        let deadline = timeout.map(|timeout| Instant::now() + timeout);
-
-        loop {
-            self.await_event(deadline)?;
-
-            extract_needle!(
-                Incoming::GetScannerStatusResponse(status) => return Ok(status),
-                self.pending_responses,
-            );
-        }
+        self.poll_for_matching_response(timeout, parsers::get_scanner_status_response)
     }
 
     /// Get the scanner settings, pixels per inch and bits per pixel.
@@ -477,23 +568,9 @@ impl Client {
     ///
     /// This function will return an error if the response is not received within
     /// the timeout.
-    pub fn get_scanner_settings(
-        &mut self,
-        timeout: impl Into<Option<std::time::Duration>>,
-    ) -> Result<Settings> {
+    pub fn get_scanner_settings(&mut self, timeout: Duration) -> Result<Settings> {
         self.validate_and_send_command_unchecked(b"I", parsers::get_scanner_settings_request);
-
-        let timeout = timeout.into();
-        let deadline = timeout.map(|timeout| Instant::now() + timeout);
-
-        loop {
-            self.await_event(deadline)?;
-
-            extract_needle!(
-                Incoming::GetScannerSettingsResponse(settings) => return Ok(settings),
-                self.pending_responses,
-            );
-        }
+        self.poll_for_matching_response(timeout, parsers::get_scanner_settings_response)
     }
 
     /// Gets the number of input sensors that must be covered to initiate
@@ -507,29 +584,12 @@ impl Client {
     ///
     /// This function will return an error if the response is not received within
     /// the timeout.
-    pub fn get_required_input_sensors(
-        &mut self,
-        timeout: impl Into<Option<std::time::Duration>>,
-    ) -> Result<(u8, u8)> {
+    pub fn get_required_input_sensors(&mut self, timeout: Duration) -> Result<(u8, u8)> {
         self.validate_and_send_command_unchecked(
             b"\x1bs",
             parsers::get_input_sensors_required_request,
         );
-
-        let timeout = timeout.into();
-        let deadline = timeout.map(|timeout| Instant::now() + timeout);
-
-        loop {
-            self.await_event(deadline)?;
-
-            extract_needle!(
-                Incoming::GetSetRequiredInputSensorsResponse {
-                    current_sensors_required,
-                    total_sensors_available,
-                } => return Ok((current_sensors_required, total_sensors_available)),
-                self.pending_responses,
-            );
-        }
+        self.poll_for_matching_response(timeout, parsers::get_set_input_sensors_required_response)
     }
 
     /// Sets whether the scanner should detect double feeds. When double feed
@@ -609,32 +669,15 @@ impl Client {
     pub fn calibrate_double_feed_detection(
         &mut self,
         calibration_type: DoubleFeedDetectionCalibrationType,
-        timeout: impl Into<Option<std::time::Duration>>,
+        timeout: Duration,
     ) -> Result<()> {
-        let timeout = timeout.into();
-        let deadline = timeout.map(|timeout| Instant::now() + timeout);
-
         let mut body = b"n1".to_vec();
         body.extend_from_slice(u8::from(calibration_type).to_string().as_bytes());
         self.validate_and_send_command(
             &Command::new(body.as_slice()),
             parsers::calibrate_double_feed_detection_request,
         )?;
-
-        loop {
-            self.await_event(deadline)?;
-
-            extract_needle!(
-                Incoming::DoubleFeedCalibrationCompleteEvent => return Ok(()),
-                self.pending_responses,
-            );
-
-            extract_needle!(
-                Incoming::DoubleFeedCalibrationTimedOutEvent =>
-                    return Err(Error::RecvTimeout(RecvTimeoutError::Timeout)),
-                self.pending_responses,
-            );
-        }
+        self.poll_for_matching_response(timeout, parsers::double_feed_calibration_complete_event)
     }
 
     /// Gets the intensity of the double feed detection LED.
@@ -643,26 +686,15 @@ impl Client {
     ///
     /// This function will return an error if the response is not received within
     /// the timeout.
-    pub fn get_double_feed_detection_led_intensity(
-        &mut self,
-        timeout: impl Into<Option<std::time::Duration>>,
-    ) -> Result<u16> {
+    pub fn get_double_feed_detection_led_intensity(&mut self, timeout: Duration) -> Result<u16> {
         self.validate_and_send_command_unchecked(
             b"n3a30",
             parsers::get_double_feed_detection_led_intensity_request,
         );
-
-        let timeout = timeout.into();
-        let deadline = timeout.map(|timeout| Instant::now() + timeout);
-
-        loop {
-            self.await_event(deadline)?;
-
-            extract_needle!(
-                Incoming::GetDoubleFeedDetectionLedIntensityResponse(intensity) => return Ok(intensity),
-                self.pending_responses,
-            );
-        }
+        self.poll_for_matching_response(
+            timeout,
+            parsers::get_double_feed_detection_led_intensity_response,
+        )
     }
 
     /// Gets the double sheet detection calibration value for a single sheet of paper. This value
@@ -673,24 +705,16 @@ impl Client {
     /// This function will return an error if the response is not received within the timeout.
     pub fn get_double_feed_detection_single_sheet_calibration_value(
         &mut self,
-        timeout: impl Into<Option<std::time::Duration>>,
+        timeout: Duration,
     ) -> Result<u16> {
         self.validate_and_send_command_unchecked(
             b"n3a10",
             parsers::get_double_feed_detection_single_sheet_calibration_value_request,
         );
-
-        let timeout = timeout.into();
-        let deadline = timeout.map(|timeout| Instant::now() + timeout);
-
-        loop {
-            self.await_event(deadline)?;
-
-            extract_needle!(
-                Incoming::GetDoubleFeedDetectionSingleSheetCalibrationValueResponse(value) => return Ok(value),
-                self.pending_responses,
-            );
-        }
+        self.poll_for_matching_response(
+            timeout,
+            parsers::get_double_feed_detection_single_sheet_calibration_value_response,
+        )
     }
 
     /// Gets the double sheet detection calibration value for two sheets of paper. This value
@@ -701,24 +725,16 @@ impl Client {
     /// This function will return an error if the response is not received within the timeout.
     pub fn get_double_feed_detection_double_sheet_calibration_value(
         &mut self,
-        timeout: impl Into<Option<std::time::Duration>>,
+        timeout: Duration,
     ) -> Result<u16> {
         self.validate_and_send_command_unchecked(
             b"n3a20",
             parsers::get_double_feed_detection_double_sheet_calibration_value_request,
         );
-
-        let timeout = timeout.into();
-        let deadline = timeout.map(|timeout| Instant::now() + timeout);
-
-        loop {
-            self.await_event(deadline)?;
-
-            extract_needle!(
-                Incoming::GetDoubleFeedDetectionDoubleSheetCalibrationValueResponse(value) => return Ok(value),
-                self.pending_responses,
-            );
-        }
+        self.poll_for_matching_response(
+            timeout,
+            parsers::get_double_feed_detection_double_sheet_calibration_value_response,
+        )
     }
 
     /// Gets the double sheet detection threshold value. Values above this threshold are considered
@@ -729,24 +745,16 @@ impl Client {
     /// This function will return an error if the response is not received within the timeout.
     pub fn get_double_feed_detection_double_sheet_threshold_value(
         &mut self,
-        timeout: impl Into<Option<std::time::Duration>>,
+        timeout: Duration,
     ) -> Result<u16> {
         self.validate_and_send_command_unchecked(
             b"n3a90",
             parsers::get_double_feed_detection_double_sheet_threshold_value_request,
         );
-
-        let timeout = timeout.into();
-        let deadline = timeout.map(|timeout| Instant::now() + timeout);
-
-        loop {
-            self.await_event(deadline)?;
-
-            extract_needle!(
-                Incoming::GetDoubleFeedDetectionDoubleSheetThresholdValueResponse(value) => return Ok(value),
-                self.pending_responses,
-            );
-        }
+        self.poll_for_matching_response(
+            timeout,
+            parsers::get_double_feed_detection_threshold_value_response,
+        )
     }
 
     /// Enables or disables the array light source.
@@ -797,24 +805,13 @@ impl Client {
     ///
     /// This function will return an error if the response is not received within
     /// the timeout.
-    pub fn get_serial_number(
-        &mut self,
-        timeout: impl Into<Option<std::time::Duration>>,
-    ) -> Result<String> {
+    pub fn get_serial_number(&mut self, timeout: Duration) -> Result<String> {
         self.validate_and_send_command_unchecked(b"*", parsers::get_serial_number_request);
-
-        let timeout = timeout.into();
-        let deadline = timeout.map(|timeout| Instant::now() + timeout);
-
-        loop {
-            self.await_event(deadline)?;
-
-            extract_needle!(
-                Incoming::GetSetSerialNumberResponse(serial_number) =>
-                    return Ok(std::str::from_utf8(&serial_number)?.to_owned()),
-                self.pending_responses,
-            );
-        }
+        self.poll_for_matching_response(timeout, |input| {
+            nom::combinator::map_res(parsers::get_set_serial_number_response, |response| {
+                String::from_utf8(response.to_vec())
+            })(input)
+        })
     }
 
     /// Sets the resolution of the scanner to either half or native. The native
@@ -905,48 +902,49 @@ impl Client {
         }
     }
 
-    /// Adjusts the bitonal threshold by 1. The threshold is a percentage of the
-    /// luminosity that must be detected before the scanner will consider a
-    /// pixel to be white. The threshold is adjusted separately for the top and
-    /// bottom sensors.
-    ///
-    /// # Errors
-    ///
-    /// This function will return an error if the response is not received within
-    /// the timeout.
-    pub fn adjust_bitonal_threshold_by_1(
-        &mut self,
-        side: Side,
-        adjustment: Direction,
-        timeout: impl Into<Option<std::time::Duration>>,
-    ) -> Result<u8> {
-        let body = match (side, adjustment) {
-            (Side::Top, Direction::Increase) => b"\x1b+",
-            (Side::Top, Direction::Decrease) => b"\x1b-",
-            (Side::Bottom, Direction::Increase) => b"\x1b>",
-            (Side::Bottom, Direction::Decrease) => b"\x1b<",
-        };
+    // /// Adjusts the bitonal threshold by 1. The threshold is a percentage of the
+    // /// luminosity that must be detected before the scanner will consider a
+    // /// pixel to be white. The threshold is adjusted separately for the top and
+    // /// bottom sensors.
+    // ///
+    // /// # Errors
+    // ///
+    // /// This function will return an error if the response is not received within
+    // /// the timeout.
+    // pub fn adjust_bitonal_threshold_by_1(
+    //     &mut self,
+    //     side: Side,
+    //     adjustment: Direction,
+    //     timeout: Duration,
+    // ) -> Result<u8> {
+    //     let body = match (side, adjustment) {
+    //         (Side::Top, Direction::Increase) => b"\x1b+",
+    //         (Side::Top, Direction::Decrease) => b"\x1b-",
+    //         (Side::Bottom, Direction::Increase) => b"\x1b>",
+    //         (Side::Bottom, Direction::Decrease) => b"\x1b<",
+    //     };
 
-        self.validate_and_send_command_unchecked(
-            body,
-            parsers::adjust_bitonal_threshold_by_1_request,
-        );
+    //     self.validate_and_send_command_unchecked(
+    //         body,
+    //         parsers::adjust_bitonal_threshold_by_1_request,
+    //     );
 
-        let timeout = timeout.into();
-        let deadline = timeout.map(|timeout| Instant::now() + timeout);
-
-        loop {
-            self.await_event(deadline)?;
-
-            if let Some(Incoming::AdjustBitonalThresholdResponse {
-                percent_white_threshold,
-                ..
-            }) = self.get_pending_adjust_bitonal_threshold_response(side)
-            {
-                return Ok(percent_white_threshold);
-            }
-        }
-    }
+    //     self.poll_for_matching_response(timeout, |input| {
+    //         nom::combinator::map_res(
+    //             parsers::adjust_bitonal_threshold_response,
+    //             |(response_side, percent_white_threshold)| {
+    //                 if response_side == side {
+    //                     Ok(percent_white_threshold)
+    //                 } else {
+    //                     Err(nom::Err::Error(nom::error::Error::new(
+    //                         input,
+    //                         nom::error::ErrorKind::Verify,
+    //                     )))
+    //                 }
+    //             },
+    //         )(input)
+    //     })
+    // }
 
     /// Sets the bitonal threshold for the top or bottom sensor. The threshold
     /// is a percentage of the luminosity that must be detected before the
@@ -960,7 +958,7 @@ impl Client {
         &mut self,
         side: Side,
         threshold: ClampedPercentage,
-        timeout: impl Into<Option<std::time::Duration>>,
+        timeout: Duration,
     ) -> Result<u8> {
         let mut body = b"\x1b%".to_vec();
         body.push(side.into());
@@ -970,43 +968,21 @@ impl Client {
             parsers::set_bitonal_threshold_request,
         )?;
 
-        let timeout = timeout.into();
-        let deadline = timeout.map(|timeout| Instant::now() + timeout);
-
-        loop {
-            self.await_event(deadline)?;
-
-            if let Some(Incoming::AdjustBitonalThresholdResponse {
-                percent_white_threshold,
-                ..
-            }) = self.get_pending_adjust_bitonal_threshold_response(side)
-            {
-                return Ok(percent_white_threshold);
-            }
-        }
-    }
-
-    fn get_pending_adjust_bitonal_threshold_response(&mut self, side: Side) -> Option<Incoming> {
-        let mut response: Option<Incoming> = None;
-
-        extract_needle!(
-            needle @ Incoming::AdjustBitonalThresholdResponse { .. } => response = Some(needle),
-            self.pending_responses,
-        );
-
-        match response {
-            Some(Incoming::AdjustBitonalThresholdResponse {
-                side: side_response,
-                ..
-            }) if side_response == side => response,
-
-            Some(response) => {
-                self.pending_responses.push(response);
-                None
-            }
-
-            None => None,
-        }
+        self.poll_for_matching_response(timeout, |input| {
+            nom::combinator::map_res(
+                parsers::adjust_bitonal_threshold_response,
+                |(response_side, percent_white_threshold)| {
+                    if response_side == side {
+                        Ok(percent_white_threshold)
+                    } else {
+                        Err(nom::Err::Error(nom::error::Error::new(
+                            input,
+                            nom::error::ErrorKind::Verify,
+                        )))
+                    }
+                },
+            )(input)
+        })
     }
 
     /// Sets the maximum length of the document to scan. The length is specified
@@ -1093,50 +1069,55 @@ impl Client {
         }
     }
 
-    pub fn await_event(&mut self, deadline: impl Into<Option<std::time::Instant>>) -> Result<()> {
-        let event = match deadline.into() {
-            Some(deadline) => self.event_rx.recv_timeout(
-                deadline
-                    .checked_duration_since(Instant::now())
-                    .unwrap_or_default(),
-            )?,
-            None => self.event_rx.recv().unwrap(),
-        };
+    // pub fn await_event(&mut self, deadline: impl Into<Option<std::time::Instant>>) -> Result<()> {
+    // let event = match deadline.into() {
+    //     Some(deadline) => self.event_rx.recv_timeout(
+    //         deadline
+    //             .checked_duration_since(Instant::now())
+    //             .unwrap_or_default(),
+    //     )?,
+    //     None => self.event_rx.recv().unwrap(),
+    // };
 
-        if event.is_out() {
-            return Ok(());
-        }
+    // if event.is_out() {
+    //     return Ok(());
+    // }
 
-        match event {
-            Event::Completed { endpoint, data } => {
-                if endpoint == ENDPOINT_IN_IMAGE_DATA {
-                    tracing::debug!("receiving image data: {} bytes", data.len());
-                    if let Some(image_data) = self.image_data.as_mut() {
-                        image_data.extend_from_slice(&data);
-                    } else {
-                        tracing::warn!("received image data without corresponding begin scan");
-                    }
-                } else {
-                    match parsers::any_incoming(&data) {
-                        Ok(([], incoming)) => {
-                            self.handle_incoming(incoming);
-                        }
-                        Ok((remaining, _)) => {
-                            tracing::warn!("unexpected remaining data: {remaining:?}");
-                        }
-                        Err(e) => {
-                            tracing::warn!("failed to parse incoming data: {e:?}");
-                        }
-                    }
-                }
-            }
-            Event::Cancelled { endpoint } => {
-                tracing::debug!("received cancelled event: {endpoint:02x}");
-            }
-        }
+    // match event {
+    //     Event::Completed { endpoint, data } => {
+    //         if endpoint == ENDPOINT_IN_IMAGE_DATA {
+    //             tracing::debug!("receiving image data: {} bytes", data.len());
+    //             if let Some(image_data) = self.image_data.as_mut() {
+    //                 image_data.extend_from_slice(&data);
+    //             } else {
+    //                 tracing::warn!("received image data without corresponding begin scan");
+    //             }
+    //         } else {
+    //             match parsers::any_incoming(&data) {
+    //                 Ok(([], incoming)) => {
+    //                     self.handle_incoming(incoming);
+    //                 }
+    //                 Ok((remaining, _)) => {
+    //                     tracing::warn!("unexpected remaining data: {remaining:?}");
+    //                 }
+    //                 Err(e) => {
+    //                     tracing::warn!("failed to parse incoming data: {e:?}");
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     Event::Cancelled { endpoint } => {
+    //         tracing::debug!("received cancelled event: {endpoint:02x}");
+    //     }
+    // }
 
-        Ok(())
-    }
+    //     eprintln!(
+    //         "await_event result: {:?}",
+    //         self.transfer_pool.poll(Duration::from_secs(1))
+    //     );
+
+    //     Ok(())
+    // }
 
     fn handle_incoming(&mut self, incoming: Incoming) {
         tracing::debug!("incoming message: {incoming:?}");
@@ -1183,6 +1164,6 @@ impl Client {
 impl Drop for Client {
     fn drop(&mut self) {
         tracing::trace!("PdiClient::drop: calling stop_handle_events_thread");
-        self.transfer_handler.stop_handle_events_thread();
+        // self.transfer_handler.stop_handle_events_thread();
     }
 }

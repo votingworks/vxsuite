@@ -3,6 +3,8 @@ use image::EncodableLayout;
 use std::{
     io::{self, Write},
     process::exit,
+    sync::mpsc::{self, Receiver, Sender},
+    thread,
     time::{Duration, Instant},
 };
 use tracing_subscriber::prelude::*;
@@ -11,7 +13,11 @@ use base64::{engine::general_purpose::STANDARD, Engine as _};
 use pdi_rs::pdiscan::{
     self,
     client::Client,
-    protocol::types::{DoubleFeedDetectionCalibrationType, Status},
+    client2::Scanner,
+    protocol::{
+        packets::{self, Incoming},
+        types::{DoubleFeedDetectionCalibrationType, Status},
+    },
 };
 
 #[derive(Debug, Parser)]
@@ -213,7 +219,10 @@ fn main_scan_loop() -> color_eyre::Result<()> {
                         wrap_outgoing(&Outgoing::Ok)?;
                     }
                     (Some(client), Command::CalibrateMsd { calibration_type }) => {
-                        match client.calibrate_double_feed_detection(calibration_type, None) {
+                        match client.calibrate_double_feed_detection(
+                            calibration_type,
+                            Duration::from_secs(1),
+                        ) {
                             Ok(()) => {
                                 wrap_outgoing(&Outgoing::Ok)?;
                             }
@@ -270,13 +279,13 @@ fn main_scan_loop() -> color_eyre::Result<()> {
         }
 
         if let Some(client) = &mut client {
-            match client.await_event(Instant::now() + Duration::from_millis(10)) {
-                Ok(()) | Err(pdiscan::client::Error::RecvTimeout(_)) => {}
-                Err(e) => {
-                    tracing::error!("error: {e:?}");
-                    exit(-1);
-                }
-            }
+            // match client.await_event(Instant::now() + Duration::from_millis(10)) {
+            //     Ok(()) | Err(pdiscan::client::Error::RecvTimeout(_)) => {}
+            //     Err(e) => {
+            //         tracing::error!("error: {e:?}");
+            //         exit(-1);
+            //     }
+            // }
 
             if client.begin_scan_rx.try_recv().is_ok() {
                 // println!("begin scan");
@@ -326,16 +335,95 @@ fn main_scan_loop() -> color_eyre::Result<()> {
     //         }
     //     }
 
-    //     // std::thread::sleep(std::time::Duration::from_millis(10));
+    //     // std::thread::sleep(Duration::from_millis(10));
     //     println!("accepting document…");
     //     client.eject_document(pdiscan::protocol::types::EjectMotion::ToRear)?;
-    //     // client.get_test_string(std::time::Duration::from_millis(200))?;
+    //     // client.get_test_string(Duration::from_millis(200))?;
     // }
+}
+
+fn main_test_string() -> color_eyre::Result<()> {
+    let config = Config::parse();
+    setup(&config).unwrap();
+
+    let mut client = pdiscan::client::Client::open().unwrap();
+    client.send_connect().unwrap();
+
+    eprintln!(
+        "get_test_string result: {:?}",
+        client.get_test_string(Duration::from_millis(200))
+    );
+
+    Ok(())
+}
+
+fn main_test_string2() -> color_eyre::Result<()> {
+    struct TestScanner {}
+
+    impl TestScanner {
+        pub fn start() -> (Sender<packets::Outgoing>, Receiver<packets::Incoming>) {
+            let (host_to_scanner_tx, host_to_scanner_rx) = mpsc::channel();
+            let (scanner_to_host_tx, scanner_to_host_rx) = mpsc::channel();
+
+            thread::spawn({
+                let scanner_to_host_tx = scanner_to_host_tx.clone();
+                move || loop {
+                    match host_to_scanner_rx.recv() {
+                        Ok(packets::Outgoing::GetTestStringRequest) => {
+                            thread::sleep(Duration::from_millis(400));
+                            scanner_to_host_tx
+                                .send(packets::Incoming::GetTestStringResponse(
+                                    "hello".to_string(),
+                                ))
+                                .unwrap();
+                        }
+                        _ => {}
+                    }
+                }
+            });
+
+            thread::spawn({
+                let scanner_to_host_tx = scanner_to_host_tx.clone();
+                move || loop {
+                    thread::sleep(Duration::from_millis(100));
+                    scanner_to_host_tx
+                        .send(packets::Incoming::MsdNeedsCalibrationEvent)
+                        .unwrap();
+                }
+            });
+
+            (host_to_scanner_tx, scanner_to_host_rx)
+        }
+    }
+
+    let config = Config::parse();
+    setup(&config).unwrap();
+
+    let mut scanner = Scanner::open().unwrap();
+    let (host_to_scanner_tx, scanner_to_host_rx) = scanner.start();
+    // let (incoming_tx, incoming_rx) = mpsc::channel();
+    // let (outgoing_tx, outgoing_rx) = mpsc::channel();
+
+    let client = pdiscan::client2::Client::new(host_to_scanner_tx, scanner_to_host_rx);
+    // client.send_connect().unwrap();
+
+    for _ in 0..10 {
+        eprintln!(
+            "get_test_string result: {:?}",
+            client.get_test_string(Duration::from_millis(800))
+        );
+    }
+
+    scanner.stop();
+
+    Ok(())
 }
 
 pub fn main() -> color_eyre::Result<()> {
     // main_threaded()
     // main_request_response()
     // main_watch_status()
-    main_scan_loop()
+    // main_scan_loop()
+    // main_test_string()
+    main_test_string2()
 }

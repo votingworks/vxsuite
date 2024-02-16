@@ -282,7 +282,7 @@ impl TryFrom<u16> for CalibrationStatus {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum DoubleFeedDetectionCalibrationType {
     #[serde(rename = "single")]
     SingleSheet,

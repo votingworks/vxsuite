@@ -177,6 +177,14 @@ fn any_configuration_request(input: &[u8]) -> IResult<&[u8], Outgoing> {
             set_scanner_to_duplex_mode_request,
         ),
         value(
+            Outgoing::SetScannerToTopOnlySimplexModeRequest,
+            set_scanner_to_top_only_simplex_mode_request,
+        ),
+        value(
+            Outgoing::SetScannerToBottomOnlySimplexModeRequest,
+            set_scanner_to_bottom_only_simplex_mode_request,
+        ),
+        value(
             Outgoing::DisablePickOnCommandModeRequest,
             disable_pick_on_command_mode_request,
         ),
@@ -253,7 +261,7 @@ fn any_double_feed_detection_configuration_request(input: &[u8]) -> IResult<&[u8
             disable_double_feed_detection_request,
         ),
         value(
-            Outgoing::GetDoubleFeedDetectionLEDIntensityRequest,
+            Outgoing::GetDoubleFeedDetectionLedIntensityRequest,
             get_double_feed_detection_led_intensity_request,
         ),
         value(
@@ -1195,6 +1203,18 @@ simple_request!(turn_array_light_source_on_request, b"5");
 simple_request!(turn_array_light_source_off_request, b"6");
 simple_request!(eject_escrow_document_request, b"7");
 simple_request!(rescan_document_held_in_escrow_position_request, b"[");
+
+/// Parses any outgoing message of one byte or more.
+pub fn raw_outgoing(input: &[u8]) -> IResult<&[u8], Outgoing> {
+    if input.is_empty() {
+        Err(nom::Err::Error(nom::error::Error::new(
+            input,
+            nom::error::ErrorKind::Eof,
+        )))
+    } else {
+        Ok((&input[0..0], Outgoing::RawPacket(input.to_vec())))
+    }
+}
 
 //// Unsolicited Messages ///
 
