@@ -1,13 +1,19 @@
 import { join } from 'path';
 import { existsSync } from 'fs';
 import { Optional } from '@votingworks/basics';
-import { PackageInfo } from './pnpm';
+import { PnpmPackageInfo } from './types';
 
-function jobIdForPackage(pkg: PackageInfo): string {
+function jobIdForPackage(pkg: PnpmPackageInfo): string {
   return `test-${pkg.relativePath.replace(/\//g, '-')}`;
 }
 
-function generateTestJobForNodeJsPackage(pkg: PackageInfo): Optional<string[]> {
+function jobIdForRustPackageId(pkgId: string): string {
+  return `test-crate-${pkgId}`;
+}
+
+function generateTestJobForNodeJsPackage(
+  pkg: PnpmPackageInfo
+): Optional<string[]> {
   /* istanbul ignore next */
   if (!pkg.packageJson?.scripts?.['test']) {
     // exclude packages without tests
@@ -60,7 +66,26 @@ function generateTestJobForNodeJsPackage(pkg: PackageInfo): Optional<string[]> {
   return lines;
 }
 
-function generateTestJobForPackage(pkg: PackageInfo): Optional<string[]> {
+function generateTestJobForRustCrate(pkgId: string): string[] {
+  return [
+    `${jobIdForRustPackageId(pkgId)}:`,
+    // Executors are either nodejs or nodejs-browser. Both have Rust deps installed.
+    `  executor: 'nodejs'`,
+    `  resource_class: xlarge`,
+    `  steps:`,
+    `    - checkout-and-install`,
+    `    - run:`,
+    `        name: Build`,
+    `        command: |`,
+    `          cargo build -p ${pkgId}`,
+    `    - run:`,
+    `        name: Test`,
+    `        command: |`,
+    `          cargo test -p ${pkgId}`,
+  ];
+}
+
+function generateTestJobForPackage(pkg: PnpmPackageInfo): Optional<string[]> {
   if (pkg.packageJson) {
     return generateTestJobForNodeJsPackage(pkg);
   }
@@ -80,16 +105,21 @@ export const CIRCLECI_CONFIG_PATH = join(
 /**
  * Generate a CircleCI config file.
  */
-export function generateConfig(pkgs: ReadonlyMap<string, PackageInfo>): string {
-  const jobs = [...pkgs.values()].reduce((memo, pkg) => {
+export function generateConfig(
+  pnpmPackages: ReadonlyMap<string, PnpmPackageInfo>,
+  rustPackageIds: string[]
+): string {
+  const pnpmJobs = [...pnpmPackages.values()].reduce((memo, pkg) => {
     const jobLines = generateTestJobForPackage(pkg);
     if (!jobLines) {
       return memo;
     }
     return memo.set(pkg, jobLines);
-  }, new Map<PackageInfo, string[]>());
+  }, new Map<PnpmPackageInfo, string[]>());
+  const rustJobs = rustPackageIds.map(generateTestJobForRustCrate);
   const jobIds = [
-    ...[...jobs.keys()].map((pkg) => jobIdForPackage(pkg)),
+    ...[...pnpmJobs.keys()].map(jobIdForPackage),
+    ...rustPackageIds.map(jobIdForRustPackageId),
     // hardcoded jobs
     'validate-monorepo',
   ];
@@ -118,7 +148,11 @@ executors:
           password: $VX_DOCKER_PASSWORD
 
 jobs:
-${[...jobs.values()]
+${[...pnpmJobs.values()]
+  .map((lines) => lines.map((line) => `  ${line}`).join('\n'))
+  .join('\n\n')}
+
+${rustJobs
   .map((lines) => lines.map((line) => `  ${line}`).join('\n'))
   .join('\n\n')}
 

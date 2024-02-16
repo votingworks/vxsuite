@@ -1,80 +1,9 @@
 import { assert, lines } from '@votingworks/basics';
 import { execFileSync } from 'child_process';
 import { readFileSync } from 'fs';
-import { isAbsolute, join, relative } from 'path';
-
-/**
- * Package info from `package.json`.
- */
-export interface PackageJson {
-  readonly name: string;
-  readonly version: string;
-  readonly main?: string;
-  readonly module?: string;
-  readonly scripts?: { [name: string]: string };
-  readonly dependencies?: { [name: string]: string };
-  readonly devDependencies?: { [name: string]: string };
-  readonly peerDependencies?: { [name: string]: string };
-  readonly packageManager?: string;
-
-  /**
-   * Binaries of the package, i.e. `bin` from `package.json`.
-   */
-  readonly bin?: string | { [name: string]: string };
-}
-
-/**
- * Workspace package info.
- */
-export interface PackageInfo {
-  /**
-   * Absolute path to the package root.
-   */
-  readonly path: string;
-
-  /**
-   * Path to the package root relative to the workspace root.
-   */
-  readonly relativePath: string;
-
-  /**
-   * Name of the package, i.e. `name` from `package.json`.
-   */
-  readonly name: string;
-
-  /**
-   * Version of the package, i.e. `version` from `package.json`.
-   */
-  readonly version: string;
-
-  /**
-   * Main CJS entry point of the package, i.e. `main` from `package.json`.
-   * Missing if the package is not a library.
-   */
-  readonly main?: string;
-
-  /**
-   * Main ESM entry point of the package, i.e. `module` from `package.json`.
-   * Missing if the package is not a library.
-   */
-  readonly module?: string;
-
-  /**
-   * Original source code entry point of the package, i.e. `src/index.ts`.
-   * Missing if the package is not a library.
-   */
-  readonly source?: string;
-
-  /**
-   * The full `package.json` contents.
-   */
-  readonly packageJson?: PackageJson;
-
-  /**
-   * The full `package.json` path.
-   */
-  readonly packageJsonPath?: string;
-}
+import { join, relative } from 'path';
+import { getAbsoluteRootPath } from './dependencies';
+import { PnpmPackageInfo, PackageJson } from './types';
 
 /**
  * Read a JSON file, returning `undefined` if the file does not exist.
@@ -99,7 +28,7 @@ function maybeReadPackageJson(filepath: string): PackageJson | undefined {
  * Get all pnpm workspace package paths.
  */
 export function getWorkspacePackagePaths(root: string): string[] {
-  const absoluteRootPath = isAbsolute(root) ? root : join(process.cwd(), root);
+  const absoluteRootPath = getAbsoluteRootPath(root);
   const stdout = execFileSync(
     'pnpm',
     ['recursive', 'list', '--depth=-1', '--porcelain'],
@@ -116,8 +45,8 @@ export function getWorkspacePackagePaths(root: string): string[] {
  */
 export function getWorkspacePackageInfo(
   root: string
-): Map<string, PackageInfo> {
-  const result = new Map<string, PackageInfo>();
+): Map<string, PnpmPackageInfo> {
+  const result = new Map<string, PnpmPackageInfo>();
 
   for (const path of getWorkspacePackagePaths(root)) {
     const packageJsonPath = join(root, path, 'package.json');
