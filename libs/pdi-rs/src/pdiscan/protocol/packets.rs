@@ -1081,6 +1081,39 @@ pub enum Incoming {
     Unknown(Vec<u8>),
 }
 
+impl Incoming {
+    pub fn is_event(&self) -> bool {
+        matches!(
+            self,
+            Incoming::ScannerOkayEvent
+                | Incoming::DocumentJamEvent
+                | Incoming::CalibrationNeededEvent
+                | Incoming::ScannerCommandErrorEvent
+                | Incoming::ReadErrorEvent
+                | Incoming::MsdNeedsCalibrationEvent
+                | Incoming::MsdNotFoundOrOldFirmwareEvent
+                | Incoming::FifoOverflowEvent
+                | Incoming::CoverOpenEvent
+                | Incoming::CoverClosedEvent
+                | Incoming::CommandPacketCrcErrorEvent
+                | Incoming::FpgaOutOfDateEvent
+                | Incoming::CalibrationOkEvent
+                | Incoming::CalibrationShortCalibrationDocumentEvent
+                | Incoming::CalibrationDocumentRemovedEvent
+                | Incoming::CalibrationPixelErrorFrontArrayBlack
+                | Incoming::CalibrationPixelErrorFrontArrayWhite
+                | Incoming::CalibrationTimeoutError
+                | Incoming::CalibrationSpeedValueError
+                | Incoming::CalibrationSpeedBoxError
+                | Incoming::BeginScanEvent
+                | Incoming::EndScanEvent
+                | Incoming::DoubleFeedEvent
+                | Incoming::DoubleFeedCalibrationCompleteEvent
+                | Incoming::DoubleFeedCalibrationTimedOutEvent
+        )
+    }
+}
+
 /// All possible incoming or outgoing data between the host and the scanner.
 #[derive(Debug)]
 pub enum Packet {

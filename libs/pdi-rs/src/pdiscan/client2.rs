@@ -1,4 +1,5 @@
 use std::{
+    collections::VecDeque,
     sync::{
         mpsc::{self, Receiver, Sender},
         Arc,
@@ -28,7 +29,30 @@ use super::{
     },
 };
 
+macro_rules! recv {
+    ($client:expr, $pattern:pat $(if $guard:expr)? => $consequent:expr, $deadline:expr $(,)?) => {
+        #[allow(unused_variables)]
+        if let Ok($pattern) = $client.recv_matching_timeout(
+            #[allow(unused_variables)]
+            |incoming| matches!(incoming, $pattern $(if $guard)?),
+            $deadline.saturating_duration_since(Instant::now()),
+        ) {
+            Ok($consequent)
+        } else {
+            Err(Error::RecvTimeout(mpsc::RecvTimeoutError::Timeout))
+        }
+    };
+}
+
+macro_rules! send_and_recv {
+    ($client:expr => $outgoing:expr, $pattern:pat $(if $guard:expr)? => $consequent:expr, $timeout:expr $(,)?) => {{
+        $client.send($outgoing)?;
+        recv!($client, $pattern $(if $guard)? => $consequent, Instant::now() + $timeout)
+    }};
+}
+
 pub struct Client {
+    unhandled_packets: VecDeque<Incoming>,
     host_to_scanner_tx: mpsc::Sender<Outgoing>,
     scanner_to_host_rx: mpsc::Receiver<Incoming>,
 }
@@ -39,6 +63,7 @@ impl Client {
         scanner_to_host_rx: mpsc::Receiver<Incoming>,
     ) -> Self {
         Self {
+            unhandled_packets: VecDeque::new(),
             scanner_to_host_rx,
             host_to_scanner_tx,
         }
@@ -50,136 +75,80 @@ impl Client {
             .map_err(|_| Error::Usb(UsbError::Rusb(rusb::Error::Io)))
     }
 
-    pub fn get_test_string(&self, timeout: Duration) -> Result<String> {
-        let deadline = Instant::now() + timeout;
-
-        self.send(Outgoing::GetTestStringRequest).unwrap();
-
-        loop {
-            match self
-                .scanner_to_host_rx
-                .recv_timeout(deadline.saturating_duration_since(Instant::now()))?
-            {
-                Incoming::GetTestStringResponse(s) => return Ok(s),
-                packet => self.handle_unexpected_packet(packet),
-            }
-        }
+    pub fn get_test_string(&mut self, timeout: Duration) -> Result<String> {
+        send_and_recv!(
+            self => Outgoing::GetTestStringRequest,
+            Incoming::GetTestStringResponse(s) => s,
+            timeout
+        )
     }
 
-    pub fn get_firmware_version(&self, timeout: Duration) -> Result<Version> {
-        let deadline = Instant::now() + timeout;
-
-        self.send(Outgoing::GetFirmwareVersionRequest).unwrap();
-
-        loop {
-            match self
-                .scanner_to_host_rx
-                .recv_timeout(deadline.saturating_duration_since(Instant::now()))?
-            {
-                Incoming::GetFirmwareVersionResponse(version) => return Ok(version),
-                packet => self.handle_unexpected_packet(packet),
-            }
-        }
+    pub fn get_firmware_version(&mut self, timeout: Duration) -> Result<Version> {
+        send_and_recv!(
+            self => Outgoing::GetFirmwareVersionRequest,
+            Incoming::GetFirmwareVersionResponse(version) => version,
+            timeout
+        )
     }
 
-    pub fn get_scanner_status(&self, timeout: Duration) -> Result<Status> {
-        let deadline = Instant::now() + timeout;
-
-        self.send(Outgoing::GetScannerStatusRequest).unwrap();
-
-        loop {
-            match self
-                .scanner_to_host_rx
-                .recv_timeout(deadline.saturating_duration_since(Instant::now()))?
-            {
-                Incoming::GetScannerStatusResponse(status) => return Ok(status),
-                packet => self.handle_unexpected_packet(packet),
-            }
-        }
+    pub fn get_scanner_status(&mut self, timeout: Duration) -> Result<Status> {
+        send_and_recv!(
+            self => Outgoing::GetScannerStatusRequest,
+            Incoming::GetScannerStatusResponse(status) => status,
+            timeout
+        )
     }
 
-    pub fn get_required_input_sensors(&self, timeout: Duration) -> Result<(u8, u8)> {
-        let deadline = Instant::now() + timeout;
-
-        self.send(Outgoing::GetRequiredInputSensorsRequest).unwrap();
-
-        loop {
-            match self
-                .scanner_to_host_rx
-                .recv_timeout(deadline.saturating_duration_since(Instant::now()))?
-            {
-                Incoming::GetSetRequiredInputSensorsResponse {
-                    current_sensors_required,
-                    total_sensors_available,
-                } => return Ok((current_sensors_required, total_sensors_available)),
-                packet => self.handle_unexpected_packet(packet),
-            }
-        }
+    pub fn get_required_input_sensors(&mut self, timeout: Duration) -> Result<(u8, u8)> {
+        send_and_recv!(
+            self => Outgoing::GetRequiredInputSensorsRequest,
+            Incoming::GetSetRequiredInputSensorsResponse {
+                current_sensors_required,
+                total_sensors_available,
+            } => (current_sensors_required, total_sensors_available),
+            timeout
+        )
     }
 
-    pub fn set_double_feed_detection_enabled(&self, enabled: bool) {
-        self.send(if enabled {
-            Outgoing::EnableDoubleFeedDetectionRequest
-        } else {
-            Outgoing::DisableDoubleFeedDetectionRequest
+    pub fn set_double_feed_detection_enabled(&self, enabled: bool) -> Result<()> {
+        self.send(match enabled {
+            true => Outgoing::EnableDoubleFeedDetectionRequest,
+            false => Outgoing::DisableDoubleFeedDetectionRequest,
         })
-        .unwrap();
     }
 
-    pub fn set_feeder_enabled(&self, enabled: bool) {
-        self.send(if enabled {
-            Outgoing::EnableFeederRequest
-        } else {
-            Outgoing::DisableFeederRequest
+    pub fn set_feeder_enabled(&self, enabled: bool) -> Result<()> {
+        self.send(match enabled {
+            true => Outgoing::EnableFeederRequest,
+            false => Outgoing::DisableFeederRequest,
         })
-        .unwrap();
     }
 
-    pub fn get_serial_number(&self, timeout: Duration) -> Result<[u8; 8]> {
-        let deadline = Instant::now() + timeout;
-
-        self.send(Outgoing::GetSerialNumberRequest).unwrap();
-
-        loop {
-            match self
-                .scanner_to_host_rx
-                .recv_timeout(deadline.saturating_duration_since(Instant::now()))?
-            {
-                Incoming::GetSetSerialNumberResponse(serial_number) => return Ok(serial_number),
-                packet => self.handle_unexpected_packet(packet),
-            }
-        }
+    pub fn get_serial_number(&mut self, timeout: Duration) -> Result<[u8; 8]> {
+        send_and_recv!(
+            self => Outgoing::GetSerialNumberRequest,
+            Incoming::GetSetSerialNumberResponse(serial_number) => serial_number,
+            timeout
+        )
     }
 
-    pub fn get_scanner_settings(&self, timeout: Duration) -> Result<Settings> {
-        let deadline = Instant::now() + timeout;
-
-        self.send(Outgoing::GetScannerSettingsRequest).unwrap();
-
-        loop {
-            match self
-                .scanner_to_host_rx
-                .recv_timeout(deadline.saturating_duration_since(Instant::now()))?
-            {
-                Incoming::GetScannerSettingsResponse(settings) => return Ok(settings),
-                packet => self.handle_unexpected_packet(packet),
-            }
-        }
+    pub fn get_scanner_settings(&mut self, timeout: Duration) -> Result<Settings> {
+        send_and_recv!(
+            self => Outgoing::GetScannerSettingsRequest,
+            Incoming::GetScannerSettingsResponse(settings) => settings,
+            timeout
+        )
     }
 
     /// Ejects the document from the scanner according to the specified motion.
-    pub fn eject_document(&self, eject_motion: EjectMotion) {
-        match eject_motion {
-            EjectMotion::ToRear => self
-                .send(Outgoing::EjectDocumentToRearOfScannerRequest)
-                .unwrap(),
-            EjectMotion::ToFront => self
-                .send(Outgoing::EjectDocumentToFrontOfScannerRequest)
-                .unwrap(),
-            EjectMotion::ToFrontAndHold => self
-                .send(Outgoing::EjectDocumentToFrontOfScannerAndHoldInInputRollersRequest)
-                .unwrap(),
-        }
+    pub fn eject_document(&self, eject_motion: EjectMotion) -> Result<()> {
+        self.send(match eject_motion {
+            EjectMotion::ToRear => Outgoing::EjectDocumentToRearOfScannerRequest,
+            EjectMotion::ToFront => Outgoing::EjectDocumentToFrontOfScannerRequest,
+            EjectMotion::ToFrontAndHold => {
+                Outgoing::EjectDocumentToFrontOfScannerAndHoldInInputRollersRequest
+            }
+        })
     }
 
     /// Adjusts the bitonal threshold by 1. The threshold is a percentage of the
@@ -192,64 +161,44 @@ impl Client {
     /// This function will return an error if the response is not received within
     /// the timeout.
     pub fn adjust_bitonal_threshold_by_1(
-        &self,
+        &mut self,
         side: Side,
         direction: Direction,
         timeout: Duration,
     ) -> Result<u8> {
-        let deadline = Instant::now() + timeout;
-
-        self.send(Outgoing::AdjustBitonalThresholdBy1Request(
-            BitonalAdjustment { side, direction },
-        ))
-        .unwrap();
-
-        loop {
-            match self
-                .scanner_to_host_rx
-                .recv_timeout(deadline.saturating_duration_since(Instant::now()))?
-            {
-                Incoming::AdjustBitonalThresholdResponse {
-                    side: response_side,
-                    percent_white_threshold,
-                } if response_side == side => {
-                    return Ok(percent_white_threshold);
-                }
-                packet => self.handle_unexpected_packet(packet),
-            }
-        }
+        send_and_recv!(
+            self => Outgoing::AdjustBitonalThresholdBy1Request(
+                BitonalAdjustment { side, direction }
+            ),
+            Incoming::AdjustBitonalThresholdResponse {
+                side: response_side,
+                percent_white_threshold
+            } if side == *response_side => percent_white_threshold,
+            timeout
+        )
     }
 
     /// Sets the color mode of the scanner to either native or low color. The
     /// native color mode is 24-bit color for color scanners, and 8-bit
     /// grayscale for grayscale scanners. The low color mode is 8-bit color for
     /// color scanners, and 1-bit bitonal for grayscale scanners.
-    pub fn set_color_mode(&mut self, color_mode: ColorMode) {
-        match color_mode {
-            ColorMode::Native => self
-                .send(Outgoing::TransmitInNativeBitsPerPixelRequest)
-                .unwrap(),
-            ColorMode::LowColor => self
-                .send(Outgoing::TransmitInLowBitsPerPixelRequest)
-                .unwrap(),
-        }
+    pub fn set_color_mode(&mut self, color_mode: ColorMode) -> Result<()> {
+        self.send(match color_mode {
+            ColorMode::Native => Outgoing::TransmitInNativeBitsPerPixelRequest,
+            ColorMode::LowColor => Outgoing::TransmitInLowBitsPerPixelRequest,
+        })
     }
 
-    pub fn disable_auto_run_out_at_end_of_scan(&mut self) {
+    pub fn disable_auto_run_out_at_end_of_scan(&mut self) -> Result<()> {
         self.send(Outgoing::DisableAutoRunOutAtEndOfScanRequest)
-            .unwrap();
     }
 
     /// Sets the motor speed to either full or half speed.
-    pub fn set_motor_speed(&mut self, speed: Speed) {
-        match speed {
-            Speed::Full => self
-                .send(Outgoing::ConfigureMotorToRunAtFullSpeedRequest)
-                .unwrap(),
-            Speed::Half => self
-                .send(Outgoing::ConfigureMotorToRunAtHalfSpeedRequest)
-                .unwrap(),
-        }
+    pub fn set_motor_speed(&mut self, speed: Speed) -> Result<()> {
+        self.send(match speed {
+            Speed::Full => Outgoing::ConfigureMotorToRunAtFullSpeedRequest,
+            Speed::Half => Outgoing::ConfigureMotorToRunAtHalfSpeedRequest,
+        })
     }
 
     /// Sets the bitonal threshold for the top or bottom sensor. The threshold
@@ -267,26 +216,17 @@ impl Client {
         threshold: ClampedPercentage,
         timeout: Duration,
     ) -> Result<u8> {
-        let deadline = Instant::now() + timeout;
-
-        self.send(Outgoing::SetThresholdToANewValueRequest {
-            side,
-            new_threshold: threshold,
-        })
-        .unwrap();
-
-        loop {
-            match self
-                .scanner_to_host_rx
-                .recv_timeout(deadline.saturating_duration_since(Instant::now()))?
-            {
-                Incoming::AdjustBitonalThresholdResponse {
-                    side: response_side,
-                    percent_white_threshold,
-                } if response_side == side => return Ok(percent_white_threshold),
-                packet => self.handle_unexpected_packet(packet),
-            }
-        }
+        send_and_recv!(
+            self => Outgoing::SetThresholdToANewValueRequest {
+                side,
+                new_threshold: threshold
+            },
+            Incoming::AdjustBitonalThresholdResponse {
+                side: response_side,
+                percent_white_threshold
+            } if side == *response_side => percent_white_threshold,
+            timeout
+        )
     }
 
     /// Sets the number of input sensors that must be covered to initiate
@@ -397,7 +337,51 @@ impl Client {
         eprintln!("Unexpected packet: {packet:?}");
     }
 
-    pub fn send_command(&self, command: &Command) -> Result<()> {
+    pub fn try_recv_matching(&mut self, predicate: impl Fn(&Incoming) -> bool) -> Result<Incoming> {
+        for (i, packet) in self.unhandled_packets.iter().enumerate() {
+            if predicate(packet) {
+                return Ok(self.unhandled_packets.remove(i).unwrap());
+            }
+        }
+
+        match self.scanner_to_host_rx.try_recv()? {
+            packet if predicate(&packet) => Ok(packet),
+            packet => {
+                self.unhandled_packets.push_back(packet);
+                Err(Error::TryRecvError(mpsc::TryRecvError::Empty))
+            }
+        }
+    }
+
+    pub fn recv_matching_timeout(
+        &mut self,
+        predicate: impl Fn(&Incoming) -> bool,
+        timeout: Duration,
+    ) -> Result<Incoming> {
+        let deadline = Instant::now() + timeout;
+
+        for (i, packet) in self.unhandled_packets.iter().enumerate() {
+            if predicate(packet) {
+                return Ok(self.unhandled_packets.remove(i).unwrap());
+            }
+        }
+
+        loop {
+            if deadline <= Instant::now() {
+                return Err(Error::RecvTimeout(mpsc::RecvTimeoutError::Timeout));
+            }
+
+            match self
+                .scanner_to_host_rx
+                .recv_timeout(deadline.saturating_duration_since(Instant::now()))?
+            {
+                packet if predicate(&packet) => return Ok(packet),
+                packet => self.unhandled_packets.push_back(packet),
+            }
+        }
+    }
+
+    fn send_command(&self, command: &Command) -> Result<()> {
         self.send_raw_packet(&command.to_bytes())
     }
 
@@ -660,7 +644,7 @@ impl Client {
         }
 
         // OUT DisableFeederRequest
-        self.set_feeder_enabled(false);
+        self.set_feeder_enabled(false)?;
         // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 4f 03 c7> } (string: "\u{2}O\u{3}�") (length: 4)
         self.send_command(&Command::new(b"O"))?;
         // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 1b 55 03 a0> } (string: "\u{2}\u{1b}U\u{3}�") (length: 5)
@@ -842,7 +826,7 @@ impl Client {
         // OUT SetScannerToDuplexModeRequest
         self.set_scan_side_mode(ScanSideMode::Duplex);
         // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 67 03 79> } (string: "\u{2}g\u{3}y") (length: 4)
-        self.send_command(&Command::new(b"g"));
+        self.send_command(&Command::new(b"g"))?;
         // OUT DisablePickOnCommandModeRequest
         self.disable_pick_on_command_mode();
         // OUT DisableDoubleFeedDetectionRequest
@@ -856,11 +840,11 @@ impl Client {
         // OUT DisableEjectPauseRequest
         self.disable_eject_pause();
         // OUT TransmitInLowBitsPerPixelRequest
-        self.set_color_mode(ColorMode::LowColor);
+        self.set_color_mode(ColorMode::LowColor)?;
         // OUT DisableAutoRunOutAtEndOfScanRequest
-        self.disable_auto_run_out_at_end_of_scan();
+        self.disable_auto_run_out_at_end_of_scan()?;
         // OUT ConfigureMotorToRunAtFullSpeedRequest
-        self.set_motor_speed(Speed::Full);
+        self.set_motor_speed(Speed::Full)?;
         // OUT SetThresholdToANewValueRequest { side: Top, new_threshold: 75 }
         // IN AdjustTopCISSensorThresholdResponse { percent_white_threshold: 75 }
         self.set_threshold(Side::Top, ClampedPercentage::new_unchecked(75), timeout)?;
@@ -879,7 +863,7 @@ impl Client {
         // IN GetTestStringResponse(" Test Message USB 1.1/2.0 Communication")
         self.get_test_string(timeout)?;
         // OUT EnableFeederRequest
-        self.set_feeder_enabled(true);
+        self.set_feeder_enabled(true)?;
 
         Ok(())
     }

@@ -5,18 +5,18 @@ use std::{
     process::exit,
     sync::mpsc::{self, Receiver, Sender},
     thread,
-    time::{Duration, Instant},
+    time::Duration,
 };
 use tracing_subscriber::prelude::*;
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use pdi_rs::pdiscan::{
     self,
-    client::Client,
-    client2::Scanner,
+    client2::{Client, Scanner},
     protocol::{
+        image::{RawImageData, Sheet},
         packets::{self, Incoming},
-        types::{DoubleFeedDetectionCalibrationType, Status},
+        types::{DoubleFeedDetectionCalibrationType, ScanSideMode, Status},
     },
 };
 
@@ -119,6 +119,13 @@ fn wrap_outgoing(outgoing: &Outgoing) -> color_eyre::Result<()> {
     Ok(())
 }
 
+fn create_client() -> color_eyre::Result<(Scanner, Client)> {
+    let mut scanner = Scanner::open()?;
+    let (tx, rx) = scanner.start();
+    let client = Client::new(tx, rx);
+    Ok((scanner, client))
+}
+
 fn main_scan_loop() -> color_eyre::Result<()> {
     let config = Config::parse();
     setup(&config)?;
@@ -153,7 +160,8 @@ fn main_scan_loop() -> color_eyre::Result<()> {
         }
     });
 
-    let mut client: Option<Client> = None;
+    let mut scanner_and_client: Option<(Scanner, Client)> = None;
+    let mut raw_image_data = RawImageData::new();
     // client.reset()?;
 
     // println!("send_connect result: {:?}", client.send_connect());
@@ -167,7 +175,7 @@ fn main_scan_loop() -> color_eyre::Result<()> {
             Ok(command) => {
                 // println!("received message: {command:?}");
 
-                match (&mut client, command) {
+                match (&mut scanner_and_client, command) {
                     (_, Command::Exit) => {
                         serde_json::to_writer(io::stdout(), &Outgoing::Ok)?;
                         exit(0)
@@ -177,32 +185,28 @@ fn main_scan_loop() -> color_eyre::Result<()> {
                             message: "already connected".to_string(),
                         })?;
                     }
-                    (None, Command::Connect) => {
-                        client = match Client::open() {
-                            Ok(mut client) => {
-                                match client.send_connect() {
-                                    Ok(()) => {
-                                        wrap_outgoing(&Outgoing::Ok)?;
-                                    }
-                                    Err(e) => {
-                                        eprintln!("send_connect() error: {e:?}");
-                                        wrap_outgoing(&Outgoing::Err {
-                                            message: e.to_string(),
-                                        })?;
-                                    }
+                    (None, Command::Connect) => match create_client() {
+                        Ok((scanner, mut client)) => {
+                            match client.send_connect() {
+                                Ok(()) => {
+                                    wrap_outgoing(&Outgoing::Ok)?;
                                 }
-                                Some(client)
+                                Err(e) => {
+                                    wrap_outgoing(&Outgoing::Err {
+                                        message: e.to_string(),
+                                    })?;
+                                }
                             }
-                            Err(e) => {
-                                eprintln!("open() error: {e:?}");
-                                wrap_outgoing(&Outgoing::Err {
-                                    message: e.to_string(),
-                                })?;
-                                None
-                            }
-                        };
-                    }
-                    (Some(client), Command::EnableScanning) => {
+                            scanner_and_client = Some((scanner, client));
+                            wrap_outgoing(&Outgoing::Ok)?;
+                        }
+                        Err(e) => {
+                            wrap_outgoing(&Outgoing::Err {
+                                message: e.to_string(),
+                            })?;
+                        }
+                    },
+                    (Some((_, client)), Command::EnableScanning) => {
                         match client.send_enable_scan_commands() {
                             Ok(()) => {
                                 wrap_outgoing(&Outgoing::Ok)?;
@@ -214,15 +218,12 @@ fn main_scan_loop() -> color_eyre::Result<()> {
                             }
                         }
                     }
-                    (Some(client), Command::EnableMsd { enable }) => {
+                    (Some((_, client)), Command::EnableMsd { enable }) => {
                         client.set_double_feed_detection_enabled(enable);
                         wrap_outgoing(&Outgoing::Ok)?;
                     }
-                    (Some(client), Command::CalibrateMsd { calibration_type }) => {
-                        match client.calibrate_double_feed_detection(
-                            calibration_type,
-                            Duration::from_secs(1),
-                        ) {
+                    (Some((_, client)), Command::CalibrateMsd { calibration_type }) => {
+                        match client.calibrate_double_feed_detection(calibration_type) {
                             Ok(()) => {
                                 wrap_outgoing(&Outgoing::Ok)?;
                             }
@@ -233,7 +234,7 @@ fn main_scan_loop() -> color_eyre::Result<()> {
                             }
                         }
                     }
-                    (Some(client), Command::GetMsdCalibrationConfig) => {
+                    (Some((_, client)), Command::GetMsdCalibrationConfig) => {
                         match client.get_double_feed_detection_single_sheet_calibration_value(
                             Duration::from_secs(1),
                         ) {
@@ -252,7 +253,7 @@ fn main_scan_loop() -> color_eyre::Result<()> {
                             }
                         }
                     }
-                    (Some(client), Command::GetScannerStatus) => {
+                    (Some((_, client)), Command::GetScannerStatus) => {
                         match client.get_scanner_status(Duration::from_secs(1)) {
                             Ok(status) => {
                                 wrap_outgoing(&Outgoing::ScannerStatus { status })?;
@@ -278,7 +279,7 @@ fn main_scan_loop() -> color_eyre::Result<()> {
             }
         }
 
-        if let Some(client) = &mut client {
+        if let Some((_, client)) = &mut scanner_and_client {
             // match client.await_event(Instant::now() + Duration::from_millis(10)) {
             //     Ok(()) | Err(pdiscan::client::Error::RecvTimeout(_)) => {}
             //     Err(e) => {
@@ -287,24 +288,66 @@ fn main_scan_loop() -> color_eyre::Result<()> {
             //     }
             // }
 
-            if client.begin_scan_rx.try_recv().is_ok() {
-                // println!("begin scan");
+            if let Ok(event) = client.try_recv_matching(Incoming::is_event) {
+                eprintln!("event: {:?}", event);
+                // TODO: pass the event as JSON via stdout
+                match event {
+                    Incoming::BeginScanEvent => {
+                        raw_image_data = RawImageData::new();
+                    }
+                    Incoming::EndScanEvent => {
+                        match raw_image_data.try_decode_scan(1728, ScanSideMode::Duplex) {
+                            Ok(Sheet::Duplex(top, bottom)) => {
+                                let top_image = top.to_image().unwrap();
+                                let bottom_image = bottom.to_image().unwrap();
+
+                                top_image.save("top.png")?;
+                                bottom_image.save("bottom.png")?;
+
+                                wrap_outgoing(&Outgoing::ScanComplete {
+                                    image_data: (
+                                        STANDARD.encode(top_image.as_bytes()),
+                                        STANDARD.encode(bottom_image.as_bytes()),
+                                    ),
+                                })?;
+                            }
+                            Ok(_) => unreachable!(
+                                "try_decode_scan called with {:?} returned non-duplex sheet",
+                                ScanSideMode::Duplex
+                            ),
+                            Err(e) => {
+                                wrap_outgoing(&Outgoing::Err {
+                                    message: format!(
+                                        "failed to decode the scanned image data: {e}"
+                                    ),
+                                })?;
+                            }
+                        }
+                    }
+                    _ => {}
+                }
             }
 
-            if let Ok((top_page, bottom_page)) = client.end_scan_rx.try_recv() {
-                let top_image = top_page.to_image().unwrap();
-                let bottom_image = bottom_page.to_image().unwrap();
-
-                top_image.save("top.png")?;
-                bottom_image.save("bottom.png")?;
-
-                wrap_outgoing(&Outgoing::ScanComplete {
-                    image_data: (
-                        STANDARD.encode(top_page.to_image().unwrap().as_bytes()),
-                        STANDARD.encode(bottom_page.to_image().unwrap().as_bytes()),
-                    ),
-                })?;
+            if let Ok(Incoming::ImageData(image_data)) =
+                client.try_recv_matching(|incoming| matches!(incoming, Incoming::ImageData(_)))
+            {
+                raw_image_data.extend_from_slice(&image_data);
             }
+
+            // if let Ok((top_page, bottom_page)) = client.end_scan_rx.try_recv() {
+            //     let top_image = top_page.to_image().unwrap();
+            //     let bottom_image = bottom_page.to_image().unwrap();
+
+            //     top_image.save("top.png")?;
+            //     bottom_image.save("bottom.png")?;
+
+            //     wrap_outgoing(&Outgoing::ScanComplete {
+            //         image_data: (
+            //             STANDARD.encode(top_page.to_image().unwrap().as_bytes()),
+            //             STANDARD.encode(bottom_page.to_image().unwrap().as_bytes()),
+            //         ),
+            //     })?;
+            // }
         }
     }
 
@@ -343,21 +386,6 @@ fn main_scan_loop() -> color_eyre::Result<()> {
 }
 
 fn main_test_string() -> color_eyre::Result<()> {
-    let config = Config::parse();
-    setup(&config).unwrap();
-
-    let mut client = pdiscan::client::Client::open().unwrap();
-    client.send_connect().unwrap();
-
-    eprintln!(
-        "get_test_string result: {:?}",
-        client.get_test_string(Duration::from_millis(200))
-    );
-
-    Ok(())
-}
-
-fn main_test_string2() -> color_eyre::Result<()> {
     struct TestScanner {}
 
     impl TestScanner {
@@ -401,10 +429,8 @@ fn main_test_string2() -> color_eyre::Result<()> {
 
     let mut scanner = Scanner::open().unwrap();
     let (host_to_scanner_tx, scanner_to_host_rx) = scanner.start();
-    // let (incoming_tx, incoming_rx) = mpsc::channel();
-    // let (outgoing_tx, outgoing_rx) = mpsc::channel();
 
-    let client = pdiscan::client2::Client::new(host_to_scanner_tx, scanner_to_host_rx);
+    let mut client = pdiscan::client2::Client::new(host_to_scanner_tx, scanner_to_host_rx);
     // client.send_connect().unwrap();
 
     for _ in 0..10 {
@@ -425,5 +451,5 @@ pub fn main() -> color_eyre::Result<()> {
     // main_watch_status()
     // main_scan_loop()
     // main_test_string()
-    main_test_string2()
+    main_test_string()
 }

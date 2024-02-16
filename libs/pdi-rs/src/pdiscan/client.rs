@@ -1,6 +1,9 @@
 use rusb::{Context, Device, UsbContext};
 use std::{
-    sync::{mpsc::RecvTimeoutError, Arc},
+    sync::{
+        mpsc::{RecvTimeoutError, TryRecvError},
+        Arc,
+    },
     time::{Duration, Instant},
 };
 
@@ -55,8 +58,11 @@ pub enum Error {
     #[error("failed to validate request: {0}")]
     ValidateRequest(String),
 
-    #[error("failed to receive response: {0}")]
+    #[error("failed to receive: {0}")]
     RecvTimeout(#[from] RecvTimeoutError),
+
+    #[error("tried to receive but could not: {0}")]
+    TryRecvError(#[from] TryRecvError),
 
     #[error("UTF-8 error: {0}")]
     Utf8(#[from] std::str::Utf8Error),
