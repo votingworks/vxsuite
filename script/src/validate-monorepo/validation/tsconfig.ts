@@ -1,7 +1,7 @@
 import { basename, dirname, join } from 'path';
 import * as ts from 'typescript';
 import { statSync } from 'fs';
-import { PackageInfo } from '@votingworks/monorepo-utils';
+import { PnpmPackageInfo } from '@votingworks/monorepo-utils';
 
 export interface Tsconfig {
   readonly include?: readonly string[];
@@ -165,7 +165,7 @@ export function* checkTsconfig(
 export async function* checkTsconfigMatchesPackageJson(
   tsconfig: Tsconfig,
   tsconfigPath: string,
-  workspaceDependencyPackages: readonly PackageInfo[],
+  workspaceDependencyPackages: readonly PnpmPackageInfo[],
   packageJsonPath: string
 ): AsyncGenerator<ValidationIssue> {
   const tsconfigReferencesPaths = new Set(
@@ -235,7 +235,7 @@ export function* checkTsconfigReferencesMatch(
 }
 
 export async function* checkConfig(
-  workspacePackages: ReadonlyMap<string, PackageInfo>
+  workspacePackages: ReadonlyMap<string, PnpmPackageInfo>
 ): AsyncGenerator<ValidationIssue> {
   for (const pkg of workspacePackages.values()) {
     const { packageJson, packageJsonPath } = pkg;
@@ -279,7 +279,7 @@ export async function* checkConfig(
 
     const workspaceDependencyPackages = workspaceDependencies.map((name) =>
       workspacePackages.get(name)
-    ) as PackageInfo[];
+    ) as PnpmPackageInfo[];
 
     const tsconfigPath = join(pkg.path, 'tsconfig.json');
     const tsconfig = maybeReadTsconfig(tsconfigPath);
