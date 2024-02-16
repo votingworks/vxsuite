@@ -1,8 +1,8 @@
-import { PackageInfo } from './pnpm';
+import { PnpmPackageInfo } from './types';
 import { findUnusedPackages } from './unused';
 
 test('findUnusedPackages treats packages with bins as used', () => {
-  const pkgs = new Map<string, PackageInfo>([
+  const pkgs = new Map<string, PnpmPackageInfo>([
     [
       'a',
       {
@@ -23,7 +23,7 @@ test('findUnusedPackages treats packages with bins as used', () => {
 });
 
 test('findUnusedPackages treats non-libs as used', () => {
-  const pkgs = new Map<string, PackageInfo>([
+  const pkgs = new Map<string, PnpmPackageInfo>([
     [
       'a',
       {
@@ -39,7 +39,7 @@ test('findUnusedPackages treats non-libs as used', () => {
 });
 
 test('findUnusedPackages treats packages without package.json as used', () => {
-  const pkgs = new Map<string, PackageInfo>([
+  const pkgs = new Map<string, PnpmPackageInfo>([
     [
       'a',
       {
@@ -55,7 +55,7 @@ test('findUnusedPackages treats packages without package.json as used', () => {
 });
 
 test('findUnusedPackages treats depended-on packages as used', () => {
-  const pkgs = new Map<string, PackageInfo>([
+  const pkgs = new Map<string, PnpmPackageInfo>([
     [
       'some-app',
       {
