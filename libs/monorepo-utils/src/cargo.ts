@@ -4,6 +4,9 @@ import { getAbsoluteRootPath } from './dependencies';
 
 const exec = promisify(execFile);
 
+// Ballot interpreter tests are already run by the pnpm package test job
+const EXCLUDED_PACKAGE_IDS = ['ballot-interpreter'];
+
 /**
  * Get all Rust crate paths.
  */
@@ -18,9 +21,13 @@ export async function getRustPackageIds(root: string): Promise<string[]> {
     ['tree', '-e', 'no-normal', '-e', 'no-dev', '-e', 'no-build'],
     { cwd: absoluteRootPath, encoding: 'utf-8' }
   );
+
   return stdout
     .split('\n')
     .filter((str) => !!str)
     .map((pkg) => pkg.split(' ')[0])
-    .filter((packageId): packageId is string => packageId !== undefined);
+    .filter(
+      (packageId): packageId is string =>
+        packageId !== undefined && !EXCLUDED_PACKAGE_IDS.includes(packageId)
+    );
 }
