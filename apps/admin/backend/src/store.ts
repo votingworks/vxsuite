@@ -2548,6 +2548,27 @@ export class Store {
     ) as DiagnosticsRecord[];
   }
 
+  getMaximumWorkspaceDiskSpace(): number {
+    const row = this.client.one(
+      `
+        select maximum_workspace_disk_space as maximumWorkspaceDiskSpace
+        from settings
+      `
+    ) as { maximumWorkspaceDiskSpace: number };
+
+    return row.maximumWorkspaceDiskSpace;
+  }
+
+  updateMaximumWorkspaceDiskSpace(space: number): void {
+    this.client.run(
+      `
+        update settings
+        set maximum_workspace_disk_space = ?
+      `,
+      space
+    );
+  }
+
   /* c8 ignore start */
   getDebugSummary(): Map<string, number> {
     const tableNameRows = this.client.all(
