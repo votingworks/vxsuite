@@ -2,7 +2,6 @@ use std::{
     fmt,
     fs::{self, File},
     io::{self, Read},
-    str::from_utf8,
 };
 
 use vx_logging::{log, EventId};
