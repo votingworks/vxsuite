@@ -289,6 +289,10 @@ export class Store {
       id
     );
     this.client.run('delete from elections where id = ?', id);
+
+    // there are many cascading deletes from elections, so there may be lots of
+    // disk space to reclaim
+    this.client.vacuum();
   }
 
   /**

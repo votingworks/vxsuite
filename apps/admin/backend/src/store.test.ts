@@ -584,3 +584,22 @@ describe('getFilteredContests', () => {
     );
   });
 });
+
+test('deleteElection reclaims disk space (vacuums the database)', async () => {
+  const tmpDir = tmpNameSync();
+  await fs.mkdir(tmpDir);
+  const tmpDbPath = join(tmpDir, 'data.db');
+  const store = Store.fileStore(tmpDbPath);
+
+  const electionId = store.addElection({
+    electionData:
+      electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
+    systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
+    electionPackageFileContents: Buffer.of(),
+  });
+
+  const beforeSize = (await fs.stat(tmpDbPath)).size;
+  store.deleteElection(electionId);
+  const afterSize = (await fs.stat(tmpDbPath)).size;
+  expect(afterSize).toBeLessThan(beforeSize);
+});

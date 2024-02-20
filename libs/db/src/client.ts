@@ -312,4 +312,11 @@ export class Client {
 
     this.create();
   }
+
+  /**
+   * Runs a full vacuum of the database.
+   */
+  vacuum(): void {
+    this.run('vacuum');
+  }
 }
