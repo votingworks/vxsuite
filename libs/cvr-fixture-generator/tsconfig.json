@@ -16,6 +16,7 @@
     { "path": "../converter-nh-accuvote/tsconfig.build.json" },
     { "path": "../eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../fixtures/tsconfig.build.json" },
+    { "path": "../fs/tsconfig.build.json" },
     { "path": "../image-utils/tsconfig.build.json" },
     { "path": "../types/tsconfig.build.json" },
     { "path": "../utils/tsconfig.build.json" },

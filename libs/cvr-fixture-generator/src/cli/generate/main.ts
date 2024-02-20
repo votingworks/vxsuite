@@ -5,13 +5,13 @@ import {
   CastVoteRecordExportFileName,
   CastVoteRecordExportMetadata,
   ballotPaperDimensions,
-  safeParseElectionDefinition,
 } from '@votingworks/types';
 import { assert, assertDefined, iter } from '@votingworks/basics';
 import {
   buildCastVoteRecordReportMetadata,
   buildBatchManifest,
 } from '@votingworks/backend';
+import { readElection } from '@votingworks/fs';
 import * as fs from 'fs';
 import yargs from 'yargs/yargs';
 import { writeImageData, createImageData } from '@votingworks/image-utils';
@@ -153,8 +153,8 @@ export async function main(
     (s) => `${s}`
   );
 
-  const electionDefinition = safeParseElectionDefinition(
-    fs.readFileSync(electionDefinitionPath).toString()
+  const electionDefinition = (
+    await readElection(electionDefinitionPath)
   ).unsafeUnwrap();
 
   const castVoteRecords = iter(

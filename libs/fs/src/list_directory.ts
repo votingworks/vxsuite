@@ -1,11 +1,4 @@
-import {
-  err,
-  ok,
-  Result,
-  assert,
-  throwIllegalValue,
-} from '@votingworks/basics';
-import { UsbDrive } from '@votingworks/usb-drive';
+import { err, ok, Result, assert } from '@votingworks/basics';
 import { Dirent, promises as fs } from 'fs';
 import { isAbsolute, join } from 'path';
 
@@ -39,6 +32,7 @@ export interface FileSystemEntry {
 /**
  * Finds the {@link FileSystemEntryType} of a directory entity.
  */
+/* istanbul ignore next */
 function getDirentType(dirent: Dirent): FileSystemEntryType {
   if (dirent.isFile()) return FileSystemEntryType.File;
   if (dirent.isDirectory()) return FileSystemEntryType.Directory;
@@ -91,6 +85,7 @@ export async function listDirectory(
     );
   } catch (e) {
     const error = e as { code: string };
+    /* istanbul ignore next */
     switch (error.code) {
       case 'ENOENT':
         return err({
@@ -121,6 +116,7 @@ export async function* listDirectoryRecursive(
   path: string
 ): AsyncGenerator<Result<FileSystemEntry, ListDirectoryError>> {
   const listRootResult = await listDirectory(path);
+  /* istanbul ignore if - this should be covered but istanbul reports it is not */
   if (listRootResult.isErr()) {
     yield listRootResult;
   } else {
@@ -130,36 +126,5 @@ export async function* listDirectoryRecursive(
       }
       yield ok(fileEntry);
     }
-  }
-}
-
-/**
- * Expected errors that can occur when trying to list directories on a USB drive.
- */
-export type ListDirectoryOnUsbDriveError =
-  | ListDirectoryError
-  | { type: 'no-usb-drive' }
-  | { type: 'usb-drive-not-mounted' };
-/**
- * Lists entities in a directory specified by a relative path within a USB
- * drive's filesystem. Looks at only the first found USB drive.
- */
-export async function listDirectoryOnUsbDrive(
-  usbDrive: UsbDrive,
-  relativePath: string
-): Promise<Result<FileSystemEntry[], ListDirectoryOnUsbDriveError>> {
-  const usbDriveStatus = await usbDrive.status();
-
-  switch (usbDriveStatus.status) {
-    case 'no_drive':
-      return err({ type: 'no-usb-drive' });
-    case 'ejected':
-    case 'error':
-      return err({ type: 'usb-drive-not-mounted' });
-    case 'mounted':
-      return await listDirectory(join(usbDriveStatus.mountPoint, relativePath));
-    // istanbul ignore next
-    default:
-      throwIllegalValue(usbDriveStatus);
   }
 }

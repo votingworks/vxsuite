@@ -121,6 +121,10 @@
       "path": "libs/fixtures"
     },
     {
+      "name": "libs/fs",
+      "path": "libs/fs"
+    },
+    {
       "name": "libs/grout",
       "path": "libs/grout"
     },

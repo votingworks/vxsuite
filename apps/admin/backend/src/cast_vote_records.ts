@@ -2,9 +2,7 @@ import { sha256 } from 'js-sha256';
 import path from 'path';
 import { v4 as uuid } from 'uuid';
 import {
-  FileSystemEntryType,
   isTestReport,
-  listDirectoryOnUsbDrive,
   readCastVoteRecordExport,
   readCastVoteRecordExportMetadata,
 } from '@votingworks/backend';
@@ -17,6 +15,7 @@ import {
   Result,
   throwIllegalValue,
 } from '@votingworks/basics';
+import { FileSystemEntryType } from '@votingworks/fs';
 import {
   BallotId,
   CVR,
@@ -25,7 +24,7 @@ import {
   getContests,
   getPrecinctById,
 } from '@votingworks/types';
-import { UsbDrive } from '@votingworks/usb-drive';
+import { listDirectoryOnUsbDrive, UsbDrive } from '@votingworks/usb-drive';
 import {
   BooleanEnvironmentVariableName,
   castVoteRecordHasValidContestReferences,

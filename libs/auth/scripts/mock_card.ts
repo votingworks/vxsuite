@@ -1,13 +1,11 @@
-import * as fs from 'fs';
-import { sha256 } from 'js-sha256';
 import yargs from 'yargs/yargs';
+import { readElection } from '@votingworks/fs';
 import {
   assert,
   extractErrorMessage,
   Optional,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { safeParseElection } from '@votingworks/types';
 
 import { DEV_JURISDICTION } from '../src/jurisdictions';
 import { mockCard } from '../src/mock_file_card';
@@ -91,13 +89,13 @@ async function parseCommandLineArgs(): Promise<MockCardInput> {
         `Must specify election definition for election manager and poll worker cards\n\n${helpMessage}`
       );
     }
-    const electionData = fs.readFileSync(args.electionDefinition, 'utf-8');
-    if (!safeParseElection(electionData).isOk()) {
+    const readElectionResult = await readElection(args.electionDefinition);
+    if (readElectionResult.isErr()) {
       throw new Error(
         `${args.electionDefinition} isn't a valid election definition`
       );
     }
-    electionHash = sha256(electionData);
+    electionHash = readElectionResult.ok().electionHash;
   }
 
   return {

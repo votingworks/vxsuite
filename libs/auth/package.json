@@ -34,6 +34,7 @@
     "@votingworks/basics": "workspace:*",
     "@votingworks/db": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/fs": "workspace:*",
     "@votingworks/logging": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",

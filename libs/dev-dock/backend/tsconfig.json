@@ -15,6 +15,7 @@
     { "path": "../../basics/tsconfig.build.json" },
     { "path": "../../eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../fixtures/tsconfig.build.json" },
+    { "path": "../../fs/tsconfig.build.json" },
     { "path": "../../grout/tsconfig.build.json" },
     { "path": "../../printing/tsconfig.build.json" },
     { "path": "../../test-utils/tsconfig.build.json" },

@@ -27,6 +27,7 @@
     "@votingworks/basics": "workspace:*",
     "@votingworks/converter-nh-accuvote": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/fs": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",

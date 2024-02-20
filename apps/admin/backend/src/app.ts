@@ -8,7 +8,6 @@ import {
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
   Id,
-  safeParseElectionDefinition,
   SystemSettings,
   Tabulation,
   TEST_JURISDICTION,
@@ -48,14 +47,20 @@ import {
   ElectionPackageError,
   ElectionPackageWithFileContents,
   ExportDataError,
-  FileSystemEntry,
-  FileSystemEntryType,
-  ListDirectoryOnUsbDriveError,
   createSystemCallApi,
-  listDirectoryOnUsbDrive,
   readElectionPackageFromFile,
 } from '@votingworks/backend';
-import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
+import {
+  FileSystemEntry,
+  FileSystemEntryType,
+  readElection,
+} from '@votingworks/fs';
+import {
+  ListDirectoryOnUsbDriveError,
+  listDirectoryOnUsbDrive,
+  UsbDrive,
+  UsbDriveStatus,
+} from '@votingworks/usb-drive';
 import ZipStream from 'zip-stream';
 import {
   CastVoteRecordFileRecord,
@@ -415,8 +420,8 @@ function buildApi({
 
       let electionPackage: ElectionPackageWithFileContents;
       if (input.electionFilePath.endsWith('.json')) {
-        const electionDefinitionResult = safeParseElectionDefinition(
-          await fs.readFile(input.electionFilePath, 'utf8')
+        const electionDefinitionResult = await readElection(
+          input.electionFilePath
         );
         if (electionDefinitionResult.isErr()) {
           return err({

@@ -13,16 +13,12 @@ import {
   MarkThresholds,
   PollsState,
 } from '@votingworks/types';
-
+import { FileSystemEntryType, listDirectoryRecursive } from '@votingworks/fs';
 import {
   CentralScannerStore,
   PrecinctScannerStore,
   ScannerStoreBase,
 } from '../src/cast_vote_records/export';
-import {
-  FileSystemEntryType,
-  listDirectoryRecursive,
-} from '../src/list_directory';
 
 class MockScannerStoreBase implements ScannerStoreBase {
   private batches: BatchInfo[];

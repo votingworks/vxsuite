@@ -42,6 +42,7 @@
     "@votingworks/db": "workspace:*",
     "@votingworks/dev-dock-backend": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/fs": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/logging": "workspace:*",
