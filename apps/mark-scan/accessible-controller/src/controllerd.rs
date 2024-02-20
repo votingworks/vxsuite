@@ -1,3 +1,11 @@
+//! Daemon whose purpose is to expose signal from VSAP's accessible controller
+//! to the mark-scan application.
+//!
+//! Signal from the accessible controller is available in userspace over
+//! the serialport protocol. The daemon connects to the controller and polls
+//! for change in signal value. When a button press is detected, it sends
+//! a keypress event for consumption by the mark-scan application.
+
 use serialport::{self, SerialPort};
 use std::{
     io,

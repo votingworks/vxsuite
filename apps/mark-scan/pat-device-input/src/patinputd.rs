@@ -1,3 +1,13 @@
+//! Daemon whose purpose is to expose signal from VSAP's input for personal
+//! assistive technology (PAT) devices to the mark-scan application.
+//!
+//! PAT input status is made accessible in userspace with GPIO pins. The daemon
+//! connects to the pins then polls their values. When a change in value is read,
+//! the daemon sends a keypress event for consumption by the application.
+//!
+//! Notably, running this daemon is required for the mark-scan app to read PAT
+//! device connection status.
+
 use pin::Pin;
 use std::{
     io,
