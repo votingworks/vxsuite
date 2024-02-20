@@ -3,7 +3,7 @@ use image::EncodableLayout;
 use std::{
     io::{self, Write},
     process::exit,
-    sync::mpsc::{self, Receiver, Sender},
+    sync::mpsc::{self, Receiver, Sender, TryRecvError},
     thread,
     time::Duration,
 };
@@ -16,7 +16,7 @@ use pdi_rs::pdiscan::{
     protocol::{
         image::{RawImageData, Sheet},
         packets::{self, Incoming},
-        types::{DoubleFeedDetectionCalibrationType, ScanSideMode, Status},
+        types::{DoubleFeedDetectionCalibrationType, EjectMotion, ScanSideMode, Status},
     },
 };
 
@@ -219,8 +219,16 @@ fn main_scan_loop() -> color_eyre::Result<()> {
                         }
                     }
                     (Some((_, client)), Command::EnableMsd { enable }) => {
-                        client.set_double_feed_detection_enabled(enable);
-                        wrap_outgoing(&Outgoing::Ok)?;
+                        match client.set_double_feed_detection_enabled(enable) {
+                            Ok(()) => {
+                                wrap_outgoing(&Outgoing::Ok)?;
+                            }
+                            Err(e) => {
+                                wrap_outgoing(&Outgoing::Err {
+                                    message: e.to_string(),
+                                })?;
+                            }
+                        }
                     }
                     (Some((_, client)), Command::CalibrateMsd { calibration_type }) => {
                         match client.calibrate_double_feed_detection(calibration_type) {
@@ -413,7 +421,7 @@ fn main_test_string() -> color_eyre::Result<()> {
             thread::spawn({
                 let scanner_to_host_tx = scanner_to_host_tx.clone();
                 move || loop {
-                    thread::sleep(Duration::from_millis(100));
+                    thread::sleep(Duration::from_millis(1));
                     scanner_to_host_tx
                         .send(packets::Incoming::MsdNeedsCalibrationEvent)
                         .unwrap();
@@ -445,11 +453,101 @@ fn main_test_string() -> color_eyre::Result<()> {
     Ok(())
 }
 
+fn main_client2_scan_test() -> color_eyre::Result<()> {
+    let config = Config::parse();
+    setup(&config).unwrap();
+
+    let mut scanner = Scanner::open().unwrap();
+    let (host_to_scanner_tx, scanner_to_host_rx) = scanner.start();
+
+    let mut client = pdiscan::client2::Client::new(host_to_scanner_tx, scanner_to_host_rx);
+    client.send_connect().unwrap();
+    client.send_enable_scan_commands().unwrap();
+
+    let mut raw_image_data = RawImageData::new();
+
+    loop {
+        match client.try_recv_matching(Incoming::is_event) {
+            Ok(event @ Incoming::BeginScanEvent) => {
+                tracing::debug!("{event:?}: clearing raw image data");
+                raw_image_data.clear();
+            }
+            Ok(event @ Incoming::EndScanEvent) => {
+                match raw_image_data.try_decode_scan(1728, ScanSideMode::Duplex) {
+                    Ok(Sheet::Duplex(top, bottom)) => match (top.to_image(), bottom.to_image()) {
+                        (Some(top_image), Some(bottom_image)) => {
+                            top_image.save("top.png")?;
+                            bottom_image.save("bottom.png")?;
+                        }
+                        (Some(_), None) => {
+                            tracing::error!("{event:?}: failed to decode bottom image");
+                        }
+                        (None, Some(_)) => {
+                            tracing::error!("{event:?}: failed to decode top image");
+                        }
+                        (None, None) => {
+                            tracing::error!("{event:?}: failed to decode top & bottom images");
+                        }
+                    },
+                    Ok(_) => unreachable!(
+                        "{event:?}: try_decode_scan called with {:?} returned non-duplex sheet",
+                        ScanSideMode::Duplex
+                    ),
+                    Err(e) => {
+                        tracing::error!("{event:?}: failed to decode the scanned image data: {e}");
+                    }
+                }
+                raw_image_data.clear();
+
+                match client.get_scanner_status(Duration::from_millis(10)) {
+                    Ok(status) => {
+                        if status.rear_sensors_covered() {
+                            client.eject_document(EjectMotion::ToFront)?;
+                        }
+                    }
+                    Err(e) => {
+                        tracing::error!("{event:?}: failed to get scanner status: {e}");
+                    }
+                }
+            }
+            Ok(event) => {
+                tracing::warn!("Unhandled event: {event:?}");
+            }
+            Err(pdiscan::client::Error::TryRecvError(TryRecvError::Empty)) => {}
+            Err(e) => {
+                eprintln!("error: {:?}", e);
+                break;
+            }
+        }
+
+        match client.try_recv_matching(|incoming| matches!(incoming, Incoming::ImageData(_))) {
+            Ok(Incoming::ImageData(image_data)) => {
+                tracing::debug!("received image data: {} byte(s)", image_data.len());
+                raw_image_data.extend_from_slice(&image_data);
+                tracing::debug!(
+                    "total collected image data: {} byte(s)",
+                    raw_image_data.len()
+                );
+            }
+            Ok(_) | Err(pdiscan::client::Error::TryRecvError(TryRecvError::Empty)) => {}
+            Err(e) => {
+                tracing::error!("error: {:?}", e);
+                break;
+            }
+        }
+    }
+
+    scanner.stop();
+
+    Ok(())
+}
+
 pub fn main() -> color_eyre::Result<()> {
     // main_threaded()
     // main_request_response()
     // main_watch_status()
     // main_scan_loop()
     // main_test_string()
-    main_test_string()
+    // main_test_string()
+    main_client2_scan_test()
 }

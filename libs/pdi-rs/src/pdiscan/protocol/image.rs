@@ -15,6 +15,14 @@ impl RawImageData {
         Self { data: Vec::new() }
     }
 
+    pub fn len(&self) -> usize {
+        self.data.len()
+    }
+
+    pub fn clear(&mut self) {
+        self.data.clear();
+    }
+
     /// Extends the data with the given slice. This is intended to be given the
     /// raw data from the scanner.
     pub fn extend_from_slice(&mut self, slice: &[u8]) {
@@ -150,9 +158,7 @@ impl ScanPage {
         let crop_start = self.find_crop_start();
         let crop_end = self.find_crop_end();
 
-        dbg!(crop_start, crop_end);
-
-        if crop_start > crop_end {
+        if crop_start >= crop_end {
             return None;
         }
 
@@ -163,6 +169,10 @@ impl ScanPage {
         )
     }
 
+    /// Finds the start of the crop area by looking for the first row that is
+    /// not completely black. The value is returned as the row index, i.e. the
+    /// number of rows to skip from the top or the y-coordinate of the start of
+    /// the crop area, where the start is inclusive.
     fn find_crop_start(&self) -> u32 {
         self.data
             .chunks_exact((self.width / u8::BITS) as usize)
@@ -170,6 +180,10 @@ impl ScanPage {
             .count() as u32
     }
 
+    /// Finds the end of the crop area by looking for the first row that is not
+    /// completely black, starting from the bottom. The value is returned as
+    /// the row index, i.e. the number of rows to skip from the bottom or the
+    /// y-coordinate of the end of the crop area, where the end is exclusive.
     fn find_crop_end(&self) -> u32 {
         self.height
             - self

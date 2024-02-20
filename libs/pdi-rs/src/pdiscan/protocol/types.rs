@@ -231,6 +231,11 @@ impl Status {
             calibration_of_unit_needed,
         }
     }
+
+    #[must_use]
+    pub fn rear_sensors_covered(&self) -> bool {
+        self.rear_left_sensor_covered && self.rear_right_sensor_covered
+    }
 }
 
 #[derive(Debug, Clone)]

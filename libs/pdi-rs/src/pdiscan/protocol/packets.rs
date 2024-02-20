@@ -580,7 +580,7 @@ impl Outgoing {
     pub fn to_bytes(&self) -> Vec<u8> {
         match &self {
             Outgoing::GetTestStringRequest => {
-                checked!(Command::new(b"D"), parsers::get_test_string_response)
+                checked!(Command::new(b"D"), parsers::get_test_string_request)
             }
             Outgoing::GetFirmwareVersionRequest => {
                 checked!(Command::new(b"V"), parsers::get_firmware_version_request)
@@ -614,11 +614,11 @@ impl Outgoing {
             }
             Outgoing::GetRequiredInputSensorsRequest => checked!(
                 Command::new(b"\x1Bs"),
-                parsers::get_set_input_sensors_required_response
+                parsers::get_input_sensors_required_request
             ),
             Outgoing::SetRequiredInputSensorsRequest { sensors } => checked!(
                 Command::new(b"\x1Bs").with_data(&[*sensors + b'0']),
-                parsers::get_set_input_sensors_required_response
+                parsers::set_input_sensors_required_request
             ),
             Outgoing::AdjustBitonalThresholdBy1Request(BitonalAdjustment { side, direction }) => {
                 checked!(
@@ -659,8 +659,13 @@ impl Outgoing {
                 Command::new(b"H"),
                 parsers::set_scanner_to_bottom_only_simplex_mode_request
             ),
-            Outgoing::DisablePickOnCommandModeRequest => todo!(),
-            Outgoing::DisableEjectPauseRequest => todo!(),
+            Outgoing::DisablePickOnCommandModeRequest => checked!(
+                Command::new(b"\x1bY"),
+                parsers::disable_pick_on_command_mode_request
+            ),
+            Outgoing::DisableEjectPauseRequest => {
+                checked!(Command::new(b"N"), parsers::disable_eject_pause_request)
+            }
             Outgoing::TransmitInNativeBitsPerPixelRequest => checked!(
                 Command::new(b"y"),
                 parsers::transmit_in_native_bits_per_pixel_request

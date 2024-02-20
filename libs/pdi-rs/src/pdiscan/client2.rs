@@ -334,7 +334,7 @@ impl Client {
     }
 
     fn handle_unexpected_packet(&self, packet: Incoming) {
-        eprintln!("Unexpected packet: {packet:?}");
+        tracing::error!("Unexpected packet: {packet:?}");
     }
 
     pub fn try_recv_matching(&mut self, predicate: impl Fn(&Incoming) -> bool) -> Result<Incoming> {
@@ -935,6 +935,7 @@ impl Scanner {
 
         self.thread_handle = Some(thread::spawn({
             move || {
+                tracing::debug!("Scanner thread started; submitting initial IN endpoint transfers");
                 transfer_pool
                     .submit_bulk(ENDPOINT_IN_PRIMARY, vec![0; BUFFER_SIZE])
                     .unwrap();
@@ -945,6 +946,9 @@ impl Scanner {
 
                 loop {
                     if stop_rx.try_recv().is_ok() {
+                        tracing::debug!(
+                            "Scanner thread received stop signal; cancelling all transfers"
+                        );
                         transfer_pool.cancel_all();
                         break;
                     }
@@ -952,10 +956,9 @@ impl Scanner {
                     match host_to_scanner_rx.try_recv() {
                         Ok(packet) => {
                             let bytes = packet.to_bytes();
-                            eprintln!(
+                            tracing::debug!(
                                 "sending packet: {packet:?} (data: {data:?})",
-                                data = String::from_utf8_lossy(&bytes),
-                                packet = packet
+                                data = String::from_utf8_lossy(&bytes)
                             );
 
                             transfer_pool.submit_bulk(ENDPOINT_OUT, bytes).unwrap();
@@ -967,7 +970,7 @@ impl Scanner {
                         }
                         Err(mpsc::TryRecvError::Empty) => {}
                         Err(e) => {
-                            eprintln!("Error receiving outgoing packet: {e}");
+                            tracing::error!("Error receiving outgoing packet: {e}");
                             break;
                         }
                     }
@@ -975,28 +978,30 @@ impl Scanner {
                     match transfer_pool.poll_endpoint(ENDPOINT_IN_PRIMARY, Duration::from_millis(1))
                     {
                         Ok(data) => {
-                            eprintln!(
-                                "Received primary data: {len} bytes: {data:?}",
-                                len = data.len(),
-                                data = String::from_utf8_lossy(&data)
+                            tracing::debug!(
+                                "Received data on primary endpoint: {len} bytes",
+                                len = data.len()
                             );
                             match parsers::any_incoming(&data) {
                                 Ok(([], packet)) => {
-                                    eprintln!("Received packet: {packet:?}");
+                                    tracing::debug!("Received incoming packet: {packet:?}");
                                     scanner_to_host_tx.send(packet).unwrap();
                                 }
                                 Ok((remaining, packet)) => {
-                                    eprintln!(
-                                        "Received packet: {packet:?} with {} bytes remaining: {}",
-                                        remaining.len(),
-                                        String::from_utf8_lossy(remaining)
+                                    tracing::warn!(
+                                        "Received packet: {packet:?} with {len} bytes remaining: {remaining:?}",
+                                        len = remaining.len(),
+                                        remaining = String::from_utf8_lossy(remaining)
                                     );
                                     scanner_to_host_tx
                                         .send(Incoming::Unknown(data.to_vec()))
                                         .unwrap();
                                 }
                                 Err(err) => {
-                                    eprintln!("Error parsing packet: {err}");
+                                    tracing::error!(
+                                        "Error parsing packet: {data:?} (err={err})",
+                                        data = String::from_utf8_lossy(&data)
+                                    );
                                     scanner_to_host_tx
                                         .send(Incoming::Unknown(data.to_vec()))
                                         .unwrap();
@@ -1004,13 +1009,14 @@ impl Scanner {
                             }
 
                             // resubmit the transfer to receive more data
+                            tracing::debug!("Resubmitting primary IN endpoint transfer");
                             transfer_pool
                                 .submit_bulk(ENDPOINT_IN_PRIMARY, data)
                                 .unwrap();
                         }
                         Err(rusb_async::Error::PollTimeout) => {}
                         Err(err) => {
-                            eprintln!("Error: {err}");
+                            tracing::error!("Error while polling primary IN endpoint: {err}");
                             break;
                         }
                     }
@@ -1019,7 +1025,7 @@ impl Scanner {
                         .poll_endpoint(ENDPOINT_IN_IMAGE_DATA, Duration::from_millis(1))
                     {
                         Ok(data) => {
-                            eprintln!("Received image data: {len} bytes", len = data.len());
+                            tracing::debug!("Received image data: {len} bytes", len = data.len());
                             scanner_to_host_tx
                                 .send(packets::Incoming::ImageData(data.clone()))
                                 .unwrap();
@@ -1031,7 +1037,7 @@ impl Scanner {
                         }
                         Err(rusb_async::Error::PollTimeout) => {}
                         Err(err) => {
-                            eprintln!("Error: {err}");
+                            tracing::error!("Error while polling image data endpoint: {err}");
                             break;
                         }
                     }
