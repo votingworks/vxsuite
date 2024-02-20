@@ -92,13 +92,14 @@ fn main() {
     log!(EventId::ConnectToPatInputInit);
 
     // Export pins and set direction
-    set_up_pins().unwrap_or_else(|error| {
+    if let Err(err) = set_up_pins() {
         log!(
             event_id: EventId::ConnectToPatInputComplete,
             disposition: Disposition::Failure,
-            message: format!("An error occurred during GPIO pin connection: {error}")
+            message: format!("An error occurred during GPIO pin connection: {err}")
         );
-    });
+        exit(1);
+    };
 
     // is_connected is unused for keypresses in this daemon but it's important to export
     // the pin so it can be read by the mark-scan backend
