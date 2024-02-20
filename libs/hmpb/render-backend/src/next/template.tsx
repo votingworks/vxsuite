@@ -22,6 +22,7 @@ import {
 } from './ballot_components';
 import { InchDimensions, PixelDimensions } from './types';
 import {
+  ArrowRightCircle,
   InstructionsDiagramFillBubble,
   InstructionsDiagramWriteIn,
 } from './svg_assets';
@@ -201,7 +202,7 @@ function Instructions() {
     >
       <div
         style={{
-          flex: '3 1 0',
+          flex: '1 1 0',
           display: 'flex',
           gap: '0.5rem',
         }}
@@ -217,7 +218,7 @@ function Instructions() {
       </div>
       <div
         style={{
-          flex: '4 1 0',
+          flex: '1.5 1 0',
           display: 'flex',
           gap: '0.5rem',
         }}
@@ -238,20 +239,54 @@ function Instructions() {
   );
 }
 
-function Footer({ children }: { children: React.ReactNode }) {
-  return (
+function Footer({
+  pageNumber,
+  totalPages,
+}: {
+  pageNumber: number;
+  totalPages: number;
+}) {
+  const continueVoting = (
     <div
       style={{
-        padding: '1rem',
-        border: '1px solid black',
         display: 'flex',
-        justifyContent: 'space-between',
+        gap: '1rem',
+        alignItems: 'center',
       }}
     >
-      {children}
-      <div>
-        <QrCodeSlot />
-      </div>
+      <h3>
+        {pageNumber % 2 === 1
+          ? 'Turn ballot over and continue voting'
+          : 'Continue voting on next ballot sheet'}
+      </h3>
+      <ArrowRightCircle style={{ height: '2rem' }} />
+    </div>
+  );
+  const ballotComplete = <h3>You have completed voting.</h3>;
+  const endOfPageInstruction =
+    pageNumber === totalPages ? ballotComplete : continueVoting;
+
+  return (
+    <div style={{ display: 'flex', gap: '0.75rem' }}>
+      <QrCodeSlot />
+      <Box
+        fill="tinted"
+        style={{
+          padding: '0.25rem 0.5rem',
+          flex: 1,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <div>
+          <div style={{ fontSize: '0.85rem' }}>Page</div>
+          <h2>
+            {pageNumber}/{totalPages}
+          </h2>
+        </div>
+        <div>{endOfPageInstruction}</div>
+      </Box>
     </div>
   );
 }
@@ -331,9 +366,7 @@ function BallotPageFrame({
           >
             {children}
           </div>
-          <Footer>
-            Page: {pageNumber}/{totalPages}
-          </Footer>
+          <Footer pageNumber={pageNumber} totalPages={totalPages} />
         </div>
       </TimingMarkGrid>
     </Page>

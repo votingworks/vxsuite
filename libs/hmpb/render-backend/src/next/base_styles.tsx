@@ -14,7 +14,8 @@ const baseStyles = `
     box-sizing: border-box;
     font-family: Vx Roboto;
     font-variant-ligatures: none;
-    font-size: 11pt;
+    /* CCD minimum font size: https://civicdesign.org/typography-makes-ballots-easy-to-read/ */
+    font-size: 12pt;
     line-height: 1.2;
   }
 

@@ -1,3 +1,5 @@
+import React from 'react';
+
 export function InstructionsDiagramFillBubble(): JSX.Element {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 259.2 122.73">
@@ -37,7 +39,6 @@ export function InstructionsDiagramFillBubble(): JSX.Element {
           strokeWidth: 2,
         }}
       />
-      {/* <path d="M36.35 112.37c-9.5 0-17.47 3.59-21.07 8.87h6.11c3.44-2.66 8.92-4.42 15-4.42s11.51 1.76 14.95 4.42h6.11c-3.64-5.24-11.61-8.87-21.1-8.87ZM36.35 93.08c-13 0-23.12-6.7-23.12-15.24s10.15-15.25 23.12-15.25 23.11 6.7 23.11 15.25-10.15 15.24-23.11 15.24Zm0-26C26.22 67 17.67 72 17.67 77.84s8.55 10.79 18.68 10.79S55 83.69 55 77.84 46.47 67 36.35 67Z" /> */}
       <path
         d="M218.44 104.45c2.23 2.45 16.83 9.57 33.61 17.27h6.1V88.38L127 49.23c-4 18.89-5.4 40.41 42.86 42.32 32.14 1.27 42.4 15.08 48.58 12.9Z"
         style={{
@@ -183,6 +184,25 @@ export function InstructionsDiagramWriteIn(): JSX.Element {
         {'write-in'}
       </text>
       <rect x={12} y={20} width={45} height={30} rx={15} ry={15} />
+    </svg>
+  );
+}
+
+export function ArrowRightCircle({
+  style,
+}: {
+  style: React.CSSProperties;
+}): JSX.Element {
+  return (
+    <svg
+      viewBox="0 0 60 60"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      style={style}
+    >
+      <circle cx="30" cy="30" r="30" fill="#000000" />
+      <path d="M52.5 30L31.125 46.238L31.125 13.762L52.5 30Z" fill="white" />
+      <rect x="9" y="24" width="22.5" height="12" fill="white" />
     </svg>
   );
 }

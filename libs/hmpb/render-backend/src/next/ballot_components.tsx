@@ -33,8 +33,8 @@ export function ContentSlot(): JSX.Element {
 export const QR_CODE_SLOT_CLASS = 'qr-code-slot';
 
 export const QR_CODE_SIZE: InchDimensions = {
-  width: 0.5,
-  height: 0.5,
+  width: 0.6,
+  height: 0.6,
 };
 
 export function QrCodeSlot(): JSX.Element {
