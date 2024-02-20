@@ -10,9 +10,8 @@ use std::{
 use tracing_subscriber::prelude::*;
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
-use pdi_rs::pdiscan::{
-    self,
-    client2::{Client, Scanner},
+use pdi_rs::{
+    client::{Client, Error, Scanner},
     protocol::{
         image::{RawImageData, Sheet},
         packets::{self, Incoming},
@@ -306,18 +305,27 @@ fn main_scan_loop() -> color_eyre::Result<()> {
                     Incoming::EndScanEvent => {
                         match raw_image_data.try_decode_scan(1728, ScanSideMode::Duplex) {
                             Ok(Sheet::Duplex(top, bottom)) => {
-                                let top_image = top.to_image().unwrap();
-                                let bottom_image = bottom.to_image().unwrap();
-
-                                top_image.save("top.png")?;
-                                bottom_image.save("bottom.png")?;
-
-                                wrap_outgoing(&Outgoing::ScanComplete {
-                                    image_data: (
-                                        STANDARD.encode(top_image.as_bytes()),
-                                        STANDARD.encode(bottom_image.as_bytes()),
-                                    ),
-                                })?;
+                                match (top.to_image(), bottom.to_image()) {
+                                    (Some(top_image), Some(bottom_image)) => {
+                                        top_image.save("top.png")?;
+                                        bottom_image.save("bottom.png")?;
+                                        wrap_outgoing(&Outgoing::ScanComplete {
+                                            image_data: (
+                                                STANDARD.encode(top_image.as_bytes()),
+                                                STANDARD.encode(bottom_image.as_bytes()),
+                                            ),
+                                        })?;
+                                    }
+                                    (Some(_), None) => {
+                                        eprintln!("failed to decode bottom image");
+                                    }
+                                    (None, Some(_)) => {
+                                        eprintln!("failed to decode top image");
+                                    }
+                                    (None, None) => {
+                                        eprintln!("failed to decode top & bottom images");
+                                    }
+                                }
                             }
                             Ok(_) => unreachable!(
                                 "try_decode_scan called with {:?} returned non-duplex sheet",
@@ -438,7 +446,7 @@ fn main_test_string() -> color_eyre::Result<()> {
     let mut scanner = Scanner::open().unwrap();
     let (host_to_scanner_tx, scanner_to_host_rx) = scanner.start();
 
-    let mut client = pdiscan::client2::Client::new(host_to_scanner_tx, scanner_to_host_rx);
+    let mut client = Client::new(host_to_scanner_tx, scanner_to_host_rx);
     // client.send_connect().unwrap();
 
     for _ in 0..10 {
@@ -460,7 +468,7 @@ fn main_client2_scan_test() -> color_eyre::Result<()> {
     let mut scanner = Scanner::open().unwrap();
     let (host_to_scanner_tx, scanner_to_host_rx) = scanner.start();
 
-    let mut client = pdiscan::client2::Client::new(host_to_scanner_tx, scanner_to_host_rx);
+    let mut client = Client::new(host_to_scanner_tx, scanner_to_host_rx);
     client.send_connect().unwrap();
     client.send_enable_scan_commands().unwrap();
 
@@ -513,7 +521,7 @@ fn main_client2_scan_test() -> color_eyre::Result<()> {
             Ok(event) => {
                 tracing::warn!("Unhandled event: {event:?}");
             }
-            Err(pdiscan::client::Error::TryRecvError(TryRecvError::Empty)) => {}
+            Err(Error::TryRecvError(TryRecvError::Empty)) => {}
             Err(e) => {
                 eprintln!("error: {:?}", e);
                 break;
@@ -529,7 +537,7 @@ fn main_client2_scan_test() -> color_eyre::Result<()> {
                     raw_image_data.len()
                 );
             }
-            Ok(_) | Err(pdiscan::client::Error::TryRecvError(TryRecvError::Empty)) => {}
+            Ok(_) | Err(Error::TryRecvError(TryRecvError::Empty)) => {}
             Err(e) => {
                 tracing::error!("error: {:?}", e);
                 break;

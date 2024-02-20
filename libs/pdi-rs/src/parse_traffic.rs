@@ -1,10 +1,8 @@
 use std::{fmt, io};
 
-use bitter::{BigEndianReader, BitReader};
-use image::{DynamicImage, ImageBuffer, Luma};
 use serde::Deserialize;
 
-use pdi_rs::pdiscan::protocol::{
+use pdi_rs::protocol::{
     self,
     image::{RawImageData, Sheet},
     packets::{Incoming, Packet},

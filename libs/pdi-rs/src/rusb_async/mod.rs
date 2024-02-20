@@ -1,3 +1,30 @@
+// File originally copied from https://github.com/a1ien/rusb/commit/4d955e48394e2a5c116fd4e3c9408c88536ed894,
+// with the license:
+//
+//     Copyright (c) 2015 David Cuddeback
+//                   2019 Ilya Averyanov
+//
+//     Permission is hereby granted, free of charge, to any person obtaining
+//     a copy of this software and associated documentation files (the
+//     "Software"), to deal in the Software without restriction, including
+//     without limitation the rights to use, copy, modify, merge, publish,
+//     distribute, sublicense, and/or sell copies of the Software, and to
+//     permit persons to whom the Software is furnished to do so, subject to
+//     the following conditions:
+//
+//     The above copyright notice and this permission notice shall be
+//     included in all copies or substantial portions of the Software.
+//
+//     THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+//     EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+//     MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+//     NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+//     LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
+//     OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+//     WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
+// Modifications have been made to better support the use case of this project.
+
 use rusb::ffi::{self, constants::*};
 
 use std::convert::TryInto;
@@ -31,9 +58,7 @@ impl Transfer {
 
         let user_data = Box::into_raw(Box::new(AtomicBool::new(false))).cast::<libc::c_void>();
 
-        let length = if endpoint & ffi::constants::LIBUSB_ENDPOINT_DIR_MASK
-            == ffi::constants::LIBUSB_ENDPOINT_OUT
-        {
+        let length = if endpoint & LIBUSB_ENDPOINT_DIR_MASK == LIBUSB_ENDPOINT_OUT {
             // for OUT endpoints: the currently valid data in the buffer
             buffer.len()
         } else {
@@ -118,9 +143,7 @@ impl Transfer {
 
         let user_data = Box::into_raw(Box::new(AtomicBool::new(false))).cast::<libc::c_void>();
 
-        let length = if endpoint & ffi::constants::LIBUSB_ENDPOINT_DIR_MASK
-            == ffi::constants::LIBUSB_ENDPOINT_OUT
-        {
+        let length = if endpoint & LIBUSB_ENDPOINT_DIR_MASK == LIBUSB_ENDPOINT_OUT {
             // for OUT endpoints: the currently valid data in the buffer
             buffer.len()
         } else {
@@ -158,9 +181,7 @@ impl Transfer {
 
         let user_data = Box::into_raw(Box::new(AtomicBool::new(false))).cast::<libc::c_void>();
 
-        let length = if endpoint & ffi::constants::LIBUSB_ENDPOINT_DIR_MASK
-            == ffi::constants::LIBUSB_ENDPOINT_OUT
-        {
+        let length = if endpoint & LIBUSB_ENDPOINT_DIR_MASK == LIBUSB_ENDPOINT_OUT {
             // for OUT endpoints: the currently valid data in the buffer
             buffer.len()
         } else {
@@ -185,6 +206,7 @@ impl Transfer {
 
         Self { ptr, buffer }
     }
+
     // Part of step 4 of async API the transfer is finished being handled when
     // `poll()` is called.
     extern "system" fn transfer_cb(transfer: *mut ffi::libusb_transfer) {

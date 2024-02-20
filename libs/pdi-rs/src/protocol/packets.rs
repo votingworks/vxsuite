@@ -767,7 +767,7 @@ impl Outgoing {
                 Command::new(b"n3a90"),
                 parsers::get_double_feed_detection_double_sheet_threshold_value_request
             ),
-            Outgoing::RawPacket(data) => checked!(Command::new(&data), parsers::raw_outgoing),
+            Outgoing::RawPacket(data) => checked!(Command::new(data), parsers::raw_outgoing),
         }
     }
 }
