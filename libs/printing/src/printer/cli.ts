@@ -12,6 +12,7 @@ async function printStatus(printer: Printer, stdout: NodeJS.WriteStream) {
       `${JSON.stringify({
         connected: true,
         printerType: status.config.label,
+        status: status.richStatus ? status.richStatus : undefined,
       })}\n`
     );
   }

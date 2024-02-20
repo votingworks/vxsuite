@@ -8,6 +8,7 @@ import {
   PollsState,
   PollsTransitionType,
   PrecinctSelection,
+  PrinterStatus,
 } from '@votingworks/types';
 import { createMockClient } from '@votingworks/grout-test-utils';
 import type {
@@ -26,10 +27,7 @@ import {
 } from '@votingworks/test-utils';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { TestErrorBoundary } from '@votingworks/ui';
-import {
-  BROTHER_THERMAL_PRINTER_CONFIG,
-  type PrinterStatus,
-} from '@votingworks/printing';
+import { BROTHER_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
 import type { BatteryInfo } from '@votingworks/backend';
 import { mockUsbDriveStatus } from './mock_usb_drive';
 import { getCurrentTime } from '../../src/utils/get_current_time';

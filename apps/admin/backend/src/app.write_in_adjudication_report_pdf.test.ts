@@ -203,7 +203,7 @@ test('write-in adjudication report logging', async () => {
   // successful print
   await apiClient.printWriteInAdjudicationReport();
   expect(logger.log).lastCalledWith(
-    LogEventId.TallyReportPrinted,
+    LogEventId.ElectionReportPrinted,
     'election_manager',
     {
       message: `User printed the write-in adjudication report.`,
@@ -215,7 +215,7 @@ test('write-in adjudication report logging', async () => {
   mockPrinterHandler.disconnectPrinter();
   await apiClient.printWriteInAdjudicationReport();
   expect(logger.log).lastCalledWith(
-    LogEventId.TallyReportPrinted,
+    LogEventId.ElectionReportPrinted,
     'election_manager',
     {
       message: `Error in attempting to print the write-in adjudication report: cannot print without printer connected`,
@@ -226,7 +226,7 @@ test('write-in adjudication report logging', async () => {
   // preview
   await apiClient.getWriteInAdjudicationReportPreview();
   expect(logger.log).lastCalledWith(
-    LogEventId.TallyReportPreviewed,
+    LogEventId.ElectionReportPreviewed,
     'election_manager',
     {
       message: `User previewed the write-in adjudication report.`,

@@ -4,6 +4,7 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
+import { PrinterRichStatus } from '@votingworks/types';
 import { detectPrinter } from './printer';
 import { BROTHER_THERMAL_PRINTER_CONFIG, HP_LASER_PRINTER_CONFIG } from '.';
 import { MockFilePrinter } from './mocks/file_printer';
@@ -29,14 +30,22 @@ jest.mock('./device_uri', (): typeof import('./device_uri') => ({
   getConnectedDeviceUris: () => mockGetConnectedDeviceUris(),
 }));
 
+const mockGetPrinterRichStatus = mockFunction('mockGetPrinterRichStatus');
+jest.mock('./status', (): typeof import('./status') => ({
+  ...jest.requireActual('./device_uri'),
+  getPrinterRichStatus: () => mockGetPrinterRichStatus(),
+}));
+
 beforeEach(() => {
   mockConfigurePrinter.reset();
   mockGetConnectedDeviceUris.reset();
+  mockGetPrinterRichStatus.reset();
 });
 
 afterEach(() => {
   mockConfigurePrinter.assertComplete();
   mockGetConnectedDeviceUris.assertComplete();
+  mockGetPrinterRichStatus.assertComplete();
 });
 
 test('status and configuration', async () => {
@@ -118,4 +127,52 @@ test('uses mock file printer when feature flag is set', () => {
 
   const printer = detectPrinter(fakeLogger());
   expect(printer).toBeInstanceOf(MockFilePrinter);
+  featureFlagMock.resetFeatureFlags();
+});
+
+describe('rich status', () => {
+  test('does not get rich status if printer is not an IPP printer', async () => {
+    const printer = detectPrinter(fakeLogger());
+
+    // connect printer
+    const uri = `${BROTHER_THERMAL_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
+    const config = BROTHER_THERMAL_PRINTER_CONFIG;
+    mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
+    mockConfigurePrinter
+      .expectCallWith({
+        uri,
+        config,
+      })
+      .returns(undefined);
+    expect(await printer.status()).toEqual({
+      connected: true,
+      config,
+    });
+  });
+
+  test('attempts to get rich status if printer is an IPP printer', async () => {
+    const printer = detectPrinter(fakeLogger());
+
+    // connect printer
+    const uri = `${HP_LASER_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
+    const config = HP_LASER_PRINTER_CONFIG;
+    const richStatus: PrinterRichStatus = {
+      state: 'idle',
+      stateReasons: ['none'],
+      markerInfos: [],
+    };
+    mockGetConnectedDeviceUris.expectCallWith().returns([uri]);
+    mockConfigurePrinter
+      .expectCallWith({
+        uri,
+        config,
+      })
+      .returns(undefined);
+    mockGetPrinterRichStatus.expectCallWith().returns(richStatus);
+    expect(await printer.status()).toEqual({
+      connected: true,
+      config,
+      richStatus,
+    });
+  });
 });

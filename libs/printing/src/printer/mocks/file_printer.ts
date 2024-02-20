@@ -11,7 +11,8 @@ import {
 } from 'fs';
 import { Optional, assert, iter } from '@votingworks/basics';
 import { writeFile } from 'fs/promises';
-import { PrintProps, Printer, PrinterConfig, PrinterStatus } from '../types';
+import { PrinterConfig, PrinterStatus } from '@votingworks/types';
+import { PrintProps, Printer } from '../types';
 
 export const MOCK_PRINTER_STATE_FILENAME = 'state.json';
 export const MOCK_PRINTER_OUTPUT_DIRNAME = 'prints';

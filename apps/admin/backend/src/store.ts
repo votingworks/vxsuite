@@ -77,6 +77,9 @@ import {
   WriteInAdjudicationActionWriteInCandidate,
   CastVoteRecordAdjudicationFlags,
   WriteInAdjudicationActionReset,
+  DiagnosticsHardware,
+  DiagnosticsOutcome,
+  DiagnosticsRecord,
 } from './types';
 import { rootDebug } from './util/debug';
 
@@ -2511,6 +2514,38 @@ export class Store {
     ) as Optional<{ cvrsDataVersion: number }>;
 
     return row ? row.cvrsDataVersion : 0;
+  }
+
+  addDiagnosticRecord({
+    hardware,
+    outcome,
+  }: {
+    hardware: DiagnosticsHardware;
+    outcome: DiagnosticsOutcome;
+  }): void {
+    this.client.run(
+      `
+        insert into diagnostics
+          (hardware, outcome, timestamp)
+        values
+          (?, ?, ?)
+      `,
+      hardware,
+      outcome,
+      Date.now()
+    );
+  }
+
+  getDiagnosticRecords(): DiagnosticsRecord[] {
+    return this.client.all(
+      `
+        select
+          hardware,
+          outcome,
+          timestamp
+        from diagnostics
+      `
+    ) as DiagnosticsRecord[];
   }
 
   /* c8 ignore start */

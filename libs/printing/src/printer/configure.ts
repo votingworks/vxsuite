@@ -1,7 +1,7 @@
+import { PrinterConfig } from '@votingworks/types';
 import { rootDebug } from '../utils/debug';
 import { exec } from '../utils/exec';
 import { getPpdPath } from './supported';
-import { PrinterConfig } from './types';
 
 const debug = rootDebug.extend('configure');
 

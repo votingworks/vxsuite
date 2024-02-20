@@ -157,16 +157,6 @@ eventType = "application-status"
 documentationMessage = "Application saw a device unattached from the system."
 
 # Storage logs
-[LoadFromStorage]
-eventId = "load-from-storage"
-eventType = "application-action"
-documentationMessage = "A piece of information (current election, loaded CVR files, etc.) is loaded from storage. May happen as an automated action when an application starts up, or as a result of a user action."
-
-[SaveToStorage]
-eventId = "save-to-storage"
-eventType = "user-action"
-documentationMessage = "A piece of information is saved to storage, usually resulting from a user action for example a user loading CVR files results in those files being saved to storage."
-
 [FileSaved]
 eventId = "file-saved"
 eventType = "user-action"
@@ -240,19 +230,6 @@ eventType = "user-action"
 documentationMessage = "Imported cast vote records have been cleared (or failed to be cleared)."
 restrictInDocumentationToApps = ["vx-admin-service"]
 
-[RecomputingTally]
-eventId = "recompute-tally-init"
-eventType = "user-action"
-documentationMessage = "New cast vote record files seen, initiating recomputation of tally data."
-defaultMessage = "New cast vote record files seen, recomputing tally data..."
-restrictInDocumentationToApps = ["vx-admin-frontend"]
-
-[RecomputedTally]
-eventId = "recompute-tally-complete"
-eventType = "user-action"
-documentationMessage = "Tally recomputed with new cast vote record files, success or failure indicated by disposition."
-restrictInDocumentationToApps = ["vx-admin-frontend"]
-
 [ManualTallyDataEdited]
 eventId = "manual-tally-data-edited"
 eventType = "user-action"
@@ -271,16 +248,16 @@ eventType = "user-action"
 documentationMessage = "User marked the tally results as official. This disables loading more CVR files or editing manual tally data."
 restrictInDocumentationToApps = ["vx-admin-service"]
 
-[TallyReportPreviewed]
-eventId = "tally-report-previewed"
+[ElectionReportPreviewed]
+eventId = "election-report-previewed"
 eventType = "user-action"
-documentationMessage = "Tally Report previewed and viewed in the app."
+documentationMessage = "Report previewed by the user."
 restrictInDocumentationToApps = ["vx-admin-frontend"]
 
-[TallyReportPrinted]
-eventId = "tally-report-printed"
+[ElectionReportPrinted]
+eventId = "election-report-printed"
 eventType = "user-action"
-documentationMessage = "Tally Report printed."
+documentationMessage = "Report printed by the user."
 restrictInDocumentationToApps = ["vx-admin-frontend"]
 
 [ConvertingResultsToSemsFormat]
@@ -288,24 +265,6 @@ eventId = "converting-to-sems"
 eventType = "user-action"
 documentationMessage = "Initiating conversion of tally results to SEMS file format."
 defaultMessage = "Converting tally results to SEMS file format..."
-restrictInDocumentationToApps = ["vx-admin-frontend"]
-
-[TestDeckPrinted]
-eventId = "test-deck-printed"
-eventType = "user-action"
-documentationMessage = "User printed the test deck. Success or failure indicated by disposition."
-restrictInDocumentationToApps = ["vx-admin-frontend"]
-
-[TestDeckTallyReportPrinted]
-eventId = "test-deck-tally-report-printed"
-eventType = "user-action"
-documentationMessage = "User printed the test deck tally report. Success or failure indicated by disposition."
-restrictInDocumentationToApps = ["vx-admin-frontend"]
-
-[TestDeckTallyReportSavedToPdf]
-eventId = "test-deck-tally-report-saved-to-pdf"
-eventType = "user-action"
-documentationMessage = "User attempted to save the test deck tally report as PDF. Success or failure indicated by subsequent FileSaved log disposition."
 restrictInDocumentationToApps = ["vx-admin-frontend"]
 
 [InitialElectionPackageLoaded]
@@ -577,12 +536,6 @@ eventType = "user-action"
 documentationMessage = "Poll worker confirmed that they emptied the ballot box."
 restrictInDocumentationToApps = ["vx-mark-scan-frontend"]
 
-[TallyReportClearedFromCard]
-eventId = "tally-report-cleared-from-card"
-eventType = "application-action"
-documentationMessage = "The tally report has been cleared from the poll worker card."
-restrictInDocumentationToApps = ["vx-mark-frontend"]
-
 [PrecinctConfigurationChanged]
 eventId = "precinct-configuration-changed"
 eventType = "user-action"
@@ -723,6 +676,16 @@ documentationMessage = "A connected hardware device returned an unexpected respo
 restrictInDocumentationToApps = ["vx-mark-scan-pat-daemon"]
 
 # All machines
+[DiagnosticInit]
+eventId = "diagnostic-init"
+eventType = "user-action"
+documentationMessage = "The user has started a hardware diagnostic."
+
+[DiagnosticComplete]
+eventId = "diagnostic-complete"
+eventType = "user-action"
+documentationMessage = "The user has completed a hardware diagnostic."
+
 [UnknownError]
 eventId = "unknown-error"
 eventType = "application-status"

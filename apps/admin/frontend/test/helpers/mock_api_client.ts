@@ -17,6 +17,7 @@ import type {
   ExportDataError,
   TallyReportSpec,
   TallyReportWarning,
+  DiagnosticsRecord,
 } from '@votingworks/admin-backend';
 import { BatteryInfo } from '@votingworks/backend';
 import { FileSystemEntry, FileSystemEntryType } from '@votingworks/fs';
@@ -36,13 +37,13 @@ import {
   DippedSmartCardAuth,
   ElectionDefinition,
   Id,
+  PrinterStatus,
   Rect,
   SystemSettings,
   Tabulation,
 } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import type { PrinterStatus } from '@votingworks/printing';
 
 const mockRect: Rect = {
   width: 1000,
@@ -128,6 +129,7 @@ export function createApiMock(
         productId: 49450,
         baseDeviceUri: 'usb://HP/LaserJet%20Pro%20M404-M405',
         ppd: 'generic-postscript-driver.ppd',
+        supportsIpp: true,
       },
       ...printerStatus,
     });
@@ -467,6 +469,14 @@ export function createApiMock(
 
     expectGetScannerBatches(result: ScannerBatch[]) {
       apiClient.getScannerBatches.expectCallWith().resolves(result);
+    },
+
+    expectGetDiagnosticsRecords(result: DiagnosticsRecord[]) {
+      apiClient.getDiagnosticRecords.expectCallWith().resolves(result);
+    },
+
+    expectAddDiagnosticRecord(record: Omit<DiagnosticsRecord, 'timestamp'>) {
+      apiClient.addDiagnosticRecord.expectCallWith(record).resolves();
     },
 
     expectGetResultsForTallyReports(

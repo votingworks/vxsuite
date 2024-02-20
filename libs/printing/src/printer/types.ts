@@ -1,21 +1,5 @@
+import { PrinterStatus } from '@votingworks/types';
 import { Buffer } from 'buffer';
-
-export interface PrinterConfig {
-  label: string;
-  vendorId: number;
-  productId: number;
-  baseDeviceUri: string;
-  ppd: string;
-}
-
-export type PrinterStatus =
-  | {
-      connected: false;
-    }
-  | {
-      connected: true;
-      config: PrinterConfig;
-    };
 
 export enum PrintSides {
   /**

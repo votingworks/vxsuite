@@ -51,7 +51,7 @@ export async function generateWriteInAdjudicationReportPreview({
   ...reportProps
 }: WriteInAdjudicationReportPreviewProps): Promise<Buffer> {
   const report = buildWriteInAdjudicationReport(reportProps);
-  await logger.log(LogEventId.TallyReportPreviewed, userRole, {
+  await logger.log(LogEventId.ElectionReportPreviewed, userRole, {
     message: `User previewed the write-in adjudication report.`,
     disposition: 'success',
   });
@@ -74,13 +74,13 @@ export async function printWriteInAdjudicationReport({
 
   try {
     await printer.print({ data: await renderToPdf(report) });
-    await logger.log(LogEventId.TallyReportPrinted, userRole, {
+    await logger.log(LogEventId.ElectionReportPrinted, userRole, {
       message: `User printed the write-in adjudication report.`,
       disposition: 'success',
     });
   } catch (error) {
     assert(error instanceof Error);
-    await logger.log(LogEventId.TallyReportPrinted, userRole, {
+    await logger.log(LogEventId.ElectionReportPrinted, userRole, {
       message: `Error in attempting to print the write-in adjudication report: ${error.message}`,
       disposition: 'failure',
     });

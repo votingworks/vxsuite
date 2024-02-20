@@ -19,7 +19,7 @@ import {
 } from '@votingworks/fixtures';
 import { Server } from 'http';
 import { typedAs } from '@votingworks/basics';
-import { PrinterStatus } from '@votingworks/printing';
+import { PrinterStatus } from '@votingworks/types';
 import {
   Api,
   MachineType,

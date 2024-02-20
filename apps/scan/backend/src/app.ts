@@ -6,6 +6,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   ExportCastVoteRecordsToUsbDriveError,
   PrecinctSelection,
+  PrinterStatus,
   SinglePrecinctSelection,
 } from '@votingworks/types';
 import {
@@ -31,7 +32,7 @@ import {
 } from '@votingworks/basics';
 import { InsertedSmartCardAuthApi, LiveCheck } from '@votingworks/auth';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
-import { Printer, PrinterStatus } from '@votingworks/printing';
+import { Printer } from '@votingworks/printing';
 import {
   PrecinctScannerStateMachine,
   PrecinctScannerConfig,

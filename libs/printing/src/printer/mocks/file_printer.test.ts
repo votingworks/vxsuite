@@ -1,13 +1,13 @@
 import { Buffer } from 'buffer';
 import { existsSync, readFileSync, readdirSync } from 'fs';
 import { sleep, typedAs } from '@votingworks/basics';
+import { PrinterStatus } from '@votingworks/types';
 import {
   DEFAULT_MOCK_USB_DRIVE_DIR,
   MockFilePrinter,
   getMockFilePrinterHandler,
 } from './file_printer';
 import { HP_LASER_PRINTER_CONFIG } from '../supported';
-import { PrinterStatus } from '../types';
 
 beforeEach(() => {
   getMockFilePrinterHandler().cleanup();
