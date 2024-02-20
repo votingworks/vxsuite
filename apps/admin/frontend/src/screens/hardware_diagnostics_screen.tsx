@@ -107,12 +107,12 @@ export function HardwareDiagnosticsScreen(): JSX.Element {
         </P>
       ) : mostRecentPrinterDiagnostic.outcome === 'fail' ? (
         <P>
-          <Icons.Warning color="warning" /> Most recent test print failed,{' '}
+          <Icons.Warning color="warning" /> Test print failed,{' '}
           {new Date(mostRecentPrinterDiagnostic.timestamp).toLocaleString()}
         </P>
       ) : (
         <P>
-          <Icons.Done color="success" /> Most recent test print successful,{' '}
+          <Icons.Done color="success" /> Test print successful,{' '}
           {new Date(mostRecentPrinterDiagnostic.timestamp).toLocaleString()}
         </P>
       )}

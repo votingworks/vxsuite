@@ -147,7 +147,7 @@ test('displays printer state and allows diagnostic', async () => {
   expect(screen.queryByRole('alertdialog')).toBeNull();
   await hackActuallyCleanUpReactModal();
   await expectTextWithIcon(
-    'Most recent test print failed, 6/22/2022, 12:00:00 PM',
+    'Test print failed, 6/22/2022, 12:00:00 PM',
     'triangle-exclamation'
   );
 
@@ -178,7 +178,7 @@ test('displays printer state and allows diagnostic', async () => {
   userEvent.click(screen.getButton('Confirm'));
   expect(screen.queryByRole('alertdialog')).toBeNull();
   await expectTextWithIcon(
-    'Most recent test print successful, 6/22/2022, 12:01:00 PM',
+    'Test print successful, 6/22/2022, 12:01:00 PM',
     'circle-check'
   );
 });

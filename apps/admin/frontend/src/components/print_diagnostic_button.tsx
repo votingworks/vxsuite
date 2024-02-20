@@ -28,8 +28,6 @@ export function PrintTestPageButton(): JSX.Element {
   function resetFlow() {
     setFlowState(undefined);
     setOutcome(undefined);
-    printTestPageMutation.reset();
-    addDiagnosticRecordMutation.reset();
   }
 
   async function startFlow() {
