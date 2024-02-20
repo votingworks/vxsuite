@@ -8,6 +8,7 @@ import {
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
   Id,
+  PrinterStatus,
   SystemSettings,
   Tabulation,
   TEST_JURISDICTION,
@@ -31,7 +32,7 @@ import {
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
-import { Printer, PrinterStatus } from '@votingworks/printing';
+import { Printer } from '@votingworks/printing';
 import { createReadStream, promises as fs } from 'fs';
 import path, { join } from 'path';
 import {

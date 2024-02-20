@@ -11,10 +11,11 @@ import {
   convertVxfElectionToCdfBallotDefinition,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionPackageFileName,
+  PrinterStatus,
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { suppressingConsoleOutput, zipFile } from '@votingworks/test-utils';
-import { HP_LASER_PRINTER_CONFIG, PrinterStatus } from '@votingworks/printing';
+import { HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import {
   buildTestEnvironment,
   configureMachine,

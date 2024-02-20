@@ -37,13 +37,13 @@ import {
   DippedSmartCardAuth,
   ElectionDefinition,
   Id,
+  PrinterStatus,
   Rect,
   SystemSettings,
   Tabulation,
 } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import type { PrinterStatus } from '@votingworks/printing';
 
 const mockRect: Rect = {
   width: 1000,

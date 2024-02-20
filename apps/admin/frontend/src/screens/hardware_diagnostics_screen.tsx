@@ -1,8 +1,6 @@
-import { H2, Icons, P, PrinterRichStatusDisplay } from '@votingworks/ui';
+import { H2, Icons, P, PrinterStatusDisplay } from '@votingworks/ui';
 
 import { format } from '@votingworks/utils';
-import type { PrinterStatus } from '@votingworks/printing';
-import React from 'react';
 import type { DiagnosticsRecord } from '@votingworks/admin-backend';
 import type { BatteryInfo } from '@votingworks/backend';
 import { NavigationScreen } from '../components/navigation_screen';
@@ -16,36 +14,6 @@ function BatteryStatusIcon({ discharging, level }: BatteryInfo): JSX.Element {
   }
 
   return <Icons.Done color="success" />;
-}
-
-function PrinterStatusDisplay({
-  printerStatus,
-}: {
-  printerStatus: PrinterStatus;
-}): JSX.Element {
-  if (!printerStatus.connected) {
-    return (
-      <P>
-        <Icons.Info /> No compatible printer detected
-      </P>
-    );
-  }
-
-  return (
-    <React.Fragment>
-      <P>
-        <Icons.Done color="success" /> Connected
-      </P>
-      {printerStatus.config.supportsIpp &&
-        (printerStatus.richStatus ? (
-          <PrinterRichStatusDisplay {...printerStatus.richStatus} />
-        ) : (
-          <P>
-            <Icons.Loading /> Loading Status
-          </P>
-        ))}
-    </React.Fragment>
-  );
 }
 
 export function HardwareDiagnosticsScreen(): JSX.Element {

@@ -1,5 +1,5 @@
-import type { PrinterConfig } from '@votingworks/printing';
 import userEvent from '@testing-library/user-event';
+import { PrinterConfig } from '@votingworks/types';
 import { screen, within, act } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
@@ -80,20 +80,9 @@ test('displays printer state and allows diagnostic', async () => {
 
   apiMock.setPrinterStatus({
     connected: true,
-    config: {
-      ...mockPrinterConfig,
-      supportsIpp: false,
-    },
-  });
-
-  await expectTextWithIcon('Connected', 'circle-check');
-  expect(screen.queryByText('Loading Status')).toBeNull();
-
-  apiMock.setPrinterStatus({
-    connected: true,
     config: mockPrinterConfig,
   });
-  await expectTextWithIcon('Loading Status', 'spinner');
+  await expectTextWithIcon('Connected', 'spinner');
 
   apiMock.setPrinterStatus({
     connected: true,
@@ -113,7 +102,7 @@ test('displays printer state and allows diagnostic', async () => {
       ],
     },
   });
-  await expectTextWithIcon('Ready', 'circle-check');
+  await expectTextWithIcon('Ready to print', 'circle-check');
   await expectTextWithIcon('Toner Level: 83%', 'circle-check');
   // rich status display tested in libs/ui
 

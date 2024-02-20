@@ -2,7 +2,12 @@ import type Express from 'express';
 import * as grout from '@votingworks/grout';
 import * as fs from 'fs';
 import { Optional, assert } from '@votingworks/basics';
-import { safeParseElectionDefinition, UserRole } from '@votingworks/types';
+import {
+  PrinterConfig,
+  PrinterStatus,
+  safeParseElectionDefinition,
+  UserRole,
+} from '@votingworks/types';
 import { isAbsolute, join } from 'path';
 import {
   CardStatus,
@@ -16,8 +21,6 @@ import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
 import {
   BROTHER_THERMAL_PRINTER_CONFIG,
   HP_LASER_PRINTER_CONFIG,
-  PrinterConfig,
-  PrinterStatus,
   getMockFilePrinterHandler,
 } from '@votingworks/printing';
 import { execFile } from './utils';

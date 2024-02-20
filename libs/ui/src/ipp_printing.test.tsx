@@ -1,9 +1,23 @@
-import { IppMarkerInfo } from '@votingworks/types';
+import {
+  IppMarkerInfo,
+  PrinterConfig,
+  PrinterRichStatus,
+  PrinterStatus,
+} from '@votingworks/types';
 import { render, screen, within } from '../test/react_testing_library';
 import {
-  PrinterRichStatusDisplay,
+  PrinterStatusDisplay,
   parseHighestPriorityIppPrinterStateReason,
 } from './ipp_printing';
+
+const mockPrinterConfig: PrinterConfig = {
+  label: '',
+  vendorId: 0,
+  productId: 0,
+  baseDeviceUri: '',
+  ppd: '',
+  supportsIpp: true,
+};
 
 const mockMarkerInfo: IppMarkerInfo = {
   color: '#000000',
@@ -13,6 +27,21 @@ const mockMarkerInfo: IppMarkerInfo = {
   name: 'black cartridge',
   type: 'toner-cartridge',
 };
+
+function getMockPrinterStatus(
+  richStatus: Partial<PrinterRichStatus> = {}
+): PrinterStatus {
+  return {
+    connected: true,
+    config: mockPrinterConfig,
+    richStatus: {
+      state: 'idle',
+      stateReasons: [],
+      markerInfos: [mockMarkerInfo],
+      ...richStatus,
+    },
+  };
+}
 
 describe('parseHighestPriorityIppPrinterStateReason', () => {
   test('ignores "none"', () => {
@@ -69,80 +98,126 @@ async function expectTextWithIcon(text: string, icon: string) {
   ).toEqual(icon);
 }
 
-describe('PrinterRichStatusDisplay', () => {
-  test('idle and full toner', async () => {
+describe('PrinterStatusDisplay status message', () => {
+  test('displays disconnected', async () => {
+    render(<PrinterStatusDisplay printerStatus={{ connected: false }} />);
+    await expectTextWithIcon('No compatible printer detected', 'circle-info');
+  });
+
+  test('displays non-IPP printer connected', async () => {
     render(
-      <PrinterRichStatusDisplay
-        state="idle"
-        stateReasons={['none']}
-        markerInfos={[mockMarkerInfo]}
+      <PrinterStatusDisplay
+        printerStatus={{
+          connected: true,
+          config: { ...mockPrinterConfig, supportsIpp: false },
+        }}
       />
     );
+    await expectTextWithIcon('Connected', 'circle-check');
+  });
 
-    await expectTextWithIcon('Ready', 'circle-check');
-    await expectTextWithIcon('Toner Level: 100%', 'circle-check');
+  test('displays IPP connected without status', async () => {
+    render(
+      <PrinterStatusDisplay
+        printerStatus={{
+          connected: true,
+          config: mockPrinterConfig,
+        }}
+      />
+    );
+    await expectTextWithIcon('Connected', 'spinner');
+  });
+
+  test('idle', async () => {
+    render(<PrinterStatusDisplay printerStatus={getMockPrinterStatus()} />);
+
+    await expectTextWithIcon('Ready to print', 'circle-check');
   });
 
   test('sleep mode and low toner', async () => {
     render(
-      <PrinterRichStatusDisplay
-        state="idle"
-        stateReasons={['sleep-mode']}
-        markerInfos={[
-          {
-            ...mockMarkerInfo,
-            level: 1,
-          },
-        ]}
+      <PrinterStatusDisplay
+        printerStatus={getMockPrinterStatus({
+          stateReasons: ['sleep-mode'],
+        })}
       />
     );
 
     await expectTextWithIcon(
-      'Ready - The printer is in sleep mode. Press any button on the printer to wake it.',
+      'Sleep mode is on - Press any button on the printer to wake it.',
       'circle-info'
     );
-    await expectTextWithIcon('Toner Level: 1%', 'triangle-exclamation');
   });
 
   test('while printing', async () => {
     render(
-      <PrinterRichStatusDisplay
-        state="processing"
-        stateReasons={['none']}
-        markerInfos={[mockMarkerInfo]}
+      <PrinterStatusDisplay
+        printerStatus={getMockPrinterStatus({
+          state: 'processing',
+        })}
       />
     );
 
-    await expectTextWithIcon('Processing', 'spinner');
+    await expectTextWithIcon('Printing', 'spinner');
   });
 
-  test('while stopped', async () => {
+  test('while stopped without reason', async () => {
     render(
-      <PrinterRichStatusDisplay
-        state="stopped"
-        stateReasons={['media-low']}
-        markerInfos={[mockMarkerInfo]}
+      <PrinterStatusDisplay
+        printerStatus={getMockPrinterStatus({
+          state: 'stopped',
+          stateReasons: [],
+        })}
+      />
+    );
+
+    await expectTextWithIcon('Stopped', 'triangle-exclamation');
+  });
+
+  test('while stopped with reason', async () => {
+    render(
+      <PrinterStatusDisplay
+        printerStatus={getMockPrinterStatus({
+          state: 'stopped',
+          stateReasons: ['media-needed-warning'],
+        })}
       />
     );
 
     await expectTextWithIcon(
-      'Stopped - The printer is low on paper. Add paper to the printer.',
+      'Stopped - The printer is out of paper. Add paper to the printer.',
       'triangle-exclamation'
     );
   });
 
-  test('shows unknown state reasons', async () => {
+  test('shows unknown reasons', async () => {
     render(
-      <PrinterRichStatusDisplay
-        state="stopped"
-        stateReasons={['something-random-warning']}
-        markerInfos={[mockMarkerInfo]}
+      <PrinterStatusDisplay
+        printerStatus={getMockPrinterStatus({
+          state: 'stopped',
+          stateReasons: ['something-new-warning'],
+        })}
       />
     );
 
-    await expectTextWithIcon(
-      'Stopped - something-random',
-      'triangle-exclamation'
+    await expectTextWithIcon('Stopped - something-new', 'triangle-exclamation');
+  });
+});
+
+describe('PrinterStatusDisplay marker info', () => {
+  test('full marker info', async () => {
+    render(<PrinterStatusDisplay printerStatus={getMockPrinterStatus()} />);
+    await expectTextWithIcon('Toner Level: 100%', 'circle-check');
+  });
+
+  test('low toner', async () => {
+    render(
+      <PrinterStatusDisplay
+        printerStatus={getMockPrinterStatus({
+          markerInfos: [{ ...mockMarkerInfo, level: 2 }],
+        })}
+      />
     );
+    await expectTextWithIcon('Toner Level: 2%', 'triangle-exclamation');
   });
 });

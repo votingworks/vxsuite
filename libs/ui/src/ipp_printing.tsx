@@ -1,18 +1,8 @@
-import { Optional } from '@votingworks/basics';
-import {
-  IppPrinterState,
-  IppPrinterStateReason,
-  PrinterRichStatus,
-} from '@votingworks/types';
+import { Optional, throwIllegalValue } from '@votingworks/basics';
+import { IppPrinterStateReason, PrinterStatus } from '@votingworks/types';
 import React from 'react';
 import { Icons } from './icons';
 import { P } from './typography';
-
-const IPP_PRINTER_STATE_DISPLAY_TEXT: Record<IppPrinterState, string> = {
-  idle: 'Ready',
-  processing: 'Processing',
-  stopped: 'Stopped',
-};
 
 /**
  * IPP printer-state-reasons explain what's going on with a printer in detail.
@@ -28,8 +18,6 @@ const IPP_PRINTER_STATE_DISPLAY_TEXT: Record<IppPrinterState, string> = {
 export const IPP_PRINTER_STATE_REASON_MESSAGES: {
   [reason: IppPrinterStateReason]: string;
 } = {
-  'sleep-mode':
-    'The printer is in sleep mode. Press any button on the printer to wake it.', // Custom reason added by us
   'media-needed': 'The printer is out of paper. Add paper to the printer.',
   'media-jam': 'The printer has a paper jam. Open cover and remove paper.',
   'moving-to-paused': 'The printer is pausing. Restart the printer.',
@@ -93,39 +81,88 @@ export function parseHighestPriorityIppPrinterStateReason(
     .map(([reason]) => reason)[0];
 }
 
-export function PrinterRichStatusDisplay({
-  state,
-  stateReasons,
-  markerInfos,
-}: PrinterRichStatus): JSX.Element {
+export function PrinterStatusDisplay({
+  printerStatus,
+}: {
+  printerStatus: PrinterStatus;
+}): JSX.Element {
+  if (printerStatus.connected === false) {
+    return (
+      <P>
+        <Icons.Info /> No compatible printer detected
+      </P>
+    );
+  }
+
+  const { config, richStatus } = printerStatus;
+
+  if (!config.supportsIpp) {
+    return (
+      <P>
+        <Icons.Done color="success" /> Connected
+      </P>
+    );
+  }
+
+  if (!richStatus) {
+    return (
+      <P>
+        <Icons.Loading /> Connected
+      </P>
+    );
+  }
+
+  const { state, stateReasons } = richStatus;
   const highestPriorityStateReason =
     parseHighestPriorityIppPrinterStateReason(stateReasons);
-  const marker = markerInfos[0];
-  const markerLow = marker.level <= marker.lowLevel;
 
+  const statusMessage = (() => {
+    switch (state) {
+      case 'idle':
+        if (highestPriorityStateReason === 'sleep-mode') {
+          return (
+            <P>
+              <Icons.Info /> Sleep mode is on - Press any button on the printer
+              to wake it.
+            </P>
+          );
+        }
+
+        return (
+          <P>
+            <Icons.Done color="success" /> Ready to print
+          </P>
+        );
+      case 'processing':
+        return (
+          <P>
+            <Icons.Loading /> Printing
+          </P>
+        );
+      case 'stopped':
+        return (
+          <P>
+            <Icons.Warning color="warning" /> Stopped
+            {highestPriorityStateReason
+              ? ` - ${
+                  IPP_PRINTER_STATE_REASON_MESSAGES[
+                    highestPriorityStateReason
+                  ] ?? highestPriorityStateReason
+                }`
+              : ''}
+          </P>
+        );
+      /* istanbul ignore next */
+      default:
+        throwIllegalValue(state);
+    }
+  })();
+
+  const marker = richStatus.markerInfos[0];
+  const markerLow = marker.level <= marker.lowLevel;
   return (
     <React.Fragment>
-      <P>
-        {state === 'stopped' ? (
-          <Icons.Warning color="warning" />
-        ) : state === 'processing' ? (
-          <Icons.Loading />
-        ) : highestPriorityStateReason === 'sleep-mode' ? (
-          // Sleep mode doesn't indicate any problem, but we want to display it
-          // differently than plain "idle" to encourage waking it up and showing
-          // any currently hidden status messages.
-          <Icons.Info />
-        ) : (
-          <Icons.Done color="success" />
-        )}{' '}
-        {IPP_PRINTER_STATE_DISPLAY_TEXT[state]}
-        {highestPriorityStateReason
-          ? ` - ${
-              IPP_PRINTER_STATE_REASON_MESSAGES[highestPriorityStateReason] ??
-              highestPriorityStateReason
-            }`
-          : ''}
-      </P>
+      {statusMessage}{' '}
       <P>
         {markerLow ? (
           <Icons.Warning color="warning" />
