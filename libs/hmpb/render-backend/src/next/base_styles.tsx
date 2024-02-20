@@ -14,7 +14,7 @@ const baseStyles = `
     box-sizing: border-box;
     font-family: Vx Roboto;
     font-variant-ligatures: none;
-    font-size: 12pt;
+    font-size: 11pt;
     line-height: 1.2;
   }
 

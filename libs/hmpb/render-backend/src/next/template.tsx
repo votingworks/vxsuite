@@ -21,6 +21,15 @@ import {
   TimingMark,
 } from './ballot_components';
 import { InchDimensions, PixelDimensions } from './types';
+import {
+  InstructionsDiagramFillBubble,
+  InstructionsDiagramWriteIn,
+} from './svg_assets';
+
+const Colors = {
+  BLACK: '#000000',
+  GRAY: '#EDEDED',
+} as const;
 
 export interface BallotProps {
   election: Election;
@@ -98,16 +107,7 @@ function TimingMarkGrid({ children }: { children: React.ReactNode }) {
         }}
       >
         {timingMarkColumn}
-        <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            flexDirection: 'column',
-            padding: '0.125in',
-          }}
-        >
-          {children}
-        </div>
+        {children}
         {timingMarkColumn}
       </div>
       {timingMarkRow}
@@ -151,36 +151,90 @@ function Header({
   }).format(new Date(election.date));
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'auto 1fr',
-          gap: '0.75rem',
-          alignItems: 'center',
-        }}
-      >
-        <img
-          style={{ height: '100%', marginTop: '0.125rem' }}
-          src={`data:image/svg+xml;base64,${Buffer.from(election.seal).toString(
-            'base64'
-          )}`}
-        />
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'auto 1fr',
+        gap: '0.75rem',
+        alignItems: 'center',
+        paddingBottom: '0.125rem',
+      }}
+    >
+      <img
+        style={{ height: '100%', marginTop: '0.125rem' }}
+        src={`data:image/svg+xml;base64,${Buffer.from(election.seal).toString(
+          'base64'
+        )}`}
+      />
+      <div>
+        <h1>
+          {ballotTitle}
+          {party && ` • ${party}`}
+        </h1>
+        <h3>
+          {election.title} • {date}
+        </h3>
         <div>
-          <h1>
-            {ballotTitle}
-            {party && ` • ${party}`}
-          </h1>
-          <h3>
-            {election.title} • {date}
-          </h3>
-          <div>
-            {precinct.name}, {election.county.name}, {election.state}
-          </div>
+          {precinct.name}, {election.county.name}, {election.state}
         </div>
       </div>
-      <div>Instructions</div>
     </div>
+  );
+}
+
+const Box = styled.div<{ fill?: 'transparent' | 'tinted' }>`
+  border: 1px solid ${Colors.BLACK};
+  border-top-width: 3px;
+  padding: 0.5rem;
+  background-color: ${(p) => (p.fill === 'tinted' ? Colors.GRAY : 'none')};
+`;
+
+function Instructions() {
+  return (
+    <Box
+      fill="tinted"
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        gap: '0.75rem',
+      }}
+    >
+      <div
+        style={{
+          flex: '3 1 0',
+          display: 'flex',
+          gap: '0.5rem',
+        }}
+      >
+        <div>
+          <h3>Instructions</h3>
+          <b>To Vote:</b>
+          <div>To vote, completely fill in the oval next to your choice.</div>
+        </div>
+        <div style={{ minWidth: '7rem', alignSelf: 'center' }}>
+          <InstructionsDiagramFillBubble />
+        </div>
+      </div>
+      <div
+        style={{
+          flex: '4 1 0',
+          display: 'flex',
+          gap: '0.5rem',
+        }}
+      >
+        <div>
+          <b>To Vote for a Write-In:</b>
+          <div>
+            To vote for a person whose name is not on the ballot, write the
+            person’s name on the "write-in" line and completely fill in the oval
+            next to the line.
+          </div>
+        </div>
+        <div style={{ minWidth: '8rem', alignSelf: 'center' }}>
+          <InstructionsDiagramWriteIn />
+        </div>
+      </div>
+    </Box>
   );
 }
 
@@ -246,28 +300,41 @@ function BallotPageFrame({
       margins={pageMargins}
     >
       <TimingMarkGrid>
-        {pageNumber === 1 && (
-          <Header
-            election={election}
-            ballotStyle={ballotStyle}
-            precinct={precinct}
-            ballotType={ballotType}
-            ballotMode={ballotMode}
-          />
-        )}
         <div
           style={{
             flex: 1,
-            // Prevent this flex item from overflowing its container
-            // https://stackoverflow.com/a/66689926
-            minHeight: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.75rem',
+            padding: '0.125in',
           }}
         >
-          {children}
+          {pageNumber === 1 && (
+            <>
+              <Header
+                election={election}
+                ballotStyle={ballotStyle}
+                precinct={precinct}
+                ballotType={ballotType}
+                ballotMode={ballotMode}
+              />
+              <Instructions />
+            </>
+          )}
+          <div
+            style={{
+              flex: 1,
+              // Prevent this flex item from overflowing its container
+              // https://stackoverflow.com/a/66689926
+              minHeight: 0,
+            }}
+          >
+            {children}
+          </div>
+          <Footer>
+            Page: {pageNumber}/{totalPages}
+          </Footer>
         </div>
-        <Footer>
-          Page: {pageNumber}/{totalPages}
-        </Footer>
       </TimingMarkGrid>
     </Page>
   );

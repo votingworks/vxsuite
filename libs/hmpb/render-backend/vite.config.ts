@@ -50,7 +50,8 @@ export default defineConfig(async (env) => {
         // built-in NodeJS module.
         { find: 'buffer', replacement: require.resolve('buffer/') },
         { find: 'fs', replacement: join(__dirname, './src/stubs/fs.ts') },
-        // { find: 'path', replacement: require.resolve('path/') },
+        { find: 'os', replacement: join(__dirname, './src/stubs/os.ts') },
+        { find: 'path', replacement: require.resolve('path/') },
         // { find: 'util', replacement: require.resolve('util/'), },
 
         // Create aliases for all workspace packages, i.e.
