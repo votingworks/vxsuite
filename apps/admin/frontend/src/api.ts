@@ -528,6 +528,22 @@ export const getDiagnosticRecords = {
   },
 } as const;
 
+export const getApplicationDiskSpaceSummary = {
+  queryKey(): QueryKey {
+    return ['getApplicationDiskSpaceSummary'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getApplicationDiskSpaceSummary(),
+      {
+        refetchOnMount: true,
+      }
+    );
+  },
+} as const;
+
 // Grouped Invalidations
 
 function invalidateCastVoteRecordQueries(queryClient: QueryClient) {

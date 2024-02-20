@@ -19,7 +19,7 @@ import type {
   TallyReportWarning,
   DiagnosticsRecord,
 } from '@votingworks/admin-backend';
-import { BatteryInfo } from '@votingworks/backend';
+import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
 import { FileSystemEntry, FileSystemEntryType } from '@votingworks/fs';
 import { Result, deferred, ok } from '@votingworks/basics';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
@@ -477,6 +477,16 @@ export function createApiMock(
 
     expectAddDiagnosticRecord(record: Omit<DiagnosticsRecord, 'timestamp'>) {
       apiClient.addDiagnosticRecord.expectCallWith(record).resolves();
+    },
+
+    expectGetApplicationDiskSpaceSummary(summary?: DiskSpaceSummary) {
+      apiClient.getApplicationDiskSpaceSummary.expectCallWith().resolves(
+        summary ?? {
+          available: 1,
+          used: 1,
+          total: 2,
+        }
+      );
     },
 
     expectGetResultsForTallyReports(

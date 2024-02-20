@@ -45,6 +45,7 @@ import {
 } from '@votingworks/utils';
 import { dirSync } from 'tmp';
 import {
+  DiskSpaceSummary,
   ElectionPackageError,
   ElectionPackageWithFileContents,
   ExportDataError,
@@ -1073,6 +1074,10 @@ function buildApi({
         logger,
         userRole: assertDefined(await getUserRole()),
       });
+    },
+
+    async getApplicationDiskSpaceSummary(): Promise<DiskSpaceSummary> {
+      return workspace.getDiskSpaceSummary();
     },
 
     ...createSystemCallApi({
