@@ -366,7 +366,8 @@ function loadMetadataAndInterpretBallot(
 
 export function buildMachine(
   initialContext: Context,
-  auth: InsertedSmartCardAuthApi
+  auth: InsertedSmartCardAuthApi,
+  logger: Logger
 ): StateMachine<
   Context,
   StateSchema,
@@ -539,7 +540,10 @@ export function buildMachine(
                 // Heavier paper can fail to eject completely and trigger a jam state even though the paper isn't physically jammed.
                 // To work around this, we avoid ejecting to front. Instead, we present the paper so it's held by the device in a
                 // stable non-jam state. We instruct the poll worker to remove the paper directly from the 'presenting' state.
-                entry: async (context) => await context.driver.presentPaper(),
+                entry: async (context) => {
+                  await logger.log(LogEventId.BlankInterpretation, 'system');
+                  await context.driver.presentPaper();
+                },
                 on: { NO_PAPER_ANYWHERE: 'accepting_paper' },
               },
               accepting_paper: {
@@ -844,7 +848,7 @@ export async function getPaperHandlerStateMachine({
     authPollingIntervalMs,
   };
 
-  const machine = buildMachine(initialContext, auth);
+  const machine = buildMachine(initialContext, auth, logger);
   const machineService = interpret(machine).start();
   setUpLogging(machineService, logger);
   await setDefaults(driver);
@@ -953,12 +957,15 @@ export async function getPaperHandlerStateMachine({
       machineService.send({
         type: 'VOTER_VALIDATED_BALLOT',
       });
+      void logger.log(LogEventId.VoteCast, 'cardless_voter');
     },
 
     invalidateBallot(): void {
       machineService.send({
         type: 'VOTER_INVALIDATED_BALLOT',
       });
+
+      void logger.log(LogEventId.BallotInvalidated, 'cardless_voter');
     },
 
     setPatDeviceIsCalibrated(): void {

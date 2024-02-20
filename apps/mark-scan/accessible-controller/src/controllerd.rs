@@ -1,15 +1,31 @@
+//! Daemon whose purpose is to expose signal from VSAP's accessible controller
+//! to the mark-scan application.
+//!
+//! Signal from the accessible controller is available in userspace over
+//! the serialport protocol. The daemon connects to the controller and polls
+//! for change in signal value. When a button press is detected, it sends
+//! a keypress event for consumption by the mark-scan application.
+
 use serialport::{self, SerialPort};
 use std::{
-    io, thread,
+    io,
+    process::exit,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
+    thread,
     time::{Duration, Instant},
 };
 use uinput::{
     event::{keyboard, Keyboard},
     Device,
 };
+use vx_logging::{log, set_app_name, Disposition, EventId, EventType};
 
-const POLL_INTERVAL: Duration = Duration::from_millis(10);
-const MAX_ECHO_RESPONSE_WAIT: Duration = Duration::from_secs(1);
+const APP_NAME: &str = "vx-mark-scan-controller-daemon";
+const POLL_INTERVAL: Duration = Duration::from_millis(50);
+const MAX_ECHO_RESPONSE_WAIT: Duration = Duration::from_secs(5);
 const UINPUT_PATH: &str = "/dev/uinput";
 const DEVICE_PATH: &str = "/dev/ttyACM1";
 const DEVICE_BAUD_RATE: u32 = 9600;
@@ -200,11 +216,11 @@ enum Action {
 
 fn send_key(device: &mut Device, key: keyboard::Key) -> Result<(), CommandError> {
     device.click(&key)?;
-    device.synchronize().unwrap();
+    device.synchronize()?;
     Ok(())
 }
 
-fn handle_command(device: &mut Device, data: &[u8]) -> Result<(), CommandError> {
+fn handle_command(data: &[u8]) -> Result<Option<keyboard::Key>, CommandError> {
     let ButtonStatusCommand { button, action } = data.try_into()?;
 
     let key: keyboard::Key;
@@ -244,18 +260,17 @@ fn handle_command(device: &mut Device, data: &[u8]) -> Result<(), CommandError> 
         },
         Action::Released => {
             // Button release is a no-op since we already sent the keypress event
-            return Ok(());
+            return Ok(None);
         }
     }
-
-    send_key(device, key)
+    Ok(Some(key))
 }
 
 fn validate_connection(port: &mut Box<dyn SerialPort>) -> Result<(), io::Error> {
     let echo_command = EchoCommand::new(vec![0x01, 0x02, 0x03, 0x04, 0x05]);
     let echo_command: Vec<u8> = echo_command.into();
     match port.write(&echo_command) {
-        Ok(_) => println!("Echo command sent"),
+        Ok(_) => log!(EventId::ControllerHandshakeInit; EventType::SystemAction),
         Err(error) => eprintln!("{error:?}"),
     }
 
@@ -271,11 +286,22 @@ fn validate_connection(port: &mut Box<dyn SerialPort>) -> Result<(), io::Error> 
                     "Received different response from echo command: {echo_response:x?}"
                 );
 
-                println!("Received valid echo command response");
+                log!(
+                    event_id: EventId::ControllerHandshakeComplete,
+                    event_type: EventType::SystemAction,
+                    disposition: Disposition::Success
+                );
                 return Ok(());
             }
             Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
-            Err(e) => eprintln!("Error reading echo response: {e:?}"),
+            Err(e) => {
+                log!(
+                    event_id: EventId::ControllerHandshakeComplete,
+                    message: format!("Error reading echo response: {e:?}"),
+                    event_type: EventType::SystemAction,
+                    disposition: Disposition::Failure
+                );
+            }
         }
 
         if start_time.elapsed() >= MAX_ECHO_RESPONSE_WAIT {
@@ -285,6 +311,12 @@ fn validate_connection(port: &mut Box<dyn SerialPort>) -> Result<(), io::Error> 
         thread::sleep(POLL_INTERVAL);
     }
 
+    log!(
+        event_id: EventId::ControllerHandshakeComplete,
+        message: "No echo response received".to_string(),
+        event_type: EventType::SystemAction,
+        disposition: Disposition::Failure
+    );
     Err(io::Error::new(
         io::ErrorKind::TimedOut,
         "No echo response received",
@@ -303,42 +335,107 @@ fn create_virtual_device() -> Device {
 }
 
 fn main() {
+    set_app_name(APP_NAME);
+    log!(
+        EventId::ProcessStarted;
+        EventType::SystemAction
+    );
+
+    let running = Arc::new(AtomicBool::new(true));
+
+    if let Err(e) = ctrlc::set_handler({
+        let running = running.clone();
+        move || {
+            running.store(false, Ordering::SeqCst);
+        }
+    }) {
+        log!(
+            event_id: EventId::ErrorSettingSigintHandler,
+            message: e.to_string(),
+            event_type: EventType::SystemStatus
+        );
+    }
+
+    // Create virtual device for keypress events
+    log!(
+        EventId::CreateVirtualUinputDeviceInit;
+        EventType::SystemAction
+    );
+    let mut device = create_virtual_device();
+    // Wait for virtual device to register
+    thread::sleep(Duration::from_secs(1));
+    log!(
+        event_id: EventId::CreateVirtualUinputDeviceComplete,
+        disposition: Disposition::Success,
+        event_type: EventType::SystemAction
+    );
+
+    log!(
+        EventId::ControllerConnectionInit;
+        EventType::SystemAction
+    );
+
     // Open the serial port
     let port = serialport::new(DEVICE_PATH, DEVICE_BAUD_RATE)
         .timeout(POLL_INTERVAL)
         .open();
 
-    println!("Opened controller serial port at {DEVICE_PATH}");
-
-    // Create virtual device for keypress events
-    let mut device = create_virtual_device();
-    println!("Created virtual device");
-
-    // Wait for virtual device to register
-    thread::sleep(Duration::from_secs(1));
-
     match port {
         Ok(mut port) => {
             validate_connection(&mut port).unwrap();
 
-            println!("Receiving data on {DEVICE_PATH} at {DEVICE_BAUD_RATE} baud");
+            log!(
+                event_id: EventId::ControllerConnectionComplete,
+                message: format!("Receiving data on {DEVICE_PATH} at {DEVICE_BAUD_RATE} baud"),
+                event_type: EventType::SystemAction,
+                disposition: Disposition::Success
+            );
 
             let mut serial_buf: Vec<u8> = vec![0; 1000];
             loop {
+                if !running.load(Ordering::SeqCst) {
+                    log!(
+                        EventId::ProcessTerminated;
+                        EventType::SystemAction
+                    );
+                    exit(0);
+                }
                 match port.read(serial_buf.as_mut_slice()) {
-                    Ok(size) => {
-                        if let Err(e) = handle_command(&mut device, &serial_buf[..size]) {
-                            eprintln!("Unexpected error handling command: {e}");
+                    Ok(size) => match handle_command(&serial_buf[..size]) {
+                        Ok(Some(key)) => {
+                            if let Err(err) = send_key(&mut device, key) {
+                                log!(EventId::UnknownError, "Error sending key: {err}");
+                            }
                         }
-                    }
+                        Ok(None) => {}
+                        Err(err) => log!(
+                            event_id: EventId::UnknownError,
+                            message: format!(
+                                "Unexpected error when handling controller command: {err}"
+                            ),
+                            event_type: EventType::SystemStatus
+                        ),
+                    },
                     // Timeout error just means no event was sent in the current polling period
                     Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
-                    Err(e) => eprintln!("{e:?}"),
+                    Err(e) => {
+                        log!(
+                            event_id: EventId::UnknownError,
+                            message: format!("Unexpected error when opening serial port: {e}"),
+                            event_type: EventType::SystemStatus
+                        );
+                    }
                 }
             }
         }
         Err(e) => {
-            panic!(r#"Failed to open "{DEVICE_PATH}". Error: {e}"#);
+            log!(
+                event_id: EventId::ControllerConnectionComplete,
+                message: format!("Failed to open {DEVICE_PATH}. Error: {e}"),
+                event_type: EventType::SystemAction,
+                disposition: Disposition::Failure
+            );
+            exit(1);
         }
     }
 }
@@ -347,13 +444,10 @@ fn main() {
 mod tests {
     use super::*;
 
-    const DEVICE_WAIT_DURATION: Duration = Duration::from_millis(100);
-
     #[test]
     fn test_handle_command_packet_length_error() {
-        let mut device = create_virtual_device();
         let bad_data = [0x01];
-        match handle_command(&mut device, &bad_data) {
+        match handle_command(&bad_data) {
             Err(CommandError::UnexpectedPacketSize(size)) => assert_eq!(size, 1),
             result => panic!("Unexpected result: {result:?}"),
         }
@@ -362,9 +456,8 @@ mod tests {
     #[test]
     fn test_handle_command_data_length() {
         let bad_data_length: u8 = 0x03;
-        let mut device = create_virtual_device();
         let bad_data = [0x30, 0x00, bad_data_length, 0x00, 0x00, 0x00, 0x00];
-        match handle_command(&mut device, &bad_data) {
+        match handle_command(&bad_data) {
             Err(CommandError::UnexpectedDataLength(length)) => {
                 assert_eq!(length, bad_data_length as u16)
             }
@@ -374,11 +467,6 @@ mod tests {
 
     #[test]
     fn test_handle_command_success() {
-        let mut device = create_virtual_device();
-        // In prod we wait 1s for the device to register.
-        // We can afford to be riskier to speed up tests.
-        thread::sleep(DEVICE_WAIT_DURATION);
-
         let data = [
             0x30,
             0x00,
@@ -388,6 +476,6 @@ mod tests {
             0xc8,
             0x37,
         ];
-        handle_command(&mut device, &data).unwrap();
+        assert_eq!(handle_command(&data).unwrap().unwrap(), keyboard::Key::R);
     }
 }
