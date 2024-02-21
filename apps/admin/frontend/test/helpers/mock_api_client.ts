@@ -17,7 +17,6 @@ import type {
   ExportDataError,
   TallyReportSpec,
   TallyReportWarning,
-  DiagnosticsRecord,
 } from '@votingworks/admin-backend';
 import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
 import { FileSystemEntry, FileSystemEntryType } from '@votingworks/fs';
@@ -34,6 +33,7 @@ import {
   Admin,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
+  DiagnosticsRecord,
   DippedSmartCardAuth,
   ElectionDefinition,
   Id,

@@ -7,6 +7,9 @@ import {
   CastVoteRecordExportFileName,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
+  DiagnosticsHardware,
+  DiagnosticsOutcome,
+  DiagnosticsRecord,
   Id,
   PrinterStatus,
   SystemSettings,
@@ -81,9 +84,6 @@ import {
   WriteInCandidateRecord,
   WriteInAdjudicationContext,
   WriteInImageView,
-  DiagnosticsHardware,
-  DiagnosticsOutcome,
-  DiagnosticsRecord,
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';

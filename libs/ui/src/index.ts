@@ -14,6 +14,7 @@ export * from './checkbox_group';
 export * from './contest_choice_button';
 export * from './voter_settings';
 export * from './voter_settings_manager_context';
+export * from './diagnostics';
 export * from './error_boundary';
 export * from './election_info_bar';
 export * from './file_input_button';

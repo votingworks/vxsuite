@@ -21,6 +21,9 @@ import {
   BallotStyleId,
   ContestId,
   ContestOptionId,
+  DiagnosticsHardware,
+  DiagnosticsOutcome,
+  DiagnosticsRecord,
   DistrictId,
   Election,
   Id,
@@ -77,9 +80,6 @@ import {
   WriteInAdjudicationActionWriteInCandidate,
   CastVoteRecordAdjudicationFlags,
   WriteInAdjudicationActionReset,
-  DiagnosticsHardware,
-  DiagnosticsOutcome,
-  DiagnosticsRecord,
 } from './types';
 import { rootDebug } from './util/debug';
 
