@@ -212,3 +212,17 @@ describe('disk space summary', () => {
     );
   });
 });
+
+test('printing the readiness report', async () => {
+  apiMock.setPrinterStatus({ connected: true });
+  apiMock.expectGetApplicationDiskSpaceSummary();
+  apiMock.expectGetDiagnosticsRecords([]);
+  renderInAppContext(<HardwareDiagnosticsScreen />, {
+    apiMock,
+  });
+
+  apiMock.apiClient.printReadinessReport.expectCallWith().resolves();
+  userEvent.click(await screen.findButton('Print Readiness Report'));
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText('Printing');
+});
