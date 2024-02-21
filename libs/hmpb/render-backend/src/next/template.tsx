@@ -1,16 +1,25 @@
-import { assertDefined, iter, range } from '@votingworks/basics';
+import {
+  assertDefined,
+  iter,
+  range,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import React from 'react';
 import styled from 'styled-components';
 import {
+  AnyContest,
   BallotStyle,
   BallotType,
   CandidateContest,
   Election,
   Precinct,
+  YesNoContest,
+  getCandidatePartiesDescription,
+  getContests,
   getPartyForBallotStyle,
 } from '@votingworks/types';
-import { BallotMode } from '@votingworks/hmpb-layout';
+import { BallotMode, layOutInColumns } from '@votingworks/hmpb-layout';
 import { BallotPageTemplate, PagedElementResult } from './render_ballot';
 import { RenderScratchpad } from './renderer';
 import {
@@ -29,7 +38,8 @@ import {
 
 const Colors = {
   BLACK: '#000000',
-  GRAY: '#EDEDED',
+  LIGHT_GRAY: '#EDEDED',
+  DARK_GRAY: '#DADADA',
 } as const;
 
 export interface BallotProps {
@@ -186,8 +196,9 @@ function Header({
 const Box = styled.div<{ fill?: 'transparent' | 'tinted' }>`
   border: 1px solid ${Colors.BLACK};
   border-top-width: 3px;
-  padding: 0.5rem;
-  background-color: ${(p) => (p.fill === 'tinted' ? Colors.GRAY : 'none')};
+  padding: 0.75rem;
+  background-color: ${(p) =>
+    p.fill === 'tinted' ? Colors.LIGHT_GRAY : 'none'};
 `;
 
 function Instructions() {
@@ -198,6 +209,7 @@ function Instructions() {
         display: 'flex',
         justifyContent: 'space-between',
         gap: '0.75rem',
+        padding: '0.5rem 0.75rem',
       }}
     >
       <div
@@ -291,28 +303,6 @@ function Footer({
   );
 }
 
-const ContestBox = styled.div`
-  background-color: #eee;
-  border: 1px solid black;
-  padding: 1rem;
-`;
-
-function Contest({ contest }: { contest: CandidateContest }) {
-  return (
-    <ContestBox className="contest">
-      <div>{contest.title}</div>
-      <ul style={{ listStyleType: 'none' }}>
-        {contest.candidates.map((candidate) => (
-          <li key={candidate.id} style={{ display: 'flex' }}>
-            <Bubble contestId={contest.title} optionId={candidate.id} />{' '}
-            {candidate.name}
-          </li>
-        ))}
-      </ul>
-    </ContestBox>
-  );
-}
-
 function BallotPageFrame({
   election,
   ballotStyle,
@@ -373,74 +363,244 @@ function BallotPageFrame({
   );
 }
 
-/**
- * Here we use a simple single-column layout, but we could also use more complex
- * algorithms. The key is that the template has full control to determine:
- * - How many contests fit on each page
- * - How to lay out those contests
- * We can use this approach to implement complex behavior such as contest
- * sections and multi-column layouts.
- */
+function CandidateContest({
+  election,
+  contest,
+}: {
+  election: Election;
+  contest: CandidateContest;
+}) {
+  return (
+    <Box
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        padding: 0,
+      }}
+    >
+      <div
+        style={{
+          background: Colors.LIGHT_GRAY,
+          padding: '0.5rem 0.75rem',
+        }}
+      >
+        <h4>{contest.title}</h4>
+        <div>
+          {contest.seats === 1
+            ? 'Vote for 1'
+            : `Vote for up to ${contest.seats}`}
+        </div>
+        {contest.termDescription && <div>{contest.termDescription}</div>}
+      </div>
+      <ul
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+      >
+        {contest.candidates.map((candidate, i) => {
+          const partyText =
+            election.type === 'primary'
+              ? undefined
+              : getCandidatePartiesDescription(election, candidate);
+          return (
+            <li
+              key={candidate.id}
+              style={{
+                padding: '0.375rem 0.75rem',
+                borderTop:
+                  i !== 0 ? `1px solid ${Colors.DARK_GRAY}` : undefined,
+              }}
+            >
+              <div
+                style={{
+                  display: 'grid',
+                  columnGap: '0.5rem',
+                  gridTemplateColumns: 'min-content 1fr',
+                  alignItems: 'center',
+                }}
+              >
+                <div style={{ marginTop: '0.05rem' }}>
+                  <Bubble contestId={contest.title} optionId={candidate.id} />
+                </div>
+                <strong>{candidate.name}</strong>
+                {partyText && (
+                  <>
+                    <div />
+                    <div>{partyText}</div>
+                  </>
+                )}
+              </div>
+            </li>
+          );
+        })}
+        {contest.allowWriteIns &&
+          range(0, contest.seats).map((writeInIndex) => {
+            const writeInId = `write-in-${writeInIndex}`;
+            return (
+              <li
+                key={writeInId}
+                style={{
+                  display: 'grid',
+                  columnGap: '0.5rem',
+                  gridTemplateColumns: 'min-content 1fr',
+                  padding: '0.375rem 0.75rem',
+                  paddingTop: '0.9rem',
+                  borderTop: `1px solid ${Colors.DARK_GRAY}`,
+                }}
+              >
+                <div style={{ marginTop: '0.05rem' }}>
+                  <Bubble contestId={contest.title} optionId={writeInId} />
+                </div>
+                <div>
+                  <div>
+                    <div
+                      style={{
+                        borderBottom: `1px solid ${Colors.BLACK}`,
+                        height: '1.25rem',
+                      }}
+                    />
+                    <div style={{ fontSize: '0.8rem' }}>write-in</div>
+                  </div>
+                </div>
+              </li>
+            );
+          })}
+      </ul>
+    </Box>
+  );
+}
+
+function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
+  return <div>{contest.title}</div>;
+}
+
+function Contest({
+  contest,
+  election,
+}: {
+  contest: AnyContest;
+  election: Election;
+}) {
+  switch (contest.type) {
+    case 'candidate':
+      return <CandidateContest election={election} contest={contest} />;
+    case 'yesno':
+      return <BallotMeasureContest contest={contest} />;
+    default:
+      return throwIllegalValue(contest);
+  }
+}
+
 async function BallotPageContent(
   {
     election,
+    ballotStyle,
     dimensions,
     ...props
   }: BallotProps & { dimensions: PixelDimensions },
   scratchpad: RenderScratchpad
 ): Promise<PagedElementResult<BallotProps>> {
-  const contestElements = election.contests.map(
-    (contest) =>
-      contest.type === 'candidate' && (
-        <Contest key={contest.title} contest={contest} />
-      )
-  );
-
-  const contestMeasurements = await scratchpad.measureElements(
-    <>
-      {contestElements.map((contest, i) => (
-        <div
-          className="contestWrapper"
-          key={i}
-          style={{ width: dimensions.width }}
-        >
-          {contest}
-        </div>
-      ))}
-    </>,
-    '.contestWrapper'
-  );
-  const measuredContests = iter(contestElements)
-    .zip(contestMeasurements)
-    .map(([element, measurements]) => ({ element, ...measurements }))
-    .toArray();
+  // For now, just one section for candidate contests, one for ballot measures.
+  // TODO support arbitrarily defined sections
+  const contests = getContests({ election, ballotStyle });
+  if (contests.length === 0) {
+    throw new Error('No contests assigned to this precinct.');
+  }
+  const contestSections = iter(election.contests)
+    .partition((contest) => contest.type === 'candidate')
+    .filter((section) => section.length > 0);
 
   // Add as many contests on this page as will fit.
-  const pageContests: React.ReactNode[] = [];
+  const contestSectionsLeftToLayout = contestSections;
+  const pageSections: JSX.Element[] = [];
   let heightUsed = 0;
-  while (measuredContests.length > 0) {
-    const nextContestHeight = measuredContests[0].height;
-    if (heightUsed + nextContestHeight > dimensions.height) {
+
+  while (contestSections.length > 0 && heightUsed < dimensions.height) {
+    const section = assertDefined(contestSectionsLeftToLayout.shift());
+    const contestElements = section.map((contest) => (
+      <Contest key={contest.id} contest={contest} election={election} />
+    ));
+    const numColumns = section[0].type === 'candidate' ? 3 : 1;
+    // TODO is there a better way to incorporate gutter width here?
+    const gutterWidthPx = 0.75 * 16; // Assuming 16px per 1rem
+    const columnWidthPx =
+      (dimensions.width - gutterWidthPx * (numColumns - 1)) / numColumns;
+    const contestMeasurements = await scratchpad.measureElements(
+      <>
+        {contestElements.map((contest, i) => (
+          <div
+            className="contestWrapper"
+            key={i}
+            style={{ width: `${columnWidthPx}px` }}
+          >
+            {contest}
+          </div>
+        ))}
+      </>,
+      '.contestWrapper'
+    );
+    const measuredContests = iter(contestElements)
+      .zip(contestMeasurements)
+      .map(([element, measurements]) => ({ element, ...measurements }))
+      .toArray();
+
+    const { columns, height, leftoverElements } = layOutInColumns({
+      elements: measuredContests,
+      numColumns,
+      maxColumnHeight: dimensions.height - heightUsed,
+      gap: gutterWidthPx,
+    });
+
+    // Put leftover elements back on the front of the queue
+    if (leftoverElements.length > 0) {
+      contestSectionsLeftToLayout.unshift(
+        leftoverElements.map(({ element }) => element.props.contest)
+      );
+    }
+
+    // If there wasn't enough room left for any contests, go to the next page
+    if (height === 0) {
       break;
     }
-    const nextContest = assertDefined(measuredContests.shift());
-    pageContests.push(nextContest.element);
-    heightUsed += nextContest.height;
+
+    heightUsed += height;
+    pageSections.push(
+      <div
+        key={`section-${pageSections.length + 1}`}
+        style={{ display: 'flex', gap: `${gutterWidthPx}px` }}
+      >
+        {columns.map((column, i) => (
+          <div
+            key={`column-${i}`}
+            style={{
+              flex: 1,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: `${gutterWidthPx}px`,
+            }}
+          >
+            {column.map(({ element }) => element)}
+          </div>
+        ))}
+      </div>
+    );
   }
 
   const currentPageElement =
-    pageContests.length > 0 ? (
-      <div>{pageContests}</div>
+    pageSections.length > 0 ? (
+      <div>{pageSections}</div>
     ) : (
       <div>This page left intentionally blank</div>
     );
   const nextPageProps =
-    measuredContests.length > 0
+    contestSectionsLeftToLayout.length > 0
       ? {
           ...props,
+          ballotStyle,
           election: {
             ...election,
-            contests: election.contests.slice(pageContests.length),
+            contests: contestSectionsLeftToLayout.flat(),
           },
         }
       : undefined;

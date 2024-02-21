@@ -44,6 +44,12 @@ const baseStyles = `
   h6 {
     font-size: 1em;
   }
+
+  ul, ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
 `;
 
 export const baseStyleElements = (

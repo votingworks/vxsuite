@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, deepEqual } from '@votingworks/basics';
 import {
   PdfOptions,
   RenderDocument,
@@ -66,6 +66,7 @@ async function paginateBallotContent<P extends object>(
   const pagedContentResults: Array<PagedElementResult<P>> = [];
 
   const { frameComponent, contentComponent } = pageTemplate;
+  let numLoopsWithSameProps = 0;
   do {
     const pageFrame = frameComponent({
       // eslint-disable-next-line vx/gts-spread-like-types
@@ -78,10 +79,24 @@ async function paginateBallotContent<P extends object>(
       pageFrame,
       `.${CONTENT_SLOT_CLASS}`
     );
-    console.log(contentSlotMeasurements);
     const currentPageProps: P =
       pagedContentResults[pagedContentResults.length - 1]?.nextPageProps ??
       props;
+
+    if (
+      deepEqual(
+        currentPageProps,
+        pagedContentResults[pagedContentResults.length - 2]?.nextPageProps
+      )
+    ) {
+      numLoopsWithSameProps += 1;
+    } else {
+      numLoopsWithSameProps = 0;
+    }
+    if (numLoopsWithSameProps > 1) {
+      throw new Error('Contest is too tall to fit on page');
+    }
+
     const pagedContentResult = await contentComponent(
       {
         // eslint-disable-next-line vx/gts-spread-like-types

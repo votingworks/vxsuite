@@ -1,11 +1,11 @@
 import './polyfills';
 import { BallotType } from '@votingworks/types';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { electionGeneral } from '@votingworks/fixtures';
 import { BallotProps, ballotPageTemplate, pageDimensions } from './template';
 import { renderBallotToPdf } from './render_ballot';
 import { createBrowserPreviewRenderer } from './browser_preview_renderer';
 
-const { election } = electionFamousNames2021Fixtures;
+const election = electionGeneral;
 const ballotStyle = election.ballotStyles[0];
 const precinct = election.precincts[0];
 export const exampleBallotProps: BallotProps = {
