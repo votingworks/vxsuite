@@ -2,7 +2,7 @@ import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
 import React from 'react';
 import { format } from '@votingworks/utils';
 import { H2, H6, P } from '../typography';
-import { Icons } from '../icons';
+import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
 
 export const FREE_DISK_SPACE_RATIO_WARN_THRESHOLD = 0.05;
 
@@ -22,11 +22,12 @@ function PowerSection({
   if (!batteryInfo) {
     return (
       <React.Fragment>
+        <H6 as="h3">Power</H6>
         <P>
-          <Icons.Done color="success" /> Battery Level: 100%
+          <SuccessIcon /> Battery Level: 100%
         </P>
         <P>
-          <Icons.Done color="success" /> Power Source: -
+          <SuccessIcon /> Power Source: Unknown
         </P>
       </React.Fragment>
     );
@@ -36,20 +37,16 @@ function PowerSection({
     <React.Fragment>
       <H6 as="h3">Power</H6>
       <P>
-        {warnOnBatteryInfo(batteryInfo) ? (
-          <Icons.Warning color="warning" />
-        ) : (
-          <Icons.Done color="success" />
-        )}{' '}
+        {warnOnBatteryInfo(batteryInfo) ? <WarningIcon /> : <SuccessIcon />}{' '}
         Battery Level: {format.percent(batteryInfo.level)}
       </P>
       {batteryInfo.discharging ? (
         <P>
-          <Icons.Info /> Power Source: Battery
+          <InfoIcon /> Power Source: Battery
         </P>
       ) : (
         <P>
-          <Icons.Done color="success" /> Power Source: External Power Supply
+          <SuccessIcon /> Power Source: External Power Supply
         </P>
       )}
     </React.Fragment>
@@ -69,9 +66,9 @@ function StorageSection({
       <H6 as="h3">Storage</H6>
       <P>
         {storageAvailableRatio < FREE_DISK_SPACE_RATIO_WARN_THRESHOLD ? (
-          <Icons.Warning color="warning" />
+          <WarningIcon />
         ) : (
-          <Icons.Done color="success" />
+          <SuccessIcon />
         )}{' '}
         Free Disk Space: {format.percent(storageAvailableRatio)} (
         {roundToGigabytes(diskSpaceSummary.available)} GB /{' '}
