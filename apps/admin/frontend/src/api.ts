@@ -538,7 +538,9 @@ export const getApplicationDiskSpaceSummary = {
       this.queryKey(),
       () => apiClient.getApplicationDiskSpaceSummary(),
       {
-        refetchOnMount: true,
+        // disk space availability could change between queries for a variety
+        // reasons, so always treat it as stale
+        staleTime: 0,
       }
     );
   },
