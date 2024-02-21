@@ -7870,30 +7870,39 @@
                       "height": 21.25,
                       "children": [
                         {
-                          "type": "TextBox",
+                          "type": "Rectangle",
                           "x": 0,
                           "y": 0,
                           "width": 496.59428571428566,
-                          "height": 11.25,
-                          "textLines": [
-                            "Retain Robert Demergue as Chief Justice?"
-                          ],
-                          "fontSize": 9,
-                          "fontWeight": 700,
-                          "lineHeight": 9
-                        },
-                        {
-                          "type": "TextBox",
-                          "x": 0,
-                          "y": 11.25,
-                          "width": 496.59428571428566,
-                          "height": 10,
-                          "textLines": [
-                            "Shall Robert Demergue be retained as Chief Justice of the Hamilton Court of Appeals?"
-                          ],
-                          "fontSize": 8,
-                          "fontWeight": 400,
-                          "lineHeight": 8
+                          "height": 21.25,
+                          "children": [
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 0,
+                              "width": 496.59428571428566,
+                              "height": 11.25,
+                              "textLines": [
+                                "Retain Robert Demergue as Chief Justice?"
+                              ],
+                              "fontSize": 9,
+                              "fontWeight": 700,
+                              "lineHeight": 9
+                            },
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 11.25,
+                              "width": 496.59428571428566,
+                              "height": 10,
+                              "textLines": [
+                                "Shall Robert Demergue be retained as Chief Justice of the Hamilton Court of Appeals?"
+                              ],
+                              "fontSize": 8,
+                              "fontWeight": 400,
+                              "lineHeight": 8
+                            }
+                          ]
                         }
                       ]
                     },
@@ -8010,30 +8019,39 @@
                       "height": 21.25,
                       "children": [
                         {
-                          "type": "TextBox",
+                          "type": "Rectangle",
                           "x": 0,
                           "y": 0,
                           "width": 496.59428571428566,
-                          "height": 11.25,
-                          "textLines": [
-                            "Retain Elmer Hull as Associate Justice?"
-                          ],
-                          "fontSize": 9,
-                          "fontWeight": 700,
-                          "lineHeight": 9
-                        },
-                        {
-                          "type": "TextBox",
-                          "x": 0,
-                          "y": 11.25,
-                          "width": 496.59428571428566,
-                          "height": 10,
-                          "textLines": [
-                            "Shall Elmer Hull be retained as Associate Justice of the Hamilton Court of Appeals?"
-                          ],
-                          "fontSize": 8,
-                          "fontWeight": 400,
-                          "lineHeight": 8
+                          "height": 21.25,
+                          "children": [
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 0,
+                              "width": 496.59428571428566,
+                              "height": 11.25,
+                              "textLines": [
+                                "Retain Elmer Hull as Associate Justice?"
+                              ],
+                              "fontSize": 9,
+                              "fontWeight": 700,
+                              "lineHeight": 9
+                            },
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 11.25,
+                              "width": 496.59428571428566,
+                              "height": 10,
+                              "textLines": [
+                                "Shall Elmer Hull be retained as Associate Justice of the Hamilton Court of Appeals?"
+                              ],
+                              "fontSize": 8,
+                              "fontWeight": 400,
+                              "lineHeight": 8
+                            }
+                          ]
                         }
                       ]
                     },
@@ -8150,32 +8168,41 @@
                       "height": 37.25,
                       "children": [
                         {
-                          "type": "TextBox",
+                          "type": "Rectangle",
                           "x": 0,
                           "y": 0,
                           "width": 496.59428571428566,
-                          "height": 11.25,
-                          "textLines": [
-                            "Question A: Recovery of Property Damages"
-                          ],
-                          "fontSize": 9,
-                          "fontWeight": 700,
-                          "lineHeight": 9
-                        },
-                        {
-                          "type": "TextBox",
-                          "x": 0,
-                          "y": 11.25,
-                          "width": 496.59428571428566,
-                          "height": 26,
-                          "textLines": [
-                            "Shall there be an amendment to the State constitution concerning recovery of damages relating to construction of real property",
-                            "improvements, and, in connection therewith, prohibiting laws that limit or impair a property owner's right to recover damages",
-                            "caused by a failure to construct an improvement in a good and workmanlike manner?"
-                          ],
-                          "fontSize": 8,
-                          "fontWeight": 400,
-                          "lineHeight": 8
+                          "height": 37.25,
+                          "children": [
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 0,
+                              "width": 496.59428571428566,
+                              "height": 11.25,
+                              "textLines": [
+                                "Question A: Recovery of Property Damages"
+                              ],
+                              "fontSize": 9,
+                              "fontWeight": 700,
+                              "lineHeight": 9
+                            },
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 11.25,
+                              "width": 496.59428571428566,
+                              "height": 26,
+                              "textLines": [
+                                "Shall there be an amendment to the State constitution concerning recovery of damages relating to construction of real property",
+                                "improvements, and, in connection therewith, prohibiting laws that limit or impair a property owner's right to recover damages",
+                                "caused by a failure to construct an improvement in a good and workmanlike manner?"
+                              ],
+                              "fontSize": 8,
+                              "fontWeight": 400,
+                              "lineHeight": 8
+                            }
+                          ]
                         }
                       ]
                     },
@@ -8292,38 +8319,47 @@
                       "height": 85.25,
                       "children": [
                         {
-                          "type": "TextBox",
+                          "type": "Rectangle",
                           "x": 0,
                           "y": 0,
                           "width": 496.59428571428566,
-                          "height": 11.25,
-                          "textLines": [
-                            "Question B: Separation of Powers"
-                          ],
-                          "fontSize": 9,
-                          "fontWeight": 700,
-                          "lineHeight": 9
-                        },
-                        {
-                          "type": "TextBox",
-                          "x": 0,
-                          "y": 11.25,
-                          "width": 496.59428571428566,
-                          "height": 74,
-                          "textLines": [
-                            "Shall there be amendments to the State constitution intended to have the collective effect of ensuring the separation of",
-                            "governmental power among the three branches of state government: the legislative branch, the executive branch and the judicial",
-                            "branch? ",
-                            "",
-                            "a. Article III, Section 6 of the Constitution shall be amended to read as follows: ",
-                            "",
-                            "Section 6. Holding of offices under other governments ",
-                            "",
-                            "Senators and representatives not to hold other appointed offices under state government."
-                          ],
-                          "fontSize": 8,
-                          "fontWeight": 400,
-                          "lineHeight": 8
+                          "height": 85.25,
+                          "children": [
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 0,
+                              "width": 496.59428571428566,
+                              "height": 11.25,
+                              "textLines": [
+                                "Question B: Separation of Powers"
+                              ],
+                              "fontSize": 9,
+                              "fontWeight": 700,
+                              "lineHeight": 9
+                            },
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 11.25,
+                              "width": 496.59428571428566,
+                              "height": 74,
+                              "textLines": [
+                                "Shall there be amendments to the State constitution intended to have the collective effect of ensuring the separation of",
+                                "governmental power among the three branches of state government: the legislative branch, the executive branch and the judicial",
+                                "branch? ",
+                                "",
+                                "a. Article III, Section 6 of the Constitution shall be amended to read as follows: ",
+                                "",
+                                "Section 6. Holding of offices under other governments ",
+                                "",
+                                "Senators and representatives not to hold other appointed offices under state government."
+                              ],
+                              "fontSize": 8,
+                              "fontWeight": 400,
+                              "lineHeight": 8
+                            }
+                          ]
                         }
                       ]
                     },
@@ -8440,31 +8476,40 @@
                       "height": 29.25,
                       "children": [
                         {
-                          "type": "TextBox",
+                          "type": "Rectangle",
                           "x": 0,
                           "y": 0,
                           "width": 496.59428571428566,
-                          "height": 11.25,
-                          "textLines": [
-                            "Question C: Limits to Damages for Non-Economic Loss"
-                          ],
-                          "fontSize": 9,
-                          "fontWeight": 700,
-                          "lineHeight": 9
-                        },
-                        {
-                          "type": "TextBox",
-                          "x": 0,
-                          "y": 11.25,
-                          "width": 496.59428571428566,
-                          "height": 18,
-                          "textLines": [
-                            "Shall there be an amendment to the State constitution allowing the State legislature to enact laws limiting the amount of damages",
-                            "for non-economic loss that could be awarded for injury or death caused by a health care provider?"
-                          ],
-                          "fontSize": 8,
-                          "fontWeight": 400,
-                          "lineHeight": 8
+                          "height": 29.25,
+                          "children": [
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 0,
+                              "width": 496.59428571428566,
+                              "height": 11.25,
+                              "textLines": [
+                                "Question C: Limits to Damages for Non-Economic Loss"
+                              ],
+                              "fontSize": 9,
+                              "fontWeight": 700,
+                              "lineHeight": 9
+                            },
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 11.25,
+                              "width": 496.59428571428566,
+                              "height": 18,
+                              "textLines": [
+                                "Shall there be an amendment to the State constitution allowing the State legislature to enact laws limiting the amount of damages",
+                                "for non-economic loss that could be awarded for injury or death caused by a health care provider?"
+                              ],
+                              "fontSize": 8,
+                              "fontWeight": 400,
+                              "lineHeight": 8
+                            }
+                          ]
                         }
                       ]
                     },
@@ -15547,33 +15592,42 @@
                       "height": 45.25,
                       "children": [
                         {
-                          "type": "TextBox",
+                          "type": "Rectangle",
                           "x": 0,
                           "y": 0,
                           "width": 496.59428571428566,
-                          "height": 11.25,
-                          "textLines": [
-                            "Proposition 1: Gambling in Franklin and Fromwit Counties"
-                          ],
-                          "fontSize": 9,
-                          "fontWeight": 700,
-                          "lineHeight": 9
-                        },
-                        {
-                          "type": "TextBox",
-                          "x": 0,
-                          "y": 11.25,
-                          "width": 496.59428571428566,
-                          "height": 34,
-                          "textLines": [
-                            "Shall there be an amendment to the State constitution authorizing Franklin and Fromwit Counties to hold referenda on whether to",
-                            "authorize slot machines in existing, licensed pari-mutuel facilities (thoroughbred and harness racing, greyhound racing, and jai",
-                            "alai) that have conducted live racing or games in that county during each of the last two calendar years before effective date of",
-                            "this amendment? Requires implementing legislation."
-                          ],
-                          "fontSize": 8,
-                          "fontWeight": 400,
-                          "lineHeight": 8
+                          "height": 45.25,
+                          "children": [
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 0,
+                              "width": 496.59428571428566,
+                              "height": 11.25,
+                              "textLines": [
+                                "Proposition 1: Gambling in Franklin and Fromwit Counties"
+                              ],
+                              "fontSize": 9,
+                              "fontWeight": 700,
+                              "lineHeight": 9
+                            },
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 11.25,
+                              "width": 496.59428571428566,
+                              "height": 34,
+                              "textLines": [
+                                "Shall there be an amendment to the State constitution authorizing Franklin and Fromwit Counties to hold referenda on whether to",
+                                "authorize slot machines in existing, licensed pari-mutuel facilities (thoroughbred and harness racing, greyhound racing, and jai",
+                                "alai) that have conducted live racing or games in that county during each of the last two calendar years before effective date of",
+                                "this amendment? Requires implementing legislation."
+                              ],
+                              "fontSize": 8,
+                              "fontWeight": 400,
+                              "lineHeight": 8
+                            }
+                          ]
                         }
                       ]
                     },
@@ -15690,33 +15744,42 @@
                       "height": 45.25,
                       "children": [
                         {
-                          "type": "TextBox",
+                          "type": "Rectangle",
                           "x": 0,
                           "y": 0,
                           "width": 496.59428571428566,
-                          "height": 11.25,
-                          "textLines": [
-                            "Measure 101: College District"
-                          ],
-                          "fontSize": 9,
-                          "fontWeight": 700,
-                          "lineHeight": 9
-                        },
-                        {
-                          "type": "TextBox",
-                          "x": 0,
-                          "y": 11.25,
-                          "width": 496.59428571428566,
-                          "height": 34,
-                          "textLines": [
-                            "To upgrade educational facilities at Diablo Valley, and Franklin, Colleges, and the San Brentwood center, and help prepare",
-                            "students for jobs and college transfer by modernizing classrooms and labs, building facilities for health, medical, science, and",
-                            "technology training, and implementing infrastructure improvements, shall the Franklin Community College District issue $450",
-                            "million of bonds at legal interest rates with independent oversight, audits, and all funds spent on local sites?"
-                          ],
-                          "fontSize": 8,
-                          "fontWeight": 400,
-                          "lineHeight": 8
+                          "height": 45.25,
+                          "children": [
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 0,
+                              "width": 496.59428571428566,
+                              "height": 11.25,
+                              "textLines": [
+                                "Measure 101: College District"
+                              ],
+                              "fontSize": 9,
+                              "fontWeight": 700,
+                              "lineHeight": 9
+                            },
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 11.25,
+                              "width": 496.59428571428566,
+                              "height": 34,
+                              "textLines": [
+                                "To upgrade educational facilities at Diablo Valley, and Franklin, Colleges, and the San Brentwood center, and help prepare",
+                                "students for jobs and college transfer by modernizing classrooms and labs, building facilities for health, medical, science, and",
+                                "technology training, and implementing infrastructure improvements, shall the Franklin Community College District issue $450",
+                                "million of bonds at legal interest rates with independent oversight, audits, and all funds spent on local sites?"
+                              ],
+                              "fontSize": 8,
+                              "fontWeight": 400,
+                              "lineHeight": 8
+                            }
+                          ]
                         }
                       ]
                     },
@@ -15833,32 +15896,41 @@
                       "height": 37.25,
                       "children": [
                         {
-                          "type": "TextBox",
+                          "type": "Rectangle",
                           "x": 0,
                           "y": 0,
                           "width": 496.59428571428566,
-                          "height": 11.25,
-                          "textLines": [
-                            "Measure 102: Vehicle Abatement Program"
-                          ],
-                          "fontSize": 9,
-                          "fontWeight": 700,
-                          "lineHeight": 9
-                        },
-                        {
-                          "type": "TextBox",
-                          "x": 0,
-                          "y": 11.25,
-                          "width": 496.59428571428566,
-                          "height": 26,
-                          "textLines": [
-                            "Should the Franklin County Vehicle Abatement Program and vehicle registration fees (one dollar per vehicle and an additional two",
-                            "dollars for certain commercial vehicles payable upon registration of a vehicle) be renewed for a ten-year term beginning July 1,",
-                            "2021, for the abatement and removal of abandoned, wrecked, dismantled, or inoperative vehicles?"
-                          ],
-                          "fontSize": 8,
-                          "fontWeight": 400,
-                          "lineHeight": 8
+                          "height": 37.25,
+                          "children": [
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 0,
+                              "width": 496.59428571428566,
+                              "height": 11.25,
+                              "textLines": [
+                                "Measure 102: Vehicle Abatement Program"
+                              ],
+                              "fontSize": 9,
+                              "fontWeight": 700,
+                              "lineHeight": 9
+                            },
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 11.25,
+                              "width": 496.59428571428566,
+                              "height": 26,
+                              "textLines": [
+                                "Should the Franklin County Vehicle Abatement Program and vehicle registration fees (one dollar per vehicle and an additional two",
+                                "dollars for certain commercial vehicles payable upon registration of a vehicle) be renewed for a ten-year term beginning July 1,",
+                                "2021, for the abatement and removal of abandoned, wrecked, dismantled, or inoperative vehicles?"
+                              ],
+                              "fontSize": 8,
+                              "fontWeight": 400,
+                              "lineHeight": 8
+                            }
+                          ]
                         }
                       ]
                     },
