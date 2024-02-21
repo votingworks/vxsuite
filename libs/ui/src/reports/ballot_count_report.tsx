@@ -19,7 +19,7 @@ import {
   isGroupByEmpty,
 } from '@votingworks/utils';
 import React from 'react';
-import { ReportSection, tallyReportThemeFn, TallyReport } from './tally_report';
+import { printedReportThemeFn, PrintedReport } from './layout';
 import { LogoMark } from '../logo_mark';
 import { TallyReportMetadata } from './tally_report_metadata';
 import { CustomFilterSummary } from './custom_filter_summary';
@@ -606,31 +606,29 @@ export function BallotCountReport({
   const { election } = electionDefinition;
 
   return (
-    <ThemeProvider theme={tallyReportThemeFn}>
-      <TallyReport data-testid={testId}>
-        <ReportSection>
-          <LogoMark />
-          <h1>{prefixedTitle({ isOfficial, isTest, title })}</h1>
-          <h2>{electionDefinition.election.title}</h2>
-          {customFilter && (
-            <CustomFilterSummary
-              electionDefinition={electionDefinition}
-              filter={customFilter}
-            />
-          )}
-          <TallyReportMetadata
-            generatedAtTime={generatedAtTime}
-            election={election}
-          />
-          <BallotCountTable
+    <ThemeProvider theme={printedReportThemeFn}>
+      <PrintedReport data-testid={testId}>
+        <LogoMark />
+        <h1>{prefixedTitle({ isOfficial, isTest, title })}</h1>
+        <h2>{electionDefinition.election.title}</h2>
+        {customFilter && (
+          <CustomFilterSummary
             electionDefinition={electionDefinition}
-            scannerBatches={scannerBatches}
-            cardCountsList={cardCountsList}
-            groupBy={groupBy}
-            includeSheetCounts={includeSheetCounts ?? false}
+            filter={customFilter}
           />
-        </ReportSection>
-      </TallyReport>
+        )}
+        <TallyReportMetadata
+          generatedAtTime={generatedAtTime}
+          election={election}
+        />
+        <BallotCountTable
+          electionDefinition={electionDefinition}
+          scannerBatches={scannerBatches}
+          cardCountsList={cardCountsList}
+          groupBy={groupBy}
+          includeSheetCounts={includeSheetCounts ?? false}
+        />
+      </PrintedReport>
     </ThemeProvider>
   );
 }

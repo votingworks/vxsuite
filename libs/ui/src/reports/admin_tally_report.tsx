@@ -7,11 +7,10 @@ import {
 import { assert } from '@votingworks/basics';
 import { ThemeProvider } from 'styled-components';
 import {
-  ReportSection,
-  tallyReportThemeFn,
-  TallyReport,
+  printedReportThemeFn,
+  PrintedReport,
   TallyReportColumns,
-} from './tally_report';
+} from './layout';
 import { LogoMark } from '../logo_mark';
 import { TallyReportMetadata } from './tally_report_metadata';
 import { ContestResultsTable } from './contest_results_table';
@@ -60,54 +59,52 @@ export function AdminTallyReport({
   };
 
   return (
-    <ThemeProvider theme={tallyReportThemeFn}>
-      <TallyReport data-testid={testId}>
-        <ReportSection>
-          <LogoMark />
-          <h1>
-            {prefixedTitle({
-              isOfficial,
-              isTest,
-              isForLogicAndAccuracyTesting,
-              title,
-            })}
-          </h1>
-          {subtitle && <h2>{subtitle}</h2>}
-          {customFilter && (
-            <CustomFilterSummary
-              electionDefinition={electionDefinition}
-              filter={customFilter}
-            />
-          )}
-          <TallyReportMetadata
-            generatedAtTime={generatedAtTime}
-            election={election}
+    <ThemeProvider theme={printedReportThemeFn}>
+      <PrintedReport data-testid={testId}>
+        <LogoMark />
+        <h1>
+          {prefixedTitle({
+            isOfficial,
+            isTest,
+            isForLogicAndAccuracyTesting,
+            title,
+          })}
+        </h1>
+        {subtitle && <h2>{subtitle}</h2>}
+        {customFilter && (
+          <CustomFilterSummary
+            electionDefinition={electionDefinition}
+            filter={customFilter}
           />
-          {includeSignatureLines && <CertificationSignatures />}
-          <TallyReportColumns>
-            <TallyReportCardCounts cardCounts={cardCounts} />
-            {contests.map((contest) => {
-              const scannedContestResults =
-                scannedElectionResults.contestResults[contest.id];
-              assert(
-                scannedContestResults,
-                `missing scanned results for contest ${contest.id}`
-              );
-              const manualContestResults =
-                manualElectionResults?.contestResults[contest.id];
-              return (
-                <ContestResultsTable
-                  key={contest.id}
-                  election={election}
-                  contest={contest}
-                  scannedContestResults={scannedContestResults}
-                  manualContestResults={manualContestResults}
-                />
-              );
-            })}
-          </TallyReportColumns>
-        </ReportSection>
-      </TallyReport>
+        )}
+        <TallyReportMetadata
+          generatedAtTime={generatedAtTime}
+          election={election}
+        />
+        {includeSignatureLines && <CertificationSignatures />}
+        <TallyReportColumns>
+          <TallyReportCardCounts cardCounts={cardCounts} />
+          {contests.map((contest) => {
+            const scannedContestResults =
+              scannedElectionResults.contestResults[contest.id];
+            assert(
+              scannedContestResults,
+              `missing scanned results for contest ${contest.id}`
+            );
+            const manualContestResults =
+              manualElectionResults?.contestResults[contest.id];
+            return (
+              <ContestResultsTable
+                key={contest.id}
+                election={election}
+                contest={contest}
+                scannedContestResults={scannedContestResults}
+                manualContestResults={manualContestResults}
+              />
+            );
+          })}
+        </TallyReportColumns>
+      </PrintedReport>
     </ThemeProvider>
   );
 }

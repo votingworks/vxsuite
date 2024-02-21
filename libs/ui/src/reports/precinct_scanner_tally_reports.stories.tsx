@@ -4,7 +4,7 @@ import {
   ALL_PRECINCTS_SELECTION,
   buildElectionResultsFixture,
 } from '@votingworks/utils';
-import { TallyReportPreview } from './tally_report';
+import { PrintedReportPreview } from './layout';
 import {
   PrecinctScannerTallyReports,
   PrecinctScannerTallyReportsProps,
@@ -16,9 +16,9 @@ function PrecinctScannerTallyReportsPreview(
   props: PrecinctScannerTallyReportsProps
 ): JSX.Element {
   return (
-    <TallyReportPreview>
+    <PrintedReportPreview>
       <PrecinctScannerTallyReports {...props} />
-    </TallyReportPreview>
+    </PrintedReportPreview>
   );
 }
 

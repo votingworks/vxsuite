@@ -12,7 +12,7 @@ import {
 } from '@votingworks/utils';
 import { ThemeProvider } from 'styled-components';
 import { PrecinctScannerTallyReport } from './precinct_scanner_tally_report';
-import { tallyReportThemeFn } from './tally_report';
+import { printedReportThemeFn } from './layout';
 
 export interface PrecinctScannerTallyReportsProps {
   electionDefinition: ElectionDefinition;
@@ -52,7 +52,7 @@ export function PrecinctScannerTallyReports({
   );
 
   return (
-    <ThemeProvider theme={tallyReportThemeFn}>
+    <ThemeProvider theme={printedReportThemeFn}>
       {partyIds.map((partyId) => {
         const electionResults = partyId
           ? electionResultsByParty.find(

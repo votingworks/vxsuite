@@ -13,7 +13,7 @@ import { DateTime } from 'luxon';
 import styled, { ThemeProvider } from 'styled-components';
 import { PrecinctScannerReportHeader } from './precinct_scanner_report_header';
 import { Prose } from '../prose';
-import { ReportSection, tallyReportThemeFn, TallyReport } from './tally_report';
+import { printedReportThemeFn, PrintedReport } from './layout';
 
 const Contents = styled(Prose)`
   padding-top: 2em;
@@ -64,46 +64,42 @@ export function PrecinctScannerBallotCountReport({
   precinctScannerMachineId,
 }: Props): JSX.Element {
   return (
-    <ThemeProvider theme={tallyReportThemeFn}>
-      <TallyReport data-testid="ballot-count-report">
-        <ReportSection>
-          <PrecinctScannerReportHeader
-            electionDefinition={electionDefinition}
-            precinctSelection={precinctSelection}
-            pollsTransition={pollsTransition}
-            isLiveMode={isLiveMode}
-            pollsTransitionedTime={pollsTransitionedTime}
-            reportPrintedTime={reportPrintedTime}
-            precinctScannerMachineId={precinctScannerMachineId}
-          />
-          <Contents>
-            <dl>
-              <div className="ballot-counts">
-                <dt>Ballots Scanned Count</dt>
-                <dd>{totalBallotsScanned}</dd>
-              </div>
-              <div>
-                <dt>Polls Status</dt>
-                <dd>
-                  {getPollsStateName(
-                    getPollsTransitionDestinationState(pollsTransition)
-                  )}
-                </dd>
-              </div>
-              <div>
-                <dt>
-                  Time {getPollsTransitionActionPastTense(pollsTransition)}
-                </dt>
-                <dd>
-                  {formatFullDateTimeZone(
-                    DateTime.fromMillis(pollsTransitionedTime)
-                  )}
-                </dd>
-              </div>
-            </dl>
-          </Contents>
-        </ReportSection>
-      </TallyReport>
+    <ThemeProvider theme={printedReportThemeFn}>
+      <PrintedReport data-testid="ballot-count-report">
+        <PrecinctScannerReportHeader
+          electionDefinition={electionDefinition}
+          precinctSelection={precinctSelection}
+          pollsTransition={pollsTransition}
+          isLiveMode={isLiveMode}
+          pollsTransitionedTime={pollsTransitionedTime}
+          reportPrintedTime={reportPrintedTime}
+          precinctScannerMachineId={precinctScannerMachineId}
+        />
+        <Contents>
+          <dl>
+            <div className="ballot-counts">
+              <dt>Ballots Scanned Count</dt>
+              <dd>{totalBallotsScanned}</dd>
+            </div>
+            <div>
+              <dt>Polls Status</dt>
+              <dd>
+                {getPollsStateName(
+                  getPollsTransitionDestinationState(pollsTransition)
+                )}
+              </dd>
+            </div>
+            <div>
+              <dt>Time {getPollsTransitionActionPastTense(pollsTransition)}</dt>
+              <dd>
+                {formatFullDateTimeZone(
+                  DateTime.fromMillis(pollsTransitionedTime)
+                )}
+              </dd>
+            </div>
+          </dl>
+        </Contents>
+      </PrintedReport>
     </ThemeProvider>
   );
 }

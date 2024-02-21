@@ -28,3 +28,24 @@ export function AdminReadinessReportContents({
     </React.Fragment>
   );
 }
+
+export function AdminReadinessReport({
+  batteryInfo,
+  diskSpaceSummary,
+  printerStatus,
+  mostRecentPrinterDiagnostic,
+}: {
+  batteryInfo?: BatteryInfo;
+  diskSpaceSummary: DiskSpaceSummary;
+  printerStatus: PrinterStatus;
+  mostRecentPrinterDiagnostic?: DiagnosticsRecord;
+}): JSX.Element {
+  return (
+    <AdminReadinessReportContents
+      batteryInfo={batteryInfo}
+      diskSpaceSummary={diskSpaceSummary}
+      printerStatus={printerStatus}
+      mostRecentPrinterDiagnostic={mostRecentPrinterDiagnostic}
+    />
+  );
+}

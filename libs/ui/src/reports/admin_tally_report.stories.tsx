@@ -7,7 +7,7 @@ import {
 import { Tabulation, getBallotStyle, getContests } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import { AdminTallyReportProps, AdminTallyReport } from './admin_tally_report';
-import { TallyReportPreview } from './tally_report';
+import { PrintedReportPreview } from './layout';
 
 const electionDefinition = electionTwoPartyPrimaryDefinition;
 const { election } = electionDefinition;
@@ -15,9 +15,9 @@ const { contests } = election;
 
 function AdminTallyReportPreview(props: AdminTallyReportProps): JSX.Element {
   return (
-    <TallyReportPreview>
+    <PrintedReportPreview>
       <AdminTallyReport {...props} />
-    </TallyReportPreview>
+    </PrintedReportPreview>
   );
 }
 

@@ -3,7 +3,7 @@ import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
-import { TallyReportPreview } from './tally_report';
+import { PrintedReportPreview } from './layout';
 import {
   WriteInAdjudicationReport,
   WriteInAdjudicationReportProps,
@@ -15,9 +15,9 @@ function WriteInTallyReportPreview(
   props: WriteInAdjudicationReportProps
 ): JSX.Element {
   return (
-    <TallyReportPreview>
+    <PrintedReportPreview>
       <WriteInAdjudicationReport {...props} />
-    </TallyReportPreview>
+    </PrintedReportPreview>
   );
 }
 
