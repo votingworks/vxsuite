@@ -62,6 +62,6 @@ it('renders display settings button', () => {
 
   expect(history.location.pathname).toEqual('/');
 
-  userEvent.click(screen.getButton(/Display Settings/i));
+  userEvent.click(screen.getButton('Settings'));
   expect(history.location.pathname).toEqual(Paths.DISPLAY_SETTINGS);
 });

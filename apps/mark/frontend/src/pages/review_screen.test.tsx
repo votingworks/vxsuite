@@ -19,7 +19,7 @@ it('Renders ReviewScreen', () => {
     ballotStyleId: electionGeneral.ballotStyles[0].id,
   });
   screen.getByText('Review Your Votes');
-  screen.getByText(/Display Settings/i);
+  screen.getByText('Settings');
 });
 
 it('Renders ReviewScreen in Landscape orientation', () => {
@@ -44,6 +44,6 @@ it('renders display settings button', () => {
 
   expect(history.location.pathname).toEqual('/review');
 
-  userEvent.click(screen.getButton(/Display Settings/i));
+  userEvent.click(screen.getButton('Settings'));
   expect(history.location.pathname).toEqual(Paths.DISPLAY_SETTINGS);
 });

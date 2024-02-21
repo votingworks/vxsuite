@@ -25,7 +25,7 @@ it('Renders ContestScreen', async () => {
   await screen.findByRole('heading', { name: firstContestTitle });
   screen.getButton(/next/i);
   screen.getButton(/back/i);
-  screen.getByRole('button', { name: 'Display Settings' });
+  screen.getByRole('button', { name: 'Settings' });
 });
 
 it('Renders ContestScreen in Landscape orientation', async () => {
@@ -70,6 +70,6 @@ it('renders display settings button', async () => {
 
   expect(history.location.pathname).toEqual('/contests/0');
 
-  userEvent.click(await screen.findButton(/display settings/i));
+  userEvent.click(await screen.findButton('Settings'));
   expect(history.location.pathname).toEqual(Paths.DISPLAY_SETTINGS);
 });

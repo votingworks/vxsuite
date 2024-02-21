@@ -21,10 +21,13 @@ export function DisplaySettingsButton(): JSX.Element | null {
   }
 
   return (
-    <Button onPress={history.push} value={Paths.DISPLAY_SETTINGS}>
+    <Button
+      onPress={(url: string) => history.push(url)}
+      value={Paths.DISPLAY_SETTINGS}
+    >
       <LabelContainer>
         <Icons.Display />
-        {appStrings.buttonDisplaySettings()}
+        {appStrings.buttonVoterSettings()}
       </LabelContainer>
     </Button>
   );

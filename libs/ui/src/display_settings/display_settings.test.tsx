@@ -7,8 +7,8 @@ import { DisplaySettings } from '.';
 test('renders expected subcomponents', () => {
   render(<DisplaySettings onClose={jest.fn()} />);
 
-  screen.getByRole('heading', { name: /Display Settings/i });
-  screen.getByRole('tablist', { name: /Display settings/i });
+  screen.getByRole('heading', { name: 'Settings:' });
+  screen.getByRole('tablist', { name: 'Settings' });
   screen.getByRole('tabpanel');
   screen.getByRole('radiogroup', { name: 'Color Contrast Settings' });
 });

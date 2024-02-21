@@ -18,7 +18,7 @@ test('navigates to settings screen', () => {
 
   expect(history.location.pathname).toEqual('/');
 
-  userEvent.click(screen.getButton(/display settings/i));
+  userEvent.click(screen.getButton('Settings'));
 
   expect(history.location.pathname).toEqual(Paths.DISPLAY_SETTINGS);
 });

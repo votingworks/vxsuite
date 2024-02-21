@@ -11,8 +11,7 @@ export function DisplaySettingsButton(): JSX.Element | null {
       onPress={(target: string) => history.push(target)}
       value={Paths.DISPLAY_SETTINGS}
     >
-      {/* TODO(kofi): Update app string to "Settings". */}
-      {appStrings.buttonDisplaySettings()}
+      {appStrings.buttonVoterSettings()}
     </Button>
   );
 }

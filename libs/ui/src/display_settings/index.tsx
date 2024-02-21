@@ -60,7 +60,7 @@ export function DisplaySettings(props: DisplaySettingsProps): JSX.Element {
   return (
     <Container>
       <Header portrait={screenInfo.isPortrait}>
-        <H2 as="h1">{appStrings.titleDisplaySettings()}</H2>
+        <H2 as="h1">{appStrings.titleVoterSettings()}</H2>
         <TabBar
           activePaneId={activePaneId}
           grow={!screenInfo.isPortrait}
