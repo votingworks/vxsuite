@@ -116,3 +116,4 @@ export * from './fonts/roboto';
 export * from './battery_display';
 export * from './battery_low_alert';
 export * from './ipp_printing';
+export * from './fonts/font_awesome_styles';
