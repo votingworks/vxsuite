@@ -1,8 +1,12 @@
+//! This example demonstrates how to get a test string from the scanner. This is one of the most basic
+//! operations you can perform with the scanner. It is useful for testing the connection to the scanner
+//! and for verifying that the scanner is functioning properly.
+
 use clap::Parser;
 use std::time::Duration;
 use tracing_subscriber::prelude::*;
 
-use pdi_rs::client::{Client, Scanner};
+use pdi_rs::{connect};
 
 #[derive(Debug, Parser)]
 struct Config {
@@ -43,18 +47,11 @@ fn setup_logging(config: &Config) -> color_eyre::Result<()> {
     Ok(())
 }
 
-fn create_client() -> color_eyre::Result<(Scanner, Client)> {
-    let mut scanner = Scanner::open()?;
-    let (tx, rx) = scanner.start();
-    let client = Client::new(tx, rx);
-    Ok((scanner, client))
-}
-
 fn main() -> color_eyre::Result<()> {
     let config = Config::parse();
     setup(&config).unwrap();
 
-    let (mut scanner, mut client) = create_client()?;
+    let (mut scanner, mut client) = connect()?;
 
     for n in 1..=config.times {
         println!(

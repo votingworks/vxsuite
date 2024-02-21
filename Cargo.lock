@@ -1465,6 +1465,7 @@ dependencies = [
  "crc16",
  "crossterm",
  "csv",
+ "ctrlc",
  "image",
  "libc",
  "nom",

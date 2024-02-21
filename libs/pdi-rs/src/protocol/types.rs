@@ -91,6 +91,7 @@ pub enum ScanSideMode {
 }
 
 impl ScanSideMode {
+    #[must_use]
     pub const fn page_count(&self) -> u8 {
         match self {
             Self::Duplex => 2,
@@ -233,7 +234,7 @@ impl Status {
     }
 
     #[must_use]
-    pub fn rear_sensors_covered(&self) -> bool {
+    pub const fn rear_sensors_covered(&self) -> bool {
         self.rear_left_sensor_covered && self.rear_right_sensor_covered
     }
 }
@@ -361,4 +362,39 @@ impl TryFrom<u8> for ClampedPercentage {
     fn try_from(value: u8) -> Result<Self, Self::Error> {
         Self::new(value).ok_or(())
     }
+}
+
+#[derive(Debug, Clone, Copy, Default)]
+pub enum AutoRunOutAtEndOfScanBehavior {
+    #[default]
+    HoldPaperInEscrow,
+    ContinueMotorsToEjectFromRear,
+}
+
+#[derive(Debug, Clone, Copy, Default)]
+pub enum PickOnCommandMode {
+    #[default]
+    FeederStaysEnabledBetweenScans,
+    FeederMustBeReenabledBetweenScans,
+}
+
+#[derive(Debug, Clone, Copy, Default)]
+pub enum DoubleFeedDetectionMode {
+    #[default]
+    Disabled,
+    RejectDoubleFeeds,
+}
+
+#[derive(Debug, Clone, Copy, Default)]
+pub enum FeederMode {
+    #[default]
+    Disabled,
+    AutoScanSheets,
+}
+
+#[derive(Debug, Clone, Copy, Default)]
+pub enum EjectPauseMode {
+    #[default]
+    DoNotCheckForInputPaper,
+    PauseWhileInputPaperDetected,
 }

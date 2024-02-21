@@ -358,10 +358,13 @@ pub enum Outgoing {
     /// No response.
     SetScannerToBottomOnlySimplexModeRequest,
 
+    EnablePickOnCommandModeRequest,
     DisablePickOnCommandModeRequest,
+    EnableEjectPauseRequest,
     DisableEjectPauseRequest,
     TransmitInNativeBitsPerPixelRequest,
     TransmitInLowBitsPerPixelRequest,
+    EnableAutoRunOutAtEndOfScanRequest,
     DisableAutoRunOutAtEndOfScanRequest,
 
     /// This command will set the motor to run at half speed. The scanner will
@@ -577,50 +580,51 @@ macro_rules! checked {
 }
 
 impl Outgoing {
+    #[must_use]
     pub fn to_bytes(&self) -> Vec<u8> {
         match &self {
-            Outgoing::GetTestStringRequest => {
+            Self::GetTestStringRequest => {
                 checked!(Command::new(b"D"), parsers::get_test_string_request)
             }
-            Outgoing::GetFirmwareVersionRequest => {
+            Self::GetFirmwareVersionRequest => {
                 checked!(Command::new(b"V"), parsers::get_firmware_version_request)
             }
-            Outgoing::GetCurrentFirmwareBuildVersionString => checked!(
+            Self::GetCurrentFirmwareBuildVersionString => checked!(
                 Command::new(b"\x1BV"),
                 parsers::get_current_firmware_build_version_string_request
             ),
-            Outgoing::GetScannerStatusRequest => {
+            Self::GetScannerStatusRequest => {
                 checked!(Command::new(b"Q"), parsers::get_scanner_status_request)
             }
-            Outgoing::EnableFeederRequest => {
+            Self::EnableFeederRequest => {
                 checked!(Command::new(b"8"), parsers::enable_feeder_request)
             }
-            Outgoing::DisableFeederRequest => {
+            Self::DisableFeederRequest => {
                 checked!(Command::new(b"9"), parsers::disable_feeder_request)
             }
-            Outgoing::DisableMomentaryReverseOnFeedAtInputRequest => checked!(
+            Self::DisableMomentaryReverseOnFeedAtInputRequest => checked!(
                 Command::new(b"\x1BO"),
                 parsers::disable_momentary_reverse_on_feed_at_input_request
             ),
-            Outgoing::GetSerialNumberRequest => {
+            Self::GetSerialNumberRequest => {
                 checked!(Command::new(b"*"), parsers::get_serial_number_request)
             }
-            Outgoing::SetSerialNumberRequest(serial_number) => checked!(
+            Self::SetSerialNumberRequest(serial_number) => checked!(
                 Command::new(b"*").with_data(serial_number),
                 parsers::set_serial_number_request
             ),
-            Outgoing::GetScannerSettingsRequest => {
+            Self::GetScannerSettingsRequest => {
                 checked!(Command::new(b"I"), parsers::get_scanner_settings_request)
             }
-            Outgoing::GetRequiredInputSensorsRequest => checked!(
+            Self::GetRequiredInputSensorsRequest => checked!(
                 Command::new(b"\x1Bs"),
                 parsers::get_input_sensors_required_request
             ),
-            Outgoing::SetRequiredInputSensorsRequest { sensors } => checked!(
+            Self::SetRequiredInputSensorsRequest { sensors } => checked!(
                 Command::new(b"\x1Bs").with_data(&[*sensors + b'0']),
                 parsers::set_input_sensors_required_request
             ),
-            Outgoing::AdjustBitonalThresholdBy1Request(BitonalAdjustment { side, direction }) => {
+            Self::AdjustBitonalThresholdBy1Request(BitonalAdjustment { side, direction }) => {
                 checked!(
                     Command::new(match (side, direction) {
                         (Side::Top, Direction::Increase) => b"\x1B+",
@@ -631,7 +635,7 @@ impl Outgoing {
                     parsers::adjust_bitonal_threshold_by_1_request
                 )
             }
-            Outgoing::GetCalibrationInformationRequest { resolution } => checked!(
+            Self::GetCalibrationInformationRequest { resolution } => checked!(
                 Command::new(match resolution {
                     Some(Resolution::Half) => b"W1",
                     Some(Resolution::Native) => b"W0",
@@ -639,61 +643,72 @@ impl Outgoing {
                 }),
                 parsers::get_calibration_information_request
             ),
-            Outgoing::SetScannerImageDensityToHalfNativeResolutionRequest => checked!(
+            Self::SetScannerImageDensityToHalfNativeResolutionRequest => checked!(
                 Command::new(b"A"),
                 parsers::set_scanner_image_density_to_half_native_resolution_request
             ),
-            Outgoing::SetScannerImageDensityToNativeResolutionRequest => checked!(
+            Self::SetScannerImageDensityToNativeResolutionRequest => checked!(
                 Command::new(b"B"),
                 parsers::set_scanner_image_density_to_native_resolution_request
             ),
-            Outgoing::SetScannerToDuplexModeRequest => checked!(
+            Self::SetScannerToDuplexModeRequest => checked!(
                 Command::new(b"J"),
                 parsers::set_scanner_to_duplex_mode_request
             ),
-            Outgoing::SetScannerToTopOnlySimplexModeRequest => checked!(
+            Self::SetScannerToTopOnlySimplexModeRequest => checked!(
                 Command::new(b"G"),
                 parsers::set_scanner_to_top_only_simplex_mode_request
             ),
-            Outgoing::SetScannerToBottomOnlySimplexModeRequest => checked!(
+            Self::SetScannerToBottomOnlySimplexModeRequest => checked!(
                 Command::new(b"H"),
                 parsers::set_scanner_to_bottom_only_simplex_mode_request
             ),
-            Outgoing::DisablePickOnCommandModeRequest => checked!(
+            Self::EnablePickOnCommandModeRequest => checked!(
+                Command::new(b"\x1bX"),
+                parsers::enable_pick_on_command_mode_request
+            ),
+            Self::DisablePickOnCommandModeRequest => checked!(
                 Command::new(b"\x1bY"),
                 parsers::disable_pick_on_command_mode_request
             ),
-            Outgoing::DisableEjectPauseRequest => {
+            Self::EnableEjectPauseRequest => {
+                checked!(Command::new(b"M"), parsers::enable_eject_pause_request)
+            }
+            Self::DisableEjectPauseRequest => {
                 checked!(Command::new(b"N"), parsers::disable_eject_pause_request)
             }
-            Outgoing::TransmitInNativeBitsPerPixelRequest => checked!(
+            Self::TransmitInNativeBitsPerPixelRequest => checked!(
                 Command::new(b"y"),
                 parsers::transmit_in_native_bits_per_pixel_request
             ),
-            Outgoing::TransmitInLowBitsPerPixelRequest => checked!(
+            Self::TransmitInLowBitsPerPixelRequest => checked!(
                 Command::new(b"z"),
                 parsers::transmit_in_low_bits_per_pixel_request
             ),
-            Outgoing::DisableAutoRunOutAtEndOfScanRequest => checked!(
+            Self::EnableAutoRunOutAtEndOfScanRequest => checked!(
+                Command::new(b"\x1be"),
+                parsers::enable_auto_run_out_at_end_of_scan_request
+            ),
+            Self::DisableAutoRunOutAtEndOfScanRequest => checked!(
                 Command::new(b"\x1bd"),
                 parsers::disable_auto_run_out_at_end_of_scan_request
             ),
-            Outgoing::ConfigureMotorToRunAtHalfSpeedRequest => checked!(
+            Self::ConfigureMotorToRunAtHalfSpeedRequest => checked!(
                 Command::new(b"j"),
                 parsers::configure_motor_to_run_at_half_speed_request
             ),
-            Outgoing::ConfigureMotorToRunAtFullSpeedRequest => checked!(
+            Self::ConfigureMotorToRunAtFullSpeedRequest => checked!(
                 Command::new(b"k"),
                 parsers::configure_motor_to_run_at_full_speed_request
             ),
-            Outgoing::SetThresholdToANewValueRequest {
+            Self::SetThresholdToANewValueRequest {
                 side,
                 new_threshold,
             } => checked!(
                 Command::new(b"\x1B%").with_data(&[(*side).into(), new_threshold.value()]),
                 parsers::set_bitonal_threshold_request
             ),
-            Outgoing::SetLengthOfDocumentToScanRequest {
+            Self::SetLengthOfDocumentToScanRequest {
                 length_byte,
                 unit_byte,
             } => checked!(
@@ -702,72 +717,72 @@ impl Outgoing {
                 ),
                 parsers::set_length_of_document_to_scan_request
             ),
-            Outgoing::SetScanDelayIntervalForDocumentFeedRequest { delay_interval } => checked!(
+            Self::SetScanDelayIntervalForDocumentFeedRequest { delay_interval } => checked!(
                 Command::new(b"\x1Bj").with_data(delay_interval.as_millis().to_string().as_bytes()),
                 parsers::set_scan_delay_interval_for_document_feed_request
             ),
-            Outgoing::TurnArrayLightSourceOnRequest => checked!(
+            Self::TurnArrayLightSourceOnRequest => checked!(
                 Command::new(b"5"),
                 parsers::turn_array_light_source_on_request
             ),
-            Outgoing::TurnArrayLightSourceOffRequest => checked!(
+            Self::TurnArrayLightSourceOffRequest => checked!(
                 Command::new(b"6"),
                 parsers::turn_array_light_source_off_request
             ),
-            Outgoing::EjectDocumentToRearOfScannerRequest => checked!(
+            Self::EjectDocumentToRearOfScannerRequest => checked!(
                 Command::new(b"3"),
                 parsers::eject_document_to_rear_of_scanner_request
             ),
-            Outgoing::EjectDocumentToFrontOfScannerAndHoldInInputRollersRequest => checked!(
+            Self::EjectDocumentToFrontOfScannerAndHoldInInputRollersRequest => checked!(
                 Command::new(b"1"),
                 parsers::eject_document_to_front_of_scanner_and_hold_in_input_rollers_request
             ),
-            Outgoing::EjectDocumentToFrontOfScannerRequest => checked!(
+            Self::EjectDocumentToFrontOfScannerRequest => checked!(
                 Command::new(b"4"),
                 parsers::eject_document_to_front_of_scanner_request
             ),
-            Outgoing::EjectEscrowDocumentRequest => todo!(),
-            Outgoing::RescanDocumentHeldInEscrowPositionRequest => todo!(),
-            Outgoing::EnableDoubleFeedDetectionRequest => checked!(
+            Self::EjectEscrowDocumentRequest => todo!(),
+            Self::RescanDocumentHeldInEscrowPositionRequest => todo!(),
+            Self::EnableDoubleFeedDetectionRequest => checked!(
                 Command::new(b"n"),
                 parsers::enable_double_feed_detection_request
             ),
-            Outgoing::DisableDoubleFeedDetectionRequest => checked!(
+            Self::DisableDoubleFeedDetectionRequest => checked!(
                 Command::new(b"o"),
                 parsers::disable_double_feed_detection_request
             ),
-            Outgoing::CalibrateDoubleFeedDetectionRequest(calibration_type) => checked!(
+            Self::CalibrateDoubleFeedDetectionRequest(calibration_type) => checked!(
                 Command::new(b"n1").with_data(u8::from(*calibration_type).to_string().as_bytes()),
                 parsers::calibrate_double_feed_detection_request
             ),
-            Outgoing::SetDoubleFeedDetectionSensitivityRequest { percentage } => checked!(
+            Self::SetDoubleFeedDetectionSensitivityRequest { percentage } => checked!(
                 Command::new(b"n3A").with_data(percentage.value().to_string().as_bytes()),
                 parsers::set_double_feed_detection_sensitivity_request
             ),
-            Outgoing::SetDoubleFeedDetectionMinimumDocumentLengthRequest {
+            Self::SetDoubleFeedDetectionMinimumDocumentLengthRequest {
                 length_in_hundredths_of_an_inch,
             } => checked!(
                 Command::new(b"n3B")
                     .with_data(length_in_hundredths_of_an_inch.to_string().as_bytes()),
                 parsers::set_double_feed_detection_minimum_document_length_request
             ),
-            Outgoing::GetDoubleFeedDetectionLedIntensityRequest => checked!(
+            Self::GetDoubleFeedDetectionLedIntensityRequest => checked!(
                 Command::new(b"n3a30"),
                 parsers::get_double_feed_detection_led_intensity_request
             ),
-            Outgoing::GetDoubleFeedDetectionSingleSheetCalibrationValueRequest => checked!(
+            Self::GetDoubleFeedDetectionSingleSheetCalibrationValueRequest => checked!(
                 Command::new(b"n3a10"),
                 parsers::get_double_feed_detection_single_sheet_calibration_value_request
             ),
-            Outgoing::GetDoubleFeedDetectionDoubleSheetCalibrationValueRequest => checked!(
+            Self::GetDoubleFeedDetectionDoubleSheetCalibrationValueRequest => checked!(
                 Command::new(b"n3a20"),
                 parsers::get_double_feed_detection_double_sheet_calibration_value_request
             ),
-            Outgoing::GetDoubleFeedDetectionDoubleSheetThresholdValueRequest => checked!(
+            Self::GetDoubleFeedDetectionDoubleSheetThresholdValueRequest => checked!(
                 Command::new(b"n3a90"),
                 parsers::get_double_feed_detection_double_sheet_threshold_value_request
             ),
-            Outgoing::RawPacket(data) => checked!(Command::new(data), parsers::raw_outgoing),
+            Self::RawPacket(data) => checked!(Command::new(data), parsers::raw_outgoing),
         }
     }
 }
@@ -1087,34 +1102,35 @@ pub enum Incoming {
 }
 
 impl Incoming {
-    pub fn is_event(&self) -> bool {
+    #[must_use]
+    pub const fn is_event(&self) -> bool {
         matches!(
             self,
-            Incoming::ScannerOkayEvent
-                | Incoming::DocumentJamEvent
-                | Incoming::CalibrationNeededEvent
-                | Incoming::ScannerCommandErrorEvent
-                | Incoming::ReadErrorEvent
-                | Incoming::MsdNeedsCalibrationEvent
-                | Incoming::MsdNotFoundOrOldFirmwareEvent
-                | Incoming::FifoOverflowEvent
-                | Incoming::CoverOpenEvent
-                | Incoming::CoverClosedEvent
-                | Incoming::CommandPacketCrcErrorEvent
-                | Incoming::FpgaOutOfDateEvent
-                | Incoming::CalibrationOkEvent
-                | Incoming::CalibrationShortCalibrationDocumentEvent
-                | Incoming::CalibrationDocumentRemovedEvent
-                | Incoming::CalibrationPixelErrorFrontArrayBlack
-                | Incoming::CalibrationPixelErrorFrontArrayWhite
-                | Incoming::CalibrationTimeoutError
-                | Incoming::CalibrationSpeedValueError
-                | Incoming::CalibrationSpeedBoxError
-                | Incoming::BeginScanEvent
-                | Incoming::EndScanEvent
-                | Incoming::DoubleFeedEvent
-                | Incoming::DoubleFeedCalibrationCompleteEvent
-                | Incoming::DoubleFeedCalibrationTimedOutEvent
+            Self::ScannerOkayEvent
+                | Self::DocumentJamEvent
+                | Self::CalibrationNeededEvent
+                | Self::ScannerCommandErrorEvent
+                | Self::ReadErrorEvent
+                | Self::MsdNeedsCalibrationEvent
+                | Self::MsdNotFoundOrOldFirmwareEvent
+                | Self::FifoOverflowEvent
+                | Self::CoverOpenEvent
+                | Self::CoverClosedEvent
+                | Self::CommandPacketCrcErrorEvent
+                | Self::FpgaOutOfDateEvent
+                | Self::CalibrationOkEvent
+                | Self::CalibrationShortCalibrationDocumentEvent
+                | Self::CalibrationDocumentRemovedEvent
+                | Self::CalibrationPixelErrorFrontArrayBlack
+                | Self::CalibrationPixelErrorFrontArrayWhite
+                | Self::CalibrationTimeoutError
+                | Self::CalibrationSpeedValueError
+                | Self::CalibrationSpeedBoxError
+                | Self::BeginScanEvent
+                | Self::EndScanEvent
+                | Self::DoubleFeedEvent
+                | Self::DoubleFeedCalibrationCompleteEvent
+                | Self::DoubleFeedCalibrationTimedOutEvent
         )
     }
 }
@@ -1147,6 +1163,7 @@ impl Command {
         Self { body: tag.to_vec() }
     }
 
+    #[must_use]
     pub fn with_data(mut self, data: &[u8]) -> Self {
         self.body.extend_from_slice(data);
         self

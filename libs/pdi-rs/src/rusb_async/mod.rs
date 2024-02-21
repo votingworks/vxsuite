@@ -25,7 +25,7 @@
 //
 // Modifications have been made to better support the use case of this project.
 
-use rusb::ffi::{self, constants::*};
+use rusb::ffi;
 
 use std::convert::TryInto;
 use std::ptr::NonNull;
@@ -45,6 +45,7 @@ struct Transfer {
 
 impl Transfer {
     // Invariant: Caller must ensure `device` outlives this transfer
+    #[allow(unused)]
     unsafe fn bulk(
         device: *mut ffi::libusb_device_handle,
         endpoint: u8,
@@ -58,7 +59,9 @@ impl Transfer {
 
         let user_data = Box::into_raw(Box::new(AtomicBool::new(false))).cast::<libc::c_void>();
 
-        let length = if endpoint & LIBUSB_ENDPOINT_DIR_MASK == LIBUSB_ENDPOINT_OUT {
+        let length = if endpoint & ffi::constants::LIBUSB_ENDPOINT_DIR_MASK
+            == ffi::constants::LIBUSB_ENDPOINT_OUT
+        {
             // for OUT endpoints: the currently valid data in the buffer
             buffer.len()
         } else {
@@ -83,6 +86,7 @@ impl Transfer {
     }
 
     // Invariant: Caller must ensure `device` outlives this transfer
+    #[allow(unused)]
     unsafe fn control(
         device: *mut ffi::libusb_device_handle,
 
@@ -92,12 +96,12 @@ impl Transfer {
         index: u16,
         data: &[u8],
     ) -> Self {
-        let mut buf = Vec::with_capacity(data.len() + LIBUSB_CONTROL_SETUP_SIZE);
+        let mut buf = Vec::with_capacity(data.len() + ffi::constants::LIBUSB_CONTROL_SETUP_SIZE);
 
         let length = data.len() as u16;
 
         ffi::libusb_fill_control_setup(
-            buf.as_mut_ptr() as *mut u8,
+            buf.as_mut_ptr(),
             request_type,
             request,
             value,
@@ -108,6 +112,7 @@ impl Transfer {
     }
 
     // Invariant: Caller must ensure `device` outlives this transfer
+    #[allow(unused)]
     unsafe fn control_raw(device: *mut ffi::libusb_device_handle, mut buffer: Vec<u8>) -> Self {
         // non-isochronous endpoints (e.g. control, bulk, interrupt) specify a value of 0
         // This is step 1 of async API
@@ -130,6 +135,7 @@ impl Transfer {
     }
 
     // Invariant: Caller must ensure `device` outlives this transfer
+    #[allow(unused)]
     unsafe fn interrupt(
         device: *mut ffi::libusb_device_handle,
         endpoint: u8,
@@ -143,7 +149,9 @@ impl Transfer {
 
         let user_data = Box::into_raw(Box::new(AtomicBool::new(false))).cast::<libc::c_void>();
 
-        let length = if endpoint & LIBUSB_ENDPOINT_DIR_MASK == LIBUSB_ENDPOINT_OUT {
+        let length = if endpoint & ffi::constants::LIBUSB_ENDPOINT_DIR_MASK
+            == ffi::constants::LIBUSB_ENDPOINT_OUT
+        {
             // for OUT endpoints: the currently valid data in the buffer
             buffer.len()
         } else {
@@ -168,6 +176,7 @@ impl Transfer {
     }
 
     // Invariant: Caller must ensure `device` outlives this transfer
+    #[allow(unused)]
     unsafe fn iso(
         device: *mut ffi::libusb_device_handle,
         endpoint: u8,
@@ -181,7 +190,9 @@ impl Transfer {
 
         let user_data = Box::into_raw(Box::new(AtomicBool::new(false))).cast::<libc::c_void>();
 
-        let length = if endpoint & LIBUSB_ENDPOINT_DIR_MASK == LIBUSB_ENDPOINT_OUT {
+        let length = if endpoint & ffi::constants::LIBUSB_ENDPOINT_DIR_MASK
+            == ffi::constants::LIBUSB_ENDPOINT_OUT
+        {
             // for OUT endpoints: the currently valid data in the buffer
             buffer.len()
         } else {
@@ -253,12 +264,14 @@ impl Transfer {
 
         match errno {
             0 => Ok(()),
-            LIBUSB_ERROR_NO_DEVICE => Err(Error::Disconnected),
-            LIBUSB_ERROR_BUSY => {
+            ffi::constants::LIBUSB_ERROR_NO_DEVICE => Err(Error::Disconnected),
+            ffi::constants::LIBUSB_ERROR_BUSY => {
                 unreachable!("We shouldn't be calling submit on transfers already submitted!")
             }
-            LIBUSB_ERROR_NOT_SUPPORTED => Err(Error::Other("Transfer not supported")),
-            LIBUSB_ERROR_INVALID_PARAM => {
+            ffi::constants::LIBUSB_ERROR_NOT_SUPPORTED => {
+                Err(Error::Other("Transfer not supported"))
+            }
+            ffi::constants::LIBUSB_ERROR_INVALID_PARAM => {
                 Err(Error::Other("Transfer size bigger than OS supports"))
             }
             _ => Err(Error::Errno("Error while submitting transfer: ", errno)),
@@ -274,7 +287,7 @@ impl Transfer {
     fn handle_completed(&mut self) -> Result<Vec<u8>> {
         assert!(self.completed_flag().load(Ordering::Relaxed));
         let err = match self.transfer().status {
-            LIBUSB_TRANSFER_COMPLETED => {
+            ffi::constants::LIBUSB_TRANSFER_COMPLETED => {
                 debug_assert!(self.transfer().length >= self.transfer().actual_length);
                 unsafe {
                     self.buffer.set_len(self.transfer().actual_length as usize);
@@ -282,14 +295,16 @@ impl Transfer {
                 let data = self.swap_buffer(Vec::new());
                 return Ok(data);
             }
-            LIBUSB_TRANSFER_CANCELLED => Error::Cancelled,
-            LIBUSB_TRANSFER_ERROR => Error::Other("Error occurred during transfer execution"),
-            LIBUSB_TRANSFER_TIMED_OUT => {
+            ffi::constants::LIBUSB_TRANSFER_CANCELLED => Error::Cancelled,
+            ffi::constants::LIBUSB_TRANSFER_ERROR => {
+                Error::Other("Error occurred during transfer execution")
+            }
+            ffi::constants::LIBUSB_TRANSFER_TIMED_OUT => {
                 unreachable!("We are using timeout=0 which means no timeout")
             }
-            LIBUSB_TRANSFER_STALL => Error::Stall,
-            LIBUSB_TRANSFER_NO_DEVICE => Error::Disconnected,
-            LIBUSB_TRANSFER_OVERFLOW => Error::Overflow,
+            ffi::constants::LIBUSB_TRANSFER_STALL => Error::Stall,
+            ffi::constants::LIBUSB_TRANSFER_NO_DEVICE => Error::Disconnected,
+            ffi::constants::LIBUSB_TRANSFER_OVERFLOW => Error::Overflow,
             _ => panic!("Found an unexpected error value for transfer status"),
         };
         Err(err)
@@ -300,7 +315,9 @@ impl Transfer {
 impl Drop for Transfer {
     fn drop(&mut self) {
         unsafe {
-            drop(Box::from_raw(self.transfer().user_data));
+            drop(Box::from_raw(
+                self.transfer().user_data.cast::<AtomicBool>(),
+            ));
             ffi::libusb_free_transfer(self.ptr.as_ptr());
         }
     }

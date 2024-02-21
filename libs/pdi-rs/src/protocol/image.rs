@@ -15,8 +15,14 @@ impl RawImageData {
         Self { data: Vec::new() }
     }
 
+    #[must_use]
     pub fn len(&self) -> usize {
         self.data.len()
+    }
+
+    #[must_use]
+    pub fn is_empty(&self) -> bool {
+        self.data.is_empty()
     }
 
     pub fn clear(&mut self) {
@@ -43,6 +49,7 @@ impl RawImageData {
     /// simplex top only or duplex. This means that you must be sure of the
     /// scanning mode when calling this method in order to get the correct
     /// result.
+    #[allow(clippy::missing_panics_doc)]
     pub fn try_decode_scan(
         &self,
         width: u32,
@@ -74,7 +81,7 @@ impl RawImageData {
                     let mut top_row = Vec::new();
                     while let Some(byte) = row.next() {
                         top_row.push(byte.reverse_bits());
-                        bottom.push(row.next().unwrap());
+                        bottom.push(row.next().expect("bottom side byte"));
                     }
                     top.extend(top_row.into_iter().rev());
                 }

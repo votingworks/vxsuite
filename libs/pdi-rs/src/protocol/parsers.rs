@@ -905,6 +905,10 @@ simple_request!(
 
 /// Parses a response to a request to get the double feed detection double sheet
 /// calibration value.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
 pub fn get_double_feed_detection_double_sheet_calibration_value_response(
     input: &[u8],
 ) -> IResult<&[u8], u16> {
@@ -921,6 +925,10 @@ simple_request!(
 
 /// Parses a response to a request to get the double feed detection threshold
 /// value.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
 pub fn get_double_feed_detection_threshold_value_response(input: &[u8]) -> IResult<&[u8], u16> {
     map(
         packet((tag(b"n3a90="), decimal_number)),
@@ -1085,27 +1093,22 @@ pub fn get_calibration_information_response(input: &[u8]) -> IResult<&[u8], (Vec
     let (input, _) = tag(b"W")(input)?;
     let (input, pixel_count) = le_u16(input)?;
     let (input, white_calibration_table) = take(pixel_count)(input)?;
-    let (input, white_calibration_table_checksum) = le_u16(input)?;
-    dbg!(
-        white_calibration_table.len(),
-        // white_calibration_table,
-        white_calibration_table_checksum
-    );
+    let (input, _white_calibration_table_checksum) = le_u16(input)?;
+    // dbg!(
+    //     white_calibration_table.len(),
+    //     // white_calibration_table,
+    //     white_calibration_table_checksum
+    // );
     let (input, black_calibration_table) = take(pixel_count)(input)?;
-    let (input, black_calibration_table_checksum) = le_u16(input)?;
-    dbg!(
-        black_calibration_table.len(),
-        // black_calibration_table,
-        black_calibration_table_checksum,
-        input
-    );
+    let (input, _black_calibration_table_checksum) = le_u16(input)?;
+    // dbg!(
+    //     black_calibration_table.len(),
+    //     // black_calibration_table,
+    //     black_calibration_table_checksum,
+    //     input
+    // );
     let (input, _) = packet_end(input)?;
 
-    dbg!(
-        "HI THERE",
-        white_calibration_table_checksum,
-        black_calibration_table_checksum,
-    );
     Ok((
         input,
         (
@@ -1124,10 +1127,13 @@ simple_request!(set_scanner_image_density_to_native_resolution_request, b"B");
 simple_request!(set_scanner_to_top_only_simplex_mode_request, b"G");
 simple_request!(set_scanner_to_bottom_only_simplex_mode_request, b"H");
 simple_request!(set_scanner_to_duplex_mode_request, b"J");
+simple_request!(enable_pick_on_command_mode_request, b"\x1bX");
 simple_request!(disable_pick_on_command_mode_request, b"\x1bY");
+simple_request!(enable_eject_pause_request, b"M");
 simple_request!(disable_eject_pause_request, b"N");
 simple_request!(transmit_in_native_bits_per_pixel_request, b"y");
 simple_request!(transmit_in_low_bits_per_pixel_request, b"z");
+simple_request!(enable_auto_run_out_at_end_of_scan_request, b"\x1be");
 simple_request!(disable_auto_run_out_at_end_of_scan_request, b"\x1bd");
 simple_request!(configure_motor_to_run_at_half_speed_request, b"j");
 simple_request!(configure_motor_to_run_at_full_speed_request, b"k");
@@ -1205,6 +1211,10 @@ simple_request!(eject_escrow_document_request, b"7");
 simple_request!(rescan_document_held_in_escrow_position_request, b"[");
 
 /// Parses any outgoing message of one byte or more.
+///
+/// # Errors
+///
+/// Returns an error if the input does not match the expected format.
 pub fn raw_outgoing(input: &[u8]) -> IResult<&[u8], Outgoing> {
     if input.is_empty() {
         Err(nom::Err::Error(nom::error::Error::new(

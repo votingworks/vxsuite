@@ -26,6 +26,7 @@
 // Modifications have been made to better support the use case of this project.
 
 use std::collections::VecDeque;
+use std::ptr::addr_of;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
@@ -42,13 +43,14 @@ pub struct TransferPool<C: UsbContext> {
 }
 
 impl<C: UsbContext> TransferPool<C> {
-    pub fn new(device: Arc<DeviceHandle<C>>) -> Result<Self> {
-        Ok(Self {
+    pub fn new(device: Arc<DeviceHandle<C>>) -> Self {
+        Self {
             device,
             pending: VecDeque::new(),
-        })
+        }
     }
 
+    #[allow(unused)]
     pub fn submit_bulk(&mut self, endpoint: u8, buf: Vec<u8>) -> Result<()> {
         // Safety: If transfer is submitted, it is pushed onto `pending` where it will be
         // dropped before `device` is freed.
@@ -60,6 +62,7 @@ impl<C: UsbContext> TransferPool<C> {
         }
     }
 
+    #[allow(unused)]
     pub fn submit_control(
         &mut self,
         request_type: u8,
@@ -85,6 +88,7 @@ impl<C: UsbContext> TransferPool<C> {
         }
     }
 
+    #[allow(unused)]
     pub unsafe fn submit_control_raw(&mut self, buffer: Vec<u8>) -> Result<()> {
         // Safety: If transfer is submitted, it is pushed onto `pending` where it will be
         // dropped before `device` is freed.
@@ -96,6 +100,7 @@ impl<C: UsbContext> TransferPool<C> {
         }
     }
 
+    #[allow(unused)]
     pub fn submit_interrupt(&mut self, endpoint: u8, buf: Vec<u8>) -> Result<()> {
         // Safety: If transfer is submitted, it is pushed onto `pending` where it will be
         // dropped before `device` is freed.
@@ -107,6 +112,7 @@ impl<C: UsbContext> TransferPool<C> {
         }
     }
 
+    #[allow(unused)]
     pub fn submit_iso(&mut self, endpoint: u8, buf: Vec<u8>, iso_packets: i32) -> Result<()> {
         // Safety: If transfer is submitted, it is pushed onto `pending` where it will be
         // dropped before `device` is freed.
@@ -172,6 +178,7 @@ impl<C: UsbContext> Drop for TransferPool<C> {
     }
 }
 
+#[allow(unused)]
 pub struct CompletedTransfer {
     endpoint: u8,
     data: Vec<u8>,
@@ -182,26 +189,29 @@ impl CompletedTransfer {
         Self { endpoint, data }
     }
 
-    pub fn endpoint(&self) -> u8 {
+    #[allow(unused)]
+    pub const fn endpoint(&self) -> u8 {
         self.endpoint
     }
 
-    pub fn data(&self) -> &Vec<u8> {
+    #[allow(unused)]
+    pub const fn data(&self) -> &Vec<u8> {
         &self.data
     }
 
+    #[allow(unused)]
     pub fn into_vec(self) -> Vec<u8> {
         self.data
     }
 }
 
-/// This is effectively libusb_handle_events_timeout_completed, but with
+/// This is effectively `libusb_handle_events_timeout_completed`, but with
 /// `completed` as `AtomicBool` instead of `c_int` so it is safe to access
 /// without the events lock held. It also continues polling until completion,
 /// timeout, or error, instead of potentially returning early.
 ///
 /// This design is based on
-/// https://libusb.sourceforge.io/api-1.0/libusb_mtasync.html#threadwait
+/// [this](https://libusb.sourceforge.io/api-1.0/libusb_mtasync.html#threadwait).
 ///
 /// Returns `true` when `completed` becomes true, `false` on timeout, and panics on
 /// any other libusb error.
@@ -223,7 +233,7 @@ fn poll_completed(ctx: &impl UsbContext, timeout: Duration, completed: &AtomicBo
                 if !completed.load(Ordering::SeqCst)
                     && ffi::libusb_event_handling_ok(ctx.as_raw()) != ffi::constants::LIBUSB_SUCCESS
                 {
-                    err = ffi::libusb_handle_events_locked(ctx.as_raw(), &timeval as *const _);
+                    err = ffi::libusb_handle_events_locked(ctx.as_raw(), addr_of!(timeval));
                 }
                 ffi::libusb_unlock_events(ctx.as_raw());
             } else {
@@ -232,7 +242,7 @@ fn poll_completed(ctx: &impl UsbContext, timeout: Duration, completed: &AtomicBo
                     && ffi::libusb_event_handler_active(ctx.as_raw())
                         != ffi::constants::LIBUSB_SUCCESS
                 {
-                    ffi::libusb_wait_for_event(ctx.as_raw(), &timeval as *const _);
+                    ffi::libusb_wait_for_event(ctx.as_raw(), addr_of!(timeval));
                 }
                 ffi::libusb_unlock_event_waiters(ctx.as_raw());
             }
