@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  DisplaySettingsManagerContext,
+  VoterSettingsManagerContext,
   useQueryChangeListener,
 } from '@votingworks/ui';
 import { DefaultTheme, ThemeContext } from 'styled-components';
@@ -8,12 +8,10 @@ import { getAuthStatus, getScannerStatus } from '../api';
 
 /**
  * Side-effect component for monitoring for auth and voter session changes and
- * resetting/restoring voter display settings as needed.
+ * resetting/restoring voter voter settings as needed.
  */
-export function DisplaySettingsManager(): JSX.Element | null {
-  const displaySettingsManager = React.useContext(
-    DisplaySettingsManagerContext
-  );
+export function VoterSettingsManager(): JSX.Element | null {
+  const voterSettingsManager = React.useContext(VoterSettingsManagerContext);
   const currentTheme = React.useContext(ThemeContext);
 
   const authStatusQuery = getAuthStatus.useQuery();
@@ -28,13 +26,13 @@ export function DisplaySettingsManager(): JSX.Element | null {
       // Reset to default theme when election official logs in:
       if (previousStatus === 'logged_out') {
         setVoterSessionTheme(currentTheme);
-        displaySettingsManager.resetThemes();
+        voterSettingsManager.resetThemes();
       }
 
       // Reset to previous voter settings when election official logs out:
       if (newStatus === 'logged_out' && voterSessionTheme) {
-        displaySettingsManager.setColorMode(voterSessionTheme.colorMode);
-        displaySettingsManager.setSizeMode(voterSessionTheme.sizeMode);
+        voterSettingsManager.setColorMode(voterSessionTheme.colorMode);
+        voterSettingsManager.setSizeMode(voterSessionTheme.sizeMode);
         setVoterSessionTheme(null);
       }
     },
@@ -47,7 +45,7 @@ export function DisplaySettingsManager(): JSX.Element | null {
     select: ({ state }) => state,
     onChange: (newState, previousState) => {
       if (previousState && newState === 'no_paper') {
-        displaySettingsManager.resetThemes();
+        voterSettingsManager.resetThemes();
       }
     },
   });

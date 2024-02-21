@@ -2,9 +2,9 @@ import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 
-import { DisplaySettingsButton } from './display_settings_button';
+import { VoterSettingsButton } from './voter_settings_button';
 import { render, screen } from '../../test/react_testing_library';
-import { Paths } from '../config/globals';
+import { Paths } from '../constants';
 
 test('navigates to settings screen', () => {
   const history = createMemoryHistory();
@@ -12,7 +12,7 @@ test('navigates to settings screen', () => {
 
   render(
     <Router history={history}>
-      <DisplaySettingsButton />
+      <VoterSettingsButton />
     </Router>
   );
 
@@ -20,5 +20,5 @@ test('navigates to settings screen', () => {
 
   userEvent.click(screen.getButton('Settings'));
 
-  expect(history.location.pathname).toEqual(Paths.DISPLAY_SETTINGS);
+  expect(history.location.pathname).toEqual(Paths.VOTER_SETTINGS);
 });

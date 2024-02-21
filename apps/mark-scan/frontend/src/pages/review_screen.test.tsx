@@ -32,7 +32,7 @@ it('Renders ReviewScreen in Landscape orientation', () => {
   screen.getByText('Review Your Votes');
 });
 
-it('renders display settings button', () => {
+it('renders voter settings button', () => {
   const history = createMemoryHistory({ initialEntries: ['/review'] });
 
   renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {
@@ -45,5 +45,5 @@ it('renders display settings button', () => {
   expect(history.location.pathname).toEqual('/review');
 
   userEvent.click(screen.getButton('Settings'));
-  expect(history.location.pathname).toEqual(Paths.DISPLAY_SETTINGS);
+  expect(history.location.pathname).toEqual(Paths.VOTER_SETTINGS);
 });

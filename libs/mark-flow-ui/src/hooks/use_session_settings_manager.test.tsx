@@ -1,8 +1,8 @@
 import { DefaultTheme, ThemeContext } from 'styled-components';
 import React from 'react';
 import {
-  DisplaySettingsManagerContext,
-  DisplaySettingsManagerContextInterface,
+  VoterSettingsManagerContext,
+  VoterSettingsManagerContextInterface,
   LanguageControls,
   useCurrentLanguage,
 } from '@votingworks/ui';
@@ -45,11 +45,11 @@ const NEW_VOTING_SESSION_VOTES = undefined;
 const { CHINESE_SIMPLIFIED, SPANISH } = LanguageCode;
 
 let currentTheme: DefaultTheme;
-let displaySettingsManager: DisplaySettingsManagerContextInterface;
+let voterSettingsManager: VoterSettingsManagerContextInterface;
 
 function TestHookWrapper(props: UseSessionSettingsManagerParams): null {
   currentTheme = React.useContext(ThemeContext);
-  displaySettingsManager = React.useContext(DisplaySettingsManagerContext);
+  voterSettingsManager = React.useContext(VoterSettingsManagerContext);
 
   useSessionSettingsManager(props);
 
@@ -94,8 +94,8 @@ test('Resets settings when election official logs in', () => {
 
   // Simulate changing session settings as voter:
   act(() => {
-    displaySettingsManager.setColorMode('contrastLow');
-    displaySettingsManager.setSizeMode('touchExtraLarge');
+    voterSettingsManager.setColorMode('contrastLow');
+    voterSettingsManager.setSizeMode('touchExtraLarge');
   });
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<DefaultTheme>>({
@@ -124,8 +124,8 @@ test('Resets settings when election official logs in', () => {
 
   // Simulate changing session settings as Election Manager:
   act(() => {
-    displaySettingsManager.setColorMode('contrastHighDark');
-    displaySettingsManager.setSizeMode('touchSmall');
+    voterSettingsManager.setColorMode('contrastHighDark');
+    voterSettingsManager.setSizeMode('touchSmall');
   });
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<DefaultTheme>>({
@@ -171,8 +171,8 @@ test('Resets theme to default if returning to a new voter session', () => {
 
   // Simulate changing session settings as voter:
   act(() => {
-    displaySettingsManager.setColorMode('contrastLow');
-    displaySettingsManager.setSizeMode('touchExtraLarge');
+    voterSettingsManager.setColorMode('contrastLow');
+    voterSettingsManager.setSizeMode('touchExtraLarge');
   });
   mockUseCurrentLanguage.mockReturnValue(SPANISH);
 
@@ -183,7 +183,7 @@ test('Resets theme to default if returning to a new voter session', () => {
     })
   );
 
-  // Simulate logging in ang changing display settings as Election Manager:
+  // Simulate logging in ang changing voter settings as Election Manager:
   rerender(
     <TestHookWrapper
       authStatus={{
@@ -196,8 +196,8 @@ test('Resets theme to default if returning to a new voter session', () => {
   );
   mockUseCurrentLanguage.mockReturnValue(CHINESE_SIMPLIFIED);
   act(() => {
-    displaySettingsManager.setColorMode('contrastHighDark');
-    displaySettingsManager.setSizeMode('touchSmall');
+    voterSettingsManager.setColorMode('contrastHighDark');
+    voterSettingsManager.setSizeMode('touchSmall');
   });
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<DefaultTheme>>({

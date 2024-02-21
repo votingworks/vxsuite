@@ -55,7 +55,7 @@ it('Renders ContestScreen in Landscape orientation in Review Mode', async () => 
   screen.getByText('Review');
 });
 
-it('renders display settings button', async () => {
+it('renders voter settings button', async () => {
   const history = createMemoryHistory({ initialEntries: ['/contests/0'] });
 
   renderWithBallotContext(
@@ -71,5 +71,5 @@ it('renders display settings button', async () => {
   expect(history.location.pathname).toEqual('/contests/0');
 
   userEvent.click(await screen.findButton('Settings'));
-  expect(history.location.pathname).toEqual(Paths.DISPLAY_SETTINGS);
+  expect(history.location.pathname).toEqual(Paths.VOTER_SETTINGS);
 });

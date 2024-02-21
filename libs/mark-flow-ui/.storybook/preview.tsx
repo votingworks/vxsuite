@@ -7,7 +7,7 @@ import {
 } from '@storybook/types';
 
 import { TouchColorMode, TouchSizeMode } from '@votingworks/types';
-import { AppBase, DisplaySettingsManagerContext } from '@votingworks/ui';
+import { AppBase, VoterSettingsManagerContext } from '@votingworks/ui';
 
 // TODO: Find the storybook.js type declaration for this. Doesn't seem to be in
 // the @storybook/types repo.
@@ -108,7 +108,7 @@ function StoryWrapper(props: {
   };
 
   const { setColorMode, setSizeMode } = React.useContext(
-    DisplaySettingsManagerContext
+    VoterSettingsManagerContext
   );
 
   React.useEffect(() => {

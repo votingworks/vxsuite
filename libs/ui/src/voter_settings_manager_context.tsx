@@ -4,7 +4,7 @@ import React from 'react';
 import { ColorMode, SizeMode } from '@votingworks/types';
 
 /** Provides an API for managing themes. */
-export interface DisplaySettingsManagerContextInterface {
+export interface VoterSettingsManagerContextInterface {
   /** Restores themes to their initial default state. */
   resetThemes: () => void;
 
@@ -18,9 +18,9 @@ export interface DisplaySettingsManagerContextInterface {
   setIsVisualModeDisabled: (isDisabled: boolean) => void;
 }
 
-/** Context instance for {@link DisplaySettingsManagerContextInterface}. */
-export const DisplaySettingsManagerContext =
-  React.createContext<DisplaySettingsManagerContextInterface>({
+/** Context instance for {@link VoterSettingsManagerContextInterface}. */
+export const VoterSettingsManagerContext =
+  React.createContext<VoterSettingsManagerContextInterface>({
     resetThemes: () => undefined,
     setColorMode: () => undefined,
     setSizeMode: () => undefined,

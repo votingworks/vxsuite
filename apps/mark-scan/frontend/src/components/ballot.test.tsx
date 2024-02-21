@@ -6,7 +6,7 @@ import { render } from '../../test/test_utils';
 import { act, screen } from '../../test/react_testing_library';
 import { Ballot } from './ballot';
 
-test('renders display settings page at appropriate route', async () => {
+test('renders voter settings page at appropriate route', async () => {
   const history = createMemoryHistory({
     initialEntries: ['/some/initial/path'],
   });
@@ -16,10 +16,10 @@ test('renders display settings page at appropriate route', async () => {
   expect(history.location.pathname).toEqual('/some/initial/path');
 
   act(() => {
-    history.push(Paths.DISPLAY_SETTINGS);
+    history.push(Paths.VOTER_SETTINGS);
   });
 
-  expect(history.location.pathname).toEqual(Paths.DISPLAY_SETTINGS);
+  expect(history.location.pathname).toEqual(Paths.VOTER_SETTINGS);
 
   // Verify a few expected elements:
   await screen.findByRole('heading', { name: /settings/i });

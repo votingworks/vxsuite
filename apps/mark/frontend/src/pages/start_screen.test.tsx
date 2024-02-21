@@ -35,7 +35,7 @@ test('renders StartScreen', () => {
   ).toHaveLength(1); // Seal
 });
 
-it('renders display settings button', () => {
+it('renders voter settings button', () => {
   const electionDefinition = electionGeneralDefinition;
   const history = createMemoryHistory({ initialEntries: ['/'] });
 
@@ -50,5 +50,5 @@ it('renders display settings button', () => {
   expect(history.location.pathname).toEqual('/');
 
   userEvent.click(screen.getButton('Settings'));
-  expect(history.location.pathname).toEqual(Paths.DISPLAY_SETTINGS);
+  expect(history.location.pathname).toEqual(Paths.VOTER_SETTINGS);
 });

@@ -5,10 +5,10 @@ import { render, screen, within } from '../../test/react_testing_library';
 import { TabBar } from './tab_bar';
 import { SettingsPaneId } from './types';
 
-test('renders all available display settings tabs', () => {
-  render(<TabBar activePaneId="displaySettingsSize" onChange={jest.fn()} />);
+test('renders all available voter settings tabs', () => {
+  render(<TabBar activePaneId="voterSettingsSize" onChange={jest.fn()} />);
 
-  const tabList = screen.getByRole('tablist', { name: 'Display settings' });
+  const tabList = screen.getByRole('tablist', { name: 'Settings' });
   within(tabList).getByRole('tab', { name: 'Color', selected: false });
   within(tabList).getByRole('tab', { name: 'Text Size', selected: true });
 });
@@ -17,7 +17,7 @@ test('fires change event with settings pane id', () => {
   const onChange = jest.fn();
   render(
     <TabBar
-      activePaneId="displaySettingsSize"
+      activePaneId="voterSettingsSize"
       onChange={onChange}
       allowAudioVideoOnlyToggles
     />
@@ -28,7 +28,7 @@ test('fires change event with settings pane id', () => {
   userEvent.click(screen.getByRole('tab', { name: 'Color', selected: false }));
 
   expect(onChange).toHaveBeenCalledWith<[SettingsPaneId, SyntheticEvent]>(
-    'displaySettingsColor',
+    'voterSettingsColor',
     buttonPressEventMatcher()
   );
 
@@ -37,7 +37,7 @@ test('fires change event with settings pane id', () => {
   );
 
   expect(onChange).toHaveBeenCalledWith<[SettingsPaneId, SyntheticEvent]>(
-    'displaySettingsAudioVideoOnly',
+    'voterSettingsAudioVideoOnly',
     buttonPressEventMatcher()
   );
 });

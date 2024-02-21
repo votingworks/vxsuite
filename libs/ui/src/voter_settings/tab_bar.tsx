@@ -37,9 +37,9 @@ const TabLabel = styled.span`
 `;
 
 const TAB_LABELS: Record<SettingsPaneId, JSX.Element> = {
-  displaySettingsColor: appStrings.titleVoterSettingsColor(),
-  displaySettingsSize: appStrings.titleVoterSettingsSize(),
-  displaySettingsAudioVideoOnly: appStrings.titleVoterSettingsAudioVideoOnly(),
+  voterSettingsColor: appStrings.titleVoterSettingsColor(),
+  voterSettingsSize: appStrings.titleVoterSettingsSize(),
+  voterSettingsAudioVideoOnly: appStrings.titleVoterSettingsAudioVideoOnly(),
 };
 
 /**
@@ -56,7 +56,7 @@ export function TabBar(props: TabBarProps): JSX.Element {
   } = props;
 
   const visiblePaneIds = PANE_IDS.filter((paneId) =>
-    paneId === 'displaySettingsAudioVideoOnly'
+    paneId === 'voterSettingsAudioVideoOnly'
       ? allowAudioVisualModeToggles
       : true
   );

@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 import { H1 } from '@votingworks/ui';
 import { ScannedBallotCount } from './scanned_ballot_count';
-import { DisplaySettingsButton } from './display_settings_button';
+import { VoterSettingsButton } from './voter_settings_button';
 
 interface ScreenHeaderProps {
   ballotCount?: number;
@@ -28,7 +28,7 @@ export function ScreenHeader(props: ScreenHeaderProps): JSX.Element | null {
         )}
       </div>
       {title && <H1 style={{ margin: 0 }}>{title}</H1>}
-      <DisplaySettingsButton />
+      <VoterSettingsButton />
     </Container>
   );
 }

@@ -6,7 +6,7 @@ import {
   StoryContext,
 } from '@storybook/types';
 
-import { AppBase, DisplaySettingsManagerContext } from '../src';
+import { AppBase, VoterSettingsManagerContext } from '../src';
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 import { createGlobalStyle } from 'styled-components';
 
@@ -127,7 +127,7 @@ function StoryWrapper(props: {
   };
 
   const { setColorMode, setSizeMode } = React.useContext(
-    DisplaySettingsManagerContext
+    VoterSettingsManagerContext
   );
 
   React.useEffect(() => {
