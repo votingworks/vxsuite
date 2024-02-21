@@ -84,7 +84,7 @@ export function HardwareDiagnosticsScreen(): JSX.Element {
             : 'External Power Supply'
           : '-'}
       </P>
-      <H6 as="h3">Memory</H6>
+      <H6 as="h3">Storage</H6>
       <P>
         {storageAvailableLevel < DISK_SPACE_WARN_LEVEL ? (
           <Icons.Warning color="warning" />
