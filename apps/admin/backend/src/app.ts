@@ -130,6 +130,7 @@ import {
   exportTallyReportPdf,
 } from './reports/tally_report';
 import { printTestPage } from './reports/test_print';
+import { printReadinessReport } from './reports/readiness';
 
 const debug = rootDebug.extend('app');
 
@@ -1070,6 +1071,15 @@ function buildApi({
 
     async printTestPage(): Promise<void> {
       await printTestPage({
+        printer,
+        logger,
+        userRole: assertDefined(await getUserRole()),
+      });
+    },
+
+    async printReadinessReport(): Promise<void> {
+      await printReadinessReport({
+        workspace,
         printer,
         logger,
         userRole: assertDefined(await getUserRole()),
