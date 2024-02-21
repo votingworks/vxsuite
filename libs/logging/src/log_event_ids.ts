@@ -126,6 +126,7 @@ export enum LogEventId {
   UnexpectedHardwareDeviceResponse = 'unexpected-hardware-device-response',
   DiagnosticInit = 'diagnostic-init',
   DiagnosticComplete = 'diagnostic-complete',
+  ReadinessReportPrinted = 'readiness-report-printed',
   UnknownError = 'unknown-error',
 }
 
@@ -448,14 +449,14 @@ const ElectionReportPreviewed: LogDetails = {
   eventId: LogEventId.ElectionReportPreviewed,
   eventType: LogEventType.UserAction,
   documentationMessage: 'Report previewed by the user.',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
+  restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
 
 const ElectionReportPrinted: LogDetails = {
   eventId: LogEventId.ElectionReportPrinted,
   eventType: LogEventType.UserAction,
   documentationMessage: 'Report printed by the user.',
-  restrictInDocumentationToApps: [LogSource.VxAdminFrontend],
+  restrictInDocumentationToApps: [LogSource.VxAdminService],
 };
 
 const ConvertingResultsToSemsFormat: LogDetails = {
@@ -1057,6 +1058,12 @@ const DiagnosticComplete: LogDetails = {
   documentationMessage: 'The user has completed a hardware diagnostic.',
 };
 
+const ReadinessReportPrinted: LogDetails = {
+  eventId: LogEventId.ReadinessReportPrinted,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'The user has printed an equipment readiness report.',
+};
+
 const UnknownError: LogDetails = {
   eventId: LogEventId.UnknownError,
   eventType: LogEventType.ApplicationStatus,
@@ -1302,6 +1309,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return DiagnosticInit;
     case LogEventId.DiagnosticComplete:
       return DiagnosticComplete;
+    case LogEventId.ReadinessReportPrinted:
+      return ReadinessReportPrinted;
     case LogEventId.UnknownError:
       return UnknownError;
     /* istanbul ignore next - compile time check for completeness */

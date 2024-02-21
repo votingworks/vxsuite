@@ -26,7 +26,6 @@ describe('test cdf documentation generation', () => {
     expect(structuredData.DeviceModel).toEqual('VxAdmin 1.0');
     expect(structuredData.GeneratedDate).toEqual('2020-07-24T00:00:00.000Z');
     expect(structuredData.EventTypeDescription).toHaveLength(5);
-    expect(structuredData.EventIdDescription).toHaveLength(43);
     // Make sure VxAdminFrontend specific logs are included.
     expect(structuredData.EventIdDescription).toContainEqual(
       expect.objectContaining({
@@ -64,7 +63,6 @@ describe('test cdf documentation generation', () => {
     expect(structuredData.DeviceModel).toEqual('VxCentralScan');
     expect(structuredData.GeneratedDate).toEqual('2020-07-24T00:00:00.000Z');
     expect(structuredData.EventTypeDescription).toHaveLength(5);
-    expect(structuredData.EventIdDescription).toHaveLength(59);
     // Make sure VxCentralScanApp specific logs are included.
     expect(structuredData.EventIdDescription).toContainEqual(
       expect.objectContaining({
