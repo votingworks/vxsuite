@@ -17,7 +17,7 @@ function roundToGigabytes(kilobytes: number): number {
   return Math.round(kilobytes / 100_000) / 10;
 }
 
-const DISK_SPACE_WARN_LEVEL = 0.05;
+const FREE_DISK_SPACE_RATIO_WARN_THRESHOLD = 0.05;
 
 function BatteryStatusIcon({ discharging, level }: BatteryInfo): JSX.Element {
   if (discharging && level < 0.1) {
@@ -86,7 +86,7 @@ export function HardwareDiagnosticsScreen(): JSX.Element {
       </P>
       <H6 as="h3">Storage</H6>
       <P>
-        {storageAvailableLevel < DISK_SPACE_WARN_LEVEL ? (
+        {storageAvailableLevel < FREE_DISK_SPACE_RATIO_WARN_THRESHOLD ? (
           <Icons.Warning color="warning" />
         ) : (
           <Icons.Done color="success" />
