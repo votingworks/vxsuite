@@ -1962,31 +1962,40 @@
                       "height": 38.75,
                       "children": [
                         {
-                          "type": "TextBox",
+                          "type": "Rectangle",
                           "x": 0,
                           "y": 0,
                           "width": 524.5714285714286,
-                          "height": 16.25,
-                          "textLines": [
-                            "Water District 1 Fishing"
-                          ],
-                          "fontSize": 13,
-                          "fontWeight": 700,
-                          "lineHeight": 13
-                        },
-                        {
-                          "type": "TextBox",
-                          "x": 0,
-                          "y": 16.25,
-                          "width": 524.5714285714286,
-                          "height": 22.5,
-                          "textLines": [
-                            "<html>Should fishing be <b><i>banned in</i></b></html>",
-                            "<html><b><i>all</i></b> <s>city</s> owned <u>lakes and rivers</u>?</html>"
-                          ],
-                          "fontSize": 10,
-                          "fontWeight": 400,
-                          "lineHeight": 10
+                          "height": 38.75,
+                          "children": [
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 0,
+                              "width": 524.5714285714286,
+                              "height": 16.25,
+                              "textLines": [
+                                "Water District 1 Fishing"
+                              ],
+                              "fontSize": 13,
+                              "fontWeight": 700,
+                              "lineHeight": 13
+                            },
+                            {
+                              "type": "TextBox",
+                              "x": 0,
+                              "y": 16.25,
+                              "width": 524.5714285714286,
+                              "height": 22.5,
+                              "textLines": [
+                                "<html>Should fishing be <b><i>banned in</i></b></html>",
+                                "<html><b><i>all</i></b> <s>city</s> owned <u>lakes and rivers</u>?</html>"
+                              ],
+                              "fontSize": 10,
+                              "fontWeight": 400,
+                              "lineHeight": 10
+                            }
+                          ]
                         }
                       ]
                     },

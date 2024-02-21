@@ -501,7 +501,6 @@ function HeaderAndInstructions({
     month: 'long',
     day: 'numeric',
     year: 'numeric',
-    timeZone: 'UTC',
   }).format(new Date(election.date));
 
   const clerkSignatureRowHeight = m.HEADER_ROW_HEIGHT - m.HEADER_ROW_HEIGHT / 4;
