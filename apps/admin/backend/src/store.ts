@@ -289,6 +289,10 @@ export class Store {
       id
     );
     this.client.run('delete from elections where id = ?', id);
+
+    // there are many cascading deletes from elections, so there may be lots of
+    // disk space to reclaim
+    this.client.vacuum();
   }
 
   /**
@@ -2546,6 +2550,27 @@ export class Store {
         from diagnostics
       `
     ) as DiagnosticsRecord[];
+  }
+
+  getMaximumWorkspaceDiskSpace(): number {
+    const row = this.client.one(
+      `
+        select maximum_workspace_disk_space as maximumWorkspaceDiskSpace
+        from settings
+      `
+    ) as { maximumWorkspaceDiskSpace: number };
+
+    return row.maximumWorkspaceDiskSpace;
+  }
+
+  updateMaximumWorkspaceDiskSpace(space: number): void {
+    this.client.run(
+      `
+        update settings
+        set maximum_workspace_disk_space = ?
+      `,
+      space
+    );
   }
 
   /* c8 ignore start */

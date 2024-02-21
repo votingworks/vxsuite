@@ -221,6 +221,7 @@ create table manual_result_write_in_candidate_references (
 create table settings (
   -- enforce singleton table
   id integer primary key check (id = 1),
+  maximum_workspace_disk_space integer not null default 1,
   current_election_id varchar(36),
   foreign key (current_election_id) references elections(id)
 );

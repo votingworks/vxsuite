@@ -268,3 +268,49 @@ test('destroy errors', () => {
   file.removeCallback();
   expect(() => client.destroy()).toThrow();
 });
+
+test('vacuuming reduces file size', () => {
+  const dbFile = tmp.fileSync();
+  const schemaFile = join(__dirname, '../test/fixtures/schema.sql');
+  const client = Client.fileClient(dbFile.name, schemaFile);
+
+  expect(client.one('select count(*) as count from users')).toEqual({
+    count: 0,
+  });
+
+  const preInsertSize = fs.statSync(dbFile.name).size;
+
+  for (let i = 0; i < 1000; i += 1) {
+    client.run(
+      `
+      insert into users (
+        id,
+        name,
+        email,
+        password_hash
+      ) values (
+        ?, ?, ?, ?
+      )
+    `,
+      `user-${i}`,
+      'User',
+      'user@email.org',
+      'hash'
+    );
+  }
+
+  const postInsertSize = fs.statSync(dbFile.name).size;
+  client.run('delete from users');
+  const postDeleteSize = fs.statSync(dbFile.name).size;
+  client.vacuum();
+  const postVacuumSize = fs.statSync(dbFile.name).size;
+
+  // we reclaim all the space from the deleted rows
+  expect(postVacuumSize).toEqual(preInsertSize);
+
+  // deleting rows does not actually reduce the file size
+  expect(postDeleteSize).toEqual(postInsertSize);
+
+  // vacuuming reduces the file size
+  expect(postDeleteSize).toBeGreaterThan(postVacuumSize);
+});

@@ -32,6 +32,7 @@ async function expectTextWithIcon(text: string, icon: string) {
 
 test('battery state ', async () => {
   apiMock.setPrinterStatus({ connected: false });
+  apiMock.expectGetApplicationDiskSpaceSummary();
   apiMock.expectGetDiagnosticsRecords([]);
   renderInAppContext(<HardwareDiagnosticsScreen />, {
     apiMock,
@@ -71,6 +72,7 @@ const mockPrinterConfig: PrinterConfig = {
 
 test('displays printer state and allows diagnostic', async () => {
   apiMock.setPrinterStatus({ connected: false });
+  apiMock.expectGetApplicationDiskSpaceSummary();
   apiMock.expectGetDiagnosticsRecords([]);
   renderInAppContext(<HardwareDiagnosticsScreen />, {
     apiMock,
@@ -170,4 +172,43 @@ test('displays printer state and allows diagnostic', async () => {
     'Test print successful, 6/22/2022, 12:01:00 PM',
     'circle-check'
   );
+});
+
+describe('disk space summary', () => {
+  beforeEach(() => {
+    apiMock.setPrinterStatus({ connected: false });
+    apiMock.expectGetDiagnosticsRecords([]);
+  });
+
+  test('normal disk space', async () => {
+    apiMock.expectGetApplicationDiskSpaceSummary({
+      available: 99.2 * 1_000_000,
+      used: 0.08 * 1_000_000,
+      total: 100 * 1_000_000,
+    });
+    renderInAppContext(<HardwareDiagnosticsScreen />, {
+      apiMock,
+    });
+
+    await expectTextWithIcon(
+      'Free Disk Space: 99% (99.2 GB / 100 GB)',
+      'circle-check'
+    );
+  });
+
+  test('low disk space', async () => {
+    apiMock.expectGetApplicationDiskSpaceSummary({
+      available: 2.4 * 1_000_000,
+      used: 97.6 * 1_000_000,
+      total: 100 * 1_000_000,
+    });
+    renderInAppContext(<HardwareDiagnosticsScreen />, {
+      apiMock,
+    });
+
+    await expectTextWithIcon(
+      'Free Disk Space: 2% (2.4 GB / 100 GB)',
+      'triangle-exclamation'
+    );
+  });
 });
