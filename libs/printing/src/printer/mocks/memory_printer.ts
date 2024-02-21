@@ -3,6 +3,7 @@ import { writeFile } from 'fs/promises';
 import { rmSync } from 'fs';
 import { PrinterConfig, PrinterStatus } from '@votingworks/types';
 import { MockPrintJob, PrintProps, Printer } from '../types';
+import { getMockConnectedPrinterStatus } from './fixtures';
 
 /**
  * A mock of the UsbDrive interface. See createMockUsbDrive for details.
@@ -62,10 +63,7 @@ export function createMockPrinterHandler(): MemoryPrinterHandler {
     printer,
 
     connectPrinter(config: PrinterConfig) {
-      mockPrinterState.status = {
-        connected: true,
-        config,
-      };
+      mockPrinterState.status = getMockConnectedPrinterStatus(config);
     },
 
     disconnectPrinter() {

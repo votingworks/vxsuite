@@ -8,6 +8,7 @@ import {
   getMockFilePrinterHandler,
 } from './file_printer';
 import { HP_LASER_PRINTER_CONFIG } from '../supported';
+import { MOCK_PRINTER_RICH_STATUS } from './fixtures';
 
 beforeEach(() => {
   getMockFilePrinterHandler().cleanup();
@@ -34,6 +35,7 @@ test('mock file printer', async () => {
     typedAs<PrinterStatus>({
       connected: true,
       config: HP_LASER_PRINTER_CONFIG,
+      richStatus: MOCK_PRINTER_RICH_STATUS,
     })
   );
   expect(filePrinterHandler.getPrinterStatus()).toEqual(
