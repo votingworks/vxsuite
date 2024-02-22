@@ -1,9 +1,9 @@
 /* istanbul ignore file - tested via VxMark Playwright tests */
 import React from 'react';
-import styled, { ThemeProvider } from 'styled-components';
+import styled, { DefaultTheme, ThemeProvider } from 'styled-components';
 
 import { rgba } from 'polished';
-import { TouchSizeMode, isTouchSizeMode } from '@votingworks/types';
+import { SizeMode, TouchSizeMode, isTouchSizeMode } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { Button } from './button';
 import { Icons } from './icons';
@@ -26,6 +26,18 @@ const SCROLL_BUTTON_SIZE_MODE_OVERRIDES: Readonly<
   touchExtraLarge: 'touchMedium',
 };
 
+const CONTENT_SPACING_VALUES_REM: Readonly<Record<SizeMode, number>> = {
+  desktop: 0.5,
+  touchSmall: 0.5,
+  touchMedium: 0.5,
+  touchLarge: 0.25,
+  touchExtraLarge: 0.25,
+};
+
+function getSpacingValueRem(p: { theme: DefaultTheme }) {
+  return CONTENT_SPACING_VALUES_REM[p.theme.sizeMode];
+}
+
 const Container = styled.div`
   display: flex;
   height: 100%;
@@ -45,15 +57,19 @@ const Content = styled.div<ContentProps>`
   flex-grow: 1;
   justify-content: stretch;
   overflow: scroll;
-  padding: 0 ${(p) => (p.noPadding ? 0 : 0.5)}rem;
-  padding-bottom: ${(p) => (p.scrollEnabled ? '0.5rem' : '0')};
+  padding: 0 ${(p) => (p.noPadding ? 0 : getSpacingValueRem(p))}rem;
+
+  /* Always pad bottom when scroll enabled, to account for bottom shadow: */
+  padding-bottom: ${(p) => (p.scrollEnabled ? getSpacingValueRem(p) : 0)}rem;
 `;
 
 const Controls = styled.div`
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 0.25rem 0.5rem 0.25rem 0;
+  justify-content: end;
+  gap: ${(p) => getSpacingValueRem(p) / 2}rem;
+  padding: ${(p) => getSpacingValueRem(p) / 2}rem;
+  padding-left: 0;
 `;
 
 /**
@@ -66,6 +82,10 @@ const Control = styled(Button)`
   font-size: ${(p) => p.theme.sizes.fontDefault}px;
   width: 4.75em;
   height: 4.75em;
+
+  :disabled {
+    opacity: 0;
+  }
 `;
 
 const ControlLabel = styled.span`
@@ -179,23 +199,26 @@ export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
           }}
         >
           <Controls aria-hidden>
-            {canScrollUp && (
-              <Control onPress={onScrollUp} variant="primary">
-                <ControlLabel>
-                  <Icons.ChevronCircleUp />
-                  {appStrings.buttonMore()}
-                </ControlLabel>
-              </Control>
-            )}
-            <div />
-            {canScrollDown && (
-              <Control onPress={onScrollDown} variant="primary">
-                <ControlLabel>
-                  {appStrings.buttonMore()}
-                  <Icons.ChevronCircleDown />
-                </ControlLabel>
-              </Control>
-            )}
+            <Control
+              disabled={!canScrollUp}
+              onPress={onScrollUp}
+              variant="primary"
+            >
+              <ControlLabel>
+                <Icons.ChevronCircleUp />
+                {appStrings.buttonMore()}
+              </ControlLabel>
+            </Control>
+            <Control
+              disabled={!canScrollDown}
+              onPress={onScrollDown}
+              variant="primary"
+            >
+              <ControlLabel>
+                {appStrings.buttonMore()}
+                <Icons.ChevronCircleDown />
+              </ControlLabel>
+            </Control>
           </Controls>
         </ThemeProvider>
       )}

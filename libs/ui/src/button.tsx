@@ -366,7 +366,7 @@ export const buttonStyles = css<StyledButtonProps>`
   touch-action: manipulation;
   transition: 100ms ease-in;
   transition-property: background, background-color, filter, border, box-shadow,
-    color;
+    color, opacity;
   vertical-align: middle;
   width: auto;
 
