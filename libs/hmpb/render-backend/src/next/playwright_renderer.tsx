@@ -1,5 +1,7 @@
 import { chromium } from 'playwright';
+import ReactDomServer from 'react-dom/server';
 import { RenderScratchpad, createDocument, createScratchpad } from './renderer';
+import { baseStyleElements } from './base_styles';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export async function createPlaywrightRenderer() {
@@ -11,6 +13,14 @@ export async function createPlaywrightRenderer() {
   });
   const context = await browser.newContext();
   const page = await context.newPage();
+  await page.setContent(
+    `<!DOCTYPE html>${ReactDomServer.renderToStaticMarkup(
+      <html>
+        <head>{baseStyleElements}</head>
+        <body />
+      </html>
+    )}`
+  );
   const document = createDocument(page);
 
   return {

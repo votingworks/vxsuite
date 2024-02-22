@@ -23,7 +23,7 @@ import { BallotMode, layOutInColumns } from '@votingworks/hmpb-layout';
 import { BallotPageTemplate, PagedElementResult } from './render_ballot';
 import { RenderScratchpad } from './renderer';
 import {
-  Bubble,
+  Bubble as BubbleComponent,
   Page,
   QrCodeSlot,
   TIMING_MARK_DIMENSIONS,
@@ -35,6 +35,10 @@ import {
   InstructionsDiagramFillBubble,
   InstructionsDiagramWriteIn,
 } from './svg_assets';
+
+const Bubble = styled(BubbleComponent)`
+  margin-top: 0.05rem;
+`;
 
 const Colors = {
   BLACK: '#000000',
@@ -69,34 +73,40 @@ function TimingMarkGrid({ children }: { children: React.ReactNode }) {
   const gridRows = pageDimensions.height * rowsPerInch - 3;
   const gridColumns = pageDimensions.width * columnsPerInch;
 
-  const timingMarkRow = (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-      }}
-    >
-      {range(0, gridColumns).map((i) => (
-        <TimingMark key={i} />
-      ))}
-    </div>
-  );
-  const timingMarkColumn = (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        position: 'relative',
-        top: `-${TIMING_MARK_DIMENSIONS.height}in`,
-        height: `calc(100% + ${2 * TIMING_MARK_DIMENSIONS.height}in)`,
-      }}
-    >
-      {range(0, gridRows - 2).map((i) => (
-        <TimingMark key={i} />
-      ))}
-    </div>
-  );
+  function TimingMarkRow() {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+        }}
+      >
+        {range(0, gridColumns).map((i) => (
+          <TimingMark key={i} />
+        ))}
+      </div>
+    );
+  }
+
+  function TimingMarkColumn({ style }: { style: React.CSSProperties }) {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'space-between',
+          position: 'absolute',
+          top: `-${TIMING_MARK_DIMENSIONS.height}in`,
+          height: `calc(100% + ${2 * TIMING_MARK_DIMENSIONS.height}in)`,
+          ...style,
+        }}
+      >
+        {range(0, gridRows - 2).map((i) => (
+          <TimingMark key={i} />
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div
@@ -107,21 +117,20 @@ function TimingMarkGrid({ children }: { children: React.ReactNode }) {
         flexDirection: 'column',
       }}
     >
-      {timingMarkRow}
+      <TimingMarkRow />
       <div
         style={{
           flex: 1,
+          position: 'relative',
           display: 'flex',
-          // Prevent this flex item from overflowing its container
-          // https://stackoverflow.com/a/66689926
-          minHeight: 0,
+          padding: `0 ${TIMING_MARK_DIMENSIONS.width}in`,
         }}
       >
-        {timingMarkColumn}
+        <TimingMarkColumn style={{ left: 0 }} />
         {children}
-        {timingMarkColumn}
+        <TimingMarkColumn style={{ right: 0 }} />
       </div>
-      {timingMarkRow}
+      <TimingMarkRow />
     </div>
   );
 }
@@ -363,6 +372,11 @@ function BallotPageFrame({
   );
 }
 
+const ContestHeader = styled.div`
+  background: ${Colors.LIGHT_GRAY};
+  padding: 0.5rem 0.75rem;
+`;
+
 function CandidateContest({
   election,
   contest,
@@ -378,12 +392,7 @@ function CandidateContest({
         padding: 0,
       }}
     >
-      <div
-        style={{
-          background: Colors.LIGHT_GRAY,
-          padding: '0.5rem 0.75rem',
-        }}
-      >
+      <ContestHeader>
         <h4>{contest.title}</h4>
         <div>
           {contest.seats === 1
@@ -391,13 +400,8 @@ function CandidateContest({
             : `Vote for up to ${contest.seats}`}
         </div>
         {contest.termDescription && <div>{contest.termDescription}</div>}
-      </div>
-      <ul
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-      >
+      </ContestHeader>
+      <ul>
         {contest.candidates.map((candidate, i) => {
           const partyText =
             election.type === 'primary'
@@ -420,9 +424,7 @@ function CandidateContest({
                   alignItems: 'center',
                 }}
               >
-                <div style={{ marginTop: '0.05rem' }}>
-                  <Bubble contestId={contest.title} optionId={candidate.id} />
-                </div>
+                <Bubble contestId={contest.id} optionId={candidate.id} />
                 <strong>{candidate.name}</strong>
                 {partyText && (
                   <>
@@ -449,9 +451,7 @@ function CandidateContest({
                   borderTop: `1px solid ${Colors.DARK_GRAY}`,
                 }}
               >
-                <div style={{ marginTop: '0.05rem' }}>
-                  <Bubble contestId={contest.title} optionId={writeInId} />
-                </div>
+                <Bubble contestId={contest.id} optionId={writeInId} />
                 <div>
                   <div>
                     <div
@@ -472,7 +472,48 @@ function CandidateContest({
 }
 
 function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
-  return <div>{contest.title}</div>;
+  return (
+    <Box style={{ padding: 0 }}>
+      <ContestHeader>
+        <h4> {contest.title}</h4>
+      </ContestHeader>
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          gap: '0.5rem',
+        }}
+      >
+        <div style={{ padding: '0.5rem 0.75rem' }}>{contest.description}</div>
+        <ul
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'end',
+            // borderLeft: `1px solid ${Colors.LIGHT_GRAY}`,
+          }}
+        >
+          {[contest.yesOption, contest.noOption].map((option) => (
+            <li
+              key={option.id}
+              style={{
+                padding: '0.375rem 0.75rem ',
+                borderTop: `1px solid ${Colors.LIGHT_GRAY}`,
+                borderLeft: `1px solid ${Colors.LIGHT_GRAY}`,
+              }}
+            >
+              <div
+                style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}
+              >
+                <Bubble contestId={contest.id} optionId={option.id} />
+                <strong>{option.label}</strong>
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </Box>
+  );
 }
 
 function Contest({

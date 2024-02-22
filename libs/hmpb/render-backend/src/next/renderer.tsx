@@ -4,18 +4,10 @@ import ReactDomServer from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';
 import { assert } from '@votingworks/basics';
 import { InchDimensions, PixelMeasurements } from './types';
-import { baseStyleElements } from './base_styles';
 
 export interface PdfOptions {
   pageDimensions: InchDimensions;
 }
-
-export const emptyPageContentsWithFonts = `<!DOCTYPE html>${ReactDomServer.renderToStaticMarkup(
-  <html>
-    <head>{baseStyleElements}</head>
-    <body />
-  </html>
-)}`;
 
 export type Page = Pick<PlaywrightPage, 'evaluate' | 'close' | 'pdf'>;
 

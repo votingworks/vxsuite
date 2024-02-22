@@ -66,13 +66,15 @@ export const BUBBLE_CLASS = 'bubble';
 export function Bubble({
   contestId,
   optionId,
+  className,
 }: {
   contestId: string;
   optionId: string;
+  className?: string;
 }): JSX.Element {
   return (
     <StyledBubble
-      className={BUBBLE_CLASS}
+      className={[BUBBLE_CLASS, className].join(' ')}
       data-contest-id={contestId}
       data-option-id={optionId}
     />

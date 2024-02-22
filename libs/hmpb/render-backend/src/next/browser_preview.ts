@@ -8,7 +8,7 @@ import { createBrowserPreviewRenderer } from './browser_preview_renderer';
 const election = electionGeneral;
 const ballotStyle = election.ballotStyles[0];
 const precinct = election.precincts[0];
-export const exampleBallotProps: BallotProps = {
+const exampleBallotProps: BallotProps = {
   election,
   ballotStyle,
   precinct,

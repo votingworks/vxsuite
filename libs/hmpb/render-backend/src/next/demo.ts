@@ -1,8 +1,23 @@
 import { writeFile } from 'fs/promises';
+import { readFileSync } from 'fs';
+import { BallotType, safeParseElection } from '@votingworks/types';
 import { renderBallotToPdf } from './render_ballot';
-import { ballotPageTemplate, pageDimensions } from './template';
+import { BallotProps, ballotPageTemplate, pageDimensions } from './template';
 import { createPlaywrightRenderer } from './playwright_renderer';
-import { exampleBallotProps } from './browser_preview';
+
+const electionJson = readFileSync(
+  '../../fixtures/data/electionGeneral/election.json'
+).toString('utf-8');
+const election = safeParseElection(electionJson).unsafeUnwrap();
+const ballotStyle = election.ballotStyles[0];
+const precinct = election.precincts[0];
+const exampleBallotProps: BallotProps = {
+  election,
+  ballotStyle,
+  precinct,
+  ballotType: BallotType.Precinct,
+  ballotMode: 'official',
+};
 
 /**
  * There are three layers to this rendering stack:
