@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/basics';
+import { assert, find } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
@@ -17,6 +17,13 @@ import {
   safeParseJson,
   SystemSettingsSchema,
   ElectionDefinition,
+  Candidate,
+  VotesDict,
+  ContestId,
+  YesNoVote,
+  Election,
+  safeParseElectionDefinitionExtended,
+  testCdfBallotDefinition,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -32,6 +39,10 @@ import { Server } from 'http';
 import * as grout from '@votingworks/grout';
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { LogEventId, Logger } from '@votingworks/logging';
+import {
+  HP_LASER_PRINTER_CONFIG,
+  MemoryPrinterHandler,
+} from '@votingworks/printing';
 import { createApp } from '../test/app_helpers';
 import { Api } from './app';
 import { ElectionState } from '.';
@@ -49,6 +60,7 @@ let apiClient: grout.Client<Api>;
 let logger: Logger;
 let mockAuth: InsertedSmartCardAuthApi;
 let mockUsbDrive: MockUsbDrive;
+let mockPrinterHandler: MemoryPrinterHandler;
 let server: Server;
 
 function mockElectionManagerAuth(electionDefinition: ElectionDefinition) {
@@ -66,7 +78,8 @@ beforeEach(() => {
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
 
-  ({ apiClient, mockAuth, mockUsbDrive, server, logger } = createApp());
+  ({ apiClient, mockAuth, mockPrinterHandler, mockUsbDrive, server, logger } =
+    createApp());
 });
 
 afterEach(() => {
@@ -329,15 +342,81 @@ test('setting precinct', async () => {
   });
 });
 
-test('incrementing printed ballot count', async () => {
+/**
+ * The VotesDict that the client sends to the server includes a full candidate
+ * object to represent each candidate vote. For testing ease, this utility
+ * converts a shorthand representation of votes to the full VotesDict.
+ */
+function convertShorthandVotesToVotesDict(
+  shorthand: Record<ContestId, Array<string | Candidate>>,
+  election: Election
+): VotesDict {
+  const votesDict: VotesDict = {};
+  for (const [contestId, optionIds] of Object.entries(shorthand)) {
+    const contest = find(election.contests, (c) => c.id === contestId);
+    if (contest.type === 'yesno') {
+      votesDict[contestId] = optionIds as YesNoVote;
+    } else {
+      const candidates = optionIds.map((optionId) => {
+        if (typeof optionId === 'string') {
+          return find(contest.candidates, (c) => c.id === optionId);
+        }
+        return optionId;
+      });
+      votesDict[contestId] = candidates;
+    }
+  }
+  return votesDict;
+}
+
+test('printing ballots', async () => {
+  mockElectionManagerAuth(electionDefinition);
+  const electionPackage = safeParseElectionDefinitionExtended(
+    JSON.stringify(testCdfBallotDefinition)
+  ).unsafeUnwrap();
+  mockUsbDrive.insertUsbDrive(
+    await mockElectionPackageFileTree(electionPackage)
+  );
   await expectElectionState({ ballotsPrintedCount: 0 });
 
   await configureMachine(
     mockUsbDrive,
     electionFamousNames2021Fixtures.electionDefinition
   );
-  await expectElectionState({ ballotsPrintedCount: 0 });
+  await apiClient.setPrecinctSelection({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+  });
+  await apiClient.setPollsState({ pollsState: 'polls_open' });
+  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
-  await apiClient.incrementBallotsPrintedCount();
+  await apiClient.printBallot({
+    precinctId: '23',
+    ballotStyleId: '1',
+    votes: convertShorthandVotesToVotesDict(
+      {
+        mayor: ['sherlock-holmes'],
+        controller: ['oprah-winfrey'],
+        attorney: ['john-snow'],
+        'public-works-director': ['bill-nye'],
+        'chief-of-police': ['natalie-portman'],
+        'parks-and-recreation-director': ['stephen-hawking'],
+        'board-of-alderman': [
+          'helen-keller',
+          'pablo-picasso',
+          'nikola-tesla',
+          'vincent-van-gogh',
+        ],
+        'city-council': [
+          'marie-curie',
+          'mona-lisa',
+          'harriet-tubman',
+          'tim-allen',
+        ],
+      },
+      electionFamousNames2021Fixtures.election
+    ),
+  });
+
+  await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot();
   await expectElectionState({ ballotsPrintedCount: 1 });
 });

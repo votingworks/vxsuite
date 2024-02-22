@@ -43,10 +43,12 @@ const i18nextInitPromise = i18next.use(initReactI18next).init({
  * Loads UI Strings for the specified language from the backend, if available.
  */
 export function UiStringsLoader(): React.ReactNode {
+  console.log('UiStringsLoader');
   const context = assertDefined(
     useLanguageContext(),
     'LanguageContext required for UiStringsLoader'
   );
+  console.log('did not bail');
   const languageCode = context.currentLanguageCode;
   const { data, isLoading } = context.api.getUiStrings.useQuery(languageCode);
 
@@ -116,3 +118,29 @@ export function LanguageContextProvider(
     </LanguageContext.Provider>
   );
 }
+
+// export function PrintLanguageContextProvider(props: {
+//   languageCode: LanguageCode;
+//   children: React.ReactNode;
+// }): JSX.Element {
+//   const { languageCode, children } = props;
+//   const { t: translationFunction } = useTranslation();
+
+//   // TODO(kofi): Add logging for missing translation keys and data fetch errors.
+
+//   return (
+//     <LanguageContext.Provider
+//       value={{
+//         api,
+//         availableLanguages: availableLanguagesQuery.data,
+//         currentLanguageCode,
+//         i18next,
+//         setLanguage,
+//         translationFunction,
+//       }}
+//     >
+//       <UiStringsLoader />
+//       {children}
+//     </LanguageContext.Provider>
+//   );
+// }

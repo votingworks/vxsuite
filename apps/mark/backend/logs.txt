@@ -1,0 +1,407 @@
+
+> @votingworks/mark-backend@0.1.0 test /home/vx/code/vxsuite/apps/mark/backend
+> is-ci test:ci test:watch "app.test.ts"
+
+
+> @votingworks/mark-backend@0.1.0 test:watch /home/vx/code/vxsuite/apps/mark/backend
+> jest --watch "--" "app.test.ts"
+
+  console.log
+    BmdPaperBallot
+
+      at BmdPaperBallot (../../../libs/ui/build/bmd_paper_ballot.js:179:13)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    LanguageOverride: no parent context
+
+      at LanguageOverride (../../../libs/ui/build/ui_strings/language_override.js:18:17)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+  console.log
+    UiString
+
+      at UiString (../../../libs/ui/build/ui_strings/ui_string.js:9:13)
+
+
+
+ ELIFECYCLE  Test failed. See above for more details.
+ ELIFECYCLE  Command failed.

@@ -21,6 +21,10 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
+import {
+  createMockPrinterHandler,
+  MemoryPrinterHandler,
+} from '@votingworks/printing';
 import { Api, buildApp } from '../src/app';
 import { createWorkspace } from '../src/util/workspace';
 
@@ -29,6 +33,7 @@ interface MockAppContents {
   app: Application;
   logger: Logger;
   mockAuth: InsertedSmartCardAuthApi;
+  mockPrinterHandler: MemoryPrinterHandler;
   mockUsbDrive: MockUsbDrive;
   server: Server;
 }
@@ -38,8 +43,15 @@ export function createApp(): MockAppContents {
   const logger = fakeLogger();
   const workspace = createWorkspace(tmp.dirSync().name);
   const mockUsbDrive = createMockUsbDrive();
+  const mockPrinterHandler = createMockPrinterHandler();
 
-  const app = buildApp(mockAuth, logger, workspace, mockUsbDrive.usbDrive);
+  const app = buildApp({
+    auth: mockAuth,
+    logger,
+    printer: mockPrinterHandler.printer,
+    usbDrive: mockUsbDrive.usbDrive,
+    workspace,
+  });
 
   const server = app.listen();
   const { port } = server.address() as AddressInfo;
@@ -52,6 +64,7 @@ export function createApp(): MockAppContents {
     app,
     logger,
     mockAuth,
+    mockPrinterHandler,
     mockUsbDrive,
     server,
   };

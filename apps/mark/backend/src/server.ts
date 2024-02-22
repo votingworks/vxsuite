@@ -12,6 +12,7 @@ import {
   isIntegrationTest,
 } from '@votingworks/utils';
 import { detectUsbDrive } from '@votingworks/usb-drive';
+import { detectPrinter } from '@votingworks/printing';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
 
@@ -42,10 +43,16 @@ export function start({ auth, logger, port, workspace }: StartOptions): Server {
       logger,
     });
 
-  /* istanbul ignore next */
   const usbDrive = detectUsbDrive(logger);
+  const printer = detectPrinter(logger);
 
-  const app = buildApp(resolvedAuth, logger, workspace, usbDrive);
+  const app = buildApp({
+    auth: resolvedAuth,
+    logger,
+    printer,
+    usbDrive,
+    workspace,
+  });
 
   return app.listen(
     port,

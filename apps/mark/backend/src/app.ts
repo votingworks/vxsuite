@@ -16,10 +16,12 @@ import {
   BallotStyleId,
   ElectionDefinition,
   PrecinctId,
+  PrinterStatus,
   SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
   PollsState,
   PrecinctSelection,
+  VotesDict,
 } from '@votingworks/types';
 import {
   isElectionManagerAuth,
@@ -35,9 +37,11 @@ import {
 import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
+import { Printer } from '@votingworks/printing';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
 import { ElectionState } from './types';
+import { printBallot } from './print_ballot';
 
 function constructAuthMachineState(
   workspace: Workspace
@@ -54,12 +58,19 @@ function constructAuthMachineState(
 }
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export function buildApi(
-  auth: InsertedSmartCardAuthApi,
-  usbDrive: UsbDrive,
-  logger: Logger,
-  workspace: Workspace
-) {
+export function buildApi({
+  auth,
+  logger,
+  printer,
+  usbDrive,
+  workspace,
+}: {
+  auth: InsertedSmartCardAuthApi;
+  logger: Logger;
+  printer: Printer;
+  usbDrive: UsbDrive;
+  workspace: Workspace;
+}) {
   const { store } = workspace;
 
   async function getUserRole(): Promise<LoggingUserRole> {
@@ -92,6 +103,10 @@ export function buildApi(
 
     async ejectUsbDrive(): Promise<void> {
       return usbDrive.eject(assertDefined(await getUserRole()));
+    },
+
+    getPrinterStatus(): Promise<PrinterStatus> {
+      return printer.status();
     },
 
     updateSessionExpiry(input: { sessionExpiresAt: Date }) {
@@ -195,6 +210,21 @@ export function buildApi(
       machineId: getMachineConfig().machineId,
     }),
 
+    async printBallot(input: {
+      precinctId: PrecinctId;
+      ballotStyleId: BallotStyleId;
+      votes: VotesDict;
+    }) {
+      await printBallot({
+        printer,
+        store: workspace.store,
+        precinctId: input.precinctId,
+        ballotStyleId: input.ballotStyleId,
+        votes: input.votes,
+      });
+      store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
+    },
+
     incrementBallotsPrintedCount() {
       store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
     },
@@ -257,14 +287,21 @@ export function buildApi(
 
 export type Api = ReturnType<typeof buildApi>;
 
-export function buildApp(
-  auth: InsertedSmartCardAuthApi,
-  logger: Logger,
-  workspace: Workspace,
-  usbDrive: UsbDrive
-): Application {
+export function buildApp({
+  auth,
+  logger,
+  printer,
+  usbDrive,
+  workspace,
+}: {
+  auth: InsertedSmartCardAuthApi;
+  logger: Logger;
+  printer: Printer;
+  usbDrive: UsbDrive;
+  workspace: Workspace;
+}): Application {
   const app: Application = express();
-  const api = buildApi(auth, usbDrive, logger, workspace);
+  const api = buildApi({ auth, logger, printer, usbDrive, workspace });
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express, 'mark');
   return app;

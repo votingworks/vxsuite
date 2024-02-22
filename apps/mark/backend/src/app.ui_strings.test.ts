@@ -21,6 +21,7 @@ import {
   fakeSessionExpiresAt,
 } from '@votingworks/test-utils';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
+import { createMockPrinterHandler } from '@votingworks/printing';
 import { Store } from './store';
 import { createWorkspace } from './util/workspace';
 import { Api, buildApi } from './app';
@@ -46,12 +47,13 @@ afterEach(() => {
 });
 
 runUiStringApiTests({
-  api: buildApi(
-    mockAuth,
-    createMockUsbDrive().usbDrive,
-    fakeLogger(),
-    workspace
-  ),
+  api: buildApi({
+    auth: mockAuth,
+    logger: fakeLogger(),
+    printer: createMockPrinterHandler().printer,
+    usbDrive: createMockUsbDrive().usbDrive,
+    workspace,
+  }),
   store: store.getUiStringsStore(),
 });
 
@@ -66,8 +68,13 @@ describe('configureElectionPackageFromUsb', () => {
     );
 
     mockUsbDrive = createMockUsbDrive();
-    api = buildApi(mockAuth, mockUsbDrive.usbDrive, fakeLogger(), workspace);
-
+    api = buildApi({
+      auth: mockAuth,
+      logger: fakeLogger(),
+      printer: createMockPrinterHandler().printer,
+      usbDrive: createMockUsbDrive().usbDrive,
+      workspace,
+    });
     mockAuth.getAuthStatus.mockImplementation(() =>
       Promise.resolve({
         status: 'logged_in',
@@ -86,12 +93,13 @@ describe('configureElectionPackageFromUsb', () => {
 });
 
 describe('unconfigureMachine', () => {
-  const api = buildApi(
-    mockAuth,
-    createMockUsbDrive().usbDrive,
-    fakeLogger(),
-    workspace
-  );
+  const api = buildApi({
+    auth: mockAuth,
+    logger: fakeLogger(),
+    printer: createMockPrinterHandler().printer,
+    usbDrive: createMockUsbDrive().usbDrive,
+    workspace,
+  });
 
   runUiStringMachineDeconfigurationTests({
     runUnconfigureMachine: () => api.unconfigureMachine(),

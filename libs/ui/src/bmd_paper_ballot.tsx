@@ -1,5 +1,5 @@
 import { fromByteArray } from 'base64-js';
-import React, { useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { encodeBallot } from '@votingworks/ballot-encoder';
@@ -336,7 +336,6 @@ export interface BmdPaperBallotProps {
   isLiveMode: boolean;
   precinctId: PrecinctId;
   votes: VotesDict;
-  onRendered?: () => void;
   largeTopMargin?: boolean;
 }
 
@@ -362,9 +361,9 @@ export function BmdPaperBallot({
   isLiveMode,
   precinctId,
   votes,
-  onRendered,
   largeTopMargin,
 }: BmdPaperBallotProps): JSX.Element {
+  console.log('BmdPaperBallot');
   const ballotId = generateBallotId();
   const {
     election,
@@ -386,12 +385,6 @@ export function BmdPaperBallot({
     isTestMode: !isLiveMode,
     ballotType: BallotType.Precinct,
   });
-
-  useEffect(() => {
-    if (onRendered) {
-      onRendered();
-    }
-  }, [onRendered]);
 
   return withPrintTheme(
     <LanguageOverride languageCode={primaryBallotLanguage}>
