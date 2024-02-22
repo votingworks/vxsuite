@@ -245,10 +245,10 @@ function Instructions() {
         }}
       >
         <div>
-          <b>To Vote for a Write-In:</b>
+          <b>To Vote for a Write-in:</b>
           <div>
             To vote for a person whose name is not on the ballot, write the
-            person’s name on the "write-in" line and completely fill in the oval
+            person’s name on the "Write-in" line and completely fill in the oval
             next to the line.
           </div>
         </div>
@@ -271,7 +271,7 @@ function Footer({
     <div
       style={{
         display: 'flex',
-        gap: '1rem',
+        gap: '0.75rem',
         alignItems: 'center',
       }}
     >
@@ -446,7 +446,7 @@ function CandidateContest({
                   display: 'grid',
                   columnGap: '0.5rem',
                   gridTemplateColumns: 'min-content 1fr',
-                  padding: '0.375rem 0.75rem',
+                  padding: '0.25rem 0.75rem',
                   paddingTop: '0.9rem',
                   borderTop: `1px solid ${Colors.DARK_GRAY}`,
                 }}
@@ -460,7 +460,7 @@ function CandidateContest({
                         height: '1.25rem',
                       }}
                     />
-                    <div style={{ fontSize: '0.8rem' }}>write-in</div>
+                    <div style={{ fontSize: '0.8rem' }}>Write-in</div>
                   </div>
                 </div>
               </li>
@@ -480,8 +480,9 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
       <div
         style={{
           display: 'flex',
+          flexDirection: 'column',
           justifyContent: 'space-between',
-          gap: '0.5rem',
+          gap: '0.25rem',
         }}
       >
         <div style={{ padding: '0.5rem 0.75rem' }}>{contest.description}</div>
@@ -490,7 +491,6 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'end',
-            // borderLeft: `1px solid ${Colors.LIGHT_GRAY}`,
           }}
         >
           {[contest.yesOption, contest.noOption].map((option) => (
@@ -499,7 +499,6 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
               style={{
                 padding: '0.375rem 0.75rem ',
                 borderTop: `1px solid ${Colors.LIGHT_GRAY}`,
-                borderLeft: `1px solid ${Colors.LIGHT_GRAY}`,
               }}
             >
               <div
@@ -562,7 +561,7 @@ async function BallotPageContent(
     const contestElements = section.map((contest) => (
       <Contest key={contest.id} contest={contest} election={election} />
     ));
-    const numColumns = section[0].type === 'candidate' ? 3 : 1;
+    const numColumns = section[0].type === 'candidate' ? 3 : 2;
     // TODO is there a better way to incorporate gutter width here?
     const gutterWidthPx = 0.75 * 16; // Assuming 16px per 1rem
     const columnWidthPx =

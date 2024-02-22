@@ -181,7 +181,7 @@ export function InstructionsDiagramWriteIn(): JSX.Element {
         }}
         transform="translate(65.84 65.79)"
       >
-        {'write-in'}
+        Write-in
       </text>
       <rect x={12} y={20} width={45} height={30} rx={15} ry={15} />
     </svg>
