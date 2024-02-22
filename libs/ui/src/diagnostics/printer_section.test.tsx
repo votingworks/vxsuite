@@ -103,7 +103,7 @@ describe('PrinterSection status message', () => {
         }}
       />
     );
-    await expectTextWithIcon('Connected', 'circle-check');
+    await expectTextWithIcon('Connected', 'square-check');
   });
 
   test('displays IPP connected without status', async () => {
@@ -121,7 +121,7 @@ describe('PrinterSection status message', () => {
   test('idle', async () => {
     render(<PrinterSection printerStatus={getMockPrinterStatus()} />);
 
-    await expectTextWithIcon('Ready to print', 'circle-check');
+    await expectTextWithIcon('Ready to print', 'square-check');
   });
 
   test('sleep mode and low toner', async () => {
@@ -197,7 +197,7 @@ describe('PrinterSection status message', () => {
 describe('PrinterSection marker info', () => {
   test('full marker info', async () => {
     render(<PrinterSection printerStatus={getMockPrinterStatus()} />);
-    await expectTextWithIcon('Toner Level: 100%', 'circle-check');
+    await expectTextWithIcon('Toner Level: 100%', 'square-check');
   });
 
   test('low toner', async () => {

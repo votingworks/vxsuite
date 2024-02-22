@@ -1,7 +1,7 @@
 import { Icons } from '../icons';
 
 export function SuccessIcon(): JSX.Element {
-  return <Icons.Done color="success" />;
+  return <Icons.Checkbox color="success" />;
 }
 
 export function WarningIcon(): JSX.Element {

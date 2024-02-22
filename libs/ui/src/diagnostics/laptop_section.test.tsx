@@ -15,7 +15,7 @@ test('normal disk space summary', async () => {
   screen.getByRole('heading', { name: 'Storage' });
   await expectTextWithIcon(
     'Free Disk Space: 50% (500 GB / 1000 GB)',
-    'circle-check'
+    'square-check'
   );
 });
 
@@ -41,8 +41,8 @@ test('undefined battery info', async () => {
   render(<LaptopSection diskSpaceSummary={mockDiskSpaceSummary} />);
 
   screen.getByRole('heading', { name: 'Power' });
-  await expectTextWithIcon('Battery Level: 100%', 'circle-check');
-  await expectTextWithIcon('Power Source: Unknown', 'circle-check');
+  await expectTextWithIcon('Battery Level: 100%', 'square-check');
+  await expectTextWithIcon('Power Source: Unknown', 'square-check');
 });
 
 test('on low battery power', async () => {
@@ -67,9 +67,9 @@ test('on external power', async () => {
   );
 
   screen.getByRole('heading', { name: 'Power' });
-  await expectTextWithIcon('Battery Level: 2%', 'circle-check');
+  await expectTextWithIcon('Battery Level: 2%', 'square-check');
   await expectTextWithIcon(
     'Power Source: External Power Supply',
-    'circle-check'
+    'square-check'
   );
 });
