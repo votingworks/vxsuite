@@ -29,7 +29,7 @@ import {
   SetupCardReaderPage,
   useDevices,
   UnlockMachineScreen,
-  DisplaySettingsManagerContext,
+  VoterSettingsManagerContext,
   useAudioControls,
   useLanguageControls,
 } from '@votingworks/ui';
@@ -154,9 +154,7 @@ export function AppRoot({
 
   const history = useHistory();
 
-  const displaySettingsManager = React.useContext(
-    DisplaySettingsManagerContext
-  );
+  const voterSettingsManager = React.useContext(VoterSettingsManagerContext);
   const { reset: resetAudioSettings } = useAudioControls();
   const { reset: resetLanguage } = useLanguageControls();
 
@@ -232,12 +230,12 @@ export function AppRoot({
       if (!newShowPostVotingInstructions) {
         // [VVSG 2.0 7.1-A] Reset to default settings when voter is done marking
         // their ballot:
-        displaySettingsManager.resetThemes();
+        voterSettingsManager.resetThemes();
         resetAudioSettings();
         resetLanguage();
       }
     },
-    [history, displaySettingsManager, resetAudioSettings, resetLanguage]
+    [history, voterSettingsManager, resetAudioSettings, resetLanguage]
   );
 
   const unconfigure = useCallback(async () => {

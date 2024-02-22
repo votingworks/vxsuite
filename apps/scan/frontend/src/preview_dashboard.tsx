@@ -11,7 +11,7 @@ import { BrowserRouter, Link, Route } from 'react-router-dom';
 import styled from 'styled-components';
 import { createApiClient } from './api';
 import { Paths } from './constants';
-import { DisplaySettingsScreen } from './screens/display_settings_screen';
+import { VoterSettingsScreen } from './screens/voter_settings_screen';
 import { ApiProvider } from './api_provider';
 
 interface PreviewContextValues {
@@ -165,8 +165,8 @@ export function PreviewDashboard({
     <PreviewContext.Provider value={{ electionDefinition }}>
       <ApiProvider apiClient={createApiClient()}>
         <BrowserRouter>
-          <Route path={Paths.DISPLAY_SETTINGS} exact>
-            <DisplaySettingsScreen />
+          <Route path={Paths.VOTER_SETTINGS} exact>
+            <VoterSettingsScreen />
           </Route>
           <Route path="/preview" exact>
             <div style={{ height: '100%', overflow: 'auto' }}>

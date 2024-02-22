@@ -14,6 +14,7 @@ export interface TabBarProps {
 
 interface ContainerProps {
   grow?: boolean;
+  tabCount: number;
 }
 
 const Container = styled.div<ContainerProps>`
@@ -23,7 +24,7 @@ const Container = styled.div<ContainerProps>`
   gap: max(0.25rem, ${(p) => p.theme.sizes.minTouchAreaSeparationPx}px);
 
   & > * {
-    max-width: ${100 / PANE_IDS.length}%;
+    max-width: ${(p) => 100 / p.tabCount}%;
     min-width: min-content;
   }
 `;
@@ -36,10 +37,9 @@ const TabLabel = styled.span`
 `;
 
 const TAB_LABELS: Record<SettingsPaneId, JSX.Element> = {
-  displaySettingsColor: appStrings.titleDisplaySettingsColor(),
-  displaySettingsSize: appStrings.titleDisplaySettingsSize(),
-  displaySettingsAudioVideoOnly:
-    appStrings.titleDisplaySettingsAudioVideoOnly(),
+  voterSettingsColor: appStrings.titleVoterSettingsColor(),
+  voterSettingsSize: appStrings.titleVoterSettingsSize(),
+  voterSettingsAudioVideoOnly: appStrings.titleVoterSettingsAudioVideoOnly(),
 };
 
 /**
@@ -54,32 +54,34 @@ export function TabBar(props: TabBarProps): JSX.Element {
     grow,
     onChange,
   } = props;
+
+  const visiblePaneIds = PANE_IDS.filter((paneId) =>
+    paneId === 'voterSettingsAudioVideoOnly'
+      ? allowAudioVisualModeToggles
+      : true
+  );
+
   return (
     <Container
-      aria-label="Display settings"
+      aria-label="Settings"
       className={className}
       grow={grow}
       role="tablist"
+      tabCount={visiblePaneIds.length}
     >
-      {[...PANE_IDS]
-        .filter((paneId) =>
-          paneId === 'displaySettingsAudioVideoOnly'
-            ? allowAudioVisualModeToggles
-            : true
-        )
-        .map((paneId) => (
-          <Button
-            aria-controls={paneId}
-            aria-selected={activePaneId === paneId}
-            key={paneId}
-            onPress={onChange}
-            role="tab"
-            value={paneId}
-            variant={activePaneId === paneId ? 'primary' : 'neutral'}
-          >
-            <TabLabel>{TAB_LABELS[paneId]}</TabLabel>
-          </Button>
-        ))}
+      {visiblePaneIds.map((paneId) => (
+        <Button
+          aria-controls={paneId}
+          aria-selected={activePaneId === paneId}
+          key={paneId}
+          onPress={onChange}
+          role="tab"
+          value={paneId}
+          variant={activePaneId === paneId ? 'primary' : 'neutral'}
+        >
+          <TabLabel>{TAB_LABELS[paneId]}</TabLabel>
+        </Button>
+      ))}
     </Container>
   );
 }

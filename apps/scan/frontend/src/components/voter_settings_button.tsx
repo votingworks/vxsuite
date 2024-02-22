@@ -12,7 +12,7 @@ const LabelContainer = styled.span`
   text-align: left;
 `;
 
-export function DisplaySettingsButton(): JSX.Element | null {
+export function VoterSettingsButton(): JSX.Element | null {
   const history = useHistory();
 
   if (!history) {
@@ -21,10 +21,13 @@ export function DisplaySettingsButton(): JSX.Element | null {
   }
 
   return (
-    <Button onPress={history.push} value={Paths.DISPLAY_SETTINGS}>
+    <Button
+      onPress={(url: string) => history.push(url)}
+      value={Paths.VOTER_SETTINGS}
+    >
       <LabelContainer>
         <Icons.Display />
-        {appStrings.buttonDisplaySettings()}
+        {appStrings.buttonVoterSettings()}
       </LabelContainer>
     </Button>
   );

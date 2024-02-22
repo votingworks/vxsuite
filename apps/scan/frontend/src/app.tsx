@@ -8,8 +8,8 @@ import { ApiClient, createApiClient, createQueryClient } from './api';
 import { ScanAppBase } from './scan_app_base';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
 import { Paths } from './constants';
-import { DisplaySettingsScreen } from './screens/display_settings_screen';
-import { DisplaySettingsManager } from './components/display_settings_manager';
+import { VoterSettingsScreen } from './screens/voter_settings_screen';
+import { VoterSettingsManager } from './components/voter_settings_manager';
 import { ApiProvider } from './api_provider';
 
 export interface AppProps {
@@ -41,14 +41,14 @@ export function App({
               showRestartButton
               logger={logger}
             >
-              <Route path={Paths.DISPLAY_SETTINGS} exact>
-                <DisplaySettingsScreen />
+              <Route path={Paths.VOTER_SETTINGS} exact>
+                <VoterSettingsScreen />
               </Route>
               <Route path={Paths.APP_ROOT} exact>
                 <AppRoot logger={logger} />
               </Route>
               <SessionTimeLimitTracker />
-              <DisplaySettingsManager />
+              <VoterSettingsManager />
             </AppErrorBoundary>
           </ApiProvider>
         </AppErrorBoundary>

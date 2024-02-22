@@ -99,7 +99,7 @@ it('prevents context menus from appearing', async () => {
   await advanceTimersAndPromises();
 });
 
-it('uses display settings management hook', async () => {
+it('uses voter settings management hook', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);

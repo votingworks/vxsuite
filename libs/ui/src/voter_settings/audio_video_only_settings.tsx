@@ -2,20 +2,18 @@ import { ThemeConsumer } from 'styled-components';
 import React from 'react';
 import { SettingsPane } from './settings_pane';
 import { Button } from '../button';
-import { DisplaySettingsManagerContext } from '../display_settings_manager_context';
+import { VoterSettingsManagerContext } from '../voter_settings_manager_context';
 import { appStrings } from '../ui_strings';
 
 export function AudioVideoOnlySettings(): JSX.Element {
-  const displaySettingsManager = React.useContext(
-    DisplaySettingsManagerContext
-  );
+  const voterSettingsManager = React.useContext(VoterSettingsManagerContext);
   return (
     <ThemeConsumer>
       {(theme) => (
-        <SettingsPane id="displaySettingsAudioVideoOnly">
+        <SettingsPane id="voterSettingsAudioVideoOnly">
           <Button
             onPress={() => {
-              displaySettingsManager.setIsVisualModeDisabled(
+              voterSettingsManager.setIsVisualModeDisabled(
                 !theme.isVisualModeDisabled
               );
             }}

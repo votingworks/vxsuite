@@ -7,13 +7,13 @@ import { ColorSettings, ColorSettingsProps } from './color_settings';
 import { SizeSettings, SizeSettingsProps } from './size_settings';
 import { H2 } from '../typography';
 import { Button } from '../button';
-import { DisplaySettingsManagerContext } from '../display_settings_manager_context';
+import { VoterSettingsManagerContext } from '../voter_settings_manager_context';
 import { useScreenInfo } from '../hooks/use_screen_info';
 import { appStrings } from '../ui_strings';
 import { Header } from './header';
 import { AudioVideoOnlySettings } from './audio_video_only_settings';
 
-export interface DisplaySettingsProps {
+export interface VoterSettingsProps {
   /** @default ['contrastLow', 'contrastMedium', 'contrastHighLight', 'contrastHighDark'] */
   colorModes?: ColorSettingsProps['colorModes'];
   onClose: () => void;
@@ -46,21 +46,20 @@ const Footer = styled.div`
  * These settings modify the active UI theme used by components in libs/ui, as
  * well as theme-dependent global styles.
  */
-export function DisplaySettings(props: DisplaySettingsProps): JSX.Element {
+export function VoterSettings(props: VoterSettingsProps): JSX.Element {
   const { colorModes, allowAudioVideoOnlyToggles, onClose, sizeModes } = props;
 
   const screenInfo = useScreenInfo();
 
-  const [activePaneId, setActivePaneId] = React.useState<SettingsPaneId>(
-    'displaySettingsColor'
-  );
+  const [activePaneId, setActivePaneId] =
+    React.useState<SettingsPaneId>('voterSettingsColor');
 
-  const { resetThemes } = React.useContext(DisplaySettingsManagerContext);
+  const { resetThemes } = React.useContext(VoterSettingsManagerContext);
 
   return (
     <Container>
       <Header portrait={screenInfo.isPortrait}>
-        <H2 as="h1">{appStrings.titleDisplaySettings()}</H2>
+        <H2 as="h1">{appStrings.titleVoterSettings()}</H2>
         <TabBar
           activePaneId={activePaneId}
           grow={!screenInfo.isPortrait}
@@ -69,13 +68,13 @@ export function DisplaySettings(props: DisplaySettingsProps): JSX.Element {
         />
       </Header>
       <ActivePaneContainer>
-        {activePaneId === 'displaySettingsColor' && (
+        {activePaneId === 'voterSettingsColor' && (
           <ColorSettings colorModes={colorModes} />
         )}
-        {activePaneId === 'displaySettingsSize' && (
+        {activePaneId === 'voterSettingsSize' && (
           <SizeSettings sizeModes={sizeModes} />
         )}
-        {activePaneId === 'displaySettingsAudioVideoOnly' && (
+        {activePaneId === 'voterSettingsAudioVideoOnly' && (
           <AudioVideoOnlySettings />
         )}
       </ActivePaneContainer>

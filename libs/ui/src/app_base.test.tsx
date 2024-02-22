@@ -8,9 +8,9 @@ import { act, render } from '@testing-library/react';
 import { AppBaseProps, AppBase as OriginalAppBase } from './app_base';
 import { makeTheme } from './themes/make_theme';
 import {
-  DisplaySettingsManagerContext,
-  DisplaySettingsManagerContextInterface,
-} from './display_settings_manager_context';
+  VoterSettingsManagerContext,
+  VoterSettingsManagerContextInterface,
+} from './voter_settings_manager_context';
 
 function AppBase(props: AppBaseProps) {
   return <OriginalAppBase {...props} disableFontsForTests />;
@@ -85,10 +85,10 @@ test('renders with selected themes', () => {
 
 test('implements ThemeManagerContext interface', () => {
   let currentTheme: UiTheme | null = null;
-  let manager: DisplaySettingsManagerContextInterface | null = null;
+  let manager: VoterSettingsManagerContextInterface | null = null;
 
   function TestComponent(): JSX.Element {
-    manager = React.useContext(DisplaySettingsManagerContext);
+    manager = React.useContext(VoterSettingsManagerContext);
 
     return (
       <ThemeConsumer>

@@ -1,14 +1,14 @@
 import { DefaultTheme, ThemeContext } from 'styled-components';
 import React from 'react';
 import {
-  DisplaySettingsManagerContext,
-  DisplaySettingsManagerContextInterface,
+  VoterSettingsManagerContext,
+  VoterSettingsManagerContextInterface,
 } from '@votingworks/ui';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { advanceTimersAndPromises } from '@votingworks/test-utils';
 import { PRECINCT_SCANNER_STATES } from '@votingworks/types';
 import { act, render, waitFor } from '../../test/react_testing_library';
-import { DisplaySettingsManager } from './display_settings_manager';
+import { VoterSettingsManager } from './voter_settings_manager';
 import {
   ApiMock,
   createApiMock,
@@ -20,12 +20,12 @@ import { scannerStatus } from '../../test/helpers/helpers';
 
 let apiMock: ApiMock;
 let currentTheme: DefaultTheme;
-let displaySettingsManager: DisplaySettingsManagerContextInterface;
+let voterSettingsManager: VoterSettingsManagerContextInterface;
 let scannerStatusQuery: ReturnType<typeof getScannerStatus.useQuery>;
 
 function TestThemeInspector(): null {
   currentTheme = React.useContext(ThemeContext);
-  displaySettingsManager = React.useContext(DisplaySettingsManagerContext);
+  voterSettingsManager = React.useContext(VoterSettingsManagerContext);
 
   scannerStatusQuery = getScannerStatus.useQuery();
 
@@ -42,7 +42,7 @@ beforeEach(() => {
     provideApi(
       apiMock,
       <div>
-        <DisplaySettingsManager />
+        <VoterSettingsManager />
         <TestThemeInspector />
       </div>
     ),
@@ -67,10 +67,10 @@ afterEach(() => {
 });
 
 test('Resets theme when election official logs in', async () => {
-  // Simulate changing display settings as voter:
+  // Simulate changing voter settings as voter:
   act(() => {
-    displaySettingsManager.setColorMode('contrastLow');
-    displaySettingsManager.setSizeMode('touchExtraLarge');
+    voterSettingsManager.setColorMode('contrastLow');
+    voterSettingsManager.setSizeMode('touchExtraLarge');
   });
 
   expect(currentTheme).toEqual(
@@ -80,7 +80,7 @@ test('Resets theme when election official logs in', async () => {
     })
   );
 
-  // Should reset display settings on Election Manager login:
+  // Should reset voter settings on Election Manager login:
   act(() => apiMock.authenticateAsElectionManager(electionGeneralDefinition));
   await waitFor(() =>
     expect(currentTheme).toEqual(
@@ -91,10 +91,10 @@ test('Resets theme when election official logs in', async () => {
     )
   );
 
-  // Simulate changing display settings as Election Manager:
+  // Simulate changing voter settings as Election Manager:
   act(() => {
-    displaySettingsManager.setColorMode('contrastHighDark');
-    displaySettingsManager.setSizeMode('touchSmall');
+    voterSettingsManager.setColorMode('contrastHighDark');
+    voterSettingsManager.setSizeMode('touchSmall');
   });
   await waitFor(() =>
     expect(currentTheme).toEqual(
@@ -125,10 +125,10 @@ test('Resets theme after successful scan', async () => {
       await scannerStatusQuery.refetch();
       await advanceTimersAndPromises();
 
-      // Simulate initial voter display settings:
+      // Simulate initial voter voter settings:
       act(() => {
-        displaySettingsManager.setColorMode('contrastHighDark');
-        displaySettingsManager.setSizeMode('touchExtraLarge');
+        voterSettingsManager.setColorMode('contrastHighDark');
+        voterSettingsManager.setSizeMode('touchExtraLarge');
       });
       expect(currentTheme).toEqual(
         expect.objectContaining<Partial<DefaultTheme>>({

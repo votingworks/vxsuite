@@ -3,7 +3,7 @@ import { DefaultTheme } from 'styled-components';
 
 import { isCardlessVoterAuth } from '@votingworks/utils';
 import {
-  DisplaySettingsManagerContext,
+  VoterSettingsManagerContext,
   useAudioControls,
   useCurrentLanguage,
   useCurrentTheme,
@@ -34,9 +34,7 @@ export function useSessionSettingsManager(
     React.useRef<InsertedSmartCardAuth.AuthStatus>();
   const voterSettingsRef = React.useRef<VoterSettings>();
 
-  const displaySettingsManager = React.useContext(
-    DisplaySettingsManagerContext
-  );
+  const voterSettingsManager = React.useContext(VoterSettingsManagerContext);
   const currentTheme = useCurrentTheme();
 
   const { reset: resetAudioSettings } = useAudioControls();
@@ -57,7 +55,7 @@ export function useSessionSettingsManager(
         language: currentLanguage,
         theme: currentTheme,
       };
-      displaySettingsManager.resetThemes();
+      voterSettingsManager.resetThemes();
       resetLanguage();
     }
 
@@ -68,15 +66,15 @@ export function useSessionSettingsManager(
     ) {
       const voterSettings = voterSettingsRef.current;
       if (isVotingSessionActive) {
-        // Reset to previous display settings for the active voter session when
+        // Reset to previous voter settings for the active voter session when
         // when election official logs out:
-        displaySettingsManager.setColorMode(voterSettings.theme.colorMode);
-        displaySettingsManager.setSizeMode(voterSettings.theme.sizeMode);
+        voterSettingsManager.setColorMode(voterSettings.theme.colorMode);
+        voterSettingsManager.setSizeMode(voterSettings.theme.sizeMode);
         setLanguage(voterSettings.language);
       } else {
         // [VVSG 2.0 7.1-A] Reset themes to default if this is a new voting
         // session:
-        displaySettingsManager.resetThemes();
+        voterSettingsManager.resetThemes();
         resetAudioSettings();
         resetLanguage();
       }
@@ -88,7 +86,7 @@ export function useSessionSettingsManager(
     authStatus,
     currentLanguage,
     currentTheme,
-    displaySettingsManager,
+    voterSettingsManager,
     resetAudioSettings,
     resetLanguage,
     setLanguage,

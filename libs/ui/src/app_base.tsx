@@ -3,7 +3,7 @@ import React, { useCallback } from 'react';
 import { ColorMode, ScreenType, SizeMode, UiTheme } from '@votingworks/types';
 
 import { GlobalStyles } from './global_styles';
-import { DisplaySettingsManagerContext } from './display_settings_manager_context';
+import { VoterSettingsManagerContext } from './voter_settings_manager_context';
 import { VxThemeProvider } from './themes/vx_theme_provider';
 import { loadFonts, unloadFonts } from './fonts/load_fonts';
 
@@ -79,7 +79,7 @@ export function AppBase(props: AppBaseProps): JSX.Element {
   }
 
   return (
-    <DisplaySettingsManagerContext.Provider
+    <VoterSettingsManagerContext.Provider
       value={{
         resetThemes,
         setColorMode,
@@ -96,6 +96,6 @@ export function AppBase(props: AppBaseProps): JSX.Element {
         <GlobalStyles showScrollBars={showScrollBars} />
         {children}
       </VxThemeProvider>
-    </DisplaySettingsManagerContext.Provider>
+    </VoterSettingsManagerContext.Provider>
   );
 }

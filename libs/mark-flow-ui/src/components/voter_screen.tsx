@@ -12,7 +12,7 @@ import {
 } from '@votingworks/ui';
 import { SizeMode } from '@votingworks/types';
 
-import { DisplaySettingsButton } from './display_settings_button';
+import { VoterSettingsButton } from './voter_settings_button';
 
 export interface VoterScreenProps {
   actionButtons?: React.ReactNode;
@@ -120,7 +120,7 @@ export function VoterScreen(props: VoterScreenProps): JSX.Element {
   const menuButtons = (
     <React.Fragment>
       <LanguageSettingsButton onPress={() => setShowLanguageSettings(true)} />
-      <DisplaySettingsButton />
+      <VoterSettingsButton />
     </React.Fragment>
   );
 

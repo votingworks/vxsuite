@@ -1,7 +1,7 @@
 /* istanbul ignore next */
 export const PANE_IDS = [
-  'displaySettingsColor',
-  'displaySettingsSize',
-  'displaySettingsAudioVideoOnly',
+  'voterSettingsColor',
+  'voterSettingsSize',
+  'voterSettingsAudioVideoOnly',
 ] as const;
 export type SettingsPaneId = (typeof PANE_IDS)[number];

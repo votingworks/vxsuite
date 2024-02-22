@@ -48,7 +48,7 @@ test('renders StartScreen in Landscape Orientation', () => {
   ).toHaveLength(1); // Seal
 });
 
-it('renders display settings button', () => {
+it('renders voter settings button', () => {
   const electionDefinition = electionGeneralDefinition;
   const history = createMemoryHistory({ initialEntries: ['/'] });
 
@@ -62,6 +62,6 @@ it('renders display settings button', () => {
 
   expect(history.location.pathname).toEqual('/');
 
-  userEvent.click(screen.getButton(/Display Settings/i));
-  expect(history.location.pathname).toEqual(Paths.DISPLAY_SETTINGS);
+  userEvent.click(screen.getButton('Settings'));
+  expect(history.location.pathname).toEqual(Paths.VOTER_SETTINGS);
 });

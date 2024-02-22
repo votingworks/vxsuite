@@ -65,10 +65,6 @@ export const appStrings = {
 
   buttonDone: () => <UiString uiStringKey="buttonDone">Done</UiString>,
 
-  buttonDisplaySettings: () => (
-    <UiString uiStringKey="buttonDisplaySettings">Display Settings</UiString>
-  ),
-
   buttonEnableAudioOnlyMode: () => (
     <UiString uiStringKey="buttonEnableAudioOnlyMode">
       Enable Audio-Only Mode
@@ -117,6 +113,10 @@ export const appStrings = {
 
   buttonViewContests: () => (
     <UiString uiStringKey="buttonViewContests">View contests</UiString>
+  ),
+
+  buttonVoterSettings: () => (
+    <UiString uiStringKey="buttonVoterSettings">Settings</UiString>
   ),
 
   buttonYes: () => <UiString uiStringKey="buttonYes">Yes</UiString>,
@@ -820,24 +820,6 @@ export const appStrings = {
     <UiString uiStringKey="titleBmdReviewScreen">Review Your Votes</UiString>
   ),
 
-  titleDisplaySettings: () => (
-    <UiString uiStringKey="titleDisplaySettings">Display Settings:</UiString>
-  ),
-
-  titleDisplaySettingsColor: () => (
-    <UiString uiStringKey="titleDisplaySettingsColor">Color</UiString>
-  ),
-
-  titleDisplaySettingsSize: () => (
-    <UiString uiStringKey="titleDisplaySettingsSize">Text Size</UiString>
-  ),
-
-  titleDisplaySettingsAudioVideoOnly: () => (
-    <UiString uiStringKey="titleDisplaySettingsAudioVideoOnly">
-      Audio/Video Only
-    </UiString>
-  ),
-
   titleLanguageSettingsScreen: () => (
     <UiString uiStringKey="titleLanguageSettingsScreen">
       Select Your Ballot Language
@@ -848,6 +830,24 @@ export const appStrings = {
     <UiString uiStringKey="titleInternalConnectionProblem">
       Internal Connection Problem
     </UiString>
+  ),
+
+  titleVoterSettings: () => (
+    <UiString uiStringKey="titleVoterSettings">Settings:</UiString>
+  ),
+
+  titleVoterSettingsAudioVideoOnly: () => (
+    <UiString uiStringKey="titleVoterSettingsAudioVideoOnly">
+      Audio/Video Only
+    </UiString>
+  ),
+
+  titleVoterSettingsColor: () => (
+    <UiString uiStringKey="titleVoterSettingsColor">Color</UiString>
+  ),
+
+  titleVoterSettingsSize: () => (
+    <UiString uiStringKey="titleVoterSettingsSize">Text Size</UiString>
   ),
 
   noteBmdPatCalibrationIntroStep: () => (

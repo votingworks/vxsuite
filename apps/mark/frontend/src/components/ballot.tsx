@@ -8,7 +8,7 @@ import {
 
 import { IDLE_TIMEOUT_SECONDS, Paths } from '@votingworks/mark-flow-ui';
 import { ContestScreen } from '../pages/contest_screen';
-import { DisplaySettingsPage } from '../pages/display_settings_page';
+import { VoterSettingsPage } from '../pages/voter_settings_page';
 import { IdlePage } from '../pages/idle_page';
 import { NotFoundPage } from '../pages/not_found_page';
 import { PrintPage } from '../pages/print_page';
@@ -55,8 +55,8 @@ export function Ballot(): JSX.Element {
           <Route path="/" exact>
             <StartScreen />
           </Route>
-          <Route path={Paths.DISPLAY_SETTINGS} exact>
-            <DisplaySettingsPage />
+          <Route path={Paths.VOTER_SETTINGS} exact>
+            <VoterSettingsPage />
           </Route>
           <Route path="/contests/:contestNumber">
             <ContestScreen />

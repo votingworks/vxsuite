@@ -1,7 +1,7 @@
 /* istanbul ignore file - no real logic here */
 export * from './components/button_footer';
 export * from './components/contest';
-export * from './components/display_settings_button';
+export * from './components/voter_settings_button';
 export * from './components/review';
 export * from './components/voter_screen';
 export * from './config/globals';

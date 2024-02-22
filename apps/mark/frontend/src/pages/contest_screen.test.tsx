@@ -25,7 +25,7 @@ it('Renders ContestScreen', () => {
   screen.getByRole('heading', { name: firstContestTitle });
   screen.getButton(/next/i);
   screen.getButton(/back/i);
-  screen.getByRole('button', { name: 'Display Settings' });
+  screen.getByRole('button', { name: 'Settings' });
 });
 
 it('Renders ContestScreen in Landscape orientation', () => {
@@ -55,7 +55,7 @@ it('Renders ContestScreen in Landscape orientation in Review Mode', () => {
   screen.getByText('Review');
 });
 
-it('renders display settings button', () => {
+it('renders voter settings button', () => {
   const history = createMemoryHistory({ initialEntries: ['/contests/0'] });
 
   renderWithBallotContext(
@@ -70,6 +70,6 @@ it('renders display settings button', () => {
 
   expect(history.location.pathname).toEqual('/contests/0');
 
-  userEvent.click(screen.getButton(/display settings/i));
-  expect(history.location.pathname).toEqual(Paths.DISPLAY_SETTINGS);
+  userEvent.click(screen.getButton('Settings'));
+  expect(history.location.pathname).toEqual(Paths.VOTER_SETTINGS);
 });

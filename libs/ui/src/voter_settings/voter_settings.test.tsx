@@ -2,19 +2,19 @@ import userEvent from '@testing-library/user-event';
 import { ThemeConsumer } from 'styled-components';
 import { UiTheme } from '@votingworks/types';
 import { render, screen } from '../../test/react_testing_library';
-import { DisplaySettings } from '.';
+import { VoterSettings } from '.';
 
 test('renders expected subcomponents', () => {
-  render(<DisplaySettings onClose={jest.fn()} />);
+  render(<VoterSettings onClose={jest.fn()} />);
 
-  screen.getByRole('heading', { name: /Display Settings/i });
-  screen.getByRole('tablist', { name: /Display settings/i });
+  screen.getByRole('heading', { name: 'Settings:' });
+  screen.getByRole('tablist', { name: 'Settings' });
   screen.getByRole('tabpanel');
   screen.getByRole('radiogroup', { name: 'Color Contrast Settings' });
 });
 
 test('changes tab pane on tab bar events', () => {
-  render(<DisplaySettings onClose={jest.fn()} />);
+  render(<VoterSettings onClose={jest.fn()} />);
 
   screen.getByRole('radiogroup', { name: 'Color Contrast Settings' });
 
@@ -24,7 +24,7 @@ test('changes tab pane on tab bar events', () => {
 });
 
 test('renders "Audio/Video Only" tab when enabled', () => {
-  render(<DisplaySettings onClose={jest.fn()} allowAudioVideoOnlyToggles />);
+  render(<VoterSettings onClose={jest.fn()} allowAudioVideoOnlyToggles />);
 
   userEvent.click(screen.getByRole('tab', { name: /Audio\/Video Only/i }));
   screen.getByRole('button', { name: 'Enable Audio-Only Mode' });
@@ -32,7 +32,7 @@ test('renders "Audio/Video Only" tab when enabled', () => {
 
 test('does not render "Audio/Video Only" tab when not enabled', () => {
   render(
-    <DisplaySettings onClose={jest.fn()} allowAudioVideoOnlyToggles={false} />
+    <VoterSettings onClose={jest.fn()} allowAudioVideoOnlyToggles={false} />
   );
 
   expect(screen.queryByText('Audio/Video Only')).toBeNull();
@@ -46,7 +46,7 @@ test('resets button resets global theme', () => {
       <ThemeConsumer>
         {(theme) => {
           currentTheme = theme;
-          return <DisplaySettings onClose={jest.fn()} />;
+          return <VoterSettings onClose={jest.fn()} />;
         }}
       </ThemeConsumer>
     );
@@ -88,7 +88,7 @@ test('resets button resets global theme', () => {
 
 test('done button fires onClose event', () => {
   const onClose = jest.fn();
-  render(<DisplaySettings onClose={onClose} />);
+  render(<VoterSettings onClose={onClose} />);
 
   expect(onClose).not.toHaveBeenCalled();
 

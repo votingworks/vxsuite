@@ -1,11 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
-import { DisplaySettingsManagerContext } from './display_settings_manager_context';
+import { VoterSettingsManagerContext } from './voter_settings_manager_context';
 import { Button } from './button';
 import { appStrings } from './ui_strings';
 import { H2 } from './typography';
 import { useScreenInfo } from './hooks/use_screen_info';
-import { Header } from './display_settings/header';
+import { Header } from './voter_settings/header';
 import { useCurrentTheme } from './hooks/use_current_theme';
 
 const Overlay = styled.div`
@@ -27,9 +27,7 @@ const ButtonContainer = styled.div`
 `;
 
 export function VisualModeDisabledOverlay(): JSX.Element | null {
-  const displaySettingsManager = React.useContext(
-    DisplaySettingsManagerContext
-  );
+  const voterSettingsManager = React.useContext(VoterSettingsManagerContext);
   const screenInfo = useScreenInfo();
   const currentTheme = useCurrentTheme();
 
@@ -46,7 +44,7 @@ export function VisualModeDisabledOverlay(): JSX.Element | null {
         <Button
           variant="primary"
           onPress={() => {
-            displaySettingsManager.setIsVisualModeDisabled(false);
+            voterSettingsManager.setIsVisualModeDisabled(false);
           }}
         >
           {appStrings.buttonExitAudioOnlyMode()}
