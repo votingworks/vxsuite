@@ -26,23 +26,20 @@ exports[`renders TestMode - VVSG styling 1`] = `
 }
 
 .c0 {
-  border-bottom: 4px solid #333;
   background-image: linear-gradient( 135deg, #ff8c00 21.43%, #333 21.43%, #333 50%, #ff8c00 50%, #ff8c00 71.43%, #333 71.43%, #333 100% );
   background-size: 98.99px 98.99px;
   width: 100%;
-  font-size: 15.052945967960904px;
-}
-
-.c0 > div {
-  margin: 0.5rem 0;
-  background: #ff8c00;
-  padding: 0.125rem;
-  text-align: center;
-  color: #333;
+  font-size: 48px;
+  padding: 0.5em 0;
 }
 
 .c2 {
-  font-size: 2.25em;
+  background: #ff8c00;
+  color: #333;
+  font-size: inherit;
+  margin: 0;
+  padding: 0.1em 0;
+  text-align: center;
 }
 
 @media print {
