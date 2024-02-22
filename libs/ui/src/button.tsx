@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react';
 
-import styled, { css, CSSObject } from 'styled-components';
-import { SizeMode, UiTheme } from '@votingworks/types';
+import styled, { css, CSSObject, DefaultTheme } from 'styled-components';
+import { SizeMode, SizeTheme, UiTheme } from '@votingworks/types';
 
 import { throwIllegalValue } from '@votingworks/basics';
 import { rgba } from 'polished';
@@ -317,8 +317,8 @@ const paddingStyles: Record<SizeMode, string> = {
   desktop: '0.5rem 1.25rem',
   touchSmall: '0.5rem 0.75rem',
   touchMedium: '0.5rem 0.75em',
-  touchLarge: '0.5rem 0.5rem',
-  touchExtraLarge: '0.25rem 0.5rem',
+  touchLarge: '0.35rem 0.35rem',
+  touchExtraLarge: '0.15rem 0.2rem',
 };
 
 const gapStyles: Record<SizeMode, string> = {
@@ -329,15 +329,24 @@ const gapStyles: Record<SizeMode, string> = {
   touchExtraLarge: '0.25rem',
 };
 
+const borderWidths: Record<SizeMode, keyof SizeTheme['bordersRem']> = {
+  desktop: 'thin',
+  touchSmall: 'medium',
+  touchMedium: 'medium',
+  touchLarge: 'thin',
+  touchExtraLarge: 'thin',
+};
+
+function getBorderWidthRem(p: { theme: DefaultTheme }) {
+  return p.theme.sizes.bordersRem[borderWidths[p.theme.sizeMode]];
+}
+
 export const buttonStyles = css<StyledButtonProps>`
   align-items: center;
   background: none;
   border-radius: ${(p) => p.theme.sizes.borderRadiusRem}rem;
   border-style: solid;
-  border-width: ${(p) =>
-    p.theme.sizeMode === 'desktop'
-      ? p.theme.sizes.bordersRem.thin
-      : p.theme.sizes.bordersRem.medium}rem;
+  border-width: ${(p) => getBorderWidthRem(p)}rem;
   box-shadow: none;
   box-sizing: border-box;
   cursor: pointer;
