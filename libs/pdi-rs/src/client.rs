@@ -53,28 +53,41 @@ macro_rules! expect_response_with_prefix {
 }
 
 pub struct Client {
+    id: usize,
     unhandled_packets: VecDeque<Incoming>,
-    host_to_scanner_tx: mpsc::Sender<Outgoing>,
+    host_to_scanner_tx: mpsc::Sender<(usize, Outgoing)>,
+    host_to_scanner_ack_rx: mpsc::Receiver<usize>,
     scanner_to_host_rx: mpsc::Receiver<Incoming>,
 }
 
 impl Client {
     #[must_use]
     pub fn new(
-        host_to_scanner_tx: mpsc::Sender<Outgoing>,
+        host_to_scanner_tx: mpsc::Sender<(usize, Outgoing)>,
+        host_to_scanner_ack_rx: mpsc::Receiver<usize>,
         scanner_to_host_rx: mpsc::Receiver<Incoming>,
     ) -> Self {
         Self {
+            id: 0,
             unhandled_packets: VecDeque::new(),
             scanner_to_host_rx,
             host_to_scanner_tx,
+            host_to_scanner_ack_rx,
         }
     }
 
-    fn send(&self, packet: Outgoing) -> Result<()> {
+    fn send(&mut self, packet: Outgoing) -> Result<()> {
+        let id = self.id;
+        self.id = self.id.wrapping_add(1);
         self.host_to_scanner_tx
-            .send(packet)
-            .map_err(|_| Error::Usb(UsbError::Rusb(rusb::Error::Io)))
+            .send((id, packet))
+            .map_err(|_| Error::Usb(UsbError::Rusb(rusb::Error::Io)))?;
+        let ack_id = self
+            .host_to_scanner_ack_rx
+            .recv()
+            .map_err(|_| Error::Usb(UsbError::Rusb(rusb::Error::Io)))?;
+        assert_eq!(id, ack_id);
+        Ok(())
     }
 
     /// Gets a test string from the scanner. This is useful for testing the
@@ -147,7 +160,7 @@ impl Client {
     ///
     /// This function will return an error if the response is not received within
     /// the timeout.
-    pub fn set_double_feed_detection_mode(&self, mode: DoubleFeedDetectionMode) -> Result<()> {
+    pub fn set_double_feed_detection_mode(&mut self, mode: DoubleFeedDetectionMode) -> Result<()> {
         self.send(match mode {
             DoubleFeedDetectionMode::RejectDoubleFeeds => {
                 Outgoing::EnableDoubleFeedDetectionRequest
@@ -164,7 +177,7 @@ impl Client {
     ///
     /// This function will return an error if the response is not received within
     /// the timeout.
-    pub fn set_feeder_mode(&self, mode: FeederMode) -> Result<()> {
+    pub fn set_feeder_mode(&mut self, mode: FeederMode) -> Result<()> {
         self.send(match mode {
             FeederMode::Disabled => Outgoing::DisableFeederRequest,
             FeederMode::AutoScanSheets => Outgoing::EnableFeederRequest,
@@ -205,7 +218,7 @@ impl Client {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    pub fn eject_document(&self, eject_motion: EjectMotion) -> Result<()> {
+    pub fn eject_document(&mut self, eject_motion: EjectMotion) -> Result<()> {
         self.send(match eject_motion {
             EjectMotion::ToRear => Outgoing::EjectDocumentToRearOfScannerRequest,
             EjectMotion::ToFront => Outgoing::EjectDocumentToFrontOfScannerRequest,
@@ -498,7 +511,7 @@ impl Client {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    fn send_command(&self, command: &Command) -> Result<()> {
+    fn send_command(&mut self, command: &Command) -> Result<()> {
         self.send_raw_packet(&command.to_bytes())
     }
 
@@ -508,7 +521,7 @@ impl Client {
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
-    pub fn send_raw_packet(&self, packet: &[u8]) -> Result<()> {
+    pub fn send_raw_packet(&mut self, packet: &[u8]) -> Result<()> {
         self.send(Outgoing::RawPacket(packet.to_vec()))
     }
 

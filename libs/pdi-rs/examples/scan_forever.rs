@@ -14,8 +14,9 @@ use pdi_rs::{
     protocol::{
         image::{RawImageData, Sheet},
         packets::Incoming,
-        types::{EjectMotion, ScanSideMode},
+        types::{EjectMotion, FeederMode, ScanSideMode},
     },
+    scanner::StopMode,
 };
 
 #[derive(Debug, Parser)]
@@ -72,6 +73,7 @@ fn main() -> color_eyre::Result<()> {
     ctrlc::set_handler({
         let running = running.clone();
         move || {
+            eprintln!("received SIGINT");
             running.store(false, Ordering::SeqCst);
         }
     })?;
@@ -147,7 +149,8 @@ fn main() -> color_eyre::Result<()> {
         }
     }
 
-    scanner.stop();
+    client.set_feeder_mode(FeederMode::Disabled)?;
+    scanner.stop(StopMode::WaitUntilTransfersComplete);
 
     Ok(())
 }

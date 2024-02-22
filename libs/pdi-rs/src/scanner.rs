@@ -9,14 +9,23 @@ use std::{
 
 use rusb::UsbContext;
 
-use crate::{protocol::parsers, rusb_async, Result};
+use crate::{
+    protocol::parsers,
+    rusb_async::{self, Error},
+    Result,
+};
 
 use super::protocol::packets::{self, Incoming};
+
+pub enum StopMode {
+    CancelPendingTransfers,
+    WaitUntilTransfersComplete,
+}
 
 pub struct Scanner {
     device_handle: Arc<rusb::DeviceHandle<rusb::Context>>,
     default_timeout: Duration,
-    stop_tx: Option<mpsc::Sender<()>>,
+    stop_tx: Option<mpsc::Sender<StopMode>>,
     thread_handle: Option<thread::JoinHandle<()>>,
 }
 
@@ -55,7 +64,13 @@ impl Scanner {
         self.default_timeout = timeout;
     }
 
-    pub fn start(&mut self) -> (Sender<packets::Outgoing>, Receiver<packets::Incoming>) {
+    pub fn start(
+        &mut self,
+    ) -> (
+        Sender<(usize, packets::Outgoing)>,
+        Receiver<usize>,
+        Receiver<packets::Incoming>,
+    ) {
         /// The endpoint for sending commands to the scanner.
         const ENDPOINT_OUT: u8 = 0x05;
 
@@ -68,7 +83,9 @@ impl Scanner {
 
         const BUFFER_SIZE: usize = 16_384;
 
-        let (host_to_scanner_tx, host_to_scanner_rx) = mpsc::channel::<packets::Outgoing>();
+        let (host_to_scanner_tx, host_to_scanner_rx) =
+            mpsc::channel::<(usize, packets::Outgoing)>();
+        let (host_to_scanner_ack_tx, host_to_scanner_ack_rx) = mpsc::channel::<usize>();
         let (scanner_to_host_tx, scanner_to_host_rx) = mpsc::channel();
         let (stop_tx, stop_rx) = mpsc::channel();
 
@@ -88,17 +105,36 @@ impl Scanner {
                     .submit_bulk(ENDPOINT_IN_IMAGE_DATA, vec![0; BUFFER_SIZE])
                     .unwrap();
 
+                let mut is_stopping = false;
                 loop {
-                    if stop_rx.try_recv().is_ok() {
-                        tracing::debug!(
-                            "Scanner thread received stop signal; cancelling all transfers"
-                        );
-                        transfer_pool.cancel_all();
-                        break;
+                    match stop_rx.try_recv() {
+                        Ok(StopMode::CancelPendingTransfers) => {
+                            tracing::debug!(
+                                "Scanner thread received stop signal; cancelling all transfers"
+                            );
+                            transfer_pool.cancel_all();
+                            break;
+                        }
+                        Ok(StopMode::WaitUntilTransfersComplete) => {
+                            tracing::debug!(
+                                "Scanner thread received stop signal; cancelling incoming transfers and waiting for outgoing transfers to complete"
+                            );
+                            is_stopping = true;
+                            transfer_pool.cancel_all_for_endpoint(ENDPOINT_IN_PRIMARY);
+                            transfer_pool.cancel_all_for_endpoint(ENDPOINT_IN_IMAGE_DATA);
+                        }
+                        Err(_) => {}
                     }
 
                     match host_to_scanner_rx.try_recv() {
-                        Ok(packet) => {
+                        Ok((id, packet)) => {
+                            if is_stopping {
+                                tracing::debug!(
+                                    "Scanner thread received stop signal; dropping outgoing packet: {packet:?}"
+                                );
+                                continue;
+                            }
+
                             let bytes = packet.to_bytes();
                             tracing::debug!(
                                 "sending packet: {packet:?} (data: {data:?})",
@@ -111,10 +147,26 @@ impl Scanner {
                             transfer_pool
                                 .poll_endpoint(ENDPOINT_OUT, default_timeout)
                                 .unwrap();
+
+                            host_to_scanner_ack_tx.send(id).unwrap();
                         }
                         Err(mpsc::TryRecvError::Empty) => {}
                         Err(e) => {
                             tracing::error!("Error receiving outgoing packet: {e}");
+                            break;
+                        }
+                    }
+
+                    if is_stopping {
+                        let pending = transfer_pool.pending();
+                        tracing::trace!(
+                            "Scanner thread waiting for {pending} transfers to complete",
+                            pending = pending
+                        );
+                        if pending == 0 {
+                            tracing::debug!(
+                                "Scanner thread received stop signal; all transfers complete"
+                            );
                             break;
                         }
                     }
@@ -160,7 +212,9 @@ impl Scanner {
                         }
                         Err(rusb_async::Error::PollTimeout) => {}
                         Err(err) => {
-                            tracing::error!("Error while polling primary IN endpoint: {err}");
+                            if !is_stopping || !matches!(err, Error::Cancelled) {
+                                tracing::error!("Error while polling primary IN endpoint: {err}");
+                            }
                             break;
                         }
                     }
@@ -181,7 +235,9 @@ impl Scanner {
                         }
                         Err(rusb_async::Error::PollTimeout) => {}
                         Err(err) => {
-                            tracing::error!("Error while polling image data endpoint: {err}");
+                            if !is_stopping || !matches!(err, Error::Cancelled) {
+                                tracing::error!("Error while polling image data endpoint: {err}");
+                            }
                             break;
                         }
                     }
@@ -189,13 +245,17 @@ impl Scanner {
             }
         }));
 
-        (host_to_scanner_tx, scanner_to_host_rx)
+        (
+            host_to_scanner_tx,
+            host_to_scanner_ack_rx,
+            scanner_to_host_rx,
+        )
     }
 
     /// Stop the scanner. Blocks until cleanup is complete.
-    pub fn stop(&mut self) {
+    pub fn stop(&mut self, mode: StopMode) {
         if let Some(stop_tx) = self.stop_tx.take() {
-            stop_tx.send(()).unwrap();
+            stop_tx.send(mode).unwrap();
         }
 
         if let Some(thread_handle) = self.thread_handle.take() {

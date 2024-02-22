@@ -151,6 +151,14 @@ impl<C: UsbContext> TransferPool<C> {
         Err(Error::NoTransfersPending)
     }
 
+    pub fn cancel_all_for_endpoint(&mut self, endpoint: u8) {
+        for transfer in self.pending.iter_mut() {
+            if transfer.transfer().endpoint == endpoint {
+                transfer.cancel();
+            }
+        }
+    }
+
     pub fn cancel_all(&mut self) {
         // Cancel in reverse order to avoid a race condition in which one
         // transfer is cancelled but another submitted later makes its way onto
