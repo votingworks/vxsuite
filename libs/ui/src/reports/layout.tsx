@@ -36,7 +36,7 @@ export const PrintedReportPreview = styled.div`
 
 export function printedReportThemeFn(theme?: DefaultTheme): DefaultTheme {
   return makeTheme({
-    screenType: theme?.screenType,
+    screenType: /* istanbul ignore next */ theme?.screenType,
     sizeMode: 'touchSmall',
     colorMode: 'contrastHighLight',
   });

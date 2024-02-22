@@ -4,13 +4,14 @@ import {
   PrinterRichStatus,
   PrinterStatus,
 } from '@votingworks/types';
-import { render, screen, within } from '../test/react_testing_library';
+import { render, screen } from '../../test/react_testing_library';
 import {
-  PrinterStatusDisplay,
+  PrinterSection,
   parseHighestPriorityIppPrinterStateReason,
-} from './ipp_printing';
+} from './printer_section';
+import { expectTextWithIcon } from '../../test/expect_text_with_icon';
 
-const mockPrinterConfig: PrinterConfig = {
+export const MOCK_PRINTER_CONFIG: PrinterConfig = {
   label: '',
   vendorId: 0,
   productId: 0,
@@ -19,7 +20,7 @@ const mockPrinterConfig: PrinterConfig = {
   supportsIpp: true,
 };
 
-const mockMarkerInfo: IppMarkerInfo = {
+export const MOCK_MARKER_INFO: IppMarkerInfo = {
   color: '#000000',
   highLevel: 100,
   level: 100,
@@ -33,11 +34,11 @@ function getMockPrinterStatus(
 ): PrinterStatus {
   return {
     connected: true,
-    config: mockPrinterConfig,
+    config: MOCK_PRINTER_CONFIG,
     richStatus: {
       state: 'idle',
       stateReasons: [],
-      markerInfos: [mockMarkerInfo],
+      markerInfos: [MOCK_MARKER_INFO],
       ...richStatus,
     },
   };
@@ -87,29 +88,18 @@ describe('parseHighestPriorityIppPrinterStateReason', () => {
   });
 });
 
-async function expectTextWithIcon(text: string, icon: string) {
-  const textElement = await screen.findByText(text);
-  expect(
-    within(textElement.closest('p')!)
-      .getByRole('img', {
-        hidden: true,
-      })
-      .getAttribute('data-icon')
-  ).toEqual(icon);
-}
-
-describe('PrinterStatusDisplay status message', () => {
+describe('PrinterSection status message', () => {
   test('displays disconnected', async () => {
-    render(<PrinterStatusDisplay printerStatus={{ connected: false }} />);
+    render(<PrinterSection printerStatus={{ connected: false }} />);
     await expectTextWithIcon('No compatible printer detected', 'circle-info');
   });
 
   test('displays non-IPP printer connected', async () => {
     render(
-      <PrinterStatusDisplay
+      <PrinterSection
         printerStatus={{
           connected: true,
-          config: { ...mockPrinterConfig, supportsIpp: false },
+          config: { ...MOCK_PRINTER_CONFIG, supportsIpp: false },
         }}
       />
     );
@@ -118,10 +108,10 @@ describe('PrinterStatusDisplay status message', () => {
 
   test('displays IPP connected without status', async () => {
     render(
-      <PrinterStatusDisplay
+      <PrinterSection
         printerStatus={{
           connected: true,
-          config: mockPrinterConfig,
+          config: MOCK_PRINTER_CONFIG,
         }}
       />
     );
@@ -129,14 +119,14 @@ describe('PrinterStatusDisplay status message', () => {
   });
 
   test('idle', async () => {
-    render(<PrinterStatusDisplay printerStatus={getMockPrinterStatus()} />);
+    render(<PrinterSection printerStatus={getMockPrinterStatus()} />);
 
     await expectTextWithIcon('Ready to print', 'circle-check');
   });
 
   test('sleep mode and low toner', async () => {
     render(
-      <PrinterStatusDisplay
+      <PrinterSection
         printerStatus={getMockPrinterStatus({
           stateReasons: ['sleep-mode'],
         })}
@@ -151,7 +141,7 @@ describe('PrinterStatusDisplay status message', () => {
 
   test('while printing', async () => {
     render(
-      <PrinterStatusDisplay
+      <PrinterSection
         printerStatus={getMockPrinterStatus({
           state: 'processing',
         })}
@@ -163,7 +153,7 @@ describe('PrinterStatusDisplay status message', () => {
 
   test('while stopped without reason', async () => {
     render(
-      <PrinterStatusDisplay
+      <PrinterSection
         printerStatus={getMockPrinterStatus({
           state: 'stopped',
           stateReasons: [],
@@ -176,7 +166,7 @@ describe('PrinterStatusDisplay status message', () => {
 
   test('while stopped with reason', async () => {
     render(
-      <PrinterStatusDisplay
+      <PrinterSection
         printerStatus={getMockPrinterStatus({
           state: 'stopped',
           stateReasons: ['media-needed-warning'],
@@ -192,7 +182,7 @@ describe('PrinterStatusDisplay status message', () => {
 
   test('shows unknown reasons', async () => {
     render(
-      <PrinterStatusDisplay
+      <PrinterSection
         printerStatus={getMockPrinterStatus({
           state: 'stopped',
           stateReasons: ['something-new-warning'],
@@ -204,20 +194,55 @@ describe('PrinterStatusDisplay status message', () => {
   });
 });
 
-describe('PrinterStatusDisplay marker info', () => {
+describe('PrinterSection marker info', () => {
   test('full marker info', async () => {
-    render(<PrinterStatusDisplay printerStatus={getMockPrinterStatus()} />);
+    render(<PrinterSection printerStatus={getMockPrinterStatus()} />);
     await expectTextWithIcon('Toner Level: 100%', 'circle-check');
   });
 
   test('low toner', async () => {
     render(
-      <PrinterStatusDisplay
+      <PrinterSection
         printerStatus={getMockPrinterStatus({
-          markerInfos: [{ ...mockMarkerInfo, level: 2 }],
+          markerInfos: [{ ...MOCK_MARKER_INFO, level: 2 }],
         })}
       />
     );
     await expectTextWithIcon('Toner Level: 2%', 'triangle-exclamation');
+  });
+});
+
+describe('PrinterSection diagnostic message', () => {
+  test('no diagnostics', () => {
+    render(<PrinterSection printerStatus={getMockPrinterStatus()} />);
+    screen.getByText('No test print on record');
+  });
+
+  test('successful diagnostic', () => {
+    render(
+      <PrinterSection
+        printerStatus={getMockPrinterStatus()}
+        mostRecentPrinterDiagnostic={{
+          hardware: 'printer',
+          outcome: 'pass',
+          timestamp: 0,
+        }}
+      />
+    );
+    screen.getByText('Test print successful, 1/1/1970, 12:00:00 AM');
+  });
+
+  test('failed diagnostic', () => {
+    render(
+      <PrinterSection
+        printerStatus={getMockPrinterStatus()}
+        mostRecentPrinterDiagnostic={{
+          hardware: 'printer',
+          outcome: 'fail',
+          timestamp: 0,
+        }}
+      />
+    );
+    screen.getByText('Test print failed, 1/1/1970, 12:00:00 AM');
   });
 });
