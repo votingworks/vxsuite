@@ -239,3 +239,30 @@ test('usbDrive', async () => {
     await apiClient.ejectUsbDrive();
   });
 });
+
+test('uses machine config from env', async () => {
+  const originalEnv = process.env;
+  process.env = {
+    ...originalEnv,
+    VX_MACHINE_ID: 'test-machine-id',
+    VX_CODE_VERSION: 'test-code-version',
+  };
+
+  await withApp(async ({ apiClient }) => {
+    expect(await apiClient.getMachineConfig()).toEqual({
+      machineId: 'test-machine-id',
+      codeVersion: 'test-code-version',
+    });
+  });
+
+  process.env = originalEnv;
+});
+
+test('uses default machine config if not set', async () => {
+  await withApp(async ({ apiClient }) => {
+    expect(await apiClient.getMachineConfig()).toEqual({
+      machineId: '0000',
+      codeVersion: 'dev',
+    });
+  });
+});

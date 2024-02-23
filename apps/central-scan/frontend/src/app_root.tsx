@@ -20,7 +20,6 @@ import {
 } from '@votingworks/ui';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
-import { MachineConfig } from './config/types';
 import { AppContext, AppContextInterface } from './contexts/app_context';
 
 import { useInterval } from './hooks/use_interval';
@@ -29,12 +28,12 @@ import { ScanBallotsScreen } from './screens/scan_ballots_screen';
 import { BallotEjectScreen } from './screens/ballot_eject_screen';
 import { SettingsScreen } from './screens/settings_screen';
 
-import { machineConfigProvider } from './util/machine_config';
 import { MachineLockedScreen } from './screens/machine_locked_screen';
 import {
   checkPin,
   getAuthStatus,
   getElectionDefinition,
+  getMachineConfig,
   getTestMode,
   getUsbDriveStatus,
 } from './api';
@@ -56,16 +55,12 @@ export function AppRoot({
     adjudication: { remaining: 0, adjudicated: 0 },
   });
 
-  const [machineConfig, setMachineConfig] = useState<MachineConfig>({
-    machineId: '0000',
-    codeVersion: '',
-  });
-
   const { batchScanner } = useDevices({
     hardware,
     logger,
   });
 
+  const machineConfigQuery = getMachineConfig.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const authStatusQuery = getAuthStatus.useQuery();
   const userRole =
@@ -87,19 +82,6 @@ export function AppRoot({
   const [currentScanningBatchId, setCurrentScanningBatchId] =
     useState<string>();
   const [lastScannedSheetIdx, setLastScannedSheetIdx] = useState(0);
-
-  useEffect(() => {
-    async function initialize() {
-      try {
-        const newMachineConfig = await machineConfigProvider.get();
-        setMachineConfig(newMachineConfig);
-      } catch (e) {
-        // TODO: what should happen in machineConfig not returned?
-      }
-    }
-
-    void initialize();
-  }, [setMachineConfig]);
 
   useEffect(() => {
     if (!currentScanningBatchId) {
@@ -282,6 +264,7 @@ export function AppRoot({
   }, [updateStatus]);
 
   if (
+    !machineConfigQuery.isSuccess ||
     !authStatusQuery.isSuccess ||
     !usbDriveStatusQuery.isSuccess ||
     !electionDefinitionQuery.isSuccess ||
@@ -296,6 +279,7 @@ export function AppRoot({
     );
   }
   const authStatus = authStatusQuery.data;
+  const machineConfig = machineConfigQuery.data;
   const usbDriveStatus = usbDriveStatusQuery.data;
   const electionDefinition = electionDefinitionQuery.data ?? undefined;
 

@@ -18,7 +18,6 @@ import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { render, waitFor, within, screen } from '../test/react_testing_library';
 import { App } from './app';
-import { MachineConfigResponse } from './config/types';
 import { ApiMock, createApiMock } from '../test/api';
 
 let apiMock: ApiMock;
@@ -35,6 +34,7 @@ beforeEach(() => {
     status: 'no_drive',
   });
   apiMock.expectGetSystemSettings();
+  apiMock.expectGetMachineConfig();
 
   fetchMock.config.fallbackToNetwork = true;
   fetchMock.get(
@@ -45,13 +45,6 @@ beforeEach(() => {
       adjudication: { adjudicated: 0, remaining: 0 },
     }),
     { overwriteRoutes: true }
-  );
-  fetchMock.get(
-    '/machine-config',
-    typedAs<MachineConfigResponse>({
-      machineId: '0001',
-      codeVersion: 'TEST',
-    })
   );
 
   const oldWindowLocation = window.location;

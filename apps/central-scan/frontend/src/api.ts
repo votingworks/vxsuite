@@ -107,6 +107,16 @@ export const getSystemSettings = {
   },
 } as const;
 
+export const getMachineConfig = {
+  queryKey(): QueryKey {
+    return ['getMachineConfig'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getMachineConfig());
+  },
+} as const;
+
 export const getElectionDefinition = {
   queryKey(): QueryKey {
     return ['getElectionDefinition'];

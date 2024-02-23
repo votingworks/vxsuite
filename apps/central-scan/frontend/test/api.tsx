@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Api } from '@votingworks/central-scan-backend';
+import type { Api, MachineConfig } from '@votingworks/central-scan-backend';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -62,6 +62,14 @@ export function createApiMock(
 
     expectEjectUsbDrive() {
       apiClient.ejectUsbDrive.expectCallWith().resolves();
+    },
+
+    expectGetMachineConfig(machineConfig: Partial<MachineConfig> = {}) {
+      apiClient.getMachineConfig.expectRepeatedCallsWith().resolves({
+        codeVersion: 'dev',
+        machineId: '0001',
+        ...machineConfig,
+      });
     },
 
     expectGetSystemSettings(systemSettings?: SystemSettings) {
