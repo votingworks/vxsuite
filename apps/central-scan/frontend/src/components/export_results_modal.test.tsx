@@ -2,7 +2,8 @@ import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
 import { err, ok } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { fireEvent, waitFor } from '../../test/react_testing_library';
+import userEvent from '@testing-library/user-event';
+import { waitFor } from '../../test/react_testing_library';
 import { ExportResultsModal } from './export_results_modal';
 import {
   renderInAppContext,
@@ -44,7 +45,7 @@ test('render no usb found screen when there is not a valid, mounted usb drive', 
     getByText('Please insert a USB drive in order to save CVRs.');
     getByAltText('Insert USB Image');
 
-    fireEvent.click(getByText('Cancel'));
+    userEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalled();
 
     unmount();
@@ -67,11 +68,11 @@ test('render export modal when a usb drive is mounted as expected and allows aut
   mockApiClient.exportCastVoteRecordsToUsbDrive
     .expectCallWith({ isMinimalExport: true })
     .resolves(ok());
-  fireEvent.click(getByText('Save'));
+  userEvent.click(getByText('Save'));
   await waitFor(() => getByText('CVRs Saved'));
 
   getByText('Eject USB');
-  fireEvent.click(getByText('Cancel'));
+  userEvent.click(getByText('Cancel'));
   expect(closeFn).toHaveBeenCalled();
 
   rerender(
@@ -97,11 +98,11 @@ test('render export modal with errors when appropriate', async () => {
   mockApiClient.exportCastVoteRecordsToUsbDrive
     .expectCallWith({ isMinimalExport: true })
     .resolves(err({ type: 'file-system-error' }));
-  fireEvent.click(getByText('Save'));
+  userEvent.click(getByText('Save'));
   await waitFor(() =>
     getByText('Failed to save CVRs. Unable to write to USB drive.')
   );
 
-  fireEvent.click(getByText('Close'));
+  userEvent.click(getByText('Close'));
   expect(closeFn).toHaveBeenCalled();
 });

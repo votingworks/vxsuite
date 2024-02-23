@@ -16,13 +16,7 @@ import {
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import {
-  render,
-  waitFor,
-  within,
-  fireEvent,
-  screen,
-} from '../test/react_testing_library';
+import { render, waitFor, within, screen } from '../test/react_testing_library';
 import { App } from './app';
 import { MachineConfigResponse } from './config/types';
 import { ApiMock, createApiMock } from '../test/api';
@@ -311,12 +305,12 @@ test('authentication works', async () => {
   });
   await screen.findByText('Enter the card PIN');
   apiMock.expectCheckPin('111111');
-  fireEvent.click(screen.getByText('1'));
-  fireEvent.click(screen.getByText('1'));
-  fireEvent.click(screen.getByText('1'));
-  fireEvent.click(screen.getByText('1'));
-  fireEvent.click(screen.getByText('1'));
-  fireEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('1'));
   apiMock.setAuthStatus({
     status: 'checking_pin',
     user: fakeElectionManagerUser(electionGeneralDefinition),
@@ -347,12 +341,12 @@ test('authentication works', async () => {
   });
   await screen.findByText('Enter the card PIN');
   apiMock.expectCheckPin('123456');
-  fireEvent.click(screen.getByText('1'));
-  fireEvent.click(screen.getByText('2'));
-  fireEvent.click(screen.getByText('3'));
-  fireEvent.click(screen.getByText('4'));
-  fireEvent.click(screen.getByText('5'));
-  fireEvent.click(screen.getByText('6'));
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('2'));
+  userEvent.click(screen.getByText('3'));
+  userEvent.click(screen.getByText('4'));
+  userEvent.click(screen.getByText('5'));
+  userEvent.click(screen.getByText('6'));
 
   // 'Remove Card' screen is shown after successful authentication.
   apiMock.setAuthStatus({
@@ -372,7 +366,7 @@ test('authentication works', async () => {
 
   // Lock the machine
   apiMock.expectLogOut();
-  fireEvent.click(screen.getByText('Lock Machine'));
+  userEvent.click(screen.getByText('Lock Machine'));
   apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'machine_locked',
