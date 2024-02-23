@@ -1,9 +1,14 @@
 import { join } from 'path';
 import { generateConfig } from './circleci';
 import { getWorkspacePackageInfo } from './pnpm';
+import { getRustPackageIds } from '.';
 
-test('generateConfig', () => {
-  expect(
-    generateConfig(getWorkspacePackageInfo(join(__dirname, '../../..')))
-  ).toContain('test-libs-basics');
+test('generateConfig', async () => {
+  const root = join(__dirname, '../../..');
+  const config = generateConfig(
+    getWorkspacePackageInfo(root),
+    await getRustPackageIds(root)
+  );
+  expect(config).toContain('test-libs-basics');
+  expect(config).toContain('test-crate-controllerd');
 });

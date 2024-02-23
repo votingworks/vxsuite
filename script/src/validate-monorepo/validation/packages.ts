@@ -1,4 +1,4 @@
-import { PackageInfo } from '@votingworks/monorepo-utils';
+import { PnpmPackageInfo } from '@votingworks/monorepo-utils';
 import matcher from 'matcher';
 
 export enum ValidationIssueKind {
@@ -21,7 +21,7 @@ export type ValidationIssue = MismatchedPackagePropertyIssue;
 export async function* checkPackageManager({
   workspacePackages,
 }: {
-  workspacePackages: ReadonlyMap<string, PackageInfo>;
+  workspacePackages: ReadonlyMap<string, PnpmPackageInfo>;
 }): AsyncGenerator<ValidationIssue> {
   const packageManagers = new Set<string | undefined>();
   const properties: PackageJsonProperty[] = [];
@@ -60,10 +60,10 @@ export async function* checkPinnedVersions({
   workspacePackages,
 }: {
   pinnedPackages: readonly string[];
-  workspacePackages: ReadonlyMap<string, PackageInfo>;
+  workspacePackages: ReadonlyMap<string, PnpmPackageInfo>;
 }): AsyncGenerator<ValidationIssue> {
-  type PackageInfoByVersionSpecifier = Map<string, Set<PackageJsonProperty>>;
-  type VersionInfoByPackageName = Map<string, PackageInfoByVersionSpecifier>;
+  type PnpmPackageInfoByVersionSpecifier = Map<string, Set<PackageJsonProperty>>;
+  type VersionInfoByPackageName = Map<string, PnpmPackageInfoByVersionSpecifier>;
   const packageVersions: VersionInfoByPackageName = new Map();
 
   for (const pkg of workspacePackages.values()) {
@@ -81,7 +81,7 @@ export async function* checkPinnedVersions({
       const deps = packageJson[key];
       if (deps) {
         for (const name of matcher(Object.keys(deps), pinnedPackages)) {
-          const versions: PackageInfoByVersionSpecifier =
+          const versions: PnpmPackageInfoByVersionSpecifier =
             packageVersions.get(name) ?? new Map();
           const properties = versions.get(deps[name] as string) ?? new Set();
           properties.add({
@@ -116,7 +116,7 @@ export async function* checkConfig({
   workspacePackages,
 }: {
   pinnedPackages: readonly string[];
-  workspacePackages: ReadonlyMap<string, PackageInfo>;
+  workspacePackages: ReadonlyMap<string, PnpmPackageInfo>;
 }): AsyncGenerator<ValidationIssue> {
   yield* checkPackageManager({ workspacePackages });
   yield* checkPinnedVersions({ workspacePackages, pinnedPackages });

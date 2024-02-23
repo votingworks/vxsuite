@@ -1222,6 +1222,48 @@ jobs:
       - store_test_results:
           path: libs/utils/reports/
 
+  test-crate-controllerd:
+    executor: 'nodejs'
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            cargo build -p controllerd
+      - run:
+          name: Test
+          command: |
+            cargo test -p controllerd
+
+  test-crate-types-rs:
+    executor: 'nodejs'
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            cargo build -p types-rs
+      - run:
+          name: Test
+          command: |
+            cargo test -p types-rs
+
+  test-crate-vx-logging:
+    executor: 'nodejs'
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            cargo build -p vx-logging
+      - run:
+          name: Test
+          command: |
+            cargo test -p vx-logging
+
   validate-monorepo:
     executor: nodejs
     resource_class: xlarge
@@ -1290,6 +1332,9 @@ workflows:
       - test-libs-ui
       - test-libs-usb-drive
       - test-libs-utils
+      - test-crate-controllerd
+      - test-crate-types-rs
+      - test-crate-vx-logging
       - validate-monorepo
 
 commands:

@@ -201,6 +201,10 @@
       "path": "libs/utils"
     },
     {
+      "name": "libs/monorepo-utils",
+      "path": "libs/monorepo-utils"
+    },
+    {
       "path": "docs"
     },
     {

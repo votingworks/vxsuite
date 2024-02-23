@@ -1,13 +1,13 @@
 import { findAllMonorepoDependencies } from './dependencies';
-import { PackageInfo } from './pnpm';
+import { PnpmPackageInfo } from './types';
 
 /**
  * Finds unused packages in the monorepo.
  */
 export function findUnusedPackages(
-  pkgs: Map<string, PackageInfo>
-): Set<PackageInfo> {
-  const usedPackages = new Set<PackageInfo>();
+  pkgs: Map<string, PnpmPackageInfo>
+): Set<PnpmPackageInfo> {
+  const usedPackages = new Set<PnpmPackageInfo>();
 
   for (const pkg of pkgs.values()) {
     const isInherentlyUsed = Boolean(
