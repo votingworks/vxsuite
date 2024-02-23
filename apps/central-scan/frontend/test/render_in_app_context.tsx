@@ -12,13 +12,9 @@ import {
 } from '@votingworks/test-utils';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { render, RenderResult } from './react_testing_library';
-import {
-  ApiClient,
-  ApiClientContext,
-  createQueryClient,
-  systemCallApi,
-} from '../src/api';
+import { ApiClientContext, createQueryClient, systemCallApi } from '../src/api';
 import { AppContext, AppContextInterface } from '../src/contexts/app_context';
+import { ApiMock } from './api';
 
 interface RenderInAppContextParams {
   route?: string;
@@ -29,7 +25,7 @@ interface RenderInAppContextParams {
   usbDriveEject?: () => void;
   auth?: DippedSmartCardAuth.AuthStatus;
   logger?: Logger;
-  apiClient?: ApiClient;
+  apiMock?: ApiMock;
   queryClient?: QueryClient;
 }
 
@@ -70,13 +66,13 @@ export function wrapInAppContext(
     usbDriveStatus,
     auth,
     logger,
-    apiClient,
+    apiMock,
     queryClient = createQueryClient(),
   }: RenderInAppContextParams = {}
 ): React.ReactElement {
   return (
     <TestErrorBoundary>
-      <ApiClientContext.Provider value={apiClient}>
+      <ApiClientContext.Provider value={apiMock?.apiClient}>
         <QueryClientProvider client={queryClient}>
           <SystemCallContextProvider api={systemCallApi}>
             <AppContext.Provider

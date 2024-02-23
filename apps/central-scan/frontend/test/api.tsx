@@ -103,6 +103,10 @@ export function createApiMock(
     expectDeleteBatch(input: { batchId: string }) {
       apiClient.deleteBatch.expectCallWith(input).resolves();
     },
+
+    expectClearBallotData() {
+      apiClient.clearBallotData.expectCallWith().resolves();
+    },
   };
 }
 
