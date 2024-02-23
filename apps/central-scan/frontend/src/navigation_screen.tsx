@@ -1,5 +1,6 @@
 import {
   AppLogo,
+  BatteryDisplay,
   Button,
   Card,
   H1,
@@ -136,6 +137,7 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
                 <Button onPress={() => logOutMutation.mutate()} icon="Lock">
                   Lock Machine
                 </Button>
+                <BatteryDisplay />
               </React.Fragment>
             )}
           </HeaderActions>

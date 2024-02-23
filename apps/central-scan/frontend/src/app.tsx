@@ -4,6 +4,7 @@ import { Logger, LogSource } from '@votingworks/logging';
 import {
   AppBase,
   AppErrorBoundary,
+  BatteryLowAlert,
   SystemCallContextProvider,
 } from '@votingworks/ui';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -46,6 +47,7 @@ export function App({
               <SystemCallContextProvider api={systemCallApi}>
                 <AppRoot hardware={hardware} logger={logger} />
                 <SessionTimeLimitTracker />
+                <BatteryLowAlert />
               </SystemCallContextProvider>
             </QueryClientProvider>
           </ApiClientContext.Provider>
