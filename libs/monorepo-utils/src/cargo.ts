@@ -5,7 +5,8 @@ import { getAbsoluteRootPath } from './dependencies';
 const exec = promisify(execFile);
 
 // Ballot interpreter tests are already run by the pnpm package test job
-const EXCLUDED_PACKAGE_IDS = ['ballot-interpreter'];
+// patinputd has no tests currently
+const EXCLUDED_PACKAGE_IDS = ['ballot-interpreter', 'patinputd'];
 
 /**
  * Get all Rust crate paths.
