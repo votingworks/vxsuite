@@ -9,6 +9,7 @@ import {
 } from '@votingworks/types';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { SystemCallContextProvider, TestErrorBoundary } from '@votingworks/ui';
+import type { BatteryInfo } from '@votingworks/backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ok } from '@votingworks/basics';
 import { ApiClientContext, createQueryClient, systemCallApi } from '../src/api';
@@ -62,6 +63,14 @@ export function createApiMock(
 
     expectEjectUsbDrive() {
       apiClient.ejectUsbDrive.expectCallWith().resolves();
+    },
+
+    setBatteryInfo(batteryInfo: Partial<BatteryInfo>) {
+      apiClient.getBatteryInfo.mockResolvedValue({
+        level: 1,
+        discharging: false,
+        ...batteryInfo,
+      });
     },
 
     expectGetMachineConfig(machineConfig: Partial<MachineConfig> = {}) {

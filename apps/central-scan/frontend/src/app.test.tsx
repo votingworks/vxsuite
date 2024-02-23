@@ -425,3 +425,22 @@ test('error boundary', async () => {
     await screen.findByText('Something went wrong');
   });
 });
+
+test('battery display and alert', async () => {
+  apiMock.expectGetTestMode(true);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+
+  render(<App apiClient={apiMock.apiClient} />);
+  await authenticateAsSystemAdministrator();
+
+  // initial battery level in nav bar
+  await screen.findByText('100%');
+
+  apiMock.setBatteryInfo({ level: 0.1, discharging: true });
+  const warning = await screen.findByRole('alertdialog');
+  within(warning).getByText('Low Battery Warning');
+  userEvent.click(within(warning).getByText('Dismiss'));
+
+  // updated battery level in nav bar
+  await screen.findByText('10%');
+});
