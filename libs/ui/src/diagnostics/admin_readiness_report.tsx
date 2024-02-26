@@ -1,6 +1,6 @@
 import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
 import { DiagnosticsRecord, PrinterStatus } from '@votingworks/types';
-import styled, { ThemeProvider } from 'styled-components';
+import { ThemeProvider } from 'styled-components';
 import { LaptopSection } from './laptop_section';
 import { PrinterSection } from './printer_section';
 import { PrintedReport } from '../reports/layout';
@@ -32,16 +32,6 @@ export function AdminReadinessReportContents({
   );
 }
 
-/**
- * Override the icon colors to be black for the printed report, otherwise
- * light icons like the warning icon will be hard to see.
- */
-const PrintedReadinessReport = styled(PrintedReport)`
-  svg {
-    color: black !important;
-  }
-`;
-
 export function AdminReadinessReport({
   batteryInfo,
   diskSpaceSummary,
@@ -65,7 +55,7 @@ export function AdminReadinessReport({
         screenType: 'builtIn',
       })}
     >
-      <PrintedReadinessReport>
+      <PrintedReport>
         <ReadinessReportHeader
           machineType="VxAdmin"
           generatedAtTime={generatedAtTime}
@@ -77,7 +67,7 @@ export function AdminReadinessReport({
           printerStatus={printerStatus}
           mostRecentPrinterDiagnostic={mostRecentPrinterDiagnostic}
         />
-      </PrintedReadinessReport>
+      </PrintedReport>
     </ThemeProvider>
   );
 }
