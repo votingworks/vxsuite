@@ -1,5 +1,9 @@
 import { screen, within } from './react_testing_library';
 
+/**
+ * Useful for diagnostic pages where we expect specific icons alongside text.
+ * Assertions may be too brittle for other applications.
+ */
 export async function expectTextWithIcon(
   text: string,
   icon: string
