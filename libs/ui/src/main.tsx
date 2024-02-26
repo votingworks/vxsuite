@@ -1,11 +1,24 @@
-import styled from 'styled-components';
+import styled, { DefaultTheme } from 'styled-components';
 import { assert } from '@votingworks/basics';
+import { SizeMode } from '@votingworks/types';
 
 export interface MainProps {
   padded?: boolean;
   centerChild?: boolean;
   flexRow?: boolean;
   flexColumn?: boolean;
+}
+
+const CONTENT_SPACING_VALUES_REM: Readonly<Record<SizeMode, number>> = {
+  desktop: 1,
+  touchSmall: 0.5,
+  touchMedium: 0.35,
+  touchLarge: 0.25,
+  touchExtraLarge: 0.2,
+};
+
+function getSpacingValueRem(p: { theme: DefaultTheme }) {
+  return CONTENT_SPACING_VALUES_REM[p.theme.sizeMode];
 }
 
 /**
@@ -25,7 +38,7 @@ export const Main = styled('main')<MainProps>`
   align-items: ${({ centerChild }) => centerChild && 'center'};
   justify-content: ${({ centerChild }) => centerChild && 'center'};
   overflow: auto;
-  padding: ${({ padded }) => (padded ? '1rem' : undefined)};
+  padding: ${(p) => (p.padded ? getSpacingValueRem(p) : 0)}rem;
   position: relative; /* For sticky header */
 `;
 

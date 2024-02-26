@@ -1,5 +1,6 @@
+import { SizeMode } from '@votingworks/types';
 import React from 'react';
-import styled from 'styled-components';
+import styled, { DefaultTheme } from 'styled-components';
 
 export interface ListProps {
   children: React.ReactNode;
@@ -11,15 +12,27 @@ interface ContainerProps {
   numColumns: number;
 }
 
+const CONTENT_SPACING_VALUES_REM: Readonly<Record<SizeMode, number>> = {
+  desktop: 0.35,
+  touchSmall: 0.35,
+  touchMedium: 0.35,
+  touchLarge: 0.2,
+  touchExtraLarge: 0.15,
+};
+
+function getSpacingValueRem(p: { theme: DefaultTheme }) {
+  return CONTENT_SPACING_VALUES_REM[p.theme.sizeMode];
+}
+
 const Container = styled.ul<ContainerProps>`
   display: grid;
-  grid-gap: 0.5rem;
+  grid-gap: ${(p) => getSpacingValueRem(p)}rem;
   grid-template-columns: repeat(${(p) => p.numColumns}, 1fr);
   margin: 0;
   padding: 0;
 
   &:not(:last-child) {
-    margin-bottom: 0.35rem;
+    margin-bottom: ${(p) => getSpacingValueRem(p)}rem;
   }
 `;
 

@@ -3,8 +3,6 @@ import { H1 } from './typography';
 import { makeTheme } from './themes/make_theme';
 
 const TestingModeContainer = styled.div`
-  border-bottom: 4px solid #333;
-
   /* https://stripesgenerator.com/stripe/5302 */
   background-image: linear-gradient(
     135deg,
@@ -18,19 +16,17 @@ const TestingModeContainer = styled.div`
   );
   background-size: 98.99px 98.99px;
   width: 100%;
-  font-size: ${(p) => p.theme.sizes.fontDefault}px;
-
-  & > div {
-    margin: 0.5rem 0;
-    background: #ff8c00;
-    padding: 0.125rem;
-    text-align: center;
-    color: #333;
-  }
+  font-size: 48px;
+  padding: 0.5em 0;
 `;
 
 const Heading = styled(H1)`
-  font-size: ${(p) => p.theme.sizes.headingsRem.h1}em;
+  background: #ff8c00;
+  color: #333;
+  font-size: inherit;
+  margin: 0;
+  padding: 0.1em 0;
+  text-align: center;
 `;
 
 export function TestMode(): JSX.Element {

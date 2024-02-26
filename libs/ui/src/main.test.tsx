@@ -10,7 +10,7 @@ describe('renders Main', () => {
     expect(main).not.toHaveStyleRule('flex-direction');
     expect(main).not.toHaveStyleRule('justify-content');
     expect(main).not.toHaveStyleRule('align-items');
-    expect(main).not.toHaveStyleRule('padding');
+    expect(main).toHaveStyleRule('padding', '0rem');
     expect(main).toHaveStyleRule('overflow', 'auto');
   });
 
@@ -26,7 +26,7 @@ describe('renders Main', () => {
     expect(main).toHaveStyleRule('flex-direction', 'column');
     expect(main).toHaveStyleRule('justify-content', 'center');
     expect(main).toHaveStyleRule('align-items', 'center');
-    expect(main).toHaveStyleRule('padding', '1rem');
+    expect(main).toHaveStyleRule('padding', '0.5rem');
   });
 
   test('as a flexRow', () => {

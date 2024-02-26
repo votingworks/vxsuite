@@ -1,12 +1,12 @@
 import React, { ReactNode } from 'react';
 import ReactModal from 'react-modal';
-import styled from 'styled-components';
+import styled, { DefaultTheme } from 'styled-components';
 import { rgba } from 'polished';
 
 import { assert } from '@votingworks/basics';
 
+import { SizeMode } from '@votingworks/types';
 import { Theme } from './themes';
-import { ButtonBar } from './button_bar';
 import { H2 } from './typography';
 import { ReadOnLoad } from './ui_strings/read_on_load';
 import { useAudioContext } from './ui_strings/audio_context';
@@ -17,6 +17,18 @@ import { useAudioContext } from './ui_strings/audio_context';
 export enum ModalWidth {
   Standard = '30rem',
   Wide = '55rem',
+}
+
+const CONTENT_SPACING_VALUES_REM: Readonly<Record<SizeMode, number>> = {
+  desktop: 0.5,
+  touchSmall: 0.5,
+  touchMedium: 0.5,
+  touchLarge: 0.25,
+  touchExtraLarge: 0.2,
+};
+
+function getSpacingValueRem(p: { theme: DefaultTheme }) {
+  return CONTENT_SPACING_VALUES_REM[p.theme.sizeMode];
 }
 
 interface ReactModalContentInterface {
@@ -51,6 +63,40 @@ const ReactModalContent = styled('div')<ReactModalContentInterface>`
   }
 `;
 
+function getButtonSpacingCssValue(p: { theme: DefaultTheme }) {
+  const {
+    sizes: { minTouchAreaSeparationPx },
+  } = p.theme;
+
+  return `max(${minTouchAreaSeparationPx}px, ${getSpacingValueRem(p)}rem)`;
+}
+
+export const ButtonBar = styled('div')`
+  align-items: center;
+  border-top: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
+    ${(p) => p.theme.colors.outline};
+  display: flex;
+  flex-wrap: wrap-reverse;
+  gap: ${(p) => getButtonSpacingCssValue(p)};
+  justify-content: flex-end;
+  padding: ${(p) => getButtonSpacingCssValue(p)};
+
+  & > * {
+    flex-grow: 1;
+  }
+
+  & > *:first-child {
+    min-width: 40%;
+    order: 2;
+  }
+
+  & > *:only-child {
+    @media (min-width: 480px) {
+      flex-grow: initial;
+    }
+  }
+`;
+
 interface ReactModalOverlayInterface {
   fullscreen?: boolean;
 }
@@ -62,7 +108,7 @@ const ReactModalOverlay = styled('div')<ReactModalOverlayInterface>`
   background: ${(p) => rgba(p.theme.colors.inverseBackground, 0.9)};
 
   @media (min-width: 480px) {
-    padding: ${({ fullscreen }) => (fullscreen ? '0' : '0.5rem')};
+    padding: ${(p) => (p.fullscreen ? 0 : getSpacingValueRem(p))}rem;
   }
 
   @media print {
@@ -84,7 +130,7 @@ const ModalContent = styled('div')<ModalContentInterface>`
   justify-content: ${({ centerContent = false }) =>
     centerContent ? 'center' : undefined};
   overflow: auto;
-  padding: ${({ fullscreen }) => !fullscreen && '1rem'};
+  padding: ${(p) => (p.fullscreen ? 0 : getSpacingValueRem(p))}rem;
 `;
 
 const ReadOnOpen = styled(ReadOnLoad)`
