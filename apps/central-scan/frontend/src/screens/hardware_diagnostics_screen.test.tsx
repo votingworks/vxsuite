@@ -28,5 +28,5 @@ test('hardware diagnostics screen', async () => {
   });
 
   await screen.findByText('Battery Level: 50%');
-  await screen.findByText('Free Disk Space: 50% (500 GB / 1000 GB)');
+  screen.getByText('Free Disk Space: 50% (500 GB / 1000 GB)');
 });
