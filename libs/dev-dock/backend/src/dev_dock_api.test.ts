@@ -21,6 +21,10 @@ import { Server } from 'http';
 import { typedAs } from '@votingworks/basics';
 import { PrinterStatus } from '@votingworks/types';
 import {
+  getMockConnectedPrinterStatus,
+  getMockFilePrinterHandler,
+} from '@votingworks/printing';
+import {
   Api,
   MachineType,
   DEFAULT_PRINTERS,
@@ -184,6 +188,8 @@ test('machine type', async () => {
 test.each(typedAs<MachineType[]>(['admin', 'scan']))(
   'printer for machine type %s',
   async (machineType) => {
+    getMockFilePrinterHandler().cleanup();
+
     const { apiClient } = setup(machineType);
     await expect(apiClient.getPrinterStatus()).resolves.toEqual(
       typedAs<PrinterStatus>({
@@ -193,10 +199,9 @@ test.each(typedAs<MachineType[]>(['admin', 'scan']))(
 
     await apiClient.connectPrinter();
     await expect(apiClient.getPrinterStatus()).resolves.toEqual(
-      typedAs<PrinterStatus>({
-        connected: true,
-        config: DEFAULT_PRINTERS[machineType]!,
-      })
+      typedAs<PrinterStatus>(
+        getMockConnectedPrinterStatus(DEFAULT_PRINTERS[machineType]!)
+      )
     );
 
     await apiClient.disconnectPrinter();

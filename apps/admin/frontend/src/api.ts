@@ -813,4 +813,11 @@ export const printTestPage = {
   },
 } as const;
 
+export const printReadinessReport = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.printReadinessReport);
+  },
+} as const;
+
 export const systemCallApi = createSystemCallApi(useApiClient);

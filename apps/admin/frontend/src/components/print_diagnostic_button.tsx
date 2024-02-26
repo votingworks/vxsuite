@@ -1,7 +1,7 @@
 import { Button, Modal, P, RadioGroup } from '@votingworks/ui';
 import React, { useState } from 'react';
 import { assert, assertFalsy, sleep } from '@votingworks/basics';
-import type { DiagnosticsOutcome } from '@votingworks/admin-backend';
+import { DiagnosticsOutcome } from '@votingworks/types';
 import { addDiagnosticRecord, getPrinterStatus, printTestPage } from '../api';
 import { Loading } from './loading';
 

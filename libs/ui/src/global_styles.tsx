@@ -57,6 +57,10 @@ ${NORMALIZE_CSS}
       color: #000;
       font-size: 16px !important;
     }
+
+    svg {
+      color: black !important; /* Icons should be black in print */
+    }
   }
 
   body {

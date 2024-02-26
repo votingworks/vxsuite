@@ -18,7 +18,10 @@ import {
   suppressingConsoleOutput,
   zipFile,
 } from '@votingworks/test-utils';
-import { HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
+import {
+  HP_LASER_PRINTER_CONFIG,
+  getMockConnectedPrinterStatus,
+} from '@votingworks/printing';
 import { getDiskSpaceSummary } from '@votingworks/backend';
 import {
   buildTestEnvironment,
@@ -399,10 +402,9 @@ test('printer status', async () => {
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
   expect(await apiClient.getPrinterStatus()).toEqual(
-    typedAs<PrinterStatus>({
-      connected: true,
-      config: HP_LASER_PRINTER_CONFIG,
-    })
+    typedAs<PrinterStatus>(
+      getMockConnectedPrinterStatus(HP_LASER_PRINTER_CONFIG)
+    )
   );
 
   mockPrinterHandler.disconnectPrinter();

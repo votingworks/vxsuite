@@ -252,13 +252,13 @@ restrictInDocumentationToApps = ["vx-admin-service"]
 eventId = "election-report-previewed"
 eventType = "user-action"
 documentationMessage = "Report previewed by the user."
-restrictInDocumentationToApps = ["vx-admin-frontend"]
+restrictInDocumentationToApps = ["vx-admin-service"]
 
 [ElectionReportPrinted]
 eventId = "election-report-printed"
 eventType = "user-action"
 documentationMessage = "Report printed by the user."
-restrictInDocumentationToApps = ["vx-admin-frontend"]
+restrictInDocumentationToApps = ["vx-admin-service"]
 
 [ConvertingResultsToSemsFormat]
 eventId = "converting-to-sems"
@@ -685,6 +685,11 @@ documentationMessage = "The user has started a hardware diagnostic."
 eventId = "diagnostic-complete"
 eventType = "user-action"
 documentationMessage = "The user has completed a hardware diagnostic."
+
+[ReadinessReportPrinted]
+eventId = "readiness-report-printed"
+eventType = "user-action"
+documentationMessage = "The user has printed an equipment readiness report."
 
 [UnknownError]
 eventId = "unknown-error"

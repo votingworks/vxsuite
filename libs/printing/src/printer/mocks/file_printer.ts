@@ -13,6 +13,7 @@ import { Optional, assert, iter } from '@votingworks/basics';
 import { writeFile } from 'fs/promises';
 import { PrinterConfig, PrinterStatus } from '@votingworks/types';
 import { PrintProps, Printer } from '../types';
+import { getMockConnectedPrinterStatus } from './fixtures';
 
 export const MOCK_PRINTER_STATE_FILENAME = 'state.json';
 export const MOCK_PRINTER_OUTPUT_DIRNAME = 'prints';
@@ -135,10 +136,7 @@ interface MockFilePrinterHandler {
 export function getMockFilePrinterHandler(): MockFilePrinterHandler {
   return {
     connectPrinter: (config: PrinterConfig) => {
-      writeToMockFile({
-        connected: true,
-        config,
-      });
+      writeToMockFile(getMockConnectedPrinterStatus(config));
     },
     disconnectPrinter: () => {
       writeToMockFile({

@@ -7,6 +7,9 @@ import {
   CastVoteRecordExportFileName,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
+  DiagnosticsHardware,
+  DiagnosticsOutcome,
+  DiagnosticsRecord,
   Id,
   PrinterStatus,
   SystemSettings,
@@ -81,9 +84,6 @@ import {
   WriteInCandidateRecord,
   WriteInAdjudicationContext,
   WriteInImageView,
-  DiagnosticsHardware,
-  DiagnosticsOutcome,
-  DiagnosticsRecord,
 } from './types';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
@@ -130,6 +130,7 @@ import {
   exportTallyReportPdf,
 } from './reports/tally_report';
 import { printTestPage } from './reports/test_print';
+import { printReadinessReport } from './reports/readiness';
 
 const debug = rootDebug.extend('app');
 
@@ -1070,6 +1071,15 @@ function buildApi({
 
     async printTestPage(): Promise<void> {
       await printTestPage({
+        printer,
+        logger,
+        userRole: assertDefined(await getUserRole()),
+      });
+    },
+
+    async printReadinessReport(): Promise<void> {
+      await printReadinessReport({
+        workspace,
         printer,
         logger,
         userRole: assertDefined(await getUserRole()),

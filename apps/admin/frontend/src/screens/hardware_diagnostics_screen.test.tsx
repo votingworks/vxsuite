@@ -38,10 +38,10 @@ test('battery state ', async () => {
     apiMock,
   });
 
-  await expectTextWithIcon('Battery Level: 100%', 'circle-check');
+  await expectTextWithIcon('Battery Level: 100%', 'square-check');
   await expectTextWithIcon(
     'Power Source: External Power Supply',
-    'circle-check'
+    'square-check'
   );
 
   apiMock.setBatteryInfo({
@@ -49,7 +49,7 @@ test('battery state ', async () => {
     discharging: true,
   });
 
-  await expectTextWithIcon('Battery Level: 50%', 'circle-check');
+  await expectTextWithIcon('Battery Level: 50%', 'square-check');
   await expectTextWithIcon('Power Source: Battery', 'circle-info');
 
   apiMock.setBatteryInfo({
@@ -104,8 +104,8 @@ test('displays printer state and allows diagnostic', async () => {
       ],
     },
   });
-  await expectTextWithIcon('Ready to print', 'circle-check');
-  await expectTextWithIcon('Toner Level: 83%', 'circle-check');
+  await expectTextWithIcon('Ready to print', 'square-check');
+  await expectTextWithIcon('Toner Level: 83%', 'square-check');
   // rich status display tested in libs/ui
 
   // run through failed and passed print diagnostic
@@ -170,7 +170,7 @@ test('displays printer state and allows diagnostic', async () => {
   expect(screen.queryByRole('alertdialog')).toBeNull();
   await expectTextWithIcon(
     'Test print successful, 6/22/2022, 12:01:00 PM',
-    'circle-check'
+    'square-check'
   );
 });
 
@@ -192,7 +192,7 @@ describe('disk space summary', () => {
 
     await expectTextWithIcon(
       'Free Disk Space: 99% (99.2 GB / 100 GB)',
-      'circle-check'
+      'square-check'
     );
   });
 
@@ -211,4 +211,18 @@ describe('disk space summary', () => {
       'triangle-exclamation'
     );
   });
+});
+
+test('printing the readiness report', async () => {
+  apiMock.setPrinterStatus({ connected: true });
+  apiMock.expectGetApplicationDiskSpaceSummary();
+  apiMock.expectGetDiagnosticsRecords([]);
+  renderInAppContext(<HardwareDiagnosticsScreen />, {
+    apiMock,
+  });
+
+  apiMock.apiClient.printReadinessReport.expectCallWith().resolves();
+  userEvent.click(await screen.findButton('Print Readiness Report'));
+  const modal = await screen.findByRole('alertdialog');
+  within(modal).getByText('Printing');
 });

@@ -8,6 +8,7 @@ import {
   ROBOTO_ITALIC_FONT_DECLARATIONS,
   GlobalStyles,
   VxThemeProvider,
+  FONT_AWESOME_STYLES,
 } from '@votingworks/ui';
 import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 
@@ -47,6 +48,12 @@ export async function renderToPdf(
               ROBOTO_REGULAR_FONT_DECLARATIONS,
               ROBOTO_ITALIC_FONT_DECLARATIONS,
             ].join('\n'),
+          }}
+        />
+        <style
+          type="text/css"
+          dangerouslySetInnerHTML={{
+            __html: FONT_AWESOME_STYLES,
           }}
         />
         {style}

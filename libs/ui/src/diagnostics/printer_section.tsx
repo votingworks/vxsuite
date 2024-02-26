@@ -1,8 +1,12 @@
-import { Optional, throwIllegalValue } from '@votingworks/basics';
-import { IppPrinterStateReason, PrinterStatus } from '@votingworks/types';
+import {
+  DiagnosticsRecord,
+  PrinterStatus,
+  IppPrinterStateReason,
+} from '@votingworks/types';
 import React from 'react';
-import { Icons } from './icons';
-import { P } from './typography';
+import { Optional, throwIllegalValue } from '@votingworks/basics';
+import { H2, P } from '../typography';
+import { InfoIcon, LoadingIcon, SuccessIcon, WarningIcon } from './icons';
 
 /**
  * IPP printer-state-reasons explain what's going on with a printer in detail.
@@ -89,7 +93,7 @@ export function PrinterStatusDisplay({
   if (printerStatus.connected === false) {
     return (
       <P>
-        <Icons.Info /> No compatible printer detected
+        <InfoIcon /> No compatible printer detected
       </P>
     );
   }
@@ -99,7 +103,7 @@ export function PrinterStatusDisplay({
   if (!config.supportsIpp) {
     return (
       <P>
-        <Icons.Done color="success" /> Connected
+        <SuccessIcon /> Connected
       </P>
     );
   }
@@ -107,7 +111,7 @@ export function PrinterStatusDisplay({
   if (!richStatus) {
     return (
       <P>
-        <Icons.Loading /> Connected
+        <LoadingIcon /> Connected
       </P>
     );
   }
@@ -122,27 +126,27 @@ export function PrinterStatusDisplay({
         if (highestPriorityStateReason === 'sleep-mode') {
           return (
             <P>
-              <Icons.Info /> Sleep mode is on - Press any button on the printer
-              to wake it.
+              <InfoIcon /> Sleep mode is on - Press any button on the printer to
+              wake it.
             </P>
           );
         }
 
         return (
           <P>
-            <Icons.Done color="success" /> Ready to print
+            <SuccessIcon /> Ready to print
           </P>
         );
       case 'processing':
         return (
           <P>
-            <Icons.Loading /> Printing
+            <LoadingIcon /> Printing
           </P>
         );
       case 'stopped':
         return (
           <P>
-            <Icons.Warning color="warning" /> Stopped
+            <WarningIcon /> Stopped
             {highestPriorityStateReason
               ? ` - ${
                   IPP_PRINTER_STATE_REASON_MESSAGES[
@@ -164,13 +168,39 @@ export function PrinterStatusDisplay({
     <React.Fragment>
       {statusMessage}{' '}
       <P>
-        {markerLow ? (
-          <Icons.Warning color="warning" />
-        ) : (
-          <Icons.Done color="success" />
-        )}{' '}
-        Toner Level: {marker.level}%
+        {markerLow ? <WarningIcon /> : <SuccessIcon />} Toner Level:{' '}
+        {marker.level}%
       </P>
+    </React.Fragment>
+  );
+}
+
+export function PrinterSection({
+  printerStatus,
+  mostRecentPrinterDiagnostic,
+}: {
+  printerStatus: PrinterStatus;
+  mostRecentPrinterDiagnostic?: DiagnosticsRecord;
+}): JSX.Element {
+  return (
+    <React.Fragment>
+      <H2>Printer</H2>
+      <PrinterStatusDisplay printerStatus={printerStatus} />
+      {!mostRecentPrinterDiagnostic ? (
+        <P>
+          <InfoIcon /> No test print on record
+        </P>
+      ) : mostRecentPrinterDiagnostic.outcome === 'fail' ? (
+        <P>
+          <WarningIcon /> Test print failed,{' '}
+          {new Date(mostRecentPrinterDiagnostic.timestamp).toLocaleString()}
+        </P>
+      ) : (
+        <P>
+          <SuccessIcon /> Test print successful,{' '}
+          {new Date(mostRecentPrinterDiagnostic.timestamp).toLocaleString()}
+        </P>
+      )}
     </React.Fragment>
   );
 }

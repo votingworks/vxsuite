@@ -3,6 +3,7 @@ import { readFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { HP_LASER_PRINTER_CONFIG, PrintSides } from '..';
 import { createMockPrinterHandler } from './memory_printer';
+import { MOCK_PRINTER_RICH_STATUS } from './fixtures';
 
 test('memory printer', async () => {
   const printerHandler = createMockPrinterHandler();
@@ -13,7 +14,11 @@ test('memory printer', async () => {
 
   const config = HP_LASER_PRINTER_CONFIG;
   printerHandler.connectPrinter(config);
-  expect(await printer.status()).toEqual({ connected: true, config });
+  expect(await printer.status()).toEqual({
+    connected: true,
+    config,
+    richStatus: MOCK_PRINTER_RICH_STATUS,
+  });
 
   expect(printerHandler.getPrintJobHistory()).toEqual([]);
   expect(printerHandler.getLastPrintPath()).toBeUndefined();

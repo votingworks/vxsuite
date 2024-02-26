@@ -7,11 +7,10 @@ import {
 import { ThemeProvider } from 'styled-components';
 import { unique } from '@votingworks/basics';
 import {
-  ReportSection,
-  tallyReportThemeFn,
-  TallyReport,
+  printedReportThemeFn,
+  PrintedReport,
   TallyReportColumns,
-} from './tally_report';
+} from './layout';
 import { LogoMark } from '../logo_mark';
 import { TallyReportMetadata } from './tally_report_metadata';
 import { ContestWriteInSummaryTable } from './contest_write_in_summary_table';
@@ -53,8 +52,8 @@ export function WriteInAdjudicationReport({
 
   return (
     // must wrap in theme so it's available in printing environment
-    <ThemeProvider theme={tallyReportThemeFn}>
-      <TallyReport data-testid="write-in-tally-report">
+    <ThemeProvider theme={printedReportThemeFn}>
+      <PrintedReport data-testid="write-in-tally-report">
         {relevantPartyIds.map((partyId) => {
           const party = election.parties.find((p) => p.id === partyId);
           const electionTitle = party
@@ -66,7 +65,7 @@ export function WriteInAdjudicationReport({
           const sectionKey = partyId || 'none';
 
           return (
-            <ReportSection
+            <PrintedReport
               key={sectionKey}
               data-testid={`write-in-tally-report-${sectionKey}`}
             >
@@ -95,10 +94,10 @@ export function WriteInAdjudicationReport({
                   />
                 ))}
               </TallyReportColumns>
-            </ReportSection>
+            </PrintedReport>
           );
         })}
-      </TallyReport>
+      </PrintedReport>
     </ThemeProvider>
   );
 }

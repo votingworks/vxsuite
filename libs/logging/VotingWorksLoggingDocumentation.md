@@ -185,11 +185,11 @@ IDs are logged with each log to identify the log being written.
 ### election-report-previewed
 **Type:** [user-action](#user-action)  
 **Description:** Report previewed by the user.  
-**Machines:** vx-admin-frontend
+**Machines:** vx-admin-service
 ### election-report-printed
 **Type:** [user-action](#user-action)  
 **Description:** Report printed by the user.  
-**Machines:** vx-admin-frontend
+**Machines:** vx-admin-service
 ### converting-to-sems
 **Type:** [user-action](#user-action)  
 **Description:** Initiating conversion of tally results to SEMS file format.  
@@ -469,6 +469,10 @@ IDs are logged with each log to identify the log being written.
 ### diagnostic-complete
 **Type:** [user-action](#user-action)  
 **Description:** The user has completed a hardware diagnostic.  
+**Machines:** All
+### readiness-report-printed
+**Type:** [user-action](#user-action)  
+**Description:** The user has printed an equipment readiness report.  
 **Machines:** All
 ### unknown-error
 **Type:** [application-status](#application-status)  
