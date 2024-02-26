@@ -9,7 +9,7 @@ import {
 } from '@votingworks/types';
 import { QueryClientProvider } from '@tanstack/react-query';
 import { SystemCallContextProvider, TestErrorBoundary } from '@votingworks/ui';
-import type { BatteryInfo } from '@votingworks/backend';
+import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ok } from '@votingworks/basics';
 import { ApiClientContext, createQueryClient, systemCallApi } from '../src/api';
@@ -123,6 +123,12 @@ export function createApiMock(
 
     expectClearBallotData() {
       apiClient.clearBallotData.expectCallWith().resolves();
+    },
+
+    expectGetApplicationDiskSpaceSummary(summary: DiskSpaceSummary) {
+      apiClient.getApplicationDiskSpaceSummary
+        .expectCallWith()
+        .resolves(summary);
     },
   };
 }

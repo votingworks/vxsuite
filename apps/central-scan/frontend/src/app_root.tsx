@@ -38,7 +38,8 @@ import {
   getUsbDriveStatus,
 } from './api';
 import { UnconfiguredElectionScreenWrapper } from './screens/unconfigured_election_screen_wrapper';
-import { SystemAdministratorScreen } from './screens/system_administrator_screen';
+import { SystemAdministratorSettingsScreen } from './screens/system_administrator_settings_screen';
+import { HardwareDiagnosticsScreen } from './screens/hardware_diagnostics_screen';
 
 export interface AppRootProps {
   hardware: Hardware;
@@ -341,7 +342,15 @@ export function AppRoot({
   if (isSystemAdministratorAuth(authStatus)) {
     return (
       <AppContext.Provider value={currentContext}>
-        <SystemAdministratorScreen />
+        <Switch>
+          <Route path="/system-administrator-settings">
+            <SystemAdministratorSettingsScreen />
+          </Route>
+          <Route path="/hardware-diagnostics">
+            <HardwareDiagnosticsScreen />
+          </Route>
+          <Redirect to="/system-administrator-settings" />
+        </Switch>
       </AppContext.Provider>
     );
   }

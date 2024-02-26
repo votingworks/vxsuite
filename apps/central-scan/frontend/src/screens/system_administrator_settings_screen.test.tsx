@@ -3,7 +3,7 @@ import { ok } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { screen, waitFor } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { SystemAdministratorScreen } from './system_administrator_screen';
+import { SystemAdministratorSettingsScreen } from './system_administrator_settings_screen';
 import { createApiMock, ApiMock } from '../../test/api';
 
 let apiMock: ApiMock;
@@ -17,10 +17,10 @@ afterEach(() => {
 });
 
 test('System Admin screen', async () => {
-  renderInAppContext(<SystemAdministratorScreen />, {
+  renderInAppContext(<SystemAdministratorSettingsScreen />, {
     apiMock,
   });
-  screen.getByRole('heading', { name: 'System Administrator' });
+  screen.getByRole('heading', { name: 'Settings' });
 
   screen.getByRole('heading', { name: 'Election' });
   userEvent.click(screen.getButton('Unconfigure Machine'));
@@ -40,7 +40,7 @@ test('System Admin screen', async () => {
 });
 
 test('Exporting logs', async () => {
-  renderInAppContext(<SystemAdministratorScreen />, {
+  renderInAppContext(<SystemAdministratorSettingsScreen />, {
     apiMock,
     usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
