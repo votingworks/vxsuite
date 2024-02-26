@@ -8,13 +8,18 @@ import {
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
 import { AuthStatus } from '@votingworks/types/src/auth/inserted_smart_card_auth';
-import { ElectionDefinition, PollsState } from '@votingworks/types';
-import { Logger } from '@votingworks/logging';
+import {
+  ElectionDefinition,
+  PollsState,
+  TEST_JURISDICTION,
+} from '@votingworks/types';
+import { LogSource, Logger } from '@votingworks/logging';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Screen } from '../components/layout';
 import { LiveCheckButton } from '../components/live_check_button';
 import { transitionPolls, unconfigureElection, logOut } from '../api';
 import { getCurrentTime } from '../utils/get_current_time';
+import { usePreviewContext } from '../preview_dashboard';
 
 interface SystemAdministratorScreenProps {
   authStatus: AuthStatus;
@@ -75,5 +80,27 @@ export function SystemAdministratorScreen({
         additionalButtons={additionalButtons}
       />
     </Screen>
+  );
+}
+
+/* istanbul ignore next */
+export function DefaultPreview(): JSX.Element {
+  const { electionDefinition } = usePreviewContext();
+  return (
+    <SystemAdministratorScreen
+      authStatus={{
+        status: 'logged_in',
+        // eslint-disable-next-line vx/gts-safe-number-parse
+        sessionExpiresAt: new Date(+new Date() + 1000000),
+        user: {
+          role: 'system_administrator',
+          jurisdiction: TEST_JURISDICTION,
+        },
+      }}
+      pollsState="polls_open"
+      electionDefinition={electionDefinition}
+      usbDrive={{ status: 'no_drive' }}
+      logger={new Logger(LogSource.VxScanFrontend)}
+    />
   );
 }
