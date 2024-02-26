@@ -79,3 +79,11 @@ create unique index idx_cvr_hashes on cvr_hashes (
   cvr_id_level_2_prefix,
   cvr_id
 );
+
+create table system_information (
+  -- enforce singleton table
+  id integer primary key check (id = 1),
+  maximum_usable_disk_space integer not null default 1
+);
+
+insert into system_information default values;

@@ -8,7 +8,7 @@ import {
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
 import { MemoryHardware } from '@votingworks/utils';
-import { typedAs, ok } from '@votingworks/basics';
+import { typedAs } from '@votingworks/basics';
 import { Scan } from '@votingworks/api';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -16,38 +16,25 @@ import {
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import {
-  render,
-  waitFor,
-  within,
-  fireEvent,
-  screen,
-} from '../test/react_testing_library';
+import { render, waitFor, within, screen } from '../test/react_testing_library';
 import { App } from './app';
-import { MachineConfigResponse } from './config/types';
-import {
-  createMockApiClient,
-  MockApiClient,
-  setAuthStatus,
-  setUsbDriveStatus,
-} from '../test/api';
+import { ApiMock, createApiMock } from '../test/api';
 
-let mockApiClient: MockApiClient;
+let apiMock: ApiMock;
 
 beforeEach(() => {
   jest.restoreAllMocks();
 
-  mockApiClient = createMockApiClient();
-  setAuthStatus(mockApiClient, {
+  apiMock = createApiMock();
+  apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'machine_locked',
   });
-  setUsbDriveStatus(mockApiClient, {
+  apiMock.setUsbDriveStatus({
     status: 'no_drive',
   });
-  mockApiClient.getSystemSettings
-    .expectCallWith()
-    .resolves(DEFAULT_SYSTEM_SETTINGS);
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetMachineConfig();
 
   fetchMock.config.fallbackToNetwork = true;
   fetchMock.get(
@@ -58,13 +45,6 @@ beforeEach(() => {
       adjudication: { adjudicated: 0, remaining: 0 },
     }),
     { overwriteRoutes: true }
-  );
-  fetchMock.get(
-    '/machine-config',
-    typedAs<MachineConfigResponse>({
-      machineId: '0001',
-      codeVersion: 'TEST',
-    })
   );
 
   const oldWindowLocation = window.location;
@@ -78,21 +58,15 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  mockApiClient.assertComplete();
+  apiMock.assertComplete();
   expect(fetchMock.done()).toEqual(true);
   expect(fetchMock.calls('unmatched')).toEqual([]);
 });
 
 function expectConfigureFromElectionPackageOnUsbDrive() {
-  mockApiClient.configureFromElectionPackageOnUsbDrive
-    .expectCallWith()
-    .resolves(ok(electionGeneralDefinition));
-  mockApiClient.getSystemSettings
-    .expectCallWith()
-    .resolves(DEFAULT_SYSTEM_SETTINGS);
-  mockApiClient.getElectionDefinition
-    .expectCallWith()
-    .resolves(electionGeneralDefinition);
+  apiMock.expectConfigure(electionGeneralDefinition);
+  apiMock.expectGetSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
 }
 
 export async function authenticateAsSystemAdministrator(
@@ -101,7 +75,7 @@ export async function authenticateAsSystemAdministrator(
   // First verify that we're logged out
   await screen.findByText(lockScreenText);
 
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'logged_in',
     user: fakeSystemAdministratorUser(),
     sessionExpiresAt: fakeSessionExpiresAt(),
@@ -118,7 +92,7 @@ export async function authenticateAsElectionManager(
   // First verify that we're logged out
   await screen.findByText(lockScreenText);
 
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'logged_in',
     user: fakeElectionManagerUser({
       electionHash: electionDefinition.electionHash,
@@ -129,24 +103,20 @@ export async function authenticateAsElectionManager(
 }
 
 test('renders without crashing', async () => {
-  mockApiClient.getTestMode.expectCallWith().resolves(true);
-  mockApiClient.getElectionDefinition
-    .expectCallWith()
-    .resolves(electionGeneralDefinition);
+  apiMock.expectGetTestMode(true);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
 
   const hardware = MemoryHardware.buildStandard();
-  render(<App apiClient={mockApiClient} hardware={hardware} />);
+  render(<App apiClient={apiMock.apiClient} hardware={hardware} />);
   await waitFor(() => fetchMock.called());
 });
 
 test('shows a "test ballot mode" button if the app is in Official Ballot Mode', async () => {
-  mockApiClient.getTestMode.expectCallWith().resolves(false);
-  mockApiClient.getElectionDefinition
-    .expectCallWith()
-    .resolves(electionGeneralDefinition);
+  apiMock.expectGetTestMode(false);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
 
   const hardware = MemoryHardware.buildStandard();
-  render(<App apiClient={mockApiClient} hardware={hardware} />);
+  render(<App apiClient={apiMock.apiClient} hardware={hardware} />);
   await authenticateAsElectionManager(electionGeneralDefinition);
 
   userEvent.click(screen.getButton('Settings'));
@@ -154,18 +124,16 @@ test('shows a "test ballot mode" button if the app is in Official Ballot Mode', 
   screen.getByText('Toggle to Test Ballot Mode');
 
   await waitFor(() => {
-    mockApiClient.assertComplete();
+    apiMock.assertComplete();
   });
 });
 
 test('shows an "official ballot mode" button if the app is in Test Mode', async () => {
-  mockApiClient.getTestMode.expectCallWith().resolves(true);
-  mockApiClient.getElectionDefinition
-    .expectCallWith()
-    .resolves(electionGeneralDefinition);
+  apiMock.expectGetTestMode(true);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
 
   const hardware = MemoryHardware.buildStandard();
-  render(<App apiClient={mockApiClient} hardware={hardware} />);
+  render(<App apiClient={apiMock.apiClient} hardware={hardware} />);
   await authenticateAsElectionManager(electionGeneralDefinition);
 
   screen.getByText('Test Ballot Mode');
@@ -175,15 +143,13 @@ test('shows an "official ballot mode" button if the app is in Test Mode', async 
   screen.getByText('Toggle to Official Ballot Mode');
 
   await waitFor(() => {
-    mockApiClient.assertComplete();
+    apiMock.assertComplete();
   });
 });
 
 test('clicking Scan Batch will scan a batch', async () => {
-  mockApiClient.getTestMode.expectCallWith().resolves(true);
-  mockApiClient.getElectionDefinition
-    .expectCallWith()
-    .resolves(electionGeneralDefinition);
+  apiMock.expectGetTestMode(true);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
 
   const scanBatchResponseBody: Scan.ScanBatchResponse = {
     status: 'error',
@@ -197,7 +163,7 @@ test('clicking Scan Batch will scan a batch', async () => {
   window.alert = mockAlert;
   const hardware = MemoryHardware.buildStandard();
 
-  render(<App apiClient={mockApiClient} hardware={hardware} />);
+  render(<App apiClient={apiMock.apiClient} hardware={hardware} />);
   await authenticateAsElectionManager(electionGeneralDefinition);
 
   // error scan
@@ -219,10 +185,8 @@ test('clicking Scan Batch will scan a batch', async () => {
 });
 
 test('clicking "Save CVRs" shows modal and makes a request to export', async () => {
-  mockApiClient.getTestMode.expectCallWith().resolves(true);
-  mockApiClient.getElectionDefinition
-    .expectCallWith()
-    .resolves(electionGeneralDefinition);
+  apiMock.expectGetTestMode(true);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
   const scanStatusResponseBody: Scan.GetScanStatusResponse = {
     canUnconfigure: false,
     batches: [
@@ -244,18 +208,16 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
 
   const hardware = MemoryHardware.buildStandard();
 
-  render(<App apiClient={mockApiClient} hardware={hardware} />);
+  render(<App apiClient={apiMock.apiClient} hardware={hardware} />);
   await authenticateAsElectionManager(electionGeneralDefinition);
-  setUsbDriveStatus(mockApiClient, mockUsbDriveStatus('mounted'));
+  apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
 
   // wait for the config to load
   const saveButton = screen.getButton('Save CVRs');
   await waitFor(() => expect(saveButton).toBeEnabled());
   userEvent.click(saveButton);
   const modal = await screen.findByRole('alertdialog');
-  mockApiClient.exportCastVoteRecordsToUsbDrive
-    .expectCallWith({ isMinimalExport: true })
-    .resolves(ok());
+  apiMock.expectExportCastVoteRecords({ isMinimalExport: true });
   userEvent.click(await within(modal).findByText('Save'));
   await within(modal).findByText('CVRs Saved');
   userEvent.click(within(modal).getByText('Cancel'));
@@ -264,11 +226,11 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
 });
 
 test('configuring election from usb election package works end to end', async () => {
-  mockApiClient.getTestMode.expectCallWith().resolves(true);
-  mockApiClient.getElectionDefinition.expectCallWith().resolves(null);
+  apiMock.expectGetTestMode(true);
+  apiMock.expectGetElectionDefinition(null);
 
   const hardware = MemoryHardware.buildStandard();
-  render(<App apiClient={mockApiClient} hardware={hardware} />);
+  render(<App apiClient={apiMock.apiClient} hardware={hardware} />);
   await authenticateAsElectionManager(
     electionGeneralDefinition,
     'Insert an Election Manager card to configure VxCentralScan',
@@ -278,7 +240,7 @@ test('configuring election from usb election package works end to end', async ()
 
   // Insert USB drive
   expectConfigureFromElectionPackageOnUsbDrive();
-  setUsbDriveStatus(mockApiClient, mockUsbDriveStatus('mounted'));
+  apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
 
   await screen.findByText('No ballots have been scanned');
 
@@ -288,22 +250,18 @@ test('configuring election from usb election package works end to end', async ()
   screen.getByText(hasTextAcrossElements('Machine ID: 0001'));
 
   // Remove USB drive
-  setUsbDriveStatus(mockApiClient, mockUsbDriveStatus('no_drive'));
+  apiMock.setUsbDriveStatus(mockUsbDriveStatus('no_drive'));
 
   userEvent.click(screen.getButton('Settings'));
   screen.getByRole('heading', { name: 'Settings' });
   userEvent.click(screen.getButton('Unconfigure Machine'));
   await screen.findByText('Delete all election data?');
 
-  mockApiClient.unconfigure
-    .expectCallWith({ ignoreBackupRequirement: false })
-    .resolves();
-  mockApiClient.getElectionDefinition.expectCallWith().resolves(null);
-  mockApiClient.getSystemSettings
-    .expectCallWith()
-    .resolves(DEFAULT_SYSTEM_SETTINGS);
-  mockApiClient.getTestMode.expectCallWith().resolves(true);
-  mockApiClient.ejectUsbDrive.expectCallWith().resolves();
+  apiMock.expectUnconfigure({ ignoreBackupRequirement: false });
+  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetTestMode(true);
+  apiMock.expectEjectUsbDrive();
 
   userEvent.click(screen.getButton('Yes, Delete Election Data'));
   screen.getByText('Unconfiguring machine');
@@ -314,41 +272,39 @@ test('authentication works', async () => {
   const hardware = MemoryHardware.buildStandard();
   hardware.setBatchScannerConnected(false);
 
-  mockApiClient.getTestMode.expectCallWith().resolves(true);
-  mockApiClient.getElectionDefinition
-    .expectCallWith()
-    .resolves(electionGeneralDefinition);
+  apiMock.expectGetTestMode(true);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
 
-  render(<App apiClient={mockApiClient} hardware={hardware} />);
+  render(<App apiClient={apiMock.apiClient} hardware={hardware} />);
 
   await screen.findByText('VxCentralScan is Locked');
 
   // Disconnect card reader
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'no_card_reader',
   });
   await screen.findByText('Card Reader Not Detected');
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'machine_locked',
   });
   await screen.findByText('VxCentralScan is Locked');
 
   // Insert an election manager card and enter the wrong PIN.
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'checking_pin',
     user: fakeElectionManagerUser(electionGeneralDefinition),
   });
   await screen.findByText('Enter the card PIN');
-  mockApiClient.checkPin.expectCallWith({ pin: '111111' }).resolves();
-  fireEvent.click(screen.getByText('1'));
-  fireEvent.click(screen.getByText('1'));
-  fireEvent.click(screen.getByText('1'));
-  fireEvent.click(screen.getByText('1'));
-  fireEvent.click(screen.getByText('1'));
-  fireEvent.click(screen.getByText('1'));
-  setAuthStatus(mockApiClient, {
+  apiMock.expectCheckPin('111111');
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('1'));
+  apiMock.setAuthStatus({
     status: 'checking_pin',
     user: fakeElectionManagerUser(electionGeneralDefinition),
     wrongPinEnteredAt: new Date(),
@@ -356,37 +312,37 @@ test('authentication works', async () => {
   await screen.findByText('Incorrect PIN. Please try again.');
 
   // Remove card and insert an invalid card, e.g. a pollworker card.
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'machine_locked',
   });
   await screen.findByText('VxCentralScan is Locked');
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'user_role_not_allowed',
   });
   await screen.findByText('Invalid Card');
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'machine_locked',
   });
 
   // Insert election manager card and enter correct PIN.
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'checking_pin',
     user: fakeElectionManagerUser(electionGeneralDefinition),
   });
   await screen.findByText('Enter the card PIN');
-  mockApiClient.checkPin.expectCallWith({ pin: '123456' }).resolves();
-  fireEvent.click(screen.getByText('1'));
-  fireEvent.click(screen.getByText('2'));
-  fireEvent.click(screen.getByText('3'));
-  fireEvent.click(screen.getByText('4'));
-  fireEvent.click(screen.getByText('5'));
-  fireEvent.click(screen.getByText('6'));
+  apiMock.expectCheckPin('123456');
+  userEvent.click(screen.getByText('1'));
+  userEvent.click(screen.getByText('2'));
+  userEvent.click(screen.getByText('3'));
+  userEvent.click(screen.getByText('4'));
+  userEvent.click(screen.getByText('5'));
+  userEvent.click(screen.getByText('6'));
 
   // 'Remove Card' screen is shown after successful authentication.
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'remove_card',
     user: fakeElectionManagerUser(electionGeneralDefinition),
     sessionExpiresAt: fakeSessionExpiresAt(),
@@ -394,7 +350,7 @@ test('authentication works', async () => {
   await screen.findByText('Remove card to unlock VxCentralScan');
 
   // Machine is unlocked when card removed
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'logged_in',
     user: fakeElectionManagerUser(electionGeneralDefinition),
     sessionExpiresAt: fakeSessionExpiresAt(),
@@ -402,9 +358,9 @@ test('authentication works', async () => {
   await screen.findByRole('heading', { name: 'Scan Ballots' });
 
   // Lock the machine
-  mockApiClient.logOut.expectCallWith().resolves();
-  fireEvent.click(screen.getByText('Lock Machine'));
-  setAuthStatus(mockApiClient, {
+  apiMock.expectLogOut();
+  userEvent.click(screen.getByText('Lock Machine'));
+  apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'machine_locked',
   });
@@ -412,13 +368,11 @@ test('authentication works', async () => {
 });
 
 test('system administrator can log in and unconfigure machine', async () => {
-  mockApiClient.getTestMode.expectCallWith().resolves(true);
-  mockApiClient.getElectionDefinition
-    .expectCallWith()
-    .resolves(electionGeneralDefinition);
+  apiMock.expectGetTestMode(true);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
 
   const hardware = MemoryHardware.buildStandard();
-  render(<App apiClient={mockApiClient} hardware={hardware} />);
+  render(<App apiClient={apiMock.apiClient} hardware={hardware} />);
 
   await authenticateAsSystemAdministrator();
 
@@ -429,29 +383,23 @@ test('system administrator can log in and unconfigure machine', async () => {
   userEvent.click(unconfigureMachineButton);
   const modal = await screen.findByRole('alertdialog');
 
-  mockApiClient.unconfigure
-    .expectCallWith({ ignoreBackupRequirement: true })
-    .resolves();
-  mockApiClient.getElectionDefinition.expectCallWith().resolves(null);
-  mockApiClient.getSystemSettings
-    .expectCallWith()
-    .resolves(DEFAULT_SYSTEM_SETTINGS);
-  mockApiClient.getTestMode.expectCallWith().resolves(true);
+  apiMock.expectUnconfigure({ ignoreBackupRequirement: true });
+  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetSystemSettings();
+  apiMock.expectGetTestMode(true);
   userEvent.click(within(modal).getButton('Yes, Delete Election Data'));
   await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
 });
 
 test('election manager cannot auth onto machine with different election hash', async () => {
-  mockApiClient.getTestMode.expectCallWith().resolves(true);
-  mockApiClient.getElectionDefinition
-    .expectCallWith()
-    .resolves(electionGeneralDefinition);
+  apiMock.expectGetTestMode(true);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
 
   const hardware = MemoryHardware.buildStandard();
-  render(<App apiClient={mockApiClient} hardware={hardware} />);
+  render(<App apiClient={apiMock.apiClient} hardware={hardware} />);
 
   await screen.findByText('VxCentralScan is Locked');
-  setAuthStatus(mockApiClient, {
+  apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'wrong_election',
     cardUserRole: 'election_manager',
@@ -463,19 +411,36 @@ test('election manager cannot auth onto machine with different election hash', a
 });
 
 test('error boundary', async () => {
-  mockApiClient.getTestMode.expectCallWith().resolves(true);
-  mockApiClient.getElectionDefinition
-    .expectCallWith()
-    .resolves(electionGeneralDefinition);
+  apiMock.expectGetTestMode(true);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
 
   const hardware = MemoryHardware.buildStandard();
   await suppressingConsoleOutput(async () => {
-    render(<App apiClient={mockApiClient} hardware={hardware} />);
+    render(<App apiClient={apiMock.apiClient} hardware={hardware} />);
 
     await authenticateAsElectionManager(electionGeneralDefinition);
 
-    mockApiClient.logOut.expectCallWith().throws(new Error('Whoa!'));
+    apiMock.apiClient.logOut.expectCallWith().throws(new Error('Whoa!'));
     userEvent.click(screen.getByText('Lock Machine'));
     await screen.findByText('Something went wrong');
   });
+});
+
+test('battery display and alert', async () => {
+  apiMock.expectGetTestMode(true);
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+
+  render(<App apiClient={apiMock.apiClient} />);
+  await authenticateAsSystemAdministrator();
+
+  // initial battery level in nav bar
+  await screen.findByText('100%');
+
+  apiMock.setBatteryInfo({ level: 0.1, discharging: true });
+  const warning = await screen.findByRole('alertdialog');
+  within(warning).getByText('Low Battery Warning');
+  userEvent.click(within(warning).getByText('Dismiss'));
+
+  // updated battery level in nav bar
+  await screen.findByText('10%');
 });

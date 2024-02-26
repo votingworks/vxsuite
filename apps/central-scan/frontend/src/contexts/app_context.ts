@@ -1,8 +1,8 @@
+import type { MachineConfig } from '@votingworks/central-scan-backend';
 import { LogSource, Logger } from '@votingworks/logging';
 import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { createContext } from 'react';
-import { MachineConfig } from '../config/types';
 
 export interface AppContextInterface {
   usbDriveStatus: UsbDriveStatus;

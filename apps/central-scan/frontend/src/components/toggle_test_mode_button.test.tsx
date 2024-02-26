@@ -4,17 +4,17 @@ import { createMemoryHistory } from 'history';
 import { Router } from 'react-router-dom';
 import { render, screen, within } from '../../test/react_testing_library';
 import { ToggleTestModeButton } from './toggle_test_mode_button';
-import { MockApiClient, createMockApiClient, provideApi } from '../../test/api';
+import { ApiMock, createApiMock, provideApi } from '../../test/api';
 
-let mockApiClient: MockApiClient;
+let apiMock: ApiMock;
 
 beforeEach(() => {
   jest.restoreAllMocks();
-  mockApiClient = createMockApiClient();
+  apiMock = createApiMock();
 });
 
 afterEach(() => {
-  mockApiClient.assertComplete();
+  apiMock.assertComplete();
 });
 
 function renderButton(
@@ -23,7 +23,7 @@ function renderButton(
 ) {
   render(
     provideApi(
-      mockApiClient,
+      apiMock,
       <Router history={history}>
         <ToggleTestModeButton canUnconfigure isTestMode {...props} />
       </Router>
@@ -51,7 +51,7 @@ test('toggling to official mode', async () => {
   );
 
   expect(history.location.pathname).toEqual('/admin');
-  mockApiClient.setTestMode.expectCallWith({ testMode: false }).resolves();
+  apiMock.expectSetTestMode(false);
   userEvent.click(within(modal).getButton('Toggle to Official Ballot Mode'));
   await screen.findByText('Toggling to Official Ballot Mode');
   expect(history.location.pathname).toEqual('/');
@@ -71,7 +71,7 @@ test('toggling to test mode', async () => {
   );
 
   expect(history.location.pathname).toEqual('/admin');
-  mockApiClient.setTestMode.expectCallWith({ testMode: true }).resolves();
+  apiMock.expectSetTestMode(true);
   userEvent.click(within(modal).getButton('Toggle to Test Ballot Mode'));
   await screen.findByText('Toggling to Test Ballot Mode');
   expect(history.location.pathname).toEqual('/');

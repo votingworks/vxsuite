@@ -1,6 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory } from 'history';
-import { err, ok } from '@votingworks/basics';
+import { err } from '@votingworks/basics';
 import {
   screen,
   waitFor,
@@ -9,16 +9,16 @@ import {
 } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { SettingsScreenProps, SettingsScreen } from './settings_screen';
-import { createMockApiClient, MockApiClient } from '../../test/api';
+import { ApiMock, createApiMock } from '../../test/api';
 
-let mockApiClient: MockApiClient;
+let apiMock: ApiMock;
 
 beforeEach(() => {
-  mockApiClient = createMockApiClient();
+  apiMock = createApiMock();
 });
 
 afterEach(() => {
-  mockApiClient.assertComplete();
+  apiMock.assertComplete();
 });
 
 function renderScreen(
@@ -27,16 +27,14 @@ function renderScreen(
 ) {
   return renderInAppContext(
     <SettingsScreen canUnconfigure={false} isTestMode={false} {...props} />,
-    { apiClient: mockApiClient, history }
+    { apiMock, history }
   );
 }
 
 test('clicking "Save Backup" shows progress', async () => {
   renderScreen();
 
-  mockApiClient.exportCastVoteRecordsToUsbDrive
-    .expectCallWith({ isMinimalExport: false })
-    .resolves(ok());
+  apiMock.expectExportCastVoteRecords({ isMinimalExport: false });
   userEvent.click(await screen.findByText('Save Backup'));
 
   const modal = await screen.findByRole('alertdialog');
@@ -63,10 +61,8 @@ test('clicking "Unconfigure Machine" calls backend', async () => {
   userEvent.click(screen.getButton('Unconfigure Machine'));
 
   // confirmation
-  mockApiClient.unconfigure
-    .expectCallWith({ ignoreBackupRequirement: false })
-    .resolves();
-  mockApiClient.ejectUsbDrive.expectCallWith().resolves();
+  apiMock.expectUnconfigure({ ignoreBackupRequirement: false });
+  apiMock.expectEjectUsbDrive();
   screen.getByText('Delete all election data?');
   userEvent.click(await screen.findButton('Yes, Delete Election Data'));
 
@@ -80,7 +76,7 @@ test('clicking "Unconfigure Machine" calls backend', async () => {
 test('backup error shows message', async () => {
   renderScreen();
 
-  mockApiClient.exportCastVoteRecordsToUsbDrive
+  apiMock.apiClient.exportCastVoteRecordsToUsbDrive
     .expectCallWith({ isMinimalExport: false })
     .resolves(err({ type: 'permission-denied' }));
   userEvent.click(await screen.findByText('Save Backup'));
@@ -114,14 +110,14 @@ test('clicking "Update Date and Time" shows modal to set clock', async () => {
   userEvent.selectOptions(selectYear, '2025');
 
   // Save date
-  mockApiClient.setClock
+  apiMock.apiClient.setClock
     .expectCallWith({
       isoDatetime: '2025-10-31T00:00:00.000+00:00',
 
       ianaZone: 'UTC',
     })
     .resolves();
-  mockApiClient.logOut.expectCallWith().resolves();
+  apiMock.expectLogOut();
   userEvent.click(within(modal).getByRole('button', { name: 'Save' }));
   await waitForElementToBeRemoved(screen.queryByRole('alertdialog'));
 

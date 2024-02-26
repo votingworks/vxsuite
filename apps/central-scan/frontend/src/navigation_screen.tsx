@@ -1,5 +1,6 @@
 import {
   AppLogo,
+  BatteryDisplay,
   Button,
   Card,
   H1,
@@ -89,6 +90,26 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
         <Link to="/">
           <CentralScanAppLogo appName="VxCentralScan" />
         </Link>
+        {isSystemAdministratorAuth(auth) && (
+          <NavList>
+            <NavListItem>
+              <NavLink
+                to="/system-administrator-settings"
+                isActive={isActivePath('/system-administrator-settings')}
+              >
+                Settings
+              </NavLink>
+            </NavListItem>
+            <NavListItem>
+              <NavLink
+                to="/hardware-diagnostics"
+                isActive={isActivePath('/hardware-diagnostics')}
+              >
+                Diagnostics
+              </NavLink>
+            </NavListItem>
+          </NavList>
+        )}
         {isElectionManagerAuth(auth) && electionDefinition && (
           <NavList>
             <NavListItem>
@@ -136,6 +157,7 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
                 <Button onPress={() => logOutMutation.mutate()} icon="Lock">
                   Lock Machine
                 </Button>
+                <BatteryDisplay />
               </React.Fragment>
             )}
           </HeaderActions>

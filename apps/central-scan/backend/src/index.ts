@@ -7,6 +7,7 @@ import { BatchScanner } from './fujitsu_scanner';
 import * as server from './server';
 
 export type { Api } from './app';
+export * from './types';
 
 loadEnvVarsFromDotenvFiles();
 

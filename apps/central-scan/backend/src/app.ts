@@ -6,6 +6,7 @@ import {
 import { Result, assert, assertDefined, ok } from '@votingworks/basics';
 import {
   createSystemCallApi,
+  DiskSpaceSummary,
   readSignedElectionPackageFromUsb,
   exportCastVoteRecordsToUsbDrive,
 } from '@votingworks/backend';
@@ -26,6 +27,7 @@ import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { Importer } from './importer';
 import { Workspace } from './util/workspace';
+import { MachineConfig } from './types';
 import { getMachineConfig } from './machine_config';
 
 type NoParams = never;
@@ -88,6 +90,10 @@ function buildApi({
 
     async ejectUsbDrive(): Promise<void> {
       return usbDrive.eject(assertDefined(await getUserRole()));
+    },
+
+    getMachineConfig(): MachineConfig {
+      return getMachineConfig();
     },
 
     getTestMode() {
@@ -257,6 +263,10 @@ function buildApi({
         });
       }
       return exportResult;
+    },
+
+    async getApplicationDiskSpaceSummary(): Promise<DiskSpaceSummary> {
+      return workspace.getDiskSpaceSummary();
     },
 
     ...createSystemCallApi({

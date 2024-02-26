@@ -1,8 +1,7 @@
-import * as tmp from 'tmp';
-import { mockOf } from '@votingworks/test-utils';
 import { initializeGetWorkspaceDiskSpaceSummary } from '@votingworks/backend';
+import { mockOf } from '@votingworks/test-utils';
+import tmp from 'tmp';
 import { createWorkspace } from './workspace';
-import { Store } from '../store';
 
 jest.mock(
   '@votingworks/backend',
@@ -15,13 +14,6 @@ jest.mock(
 const initializeGetWorkspaceDiskSpaceSummaryMock = mockOf(
   initializeGetWorkspaceDiskSpaceSummary
 );
-
-test('createWorkspace', () => {
-  const dir = tmp.dirSync();
-  const workspace = createWorkspace(dir.name);
-  expect(workspace.path).toEqual(dir.name);
-  expect(workspace.store).toBeInstanceOf(Store);
-});
 
 test('disk space tracking setup', () => {
   const dir = tmp.dirSync();

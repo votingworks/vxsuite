@@ -87,6 +87,18 @@ export const getAuthStatus = {
   },
 } as const;
 
+export const getApplicationDiskSpaceSummary = {
+  queryKey(): QueryKey {
+    return ['getApplicationDiskSpaceSummary'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getApplicationDiskSpaceSummary()
+    );
+  },
+} as const;
+
 export const getTestMode = {
   queryKey(): QueryKey {
     return ['getTestMode'];
@@ -104,6 +116,16 @@ export const getSystemSettings = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getSystemSettings());
+  },
+} as const;
+
+export const getMachineConfig = {
+  queryKey(): QueryKey {
+    return ['getMachineConfig'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getMachineConfig());
   },
 } as const;
 

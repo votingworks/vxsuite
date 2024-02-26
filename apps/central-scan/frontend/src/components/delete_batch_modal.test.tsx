@@ -1,17 +1,17 @@
 import userEvent from '@testing-library/user-event';
-import { MockApiClient, createMockApiClient, provideApi } from '../../test/api';
+import { ApiMock, createApiMock, provideApi } from '../../test/api';
 import { render, screen, waitFor } from '../../test/react_testing_library';
 import { DeleteBatchModal } from './delete_batch_modal';
 
-let mockApiClient: MockApiClient;
+let apiMock: ApiMock;
 
 beforeEach(() => {
   jest.restoreAllMocks();
-  mockApiClient = createMockApiClient();
+  apiMock = createApiMock();
 });
 
 afterEach(() => {
-  mockApiClient.assertComplete();
+  apiMock.assertComplete();
 });
 
 test('allows canceling', async () => {
@@ -19,7 +19,7 @@ test('allows canceling', async () => {
 
   render(
     provideApi(
-      mockApiClient,
+      apiMock,
       <DeleteBatchModal batchId="a" batchLabel="Batch 1" onClose={onClose} />
     )
   );
@@ -36,7 +36,7 @@ test('closes on success', async () => {
 
   render(
     provideApi(
-      mockApiClient,
+      apiMock,
       <DeleteBatchModal batchId="a" batchLabel="Batch 1" onClose={onClose} />
     )
   );
@@ -44,7 +44,7 @@ test('closes on success', async () => {
   await screen.findByText('Delete ‘Batch 1’?');
   expect(onClose).not.toHaveBeenCalled();
 
-  mockApiClient.deleteBatch.expectCallWith({ batchId: 'a' }).resolves();
+  apiMock.expectDeleteBatch({ batchId: 'a' });
   userEvent.click(screen.getByText('Yes, Delete Batch'));
   await waitFor(() => {
     expect(onClose).toHaveBeenCalled();

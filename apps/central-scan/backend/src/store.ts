@@ -32,7 +32,13 @@ import makeDebug from 'debug';
 import { DateTime } from 'luxon';
 import { dirname, join } from 'path';
 import { v4 as uuid } from 'uuid';
-import { AcceptedSheet, RejectedSheet, Sheet } from '@votingworks/backend';
+import {
+  AcceptedSheet,
+  RejectedSheet,
+  Sheet,
+  getMaximumUsableDiskSpace,
+  updateMaximumUsableDiskSpace,
+} from '@votingworks/backend';
 import {
   clearCastVoteRecordHashes,
   getCastVoteRecordRootHash,
@@ -900,5 +906,13 @@ export class Store {
 
   clearCastVoteRecordHashes(): void {
     clearCastVoteRecordHashes(this.client);
+  }
+
+  getMaximumUsableDiskSpace(): number {
+    return getMaximumUsableDiskSpace(this.client);
+  }
+
+  updateMaximumUsableDiskSpace(space: number): void {
+    updateMaximumUsableDiskSpace(this.client, space);
   }
 }

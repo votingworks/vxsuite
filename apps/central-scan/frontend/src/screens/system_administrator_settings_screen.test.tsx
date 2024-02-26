@@ -1,26 +1,26 @@
 import userEvent from '@testing-library/user-event';
 import { ok } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
-import { MockApiClient, createMockApiClient } from '../../test/api';
 import { screen, waitFor } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { SystemAdministratorScreen } from './system_administrator_screen';
+import { SystemAdministratorSettingsScreen } from './system_administrator_settings_screen';
+import { createApiMock, ApiMock } from '../../test/api';
 
-let mockApiClient: MockApiClient;
+let apiMock: ApiMock;
 
 beforeEach(() => {
-  mockApiClient = createMockApiClient();
+  apiMock = createApiMock();
 });
 
 afterEach(() => {
-  mockApiClient.assertComplete();
+  apiMock.assertComplete();
 });
 
 test('System Admin screen', async () => {
-  renderInAppContext(<SystemAdministratorScreen />, {
-    apiClient: mockApiClient,
+  renderInAppContext(<SystemAdministratorSettingsScreen />, {
+    apiMock,
   });
-  screen.getByRole('heading', { name: 'System Administrator' });
+  screen.getByRole('heading', { name: 'Settings' });
 
   screen.getByRole('heading', { name: 'Election' });
   userEvent.click(screen.getButton('Unconfigure Machine'));
@@ -40,12 +40,12 @@ test('System Admin screen', async () => {
 });
 
 test('Exporting logs', async () => {
-  renderInAppContext(<SystemAdministratorScreen />, {
-    apiClient: mockApiClient,
+  renderInAppContext(<SystemAdministratorSettingsScreen />, {
+    apiMock,
     usbDriveStatus: mockUsbDriveStatus('mounted'),
   });
 
-  mockApiClient.exportLogsToUsb.expectCallWith().resolves(ok());
+  apiMock.apiClient.exportLogsToUsb.expectCallWith().resolves(ok());
 
   // Log saving is tested fully in src/components/export_logs_modal.test.tsx
   userEvent.click(screen.getButton('Save Log File'));

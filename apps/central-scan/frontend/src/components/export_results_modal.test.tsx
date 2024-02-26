@@ -1,23 +1,24 @@
 import { Router } from 'react-router-dom';
 import { createMemoryHistory } from 'history';
-import { err, ok } from '@votingworks/basics';
+import { err } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { fireEvent, waitFor } from '../../test/react_testing_library';
+import userEvent from '@testing-library/user-event';
+import { waitFor } from '../../test/react_testing_library';
 import { ExportResultsModal } from './export_results_modal';
 import {
   renderInAppContext,
   wrapInAppContext,
 } from '../../test/render_in_app_context';
-import { MockApiClient, createMockApiClient } from '../../test/api';
+import { ApiMock, createApiMock } from '../../test/api';
 
-let mockApiClient: MockApiClient;
+let apiMock: ApiMock;
 
 beforeEach(() => {
-  mockApiClient = createMockApiClient();
+  apiMock = createApiMock();
 });
 
 afterEach(() => {
-  mockApiClient.assertComplete();
+  apiMock.assertComplete();
 });
 
 const mockMountedUsbDrive: UsbDriveStatus = {
@@ -38,13 +39,13 @@ test('render no usb found screen when there is not a valid, mounted usb drive', 
       <Router history={createMemoryHistory()}>
         <ExportResultsModal onClose={closeFn} />
       </Router>,
-      { usbDriveStatus, apiClient: mockApiClient }
+      { usbDriveStatus, apiMock }
     );
     getByText('No USB Drive Detected');
     getByText('Please insert a USB drive in order to save CVRs.');
     getByAltText('Insert USB Image');
 
-    fireEvent.click(getByText('Cancel'));
+    userEvent.click(getByText('Cancel'));
     expect(closeFn).toHaveBeenCalled();
 
     unmount();
@@ -59,26 +60,24 @@ test('render export modal when a usb drive is mounted as expected and allows aut
     {
       usbDriveStatus: mockMountedUsbDrive,
       history,
-      apiClient: mockApiClient,
+      apiMock,
     }
   );
   getByText('Save CVRs');
 
-  mockApiClient.exportCastVoteRecordsToUsbDrive
-    .expectCallWith({ isMinimalExport: true })
-    .resolves(ok());
-  fireEvent.click(getByText('Save'));
+  apiMock.expectExportCastVoteRecords({ isMinimalExport: true });
+  userEvent.click(getByText('Save'));
   await waitFor(() => getByText('CVRs Saved'));
 
   getByText('Eject USB');
-  fireEvent.click(getByText('Cancel'));
+  userEvent.click(getByText('Cancel'));
   expect(closeFn).toHaveBeenCalled();
 
   rerender(
     wrapInAppContext(<ExportResultsModal onClose={closeFn} />, {
       history,
       usbDriveStatus: { status: 'ejected' },
-      apiClient: mockApiClient,
+      apiMock,
     })
   );
   getByText('You may now take the USB drive to VxAdmin for tabulation.');
@@ -90,18 +89,18 @@ test('render export modal with errors when appropriate', async () => {
     <Router history={createMemoryHistory()}>
       <ExportResultsModal onClose={closeFn} />
     </Router>,
-    { usbDriveStatus: mockMountedUsbDrive, apiClient: mockApiClient }
+    { usbDriveStatus: mockMountedUsbDrive, apiMock }
   );
   getByText('Save CVRs');
 
-  mockApiClient.exportCastVoteRecordsToUsbDrive
+  apiMock.apiClient.exportCastVoteRecordsToUsbDrive
     .expectCallWith({ isMinimalExport: true })
     .resolves(err({ type: 'file-system-error' }));
-  fireEvent.click(getByText('Save'));
+  userEvent.click(getByText('Save'));
   await waitFor(() =>
     getByText('Failed to save CVRs. Unable to write to USB drive.')
   );
 
-  fireEvent.click(getByText('Close'));
+  userEvent.click(getByText('Close'));
   expect(closeFn).toHaveBeenCalled();
 });

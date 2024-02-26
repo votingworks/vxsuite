@@ -15,19 +15,17 @@ import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { BallotEjectScreen } from './ballot_eject_screen';
-import { createMockApiClient, MockApiClient } from '../../test/api';
+import { createApiMock, ApiMock } from '../../test/api';
 
-let mockApiClient: MockApiClient;
+let apiMock: ApiMock;
 
 beforeEach(() => {
-  mockApiClient = createMockApiClient();
-  mockApiClient.getSystemSettings
-    .expectCallWith()
-    .resolves(DEFAULT_SYSTEM_SETTINGS);
+  apiMock = createApiMock();
+  apiMock.expectGetSystemSettings();
 });
 
 afterEach(() => {
-  mockApiClient.assertComplete();
+  apiMock.assertComplete();
 });
 
 test('says the sheet is unreadable if it is', async () => {
@@ -55,7 +53,7 @@ test('says the sheet is unreadable if it is', async () => {
 
   renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
-    { apiClient: mockApiClient, logger }
+    { apiMock, logger }
   );
 
   await screen.findByText('Unreadable');
@@ -169,7 +167,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
 
   renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
-    { apiClient: mockApiClient, logger }
+    { apiMock, logger }
   );
 
   await screen.findByText('Overvote');
@@ -289,7 +287,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
 
   renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
-    { apiClient: mockApiClient, logger }
+    { apiMock, logger }
   );
 
   await screen.findByText('Undervote');
@@ -416,7 +414,7 @@ test('says the ballot sheet is blank if it is', async () => {
 
   renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
-    { apiClient: mockApiClient, logger }
+    { apiMock, logger }
   );
 
   await screen.findByText('Blank Ballot');
@@ -491,7 +489,7 @@ test('calls out official ballot sheets in test mode', async () => {
 
   renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
-    { apiClient: mockApiClient, logger }
+    { apiMock, logger }
   );
 
   await screen.findByText('Official Ballot');
@@ -562,7 +560,7 @@ test('calls out test ballot sheets in live mode', async () => {
       continueScanning={continueScanning}
       isTestMode={false}
     />,
-    { apiClient: mockApiClient, logger }
+    { apiMock, logger }
   );
 
   await screen.findByText('Test Ballot');
@@ -617,7 +615,7 @@ test('shows invalid election screen when appropriate', async () => {
       continueScanning={continueScanning}
       isTestMode={false}
     />,
-    { apiClient: mockApiClient, logger }
+    { apiMock, logger }
   );
 
   await screen.findByText('Wrong Election');
@@ -642,8 +640,8 @@ test('shows invalid election screen when appropriate', async () => {
 });
 
 test('does not allow tabulating the overvote if precinctScanDisallowCastingOvervotes is set', async () => {
-  mockApiClient.getSystemSettings.reset();
-  mockApiClient.getSystemSettings.expectCallWith().resolves({
+  apiMock.apiClient.getSystemSettings.reset();
+  apiMock.expectGetSystemSettings({
     ...DEFAULT_SYSTEM_SETTINGS,
     precinctScanDisallowCastingOvervotes: true,
   });
@@ -736,7 +734,7 @@ test('does not allow tabulating the overvote if precinctScanDisallowCastingOverv
 
   renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
-    { apiClient: mockApiClient, logger }
+    { apiMock, logger }
   );
 
   await screen.findByText('Overvote');

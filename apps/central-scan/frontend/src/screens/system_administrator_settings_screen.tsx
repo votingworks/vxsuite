@@ -14,14 +14,14 @@ import { NavigationScreen } from '../navigation_screen';
 import { AppContext } from '../contexts/app_context';
 import { logOut, unconfigure } from '../api';
 
-export function SystemAdministratorScreen(): JSX.Element {
+export function SystemAdministratorSettingsScreen(): JSX.Element {
   const { auth, electionDefinition, logger, usbDriveStatus } =
     useContext(AppContext);
   const unconfigureMutation = unconfigure.useMutation();
   const logOutMutation = logOut.useMutation();
 
   return (
-    <NavigationScreen title="System Administrator">
+    <NavigationScreen title="Settings">
       <H2>Election</H2>
       <P>
         <Icons.Info /> To adjust settings for the current election, please

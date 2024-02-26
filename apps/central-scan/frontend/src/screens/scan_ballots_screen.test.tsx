@@ -8,21 +8,21 @@ import {
   ScanBallotsScreenProps,
 } from './scan_ballots_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
-import { MockApiClient, createMockApiClient } from '../../test/api';
+import { ApiMock, createApiMock } from '../../test/api';
 
 const noneLeftAdjudicationStatus: AdjudicationStatus = {
   adjudicated: 0,
   remaining: 0,
 };
 
-let mockApiClient: MockApiClient;
+let apiMock: ApiMock;
 
 beforeEach(() => {
-  mockApiClient = createMockApiClient();
+  apiMock = createApiMock();
 });
 
 afterEach(() => {
-  mockApiClient.assertComplete();
+  apiMock.assertComplete();
 });
 
 function renderScreen(props?: Partial<ScanBallotsScreenProps>) {
@@ -40,7 +40,7 @@ function renderScreen(props?: Partial<ScanBallotsScreenProps>) {
       }}
       {...props}
     />,
-    { apiClient: mockApiClient }
+    { apiMock }
   );
 }
 
@@ -144,7 +144,7 @@ test('Delete All Batches button', async () => {
   userEvent.click(screen.getButton('Delete All Batches'));
 
   // confirmation
-  mockApiClient.clearBallotData.expectCallWith().resolves();
+  apiMock.expectClearBallotData();
   screen.getByText('Delete All Scanned Batches?');
   userEvent.click(screen.getButton('Yes, Delete All Batches'));
 

@@ -13,16 +13,11 @@ import {
   PrinterStatus,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import {
-  mockOf,
-  suppressingConsoleOutput,
-  zipFile,
-} from '@votingworks/test-utils';
+import { suppressingConsoleOutput, zipFile } from '@votingworks/test-utils';
 import {
   HP_LASER_PRINTER_CONFIG,
   getMockConnectedPrinterStatus,
 } from '@votingworks/printing';
-import { getDiskSpaceSummary } from '@votingworks/backend';
 import {
   buildTestEnvironment,
   configureMachine,
@@ -30,16 +25,6 @@ import {
   mockSystemAdministratorAuth,
   saveTmpFile,
 } from '../test/app';
-
-const getDiskSpaceSummaryMock = mockOf(getDiskSpaceSummary);
-
-jest.mock(
-  '@votingworks/backend',
-  (): typeof import('@votingworks/backend') => ({
-    ...jest.requireActual('@votingworks/backend'),
-    getDiskSpaceSummary: jest.fn(),
-  })
-);
 
 let mockNodeEnv: 'production' | 'test' = 'test';
 
@@ -53,11 +38,6 @@ jest.mock('./globals', (): typeof import('./globals') => ({
 beforeEach(() => {
   mockNodeEnv = 'test';
   jest.restoreAllMocks();
-  getDiskSpaceSummaryMock.mockResolvedValue({
-    total: 100_000,
-    used: 50_000,
-    available: 50_000,
-  });
 });
 
 jest.setTimeout(20_000);
@@ -414,31 +394,4 @@ test('printer status', async () => {
       connected: false,
     })
   );
-});
-
-test('getApplicationDiskSpaceSummary', async () => {
-  const { apiClient } = buildTestEnvironment();
-
-  getDiskSpaceSummaryMock.mockResolvedValue({
-    total: 100_000,
-    used: 50_000,
-    available: 50_000,
-  });
-  expect(await apiClient.getApplicationDiskSpaceSummary()).toEqual({
-    total: 50_000,
-    used: 0,
-    available: 50_000,
-  });
-
-  // mock using more disk space
-  getDiskSpaceSummaryMock.mockResolvedValue({
-    total: 100_000,
-    used: 60_000,
-    available: 40_000,
-  });
-  expect(await apiClient.getApplicationDiskSpaceSummary()).toEqual({
-    total: 50_000,
-    used: 10_000,
-    available: 40_000,
-  });
 });
