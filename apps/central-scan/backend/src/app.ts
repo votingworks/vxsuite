@@ -6,6 +6,7 @@ import {
 import { Result, assert, assertDefined, ok } from '@votingworks/basics';
 import {
   createSystemCallApi,
+  DiskSpaceSummary,
   readSignedElectionPackageFromUsb,
   exportCastVoteRecordsToUsbDrive,
 } from '@votingworks/backend';
@@ -262,6 +263,10 @@ function buildApi({
         });
       }
       return exportResult;
+    },
+
+    async getApplicationDiskSpaceSummary(): Promise<DiskSpaceSummary> {
+      return workspace.getDiskSpaceSummary();
     },
 
     ...createSystemCallApi({

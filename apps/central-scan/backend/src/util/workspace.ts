@@ -1,5 +1,9 @@
 import { emptyDirSync, ensureDirSync } from 'fs-extra';
 import { join, resolve } from 'path';
+import {
+  DiskSpaceSummary,
+  initializeGetWorkspaceDiskSpaceSummary,
+} from '@votingworks/backend';
 import { Store } from '../store';
 
 export interface Workspace {
@@ -43,6 +47,11 @@ export interface Workspace {
    * Clears the uploads directory.
    */
   clearUploads(): void;
+
+  /**
+   * Get the disk space summary for the workspace.
+   */
+  getDiskSpaceSummary: () => Promise<DiskSpaceSummary>;
 }
 
 export function createWorkspace(root: string): Workspace {
@@ -55,6 +64,10 @@ export function createWorkspace(root: string): Workspace {
 
   const dbPath = join(resolvedRoot, 'ballots.db');
   const store = Store.fileStore(dbPath);
+  const getWorkspaceDiskSpaceSummary = initializeGetWorkspaceDiskSpaceSummary(
+    store,
+    [resolvedRoot]
+  );
 
   return {
     path: resolvedRoot,
@@ -79,5 +92,6 @@ export function createWorkspace(root: string): Workspace {
     clearUploads() {
       emptyDirSync(uploadsPath);
     },
+    getDiskSpaceSummary: getWorkspaceDiskSpaceSummary,
   };
 }
