@@ -2,8 +2,9 @@ import { LogEventId } from '@votingworks/logging';
 import { HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
 import { assert } from '@votingworks/basics';
 import {
+  DiskSpaceSummary,
   getBatteryInfo,
-  getDiskSpaceSummary,
+  initializeGetWorkspaceDiskSpaceSummary,
   pdfToText,
 } from '@votingworks/backend';
 import { mockOf } from '@votingworks/test-utils';
@@ -14,20 +15,24 @@ jest.mock(
   (): typeof import('@votingworks/backend') => ({
     ...jest.requireActual('@votingworks/backend'),
     getBatteryInfo: jest.fn(),
-    getDiskSpaceSummary: jest.fn(),
+    initializeGetWorkspaceDiskSpaceSummary: jest.fn(),
   })
 );
+
+const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
+  total: 10 * 1_000_000,
+  used: 1 * 1_000_000,
+  available: 9 * 1_000_000,
+};
 
 beforeEach(() => {
   mockOf(getBatteryInfo).mockResolvedValue({
     level: 0.5,
     discharging: false,
   });
-  mockOf(getDiskSpaceSummary).mockResolvedValue({
-    total: 10 * 1_000_000,
-    used: 1 * 1_000_000,
-    available: 9 * 1_000_000,
-  });
+  mockOf(initializeGetWorkspaceDiskSpaceSummary).mockReturnValue(() =>
+    Promise.resolve(MOCK_DISK_SPACE_SUMMARY)
+  );
 });
 
 test('diagnostic records', async () => {
@@ -163,7 +168,7 @@ test('print readiness report', async () => {
   expect(pdfContents).toContain('VxAdmin Equipment Readiness Report');
   expect(pdfContents).toContain('Battery Level: 50%');
   expect(pdfContents).toContain('Power Source: External Power Supply');
-  expect(pdfContents).toContain('Free Disk Space: 100% (9 GB / 9 GB)');
+  expect(pdfContents).toContain('Free Disk Space: 90% (9 GB / 10 GB)');
   expect(pdfContents).toContain('Ready to print');
   expect(pdfContents).toContain('Toner Level: 100%');
   expect(pdfContents).toContain('Test print successful, 1/1/2021, 12:00:00 AM');
@@ -182,5 +187,13 @@ test('print readiness report failure logging', async () => {
       message:
         'Error in attempting to print the equipment readiness report: cannot print without printer connected',
     }
+  );
+});
+
+test('getApplicationDiskSpaceSummary', async () => {
+  const { apiClient } = buildTestEnvironment();
+
+  expect(await apiClient.getApplicationDiskSpaceSummary()).toEqual(
+    MOCK_DISK_SPACE_SUMMARY
   );
 });

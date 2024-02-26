@@ -51,6 +51,10 @@ import {
   SqliteBool,
 } from '@votingworks/utils';
 import {
+  getMaximumUsableDiskSpace,
+  updateMaximumUsableDiskSpace,
+} from '@votingworks/backend';
+import {
   CastVoteRecordFileRecord,
   CastVoteRecordFileRecordSchema,
   CvrFileMode,
@@ -2552,25 +2556,12 @@ export class Store {
     ) as DiagnosticsRecord[];
   }
 
-  getMaximumWorkspaceDiskSpace(): number {
-    const row = this.client.one(
-      `
-        select maximum_workspace_disk_space as maximumWorkspaceDiskSpace
-        from settings
-      `
-    ) as { maximumWorkspaceDiskSpace: number };
-
-    return row.maximumWorkspaceDiskSpace;
+  getMaximumUsableDiskSpace(): number {
+    return getMaximumUsableDiskSpace(this.client);
   }
 
-  updateMaximumWorkspaceDiskSpace(space: number): void {
-    this.client.run(
-      `
-        update settings
-        set maximum_workspace_disk_space = ?
-      `,
-      space
-    );
+  updateMaximumUsableDiskSpace(space: number): void {
+    updateMaximumUsableDiskSpace(this.client, space);
   }
 
   /* c8 ignore start */
