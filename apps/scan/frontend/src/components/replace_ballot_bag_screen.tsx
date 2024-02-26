@@ -91,7 +91,11 @@ export function ReplaceBallotBagScreen({
   })();
 
   return (
-    <Screen centerContent ballotCountOverride={scannedBallotCount}>
+    <Screen
+      centerContent
+      ballotCountOverride={scannedBallotCount}
+      voterFacing={false}
+    >
       {mainContent}
     </Screen>
   );

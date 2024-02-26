@@ -3,7 +3,7 @@ import { ScreenMainCenterChild } from '../components/layout';
 
 export function ScanReturnedBallotScreen(): JSX.Element {
   return (
-    <ScreenMainCenterChild>
+    <ScreenMainCenterChild voterFacing>
       {/* TODO: make a graphic for this screen */}
       <CenteredLargeProse>
         <H1>{appStrings.titleRemoveYourBallot()}</H1>

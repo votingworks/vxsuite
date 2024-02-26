@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   ExportLogsButton,
-  Main,
   SystemAdministratorScreenContents,
 } from '@votingworks/ui';
 import {
@@ -50,33 +49,31 @@ export function SystemAdministratorScreen({
   );
 
   return (
-    <Screen title="System Administrator">
-      <Main padded>
-        <SystemAdministratorScreenContents
-          displayRemoveCardToLeavePrompt
-          logger={logger}
-          primaryText={
-            <React.Fragment>
-              To adjust settings for the current election, insert an Election
-              Manager or Poll Worker card.
-            </React.Fragment>
-          }
-          unconfigureMachine={() => unconfigureMutation.mutateAsync()}
-          resetPollsToPausedText="The polls are closed and voting is complete. After resetting the polls to paused, it will be possible to re-open the polls and resume voting. All current cast vote records will be preserved."
-          resetPollsToPaused={
-            pollsState === 'polls_closed_final'
-              ? () =>
-                  transitionPollsMutation.mutateAsync({
-                    type: 'pause_voting',
-                    time: getCurrentTime(),
-                  })
-              : undefined
-          }
-          isMachineConfigured={Boolean(electionDefinition)}
-          logOut={() => logOutMutation.mutate()}
-          additionalButtons={additionalButtons}
-        />
-      </Main>
+    <Screen title="System Administrator" voterFacing={false} padded>
+      <SystemAdministratorScreenContents
+        displayRemoveCardToLeavePrompt
+        logger={logger}
+        primaryText={
+          <React.Fragment>
+            To adjust settings for the current election, insert an Election
+            Manager or Poll Worker card.
+          </React.Fragment>
+        }
+        unconfigureMachine={() => unconfigureMutation.mutateAsync()}
+        resetPollsToPausedText="The polls are closed and voting is complete. After resetting the polls to paused, it will be possible to re-open the polls and resume voting. All current cast vote records will be preserved."
+        resetPollsToPaused={
+          pollsState === 'polls_closed_final'
+            ? () =>
+                transitionPollsMutation.mutateAsync({
+                  type: 'pause_voting',
+                  time: getCurrentTime(),
+                })
+            : undefined
+        }
+        isMachineConfigured={Boolean(electionDefinition)}
+        logOut={() => logOutMutation.mutate()}
+        additionalButtons={additionalButtons}
+      />
     </Screen>
   );
 }

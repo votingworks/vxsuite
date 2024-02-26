@@ -24,6 +24,7 @@ export function InsertBallotScreen({
       centerContent
       isLiveMode={isLiveMode}
       ballotCountOverride={scannedBallotCount}
+      voterFacing
     >
       <FullScreenPromptLayout
         title={appStrings.titleScannerInsertBallotScreen()}

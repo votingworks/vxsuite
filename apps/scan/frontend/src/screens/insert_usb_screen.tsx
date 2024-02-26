@@ -3,7 +3,7 @@ import { ScreenMainCenterChild } from '../components/layout';
 
 export function InsertUsbScreen(): JSX.Element {
   return (
-    <ScreenMainCenterChild>
+    <ScreenMainCenterChild voterFacing={false}>
       <CenteredLargeProse>
         <H1>No USB Drive Detected</H1>
         <P>Insert USB drive into the USB hub.</P>

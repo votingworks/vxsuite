@@ -3,7 +3,7 @@ import { ScreenMainCenterChild } from '../components/layout';
 
 export function CardErrorScreen(): JSX.Element {
   return (
-    <ScreenMainCenterChild>
+    <ScreenMainCenterChild voterFacing={false}>
       <RotateCardImage />
       <CenteredLargeProse>
         <H1>Card is Backwards</H1>

@@ -9,7 +9,7 @@ export function InvalidCardScreen({
   authStatus: InsertedSmartCardAuth.LoggedOut;
 }): JSX.Element {
   return (
-    <ScreenMainCenterChild infoBarMode="pollworker">
+    <ScreenMainCenterChild infoBarMode="pollworker" voterFacing={false}>
       <SharedInvalidCardScreen
         reasonAndContext={authStatus}
         recommendedAction="Remove the card to continue."

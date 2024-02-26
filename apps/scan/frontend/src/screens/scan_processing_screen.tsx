@@ -9,7 +9,7 @@ import { ScreenMainCenterChild } from '../components/layout';
 
 export function ScanProcessingScreen(): JSX.Element {
   return (
-    <ScreenMainCenterChild>
+    <ScreenMainCenterChild voterFacing>
       <LoadingAnimation />
       <CenteredLargeProse>
         <H1>{appStrings.titleScannerProcessingScreen()}</H1>

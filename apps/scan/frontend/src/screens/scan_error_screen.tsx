@@ -64,6 +64,7 @@ export function ScanErrorScreen({
       centerContent
       isLiveMode={!isTestMode}
       ballotCountOverride={scannedBallotCount}
+      voterFacing
     >
       <FullScreenPromptLayout
         title={appStrings.titleScannerBallotNotCounted()}
