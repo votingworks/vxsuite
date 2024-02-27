@@ -15,7 +15,6 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 
 import { Contest, ContestProps } from '../components/contest';
 import { ContestsWithMsEitherNeither } from '../utils/ms_either_neither_contests';
-import { VoteUpdateInteractionMethod } from '../config/types';
 import { BreadcrumbMetadata, Breadcrumbs } from '../components/contest_header';
 import { VoterScreen } from '../components/voter_screen';
 
@@ -25,6 +24,7 @@ export interface ContestPageProps {
   getContestUrl: (contestIndex: number) => string;
   getStartPageUrl: () => string;
   getReviewPageUrl: (contestId?: ContestId) => string;
+  isPatDeviceConnected?: boolean;
   precinctId?: PrecinctId;
   updateVote: ContestProps['updateVote'];
   votes: VotesDict;
@@ -45,6 +45,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
     getContestUrl,
     getStartPageUrl,
     getReviewPageUrl,
+    isPatDeviceConnected,
     precinctId,
     updateVote,
     votes,
@@ -124,18 +125,10 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
   );
 
   const handleUpdateVote: ContestProps['updateVote'] = useCallback(
-    (
-      contestIdProp: ContestId,
-      voteProp: OptionalVote,
-      interactionMethod: VoteUpdateInteractionMethod
-    ) => {
+    (contestIdProp: ContestId, voteProp: OptionalVote) => {
       const maxNumSelections = contest.type === 'candidate' ? contest.seats : 1;
 
-      if (
-        interactionMethod ===
-          VoteUpdateInteractionMethod.AssistiveTechnologyDevice &&
-        voteProp?.length === maxNumSelections
-      ) {
+      if (isPatDeviceConnected && voteProp?.length === maxNumSelections) {
         if (isReviewMode) {
           reviewButtonRef?.current?.focus();
         } else {
@@ -143,9 +136,9 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
         }
       }
 
-      updateVote(contestIdProp, voteProp, interactionMethod);
+      updateVote(contestIdProp, voteProp);
     },
-    [updateVote, isReviewMode, contest]
+    [updateVote, isReviewMode, contest, isPatDeviceConnected]
   );
 
   const previousContestButton = (

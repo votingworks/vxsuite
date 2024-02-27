@@ -1,6 +1,7 @@
 import { MemoryHardware, ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
+import { mockOf } from '@votingworks/test-utils';
 import { render, screen, waitFor } from '../../test/react_testing_library';
 
 import { App } from '../app';
@@ -91,18 +92,13 @@ it('accessible controller handling works', async () => {
   expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
 
   // select candidate
-  userEvent.keyboard('2');
-  const candidate0Option = await screen.findByRole('option', {
+  userEvent.keyboard('[Enter]');
+  await screen.findByRole('option', {
     name: new RegExp(contest0candidate0.name),
     selected: true,
   });
 
-  // Focus should have jumped to the "Next" button because we're using keyboard nav
-  expect(await screen.findByRole('button', { name: 'Next' })).toHaveFocus();
-
-  // Return focus to candidate so we can test unselect
-  candidate0Option.focus();
-  userEvent.keyboard('2');
+  userEvent.keyboard('[Enter]');
   await screen.findByRole('option', {
     name: new RegExp(contest0candidate0.name),
     selected: false,
@@ -116,4 +112,52 @@ it('accessible controller handling works', async () => {
   userEvent.keyboard('[ArrowDown]'); // Okay button should still be selected
   expect(screen.getButton(/Okay/i)).toHaveFocus();
   await advanceTimersAndPromises();
+});
+
+it('auto-focuses "next" button on contest screen after voting', async () => {
+  const hardware = MemoryHardware.buildStandard();
+  apiMock.expectGetMachineConfig();
+  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollsState: 'polls_open',
+  });
+  mockOf(apiMock.mockApiClient.isPatDeviceConnected).mockResolvedValue(true);
+
+  render(
+    <App
+      hardware={hardware}
+      apiClient={apiMock.mockApiClient}
+      reload={jest.fn()}
+    />
+  );
+  await advanceTimersAndPromises();
+  // Start voter session
+  apiMock.setAuthStatusCardlessVoterLoggedIn({
+    ballotStyleId: '12',
+    precinctId: '23',
+  });
+
+  userEvent.click(await screen.findButton('Start Voting'));
+
+  await screen.findByText(contest0.title);
+
+  // Confirm first contest only has 1 seat
+  expect(contest0.seats).toEqual(1);
+
+  // Test navigation by accessible controller keyboard event interface
+  userEvent.keyboard('1');
+  expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
+  userEvent.keyboard('1');
+  expect(getActiveElement()).toHaveTextContent(contest0candidate1.name);
+
+  // select candidate
+  userEvent.keyboard('2');
+  await screen.findByRole('option', {
+    name: new RegExp(contest0candidate1.name),
+    selected: true,
+  });
+
+  // Focus should have jumped to the "Next" button because we're using keyboard nav
+  expect(await screen.findByRole('button', { name: 'Next' })).toHaveFocus();
 });
