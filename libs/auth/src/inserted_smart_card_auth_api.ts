@@ -1,4 +1,3 @@
-import { z } from 'zod';
 import { Optional, Result } from '@votingworks/basics';
 import {
   BallotStyleId,
@@ -44,17 +43,10 @@ export interface InsertedSmartCardAuthApi {
     machineState: InsertedSmartCardAuthMachineState
   ): Promise<void>;
 
-  readCardData<T>(
-    machineState: InsertedSmartCardAuthMachineState,
-    input: { schema: z.ZodSchema<T> }
-  ): Promise<Result<Optional<T>, SyntaxError | z.ZodError | Error>>;
-  readCardDataAsString(
+  readCardData(
     machineState: InsertedSmartCardAuthMachineState
   ): Promise<Result<Optional<string>, Error>>;
-  writeCardData<T>(
-    machineState: InsertedSmartCardAuthMachineState,
-    input: { data: T; schema: z.ZodSchema<T> }
-  ): Promise<Result<void, Error>>;
+  writeCardData(input: { data: string }): Promise<Result<void, Error>>;
   clearCardData(
     machineState: InsertedSmartCardAuthMachineState
   ): Promise<Result<void, Error>>;
