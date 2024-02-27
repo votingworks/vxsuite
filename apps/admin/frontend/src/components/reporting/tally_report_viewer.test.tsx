@@ -4,7 +4,6 @@ import {
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { waitForElementToBeRemoved } from '@testing-library/react';
-import { mockBaseLogger } from '@votingworks/logging';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { TallyReportSpec } from '@votingworks/admin-backend';
 import { ok } from '@votingworks/basics';
@@ -153,14 +152,13 @@ test('printing report', async () => {
     pdfContent: 'Unofficial Lincoln Municipal General Election Tally Report',
   });
 
-  const logger = mockBaseLogger();
   renderInAppContext(
     <TallyReportViewer
       disabled={false}
       autoGenerateReport
       {...MOCK_REPORT_SPEC}
     />,
-    { apiMock, electionDefinition, logger }
+    { apiMock, electionDefinition }
   );
 
   await screen.findByText(

@@ -1,5 +1,4 @@
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
-import { BaseLogger, mockBaseLogger } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../../test/render_in_app_context';
@@ -9,11 +8,9 @@ import {
   SinglePrecinctTallyReportScreen,
 } from './single_precinct_tally_report_screen';
 
-let logger: BaseLogger;
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  logger = mockBaseLogger();
   apiMock = createApiMock();
 });
 
@@ -28,7 +25,6 @@ test('select precinct and view report', async () => {
 
   renderInAppContext(<SinglePrecinctTallyReportScreen />, {
     electionDefinition,
-    logger,
     apiMock,
     isOfficialResults: false,
   });

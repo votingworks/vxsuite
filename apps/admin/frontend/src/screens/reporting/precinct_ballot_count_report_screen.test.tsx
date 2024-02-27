@@ -2,7 +2,6 @@ import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import { BaseLogger, mockBaseLogger } from '@votingworks/logging';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { screen } from '../../../test/react_testing_library';
@@ -11,11 +10,9 @@ import {
   TITLE,
 } from './precinct_ballot_count_report_screen';
 
-let logger: BaseLogger;
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  logger = mockBaseLogger();
   apiMock = createApiMock();
 });
 
@@ -38,7 +35,6 @@ test('displays report (primary)', async () => {
 
   renderInAppContext(<PrecinctBallotCountReport />, {
     electionDefinition,
-    logger,
     apiMock,
     isOfficialResults: false,
   });
@@ -67,7 +63,6 @@ test('displays report (general)', async () => {
 
   renderInAppContext(<PrecinctBallotCountReport />, {
     electionDefinition,
-    logger,
     apiMock,
     isOfficialResults: false,
   });

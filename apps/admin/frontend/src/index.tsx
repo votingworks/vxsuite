@@ -48,7 +48,7 @@ root.render(
         <ApiClientContext.Provider value={apiClient}>
           <QueryClientProvider client={queryClient}>
             <SystemCallContextProvider api={systemCallApi}>
-              <App logger={logger} />
+              <App />
               {isFeatureFlagEnabled(
                 BooleanEnvironmentVariableName.ENABLE_REACT_QUERY_DEVTOOLS
               ) && (

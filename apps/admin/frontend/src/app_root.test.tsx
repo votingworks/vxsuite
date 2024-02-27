@@ -1,8 +1,6 @@
-import { NullPrinter } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
 import { BrowserRouter, Route } from 'react-router-dom';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
-import { LogSource, BaseLogger } from '@votingworks/logging';
 import { screen } from '../test/react_testing_library';
 import { renderRootElement } from '../test/render_in_app_context';
 import { AppRoot } from './app_root';
@@ -31,16 +29,7 @@ test('renders without crashing', async () => {
   apiMock.expectGetUsbDriveStatus('mounted');
   renderRootElement(
     <BrowserRouter>
-      <Route
-        path="/"
-        render={(props) => (
-          <AppRoot
-            printer={new NullPrinter()}
-            logger={new BaseLogger(LogSource.VxAdminFrontend)}
-            {...props}
-          />
-        )}
-      />
+      <Route path="/" render={() => <AppRoot />} />
     </BrowserRouter>,
     { apiClient: apiMock.apiClient }
   );
