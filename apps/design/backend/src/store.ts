@@ -1,4 +1,5 @@
 import {
+  DateWithoutTime,
   Optional,
   assert,
   find,
@@ -286,6 +287,7 @@ function hydrateElection(row: {
   // (e.g. rendering ballots)
   const election: Election = {
     ...rawElection,
+    date: new DateWithoutTime(rawElection.date),
     precincts: precincts.map((precinct) => ({
       id: precinct.id,
       name: precinct.name,
