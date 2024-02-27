@@ -1,3 +1,4 @@
+import { DateWithoutTime } from '@votingworks/basics';
 import {
   BallotDefinition,
   ElectionType,
@@ -12,19 +13,6 @@ import {
 import { LanguageCode } from '../../language_code';
 import { BallotPaperSize, DistrictId, Election, PartyId } from '../../election';
 
-/**
- * For testing a round trip from VXF -> CDF -> VXF, we need to normalize a few
- * less strict parts of VXF to match stricter CDF constraints.
- */
-export function normalizeVxf(vxfElection: Election): Election {
-  const dateWithoutTime = new Date(vxfElection.date.split('T')[0]);
-  const isoDateString = `${dateWithoutTime.toISOString().split('.')[0]}Z`;
-  return {
-    ...vxfElection,
-    date: isoDateString,
-  };
-}
-
 export const testVxfElection: Election = {
   type: 'general',
   title: 'Lincoln Municipal General Election',
@@ -33,7 +21,7 @@ export const testVxfElection: Election = {
     id: 'county-1',
     name: 'Franklin County',
   },
-  date: '2021-06-06T00:00:00Z',
+  date: new DateWithoutTime('2021-06-06'),
   seal: '<svg>test seal</svg>',
   parties: [
     {
@@ -1100,7 +1088,10 @@ export const testCdfBallotDefinition: BallotDefinition = {
 
   vxSeal: '<svg>test seal</svg>',
 
-  GeneratedDate: '2021-06-06T00:00:00Z',
+  GeneratedDate: new DateWithoutTime('2021-06-06')
+    .toMidnightDatetimeWithSystemTimezone()
+    .toISOString()
+    .replace(/.\d\d\dZ$/, 'Z'),
   Issuer: 'VotingWorks',
   IssuerAbbreviation: 'VX',
   VendorApplicationId: 'VxSuite',

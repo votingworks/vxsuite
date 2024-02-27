@@ -42,7 +42,6 @@ import {
 } from './election';
 import { safeParse, safeParseJson, unsafeParse } from './generic';
 import {
-  normalizeVxf,
   testCdfBallotDefinition,
   testVxfElection,
 } from './cdf/ballot-definition/fixtures';
@@ -553,11 +552,11 @@ test('getDisplayElectionHash', () => {
 
 test('safeParseElection converts CDF to VXF', () => {
   expect(safeParseElection(testCdfBallotDefinition).unsafeUnwrap()).toEqual(
-    normalizeVxf(testVxfElection)
+    testVxfElection
   );
   expect(
     safeParseElection(JSON.stringify(testCdfBallotDefinition)).unsafeUnwrap()
-  ).toEqual(normalizeVxf(testVxfElection));
+  ).toEqual(testVxfElection);
 });
 
 test('safeParseElection shows VXF and CDF parsing errors', () => {

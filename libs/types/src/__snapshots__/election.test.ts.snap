@@ -32,13 +32,11 @@ VXF error: [
     "message": "Required"
   },
   {
-    "code": "invalid_type",
-    "expected": "string",
-    "received": "undefined",
+    "code": "custom",
+    "message": "Input not instance of DateWithoutTime",
     "path": [
       "date"
-    ],
-    "message": "Required"
+    ]
   },
   {
     "code": "invalid_type",
