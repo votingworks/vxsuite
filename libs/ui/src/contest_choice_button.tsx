@@ -2,7 +2,7 @@ import React, { useCallback } from 'react';
 import styled, { DefaultTheme, css } from 'styled-components';
 
 import { SizeMode } from '@votingworks/types';
-import { Button, ButtonPressEvent, ButtonVariant } from './button';
+import { Button, ButtonVariant } from './button';
 import { Checkbox } from './checkbox';
 import { Caption, P } from './typography';
 
@@ -12,7 +12,7 @@ export interface ContestChoiceButtonProps<T extends string = string> {
   choice: T;
   isSelected?: boolean;
   label: React.ReactNode;
-  onPress: (event: ButtonPressEvent, value: T) => void;
+  onPress: (value: T) => void;
 
   /**
    * @deprecated Added to support pre-existing behaviour WRT the VxMark
@@ -85,10 +85,7 @@ export function ContestChoiceButton<T extends string>(
   const { ariaLabel, caption, choice, gridArea, isSelected, label, onPress } =
     props;
 
-  const handlePress = useCallback(
-    (event: ButtonPressEvent) => onPress(event, choice),
-    [onPress, choice]
-  );
+  const handlePress = useCallback(() => onPress(choice), [onPress, choice]);
 
   return (
     <OuterContainer

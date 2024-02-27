@@ -2,7 +2,6 @@ import React from 'react';
 import { ColorMode, SizeMode } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
-import { buttonPressEventMatcher } from '@votingworks/test-utils';
 import { fireEvent, render, screen } from '../test/react_testing_library';
 import {
   BUTTON_VARIANTS,
@@ -160,10 +159,7 @@ describe('Button', () => {
 
     userEvent.click(screen.getButton('Click me'));
 
-    expect(onPress).toHaveBeenCalledWith(
-      ['foo', 'bar'],
-      buttonPressEventMatcher()
-    );
+    expect(onPress).toHaveBeenCalledWith(['foo', 'bar']);
   });
 
   test('variant danger', () => {

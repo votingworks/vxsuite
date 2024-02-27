@@ -15,7 +15,6 @@ import {
 import { VirtualKeyboard, VirtualKeyboardProps } from '@votingworks/ui';
 import { screen, within, render } from '../../test/react_testing_library';
 import { CandidateContest } from './candidate_contest';
-import { VoteUpdateInteractionMethod } from '../config/types';
 
 jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
   ...jest.requireActual('@votingworks/ui'),
@@ -185,17 +184,13 @@ describe('supports single-seat contest', () => {
     expect(candidateButton).toHaveFocus();
     userEvent.keyboard('[Enter]');
     expect(updateVote).toHaveBeenCalledTimes(1);
-    expect(updateVote).toHaveBeenCalledWith(
-      candidateContest.id,
-      [
-        {
-          id: candidateContest.candidates[0].id,
-          name: candidateContest.candidates[0].name,
-          partyIds: candidateContest.candidates[0].partyIds,
-        },
-      ],
-      VoteUpdateInteractionMethod.AssistiveTechnologyDevice
-    );
+    expect(updateVote).toHaveBeenCalledWith(candidateContest.id, [
+      {
+        id: candidateContest.candidates[0].id,
+        name: candidateContest.candidates[0].name,
+        partyIds: candidateContest.candidates[0].partyIds,
+      },
+    ]);
     act(() => {
       jest.runOnlyPendingTimers();
     });
@@ -325,11 +320,9 @@ describe('supports write-in candidates', () => {
     userEvent.click(modal.getByText('Accept'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
-    expect(updateVote).toHaveBeenCalledWith(
-      candidateContestWithWriteIns.id,
-      [{ id: 'write-in-lizardPeople', isWriteIn: true, name: 'LIZARD PEOPLE' }],
-      VoteUpdateInteractionMethod.Mouse
-    );
+    expect(updateVote).toHaveBeenCalledWith(candidateContestWithWriteIns.id, [
+      { id: 'write-in-lizardPeople', isWriteIn: true, name: 'LIZARD PEOPLE' },
+    ]);
 
     act(() => {
       jest.runOnlyPendingTimers();
@@ -360,8 +353,7 @@ describe('supports write-in candidates', () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     expect(updateVote).toHaveBeenCalledWith(
       candidateContestWithWriteIns.id,
-      [],
-      VoteUpdateInteractionMethod.Mouse
+      []
     );
   });
 
@@ -453,17 +445,13 @@ describe('supports write-in candidates', () => {
     userEvent.click(modal.getByText('Accept'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 
-    expect(updateVote).toHaveBeenCalledWith(
-      candidateContestWithWriteIns.id,
-      [
-        {
-          id: 'write-in-jacobJohansonJingleheimmerSchmidttT',
-          isWriteIn: true,
-          name: 'JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, T',
-        },
-      ],
-      VoteUpdateInteractionMethod.Mouse
-    );
+    expect(updateVote).toHaveBeenCalledWith(candidateContestWithWriteIns.id, [
+      {
+        id: 'write-in-jacobJohansonJingleheimmerSchmidttT',
+        isWriteIn: true,
+        name: 'JACOB JOHANSON JINGLEHEIMMER SCHMIDTT, T',
+      },
+    ]);
 
     act(() => {
       jest.runOnlyPendingTimers();

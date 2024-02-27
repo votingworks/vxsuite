@@ -27,12 +27,11 @@ import {
   NumberString,
   AudioOnly,
   electionStrings,
-  ButtonPressEvent,
   ReadOnLoad,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
-import { UpdateVoteFunction, getInteractionMethod } from '../config/types';
+import { UpdateVoteFunction } from '../config/types';
 
 import { WRITE_IN_CANDIDATE_MAX_LENGTH } from '../config/globals';
 import { ChoicesGrid } from './contest_screen_layout';
@@ -117,21 +116,21 @@ export function CandidateContest({
     }
   }, [recentlySelectedCandidate]);
 
-  function addCandidateToVote(id: string, event: ButtonPressEvent) {
+  function addCandidateToVote(id: string) {
     const { candidates } = contest;
     const candidate = findCandidateById(candidates, id);
     assert(candidate);
-    updateVote(contest.id, [...vote, candidate], getInteractionMethod(event));
+    updateVote(contest.id, [...vote, candidate]);
     setRecentlySelectedCandidate(id);
   }
 
-  function removeCandidateFromVote(id: string, event: ButtonPressEvent) {
+  function removeCandidateFromVote(id: string) {
     const newVote = vote.filter((c) => c.id !== id);
-    updateVote(contest.id, newVote, getInteractionMethod(event));
+    updateVote(contest.id, newVote);
     setRecentlyDeselectedCandidate(id);
   }
 
-  function handleUpdateSelection(event: ButtonPressEvent, candidateId: string) {
+  function handleUpdateSelection(candidateId: string) {
     /* istanbul ignore else */
     if (candidateId) {
       const candidate = findCandidateById(vote, candidateId);
@@ -139,10 +138,10 @@ export function CandidateContest({
         if (candidate.isWriteIn) {
           setWriteInPendingRemoval(candidate);
         } else {
-          removeCandidateFromVote(candidateId, event);
+          removeCandidateFromVote(candidateId);
         }
       } else {
-        addCandidateToVote(candidateId, event);
+        addCandidateToVote(candidateId);
       }
     }
   }
@@ -159,9 +158,9 @@ export function CandidateContest({
     setWriteInPendingRemoval(undefined);
   }
 
-  function confirmRemovePendingWriteInCandidate(event: ButtonPressEvent) {
+  function confirmRemovePendingWriteInCandidate() {
     assert(writeInPendingRemoval);
-    removeCandidateFromVote(writeInPendingRemoval.id, event);
+    removeCandidateFromVote(writeInPendingRemoval.id);
     clearWriteInPendingRemoval();
   }
 
@@ -173,21 +172,17 @@ export function CandidateContest({
     toggleWriteInCandidateModal(true);
   }
 
-  function addWriteInCandidate(event: ButtonPressEvent) {
+  function addWriteInCandidate() {
     const normalizedCandidateName =
       normalizeCandidateName(writeInCandidateName);
-    updateVote(
-      contest.id,
-      [
-        ...vote,
-        {
-          id: `write-in-${camelCase(normalizedCandidateName)}`,
-          isWriteIn: true,
-          name: normalizedCandidateName,
-        },
-      ],
-      getInteractionMethod(event)
-    );
+    updateVote(contest.id, [
+      ...vote,
+      {
+        id: `write-in-${camelCase(normalizedCandidateName)}`,
+        isWriteIn: true,
+        name: normalizedCandidateName,
+      },
+    ]);
     setWriteInCandidateName('');
     toggleWriteInCandidateModal(false);
   }

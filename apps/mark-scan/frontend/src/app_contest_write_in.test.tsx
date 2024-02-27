@@ -9,11 +9,7 @@ import {
 import { ALL_PRECINCTS_SELECTION, MemoryHardware } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
-import {
-  ContestPage,
-  ContestPageProps,
-  VoteUpdateInteractionMethod,
-} from '@votingworks/mark-flow-ui';
+import { ContestPage, ContestPageProps } from '@votingworks/mark-flow-ui';
 import { ContestId, OptionalVote, VotesDict } from '@votingworks/types';
 import { useHistory } from 'react-router-dom';
 import { act, fireEvent, render, screen } from '../test/react_testing_library';
@@ -69,9 +65,7 @@ function setUpMockContestPage() {
 
   return {
     fireUpdateVoteEvent: (contestId: ContestId, vote: OptionalVote) =>
-      act(() =>
-        fireUpdateVoteEvent(contestId, vote, VoteUpdateInteractionMethod.Touch)
-      ),
+      act(() => fireUpdateVoteEvent(contestId, vote)),
     getLatestVotes: () => latestVotes,
     goToReviewPage: () => {
       routerHistory.location.pathname = '/review';

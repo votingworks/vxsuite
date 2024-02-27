@@ -43,12 +43,8 @@ const buttonVariants = {
 export type ButtonVariant = keyof typeof buttonVariants;
 export const BUTTON_VARIANTS = Object.keys(buttonVariants) as ButtonVariant[];
 
-export type ButtonPressEvent =
-  | React.TouchEvent<HTMLButtonElement>
-  | React.MouseEvent<HTMLButtonElement>;
-
-export type ClickHandler = (event: ButtonPressEvent) => void;
-export type TypedClickHandler<T> = (value: T, event: ButtonPressEvent) => void;
+export type ClickHandler = () => void;
+export type TypedClickHandler<T> = (value: T) => void;
 
 export interface StyledButtonProps {
   autoFocus?: boolean;
@@ -430,18 +426,18 @@ export class Button<T = undefined> extends PureComponent<
       Math.abs(startCoordinates[0] - clientX) < maxMove &&
       Math.abs(startCoordinates[1] - clientY) < maxMove
     ) {
-      this.onPress(event);
+      this.onPress();
       event.preventDefault();
     }
   };
 
-  private readonly onPress = (event: ButtonPressEvent): void => {
+  private readonly onPress = (): void => {
     const { onPress, value } = this.props;
 
     if (value === undefined) {
-      (onPress as ClickHandler)(event);
+      (onPress as ClickHandler)();
     } else {
-      (onPress as TypedClickHandler<T>)(value, event);
+      (onPress as TypedClickHandler<T>)(value);
     }
   };
 
