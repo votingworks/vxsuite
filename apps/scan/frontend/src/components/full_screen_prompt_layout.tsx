@@ -3,7 +3,6 @@ import React from 'react';
 import styled from 'styled-components';
 
 interface FullScreenPromptLayoutProps {
-  actionButtons?: React.ReactNode;
   children?: React.ReactNode;
   image?: React.ReactNode;
   title: React.ReactNode;
@@ -23,7 +22,6 @@ const Body = styled.div`
   height: 100%;
   justify-content: center;
   overflow: hidden;
-  margin-bottom: 0.5rem;
   width: 100%;
 `;
 
@@ -49,22 +47,10 @@ const Text = styled.div`
   padding: 0 ${HORIZONTAL_PADDING_REM}rem;
 `;
 
-const Footer = styled.div`
-  display: flex;
-  gap: ${HORIZONTAL_PADDING_REM}rem;
-  justify-content: center;
-  padding: 0 7.5vw 0.25rem;
-  width: 100%;
-
-  > * {
-    flex-basis: 20rem;
-  }
-`;
-
 export function FullScreenPromptLayout(
   props: FullScreenPromptLayoutProps
 ): JSX.Element {
-  const { actionButtons, children, image, title } = props;
+  const { children, image, title } = props;
 
   return (
     <OuterContainer>
@@ -79,7 +65,6 @@ export function FullScreenPromptLayout(
           </WithScrollButtons>
         </Content>
       </Body>
-      {actionButtons && <Footer>{actionButtons}</Footer>}
     </OuterContainer>
   );
 }

@@ -6,15 +6,14 @@ import {
 import userEvent from '@testing-library/user-event';
 import { newTestContext } from '../../test/test_context';
 import { LanguageSettingsButton } from './language_settings_button';
-import {
-  act,
-  render as renderWithoutContext,
-  screen,
-} from '../../test/react_testing_library';
+import { act, screen } from '../../test/react_testing_library';
+
+const { ENGLISH, SPANISH } = LanguageCode;
 
 test('displays current language', async () => {
-  const { ENGLISH, SPANISH } = LanguageCode;
   const { getLanguageContext, mockApiClient, render } = newTestContext();
+
+  mockApiClient.getAvailableLanguages.mockResolvedValue([ENGLISH, SPANISH]);
 
   const testTranslations: UiStringsPackage = {
     [ENGLISH]: { [ElectionStringKey.BALLOT_LANGUAGE]: 'English' },
@@ -31,12 +30,32 @@ test('displays current language', async () => {
   await screen.findButton('Español');
 });
 
-test('fires onPress event', () => {
+test('fires onPress event', async () => {
+  const { mockApiClient, render } = newTestContext();
+
+  mockApiClient.getAvailableLanguages.mockResolvedValue([ENGLISH, SPANISH]);
+
   const onPress = jest.fn();
 
-  renderWithoutContext(<LanguageSettingsButton onPress={onPress} />);
+  render(<LanguageSettingsButton onPress={onPress} />);
   expect(onPress).not.toHaveBeenCalled();
 
-  userEvent.click(screen.getButton('English'));
+  userEvent.click(await screen.findButton('English'));
   expect(onPress).toHaveBeenCalledTimes(1);
+});
+
+test('not rendered in single-language contexts', async () => {
+  const { mockApiClient, render } = newTestContext();
+
+  mockApiClient.getAvailableLanguages.mockResolvedValue([ENGLISH]);
+
+  render(
+    <div>
+      <h1>Welcome</h1>
+      <LanguageSettingsButton onPress={jest.fn()} />
+    </div>
+  );
+  await screen.findByText('Welcome');
+
+  expect(screen.queryByRole('button')).not.toBeInTheDocument();
 });

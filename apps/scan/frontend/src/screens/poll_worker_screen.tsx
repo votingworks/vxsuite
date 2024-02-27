@@ -33,7 +33,10 @@ import type {
   PollsTransition,
   PrecinctScannerPollsInfo,
 } from '@votingworks/scan-backend';
-import { ScreenMainCenterChild, Screen } from '../components/layout';
+import {
+  ScreenMainCenterChild,
+  CenteredScreenProps,
+} from '../components/layout';
 import {
   exportCastVoteRecordsToUsbDrive,
   getUsbDriveStatus,
@@ -57,8 +60,20 @@ type PollWorkerFlowState =
   | 'reprinting_report'
   | 'reprinting_previous_report_complete';
 
+function Screen(
+  props: Omit<CenteredScreenProps, 'infoBarMode' | 'voterFacing'>
+) {
+  const { children } = props;
+
+  return (
+    <ScreenMainCenterChild infoBarMode="pollworker" voterFacing={false}>
+      {children}
+    </ScreenMainCenterChild>
+  );
+}
+
 const BallotsAlreadyScannedScreen = (
-  <Screen centerContent infoBarMode="pollworker">
+  <Screen>
     <FullScreenPromptLayout
       title="Ballots Already Scanned"
       image={
@@ -144,11 +159,11 @@ export function PollWorkerScreen({
 
   if (!usbDriveStatusQuery.isSuccess || !printerStatusQuery.isSuccess) {
     return (
-      <ScreenMainCenterChild infoBarMode="pollworker">
+      <Screen>
         <CenteredLargeProse>
           <Loading />
         </CenteredLargeProse>
-      </ScreenMainCenterChild>
+      </Screen>
     );
   }
 
@@ -244,7 +259,7 @@ export function PollWorkerScreen({
     const pollsTransition: PollsTransitionType =
       pollsState === 'polls_closed_initial' ? 'open_polls' : 'resume_voting';
     return (
-      <ScreenMainCenterChild infoBarMode="pollworker">
+      <Screen>
         <CenteredLargeProse>
           <P>
             {pollsTransition === 'open_polls'
@@ -268,13 +283,13 @@ export function PollWorkerScreen({
             <P>Attach printer to continue.</P>
           )}
         </CenteredLargeProse>
-      </ScreenMainCenterChild>
+      </Screen>
     );
   }
 
   if (pollWorkerFlowState === 'close_polls_prompt') {
     return (
-      <ScreenMainCenterChild infoBarMode="pollworker">
+      <Screen>
         <CenteredLargeProse>
           <P>Do you want to close the polls?</P>
           <P>
@@ -297,7 +312,7 @@ export function PollWorkerScreen({
             closeModal={() => setIsCastVoteRecordSyncRequiredModalOpen(false)}
           />
         )}
-      </ScreenMainCenterChild>
+      </Screen>
     );
   }
 
@@ -321,12 +336,12 @@ export function PollWorkerScreen({
     })();
 
     return (
-      <ScreenMainCenterChild infoBarMode="pollworker">
+      <Screen>
         <LoadingAnimation />
         <CenteredLargeProse>
           <H1>{pollsTransitionProcessingText}</H1>
         </CenteredLargeProse>
-      </ScreenMainCenterChild>
+      </Screen>
     );
   }
 
@@ -357,7 +372,7 @@ export function PollWorkerScreen({
     })();
 
     return (
-      <ScreenMainCenterChild infoBarMode="pollworker">
+      <Screen>
         <CenteredLargeProse>
           {primaryText && <H1>{primaryText}</H1>}
           <P>
@@ -386,18 +401,18 @@ export function PollWorkerScreen({
             />
           </P>
         </CenteredLargeProse>
-      </ScreenMainCenterChild>
+      </Screen>
     );
   }
 
   if (pollWorkerFlowState === 'reprinting_report') {
     return (
-      <ScreenMainCenterChild infoBarMode="pollworker">
+      <Screen>
         <LoadingAnimation />
         <CenteredLargeProse>
           <H1>Printing Report…</H1>
         </CenteredLargeProse>
-      </ScreenMainCenterChild>
+      </Screen>
     );
   }
 
@@ -478,7 +493,7 @@ export function PollWorkerScreen({
   })();
 
   return (
-    <ScreenMainCenterChild infoBarMode="pollworker">
+    <Screen>
       <H1>Poll Worker Actions</H1>
       {content}
       {isCastVoteRecordSyncRequiredModalOpen && (
@@ -487,7 +502,7 @@ export function PollWorkerScreen({
           closeModal={() => setIsCastVoteRecordSyncRequiredModalOpen(false)}
         />
       )}
-    </ScreenMainCenterChild>
+    </Screen>
   );
 }
 

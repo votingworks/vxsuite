@@ -22,6 +22,7 @@ export function PollsNotOpenScreen({
       isLiveMode={isLiveMode}
       infoBarMode="pollworker"
       ballotCountOverride={scannedBallotCount}
+      voterFacing={false}
     >
       <FullScreenPromptLayout
         title={pollsState === 'polls_paused' ? 'Polls Paused' : 'Polls Closed'}

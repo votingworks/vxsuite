@@ -3,7 +3,7 @@ import { ScreenMainCenterChild } from '../components/layout';
 
 export function UnconfiguredPrecinctScreen(): JSX.Element {
   return (
-    <ScreenMainCenterChild>
+    <ScreenMainCenterChild voterFacing={false}>
       <CenteredLargeProse>
         <H1>No Precinct Selected</H1>
         <P>Insert an Election Manager card to select a precinct.</P>

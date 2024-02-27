@@ -14,7 +14,7 @@ interface Props {
 
 export function ScanJamScreen({ scannedBallotCount }: Props): JSX.Element {
   return (
-    <Screen centerContent ballotCountOverride={scannedBallotCount}>
+    <Screen centerContent ballotCountOverride={scannedBallotCount} voterFacing>
       <FullScreenPromptLayout
         title={appStrings.titleScannerBallotNotCounted()}
         image={

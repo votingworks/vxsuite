@@ -10,6 +10,7 @@ import {
 import { PreviewDashboard } from './preview_dashboard';
 import * as CardErrorScreen from './screens/card_error_screen';
 import * as ElectionManagerScreen from './screens/election_manager_screen';
+import * as SystemAdministratorScreen from './screens/system_administrator_screen';
 import * as InsertBallotScreen from './screens/insert_ballot_screen';
 import * as InvalidCardScreen from './screens/invalid_card_screen';
 import * as LoadingConfigurationScreen from './screens/loading_configuration_screen';
@@ -41,6 +42,7 @@ export function PreviewApp(): JSX.Element {
         modules={[
           CardErrorScreen,
           ElectionManagerScreen,
+          SystemAdministratorScreen,
           InsertBallotScreen,
           InvalidCardScreen,
           LoadingConfigurationScreen,

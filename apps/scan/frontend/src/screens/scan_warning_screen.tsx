@@ -132,37 +132,38 @@ function MisvoteWarningScreen({
   }
 
   return (
-    <Screen centerContent>
-      <FullScreenPromptLayout
-        title={
-          <React.Fragment>
-            <Icons.Warning color="warning" />{' '}
-            {appStrings.titleScannerBallotWarningsScreen()}
-          </React.Fragment>
-        }
-        actionButtons={
-          <React.Fragment>
-            <Button
-              variant="primary"
-              onPress={() => returnBallotMutation.mutate()}
-            >
-              {appStrings.buttonReturnBallot()}
-            </Button>
+    <Screen
+      actionButtons={
+        <React.Fragment>
+          <Button
+            variant="primary"
+            onPress={() => returnBallotMutation.mutate()}
+          >
+            {appStrings.buttonReturnBallot()}
+          </Button>
 
-            {(allowCastingOvervotes || overvoteContests.length === 0) && (
-              <Button onPress={() => setConfirmTabulate(true)}>
-                {appStrings.buttonCastBallotAsIs()}
-              </Button>
-            )}
-          </React.Fragment>
-        }
-      >
-        <MisvoteWarnings
-          blankContests={blankContests}
-          overvoteContests={overvoteContests}
-          partiallyVotedContests={partiallyVotedContests}
-        />
-      </FullScreenPromptLayout>
+          {(allowCastingOvervotes || overvoteContests.length === 0) && (
+            <Button onPress={() => setConfirmTabulate(true)}>
+              {appStrings.buttonCastBallotAsIs()}
+            </Button>
+          )}
+        </React.Fragment>
+      }
+      centerContent
+      padded
+      title={
+        <React.Fragment>
+          <Icons.Warning color="warning" />{' '}
+          {appStrings.titleScannerBallotWarningsScreen()}
+        </React.Fragment>
+      }
+      voterFacing
+    >
+      <MisvoteWarnings
+        blankContests={blankContests}
+        overvoteContests={overvoteContests}
+        partiallyVotedContests={partiallyVotedContests}
+      />
       {confirmTabulate && (
         <ConfirmModal
           content={
@@ -187,26 +188,30 @@ function BlankBallotWarningScreen(): JSX.Element {
   const acceptBallotMutation = acceptBallot.useMutation();
   const [confirmTabulate, setConfirmTabulate] = useState(false);
   return (
-    <Screen centerContent>
+    <Screen
+      actionButtons={
+        <React.Fragment>
+          <Button
+            variant="primary"
+            onPress={() => returnBallotMutation.mutate()}
+          >
+            {appStrings.buttonReturnBallot()}
+          </Button>
+          <Button onPress={() => setConfirmTabulate(true)}>
+            {appStrings.buttonCastBallotAsIs()}
+          </Button>
+        </React.Fragment>
+      }
+      centerContent
+      padded
+      voterFacing
+    >
       <FullScreenPromptLayout
         title={appStrings.titleScannerBallotWarningsScreen()}
         image={
           <FullScreenIconWrapper>
             <Icons.Warning color="warning" />
           </FullScreenIconWrapper>
-        }
-        actionButtons={
-          <React.Fragment>
-            <Button
-              variant="primary"
-              onPress={() => returnBallotMutation.mutate()}
-            >
-              {appStrings.buttonReturnBallot()}
-            </Button>
-            <Button onPress={() => setConfirmTabulate(true)}>
-              {appStrings.buttonCastBallotAsIs()}
-            </Button>
-          </React.Fragment>
         }
       >
         <P>{appStrings.warningScannerNoVotesFound()}</P>
@@ -228,26 +233,30 @@ function OtherReasonWarningScreen(): JSX.Element {
   const acceptBallotMutation = acceptBallot.useMutation();
   const [confirmTabulate, setConfirmTabulate] = useState(false);
   return (
-    <Screen centerContent>
+    <Screen
+      actionButtons={
+        <React.Fragment>
+          <Button
+            variant="primary"
+            onPress={() => returnBallotMutation.mutate()}
+          >
+            {appStrings.buttonReturnBallot()}
+          </Button>
+          <Button onPress={() => setConfirmTabulate(true)}>
+            {appStrings.buttonCastBallotAsIs()}
+          </Button>
+        </React.Fragment>
+      }
+      centerContent
+      padded
+      voterFacing
+    >
       <FullScreenPromptLayout
         title={appStrings.titleScanningFailed()}
         image={
           <FullScreenIconWrapper>
             <Icons.Warning color="warning" />
           </FullScreenIconWrapper>
-        }
-        actionButtons={
-          <React.Fragment>
-            <Button
-              variant="primary"
-              onPress={() => returnBallotMutation.mutate()}
-            >
-              {appStrings.buttonReturnBallot()}
-            </Button>
-            <Button onPress={() => setConfirmTabulate(true)}>
-              {appStrings.buttonCastBallotAsIs()}
-            </Button>
-          </React.Fragment>
         }
       >
         <P>{appStrings.warningProblemScanningBallot()}</P>

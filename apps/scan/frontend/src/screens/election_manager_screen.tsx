@@ -244,6 +244,7 @@ export function ElectionManagerScreen({
       infoBarMode="admin"
       ballotCountOverride={scannerStatus.ballotsCounted}
       title="Election Manager Settings"
+      voterFacing={false}
     >
       <TabbedSection
         ariaLabel="Election Manager Settings"

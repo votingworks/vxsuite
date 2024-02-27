@@ -10,7 +10,7 @@ import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout'
 
 export function ScanBusyScreen(): JSX.Element {
   return (
-    <Screen centerContent>
+    <Screen centerContent voterFacing>
       <FullScreenPromptLayout
         title={appStrings.titleRemoveYourBallot()}
         image={

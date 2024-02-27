@@ -101,7 +101,7 @@ export function CastVoteRecordSyncRequiredScreen({
   })();
 
   return (
-    <ScreenMainCenterChild>
+    <ScreenMainCenterChild voterFacing={false}>
       <FullScreenPromptLayout
         title="CVR Sync Required"
         image={

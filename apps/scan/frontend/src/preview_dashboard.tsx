@@ -163,7 +163,7 @@ export function PreviewDashboard({
 
   return (
     <PreviewContext.Provider value={{ electionDefinition }}>
-      <ApiProvider apiClient={createApiClient()}>
+      <ApiProvider apiClient={createApiClient()} enableStringTranslation>
         <BrowserRouter>
           <Route path={Paths.VOTER_SETTINGS} exact>
             <VoterSettingsScreen />

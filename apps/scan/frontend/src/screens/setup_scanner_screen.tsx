@@ -14,7 +14,7 @@ export function SetupScannerScreen({
   // internal wiring issue. Otherwise if we can't detect the scanner, the power
   // cord is likely not plugged in.
   return (
-    <ScreenMainCenterChild ballotCountOverride={scannedBallotCount}>
+    <ScreenMainCenterChild ballotCountOverride={scannedBallotCount} voterFacing>
       {batteryIsCharging ? (
         <CenteredLargeProse>
           <H1>{appStrings.titleInternalConnectionProblem()}</H1>

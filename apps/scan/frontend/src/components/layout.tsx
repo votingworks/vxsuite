@@ -5,11 +5,15 @@ import {
   ElectionInfoBar,
   InfoBarMode,
   TestMode,
+  H1,
+  LanguageSettingsButton,
+  LanguageSettingsScreen,
 } from '@votingworks/ui';
-import { ThemeContext } from 'styled-components';
+import styled, { DefaultTheme, ThemeContext } from 'styled-components';
 import { SizeMode } from '@votingworks/types';
 import { getConfig, getMachineConfig, getScannerStatus } from '../api';
-import { ScreenHeader } from './screen_header';
+import { ScannedBallotCount } from './scanned_ballot_count';
+import { VoterSettingsButton } from './voter_settings_button';
 
 /**
  * At larger text sizes, the election info bar takes up too much valuable screen
@@ -21,19 +25,58 @@ const ELECTION_BAR_HIDDEN_SIZE_MODES: ReadonlySet<SizeMode> = new Set([
 ]);
 
 export interface ScreenProps {
+  actionButtons?: React.ReactNode;
   ballotCountOverride?: number;
   centerContent?: boolean;
   children: React.ReactNode;
   isLiveMode?: boolean;
   infoBarMode?: InfoBarMode;
   padded?: boolean;
-  title?: string;
+  title?: React.ReactNode;
+  voterFacing: boolean;
 }
 
 export type CenteredScreenProps = Omit<ScreenProps, 'centered' | 'padded'>;
 
+const CONTENT_SPACING_VALUES_REM: Readonly<Record<SizeMode, number>> = {
+  desktop: 0.5, // unused
+  touchSmall: 0.5,
+  touchMedium: 0.35,
+  touchLarge: 0.25,
+  touchExtraLarge: 0.2,
+};
+
+function getSpacingValueRem(p: { theme: DefaultTheme }) {
+  return CONTENT_SPACING_VALUES_REM[p.theme.sizeMode];
+}
+
+const ButtonBar = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: ${(p) => getSpacingValueRem(p)}rem;
+  padding: ${(p) => getSpacingValueRem(p)}rem;
+
+  & > * {
+    height: 100%;
+    width: 100%;
+  }
+`;
+
+const Header = styled.div`
+  align-items: center;
+  display: flex;
+  gap: ${(p) => getSpacingValueRem(p)}rem;
+  padding: ${(p) => getSpacingValueRem(p)}rem;
+`;
+
+const TitleContainer = styled.div`
+  display: flex;
+  flex-grow: 1;
+`;
+
 export function Screen(props: ScreenProps): JSX.Element | null {
   const {
+    actionButtons,
     children,
     ballotCountOverride,
     centerContent,
@@ -41,12 +84,25 @@ export function Screen(props: ScreenProps): JSX.Element | null {
     isLiveMode = true,
     padded,
     title,
+    voterFacing,
   } = props;
+
+  const [shouldShowLanguageSettings, setShouldShowLanguageSettings] =
+    React.useState(false);
+
   const machineConfigQuery = getMachineConfig.useQuery();
   const configQuery = getConfig.useQuery();
   const scannerStatusQuery = getScannerStatus.useQuery();
 
   const currentTheme = React.useContext(ThemeContext);
+
+  if (shouldShowLanguageSettings) {
+    return (
+      <LanguageSettingsScreen
+        onDone={() => setShouldShowLanguageSettings(false)}
+      />
+    );
+  }
 
   if (!(machineConfigQuery.isSuccess && configQuery.isSuccess)) {
     return null;
@@ -64,17 +120,24 @@ export function Screen(props: ScreenProps): JSX.Element | null {
   return (
     <ScreenBase>
       {!isLiveMode && <TestMode />}
-      <ScreenHeader
-        ballotCount={electionDefinition ? ballotCount : undefined}
-        title={title}
-      />
-      <Main
-        padded={padded}
-        centerChild={centerContent}
-        style={{ position: 'relative' }}
-      >
+      {voterFacing && (
+        <ButtonBar>
+          <LanguageSettingsButton
+            onPress={() => setShouldShowLanguageSettings(true)}
+          />
+          <VoterSettingsButton />
+        </ButtonBar>
+      )}
+      <Header>
+        <TitleContainer>{title && <H1>{title}</H1>}</TitleContainer>
+        {ballotCount !== undefined && (
+          <ScannedBallotCount count={ballotCount} />
+        )}
+      </Header>
+      <Main centerChild={centerContent} padded={padded}>
         {children}
       </Main>
+      {actionButtons && <ButtonBar>{actionButtons}</ButtonBar>}
       {!hideInfoBar && (
         <ElectionInfoBar
           mode={infoBarMode}

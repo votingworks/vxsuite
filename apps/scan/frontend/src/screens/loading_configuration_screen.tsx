@@ -3,7 +3,7 @@ import { ScreenMainCenterChild } from '../components/layout';
 
 export function LoadingConfigurationScreen(): JSX.Element {
   return (
-    <ScreenMainCenterChild>
+    <ScreenMainCenterChild voterFacing={false}>
       <LoadingAnimation />
       <CenteredLargeProse>
         <H1>Loading Configuration…</H1>
