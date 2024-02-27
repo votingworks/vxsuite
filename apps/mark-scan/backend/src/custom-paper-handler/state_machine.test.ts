@@ -6,7 +6,7 @@ import {
   defaultPaperHandlerStatus,
 } from '@votingworks/custom-paper-handler';
 import { dirSync } from 'tmp';
-import { Logger, fakeLogger } from '@votingworks/logging';
+import { BaseLogger, mockBaseLogger } from '@votingworks/logging';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import {
   PaperHandlerStateMachine,
@@ -24,11 +24,11 @@ jest.mock('@votingworks/custom-paper-handler');
 let driver: PaperHandlerDriver;
 let workspace: Workspace;
 let machine: PaperHandlerStateMachine;
-let logger: Logger;
+let logger: BaseLogger;
 let patConnectionStatusReader: PatConnectionStatusReaderInterface;
 
 beforeEach(async () => {
-  logger = fakeLogger();
+  logger = mockBaseLogger();
   const auth = buildMockInsertedSmartCardAuth();
   workspace = createWorkspace(dirSync().name);
   const webDevice: MinimalWebUsbDevice = {

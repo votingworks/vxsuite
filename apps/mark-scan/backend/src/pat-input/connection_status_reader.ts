@@ -1,11 +1,11 @@
 import * as fs from 'fs/promises';
 import { assert } from '@votingworks/basics';
 import { Buffer } from 'buffer';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { PATH_TO_PAT_CONNECTION_STATUS_PIN } from './constants';
 
 export interface PatConnectionStatusReaderInterface {
-  readonly logger: Logger;
+  readonly logger: BaseLogger;
   open(): Promise<boolean>;
   isPatDeviceConnected(): Promise<boolean>;
 }
@@ -18,7 +18,7 @@ export class PatConnectionStatusReader
   constructor(
     // logger prop must be public to be defined in the interface
     // eslint-disable-next-line vx/gts-no-public-class-fields
-    readonly logger: Logger,
+    readonly logger: BaseLogger,
     private readonly filePath?: string
   ) {
     // We don't use the default initializer syntax because then we'd have to
