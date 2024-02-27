@@ -6,7 +6,7 @@
     "id": "sample-county",
     "name": "Sample County"
   },
-  "date": "2020-11-03T00:00:00-08:00",
+  "date": "2020-11-03",
   "ballotLayout": {
     "paperSize": "letter",
     "metadataEncoding": "qr-code"

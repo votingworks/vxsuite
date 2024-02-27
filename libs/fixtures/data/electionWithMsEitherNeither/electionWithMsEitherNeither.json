@@ -6,7 +6,7 @@
     "id": "10",
     "name": "Choctaw County"
   },
-  "date": "2020-08-26T00:00:00-10:00",
+  "date": "2020-08-26",
   "ballotLayout": {
     "paperSize": "letter",
     "metadataEncoding": "qr-code"
