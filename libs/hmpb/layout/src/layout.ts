@@ -429,8 +429,7 @@ function HeaderAndInstructions({
     month: 'long',
     day: 'numeric',
     year: 'numeric',
-    timeZone: 'UTC',
-  }).format(new Date(election.date));
+  }).format(election.date.toMidnightDatetimeWithSystemTimezone());
 
   const clerkSignatureRowHeight = m.HEADER_ROW_HEIGHT - m.HEADER_ROW_HEIGHT / 4;
   const clerkSignatureColumnWidth = nhCustomContent.clerkSignatureImage
