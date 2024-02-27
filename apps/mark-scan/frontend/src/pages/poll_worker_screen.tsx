@@ -1,4 +1,3 @@
-import { DateTime } from 'luxon';
 import React, { useState } from 'react';
 
 import {
@@ -48,7 +47,7 @@ import {
 
 import type { MachineConfig } from '@votingworks/mark-scan-backend';
 import styled from 'styled-components';
-import { find, throwIllegalValue } from '@votingworks/basics';
+import { DateWithoutTime, find, throwIllegalValue } from '@votingworks/basics';
 
 import { DiagnosticsScreen } from './diagnostics_screen';
 import { LoadPaperPage } from './load_paper_page';
@@ -174,8 +173,7 @@ export function PollWorkerScreen({
   precinctSelection,
 }: PollworkerScreenProps): JSX.Element | null {
   const { election } = electionDefinition;
-  const electionDate = DateTime.fromISO(electionDefinition.election.date);
-  const isElectionDay = electionDate.hasSame(DateTime.now(), 'day');
+  const isElectionDay = election.date.isEqual(DateWithoutTime.today());
 
   const setTestModeMutation = setTestMode.useMutation();
   const setPollsStateMutation = setPollsState.useMutation();

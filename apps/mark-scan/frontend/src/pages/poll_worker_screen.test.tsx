@@ -18,6 +18,7 @@ import {
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
+import { DateWithoutTime } from '@votingworks/basics';
 import { fireEvent, screen } from '../../test/react_testing_library';
 
 import { render } from '../../test/test_utils';
@@ -95,7 +96,7 @@ test('renders PollWorkerScreen', () => {
 test('switching out of test mode on election day', () => {
   const electionDefinition = asElectionDefinition({
     ...election,
-    date: new Date().toISOString(),
+    date: DateWithoutTime.today(),
   });
   apiMock.expectSetTestMode(false);
   renderScreen({
@@ -112,7 +113,7 @@ test('switching out of test mode on election day', () => {
 test('keeping test mode on election day', () => {
   const electionDefinition = asElectionDefinition({
     ...election,
-    date: new Date().toISOString(),
+    date: DateWithoutTime.today(),
   });
   renderScreen({ electionDefinition });
 
