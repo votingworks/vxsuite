@@ -6,6 +6,7 @@ import {
   Election,
   unsafeParse,
 } from '@votingworks/types';
+import { DateWithoutTime } from '@votingworks/basics';
 import { encodeBallot } from '.';
 
 const district1Id = unsafeParse(DistrictIdSchema, 'district1');
@@ -14,7 +15,7 @@ const election: Election = {
   title: 'Election',
   county: { id: 'nowhere', name: 'Nowhere' },
   state: 'Nowhere',
-  date: '1989-06-23T00:00:00Z',
+  date: new DateWithoutTime('1989-06-23'),
   seal: '<svg>test seal</svg>',
   districts: [{ id: district1Id, name: 'District 1' }],
   parties: [],
