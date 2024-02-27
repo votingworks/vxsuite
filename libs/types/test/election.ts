@@ -50,7 +50,7 @@ export const electionData = `
     "id": "COUNTY",
     "name": "COUNTY"
   },
-  "date": "2020-11-03T00:00:00-10:00",
+  "date": "2020-11-03",
   "parties": [
     {
       "id": "PARTY",
@@ -130,7 +130,7 @@ const electionTwoPartyPrimaryData = `
     "id": "sample-county",
     "name": "Sample County"
   },
-  "date": "2021-09-08T00:00:00-08:00",
+  "date": "2021-09-08",
   "ballotLayout": {
     "paperSize": "letter",
     "metadataEncoding": "qr-code"
