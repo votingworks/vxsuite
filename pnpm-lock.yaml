@@ -1363,9 +1363,6 @@ importers:
       js-file-download:
         specifier: 0.4.12
         version: 0.4.12
-      luxon:
-        specifier: ^3.0.0
-        version: 3.3.0
       nanoid:
         specifier: ^3.3.7
         version: 3.3.7
@@ -1418,9 +1415,6 @@ importers:
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
-      '@types/luxon':
-        specifier: ^3.0.0
-        version: 3.2.0
       '@types/react':
         specifier: 18.2.18
         version: 18.2.18
@@ -4684,9 +4678,6 @@ importers:
       lodash.camelcase:
         specifier: ^4.3.0
         version: 4.3.0
-      luxon:
-        specifier: ^3.0.0
-        version: 3.3.0
       normalize.css:
         specifier: ^8.0.1
         version: 8.0.1
@@ -4754,9 +4745,6 @@ importers:
       '@types/lodash.camelcase':
         specifier: ^4.3.6
         version: 4.3.6
-      '@types/luxon':
-        specifier: ^3.0.0
-        version: 3.2.0
       '@types/node':
         specifier: 16.18.23
         version: 16.18.23
@@ -5242,9 +5230,6 @@ importers:
       js-sha256:
         specifier: ^0.9.0
         version: 0.9.0
-      luxon:
-        specifier: ^3.0.0
-        version: 3.3.0
       util:
         specifier: ^0.12.4
         version: 0.12.4
@@ -5264,9 +5249,6 @@ importers:
       '@types/lodash.set':
         specifier: ^4.3.7
         version: 4.3.7
-      '@types/luxon':
-        specifier: ^3.0.0
-        version: 3.2.0
       '@types/node':
         specifier: 16.18.23
         version: 16.18.23
