@@ -1,5 +1,10 @@
 import * as customScanner from '@votingworks/custom-scanner';
-import { LogEventId, Logger, LogSource } from '@votingworks/logging';
+import {
+  LogEventId,
+  BaseLogger,
+  LogSource,
+  Logger,
+} from '@votingworks/logging';
 import { detectUsbDrive } from '@votingworks/usb-drive';
 import {
   InsertedSmartCardAuth,
@@ -17,18 +22,19 @@ import { SCAN_WORKSPACE } from './globals';
 import * as customStateMachine from './scanners/custom/state_machine';
 import * as server from './server';
 import { createWorkspace, Workspace } from './util/workspace';
+import { getUserRole } from './util/auth';
 
 export type { Api } from './app';
 export * from './types';
 
 loadEnvVarsFromDotenvFiles();
 
-const logger = new Logger(LogSource.VxScanBackend);
+const baseLogger = new BaseLogger(LogSource.VxScanBackend);
 
 async function resolveWorkspace(): Promise<Workspace> {
   const workspacePath = SCAN_WORKSPACE;
   if (!workspacePath) {
-    await logger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
+    await baseLogger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
       message:
         'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE',
       disposition: 'failure',
@@ -48,9 +54,10 @@ async function main(): Promise<number> {
         ? new MockFileCard()
         : new JavaCard(),
     config: {},
-    logger,
+    logger: baseLogger,
   });
   const workspace = await resolveWorkspace();
+  const logger = Logger.from(baseLogger, () => getUserRole(auth, workspace));
   const usbDrive = detectUsbDrive(logger);
   const printer = detectPrinter(logger);
 
@@ -78,7 +85,7 @@ async function main(): Promise<number> {
 if (require.main === module) {
   void main()
     .catch((error) => {
-      void logger.log(LogEventId.ApplicationStartup, 'system', {
+      void baseLogger.log(LogEventId.ApplicationStartup, 'system', {
         message: `Error in starting VxScan backend: ${error.stack}`,
         disposition: 'failure',
       });

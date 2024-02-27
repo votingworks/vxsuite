@@ -18,7 +18,7 @@ import {
   SensorStatus,
 } from '@votingworks/custom-scanner';
 import { toRgba, writeImageData } from '@votingworks/image-utils';
-import { LogEventId, Logger, LogLine } from '@votingworks/logging';
+import { LogEventId, BaseLogger, LogLine } from '@votingworks/logging';
 import {
   Id,
   mapSheet,
@@ -1206,7 +1206,7 @@ function buildMachine({
 function setupLogging(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   machineService: Interpreter<Context, any, Event, any, any>,
-  logger: Logger
+  logger: BaseLogger
 ) {
   machineService
     .onEvent(async (event) => {
@@ -1303,7 +1303,7 @@ export function createPrecinctScannerStateMachine({
   auth: InsertedSmartCardAuthApi;
   workspace: Workspace;
   interpret?: InterpretFn;
-  logger: Logger;
+  logger: BaseLogger;
   usbDrive: UsbDrive;
   delays?: Partial<Delays>;
 }): PrecinctScannerStateMachine {

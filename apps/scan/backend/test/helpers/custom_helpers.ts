@@ -20,7 +20,7 @@ import {
 } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
 import { getImageChannelCount } from '@votingworks/image-utils';
-import { Logger, fakeLogger } from '@votingworks/logging';
+import { LogSource, Logger, mockLogger } from '@votingworks/logging';
 import { SheetOf, mapSheet } from '@votingworks/types';
 import { Application } from 'express';
 import { Server } from 'http';
@@ -45,6 +45,16 @@ import {
 } from './shared_helpers';
 import { Store } from '../../src/store';
 import { PrecinctScannerStateMachine } from '../../src';
+import { getUserRole } from '../../src/util/auth';
+
+export function buildMockLogger(
+  auth: InsertedSmartCardAuthApi,
+  workspace: Workspace
+): Logger {
+  return mockLogger(LogSource.VxScanBackend, () =>
+    getUserRole(auth, workspace)
+  );
+}
 
 export async function withApp(
   {
@@ -69,9 +79,9 @@ export async function withApp(
   }) => Promise<void>
 ): Promise<void> {
   const mockAuth = buildMockInsertedSmartCardAuth();
-  const logger = fakeLogger();
   const workspace =
     preconfiguredWorkspace ?? createWorkspace(tmp.dirSync().name);
+  const logger = buildMockLogger(mockAuth, workspace);
   const mockScanner = mocks.fakeCustomScanner();
   const mockUsbDrive = createMockUsbDrive();
   const mockPrinterHandler = createMockPrinterHandler();
