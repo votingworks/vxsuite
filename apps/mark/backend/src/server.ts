@@ -5,7 +5,7 @@ import {
   JavaCard,
   MockFileCard,
 } from '@votingworks/auth';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, BaseLogger, Logger } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -14,10 +14,11 @@ import {
 import { detectUsbDrive } from '@votingworks/usb-drive';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
+import { getUserRole } from './util/auth';
 
 export interface StartOptions {
   auth?: InsertedSmartCardAuthApi;
-  logger: Logger;
+  baseLogger: BaseLogger;
   port: number | string;
   workspace: Workspace;
 }
@@ -25,7 +26,12 @@ export interface StartOptions {
 /**
  * Starts the server with all the default options.
  */
-export function start({ auth, logger, port, workspace }: StartOptions): Server {
+export function start({
+  auth,
+  baseLogger,
+  port,
+  workspace,
+}: StartOptions): Server {
   /* istanbul ignore next */
   const resolvedAuth =
     auth ??
@@ -39,10 +45,13 @@ export function start({ auth, logger, port, workspace }: StartOptions): Server {
         allowCardlessVoterSessions: true,
         allowElectionManagersToAccessMachinesConfiguredForOtherElections: true,
       },
-      logger,
+      logger: baseLogger,
     });
 
-  /* istanbul ignore next */
+  const logger = Logger.from(
+    baseLogger,
+    /* istanbul ignore next */ () => getUserRole(resolvedAuth, workspace)
+  );
   const usbDrive = detectUsbDrive(logger);
 
   const app = buildApp(resolvedAuth, logger, workspace, usbDrive);
