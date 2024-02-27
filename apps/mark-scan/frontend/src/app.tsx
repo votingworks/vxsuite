@@ -1,7 +1,7 @@
 import { BrowserRouter } from 'react-router-dom';
 
 import { getHardware } from '@votingworks/utils';
-import { Logger, LogSource } from '@votingworks/logging';
+import { BaseLogger, LogSource } from '@votingworks/logging';
 import { QueryClient } from '@tanstack/react-query';
 import {
   AppBase,
@@ -39,7 +39,7 @@ const RESTART_MESSAGE =
 export function App({
   hardware = getHardware(),
   reload = () => window.location.reload(),
-  logger = new Logger(LogSource.VxMarkScanFrontend, window.kiosk),
+  logger = new BaseLogger(LogSource.VxMarkScanFrontend, window.kiosk),
   /* istanbul ignore next */ apiClient = createApiClient(),
   queryClient = createQueryClient(),
   enableStringTranslation,

@@ -23,7 +23,7 @@ import {
   readTextEntry,
 } from '@votingworks/utils';
 import * as fs from 'fs/promises';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, BaseLogger } from '@votingworks/logging';
 import {
   ElectionPackage,
   ElectionPackageConfigurationError,
@@ -311,7 +311,7 @@ async function getMostRecentElectionPackageFilepath(
 export async function readSignedElectionPackageFromUsb(
   authStatus: DippedSmartCardAuth.AuthStatus | InsertedSmartCardAuth.AuthStatus,
   usbDrive: UsbDrive,
-  logger: Logger
+  logger: BaseLogger
 ): Promise<Result<ElectionPackage, ElectionPackageConfigurationError>> {
   // The frontend tries to prevent election package configuration attempts until an election
   // manager has authed. But we may reach this state if a user removes their card immediately

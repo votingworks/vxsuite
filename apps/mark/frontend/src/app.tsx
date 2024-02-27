@@ -1,7 +1,7 @@
 import { BrowserRouter } from 'react-router-dom';
 
 import { getHardware } from '@votingworks/utils';
-import { Logger, LogSource } from '@votingworks/logging';
+import { BaseLogger, LogSource } from '@votingworks/logging';
 import { QueryClient } from '@tanstack/react-query';
 import { AppBase, AppErrorBoundary } from '@votingworks/ui';
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
@@ -35,7 +35,7 @@ export interface Props {
 export function App({
   hardware = getHardware(),
   reload = () => window.location.reload(),
-  logger = new Logger(LogSource.VxMarkFrontend, window.kiosk),
+  logger = new BaseLogger(LogSource.VxMarkFrontend, window.kiosk),
   /* istanbul ignore next */ apiClient = createApiClient(),
   queryClient = createQueryClient(),
   enableStringTranslation,

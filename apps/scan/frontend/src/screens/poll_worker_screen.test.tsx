@@ -3,7 +3,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
-import { fakeLogger, LogEventId } from '@votingworks/logging';
+import { mockBaseLogger, LogEventId } from '@votingworks/logging';
 import {
   waitFor,
   waitForElementToBeRemoved,
@@ -66,7 +66,7 @@ function renderScreen(
       <PollWorkerScreen
         scannedBallotCount={0}
         pollsInfo={{ pollsState: 'polls_closed_initial' }}
-        logger={fakeLogger()}
+        logger={mockBaseLogger()}
         {...props}
       />
     )
@@ -106,9 +106,9 @@ describe('shows Livecheck button only when enabled', () => {
 });
 
 describe('transitions from polls closed initial', () => {
-  let logger = fakeLogger();
+  let logger = mockBaseLogger();
   beforeEach(async () => {
-    logger = fakeLogger();
+    logger = mockBaseLogger();
     renderScreen({
       scannedBallotCount: 0,
       pollsInfo: mockPollsInfo('polls_closed_initial'),
@@ -152,9 +152,9 @@ describe('transitions from polls closed initial', () => {
 });
 
 describe('transitions from polls open', () => {
-  let logger = fakeLogger();
+  let logger = mockBaseLogger();
   beforeEach(async () => {
-    logger = fakeLogger();
+    logger = mockBaseLogger();
     renderScreen({
       scannedBallotCount: 7,
       pollsInfo: mockPollsInfo('polls_open'),
@@ -218,9 +218,9 @@ describe('transitions from polls open', () => {
 });
 
 describe('transitions from polls paused', () => {
-  let logger = fakeLogger();
+  let logger = mockBaseLogger();
   beforeEach(async () => {
-    logger = fakeLogger();
+    logger = mockBaseLogger();
     renderScreen({
       scannedBallotCount: 7,
       pollsInfo: mockPollsInfo('polls_paused'),
@@ -298,7 +298,7 @@ test('no transitions from polls closed final', async () => {
 
 // confirm that we have an alert and logging that meet VVSG 2.0 1.1.3-B
 test('there is a warning if we attempt to open polls with ballots scanned', async () => {
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
   renderScreen({
     scannedBallotCount: 1,
     pollsInfo: mockPollsInfo('polls_closed_initial'),

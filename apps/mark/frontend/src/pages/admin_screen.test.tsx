@@ -6,7 +6,7 @@ import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { fakeLogger } from '@votingworks/logging';
+import { mockBaseLogger } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { screen, within } from '../../test/react_testing_library';
@@ -49,7 +49,7 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
           codeVersion: 'test', // Override default
         })}
         pollsState="polls_open"
-        logger={fakeLogger()}
+        logger={mockBaseLogger()}
         usbDriveStatus={mockUsbDriveStatus('mounted')}
         {...props}
       />

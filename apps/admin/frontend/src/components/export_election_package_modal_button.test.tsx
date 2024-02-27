@@ -1,4 +1,4 @@
-import { fakeLogger } from '@votingworks/logging';
+import { mockBaseLogger } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import { Result, deferred, err, ok } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
@@ -57,7 +57,7 @@ test.each<{
 );
 
 test('Modal renders export confirmation screen when usb detected', async () => {
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
   renderInAppContext(<ExportElectionPackageModalButton />, {
     usbDriveStatus: mockUsbDriveStatus('mounted'),
     logger,
@@ -96,7 +96,7 @@ test('Modal renders export confirmation screen when usb detected', async () => {
 });
 
 test('Modal renders error message appropriately', async () => {
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
   renderInAppContext(<ExportElectionPackageModalButton />, {
     apiMock,
     usbDriveStatus: mockUsbDriveStatus('mounted'),

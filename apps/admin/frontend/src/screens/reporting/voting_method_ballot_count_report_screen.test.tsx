@@ -2,7 +2,7 @@ import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import { Logger, fakeLogger } from '@votingworks/logging';
+import { BaseLogger, mockBaseLogger } from '@votingworks/logging';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { screen } from '../../../test/react_testing_library';
@@ -11,11 +11,11 @@ import {
   VotingMethodBallotCountReport,
 } from './voting_method_ballot_count_report_screen';
 
-let logger: Logger;
+let logger: BaseLogger;
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  logger = fakeLogger();
+  logger = mockBaseLogger();
   apiMock = createApiMock();
 });
 

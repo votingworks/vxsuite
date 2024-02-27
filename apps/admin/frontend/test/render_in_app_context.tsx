@@ -10,7 +10,7 @@ import {
   ConverterClientType,
 } from '@votingworks/types';
 import { NullPrinter, randomBallotId } from '@votingworks/utils';
-import { Logger, LogSource } from '@votingworks/logging';
+import { BaseLogger, LogSource } from '@votingworks/logging';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
@@ -53,7 +53,7 @@ export interface RenderInAppContextParams {
   machineConfig?: MachineConfig;
   hasCardReaderAttached?: boolean;
   hasPrinterAttached?: boolean;
-  logger?: Logger;
+  logger?: BaseLogger;
   apiMock?: ApiMock;
   queryClient?: QueryClient;
 }
@@ -117,7 +117,7 @@ export function renderInAppContext(
       codeVersion: 'dev',
     },
     hasCardReaderAttached = true,
-    logger = new Logger(LogSource.VxAdminFrontend),
+    logger = new BaseLogger(LogSource.VxAdminFrontend),
     apiMock,
     queryClient,
   }: RenderInAppContextParams = {}

@@ -1,5 +1,5 @@
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
-import { fakeLogger, Logger } from '@votingworks/logging';
+import { mockBaseLogger, BaseLogger } from '@votingworks/logging';
 
 import userEvent from '@testing-library/user-event';
 import { ok } from '@votingworks/basics';
@@ -17,12 +17,12 @@ import {
 } from '../../../test/react_testing_library';
 import { hackActuallyCleanUpReactModal } from '../../../test/react_modal_cleanup';
 
-let logger: Logger;
+let logger: BaseLogger;
 let apiMock: ApiMock;
 
 beforeEach(() => {
   jest.useFakeTimers();
-  logger = fakeLogger();
+  logger = mockBaseLogger();
   apiMock = createApiMock();
 });
 

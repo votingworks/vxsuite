@@ -4,7 +4,7 @@ import {
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { waitForElementToBeRemoved } from '@testing-library/react';
-import { fakeLogger } from '@votingworks/logging';
+import { mockBaseLogger } from '@votingworks/logging';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { BallotCountReportSpec } from '@votingworks/admin-backend';
 import { ok } from '@votingworks/basics';
@@ -176,7 +176,7 @@ test('printing report', async () => {
     pdfContent: 'Unofficial Full Election Ballot Count Report',
   });
 
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
   renderInAppContext(
     <BallotCountReportViewer
       disabled={false}

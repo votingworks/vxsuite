@@ -19,7 +19,7 @@ import { PollsTransitionType } from '@votingworks/types';
 import {
   getLogEventIdForPollsTransition,
   LogEventId,
-  Logger,
+  BaseLogger,
 } from '@votingworks/logging';
 import {
   assert,
@@ -95,7 +95,7 @@ const BallotsAlreadyScannedScreen = (
 export interface PollWorkerScreenProps {
   scannedBallotCount: number;
   pollsInfo: PrecinctScannerPollsInfo;
-  logger: Logger;
+  logger: BaseLogger;
 }
 
 const ButtonGrid = styled.div`

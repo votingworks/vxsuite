@@ -9,7 +9,7 @@ import {
   fakePrintElementToPdf,
 } from '@votingworks/test-utils';
 import { MemoryHardware, singlePrecinctSelectionFor } from '@votingworks/utils';
-import { fakeLogger } from '@votingworks/logging';
+import { mockBaseLogger } from '@votingworks/logging';
 import { getContestDistrictName } from '@votingworks/types';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { assert } from '@votingworks/basics';
@@ -54,7 +54,7 @@ afterEach(() => {
 jest.setTimeout(60_000);
 
 test('MarkAndPrint end-to-end flow', async () => {
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
   const electionDefinition = electionGeneralDefinition;
   const { electionHash } = electionDefinition;
   const hardware = MemoryHardware.buildStandard();

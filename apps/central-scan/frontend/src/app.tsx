@@ -1,6 +1,6 @@
 import { getHardware } from '@votingworks/utils';
 import { BrowserRouter } from 'react-router-dom';
-import { Logger, LogSource } from '@votingworks/logging';
+import { BaseLogger, LogSource } from '@votingworks/logging';
 import {
   AppBase,
   AppErrorBoundary,
@@ -27,7 +27,7 @@ export interface Props {
 
 export function App({
   hardware = getHardware(),
-  logger = new Logger(LogSource.VxCentralScanFrontend, window.kiosk),
+  logger = new BaseLogger(LogSource.VxCentralScanFrontend, window.kiosk),
   apiClient = createApiClient(),
   queryClient = createQueryClient(),
 }: Props): JSX.Element {

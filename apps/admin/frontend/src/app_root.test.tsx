@@ -2,7 +2,7 @@ import { NullPrinter } from '@votingworks/utils';
 import fetchMock from 'fetch-mock';
 import { BrowserRouter, Route } from 'react-router-dom';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
-import { LogSource, Logger } from '@votingworks/logging';
+import { LogSource, BaseLogger } from '@votingworks/logging';
 import { screen } from '../test/react_testing_library';
 import { renderRootElement } from '../test/render_in_app_context';
 import { AppRoot } from './app_root';
@@ -36,7 +36,7 @@ test('renders without crashing', async () => {
         render={(props) => (
           <AppRoot
             printer={new NullPrinter()}
-            logger={new Logger(LogSource.VxAdminFrontend)}
+            logger={new BaseLogger(LogSource.VxAdminFrontend)}
             {...props}
           />
         )}

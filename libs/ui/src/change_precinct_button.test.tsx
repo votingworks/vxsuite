@@ -4,7 +4,7 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
-import { fakeLogger, LogEventId } from '@votingworks/logging';
+import { mockBaseLogger, LogEventId } from '@votingworks/logging';
 import {
   fireEvent,
   render,
@@ -19,7 +19,7 @@ import {
 
 test('default mode: set precinct from unset', async () => {
   const updatePrecinctSelection = jest.fn();
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
 
   render(
     <ChangePrecinctButton
@@ -68,7 +68,7 @@ test('default mode: set precinct from unset', async () => {
 
 test('default mode: switch precinct', async () => {
   const updatePrecinctSelection = jest.fn();
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
 
   render(
     <ChangePrecinctButton
@@ -105,7 +105,7 @@ test('default mode: switch precinct', async () => {
 
 test('confirmation required mode', async () => {
   const updatePrecinctSelection = jest.fn();
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
 
   render(
     <ChangePrecinctButton
@@ -180,7 +180,7 @@ test('disabled mode', () => {
       updatePrecinctSelection={jest.fn()}
       election={electionTwoPartyPrimary}
       mode="disabled"
-      logger={fakeLogger()}
+      logger={mockBaseLogger()}
     />
   );
 

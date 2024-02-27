@@ -22,7 +22,7 @@ import {
   randomBallotId,
 } from '@votingworks/utils';
 
-import { Logger } from '@votingworks/logging';
+import { BaseLogger } from '@votingworks/logging';
 
 import {
   SetupCardReaderPage,
@@ -84,7 +84,7 @@ export interface VotingState {
 export interface Props {
   hardware: Hardware;
   reload: VoidFunction;
-  logger: Logger;
+  logger: BaseLogger;
 }
 
 export const stateStorageKey = 'state';

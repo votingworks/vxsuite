@@ -7,10 +7,10 @@ import {
   electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
-  fakeLogger,
+  mockBaseLogger,
   LogDispositionStandardTypes,
   LogEventId,
-  Logger,
+  BaseLogger,
 } from '@votingworks/logging';
 import {
   fakeCardlessVoterUser,
@@ -54,7 +54,7 @@ const pin = '123456';
 const wrongPin = '654321';
 
 let mockCard: MockCard;
-let mockLogger: Logger;
+let mockLogger: BaseLogger;
 let mockTime: DateTime;
 
 beforeEach(() => {
@@ -66,7 +66,7 @@ beforeEach(() => {
   mockFeatureFlagger.resetFeatureFlags();
 
   mockCard = buildMockCard();
-  mockLogger = fakeLogger();
+  mockLogger = mockBaseLogger();
 });
 
 afterEach(() => {
@@ -161,8 +161,8 @@ test.each<{
   description: string;
   cardStatus: CardStatus;
   expectedAuthStatus: InsertedSmartCardAuthTypes.AuthStatus;
-  expectedLogOnInsertion?: Parameters<Logger['log']>;
-  expectedLogOnRemoval?: Parameters<Logger['log']>;
+  expectedLogOnInsertion?: Parameters<BaseLogger['log']>;
+  expectedLogOnRemoval?: Parameters<BaseLogger['log']>;
 }>([
   {
     description: 'unknown error',
@@ -574,7 +574,7 @@ test.each<{
   machineState: InsertedSmartCardAuthMachineState;
   cardDetails?: CardDetails;
   expectedAuthStatus: InsertedSmartCardAuthTypes.AuthStatus;
-  expectedLog?: Parameters<Logger['log']>;
+  expectedLog?: Parameters<BaseLogger['log']>;
 }>([
   {
     description: 'invalid user on card',

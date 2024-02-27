@@ -1,4 +1,4 @@
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { usb } from 'usb';
 
 /**
@@ -7,7 +7,7 @@ import { usb } from 'usb';
  * If we ever transition device connection from a polling model to an event-driven
  * model, we could handle subscribers here.
  */
-export function detectDevices({ logger }: { logger: Logger }): void {
+export function detectDevices({ logger }: { logger: BaseLogger }): void {
   usb.on('attach', (device) => {
     void logger.log(LogEventId.DeviceAttached, 'system', {
       message: `Device attached. Vendor ID: ${device.deviceDescriptor.idVendor}, Product ID: ${device.deviceDescriptor.idProduct}`,

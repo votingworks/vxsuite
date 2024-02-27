@@ -10,7 +10,7 @@ import {
   getPrecinctSelectionName,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
 import { Select } from './select';
 import { Button } from './button';
@@ -34,7 +34,7 @@ export interface ChangePrecinctButtonProps {
   ) => Promise<void>;
   election: Election;
   mode: ChangePrecinctMode;
-  logger: Logger;
+  logger: BaseLogger;
 }
 
 export function ChangePrecinctButton({

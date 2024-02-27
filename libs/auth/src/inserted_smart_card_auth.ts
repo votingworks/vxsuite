@@ -13,7 +13,7 @@ import {
 import {
   LogDispositionStandardTypes,
   LogEventId,
-  Logger,
+  BaseLogger,
 } from '@votingworks/logging';
 import {
   BallotStyleId,
@@ -60,7 +60,7 @@ type AuthAction =
 async function logAuthEvent(
   previousAuthStatus: InsertedSmartCardAuthTypes.AuthStatus,
   newAuthStatus: InsertedSmartCardAuthTypes.AuthStatus,
-  logger: Logger
+  logger: BaseLogger
 ) {
   switch (previousAuthStatus.status) {
     case 'logged_out': {
@@ -150,12 +150,12 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
   private readonly card: Card;
   private cardlessVoterUser?: CardlessVoterUser;
   private readonly config: InsertedSmartCardAuthConfig;
-  private readonly logger: Logger;
+  private readonly logger: BaseLogger;
 
   constructor(input: {
     card: Card;
     config: InsertedSmartCardAuthConfig;
-    logger: Logger;
+    logger: BaseLogger;
   }) {
     this.authStatus = InsertedSmartCardAuthTypes.DEFAULT_AUTH_STATUS;
     this.card = input.card;

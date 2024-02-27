@@ -1,13 +1,13 @@
 /* istanbul ignore file - tested via VxSuite apps. */
 
 import { ElectionPackage, LanguageCode } from '@votingworks/types';
-import { Logger } from '@votingworks/logging';
+import { BaseLogger } from '@votingworks/logging';
 import { UiStringsStore } from './ui_strings_store';
 
 /** Input for {@link configureUiStrings}. */
 export interface ElectionPackageProcessorInput {
   electionPackage: ElectionPackage;
-  logger: Logger;
+  logger: BaseLogger;
   noAudio?: boolean;
   store: UiStringsStore;
 }

@@ -6,7 +6,7 @@ import {
   Printer,
 } from '@votingworks/types';
 import { NullPrinter } from '@votingworks/utils';
-import { Logger, LogSource } from '@votingworks/logging';
+import { BaseLogger, LogSource } from '@votingworks/logging';
 import type { MachineConfig } from '@votingworks/admin-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { mockUsbDriveStatus } from '@votingworks/ui';
@@ -23,7 +23,7 @@ export interface AppContextInterface {
   auth: DippedSmartCardAuth.AuthStatus;
   machineConfig: MachineConfig;
   hasCardReaderAttached: boolean;
-  logger: Logger;
+  logger: BaseLogger;
 }
 
 const appContext: AppContextInterface = {
@@ -39,7 +39,7 @@ const appContext: AppContextInterface = {
     codeVersion: 'dev',
   },
   hasCardReaderAttached: true,
-  logger: new Logger(LogSource.VxAdminFrontend),
+  logger: new BaseLogger(LogSource.VxAdminFrontend),
 };
 /* eslint-enable @typescript-eslint/require-await */
 

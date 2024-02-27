@@ -1,4 +1,4 @@
-import { Logger } from '@votingworks/logging';
+import { BaseLogger } from '@votingworks/logging';
 import { Printer, ConverterClientType } from '@votingworks/types';
 import { randomBallotId } from '@votingworks/utils';
 
@@ -13,7 +13,7 @@ import {
 
 export interface Props {
   printer: Printer;
-  logger: Logger;
+  logger: BaseLogger;
   converter?: ConverterClientType;
   generateBallotId?: () => string;
 }

@@ -1,5 +1,5 @@
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { Logger, fakeLogger } from '@votingworks/logging';
+import { BaseLogger, mockBaseLogger } from '@votingworks/logging';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import {
   FullElectionTallyReportScreen,
@@ -9,11 +9,11 @@ import { renderInAppContext } from '../../../test/render_in_app_context';
 import { routerPaths } from '../../router_paths';
 import { screen } from '../../../test/react_testing_library';
 
-let logger: Logger;
+let logger: BaseLogger;
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  logger = fakeLogger();
+  logger = mockBaseLogger();
   apiMock = createApiMock();
 });
 

@@ -4,7 +4,7 @@ import {
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, BaseLogger } from '@votingworks/logging';
 
 import { DippedSmartCardAuth, InsertedSmartCardAuth } from '@votingworks/types';
 import { assert, throwIllegalValue } from '@votingworks/basics';
@@ -20,7 +20,7 @@ import { useSystemCallApi } from './system_call_api';
 export interface ExportLogsModalProps {
   usbDriveStatus: UsbDriveStatus;
   auth: DippedSmartCardAuth.AuthStatus | InsertedSmartCardAuth.AuthStatus;
-  logger: Logger;
+  logger: BaseLogger;
   onClose: () => void;
 }
 

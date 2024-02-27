@@ -18,7 +18,7 @@ import {
   useDevices,
   H1,
 } from '@votingworks/ui';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
 import { AppContext, AppContextInterface } from './contexts/app_context';
 
@@ -43,7 +43,7 @@ import { HardwareDiagnosticsScreen } from './screens/hardware_diagnostics_screen
 
 export interface AppRootProps {
   hardware: Hardware;
-  logger: Logger;
+  logger: BaseLogger;
 }
 
 export function AppRoot({

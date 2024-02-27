@@ -1,4 +1,4 @@
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, BaseLogger } from '@votingworks/logging';
 import {
   Hardware,
   isAccessibleController,
@@ -15,7 +15,7 @@ export const BATTERY_POLLING_INTERVAL = 3000;
 
 export interface Props {
   hardware: Hardware;
-  logger: Logger;
+  logger: BaseLogger;
 }
 
 export interface ComputerStatus {

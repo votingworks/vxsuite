@@ -1,4 +1,4 @@
-import { fakeLogger } from '@votingworks/logging';
+import { mockBaseLogger } from '@votingworks/logging';
 import { fakePrinter } from '@votingworks/test-utils';
 import { ConverterClientType } from '@votingworks/types';
 import { App } from '../../src/app';
@@ -11,7 +11,7 @@ function mockRandomBallotId() {
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApp(apiMock: ApiMock, converter?: ConverterClientType) {
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
   const printer = fakePrinter();
   function renderApp() {
     return renderRootElement(
