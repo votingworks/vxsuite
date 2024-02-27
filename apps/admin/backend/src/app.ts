@@ -14,7 +14,6 @@ import {
   PrinterStatus,
   SystemSettings,
   Tabulation,
-  TEST_JURISDICTION,
 } from '@votingworks/types';
 import {
   assert,
@@ -28,8 +27,6 @@ import {
 import express, { Application } from 'express';
 import {
   DippedSmartCardAuthApi,
-  DippedSmartCardAuthMachineState,
-  DEV_JURISDICTION,
   LiveCheck,
   prepareSignatureFile,
 } from '@votingworks/auth';
@@ -131,47 +128,25 @@ import {
 } from './reports/tally_report';
 import { printTestPage } from './reports/test_print';
 import { printReadinessReport } from './reports/readiness';
+import { constructAuthMachineState } from './util/auth';
 
 const debug = rootDebug.extend('app');
+
+function loadCurrentElectionIdOrThrow(workspace: Workspace) {
+  return assertDefined(workspace.store.getCurrentElectionId());
+}
 
 function getCurrentElectionRecord(
   workspace: Workspace
 ): Optional<ElectionRecord> {
   const electionId = workspace.store.getCurrentElectionId();
+  /* c8 ignore next 3 */
   if (!electionId) {
     return undefined;
   }
   const electionRecord = workspace.store.getElection(electionId);
   assert(electionRecord);
   return electionRecord;
-}
-
-function constructAuthMachineState(
-  workspace: Workspace
-): DippedSmartCardAuthMachineState {
-  const electionRecord = getCurrentElectionRecord(workspace);
-  /* c8 ignore next 3 - covered by integration testing */
-  const jurisdiction = isIntegrationTest()
-    ? TEST_JURISDICTION
-    : process.env.VX_MACHINE_JURISDICTION ?? DEV_JURISDICTION;
-
-  if (!electionRecord) {
-    return {
-      ...DEFAULT_SYSTEM_SETTINGS.auth,
-      jurisdiction,
-    };
-  }
-
-  const systemSettings = workspace.store.getSystemSettings(electionRecord.id);
-  return {
-    ...systemSettings.auth,
-    electionHash: electionRecord.electionDefinition.electionHash,
-    jurisdiction,
-  };
-}
-
-function loadCurrentElectionIdOrThrow(workspace: Workspace) {
-  return assertDefined(workspace.store.getCurrentElectionId());
 }
 
 function buildApi({
@@ -188,17 +163,6 @@ function buildApi({
   printer: Printer;
 }) {
   const { store } = workspace;
-
-  async function getUserRole() {
-    const authStatus = await auth.getAuthStatus(
-      constructAuthMachineState(workspace)
-    );
-    if (authStatus.status === 'logged_in') {
-      return authStatus.user.role;
-    }
-    /* c8 ignore next 2 - trivial fallback case */
-    return undefined;
-  }
 
   function convertFrontendFilter(
     filter: Admin.FrontendReportingFilter
@@ -298,12 +262,12 @@ function buildApi({
     },
 
     async ejectUsbDrive(): Promise<void> {
-      return usbDrive.eject(assertDefined(await getUserRole()));
+      return usbDrive.eject();
     },
 
     async formatUsbDrive(): Promise<Result<void, Error>> {
       try {
-        await usbDrive.format(assertDefined(await getUserRole()));
+        await usbDrive.format();
         return ok();
       } catch (error) {
         return err(error as Error);
@@ -311,7 +275,7 @@ function buildApi({
     },
 
     async saveElectionPackageToUsb(): Promise<Result<void, ExportDataError>> {
-      await logger.log(LogEventId.SaveElectionPackageInit, 'election_manager');
+      await logger.logAsCurrentUser(LogEventId.SaveElectionPackageInit);
       const exporter = buildExporter(usbDrive);
 
       const electionRecord = getCurrentElectionRecord(workspace);
@@ -370,14 +334,10 @@ function buildApi({
         await fs.rm(tempDirectory, { recursive: true });
       }
 
-      await logger.log(
-        LogEventId.SaveElectionPackageComplete,
-        'election_manager',
-        {
-          disposition: 'success',
-          message: 'Successfully saved election package.',
-        }
-      );
+      await logger.logAsCurrentUser(LogEventId.SaveElectionPackageComplete, {
+        disposition: 'success',
+        message: 'Successfully saved election package.',
+      });
       return ok();
     },
 
@@ -490,26 +450,18 @@ function buildApi({
         electionPackageFileContents: fileContents,
       });
       store.setCurrentElectionId(electionId);
-      await logger.log(
-        LogEventId.ElectionConfigured,
-        assertDefined(await getUserRole()),
-        {
-          disposition: 'success',
-          newElectionHash: electionDefinition.electionHash,
-        }
-      );
+      await logger.logAsCurrentUser(LogEventId.ElectionConfigured, {
+        disposition: 'success',
+        newElectionHash: electionDefinition.electionHash,
+      });
       return ok({ electionId });
     },
 
     async unconfigure(): Promise<void> {
       store.deleteElection(loadCurrentElectionIdOrThrow(workspace));
-      await logger.log(
-        LogEventId.ElectionUnconfigured,
-        assertDefined(await getUserRole()),
-        {
-          disposition: 'success',
-        }
-      );
+      await logger.logAsCurrentUser(LogEventId.ElectionUnconfigured, {
+        disposition: 'success',
+      });
     },
 
     // use null because React Query does not allow undefined as a query result
@@ -530,19 +482,14 @@ function buildApi({
         true
       );
 
-      await logger.log(
-        LogEventId.MarkedTallyResultsOfficial,
-        assertDefined(await getUserRole()),
-        {
-          message:
-            'User has marked the tally results as official, no more cast vote record files can be loaded.',
-          disposition: 'success',
-        }
-      );
+      await logger.logAsCurrentUser(LogEventId.MarkedTallyResultsOfficial, {
+        message:
+          'User has marked the tally results as official, no more cast vote record files can be loaded.',
+        disposition: 'success',
+      });
     },
 
     async listCastVoteRecordFilesOnUsb() {
-      const userRole = assertDefined(await getUserRole());
       const electionRecord = assertDefined(getCurrentElectionRecord(workspace));
       const { electionDefinition } = electionRecord;
 
@@ -551,9 +498,8 @@ function buildApi({
         electionDefinition
       );
       if (listResult.isErr()) {
-        await logger.log(
+        await logger.logAsCurrentUser(
           LogEventId.ListCastVoteRecordExportsOnUsbDrive,
-          userRole,
           {
             disposition: 'failure',
             message: 'Error listing cast vote record exports on USB drive.',
@@ -563,9 +509,8 @@ function buildApi({
         return [];
       }
       const castVoteRecordExportSummaries = listResult.ok();
-      await logger.log(
+      await logger.logAsCurrentUser(
         LogEventId.ListCastVoteRecordExportsOnUsbDrive,
-        userRole,
         {
           disposition: 'success',
           message: `Found ${castVoteRecordExportSummaries.length} cast vote record export(s) on USB drive.`,
@@ -581,8 +526,7 @@ function buildApi({
     async addCastVoteRecordFile(input: {
       path: string;
     }): Promise<Result<CvrFileImportInfo, ImportCastVoteRecordsError>> {
-      const userRole = assertDefined(await getUserRole());
-      await logger.log(LogEventId.ImportCastVoteRecordsInit, userRole, {
+      await logger.logAsCurrentUser(LogEventId.ImportCastVoteRecordsInit, {
         message: 'Importing cast vote records...',
       });
       const exportDirectoryPath =
@@ -596,12 +540,15 @@ function buildApi({
         exportDirectoryPath
       );
       if (importResult.isErr()) {
-        await logger.log(LogEventId.ImportCastVoteRecordsComplete, userRole, {
-          disposition: 'failure',
-          message: 'Error importing cast vote records.',
-          exportDirectoryPath,
-          errorDetails: JSON.stringify(importResult.err()),
-        });
+        await logger.logAsCurrentUser(
+          LogEventId.ImportCastVoteRecordsComplete,
+          {
+            disposition: 'failure',
+            message: 'Error importing cast vote records.',
+            exportDirectoryPath,
+            errorDetails: JSON.stringify(importResult.err()),
+          }
+        );
       } else {
         const { alreadyPresent: numAlreadyPresent, newlyAdded: numNewlyAdded } =
           importResult.ok();
@@ -609,26 +556,30 @@ function buildApi({
         if (numAlreadyPresent > 0) {
           message += ` Ignored ${numAlreadyPresent} duplicate(s).`;
         }
-        await logger.log(LogEventId.ImportCastVoteRecordsComplete, userRole, {
-          disposition: 'success',
-          message,
-          exportDirectoryPath,
-        });
+        await logger.logAsCurrentUser(
+          LogEventId.ImportCastVoteRecordsComplete,
+          {
+            disposition: 'success',
+            message,
+            exportDirectoryPath,
+          }
+        );
       }
       return importResult;
     },
 
     async clearCastVoteRecordFiles(): Promise<void> {
-      const userRole = assertDefined(await getUserRole());
-      await logger.log(LogEventId.ClearImportedCastVoteRecordsInit, userRole, {
-        message: 'Clearing imported cast vote records...',
-      });
+      await logger.logAsCurrentUser(
+        LogEventId.ClearImportedCastVoteRecordsInit,
+        {
+          message: 'Clearing imported cast vote records...',
+        }
+      );
       const electionId = loadCurrentElectionIdOrThrow(workspace);
       store.deleteCastVoteRecordFiles(electionId);
       store.setElectionResultsOfficial(electionId, false);
-      await logger.log(
+      await logger.logAsCurrentUser(
         LogEventId.ClearImportedCastVoteRecordsComplete,
-        userRole,
         {
           disposition: 'success',
           message: 'Successfully cleared all imported cast vote records.',
@@ -721,14 +672,10 @@ function buildApi({
       store.deleteAllManualResults({
         electionId: loadCurrentElectionIdOrThrow(workspace),
       });
-      await logger.log(
-        LogEventId.ManualTallyDataRemoved,
-        assertDefined(await getUserRole()),
-        {
-          message: 'User removed all manually entered tally data.',
-          disposition: 'success',
-        }
-      );
+      await logger.logAsCurrentUser(LogEventId.ManualTallyDataRemoved, {
+        message: 'User removed all manually entered tally data.',
+        disposition: 'success',
+      });
     },
 
     async deleteManualResults(input: ManualResultsIdentifier): Promise<void> {
@@ -736,16 +683,12 @@ function buildApi({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         ...input,
       });
-      await logger.log(
-        LogEventId.ManualTallyDataRemoved,
-        assertDefined(await getUserRole()),
-        {
-          message:
-            'User removed manually entered tally data for a particular ballot style, precinct, and voting method.',
-          ...input,
-          disposition: 'success',
-        }
-      );
+      await logger.logAsCurrentUser(LogEventId.ManualTallyDataRemoved, {
+        message:
+          'User removed manually entered tally data for a particular ballot style, precinct, and voting method.',
+        ...input,
+        disposition: 'success',
+      });
     },
 
     async setManualResults(
@@ -770,19 +713,15 @@ function buildApi({
         return Promise.resolve();
       });
 
-      await logger.log(
-        LogEventId.ManualTallyDataEdited,
-        assertDefined(await getUserRole()),
-        {
-          disposition: 'success',
-          message:
-            'User added or edited manually entered tally data for a particular ballot style, precinct, and voting method.',
-          ballotCount: input.manualResults.ballotCount,
-          ballotStyleId: input.ballotStyleId,
-          precinctId: input.precinctId,
-          ballotType: input.votingMethod,
-        }
-      );
+      await logger.logAsCurrentUser(LogEventId.ManualTallyDataEdited, {
+        disposition: 'success',
+        message:
+          'User added or edited manually entered tally data for a particular ballot style, precinct, and voting method.',
+        ballotCount: input.manualResults.ballotCount,
+        ballotStyleId: input.ballotStyleId,
+        precinctId: input.precinctId,
+        ballotType: input.votingMethod,
+      });
     },
 
     getManualResults(
@@ -827,7 +766,6 @@ function buildApi({
         allTallyReportResults: await getTallyReportResults(input),
         ...input,
         logger,
-        userRole: assertDefined(await getUserRole()),
       });
     },
 
@@ -837,7 +775,6 @@ function buildApi({
         allTallyReportResults: await getTallyReportResults(input),
         ...input,
         logger,
-        userRole: assertDefined(await getUserRole()),
         printer,
       });
     },
@@ -850,7 +787,6 @@ function buildApi({
         allTallyReportResults: await getTallyReportResults(input),
         ...input,
         logger,
-        userRole: assertDefined(await getUserRole()),
       });
     },
 
@@ -869,17 +805,13 @@ function buildApi({
         }),
       });
 
-      await logger.log(
-        LogEventId.FileSaved,
-        assertDefined(await getUserRole()),
-        {
-          disposition: exportFileResult.isOk() ? 'success' : 'failure',
-          message: `${
-            exportFileResult.isOk() ? 'Saved' : 'Failed to save'
-          } tally report CSV file to ${input.path} on the USB drive.`,
-          filename: input.path,
-        }
-      );
+      await logger.logAsCurrentUser(LogEventId.FileSaved, {
+        disposition: exportFileResult.isOk() ? 'success' : 'failure',
+        message: `${
+          exportFileResult.isOk() ? 'Saved' : 'Failed to save'
+        } tally report CSV file to ${input.path} on the USB drive.`,
+        filename: input.path,
+      });
 
       return exportFileResult;
     },
@@ -924,19 +856,15 @@ function buildApi({
         ),
       });
 
-      await logger.log(
-        LogEventId.FileSaved,
-        assertDefined(await getUserRole()),
-        {
-          disposition: exportFileResult.isOk() ? 'success' : 'failure',
-          message: `${
-            exportFileResult.isOk() ? 'Saved' : 'Failed to save'
-          } CDF election results report JSON file to ${
-            input.path
-          } on the USB drive.`,
-          filename: input.path,
-        }
-      );
+      await logger.logAsCurrentUser(LogEventId.FileSaved, {
+        disposition: exportFileResult.isOk() ? 'success' : 'failure',
+        message: `${
+          exportFileResult.isOk() ? 'Saved' : 'Failed to save'
+        } CDF election results report JSON file to ${
+          input.path
+        } on the USB drive.`,
+        filename: input.path,
+      });
 
       return exportFileResult;
     },
@@ -964,7 +892,6 @@ function buildApi({
         allCardCounts: getCardCounts(input),
         ...input,
         logger,
-        userRole: assertDefined(await getUserRole()),
       });
     },
 
@@ -974,7 +901,6 @@ function buildApi({
         allCardCounts: getCardCounts(input),
         ...input,
         logger,
-        userRole: assertDefined(await getUserRole()),
         printer,
       });
     },
@@ -987,7 +913,6 @@ function buildApi({
         allCardCounts: getCardCounts(input),
         ...input,
         logger,
-        userRole: assertDefined(await getUserRole()),
       });
     },
 
@@ -1007,17 +932,13 @@ function buildApi({
         }),
       });
 
-      await logger.log(
-        LogEventId.FileSaved,
-        assertDefined(await getUserRole()),
-        {
-          disposition: exportFileResult.isOk() ? 'success' : 'failure',
-          message: `${
-            exportFileResult.isOk() ? 'Saved' : 'Failed to save'
-          } ballot count report CSV file to ${input.path} on the USB drive.`,
-          filename: input.path,
-        }
-      );
+      await logger.logAsCurrentUser(LogEventId.FileSaved, {
+        disposition: exportFileResult.isOk() ? 'success' : 'failure',
+        message: `${
+          exportFileResult.isOk() ? 'Saved' : 'Failed to save'
+        } ballot count report CSV file to ${input.path} on the USB drive.`,
+        filename: input.path,
+      });
 
       return exportFileResult;
     },
@@ -1031,7 +952,6 @@ function buildApi({
         store,
         electionWriteInSummary: getElectionWriteInSummary(),
         logger,
-        userRole: assertDefined(await getUserRole()),
       });
     },
 
@@ -1040,7 +960,6 @@ function buildApi({
         store,
         electionWriteInSummary: getElectionWriteInSummary(),
         logger,
-        userRole: assertDefined(await getUserRole()),
         printer,
       });
     },
@@ -1052,24 +971,19 @@ function buildApi({
         store,
         electionWriteInSummary: getElectionWriteInSummary(),
         logger,
-        userRole: assertDefined(await getUserRole()),
         path: input.path,
       });
     },
 
-    async addDiagnosticRecord(input: {
+    addDiagnosticRecord(input: {
       hardware: DiagnosticsHardware;
       outcome: DiagnosticsOutcome;
-    }): Promise<void> {
+    }): void {
       store.addDiagnosticRecord(input);
-      void logger.log(
-        LogEventId.DiagnosticComplete,
-        assertDefined(await getUserRole()),
-        {
-          disposition: input.outcome === 'pass' ? 'success' : 'failure',
-          message: `Diagnostic test for the ${input.hardware} completed with outcome: ${input.outcome}.`,
-        }
-      );
+      void logger.logAsCurrentUser(LogEventId.DiagnosticComplete, {
+        disposition: input.outcome === 'pass' ? 'success' : 'failure',
+        message: `Diagnostic test for the ${input.hardware} completed with outcome: ${input.outcome}.`,
+      });
     },
 
     getDiagnosticRecords(): DiagnosticsRecord[] {
@@ -1080,7 +994,6 @@ function buildApi({
       await printTestPage({
         printer,
         logger,
-        userRole: assertDefined(await getUserRole()),
       });
     },
 
@@ -1089,7 +1002,6 @@ function buildApi({
         workspace,
         printer,
         logger,
-        userRole: assertDefined(await getUserRole()),
       });
     },
 

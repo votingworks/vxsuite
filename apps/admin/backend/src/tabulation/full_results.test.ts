@@ -12,7 +12,7 @@ import {
 } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { DEFAULT_SYSTEM_SETTINGS, Tabulation } from '@votingworks/types';
-import { fakeLogger } from '@votingworks/logging';
+import { mockBaseLogger } from '@votingworks/logging';
 import {
   tabulateCastVoteRecords,
   tabulateElectionResults,
@@ -289,7 +289,7 @@ const candidateContestId =
 
 test('tabulateElectionResults - write-in handling', async () => {
   const store = Store.memoryStore();
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
 
   const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
@@ -697,7 +697,7 @@ test('tabulateElectionResults - write-in handling', async () => {
 
 test('tabulateElectionResults - group and filter by voting method', async () => {
   const store = Store.memoryStore();
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
   const { electionDefinition, castVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election, electionData } = electionDefinition;

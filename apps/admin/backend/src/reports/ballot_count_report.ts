@@ -1,7 +1,7 @@
 import { assert } from '@votingworks/basics';
 import { BallotCountReport } from '@votingworks/ui';
 import { Admin, Tabulation } from '@votingworks/types';
-import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { Buffer } from 'buffer';
 import { Printer, renderToPdf } from '@votingworks/printing';
 import { Store } from '../store';
@@ -69,7 +69,6 @@ type BallotCountReportPreviewProps = BallotCountReportSpec & {
   store: Store;
   allCardCounts: Tabulation.GroupList<Tabulation.CardCounts>;
   logger: Logger;
-  userRole: LoggingUserRole;
 };
 
 /**
@@ -86,11 +85,11 @@ export interface BallotCountReportPreview {
  */
 export async function generateBallotCountReportPreview({
   logger,
-  userRole,
+
   ...reportProps
 }: BallotCountReportPreviewProps): Promise<BallotCountReportPreview> {
   const report = buildBallotCountReport(reportProps);
-  await logger.log(LogEventId.ElectionReportPreviewed, userRole, {
+  await logger.logAsCurrentUser(LogEventId.ElectionReportPreviewed, {
     message: `User previewed a ballot count report.`,
     disposition: 'success',
   });
@@ -107,7 +106,7 @@ export async function generateBallotCountReportPreview({
 export async function printBallotCountReport({
   printer,
   logger,
-  userRole,
+
   ...reportProps
 }: BallotCountReportPreviewProps & {
   printer: Printer;
@@ -116,13 +115,13 @@ export async function printBallotCountReport({
 
   try {
     await printer.print({ data: await renderToPdf(report) });
-    await logger.log(LogEventId.ElectionReportPrinted, userRole, {
+    await logger.logAsCurrentUser(LogEventId.ElectionReportPrinted, {
       message: `User printed a ballot count report.`,
       disposition: 'success',
     });
   } catch (error) {
     assert(error instanceof Error);
-    await logger.log(LogEventId.ElectionReportPrinted, userRole, {
+    await logger.logAsCurrentUser(LogEventId.ElectionReportPrinted, {
       message: `Error in attempting to print ballot count report: ${error.message}`,
       disposition: 'failure',
     });
@@ -136,7 +135,7 @@ export async function printBallotCountReport({
 export async function exportBallotCountReportPdf({
   path,
   logger,
-  userRole,
+
   ...reportProps
 }: BallotCountReportPreviewProps & {
   path: string;
@@ -147,7 +146,7 @@ export async function exportBallotCountReportPdf({
     data: await renderToPdf(report),
   });
 
-  await logger.log(LogEventId.FileSaved, userRole, {
+  await logger.logAsCurrentUser(LogEventId.FileSaved, {
     disposition: exportFileResult.isOk() ? 'success' : 'failure',
     message: `${
       exportFileResult.isOk() ? 'Saved' : 'Failed to save'

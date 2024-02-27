@@ -4,7 +4,7 @@ import { combineGroupSpecifierAndFilter } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 import { AdminTallyReportByParty } from '@votingworks/ui';
 import { Buffer } from 'buffer';
-import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { Printer, renderToPdf } from '@votingworks/printing';
 import { generateTitleForReport } from './titles';
 import { Store } from '../store';
@@ -90,7 +90,6 @@ type TallyReportPreviewProps = TallyReportSpec & {
   store: Store;
   allTallyReportResults: Tabulation.GroupList<Admin.TallyReportResults>;
   logger: Logger;
-  userRole: LoggingUserRole;
 };
 
 /**
@@ -107,7 +106,7 @@ export interface TallyReportPreview {
  */
 export async function generateTallyReportPreview({
   logger,
-  userRole,
+
   ...reportProps
 }: TallyReportPreviewProps): Promise<TallyReportPreview> {
   const report = buildTallyReport(reportProps);
@@ -118,7 +117,7 @@ export async function generateTallyReportPreview({
   const {
     electionDefinition: { election },
   } = electionRecord;
-  await logger.log(LogEventId.ElectionReportPreviewed, userRole, {
+  await logger.logAsCurrentUser(LogEventId.ElectionReportPreviewed, {
     message: `User previewed a tally report.`,
     disposition: 'success',
   });
@@ -138,7 +137,7 @@ export async function generateTallyReportPreview({
 export async function printTallyReport({
   printer,
   logger,
-  userRole,
+
   ...reportProps
 }: TallyReportPreviewProps & {
   printer: Printer;
@@ -147,13 +146,13 @@ export async function printTallyReport({
 
   try {
     await printer.print({ data: await renderToPdf(report) });
-    await logger.log(LogEventId.ElectionReportPrinted, userRole, {
+    await logger.logAsCurrentUser(LogEventId.ElectionReportPrinted, {
       message: `User printed a tally report.`,
       disposition: 'success',
     });
   } catch (error) {
     assert(error instanceof Error);
-    await logger.log(LogEventId.ElectionReportPrinted, userRole, {
+    await logger.logAsCurrentUser(LogEventId.ElectionReportPrinted, {
       message: `Error in attempting to print tally report: ${error.message}`,
       disposition: 'failure',
     });
@@ -167,7 +166,7 @@ export async function printTallyReport({
 export async function exportTallyReportPdf({
   path,
   logger,
-  userRole,
+
   ...reportProps
 }: TallyReportPreviewProps & {
   path: string;
@@ -178,7 +177,7 @@ export async function exportTallyReportPdf({
     data: await renderToPdf(report),
   });
 
-  await logger.log(LogEventId.FileSaved, userRole, {
+  await logger.logAsCurrentUser(LogEventId.FileSaved, {
     disposition: exportFileResult.isOk() ? 'success' : 'failure',
     message: `${
       exportFileResult.isOk() ? 'Saved' : 'Failed to save'
