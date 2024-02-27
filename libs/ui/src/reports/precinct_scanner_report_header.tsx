@@ -6,6 +6,7 @@ import {
   PrecinctSelection,
 } from '@votingworks/types';
 import {
+  format,
   formatFullDateTimeZone,
   getPollsReportTitle,
   getPollsTransitionActionPastTense,
@@ -71,11 +72,9 @@ export function PrecinctScannerReportHeader({
   const reportTitle = `${isLiveMode ? '' : 'Test '}${getPollsReportTitle(
     pollsTransition
   )} for ${precinctName}`;
-  const electionDate = Intl.DateTimeFormat('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric',
-  }).format(new Date(election.date));
+  const electionDate = format.localeDate(
+    election.date.toMidnightDatetimeWithSystemTimezone()
+  );
 
   const electionTitle = showTallies
     ? getPartySpecificElectionTitle(election, partyId)

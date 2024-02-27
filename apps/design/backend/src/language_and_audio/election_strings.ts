@@ -78,7 +78,10 @@ const electionStringConfigs: Record<ElectionStringKey, ElectionStringConfig> = {
     translatable: true,
     translationsCanBeStoredInCdf: false,
     customTranslationMethod: ({ election, languageCode }) =>
-      format.localeLongDate(new Date(election.date), languageCode),
+      format.localeLongDate(
+        election.date.toMidnightDatetimeWithSystemTimezone(),
+        languageCode
+      ),
   },
   [ElectionStringKey.ELECTION_TITLE]: {
     translatable: true,
@@ -187,7 +190,7 @@ const electionStringExtractorFns: Record<
       {
         stringKey: ElectionStringKey.ELECTION_DATE,
         stringInEnglish: format.localeLongDate(
-          new Date(election.date),
+          election.date.toMidnightDatetimeWithSystemTimezone(),
           LanguageCode.ENGLISH
         ),
       },
