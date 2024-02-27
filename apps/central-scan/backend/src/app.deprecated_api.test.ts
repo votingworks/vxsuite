@@ -21,12 +21,13 @@ import {
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
 import { Server } from 'http';
-import { Logger, fakeLogger } from '@votingworks/logging';
+import { Logger } from '@votingworks/logging';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { makeMock } from '../test/util/mocks';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildCentralScannerApp } from './app';
+import { buildMockLogger } from '../test/helpers/setup_app';
 
 jest.mock('./importer');
 
@@ -42,9 +43,6 @@ let mockUsbDrive: MockUsbDrive;
 
 beforeEach(() => {
   auth = buildMockDippedSmartCardAuth();
-  importer = makeMock(Importer);
-  mockUsbDrive = createMockUsbDrive();
-  logger = fakeLogger();
   workspace = createWorkspace(dirSync().name);
   workspace.store.setElectionAndJurisdiction({
     electionData:
@@ -54,6 +52,10 @@ beforeEach(() => {
   });
   workspace.store.setTestMode(false);
   workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
+  logger = buildMockLogger(auth, workspace);
+  importer = makeMock(Importer);
+  mockUsbDrive = createMockUsbDrive();
+
   app = buildCentralScannerApp({
     auth,
     usbDrive: mockUsbDrive.usbDrive,

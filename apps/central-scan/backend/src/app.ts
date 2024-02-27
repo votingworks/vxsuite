@@ -1,9 +1,6 @@
 import { Scan } from '@votingworks/api';
-import {
-  DippedSmartCardAuthApi,
-  DippedSmartCardAuthMachineState,
-} from '@votingworks/auth';
-import { Result, assert, assertDefined, ok } from '@votingworks/basics';
+import { DippedSmartCardAuthApi } from '@votingworks/auth';
+import { Result, assert, ok } from '@votingworks/basics';
 import {
   createSystemCallApi,
   DiskSpaceSummary,
@@ -22,13 +19,14 @@ import {
 import { isElectionManagerAuth } from '@votingworks/utils';
 import express, { Application } from 'express';
 import * as grout from '@votingworks/grout';
-import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { Importer } from './importer';
 import { Workspace } from './util/workspace';
 import { MachineConfig } from './types';
 import { getMachineConfig } from './machine_config';
+import { constructAuthMachineState } from './util/auth';
 
 type NoParams = never;
 
@@ -41,20 +39,6 @@ export interface AppOptions {
   usbDrive: UsbDrive;
 }
 
-function constructAuthMachineState(
-  workspace: Workspace
-): DippedSmartCardAuthMachineState {
-  const electionDefinition = workspace.store.getElectionDefinition();
-  const jurisdiction = workspace.store.getJurisdiction();
-  const systemSettings =
-    workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
-  return {
-    ...systemSettings.auth,
-    electionHash: electionDefinition?.electionHash,
-    jurisdiction,
-  };
-}
-
 function buildApi({
   auth,
   workspace,
@@ -63,13 +47,6 @@ function buildApi({
   importer,
 }: Exclude<AppOptions, 'allowedExportPatterns'>) {
   const { store } = workspace;
-
-  async function getUserRole(): Promise<LoggingUserRole> {
-    const authStatus = await auth.getAuthStatus(
-      constructAuthMachineState(workspace)
-    );
-    return authStatus.status === 'logged_in' ? authStatus.user.role : 'unknown';
-  }
 
   return grout.createApi({
     getAuthStatus() {
@@ -89,7 +66,7 @@ function buildApi({
     },
 
     async ejectUsbDrive(): Promise<void> {
-      return usbDrive.eject(assertDefined(await getUserRole()));
+      return usbDrive.eject();
     },
 
     getMachineConfig(): MachineConfig {
@@ -101,13 +78,12 @@ function buildApi({
     },
 
     async setTestMode(input: { testMode: boolean }) {
-      const userRole = await getUserRole();
       const { testMode } = input;
-      await logger.log(LogEventId.TogglingTestMode, userRole, {
+      await logger.logAsCurrentUser(LogEventId.TogglingTestMode, {
         message: `Toggling to ${testMode ? 'Test' : 'Official'} Ballot Mode...`,
       });
       importer.setTestMode(testMode);
-      await logger.log(LogEventId.ToggledTestMode, userRole, {
+      await logger.logAsCurrentUser(LogEventId.ToggledTestMode, {
         disposition: 'success',
         message: `Successfully toggled to ${
           testMode ? 'Test' : 'Official'
@@ -123,12 +99,11 @@ function buildApi({
     },
 
     async deleteBatch({ batchId }: { batchId: string }) {
-      const userRole = await getUserRole();
       const numberOfBallotsInBatch = workspace.store
         .getBatches()
         .find((batch) => batch.id === batchId)?.count;
 
-      await logger.log(LogEventId.DeleteScanBatchInit, userRole, {
+      await logger.logAsCurrentUser(LogEventId.DeleteScanBatchInit, {
         message: `User deleting batch id ${batchId}...`,
         numberOfBallotsInBatch,
         batchId,
@@ -136,7 +111,7 @@ function buildApi({
 
       try {
         workspace.store.deleteBatch(batchId);
-        await logger.log(LogEventId.DeleteScanBatchComplete, userRole, {
+        await logger.logAsCurrentUser(LogEventId.DeleteScanBatchComplete, {
           disposition: 'success',
           message: `User successfully deleted batch id: ${batchId} containing ${numberOfBallotsInBatch} ballots.`,
           numberOfBallotsInBatch,
@@ -144,7 +119,7 @@ function buildApi({
         });
       } catch (error) {
         assert(error instanceof Error);
-        await logger.log(LogEventId.DeleteScanBatchComplete, userRole, {
+        await logger.logAsCurrentUser(LogEventId.DeleteScanBatchComplete, {
           disposition: 'failure',
           message: `Error deleting batch id: ${batchId}.`,
           error: error.message,
@@ -177,8 +152,7 @@ function buildApi({
       importer.configure(electionDefinition, authStatus.user.jurisdiction);
       store.setSystemSettings(systemSettings);
 
-      const userRole = await getUserRole();
-      await logger.log(LogEventId.ElectionConfigured, userRole, {
+      await logger.logAsCurrentUser(LogEventId.ElectionConfigured, {
         message: `Machine configured for election with hash: ${electionDefinition.electionHash}`,
         disposition: 'success',
         electionHash: electionDefinition.electionHash,
@@ -200,13 +174,11 @@ function buildApi({
         ignoreBackupRequirement?: boolean;
       } = {}
     ): Promise<void> {
-      const userRole = await getUserRole();
-
       // frontend should only allow this call if the machine can be unconfigured
       assert(store.getCanUnconfigure() || input.ignoreBackupRequirement);
 
       importer.unconfigure();
-      await logger.log(LogEventId.ElectionUnconfigured, userRole, {
+      await logger.logAsCurrentUser(LogEventId.ElectionUnconfigured, {
         disposition: 'success',
         message:
           'User successfully unconfigured the machine to remove the current election and all current ballot data.',
@@ -214,18 +186,17 @@ function buildApi({
     },
 
     async clearBallotData(): Promise<void> {
-      const userRole = await getUserRole();
       const currentNumberOfBallots = store.getBallotsCounted();
 
       // frontend should only allow this call if the machine can be unconfigured
       assert(store.getCanUnconfigure());
 
-      await logger.log(LogEventId.ClearingBallotData, userRole, {
+      await logger.logAsCurrentUser(LogEventId.ClearingBallotData, {
         message: `Removing all ballot data, clearing ${currentNumberOfBallots} ballots...`,
         currentNumberOfBallots,
       });
       importer.doZero();
-      await logger.log(LogEventId.ClearedBallotData, userRole, {
+      await logger.logAsCurrentUser(LogEventId.ClearedBallotData, {
         disposition: 'success',
         message: 'Successfully cleared all ballot data.',
       });
@@ -234,9 +205,8 @@ function buildApi({
     async exportCastVoteRecordsToUsbDrive(input: {
       isMinimalExport?: boolean;
     }): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
-      const userRole = assertDefined(await getUserRole());
       const logItem = input.isMinimalExport ? 'cast vote records' : 'backup';
-      await logger.log(LogEventId.ExportCastVoteRecordsInit, userRole, {
+      await logger.logAsCurrentUser(LogEventId.ExportCastVoteRecordsInit, {
         message: `Exporting ${logItem}...`,
       });
       const exportResult = await exportCastVoteRecordsToUsbDrive(
@@ -251,16 +221,22 @@ function buildApi({
         store.setScannerBackedUp();
       }
       if (exportResult.isErr()) {
-        await logger.log(LogEventId.ExportCastVoteRecordsComplete, userRole, {
-          disposition: 'failure',
-          message: `Error exporting ${logItem}.`,
-          errorDetails: JSON.stringify(exportResult.err()),
-        });
+        await logger.logAsCurrentUser(
+          LogEventId.ExportCastVoteRecordsComplete,
+          {
+            disposition: 'failure',
+            message: `Error exporting ${logItem}.`,
+            errorDetails: JSON.stringify(exportResult.err()),
+          }
+        );
       } else {
-        await logger.log(LogEventId.ExportCastVoteRecordsComplete, userRole, {
-          disposition: 'success',
-          message: `Successfully exported ${logItem}.`,
-        });
+        await logger.logAsCurrentUser(
+          LogEventId.ExportCastVoteRecordsComplete,
+          {
+            disposition: 'success',
+            message: `Successfully exported ${logItem}.`,
+          }
+        );
       }
       return exportResult;
     },
