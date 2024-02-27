@@ -289,7 +289,9 @@ function buildCastVoteRecordReportMetadata(
     batchInfo: batches,
     election,
     electionId,
-    generatedDate: options.hideTime ? new Date(election.date) : undefined,
+    generatedDate: options.hideTime
+      ? election.date.toMidnightDatetimeWithSystemTimezone()
+      : undefined,
     generatingDeviceId: scannerId,
     isTestMode: inTestMode,
     reportTypes: [CVR.ReportType.OriginatingDeviceExport],
