@@ -1532,6 +1532,9 @@ importers:
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
+      '@votingworks/fs':
+        specifier: workspace:*
+        version: link:../../../libs/fs
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
@@ -1659,6 +1662,9 @@ importers:
       ts-jest:
         specifier: 29.1.1
         version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.17.11)(jest@29.6.2)(typescript@5.2.2)
+      wait-for-expect:
+        specifier: ^3.0.2
+        version: 3.0.2
 
   apps/mark-scan/frontend:
     dependencies:

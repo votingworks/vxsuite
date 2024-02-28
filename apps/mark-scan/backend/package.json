@@ -43,6 +43,7 @@
     "@votingworks/db": "workspace:*",
     "@votingworks/dev-dock-backend": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/fs": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/logging": "workspace:*",
@@ -86,7 +87,8 @@
     "lint-staged": "11.0.0",
     "nodemon": "^2.0.20",
     "sort-package-json": "^1.50.0",
-    "ts-jest": "29.1.1"
+    "ts-jest": "29.1.1",
+    "wait-for-expect": "^3.0.2"
   },
   "engines": {
     "node": ">= 16"
