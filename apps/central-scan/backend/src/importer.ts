@@ -12,6 +12,7 @@ import * as fsExtra from 'fs-extra';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { interpretSheetAndSaveImages } from '@votingworks/ballot-interpreter';
+import { Logger } from '@votingworks/logging';
 import { BatchControl, BatchScanner } from './fujitsu_scanner';
 import { Castability, checkSheetCastability } from './util/castability';
 import { Workspace } from './util/workspace';
@@ -25,6 +26,7 @@ const debug = makeDebug('scan:importer');
 export interface Options {
   workspace: Workspace;
   scanner: BatchScanner;
+  logger: Logger;
 }
 
 /**
@@ -33,12 +35,14 @@ export interface Options {
 export class Importer {
   private readonly workspace: Workspace;
   private readonly scanner: BatchScanner;
+  private readonly logger: Logger;
   private sheetGenerator?: BatchControl;
   private batchId?: string;
 
-  constructor({ workspace, scanner }: Options) {
+  constructor({ workspace, scanner, logger }: Options) {
     this.workspace = workspace;
     this.scanner = scanner;
+    this.logger = logger;
   }
 
   /**

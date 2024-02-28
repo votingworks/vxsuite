@@ -58,13 +58,14 @@ let server: Server;
 beforeEach(async () => {
   const port = await getPort();
   auth = buildMockDippedSmartCardAuth();
-  scanner = makeMockScanner();
   workspace = createWorkspace(dirSync().name);
+  logger = buildMockLogger(auth, workspace);
+  scanner = makeMockScanner();
   importer = new Importer({
     workspace,
     scanner,
+    logger,
   });
-  logger = buildMockLogger(auth, workspace);
   mockUsbDrive = createMockUsbDrive();
   app = buildCentralScannerApp({
     auth,

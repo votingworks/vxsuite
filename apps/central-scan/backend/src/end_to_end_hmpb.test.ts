@@ -86,10 +86,10 @@ beforeEach(async () => {
   const port = await getPort();
   auth = buildMockDippedSmartCardAuth();
   workspace = createWorkspace(dirSync().name);
-  scanner = makeMockScanner();
-  importer = new Importer({ workspace, scanner });
-  mockUsbDrive = createMockUsbDrive();
   logger = buildMockLogger(auth, workspace);
+  scanner = makeMockScanner();
+  importer = new Importer({ workspace, scanner, logger });
+  mockUsbDrive = createMockUsbDrive();
   app = buildCentralScannerApp({
     auth,
     usbDrive: mockUsbDrive.usbDrive,

@@ -42,7 +42,7 @@ beforeEach(async () => {
     app: buildCentralScannerApp({
       auth,
       usbDrive: createMockUsbDrive().usbDrive,
-      importer: new Importer({ workspace, scanner: makeMockScanner() }),
+      importer: new Importer({ workspace, scanner: makeMockScanner(), logger }),
       workspace,
       logger,
     }),

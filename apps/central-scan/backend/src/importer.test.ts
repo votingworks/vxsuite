@@ -1,4 +1,5 @@
 import { dirSync } from 'tmp';
+import { mockLogger } from '@votingworks/logging';
 import { Importer } from './importer';
 import { createWorkspace } from './util/workspace';
 import { makeMockScanner } from '../test/util/mocks';
@@ -9,6 +10,7 @@ test('no election is configured', async () => {
   const importer = new Importer({
     workspace,
     scanner,
+    logger: mockLogger(),
   });
 
   await expect(importer.startImport()).rejects.toThrowError(
