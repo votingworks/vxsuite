@@ -41,6 +41,7 @@ import {
 } from '../src/custom-paper-handler/constants';
 import { PatConnectionStatusReaderInterface } from '../src/pat-input/connection_status_reader';
 import { getUserRole } from '../src/util/auth';
+import { MockPatConnectionStatusReader } from '../src/pat-input/mock_connection_status_reader';
 
 export function buildMockLogger(
   auth: InsertedSmartCardAuthApi,

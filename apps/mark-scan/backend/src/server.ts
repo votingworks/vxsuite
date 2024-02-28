@@ -34,7 +34,7 @@ export interface StartOptions {
   workspace: Workspace;
 }
 
-async function resolveDriver(
+export async function resolveDriver(
   logger: BaseLogger
 ): Promise<PaperHandlerDriverInterface | undefined> {
   const driver = await getPaperHandlerDriver();

@@ -1,4 +1,4 @@
-import { LogEventId, mockLogger } from '@votingworks/logging';
+import { LogEventId, mockBaseLogger, mockLogger } from '@votingworks/logging';
 import tmp from 'tmp';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import {
@@ -43,7 +43,7 @@ test('resolveDriver returns a mock driver if feature flag is on', async () => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
   );
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
 
   const driver = await resolveDriver(logger);
   expect(driver).toBeInstanceOf(MockPaperHandlerDriver);

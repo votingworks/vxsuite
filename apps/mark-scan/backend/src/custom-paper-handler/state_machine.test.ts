@@ -6,7 +6,7 @@ import {
 } from '@votingworks/custom-paper-handler';
 import { Buffer } from 'buffer';
 import { dirSync } from 'tmp';
-import { LogEventId, BaseLogger, mockBaseLogge } from '@votingworks/logging';
+import { LogEventId, BaseLogger, mockBaseLogger } from '@votingworks/logging';
 import {
   InsertedSmartCardAuthApi,
   buildMockInsertedSmartCardAuth,

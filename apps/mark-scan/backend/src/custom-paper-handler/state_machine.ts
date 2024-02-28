@@ -80,7 +80,7 @@ interface Context {
   scannedImagePaths?: SheetOf<string>;
   isPatDeviceConnected: boolean;
   interpretation?: SheetOf<InterpretFileResult>;
-  logger: Logger;
+  logger: BaseLogger;
 }
 
 function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
