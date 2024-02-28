@@ -393,23 +393,30 @@ function buildApi({
     async listPotentialElectionPackagesOnUsbDrive(): Promise<
       Result<FileSystemEntry[], ListDirectoryOnUsbDriveError>
     > {
-      const usbDriveEntriesResult = await listDirectoryOnUsbDrive(usbDrive, '');
-      if (usbDriveEntriesResult.isErr()) {
-        return usbDriveEntriesResult;
+      const potentialElectionPackages: FileSystemEntry[] = [];
+
+      for await (const result of listDirectoryOnUsbDrive(usbDrive, '')) {
+        if (result.isErr()) {
+          return result;
+        }
+
+        const entry = result.ok();
+
+        if (
+          entry.type === FileSystemEntryType.File &&
+          entry.name.endsWith('.zip') &&
+          !entry.name.startsWith('.') &&
+          !entry.name.startsWith('_')
+        ) {
+          potentialElectionPackages.push(entry);
+        }
       }
 
       return ok(
-        usbDriveEntriesResult
-          .ok()
-          .filter(
-            (entry) =>
-              entry.type === FileSystemEntryType.File &&
-              entry.name.endsWith('.zip') &&
-              !entry.name.startsWith('.') &&
-              !entry.name.startsWith('_')
-          )
-          // Most recent first
-          .sort((a, b) => b.ctime.getTime() - a.ctime.getTime())
+        // Most recent first
+        [...potentialElectionPackages].sort(
+          (a, b) => b.ctime.getTime() - a.ctime.getTime()
+        )
       );
     },
 

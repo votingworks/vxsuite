@@ -18,20 +18,26 @@ export type ListDirectoryOnUsbDriveError =
  * Lists entities in a directory specified by a relative path within a USB
  * drive's filesystem. Looks at only the first found USB drive.
  */
-export async function listDirectoryOnUsbDrive(
+export async function* listDirectoryOnUsbDrive(
   usbDrive: UsbDrive,
   relativePath: string
-): Promise<Result<FileSystemEntry[], ListDirectoryOnUsbDriveError>> {
+): AsyncGenerator<Result<FileSystemEntry, ListDirectoryOnUsbDriveError>> {
   const usbDriveStatus = await usbDrive.status();
 
   switch (usbDriveStatus.status) {
     case 'no_drive':
-      return err({ type: 'no-usb-drive' });
+      yield err({ type: 'no-usb-drive' });
+      break;
+
     case 'ejected':
     case 'error':
-      return err({ type: 'usb-drive-not-mounted' });
+      yield err({ type: 'usb-drive-not-mounted' });
+      break;
+
     case 'mounted':
-      return await listDirectory(join(usbDriveStatus.mountPoint, relativePath));
+      yield* listDirectory(join(usbDriveStatus.mountPoint, relativePath));
+      break;
+
     // istanbul ignore next
     default:
       throwIllegalValue(usbDriveStatus);

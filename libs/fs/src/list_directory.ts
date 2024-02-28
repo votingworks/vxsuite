@@ -1,4 +1,4 @@
-import { err, ok, Result, assert } from '@votingworks/basics';
+import { Result, assert, err, ok } from '@votingworks/basics';
 import { Dirent, promises as fs } from 'fs';
 import { isAbsolute, join } from 'path';
 
@@ -56,52 +56,54 @@ export type ListDirectoryError =
  * Get entries for a directory, includes stat information for each entry.
  * Requires that the path be absolute.
  */
-export async function listDirectory(
+export async function* listDirectory(
   path: string
-): Promise<Result<FileSystemEntry[], ListDirectoryError>> {
+): AsyncGenerator<Result<FileSystemEntry, ListDirectoryError>> {
   assert(isAbsolute(path));
 
   try {
-    const entries = await fs.readdir(path, { withFileTypes: true });
-    return ok(
-      await Promise.all(
-        entries
-          .filter((entry) => entry.isFile() || entry.isDirectory())
-          .map(async (entry) => {
-            const entryPath = join(path, entry.name);
-            const stat = await fs.lstat(entryPath);
+    const dir = await fs.opendir(path);
 
-            return {
-              name: entry.name,
-              path: entryPath,
-              size: stat.size,
-              type: getDirentType(entry),
-              mtime: stat.mtime,
-              atime: stat.atime,
-              ctime: stat.ctime,
-            };
-          })
-      )
-    );
+    for await (const entry of dir) {
+      const entryPath = join(path, entry.name);
+      const stat = await fs.lstat(entryPath);
+
+      if (!entry.isFile() && !entry.isDirectory()) {
+        continue;
+      }
+
+      yield ok({
+        name: entry.name,
+        path: entryPath,
+        size: stat.size,
+        type: getDirentType(entry),
+        mtime: stat.mtime,
+        atime: stat.atime,
+        ctime: stat.ctime,
+      });
+    }
   } catch (e) {
     const error = e as { code: string };
     /* istanbul ignore next */
     switch (error.code) {
       case 'ENOENT':
-        return err({
+        yield err({
           type: 'no-entity',
           message: `${path} does not exist`,
         });
+        break;
       case 'ENOTDIR':
-        return err({
+        yield err({
           type: 'not-directory',
           message: `${path} is not a directory`,
         });
+        break;
       case 'EACCES':
-        return err({
+        yield err({
           type: 'permission-denied',
           message: `insufficient permissions to read from ${path}`,
         });
+        break;
       default:
         throw error;
     }
@@ -115,16 +117,15 @@ export async function listDirectory(
 export async function* listDirectoryRecursive(
   path: string
 ): AsyncGenerator<Result<FileSystemEntry, ListDirectoryError>> {
-  const listRootResult = await listDirectory(path);
-  /* istanbul ignore if - this should be covered but istanbul reports it is not */
-  if (listRootResult.isErr()) {
-    yield listRootResult;
-  } else {
-    for (const fileEntry of listRootResult.ok()) {
+  for await (const result of listDirectory(path)) {
+    if (result.isErr()) {
+      yield result;
+    } else {
+      const fileEntry = result.ok();
       if (fileEntry.type === FileSystemEntryType.Directory) {
         yield* listDirectoryRecursive(fileEntry.path);
       }
-      yield ok(fileEntry);
+      yield result;
     }
   }
 }

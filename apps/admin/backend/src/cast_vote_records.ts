@@ -114,41 +114,44 @@ export async function listCastVoteRecordExportsOnUsbDrive(
 ): Promise<ListCastVoteRecordExportsOnUsbDriveResult> {
   const { election, electionHash } = electionDefinition;
 
-  const listDirectoryResult = await listDirectoryOnUsbDrive(
+  const listResults = listDirectoryOnUsbDrive(
     usbDrive,
     path.join(
       generateElectionBasedSubfolderName(election, electionHash),
       SCANNER_RESULTS_FOLDER
     )
   );
-  if (listDirectoryResult.isErr()) {
-    const errorType = listDirectoryResult.err().type;
-    switch (errorType) {
-      case 'no-entity': {
-        return ok([]);
-      }
-      case 'no-usb-drive':
-      case 'usb-drive-not-mounted': {
-        return err('no-usb-drive');
-      }
-      case 'not-directory': {
-        return err('found-file-instead-of-directory');
-      }
-      /* c8 ignore start: Hard to trigger without significant mocking */
-      case 'permission-denied': {
-        return err('permission-denied');
-      }
-      /* c8 ignore stop */
-      /* c8 ignore start: Compile-time check for completeness */
-      default: {
-        throwIllegalValue(errorType);
-      }
-      /* c8 ignore stop */
-    }
-  }
 
   const castVoteRecordExportSummaries: CastVoteRecordFileMetadata[] = [];
-  for (const entry of listDirectoryResult.ok()) {
+
+  for await (const result of listResults) {
+    if (result.isErr()) {
+      const errorType = result.err().type;
+      switch (errorType) {
+        case 'no-entity': {
+          return ok([]);
+        }
+        case 'no-usb-drive':
+        case 'usb-drive-not-mounted': {
+          return err('no-usb-drive');
+        }
+        case 'not-directory': {
+          return err('found-file-instead-of-directory');
+        }
+        /* c8 ignore start: Hard to trigger without significant mocking */
+        case 'permission-denied': {
+          return err('permission-denied');
+        }
+        /* c8 ignore stop */
+        /* c8 ignore start: Compile-time check for completeness */
+        default: {
+          throwIllegalValue(errorType);
+        }
+        /* c8 ignore stop */
+      }
+    }
+
+    const entry = result.ok();
     if (entry.type === FileSystemEntryType.Directory) {
       const exportDirectoryNameComponents =
         parseCastVoteRecordReportExportDirectoryName(entry.name);
