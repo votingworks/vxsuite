@@ -200,8 +200,7 @@ export function buildApi(
             return LogEventId.PollsClosed;
           case 'polls_paused':
             if (oldPollsState === 'polls_closed_final') {
-              // logging case handled by ResetPollsToPausedButton
-              return undefined;
+              return LogEventId.ResetPollsToPaused;
             }
             return LogEventId.VotingPaused;
           case 'polls_open':
@@ -214,9 +213,14 @@ export function buildApi(
             throwIllegalValue(newPollsState);
         }
       })();
+<<<<<<< HEAD
       if (logEvent) {
         await logger.logAsCurrentRole(logEvent, { disposition: 'success' });
       }
+=======
+
+      await logger.logAsCurrentUser(logEvent, { disposition: 'success' });
+>>>>>>> d2f35eab5 (move reset polls to paused logging to backend)
     },
 
     setTestMode(input: { isTestMode: boolean }) {

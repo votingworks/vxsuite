@@ -267,6 +267,7 @@ test('polls state', async () => {
   );
   await expectElectionState({ pollsState: 'polls_closed_initial' });
 
+  mockPollWorkerAuth(electionFamousNames2021Fixtures.electionDefinition);
   await apiClient.setPollsState({ pollsState: 'polls_open' });
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.PollsOpened,

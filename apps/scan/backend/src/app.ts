@@ -44,6 +44,7 @@ import { constructAuthMachineState } from './util/auth';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
 import { printReport } from './print_report';
+import { logPollsTransition } from './util/logging';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi({
@@ -253,6 +254,7 @@ export function buildApi({
         });
       }
 
+      await logPollsTransition(logger, input.type, previousPollsState);
       store.transitionPolls(input);
     },
 

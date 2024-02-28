@@ -1,5 +1,4 @@
 import React from 'react';
-import { BaseLogger } from '@votingworks/logging';
 import { isVxDev } from '@votingworks/utils';
 
 import styled from 'styled-components';
@@ -13,7 +12,6 @@ import { SetClockButton } from './set_clock';
 
 interface Props {
   displayRemoveCardToLeavePrompt?: boolean;
-  logger: BaseLogger;
   primaryText: React.ReactNode;
   unconfigureMachine: () => Promise<void>;
   resetPollsToPausedText?: string;
@@ -45,7 +43,6 @@ const ButtonGrid = styled.div`
  */
 export function SystemAdministratorScreenContents({
   displayRemoveCardToLeavePrompt,
-  logger,
   primaryText,
   unconfigureMachine,
   resetPollsToPausedText,
@@ -65,7 +62,6 @@ export function SystemAdministratorScreenContents({
           <ResetPollsToPausedButton
             resetPollsToPausedText={resetPollsToPausedText}
             resetPollsToPaused={resetPollsToPaused}
-            logger={logger}
           />
         )}
         <SetClockButton logOut={logOut}>Set Date and Time</SetClockButton>

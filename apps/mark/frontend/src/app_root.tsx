@@ -416,7 +416,6 @@ export function AppRoot({
   if (isSystemAdministratorAuth(authStatus)) {
     return (
       <SystemAdministratorScreen
-        logger={logger}
         unconfigureMachine={unconfigure}
         isMachineConfigured={Boolean(optionalElectionDefinition)}
         resetPollsToPaused={

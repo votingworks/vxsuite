@@ -298,8 +298,7 @@ export function buildApi(
             return LogEventId.PollsClosed;
           case 'polls_paused':
             if (oldPollsState === 'polls_closed_final') {
-              // logging case handled by ResetPollsToPausedButton
-              return undefined;
+              return LogEventId.ResetPollsToPaused;
             }
             return LogEventId.VotingPaused;
           case 'polls_open':
@@ -312,9 +311,8 @@ export function buildApi(
             throwIllegalValue(newPollsState);
         }
       })();
-      if (logEvent) {
-        await logger.log(logEvent, 'poll_worker', { disposition: 'success' });
-      }
+
+      await logger.logAsCurrentUser(logEvent, { disposition: 'success' });
     },
 
     setTestMode(input: { isTestMode: boolean }) {

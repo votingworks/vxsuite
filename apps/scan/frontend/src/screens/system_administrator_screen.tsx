@@ -8,7 +8,6 @@ import {
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
 import { ElectionDefinition, PollsState } from '@votingworks/types';
-import { LogSource, BaseLogger } from '@votingworks/logging';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Screen } from '../components/layout';
 import { LiveCheckButton } from '../components/live_check_button';
@@ -19,14 +18,12 @@ import { usePreviewContext } from '../preview_dashboard';
 interface SystemAdministratorScreenProps {
   electionDefinition?: ElectionDefinition;
   pollsState: PollsState;
-  logger: BaseLogger;
   usbDrive: UsbDriveStatus;
 }
 
 export function SystemAdministratorScreen({
   electionDefinition,
   pollsState,
-  logger,
   usbDrive,
 }: SystemAdministratorScreenProps): JSX.Element {
   const transitionPollsMutation = transitionPolls.useMutation();
@@ -46,7 +43,6 @@ export function SystemAdministratorScreen({
     <Screen title="System Administrator" voterFacing={false} padded>
       <SystemAdministratorScreenContents
         displayRemoveCardToLeavePrompt
-        logger={logger}
         primaryText={
           <React.Fragment>
             To adjust settings for the current election, insert an Election
@@ -80,7 +76,6 @@ export function DefaultPreview(): JSX.Element {
       pollsState="polls_open"
       electionDefinition={electionDefinition}
       usbDrive={{ status: 'no_drive' }}
-      logger={new BaseLogger(LogSource.VxScanFrontend)}
     />
   );
 }
