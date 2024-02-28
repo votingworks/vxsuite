@@ -13,20 +13,13 @@ import {
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 
-import { BaseLogger, LogSource } from '@votingworks/logging';
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
 import { FormatUsbButton } from '../components/format_usb_modal';
 import { logOut } from '../api';
 import { LiveCheckButton } from '../components/live_check_button';
 
-export interface SettingsScreenProps {
-  logger?: BaseLogger;
-}
-
-export function SettingsScreen({
-  logger = new BaseLogger(LogSource.VxAdminFrontend, window.kiosk),
-}: SettingsScreenProps): JSX.Element {
+export function SettingsScreen(): JSX.Element {
   const { auth, usbDriveStatus } = useContext(AppContext);
   const logOutMutation = logOut.useMutation();
 
@@ -48,7 +41,7 @@ export function SettingsScreen({
           <H2>USB Formatting</H2>
           <FormatUsbButton />
           <H2>Software Update</H2>
-          <RebootToBiosButton logger={logger} />
+          <RebootToBiosButton />
         </React.Fragment>
       )}
       {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (

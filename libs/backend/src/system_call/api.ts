@@ -22,8 +22,8 @@ function buildApi({
     exportLogsToUsb: async () =>
       exportLogsToUsb({ usbDrive, logger, machineId }),
     reboot,
-    rebootToBios,
-    powerDown,
+    rebootToBios: async () => rebootToBios(logger),
+    powerDown: async () => powerDown(logger),
     setClock,
     getBatteryInfo,
   });

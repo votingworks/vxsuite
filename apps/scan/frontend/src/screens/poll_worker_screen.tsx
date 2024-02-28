@@ -432,7 +432,7 @@ export function PollWorkerScreen({
           }
         />
       )}
-      <PowerDownButton logger={logger} userRole="poll_worker" />
+      <PowerDownButton />
       {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (
         <LiveCheckButton />
       )}

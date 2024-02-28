@@ -15,7 +15,7 @@ import { AppContext } from '../contexts/app_context';
 import { logOut, unconfigure } from '../api';
 
 export function SystemAdministratorSettingsScreen(): JSX.Element {
-  const { electionDefinition, logger, usbDriveStatus } = useContext(AppContext);
+  const { electionDefinition, usbDriveStatus } = useContext(AppContext);
   const unconfigureMutation = unconfigure.useMutation();
   const logOutMutation = logOut.useMutation();
 
@@ -48,8 +48,7 @@ export function SystemAdministratorSettingsScreen(): JSX.Element {
         Set Date and Time
       </SetClockButton>
       <H2>Software Update</H2>
-      <RebootToBiosButton logger={logger} />{' '}
-      <PowerDownButton logger={logger} userRole="system_administrator" />
+      <RebootToBiosButton /> <PowerDownButton />
     </NavigationScreen>
   );
 }

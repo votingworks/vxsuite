@@ -69,8 +69,8 @@ export function SystemAdministratorScreenContents({
           />
         )}
         <SetClockButton logOut={logOut}>Set Date and Time</SetClockButton>
-        <RebootToBiosButton logger={logger} />
-        <PowerDownButton logger={logger} userRole="system_administrator" />
+        <RebootToBiosButton />
+        <PowerDownButton />
         <UnconfigureMachineButton
           unconfigureMachine={unconfigureMachine}
           isMachineConfigured={isMachineConfigured}
