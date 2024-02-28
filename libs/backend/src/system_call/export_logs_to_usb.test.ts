@@ -4,6 +4,7 @@ import { createMockUsbDrive } from '@votingworks/usb-drive';
 import * as fs from 'fs/promises';
 import { Stats } from 'fs';
 import { mockOf } from '@votingworks/test-utils';
+import { LogEventId, Logger, mockLogger } from '@votingworks/logging';
 import { execFile } from '../exec';
 import { exportLogsToUsb } from './export_logs_to_usb';
 
@@ -19,6 +20,12 @@ jest.mock('../exec', (): typeof import('../exec') => ({
 
 const execFileMock = mockOf(execFile);
 
+let logger: Logger;
+
+beforeEach(() => {
+  logger = mockLogger();
+});
+
 test('exportLogsToUsb without logs directory', async () => {
   const mockUsbDrive = createMockUsbDrive();
   mockUsbDrive.insertUsbDrive({});
@@ -27,6 +34,7 @@ test('exportLogsToUsb without logs directory', async () => {
     (
       await exportLogsToUsb({
         usbDrive: mockUsbDrive.usbDrive,
+        logger,
         machineId: 'TEST-MACHINE-ID',
       })
     ).err()
@@ -41,10 +49,20 @@ test('exportLogsToUsb without logs directory', async () => {
     (
       await exportLogsToUsb({
         usbDrive: mockUsbDrive.usbDrive,
+        logger,
         machineId: 'TEST-MACHINE-ID',
       })
     ).err()
   ).toEqual('no-logs-directory');
+
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.FileSaved,
+    'unknown',
+    expect.objectContaining({
+      disposition: 'failure',
+      message: 'Failed to save logs to usb drive: no-logs-directory',
+    })
+  );
 });
 
 test('exportLogsToUsb without USB', async () => {
@@ -59,6 +77,7 @@ test('exportLogsToUsb without USB', async () => {
     (
       await exportLogsToUsb({
         usbDrive: mockUsbDrive.usbDrive,
+        logger,
         machineId: 'TEST-MACHINE-ID',
       })
     ).err()
@@ -81,6 +100,7 @@ test('exportLogsToUsb with unknown failure', async () => {
     (
       await exportLogsToUsb({
         usbDrive: mockUsbDrive.usbDrive,
+        logger,
         machineId: 'TEST-MACHINE-ID',
       })
     ).err()
@@ -105,6 +125,7 @@ test('exportLogsToUsb works when all conditions are met', async () => {
     (
       await exportLogsToUsb({
         usbDrive: mockUsbDrive.usbDrive,
+        logger,
         machineId: 'TEST-MACHINE-ID',
       })
     ).isOk()
@@ -121,4 +142,13 @@ test('exportLogsToUsb works when all conditions are met', async () => {
     '/var/log/votingworks',
     expect.stringMatching('^/media/usb-drive/logs/machine_TEST-MACHINE-ID/'),
   ]);
+
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.FileSaved,
+    'unknown',
+    expect.objectContaining({
+      disposition: 'success',
+      message: 'Sucessfully saved logs on the usb drive.',
+    })
+  );
 });

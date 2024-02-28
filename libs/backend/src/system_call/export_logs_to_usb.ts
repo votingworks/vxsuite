@@ -3,6 +3,7 @@ import { UsbDrive } from '@votingworks/usb-drive';
 import * as fs from 'fs/promises';
 import { join } from 'path';
 
+import { LogEventId, Logger } from '@votingworks/logging';
 import { execFile } from '../exec';
 
 const LOG_DIR = '/var/log/votingworks';
@@ -14,9 +15,9 @@ export type LogsResultType = Result<
 >;
 
 /**
- * Copies the logs directory to a USB drive.
+ * Copies the logs directory to a USB drive, does not log the action.
  */
-export async function exportLogsToUsb({
+async function exportLogsToUsbHelper({
   usbDrive,
   machineId,
 }: {
@@ -53,4 +54,29 @@ export async function exportLogsToUsb({
   }
 
   return ok();
+}
+
+/**
+ * Copies the logs directory to a USB drive and logs the action.
+ */
+export async function exportLogsToUsb({
+  usbDrive,
+  machineId,
+  logger,
+}: {
+  usbDrive: UsbDrive;
+  machineId: string;
+  logger: Logger;
+}): Promise<LogsResultType> {
+  const result = await exportLogsToUsbHelper({ usbDrive, machineId });
+
+  await logger.logAsCurrentUser(LogEventId.FileSaved, {
+    disposition: result.isOk() ? 'success' : 'failure',
+    message: result.isOk()
+      ? 'Sucessfully saved logs on the usb drive.'
+      : `Failed to save logs to usb drive: ${result.err()}`,
+    fileType: 'logs',
+  });
+
+  return result;
 }

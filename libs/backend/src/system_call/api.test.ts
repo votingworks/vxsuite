@@ -2,6 +2,7 @@
 
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { mockOf } from '@votingworks/test-utils';
+import { Logger, mockLogger } from '@votingworks/logging';
 import { SystemCallApi, createSystemCallApi } from './api';
 import { execFile } from '../exec';
 
@@ -18,12 +19,15 @@ jest.mock('../exec', (): typeof import('../exec') => ({
 const execMock = mockOf(execFile);
 
 let mockUsbDrive: MockUsbDrive;
+let logger: Logger;
 let api: SystemCallApi;
 
 beforeEach(() => {
   mockUsbDrive = createMockUsbDrive();
+  logger = mockLogger();
   api = createSystemCallApi({
     usbDrive: mockUsbDrive.usbDrive,
+    logger,
     machineId: 'TEST-MACHINE-ID',
   });
 });
