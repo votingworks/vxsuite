@@ -80,48 +80,6 @@ export function AppRoot({
   const { adjudication } = status;
 
   const [isScanning, setIsScanning] = useState(false);
-  const [currentScanningBatchId, setCurrentScanningBatchId] =
-    useState<string>();
-  const [lastScannedSheetIdx, setLastScannedSheetIdx] = useState(0);
-
-  useEffect(() => {
-    if (!currentScanningBatchId) {
-      return;
-    }
-    const currentBatch = status.batches.find(
-      (b) => b.id === currentScanningBatchId
-    );
-    if (!currentBatch) {
-      return;
-    }
-    if (currentBatch.count > lastScannedSheetIdx) {
-      if (status.adjudication.remaining > 0) {
-        // Scanning a sheet failed and needs adjudication.
-        void logger.log(LogEventId.ScanSheetComplete, userRole, {
-          disposition: 'failure',
-          message: 'Sheet rejected while scanning.',
-          result:
-            'Sheet not tabulated, user asked to intervene in order to proceed.',
-          batchId: currentScanningBatchId,
-          sheetCount: currentBatch.count,
-        });
-        return;
-      }
-      setLastScannedSheetIdx(currentBatch.count);
-    }
-
-    if (currentBatch.endedAt !== undefined) {
-      setLastScannedSheetIdx(0);
-      setCurrentScanningBatchId(undefined);
-    }
-  }, [
-    status.batches,
-    status.adjudication,
-    currentScanningBatchId,
-    logger,
-    userRole,
-    lastScannedSheetIdx,
-  ]);
 
   const updateStatus = useCallback(async () => {
     try {
@@ -164,8 +122,6 @@ export function AppRoot({
         // eslint-disable-next-line no-alert
         window.alert(`could not scan: ${JSON.stringify(result.errors)}`);
         setIsScanning(false);
-      } else {
-        setCurrentScanningBatchId(result.batchId);
       }
     } catch (error) {
       assert(error instanceof Error);
