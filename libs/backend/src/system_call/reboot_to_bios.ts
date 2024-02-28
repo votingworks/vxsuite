@@ -5,7 +5,7 @@ import { execFile } from '../exec';
  * Reboots the machine into the BIOS.
  */
 export async function rebootToBios(logger: Logger): Promise<void> {
-  await logger.logAsCurrentUser(LogEventId.RebootMachine, {
+  await logger.logAsCurrentRole(LogEventId.RebootMachine, {
     message: 'User trigged a reboot of the machine to BIOS screen…',
   });
 

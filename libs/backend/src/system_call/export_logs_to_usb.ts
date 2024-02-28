@@ -70,7 +70,7 @@ export async function exportLogsToUsb({
 }): Promise<LogsResultType> {
   const result = await exportLogsToUsbHelper({ usbDrive, machineId });
 
-  await logger.logAsCurrentUser(LogEventId.FileSaved, {
+  await logger.logAsCurrentRole(LogEventId.FileSaved, {
     disposition: result.isOk() ? 'success' : 'failure',
     message: result.isOk()
       ? 'Sucessfully saved logs on the usb drive.'

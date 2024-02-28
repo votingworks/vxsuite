@@ -25,5 +25,5 @@ export async function logPollsTransition(
         throwIllegalValue(transition);
     }
   })();
-  await logger.logAsCurrentUser(logEventId, { disposition: 'success' });
+  await logger.logAsCurrentRole(logEventId, { disposition: 'success' });
 }

@@ -172,7 +172,7 @@ test('setPrecinctSelection will reset polls to closed', async () => {
         pollsState: 'polls_closed_initial',
       })
     );
-    expect(logger.logAsCurrentUser).toHaveBeenLastCalledWith(
+    expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
       LogEventId.PrecinctConfigurationChanged,
       {
         disposition: 'success',

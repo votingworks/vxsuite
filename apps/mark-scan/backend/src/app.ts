@@ -313,7 +313,7 @@ export function buildApi(
         }
       })();
 
-      await logger.logAsCurrentUser(logEvent, { disposition: 'success' });
+      await logger.logAsCurrentRole(logEvent, { disposition: 'success' });
     },
 
     setTestMode(input: { isTestMode: boolean }) {
@@ -329,7 +329,7 @@ export function buildApi(
       assert(electionDefinition);
       store.setPrecinctSelection(input.precinctSelection);
       store.setBallotsPrintedCount(0);
-      await logger.logAsCurrentUser(LogEventId.PrecinctConfigurationChanged, {
+      await logger.logAsCurrentRole(LogEventId.PrecinctConfigurationChanged, {
         disposition: 'success',
         message: `User set the precinct for the machine to ${getPrecinctSelectionName(
           electionDefinition.election.precincts,

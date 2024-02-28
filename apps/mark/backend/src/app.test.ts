@@ -349,7 +349,7 @@ test('setting precinct', async () => {
   await expectElectionState({
     precinctSelection: singlePrecinctSelection,
   });
-  expect(logger.logAsCurrentUser).toHaveBeenLastCalledWith(
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
     LogEventId.PrecinctConfigurationChanged,
     {
       disposition: 'success',

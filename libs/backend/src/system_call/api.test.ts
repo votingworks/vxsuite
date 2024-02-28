@@ -43,7 +43,7 @@ test('reboot', () => {
 
 test('rebootToBios', async () => {
   await api.rebootToBios();
-  expect(logger.logAsCurrentUser).toHaveBeenCalledWith(
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
     LogEventId.RebootMachine,
     {
       message: 'User trigged a reboot of the machine to BIOS screen…',
@@ -58,7 +58,7 @@ test('rebootToBios', async () => {
 
 test('powerDown', async () => {
   await api.powerDown();
-  expect(logger.logAsCurrentUser).toHaveBeenCalledWith(LogEventId.PowerDown, {
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(LogEventId.PowerDown, {
     message: 'User triggered the machine to power down.',
   });
   expect(execMock).toHaveBeenCalledWith('systemctl', ['poweroff', '-i']);

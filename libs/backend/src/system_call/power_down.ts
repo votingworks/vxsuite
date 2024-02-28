@@ -5,7 +5,7 @@ import { execFile } from '../exec';
  * Reboots the machine.
  */
 export async function powerDown(logger: Logger): Promise<void> {
-  await logger.logAsCurrentUser(LogEventId.PowerDown, {
+  await logger.logAsCurrentRole(LogEventId.PowerDown, {
     message: 'User triggered the machine to power down.',
   });
 

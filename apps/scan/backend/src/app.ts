@@ -205,7 +205,7 @@ export function buildApi({
       );
       store.setPrecinctSelection(input.precinctSelection);
       workspace.resetElectionSession();
-      await logger.logAsCurrentUser(LogEventId.PrecinctConfigurationChanged, {
+      await logger.logAsCurrentRole(LogEventId.PrecinctConfigurationChanged, {
         disposition: 'success',
         message: `User set the precinct for the machine to ${getPrecinctSelectionName(
           electionDefinition.election.precincts,
