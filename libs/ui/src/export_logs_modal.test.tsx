@@ -1,58 +1,23 @@
-import {
-  fakeSystemAdministratorUser,
-  fakeElectionManagerUser,
-  fakeSessionExpiresAt,
-} from '@votingworks/test-utils';
-
 import { err, ok } from '@votingworks/basics';
-import { mockBaseLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
-import { DippedSmartCardAuth } from '@votingworks/types';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { screen } from '../test/react_testing_library';
 import { ExportLogsButton } from './export_logs_modal';
 import { mockUsbDriveStatus } from './test-utils/mock_usb_drive';
 import { newTestContext } from '../test/test_context';
 
-const systemAdministratorAuthStatus: DippedSmartCardAuth.SystemAdministratorLoggedIn =
-  {
-    status: 'logged_in',
-    user: fakeSystemAdministratorUser(),
-    sessionExpiresAt: fakeSessionExpiresAt(),
-    programmableCard: { status: 'no_card' },
-  };
-
-const electionManagerAuthStatus: DippedSmartCardAuth.ElectionManagerLoggedIn = {
-  status: 'logged_in',
-  user: fakeElectionManagerUser(),
-  sessionExpiresAt: fakeSessionExpiresAt(),
-};
-
 const { mockApiClient, render } = newTestContext({
   skipUiStringsApi: true,
 });
 
 test('renders no log file found when usb is mounted but no log file on machine', async () => {
-  const logger = mockBaseLogger();
-
   mockApiClient.exportLogsToUsb.mockResolvedValueOnce(err('no-logs-directory'));
 
-  render(
-    <ExportLogsButton
-      usbDriveStatus={mockUsbDriveStatus('mounted')}
-      logger={logger}
-      auth={electionManagerAuthStatus}
-    />
-  );
+  render(<ExportLogsButton usbDriveStatus={mockUsbDriveStatus('mounted')} />);
   userEvent.click(screen.getByText('Save Log File'));
   userEvent.click(screen.getByText('Save'));
   await screen.findByText('Failed to save log file. no-logs-directory');
   expect(mockApiClient.exportLogsToUsb).toHaveBeenCalledTimes(1);
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.FileSaved,
-    'election_manager',
-    expect.objectContaining({ disposition: 'failure' })
-  );
 });
 
 test('render no usb found screen when there is not a mounted usb drive', async () => {
@@ -61,13 +26,7 @@ test('render no usb found screen when there is not a mounted usb drive', async (
     { status: 'ejected' },
   ];
   for (const status of usbStatuses) {
-    const { unmount } = render(
-      <ExportLogsButton
-        usbDriveStatus={status}
-        logger={mockBaseLogger()}
-        auth={systemAdministratorAuthStatus}
-      />
-    );
+    const { unmount } = render(<ExportLogsButton usbDriveStatus={status} />);
     userEvent.click(screen.getByText('Save Log File'));
     await screen.findByText('No USB Drive Detected');
     screen.getByText(
@@ -83,17 +42,9 @@ test('render no usb found screen when there is not a mounted usb drive', async (
 });
 
 test('successful save raw logs flow', async () => {
-  const logger = mockBaseLogger();
-
   mockApiClient.exportLogsToUsb.mockResolvedValueOnce(ok());
 
-  render(
-    <ExportLogsButton
-      usbDriveStatus={mockUsbDriveStatus('mounted')}
-      logger={logger}
-      auth={electionManagerAuthStatus}
-    />
-  );
+  render(<ExportLogsButton usbDriveStatus={mockUsbDriveStatus('mounted')} />);
   userEvent.click(screen.getByText('Save Log File'));
   await screen.findByText('Save Logs');
   userEvent.click(screen.getByText('Save'));
@@ -104,12 +55,4 @@ test('successful save raw logs flow', async () => {
   expect(screen.queryByRole('alertdialog')).toBeFalsy();
 
   expect(mockApiClient.exportLogsToUsb).toHaveBeenCalledTimes(1);
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.FileSaved,
-    'election_manager',
-    expect.objectContaining({
-      disposition: 'success',
-      fileType: 'logs',
-    })
-  );
 });

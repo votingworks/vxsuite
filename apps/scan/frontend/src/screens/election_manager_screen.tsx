@@ -89,7 +89,6 @@ export function ElectionManagerScreen({
   const { precinctSelection, isTestMode, isSoundMuted, isUltrasonicDisabled } =
     configQuery.data;
   const { pollsState } = pollsInfoQuery.data;
-  const authStatus = authStatusQuery.data;
 
   const isCvrSyncRequired =
     Boolean(usbDriveStatusQuery.data.doesUsbDriveRequireCastVoteRecordSync) &&
@@ -180,11 +179,7 @@ export function ElectionManagerScreen({
         <Button onPress={() => setIsExportingResults(true)}>Save CVRs</Button>{' '}
       </P>
       <P>
-        <ExportLogsButton
-          usbDriveStatus={usbDrive}
-          auth={authStatus}
-          logger={logger}
-        />
+        <ExportLogsButton usbDriveStatus={usbDrive} />
       </P>
     </React.Fragment>
   );

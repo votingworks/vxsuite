@@ -7,12 +7,7 @@ import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
-import { AuthStatus } from '@votingworks/types/src/auth/inserted_smart_card_auth';
-import {
-  ElectionDefinition,
-  PollsState,
-  TEST_JURISDICTION,
-} from '@votingworks/types';
+import { ElectionDefinition, PollsState } from '@votingworks/types';
 import { LogSource, BaseLogger } from '@votingworks/logging';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Screen } from '../components/layout';
@@ -22,7 +17,6 @@ import { getCurrentTime } from '../utils/get_current_time';
 import { usePreviewContext } from '../preview_dashboard';
 
 interface SystemAdministratorScreenProps {
-  authStatus: AuthStatus;
   electionDefinition?: ElectionDefinition;
   pollsState: PollsState;
   logger: BaseLogger;
@@ -30,7 +24,6 @@ interface SystemAdministratorScreenProps {
 }
 
 export function SystemAdministratorScreen({
-  authStatus,
   electionDefinition,
   pollsState,
   logger,
@@ -45,11 +38,7 @@ export function SystemAdministratorScreen({
       {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) ? (
         <LiveCheckButton />
       ) : undefined}
-      <ExportLogsButton
-        usbDriveStatus={usbDrive}
-        auth={authStatus}
-        logger={logger}
-      />
+      <ExportLogsButton usbDriveStatus={usbDrive} />
     </React.Fragment>
   );
 
@@ -88,15 +77,6 @@ export function DefaultPreview(): JSX.Element {
   const { electionDefinition } = usePreviewContext();
   return (
     <SystemAdministratorScreen
-      authStatus={{
-        status: 'logged_in',
-        // eslint-disable-next-line vx/gts-safe-number-parse
-        sessionExpiresAt: new Date(+new Date() + 1000000),
-        user: {
-          role: 'system_administrator',
-          jurisdiction: TEST_JURISDICTION,
-        },
-      }}
       pollsState="polls_open"
       electionDefinition={electionDefinition}
       usbDrive={{ status: 'no_drive' }}

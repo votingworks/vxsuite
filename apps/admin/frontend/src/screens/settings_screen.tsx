@@ -33,11 +33,7 @@ export function SettingsScreen({
   return (
     <NavigationScreen title="Settings">
       <H2>Logs</H2>
-      <ExportLogsButton
-        usbDriveStatus={usbDriveStatus}
-        auth={auth}
-        logger={logger}
-      />
+      <ExportLogsButton usbDriveStatus={usbDriveStatus} />
       <H2>Date and Time</H2>
       <P>
         <CurrentDateAndTime />

@@ -42,7 +42,7 @@ export function SettingsScreen({
   canUnconfigure,
 }: SettingsScreenProps): JSX.Element {
   const history = useHistory();
-  const { logger, auth, usbDriveStatus } = useContext(AppContext);
+  const { auth, usbDriveStatus } = useContext(AppContext);
   assert(isElectionManagerAuth(auth));
   const logOutMutation = logOut.useMutation();
   const unconfigureMutation = unconfigure.useMutation();
@@ -115,11 +115,7 @@ export function SettingsScreen({
 
       <H2>Logs</H2>
       <ButtonRow>
-        <ExportLogsButton
-          usbDriveStatus={usbDriveStatus}
-          auth={auth}
-          logger={logger}
-        />
+        <ExportLogsButton usbDriveStatus={usbDriveStatus} />
       </ButtonRow>
 
       <H2>Date and Time</H2>
