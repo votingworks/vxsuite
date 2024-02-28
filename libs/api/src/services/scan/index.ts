@@ -9,7 +9,6 @@ import {
   BatchInfo,
   BatchInfoSchema,
   Contest,
-  ElectionHash,
   IdSchema,
 } from '@votingworks/types';
 import * as z from 'zod';
@@ -21,14 +20,12 @@ import {
 } from '../../base';
 
 export interface ScanStatus {
-  electionHash?: string;
   canUnconfigure: boolean;
   batches: BatchInfo[];
   adjudication: AdjudicationStatus;
 }
 
 export const ScanStatusSchema: z.ZodSchema<ScanStatus> = z.object({
-  electionHash: z.optional(ElectionHash),
   canUnconfigure: z.boolean(),
   batches: z.array(BatchInfoSchema),
   adjudication: AdjudicationStatusSchema,
