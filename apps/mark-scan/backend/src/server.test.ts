@@ -6,7 +6,6 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
-// import { sleep } from '@votingworks/basics';
 import { PORT } from './globals';
 import { resolveDriver, start } from './server';
 import { createWorkspace } from './util/workspace';
@@ -19,8 +18,6 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
       featureFlagMock.isEnabled(flag),
   };
 });
-
-beforeEach(() => {});
 
 afterEach(() => {
   jest.resetAllMocks();
