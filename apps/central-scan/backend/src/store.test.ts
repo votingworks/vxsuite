@@ -471,7 +471,21 @@ const sheetWithFiles: SheetOf<PageInterpretationWithFiles> = [
       votes: {},
       markInfo: {
         ballotSize: { width: 800, height: 1000 },
-        marks: [],
+        marks: [
+          // needs at least one mark to avoid being an empty ballot
+          {
+            type: 'candidate',
+            contestId: 'contest-1',
+            optionId: 'candidate-1',
+            score: 0.95,
+            scoredOffset: { x: 0, y: 0 },
+            bounds: zeroRect,
+            target: {
+              bounds: zeroRect,
+              inner: zeroRect,
+            },
+          },
+        ],
       },
       metadata: {
         ...metadata,
