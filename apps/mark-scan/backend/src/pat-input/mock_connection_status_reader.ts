@@ -21,6 +21,10 @@ export class MockPatConnectionStatusReader
     return Promise.resolve(true);
   }
 
+  close(): Promise<void> {
+    return Promise.resolve();
+  }
+
   setConnectionStatus(isConnected: boolean): void {
     this.mockConnectedStatus = isConnected;
   }
