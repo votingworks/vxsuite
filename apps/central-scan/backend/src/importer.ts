@@ -20,6 +20,7 @@ import {
   describeValidationError,
   validateSheetInterpretation,
 } from './validation';
+import { logBatchComplete, logScanSheetSuccess } from './util/logging';
 
 const debug = makeDebug('scan:importer');
 
@@ -151,6 +152,9 @@ export class Importer {
       backInterpretation
     );
 
+    const batch = this.workspace.store.getBatch(batchId);
+    await logScanSheetSuccess(this.logger, batch);
+
     return sheetId;
   }
 
@@ -224,6 +228,8 @@ export class Importer {
   private async finishBatch(error?: string): Promise<void> {
     if (this.batchId) {
       this.workspace.store.finishBatch({ batchId: this.batchId, error });
+      const batch = this.workspace.store.getBatch(this.batchId);
+      await logBatchComplete(this.logger, batch);
       this.batchId = undefined;
     }
 

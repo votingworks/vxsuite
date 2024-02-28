@@ -27,6 +27,12 @@ import { Workspace } from './util/workspace';
 import { MachineConfig } from './types';
 import { getMachineConfig } from './machine_config';
 import { constructAuthMachineState } from './util/auth';
+import {
+  logBatchStartFailure,
+  logBatchStartSuccess,
+  logScanBatchContinueFailure,
+  logScanBatchContinueSuccess,
+} from './util/logging';
 
 type NoParams = never;
 
@@ -295,9 +301,11 @@ export function buildCentralScannerApp({
   >('/central-scanner/scan/scanBatch', async (_request, response) => {
     try {
       const batchId = await importer.startImport();
+      await logBatchStartSuccess(logger, batchId);
       response.json({ status: 'ok', batchId });
     } catch (error) {
       assert(error instanceof Error);
+      await logBatchStartFailure(logger, error);
       response.json({
         status: 'error',
         errors: [{ type: 'scan-error', message: error.message }],
@@ -326,15 +334,13 @@ export function buildCentralScannerApp({
 
     try {
       const continueImportOptions = bodyParseResult.ok();
-      // NOTE: This is a little silly and TS should be able to reason this out, but no.
-      if (continueImportOptions.forceAccept) {
-        await importer.continueImport(continueImportOptions);
-      } else {
-        await importer.continueImport(continueImportOptions);
-      }
+      const { forceAccept } = continueImportOptions;
+      await importer.continueImport(continueImportOptions);
+      await logScanBatchContinueSuccess(logger, forceAccept);
       response.json({ status: 'ok' });
     } catch (error) {
       assert(error instanceof Error);
+      await logScanBatchContinueFailure(logger, error);
       response.json({
         status: 'error',
         errors: [{ type: 'scan-error', message: error.message }],

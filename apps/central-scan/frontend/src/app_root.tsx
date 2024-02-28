@@ -108,22 +108,9 @@ export function AppRoot({
         return;
       }
       setLastScannedSheetIdx(currentBatch.count);
-      void logger.log(LogEventId.ScanSheetComplete, userRole, {
-        disposition: 'success',
-        message: `Sheet number ${currentBatch.count} in batch ${currentScanningBatchId} scanned successfully`,
-        batchId: currentScanningBatchId,
-        sheetCount: currentBatch.count,
-      });
     }
 
     if (currentBatch.endedAt !== undefined) {
-      void logger.log(LogEventId.ScanBatchComplete, userRole, {
-        disposition: 'success',
-        message: `Scanning batch ${currentScanningBatchId} successfully completed scanning ${currentBatch.count} sheets.`,
-        batchId: currentScanningBatchId,
-        sheetCount: currentBatch.count,
-        scanningEndedAt: currentBatch.endedAt,
-      });
       setLastScannedSheetIdx(0);
       setCurrentScanningBatchId(undefined);
     }
@@ -176,20 +163,9 @@ export function AppRoot({
       if (result.status !== 'ok') {
         // eslint-disable-next-line no-alert
         window.alert(`could not scan: ${JSON.stringify(result.errors)}`);
-        await logger.log(LogEventId.ScanBatchInit, userRole, {
-          disposition: 'failure',
-          message: 'Failed to start scanning a new batch.',
-          error: JSON.stringify(result.errors),
-          result: 'Scanning not begun.',
-        });
         setIsScanning(false);
       } else {
         setCurrentScanningBatchId(result.batchId);
-        await logger.log(LogEventId.ScanBatchInit, userRole, {
-          disposition: 'success',
-          message: `User has begun scanning a new batch with ID: ${result.batchId}`,
-          batchId: result.batchId,
-        });
       }
     } catch (error) {
       assert(error instanceof Error);
@@ -207,7 +183,7 @@ export function AppRoot({
     async (request: Scan.ScanContinueRequest) => {
       setIsScanning(true);
       try {
-        const result = safeParseJson(
+        safeParseJson(
           await (
             await fetch('/central-scanner/scan/scanContinue', {
               method: 'post',
@@ -219,22 +195,6 @@ export function AppRoot({
           ).text(),
           Scan.ScanContinueResponseSchema
         ).unsafeUnwrap();
-        if (result.status === 'ok') {
-          await logger.log(LogEventId.ScanBatchContinue, userRole, {
-            disposition: 'success',
-            message: request.forceAccept
-              ? 'Sheet tabulated with warnings and scanning of batch continued.'
-              : 'User indicated removing the sheet from tabulation and scanning continued without sheet.',
-            sheetRemoved: !request.forceAccept,
-          });
-        } else {
-          await logger.log(LogEventId.ScanBatchContinue, userRole, {
-            disposition: 'failure',
-            message: 'Request to continue scanning failed.',
-            error: JSON.stringify(result.errors),
-            result: 'Scanning not continued, user asked to try again.',
-          });
-        }
       } catch (error) {
         assert(error instanceof Error);
         console.log('failed handleFileInput()', error); // eslint-disable-line no-console
