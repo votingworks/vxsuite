@@ -121,3 +121,45 @@ export function defaultPaperHandlerStatus(): PaperHandlerStatus {
     ramError: false,
   };
 }
+
+export const DEFAULT_PAPER_HANDLER_STATUS: PaperHandlerStatus = {
+  // Scanner status
+  requestId: 1,
+  returnCode: 1,
+  parkSensor: false,
+  paperOutSensor: false,
+  paperPostCisSensor: false,
+  paperPreCisSensor: false,
+  paperInputLeftInnerSensor: false,
+  paperInputRightInnerSensor: false,
+  paperInputLeftOuterSensor: false,
+  paperInputRightOuterSensor: false,
+  printHeadInPosition: false,
+  scanTimeout: false,
+  motorMove: false,
+  scanInProgress: false,
+  jamEncoder: false,
+  paperJam: false,
+  coverOpen: false,
+  optoSensor: false,
+  ballotBoxDoorSensor: false,
+  ballotBoxAttachSensor: false,
+  preHeadSensor: false,
+
+  // Printer status
+  ticketPresentInOutput: false,
+  paperNotPresent: true,
+  dragPaperMotorOn: false,
+  spooling: false,
+  printingHeadUpError: false,
+  notAcknowledgeCommandError: false,
+  powerSupplyVoltageError: false,
+  headNotConnected: false,
+  comError: false,
+  headTemperatureError: false,
+  diverterError: false,
+  headErrorLocked: false,
+  printingHeadReadyToPrint: true,
+  eepromError: false,
+  ramError: false,
+};
