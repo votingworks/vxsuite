@@ -1,5 +1,5 @@
 import { mockFunction } from '@votingworks/test-utils';
-import { LogEventId, fakeLogger } from '@votingworks/logging';
+import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
@@ -49,7 +49,7 @@ afterEach(() => {
 });
 
 test('status and configuration', async () => {
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
   const printer = detectPrinter(logger);
 
   // no printer connected
@@ -125,14 +125,14 @@ test('uses mock file printer when feature flag is set', () => {
     BooleanEnvironmentVariableName.USE_MOCK_PRINTER
   );
 
-  const printer = detectPrinter(fakeLogger());
+  const printer = detectPrinter(mockBaseLogger());
   expect(printer).toBeInstanceOf(MockFilePrinter);
   featureFlagMock.resetFeatureFlags();
 });
 
 describe('rich status', () => {
   test('does not get rich status if printer is not an IPP printer', async () => {
-    const printer = detectPrinter(fakeLogger());
+    const printer = detectPrinter(mockBaseLogger());
 
     // connect printer
     const uri = `${BROTHER_THERMAL_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;
@@ -151,7 +151,7 @@ describe('rich status', () => {
   });
 
   test('attempts to get rich status if printer is an IPP printer', async () => {
-    const printer = detectPrinter(fakeLogger());
+    const printer = detectPrinter(mockBaseLogger());
 
     // connect printer
     const uri = `${HP_LASER_PRINTER_CONFIG.baseDeviceUri}/serial=1234`;

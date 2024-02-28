@@ -1,4 +1,9 @@
-import { Logger, LogEventId, LogSource } from '@votingworks/logging';
+import {
+  BaseLogger,
+  LogEventId,
+  LogSource,
+  Logger,
+} from '@votingworks/logging';
 import { Application } from 'express';
 import { DippedSmartCardAuth, JavaCard, MockFileCard } from '@votingworks/auth';
 import { Server } from 'http';
@@ -8,11 +13,13 @@ import {
   isIntegrationTest,
 } from '@votingworks/utils';
 import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
+import { assertDefined } from '@votingworks/basics';
 import { PORT, SCAN_WORKSPACE } from './globals';
 import { Importer } from './importer';
 import { FujitsuScanner, BatchScanner, ScannerMode } from './fujitsu_scanner';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildCentralScannerApp } from './app';
+import { getUserRole } from './util/auth';
 
 export interface StartOptions {
   port: number | string;
@@ -20,7 +27,7 @@ export interface StartOptions {
   usbDrive: UsbDrive;
   importer: Importer;
   app: Application;
-  logger: Logger;
+  logger: BaseLogger;
   workspace: Workspace;
 }
 
@@ -33,7 +40,7 @@ export async function start({
   usbDrive,
   importer,
   app,
-  logger = new Logger(LogSource.VxCentralScanService),
+  logger: baseLogger = new BaseLogger(LogSource.VxCentralScanService),
   workspace,
 }: Partial<StartOptions> = {}): Promise<Server> {
   let resolvedWorkspace = workspace;
@@ -41,11 +48,15 @@ export async function start({
   if (!resolvedWorkspace) {
     const workspacePath = SCAN_WORKSPACE;
     if (!workspacePath) {
-      await logger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
-        message:
-          'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE',
-        disposition: 'failure',
-      });
+      await baseLogger.log(
+        LogEventId.ScanServiceConfigurationMessage,
+        'system',
+        {
+          message:
+            'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE',
+          disposition: 'failure',
+        }
+      );
       throw new Error(
         'workspace path could not be determined; pass a workspace or run with SCAN_WORKSPACE'
       );
@@ -70,8 +81,12 @@ export async function start({
       config: {
         allowElectionManagersToAccessUnconfiguredMachines: true,
       },
-      logger,
+      logger: baseLogger,
     });
+
+    const logger = Logger.from(baseLogger, () =>
+      getUserRole(auth, assertDefined(resolvedWorkspace))
+    );
 
     const resolvedBatchScanner =
       batchScanner ?? new FujitsuScanner({ mode: ScannerMode.Gray, logger });
@@ -96,15 +111,19 @@ export async function start({
   /* c8 ignore stop */
 
   return resolvedApp.listen(port, async () => {
-    await logger.log(LogEventId.ApplicationStartup, 'system', {
+    await baseLogger.log(LogEventId.ApplicationStartup, 'system', {
       message: `Scan Service running at http://localhost:${port}/`,
       disposition: 'success',
     });
 
     if (resolvedWorkspace) {
-      await logger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
-        message: `Scanning ballots into ${resolvedWorkspace.ballotImagesPath}`,
-      });
+      await baseLogger.log(
+        LogEventId.ScanServiceConfigurationMessage,
+        'system',
+        {
+          message: `Scanning ballots into ${resolvedWorkspace.ballotImagesPath}`,
+        }
+      );
     }
   });
 }

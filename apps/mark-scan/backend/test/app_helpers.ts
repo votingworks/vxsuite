@@ -5,7 +5,12 @@ import {
 import * as grout from '@votingworks/grout';
 import { Application } from 'express';
 import { AddressInfo } from 'net';
-import { fakeLogger, Logger } from '@votingworks/logging';
+import {
+  BaseLogger,
+  mockLogger,
+  LogSource,
+  Logger,
+} from '@votingworks/logging';
 import tmp from 'tmp';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { Server } from 'http';
@@ -38,12 +43,22 @@ import {
   DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
 } from '../src/custom-paper-handler/constants';
 import { MockPatConnectionStatusReader } from '../src/pat-input/mock_connection_status_reader';
+import { getUserRole } from '../src/util/auth';
 
 jest.mock('@votingworks/custom-paper-handler');
 
+export function buildMockLogger(
+  auth: InsertedSmartCardAuthApi,
+  workspace: Workspace
+): Logger {
+  return mockLogger(LogSource.VxMarkScanBackend, () =>
+    getUserRole(auth, workspace)
+  );
+}
+
 export async function getMockStateMachine(
   workspace: Workspace,
-  logger: Logger
+  logger: BaseLogger
 ): Promise<PaperHandlerStateMachine> {
   // State machine setup
   const webDevice: MinimalWebUsbDevice = {
@@ -79,7 +94,7 @@ export async function getMockStateMachine(
 interface MockAppContents {
   apiClient: grout.Client<Api>;
   app: Application;
-  logger: Logger;
+  logger: BaseLogger;
   mockAuth: InsertedSmartCardAuthApi;
   mockUsbDrive: MockUsbDrive;
   server: Server;
@@ -88,8 +103,8 @@ interface MockAppContents {
 
 export async function createApp(): Promise<MockAppContents> {
   const mockAuth = buildMockInsertedSmartCardAuth();
-  const logger = fakeLogger();
   const workspace = createWorkspace(tmp.dirSync().name);
+  const logger = buildMockLogger(mockAuth, workspace);
   const mockUsbDrive = createMockUsbDrive();
 
   const stateMachine = await getMockStateMachine(workspace, logger);

@@ -14,7 +14,7 @@ import {
   SystemCallContextProvider,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
-import { LogSource, Logger } from '@votingworks/logging';
+import { LogSource, BaseLogger } from '@votingworks/logging';
 import { App } from './app';
 import {
   ApiClientContext,
@@ -29,7 +29,7 @@ const queryClient = createQueryClient();
 const rootElement = document.getElementById('root');
 assert(rootElement);
 const root = createRoot(rootElement);
-const logger = new Logger(LogSource.VxAdminFrontend, window.kiosk);
+const logger = new BaseLogger(LogSource.VxAdminFrontend, window.kiosk);
 
 root.render(
   <React.StrictMode>
@@ -48,7 +48,7 @@ root.render(
         <ApiClientContext.Provider value={apiClient}>
           <QueryClientProvider client={queryClient}>
             <SystemCallContextProvider api={systemCallApi}>
-              <App logger={logger} />
+              <App />
               {isFeatureFlagEnabled(
                 BooleanEnvironmentVariableName.ENABLE_REACT_QUERY_DEVTOOLS
               ) && (

@@ -40,11 +40,13 @@ import { FullElectionTallyReportScreen } from '../screens/reporting/full_electio
 import { HardwareDiagnosticsScreen } from '../screens/hardware_diagnostics_screen';
 
 export function AppRoutes(): JSX.Element {
-  const { electionDefinition, configuredAt, auth, hasCardReaderAttached } =
-    useContext(AppContext);
+  const { electionDefinition, configuredAt, auth } = useContext(AppContext);
   const election = electionDefinition?.election;
   const checkPinMutation = checkPin.useMutation();
 
+  const hasCardReaderAttached = !(
+    auth.status === 'logged_out' && auth.reason === 'no_card_reader'
+  );
   if (!hasCardReaderAttached) {
     return <SetupCardReaderPage usePollWorkerLanguage={false} />;
   }

@@ -1,5 +1,5 @@
 import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, BaseLogger } from '@votingworks/logging';
 import {
   VoteAdjudication,
   WriteInAdjudicationAction,
@@ -47,7 +47,7 @@ async function logWriteInAdjudication({
 }: {
   initialWriteInRecord: WriteInRecord;
   adjudicationAction: WriteInAdjudicationAction;
-  logger: Logger;
+  logger: BaseLogger;
 }): Promise<void> {
   const { cvrId, contestId, optionId } = initialWriteInRecord;
 
@@ -120,7 +120,7 @@ async function logWriteInAdjudication({
 export async function adjudicateWriteIn(
   adjudicationAction: WriteInAdjudicationAction,
   store: Store,
-  logger: Logger
+  logger: BaseLogger
 ): Promise<void> {
   const [initialWriteInRecord] = store.getWriteInRecords({
     electionId: assertDefined(store.getCurrentElectionId()),

@@ -235,7 +235,7 @@ test('usbDrive', async () => {
       status: 'no_drive',
     });
 
-    usbDrive.eject.expectCallWith('unknown').resolves();
+    usbDrive.eject.expectCallWith().resolves();
     await apiClient.ejectUsbDrive();
   });
 });

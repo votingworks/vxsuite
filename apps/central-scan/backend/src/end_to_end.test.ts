@@ -20,7 +20,7 @@ import { Server } from 'http';
 import * as grout from '@votingworks/grout';
 import request from 'supertest';
 import { dirSync } from 'tmp';
-import { fakeLogger, Logger } from '@votingworks/logging';
+import { Logger } from '@votingworks/logging';
 import { fakeSessionExpiresAt } from '@votingworks/test-utils';
 import getPort from 'get-port';
 import { ok, sleep } from '@votingworks/basics';
@@ -30,6 +30,7 @@ import { Api, buildCentralScannerApp } from './app';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
 import { start } from './server';
+import { buildMockLogger } from '../test/helpers/setup_app';
 
 // we need more time for ballot interpretation
 jest.setTimeout(20000);
@@ -63,7 +64,7 @@ beforeEach(async () => {
     workspace,
     scanner,
   });
-  logger = fakeLogger();
+  logger = buildMockLogger(auth, workspace);
   mockUsbDrive = createMockUsbDrive();
   app = buildCentralScannerApp({
     auth,

@@ -1,11 +1,11 @@
 import userEvent from '@testing-library/user-event';
-import { fakeLogger, LogEventId } from '@votingworks/logging';
+import { mockBaseLogger, LogEventId } from '@votingworks/logging';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { ResetPollsToPausedButton } from './reset_polls_to_paused_button';
 
 test('component flow', async () => {
   const resetPollsToPaused = jest.fn();
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
   render(
     <ResetPollsToPausedButton
       logger={logger}
@@ -54,7 +54,7 @@ test('component flow', async () => {
 });
 
 test('is disabled without callback', () => {
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
   render(
     <ResetPollsToPausedButton
       resetPollsToPausedText="Reset Polls to Paused Text"

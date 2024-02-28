@@ -7,7 +7,7 @@ import {
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
-import { fakeLogger, Logger } from '@votingworks/logging';
+import { Logger } from '@votingworks/logging';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   SystemSettings,
@@ -21,6 +21,7 @@ import { Api, buildCentralScannerApp } from './app';
 import { Importer } from './importer';
 import { start } from './server';
 import { createWorkspace, Workspace } from './util/workspace';
+import { buildMockLogger } from '../test/helpers/setup_app';
 
 let apiClient: grout.Client<Api>;
 let auth: DippedSmartCardAuthApi;
@@ -32,7 +33,7 @@ beforeEach(async () => {
   const port = await getPort();
   auth = buildMockDippedSmartCardAuth();
   workspace = createWorkspace(dirSync().name);
-  logger = fakeLogger();
+  logger = buildMockLogger(auth, workspace);
 
   apiClient = grout.createClient({
     baseUrl: `http://localhost:${port}/api`,

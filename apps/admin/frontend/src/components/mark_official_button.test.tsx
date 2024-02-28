@@ -1,5 +1,4 @@
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { Logger, fakeLogger } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import {
@@ -9,11 +8,9 @@ import {
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { screen, waitFor, within } from '../../test/react_testing_library';
 
-let logger: Logger;
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  logger = fakeLogger();
   apiMock = createApiMock();
 });
 
@@ -27,7 +24,6 @@ test('mark results as official', async () => {
 
   renderInAppContext(<MarkResultsOfficialButton />, {
     electionDefinition,
-    logger,
     apiMock,
     isOfficialResults: false,
   });
@@ -55,7 +51,6 @@ test('mark official results button disabled when no cvr files', async () => {
   apiMock.expectGetCastVoteRecordFileMode('unlocked'); // no CVR files
   renderInAppContext(<MarkResultsOfficialButton />, {
     electionDefinition,
-    logger,
     apiMock,
   });
 
@@ -72,7 +67,6 @@ test('mark official results button disabled when already official', async () => 
   apiMock.expectGetCastVoteRecordFileMode('official');
   renderInAppContext(<MarkResultsOfficialButton />, {
     electionDefinition,
-    logger,
     apiMock,
     isOfficialResults: true,
   });

@@ -6,6 +6,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   fakeElectionManagerUser,
+  fakePollWorkerUser,
   fakeSessionExpiresAt,
   mockOf,
   suppressingConsoleOutput,
@@ -31,7 +32,7 @@ import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { Server } from 'http';
 import * as grout from '@votingworks/grout';
 import { MockUsbDrive } from '@votingworks/usb-drive';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { createApp } from '../test/app_helpers';
 import { Api } from './app';
 import { ElectionState } from '.';
@@ -46,7 +47,7 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 });
 
 let apiClient: grout.Client<Api>;
-let logger: Logger;
+let logger: BaseLogger;
 let mockAuth: InsertedSmartCardAuthApi;
 let mockUsbDrive: MockUsbDrive;
 let server: Server;
@@ -57,6 +58,25 @@ function mockElectionManagerAuth(electionDefinition: ElectionDefinition) {
       status: 'logged_in',
       user: fakeElectionManagerUser(electionDefinition),
       sessionExpiresAt: fakeSessionExpiresAt(),
+    })
+  );
+}
+
+function mockPollWorkerAuth(electionDefinition: ElectionDefinition) {
+  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+    Promise.resolve({
+      status: 'logged_in',
+      user: fakePollWorkerUser(electionDefinition),
+      sessionExpiresAt: fakeSessionExpiresAt(),
+    })
+  );
+}
+
+function mockNoCard() {
+  mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+    Promise.resolve({
+      status: 'logged_out',
+      reason: 'no_card',
     })
   );
 }
@@ -194,11 +214,11 @@ test('usbDrive', async () => {
     status: 'no_drive',
   });
 
-  usbDrive.eject.expectCallWith('unknown').resolves();
+  usbDrive.eject.expectCallWith().resolves();
   await apiClient.ejectUsbDrive();
 
   mockElectionManagerAuth(electionFamousNames2021Fixtures.electionDefinition);
-  usbDrive.eject.expectCallWith('election_manager').resolves();
+  usbDrive.eject.expectCallWith().resolves();
   await apiClient.ejectUsbDrive();
 });
 
@@ -226,6 +246,7 @@ async function configureMachine(
   assert(writeResult.isOk());
 
   usbDrive.removeUsbDrive();
+  mockNoCard();
 }
 
 test('single precinct election automatically has precinct set on configure', async () => {
@@ -248,6 +269,7 @@ test('polls state', async () => {
   );
   await expectElectionState({ pollsState: 'polls_closed_initial' });
 
+  mockPollWorkerAuth(electionFamousNames2021Fixtures.electionDefinition);
   await apiClient.setPollsState({ pollsState: 'polls_open' });
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.PollsOpened,

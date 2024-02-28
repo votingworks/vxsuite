@@ -13,14 +13,21 @@ import {
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 
+import { BaseLogger, LogSource } from '@votingworks/logging';
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
 import { FormatUsbButton } from '../components/format_usb_modal';
 import { logOut } from '../api';
 import { LiveCheckButton } from '../components/live_check_button';
 
-export function SettingsScreen(): JSX.Element {
-  const { auth, logger, usbDriveStatus } = useContext(AppContext);
+export interface SettingsScreenProps {
+  logger?: BaseLogger;
+}
+
+export function SettingsScreen({
+  logger = new BaseLogger(LogSource.VxAdminFrontend, window.kiosk),
+}: SettingsScreenProps): JSX.Element {
+  const { auth, usbDriveStatus } = useContext(AppContext);
   const logOutMutation = logOut.useMutation();
 
   return (

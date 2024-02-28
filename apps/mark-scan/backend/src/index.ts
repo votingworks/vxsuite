@@ -1,4 +1,4 @@
-import { Logger, LogSource, LogEventId } from '@votingworks/logging';
+import { BaseLogger, LogSource, LogEventId } from '@votingworks/logging';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import * as server from './server';
 import { MARK_SCAN_WORKSPACE, PORT } from './globals';
@@ -10,7 +10,7 @@ export * from './custom-paper-handler';
 
 loadEnvVarsFromDotenvFiles();
 
-const logger = new Logger(LogSource.VxMarkScanBackend);
+const logger = new BaseLogger(LogSource.VxMarkScanBackend);
 
 async function resolveWorkspace(): Promise<Workspace> {
   const workspacePath = MARK_SCAN_WORKSPACE;

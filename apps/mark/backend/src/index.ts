@@ -1,4 +1,4 @@
-import { Logger, LogSource, LogEventId } from '@votingworks/logging';
+import { BaseLogger, LogSource, LogEventId } from '@votingworks/logging';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import * as server from './server';
 import { MARK_WORKSPACE, PORT } from './globals';
@@ -9,12 +9,12 @@ export * from './types';
 
 loadEnvVarsFromDotenvFiles();
 
-const logger = new Logger(LogSource.VxMarkBackend);
+const baseLogger = new BaseLogger(LogSource.VxMarkBackend);
 
 async function resolveWorkspace(): Promise<Workspace> {
   const workspacePath = MARK_WORKSPACE;
   if (!workspacePath) {
-    await logger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
+    await baseLogger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
       message:
         'workspace path could not be determined; pass a workspace or run with MARK_WORKSPACE',
       disposition: 'failure',
@@ -28,14 +28,14 @@ async function resolveWorkspace(): Promise<Workspace> {
 
 async function main(): Promise<number> {
   const workspace = await resolveWorkspace();
-  server.start({ port: PORT, logger, workspace });
+  server.start({ port: PORT, baseLogger, workspace });
   return 0;
 }
 
 if (require.main === module) {
   void main()
     .catch((error) => {
-      void logger.log(LogEventId.ApplicationStartup, 'system', {
+      void baseLogger.log(LogEventId.ApplicationStartup, 'system', {
         message: `Error in starting VxMark backend: ${(error as Error).stack}`,
         disposition: 'failure',
       });

@@ -1,5 +1,5 @@
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { LogEventId, LogSource, Logger } from '@votingworks/logging';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
 import { Printer, detectPrinter } from '@votingworks/printing';
 import { detectDevices } from '@votingworks/backend';
@@ -10,12 +10,12 @@ import { Workspace } from './util/workspace';
 
 export interface StartOptions {
   auth: InsertedSmartCardAuthApi;
-  logger?: Logger;
+  workspace: Workspace;
+  logger: Logger;
   port?: number | string;
   precinctScannerStateMachine: PrecinctScannerStateMachine;
   usbDrive?: UsbDrive;
   printer?: Printer;
-  workspace: Workspace;
 }
 
 /**
@@ -23,11 +23,11 @@ export interface StartOptions {
  */
 export function start({
   auth,
-  logger = new Logger(LogSource.VxScanBackend),
+  workspace,
+  logger,
   precinctScannerStateMachine,
   usbDrive,
   printer,
-  workspace,
 }: StartOptions): void {
   detectDevices({ logger });
   const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);

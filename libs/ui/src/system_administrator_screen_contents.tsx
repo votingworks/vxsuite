@@ -1,5 +1,5 @@
 import React from 'react';
-import { Logger } from '@votingworks/logging';
+import { BaseLogger } from '@votingworks/logging';
 import { isVxDev } from '@votingworks/utils';
 
 import styled from 'styled-components';
@@ -13,7 +13,7 @@ import { SetClockButton } from './set_clock';
 
 interface Props {
   displayRemoveCardToLeavePrompt?: boolean;
-  logger: Logger;
+  logger: BaseLogger;
   primaryText: React.ReactNode;
   unconfigureMachine: () => Promise<void>;
   resetPollsToPausedText?: string;

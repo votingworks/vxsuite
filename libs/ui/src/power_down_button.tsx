@@ -1,4 +1,4 @@
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { useState } from 'react';
 import { UserRole } from '@votingworks/types';
 import { Button } from './button';
@@ -7,7 +7,7 @@ import { Modal } from './modal';
 import { useSystemCallApi } from './system_call_api';
 
 interface Props {
-  logger: Logger;
+  logger: BaseLogger;
   userRole: UserRole;
 }
 

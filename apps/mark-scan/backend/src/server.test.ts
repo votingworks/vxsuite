@@ -1,4 +1,4 @@
-import { fakeLogger } from '@votingworks/logging';
+import { mockLogger } from '@votingworks/logging';
 import tmp from 'tmp';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { PORT } from './globals';
@@ -8,7 +8,7 @@ import { getMockStateMachine } from '../test/app_helpers';
 
 test('can start server', async () => {
   const auth = buildMockInsertedSmartCardAuth();
-  const logger = fakeLogger();
+  const logger = mockLogger();
   const workspace = createWorkspace(tmp.dirSync().name);
   const stateMachine = await getMockStateMachine(workspace, logger);
 

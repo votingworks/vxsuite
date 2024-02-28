@@ -1,8 +1,16 @@
 import { Application } from 'express';
-import { Logger, fakeLogger } from '@votingworks/logging';
+import {
+  BaseLogger,
+  LogSource,
+  Logger,
+  mockLogger,
+} from '@votingworks/logging';
 import { Server } from 'http';
 import * as grout from '@votingworks/grout';
-import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
+import {
+  DippedSmartCardAuthApi,
+  buildMockDippedSmartCardAuth,
+} from '@votingworks/auth';
 import { dirSync } from 'tmp';
 import getPort from 'get-port';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
@@ -13,6 +21,16 @@ import { Api } from '../../src';
 import { buildCentralScannerApp } from '../../src/app';
 import { start } from '../../src/server';
 import { Store } from '../../src/store';
+import { getUserRole } from '../../src/util/auth';
+
+export function buildMockLogger(
+  auth: DippedSmartCardAuthApi,
+  workspace: Workspace
+): Logger {
+  return mockLogger(LogSource.VxCentralScanService, () =>
+    getUserRole(auth, workspace)
+  );
+}
 
 export async function withApp(
   fn: (context: {
@@ -22,7 +40,7 @@ export async function withApp(
     mockUsbDrive: MockUsbDrive;
     importer: Importer;
     app: Application;
-    logger: Logger;
+    logger: BaseLogger;
     apiClient: grout.Client<Api>;
     server: Server;
     store: Store;
@@ -34,8 +52,7 @@ export async function withApp(
   const scanner = makeMockScanner();
   const importer = new Importer({ workspace, scanner });
   const mockUsbDrive = createMockUsbDrive();
-
-  const logger = fakeLogger();
+  const logger = buildMockLogger(auth, workspace);
   const app = buildCentralScannerApp({
     auth,
     usbDrive: mockUsbDrive.usbDrive,

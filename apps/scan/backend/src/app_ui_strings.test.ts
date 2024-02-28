@@ -6,7 +6,6 @@ import {
   runUiStringMachineDeconfigurationTests,
 } from '@votingworks/backend';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
-import { fakeLogger } from '@votingworks/logging';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 
 import {
@@ -25,7 +24,10 @@ import { createMockPrinterHandler } from '@votingworks/printing';
 import { Store } from './store';
 import { buildApi } from './app';
 import { createWorkspace } from './util/workspace';
-import { createPrecinctScannerStateMachineMock } from '../test/helpers/custom_helpers';
+import {
+  buildMockLogger,
+  createPrecinctScannerStateMachineMock,
+} from '../test/helpers/custom_helpers';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -56,7 +58,7 @@ runUiStringApiTests({
     workspace,
     usbDrive: mockUsbDrive.usbDrive,
     printer,
-    logger: fakeLogger(),
+    logger: buildMockLogger(mockAuth, workspace),
   }),
   store: store.getUiStringsStore(),
 });
@@ -83,7 +85,7 @@ describe('configureFromElectionPackageOnUsbDrive', () => {
     workspace,
     usbDrive: mockUsbDrive.usbDrive,
     printer,
-    logger: fakeLogger(),
+    logger: buildMockLogger(mockAuth, workspace),
   });
 
   runUiStringMachineConfigurationTests({
@@ -101,7 +103,7 @@ describe('unconfigureElection', () => {
     workspace,
     usbDrive: mockUsbDrive.usbDrive,
     printer,
-    logger: fakeLogger(),
+    logger: buildMockLogger(mockAuth, workspace),
   });
 
   runUiStringMachineDeconfigurationTests({

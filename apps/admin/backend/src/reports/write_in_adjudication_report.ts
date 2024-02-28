@@ -2,7 +2,7 @@ import { assert } from '@votingworks/basics';
 import { WriteInAdjudicationReport } from '@votingworks/ui';
 import { Printer, renderToPdf } from '@votingworks/printing';
 import { Buffer } from 'buffer';
-import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { Tabulation } from '@votingworks/types';
 import { Store } from '../store';
 import { getCurrentTime } from '../util/get_current_time';
@@ -39,7 +39,6 @@ interface WriteInAdjudicationReportPreviewProps {
   store: Store;
   electionWriteInSummary: Tabulation.ElectionWriteInSummary;
   logger: Logger;
-  userRole: LoggingUserRole;
 }
 
 /**
@@ -47,11 +46,11 @@ interface WriteInAdjudicationReportPreviewProps {
  */
 export async function generateWriteInAdjudicationReportPreview({
   logger,
-  userRole,
+
   ...reportProps
 }: WriteInAdjudicationReportPreviewProps): Promise<Buffer> {
   const report = buildWriteInAdjudicationReport(reportProps);
-  await logger.log(LogEventId.ElectionReportPreviewed, userRole, {
+  await logger.logAsCurrentRole(LogEventId.ElectionReportPreviewed, {
     message: `User previewed the write-in adjudication report.`,
     disposition: 'success',
   });
@@ -65,7 +64,7 @@ export async function generateWriteInAdjudicationReportPreview({
 export async function printWriteInAdjudicationReport({
   printer,
   logger,
-  userRole,
+
   ...reportProps
 }: WriteInAdjudicationReportPreviewProps & {
   printer: Printer;
@@ -74,13 +73,13 @@ export async function printWriteInAdjudicationReport({
 
   try {
     await printer.print({ data: await renderToPdf(report) });
-    await logger.log(LogEventId.ElectionReportPrinted, userRole, {
+    await logger.logAsCurrentRole(LogEventId.ElectionReportPrinted, {
       message: `User printed the write-in adjudication report.`,
       disposition: 'success',
     });
   } catch (error) {
     assert(error instanceof Error);
-    await logger.log(LogEventId.ElectionReportPrinted, userRole, {
+    await logger.logAsCurrentRole(LogEventId.ElectionReportPrinted, {
       message: `Error in attempting to print the write-in adjudication report: ${error.message}`,
       disposition: 'failure',
     });
@@ -94,7 +93,7 @@ export async function printWriteInAdjudicationReport({
 export async function exportWriteInAdjudicationReportPdf({
   path,
   logger,
-  userRole,
+
   ...reportProps
 }: WriteInAdjudicationReportPreviewProps & {
   path: string;
@@ -105,7 +104,7 @@ export async function exportWriteInAdjudicationReportPdf({
     data: await renderToPdf(report),
   });
 
-  await logger.log(LogEventId.FileSaved, userRole, {
+  await logger.logAsCurrentRole(LogEventId.FileSaved, {
     disposition: exportFileResult.isOk() ? 'success' : 'failure',
     message: `${
       exportFileResult.isOk() ? 'Saved' : 'Failed to save'

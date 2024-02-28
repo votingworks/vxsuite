@@ -40,7 +40,7 @@ import {
   PollsTransition,
   PrecinctScannerPollsInfo,
 } from './types';
-import { constructAuthMachineState } from './util/construct_auth_machine_state';
+import { constructAuthMachineState } from './util/auth';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
 import { printReport } from './print_report';
@@ -62,16 +62,6 @@ export function buildApi({
   logger: Logger;
 }) {
   const { store } = workspace;
-
-  async function getUserRole() {
-    const authStatus = await auth.getAuthStatus(
-      constructAuthMachineState(workspace.store)
-    );
-    if (authStatus.status === 'logged_in') {
-      return authStatus.user.role;
-    }
-    return undefined;
-  }
 
   return grout.createApi({
     getMachineConfig,
@@ -119,12 +109,7 @@ export function buildApi({
     },
 
     async ejectUsbDrive(): Promise<void> {
-      const authStatus = await auth.getAuthStatus(
-        constructAuthMachineState(workspace.store)
-      );
-      return usbDrive.eject(
-        authStatus.status === 'logged_in' ? authStatus.user.role : 'unknown'
-      );
+      return usbDrive.eject();
     },
 
     async configureFromElectionPackageOnUsbDrive(): Promise<
@@ -298,8 +283,7 @@ export function buildApi({
     async exportCastVoteRecordsToUsbDrive(input: {
       mode: 'full_export' | 'polls_closing';
     }): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
-      const userRole = (await getUserRole()) ?? 'system';
-      await logger.log(LogEventId.ExportCastVoteRecordsInit, userRole, {
+      await logger.logAsCurrentRole(LogEventId.ExportCastVoteRecordsInit, {
         message:
           input.mode === 'polls_closing'
             ? 'Marking cast vote record export as complete on polls close...'
@@ -338,22 +322,28 @@ export function buildApi({
       }
 
       if (exportResult.isErr()) {
-        await logger.log(LogEventId.ExportCastVoteRecordsComplete, userRole, {
-          disposition: 'failure',
-          message:
-            input.mode === 'polls_closing'
-              ? 'Error marking cast vote record export as complete on polls close.'
-              : 'Error exporting cast vote records.',
-          errorDetails: JSON.stringify(exportResult.err()),
-        });
+        await logger.logAsCurrentRole(
+          LogEventId.ExportCastVoteRecordsComplete,
+          {
+            disposition: 'failure',
+            message:
+              input.mode === 'polls_closing'
+                ? 'Error marking cast vote record export as complete on polls close.'
+                : 'Error exporting cast vote records.',
+            errorDetails: JSON.stringify(exportResult.err()),
+          }
+        );
       } else {
-        await logger.log(LogEventId.ExportCastVoteRecordsComplete, userRole, {
-          disposition: 'success',
-          message:
-            input.mode === 'polls_closing'
-              ? 'Successfully marked cast vote record export as complete on polls close.'
-              : 'Successfully exported cast vote records.',
-        });
+        await logger.logAsCurrentRole(
+          LogEventId.ExportCastVoteRecordsComplete,
+          {
+            disposition: 'success',
+            message:
+              input.mode === 'polls_closing'
+                ? 'Successfully marked cast vote record export as complete on polls close.'
+                : 'Successfully exported cast vote records.',
+          }
+        );
       }
       return exportResult;
     },

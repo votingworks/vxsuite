@@ -8,7 +8,7 @@ import {
 import waitForExpect from 'wait-for-expect';
 import { assertDefined, err, ok, sleep, typedAs } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
-import { Logger } from '@votingworks/logging';
+import { BaseLogger } from '@votingworks/logging';
 import { ErrorCode, ScannerStatus, mocks } from '@votingworks/custom-scanner';
 import {
   BooleanEnvironmentVariableName,
@@ -62,7 +62,7 @@ const doesUsbDriveRequireCastVoteRecordSyncMock = mockOf(
  * Basic checks for logging. We don't try to be exhaustive here because paper
  * status polling can be a bit non-deterministic, so logs can vary between runs.
  */
-function checkLogs(logger: Logger): void {
+function checkLogs(logger: BaseLogger): void {
   // Make sure we got a transition
   expect(logger.log).toHaveBeenCalledWith(
     'scanner-state-machine-transition',

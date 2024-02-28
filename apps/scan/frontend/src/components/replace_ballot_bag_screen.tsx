@@ -10,7 +10,7 @@ import {
   appStrings,
   useExternalStateChangeListener,
 } from '@votingworks/ui';
-import { LogEventId, Logger, LogSource } from '@votingworks/logging';
+import { LogEventId, BaseLogger, LogSource } from '@votingworks/logging';
 import { Screen } from './layout';
 import { BALLOT_BAG_CAPACITY } from '../config/globals';
 import { recordBallotBagReplaced } from '../api';
@@ -19,7 +19,7 @@ import { FullScreenPromptLayout } from './full_screen_prompt_layout';
 interface Props {
   scannedBallotCount: number;
   pollWorkerAuthenticated: boolean;
-  logger: Logger;
+  logger: BaseLogger;
 }
 
 export function ReplaceBallotBagScreen({
@@ -107,7 +107,7 @@ export function BallotBagFullAlertPreview(): JSX.Element {
     <ReplaceBallotBagScreen
       scannedBallotCount={BALLOT_BAG_CAPACITY}
       pollWorkerAuthenticated={false}
-      logger={new Logger(LogSource.VxScanFrontend)}
+      logger={new BaseLogger(LogSource.VxScanFrontend)}
     />
   );
 }
@@ -117,7 +117,7 @@ export function PollWorkerConfirmationFlowPreview(): JSX.Element {
     <ReplaceBallotBagScreen
       scannedBallotCount={BALLOT_BAG_CAPACITY}
       pollWorkerAuthenticated
-      logger={new Logger(LogSource.VxScanFrontend)}
+      logger={new BaseLogger(LogSource.VxScanFrontend)}
     />
   );
 }

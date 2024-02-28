@@ -23,7 +23,7 @@ import {
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
 
-import { Logger } from '@votingworks/logging';
+import { BaseLogger } from '@votingworks/logging';
 
 import {
   SetupCardReaderPage,
@@ -89,7 +89,7 @@ interface VotingState {
 export interface Props {
   hardware: Hardware;
   reload: VoidFunction;
-  logger: Logger;
+  logger: BaseLogger;
 }
 
 export const blankBallotVotes: VotesDict = {};

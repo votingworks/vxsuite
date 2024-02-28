@@ -2,7 +2,13 @@ import { promises as fs, existsSync, rmSync } from 'fs';
 import { deferred } from '@votingworks/basics';
 import { backendWaitFor } from '@votingworks/test-utils';
 import { join } from 'path';
-import { LogEventId, fakeLogger } from '@votingworks/logging';
+import {
+  LogEventId,
+  LogSource,
+  Logger,
+  LoggingUserRole,
+  mockLogger,
+} from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
@@ -101,9 +107,15 @@ async function confirmLockReleased(usbDrive: UsbDrive) {
   });
 }
 
+function mockLoggerWithRole(
+  role: LoggingUserRole = 'system_administrator'
+): Logger {
+  return mockLogger(LogSource.VxAdminService, () => Promise.resolve(role));
+}
+
 describe('status', () => {
   test('no drive', async () => {
-    const logger = fakeLogger();
+    const logger = mockLoggerWithRole();
     const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValueOnce([]);
@@ -116,7 +128,7 @@ describe('status', () => {
   });
 
   test('completely ignores invalid devices', async () => {
-    const logger = fakeLogger();
+    const logger = mockLogger();
     const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValue(['usb-foobar-part23']);
@@ -161,7 +173,7 @@ describe('status', () => {
   });
 
   test('one drive, mounted', async () => {
-    const logger = fakeLogger();
+    const logger = mockLogger();
     const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValueOnce(['usb-foobar-part23']);
@@ -190,7 +202,7 @@ describe('status', () => {
   });
 
   test('one drive, unmounted', async () => {
-    const logger = fakeLogger();
+    const logger = mockLogger();
     const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValue(['usb-foobar-part23']);
@@ -288,7 +300,7 @@ describe('status', () => {
     ];
 
     for (const testCase of testCases) {
-      const logger = fakeLogger();
+      const logger = mockLogger();
       const usbDrive = detectUsbDrive(logger);
       readdirMock.mockResolvedValue([
         'notausb-bazbar-part21', // this device should be ignored
@@ -318,7 +330,7 @@ describe('status', () => {
   });
 
   test('error getting block device info', async () => {
-    const logger = fakeLogger();
+    const logger = mockLogger();
     const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValueOnce(['usb-foobar-part23']);
@@ -331,7 +343,7 @@ describe('status', () => {
   });
 
   test('bad format', async () => {
-    const logger = fakeLogger();
+    const logger = mockLogger();
     const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValue(['usb-foobar-part23']);
@@ -364,7 +376,7 @@ describe('status', () => {
   });
 
   test('fails to mount', async () => {
-    const logger = fakeLogger();
+    const logger = mockLogger();
     const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValue(['usb-foobar-part23']);
@@ -392,25 +404,25 @@ describe('status', () => {
 
 describe('eject', () => {
   test('no drive - no op', async () => {
-    const logger = fakeLogger();
+    const logger = mockLogger();
     const usbDrive = detectUsbDrive(logger);
 
     readdirMock.mockResolvedValueOnce([]);
 
-    await expect(usbDrive.eject('election_manager')).resolves.toBeUndefined();
+    await expect(usbDrive.eject()).resolves.toBeUndefined();
   });
 
   test('not mounted - no op', async () => {
-    const logger = fakeLogger();
+    const logger = mockLogger();
     const usbDrive = detectUsbDrive(logger);
 
     mockBlockDeviceOnce({ mountpoint: null });
 
-    await expect(usbDrive.eject('election_manager')).resolves.toBeUndefined();
+    await expect(usbDrive.eject()).resolves.toBeUndefined();
   });
 
   test('mounted', async () => {
-    const logger = fakeLogger();
+    const logger = mockLoggerWithRole('election_manager');
     const usbDrive = detectUsbDrive(logger);
 
     mockBlockDeviceOnce({ mountpoint: '/media/usb-drive-sdb1' });
@@ -418,7 +430,7 @@ describe('eject', () => {
     // Unmount
     execMock.mockResolvedValueOnce({ stdout: '' });
 
-    await expect(usbDrive.eject('election_manager')).resolves.toBeUndefined();
+    await expect(usbDrive.eject()).resolves.toBeUndefined();
 
     expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
       '-n',
@@ -447,7 +459,7 @@ describe('eject', () => {
   });
 
   test('fails to eject', async () => {
-    const logger = fakeLogger();
+    const logger = mockLoggerWithRole('election_manager');
     const usbDrive = detectUsbDrive(logger);
 
     mockBlockDeviceOnce({ mountpoint: '/media/usb-drive-sdb1' });
@@ -455,9 +467,7 @@ describe('eject', () => {
     // Unmount
     execMock.mockRejectedValueOnce(new Error('Failed'));
 
-    await expect(usbDrive.eject('election_manager')).rejects.toThrowError(
-      new Error('Failed')
-    );
+    await expect(usbDrive.eject()).rejects.toThrowError(new Error('Failed'));
 
     expect(logger.log).toHaveBeenCalledWith(
       LogEventId.UsbDriveEjected,
@@ -471,25 +481,23 @@ describe('eject', () => {
 
 describe('format', () => {
   test('no drive - no op', async () => {
-    const logger = fakeLogger();
+    const logger = mockLogger();
     const usbDrive = detectUsbDrive(logger);
     readdirMock.mockResolvedValueOnce([]);
 
-    await expect(
-      usbDrive.format('system_administrator')
-    ).resolves.toBeUndefined();
+    await expect(usbDrive.format()).resolves.toBeUndefined();
     expect(execMock).not.toHaveBeenCalled();
   });
 
   test('on mounted, previously formatted drive', async () => {
-    const logger = fakeLogger();
+    const logger = mockLoggerWithRole();
     const usbDrive = detectUsbDrive(logger);
     mockBlockDeviceOnce({ mountpoint: '/media/usb-drive-sdb1' });
     execMock.mockResolvedValueOnce({ stdout: '' }); // unmount
     execMock.mockResolvedValueOnce({ stdout: '' }); // format
 
     // format should call unmount and format scripts
-    await usbDrive.format('system_administrator');
+    await usbDrive.format();
     expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
       '-n',
       `${MOUNT_SCRIPT_PATH}/unmount.sh`,
@@ -523,13 +531,13 @@ describe('format', () => {
   });
 
   test('on bad format drive', async () => {
-    const logger = fakeLogger();
+    const logger = mockLogger();
     const usbDrive = detectUsbDrive(logger);
     mockBlockDeviceOnce({ fstype: 'exfat', mountpoint: null, label: 'DATA' });
     execMock.mockResolvedValueOnce({ stdout: '' }); // format
 
     // format should call format script only
-    await usbDrive.format('system_administrator');
+    await usbDrive.format();
     expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
       '-n',
       `${MOUNT_SCRIPT_PATH}/format_fat32.sh`,
@@ -543,15 +551,13 @@ describe('format', () => {
   });
 
   test('on format failure', async () => {
-    const logger = fakeLogger();
+    const logger = mockLoggerWithRole();
     const usbDrive = detectUsbDrive(logger);
     mockBlockDeviceOnce({ fstype: 'unknown', mountpoint: null, label: null });
     execMock.mockRejectedValueOnce(new Error('Command: failed')); // format
 
     // format should call format script only
-    await expect(usbDrive.format('system_administrator')).rejects.toThrow(
-      'Command: failed'
-    );
+    await expect(usbDrive.format()).rejects.toThrow('Command: failed');
 
     // status should be ejected
     mockBlockDeviceOnce({ mountpoint: null });
@@ -568,7 +574,7 @@ describe('format', () => {
   });
 
   test('status polling while formatting', async () => {
-    const logger = fakeLogger();
+    const logger = mockLogger();
     const usbDrive = detectUsbDrive(logger);
     mockBlockDeviceOnce({ mountpoint: '/media/usb-drive-sdb1' });
     execMock.mockResolvedValueOnce({ stdout: '' }); // unmount
@@ -578,7 +584,7 @@ describe('format', () => {
       }>();
     execMock.mockReturnValueOnce(formatScriptPromise); // format
 
-    const formatPromise = usbDrive.format('system_administrator');
+    const formatPromise = usbDrive.format();
 
     await backendWaitFor(async () => {
       expect(await usbDrive.status()).toEqual({ status: 'ejected' });
@@ -593,7 +599,7 @@ describe('format', () => {
 });
 
 test('action locking', async () => {
-  const logger = fakeLogger();
+  const logger = mockLogger();
   const usbDrive = detectUsbDrive(logger);
 
   mockBlockDeviceOnce({ mountpoint: '/media/usb-drive-sdb1' });
@@ -602,7 +608,7 @@ test('action locking', async () => {
   }>();
   execMock.mockReturnValueOnce(unmountPromise);
 
-  const ejectPromise = usbDrive.eject('election_manager');
+  const ejectPromise = usbDrive.eject();
 
   await backendWaitFor(() => {
     expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
@@ -613,7 +619,7 @@ test('action locking', async () => {
   });
 
   mockBlockDeviceOnce({ mountpoint: '/media/usb-drive-sdb1' });
-  await usbDrive.format('election_manager');
+  await usbDrive.format();
 
   unmountResolve({ stdout: '' });
   await ejectPromise;
@@ -636,7 +642,7 @@ test('uses mock file usb drive if environment variable is set', async () => {
   }
   expect(existsSync(stateFilePath)).toEqual(false);
 
-  const usbDrive = detectUsbDrive(fakeLogger());
+  const usbDrive = detectUsbDrive(mockLogger());
   expect(await usbDrive.status()).toEqual({ status: 'no_drive' });
   expect(existsSync(stateFilePath)).toEqual(true);
 });

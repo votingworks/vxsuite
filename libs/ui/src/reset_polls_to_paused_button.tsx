@@ -1,4 +1,4 @@
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
 import React, { useState } from 'react';
 import { Button } from './button';
@@ -9,7 +9,7 @@ import { H1, P } from './typography';
 interface Props {
   resetPollsToPausedText: string;
   resetPollsToPaused?: () => Promise<void>;
-  logger: Logger;
+  logger: BaseLogger;
 }
 
 export function ResetPollsToPausedButton({

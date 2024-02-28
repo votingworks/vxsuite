@@ -29,7 +29,7 @@ import { join } from 'path';
 import request from 'supertest';
 import { dirSync } from 'tmp';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
-import { fakeLogger, Logger } from '@votingworks/logging';
+import { Logger } from '@votingworks/logging';
 import { Server } from 'http';
 import { fakeSessionExpiresAt } from '@votingworks/test-utils';
 import { ok } from '@votingworks/basics';
@@ -39,6 +39,7 @@ import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
 import { Api, buildCentralScannerApp } from './app';
 import { start } from './server';
+import { buildMockLogger } from '../test/helpers/setup_app';
 
 // mock SKIP_SCAN_ELECTION_HASH_CHECK to allow us to use old ballot image fixtures
 const featureFlagMock = getFeatureFlagMock();
@@ -88,7 +89,7 @@ beforeEach(async () => {
   scanner = makeMockScanner();
   importer = new Importer({ workspace, scanner });
   mockUsbDrive = createMockUsbDrive();
-  logger = fakeLogger();
+  logger = buildMockLogger(auth, workspace);
   app = buildCentralScannerApp({
     auth,
     usbDrive: mockUsbDrive.usbDrive,

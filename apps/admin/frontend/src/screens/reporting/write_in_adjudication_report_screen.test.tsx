@@ -1,5 +1,4 @@
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
-import { fakeLogger, Logger } from '@votingworks/logging';
 
 import userEvent from '@testing-library/user-event';
 import { ok } from '@votingworks/basics';
@@ -17,12 +16,10 @@ import {
 } from '../../../test/react_testing_library';
 import { hackActuallyCleanUpReactModal } from '../../../test/react_modal_cleanup';
 
-let logger: Logger;
 let apiMock: ApiMock;
 
 beforeEach(() => {
   jest.useFakeTimers();
-  logger = fakeLogger();
   apiMock = createApiMock();
 });
 
@@ -40,7 +37,6 @@ test('renders provided data', async () => {
   );
   renderInAppContext(<TallyWriteInReportScreen />, {
     electionDefinition,
-    logger,
     apiMock,
     usbDriveStatus: mockUsbDriveStatus('mounted'),
   });

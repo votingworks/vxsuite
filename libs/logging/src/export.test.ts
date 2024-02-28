@@ -3,14 +3,14 @@ import { assert, iter } from '@votingworks/basics';
 import { EventLogging, safeParseJson } from '@votingworks/types';
 import { createReadStream } from 'fs';
 import { join } from 'path';
-import { LogEventId, LogEventType, LogLine, LogSource, Logger } from '.';
+import { LogEventId, LogEventType, LogLine, LogSource, BaseLogger } from '.';
 import { buildCdfLog } from './export';
 
 jest.useFakeTimers().setSystemTime(new Date('2020-07-24T00:00:00.000Z'));
 
 describe('buildCdfLog', () => {
   test('builds device and election info properly', async () => {
-    const logger = new Logger(LogSource.VxAdminFrontend);
+    const logger = new BaseLogger(LogSource.VxAdminFrontend);
     const cdfLogContent = buildCdfLog(
       logger,
       electionTwoPartyPrimaryDefinition,
@@ -42,7 +42,7 @@ describe('buildCdfLog', () => {
   });
 
   test('converts basic log as expected', async () => {
-    const logger = new Logger(LogSource.VxAdminFrontend);
+    const logger = new BaseLogger(LogSource.VxAdminFrontend);
     const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
     const cdfLogContent = buildCdfLog(
       logger,
@@ -88,7 +88,7 @@ describe('buildCdfLog', () => {
   });
 
   test('log with unspecified disposition as expected', async () => {
-    const logger = new Logger(LogSource.VxAdminFrontend);
+    const logger = new BaseLogger(LogSource.VxAdminFrontend);
     const cdfLogContent = buildCdfLog(
       logger,
       electionTwoPartyPrimaryDefinition,
@@ -116,7 +116,7 @@ describe('buildCdfLog', () => {
   });
 
   test('converts log with custom disposition and extra details as expected', async () => {
-    const logger = new Logger(LogSource.VxAdminFrontend);
+    const logger = new BaseLogger(LogSource.VxAdminFrontend);
     const cdfLogContent = buildCdfLog(
       logger,
       electionTwoPartyPrimaryDefinition,
@@ -153,7 +153,7 @@ describe('buildCdfLog', () => {
   });
 
   test('non frontend apps can not export cdf logs', async () => {
-    const logger = new Logger(LogSource.System);
+    const logger = new BaseLogger(LogSource.System);
     const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
     await expect(
       iter(
@@ -178,7 +178,7 @@ describe('buildCdfLog', () => {
   });
 
   test('malformed logs are logged', async () => {
-    const logger = new Logger(LogSource.VxAdminFrontend);
+    const logger = new BaseLogger(LogSource.VxAdminFrontend);
     const logSpy = jest.spyOn(logger, 'log').mockResolvedValue();
     const missingTimeLogLine: LogLine = {
       source: LogSource.System,
@@ -249,7 +249,7 @@ describe('buildCdfLog', () => {
     const logFile = createReadStream(
       join(__dirname, '../fixtures/samplelog.log')
     );
-    const logger = new Logger(LogSource.VxAdminFrontend);
+    const logger = new BaseLogger(LogSource.VxAdminFrontend);
     const cdfLogContent = buildCdfLog(
       logger,
       electionTwoPartyPrimaryDefinition,
