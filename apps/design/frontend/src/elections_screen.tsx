@@ -99,9 +99,7 @@ export function ElectionsScreen(): JSX.Element | null {
                     <td>
                       {election.date &&
                         format.localeLongDate(
-                          new Date(
-                            election.date.toMidnightDatetimeWithSystemTimezone()
-                          )
+                          election.date.toMidnightDatetimeWithSystemTimezone()
                         )}
                     </td>
                     <td>{election.county.name}</td>
