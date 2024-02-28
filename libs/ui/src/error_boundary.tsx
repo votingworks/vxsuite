@@ -1,6 +1,6 @@
 /* eslint-disable react/sort-comp */
 import React from 'react';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { extractErrorMessage } from '@votingworks/basics';
 import { Screen } from './screen';
 import { Main } from './main';
@@ -10,7 +10,7 @@ import { H1, P } from './typography';
 
 type Props = React.PropsWithChildren<{
   errorMessage: React.ReactNode | ((error: unknown) => React.ReactNode);
-  logger?: Logger;
+  logger?: BaseLogger;
 }>;
 
 interface State {
@@ -157,7 +157,7 @@ export function AppErrorBoundary({
   children: React.ReactNode;
   restartMessage: React.ReactNode;
   showRestartButton?: boolean;
-  logger?: Logger;
+  logger?: BaseLogger;
 }): JSX.Element {
   return (
     <ErrorBoundary

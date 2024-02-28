@@ -359,14 +359,14 @@ test('usbDrive', async () => {
     reason: 'bad_format',
   });
 
-  usbDrive.eject.expectCallWith('system_administrator').resolves();
+  usbDrive.eject.expectCallWith().resolves();
   await apiClient.ejectUsbDrive();
 
-  usbDrive.format.expectCallWith('system_administrator').resolves();
+  usbDrive.format.expectCallWith().resolves();
   (await apiClient.formatUsbDrive()).assertOk('format failed');
 
   const error = new Error('format failed');
-  usbDrive.format.expectCallWith('system_administrator').throws(error);
+  usbDrive.format.expectCallWith().throws(error);
   expect(await apiClient.formatUsbDrive()).toEqual(err(error));
 });
 

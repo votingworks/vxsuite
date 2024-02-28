@@ -1,4 +1,4 @@
-import { Logger, LogSource, LogEventId } from '@votingworks/logging';
+import { BaseLogger, LogSource, LogEventId } from '@votingworks/logging';
 import { iter } from '@votingworks/basics';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { MOCK_SCANNER_FILES } from './globals';
@@ -11,7 +11,7 @@ export * from './types';
 
 loadEnvVarsFromDotenvFiles();
 
-const logger = new Logger(LogSource.VxCentralScanService);
+const logger = new BaseLogger(LogSource.VxCentralScanService);
 
 function getScanner(): BatchScanner | undefined {
   const mockScannerFiles = parseBatchesFromEnv(MOCK_SCANNER_FILES);

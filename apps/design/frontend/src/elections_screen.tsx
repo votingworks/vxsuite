@@ -13,6 +13,7 @@ import {
 import { FormEvent } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
+import { format } from '@votingworks/utils';
 import { listElections, createElection } from './api';
 import { Column, Row } from './layout';
 import { NavScreen } from './nav_screen';
@@ -97,9 +98,9 @@ export function ElectionsScreen(): JSX.Element | null {
                     <td>{election.title || 'Untitled Election'}</td>
                     <td>
                       {election.date &&
-                        new Date(election.date).toLocaleDateString(undefined, {
-                          timeZone: 'UTC',
-                        })}
+                        format.localeLongDate(
+                          election.date.toMidnightDatetimeWithSystemTimezone()
+                        )}
                     </td>
                     <td>{election.county.name}</td>
                     <td>{election.state}</td>

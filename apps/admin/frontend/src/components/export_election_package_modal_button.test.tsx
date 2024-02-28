@@ -1,4 +1,3 @@
-import { fakeLogger } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import { Result, deferred, err, ok } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
@@ -57,10 +56,8 @@ test.each<{
 );
 
 test('Modal renders export confirmation screen when usb detected', async () => {
-  const logger = fakeLogger();
   renderInAppContext(<ExportElectionPackageModalButton />, {
     usbDriveStatus: mockUsbDriveStatus('mounted'),
-    logger,
     apiMock,
   });
   userEvent.click(
@@ -96,11 +93,9 @@ test('Modal renders export confirmation screen when usb detected', async () => {
 });
 
 test('Modal renders error message appropriately', async () => {
-  const logger = fakeLogger();
   renderInAppContext(<ExportElectionPackageModalButton />, {
     apiMock,
     usbDriveStatus: mockUsbDriveStatus('mounted'),
-    logger,
   });
   userEvent.click(screen.getButton('Save Election Package'));
   await screen.findByRole('heading', { name: 'Save Election Package' });

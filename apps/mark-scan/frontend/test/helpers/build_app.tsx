@@ -1,16 +1,16 @@
-import { fakeLogger, Logger } from '@votingworks/logging';
+import { mockBaseLogger, BaseLogger } from '@votingworks/logging';
 import { MemoryHardware } from '@votingworks/utils';
 import { render, RenderResult } from '../react_testing_library';
 import { App } from '../../src/app';
 import { createApiMock } from './mock_api_client';
 
 export function buildApp(apiMock: ReturnType<typeof createApiMock>): {
-  logger: Logger;
+  logger: BaseLogger;
   hardware: MemoryHardware;
   reload: () => void;
   renderApp: () => RenderResult;
 } {
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
   const hardware = MemoryHardware.build({
     connectPrinter: true,
     connectAccessibleController: true,

@@ -1,6 +1,6 @@
 /* istanbul ignore file - tested via VxSuite apps. */
 
-import { Logger } from '@votingworks/logging';
+import { BaseLogger } from '@votingworks/logging';
 import * as grout from '@votingworks/grout';
 import {
   LanguageCode,
@@ -12,7 +12,7 @@ import { UiStringsStore } from './ui_strings_store';
 
 /** App context for {@link UiStringsApi} endpoints. */
 export interface UiStringsApiContext {
-  logger: Logger;
+  logger: BaseLogger;
   store: UiStringsStore;
 }
 

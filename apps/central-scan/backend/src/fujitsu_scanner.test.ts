@@ -1,4 +1,4 @@
-import { Logger, LogSource } from '@votingworks/logging';
+import { BaseLogger, LogSource } from '@votingworks/logging';
 import { BallotPaperSize } from '@votingworks/types';
 import { ChildProcess } from 'child_process';
 import { FujitsuScanner, ScannerMode } from './fujitsu_scanner';
@@ -14,7 +14,7 @@ const exec = streamExecFile as unknown as jest.MockedFunction<
 test('fujitsu scanner calls scanimage with fujitsu device type', async () => {
   const scanimage = makeMockChildProcess();
   const scanner = new FujitsuScanner({
-    logger: new Logger(LogSource.VxScanService),
+    logger: new BaseLogger(LogSource.VxScanService),
   });
 
   exec.mockReturnValueOnce(scanimage);
@@ -46,7 +46,7 @@ test('fujitsu scanner calls scanimage with fujitsu device type', async () => {
 test('fujitsu scanner can scan with letter size', () => {
   const scanimage = makeMockChildProcess();
   const scanner = new FujitsuScanner({
-    logger: new Logger(LogSource.VxScanService),
+    logger: new BaseLogger(LogSource.VxScanService),
   });
 
   exec.mockReturnValueOnce(scanimage);
@@ -74,7 +74,7 @@ test('fujitsu scanner can scan with letter size', () => {
 test('fujitsu scanner can scan with legal size', () => {
   const scanimage = makeMockChildProcess();
   const scanner = new FujitsuScanner({
-    logger: new Logger(LogSource.VxScanService),
+    logger: new BaseLogger(LogSource.VxScanService),
   });
 
   exec.mockReturnValueOnce(scanimage);
@@ -102,7 +102,7 @@ test('fujitsu scanner can scan with legal size', () => {
 test('fujitsu scanner does not specify a mode by default', () => {
   const scanimage = makeMockChildProcess();
   const scanner = new FujitsuScanner({
-    logger: new Logger(LogSource.VxScanService),
+    logger: new BaseLogger(LogSource.VxScanService),
   });
 
   exec.mockReturnValueOnce(scanimage);
@@ -125,7 +125,7 @@ test('fujitsu scanner does not specify a mode by default', () => {
 test('fujitsu scanner can scan with lineart mode', () => {
   const scanimage = makeMockChildProcess();
   const scanner = new FujitsuScanner({
-    logger: new Logger(LogSource.VxScanService),
+    logger: new BaseLogger(LogSource.VxScanService),
     mode: ScannerMode.Lineart,
   });
 
@@ -149,7 +149,7 @@ test('fujitsu scanner can scan with lineart mode', () => {
 test('fujitsu scanner can scan with gray mode', () => {
   const scanimage = makeMockChildProcess();
   const scanner = new FujitsuScanner({
-    logger: new Logger(LogSource.VxScanService),
+    logger: new BaseLogger(LogSource.VxScanService),
     mode: ScannerMode.Gray,
   });
 
@@ -173,7 +173,7 @@ test('fujitsu scanner can scan with gray mode', () => {
 test('fujitsu scanner can scan with color mode', () => {
   const scanimage = makeMockChildProcess();
   const scanner = new FujitsuScanner({
-    logger: new Logger(LogSource.VxScanService),
+    logger: new BaseLogger(LogSource.VxScanService),
     mode: ScannerMode.Color,
   });
 
@@ -197,7 +197,7 @@ test('fujitsu scanner can scan with color mode', () => {
 test('fujitsu scanner requests two images at a time from scanimage', async () => {
   const scanimage = makeMockChildProcess();
   const scanner = new FujitsuScanner({
-    logger: new Logger(LogSource.VxScanService),
+    logger: new BaseLogger(LogSource.VxScanService),
   });
 
   exec.mockReturnValueOnce(scanimage);
@@ -233,7 +233,7 @@ test('fujitsu scanner requests two images at a time from scanimage', async () =>
 test('fujitsu scanner ends the scanimage process on generator return', async () => {
   const scanimage = makeMockChildProcess();
   const scanner = new FujitsuScanner({
-    logger: new Logger(LogSource.VxScanService),
+    logger: new BaseLogger(LogSource.VxScanService),
   });
   exec.mockReturnValueOnce(scanimage);
   const sheets = scanner.scanSheets();
@@ -254,7 +254,7 @@ test('fujitsu scanner fails if scanSheet fails', async () => {
   const scanimage = makeMockChildProcess();
   exec.mockReturnValueOnce(scanimage);
   const scanner = new FujitsuScanner({
-    logger: new Logger(LogSource.VxScanService),
+    logger: new BaseLogger(LogSource.VxScanService),
   });
   const sheets = scanner.scanSheets();
 
@@ -265,7 +265,7 @@ test('fujitsu scanner fails if scanSheet fails', async () => {
 test('fujitsu scanner accept/reject/review are no-ops', async () => {
   const scanimage = makeMockChildProcess();
   const scanner = new FujitsuScanner({
-    logger: new Logger(LogSource.VxScanService),
+    logger: new BaseLogger(LogSource.VxScanService),
   });
   exec.mockReturnValueOnce(scanimage);
   const sheets = scanner.scanSheets();

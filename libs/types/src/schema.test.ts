@@ -128,7 +128,7 @@ test('parsing gives specific errors for nested objects', () => {
   `);
 });
 
-test('ensures dates are ISO 8601-formatted', () => {
+test('ensures election date is YYYY-MM-DD', () => {
   expect(
     t
       .safeParseVxfElection({
@@ -140,7 +140,7 @@ test('ensures dates are ISO 8601-formatted', () => {
     [ZodError: [
       {
         "code": "custom",
-        "message": "dates must be in ISO8601 format",
+        "message": "Date must be in the format YYYY-MM-DD",
         "path": [
           "date"
         ]
@@ -551,7 +551,7 @@ test('safeParseVxfElectionDefinition computes the election hash', () => {
   expect(
     t.safeParseElectionDefinition(electionData).unsafeUnwrap().electionHash
   ).toMatchInlineSnapshot(
-    `"fa2ee0ab1672c771123bfa3878dc8a6a26213a2aee345adc409ce424ecfbb134"`
+    `"648c0b68e7e2c5042efe88822d16d3f032593db16ef01c994f3e687cdfea8ddd"`
   );
 });
 

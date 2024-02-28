@@ -4,6 +4,7 @@ import {
   electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION, MemoryHardware } from '@votingworks/utils';
+import { DateWithoutTime } from '@votingworks/basics';
 import { render, screen, waitFor } from '../test/react_testing_library';
 
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
@@ -25,7 +26,7 @@ afterEach(() => {
 it('Prompts to change from test mode to live mode on election day', async () => {
   const electionDefinition = asElectionDefinition({
     ...electionGeneralDefinition.election,
-    date: new Date().toISOString(),
+    date: DateWithoutTime.today(),
   });
   const hardware = MemoryHardware.buildStandard();
   apiMock.expectGetMachineConfig();

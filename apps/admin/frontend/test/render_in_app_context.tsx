@@ -7,10 +7,7 @@ import {
   ElectionDefinition,
   Printer,
   DippedSmartCardAuth,
-  ConverterClientType,
 } from '@votingworks/types';
-import { NullPrinter, randomBallotId } from '@votingworks/utils';
-import { Logger, LogSource } from '@votingworks/logging';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
@@ -44,16 +41,12 @@ export interface RenderInAppContextParams {
   history?: MemoryHistory;
   electionDefinition?: ElectionDefinition | 'NONE';
   configuredAt?: Iso8601Timestamp;
-  converter?: ConverterClientType;
   isOfficialResults?: boolean;
   printer?: Printer;
   usbDriveStatus?: UsbDriveStatus;
-  generateBallotId?: () => string;
   auth?: DippedSmartCardAuth.AuthStatus;
   machineConfig?: MachineConfig;
-  hasCardReaderAttached?: boolean;
   hasPrinterAttached?: boolean;
-  logger?: Logger;
   apiMock?: ApiMock;
   queryClient?: QueryClient;
 }
@@ -94,10 +87,7 @@ export function renderInAppContext(
     electionDefinition = eitherNeitherElectionDefinition,
     configuredAt = new Date().toISOString(),
     isOfficialResults = false,
-    converter = undefined,
-    printer = new NullPrinter(),
     usbDriveStatus = mockUsbDriveStatus('no_drive'),
-    generateBallotId = randomBallotId,
     auth = electionDefinition === 'NONE'
       ? {
           status: 'logged_in',
@@ -116,8 +106,6 @@ export function renderInAppContext(
       machineId: '0000',
       codeVersion: 'dev',
     },
-    hasCardReaderAttached = true,
-    logger = new Logger(LogSource.VxAdminFrontend),
     apiMock,
     queryClient,
   }: RenderInAppContextParams = {}
@@ -129,14 +117,9 @@ export function renderInAppContext(
           electionDefinition === 'NONE' ? undefined : electionDefinition,
         configuredAt,
         isOfficialResults,
-        converter,
-        printer,
         usbDriveStatus,
-        generateBallotId,
         auth,
         machineConfig,
-        hasCardReaderAttached,
-        logger,
       }}
     >
       <Router history={history}>{component}</Router>

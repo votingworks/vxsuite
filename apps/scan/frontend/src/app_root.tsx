@@ -6,7 +6,7 @@ import {
   isElectionManagerAuth,
   isPollWorkerAuth,
 } from '@votingworks/utils';
-import { Logger } from '@votingworks/logging';
+import { BaseLogger } from '@votingworks/logging';
 
 import { assert } from '@votingworks/basics';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
@@ -39,7 +39,7 @@ import { CastVoteRecordSyncRequiredScreen } from './screens/cast_vote_record_syn
 import { SystemAdministratorScreen } from './screens/system_administrator_screen';
 
 export interface Props {
-  logger: Logger;
+  logger: BaseLogger;
 }
 
 export function AppRoot({ logger }: Props): JSX.Element | null {

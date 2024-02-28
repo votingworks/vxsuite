@@ -41,7 +41,6 @@
     "@antongolub/iso8601": "^1.2.1",
     "@votingworks/basics": "workspace:*",
     "js-sha256": "^0.9.0",
-    "luxon": "^3.0.0",
     "util": "^0.12.4",
     "zod": "3.14.4"
   },
@@ -50,7 +49,6 @@
     "@types/kiosk-browser": "workspace:*",
     "@types/lodash.clonedeep": "^4.5.9",
     "@types/lodash.set": "^4.3.7",
-    "@types/luxon": "^3.0.0",
     "@types/node": "16.18.23",
     "@types/react": "18.2.18",
     "@votingworks/cdf-schema-builder": "workspace:*",

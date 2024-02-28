@@ -7,7 +7,7 @@ import {
   SheetOf,
   ballotPaperDimensions,
 } from '@votingworks/types';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { streamExecFile } from './exec';
 import { StreamLines } from './util/stream_lines';
 
@@ -44,7 +44,7 @@ export enum ScannerMode {
 export interface Options {
   format?: ScannerImageFormat;
   mode?: ScannerMode;
-  logger: Logger;
+  logger: BaseLogger;
 }
 
 function zeroPad(number: number, maxLength = 2): string {
@@ -65,7 +65,7 @@ function dateStamp(date: Date = new Date()): string {
 export class FujitsuScanner implements BatchScanner {
   private readonly format: ScannerImageFormat;
   private readonly mode?: ScannerMode;
-  private readonly logger: Logger;
+  private readonly logger: BaseLogger;
 
   constructor({ format = ScannerImageFormat.JPEG, logger, mode }: Options) {
     this.format = format;

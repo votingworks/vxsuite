@@ -1,6 +1,6 @@
 import { assert } from '@votingworks/basics';
 
-import { fakeLogger, LogEventId } from '@votingworks/logging';
+import { LogEventId } from '@votingworks/logging';
 import { Server } from 'http';
 import { dirSync } from 'tmp';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
@@ -10,6 +10,7 @@ import { start } from './server';
 import { createWorkspace } from './util/workspace';
 import { PORT } from './globals';
 import { buildApp } from './app';
+import { buildMockLogger } from '../test/app';
 
 beforeEach(() => {
   jest.restoreAllMocks();
@@ -18,7 +19,7 @@ beforeEach(() => {
 test('starts with default logger and port', async () => {
   const auth = buildMockDippedSmartCardAuth();
   const workspace = createWorkspace(dirSync().name);
-  const logger = fakeLogger();
+  const logger = buildMockLogger(auth, workspace);
   const { usbDrive } = createMockUsbDrive();
   const { printer } = createMockPrinterHandler();
   const app = buildApp({ auth, workspace, logger, usbDrive, printer });
@@ -42,7 +43,7 @@ test('starts with default logger and port', async () => {
 test('start with config options', async () => {
   const auth = buildMockDippedSmartCardAuth();
   const workspace = createWorkspace(dirSync().name);
-  const logger = fakeLogger();
+  const logger = buildMockLogger(auth, workspace);
   const { usbDrive } = createMockUsbDrive();
   const { printer } = createMockPrinterHandler();
   const app = buildApp({ auth, workspace, logger, usbDrive, printer });
@@ -64,7 +65,7 @@ test('start with config options', async () => {
 test('errors on start with no workspace', async () => {
   const auth = buildMockDippedSmartCardAuth();
   const workspace = createWorkspace(dirSync().name);
-  const logger = fakeLogger();
+  const logger = buildMockLogger(auth, workspace);
   const { usbDrive } = createMockUsbDrive();
   const { printer } = createMockPrinterHandler();
   const app = buildApp({ auth, workspace, logger, usbDrive, printer });

@@ -25,8 +25,8 @@ import {
   safeParseSystemSettings,
 } from '@votingworks/types';
 import { MockUsbDrive } from '@votingworks/usb-drive';
-import { LogEventId, Logger } from '@votingworks/logging';
 import { PaperHandlerDriver } from '@votingworks/custom-paper-handler';
+import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { createApp } from '../test/app_helpers';
 import { Api } from './app';
 import { PaperHandlerStateMachine } from './custom-paper-handler';
@@ -58,9 +58,9 @@ let mockAuth: InsertedSmartCardAuthApi;
 let mockUsbDrive: MockUsbDrive;
 let server: Server;
 let stateMachine: PaperHandlerStateMachine;
-let logger: Logger;
 let driver: PaperHandlerDriver;
 let patConnectionStatusReader: PatConnectionStatusReader;
+let logger: BaseLogger;
 
 beforeEach(async () => {
   featureFlagMock.enableFeatureFlag(
@@ -220,14 +220,14 @@ test('usbDrive', async () => {
     status: 'no_drive',
   });
 
-  usbDrive.eject.expectCallWith('unknown').resolves();
+  usbDrive.eject.expectCallWith().resolves();
   await apiClient.ejectUsbDrive();
 
   mockElectionManagerAuth(
     mockAuth,
     electionFamousNames2021Fixtures.electionDefinition
   );
-  usbDrive.eject.expectCallWith('election_manager').resolves();
+  usbDrive.eject.expectCallWith().resolves();
   await apiClient.ejectUsbDrive();
 });
 

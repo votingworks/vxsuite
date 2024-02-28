@@ -1,5 +1,5 @@
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import { fakeLogger, LogEventId } from '@votingworks/logging';
+import { mockBaseLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import {
   advanceTimersAndPromises,
@@ -46,7 +46,7 @@ let apiMock: ApiMock;
 jest.setTimeout(20000);
 
 function renderApp(props: Partial<AppProps> = {}) {
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
   render(<App logger={logger} apiClient={apiMock.mockApiClient} {...props} />);
   return { logger };
 }

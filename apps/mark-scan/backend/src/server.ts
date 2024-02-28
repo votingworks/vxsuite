@@ -1,6 +1,6 @@
 import { Server } from 'http';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, BaseLogger, Logger } from '@votingworks/logging';
 
 import {
   getPaperHandlerDriver,
@@ -16,7 +16,7 @@ import makeDebug from 'debug';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
 import { getPaperHandlerStateMachine } from './custom-paper-handler/state_machine';
-import { getDefaultAuth } from './util/auth';
+import { getDefaultAuth, getUserRole } from './util/auth';
 import {
   DEV_AUTH_STATUS_POLLING_INTERVAL_MS,
   DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
@@ -29,13 +29,13 @@ const debug = makeDebug('mark-scan:server');
 
 export interface StartOptions {
   auth?: InsertedSmartCardAuthApi;
-  logger: Logger;
+  logger: BaseLogger;
   port: number | string;
   workspace: Workspace;
 }
 
-export async function resolveDriver(
-  logger: Logger
+async function resolveDriver(
+  logger: BaseLogger
 ): Promise<PaperHandlerDriverInterface | undefined> {
   const driver = await getPaperHandlerDriver();
 
@@ -67,11 +67,14 @@ export async function resolveDriver(
  */
 export async function start({
   auth,
-  logger,
+  logger: baseLogger,
   port,
   workspace,
 }: StartOptions): Promise<Server> {
-  const resolvedAuth = auth ?? getDefaultAuth(logger);
+  const resolvedAuth = auth ?? getDefaultAuth(baseLogger);
+  const logger = Logger.from(baseLogger, () =>
+    getUserRole(resolvedAuth, workspace)
+  );
   const driver = await resolveDriver(logger);
   let patConnectionStatusReader = new PatConnectionStatusReader(logger);
   const canReadPatConnectionStatus = await patConnectionStatusReader.open();

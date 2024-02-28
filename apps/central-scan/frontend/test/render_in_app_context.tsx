@@ -1,5 +1,5 @@
 import { electionGeneralDefinition as testElectionDefinition } from '@votingworks/fixtures';
-import { LogSource, Logger } from '@votingworks/logging';
+import { LogSource, BaseLogger } from '@votingworks/logging';
 import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
 import { SystemCallContextProvider, TestErrorBoundary } from '@votingworks/ui';
 import { createMemoryHistory, MemoryHistory } from 'history';
@@ -24,7 +24,7 @@ interface RenderInAppContextParams {
   usbDriveStatus?: UsbDriveStatus;
   usbDriveEject?: () => void;
   auth?: DippedSmartCardAuth.AuthStatus;
-  logger?: Logger;
+  logger?: BaseLogger;
   apiMock?: ApiMock;
   queryClient?: QueryClient;
 }
@@ -44,7 +44,7 @@ export function makeAppContext({
     }),
     sessionExpiresAt: fakeSessionExpiresAt(),
   },
-  logger = new Logger(LogSource.VxCentralScanFrontend),
+  logger = new BaseLogger(LogSource.VxCentralScanFrontend),
 }: Partial<AppContextInterface> = {}): AppContextInterface {
   return {
     electionDefinition,

@@ -1,6 +1,6 @@
 import { AdminReadinessReport } from '@votingworks/ui';
 import { Printer, renderToPdf } from '@votingworks/printing';
-import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
 import { VX_MACHINE_ID, getBatteryInfo } from '@votingworks/backend';
 import { DiagnosticsRecord } from '@votingworks/types';
@@ -27,12 +27,10 @@ export async function printReadinessReport({
   workspace,
   printer,
   logger,
-  userRole,
 }: {
   workspace: Workspace;
   printer: Printer;
   logger: Logger;
-  userRole: LoggingUserRole;
 }): Promise<void> {
   const { store } = workspace;
   const report = AdminReadinessReport({
@@ -48,13 +46,13 @@ export async function printReadinessReport({
 
   try {
     await printer.print({ data: await renderToPdf(report) });
-    await logger.log(LogEventId.ReadinessReportPrinted, userRole, {
+    await logger.logAsCurrentRole(LogEventId.ReadinessReportPrinted, {
       message: `User printed the equipment readiness report.`,
       disposition: 'success',
     });
   } catch (error) {
     assert(error instanceof Error);
-    await logger.log(LogEventId.ReadinessReportPrinted, userRole, {
+    await logger.logAsCurrentRole(LogEventId.ReadinessReportPrinted, {
       message: `Error in attempting to print the equipment readiness report: ${error.message}`,
       disposition: 'failure',
     });

@@ -1,5 +1,5 @@
 import { assertDefined } from '@votingworks/basics';
-import { LogEventId, Logger } from '@votingworks/logging';
+import { LogEventId, BaseLogger } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -19,7 +19,7 @@ interface PrinterDevice {
   uri?: string;
 }
 
-export function detectPrinter(logger: Logger): Printer {
+export function detectPrinter(logger: BaseLogger): Printer {
   // Mock USB drives for development and integration tests
   if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_PRINTER)) {
     return new MockFilePrinter();

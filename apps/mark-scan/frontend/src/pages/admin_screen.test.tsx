@@ -3,7 +3,7 @@ import {
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import { fakeLogger } from '@votingworks/logging';
+import { mockBaseLogger } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { act, screen, within } from '../../test/react_testing_library';
@@ -45,7 +45,7 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
           codeVersion: 'test', // Override default
         })}
         pollsState="polls_open"
-        logger={fakeLogger()}
+        logger={mockBaseLogger()}
         usbDriveStatus={mockUsbDriveStatus('mounted')}
         {...props}
       />

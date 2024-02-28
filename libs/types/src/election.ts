@@ -1,4 +1,4 @@
-import { Optional } from '@votingworks/basics';
+import { Optional, DateWithoutTime } from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
 import * as z from 'zod';
 import {
@@ -6,10 +6,10 @@ import {
   ElectionHash,
   Id,
   IdSchema,
-  Iso8601Date,
   Iso8601Timestamp,
   Iso8601TimestampSchema,
   NewType,
+  DateWithoutTimeSchema,
 } from './generic';
 import {
   Offset,
@@ -455,7 +455,7 @@ export interface Election {
   readonly contests: Contests;
   readonly gridLayouts?: readonly GridLayout[];
   readonly county: County;
-  readonly date: string;
+  readonly date: DateWithoutTime;
   readonly districts: readonly District[];
   readonly parties: Parties;
   readonly precincts: readonly Precinct[];
@@ -472,7 +472,7 @@ export const ElectionSchema: z.ZodSchema<Election> = z
     contests: ContestsSchema,
     gridLayouts: z.array(GridLayoutSchema).optional(),
     county: CountySchema,
-    date: Iso8601Date,
+    date: DateWithoutTimeSchema,
     districts: DistrictsSchema,
     parties: PartiesSchema,
     precincts: PrecinctsSchema,

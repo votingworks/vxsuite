@@ -2,6 +2,7 @@ import userEvent from '@testing-library/user-event';
 import { Election } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import { createMemoryHistory } from 'history';
+import { DateWithoutTime } from '@votingworks/basics';
 import {
   MockApiClient,
   createMockApiClient,
@@ -54,7 +55,7 @@ test('newly created election starts in edit mode', async () => {
   expect(titleInput).toBeEnabled();
 
   const dateInput = screen.getByLabelText('Date');
-  expect(dateInput).toHaveValue('');
+  expect(dateInput).toHaveValue(DateWithoutTime.today().toISOString());
   expect(dateInput).toBeEnabled();
 
   const typeInput = screen.getByRole('listbox', { name: 'Type' });
@@ -97,7 +98,7 @@ test('edit and save election', async () => {
   expect(titleInput).toBeDisabled();
 
   const dateInput = screen.getByLabelText('Date');
-  expect(dateInput).toHaveValue(election.date);
+  expect(dateInput).toHaveValue(election.date.toISOString());
   expect(dateInput).toBeDisabled();
 
   const typeInput = screen.getByRole('listbox', { name: 'Type' });
@@ -127,7 +128,6 @@ test('edit and save election', async () => {
   userEvent.type(titleInput, 'New Title');
   expect(titleInput).toHaveValue('New Title');
 
-  userEvent.clear(dateInput);
   userEvent.type(dateInput, '2023-09-06');
   expect(dateInput).toHaveValue('2023-09-06');
 
@@ -161,7 +161,7 @@ test('edit and save election', async () => {
   const updatedElection: Election = {
     ...election,
     title: 'New Title',
-    date: '2023-09-06',
+    date: new DateWithoutTime('2023-09-06'),
     type: 'primary',
     state: 'New State',
     county: {

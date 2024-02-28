@@ -1,13 +1,13 @@
-import { LogEventId, Logger, fakeLogger } from '@votingworks/logging';
+import { LogEventId, BaseLogger, mockBaseLogger } from '@votingworks/logging';
 import tmp from 'tmp';
 import * as fs from 'fs/promises';
 import { Buffer } from 'buffer';
 import { PatConnectionStatusReader } from './connection_status_reader';
 
-let logger: Logger;
+let logger: BaseLogger;
 
 beforeEach(() => {
-  logger = fakeLogger();
+  logger = mockBaseLogger();
 });
 
 test('logs when it cannot access the gpio pin sysfs file', async () => {

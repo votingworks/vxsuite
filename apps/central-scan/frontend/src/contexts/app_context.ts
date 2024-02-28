@@ -1,5 +1,5 @@
 import type { MachineConfig } from '@votingworks/central-scan-backend';
-import { LogSource, Logger } from '@votingworks/logging';
+import { LogSource, BaseLogger } from '@votingworks/logging';
 import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { createContext } from 'react';
@@ -11,7 +11,7 @@ export interface AppContextInterface {
   electionHash?: string;
   isTestMode: boolean;
   auth: DippedSmartCardAuth.AuthStatus;
-  logger: Logger;
+  logger: BaseLogger;
 }
 
 const appContext: AppContextInterface = {
@@ -22,7 +22,7 @@ const appContext: AppContextInterface = {
   },
   electionDefinition: undefined,
   electionHash: undefined,
-  logger: new Logger(LogSource.VxCentralScanFrontend),
+  logger: new BaseLogger(LogSource.VxCentralScanFrontend),
   isTestMode: false,
   auth: {
     status: 'logged_out',

@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Buffer } from 'buffer';
-import { err, ok } from '@votingworks/basics';
+import { DateWithoutTime, err, ok } from '@votingworks/basics';
 import { DateTime } from 'luxon';
 import { deserialize, serialize } from './serialization';
 
@@ -65,6 +65,9 @@ test('JSON serialization/deserialization', () => {
   expectToBePreservedExactly(new Date('2020-01-01T00:00:00.000Z'));
   expectToBePreservedExactly(new Date());
   expectToBePreservedExactly({ a: new Date() });
+  // DateWithoutTimes
+  expectToBePreservedExactly(new DateWithoutTime('2020-01-01'));
+  expectToBePreservedExactly({ a: new DateWithoutTime('2020-01-01') });
   // luxon DateTimes
   expectToBePreservedExactly(
     DateTime.fromISO('2020-01-01T00:00:00.000Z', { setZone: true })

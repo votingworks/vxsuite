@@ -5,7 +5,12 @@ import {
 import * as grout from '@votingworks/grout';
 import { Application } from 'express';
 import { AddressInfo } from 'net';
-import { fakeLogger, Logger } from '@votingworks/logging';
+import {
+  BaseLogger,
+  mockLogger,
+  LogSource,
+  Logger,
+} from '@votingworks/logging';
 import tmp from 'tmp';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { Server } from 'http';
@@ -34,14 +39,23 @@ import {
   DEVICE_STATUS_POLLING_INTERVAL_MS,
   SUCCESS_NOTIFICATION_DURATION_MS,
 } from '../src/custom-paper-handler/constants';
-import { MockPatConnectionStatusReader } from '../src/pat-input/mock_connection_status_reader';
 import { PatConnectionStatusReaderInterface } from '../src/pat-input/connection_status_reader';
+import { getUserRole } from '../src/util/auth';
+
+export function buildMockLogger(
+  auth: InsertedSmartCardAuthApi,
+  workspace: Workspace
+): Logger {
+  return mockLogger(LogSource.VxMarkScanBackend, () =>
+    getUserRole(auth, workspace)
+  );
+}
 
 export async function getMockStateMachine(
   workspace: Workspace,
   patConnectionStatusReader: PatConnectionStatusReaderInterface,
   driver: MockPaperHandlerDriver,
-  logger: Logger
+  logger: BaseLogger
 ): Promise<PaperHandlerStateMachine> {
   // State machine setup
   const auth = buildMockInsertedSmartCardAuth();
@@ -63,7 +77,7 @@ export async function getMockStateMachine(
 interface MockAppContents {
   apiClient: grout.Client<Api>;
   app: Application;
-  logger: Logger;
+  logger: BaseLogger;
   mockAuth: InsertedSmartCardAuthApi;
   mockUsbDrive: MockUsbDrive;
   server: Server;
@@ -80,8 +94,8 @@ export async function createApp(
   options?: CreateAppOptions
 ): Promise<MockAppContents> {
   const mockAuth = buildMockInsertedSmartCardAuth();
-  const logger = fakeLogger();
   const workspace = createWorkspace(tmp.dirSync().name);
+  const logger = buildMockLogger(mockAuth, workspace);
   const mockUsbDrive = createMockUsbDrive();
   const patConnectionStatusReader =
     options?.patConnectionStatusReader ??

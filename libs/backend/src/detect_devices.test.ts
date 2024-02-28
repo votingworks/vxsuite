@@ -1,9 +1,9 @@
-import { LogEventId, fakeLogger } from '@votingworks/logging';
+import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { usb } from 'usb';
 import { detectDevices } from './detect_devices';
 
 test('detectDevices', () => {
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
 
   detectDevices({ logger });
 

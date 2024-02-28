@@ -3,7 +3,7 @@ import {
   electionGeneralDefinition,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import { fakeLogger } from '@votingworks/logging';
+import { mockBaseLogger } from '@votingworks/logging';
 import { fakeKiosk } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { ok } from '@votingworks/basics';
@@ -58,7 +58,7 @@ function renderScreen(
         electionDefinition={electionGeneralDefinition}
         scannerStatus={statusNoPaper}
         usbDrive={mockUsbDriveStatus('no_drive')}
-        logger={fakeLogger()}
+        logger={mockBaseLogger()}
         {...props}
       />
     )

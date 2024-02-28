@@ -31,6 +31,7 @@ import {
   YesNoOption,
 } from '@votingworks/types';
 import { sha256 } from 'js-sha256';
+import { DateWithoutTime, assertDefined } from '@votingworks/basics';
 
 /**
  * Builds arbitrary uint2 values.
@@ -383,7 +384,16 @@ export function arbitraryElection(): fc.Arbitrary<Election> {
           title: fc.string({ minLength: 1 }),
           county: arbitraryCounty(),
           state: fc.string({ minLength: 2, maxLength: 2 }),
-          date: fc.date().map((date) => date.toISOString()),
+          date: fc
+            .date({
+              min: new Date('0001-01-01'),
+              max: new Date('9999-12-31'),
+            })
+            .map((date) => {
+              return new DateWithoutTime(
+                assertDefined(date.toISOString().split('T')[0])
+              );
+            }),
           seal: fc.string({ minLength: 1, maxLength: 200 }),
           parties: fc.constant(parties),
           contests: arbitraryContests({

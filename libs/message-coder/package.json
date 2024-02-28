@@ -15,7 +15,7 @@
     "test": "is-ci test:ci test:watch",
     "test:ci": "jest --ci --coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
     "test:coverage": "jest --coverage",
-    "test:watch": "TZ=UTC jest --watch",
+    "test:watch": "jest --watch",
     "type-check": "tsc --build"
   },
   "dependencies": {

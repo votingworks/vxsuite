@@ -13,7 +13,7 @@ import {
   PollsState,
   TEST_JURISDICTION,
 } from '@votingworks/types';
-import { LogSource, Logger } from '@votingworks/logging';
+import { LogSource, BaseLogger } from '@votingworks/logging';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Screen } from '../components/layout';
 import { LiveCheckButton } from '../components/live_check_button';
@@ -25,7 +25,7 @@ interface SystemAdministratorScreenProps {
   authStatus: AuthStatus;
   electionDefinition?: ElectionDefinition;
   pollsState: PollsState;
-  logger: Logger;
+  logger: BaseLogger;
   usbDrive: UsbDriveStatus;
 }
 
@@ -100,7 +100,7 @@ export function DefaultPreview(): JSX.Element {
       pollsState="polls_open"
       electionDefinition={electionDefinition}
       usbDrive={{ status: 'no_drive' }}
-      logger={new Logger(LogSource.VxScanFrontend)}
+      logger={new BaseLogger(LogSource.VxScanFrontend)}
     />
   );
 }

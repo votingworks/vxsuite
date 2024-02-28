@@ -12,11 +12,7 @@ import {
   convertVxfElectionToCdfBallotDefinition,
   safeParseCdfBallotDefinition,
 } from './convert';
-import {
-  normalizeVxf,
-  testCdfBallotDefinition,
-  testVxfElection,
-} from './fixtures';
+import { testCdfBallotDefinition, testVxfElection } from './fixtures';
 import { ElectionStringKey, LanguageCode, UiStringsPackage } from '../..';
 import * as Cdf from '.';
 
@@ -295,7 +291,7 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
 test('convertCdfBallotDefinitionToVxfElection', () => {
   expect(
     convertCdfBallotDefinitionToVxfElection(testCdfBallotDefinition)
-  ).toEqual(normalizeVxf(testVxfElection));
+  ).toEqual(testVxfElection);
 });
 
 const elections = [election, primaryElection, electionTwoPartyPrimary];
@@ -303,9 +299,7 @@ const elections = [election, primaryElection, electionTwoPartyPrimary];
 for (const vxf of elections) {
   test(`round trip conversion for election fixture: ${vxf.title}`, () => {
     const cdf = convertVxfElectionToCdfBallotDefinition(vxf, {});
-    expect(convertCdfBallotDefinitionToVxfElection(cdf)).toEqual(
-      normalizeVxf(vxf)
-    );
+    expect(convertCdfBallotDefinitionToVxfElection(cdf)).toEqual(vxf);
   });
 }
 
@@ -346,7 +340,7 @@ test('safeParseCdfBallotDefinition', () => {
 
   expect(safeParseCdfBallotDefinition(testCdfBallotDefinition)).toEqual(
     ok({
-      vxfElection: normalizeVxf(testVxfElection),
+      vxfElection: testVxfElection,
       cdfElection: testCdfBallotDefinition,
     })
   );

@@ -4,9 +4,14 @@ import {
   ElectionDefinition,
   Tabulation,
 } from '@votingworks/types';
-import { assert, range } from '@votingworks/basics';
+import {
+  DateWithoutTime,
+  assert,
+  assertDefined,
+  range,
+} from '@votingworks/basics';
 import { Printer, renderToPdf } from '@votingworks/printing';
-import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { getCurrentTime } from '../util/get_current_time';
 
 const REPORT_NUM_ROWS = 30;
@@ -24,7 +29,9 @@ function getMockElectionDefinition(): ElectionDefinition {
       },
       title: '',
       type: 'general',
-      date: new Date(getCurrentTime()).toISOString(),
+      date: new DateWithoutTime(
+        assertDefined(new Date(getCurrentTime()).toISOString().split('T')[0])
+      ),
       seal: '',
       parties: [],
       districts: [],
@@ -58,11 +65,9 @@ const allMockCardCounts: Tabulation.GroupList<Tabulation.CardCounts> =
 export async function printTestPage({
   printer,
   logger,
-  userRole,
 }: {
   printer: Printer;
   logger: Logger;
-  userRole: LoggingUserRole;
 }): Promise<void> {
   const report = BallotCountReport({
     title: 'Print Diagnostic Test Page',
@@ -80,13 +85,13 @@ export async function printTestPage({
   const data = await renderToPdf(report);
   try {
     await printer.print({ data });
-    await logger.log(LogEventId.DiagnosticInit, userRole, {
+    await logger.logAsCurrentRole(LogEventId.DiagnosticInit, {
       message: `User started a print diagnostic by printing a test page.`,
       disposition: 'success',
     });
   } catch (error) {
     assert(error instanceof Error);
-    await logger.log(LogEventId.DiagnosticInit, userRole, {
+    await logger.logAsCurrentRole(LogEventId.DiagnosticInit, {
       message: `Error attempting to send test page to the printer: ${error.message}`,
       disposition: 'failure',
     });

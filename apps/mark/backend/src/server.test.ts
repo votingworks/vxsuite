@@ -1,4 +1,4 @@
-import { fakeLogger } from '@votingworks/logging';
+import { mockBaseLogger } from '@votingworks/logging';
 import tmp from 'tmp';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { PORT } from './globals';
@@ -7,12 +7,12 @@ import { createWorkspace } from './util/workspace';
 
 test('can start server', () => {
   const auth = buildMockInsertedSmartCardAuth();
-  const logger = fakeLogger();
+  const baseLogger = mockBaseLogger();
   const workspace = createWorkspace(tmp.dirSync().name);
 
   const server = start({
     auth,
-    logger,
+    baseLogger,
     port: PORT,
     workspace,
   });

@@ -1,4 +1,4 @@
-import { Logger } from '@votingworks/logging';
+import { BaseLogger } from '@votingworks/logging';
 import { PatConnectionStatusReaderInterface } from './connection_status_reader';
 
 // This mock is intended for developing on PAT flows without PAT hardware.
@@ -14,7 +14,7 @@ export class MockPatConnectionStatusReader
   constructor(
     // logger prop must be public to be defined in the interface
     // eslint-disable-next-line vx/gts-no-public-class-fields
-    readonly logger: Logger
+    readonly logger: BaseLogger
   ) {}
 
   open(): Promise<boolean> {

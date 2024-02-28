@@ -599,13 +599,10 @@ export class Store {
     [front, back]: SheetOf<PageInterpretationWithFiles>
   ): string {
     try {
-      const finishedAdjudicationAt =
-        front.interpretation.type === 'InterpretedHmpbPage' &&
-        back.interpretation.type === 'InterpretedHmpbPage' &&
-        !front.interpretation.adjudicationInfo.requiresAdjudication &&
-        !back.interpretation.adjudicationInfo.requiresAdjudication
-          ? DateTime.now().toISOTime()
-          : undefined;
+      const requiresAdjudication = sheetRequiresAdjudication([
+        front.interpretation,
+        back.interpretation,
+      ]);
 
       this.client.run(
         `insert into sheets (
@@ -626,10 +623,8 @@ export class Store {
         JSON.stringify(front.interpretation),
         back.imagePath,
         JSON.stringify(back.interpretation ?? {}),
-        sheetRequiresAdjudication([front.interpretation, back.interpretation])
-          ? 1
-          : 0,
-        finishedAdjudicationAt ?? null
+        requiresAdjudication ? 1 : 0,
+        requiresAdjudication ? null : DateTime.now().toISOTime()
       );
     } catch (error) {
       debug(

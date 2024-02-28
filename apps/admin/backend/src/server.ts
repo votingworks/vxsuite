@@ -1,4 +1,9 @@
-import { LogEventId, Logger, LogSource } from '@votingworks/logging';
+import {
+  LogEventId,
+  BaseLogger,
+  LogSource,
+  Logger,
+} from '@votingworks/logging';
 import { Application } from 'express';
 import { DippedSmartCardAuth, JavaCard, MockFileCard } from '@votingworks/auth';
 import { Server } from 'http';
@@ -9,10 +14,12 @@ import {
 } from '@votingworks/utils';
 import { detectUsbDrive, UsbDrive } from '@votingworks/usb-drive';
 import { Printer, detectPrinter } from '@votingworks/printing';
+import { assertDefined } from '@votingworks/basics';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildApp } from './app';
 import { rootDebug } from './util/debug';
+import { getUserRole } from './util/auth';
 
 const debug = rootDebug.extend('server');
 
@@ -21,7 +28,7 @@ const debug = rootDebug.extend('server');
  */
 export interface StartOptions {
   app: Application;
-  logger: Logger;
+  logger: BaseLogger;
   port: number | string;
   workspace: Workspace;
   usbDrive?: UsbDrive;
@@ -33,7 +40,7 @@ export interface StartOptions {
  */
 export async function start({
   app,
-  logger = new Logger(LogSource.VxAdminService),
+  logger: baseLogger = new BaseLogger(LogSource.VxAdminService),
   port = PORT,
   workspace,
   usbDrive,
@@ -45,22 +52,21 @@ export async function start({
   if (!resolvedWorkspace) {
     const workspacePath = ADMIN_WORKSPACE;
     if (!workspacePath) {
-      await logger.log(LogEventId.AdminServiceConfigurationMessage, 'system', {
-        message:
-          'workspace path could not be determined; pass a workspace or run with ADMIN_WORKSPACE',
-        disposition: 'failure',
-      });
+      await baseLogger.log(
+        LogEventId.AdminServiceConfigurationMessage,
+        'system',
+        {
+          message:
+            'workspace path could not be determined; pass a workspace or run with ADMIN_WORKSPACE',
+          disposition: 'failure',
+        }
+      );
       throw new Error(
         'workspace path could not be determined; pass a workspace or run with ADMIN_WORKSPACE'
       );
     }
     resolvedWorkspace = createWorkspace(workspacePath);
   }
-  /* c8 ignore stop */
-
-  /* c8 ignore start */
-  const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
-  const resolvedPrinter = printer ?? detectPrinter(logger);
   /* c8 ignore stop */
 
   let resolvedApp = app;
@@ -76,8 +82,15 @@ export async function start({
       config: {
         allowElectionManagersToAccessUnconfiguredMachines: false,
       },
-      logger,
+      logger: baseLogger,
     });
+
+    const logger = Logger.from(baseLogger, () =>
+      getUserRole(auth, assertDefined(resolvedWorkspace))
+    );
+
+    const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
+    const resolvedPrinter = printer ?? detectPrinter(logger);
 
     resolvedApp = buildApp({
       auth,
@@ -90,7 +103,7 @@ export async function start({
   /* c8 ignore stop */
 
   const server = resolvedApp.listen(port, async () => {
-    await logger.log(LogEventId.ApplicationStartup, 'system', {
+    await baseLogger.log(LogEventId.ApplicationStartup, 'system', {
       message: `Admin Service running at http://localhost:${port}/`,
       disposition: 'success',
     });

@@ -1,6 +1,13 @@
-import { Result, err, ok, assertDefined, find } from '@votingworks/basics';
+import {
+  Result,
+  err,
+  ok,
+  assertDefined,
+  find,
+  DateWithoutTime,
+  extractErrorMessage,
+} from '@votingworks/basics';
 import { sha256 } from 'js-sha256';
-import { DateTime } from 'luxon';
 import { z } from 'zod';
 import { safeParseCdfBallotDefinition } from './cdf/ballot-definition/convert';
 import * as Cdf from './cdf/ballot-definition';
@@ -28,32 +35,6 @@ function maintainBackwardsCompatibility(value: unknown): unknown {
 
   // Fill in a default empty seal value
   election = { ...election, seal: election.seal ?? '' };
-
-  // Convert specific known date formats to ISO 8601.
-  if (
-    typeof election.date === 'string' &&
-    !DateTime.fromISO(election.date).isValid
-  ) {
-    // e.g. 2/18/2020
-    const parsedMonthDayYearDate = DateTime.fromFormat(
-      election.date,
-      'M/d/yyyy'
-    );
-
-    if (parsedMonthDayYearDate.isValid) {
-      election = { ...election, date: parsedMonthDayYearDate.toISO() };
-    }
-
-    // e.g. February 18th, 2020
-    const parsedMonthNameDayYearDate = DateTime.fromFormat(
-      election.date.replace(/(\d+)(st|nd|rd|th)/, '$1'),
-      'MMMM d, yyyy'
-    );
-
-    if (parsedMonthNameDayYearDate.isValid) {
-      election = { ...election, date: parsedMonthNameDayYearDate.toISO() };
-    }
-  }
 
   // Fill in `Party#fullName` from `Party#name` if it's missing.
   const isMissingPartyFullName = election.parties?.some(
@@ -209,12 +190,50 @@ function maintainBackwardsCompatibility(value: unknown): unknown {
 }
 
 /**
+ * Parse the date field of an Election object from a string to a
+ * DateWithoutTime.
+ */
+function parseElectionDate(value: unknown): Result<unknown, z.ZodError> {
+  if (!value || typeof value !== 'object') {
+    return ok(value);
+  }
+
+  // We're casting it here to make it easier to use, but in this function you
+  // must assume the type is unknown.
+  let election = value as Election;
+
+  if (election.date && typeof election.date === 'string') {
+    try {
+      election = { ...election, date: new DateWithoutTime(election.date) };
+    } catch (error) {
+      return err(
+        new z.ZodError([
+          {
+            code: 'custom',
+            message: extractErrorMessage(error),
+            path: ['date'],
+          },
+        ])
+      );
+    }
+  }
+
+  return ok(election);
+}
+
+/**
  * Parses `value` as a VXF `Election` object.
  */
 export function safeParseVxfElection(
   value: unknown
 ): Result<Election, z.ZodError> {
-  return safeParse(ElectionSchema, maintainBackwardsCompatibility(value));
+  const valueWithParsedDate = parseElectionDate(
+    maintainBackwardsCompatibility(value)
+  );
+  if (valueWithParsedDate.isErr()) {
+    return valueWithParsedDate;
+  }
+  return safeParse(ElectionSchema, valueWithParsedDate.ok());
 }
 
 /**

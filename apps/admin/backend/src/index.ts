@@ -1,5 +1,5 @@
 // Import the rest of our application.
-import { Logger, LogSource, LogEventId } from '@votingworks/logging';
+import { BaseLogger, LogSource, LogEventId } from '@votingworks/logging';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import * as server from './server';
 
@@ -14,7 +14,7 @@ export * from './types';
 
 loadEnvVarsFromDotenvFiles();
 
-const logger = new Logger(LogSource.VxAdminService);
+const logger = new BaseLogger(LogSource.VxAdminService);
 
 async function main(): Promise<number> {
   await server.start({});

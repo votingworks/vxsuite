@@ -1,4 +1,4 @@
-import { fakeLogger, LogEventId } from '@votingworks/logging';
+import { mockBaseLogger, LogEventId } from '@votingworks/logging';
 import {
   AdjudicationReason,
   BallotMetadata,
@@ -48,7 +48,7 @@ test('says the sheet is unreadable if it is', async () => {
     })
   );
 
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
   const continueScanning = jest.fn();
 
   renderInAppContext(
@@ -163,7 +163,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
   );
 
   const continueScanning = jest.fn();
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
 
   renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
@@ -283,7 +283,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
   );
 
   const continueScanning = jest.fn();
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
 
   renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
@@ -410,7 +410,7 @@ test('says the ballot sheet is blank if it is', async () => {
   );
 
   const continueScanning = jest.fn();
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
 
   renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
@@ -485,7 +485,7 @@ test('calls out official ballot sheets in test mode', async () => {
   );
 
   const continueScanning = jest.fn();
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
 
   renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,
@@ -553,7 +553,7 @@ test('calls out test ballot sheets in live mode', async () => {
   );
 
   const continueScanning = jest.fn();
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
 
   renderInAppContext(
     <BallotEjectScreen
@@ -608,7 +608,7 @@ test('shows invalid election screen when appropriate', async () => {
   );
 
   const continueScanning = jest.fn();
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
 
   const { getByText, queryAllByText } = renderInAppContext(
     <BallotEjectScreen
@@ -730,7 +730,7 @@ test('does not allow tabulating the overvote if precinctScanDisallowCastingOverv
   );
 
   const continueScanning = jest.fn();
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
 
   renderInAppContext(
     <BallotEjectScreen continueScanning={continueScanning} isTestMode />,

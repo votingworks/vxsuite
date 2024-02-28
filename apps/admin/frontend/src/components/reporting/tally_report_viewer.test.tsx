@@ -4,7 +4,6 @@ import {
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { waitForElementToBeRemoved } from '@testing-library/react';
-import { fakeLogger } from '@votingworks/logging';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { TallyReportSpec } from '@votingworks/admin-backend';
 import { ok } from '@votingworks/basics';
@@ -153,14 +152,13 @@ test('printing report', async () => {
     pdfContent: 'Unofficial Lincoln Municipal General Election Tally Report',
   });
 
-  const logger = fakeLogger();
   renderInAppContext(
     <TallyReportViewer
       disabled={false}
       autoGenerateReport
       {...MOCK_REPORT_SPEC}
     />,
-    { apiMock, electionDefinition, logger }
+    { apiMock, electionDefinition }
   );
 
   await screen.findByText(
@@ -215,7 +213,7 @@ test('exporting PDF', async () => {
 
   const { resolve } = apiMock.expectExportTallyReportPdf({
     expectCallWith: {
-      path: 'test-mount-point/franklin-county_lincoln-municipal-general-election_d44db90b8b/reports/unofficial-tally-reports-by-voting-method__2023-09-06_21-45-08.pdf',
+      path: 'test-mount-point/franklin-county_lincoln-municipal-general-election_c58b27d55e/reports/unofficial-tally-reports-by-voting-method__2023-09-06_21-45-08.pdf',
       ...MOCK_REPORT_SPEC,
     },
     returnValue: ok([]),
@@ -263,7 +261,7 @@ test('exporting CSV', async () => {
 
   const { resolve } = apiMock.expectExportTallyReportCsv({
     expectCallWith: {
-      path: 'test-mount-point/franklin-county_lincoln-municipal-general-election_d44db90b8b/reports/unofficial-tally-report-by-voting-method__2023-09-06_21-45-08.csv',
+      path: 'test-mount-point/franklin-county_lincoln-municipal-general-election_c58b27d55e/reports/unofficial-tally-report-by-voting-method__2023-09-06_21-45-08.csv',
       filter: MOCK_REPORT_SPEC.filter,
       groupBy: MOCK_REPORT_SPEC.groupBy,
     },
@@ -317,7 +315,7 @@ test('when full election report - allows CDF export and includes signature lines
 
   const { resolve } = apiMock.expectExportCdfReport({
     expectCallWith: {
-      path: 'test-mount-point/franklin-county_lincoln-municipal-general-election_d44db90b8b/reports/unofficial-cdf-election-results-report__2023-09-06_21-45-08.json',
+      path: 'test-mount-point/franklin-county_lincoln-municipal-general-election_c58b27d55e/reports/unofficial-cdf-election-results-report__2023-09-06_21-45-08.json',
     },
     returnValue: ok([]),
     deferred: true,

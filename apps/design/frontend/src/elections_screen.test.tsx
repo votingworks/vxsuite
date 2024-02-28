@@ -93,13 +93,13 @@ test('with elections', async () => {
   ).toEqual([
     [
       generalElectionRecord.election.title,
-      '11/3/2020',
+      'November 3, 2020',
       generalElectionRecord.election.county.name,
       generalElectionRecord.election.state,
     ],
     [
       primaryElectionRecord.election.title,
-      '9/8/2021',
+      'September 8, 2021',
       primaryElectionRecord.election.county.name,
       primaryElectionRecord.election.state,
     ],

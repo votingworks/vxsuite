@@ -26,7 +26,7 @@ import {
   InterpretFileResult,
   interpretSheet,
 } from '@votingworks/ballot-interpreter';
-import { LogEventId, LogLine, Logger } from '@votingworks/logging';
+import { LogEventId, LogLine, BaseLogger } from '@votingworks/logging';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   BooleanEnvironmentVariableName,
@@ -783,7 +783,7 @@ export function buildMachine(
 
 function setUpLogging(
   machineService: Interpreter<Context, any, PaperHandlerStatusEvent, any, any>,
-  logger: Logger
+  logger: BaseLogger
 ) {
   machineService
     .onEvent(async (event) => {
@@ -866,7 +866,7 @@ export async function getPaperHandlerStateMachine({
 }: {
   workspace: Workspace;
   auth: InsertedSmartCardAuthApi;
-  logger: Logger;
+  logger: BaseLogger;
   driver: PaperHandlerDriverInterface;
   patConnectionStatusReader: PatConnectionStatusReader;
   deviceTimeoutMs?: number;

@@ -18,9 +18,9 @@
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=UTC node scripts/test.js --coverage --watchAll=false --reporters=default --reporters=jest-junit --maxWorkers=6",
-    "test:coverage": "TZ=UTC node scripts/test.js --coverage --watchAll=false",
-    "test:watch": "TZ=UTC node scripts/test.js",
+    "test:ci": "node scripts/test.js --coverage --watchAll=false --reporters=default --reporters=jest-junit --maxWorkers=6",
+    "test:coverage": "node scripts/test.js --coverage --watchAll=false",
+    "test:watch": "node scripts/test.js",
     "type-check": "tsc --build"
   },
   "lint-staged": {

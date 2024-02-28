@@ -1,6 +1,6 @@
 import { BrowserRouter, Route } from 'react-router-dom';
 
-import { Logger, LogSource } from '@votingworks/logging';
+import { BaseLogger, LogSource } from '@votingworks/logging';
 import { QueryClient } from '@tanstack/react-query';
 import { AppErrorBoundary } from '@votingworks/ui';
 import { AppRoot, Props as AppRootProps } from './app_root';
@@ -22,7 +22,7 @@ export interface AppProps {
 const RESTART_MESSAGE = 'Ask a poll worker to restart the scanner.';
 
 export function App({
-  logger = new Logger(LogSource.VxScanFrontend, window.kiosk),
+  logger = new BaseLogger(LogSource.VxScanFrontend, window.kiosk),
   apiClient = createApiClient(),
   queryClient = createQueryClient(),
   enableStringTranslation,

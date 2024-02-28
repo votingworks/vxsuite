@@ -5,7 +5,7 @@ import {
 } from '@votingworks/test-utils';
 
 import { err, ok } from '@votingworks/basics';
-import { fakeLogger, LogEventId } from '@votingworks/logging';
+import { mockBaseLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import { DippedSmartCardAuth } from '@votingworks/types';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
@@ -33,7 +33,7 @@ const { mockApiClient, render } = newTestContext({
 });
 
 test('renders no log file found when usb is mounted but no log file on machine', async () => {
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
 
   mockApiClient.exportLogsToUsb.mockResolvedValueOnce(err('no-logs-directory'));
 
@@ -64,7 +64,7 @@ test('render no usb found screen when there is not a mounted usb drive', async (
     const { unmount } = render(
       <ExportLogsButton
         usbDriveStatus={status}
-        logger={fakeLogger()}
+        logger={mockBaseLogger()}
         auth={systemAdministratorAuthStatus}
       />
     );
@@ -83,7 +83,7 @@ test('render no usb found screen when there is not a mounted usb drive', async (
 });
 
 test('successful save raw logs flow', async () => {
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
 
   mockApiClient.exportLogsToUsb.mockResolvedValueOnce(ok());
 

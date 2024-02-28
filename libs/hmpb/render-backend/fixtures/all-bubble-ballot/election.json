@@ -9512,7 +9512,7 @@
     "id": "test-county",
     "name": "Test County"
   },
-  "date": "2023-05-10T00:00:00Z",
+  "date": "2023-05-10",
   "districts": [
     {
       "id": "test-district",

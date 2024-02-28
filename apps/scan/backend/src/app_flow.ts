@@ -3,7 +3,7 @@ import { doesUsbDriveRequireCastVoteRecordSync } from '@votingworks/backend';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { BALLOT_BAG_CAPACITY } from './globals';
 import { Store } from './store';
-import { constructAuthMachineState } from './util/construct_auth_machine_state';
+import { constructAuthMachineState } from './util/auth';
 
 /**
  * Determines whether the VxScan is ready to scan. There are circumstances when

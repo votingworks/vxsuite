@@ -1,5 +1,5 @@
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
-import { LogEventId, fakeLogger } from '@votingworks/logging';
+import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import { render, screen, waitFor } from '../test/react_testing_library';
 import {
@@ -51,7 +51,7 @@ test.each<{
 ])(
   'logs error if logger is provided - $error',
   async ({ error, expectedLog }) => {
-    const logger = fakeLogger();
+    const logger = mockBaseLogger();
     await suppressingConsoleOutput(async () => {
       render(
         <ErrorBoundary errorMessage="jellyfish" logger={logger}>
@@ -83,7 +83,7 @@ test('TestErrorBoundary shows caught error message', async () => {
 });
 
 test('AppErrorBoundary shows "Something went wrong" when something goes wrong', async () => {
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
   await suppressingConsoleOutput(async () => {
     render(
       <AppErrorBoundary

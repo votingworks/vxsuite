@@ -1,4 +1,4 @@
-import { fakeLogger } from '@votingworks/logging';
+import { mockBaseLogger } from '@votingworks/logging';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { MemoryHardware } from '@votingworks/utils';
 import { mockUsbDriveStatus } from '@votingworks/ui';
@@ -31,7 +31,7 @@ test('renders an error if election package config endpoint returns an error', as
     <App
       hardware={MemoryHardware.buildStandard()}
       reload={jest.fn()}
-      logger={fakeLogger()}
+      logger={mockBaseLogger()}
       apiClient={apiMock.mockApiClient}
     />
   );

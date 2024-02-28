@@ -1,4 +1,4 @@
-import { LogEventId, fakeLogger } from '@votingworks/logging';
+import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import { fakeMarkerInfo, mockOf } from '@votingworks/test-utils';
 import {
   AccessibleControllerProductId,
@@ -38,7 +38,7 @@ const emptyDevices: Devices = {
 
 test('can connect printer as expected', () => {
   const hardware = new MemoryHardware();
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
   const { result, rerender, unmount } = renderHook(() =>
     useDevices({ hardware, logger })
   );
@@ -110,7 +110,7 @@ test('can connect printer as expected', () => {
 
 test('can connect accessible controller as expected', () => {
   const hardware = new MemoryHardware();
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
   const { result, rerender, unmount } = renderHook(() =>
     useDevices({ hardware, logger })
   );
@@ -163,7 +163,7 @@ test('can connect accessible controller as expected', () => {
 
 test('can connect batch scanner as expected', () => {
   const hardware = new MemoryHardware();
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
   const { result, rerender, unmount } = renderHook(() =>
     useDevices({ hardware, logger })
   );
@@ -223,7 +223,7 @@ test('can connect precinct scanner as expected', () => {
     manufacturer: 'Custom',
   };
   const hardware = new MemoryHardware();
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
   const { result, rerender, unmount } = renderHook(() =>
     useDevices({ hardware, logger })
   );
@@ -275,7 +275,7 @@ test('can handle logs for a random device as expected', () => {
     manufacturer: '',
   };
   const hardware = new MemoryHardware();
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
   const { result, rerender, unmount } = renderHook(() =>
     useDevices({ hardware, logger })
   );
@@ -315,7 +315,7 @@ test('can handle logs for a random device as expected', () => {
 test('periodically polls for computer battery status', async () => {
   jest.useFakeTimers();
   const hardware = new MemoryHardware();
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
   const { result, unmount } = renderHook(() =>
     useDevices({ hardware, logger })
   );

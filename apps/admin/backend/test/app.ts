@@ -17,7 +17,6 @@ import {
   SystemSettings,
 } from '@votingworks/types';
 import * as grout from '@votingworks/grout';
-import { fakeLogger } from '@votingworks/logging';
 import { AddressInfo } from 'net';
 import { Buffer } from 'buffer';
 import tmp, { tmpNameSync } from 'tmp';
@@ -28,10 +27,12 @@ import {
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { writeFileSync } from 'fs';
 import { createMockPrinterHandler } from '@votingworks/printing';
+import { Logger, LogSource, mockLogger } from '@votingworks/logging';
 import { Api } from '../src';
-import { createWorkspace } from '../src/util/workspace';
+import { createWorkspace, Workspace } from '../src/util/workspace';
 import { buildApp } from '../src/app';
 import { deleteTmpFileAfterTestSuiteCompletes } from './cleanup';
+import { getUserRole } from '../src/util/auth';
 
 type ActualDirectory = string;
 type MockFileTree = MockFile | MockDirectory | ActualDirectory;
@@ -118,9 +119,17 @@ export async function configureMachine(
   return electionId;
 }
 
+export function buildMockLogger(
+  auth: DippedSmartCardAuthApi,
+  workspace: Workspace
+): Logger {
+  return mockLogger(LogSource.VxAdminService, () =>
+    getUserRole(auth, workspace)
+  );
+}
+
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildTestEnvironment(workspaceRoot?: string) {
-  const logger = fakeLogger();
   const auth = buildMockDippedSmartCardAuth();
   const resolvedWorkspaceRoot =
     workspaceRoot ||
@@ -130,6 +139,7 @@ export function buildTestEnvironment(workspaceRoot?: string) {
       return defaultWorkspaceRoot;
     })();
   const workspace = createWorkspace(resolvedWorkspaceRoot);
+  const logger = buildMockLogger(auth, workspace);
   const mockUsbDrive = createMockUsbDrive();
   const mockPrinterHandler = createMockPrinterHandler();
   const app = buildApp({

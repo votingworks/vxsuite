@@ -6,7 +6,7 @@ import {
 } from '@votingworks/types';
 import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { assert } from '@votingworks/basics';
-import { LogEventId, fakeLogger } from '@votingworks/logging';
+import { LogEventId, mockBaseLogger } from '@votingworks/logging';
 import {
   MockCastVoteRecordFile,
   addMockCvrFileToStore,
@@ -105,7 +105,7 @@ test('adjudicateVote', () => {
 
 test('adjudicateWriteIn', async () => {
   const store = Store.memoryStore();
-  const logger = fakeLogger();
+  const logger = mockBaseLogger();
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const { electionData } = electionDefinition;
   const electionId = store.addElection({

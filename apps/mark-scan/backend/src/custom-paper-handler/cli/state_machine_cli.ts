@@ -6,7 +6,7 @@ import { readFileSync } from 'fs';
 import { assert } from '@votingworks/basics';
 import { getPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { join } from 'path';
-import { LogSource, Logger } from '@votingworks/logging';
+import { LogSource, BaseLogger } from '@votingworks/logging';
 import { createWorkspace } from '../../util/workspace';
 import { MARK_SCAN_WORKSPACE } from '../../globals';
 import {
@@ -23,7 +23,7 @@ import { MockPatConnectionStatusReader } from '../../pat-input/mock_connection_s
 
 // We could add a LogSource for this CLI tool but that's unnecessary because
 // these logs will never reach production
-const logger = new Logger(LogSource.VxMarkScanBackend);
+const logger = new BaseLogger(LogSource.VxMarkScanBackend);
 
 const pathToPdfData = join(__dirname, '..', 'fixtures', 'ballot-pdf-data.bin');
 

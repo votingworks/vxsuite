@@ -1,5 +1,3 @@
-import { LoggingUserRole } from '@votingworks/logging';
-
 export type UsbDriveStatus =
   | { status: 'no_drive' }
   | {
@@ -11,6 +9,6 @@ export type UsbDriveStatus =
 
 export interface UsbDrive {
   status(): Promise<UsbDriveStatus>;
-  eject(loggingUserRole: LoggingUserRole): Promise<void>;
-  format(loggingUserRole: LoggingUserRole): Promise<void>;
+  eject(): Promise<void>;
+  format(): Promise<void>;
 }

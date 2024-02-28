@@ -10,9 +10,8 @@ import {
   H1,
   Icons,
 } from '@votingworks/ui';
-import { formatLongDate } from '@votingworks/utils';
+import { format } from '@votingworks/utils';
 import type { MachineConfig } from '@votingworks/mark-scan-backend';
-import { DateTime } from 'luxon';
 import pluralize from 'pluralize';
 
 export interface ReplaceElectionScreenProps {
@@ -88,7 +87,11 @@ export function ReplaceElectionScreen({
               </tr>
               <tr>
                 <th>Date</th>
-                <td>{formatLongDate(DateTime.fromISO(election.date))}</td>
+                <td>
+                  {format.localeLongDate(
+                    election.date.toMidnightDatetimeWithSystemTimezone()
+                  )}
+                </td>
               </tr>
               <tr>
                 <th>Election ID</th>

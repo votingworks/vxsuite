@@ -3,13 +3,7 @@ import {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import {
-  assert,
-  assertDefined,
-  ok,
-  Result,
-  throwIllegalValue,
-} from '@votingworks/basics';
+import { assert, ok, Result, throwIllegalValue } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
   ElectionPackageConfigurationError,
@@ -32,7 +26,7 @@ import {
   configureUiStrings,
   createSystemCallApi,
 } from '@votingworks/backend';
-import { LogEventId, Logger, LoggingUserRole } from '@votingworks/logging';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { getMachineConfig } from './machine_config';
@@ -62,13 +56,6 @@ export function buildApi(
 ) {
   const { store } = workspace;
 
-  async function getUserRole(): Promise<LoggingUserRole> {
-    const authStatus = await auth.getAuthStatus(
-      constructAuthMachineState(workspace)
-    );
-    return authStatus.status === 'logged_in' ? authStatus.user.role : 'unknown';
-  }
-
   return grout.createApi({
     getMachineConfig,
 
@@ -91,7 +78,7 @@ export function buildApi(
     },
 
     async ejectUsbDrive(): Promise<void> {
-      return usbDrive.eject(assertDefined(await getUserRole()));
+      return usbDrive.eject();
     },
 
     updateSessionExpiry(input: { sessionExpiresAt: Date }) {
@@ -227,7 +214,7 @@ export function buildApi(
         }
       })();
       if (logEvent) {
-        await logger.log(logEvent, 'poll_worker', { disposition: 'success' });
+        await logger.logAsCurrentRole(logEvent, { disposition: 'success' });
       }
     },
 

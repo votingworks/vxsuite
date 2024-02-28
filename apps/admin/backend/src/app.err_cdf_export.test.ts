@@ -222,7 +222,7 @@ it('exports results and metadata accurately', async () => {
   expect(electionMetadata).toEqual({
     '@type': 'ElectionResults.Election',
     ElectionScopeId: 'nh',
-    EndDate: '2022-07-12T12:00:00.000-04:00',
+    EndDate: '2022-07-12',
     Name: {
       '@type': 'ElectionResults.InternationalizedText',
       Text: [
@@ -233,7 +233,7 @@ it('exports results and metadata accurately', async () => {
         },
       ],
     },
-    StartDate: '2022-07-12T12:00:00.000-04:00',
+    StartDate: '2022-07-12',
     Type: 'general',
   });
   expect(BallotCounts).toHaveLength(1);

@@ -9,7 +9,7 @@ import {
 import {
   LogDispositionStandardTypes,
   LogEventId,
-  Logger,
+  BaseLogger,
 } from '@votingworks/logging';
 import { DippedSmartCardAuth as DippedSmartCardAuthTypes } from '@votingworks/types';
 import {
@@ -91,7 +91,7 @@ function cardStatusToProgrammableCard(
 async function logAuthEventIfNecessary(
   previousAuthStatus: DippedSmartCardAuthTypes.AuthStatus,
   newAuthStatus: DippedSmartCardAuthTypes.AuthStatus,
-  logger: Logger
+  logger: BaseLogger
 ) {
   switch (previousAuthStatus.status) {
     case 'logged_out': {
@@ -186,12 +186,12 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
   private authStatus: DippedSmartCardAuthTypes.AuthStatus;
   private readonly card: Card;
   private readonly config: DippedSmartCardAuthConfig;
-  private readonly logger: Logger;
+  private readonly logger: BaseLogger;
 
   constructor(input: {
     card: Card;
     config: DippedSmartCardAuthConfig;
-    logger: Logger;
+    logger: BaseLogger;
   }) {
     this.authStatus = DippedSmartCardAuthTypes.DEFAULT_AUTH_STATUS;
     this.card = input.card;

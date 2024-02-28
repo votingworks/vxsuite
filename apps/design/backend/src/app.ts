@@ -11,7 +11,13 @@ import {
   getBallotStyle,
 } from '@votingworks/types';
 import express, { Application } from 'express';
-import { assertDefined, groupBy, ok, Result } from '@votingworks/basics';
+import {
+  assertDefined,
+  DateWithoutTime,
+  groupBy,
+  ok,
+  Result,
+} from '@votingworks/basics';
 import {
   BallotMode,
   BALLOT_MODES,
@@ -35,7 +41,7 @@ export function createBlankElection(): Election {
   return {
     type: 'general',
     title: '',
-    date: '',
+    date: DateWithoutTime.today(),
     state: '',
     county: {
       id: '',

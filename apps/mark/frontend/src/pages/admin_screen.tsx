@@ -22,7 +22,7 @@ import {
   PollsState,
   PrecinctSelection,
 } from '@votingworks/types';
-import { Logger } from '@votingworks/logging';
+import { BaseLogger } from '@votingworks/logging';
 import type { MachineConfig } from '@votingworks/mark-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
@@ -40,7 +40,7 @@ export interface AdminScreenProps {
   unconfigure: () => Promise<void>;
   machineConfig: MachineConfig;
   pollsState: PollsState;
-  logger: Logger;
+  logger: BaseLogger;
   usbDriveStatus: UsbDriveStatus;
 }
 
