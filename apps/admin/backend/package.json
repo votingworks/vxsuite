@@ -17,11 +17,11 @@
     "pre-commit": "lint-staged",
     "start": "node ./build/index.js",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=UTC jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
-    "test:coverage": "TZ=UTC jest --coverage",
-    "test:debug": "TZ=UTC node --inspect-brk $(which jest) --runInBand --no-cache",
-    "test:perf": "TZ=UTC jest --coverage=false --roots '<rootDir>/perf' --testMatch '<rootDir>/perf/**/*.test.ts'",
-    "test:watch": "TZ=UTC jest --watch",
+    "test:ci": "jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
+    "test:coverage": "jest --coverage",
+    "test:debug": "node --inspect-brk $(which jest) --runInBand --no-cache",
+    "test:perf": "jest --coverage=false --roots '<rootDir>/perf' --testMatch '<rootDir>/perf/**/*.test.ts'",
+    "test:watch": "jest --watch",
     "type-check": "tsc --build"
   },
   "lint-staged": {

@@ -18,9 +18,9 @@
     "lint:fix": "pnpm type-check && eslint . --fix",
     "pre-commit": "lint-staged",
     "start": "node ./build/index.js",
-    "test": "TZ=UTC is-ci test:ci test:watch",
+    "test": "is-ci test:ci test:watch",
     "test:ci": "jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=2 # VxScan backend tests (which involve lots of polling and I/O operations) get flaky when we set --maxWorkers higher",
-    "test:coverage": "TZ=UTC jest --coverage",
+    "test:coverage": "jest --coverage",
     "test:debug": "node --inspect-brk $(which jest) --runInBand --no-cache",
     "test:watch": "jest --watch",
     "type-check": "tsc --build"

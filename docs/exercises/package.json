@@ -13,8 +13,8 @@
     "pre-commit": "lint-staged",
     "test": "is-ci test:ci test:watch",
     "test:ci": "jest",
-    "test:coverage": "TZ=UTC jest --coverage",
-    "test:watch": "TZ=UTC jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
     "type-check": "tsc --build"
   },
   "lint-staged": {

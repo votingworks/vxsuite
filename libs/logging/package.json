@@ -21,9 +21,9 @@
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "test": "is-ci test:ci test:watch",
-    "test:watch": "TZ=UTC jest --watch",
-    "test:coverage": "TZ=UTC jest --coverage",
-    "test:ci": "TZ=UTC pnpm build && pnpm test:coverage --reporters=default --reporters=jest-junit --maxWorkers=6 && pnpm build:generate-typescript-types --check && pnpm build:generate-rust-types --check",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:ci": "pnpm build && pnpm test:coverage --reporters=default --reporters=jest-junit --maxWorkers=6 && pnpm build:generate-typescript-types --check && pnpm build:generate-rust-types --check",
     "pre-commit": "lint-staged"
   },
   "lint-staged": {
