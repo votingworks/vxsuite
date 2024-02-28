@@ -13,7 +13,9 @@ export function TallyReportMetadata({
   election,
   generatedAtTime,
 }: Props): JSX.Element {
-  const electionDate = format.localeWeekdayAndDate(new Date(election.date));
+  const electionDate = format.localeWeekdayAndDate(
+    election.date.toMidnightDatetimeWithSystemTimezone()
+  );
   const generatedAt = format.localeLongDateAndTime(generatedAtTime);
 
   return (

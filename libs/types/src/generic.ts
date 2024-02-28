@@ -1,6 +1,13 @@
 import check8601 from '@antongolub/iso8601';
 import { z } from 'zod';
-import { err, ok, Optional, Result, wrapException } from '@votingworks/basics';
+import {
+  err,
+  ok,
+  Optional,
+  Result,
+  wrapException,
+  DateWithoutTime,
+} from '@votingworks/basics';
 
 export interface Dictionary<T> {
   [key: string]: Optional<T>;
@@ -132,8 +139,10 @@ export const MachineId = z
     'Machine IDs may only contain numbers, uppercase letters, and dashes'
   );
 
-export const Iso8601Date = z
+export const Iso8601DateTimeSchema = z
   .string()
-  .refine(check8601, 'dates must be in ISO8601 format');
+  .refine(check8601, 'datetimes must be in ISO8601 format');
 export type Iso8601Timestamp = string;
-export const Iso8601TimestampSchema = Iso8601Date;
+export const Iso8601TimestampSchema = Iso8601DateTimeSchema;
+
+export const DateWithoutTimeSchema = z.instanceof(DateWithoutTime);

@@ -4,7 +4,12 @@ import {
   ElectionDefinition,
   Tabulation,
 } from '@votingworks/types';
-import { assert, range } from '@votingworks/basics';
+import {
+  DateWithoutTime,
+  assert,
+  assertDefined,
+  range,
+} from '@votingworks/basics';
 import { Printer, renderToPdf } from '@votingworks/printing';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { getCurrentTime } from '../util/get_current_time';
@@ -24,7 +29,9 @@ function getMockElectionDefinition(): ElectionDefinition {
       },
       title: '',
       type: 'general',
-      date: new Date(getCurrentTime()).toISOString(),
+      date: new DateWithoutTime(
+        assertDefined(new Date(getCurrentTime()).toISOString().split('T')[0])
+      ),
       seal: '',
       parties: [],
       districts: [],

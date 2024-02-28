@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import JsZip from 'jszip';
 import get from 'lodash.get';
-import { assert, assertDefined } from '@votingworks/basics';
+import { DateWithoutTime, assert, assertDefined } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryDefinition,
@@ -92,7 +92,7 @@ test('CRUD elections', async () => {
         id: '',
         name: '',
       },
-      date: '',
+      date: expect.any(DateWithoutTime),
       districts: [],
       parties: [],
       precincts: [],
@@ -421,12 +421,6 @@ test('Election package export', async () => {
     // Ballot styles are generated in the app, ignoring the ones in the inputted election
     // definition
     ballotStyles: appElection.ballotStyles,
-
-    // The date in the election fixture has a timezone, even though it shouldn't
-    date: baseElectionDefinition.election.date.replace(
-      '00:00:00-10:00',
-      '00:00:00Z'
-    ),
 
     // The base election definition should have been extended with grid layouts. The correctness of
     // the grid layouts is tested by libs/ballot-interpreter tests.

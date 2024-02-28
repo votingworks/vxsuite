@@ -1,6 +1,12 @@
 import { z } from 'zod';
+import { DateWithoutTime } from '@votingworks/basics';
 import { MachineId, safeParse } from '.';
-import { maybeParse, safeParseJson, unsafeParse } from './generic';
+import {
+  DateWithoutTimeSchema,
+  maybeParse,
+  safeParseJson,
+  unsafeParse,
+} from './generic';
 
 test('unsafeParse', () => {
   expect(unsafeParse(z.string(), 'hello world!')).toEqual('hello world!');
@@ -30,4 +36,14 @@ test('safeParseJson', () => {
   ).toEqual({ a: 1 });
   expect(safeParseJson('{"a":1}', z.string()).err()).toBeInstanceOf(z.ZodError);
   expect(safeParseJson('{a:1}').err()).toBeInstanceOf(SyntaxError);
+});
+
+test('DateWithoutTime schema', () => {
+  expect(
+    safeParse(
+      DateWithoutTimeSchema,
+      new DateWithoutTime('2024-02-22')
+    ).unsafeUnwrap()
+  ).toEqual(new DateWithoutTime('2024-02-22'));
+  safeParse(DateWithoutTimeSchema, '2024-02-22').unsafeUnwrapErr();
 });

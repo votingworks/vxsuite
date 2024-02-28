@@ -902,7 +902,7 @@
     "id": "00701",
     "name": "Test Ballot"
   },
-  "date": "2022-07-12T12:00:00.000-04:00",
+  "date": "2022-07-12",
   "districts": [
     {
       "id": "town-id-00701-precinct-id-",

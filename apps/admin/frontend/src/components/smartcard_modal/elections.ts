@@ -3,7 +3,7 @@ import { format } from '@votingworks/utils';
 
 export function electionToDisplayString(election: Election): string {
   const electionDateFormatted = format.localeWeekdayAndDate(
-    new Date(election.date)
+    election.date.toMidnightDatetimeWithSystemTimezone()
   );
   return `${election.title} — ${electionDateFormatted}`;
 }

@@ -18,9 +18,9 @@
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=UTC node scripts/test.js --coverage --watchAll=false --reporters=default --reporters=jest-junit --maxWorkers=6 --passWithNoTests",
-    "test:coverage": "TZ=UTC node scripts/test.js --coverage --watchAll=false",
-    "test:watch": "TZ=UTC node scripts/test.js",
+    "test:ci": "node scripts/test.js --coverage --watchAll=false --reporters=default --reporters=jest-junit --maxWorkers=6 --passWithNoTests",
+    "test:coverage": "node scripts/test.js --coverage --watchAll=false",
+    "test:watch": "node scripts/test.js",
     "type-check": "tsc --build"
   },
   "lint-staged": {
@@ -63,7 +63,6 @@
     "esbuild": "0.17.11",
     "esbuild-runner": "2.2.2",
     "js-file-download": "0.4.12",
-    "luxon": "^3.0.0",
     "nanoid": "^3.3.7",
     "normalize.css": "^8.0.1",
     "path": "^0.12.7",
@@ -83,7 +82,6 @@
     "@types/dompurify": "^2.0.3",
     "@types/history": "4.7.11",
     "@types/jest": "^29.5.3",
-    "@types/luxon": "^3.0.0",
     "@types/react": "18.2.18",
     "@types/react-dom": "^18.2.7",
     "@types/react-router-dom": "^5.3.3",

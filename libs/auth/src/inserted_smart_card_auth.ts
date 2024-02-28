@@ -1,5 +1,4 @@
 import { Buffer } from 'buffer';
-import { z } from 'zod';
 import {
   assert,
   err,
@@ -20,7 +19,6 @@ import {
   CardlessVoterUser,
   InsertedSmartCardAuth as InsertedSmartCardAuthTypes,
   PrecinctId,
-  safeParseJson,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -294,21 +292,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     });
   }
 
-  async readCardData<T>(
-    machineState: InsertedSmartCardAuthMachineState,
-    input: { schema: z.ZodSchema<T> }
-  ): Promise<Result<Optional<T>, SyntaxError | z.ZodError | Error>> {
-    let result: Result<Optional<T>, SyntaxError | z.ZodError | Error>;
-    try {
-      const data = (await this.card.readData()).toString('utf-8') || undefined;
-      result = data ? safeParseJson(data, input.schema) : ok(undefined);
-    } catch (error) {
-      return wrapException(error);
-    }
-    return result;
-  }
-
-  async readCardDataAsString(): Promise<Result<Optional<string>, Error>> {
+  async readCardData(): Promise<Result<Optional<string>, Error>> {
     let data: Optional<string>;
     try {
       data = (await this.card.readData()).toString('utf-8') || undefined;
@@ -318,27 +302,20 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     return ok(data);
   }
 
-  async writeCardData<T>(
-    machineState: InsertedSmartCardAuthMachineState,
-    input: { data: T; schema: z.ZodSchema<T> }
-  ): Promise<Result<void, Error>> {
+  async writeCardData(input: { data: string }): Promise<Result<void, Error>> {
     try {
-      await this.card.writeData(
-        Buffer.from(JSON.stringify(input.data), 'utf-8')
-      );
+      await this.card.writeData(Buffer.from(input.data, 'utf-8'));
+
+      // Verify that the write was in fact successful by reading the data
+      const readResult = await this.readCardData();
+      if (readResult.isErr() || readResult.ok() !== input.data) {
+        return err(new Error('Verification of write by reading data failed'));
+      }
+
+      return ok();
     } catch (error) {
       return wrapException(error);
     }
-
-    // Verify that the write was in fact successful by reading the data
-    const readResult = await this.readCardData(machineState, {
-      schema: input.schema,
-    });
-    if (readResult.isErr()) {
-      return err(new Error('Verification of write by reading data failed'));
-    }
-
-    return ok();
   }
 
   async clearCardData(): Promise<Result<void, Error>> {

@@ -229,8 +229,8 @@ export function buildElectionResultsReport({
     Election: [
       {
         '@type': 'ElectionResults.Election',
-        StartDate: election.date,
-        EndDate: election.date,
+        StartDate: election.date.toISOString(),
+        EndDate: election.date.toISOString(),
         Name: asInternationalizedText(election.title),
         ElectionScopeId: stateId,
         Type: getElectionType(election),

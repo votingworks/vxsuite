@@ -1,6 +1,5 @@
 import { Buffer } from 'buffer';
 import { DateTime } from 'luxon';
-import { z } from 'zod';
 import { assert, err, ok } from '@votingworks/basics';
 import {
   electionGeneralDefinition,
@@ -23,7 +22,6 @@ import {
   DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
   DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
   DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
-  ElectionSchema,
   InsertedSmartCardAuth as InsertedSmartCardAuthTypes,
   TEST_JURISDICTION,
 } from '@votingworks/types';
@@ -984,30 +982,10 @@ test('Reading card data', async () => {
   mockCard.readData
     .expectCallWith()
     .resolves(Buffer.from(electionData, 'utf-8'));
-  expect(
-    await auth.readCardData(defaultMachineState, { schema: ElectionSchema })
-  ).toEqual(ok(election));
-
-  mockCard.readData
-    .expectCallWith()
-    .resolves(Buffer.from(electionData, 'utf-8'));
-  expect(await auth.readCardDataAsString()).toEqual(ok(electionData));
-});
-
-test('Reading card data as string', async () => {
-  const auth = new InsertedSmartCardAuth({
-    card: mockCard,
-    config: defaultConfig,
-    logger: mockLogger,
-  });
+  expect(await auth.readCardData()).toEqual(ok(electionData));
 
   mockCard.readData.expectCallWith().resolves(Buffer.of());
-  expect(
-    await auth.readCardData(defaultMachineState, { schema: ElectionSchema })
-  ).toEqual(ok(undefined));
-
-  mockCard.readData.expectCallWith().resolves(Buffer.of());
-  expect(await auth.readCardDataAsString()).toEqual(ok(undefined));
+  expect(await auth.readCardData()).toEqual(ok(undefined));
 });
 
 test('Writing card data', async () => {
@@ -1023,12 +1001,9 @@ test('Writing card data', async () => {
   mockCard.readData
     .expectCallWith()
     .resolves(Buffer.from(JSON.stringify(election), 'utf-8'));
-  expect(
-    await auth.writeCardData(defaultMachineState, {
-      data: election,
-      schema: ElectionSchema,
-    })
-  ).toEqual(ok());
+  expect(await auth.writeCardData({ data: JSON.stringify(election) })).toEqual(
+    ok()
+  );
 });
 
 test('Clearing card data', async () => {
@@ -1251,27 +1226,7 @@ test('Reading card data error handling', async () => {
   });
 
   mockCard.readData.expectCallWith().throws(new Error('Whoa!'));
-  expect(
-    await auth.readCardData(defaultMachineState, { schema: ElectionSchema })
-  ).toEqual(err(new Error('Whoa!')));
-});
-
-test('Reading card data as string error handling', async () => {
-  const auth = new InsertedSmartCardAuth({
-    card: mockCard,
-    config: defaultConfig,
-    logger: mockLogger,
-  });
-
-  mockCard.readData
-    .expectCallWith()
-    .resolves(Buffer.from(JSON.stringify({}), 'utf-8'));
-  expect(
-    await auth.readCardData(defaultMachineState, { schema: ElectionSchema })
-  ).toEqual(err(expect.any(z.ZodError)));
-
-  mockCard.readData.expectCallWith().throws(new Error('Whoa!'));
-  expect(await auth.readCardDataAsString()).toEqual(err(new Error('Whoa!')));
+  expect(await auth.readCardData()).toEqual(err(new Error('Whoa!')));
 });
 
 test('Writing card data error handling', async () => {
@@ -1284,21 +1239,17 @@ test('Writing card data error handling', async () => {
   mockCard.writeData
     .expectCallWith(Buffer.from(JSON.stringify(election), 'utf-8'))
     .throws(new Error('Whoa!'));
-  expect(
-    await auth.writeCardData(defaultMachineState, {
-      data: election,
-      schema: ElectionSchema,
-    })
-  ).toEqual(err(new Error('Whoa!')));
+  expect(await auth.writeCardData({ data: JSON.stringify(election) })).toEqual(
+    err(new Error('Whoa!'))
+  );
 
   mockCard.writeData
     .expectCallWith(Buffer.from(JSON.stringify(election), 'utf-8'))
     .resolves();
   mockCard.readData.expectCallWith().throws(new Error('Whoa!'));
   expect(
-    await auth.writeCardData(defaultMachineState, {
-      data: election,
-      schema: ElectionSchema,
+    await auth.writeCardData({
+      data: JSON.stringify(election),
     })
   ).toEqual(err(new Error('Verification of write by reading data failed')));
 });

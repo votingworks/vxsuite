@@ -1,6 +1,7 @@
 import {
   assert,
   assertDefined,
+  DateWithoutTime,
   duplicates,
   err,
   find,
@@ -24,17 +25,6 @@ import {
   ElectionStringKey,
   UiStringsPackage,
 } from '../../ui_string_translations';
-
-function dateString(date: Date) {
-  const isoString = date.toISOString();
-  return isoString.split('T')[0];
-}
-
-function dateTimeString(date: Date) {
-  const isoString = date.toISOString();
-  // Need to remove fractional seconds to satisfy CDF schema
-  return `${isoString.split('.')[0]}Z`;
-}
 
 function officeId(contestId: Vxf.ContestId): string {
   return `office-${contestId}`;
@@ -107,7 +97,6 @@ export function convertVxfElectionToCdfBallotDefinition(
   }
 
   const stateId = vxfElection.state.toLowerCase().replaceAll(' ', '-');
-  const electionDate = dateString(new Date(vxfElection.date));
 
   const precinctSplits = new Map<
     Vxf.PrecinctId,
@@ -303,8 +292,8 @@ export function convertVxfElectionToCdfBallotDefinition(
       {
         '@type': 'BallotDefinition.Election',
         ElectionScopeId: stateId,
-        StartDate: electionDate,
-        EndDate: electionDate,
+        StartDate: vxfElection.date.toISOString(),
+        EndDate: vxfElection.date.toISOString(),
         Type: vxfElection.type as Cdf.ElectionType,
         Name: text(vxfElection.title, ElectionStringKey.ELECTION_TITLE),
 
@@ -532,7 +521,7 @@ export function convertVxfElectionToCdfBallotDefinition(
     // we were to use the current date, it would cause changes every time we
     // hash the object. We want hashes to be based on the content of the
     // election, not the date generated.
-    GeneratedDate: dateTimeString(new Date(vxfElection.date)),
+    GeneratedDate: `${vxfElection.date.toISOString()}T00:00:00Z`,
     Issuer: 'VotingWorks',
     IssuerAbbreviation: 'VX',
     VendorApplicationId: 'VxSuite',
@@ -642,7 +631,7 @@ export function convertCdfBallotDefinitionToVxfElection(
       id: county['@id'],
       name: englishText(county.Name),
     },
-    date: dateTimeString(new Date(election.StartDate)),
+    date: new DateWithoutTime(election.StartDate),
     seal: cdfBallotDefinition.vxSeal,
 
     parties: cdfBallotDefinition.Party.map((party) => {

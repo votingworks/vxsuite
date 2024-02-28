@@ -9,6 +9,7 @@ import {
 } from '@votingworks/ui';
 import { useHistory, useParams } from 'react-router-dom';
 import styled from 'styled-components';
+import { DateWithoutTime } from '@votingworks/basics';
 import { deleteElection, getElection, updateElection } from './api';
 import { FieldName, Form, FormActionsRow, InputGroup } from './layout';
 import { ElectionNavScreen } from './nav_screen';
@@ -29,7 +30,6 @@ const SealImageInput = styled(ImageInput)`
 function hasBlankElectionInfo(election: Election): boolean {
   return (
     election.title === '' &&
-    election.date === '' &&
     election.state === '' &&
     election.county.name === '' &&
     election.seal === ''
@@ -89,11 +89,13 @@ function ElectionInfoForm({
       <InputGroup label="Date">
         <input
           type="date"
-          value={
-            electionInfo.date &&
-            new Date(electionInfo.date).toISOString().slice(0, 10)
+          value={electionInfo.date.toISOString()}
+          onChange={(e) =>
+            setElectionInfo({
+              ...electionInfo,
+              date: new DateWithoutTime(e.target.value),
+            })
           }
-          onChange={onInputChange('date')}
           disabled={!isEditing}
         />
       </InputGroup>

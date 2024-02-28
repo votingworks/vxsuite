@@ -15,7 +15,7 @@ import {
   measurements,
   TimingMarkGrid,
 } from '@votingworks/hmpb-layout';
-import { range } from '@votingworks/basics';
+import { DateWithoutTime, range } from '@votingworks/basics';
 import { join } from 'path';
 import { fixturesDir } from './ballot_fixtures';
 
@@ -103,7 +103,7 @@ function createElection(): Election {
       id: 'test-county',
       name: 'Test County',
     },
-    date: '2023-05-10T00:00:00Z',
+    date: new DateWithoutTime('2023-05-10'),
     districts: [
       {
         id: districtId,

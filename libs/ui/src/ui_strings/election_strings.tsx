@@ -89,7 +89,9 @@ export const electionStrings = {
 
   [Key.ELECTION_DATE]: (election: Election) => (
     <UiString uiStringKey={Key.ELECTION_DATE}>
-      <DateString value={new Date(election.date)} />
+      <DateString
+        value={election.date.toMidnightDatetimeWithSystemTimezone()}
+      />
     </UiString>
   ),
 

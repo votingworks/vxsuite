@@ -1,5 +1,12 @@
 import { Buffer } from 'buffer';
-import { assert, err, isResult, ok, Result } from '@votingworks/basics';
+import {
+  assert,
+  DateWithoutTime,
+  err,
+  isResult,
+  ok,
+  Result,
+} from '@votingworks/basics';
 import { DateTime } from 'luxon';
 import {
   isArray,
@@ -79,6 +86,14 @@ const dateTagger: Tagger<Date, string> = {
   deserialize: (value) => new Date(value),
 };
 
+const dateWithoutTimeTagger: Tagger<DateWithoutTime, string> = {
+  tag: 'DateWithoutTime',
+  shouldTag: (value): value is DateWithoutTime =>
+    value instanceof DateWithoutTime,
+  serialize: (value) => value.toISOString(),
+  deserialize: (value) => new DateWithoutTime(value),
+};
+
 const luxonDateTimeTagger: Tagger<DateTime, string> = {
   tag: 'DateTime',
   shouldTag: (value): value is DateTime => value instanceof DateTime,
@@ -142,6 +157,7 @@ const setTagger: Tagger<Set<unknown>, unknown[]> = {
 const taggers: Array<Tagger<any, any>> = [
   undefinedTagger,
   dateTagger,
+  dateWithoutTimeTagger,
   luxonDateTimeTagger,
   errorTagger,
   resultTagger,

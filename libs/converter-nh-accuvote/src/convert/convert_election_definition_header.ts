@@ -1,4 +1,4 @@
-import { assert, err, iter, ok } from '@votingworks/basics';
+import { DateWithoutTime, assert, err, iter, ok } from '@votingworks/basics';
 import {
   BallotPaperSize,
   Candidate,
@@ -422,7 +422,7 @@ export function convertElectionDefinitionHeader(
   const election: Election = {
     type: 'general',
     title,
-    date: parsedDate.toISO(),
+    date: new DateWithoutTime(parsedDate.toISODate()),
     county: {
       id: townId,
       name: townName,
