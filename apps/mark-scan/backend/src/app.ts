@@ -217,12 +217,15 @@ export function buildApi(
           BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
         )
       ) {
+        if (!stateMachine) {
+          return;
+        }
+
         // Mock print behavior when no paper handler is connected.
         // Skips the print state, sets the scanned ballot filepaths to
         // a fixture for Sample General Election, North Springfield, ballot style 5,
         // and continues to the interpretation state.
-        stateMachine?.setInterpretationFixture();
-        return;
+        stateMachine.setInterpretationFixture();
       }
 
       assert(stateMachine);

@@ -35,10 +35,11 @@ import {
   SUCCESS_NOTIFICATION_DURATION_MS,
 } from '../src/custom-paper-handler/constants';
 import { MockPatConnectionStatusReader } from '../src/pat-input/mock_connection_status_reader';
+import { PatConnectionStatusReaderInterface } from '../src/pat-input/connection_status_reader';
 
 export async function getMockStateMachine(
   workspace: Workspace,
-  mockPatConnectionStatusReader: MockPatConnectionStatusReader,
+  patConnectionStatusReader: PatConnectionStatusReaderInterface,
   driver: MockPaperHandlerDriver,
   logger: Logger
 ): Promise<PaperHandlerStateMachine> {
@@ -49,7 +50,7 @@ export async function getMockStateMachine(
     auth,
     logger,
     driver,
-    patConnectionStatusReader: mockPatConnectionStatusReader,
+    patConnectionStatusReader,
     devicePollingIntervalMs: DEVICE_STATUS_POLLING_INTERVAL_MS,
     authPollingIntervalMs: AUTH_STATUS_POLLING_INTERVAL_MS,
     notificationDurationMs: SUCCESS_NOTIFICATION_DURATION_MS,
@@ -67,23 +68,29 @@ interface MockAppContents {
   mockUsbDrive: MockUsbDrive;
   server: Server;
   stateMachine: PaperHandlerStateMachine;
-  mockPatConnectionStatusReader: MockPatConnectionStatusReader;
+  patConnectionStatusReader: PatConnectionStatusReaderInterface;
   driver: MockPaperHandlerDriver;
 }
 
-export async function createApp(): Promise<MockAppContents> {
+export interface CreateAppOptions {
+  patConnectionStatusReader?: PatConnectionStatusReaderInterface;
+}
+
+export async function createApp(
+  options?: CreateAppOptions
+): Promise<MockAppContents> {
   const mockAuth = buildMockInsertedSmartCardAuth();
   const logger = fakeLogger();
   const workspace = createWorkspace(tmp.dirSync().name);
   const mockUsbDrive = createMockUsbDrive();
-  const mockPatConnectionStatusReader = new MockPatConnectionStatusReader(
-    logger
-  );
+  const patConnectionStatusReader =
+    options?.patConnectionStatusReader ??
+    new MockPatConnectionStatusReader(logger);
   const driver = new MockPaperHandlerDriver();
 
   const stateMachine = await getMockStateMachine(
     workspace,
-    mockPatConnectionStatusReader,
+    patConnectionStatusReader,
     driver,
     logger
   );
@@ -110,7 +117,7 @@ export async function createApp(): Promise<MockAppContents> {
     mockUsbDrive,
     server,
     stateMachine,
-    mockPatConnectionStatusReader,
+    patConnectionStatusReader,
     driver,
   };
 }
