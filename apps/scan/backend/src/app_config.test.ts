@@ -150,7 +150,7 @@ test("if there's only one precinct in the election, it's selected automatically 
 });
 
 test('setPrecinctSelection will reset polls to closed', async () => {
-  await withApp({}, async ({ apiClient, mockUsbDrive, mockAuth }) => {
+  await withApp({}, async ({ apiClient, mockUsbDrive, mockAuth, logger }) => {
     await configureApp(apiClient, mockAuth, mockUsbDrive);
 
     expect(await apiClient.getPollsInfo()).toEqual(
@@ -171,6 +171,13 @@ test('setPrecinctSelection will reset polls to closed', async () => {
       typedAs<PrecinctScannerPollsInfo>({
         pollsState: 'polls_closed_initial',
       })
+    );
+    expect(logger.logAsCurrentUser).toHaveBeenLastCalledWith(
+      LogEventId.PrecinctConfigurationChanged,
+      {
+        disposition: 'success',
+        message: 'User set the precinct for the machine to East Lincoln',
+      }
     );
   });
 });

@@ -16,6 +16,7 @@ import {
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
+  getPrecinctSelectionName,
   isElectionManagerAuth,
   isFeatureFlagEnabled,
   isPollWorkerAuth,
@@ -321,11 +322,20 @@ export function buildApi(
       store.setBallotsPrintedCount(0);
     },
 
-    setPrecinctSelection(input: {
+    async setPrecinctSelection(input: {
       precinctSelection: PrecinctSelection;
-    }): void {
+    }): Promise<void> {
+      const electionDefinition = store.getElectionDefinition();
+      assert(electionDefinition);
       store.setPrecinctSelection(input.precinctSelection);
       store.setBallotsPrintedCount(0);
+      await logger.logAsCurrentUser(LogEventId.PrecinctConfigurationChanged, {
+        disposition: 'success',
+        message: `User set the precinct for the machine to ${getPrecinctSelectionName(
+          electionDefinition.election.precincts,
+          input.precinctSelection
+        )}`,
+      });
     },
 
     getElectionState(): ElectionState {

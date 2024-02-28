@@ -11,6 +11,7 @@ import {
 } from '@votingworks/types';
 import {
   getPollsTransitionDestinationState,
+  getPrecinctSelectionName,
   isElectionManagerAuth,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
@@ -193,15 +194,24 @@ export function buildApi({
       workspace.reset();
     },
 
-    setPrecinctSelection(input: {
+    async setPrecinctSelection(input: {
       precinctSelection: PrecinctSelection;
-    }): void {
+    }): Promise<void> {
+      const electionDefinition = store.getElectionDefinition();
+      assert(electionDefinition);
       assert(
         store.getBallotsCounted() === 0,
         'Attempt to change precinct selection after ballots have been cast'
       );
       store.setPrecinctSelection(input.precinctSelection);
       workspace.resetElectionSession();
+      await logger.logAsCurrentUser(LogEventId.PrecinctConfigurationChanged, {
+        disposition: 'success',
+        message: `User set the precinct for the machine to ${getPrecinctSelectionName(
+          electionDefinition.election.precincts,
+          input.precinctSelection
+        )}`,
+      });
     },
 
     setIsSoundMuted(input: { isSoundMuted: boolean }): void {

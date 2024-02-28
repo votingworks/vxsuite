@@ -13,7 +13,6 @@ import {
 } from '@votingworks/ui';
 import React, { useState } from 'react';
 import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
-import { BaseLogger, LogSource } from '@votingworks/logging';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   BooleanEnvironmentVariableName,
@@ -47,14 +46,12 @@ export interface ElectionManagerScreenProps {
   electionDefinition: ElectionDefinition;
   scannerStatus: PrecinctScannerStatus;
   usbDrive: UsbDriveStatus;
-  logger: BaseLogger;
 }
 
 export function ElectionManagerScreen({
   electionDefinition,
   scannerStatus,
   usbDrive,
-  logger,
 }: ElectionManagerScreenProps): JSX.Element | null {
   const supportsUltrasonicQuery = supportsUltrasonic.useQuery();
   const configQuery = getConfig.useQuery();
@@ -138,7 +135,6 @@ export function ElectionManagerScreen({
             ? 'confirmation_required'
             : 'disabled'
         }
-        logger={logger}
       />
     </P>
   );
@@ -327,7 +323,6 @@ export function DefaultPreview(): JSX.Element {
         ballotsCounted: 1234,
       }}
       usbDrive={{ status: 'no_drive' }}
-      logger={new BaseLogger(LogSource.VxScanFrontend)}
     />
   );
 }

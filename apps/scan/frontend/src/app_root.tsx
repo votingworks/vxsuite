@@ -182,7 +182,6 @@ export function AppRoot({ logger }: Props): JSX.Element | null {
         electionDefinition={electionDefinition}
         scannerStatus={scannerStatus}
         usbDrive={usbDrive}
-        logger={logger}
       />
     );
   }

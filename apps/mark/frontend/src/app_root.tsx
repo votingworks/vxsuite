@@ -457,7 +457,6 @@ export function AppRoot({
         unconfigure={unconfigure}
         machineConfig={machineConfig}
         pollsState={pollsState}
-        logger={logger}
         usbDriveStatus={usbDriveStatus}
       />
     );
