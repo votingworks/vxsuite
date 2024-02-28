@@ -111,9 +111,6 @@ export function BallotEjectScreen({
     [contestIdsWithIssues]
   );
 
-  let isFrontAdjudicationDone = false;
-  let isBackAdjudicationDone = false;
-
   // with new reviewInfo, mark each side done if nothing to actually adjudicate
   if (reviewInfo) {
     const frontInterpretation = reviewInfo.interpreted.front.interpretation;
@@ -154,81 +151,7 @@ export function BallotEjectScreen({
         adjudicationTypes: [...adjudicationTypes].join(', '),
       });
     }
-
-    if (
-      frontInterpretation.type === 'InterpretedHmpbPage' &&
-      backInterpretation.type === 'InterpretedHmpbPage'
-    ) {
-      const frontAdjudication = frontInterpretation.adjudicationInfo;
-      const backAdjudication = backInterpretation.adjudicationInfo;
-
-      // A ballot is blank if both sides are marked blank.
-      //
-      // One could argue that making this call is the server's job.
-      // We leave that consideration to:
-      // https://github.com/votingworks/vxsuite/issues/902
-      const isBlank =
-        frontAdjudication.enabledReasonInfos.some(
-          (info) => info.type === AdjudicationReason.BlankBallot
-        ) &&
-        backAdjudication.enabledReasonInfos.some(
-          (info) => info.type === AdjudicationReason.BlankBallot
-        );
-
-      if (!isBlank) {
-        if (
-          !frontAdjudication.enabledReasons.some(
-            (reason) =>
-              reason !== AdjudicationReason.BlankBallot &&
-              frontAdjudication.enabledReasonInfos.some(
-                (info) => info.type === reason
-              )
-          )
-        ) {
-          isFrontAdjudicationDone = true;
-        }
-        if (
-          !backAdjudication.enabledReasons.some(
-            (reason) =>
-              reason !== AdjudicationReason.BlankBallot &&
-              backAdjudication.enabledReasonInfos.some(
-                (info) => info.type === reason
-              )
-          )
-        ) {
-          isBackAdjudicationDone = true;
-        }
-      }
-    }
   }
-
-  useEffect(() => {
-    void (async () => {
-      const frontAdjudicationComplete =
-        isFrontAdjudicationDone ||
-        !!reviewInfo?.interpreted.front.adjudicationFinishedAt;
-      const backAdjudicationComplete =
-        isBackAdjudicationDone ||
-        !!reviewInfo?.interpreted.back.adjudicationFinishedAt;
-      if (frontAdjudicationComplete && backAdjudicationComplete) {
-        await logger.log(LogEventId.ScanAdjudicationInfo, userRole, {
-          message:
-            'Sheet does not actually require adjudication, system will automatically accept and continue scanning.',
-        });
-        await continueScanning({
-          forceAccept: true,
-        });
-      }
-    })();
-  }, [
-    isBackAdjudicationDone,
-    continueScanning,
-    isFrontAdjudicationDone,
-    reviewInfo?.interpreted.back.adjudicationFinishedAt,
-    reviewInfo?.interpreted.front.adjudicationFinishedAt,
-    logger,
-    userRole,
-  ]);
 
   if (!reviewInfo || !systemSettingsQuery.isSuccess) {
     return null;
@@ -268,14 +191,6 @@ export function BallotEjectScreen({
         reviewInfo.interpreted.back.adjudicationFinishedAt,
     },
   ]) {
-    if (
-      reviewPageInfo.adjudicationFinishedAt ||
-      (reviewPageInfo.side === 'front' && isFrontAdjudicationDone) ||
-      (reviewPageInfo.side === 'back' && isBackAdjudicationDone)
-    ) {
-      continue;
-    }
-
     if (reviewPageInfo.interpretation.type === 'InvalidTestModePage') {
       isInvalidTestModeSheet = true;
     } else if (
