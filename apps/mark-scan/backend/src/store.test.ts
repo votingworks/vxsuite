@@ -45,6 +45,25 @@ test('get/set/delete system settings', () => {
   expect(store.getSystemSettings()).toBeUndefined();
 });
 
+test('get/set ballots cast since last box change', () => {
+  const store = Store.memoryStore();
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+
+  // 0 if no election is defined
+  expect(store.getBallotsCastSinceLastBoxChange()).toEqual(0);
+
+  store.setElectionAndJurisdiction({
+    electionData: electionDefinition.electionData,
+    jurisdiction,
+  });
+
+  // Initialized to 0 when election is defined
+  expect(store.getBallotsCastSinceLastBoxChange()).toEqual(0);
+
+  store.setBallotsCastSinceLastBoxChange(1);
+  expect(store.getBallotsCastSinceLastBoxChange()).toEqual(1);
+});
+
 test('errors when election definition cannot be parsed', () => {
   const store = Store.memoryStore();
   store.setElectionAndJurisdiction({
