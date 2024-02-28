@@ -6,13 +6,17 @@ edition = "2021"
 exclude = ["build/rust_addon.node"]
 
 [lib]
-crate-type = ["cdylib"]
+# crate-type = ["cdylib"]
 path = "src/hmpb-rust/lib.rs"
+
+[[bin]]
+name = "interpret-bench"
+path = "src/hmpb-rust/interpret-bench/main.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-clap = { workspace = true }
+clap.workspace = true
 image = { workspace = true }
 imageproc = { workspace = true }
 log = { workspace = true }

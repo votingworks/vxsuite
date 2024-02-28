@@ -11,7 +11,7 @@ members = [
 [workspace.dependencies]
 base64 = "0.21.4"
 bitter = "0.6.1"
-clap = { version = "4.0.29", features = ["cargo"] }
+clap = { version = "4.0.29", features = ["cargo", "derive"] }
 crc16 = "0.4.0"
 ctrlc = "3.4.2"
 hex = "0.4.3"

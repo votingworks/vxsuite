@@ -1,15 +1,15 @@
 use neon::prelude::*;
 
-mod ballot_card;
+pub mod ballot_card;
 mod debug;
 mod image_utils;
-mod interpret;
+pub mod interpret;
 mod js;
 mod layout;
 mod qr_code;
 mod qr_code_metadata;
 mod scoring;
-mod template;
+pub mod template;
 mod timing_mark_metadata;
 mod timing_marks;
 
