@@ -116,7 +116,7 @@ const debug = makeDebug('mark-scan:state-machine');
 const debugEvents = debug.extend('events');
 
 export interface PaperHandlerStateMachine {
-  stopMachineService(): void;
+  cleanUp(): Promise<void>;
   getRawDeviceStatus(): Promise<PaperHandlerStatus>;
   getSimpleStatus(): SimpleServerStatus;
   setAcceptingPaper(): void;
@@ -854,8 +854,9 @@ export async function getPaperHandlerStateMachine({
   await setDefaults(driver);
 
   return {
-    stopMachineService(): void {
+    async cleanUp(): Promise<void> {
       machineService.stop();
+      await driver.disconnect();
     },
 
     getRawDeviceStatus(): Promise<PaperHandlerStatus> {
