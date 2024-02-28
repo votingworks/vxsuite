@@ -13,15 +13,16 @@ export function mockBaseLogger(
 
 export function mockLogger(
   source: LogSource = LogSource.System,
-  getUserRole: () => Promise<LoggingUserRole> = () => Promise.resolve('unknown')
+  getCurrentRole: () => Promise<LoggingUserRole> = () =>
+    Promise.resolve('unknown')
 ): Logger {
-  const logger = new Logger(source, getUserRole);
+  const logger = new Logger(source, getCurrentRole);
 
   logger.log = jest.fn();
-  logger.logAsCurrentUser = jest.fn(async (eventId, logData) =>
+  logger.logAsCurrentRole = jest.fn(async (eventId, logData) =>
     logData
-      ? logger.log(eventId, await getUserRole(), logData)
-      : logger.log(eventId, await getUserRole())
+      ? logger.log(eventId, await getCurrentRole(), logData)
+      : logger.log(eventId, await getCurrentRole())
   );
   return logger;
 }

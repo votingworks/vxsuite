@@ -78,13 +78,13 @@ export async function printTestPage({
   const data = await renderToPdf(report);
   try {
     await printer.print({ data });
-    await logger.logAsCurrentUser(LogEventId.DiagnosticInit, {
+    await logger.logAsCurrentRole(LogEventId.DiagnosticInit, {
       message: `User started a print diagnostic by printing a test page.`,
       disposition: 'success',
     });
   } catch (error) {
     assert(error instanceof Error);
-    await logger.logAsCurrentUser(LogEventId.DiagnosticInit, {
+    await logger.logAsCurrentRole(LogEventId.DiagnosticInit, {
       message: `Error attempting to send test page to the printer: ${error.message}`,
       disposition: 'failure',
     });

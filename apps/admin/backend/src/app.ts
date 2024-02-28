@@ -275,7 +275,7 @@ function buildApi({
     },
 
     async saveElectionPackageToUsb(): Promise<Result<void, ExportDataError>> {
-      await logger.logAsCurrentUser(LogEventId.SaveElectionPackageInit);
+      await logger.logAsCurrentRole(LogEventId.SaveElectionPackageInit);
       const exporter = buildExporter(usbDrive);
 
       const electionRecord = getCurrentElectionRecord(workspace);
@@ -334,7 +334,7 @@ function buildApi({
         await fs.rm(tempDirectory, { recursive: true });
       }
 
-      await logger.logAsCurrentUser(LogEventId.SaveElectionPackageComplete, {
+      await logger.logAsCurrentRole(LogEventId.SaveElectionPackageComplete, {
         disposition: 'success',
         message: 'Successfully saved election package.',
       });
@@ -450,7 +450,7 @@ function buildApi({
         electionPackageFileContents: fileContents,
       });
       store.setCurrentElectionId(electionId);
-      await logger.logAsCurrentUser(LogEventId.ElectionConfigured, {
+      await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
         disposition: 'success',
         newElectionHash: electionDefinition.electionHash,
       });
@@ -459,7 +459,7 @@ function buildApi({
 
     async unconfigure(): Promise<void> {
       store.deleteElection(loadCurrentElectionIdOrThrow(workspace));
-      await logger.logAsCurrentUser(LogEventId.ElectionUnconfigured, {
+      await logger.logAsCurrentRole(LogEventId.ElectionUnconfigured, {
         disposition: 'success',
       });
     },
@@ -482,7 +482,7 @@ function buildApi({
         true
       );
 
-      await logger.logAsCurrentUser(LogEventId.MarkedTallyResultsOfficial, {
+      await logger.logAsCurrentRole(LogEventId.MarkedTallyResultsOfficial, {
         message:
           'User has marked the tally results as official, no more cast vote record files can be loaded.',
         disposition: 'success',
@@ -498,7 +498,7 @@ function buildApi({
         electionDefinition
       );
       if (listResult.isErr()) {
-        await logger.logAsCurrentUser(
+        await logger.logAsCurrentRole(
           LogEventId.ListCastVoteRecordExportsOnUsbDrive,
           {
             disposition: 'failure',
@@ -509,7 +509,7 @@ function buildApi({
         return [];
       }
       const castVoteRecordExportSummaries = listResult.ok();
-      await logger.logAsCurrentUser(
+      await logger.logAsCurrentRole(
         LogEventId.ListCastVoteRecordExportsOnUsbDrive,
         {
           disposition: 'success',
@@ -526,7 +526,7 @@ function buildApi({
     async addCastVoteRecordFile(input: {
       path: string;
     }): Promise<Result<CvrFileImportInfo, ImportCastVoteRecordsError>> {
-      await logger.logAsCurrentUser(LogEventId.ImportCastVoteRecordsInit, {
+      await logger.logAsCurrentRole(LogEventId.ImportCastVoteRecordsInit, {
         message: 'Importing cast vote records...',
       });
       const exportDirectoryPath =
@@ -540,7 +540,7 @@ function buildApi({
         exportDirectoryPath
       );
       if (importResult.isErr()) {
-        await logger.logAsCurrentUser(
+        await logger.logAsCurrentRole(
           LogEventId.ImportCastVoteRecordsComplete,
           {
             disposition: 'failure',
@@ -556,7 +556,7 @@ function buildApi({
         if (numAlreadyPresent > 0) {
           message += ` Ignored ${numAlreadyPresent} duplicate(s).`;
         }
-        await logger.logAsCurrentUser(
+        await logger.logAsCurrentRole(
           LogEventId.ImportCastVoteRecordsComplete,
           {
             disposition: 'success',
@@ -569,7 +569,7 @@ function buildApi({
     },
 
     async clearCastVoteRecordFiles(): Promise<void> {
-      await logger.logAsCurrentUser(
+      await logger.logAsCurrentRole(
         LogEventId.ClearImportedCastVoteRecordsInit,
         {
           message: 'Clearing imported cast vote records...',
@@ -578,7 +578,7 @@ function buildApi({
       const electionId = loadCurrentElectionIdOrThrow(workspace);
       store.deleteCastVoteRecordFiles(electionId);
       store.setElectionResultsOfficial(electionId, false);
-      await logger.logAsCurrentUser(
+      await logger.logAsCurrentRole(
         LogEventId.ClearImportedCastVoteRecordsComplete,
         {
           disposition: 'success',
@@ -672,7 +672,7 @@ function buildApi({
       store.deleteAllManualResults({
         electionId: loadCurrentElectionIdOrThrow(workspace),
       });
-      await logger.logAsCurrentUser(LogEventId.ManualTallyDataRemoved, {
+      await logger.logAsCurrentRole(LogEventId.ManualTallyDataRemoved, {
         message: 'User removed all manually entered tally data.',
         disposition: 'success',
       });
@@ -683,7 +683,7 @@ function buildApi({
         electionId: loadCurrentElectionIdOrThrow(workspace),
         ...input,
       });
-      await logger.logAsCurrentUser(LogEventId.ManualTallyDataRemoved, {
+      await logger.logAsCurrentRole(LogEventId.ManualTallyDataRemoved, {
         message:
           'User removed manually entered tally data for a particular ballot style, precinct, and voting method.',
         ...input,
@@ -713,7 +713,7 @@ function buildApi({
         return Promise.resolve();
       });
 
-      await logger.logAsCurrentUser(LogEventId.ManualTallyDataEdited, {
+      await logger.logAsCurrentRole(LogEventId.ManualTallyDataEdited, {
         disposition: 'success',
         message:
           'User added or edited manually entered tally data for a particular ballot style, precinct, and voting method.',
@@ -805,7 +805,7 @@ function buildApi({
         }),
       });
 
-      await logger.logAsCurrentUser(LogEventId.FileSaved, {
+      await logger.logAsCurrentRole(LogEventId.FileSaved, {
         disposition: exportFileResult.isOk() ? 'success' : 'failure',
         message: `${
           exportFileResult.isOk() ? 'Saved' : 'Failed to save'
@@ -856,7 +856,7 @@ function buildApi({
         ),
       });
 
-      await logger.logAsCurrentUser(LogEventId.FileSaved, {
+      await logger.logAsCurrentRole(LogEventId.FileSaved, {
         disposition: exportFileResult.isOk() ? 'success' : 'failure',
         message: `${
           exportFileResult.isOk() ? 'Saved' : 'Failed to save'
@@ -932,7 +932,7 @@ function buildApi({
         }),
       });
 
-      await logger.logAsCurrentUser(LogEventId.FileSaved, {
+      await logger.logAsCurrentRole(LogEventId.FileSaved, {
         disposition: exportFileResult.isOk() ? 'success' : 'failure',
         message: `${
           exportFileResult.isOk() ? 'Saved' : 'Failed to save'
@@ -980,7 +980,7 @@ function buildApi({
       outcome: DiagnosticsOutcome;
     }): void {
       store.addDiagnosticRecord(input);
-      void logger.logAsCurrentUser(LogEventId.DiagnosticComplete, {
+      void logger.logAsCurrentRole(LogEventId.DiagnosticComplete, {
         disposition: input.outcome === 'pass' ? 'success' : 'failure',
         message: `Diagnostic test for the ${input.hardware} completed with outcome: ${input.outcome}.`,
       });

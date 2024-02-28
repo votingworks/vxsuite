@@ -13,8 +13,8 @@ test('mockLogger', async () => {
     Promise.resolve('election_manager')
   );
 
-  await logger.logAsCurrentUser(LogEventId.MachineBootInit);
-  expect(logger.logAsCurrentUser).toHaveBeenCalledWith(
+  await logger.logAsCurrentRole(LogEventId.MachineBootInit);
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
     LogEventId.MachineBootInit
   );
   expect(logger.log).toHaveBeenCalledWith(
@@ -22,10 +22,10 @@ test('mockLogger', async () => {
     'election_manager'
   );
 
-  await logger.logAsCurrentUser(LogEventId.MachineBootInit, {
+  await logger.logAsCurrentRole(LogEventId.MachineBootInit, {
     disposition: 'success',
   });
-  expect(logger.logAsCurrentUser).toHaveBeenCalledWith(
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
     LogEventId.MachineBootInit,
     {
       disposition: 'success',
@@ -44,8 +44,8 @@ test('mockLogger', async () => {
 
 test('mockLogger with defaults', async () => {
   const logger = mockLogger();
-  await logger.logAsCurrentUser(LogEventId.MachineBootInit);
-  expect(logger.logAsCurrentUser).toHaveBeenCalledWith(
+  await logger.logAsCurrentRole(LogEventId.MachineBootInit);
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
     LogEventId.MachineBootInit
   );
   expect(logger.log).toHaveBeenCalledWith(

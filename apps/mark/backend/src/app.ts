@@ -214,7 +214,7 @@ export function buildApi(
         }
       })();
       if (logEvent) {
-        await logger.logAsCurrentUser(logEvent, { disposition: 'success' });
+        await logger.logAsCurrentRole(logEvent, { disposition: 'success' });
       }
     },
 

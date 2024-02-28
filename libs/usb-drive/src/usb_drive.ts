@@ -188,18 +188,18 @@ async function logMountFailure(
 }
 
 export async function logEjectInit(logger: Logger): Promise<void> {
-  await logger.logAsCurrentUser(LogEventId.UsbDriveEjectInit);
+  await logger.logAsCurrentRole(LogEventId.UsbDriveEjectInit);
 }
 
 export async function logEjectSuccess(logger: Logger): Promise<void> {
-  await logger.logAsCurrentUser(LogEventId.UsbDriveEjected, {
+  await logger.logAsCurrentRole(LogEventId.UsbDriveEjected, {
     disposition: 'success',
     message: 'USB drive successfully ejected.',
   });
 }
 
 async function logEjectFailure(logger: Logger, error: Error): Promise<void> {
-  await logger.logAsCurrentUser(LogEventId.UsbDriveEjected, {
+  await logger.logAsCurrentRole(LogEventId.UsbDriveEjected, {
     disposition: 'failure',
     message: 'USB drive failed to eject.',
     error: error.message,
@@ -208,18 +208,18 @@ async function logEjectFailure(logger: Logger, error: Error): Promise<void> {
 }
 
 async function logFormatInit(logger: Logger) {
-  await logger.logAsCurrentUser(LogEventId.UsbDriveFormatInit);
+  await logger.logAsCurrentRole(LogEventId.UsbDriveFormatInit);
 }
 
 async function logFormatSuccess(logger: Logger, volumeName: string) {
-  await logger.logAsCurrentUser(LogEventId.UsbDriveFormatted, {
+  await logger.logAsCurrentRole(LogEventId.UsbDriveFormatted, {
     disposition: 'success',
     message: `USB drive successfully formatted with a single FAT32 volume named "${volumeName}".`,
   });
 }
 
 async function logFormatFailure(logger: Logger, error: Error) {
-  await logger.logAsCurrentUser(LogEventId.UsbDriveFormatted, {
+  await logger.logAsCurrentRole(LogEventId.UsbDriveFormatted, {
     disposition: 'failure',
     message: `Failed to format USB drive.`,
     error: error.message,

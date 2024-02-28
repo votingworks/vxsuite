@@ -6,24 +6,24 @@ import { LogData, BaseLogger } from './base_logger';
 export class Logger extends BaseLogger {
   constructor(
     source: LogSource,
-    private readonly getUserRole: () => Promise<LoggingUserRole>
+    private readonly getCurrentRole: () => Promise<LoggingUserRole>
   ) {
     super(source);
   }
 
-  async logAsCurrentUser(
+  async logAsCurrentRole(
     eventId: LogEventId,
     logData?: LogData,
     outerDebug?: (logLine: LogLine) => void
   ): Promise<void> {
-    return this.log(eventId, await this.getUserRole(), logData, outerDebug);
+    return this.log(eventId, await this.getCurrentRole(), logData, outerDebug);
   }
 
   static from(
     baseLogger: BaseLogger,
-    getUserRole: () => Promise<LoggingUserRole>
+    getCurrentRole: () => Promise<LoggingUserRole>
   ): Logger {
-    const logger = new Logger(baseLogger.getSource(), getUserRole);
+    const logger = new Logger(baseLogger.getSource(), getCurrentRole);
     logger.log = baseLogger.log;
     return logger;
   }

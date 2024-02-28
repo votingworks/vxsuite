@@ -46,13 +46,13 @@ export async function printReadinessReport({
 
   try {
     await printer.print({ data: await renderToPdf(report) });
-    await logger.logAsCurrentUser(LogEventId.ReadinessReportPrinted, {
+    await logger.logAsCurrentRole(LogEventId.ReadinessReportPrinted, {
       message: `User printed the equipment readiness report.`,
       disposition: 'success',
     });
   } catch (error) {
     assert(error instanceof Error);
-    await logger.logAsCurrentUser(LogEventId.ReadinessReportPrinted, {
+    await logger.logAsCurrentRole(LogEventId.ReadinessReportPrinted, {
       message: `Error in attempting to print the equipment readiness report: ${error.message}`,
       disposition: 'failure',
     });

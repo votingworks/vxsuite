@@ -89,7 +89,7 @@ export async function generateBallotCountReportPreview({
   ...reportProps
 }: BallotCountReportPreviewProps): Promise<BallotCountReportPreview> {
   const report = buildBallotCountReport(reportProps);
-  await logger.logAsCurrentUser(LogEventId.ElectionReportPreviewed, {
+  await logger.logAsCurrentRole(LogEventId.ElectionReportPreviewed, {
     message: `User previewed a ballot count report.`,
     disposition: 'success',
   });
@@ -115,13 +115,13 @@ export async function printBallotCountReport({
 
   try {
     await printer.print({ data: await renderToPdf(report) });
-    await logger.logAsCurrentUser(LogEventId.ElectionReportPrinted, {
+    await logger.logAsCurrentRole(LogEventId.ElectionReportPrinted, {
       message: `User printed a ballot count report.`,
       disposition: 'success',
     });
   } catch (error) {
     assert(error instanceof Error);
-    await logger.logAsCurrentUser(LogEventId.ElectionReportPrinted, {
+    await logger.logAsCurrentRole(LogEventId.ElectionReportPrinted, {
       message: `Error in attempting to print ballot count report: ${error.message}`,
       disposition: 'failure',
     });
@@ -146,7 +146,7 @@ export async function exportBallotCountReportPdf({
     data: await renderToPdf(report),
   });
 
-  await logger.logAsCurrentUser(LogEventId.FileSaved, {
+  await logger.logAsCurrentRole(LogEventId.FileSaved, {
     disposition: exportFileResult.isOk() ? 'success' : 'failure',
     message: `${
       exportFileResult.isOk() ? 'Saved' : 'Failed to save'

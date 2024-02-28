@@ -283,7 +283,7 @@ export function buildApi({
     async exportCastVoteRecordsToUsbDrive(input: {
       mode: 'full_export' | 'polls_closing';
     }): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
-      await logger.logAsCurrentUser(LogEventId.ExportCastVoteRecordsInit, {
+      await logger.logAsCurrentRole(LogEventId.ExportCastVoteRecordsInit, {
         message:
           input.mode === 'polls_closing'
             ? 'Marking cast vote record export as complete on polls close...'
@@ -322,7 +322,7 @@ export function buildApi({
       }
 
       if (exportResult.isErr()) {
-        await logger.logAsCurrentUser(
+        await logger.logAsCurrentRole(
           LogEventId.ExportCastVoteRecordsComplete,
           {
             disposition: 'failure',
@@ -334,7 +334,7 @@ export function buildApi({
           }
         );
       } else {
-        await logger.logAsCurrentUser(
+        await logger.logAsCurrentRole(
           LogEventId.ExportCastVoteRecordsComplete,
           {
             disposition: 'success',

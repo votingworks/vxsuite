@@ -50,7 +50,7 @@ export async function generateWriteInAdjudicationReportPreview({
   ...reportProps
 }: WriteInAdjudicationReportPreviewProps): Promise<Buffer> {
   const report = buildWriteInAdjudicationReport(reportProps);
-  await logger.logAsCurrentUser(LogEventId.ElectionReportPreviewed, {
+  await logger.logAsCurrentRole(LogEventId.ElectionReportPreviewed, {
     message: `User previewed the write-in adjudication report.`,
     disposition: 'success',
   });
@@ -73,13 +73,13 @@ export async function printWriteInAdjudicationReport({
 
   try {
     await printer.print({ data: await renderToPdf(report) });
-    await logger.logAsCurrentUser(LogEventId.ElectionReportPrinted, {
+    await logger.logAsCurrentRole(LogEventId.ElectionReportPrinted, {
       message: `User printed the write-in adjudication report.`,
       disposition: 'success',
     });
   } catch (error) {
     assert(error instanceof Error);
-    await logger.logAsCurrentUser(LogEventId.ElectionReportPrinted, {
+    await logger.logAsCurrentRole(LogEventId.ElectionReportPrinted, {
       message: `Error in attempting to print the write-in adjudication report: ${error.message}`,
       disposition: 'failure',
     });
@@ -104,7 +104,7 @@ export async function exportWriteInAdjudicationReportPdf({
     data: await renderToPdf(report),
   });
 
-  await logger.logAsCurrentUser(LogEventId.FileSaved, {
+  await logger.logAsCurrentRole(LogEventId.FileSaved, {
     disposition: exportFileResult.isOk() ? 'success' : 'failure',
     message: `${
       exportFileResult.isOk() ? 'Saved' : 'Failed to save'

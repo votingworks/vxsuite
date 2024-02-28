@@ -14,7 +14,7 @@ test('logger can log with passed user role', async () => {
 
   const logger = new Logger(LogSource.VxMarkBackend, getUserRole);
   getUserRole.mockResolvedValue('election_manager');
-  await logger.logAsCurrentUser(LogEventId.FileSaved);
+  await logger.logAsCurrentRole(LogEventId.FileSaved);
   expect(console.log).toHaveBeenCalledWith(
     JSON.stringify({
       source: LogSource.VxMarkBackend,
@@ -26,7 +26,7 @@ test('logger can log with passed user role', async () => {
   );
 
   getUserRole.mockResolvedValue('system_administrator');
-  await logger.logAsCurrentUser(LogEventId.FileSaved, {
+  await logger.logAsCurrentRole(LogEventId.FileSaved, {
     disposition: 'success',
     message: 'File saved with message.',
   });
@@ -47,7 +47,7 @@ test('Logger.from', async () => {
   const baseLogger = new BaseLogger(LogSource.VxCentralScanService);
   const logSpy = jest.spyOn(baseLogger, 'log');
   const logger = Logger.from(baseLogger, () => Promise.resolve('unknown'));
-  await logger.logAsCurrentUser(LogEventId.FileSaved);
+  await logger.logAsCurrentRole(LogEventId.FileSaved);
   expect(console.log).toHaveBeenCalledWith(
     JSON.stringify({
       source: LogSource.VxCentralScanService,
