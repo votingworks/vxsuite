@@ -19,6 +19,11 @@ export class Logger extends BaseLogger {
     return this.log(eventId, await this.getCurrentRole(), logData, outerDebug);
   }
 
+  /**
+   * Create logger from an existing logger. This allows two things:
+   *  - No need to re-specify the `LogSource`
+   *  - `log` method carries over from one logger to the next, so that mocked loggers will remain mocked
+   */
   static from(
     baseLogger: BaseLogger,
     getCurrentRole: () => Promise<LoggingUserRole>
