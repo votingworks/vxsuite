@@ -19,10 +19,6 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   };
 });
 
-afterEach(() => {
-  jest.resetAllMocks();
-});
-
 test('can start server', async () => {
   const auth = buildMockInsertedSmartCardAuth();
   const logger = mockLogger();
