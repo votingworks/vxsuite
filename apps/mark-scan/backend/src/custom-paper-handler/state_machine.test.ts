@@ -11,8 +11,7 @@ import {
   InsertedSmartCardAuthApi,
   buildMockInsertedSmartCardAuth,
 } from '@votingworks/auth';
-import waitForExpect from 'wait-for-expect';
-import { mockOf } from '@votingworks/test-utils';
+import { backendWaitFor, mockOf } from '@votingworks/test-utils';
 import { sleep } from '@votingworks/basics';
 import {
   electionGeneralDefinition,
@@ -65,7 +64,6 @@ import {
 } from '../pat-input/constants';
 
 // Use shorter polling interval in tests to reduce run times
-waitForExpect.defaults.interval = 10;
 const TEST_POLL_INTERVAL_MS = 500;
 const TEST_NOTIFICATION_DURATION_MS = 1000;
 
@@ -142,9 +140,12 @@ afterEach(async () => {
 // state machine to poll an observable ie. raw paper handler status changes
 // or auth changes
 function waitForStatus(status: SimpleServerStatus): Promise<unknown> {
-  return waitForExpect(() => {
-    expect(machine.getSimpleStatus()).toEqual(status);
-  });
+  return backendWaitFor(
+    () => {
+      expect(machine.getSimpleStatus()).toEqual(status);
+    },
+    { interval: TEST_POLL_INTERVAL_MS, retries: 3 }
+  );
 }
 
 function setMockDeviceStatus(status: PaperHandlerStatus) {
@@ -212,7 +213,7 @@ describe('paper jam', () => {
     mockOf(resetAndReconnect).mockImplementation(async () => {
       // Without this sleep the states will transition too quickly and we can't make
       // assertions for intermediate states
-      await sleep(1);
+      await sleep(TEST_POLL_INTERVAL_MS);
       return Promise.resolve(driver);
     });
 

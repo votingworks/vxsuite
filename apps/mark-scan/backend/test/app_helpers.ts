@@ -56,7 +56,8 @@ export async function getMockStateMachine(
   workspace: Workspace,
   patConnectionStatusReader: PatConnectionStatusReaderInterface,
   driver: MockPaperHandlerDriver,
-  logger: BaseLogger
+  logger: BaseLogger,
+  pollingIntervalMs?: number
 ): Promise<PaperHandlerStateMachine> {
   // State machine setup
   const auth = buildMockInsertedSmartCardAuth();
@@ -66,9 +67,11 @@ export async function getMockStateMachine(
     logger,
     driver,
     patConnectionStatusReader,
-    devicePollingIntervalMs: DEVICE_STATUS_POLLING_INTERVAL_MS,
-    authPollingIntervalMs: AUTH_STATUS_POLLING_INTERVAL_MS,
-    notificationDurationMs: SUCCESS_NOTIFICATION_DURATION_MS,
+    devicePollingIntervalMs:
+      pollingIntervalMs ?? DEVICE_STATUS_POLLING_INTERVAL_MS,
+    authPollingIntervalMs: pollingIntervalMs ?? AUTH_STATUS_POLLING_INTERVAL_MS,
+    notificationDurationMs:
+      pollingIntervalMs ?? SUCCESS_NOTIFICATION_DURATION_MS,
   });
   assert(stateMachine);
 
@@ -89,6 +92,7 @@ interface MockAppContents {
 
 export interface CreateAppOptions {
   patConnectionStatusReader?: PatConnectionStatusReaderInterface;
+  pollingIntervalMs?: number;
 }
 
 export async function createApp(
@@ -107,7 +111,8 @@ export async function createApp(
     workspace,
     patConnectionStatusReader,
     driver,
-    logger
+    logger,
+    options?.pollingIntervalMs
   );
 
   const app = buildApp(

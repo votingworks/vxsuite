@@ -567,6 +567,12 @@ documentationMessage = "Precinct scanner state machine transitioned states."
 restrictInDocumentationToApps = ["vx-scan-backend"]
 
 # VxMarkScan logs
+[MarkScanStateMachineEvent]
+eventId = "mark-scan-state-machine-event"
+eventType = "system-status"
+documentationMessage = "Event fired by the mark-scan state machine."
+restrictInDocumentationToApps = ["vx-mark-scan-backend"]
+
 [PatDeviceError]
 eventId = "pat-device-error"
 eventType = "system-status"

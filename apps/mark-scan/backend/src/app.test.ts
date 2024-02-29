@@ -1,12 +1,15 @@
 import { assert } from '@votingworks/basics';
-import waitForExpect from 'wait-for-expect';
 import {
   electionFamousNames2021Fixtures,
   systemSettings,
   electionTwoPartyPrimaryFixtures,
   electionGeneralDefinition,
 } from '@votingworks/fixtures';
-import { mockOf, suppressingConsoleOutput } from '@votingworks/test-utils';
+import {
+  backendWaitFor,
+  mockOf,
+  suppressingConsoleOutput,
+} from '@votingworks/test-utils';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -41,6 +44,8 @@ import {
 } from './custom-paper-handler/test_utils';
 import { PatConnectionStatusReader } from './pat-input/connection_status_reader';
 
+const TEST_POLLING_INTERVAL_MS = 5;
+
 jest.mock('@votingworks/custom-paper-handler');
 jest.mock('./pat-input/connection_status_reader');
 
@@ -72,7 +77,10 @@ beforeEach(async () => {
     false
   );
 
-  const result = await createApp({ patConnectionStatusReader });
+  const result = await createApp({
+    patConnectionStatusReader,
+    pollingIntervalMs: TEST_POLLING_INTERVAL_MS,
+  });
   apiClient = result.apiClient;
   logger = result.logger;
   mockAuth = result.mockAuth;
@@ -86,6 +94,15 @@ afterEach(async () => {
   await stateMachine.cleanUp();
   server?.close();
 });
+
+async function waitForStatus(status: string): Promise<void> {
+  await backendWaitFor(
+    async () => {
+      expect(await apiClient.getPaperHandlerState()).toEqual(status);
+    },
+    { interval: TEST_POLLING_INTERVAL_MS, retries: 3 }
+  );
+}
 
 async function setUpUsbAndConfigureElection(
   electionDefinition: ElectionDefinition
@@ -257,7 +274,7 @@ test('polls state', async () => {
     electionFamousNames2021Fixtures.electionDefinition
   );
   await apiClient.setPollsState({ pollsState: 'polls_open' });
-  expect(logger.log).toHaveBeenLastCalledWith(
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.PollsOpened,
     'poll_worker',
     { disposition: 'success' }
@@ -265,7 +282,7 @@ test('polls state', async () => {
   await expectElectionState({ pollsState: 'polls_open' });
 
   await apiClient.setPollsState({ pollsState: 'polls_paused' });
-  expect(logger.log).toHaveBeenLastCalledWith(
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.VotingPaused,
     'poll_worker',
     { disposition: 'success' }
@@ -273,7 +290,7 @@ test('polls state', async () => {
   await expectElectionState({ pollsState: 'polls_paused' });
 
   await apiClient.setPollsState({ pollsState: 'polls_open' });
-  expect(logger.log).toHaveBeenLastCalledWith(
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.VotingResumed,
     'poll_worker',
     { disposition: 'success' }
@@ -281,7 +298,7 @@ test('polls state', async () => {
   await expectElectionState({ pollsState: 'polls_open' });
 
   await apiClient.setPollsState({ pollsState: 'polls_closed_final' });
-  expect(logger.log).toHaveBeenLastCalledWith(
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.PollsClosed,
     'poll_worker',
     { disposition: 'success' }
@@ -333,7 +350,7 @@ test('setting precinct', async () => {
   await expectElectionState({
     precinctSelection: singlePrecinctSelection,
   });
-  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
     LogEventId.PrecinctConfigurationChanged,
     {
       disposition: 'success',
@@ -369,7 +386,7 @@ test('empty ballot box', async () => {
   mockPollWorkerAuth(mockAuth, electionGeneralDefinition);
 
   await apiClient.confirmBallotBoxEmptied();
-  expect(logger.log).toHaveBeenLastCalledWith(
+  expect(logger.log).toHaveBeenCalledWith(
     LogEventId.BallotBoxEmptied,
     'poll_worker'
   );
@@ -397,9 +414,7 @@ test('printBallot sets the interpretation fixture when USE_MOCK_PAPER_HANDLER is
     BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
   );
   await apiClient.printBallot({ pdfData: Buffer.of() });
-  await waitForExpect(async () => {
-    expect(await apiClient.getPaperHandlerState()).toEqual('presenting_ballot');
-  });
+  await waitForStatus('presenting_ballot');
   const interpretation = await apiClient.getInterpretation();
   assert(interpretation);
   expect(interpretation.type).toEqual('InterpretedBmdPage');
@@ -410,12 +425,6 @@ test('getInterpretation returns null if no interpretation is stored on the state
   expect(await apiClient.getInterpretation()).toEqual(null);
 });
 
-async function waitForExpectStatus(status: string): Promise<void> {
-  await waitForExpect(async () => {
-    expect(await apiClient.getPaperHandlerState()).toEqual(status);
-  });
-}
-
 test('ballot invalidation flow', async () => {
   await configureForTestElection();
   // Skip session start, paper load, etc stages
@@ -423,20 +432,20 @@ test('ballot invalidation flow', async () => {
     getPaperInFrontStatus()
   );
   stateMachine.setInterpretationFixture();
-  await waitForExpectStatus('presenting_ballot');
+  await waitForStatus('presenting_ballot');
   await apiClient.invalidateBallot();
-  await waitForExpectStatus(
+  await waitForStatus(
     'waiting_for_invalidated_ballot_confirmation.paper_present'
   );
 
   mockOf(driver.getPaperHandlerStatus).mockResolvedValue(
     getDefaultPaperHandlerStatus()
   );
-  await waitForExpectStatus(
+  await waitForStatus(
     'waiting_for_invalidated_ballot_confirmation.paper_absent'
   );
   await apiClient.confirmInvalidateBallot();
-  await waitForExpectStatus('accepting_paper');
+  await waitForStatus('accepting_paper');
 });
 
 test('ballot validation flow', async () => {
@@ -446,9 +455,9 @@ test('ballot validation flow', async () => {
     getPaperInFrontStatus()
   );
   stateMachine.setInterpretationFixture();
-  await waitForExpectStatus('presenting_ballot');
+  await waitForStatus('presenting_ballot');
   await apiClient.validateBallot();
-  await waitForExpectStatus('ejecting_to_rear');
+  await waitForStatus('ejecting_to_rear');
 });
 
 test('setPatDeviceIsCalibrated', async () => {
@@ -456,8 +465,8 @@ test('setPatDeviceIsCalibrated', async () => {
   mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
     true
   );
-  await waitForExpectStatus('pat_device_connected');
+  await waitForStatus('pat_device_connected');
 
   await apiClient.setPatDeviceIsCalibrated();
-  await waitForExpectStatus('not_accepting_paper');
+  await waitForStatus('not_accepting_paper');
 });

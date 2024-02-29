@@ -199,6 +199,8 @@ pub enum EventId {
     ScannerEvent,
     #[serde(rename = "scanner-state-machine-transition")]
     ScannerStateChanged,
+    #[serde(rename = "mark-scan-state-machine-event")]
+    MarkScanStateMachineEvent,
     #[serde(rename = "pat-device-error")]
     PatDeviceError,
     #[serde(rename = "paper-handler-state-machine-transition")]

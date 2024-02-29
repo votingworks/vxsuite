@@ -791,7 +791,7 @@ function setUpLogging(
       // To protect voter privacy, we only log the event type (since some event
       // objects include ballot interpretations)
       await logger.log(
-        LogEventId.ScannerEvent,
+        LogEventId.MarkScanStateMachineEvent,
         'system',
         { message: `Event: ${event.type}` },
         /* istanbul ignore next */
