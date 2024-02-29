@@ -26,7 +26,7 @@ import { fetchNextBallotSheetToReview } from '../api/hmpb';
 import { BallotSheetImage } from '../components/ballot_sheet_image';
 import { AppContext } from '../contexts/app_context';
 import { Header } from '../navigation_screen';
-import { getSystemSettings } from '../api';
+import { continueScanning, getSystemSettings } from '../api';
 
 const AdjudicationHeader = styled(Header)`
   position: static;
@@ -64,7 +64,6 @@ const RectoVerso = styled.div`
 const HIGHLIGHTER_COLOR = '#fbff0066';
 
 interface Props {
-  continueScanning: (request: Scan.ScanContinueRequest) => Promise<void>;
   isTestMode: boolean;
 }
 
@@ -77,10 +76,7 @@ const SHEET_ADJUDICATION_ERRORS: ReadonlyArray<PageInterpretation['type']> = [
   'BlankPage',
 ];
 
-export function BallotEjectScreen({
-  continueScanning,
-  isTestMode,
-}: Props): JSX.Element | null {
+export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
   const { auth, logger, electionDefinition } = useContext(AppContext);
   const [reviewInfo, setReviewInfo] =
     useState<Scan.GetNextReviewSheetResponse>();
@@ -93,6 +89,15 @@ export function BallotEjectScreen({
   const userRole = auth.user.role;
 
   const systemSettingsQuery = getSystemSettings.useQuery();
+  const continueScanningMutation = continueScanning.useMutation();
+
+  function removeBallotAndContinueScanning() {
+    continueScanningMutation.mutate({ forceAccept: false });
+  }
+
+  function acceptBallotAndContinueScanning() {
+    continueScanningMutation.mutate({ forceAccept: true });
+  }
 
   useEffect(() => {
     void (async () => {
@@ -342,7 +347,7 @@ export function BallotEjectScreen({
           {!allowBallotDuplication && (
             <Button
               variant="primary"
-              onPress={() => continueScanning({ forceAccept: false })}
+              onPress={removeBallotAndContinueScanning}
               style={{ marginTop: '0.5rem', width: '100%' }}
             >
               Ballot has been removed
@@ -374,7 +379,7 @@ export function BallotEjectScreen({
             <React.Fragment>
               <Button
                 variant="primary"
-                onPress={() => continueScanning({ forceAccept: false })}
+                onPress={removeBallotAndContinueScanning}
               >
                 Ballot has been removed
               </Button>
@@ -394,11 +399,7 @@ export function BallotEjectScreen({
             <React.Fragment>
               <Button
                 variant="primary"
-                onPress={() =>
-                  continueScanning({
-                    forceAccept: true,
-                  })
-                }
+                onPress={acceptBallotAndContinueScanning}
               >
                 Yes, tabulate ballot as is
               </Button>

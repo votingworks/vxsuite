@@ -150,37 +150,6 @@ const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
   ];
 })();
 
-test('POST /scan/scanBatch', async () => {
-  importer.startImport.mockResolvedValue('mock-batch-id');
-  await request(app)
-    .post('/central-scanner/scan/scanBatch')
-    .set('Accept', 'application/json')
-    .expect(200, { status: 'ok', batchId: 'mock-batch-id' });
-  expect(importer.startImport).toBeCalled();
-});
-
-test('POST /scan/scanContinue', async () => {
-  importer.continueImport.mockResolvedValue(undefined);
-  await request(app)
-    .post('/central-scanner/scan/scanContinue')
-    .send(typedAs<Scan.ScanContinueRequest>({ forceAccept: false }))
-    .set('Accept', 'application/json')
-    .expect(200, { status: 'ok' });
-  expect(importer.continueImport).toBeCalled();
-});
-
-test('POST /scan/scanBatch errors', async () => {
-  importer.startImport.mockRejectedValue(new Error('scanner is a teapot'));
-  await request(app)
-    .post('/central-scanner/scan/scanBatch')
-    .set('Accept', 'application/json')
-    .expect(200, {
-      status: 'error',
-      errors: [{ type: 'scan-error', message: 'scanner is a teapot' }],
-    });
-  expect(importer.startImport).toBeCalled();
-});
-
 test('GET /scan/hmpb/ballot/:ballotId/:side/image', async () => {
   const batchId = workspace.store.addBatch();
   const sheetId = workspace.store.addSheet(uuid(), batchId, sheet);

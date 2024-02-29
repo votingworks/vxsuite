@@ -13,7 +13,6 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
   SystemSettings,
-  safeParse,
   ExportCastVoteRecordsToUsbDriveError,
 } from '@votingworks/types';
 import { isElectionManagerAuth } from '@votingworks/utils';
@@ -24,9 +23,15 @@ import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { Importer } from './importer';
 import { Workspace } from './util/workspace';
-import { MachineConfig } from './types';
+import { MachineConfig, ScanStatus } from './types';
 import { getMachineConfig } from './machine_config';
 import { constructAuthMachineState } from './util/auth';
+import {
+  logBatchStartFailure,
+  logBatchStartSuccess,
+  logScanBatchContinueFailure,
+  logScanBatchContinueSuccess,
+} from './util/logging';
 
 type NoParams = never;
 
@@ -169,6 +174,31 @@ function buildApi({
       return store.getElectionDefinition() || null;
     },
 
+    getStatus(): ScanStatus {
+      return importer.getStatus();
+    },
+
+    async scanBatch(): Promise<void> {
+      try {
+        const batchId = await importer.startImport();
+        await logBatchStartSuccess(logger, batchId);
+      } catch (error) {
+        assert(error instanceof Error);
+        await logBatchStartFailure(logger, error);
+      }
+    },
+
+    async continueScanning(input: { forceAccept: boolean }): Promise<void> {
+      try {
+        const { forceAccept } = input;
+        importer.continueImport(input);
+        await logScanBatchContinueSuccess(logger, forceAccept);
+      } catch (error) {
+        assert(error instanceof Error);
+        await logScanBatchContinueFailure(logger, error);
+      }
+    },
+
     async unconfigure(
       input: {
         ignoreBackupRequirement?: boolean;
@@ -288,68 +318,6 @@ export function buildCentralScannerApp({
     express.json({ limit: '5mb', type: 'application/json' })
   );
   deprecatedApiRouter.use(express.urlencoded({ extended: false }));
-
-  deprecatedApiRouter.post<
-    NoParams,
-    Scan.ScanBatchResponse,
-    Scan.ScanBatchRequest
-  >('/central-scanner/scan/scanBatch', async (_request, response) => {
-    try {
-      const batchId = await importer.startImport();
-      response.json({ status: 'ok', batchId });
-    } catch (error) {
-      assert(error instanceof Error);
-      response.json({
-        status: 'error',
-        errors: [{ type: 'scan-error', message: error.message }],
-      });
-    }
-  });
-
-  deprecatedApiRouter.post<
-    NoParams,
-    Scan.ScanContinueResponse,
-    Scan.ScanContinueRequest
-  >('/central-scanner/scan/scanContinue', async (request, response) => {
-    const bodyParseResult = safeParse(
-      Scan.ScanContinueRequestSchema,
-      request.body
-    );
-
-    if (bodyParseResult.isErr()) {
-      const error = bodyParseResult.err();
-      response.status(400).json({
-        status: 'error',
-        errors: [{ type: error.name, message: error.message }],
-      });
-      return;
-    }
-
-    try {
-      const continueImportOptions = bodyParseResult.ok();
-      // NOTE: This is a little silly and TS should be able to reason this out, but no.
-      if (continueImportOptions.forceAccept) {
-        await importer.continueImport(continueImportOptions);
-      } else {
-        await importer.continueImport(continueImportOptions);
-      }
-      response.json({ status: 'ok' });
-    } catch (error) {
-      assert(error instanceof Error);
-      response.json({
-        status: 'error',
-        errors: [{ type: 'scan-error', message: error.message }],
-      });
-    }
-  });
-
-  deprecatedApiRouter.get<NoParams, Scan.GetScanStatusResponse>(
-    '/central-scanner/scan/status',
-    (_request, response) => {
-      const status = importer.getStatus();
-      response.json(status);
-    }
-  );
 
   deprecatedApiRouter.get(
     '/central-scanner/scan/hmpb/ballot/:sheetId/:side/image',

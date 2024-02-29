@@ -1,4 +1,3 @@
-import { Scan } from '@votingworks/api';
 import { Result, assert, ok, sleep } from '@votingworks/basics';
 import {
   ElectionDefinition,
@@ -12,19 +11,22 @@ import * as fsExtra from 'fs-extra';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { interpretSheetAndSaveImages } from '@votingworks/ballot-interpreter';
+import { Logger } from '@votingworks/logging';
 import { BatchControl, BatchScanner } from './fujitsu_scanner';
-import { Castability, checkSheetCastability } from './util/castability';
 import { Workspace } from './util/workspace';
 import {
   describeValidationError,
   validateSheetInterpretation,
 } from './validation';
+import { logBatchComplete, logScanSheetSuccess } from './util/logging';
+import { ScanStatus } from './types';
 
 const debug = makeDebug('scan:importer');
 
 export interface Options {
   workspace: Workspace;
   scanner: BatchScanner;
+  logger: Logger;
 }
 
 /**
@@ -33,12 +35,14 @@ export interface Options {
 export class Importer {
   private readonly workspace: Workspace;
   private readonly scanner: BatchScanner;
+  private readonly logger: Logger;
   private sheetGenerator?: BatchControl;
   private batchId?: string;
 
-  constructor({ workspace, scanner }: Options) {
+  constructor({ workspace, scanner, logger }: Options) {
     this.workspace = workspace;
     this.scanner = scanner;
+    this.logger = logger;
   }
 
   /**
@@ -147,6 +151,9 @@ export class Importer {
       backInterpretation
     );
 
+    const batch = this.workspace.store.getBatch(batchId);
+    await logScanSheetSuccess(this.logger, batch);
+
     return sheetId;
   }
 
@@ -220,6 +227,8 @@ export class Importer {
   private async finishBatch(error?: string): Promise<void> {
     if (this.batchId) {
       this.workspace.store.finishBatch({ batchId: this.batchId, error });
+      const batch = this.workspace.store.getBatch(this.batchId);
+      await logBatchComplete(this.logger, batch);
       this.batchId = undefined;
     }
 
@@ -239,7 +248,6 @@ export class Importer {
     );
 
     const sheet = await this.sheetGenerator.scanSheet();
-
     if (!sheet) {
       debug('closing batch %s', this.batchId);
       await this.finishBatch();
@@ -250,30 +258,8 @@ export class Importer {
 
       const adjudicationStatus = this.workspace.store.adjudicationStatus();
       if (adjudicationStatus.remaining === 0) {
-        if (!(await this.sheetGenerator.acceptSheet())) {
-          debug('failed to accept interpreted sheet: %s', sheetId);
-        }
-        await this.continueImport({ forceAccept: false });
-      } else {
-        const castability = this.getNextAdjudicationCastability();
-        if (castability) {
-          if (castability === Castability.Uncastable) {
-            await this.sheetGenerator.rejectSheet();
-          } else {
-            await this.sheetGenerator.reviewSheet();
-          }
-        }
+        this.continueImport({ forceAccept: false });
       }
-    }
-  }
-
-  getNextAdjudicationCastability(): Castability | undefined {
-    const sheet = this.workspace.store.getNextAdjudicationSheet();
-    if (sheet) {
-      return checkSheetCastability([
-        sheet.front.interpretation,
-        sheet.back.interpretation,
-      ]);
     }
   }
 
@@ -305,7 +291,7 @@ export class Importer {
       pageSize: ballotPaperSize,
     });
 
-    await this.continueImport({ forceAccept: false });
+    this.continueImport({ forceAccept: false });
 
     return this.batchId;
   }
@@ -313,15 +299,13 @@ export class Importer {
   /**
    * Continue the existing scanning process
    */
-  async continueImport(options: { forceAccept: boolean }): Promise<void> {
+  continueImport(options: { forceAccept: boolean }): void {
     const sheet = this.workspace.store.getNextAdjudicationSheet();
 
     if (sheet) {
       if (options.forceAccept) {
-        await this.sheetGenerator?.acceptSheet();
         this.workspace.store.adjudicateSheet(sheet.id);
       } else {
-        await this.sheetGenerator?.rejectSheet();
         this.workspace.store.deleteSheet(sheet.id);
       }
     }
@@ -361,19 +345,15 @@ export class Importer {
   }
 
   /**
-   * Get the imported batches and current election info, if any.
+   * Get current batch and adjudication info.
    */
-  getStatus(): Scan.ScanStatus {
-    const electionDefinition = this.workspace.store.getElectionDefinition();
-    const canUnconfigure = this.workspace.store.getCanUnconfigure();
-    const batches = this.workspace.store.getBatches();
-    const adjudication = this.workspace.store.adjudicationStatus();
-
+  getStatus(): ScanStatus {
     return {
-      electionHash: electionDefinition?.electionHash,
-      batches,
-      canUnconfigure,
-      adjudication,
+      ongoingBatchId: this.batchId,
+      adjudicationsRemaining:
+        this.workspace.store.adjudicationStatus().remaining,
+      batches: this.workspace.store.getBatches(),
+      canUnconfigure: this.workspace.store.getCanUnconfigure(),
     };
   }
 

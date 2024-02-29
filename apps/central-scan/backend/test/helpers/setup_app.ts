@@ -49,10 +49,10 @@ export async function withApp(
   const port = await getPort();
   const auth = buildMockDippedSmartCardAuth();
   const workspace = createWorkspace(dirSync().name);
-  const scanner = makeMockScanner();
-  const importer = new Importer({ workspace, scanner });
-  const mockUsbDrive = createMockUsbDrive();
   const logger = buildMockLogger(auth, workspace);
+  const scanner = makeMockScanner();
+  const importer = new Importer({ workspace, scanner, logger });
+  const mockUsbDrive = createMockUsbDrive();
   const app = buildCentralScannerApp({
     auth,
     usbDrive: mockUsbDrive.usbDrive,

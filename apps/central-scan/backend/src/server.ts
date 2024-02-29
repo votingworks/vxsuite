@@ -96,6 +96,7 @@ export async function start({
       new Importer({
         scanner: resolvedBatchScanner,
         workspace: resolvedWorkspace,
+        logger,
       });
 
     const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);

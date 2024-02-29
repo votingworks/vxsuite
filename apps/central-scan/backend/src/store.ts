@@ -27,7 +27,7 @@ import {
   safeParseSystemSettings,
   AdjudicationReason,
 } from '@votingworks/types';
-import { assert, assertDefined, Optional } from '@votingworks/basics';
+import { assert, assertDefined, find, Optional } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { DateTime } from 'luxon';
 import { dirname, join } from 'path';
@@ -837,6 +837,13 @@ export class Store {
       error: info.error || undefined,
       count: info.count,
     }));
+  }
+
+  /**
+   * Gets a batch by ID, expecting it to exist.
+   */
+  getBatch(batchId: string): BatchInfo {
+    return find(this.getBatches(), (b) => b.id === batchId);
   }
 
   /**
