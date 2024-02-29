@@ -82,6 +82,10 @@ export class LoopScanner implements BatchScanner {
    */
   constructor(private readonly batches: readonly Batch[]) {}
 
+  isAttached(): boolean {
+    return true;
+  }
+
   /**
    * "Scans" the next sheet by returning the paths for the next two images.
    */

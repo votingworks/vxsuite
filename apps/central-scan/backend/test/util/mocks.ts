@@ -94,6 +94,10 @@ export function makeMockScanner(): MockScanner {
   let nextScannerSession: ScannerSessionPlan | undefined;
 
   return {
+    isAttached(): boolean {
+      return true;
+    },
+
     scanSheets(): BatchControl {
       const session = nextScannerSession;
       nextScannerSession = undefined;

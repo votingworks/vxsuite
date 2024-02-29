@@ -349,6 +349,7 @@ export class Importer {
    */
   getStatus(): ScanStatus {
     return {
+      isScannerAttached: this.scanner.isAttached(),
       ongoingBatchId: this.batchId,
       adjudicationsRemaining:
         this.workspace.store.adjudicationStatus().remaining,
