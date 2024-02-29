@@ -145,7 +145,7 @@ it('auto-focuses "next" button on contest screen after voting', async () => {
   // Confirm first contest only has 1 seat
   expect(contest0.seats).toEqual(1);
 
-  // Test navigation by accessible controller keyboard event interface
+  // Test navigation by PAT input keyboard event interface
   userEvent.keyboard('1');
   expect(getActiveElement()).toHaveTextContent(contest0candidate0.name);
   userEvent.keyboard('1');
@@ -158,6 +158,6 @@ it('auto-focuses "next" button on contest screen after voting', async () => {
     selected: true,
   });
 
-  // Focus should have jumped to the "Next" button because we're using keyboard nav
+  // Focus should have jumped to the "Next" button because we're using PAT nav
   expect(await screen.findByRole('button', { name: 'Next' })).toHaveFocus();
 });
