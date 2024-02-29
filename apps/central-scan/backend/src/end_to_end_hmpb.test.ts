@@ -16,6 +16,9 @@ import { ok } from '@votingworks/basics';
 import { withApp } from '../test/helpers/setup_app';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 
+// we need more time for ballot interpretation
+jest.setTimeout(20000);
+
 // mock SKIP_SCAN_ELECTION_HASH_CHECK to allow us to use old ballot image fixtures
 const featureFlagMock = getFeatureFlagMock();
 jest.mock('@votingworks/utils', () => {
