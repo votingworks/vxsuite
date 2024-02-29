@@ -62,7 +62,6 @@ let driver: PaperHandlerDriver;
 let patConnectionStatusReader: PatConnectionStatusReader;
 let logger: Logger;
 
-
 beforeEach(async () => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
@@ -254,7 +253,10 @@ test('polls state', async () => {
   );
   await expectElectionState({ pollsState: 'polls_closed_initial' });
 
-  mockPollWorkerAuth(electionFamousNames2021Fixtures.electionDefinition);
+  mockPollWorkerAuth(
+    mockAuth,
+    electionFamousNames2021Fixtures.electionDefinition
+  );
   await apiClient.setPollsState({ pollsState: 'polls_open' });
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.PollsOpened,
