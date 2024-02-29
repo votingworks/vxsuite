@@ -34,16 +34,6 @@ export interface StartOptions {
 export async function resolveDriver(
   logger: BaseLogger
 ): Promise<PaperHandlerDriverInterface | undefined> {
-  const driver = await getPaperHandlerDriver();
-
-  /* istanbul ignore next */
-  if (driver) {
-    await logger.log(LogEventId.PaperHandlerConnection, 'system', {
-      disposition: 'success',
-    });
-    return driver;
-  }
-
   if (
     isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER)
   ) {
@@ -51,6 +41,15 @@ export async function resolveDriver(
       message: 'Starting server with mock paper handler',
     });
     return new MockPaperHandlerDriver();
+  }
+
+  const driver = await getPaperHandlerDriver();
+
+  if (driver) {
+    await logger.log(LogEventId.PaperHandlerConnection, 'system', {
+      disposition: 'success',
+    });
+    return driver;
   }
 
   await logger.log(LogEventId.PaperHandlerConnection, 'system', {
