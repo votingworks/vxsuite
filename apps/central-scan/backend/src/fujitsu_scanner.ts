@@ -15,9 +15,6 @@ const debug = makeDebug('scan:scanner');
 
 export interface BatchControl {
   scanSheet(): Promise<SheetOf<string> | undefined>;
-  acceptSheet(): Promise<boolean>;
-  reviewSheet(): Promise<boolean>;
-  rejectSheet(): Promise<boolean>;
   endBatch(): Promise<void>;
 }
 
@@ -202,21 +199,6 @@ export class FujitsuScanner implements BatchScanner {
         }
 
         return results.get();
-      },
-
-      // eslint-disable-next-line @typescript-eslint/require-await
-      acceptSheet: async (): Promise<boolean> => {
-        return true;
-      },
-
-      // eslint-disable-next-line @typescript-eslint/require-await
-      reviewSheet: async (): Promise<boolean> => {
-        return false;
-      },
-
-      // eslint-disable-next-line @typescript-eslint/require-await
-      rejectSheet: async (): Promise<boolean> => {
-        return false;
       },
 
       endBatch: async (): Promise<void> => {

@@ -92,18 +92,6 @@ export class LoopScanner implements BatchScanner {
     let sheetIndex = 0;
 
     return {
-      async acceptSheet(): Promise<boolean> {
-        return true;
-      },
-
-      async reviewSheet(): Promise<boolean> {
-        return false;
-      },
-
-      async rejectSheet(): Promise<boolean> {
-        return false;
-      },
-
       async scanSheet(): Promise<SheetOf<string> | undefined> {
         sheetIndex += 1;
         return currentBatch?.[sheetIndex - 1];

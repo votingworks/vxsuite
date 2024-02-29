@@ -261,16 +261,3 @@ test('fujitsu scanner fails if scanSheet fails', async () => {
   scanimage.emit('exit', 1, null);
   await expect(sheets.scanSheet()).rejects.toThrowError();
 });
-
-test('fujitsu scanner accept/reject/review are no-ops', async () => {
-  const scanimage = makeMockChildProcess();
-  const scanner = new FujitsuScanner({
-    logger: new BaseLogger(LogSource.VxScanService),
-  });
-  exec.mockReturnValueOnce(scanimage);
-  const sheets = scanner.scanSheets();
-
-  expect(await sheets.acceptSheet()).toEqual(true);
-  expect(await sheets.rejectSheet()).toEqual(false);
-  expect(await sheets.reviewSheet()).toEqual(false);
-});

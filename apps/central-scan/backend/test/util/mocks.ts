@@ -6,7 +6,7 @@ import {
   fakeWritable,
 } from '@votingworks/test-utils';
 import { SheetOf } from '@votingworks/types';
-import { throwIllegalValue } from '@votingworks/basics';
+import { Optional, throwIllegalValue } from '@votingworks/basics';
 import { ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';
 import { fileSync } from 'tmp';
@@ -32,7 +32,7 @@ class ScannerSessionPlan {
   private readonly steps: ScanSessionStep[] = [];
   private ended = false;
 
-  getStep(index: number): ScanSessionStep {
+  getStep(index: number): Optional<ScanSessionStep> {
     return this.steps[index];
   }
 
@@ -106,14 +106,14 @@ export function makeMockScanner(): MockScanner {
       }
 
       return {
-        acceptSheet: jest.fn(),
-        reviewSheet: jest.fn(),
-        rejectSheet: jest.fn(),
-
         // eslint-disable-next-line @typescript-eslint/require-await
-        scanSheet: async (): Promise<SheetOf<string>> => {
+        scanSheet: async (): Promise<SheetOf<string> | undefined> => {
           const step = session.getStep(stepIndex);
           stepIndex += 1;
+
+          if (!step) {
+            return undefined;
+          }
 
           switch (step.type) {
             case 'sheet':
