@@ -16,13 +16,14 @@ module.exports = {
     '!**/node_modules/**',
     '!src/index.ts',
     '!src/types.ts',
+    '!test/**/*',
     '!src/custom-paper-handler/cli/state_machine_cli.ts',
-    '!test/**/*'
+    '!src/util/auth.ts'
   ],
   coverageThreshold: {
     global: {
-      branches: -23,
-      lines: -21,
+      branches: -16,
+      lines: -19,
     },
   },
 };

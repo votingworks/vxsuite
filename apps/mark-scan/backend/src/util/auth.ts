@@ -1,4 +1,3 @@
-/* istanbul ignore next */
 import {
   InsertedSmartCardAuth,
   InsertedSmartCardAuthApi,
