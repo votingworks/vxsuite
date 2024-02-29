@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import pluralize from 'pluralize';
-import { Scan } from '@votingworks/api';
 import {
   Button,
   Font,
@@ -14,6 +13,7 @@ import {
 import { BatchInfo } from '@votingworks/types';
 import styled from 'styled-components';
 import { iter } from '@votingworks/basics';
+import type { ScanStatus } from '@votingworks/central-scan-backend';
 import { DeleteBatchModal } from '../components/delete_batch_modal';
 import { NavigationScreen } from '../navigation_screen';
 import { ExportResultsModal } from '../components/export_results_modal';
@@ -53,27 +53,23 @@ const DeleteAllWrapper = styled.div`
 
 export interface ScanBallotsScreenProps {
   isScannerAttached: boolean;
-  isScanning: boolean;
-  isExportingCvrs: boolean;
-  setIsExportingCvrs: (isExportingCvrs: boolean) => void;
-  scanBatch: () => void;
-  status: Scan.GetScanStatusResponse;
+  status: ScanStatus;
+  statusIsStale: boolean;
 }
 
 export function ScanBallotsScreen({
   isScannerAttached,
-  isScanning,
-  isExportingCvrs,
-  setIsExportingCvrs,
-  scanBatch,
   status,
+  statusIsStale,
 }: ScanBallotsScreenProps): JSX.Element {
+  const isScanning = !!status.ongoingBatchId;
   const { batches } = status;
   const batchCount = batches.length;
   const ballotCount = iter(batches)
     .map((b) => b.count)
     .sum();
 
+  const [isExportingCvrs, setIsExportingCvrs] = useState(false);
   const [pendingDeleteBatch, setPendingDeleteBatch] = useState<BatchInfo>();
   const [deleteBallotDataFlowState, setDeleteBallotDataFlowState] = useState<
     'confirmation' | 'deleting'
@@ -91,7 +87,7 @@ export function ScanBallotsScreen({
   }
 
   let exportButtonTitle;
-  if (status.adjudication.remaining > 0) {
+  if (status.adjudicationsRemaining > 0) {
     exportButtonTitle =
       'You cannot save results until all ballots have been adjudicated.';
   } else if (status.batches.length === 0) {
@@ -104,14 +100,14 @@ export function ScanBallotsScreen({
       <Content>
         <Actions>
           <ScanButton
-            onPress={scanBatch}
-            disabled={isScanning}
+            /* disable scan button while status query is refetching to avoid double clicks */
+            disabled={isScanning || statusIsStale}
             isScannerAttached={isScannerAttached}
           />
           <Button
             onPress={() => setIsExportingCvrs(true)}
             disabled={
-              status.adjudication.remaining > 0 || status.batches.length === 0
+              status.adjudicationsRemaining > 0 || status.batches.length === 0
             }
             nonAccessibleTitle={exportButtonTitle}
             icon="Export"

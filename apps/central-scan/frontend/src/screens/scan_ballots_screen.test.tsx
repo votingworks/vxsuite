@@ -1,7 +1,6 @@
-import { Scan } from '@votingworks/api';
-import { AdjudicationStatus } from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
+import type { ScanStatus } from '@votingworks/central-scan-backend';
 import { screen, waitFor } from '../../test/react_testing_library';
 import {
   ScanBallotsScreen,
@@ -9,11 +8,6 @@ import {
 } from './scan_ballots_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/api';
-
-const noneLeftAdjudicationStatus: AdjudicationStatus = {
-  adjudicated: 0,
-  remaining: 0,
-};
 
 let apiMock: ApiMock;
 
@@ -29,15 +23,13 @@ function renderScreen(props?: Partial<ScanBallotsScreenProps>) {
   return renderInAppContext(
     <ScanBallotsScreen
       isScannerAttached
-      isExportingCvrs={false}
-      isScanning={false}
-      setIsExportingCvrs={jest.fn()}
-      scanBatch={jest.fn()}
       status={{
-        canUnconfigure: false,
+        ongoingBatchId: undefined,
+        adjudicationsRemaining: 0,
+        canUnconfigure: true,
         batches: [],
-        adjudication: noneLeftAdjudicationStatus,
       }}
+      statusIsStale={false}
       {...props}
     />,
     { apiMock }
@@ -50,7 +42,9 @@ test('null state', () => {
 });
 
 test('shows scanned ballot count', () => {
-  const status: Scan.GetScanStatusResponse = {
+  const status: ScanStatus = {
+    ongoingBatchId: undefined,
+    adjudicationsRemaining: 0,
     canUnconfigure: false,
     batches: [
       {
@@ -70,7 +64,6 @@ test('shows scanned ballot count', () => {
         endedAt: new Date(0).toISOString(),
       },
     ],
-    adjudication: noneLeftAdjudicationStatus,
   };
   renderScreen({ status });
   screen.getByText(
@@ -81,7 +74,9 @@ test('shows scanned ballot count', () => {
 });
 
 test('shows whether a batch is scanning', () => {
-  const status: Scan.GetScanStatusResponse = {
+  const status: ScanStatus = {
+    ongoingBatchId: 'a',
+    adjudicationsRemaining: 0,
     canUnconfigure: false,
     batches: [
       {
@@ -92,9 +87,8 @@ test('shows whether a batch is scanning', () => {
         startedAt: new Date(0).toISOString(),
       },
     ],
-    adjudication: noneLeftAdjudicationStatus,
   };
-  renderScreen({ isScanning: true, status });
+  renderScreen({ status });
   screen.getByText('Scanning…');
   for (const deleteButton of screen.getAllButtons('Delete')) {
     expect(deleteButton).toBeDisabled();
@@ -103,7 +97,9 @@ test('shows whether a batch is scanning', () => {
 });
 
 test('Delete All Batches is not allowed when canUnconfigure is false', () => {
-  const status: Scan.GetScanStatusResponse = {
+  const status: ScanStatus = {
+    ongoingBatchId: undefined,
+    adjudicationsRemaining: 0,
     canUnconfigure: false,
     batches: [
       {
@@ -112,9 +108,9 @@ test('Delete All Batches is not allowed when canUnconfigure is false', () => {
         label: 'Batch 1',
         count: 3,
         startedAt: new Date(0).toISOString(),
+        endedAt: new Date(0).toISOString(),
       },
     ],
-    adjudication: noneLeftAdjudicationStatus,
   };
   renderScreen({ status });
 
@@ -125,7 +121,9 @@ test('Delete All Batches is not allowed when canUnconfigure is false', () => {
 });
 
 test('Delete All Batches button', async () => {
-  const status: Scan.GetScanStatusResponse = {
+  const status: ScanStatus = {
+    ongoingBatchId: undefined,
+    adjudicationsRemaining: 0,
     canUnconfigure: true,
     batches: [
       {
@@ -134,9 +132,9 @@ test('Delete All Batches button', async () => {
         label: 'Batch 1',
         count: 3,
         startedAt: new Date(0).toISOString(),
+        endedAt: new Date(0).toISOString(),
       },
     ],
-    adjudication: noneLeftAdjudicationStatus,
   };
   renderScreen({ status });
 
@@ -153,4 +151,33 @@ test('Delete All Batches button', async () => {
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
+});
+
+describe('Scan Ballots Button', () => {
+  test('disabled when no scanner is attached', () => {
+    renderScreen({ isScannerAttached: false });
+    expect(screen.getButton('No Scanner')).toBeDisabled();
+  });
+
+  test('disabled when there is an ongoing batch', () => {
+    renderScreen({
+      status: {
+        ongoingBatchId: 'a',
+        canUnconfigure: true,
+        adjudicationsRemaining: 0,
+        batches: [],
+      },
+    });
+    expect(screen.getButton('Scan New Batch')).toBeDisabled();
+  });
+
+  test('disabled when scan status is stale', () => {
+    renderScreen({ statusIsStale: true });
+    expect(screen.getButton('Scan New Batch')).toBeDisabled();
+  });
+
+  test('enabled otherwise', () => {
+    renderScreen();
+    expect(screen.getButton('Scan New Batch')).toBeEnabled();
+  });
 });

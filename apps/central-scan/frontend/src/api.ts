@@ -139,6 +139,18 @@ export const getElectionDefinition = {
   },
 } as const;
 
+export const getStatus = {
+  queryKey(): QueryKey {
+    return ['getStatus'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getStatus(), {
+      refetchInterval: 100,
+    });
+  },
+} as const;
+
 // Mutations
 
 export const setTestMode = {
@@ -188,10 +200,39 @@ export const updateSessionExpiry = {
   },
 } as const;
 
+export const scanBatch = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.scanBatch, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const continueScanning = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.continueScanning, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const deleteBatch = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.deleteBatch);
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.deleteBatch, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStatus.queryKey());
+      },
+    });
   },
 } as const;
 

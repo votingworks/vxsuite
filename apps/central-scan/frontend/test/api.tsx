@@ -1,5 +1,9 @@
 import React from 'react';
-import type { Api, MachineConfig } from '@votingworks/central-scan-backend';
+import type {
+  Api,
+  MachineConfig,
+  ScanStatus,
+} from '@votingworks/central-scan-backend';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -13,6 +17,13 @@ import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ok } from '@votingworks/basics';
 import { ApiClientContext, createQueryClient, systemCallApi } from '../src/api';
+
+const DEFAULT_STATUS: ScanStatus = {
+  ongoingBatchId: undefined,
+  adjudicationsRemaining: 0,
+  canUnconfigure: true,
+  batches: [],
+};
 
 export type MockApiClient = Omit<MockClient<Api>, 'getBatteryInfo'> & {
   // Because this is polled so frequently, we opt for a standard jest mock instead of a
@@ -61,6 +72,10 @@ export function createApiMock(
         .resolves(usbDriveStatus);
     },
 
+    setStatus(status: ScanStatus = DEFAULT_STATUS) {
+      apiClient.getStatus.expectRepeatedCallsWith().resolves(status);
+    },
+
     expectEjectUsbDrive() {
       apiClient.ejectUsbDrive.expectCallWith().resolves();
     },
@@ -101,6 +116,14 @@ export function createApiMock(
       apiClient.configureFromElectionPackageOnUsbDrive
         .expectCallWith()
         .resolves(ok(electionDefinition));
+    },
+
+    expectScanBatch() {
+      apiClient.scanBatch.expectCallWith().resolves();
+    },
+
+    expectContinueScanning(input: { forceAccept: boolean }) {
+      apiClient.continueScanning.expectCallWith(input).resolves();
     },
 
     expectExportCastVoteRecords(input: { isMinimalExport: boolean }) {

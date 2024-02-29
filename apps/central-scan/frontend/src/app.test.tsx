@@ -8,8 +8,6 @@ import {
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
 import { MemoryHardware } from '@votingworks/utils';
-import { typedAs } from '@votingworks/basics';
-import { Scan } from '@votingworks/api';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
@@ -35,17 +33,9 @@ beforeEach(() => {
   });
   apiMock.expectGetSystemSettings();
   apiMock.expectGetMachineConfig();
+  apiMock.setStatus();
 
   fetchMock.config.fallbackToNetwork = true;
-  fetchMock.get(
-    '/central-scanner/scan/status',
-    typedAs<Scan.GetScanStatusResponse>({
-      canUnconfigure: true,
-      batches: [],
-      adjudication: { adjudicated: 0, remaining: 0 },
-    }),
-    { overwriteRoutes: true }
-  );
 
   const oldWindowLocation = window.location;
   Object.defineProperty(window, 'location', {
@@ -151,43 +141,22 @@ test('clicking Scan Batch will scan a batch', async () => {
   apiMock.expectGetTestMode(true);
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
 
-  const scanBatchResponseBody: Scan.ScanBatchResponse = {
-    status: 'error',
-    errors: [{ type: 'scan-error', message: 'interpreter not ready' }],
-  };
-  fetchMock.postOnce('/central-scanner/scan/scanBatch', {
-    body: scanBatchResponseBody,
-  });
-
-  const mockAlert = jest.fn();
-  window.alert = mockAlert;
   const hardware = MemoryHardware.buildStandard();
 
   render(<App apiClient={apiMock.apiClient} hardware={hardware} />);
   await authenticateAsElectionManager(electionGeneralDefinition);
 
-  // error scan
+  apiMock.expectScanBatch();
   userEvent.click(screen.getButton('Scan New Batch'));
   await screen.findByText('Scan New Batch'); // wait for button to reset
-  expect(mockAlert).toHaveBeenCalled();
-  mockAlert.mockClear();
-
-  // successful scan
-  fetchMock.postOnce(
-    '/central-scanner/scan/scanBatch',
-    { body: { status: 'ok', batchId: 'foobar' } },
-    { overwriteRoutes: true }
-  );
-  userEvent.click(screen.getButton('Scan New Batch'));
-  await screen.findByText('Scan New Batch'); // wait for button to reset
-  expect(mockAlert).not.toHaveBeenCalled();
-  mockAlert.mockClear();
 });
 
 test('clicking "Save CVRs" shows modal and makes a request to export', async () => {
   apiMock.expectGetTestMode(true);
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
-  const scanStatusResponseBody: Scan.GetScanStatusResponse = {
+  apiMock.setStatus({
+    ongoingBatchId: undefined,
+    adjudicationsRemaining: 0,
     canUnconfigure: false,
     batches: [
       {
@@ -196,15 +165,10 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
         label: 'Batch 1',
         count: 2,
         startedAt: '2021-05-13T13:19:42.353Z',
+        endedAt: '2021-05-13T13:19:42.353Z',
       },
     ],
-    adjudication: { adjudicated: 0, remaining: 0 },
-  };
-  fetchMock.get(
-    '/central-scanner/scan/status',
-    { body: scanStatusResponseBody },
-    { overwriteRoutes: true }
-  );
+  });
 
   const hardware = MemoryHardware.buildStandard();
 

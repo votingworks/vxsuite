@@ -1,8 +1,5 @@
-import { useEffect, useState, useCallback } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
-import { safeParseJson } from '@votingworks/types';
 
-import { Scan } from '@votingworks/api';
 import {
   Hardware,
   isElectionManagerAuth,
@@ -18,11 +15,8 @@ import {
   useDevices,
   H1,
 } from '@votingworks/ui';
-import { LogEventId, BaseLogger } from '@votingworks/logging';
-import { assert } from '@votingworks/basics';
+import { BaseLogger } from '@votingworks/logging';
 import { AppContext, AppContextInterface } from './contexts/app_context';
-
-import { useInterval } from './hooks/use_interval';
 
 import { ScanBallotsScreen } from './screens/scan_ballots_screen';
 import { BallotEjectScreen } from './screens/ballot_eject_screen';
@@ -34,6 +28,7 @@ import {
   getAuthStatus,
   getElectionDefinition,
   getMachineConfig,
+  getStatus,
   getTestMode,
   getUsbDriveStatus,
 } from './api';
@@ -50,12 +45,6 @@ export function AppRoot({
   hardware,
   logger,
 }: AppRootProps): JSX.Element | null {
-  const [status, setStatus] = useState<Scan.GetScanStatusResponse>({
-    canUnconfigure: true,
-    batches: [],
-    adjudication: { remaining: 0, adjudicated: 0 },
-  });
-
   const { batchScanner } = useDevices({
     hardware,
     logger,
@@ -64,128 +53,21 @@ export function AppRoot({
   const machineConfigQuery = getMachineConfig.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const authStatusQuery = getAuthStatus.useQuery();
-  const userRole =
-    authStatusQuery.data?.status === 'logged_in'
-      ? authStatusQuery.data.user.role
-      : 'unknown';
   const checkPinMutation = checkPin.useMutation();
+  const statusQuery = getStatus.useQuery();
 
   const getTestModeQuery = getTestMode.useQuery();
   const isTestMode = getTestModeQuery.data ?? false;
 
   const electionDefinitionQuery = getElectionDefinition.useQuery();
 
-  const [isExportingCvrs, setIsExportingCvrs] = useState(false);
-
-  const { adjudication } = status;
-
-  const [isScanning, setIsScanning] = useState(false);
-
-  const updateStatus = useCallback(async () => {
-    try {
-      const body = await (await fetch('/central-scanner/scan/status')).text();
-      const newStatus = safeParseJson(
-        body,
-        Scan.GetScanStatusResponseSchema
-      ).unsafeUnwrap();
-      setStatus((prevStatus) => {
-        if (JSON.stringify(prevStatus) === JSON.stringify(newStatus)) {
-          return prevStatus;
-        }
-        const currentScanningBatch = newStatus.batches.find(
-          ({ endedAt }) => !endedAt
-        );
-        setIsScanning(
-          newStatus.adjudication.remaining === 0 &&
-            currentScanningBatch !== undefined
-        );
-        return newStatus;
-      });
-    } catch (error) {
-      setIsScanning(false);
-      console.log('failed updateStatus()', error); // eslint-disable-line no-console
-    }
-  }, [setStatus]);
-
-  const scanBatch = useCallback(async () => {
-    setIsScanning(true);
-    try {
-      const result = safeParseJson(
-        await (
-          await fetch('/central-scanner/scan/scanBatch', {
-            method: 'post',
-          })
-        ).text(),
-        Scan.ScanBatchResponseSchema
-      ).unsafeUnwrap();
-      if (result.status !== 'ok') {
-        // eslint-disable-next-line no-alert
-        window.alert(`could not scan: ${JSON.stringify(result.errors)}`);
-        setIsScanning(false);
-      }
-    } catch (error) {
-      assert(error instanceof Error);
-      console.log('failed handleFileInput()', error); // eslint-disable-line no-console
-      await logger.log(LogEventId.ScanBatchInit, userRole, {
-        disposition: 'failure',
-        message: 'Failed to start scanning a new batch.',
-        error: error.message,
-        result: 'Scanning not begun.',
-      });
-    }
-  }, [logger, userRole]);
-
-  const continueScanning = useCallback(
-    async (request: Scan.ScanContinueRequest) => {
-      setIsScanning(true);
-      try {
-        safeParseJson(
-          await (
-            await fetch('/central-scanner/scan/scanContinue', {
-              method: 'post',
-              body: JSON.stringify(request),
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            })
-          ).text(),
-          Scan.ScanContinueResponseSchema
-        ).unsafeUnwrap();
-      } catch (error) {
-        assert(error instanceof Error);
-        console.log('failed handleFileInput()', error); // eslint-disable-line no-console
-        await logger.log(LogEventId.ScanBatchContinue, userRole, {
-          disposition: 'failure',
-          message: 'Request to continue scanning failed.',
-          error: error.message,
-          result: 'Scanning not continued, user asked to try again.',
-        });
-      }
-    },
-    [logger, userRole]
-  );
-
-  // poll for scanning status on an interval if configured
-  useInterval(
-    useCallback(async () => {
-      if (electionDefinitionQuery.data) {
-        await updateStatus();
-      }
-    }, [electionDefinitionQuery.data, updateStatus]),
-    1000
-  );
-
-  // initial scanning status check
-  useEffect(() => {
-    void updateStatus();
-  }, [updateStatus]);
-
   if (
     !machineConfigQuery.isSuccess ||
     !authStatusQuery.isSuccess ||
     !usbDriveStatusQuery.isSuccess ||
     !electionDefinitionQuery.isSuccess ||
-    !getTestModeQuery.isSuccess
+    !getTestModeQuery.isSuccess ||
+    !statusQuery.isSuccess
   ) {
     return (
       <Screen>
@@ -199,6 +81,7 @@ export function AppRoot({
   const machineConfig = machineConfigQuery.data;
   const usbDriveStatus = usbDriveStatusQuery.data;
   const electionDefinition = electionDefinitionQuery.data ?? undefined;
+  const status = statusQuery.data;
 
   const currentContext: AppContextInterface = {
     usbDriveStatus,
@@ -281,13 +164,10 @@ export function AppRoot({
     );
   }
 
-  if (adjudication.remaining > 0 && !isScanning) {
+  if (status.adjudicationsRemaining > 0) {
     return (
       <AppContext.Provider value={currentContext}>
-        <BallotEjectScreen
-          continueScanning={continueScanning}
-          isTestMode={isTestMode}
-        />
+        <BallotEjectScreen isTestMode={isTestMode} />
       </AppContext.Provider>
     );
   }
@@ -298,11 +178,8 @@ export function AppRoot({
         <Route path="/scan">
           <ScanBallotsScreen
             isScannerAttached={batchScanner !== undefined}
-            isScanning={isScanning}
-            isExportingCvrs={isExportingCvrs}
-            setIsExportingCvrs={setIsExportingCvrs}
-            scanBatch={scanBatch}
             status={status}
+            statusIsStale={statusQuery.isStale}
           />
         </Route>
         <Route path="/settings">

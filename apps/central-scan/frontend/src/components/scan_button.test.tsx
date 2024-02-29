@@ -1,28 +1,40 @@
 import userEvent from '@testing-library/user-event';
-import { render, screen } from '../../test/react_testing_library';
+import { screen } from '../../test/react_testing_library';
 import { ScanButton } from './scan_button';
+import { ApiMock, createApiMock } from '../../test/api';
+import { renderInAppContext } from '../../test/render_in_app_context';
+
+let apiMock: ApiMock;
+
+beforeEach(() => {
+  jest.restoreAllMocks();
+  apiMock = createApiMock();
+});
+
+afterEach(() => {
+  apiMock.assertComplete();
+});
 
 test('is enabled by default when scanner attached', async () => {
-  render(<ScanButton onPress={jest.fn()} isScannerAttached />);
+  renderInAppContext(<ScanButton isScannerAttached />, { apiMock });
   const button = await screen.findButton('Scan New Batch');
   expect(button).toBeEnabled();
 });
 
 test('is disabled when scanner not attached', async () => {
-  render(<ScanButton onPress={jest.fn()} isScannerAttached={false} />);
+  renderInAppContext(<ScanButton isScannerAttached={false} />, { apiMock });
   const button = await screen.findButton('No Scanner');
   expect(button).toBeDisabled();
 });
 
 test('is disabled when disabled set to true', async () => {
-  render(<ScanButton onPress={jest.fn()} disabled isScannerAttached />);
+  renderInAppContext(<ScanButton disabled isScannerAttached />, { apiMock });
   const button = await screen.findButton('Scan New Batch');
   expect(button).toBeDisabled();
 });
 
-test('calls onPress when clicked', async () => {
-  const onPress = jest.fn();
-  render(<ScanButton onPress={onPress} isScannerAttached />);
+test('calls scanBatch', async () => {
+  renderInAppContext(<ScanButton isScannerAttached />, { apiMock });
+  apiMock.expectScanBatch();
   userEvent.click(await screen.findButton('Scan New Batch'));
-  expect(onPress).toHaveBeenCalledTimes(1);
 });
