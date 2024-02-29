@@ -626,7 +626,7 @@ export function buildMachine(
               NO_PAPER_ANYWHERE: {
                 cond: () =>
                   !isFeatureFlagEnabled(
-                    BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+                    BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
                   ),
                 target: 'resetting_state_machine_after_success',
               },
@@ -661,7 +661,7 @@ export function buildMachine(
             entry: async (context) => {
               if (
                 isFeatureFlagEnabled(
-                  BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+                  BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
                 )
               ) {
                 return;

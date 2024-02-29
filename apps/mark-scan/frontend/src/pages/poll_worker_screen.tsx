@@ -259,7 +259,7 @@ export function PollWorkerScreen({
   if (pollWorkerAuth.cardlessVoterUser) {
     if (
       isFeatureFlagEnabled(
-        BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+        BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
       )
     ) {
       return <PaperHandlerHardwareCheckDisabledScreen />;

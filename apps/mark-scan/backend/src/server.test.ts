@@ -37,7 +37,7 @@ test('can start server', async () => {
 
 test('resolveDriver returns a mock driver if feature flag is on', async () => {
   featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+    BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
   );
   const logger = mockBaseLogger();
 
@@ -70,7 +70,7 @@ test('resolveDriver returns a mock driver if feature flag is on', async () => {
 
 // test('can start with a mock driver', async () => {
 //   featureFlagMock.enableFeatureFlag(
-//     BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+//     BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
 //   );
 
 //   const auth = buildMockInsertedSmartCardAuth();

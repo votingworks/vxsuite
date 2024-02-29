@@ -381,20 +381,20 @@ test('getPaperHandlerState returns state machine state', async () => {
   expect(await apiClient.getPaperHandlerState()).toEqual('accepting_paper');
 });
 
-test('setAcceptingPaperState is a no-op when SKIP_PAPER_HANDLER_HARDWARE_CHECK flag is on', async () => {
+test('setAcceptingPaperState is a no-op when USE_MOCK_PAPER_HANDLER flag is on', async () => {
   expect(await apiClient.getPaperHandlerState()).toEqual('not_accepting_paper');
   featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+    BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
   );
   await apiClient.setAcceptingPaperState();
   expect(await apiClient.getPaperHandlerState()).toEqual('not_accepting_paper');
 });
 
-test('printBallot sets the interpretation fixture when SKIP_PAPER_HANDLER_HARDWARE_CHECK is on', async () => {
+test('printBallot sets the interpretation fixture when USE_MOCK_PAPER_HANDLER is on', async () => {
   await configureForTestElection();
 
   featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+    BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
   );
   await apiClient.printBallot({ pdfData: Buffer.of() });
   await waitForExpect(async () => {

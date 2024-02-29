@@ -350,9 +350,7 @@ export function AppRoot({
 
   if (
     stateMachineState === 'no_hardware' &&
-    !isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
-    )
+    !isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER)
   ) {
     return <NoPaperHandlerPage />;
   }
@@ -456,7 +454,7 @@ export function AppRoot({
 
     if (
       !isFeatureFlagEnabled(
-        BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+        BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
       )
     ) {
       if (stateMachineState === 'ejecting_to_rear') {

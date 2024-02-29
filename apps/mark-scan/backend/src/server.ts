@@ -52,9 +52,7 @@ export async function resolveDriver(
   });
 
   if (
-    isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
-    )
+    isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER)
   ) {
     debug('No paper handler found. Starting server with mock driver');
     return new MockPaperHandlerDriver();
