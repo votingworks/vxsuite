@@ -33,8 +33,8 @@ export function sheetRequiresAdjudication([
         pi.type === 'InvalidPrecinctPage' ||
         (pi.type === 'InterpretedHmpbPage' &&
           pi.adjudicationInfo.requiresAdjudication &&
-          !pi.adjudicationInfo.enabledReasonInfos.some(
-            (reasonInfo) => reasonInfo.type === AdjudicationReason.BlankBallot
+          pi.adjudicationInfo.enabledReasonInfos.some(
+            (reasonInfo) => reasonInfo.type !== AdjudicationReason.BlankBallot
           ))
     );
 
