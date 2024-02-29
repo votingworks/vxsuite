@@ -4,7 +4,6 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
-import { mockBaseLogger, LogEventId } from '@votingworks/logging';
 import {
   fireEvent,
   render,
@@ -19,7 +18,6 @@ import {
 
 test('default mode: set precinct from unset', async () => {
   const updatePrecinctSelection = jest.fn();
-  const logger = mockBaseLogger();
 
   render(
     <ChangePrecinctButton
@@ -27,7 +25,6 @@ test('default mode: set precinct from unset', async () => {
       updatePrecinctSelection={updatePrecinctSelection}
       election={electionTwoPartyPrimary}
       mode="default"
-      logger={logger}
     />
   );
 
@@ -49,16 +46,6 @@ test('default mode: set precinct from unset', async () => {
   expect(updatePrecinctSelection).toHaveBeenCalledWith(
     expect.objectContaining(singlePrecinctSelectionFor('precinct-1'))
   );
-  await waitFor(() => {
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.PrecinctConfigurationChanged,
-      'election_manager',
-      expect.objectContaining({
-        disposition: 'success',
-        message: expect.stringContaining('Precinct 1'),
-      })
-    );
-  });
 
   // Prompt is still disabled
   expect(
@@ -68,7 +55,6 @@ test('default mode: set precinct from unset', async () => {
 
 test('default mode: switch precinct', async () => {
   const updatePrecinctSelection = jest.fn();
-  const logger = mockBaseLogger();
 
   render(
     <ChangePrecinctButton
@@ -76,7 +62,6 @@ test('default mode: switch precinct', async () => {
       updatePrecinctSelection={updatePrecinctSelection}
       election={electionTwoPartyPrimary}
       mode="default"
-      logger={logger}
     />
   );
 
@@ -90,22 +75,10 @@ test('default mode: switch precinct', async () => {
   expect(updatePrecinctSelection).toHaveBeenCalledWith(
     expect.objectContaining(singlePrecinctSelectionFor('precinct-2'))
   );
-
-  await waitFor(() => {
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.PrecinctConfigurationChanged,
-      'election_manager',
-      expect.objectContaining({
-        disposition: 'success',
-        message: expect.stringContaining('Precinct 2'),
-      })
-    );
-  });
 });
 
 test('confirmation required mode', async () => {
   const updatePrecinctSelection = jest.fn();
-  const logger = mockBaseLogger();
 
   render(
     <ChangePrecinctButton
@@ -113,7 +86,6 @@ test('confirmation required mode', async () => {
       updatePrecinctSelection={updatePrecinctSelection}
       election={electionTwoPartyPrimary}
       mode="confirmation_required"
-      logger={logger}
     />
   );
 
@@ -159,18 +131,6 @@ test('confirmation required mode', async () => {
       kind: 'AllPrecincts',
     })
   );
-
-  await waitFor(() => {
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.PrecinctConfigurationChanged,
-      'election_manager',
-      expect.objectContaining({
-        disposition: 'success',
-        message: expect.stringContaining('All Precincts'),
-      })
-    );
-  });
-  expect(logger.log).toHaveBeenCalledTimes(1);
 });
 
 test('disabled mode', () => {
@@ -180,7 +140,6 @@ test('disabled mode', () => {
       updatePrecinctSelection={jest.fn()}
       election={electionTwoPartyPrimary}
       mode="disabled"
-      logger={mockBaseLogger()}
     />
   );
 

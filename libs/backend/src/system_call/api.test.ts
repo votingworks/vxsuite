@@ -2,6 +2,7 @@
 
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { mockOf } from '@votingworks/test-utils';
+import { LogEventId, Logger, mockLogger } from '@votingworks/logging';
 import { SystemCallApi, createSystemCallApi } from './api';
 import { execFile } from '../exec';
 
@@ -18,12 +19,15 @@ jest.mock('../exec', (): typeof import('../exec') => ({
 const execMock = mockOf(execFile);
 
 let mockUsbDrive: MockUsbDrive;
+let logger: Logger;
 let api: SystemCallApi;
 
 beforeEach(() => {
   mockUsbDrive = createMockUsbDrive();
+  logger = mockLogger();
   api = createSystemCallApi({
     usbDrive: mockUsbDrive.usbDrive,
+    logger,
     machineId: 'TEST-MACHINE-ID',
   });
 });
@@ -37,8 +41,14 @@ test('reboot', () => {
   expect(execMock).toHaveBeenCalledWith('systemctl', ['reboot', '-i']);
 });
 
-test('rebootToBios', () => {
-  api.rebootToBios();
+test('rebootToBios', async () => {
+  await api.rebootToBios();
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+    LogEventId.RebootMachine,
+    {
+      message: 'User trigged a reboot of the machine to BIOS screen…',
+    }
+  );
   expect(execMock).toHaveBeenCalledWith('systemctl', [
     'reboot',
     '--firmware-setup',
@@ -46,8 +56,11 @@ test('rebootToBios', () => {
   ]);
 });
 
-test('powerDown', () => {
-  api.powerDown();
+test('powerDown', async () => {
+  await api.powerDown();
+  expect(logger.logAsCurrentRole).toHaveBeenCalledWith(LogEventId.PowerDown, {
+    message: 'User triggered the machine to power down.',
+  });
   expect(execMock).toHaveBeenCalledWith('systemctl', ['poweroff', '-i']);
 });
 

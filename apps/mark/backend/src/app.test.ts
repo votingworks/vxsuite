@@ -32,7 +32,7 @@ import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { Server } from 'http';
 import * as grout from '@votingworks/grout';
 import { MockUsbDrive } from '@votingworks/usb-drive';
-import { LogEventId, BaseLogger } from '@votingworks/logging';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { createApp } from '../test/app_helpers';
 import { Api } from './app';
 import { ElectionState } from '.';
@@ -47,7 +47,7 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 });
 
 let apiClient: grout.Client<Api>;
-let logger: BaseLogger;
+let logger: Logger;
 let mockAuth: InsertedSmartCardAuthApi;
 let mockUsbDrive: MockUsbDrive;
 let server: Server;
@@ -349,6 +349,13 @@ test('setting precinct', async () => {
   await expectElectionState({
     precinctSelection: singlePrecinctSelection,
   });
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.PrecinctConfigurationChanged,
+    {
+      disposition: 'success',
+      message: 'User set the precinct for the machine to North Lincoln',
+    }
+  );
 });
 
 test('incrementing printed ballot count', async () => {

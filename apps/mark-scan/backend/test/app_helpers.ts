@@ -94,7 +94,7 @@ export async function getMockStateMachine(
 interface MockAppContents {
   apiClient: grout.Client<Api>;
   app: Application;
-  logger: BaseLogger;
+  logger: Logger;
   mockAuth: InsertedSmartCardAuthApi;
   mockUsbDrive: MockUsbDrive;
   server: Server;

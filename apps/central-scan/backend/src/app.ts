@@ -247,6 +247,7 @@ function buildApi({
 
     ...createSystemCallApi({
       usbDrive,
+      logger,
       machineId: getMachineConfig().machineId,
     }),
   });

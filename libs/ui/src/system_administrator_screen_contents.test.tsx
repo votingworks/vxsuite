@@ -1,6 +1,5 @@
 import userEvent from '@testing-library/user-event';
 import { fakeKiosk, mockOf } from '@votingworks/test-utils';
-import { mockBaseLogger } from '@votingworks/logging';
 import { isVxDev } from '@votingworks/utils';
 import {
   screen,
@@ -69,12 +68,10 @@ test.each(renderTestCases)(
     if (simulateVxDev) {
       mockOf(isVxDev).mockImplementation(() => true);
     }
-    const logger = mockBaseLogger();
     const unconfigureMachine = jest.fn();
     render(
       <SystemAdministratorScreenContents
         displayRemoveCardToLeavePrompt={displayRemoveCardToLeavePromptPropValue}
-        logger={logger}
         primaryText="To adjust settings for the current election, please insert an Election Manager card."
         unconfigureMachine={unconfigureMachine}
         isMachineConfigured
@@ -114,11 +111,9 @@ test.each(renderTestCases)(
 test('Quit button makes expected call', () => {
   mockOf(isVxDev).mockImplementation(() => true);
   window.kiosk = fakeKiosk();
-  const logger = mockBaseLogger();
   const unconfigureMachine = jest.fn();
   render(
     <SystemAdministratorScreenContents
-      logger={logger}
       primaryText="To adjust settings for the current election, please insert an Election Manager card."
       unconfigureMachine={unconfigureMachine}
       isMachineConfigured
@@ -133,11 +128,9 @@ test('Quit button makes expected call', () => {
 test('Quit button does nothing when kiosk is undefined', () => {
   mockOf(isVxDev).mockImplementation(() => true);
   window.kiosk = undefined;
-  const logger = mockBaseLogger();
   const unconfigureMachine = jest.fn();
   render(
     <SystemAdministratorScreenContents
-      logger={logger}
       primaryText="To adjust settings for the current election, please insert an Election Manager card."
       unconfigureMachine={unconfigureMachine}
       isMachineConfigured
@@ -151,7 +144,6 @@ test('Quit button does nothing when kiosk is undefined', () => {
 test('Reset Polls to Paused button not rendered if not specified', () => {
   render(
     <SystemAdministratorScreenContents
-      logger={mockBaseLogger()}
       primaryText="Primary Text"
       unconfigureMachine={jest.fn()}
       isMachineConfigured
@@ -167,7 +159,6 @@ test('Reset Polls to Paused button not rendered if not specified', () => {
 test('Reset Polls to Paused rendered if callback and flag specified', () => {
   render(
     <SystemAdministratorScreenContents
-      logger={mockBaseLogger()}
       primaryText="Primary Text"
       unconfigureMachine={jest.fn()}
       isMachineConfigured
@@ -185,7 +176,6 @@ test('Set Date and Time button', async () => {
   mockApiClient.setClock.mockResolvedValueOnce(undefined as never);
   render(
     <SystemAdministratorScreenContents
-      logger={mockBaseLogger()}
       primaryText="Primary Text"
       unconfigureMachine={jest.fn()}
       isMachineConfigured

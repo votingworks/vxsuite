@@ -215,7 +215,7 @@ test('election manager and poll worker configuration', async () => {
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.setPrinterStatus({ connected: true });
-  const { logger } = renderApp();
+  renderApp();
   await screen.findByText('Polls Closed');
 
   // Change mode as Election Manager
@@ -252,14 +252,6 @@ test('election manager and poll worker configuration', async () => {
     precinct.id
   );
   await screen.findByDisplayValue(precinct.name);
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.PrecinctConfigurationChanged,
-    'election_manager',
-    expect.objectContaining({
-      disposition: 'success',
-      message: expect.stringContaining('Center Springfield'),
-    })
-  );
   apiMock.removeCard();
 
   // Open the polls
@@ -291,16 +283,6 @@ test('election manager and poll worker configuration', async () => {
   userEvent.click(screen.getByText('Confirm'));
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-  });
-  await waitFor(() => {
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.PrecinctConfigurationChanged,
-      'election_manager',
-      expect.objectContaining({
-        disposition: 'success',
-        message: expect.stringContaining('South Springfield'),
-      })
-    );
   });
   apiMock.removeCard();
   await screen.findByText('Polls Closed');

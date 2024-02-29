@@ -1,4 +1,3 @@
-import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
 import React, { useState } from 'react';
 import { Button } from './button';
@@ -9,13 +8,11 @@ import { H1, P } from './typography';
 interface Props {
   resetPollsToPausedText: string;
   resetPollsToPaused?: () => Promise<void>;
-  logger: BaseLogger;
 }
 
 export function ResetPollsToPausedButton({
   resetPollsToPausedText,
   resetPollsToPaused,
-  logger,
 }: Props): JSX.Element {
   const [isShowingConfirmModal, setIsShowingConfirmModal] = useState(false);
 
@@ -30,10 +27,6 @@ export function ResetPollsToPausedButton({
   async function doReset() {
     assert(resetPollsToPaused);
     await resetPollsToPaused();
-    await logger.log(LogEventId.ResetPollsToPaused, 'system_administrator', {
-      message: 'Polls were reset from closed to paused.',
-      disposition: 'success',
-    });
     hideModal();
   }
 

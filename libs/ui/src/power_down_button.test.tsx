@@ -1,5 +1,4 @@
 import userEvent from '@testing-library/user-event';
-import { BaseLogger, LogSource } from '@votingworks/logging';
 import { screen, waitFor } from '../test/react_testing_library';
 import { newTestContext } from '../test/test_context';
 import { PowerDownButton } from './power_down_button';
@@ -9,12 +8,7 @@ const { mockApiClient, render } = newTestContext({
 });
 
 test('renders as expected.', async () => {
-  render(
-    <PowerDownButton
-      logger={new BaseLogger(LogSource.VxAdminFrontend)}
-      userRole="poll_worker"
-    />
-  );
+  render(<PowerDownButton />);
 
   userEvent.click(screen.getByText('Power Down'));
   await screen.findByText(/Powering Down/);

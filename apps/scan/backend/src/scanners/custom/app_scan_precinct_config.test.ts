@@ -1,6 +1,5 @@
 import { ok } from '@votingworks/basics';
 import { mocks } from '@votingworks/custom-scanner';
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { SheetInterpretation } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -81,65 +80,6 @@ test('bmd ballot is accepted if precinct is set for the right precinct', async (
       };
 
       simulateScan(mockScanner, await ballotImages.completeBmd());
-
-      await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
-        interpretation: validInterpretation,
-      });
-    }
-  );
-});
-
-test('hmpb ballot is rejected when scanned for wrong precinct', async () => {
-  await withApp(
-    {},
-    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-      // Ballot should be rejected when configured for the wrong precinct
-      await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
-        precinctId: '22',
-      });
-
-      const interpretation: SheetInterpretation = {
-        type: 'InvalidSheet',
-        reason: 'invalid_precinct',
-      };
-
-      simulateScan(mockScanner, await ballotImages.completeHmpb());
-
-      await waitForStatus(apiClient, {
-        state: 'rejecting',
-        interpretation,
-      });
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      await waitForStatus(apiClient, {
-        state: 'rejected',
-        interpretation,
-      });
-
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_NO_PAPER));
-      await waitForStatus(apiClient, { state: 'no_paper' });
-    }
-  );
-});
-
-test('hmpb ballot is accepted if precinct is set for the right precinct', async () => {
-  await withApp(
-    {},
-    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-      // Configure for the proper precinct and verify the ballot scans
-      await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
-        precinctId: 'town-id-00701-precinct-id-',
-      });
-
-      const validInterpretation: SheetInterpretation = {
-        type: 'ValidSheet',
-      };
-
-      simulateScan(mockScanner, await ballotImages.completeHmpb());
 
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',

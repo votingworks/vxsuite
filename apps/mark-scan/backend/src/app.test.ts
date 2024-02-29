@@ -32,7 +32,7 @@ import {
   safeParseSystemSettings,
 } from '@votingworks/types';
 import { MockUsbDrive } from '@votingworks/usb-drive';
-import { LogEventId, BaseLogger } from '@votingworks/logging';
+import { LogEventId, Logger } from '@votingworks/logging';
 import { createApp } from '../test/app_helpers';
 import { Api } from './app';
 import { PaperHandlerStateMachine } from './custom-paper-handler';
@@ -52,7 +52,7 @@ let mockAuth: InsertedSmartCardAuthApi;
 let mockUsbDrive: MockUsbDrive;
 let server: Server;
 let stateMachine: PaperHandlerStateMachine;
-let logger: BaseLogger;
+let logger: Logger;
 
 beforeEach(async () => {
   featureFlagMock.enableFeatureFlag(
@@ -267,6 +267,7 @@ test('polls state', async () => {
   );
   await expectElectionState({ pollsState: 'polls_closed_initial' });
 
+  mockPollWorkerAuth(electionFamousNames2021Fixtures.electionDefinition);
   await apiClient.setPollsState({ pollsState: 'polls_open' });
   expect(logger.log).toHaveBeenLastCalledWith(
     LogEventId.PollsOpened,
@@ -346,6 +347,13 @@ test('setting precinct', async () => {
   await expectElectionState({
     precinctSelection: singlePrecinctSelection,
   });
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.PrecinctConfigurationChanged,
+    {
+      disposition: 'success',
+      message: 'User set the precinct for the machine to North Lincoln',
+    }
+  );
 });
 
 test('printing a ballot increments the printed ballot count', async () => {
