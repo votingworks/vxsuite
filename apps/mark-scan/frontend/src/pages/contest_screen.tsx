@@ -1,8 +1,9 @@
 import React from 'react';
 
 import { ContestPage } from '@votingworks/mark-flow-ui';
-
 import { ContestId } from '@votingworks/types';
+
+import * as api from '../api';
 import { BallotContext } from '../contexts/ballot_context';
 
 function getContestUrl(contestIndex: number) {
@@ -25,6 +26,10 @@ export function ContestScreen(): JSX.Element {
   const { contests, electionDefinition, precinctId, updateVote, votes } =
     React.useContext(BallotContext);
 
+  const isPathDeviceConnected = Boolean(
+    api.isPatDeviceConnected.useQuery().data
+  );
+
   return (
     <ContestPage
       contests={contests}
@@ -32,6 +37,7 @@ export function ContestScreen(): JSX.Element {
       getContestUrl={getContestUrl}
       getReviewPageUrl={getReviewPageUrl}
       getStartPageUrl={getStartPageUrl}
+      isPatDeviceConnected={isPathDeviceConnected}
       precinctId={precinctId}
       updateVote={updateVote}
       votes={votes}

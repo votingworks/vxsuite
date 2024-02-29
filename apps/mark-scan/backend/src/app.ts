@@ -346,6 +346,14 @@ export function buildApi(
         pollsState: store.getPollsState(),
       };
     },
+
+    isPatDeviceConnected(): boolean {
+      if (!stateMachine) {
+        return false;
+      }
+
+      return stateMachine.isPatDeviceConnected();
+    },
   });
 }
 

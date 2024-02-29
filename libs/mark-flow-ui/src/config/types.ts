@@ -11,38 +11,15 @@ import {
   VotesDict,
   YesNoContest,
 } from '@votingworks/types';
-import { ButtonPressEvent } from '@votingworks/ui';
 import {
   ContestsWithMsEitherNeither,
   MsEitherNeitherContest,
 } from '../utils/ms_either_neither_contests';
 
-export enum VoteUpdateInteractionMethod {
-  Touch = 'touch',
-  AssistiveTechnologyDevice = 'assistive_technology_device',
-  Mouse = 'mouse',
-}
-
-export function getInteractionMethod(
-  event: ButtonPressEvent
-): VoteUpdateInteractionMethod {
-  if (event.detail === 0) {
-    /* istanbul ignore next - react-testing-library/userEvent pointer API was added in 14.0.0; we are on 13.x.x */
-    if ((event as React.TouchEvent<HTMLButtonElement>).touches) {
-      return VoteUpdateInteractionMethod.Touch;
-    }
-
-    return VoteUpdateInteractionMethod.AssistiveTechnologyDevice;
-  }
-
-  return VoteUpdateInteractionMethod.Mouse;
-}
-
 // Ballot
 export type UpdateVoteFunction = (
   contestId: ContestId,
-  vote: OptionalVote,
-  interactionMethod: VoteUpdateInteractionMethod
+  vote: OptionalVote
 ) => void;
 
 export interface BallotContextInterface {

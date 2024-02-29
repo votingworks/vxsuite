@@ -1,5 +1,4 @@
 import userEvent from '@testing-library/user-event';
-import { buttonPressEventMatcher } from '@votingworks/test-utils';
 import { render, screen } from '../test/react_testing_library';
 import { ContestChoiceButton } from './contest_choice_button';
 
@@ -40,7 +39,7 @@ test('fires press event with choice value', () => {
 
   userEvent.click(screen.getByRole('option'));
 
-  expect(onPress).toBeCalledWith(buttonPressEventMatcher(), 'cleo');
+  expect(onPress).toBeCalledWith('cleo');
 });
 
 test('has accessible "selected" state', () => {

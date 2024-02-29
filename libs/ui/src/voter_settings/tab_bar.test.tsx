@@ -1,6 +1,4 @@
 import userEvent from '@testing-library/user-event';
-import { SyntheticEvent } from 'react';
-import { buttonPressEventMatcher } from '@votingworks/test-utils';
 import { render, screen, within } from '../../test/react_testing_library';
 import { TabBar } from './tab_bar';
 import { SettingsPaneId } from './types';
@@ -27,17 +25,13 @@ test('fires change event with settings pane id', () => {
 
   userEvent.click(screen.getByRole('tab', { name: 'Color', selected: false }));
 
-  expect(onChange).toHaveBeenCalledWith<[SettingsPaneId, SyntheticEvent]>(
-    'voterSettingsColor',
-    buttonPressEventMatcher()
-  );
+  expect(onChange).toHaveBeenCalledWith<[SettingsPaneId]>('voterSettingsColor');
 
   userEvent.click(
     screen.getByRole('tab', { name: 'Audio/Video Only', selected: false })
   );
 
-  expect(onChange).toHaveBeenCalledWith<[SettingsPaneId, SyntheticEvent]>(
-    'voterSettingsAudioVideoOnly',
-    buttonPressEventMatcher()
+  expect(onChange).toHaveBeenCalledWith<[SettingsPaneId]>(
+    'voterSettingsAudioVideoOnly'
   );
 });
