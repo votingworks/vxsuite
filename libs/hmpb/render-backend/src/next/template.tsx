@@ -167,8 +167,7 @@ function Header({
     month: 'long',
     day: 'numeric',
     year: 'numeric',
-    timeZone: 'UTC',
-  }).format(new Date(election.date));
+  }).format(election.date.toMidnightDatetimeWithSystemTimezone());
 
   return (
     <div
@@ -532,15 +531,33 @@ function Contest({
   }
 }
 
+function BlankPageMessage() {
+  return (
+    <div
+      style={{
+        height: '100%',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <h2>This page intentionally left blank</h2>
+    </div>
+  );
+}
+
 async function BallotPageContent(
-  {
-    election,
-    ballotStyle,
-    dimensions,
-    ...props
-  }: BallotProps & { dimensions: PixelDimensions },
+  props: (BallotProps & { dimensions: PixelDimensions }) | undefined,
   scratchpad: RenderScratchpad
 ): Promise<PagedElementResult<BallotProps>> {
+  if (!props) {
+    return {
+      currentPageElement: <BlankPageMessage />,
+      nextPageProps: undefined,
+    };
+  }
+
+  const { election, ballotStyle, dimensions, ...restProps } = props;
   // For now, just one section for candidate contests, one for ballot measures.
   // TODO support arbitrarily defined sections
   const contests = getContests({ election, ballotStyle });
@@ -628,15 +645,11 @@ async function BallotPageContent(
   }
 
   const currentPageElement =
-    pageSections.length > 0 ? (
-      <div>{pageSections}</div>
-    ) : (
-      <div>This page left intentionally blank</div>
-    );
+    pageSections.length > 0 ? <div>{pageSections}</div> : <BlankPageMessage />;
   const nextPageProps =
     contestSectionsLeftToLayout.length > 0
       ? {
-          ...props,
+          ...restProps,
           ballotStyle,
           election: {
             ...election,

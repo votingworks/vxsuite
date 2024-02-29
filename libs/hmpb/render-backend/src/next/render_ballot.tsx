@@ -27,7 +27,7 @@ export interface PagedElementResult<P> {
 }
 
 export type ContentComponent<P> = (
-  props: P & { dimensions: PixelDimensions },
+  props: (P & { dimensions: PixelDimensions }) | undefined,
   // The content component is passed the scratchpad so that it can measure
   // elements in order to determine how much content fits on each page.
   scratchpad: RenderScratchpad
@@ -111,6 +111,10 @@ async function paginateBallotContent<P extends object>(
     pagedContentResults.push(pagedContentResult);
   } while (pagedContentResults[pagedContentResults.length - 1].nextPageProps);
 
+  if (pagedContentResults.length % 2 === 1) {
+    pagedContentResults.push(await contentComponent(undefined, scratchpad));
+  }
+
   return pagedContentResults.map((pagedContentResult, i) =>
     frameComponent({
       // eslint-disable-next-line vx/gts-spread-like-types
@@ -188,8 +192,10 @@ async function extractLayoutInfo(
   return optionLayoutsPerPage.flat();
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-function electionHashFromLayoutInfo(layoutInfo: ContestOptionLayout[]): string {
+function electionHashFromLayoutInfo(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  _layoutInfo: ContestOptionLayout[]
+): string {
   return 'fake-election-hash'; // Not important for this proof of concept
 }
 
