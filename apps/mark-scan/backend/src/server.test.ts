@@ -47,7 +47,7 @@ test('resolveDriver returns a mock driver if feature flag is on', async () => {
     LogEventId.PaperHandlerConnection,
     'system',
     {
-      disposition: 'failure',
+      message: 'Starting server with mock paper handler',
     }
   );
 });

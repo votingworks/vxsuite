@@ -12,7 +12,6 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import { detectUsbDrive } from '@votingworks/usb-drive';
-import makeDebug from 'debug';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
 import { getPaperHandlerStateMachine } from './custom-paper-handler/state_machine';
@@ -24,8 +23,6 @@ import {
 } from './custom-paper-handler/constants';
 import { PatConnectionStatusReader } from './pat-input/connection_status_reader';
 import { MockPatConnectionStatusReader } from './pat-input/mock_connection_status_reader';
-
-const debug = makeDebug('mark-scan:server');
 
 export interface StartOptions {
   auth?: InsertedSmartCardAuthApi;
@@ -47,16 +44,18 @@ export async function resolveDriver(
     return driver;
   }
 
-  await logger.log(LogEventId.PaperHandlerConnection, 'system', {
-    disposition: 'failure',
-  });
-
   if (
     isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER)
   ) {
-    debug('No paper handler found. Starting server with mock driver');
+    await logger.log(LogEventId.PaperHandlerConnection, 'system', {
+      message: 'Starting server with mock paper handler',
+    });
     return new MockPaperHandlerDriver();
   }
+
+  await logger.log(LogEventId.PaperHandlerConnection, 'system', {
+    disposition: 'failure',
+  });
   return undefined;
 }
 
