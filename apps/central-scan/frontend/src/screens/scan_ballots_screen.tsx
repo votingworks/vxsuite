@@ -52,13 +52,11 @@ const DeleteAllWrapper = styled.div`
 `;
 
 export interface ScanBallotsScreenProps {
-  isScannerAttached: boolean;
   status: ScanStatus;
   statusIsStale: boolean;
 }
 
 export function ScanBallotsScreen({
-  isScannerAttached,
   status,
   statusIsStale,
 }: ScanBallotsScreenProps): JSX.Element {
@@ -102,7 +100,7 @@ export function ScanBallotsScreen({
           <ScanButton
             /* disable scan button while status query is refetching to avoid double clicks */
             disabled={isScanning || statusIsStale}
-            isScannerAttached={isScannerAttached}
+            isScannerAttached={status.isScannerAttached}
           />
           <Button
             onPress={() => setIsExportingCvrs(true)}

@@ -8,6 +8,7 @@ import {
 } from './scan_ballots_screen';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/api';
+import { mockBatch, mockStatus } from '../../test/fixtures';
 
 let apiMock: ApiMock;
 
@@ -22,13 +23,7 @@ afterEach(() => {
 function renderScreen(props?: Partial<ScanBallotsScreenProps>) {
   return renderInAppContext(
     <ScanBallotsScreen
-      isScannerAttached
-      status={{
-        ongoingBatchId: undefined,
-        adjudicationsRemaining: 0,
-        canUnconfigure: true,
-        batches: [],
-      }}
+      status={mockStatus()}
       statusIsStale={false}
       {...props}
     />,
@@ -42,29 +37,18 @@ test('null state', () => {
 });
 
 test('shows scanned ballot count', () => {
-  const status: ScanStatus = {
-    ongoingBatchId: undefined,
-    adjudicationsRemaining: 0,
-    canUnconfigure: false,
+  const status: ScanStatus = mockStatus({
     batches: [
-      {
+      mockBatch({
         id: 'a',
-        batchNumber: 1,
         count: 1,
-        label: 'Batch 1',
-        startedAt: new Date(0).toISOString(),
-        endedAt: new Date(0).toISOString(),
-      },
-      {
+      }),
+      mockBatch({
         id: 'b',
-        batchNumber: 2,
         count: 3,
-        label: 'Batch 2',
-        startedAt: new Date(0).toISOString(),
-        endedAt: new Date(0).toISOString(),
-      },
+      }),
     ],
-  };
+  });
   renderScreen({ status });
   screen.getByText(
     hasTextAcrossElements(
@@ -74,20 +58,14 @@ test('shows scanned ballot count', () => {
 });
 
 test('shows whether a batch is scanning', () => {
-  const status: ScanStatus = {
+  const status: ScanStatus = mockStatus({
     ongoingBatchId: 'a',
-    adjudicationsRemaining: 0,
-    canUnconfigure: false,
     batches: [
-      {
-        id: 'a',
-        batchNumber: 1,
-        label: 'Batch 1',
-        count: 3,
-        startedAt: new Date(0).toISOString(),
-      },
+      mockBatch({
+        endedAt: undefined,
+      }),
     ],
-  };
+  });
   renderScreen({ status });
   screen.getByText('Scanning…');
   for (const deleteButton of screen.getAllButtons('Delete')) {
@@ -97,21 +75,10 @@ test('shows whether a batch is scanning', () => {
 });
 
 test('Delete All Batches is not allowed when canUnconfigure is false', () => {
-  const status: ScanStatus = {
-    ongoingBatchId: undefined,
-    adjudicationsRemaining: 0,
+  const status: ScanStatus = mockStatus({
     canUnconfigure: false,
-    batches: [
-      {
-        id: 'a',
-        batchNumber: 1,
-        label: 'Batch 1',
-        count: 3,
-        startedAt: new Date(0).toISOString(),
-        endedAt: new Date(0).toISOString(),
-      },
-    ],
-  };
+    batches: [mockBatch()],
+  });
   renderScreen({ status });
 
   userEvent.click(screen.getButton('Delete All Batches'));
@@ -121,21 +88,9 @@ test('Delete All Batches is not allowed when canUnconfigure is false', () => {
 });
 
 test('Delete All Batches button', async () => {
-  const status: ScanStatus = {
-    ongoingBatchId: undefined,
-    adjudicationsRemaining: 0,
-    canUnconfigure: true,
-    batches: [
-      {
-        id: 'a',
-        batchNumber: 1,
-        label: 'Batch 1',
-        count: 3,
-        startedAt: new Date(0).toISOString(),
-        endedAt: new Date(0).toISOString(),
-      },
-    ],
-  };
+  const status: ScanStatus = mockStatus({
+    batches: [mockBatch()],
+  });
   renderScreen({ status });
 
   // initial button
@@ -155,18 +110,15 @@ test('Delete All Batches button', async () => {
 
 describe('Scan Ballots Button', () => {
   test('disabled when no scanner is attached', () => {
-    renderScreen({ isScannerAttached: false });
+    renderScreen({ status: mockStatus({ isScannerAttached: false }) });
     expect(screen.getButton('No Scanner')).toBeDisabled();
   });
 
   test('disabled when there is an ongoing batch', () => {
     renderScreen({
-      status: {
+      status: mockStatus({
         ongoingBatchId: 'a',
-        canUnconfigure: true,
-        adjudicationsRemaining: 0,
-        batches: [],
-      },
+      }),
     });
     expect(screen.getButton('Scan New Batch')).toBeDisabled();
   });

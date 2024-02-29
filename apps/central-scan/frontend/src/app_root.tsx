@@ -1,7 +1,6 @@
 import { Redirect, Route, Switch } from 'react-router-dom';
 
 import {
-  Hardware,
   isElectionManagerAuth,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
@@ -12,7 +11,6 @@ import {
   RemoveCardScreen,
   Screen,
   SetupCardReaderPage,
-  useDevices,
   H1,
 } from '@votingworks/ui';
 import { BaseLogger } from '@votingworks/logging';
@@ -37,19 +35,10 @@ import { SystemAdministratorSettingsScreen } from './screens/system_administrato
 import { HardwareDiagnosticsScreen } from './screens/hardware_diagnostics_screen';
 
 export interface AppRootProps {
-  hardware: Hardware;
   logger: BaseLogger;
 }
 
-export function AppRoot({
-  hardware,
-  logger,
-}: AppRootProps): JSX.Element | null {
-  const { batchScanner } = useDevices({
-    hardware,
-    logger,
-  });
-
+export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
   const machineConfigQuery = getMachineConfig.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const authStatusQuery = getAuthStatus.useQuery();
@@ -177,7 +166,6 @@ export function AppRoot({
       <Switch>
         <Route path="/scan">
           <ScanBallotsScreen
-            isScannerAttached={batchScanner !== undefined}
             status={status}
             statusIsStale={statusQuery.isStale}
           />

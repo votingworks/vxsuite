@@ -17,13 +17,7 @@ import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { ok } from '@votingworks/basics';
 import { ApiClientContext, createQueryClient, systemCallApi } from '../src/api';
-
-const DEFAULT_STATUS: ScanStatus = {
-  ongoingBatchId: undefined,
-  adjudicationsRemaining: 0,
-  canUnconfigure: true,
-  batches: [],
-};
+import { DEFAULT_STATUS } from './fixtures';
 
 export type MockApiClient = Omit<MockClient<Api>, 'getBatteryInfo'> & {
   // Because this is polled so frequently, we opt for a standard jest mock instead of a
