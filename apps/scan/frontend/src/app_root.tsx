@@ -137,10 +137,8 @@ export function AppRoot({ logger }: Props): JSX.Element | null {
   if (isSystemAdministratorAuth(authStatus)) {
     return (
       <SystemAdministratorScreen
-        authStatus={authStatus}
         electionDefinition={electionDefinition}
         pollsState={pollsState}
-        logger={logger}
         usbDrive={usbDrive}
       />
     );
@@ -184,7 +182,6 @@ export function AppRoot({ logger }: Props): JSX.Element | null {
         electionDefinition={electionDefinition}
         scannerStatus={scannerStatus}
         usbDrive={usbDrive}
-        logger={logger}
       />
     );
   }

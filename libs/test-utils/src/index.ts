@@ -11,7 +11,6 @@ export * from './fake_kiosk';
 export * from './fake_printer';
 export * from './fake_use_audio_controls';
 export * from './has_text_across_elements';
-export * from './matchers';
 export * from './mock_function';
 export * from './mock_of';
 export * from './objects';

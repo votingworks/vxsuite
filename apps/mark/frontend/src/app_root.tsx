@@ -416,7 +416,6 @@ export function AppRoot({
   if (isSystemAdministratorAuth(authStatus)) {
     return (
       <SystemAdministratorScreen
-        logger={logger}
         unconfigureMachine={unconfigure}
         isMachineConfigured={Boolean(optionalElectionDefinition)}
         resetPollsToPaused={
@@ -458,7 +457,6 @@ export function AppRoot({
         unconfigure={unconfigure}
         machineConfig={machineConfig}
         pollsState={pollsState}
-        logger={logger}
         usbDriveStatus={usbDriveStatus}
       />
     );

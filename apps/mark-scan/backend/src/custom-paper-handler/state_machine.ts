@@ -132,6 +132,7 @@ export interface PaperHandlerStateMachine {
   confirmBallotBoxEmptied(): void;
   setPatDeviceIsCalibrated(): void;
   setInterpretationFixture(): void;
+  isPatDeviceConnected(): boolean;
 }
 
 export function paperHandlerStatusToEvent(
@@ -1027,6 +1028,10 @@ export async function getPaperHandlerStateMachine({
       machineService.send({
         type: 'POLL_WORKER_CONFIRMED_BALLOT_BOX_EMPTIED',
       });
+    },
+
+    isPatDeviceConnected(): boolean {
+      return machineService.state.context.isPatDeviceConnected;
     },
   };
 }

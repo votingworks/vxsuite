@@ -1,4 +1,3 @@
-import { mockBaseLogger } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import { screen, waitFor } from '../../test/react_testing_library';
 
@@ -22,13 +21,11 @@ afterEach(() => {
 });
 
 test('SystemAdministratorScreen renders expected contents', () => {
-  const logger = mockBaseLogger();
   const unconfigureMachine = jest.fn();
   render(
     provideApi(
       apiMock,
       <SystemAdministratorScreen
-        logger={logger}
         unconfigureMachine={unconfigureMachine}
         isMachineConfigured
       />
@@ -45,7 +42,6 @@ test('Can set date and time', async () => {
     provideApi(
       apiMock,
       <SystemAdministratorScreen
-        logger={mockBaseLogger()}
         unconfigureMachine={jest.fn()}
         isMachineConfigured
       />

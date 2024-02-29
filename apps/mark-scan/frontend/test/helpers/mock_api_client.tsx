@@ -59,6 +59,9 @@ function createMockApiClient(): MockApiClient {
   (mockApiClient.getUsbDriveStatus as unknown as jest.Mock) = jest.fn(() =>
     Promise.resolve({ status: 'no_drive' })
   );
+  (mockApiClient.isPatDeviceConnected as unknown as jest.Mock) = jest.fn(() =>
+    Promise.resolve(false)
+  );
 
   return mockApiClient as unknown as MockApiClient;
 }

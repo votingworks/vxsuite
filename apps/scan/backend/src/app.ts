@@ -11,6 +11,7 @@ import {
 } from '@votingworks/types';
 import {
   getPollsTransitionDestinationState,
+  getPrecinctSelectionName,
   isElectionManagerAuth,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
@@ -44,6 +45,7 @@ import { constructAuthMachineState } from './util/auth';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
 import { printReport } from './print_report';
+import { logPollsTransition } from './util/logging';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi({
@@ -192,15 +194,24 @@ export function buildApi({
       workspace.reset();
     },
 
-    setPrecinctSelection(input: {
+    async setPrecinctSelection(input: {
       precinctSelection: PrecinctSelection;
-    }): void {
+    }): Promise<void> {
+      const electionDefinition = store.getElectionDefinition();
+      assert(electionDefinition);
       assert(
         store.getBallotsCounted() === 0,
         'Attempt to change precinct selection after ballots have been cast'
       );
       store.setPrecinctSelection(input.precinctSelection);
       workspace.resetElectionSession();
+      await logger.logAsCurrentRole(LogEventId.PrecinctConfigurationChanged, {
+        disposition: 'success',
+        message: `User set the precinct for the machine to ${getPrecinctSelectionName(
+          electionDefinition.election.precincts,
+          input.precinctSelection
+        )}`,
+      });
     },
 
     setIsSoundMuted(input: { isSoundMuted: boolean }): void {
@@ -253,6 +264,7 @@ export function buildApi({
         });
       }
 
+      await logPollsTransition(logger, input.type, previousPollsState);
       store.transitionPolls(input);
     },
 
@@ -385,6 +397,7 @@ export function buildApi({
 
     ...createSystemCallApi({
       usbDrive,
+      logger,
       machineId: getMachineConfig().machineId,
     }),
   });

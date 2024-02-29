@@ -5,12 +5,7 @@ import {
 import * as grout from '@votingworks/grout';
 import { Application } from 'express';
 import { AddressInfo } from 'net';
-import {
-  BaseLogger,
-  mockLogger,
-  LogSource,
-  Logger,
-} from '@votingworks/logging';
+import { mockLogger, LogSource, Logger } from '@votingworks/logging';
 import tmp from 'tmp';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { Server } from 'http';
@@ -33,7 +28,7 @@ import { getUserRole } from '../src/util/auth';
 interface MockAppContents {
   apiClient: grout.Client<Api>;
   app: Application;
-  logger: BaseLogger;
+  logger: Logger;
   mockAuth: InsertedSmartCardAuthApi;
   mockUsbDrive: MockUsbDrive;
   server: Server;

@@ -7,10 +7,8 @@ import {
 import {
   ALL_PRECINCTS_NAME,
   ALL_PRECINCTS_SELECTION,
-  getPrecinctSelectionName,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
 import { Select } from './select';
 import { Button } from './button';
@@ -34,7 +32,6 @@ export interface ChangePrecinctButtonProps {
   ) => Promise<void>;
   election: Election;
   mode: ChangePrecinctMode;
-  logger: BaseLogger;
 }
 
 export function ChangePrecinctButton({
@@ -42,7 +39,6 @@ export function ChangePrecinctButton({
   updatePrecinctSelection,
   election,
   mode,
-  logger,
 }: ChangePrecinctButtonProps): JSX.Element {
   const [isConfirmationModalShowing, setIsConfirmationModalShowing] =
     useState(false);
@@ -67,23 +63,6 @@ export function ChangePrecinctButton({
     setUnconfirmedPrecinctSelection(undefined);
   }
 
-  async function updatePrecinctSelectionAndLog(
-    newPrecinctSelection: PrecinctSelection
-  ) {
-    await updatePrecinctSelection(newPrecinctSelection);
-    await logger.log(
-      LogEventId.PrecinctConfigurationChanged,
-      'election_manager',
-      {
-        disposition: 'success',
-        message: `User set the precinct for the machine to ${getPrecinctSelectionName(
-          election.precincts,
-          newPrecinctSelection
-        )}`,
-      }
-    );
-  }
-
   const handlePrecinctSelectionChange: SelectChangeEventFunction = async (
     event
   ) => {
@@ -103,13 +82,13 @@ export function ChangePrecinctButton({
     if (mode === 'confirmation_required') {
       setUnconfirmedPrecinctSelection(newPrecinctSelection);
     } else {
-      await updatePrecinctSelectionAndLog(newPrecinctSelection);
+      await updatePrecinctSelection(newPrecinctSelection);
     }
   };
 
   async function confirmPrecinctChange() {
     assert(unconfirmedPrecinctSelection);
-    await updatePrecinctSelectionAndLog(unconfirmedPrecinctSelection);
+    await updatePrecinctSelection(unconfirmedPrecinctSelection);
     closeModal();
   }
 

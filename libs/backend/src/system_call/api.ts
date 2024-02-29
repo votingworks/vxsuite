@@ -1,6 +1,7 @@
 import * as grout from '@votingworks/grout';
 import { UsbDrive } from '@votingworks/usb-drive';
 
+import { Logger } from '@votingworks/logging';
 import { exportLogsToUsb } from './export_logs_to_usb';
 import { reboot } from './reboot';
 import { rebootToBios } from './reboot_to_bios';
@@ -10,16 +11,19 @@ import { getBatteryInfo } from './get_battery_info';
 
 function buildApi({
   usbDrive,
+  logger,
   machineId,
 }: {
   usbDrive: UsbDrive;
+  logger: Logger;
   machineId: string;
 }) {
   return grout.createApi({
-    exportLogsToUsb: async () => exportLogsToUsb({ usbDrive, machineId }),
+    exportLogsToUsb: async () =>
+      exportLogsToUsb({ usbDrive, logger, machineId }),
     reboot,
-    rebootToBios,
-    powerDown,
+    rebootToBios: async () => rebootToBios(logger),
+    powerDown: async () => powerDown(logger),
     setClock,
     getBatteryInfo,
   });
@@ -31,10 +35,12 @@ export type SystemCallApi = ReturnType<typeof buildApi>;
 /** Creates a shareable implementation of {@link SystemCallApi}. */
 export function createSystemCallApi({
   usbDrive,
+  logger,
   machineId,
 }: {
   usbDrive: UsbDrive;
+  logger: Logger;
   machineId: string;
 }): SystemCallApi {
-  return buildApi({ usbDrive, machineId });
+  return buildApi({ usbDrive, logger, machineId });
 }

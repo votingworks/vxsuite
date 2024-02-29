@@ -1,10 +1,6 @@
 import userEvent from '@testing-library/user-event';
 
-import {
-  buttonPressEventMatcher,
-  hasTextAcrossElements,
-  mockOf,
-} from '@votingworks/test-utils';
+import { hasTextAcrossElements, mockOf } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
 import { LanguageCode } from '@votingworks/types';
 
@@ -80,7 +76,7 @@ test('fires key events', async () => {
       userEvent.click(
         screen.getByText(hasTextAcrossElements(expectedButtonContent))
       );
-      expect(onKeyPress).lastCalledWith(key.value, buttonPressEventMatcher());
+      expect(onKeyPress).lastCalledWith(key.value);
     }
   }
 
@@ -88,7 +84,7 @@ test('fires key events', async () => {
     `space ${getMockAudioOnlyTextPrefix(SPANISH)} space`
   );
   userEvent.click(spaceBar);
-  expect(onKeyPress).lastCalledWith(' ', buttonPressEventMatcher());
+  expect(onKeyPress).lastCalledWith(' ');
 
   expect(onBackspace).not.toHaveBeenCalled();
 
@@ -139,10 +135,10 @@ test('custom keymap', () => {
   userEvent.click(
     screen.getButton(`😂 ${getMockAudioOnlyTextPrefix(ENGLISH)} lol`)
   );
-  expect(onKeyPress).lastCalledWith('😂', buttonPressEventMatcher());
+  expect(onKeyPress).lastCalledWith('😂');
 
   userEvent.click(
     screen.getButton(`magic ${getMockAudioOnlyTextPrefix(ENGLISH)} magic`)
   );
-  expect(onKeyPress).lastCalledWith('✨', buttonPressEventMatcher());
+  expect(onKeyPress).lastCalledWith('✨');
 });

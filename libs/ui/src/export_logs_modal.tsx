@@ -1,13 +1,5 @@
 import React, { useState } from 'react';
-import {
-  isElectionManagerAuth,
-  isSystemAdministratorAuth,
-} from '@votingworks/utils';
-
-import { LogEventId, BaseLogger } from '@votingworks/logging';
-
-import { DippedSmartCardAuth, InsertedSmartCardAuth } from '@votingworks/types';
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { throwIllegalValue } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Button } from './button';
 import { Modal } from './modal';
@@ -19,8 +11,6 @@ import { useSystemCallApi } from './system_call_api';
 
 export interface ExportLogsModalProps {
   usbDriveStatus: UsbDriveStatus;
-  auth: DippedSmartCardAuth.AuthStatus | InsertedSmartCardAuth.AuthStatus;
-  logger: BaseLogger;
   onClose: () => void;
 }
 
@@ -33,13 +23,8 @@ enum ModalState {
 
 export function ExportLogsModal({
   usbDriveStatus,
-  auth,
-  logger,
   onClose,
 }: ExportLogsModalProps): JSX.Element {
-  assert(isSystemAdministratorAuth(auth) || isElectionManagerAuth(auth)); // TODO(auth) should this check for a specific user type
-  const userRole = auth.user.role;
-
   const api = useSystemCallApi();
 
   const exportLogsToUsbMutation = api.exportLogsToUsb.useMutation();
@@ -50,14 +35,6 @@ export function ExportLogsModal({
     setCurrentState(ModalState.Saving);
 
     const result = await exportLogsToUsbMutation.mutateAsync();
-
-    await logger.log(LogEventId.FileSaved, userRole, {
-      disposition: result.isOk() ? 'success' : 'failure',
-      message: result.isOk()
-        ? 'Sucessfully saved logs on the usb drive.'
-        : `Failed to save logs to usb drive: ${result.err()}`,
-      fileType: 'logs',
-    });
 
     if (result.isErr()) {
       setErrorMessage(result.err());

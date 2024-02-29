@@ -1,6 +1,5 @@
 import React from 'react';
 
-import { BaseLogger } from '@votingworks/logging';
 import {
   H3,
   Main,
@@ -13,7 +12,6 @@ const resetPollsToPausedText =
   'The polls are closed and voting is complete. After resetting the polls to paused, it will be possible to re-open the polls and resume voting. The printed ballots count will be preserved.';
 
 interface Props {
-  logger: BaseLogger;
   unconfigureMachine: () => Promise<void>;
   isMachineConfigured: boolean;
   resetPollsToPaused?: () => Promise<void>;
@@ -23,7 +21,6 @@ interface Props {
  * Screen when a system administrator card is inserted
  */
 export function SystemAdministratorScreen({
-  logger,
   unconfigureMachine,
   isMachineConfigured,
   resetPollsToPaused,
@@ -35,7 +32,6 @@ export function SystemAdministratorScreen({
         <H3 as="h1">System Administrator</H3>
         <SystemAdministratorScreenContents
           displayRemoveCardToLeavePrompt
-          logger={logger}
           resetPollsToPausedText={resetPollsToPausedText}
           resetPollsToPaused={resetPollsToPaused}
           primaryText={

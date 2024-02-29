@@ -22,7 +22,6 @@ import {
   PollsState,
   PrecinctSelection,
 } from '@votingworks/types';
-import { BaseLogger } from '@votingworks/logging';
 import type { MachineConfig } from '@votingworks/mark-scan-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
@@ -40,7 +39,6 @@ export interface AdminScreenProps {
   unconfigure: () => Promise<void>;
   machineConfig: MachineConfig;
   pollsState: PollsState;
-  logger: BaseLogger;
   usbDriveStatus: UsbDriveStatus;
 }
 
@@ -52,7 +50,6 @@ export function AdminScreen({
   unconfigure,
   machineConfig,
   pollsState,
-  logger,
   usbDriveStatus,
 }: AdminScreenProps): JSX.Element | null {
   const { election } = electionDefinition;
@@ -97,7 +94,6 @@ export function AdminScreen({
                     ? 'disabled'
                     : 'default'
                 }
-                logger={logger}
               />
               <br />
               <Caption>

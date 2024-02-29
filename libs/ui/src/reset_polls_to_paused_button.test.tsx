@@ -1,14 +1,11 @@
 import userEvent from '@testing-library/user-event';
-import { mockBaseLogger, LogEventId } from '@votingworks/logging';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { ResetPollsToPausedButton } from './reset_polls_to_paused_button';
 
 test('component flow', async () => {
   const resetPollsToPaused = jest.fn();
-  const logger = mockBaseLogger();
   render(
     <ResetPollsToPausedButton
-      logger={logger}
       resetPollsToPausedText="Reset Polls to Paused Text"
       resetPollsToPaused={resetPollsToPaused}
     />
@@ -42,24 +39,11 @@ test('component flow', async () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
   expect(resetPollsToPaused).toHaveBeenCalledTimes(1);
-  expect(logger.log).toHaveBeenCalledTimes(1);
-  expect(logger.log).toHaveBeenLastCalledWith(
-    LogEventId.ResetPollsToPaused,
-    'system_administrator',
-    expect.objectContaining({
-      message: 'Polls were reset from closed to paused.',
-      disposition: 'success',
-    })
-  );
 });
 
 test('is disabled without callback', () => {
-  const logger = mockBaseLogger();
   render(
-    <ResetPollsToPausedButton
-      resetPollsToPausedText="Reset Polls to Paused Text"
-      logger={logger}
-    />
+    <ResetPollsToPausedButton resetPollsToPausedText="Reset Polls to Paused Text" />
   );
 
   // Initially should just contain the button

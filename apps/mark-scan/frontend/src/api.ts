@@ -393,4 +393,18 @@ export const setPatDeviceIsCalibrated = {
   },
 } as const;
 
+export const isPatDeviceConnected = {
+  queryKey(): QueryKey {
+    return ['isPatDeviceConnected'];
+  },
+
+  useQuery() {
+    const apiClient = useApiClient();
+
+    return useQuery(this.queryKey(), () => apiClient.isPatDeviceConnected(), {
+      refetchInterval: STATE_MACHINE_POLLING_INTERVAL_MS,
+    });
+  },
+} as const;
+
 export const systemCallApi = createSystemCallApi(useApiClient);

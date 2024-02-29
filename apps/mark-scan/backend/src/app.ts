@@ -16,6 +16,7 @@ import {
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
+  getPrecinctSelectionName,
   isElectionManagerAuth,
   isFeatureFlagEnabled,
   isPollWorkerAuth,
@@ -284,6 +285,7 @@ export function buildApi(
 
     ...createSystemCallApi({
       usbDrive,
+      logger,
       machineId: getMachineConfig().machineId,
     }),
 
@@ -300,8 +302,7 @@ export function buildApi(
             return LogEventId.PollsClosed;
           case 'polls_paused':
             if (oldPollsState === 'polls_closed_final') {
-              // logging case handled by ResetPollsToPausedButton
-              return undefined;
+              return LogEventId.ResetPollsToPaused;
             }
             return LogEventId.VotingPaused;
           case 'polls_open':
@@ -314,9 +315,8 @@ export function buildApi(
             throwIllegalValue(newPollsState);
         }
       })();
-      if (logEvent) {
-        await logger.log(logEvent, 'poll_worker', { disposition: 'success' });
-      }
+
+      await logger.logAsCurrentRole(logEvent, { disposition: 'success' });
     },
 
     setTestMode(input: { isTestMode: boolean }) {
@@ -325,11 +325,20 @@ export function buildApi(
       store.setBallotsPrintedCount(0);
     },
 
-    setPrecinctSelection(input: {
+    async setPrecinctSelection(input: {
       precinctSelection: PrecinctSelection;
-    }): void {
+    }): Promise<void> {
+      const electionDefinition = store.getElectionDefinition();
+      assert(electionDefinition);
       store.setPrecinctSelection(input.precinctSelection);
       store.setBallotsPrintedCount(0);
+      await logger.logAsCurrentRole(LogEventId.PrecinctConfigurationChanged, {
+        disposition: 'success',
+        message: `User set the precinct for the machine to ${getPrecinctSelectionName(
+          electionDefinition.election.precincts,
+          input.precinctSelection
+        )}`,
+      });
     },
 
     getElectionState(): ElectionState {
@@ -339,6 +348,14 @@ export function buildApi(
         isTestMode: store.getTestMode(),
         pollsState: store.getPollsState(),
       };
+    },
+
+    isPatDeviceConnected(): boolean {
+      if (!stateMachine) {
+        return false;
+      }
+
+      return stateMachine.isPatDeviceConnected();
     },
   });
 }
