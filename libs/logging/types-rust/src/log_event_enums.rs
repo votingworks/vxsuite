@@ -13,6 +13,8 @@ pub enum EventId {
     ElectionConfigured,
     #[serde(rename = "election-unconfigured")]
     ElectionUnconfigured,
+    #[serde(rename = "info")]
+    Info,
     #[serde(rename = "machine-boot-init")]
     MachineBootInit,
     #[serde(rename = "machine-boot-complete")]

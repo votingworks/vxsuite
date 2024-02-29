@@ -110,15 +110,28 @@ export function UiStringsAudioContextProvider(
   }, [isPaused]);
 
   const increasePlaybackRate = React.useCallback(() => {
-    setPlaybackRate(
-      Math.min(MAX_PLAYBACK_RATE, playbackRate + PLAYBACK_RATE_INCREMENT_AMOUNT)
+    // eslint-disable-next-line no-console
+    console.log('increasePlaybackRate');
+    const newValue = Math.min(
+      MAX_PLAYBACK_RATE,
+      playbackRate + PLAYBACK_RATE_INCREMENT_AMOUNT
     );
+    // eslint-disable-next-line no-console
+    console.log('new rate:', newValue);
+    setPlaybackRate(newValue);
   }, [playbackRate]);
 
   const decreasePlaybackRate = React.useCallback(() => {
-    setPlaybackRate(
-      Math.max(MIN_PLAYBACK_RATE, playbackRate - PLAYBACK_RATE_INCREMENT_AMOUNT)
+    // eslint-disable-next-line no-console
+    console.log('decreasePlaybackRate');
+
+    const newValue = Math.max(
+      MIN_PLAYBACK_RATE,
+      playbackRate - PLAYBACK_RATE_INCREMENT_AMOUNT
     );
+    // eslint-disable-next-line no-console
+    console.log('new rate', newValue);
+    setPlaybackRate(newValue);
   }, [playbackRate]);
 
   const increaseVolume = React.useCallback(
@@ -126,10 +139,11 @@ export function UiStringsAudioContextProvider(
     [gainDb]
   );
 
-  const decreaseVolume = React.useCallback(
-    () => setGainDb(Math.max(MIN_GAIN_DB, gainDb - GAIN_INCREMENT_AMOUNT_DB)),
-    [gainDb]
-  );
+  const decreaseVolume = React.useCallback(() => {
+    // eslint-disable-next-line no-console
+    console.log('decreaseVolume');
+    setGainDb(Math.max(MIN_GAIN_DB, gainDb - GAIN_INCREMENT_AMOUNT_DB));
+  }, [gainDb]);
 
   const togglePause = React.useCallback(
     () => setIsPaused(!isPaused),

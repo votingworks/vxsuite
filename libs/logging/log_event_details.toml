@@ -14,6 +14,11 @@ defaultMessage = "Application has been unconfigured from the previous election."
 documentationMessage = "The user has unconfigured current machine to remove the current election definition, and all other data."
 
 # System level logs
+[Info]
+eventId = "info"
+eventType = "system-status"
+documentationMessage = "General purpose info log"
+
 [MachineBootInit]
 eventId = "machine-boot-init"
 eventType = "system-action"

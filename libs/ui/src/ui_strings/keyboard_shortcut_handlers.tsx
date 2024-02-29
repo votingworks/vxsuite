@@ -34,22 +34,31 @@ export function KeyboardShortcutHandlers(): React.ReactNode {
           audioControls.replay();
           break;
         case ',':
+          // eslint-disable-next-line no-console
+          console.log(', received');
           audioControls.decreasePlaybackRate();
           break;
         case '.':
+          // eslint-disable-next-line no-console
+          console.log('. received');
           audioControls.increasePlaybackRate();
           break;
         case 'P':
           audioControls.togglePause();
           break;
         case '-':
+          // eslint-disable-next-line no-console
+          console.log('- received');
           audioControls.decreaseVolume();
           break;
         case '=':
           audioControls.increaseVolume();
           break;
         default:
-        // No op
+          // eslint-disable-next-line no-console
+          console.log(`Unhandled key event: ${event.key}`);
+          // eslint-disable-next-line no-console
+          console.log(event);
       }
     }
 

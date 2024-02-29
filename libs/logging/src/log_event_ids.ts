@@ -14,6 +14,7 @@ export interface LogDetails extends Omit<BaseLogEventDetails, 'eventId'> {
 export enum LogEventId {
   ElectionConfigured = 'election-configured',
   ElectionUnconfigured = 'election-unconfigured',
+  Info = 'info',
   MachineBootInit = 'machine-boot-init',
   MachineBootComplete = 'machine-boot-complete',
   MachineShutdownInit = 'machine-shutdown-init',
@@ -145,6 +146,12 @@ const ElectionUnconfigured: LogDetails = {
     'The user has unconfigured current machine to remove the current election definition, and all other data.',
   defaultMessage:
     'Application has been unconfigured from the previous election.',
+};
+
+const Info: LogDetails = {
+  eventId: LogEventId.Info,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'General purpose info log',
 };
 
 const MachineBootInit: LogDetails = {
@@ -1085,6 +1092,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ElectionConfigured;
     case LogEventId.ElectionUnconfigured:
       return ElectionUnconfigured;
+    case LogEventId.Info:
+      return Info;
     case LogEventId.MachineBootInit:
       return MachineBootInit;
     case LogEventId.MachineBootComplete:
