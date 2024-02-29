@@ -1,7 +1,7 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Optional } from '@votingworks/basics';
-import { LanguageCode } from '@votingworks/types';
+import { AudioControls, LanguageCode } from '@votingworks/types';
 import type { SystemCallApi as SystemCallApiClient } from '@votingworks/backend';
 import {
   UiStringsApiClient,
@@ -18,7 +18,11 @@ import {
 } from '../src/ui_strings/audio_context';
 import { UiStringsContextProvider } from '../src/ui_strings/ui_strings_context';
 import { RenderResult, render } from './react_testing_library';
-import { QUERY_CLIENT_DEFAULT_OPTIONS, VxRenderOptions } from '../src';
+import {
+  QUERY_CLIENT_DEFAULT_OPTIONS,
+  VxRenderOptions,
+  useAudioControls,
+} from '../src';
 import {
   SystemCallReactQueryApi,
   createSystemCallApi,
@@ -29,6 +33,7 @@ type ApiClient = UiStringsApiClient & SystemCallApiClient;
 
 export interface TestContext {
   getAudioContext: () => Optional<UiStringsAudioContextInterface>;
+  getAudioControls: () => Optional<AudioControls>;
   getLanguageContext: () => Optional<LanguageContextInterface>;
   mockApiClient: jest.Mocked<ApiClient>;
   render: (
@@ -48,9 +53,11 @@ export function newTestContext(
 ): TestContext {
   let currentLanguageContext: Optional<LanguageContextInterface>;
   let currentAudioContext: Optional<UiStringsAudioContextInterface>;
+  let currentAudioControls: Optional<AudioControls>;
 
   function ContextConsumer() {
     currentAudioContext = useAudioContext();
+    currentAudioControls = useAudioControls();
     currentLanguageContext = useLanguageContext();
     return null;
   }
@@ -136,6 +143,7 @@ export function newTestContext(
       };
     },
     getAudioContext: () => currentAudioContext,
+    getAudioControls: () => currentAudioControls,
     getLanguageContext: () => currentLanguageContext,
   };
 }

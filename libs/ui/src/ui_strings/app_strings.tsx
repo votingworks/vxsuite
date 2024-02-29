@@ -9,6 +9,50 @@ import { UiString } from './ui_string';
 // to generate libs/ui/src/ui_strings/app_strings_catalog/latest.json
 
 export const appStrings = {
+  audioFeedback10PercentVolume: () => (
+    <UiString uiStringKey="audioFeedback10PercentVolume">10% volume</UiString>
+  ),
+
+  audioFeedback20PercentVolume: () => (
+    <UiString uiStringKey="audioFeedback20PercentVolume">20% volume</UiString>
+  ),
+
+  audioFeedback30PercentVolume: () => (
+    <UiString uiStringKey="audioFeedback30PercentVolume">30% volume</UiString>
+  ),
+
+  audioFeedback40PercentVolume: () => (
+    <UiString uiStringKey="audioFeedback40PercentVolume">40% volume</UiString>
+  ),
+
+  audioFeedback50PercentVolume: () => (
+    <UiString uiStringKey="audioFeedback50PercentVolume">50% volume</UiString>
+  ),
+
+  audioFeedback60PercentVolume: () => (
+    <UiString uiStringKey="audioFeedback60PercentVolume">60% volume</UiString>
+  ),
+
+  audioFeedback70PercentVolume: () => (
+    <UiString uiStringKey="audioFeedback70PercentVolume">70% volume</UiString>
+  ),
+
+  audioFeedback80PercentVolume: () => (
+    <UiString uiStringKey="audioFeedback80PercentVolume">80% volume</UiString>
+  ),
+
+  audioFeedback90PercentVolume: () => (
+    <UiString uiStringKey="audioFeedback90PercentVolume">90% volume</UiString>
+  ),
+
+  audioFeedbackMaximumVolume: () => (
+    <UiString uiStringKey="audioFeedbackMaximumVolume">Maximum volume</UiString>
+  ),
+
+  audioFeedbackMinimumVolume: () => (
+    <UiString uiStringKey="audioFeedbackMinimumVolume">Minimum volume</UiString>
+  ),
+
   bmdPatDeviceInputNameMove: () => (
     <UiString uiStringKey="bmdPatDeviceInputNameMove">"Move"</UiString>
   ),

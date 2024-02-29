@@ -13,7 +13,7 @@ import {
   SILENT_SAMPLE_ABSOLUTE_VALUE_THRESHOLD,
   newAudioPlayer,
 } from './audio_player';
-import { MAX_GAIN_DB, MIN_GAIN_DB } from './audio_volume';
+import { AudioVolume, getAudioGainAmountDb } from './audio_volume';
 import {
   DEFAULT_PLAYBACK_RATE,
   MAX_PLAYBACK_RATE,
@@ -295,11 +295,12 @@ test('setVolume()', async () => {
     webAudioContext: mockWebAudioContext,
   });
 
-  player.setVolume(MAX_GAIN_DB);
-  expect(mockGrainPlayer.volume.value).toEqual(MAX_GAIN_DB);
+  const { MAXIMUM, MINIMUM } = AudioVolume;
+  player.setVolume(MAXIMUM);
+  expect(mockGrainPlayer.volume.value).toEqual(getAudioGainAmountDb(MAXIMUM));
 
-  player.setVolume(MIN_GAIN_DB);
-  expect(mockGrainPlayer.volume.value).toEqual(MIN_GAIN_DB);
+  player.setVolume(MINIMUM);
+  expect(mockGrainPlayer.volume.value).toEqual(getAudioGainAmountDb(MINIMUM));
 });
 
 test('setPlaybackRate()', async () => {

@@ -9,30 +9,24 @@ import {
   MIN_PLAYBACK_RATE,
   PLAYBACK_RATE_INCREMENT_AMOUNT,
 } from './audio_playback_rate';
-import {
-  GAIN_INCREMENT_AMOUNT_DB,
-  DEFAULT_GAIN_DB,
-  MAX_GAIN_DB,
-  MIN_GAIN_DB,
-} from './audio_volume';
+import { AudioVolume, DEFAULT_AUDIO_VOLUME } from './audio_volume';
 
 export const DEFAULT_AUDIO_ENABLED_STATE = true;
 
 export interface UiStringsAudioContextInterface {
   api: UiStringsReactQueryApi;
   decreasePlaybackRate: () => void;
-  decreaseVolume: () => void;
-  gainDb: number;
   increasePlaybackRate: () => void;
-  increaseVolume: () => void;
   isEnabled: boolean;
   isPaused: boolean;
   playbackRate: number;
   reset: () => void;
   setIsEnabled: (enabled: boolean) => void;
   setIsPaused: (paused: boolean) => void;
+  setVolume: (volume: AudioVolume) => void;
   toggleEnabled: () => void;
   togglePause: () => void;
+  volume: AudioVolume;
   webAudioContext?: AudioContext;
 }
 
@@ -70,12 +64,12 @@ export function UiStringsAudioContextProvider(
   const [playbackRate, setPlaybackRate] = React.useState<number>(
     DEFAULT_PLAYBACK_RATE
   );
-  const [gainDb, setGainDb] = React.useState<number>(DEFAULT_GAIN_DB);
+  const [volume, setVolume] = React.useState<AudioVolume>(DEFAULT_AUDIO_VOLUME);
 
   const webAudioContextRef = React.useRef(getWebAudioContextInstance());
 
   const resetPlaybackSettings = React.useCallback(() => {
-    setGainDb(DEFAULT_GAIN_DB);
+    setVolume(DEFAULT_AUDIO_VOLUME);
     setPlaybackRate(DEFAULT_PLAYBACK_RATE);
     setIsPaused(false);
   }, []);
@@ -121,16 +115,6 @@ export function UiStringsAudioContextProvider(
     );
   }, [playbackRate]);
 
-  const increaseVolume = React.useCallback(
-    () => setGainDb(Math.min(MAX_GAIN_DB, gainDb + GAIN_INCREMENT_AMOUNT_DB)),
-    [gainDb]
-  );
-
-  const decreaseVolume = React.useCallback(
-    () => setGainDb(Math.max(MIN_GAIN_DB, gainDb - GAIN_INCREMENT_AMOUNT_DB)),
-    [gainDb]
-  );
-
   const togglePause = React.useCallback(
     () => setIsPaused(!isPaused),
     [isPaused]
@@ -146,18 +130,17 @@ export function UiStringsAudioContextProvider(
       value={{
         api,
         decreasePlaybackRate,
-        decreaseVolume,
-        gainDb,
         increasePlaybackRate,
-        increaseVolume,
         isEnabled,
         isPaused,
         playbackRate,
         reset,
         setIsEnabled,
         setIsPaused,
+        setVolume,
         toggleEnabled,
         togglePause,
+        volume,
         webAudioContext: webAudioContextRef.current,
       }}
     >

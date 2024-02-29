@@ -4,10 +4,11 @@ import userEvent from '@testing-library/user-event';
 import { act, screen, waitFor } from '../../test/react_testing_library';
 import { newTestContext } from '../../test/test_context';
 import { ClipParams, PlayAudioClips } from './play_audio_clips';
-import { appStrings } from './app_strings';
+import { AppStringKey, appStrings } from './app_strings';
 import { AudioOnly } from './audio_only';
 import { LanguageOverride } from './language_override';
 import { Button } from '../button';
+import { AudioVolume } from './audio_volume';
 
 jest.mock('./play_audio_clips', (): typeof import('./play_audio_clips') => ({
   ...jest.requireActual('./play_audio_clips'),
@@ -24,9 +25,13 @@ beforeAll(() => {
   jest.useFakeTimers();
 });
 
+let fireOnClipsDoneEvent: (() => void) | undefined;
+
 beforeEach(() => {
   mockOf(PlayAudioClips).mockImplementation((props) => {
-    const { clips } = props;
+    const { clips, onDone } = props;
+
+    fireOnClipsDoneEvent = onDone;
 
     return (
       <div data-testid="mockClips">
@@ -240,4 +245,64 @@ test('handles missing audio ID data', async () => {
 
   expect(screen.queryByTestId('mockClipOutput')).not.toBeInTheDocument();
   screen.getByTestId('clickTarget');
+});
+
+test('volume control API', async () => {
+  const { getAudioContext, getAudioControls, mockApiClient, render } =
+    newTestContext();
+
+  const mockAudioIds: Partial<Record<AppStringKey, string[]>> = {
+    audioFeedback90PercentVolume: ['90%-volume'],
+    audioFeedbackMaximumVolume: ['max-volume'],
+    titleBmdReviewScreen: ['screen-title'],
+  };
+  mockApiClient.getUiStringAudioIds.mockResolvedValue(mockAudioIds);
+
+  render(
+    <div data-testid="clickTarget">{appStrings.titleBmdReviewScreen()}</div>
+  );
+
+  const clickTarget = await screen.findByTestId('clickTarget');
+  act(() => getAudioContext()?.setIsEnabled(true));
+  act(() => userEvent.click(clickTarget));
+  await advanceTimersAndPromises();
+
+  expect(await screen.findByTestId('mockClipOutput')).toHaveTextContent(
+    getMockClipOutput({ audioId: 'screen-title', languageCode: ENGLISH })
+  );
+
+  // Simulate increasing the volume to the maximum:
+  await waitFor(() => {
+    act(() => getAudioControls()?.increaseVolume());
+    expect(getAudioContext()?.volume).toEqual(AudioVolume.MAXIMUM);
+  });
+
+  // Expect no volume-change feedback while the screen reader audio is still
+  // active:
+  expect(screen.getByTestId('mockClipOutput')).toHaveTextContent(
+    getMockClipOutput({ audioId: 'screen-title', languageCode: ENGLISH })
+  );
+
+  // Simulate screen reader audio ending:
+  act(() => fireOnClipsDoneEvent?.());
+  expect(screen.queryByTestId('mockClipOutput')).not.toBeInTheDocument();
+
+  // Simulate increasing the volume again:
+  act(() => getAudioControls()?.increaseVolume());
+  expect(getAudioContext()?.volume).toEqual(AudioVolume.MAXIMUM);
+  expect(await screen.findByTestId('mockClipOutput')).toHaveTextContent(
+    getMockClipOutput({ audioId: 'max-volume', languageCode: ENGLISH })
+  );
+
+  // Decreasing volume while no screen reader audio is active should play
+  // appropriate feedback:
+  act(() => getAudioControls()?.decreaseVolume());
+  expect(getAudioContext()?.volume).toEqual(AudioVolume.NINETY_PERCENT);
+  expect(await screen.findByTestId('mockClipOutput')).toHaveTextContent(
+    getMockClipOutput({ audioId: '90%-volume', languageCode: ENGLISH })
+  );
+
+  // Simulate screen reader audio ending:
+  act(() => fireOnClipsDoneEvent?.());
+  expect(screen.queryByTestId('mockClipOutput')).not.toBeInTheDocument();
 });

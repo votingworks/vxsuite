@@ -16,9 +16,9 @@ export function useAudioControls(): AudioControls {
 
   return {
     decreasePlaybackRate: audioContext?.decreasePlaybackRate || noOp,
-    decreaseVolume: audioContext?.decreaseVolume || noOp,
+    decreaseVolume: screenReaderContext?.decreaseVolume || noOp,
     increasePlaybackRate: audioContext?.increasePlaybackRate || noOp,
-    increaseVolume: audioContext?.increaseVolume || noOp,
+    increaseVolume: screenReaderContext?.increaseVolume || noOp,
     reset: audioContext?.reset || noOp,
     replay: screenReaderContext?.replay || noOp,
     setIsEnabled: audioContext?.setIsEnabled || noOp,
