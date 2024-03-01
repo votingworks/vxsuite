@@ -203,7 +203,11 @@ export function Review({
           tabIndex={0}
           role="button"
           id={`contest-${contest.id}`}
+          data-testid={`contest-${contest.id}`}
           key={contest.id}
+          onKeyDown={(event) =>
+            event.key === 'Enter' && onChangeClick(contest.id)
+          }
           onClick={() => onChangeClick(contest.id)}
         >
           <Card
