@@ -213,33 +213,6 @@ declare namespace KioskBrowser {
      */
     saveAs(options?: SaveAsOptions): Promise<FileWriter | undefined>;
 
-    /**
-     * Writes a file to a specified file path
-     */
-    writeFile(path: string): Promise<FileWriter>;
-    writeFile(path: string, content: Uint8Array | string): Promise<void>;
-
-    /*
-     * Creates a directory at the specified path.
-     */
-    makeDirectory(path: string, options?: MakeDirectoryOptions): Promise<void>;
-
-    /**
-     * Creates a directory at the specified path.
-     */
-    makeDirectory(path: string, options?: MakeDirectoryOptions): Promise<void>;
-
-    /**
-     * Reads the list of files at a specified directory path
-     */
-    getFileSystemEntries(path: string): Promise<FileSystemEntry[]>;
-
-    /**
-     * Reads a file from a specified path
-     */
-    readFile(path: string): Promise<Uint8Array>;
-    readFile(path: string, encoding: string): Promise<string>;
-
     showOpenDialog(options?: OpenDialogOptions): Promise<{
       canceled: boolean;
       filePaths: string[];
