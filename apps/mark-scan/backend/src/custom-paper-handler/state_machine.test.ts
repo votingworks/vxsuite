@@ -64,8 +64,10 @@ import {
 } from '../pat-input/constants';
 
 // Use shorter polling interval in tests to reduce run times
-const TEST_POLL_INTERVAL_MS = 500;
-const TEST_NOTIFICATION_DURATION_MS = 1000;
+const TEST_POLL_INTERVAL_MS = 50;
+// Must be longer than backendWaitForInterval or tests can't
+// detect `ballot_accepted` state
+const TEST_NOTIFICATION_DURATION_MS = 150;
 
 jest.mock('@votingworks/custom-paper-handler');
 jest.mock('./application_driver');
@@ -126,8 +128,8 @@ beforeEach(async () => {
     driver,
     patConnectionStatusReader,
     devicePollingIntervalMs: TEST_POLL_INTERVAL_MS,
-    authPollingIntervalMs: TEST_NOTIFICATION_DURATION_MS,
-    notificationDurationMs: 1000,
+    authPollingIntervalMs: TEST_POLL_INTERVAL_MS,
+    notificationDurationMs: TEST_NOTIFICATION_DURATION_MS,
   })) as PaperHandlerStateMachine;
 });
 

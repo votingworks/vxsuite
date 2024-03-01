@@ -1,4 +1,4 @@
-import { LogEventId, mockBaseLogger, mockLogger } from '@votingworks/logging';
+import { LogEventId, mockLogger } from '@votingworks/logging';
 import tmp from 'tmp';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import {
@@ -35,11 +35,29 @@ test('can start server', async () => {
   workspace.reset();
 });
 
+test('can start without providing auth', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_CARDS
+  );
+
+  const logger = mockLogger();
+  const workspace = createWorkspace(tmp.dirSync().name);
+
+  const server = await start({
+    logger,
+    port: PORT,
+    workspace,
+  });
+  expect(server.listening).toBeTruthy();
+  server.close();
+  workspace.reset();
+});
+
 test('resolveDriver returns a mock driver if feature flag is on', async () => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
   );
-  const logger = mockBaseLogger();
+  const logger = mockLogger();
 
   const driver = await resolveDriver(logger);
   expect(driver).toBeInstanceOf(MockPaperHandlerDriver);
@@ -51,45 +69,3 @@ test('resolveDriver returns a mock driver if feature flag is on', async () => {
     }
   );
 });
-
-// Something about the feature flag mock (?) makes these tests not terminate cleanly
-
-// test('can start without providing auth', async () => {
-//   const logger = fakeLogger();
-//   const workspace = createWorkspace(tmp.dirSync().name);
-
-//   const server = await start({
-//     logger,
-//     port: PORT,
-//     workspace,
-//   });
-//   expect(server.listening).toBeTruthy();
-//   server.close();
-//   workspace.reset();
-// });
-
-// test('can start with a mock driver', async () => {
-//   featureFlagMock.enableFeatureFlag(
-//     BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
-//   );
-
-//   const auth = buildMockInsertedSmartCardAuth();
-//   const logger = fakeLogger();
-//   const workspace = createWorkspace(tmp.dirSync().name);
-
-//   const server = await start({
-//     auth,
-//     logger,
-//     port: PORT,
-//     workspace,
-//   });
-//   expect(server.listening).toBeTruthy();
-//   server.close((err) => {
-//     assert(!err);
-//   });
-//   workspace.reset();
-//   // Promises in flight won't complete without this sleep and the test will error with
-//   // "ReferenceError: You are trying to `import` a file after the Jest environment has been torn down."
-//   // Other methods of flushing promises don't seem to work.
-//   // await sleep(0);
-// });
