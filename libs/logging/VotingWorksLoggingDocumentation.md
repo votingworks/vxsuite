@@ -394,6 +394,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)  
 **Description:** Precinct scanner state machine transitioned states.  
 **Machines:** vx-scan-backend
+### mark-scan-state-machine-event
+**Type:** [system-status](#system-status)  
+**Description:** Event fired by the mark-scan state machine.  
+**Machines:** vx-mark-scan-backend
 ### pat-device-error
 **Type:** [system-status](#system-status)  
 **Description:** VxMarkScan encountered an error with the built-in PAT device port or the device itself  

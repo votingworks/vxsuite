@@ -48,10 +48,14 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
   statusRef: PaperHandlerStatus = defaultPaperHandlerStatus();
 
   connect(): Promise<void> {
-    throw new Error('Method not implemented.');
+    return Promise.resolve();
   }
-  disconnect(): Promise<void> {
-    throw new Error('Method not implemented.');
+  async disconnect(): Promise<void> {
+    await this.genericLock.acquire();
+    this.genericLock.release();
+    await this.realTimeLock.acquire();
+    this.realTimeLock.release();
+    return Promise.resolve();
   }
   getWebDevice(): MinimalWebUsbDevice {
     throw new Error('Method not implemented.');
@@ -256,13 +260,13 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
     throw new Error('Method not implemented.');
   }
   loadPaper(): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    return Promise.resolve(true);
   }
   ejectPaperToFront(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
   parkPaper(): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    return Promise.resolve(true);
   }
   presentPaper(): Promise<boolean> {
     debug('No-op presentPaper called');
@@ -275,7 +279,7 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
     throw new Error('Method not implemented.');
   }
   enablePrint(): Promise<boolean> {
-    throw new Error('Method not implemented.');
+    return Promise.resolve(true);
   }
   disablePrint(): Promise<boolean> {
     throw new Error('Method not implemented.');
@@ -317,7 +321,7 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
   setRelativeVerticalPrintPosition(
     _numMotionUnits: number
   ): Promise<USBOutTransferResult> {
-    throw new Error('Method not implemented.');
+    return Promise.resolve(makeUsbOutTransferResult('ok', 1));
   }
   bufferChunk(
     _chunkedCustomBitmap: PaperHandlerBitmap
@@ -325,7 +329,7 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
     throw new Error('Method not implemented.');
   }
   printChunk(_chunkedCustomBitmap: PaperHandlerBitmap): Promise<void> {
-    throw new Error('Method not implemented.');
+    return Promise.resolve();
   }
   print(_numMotionUnitsToFeedPaper?: number): Promise<void> {
     throw new Error('Method not implemented.');

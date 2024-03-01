@@ -21,6 +21,7 @@ test('logs when it cannot access the gpio pin sysfs file', async () => {
   });
 
   expect(result).toEqual(false);
+  await reader.close();
 });
 
 test('isPatDeviceConnected can read "true" pin value from a file', async () => {
@@ -33,6 +34,7 @@ test('isPatDeviceConnected can read "true" pin value from a file', async () => {
   expect(result).toEqual(true);
   const isConnected = await reader.isPatDeviceConnected();
   expect(isConnected).toEqual(true);
+  await reader.close();
 });
 
 test('isPatDeviceConnected can read "false" pin value from a file', async () => {
@@ -45,4 +47,5 @@ test('isPatDeviceConnected can read "false" pin value from a file', async () => 
   expect(result).toEqual(true);
   const isConnected = await reader.isPatDeviceConnected();
   expect(isConnected).toEqual(false);
+  await reader.close();
 });

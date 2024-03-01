@@ -66,8 +66,8 @@ beforeEach(async () => {
   stateMachine = result.stateMachine;
 });
 
-afterEach(() => {
-  stateMachine.stopMachineService();
+afterEach(async () => {
+  await stateMachine.cleanUp();
   server?.close();
 });
 

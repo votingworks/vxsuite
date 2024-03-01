@@ -2,7 +2,6 @@
 import makeDebug from 'debug';
 import HID from 'node-hid';
 import {
-  PaperHandlerDriver,
   PaperHandlerStatus,
   PaperHandlerDriverInterface,
 } from '@votingworks/custom-paper-handler';
@@ -51,39 +50,44 @@ import {
   isPaperInScanner,
   isPaperReadyToLoad,
   isPaperInOutput,
-  scanAndSave,
-  setDefaults,
-  printBallot as driverPrintBallot,
   isPaperAnywhere,
   isPaperJammed,
   isPaperInInput,
+} from './scanner_status';
+import {
+  scanAndSave,
+  setDefaults,
   resetAndReconnect,
   loadAndParkPaper,
-  getSampleBallotFilepaths,
+  printBallotChunks,
 } from './application_driver';
 import { PatConnectionStatusReader } from '../pat-input/connection_status_reader';
 import {
   ORIGIN_SWIFTY_PRODUCT_ID,
   ORIGIN_VENDOR_ID,
 } from '../pat-input/constants';
+import { getSampleBallotFilepaths } from './filepaths';
 
 interface Context {
   auth: InsertedSmartCardAuthApi;
   workspace: Workspace;
-  driver: PaperHandlerDriver;
+  driver: PaperHandlerDriverInterface;
   patConnectionStatusReader: PatConnectionStatusReader;
+  deviceTimeoutMs: number;
   devicePollingIntervalMs: number;
   authPollingIntervalMs: number;
+  notificationDurationMs: number;
   scannedImagePaths?: SheetOf<string>;
   isPatDeviceConnected: boolean;
   interpretation?: SheetOf<InterpretFileResult>;
+  logger: BaseLogger;
 }
 
 function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
   return xassign<Context, any>(arg);
 }
 
-type PaperHandlerStatusEvent =
+export type PaperHandlerStatusEvent =
   | { type: 'UNHANDLED_EVENT' }
   | { type: 'NO_PAPER_ANYWHERE' }
   | { type: 'PAPER_JAM' }
@@ -116,7 +120,7 @@ const debug = makeDebug('mark-scan:state-machine');
 const debugEvents = debug.extend('events');
 
 export interface PaperHandlerStateMachine {
-  stopMachineService(): void;
+  cleanUp(): Promise<void>;
   getRawDeviceStatus(): Promise<PaperHandlerStatus>;
   getSimpleStatus(): SimpleServerStatus;
   setAcceptingPaper(): void;
@@ -131,7 +135,7 @@ export interface PaperHandlerStateMachine {
   isPatDeviceConnected(): boolean;
 }
 
-function paperHandlerStatusToEvent(
+export function paperHandlerStatusToEvent(
   paperHandlerStatus: PaperHandlerStatus
 ): PaperHandlerStatusEvent {
   if (isPaperJammed(paperHandlerStatus)) {
@@ -155,10 +159,12 @@ function paperHandlerStatusToEvent(
 
     return { type: 'PAPER_INSIDE_NO_JAM' };
   }
+
   if (isPaperReadyToLoad(paperHandlerStatus)) {
     return { type: 'PAPER_READY_TO_LOAD' };
   }
 
+  /* istanbul ignore next */
   if (isPaperInInput(paperHandlerStatus)) {
     return { type: 'PAPER_IN_INPUT' };
   }
@@ -167,6 +173,7 @@ function paperHandlerStatusToEvent(
     return { type: 'NO_PAPER_ANYWHERE' };
   }
 
+  /* istanbul ignore next - unreachable if exhaustive */
   return { type: 'UNHANDLED_EVENT' };
 }
 
@@ -180,7 +187,12 @@ function paperHandlerStatusToEvent(
  * event as arguments and returns an observable stream of events."
  */
 function buildPaperStatusObservable() {
-  return ({ driver, devicePollingIntervalMs }: Context) => {
+  return ({
+    driver,
+    deviceTimeoutMs,
+    devicePollingIntervalMs,
+    logger,
+  }: Context) => {
     // `timer` returns an Observable that emits values with `pollingInterval` delay between each event
     return (
       timer(0, devicePollingIntervalMs)
@@ -194,18 +206,24 @@ function buildPaperStatusObservable() {
             try {
               const paperHandlerStatus = await driver.getPaperHandlerStatus();
               const event = paperHandlerStatusToEvent(paperHandlerStatus);
-              debug(`Emitting event ${event.type}`);
+              /* istanbul ignore next - untestable if paperHandlerStatusToEvent is exhaustive */
               if (event.type === 'UNHANDLED_EVENT') {
-                debug('Unhandled status:\n%O', paperHandlerStatus);
+                await logger.log(LogEventId.UnknownError, 'system', {
+                  message: 'Unhandled raw paper handler status',
+                  status: JSON.stringify(paperHandlerStatus, null, 2),
+                });
               }
               return event;
-            } catch (err) {
-              debug('Error in observable: %O', err);
+            } catch (err: unknown) {
+              await logger.log(LogEventId.UnknownError, 'system', {
+                error: (err as Error).message,
+              });
               return { type: 'UNHANDLED_EVENT' };
             }
           }),
           timeout({
-            each: DEVICE_STATUS_POLLING_TIMEOUT_MS,
+            each: deviceTimeoutMs,
+            /* istanbul ignore next */
             with: () => throwError(() => new Error('paper_status_timed_out')),
           })
         )
@@ -228,9 +246,11 @@ function buildAuthStatusObservable() {
           const authStatus = await auth.getAuthStatus(
             constructAuthMachineState(workspace)
           );
+
           if (isCardlessVoterAuth(authStatus)) {
             return { type: 'AUTH_STATUS_CARDLESS_VOTER' };
           }
+
           if (isPollWorkerAuth(authStatus)) {
             return { type: 'AUTH_STATUS_POLL_WORKER' };
           }
@@ -244,6 +264,7 @@ function buildAuthStatusObservable() {
       }),
       timeout({
         each: AUTH_STATUS_POLLING_TIMEOUT_MS,
+        /* istanbul ignore next */
         with: () => throwError(() => new Error('auth_status_timed_out')),
       })
     );
@@ -281,6 +302,8 @@ function buildPatDeviceConnectionStatusObservable() {
     devicePollingIntervalMs,
     patConnectionStatusReader,
     isPatDeviceConnected: oldConnectionStatus,
+    deviceTimeoutMs,
+    logger,
   }: Context) => {
     return timer(0, devicePollingIntervalMs).pipe(
       switchMap(async () => {
@@ -307,14 +330,18 @@ function buildPatDeviceConnectionStatusObservable() {
 
           return { type: 'PAT_DEVICE_NO_STATUS_CHANGE' };
         } catch (err) {
-          debug('Error in PAT device observable: %O', err);
+          await logger.log(LogEventId.PatDeviceError, 'system', {
+            error: (err as Error).message,
+          });
           return { type: 'PAT_DEVICE_STATUS_UNHANDLED' };
         }
       }),
       timeout({
-        each: DEVICE_STATUS_POLLING_TIMEOUT_MS,
-        with: () =>
-          throwError(() => new Error('pat_device_connection_status_timed_out')),
+        each: deviceTimeoutMs,
+        with: () => {
+          /* istanbul ignore next */
+          return throwError(() => new Error('PAT device connection timed out'));
+        },
       })
     );
   };
@@ -367,8 +394,7 @@ function loadMetadataAndInterpretBallot(
 
 export function buildMachine(
   initialContext: Context,
-  auth: InsertedSmartCardAuthApi,
-  logger: BaseLogger
+  auth: InsertedSmartCardAuthApi
 ): StateMachine<
   Context,
   StateSchema,
@@ -466,7 +492,7 @@ export function buildMachine(
                 id: 'printBallot',
                 src: (context, event) => {
                   assert(event.type === 'VOTER_INITIATED_PRINT');
-                  return driverPrintBallot(context.driver, event.pdfData, {});
+                  return printBallotChunks(context.driver, event.pdfData, {});
                 },
                 onDone: 'scanning',
               },
@@ -542,7 +568,10 @@ export function buildMachine(
                 // To work around this, we avoid ejecting to front. Instead, we present the paper so it's held by the device in a
                 // stable non-jam state. We instruct the poll worker to remove the paper directly from the 'presenting' state.
                 entry: async (context) => {
-                  await logger.log(LogEventId.BlankInterpretation, 'system');
+                  await context.logger.log(
+                    LogEventId.BlankInterpretation,
+                    'system'
+                  );
                   await context.driver.presentPaper();
                 },
                 on: { NO_PAPER_ANYWHERE: 'accepting_paper' },
@@ -597,7 +626,7 @@ export function buildMachine(
               NO_PAPER_ANYWHERE: {
                 cond: () =>
                   !isFeatureFlagEnabled(
-                    BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+                    BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
                   ),
                 target: 'resetting_state_machine_after_success',
               },
@@ -632,7 +661,7 @@ export function buildMachine(
             entry: async (context) => {
               if (
                 isFeatureFlagEnabled(
-                  BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+                  BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
                 )
               ) {
                 return;
@@ -657,7 +686,7 @@ export function buildMachine(
               );
             },
             after: {
-              [SUCCESS_NOTIFICATION_DURATION_MS]:
+              [initialContext.notificationDurationMs]:
                 'resetting_state_machine_after_success',
             },
           },
@@ -762,9 +791,10 @@ function setUpLogging(
       // To protect voter privacy, we only log the event type (since some event
       // objects include ballot interpretations)
       await logger.log(
-        LogEventId.ScannerEvent,
+        LogEventId.MarkScanStateMachineEvent,
         'system',
         { message: `Event: ${event.type}` },
+        /* istanbul ignore next */
         (logLine: LogLine) => debugEvents(logLine.message)
       );
     })
@@ -808,6 +838,7 @@ function setUpLogging(
           message: `Context updated`,
           changedFields: JSON.stringify(Object.fromEntries(changed)),
         },
+        /* istanbul ignore next */
         () => debug('Context updated: %o', Object.fromEntries(changed))
       );
     })
@@ -817,6 +848,7 @@ function setUpLogging(
         LogEventId.PaperHandlerStateChanged,
         'system',
         { message: `Transitioned to: ${JSON.stringify(state.value)}` },
+        /* istanbul ignore next */
         (logLine: LogLine) => debug(logLine.message)
       );
     });
@@ -828,16 +860,20 @@ export async function getPaperHandlerStateMachine({
   logger,
   driver,
   patConnectionStatusReader,
+  deviceTimeoutMs = DEVICE_STATUS_POLLING_TIMEOUT_MS,
   devicePollingIntervalMs = DEVICE_STATUS_POLLING_INTERVAL_MS,
   authPollingIntervalMs = AUTH_STATUS_POLLING_INTERVAL_MS,
+  notificationDurationMs = SUCCESS_NOTIFICATION_DURATION_MS,
 }: {
   workspace: Workspace;
   auth: InsertedSmartCardAuthApi;
   logger: BaseLogger;
   driver: PaperHandlerDriverInterface;
   patConnectionStatusReader: PatConnectionStatusReader;
+  deviceTimeoutMs?: number;
   devicePollingIntervalMs: number;
   authPollingIntervalMs: number;
+  notificationDurationMs: number;
 }): Promise<Optional<PaperHandlerStateMachine>> {
   const initialContext: Context = {
     auth,
@@ -845,18 +881,22 @@ export async function getPaperHandlerStateMachine({
     driver,
     isPatDeviceConnected: false,
     patConnectionStatusReader,
+    deviceTimeoutMs,
     devicePollingIntervalMs,
     authPollingIntervalMs,
+    notificationDurationMs,
+    logger,
   };
 
-  const machine = buildMachine(initialContext, auth, logger);
+  const machine = buildMachine(initialContext, auth);
   const machineService = interpret(machine).start();
   setUpLogging(machineService, logger);
   await setDefaults(driver);
 
   return {
-    stopMachineService(): void {
+    async cleanUp(): Promise<void> {
       machineService.stop();
+      await driver.disconnect();
     },
 
     getRawDeviceStatus(): Promise<PaperHandlerStatus> {
@@ -904,10 +944,12 @@ export async function getPaperHandlerStateMachine({
         case state.matches('voting_flow.ballot_accepted'):
           return 'ballot_accepted';
         case state.matches('voting_flow.resetting_state_machine_after_success'):
+          /* istanbul ignore next - nonblocking state can't be reliably asserted on. Assert on business logic eg. jest mock function calls instead */
           return 'resetting_state_machine_after_success';
         case state.matches('voting_flow.empty_ballot_box'):
           return 'empty_ballot_box';
         case state.matches('voting_flow.transition_interpretation'):
+          /* istanbul ignore next - nonblocking state can't be reliably asserted on. Assert on business logic eg. jest mock function calls instead */
           return 'interpreting';
         case state.matches('voting_flow.blank_page_interpretation'):
           // blank_page_interpretation has multiple child states but all are handled the same by the frontend
@@ -916,6 +958,7 @@ export async function getPaperHandlerStateMachine({
           return 'paper_reloaded';
         case state.matches('pat_device_connected'):
           return 'pat_device_connected';
+        /* istanbul ignore next - this branch is not exercisable when the switch is exhaustive */
         default:
           debug('Unhandled state: %O', state.value);
           return 'no_hardware';

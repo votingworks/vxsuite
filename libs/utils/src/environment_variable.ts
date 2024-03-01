@@ -45,7 +45,7 @@ export enum BooleanEnvironmentVariableName {
   // box is attached
   DISABLE_BALLOT_BOX_CHECK = 'REACT_APP_VX_DISABLE_BALLOT_BOX_CHECK',
   // Allows VxMarkScan to run without a connection to the Custom paper handler
-  SKIP_PAPER_HANDLER_HARDWARE_CHECK = 'REACT_APP_VX_SKIP_PAPER_HANDLER_HARDWARE_CHECK',
+  USE_MOCK_PAPER_HANDLER = 'REACT_APP_VX_USE_MOCK_PAPER_HANDLER',
   // Enables cloud translation and speech synthesis when exporting election packages from VxDesign
   ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS = 'REACT_APP_VX_ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS',
 }
@@ -110,8 +110,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_CONVERTER;
     case BooleanEnvironmentVariableName.DISABLE_BALLOT_BOX_CHECK:
       return process.env.REACT_APP_VX_DISABLE_BALLOT_BOX_CHECK;
-    case BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK:
-      return process.env.REACT_APP_VX_SKIP_PAPER_HANDLER_HARDWARE_CHECK;
+    case BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER:
+      return process.env.REACT_APP_VX_USE_MOCK_PAPER_HANDLER;
     case BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS:
       return process.env
         .REACT_APP_VX_ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS;
@@ -221,7 +221,7 @@ export function getBooleanEnvVarConfig(
         allowInProduction: false,
         autoEnableInDevelopment: true,
       };
-    case BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK:
+    case BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER:
       return {
         name,
         allowInProduction: false,

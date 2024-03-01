@@ -17,15 +17,13 @@ module.exports = {
     '!src/index.ts',
     '!src/types.ts',
     '!test/**/*',
-    // Coverage temporarily disabled until app behavior is more defined
-    '!src/**/*',
+    '!src/custom-paper-handler/cli/state_machine_cli.ts',
+    '!src/util/auth.ts'
   ],
   coverageThreshold: {
     global: {
-      statements: 100,
-      branches: 100,
-      functions: 100,
-      lines: 100,
+      branches: -15,
+      lines: -19,
     },
   },
 };

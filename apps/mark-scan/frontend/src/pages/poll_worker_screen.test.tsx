@@ -200,7 +200,7 @@ test('returns null if status is unhandled', () => {
 
 test('renders a warning screen when hardware check is off', async () => {
   mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_PAPER_HANDLER_HARDWARE_CHECK
+    BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
   );
 
   const electionDefinition = electionGeneralDefinition;

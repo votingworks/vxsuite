@@ -25,11 +25,7 @@ import {
   SystemSettings,
   TEST_JURISDICTION,
 } from '@votingworks/types';
-import {
-  defaultPaperHandlerStatus,
-  MinimalWebUsbDevice,
-  PaperHandlerDriver,
-} from '@votingworks/custom-paper-handler';
+import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { assert } from '@votingworks/basics';
 import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
 import { Api, buildApp } from '../src/app';
@@ -39,13 +35,13 @@ import {
   PaperHandlerStateMachine,
 } from '../src/custom-paper-handler';
 import {
-  DEV_AUTH_STATUS_POLLING_INTERVAL_MS,
-  DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
+  AUTH_STATUS_POLLING_INTERVAL_MS,
+  DEVICE_STATUS_POLLING_INTERVAL_MS,
+  SUCCESS_NOTIFICATION_DURATION_MS,
 } from '../src/custom-paper-handler/constants';
-import { MockPatConnectionStatusReader } from '../src/pat-input/mock_connection_status_reader';
+import { PatConnectionStatusReaderInterface } from '../src/pat-input/connection_status_reader';
 import { getUserRole } from '../src/util/auth';
-
-jest.mock('@votingworks/custom-paper-handler');
+import { MockPatConnectionStatusReader } from '../src/pat-input/mock_connection_status_reader';
 
 export function buildMockLogger(
   auth: InsertedSmartCardAuthApi,
@@ -58,33 +54,24 @@ export function buildMockLogger(
 
 export async function getMockStateMachine(
   workspace: Workspace,
-  logger: BaseLogger
+  patConnectionStatusReader: PatConnectionStatusReaderInterface,
+  driver: MockPaperHandlerDriver,
+  logger: BaseLogger,
+  pollingIntervalMs?: number
 ): Promise<PaperHandlerStateMachine> {
   // State machine setup
-  const webDevice: MinimalWebUsbDevice = {
-    open: jest.fn(),
-    close: jest.fn(),
-    transferOut: jest.fn(),
-    transferIn: jest.fn(),
-    claimInterface: jest.fn(),
-    selectConfiguration: jest.fn(),
-  };
-  const driver = new PaperHandlerDriver(webDevice);
   const auth = buildMockInsertedSmartCardAuth();
-  const mockPatConnectionStatusReader = new MockPatConnectionStatusReader(
-    logger
-  );
-  jest
-    .spyOn(driver, 'getPaperHandlerStatus')
-    .mockImplementation(() => Promise.resolve(defaultPaperHandlerStatus()));
   const stateMachine = await getPaperHandlerStateMachine({
     workspace,
     auth,
     logger,
     driver,
-    patConnectionStatusReader: mockPatConnectionStatusReader,
-    devicePollingIntervalMs: DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
-    authPollingIntervalMs: DEV_AUTH_STATUS_POLLING_INTERVAL_MS,
+    patConnectionStatusReader,
+    devicePollingIntervalMs:
+      pollingIntervalMs ?? DEVICE_STATUS_POLLING_INTERVAL_MS,
+    authPollingIntervalMs: pollingIntervalMs ?? AUTH_STATUS_POLLING_INTERVAL_MS,
+    notificationDurationMs:
+      pollingIntervalMs ?? SUCCESS_NOTIFICATION_DURATION_MS,
   });
   assert(stateMachine);
 
@@ -99,15 +86,34 @@ interface MockAppContents {
   mockUsbDrive: MockUsbDrive;
   server: Server;
   stateMachine: PaperHandlerStateMachine;
+  patConnectionStatusReader: PatConnectionStatusReaderInterface;
+  driver: MockPaperHandlerDriver;
 }
 
-export async function createApp(): Promise<MockAppContents> {
+export interface CreateAppOptions {
+  patConnectionStatusReader?: PatConnectionStatusReaderInterface;
+  pollingIntervalMs?: number;
+}
+
+export async function createApp(
+  options?: CreateAppOptions
+): Promise<MockAppContents> {
   const mockAuth = buildMockInsertedSmartCardAuth();
   const workspace = createWorkspace(tmp.dirSync().name);
   const logger = buildMockLogger(mockAuth, workspace);
   const mockUsbDrive = createMockUsbDrive();
+  const patConnectionStatusReader =
+    options?.patConnectionStatusReader ??
+    new MockPatConnectionStatusReader(logger);
+  const driver = new MockPaperHandlerDriver();
 
-  const stateMachine = await getMockStateMachine(workspace, logger);
+  const stateMachine = await getMockStateMachine(
+    workspace,
+    patConnectionStatusReader,
+    driver,
+    logger,
+    options?.pollingIntervalMs
+  );
 
   const app = buildApp(
     mockAuth,
@@ -131,6 +137,8 @@ export async function createApp(): Promise<MockAppContents> {
     mockUsbDrive,
     server,
     stateMachine,
+    patConnectionStatusReader,
+    driver,
   };
 }
 

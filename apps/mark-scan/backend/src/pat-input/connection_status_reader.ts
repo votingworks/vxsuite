@@ -7,6 +7,7 @@ import { PATH_TO_PAT_CONNECTION_STATUS_PIN } from './constants';
 export interface PatConnectionStatusReaderInterface {
   readonly logger: BaseLogger;
   open(): Promise<boolean>;
+  close(): Promise<void>;
   isPatDeviceConnected(): Promise<boolean>;
 }
 
@@ -42,6 +43,12 @@ export class PatConnectionStatusReader
 
     this.file = await fs.open(this.filePath);
     return true;
+  }
+
+  async close(): Promise<void> {
+    if (this.file) {
+      await this.file.close();
+    }
   }
 
   async isPatDeviceConnected(): Promise<boolean> {

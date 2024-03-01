@@ -107,6 +107,7 @@ export enum LogEventId {
   ScannerBatchEnded = 'scanner-batch-ended',
   ScannerEvent = 'scanner-state-machine-event',
   ScannerStateChanged = 'scanner-state-machine-transition',
+  MarkScanStateMachineEvent = 'mark-scan-state-machine-event',
   PatDeviceError = 'pat-device-error',
   PaperHandlerStateChanged = 'paper-handler-state-machine-transition',
   VoteCast = 'vote-cast',
@@ -908,6 +909,13 @@ const ScannerStateChanged: LogDetails = {
   restrictInDocumentationToApps: [LogSource.VxScanBackend],
 };
 
+const MarkScanStateMachineEvent: LogDetails = {
+  eventId: LogEventId.MarkScanStateMachineEvent,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'Event fired by the mark-scan state machine.',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanBackend],
+};
+
 const PatDeviceError: LogDetails = {
   eventId: LogEventId.PatDeviceError,
   eventType: LogEventType.SystemStatus,
@@ -1271,6 +1279,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ScannerEvent;
     case LogEventId.ScannerStateChanged:
       return ScannerStateChanged;
+    case LogEventId.MarkScanStateMachineEvent:
+      return MarkScanStateMachineEvent;
     case LogEventId.PatDeviceError:
       return PatDeviceError;
     case LogEventId.PaperHandlerStateChanged:

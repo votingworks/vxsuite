@@ -5,20 +5,16 @@ import { SheetOf } from '@votingworks/types';
 import {
   ImageConversionOptions,
   PaperHandlerDriver,
-  PaperHandlerStatus,
   VERTICAL_DOTS_IN_CHUNK,
   chunkBinaryBitmap,
   getPaperHandlerDriver,
   imageDataToBinaryBitmap,
 } from '@votingworks/custom-paper-handler';
-import { join } from 'path';
 import { pdfToImages } from '@votingworks/image-utils';
 import { tmpNameSync } from 'tmp';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
 import { PRINT_DPI, RESET_DELAY_MS, SCAN_DPI } from './constants';
+import { isPaperAnywhere } from './scanner_status';
+import { getBlankSheetFixturePath } from './filepaths';
 
 const debug = makeDebug('mark-scan:custom-paper-handler:application-driver');
 
@@ -32,88 +28,6 @@ const debug = makeDebug('mark-scan:custom-paper-handler:application-driver');
  * ./state_machine.ts
  */
 
-export function isPaperReadyToLoad(
-  paperHandlerStatus: PaperHandlerStatus
-): boolean {
-  return (
-    paperHandlerStatus.paperInputLeftInnerSensor &&
-    paperHandlerStatus.paperInputLeftOuterSensor &&
-    paperHandlerStatus.paperInputRightInnerSensor &&
-    paperHandlerStatus.paperInputRightOuterSensor
-  );
-}
-
-export function isPaperJammed(paperHandlerStatus: PaperHandlerStatus): boolean {
-  return paperHandlerStatus.paperJam;
-}
-
-export function isPaperInScanner(
-  paperHandlerStatus: PaperHandlerStatus
-): boolean {
-  return (
-    paperHandlerStatus.paperPreCisSensor ||
-    paperHandlerStatus.paperPostCisSensor ||
-    paperHandlerStatus.preHeadSensor ||
-    paperHandlerStatus.paperOutSensor ||
-    paperHandlerStatus.parkSensor ||
-    paperHandlerStatus.scanInProgress
-  );
-}
-
-export function isPaperInInput(
-  paperHandlerStatus: PaperHandlerStatus
-): boolean {
-  return (
-    paperHandlerStatus.paperInputLeftInnerSensor ||
-    paperHandlerStatus.paperInputLeftOuterSensor ||
-    paperHandlerStatus.paperInputRightInnerSensor ||
-    paperHandlerStatus.paperInputRightOuterSensor
-  );
-}
-
-export function isPaperInOutput(
-  paperHandlerStatus: PaperHandlerStatus
-): boolean {
-  // From experimentation both of these are true when paper is in rear output
-  return (
-    paperHandlerStatus.ticketPresentInOutput ||
-    paperHandlerStatus.paperOutSensor
-  );
-}
-
-export function isPaperAnywhere(
-  paperHandlerStatus: PaperHandlerStatus
-): boolean {
-  return (
-    isPaperInInput(paperHandlerStatus) ||
-    isPaperInOutput(paperHandlerStatus) ||
-    isPaperInScanner(paperHandlerStatus)
-  );
-}
-
-// Returns true if the ballot box is detached. Currently unused but kept for future
-// ballot box attached/detached state handling.
-export function isBallotBoxDetached(
-  paperHandlerStatus: PaperHandlerStatus
-): boolean {
-  if (
-    isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.DISABLE_BALLOT_BOX_CHECK
-    )
-  ) {
-    return false;
-  }
-
-  // ballotBoxAttachSensor is true when the ballot box is detached. This is confusing.
-  // A better name for this status would be "ballotBoxNeedsToBeAttachedSensor" but we keep
-  // it as-is to stay consistent with the manual.
-  return paperHandlerStatus.ballotBoxAttachSensor;
-}
-
-export async function logRawStatus(driver: PaperHandlerDriver): Promise<void> {
-  debug('%O', await driver.getPaperHandlerStatus());
-}
-
 export async function setDefaults(driver: PaperHandlerDriver): Promise<void> {
   await driver.initializePrinter();
   debug('initialized printer (0x1B 0x40)');
@@ -123,19 +37,22 @@ export async function setDefaults(driver: PaperHandlerDriver): Promise<void> {
   debug('set printing speed to slow');
 }
 
-export async function printBallot(
+export async function printBallotChunks(
   driver: PaperHandlerDriver,
   pdfData: Buffer,
   options: Partial<ImageConversionOptions> = {}
 ): Promise<void> {
-  debug('+printBallot');
+  debug('+printBallotChunks');
   const enablePrintPromise = driver.enablePrint();
   const pageInfo = await iter(
     pdfToImages(pdfData, { scale: PRINT_DPI / SCAN_DPI })
   ).first();
+  // A PDF must have at least 1 page but iter doesn't know this.
+  // `pdfData` of length 0 will fail in `pdfToImages`.
+  assert(pageInfo);
   assert(
-    pageInfo?.pageCount === 1,
-    `Unexpected page count ${pageInfo?.pageCount ?? 0}`
+    pageInfo.pageCount === 1,
+    `Unexpected page count ${pageInfo.pageCount}`
   );
   const { page } = pageInfo;
 
@@ -156,13 +73,9 @@ export async function printBallot(
     }
   }
   debug(
-    '-printBallot. Completed printing %d chunks total',
+    '-printBallotChunks. Completed printing %d chunks total',
     customChunkedBitmaps.length
   );
-}
-
-function getBlankSheetFixturePath(): string {
-  return join(__dirname, 'fixtures', 'blank-sheet.jpg');
 }
 
 export async function scanAndSave(
@@ -170,8 +83,6 @@ export async function scanAndSave(
 ): Promise<SheetOf<string>> {
   debug('+scanAndSave');
   const pathOutFront = tmpNameSync({ postfix: '.jpeg' });
-  // We can only print to one side from the thermal printer, but the interpret flow expects
-  // a SheetOf 2 pages. Use an image of a blank sheet for the 2nd page.
   const status = await driver.getPaperHandlerStatus();
   // Scan can happen from loaded or parked state. If the paper is not loaded or parked
   // it means the voter may have taken the paper out of the infeed
@@ -181,38 +92,29 @@ export async function scanAndSave(
 
   await driver.scanAndSave(pathOutFront);
   debug('Scan successful');
-  return [pathOutFront, getBlankSheetFixturePath()];
-}
 
-export function getSampleBallotFilepaths(): SheetOf<string> {
-  return [
-    join(
-      __dirname,
-      'fixtures',
-      'bmd-ballot-general-north-springfield-style-5.jpg'
-    ),
-    getBlankSheetFixturePath(),
-  ];
+  // We can only print to one side from the thermal printer, but the interpret flow expects
+  // a SheetOf 2 pages. Use an image of a blank sheet for the 2nd page.
+  return [pathOutFront, getBlankSheetFixturePath()];
 }
 
 export async function loadAndParkPaper(
   driver: PaperHandlerDriver
 ): Promise<void> {
-  debug('Loading paper');
   await driver.loadPaper();
-  debug('Parking paper');
   await driver.parkPaper();
-  debug('Done loading and parking');
 }
 
 export async function resetAndReconnect(
-  oldDriver: PaperHandlerDriver
+  oldDriver: PaperHandlerDriver,
+  /* istanbul ignore next - override is provided so tests don't need to wait the full delay duration. Tests will never exercise the default value */
+  resetDelay: number = RESET_DELAY_MS
 ): Promise<PaperHandlerDriver> {
   await oldDriver.resetScan();
   // resetScan() command resolves with success as soon as the command is received, not when the command completes.
   // It actually takes ~7 seconds to complete, so we force the state machine to stay in this state until it's done.
   // TODO can we transition in the state machine using printer state instead of waiting a fixed time?
-  await sleep(RESET_DELAY_MS);
+  await sleep(resetDelay);
   await oldDriver.disconnect();
   debug('Getting new driver');
   const newDriver = await getPaperHandlerDriver();

@@ -1,6 +1,11 @@
 import { BaseLogger } from '@votingworks/logging';
 import { PatConnectionStatusReaderInterface } from './connection_status_reader';
 
+// This mock is intended for developing on PAT flows without PAT hardware.
+// It's also used to create a no-op mock for tests that just need
+// reader.isPatDeviceConnected() to return false.
+// For tests that need assertions on PatConnectionStatusReader, consider
+// using jest.mock('path/to/pat-input/connection_status_reader')
 export class MockPatConnectionStatusReader
   implements PatConnectionStatusReaderInterface
 {
@@ -14,6 +19,10 @@ export class MockPatConnectionStatusReader
 
   open(): Promise<boolean> {
     return Promise.resolve(true);
+  }
+
+  close(): Promise<void> {
+    return Promise.resolve();
   }
 
   setConnectionStatus(isConnected: boolean): void {

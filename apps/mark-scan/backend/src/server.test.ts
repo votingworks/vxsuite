@@ -1,25 +1,71 @@
-import { mockLogger } from '@votingworks/logging';
+import { LogEventId, mockLogger } from '@votingworks/logging';
 import tmp from 'tmp';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
+import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
+import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { PORT } from './globals';
-import { start } from './server';
+import { resolveDriver, start } from './server';
 import { createWorkspace } from './util/workspace';
-import { getMockStateMachine } from '../test/app_helpers';
+
+const featureFlagMock = getFeatureFlagMock();
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+      featureFlagMock.isEnabled(flag),
+  };
+});
 
 test('can start server', async () => {
   const auth = buildMockInsertedSmartCardAuth();
   const logger = mockLogger();
   const workspace = createWorkspace(tmp.dirSync().name);
-  const stateMachine = await getMockStateMachine(workspace, logger);
 
   const server = await start({
     auth,
     logger,
     port: PORT,
     workspace,
-    stateMachine,
   });
   expect(server.listening).toBeTruthy();
   server.close();
-  stateMachine.stopMachineService();
+  workspace.reset();
+});
+
+test('can start without providing auth', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_CARDS
+  );
+
+  const logger = mockLogger();
+  const workspace = createWorkspace(tmp.dirSync().name);
+
+  const server = await start({
+    logger,
+    port: PORT,
+    workspace,
+  });
+  expect(server.listening).toBeTruthy();
+  server.close();
+  workspace.reset();
+});
+
+test('resolveDriver returns a mock driver if feature flag is on', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
+  );
+  const logger = mockLogger();
+
+  const driver = await resolveDriver(logger);
+  expect(driver).toBeInstanceOf(MockPaperHandlerDriver);
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.PaperHandlerConnection,
+    'system',
+    {
+      message: 'Starting server with mock paper handler',
+    }
+  );
 });
