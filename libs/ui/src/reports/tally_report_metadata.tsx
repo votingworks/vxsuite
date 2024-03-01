@@ -1,6 +1,6 @@
 import { Election } from '@votingworks/types';
 
-import { format } from '@votingworks/utils';
+import { format, getSystemTimezone } from '@votingworks/utils';
 
 import { Text } from '../text';
 
@@ -16,7 +16,10 @@ export function TallyReportMetadata({
   const electionDate = format.localeWeekdayAndDate(
     election.date.toMidnightDatetimeWithSystemTimezone()
   );
-  const generatedAt = format.localeLongDateAndTime(generatedAtTime);
+  const generatedAt = format.localeLongDateAndTime(
+    generatedAtTime,
+    getSystemTimezone()
+  );
 
   return (
     <p>

@@ -32,7 +32,12 @@ export function percent(
   return percentFormatter.format(value);
 }
 
-export function localeLongDateAndTime(time?: number | Date): string {
+export function localeLongDateAndTime(
+  time?: number | Date,
+  // Since this function displays the timezone, allow it to be overridden to
+  // make tests deterministic.
+  timeZone?: string
+): string {
   return new Intl.DateTimeFormat(DEFAULT_LOCALE, {
     weekday: 'long',
     month: 'long',
@@ -42,6 +47,7 @@ export function localeLongDateAndTime(time?: number | Date): string {
     minute: 'numeric',
     second: 'numeric',
     timeZoneName: 'short',
+    timeZone,
   }).format(time);
 }
 

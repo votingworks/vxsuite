@@ -35,6 +35,7 @@ const featureFlagMock = getFeatureFlagMock();
 jest.mock('@votingworks/utils', () => {
   return {
     ...jest.requireActual('@votingworks/utils'),
+    getSystemTimezone: () => 'UTC',
     isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
       featureFlagMock.isEnabled(flag),
   };

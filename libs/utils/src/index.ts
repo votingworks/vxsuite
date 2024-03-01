@@ -5,6 +5,7 @@ export * from './pins';
 export * from './cast_vote_records';
 export * from './compressed_tallies';
 export * from './date';
+export * from './get_system_timezone';
 export * from './elections';
 export * from './environment_variable';
 export * from './extract_cdf_ui_strings';
