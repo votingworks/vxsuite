@@ -15,6 +15,7 @@ import {
 import { detectUsbDrive, UsbDrive } from '@votingworks/usb-drive';
 import { Printer, detectPrinter } from '@votingworks/printing';
 import { assertDefined } from '@votingworks/basics';
+import { detectDevices } from '@votingworks/backend';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildApp } from './app';
@@ -47,6 +48,7 @@ export async function start({
   printer,
 }: Partial<StartOptions>): Promise<Server> {
   debug('starting server...');
+  detectDevices({ logger: baseLogger });
   let resolvedWorkspace = workspace;
   /* c8 ignore start */
   if (!resolvedWorkspace) {

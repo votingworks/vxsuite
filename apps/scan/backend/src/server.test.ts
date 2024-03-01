@@ -2,6 +2,7 @@ import { LogEventId } from '@votingworks/logging';
 import { Application } from 'express';
 import { dirSync } from 'tmp';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
+import { testDetectDevices } from '@votingworks/backend';
 import { buildApp } from './app';
 import { PORT } from './globals';
 import { start } from './server';
@@ -64,4 +65,21 @@ test('start passes the state machine and workspace to `buildApp`', async () => {
     expect.anything(),
     expect.anything()
   );
+});
+
+test('logs device attach/unattach events', () => {
+  const precinctScannerStateMachine = createPrecinctScannerStateMachineMock();
+  const listen = jest.fn();
+  const auth = buildMockInsertedSmartCardAuth();
+  const logger = buildMockLogger(auth, workspace);
+  buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
+
+  start({
+    auth: buildMockInsertedSmartCardAuth(),
+    workspace,
+    logger,
+    precinctScannerStateMachine,
+  });
+
+  testDetectDevices(logger);
 });
