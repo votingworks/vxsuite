@@ -141,10 +141,6 @@ declare namespace KioskBrowser {
     mode?: number;
   }
 
-  export interface SpeakOptions {
-    volume: number;
-  }
-
   export interface FileFilter {
     // Docs: http://electronjs.org/docs/api/structures/file-filter
     extensions: string[];
@@ -243,10 +239,6 @@ declare namespace KioskBrowser {
      */
     readFile(path: string): Promise<Uint8Array>;
     readFile(path: string, encoding: string): Promise<string>;
-
-    // speech dispatcher
-    speak(text: string, options: SpeakOptions): Promise<void>;
-    cancelSpeak(): Promise<void>;
 
     showOpenDialog(options?: OpenDialogOptions): Promise<{
       canceled: boolean;

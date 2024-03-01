@@ -75,8 +75,6 @@ export function fakeKiosk({
     readFile: jest.fn().mockResolvedValue(''),
     getFileSystemEntries: jest.fn().mockResolvedValue([]),
     makeDirectory: jest.fn(),
-    speak: jest.fn().mockResolvedValue(undefined),
-    cancelSpeak: jest.fn().mockResolvedValue(undefined),
     log: jest.fn(),
     captureScreenshot: jest.fn().mockResolvedValue(Buffer.of()),
     showOpenDialog: jest.fn(),
