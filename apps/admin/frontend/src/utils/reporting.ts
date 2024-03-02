@@ -4,8 +4,8 @@ import {
   TEST_FILE_PREFIX,
   sanitizeStringForFilename,
   isFilterEmpty as isTabulationFilterEmpty,
+  generateFileTimeSuffix,
 } from '@votingworks/utils';
-import moment from 'moment';
 
 const FAT_FILENAME_CHAR_LIMIT = 255;
 
@@ -109,8 +109,6 @@ export function canonicalizeGroupBy(
 
 const SECTION_SEPARATOR = '__';
 const WORD_SEPARATOR = '-';
-const SUBSECTION_SEPARATOR = '_';
-const TIME_FORMAT_STRING = `YYYY${WORD_SEPARATOR}MM${WORD_SEPARATOR}DD${SUBSECTION_SEPARATOR}HH${WORD_SEPARATOR}mm${WORD_SEPARATOR}ss`;
 
 function generateReportFilenameFilterPrefix({
   election,
@@ -304,8 +302,8 @@ export function generateReportFilename({
   }
 
   const description = descriptionParts.join(WORD_SEPARATOR);
-  const timestamp = moment(time).format(TIME_FORMAT_STRING);
-  const filename = `${[description, timestamp].join(
+  const timeSuffix = generateFileTimeSuffix(time);
+  const filename = `${[description, timeSuffix].join(
     SECTION_SEPARATOR
   )}.${extension}`;
 
@@ -315,13 +313,11 @@ export function generateReportFilename({
 
   // FAT32 has a 255 character limit on filenames
   const shortDescription = shortDescriptionParts.join(WORD_SEPARATOR);
-  const shortFilename = `${[shortDescription, timestamp].join(
+  const shortFilename = `${[shortDescription, timeSuffix].join(
     SECTION_SEPARATOR
   )}.${extension}`;
   return shortFilename;
 }
-
-export const REPORT_SUBFOLDER = 'reports';
 
 export function generateTallyReportPdfFilename({
   election,
@@ -452,7 +448,7 @@ export function generateCdfElectionResultsReportFilename({
 
   descriptionParts.push('cdf-election-results-report');
   const description = descriptionParts.join(WORD_SEPARATOR);
-  const timestamp = moment(time).format(TIME_FORMAT_STRING);
+  const timeSuffix = generateFileTimeSuffix(time);
 
-  return `${description}${SECTION_SEPARATOR}${timestamp}.json`;
+  return `${description}${SECTION_SEPARATOR}${timeSuffix}.json`;
 }

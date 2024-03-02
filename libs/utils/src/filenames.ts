@@ -10,6 +10,7 @@ const TIME_FORMAT_STRING = `YYYY${WORD_SEPARATOR}MM${WORD_SEPARATOR}DD${SUBSECTI
 export const ELECTION_PACKAGE_FOLDER = 'election-packages';
 export const SCANNER_RESULTS_FOLDER = 'cast-vote-records';
 export const SCANNER_BACKUPS_FOLDER = 'scanner-backups';
+export const REPORT_FOLDER = 'reports';
 export const TEST_FILE_PREFIX = 'TEST';
 
 /**
@@ -59,37 +60,16 @@ export function generateElectionBasedSubfolderName(
   )}`;
 }
 
-/* Get the name of an election to use in a filename from the Election object */
-function generateElectionName(election: Election): string {
-  const electionCountyName = sanitizeStringForFilename(election.county.name, {
-    replaceInvalidCharsWith: WORD_SEPARATOR,
-    defaultValue: 'county',
-  });
-  const electionTitle = sanitizeStringForFilename(election.title, {
-    replaceInvalidCharsWith: WORD_SEPARATOR,
-    defaultValue: 'election',
-  });
-  return `${electionCountyName}${SUBSECTION_SEPARATOR}${electionTitle}`;
+export function generateFileTimeSuffix(time: Date = new Date()): string {
+  return moment(time).format(TIME_FORMAT_STRING);
 }
 
 /* Generate the name for an election package */
 export function generateFilenameForElectionPackage(
   time: Date = new Date()
 ): string {
-  const timeInformation = moment(time).format(TIME_FORMAT_STRING);
-  return `election-package${SECTION_SEPARATOR}${timeInformation}.zip`;
-}
-
-/* Generate the filename for final sems results export from election manager */
-export function generateSemsFinalExportDefaultFilename(
-  isTestModeResults: boolean,
-  election: Election,
-  time: Date = new Date()
-): string {
-  const filemode = isTestModeResults ? 'test' : 'live';
-  const timeInformation = moment(time).format(TIME_FORMAT_STRING);
-  const electionName = generateElectionName(election);
-  return `votingworks${WORD_SEPARATOR}sems${WORD_SEPARATOR}${filemode}${WORD_SEPARATOR}results${SUBSECTION_SEPARATOR}${electionName}${SUBSECTION_SEPARATOR}${timeInformation}.txt`;
+  const timeSuffix = generateFileTimeSuffix(time);
+  return `election-package${SECTION_SEPARATOR}${timeSuffix}.zip`;
 }
 
 /* Describes different formats of the log file. */
@@ -109,12 +89,12 @@ export function generateLogFilename(
   fileType: LogFileType,
   time: Date = new Date()
 ): string {
-  const timeInformation = moment(time).format(TIME_FORMAT_STRING);
+  const timeSuffix = generateFileTimeSuffix(time);
   switch (fileType) {
     case LogFileType.Raw:
-      return `${logFileName}${SUBSECTION_SEPARATOR}${timeInformation}.log`;
+      return `${logFileName}${SUBSECTION_SEPARATOR}${timeSuffix}.log`;
     case LogFileType.Cdf:
-      return `${logFileName}${WORD_SEPARATOR}cdf${SUBSECTION_SEPARATOR}${timeInformation}.json`;
+      return `${logFileName}${WORD_SEPARATOR}cdf${SUBSECTION_SEPARATOR}${timeSuffix}.json`;
     /* c8 ignore next 2 */
     default:
       throwIllegalValue(fileType);
@@ -135,8 +115,8 @@ export function generateCastVoteRecordExportDirectoryName({
     'machine',
     maybeParse(MachineId, machineId) ?? sanitizeStringForFilename(machineId),
   ].join(SUBSECTION_SEPARATOR);
-  const timeString = moment(time).format(TIME_FORMAT_STRING);
-  const directoryNameComponents = [machineString, timeString];
+  const timeSuffix = generateFileTimeSuffix(time);
+  const directoryNameComponents = [machineString, timeSuffix];
   if (inTestMode) {
     directoryNameComponents.unshift(TEST_FILE_PREFIX);
   }
