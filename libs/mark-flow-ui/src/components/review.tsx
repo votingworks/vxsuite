@@ -205,9 +205,14 @@ export function Review({
           id={`contest-${contest.id}`}
           data-testid={`contest-${contest.id}`}
           key={contest.id}
-          onKeyDown={(event) =>
-            event.key === 'Enter' && onChangeClick(contest.id)
-          }
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              // Default behavior for Space key is to scroll and should be prevented.
+              // See code example at https://www.w3.org/WAI/ARIA/apg/patterns/button/examples/button/
+              event.preventDefault();
+              onChangeClick(contest.id);
+            }
+          }}
           onClick={() => onChangeClick(contest.id)}
         >
           <Card
