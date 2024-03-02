@@ -203,7 +203,7 @@ export function Review({
           tabIndex={0}
           role="button"
           id={`contest-${contest.id}`}
-          data-testid={`contest-${contest.id}`}
+          data-testid={`contest-wrapper-${contest.id}`}
           key={contest.id}
           onKeyDown={(event) => {
             if (event.key === 'Enter' || event.key === ' ') {

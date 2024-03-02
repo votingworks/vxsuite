@@ -197,25 +197,32 @@ describe('ms-either-neither contest', () => {
   });
 });
 
-test('keyboard navigation', async () => {
-  const contest = electionGeneral.contests.find(
-    (c): c is CandidateContest => c.type === 'candidate'
-  );
-  assert(contest);
-  const contests = [contest];
-  const returnToContestStub = jest.fn();
-  render(
-    <Review
-      election={electionGeneral}
-      contests={contests}
-      precinctId={electionGeneral.precincts[0].id}
-      votes={{}}
-      returnToContest={returnToContestStub}
-    />
-  );
+describe('keyboard navigation', () => {
+  test.each([['[Enter]'], ['[Space]']] as const)(
+    '%s key activates contest review button',
+    async (key) => {
+      const contest = electionGeneral.contests.find(
+        (c): c is CandidateContest => c.type === 'candidate'
+      );
+      assert(contest);
+      const contests = [contest];
+      const returnToContestStub = jest.fn();
+      render(
+        <Review
+          election={electionGeneral}
+          contests={contests}
+          precinctId={electionGeneral.precincts[0].id}
+          votes={{}}
+          returnToContest={returnToContestStub}
+        />
+      );
 
-  userEvent.tab();
-  expect(await screen.findByTestId(`contest-${contests[0].id}`)).toHaveFocus();
-  userEvent.keyboard('[Enter]');
-  expect(returnToContestStub).toHaveBeenCalledTimes(1);
+      userEvent.tab();
+      expect(
+        await screen.findByTestId(`contest-wrapper-${contests[0].id}`)
+      ).toHaveFocus();
+      userEvent.keyboard(key);
+      expect(returnToContestStub).toHaveBeenCalledTimes(1);
+    }
+  );
 });
