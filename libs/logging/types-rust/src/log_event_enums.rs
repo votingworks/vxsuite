@@ -241,6 +241,8 @@ pub enum EventId {
     DiagnosticComplete,
     #[serde(rename = "readiness-report-printed")]
     ReadinessReportPrinted,
+    #[serde(rename = "readiness-report-saved")]
+    ReadinessReportSaved,
     #[serde(rename = "unknown-error")]
     UnknownError,
 }

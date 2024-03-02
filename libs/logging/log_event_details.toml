@@ -697,6 +697,11 @@ eventId = "readiness-report-printed"
 eventType = "user-action"
 documentationMessage = "The user has printed an equipment readiness report."
 
+[ReadinessReportSaved]
+eventId = "readiness-report-saved"
+eventType = "user-action"
+documentationMessage = "The user has saved an equipment readiness report."
+
 [UnknownError]
 eventId = "unknown-error"
 eventType = "application-status"
