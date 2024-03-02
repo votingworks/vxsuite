@@ -7,17 +7,19 @@ import { PrintedReport } from '../reports/layout';
 import { makeTheme } from '../themes/make_theme';
 import { ReadinessReportHeader } from './report_header';
 
+interface ReportContentsProps {
+  batteryInfo?: BatteryInfo;
+  diskSpaceSummary: DiskSpaceSummary;
+  printerStatus: PrinterStatus;
+  mostRecentPrinterDiagnostic?: DiagnosticsRecord;
+}
+
 export function AdminReadinessReportContents({
   batteryInfo,
   diskSpaceSummary,
   printerStatus,
   mostRecentPrinterDiagnostic,
-}: {
-  batteryInfo?: BatteryInfo;
-  diskSpaceSummary: DiskSpaceSummary;
-  printerStatus: PrinterStatus;
-  mostRecentPrinterDiagnostic?: DiagnosticsRecord;
-}): JSX.Element {
+}: ReportContentsProps): JSX.Element {
   return (
     <div>
       <LaptopSection
@@ -33,20 +35,13 @@ export function AdminReadinessReportContents({
 }
 
 export function AdminReadinessReport({
-  batteryInfo,
-  diskSpaceSummary,
-  printerStatus,
-  mostRecentPrinterDiagnostic,
   generatedAtTime,
   machineId,
+  ...contentProps
 }: {
-  batteryInfo?: BatteryInfo;
-  diskSpaceSummary: DiskSpaceSummary;
-  printerStatus: PrinterStatus;
-  mostRecentPrinterDiagnostic?: DiagnosticsRecord;
   generatedAtTime: Date;
   machineId: string;
-}): JSX.Element {
+} & ReportContentsProps): JSX.Element {
   return (
     <ThemeProvider
       theme={makeTheme({
@@ -61,12 +56,7 @@ export function AdminReadinessReport({
           generatedAtTime={generatedAtTime}
           machineId={machineId}
         />
-        <AdminReadinessReportContents
-          batteryInfo={batteryInfo}
-          diskSpaceSummary={diskSpaceSummary}
-          printerStatus={printerStatus}
-          mostRecentPrinterDiagnostic={mostRecentPrinterDiagnostic}
-        />
+        <AdminReadinessReportContents {...contentProps} />
       </PrintedReport>
     </ThemeProvider>
   );
