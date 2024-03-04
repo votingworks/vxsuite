@@ -1,7 +1,0 @@
-{
-  "extends": ["plugin:vx/react"],
-  "ignorePatterns": ["public/pdf.worker.min.js"],
-  "rules": {
-    "vx/gts-jsdoc": "off"
-  }
-}

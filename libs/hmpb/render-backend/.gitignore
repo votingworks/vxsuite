@@ -1,9 +1,0 @@
-node_modules
-*~
-*.log
-coverage/
-.DS_Store
-debug-dump*.zip
-/*.png
-/*.jpeg
-/*.jpg

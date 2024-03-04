@@ -1,4 +1,0 @@
-#!/usr/bin/env node
-
-require('esbuild-runner/register');
-require('./sign_message').main();

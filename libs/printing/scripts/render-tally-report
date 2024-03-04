@@ -1,4 +1,0 @@
-#!/usr/bin/env node
-
-require('esbuild-runner/register');
-require('./render_tally_report.tsx').main(process.argv.slice(2));

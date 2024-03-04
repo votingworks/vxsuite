@@ -1,8 +1,0 @@
-#!/bin/bash
-. "$(dirname "$0")/_/husky.sh"
-
-# Run `pre-commit` script in packages changed since the last commit.
-pnpm \
-  --workspace-concurrency=1 \
-  --filter='[HEAD]' \
-  run --if-present pre-commit

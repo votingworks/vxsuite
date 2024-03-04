@@ -1,4 +1,0 @@
-#!/usr/bin/env node
-
-require('esbuild-runner/register');
-require('./program_system_administrator_java_card').main();

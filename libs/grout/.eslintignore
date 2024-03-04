@@ -1,5 +1,0 @@
-*.js
-*.d.ts
-build
-coverage
-test-utils

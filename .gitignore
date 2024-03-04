@@ -1,29 +1,4 @@
-# dependencies
-node_modules
-/.pnp
-.pnp.js
-
-# production
-build
 target
-*-*.*.*.tgz
-*.tsbuildinfo
-
-# testing
-coverage
-.eslintcache
-junit.xml
-.jestcache
-
-# misc
-.DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-.vscode
-
-*.log
-*~
-*.swp
-*.swo
+*.bmp
+/*.jpeg
+scan-*.png

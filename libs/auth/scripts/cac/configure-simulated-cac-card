@@ -1,4 +1,0 @@
-#!/usr/bin/env node
-
-require('esbuild-runner/register');
-require('./configure_simulated_cac_card').main();

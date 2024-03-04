@@ -1,9 +1,0 @@
-{
-  "extends": ["plugin:vx/recommended"],
-  "rules": {
-    // Allow for bitwise operations which is necessary for image manipulation.
-    "no-bitwise": "off",
-    // Allow for specific necessary variable names.
-    "vx/gts-identifiers": ["error", { "allowedNames": ["/.*(X|Y)Offset/"] }]
-  }
-}

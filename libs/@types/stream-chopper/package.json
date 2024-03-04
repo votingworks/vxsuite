@@ -1,8 +1,0 @@
-{
-  "name": "@types/stream-chopper",
-  "version": "0.0.1-development",
-  "types": "stream-chopper",
-  "dependencies": {
-    "@types/node": "16.18.23"
-  }
-}

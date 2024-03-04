@@ -1,9 +1,0 @@
-#!/usr/bin/env node
-
-require('esbuild-runner/register');
-require('../src/generate_fixtures')
-  .main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  });

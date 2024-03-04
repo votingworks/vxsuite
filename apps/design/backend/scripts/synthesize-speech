@@ -1,4 +1,0 @@
-#!/usr/bin/env node
-
-require('esbuild-runner/register');
-require('./synthesize_speech.ts').main(process.argv.slice(2));

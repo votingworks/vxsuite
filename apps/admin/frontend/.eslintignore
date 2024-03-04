@@ -1,9 +1,0 @@
-/build
-/config
-/coverage
-/prodserver
-/src/**/*.js
-/scripts/**/*.js
-*.d.ts
-*.config.js
-*.config.ts

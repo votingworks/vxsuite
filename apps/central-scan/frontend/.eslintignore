@@ -1,8 +1,0 @@
-/src/**/*.js
-build
-coverage
-types
-/*.config.ts
-/*.config.js
-/scripts
-/config

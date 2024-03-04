@@ -1,3 +1,0 @@
-export const BALLOT_PRINTING_TIMEOUT_SECONDS = 5;
-export const BALLOT_INSTRUCTIONS_TIMEOUT_SECONDS = 30;
-export const QUIT_KIOSK_IDLE_SECONDS = 5 * 60; // 5 minutes
