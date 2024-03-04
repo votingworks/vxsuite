@@ -18,7 +18,7 @@ use std::{
     time::{Duration, Instant},
 };
 use uinput::{
-    event::{keyboard, Keyboard, Kind},
+    event::{keyboard, Keyboard},
     Device,
 };
 use vx_logging::{log, set_app_name, Disposition, EventId, EventType};
