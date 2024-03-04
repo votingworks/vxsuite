@@ -501,8 +501,8 @@ mod tests {
             0x02,
             Button::Left as u8,
             Action::Pressed as u8,
-            0xc8,
-            0x37,
+            0xd8,
+            0x09,
         ];
         assert_eq!(
             handle_command(&data).unwrap().unwrap(),
