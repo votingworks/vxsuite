@@ -18,7 +18,7 @@ use std::{
     time::{Duration, Instant},
 };
 use uinput::{
-    event::{keyboard, Keyboard},
+    event::{keyboard, Keyboard, Kind},
     Device,
 };
 use vx_logging::{log, set_app_name, Disposition, EventId, EventType};
@@ -214,16 +214,23 @@ enum Action {
     Pressed = 0x01,
 }
 
-fn send_key(device: &mut Device, key: keyboard::Key) -> Result<(), CommandError> {
+fn send_key(device: &mut Device, key: keyboard::Key, send_shift: bool) -> Result<(), CommandError> {
+    if send_shift {
+        device.press(&keyboard::Key::LeftShift)?;
+    }
     device.click(&key)?;
+    if send_shift {
+        device.release(&keyboard::Key::LeftShift)?;
+    }
     device.synchronize()?;
     Ok(())
 }
 
-fn handle_command(data: &[u8]) -> Result<Option<keyboard::Key>, CommandError> {
+fn handle_command(data: &[u8]) -> Result<Option<(keyboard::Key, bool)>, CommandError> {
     let ButtonStatusCommand { button, action } = data.try_into()?;
 
     let key: keyboard::Key;
+    let mut send_shift: bool = false;
     match action {
         Action::Pressed => match button {
             Button::Select => {
@@ -241,7 +248,10 @@ fn handle_command(data: &[u8]) -> Result<Option<keyboard::Key>, CommandError> {
             Button::Down => {
                 key = keyboard::Key::Down;
             }
-            Button::Help => key = keyboard::Key::R,
+            Button::Help => {
+                send_shift = true;
+                key = keyboard::Key::R;
+            }
             Button::RateDown => {
                 key = keyboard::Key::Comma;
             }
@@ -255,6 +265,7 @@ fn handle_command(data: &[u8]) -> Result<Option<keyboard::Key>, CommandError> {
                 key = keyboard::Key::Equal;
             }
             Button::Pause => {
+                send_shift = true;
                 key = keyboard::Key::P;
             }
         },
@@ -263,7 +274,7 @@ fn handle_command(data: &[u8]) -> Result<Option<keyboard::Key>, CommandError> {
             return Ok(None);
         }
     }
-    Ok(Some(key))
+    Ok(Some((key, send_shift)))
 }
 
 fn validate_connection(port: &mut Box<dyn SerialPort>) -> Result<(), io::Error> {
@@ -402,8 +413,8 @@ fn main() {
                 }
                 match port.read(serial_buf.as_mut_slice()) {
                     Ok(size) => match handle_command(&serial_buf[..size]) {
-                        Ok(Some(key)) => {
-                            if let Err(err) = send_key(&mut device, key) {
+                        Ok(Some((key, send_shift))) => {
+                            if let Err(err) = send_key(&mut device, key, send_shift) {
                                 log!(EventId::UnknownError, "Error sending key: {err}");
                             }
                         }
@@ -466,7 +477,7 @@ mod tests {
     }
 
     #[test]
-    fn test_handle_command_success() {
+    fn test_handle_command_success_with_shift() {
         let data = [
             0x30,
             0x00,
@@ -476,6 +487,26 @@ mod tests {
             0xc8,
             0x37,
         ];
-        assert_eq!(handle_command(&data).unwrap().unwrap(), keyboard::Key::R);
+        assert_eq!(
+            handle_command(&data).unwrap().unwrap(),
+            (keyboard::Key::R, true)
+        );
+    }
+
+    #[test]
+    fn test_handle_command_success_no_shift() {
+        let data = [
+            0x30,
+            0x00,
+            0x02,
+            Button::Left as u8,
+            Action::Pressed as u8,
+            0xc8,
+            0x37,
+        ];
+        assert_eq!(
+            handle_command(&data).unwrap().unwrap(),
+            (keyboard::Key::Left, false)
+        );
     }
 }
