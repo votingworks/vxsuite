@@ -2,6 +2,7 @@ import { screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { createApiMock, ApiMock } from '../../test/api';
 import { HardwareDiagnosticsScreen } from './hardware_diagnostics_screen';
+import { mockStatus } from '../../test/fixtures';
 
 let apiMock: ApiMock;
 
@@ -23,10 +24,11 @@ test('hardware diagnostics screen', async () => {
     available: 500_000_000,
     used: 500_000_000,
   });
-  renderInAppContext(<HardwareDiagnosticsScreen />, {
+  renderInAppContext(<HardwareDiagnosticsScreen scanStatus={mockStatus()} />, {
     apiMock,
   });
 
   await screen.findByText('Battery Level: 50%');
   screen.getByText('Free Disk Space: 50% (500 GB / 1000 GB)');
+  screen.getByText('Connected');
 });

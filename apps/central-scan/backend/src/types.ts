@@ -8,6 +8,7 @@ export interface MachineConfig {
 export type ScanState = 'idle' | 'scanning' | 'adjudication';
 
 export interface ScanStatus {
+  isScannerAttached: boolean;
   ongoingBatchId?: BatchInfo['id'];
   adjudicationsRemaining: number;
   batches: BatchInfo[];

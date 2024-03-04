@@ -1,8 +1,15 @@
 import { CentralScanReadinessReportContents } from '@votingworks/ui';
+import type { ScanStatus } from '@votingworks/central-scan-backend';
 import { NavigationScreen } from '../navigation_screen';
 import { getApplicationDiskSpaceSummary, systemCallApi } from '../api';
 
-export function HardwareDiagnosticsScreen(): JSX.Element {
+export interface HardwareDiagnosticsScreenProps {
+  scanStatus: ScanStatus;
+}
+
+export function HardwareDiagnosticsScreen({
+  scanStatus,
+}: HardwareDiagnosticsScreenProps): JSX.Element {
   const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
   const diskSpaceQuery = getApplicationDiskSpaceSummary.useQuery();
 
@@ -20,6 +27,7 @@ export function HardwareDiagnosticsScreen(): JSX.Element {
       <CentralScanReadinessReportContents
         batteryInfo={batteryInfo ?? undefined}
         diskSpaceSummary={diskSpaceSummary}
+        isScannerAttached={scanStatus.isScannerAttached}
       />
     </NavigationScreen>
   );

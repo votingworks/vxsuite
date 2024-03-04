@@ -1,9 +1,25 @@
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { BallotPaperSize } from '@votingworks/types';
 import { ChildProcess } from 'child_process';
-import { FujitsuScanner, ScannerMode } from './fujitsu_scanner';
+import { mockOf } from '@votingworks/test-utils';
+import { Device, isDeviceAttached } from '@votingworks/backend';
+import {
+  FUJITSU_VENDOR_ID,
+  FujitsuScanner,
+  ScannerMode,
+} from './fujitsu_scanner';
 import { makeMockChildProcess } from '../test/util/mocks';
 import { streamExecFile } from './exec';
+
+jest.mock(
+  '@votingworks/backend',
+  (): typeof import('@votingworks/backend') => ({
+    ...jest.requireActual('@votingworks/backend'),
+    isDeviceAttached: jest.fn(),
+  })
+);
+
+const isDeviceAttachedMock = mockOf(isDeviceAttached);
 
 jest.mock('./exec');
 
@@ -260,4 +276,34 @@ test('fujitsu scanner fails if scanSheet fails', async () => {
 
   scanimage.emit('exit', 1, null);
   await expect(sheets.scanSheet()).rejects.toThrowError();
+});
+
+test('attached based on detected USB devices', () => {
+  const scanner = new FujitsuScanner({
+    logger: new BaseLogger(LogSource.VxScanService),
+  });
+
+  isDeviceAttachedMock.mockReturnValue(true);
+  expect(scanner.isAttached()).toEqual(true);
+
+  isDeviceAttachedMock.mockReturnValue(false);
+  expect(scanner.isAttached()).toEqual(false);
+
+  const isDeviceFn = isDeviceAttachedMock.mock.calls[0][0];
+
+  expect(
+    isDeviceFn({
+      deviceDescriptor: {
+        idVendor: FUJITSU_VENDOR_ID,
+      },
+    } as unknown as Device)
+  ).toEqual(true);
+
+  expect(
+    isDeviceFn({
+      deviceDescriptor: {
+        idVendor: 0x0000,
+      },
+    } as unknown as Device)
+  ).toEqual(false);
 });

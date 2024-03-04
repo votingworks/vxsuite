@@ -1,4 +1,3 @@
-import { getHardware } from '@votingworks/utils';
 import { BrowserRouter } from 'react-router-dom';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import {
@@ -19,14 +18,12 @@ import {
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
 
 export interface Props {
-  hardware?: AppRootProps['hardware'];
   logger?: AppRootProps['logger'];
   apiClient?: ApiClient;
   queryClient?: QueryClient;
 }
 
 export function App({
-  hardware = getHardware(),
   logger = new BaseLogger(LogSource.VxCentralScanFrontend, window.kiosk),
   apiClient = createApiClient(),
   queryClient = createQueryClient(),
@@ -45,7 +42,7 @@ export function App({
           <ApiClientContext.Provider value={apiClient}>
             <QueryClientProvider client={queryClient}>
               <SystemCallContextProvider api={systemCallApi}>
-                <AppRoot hardware={hardware} logger={logger} />
+                <AppRoot logger={logger} />
                 <SessionTimeLimitTracker />
                 <BatteryLowAlert />
               </SystemCallContextProvider>

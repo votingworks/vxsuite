@@ -14,6 +14,7 @@ import {
 } from '@votingworks/utils';
 import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
 import { assertDefined } from '@votingworks/basics';
+import { detectDevices } from '@votingworks/backend';
 import { PORT, SCAN_WORKSPACE } from './globals';
 import { Importer } from './importer';
 import { FujitsuScanner, BatchScanner, ScannerMode } from './fujitsu_scanner';
@@ -43,6 +44,7 @@ export async function start({
   logger: baseLogger = new BaseLogger(LogSource.VxCentralScanService),
   workspace,
 }: Partial<StartOptions> = {}): Promise<Server> {
+  detectDevices({ logger: baseLogger });
   let resolvedWorkspace = workspace;
   /* c8 ignore start */
   if (!resolvedWorkspace) {

@@ -6,6 +6,7 @@ import { dirSync } from 'tmp';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { createMockPrinterHandler } from '@votingworks/printing';
+import { testDetectDevices } from '@votingworks/backend';
 import { start } from './server';
 import { createWorkspace } from './util/workspace';
 import { PORT } from './globals';
@@ -93,4 +94,25 @@ test('errors on start with no workspace', async () => {
       }
     );
   }
+});
+
+test('logs device attach/un-attach events', async () => {
+  const auth = buildMockDippedSmartCardAuth();
+  const workspace = createWorkspace(dirSync().name);
+  const logger = buildMockLogger(auth, workspace);
+  const { usbDrive } = createMockUsbDrive();
+  const { printer } = createMockPrinterHandler();
+  const app = buildApp({ auth, workspace, logger, usbDrive, printer });
+
+  // don't actually listen
+  jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
+    onListening?.();
+    return undefined as unknown as Server;
+  });
+  jest.spyOn(console, 'log').mockImplementation();
+
+  // start up the server
+  await start({ app, workspace, port: 3005, logger });
+
+  testDetectDevices(logger);
 });

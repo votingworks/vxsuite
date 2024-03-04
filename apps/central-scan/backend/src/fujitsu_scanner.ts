@@ -8,10 +8,15 @@ import {
   ballotPaperDimensions,
 } from '@votingworks/types';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
+import { isDeviceAttached } from '@votingworks/backend';
 import { streamExecFile } from './exec';
 import { StreamLines } from './util/stream_lines';
 
 const debug = makeDebug('scan:scanner');
+
+export const FUJITSU_VENDOR_ID = 0x4c5;
+export const FUJITSU_FI_7160_PRODUCT_ID = 0x132e;
+export const FUJITSU_FI_8170_PRODUCT_ID = 0x15ff;
 
 export interface BatchControl {
   scanSheet(): Promise<SheetOf<string> | undefined>;
@@ -24,6 +29,7 @@ export interface ScanOptions {
 }
 
 export interface BatchScanner {
+  isAttached(): boolean;
   scanSheets(options?: ScanOptions): BatchControl;
 }
 
@@ -68,6 +74,12 @@ export class FujitsuScanner implements BatchScanner {
     this.format = format;
     this.mode = mode;
     this.logger = logger;
+  }
+
+  isAttached(): boolean {
+    return isDeviceAttached(
+      (device) => device.deviceDescriptor.idVendor === FUJITSU_VENDOR_ID
+    );
   }
 
   scanSheets({

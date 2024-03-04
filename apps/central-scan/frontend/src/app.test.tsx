@@ -7,7 +7,6 @@ import {
   hasTextAcrossElements,
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
-import { MemoryHardware } from '@votingworks/utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
@@ -17,6 +16,7 @@ import { mockUsbDriveStatus } from '@votingworks/ui';
 import { render, waitFor, within, screen } from '../test/react_testing_library';
 import { App } from './app';
 import { ApiMock, createApiMock } from '../test/api';
+import { mockBatch, mockStatus } from '../test/fixtures';
 
 let apiMock: ApiMock;
 
@@ -96,8 +96,7 @@ test('renders without crashing', async () => {
   apiMock.expectGetTestMode(true);
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
 
-  const hardware = MemoryHardware.buildStandard();
-  render(<App apiClient={apiMock.apiClient} hardware={hardware} />);
+  render(<App apiClient={apiMock.apiClient} />);
   await waitFor(() => fetchMock.called());
 });
 
@@ -105,8 +104,7 @@ test('shows a "test ballot mode" button if the app is in Official Ballot Mode', 
   apiMock.expectGetTestMode(false);
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
 
-  const hardware = MemoryHardware.buildStandard();
-  render(<App apiClient={apiMock.apiClient} hardware={hardware} />);
+  render(<App apiClient={apiMock.apiClient} />);
   await authenticateAsElectionManager(electionGeneralDefinition);
 
   userEvent.click(screen.getButton('Settings'));
@@ -122,8 +120,7 @@ test('shows an "official ballot mode" button if the app is in Test Mode', async 
   apiMock.expectGetTestMode(true);
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
 
-  const hardware = MemoryHardware.buildStandard();
-  render(<App apiClient={apiMock.apiClient} hardware={hardware} />);
+  render(<App apiClient={apiMock.apiClient} />);
   await authenticateAsElectionManager(electionGeneralDefinition);
 
   screen.getByText('Test Ballot Mode');
@@ -141,9 +138,7 @@ test('clicking Scan Batch will scan a batch', async () => {
   apiMock.expectGetTestMode(true);
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
 
-  const hardware = MemoryHardware.buildStandard();
-
-  render(<App apiClient={apiMock.apiClient} hardware={hardware} />);
+  render(<App apiClient={apiMock.apiClient} />);
   await authenticateAsElectionManager(electionGeneralDefinition);
 
   apiMock.expectScanBatch();
@@ -154,25 +149,13 @@ test('clicking Scan Batch will scan a batch', async () => {
 test('clicking "Save CVRs" shows modal and makes a request to export', async () => {
   apiMock.expectGetTestMode(true);
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
-  apiMock.setStatus({
-    ongoingBatchId: undefined,
-    adjudicationsRemaining: 0,
-    canUnconfigure: false,
-    batches: [
-      {
-        id: 'test-batch',
-        batchNumber: 1,
-        label: 'Batch 1',
-        count: 2,
-        startedAt: '2021-05-13T13:19:42.353Z',
-        endedAt: '2021-05-13T13:19:42.353Z',
-      },
-    ],
-  });
+  apiMock.setStatus(
+    mockStatus({
+      batches: [mockBatch()],
+    })
+  );
 
-  const hardware = MemoryHardware.buildStandard();
-
-  render(<App apiClient={apiMock.apiClient} hardware={hardware} />);
+  render(<App apiClient={apiMock.apiClient} />);
   await authenticateAsElectionManager(electionGeneralDefinition);
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
 
@@ -193,8 +176,7 @@ test('configuring election from usb election package works end to end', async ()
   apiMock.expectGetTestMode(true);
   apiMock.expectGetElectionDefinition(null);
 
-  const hardware = MemoryHardware.buildStandard();
-  render(<App apiClient={apiMock.apiClient} hardware={hardware} />);
+  render(<App apiClient={apiMock.apiClient} />);
   await authenticateAsElectionManager(
     electionGeneralDefinition,
     'Insert an Election Manager card to configure VxCentralScan',
@@ -233,13 +215,10 @@ test('configuring election from usb election package works end to end', async ()
 });
 
 test('authentication works', async () => {
-  const hardware = MemoryHardware.buildStandard();
-  hardware.setBatchScannerConnected(false);
-
   apiMock.expectGetTestMode(true);
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
 
-  render(<App apiClient={apiMock.apiClient} hardware={hardware} />);
+  render(<App apiClient={apiMock.apiClient} />);
 
   await screen.findByText('VxCentralScan is Locked');
 
@@ -335,8 +314,7 @@ test('system administrator can log in and unconfigure machine', async () => {
   apiMock.expectGetTestMode(true);
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
 
-  const hardware = MemoryHardware.buildStandard();
-  render(<App apiClient={apiMock.apiClient} hardware={hardware} />);
+  render(<App apiClient={apiMock.apiClient} />);
 
   await authenticateAsSystemAdministrator();
 
@@ -359,8 +337,7 @@ test('election manager cannot auth onto machine with different election hash', a
   apiMock.expectGetTestMode(true);
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
 
-  const hardware = MemoryHardware.buildStandard();
-  render(<App apiClient={apiMock.apiClient} hardware={hardware} />);
+  render(<App apiClient={apiMock.apiClient} />);
 
   await screen.findByText('VxCentralScan is Locked');
   apiMock.setAuthStatus({
@@ -378,9 +355,8 @@ test('error boundary', async () => {
   apiMock.expectGetTestMode(true);
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
 
-  const hardware = MemoryHardware.buildStandard();
   await suppressingConsoleOutput(async () => {
-    render(<App apiClient={apiMock.apiClient} hardware={hardware} />);
+    render(<App apiClient={apiMock.apiClient} />);
 
     await authenticateAsElectionManager(electionGeneralDefinition);
 

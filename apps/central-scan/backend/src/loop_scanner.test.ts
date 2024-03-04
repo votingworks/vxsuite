@@ -72,3 +72,7 @@ test('ignores comments', () => {
     [['01.png', '02.png']],
   ]);
 });
+
+test('always attached', () => {
+  expect(new LoopScanner([]).isAttached()).toEqual(true);
+});

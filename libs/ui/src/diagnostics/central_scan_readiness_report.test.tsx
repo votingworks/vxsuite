@@ -13,6 +13,7 @@ test('CentralScanReadinessReportContents', () => {
         available: 500_000_000,
         used: 500_000_000,
       }}
+      isScannerAttached
     />
   );
 
@@ -21,4 +22,6 @@ test('CentralScanReadinessReportContents', () => {
   expect(
     screen.getByText('Free Disk Space: 50% (500 GB / 1000 GB)')
   ).toBeInTheDocument();
+  expect(screen.getByText('Scanner')).toBeInTheDocument();
+  expect(screen.getByText('Connected')).toBeInTheDocument();
 });
