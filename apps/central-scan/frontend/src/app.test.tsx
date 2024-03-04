@@ -163,11 +163,11 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
   const saveButton = screen.getButton('Save CVRs');
   await waitFor(() => expect(saveButton).toBeEnabled());
   userEvent.click(saveButton);
-  const modal = await screen.findByRole('alertdialog');
+  await screen.findByRole('alertdialog');
   apiMock.expectExportCastVoteRecords({ isMinimalExport: true });
-  userEvent.click(await within(modal).findByText('Save'));
-  await within(modal).findByText('CVRs Saved');
-  userEvent.click(within(modal).getByText('Cancel'));
+  userEvent.click(await screen.findByText('Save'));
+  await screen.findByText('CVRs Saved');
+  userEvent.click(screen.getByText('Cancel'));
 
   expect(screen.queryByRole('alertdialog')).toEqual(null);
 });
