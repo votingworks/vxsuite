@@ -19,8 +19,8 @@ test('find layout from template images', async () => {
   expect([front, back]).toEqual(
     typedAs<SheetOf<TimingMarkGrid>>([expect.any(Object), expect.any(Object)])
   );
-  expect(front.metadata.side).toEqual('front');
-  expect(back.metadata.side).toEqual('back');
+  expect(front.metadata!.side).toEqual('front');
+  expect(back.metadata!.side).toEqual('back');
   expect(front.bubbles).toBeDefined();
   expect(back.bubbles).toBeDefined();
 });

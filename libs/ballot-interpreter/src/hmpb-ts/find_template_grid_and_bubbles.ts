@@ -14,7 +14,7 @@ import {
 export type TemplateGridAndBubbles = SheetOf<{
   grid: TimingMarkGrid;
   bubbles: Array<Point<u32>>;
-  metadata: BallotPageTimingMarkMetadata;
+  metadata?: BallotPageTimingMarkMetadata;
 }>;
 
 /**
