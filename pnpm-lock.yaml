@@ -3336,6 +3336,9 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
+      '@votingworks/hmpb-layout':
+        specifier: workspace:*
+        version: link:../hmpb/layout
       '@votingworks/image-utils':
         specifier: workspace:*
         version: link:../image-utils

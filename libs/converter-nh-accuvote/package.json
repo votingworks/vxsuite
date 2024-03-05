@@ -22,6 +22,7 @@
   "dependencies": {
     "@votingworks/ballot-interpreter": "workspace:*",
     "@votingworks/basics": "workspace:*",
+    "@votingworks/hmpb-layout": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",

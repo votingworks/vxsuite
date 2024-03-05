@@ -1,0 +1,13 @@
+#!/usr/bin/env node
+
+require('esbuild-runner/register');
+
+require('../src/cli/encode_metadata')
+  .main(process.argv.slice(2))
+  .then((code) => {
+    process.exitCode = code;
+  })
+  .catch((err) => {
+    console.error(err.stack);
+    process.exit(1);
+  });
