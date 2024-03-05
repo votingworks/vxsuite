@@ -64,7 +64,7 @@ function renderScreen(
 }
 
 test('renders date and time settings modal', async () => {
-  jest.setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
+  jest.setSystemTime(new Date('2020-10-31T00:00:00.000'));
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
@@ -77,7 +77,7 @@ test('renders date and time settings modal', async () => {
   userEvent.click(await screen.findButton('Set Date and Time'));
 
   within(screen.getByTestId('modal')).getByText(
-    'Sat, Oct 31, 2020, 12:00 AM UTC'
+    'Sat, Oct 31, 2020, 12:00 AM AKDT'
   );
 
   const selectYear = screen.getByTestId('selectYear');
@@ -88,8 +88,8 @@ test('renders date and time settings modal', async () => {
   // Save Date and Timezone
   apiMock.mockApiClient.setClock
     .expectCallWith({
-      isoDatetime: '2025-10-31T00:00:00.000+00:00',
-      ianaZone: 'UTC',
+      isoDatetime: '2025-10-31T00:00:00.000-08:00',
+      ianaZone: 'America/Anchorage',
     })
     .resolves();
   apiMock.expectLogOut();

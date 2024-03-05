@@ -18,9 +18,9 @@
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "node scripts/test.js --coverage --watchAll=false --reporters=default --reporters=jest-junit --maxWorkers=6",
-    "test:coverage": "node scripts/test.js --coverage --watchAll=false",
-    "test:watch": "node scripts/test.js",
+    "test:ci": "TZ=America/Anchorage node scripts/test.js --coverage --watchAll=false --reporters=default --reporters=jest-junit --maxWorkers=6",
+    "test:coverage": "TZ=America/Anchorage node scripts/test.js --coverage --watchAll=false",
+    "test:watch": "TZ=America/Anchorage node scripts/test.js",
     "type-check": "tsc --build"
   },
   "lint-staged": {
@@ -64,7 +64,6 @@
     "fast-text-encoding": "^1.0.2",
     "http-proxy-middleware": "1.0.6",
     "js-file-download": "0.4.12",
-    "moment": "2.29.1",
     "normalize.css": "^8.0.1",
     "path": "^0.12.7",
     "pluralize": "8.0.0",

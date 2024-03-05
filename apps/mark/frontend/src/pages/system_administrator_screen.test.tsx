@@ -12,7 +12,7 @@ import { SystemAdministratorScreen } from './system_administrator_screen';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
+  jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000'));
   apiMock = createApiMock();
 });
 
@@ -52,8 +52,8 @@ test('Can set date and time', async () => {
   userEvent.click(screen.getButton('Set Date and Time'));
   apiMock.mockApiClient.setClock
     .expectCallWith({
-      isoDatetime: '2020-10-31T00:00:00.000+00:00',
-      ianaZone: 'UTC',
+      isoDatetime: '2020-10-31T00:00:00.000-08:00',
+      ianaZone: 'America/Anchorage',
     })
     .resolves();
   apiMock.expectLogOut();

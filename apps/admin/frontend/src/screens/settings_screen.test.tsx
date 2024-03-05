@@ -27,7 +27,7 @@ import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2022-06-22T00:00:00.000Z'));
+  jest.useFakeTimers().setSystemTime(new Date('2022-06-22T00:00:00.000'));
   apiMock = createApiMock();
 });
 
@@ -52,12 +52,12 @@ describe('as System Admin', () => {
     // Clock setting is tested fully in libs/ui/src/set_clock.test.tsx
     userEvent.click(screen.getByRole('button', { name: 'Set Date and Time' }));
     const modal = screen.getByRole('alertdialog');
-    within(modal).getByText('Wed, Jun 22, 2022, 12:00 AM UTC');
+    within(modal).getByText('Wed, Jun 22, 2022, 12:00 AM AKDT');
     userEvent.selectOptions(within(modal).getByTestId('selectYear'), '2023');
     apiMock.apiClient.setClock
       .expectCallWith({
-        isoDatetime: '2023-06-22T00:00:00.000+00:00',
-        ianaZone: 'UTC',
+        isoDatetime: '2023-06-22T00:00:00.000-08:00',
+        ianaZone: 'America/Anchorage',
       })
       .resolves();
     apiMock.expectLogOut();

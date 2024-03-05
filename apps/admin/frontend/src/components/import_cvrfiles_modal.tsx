@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import styled from 'styled-components';
 import { basename } from 'path';
-import moment from 'moment';
+import { DateTime } from 'luxon';
 
 import {
   Modal,
@@ -401,7 +401,7 @@ export function ImportCvrFilesModal({ onClose }: Props): JSX.Element | null {
       const canImport = !fileImported && inProperFileMode;
       const row = (
         <tr key={name} data-testid="table-row">
-          <td>{moment(exportTimestamp).format(TIME_FORMAT)}</td>
+          <td>{DateTime.fromJSDate(exportTimestamp).toFormat(TIME_FORMAT)}</td>
           <td>{scannerIds.join(', ')}</td>
           <td data-testid="cvr-count">{format.count(cvrCount)}</td>
           {!fileModeLocked && (

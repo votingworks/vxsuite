@@ -116,11 +116,11 @@ test('includes specified date', () => {
       electionDefinition={electionDefinition}
       contests={election.contests}
       scannedElectionResults={getEmptyElectionResults(election, true)}
-      generatedAtTime={new Date('2020-01-01')}
+      generatedAtTime={new Date(2020, 0, 1, 0, 0, 0)}
     />
   );
   screen.getByText(
-    'This report was created on Wednesday, January 1, 2020 at 12:00:00 AM UTC.'
+    'This report was created on Wednesday, January 1, 2020 at 12:00:00 AM AKST.'
   );
 });
 

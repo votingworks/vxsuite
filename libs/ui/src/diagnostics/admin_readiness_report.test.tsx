@@ -4,7 +4,7 @@ import { render, screen } from '../../test/react_testing_library';
 import { MOCK_MARKER_INFO, MOCK_PRINTER_CONFIG } from './printer_section.test';
 
 test('AdminReadinessReport', () => {
-  const generatedAtTime = new Date('2022-01-01T00:00:00Z');
+  const generatedAtTime = new Date('2022-01-01T00:00:00');
   const machineId = 'MOCK';
   render(
     <AdminReadinessReport
@@ -29,7 +29,7 @@ test('AdminReadinessReport', () => {
       mostRecentPrinterDiagnostic={{
         hardware: 'printer',
         outcome: 'pass',
-        timestamp: 0,
+        timestamp: generatedAtTime.getTime(),
       }}
       generatedAtTime={generatedAtTime}
       machineId={machineId}
@@ -44,7 +44,7 @@ test('AdminReadinessReport', () => {
   expect(
     screen.getByText(
       hasTextAcrossElements(
-        'Date: Saturday, January 1, 2022 at 12:00:00 AM UTC'
+        'Date: Saturday, January 1, 2022 at 12:00:00 AM AKST'
       )
     )
   ).toBeInTheDocument();
@@ -53,6 +53,6 @@ test('AdminReadinessReport', () => {
   expect(screen.getByText('Ready to print')).toBeInTheDocument();
   expect(screen.getByText('Toner Level: 100%')).toBeInTheDocument();
   expect(
-    screen.getByText('Test print successful, 1/1/1970, 12:00:00 AM')
+    screen.getByText('Test print successful, 1/1/2022, 12:00:00 AM')
   ).toBeInTheDocument();
 });

@@ -54,7 +54,7 @@ test('renders provided data', async () => {
   await waitForElementToBeRemoved(printModal);
   await hackActuallyCleanUpReactModal();
 
-  jest.setSystemTime(new Date('2021-01-01T00:00:00Z'));
+  jest.setSystemTime(new Date('2021-01-01T00:00:00'));
   apiMock.apiClient.exportWriteInAdjudicationReportPdf
     .expectCallWith({
       path: 'test-mount-point/test-ballot_general-election_f3b27f12e8/reports/unofficial-full-election-write-in-adjudication-report__2021-01-01_00-00-00.pdf',

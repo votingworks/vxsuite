@@ -90,10 +90,10 @@ test('formatShortDate', () => {
 
 test('formatTime', () => {
   expect(formatTime(DateTime.fromISO('2021-01-01'))).toEqual('12:00 AM');
-  expect(formatTime(DateTime.fromISO('2021-01-01T01:23:45Z'))).toEqual(
+  expect(formatTime(DateTime.fromISO('2021-01-01T01:23:45'))).toEqual(
     '1:23 AM'
   );
-  expect(formatTime(DateTime.fromISO('2021-01-01T14:41:00Z'))).toEqual(
+  expect(formatTime(DateTime.fromISO('2021-01-01T14:41:00'))).toEqual(
     '2:41 PM'
   );
 });

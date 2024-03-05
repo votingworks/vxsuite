@@ -24,7 +24,7 @@ test('formats counts properly', () => {
 test('formats locale long date and time properly', () => {
   expect(
     format.localeLongDateAndTime(new Date(2020, 3, 14, 1, 15, 9, 26))
-  ).toEqual('Tuesday, April 14, 2020 at 1:15:09 AM UTC');
+  ).toEqual('Tuesday, April 14, 2020 at 1:15:09 AM AKDT');
 });
 
 test('formats locale weekday and date properly', () => {

@@ -37,7 +37,7 @@ test('primary', () => {
       }}
       isOfficial
       isTest={false}
-      generatedAtTime={new Date('2020-10-01')}
+      generatedAtTime={new Date(2020, 0, 1, 0, 0, 0)}
     />
   );
 
@@ -50,7 +50,7 @@ test('primary', () => {
     'Wednesday, September 8, 2021, Sample County, State of Sample'
   );
   within(mammalSection).getByText(
-    'This report was created on Thursday, October 1, 2020 at 12:00:00 AM UTC.'
+    'This report was created on Wednesday, January 1, 2020 at 12:00:00 AM AKST.'
   );
 
   // should have contest information for the one contest only

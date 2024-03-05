@@ -1,11 +1,11 @@
-import moment from 'moment';
 import { Election, MachineId, maybeParse } from '@votingworks/types';
 import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
+import { DateTime } from 'luxon';
 
 const SECTION_SEPARATOR = '__';
 const SUBSECTION_SEPARATOR = '_';
 const WORD_SEPARATOR = '-';
-const TIME_FORMAT_STRING = `YYYY${WORD_SEPARATOR}MM${WORD_SEPARATOR}DD${SUBSECTION_SEPARATOR}HH${WORD_SEPARATOR}mm${WORD_SEPARATOR}ss`;
+const TIME_FORMAT_STRING = `yyyy${WORD_SEPARATOR}MM${WORD_SEPARATOR}dd${SUBSECTION_SEPARATOR}HH${WORD_SEPARATOR}mm${WORD_SEPARATOR}ss`;
 
 export const ELECTION_PACKAGE_FOLDER = 'election-packages';
 export const SCANNER_RESULTS_FOLDER = 'cast-vote-records';
@@ -61,7 +61,7 @@ export function generateElectionBasedSubfolderName(
 }
 
 export function generateFileTimeSuffix(time: Date = new Date()): string {
-  return moment(time).format(TIME_FORMAT_STRING);
+  return DateTime.fromJSDate(time).toFormat(TIME_FORMAT_STRING);
 }
 
 /* Generate the name for an election package */
@@ -147,11 +147,11 @@ export function parseCastVoteRecordReportExportDirectoryName(
   const machineId = machineSubsections[1];
 
   const timeString = postTestPrefixSections[1];
-  const timeMoment = moment(timeString, TIME_FORMAT_STRING);
-  if (!timeMoment.isValid()) {
+  const dateTime = DateTime.fromFormat(timeString, TIME_FORMAT_STRING);
+  if (!dateTime.isValid) {
     return;
   }
-  const time = timeMoment.toDate();
+  const time = dateTime.toJSDate();
 
   return {
     inTestMode,

@@ -1,5 +1,5 @@
 import React, { useContext, useState } from 'react';
-import moment from 'moment';
+import { DateTime } from 'luxon';
 
 import { format, isElectionManagerAuth } from '@votingworks/utils';
 import {
@@ -227,9 +227,9 @@ export function TallyScreen(): JSX.Element | null {
                         {cvrFileIndex + 1}.
                       </TD>
                       <TD narrow nowrap>
-                        {moment(exportTimestamp).format(
-                          'MM/DD/YYYY hh:mm:ss A'
-                        )}
+                        {DateTime.fromJSDate(
+                          new Date(exportTimestamp)
+                        ).toFormat(TIME_FORMAT)}
                       </TD>
                       <TD nowrap>{format.count(numCvrsImported)} </TD>
                       <TD narrow nowrap>
@@ -243,7 +243,9 @@ export function TallyScreen(): JSX.Element | null {
                   <tr key="manual-data">
                     <TD />
                     <TD narrow nowrap>
-                      {moment(manualTallyFirstAdded).format(TIME_FORMAT)}
+                      {DateTime.fromJSDate(manualTallyFirstAdded).toFormat(
+                        TIME_FORMAT
+                      )}
                     </TD>
                     <TD narrow>{format.count(manualTallyTotalBallotCount)}</TD>
                     <TD narrow nowrap>

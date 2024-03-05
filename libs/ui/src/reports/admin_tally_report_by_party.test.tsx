@@ -14,7 +14,7 @@ test('general election, full election report', () => {
       isOfficial
       isTest={false}
       testId="tally-report"
-      generatedAtTime={new Date('2020-01-01')}
+      generatedAtTime={new Date(2020, 0, 1, 0, 0, 0)}
       tallyReportResults={buildSimpleMockTallyReportResults({
         election,
         scannedBallotCount: 15,
@@ -25,7 +25,7 @@ test('general election, full election report', () => {
   screen.getByTestId('tally-report');
   screen.getByText('Official Lincoln Municipal General Election Tally Report');
   screen.getByText(
-    'This report was created on Wednesday, January 1, 2020 at 12:00:00 AM UTC.'
+    'This report was created on Wednesday, January 1, 2020 at 12:00:00 AM AKST.'
   );
 
   expect(screen.getByTestId('total-ballot-count')).toHaveTextContent('15');
@@ -46,7 +46,7 @@ test('general election, precinct report with manual results', () => {
       isTest
       title="Precinct Tally Report"
       testId="tally-report"
-      generatedAtTime={new Date('2020-01-01')}
+      generatedAtTime={new Date(2020, 0, 1, 0, 0, 0)}
       tallyReportResults={buildSimpleMockTallyReportResults({
         election,
         scannedBallotCount: 15,
@@ -59,7 +59,7 @@ test('general election, precinct report with manual results', () => {
   screen.getByText('Test Unofficial Precinct Tally Report');
   screen.getByText('Lincoln Municipal General Election');
   screen.getByText(
-    'This report was created on Wednesday, January 1, 2020 at 12:00:00 AM UTC.'
+    'This report was created on Wednesday, January 1, 2020 at 12:00:00 AM AKST.'
   );
 
   expect(screen.getByTestId('total-ballot-count')).toHaveTextContent('16');

@@ -48,12 +48,12 @@ test('configures from election packages on USB drive', async () => {
     {
       path: '/election-package-1.zip',
       name: 'election-package-1.zip',
-      ctime: new Date('2023-01-01T00:00:00.000Z'),
+      ctime: new Date('2023-01-01T00:00:00.000'),
     },
     {
       path: '/election-package-2.zip',
       name: 'election-package-2.zip',
-      ctime: new Date('2023-01-01T01:00:00.000Z'),
+      ctime: new Date('2023-01-01T01:00:00.000'),
     },
   ];
   apiMock.expectListPotentialElectionPackagesOnUsbDrive(electionPackages);

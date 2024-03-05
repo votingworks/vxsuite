@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-import moment from 'moment';
+import { DateTime } from 'luxon';
 import {
   Button,
   Card,
@@ -103,7 +103,9 @@ function SelectElectionPackage({
                   }}
                 >
                   <td>{file.name}</td>
-                  <td>{moment(file.ctime).format(TIME_FORMAT)}</td>
+                  <td>
+                    {DateTime.fromJSDate(file.ctime).toFormat(TIME_FORMAT)}
+                  </td>
                 </ButtonRow>
               ))}
             </tbody>

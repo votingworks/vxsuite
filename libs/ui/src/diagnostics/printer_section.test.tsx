@@ -218,6 +218,8 @@ describe('PrinterSection diagnostic message', () => {
     screen.getByText('No test print on record');
   });
 
+  const timestamp = new Date('2024-01-01T00:00:00').getTime();
+
   test('successful diagnostic', () => {
     render(
       <PrinterSection
@@ -225,11 +227,11 @@ describe('PrinterSection diagnostic message', () => {
         mostRecentPrinterDiagnostic={{
           hardware: 'printer',
           outcome: 'pass',
-          timestamp: 0,
+          timestamp,
         }}
       />
     );
-    screen.getByText('Test print successful, 1/1/1970, 12:00:00 AM');
+    screen.getByText('Test print successful, 1/1/2024, 12:00:00 AM');
   });
 
   test('failed diagnostic', () => {
@@ -239,10 +241,10 @@ describe('PrinterSection diagnostic message', () => {
         mostRecentPrinterDiagnostic={{
           hardware: 'printer',
           outcome: 'fail',
-          timestamp: 0,
+          timestamp,
         }}
       />
     );
-    screen.getByText('Test print failed, 1/1/1970, 12:00:00 AM');
+    screen.getByText('Test print failed, 1/1/2024, 12:00:00 AM');
   });
 });

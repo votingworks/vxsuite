@@ -42,7 +42,7 @@ function renderScreen(props: Partial<DiagnosticsScreenProps> = {}) {
 }
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2022-03-23T11:23:00.000Z'));
+  jest.useFakeTimers().setSystemTime(new Date('2022-03-23T11:23:00.000'));
 });
 
 describe('System Diagnostics screen: Computer section', () => {

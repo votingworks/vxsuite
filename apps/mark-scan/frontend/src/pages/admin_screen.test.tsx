@@ -22,7 +22,7 @@ import {
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
+  jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000'));
   window.location.href = '/';
   apiMock = createApiMock();
 });
@@ -58,7 +58,7 @@ test('renders date and time settings modal', async () => {
 
   // We just do a simple happy path test here, since the libs/ui/set_clock unit
   // tests cover full behavior
-  const startDate = 'Sat, Oct 31, 2020, 12:00 AM UTC';
+  const startDate = 'Sat, Oct 31, 2020, 12:00 AM AKDT';
   await screen.findByText(startDate);
 
   // Open Modal and change date
@@ -74,8 +74,8 @@ test('renders date and time settings modal', async () => {
   // Save Date and Timezone
   apiMock.mockApiClient.setClock
     .expectCallWith({
-      isoDatetime: '2025-10-31T00:00:00.000+00:00',
-      ianaZone: 'UTC',
+      isoDatetime: '2025-10-31T00:00:00.000-08:00',
+      ianaZone: 'America/Anchorage',
     })
     .resolves();
   apiMock.expectLogOut();

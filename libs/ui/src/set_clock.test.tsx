@@ -192,7 +192,7 @@ describe('PickDateTimeModal', () => {
 
 describe('SetClockButton', () => {
   beforeAll(() => {
-    jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
+    jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000'));
   });
 
   test('renders date and time settings modal when clicked', async () => {
@@ -214,7 +214,7 @@ describe('SetClockButton', () => {
     userEvent.click(screen.getByText('Update Date and Time'));
 
     within(screen.getByTestId('modal')).getByText(
-      'Sat, Oct 31, 2020, 12:00 AM UTC'
+      'Sat, Oct 31, 2020, 12:00 AM AKDT'
     );
 
     const selectYear = screen.getByTestId<HTMLSelectElement>('selectYear');
@@ -316,15 +316,15 @@ describe('SetClockButton', () => {
 
 describe('CurrentDateAndTime', () => {
   beforeAll(() => {
-    jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
+    jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000'));
   });
 
   test('renders current date and time', async () => {
     render(<CurrentDateAndTime />);
-    screen.getByText('Sat, Oct 31, 2020, 12:00 AM UTC');
+    screen.getByText('Sat, Oct 31, 2020, 12:00 AM AKDT');
     act(() => {
       jest.advanceTimersByTime(1000 * 60);
     });
-    await screen.findByText('Sat, Oct 31, 2020, 12:01 AM UTC');
+    await screen.findByText('Sat, Oct 31, 2020, 12:01 AM AKDT');
   });
 });

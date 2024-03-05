@@ -4,7 +4,7 @@ import { ReadinessReportHeader } from './report_header';
 
 test('ReadinessReportHeader', () => {
   const machineType = 'VxMock';
-  const generatedAtTime = new Date('2022-01-01T00:00:00Z');
+  const generatedAtTime = new Date('2022-01-01T00:00:00');
   const machineId = 'MOCK';
   render(
     <ReadinessReportHeader
@@ -22,7 +22,7 @@ test('ReadinessReportHeader', () => {
   expect(
     screen.getByText(
       hasTextAcrossElements(
-        'Date: Saturday, January 1, 2022 at 12:00:00 AM UTC'
+        'Date: Saturday, January 1, 2022 at 12:00:00 AM AKST'
       )
     )
   ).toBeInTheDocument();
