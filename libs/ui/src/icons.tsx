@@ -43,6 +43,9 @@ import {
   faBatteryQuarter,
   faBatteryEmpty,
   faBolt,
+  faVolumeXmark,
+  faVolumeHigh,
+  faEyeSlash,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -50,6 +53,7 @@ import {
   faSquare,
   faCircle,
   faCircleDot,
+  faEye,
 } from '@fortawesome/free-regular-svg-icons';
 
 import { UiTheme } from '@votingworks/types';
@@ -231,6 +235,14 @@ export const Icons = {
     return <FaIcon {...props} type={faFileArrowDown} />;
   },
 
+  Eye(props) {
+    return <FaIcon {...props} type={faEye} />;
+  },
+
+  EyeSlash(props) {
+    return <FaIcon {...props} type={faEyeSlash} />;
+  },
+
   Info(props) {
     return <FaIcon {...props} type={faInfoCircle} />;
   },
@@ -289,6 +301,14 @@ export const Icons = {
 
   ChevronLeft(props) {
     return <FaIcon {...props} type={faChevronLeft} />;
+  },
+
+  SoundOff(props) {
+    return <FaIcon {...props} type={faVolumeXmark} />;
+  },
+
+  SoundOn(props) {
+    return <FaIcon {...props} type={faVolumeHigh} />;
   },
 
   RotateRight(props) {

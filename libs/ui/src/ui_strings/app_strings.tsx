@@ -67,6 +67,14 @@ export const appStrings = {
     <UiString uiStringKey="buttonAddWriteIn">add write-in candidate</UiString>
   ),
 
+  buttonAudioMute: () => (
+    <UiString uiStringKey="buttonAudioMute">Mute Audio</UiString>
+  ),
+
+  buttonAudioUnmute: () => (
+    <UiString uiStringKey="buttonAudioUnmute">Unmute Audio</UiString>
+  ),
+
   buttonBack: () => <UiString uiStringKey="buttonBack">Back</UiString>,
 
   buttonBallotIsCorrect: () => (
@@ -180,6 +188,12 @@ export const appStrings = {
   instructionsAskPollWorkerToPlugInPower: () => (
     <UiString uiStringKey="instructionsAskPollWorkerToPlugInPower">
       Please ask a poll worker to plug in the power cord.
+    </UiString>
+  ),
+
+  instructionsAudioMuteButton: () => (
+    <UiString uiStringKey="instructionsAudioMuteButton">
+      Press the select button to mute all audio.
     </UiString>
   ),
 
@@ -756,6 +770,16 @@ export const appStrings = {
     </UiString>
   ),
 
+  noteVoterSettingsAudioMuted: () => (
+    <UiString uiStringKey="noteVoterSettingsAudioMuted">
+      Audio is muted
+    </UiString>
+  ),
+
+  noteVoterSettingsAudioUnmuted: () => (
+    <UiString uiStringKey="noteVoterSettingsAudioUnmuted">Audio is on</UiString>
+  ),
+
   promptBmdConfirmRemoveWriteIn: () => (
     <UiString uiStringKey="promptBmdConfirmRemoveWriteIn">
       Do you want to deselect and remove your write-in candidate?
@@ -880,10 +904,8 @@ export const appStrings = {
     <UiString uiStringKey="titleVoterSettings">Settings:</UiString>
   ),
 
-  titleVoterSettingsAudioVideoOnly: () => (
-    <UiString uiStringKey="titleVoterSettingsAudioVideoOnly">
-      Audio/Video Only
-    </UiString>
+  titleVoterSettingsAudio: () => (
+    <UiString uiStringKey="titleVoterSettingsAudio">Audio</UiString>
   ),
 
   titleVoterSettingsColor: () => (

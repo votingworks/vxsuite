@@ -5,6 +5,7 @@ export * from './election_strings';
 export * from './language_override';
 export * from './number_string';
 export * from './read_on_load';
+export * from './toggle_audio_button';
 export * from './ui_strings_context';
 export * from './utils';
 export * from './with_alt_audio';
