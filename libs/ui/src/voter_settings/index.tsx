@@ -11,7 +11,7 @@ import { VoterSettingsManagerContext } from '../voter_settings_manager_context';
 import { useScreenInfo } from '../hooks/use_screen_info';
 import { appStrings } from '../ui_strings';
 import { Header } from './header';
-import { AudioVideoOnlySettings } from './audio_video_only_settings';
+import { AudioSettings } from './audio_settings';
 
 export interface VoterSettingsProps {
   /** @default ['contrastLow', 'contrastMedium', 'contrastHighLight', 'contrastHighDark'] */
@@ -74,8 +74,8 @@ export function VoterSettings(props: VoterSettingsProps): JSX.Element {
         {activePaneId === 'voterSettingsSize' && (
           <SizeSettings sizeModes={sizeModes} />
         )}
-        {activePaneId === 'voterSettingsAudioVideoOnly' && (
-          <AudioVideoOnlySettings />
+        {activePaneId === 'voterSettingsAudio' && (
+          <AudioSettings onEnterAudioOnlyMode={onClose} />
         )}
       </ActivePaneContainer>
       <Footer>

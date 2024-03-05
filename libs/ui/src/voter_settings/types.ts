@@ -2,6 +2,6 @@
 export const PANE_IDS = [
   'voterSettingsColor',
   'voterSettingsSize',
-  'voterSettingsAudioVideoOnly',
+  'voterSettingsAudio',
 ] as const;
 export type SettingsPaneId = (typeof PANE_IDS)[number];
