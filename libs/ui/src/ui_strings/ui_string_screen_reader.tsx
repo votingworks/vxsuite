@@ -240,7 +240,7 @@ export function UiStringScreenReader(
     clipQueue = audioStringQueue.flatMap(({ i18nKey, languageCode }) => {
       const audioIdMappings = assertDefined(
         audioIdQueries[languageCode],
-        `audioIdQueries[${languageCode}] not definedL ${i18nKey}`
+        `audioIdQueries[${languageCode}] not defined`
       ).data;
       const matchingAudioIds = getDeepValue(audioIdMappings, i18nKey);
 
