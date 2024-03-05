@@ -2,14 +2,16 @@ import React, { useContext, useState } from 'react';
 import { Button } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import { join } from 'path';
-import { generateElectionBasedSubfolderName } from '@votingworks/utils';
+import {
+  REPORT_FOLDER,
+  generateElectionBasedSubfolderName,
+} from '@votingworks/utils';
 import { UseMutationResult } from '@tanstack/react-query';
 import type { ExportDataResult } from '@votingworks/admin-backend';
 import { Election } from '@votingworks/types';
 import { AppContext } from '../../contexts/app_context';
 import { getCastVoteRecordFileMode } from '../../api';
 import { SaveBackendFileModal } from '../save_backend_file_modal';
-import { REPORT_SUBFOLDER } from '../../utils/reporting';
 
 export function ExportFileButton<T extends { [key: string]: unknown }>({
   buttonText,
@@ -70,7 +72,7 @@ export function ExportFileButton<T extends { [key: string]: unknown }>({
       electionDefinition.election,
       electionDefinition.electionHash
     ),
-    REPORT_SUBFOLDER,
+    REPORT_FOLDER,
     defaultFilename
   );
 

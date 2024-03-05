@@ -128,6 +128,7 @@ export enum LogEventId {
   DiagnosticInit = 'diagnostic-init',
   DiagnosticComplete = 'diagnostic-complete',
   ReadinessReportPrinted = 'readiness-report-printed',
+  ReadinessReportSaved = 'readiness-report-saved',
   UnknownError = 'unknown-error',
 }
 
@@ -1072,6 +1073,12 @@ const ReadinessReportPrinted: LogDetails = {
   documentationMessage: 'The user has printed an equipment readiness report.',
 };
 
+const ReadinessReportSaved: LogDetails = {
+  eventId: LogEventId.ReadinessReportSaved,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'The user has saved an equipment readiness report.',
+};
+
 const UnknownError: LogDetails = {
   eventId: LogEventId.UnknownError,
   eventType: LogEventType.ApplicationStatus,
@@ -1321,6 +1328,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return DiagnosticComplete;
     case LogEventId.ReadinessReportPrinted:
       return ReadinessReportPrinted;
+    case LogEventId.ReadinessReportSaved:
+      return ReadinessReportSaved;
     case LogEventId.UnknownError:
       return UnknownError;
     /* istanbul ignore next - compile time check for completeness */

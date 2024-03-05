@@ -17,3 +17,18 @@ export function mockElectionManagerAuth(
     sessionExpiresAt: fakeSessionExpiresAt(),
   });
 }
+
+export function mockSystemAdministratorAuth(
+  auth: jest.Mocked<DippedSmartCardAuthApi>,
+  jurisdiction = TEST_JURISDICTION
+): void {
+  auth.getAuthStatus.mockResolvedValue({
+    status: 'logged_in',
+    user: {
+      role: 'system_administrator',
+      jurisdiction,
+    },
+    sessionExpiresAt: fakeSessionExpiresAt(),
+    programmableCard: { status: 'no_card' },
+  });
+}

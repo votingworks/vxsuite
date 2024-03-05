@@ -1,5 +1,4 @@
 import React, { useContext, useState } from 'react';
-import styled from 'styled-components';
 
 import {
   Button,
@@ -14,12 +13,7 @@ import { isElectionManagerAuth } from '@votingworks/utils';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context';
 import { ejectUsbDrive, exportCastVoteRecordsToUsbDrive } from '../api';
-
-export const UsbImage = styled.img`
-  margin-right: auto;
-  margin-left: auto;
-  height: 200px;
-`;
+import { InsertUsbDriveModal, UsbImage } from './insert_usb_drive_modal';
 
 export interface Props {
   onClose: () => void;
@@ -125,16 +119,9 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
     case 'ejected':
     case 'error':
       return (
-        <Modal
-          title="No USB Drive Detected"
-          content={
-            <React.Fragment>
-              <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-              <P>Please insert a USB drive in order to save CVRs.</P>
-            </React.Fragment>
-          }
-          onOverlayClick={onClose}
-          actions={<Button onPress={onClose}>Cancel</Button>}
+        <InsertUsbDriveModal
+          message="Please insert a USB drive in order to save CVRs."
+          onClose={onClose}
         />
       );
     case 'mounted':
@@ -143,7 +130,7 @@ export function ExportResultsModal({ onClose }: Props): JSX.Element {
           title="Save CVRs"
           content={
             <React.Fragment>
-              <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
+              <UsbImage />
               <P>CVRs will be saved to the mounted USB drive.</P>
             </React.Fragment>
           }

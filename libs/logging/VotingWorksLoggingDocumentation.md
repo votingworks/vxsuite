@@ -478,6 +478,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** The user has printed an equipment readiness report.  
 **Machines:** All
+### readiness-report-saved
+**Type:** [user-action](#user-action)  
+**Description:** The user has saved an equipment readiness report.  
+**Machines:** All
 ### unknown-error
 **Type:** [application-status](#application-status)  
 **Description:** Machine encountered an unknown error.  

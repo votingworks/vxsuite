@@ -1,15 +1,11 @@
 import fc from 'fast-check';
-import {
-  electionGeneralDefinition,
-  electionWithMsEitherNeitherDefinition,
-} from '@votingworks/fixtures';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { Election } from '@votingworks/types';
 import {
   generateElectionBasedSubfolderName,
   generateFilenameForElectionPackage,
   generateLogFilename,
   LogFileType,
-  generateSemsFinalExportDefaultFilename,
   generateCastVoteRecordExportDirectoryName,
   CastVoteRecordExportDirectoryNameComponents,
   parseCastVoteRecordReportExportDirectoryName,
@@ -66,41 +62,6 @@ test('generates ballot export package name with zero padded time pieces', () => 
   expect(generateFilenameForElectionPackage(time)).toEqual(
     'election-package__2019-03-01_01-09-02.zip'
   );
-});
-
-describe('generateSemsFinalExportDefaultFilename', () => {
-  test('generates the correct filename for test mode', () => {
-    const mockElection: Election = {
-      ...electionWithMsEitherNeitherDefinition.election,
-      county: { name: 'King County', id: '' },
-      title: 'General Election',
-    };
-    const time = new Date(2019, 2, 1, 1, 9, 2);
-    expect(
-      generateSemsFinalExportDefaultFilename(true, mockElection, time)
-    ).toEqual(
-      'votingworks-sems-test-results_king-county_general-election_2019-03-01_01-09-02.txt'
-    );
-  });
-
-  test('generates the correct filename for live mode', () => {
-    const time = new Date(2019, 2, 1, 1, 9, 2);
-    const mockElection: Election = {
-      ...electionWithMsEitherNeitherDefinition.election,
-      county: { name: 'King County', id: '' },
-      title: 'General Election',
-    };
-    expect(
-      generateSemsFinalExportDefaultFilename(false, mockElection, time)
-    ).toEqual(
-      'votingworks-sems-live-results_king-county_general-election_2019-03-01_01-09-02.txt'
-    );
-    expect(generateSemsFinalExportDefaultFilename(false, mockElection)).toEqual(
-      expect.stringMatching(
-        'votingworks-sems-live-results_king-county_general-election'
-      )
-    );
-  });
 });
 
 function arbitraryTimestampDate(): fc.Arbitrary<Date> {

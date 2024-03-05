@@ -277,4 +277,11 @@ export const exportCastVoteRecordsToUsbDrive = {
   },
 } as const;
 
+export const saveReadinessReport = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.saveReadinessReport);
+  },
+} as const;
+
 export const systemCallApi = createSystemCallApi(useApiClient);

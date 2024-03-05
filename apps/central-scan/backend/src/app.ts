@@ -32,6 +32,7 @@ import {
   logScanBatchContinueFailure,
   logScanBatchContinueSuccess,
 } from './util/logging';
+import { saveReadinessReport } from './readiness_report';
 
 type NoParams = never;
 
@@ -269,6 +270,15 @@ function buildApi({
         );
       }
       return exportResult;
+    },
+
+    saveReadinessReport() {
+      return saveReadinessReport({
+        workspace,
+        isScannerAttached: importer.getStatus().isScannerAttached,
+        usbDrive,
+        logger,
+      });
     },
 
     async getApplicationDiskSpaceSummary(): Promise<DiskSpaceSummary> {
