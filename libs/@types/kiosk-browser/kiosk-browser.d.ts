@@ -141,10 +141,6 @@ declare namespace KioskBrowser {
     mode?: number;
   }
 
-  export interface SpeakOptions {
-    volume: number;
-  }
-
   export interface FileFilter {
     // Docs: http://electronjs.org/docs/api/structures/file-filter
     extensions: string[];
@@ -216,37 +212,6 @@ declare namespace KioskBrowser {
      * Once chosen, resolves with a handle to the file to write data to it.
      */
     saveAs(options?: SaveAsOptions): Promise<FileWriter | undefined>;
-
-    /**
-     * Writes a file to a specified file path
-     */
-    writeFile(path: string): Promise<FileWriter>;
-    writeFile(path: string, content: Uint8Array | string): Promise<void>;
-
-    /*
-     * Creates a directory at the specified path.
-     */
-    makeDirectory(path: string, options?: MakeDirectoryOptions): Promise<void>;
-
-    /**
-     * Creates a directory at the specified path.
-     */
-    makeDirectory(path: string, options?: MakeDirectoryOptions): Promise<void>;
-
-    /**
-     * Reads the list of files at a specified directory path
-     */
-    getFileSystemEntries(path: string): Promise<FileSystemEntry[]>;
-
-    /**
-     * Reads a file from a specified path
-     */
-    readFile(path: string): Promise<Uint8Array>;
-    readFile(path: string, encoding: string): Promise<string>;
-
-    // speech dispatcher
-    speak(text: string, options: SpeakOptions): Promise<void>;
-    cancelSpeak(): Promise<void>;
 
     showOpenDialog(options?: OpenDialogOptions): Promise<{
       canceled: boolean;
