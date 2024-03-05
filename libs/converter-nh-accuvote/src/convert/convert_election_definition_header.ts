@@ -118,18 +118,22 @@ export function convertElectionDefinitionHeader(
     });
   }
 
-  const parsedDate = DateTime.fromFormat(rawDate.trim(), 'M/d/yyyy HH:mm:ss', {
-    locale: 'en-US',
-    zone: 'America/New_York',
-  });
-  if (parsedDate.invalidReason) {
+  const dateFormats = ['M/d/yyyy HH:mm:ss', 'M/dd/yyyy'];
+  const parsedDate = dateFormats
+    .map((format) =>
+      DateTime.fromFormat(rawDate.trim(), format, {
+        locale: 'en-US',
+        zone: 'America/New_York',
+      })
+    )
+    .find((date) => date.isValid);
+  if (!parsedDate) {
     return err({
       issues: [
         {
           kind: ConvertIssueKind.InvalidElectionDate,
-          message: `invalid date: ${parsedDate.invalidReason}`,
+          message: 'invalid date',
           invalidDate: rawDate,
-          invalidReason: parsedDate.invalidReason,
         },
       ],
     });

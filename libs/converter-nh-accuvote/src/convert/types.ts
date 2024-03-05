@@ -155,7 +155,6 @@ export type ConvertIssue =
       kind: ConvertIssueKind.InvalidElectionDate;
       message: string;
       invalidDate: string;
-      invalidReason: string;
     }
   | {
       kind: ConvertIssueKind.InvalidTimingMarkMetadata;
