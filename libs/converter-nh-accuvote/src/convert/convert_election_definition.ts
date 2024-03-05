@@ -1,7 +1,4 @@
-import {
-  BallotPageTimingMarkMetadataFront,
-  findTemplateGridAndBubbles,
-} from '@votingworks/ballot-interpreter';
+import { findTemplateGridAndBubbles } from '@votingworks/ballot-interpreter';
 import {
   assert,
   err,
@@ -59,8 +56,8 @@ export function convertElectionDefinition(
       findTemplateGridAndBubblesResult.ok();
 
     if (
-      frontGridAndBubbles.metadata.side === 'back' &&
-      backGridAndBubbles.metadata.side === 'front'
+      frontGridAndBubbles.metadata?.side === 'back' &&
+      backGridAndBubbles.metadata?.side === 'front'
     ) {
       [frontGridAndBubbles, backGridAndBubbles] = [
         backGridAndBubbles,
@@ -98,26 +95,28 @@ export function convertElectionDefinition(
       paperSize = frontExpectedPaperSize;
     }
 
-    if (frontGridAndBubbles.metadata.side !== 'front') {
-      success = false;
-      issues.push({
-        kind: ConvertIssueKind.InvalidTimingMarkMetadata,
-        message: `front page timing mark metadata is invalid: side=${frontGridAndBubbles.metadata.side}`,
-        side: 'front',
-        timingMarkBits: frontGridAndBubbles.metadata.bits,
-        timingMarks: frontGridAndBubbles.grid.partialTimingMarks,
-      });
-    }
+    if (frontGridAndBubbles.metadata && backGridAndBubbles.metadata) {
+      if (frontGridAndBubbles.metadata.side !== 'front') {
+        success = false;
+        issues.push({
+          kind: ConvertIssueKind.InvalidTimingMarkMetadata,
+          message: `front page timing mark metadata is invalid: side=${frontGridAndBubbles.metadata.side}`,
+          side: 'front',
+          timingMarkBits: frontGridAndBubbles.metadata.bits,
+          timingMarks: frontGridAndBubbles.grid.partialTimingMarks,
+        });
+      }
 
-    if (backGridAndBubbles.metadata.side !== 'back') {
-      success = false;
-      issues.push({
-        kind: ConvertIssueKind.InvalidTimingMarkMetadata,
-        message: `back page timing mark metadata is invalid: side=${backGridAndBubbles.metadata.side}`,
-        side: 'back',
-        timingMarkBits: backGridAndBubbles.metadata.bits,
-        timingMarks: backGridAndBubbles.grid.partialTimingMarks,
-      });
+      if (backGridAndBubbles.metadata.side !== 'back') {
+        success = false;
+        issues.push({
+          kind: ConvertIssueKind.InvalidTimingMarkMetadata,
+          message: `back page timing mark metadata is invalid: side=${backGridAndBubbles.metadata.side}`,
+          side: 'back',
+          timingMarkBits: backGridAndBubbles.metadata.bits,
+          timingMarks: backGridAndBubbles.grid.partialTimingMarks,
+        });
+      }
     }
 
     if (!success) {
@@ -127,9 +126,10 @@ export function convertElectionDefinition(
       });
     }
 
-    const frontMetadata =
-      frontGridAndBubbles.metadata as BallotPageTimingMarkMetadataFront;
-    const ballotStyleId = `card-number-${frontMetadata.cardNumber}`;
+    const frontMetadata = frontGridAndBubbles.metadata;
+    const ballotStyleId = `card-number-${
+      frontMetadata?.side === 'front' ? frontMetadata.cardNumber : 1
+    }`;
 
     const frontTemplateBubbles = frontGridAndBubbles.bubbles;
     const backTemplateBubbles = backGridAndBubbles.bubbles;
