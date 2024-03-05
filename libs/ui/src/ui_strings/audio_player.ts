@@ -2,6 +2,7 @@ import { Buffer } from 'buffer';
 
 import { UiStringAudioClip } from '@votingworks/types';
 import { deferred } from '@votingworks/basics';
+import { AudioVolume, getAudioGainAmountDb } from './audio_volume';
 
 /**
  * Lowest absolute audio sample value, between 0 and 1, considered to be
@@ -20,7 +21,7 @@ export interface AudioPlayerParams {
 export interface AudioPlayer {
   readonly play: () => Promise<void>;
   readonly setPlaybackRate: (rate: number) => void;
-  readonly setVolume: (gainDb: number) => void;
+  readonly setVolume: (volume: AudioVolume) => void;
   readonly stop: () => void;
 }
 
@@ -127,8 +128,8 @@ export async function newAudioPlayer(
     player.overlap = config.grainOverlapSeconds;
   }
 
-  function setVolume(gainDb: number) {
-    player.volume.value = gainDb;
+  function setVolume(volume: AudioVolume) {
+    player.volume.value = getAudioGainAmountDb(volume);
   }
 
   function dispose() {

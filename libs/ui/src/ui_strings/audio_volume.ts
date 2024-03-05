@@ -13,36 +13,81 @@
  *    100 dB SPL, in increments no greater than 10 dB
  */
 
-const DEFAULT_VOLUME_DB_SPL = 65;
+import { assertDefined } from '@votingworks/basics';
+
 const MIN_VOLUME_DB_SPL = 20;
 const MAX_VOLUME_DB_SPL = 100;
 
 /**
- * Minimum allowed gain to achieve a minimum SPL of 20 dB, as prescribed in
- * VVSG 2.0, section 7.1-K,
+ * Screen reader volume levels, dividing the 20 dbSPL - 100 dbSPL range
+ * specified in VVSG 2.0 into 10 equal steps.
  *
- * Assumes a 0 dB gain represents the 65 dB SPL midpoint of the default 60-70
- * dB range prescribed in the VVSG spec.
+ * These are explicitly defined to facilitate mapping to pre-generated audio
+ * feedback clips played whenever a voter adjusts the output volume.
  */
-export const MIN_GAIN_DB = MIN_VOLUME_DB_SPL - DEFAULT_VOLUME_DB_SPL;
+export enum AudioVolume {
+  MINIMUM = '0%',
+  TEN_PERCENT = '10%',
+  TWENTY_PERCENT = '20%',
+  THIRTY_PERCENT = '30%',
+  FORTY_PERCENT = '40%',
+  FIFTY_PERCENT = '50%',
+  SIXTY_PERCENT = '60%',
+  SEVENTY_PERCENT = '70%',
+  EIGHTY_PERCENT = '80%',
+  NINETY_PERCENT = '90%',
+  MAXIMUM = '100%',
+}
 
 /**
- * Default gain applied, assuming a 0 dB gain represents the 65 dB midpoint of
- * the 60-70 dB range prescribed in VVSG 2.0 7.1-K.
- */
-export const DEFAULT_GAIN_DB = 0;
-
-/**
- * Maximum allowed gain to achieve a maximum SPL of 100 dB, as prescribed in
- * VVSG 2.0, section 7.1-K,
+ * Estimated gain offset to apply to audio generated in Google Cloud to result
+ * in roughly an output level of {@link MIN_VOLUME_DB_SPL} when the OS volume is
+ * set to its maximum output level.
  *
- * Assumes a 0 dB gain represents the 65 dB SPL midpoint of the default 60-70
- * dB range prescribed in the VVSG spec.
+ * TODO(kofi): Re-calibrate this value on prod hardware once we've settled on a
+ * model of headphones.
  */
-export const MAX_GAIN_DB = MAX_VOLUME_DB_SPL - DEFAULT_VOLUME_DB_SPL;
+const GOOGLE_CLOUD_TTS_GAIN_OFFSET_FOR_MIN_VOLUME = -80;
 
-/**
- * Amount of gain to add/subtract at a time when increasing/decreasing audio
- * volume.
- */
-export const GAIN_INCREMENT_AMOUNT_DB = 5;
+export function getAudioGainAmountDb(volume: AudioVolume): number {
+  // eslint-disable-next-line vx/gts-safe-number-parse
+  const additionalGainPercentage = parseInt(volume, 10);
+  const additionalGainDb =
+    (MAX_VOLUME_DB_SPL - MIN_VOLUME_DB_SPL) * (additionalGainPercentage / 100);
+
+  return GOOGLE_CLOUD_TTS_GAIN_OFFSET_FOR_MIN_VOLUME + additionalGainDb;
+}
+
+export const DEFAULT_AUDIO_VOLUME: AudioVolume = AudioVolume.FIFTY_PERCENT;
+
+const ORDERED_AUDIO_GAIN_AMOUNTS: AudioVolume[] = [
+  AudioVolume.MINIMUM,
+  AudioVolume.TEN_PERCENT,
+  AudioVolume.TWENTY_PERCENT,
+  AudioVolume.THIRTY_PERCENT,
+  AudioVolume.FORTY_PERCENT,
+  AudioVolume.FIFTY_PERCENT,
+  AudioVolume.SIXTY_PERCENT,
+  AudioVolume.SEVENTY_PERCENT,
+  AudioVolume.EIGHTY_PERCENT,
+  AudioVolume.NINETY_PERCENT,
+  AudioVolume.MAXIMUM,
+];
+
+export function getIncreasedVolume(volume: AudioVolume): AudioVolume {
+  if (volume === AudioVolume.MAXIMUM) {
+    return volume;
+  }
+
+  const volumeIndex = ORDERED_AUDIO_GAIN_AMOUNTS.indexOf(volume);
+  return assertDefined(ORDERED_AUDIO_GAIN_AMOUNTS[volumeIndex + 1]);
+}
+
+export function getDecreasedVolume(volume: AudioVolume): AudioVolume {
+  if (volume === AudioVolume.MINIMUM) {
+    return volume;
+  }
+
+  const volumeIndex = ORDERED_AUDIO_GAIN_AMOUNTS.indexOf(volume);
+  return assertDefined(ORDERED_AUDIO_GAIN_AMOUNTS[volumeIndex - 1]);
+}

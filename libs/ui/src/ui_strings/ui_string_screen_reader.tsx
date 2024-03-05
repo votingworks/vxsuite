@@ -3,13 +3,35 @@ import getDeepValue from 'lodash.get';
 
 import { Optional, assertDefined } from '@votingworks/basics';
 import { LanguageCode, LanguageCodeSchema } from '@votingworks/types';
+
 import { useAudioContext } from './audio_context';
 import { ClipParams, PlayAudioClips } from './play_audio_clips';
 import { useCurrentLanguage } from '../hooks/use_current_language';
 import { UiStringAudioDataAttributeName } from './with_audio';
+import { AppStringKey } from './app_strings';
+import {
+  AudioVolume,
+  getDecreasedVolume,
+  getIncreasedVolume,
+} from './audio_volume';
 
-const EMPTY_UI_STRING_QUEUE: UiStringParams[] = [];
 const EMPTY_CLIP_QUEUE: ClipParams[] = [];
+
+const VOLUME_CHANGE_FEEDBACK_STRING_KEYS: Readonly<
+  Record<AudioVolume, AppStringKey>
+> = {
+  [AudioVolume.MINIMUM]: 'audioFeedbackMinimumVolume',
+  [AudioVolume.TEN_PERCENT]: 'audioFeedback10PercentVolume',
+  [AudioVolume.TWENTY_PERCENT]: 'audioFeedback20PercentVolume',
+  [AudioVolume.THIRTY_PERCENT]: 'audioFeedback30PercentVolume',
+  [AudioVolume.FORTY_PERCENT]: 'audioFeedback40PercentVolume',
+  [AudioVolume.FIFTY_PERCENT]: 'audioFeedback50PercentVolume',
+  [AudioVolume.SIXTY_PERCENT]: 'audioFeedback60PercentVolume',
+  [AudioVolume.SEVENTY_PERCENT]: 'audioFeedback70PercentVolume',
+  [AudioVolume.EIGHTY_PERCENT]: 'audioFeedback80PercentVolume',
+  [AudioVolume.NINETY_PERCENT]: 'audioFeedback90PercentVolume',
+  [AudioVolume.MAXIMUM]: 'audioFeedbackMaximumVolume',
+};
 
 export interface UiStringScreenReaderProps {
   children?: React.ReactNode;
@@ -21,6 +43,8 @@ interface UiStringParams {
 }
 
 export interface UiStringScreenReaderContextInterface {
+  decreaseVolume: () => void;
+  increaseVolume: () => void;
   /** Replays audio for any `UiString`s currently under focus. */
   replay: () => void;
 }
@@ -34,6 +58,44 @@ export function useUiStringScreenReaderContext(): Optional<UiStringScreenReaderC
   return React.useContext(UiStringScreenReaderContext);
 }
 
+function useVolumeControls(params: {
+  playVolumeChangeFeedback: (uiStringQueue: UiStringParams[]) => void;
+}) {
+  const { playVolumeChangeFeedback } = params;
+
+  const currentLanguageCode = useCurrentLanguage();
+  const { setVolume: baseSetVolume, volume } = assertDefined(useAudioContext());
+
+  /**
+   * Updates output volume and, if no screen reader audio is already in
+   * progress, announces the volume level.
+   */
+  const setVolume = React.useCallback(
+    (newVolume: AudioVolume) => {
+      baseSetVolume(newVolume);
+      playVolumeChangeFeedback([
+        {
+          i18nKey: VOLUME_CHANGE_FEEDBACK_STRING_KEYS[newVolume],
+          languageCode: currentLanguageCode,
+        },
+      ]);
+    },
+    [baseSetVolume, currentLanguageCode, playVolumeChangeFeedback]
+  );
+
+  const increaseVolume = React.useCallback(
+    () => setVolume(getIncreasedVolume(volume)),
+    [setVolume, volume]
+  );
+
+  const decreaseVolume = React.useCallback(
+    () => setVolume(getDecreasedVolume(volume)),
+    [setVolume, volume]
+  );
+
+  return { decreaseVolume, increaseVolume };
+}
+
 /**
  * Monitors the DOM for click/focus user actions and plays back associated audio
  * for all <UiString> elements within the event target.
@@ -43,9 +105,13 @@ export function UiStringScreenReader(
 ): React.ReactNode {
   const { children } = props;
   const [activeEvent, setActiveEvent] = React.useState<Event>();
-  const [uiStringQueue, setUiStringQueue] = React.useState<UiStringParams[]>(
-    EMPTY_UI_STRING_QUEUE
-  );
+  const [uiStringQueue, setUiStringQueue] = React.useState<UiStringParams[]>();
+  const [audioFeedbackQueue, setAudioFeedbackQueue] =
+    React.useState<UiStringParams[]>();
+
+  const { decreaseVolume, increaseVolume } = useVolumeControls({
+    playVolumeChangeFeedback: setAudioFeedbackQueue,
+  });
 
   const { api, isEnabled, setIsPaused } = assertDefined(
     useAudioContext(),
@@ -53,8 +119,12 @@ export function UiStringScreenReader(
   );
   const currentLanguageCode = useCurrentLanguage();
 
-  const activeLanguages = uiStringQueue.map((s) => s.languageCode);
-  const audioIdQueries = api.getAudioIds.useQueries(activeLanguages);
+  const activeLanguages = new Set(
+    [...(uiStringQueue || []), ...(audioFeedbackQueue || [])].map(
+      (s) => s.languageCode
+    )
+  );
+  const audioIdQueries = api.getAudioIds.useQueries([...activeLanguages]);
 
   //
   // Register click/focus handlers:
@@ -95,9 +165,11 @@ export function UiStringScreenReader(
   // Extract and queue up i18n keys within the event target:
   //
   React.useEffect(() => {
+    setUiStringQueue(undefined);
+    setAudioFeedbackQueue(undefined);
+
     // Clear the playback queue if the active event has been cleared:
     if (!activeEvent) {
-      setUiStringQueue(EMPTY_UI_STRING_QUEUE);
       return;
     }
 
@@ -105,7 +177,6 @@ export function UiStringScreenReader(
 
     /* istanbul ignore next - tough to test firing click events on non-elements */
     if (!(target instanceof Element)) {
-      setActiveEvent(undefined);
       return;
     }
 
@@ -113,7 +184,6 @@ export function UiStringScreenReader(
     // (e.g. a button click event that triggers page navigation.)
     /* istanbul ignore next */
     if (!window.document.body.contains(target)) {
-      setUiStringQueue(EMPTY_UI_STRING_QUEUE);
       return;
     }
 
@@ -132,7 +202,9 @@ export function UiStringScreenReader(
       }
     }
 
-    setUiStringQueue(newI18nKeys);
+    if (newI18nKeys.length > 0) {
+      setUiStringQueue(newI18nKeys);
+    }
   }, [activeEvent]);
 
   const replay = React.useCallback(() => {
@@ -161,7 +233,11 @@ export function UiStringScreenReader(
 
   const isDataReady = Object.values(audioIdQueries).every((q) => q.isSuccess);
   if (isDataReady) {
-    clipQueue = uiStringQueue.flatMap(({ i18nKey, languageCode }) => {
+    // To avoid interrupting in-progress screen reader audio, only play audio
+    // feedback if the UI string audio queue is empty:
+    const audioStringQueue = uiStringQueue || audioFeedbackQueue || [];
+
+    clipQueue = audioStringQueue.flatMap(({ i18nKey, languageCode }) => {
       const audioIdMappings = assertDefined(
         audioIdQueries[languageCode],
         `audioIdQueries[${languageCode}] not defined`
@@ -189,9 +265,18 @@ export function UiStringScreenReader(
     [clipQueue.map((c) => c.audioId).join(',')]
   );
 
+  const onDone = React.useCallback(() => {
+    setUiStringQueue(undefined);
+    setAudioFeedbackQueue(undefined);
+  }, []);
+
   return (
-    <UiStringScreenReaderContext.Provider value={{ replay }}>
-      {isEnabled && <PlayAudioClips clips={memoizedClipQueue} />}
+    <UiStringScreenReaderContext.Provider
+      value={{ decreaseVolume, increaseVolume, replay }}
+    >
+      {isEnabled && (
+        <PlayAudioClips clips={memoizedClipQueue} onDone={onDone} />
+      )}
       {children}
     </UiStringScreenReaderContext.Provider>
   );

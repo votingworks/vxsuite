@@ -6,7 +6,7 @@ import { newTestContext } from '../../test/test_context';
 import { PlayAudioClips } from './play_audio_clips';
 import { AudioPlayer, AudioPlayerParams, newAudioPlayer } from './audio_player';
 import { act, screen, waitFor } from '../../test/react_testing_library';
-import { DEFAULT_GAIN_DB } from './audio_volume';
+import { DEFAULT_AUDIO_VOLUME } from './audio_volume';
 import { DEFAULT_PLAYBACK_RATE } from './audio_playback_rate';
 
 jest.mock('./audio_player', (): typeof import('./audio_player') => ({
@@ -60,12 +60,15 @@ test('plays clips in order', async () => {
   const deferredPlayClip1 = deferred<void>();
   mockPlayer.play.mockReturnValue(deferredPlayClip1.promise);
 
+  const onDone = jest.fn();
+
   render(
     <PlayAudioClips
       clips={[
         { audioId: 'abc', languageCode: ENGLISH },
         { audioId: 'def', languageCode: SPANISH },
       ]}
+      onDone={onDone}
     />
   );
 
@@ -81,9 +84,10 @@ test('plays clips in order', async () => {
     DEFAULT_PLAYBACK_RATE
   );
   expect(mockPlayer.setVolume).toHaveBeenCalledTimes(1);
-  expect(mockPlayer.setVolume).toHaveBeenLastCalledWith(DEFAULT_GAIN_DB);
+  expect(mockPlayer.setVolume).toHaveBeenLastCalledWith(DEFAULT_AUDIO_VOLUME);
   expect(mockPlayer.play).toHaveBeenCalledTimes(1);
   expect(mockOfNewAudioPlayer).toHaveBeenCalledTimes(1);
+  expect(onDone).not.toHaveBeenCalled();
 
   // Prep mock player for 2nd clip adn simulate first clip ending:
   const deferredPlayClip2 = deferred<void>();
@@ -102,9 +106,10 @@ test('plays clips in order', async () => {
     DEFAULT_PLAYBACK_RATE
   );
   expect(mockPlayer.setVolume).toHaveBeenCalledTimes(2);
-  expect(mockPlayer.setVolume).toHaveBeenLastCalledWith(DEFAULT_GAIN_DB);
+  expect(mockPlayer.setVolume).toHaveBeenLastCalledWith(DEFAULT_AUDIO_VOLUME);
   expect(mockPlayer.play).toHaveBeenCalledTimes(2);
   expect(mockOfNewAudioPlayer).toHaveBeenCalledTimes(2);
+  expect(onDone).not.toHaveBeenCalled();
 
   // Simulate end of the audio queue and expect a final `stop` call for cleanup:
   mockPlayer.play.mockReset();
@@ -112,9 +117,26 @@ test('plays clips in order', async () => {
   act(() => deferredPlayClip2.resolve());
   await waitFor(() => expect(mockPlayer.stop).toHaveBeenCalled());
   expect(mockPlayer.play).not.toHaveBeenCalled();
+  expect(onDone).toHaveBeenCalledTimes(1);
 
   // Expect only 2 player instantiations over the course of the test.
   expect(mockOfNewAudioPlayer).toHaveBeenCalledTimes(2);
+});
+
+test('works without an onDone prop value', async () => {
+  const { mockApiClient, render } = newTestContext();
+  mockApiClient.getAudioClips.mockResolvedValue([
+    { id: 'abc', dataBase64: 'data-for-abc', languageCode: ENGLISH },
+  ]);
+
+  const { mockPlayer } = initMockPlayer();
+  mockPlayer.play.mockResolvedValue();
+
+  // Render without `onDone` to verify no lifecycle errors are thrown:
+  render(
+    <PlayAudioClips clips={[{ audioId: 'abc', languageCode: ENGLISH }]} />
+  );
+  await waitFor(() => expect(mockPlayer.play).toHaveBeenCalled());
 });
 
 test('playback rate follows user setting', async () => {
@@ -145,7 +167,8 @@ test('playback rate follows user setting', async () => {
 });
 
 test('volume follows user setting', async () => {
-  const { getAudioContext, mockApiClient, render } = newTestContext();
+  const { getAudioContext, getAudioControls, mockApiClient, render } =
+    newTestContext();
   mockApiClient.getAudioClips.mockResolvedValue([
     { id: 'abc', dataBase64: 'data-for-abc', languageCode: ENGLISH },
   ]);
@@ -159,11 +182,11 @@ test('volume follows user setting', async () => {
 
   await waitFor(() => expect(mockOfNewAudioPlayer).toHaveBeenCalled());
   expect(mockPlayer.setVolume).toHaveBeenCalledTimes(1);
-  expect(mockPlayer.setVolume).toHaveBeenLastCalledWith(DEFAULT_GAIN_DB);
+  expect(mockPlayer.setVolume).toHaveBeenLastCalledWith(DEFAULT_AUDIO_VOLUME);
 
-  act(() => getAudioContext()?.increaseVolume());
+  act(() => getAudioControls()?.increaseVolume());
 
-  const newVolume = getAudioContext()?.gainDb;
+  const newVolume = getAudioContext()?.volume;
   await waitFor(() =>
     expect(mockPlayer.setVolume).toHaveBeenLastCalledWith(newVolume)
   );

@@ -5,30 +5,19 @@ import {
   UiStringsAudioContextProvider,
   useAudioContext,
 } from './audio_context';
-import {
-  UiStringsReactQueryApi,
-  createUiStringsApi,
-} from '../hooks/ui_strings_api';
+import { createUiStringsApi } from '../hooks/ui_strings_api';
 import { renderHook } from '../../test/react_testing_library';
-import {
-  DEFAULT_GAIN_DB,
-  GAIN_INCREMENT_AMOUNT_DB,
-  MAX_GAIN_DB,
-  MIN_GAIN_DB,
-} from './audio_volume';
+import { AudioVolume, DEFAULT_AUDIO_VOLUME } from './audio_volume';
 import {
   DEFAULT_PLAYBACK_RATE,
   MAX_PLAYBACK_RATE,
   MIN_PLAYBACK_RATE,
   PLAYBACK_RATE_INCREMENT_AMOUNT,
 } from './audio_playback_rate';
+import { newTestContext } from '../../test/test_context';
 
-const mockUiStringsApi: UiStringsReactQueryApi = createUiStringsApi(() => ({
-  getAudioClips: jest.fn(),
-  getAvailableLanguages: jest.fn(),
-  getUiStringAudioIds: jest.fn(),
-  getUiStrings: jest.fn(),
-}));
+const { mockApiClient } = newTestContext();
+const mockUiStringsApi = createUiStringsApi(() => mockApiClient);
 
 function TestContextWrapper(props: { children: React.ReactNode }) {
   const { children } = props;
@@ -77,50 +66,18 @@ test('exposes web AudioContext', () => {
   expect(result.current?.webAudioContext).toEqual(mockWebAudioContext);
 });
 
-describe('volume API', () => {
-  test('increaseVolume', () => {
-    const { result } = renderHook(useAudioContext, {
-      wrapper: TestContextWrapper,
-    });
-
-    expect(result.current?.gainDb).toEqual(DEFAULT_GAIN_DB);
-
-    act(() => result.current?.increaseVolume());
-    act(() => result.current?.increaseVolume());
-    expect(result.current?.gainDb).toEqual(
-      DEFAULT_GAIN_DB + GAIN_INCREMENT_AMOUNT_DB * 2
-    );
-
-    // Try increasing the volume well past the maximum:
-    const maxIncrementSteps = Math.ceil(MAX_GAIN_DB / GAIN_INCREMENT_AMOUNT_DB);
-    for (let i = 0; i < maxIncrementSteps + 2; i += 1) {
-      act(() => result.current?.increaseVolume());
-    }
-    expect(result.current?.gainDb).toEqual(MAX_GAIN_DB);
+test('setVolume', () => {
+  const { result } = renderHook(useAudioContext, {
+    wrapper: TestContextWrapper,
   });
 
-  test('decreaseVolume', () => {
-    const { result } = renderHook(useAudioContext, {
-      wrapper: TestContextWrapper,
-    });
+  expect(result.current?.volume).toEqual(DEFAULT_AUDIO_VOLUME);
 
-    expect(result.current?.gainDb).toEqual(DEFAULT_GAIN_DB);
+  act(() => result.current?.setVolume(AudioVolume.MAXIMUM));
+  expect(result.current?.volume).toEqual(AudioVolume.MAXIMUM);
 
-    act(() => result.current?.decreaseVolume());
-    act(() => result.current?.decreaseVolume());
-    expect(result.current?.gainDb).toEqual(
-      DEFAULT_GAIN_DB - GAIN_INCREMENT_AMOUNT_DB * 2
-    );
-
-    // Try decreasing the volume well past the minimum:
-    const maxDecrementSteps = Math.abs(
-      Math.ceil(MIN_GAIN_DB / GAIN_INCREMENT_AMOUNT_DB)
-    );
-    for (let i = 0; i < maxDecrementSteps + 2; i += 1) {
-      act(() => result.current?.decreaseVolume());
-    }
-    expect(result.current?.gainDb).toEqual(MIN_GAIN_DB);
-  });
+  act(() => result.current?.setVolume(AudioVolume.TWENTY_PERCENT));
+  expect(result.current?.volume).toEqual(AudioVolume.TWENTY_PERCENT);
 });
 
 describe('playback rate API', () => {
@@ -190,7 +147,7 @@ test('setIsEnabled', () => {
 
   act(() => result.current?.setIsEnabled(false));
   act(() => result.current?.increasePlaybackRate());
-  act(() => result.current?.decreaseVolume());
+  act(() => result.current?.setVolume(AudioVolume.MINIMUM));
 
   expect(result.current?.isPaused).toEqual(true);
 
@@ -198,7 +155,7 @@ test('setIsEnabled', () => {
 
   expect(result.current?.isEnabled).toEqual(true);
   expect(result.current?.isPaused).toEqual(false);
-  expect(result.current?.gainDb).toEqual(DEFAULT_GAIN_DB);
+  expect(result.current?.volume).toEqual(DEFAULT_AUDIO_VOLUME);
   expect(result.current?.playbackRate).toEqual(DEFAULT_PLAYBACK_RATE);
 });
 
@@ -275,13 +232,13 @@ test('reset', () => {
 
   act(() => result.current?.setIsEnabled(true));
   act(() => result.current?.increasePlaybackRate());
-  act(() => result.current?.decreaseVolume());
+  act(() => result.current?.setVolume(AudioVolume.MINIMUM));
   act(() => result.current?.setIsPaused(false));
 
   act(() => result.current?.reset());
 
   expect(result.current?.isEnabled).toEqual(DEFAULT_AUDIO_ENABLED_STATE);
-  expect(result.current?.gainDb).toEqual(DEFAULT_GAIN_DB);
+  expect(result.current?.volume).toEqual(DEFAULT_AUDIO_VOLUME);
   expect(result.current?.playbackRate).toEqual(DEFAULT_PLAYBACK_RATE);
   expect(result.current?.isPaused).toEqual(false);
 });

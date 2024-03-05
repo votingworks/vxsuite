@@ -18,7 +18,7 @@ type PlayAudioClipProps = ClipParams & {
 function PlayAudioClip(props: PlayAudioClipProps) {
   const { audioId, languageCode, onDone } = props;
   const [audioPlayer, setAudioPlayer] = React.useState<AudioPlayer>();
-  const { api, gainDb, playbackRate, webAudioContext } = assertDefined(
+  const { api, playbackRate, volume, webAudioContext } = assertDefined(
     useAudioContext()
   );
 
@@ -52,8 +52,8 @@ function PlayAudioClip(props: PlayAudioClipProps) {
     audioPlayer?.setPlaybackRate(playbackRate);
   }, [audioPlayer, playbackRate]);
   React.useEffect(() => {
-    audioPlayer?.setVolume(gainDb);
-  }, [audioPlayer, gainDb]);
+    audioPlayer?.setVolume(volume);
+  }, [audioPlayer, volume]);
 
   //
   // Store `onDone` callback ref to avoid re-running the "start playback" effect
@@ -85,10 +85,11 @@ function PlayAudioClip(props: PlayAudioClipProps) {
 
 export interface PlayAudioQueueProps {
   clips: ClipParams[];
+  onDone?: () => void;
 }
 
 export function PlayAudioClips(props: PlayAudioQueueProps): React.ReactNode {
-  const { clips } = props;
+  const { clips, onDone } = props;
   const [clipIndex, setClipIndex] = React.useState(0);
   const clipIndexRef = React.useRef(clipIndex);
 
@@ -108,6 +109,16 @@ export function PlayAudioClips(props: PlayAudioQueueProps): React.ReactNode {
       setClipIndex(clipIndexRef.current + 1);
     }
   }, [clips]);
+
+  //
+  // Trigger `onDone` handler once all clips are done playing:
+  //
+  const allClipsDone = clipIndex >= clips.length;
+  React.useEffect(() => {
+    if (allClipsDone) {
+      onDone?.();
+    }
+  }, [allClipsDone, onDone]);
 
   const currentClip = clips[clipIndex];
   if (!currentClip) {
