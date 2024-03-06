@@ -27,7 +27,7 @@ test('AdminReadinessReport', () => {
         },
       }}
       mostRecentPrinterDiagnostic={{
-        hardware: 'printer',
+        type: 'test-print',
         outcome: 'pass',
         timestamp: generatedAtTime.getTime(),
       }}

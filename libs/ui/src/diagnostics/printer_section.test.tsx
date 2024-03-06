@@ -225,7 +225,7 @@ describe('PrinterSection diagnostic message', () => {
       <PrinterSection
         printerStatus={getMockPrinterStatus()}
         mostRecentPrinterDiagnostic={{
-          hardware: 'printer',
+          type: 'test-print',
           outcome: 'pass',
           timestamp,
         }}
@@ -239,7 +239,7 @@ describe('PrinterSection diagnostic message', () => {
       <PrinterSection
         printerStatus={getMockPrinterStatus()}
         mostRecentPrinterDiagnostic={{
-          hardware: 'printer',
+          type: 'test-print',
           outcome: 'fail',
           timestamp,
         }}

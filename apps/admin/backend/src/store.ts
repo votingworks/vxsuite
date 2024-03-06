@@ -21,9 +21,7 @@ import {
   BallotStyleId,
   ContestId,
   ContestOptionId,
-  DiagnosticsHardware,
-  DiagnosticsOutcome,
-  DiagnosticsRecord,
+  DiagnosticRecord,
   DistrictId,
   Election,
   Id,
@@ -2525,35 +2523,32 @@ export class Store {
   }
 
   addDiagnosticRecord({
-    hardware,
+    type,
     outcome,
-  }: {
-    hardware: DiagnosticsHardware;
-    outcome: DiagnosticsOutcome;
-  }): void {
+  }: Omit<DiagnosticRecord, 'timestamp'>): void {
     this.client.run(
       `
         insert into diagnostics
-          (hardware, outcome, timestamp)
+          (type, outcome, timestamp)
         values
           (?, ?, ?)
       `,
-      hardware,
+      type,
       outcome,
       Date.now()
     );
   }
 
-  getDiagnosticRecords(): DiagnosticsRecord[] {
+  getDiagnosticRecords(): DiagnosticRecord[] {
     return this.client.all(
       `
         select
-          hardware,
+          type,
           outcome,
           timestamp
         from diagnostics
       `
-    ) as DiagnosticsRecord[];
+    ) as DiagnosticRecord[];
   }
 
   getMaximumUsableDiskSpace(): number {

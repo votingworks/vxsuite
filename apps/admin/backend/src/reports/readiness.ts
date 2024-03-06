@@ -3,7 +3,7 @@ import { Printer, renderToPdf } from '@votingworks/printing';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
 import { VX_MACHINE_ID, getBatteryInfo } from '@votingworks/backend';
-import { DiagnosticsRecord } from '@votingworks/types';
+import { DiagnosticRecord } from '@votingworks/types';
 import { Workspace } from '../util/workspace';
 import { getCurrentTime } from '../util/get_current_time';
 import { Store } from '../store';
@@ -13,10 +13,10 @@ import { Store } from '../store';
  */
 export function getMostRecentPrinterDiagnostic(
   store: Store
-): DiagnosticsRecord | undefined {
+): DiagnosticRecord | undefined {
   const diagnostics = store.getDiagnosticRecords();
   return diagnostics
-    .filter(({ hardware }) => hardware === 'printer')
+    .filter(({ type }) => type === 'test-print')
     .sort((a, b) => b.timestamp - a.timestamp)[0];
 }
 

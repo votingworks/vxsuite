@@ -1,7 +1,7 @@
 import { Button, Modal, P, RadioGroup } from '@votingworks/ui';
 import React, { useState } from 'react';
 import { assert, assertFalsy, sleep } from '@votingworks/basics';
-import { DiagnosticsOutcome } from '@votingworks/types';
+import { DiagnosticOutcome } from '@votingworks/types';
 import { addDiagnosticRecord, getPrinterStatus, printTestPage } from '../api';
 import { Loading } from './loading';
 
@@ -16,7 +16,7 @@ type FlowState = 'printing' | 'verification' | 'test-failed';
 
 export function PrintTestPageButton(): JSX.Element {
   const [flowState, setFlowState] = useState<FlowState>();
-  const [outcome, setOutcome] = useState<DiagnosticsOutcome>();
+  const [outcome, setOutcome] = useState<DiagnosticOutcome>();
 
   const printerStatusQuery = getPrinterStatus.useQuery();
   const printTestPageMutation = printTestPage.useMutation();
@@ -41,7 +41,7 @@ export function PrintTestPageButton(): JSX.Element {
     assert(outcome !== undefined);
 
     addDiagnosticRecordMutation.mutate({
-      hardware: 'printer',
+      type: 'test-print',
       outcome,
     });
 

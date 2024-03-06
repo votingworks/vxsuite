@@ -33,7 +33,7 @@ async function expectTextWithIcon(text: string, icon: string) {
 test('battery state ', async () => {
   apiMock.setPrinterStatus({ connected: false });
   apiMock.expectGetApplicationDiskSpaceSummary();
-  apiMock.expectGetDiagnosticsRecords([]);
+  apiMock.expectGetDiagnosticRecords([]);
   renderInAppContext(<HardwareDiagnosticsScreen />, {
     apiMock,
   });
@@ -73,7 +73,7 @@ const mockPrinterConfig: PrinterConfig = {
 test('displays printer state and allows diagnostic', async () => {
   apiMock.setPrinterStatus({ connected: false });
   apiMock.expectGetApplicationDiskSpaceSummary();
-  apiMock.expectGetDiagnosticsRecords([]);
+  apiMock.expectGetDiagnosticRecords([]);
   renderInAppContext(<HardwareDiagnosticsScreen />, {
     apiMock,
   });
@@ -122,12 +122,12 @@ test('displays printer state and allows diagnostic', async () => {
   userEvent.click(screen.getByRole('radio', { name: /Fail/ }));
   expect(screen.getButton('Confirm')).toBeEnabled();
   apiMock.expectAddDiagnosticRecord({
-    hardware: 'printer',
+    type: 'test-print',
     outcome: 'fail',
   });
-  apiMock.expectGetDiagnosticsRecords([
+  apiMock.expectGetDiagnosticRecords([
     {
-      hardware: 'printer',
+      type: 'test-print',
       outcome: 'fail',
       timestamp: new Date('2022-06-22T12:00:00.000').getTime(),
     },
@@ -151,17 +151,17 @@ test('displays printer state and allows diagnostic', async () => {
   await screen.findByText('Test Page Printed');
   userEvent.click(screen.getByRole('radio', { name: /Pass/ }));
   apiMock.expectAddDiagnosticRecord({
-    hardware: 'printer',
+    type: 'test-print',
     outcome: 'pass',
   });
-  apiMock.expectGetDiagnosticsRecords([
+  apiMock.expectGetDiagnosticRecords([
     {
-      hardware: 'printer',
+      type: 'test-print',
       outcome: 'fail',
       timestamp: new Date('2022-06-22T12:00:00.000').getTime(),
     },
     {
-      hardware: 'printer',
+      type: 'test-print',
       outcome: 'pass',
       timestamp: new Date('2022-06-22T12:01:00.000').getTime(),
     },
@@ -177,7 +177,7 @@ test('displays printer state and allows diagnostic', async () => {
 describe('disk space summary', () => {
   beforeEach(() => {
     apiMock.setPrinterStatus({ connected: false });
-    apiMock.expectGetDiagnosticsRecords([]);
+    apiMock.expectGetDiagnosticRecords([]);
   });
 
   test('normal disk space', async () => {
@@ -216,7 +216,7 @@ describe('disk space summary', () => {
 test('printing the readiness report', async () => {
   apiMock.setPrinterStatus({ connected: true });
   apiMock.expectGetApplicationDiskSpaceSummary();
-  apiMock.expectGetDiagnosticsRecords([]);
+  apiMock.expectGetDiagnosticRecords([]);
   renderInAppContext(<HardwareDiagnosticsScreen />, {
     apiMock,
   });
