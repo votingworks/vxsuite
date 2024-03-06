@@ -37,3 +37,8 @@ export function findTemplateGridAndBubbles(
   ballotImageSourceSideA: string | ImageData,
   ballotImageSourceSideB: string | ImageData
 ): TemplateGridAndBubbles;
+
+export function runBlankPaperDiagnostic(
+  image: string | ImageData,
+  debugBasePath?: string
+): boolean;
