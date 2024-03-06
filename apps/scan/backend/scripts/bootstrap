@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+script_directory_path="$(dirname "${0}")"
+ballot_type="${1}"
+
+if [[ "${ballot_type}" != "nh-accuvote" && "${ballot_type}" != "vx" ]]; then
+    echo "Usage: bootstrap <ballot-type>"
+    echo ""
+    echo "Arguments:"
+    echo "  <ballot-type> One of nh-accuvote or vx"
+    exit 1
+fi
+
+read -p "This will clear all scanned ballots. Are you sure you want to proceed? (y/n) " confirm
+
+if [ "$confirm" != "y" ]; then
+    echo "Canceling"
+    exit 1
+fi
+
+rm -r /vx/data/module-scan
+mkdir -p /vx/data
+cp -r "${script_directory_path}/bootstrap-data/${ballot_type}" /vx/data/module-scan

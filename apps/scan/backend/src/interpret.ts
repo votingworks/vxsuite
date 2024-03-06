@@ -1,3 +1,4 @@
+import fs from 'fs/promises';
 import {
   AdjudicationReason,
   AdjudicationReasonInfo,
@@ -6,7 +7,7 @@ import {
   SheetInterpretationWithPages,
   SheetOf,
 } from '@votingworks/types';
-import { time } from '@votingworks/utils';
+import { formatDurationNs, time } from '@votingworks/utils';
 import { ok, Result } from '@votingworks/basics';
 import {
   interpretSheetAndSaveImages,
@@ -128,11 +129,20 @@ export async function interpret(
 ): Promise<Result<SheetInterpretationWithPages, Error>> {
   const timer = time(rootDebug, `vxInterpret: ${sheetId}`);
 
+  const start = process.hrtime.bigint();
+
   const pageInterpretations = await interpretSheetAndSaveImages(
     options,
     sheet,
     sheetId,
     options.ballotImagesPath
+  );
+
+  const end = process.hrtime.bigint();
+  const duration = end - start;
+  await fs.appendFile(
+    `/home/${process.env['USER'] ?? 'vx'}/vx-interpret-times.txt`,
+    `${new Date().toISOString()}\t${formatDurationNs(duration)}\n`
   );
 
   timer.end();
