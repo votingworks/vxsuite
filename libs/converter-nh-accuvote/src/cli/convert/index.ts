@@ -1,5 +1,5 @@
 import { loadImageData } from '@votingworks/image-utils';
-import { err, ok, Result } from '@votingworks/basics';
+import { assertDefined, err, iter, ok, Result } from '@votingworks/basics';
 import { DOMParser } from '@xmldom/xmldom';
 import { enable as enableDebug } from 'debug';
 import { promises as fs } from 'fs';
@@ -9,9 +9,11 @@ import { NewHampshireBallotCardDefinition } from '../../convert/types';
 
 interface ConvertOptions {
   readonly type: 'convert';
-  readonly definitionPath: string;
-  readonly frontBallotPath: string;
-  readonly backBallotPath: string;
+  readonly cardDefinitionPaths: Array<{
+    readonly definitionPath: string;
+    readonly frontBallotPath: string;
+    readonly backBallotPath: string;
+  }>;
   readonly outputPath?: string;
   readonly debug: boolean;
 }
@@ -31,9 +33,8 @@ function parseXml(xml: string): Element {
 }
 
 function parseOptions(args: readonly string[]): Result<Options, Error> {
-  let definitionPath: string | undefined;
-  let frontBallotPath: string | undefined;
-  let backBallotPath: string | undefined;
+  const definitionPaths = [];
+  const ballotPaths = [];
   let outputPath: string | undefined;
   let debug = false;
 
@@ -70,13 +71,9 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
         }
 
         if (arg?.endsWith('.xml')) {
-          definitionPath = arg;
+          definitionPaths.push(arg);
         } else if (arg?.endsWith('.jpeg') || arg?.endsWith('.jpg')) {
-          if (frontBallotPath) {
-            backBallotPath = arg;
-          } else {
-            frontBallotPath = arg;
-          }
+          ballotPaths.push(arg);
         } else {
           return err(new Error(`unexpected argument: ${arg}`));
         }
@@ -84,23 +81,31 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
     }
   }
 
-  if (!definitionPath) {
+  if (definitionPaths.length === 0) {
     return err(new Error('missing definition path'));
   }
 
-  if (!frontBallotPath) {
-    return err(new Error('missing front ballot path'));
+  if (ballotPaths.length < 2) {
+    return err(new Error('missing ballot image paths'));
   }
 
-  if (!backBallotPath) {
-    return err(new Error('missing back ballot path'));
+  if (ballotPaths.length / definitionPaths.length !== 2) {
+    return err(
+      new Error('there must be two ballot images for each XML definition')
+    );
   }
 
   return ok({
     type: 'convert',
-    definitionPath,
-    frontBallotPath,
-    backBallotPath,
+    cardDefinitionPaths: iter(ballotPaths)
+      .chunks(2)
+      .zip(definitionPaths)
+      .map(([[frontBallotPath, backBallotPath], definitionPath]) => ({
+        definitionPath,
+        frontBallotPath,
+        backBallotPath: assertDefined(backBallotPath),
+      }))
+      .toArray(),
     outputPath,
     debug,
   });
@@ -108,7 +113,11 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
 
 function usage(out: NodeJS.WritableStream): void {
   out.write(
-    `usage: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]\n`
+    `Usage:
+  General Election: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
+  Primary Election: convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
+    <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+    [-o <output.json>] [--debug]\n`
   );
 }
 
@@ -122,7 +131,8 @@ export async function main(
   const parseResult = parseOptions(args);
 
   if (parseResult.isErr()) {
-    io.stderr.write(`error: ${parseResult.err().message}\n`);
+    io.stderr.write(`Error: ${parseResult.err().message}\n`);
+    usage(io.stderr);
     return 1;
   }
 
@@ -137,20 +147,31 @@ export async function main(
     enableDebug('converter-nh-accuvote:*');
   }
 
-  const { definitionPath, frontBallotPath, backBallotPath, outputPath } =
-    options;
+  const { cardDefinitionPaths, outputPath } = options;
 
-  const definitionContent = await fs.readFile(definitionPath, 'utf8');
-  const frontBallotImage = await loadImageData(frontBallotPath);
-  const backBallotImage = await loadImageData(backBallotPath);
+  const cardDefinitions = await Promise.all(
+    cardDefinitionPaths.map(
+      async (cardDefinitionPath): Promise<NewHampshireBallotCardDefinition> => {
+        const definitionContent = await fs.readFile(
+          cardDefinitionPath.definitionPath,
+          'utf8'
+        );
+        const frontBallotImage = await loadImageData(
+          cardDefinitionPath.frontBallotPath
+        );
+        const backBallotImage = await loadImageData(
+          cardDefinitionPath.backBallotPath
+        );
+        return {
+          definition: parseXml(definitionContent),
+          front: frontBallotImage,
+          back: backBallotImage,
+        };
+      }
+    )
+  );
 
-  const cardDefinition: NewHampshireBallotCardDefinition = {
-    definition: parseXml(definitionContent),
-    front: frontBallotImage,
-    back: backBallotImage,
-  };
-
-  const convertResult = convertElectionDefinition(cardDefinition);
+  const convertResult = convertElectionDefinition(cardDefinitions);
 
   const { issues = [] } = convertResult.isOk()
     ? convertResult.ok()

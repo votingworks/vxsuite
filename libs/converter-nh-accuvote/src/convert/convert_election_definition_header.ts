@@ -1,4 +1,4 @@
-import { assert, err, iter, ok } from '@votingworks/basics';
+import { assert, assertDefined, err, iter, ok } from '@votingworks/basics';
 import {
   BallotPaperSize,
   Candidate,
@@ -139,22 +139,15 @@ export function convertElectionDefinitionHeader(
     });
   }
 
-  const rawPrecinctId = root.getElementsByTagName('PrecinctID')[0]?.textContent;
-  if (typeof rawPrecinctId !== 'string') {
-    return err({
-      issues: [
-        {
-          kind: ConvertIssueKind.MissingDefinitionProperty,
-          message: 'PrecinctID is missing',
-          property: 'AVSInterface > AccuvoteHeaderInfo > PrecinctID',
-        },
-      ],
-    });
-  }
-  const cleanedPrecinctId = rawPrecinctId.replace(/[^-_\w]/g, '');
-  const precinctId = `town-id-${townId}-precinct-id-${cleanedPrecinctId}`;
+  const rawPrecinctId =
+    root.getElementsByTagName('PrecinctID')[0]?.textContent?.trim() ||
+    undefined;
+  const cleanedPrecinctId = rawPrecinctId?.replace(/[^-_\w]/g, '');
+  const precinctId = cleanedPrecinctId
+    ? `town-id-${townId}-precinct-id-${cleanedPrecinctId}`
+    : `town-id-${townId}-precinct`;
 
-  const rawDistrictId = `town-id-${townId}-precinct-id-${cleanedPrecinctId}`;
+  const rawDistrictId = `town-id-${townId}-district`;
   const districtIdResult = safeParse(DistrictIdSchema, rawDistrictId);
   if (districtIdResult.isErr()) {
     return err({
@@ -205,7 +198,23 @@ export function convertElectionDefinitionHeader(
       });
   }
 
+  const electionPartyName = root
+    .getElementsByTagName('PartyName')[0]
+    ?.textContent?.trim();
+  const electionParty: Party | undefined = electionPartyName
+    ? {
+        id: unsafeParse(PartyIdSchema, makeId(electionPartyName)),
+        name: electionPartyName,
+        fullName: electionPartyName,
+        abbrev: electionPartyName,
+      }
+    : undefined;
+
   const parties = new Map<string, Party>();
+  if (electionPartyName) {
+    parties.set(electionPartyName, assertDefined(electionParty));
+  }
+
   const contests: Array<CandidateContest | YesNoContest> = [];
   const optionMetadataByCandidateElement = new Map<
     Element,
@@ -234,7 +243,9 @@ export function convertElectionDefinitionHeader(
         ],
       });
     }
-    const contestId = makeId(officeName);
+    const contestId = makeId(
+      `${officeName}${electionPartyName ? `-${electionPartyName}` : ''}`
+    );
 
     const winnerNote =
       officeNameElement?.getElementsByTagName('WinnerNote')[0]?.textContent;
@@ -248,7 +259,9 @@ export function convertElectionDefinitionHeader(
     ).partition(
       (candidateElement) =>
         candidateElement.getElementsByTagName('WriteIn')[0]?.textContent ===
-        'True'
+          'True' ||
+        candidateElement.getElementsByTagName('Name')[0]?.textContent ===
+          'Write-In'
     );
 
     const candidates: Candidate[] = [];
@@ -324,25 +337,20 @@ export function convertElectionDefinitionHeader(
       });
     }
 
-    // From the XML we've seen, write-ins are listed in reverse of the order
-    // they appear on the ballot. Let's make sure.
-    // eslint-disable-next-line vx/gts-identifiers
-    const writeInYCoordinates = writeInElements.map((writeInElement) =>
-      safeParseNumber(
-        writeInElement.getElementsByTagName('OY')[0]?.textContent
-      ).assertOk('Write-in element has unparseable OY')
+    // From the XML we've seen, write-ins are sometimes listed in reverse of the
+    // order they appear on the ballot. In order to make sure the write-in
+    // options we create have grid layout coordinates in ballot order, we sort
+    // the write-ins here.
+    const writeInElementsInBallotOrder = [...writeInElements].sort(
+      (writeInA, writeInB) =>
+        safeParseNumber(
+          writeInA.getElementsByTagName('OY')[0]?.textContent
+        ).assertOk('Write-in element has unparseable OY') -
+        safeParseNumber(
+          writeInB.getElementsByTagName('OY')[0]?.textContent
+        ).assertOk('Write-in element has unparseable OY')
     );
-    assert(
-      iter(writeInYCoordinates)
-        .windows(2)
-        .every(([earlier, later]) => earlier > later),
-      `Write-in OY coordinates are not in reverse ballot order: ${writeInYCoordinates.join(
-        ', '
-      )}`
-    );
-    // In order to make sure the write-in options we create have grid layout
-    // coordinates in ballot order, we reverse the write-ins here.
-    for (const [i, writeInElement] of writeInElements.reverse().entries()) {
+    for (const [i, writeInElement] of writeInElementsInBallotOrder.entries()) {
       optionMetadataByCandidateElement.set(writeInElement, {
         type: 'write-in',
         contestId,
@@ -358,7 +366,7 @@ export function convertElectionDefinitionHeader(
       seats,
       allowWriteIns: writeInElements.length > 0,
       candidates,
-      // TODO: party ID?
+      partyId: electionParty?.id,
     });
   }
 
@@ -424,7 +432,7 @@ export function convertElectionDefinitionHeader(
   const definitionGrid = readGridFromElectionDefinition(root);
 
   const election: Election = {
-    type: 'general',
+    type: electionParty ? 'primary' : 'general',
     title,
     date: parsedDate.toISO(),
     county: {
@@ -450,6 +458,7 @@ export function convertElectionDefinitionHeader(
         id: 'default',
         districts: [districtId],
         precincts: [precinctId],
+        partyId: electionParty?.id,
       },
     ],
     contests,

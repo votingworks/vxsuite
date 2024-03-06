@@ -104,6 +104,7 @@ export enum ConvertIssueKind {
   InvalidTimingMarkMetadata = 'InvalidTimingMarkMetadata',
   MismatchedBallotImageSize = 'MismatchedBallotImageSize',
   MismatchedOvalGrids = 'MismatchedOvalGrids',
+  MismatchedPrimaryPartyElections = 'MismatchedPrimaryPartyElections',
   MissingDefinitionProperty = 'MissingDefinitionProperty',
   MissingTimingMarkMetadata = 'MissingTimingMarkMetadata',
   TimingMarkDetectionFailed = 'TimingMarkDetectionFailed',
@@ -171,6 +172,10 @@ export type ConvertIssue =
         GridPosition,
         TemplateBubbleGridEntry
       >;
+    }
+  | {
+      kind: ConvertIssueKind.MismatchedPrimaryPartyElections;
+      message: string;
     }
   | {
       kind: ConvertIssueKind.MissingDefinitionProperty;
