@@ -11,7 +11,7 @@ import { UnlockMachineScreen } from './unlock_machine_screen';
 import { PinLength } from './utils/pin_length';
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2000-01-01T00:00:00Z'));
+  jest.useFakeTimers().setSystemTime(new Date('2000-01-01T00:00:00'));
 });
 
 const checkingPinAuthStatus: DippedSmartCardAuth.CheckingPin = {

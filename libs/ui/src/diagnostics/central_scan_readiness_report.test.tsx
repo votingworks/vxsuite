@@ -3,7 +3,7 @@ import { CentralScanReadinessReport } from '.';
 import { render, screen } from '../../test/react_testing_library';
 
 test('CentralScanReadinessReport', () => {
-  const generatedAtTime = new Date('2022-01-01T00:00:00Z');
+  const generatedAtTime = new Date('2022-01-01T00:00:00');
   const machineId = 'MOCK';
   render(
     <CentralScanReadinessReport
@@ -31,7 +31,7 @@ test('CentralScanReadinessReport', () => {
   expect(
     screen.getByText(
       hasTextAcrossElements(
-        'Date: Saturday, January 1, 2022 at 12:00:00 AM UTC'
+        'Date: Saturday, January 1, 2022 at 12:00:00 AM AKST'
       )
     )
   ).toBeInTheDocument();

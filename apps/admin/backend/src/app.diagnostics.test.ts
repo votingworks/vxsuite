@@ -92,7 +92,7 @@ test('diagnostic records', async () => {
   jest.useRealTimers();
 });
 
-const reportPrintedTime = new Date('2021-01-01T00:00:00.000Z');
+const reportPrintedTime = new Date('2021-01-01T00:00:00.000');
 jest.mock('./util/get_current_time', () => ({
   getCurrentTime: () => reportPrintedTime.getTime(),
 }));
@@ -140,7 +140,7 @@ test('print readiness report', async () => {
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
   await apiClient.printTestPage();
-  jest.useFakeTimers().setSystemTime(new Date('2021-01-01T00:00:00.000Z'));
+  jest.useFakeTimers().setSystemTime(new Date('2021-01-01T00:00:00.000'));
   await apiClient.addDiagnosticRecord({
     hardware: 'printer',
     outcome: 'pass',

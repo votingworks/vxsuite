@@ -41,7 +41,7 @@ const generalReportArgs: WriteInAdjudicationReportProps = {
   election: electionFamousNames2021Fixtures.election,
   isOfficial: false,
   isTest: false,
-  generatedAtTime: new Date('2020-11-03T12:00:00.000Z'),
+  generatedAtTime: new Date('2020-11-03T12:00:00.000'),
   electionWriteInSummary: {
     contestWriteInSummaries: {
       mayor: {
@@ -170,7 +170,7 @@ const primaryReportArgs: WriteInAdjudicationReportProps = {
   election,
   isOfficial: true,
   isTest: false,
-  generatedAtTime: new Date('2020-11-03T12:00:00.000Z'),
+  generatedAtTime: new Date('2020-11-03T12:00:00.000'),
   electionWriteInSummary: {
     contestWriteInSummaries: {
       'zoo-council-mammal': {
@@ -234,7 +234,7 @@ export const EmptyPrimaryReport: Story = {
   args: {
     election,
     isOfficialResults: true,
-    generatedAtTime: new Date('2020-11-03T12:00:00.000Z'),
+    generatedAtTime: new Date('2020-11-03T12:00:00.000'),
     electionWriteInSummary: {
       contestWriteInSummaries: {},
     },

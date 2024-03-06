@@ -17,9 +17,9 @@
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "test": "is-ci test:ci test:watch",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage",
-    "test:ci": "pnpm build && pnpm test:coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
+    "test:watch": "TZ=America/Anchorage jest --watch",
+    "test:coverage": "TZ=America/Anchorage jest --coverage",
+    "test:ci": "TZ=America/Anchorage pnpm build && pnpm test:coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
     "pre-commit": "lint-staged"
   },
   "lint-staged": {
@@ -43,7 +43,6 @@
     "jszip": "^3.9.1",
     "lodash.setwith": "^4.3.2",
     "luxon": "^3.0.0",
-    "moment": "2.29.1",
     "randombytes": "^2.1.0",
     "readline": "^1.3.0",
     "tmp": "^0.2.1",

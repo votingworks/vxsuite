@@ -4,7 +4,7 @@ import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { Timer } from './timer';
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2000-01-01T00:00:00Z'));
+  jest.useFakeTimers().setSystemTime(new Date('2000-01-01T00:00:00'));
 });
 
 test('Timer', () => {

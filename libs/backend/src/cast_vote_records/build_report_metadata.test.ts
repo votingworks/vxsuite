@@ -36,7 +36,7 @@ test('builds well-formed cast vote record report', () => {
   expect(report.ReportType).toEqual([CVR.ReportType.OriginatingDeviceExport]);
   expect(report.OtherReportType).toBeUndefined();
   expect(report.Version).toEqual(CVR.CastVoteRecordVersion.v1_0_0);
-  expect(report.GeneratedDate).toEqual('2018-06-27T00:00:00.000Z');
+  expect(report.GeneratedDate).toEqual('2018-06-27T08:00:00.000Z');
   expect(report.ReportGeneratingDeviceIds).toEqual([scannerId]);
   expect(report.ReportingDevice).toMatchObject([
     {

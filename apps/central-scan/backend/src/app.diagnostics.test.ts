@@ -42,7 +42,7 @@ test('getDiskSpaceSummary', async () => {
   });
 });
 
-const reportPrintedTime = new Date('2021-01-01T00:00:00.000Z');
+const reportPrintedTime = new Date('2021-01-01T00:00:00.000');
 jest.mock('./util/get_current_time', () => ({
   getCurrentTime: () => reportPrintedTime.getTime(),
 }));

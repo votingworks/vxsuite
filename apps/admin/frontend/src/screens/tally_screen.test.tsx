@@ -21,8 +21,8 @@ afterEach(() => {
 });
 
 const electionDefinition = electionTwoPartyPrimaryDefinition;
-const earlierDate = new Date('2022-07-01T12:00:00.000Z');
-const laterDate = new Date('2022-07-01T12:05:00.000Z');
+const earlierDate = new Date('2022-07-01T12:00:00.000');
+const laterDate = new Date('2022-07-01T12:05:00.000');
 
 test('displays manual tally metadata & links to manual data summary page', async () => {
   apiMock.expectGetCastVoteRecordFileMode('official');

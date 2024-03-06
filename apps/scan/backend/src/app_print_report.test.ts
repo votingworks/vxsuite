@@ -25,7 +25,7 @@ beforeEach(() => {
   );
 });
 
-const reportPrintedTime = new Date('2021-01-01T00:00:00.000Z');
+const reportPrintedTime = new Date('2021-01-01T00:00:00.000');
 jest.mock('./util/get_current_time', () => ({
   getCurrentTime: () => reportPrintedTime.getTime(),
 }));
@@ -55,7 +55,7 @@ test('can print and re-print polls opened report', async () => {
       // initial polls opened report
       await apiClient.transitionPolls({
         type: 'open_polls',
-        time: new Date('2021-01-01T00:00:00.000Z').getTime(),
+        time: new Date('2021-01-01T00:00:00.000').getTime(),
       });
       await apiClient.printReport();
       const initialReportPath = mockPrinterHandler.getLastPrintPath();
@@ -101,7 +101,7 @@ test('can print voting paused and voting resumed reports', async () => {
 
       await scanBallot(mockScanner, apiClient, workspace.store, 0);
 
-      const time = new Date('2021-01-01T00:00:00.000Z').getTime();
+      const time = new Date('2021-01-01T00:00:00.000').getTime();
 
       // pause voting
       await apiClient.transitionPolls({
@@ -146,7 +146,7 @@ test('can tabulate results and print polls closed report', async () => {
       await scanBallot(mockScanner, apiClient, workspace.store, 1);
       await scanBallot(mockScanner, apiClient, workspace.store, 2);
 
-      const time = new Date('2021-01-01T00:00:00.000Z').getTime();
+      const time = new Date('2021-01-01T00:00:00.000').getTime();
 
       // close polls
       await apiClient.transitionPolls({

@@ -78,7 +78,7 @@ function TestComponent({
 
 test('overall flow', async () => {
   jest.useFakeTimers();
-  jest.setSystemTime(new Date('2021-01-01T00:00:00Z'));
+  jest.setSystemTime(new Date('2021-01-01T00:00:00'));
 
   renderInAppContext(<TestComponent echo="success" />, {
     apiMock,

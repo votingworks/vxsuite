@@ -19,10 +19,10 @@
     "pre-commit": "lint-staged",
     "start": "node ./build/index.js",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=2 # VxScan backend tests (which involve lots of polling and I/O operations) get flaky when we set --maxWorkers higher",
-    "test:coverage": "jest --coverage",
-    "test:debug": "node --inspect-brk $(which jest) --runInBand --no-cache",
-    "test:watch": "jest --watch",
+    "test:ci": "TZ=America/Anchorage jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=2 # VxScan backend tests (which involve lots of polling and I/O operations) get flaky when we set --maxWorkers higher",
+    "test:coverage": "TZ=America/Anchorage jest --coverage",
+    "test:debug": "TZ=America/Anchorage node --inspect-brk $(which jest) --runInBand --no-cache",
+    "test:watch": "TZ=America/Anchorage jest --watch",
     "type-check": "tsc --build"
   },
   "lint-staged": {

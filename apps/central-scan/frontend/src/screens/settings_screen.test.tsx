@@ -91,7 +91,7 @@ test('backup error shows message', async () => {
 });
 
 test('clicking "Update Date and Time" shows modal to set clock', async () => {
-  jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000Z'));
+  jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000'));
 
   renderScreen();
 
@@ -103,7 +103,7 @@ test('clicking "Update Date and Time" shows modal to set clock', async () => {
 
   // Open modal
   const modal = screen.getByRole('alertdialog');
-  within(modal).getByText('Sat, Oct 31, 2020, 12:00 AM UTC');
+  within(modal).getByText('Sat, Oct 31, 2020, 12:00 AM AKDT');
 
   // Change date
   const selectYear = screen.getByTestId('selectYear');
@@ -112,9 +112,8 @@ test('clicking "Update Date and Time" shows modal to set clock', async () => {
   // Save date
   apiMock.apiClient.setClock
     .expectCallWith({
-      isoDatetime: '2025-10-31T00:00:00.000+00:00',
-
-      ianaZone: 'UTC',
+      isoDatetime: '2025-10-31T00:00:00.000-08:00',
+      ianaZone: 'America/Anchorage',
     })
     .resolves();
   apiMock.expectLogOut();

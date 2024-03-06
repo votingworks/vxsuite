@@ -10,7 +10,7 @@ import { TEST_PAGE_PRINT_DELAY_SECONDS } from '../components/print_diagnostic_bu
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  jest.useFakeTimers().setSystemTime(new Date('2022-06-22T00:00:00.000Z'));
+  jest.useFakeTimers().setSystemTime(new Date('2022-06-22T00:00:00.000'));
   apiMock = createApiMock();
 });
 
@@ -129,7 +129,7 @@ test('displays printer state and allows diagnostic', async () => {
     {
       hardware: 'printer',
       outcome: 'fail',
-      timestamp: new Date('2022-06-22T12:00:00.000Z').getTime(),
+      timestamp: new Date('2022-06-22T12:00:00.000').getTime(),
     },
   ]);
   userEvent.click(screen.getButton('Confirm'));
@@ -158,12 +158,12 @@ test('displays printer state and allows diagnostic', async () => {
     {
       hardware: 'printer',
       outcome: 'fail',
-      timestamp: new Date('2022-06-22T12:00:00.000Z').getTime(),
+      timestamp: new Date('2022-06-22T12:00:00.000').getTime(),
     },
     {
       hardware: 'printer',
       outcome: 'pass',
-      timestamp: new Date('2022-06-22T12:01:00.000Z').getTime(),
+      timestamp: new Date('2022-06-22T12:01:00.000').getTime(),
     },
   ]);
   userEvent.click(screen.getButton('Confirm'));
