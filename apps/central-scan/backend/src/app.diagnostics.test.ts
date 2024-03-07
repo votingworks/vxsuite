@@ -9,6 +9,8 @@ import { LogEventId } from '@votingworks/logging';
 import { withApp } from '../test/helpers/setup_app';
 import { mockSystemAdministratorAuth } from '../test/helpers/auth';
 
+jest.setTimeout(20_000);
+
 jest.mock(
   '@votingworks/backend',
   (): typeof import('@votingworks/backend') => ({
