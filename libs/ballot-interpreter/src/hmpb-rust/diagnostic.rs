@@ -94,22 +94,24 @@ pub fn run_blank_paper_diagnostic(img: GrayImage, debug_path: Option<PathBuf>) -
         ),
     ];
 
-    let mut cells: Vec<Rect> = Vec::new();
-    for (left_start, top_start) in &starting_offsets {
-        cells.append(&mut generate_cells(
-            *left_start,
-            *top_start,
-            img.width() - CROP_BORDER_PIXELS,
-            img.height() - CROP_BORDER_PIXELS,
-            cell_width,
-            cell_height,
-        ));
-    }
+    let cells = starting_offsets
+        .into_iter()
+        .flat_map(|(left_start, top_start)| {
+            generate_cells(
+                left_start,
+                top_start,
+                img.width() - CROP_BORDER_PIXELS,
+                img.height() - CROP_BORDER_PIXELS,
+                cell_width,
+                cell_height,
+            )
+        })
+        .collect::<Vec<_>>();
 
     let (passed_cells, failed_cells) = inspect_cells(&img, &cells, foreground_threshold);
 
     debug.write("diagnostic", |canvas| {
-        draw_diagnostic_cells(canvas, passed_cells.as_slice(), failed_cells.as_slice());
+        draw_diagnostic_cells(canvas, &passed_cells, &failed_cells);
     });
 
     failed_cells.is_empty()
@@ -121,55 +123,50 @@ mod test {
     use image::DynamicImage;
     use std::fs::read_dir;
 
-    #[test]
-    fn test_blank_20lb_white_passes() {
-        let paths = read_dir("./test/fixtures/diagnostic/blank/20lb").unwrap();
-        for path in paths {
-            let img = image::open(path.unwrap().path())
-                .ok()
-                .map(DynamicImage::into_luma8)
-                .unwrap();
-            assert_eq!(run_blank_paper_diagnostic(img, None), true);
-        }
+    macro_rules! fixture_test {
+        ($test_name:ident, $path:expr, $expected:expr) => {
+            #[test]
+            fn $test_name() {
+                let paths = read_dir($path).unwrap();
+                for path in paths {
+                    let path = path.unwrap().path();
+                    let img = image::open(&path)
+                        .ok()
+                        .map(DynamicImage::into_luma8)
+                        .unwrap();
+                    assert_eq!(
+                        run_blank_paper_diagnostic(img, None),
+                        $expected,
+                        "image path: {path:?}"
+                    );
+                }
+            }
+        };
     }
 
-    #[test]
-    fn test_blank_40lb_white_passes() {
-        let paths = read_dir("./test/fixtures/diagnostic/blank/40lb").unwrap();
-        for path in paths {
-            let img = image::open(path.unwrap().path())
-                .ok()
-                .map(DynamicImage::into_luma8)
-                .unwrap();
-            assert_eq!(run_blank_paper_diagnostic(img, None), true);
-        }
-    }
+    fixture_test!(
+        test_blank_20lb_white_passes,
+        "./test/fixtures/diagnostic/blank/20lb",
+        true
+    );
 
-    #[test]
-    fn test_blank_manilla_passes() {
-        let paths = read_dir("./test/fixtures/diagnostic/blank/manilla").unwrap();
-        for path in paths {
-            let img = image::open(path.unwrap().path())
-                .ok()
-                .map(DynamicImage::into_luma8)
-                .unwrap();
-            assert_eq!(run_blank_paper_diagnostic(img, None), true);
-        }
-    }
+    fixture_test!(
+        test_blank_40lb_white_passes,
+        "./test/fixtures/diagnostic/blank/40lb",
+        true
+    );
 
-    #[test]
-    fn test_streaked_paper_fails() {
-        let paths = read_dir("./test/fixtures/diagnostic/streaked").unwrap();
-        for path_result in paths {
-            let path = path_result.unwrap().path();
-            dbg!(&path);
-            let img = image::open(path)
-                .ok()
-                .map(DynamicImage::into_luma8)
-                .unwrap();
-            assert_eq!(run_blank_paper_diagnostic(img, None), false);
-        }
-    }
+    fixture_test!(
+        test_blank_manilla_passes,
+        "./test/fixtures/diagnostic/blank/manilla",
+        true
+    );
+
+    fixture_test!(
+        test_streaked_paper_fails,
+        "./test/fixtures/diagnostic/streaked",
+        false
+    );
 
     #[test]
     fn test_non_blank_paper_fails() {
