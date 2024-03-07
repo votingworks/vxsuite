@@ -240,7 +240,7 @@ export function PollWorkerScreen({
             <H2 as="h1" align="center">
               {`Voting Session Active: ${ballotStyleId} at ${precinct.name}`}
             </H2>
-            <ol>
+            <ol style={{ marginBottom: '0' }}>
               <li>
                 <P>
                   Instruct the voter to press the{' '}
@@ -254,9 +254,7 @@ export function PollWorkerScreen({
                 <P>Remove the poll worker card to continue.</P>
               </li>
             </ol>
-            <P>
-              <HorizontalRule>or</HorizontalRule>
-            </P>
+            <HorizontalRule>or</HorizontalRule>
             <P align="center">Deactivate this voter session to start over.</P>
             <P align="center">
               <Button onPress={resetCardlessVoterSession}>
