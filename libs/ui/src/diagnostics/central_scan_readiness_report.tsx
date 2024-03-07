@@ -1,5 +1,6 @@
 import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
 import { ThemeProvider } from 'styled-components';
+import { DiagnosticRecord } from '@votingworks/types';
 import { LaptopSection } from './laptop_section';
 import { CentralScannerSection } from './central_scanner_section';
 import { makeTheme } from '../themes/make_theme';
@@ -10,12 +11,14 @@ interface ReportContentsProps {
   batteryInfo?: BatteryInfo;
   diskSpaceSummary: DiskSpaceSummary;
   isScannerAttached: boolean;
+  mostRecentScannerDiagnostic?: DiagnosticRecord;
 }
 
 export function CentralScanReadinessReportContents({
   batteryInfo,
   diskSpaceSummary,
   isScannerAttached,
+  mostRecentScannerDiagnostic,
 }: ReportContentsProps): JSX.Element {
   return (
     <div>
@@ -23,7 +26,10 @@ export function CentralScanReadinessReportContents({
         batteryInfo={batteryInfo}
         diskSpaceSummary={diskSpaceSummary}
       />
-      <CentralScannerSection isScannerAttached={isScannerAttached} />
+      <CentralScannerSection
+        isScannerAttached={isScannerAttached}
+        mostRecentScannerDiagnostic={mostRecentScannerDiagnostic}
+      />
     </div>
   );
 }

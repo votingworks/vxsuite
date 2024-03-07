@@ -1,6 +1,6 @@
 import { LogEventId } from '@votingworks/logging';
 import { HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
-import { assert } from '@votingworks/basics';
+import { assert, typedAs } from '@votingworks/basics';
 import {
   DiskSpaceSummary,
   getBatteryInfo,
@@ -8,6 +8,7 @@ import {
   pdfToText,
 } from '@votingworks/backend';
 import { mockOf } from '@votingworks/test-utils';
+import { DiagnosticRecord } from '@votingworks/types';
 import { buildTestEnvironment, mockSystemAdministratorAuth } from '../test/app';
 
 jest.mock(
@@ -44,48 +45,52 @@ test('diagnostic records', async () => {
 
   jest.setSystemTime(new Date(1000));
   await apiClient.addDiagnosticRecord({
-    hardware: 'printer',
+    type: 'test-print',
     outcome: 'fail',
   });
-  expect(await apiClient.getDiagnosticRecords()).toEqual([
-    {
-      hardware: 'printer',
-      outcome: 'fail',
-      timestamp: 1000,
-    },
-  ]);
+  expect(await apiClient.getDiagnosticRecords()).toEqual(
+    typedAs<DiagnosticRecord[]>([
+      {
+        type: 'test-print',
+        outcome: 'fail',
+        timestamp: 1000,
+      },
+    ])
+  );
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.DiagnosticComplete,
     'system_administrator',
     {
       disposition: 'failure',
-      message: 'Diagnostic test for the printer completed with outcome: fail.',
+      message: 'Diagnostic (test-print) completed with outcome: fail.',
     }
   );
 
   jest.setSystemTime(new Date(2000));
   await apiClient.addDiagnosticRecord({
-    hardware: 'printer',
+    type: 'test-print',
     outcome: 'pass',
   });
-  expect(await apiClient.getDiagnosticRecords()).toEqual([
-    {
-      hardware: 'printer',
-      outcome: 'fail',
-      timestamp: 1000,
-    },
-    {
-      hardware: 'printer',
-      outcome: 'pass',
-      timestamp: 2000,
-    },
-  ]);
+  expect(await apiClient.getDiagnosticRecords()).toEqual(
+    typedAs<DiagnosticRecord[]>([
+      {
+        type: 'test-print',
+        outcome: 'fail',
+        timestamp: 1000,
+      },
+      {
+        type: 'test-print',
+        outcome: 'pass',
+        timestamp: 2000,
+      },
+    ])
+  );
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.DiagnosticComplete,
     'system_administrator',
     {
       disposition: 'success',
-      message: 'Diagnostic test for the printer completed with outcome: pass.',
+      message: 'Diagnostic (test-print) completed with outcome: pass.',
     }
   );
 
@@ -142,7 +147,7 @@ test('print readiness report', async () => {
   await apiClient.printTestPage();
   jest.useFakeTimers().setSystemTime(new Date('2021-01-01T00:00:00.000'));
   await apiClient.addDiagnosticRecord({
-    hardware: 'printer',
+    type: 'test-print',
     outcome: 'pass',
   });
   jest.useRealTimers();

@@ -6,8 +6,11 @@ import {
   pdfToText,
 } from '@votingworks/backend';
 import { LogEventId } from '@votingworks/logging';
-import { withApp } from '../test/helpers/setup_app';
+import { join } from 'path';
+import { typedAs } from '@votingworks/basics';
+import { DiagnosticRecord } from '@votingworks/types';
 import { mockSystemAdministratorAuth } from '../test/helpers/auth';
+import { withApp } from '../test/helpers/setup_app';
 
 jest.setTimeout(20_000);
 
@@ -50,8 +53,22 @@ jest.mock('./util/get_current_time', () => ({
 }));
 
 test('save readiness report', async () => {
-  await withApp(async ({ apiClient, mockUsbDrive, auth, logger }) => {
+  await withApp(async ({ apiClient, mockUsbDrive, scanner, auth, logger }) => {
     mockSystemAdministratorAuth(auth);
+
+    // mock a successful scan diagnostic
+    jest.useFakeTimers();
+    jest.setSystemTime(reportPrintedTime.getTime());
+    scanner
+      .withNextScannerSession()
+      .sheet([
+        join(__dirname, '../test/fixtures/blank-sheet-front.jpg'),
+        join(__dirname, '../test/fixtures/blank-sheet-back.jpg'),
+      ])
+      .end();
+    await apiClient.performScanDiagnostic();
+    jest.useRealTimers();
+
     mockUsbDrive.insertUsbDrive({});
     const exportResult = await apiClient.saveReadinessReport();
     exportResult.assertOk('Failed to save readiness report');
@@ -77,5 +94,141 @@ test('save readiness report', async () => {
     expect(pdfContents).toContain('Connected');
 
     mockUsbDrive.removeUsbDrive();
+  });
+});
+
+describe('scan diagnostic', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+    jest.setSystemTime(0);
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  test('pass', async () => {
+    await withApp(async ({ apiClient, scanner, auth, logger }) => {
+      mockSystemAdministratorAuth(auth);
+
+      scanner
+        .withNextScannerSession()
+        .sheet([
+          join(__dirname, '../test/fixtures/blank-sheet-front.jpg'),
+          join(__dirname, '../test/fixtures/blank-sheet-back.jpg'),
+        ])
+        .end();
+
+      await apiClient.performScanDiagnostic();
+
+      expect(await apiClient.getMostRecentScannerDiagnostic()).toEqual(
+        typedAs<DiagnosticRecord>({
+          type: 'blank-sheet-scan',
+          outcome: 'pass',
+          timestamp: 0,
+        })
+      );
+
+      expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+        LogEventId.DiagnosticInit,
+        {
+          message:
+            'Starting diagnostic scan. Test sheet should be a blank sheet of white paper.',
+        }
+      );
+      expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+        LogEventId.DiagnosticComplete,
+        {
+          disposition: 'success',
+          message: 'Diagnostic scan succeeded.',
+        }
+      );
+    });
+  });
+
+  test('fail on first page', async () => {
+    await withApp(async ({ apiClient, scanner, auth, logger }) => {
+      mockSystemAdministratorAuth(auth);
+
+      scanner
+        .withNextScannerSession()
+        .sheet([
+          join(__dirname, '../test/fixtures/streaked-page.jpg'),
+          join(__dirname, '../test/fixtures/blank-sheet-back.jpg'),
+        ])
+        .end();
+      await apiClient.performScanDiagnostic();
+
+      expect(await apiClient.getMostRecentScannerDiagnostic()).toEqual(
+        typedAs<DiagnosticRecord>({
+          type: 'blank-sheet-scan',
+          outcome: 'fail',
+          timestamp: 0,
+        })
+      );
+      expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+        LogEventId.DiagnosticComplete,
+        {
+          disposition: 'failure',
+          message:
+            'Diagnostic scan failed. The paper may not be blank or the scanner may need to be cleaned.',
+        }
+      );
+    });
+  });
+
+  test('fail on second page', async () => {
+    await withApp(async ({ apiClient, scanner, auth, logger }) => {
+      mockSystemAdministratorAuth(auth);
+
+      scanner
+        .withNextScannerSession()
+        .sheet([
+          join(__dirname, '../test/fixtures/blank-sheet-front.jpg'),
+          join(__dirname, '../test/fixtures/streaked-page.jpg'),
+        ])
+        .end();
+      await apiClient.performScanDiagnostic();
+
+      expect(await apiClient.getMostRecentScannerDiagnostic()).toEqual(
+        typedAs<DiagnosticRecord>({
+          type: 'blank-sheet-scan',
+          outcome: 'fail',
+          timestamp: 0,
+        })
+      );
+      expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+        LogEventId.DiagnosticComplete,
+        {
+          disposition: 'failure',
+          message:
+            'Diagnostic scan failed. The paper may not be blank or the scanner may need to be cleaned.',
+        }
+      );
+    });
+  });
+
+  test('fail on no scan ', async () => {
+    await withApp(async ({ apiClient, scanner, auth, logger }) => {
+      mockSystemAdministratorAuth(auth);
+
+      scanner.withNextScannerSession().end();
+      await apiClient.performScanDiagnostic();
+
+      expect(await apiClient.getMostRecentScannerDiagnostic()).toEqual(
+        typedAs<DiagnosticRecord>({
+          type: 'blank-sheet-scan',
+          outcome: 'fail',
+          timestamp: 0,
+        })
+      );
+      expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+        LogEventId.DiagnosticComplete,
+        {
+          disposition: 'failure',
+          message: 'No test sheet detected for scan diagnostic.',
+        }
+      );
+    });
   });
 });

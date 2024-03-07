@@ -7,9 +7,9 @@ import {
   CastVoteRecordExportFileName,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
-  DiagnosticsHardware,
-  DiagnosticsOutcome,
-  DiagnosticsRecord,
+  DiagnosticType,
+  DiagnosticOutcome,
+  DiagnosticRecord,
   Id,
   PrinterStatus,
   SystemSettings,
@@ -976,17 +976,17 @@ function buildApi({
     },
 
     addDiagnosticRecord(input: {
-      hardware: DiagnosticsHardware;
-      outcome: DiagnosticsOutcome;
+      type: DiagnosticType;
+      outcome: DiagnosticOutcome;
     }): void {
       store.addDiagnosticRecord(input);
       void logger.logAsCurrentRole(LogEventId.DiagnosticComplete, {
         disposition: input.outcome === 'pass' ? 'success' : 'failure',
-        message: `Diagnostic test for the ${input.hardware} completed with outcome: ${input.outcome}.`,
+        message: `Diagnostic (${input.type}) completed with outcome: ${input.outcome}.`,
       });
     },
 
-    getDiagnosticRecords(): DiagnosticsRecord[] {
+    getDiagnosticRecords(): DiagnosticRecord[] {
       return store.getDiagnosticRecords();
     },
 

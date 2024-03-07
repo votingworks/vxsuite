@@ -1,5 +1,5 @@
 import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
-import { DiagnosticsRecord, PrinterStatus } from '@votingworks/types';
+import { DiagnosticRecord, PrinterStatus } from '@votingworks/types';
 import { ThemeProvider } from 'styled-components';
 import { LaptopSection } from './laptop_section';
 import { PrinterSection } from './printer_section';
@@ -11,7 +11,7 @@ interface ReportContentsProps {
   batteryInfo?: BatteryInfo;
   diskSpaceSummary: DiskSpaceSummary;
   printerStatus: PrinterStatus;
-  mostRecentPrinterDiagnostic?: DiagnosticsRecord;
+  mostRecentPrinterDiagnostic?: DiagnosticRecord;
 }
 
 export function AdminReadinessReportContents({

@@ -14,6 +14,7 @@ import {
   ElectionDefinition,
   SystemSettings,
   ExportCastVoteRecordsToUsbDriveError,
+  DiagnosticRecord,
 } from '@votingworks/types';
 import { isElectionManagerAuth } from '@votingworks/utils';
 import express, { Application } from 'express';
@@ -32,13 +33,19 @@ import {
   logScanBatchContinueFailure,
   logScanBatchContinueSuccess,
 } from './util/logging';
-import { saveReadinessReport } from './readiness_report';
+import {
+  getMostRecentScannerDiagnostic,
+  saveReadinessReport,
+} from './readiness_report';
+import { performScanDiagnostic, ScanDiagnosticOutcome } from './diagnostic';
+import { BatchScanner } from './fujitsu_scanner';
 
 type NoParams = never;
 
 export interface AppOptions {
   auth: DippedSmartCardAuthApi;
   allowedExportPatterns?: string[];
+  scanner: BatchScanner;
   importer: Importer;
   workspace: Workspace;
   logger: Logger;
@@ -50,6 +57,7 @@ function buildApi({
   workspace,
   logger,
   usbDrive,
+  scanner,
   importer,
 }: Exclude<AppOptions, 'allowedExportPatterns'>) {
   const { store } = workspace;
@@ -281,6 +289,14 @@ function buildApi({
       });
     },
 
+    async performScanDiagnostic(): Promise<ScanDiagnosticOutcome> {
+      return await performScanDiagnostic(scanner, store, logger);
+    },
+
+    getMostRecentScannerDiagnostic(): DiagnosticRecord | null {
+      return getMostRecentScannerDiagnostic(store) ?? null;
+    },
+
     async getApplicationDiskSpaceSummary(): Promise<DiskSpaceSummary> {
       return workspace.getDiskSpaceSummary();
     },
@@ -304,6 +320,7 @@ export type Api = ReturnType<typeof buildApi>;
  */
 export function buildCentralScannerApp({
   auth,
+  scanner,
   importer,
   workspace,
   logger,
@@ -317,6 +334,7 @@ export function buildCentralScannerApp({
     workspace,
     logger,
     usbDrive,
+    scanner,
     importer,
   });
   app.use('/api', grout.buildRouter(api, express));

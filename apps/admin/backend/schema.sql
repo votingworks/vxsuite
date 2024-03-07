@@ -237,7 +237,7 @@ insert into system_information default values;
 
 create table diagnostics (
   id integer primary key,
-  hardware text not null,
+  type text not null,
   outcome text not null check (outcome = 'pass' or outcome = 'fail'),
   timestamp number not null
 );

@@ -1,6 +1,6 @@
 import { AdminReadinessReportContents } from '@votingworks/ui';
 
-import { DiagnosticsRecord } from '@votingworks/types';
+import { DiagnosticRecord } from '@votingworks/types';
 import styled from 'styled-components';
 import { NavigationScreen } from '../components/navigation_screen';
 import {
@@ -45,9 +45,9 @@ export function HardwareDiagnosticsScreen(): JSX.Element {
   const printerStatus = printerStatusQuery.data;
   const diskSpaceSummary = diskSpaceQuery.data;
   const mostRecentPrinterDiagnostic = diagnosticRecordsQuery.data
-    .filter(({ hardware }) => hardware === 'printer')
+    .filter(({ type }) => type === 'test-print')
     .sort((a, b) => b.timestamp - a.timestamp)[0] as
-    | DiagnosticsRecord
+    | DiagnosticRecord
     | undefined;
 
   return (

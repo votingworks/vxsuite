@@ -7,6 +7,7 @@ import type {
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
+  DiagnosticRecord,
   DippedSmartCardAuth,
   ElectionDefinition,
   SystemSettings,
@@ -140,6 +141,12 @@ export function createApiMock(
 
     expectClearBallotData() {
       apiClient.clearBallotData.expectCallWith().resolves();
+    },
+
+    expectGetMostRecentScannerDiagnostic(diagnostic?: DiagnosticRecord) {
+      apiClient.getMostRecentScannerDiagnostic
+        .expectCallWith()
+        .resolves(diagnostic ?? null);
     },
 
     expectGetApplicationDiskSpaceSummary(summary: DiskSpaceSummary) {

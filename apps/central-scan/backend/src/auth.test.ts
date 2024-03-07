@@ -34,6 +34,7 @@ beforeEach(async () => {
   auth = buildMockDippedSmartCardAuth();
   workspace = createWorkspace(dirSync().name);
   logger = buildMockLogger(auth, workspace);
+  const scanner = makeMockScanner();
 
   apiClient = grout.createClient({
     baseUrl: `http://localhost:${port}/api`,
@@ -42,7 +43,8 @@ beforeEach(async () => {
     app: buildCentralScannerApp({
       auth,
       usbDrive: createMockUsbDrive().usbDrive,
-      importer: new Importer({ workspace, scanner: makeMockScanner(), logger }),
+      scanner,
+      importer: new Importer({ workspace, scanner, logger }),
       workspace,
       logger,
     }),

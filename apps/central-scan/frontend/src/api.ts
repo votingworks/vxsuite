@@ -151,6 +151,18 @@ export const getStatus = {
   },
 } as const;
 
+export const getMostRecentScannerDiagnostic = {
+  queryKey(): QueryKey {
+    return ['getMostRecentScannerDiagnostic'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getMostRecentScannerDiagnostic()
+    );
+  },
+} as const;
+
 // Mutations
 
 export const setTestMode = {
@@ -274,6 +286,20 @@ export const exportCastVoteRecordsToUsbDrive = {
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.exportCastVoteRecordsToUsbDrive);
+  },
+} as const;
+
+export const performScanDiagnostic = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.performScanDiagnostic, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getMostRecentScannerDiagnostic.queryKey()
+        );
+      },
+    });
   },
 } as const;
 

@@ -22,6 +22,7 @@ test('logs device attach/un-attach events', async () => {
     workspace,
     logger,
     usbDrive,
+    scanner,
     importer,
   });
 

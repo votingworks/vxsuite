@@ -1,5 +1,5 @@
 import {
-  DiagnosticsRecord,
+  DiagnosticRecord,
   PrinterStatus,
   IppPrinterStateReason,
 } from '@votingworks/types';
@@ -180,7 +180,7 @@ export function PrinterSection({
   mostRecentPrinterDiagnostic,
 }: {
   printerStatus: PrinterStatus;
-  mostRecentPrinterDiagnostic?: DiagnosticsRecord;
+  mostRecentPrinterDiagnostic?: DiagnosticRecord;
 }): JSX.Element {
   return (
     <React.Fragment>

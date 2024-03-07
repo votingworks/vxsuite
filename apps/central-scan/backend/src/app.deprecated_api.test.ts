@@ -23,7 +23,7 @@ import {
 import { Server } from 'http';
 import { Logger } from '@votingworks/logging';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
-import { makeMock } from '../test/util/mocks';
+import { makeMock, makeMockScanner } from '../test/util/mocks';
 import { Importer } from './importer';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildCentralScannerApp } from './app';
@@ -60,6 +60,7 @@ beforeEach(() => {
     auth,
     usbDrive: mockUsbDrive.usbDrive,
     allowedExportPatterns: ['/tmp/**'],
+    scanner: makeMockScanner(),
     importer,
     workspace,
     logger,

@@ -13,3 +13,52 @@ test('not connected', async () => {
 
   await expectTextWithIcon('No scanner detected', 'circle-info');
 });
+
+test('no test scan on record', async () => {
+  render(
+    <CentralScannerSection
+      isScannerAttached
+      mostRecentScannerDiagnostic={undefined}
+    />
+  );
+
+  await expectTextWithIcon('No test scan on record', 'circle-info');
+});
+
+const timestamp = new Date('2024-01-01T00:00:00').getTime();
+
+test('test scan failed', async () => {
+  render(
+    <CentralScannerSection
+      isScannerAttached
+      mostRecentScannerDiagnostic={{
+        type: 'blank-sheet-scan',
+        outcome: 'fail',
+        timestamp,
+      }}
+    />
+  );
+
+  await expectTextWithIcon(
+    'Test scan failed, 1/1/2024, 12:00:00 AM',
+    'triangle-exclamation'
+  );
+});
+
+test('test scan successful', async () => {
+  render(
+    <CentralScannerSection
+      isScannerAttached
+      mostRecentScannerDiagnostic={{
+        type: 'blank-sheet-scan',
+        outcome: 'pass',
+        timestamp,
+      }}
+    />
+  );
+
+  await expectTextWithIcon(
+    'Test scan successful, 1/1/2024, 12:00:00 AM',
+    'square-check'
+  );
+});

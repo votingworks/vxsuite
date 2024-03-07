@@ -33,7 +33,7 @@ import {
   Admin,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
-  DiagnosticsRecord,
+  DiagnosticRecord,
   DippedSmartCardAuth,
   ElectionDefinition,
   Id,
@@ -471,11 +471,11 @@ export function createApiMock(
       apiClient.getScannerBatches.expectCallWith().resolves(result);
     },
 
-    expectGetDiagnosticsRecords(result: DiagnosticsRecord[]) {
+    expectGetDiagnosticRecords(result: DiagnosticRecord[]) {
       apiClient.getDiagnosticRecords.expectCallWith().resolves(result);
     },
 
-    expectAddDiagnosticRecord(record: Omit<DiagnosticsRecord, 'timestamp'>) {
+    expectAddDiagnosticRecord(record: Omit<DiagnosticRecord, 'timestamp'>) {
       apiClient.addDiagnosticRecord.expectCallWith(record).resolves();
     },
 
