@@ -670,6 +670,16 @@ fn draw_legend(canvas: &mut RgbImage, colored_labels: &Vec<(Rgb<u8>, &str)>) {
     }
 }
 
+pub fn draw_diagnostic_cells(canvas: &mut RgbImage, passed_cells: &[Rect], failed_cells: &[Rect]) {
+    for cell in passed_cells {
+        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(cell), GREEN);
+    }
+
+    for cell in failed_cells {
+        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(cell), RED);
+    }
+}
+
 #[derive(Debug)]
 pub struct ImageDebugWriter {
     input_path: PathBuf,

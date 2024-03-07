@@ -180,3 +180,17 @@ fn load_ballot_image_from_image_or_path(image_or_path: ImageSource) -> Option<Gr
     };
     image.map(DynamicImage::into_luma8)
 }
+
+pub fn run_blank_paper_diagnostic(mut cx: FunctionContext) -> JsResult<JsBoolean> {
+    let img_source = get_image_data_or_path_from_arg(&mut cx, 0)?;
+    let debug_path = get_path_from_arg_opt(&mut cx, 1);
+
+    let img = match load_ballot_image_from_image_or_path(img_source) {
+        Some(img) => img,
+        None => {
+            return cx.throw_error("failed to load image");
+        }
+    };
+
+    Ok(cx.boolean(crate::diagnostic::run_blank_paper_diagnostic(img, debug_path)))
+}

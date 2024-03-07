@@ -2,6 +2,7 @@ use neon::prelude::*;
 
 mod ballot_card;
 mod debug;
+mod diagnostic;
 mod image_utils;
 mod interpret;
 mod js;
@@ -21,5 +22,7 @@ fn main(mut cx: ModuleContext) -> NeonResult<()> {
         "findTemplateGridAndBubbles",
         js::find_template_grid_and_bubbles,
     )?;
+    cx.export_function("runBlankPaperDiagnostic", js::run_blank_paper_diagnostic)?;
+
     Ok(())
 }
