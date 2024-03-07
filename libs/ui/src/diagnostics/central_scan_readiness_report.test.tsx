@@ -19,6 +19,11 @@ test('CentralScanReadinessReport', () => {
         used: 500_000_000,
       }}
       isScannerAttached
+      mostRecentScannerDiagnostic={{
+        type: 'blank-sheet-scan',
+        outcome: 'pass',
+        timestamp: generatedAtTime.getTime(),
+      }}
     />
   );
 
@@ -41,4 +46,7 @@ test('CentralScanReadinessReport', () => {
   screen.getByText('Free Disk Space: 50% (500 GB / 1000 GB)');
 
   expect(screen.getByText('Connected')).toBeInTheDocument();
+  expect(
+    screen.getByText('Test scan successful, 1/1/2022, 12:00:00 AM')
+  ).toBeInTheDocument();
 });
