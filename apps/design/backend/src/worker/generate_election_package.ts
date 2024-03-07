@@ -25,8 +25,13 @@ export async function generateElectionPackage(
 ): Promise<void> {
   const { assetDirectoryPath, store } = workspace;
 
-  const { election, layoutOptions, systemSettings, nhCustomContent } =
-    store.getElection(electionId);
+  const {
+    ballotLanguageConfigs,
+    election,
+    layoutOptions,
+    systemSettings,
+    nhCustomContent,
+  } = store.getElection(electionId);
 
   const zip = new JsZip();
 
@@ -35,14 +40,22 @@ export async function generateElectionPackage(
   };
   zip.file(ElectionPackageFileName.METADATA, JSON.stringify(metadata, null, 2));
 
-  const appStrings = await translateAppStrings(translator, metadata.version);
+  const appStrings = await translateAppStrings(
+    translator,
+    metadata.version,
+    ballotLanguageConfigs
+  );
   zip.file(
     ElectionPackageFileName.APP_STRINGS,
     JSON.stringify(appStrings, null, 2)
   );
 
   const { electionStrings, vxElectionStrings } =
-    await extractAndTranslateElectionStrings(translator, election);
+    await extractAndTranslateElectionStrings(
+      translator,
+      election,
+      ballotLanguageConfigs
+    );
   zip.file(
     ElectionPackageFileName.VX_ELECTION_STRINGS,
     JSON.stringify(vxElectionStrings, null, 2)

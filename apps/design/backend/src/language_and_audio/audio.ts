@@ -6,6 +6,10 @@ import {
   UiStringsPackage,
 } from '@votingworks/types';
 
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { GoogleCloudSpeechSynthesizer } from './speech_synthesizer';
 import {
   forEachUiString,
@@ -31,6 +35,15 @@ export function generateAudioIdsAndClips({
   uiStringAudioIds: UiStringAudioIdsPackage;
   uiStringAudioClips: NodeJS.ReadableStream;
 } {
+  /* istanbul ignore next */
+  if (
+    !isFeatureFlagEnabled(
+      BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
+    )
+  ) {
+    return { uiStringAudioClips: Readable.from([]), uiStringAudioIds: {} };
+  }
+
   const uiStringAudioIds: UiStringAudioIdsPackage = {};
   const textToSynthesizeSpeechFor: TextToSynthesizeSpeechFor[] = [];
 

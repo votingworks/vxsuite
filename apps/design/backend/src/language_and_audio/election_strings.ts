@@ -7,14 +7,11 @@ import {
   UiStringsPackage,
   YesNoContest,
 } from '@votingworks/types';
-import {
-  BooleanEnvironmentVariableName,
-  format,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
+import { format } from '@votingworks/utils';
 
 import { GoogleCloudTranslator } from './translator';
 import { setUiString } from './utils';
+import { BallotLanguageConfigs, getAllBallotLanguages } from '../types';
 
 interface ElectionString {
   stringKey: ElectionStringKey | [ElectionStringKey, string];
@@ -248,25 +245,15 @@ function extractElectionStrings(election: Election): ElectionString[] {
 
 export async function extractAndTranslateElectionStrings(
   translator: GoogleCloudTranslator,
-  election: Election
+  election: Election,
+  ballotLanguageConfigs: BallotLanguageConfigs
 ): Promise<{
   /** All election strings */
   electionStrings: UiStringsPackage;
   /** The subset of election strings to be added to the vxElectionStrings.json file */
   vxElectionStrings: UiStringsPackage;
 }> {
-  /* istanbul ignore next */
-  if (
-    !isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-    )
-  ) {
-    return {
-      electionStrings: {},
-      vxElectionStrings: {},
-    };
-  }
-
+  const languages = getAllBallotLanguages(ballotLanguageConfigs);
   const untranslatedElectionStrings = extractElectionStrings(election);
   const electionStringsNotToTranslate = untranslatedElectionStrings.filter(
     (electionString) => {
@@ -304,7 +291,7 @@ export async function extractAndTranslateElectionStrings(
   const stringsInEnglish = electionStringsToCloudTranslate.map(
     ({ stringInEnglish }) => stringInEnglish
   );
-  for (const languageCode of Object.values(LanguageCode)) {
+  for (const languageCode of languages) {
     const stringsInLanguage =
       languageCode === LanguageCode.ENGLISH
         ? stringsInEnglish
@@ -337,7 +324,7 @@ export async function extractAndTranslateElectionStrings(
     const { stringKey, stringInEnglish } = electionString;
     const config = getElectionStringConfig(electionString);
     assert(config.translatable && config.customTranslationMethod);
-    for (const languageCode of Object.values(LanguageCode)) {
+    for (const languageCode of languages) {
       const stringInLanguage = config.customTranslationMethod({
         election,
         languageCode,
