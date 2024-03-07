@@ -67,10 +67,10 @@ describe('Ballot styles tab', () => {
             .map((cell) => cell.textContent)
         )
     ).toEqual([
-      ['Center Springfield', 'ballot-style-1', 'View Ballot'],
+      ['Center Springfield', '1_en', 'View Ballot'],
       ['North Springfield', '', ''],
-      ['North Springfield - Split 1', 'ballot-style-1', 'View Ballot'],
-      ['North Springfield - Split 2', 'ballot-style-2', 'View Ballot'],
+      ['North Springfield - Split 1', '1_en', 'View Ballot'],
+      ['North Springfield - Split 2', '2_en', 'View Ballot'],
     ]);
   });
 
@@ -101,17 +101,17 @@ describe('Ballot styles tab', () => {
             .map((cell) => cell.textContent)
         )
     ).toEqual([
-      ['Precinct 1', 'ballot-style-1-Ma', 'Mammal Party', 'View Ballot'],
-      ['Precinct 1', 'ballot-style-1-F', 'Fish Party', 'View Ballot'],
-      ['Precinct 2', 'ballot-style-1-Ma', 'Mammal Party', 'View Ballot'],
-      ['Precinct 2', 'ballot-style-1-F', 'Fish Party', 'View Ballot'],
-      ['Precinct 3', 'ballot-style-2-Ma', 'Mammal Party', 'View Ballot'],
-      ['Precinct 3', 'ballot-style-2-F', 'Fish Party', 'View Ballot'],
+      ['Precinct 1', '1-Ma_en', 'Mammal Party', 'View Ballot'],
+      ['Precinct 1', '1-F_en', 'Fish Party', 'View Ballot'],
+      ['Precinct 2', '1-Ma_en', 'Mammal Party', 'View Ballot'],
+      ['Precinct 2', '1-F_en', 'Fish Party', 'View Ballot'],
+      ['Precinct 3', '2-Ma_en', 'Mammal Party', 'View Ballot'],
+      ['Precinct 3', '2-F_en', 'Fish Party', 'View Ballot'],
       ['Precinct 4', '', '', ''],
-      ['Precinct 4 - Split 1', 'ballot-style-3-Ma', 'Mammal', 'View Ballot'],
-      ['Precinct 4 - Split 1', 'ballot-style-3-F', 'Fish', 'View Ballot'],
-      ['Precinct 4 - Split 2', 'ballot-style-4-Ma', 'Mammal', 'View Ballot'],
-      ['Precinct 4 - Split 2', 'ballot-style-4-F', 'Fish', 'View Ballot'],
+      ['Precinct 4 - Split 1', '3-Ma_en', 'Mammal', 'View Ballot'],
+      ['Precinct 4 - Split 1', '3-F_en', 'Fish', 'View Ballot'],
+      ['Precinct 4 - Split 2', '4-Ma_en', 'Mammal', 'View Ballot'],
+      ['Precinct 4 - Split 2', '4-F_en', 'Fish', 'View Ballot'],
     ]);
   });
 });
