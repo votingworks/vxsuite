@@ -12,4 +12,5 @@ module.exports = {
     },
   },
   collectCoverageFrom: [...shared.collectCoverageFrom, '!src/debug.ts'],
+  prettierPath: null,
 };
