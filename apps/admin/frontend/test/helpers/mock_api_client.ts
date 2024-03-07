@@ -37,6 +37,7 @@ import {
   DippedSmartCardAuth,
   ElectionDefinition,
   Id,
+  PrinterConfig,
   PrinterStatus,
   Rect,
   SystemSettings,
@@ -50,6 +51,16 @@ const mockRect: Rect = {
   height: 1000,
   x: 0,
   y: 0,
+};
+
+// the below is copied from libs/printing to avoid importing a backend package
+export const MOCK_PRINTER_CONFIG: PrinterConfig = {
+  label: 'HP LaserJet Pro M404n',
+  vendorId: 1008,
+  productId: 49450,
+  baseDeviceUri: 'usb://HP/LaserJet%20Pro%20M404-M405',
+  ppd: 'generic-postscript-driver.ppd',
+  supportsIpp: true,
 };
 
 type MockApiClient = Omit<MockClient<Api>, 'getBatteryInfo'> & {
@@ -119,18 +130,10 @@ function createDeferredMock<T, U>(
 export function createApiMock(
   apiClient: MockApiClient = createMockApiClient()
 ) {
-  function setPrinterStatus(printerStatus: Partial<PrinterStatus>): void {
+  function setPrinterStatus(printerStatus: Partial<PrinterStatus> = {}): void {
     apiClient.getPrinterStatus.expectRepeatedCallsWith().resolves({
       connected: true,
-      // the below is copied from libs/printing to avoid importing a backend package
-      config: {
-        label: 'HP LaserJet Pro M404n',
-        vendorId: 1008,
-        productId: 49450,
-        baseDeviceUri: 'usb://HP/LaserJet%20Pro%20M404-M405',
-        ppd: 'generic-postscript-driver.ppd',
-        supportsIpp: true,
-      },
+      config: MOCK_PRINTER_CONFIG,
       ...printerStatus,
     });
   }
