@@ -780,6 +780,13 @@ export const appStrings = {
     <UiString uiStringKey="noteVoterSettingsAudioUnmuted">Audio is on</UiString>
   ),
 
+  notePollWorkerAuthEndedBeforePaperLoadComplete: () => (
+    <UiString uiStringKey="notePollWorkerAuthEndedBeforePaperLoadComplete">
+      The poll worker card was removed before paper loading completed. Please
+      try again.
+    </UiString>
+  ),
+
   promptBmdConfirmRemoveWriteIn: () => (
     <UiString uiStringKey="promptBmdConfirmRemoveWriteIn">
       Do you want to deselect and remove your write-in candidate?

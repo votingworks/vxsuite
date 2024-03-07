@@ -158,6 +158,7 @@
   "noteBmdPatCalibrationStep2": "Step 2 of 3",
   "noteBmdPatCalibrationStep3": "Step 3 of 3",
   "noteBmdSessionRestart": "Your voting session will restart shortly.",
+  "notePollWorkerAuthEndedBeforePaperLoadComplete": "The poll worker card was removed before paper loading completed. Please try again.",
   "noteScannerBlankContestsCardPlural": "Did you mean to leave these contests blank?",
   "noteScannerBlankContestsCardSingular": "Did you mean to leave this contest blank?",
   "noteScannerOvervoteContestsCardPlural": "Your votes in these contests will not be counted.",

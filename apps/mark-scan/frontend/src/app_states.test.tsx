@@ -159,14 +159,14 @@ test('`empty_ballot_box` state renders EmptyBallotBoxPage', async () => {
   await screen.findByText('Ballot Box Full');
 });
 
-const testSpecs: Array<{
+const ballotCastPageTestSpecs: Array<{
   state: SimpleServerStatus;
 }> = [
   { state: 'ballot_accepted' },
   { state: 'resetting_state_machine_after_success' },
 ];
 
-test.each(testSpecs)(
+test.each(ballotCastPageTestSpecs)(
   '$state state renders BallotSuccessfullyCastPage',
   async ({ state }) => {
     apiMock.mockApiClient.getElectionState.reset();
@@ -182,5 +182,37 @@ test.each(testSpecs)(
 
     await screen.findByText('Your ballot was cast!');
     await screen.findByText('Thank you for voting.');
+  }
+);
+
+const authEndedEarlyPageTestSpecs: Array<{
+  state: SimpleServerStatus;
+  auth: 'cardless_voter' | 'logged_out';
+}> = [
+  { state: 'poll_worker_auth_ended_unexpectedly', auth: 'cardless_voter' },
+  { state: 'poll_worker_auth_ended_unexpectedly', auth: 'logged_out' },
+  { state: 'accepting_paper', auth: 'cardless_voter' },
+  { state: 'accepting_paper', auth: 'logged_out' },
+  { state: 'loading_paper', auth: 'cardless_voter' },
+  { state: 'loading_paper', auth: 'logged_out' },
+];
+
+test.each(authEndedEarlyPageTestSpecs)(
+  '$state state renders PollWorkerAuthEndedUnexpectedlyPage',
+  async ({ state, auth }) => {
+    apiMock.setPaperHandlerState(state);
+    if (auth === 'cardless_voter') {
+      apiMock.setAuthStatusCardlessVoterLoggedInWithDefaults(
+        electionDefinition
+      );
+    } else {
+      apiMock.setAuthStatusLoggedOut();
+    }
+
+    render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+
+    await screen.findByText(
+      'The poll worker card was removed before paper loading completed. Please try again.'
+    );
   }
 );

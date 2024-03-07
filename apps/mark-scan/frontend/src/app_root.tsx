@@ -77,6 +77,7 @@ import { PatDeviceCalibrationPage } from './pages/pat_device_identification/pat_
 import { CastingBallotPage } from './pages/casting_ballot_page';
 import { BallotSuccessfullyCastPage } from './pages/ballot_successfully_cast_page';
 import { EmptyBallotBoxPage } from './pages/empty_ballot_box_page';
+import { PollWorkerAuthEndedUnexpectedlyPage } from './pages/poll_worker_auth_ended_unexpectedly_page';
 import { LOW_BATTERY_THRESHOLD } from './constants';
 
 interface VotingState {
@@ -428,6 +429,18 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
     stateMachineState === 'resetting_state_machine_after_jam'
   ) {
     return <JamClearedPage stateMachineState={stateMachineState} />;
+  }
+
+  const isInPaperLoadingStage =
+    stateMachineState === 'accepting_paper' ||
+    stateMachineState === 'loading_paper';
+  if (
+    stateMachineState === 'poll_worker_auth_ended_unexpectedly' ||
+    // Handle when the frontend auth state is up to date but the state machine state is not
+    (isInPaperLoadingStage &&
+      (isCardlessVoterAuth(authStatus) || authStatus.status === 'logged_out'))
+  ) {
+    return <PollWorkerAuthEndedUnexpectedlyPage />;
   }
 
   if (optionalElectionDefinition && precinctSelection) {
