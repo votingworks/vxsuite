@@ -42,6 +42,7 @@ export function VisualModeDisabledOverlay(): JSX.Element | null {
       </Header>
       <ButtonContainer>
         <Button
+          icon="Eye"
           variant="primary"
           onPress={() => {
             voterSettingsManager.setIsVisualModeDisabled(false);

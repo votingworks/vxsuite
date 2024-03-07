@@ -27,11 +27,7 @@ test('fires change event with settings pane id', () => {
 
   expect(onChange).toHaveBeenCalledWith<[SettingsPaneId]>('voterSettingsColor');
 
-  userEvent.click(
-    screen.getByRole('tab', { name: 'Audio/Video Only', selected: false })
-  );
+  userEvent.click(screen.getByRole('tab', { name: 'Audio', selected: false }));
 
-  expect(onChange).toHaveBeenCalledWith<[SettingsPaneId]>(
-    'voterSettingsAudioVideoOnly'
-  );
+  expect(onChange).toHaveBeenCalledWith<[SettingsPaneId]>('voterSettingsAudio');
 });

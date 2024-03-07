@@ -39,7 +39,7 @@ const TabLabel = styled.span`
 const TAB_LABELS: Record<SettingsPaneId, JSX.Element> = {
   voterSettingsColor: appStrings.titleVoterSettingsColor(),
   voterSettingsSize: appStrings.titleVoterSettingsSize(),
-  voterSettingsAudioVideoOnly: appStrings.titleVoterSettingsAudioVideoOnly(),
+  voterSettingsAudio: appStrings.titleVoterSettingsAudio(),
 };
 
 /**
@@ -56,9 +56,7 @@ export function TabBar(props: TabBarProps): JSX.Element {
   } = props;
 
   const visiblePaneIds = PANE_IDS.filter((paneId) =>
-    paneId === 'voterSettingsAudioVideoOnly'
-      ? allowAudioVisualModeToggles
-      : true
+    paneId === 'voterSettingsAudio' ? allowAudioVisualModeToggles : true
   );
 
   return (
