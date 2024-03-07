@@ -37,7 +37,7 @@ import {
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   DEVICE_STATUS_POLLING_INTERVAL_MS,
-  SUCCESS_NOTIFICATION_DURATION_MS,
+  NOTIFICATION_DURATION_MS,
 } from '../src/custom-paper-handler/constants';
 import { PatConnectionStatusReaderInterface } from '../src/pat-input/connection_status_reader';
 import { getUserRole } from '../src/util/auth';
@@ -70,8 +70,7 @@ export async function getMockStateMachine(
     devicePollingIntervalMs:
       pollingIntervalMs ?? DEVICE_STATUS_POLLING_INTERVAL_MS,
     authPollingIntervalMs: pollingIntervalMs ?? AUTH_STATUS_POLLING_INTERVAL_MS,
-    notificationDurationMs:
-      pollingIntervalMs ?? SUCCESS_NOTIFICATION_DURATION_MS,
+    notificationDurationMs: pollingIntervalMs ?? NOTIFICATION_DURATION_MS,
   });
   assert(stateMachine);
 
