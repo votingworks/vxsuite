@@ -464,7 +464,7 @@ export function convertElectionDefinitionHeader(
     contests,
     ballotLayout: {
       paperSize,
-      metadataEncoding: 'timing-marks',
+      metadataEncoding: 'qr-code',
     },
     gridLayouts: [
       {
