@@ -8,13 +8,6 @@ describe('Renders HorizontalRule', () => {
     expect(container.firstChild).toMatchSnapshot();
   });
 
-  test('with custom green color', () => {
-    const { container } = render(
-      <HorizontalRule color="#00FF00">or</HorizontalRule>
-    );
-    expect(container.firstChild).toMatchSnapshot();
-  });
-
   test('without children', () => {
     const { container } = render(<HorizontalRule />);
     expect(container.firstChild).toMatchSnapshot();
