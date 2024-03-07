@@ -13,9 +13,7 @@ test('ReadinessReportHeader', () => {
       machineId={machineId}
     />
   );
-  expect(
-    screen.getByText('VxMock Equipment Readiness Report')
-  ).toBeInTheDocument();
+  expect(screen.getByText('VxMock Readiness Report')).toBeInTheDocument();
   expect(
     screen.getByText(hasTextAcrossElements('Machine ID: MOCK'))
   ).toBeInTheDocument();
