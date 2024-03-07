@@ -146,28 +146,6 @@ test('missing ElectionDate', () => {
   ]);
 });
 
-test('missing PrecinctID', () => {
-  const hudsonBallotCardDefinition = readFixtureDefinition(
-    electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
-  );
-
-  const precinctIdElement =
-    hudsonBallotCardDefinition.getElementsByTagName('PrecinctID')[0]!;
-  precinctIdElement.parentNode?.removeChild(precinctIdElement);
-
-  expect(
-    convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
-    ).unsafeUnwrapErr().issues
-  ).toEqual([
-    typedAs<ConvertIssue>({
-      kind: ConvertIssueKind.MissingDefinitionProperty,
-      message: 'PrecinctID is missing',
-      property: 'AVSInterface > AccuvoteHeaderInfo > PrecinctID',
-    }),
-  ]);
-});
-
 test('multi-party endorsement', () => {
   const nhTestBallotCardDefinition = readFixtureDefinition(
     electionGridLayoutNewHampshireTestBallotFixtures.definitionXml.asText()
@@ -254,7 +232,7 @@ test('constitutional questions become yesno contests', async () => {
         title: 'Constitutional Amendment Question #1',
         description:
           'Shall there be a convention to amend or revise the constitution?',
-        districtId: unsafeParse(DistrictIdSchema, 'town-id-00701-precinct-id-'),
+        districtId: unsafeParse(DistrictIdSchema, 'town-id-00701-district'),
         yesOption: {
           id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
           label: 'Yes',

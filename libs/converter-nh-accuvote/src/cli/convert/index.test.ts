@@ -30,9 +30,13 @@ test('--help', async () => {
   expect(await main(['--help'], io)).toEqual(0);
 
   expect(io.stdout.toString()).toMatchInlineSnapshot(`
-    "usage: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
-    "
-  `);
+"Usage:
+  General Election: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
+  Primary Election: convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
+    <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+    [-o <output.json>] [--debug]
+"
+`);
 });
 
 test('-h', async () => {
@@ -45,9 +49,13 @@ test('-h', async () => {
   expect(await main(['-h'], io)).toEqual(0);
 
   expect(io.stdout.toString()).toMatchInlineSnapshot(`
-    "usage: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
-    "
-  `);
+"Usage:
+  General Election: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
+  Primary Election: convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
+    <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+    [-o <output.json>] [--debug]
+"
+`);
 });
 
 test('missing output after --output', async () => {
@@ -68,9 +76,14 @@ test('missing output after --output', async () => {
   );
 
   expect(io.stderr.toString()).toMatchInlineSnapshot(`
-    "error: missing output path after --output
-    "
-  `);
+"Error: missing output path after --output
+Usage:
+  General Election: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
+  Primary Election: convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
+    <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+    [-o <output.json>] [--debug]
+"
+`);
   expect(exitCode).toEqual(1);
 });
 
@@ -84,9 +97,14 @@ test('unexpected option', async () => {
   const exitCode = await main(['--nope'], io);
 
   expect(io.stderr.toString()).toMatchInlineSnapshot(`
-    "error: unknown option: --nope
-    "
-  `);
+"Error: unknown option: --nope
+Usage:
+  General Election: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
+  Primary Election: convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
+    <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+    [-o <output.json>] [--debug]
+"
+`);
   expect(exitCode).toEqual(1);
 });
 
@@ -103,9 +121,14 @@ test('unexpected argument', async () => {
   );
 
   expect(io.stderr.toString()).toMatchInlineSnapshot(`
-    "error: unexpected argument: what-is-this.json
-    "
-  `);
+"Error: unexpected argument: what-is-this.json
+Usage:
+  General Election: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
+  Primary Election: convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
+    <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+    [-o <output.json>] [--debug]
+"
+`);
   expect(exitCode).toEqual(1);
 });
 
@@ -119,9 +142,14 @@ test('missing definition path', async () => {
   const exitCode = await main(['front.jpeg', 'back.jpeg'], io);
 
   expect(io.stderr.toString()).toMatchInlineSnapshot(`
-    "error: missing definition path
-    "
-  `);
+"Error: missing definition path
+Usage:
+  General Election: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
+  Primary Election: convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
+    <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+    [-o <output.json>] [--debug]
+"
+`);
   expect(exitCode).toEqual(1);
 });
 
@@ -135,9 +163,14 @@ test('missing front ballot path', async () => {
   const exitCode = await main(['definition.xml'], io);
 
   expect(io.stderr.toString()).toMatchInlineSnapshot(`
-    "error: missing front ballot path
-    "
-  `);
+"Error: missing ballot image paths
+Usage:
+  General Election: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
+  Primary Election: convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
+    <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+    [-o <output.json>] [--debug]
+"
+`);
   expect(exitCode).toEqual(1);
 });
 
@@ -151,9 +184,14 @@ test('missing back ballot path', async () => {
   const exitCode = await main(['definition.xml', 'front.jpeg'], io);
 
   expect(io.stderr.toString()).toMatchInlineSnapshot(`
-    "error: missing back ballot path
-    "
-  `);
+"Error: missing ballot image paths
+Usage:
+  General Election: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
+  Primary Election: convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
+    <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+    [-o <output.json>] [--debug]
+"
+`);
   expect(exitCode).toEqual(1);
 });
 

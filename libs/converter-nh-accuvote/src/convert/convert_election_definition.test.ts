@@ -1,4 +1,4 @@
-import { Result, typedAs } from '@votingworks/basics';
+import { Result, iter, typedAs } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   electionGridLayoutNewHampshireHudsonFixtures,
@@ -9,6 +9,9 @@ import {
   GridPosition,
   unsafeParse,
 } from '@votingworks/types';
+import { readFile } from 'fs/promises';
+import { pdfToImages } from '@votingworks/image-utils';
+import { join } from 'path';
 import { readFixtureBallotCardDefinition } from '../../test/fixtures';
 import { convertElectionDefinition } from './convert_election_definition';
 import { ConvertIssue, ConvertIssueKind, ConvertResult } from './types';
@@ -19,9 +22,9 @@ test('converting the Hudson ballot', async () => {
     await electionGridLayoutNewHampshireHudsonFixtures.templateFront.asImageData(),
     await electionGridLayoutNewHampshireHudsonFixtures.templateBack.asImageData()
   );
-  const converted = convertElectionDefinition(
-    hudsonBallotCardDefinition
-  ).unsafeUnwrap();
+  const converted = convertElectionDefinition([
+    hudsonBallotCardDefinition,
+  ]).unsafeUnwrap();
 
   // uncomment this to update the fixture
   // require('fs').writeFileSync(
@@ -53,7 +56,8 @@ test('mismatched ballot image size', async () => {
   )[0]!.textContent = '8.5X11';
 
   expect(
-    convertElectionDefinition(hudsonBallotCardDefinition).unsafeUnwrap().issues
+    convertElectionDefinition([hudsonBallotCardDefinition]).unsafeUnwrap()
+      .issues
   ).toEqual(
     expect.arrayContaining([
       typedAs<ConvertIssue>({
@@ -75,9 +79,9 @@ test('constitutional question ovals get placed on the grid correctly', async () 
     await electionGridLayoutNewHampshireTestBallotFixtures.templateFront.asImageData(),
     await electionGridLayoutNewHampshireTestBallotFixtures.templateBack.asImageData()
   );
-  const converted = convertElectionDefinition(
-    nhTestBallotCardDefinition
-  ).unsafeUnwrap();
+  const converted = convertElectionDefinition([
+    nhTestBallotCardDefinition,
+  ]).unsafeUnwrap();
 
   // uncomment this to update the fixture
   // require('fs').writeFileSync(
@@ -100,10 +104,7 @@ test('constitutional question ovals get placed on the grid correctly', async () 
             title: 'Constitutional Amendment Question #1',
             description:
               'Shall there be a convention to amend or revise the constitution?',
-            districtId: unsafeParse(
-              DistrictIdSchema,
-              'town-id-00701-precinct-id-'
-            ),
+            districtId: unsafeParse(DistrictIdSchema, 'town-id-00701-district'),
             yesOption: {
               id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
               label: 'Yes',
@@ -157,4 +158,40 @@ test('constitutional question ovals get placed on the grid correctly', async () 
   expect(converted.election).toMatchObject(
     electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition.election
   );
+});
+
+test('converting two party primary ballots into one election (Conway)', async () => {
+  const conwayDir = join(__dirname, '../../test/fixtures/conway-primary');
+  const [demFront, demBack] = await iter(
+    pdfToImages(await readFile(join(conwayDir, 'dem-ballot-template.pdf')), {
+      scale: 200 / 72,
+    })
+  )
+    .map(({ page }) => page)
+    .toArray();
+  const demBallotCardDefinition = readFixtureBallotCardDefinition(
+    await readFile(join(conwayDir, 'dem-definition.xml'), 'utf-8'),
+    demFront!,
+    demBack!
+  );
+
+  const [repFront, repBack] = await iter(
+    pdfToImages(await readFile(join(conwayDir, 'rep-ballot-template.pdf')), {
+      scale: 200 / 72,
+    })
+  )
+    .map(({ page }) => page)
+    .toArray();
+  const repBallotCardDefinition = readFixtureBallotCardDefinition(
+    await readFile(join(conwayDir, 'rep-definition.xml'), 'utf-8'),
+    repFront!,
+    repBack!
+  );
+
+  const converted = convertElectionDefinition([
+    demBallotCardDefinition,
+    repBallotCardDefinition,
+  ]).unsafeUnwrap();
+
+  expect(converted).toMatchSnapshot();
 });
