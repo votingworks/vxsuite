@@ -1,9 +1,14 @@
 import { CentralScanReadinessReportContents } from '@votingworks/ui';
-import type { ScanStatus } from '@votingworks/central-scan-backend';
 import styled from 'styled-components';
 import { NavigationScreen } from '../navigation_screen';
-import { getApplicationDiskSpaceSummary, systemCallApi } from '../api';
+import {
+  getApplicationDiskSpaceSummary,
+  getMostRecentScannerDiagnostic,
+  getStatus,
+  systemCallApi,
+} from '../api';
 import { SaveReadinessReportButton } from '../components/save_readiness_report_button';
+import { TestScanButton } from '../components/test_scan_button';
 
 const PageLayout = styled.div`
   display: flex;
@@ -12,17 +17,19 @@ const PageLayout = styled.div`
   align-items: flex-start;
 `;
 
-export interface HardwareDiagnosticsScreenProps {
-  scanStatus: ScanStatus;
-}
-
-export function HardwareDiagnosticsScreen({
-  scanStatus,
-}: HardwareDiagnosticsScreenProps): JSX.Element {
+export function HardwareDiagnosticsScreen(): JSX.Element {
+  const statusQuery = getStatus.useQuery();
   const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
   const diskSpaceQuery = getApplicationDiskSpaceSummary.useQuery();
+  const scannerDiagnosticRecordQuery =
+    getMostRecentScannerDiagnostic.useQuery();
 
-  if (!batteryInfoQuery.isSuccess || !diskSpaceQuery.isSuccess) {
+  if (
+    !batteryInfoQuery.isSuccess ||
+    !diskSpaceQuery.isSuccess ||
+    !scannerDiagnosticRecordQuery.isSuccess ||
+    !statusQuery.isSuccess
+  ) {
     return (
       <NavigationScreen title="Hardware Diagnostics">{null}</NavigationScreen>
     );
@@ -30,15 +37,22 @@ export function HardwareDiagnosticsScreen({
 
   const batteryInfo = batteryInfoQuery.data;
   const diskSpaceSummary = diskSpaceQuery.data;
+  const scannerDiagnosticRecord =
+    scannerDiagnosticRecordQuery.data ?? undefined;
+  const { isScannerAttached } = statusQuery.data;
 
   return (
     <NavigationScreen title="Hardware Diagnostics">
       <PageLayout>
-        <CentralScanReadinessReportContents
-          batteryInfo={batteryInfo ?? undefined}
-          diskSpaceSummary={diskSpaceSummary}
-          isScannerAttached={scanStatus.isScannerAttached}
-        />
+        <div>
+          <CentralScanReadinessReportContents
+            batteryInfo={batteryInfo ?? undefined}
+            diskSpaceSummary={diskSpaceSummary}
+            isScannerAttached={isScannerAttached}
+            mostRecentScannerDiagnostic={scannerDiagnosticRecord}
+          />
+          <TestScanButton />
+        </div>
         <SaveReadinessReportButton />
       </PageLayout>
     </NavigationScreen>

@@ -135,7 +135,7 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
             <SystemAdministratorSettingsScreen />
           </Route>
           <Route path="/hardware-diagnostics">
-            <HardwareDiagnosticsScreen scanStatus={status} />
+            <HardwareDiagnosticsScreen />
           </Route>
           <Redirect to="/system-administrator-settings" />
         </Switch>
