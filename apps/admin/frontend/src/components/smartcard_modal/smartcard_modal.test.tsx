@@ -34,6 +34,7 @@ beforeEach(() => {
     status: 'logged_out',
     reason: 'machine_locked',
   });
+  apiMock.setPrinterStatus();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetUsbDriveStatus('no_drive');
