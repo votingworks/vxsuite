@@ -443,3 +443,13 @@ describe('PAT device', () => {
     );
   });
 });
+
+test('poll_worker_auth_ended_unexpectedly', async () => {
+  machine.setAcceptingPaper();
+  const ballotStyle = electionGeneralDefinition.election.ballotStyles[1];
+  mockCardlessVoterAuth(auth, {
+    ballotStyleId: ballotStyle.id,
+    precinctId,
+  });
+  await waitForStatus('poll_worker_auth_ended_unexpectedly');
+});

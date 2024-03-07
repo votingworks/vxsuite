@@ -18,6 +18,7 @@ export type SimpleStatus =
   | 'printing_ballot'
   | 'resetting_state_machine_after_jam'
   | 'resetting_state_machine_after_success'
+  | 'poll_worker_auth_ended_unexpectedly'
   | 'scanning'
   | 'transition_interpretation'
   | 'waiting_for_ballot_data'
@@ -42,6 +43,7 @@ export const SimpleStatusSchema: z.ZodSchema<SimpleStatus> = z.union([
   z.literal('printing_ballot'),
   z.literal('resetting_state_machine_after_jam'),
   z.literal('resetting_state_machine_after_success'),
+  z.literal('poll_worker_auth_ended_unexpectedly'),
   z.literal('scanning'),
   z.literal('transition_interpretation'),
   z.literal('waiting_for_ballot_data'),
