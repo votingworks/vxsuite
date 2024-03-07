@@ -28,9 +28,7 @@ export function ReadinessReportHeader({
   return (
     <React.Fragment>
       <LogoMark />
-      <H1 style={{ marginBottom: '0.1em' }}>
-        {machineType} Equipment Readiness Report
-      </H1>
+      <H1 style={{ marginBottom: '0.1em' }}>{machineType} Readiness Report</H1>
       <MetadataContainer>
         <Metadata>
           <Font weight="bold">Machine ID:</Font> {machineId}

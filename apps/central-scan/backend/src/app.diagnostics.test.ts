@@ -87,7 +87,7 @@ test('save readiness report', async () => {
     });
 
     const pdfContents = await pdfToText(exportPath);
-    expect(pdfContents).toContain('VxCentralScan Equipment Readiness Report');
+    expect(pdfContents).toContain('VxCentralScan Readiness Report');
     expect(pdfContents).toContain('Battery Level: 50%');
     expect(pdfContents).toContain('Power Source: External Power Supply');
     expect(pdfContents).toContain('Free Disk Space: 90% (9 GB / 10 GB)');

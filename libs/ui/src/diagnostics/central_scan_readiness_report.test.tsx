@@ -28,7 +28,7 @@ test('CentralScanReadinessReport', () => {
   );
 
   expect(
-    screen.getByText('VxCentralScan Equipment Readiness Report')
+    screen.getByText('VxCentralScan Readiness Report')
   ).toBeInTheDocument();
   expect(
     screen.getByText(hasTextAcrossElements('Machine ID: MOCK'))
