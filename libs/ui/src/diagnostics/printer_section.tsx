@@ -39,7 +39,10 @@ export const IPP_PRINTER_STATE_REASON_MESSAGES: {
   'input-tray-missing':
     "The printer's input tray is missing. Connect the input tray.",
   'media-low': 'The printer is low on paper. Add paper to the printer.',
-  'media-empty': 'The printer is out of paper. Add paper to the printer.',
+  // HP printers use "media-empty" when the tray is simply open, so this message
+  // was changed to mention that possibility.
+  'media-empty':
+    'The printer does not detect any paper. Either the paper tray is open or the printer is out of paper.',
   'output-tray-missing':
     "The printer's output tray is missing. Connect the output tray.",
   'output-area-almost-full':
