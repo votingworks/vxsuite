@@ -94,22 +94,24 @@ pub fn run_blank_paper_diagnostic(img: GrayImage, debug_path: Option<PathBuf>) -
         ),
     ];
 
-    let mut cells: Vec<Rect> = Vec::new();
-    for (left_start, top_start) in &starting_offsets {
-        cells.append(&mut generate_cells(
-            *left_start,
-            *top_start,
-            img.width() - CROP_BORDER_PIXELS,
-            img.height() - CROP_BORDER_PIXELS,
-            cell_width,
-            cell_height,
-        ));
-    }
+    let cells = starting_offsets
+        .into_iter()
+        .flat_map(|(left_start, top_start)| {
+            generate_cells(
+                left_start,
+                top_start,
+                img.width() - CROP_BORDER_PIXELS,
+                img.height() - CROP_BORDER_PIXELS,
+                cell_width,
+                cell_height,
+            )
+        })
+        .collect::<Vec<_>>();
 
     let (passed_cells, failed_cells) = inspect_cells(&img, &cells, foreground_threshold);
 
     debug.write("diagnostic", |canvas| {
-        draw_diagnostic_cells(canvas, passed_cells.as_slice(), failed_cells.as_slice());
+        draw_diagnostic_cells(canvas, &passed_cells, &failed_cells);
     });
 
     failed_cells.is_empty()
