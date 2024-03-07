@@ -8,18 +8,20 @@ import {
   GoogleCloudTranslator,
 } from './language_and_audio';
 
+export type { ElectionRecord } from './store';
 export type {
+  BallotLanguageConfig,
+  BallotLanguageConfigs,
   BallotStyle,
-  ElectionRecord,
   Precinct,
   PrecinctSplit,
   PrecinctWithSplits,
   PrecinctWithoutSplits,
-} from './store';
+} from './types';
 export type { Api } from './app';
 
 // Frontend tests import these for generating test data
-export { generateBallotStyles } from './store';
+export { generateBallotStyles } from './ballot_styles';
 export { createBlankElection, convertVxfPrecincts } from './app';
 
 loadEnvVarsFromDotenvFiles();
