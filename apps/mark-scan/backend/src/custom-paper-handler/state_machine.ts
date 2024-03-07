@@ -24,7 +24,7 @@ import { Optional, assert, assertDefined } from '@votingworks/basics';
 import { SheetOf } from '@votingworks/types';
 import {
   InterpretFileResult,
-  interpretSheet,
+  interpretBmdBallot,
 } from '@votingworks/ballot-interpreter';
 import { LogEventId, LogLine, BaseLogger } from '@votingworks/logging';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
@@ -380,16 +380,13 @@ function loadMetadataAndInterpretBallot(
     store.getSystemSettings()
   );
 
-  return interpretSheet(
-    {
-      electionDefinition,
-      precinctSelection,
-      testMode: store.getTestMode(),
-      markThresholds,
-      adjudicationReasons: precinctScanAdjudicationReasons,
-    },
-    scannedImagePaths
-  );
+  return interpretBmdBallot(scannedImagePaths, {
+    electionDefinition,
+    precinctSelection,
+    testMode: store.getTestMode(),
+    markThresholds,
+    adjudicationReasons: precinctScanAdjudicationReasons,
+  });
 }
 
 export function buildMachine(

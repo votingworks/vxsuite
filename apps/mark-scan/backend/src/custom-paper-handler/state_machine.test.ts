@@ -15,6 +15,7 @@ import { backendWaitFor, mockOf } from '@votingworks/test-utils';
 import { sleep } from '@votingworks/basics';
 import {
   electionGeneralDefinition,
+  electionGridLayoutNewHampshireHudsonFixtures,
   systemSettings,
 } from '@votingworks/fixtures';
 import {
@@ -309,6 +310,25 @@ test('ballot box empty flow', async () => {
 
   machine.confirmBallotBoxEmptied();
   await waitForStatus('not_accepting_paper');
+});
+
+test('elections with grid layouts still try to interpret BMD ballots', async () => {
+  const { electionDefinition } = electionGridLayoutNewHampshireHudsonFixtures;
+
+  workspace.store.setElectionAndJurisdiction({
+    electionData: electionDefinition.electionData,
+    jurisdiction: TEST_JURISDICTION,
+  });
+  workspace.store.setPrecinctSelection(
+    singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
+  );
+
+  const ballotPdfData = await readBallotFixture();
+  const scannedBallotFixtureFilepaths = getSampleBallotFilepaths();
+  await executePrintBallotAndAssert(
+    ballotPdfData,
+    scannedBallotFixtureFilepaths
+  );
 });
 
 test('blank page interpretation', async () => {
