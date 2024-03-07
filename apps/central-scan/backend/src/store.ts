@@ -26,6 +26,7 @@ import {
   SystemSettings,
   safeParseSystemSettings,
   AdjudicationReason,
+  DiagnosticRecord,
 } from '@votingworks/types';
 import { assert, assertDefined, find, Optional } from '@votingworks/basics';
 import makeDebug from 'debug';
@@ -908,6 +909,35 @@ export class Store {
 
   clearCastVoteRecordHashes(): void {
     clearCastVoteRecordHashes(this.client);
+  }
+
+  addDiagnosticRecord({
+    type,
+    outcome,
+  }: Omit<DiagnosticRecord, 'timestamp'>): void {
+    this.client.run(
+      `
+        insert into diagnostics
+          (type, outcome, timestamp)
+        values
+          (?, ?, ?)
+      `,
+      type,
+      outcome,
+      Date.now()
+    );
+  }
+
+  getDiagnosticRecords(): DiagnosticRecord[] {
+    return this.client.all(
+      `
+        select
+          type,
+          outcome,
+          timestamp
+        from diagnostics
+      `
+    ) as DiagnosticRecord[];
   }
 
   getMaximumUsableDiskSpace(): number {

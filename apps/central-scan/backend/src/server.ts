@@ -105,6 +105,7 @@ export async function start({
 
     resolvedApp = buildCentralScannerApp({
       auth,
+      scanner: resolvedBatchScanner,
       importer: resolvedImporter,
       logger,
       usbDrive: resolvedUsbDrive,

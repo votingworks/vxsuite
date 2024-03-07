@@ -1,10 +1,5 @@
 import { Application } from 'express';
-import {
-  BaseLogger,
-  LogSource,
-  Logger,
-  mockLogger,
-} from '@votingworks/logging';
+import { LogSource, Logger, mockLogger } from '@votingworks/logging';
 import { Server } from 'http';
 import * as grout from '@votingworks/grout';
 import {
@@ -40,7 +35,7 @@ export async function withApp(
     mockUsbDrive: MockUsbDrive;
     importer: Importer;
     app: Application;
-    logger: BaseLogger;
+    logger: Logger;
     apiClient: grout.Client<Api>;
     server: Server;
     store: Store;
@@ -57,6 +52,7 @@ export async function withApp(
     auth,
     usbDrive: mockUsbDrive.usbDrive,
     allowedExportPatterns: ['/tmp/**'],
+    scanner,
     importer,
     workspace,
     logger,
