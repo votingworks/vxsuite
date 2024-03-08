@@ -1,4 +1,4 @@
-import { MemoryHardware, ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { render, screen } from '../test/react_testing_library';
 
@@ -20,7 +20,6 @@ afterEach(() => {
 });
 
 test('Shows card backwards screen when card connection error occurs', async () => {
-  const hardware = MemoryHardware.buildStandard();
   apiMock.expectGetMachineConfig();
 
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
@@ -29,13 +28,7 @@ test('Shows card backwards screen when card connection error occurs', async () =
     pollsState: 'polls_open',
   });
 
-  render(
-    <App
-      hardware={hardware}
-      apiClient={apiMock.mockApiClient}
-      reload={jest.fn()}
-    />
-  );
+  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
   await screen.findByText('Insert Card');
 
   apiMock.setAuthStatus({

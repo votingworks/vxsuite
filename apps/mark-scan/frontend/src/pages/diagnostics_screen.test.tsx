@@ -1,6 +1,5 @@
 import userEvent from '@testing-library/user-event';
-import { fakeMarkerInfo, mockOf } from '@votingworks/test-utils';
-import { MemoryHardware } from '@votingworks/utils';
+import { mockOf } from '@votingworks/test-utils';
 import { MemoryRouter } from 'react-router-dom';
 import { DateTime } from 'luxon';
 import { render, screen } from '../../test/react_testing_library';
@@ -8,8 +7,14 @@ import {
   DiagnosticsScreen,
   DiagnosticsScreenProps,
 } from './diagnostics_screen';
-import { fakeDevices } from '../../test/helpers/fake_devices';
 import { AccessibleControllerDiagnosticScreen } from './accessible_controller_diagnostic_screen';
+import {
+  ApiMock,
+  createApiMock,
+  provideApi,
+} from '../../test/helpers/mock_api_client';
+
+let apiMock: ApiMock;
 
 jest.mock(
   './accessible_controller_diagnostic_screen',
@@ -30,31 +35,32 @@ function expectToHaveWarningIcon(element: HTMLElement) {
 
 function renderScreen(props: Partial<DiagnosticsScreenProps> = {}) {
   return render(
-    <MemoryRouter>
-      <DiagnosticsScreen
-        hardware={MemoryHardware.buildStandard()}
-        devices={fakeDevices()}
-        onBackButtonPress={jest.fn()}
-        {...props}
-      />
-    </MemoryRouter>
+    provideApi(
+      apiMock,
+      <MemoryRouter>
+        <DiagnosticsScreen onBackButtonPress={jest.fn()} {...props} />
+      </MemoryRouter>
+    )
   );
 }
 
 beforeEach(() => {
   jest.useFakeTimers().setSystemTime(new Date('2022-03-23T11:23:00.000'));
+  apiMock = createApiMock();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
 });
 
 describe('System Diagnostics screen: Computer section', () => {
-  it('shows the battery level and power cord status', () => {
-    const devices = fakeDevices({
-      computer: { batteryLevel: 0.05, batteryIsLow: true },
-    });
-    const { unmount } = renderScreen({ devices });
+  it('shows the battery level and power cord status', async () => {
+    apiMock.setBatteryInfo({ level: 0.05, discharging: false });
+    const { unmount } = renderScreen();
 
     screen.getByRole('heading', { name: 'System Diagnostics' });
 
-    const batteryText = screen.getByText('Battery: 5%');
+    const batteryText = await screen.findByText('Battery: 5%');
     // The battery level always has a success icon, even when it's low, since
     // it's only an actionable problem if the computer is not connected to
     // power, and that would trigger a full-screen alert
@@ -67,13 +73,11 @@ describe('System Diagnostics screen: Computer section', () => {
     unmount();
   });
 
-  it('shows a warning when the power cord is not connected', () => {
-    const devices = fakeDevices({
-      computer: { batteryIsCharging: false },
-    });
-    const { unmount } = renderScreen({ devices });
+  it('shows a warning when the power cord is not connected', async () => {
+    apiMock.setBatteryInfo({ level: 0.8, discharging: true });
+    const { unmount } = renderScreen();
 
-    const batteryText = screen.getByText('Battery: 80%');
+    const batteryText = await screen.findByText('Battery: 80%');
     expectToHaveSuccessIcon(batteryText);
     const powerCordText = screen.getByText(
       'No power cord connected. Connect power cord.'
@@ -83,120 +87,6 @@ describe('System Diagnostics screen: Computer section', () => {
     // Explicitly unmount before the printer status has resolved to verify that
     // we properly cancel the request for printer status.
     unmount();
-  });
-});
-
-describe('System Diagnostics screen: Printer section', () => {
-  it('shows the current printer status and has a button to refresh', async () => {
-    const hardware = MemoryHardware.buildStandard();
-    renderScreen({ hardware });
-
-    screen.getByText('Loading printer status…');
-
-    let printerStatusText = await screen.findByText('Printer status: Ready');
-    expectToHaveSuccessIcon(printerStatusText);
-    let tonerLevelText = screen.getByText('Toner level: 92%');
-    expectToHaveSuccessIcon(tonerLevelText);
-
-    const refreshButton = screen.getByRole('button', {
-      name: 'Refresh Printer Status',
-    });
-    screen.getByText('Last updated at 11:23 AM');
-
-    hardware.setPrinterIppAttributes({
-      state: 'stopped',
-      stateReasons: ['marker-supply-low-warning'],
-      markerInfos: [fakeMarkerInfo({ level: 2 })],
-    });
-    userEvent.click(refreshButton);
-
-    screen.getByText('Loading printer status…');
-
-    printerStatusText = await screen.findByText('Printer status: Stopped');
-    expectToHaveWarningIcon(printerStatusText);
-    const warningText = screen.getByText(
-      'Warning: The printer is low on toner. Replace toner cartridge.'
-    );
-    expectToHaveWarningIcon(warningText);
-    tonerLevelText = screen.getByText('Toner level: 2%');
-    expectToHaveWarningIcon(tonerLevelText);
-  });
-
-  it('shows a warning when the printer status cannot be loaded', async () => {
-    const hardware = MemoryHardware.buildStandard();
-    hardware.setPrinterIppAttributes({
-      state: 'unknown',
-    });
-    renderScreen({ hardware });
-
-    const printerStatusText = await screen.findByText(
-      'Could not get printer status.'
-    );
-    expectToHaveWarningIcon(printerStatusText);
-
-    screen.getByRole('button', {
-      name: 'Refresh Printer Status',
-    });
-    screen.getByText('Last updated at 11:23 AM');
-  });
-
-  it('shows only the highest priority printer state reason', async () => {
-    const hardware = MemoryHardware.buildStandard();
-    hardware.setPrinterIppAttributes({
-      state: 'stopped',
-      stateReasons: [
-        'media-empty',
-        'marker-supply-low-report',
-        'door-open-warning',
-        'media-needed-error',
-      ],
-      markerInfos: [fakeMarkerInfo()],
-    });
-    renderScreen({ hardware });
-
-    const warningText = await screen.findByText(
-      'Warning: The printer is out of paper. Add paper to the printer.'
-    );
-    expectToHaveWarningIcon(warningText);
-  });
-
-  it('shows the plain printer-state-reasons text for unrecognized printer state reasons', async () => {
-    const hardware = MemoryHardware.buildStandard();
-    hardware.setPrinterIppAttributes({
-      state: 'stopped',
-      stateReasons: ['some-other-reason-warning'],
-      markerInfos: [fakeMarkerInfo()],
-    });
-    renderScreen({ hardware });
-
-    const warningText = await screen.findByText('Warning: some-other-reason');
-    expectToHaveWarningIcon(warningText);
-  });
-
-  it("doesn't show warning when printer-state-reasons can't be parsed", async () => {
-    const hardware = MemoryHardware.buildStandard();
-    hardware.setPrinterIppAttributes({
-      state: 'stopped',
-      stateReasons: ['123'],
-      markerInfos: [fakeMarkerInfo()],
-    });
-    renderScreen({ hardware });
-
-    await screen.findByText('Printer status: Stopped');
-    expect(screen.queryByText(/Warning/)).not.toBeInTheDocument();
-  });
-
-  it("handles negative toner level (which indicates that the toner level can't be read)", async () => {
-    const hardware = MemoryHardware.buildStandard();
-    hardware.setPrinterIppAttributes({
-      state: 'idle',
-      stateReasons: ['none'],
-      markerInfos: [fakeMarkerInfo({ level: -2 })],
-    });
-    renderScreen({ hardware });
-
-    const tonerLevelText = await screen.findByText('Toner level: Unknown');
-    expectToHaveWarningIcon(tonerLevelText);
   });
 });
 
@@ -241,22 +131,6 @@ describe('System Diagnostics screen: Accessible Controller section', () => {
 
     screen.getByText('Test passed.');
     screen.getByText('Last tested at 11:23 AM');
-
-    unmount();
-  });
-
-  it('shows when the controller is disconnected', () => {
-    const devices = fakeDevices();
-    devices.accessibleController = undefined;
-    const { unmount } = renderScreen({ devices });
-
-    const connectionText = screen.getByText(
-      'No accessible controller connected.'
-    );
-    expectToHaveWarningIcon(connectionText);
-    expect(
-      screen.queryByText('Start Accessible Controller Test')
-    ).not.toBeInTheDocument();
 
     unmount();
   });

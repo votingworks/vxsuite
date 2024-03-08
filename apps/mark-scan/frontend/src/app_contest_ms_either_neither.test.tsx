@@ -1,4 +1,4 @@
-import { MemoryHardware, singlePrecinctSelectionFor } from '@votingworks/utils';
+import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { Route } from 'react-router-dom';
 import {
   getBallotStyle,
@@ -215,7 +215,6 @@ test('Renders Ballot with EitherNeither: blank & secondOption', async () => {
 
 test('Can vote on a Mississippi Either Neither Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
-  const hardware = MemoryHardware.buildStandard();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(electionDefinition);
@@ -225,13 +224,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
     pollsState: 'polls_open',
   });
 
-  render(
-    <App
-      hardware={hardware}
-      apiClient={apiMock.mockApiClient}
-      reload={jest.fn()}
-    />
-  );
+  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
 
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({

@@ -10,7 +10,6 @@ import {
 
 import {
   BooleanEnvironmentVariableName,
-  MemoryHardware,
   generateBallotStyleId,
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
@@ -25,7 +24,6 @@ import { render } from '../../test/test_utils';
 
 import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
-import { fakeDevices } from '../../test/helpers/fake_devices';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import {
   fakeCardlessVoterAuth,
@@ -73,8 +71,6 @@ function renderScreen(
         pollsState="polls_open"
         ballotsPrintedCount={0}
         machineConfig={fakeMachineConfig()}
-        hardware={MemoryHardware.buildStandard()}
-        devices={fakeDevices()}
         reload={jest.fn()}
         precinctSelection={singlePrecinctSelectionFor(
           electionDefinition.election.precincts[0].id

@@ -5,6 +5,7 @@ import type {
   Api,
   ElectionState,
   MachineConfig,
+  SimpleServerStatus,
 } from '@votingworks/mark-scan-backend';
 import {
   ElectionPackageConfigurationError,
@@ -26,7 +27,7 @@ import {
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { err, ok, Result } from '@votingworks/basics';
-import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
+import type { BatteryInfo } from '@votingworks/backend';
 import { TestErrorBoundary } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { fakeMachineConfig } from './fake_machine_config';
@@ -38,12 +39,21 @@ interface CardlessVoterUserParams {
   precinctId: PrecinctId;
 }
 
-type MockApiClient = Omit<MockClient<Api>, 'getAuthStatus'> & {
+type MockApiClient = Omit<
+  MockClient<Api>,
+  | 'getAuthStatus'
+  | 'getPaperHandlerState'
+  | 'getUsbDriveStatus'
+  | 'getBatteryInfo'
+  | 'isPatDeviceConnected'
+> & {
   // Because these are polled so frequently, we opt for a standard jest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
   getAuthStatus: jest.Mock;
   getPaperHandlerState: jest.Mock;
   getUsbDriveStatus: jest.Mock;
+  getBatteryInfo: jest.Mock;
+  isPatDeviceConnected: jest.Mock;
 };
 
 function createMockApiClient(): MockApiClient {
@@ -58,6 +68,9 @@ function createMockApiClient(): MockApiClient {
   );
   (mockApiClient.getUsbDriveStatus as unknown as jest.Mock) = jest.fn(() =>
     Promise.resolve({ status: 'no_drive' })
+  );
+  (mockApiClient.getBatteryInfo as unknown as jest.Mock) = jest.fn(() =>
+    Promise.resolve(null)
   );
   (mockApiClient.isPatDeviceConnected as unknown as jest.Mock) = jest.fn(() =>
     Promise.resolve(false)
@@ -169,6 +182,10 @@ export function createApiMock() {
         status: 'logged_out',
         reason,
       });
+    },
+
+    setBatteryInfo(batteryInfo: BatteryInfo | null): void {
+      mockApiClient.getBatteryInfo.mockResolvedValue(batteryInfo);
     },
 
     expectGetElectionDefinition(electionDefinition: ElectionDefinition | null) {

@@ -13,7 +13,6 @@ import {
 import { useHistory } from 'react-router-dom';
 import { IdleTimerProvider } from 'react-idle-timer';
 import {
-  Hardware,
   isElectionManagerAuth,
   isCardlessVoterAuth,
   isPollWorkerAuth,
@@ -22,12 +21,8 @@ import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
-
-import { BaseLogger } from '@votingworks/logging';
-
 import {
   SetupCardReaderPage,
-  useDevices,
   UnlockMachineScreen,
   VoterSettingsManagerContext,
   useAudioControls,
@@ -54,6 +49,7 @@ import {
   startCardlessVoterSession,
   updateCardlessVoterBallotStyle,
   unconfigureMachine,
+  systemCallApi,
 } from './api';
 
 import { Ballot } from './components/ballot';
@@ -81,15 +77,14 @@ import { PatDeviceCalibrationPage } from './pages/pat_device_identification/pat_
 import { CastingBallotPage } from './pages/casting_ballot_page';
 import { BallotSuccessfullyCastPage } from './pages/ballot_successfully_cast_page';
 import { EmptyBallotBoxPage } from './pages/empty_ballot_box_page';
+import { LOW_BATTERY_THRESHOLD } from './constants';
 
 interface VotingState {
   votes?: VotesDict;
 }
 
 export interface Props {
-  hardware: Hardware;
   reload: VoidFunction;
-  logger: BaseLogger;
 }
 
 export const blankBallotVotes: VotesDict = {};
@@ -141,11 +136,7 @@ function votingStateReducer(
   }
 }
 
-export function AppRoot({
-  hardware,
-  reload,
-  logger,
-}: Props): JSX.Element | null {
+export function AppRoot({ reload }: Props): JSX.Element | null {
   const [votingState, dispatchVotingState] = useReducer(
     votingStateReducer,
     initialVotingState
@@ -159,9 +150,7 @@ export function AppRoot({
   const { reset: resetLanguage } = useLanguageControls();
 
   const machineConfigQuery = getMachineConfig.useQuery();
-
-  const devices = useDevices({ hardware, logger });
-  const { computer } = devices;
+  const batteryQuery = systemCallApi.getBatteryInfo.useQuery();
 
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const authStatusQuery = getAuthStatus.useQuery();
@@ -334,11 +323,13 @@ export function AppRoot({
     !authStatusQuery.isSuccess ||
     !usbDriveStatusQuery.isSuccess ||
     !getStateMachineStateQuery.isSuccess ||
-    !electionStateQuery.isSuccess
+    !electionStateQuery.isSuccess ||
+    !batteryQuery.isSuccess
   ) {
     return null;
   }
   const machineConfig = machineConfigQuery.data;
+  const battery = batteryQuery.data;
   const usbDriveStatus = usbDriveStatusQuery.data;
 
   if (
@@ -361,7 +352,7 @@ export function AppRoot({
   ) {
     return <CardErrorScreen />;
   }
-  if (computer.batteryIsLow && !computer.batteryIsCharging) {
+  if (battery && battery.level < LOW_BATTERY_THRESHOLD && battery.discharging) {
     return <SetupPowerPage />;
   }
 
@@ -514,8 +505,6 @@ export function AppRoot({
           pollsState={pollsState}
           ballotsPrintedCount={ballotsPrintedCount}
           machineConfig={machineConfig}
-          hardware={hardware}
-          devices={devices}
           hasVotes={!!votes}
           reload={reload}
           precinctSelection={precinctSelection}
@@ -564,7 +553,7 @@ export function AppRoot({
         <InsertCardScreen
           appPrecinct={precinctSelection}
           electionDefinition={optionalElectionDefinition}
-          showNoChargerAttachedWarning={!computer.batteryIsCharging}
+          showNoChargerAttachedWarning={!!battery && battery.discharging}
           isLiveMode={!isTestMode}
           pollsState={pollsState}
         />
