@@ -6,6 +6,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
+import { testDetectDevices } from '@votingworks/backend';
 import { PORT } from './globals';
 import { resolveDriver, start } from './server';
 import { createWorkspace } from './util/workspace';
@@ -17,6 +18,10 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
     isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
       featureFlagMock.isEnabled(flag),
   };
+});
+
+afterEach(() => {
+  featureFlagMock.resetFeatureFlags();
 });
 
 test('can start server', async () => {
@@ -49,6 +54,25 @@ test('can start without providing auth', async () => {
     workspace,
   });
   expect(server.listening).toBeTruthy();
+  server.close();
+  workspace.reset();
+});
+
+test('logs device attach/un-attach events', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_CARDS
+  );
+  const logger = mockLogger();
+  const workspace = createWorkspace(tmp.dirSync().name);
+
+  const server = await start({
+    logger,
+    port: PORT,
+    workspace,
+  });
+
+  testDetectDevices(logger);
+
   server.close();
   workspace.reset();
 });
