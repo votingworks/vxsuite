@@ -1,6 +1,6 @@
 import fs from 'fs/promises';
 import path from 'path';
-import { DirResult, dirSync } from 'tmp';
+import tmp from 'tmp';
 import { extractErrorMessage } from '@votingworks/basics';
 
 import { PROD_VX_CERT_AUTHORITY_CERT_PATH } from '../src';
@@ -60,9 +60,9 @@ async function instantiateJavaCardWithOneOffVxAdminPrivateKeyAndCertAuthorityCer
  */
 export async function main(): Promise<void> {
   let exitCode: number = 0;
-  let tempDirectory: DirResult | undefined;
+  let tempDirectory: tmp.DirResult | undefined;
   try {
-    tempDirectory = dirSync({ unsafeCleanup: true });
+    tempDirectory = tmp.dirSync({ unsafeCleanup: true });
     const card =
       await instantiateJavaCardWithOneOffVxAdminPrivateKeyAndCertAuthorityCert(
         tempDirectory.name
