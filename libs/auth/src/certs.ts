@@ -166,6 +166,7 @@ const CustomCertFieldsSchema: z.ZodSchema<CustomCertFields> = z.union([
  * Cert expiries in days. Must be integers.
  */
 export const CERT_EXPIRY_IN_DAYS = {
+  MACHINE_VX_CERT: 365 * 100, // 100 years
   CARD_VX_CERT: 365 * 100, // 100 years
   SYSTEM_ADMINISTRATOR_CARD_VX_ADMIN_CERT: 365 * 5, // 5 years
   ELECTION_CARD_VX_ADMIN_CERT: Math.round(365 * 0.5), // 6 months

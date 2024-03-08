@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+
+require('esbuild-runner/register');
+require('./program_production_system_administrator_java_card_without_vx_admin').main();
