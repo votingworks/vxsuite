@@ -1,4 +1,4 @@
-import { MemoryHardware, ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { mockOf } from '@votingworks/test-utils';
@@ -32,20 +32,13 @@ afterEach(() => {
 });
 
 it('accessible controller handling works', async () => {
-  const hardware = MemoryHardware.buildStandard();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',
   });
-  render(
-    <App
-      hardware={hardware}
-      apiClient={apiMock.mockApiClient}
-      reload={jest.fn()}
-    />
-  );
+  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
   await advanceTimersAndPromises();
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
@@ -115,7 +108,6 @@ it('accessible controller handling works', async () => {
 });
 
 it('auto-focuses "next" button on contest screen after voting', async () => {
-  const hardware = MemoryHardware.buildStandard();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
   apiMock.expectGetElectionState({
@@ -124,13 +116,7 @@ it('auto-focuses "next" button on contest screen after voting', async () => {
   });
   mockOf(apiMock.mockApiClient.isPatDeviceConnected).mockResolvedValue(true);
 
-  render(
-    <App
-      hardware={hardware}
-      apiClient={apiMock.mockApiClient}
-      reload={jest.fn()}
-    />
-  );
+  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
   await advanceTimersAndPromises();
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({

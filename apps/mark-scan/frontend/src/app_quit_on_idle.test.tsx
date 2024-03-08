@@ -1,5 +1,5 @@
 import { fakeKiosk } from '@votingworks/test-utils';
-import { MemoryHardware, ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';
 import { createMocks as createReactIdleTimerMocks } from 'react-idle-timer';
@@ -34,7 +34,6 @@ afterEach(() => {
 });
 
 test('Insert Card screen idle timeout to quit app', async () => {
-  const hardware = MemoryHardware.buildStandard();
   apiMock.expectGetMachineConfig({
     // machineId used to determine whether we quit. Now they all do.
     // making sure a machineId that ends in 0 still triggers.
@@ -47,13 +46,7 @@ test('Insert Card screen idle timeout to quit app', async () => {
     pollsState: 'polls_open',
   });
 
-  render(
-    <App
-      hardware={hardware}
-      apiClient={apiMock.mockApiClient}
-      reload={jest.fn()}
-    />
-  );
+  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
 
   // Ensure we're on the Insert Card screen
   await screen.findByText('Insert Card');
@@ -68,7 +61,6 @@ test('Insert Card screen idle timeout to quit app', async () => {
 });
 
 test('Voter idle timeout', async () => {
-  const hardware = MemoryHardware.buildStandard();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
   apiMock.expectGetElectionState({
@@ -76,7 +68,7 @@ test('Voter idle timeout', async () => {
     pollsState: 'polls_open',
   });
 
-  render(<App apiClient={apiMock.mockApiClient} hardware={hardware} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({

@@ -4,7 +4,7 @@ import {
   mockOf,
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
-import { ALL_PRECINCTS_SELECTION, MemoryHardware } from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import fetchMock from 'fetch-mock';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
@@ -49,10 +49,9 @@ it('will throw an error when using default api', async () => {
       codeVersion: '3.14',
     },
   });
-  const hardware = MemoryHardware.buildStandard();
 
   await suppressingConsoleOutput(async () => {
-    render(<App hardware={hardware} />);
+    render(<App />);
     await screen.findByText('Something went wrong');
   });
 });
@@ -63,15 +62,8 @@ it('Displays error boundary if the api returns an unexpected error', async () =>
   apiMock.expectGetElectionState();
   apiMock.expectGetMachineConfigToError();
   apiMock.mockApiClient.reboot.expectRepeatedCallsWith().resolves();
-  const hardware = MemoryHardware.buildStandard();
   await suppressingConsoleOutput(async () => {
-    render(
-      <App
-        hardware={hardware}
-        apiClient={apiMock.mockApiClient}
-        reload={jest.fn()}
-      />
-    );
+    render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
     await advanceTimersAndPromises();
     screen.getByText('Something went wrong');
     userEvent.click(await screen.findButton('Restart'));
@@ -167,9 +159,7 @@ it('uses window.location.reload by default', async () => {
   });
 
   // Set up in an already-configured state.
-  const hardware = MemoryHardware.buildStandard();
-
-  render(<App hardware={hardware} apiClient={apiMock.mockApiClient} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   await advanceTimersAndPromises();
 
