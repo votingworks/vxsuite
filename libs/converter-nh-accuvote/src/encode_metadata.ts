@@ -54,5 +54,6 @@ export function encodeMetadata(
       ),
     ];
   }
+  /* istanbul ignore next */
   throw new Error('Timing mark encoding not yet implemented');
 }

@@ -31,6 +31,8 @@ import {
   Uint8Size,
 } from './bits';
 
+export * from './bits';
+
 /**
  * Maximum number of characters in a write-in.
  */
