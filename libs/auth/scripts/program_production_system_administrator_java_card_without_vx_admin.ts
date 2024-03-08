@@ -76,6 +76,7 @@ export async function main(): Promise<void> {
     console.error(`❌ ${extractErrorMessage(error)}`);
     exitCode = 1;
   } finally {
+    // Delete temp directory and contained files
     tempDirectory?.removeCallback();
   }
   // Smart card scripts require an explicit exit, even on success, or else they hang
