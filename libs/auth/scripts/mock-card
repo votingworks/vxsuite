@@ -1,4 +1,4 @@
 #!/usr/bin/env node
 
 require('esbuild-runner/register');
-require('./mock_card').main();
+require('./mock_card').main(process.argv.slice(2));

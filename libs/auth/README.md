@@ -92,6 +92,18 @@ relevant env vars for local development and then calls the base script:
 The initial Java Card configuration script needs to be run before this script
 can be run. This script will remind you if you haven't done so.
 
+#### Programming a Production System Administrator Java Card without a VxAdmin
+
+A special variant of the above script exists for programming a production system
+administrator Java Card without a VxAdmin. This is useful for preparing backup
+cards after we've shipped a VxAdmin.
+
+```
+VX_MACHINE_JURISDICTION=<jurisdiction> \
+  VX_PRIVATE_KEY_PATH=/path/to/vx-private-key.pem \
+  ./scripts/program-production-system-administrator-java-card-without-vx-admin
+```
+
 ### Java Card Detail Reading Script
 
 This script reads Java Card details, namely environment, jurisdiction, user
@@ -176,7 +188,7 @@ development and testing.
 
 ```
 # With a card reader connected and a Common Access Card in the card reader
-./scripts/cac-get-cert
+./scripts/cac/cac-get-cert
 ```
 
 The script prints the certificate to stdout in PEM format by default. Use the

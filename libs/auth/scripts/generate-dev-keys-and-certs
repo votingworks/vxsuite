@@ -1,4 +1,4 @@
 #!/usr/bin/env node
 
 require('esbuild-runner/register');
-require('./generate_dev_keys_and_certs').main();
+require('./generate_dev_keys_and_certs').main(process.argv.slice(2));

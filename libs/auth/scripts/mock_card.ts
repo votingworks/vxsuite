@@ -1,11 +1,11 @@
 import yargs from 'yargs/yargs';
-import { readElection } from '@votingworks/fs';
 import {
   assert,
   extractErrorMessage,
   Optional,
   throwIllegalValue,
 } from '@votingworks/basics';
+import { readElection } from '@votingworks/fs';
 
 import { DEV_JURISDICTION } from '../src/jurisdictions';
 import { mockCard } from '../src/mock_file_card';
@@ -25,7 +25,9 @@ interface MockCardInput {
   electionHash?: string;
 }
 
-async function parseCommandLineArgs(): Promise<MockCardInput> {
+async function parseCommandLineArgs(
+  args: readonly string[]
+): Promise<MockCardInput> {
   const argParser = yargs()
     .options({
       'card-type': {
@@ -67,39 +69,41 @@ async function parseCommandLineArgs(): Promise<MockCardInput> {
     throw new Error(`${errorMessage}\n\n${helpMessage}`);
   });
 
-  const args = argParser.parse(process.argv.slice(2)) as {
+  const parsedArgs = argParser.parse(args) as {
     cardType?: CardType;
     electionDefinition?: string;
     help?: boolean;
   };
 
-  if (args.help || process.argv.length === 2) {
+  if (parsedArgs.help || args.length === 0) {
     console.log(helpMessage);
     process.exit(0);
   }
 
-  if (!args.cardType) {
-    throw new Error(`Must specify card type\n\n${helpMessage}`);
+  if (!parsedArgs.cardType) {
+    throw new Error(`Must specify card-type\n\n${helpMessage}`);
   }
 
   let electionHash: Optional<string>;
-  if (['election-manager', 'poll-worker'].includes(args.cardType)) {
-    if (!args.electionDefinition) {
+  if (['election-manager', 'poll-worker'].includes(parsedArgs.cardType)) {
+    if (!parsedArgs.electionDefinition) {
       throw new Error(
-        `Must specify election definition for election manager and poll worker cards\n\n${helpMessage}`
+        `Must specify election-definition for election manager and poll worker cards\n\n${helpMessage}`
       );
     }
-    const readElectionResult = await readElection(args.electionDefinition);
+    const readElectionResult = await readElection(
+      parsedArgs.electionDefinition
+    );
     if (readElectionResult.isErr()) {
       throw new Error(
-        `${args.electionDefinition} isn't a valid election definition`
+        `${parsedArgs.electionDefinition} isn't a valid election definition`
       );
     }
     electionHash = readElectionResult.ok().electionHash;
   }
 
   return {
-    cardType: args.cardType,
+    cardType: parsedArgs.cardType,
     electionHash,
   };
 }
@@ -200,9 +204,9 @@ function mockCardWrapper({ cardType, electionHash }: MockCardInput) {
 /**
  * A script for mocking cards during local development. Run with --help for further guidance.
  */
-export async function main(): Promise<void> {
+export async function main(args: readonly string[]): Promise<void> {
   try {
-    mockCardWrapper(await parseCommandLineArgs());
+    mockCardWrapper(await parseCommandLineArgs(args));
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);
