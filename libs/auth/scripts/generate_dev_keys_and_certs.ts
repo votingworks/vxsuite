@@ -25,10 +25,7 @@ import {
 } from '../src/cryptography';
 import { DEV_JURISDICTION } from '../src/jurisdictions';
 import { runCommand } from '../src/shell';
-
-async function generateDevPrivateKey(): Promise<Buffer> {
-  return await openssl(['ecparam', '-genkey', '-name', 'prime256v1', '-noout']);
-}
+import { generatePrivateKey } from './utils';
 
 async function extractPublicKeyFromDevPrivateKey(
   privateKeyPath: string
@@ -62,7 +59,9 @@ interface GenerateDevKeysAndCertsInput {
   outputDir: string;
 }
 
-async function parseCommandLineArgs() {
+async function parseCommandLineArgs(
+  args: readonly string[]
+): Promise<GenerateDevKeysAndCertsInput> {
   const argParser = yargs()
     .options({
       'for-tests': {
@@ -92,20 +91,20 @@ async function parseCommandLineArgs() {
     throw new Error(`${errorMessage}\n\n${helpMessage}`);
   });
 
-  const args = argParser.parse(process.argv.slice(2)) as {
+  const parsedArgs = argParser.parse(args) as {
     forTests: boolean;
     help?: boolean;
     outputDir: string;
   };
 
-  if (args.help) {
+  if (parsedArgs.help) {
     console.log(helpMessage);
     process.exit(0);
   }
 
   return {
-    forTests: args.forTests,
-    outputDir: args.outputDir,
+    forTests: parsedArgs.forTests,
+    outputDir: parsedArgs.outputDir,
   };
 }
 
@@ -120,7 +119,7 @@ async function generateDevKeysAndCerts({
   // Generate VotingWorks private key and cert authority cert
   const vxPrivateKeyPath = `${outputDir}/vx-private-key.pem`;
   const vxCertAuthorityCertPath = `${outputDir}/vx-cert-authority-cert.pem`;
-  const vxPrivateKey = await generateDevPrivateKey();
+  const vxPrivateKey = await generatePrivateKey();
   await fs.writeFile(vxPrivateKeyPath, vxPrivateKey);
   const vxCertAuthorityCert =
     await generateDevVxCertAuthorityCert(vxPrivateKeyPath);
@@ -129,7 +128,7 @@ async function generateDevKeysAndCerts({
   // Generate VxAdmin private key and cert authority cert
   const vxAdminPrivateKeyPath = `${outputDir}/vx-admin-private-key.pem`;
   const vxAdminCertAuthorityCertPath = `${outputDir}/vx-admin-cert-authority-cert.pem`;
-  const vxAdminPrivateKey = await generateDevPrivateKey();
+  const vxAdminPrivateKey = await generatePrivateKey();
   await fs.writeFile(vxAdminPrivateKeyPath, vxAdminPrivateKey);
   const vxAdminCertAuthorityCert = await createCert({
     certKeyInput: {
@@ -154,7 +153,7 @@ async function generateDevKeysAndCerts({
   for (const machineType of nonVxAdminMachineTypes) {
     const machinePrivateKeyPath = `${outputDir}/vx-${machineType}-private-key.pem`;
     const machineCertPath = `${outputDir}/vx-${machineType}-cert.pem`;
-    const machinePrivateKey = await generateDevPrivateKey();
+    const machinePrivateKey = await generatePrivateKey();
     await fs.writeFile(machinePrivateKeyPath, machinePrivateKey);
     const machineCert = await createCert({
       certKeyInput: {
@@ -213,7 +212,7 @@ async function generateDevKeysAndCerts({
       const cardVxPrivateKeyPath = `${outputDir}/${cardType}/card-vx-private-key.pem`;
       const cardVxPublicKeyPath = `${outputDir}/${cardType}/card-vx-public-key.der`;
       const cardVxCertPath = `${outputDir}/${cardType}/card-vx-cert.der`;
-      const cardVxPrivateKey = await generateDevPrivateKey();
+      const cardVxPrivateKey = await generatePrivateKey();
       await fs.writeFile(cardVxPrivateKeyPath, cardVxPrivateKey);
       const cardVxPublicKey =
         await extractPublicKeyFromDevPrivateKey(cardVxPrivateKeyPath);
@@ -240,7 +239,7 @@ async function generateDevKeysAndCerts({
       const cardVxAdminPrivateKeyPath = `${outputDir}/${cardType}/card-vx-admin-private-key.pem`;
       const cardVxAdminPublicKeyPath = `${outputDir}/${cardType}/card-vx-admin-public-key.der`;
       const cardVxAdminCertPath = `${outputDir}/${cardType}/card-vx-admin-cert.der`;
-      const cardVxAdminPrivateKey = await generateDevPrivateKey();
+      const cardVxAdminPrivateKey = await generatePrivateKey();
       await fs.writeFile(cardVxAdminPrivateKeyPath, cardVxAdminPrivateKey);
       const cardVxAdminPublicKey = await extractPublicKeyFromDevPrivateKey(
         cardVxAdminPrivateKeyPath
@@ -299,9 +298,9 @@ async function generateDevKeysAndCerts({
  *
  * Run with --help for further guidance.
  */
-export async function main(): Promise<void> {
+export async function main(args: readonly string[]): Promise<void> {
   try {
-    await generateDevKeysAndCerts(await parseCommandLineArgs());
+    await generateDevKeysAndCerts(await parseCommandLineArgs(args));
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);
