@@ -1,7 +1,4 @@
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
+import { isIntegrationTest } from '@votingworks/utils';
 import { execFile } from './exec';
 
 /**
@@ -17,11 +14,10 @@ import { execFile } from './exec';
  * we apply to audio and avoid signal distortion at higher volumes.
  */
 export async function initializeSystemAudio(): Promise<void> {
-  // Allow skipping when there's no sound card available (e.g. for integration
-  // tests in CI environments).
-  if (
-    isFeatureFlagEnabled(BooleanEnvironmentVariableName.SKIP_SYSTEM_AUDIO_SETUP)
-  ) {
+  // Skip for integration tests (since there's no sound card available in the
+  // CI environment):
+  /* istanbul ignore next */
+  if (isIntegrationTest()) {
     return;
   }
 
