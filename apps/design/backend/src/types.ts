@@ -1,8 +1,3 @@
-// We create new types for precincts that can be split, since the existing
-// election types don't support this. We will likely want to extend the existing
-// types to support it in the future, but doing it separately for now allows us
-// to experiment and learn more first. We'll store these separately in the
-
 import { NhCustomContent } from '@votingworks/hmpb-layout';
 import {
   BallotStyle as VxfBallotStyle,
@@ -30,6 +25,10 @@ export function getAllBallotLanguages(
   return [...uniqueLanguages];
 }
 
+// We create new types for precincts that can be split, since the existing
+// election types don't support this. We will likely want to extend the existing
+// types to support it in the future, but doing it separately for now allows us
+// to experiment and learn more first. We'll store these separately in the
 // database and ignore Election.precincts most of the app.
 export interface PrecinctWithoutSplits {
   districtIds: readonly DistrictId[];
