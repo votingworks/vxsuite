@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "pre-commit": "lint-staged",
-    "test": "playwright test",
+    "test": "REACT_APP_VX_SKIP_SYSTEM_AUDIO_SETUP=TRUE playwright test",
     "test:watch": "playwright test --ui"
   },
   "lint-staged": {

@@ -12,7 +12,7 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import { detectUsbDrive } from '@votingworks/usb-drive';
-import { detectDevices } from '@votingworks/backend';
+import { detectDevices, initializeSystemAudio } from '@votingworks/backend';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
 import { getPaperHandlerStateMachine } from './custom-paper-handler/state_machine';
@@ -98,6 +98,8 @@ export async function start({
   }
 
   const usbDrive = detectUsbDrive(logger);
+
+  await initializeSystemAudio();
 
   const app = buildApp(resolvedAuth, logger, workspace, usbDrive, stateMachine);
 

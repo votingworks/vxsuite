@@ -28,7 +28,7 @@ async function resolveWorkspace(): Promise<Workspace> {
 
 async function main(): Promise<number> {
   const workspace = await resolveWorkspace();
-  server.start({ port: PORT, baseLogger, workspace });
+  await server.start({ port: PORT, baseLogger, workspace });
   return 0;
 }
 

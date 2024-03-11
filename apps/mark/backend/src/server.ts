@@ -12,6 +12,7 @@ import {
   isIntegrationTest,
 } from '@votingworks/utils';
 import { detectUsbDrive } from '@votingworks/usb-drive';
+import { initializeSystemAudio } from '@votingworks/backend';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
 import { getUserRole } from './util/auth';
@@ -26,12 +27,12 @@ export interface StartOptions {
 /**
  * Starts the server with all the default options.
  */
-export function start({
+export async function start({
   auth,
   baseLogger,
   port,
   workspace,
-}: StartOptions): Server {
+}: StartOptions): Promise<Server> {
   /* istanbul ignore next */
   const resolvedAuth =
     auth ??
@@ -53,6 +54,8 @@ export function start({
     /* istanbul ignore next */ () => getUserRole(resolvedAuth, workspace)
   );
   const usbDrive = detectUsbDrive(logger);
+
+  await initializeSystemAudio();
 
   const app = buildApp(resolvedAuth, logger, workspace, usbDrive);
 
