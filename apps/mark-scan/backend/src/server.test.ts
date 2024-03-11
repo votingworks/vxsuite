@@ -6,7 +6,8 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
-import { testDetectDevices } from '@votingworks/backend';
+import { initializeSystemAudio, testDetectDevices } from '@votingworks/backend';
+import { mockOf } from '@votingworks/test-utils';
 import { PORT } from './globals';
 import { resolveDriver, start } from './server';
 import { createWorkspace } from './util/workspace';
@@ -17,6 +18,13 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
     ...jest.requireActual('@votingworks/utils'),
     isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
       featureFlagMock.isEnabled(flag),
+  };
+});
+
+jest.mock('@votingworks/backend', (): typeof import('@votingworks/backend') => {
+  return {
+    ...jest.requireActual('@votingworks/backend'),
+    initializeSystemAudio: jest.fn(),
   };
 });
 
@@ -36,6 +44,7 @@ test('can start server', async () => {
     workspace,
   });
   expect(server.listening).toBeTruthy();
+  expect(mockOf(initializeSystemAudio)).toHaveBeenCalled();
   server.close();
   workspace.reset();
 });
