@@ -29,11 +29,13 @@ import {
 } from './types';
 
 function convertCardDefinition(
-  cardDefinition: NewHampshireBallotCardDefinition
+  cardDefinition: NewHampshireBallotCardDefinition,
+  metadataEncoding: Election['ballotLayout']['metadataEncoding']
 ): ConvertResult {
   return resultBlock((fail) => {
     const convertHeader = convertElectionDefinitionHeader(
-      cardDefinition.definition
+      cardDefinition.definition,
+      metadataEncoding
     ).okOrElse(fail);
 
     const { election, issues: headerIssues } = convertHeader;
@@ -336,10 +338,13 @@ ${JSON.stringify(differingElection?.[key as keyof Election], null, 2)}`,
  * separate ballot style.
  */
 export function convertElectionDefinition(
-  cardDefinitions: NewHampshireBallotCardDefinition[]
+  cardDefinitions: NewHampshireBallotCardDefinition[],
+  metadataEncoding: Election['ballotLayout']['metadataEncoding']
 ): ConvertResult {
   return resultBlock((fail) => {
-    const cardResults = cardDefinitions.map(convertCardDefinition);
+    const cardResults = cardDefinitions.map((definition) =>
+      convertCardDefinition(definition, metadataEncoding)
+    );
     cardResults.find((result) => result.isErr())?.okOrElse(fail);
     const cardElections = cardResults.map(
       (result) => assertDefined(result.ok()).election

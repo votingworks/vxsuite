@@ -3,6 +3,7 @@ import { assertDefined, err, iter, ok, Result } from '@votingworks/basics';
 import { DOMParser } from '@xmldom/xmldom';
 import { enable as enableDebug } from 'debug';
 import { promises as fs } from 'fs';
+import { Election } from '@votingworks/types';
 import { RealIo, Stdio } from '..';
 import { convertElectionDefinition } from '../../convert/convert_election_definition';
 import { NewHampshireBallotCardDefinition } from '../../convert/types';
@@ -15,6 +16,7 @@ interface ConvertOptions {
     readonly backBallotPath: string;
   }>;
   readonly outputPath?: string;
+  readonly metadataEncoding: Election['ballotLayout']['metadataEncoding'];
   readonly debug: boolean;
 }
 
@@ -36,6 +38,9 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
   const definitionPaths = [];
   const ballotPaths = [];
   let outputPath: string | undefined;
+  let metadataEncoding:
+    | Election['ballotLayout']['metadataEncoding']
+    | undefined;
   let debug = false;
 
   for (let i = 0; i < args.length; i += 1) {
@@ -64,6 +69,20 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
       case '-h':
       case '--help':
         return ok({ type: 'help' });
+
+      case '-e':
+      case '--encoding': {
+        const nextArg = args[i + 1];
+        if (nextArg === undefined) {
+          return err(new Error(`missing encoding after ${arg}`));
+        }
+        i += 1;
+        if (!(nextArg === 'qr-code' || nextArg === 'timing-marks')) {
+          return err(new Error(`unknown encoding: ${nextArg}`));
+        }
+        metadataEncoding = nextArg;
+        break;
+      }
 
       default: {
         if (arg?.startsWith('-')) {
@@ -95,6 +114,10 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
     );
   }
 
+  if (!metadataEncoding) {
+    return err(new Error('missing metadata encoding (-e)'));
+  }
+
   return ok({
     type: 'convert',
     cardDefinitionPaths: iter(ballotPaths)
@@ -107,6 +130,7 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
       }))
       .toArray(),
     outputPath,
+    metadataEncoding,
     debug,
   });
 }
@@ -114,10 +138,15 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
 function usage(out: NodeJS.WritableStream): void {
   out.write(
     `Usage:
-  General Election: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
-  Primary Election: convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
-    <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
-    [-o <output.json>] [--debug]\n`
+  General Election:
+    convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg>
+      -e qr-code|timing-marks
+      [-o <output.json>] [--debug]
+  Primary Election:
+    convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
+      <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+      -e qr-code|timing-marks
+      [-o <output.json>] [--debug]\n`
   );
 }
 
@@ -147,7 +176,7 @@ export async function main(
     enableDebug('converter-nh-accuvote:*');
   }
 
-  const { cardDefinitionPaths, outputPath } = options;
+  const { cardDefinitionPaths, outputPath, metadataEncoding } = options;
 
   const cardDefinitions = await Promise.all(
     cardDefinitionPaths.map(
@@ -171,7 +200,10 @@ export async function main(
     )
   );
 
-  const convertResult = convertElectionDefinition(cardDefinitions);
+  const convertResult = convertElectionDefinition(
+    cardDefinitions,
+    metadataEncoding
+  );
 
   const { issues = [] } = convertResult.isOk()
     ? convertResult.ok()

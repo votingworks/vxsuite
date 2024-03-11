@@ -1,7 +1,7 @@
 {
   "ballotLayout": {
     "paperSize": "legal",
-    "metadataEncoding": "qr-code"
+    "metadataEncoding": "timing-marks"
   },
   "ballotStyles": [
     {

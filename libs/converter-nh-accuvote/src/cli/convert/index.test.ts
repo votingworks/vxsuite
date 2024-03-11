@@ -31,10 +31,15 @@ test('--help', async () => {
 
   expect(io.stdout.toString()).toMatchInlineSnapshot(`
 "Usage:
-  General Election: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
-  Primary Election: convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
-    <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
-    [-o <output.json>] [--debug]
+  General Election:
+    convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg>
+      -e qr-code|timing-marks
+      [-o <output.json>] [--debug]
+  Primary Election:
+    convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
+      <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+      -e qr-code|timing-marks
+      [-o <output.json>] [--debug]
 "
 `);
 });
@@ -50,10 +55,15 @@ test('-h', async () => {
 
   expect(io.stdout.toString()).toMatchInlineSnapshot(`
 "Usage:
-  General Election: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
-  Primary Election: convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
-    <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
-    [-o <output.json>] [--debug]
+  General Election:
+    convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg>
+      -e qr-code|timing-marks
+      [-o <output.json>] [--debug]
+  Primary Election:
+    convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
+      <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+      -e qr-code|timing-marks
+      [-o <output.json>] [--debug]
 "
 `);
 });
@@ -78,10 +88,15 @@ test('missing output after --output', async () => {
   expect(io.stderr.toString()).toMatchInlineSnapshot(`
 "Error: missing output path after --output
 Usage:
-  General Election: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
-  Primary Election: convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
-    <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
-    [-o <output.json>] [--debug]
+  General Election:
+    convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg>
+      -e qr-code|timing-marks
+      [-o <output.json>] [--debug]
+  Primary Election:
+    convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
+      <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+      -e qr-code|timing-marks
+      [-o <output.json>] [--debug]
 "
 `);
   expect(exitCode).toEqual(1);
@@ -99,10 +114,15 @@ test('unexpected option', async () => {
   expect(io.stderr.toString()).toMatchInlineSnapshot(`
 "Error: unknown option: --nope
 Usage:
-  General Election: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
-  Primary Election: convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
-    <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
-    [-o <output.json>] [--debug]
+  General Election:
+    convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg>
+      -e qr-code|timing-marks
+      [-o <output.json>] [--debug]
+  Primary Election:
+    convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
+      <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+      -e qr-code|timing-marks
+      [-o <output.json>] [--debug]
 "
 `);
   expect(exitCode).toEqual(1);
@@ -123,10 +143,15 @@ test('unexpected argument', async () => {
   expect(io.stderr.toString()).toMatchInlineSnapshot(`
 "Error: unexpected argument: what-is-this.json
 Usage:
-  General Election: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
-  Primary Election: convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
-    <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
-    [-o <output.json>] [--debug]
+  General Election:
+    convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg>
+      -e qr-code|timing-marks
+      [-o <output.json>] [--debug]
+  Primary Election:
+    convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
+      <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+      -e qr-code|timing-marks
+      [-o <output.json>] [--debug]
 "
 `);
   expect(exitCode).toEqual(1);
@@ -144,10 +169,15 @@ test('missing definition path', async () => {
   expect(io.stderr.toString()).toMatchInlineSnapshot(`
 "Error: missing definition path
 Usage:
-  General Election: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
-  Primary Election: convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
-    <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
-    [-o <output.json>] [--debug]
+  General Election:
+    convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg>
+      -e qr-code|timing-marks
+      [-o <output.json>] [--debug]
+  Primary Election:
+    convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
+      <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+      -e qr-code|timing-marks
+      [-o <output.json>] [--debug]
 "
 `);
   expect(exitCode).toEqual(1);
@@ -165,10 +195,15 @@ test('missing front ballot path', async () => {
   expect(io.stderr.toString()).toMatchInlineSnapshot(`
 "Error: missing ballot image paths
 Usage:
-  General Election: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
-  Primary Election: convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
-    <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
-    [-o <output.json>] [--debug]
+  General Election:
+    convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg>
+      -e qr-code|timing-marks
+      [-o <output.json>] [--debug]
+  Primary Election:
+    convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
+      <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+      -e qr-code|timing-marks
+      [-o <output.json>] [--debug]
 "
 `);
   expect(exitCode).toEqual(1);
@@ -186,10 +221,15 @@ test('missing back ballot path', async () => {
   expect(io.stderr.toString()).toMatchInlineSnapshot(`
 "Error: missing ballot image paths
 Usage:
-  General Election: convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg> [-o <output.json>] [--debug]
-  Primary Election: convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
-    <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
-    [-o <output.json>] [--debug]
+  General Election:
+    convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg>
+      -e qr-code|timing-marks
+      [-o <output.json>] [--debug]
+  Primary Election:
+    convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
+      <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+      -e qr-code|timing-marks
+      [-o <output.json>] [--debug]
 "
 `);
   expect(exitCode).toEqual(1);
@@ -213,6 +253,8 @@ test('convert to stdout', async () => {
       electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asFilePath(),
       'front.jpeg',
       'back.jpeg',
+      '-e',
+      'timing-marks',
       '-o',
       '-',
     ],
@@ -249,6 +291,8 @@ test('convert to file', async () => {
       electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asFilePath(),
       'front.jpeg',
       'back.jpeg',
+      '-e',
+      'timing-marks',
       '-o',
       outputFile.name,
     ],
@@ -294,6 +338,8 @@ test('convert fails', async () => {
       electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asFilePath(),
       'front.jpeg',
       'back.jpeg',
+      '-e',
+      'timing-marks',
       '-o',
       '-',
     ],

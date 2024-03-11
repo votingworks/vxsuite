@@ -28,7 +28,8 @@ test('letter-size card definition', () => {
   )[0]!.textContent = '8.5X11';
 
   const header = convertElectionDefinitionHeader(
-    hudsonBallotCardDefinition
+    hudsonBallotCardDefinition,
+    'timing-marks'
   ).unsafeUnwrap();
 
   expect(header.election.ballotLayout.paperSize).toEqual(
@@ -47,7 +48,8 @@ test('missing ElectionID', () => {
 
   expect(
     convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
+      hudsonBallotCardDefinition,
+      'timing-marks'
     ).unsafeUnwrapErr().issues
   ).toEqual([
     typedAs<ConvertIssue>({
@@ -69,7 +71,8 @@ test('missing ElectionName', () => {
 
   expect(
     convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
+      hudsonBallotCardDefinition,
+      'timing-marks'
     ).unsafeUnwrapErr().issues
   ).toEqual([
     typedAs<ConvertIssue>({
@@ -91,7 +94,8 @@ test('missing TownName', () => {
 
   expect(
     convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
+      hudsonBallotCardDefinition,
+      'timing-marks'
     ).unsafeUnwrapErr().issues
   ).toEqual([
     typedAs<ConvertIssue>({
@@ -113,7 +117,8 @@ test('missing TownID', () => {
 
   expect(
     convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
+      hudsonBallotCardDefinition,
+      'timing-marks'
     ).unsafeUnwrapErr().issues
   ).toEqual([
     typedAs<ConvertIssue>({
@@ -135,7 +140,8 @@ test('missing ElectionDate', () => {
 
   expect(
     convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
+      hudsonBallotCardDefinition,
+      'timing-marks'
     ).unsafeUnwrapErr().issues
   ).toEqual([
     typedAs<ConvertIssue>({
@@ -152,8 +158,10 @@ test('multi-party endorsement', () => {
   );
 
   expect(
-    convertElectionDefinitionHeader(nhTestBallotCardDefinition).unsafeUnwrap()
-      .election.contests
+    convertElectionDefinitionHeader(
+      nhTestBallotCardDefinition,
+      'timing-marks'
+    ).unsafeUnwrap().election.contests
   ).toEqual(
     expect.arrayContaining([
       expect.objectContaining(
@@ -202,7 +210,8 @@ test('missing Party on multi-party endorsement', () => {
 
   expect(
     convertElectionDefinitionHeader(
-      nhTestBallotCardDefinition
+      nhTestBallotCardDefinition,
+      'timing-marks'
     ).unsafeUnwrapErr().issues
   ).toEqual([
     typedAs<ConvertIssue>({
@@ -221,7 +230,8 @@ test('constitutional questions become yesno contests', async () => {
     await electionGridLayoutNewHampshireTestBallotFixtures.templateBack.asImageData()
   );
   const converted = convertElectionDefinitionHeader(
-    nhTestBallotCardDefinition.definition
+    nhTestBallotCardDefinition.definition,
+    'timing-marks'
   ).unsafeUnwrap();
 
   expect(converted.election.contests.filter((c) => c.type === 'yesno')).toEqual(

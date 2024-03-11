@@ -22,9 +22,10 @@ test('converting the Hudson ballot', async () => {
     await electionGridLayoutNewHampshireHudsonFixtures.templateFront.asImageData(),
     await electionGridLayoutNewHampshireHudsonFixtures.templateBack.asImageData()
   );
-  const converted = convertElectionDefinition([
-    hudsonBallotCardDefinition,
-  ]).unsafeUnwrap();
+  const converted = convertElectionDefinition(
+    [hudsonBallotCardDefinition],
+    'timing-marks'
+  ).unsafeUnwrap();
 
   // uncomment this to update the fixture
   // require('fs').writeFileSync(
@@ -56,8 +57,10 @@ test('mismatched ballot image size', async () => {
   )[0]!.textContent = '8.5X11';
 
   expect(
-    convertElectionDefinition([hudsonBallotCardDefinition]).unsafeUnwrap()
-      .issues
+    convertElectionDefinition(
+      [hudsonBallotCardDefinition],
+      'timing-marks'
+    ).unsafeUnwrap().issues
   ).toEqual(
     expect.arrayContaining([
       typedAs<ConvertIssue>({
@@ -79,9 +82,10 @@ test('constitutional question ovals get placed on the grid correctly', async () 
     await electionGridLayoutNewHampshireTestBallotFixtures.templateFront.asImageData(),
     await electionGridLayoutNewHampshireTestBallotFixtures.templateBack.asImageData()
   );
-  const converted = convertElectionDefinition([
-    nhTestBallotCardDefinition,
-  ]).unsafeUnwrap();
+  const converted = convertElectionDefinition(
+    [nhTestBallotCardDefinition],
+    'timing-marks'
+  ).unsafeUnwrap();
 
   // uncomment this to update the fixture
   // require('fs').writeFileSync(
@@ -188,10 +192,10 @@ test('converting two party primary ballots into one election (Conway)', async ()
     repBack!
   );
 
-  const converted = convertElectionDefinition([
-    demBallotCardDefinition,
-    repBallotCardDefinition,
-  ]).unsafeUnwrap();
+  const converted = convertElectionDefinition(
+    [demBallotCardDefinition, repBallotCardDefinition],
+    'qr-code'
+  ).unsafeUnwrap();
 
   expect(converted).toMatchSnapshot();
 });

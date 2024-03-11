@@ -44,7 +44,8 @@ function makeId(text: string): string {
  * ballot images.
  */
 export function convertElectionDefinitionHeader(
-  definition: NewHampshireBallotCardDefinition['definition']
+  definition: NewHampshireBallotCardDefinition['definition'],
+  metadataEncoding: Election['ballotLayout']['metadataEncoding']
 ): ConvertResult {
   const root = definition;
   const accuvoteHeaderInfo = root.getElementsByTagName('AccuvoteHeaderInfo')[0];
@@ -464,7 +465,7 @@ export function convertElectionDefinitionHeader(
     contests,
     ballotLayout: {
       paperSize,
-      metadataEncoding: 'qr-code',
+      metadataEncoding,
     },
     gridLayouts: [
       {
