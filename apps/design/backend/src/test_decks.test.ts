@@ -280,7 +280,7 @@ test('createTestDeckTallyReport', async () => {
   const reportDocumentBuffer = await createTestDeckTallyReport({
     electionDefinition,
     ballots,
-    generatedAtTime: new Date('2021-01-01T00:00:00.000Z'),
+    generatedAtTime: new Date('2021-01-01T00:00:00.000'),
   });
 
   await expect(reportDocumentBuffer).toMatchPdfSnapshot();
