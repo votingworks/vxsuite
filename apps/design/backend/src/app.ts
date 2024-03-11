@@ -27,7 +27,8 @@ import {
 } from '@votingworks/hmpb-layout';
 import JsZip from 'jszip';
 import { renderDocumentToPdf } from '@votingworks/hmpb-render-backend';
-import { ElectionPackage, ElectionRecord, Precinct } from './store';
+import { ElectionPackage, ElectionRecord } from './store';
+import { Precinct } from './types';
 import {
   createPrecinctTestDeck,
   FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
@@ -174,9 +175,12 @@ function buildApi({ translator, workspace }: AppContext) {
     async exportAllBallots(input: {
       electionId: Id;
     }): Promise<{ zipContents: Buffer; electionHash: string }> {
-      const { election, layoutOptions, nhCustomContent } = store.getElection(
-        input.electionId
-      );
+      const {
+        ballotLanguageConfigs,
+        election,
+        layoutOptions,
+        nhCustomContent,
+      } = store.getElection(input.electionId);
 
       const zip = new JsZip();
 
@@ -192,7 +196,11 @@ function buildApi({ translator, workspace }: AppContext) {
             layoutOptions,
             nhCustomContent,
             translatedElectionStrings: (
-              await extractAndTranslateElectionStrings(translator, election)
+              await extractAndTranslateElectionStrings(
+                translator,
+                election,
+                ballotLanguageConfigs
+              )
             ).electionStrings,
           }).unsafeUnwrap();
 
@@ -266,9 +274,12 @@ function buildApi({ translator, workspace }: AppContext) {
     async exportTestDecks(input: {
       electionId: Id;
     }): Promise<{ zipContents: Buffer; electionHash: string }> {
-      const { election, layoutOptions, nhCustomContent } = store.getElection(
-        input.electionId
-      );
+      const {
+        ballotLanguageConfigs,
+        election,
+        layoutOptions,
+        nhCustomContent,
+      } = store.getElection(input.electionId);
       const { electionDefinition, ballots } = layOutAllBallotStyles({
         election,
         ballotType: BallotType.Precinct,
@@ -276,7 +287,11 @@ function buildApi({ translator, workspace }: AppContext) {
         layoutOptions,
         nhCustomContent,
         translatedElectionStrings: (
-          await extractAndTranslateElectionStrings(translator, election)
+          await extractAndTranslateElectionStrings(
+            translator,
+            election,
+            ballotLanguageConfigs
+          )
         ).electionStrings,
       }).unsafeUnwrap();
 

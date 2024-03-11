@@ -7,26 +7,17 @@ import {
   safeParseJson,
   UiStringsPackage,
 } from '@votingworks/types';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
 
 import { GoogleCloudTranslator } from './translator';
 import { setUiString } from './utils';
+import { BallotLanguageConfigs, getAllBallotLanguages } from '../types';
 
 export async function translateAppStrings(
   translator: GoogleCloudTranslator,
-  machineVersion: MachineVersion
+  machineVersion: MachineVersion,
+  ballotLanguageConfigs: BallotLanguageConfigs
 ): Promise<UiStringsPackage> {
-  /* istanbul ignore next */
-  if (
-    !isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
-    )
-  ) {
-    return {};
-  }
+  const languages = getAllBallotLanguages(ballotLanguageConfigs);
 
   const appStringsCatalogFileContents = await fs.readFile(
     path.join(
@@ -41,12 +32,12 @@ export async function translateAppStrings(
   ).unsafeUnwrap();
 
   const appStringKeys = Object.keys(appStringsCatalog).sort();
-  const appStringsInEnglish = appStringKeys.map(
+  const appStringsInEnglish = appStringKeys.map<string>(
     (key) => appStringsCatalog[key]
   );
 
   const appStrings: UiStringsPackage = {};
-  for (const languageCode of Object.values(LanguageCode)) {
+  for (const languageCode of languages) {
     const appStringsInLanguage =
       languageCode === LanguageCode.ENGLISH
         ? appStringsInEnglish

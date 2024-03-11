@@ -3,19 +3,33 @@ import {
   createBlankElection,
   convertVxfPrecincts,
   generateBallotStyles,
+  BallotLanguageConfigs,
 } from '@votingworks/design-backend';
 import {
   electionPrimaryPrecinctSplitsFixtures,
   electionGeneral,
 } from '@votingworks/fixtures';
 import { DEFAULT_LAYOUT_OPTIONS } from '@votingworks/hmpb-layout';
-import { DEFAULT_SYSTEM_SETTINGS, Election } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  Election,
+  LanguageCode,
+} from '@votingworks/types';
 
 export const electionId = 'election-id-1';
 
 export function makeElectionRecord(baseElection: Election): ElectionRecord {
+  const ballotLanguageConfigs: BallotLanguageConfigs = [
+    { languages: [LanguageCode.ENGLISH] },
+  ];
   const precincts = convertVxfPrecincts(baseElection);
-  const ballotStyles = generateBallotStyles(baseElection, precincts);
+  const ballotStyles = generateBallotStyles({
+    ballotLanguageConfigs,
+    contests: baseElection.contests,
+    electionType: baseElection.type,
+    parties: baseElection.parties,
+    precincts,
+  });
   const election: Election = {
     ...baseElection,
     ballotStyles: ballotStyles.map((ballotStyle) => ({
@@ -34,6 +48,7 @@ export function makeElectionRecord(baseElection: Election): ElectionRecord {
     layoutOptions: DEFAULT_LAYOUT_OPTIONS,
     createdAt: new Date().toISOString(),
     nhCustomContent: {},
+    ballotLanguageConfigs,
   };
 }
 

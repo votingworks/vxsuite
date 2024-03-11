@@ -3,34 +3,49 @@ import {
   Optional,
   assert,
   find,
-  groupBy,
   iter,
-  throwIllegalValue,
-  unique,
 } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
 import {
   DEFAULT_LAYOUT_OPTIONS,
   LayoutOptions,
-  NhCustomContent,
   NhCustomContentByBallotStyle,
 } from '@votingworks/hmpb-layout';
 import {
   Id,
   Iso8601Timestamp,
   Election,
-  DistrictId,
-  PrecinctId,
-  BallotStyleId,
   DEFAULT_SYSTEM_SETTINGS,
   SystemSettings,
   safeParseSystemSettings,
-  CandidateContest,
-  PartyId,
   LanguageCode,
 } from '@votingworks/types';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
+import {
+  BallotLanguageConfig,
+  BallotLanguageConfigs,
+  BallotStyle,
+  Precinct,
+  convertToVxfBallotStyle,
+  hasSplits,
+} from './types';
+import { generateBallotStyles } from './ballot_styles';
+
+export function getTempBallotLanguageConfigsForCert(): BallotLanguageConfigs {
+  const translationsEnabled = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
+  );
+  return translationsEnabled
+    ? Object.values(LanguageCode).map(
+        (l): BallotLanguageConfig => ({ languages: [l] })
+      )
+    : [{ languages: [LanguageCode.ENGLISH] }];
+}
 
 export interface ElectionRecord {
   id: Id;
@@ -41,47 +56,7 @@ export interface ElectionRecord {
   layoutOptions: LayoutOptions;
   createdAt: Iso8601Timestamp;
   nhCustomContent: NhCustomContentByBallotStyle;
-}
-
-// We create new types for precincts that can be split, since the existing
-// election types don't support this. We will likely want to extend the existing
-// types to support it in the future, but doing it separately for now allows us
-// to experiment and learn more first. We'll store these separately in the
-// database and ignore Election.precincts most of the app.
-export interface PrecinctWithoutSplits {
-  id: PrecinctId;
-  name: string;
-  districtIds: readonly DistrictId[];
-}
-export interface PrecinctWithSplits {
-  id: PrecinctId;
-  name: string;
-  splits: readonly PrecinctSplit[];
-}
-export interface PrecinctSplit {
-  id: Id;
-  name: string;
-  districtIds: readonly DistrictId[];
-  nhCustomContent: NhCustomContent;
-}
-export type Precinct = PrecinctWithoutSplits | PrecinctWithSplits;
-
-export function hasSplits(precinct: Precinct): precinct is PrecinctWithSplits {
-  return 'splits' in precinct && precinct.splits !== undefined;
-}
-
-interface PrecinctOrSplitId {
-  precinctId: PrecinctId;
-  splitId?: Id;
-}
-
-// We also create a new type for a ballot style, that can reference precincts and
-// splits. We generate ballot styles on demand, so it won't be stored in the db.
-export interface BallotStyle {
-  id: BallotStyleId;
-  precinctsOrSplits: readonly PrecinctOrSplitId[];
-  districtIds: readonly DistrictId[];
-  partyId?: PartyId;
+  ballotLanguageConfigs: BallotLanguageConfigs;
 }
 
 export type TaskName = 'generate_election_package';
@@ -137,95 +112,14 @@ export interface ElectionPackage {
   url?: string;
 }
 
-/**
- * Generates ballot styles for the election based on geography data (districts,
- * precincts, and precinct splits). For primary elections, generates distinct
- * ballot styles for each party.
- *
- * Each ballot styles should have a unique set of contests. Contests are
- * specified per district. We generate ballot styles by looking at the
- * district list for each precinct/precinct split. If the district list is
- * unique, it gets its own ballot style. Otherwise, we reuse another ballot
- * style with the same district list.
- */
-export function generateBallotStyles(
-  election: Election,
-  precincts: Precinct[]
-): BallotStyle[] {
-  const allPrecinctsOrSplitsWithDistricts: Array<
-    PrecinctOrSplitId & { districtIds: readonly DistrictId[] }
-  > = precincts
-    .flatMap((precinct) => {
-      if (hasSplits(precinct)) {
-        return precinct.splits.map((split) => {
-          return {
-            precinctId: precinct.id,
-            splitId: split.id,
-            districtIds: split.districtIds,
-          };
-        });
-      }
-      return { precinctId: precinct.id, districtIds: precinct.districtIds };
-    })
-    .filter(({ districtIds }) => districtIds.length > 0);
-
-  const precinctsOrSplitsByDistricts: Array<
-    [readonly DistrictId[], PrecinctOrSplitId[]]
-  > = groupBy(
-    allPrecinctsOrSplitsWithDistricts,
-    ({ districtIds }) => districtIds
-  ).map(([districtIds, group]) => [
-    districtIds,
-    // Remove districtIds after grouping, we don't need them anymore
-    group.map(({ precinctId, splitId }) => ({ precinctId, splitId })),
-  ]);
-
-  switch (election.type) {
-    case 'general':
-      return precinctsOrSplitsByDistricts.map(
-        ([districtIds, precinctsOrSplits], index) => ({
-          id: `ballot-style-${index + 1}`,
-          precinctsOrSplits,
-          districtIds,
-        })
-      );
-
-    case 'primary':
-      return precinctsOrSplitsByDistricts.flatMap(
-        ([districtIds, precinctsOrSplits], index) => {
-          const partyIds = unique(
-            election.contests
-              .filter(
-                (contest): contest is CandidateContest =>
-                  contest.type === 'candidate' &&
-                  contest.partyId !== undefined &&
-                  districtIds.includes(contest.districtId)
-              )
-              .map((contest) => contest.partyId)
-          );
-          const parties = election.parties.filter((party) =>
-            partyIds.includes(party.id)
-          );
-          return parties.map((party) => ({
-            id: `ballot-style-${index + 1}-${party.abbrev}`,
-            precinctsOrSplits,
-            districtIds,
-            partyId: party.id,
-          }));
-        }
-      );
-
-    default:
-      return throwIllegalValue(election.type);
-  }
-}
-
 export function getNhCustomContentByBallotStyle(
   precincts: Precinct[],
   ballotStyles: BallotStyle[]
 ): NhCustomContentByBallotStyle {
   return Object.fromEntries(
     ballotStyles.map((ballotStyle) => {
+      // TODO: We should probably be translating the NH custom content based on
+      // the ballot style language.
       const splitsWithCustomContent = iter(ballotStyle.precinctsOrSplits)
         .filterMap((precinctOrSplit) => {
           if (precinctOrSplit.splitId) {
@@ -273,11 +167,19 @@ function hydrateElection(row: {
   systemSettingsData: string;
   layoutOptionsData: string;
   createdAt: string;
+  ballotLanguageConfigs: BallotLanguageConfigs;
 }): ElectionRecord {
+  const { ballotLanguageConfigs } = row;
   const rawElection = JSON.parse(row.electionData);
   const precincts: Precinct[] = JSON.parse(row.precinctData);
   const layoutOptions = JSON.parse(row.layoutOptionsData);
-  const ballotStyles = generateBallotStyles(rawElection, precincts);
+  const ballotStyles = generateBallotStyles({
+    ballotLanguageConfigs,
+    contests: rawElection.contests,
+    electionType: rawElection.type,
+    parties: rawElection.parties,
+    precincts,
+  });
   const nhCustomContent = getNhCustomContentByBallotStyle(
     precincts,
     ballotStyles
@@ -292,12 +194,7 @@ function hydrateElection(row: {
       id: precinct.id,
       name: precinct.name,
     })),
-    ballotStyles: ballotStyles.map((ballotStyle) => ({
-      id: ballotStyle.id,
-      precincts: ballotStyle.precinctsOrSplits.map((p) => p.precinctId),
-      districts: ballotStyle.districtIds,
-      partyId: ballotStyle.partyId,
-    })),
+    ballotStyles: ballotStyles.map(convertToVxfBallotStyle),
   };
 
   const systemSettings = safeParseSystemSettings(
@@ -313,6 +210,7 @@ function hydrateElection(row: {
     layoutOptions,
     nhCustomContent,
     createdAt: convertSqliteTimestampToIso8601(row.createdAt),
+    ballotLanguageConfigs,
   };
 }
 
@@ -358,7 +256,14 @@ export class Store {
         layoutOptionsData: string;
         createdAt: string;
       }>
-    ).map(hydrateElection);
+    ).map((row) =>
+      hydrateElection({
+        ...row,
+
+        // TODO: Write/read these to/from the DB based on user selections:
+        ballotLanguageConfigs: getTempBallotLanguageConfigsForCert(),
+      })
+    );
   }
 
   getElection(electionId: Id): ElectionRecord {
@@ -382,7 +287,13 @@ export class Store {
       createdAt: string;
     };
     assert(electionRow !== undefined);
-    return hydrateElection({ id: electionId, ...electionRow });
+    return hydrateElection({
+      id: electionId,
+      ...electionRow,
+
+      // TODO: Write/read these to/from the DB based on user selections:
+      ballotLanguageConfigs: getTempBallotLanguageConfigsForCert(),
+    });
   }
 
   createElection(election: Election, precincts: Precinct[]): Id {
