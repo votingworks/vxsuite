@@ -132,7 +132,7 @@ test('hmpb ballot is accepted if precinct is set for the right precinct', async 
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         electionPackage:
           electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
-        precinctId: 'town-id-00701-precinct-id-',
+        precinctId: 'town-id-00701-precinct',
       });
 
       const validInterpretation: SheetInterpretation = {

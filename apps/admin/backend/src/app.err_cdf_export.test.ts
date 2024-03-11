@@ -209,7 +209,7 @@ it('exports results and metadata accurately', async () => {
   expect(GpUnit?.map((gpUnit) => gpUnit['@id'])).toEqual([
     'nh',
     '00701',
-    'town-id-00701-precinct-id-',
+    'town-id-00701-district',
   ]);
   expect(Party?.map((gpUnit) => gpUnit['@id'])).toEqual([
     'Democratic-aea20adb',
@@ -271,7 +271,7 @@ it('exports results and metadata accurately', async () => {
     return expect.objectContaining({
       '@type': 'ElectionResults.VoteCounts',
       Count: num,
-      GpUnitId: 'town-id-00701-precinct-id-',
+      GpUnitId: 'town-id-00701-district',
       Type: 'total',
     });
   }
@@ -314,12 +314,12 @@ it('exports results and metadata accurately', async () => {
         VoteCounts: [expectedCount(2)],
       },
     ],
-    ElectionDistrictId: 'town-id-00701-precinct-id-',
+    ElectionDistrictId: 'town-id-00701-district',
     Name: 'Constitutional Amendment Question #1',
     OtherCounts: [
       {
         '@type': 'ElectionResults.OtherCounts',
-        GpUnitId: 'town-id-00701-precinct-id-',
+        GpUnitId: 'town-id-00701-district',
         Overvotes: 2,
         Undervotes: 178,
       },
@@ -359,12 +359,12 @@ it('exports results and metadata accurately', async () => {
         VoteCounts: [expectedCount(1)],
       },
     ]),
-    ElectionDistrictId: 'town-id-00701-precinct-id-',
+    ElectionDistrictId: 'town-id-00701-district',
     Name: 'State Representatives  Hillsborough District 34',
     OtherCounts: [
       {
         '@type': 'ElectionResults.OtherCounts',
-        GpUnitId: 'town-id-00701-precinct-id-',
+        GpUnitId: 'town-id-00701-district',
         Overvotes: 31,
         Undervotes: 13,
       },

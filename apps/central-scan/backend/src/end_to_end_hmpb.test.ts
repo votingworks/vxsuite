@@ -232,7 +232,7 @@ test('going through the whole process works', async () => {
       isTestReport(castVoteRecordExportMetadata.castVoteRecordReportMetadata)
     ).toBeFalsy();
     expect(cvr.BallotStyleId).toEqual('card-number-3');
-    expect(cvr.BallotStyleUnitId).toEqual('town-id-00701-precinct-id-');
+    expect(cvr.BallotStyleUnitId).toEqual('town-id-00701-precinct');
     expect(cvr.CreatingDeviceId).toEqual('000');
     expect(cvr.BallotSheetId).toEqual('1');
     expect(cvr.vxBallotType).toEqual(CVR.vxBallotType.Precinct);
