@@ -225,6 +225,10 @@ export function createApiMock() {
       mockApiClient.getInterpretation.expectCallWith().resolves(interpretation);
     },
 
+    expectConfirmSessionEnd(): void {
+      mockApiClient.confirmSessionEnd.expectCallWith().resolves();
+    },
+
     expectValidateBallot(): void {
       mockApiClient.validateBallot.expectCallWith().resolves();
     },

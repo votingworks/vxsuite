@@ -49,6 +49,7 @@
   "instructionsAudioMuteButton": "Press the select button to mute all audio.",
   "instructionsBmdBallotNavigation": "When voting with the text-to-speech audio, use the accessible controller to navigate your ballot. To navigate through the contests, use the left and right buttons. To navigate through contest choices, use the up and down buttons. To select or unselect a contest choice as your vote, use the select button. Press the right button now to advance to the first contest.",
   "instructionsBmdCastBallotPreamble": "Your official ballot is printing. Complete the following steps to finish voting:",
+  "instructionsBmdCastBallotPreamblePostPrint": "Your official ballot has been removed from the printer. Complete the following steps to finish voting:",
   "instructionsBmdCastBallotStep1": "1. Verify your official ballot.",
   "instructionsBmdCastBallotStep2": "2. Scan your official ballot.",
   "instructionsBmdContestNavigation": "To navigate through the contest choices, use the down button. To move to the next contest, use the right button.",

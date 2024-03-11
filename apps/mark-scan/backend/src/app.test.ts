@@ -91,6 +91,7 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
+  featureFlagMock.resetFeatureFlags();
   await stateMachine.cleanUp();
   server?.close();
 });
@@ -458,6 +459,22 @@ test('ballot validation flow', async () => {
   await waitForStatus('presenting_ballot');
   await apiClient.validateBallot();
   await waitForStatus('ejecting_to_rear');
+});
+
+test('removing ballot during presentation', async () => {
+  await configureForTestElection();
+  // Skip session start, paper load, etc stages
+  mockOf(driver.getPaperHandlerStatus).mockResolvedValue(
+    getPaperInFrontStatus()
+  );
+  stateMachine.setInterpretationFixture();
+  await waitForStatus('presenting_ballot');
+  mockOf(driver.getPaperHandlerStatus).mockResolvedValue(
+    getDefaultPaperHandlerStatus()
+  );
+  await waitForStatus('ballot_removed_during_presentation');
+  await apiClient.confirmSessionEnd();
+  await waitForStatus('not_accepting_paper');
 });
 
 test('setPatDeviceIsCalibrated', async () => {

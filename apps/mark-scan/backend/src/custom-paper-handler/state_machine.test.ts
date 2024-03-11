@@ -23,7 +23,11 @@ import {
   TEST_JURISDICTION,
   safeParseSystemSettings,
 } from '@votingworks/types';
-import { singlePrecinctSelectionFor } from '@votingworks/utils';
+import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+  singlePrecinctSelectionFor,
+} from '@votingworks/utils';
 import { assert } from 'console';
 import {
   PaperHandlerStateMachine,
@@ -93,6 +97,14 @@ const webDevice: MinimalWebUsbDevice = {
 };
 
 const precinctId = electionGeneralDefinition.election.precincts[1].id;
+const featureFlagMock = getFeatureFlagMock();
+jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+      featureFlagMock.isEnabled(flag),
+  };
+});
 
 beforeEach(async () => {
   logger = mockBaseLogger();
@@ -136,6 +148,7 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
+  featureFlagMock.resetFeatureFlags();
   await machine.cleanUp();
   jest.resetAllMocks();
 });
@@ -283,6 +296,45 @@ test('voting flow happy path', async () => {
   await waitForStatus('not_accepting_paper');
 });
 
+describe('removing ballot during presentation state', () => {
+  test('is a no op if USE_MOCK_PAPER_HANDLER=true', async () => {
+    const ballotPdfData = await readBallotFixture();
+    const scannedBallotFixtureFilepaths = getSampleBallotFilepaths();
+    featureFlagMock.enableFeatureFlag(
+      BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
+    );
+    await executePrintBallotAndAssert(
+      ballotPdfData,
+      scannedBallotFixtureFilepaths
+    );
+
+    setMockDeviceStatus(getPaperInFrontStatus());
+    await waitForStatus('presenting_ballot');
+
+    setMockDeviceStatus(getDefaultPaperHandlerStatus());
+    await sleep(TEST_POLL_INTERVAL_MS);
+    expect(machine.getSimpleStatus()).toEqual('presenting_ballot');
+  });
+
+  test('goes to ballot_removed_during_presentation state', async () => {
+    const ballotPdfData = await readBallotFixture();
+    const scannedBallotFixtureFilepaths = getSampleBallotFilepaths();
+    await executePrintBallotAndAssert(
+      ballotPdfData,
+      scannedBallotFixtureFilepaths
+    );
+
+    setMockDeviceStatus(getPaperInFrontStatus());
+    await waitForStatus('presenting_ballot');
+
+    setMockDeviceStatus(getDefaultPaperHandlerStatus());
+    await waitForStatus('ballot_removed_during_presentation');
+
+    machine.confirmSessionEnd();
+    await waitForStatus('not_accepting_paper');
+  });
+});
+
 test('ballot box empty flow', async () => {
   workspace.store.setBallotsCastSinceLastBoxChange(MAX_BALLOT_BOX_CAPACITY - 1);
 
@@ -391,6 +443,14 @@ test('getRawDeviceStatus', async () => {
   expect(driver.getPaperHandlerStatus).toHaveBeenCalledTimes(1);
 });
 
+describe('paperHandlerStatusToEvent', () => {
+  test('PAPER_IN_OUTPUT', () => {
+    expect(paperHandlerStatusToEvent(getPaperInRearStatus())).toEqual({
+      type: 'PAPER_IN_OUTPUT',
+    });
+  });
+});
+
 describe('paper handler status observable', () => {
   test('logs if an error is thrown', async () => {
     mockOf(driver.getPaperHandlerStatus).mockRejectedValue(
@@ -431,6 +491,15 @@ describe('PAT device', () => {
     machine.setPatDeviceIsCalibrated();
     // Should return to last state in history, not initial state
     await waitForStatus('accepting_paper');
+  });
+
+  test('isPatDeviceConnected', async () => {
+    expect(machine.isPatDeviceConnected()).toEqual(false);
+    mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
+      true
+    );
+    await waitForStatus('pat_device_connected');
+    expect(machine.isPatDeviceConnected()).toEqual(true);
   });
 
   test('disconnecting PAT device during calibration', async () => {
@@ -485,12 +554,4 @@ test('poll_worker_auth_ended_unexpectedly', async () => {
     precinctId,
   });
   await waitForStatus('poll_worker_auth_ended_unexpectedly');
-});
-
-describe('paperHandlerStatusToEvent', () => {
-  test('paper in output', () => {
-    expect(paperHandlerStatusToEvent(getPaperInRearStatus())).toEqual({
-      type: 'PAPER_IN_OUTPUT',
-    });
-  });
 });

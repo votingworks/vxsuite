@@ -31,6 +31,7 @@ import {
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
+  CastBallotPage,
   mergeMsEitherNeitherContests,
   useBallotStyleManager,
   useSessionSettingsManager,
@@ -38,6 +39,7 @@ import {
 import type { ElectionState } from '@votingworks/mark-scan-backend';
 import {
   checkPin,
+  confirmSessionEnd,
   endCardlessVoterSession,
   getAuthStatus,
   getElectionDefinition,
@@ -165,6 +167,7 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
     : 'no_hardware';
 
   const checkPinMutation = checkPin.useMutation();
+  const confirmSessionEndMutation = confirmSessionEnd.useMutation();
   const startCardlessVoterSessionMutation =
     startCardlessVoterSession.useMutation();
   const startCardlessVoterSessionMutate =
@@ -383,6 +386,7 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
       />
     );
   }
+
   if (isElectionManagerAuth(authStatus)) {
     if (!optionalElectionDefinition) {
       return <UnconfiguredElectionScreenWrapper />;
@@ -525,10 +529,14 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
     if (pollsState === 'polls_open') {
       if (
         isCardlessVoterAuth(authStatus) &&
-        // accepting_paper expects poll worker auth. If the frontend sees accepting_paper but has cardless voter auth,
-        // it means the state hasn't caught up to auth changes. We check that edge case here to avoid flicker ie.
-        // rendering the ballot briefly before rendering the correct "Insert Card" screen
-        stateMachineState !== 'accepting_paper'
+        // Handle states that expect poll worker auth. If the frontend sees one of these states but has cardless voter auth,
+        // it means the state hasn't caught up to auth changes. We check that edge case here to avoid flicker eg.
+        // rendering the ballot briefly before rendering the correct "Insert Card" screen.
+        // This problem is caused by conditioning on auth in both the frontend and backend. The long term fix is to
+        // move auth entirely to the backend.
+        // https://github.com/votingworks/vxsuite/issues/3985
+        stateMachineState !== 'accepting_paper' &&
+        stateMachineState !== 'not_accepting_paper'
       ) {
         let ballotContextProviderChild = <Ballot />;
         // Pages that condition on state machine state aren't nested under Ballot because Ballot uses
@@ -536,6 +544,18 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
         // We still want to nest some pages that condition on the state machine under BallotContext so we render them here.
         if (stateMachineState === 'presenting_ballot') {
           ballotContextProviderChild = <ValidateBallotPage />;
+        }
+
+        if (stateMachineState === 'ballot_removed_during_presentation') {
+          return (
+            <CastBallotPage
+              hidePostVotingInstructions={() => {
+                resetBallot();
+                confirmSessionEndMutation.mutate();
+              }}
+              printingCompleted
+            />
+          );
         }
 
         return (

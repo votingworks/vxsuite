@@ -55,10 +55,12 @@ const InstructionImageContainer = styled.div`
 
 interface Props {
   hidePostVotingInstructions: () => void;
+  printingCompleted?: boolean;
 }
 
 export function CastBallotPage({
   hidePostVotingInstructions,
+  printingCompleted,
 }: Props): JSX.Element {
   return (
     <VoterScreen
@@ -75,7 +77,11 @@ export function CastBallotPage({
     >
       <ReadOnLoad>
         <H1>{appStrings.titleBmdCastBallotScreen()}</H1>
-        <P>{appStrings.instructionsBmdCastBallotPreamble()}</P>
+        <P>
+          {printingCompleted
+            ? appStrings.instructionsBmdCastBallotPreamblePostPrint()
+            : appStrings.instructionsBmdCastBallotPreamble()}
+        </P>
         <Instructions>
           <ListItem>
             <InstructionImageContainer>

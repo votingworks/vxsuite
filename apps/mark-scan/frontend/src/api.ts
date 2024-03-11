@@ -401,6 +401,19 @@ export const validateBallot = {
   },
 } as const;
 
+export const confirmSessionEnd = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.confirmSessionEnd, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStateMachineState.queryKey());
+        await queryClient.invalidateQueries(getInterpretation.queryKey());
+      },
+    });
+  },
+} as const;
+
 export const invalidateBallot = {
   useMutation() {
     const apiClient = useApiClient();
