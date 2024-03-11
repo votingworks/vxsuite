@@ -20,7 +20,7 @@ export enum ModalWidth {
 }
 
 const CONTENT_SPACING_VALUES_REM: Readonly<Record<SizeMode, number>> = {
-  desktop: 0.5,
+  desktop: 0.75,
   touchSmall: 0.5,
   touchMedium: 0.5,
   touchLarge: 0.25,
