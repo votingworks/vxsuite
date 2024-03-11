@@ -26,7 +26,7 @@ const testReportProps: AdminTallyReportByPartyProps = {
     cardCounts: getEmptyCardCounts(),
   },
   testId: 'test',
-  generatedAtTime: new Date('2023-09-06T21:45:08Z'),
+  generatedAtTime: new Date('2023-09-06T21:45:08'),
 };
 
 test('rendered tally report matches snapshot', async () => {
