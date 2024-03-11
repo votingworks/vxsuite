@@ -1,8 +1,7 @@
 import { readFile } from 'fs/promises';
-import { tmpNameSync } from 'tmp';
 import { Buffer } from 'buffer';
 import { pdfToImages } from './pdf_to_images';
-import { writeImageData } from './image_data';
+import { toImageBuffer } from './image_data';
 
 /**
  * Options for `toMatchPdfSnapshot`.
@@ -28,9 +27,7 @@ export async function toMatchPdfSnapshot(
     typeof received === 'string' ? await readFile(received) : received;
   const pdfPages = pdfToImages(pdfContents, { scale: 200 / 72 });
   for await (const { page, pageNumber } of pdfPages) {
-    const path = tmpNameSync({ postfix: '.png' });
-    await writeImageData(path, page);
-    const imageBuffer = await readFile(path);
+    const imageBuffer = toImageBuffer(page);
     expect(imageBuffer).toMatchImageSnapshot({
       customSnapshotIdentifier: options.customSnapshotIdentifier
         ? `${options.customSnapshotIdentifier}-${pageNumber}`
