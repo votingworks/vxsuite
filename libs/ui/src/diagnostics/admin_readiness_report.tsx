@@ -1,7 +1,7 @@
 import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
 import { DiagnosticRecord, PrinterStatus } from '@votingworks/types';
 import { ThemeProvider } from 'styled-components';
-import { LaptopSection } from './laptop_section';
+import { ComputerSection } from './computer_section';
 import { PrinterSection } from './printer_section';
 import { PrintedReport } from '../reports/layout';
 import { makeTheme } from '../themes/make_theme';
@@ -22,7 +22,7 @@ export function AdminReadinessReportContents({
 }: ReportContentsProps): JSX.Element {
   return (
     <div>
-      <LaptopSection
+      <ComputerSection
         batteryInfo={batteryInfo}
         diskSpaceSummary={diskSpaceSummary}
       />

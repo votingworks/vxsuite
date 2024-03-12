@@ -1,6 +1,6 @@
 import type { DiskSpaceSummary } from '@votingworks/backend';
 import { render, screen } from '../../test/react_testing_library';
-import { LaptopSection } from './laptop_section';
+import { ComputerSection } from './computer_section';
 import { expectTextWithIcon } from '../../test/expect_text_with_icon';
 
 const mockDiskSpaceSummary: DiskSpaceSummary = {
@@ -10,7 +10,7 @@ const mockDiskSpaceSummary: DiskSpaceSummary = {
 };
 
 test('normal disk space summary', async () => {
-  render(<LaptopSection diskSpaceSummary={mockDiskSpaceSummary} />);
+  render(<ComputerSection diskSpaceSummary={mockDiskSpaceSummary} />);
 
   screen.getByRole('heading', { name: 'Storage' });
   await expectTextWithIcon(
@@ -21,7 +21,7 @@ test('normal disk space summary', async () => {
 
 test('low disk space summary', async () => {
   render(
-    <LaptopSection
+    <ComputerSection
       diskSpaceSummary={{
         total: 1000000000,
         available: 2400000,
@@ -38,7 +38,7 @@ test('low disk space summary', async () => {
 });
 
 test('undefined battery info', async () => {
-  render(<LaptopSection diskSpaceSummary={mockDiskSpaceSummary} />);
+  render(<ComputerSection diskSpaceSummary={mockDiskSpaceSummary} />);
 
   screen.getByRole('heading', { name: 'Power' });
   await expectTextWithIcon('Battery Level: 100%', 'square-check');
@@ -47,7 +47,7 @@ test('undefined battery info', async () => {
 
 test('on low battery power', async () => {
   render(
-    <LaptopSection
+    <ComputerSection
       diskSpaceSummary={mockDiskSpaceSummary}
       batteryInfo={{ level: 0.02, discharging: true }}
     />
@@ -60,7 +60,7 @@ test('on low battery power', async () => {
 
 test('on external power', async () => {
   render(
-    <LaptopSection
+    <ComputerSection
       diskSpaceSummary={mockDiskSpaceSummary}
       batteryInfo={{ level: 0.02, discharging: false }}
     />

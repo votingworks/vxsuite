@@ -78,7 +78,7 @@ function StorageSection({
   );
 }
 
-export function LaptopSection({
+export function ComputerSection({
   batteryInfo,
   diskSpaceSummary,
 }: {
@@ -87,7 +87,7 @@ export function LaptopSection({
 }): JSX.Element {
   return (
     <React.Fragment>
-      <H2>Laptop</H2>
+      <H2>Computer</H2>
       <PowerSection batteryInfo={batteryInfo} />
       <StorageSection diskSpaceSummary={diskSpaceSummary} />
     </React.Fragment>
