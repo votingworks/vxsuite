@@ -139,6 +139,7 @@ impl GridPosition {
         }
     }
 
+    #[must_use]
     pub const fn sheet_number(&self) -> u32 {
         match self {
             Self::Option { sheet_number, .. } | Self::WriteIn { sheet_number, .. } => *sheet_number,
@@ -158,6 +159,7 @@ impl GridPosition {
 }
 
 #[derive(Debug, Clone, Copy, Serialize, PartialEq)]
+#[must_use]
 pub struct GridLocation {
     pub side: BallotSide,
     pub column: SubGridUnit,
@@ -178,6 +180,7 @@ pub type UnitIntervalValue = f32;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[must_use]
 pub struct MarkThresholds {
     pub definite: UnitIntervalValue,
     pub marginal: UnitIntervalValue,

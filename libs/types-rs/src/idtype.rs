@@ -2,6 +2,7 @@
 macro_rules! idtype {
     ($name:ident) => {
         #[derive(Clone, Debug, PartialEq, Eq, Hash, serde::Serialize, serde::Deserialize)]
+        #[must_use]
         pub struct $name(String);
 
         impl $name {
