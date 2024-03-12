@@ -13,6 +13,7 @@ import {
   PrecinctSelection,
   InterpretedBmdPage,
   PollsState,
+  DiagnosticRecord,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -28,6 +29,7 @@ import {
   readSignedElectionPackageFromUsb,
   configureUiStrings,
   createSystemCallApi,
+  DiskSpaceSummary,
 } from '@votingworks/backend';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
@@ -356,6 +358,18 @@ export function buildApi(
       }
 
       return stateMachine.isPatDeviceConnected();
+    },
+
+    getApplicationDiskSpaceSummary(): Promise<DiskSpaceSummary> {
+      return workspace.getDiskSpaceSummary();
+    },
+
+    addDiagnosticRecord(input: Omit<DiagnosticRecord, 'timestamp'>): void {
+      store.addDiagnosticRecord(input);
+      void logger.logAsCurrentRole(LogEventId.DiagnosticComplete, {
+        disposition: input.outcome === 'pass' ? 'success' : 'failure',
+        message: `Diagnostic (${input.type}) completed with outcome: ${input.outcome}.`,
+      });
     },
   });
 }
