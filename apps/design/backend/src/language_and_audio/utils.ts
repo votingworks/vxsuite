@@ -36,20 +36,20 @@ export function splitInterpolatedText(text: string): Segment[] {
       segments.push({ content: interpolatedSegments[i], isInterpolated: true });
     }
   }
-  const segmentsCleaned = segments
-    .map(({ content, isInterpolated }) => ({
-      content: content.trim(),
-      isInterpolated,
-    }))
-    .filter(
-      ({ content }) =>
-        content !== '' &&
-        content !== '.' &&
-        content !== '!' &&
-        content !== '?' &&
-        content !== ':'
-    );
-  return segmentsCleaned;
+
+  const segmentsCleaned = segments.map(({ content, isInterpolated }) => ({
+    content: content.trim(),
+    isInterpolated,
+  }));
+
+  // Allow non-empty, single-segment strings (like punctuation) through without
+  // further cleaning:
+  if (segmentsCleaned.length === 1 && segmentsCleaned[0].content.length > 0) {
+    return segmentsCleaned;
+  }
+
+  // Remove extraneous non-word segments from multi-segment strings:
+  return segmentsCleaned.filter(({ content }) => /[a-z0-9]/i.test(content));
 }
 
 /**

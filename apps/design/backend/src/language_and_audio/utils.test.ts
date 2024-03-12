@@ -86,7 +86,28 @@ test.each<{ input: string; expectedOutput: Segment[] }>([
       { content: '{{count}}', isInterpolated: true },
     ],
   },
-])('splitInterpolatedText - $input', ({ input, expectedOutput }) => {
+  {
+    input: 'Vote for {{count}}...',
+    expectedOutput: [
+      { content: 'Vote for', isInterpolated: false },
+      { content: '{{count}}', isInterpolated: true },
+    ],
+  },
+  {
+    input: '0 {{unit}} remaining.',
+    expectedOutput: [
+      { content: '0', isInterpolated: false },
+      { content: '{{unit}}', isInterpolated: true },
+      { content: 'remaining.', isInterpolated: false },
+    ],
+  },
+  { input: ' ', expectedOutput: [] },
+  { input: "'", expectedOutput: [{ content: "'", isInterpolated: false }] },
+  { input: '"', expectedOutput: [{ content: '"', isInterpolated: false }] },
+  { input: ',', expectedOutput: [{ content: ',', isInterpolated: false }] },
+  { input: '.', expectedOutput: [{ content: '.', isInterpolated: false }] },
+  { input: '-', expectedOutput: [{ content: '-', isInterpolated: false }] },
+])('splitInterpolatedText - "$input"', ({ input, expectedOutput }) => {
   expect(splitInterpolatedText(input)).toEqual(expectedOutput);
 });
 
