@@ -2,6 +2,7 @@
 export * from './cast_vote_records';
 export * from './detect_devices';
 export * from './test_detect_devices';
+export * from './diagnostics';
 export * from './dotenv';
 export * from './election_package';
 export * from './exporter';
