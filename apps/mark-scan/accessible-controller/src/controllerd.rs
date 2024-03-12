@@ -336,18 +336,16 @@ fn validate_connection(port: &mut Box<dyn SerialPort>) -> Result<(), io::Error> 
     ))
 }
 
-fn create_virtual_device() -> Device {
-    uinput::open(UINPUT_PATH)
-        .unwrap()
-        .name("Accessible Controller Daemon Virtual Device")
-        .unwrap()
-        .event(Keyboard::All)
-        .unwrap()
-        .create()
-        .unwrap()
+fn create_virtual_device() -> color_eyre::Result<Device> {
+    Ok(uinput::open(UINPUT_PATH)?
+        .name("Accessible Controller Daemon Virtual Device")?
+        .event(Keyboard::All)?
+        .create()?)
 }
 
-fn main() {
+fn main() -> color_eyre::Result<()> {
+    color_eyre::install()?;
+
     set_app_name(APP_NAME);
     log!(
         EventId::ProcessStarted;
@@ -374,7 +372,7 @@ fn main() {
         EventId::CreateVirtualUinputDeviceInit;
         EventType::SystemAction
     );
-    let mut device = create_virtual_device();
+    let mut device = create_virtual_device()?;
     // Wait for virtual device to register
     thread::sleep(Duration::from_secs(1));
     log!(
@@ -395,7 +393,7 @@ fn main() {
 
     match port {
         Ok(mut port) => {
-            validate_connection(&mut port).unwrap();
+            validate_connection(&mut port)?;
 
             log!(
                 event_id: EventId::ControllerConnectionComplete,
@@ -454,7 +452,10 @@ fn main() {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
+    use core::panic;
+
     use super::*;
 
     #[test]
