@@ -23,6 +23,7 @@ macro_rules! idtype {
 pub(crate) use idtype;
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 
@@ -42,6 +43,7 @@ mod tests {
     fn test_idtype_clone() {
         idtype!(Foo);
         let foo = Foo::from("foo".to_string());
+        #[allow(clippy::redundant_clone)]
         let foo2 = foo.clone();
         assert_eq!(foo, foo2);
     }

@@ -149,6 +149,7 @@ impl Debug for BallotPageTimingMarkMetadataBack {
 #[derive(Debug, Serialize, Clone)]
 #[serde(tag = "side", rename_all = "camelCase")]
 // Metadata encoded in the bottom row of timing marks on Accuvote-style ballots.
+#[allow(clippy::module_name_repetitions)]
 pub enum BallotPageTimingMarkMetadata {
     Front(BallotPageTimingMarkMetadataFront),
     Back(BallotPageTimingMarkMetadataBack),

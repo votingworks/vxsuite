@@ -1,3 +1,5 @@
+#![allow(clippy::similar_names)]
+
 use image::GrayImage;
 use serde::Serialize;
 use types_rs::geometry::{GridUnit, Point};
@@ -33,6 +35,7 @@ const BUBBLE_MATCH_THRESHOLD: f32 = 0.95;
 const BUBBLE_MATCH_ERROR_PIXELS: u32 = 2;
 
 /// Find the timing mark grid and bubbles for a ballot card template.
+#[allow(clippy::similar_names)]
 pub fn find_template_grid_and_bubbles(
     side_a_image: GrayImage,
     side_b_image: GrayImage,
@@ -128,6 +131,7 @@ pub fn find_template_grid_and_bubbles(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod test {
     use std::path::PathBuf;
 

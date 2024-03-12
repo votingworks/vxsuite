@@ -1,3 +1,5 @@
+#![allow(clippy::too_many_lines)]
+
 use std::path::{Path, PathBuf};
 
 use image::{imageops::rotate180, DynamicImage, GrayImage, Rgb, RgbImage};
@@ -733,6 +735,7 @@ impl ImageDebugWriter {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

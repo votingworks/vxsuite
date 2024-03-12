@@ -627,6 +627,7 @@ where
 }
 
 #[cfg(test)]
+#[allow(clippy::similar_names, clippy::unwrap_used)]
 mod test {
     use std::{
         fs::File,

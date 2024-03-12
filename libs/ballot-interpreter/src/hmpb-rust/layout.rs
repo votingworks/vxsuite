@@ -7,6 +7,7 @@ use crate::{ballot_card::BallotSide, timing_marks::TimingMarkGrid};
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(clippy::module_name_repetitions)]
 pub struct InterpretedContestOptionLayout {
     pub option_id: OptionId,
     pub bounds: Rect,
@@ -15,6 +16,7 @@ pub struct InterpretedContestOptionLayout {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
+#[allow(clippy::module_name_repetitions)]
 pub struct InterpretedContestLayout {
     pub contest_id: ContestId,
     pub bounds: Rect,
@@ -84,6 +86,7 @@ fn build_option_layout(
     })
 }
 
+#[allow(clippy::module_name_repetitions)]
 pub fn build_interpreted_page_layout(
     grid: &TimingMarkGrid,
     grid_layout: &GridLayout,

@@ -1,3 +1,5 @@
+#![allow(clippy::similar_names)]
+
 use image::{DynamicImage, GrayImage, Luma};
 use imageproc::contrast::{otsu_level, threshold};
 use neon::prelude::*;

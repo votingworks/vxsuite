@@ -211,6 +211,7 @@ pub fn detect(img: &GrayImage, debug: &ImageDebugWriter) -> Result {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod test {
     use std::path::PathBuf;
     use types_rs::geometry::Rect;
