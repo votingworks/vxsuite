@@ -371,6 +371,14 @@ export function buildApi(
         message: `Diagnostic (${input.type}) completed with outcome: ${input.outcome}.`,
       });
     },
+
+    getMostRecentAccessibleControllerDiagnostic(): DiagnosticRecord | null {
+      return (
+        store.getMostRecentDiagnosticRecord(
+          'mark-scan-accessible-controller'
+        ) ?? null
+      );
+    },
   });
 }
 

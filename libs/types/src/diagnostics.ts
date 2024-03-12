@@ -1,7 +1,10 @@
 /**
  * Which pieces of hardware support a diagnostics test.
  */
-export type DiagnosticType = 'test-print' | 'blank-sheet-scan';
+export type DiagnosticType =
+  | 'test-print'
+  | 'blank-sheet-scan'
+  | 'mark-scan-accessible-controller';
 
 /**
  * The outcome of a hardware diagnostics test.
