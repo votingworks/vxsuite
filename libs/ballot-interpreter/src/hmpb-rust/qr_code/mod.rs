@@ -2,4 +2,4 @@ mod detect;
 mod rqrr;
 mod zbar;
 
-pub use detect::{detect, DetectedQrCode, Error, Result};
+pub use detect::{detect, Detected, Error};

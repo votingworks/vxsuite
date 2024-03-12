@@ -29,14 +29,10 @@ pub fn get_image_data_or_path_from_arg(
     argument: i32,
 ) -> Result<ImageSource, Throw> {
     let argument = cx.argument::<JsValue>(argument)?;
-    if argument.is_a::<JsString, _>(cx) {
-        let path = argument
-            .downcast::<JsString, _>(cx)
-            .unwrap()
-            .value(&mut *cx);
+    if let Ok(path) = argument.downcast::<JsString, _>(cx) {
+        let path = path.value(&mut *cx);
         Ok(ImageSource::Path(PathBuf::from(path)))
-    } else if argument.is_a::<JsObject, _>(cx) {
-        let image_data = argument.downcast::<JsObject, _>(cx).unwrap();
+    } else if let Ok(image_data) = argument.downcast::<JsObject, _>(cx) {
         ImageData::from_js_object(cx, image_data).map_or_else(
             || cx.throw_type_error("unable to read argument as ImageData"),
             |image| Ok(ImageSource::ImageData(image)),

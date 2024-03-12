@@ -28,7 +28,7 @@ use crate::scoring::ScoredBubbleMarks;
 use crate::scoring::ScoredPositionAreas;
 use crate::timing_mark_metadata::BallotPageTimingMarkMetadata;
 use crate::timing_mark_metadata::BallotPageTimingMarkMetadataError;
-use crate::timing_marks::detect_metadata_and_normalize_orientation_from_timing_marks;
+use crate::timing_marks::detect_metadata_and_normalize_orientation;
 use crate::timing_marks::find_timing_mark_grid;
 use crate::timing_marks::normalize_orientation;
 use crate::timing_marks::BallotPageMetadata;
@@ -482,9 +482,7 @@ pub fn interpret_ballot_card(
                 (SIDE_A_LABEL, side_a_grid, &side_a.image, &mut side_a_debug),
                 (SIDE_B_LABEL, side_b_grid, &side_b.image, &mut side_b_debug),
                 |(label, grid, image, debug)| {
-                    detect_metadata_and_normalize_orientation_from_timing_marks(
-                        label, &geometry, grid, image, debug,
-                    )
+                    detect_metadata_and_normalize_orientation(label, &geometry, grid, image, debug)
                 },
             );
 
@@ -706,8 +704,8 @@ mod test {
             &Options {
                 debug_side_a_base: None,
                 debug_side_b_base: None,
-                bubble_template: bubble_template.clone(),
-                election: election.clone(),
+                bubble_template,
+                election,
                 score_write_ins: true,
             },
         )

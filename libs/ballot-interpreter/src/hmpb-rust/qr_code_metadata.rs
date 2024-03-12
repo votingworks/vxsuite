@@ -165,8 +165,8 @@ mod test {
         ) {
             let detected_metadata = BallotPageQrCodeMetadata {
                 election_hash,
-                precinct_id: PrecinctId::from(precinct_id.to_string()),
-                ballot_style_id: BallotStyleId::from(ballot_style_id.to_string()),
+                precinct_id: PrecinctId::from(precinct_id),
+                ballot_style_id: BallotStyleId::from(ballot_style_id),
                 page_number,
                 is_test_mode,
                 ballot_type,

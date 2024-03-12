@@ -302,7 +302,7 @@ mod test {
         let image = GrayImage::from_pixel(100, 100, Luma([0]));
         let template = GrayImage::from_pixel(100, 100, Luma([0]));
         let match_value = match_template(&image, &template);
-        assert_eq!(match_value, 1.0);
+        assert!((match_value - 1.0).abs() < f32::EPSILON);
     }
 
     #[test]
@@ -310,7 +310,7 @@ mod test {
         let image = GrayImage::from_pixel(100, 100, Luma([0]));
         let template = GrayImage::from_pixel(100, 100, Luma([u8::MAX]));
         let match_value = match_template(&image, &template);
-        assert_eq!(match_value, 0.0);
+        assert!((match_value - 0.0).abs() < f32::EPSILON);
     }
 
     #[test]

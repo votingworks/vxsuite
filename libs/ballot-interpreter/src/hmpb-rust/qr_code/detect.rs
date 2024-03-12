@@ -94,7 +94,7 @@ pub enum Detector {
 
 /// Information about a QR code found in an image.
 #[derive(Debug, Clone)]
-pub struct DetectedQrCode {
+pub struct Detected {
     detector: Detector,
     detection_areas: Vec<Rect>,
     bytes: Vec<u8>,
@@ -102,7 +102,7 @@ pub struct DetectedQrCode {
     orientation: Orientation,
 }
 
-impl DetectedQrCode {
+impl Detected {
     pub const fn new(
         detector: Detector,
         detection_areas: Vec<Rect>,
@@ -166,16 +166,16 @@ impl Error {
         match self {
             Self::DecodeFailed {
                 detection_areas, ..
-            } => detection_areas,
-            Self::DetectFailed {
+            }
+            | Self::DetectFailed {
                 detection_areas, ..
-            } => detection_areas,
-            Self::NoQrCodeDetected { detection_areas } => detection_areas,
+            }
+            | Self::NoQrCodeDetected { detection_areas } => detection_areas,
         }
     }
 }
 
-pub type Result = std::result::Result<DetectedQrCode, Error>;
+pub type Result = std::result::Result<Detected, Error>;
 
 /// Detect a QR code in the given ballot image. The QR code is assumed to be in either
 /// the top-right or bottom-left corner and will be cropped to limit the amount of the
@@ -200,7 +200,7 @@ pub fn detect(img: &GrayImage, debug: &ImageDebugWriter) -> Result {
         let bytes = STANDARD
             .decode(qr_code.bytes())
             .unwrap_or_else(|_| qr_code.bytes().clone());
-        DetectedQrCode::new(
+        Detected::new(
             qr_code.detector(),
             qr_code.detection_areas().to_vec(),
             bytes,
@@ -227,7 +227,7 @@ mod test {
         let scan_side_a = image::open(scan_side_a_path).unwrap().into_luma8();
         let qr_code = detect(&scan_side_a, &ImageDebugWriter::disabled()).unwrap();
         assert_eq!(
-            qr_code.bytes().to_vec(),
+            qr_code.bytes().clone(),
             vec![
                 0x56, 0x50, 0x02, 0x80, 0xb5, 0x64, 0x55, 0xf9, 0x61, 0x95, 0x22, 0x39, 0xeb, 0x01,
                 0x01, 0x02, 0x03, 0x00

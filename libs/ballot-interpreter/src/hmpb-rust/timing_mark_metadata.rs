@@ -155,9 +155,10 @@ pub enum BallotPageTimingMarkMetadata {
     Back(BallotPageTimingMarkMetadataBack),
 }
 
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Serialize, Clone, thiserror::Error)]
 #[serde(tag = "type", rename_all = "camelCase")]
 pub enum BallotPageTimingMarkMetadataError {
+    #[error("value {value} for field {field} is out of range [{min}, {max}]")]
     ValueOutOfRange {
         field: String,
         value: u32,
@@ -165,16 +166,17 @@ pub enum BallotPageTimingMarkMetadataError {
         max: u32,
         metadata: BallotPageTimingMarkMetadata,
     },
+    #[error("invalid checksum: expected {}, got {}", metadata.mod_4_checksum, metadata.computed_mod_4_checksum)]
     InvalidChecksum {
         metadata: BallotPageTimingMarkMetadataFront,
     },
+    #[error("invalid ender code: {:?}", metadata.ender_code)]
     InvalidEnderCode {
         metadata: BallotPageTimingMarkMetadataBack,
     },
-    InvalidTimingMarkCount {
-        expected: usize,
-        actual: usize,
-    },
+    #[error("invalid number of timing marks: expected {expected}, got {actual}")]
+    InvalidTimingMarkCount { expected: usize, actual: usize },
+    #[error("ambiguous metadata: front={front_metadata:?}, back={back_metadata:?}")]
     AmbiguousMetadata {
         front_metadata: BallotPageTimingMarkMetadataFront,
         back_metadata: BallotPageTimingMarkMetadataBack,

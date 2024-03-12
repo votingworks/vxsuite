@@ -196,8 +196,8 @@ mod tests {
     fn test_grid_location() {
         let location = GridLocation::new(BallotSide::Front, 1.0, 2.0);
         assert_eq!(location.side, BallotSide::Front);
-        assert_eq!(location.column, 1.0);
-        assert_eq!(location.row, 2.0);
+        assert!((location.column - 1.0).abs() < f32::EPSILON);
+        assert!((location.row - 2.0).abs() < f32::EPSILON);
     }
 
     #[test]
@@ -211,8 +211,8 @@ mod tests {
             option_id: OptionId::from("option-1".to_string()),
         };
         assert_eq!(position.location().side, BallotSide::Front);
-        assert_eq!(position.location().column, 1.0);
-        assert_eq!(position.location().row, 2.0);
+        assert!((position.location().column - 1.0).abs() < f32::EPSILON);
+        assert!((position.location().row - 2.0).abs() < f32::EPSILON);
         assert_eq!(position.sheet_number(), 1);
     }
 
@@ -238,12 +238,12 @@ mod tests {
             } => {
                 assert_eq!(sheet_number, 1);
                 assert_eq!(side, BallotSide::Front);
-                assert_eq!(column, 1.0);
-                assert_eq!(row, 2.0);
+                assert!((column - 1.0).abs() < f32::EPSILON);
+                assert!((row - 2.0).abs() < f32::EPSILON);
                 assert_eq!(contest_id, ContestId::from("contest-1".to_string()));
                 assert_eq!(option_id, OptionId::from("option-1".to_string()));
             }
-            _ => panic!("expected Option"),
+            GridPosition::WriteIn { .. } => panic!("expected Option"),
         }
     }
 
@@ -276,8 +276,8 @@ mod tests {
             } => {
                 assert_eq!(sheet_number, 1);
                 assert_eq!(side, BallotSide::Front);
-                assert_eq!(column, 1.0);
-                assert_eq!(row, 2.0);
+                assert!((column - 1.0).abs() < f32::EPSILON);
+                assert!((row - 2.0).abs() < f32::EPSILON);
                 assert_eq!(contest_id, ContestId::from("contest-1".to_string()));
                 assert_eq!(write_in_index, 3);
                 assert_eq!(
@@ -288,9 +288,9 @@ mod tests {
                         width: 2.0,
                         height: 1.0
                     }
-                )
+                );
             }
-            _ => panic!("expected WriteIn"),
+            GridPosition::Option { .. } => panic!("expected WriteIn"),
         }
     }
 }

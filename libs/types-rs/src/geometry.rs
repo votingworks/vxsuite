@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 /// with the same underlying representation is not used.
 pub type GridUnit = i32;
 
-/// A fractional GridUnit.
+/// A fractional `GridUnit`.
 ///
 /// Because this is just a type alias it does not enforce that another type
 /// with the same underlying representation is not used.
@@ -399,12 +399,15 @@ mod normalize_angle_tests {
 
     macro_rules! assert_nearly_eq {
         ($a:expr, $b:expr) => {
-            assert!(
-                ($a - $b).abs() < 0.0001,
-                "assertion failed: `({} - {}) < 0.0001`",
-                $a,
-                $b
-            );
+            #[allow(clippy::suboptimal_flops)]
+            {
+                assert!(
+                    ($a - $b).abs() < 0.0001,
+                    "assertion failed: `({} - {}) < 0.0001`",
+                    $a,
+                    $b
+                );
+            }
         };
     }
 
@@ -417,7 +420,7 @@ mod normalize_angle_tests {
     }
 
     #[test]
-    fn test_normalize_infinity() {
+    fn test_normalize_infinity_eq() {
         assert_eq!(super::normalize_angle(Radians::INFINITY), Radians::INFINITY);
         assert_eq!(
             super::normalize_angle(Radians::NEG_INFINITY),
@@ -457,16 +460,16 @@ mod normalize_center_of_rect {
     fn test_center_of_rect() {
         let rect = super::Rect::new(0, 0, 10, 10);
         let center = rect.center();
-        assert_eq!(center.x, 4.5);
-        assert_eq!(center.y, 4.5);
+        assert!((center.x - 4.5).abs() < f32::EPSILON);
+        assert!((center.y - 4.5).abs() < f32::EPSILON);
     }
 
     #[test]
     fn test_center_of_rect_with_odd_dimensions() {
         let rect = super::Rect::new(0, 0, 11, 11);
         let center = rect.center();
-        assert_eq!(center.x, 5.0);
-        assert_eq!(center.y, 5.0);
+        assert!((center.x - 5.0).abs() < f32::EPSILON);
+        assert!((center.y - 5.0).abs() < f32::EPSILON);
     }
 
     proptest! {
