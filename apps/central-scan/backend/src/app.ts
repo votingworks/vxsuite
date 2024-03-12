@@ -33,10 +33,7 @@ import {
   logScanBatchContinueFailure,
   logScanBatchContinueSuccess,
 } from './util/logging';
-import {
-  getMostRecentScannerDiagnostic,
-  saveReadinessReport,
-} from './readiness_report';
+import { saveReadinessReport } from './readiness_report';
 import { performScanDiagnostic, ScanDiagnosticOutcome } from './diagnostic';
 import { BatchScanner } from './fujitsu_scanner';
 
@@ -294,7 +291,7 @@ function buildApi({
     },
 
     getMostRecentScannerDiagnostic(): DiagnosticRecord | null {
-      return getMostRecentScannerDiagnostic(store) ?? null;
+      return store.getMostRecentDiagnosticRecord('blank-sheet-scan') ?? null;
     },
 
     async getApplicationDiskSpaceSummary(): Promise<DiskSpaceSummary> {
