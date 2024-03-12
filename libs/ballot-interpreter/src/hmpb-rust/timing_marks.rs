@@ -18,7 +18,7 @@ use crate::{
     debug,
     debug::{draw_timing_mark_debug_image_mut, ImageDebugWriter},
     image_utils::{expand_image, match_template, WHITE},
-    interpret::Error,
+    interpret::{self, Error},
     qr_code_metadata::BallotPageQrCodeMetadata,
     timing_mark_metadata::{decode_metadata_from_timing_marks, BallotPageTimingMarkMetadata},
 };
@@ -997,7 +997,7 @@ pub fn detect_metadata_and_normalize_orientation_from_timing_marks(
     grid: TimingMarkGrid,
     image: &GrayImage,
     debug: &mut ImageDebugWriter,
-) -> Result<(TimingMarkGrid, GrayImage, BallotPageTimingMarkMetadata), Error> {
+) -> interpret::Result<(TimingMarkGrid, GrayImage, BallotPageTimingMarkMetadata)> {
     let orientation = detect_orientation_from_grid(&grid);
     let (normalized_grid, normalized_image) =
         normalize_orientation(geometry, grid, image, orientation, debug);
