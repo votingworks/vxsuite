@@ -21,6 +21,10 @@ export interface DiagnosticRecord {
    */
   outcome: DiagnosticOutcome;
   /**
+   * Details about the outcome of the test.
+   */
+  message?: string;
+  /**
    * Timestamp in milliseconds since the Unix epoch.
    */
   timestamp: number;

@@ -1,5 +1,9 @@
 import { Client } from '@votingworks/db';
-import { DiagnosticRecord, DiagnosticType } from '@votingworks/types';
+import {
+  DiagnosticOutcome,
+  DiagnosticRecord,
+  DiagnosticType,
+} from '@votingworks/types';
 
 /**
  * A schema for tracking the outcome of hardware diagnostics.
@@ -9,6 +13,7 @@ create table diagnostics (
     id integer primary key,
     type text not null,
     outcome text not null check (outcome = 'pass' or outcome = 'fail'),
+    message text,
     timestamp number not null
   );  
 `;
@@ -18,18 +23,19 @@ create table diagnostics (
  */
 export function addDiagnosticRecord(
   client: Client,
-  { type, outcome }: Omit<DiagnosticRecord, 'timestamp'>,
+  { type, outcome, message }: Omit<DiagnosticRecord, 'timestamp'>,
   timestamp: number = Date.now()
 ): void {
   client.run(
     `
       insert into diagnostics
-        (type, outcome, timestamp)
+        (type, outcome, message, timestamp)
       values
-        (?, ?, ?)
+        (?, ?, ?, ?)
     `,
     type,
     outcome,
+    message ?? null,
     timestamp
   );
 }
@@ -41,11 +47,12 @@ export function getMostRecentDiagnosticRecord(
   client: Client,
   type: DiagnosticType
 ): DiagnosticRecord | undefined {
-  return client.one(
+  const record = client.one(
     `
       select
         type,
         outcome,
+        message,
         timestamp
       from diagnostics
       where type = ?
@@ -53,5 +60,19 @@ export function getMostRecentDiagnosticRecord(
       limit 1
     `,
     type
-  ) as DiagnosticRecord | undefined;
+  ) as
+    | {
+        type: DiagnosticType;
+        outcome: DiagnosticOutcome;
+        message: string | null;
+        timestamp: number;
+      }
+    | undefined;
+
+  return record
+    ? {
+        ...record,
+        message: record.message ?? undefined,
+      }
+    : undefined;
 }
