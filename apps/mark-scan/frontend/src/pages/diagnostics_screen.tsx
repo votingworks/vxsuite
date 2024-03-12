@@ -5,7 +5,6 @@ import {
   H4,
   LinkButton,
   Main,
-  Prose,
   Screen,
   P,
   Caption,
@@ -110,27 +109,23 @@ export function DiagnosticsScreen({
       <Route path="/" exact>
         <Screen>
           <Main padded>
-            <Prose compact maxWidth={false}>
-              <H1>System Diagnostics</H1>
-              <P>
-                <Button
-                  icon="Previous"
-                  variant="primary"
-                  onPress={onBackButtonPress}
-                >
-                  Back to Poll Worker Actions
-                </Button>
-              </P>
-              <span className="screen-reader-only">
-                To navigate through the available actions, use the down arrow.
-              </span>
-              <H4 as="h2">Computer</H4>
-              <ComputerStatus battery={battery} />
-              <H4 as="h2">Accessible Controller</H4>
-              <AccessibleControllerStatus
-                diagnosticResults={accessibleControllerDiagnosticResults}
-              />
-            </Prose>
+            <H1>System Diagnostics</H1>
+            <Button
+              icon="Previous"
+              variant="primary"
+              onPress={onBackButtonPress}
+            >
+              Back
+            </Button>
+            <span className="screen-reader-only">
+              To navigate through the available actions, use the down arrow.
+            </span>
+            <H4 as="h2">Computer</H4>
+            <ComputerStatus battery={battery} />
+            <H4 as="h2">Accessible Controller</H4>
+            <AccessibleControllerStatus
+              diagnosticResults={accessibleControllerDiagnosticResults}
+            />
           </Main>
         </Screen>
       </Route>
