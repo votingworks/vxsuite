@@ -30,7 +30,7 @@ mod tests {
     fn test_idtype() {
         idtype!(Foo);
         let foo = Foo::from("foo".to_string());
-        assert_eq!(format!("{}", foo), "foo");
+        assert_eq!(format!("{foo}"), "foo");
         assert_eq!(serde_json::to_string(&foo).unwrap(), r#""foo""#);
         assert_eq!(
             serde_json::from_str::<Foo>(r#""foo""#).unwrap(),
