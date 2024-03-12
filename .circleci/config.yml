@@ -1222,6 +1222,24 @@ jobs:
       - store_test_results:
           path: libs/utils/reports/
 
+  test-crate-ballot-interpreter:
+    executor: 'nodejs'
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            cargo build -p ballot-interpreter
+      - run:
+          name: Lint
+          command: |
+            cargo clippy -p ballot-interpreter
+      - run:
+          name: Test
+          command: |
+            cargo test -p ballot-interpreter
+
   test-crate-controllerd:
     executor: 'nodejs'
     resource_class: xlarge
@@ -1344,6 +1362,7 @@ workflows:
       - test-libs-ui
       - test-libs-usb-drive
       - test-libs-utils
+      - test-crate-ballot-interpreter
       - test-crate-controllerd
       - test-crate-types-rs
       - test-crate-vx-logging
