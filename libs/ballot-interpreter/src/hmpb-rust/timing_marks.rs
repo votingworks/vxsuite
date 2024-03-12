@@ -992,6 +992,7 @@ pub fn normalize_orientation(
     (grid, normalized_image)
 }
 
+#[allow(clippy::result_large_err)]
 pub fn detect_metadata_and_normalize_orientation(
     label: &str,
     geometry: &Geometry,

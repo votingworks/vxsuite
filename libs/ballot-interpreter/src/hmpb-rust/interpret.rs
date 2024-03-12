@@ -155,7 +155,7 @@ pub enum Error {
     CouldNotComputeLayout { side: BallotSide },
 }
 
-pub type Result<T, E = Box<Error>> = std::result::Result<T, E>;
+pub type Result<T, E = Error> = std::result::Result<T, E>;
 
 pub const SIDE_A_LABEL: &str = "side A";
 pub const SIDE_B_LABEL: &str = "side B";
@@ -200,7 +200,7 @@ pub fn prepare_ballot_card_images(
     side_b_image: GrayImage,
     possible_paper_infos: &[PaperInfo],
     resize_strategy: ResizeStrategy,
-) -> Result<BallotCard, Error> {
+) -> Result<BallotCard> {
     let (side_a_result, side_b_result) = par_map_pair(
         (SIDE_A_LABEL, side_a_image),
         (SIDE_B_LABEL, side_b_image),
@@ -269,7 +269,7 @@ fn prepare_ballot_page_image(
     image: GrayImage,
     possible_paper_infos: &[PaperInfo],
     resize_strategy: ResizeStrategy,
-) -> Result<BallotPage, Error> {
+) -> Result<BallotPage> {
     let Some(BallotImage {
         image,
         threshold,
@@ -431,26 +431,26 @@ pub fn interpret_ballot_card(
             );
 
             if side_a_metadata.precinct_id != side_b_metadata.precinct_id {
-                return Err(Box::new(Error::MismatchedPrecincts {
+                return Err(Error::MismatchedPrecincts {
                     side_a: side_a_metadata.precinct_id,
                     side_b: side_b_metadata.precinct_id,
-                }));
+                });
             }
             if side_a_metadata.ballot_style_id != side_b_metadata.ballot_style_id {
-                return Err(Box::new(Error::MismatchedBallotStyles {
+                return Err(Error::MismatchedBallotStyles {
                     side_a: side_a_metadata.ballot_style_id,
                     side_b: side_b_metadata.ballot_style_id,
-                }));
+                });
             }
             if side_a_metadata
                 .page_number
                 .abs_diff(side_b_metadata.page_number)
                 != 1
             {
-                return Err(Box::new(Error::NonConsecutivePageNumbers {
+                return Err(Error::NonConsecutivePageNumbers {
                     side_a: side_a_metadata.page_number,
                     side_b: side_b_metadata.page_number,
-                }));
+                });
             }
 
             let (side_a, side_b) = (
@@ -522,10 +522,10 @@ pub fn interpret_ballot_card(
                     BallotStyleId::from(format!("card-number-{}", front_metadata.card_number)),
                 ),
                 _ => {
-                    return Err(Box::new(Error::InvalidCardMetadata {
+                    return Err(Error::InvalidCardMetadata {
                         side_a: BallotPageMetadata::TimingMarks(side_a_metadata),
                         side_b: BallotPageMetadata::TimingMarks(side_b_metadata),
-                    }))
+                    })
                 }
             }
         }
@@ -537,10 +537,10 @@ pub fn interpret_ballot_card(
         .iter()
         .find(|layout| layout.ballot_style_id == ballot_style_id)
     else {
-        return Err(Box::new(Error::MissingGridLayout {
+        return Err(Error::MissingGridLayout {
             front: front_metadata,
             back: back_metadata,
-        }));
+        });
     };
 
     let sheet_number = match &front_metadata {
