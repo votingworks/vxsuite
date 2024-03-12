@@ -78,7 +78,7 @@ impl From<EchoCommand> for Vec<u8> {
     }
 }
 
-fn validate_payload_length(
+const fn validate_payload_length(
     payload_length: u16,
     bytes: &[u8],
     non_payload_bytes: usize,
