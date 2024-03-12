@@ -1,0 +1,422 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<AVSInterface>
+  <AccuvoteHeaderInfo>
+    <ElectionDate>09/11/2018</ElectionDate>
+    <ElectionName>Primary Election</ElectionName>
+    <TownName>Conway</TownName>
+    <PartyName>Democratic</PartyName>
+    <TownID>undefined</TownID>
+    <PrecinctID>
+    </PrecinctID>
+    <ElectionID>16708</ElectionID>
+    <BallotType> Regular </BallotType>
+    <BallotSize>8.5X11</BallotSize>
+  </AccuvoteHeaderInfo>
+  <Candidates>
+    <OfficeName>
+      <Name>For Governor</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>27.752</X>
+      <Y>267.654</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Steve Marchand</Name>
+      <Pronunciation>Steve Marchand</Pronunciation>
+      <CX>37.752</CX>
+      <CY>284.018</CY>
+      <OX>182.5</OX>
+      <OY>284.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Molly Kelly</Name>
+      <Pronunciation>Molly Kelly</Pronunciation>
+      <CX>37.752</CX>
+      <CY>302.018</CY>
+      <OX>182.5</OX>
+      <OY>302.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>37.752</CX>
+      <CY>320.018</CY>
+      <OX>182.5</OX>
+      <OY>320.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For Representative in Congress</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>27.752</X>
+      <Y>351.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Deaglan McEachern</Name>
+      <Pronunciation>Deaglan McEachern</Pronunciation>
+      <CX>37.752</CX>
+      <CY>374.018</CY>
+      <OX>182.5</OX>
+      <OY>374.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Mindi Messmer</Name>
+      <Pronunciation>Mindi Messmer</Pronunciation>
+      <CX>37.752</CX>
+      <CY>392.018</CY>
+      <OX>182.5</OX>
+      <OY>392.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Terence O'Rourke</Name>
+      <Pronunciation>Terence O'Rourke</Pronunciation>
+      <CX>37.752</CX>
+      <CY>410.018</CY>
+      <OX>182.5</OX>
+      <OY>410.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Chris Pappas</Name>
+      <Pronunciation>Chris Pappas</Pronunciation>
+      <CX>37.752</CX>
+      <CY>428.018</CY>
+      <OX>182.5</OX>
+      <OY>428.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Levi Sanders</Name>
+      <Pronunciation>Levi Sanders</Pronunciation>
+      <CX>37.752</CX>
+      <CY>446.018</CY>
+      <OX>182.5</OX>
+      <OY>446.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Lincoln Soldati</Name>
+      <Pronunciation>Lincoln Soldati</Pronunciation>
+      <CX>37.752</CX>
+      <CY>464.018</CY>
+      <OX>182.5</OX>
+      <OY>464.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Maura Sullivan</Name>
+      <Pronunciation>Maura Sullivan</Pronunciation>
+      <CX>37.752</CX>
+      <CY>482.018</CY>
+      <OX>182.5</OX>
+      <OY>482.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Naomi Andrews</Name>
+      <Pronunciation>Naomi Andrews</Pronunciation>
+      <CX>37.752</CX>
+      <CY>500.018</CY>
+      <OX>182.5</OX>
+      <OY>500.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Paul Cardinal</Name>
+      <Pronunciation>Paul Cardinal</Pronunciation>
+      <CX>37.752</CX>
+      <CY>518.018</CY>
+      <OX>182.5</OX>
+      <OY>518.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Mark S. MacKenzie</Name>
+      <Pronunciation>Mark S. MacKenzie</Pronunciation>
+      <CX>37.752</CX>
+      <CY>536.018</CY>
+      <OX>182.5</OX>
+      <OY>536.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>William Martin</Name>
+      <Pronunciation>William Martin</Pronunciation>
+      <CX>37.752</CX>
+      <CY>554.018</CY>
+      <OX>182.5</OX>
+      <OY>554.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>37.752</CX>
+      <CY>572.018</CY>
+      <OX>182.5</OX>
+      <OY>572.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For Executive Councilor</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>27.752</X>
+      <Y>603.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Michael J. Cryans</Name>
+      <Pronunciation>Michael J. Cryans</Pronunciation>
+      <CX>37.752</CX>
+      <CY>626.018</CY>
+      <OX>182.5</OX>
+      <OY>626.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>37.752</CX>
+      <CY>644.018</CY>
+      <OX>182.5</OX>
+      <OY>644.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For State Senator</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>27.752</X>
+      <Y>675.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Christopher T. Meier</Name>
+      <Pronunciation>Christopher T. Meier</Pronunciation>
+      <CX>37.752</CX>
+      <CY>698.018</CY>
+      <OX>182.5</OX>
+      <OY>698.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>37.752</CX>
+      <CY>716.018</CY>
+      <OX>182.5</OX>
+      <OY>716.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For State Representatives  Carroll District 2</Name>
+      <WinnerNote>Vote for not more than 3</WinnerNote>
+      <X>217.292</X>
+      <Y>267.654</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Tom Buco</Name>
+      <Pronunciation>Tom Buco</Pronunciation>
+      <CX>227.292</CX>
+      <CY>302.018</CY>
+      <OX>362.5</OX>
+      <OY>302.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Harrison Kanzler</Name>
+      <Pronunciation>Harrison Kanzler</Pronunciation>
+      <CX>227.292</CX>
+      <CY>320.018</CY>
+      <OX>362.5</OX>
+      <OY>320.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Stephen L. Woodcock</Name>
+      <Pronunciation>Stephen L. Woodcock</Pronunciation>
+      <CX>227.292</CX>
+      <CY>338.018</CY>
+      <OX>362.5</OX>
+      <OY>338.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>227.292</CX>
+      <CY>356.018</CY>
+      <OX>362.5</OX>
+      <OY>356.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>227.292</CX>
+      <CY>374.018</CY>
+      <OX>362.5</OX>
+      <OY>374.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>227.292</CX>
+      <CY>392.018</CY>
+      <OX>362.5</OX>
+      <OY>392.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For State Representative  Carroll District 7</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>217.292</X>
+      <Y>423.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Ed Butler</Name>
+      <Pronunciation>Ed Butler</Pronunciation>
+      <CX>227.292</CX>
+      <CY>464.018</CY>
+      <OX>362.5</OX>
+      <OY>464.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>227.292</CX>
+      <CY>482.018</CY>
+      <OX>362.5</OX>
+      <OY>482.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For Sheriff</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>217.292</X>
+      <Y>513.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>227.292</CX>
+      <CY>536.018</CY>
+      <OX>362.5</OX>
+      <OY>536.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For County Attorney</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>217.292</X>
+      <Y>567.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Michaela O'Rourke-Andruzzi</Name>
+      <Pronunciation>Michaela O'Rourke-Andruzzi</Pronunciation>
+      <CX>227.292</CX>
+      <CY>590.018</CY>
+      <OX>362.5</OX>
+      <OY>590.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>227.292</CX>
+      <CY>626.018</CY>
+      <OX>362.5</OX>
+      <OY>626.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For County Treasurer</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>217.292</X>
+      <Y>657.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>227.292</CX>
+      <CY>680.018</CY>
+      <OX>362.5</OX>
+      <OY>680.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For Register of Deeds</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>406.832</X>
+      <Y>267.654</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>416.832</CX>
+      <CY>284.018</CY>
+      <OX>560.5</OX>
+      <OY>284.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For Register of Probate</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>406.832</X>
+      <Y>315.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>416.832</CX>
+      <CY>338.018</CY>
+      <OX>560.5</OX>
+      <OY>338.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For County Commissioner, 1st District</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>406.832</X>
+      <Y>369.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Bert Weiss</Name>
+      <Pronunciation>Bert Weiss</Pronunciation>
+      <CX>416.832</CX>
+      <CY>410.018</CY>
+      <OX>560.5</OX>
+      <OY>410.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>416.832</CX>
+      <CY>428.018</CY>
+      <OX>560.5</OX>
+      <OY>428.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For County Commissioner, 2nd District</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>406.832</X>
+      <Y>459.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>416.832</CX>
+      <CY>500.018</CY>
+      <OX>560.5</OX>
+      <OY>500.018</OY>
+    </CandidateName>
+  </Candidates>
+</AVSInterface>

@@ -1,16 +1,22 @@
-import {
-  BallotPageTimingMarkMetadataFront,
-  findTemplateGridAndBubbles,
-} from '@votingworks/ballot-interpreter';
+import { findTemplateGridAndBubbles } from '@votingworks/ballot-interpreter';
 import {
   assert,
+  assertDefined,
+  deepEqual,
   err,
   ok,
   resultBlock,
   throwIllegalValue,
   typedAs,
+  uniqueDeep,
 } from '@votingworks/basics';
-import { Election, GridPosition, getContests } from '@votingworks/types';
+import {
+  Election,
+  GridPosition,
+  getContests,
+  getPartyForBallotStyle,
+  safeParseElection,
+} from '@votingworks/types';
 import { convertElectionDefinitionHeader } from './convert_election_definition_header';
 import { matchContestOptionsOnGrid } from './match_contest_options_on_grid';
 import {
@@ -22,15 +28,14 @@ import {
   ConvertIssue,
 } from './types';
 
-/**
- * Convert New Hampshire XML files to a single {@link Election} object.
- */
-export function convertElectionDefinition(
-  cardDefinition: NewHampshireBallotCardDefinition
+function convertCardDefinition(
+  cardDefinition: NewHampshireBallotCardDefinition,
+  metadataEncoding: Election['ballotLayout']['metadataEncoding']
 ): ConvertResult {
   return resultBlock((fail) => {
     const convertHeader = convertElectionDefinitionHeader(
-      cardDefinition.definition
+      cardDefinition.definition,
+      metadataEncoding
     ).okOrElse(fail);
 
     const { election, issues: headerIssues } = convertHeader;
@@ -59,8 +64,8 @@ export function convertElectionDefinition(
       findTemplateGridAndBubblesResult.ok();
 
     if (
-      frontGridAndBubbles.metadata.side === 'back' &&
-      backGridAndBubbles.metadata.side === 'front'
+      frontGridAndBubbles.metadata?.side === 'back' &&
+      backGridAndBubbles.metadata?.side === 'front'
     ) {
       [frontGridAndBubbles, backGridAndBubbles] = [
         backGridAndBubbles,
@@ -98,26 +103,28 @@ export function convertElectionDefinition(
       paperSize = frontExpectedPaperSize;
     }
 
-    if (frontGridAndBubbles.metadata.side !== 'front') {
-      success = false;
-      issues.push({
-        kind: ConvertIssueKind.InvalidTimingMarkMetadata,
-        message: `front page timing mark metadata is invalid: side=${frontGridAndBubbles.metadata.side}`,
-        side: 'front',
-        timingMarkBits: frontGridAndBubbles.metadata.bits,
-        timingMarks: frontGridAndBubbles.grid.partialTimingMarks,
-      });
-    }
+    if (frontGridAndBubbles.metadata && backGridAndBubbles.metadata) {
+      if (frontGridAndBubbles.metadata.side !== 'front') {
+        success = false;
+        issues.push({
+          kind: ConvertIssueKind.InvalidTimingMarkMetadata,
+          message: `front page timing mark metadata is invalid: side=${frontGridAndBubbles.metadata.side}`,
+          side: 'front',
+          timingMarkBits: frontGridAndBubbles.metadata.bits,
+          timingMarks: frontGridAndBubbles.grid.partialTimingMarks,
+        });
+      }
 
-    if (backGridAndBubbles.metadata.side !== 'back') {
-      success = false;
-      issues.push({
-        kind: ConvertIssueKind.InvalidTimingMarkMetadata,
-        message: `back page timing mark metadata is invalid: side=${backGridAndBubbles.metadata.side}`,
-        side: 'back',
-        timingMarkBits: backGridAndBubbles.metadata.bits,
-        timingMarks: backGridAndBubbles.grid.partialTimingMarks,
-      });
+      if (backGridAndBubbles.metadata.side !== 'back') {
+        success = false;
+        issues.push({
+          kind: ConvertIssueKind.InvalidTimingMarkMetadata,
+          message: `back page timing mark metadata is invalid: side=${backGridAndBubbles.metadata.side}`,
+          side: 'back',
+          timingMarkBits: backGridAndBubbles.metadata.bits,
+          timingMarks: backGridAndBubbles.grid.partialTimingMarks,
+        });
+      }
     }
 
     if (!success) {
@@ -127,18 +134,24 @@ export function convertElectionDefinition(
       });
     }
 
-    const frontMetadata =
-      frontGridAndBubbles.metadata as BallotPageTimingMarkMetadataFront;
-    const ballotStyleId = `card-number-${frontMetadata.cardNumber}`;
-
-    const frontTemplateBubbles = frontGridAndBubbles.bubbles;
-    const backTemplateBubbles = backGridAndBubbles.bubbles;
+    const ballotStyle = election.ballotStyles[0];
+    assert(ballotStyle, 'ballot style missing');
 
     const gridLayout = election.gridLayouts?.[0];
     assert(gridLayout, 'grid layout missing');
 
-    const ballotStyle = election.ballotStyles[0];
-    assert(ballotStyle, 'ballot style missing');
+    const frontMetadata = frontGridAndBubbles.metadata;
+    const ballotStyleParty = getPartyForBallotStyle({
+      ballotStyleId: ballotStyle.id,
+      election,
+    });
+    const partyPrefix = ballotStyleParty ? `${ballotStyleParty.abbrev}-` : '';
+    const cardNumber =
+      frontMetadata?.side === 'front' ? frontMetadata.cardNumber : 1;
+    const ballotStyleId = `${partyPrefix}card-number-${cardNumber}`;
+
+    const frontTemplateBubbles = frontGridAndBubbles.bubbles;
+    const backTemplateBubbles = backGridAndBubbles.bubbles;
 
     const bubbleGrid = [
       ...frontTemplateBubbles.map<TemplateBubbleGridEntry>((bubble) => ({
@@ -238,5 +251,113 @@ export function convertElectionDefinition(
     };
 
     return ok({ issues, election: result });
+  });
+}
+
+/**
+ * Given a list of single-ballot style elections for different parties (from
+ * converted NH election definitions), combine them into a single primary
+ * election with a ballot style for each party.
+ */
+function combineConvertedElectionsIntoPrimaryElection(
+  elections: readonly Election[]
+): ConvertResult {
+  assert(elections.length > 0);
+  const [firstElection, ...restElections] = elections;
+  assert(firstElection !== undefined);
+  if (restElections.length === 0) {
+    return ok({ election: firstElection, issues: [] });
+  }
+
+  const { title, type, date, state, county, seal, ballotLayout } =
+    firstElection;
+  for (const [key, value] of Object.entries({
+    title,
+    type,
+    date,
+    state,
+    county,
+    seal,
+    ballotLayout,
+  })) {
+    const differingElection = restElections.find(
+      (election) => !deepEqual(election[key as keyof Election], value)
+    );
+    if (differingElection) {
+      return err({
+        issues: [
+          {
+            kind: ConvertIssueKind.MismatchedPrimaryPartyElections,
+            message: `All elections must have the same ${key}, found:
+${JSON.stringify(value, null, 2)}
+${JSON.stringify(differingElection?.[key as keyof Election], null, 2)}`,
+          },
+        ],
+      });
+    }
+  }
+
+  const combinedElection: Election = {
+    title,
+    type,
+    date,
+    state,
+    county,
+    seal,
+    ballotLayout,
+    districts: uniqueDeep(elections.flatMap((election) => election.districts)),
+    precincts: uniqueDeep(elections.flatMap((election) => election.precincts)),
+    contests: elections.flatMap((election) => election.contests),
+    parties: elections.flatMap((election) => election.parties),
+    ballotStyles: elections.flatMap((election) => election.ballotStyles),
+    gridLayouts: elections.flatMap((election) =>
+      assertDefined(election.gridLayouts)
+    ),
+  };
+
+  const parseElectionResult = safeParseElection(combinedElection);
+
+  if (parseElectionResult.isErr()) {
+    return err({
+      issues: [
+        {
+          kind: ConvertIssueKind.ElectionValidationFailed,
+          message: parseElectionResult.err().message,
+          validationError: parseElectionResult.err(),
+        },
+      ],
+    });
+  }
+
+  return ok({ election: parseElectionResult.ok(), issues: [] });
+}
+
+/**
+ * Convert New Hampshire XML files to a single {@link Election} object. If given
+ * multiple XML files (e.g. for a primary election), treats each one as a
+ * separate ballot style.
+ */
+export function convertElectionDefinition(
+  cardDefinitions: NewHampshireBallotCardDefinition[],
+  metadataEncoding: Election['ballotLayout']['metadataEncoding']
+): ConvertResult {
+  return resultBlock((fail) => {
+    const cardResults = cardDefinitions.map((definition) =>
+      convertCardDefinition(definition, metadataEncoding)
+    );
+    cardResults.find((result) => result.isErr())?.okOrElse(fail);
+    const cardElections = cardResults.map(
+      (result) => assertDefined(result.ok()).election
+    );
+    const { election, issues } =
+      combineConvertedElectionsIntoPrimaryElection(cardElections).okOrElse(
+        fail
+      );
+    return ok({
+      election,
+      issues: cardResults
+        .flatMap((result) => assertDefined(result.ok()).issues)
+        .concat(issues),
+    });
   });
 }

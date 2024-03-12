@@ -22,6 +22,7 @@ import {
   toRgba,
   writeImageData,
   ensureImageData,
+  toImageBuffer,
 } from './image_data';
 
 test('channels', () => {
@@ -299,4 +300,25 @@ test('ensureImageData', () => {
   };
   expect(ensureImageData(imageDataLike) === imageDataLike).toBeFalsy();
   expect(ensureImageData(imageDataLike)).toBeInstanceOf(ImageData);
+});
+
+test('toImageBuffer', async () => {
+  await fc.assert(
+    fc.asyncProperty(
+      arbitraryImageData({ width: 5, height: 5, channels: 4 }),
+      fc.constantFrom<'png' | 'jpeg' | undefined>('png', 'jpeg', undefined),
+      async (imageData, format) => {
+        const buffer = toImageBuffer(imageData, format && `image/${format}`);
+        const filePath = fileSync({ template: `tmp-XXXXXX.${format}` }).name;
+        await writeFile(filePath, buffer);
+        const { width: decodedWidth, height: decodedHeight } = toImageData(
+          await loadImage(filePath)
+        );
+        expect({ width: decodedWidth, height: decodedHeight }).toStrictEqual({
+          width: imageData.width,
+          height: imageData.height,
+        });
+      }
+    )
+  );
 });

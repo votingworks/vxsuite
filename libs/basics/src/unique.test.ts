@@ -1,4 +1,4 @@
-import { unique, uniqueBy } from './unique';
+import { unique, uniqueBy, uniqueDeep } from './unique';
 
 test('unique', () => {
   expect(unique([])).toEqual([]);
@@ -23,4 +23,30 @@ test('uniqueBy', () => {
   expect(
     uniqueBy([{ id: 'a' }, { id: 'b' }, { id: 'c' }, { id: 'a' }], (x) => x.id)
   ).toEqual([{ id: 'a' }, { id: 'b' }, { id: 'c' }]);
+});
+
+test('uniqueDeep', () => {
+  expect(uniqueDeep([])).toEqual([]);
+  expect(uniqueDeep(['a'])).toEqual(['a']);
+  expect(uniqueDeep(['a', 'a'])).toEqual(['a']);
+  expect(uniqueDeep(['a', 'b', 'a'])).toEqual(['a', 'b']);
+  expect(uniqueDeep([{ id: 'a' }, { id: 'b' }, { id: 'a' }])).toEqual([
+    { id: 'a' },
+    { id: 'b' },
+  ]);
+  expect(
+    uniqueDeep([
+      { id: 'a', name: 'Alice' },
+      { id: 'b', name: 'Bob' },
+      { id: 'c', name: 'Charles' },
+      { id: 'a', name: 'Amanda' },
+      { id: 'b', name: 'Bob' },
+      { id: 'c', name: 'Charles' },
+    ])
+  ).toEqual([
+    { id: 'a', name: 'Alice' },
+    { id: 'b', name: 'Bob' },
+    { id: 'c', name: 'Charles' },
+    { id: 'a', name: 'Amanda' },
+  ]);
 });

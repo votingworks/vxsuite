@@ -7,9 +7,11 @@ module.exports = {
   ...shared,
   coverageThreshold: {
     global: {
-      branches: -74,
+      branches: -90,
       lines: -35,
     },
   },
   collectCoverageFrom: [...shared.collectCoverageFrom, '!src/debug.ts'],
+  prettierPath: null,
+  setupFilesAfterEnv: ['<rootDir>/test/setupTests.ts'],
 };

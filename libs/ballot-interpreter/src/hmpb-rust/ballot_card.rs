@@ -168,6 +168,17 @@ impl PaperInfo {
         }
     }
 
+    pub const fn template_custom18() -> Self {
+        Self {
+            size: BallotPaperSize::Custom18,
+            margins: Size {
+                width: 0.0,
+                height: 0.0,
+            },
+            pixels_per_inch: TEMPLATE_PIXELS_PER_INCH,
+        }
+    }
+
     /// Returns info for all supported scanned paper sizes.
     pub const fn scanned() -> [Self; 6] {
         [
@@ -181,12 +192,13 @@ impl PaperInfo {
     }
 
     /// Returns info for all supported template paper sizes.
-    pub const fn template() -> [Self; 4] {
+    pub const fn template() -> [Self; 5] {
         [
             Self::template_letter(),
             Self::template_legal(),
             Self::template_letter_with_margins(),
             Self::template_legal_with_margins(),
+            Self::template_custom18(),
         ]
     }
 

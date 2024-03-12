@@ -6,7 +6,7 @@ import { qrcodegen } from './qrcodegen';
 
 const { QrCode } = qrcodegen;
 
-type Bit = 0 | 1;
+export type Bit = 0 | 1;
 export type QrCodeData = Array<Bit[]>;
 
 export function encodeInQrCode(data: Uint8Array): QrCodeData {

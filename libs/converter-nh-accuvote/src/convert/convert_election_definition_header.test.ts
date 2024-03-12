@@ -28,7 +28,8 @@ test('letter-size card definition', () => {
   )[0]!.textContent = '8.5X11';
 
   const header = convertElectionDefinitionHeader(
-    hudsonBallotCardDefinition
+    hudsonBallotCardDefinition,
+    'timing-marks'
   ).unsafeUnwrap();
 
   expect(header.election.ballotLayout.paperSize).toEqual(
@@ -47,7 +48,8 @@ test('missing ElectionID', () => {
 
   expect(
     convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
+      hudsonBallotCardDefinition,
+      'timing-marks'
     ).unsafeUnwrapErr().issues
   ).toEqual([
     typedAs<ConvertIssue>({
@@ -69,7 +71,8 @@ test('missing ElectionName', () => {
 
   expect(
     convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
+      hudsonBallotCardDefinition,
+      'timing-marks'
     ).unsafeUnwrapErr().issues
   ).toEqual([
     typedAs<ConvertIssue>({
@@ -91,7 +94,8 @@ test('missing TownName', () => {
 
   expect(
     convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
+      hudsonBallotCardDefinition,
+      'timing-marks'
     ).unsafeUnwrapErr().issues
   ).toEqual([
     typedAs<ConvertIssue>({
@@ -113,7 +117,8 @@ test('missing TownID', () => {
 
   expect(
     convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
+      hudsonBallotCardDefinition,
+      'timing-marks'
     ).unsafeUnwrapErr().issues
   ).toEqual([
     typedAs<ConvertIssue>({
@@ -135,7 +140,8 @@ test('missing ElectionDate', () => {
 
   expect(
     convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
+      hudsonBallotCardDefinition,
+      'timing-marks'
     ).unsafeUnwrapErr().issues
   ).toEqual([
     typedAs<ConvertIssue>({
@@ -146,36 +152,16 @@ test('missing ElectionDate', () => {
   ]);
 });
 
-test('missing PrecinctID', () => {
-  const hudsonBallotCardDefinition = readFixtureDefinition(
-    electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
-  );
-
-  const precinctIdElement =
-    hudsonBallotCardDefinition.getElementsByTagName('PrecinctID')[0]!;
-  precinctIdElement.parentNode?.removeChild(precinctIdElement);
-
-  expect(
-    convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
-    ).unsafeUnwrapErr().issues
-  ).toEqual([
-    typedAs<ConvertIssue>({
-      kind: ConvertIssueKind.MissingDefinitionProperty,
-      message: 'PrecinctID is missing',
-      property: 'AVSInterface > AccuvoteHeaderInfo > PrecinctID',
-    }),
-  ]);
-});
-
 test('multi-party endorsement', () => {
   const nhTestBallotCardDefinition = readFixtureDefinition(
     electionGridLayoutNewHampshireTestBallotFixtures.definitionXml.asText()
   );
 
   expect(
-    convertElectionDefinitionHeader(nhTestBallotCardDefinition).unsafeUnwrap()
-      .election.contests
+    convertElectionDefinitionHeader(
+      nhTestBallotCardDefinition,
+      'timing-marks'
+    ).unsafeUnwrap().election.contests
   ).toEqual(
     expect.arrayContaining([
       expect.objectContaining(
@@ -224,7 +210,8 @@ test('missing Party on multi-party endorsement', () => {
 
   expect(
     convertElectionDefinitionHeader(
-      nhTestBallotCardDefinition
+      nhTestBallotCardDefinition,
+      'timing-marks'
     ).unsafeUnwrapErr().issues
   ).toEqual([
     typedAs<ConvertIssue>({
@@ -243,7 +230,8 @@ test('constitutional questions become yesno contests', async () => {
     await electionGridLayoutNewHampshireTestBallotFixtures.templateBack.asImageData()
   );
   const converted = convertElectionDefinitionHeader(
-    nhTestBallotCardDefinition.definition
+    nhTestBallotCardDefinition.definition,
+    'timing-marks'
   ).unsafeUnwrap();
 
   expect(converted.election.contests.filter((c) => c.type === 'yesno')).toEqual(
@@ -254,7 +242,7 @@ test('constitutional questions become yesno contests', async () => {
         title: 'Constitutional Amendment Question #1',
         description:
           'Shall there be a convention to amend or revise the constitution?',
-        districtId: unsafeParse(DistrictIdSchema, 'town-id-00701-precinct-id-'),
+        districtId: unsafeParse(DistrictIdSchema, 'town-id-00701-district'),
         yesOption: {
           id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
           label: 'Yes',

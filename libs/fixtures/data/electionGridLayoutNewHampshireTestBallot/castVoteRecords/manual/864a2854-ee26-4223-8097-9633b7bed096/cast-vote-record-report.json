@@ -584,7 +584,7 @@
   "GpUnit": [
     {
       "@type": "CVR.GpUnit",
-      "@id": "town-id-00701-precinct-id-",
+      "@id": "town-id-00701-precinct",
       "Type": "precinct",
       "Name": "Test Ballot"
     },
@@ -616,7 +616,7 @@
     {
       "@type": "CVR.CVR",
       "BallotStyleId": "card-number-3",
-      "BallotStyleUnitId": "town-id-00701-precinct-id-",
+      "BallotStyleUnitId": "town-id-00701-precinct",
       "CreatingDeviceId": "000",
       "ElectionId": "20bf89eed3f48b4cbbe29cfa42a126a31179316979915fb820456ee8ab79e9e1",
       "BatchId": "378f6a69-62d3-4184-a1a7-3a5d90083e21",
@@ -655,7 +655,7 @@
                           "Hash": {
                             "@type": "CVR.Hash",
                             "Type": "sha-256",
-                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-be434f1cc96d2b955ebafc70e4f095a2b3bf5e1cb45311cbbd4ea258806e7174"
+                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-e457ff5e566a35bd97f88777fafdb187c90a7d6084bea8d38a5a37758a807dcc"
                           },
                           "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg"
                         }
@@ -734,7 +734,7 @@
                           "Hash": {
                             "@type": "CVR.Hash",
                             "Type": "sha-256",
-                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-be434f1cc96d2b955ebafc70e4f095a2b3bf5e1cb45311cbbd4ea258806e7174"
+                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-e457ff5e566a35bd97f88777fafdb187c90a7d6084bea8d38a5a37758a807dcc"
                           },
                           "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg"
                         }
@@ -804,7 +804,7 @@
                           "Hash": {
                             "@type": "CVR.Hash",
                             "Type": "sha-256",
-                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-be434f1cc96d2b955ebafc70e4f095a2b3bf5e1cb45311cbbd4ea258806e7174"
+                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-e457ff5e566a35bd97f88777fafdb187c90a7d6084bea8d38a5a37758a807dcc"
                           },
                           "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg"
                         }
@@ -830,7 +830,7 @@
                           "Hash": {
                             "@type": "CVR.Hash",
                             "Type": "sha-256",
-                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-be434f1cc96d2b955ebafc70e4f095a2b3bf5e1cb45311cbbd4ea258806e7174"
+                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-e457ff5e566a35bd97f88777fafdb187c90a7d6084bea8d38a5a37758a807dcc"
                           },
                           "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg"
                         }
@@ -865,7 +865,7 @@
                           "Hash": {
                             "@type": "CVR.Hash",
                             "Type": "sha-256",
-                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-be434f1cc96d2b955ebafc70e4f095a2b3bf5e1cb45311cbbd4ea258806e7174"
+                            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-e457ff5e566a35bd97f88777fafdb187c90a7d6084bea8d38a5a37758a807dcc"
                           },
                           "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg"
                         }
@@ -988,7 +988,7 @@
                           "Hash": {
                             "@type": "CVR.Hash",
                             "Type": "sha-256",
-                            "Value": "ac62ce77e7afb3a7d2a8d99f8abbef6129366e94dd295b559f4d3be07aa1201c-8bb4495e85b427e3eeefd89c70e7264581a70f8c6ef7cc4342651cf9dd6c5bcd"
+                            "Value": "ac62ce77e7afb3a7d2a8d99f8abbef6129366e94dd295b559f4d3be07aa1201c-f013c2f93d1527e08d3d113691c9c7e094938e3edeb174d4155cd4d19384d1e8"
                           },
                           "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-back.jpg"
                         }
@@ -1023,7 +1023,7 @@
                           "Hash": {
                             "@type": "CVR.Hash",
                             "Type": "sha-256",
-                            "Value": "ac62ce77e7afb3a7d2a8d99f8abbef6129366e94dd295b559f4d3be07aa1201c-8bb4495e85b427e3eeefd89c70e7264581a70f8c6ef7cc4342651cf9dd6c5bcd"
+                            "Value": "ac62ce77e7afb3a7d2a8d99f8abbef6129366e94dd295b559f4d3be07aa1201c-f013c2f93d1527e08d3d113691c9c7e094938e3edeb174d4155cd4d19384d1e8"
                           },
                           "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-back.jpg"
                         }
@@ -1817,7 +1817,7 @@
           "Hash": {
             "@type": "CVR.Hash",
             "Type": "sha-256",
-            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-be434f1cc96d2b955ebafc70e4f095a2b3bf5e1cb45311cbbd4ea258806e7174"
+            "Value": "9acc41877beaf6d7569da0408ac4a229f777612ec69a4acd38da31fcc10a0f68-e457ff5e566a35bd97f88777fafdb187c90a7d6084bea8d38a5a37758a807dcc"
           },
           "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-front.jpg"
         },
@@ -1826,7 +1826,7 @@
           "Hash": {
             "@type": "CVR.Hash",
             "Type": "sha-256",
-            "Value": "ac62ce77e7afb3a7d2a8d99f8abbef6129366e94dd295b559f4d3be07aa1201c-8bb4495e85b427e3eeefd89c70e7264581a70f8c6ef7cc4342651cf9dd6c5bcd"
+            "Value": "ac62ce77e7afb3a7d2a8d99f8abbef6129366e94dd295b559f4d3be07aa1201c-f013c2f93d1527e08d3d113691c9c7e094938e3edeb174d4155cd4d19384d1e8"
           },
           "Location": "file:864a2854-ee26-4223-8097-9633b7bed096-back.jpg"
         }

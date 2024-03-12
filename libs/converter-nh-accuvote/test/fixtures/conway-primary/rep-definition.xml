@@ -1,0 +1,489 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<AVSInterface>
+  <AccuvoteHeaderInfo>
+    <ElectionDate>09/11/2018</ElectionDate>
+    <ElectionName>Primary Election</ElectionName>
+    <TownName>Conway</TownName>
+    <PartyName>Republican</PartyName>
+    <TownID>undefined</TownID>
+    <PrecinctID>
+    </PrecinctID>
+    <ElectionID>16708</ElectionID>
+    <BallotType> Regular </BallotType>
+    <BallotSize>8.5X14</BallotSize>
+  </AccuvoteHeaderInfo>
+  <Candidates>
+    <OfficeName>
+      <Name>For Governor</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>27.752</X>
+      <Y>267.654</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Chris Sununu</Name>
+      <Pronunciation>Chris Sununu</Pronunciation>
+      <CX>37.752</CX>
+      <CY>284.018</CY>
+      <OX>182.5</OX>
+      <OY>284.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>37.752</CX>
+      <CY>302.018</CY>
+      <OX>182.5</OX>
+      <OY>302.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For Representative in Congress</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>27.752</X>
+      <Y>333.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Andy Sanborn</Name>
+      <Pronunciation>Andy Sanborn</Pronunciation>
+      <CX>37.752</CX>
+      <CY>356.018</CY>
+      <OX>182.5</OX>
+      <OY>356.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Michael Callis</Name>
+      <Pronunciation>Michael Callis</Pronunciation>
+      <CX>37.752</CX>
+      <CY>374.018</CY>
+      <OX>182.5</OX>
+      <OY>374.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Bruce Crochetiere</Name>
+      <Pronunciation>Bruce Crochetiere</Pronunciation>
+      <CX>37.752</CX>
+      <CY>392.018</CY>
+      <OX>182.5</OX>
+      <OY>392.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Jeffory W. Denaro</Name>
+      <Pronunciation>Jeffory W. Denaro</Pronunciation>
+      <CX>37.752</CX>
+      <CY>410.018</CY>
+      <OX>182.5</OX>
+      <OY>410.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Eddie Edwards</Name>
+      <Pronunciation>Eddie Edwards</Pronunciation>
+      <CX>37.752</CX>
+      <CY>428.018</CY>
+      <OX>182.5</OX>
+      <OY>428.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Andy Martin</Name>
+      <Pronunciation>Andy Martin</Pronunciation>
+      <CX>37.752</CX>
+      <CY>446.018</CY>
+      <OX>182.5</OX>
+      <OY>446.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>37.752</CX>
+      <CY>464.018</CY>
+      <OX>182.5</OX>
+      <OY>464.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For Executive Councilor</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>27.752</X>
+      <Y>495.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Joseph D. Kenney</Name>
+      <Pronunciation>Joseph D. Kenney</Pronunciation>
+      <CX>37.752</CX>
+      <CY>518.018</CY>
+      <OX>182.5</OX>
+      <OY>518.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Kim Strathdee</Name>
+      <Pronunciation>Kim Strathdee</Pronunciation>
+      <CX>37.752</CX>
+      <CY>536.018</CY>
+      <OX>182.5</OX>
+      <OY>536.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>37.752</CX>
+      <CY>554.018</CY>
+      <OX>182.5</OX>
+      <OY>554.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For State Senator</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>27.752</X>
+      <Y>585.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Jeb Bradley</Name>
+      <Pronunciation>Jeb Bradley</Pronunciation>
+      <CX>37.752</CX>
+      <CY>608.018</CY>
+      <OX>182.5</OX>
+      <OY>608.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Steven H. Steiner</Name>
+      <Pronunciation>Steven H. Steiner</Pronunciation>
+      <CX>37.752</CX>
+      <CY>626.018</CY>
+      <OX>182.5</OX>
+      <OY>626.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>37.752</CX>
+      <CY>644.018</CY>
+      <OX>182.5</OX>
+      <OY>644.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For State Representatives  Carroll District 2</Name>
+      <WinnerNote>Vote for not more than 3</WinnerNote>
+      <X>27.752</X>
+      <Y>675.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>William Cuccio</Name>
+      <Pronunciation>William Cuccio</Pronunciation>
+      <CX>37.752</CX>
+      <CY>716.018</CY>
+      <OX>182.5</OX>
+      <OY>716.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Frank McCarthy</Name>
+      <Pronunciation>Frank McCarthy</Pronunciation>
+      <CX>37.752</CX>
+      <CY>734.018</CY>
+      <OX>182.5</OX>
+      <OY>734.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Karen C. Umberger</Name>
+      <Pronunciation>Karen C. Umberger</Pronunciation>
+      <CX>37.752</CX>
+      <CY>752.018</CY>
+      <OX>182.5</OX>
+      <OY>752.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>37.752</CX>
+      <CY>770.018</CY>
+      <OX>182.5</OX>
+      <OY>770.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>37.752</CX>
+      <CY>788.018</CY>
+      <OX>182.5</OX>
+      <OY>788.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>37.752</CX>
+      <CY>806.018</CY>
+      <OX>182.5</OX>
+      <OY>806.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For State Representative  Carroll District 7</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>27.752</X>
+      <Y>837.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Joseph N. Mosca</Name>
+      <Pronunciation>Joseph N. Mosca</Pronunciation>
+      <CX>37.752</CX>
+      <CY>878.018</CY>
+      <OX>182.5</OX>
+      <OY>878.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>37.752</CX>
+      <CY>896.018</CY>
+      <OX>182.5</OX>
+      <OY>896.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For Sheriff</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>217.292</X>
+      <Y>267.654</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Domenic M. Richardi</Name>
+      <Pronunciation>Domenic M. Richardi</Pronunciation>
+      <CX>227.292</CX>
+      <CY>284.018</CY>
+      <OX>362.5</OX>
+      <OY>284.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>227.292</CX>
+      <CY>302.018</CY>
+      <OX>362.5</OX>
+      <OY>302.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For County Attorney</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>217.292</X>
+      <Y>333.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>227.292</CX>
+      <CY>356.018</CY>
+      <OX>362.5</OX>
+      <OY>356.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For County Treasurer</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>217.292</X>
+      <Y>387.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Joseph L. Costello</Name>
+      <Pronunciation>Joseph L. Costello</Pronunciation>
+      <CX>227.292</CX>
+      <CY>410.018</CY>
+      <OX>362.5</OX>
+      <OY>410.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>227.292</CX>
+      <CY>428.018</CY>
+      <OX>362.5</OX>
+      <OY>428.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For Register of Deeds</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>217.292</X>
+      <Y>459.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Lisa Scott</Name>
+      <Pronunciation>Lisa Scott</Pronunciation>
+      <CX>227.292</CX>
+      <CY>482.018</CY>
+      <OX>362.5</OX>
+      <OY>482.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>227.292</CX>
+      <CY>500.018</CY>
+      <OX>362.5</OX>
+      <OY>500.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For Register of Probate</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>217.292</X>
+      <Y>531.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Meg Lavender</Name>
+      <Pronunciation>Meg Lavender</Pronunciation>
+      <CX>227.292</CX>
+      <CY>554.018</CY>
+      <OX>362.5</OX>
+      <OY>554.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>227.292</CX>
+      <CY>572.018</CY>
+      <OX>362.5</OX>
+      <OY>572.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For County Commissioner, 1st District</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>217.292</X>
+      <Y>603.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Terry McCarthy</Name>
+      <Pronunciation>Terry McCarthy</Pronunciation>
+      <CX>227.292</CX>
+      <CY>644.018</CY>
+      <OX>362.5</OX>
+      <OY>644.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Mark Hounsell</Name>
+      <Pronunciation>Mark Hounsell</Pronunciation>
+      <CX>227.292</CX>
+      <CY>662.018</CY>
+      <OX>362.5</OX>
+      <OY>662.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>227.292</CX>
+      <CY>680.018</CY>
+      <OX>362.5</OX>
+      <OY>680.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For County Commissioner, 2nd District</Name>
+      <WinnerNote>Vote for not more than 1</WinnerNote>
+      <X>217.292</X>
+      <Y>711.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>David L. Babson, Jr.</Name>
+      <Pronunciation>David L. Babson, Jr.</Pronunciation>
+      <CX>227.292</CX>
+      <CY>752.018</CY>
+      <OX>362.5</OX>
+      <OY>752.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>227.292</CX>
+      <CY>770.018</CY>
+      <OX>362.5</OX>
+      <OY>770.018</OY>
+    </CandidateName>
+  </Candidates>
+  <Candidates>
+    <OfficeName>
+      <Name>For Delegates to the State Convention</Name>
+      <WinnerNote>Vote for not more than 3</WinnerNote>
+      <X>217.292</X>
+      <Y>801.768</Y>
+    </OfficeName>
+    <CandidateName>
+      <Name>Terry McCarthy</Name>
+      <Pronunciation>Terry McCarthy</Pronunciation>
+      <CX>227.292</CX>
+      <CY>842.018</CY>
+      <OX>362.5</OX>
+      <OY>842.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Suzanne Nelson</Name>
+      <Pronunciation>Suzanne Nelson</Pronunciation>
+      <CX>227.292</CX>
+      <CY>860.018</CY>
+      <OX>362.5</OX>
+      <OY>860.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>James Umberger</Name>
+      <Pronunciation>James Umberger</Pronunciation>
+      <CX>227.292</CX>
+      <CY>878.018</CY>
+      <OX>362.5</OX>
+      <OY>878.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>227.292</CX>
+      <CY>896.018</CY>
+      <OX>362.5</OX>
+      <OY>896.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>227.292</CX>
+      <CY>914.018</CY>
+      <OX>362.5</OX>
+      <OY>914.018</OY>
+    </CandidateName>
+    <CandidateName>
+      <Name>Write-In</Name>
+      <Pronunciation>
+      </Pronunciation>
+      <CX>227.292</CX>
+      <CY>932.018</CY>
+      <OX>362.5</OX>
+      <OY>932.018</OY>
+    </CandidateName>
+  </Candidates>
+</AVSInterface>

@@ -158,17 +158,13 @@ pub fn find_template_grid_and_bubbles(mut cx: FunctionContext) -> JsResult<JsArr
     };
 
     // call the underlying non-JS function
-    let template_grid_and_bubbles = match crate::template::find_template_grid_and_bubbles(
-        side_a_image,
-        side_b_image,
-        &side_a_label,
-        &side_b_label,
-    ) {
-        Ok(template_grid_and_bubbles) => template_grid_and_bubbles,
-        Err(err) => {
-            return cx.throw_error(err.to_string());
-        }
-    };
+    let template_grid_and_bubbles =
+        match crate::template::find_template_grid_and_bubbles(side_a_image, side_b_image) {
+            Ok(template_grid_and_bubbles) => template_grid_and_bubbles,
+            Err(err) => {
+                return cx.throw_error(err.to_string());
+            }
+        };
 
     tuple2_to_js(&mut cx, template_grid_and_bubbles)
 }

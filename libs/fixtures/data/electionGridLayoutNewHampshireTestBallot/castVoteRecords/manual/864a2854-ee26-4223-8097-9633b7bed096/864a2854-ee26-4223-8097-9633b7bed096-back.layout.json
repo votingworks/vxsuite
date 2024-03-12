@@ -4,8 +4,8 @@
     "height": 2200
   },
   "metadata": {
-    "electionHash": "20bf89eed3f48b4cbbe29cfa42a126a31179316979915fb820456ee8ab79e9e1",
-    "precinctId": "town-id-00701-precinct-id-",
+    "electionHash": "2b012d4ad7e05d090f07bd188ec0d2399b8960a07adc1151ce8711d0166cf6df",
+    "precinctId": "town-id-00701-precinct",
     "ballotStyleId": "card-number-3",
     "pageNumber": 2,
     "isTestMode": true,

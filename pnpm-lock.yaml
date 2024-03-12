@@ -3336,6 +3336,9 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
+      '@votingworks/hmpb-layout':
+        specifier: workspace:*
+        version: link:../hmpb/layout
       '@votingworks/image-utils':
         specifier: workspace:*
         version: link:../image-utils
@@ -3391,6 +3394,9 @@ importers:
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
+      '@types/jest-image-snapshot':
+        specifier: ^6.4.0
+        version: 6.4.0
       '@types/jsdom':
         specifier: 20.0.0
         version: 20.0.0
@@ -3400,9 +3406,15 @@ importers:
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
+      '@votingworks/ballot-encoder':
+        specifier: workspace:*
+        version: link:../ballot-encoder
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
+      '@votingworks/qrdetect':
+        specifier: ^1.0.1
+        version: 1.0.1
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../test-utils
@@ -3424,6 +3436,9 @@ importers:
       jest:
         specifier: ^29.6.2
         version: 29.6.2(@types/node@16.18.23)
+      jest-image-snapshot:
+        specifier: ^6.4.0
+        version: 6.4.0(jest@29.6.2)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -10881,7 +10896,6 @@ packages:
     resolution: {integrity: sha512-t8ZbNIhDAWEji/i1g3UmXSD5v4s3CTY8Nc38mF/5wbI30mR2vHYjStWCpyXZh6tlshpofj3vkXqZQx++MaN0nA==}
     dependencies:
       '@types/node': 16.18.23
-    dev: false
 
   /@types/body-parser@1.19.2:
     resolution: {integrity: sha512-ALYone6pm6QmwZoAgeyNksccT9Q4AWZQ6PvfwR37GT6r6FWUPguq6sUmNGSMV2Wr761oQoBxwGGa6DR5o1DC9g==}
@@ -11743,7 +11757,6 @@ packages:
       '@types/bindings': 1.5.0
       bindings: 1.5.0
       node-addon-api: 2.0.2
-    dev: false
 
   /@webassemblyjs/ast@1.11.6:
     resolution: {integrity: sha512-IN1xI7PwOvLPgjcf180gC1bqn3q/QaOCwYUahIOhbYUu8KA/3tw2RT/T0Gidi1l7Hhj5D/INhJxiICObqpMu4Q==}
@@ -18765,7 +18778,6 @@ packages:
 
   /node-addon-api@2.0.2:
     resolution: {integrity: sha512-Ntyt4AIXyaLIuMHF6IOoTakB3K+RWxwtsHNRxllEoA6vPwP9o4866g6YWDLUdnucilZhmkxiHwHr11gAENw+QA==}
-    dev: false
 
   /node-addon-api@3.2.1:
     resolution: {integrity: sha512-mmcei9JghVNDYydghQmeDX8KoAm0FAiYyIcUt/N4nhyAipB17pllZQDOJD2fotxABnt4Mdz+dKTO7eftLg4d0A==}

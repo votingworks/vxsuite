@@ -121,7 +121,7 @@ test('happy path - mock election flow', async () => {
 
   // insert a USB drive
   const testExportDirectoryName = 'TEST__machine_0000__2022-09-24_18-00-00';
-  const testExportTimestamp = '2023-12-19T18:29:19.088Z';
+  const testExportTimestamp = '2024-03-11T20:46:02.105Z';
   insertUsbDrive(
     mockCastVoteRecordFileTree(electionDefinition, {
       [testExportDirectoryName]: castVoteRecordExport.asDirectoryPath(),
@@ -179,7 +179,7 @@ test('happy path - mock election flow', async () => {
       exportTimestamp: testExportTimestamp,
       filename: testExportDirectoryName,
       numCvrsImported: 184,
-      precinctIds: ['town-id-00701-precinct-id-'],
+      precinctIds: ['town-id-00701-precinct'],
       scannerIds: ['VX-00-000'],
     }),
   ]);
