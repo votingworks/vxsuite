@@ -37,6 +37,7 @@ import {
   Tabulation,
   Admin,
   BallotType,
+  DiagnosticType,
 } from '@votingworks/types';
 import { join } from 'path';
 import { Buffer } from 'buffer';
@@ -49,7 +50,9 @@ import {
   SqliteBool,
 } from '@votingworks/utils';
 import {
+  addDiagnosticRecord,
   getMaximumUsableDiskSpace,
+  getMostRecentDiagnosticRecord,
   updateMaximumUsableDiskSpace,
 } from '@votingworks/backend';
 import {
@@ -2522,33 +2525,14 @@ export class Store {
     return row ? row.cvrsDataVersion : 0;
   }
 
-  addDiagnosticRecord({
-    type,
-    outcome,
-  }: Omit<DiagnosticRecord, 'timestamp'>): void {
-    this.client.run(
-      `
-        insert into diagnostics
-          (type, outcome, timestamp)
-        values
-          (?, ?, ?)
-      `,
-      type,
-      outcome,
-      Date.now()
-    );
+  addDiagnosticRecord(record: Omit<DiagnosticRecord, 'timestamp'>): void {
+    addDiagnosticRecord(this.client, record);
   }
 
-  getDiagnosticRecords(): DiagnosticRecord[] {
-    return this.client.all(
-      `
-        select
-          type,
-          outcome,
-          timestamp
-        from diagnostics
-      `
-    ) as DiagnosticRecord[];
+  getMostRecentDiagnosticRecord(
+    type: DiagnosticType
+  ): DiagnosticRecord | undefined {
+    return getMostRecentDiagnosticRecord(this.client, type);
   }
 
   getMaximumUsableDiskSpace(): number {

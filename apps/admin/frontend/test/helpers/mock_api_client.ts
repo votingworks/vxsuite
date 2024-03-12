@@ -474,8 +474,12 @@ export function createApiMock(
       apiClient.getScannerBatches.expectCallWith().resolves(result);
     },
 
-    expectGetDiagnosticRecords(result: DiagnosticRecord[]) {
-      apiClient.getDiagnosticRecords.expectCallWith().resolves(result);
+    expectGetMostRecentPrinterDiagnostic(
+      result: DiagnosticRecord | null = null
+    ) {
+      apiClient.getMostRecentPrinterDiagnostic
+        .expectCallWith()
+        .resolves(result);
     },
 
     expectAddDiagnosticRecord(record: Omit<DiagnosticRecord, 'timestamp'>) {

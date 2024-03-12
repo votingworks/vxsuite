@@ -986,8 +986,8 @@ function buildApi({
       });
     },
 
-    getDiagnosticRecords(): DiagnosticRecord[] {
-      return store.getDiagnosticRecords();
+    getMostRecentPrinterDiagnostic(): DiagnosticRecord | null {
+      return store.getMostRecentDiagnosticRecord('test-print') ?? null;
     },
 
     async printTestPage(): Promise<void> {

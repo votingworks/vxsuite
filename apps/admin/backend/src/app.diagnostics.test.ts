@@ -1,6 +1,6 @@
 import { LogEventId } from '@votingworks/logging';
 import { HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
-import { assert, typedAs } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import {
   DiskSpaceSummary,
   getBatteryInfo,
@@ -41,22 +41,20 @@ test('diagnostic records', async () => {
   const { apiClient, logger, auth } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
-  expect(await apiClient.getDiagnosticRecords()).toEqual([]);
+  expect(await apiClient.getMostRecentPrinterDiagnostic()).toEqual(null);
 
   jest.setSystemTime(new Date(1000));
   await apiClient.addDiagnosticRecord({
     type: 'test-print',
     outcome: 'fail',
   });
-  expect(await apiClient.getDiagnosticRecords()).toEqual(
-    typedAs<DiagnosticRecord[]>([
-      {
-        type: 'test-print',
-        outcome: 'fail',
-        timestamp: 1000,
-      },
-    ])
-  );
+  expect(
+    await apiClient.getMostRecentPrinterDiagnostic()
+  ).toEqual<DiagnosticRecord>({
+    type: 'test-print',
+    outcome: 'fail',
+    timestamp: 1000,
+  });
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.DiagnosticComplete,
     'system_administrator',
@@ -71,20 +69,13 @@ test('diagnostic records', async () => {
     type: 'test-print',
     outcome: 'pass',
   });
-  expect(await apiClient.getDiagnosticRecords()).toEqual(
-    typedAs<DiagnosticRecord[]>([
-      {
-        type: 'test-print',
-        outcome: 'fail',
-        timestamp: 1000,
-      },
-      {
-        type: 'test-print',
-        outcome: 'pass',
-        timestamp: 2000,
-      },
-    ])
-  );
+  expect(
+    await apiClient.getMostRecentPrinterDiagnostic()
+  ).toEqual<DiagnosticRecord>({
+    type: 'test-print',
+    outcome: 'pass',
+    timestamp: 2000,
+  });
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.DiagnosticComplete,
     'system_administrator',

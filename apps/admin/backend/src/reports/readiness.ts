@@ -3,22 +3,8 @@ import { Printer, renderToPdf } from '@votingworks/printing';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
 import { VX_MACHINE_ID, getBatteryInfo } from '@votingworks/backend';
-import { DiagnosticRecord } from '@votingworks/types';
 import { Workspace } from '../util/workspace';
 import { getCurrentTime } from '../util/get_current_time';
-import { Store } from '../store';
-
-/**
- * Gets the most recent printer diagnostic record from the store.
- */
-export function getMostRecentPrinterDiagnostic(
-  store: Store
-): DiagnosticRecord | undefined {
-  const diagnostics = store.getDiagnosticRecords();
-  return diagnostics
-    .filter(({ type }) => type === 'test-print')
-    .sort((a, b) => b.timestamp - a.timestamp)[0];
-}
 
 /**
  * Prints the VxAdmin hardware readiness report.
@@ -39,7 +25,8 @@ export async function printReadinessReport({
     /* c8 ignore stop */
     diskSpaceSummary: await workspace.getDiskSpaceSummary(),
     printerStatus: await printer.status(),
-    mostRecentPrinterDiagnostic: getMostRecentPrinterDiagnostic(store),
+    mostRecentPrinterDiagnostic:
+      store.getMostRecentDiagnosticRecord('test-print'),
     machineId: VX_MACHINE_ID,
     generatedAtTime: new Date(getCurrentTime()),
   });
