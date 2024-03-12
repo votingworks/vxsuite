@@ -78,13 +78,15 @@ function StorageSection({
   );
 }
 
+export interface ComputerSectionProps {
+  batteryInfo?: BatteryInfo;
+  diskSpaceSummary: DiskSpaceSummary;
+}
+
 export function ComputerSection({
   batteryInfo,
   diskSpaceSummary,
-}: {
-  batteryInfo?: BatteryInfo;
-  diskSpaceSummary: DiskSpaceSummary;
-}): JSX.Element {
+}: ComputerSectionProps): JSX.Element {
   return (
     <React.Fragment>
       <H2>Computer</H2>

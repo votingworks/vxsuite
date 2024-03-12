@@ -150,6 +150,44 @@ export const getStateMachineState = {
   },
 } as const;
 
+export const getApplicationDiskSpaceSummary = {
+  queryKey(): QueryKey {
+    return ['getApplicationDiskSpaceSummary'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getApplicationDiskSpaceSummary()
+    );
+  },
+} as const;
+
+export const getMostRecentAccessibleControllerDiagnostic = {
+  queryKey(): QueryKey {
+    return ['getMostRecentAccessibleControllerDiagnostic'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getMostRecentAccessibleControllerDiagnostic()
+    );
+  },
+} as const;
+
+export const addDiagnosticRecord = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.addDiagnosticRecord, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getMostRecentAccessibleControllerDiagnostic.queryKey()
+        );
+      },
+    });
+  },
+} as const;
+
 export const checkPin = {
   useMutation() {
     const apiClient = useApiClient();
