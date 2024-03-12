@@ -23,7 +23,7 @@ export function MarkScanControllerSection({
         </P>
       ) : (
         <P>
-          <InfoIcon /> No input detected
+          <WarningIcon /> Not detected
         </P>
       )}
       {!mostRecentAccessibleControllerDiagnostic ? (

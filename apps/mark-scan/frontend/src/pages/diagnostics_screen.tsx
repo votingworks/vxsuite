@@ -11,6 +11,7 @@ import { useHistory, Switch, Route } from 'react-router-dom';
 import { AccessibleControllerDiagnosticScreen } from './accessible_controller_diagnostic_screen';
 import {
   getApplicationDiskSpaceSummary,
+  getIsAccessibleControllerInputDetected,
   getMostRecentAccessibleControllerDiagnostic,
   systemCallApi,
 } from '../api';
@@ -26,13 +27,16 @@ export function DiagnosticsScreen({
   const mostRecentAccessibleControllerDiagnosticQuery =
     getMostRecentAccessibleControllerDiagnostic.useQuery();
   const diskSpaceQuery = getApplicationDiskSpaceSummary.useQuery();
+  const isAccessibleControllerInputDetectedQuery =
+    getIsAccessibleControllerInputDetected.useQuery();
 
   const history = useHistory();
 
   if (
     !batteryQuery.isSuccess ||
     !mostRecentAccessibleControllerDiagnosticQuery.isSuccess ||
-    !diskSpaceQuery.isSuccess
+    !diskSpaceQuery.isSuccess ||
+    !isAccessibleControllerInputDetectedQuery.isSuccess
   ) {
     return (
       <Screen>
@@ -48,6 +52,8 @@ export function DiagnosticsScreen({
   const mostRecentAccessibleControllerDiagnostic =
     mostRecentAccessibleControllerDiagnosticQuery.data ?? undefined;
   const diskSpaceSummary = diskSpaceQuery.data;
+  const isAccessibleControllerInputDetected =
+    isAccessibleControllerInputDetectedQuery.data;
 
   return (
     <Switch>
@@ -70,7 +76,9 @@ export function DiagnosticsScreen({
               mostRecentAccessibleControllerDiagnostic={
                 mostRecentAccessibleControllerDiagnostic
               }
-              isAccessibleControllerInputDetected
+              isAccessibleControllerInputDetected={
+                isAccessibleControllerInputDetected
+              }
               accessibleControllerSectionChildren={
                 <Button onPress={() => history.push('/accessible-controller')}>
                   Test Accessible Controller

@@ -41,6 +41,7 @@ import {
   SimpleServerStatus,
 } from './custom-paper-handler';
 import { ElectionState } from './types';
+import { isAccessibleControllerDaemonRunning } from './util/controllerd';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(
@@ -378,6 +379,10 @@ export function buildApi(
           'mark-scan-accessible-controller'
         ) ?? null
       );
+    },
+
+    getIsAccessibleControllerInputDetected(): Promise<boolean> {
+      return isAccessibleControllerDaemonRunning();
     },
   });
 }

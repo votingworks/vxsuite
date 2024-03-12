@@ -16,6 +16,7 @@ import {
 } from '@votingworks/ui';
 import { deepEqual } from '@votingworks/basics';
 import {
+  ACCESSIBLE_CONTROLLER_DIAGNOSTIC_POLLING_INTERVAL_MS,
   AUTH_STATUS_POLLING_INTERVAL_MS_OVERRIDE,
   STATE_MACHINE_POLLING_INTERVAL_MS,
 } from './constants';
@@ -170,6 +171,22 @@ export const getMostRecentAccessibleControllerDiagnostic = {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () =>
       apiClient.getMostRecentAccessibleControllerDiagnostic()
+    );
+  },
+} as const;
+
+export const getIsAccessibleControllerInputDetected = {
+  queryKey(): QueryKey {
+    return ['getIsAccessibleControllerInputDetected'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getIsAccessibleControllerInputDetected(),
+      {
+        refetchInterval: ACCESSIBLE_CONTROLLER_DIAGNOSTIC_POLLING_INTERVAL_MS,
+      }
     );
   },
 } as const;
