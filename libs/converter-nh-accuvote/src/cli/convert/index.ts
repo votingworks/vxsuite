@@ -35,8 +35,8 @@ function parseXml(xml: string): Element {
 }
 
 function parseOptions(args: readonly string[]): Result<Options, Error> {
-  const definitionPaths = [];
-  const ballotPaths = [];
+  const definitionPaths: string[] = [];
+  const ballotPaths: string[] = [];
   let outputPath: string | undefined;
   let metadataEncoding:
     | Election['ballotLayout']['metadataEncoding']

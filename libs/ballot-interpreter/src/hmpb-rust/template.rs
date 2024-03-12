@@ -53,9 +53,9 @@ pub fn find_grid_for_ballot_side(
     let grid = find_timing_mark_grid(geometry, image, &mut debug)?;
     let orientation = detect_orientation_from_grid(&grid);
     let (normalized_grid, normalized_image) =
-        normalize_orientation(&geometry, grid, image, orientation, &mut debug);
+        normalize_orientation(geometry, grid, image, orientation, &mut debug);
     let metadata = decode_metadata_from_timing_marks(
-        &geometry,
+        geometry,
         &find_actual_bottom_timing_marks(
             &normalized_grid.complete_timing_marks,
             &normalized_image,
@@ -77,9 +77,7 @@ pub fn find_template_grid_and_bubbles(
         &PaperInfo::template(),
         ResizeStrategy::NoResize,
     )
-    .map_err(|err| {
-        Error::ImageError(format!("failed to prepare ballot card images: {err:?}").to_string())
-    })?;
+    .map_err(|err| Error::ImageError(format!("failed to prepare ballot card images: {err:?}")))?;
 
     let BallotCard {
         side_a,
