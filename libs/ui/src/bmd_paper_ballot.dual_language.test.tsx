@@ -158,7 +158,6 @@ describe('non-English ballot style', () => {
     expectSingleLanguageString({
       key: ElectionStringKey.COUNTY_NAME,
       languageCode: LanguageCode.SPANISH,
-      subKey: election.county.id,
     });
     expectSingleLanguageString({
       key: ElectionStringKey.STATE_NAME,
