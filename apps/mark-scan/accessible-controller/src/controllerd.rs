@@ -6,6 +6,8 @@
 //! for change in signal value. When a button press is detected, it sends
 //! a keypress event for consumption by the mark-scan application.
 
+#![allow(clippy::unwrap_used)]
+
 use serialport::{self, SerialPort};
 use std::{
     io,
@@ -470,7 +472,7 @@ mod tests {
         let bad_data = [0x30, 0x00, bad_data_length, 0x00, 0x00, 0x00, 0x00];
         match handle_command(&bad_data) {
             Err(CommandError::UnexpectedDataLength(length)) => {
-                assert_eq!(length, bad_data_length as u16)
+                assert_eq!(length, u16::from(bad_data_length));
             }
             result => panic!("Unexpected result: {result:?}"),
         }
