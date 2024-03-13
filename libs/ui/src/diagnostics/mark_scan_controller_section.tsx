@@ -1,6 +1,6 @@
 import { DiagnosticRecord } from '@votingworks/types';
 import React from 'react';
-import { Font, H2, P } from '../typography';
+import { H2, P } from '../typography';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
 
 export interface MarkScanControllerSectionProps {
@@ -35,11 +35,10 @@ export function MarkScanControllerSection({
           <WarningIcon /> Test failed,{' '}
           {new Date(
             mostRecentAccessibleControllerDiagnostic.timestamp
-          ).toLocaleString()}{' '}
-          &mdash;{' '}
-          <Font>
-            {mostRecentAccessibleControllerDiagnostic.message?.toLowerCase()}
-          </Font>
+          ).toLocaleString()}
+          {mostRecentAccessibleControllerDiagnostic.message
+            ? ` — ${mostRecentAccessibleControllerDiagnostic.message}`
+            : ''}
         </P>
       ) : (
         <P>

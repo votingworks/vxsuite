@@ -29,7 +29,7 @@ interface DiagnosticStep {
   key: string;
 }
 
-const DIAGNOSTIC_STEPS: DiagnosticStep[] = [
+export const DIAGNOSTIC_STEPS: DiagnosticStep[] = [
   {
     button: 'up',
     label: 'Up',
@@ -119,7 +119,11 @@ function AccessibleControllerButtonDiagnostic({
       </H3>
       <AccessibleControllerIllustration highlight={step.button} />
 
-      <Button onPress={() => onFailure(`${step.label} button is not working.`)}>
+      <Button
+        onPress={() =>
+          onFailure(`${step.label.toLocaleLowerCase()} button is not working.`)
+        }
+      >
         {step.label} Button is Not Working
       </Button>
     </StepContainer>

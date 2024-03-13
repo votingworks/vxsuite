@@ -59,3 +59,27 @@ test('Can set date and time', async () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
 });
+
+test('navigates to System Diagnostics screen', async () => {
+  render(
+    provideApi(
+      apiMock,
+      <SystemAdministratorScreen
+        unconfigureMachine={jest.fn()}
+        isMachineConfigured
+      />
+    )
+  );
+
+  apiMock.setBatteryInfo();
+  apiMock.expectGetIsAccessibleControllerInputDetected();
+  apiMock.expectGetMostRecentAccessibleControllerDiagnostic();
+  apiMock.expectGetApplicationDiskSpaceSummary();
+  apiMock.setBatteryInfo();
+
+  userEvent.click(screen.getButton('System Diagnostics'));
+  screen.getByRole('heading', { name: 'System Diagnostics' });
+
+  userEvent.click(await screen.findButton('Back'));
+  screen.getButton('System Diagnostics');
+});

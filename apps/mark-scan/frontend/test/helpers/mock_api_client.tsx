@@ -11,6 +11,7 @@ import {
   ElectionPackageConfigurationError,
   BallotStyleId,
   DEFAULT_SYSTEM_SETTINGS,
+  DiagnosticRecord,
   ElectionDefinition,
   InsertedSmartCardAuth,
   InterpretedBmdPage,
@@ -27,7 +28,7 @@ import {
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { err, ok, Result } from '@votingworks/basics';
-import type { BatteryInfo } from '@votingworks/backend';
+import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
 import { TestErrorBoundary } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { fakeMachineConfig } from './fake_machine_config';
@@ -184,8 +185,8 @@ export function createApiMock() {
       });
     },
 
-    setBatteryInfo(batteryInfo: BatteryInfo | null): void {
-      mockApiClient.getBatteryInfo.mockResolvedValue(batteryInfo);
+    setBatteryInfo(batteryInfo?: BatteryInfo): void {
+      mockApiClient.getBatteryInfo.mockResolvedValue(batteryInfo ?? null);
     },
 
     expectGetElectionDefinition(electionDefinition: ElectionDefinition | null) {
@@ -319,6 +320,34 @@ export function createApiMock() {
       mockApiClient.setPrecinctSelection
         .expectCallWith({ precinctSelection })
         .resolves();
+    },
+
+    expectGetIsAccessibleControllerInputDetected(detected: boolean = true) {
+      mockApiClient.getIsAccessibleControllerInputDetected
+        .expectRepeatedCallsWith()
+        .resolves(detected);
+    },
+
+    expectAddDiagnosticRecord(record: Omit<DiagnosticRecord, 'timestamp'>) {
+      mockApiClient.addDiagnosticRecord.expectCallWith(record).resolves();
+    },
+
+    expectGetMostRecentAccessibleControllerDiagnostic(
+      record?: DiagnosticRecord
+    ) {
+      mockApiClient.getMostRecentAccessibleControllerDiagnostic
+        .expectCallWith()
+        .resolves(record ?? null);
+    },
+
+    expectGetApplicationDiskSpaceSummary(summary?: DiskSpaceSummary) {
+      mockApiClient.getApplicationDiskSpaceSummary.expectCallWith().resolves(
+        summary ?? {
+          available: 1_000_000_000,
+          used: 1_000_000_000,
+          total: 2_000_000_000,
+        }
+      );
     },
   };
 }

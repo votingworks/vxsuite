@@ -94,7 +94,7 @@ export function PatDeviceIdentificationPage({
             {statusStrings[currentStepId]}
           </P>
         </DiagnosticScreenHeader>
-        <StepContainer fullWidth>{steps[currentStepId]}</StepContainer>
+        <StepContainer>{steps[currentStepId]}</StepContainer>
       </ReadOnLoad>
     </VoterScreen>
   );

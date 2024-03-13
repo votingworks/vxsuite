@@ -138,7 +138,7 @@ describe('Displays setup warning messages and errors screens', () => {
 
     // Remove battery, i.e. we're on a desktop
     act(() => {
-      apiMock.setBatteryInfo(null);
+      apiMock.setBatteryInfo();
     });
     await screen.findByText(insertCardScreenText);
     expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy();
