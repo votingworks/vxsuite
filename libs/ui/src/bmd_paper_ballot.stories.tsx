@@ -47,9 +47,7 @@ const election: Election = {
 
 const TEST_UI_STRINGS: UiStringsPackage = {
   [LanguageCode.CHINESE_SIMPLIFIED]: {
-    [ElectionStringKey.COUNTY_NAME]: {
-      franklin: '富兰克林县',
-    },
+    [ElectionStringKey.COUNTY_NAME]: '富兰克林县',
     [ElectionStringKey.CONTEST_OPTION_LABEL]: Object.fromEntries(
       election.contests
         .filter((contest): contest is YesNoContest => contest.type === 'yesno')

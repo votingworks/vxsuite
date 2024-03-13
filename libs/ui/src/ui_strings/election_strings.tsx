@@ -76,9 +76,7 @@ export const electionStrings = {
   ),
 
   [Key.COUNTY_NAME]: (county: County) => (
-    <UiString uiStringKey={Key.COUNTY_NAME} uiStringSubKey={county.id}>
-      {county.name}
-    </UiString>
+    <UiString uiStringKey={Key.COUNTY_NAME}>{county.name}</UiString>
   ),
 
   [Key.DISTRICT_NAME]: (district: District) => (
