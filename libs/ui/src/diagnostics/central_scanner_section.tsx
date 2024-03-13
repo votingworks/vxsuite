@@ -1,5 +1,6 @@
 import React from 'react';
 import { DiagnosticRecord } from '@votingworks/types';
+import { assert } from '@votingworks/basics';
 import { H2, P } from '../typography';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
 
@@ -10,6 +11,10 @@ export function CentralScannerSection({
   isScannerAttached: boolean;
   mostRecentScannerDiagnostic?: DiagnosticRecord;
 }): JSX.Element {
+  if (mostRecentScannerDiagnostic) {
+    assert(mostRecentScannerDiagnostic.type === 'blank-sheet-scan');
+  }
+
   return (
     <React.Fragment>
       <H2>Scanner</H2>

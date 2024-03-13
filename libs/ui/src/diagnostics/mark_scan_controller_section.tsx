@@ -1,5 +1,6 @@
 import { DiagnosticRecord } from '@votingworks/types';
 import React from 'react';
+import { assert } from '@votingworks/basics';
 import { H2, P } from '../typography';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
 
@@ -14,6 +15,13 @@ export function MarkScanControllerSection({
   mostRecentAccessibleControllerDiagnostic,
   accessibleControllerSectionChildren,
 }: MarkScanControllerSectionProps): JSX.Element {
+  if (mostRecentAccessibleControllerDiagnostic) {
+    assert(
+      mostRecentAccessibleControllerDiagnostic.type ===
+        'mark-scan-accessible-controller'
+    );
+  }
+
   return (
     <React.Fragment>
       <H2>Accessible Controller</H2>
