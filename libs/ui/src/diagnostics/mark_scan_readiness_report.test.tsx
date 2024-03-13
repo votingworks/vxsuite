@@ -15,7 +15,7 @@ test('MarkScanReadinessReportContents', () => {
         used: 500000000,
       }}
       mostRecentAccessibleControllerDiagnostic={{
-        type: 'test-print',
+        type: 'mark-scan-accessible-controller',
         outcome: 'pass',
         timestamp: generatedAtTime.getTime(),
       }}
