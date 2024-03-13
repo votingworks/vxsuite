@@ -1,3 +1,5 @@
+#![allow(clippy::similar_names)]
+
 use image::{DynamicImage, GrayImage, Luma};
 use imageproc::contrast::{otsu_level, threshold};
 use neon::prelude::*;
@@ -144,18 +146,16 @@ pub fn find_template_grid_and_bubbles(mut cx: FunctionContext) -> JsResult<JsArr
         || load_ballot_image_from_image_or_path(side_b_image_or_path),
     );
 
-    let (side_a_image, side_b_image) = match (
-        (side_a_image, side_a_label.clone()),
-        (side_b_image, side_b_label.clone()),
-    ) {
-        ((Some(a), _), (Some(b), _)) => (a, b),
-        ((None, label), (Some(_), _)) | ((Some(_), _), (None, label)) => {
-            return cx.throw_error(format!("failed to load ballot card image: {label}"));
-        }
-        ((None, a), (None, b)) => {
-            return cx.throw_error(format!("failed to load ballot card images: {a}, {b}"));
-        }
-    };
+    let (side_a_image, side_b_image) =
+        match ((side_a_image, &side_a_label), (side_b_image, &side_b_label)) {
+            ((Some(a), _), (Some(b), _)) => (a, b),
+            ((None, label), (Some(_), _)) | ((Some(_), _), (None, label)) => {
+                return cx.throw_error(format!("failed to load ballot card image: {label}"));
+            }
+            ((None, a), (None, b)) => {
+                return cx.throw_error(format!("failed to load ballot card images: {a}, {b}"));
+            }
+        };
 
     // call the underlying non-JS function
     let template_grid_and_bubbles = match crate::template::find_template_grid_and_bubbles(
@@ -185,12 +185,11 @@ pub fn run_blank_paper_diagnostic(mut cx: FunctionContext) -> JsResult<JsBoolean
     let img_source = get_image_data_or_path_from_arg(&mut cx, 0)?;
     let debug_path = get_path_from_arg_opt(&mut cx, 1);
 
-    let img = match load_ballot_image_from_image_or_path(img_source) {
-        Some(img) => img,
-        None => {
-            return cx.throw_error("failed to load image");
-        }
+    let Some(img) = load_ballot_image_from_image_or_path(img_source) else {
+        return cx.throw_error("failed to load image");
     };
 
-    Ok(cx.boolean(crate::diagnostic::run_blank_paper_diagnostic(img, debug_path)))
+    Ok(cx.boolean(crate::diagnostic::run_blank_paper_diagnostic(
+        img, debug_path,
+    )))
 }

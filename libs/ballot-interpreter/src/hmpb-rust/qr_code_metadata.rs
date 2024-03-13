@@ -18,6 +18,7 @@ pub enum BallotType {
 #[derive(Debug, Serialize, PartialEq, Eq, Clone)]
 #[serde(rename_all = "camelCase")]
 // Metadata encoded in a QR code. Matches the TS type HmpbBallotPageMetadata.
+#[allow(clippy::module_name_repetitions)]
 pub struct BallotPageQrCodeMetadata {
     pub election_hash: String, // Hex string, first 20 characters of the hash
     pub precinct_id: PrecinctId,
@@ -110,6 +111,7 @@ const fn bit_size(n: u32) -> u32 {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod test {
     use std::{fs::File, io::BufReader, path::PathBuf};
 
@@ -163,8 +165,8 @@ mod test {
         ) {
             let detected_metadata = BallotPageQrCodeMetadata {
                 election_hash,
-                precinct_id: PrecinctId::from(precinct_id.to_string()),
-                ballot_style_id: BallotStyleId::from(ballot_style_id.to_string()),
+                precinct_id: PrecinctId::from(precinct_id),
+                ballot_style_id: BallotStyleId::from(ballot_style_id),
                 page_number,
                 is_test_mode,
                 ballot_type,

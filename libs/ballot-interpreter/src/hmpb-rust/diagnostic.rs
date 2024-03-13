@@ -118,6 +118,7 @@ pub fn run_blank_paper_diagnostic(img: GrayImage, debug_path: Option<PathBuf>) -
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod test {
     use super::*;
     use image::DynamicImage;
@@ -174,6 +175,6 @@ mod test {
             .ok()
             .map(DynamicImage::into_luma8)
             .unwrap();
-        assert_eq!(run_blank_paper_diagnostic(img, None), false);
+        assert!(!run_blank_paper_diagnostic(img, None));
     }
 }

@@ -177,6 +177,7 @@ pub fn expand_image(
 
 /// Finds the inset of a scanned document in an image such that each side of the
 /// inset has more than half of its pixels above the given threshold.
+#[allow(clippy::similar_names)]
 pub fn find_scanned_document_inset(image: &GrayImage, threshold: u8) -> Option<Inset> {
     let (width, height) = image.dimensions();
     let (max_x, max_y) = (width - 1, height - 1);
@@ -250,6 +251,7 @@ pub fn match_template<
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod test {
     use super::*;
     use imageproc::contrast::otsu_level;
@@ -300,7 +302,7 @@ mod test {
         let image = GrayImage::from_pixel(100, 100, Luma([0]));
         let template = GrayImage::from_pixel(100, 100, Luma([0]));
         let match_value = match_template(&image, &template);
-        assert_eq!(match_value, 1.0);
+        assert!((match_value - 1.0).abs() < f32::EPSILON);
     }
 
     #[test]
@@ -308,7 +310,7 @@ mod test {
         let image = GrayImage::from_pixel(100, 100, Luma([0]));
         let template = GrayImage::from_pixel(100, 100, Luma([u8::MAX]));
         let match_value = match_template(&image, &template);
-        assert_eq!(match_value, 0.0);
+        assert!((match_value - 0.0).abs() < f32::EPSILON);
     }
 
     #[test]

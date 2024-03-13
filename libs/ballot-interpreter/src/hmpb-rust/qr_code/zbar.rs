@@ -2,20 +2,20 @@ use image::{EncodableLayout, GrayImage};
 use types_rs::geometry::{PixelUnit, Point, Rect};
 use zbar_rust::{ZBarImageScanResult, ZBarImageScanner, ZBarSymbolType};
 
-use super::detect::{get_detection_areas, DetectedQrCode, DetectionArea, Detector, Error, Result};
+use super::detect::{get_detection_areas, Detected, DetectionArea, Detector, Error, Result};
 
 /// Uses the `zbar` QR code library to detect a QR code in the given ballot
 /// image. Crops the image to improve performance.
 pub fn detect(img: &GrayImage) -> Result {
     let detection_areas = get_detection_areas(img);
     let detection_area_rects = detection_areas.iter().map(DetectionArea::bounds).collect();
-    for area in detection_areas.iter() {
+    for area in detection_areas {
         match scan_image_for_qr_codes(area.image()) {
             Ok(qr_codes) => {
                 for qr_code in qr_codes {
                     if qr_code.symbol_type == ZBarSymbolType::ZBarQRCode {
                         let bounds = get_original_bounds(area.origin(), &qr_code);
-                        return Ok(DetectedQrCode::new(
+                        return Ok(Detected::new(
                             Detector::Zbar,
                             detection_area_rects,
                             qr_code.data,

@@ -28,7 +28,7 @@ use crate::scoring::ScoredBubbleMarks;
 use crate::scoring::ScoredPositionAreas;
 use crate::timing_mark_metadata::BallotPageTimingMarkMetadata;
 use crate::timing_mark_metadata::BallotPageTimingMarkMetadataError;
-use crate::timing_marks::detect_metadata_and_normalize_orientation_from_timing_marks;
+use crate::timing_marks::detect_metadata_and_normalize_orientation;
 use crate::timing_marks::find_timing_mark_grid;
 use crate::timing_marks::normalize_orientation;
 use crate::timing_marks::BallotPageMetadata;
@@ -84,7 +84,6 @@ pub struct InterpretedBallotCard {
     pub front: InterpretedBallotPage,
     pub back: InterpretedBallotPage,
 }
-pub type InterpretResult = Result<InterpretedBallotCard, Error>;
 
 #[derive(Debug, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
@@ -156,6 +155,8 @@ pub enum Error {
     CouldNotComputeLayout { side: BallotSide },
 }
 
+pub type Result<T, E = Error> = std::result::Result<T, E>;
+
 pub const SIDE_A_LABEL: &str = "side A";
 pub const SIDE_B_LABEL: &str = "side B";
 
@@ -199,7 +200,7 @@ pub fn prepare_ballot_card_images(
     side_b_image: GrayImage,
     possible_paper_infos: &[PaperInfo],
     resize_strategy: ResizeStrategy,
-) -> Result<BallotCard, Error> {
+) -> Result<BallotCard> {
     let (side_a_result, side_b_result) = par_map_pair(
         (SIDE_A_LABEL, side_a_image),
         (SIDE_B_LABEL, side_b_image),
@@ -268,7 +269,7 @@ fn prepare_ballot_page_image(
     image: GrayImage,
     possible_paper_infos: &[PaperInfo],
     resize_strategy: ResizeStrategy,
-) -> Result<BallotPage, Error> {
+) -> Result<BallotPage> {
     let Some(BallotImage {
         image,
         threshold,
@@ -304,12 +305,13 @@ fn prepare_ballot_page_image(
         geometry,
     })
 }
+
 #[time]
 pub fn interpret_ballot_card(
     side_a_image: GrayImage,
     side_b_image: GrayImage,
     options: &Options,
-) -> InterpretResult {
+) -> Result<InterpretedBallotCard> {
     let BallotCard {
         side_a,
         side_b,
@@ -480,9 +482,7 @@ pub fn interpret_ballot_card(
                 (SIDE_A_LABEL, side_a_grid, &side_a.image, &mut side_a_debug),
                 (SIDE_B_LABEL, side_b_grid, &side_b.image, &mut side_b_debug),
                 |(label, grid, image, debug)| {
-                    detect_metadata_and_normalize_orientation_from_timing_marks(
-                        label, &geometry, grid, image, debug,
-                    )
+                    detect_metadata_and_normalize_orientation(label, &geometry, grid, image, debug)
                 },
             );
 
@@ -627,6 +627,7 @@ where
 }
 
 #[cfg(test)]
+#[allow(clippy::similar_names, clippy::unwrap_used)]
 mod test {
     use std::{
         fs::File,
@@ -703,8 +704,8 @@ mod test {
             &Options {
                 debug_side_a_base: None,
                 debug_side_b_base: None,
-                bubble_template: bubble_template.clone(),
-                election: election.clone(),
+                bubble_template,
+                election,
                 score_write_ins: true,
             },
         )

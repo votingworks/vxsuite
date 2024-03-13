@@ -13,7 +13,7 @@ use serde::{Deserialize, Serialize};
 /// with the same underlying representation is not used.
 pub type GridUnit = i32;
 
-/// A fractional GridUnit.
+/// A fractional `GridUnit`.
 ///
 /// Because this is just a type alias it does not enforce that another type
 /// with the same underlying representation is not used.
@@ -59,6 +59,7 @@ pub type Radians = f32;
 pub type Inch = f32;
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
+#[must_use]
 pub struct Point<T: Sub<Output = T>> {
     pub x: T,
     pub y: T,
@@ -96,6 +97,7 @@ impl Point<SubPixelUnit> {
 
 /// A rectangle area of pixels within an image.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
+#[must_use]
 pub struct Rect {
     left: PixelPosition,
     top: PixelPosition,
@@ -130,26 +132,32 @@ impl Rect {
         )
     }
 
+    #[must_use]
     pub const fn left(&self) -> PixelPosition {
         self.left
     }
 
+    #[must_use]
     pub const fn top(&self) -> PixelPosition {
         self.top
     }
 
+    #[must_use]
     pub const fn width(&self) -> PixelUnit {
         self.width
     }
 
+    #[must_use]
     pub const fn height(&self) -> PixelUnit {
         self.height
     }
 
+    #[must_use]
     pub const fn right(&self) -> PixelPosition {
         self.left + self.width as PixelPosition - 1
     }
 
+    #[must_use]
     pub const fn bottom(&self) -> PixelPosition {
         self.top + self.height as PixelPosition - 1
     }
@@ -175,6 +183,7 @@ impl Rect {
         )
     }
 
+    #[must_use]
     pub fn intersect(&self, other: &Self) -> Option<Self> {
         let left = self.left.max(other.left);
         let top = self.top.max(other.top);
@@ -208,12 +217,14 @@ impl Rect {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize)]
+#[must_use]
 pub struct Size<T> {
     pub width: T,
     pub height: T,
 }
 
 /// A line segment from `start` to `end`.
+#[must_use]
 pub struct Segment {
     pub start: Point<SubPixelUnit>,
     pub end: Point<SubPixelUnit>,
@@ -226,6 +237,7 @@ impl Segment {
     }
 
     /// Computes the length of the segment.
+    #[must_use]
     pub fn length(&self) -> SubPixelUnit {
         let dx = self.end.x - self.start.x;
         let dy = self.end.y - self.start.y;
@@ -260,6 +272,7 @@ impl Segment {
 /// to `true`, the intersection point must be within the bounds of both
 /// segments. If `bounded` is set to `false`, the intersection point may be
 /// outside the bounds of either segment.
+#[must_use]
 pub fn intersection_of_lines(
     segment1: &Segment,
     segment2: &Segment,
@@ -285,11 +298,13 @@ pub fn intersection_of_lines(
 }
 
 /// Determines whether the two line segments intersect.
+#[must_use]
 pub fn segments_intersect(line1: &Segment, line2: &Segment) -> bool {
     intersection_of_lines(line1, line2, true).is_some()
 }
 
 /// Determines whether a line segment intersects a rectangle.
+#[must_use]
 pub fn rect_intersects_line(rect: &Rect, line: &Segment) -> bool {
     let top_left = Point::new(rect.left() as SubPixelUnit, rect.top() as SubPixelUnit);
     let top_right = Point::new(rect.right() as SubPixelUnit, rect.top() as SubPixelUnit);
@@ -307,6 +322,7 @@ pub fn rect_intersects_line(rect: &Rect, line: &Segment) -> bool {
 }
 
 /// Returns the angle between two angles in radians.
+#[must_use]
 pub fn angle_diff(a: Radians, b: Radians) -> Radians {
     let diff = normalize_angle(a - b);
     diff.min(PI - diff)
@@ -315,6 +331,7 @@ pub fn angle_diff(a: Radians, b: Radians) -> Radians {
 /// Normalize angle to [0, PI). This means that two angles that are
 /// equivalent modulo PI will be equal, e.g. 90° and 270°, even though
 /// they are not equal in the mathematical sense.
+#[must_use]
 pub fn normalize_angle(angle: Radians) -> Radians {
     if angle.is_infinite() || angle.is_nan() {
         return angle;
@@ -332,6 +349,7 @@ pub fn normalize_angle(angle: Radians) -> Radians {
 
 /// Finds the largest subset of rectangles such that a line can be drawn through
 /// all of them for any line within the given tolerance of the given angle.
+#[must_use]
 pub fn find_largest_subset_intersecting_line(
     rects: &[Rect],
     angle: Radians,
@@ -381,12 +399,15 @@ mod normalize_angle_tests {
 
     macro_rules! assert_nearly_eq {
         ($a:expr, $b:expr) => {
-            assert!(
-                ($a - $b).abs() < 0.0001,
-                "assertion failed: `({} - {}) < 0.0001`",
-                $a,
-                $b
-            );
+            #[allow(clippy::suboptimal_flops)]
+            {
+                assert!(
+                    ($a - $b).abs() < 0.0001,
+                    "assertion failed: `({} - {}) < 0.0001`",
+                    $a,
+                    $b
+                );
+            }
         };
     }
 
@@ -399,7 +420,7 @@ mod normalize_angle_tests {
     }
 
     #[test]
-    fn test_normalize_infinity() {
+    fn test_normalize_infinity_eq() {
         assert_eq!(super::normalize_angle(Radians::INFINITY), Radians::INFINITY);
         assert_eq!(
             super::normalize_angle(Radians::NEG_INFINITY),
@@ -439,16 +460,16 @@ mod normalize_center_of_rect {
     fn test_center_of_rect() {
         let rect = super::Rect::new(0, 0, 10, 10);
         let center = rect.center();
-        assert_eq!(center.x, 4.5);
-        assert_eq!(center.y, 4.5);
+        assert!((center.x - 4.5).abs() < f32::EPSILON);
+        assert!((center.y - 4.5).abs() < f32::EPSILON);
     }
 
     #[test]
     fn test_center_of_rect_with_odd_dimensions() {
         let rect = super::Rect::new(0, 0, 11, 11);
         let center = rect.center();
-        assert_eq!(center.x, 5.0);
-        assert_eq!(center.y, 5.0);
+        assert!((center.x - 5.0).abs() < f32::EPSILON);
+        assert!((center.y - 5.0).abs() < f32::EPSILON);
     }
 
     proptest! {

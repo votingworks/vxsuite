@@ -1,3 +1,5 @@
+#![allow(clippy::similar_names)]
+
 use image::GrayImage;
 use serde::Serialize;
 use types_rs::geometry::{GridUnit, Point};
@@ -7,12 +9,12 @@ use crate::debug::ImageDebugWriter;
 use crate::interpret::{prepare_ballot_card_images, BallotCard, ResizeStrategy};
 use crate::timing_mark_metadata::BallotPageTimingMarkMetadata;
 use crate::timing_marks::{
-    detect_metadata_and_normalize_orientation_from_timing_marks,
-    find_empty_bubbles_matching_template, find_timing_mark_grid, TimingMarkGrid,
+    detect_metadata_and_normalize_orientation, find_empty_bubbles_matching_template,
+    find_timing_mark_grid, TimingMarkGrid,
 };
 
 #[derive(Debug, Serialize)]
-pub struct TemplateGridAndBubbles {
+pub struct GridAndBubbles {
     pub grid: TimingMarkGrid,
     pub bubbles: Vec<Point<GridUnit>>,
     pub metadata: BallotPageTimingMarkMetadata,
@@ -33,12 +35,13 @@ const BUBBLE_MATCH_THRESHOLD: f32 = 0.95;
 const BUBBLE_MATCH_ERROR_PIXELS: u32 = 2;
 
 /// Find the timing mark grid and bubbles for a ballot card template.
+#[allow(clippy::similar_names)]
 pub fn find_template_grid_and_bubbles(
     side_a_image: GrayImage,
     side_b_image: GrayImage,
     side_a_label: &str,
     side_b_label: &str,
-) -> Result<(TemplateGridAndBubbles, TemplateGridAndBubbles), Error> {
+) -> Result<(GridAndBubbles, GridAndBubbles), Error> {
     let ballot_card = prepare_ballot_card_images(
         side_a_image,
         side_b_image,
@@ -56,7 +59,7 @@ pub fn find_template_grid_and_bubbles(
         || {
             let mut debug = ImageDebugWriter::disabled();
             let grid = find_timing_mark_grid(&geometry, &side_a.image, &mut debug)?;
-            detect_metadata_and_normalize_orientation_from_timing_marks(
+            detect_metadata_and_normalize_orientation(
                 side_a_label,
                 &geometry,
                 grid,
@@ -67,7 +70,7 @@ pub fn find_template_grid_and_bubbles(
         || {
             let mut debug = ImageDebugWriter::disabled();
             let grid = find_timing_mark_grid(&geometry, &side_b.image, &mut debug)?;
-            detect_metadata_and_normalize_orientation_from_timing_marks(
+            detect_metadata_and_normalize_orientation(
                 side_b_label,
                 &geometry,
                 grid,
@@ -114,12 +117,12 @@ pub fn find_template_grid_and_bubbles(
     );
 
     Ok((
-        TemplateGridAndBubbles {
+        GridAndBubbles {
             grid: side_a_grid,
             bubbles: side_a_bubbles,
             metadata: side_a_metadata,
         },
-        TemplateGridAndBubbles {
+        GridAndBubbles {
             grid: side_b_grid,
             bubbles: side_b_bubbles,
             metadata: side_b_metadata,
@@ -128,6 +131,7 @@ pub fn find_template_grid_and_bubbles(
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod test {
     use std::path::PathBuf;
 

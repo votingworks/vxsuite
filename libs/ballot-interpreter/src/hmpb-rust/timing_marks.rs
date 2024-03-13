@@ -15,10 +15,9 @@ use types_rs::geometry::{
 
 use crate::{
     ballot_card::{Geometry, Orientation},
-    debug,
-    debug::{draw_timing_mark_debug_image_mut, ImageDebugWriter},
+    debug::{self, draw_timing_mark_debug_image_mut, ImageDebugWriter},
     image_utils::{expand_image, match_template, WHITE},
-    interpret::Error,
+    interpret::{self, Error},
     qr_code_metadata::BallotPageQrCodeMetadata,
     timing_mark_metadata::{decode_metadata_from_timing_marks, BallotPageTimingMarkMetadata},
 };
@@ -260,7 +259,9 @@ pub fn find_timing_mark_grid(
     Ok(timing_mark_grid)
 }
 
-pub fn find_actual_bottom_timing_marks(
+/// Filters the bottom timing marks by examining the image to determine if the
+/// timing marks are actually present.
+pub fn find_actual_bottom_marks(
     complete_timing_marks: &Complete,
     image: &GrayImage,
     threshold: u8,
@@ -991,19 +992,20 @@ pub fn normalize_orientation(
     (grid, normalized_image)
 }
 
-pub fn detect_metadata_and_normalize_orientation_from_timing_marks(
+#[allow(clippy::result_large_err)]
+pub fn detect_metadata_and_normalize_orientation(
     label: &str,
     geometry: &Geometry,
     grid: TimingMarkGrid,
     image: &GrayImage,
     debug: &mut ImageDebugWriter,
-) -> Result<(TimingMarkGrid, GrayImage, BallotPageTimingMarkMetadata), Error> {
+) -> interpret::Result<(TimingMarkGrid, GrayImage, BallotPageTimingMarkMetadata)> {
     let orientation = detect_orientation_from_grid(&grid);
     let (normalized_grid, normalized_image) =
         normalize_orientation(geometry, grid, image, orientation, debug);
     let metadata = decode_metadata_from_timing_marks(
         geometry,
-        &find_actual_bottom_timing_marks(
+        &find_actual_bottom_marks(
             &normalized_grid.complete_timing_marks,
             &normalized_image,
             otsu_level(&normalized_image),

@@ -1,3 +1,5 @@
+#![allow(clippy::too_many_lines)]
+
 use std::path::{Path, PathBuf};
 
 use image::{imageops::rotate180, DynamicImage, GrayImage, Rgb, RgbImage};
@@ -13,9 +15,7 @@ use types_rs::geometry::{PixelPosition, PixelUnit, Rect, Segment, SubGridUnit, S
 use crate::ballot_card::Geometry;
 
 fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
-    imageproc::rect::Rect::at(rect.left(), rect.top())
-        .of_size(rect.width(), rect.height())
-        .to_owned()
+    imageproc::rect::Rect::at(rect.left(), rect.top()).of_size(rect.width(), rect.height())
 }
 
 use crate::{
@@ -23,14 +23,14 @@ use crate::{
         BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GREEN, DARK_RED, GREEN, ORANGE, PINK, RAINBOW, RED,
         WHITE_RGB,
     },
-    qr_code::DetectedQrCode,
+    qr_code::Detected,
     scoring::{ScoredBubbleMark, ScoredPositionAreas},
     timing_marks::{Partial, TimingMarkGrid},
 };
 
 pub fn draw_qr_code_debug_image_mut(
     canvas: &mut RgbImage,
-    qr_code: Option<&DetectedQrCode>,
+    qr_code: Option<&Detected>,
     detection_areas: &[Rect],
 ) {
     for detection_area in detection_areas {
@@ -733,6 +733,7 @@ impl ImageDebugWriter {
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 
