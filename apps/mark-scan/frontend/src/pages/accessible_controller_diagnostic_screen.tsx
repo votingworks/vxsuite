@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Button, H2, H3, Main, P, Screen } from '@votingworks/ui';
+import {
+  Button,
+  H2,
+  H3,
+  Main,
+  P,
+  Screen,
+  ACCESSIBILITY_COMMAND_KEYS,
+} from '@votingworks/ui';
 import styled from 'styled-components';
 import {
   ControllerButton,
@@ -58,32 +66,32 @@ export const DIAGNOSTIC_STEPS: DiagnosticStep[] = [
   {
     button: 'help',
     label: 'Help',
-    key: 'R',
+    key: ACCESSIBILITY_COMMAND_KEYS['replay'],
   },
   {
     button: 'volume-down',
     label: 'Volume Down',
-    key: '-',
+    key: ACCESSIBILITY_COMMAND_KEYS['decrease-volume'],
   },
   {
     button: 'volume-up',
     label: 'Volume Up',
-    key: '=',
+    key: ACCESSIBILITY_COMMAND_KEYS['increase-volume'],
   },
   {
     button: 'pause',
     label: 'Pause',
-    key: 'P',
+    key: ACCESSIBILITY_COMMAND_KEYS['toggle-pause'],
   },
   {
     button: 'rate-down',
     label: 'Decrease Rate',
-    key: ',',
+    key: ACCESSIBILITY_COMMAND_KEYS['decrease-playback-rate'],
   },
   {
     button: 'rate-up',
     label: 'Increase Rate',
-    key: '.',
+    key: ACCESSIBILITY_COMMAND_KEYS['increase-playback-rate'],
   },
 ];
 
