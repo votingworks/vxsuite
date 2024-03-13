@@ -3,11 +3,8 @@ import type { Page as PlaywrightPage } from 'playwright';
 import ReactDomServer from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';
 import { assert } from '@votingworks/basics';
-import { InchDimensions, PixelMeasurements } from './types';
-
-export interface PdfOptions {
-  pageDimensions: InchDimensions;
-}
+import { PixelMeasurements } from './types';
+import { PAGE_CLASS } from './ballot_components';
 
 export type Page = Pick<PlaywrightPage, 'evaluate' | 'close' | 'pdf'>;
 
@@ -60,11 +57,11 @@ export function createDocument(page: Page) {
       }, selector);
     },
 
-    async renderToPdf(options: PdfOptions): Promise<Buffer> {
-      const { pageDimensions } = options;
+    async renderToPdf(): Promise<Buffer> {
+      const [pageDimensions] = await this.inspectElements(`.${PAGE_CLASS}`);
       const pdf = await page.pdf({
-        width: `${pageDimensions.width}in`,
-        height: `${pageDimensions.height}in`,
+        width: `${pageDimensions.width}px`,
+        height: `${pageDimensions.height}px`,
         printBackground: true,
       });
       return pdf;

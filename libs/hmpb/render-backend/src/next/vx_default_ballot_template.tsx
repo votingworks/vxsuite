@@ -13,6 +13,7 @@ import {
   CandidateContest,
   Election,
   YesNoContest,
+  ballotPaperDimensions,
   getCandidatePartiesDescription,
   getContests,
   getPartyForBallotStyle,
@@ -49,11 +50,6 @@ const Colors = {
   DARK_GRAY: '#DADADA',
 } as const;
 
-export const pageDimensions: InchDimensions = {
-  width: 8.5,
-  height: 11,
-};
-
 export const pageMargins = {
   top: 0.125,
   right: 0.125,
@@ -61,10 +57,18 @@ export const pageMargins = {
   left: 0.125,
 } as const;
 
-function TimingMarkGrid({ children }: { children: React.ReactNode }) {
+function TimingMarkGrid({
+  pageDimensions,
+  children,
+}: {
+  pageDimensions: InchDimensions;
+  children: React.ReactNode;
+}) {
+  // Corresponds to the NH Accuvote ballot grid, which we mimic so that our
+  // interpreter can support both Accuvote-style ballots and our ballots.
+  // This formula is replicated in libs/ballot-interpreter/src/ballot_card.rs.
   const columnsPerInch = 4;
   const rowsPerInch = 4;
-
   const gridRows = pageDimensions.height * rowsPerInch - 3;
   const gridColumns = pageDimensions.width * columnsPerInch;
 
@@ -167,18 +171,25 @@ function Header({
   return (
     <div
       style={{
-        display: 'grid',
-        gridTemplateColumns: 'auto 1fr',
+        display: 'flex',
         gap: '0.75rem',
         alignItems: 'center',
         paddingBottom: '0.125rem',
       }}
     >
-      <img
-        style={{ height: '100%', marginTop: '0.125rem' }}
-        src={`data:image/svg+xml;base64,${Buffer.from(election.seal).toString(
-          'base64'
-        )}`}
+      <div
+        style={{
+          // Make the seal a square that matches the height of the header text
+          // next to it
+          height: '100%',
+          aspectRatio: '1 / 1',
+          backgroundImage: `url(data:image/svg+xml;base64,${Buffer.from(
+            election.seal
+          ).toString('base64')})`,
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          marginTop: '0.125rem',
+        }}
       />
       <div>
         <h1>
@@ -320,6 +331,7 @@ function BallotPageFrame({
   totalPages: number;
   children: JSX.Element;
 }): JSX.Element {
+  const pageDimensions = ballotPaperDimensions(election.ballotLayout.paperSize);
   return (
     <Page
       key={pageNumber}
@@ -327,7 +339,7 @@ function BallotPageFrame({
       dimensions={pageDimensions}
       margins={pageMargins}
     >
-      <TimingMarkGrid>
+      <TimingMarkGrid pageDimensions={pageDimensions}>
         <div
           style={{
             flex: 1,
@@ -693,7 +705,7 @@ async function BallotPageContent(
   };
 }
 
-export const ballotPageTemplate: BallotPageTemplate<BaseBallotProps> = {
+export const vxDefaultBallotTemplate: BallotPageTemplate<BaseBallotProps> = {
   frameComponent: BallotPageFrame,
   contentComponent: BallotPageContent,
 };

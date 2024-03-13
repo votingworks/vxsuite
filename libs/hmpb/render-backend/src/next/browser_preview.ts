@@ -1,7 +1,7 @@
 import './polyfills';
 import { BallotType } from '@votingworks/types';
 import { electionGeneral } from '@votingworks/fixtures';
-import { ballotPageTemplate, pageDimensions } from './template';
+import { vxDefaultBallotTemplate } from './vx_default_ballot_template';
 import { BaseBallotProps, renderBallotPreviewToPdf } from './render_ballot';
 import { createBrowserPreviewRenderer } from './browser_preview_renderer';
 
@@ -20,11 +20,8 @@ export async function main(): Promise<void> {
   const renderer = createBrowserPreviewRenderer();
   await renderBallotPreviewToPdf(
     renderer,
-    ballotPageTemplate,
-    exampleBallotProps,
-    {
-      pageDimensions,
-    }
+    vxDefaultBallotTemplate,
+    exampleBallotProps
   );
 }
 

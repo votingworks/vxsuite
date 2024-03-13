@@ -10,7 +10,7 @@ import {
   BaseBallotProps,
   renderAllBallotsAndCreateElectionDefinition,
 } from './render_ballot';
-import { ballotPageTemplate, pageDimensions } from './template';
+import { vxDefaultBallotTemplate } from './vx_default_ballot_template';
 import { createPlaywrightRenderer } from './playwright_renderer';
 
 const electionJson = readFileSync(
@@ -43,7 +43,7 @@ async function main() {
   const { ballotDocuments, electionDefinition } =
     await renderAllBallotsAndCreateElectionDefinition(
       renderer,
-      ballotPageTemplate,
+      vxDefaultBallotTemplate,
       allBallotProps
     );
   const outputDir = process.argv[2];
@@ -58,7 +58,7 @@ async function main() {
     const outputPath = `${outputDir}/ballot-${
       props.ballotStyle.id
     }-${props.precinct.name.replace(/\s/, '-')}.pdf`;
-    const ballotPdf = await ballotDocument.renderToPdf({ pageDimensions });
+    const ballotPdf = await ballotDocument.renderToPdf();
     await writeFile(outputPath, ballotPdf);
     // eslint-disable-next-line no-console
     console.log(`Rendered and saved ballot to ${outputPath}`);

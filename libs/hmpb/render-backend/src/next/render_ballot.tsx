@@ -15,12 +15,7 @@ import {
 import { QrCode } from '@votingworks/ui';
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
 import { BallotMode } from '@votingworks/hmpb-layout';
-import {
-  PdfOptions,
-  RenderDocument,
-  RenderScratchpad,
-  Renderer,
-} from './renderer';
+import { RenderDocument, RenderScratchpad, Renderer } from './renderer';
 import {
   BUBBLE_CLASS,
   CONTENT_SLOT_CLASS,
@@ -283,12 +278,11 @@ async function renderBallotTemplate<P extends object>(
 export async function renderBallotPreviewToPdf<P extends object>(
   renderer: Renderer,
   template: BallotPageTemplate<P>,
-  props: P,
-  options: PdfOptions
+  props: P
 ): Promise<Buffer> {
   const t1 = Date.now();
   const document = await renderBallotTemplate(renderer, template, props);
-  const pdf = await document.renderToPdf(options);
+  const pdf = await document.renderToPdf();
   const t2 = Date.now();
   // eslint-disable-next-line no-console
   console.log(`Rendered document in ${t2 - t1}ms`);
@@ -337,6 +331,8 @@ export async function renderAllBallotsAndCreateElectionDefinition<
   );
 
   // All precincts for a given ballot style have the same grid layout
+  // TODO check that this is actually true before de-duping to protect against
+  // templates that violate this rule
   const gridLayouts = uniqueBy(
     ballotsWithLayouts.map((ballot) => ballot.gridLayout),
     (layout) => layout.ballotStyleId
