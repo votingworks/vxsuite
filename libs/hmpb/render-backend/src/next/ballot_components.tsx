@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import React from 'react';
+import { Outset } from '@votingworks/types';
 import { InchDimensions, InchMargins } from './types';
 
 export const TIMING_MARK_DIMENSIONS: InchDimensions = {
@@ -45,7 +46,9 @@ export function QrCodeSlot(): JSX.Element {
         height: `${QR_CODE_SIZE.height}in`,
         width: `${QR_CODE_SIZE.width}in`,
       }}
-    />
+    >
+      <div style={{ border: '1px solid black', height: '100%' }} />
+    </div>
   );
 }
 
@@ -63,20 +66,30 @@ const StyledBubble = styled.div`
 
 export const BUBBLE_CLASS = 'bubble';
 
+export type OptionInfo =
+  | {
+      type: 'option';
+      contestId: string;
+      optionId: string;
+    }
+  | {
+      type: 'write-in';
+      contestId: string;
+      writeInIndex: number;
+      writeInArea: Outset<number>; // Grid coordinates for write-in space in relation to the bubble
+    };
+
 export function Bubble({
-  contestId,
-  optionId,
+  optionInfo,
   className,
 }: {
-  contestId: string;
-  optionId: string;
+  optionInfo: OptionInfo;
   className?: string;
 }): JSX.Element {
   return (
     <StyledBubble
       className={[BUBBLE_CLASS, className].join(' ')}
-      data-contest-id={contestId}
-      data-option-id={optionId}
+      data-option-info={JSON.stringify(optionInfo)}
     />
   );
 }

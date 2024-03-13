@@ -20,6 +20,7 @@
   "references": [
     { "path": "../layout/tsconfig.build.json" },
     { "path": "../../../libs/basics/tsconfig.build.json" },
+    { "path": "../../../libs/ballot-encoder/tsconfig.build.json" },
     { "path": "../../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../../libs/fixtures/tsconfig.build.json" },
     { "path": "../../../libs/types/tsconfig.build.json" },

@@ -4390,6 +4390,9 @@ importers:
 
   libs/hmpb/render-backend:
     dependencies:
+      '@votingworks/ballot-encoder':
+        specifier: workspace:*
+        version: link:../../ballot-encoder
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../basics
@@ -4403,7 +4406,7 @@ importers:
         specifier: workspace:*
         version: link:../../types
       '@votingworks/ui':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../../ui
       '@xmldom/xmldom':
         specifier: ^0.8.1

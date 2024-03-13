@@ -1,14 +1,14 @@
 import './polyfills';
 import { BallotType } from '@votingworks/types';
 import { electionGeneral } from '@votingworks/fixtures';
-import { BallotProps, ballotPageTemplate, pageDimensions } from './template';
-import { renderBallotToPdf } from './render_ballot';
+import { ballotPageTemplate, pageDimensions } from './template';
+import { BaseBallotProps, renderBallotPreviewToPdf } from './render_ballot';
 import { createBrowserPreviewRenderer } from './browser_preview_renderer';
 
 const election = electionGeneral;
 const ballotStyle = election.ballotStyles[0];
 const precinct = election.precincts[0];
-const exampleBallotProps: BallotProps = {
+const exampleBallotProps: BaseBallotProps = {
   election,
   ballotStyle,
   precinct,
@@ -18,9 +18,14 @@ const exampleBallotProps: BallotProps = {
 
 export async function main(): Promise<void> {
   const renderer = createBrowserPreviewRenderer();
-  await renderBallotToPdf(renderer, ballotPageTemplate, exampleBallotProps, {
-    pageDimensions,
-  });
+  await renderBallotPreviewToPdf(
+    renderer,
+    ballotPageTemplate,
+    exampleBallotProps,
+    {
+      pageDimensions,
+    }
+  );
 }
 
 main().catch((err) => {

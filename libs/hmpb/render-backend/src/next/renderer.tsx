@@ -101,9 +101,9 @@ export function createScratchpad(document: RenderDocument) {
   };
 }
 
-export type RenderScratchpad = Awaited<ReturnType<typeof createScratchpad>>;
+export type RenderScratchpad = ReturnType<typeof createScratchpad>;
 
 export interface Renderer {
-  createScratchpad(): RenderScratchpad;
+  createScratchpad(): Promise<RenderScratchpad>;
   cleanup(): Promise<void>;
 }

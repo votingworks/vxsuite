@@ -1,5 +1,20 @@
 import { Buffer } from 'buffer';
-import { assertDefined, deepEqual } from '@votingworks/basics';
+import { assert, deepEqual, uniqueBy } from '@votingworks/basics';
+import {
+  BallotStyle,
+  BallotStyleId,
+  BallotType,
+  Election,
+  ElectionDefinition,
+  GridLayout,
+  GridPosition,
+  HmpbBallotPageMetadata,
+  Precinct,
+  safeParseElectionDefinition,
+} from '@votingworks/types';
+import { QrCode } from '@votingworks/ui';
+import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
+import { BallotMode } from '@votingworks/hmpb-layout';
 import {
   PdfOptions,
   RenderDocument,
@@ -10,6 +25,7 @@ import {
   BUBBLE_CLASS,
   CONTENT_SLOT_CLASS,
   ContentSlot,
+  OptionInfo,
   PAGE_CLASS,
   QR_CODE_SIZE,
   QR_CODE_SLOT_CLASS,
@@ -126,25 +142,12 @@ async function paginateBallotContent<P extends object>(
   );
 }
 
-interface ContestOptionLayout {
-  contest: string;
-  candidate: string;
-  column: number;
-  row: number;
-}
-
-/**
- * We rely on data-* attributes to locate and identify timing marks and contest
- * option bubbles within the DOM after the ballot has been rendered. This allows
- * the template to focus on rendering declaratively without worry about absolute
- * positions. We'll probably want to have some layer of abstraction for
- * templates to use to ensure they get the data-* attributes right.
- */
-async function extractLayoutInfo(
-  document: RenderDocument
-): Promise<ContestOptionLayout[]> {
+async function extractGridLayout(
+  document: RenderDocument,
+  ballotStyleId: BallotStyleId
+): Promise<GridLayout> {
   const pages = await document.inspectElements(`.${PAGE_CLASS}`);
-  const optionLayoutsPerPage = await Promise.all(
+  const optionPositionsPerPage = await Promise.all(
     pages.map(async (_, i) => {
       const pageNumber = i + 1;
       const timingMarkElements = await document.inspectElements(
@@ -155,70 +158,107 @@ async function extractLayoutInfo(
       const minY = Math.min(...timingMarkElements.map((mark) => mark.y));
       const maxX = Math.max(...timingMarkElements.map((mark) => mark.x));
       const maxY = Math.max(...timingMarkElements.map((mark) => mark.y));
+
       const gridWidth = maxX - minX;
       const gridHeight = maxY - minY;
+
+      // The grid origin is the center of the top-left timing mark
       const originX = minX + timingMarkElements[0].width / 2;
       const originY = minY + timingMarkElements[0].height / 2;
+
       // There are two overlayed timing marks in each corner, don't double count them
-      const numRows =
+      const numTimingMarkRows =
         timingMarkElements.filter((mark) => mark.x === minX).length - 2;
-      const numColumns =
+      const numTimingMarkColumns =
         timingMarkElements.filter((mark) => mark.y === minY).length - 2;
-      const columnWidth = gridWidth / numColumns;
-      const rowHeight = gridHeight / numRows;
+
+      // The rows and columns of the grid are between the timing marks
+      const gridColumnWidth = gridWidth / (numTimingMarkColumns - 1);
+      const gridRowHeight = gridHeight / (numTimingMarkRows - 1);
 
       function pixelPointToGridPoint(
         x: number,
         y: number
       ): { column: number; row: number } {
         return {
-          column: (x - originX) / columnWidth,
-          row: (y - originY) / rowHeight,
+          column: (x - originX) / gridColumnWidth,
+          row: (y - originY) / gridRowHeight,
         };
       }
 
       const bubbles = await document.inspectElements(
         `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${BUBBLE_CLASS}`
       );
-      const optionLayouts = bubbles.map((bubble) => ({
-        contest: assertDefined(bubble.data.contestId),
-        candidate: assertDefined(bubble.data.optionId),
-        ...pixelPointToGridPoint(bubble.x, bubble.y),
-      }));
-      return optionLayouts;
+      const optionPositions = bubbles.map((bubble): GridPosition => {
+        const positionInfo = {
+          sheetNumber: Math.ceil(pageNumber / 2),
+          side: pageNumber % 2 === 1 ? 'front' : 'back',
+          // Use the grid coordinates for the center of the bubble
+          ...pixelPointToGridPoint(
+            bubble.x + bubble.width / 2,
+            bubble.y + bubble.height / 2
+          ),
+        } as const;
+        const optionInfo = JSON.parse(bubble.data.optionInfo) as OptionInfo;
+        if (optionInfo.type === 'write-in') {
+          return {
+            ...positionInfo,
+            ...optionInfo,
+            // TODO convert writeInArea from bubble-relative grid coordinates to
+            // absolute pixel coordinates
+            writeInArea: {
+              x: 0,
+              y: 0,
+              width: 0,
+              height: 0,
+            },
+          };
+        }
+        return {
+          ...positionInfo,
+          ...optionInfo,
+        };
+      });
+      return optionPositions;
     })
   );
 
-  return optionLayoutsPerPage.flat();
+  return {
+    ballotStyleId,
+    gridPositions: optionPositionsPerPage.flat(),
+    // TODO how should this crop area be specified?
+    optionBoundsFromTargetMark: {
+      bottom: 0,
+      left: 0,
+      right: 0,
+      top: 0,
+    },
+  };
 }
 
-function electionHashFromLayoutInfo(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _layoutInfo: ContestOptionLayout[]
-): string {
-  return 'fake-election-hash'; // Not important for this proof of concept
-}
-
-/**
- * To add QR codes, we could do it the way we did it previously, restarting the
- * whole rendering process with an electionHash prop passed in. However, since
- * we've already broken the seal on mutation, why not just swap in the QR code
- * element directly?
- */
-async function addQrCodes(document: RenderDocument, electionHash: string) {
+async function addQrCodes(
+  document: RenderDocument,
+  election: Election,
+  metadata: Omit<HmpbBallotPageMetadata, 'pageNumber'>
+) {
   const pages = await document.inspectElements(`.${PAGE_CLASS}`);
   for (const i of pages.keys()) {
     const pageNumber = i + 1;
+    const encodedMetadata = encodeHmpbBallotPageMetadata(election, {
+      ...metadata,
+      pageNumber,
+    });
     const qrCode = (
       <div
         style={{
-          border: '1px solid black',
           height: `${QR_CODE_SIZE.height}in`,
           width: `${QR_CODE_SIZE.width}in`,
-          fontSize: '7pt',
         }}
       >
-        QR code {electionHash} pg{pageNumber}
+        <QrCode
+          value={Buffer.from(encodedMetadata).toString('base64')}
+          level="L"
+        />
       </div>
     );
     await document.setContent(
@@ -228,26 +268,26 @@ async function addQrCodes(document: RenderDocument, electionHash: string) {
   }
 }
 
-/**
- * Given a ballot page template, which specifies the layout for an individual
- * ballot page, and props (i.e. the election content), render a ballot PDF.
- */
-export async function renderBallotToPdf<P extends object>(
+async function renderBallotTemplate<P extends object>(
+  renderer: Renderer,
+  template: BallotPageTemplate<P>,
+  props: P
+): Promise<RenderDocument> {
+  const scratchpad = await renderer.createScratchpad();
+  const pages = await paginateBallotContent(template, props, scratchpad);
+  const document = scratchpad.convertToDocument();
+  await document.setContent('body', <>{pages}</>);
+  return document;
+}
+
+export async function renderBallotPreviewToPdf<P extends object>(
   renderer: Renderer,
   template: BallotPageTemplate<P>,
   props: P,
   options: PdfOptions
 ): Promise<Buffer> {
   const t1 = Date.now();
-  const scratchpad = renderer.createScratchpad();
-  const pages = await paginateBallotContent(template, props, scratchpad);
-  const document = scratchpad.convertToDocument();
-  await document.setContent('body', <>{pages}</>);
-  const layoutInfo = await extractLayoutInfo(document);
-  // Normally we'd need to have layout info from all ballots to compute the
-  // election hash - we're simplifying here
-  const electionHash = electionHashFromLayoutInfo(layoutInfo);
-  await addQrCodes(document, electionHash);
+  const document = await renderBallotTemplate(renderer, template, props);
   const pdf = await document.renderToPdf(options);
   const t2 = Date.now();
   // eslint-disable-next-line no-console
@@ -255,4 +295,72 @@ export async function renderBallotToPdf<P extends object>(
   await document.dispose();
   await renderer.cleanup();
   return pdf;
+}
+
+export interface BaseBallotProps {
+  election: Election;
+  ballotStyle: BallotStyle;
+  precinct: Precinct;
+  ballotType: BallotType;
+  ballotMode: BallotMode;
+}
+
+export async function renderAllBallotsAndCreateElectionDefinition<
+  P extends BaseBallotProps,
+>(
+  renderer: Renderer,
+  template: BallotPageTemplate<P>,
+  ballotProps: P[]
+): Promise<{
+  ballotDocuments: RenderDocument[];
+  electionDefinition: ElectionDefinition;
+}> {
+  const { election } = ballotProps[0];
+  assert(ballotProps.every((props) => props.election === election));
+
+  const ballotsWithLayouts = await Promise.all(
+    ballotProps.map(async (props) => {
+      const document = await renderBallotTemplate(renderer, template, {
+        ...props, // eslint-disable-line vx/gts-spread-like-types
+        election,
+      });
+      const gridLayout = await extractGridLayout(
+        document,
+        props.ballotStyle.id
+      );
+      return {
+        document,
+        gridLayout,
+        props,
+      };
+    })
+  );
+
+  // All precincts for a given ballot style have the same grid layout
+  const gridLayouts = uniqueBy(
+    ballotsWithLayouts.map((ballot) => ballot.gridLayout),
+    (layout) => layout.ballotStyleId
+  );
+
+  const electionWithGridLayouts: Election = { ...election, gridLayouts };
+  const electionDefinition = safeParseElectionDefinition(
+    JSON.stringify(electionWithGridLayouts, null, 2)
+  ).unsafeUnwrap();
+
+  for (const { document, props } of ballotsWithLayouts) {
+    if (props.ballotMode !== 'sample') {
+      await addQrCodes(document, electionDefinition.election, {
+        electionHash: electionDefinition.electionHash,
+        ballotStyleId: props.ballotStyle.id,
+        precinctId: props.precinct.id,
+        ballotType: props.ballotType,
+        isTestMode: props.ballotMode !== 'official',
+      });
+    }
+  }
+
+  return {
+    ballotDocuments: ballotsWithLayouts.map((ballot) => ballot.document),
+    electionDefinition,
+  };
 }

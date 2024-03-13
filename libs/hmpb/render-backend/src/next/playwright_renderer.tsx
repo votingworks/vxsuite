@@ -1,10 +1,14 @@
 import { chromium } from 'playwright';
 import ReactDomServer from 'react-dom/server';
-import { RenderScratchpad, createDocument, createScratchpad } from './renderer';
+import {
+  RenderScratchpad,
+  Renderer,
+  createDocument,
+  createScratchpad,
+} from './renderer';
 import { baseStyleElements } from './base_styles';
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export async function createPlaywrightRenderer() {
+export async function createPlaywrightRenderer(): Promise<Renderer> {
   const browser = await chromium.launch({
     // font hinting (https://fonts.google.com/knowledge/glossary/hinting)
     // is on by default, but causes fonts to render more awkwardly at higher
@@ -12,19 +16,18 @@ export async function createPlaywrightRenderer() {
     args: ['--font-render-hinting=none'],
   });
   const context = await browser.newContext();
-  const page = await context.newPage();
-  await page.setContent(
-    `<!DOCTYPE html>${ReactDomServer.renderToStaticMarkup(
-      <html>
-        <head>{baseStyleElements}</head>
-        <body />
-      </html>
-    )}`
-  );
-  const document = createDocument(page);
-
   return {
-    createScratchpad(): RenderScratchpad {
+    async createScratchpad(): Promise<RenderScratchpad> {
+      const page = await context.newPage();
+      await page.setContent(
+        `<!DOCTYPE html>${ReactDomServer.renderToStaticMarkup(
+          <html>
+            <head>{baseStyleElements}</head>
+            <body />
+          </html>
+        )}`
+      );
+      const document = createDocument(page);
       return createScratchpad(document);
     },
 

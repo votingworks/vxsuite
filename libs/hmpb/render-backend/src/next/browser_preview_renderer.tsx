@@ -54,7 +54,7 @@ function createBrowserPreviewDocument(): RenderDocument {
 export function createBrowserPreviewRenderer(): Renderer {
   return {
     createScratchpad() {
-      return createScratchpad(createBrowserPreviewDocument());
+      return Promise.resolve(createScratchpad(createBrowserPreviewDocument()));
     },
     cleanup() {
       return Promise.resolve();

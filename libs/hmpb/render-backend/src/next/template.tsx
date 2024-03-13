@@ -9,21 +9,24 @@ import React from 'react';
 import styled from 'styled-components';
 import {
   AnyContest,
-  BallotStyle,
   BallotType,
   CandidateContest,
   Election,
-  Precinct,
   YesNoContest,
   getCandidatePartiesDescription,
   getContests,
   getPartyForBallotStyle,
 } from '@votingworks/types';
 import { BallotMode, layOutInColumns } from '@votingworks/hmpb-layout';
-import { BallotPageTemplate, PagedElementResult } from './render_ballot';
+import {
+  BallotPageTemplate,
+  BaseBallotProps,
+  PagedElementResult,
+} from './render_ballot';
 import { RenderScratchpad } from './renderer';
 import {
   Bubble as BubbleComponent,
+  OptionInfo,
   Page,
   QrCodeSlot,
   TIMING_MARK_DIMENSIONS,
@@ -45,14 +48,6 @@ const Colors = {
   LIGHT_GRAY: '#EDEDED',
   DARK_GRAY: '#DADADA',
 } as const;
-
-export interface BallotProps {
-  election: Election;
-  ballotStyle: BallotStyle;
-  precinct: Precinct;
-  ballotType: BallotType;
-  ballotMode: BallotMode;
-}
 
 export const pageDimensions: InchDimensions = {
   width: 8.5,
@@ -101,7 +96,7 @@ function TimingMarkGrid({ children }: { children: React.ReactNode }) {
           ...style,
         }}
       >
-        {range(0, gridRows - 2).map((i) => (
+        {range(0, gridRows).map((i) => (
           <TimingMark key={i} />
         ))}
       </div>
@@ -141,7 +136,7 @@ function Header({
   precinct,
   ballotType,
   ballotMode,
-}: BallotProps) {
+}: BaseBallotProps) {
   const ballotModeLabel: Record<BallotMode, string> = {
     sample: 'Sample',
     test: 'Test',
@@ -320,7 +315,7 @@ function BallotPageFrame({
   pageNumber,
   totalPages,
   children,
-}: BallotProps & {
+}: BaseBallotProps & {
   pageNumber: number;
   totalPages: number;
   children: JSX.Element;
@@ -406,6 +401,11 @@ function CandidateContest({
             election.type === 'primary'
               ? undefined
               : getCandidatePartiesDescription(election, candidate);
+          const optionInfo: OptionInfo = {
+            type: 'option',
+            contestId: contest.id,
+            optionId: candidate.id,
+          };
           return (
             <li
               key={candidate.id}
@@ -423,7 +423,7 @@ function CandidateContest({
                   alignItems: 'center',
                 }}
               >
-                <Bubble contestId={contest.id} optionId={candidate.id} />
+                <Bubble optionInfo={optionInfo} />
                 <strong>{candidate.name}</strong>
                 {partyText && (
                   <>
@@ -437,10 +437,21 @@ function CandidateContest({
         })}
         {contest.allowWriteIns &&
           range(0, contest.seats).map((writeInIndex) => {
-            const writeInId = `write-in-${writeInIndex}`;
+            const optionInfo: OptionInfo = {
+              type: 'write-in',
+              contestId: contest.id,
+              writeInIndex,
+              // TODO specify a writeInArea in grid coordinates
+              writeInArea: {
+                top: 0,
+                left: 0,
+                bottom: 0,
+                right: 0,
+              },
+            };
             return (
               <li
-                key={writeInId}
+                key={writeInIndex}
                 style={{
                   display: 'grid',
                   columnGap: '0.5rem',
@@ -450,7 +461,7 @@ function CandidateContest({
                   borderTop: `1px solid ${Colors.DARK_GRAY}`,
                 }}
               >
-                <Bubble contestId={contest.id} optionId={writeInId} />
+                <Bubble optionInfo={optionInfo} />
                 <div>
                   <div>
                     <div
@@ -503,7 +514,13 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
               <div
                 style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}
               >
-                <Bubble contestId={contest.id} optionId={option.id} />
+                <Bubble
+                  optionInfo={{
+                    type: 'option',
+                    contestId: contest.id,
+                    optionId: option.id,
+                  }}
+                />
                 <strong>{option.label}</strong>
               </div>
             </li>
@@ -547,9 +564,9 @@ function BlankPageMessage() {
 }
 
 async function BallotPageContent(
-  props: (BallotProps & { dimensions: PixelDimensions }) | undefined,
+  props: (BaseBallotProps & { dimensions: PixelDimensions }) | undefined,
   scratchpad: RenderScratchpad
-): Promise<PagedElementResult<BallotProps>> {
+): Promise<PagedElementResult<BaseBallotProps>> {
   if (!props) {
     return {
       currentPageElement: <BlankPageMessage />,
@@ -564,7 +581,7 @@ async function BallotPageContent(
   if (contests.length === 0) {
     throw new Error('No contests assigned to this precinct.');
   }
-  const contestSections = iter(election.contests)
+  const contestSections = iter(contests)
     .partition((contest) => contest.type === 'candidate')
     .filter((section) => section.length > 0);
 
@@ -573,14 +590,14 @@ async function BallotPageContent(
   const pageSections: JSX.Element[] = [];
   let heightUsed = 0;
 
+  // TODO is there a better way to incorporate gutter width here?
+  const gutterWidthPx = 0.75 * 16; // Assuming 16px per 1rem
   while (contestSections.length > 0 && heightUsed < dimensions.height) {
     const section = assertDefined(contestSectionsLeftToLayout.shift());
     const contestElements = section.map((contest) => (
       <Contest key={contest.id} contest={contest} election={election} />
     ));
     const numColumns = section[0].type === 'candidate' ? 3 : 2;
-    // TODO is there a better way to incorporate gutter width here?
-    const gutterWidthPx = 0.75 * 16; // Assuming 16px per 1rem
     const columnWidthPx =
       (dimensions.width - gutterWidthPx * (numColumns - 1)) / numColumns;
     const contestMeasurements = await scratchpad.measureElements(
@@ -645,7 +662,19 @@ async function BallotPageContent(
   }
 
   const currentPageElement =
-    pageSections.length > 0 ? <div>{pageSections}</div> : <BlankPageMessage />;
+    pageSections.length > 0 ? (
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: `${gutterWidthPx}px`,
+        }}
+      >
+        {pageSections}
+      </div>
+    ) : (
+      <BlankPageMessage />
+    );
   const nextPageProps =
     contestSectionsLeftToLayout.length > 0
       ? {
@@ -664,7 +693,7 @@ async function BallotPageContent(
   };
 }
 
-export const ballotPageTemplate: BallotPageTemplate<BallotProps> = {
+export const ballotPageTemplate: BallotPageTemplate<BaseBallotProps> = {
   frameComponent: BallotPageFrame,
   contentComponent: BallotPageContent,
 };
