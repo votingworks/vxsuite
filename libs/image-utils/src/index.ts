@@ -10,6 +10,5 @@ export * from './otsu';
 export * from './outline';
 export * from './pdf_to_images';
 export * from './jest_pdf_snapshot';
-export * from './rotate';
 export * from './types';
 export { createImageData } from 'canvas';
