@@ -6,10 +6,12 @@
     "noEmit": false,
     "rootDir": "src",
     "outDir": "build",
-    "declaration": true
+    "declaration": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler"
   },
   "references": [
     { "path": "../eslint-plugin-vx/tsconfig.build.json" },
-    { "path": "../types/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" }
   ]
 }

@@ -11,7 +11,9 @@
     "noEmit": false,
     "rootDir": "src",
     "outDir": "build",
-    "declaration": true
+    "declaration": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler"
   },
   "references": [
     { "path": "../ballot-encoder/tsconfig.build.json" },

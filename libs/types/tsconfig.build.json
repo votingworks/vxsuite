@@ -6,7 +6,9 @@
     "noEmit": false,
     "rootDir": "src",
     "outDir": "build",
-    "declaration": true
+    "declaration": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler"
   },
   "references": [
     { "path": "../basics/tsconfig.build.json" },

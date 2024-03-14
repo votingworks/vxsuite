@@ -6,7 +6,9 @@
     "noEmit": false,
     "outDir": "build",
     "rootDir": "src",
-    "declaration": true
+    "declaration": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler"
   },
   "references": [
     { "path": "../auth/tsconfig.build.json" },
