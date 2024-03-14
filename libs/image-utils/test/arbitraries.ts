@@ -1,6 +1,6 @@
 import { assert } from '@votingworks/basics';
 import { Rect } from '@votingworks/types';
-import { createImageData, ImageData } from 'canvas';
+import { ImageData } from '@napi-rs/canvas';
 import fc from 'fast-check';
 import { int, RGBA_CHANNEL_COUNT } from '../src';
 import { assertInteger } from '../src/numeric';
@@ -64,7 +64,7 @@ export function arbitraryImageData({
         height: fc.constant(height),
       });
     })
-    .map(({ data, width, height }) => createImageData(data, width, height));
+    .map(({ data, width, height }) => new ImageData(data, width, height));
 }
 
 /**

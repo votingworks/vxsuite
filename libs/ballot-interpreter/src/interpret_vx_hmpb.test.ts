@@ -16,7 +16,7 @@ import {
 } from '@votingworks/types';
 import { sliceElectionHash } from '@votingworks/ballot-encoder';
 import { loadImageData } from '@votingworks/image-utils';
-import { createCanvas } from 'canvas';
+import { createCanvas } from '@napi-rs/canvas';
 import {
   sortVotesDict,
   ballotPdfToPageImages,

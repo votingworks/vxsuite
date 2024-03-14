@@ -4,4 +4,4 @@ export * from './image_data';
 export * from './pdf_to_images';
 export * from './jest_pdf_snapshot';
 export * from './types';
-export { createImageData } from 'canvas';
+export { ImageData } from '@napi-rs/canvas';

@@ -1,6 +1,6 @@
 import { assert, assertDefined } from '@votingworks/basics';
 import { Buffer } from 'buffer';
-import { Canvas, createCanvas, ImageData } from 'canvas';
+import { Canvas, createCanvas, ImageData } from '@napi-rs/canvas';
 import { promises as fs } from 'fs';
 import { basename, dirname, extname, join } from 'path';
 import { CanvasFactory, getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
@@ -35,7 +35,7 @@ declare module 'pdfjs-dist' {
  */
 function buildCanvasFactory(): CanvasFactory {
   return {
-    create: (width, height) => {
+    create: (width: number, height: number) => {
       assert(width > 0 && height > 0, 'Invalid canvas size');
       const canvas = createCanvas(width, height);
       const context = canvas.getContext('2d');
@@ -45,14 +45,14 @@ function buildCanvasFactory(): CanvasFactory {
       };
     },
 
-    reset: (canvasAndContext, width, height) => {
+    reset: (canvasAndContext: any, width: number, height: number) => {
       assert(canvasAndContext.canvas, 'Canvas is not specified');
       assert(width > 0 && height > 0, 'Invalid canvas size');
       canvasAndContext.canvas.width = width;
       canvasAndContext.canvas.height = height;
     },
 
-    destroy: (canvasAndContext) => {
+    destroy: (canvasAndContext: any) => {
       assert(canvasAndContext.canvas, 'Canvas is not specified');
 
       // Zeroing the width and height cause Firefox to release graphics
@@ -62,7 +62,7 @@ function buildCanvasFactory(): CanvasFactory {
       canvasAndContext.canvas = undefined;
       canvasAndContext.context = undefined;
     },
-  };
+  } as unknown as CanvasFactory;
 }
 /* eslint-enable no-param-reassign */
 
@@ -96,7 +96,7 @@ export async function* pdfToImages(
     canvas.height = viewport.height;
 
     await page.render({
-      canvasContext: context,
+      canvasContext: context as unknown as CanvasRenderingContext2D,
       viewport,
       canvasFactory: buildCanvasFactory(),
     }).promise;

@@ -6,8 +6,6 @@
     "noEmit": false,
     "rootDir": "src",
     "outDir": "build",
-    "declaration": true,
-    "module": "ESNext",
-    "moduleResolution": "Bundler"
+    "declaration": true
   }
 }

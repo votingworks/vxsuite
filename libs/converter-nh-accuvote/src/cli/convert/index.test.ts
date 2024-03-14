@@ -1,6 +1,6 @@
 import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
 import { fakeReadable, fakeWritable, mockOf } from '@votingworks/test-utils';
-import { createImageData } from 'canvas';
+import { ImageData } from '@napi-rs/canvas';
 import { readFileSync } from 'fs';
 import { fileSync } from 'tmp';
 import { err, ok } from '@votingworks/basics';
@@ -14,8 +14,8 @@ jest.mock(
   '@votingworks/image-utils',
   (): Partial<typeof import('@votingworks/image-utils')> => ({
     loadImage: jest.fn(),
-    loadImageData: jest.fn().mockReturnValue(createImageData(1, 1)),
-    toImageData: jest.fn().mockReturnValue(createImageData(1, 1)),
+    loadImageData: jest.fn().mockReturnValue(new ImageData(1, 1)),
+    toImageData: jest.fn().mockReturnValue(new ImageData(1, 1)),
   })
 );
 

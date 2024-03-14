@@ -1,6 +1,6 @@
 import { assert } from '@votingworks/basics';
 import { Rect } from '@votingworks/types';
-import { createImageData, ImageData } from 'canvas';
+import { ImageData } from '@napi-rs/canvas';
 import { RGBA_CHANNEL_COUNT, isRgba } from './image_data';
 
 /**
@@ -31,5 +31,5 @@ export function crop(imageData: ImageData, bounds: Rect): ImageData {
     );
   }
 
-  return createImageData(dst, dstWidth, dstHeight);
+  return new ImageData(dst, dstWidth, dstHeight);
 }

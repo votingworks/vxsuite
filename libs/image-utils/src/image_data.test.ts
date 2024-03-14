@@ -1,4 +1,4 @@
-import { ImageData, createImageData } from 'canvas';
+import { ImageData } from '@napi-rs/canvas';
 import fc from 'fast-check';
 import { writeFile } from 'fs/promises';
 import { fileSync } from 'tmp';
@@ -17,7 +17,7 @@ import {
 } from './image_data';
 
 test('channels', () => {
-  const rgbaImage = createImageData(1, 1);
+  const rgbaImage = new ImageData(1, 1);
   expect(getImageChannelCount(rgbaImage)).toEqual(RGBA_CHANNEL_COUNT);
   expect(isRgba(rgbaImage)).toEqual(true);
 });
@@ -32,11 +32,11 @@ test('getImageChannelCount always returns an integer', () => {
 
 test('loadImage/writeImageData', async () => {
   await expect(
-    writeImageData('/path/does/not/exist.png', createImageData(1, 1))
+    writeImageData('/path/does/not/exist.png', new ImageData(1, 1))
   ).rejects.toMatchObject({ code: 'ENOENT' });
 
   await expect(
-    writeImageData('/path/does/not/exist.jpeg', createImageData(1, 1))
+    writeImageData('/path/does/not/exist.jpeg', new ImageData(1, 1))
   ).rejects.toMatchObject({ code: 'ENOENT' });
 
   await fc.assert(
@@ -123,7 +123,7 @@ test('toDataUrl image/jpeg', async () => {
 });
 
 test('ensureImageData', () => {
-  const imageData = createImageData(1, 1);
+  const imageData = new ImageData(1, 1);
   expect(ensureImageData(imageData) === imageData).toBeTruthy();
   expect(ensureImageData(imageData)).toBeInstanceOf(ImageData);
 

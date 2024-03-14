@@ -2,11 +2,10 @@ import { Buffer } from 'buffer';
 import {
   loadImage as canvasLoadImage,
   createCanvas,
-  createImageData,
   Image,
   ImageData,
-} from 'canvas';
-import { createWriteStream } from 'fs';
+} from '@napi-rs/canvas';
+import { createWriteStream, promises as fs } from 'fs';
 import { promises as stream } from 'stream';
 import { assertInteger } from './numeric';
 import { int, usize } from './types';
@@ -25,7 +24,7 @@ export function ensureImageData(imageData: ImageData): ImageData {
   }
 
   const { data, width, height } = imageData;
-  return createImageData(data, width, height);
+  return new ImageData(data, width, height);
 }
 
 /**

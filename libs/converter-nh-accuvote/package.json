@@ -20,6 +20,7 @@
   },
   "packageManager": "pnpm@8.1.0",
   "dependencies": {
+    "@napi-rs/canvas": "^0.1.51",
     "@votingworks/ballot-interpreter": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
@@ -27,7 +28,6 @@
     "@votingworks/utils": "workspace:*",
     "@xmldom/xmldom": "^0.8.1",
     "buffer": "^6.0.3",
-    "canvas": "2.9.1",
     "chalk": "4.1.2",
     "debug": "4.3.4",
     "he": "^1.2.0",

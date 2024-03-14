@@ -1,5 +1,5 @@
 import { Rect } from '@votingworks/types';
-import { createImageData, ImageData } from 'canvas';
+import { ImageData } from '@napi-rs/canvas';
 import fc from 'fast-check';
 import { arbitraryImageData, arbitraryRect } from '../test/arbitraries';
 import { crop } from './crop';
@@ -37,11 +37,11 @@ function cropReferenceImplementation(
     }
   }
 
-  return createImageData(dst, dstWidth, dstHeight);
+  return new ImageData(dst, dstWidth, dstHeight);
 }
 
 test('crop center', () => {
-  const imageData = createImageData(
+  const imageData = new ImageData(
     Uint8ClampedArray.of(0, 0, 0, 255, 1, 0, 0, 255),
     2,
     1

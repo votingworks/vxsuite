@@ -6,7 +6,7 @@ import { Buffer } from 'buffer';
 import { mkdtempSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join, sep } from 'path';
-import { createCanvas, Image, ImageData, loadImage } from 'canvas';
+import { createCanvas, Image, ImageData, loadImage } from '@napi-rs/canvas';
 
 
 /**

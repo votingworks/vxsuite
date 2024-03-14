@@ -8,7 +8,7 @@ import {
 import { mkdir, readFile, readdir } from 'fs/promises';
 import { writeImageData } from '@votingworks/image-utils';
 import { basename, join } from 'path';
-import { createCanvas } from 'canvas';
+import { SKRSContext2D, createCanvas } from '@napi-rs/canvas';
 import { interpret } from './interpret';
 import { InterpretedBallotPage } from './types';
 
@@ -63,7 +63,7 @@ function fillTextWithBackground({
   backgroundColor,
   textColor,
 }: {
-  context: CanvasRenderingContext2D;
+  context: SKRSContext2D;
   text: string;
   x: number;
   y: number;
