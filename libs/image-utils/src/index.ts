@@ -2,7 +2,6 @@
 export * from './crop';
 export * from './count';
 export * from './debug';
-export * from './diff';
 export * from './geometry';
 export * from './image_data';
 export * from './otsu';
