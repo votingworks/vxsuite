@@ -52,7 +52,6 @@
   "devDependencies": {
     "@types/debug": "4.1.8",
     "@types/fs-extra": "11.0.1",
-    "@types/jest": "^29.5.3",
     "@types/kiosk-browser": "workspace:*",
     "@types/node": "16.18.23",
     "@types/yargs": "17.0.22",
@@ -64,12 +63,8 @@
     "fast-check": "2.23.2",
     "fs-extra": "11.1.1",
     "is-ci-cli": "2.2.0",
-    "jest": "^29.6.2",
-    "jest-junit": "^16.0.0",
-    "jest-watch-typeahead": "^2.2.2",
     "lint-staged": "11.0.0",
-    "sort-package-json": "^1.50.0",
-    "ts-jest": "29.1.1"
+    "sort-package-json": "^1.50.0"
   },
   "packageManager": "pnpm@8.1.0"
 }
