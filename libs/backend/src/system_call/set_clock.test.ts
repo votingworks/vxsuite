@@ -1,28 +1,28 @@
-import { mockOf } from '@votingworks/test-utils';
+import { beforeEach, expect, mock, test } from 'bun:test';
 import { setClock } from './set_clock';
-import { execFile } from '../exec';
 
-jest.mock('../exec', (): typeof import('../exec') => ({
-  ...jest.requireActual('../exec'),
-  execFile: jest.fn(),
-}));
+const execFile = mock();
 
-const execMock = mockOf(execFile);
+void mock.module('../exec', () => ({ execFile }));
 
-test('setClock works in daylights savings', async () => {
+beforeEach(() => {
+  execFile.mockClear();
+});
+
+test('setClock works in daylight saving time', async () => {
   await setClock({
     isoDatetime: '2020-10-03T15:00Z',
     ianaZone: 'America/Chicago',
   });
 
-  expect(execMock).toHaveBeenNthCalledWith(1, 'sudo', [
+  expect(execFile).toHaveBeenNthCalledWith(1, 'sudo', [
     '-n',
     'timedatectl',
     'set-timezone',
     'America/Chicago',
   ]);
 
-  expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
+  expect(execFile).toHaveBeenNthCalledWith(2, 'sudo', [
     '-n',
     'timedatectl',
     'set-time',
@@ -30,20 +30,20 @@ test('setClock works in daylights savings', async () => {
   ]);
 });
 
-test('setClock works in non-daylights savings', async () => {
+test('setClock works in standard time', async () => {
   await setClock({
     isoDatetime: '2020-11-03T15:00Z',
     ianaZone: 'America/Chicago',
   });
 
-  expect(execMock).toHaveBeenNthCalledWith(1, 'sudo', [
+  expect(execFile).toHaveBeenNthCalledWith(1, 'sudo', [
     '-n',
     'timedatectl',
     'set-timezone',
     'America/Chicago',
   ]);
 
-  expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
+  expect(execFile).toHaveBeenNthCalledWith(2, 'sudo', [
     '-n',
     'timedatectl',
     'set-time',
@@ -51,32 +51,32 @@ test('setClock works in non-daylights savings', async () => {
   ]);
 });
 
-test('setClock bubbles up errors', async () => {
+test('setClock bubbles up errors', () => {
   // standard error is through
-  execMock.mockRejectedValueOnce(
+  execFile.mockRejectedValueOnce(
     new Error('Failed to set time: Automatic time synchronization is enabled')
   );
 
-  await expect(
+  expect(
     setClock({
       isoDatetime: '2020-11-03T15:00Z',
       ianaZone: 'America/Chicago',
     })
-  ).rejects.toThrowError(
+  ).rejects.toThrow(
     'Failed to set time: Automatic time synchronization is enabled'
   );
 
   // error text is in stderr
-  execMock.mockRejectedValueOnce({
+  execFile.mockRejectedValueOnce({
     stderr: 'Failed to set time: Automatic time synchronization is enabled',
   });
 
-  await expect(
+  expect(
     setClock({
       isoDatetime: '2020-11-03T15:00Z',
       ianaZone: 'America/Chicago',
     })
-  ).rejects.toThrowError(
+  ).rejects.toThrow(
     'Failed to set time: Automatic time synchronization is enabled'
   );
 });
