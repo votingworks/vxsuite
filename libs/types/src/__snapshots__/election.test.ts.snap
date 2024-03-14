@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`safeParseElection shows VXF and CDF parsing errors 1`] = `
-[Error: Invalid election definition
+
+exports[`safeParseElection shows VXF and CDF parsing errors 1`] = `[Error: Invalid election definition
 
 VXF error: [
   {
@@ -92,7 +92,7 @@ CDF error: [
     "path": [
       "@type"
     ],
-    "message": "Invalid literal value, expected \\"BallotDefinition.BallotDefinition\\""
+    "message": "Invalid literal value, expected \"BallotDefinition.BallotDefinition\""
   },
   {
     "code": "invalid_type",
@@ -203,5 +203,4 @@ CDF error: [
     ],
     "message": "Invalid enum value. Expected '1.0.0'"
   }
-]]
-`;
+]]`;

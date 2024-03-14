@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { expect, test } from 'bun:test';
 import { suppressingConsoleOutput } from './console';
 
 test.each(['log', 'warn', 'error'] as const)(
@@ -18,9 +19,9 @@ test('suppressingConsoleOutput returns the value returned by the callback', () =
 });
 
 test('suppressingConsoleOutput resolves to the value returned by the callback', async () => {
-  await expect(
-    suppressingConsoleOutput(async () => await Promise.resolve('test'))
-  ).resolves.toEqual('test');
+  expect(
+    await suppressingConsoleOutput(async () => await Promise.resolve('test'))
+  ).toEqual('test');
   expect('mock' in console.log).toEqual(false);
 });
 
@@ -29,13 +30,13 @@ test('suppressingConsoleOutput throws the error thrown by the callback', () => {
     suppressingConsoleOutput(() => {
       throw new Error('test');
     })
-  ).toThrowError('test');
+  ).toThrow('test');
   expect('mock' in console.log).toEqual(false);
 });
 
 test('suppressingConsoleOutput rejects with the error thrown by the callback', async () => {
-  await expect(
+  expect(
     suppressingConsoleOutput(() => Promise.reject(new Error('test')))
-  ).rejects.toThrowError('test');
+  ).rejects.toThrow('test');
   expect('mock' in console.log).toEqual(false);
 });

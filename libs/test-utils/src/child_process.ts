@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer';
+import { mock } from 'bun:test';
 import { ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';
 import { Readable, Writable } from 'stream';
@@ -32,24 +33,24 @@ export function fakeReadable(): FakeReadable {
     pendingChunks = [];
   }
 
-  readable.resume = jest.fn(() => {
+  readable.resume = mock(() => {
     isPaused = false;
     flush();
     return readable;
   });
-  readable.pause = jest.fn(() => {
+  readable.pause = mock(() => {
     isPaused = true;
     return readable;
   });
-  readable.isPaused = jest.fn().mockImplementation(() => isPaused);
-  readable.setEncoding = jest.fn();
-  readable.append = jest.fn((chunk): void => {
+  readable.isPaused = mock().mockImplementation(() => isPaused);
+  readable.setEncoding = mock();
+  readable.append = mock((chunk): void => {
     pendingChunks.push(chunk);
     if (!isPaused) {
       flush();
     }
   });
-  readable.read = jest.fn((size): unknown => {
+  readable.read = mock((size): unknown => {
     if (typeof buffer === 'string') {
       const readSize = size ?? buffer.length;
       const result = buffer.slice(0, readSize);
@@ -59,7 +60,7 @@ export function fakeReadable(): FakeReadable {
 
     return undefined;
   });
-  readable.end = jest.fn(() => {
+  readable.end = mock(() => {
     readable.emit('end');
   });
   return readable;
@@ -73,7 +74,7 @@ export function fakeWritable(): FakeWritable {
   const writes: Array<{ chunk: unknown; encoding?: string }> = [];
 
   writable.writes = writes;
-  writable.write = jest.fn((...args: unknown[]): boolean => {
+  writable.write = mock((...args: unknown[]): boolean => {
     let chunk: unknown;
     let encoding: unknown;
     let callback: unknown;
@@ -105,7 +106,7 @@ export function fakeWritable(): FakeWritable {
     return true;
   });
 
-  writable.end = jest.fn((...args: unknown[]): FakeWritable => {
+  writable.end = mock((...args: unknown[]): FakeWritable => {
     let chunk: unknown;
     let encoding: unknown;
     let callback: unknown;
@@ -172,7 +173,7 @@ export function fakeChildProcess(): FakeChildProcess {
     stdin: fakeWritable(),
     stdout: fakeReadable(),
     stderr: fakeReadable(),
-    kill: jest.fn(),
+    kill: mock(),
   };
 
   return Object.assign(new EventEmitter(), result) as FakeChildProcess;

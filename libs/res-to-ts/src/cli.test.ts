@@ -1,3 +1,4 @@
+import { test, expect } from 'bun:test';
 import { fakeReadable, fakeWritable } from '@votingworks/test-utils';
 import { dirSync, fileSync } from 'tmp';
 import { promises as fs } from 'fs';
@@ -28,16 +29,7 @@ test('-h', async () => {
     exitCode,
     stdout: stdio.stdout.toString(),
     stderr: stdio.stderr.toString(),
-  }).toMatchInlineSnapshot(`
-    {
-      "exitCode": 0,
-      "stderr": "",
-      "stdout": "usage: res-to-ts [--help] [--check] FILE [… FILE]
-
-    Converts resources to be usable as TypeScript files.
-    ",
-    }
-  `);
+  }).toMatchSnapshot();
 });
 
 test('--help', async () => {
@@ -52,16 +44,7 @@ test('--help', async () => {
     exitCode,
     stdout: stdio.stdout.toString(),
     stderr: stdio.stderr.toString(),
-  }).toMatchInlineSnapshot(`
-    {
-      "exitCode": 0,
-      "stderr": "",
-      "stdout": "usage: res-to-ts [--help] [--check] FILE [… FILE]
-
-    Converts resources to be usable as TypeScript files.
-    ",
-    }
-  `);
+  }).toMatchSnapshot();
 });
 
 test('invalid option', async () => {
@@ -79,17 +62,7 @@ test('invalid option', async () => {
     exitCode,
     stdout: stdio.stdout.toString(),
     stderr: stdio.stderr.toString(),
-  }).toMatchInlineSnapshot(`
-    {
-      "exitCode": 1,
-      "stderr": "error: unrecognized option: --invalid
-    usage: res-to-ts [--help] [--check] FILE [… FILE]
-
-    Converts resources to be usable as TypeScript files.
-    ",
-      "stdout": "",
-    }
-  `);
+  }).toMatchSnapshot();
 });
 
 test('missing rootDir', async () => {
@@ -107,17 +80,7 @@ test('missing rootDir', async () => {
     exitCode,
     stdout: stdio.stdout.toString(),
     stderr: stdio.stderr.toString(),
-  }).toMatchInlineSnapshot(`
-    {
-      "exitCode": 1,
-      "stderr": "error: missing root directory after '--rootDir'
-    usage: res-to-ts [--help] [--check] FILE [… FILE]
-
-    Converts resources to be usable as TypeScript files.
-    ",
-      "stdout": "",
-    }
-  `);
+  }).toMatchSnapshot();
 });
 
 test('missing outDir', async () => {
@@ -135,17 +98,7 @@ test('missing outDir', async () => {
     exitCode,
     stdout: stdio.stdout.toString(),
     stderr: stdio.stderr.toString(),
-  }).toMatchInlineSnapshot(`
-    {
-      "exitCode": 1,
-      "stderr": "error: missing output directory after '--outDir'
-    usage: res-to-ts [--help] [--check] FILE [… FILE]
-
-    Converts resources to be usable as TypeScript files.
-    ",
-      "stdout": "",
-    }
-  `);
+  }).toMatchSnapshot();
 });
 
 test('no files given', async () => {

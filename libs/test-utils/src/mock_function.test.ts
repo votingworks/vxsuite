@@ -1,5 +1,7 @@
 /* eslint-disable vx/gts-unicode-escapes */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { describe, expect, it } from 'bun:test';
+import { assert } from '@votingworks/basics';
 import { mockFunction } from './mock_function';
 
 describe('mockFunction', () => {
@@ -41,8 +43,8 @@ describe('mockFunction', () => {
     const addMock = mockFunction<typeof add>('add');
     addMock.expectCallWith(1, 2).returns(3);
     expect(addMock(1, 2)).toEqual(3);
-    expect(() => addMock(1, 2)).toThrowErrorMatchingInlineSnapshot(
-      `"Unexpected call to mock function: add(1, 2)"`
+    expect(() => addMock(1, 2)).toThrow(
+      'Unexpected call to mock function: add(1, 2)'
     );
   });
 
@@ -50,19 +52,21 @@ describe('mockFunction', () => {
     const addMock = mockFunction<typeof add>('add');
     addMock.expectCallWith(1, 2).returns(3);
     addMock.expectCallWith(1, 3).returns(4);
-    expect(() => addMock(1, 3)).toThrowErrorMatchingInlineSnapshot(`
-      "Mismatched call to mock function:
-      Expected: add(1, 2)
-      Actual: add(1, 3)
-      Input diff: [32m- Expected[39m
-      [31m+ Received[39m
-
-      [2m  Array [[22m
-      [2m    1,[22m
-      [32m-   2,[39m
-      [31m+   3,[39m
-      [2m  ][22m"
-    `);
+    expect(() => addMock(1, 3)).toThrow(
+      [
+        `Mismatched call to mock function:`,
+        `Expected: add(1, 2)`,
+        `Actual: add(1, 3)`,
+        `Input diff: [32m- Expected[39m`,
+        `[31m+ Received[39m`,
+        ``,
+        `[2m  Array [[22m`,
+        `[2m    1,[22m`,
+        `[32m-   2,[39m`,
+        `[31m+   3,[39m`,
+        `[2m  ][22m`,
+      ].join('\n')
+    );
   });
 
   it('supports all different types of arguments', () => {
@@ -87,8 +91,8 @@ describe('mockFunction', () => {
     ).toEqual('success');
     expect(() =>
       funcMock('a', 1, true, null, undefined, { foo: 'bar' }, [1, 2])
-    ).toThrowErrorMatchingInlineSnapshot(
-      `"Unexpected call to mock function: funcWithManyTypes('a', 1, true, null, undefined, { foo: 'bar' }, [ 1, 2 ])"`
+    ).toThrow(
+      `Unexpected call to mock function: funcWithManyTypes('a', 1, true, null, undefined, { foo: 'bar' }, [ 1, 2 ])`
     );
     funcMock.reset();
     funcMock
@@ -96,29 +100,31 @@ describe('mockFunction', () => {
       .returns('success');
     expect(() =>
       funcMock('a', 1, true, null, undefined, { foo: 'wrong' }, [1, 2])
-    ).toThrowErrorMatchingInlineSnapshot(`
-      "Mismatched call to mock function:
-      Expected: funcWithManyTypes('a', 1, true, null, undefined, { foo: 'bar' }, [ 1, 2 ])
-      Actual: funcWithManyTypes('a', 1, true, null, undefined, { foo: 'wrong' }, [ 1, 2 ])
-      Input diff: [32m- Expected[39m
-      [31m+ Received[39m
-
-      [2m  Array [[22m
-      [2m    "a",[22m
-      [2m    1,[22m
-      [2m    true,[22m
-      [2m    null,[22m
-      [2m    undefined,[22m
-      [2m    Object {[22m
-      [32m-     "foo": "bar",[39m
-      [31m+     "foo": "wrong",[39m
-      [2m    },[22m
-      [2m    Array [[22m
-      [2m      1,[22m
-      [2m      2,[22m
-      [2m    ],[22m
-      [2m  ][22m"
-    `);
+    ).toThrow(
+      [
+        `Mismatched call to mock function:`,
+        `Expected: funcWithManyTypes('a', 1, true, null, undefined, { foo: 'bar' }, [ 1, 2 ])`,
+        `Actual: funcWithManyTypes('a', 1, true, null, undefined, { foo: 'wrong' }, [ 1, 2 ])`,
+        `Input diff: [32m- Expected[39m`,
+        `[31m+ Received[39m`,
+        ``,
+        `[2m  Array [[22m`,
+        `[2m    "a",[22m`,
+        `[2m    1,[22m`,
+        `[2m    true,[22m`,
+        `[2m    null,[22m`,
+        `[2m    undefined,[22m`,
+        `[2m    Object {[22m`,
+        `[32m-     "foo": "bar",[39m`,
+        `[31m+     "foo": "wrong",[39m`,
+        `[2m    },[22m`,
+        `[2m    Array [[22m`,
+        `[2m      1,[22m`,
+        `[2m      2,[22m`,
+        `[2m    ],[22m`,
+        `[2m  ][22m`,
+      ].join('\n')
+    );
   });
 
   it('enforces correct types', () => {
@@ -169,19 +175,21 @@ describe('mockFunction', () => {
     const addMock = mockFunction<typeof add>('add');
     addMock.expectRepeatedCallsWith(1, 2).returns(3);
     expect(addMock(1, 2)).toEqual(3);
-    expect(() => addMock(1, 3)).toThrowErrorMatchingInlineSnapshot(`
-      "Mismatched call to mock function:
-      Expected: add(1, 2) (repeated)
-      Actual: add(1, 3)
-      Input diff: [32m- Expected[39m
-      [31m+ Received[39m
-
-      [2m  Array [[22m
-      [2m    1,[22m
-      [32m-   2,[39m
-      [31m+   3,[39m
-      [2m  ][22m"
-    `);
+    expect(() => addMock(1, 3)).toThrow(
+      [
+        `Mismatched call to mock function:`,
+        `Expected: add(1, 2) (repeated)`,
+        `Actual: add(1, 3)`,
+        `Input diff: [32m- Expected[39m`,
+        `[31m+ Received[39m`,
+        ``,
+        `[2m  Array [[22m`,
+        `[2m    1,[22m`,
+        `[32m-   2,[39m`,
+        `[31m+   3,[39m`,
+        `[2m  ][22m`,
+      ].join('\n')
+    );
   });
 
   it('assertComplete errors if not all expected calls are used', () => {
@@ -189,17 +197,19 @@ describe('mockFunction', () => {
     addMock.expectCallWith(1, 2).returns(3);
     addMock.expectCallWith(2, 2).returns(4);
     addMock(1, 2);
-    expect(() => addMock.assertComplete()).toThrowErrorMatchingInlineSnapshot(`
-      "Mismatch between expected mock function calls and actual mock function calls:
-
-      Call #0
-      Expected: add(1, 2)
-      Actual: add(1, 2)
-
-      Call #1
-      Expected: add(2, 2)
-      Actual: <none>"
-    `);
+    expect(() => addMock.assertComplete()).toThrow(
+      [
+        `Mismatch between expected mock function calls and actual mock function calls:`,
+        ``,
+        `Call #0`,
+        `Expected: add(1, 2)`,
+        `Actual: add(1, 2)`,
+        ``,
+        `Call #1`,
+        `Expected: add(2, 2)`,
+        `Actual: <none>`,
+      ].join('\n')
+    );
   });
 
   it('assertComplete errors if not all repeated expected calls are used', () => {
@@ -207,17 +217,19 @@ describe('mockFunction', () => {
     addMock.expectCallWith(1, 2).returns(3);
     addMock.expectRepeatedCallsWith(2, 2).returns(4);
     addMock(1, 2);
-    expect(() => addMock.assertComplete()).toThrowErrorMatchingInlineSnapshot(`
-      "Mismatch between expected mock function calls and actual mock function calls:
-
-      Call #0
-      Expected: add(1, 2)
-      Actual: add(1, 2)
-
-      Call #1
-      Expected: add(2, 2) (repeated)
-      Actual: <none>"
-    `);
+    expect(() => addMock.assertComplete()).toThrow(
+      [
+        `Mismatch between expected mock function calls and actual mock function calls:`,
+        ``,
+        `Call #0`,
+        `Expected: add(1, 2)`,
+        `Actual: add(1, 2)`,
+        ``,
+        `Call #1`,
+        `Expected: add(2, 2) (repeated)`,
+        `Actual: <none>`,
+      ].join('\n')
+    );
   });
 
   it('assertComplete errors if there are unexpected calls', () => {
@@ -225,17 +237,19 @@ describe('mockFunction', () => {
     addMock.expectCallWith(1, 2).returns(3);
     expect(addMock(1, 2)).toEqual(3);
     expect(() => addMock(1, 3)).toThrow();
-    expect(() => addMock.assertComplete()).toThrowErrorMatchingInlineSnapshot(`
-      "Mismatch between expected mock function calls and actual mock function calls:
-
-      Call #0
-      Expected: add(1, 2)
-      Actual: add(1, 2)
-
-      Call #1
-      Expected: <none>
-      Actual: add(1, 3)"
-    `);
+    expect(() => addMock.assertComplete()).toThrow(
+      [
+        `Mismatch between expected mock function calls and actual mock function calls:`,
+        ``,
+        `Call #0`,
+        `Expected: add(1, 2)`,
+        `Actual: add(1, 2)`,
+        ``,
+        `Call #1`,
+        `Expected: <none>`,
+        `Actual: add(1, 3)`,
+      ].join('\n')
+    );
   });
 
   it('assertComplete errors if there are unexpected calls with repeated calls', () => {
@@ -243,25 +257,27 @@ describe('mockFunction', () => {
     addMock.expectRepeatedCallsWith(1, 2).returns(3);
     expect(addMock(1, 2)).toEqual(3);
     expect(() => addMock(1, 3)).toThrow();
-    expect(() => addMock.assertComplete()).toThrowErrorMatchingInlineSnapshot(`
-      "Mismatch between expected mock function calls and actual mock function calls:
-
-      Call #0
-      Expected: add(1, 2) (repeated)
-      Actual: add(1, 2)
-
-      Call #1
-      Expected: add(1, 2) (repeated)
-      Actual: add(1, 3)
-      Input diff: [32m- Expected[39m
-      [31m+ Received[39m
-
-      [2m  Array [[22m
-      [2m    1,[22m
-      [32m-   2,[39m
-      [31m+   3,[39m
-      [2m  ][22m"
-    `);
+    expect(() => addMock.assertComplete()).toThrow(
+      [
+        `Mismatch between expected mock function calls and actual mock function calls:`,
+        ``,
+        `Call #0`,
+        `Expected: add(1, 2) (repeated)`,
+        `Actual: add(1, 2)`,
+        ``,
+        `Call #1`,
+        `Expected: add(1, 2) (repeated)`,
+        `Actual: add(1, 3)`,
+        `Input diff: [32m- Expected[39m`,
+        `[31m+ Received[39m`,
+        ``,
+        `[2m  Array [[22m`,
+        `[2m    1,[22m`,
+        `[32m-   2,[39m`,
+        `[31m+   3,[39m`,
+        `[2m  ][22m`,
+      ].join('\n')
+    );
   });
 
   it('assertComplete errors if there are mismatched calls', () => {
@@ -270,21 +286,23 @@ describe('mockFunction', () => {
     addMock.expectCallWith(1, 3).returns(4);
     expect(() => addMock(1, 3)).toThrow();
     expect(() => addMock(1, 2)).toThrow();
-    expect(() => addMock.assertComplete()).toThrowErrorMatchingInlineSnapshot(`
-      "Mismatch between expected mock function calls and actual mock function calls:
-
-      Call #0
-      Expected: add(1, 2)
-      Actual: add(1, 3)
-      Input diff: [32m- Expected[39m
-      [31m+ Received[39m
-
-      [2m  Array [[22m
-      [2m    1,[22m
-      [32m-   2,[39m
-      [31m+   3,[39m
-      [2m  ][22m"
-    `);
+    expect(() => addMock.assertComplete()).toThrow(
+      [
+        `Mismatch between expected mock function calls and actual mock function calls:`,
+        ``,
+        `Call #0`,
+        `Expected: add(1, 2)`,
+        `Actual: add(1, 3)`,
+        `Input diff: [32m- Expected[39m`,
+        `[31m+ Received[39m`,
+        ``,
+        `[2m  Array [[22m`,
+        `[2m    1,[22m`,
+        `[32m-   2,[39m`,
+        `[31m+   3,[39m`,
+        `[2m  ][22m`,
+      ].join('\n')
+    );
   });
 
   it('assertComplete errors if there are mismatched calls with repeated calls', () => {
@@ -293,21 +311,23 @@ describe('mockFunction', () => {
     addMock.expectCallWith(1, 2).returns(3);
     expect(() => addMock(1, 2)).toThrow();
     expect(() => addMock(1, 3)).toThrow();
-    expect(() => addMock.assertComplete()).toThrowErrorMatchingInlineSnapshot(`
-      "Mismatch between expected mock function calls and actual mock function calls:
-
-      Call #0
-      Expected: add(1, 3) (repeated)
-      Actual: add(1, 2)
-      Input diff: [32m- Expected[39m
-      [31m+ Received[39m
-
-      [2m  Array [[22m
-      [2m    1,[22m
-      [32m-   3,[39m
-      [31m+   2,[39m
-      [2m  ][22m"
-    `);
+    expect(() => addMock.assertComplete()).toThrow(
+      [
+        `Mismatch between expected mock function calls and actual mock function calls:`,
+        ``,
+        `Call #0`,
+        `Expected: add(1, 3) (repeated)`,
+        `Actual: add(1, 2)`,
+        `Input diff: [32m- Expected[39m`,
+        `[31m+ Received[39m`,
+        ``,
+        `[2m  Array [[22m`,
+        `[2m    1,[22m`,
+        `[32m-   3,[39m`,
+        `[31m+   2,[39m`,
+        `[2m  ][22m`,
+      ].join('\n')
+    );
   });
 
   it('reset clears the mock state', () => {

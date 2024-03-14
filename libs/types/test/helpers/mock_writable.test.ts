@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer';
+import { expect, mock, test } from 'bun:test';
 import { mockWritable } from './mock_writable';
 
 test('fakeWritable', async () => {
@@ -15,7 +16,7 @@ test('fakeWritable', async () => {
   expect(writable.toString()).toEqual('\x01\x02\x03hi!'); // mirrors `Buffer.of(1, 2, 3, 104, 105, 33)`
 
   {
-    const writeCallback = jest.fn();
+    const writeCallback = mock();
     writable.write('', 'utf-8', writeCallback);
     await new Promise((resolve) => {
       process.nextTick(resolve);
@@ -24,7 +25,7 @@ test('fakeWritable', async () => {
   }
 
   {
-    const writeCallback = jest.fn();
+    const writeCallback = mock();
     writable.write('', writeCallback);
     await new Promise((resolve) => {
       process.nextTick(resolve);
@@ -37,7 +38,7 @@ test('fakeWritable', async () => {
     'encoding expected to be a string'
   );
 
-  const endCallback = jest.fn();
+  const endCallback = mock();
   writable.end(endCallback);
   await new Promise((resolve) => {
     process.nextTick(resolve);

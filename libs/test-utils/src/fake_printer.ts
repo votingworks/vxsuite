@@ -1,3 +1,4 @@
+import { mock } from 'bun:test';
 import { Printer } from '@votingworks/types';
 
 export function fakePrinter({
@@ -7,7 +8,7 @@ export function fakePrinter({
   ...rest
 }: Partial<Printer> = {}): jest.Mocked<Printer> {
   return {
-    print: jest.fn(print),
+    print: mock(print),
     ...rest,
   };
 }

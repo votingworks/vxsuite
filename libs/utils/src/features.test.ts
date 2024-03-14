@@ -9,7 +9,7 @@ describe('features', () => {
   const { env } = process;
 
   beforeEach(() => {
-    jest.resetModules();
+    // jest.resetModules();
     process.env = { ...env };
   });
 

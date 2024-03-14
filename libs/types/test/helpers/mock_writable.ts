@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer';
+import { mock } from 'bun:test';
 import { EventEmitter } from 'events';
 import { Writable } from 'stream';
 
@@ -19,7 +20,7 @@ export function mockWritable(): MockWritable {
   const writes: Array<{ chunk: unknown; encoding?: string }> = [];
 
   writable.writes = writes;
-  writable.write = jest.fn((...args: unknown[]): boolean => {
+  writable.write = mock((...args: unknown[]): boolean => {
     let chunk: unknown;
     let encoding: unknown;
     let callback: unknown;
@@ -51,7 +52,7 @@ export function mockWritable(): MockWritable {
     return true;
   });
 
-  writable.end = jest.fn((...args: unknown[]): MockWritable => {
+  writable.end = mock((...args: unknown[]): MockWritable => {
     let chunk: unknown;
     let encoding: unknown;
     let callback: unknown;

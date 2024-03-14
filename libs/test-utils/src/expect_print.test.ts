@@ -1,7 +1,4 @@
-/**
- * @jest-environment jsdom
- */
-
+import { beforeEach, describe, expect, test } from 'bun:test';
 import { render, screen } from '@testing-library/react';
 import { ElementWithCallback, PrintOptions } from '@votingworks/types';
 import React from 'react';
@@ -37,8 +34,6 @@ const simpleElementWithCallback = getElementWithCallback('simple');
 const fakeOptions: PrintOptions = { sides: 'one-sided' };
 
 test('fakePrintElement functions throw errors on un-asserted elements', async () => {
-  expect.assertions(4);
-
   try {
     await fakePrintElement(simpleElement, fakeOptions);
     await fakePrintElement(simpleElement, fakeOptions);
@@ -94,7 +89,6 @@ describe('expectTestToEndWithAllPrintsAsserted', () => {
 
 describe('expectPrint', () => {
   test('throws error if no prints', async () => {
-    expect.assertions(1);
     try {
       await expectPrint();
     } catch (e) {
@@ -137,7 +131,6 @@ describe('expectPrint', () => {
   });
 
   test('can access printOptions', async () => {
-    expect.assertions(1);
     await fakePrintElement(simpleElement, { sides: 'two-sided-long-edge' });
     await expectPrint((_printedElement, printOptions) => {
       expect(printOptions).toMatchObject({ sides: 'two-sided-long-edge' });
@@ -145,7 +138,6 @@ describe('expectPrint', () => {
   });
 
   test('error messages do not include full DOM', async () => {
-    expect.assertions(1);
     render(getElement('screen'));
     screen.getByText('screen');
     await fakePrintElement(simpleElement, { sides: 'two-sided-long-edge' });
@@ -174,8 +166,6 @@ describe('expectPrint', () => {
 });
 
 test('simulateErrorOnNextPrint', async () => {
-  expect.assertions(3);
-
   // Works for fakePrintElement
   simulateErrorOnNextPrint();
   try {
@@ -202,8 +192,6 @@ test('simulateErrorOnNextPrint', async () => {
 });
 
 test('deferNextPrint', async () => {
-  expect.assertions(1);
-
   const { resolve } = deferNextPrint();
   const printPromise = fakePrintElement(simpleElement, fakeOptions);
 

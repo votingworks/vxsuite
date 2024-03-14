@@ -1,9 +1,3 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`expectPrintToMatchSnapshot 1`] = `
-<div>
-  <div>
-    simple
-  </div>
-</div>
-`;
+exports[`expectPrintToMatchSnapshot 1`] = `"<div><div>simple</div></div>"`;

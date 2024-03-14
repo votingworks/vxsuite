@@ -1,6 +1,10 @@
 import fetchMock from 'fetch-mock';
 import { fetchJson } from './fetch_json';
 
+beforeEach(() => {
+  fetchMock.reset();
+});
+
 test('passes the URL through as-is to fetch', async () => {
   fetchMock.getOnce((url) => {
     expect(url).toEqual('/example');

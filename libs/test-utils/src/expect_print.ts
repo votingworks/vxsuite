@@ -1,6 +1,7 @@
 import { render, RenderResult, waitFor } from '@testing-library/react';
-import { ElementWithCallback, PrintOptions } from '@votingworks/types';
 import { assert, deferred, Optional } from '@votingworks/basics';
+import { ElementWithCallback, PrintOptions } from '@votingworks/types';
+import { expect } from 'bun:test';
 
 export class ExpectPrintError extends Error {}
 
@@ -302,6 +303,6 @@ export async function expectPrintToPdf(
  */
 export async function expectPrintToMatchSnapshot(): Promise<void> {
   await expectPrint((printedElement) => {
-    expect(printedElement.container).toMatchSnapshot();
+    expect(printedElement.container.outerHTML).toMatchSnapshot();
   });
 }

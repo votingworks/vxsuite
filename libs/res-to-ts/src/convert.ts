@@ -83,7 +83,7 @@ export async function convert({
 
   if (isImageResource) {
     lines.push(
-      `import { createCanvas, Image, ImageData, loadImage } from 'canvas';`,
+      `import { createCanvas, Image, ImageData, loadImage } from '@napi-rs/canvas';`,
       ``
     );
   }
