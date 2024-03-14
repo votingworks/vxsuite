@@ -1,6 +1,6 @@
 import { assert, assertDefined } from '@votingworks/basics';
 import { Buffer } from 'buffer';
-import { Canvas, createCanvas } from 'canvas';
+import { Canvas, createCanvas, ImageData } from 'canvas';
 import { promises as fs } from 'fs';
 import { basename, dirname, extname, join } from 'path';
 import { CanvasFactory, getDocument, GlobalWorkerOptions } from 'pdfjs-dist';

@@ -1,25 +1,9 @@
-import { Rect } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
-import { createImageData } from 'canvas';
+import { Rect } from '@votingworks/types';
+import { createImageData, ImageData } from 'canvas';
 import fc from 'fast-check';
-import {
-  GRAY_CHANNEL_COUNT,
-  int,
-  RGBA_CHANNEL_COUNT,
-  RGB_CHANNEL_COUNT,
-} from '../src';
+import { int, RGBA_CHANNEL_COUNT } from '../src';
 import { assertInteger } from '../src/numeric';
-
-/**
- * Returns an arbitrary image channel count.
- */
-export function arbitraryChannelCount(): fc.Arbitrary<int> {
-  return fc.constantFrom(
-    GRAY_CHANNEL_COUNT,
-    RGB_CHANNEL_COUNT,
-    RGBA_CHANNEL_COUNT
-  );
-}
 
 /**
  * Options for building an arbitrary image data.
@@ -27,7 +11,6 @@ export function arbitraryChannelCount(): fc.Arbitrary<int> {
 export interface ArbitraryImageDataOptions {
   readonly width?: int | fc.Arbitrary<int>;
   readonly height?: int | fc.Arbitrary<int>;
-  readonly channels?: int | fc.Arbitrary<int>;
   readonly pixels?: fc.Arbitrary<int>;
 }
 
@@ -37,7 +20,6 @@ export interface ArbitraryImageDataOptions {
 export function arbitraryImageData({
   width: arbitraryWidth = fc.integer({ min: 1, max: 20 }),
   height: arbitraryHeight = fc.integer({ min: 1, max: 20 }),
-  channels: arbitraryChannels = arbitraryChannelCount(),
   pixels: arbitraryPixels = fc.integer({ min: 0, max: 255 }),
 }: ArbitraryImageDataOptions = {}): fc.Arbitrary<ImageData> {
   return fc
@@ -50,20 +32,14 @@ export function arbitraryImageData({
         typeof arbitraryHeight === 'number'
           ? fc.constant(arbitraryHeight)
           : arbitraryHeight,
-      channels:
-        typeof arbitraryChannels === 'number'
-          ? fc.constant(arbitraryChannels)
-          : arbitraryChannels,
     })
-    .chain(({ width, height, channels }) => {
+    .chain(({ width, height }) => {
       assert(width >= 1);
       assert(height >= 1);
-      assert(channels >= 1);
       assertInteger(width);
       assertInteger(height);
-      assertInteger(channels);
 
-      const dataLength = width * height * channels;
+      const dataLength = width * height * RGBA_CHANNEL_COUNT;
       return fc.record({
         data: fc
           .array(arbitraryPixels, {
@@ -74,10 +50,12 @@ export function arbitraryImageData({
             const uint8s = Uint8ClampedArray.from(data);
 
             // make opaque by always setting alpha to 255
-            if (channels === RGBA_CHANNEL_COUNT) {
-              for (let i = 3; i < data.length; i += channels) {
-                uint8s[i] = 255;
-              }
+            for (
+              let i = RGBA_CHANNEL_COUNT - 1;
+              i < data.length;
+              i += RGBA_CHANNEL_COUNT
+            ) {
+              uint8s[i] = 255;
             }
 
             return uint8s;
@@ -143,13 +121,4 @@ export function arbitraryRect({
           })
         )
     );
-}
-
-/**
- * Builds an arbitrary RGBA image data object.
- */
-export function arbitraryImageDataRgba(
-  options: Omit<ArbitraryImageDataOptions, 'channels'> = {}
-): fc.Arbitrary<ImageData> {
-  return arbitraryImageData({ ...options, channels: RGBA_CHANNEL_COUNT });
 }
