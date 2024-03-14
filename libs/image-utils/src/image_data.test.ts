@@ -17,7 +17,6 @@ import {
   RGBA_CHANNEL_COUNT,
   RGB_CHANNEL_COUNT,
   toDataUrl,
-  toGrayscale,
   toImageData,
   toRgba,
   writeImageData,
@@ -192,30 +191,6 @@ test('toRgba', () => {
           );
         } else {
           toRgba(imageData).unsafeUnwrapErr();
-        }
-      }
-    )
-  );
-});
-
-test('toGrayscale', () => {
-  fc.assert(
-    fc.property(
-      fc.integer({ min: 1, max: 10 }).chain((channels) =>
-        fc.record({
-          channels: fc.constant(channels),
-          imageData: arbitraryImageData({ channels }),
-        })
-      ),
-      ({ channels, imageData }) => {
-        if (channels === GRAY_CHANNEL_COUNT) {
-          expect(toGrayscale(imageData).unsafeUnwrap()).toEqual(imageData);
-        } else if (channels === RGBA_CHANNEL_COUNT) {
-          expect(toGrayscale(imageData).unsafeUnwrap().data).toHaveLength(
-            imageData.width * imageData.height * GRAY_CHANNEL_COUNT
-          );
-        } else {
-          toGrayscale(imageData).unsafeUnwrapErr();
         }
       }
     )
