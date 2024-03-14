@@ -2,7 +2,6 @@
 export * from './crop';
 export * from './count';
 export * from './image_data';
-export * from './outline';
 export * from './pdf_to_images';
 export * from './jest_pdf_snapshot';
 export * from './types';
