@@ -1,3 +1,4 @@
+import { ImageData } from '@votingworks/image-utils';
 import { DOMParser } from '@xmldom/xmldom';
 import { NewHampshireBallotCardDefinition } from '../../src/convert/types';
 

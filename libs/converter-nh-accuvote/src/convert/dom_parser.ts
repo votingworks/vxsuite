@@ -1,10 +1,10 @@
-import { JSDOM } from 'jsdom';
+import { Window, IHTMLElement } from 'happy-dom';
 
 /**
  * Parses HTML into an Element.
  */
-export function parseHtml(input: string): Element {
-  // otherwise use JSDOM, which is available in Node.js but not the browser
-  const jsdom = new JSDOM(input);
-  return jsdom.window.document.body;
+export function parseHtml(input: string): IHTMLElement {
+  const window = new Window();
+  window.document.body.innerHTML = input;
+  return window.document.body;
 }

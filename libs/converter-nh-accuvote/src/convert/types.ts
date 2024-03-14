@@ -1,3 +1,4 @@
+import { ImageData } from '@votingworks/image-utils';
 import { Result } from '@votingworks/basics';
 import {
   BallotPaperSize,
