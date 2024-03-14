@@ -1,5 +1,4 @@
 /* istanbul ignore file - this file should only have exports, no logic to test */
-export * from './binarize';
 export * from './crop';
 export * from './count';
 export * from './debug';
