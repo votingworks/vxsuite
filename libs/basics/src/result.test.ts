@@ -228,9 +228,9 @@ test('asyncResultBlock ok result', async () => {
 });
 
 test('asyncResultBlock thrown error', async () => {
-  await expect(() =>
+  await expect(
     asyncResultBlock(() => Promise.reject(new Error('err')))
-  ).rejects.toThrowError('err');
+  ).rejects.toThrow('err');
 });
 
 test('asyncResultBlock early return', async () => {
