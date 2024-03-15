@@ -21,11 +21,9 @@
   "packageManager": "pnpm@8.1.0",
   "dependencies": {
     "@votingworks/basics": "workspace:*",
-    "better-sqlite3": "8.2.0",
     "debug": "4.3.4"
   },
   "devDependencies": {
-    "@types/better-sqlite3": "7.6.3",
     "@types/debug": "4.1.8",
     "@types/node": "16.18.23",
     "@types/tmp": "0.2.4",

@@ -1,21 +1,12 @@
 import { assert } from '@votingworks/basics';
-import { Buffer } from 'buffer';
 import { createHash } from 'crypto';
 import makeDebug from 'debug';
 import * as fs from 'fs';
-import Database = require('better-sqlite3');
-
-type Database = Database.Database;
+import { Database, SQLQueryBindings } from 'bun:sqlite';
 
 const debug = makeDebug('db-client');
 
 const MEMORY_DB_PATH = ':memory:';
-
-/**
- * Types supported for database values, i.e. what can be passed to `one`, `all`,
- * `run`, etc. and substituted into the query.
- */
-export type Bindable = string | number | bigint | Buffer | null;
 
 /**
  * Manages a connection for a SQLite database.
@@ -42,7 +33,7 @@ export class Client {
    * Determines whether this client is connected to an in-memory database.
    */
   isMemoryDatabase(): boolean {
-    return this.getDatabase().memory;
+    return this.getDatabase().filename === MEMORY_DB_PATH;
   }
 
   /**
@@ -181,9 +172,13 @@ export class Client {
    *
    * client.run('insert into muppets (name) values (?)', 'Kermit')
    */
-  run<P extends Bindable[]>(sql: string, ...params: P): void {
+  run<ParamsType extends SQLQueryBindings[]>(
+    sql: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...params: ParamsType extends any[] ? ParamsType : [ParamsType]
+  ): void {
     const db = this.getDatabase();
-    const stmt = db.prepare<P>(sql);
+    const stmt = db.prepare<void, ParamsType>(sql);
     stmt.run(...params);
   }
 
@@ -211,22 +206,28 @@ export class Client {
    *
    * client.all('select * from muppets')
    */
-  all<P extends Bindable[] = []>(sql: string, ...params: P): unknown[] {
+  all<ParamsType extends SQLQueryBindings[] = []>(
+    sql: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...params: ParamsType extends any[] ? ParamsType : [ParamsType]
+  ): unknown[] {
     const db = this.getDatabase();
-    const stmt = db.prepare<P>(sql);
+    const stmt = db.prepare<unknown, ParamsType>(sql);
     return stmt.all(...params);
   }
 
   /**
    * Runs `sql` to iterate over rows.
    */
-  each<P extends Bindable[] = []>(
+  each<ParamsType extends SQLQueryBindings[] = []>(
     sql: string,
-    ...params: P
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...params: ParamsType extends any[] ? ParamsType : [ParamsType]
   ): IterableIterator<unknown> {
     const db = this.getDatabase();
-    const stmt = db.prepare<P>(sql);
-    return stmt.iterate(...params);
+    const stmt = db.prepare<unknown, ParamsType>(sql);
+    // TODO: replace with stmt.iterate(...params) once https://github.com/oven-sh/bun/issues/8507 is resolved
+    return stmt.all(...params)[Symbol.iterator]();
   }
 
   /**
@@ -236,9 +237,13 @@ export class Client {
    *
    * client.one('select count(*) as count from muppets')
    */
-  one<P extends Bindable[] = []>(sql: string, ...params: P): unknown {
+  one<ParamsType extends SQLQueryBindings[] = []>(
+    sql: string,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ...params: ParamsType extends any[] ? ParamsType : [ParamsType]
+  ): unknown {
     const db = this.getDatabase();
-    const stmt = db.prepare<P>(sql);
+    const stmt = db.prepare<unknown, ParamsType>(sql);
     return stmt.get(...params);
   }
 

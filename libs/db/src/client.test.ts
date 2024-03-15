@@ -34,7 +34,7 @@ test('file database client', () => {
   ]);
 
   client.destroy();
-  expect(() => fs.accessSync(dbFile.name)).toThrowError('ENOENT');
+  expect(() => fs.accessSync(dbFile.name)).toThrow();
 });
 
 test('file database client with a schema', () => {
@@ -103,7 +103,7 @@ test('read/write', () => {
     'create table if not exists muppets (name varchar(255) unique not null)'
   );
   expect(client.all('select * from muppets')).toEqual([]);
-  expect(client.one('select * from muppets')).toBeUndefined();
+  expect(client.one('select * from muppets')).toBeFalsy();
 
   client.run('insert into muppets (name) values (?)', 'Kermit');
   client.run('insert into muppets (name) values (?)', 'Fozzie');
@@ -149,7 +149,7 @@ test('transactions', async () => {
   });
 
   // Should roll back on async exception:
-  await expect(() =>
+  await expect(
     client.transaction(() => {
       client.run('insert into muppets (name) values (?)', 'Fozzie');
       expect(client.one('select count(*) as count from muppets')).toEqual({

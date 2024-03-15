@@ -21,7 +21,7 @@ import {
   safeParseSystemSettings,
 } from '@votingworks/types';
 import { jsonStream } from '@votingworks/utils';
-import Sqlite3 from 'better-sqlite3';
+import { Database } from 'bun:sqlite';
 import chalk from 'chalk';
 import { promises as fs } from 'fs';
 import { basename, dirname, isAbsolute, join } from 'path';
@@ -127,21 +127,21 @@ function prettyPrintInterpretation({
             ? candidate?.name ?? gridPosition.optionId
             : `Write-In #${gridPosition.writeInIndex + 1}`
           : contest.type === 'yesno'
-          ? gridPosition.type === 'option' &&
-            gridPosition.optionId === contest.yesOption.id
-            ? contest.yesOption.label
-            : contest.noOption.label
-          : 'Unknown';
+            ? gridPosition.type === 'option' &&
+              gridPosition.optionId === contest.yesOption.id
+              ? contest.yesOption.label
+              : contest.noOption.label
+            : 'Unknown';
 
       stdout.write(
         `${
           !scoredMark
             ? ' '
             : scoredMark.fillScore < markThresholds.marginal
-            ? '⬜️'
-            : scoredMark.fillScore < markThresholds.definite
-            ? '❓'
-            : '✅'
+              ? '⬜️'
+              : scoredMark.fillScore < markThresholds.definite
+                ? '❓'
+                : '✅'
         } ${
           scoredMark
             ? chalk.dim(
@@ -267,7 +267,7 @@ async function interpretFiles(
 }
 
 function tryReadElectionFromElectionTable(
-  db: Sqlite3.Database
+  db: Database
 ): Optional<ElectionDefinition> {
   try {
     const electionData = (
@@ -285,7 +285,7 @@ function tryReadElectionFromElectionTable(
 }
 
 function tryReadElectionFromConfigTable(
-  db: Sqlite3.Database
+  db: Database
 ): Optional<ElectionDefinition> {
   try {
     const electionDefinitionJson = (
@@ -306,7 +306,7 @@ function tryReadElectionFromConfigTable(
 }
 
 function readElectionDefinitionFromDatabase(
-  db: Sqlite3.Database
+  db: Database
 ): Optional<ElectionDefinition> {
   return (
     tryReadElectionFromElectionTable(db) ?? tryReadElectionFromConfigTable(db)
@@ -314,7 +314,7 @@ function readElectionDefinitionFromDatabase(
 }
 
 function readSystemSettingsFromDatabase(
-  db: Sqlite3.Database
+  db: Database
 ): Optional<SystemSettings> {
   try {
     const systemSettingsJson = (
@@ -359,7 +359,7 @@ async function interpretWorkspace(
     return 1;
   }
 
-  const db = new Sqlite3(dbPath);
+  const db = new Database(dbPath);
   const electionDefinition = readElectionDefinitionFromDatabase(db);
 
   if (!electionDefinition) {
