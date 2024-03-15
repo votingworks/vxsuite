@@ -1,9 +1,17 @@
 import { Device, findByIds, WebUSBDevice } from 'usb';
 import { assert } from '@votingworks/basics';
+import { expect, mock, spyOn, test } from 'bun:test';
 import { getPaperHandlerWebDevice, PaperHandlerDriver } from './driver';
 import { setUpMockWebUsbDevice } from './test_utils';
 
-jest.mock('usb');
+void mock.module('usb', () => ({
+  findByIds: mock(),
+  // eslint-disable-next-line vx/gts-identifiers
+  WebUSBDevice: {
+    createInstance: mock(),
+  },
+}));
+
 const findByIdsMock = findByIds as jest.MockedFunction<typeof findByIds>;
 const createInstanceMock = WebUSBDevice.createInstance as jest.MockedFunction<
   typeof WebUSBDevice.createInstance
@@ -27,12 +35,12 @@ test('getPaperHandlerWebDevice returns undefined when findByIds returns no devic
   expect(createInstanceMock).not.toHaveBeenCalled();
 });
 
-test('getPaperHandlerWebDevice errors when createInstance returns an error', async () => {
+test('getPaperHandlerWebDevice errors when createInstance returns an error', () => {
   const legacyDevice = {} as unknown as Device;
   findByIdsMock.mockReturnValueOnce(legacyDevice);
   createInstanceMock.mockRejectedValueOnce(new Error('test'));
 
-  await expect(getPaperHandlerWebDevice()).rejects.toThrow(
+  expect(getPaperHandlerWebDevice()).rejects.toThrow(
     'Error initializing WebUSBDevice with message: test'
   );
   expect(createInstanceMock).toHaveBeenCalled();
@@ -44,7 +52,7 @@ test('connect calls WebUSBDevice.open', async () => {
   assert(paperHandlerWebDevice);
   const paperHandlerDriver = new PaperHandlerDriver(paperHandlerWebDevice);
 
-  const openSpy = jest.spyOn(paperHandlerWebDevice, 'open');
+  const openSpy = spyOn(paperHandlerWebDevice, 'open');
 
   await paperHandlerDriver.connect();
 

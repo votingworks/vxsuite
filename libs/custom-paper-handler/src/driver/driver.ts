@@ -12,7 +12,11 @@ import {
   literal,
   message,
 } from '@votingworks/message-coder';
-import { createImageData, writeImageData } from '@votingworks/image-utils';
+import {
+  ImageData,
+  RGBA_CHANNEL_COUNT,
+  writeImageData,
+} from '@votingworks/image-utils';
 import {
   ImageColorDepthType,
   ImageFileFormat,
@@ -209,7 +213,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     const buf = TransferOutRealTimeRequest.encode({
       requestId,
     }).unsafeUnwrap();
-    return this.webDevice.transferOut(REAL_TIME_ENDPOINT_OUT, buf);
+    return this.transferOutBuffer(REAL_TIME_ENDPOINT_OUT, buf);
   }
 
   /**
@@ -255,7 +259,21 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
       throw new Error(encodeResult.err());
     }
     const data = encodeResult.unsafeUnwrap();
-    return this.webDevice.transferOut(GENERIC_ENDPOINT_OUT, data);
+    return this.transferOutBuffer(GENERIC_ENDPOINT_OUT, data);
+  }
+
+  private transferOutBuffer(
+    endpoint: number,
+    buffer: Buffer
+  ): Promise<USBOutTransferResult> {
+    const arrayBuffer = new ArrayBuffer(buffer.byteLength);
+    const uint8ArrayView = new Uint8Array(arrayBuffer);
+
+    for (let i = 0; i < buffer.byteLength; i += 1) {
+      uint8ArrayView[i] = buffer[i] as number;
+    }
+
+    return this.webDevice.transferOut(endpoint, arrayBuffer);
   }
 
   /**
@@ -483,7 +501,22 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
       debug(
         `Expected ${dataBlockByteLength} bytes, got ${dataBlock.byteLength} in this block, ${dataBlockBytesReceived} so far`
       );
-      imageData.push(new Uint8Array(dataBlock));
+      const rgbaDataBlock = new Uint8Array(
+        dataBlockByteLength * RGBA_CHANNEL_COUNT
+      ).fill(255);
+
+      for (
+        let grayOffset = 0, rgbaOffset = 0;
+        grayOffset < dataBlockByteLength;
+        grayOffset += 1, rgbaOffset += RGBA_CHANNEL_COUNT
+      ) {
+        const gray = dataBlock[grayOffset] as number;
+        rgbaDataBlock[rgbaOffset] = gray;
+        rgbaDataBlock[rgbaOffset + 1] = gray;
+        rgbaDataBlock[rgbaOffset + 2] = gray;
+      }
+
+      imageData.push(dataBlock);
     }
 
     this.genericLock.release();
@@ -497,10 +530,10 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
       );
     }
     const imageBuf = Buffer.concat(imageData);
-    return createImageData(
+    return new ImageData(
       Uint8ClampedArray.from(imageBuf),
       width,
-      imageBuf.byteLength / width
+      imageBuf.byteLength / width / RGBA_CHANNEL_COUNT
     );
   }
 
@@ -511,7 +544,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
       `Received imageData with specs:\nHeight=${grayscaleResult.height}, Width=${grayscaleResult.width}, data byte length=${grayscaleResult.data.byteLength}`
     );
     const grayscaleData = grayscaleResult.data;
-    const colorResult = createImageData(
+    const colorResult = new ImageData(
       grayscaleResult.width,
       grayscaleResult.height
     );
@@ -531,7 +564,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     await writeImageData(pathOut, colorResult);
 
     const imageMetadata: ImageFromScanner = {
-      imageBuffer: Buffer.from(colorResult.data),
+      imageBuffer: Buffer.from(Uint8Array.from(colorResult.data)),
       imageWidth: grayscaleResult.width,
       imageHeight: grayscaleResult.height,
       imageDepth: ImageColorDepthType.Color24bpp, // Hardcode for now?

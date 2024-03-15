@@ -1,11 +1,18 @@
 import { err, ok } from '@votingworks/basics';
 import { Device, findByIds, WebUSBDevice } from 'usb';
+import { expect, mock, test } from 'bun:test';
 import { CustomA4Scanner } from './custom_a4_scanner';
 import { mockCustomA4ScannerWebUsbDevice } from './mocks';
 import { openScanner } from './open_scanner';
 import { ErrorCode } from './types';
 
-jest.mock('usb');
+void mock.module('usb', () => ({
+  findByIds: mock(),
+  // eslint-disable-next-line vx/gts-identifiers
+  WebUSBDevice: {
+    createInstance: mock(),
+  },
+}));
 
 const findByIdsMock = findByIds as jest.MockedFunction<typeof findByIds>;
 const createInstanceMock = WebUSBDevice.createInstance as jest.MockedFunction<

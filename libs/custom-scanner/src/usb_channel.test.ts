@@ -1,4 +1,5 @@
 import { err, ok } from '@votingworks/basics';
+import { expect, test } from 'bun:test';
 import { Buffer } from 'buffer';
 import {
   mockCustomA4ScannerWebUsbDevice,
@@ -15,10 +16,10 @@ function createUsbChannel(device = mockCustomA4ScannerWebUsbDevice()) {
 
 test('connect/disconnect', async () => {
   const channel = createUsbChannel();
-  await expect(channel.disconnect()).resolves.not.toThrow();
+  await channel.disconnect();
   expect(await channel.connect()).toEqual(ok());
   expect(await channel.connect()).toEqual(ok());
-  await expect(channel.disconnect()).resolves.not.toThrow();
+  await channel.disconnect();
 });
 
 test('connect with a channel with no configurations', async () => {

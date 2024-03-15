@@ -1,17 +1,17 @@
 /* eslint-disable no-console */
 
-import { createInterface } from 'readline';
-import { pdfToImages } from '@votingworks/image-utils';
-import { Buffer } from 'buffer';
 import { assert, iter, sleep } from '@votingworks/basics';
-import { exit } from 'process';
-import { join } from 'path';
+import { ImageData, pdfToImages } from '@votingworks/image-utils';
+import { Buffer } from 'buffer';
 import { tmpdir } from 'os';
-import { getPaperHandlerDriver } from '../driver/helpers';
-import { ballotFixture } from '../test/fixtures';
-import { chunkBinaryBitmap, imageDataToBinaryBitmap } from '../printing';
-import { DEVICE_MAX_WIDTH_DOTS } from '../driver/constants';
+import { join } from 'path';
+import { exit } from 'process';
+import { createInterface } from 'readline';
 import { PaperHandlerDriverInterface } from '../driver';
+import { DEVICE_MAX_WIDTH_DOTS } from '../driver/constants';
+import { getPaperHandlerDriver } from '../driver/helpers';
+import { chunkBinaryBitmap, imageDataToBinaryBitmap } from '../printing';
+import { ballotFixture } from '../test/fixtures';
 
 /**
  * Command line interface for interacting with the paper handler driver.

@@ -1,13 +1,7 @@
-import { Coder, CoderError, Uint16, Uint8 } from '@votingworks/message-coder';
 import { Result } from '@votingworks/basics';
 import { ImageFromScanner } from '@votingworks/custom-scanner';
-import { MinimalWebUsbDevice } from './minimal_web_usb_device';
-import { Lock } from './lock';
-import {
-  PrintingDensity,
-  PrintingSpeed,
-  RealTimeRequestIds,
-} from './constants';
+import { ImageData } from '@votingworks/image-utils';
+import { Coder, CoderError, Uint16, Uint8 } from '@votingworks/message-coder';
 import {
   PaperHandlerBitmap,
   PaperHandlerStatus,
@@ -16,6 +10,14 @@ import {
   SensorStatusRealTimeExchangeResponse,
 } from './coders';
 import {
+  PrintingDensity,
+  PrintingSpeed,
+  RealTimeRequestIds,
+} from './constants';
+import { Lock } from './lock';
+import { MinimalWebUsbDevice } from './minimal_web_usb_device';
+import { ScannerCapability } from './scanner_capability';
+import {
   PaperMovementAfterScan,
   Resolution,
   ScanDataFormat,
@@ -23,7 +25,6 @@ import {
   ScanLight,
   ScannerConfig,
 } from './scanner_config';
-import { ScannerCapability } from './scanner_capability';
 
 export interface PaperHandlerDriverInterface {
   readonly genericLock: Lock;
