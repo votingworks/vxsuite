@@ -370,6 +370,7 @@ export function buildApi(
       void logger.logAsCurrentRole(LogEventId.DiagnosticComplete, {
         disposition: input.outcome === 'pass' ? 'success' : 'failure',
         message: `Diagnostic (${input.type}) completed with outcome: ${input.outcome}.`,
+        type: input.type,
       });
     },
 
