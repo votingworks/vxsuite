@@ -57,8 +57,6 @@
     "@types/yargs": "17.0.22",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
-    "esbuild": "0.17.11",
-    "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
     "fs-extra": "11.1.1",

@@ -75,8 +75,6 @@
     "@types/uuid": "9.0.5",
     "@votingworks/test-utils": "workspace:*",
     "copyfiles": "^2.4.1",
-    "esbuild": "0.17.11",
-    "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",
     "lint-staged": "11.0.0",

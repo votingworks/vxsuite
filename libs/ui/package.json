@@ -111,8 +111,6 @@
     "assert": "^2.0.0",
     "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",
-    "esbuild": "0.17.11",
-    "esbuild-runner": "2.2.2",
     "eslint-plugin-storybook": "^0.6.10",
     "eslint-plugin-vx": "workspace:*",
     "events": "3.3.0",

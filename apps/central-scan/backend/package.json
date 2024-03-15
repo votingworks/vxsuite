@@ -75,8 +75,6 @@
     "@types/supertest": "^2.0.10",
     "@types/tmp": "0.2.4",
     "@types/uuid": "9.0.5",
-    "esbuild": "0.17.11",
-    "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
     "get-port": "5",

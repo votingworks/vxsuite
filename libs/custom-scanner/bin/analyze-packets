@@ -1,6 +1,4 @@
-#!/usr/bin/env node
-
-require('esbuild-runner').install();
+#!/usr/bin/env bun
 
 require('../src/cli/analyze-packets')
   .main()

@@ -1,6 +1,4 @@
-#!/usr/bin/env node
-
-require('esbuild-runner').install();
+#!/usr/bin/env bun
 
 require('../src/custom-paper-handler/cli/state_machine_cli')
   .main()

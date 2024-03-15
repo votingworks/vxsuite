@@ -1,12 +1,12 @@
-import { Buffer } from 'buffer';
-import { writeFileSync } from 'fs';
 import { err, ok, typedAs } from '@votingworks/basics';
+import { Buffer } from 'buffer';
 import fc from 'fast-check';
+import { writeFileSync } from 'fs';
+import { tmpNameSync } from 'tmp';
 import { ReadFileError, readFile } from './read_file';
-import { makeTmpFile } from '../test/utils';
 
 test('file open error', async () => {
-  const path = makeTmpFile();
+  const path = tmpNameSync();
   expect(await readFile(path, { maxSize: 1024 })).toEqual(
     err(
       typedAs<ReadFileError>({
@@ -20,7 +20,7 @@ test('file open error', async () => {
 test('file exceeds max size', async () => {
   await fc.assert(
     fc.asyncProperty(fc.nat(1024 * 1024 * 10), async (maxSize) => {
-      const path = makeTmpFile();
+      const path = tmpNameSync();
       writeFileSync(path, 'a'.repeat(maxSize + 1));
       expect(await readFile(path, { maxSize })).toEqual(
         err(
@@ -43,7 +43,7 @@ test('invalid maxSize', async () => {
 
 test('success', async () => {
   {
-    const path = makeTmpFile();
+    const path = tmpNameSync();
     const contents = 'file contents';
 
     writeFileSync(path, contents);
@@ -59,7 +59,7 @@ test('success', async () => {
 
   await fc.assert(
     fc.asyncProperty(fc.uint8Array(), async (contents) => {
-      const path = makeTmpFile();
+      const path = tmpNameSync();
       writeFileSync(path, contents);
       expect(
         await readFile(path, {

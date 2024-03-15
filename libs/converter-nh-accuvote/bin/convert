@@ -1,6 +1,4 @@
-#!/usr/bin/env node
-
-require('esbuild-runner/register');
+#!/usr/bin/env bun
 
 require('../src/cli/convert')
   .main(process.argv.slice(2))

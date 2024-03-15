@@ -80,8 +80,6 @@
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
-    "esbuild": "0.17.11",
-    "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",
     "lint-staged": "11.0.0",

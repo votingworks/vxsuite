@@ -44,8 +44,6 @@
     "@types/tmp": "0.2.4",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
-    "esbuild": "0.17.11",
-    "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
     "is-ci-cli": "2.2.0"

@@ -35,8 +35,6 @@
     "@types/node": "16.18.23",
     "@types/w3c-web-usb": "^1.0.6",
     "@votingworks/test-utils": "workspace:*",
-    "esbuild": "0.17.11",
-    "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "fast-check": "2.23.2",
     "is-ci-cli": "2.2.0",

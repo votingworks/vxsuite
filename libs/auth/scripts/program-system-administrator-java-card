@@ -1,4 +1,3 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
-require('esbuild-runner/register');
 require('./program_system_administrator_java_card').main();

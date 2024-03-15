@@ -1,4 +1,3 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
-require('esbuild-runner/register');
 require('./generate_font_awesome_styles.ts').main();

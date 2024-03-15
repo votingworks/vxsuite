@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
 // @ts-check
 
@@ -11,10 +11,6 @@ if (!fs.existsSync(join(__dirname, '../build/hmpb-ts/rust_addon.node'))) {
   );
   process.exit(1);
 }
-
-require('esbuild-runner').install({
-  type: 'transform',
-});
 
 require('../src/hmpb-ts/cli')
   .main(process.argv.slice(2))

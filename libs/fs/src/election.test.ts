@@ -1,11 +1,11 @@
 import { err, ok, typedAs } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { writeFileSync } from 'fs';
-import { makeTmpFile } from '../test/utils';
+import { tmpNameSync } from 'tmp';
 import { ReadElectionError, readElection } from './election';
 
 test('syntax error', async () => {
-  const path = makeTmpFile();
+  const path = tmpNameSync();
   writeFileSync(path, 'invalid json');
   expect(await readElection(path)).toEqual(
     err(
@@ -18,7 +18,7 @@ test('syntax error', async () => {
 });
 
 test('parse error', async () => {
-  const path = makeTmpFile();
+  const path = tmpNameSync();
   writeFileSync(path, '{"invalid": "election"}');
   expect(await readElection(path)).toEqual(
     err(
@@ -31,7 +31,7 @@ test('parse error', async () => {
 });
 
 test('file system error: no such file', async () => {
-  const path = makeTmpFile();
+  const path = tmpNameSync();
   expect(await readElection(path)).toEqual(
     err(
       typedAs<ReadElectionError>({
@@ -46,7 +46,7 @@ test('file system error: no such file', async () => {
 });
 
 test('file system error: file exceeds max size', async () => {
-  const path = makeTmpFile();
+  const path = tmpNameSync();
   writeFileSync(path, 'a'.repeat(10 * 1024 * 1024 + 1));
   expect(await readElection(path)).toEqual(
     err(
@@ -63,7 +63,7 @@ test('file system error: file exceeds max size', async () => {
 });
 
 test('success', async () => {
-  const path = makeTmpFile();
+  const path = tmpNameSync();
   const contents = electionFamousNames2021Fixtures.electionJson.asText();
   writeFileSync(path, contents);
   expect(await readElection(path)).toEqual(

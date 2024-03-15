@@ -1,4 +1,3 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
-require('esbuild-runner/register');
 require('./translate_text.ts').main(process.argv.slice(2));

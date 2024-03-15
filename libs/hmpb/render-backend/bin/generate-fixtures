@@ -1,6 +1,5 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
-require('esbuild-runner/register');
 require('../src/generate_fixtures')
   .main()
   .catch((e) => {

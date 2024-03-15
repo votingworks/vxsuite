@@ -104,8 +104,6 @@
     "@votingworks/monorepo-utils": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/usb-drive": "workspace:*",
-    "esbuild": "0.17.11",
-    "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "fetch-mock": "9.11.0",
     "history": "4.10.1",

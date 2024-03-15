@@ -1,9 +1,9 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
 // @ts-check
 
 const { readFileSync } = require('fs');
-const { buildSchema } = require('..')
+const { buildSchema } = require('..');
 
 /**
  * @param {NodeJS.WritableStream} out
@@ -50,4 +50,4 @@ if (!xsdSchemaFilePath || !jsonSchemaFilePath) {
 
 const xsdSchemaFileContents = readFileSync(xsdSchemaFilePath, 'utf-8');
 const jsonSchemaFileContents = readFileSync(jsonSchemaFilePath, 'utf-8');
-buildSchema(xsdSchemaFileContents, jsonSchemaFileContents, process.stdout); 
+buildSchema(xsdSchemaFileContents, jsonSchemaFileContents, process.stdout);

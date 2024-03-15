@@ -1,6 +1,4 @@
-#!/usr/bin/env node
-
-require('esbuild-runner/register');
+#!/usr/bin/env bun
 
 require('../src/cdf/ballot-definition/cli.ts')
   .main(process.argv, {

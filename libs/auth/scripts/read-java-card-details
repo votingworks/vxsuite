@@ -1,4 +1,3 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
-require('esbuild-runner/register');
 require('./read_java_card_details').main();
