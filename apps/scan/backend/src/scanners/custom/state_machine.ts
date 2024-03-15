@@ -26,7 +26,7 @@ import {
   SheetInterpretationWithPages,
   SheetOf,
 } from '@votingworks/types';
-import { createImageData } from 'canvas';
+import { ImageData } from '@napi-rs/canvas';
 import { join } from 'path';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
 import { v4 as uuid } from 'uuid';
@@ -346,7 +346,7 @@ async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
       rgbaPixels[toOffset + 1] = luma;
       rgbaPixels[toOffset + 2] = luma;
     }
-    const imageData = createImageData(
+    const imageData = new ImageData(
       rgbaPixels,
       image.imageWidth,
       image.imageHeight

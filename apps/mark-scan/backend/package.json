@@ -34,6 +34,7 @@
     ]
   },
   "dependencies": {
+    "@napi-rs/canvas": "^0.1.51",
     "@votingworks/auth": "workspace:*",
     "@votingworks/backend": "workspace:*",
     "@votingworks/ballot-interpreter": "workspace:*",
@@ -51,7 +52,6 @@
     "@votingworks/types": "workspace:*",
     "@votingworks/usb-drive": "workspace:*",
     "@votingworks/utils": "workspace:*",
-    "canvas": "2.9.1",
     "debug": "4.3.4",
     "express": "4.18.2",
     "fs-extra": "11.1.1",

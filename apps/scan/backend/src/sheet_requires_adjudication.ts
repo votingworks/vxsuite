@@ -3,7 +3,7 @@ import {
   PageInterpretation,
   SheetOf,
 } from '@votingworks/types';
-import { ImageData } from 'canvas';
+import { ImageData } from '@napi-rs/canvas';
 
 export interface InterpretFileResult {
   interpretation: PageInterpretation;
