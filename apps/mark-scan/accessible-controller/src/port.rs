@@ -95,8 +95,17 @@ impl io::Read for Port {
 impl fmt::Debug for Port {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Port")
-            .field("name", &self.inner.name())
-            .field("baud_rate", &self.inner.baud_rate())
+            .field(
+                "name",
+                &self.inner.name().unwrap_or_else(|| "n/a".to_string()),
+            )
+            .field(
+                "baud_rate",
+                match &self.inner.baud_rate() {
+                    Ok(rate) => rate,
+                    Err(err) => err,
+                },
+            )
             .finish()
     }
 }
