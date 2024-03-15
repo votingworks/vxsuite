@@ -334,11 +334,11 @@ async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
     const path = join(scannedImagesPath, `${sheetPrefix}-${side}.jpeg`);
     const grayPixels = image.imageBuffer;
     const rgbaPixels = new Uint8ClampedArray(
-      image.imageWidth * image.imageHeight
+      image.imageWidth * image.imageHeight * RGBA_CHANNEL_COUNT
     ).fill(255);
     for (
       let fromOffset = 0, toOffset = 0;
-      toOffset < rgbaPixels.length;
+      fromOffset < grayPixels.length;
       toOffset += RGBA_CHANNEL_COUNT, fromOffset += 1
     ) {
       const luma = grayPixels[fromOffset];

@@ -3,7 +3,7 @@ import {
   InsertedSmartCardAuthApi,
   buildMockInsertedSmartCardAuth,
 } from '@votingworks/auth';
-import { Result, deferred, ok } from '@votingworks/basics';
+import { Result, assert, deferred, ok } from '@votingworks/basics';
 import {
   CustomScanner,
   ErrorCode,
@@ -19,7 +19,7 @@ import {
   sampleBallotImages,
 } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
-import { getImageChannelCount } from '@votingworks/image-utils';
+import { RGBA_CHANNEL_COUNT, isRgba } from '@votingworks/image-utils';
 import { LogSource, Logger, mockLogger } from '@votingworks/logging';
 import { SheetOf, mapSheet } from '@votingworks/types';
 import { Application } from 'express';
@@ -157,15 +157,21 @@ function customSheetOfImagesFromScannerFromBallotImageData(
   ballotImageData: SheetOf<ImageData>
 ): SheetOf<ImageFromScanner> {
   return mapSheet(ballotImageData, (imageData, side): ImageFromScanner => {
-    const channelCount = getImageChannelCount(imageData);
-    const imageDepth =
-      channelCount === 1
-        ? ImageColorDepthType.Grey8bpp
-        : ImageColorDepthType.Color24bpp;
+    assert(isRgba(imageData), 'Expected image data to be in RGBA format');
+    const imageDepth = ImageColorDepthType.Grey8bpp;
+    const imageBuffer = Buffer.alloc(imageData.width * imageData.height);
+
+    for (
+      let rgbaOffset = 0, grayOffset = 0;
+      rgbaOffset < imageData.data.length;
+      rgbaOffset += RGBA_CHANNEL_COUNT, grayOffset += 1
+    ) {
+      imageBuffer[grayOffset] = imageData.data[rgbaOffset];
+    }
 
     return {
       scanSide: side === 'front' ? ScanSide.A : ScanSide.B,
-      imageBuffer: Buffer.from(imageData.data),
+      imageBuffer,
       imageWidth: imageData.width,
       imageHeight: imageData.height,
       imageFormat: ImageFileFormat.Jpeg,
