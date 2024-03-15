@@ -14,9 +14,11 @@ import {
   Election,
   YesNoContest,
   ballotPaperDimensions,
+  getBallotStyle,
   getCandidatePartiesDescription,
   getContests,
   getPartyForBallotStyle,
+  getPrecinctById,
 } from '@votingworks/types';
 import { BallotMode, layOutInColumns } from '@votingworks/hmpb-layout';
 import {
@@ -136,8 +138,8 @@ function TimingMarkGrid({
 
 function Header({
   election,
-  ballotStyle,
-  precinct,
+  ballotStyleId,
+  precinctId,
   ballotType,
   ballotMode,
 }: BaseBallotProps) {
@@ -157,9 +159,8 @@ function Header({
 
   const party =
     election.type === 'primary'
-      ? assertDefined(
-          getPartyForBallotStyle({ election, ballotStyleId: ballotStyle.id })
-        ).fullName
+      ? assertDefined(getPartyForBallotStyle({ election, ballotStyleId }))
+          .fullName
       : undefined;
 
   const date = Intl.DateTimeFormat('en-US', {
@@ -167,6 +168,8 @@ function Header({
     day: 'numeric',
     year: 'numeric',
   }).format(election.date.toMidnightDatetimeWithSystemTimezone());
+
+  const precinct = assertDefined(getPrecinctById({ election, precinctId }));
 
   return (
     <div
@@ -319,8 +322,8 @@ function Footer({
 
 function BallotPageFrame({
   election,
-  ballotStyle,
-  precinct,
+  ballotStyleId,
+  precinctId,
   ballotType,
   ballotMode,
   pageNumber,
@@ -353,8 +356,8 @@ function BallotPageFrame({
             <>
               <Header
                 election={election}
-                ballotStyle={ballotStyle}
-                precinct={precinct}
+                ballotStyleId={ballotStyleId}
+                precinctId={precinctId}
                 ballotType={ballotType}
                 ballotMode={ballotMode}
               />
@@ -586,7 +589,10 @@ async function BallotPageContent(
     };
   }
 
-  const { election, ballotStyle, dimensions, ...restProps } = props;
+  const { election, ballotStyleId, dimensions, ...restProps } = props;
+  const ballotStyle = assertDefined(
+    getBallotStyle({ election, ballotStyleId })
+  );
   // For now, just one section for candidate contests, one for ballot measures.
   // TODO support arbitrarily defined sections
   const contests = getContests({ election, ballotStyle });
@@ -691,7 +697,7 @@ async function BallotPageContent(
     contestSectionsLeftToLayout.length > 0
       ? {
           ...restProps,
-          ballotStyle,
+          ballotStyleId,
           election: {
             ...election,
             contests: contestSectionsLeftToLayout.flat(),

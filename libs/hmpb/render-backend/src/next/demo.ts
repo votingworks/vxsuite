@@ -1,11 +1,7 @@
 import { mkdir, rm, writeFile } from 'fs/promises';
 import { readFileSync } from 'fs';
-import {
-  BallotType,
-  getPrecinctById,
-  safeParseElection,
-} from '@votingworks/types';
-import { assertDefined, iter } from '@votingworks/basics';
+import { BallotType, safeParseElection } from '@votingworks/types';
+import { iter } from '@votingworks/basics';
 import {
   BaseBallotProps,
   renderAllBallotsAndCreateElectionDefinition,
@@ -20,8 +16,8 @@ const election = safeParseElection(electionJson).unsafeUnwrap();
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const exampleBallotProps: BaseBallotProps = {
   election,
-  ballotStyle: election.ballotStyles[0],
-  precinct: election.precincts[0],
+  ballotStyleId: election.ballotStyles[0].id,
+  precinctId: election.ballotStyles[0].precincts[0],
   ballotType: BallotType.Precinct,
   ballotMode: 'official',
 };
@@ -30,8 +26,8 @@ const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
   ballotStyle.precincts.map(
     (precinctId): BaseBallotProps => ({
       election,
-      ballotStyle,
-      precinct: assertDefined(getPrecinctById({ election, precinctId })),
+      ballotStyleId: ballotStyle.id,
+      precinctId,
       ballotType: BallotType.Precinct,
       ballotMode: 'official',
     })
@@ -56,8 +52,8 @@ async function main() {
     ballotDocuments
   )) {
     const outputPath = `${outputDir}/ballot-${
-      props.ballotStyle.id
-    }-${props.precinct.name.replace(/\s/, '-')}.pdf`;
+      props.ballotStyleId
+    }-${props.precinctId.replace(/\s/, '-')}.pdf`;
     const ballotPdf = await ballotDocument.renderToPdf();
     await writeFile(outputPath, ballotPdf);
     // eslint-disable-next-line no-console

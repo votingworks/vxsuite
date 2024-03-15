@@ -1,7 +1,6 @@
 import { Buffer } from 'buffer';
-import { assert, deepEqual, uniqueBy } from '@votingworks/basics';
+import { assert, assertDefined, deepEqual, iter } from '@votingworks/basics';
 import {
-  BallotStyle,
   BallotStyleId,
   BallotType,
   Election,
@@ -9,7 +8,7 @@ import {
   GridLayout,
   GridPosition,
   HmpbBallotPageMetadata,
-  Precinct,
+  PrecinctId,
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
@@ -293,8 +292,8 @@ export async function renderBallotPreviewToPdf<P extends object>(
 
 export interface BaseBallotProps {
   election: Election;
-  ballotStyle: BallotStyle;
-  precinct: Precinct;
+  ballotStyleId: BallotStyleId;
+  precinctId: PrecinctId;
   ballotType: BallotType;
   ballotMode: BallotMode;
 }
@@ -318,10 +317,7 @@ export async function renderAllBallotsAndCreateElectionDefinition<
         ...props, // eslint-disable-line vx/gts-spread-like-types
         election,
       });
-      const gridLayout = await extractGridLayout(
-        document,
-        props.ballotStyle.id
-      );
+      const gridLayout = await extractGridLayout(document, props.ballotStyleId);
       return {
         document,
         gridLayout,
@@ -330,13 +326,27 @@ export async function renderAllBallotsAndCreateElectionDefinition<
     })
   );
 
-  // All precincts for a given ballot style have the same grid layout
-  // TODO check that this is actually true before de-duping to protect against
-  // templates that violate this rule
-  const gridLayouts = uniqueBy(
-    ballotsWithLayouts.map((ballot) => ballot.gridLayout),
-    (layout) => layout.ballotStyleId
-  );
+  // All ballots of a given ballot style must have the same grid layout.
+  // Changing precinct/ballot type/ballot mode shouldn't matter.
+  const layoutsByBallotStyle = iter(ballotsWithLayouts)
+    .map((ballot) => ballot.gridLayout)
+    .toMap((gridLayout) => gridLayout.ballotStyleId);
+  for (const [ballotStyleId, layouts] of layoutsByBallotStyle.entries()) {
+    const [firstLayout, ...restLayouts] = layouts;
+    const hasDifferingLayout = restLayouts.some(
+      (layout) => !deepEqual(layout, firstLayout)
+    );
+    if (hasDifferingLayout) {
+      throw new Error(
+        `Found multiple distinct grid layouts for ballot style ${ballotStyleId}`
+      );
+    }
+  }
+  // Now that all layouts for a ballot style are guaranteed to be equal, we can
+  // just use one per ballot style
+  const gridLayouts = iter(layoutsByBallotStyle.values())
+    .map((layouts) => assertDefined(iter(layouts.values()).first()))
+    .toArray();
 
   const electionWithGridLayouts: Election = { ...election, gridLayouts };
   const electionDefinition = safeParseElectionDefinition(
@@ -347,8 +357,8 @@ export async function renderAllBallotsAndCreateElectionDefinition<
     if (props.ballotMode !== 'sample') {
       await addQrCodes(document, electionDefinition.election, {
         electionHash: electionDefinition.electionHash,
-        ballotStyleId: props.ballotStyle.id,
-        precinctId: props.precinct.id,
+        ballotStyleId: props.ballotStyleId,
+        precinctId: props.precinctId,
         ballotType: props.ballotType,
         isTestMode: props.ballotMode !== 'official',
       });

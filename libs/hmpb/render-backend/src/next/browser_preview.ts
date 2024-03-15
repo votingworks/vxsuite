@@ -7,11 +7,10 @@ import { createBrowserPreviewRenderer } from './browser_preview_renderer';
 
 const election = electionGeneral;
 const ballotStyle = election.ballotStyles[0];
-const precinct = election.precincts[0];
 const exampleBallotProps: BaseBallotProps = {
   election,
-  ballotStyle,
-  precinct,
+  ballotStyleId: ballotStyle.id,
+  precinctId: ballotStyle.precincts[0],
   ballotType: BallotType.Precinct,
   ballotMode: 'official',
 };
