@@ -1,6 +1,4 @@
-#!/usr/bin/env node
-
-require('esbuild-runner/register');
+#!/usr/bin/env bun
 
 require('../src/pdf_to_images').main(process.argv.slice(2), {
   stdout: process.stdout,

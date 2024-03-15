@@ -5,8 +5,7 @@ import {
   Image,
   ImageData,
 } from '@napi-rs/canvas';
-import { createWriteStream, promises as fs } from 'fs';
-import { promises as stream } from 'stream';
+import { writeFile } from 'fs/promises';
 import { assertInteger } from './numeric';
 import { int, usize } from './types';
 
@@ -71,7 +70,7 @@ export function toDataUrl(
   const { width, height } = image;
   const canvas = createCanvas(width, height);
   const context = canvas.getContext('2d');
-  context.putImageData(image, 0, 0);
+  context.putImageData(image as globalThis.ImageData, 0, 0);
   return mimeType === 'image/jpeg'
     ? canvas.toDataURL(mimeType)
     : canvas.toDataURL(mimeType);
@@ -86,13 +85,16 @@ export async function writeImageData(
 ): Promise<void> {
   const canvas = createCanvas(imageData.width, imageData.height);
   const context = canvas.getContext('2d');
-  context.putImageData(ensureImageData(imageData), 0, 0);
+  context.putImageData(
+    ensureImageData(imageData) as globalThis.ImageData,
+    0,
+    0
+  );
 
-  const fileWriter = createWriteStream(path);
-  const imageStream = /\.png$/i.test(path)
-    ? canvas.createPNGStream()
-    : canvas.createJPEGStream();
-  await stream.pipeline(imageStream, fileWriter);
+  const encoded = /\.png$/i.test(path)
+    ? await canvas.encode('png')
+    : await canvas.encode('jpeg');
+  await writeFile(path, encoded);
 }
 
 /**
@@ -104,7 +106,11 @@ export function toImageBuffer(
 ): Buffer {
   const canvas = createCanvas(imageData.width, imageData.height);
   const context = canvas.getContext('2d');
-  context.putImageData(ensureImageData(imageData), 0, 0);
+  context.putImageData(
+    ensureImageData(imageData) as globalThis.ImageData,
+    0,
+    0
+  );
   // Help TS match the union type branches to overloaded function signatures
   return mimeType === 'image/png'
     ? canvas.toBuffer(mimeType)

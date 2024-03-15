@@ -1,16 +1,17 @@
 import { iter } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
 import { Size } from '@votingworks/types';
-import { GlobalWorkerOptions } from 'pdfjs-dist';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { PdfPage, pdfToImages, setPdfRenderWorkerSrc } from './pdf_to_images';
+import { PdfPage, pdfAtPathToImagePaths, pdfToImages } from './pdf_to_images';
+import { loadImageData } from '.';
 
+const pdfNotRequiringPdfjsIntermediateCanvasBufferPath = join(
+  __dirname,
+  '../test/fixtures/pdf-not-requiring-pdfjs-intermediate-canvas.pdf'
+);
 const pdfNotRequiringPdfjsIntermediateCanvasBuffer = readFileSync(
-  join(
-    __dirname,
-    '../test/fixtures/pdf-not-requiring-pdfjs-intermediate-canvas.pdf'
-  )
+  pdfNotRequiringPdfjsIntermediateCanvasBufferPath
 );
 const pdfRequiringPdfjsIntermediateCanvasBuffer =
   electionGridLayoutNewHampshireHudsonFixtures.templatePdf.asBuffer();
@@ -66,7 +67,11 @@ test('can render a PDF that requires the PDF.js intermediate canvas', async () =
   );
 });
 
-test('can configure the workerSrc', () => {
-  setPdfRenderWorkerSrc('/pdf.worker.js');
-  expect(GlobalWorkerOptions.workerSrc).toEqual('/pdf.worker.js');
+test('pdfAtPathToImagePaths', async () => {
+  const paths = await pdfAtPathToImagePaths(
+    pdfNotRequiringPdfjsIntermediateCanvasBufferPath
+  );
+  for (const path of paths) {
+    expect(await loadImageData(path)).toBeDefined();
+  }
 });

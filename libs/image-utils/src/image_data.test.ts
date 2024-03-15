@@ -130,8 +130,7 @@ test('ensureImageData', () => {
   const imageDataLike: ImageData = {
     width: 1,
     height: 1,
-    data: Uint8ClampedArray.of(0),
-    colorSpace: 'srgb',
+    data: Uint8ClampedArray.of(0, 0, 0, 255),
   };
   expect(ensureImageData(imageDataLike) === imageDataLike).toBeFalsy();
   expect(ensureImageData(imageDataLike)).toBeInstanceOf(ImageData);
