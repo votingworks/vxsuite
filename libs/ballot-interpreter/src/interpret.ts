@@ -590,7 +590,7 @@ async function interpretHmpb(
  * Interpret a BMD ballot sheet and convert the result into the result format
  * used by the rest of VxSuite.
  */
-async function interpretBmdBallot(
+export async function interpretBmdBallot(
   sheet: SheetOf<string>,
   options: InterpreterOptions
 ): Promise<SheetOf<InterpretFileResult>> {
