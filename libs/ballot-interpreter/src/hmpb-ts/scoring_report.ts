@@ -6,7 +6,7 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { mkdir, readFile, readdir } from 'fs/promises';
-import { toRgba, writeImageData } from '@votingworks/image-utils';
+import { writeImageData } from '@votingworks/image-utils';
 import { basename, join } from 'path';
 import { createCanvas } from 'canvas';
 import { interpret } from './interpret';
@@ -93,7 +93,7 @@ function annotateBallotImageScores(
   const canvas = createCanvas(ballotImage.width, ballotImage.height);
   const context = canvas.getContext('2d');
   context.imageSmoothingEnabled = false;
-  context.putImageData(toRgba(ballotImage).unsafeUnwrap(), 0, 0);
+  context.putImageData(ballotImage, 0, 0);
   context.font = '32px sans-serif bold';
 
   const lineWidth = 2;

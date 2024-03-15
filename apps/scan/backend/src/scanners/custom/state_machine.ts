@@ -17,7 +17,7 @@ import {
   ScanSide,
   SensorStatus,
 } from '@votingworks/custom-scanner';
-import { toRgba, writeImageData } from '@votingworks/image-utils';
+import { RGBA_CHANNEL_COUNT, writeImageData } from '@votingworks/image-utils';
 import { LogEventId, BaseLogger, LogLine } from '@votingworks/logging';
 import {
   Id,
@@ -332,13 +332,25 @@ async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
   return await mapSheet(images, async (image, side) => {
     const { scannedImagesPath } = workspace;
     const path = join(scannedImagesPath, `${sheetPrefix}-${side}.jpeg`);
-    const imageData = toRgba(
-      createImageData(
-        Uint8ClampedArray.from(image.imageBuffer),
-        image.imageWidth,
-        image.imageHeight
-      )
-    ).assertOk('convert to RGBA');
+    const grayPixels = image.imageBuffer;
+    const rgbaPixels = new Uint8ClampedArray(
+      image.imageWidth * image.imageHeight
+    ).fill(255);
+    for (
+      let fromOffset = 0, toOffset = 0;
+      toOffset < rgbaPixels.length;
+      toOffset += RGBA_CHANNEL_COUNT, fromOffset += 1
+    ) {
+      const luma = grayPixels[fromOffset];
+      rgbaPixels[toOffset] = luma;
+      rgbaPixels[toOffset + 1] = luma;
+      rgbaPixels[toOffset + 2] = luma;
+    }
+    const imageData = createImageData(
+      rgbaPixels,
+      image.imageWidth,
+      image.imageHeight
+    );
     await writeImageData(path, imageData);
     return path;
   });
