@@ -1,9 +1,10 @@
-import { readFile } from 'fs/promises';
-
-const VIRTUAL_DEVICE_NAME = 'Accessible Controller Daemon Virtual Device';
+import { execFile } from '@votingworks/backend';
 
 export async function isAccessibleControllerDaemonRunning(): Promise<boolean> {
-  return (await readFile('/proc/bus/input/devices')).includes(
-    VIRTUAL_DEVICE_NAME
-  );
+  try {
+    await execFile('exec ps aux | grep controller[d]');
+    return true;
+  } catch {
+    return false;
+  }
 }

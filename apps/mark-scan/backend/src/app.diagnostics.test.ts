@@ -9,14 +9,13 @@ import { mockOf } from '@votingworks/test-utils';
 import { DiagnosticRecord } from '@votingworks/types';
 import {
   DiskSpaceSummary,
+  execFile,
   initializeGetWorkspaceDiskSpaceSummary,
 } from '@votingworks/backend';
-import { readFile } from 'fs/promises';
 import { Api } from './app';
 import { PatConnectionStatusReader } from './pat-input/connection_status_reader';
 import { createApp } from '../test/app_helpers';
 import { PaperHandlerStateMachine } from './custom-paper-handler/state_machine';
-import { MOCK_VIRTUAL_INPUT_DEVICE_OUTPUT } from './util/controllerd.test';
 
 const TEST_POLLING_INTERVAL_MS = 5;
 
@@ -50,6 +49,7 @@ jest.mock(
   (): typeof import('@votingworks/backend') => ({
     ...jest.requireActual('@votingworks/backend'),
     initializeGetWorkspaceDiskSpaceSummary: jest.fn(),
+    execFile: jest.fn(),
   })
 );
 
@@ -127,11 +127,11 @@ test('getApplicationDiskSpaceSummary', async () => {
 });
 
 test('getIsAccessibleControllerInputDetected', async () => {
-  mockOf(readFile).mockResolvedValueOnce(`\n`);
+  mockOf(execFile).mockRejectedValueOnce({ stderr: '', stdout: '' });
   expect(await apiClient.getIsAccessibleControllerInputDetected()).toEqual(
     false
   );
-  mockOf(readFile).mockResolvedValueOnce(MOCK_VIRTUAL_INPUT_DEVICE_OUTPUT);
+  mockOf(execFile).mockResolvedValueOnce({ stderr: '', stdout: '' });
   expect(await apiClient.getIsAccessibleControllerInputDetected()).toEqual(
     true
   );
