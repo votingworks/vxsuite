@@ -8,6 +8,7 @@ name = "controllerd"
 path = "src/controllerd.rs"
 
 [dependencies]
+color-eyre = { workspace = true }
 crc16 = { workspace = true }
 ctrlc = { workspace = true }
 num_enum = { workspace = true }
