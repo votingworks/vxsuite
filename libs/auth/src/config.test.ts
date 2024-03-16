@@ -1,5 +1,6 @@
 import { mockOf } from '@votingworks/test-utils';
 import { isIntegrationTest, isVxDev } from '@votingworks/utils';
+import { expect, mock, test } from 'bun:test';
 
 import {
   ArtifactAuthenticationConfig,
@@ -10,11 +11,14 @@ import {
   LiveCheckConfig,
 } from './config';
 
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
-  ...jest.requireActual('@votingworks/utils'),
-  isVxDev: jest.fn(),
-  isIntegrationTest: jest.fn(),
-}));
+void mock.module(
+  '@votingworks/utils',
+  (): typeof import('@votingworks/utils') => ({
+    ...jest.requireActual('@votingworks/utils'),
+    isVxDev: jest.fn(),
+    isIntegrationTest: jest.fn(),
+  })
+);
 
 beforeEach(() => {
   (process.env.NODE_ENV as string) = 'test';

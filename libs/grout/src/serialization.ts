@@ -1,6 +1,7 @@
 import { Buffer } from 'buffer';
 import {
   assert,
+  assertDefined,
   DateWithoutTime,
   err,
   isResult,
@@ -99,7 +100,7 @@ const luxonDateTimeTagger: Tagger<DateTime, string> = {
   shouldTag: (value): value is DateTime => value instanceof DateTime,
   serialize: (value) => {
     assert(value.zoneName === 'UTC', 'Only UTC DateTimes are serializable');
-    return value.toISO();
+    return assertDefined(value.toISO());
   },
   deserialize: (value) => {
     const result = DateTime.fromISO(value, { setZone: true });

@@ -143,28 +143,7 @@ it('allows unsubscribing from a device subscription', () => {
 it('readPrinterStatus returns printer info for connected printer', async () => {
   const hardware = MemoryHardware.build();
   hardware.setPrinterConnected(true);
-  expect(await hardware.readPrinterStatus()).toMatchInlineSnapshot(`
-    {
-      "connected": true,
-      "description": "Brother",
-      "isDefault": true,
-      "markerInfos": [
-        {
-          "color": "#000000",
-          "highLevel": 100,
-          "level": 92,
-          "lowLevel": 2,
-          "name": "black cartridge",
-          "type": "toner-cartridge",
-        },
-      ],
-      "name": "HL-L5100DN_series",
-      "state": "idle",
-      "stateReasons": [
-        "none",
-      ],
-    }
-  `);
+  expect(await hardware.readPrinterStatus()).toMatchSnapshot();
 });
 
 it('readPrinterStatus returns undefined if there are no connected printers', async () => {

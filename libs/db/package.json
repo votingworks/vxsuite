@@ -12,9 +12,9 @@
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "jest --coverage --ci --reporters=default --reporters=jest-junit --maxWorkers=6",
-    "test:coverage": "jest --coverage",
-    "test:watch": "jest --watch"
+    "test:ci": "bun test --coverage --ci --reporters=default --reporters=jest-junit --maxWorkers=6",
+    "test:coverage": "bun test --coverage",
+    "test:watch": "bun test --watch"
   },
   "author": "VotingWorks Eng <eng@voting.works>",
   "license": "GPL-3.0",

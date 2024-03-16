@@ -16,9 +16,9 @@
     "lint:fix": "pnpm type-check && eslint . --fix",
     "pre-commit": "lint-staged",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=6 --passWithNoTests",
-    "test:coverage": "jest --coverage",
-    "test:watch": "jest --watch",
+    "test:ci": "bun test --coverage --reporters=default --reporters=jest-junit --maxWorkers=6 --passWithNoTests",
+    "test:coverage": "bun test --coverage",
+    "test:watch": "bun test --watch",
     "type-check": "tsc --build"
   },
   "lint-staged": {

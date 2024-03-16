@@ -6,6 +6,8 @@ import { MemoryHardware } from './memory_hardware';
 export class KioskHardware extends MemoryHardware {
   constructor(private readonly kiosk: KioskBrowser.Kiosk) {
     super();
+    this.devices = this.kiosk.devices;
+    this.printers = this.kiosk.printers;
   }
 
   /**
@@ -33,12 +35,12 @@ export class KioskHardware extends MemoryHardware {
    * New subscribers immediately receive the same current set.
    */
   // eslint-disable-next-line vx/gts-no-public-class-fields
-  readonly devices = this.kiosk.devices;
+  readonly devices: typeof this.kiosk.devices;
 
   /**
    * Gets an observable that yields the current set of printers as printers are
    * configured or devices are added or removed.
    */
   // eslint-disable-next-line vx/gts-no-public-class-fields
-  readonly printers = this.kiosk.printers;
+  readonly printers: typeof this.kiosk.printers;
 }

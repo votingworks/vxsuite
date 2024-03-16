@@ -111,6 +111,6 @@ test('getDaysInMonth', () => {
 test('utcTimestamp', () => {
   jest.useFakeTimers().setSystemTime(new Date('2022-03-23T11:23:00.000Z'));
   expect(utcTimestamp()).toEqual(Math.round(DateTime.utc().toSeconds()));
-  expect(utcTimestamp()).toMatchInlineSnapshot(`1648034580`);
+  expect(utcTimestamp()).toEqual(1648034580);
   jest.useRealTimers();
 });

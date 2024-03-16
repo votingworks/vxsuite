@@ -1,0 +1,71 @@
+#!/usr/bin/env bun
+
+import { readFile } from 'fs/promises';
+import { join } from 'path';
+
+const { $ } = Bun;
+export {};
+
+const workspacePackageJson = await readFile(
+  join(__dirname, 'package.json'),
+  'utf8'
+);
+const { workspaces } = JSON.parse(workspacePackageJson);
+const WIDTH = 100;
+
+const results: { pkgPath: string; status: 'success' | 'failure' }[] = [];
+let totalPassed = 0;
+let totalFailed = 0;
+
+for (const pkgPath of workspaces) {
+  const tests = box(
+    (async function* () {
+      yield `→ bun run test --cwd ${pkgPath}`;
+      const bunTest = $`bun run test --cwd ${pkgPath}`.quiet();
+
+      const bunTestResult = await bunTest;
+
+      yield* bunTestResult.stderr.toString('utf-8').split('\n');
+      yield `${bunTestResult.exitCode === 0 ? '✅' : '❌'} ${pkgPath}`;
+
+      if (bunTestResult.exitCode === 0) {
+        results.push({ pkgPath, status: 'success' });
+      } else {
+        results.push({ pkgPath, status: 'failure' });
+      }
+    })()
+  );
+
+  let passed = 0;
+  let failed = 0;
+
+  for await (const line of tests) {
+    const passedMatch = line.match(/(\d+) pass/);
+    const failedMatch = line.match(/(\d+) fail/);
+
+    if (passedMatch) {
+      passed = parseInt(passedMatch[1], 10);
+    }
+
+    if (failedMatch) {
+      failed = parseInt(failedMatch[1], 10);
+    }
+
+    console.log(line);
+  }
+
+  totalPassed += passed;
+  totalFailed += failed;
+}
+
+console.log(
+  `\n${totalPassed + totalFailed} tests: ${totalPassed} passed, ${totalFailed} failed`
+);
+
+for (const { pkgPath, status } of results) {
+  console.log(`${status === 'success' ? '✅' : '❌'} ${pkgPath}`);
+}
+
+async function* box(lines: AsyncIterable<string>): AsyncIterable<string> {
+  yield* lines;
+}

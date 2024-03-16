@@ -18,9 +18,9 @@
     "pre-commit": "lint-staged",
     "test": "is-ci test:ci test:watch",
     "test:ci": "jest --ci --coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
-    "test:coverage": "jest --coverage",
+    "test:coverage": "bun test --coverage",
     "test:debug": "node --inspect-brk $(which jest) --runInBand --no-cache",
-    "test:watch": "jest --watch",
+    "test:watch": "bun test --watch",
     "type-check": "tsc --build"
   },
   "lint-staged": {

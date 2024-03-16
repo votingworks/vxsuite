@@ -1,8 +1,8 @@
 import { mockOf } from '@votingworks/test-utils';
 import fc from 'fast-check';
-import randomBytes from 'randombytes';
 import { Buffer } from 'buffer';
 
+import { beforeEach, expect, test, mock } from 'bun:test';
 import { isFeatureFlagEnabled } from './features';
 import {
   generatePin,
@@ -11,14 +11,19 @@ import {
   MIN_PIN_LENGTH,
 } from './pins';
 
-jest.mock('./features', (): typeof import('./features') => {
+void mock.module('./features', (): typeof import('./features') => {
   return {
-    ...jest.requireActual('./features'),
-    isFeatureFlagEnabled: jest.fn(),
+    getConverterClientType: mock(),
+    isFeatureFlagEnabled: mock(),
+    isVxDev: mock(),
   };
 });
 
-jest.mock('randombytes', (): typeof import('randombytes') => jest.fn());
+const randomBytes = mock();
+
+void mock.module('randombytes', () => ({
+  default: randomBytes,
+}));
 
 const WEAK_PIN_EXAMPLES: string[] = [
   '000000',
@@ -52,7 +57,7 @@ function setMockRandomBytesResultOnce(pin: string) {
   const pinAsByteArray = Buffer.from(
     pin.split('').map((char) => Number.parseInt(char, 10))
   );
-  mockOf(randomBytes).mockImplementationOnce(() => pinAsByteArray);
+  randomBytes.mockReturnValueOnce(pinAsByteArray);
 }
 
 beforeEach(() => {
@@ -86,11 +91,14 @@ test('generatePIN generates PINs with all zeros when all-zero smartcard PIN gene
   mockOf(isFeatureFlagEnabled).mockImplementation(() => true);
 
   fc.assert(
-    fc.property(fc.integer(MIN_PIN_LENGTH, MAX_PIN_LENGTH), (length) => {
-      const pin = generatePin(length);
-      expect(pin).toMatch(/^[0]+$/);
-      expect(pin).toHaveLength(length);
-    })
+    fc.property(
+      fc.integer({ min: MIN_PIN_LENGTH, max: MAX_PIN_LENGTH }),
+      (length) => {
+        const pin = generatePin(length);
+        expect(pin).toMatch(/^[0]+$/);
+        expect(pin).toHaveLength(length);
+      }
+    )
   );
 });
 
@@ -103,7 +111,7 @@ test('generatePin returns first non-weak random PIN', () => {
   }
 
   expect(generatePin()).toEqual(nonWeakPin);
-  expect(mockOf(randomBytes)).toBeCalledTimes(1);
+  expect(mockOf(randomBytes)).toHaveBeenCalledTimes(1);
 });
 
 test('generatePin skips weak PINs', () => {

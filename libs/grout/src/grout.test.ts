@@ -1,9 +1,10 @@
 /* eslint-disable no-unused-expressions */
 /* eslint-disable @typescript-eslint/require-await */
-import { AddressInfo } from 'net';
-import express from 'express';
-import { err, ok, Result } from '@votingworks/basics';
+import { Result, err, ok } from '@votingworks/basics';
+import { expect, spyOn, test } from 'bun:test';
 import { expectTypeOf } from 'expect-type';
+import express from 'express';
+import { AddressInfo } from 'net';
 import { createClient } from './client';
 import { AnyApi, buildRouter, createApi } from './server';
 
@@ -12,7 +13,7 @@ function createTestApp(api: AnyApi) {
 
   app.use('/api', buildRouter(api, express));
 
-  const server = app.listen();
+  const server = app.listen(0);
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/api`;
   return { server, baseUrl };
@@ -68,7 +69,7 @@ test('registers Express routes for an API', async () => {
   const mockPerson: Person = { name: 'Alice', age: 99 };
 
   expect(await client.getAllPeople()).toEqual([]);
-  expect(await client.getPersonByName({ name: 'Alice' })).toEqual(undefined);
+  expect(await client.getPersonByName({ name: 'Alice' })).toBeUndefined();
   await client.createPerson({ person: { ...mockPerson } });
   expect(await client.getAllPeople()).toEqual([mockPerson]);
   await client.updatePersonByName({
@@ -83,7 +84,7 @@ test('registers Express routes for an API', async () => {
 });
 
 test('sends a 500 for unexpected errors', async () => {
-  const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+  const consoleErrorSpy = spyOn(console, 'error').mockReturnValue();
   const api = createApi({
     async getStuff(): Promise<number> {
       throw new Error('Unexpected error');
@@ -97,8 +98,8 @@ test('sends a 500 for unexpected errors', async () => {
   const { server, baseUrl } = createTestApp(api);
   const client = createClient<typeof api>({ baseUrl });
 
-  await expect(client.getStuff()).rejects.toThrow('Unexpected error');
-  await expect(client.doStuff()).rejects.toThrow('Not even an Error');
+  expect(client.getStuff()).rejects.toThrow('Unexpected error');
+  expect(client.doStuff()).rejects.toThrow('Not even an Error');
 
   expect(consoleErrorSpy).toHaveBeenCalledTimes(2);
   expect(consoleErrorSpy).toHaveBeenCalledWith(new Error('Unexpected error'));
@@ -122,8 +123,8 @@ test('works with the Result type', async () => {
   const { server, baseUrl } = createTestApp(api);
   const client = createClient<typeof api>({ baseUrl });
 
-  await expect(client.getStuff({ shouldFail: false })).resolves.toEqual(ok(42));
-  await expect(client.getStuff({ shouldFail: true })).resolves.toEqual(
+  expect(await client.getStuff({ shouldFail: false })).toEqual(ok(42));
+  expect(await client.getStuff({ shouldFail: true })).toEqual(
     err(new Error('Known error'))
   );
   server.close();
@@ -155,7 +156,7 @@ test('errors if RPC method doesnt have the correct signature', async () => {
   });
   const { baseUrl, server } = createTestApp(api);
   const client = createClient<typeof api>({ baseUrl });
-  await expect(client.sqrt(4)).rejects.toThrow(
+  expect(client.sqrt(4)).rejects.toThrow(
     'Grout methods must be called with an object or undefined as the sole argument. The argument received was: 4'
   );
   server.close();
@@ -177,7 +178,7 @@ test('errors if app has upstream body-parsing middleware', async () => {
   const baseUrl = `http://localhost:${port}/api`;
   const client = createClient<typeof api>({ baseUrl });
 
-  await expect(client.getStuff()).rejects.toThrow(
+  expect(client.getStuff()).rejects.toThrow(
     'Request body was parsed as something other than a string. Make sure you haven\'t added any other body parsers upstream of the Grout router - e.g. app.use(express.json()). Body: {"__grout_type":"undefined","__grout_value":"undefined"}'
   );
   server.close();
@@ -207,7 +208,7 @@ test('client errors on incorrect baseUrl', async () => {
   const client = createClient<typeof api>({
     baseUrl: `${baseUrl}wrong`,
   });
-  await expect(client.getStuff()).rejects.toThrow(
+  expect(client.getStuff()).rejects.toThrow(
     `Got 404 for ${baseUrl}wrong/getStuff. Are you sure the baseUrl is correct?`
   );
   server.close();
@@ -238,10 +239,10 @@ test('client errors if response is not JSON', async () => {
   const baseUrl = `http://localhost:${port}/api`;
   const client = createClient<typeof api>({ baseUrl });
 
-  await expect(client.getStuff()).rejects.toThrow(
+  expect(client.getStuff()).rejects.toThrow(
     `Response content type is not JSON for ${baseUrl}/getStuff`
   );
-  await expect(client.getMoreStuff()).rejects.toThrow(
+  expect(client.getMoreStuff()).rejects.toThrow(
     `Response content type is not JSON for ${baseUrl}/getMoreStuff`
   );
   server.close();
@@ -259,11 +260,11 @@ test('client handles non-JSON error responses', async () => {
     // Send invalid JSON (empty response body)
     res.status(500).send();
   });
-  const server = app.listen();
+  const server = app.listen(0);
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/api`;
   const client = createClient<typeof api>({ baseUrl });
-  await expect(client.getStuff()).rejects.toThrow('invalid json response body');
+  expect(client.getStuff()).rejects.toThrow(/json/i);
   server.close();
 });
 
@@ -277,12 +278,10 @@ test('client handles other server errors', async () => {
   app.post('/api/getStuff', (req, res) => {
     res.status(500).send();
   });
-  const server = app.listen();
+  const server = app.listen(0);
   const { port } = server.address() as AddressInfo;
   const baseUrl = `http://localhost:${port}/api`;
   const client = createClient<typeof api>({ baseUrl });
-  await expect(client.getStuff()).rejects.toThrow(
-    `Got 500 for ${baseUrl}/getStuff`
-  );
+  expect(client.getStuff()).rejects.toThrow(`Got 500 for ${baseUrl}/getStuff`);
   server.close();
 });

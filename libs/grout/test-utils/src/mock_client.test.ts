@@ -37,9 +37,7 @@ test('catches exceptions from mock function failures and logs them', async () =>
   console.error = consoleErrorMock;
   await mockClient.add({ num1: 1, num2: 2 });
   expect(consoleErrorMock).toHaveBeenCalledTimes(1);
-  expect(consoleErrorMock.mock.calls[0][0]).toMatchInlineSnapshot(
-    `"Unexpected call to mock function: add({ num1: 1, num2: 2 })"`
-  );
+  expect(consoleErrorMock.mock.calls[0][0]).toMatchSnapshot();
 });
 
 test('doesnt catch intentional exceptions from mock functions', () => {
@@ -65,11 +63,13 @@ test('asserts complete for all methods', async () => {
 
   await expect(mockClient.add({ num1: 1, num2: 2 })).resolves.toEqual(42);
 
-  expect(() => mockClient.assertComplete()).toThrowErrorMatchingInlineSnapshot(`
-    "Mismatch between expected mock function calls and actual mock function calls:
-
-    Call #0
-    Expected: sqrt({ num: 4 })
-    Actual: <none>"
-  `);
+  expect(() => mockClient.assertComplete()).toThrow(
+    [
+      `Mismatch between expected mock function calls and actual mock function calls:`,
+      ``,
+      `Call #0`,
+      `Expected: sqrt({ num: 4 })`,
+      `Actual: <none>`,
+    ].join('\n')
+  );
 });

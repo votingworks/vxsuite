@@ -1,35 +1,52 @@
+import {
+  FakeChildProcess as MockChildProcess,
+  mockOf,
+  fakeChildProcess as newMockChildProcess,
+} from '@votingworks/test-utils';
 import { Buffer } from 'buffer';
+import { beforeEach, expect, mock, spyOn, test } from 'bun:test';
 import { spawn } from 'child_process';
 import fs from 'fs/promises';
 import { Readable, Writable } from 'stream';
 import { fileSync } from 'tmp';
-import {
-  fakeChildProcess as newMockChildProcess,
-  FakeChildProcess as MockChildProcess,
-  mockOf,
-} from '@votingworks/test-utils';
 
 import {
+  CreateCertInput,
+  SignMessageInput,
+  SignMessageInputExcludingMessage,
   createCert,
   createCertGivenCertSigningRequest,
   createCertHelper,
-  CreateCertInput,
   createCertSigningRequest,
   openssl,
   parseCreateCertInput,
   parseSignMessageInputExcludingMessage,
   signMessage,
   signMessageHelper,
-  SignMessageInput,
-  SignMessageInputExcludingMessage,
 } from './cryptography';
 
-jest.mock('child_process');
-jest.mock('tmp');
+const spawnMock = mock();
+void mock.module('child_process', (): typeof import('child_process') => ({
+  spawn: spawnMock,
+  fork: mock(),
+  execFileSync: mock(),
+  spawnSync: mock(),
+  execSync: mock(),
+}));
+void mock.module('tmp', (): typeof import('tmp') => ({
+  fileSync: mock(),
+  dirSync: mock(),
+  file: mock(),
+  dir: mock(),
+  setGracefulCleanup: mock(),
+  tmpdir: '',
+  tmpNameSync: mock(),
+  tmpName: mock(),
+}));
 
 let mockChildProcess: MockChildProcess;
 let nextTempFileName = 0;
-const tempFileRemoveCallbacks: jest.Mock[] = [];
+const tempFileRemoveCallbacks: Array<JestMock.Mock<() => Promise<Error>>> = [];
 
 beforeEach(() => {
   mockChildProcess = newMockChildProcess();
@@ -38,7 +55,7 @@ beforeEach(() => {
   nextTempFileName = 0;
   mockOf(fileSync).mockImplementation(() => {
     nextTempFileName += 1;
-    const removeCallback = jest.fn();
+    const removeCallback = mock();
     tempFileRemoveCallbacks.push(removeCallback);
     return {
       fd: nextTempFileName,
@@ -46,9 +63,9 @@ beforeEach(() => {
       removeCallback,
     };
   });
-  jest.spyOn(fs, 'writeFile').mockResolvedValue();
+  spyOn(fs, 'writeFile').mockResolvedValue();
 
-  jest.spyOn(process.stdin, 'pipe').mockImplementation(() => new Writable());
+  spyOn(process.stdin, 'pipe').mockImplementation(() => new Writable());
 });
 
 const fileBuffers = [
@@ -127,23 +144,23 @@ test('openssl - no standard output', async () => {
   expect(response).toEqual(Buffer.of());
 });
 
-test('openssl - error creating temporary file', async () => {
+test('openssl - error creating temporary file', () => {
   mockOf(fileSync).mockImplementationOnce(() => {
     throw new Error('Whoa!');
   });
 
-  await expect(openssl([fileBuffers[0]])).rejects.toThrow('Whoa!');
+  expect(openssl([fileBuffers[0]])).rejects.toThrow('Whoa!');
 });
 
-test('openssl - error writing temp file', async () => {
+test('openssl - error writing temp file', () => {
   mockOf(fs.writeFile).mockImplementationOnce(() =>
     Promise.reject(new Error('Whoa!'))
   );
 
-  await expect(openssl([fileBuffers[0]])).rejects.toThrow('Whoa!');
+  expect(openssl([fileBuffers[0]])).rejects.toThrow('Whoa!');
 });
 
-test('openssl - error cleaning up temp files', async () => {
+test('openssl - error cleaning up temp files', () => {
   setTimeout(() => {
     for (const tempFileRemoveCallback of tempFileRemoveCallbacks) {
       tempFileRemoveCallback.mockRejectedValueOnce(new Error('Whoa!'));
@@ -151,10 +168,10 @@ test('openssl - error cleaning up temp files', async () => {
     mockChildProcess.emit('close', successExitCode);
   });
 
-  await expect(openssl([fileBuffers[0]])).rejects.toThrow('Whoa!');
+  expect(openssl([fileBuffers[0]])).rejects.toThrow('Whoa!');
 });
 
-test('openssl - process exits with an error code', async () => {
+test('openssl - process exits with an error code', () => {
   setTimeout(() => {
     for (const errorChunk of errorChunks) {
       mockChildProcess.stderr.emit('data', errorChunk);
@@ -162,10 +179,10 @@ test('openssl - process exits with an error code', async () => {
     mockChildProcess.emit('close', errorExitCode);
   });
 
-  await expect(openssl([fileBuffers[0]])).rejects.toThrow('Uh oh!');
+  expect(openssl([fileBuffers[0]])).rejects.toThrow('Uh oh!');
 });
 
-test('openssl - provides both stderr and stdout on error', async () => {
+test('openssl - provides both stderr and stdout on error', () => {
   setTimeout(() => {
     for (const errorChunk of errorChunks) {
       mockChildProcess.stderr.emit('data', errorChunk);
@@ -176,7 +193,7 @@ test('openssl - provides both stderr and stdout on error', async () => {
     mockChildProcess.emit('close', errorExitCode);
   });
 
-  await expect(openssl([fileBuffers[0]])).rejects.toThrow(
+  expect(openssl([fileBuffers[0]])).rejects.toThrow(
     'Uh oh!\nHey! How is it going?'
   );
 });
@@ -612,7 +629,7 @@ test.each<{
   });
 
   const message = Readable.from('abcd');
-  jest.spyOn(message, 'pipe');
+  spyOn(message, 'pipe');
 
   const messageSignature = await signMessage({
     message,

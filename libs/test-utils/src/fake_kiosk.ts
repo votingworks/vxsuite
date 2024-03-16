@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer';
+import { mock } from 'bun:test';
 import { BehaviorSubject } from './observable';
 
 export function fakeDevice(
@@ -61,19 +62,19 @@ export function fakeKiosk({
   printers?: Array<Partial<KioskBrowser.PrinterInfo>>;
 } = {}): FakeKiosk {
   return {
-    print: jest.fn().mockResolvedValue(undefined),
+    print: mock().mockResolvedValue(undefined),
     // TODO: Rename to `printToPdf` in kiosk-browser, then update here.
     // eslint-disable-next-line vx/gts-identifiers
-    printToPDF: jest.fn().mockResolvedValue(Buffer.of()),
-    getBatteryInfo: jest.fn().mockResolvedValue({ level, discharging }),
-    getPrinterInfo: jest.fn().mockResolvedValue(printers.map(fakePrinterInfo)),
+    printToPDF: mock().mockResolvedValue(Buffer.of()),
+    getBatteryInfo: mock().mockResolvedValue({ level, discharging }),
+    getPrinterInfo: mock().mockResolvedValue(printers.map(fakePrinterInfo)),
     devices: new BehaviorSubject(new Set<KioskBrowser.Device>()),
     printers: new BehaviorSubject(new Set<KioskBrowser.PrinterInfo>()),
-    quit: jest.fn(),
-    saveAs: jest.fn().mockResolvedValue(undefined),
-    log: jest.fn(),
-    captureScreenshot: jest.fn().mockResolvedValue(Buffer.of()),
-    showOpenDialog: jest.fn(),
-    showSaveDialog: jest.fn(),
-  };
+    quit: mock(),
+    saveAs: mock().mockResolvedValue(undefined),
+    log: mock(),
+    captureScreenshot: mock().mockResolvedValue(Buffer.of()),
+    showOpenDialog: mock(),
+    showSaveDialog: mock(),
+  } as unknown as FakeKiosk;
 }

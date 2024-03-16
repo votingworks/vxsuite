@@ -20,9 +20,9 @@
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}'",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "test": "is-ci test:ci test:watch",
-    "test:coverage": "jest --coverage",
-    "test:ci": "jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
-    "test:watch": "jest --watch",
+    "test:coverage": "bun test --coverage",
+    "test:ci": "bun test --coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
+    "test:watch": "bun test --watch",
     "pre-commit": "lint-staged"
   },
   "lint-staged": {

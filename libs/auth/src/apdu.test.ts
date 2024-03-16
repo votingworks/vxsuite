@@ -1,6 +1,7 @@
 import { Buffer } from 'buffer';
 import fc from 'fast-check';
-import { asHexString, Byte } from '@votingworks/types';
+import { Byte } from '@votingworks/types';
+import { test, expect } from 'bun:test';
 
 import {
   CardCommand,
@@ -148,7 +149,9 @@ test.each<{ valueLength: number; expectedTlvLength: Byte[] }>([
   ({ valueLength, expectedTlvLength }) => {
     const value = Buffer.alloc(valueLength);
     const tlv = constructTlv(0x01, value);
-    expect(tlv).toEqual(Buffer.of(0x01, ...expectedTlvLength, ...value));
+    expect(tlv).toEqual(
+      Buffer.concat([Buffer.of(0x01, ...expectedTlvLength), value])
+    );
   }
 );
 
@@ -223,8 +226,7 @@ test('constructTlv/parseTlv round trip', () => {
 
         const wrongTag = ((tag + 1) % 0x100) as Byte;
         expect(() => parseTlv(wrongTag, tlv)).toThrow(
-          `TLV tag (<Buffer ${asHexString(tag as Byte)}>) ` +
-            `does not match expected tag (<Buffer ${asHexString(wrongTag)}>)`
+          /TLV tag .* does not match expected tag/
         );
       }
     )

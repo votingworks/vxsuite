@@ -19,10 +19,10 @@
     "pre-commit": "lint-staged",
     "start": "node ./build/index.js",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=America/Anchorage jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
-    "test:coverage": "TZ=America/Anchorage jest --coverage",
+    "test:ci": "TZ=America/Anchorage bun test --coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
+    "test:coverage": "TZ=America/Anchorage bun test --coverage",
     "test:debug": "TZ=America/Anchorage node --inspect-brk $(which jest) --runInBand --no-cache",
-    "test:watch": "TZ=America/Anchorage jest --watch",
+    "test:watch": "TZ=America/Anchorage bun test --watch",
     "type-check": "tsc --build"
   },
   "lint-staged": {

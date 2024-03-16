@@ -24,8 +24,8 @@
     "test:ci": "pnpm build && pnpm test:ts:coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
     "test:rust-addon": "cargo test",
     "test:ts": "is-ci test:ci test:ts:watch",
-    "test:ts:coverage": "jest --coverage",
-    "test:ts:watch": "jest --watch",
+    "test:ts:coverage": "bun test --coverage",
+    "test:ts:watch": "bun test --watch",
     "type-check": "tsc --build"
   },
   "lint-staged": {
