@@ -11,7 +11,6 @@ export * from './extract_cdf_ui_strings';
 export * as format from './format';
 export * from './features';
 export * from './features_mock';
-export * from './fetch_json';
 export * from './filenames';
 export * from './file_reading';
 export * from './Hardware';
