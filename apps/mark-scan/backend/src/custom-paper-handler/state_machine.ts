@@ -952,6 +952,7 @@ export async function getPaperHandlerStateMachine({
         case state.matches('voting_flow.jam_physically_cleared'):
           return 'jam_cleared';
         case state.matches('voting_flow.resetting_state_machine_no_delay'):
+          /* istanbul ignore next - nonblocking state can't be reliably asserted on. Assert on business logic eg. jest mock function calls instead */
           return 'resetting_state_machine_no_delay';
         case state.matches('voting_flow.resetting_state_machine_after_jam'):
           return 'resetting_state_machine_after_jam';

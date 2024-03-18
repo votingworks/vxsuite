@@ -27,6 +27,7 @@ import { assert } from 'console';
 import {
   PaperHandlerStateMachine,
   getPaperHandlerStateMachine,
+  paperHandlerStatusToEvent,
 } from './state_machine';
 import { Workspace, createWorkspace } from '../util/workspace';
 import {
@@ -444,12 +445,32 @@ describe('PAT device', () => {
   });
 });
 
-test('poll_worker_auth_ended_unexpectedly', async () => {
+test('ending poll worker auth in accepting_paper returns to initial state', async () => {
   machine.setAcceptingPaper();
   const ballotStyle = electionGeneralDefinition.election.ballotStyles[1];
   mockCardlessVoterAuth(auth, {
     ballotStyleId: ballotStyle.id,
     precinctId,
   });
+  await waitForStatus('not_accepting_paper');
+});
+
+test('poll_worker_auth_ended_unexpectedly', async () => {
+  machine.setAcceptingPaper();
+  const ballotStyle = electionGeneralDefinition.election.ballotStyles[1];
+  setMockDeviceStatus(getPaperInFrontStatus());
+  await waitForStatus('loading_paper');
+  mockCardlessVoterAuth(auth, {
+    ballotStyleId: ballotStyle.id,
+    precinctId,
+  });
   await waitForStatus('poll_worker_auth_ended_unexpectedly');
+});
+
+describe('paperHandlerStatusToEvent', () => {
+  test('paper in output', () => {
+    expect(paperHandlerStatusToEvent(getPaperInRearStatus())).toEqual({
+      type: 'PAPER_IN_OUTPUT',
+    });
+  });
 });

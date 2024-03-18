@@ -191,8 +191,6 @@ const authEndedEarlyPageTestSpecs: Array<{
 }> = [
   { state: 'poll_worker_auth_ended_unexpectedly', auth: 'cardless_voter' },
   { state: 'poll_worker_auth_ended_unexpectedly', auth: 'logged_out' },
-  { state: 'accepting_paper', auth: 'cardless_voter' },
-  { state: 'accepting_paper', auth: 'logged_out' },
   { state: 'loading_paper', auth: 'cardless_voter' },
   { state: 'loading_paper', auth: 'logged_out' },
 ];
