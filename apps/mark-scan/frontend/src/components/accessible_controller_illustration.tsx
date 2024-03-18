@@ -15,10 +15,11 @@ interface AccessibleControllerIllustrationProps {
   highlight?: ControllerButton;
 }
 
+export const HIGHLIGHT_FILL = '#885fce';
+
 export function AccessibleControllerIllustration({
   highlight,
 }: AccessibleControllerIllustrationProps): JSX.Element {
-  const highlightFill = '#985aa3';
   return (
     <svg
       viewBox="25 40 160 160"
@@ -47,7 +48,7 @@ export function AccessibleControllerIllustration({
         >
           <path
             data-testid="left"
-            fill={highlight === 'left' ? highlightFill : 'none'}
+            fill={highlight === 'left' ? HIGHLIGHT_FILL : 'none'}
             stroke="#000000"
             strokeWidth="2.5"
             strokeLinejoin="round"
@@ -56,7 +57,7 @@ export function AccessibleControllerIllustration({
           />
           <path
             data-testid="up"
-            fill={highlight === 'up' ? highlightFill : 'none'}
+            fill={highlight === 'up' ? HIGHLIGHT_FILL : 'none'}
             stroke="#000000"
             strokeWidth="2.5"
             strokeLinejoin="round"
@@ -65,7 +66,7 @@ export function AccessibleControllerIllustration({
           />
           <path
             data-testid="down"
-            fill={highlight === 'down' ? highlightFill : 'none'}
+            fill={highlight === 'down' ? HIGHLIGHT_FILL : 'none'}
             stroke="#000000"
             strokeWidth="2.5"
             strokeLinejoin="round"
@@ -74,7 +75,7 @@ export function AccessibleControllerIllustration({
           />
           <path
             data-testid="right"
-            fill={highlight === 'right' ? highlightFill : 'none'}
+            fill={highlight === 'right' ? HIGHLIGHT_FILL : 'none'}
             stroke="#000000"
             strokeWidth="2.5"
             strokeLinejoin="round"
@@ -84,7 +85,7 @@ export function AccessibleControllerIllustration({
         </g>
         <circle
           data-testid="select"
-          fill={highlight === 'select' ? highlightFill : 'none'}
+          fill={highlight === 'select' ? HIGHLIGHT_FILL : 'none'}
           stroke="#000000"
           strokeWidth="2.5"
           strokeLinejoin="round"
@@ -96,7 +97,7 @@ export function AccessibleControllerIllustration({
         <g>
           <rect
             data-testid="help"
-            fill={highlight === 'help' ? highlightFill : 'none'}
+            fill={highlight === 'help' ? HIGHLIGHT_FILL : 'none'}
             stroke="#000000"
             strokeWidth="1.8"
             strokeLinejoin="round"
@@ -118,7 +119,7 @@ export function AccessibleControllerIllustration({
           <path
             id="rect10678-7"
             data-testid="rate-down"
-            fill={highlight === 'rate-down' ? highlightFill : 'none'}
+            fill={highlight === 'rate-down' ? HIGHLIGHT_FILL : 'none'}
             stroke="#000000"
             strokeWidth="1.8"
             strokeLinejoin="round"
@@ -127,7 +128,7 @@ export function AccessibleControllerIllustration({
           <path
             id="rect10678-7-6"
             data-testid="rate-up"
-            fill={highlight === 'rate-up' ? highlightFill : 'none'}
+            fill={highlight === 'rate-up' ? HIGHLIGHT_FILL : 'none'}
             stroke="#000000"
             strokeWidth="1.8"
             strokeLinejoin="round"
@@ -138,7 +139,7 @@ export function AccessibleControllerIllustration({
           <path
             id="rect10678-7-4"
             data-testid="volume-down"
-            fill={highlight === 'volume-down' ? highlightFill : 'none'}
+            fill={highlight === 'volume-down' ? HIGHLIGHT_FILL : 'none'}
             stroke="#000000"
             strokeWidth="1.8"
             strokeLinejoin="round"
@@ -147,7 +148,7 @@ export function AccessibleControllerIllustration({
           <path
             id="rect10678-7-6-3"
             data-testid="volume-up"
-            fill={highlight === 'volume-up' ? highlightFill : 'none'}
+            fill={highlight === 'volume-up' ? HIGHLIGHT_FILL : 'none'}
             stroke="#000000"
             strokeWidth="1.8"
             strokeLinejoin="round"
@@ -177,7 +178,7 @@ export function AccessibleControllerIllustration({
         <g id="g33812">
           <rect
             data-testid="pause"
-            fill={highlight === 'pause' ? highlightFill : 'none'}
+            fill={highlight === 'pause' ? HIGHLIGHT_FILL : 'none'}
             stroke="#000000"
             strokeWidth="1.8"
             strokeLinejoin="round"
