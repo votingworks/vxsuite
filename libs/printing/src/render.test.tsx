@@ -11,7 +11,7 @@ import { tmpNameSync } from 'tmp';
 import React from 'react';
 import { parsePdf } from '@votingworks/image-utils';
 import { writeFileSync } from 'fs';
-import { renderToPdf } from './render';
+import { RenderSpec, renderToPdf } from './render';
 
 const { electionDefinition } = electionFamousNames2021Fixtures;
 const { election } = electionDefinition;
@@ -111,20 +111,6 @@ test('page can be longer than letter when using "expand to fit"', async () => {
   });
 });
 
-test('documents of various sizes all fit on a single page when using "expand to fit"', async () => {
-  for (let i = 25; i <= 50; i += 1) {
-    const pdfData = await renderToPdf({
-      document: <ManyHeadings count={i} />,
-      options: {
-        expandPageToFitContent: true,
-      },
-    });
-
-    const pdf = await parsePdf(pdfData);
-    expect(pdf.numPages).toEqual(1);
-  }
-});
-
 test('can render multiple documents at once', async () => {
   const outputPath1 = tmpNameSync();
   const outputPath2 = tmpNameSync();
@@ -150,4 +136,20 @@ test('can render multiple documents at once', async () => {
   await expect(outputPath2).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'expand-to-fit-document',
   });
+});
+
+test('documents of various sizes all fit on a single page when using "expand to fit"', async () => {
+  const specs: RenderSpec[] = [];
+  for (let i = 25; i <= 50; i += 1) {
+    specs.push({
+      document: <ManyHeadings count={i} />,
+      options: {
+        expandPageToFitContent: true,
+      },
+    });
+  }
+
+  const pdfData = await renderToPdf(specs);
+  const pdfs = await Promise.all(pdfData.map((data) => parsePdf(data)));
+  expect(pdfs.every((pdf) => pdf.numPages === 1)).toEqual(true);
 });

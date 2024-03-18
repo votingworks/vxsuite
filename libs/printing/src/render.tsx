@@ -53,7 +53,7 @@ interface RenderOptions {
   expandPageToFitContent?: boolean;
 }
 
-interface RenderSpec {
+export interface RenderSpec {
   document: JSX.Element;
   options?: RenderOptions;
 }
