@@ -60,7 +60,7 @@ export async function saveReadinessReport({
     generatedAtTime: reportDate,
   });
 
-  const data = await renderToPdf(report);
+  const data = await renderToPdf({ document: report });
   const exporter = new Exporter({
     usbDrive,
     allowedExportPatterns: SCAN_ALLOWED_EXPORT_PATTERNS,

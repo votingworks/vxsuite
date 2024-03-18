@@ -94,7 +94,7 @@ export async function generateBallotCountReportPreview({
     disposition: 'success',
   });
   return {
-    pdf: await renderToPdf(report),
+    pdf: await renderToPdf({ document: report }),
     warning: getBallotCountReportWarning(reportProps),
   };
 }
@@ -114,7 +114,7 @@ export async function printBallotCountReport({
   const report = buildBallotCountReport(reportProps);
 
   try {
-    await printer.print({ data: await renderToPdf(report) });
+    await printer.print({ data: await renderToPdf({ document: report }) });
     await logger.logAsCurrentRole(LogEventId.ElectionReportPrinted, {
       message: `User printed a ballot count report.`,
       disposition: 'success',
@@ -143,7 +143,7 @@ export async function exportBallotCountReportPdf({
   const report = buildBallotCountReport(reportProps);
   const exportFileResult = await exportFile({
     path,
-    data: await renderToPdf(report),
+    data: await renderToPdf({ document: report }),
   });
 
   await logger.logAsCurrentRole(LogEventId.FileSaved, {

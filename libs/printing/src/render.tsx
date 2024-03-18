@@ -53,53 +53,17 @@ interface RenderOptions {
   expandPageToFitContent?: boolean;
 }
 
-export async function renderToPdf(
-  document: JSX.Element,
-  options: RenderOptions = {}
-): Promise<Buffer> {
-  const documentWithGlobalStyles = (
-    <React.Fragment>
-      {/* Initial report ported from VxAdmin, thus `desktop` theme to match styles */}
-      <VxThemeProvider
-        colorMode="desktop"
-        sizeMode="desktop"
-        screenType="builtIn"
-      >
-        <GlobalStyles />
-      </VxThemeProvider>
-      <div id={CONTENT_WRAPPER_ID}>{document}</div>
-    </React.Fragment>
-  );
-  const sheet = new ServerStyleSheet();
-  const reportHtml = ReactDom.renderToString(
-    sheet.collectStyles(documentWithGlobalStyles)
-  );
-  const style = sheet.getStyleElement();
-  sheet.seal();
+interface RenderSpec {
+  document: JSX.Element;
+  options?: RenderOptions;
+}
 
-  const documentHtml = ReactDom.renderToString(
-    <html>
-      <head>
-        <style
-          type="text/css"
-          dangerouslySetInnerHTML={{
-            __html: [
-              ROBOTO_REGULAR_FONT_DECLARATIONS,
-              ROBOTO_ITALIC_FONT_DECLARATIONS,
-            ].join('\n'),
-          }}
-        />
-        <style
-          type="text/css"
-          dangerouslySetInnerHTML={{
-            __html: FONT_AWESOME_STYLES,
-          }}
-        />
-        {style}
-      </head>
-      <body dangerouslySetInnerHTML={{ __html: reportHtml }} />
-    </html>
-  );
+export async function renderToPdf(spec: RenderSpec[]): Promise<Buffer[]>;
+export async function renderToPdf(spec: RenderSpec): Promise<Buffer>;
+export async function renderToPdf(
+  spec: RenderSpec | RenderSpec[]
+): Promise<Buffer | Buffer[]> {
+  const specs = Array.isArray(spec) ? spec : [spec];
 
   const browser = await chromium.launch({
     // font hinting (https://fonts.google.com/knowledge/glossary/hinting)
@@ -123,25 +87,78 @@ export async function renderToPdf(
       (DEFAULT_PDF_HEIGHT_INCHES - DEFAULT_PDF_VERTICAL_MARGIN) *
       PLAYWRIGHT_PIXELS_PER_INCH,
   });
-  // add the doctype so that the browser uses the correct user agent stylesheet
-  await page.setContent(`${HTML_DOCTYPE}\n${documentHtml}`);
 
-  const minimumHeightToFitContentInches =
-    (await getContentHeight(page)) / PLAYWRIGHT_PIXELS_PER_INCH +
-    DEFAULT_PDF_VERTICAL_MARGIN;
-  const heightInches = options.expandPageToFitContent
-    ? Math.max(minimumHeightToFitContentInches, DEFAULT_PDF_HEIGHT_INCHES)
-    : DEFAULT_PDF_HEIGHT_INCHES;
-  const pdfBuffer = await page.pdf({
-    path: options.outputPath,
-    width: inchesToText(DEFAULT_PDF_WIDTH_INCHES),
-    height: inchesToText(heightInches),
-    margin: mapObject(DEFAULT_PDF_MARGIN_INCHES, inchesToText),
-    printBackground: true, // necessary to render shaded backgrounds
-  });
+  const buffers: Buffer[] = [];
+
+  for (const { document, options = {} } of specs) {
+    const documentWithGlobalStyles = (
+      <React.Fragment>
+        {/* Initial report ported from VxAdmin, thus `desktop` theme to match styles */}
+        <VxThemeProvider
+          colorMode="desktop"
+          sizeMode="desktop"
+          screenType="builtIn"
+        >
+          <GlobalStyles />
+        </VxThemeProvider>
+        <div id={CONTENT_WRAPPER_ID}>{document}</div>
+      </React.Fragment>
+    );
+    const sheet = new ServerStyleSheet();
+    const reportHtml = ReactDom.renderToString(
+      sheet.collectStyles(documentWithGlobalStyles)
+    );
+    const style = sheet.getStyleElement();
+    sheet.seal();
+
+    const documentHtml = ReactDom.renderToString(
+      <html>
+        <head>
+          <style
+            type="text/css"
+            dangerouslySetInnerHTML={{
+              __html: [
+                ROBOTO_REGULAR_FONT_DECLARATIONS,
+                ROBOTO_ITALIC_FONT_DECLARATIONS,
+              ].join('\n'),
+            }}
+          />
+          <style
+            type="text/css"
+            dangerouslySetInnerHTML={{
+              __html: FONT_AWESOME_STYLES,
+            }}
+          />
+          {style}
+        </head>
+        <body dangerouslySetInnerHTML={{ __html: reportHtml }} />
+      </html>
+    );
+
+    // add the doctype so that the browser uses the correct user agent stylesheet
+    await page.setContent(`${HTML_DOCTYPE}\n${documentHtml}`, {
+      waitUntil: 'load',
+    });
+
+    const minimumHeightToFitContentInches =
+      (await getContentHeight(page)) / PLAYWRIGHT_PIXELS_PER_INCH +
+      DEFAULT_PDF_VERTICAL_MARGIN;
+    const heightInches = options.expandPageToFitContent
+      ? Math.max(minimumHeightToFitContentInches, DEFAULT_PDF_HEIGHT_INCHES)
+      : DEFAULT_PDF_HEIGHT_INCHES;
+    buffers.push(
+      await page.pdf({
+        path: options.outputPath,
+        width: inchesToText(DEFAULT_PDF_WIDTH_INCHES),
+        height: inchesToText(heightInches),
+        margin: mapObject(DEFAULT_PDF_MARGIN_INCHES, inchesToText),
+        printBackground: true, // necessary to render shaded backgrounds
+      })
+    );
+  }
 
   await context.close();
   await browser.close();
 
-  return pdfBuffer;
+  return Array.isArray(spec) ? buffers : buffers[0];
 }

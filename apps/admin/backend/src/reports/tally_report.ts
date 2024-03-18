@@ -122,7 +122,7 @@ export async function generateTallyReportPreview({
     disposition: 'success',
   });
   return {
-    pdf: await renderToPdf(report),
+    pdf: await renderToPdf({ document: report }),
     warning: getTallyReportWarning({
       allTallyReports: reportProps.allTallyReportResults,
       election,
@@ -145,7 +145,7 @@ export async function printTallyReport({
   const report = buildTallyReport(reportProps);
 
   try {
-    await printer.print({ data: await renderToPdf(report) });
+    await printer.print({ data: await renderToPdf({ document: report }) });
     await logger.logAsCurrentRole(LogEventId.ElectionReportPrinted, {
       message: `User printed a tally report.`,
       disposition: 'success',
@@ -174,7 +174,7 @@ export async function exportTallyReportPdf({
   const report = buildTallyReport(reportProps);
   const exportFileResult = await exportFile({
     path,
-    data: await renderToPdf(report),
+    data: await renderToPdf({ document: report }),
   });
 
   await logger.logAsCurrentRole(LogEventId.FileSaved, {

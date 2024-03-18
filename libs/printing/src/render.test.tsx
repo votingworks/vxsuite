@@ -34,8 +34,11 @@ const testReportProps: AdminTallyReportByPartyProps = {
 
 test('rendered tally report matches snapshot', async () => {
   const outputPath = tmpNameSync();
-  await renderToPdf(<AdminTallyReportByParty {...testReportProps} />, {
-    outputPath,
+  await renderToPdf({
+    document: <AdminTallyReportByParty {...testReportProps} />,
+    options: {
+      outputPath,
+    },
   });
 
   await expect(outputPath).toMatchPdfSnapshot({
@@ -45,9 +48,12 @@ test('rendered tally report matches snapshot', async () => {
 
 test('rendered tally report has minimum of the default height if using "expand to fit"', async () => {
   const outputPath = tmpNameSync();
-  await renderToPdf(<AdminTallyReportByParty {...testReportProps} />, {
-    outputPath,
-    expandPageToFitContent: true,
+  await renderToPdf({
+    document: <AdminTallyReportByParty {...testReportProps} />,
+    options: {
+      outputPath,
+      expandPageToFitContent: true,
+    },
   });
 
   await expect(outputPath).toMatchPdfSnapshot({
@@ -69,7 +75,7 @@ const PDF_SCALING = 200 / 72;
 
 test('by default, large content is split across multiple letter pages', async () => {
   const outputPath = tmpNameSync();
-  const pdfData = await renderToPdf(<ManyHeadings count={25} />);
+  const pdfData = await renderToPdf({ document: <ManyHeadings count={25} /> });
 
   const pdf = await parsePdf(pdfData);
   expect(pdf.numPages).toEqual(2);
@@ -87,9 +93,12 @@ test('by default, large content is split across multiple letter pages', async ()
 
 test('page can be longer than letter when using "expand to fit"', async () => {
   const outputPath = tmpNameSync();
-  const pdfData = await renderToPdf(<ManyHeadings count={25} />, {
-    outputPath,
-    expandPageToFitContent: true,
+  const pdfData = await renderToPdf({
+    document: <ManyHeadings count={25} />,
+    options: {
+      outputPath,
+      expandPageToFitContent: true,
+    },
   });
 
   const pdf = await parsePdf(pdfData);
@@ -104,11 +113,41 @@ test('page can be longer than letter when using "expand to fit"', async () => {
 
 test('documents of various sizes all fit on a single page when using "expand to fit"', async () => {
   for (let i = 25; i <= 50; i += 1) {
-    const pdfData = await renderToPdf(<ManyHeadings count={i} />, {
-      expandPageToFitContent: true,
+    const pdfData = await renderToPdf({
+      document: <ManyHeadings count={i} />,
+      options: {
+        expandPageToFitContent: true,
+      },
     });
 
     const pdf = await parsePdf(pdfData);
     expect(pdf.numPages).toEqual(1);
   }
+});
+
+test('can render multiple documents at once', async () => {
+  const outputPath1 = tmpNameSync();
+  const outputPath2 = tmpNameSync();
+  await renderToPdf([
+    {
+      document: <AdminTallyReportByParty {...testReportProps} />,
+      options: {
+        outputPath: outputPath1,
+      },
+    },
+    {
+      document: <ManyHeadings count={25} />,
+      options: {
+        expandPageToFitContent: true,
+        outputPath: outputPath2,
+      },
+    },
+  ]);
+
+  await expect(outputPath1).toMatchPdfSnapshot({
+    customSnapshotIdentifier: 'single-page-tally-report',
+  });
+  await expect(outputPath2).toMatchPdfSnapshot({
+    customSnapshotIdentifier: 'expand-to-fit-document',
+  });
 });

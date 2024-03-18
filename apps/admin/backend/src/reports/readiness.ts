@@ -45,7 +45,7 @@ export async function printReadinessReport({
   });
 
   try {
-    await printer.print({ data: await renderToPdf(report) });
+    await printer.print({ data: await renderToPdf({ document: report }) });
     await logger.logAsCurrentRole(LogEventId.ReadinessReportPrinted, {
       message: `User printed the equipment readiness report.`,
       disposition: 'success',
