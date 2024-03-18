@@ -17,7 +17,7 @@ import {
   ScanSide,
   SensorStatus,
 } from '@votingworks/custom-scanner';
-import { toRgba, writeImageData } from '@votingworks/image-utils';
+import { fromGrayScale, writeImageData } from '@votingworks/image-utils';
 import { LogEventId, BaseLogger, LogLine } from '@votingworks/logging';
 import {
   Id,
@@ -26,7 +26,6 @@ import {
   SheetInterpretationWithPages,
   SheetOf,
 } from '@votingworks/types';
-import { createImageData } from 'canvas';
 import { join } from 'path';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
 import { v4 as uuid } from 'uuid';
@@ -332,13 +331,11 @@ async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
   return await mapSheet(images, async (image, side) => {
     const { scannedImagesPath } = workspace;
     const path = join(scannedImagesPath, `${sheetPrefix}-${side}.jpeg`);
-    const imageData = toRgba(
-      createImageData(
-        Uint8ClampedArray.from(image.imageBuffer),
-        image.imageWidth,
-        image.imageHeight
-      )
-    ).assertOk('convert to RGBA');
+    const imageData = fromGrayScale(
+      image.imageBuffer,
+      image.imageWidth,
+      image.imageHeight
+    );
     await writeImageData(path, imageData);
     return path;
   });

@@ -1,19 +1,21 @@
 import { Rect } from '@votingworks/types';
-import { createImageData } from 'canvas';
+import { createImageData, ImageData } from 'canvas';
 import fc from 'fast-check';
 import { arbitraryImageData, arbitraryRect } from '../test/arbitraries';
 import { crop } from './crop';
 import { int } from './types';
+import { RGBA_CHANNEL_COUNT } from '.';
 
 /**
  * A slow-but-accurate implementation of `crop` to compare against.
  */
 function cropReferenceImplementation(
-  { data: src, width: srcWidth, height: srcHeight }: ImageData,
+  { data: src, width: srcWidth }: ImageData,
   bounds: Rect
 ): ImageData {
-  const channels = src.length / (srcWidth * srcHeight);
-  const dst = new Uint8ClampedArray(bounds.width * bounds.height * channels);
+  const dst = new Uint8ClampedArray(
+    bounds.width * bounds.height * RGBA_CHANNEL_COUNT
+  );
   const {
     x: srcOffsetX,
     y: srcOffsetY,
@@ -26,10 +28,10 @@ function cropReferenceImplementation(
 
     for (let x = 0; x < dstWidth; x += 1) {
       const srcX = srcOffsetX + x;
-      const srcOffset = (srcX + srcY * srcWidth) * channels;
-      const dstOffset = (x + y * dstWidth) * channels;
+      const srcOffset = (srcX + srcY * srcWidth) * RGBA_CHANNEL_COUNT;
+      const dstOffset = (x + y * dstWidth) * RGBA_CHANNEL_COUNT;
 
-      for (let c = 0; c < channels; c += 1) {
+      for (let c = 0; c < RGBA_CHANNEL_COUNT; c += 1) {
         dst[dstOffset + c] = src[srcOffset + c] as int;
       }
     }
@@ -38,24 +40,7 @@ function cropReferenceImplementation(
   return createImageData(dst, dstWidth, dstHeight);
 }
 
-test('crop center (gray)', () => {
-  const imageData = createImageData(
-    Uint8ClampedArray.of(0, 0, 0, 0, 1, 0, 0, 0, 0),
-    3,
-    3
-  );
-
-  const { data, width, height } = crop(imageData, {
-    x: 1,
-    y: 1,
-    width: 1,
-    height: 1,
-  });
-  expect([...data]).toEqual([1]);
-  expect({ width, height }).toEqual({ width: 1, height: 1 });
-});
-
-test('crop center (rgba)', () => {
+test('crop center', () => {
   const imageData = createImageData(
     Uint8ClampedArray.of(0, 0, 0, 255, 1, 0, 0, 255),
     2,

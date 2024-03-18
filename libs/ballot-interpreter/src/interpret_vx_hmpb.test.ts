@@ -15,7 +15,7 @@ import {
   DEFAULT_MARK_THRESHOLDS,
 } from '@votingworks/types';
 import { sliceElectionHash } from '@votingworks/ballot-encoder';
-import { loadImageData, toRgba } from '@votingworks/image-utils';
+import { loadImageData } from '@votingworks/image-utils';
 import { createCanvas } from 'canvas';
 import {
   sortVotesDict,
@@ -275,7 +275,7 @@ for (const {
             const canvas = createCanvas(ballotImage.width, ballotImage.height);
             const context = canvas.getContext('2d');
             context.imageSmoothingEnabled = false;
-            context.putImageData(toRgba(ballotImage).unsafeUnwrap(), 0, 0);
+            context.putImageData(ballotImage, 0, 0);
             context.strokeStyle = 'blue';
             context.lineWidth = 2;
 

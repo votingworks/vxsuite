@@ -1,9 +1,4 @@
-import {
-  createImageData,
-  loadImageData,
-  toGrayscale,
-  writeImageData,
-} from '@votingworks/image-utils';
+import { createImageData, writeImageData } from '@votingworks/image-utils';
 import { join } from 'path';
 import { tmpDir } from '../test/helpers/tmp';
 import { saveSheetImage } from './save_images';
@@ -32,9 +27,5 @@ test.each([
 
   expect(destinationImagePath).toEqual(
     join(ballotImagesPath, `sheetId-${side}${ext}`)
-  );
-
-  expect(toGrayscale(await loadImageData(destinationImagePath))).toEqual(
-    toGrayscale(normalizedImage)
   );
 });
