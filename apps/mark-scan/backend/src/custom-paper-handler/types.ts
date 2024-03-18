@@ -16,6 +16,7 @@ export type SimpleStatus =
   | 'pat_device_connected'
   | 'presenting_ballot'
   | 'printing_ballot'
+  | 'resetting_state_machine_no_delay'
   | 'resetting_state_machine_after_jam'
   | 'resetting_state_machine_after_success'
   | 'poll_worker_auth_ended_unexpectedly'
@@ -41,6 +42,7 @@ export const SimpleStatusSchema: z.ZodSchema<SimpleStatus> = z.union([
   z.literal('pat_device_connected'),
   z.literal('presenting_ballot'),
   z.literal('printing_ballot'),
+  z.literal('resetting_state_machine_no_delay'),
   z.literal('resetting_state_machine_after_jam'),
   z.literal('resetting_state_machine_after_success'),
   z.literal('poll_worker_auth_ended_unexpectedly'),

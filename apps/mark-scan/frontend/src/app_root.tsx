@@ -555,6 +555,9 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
       }
     }
 
+    // Implicitly map resetting_state_machine_no_delay to return InsertCardScreen
+    // because that state implies we are returning to the starting (default) state.
+
     return (
       <IdleTimerProvider
         onIdle={() => /* istanbul ignore next */ window.kiosk?.quit()}

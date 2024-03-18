@@ -464,7 +464,7 @@ export function buildMachine(
               on: {
                 PAPER_READY_TO_LOAD: 'loading_paper',
                 PAPER_PARKED: 'waiting_for_ballot_data',
-                AUTH_STATUS_CARDLESS_VOTER: 'not_accepting_paper',
+                AUTH_STATUS_CARDLESS_VOTER: 'resetting_state_machine_no_delay',
               },
             },
             loading_paper: {
@@ -726,6 +726,10 @@ export function buildMachine(
                 },
               },
             },
+            resetting_state_machine_no_delay: {
+              entry: ['resetContext', 'endCardlessVoterAuth'],
+              always: 'not_accepting_paper',
+            },
             resetting_state_machine_after_jam: {
               entry: ['resetContext', 'endCardlessVoterAuth'],
               after: {
@@ -947,6 +951,8 @@ export async function getPaperHandlerStateMachine({
           return 'jammed';
         case state.matches('voting_flow.jam_physically_cleared'):
           return 'jam_cleared';
+        case state.matches('voting_flow.resetting_state_machine_no_delay'):
+          return 'resetting_state_machine_no_delay';
         case state.matches('voting_flow.resetting_state_machine_after_jam'):
           return 'resetting_state_machine_after_jam';
         case state.matches('voting_flow.ballot_accepted'):
