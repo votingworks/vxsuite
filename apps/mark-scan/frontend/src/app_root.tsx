@@ -523,7 +523,13 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
     }
 
     if (pollsState === 'polls_open') {
-      if (isCardlessVoterAuth(authStatus)) {
+      if (
+        isCardlessVoterAuth(authStatus) &&
+        // accepting_paper expects poll worker auth. If the frontend sees accepting_paper but has cardless voter auth,
+        // it means the state hasn't caught up to auth changes. We check that edge case here to avoid flicker ie.
+        // rendering the ballot briefly before rendering the correct "Insert Card" screen
+        stateMachineState !== 'accepting_paper'
+      ) {
         let ballotContextProviderChild = <Ballot />;
         // Pages that condition on state machine state aren't nested under Ballot because Ballot uses
         // frontend browser routing for flow control and is completely independent of the state machine.
