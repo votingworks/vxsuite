@@ -4,25 +4,15 @@ import { useAvailableLanguages } from '../hooks/use_available_languages';
 import { useLanguageControls } from '../hooks/use_language_controls';
 import { useAudioControls } from '../hooks/use_audio_controls';
 
-export type AccessibilityCommands =
-  | 'toggle-audio'
-  | 'replay'
-  | 'decrease-playback-rate'
-  | 'increase-playback-rate'
-  | 'toggle-pause'
-  | 'decrease-volume'
-  | 'increase-volume';
-
-export const ACCESSIBILITY_COMMAND_KEYS: Record<AccessibilityCommands, string> =
-  {
-    'toggle-audio': 'M',
-    replay: 'R',
-    'decrease-playback-rate': ',',
-    'increase-playback-rate': '.',
-    'toggle-pause': 'P',
-    'decrease-volume': '-',
-    'increase-volume': '=',
-  };
+export enum ACCESSIBILITY_KEYBINDINGS {
+  TOGGLE_AUDIO = 'M',
+  REPLAY = 'R',
+  DECREASE_PLAYBACK_RATE = ',',
+  INCREASE_PLAYBACK_RATE = '.',
+  TOGGLE_PAUSE = 'P',
+  DECREASE_VOLUME = '-',
+  INCREASE_VOLUME = '=',
+}
 
 /**
  * Installs UI String keyboard shortcuts for dev convenience.
@@ -47,25 +37,25 @@ export function KeyboardShortcutHandlers(): React.ReactNode {
           setLanguage(availableLanguages[nextIndex]);
           break;
         }
-        case ACCESSIBILITY_COMMAND_KEYS['toggle-audio']:
+        case ACCESSIBILITY_KEYBINDINGS.TOGGLE_AUDIO:
           audioControls.toggleEnabled();
           break;
-        case ACCESSIBILITY_COMMAND_KEYS['replay']:
+        case ACCESSIBILITY_KEYBINDINGS.REPLAY:
           audioControls.replay();
           break;
-        case ACCESSIBILITY_COMMAND_KEYS['decrease-playback-rate']:
+        case ACCESSIBILITY_KEYBINDINGS.DECREASE_PLAYBACK_RATE:
           audioControls.decreasePlaybackRate();
           break;
-        case ACCESSIBILITY_COMMAND_KEYS['increase-playback-rate']:
+        case ACCESSIBILITY_KEYBINDINGS.INCREASE_PLAYBACK_RATE:
           audioControls.increasePlaybackRate();
           break;
-        case ACCESSIBILITY_COMMAND_KEYS['toggle-pause']:
+        case ACCESSIBILITY_KEYBINDINGS.TOGGLE_PAUSE:
           audioControls.togglePause();
           break;
-        case ACCESSIBILITY_COMMAND_KEYS['decrease-volume']:
+        case ACCESSIBILITY_KEYBINDINGS.DECREASE_VOLUME:
           audioControls.decreaseVolume();
           break;
-        case ACCESSIBILITY_COMMAND_KEYS['increase-volume']:
+        case ACCESSIBILITY_KEYBINDINGS.INCREASE_VOLUME:
           audioControls.increaseVolume();
           break;
         default:

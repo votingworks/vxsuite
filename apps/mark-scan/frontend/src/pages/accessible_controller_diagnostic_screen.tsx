@@ -6,7 +6,7 @@ import {
   Main,
   P,
   Screen,
-  ACCESSIBILITY_COMMAND_KEYS,
+  ACCESSIBILITY_KEYBINDINGS,
 } from '@votingworks/ui';
 import styled from 'styled-components';
 import {
@@ -66,32 +66,32 @@ export const DIAGNOSTIC_STEPS: DiagnosticStep[] = [
   {
     button: 'help',
     label: 'Help',
-    key: ACCESSIBILITY_COMMAND_KEYS['replay'],
+    key: ACCESSIBILITY_KEYBINDINGS.REPLAY,
   },
   {
     button: 'volume-down',
     label: 'Volume Down',
-    key: ACCESSIBILITY_COMMAND_KEYS['decrease-volume'],
+    key: ACCESSIBILITY_KEYBINDINGS.DECREASE_VOLUME,
   },
   {
     button: 'volume-up',
     label: 'Volume Up',
-    key: ACCESSIBILITY_COMMAND_KEYS['increase-volume'],
+    key: ACCESSIBILITY_KEYBINDINGS.INCREASE_VOLUME,
   },
   {
     button: 'pause',
     label: 'Pause',
-    key: ACCESSIBILITY_COMMAND_KEYS['toggle-pause'],
+    key: ACCESSIBILITY_KEYBINDINGS.TOGGLE_PAUSE,
   },
   {
     button: 'rate-down',
     label: 'Decrease Rate',
-    key: ACCESSIBILITY_COMMAND_KEYS['decrease-playback-rate'],
+    key: ACCESSIBILITY_KEYBINDINGS.DECREASE_PLAYBACK_RATE,
   },
   {
     button: 'rate-up',
     label: 'Increase Rate',
-    key: ACCESSIBILITY_COMMAND_KEYS['increase-playback-rate'],
+    key: ACCESSIBILITY_KEYBINDINGS.INCREASE_PLAYBACK_RATE,
   },
 ];
 

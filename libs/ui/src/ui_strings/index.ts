@@ -2,7 +2,7 @@ export * from './app_strings';
 export * from './audio_only';
 export * from './date_string';
 export * from './election_strings';
-export { ACCESSIBILITY_COMMAND_KEYS } from './keyboard_shortcut_handlers';
+export { ACCESSIBILITY_KEYBINDINGS } from './keyboard_shortcut_handlers';
 export * from './language_override';
 export * from './number_string';
 export * from './read_on_load';
