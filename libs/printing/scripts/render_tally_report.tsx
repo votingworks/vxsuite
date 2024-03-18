@@ -29,6 +29,8 @@ export async function main(args: readonly string[]): Promise<void> {
         scannedBallotCount: 0,
       })}
     />,
-    outputPath
+    {
+      outputPath,
+    }
   );
 }

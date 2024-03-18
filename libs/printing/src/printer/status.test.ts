@@ -103,9 +103,14 @@ it('uses ipptool to query and parse printer atttributes', async () => {
   expect(writeFileMock).toHaveBeenCalledWith(tmpFilename, IPP_QUERY);
 
   // confirm tmp file was cleaned up
-  await backendWaitFor(() => {
-    expect(existsSync(tmpFilename)).toEqual(false);
-  });
+  await backendWaitFor(
+    () => {
+      expect(existsSync(tmpFilename)).toEqual(false);
+    },
+    {
+      interval: 10,
+    }
+  );
 });
 
 it('parses multiple marker infos', async () => {

@@ -4,7 +4,12 @@ import { Size } from '@votingworks/types';
 import { GlobalWorkerOptions } from 'pdfjs-dist';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { PdfPage, pdfToImages, setPdfRenderWorkerSrc } from './pdf_to_images';
+import {
+  PdfPage,
+  parsePdf,
+  pdfToImages,
+  setPdfRenderWorkerSrc,
+} from './pdf_to_images';
 
 const pdfNotRequiringPdfjsIntermediateCanvasBuffer = readFileSync(
   join(
@@ -69,4 +74,9 @@ test('can render a PDF that requires the PDF.js intermediate canvas', async () =
 test('can configure the workerSrc', () => {
   setPdfRenderWorkerSrc('/pdf.worker.js');
   expect(GlobalWorkerOptions.workerSrc).toEqual('/pdf.worker.js');
+});
+
+test('parsePdf', async () => {
+  const pdf = await parsePdf(pdfNotRequiringPdfjsIntermediateCanvasBuffer);
+  expect(pdf.numPages).toEqual(6);
 });
