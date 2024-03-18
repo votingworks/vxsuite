@@ -464,8 +464,7 @@ export function buildMachine(
               on: {
                 PAPER_READY_TO_LOAD: 'loading_paper',
                 PAPER_PARKED: 'waiting_for_ballot_data',
-                AUTH_STATUS_CARDLESS_VOTER:
-                  'poll_worker_auth_ended_unexpectedly',
+                AUTH_STATUS_CARDLESS_VOTER: 'not_accepting_paper',
               },
             },
             loading_paper: {

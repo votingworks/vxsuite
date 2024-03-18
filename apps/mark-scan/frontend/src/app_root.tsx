@@ -431,13 +431,10 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
     return <JamClearedPage stateMachineState={stateMachineState} />;
   }
 
-  const isInPaperLoadingStage =
-    stateMachineState === 'accepting_paper' ||
-    stateMachineState === 'loading_paper';
   if (
     stateMachineState === 'poll_worker_auth_ended_unexpectedly' ||
     // Handle when the frontend auth state is up to date but the state machine state is not
-    (isInPaperLoadingStage &&
+    (stateMachineState === 'loading_paper' &&
       (isCardlessVoterAuth(authStatus) || authStatus.status === 'logged_out'))
   ) {
     return <PollWorkerAuthEndedUnexpectedlyPage />;
