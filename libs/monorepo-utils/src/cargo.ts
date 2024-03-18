@@ -1,8 +1,6 @@
-import { promisify } from 'node:util';
-import { execFile } from 'child_process';
+import { assertDefined, lines } from '@votingworks/basics';
+import { spawn } from 'node:child_process';
 import { getAbsoluteRootPath } from './dependencies';
-
-const exec = promisify(execFile);
 
 // patinputd has no tests currently
 const EXCLUDED_PACKAGE_IDS = ['patinputd'];
@@ -16,18 +14,16 @@ export async function getRustPackageIds(root: string): Promise<string[]> {
   // "package-id v0.1.2 (/path/to/package)"
   // <newline>
   // "another-package-id v3.4.5 (/path/to/other-package)"
-  const { stdout } = await exec(
+  const cargo = spawn(
     'cargo',
     ['tree', '-e', 'no-normal', '-e', 'no-dev', '-e', 'no-build'],
-    { cwd: absoluteRootPath, encoding: 'utf-8' }
+    { cwd: absoluteRootPath }
   );
 
-  return stdout
-    .split('\n')
-    .filter((str) => !!str)
-    .map((pkg) => pkg.split(' ')[0])
-    .filter(
-      (packageId): packageId is string =>
-        packageId !== undefined && !EXCLUDED_PACKAGE_IDS.includes(packageId)
-    );
+  cargo.stdout.setEncoding('utf-8');
+
+  return lines(cargo.stdout)
+    .filterMap((line) => (line ? assertDefined(line.split(' ')[0]) : undefined))
+    .filter((packageId) => !EXCLUDED_PACKAGE_IDS.includes(packageId))
+    .toArray();
 }
