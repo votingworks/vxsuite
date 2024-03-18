@@ -62,7 +62,7 @@ export async function printReport({
     });
   })();
 
-  const pdfData = await renderToPdf(report);
+  const pdfData = await renderToPdf({ document: report });
   await printer.print({ data: pdfData });
 
   const pdfDocument = await getDocument(pdfData).promise;

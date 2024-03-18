@@ -8,7 +8,9 @@ import {
   AdminTallyReportByPartyProps,
 } from '@votingworks/ui';
 import { tmpNameSync } from 'tmp';
-import { renderToPdf } from './render';
+import { parsePdf } from '@votingworks/image-utils';
+import { writeFileSync } from 'fs';
+import { PaperDimensions, RenderSpec, renderToPdf } from './render';
 
 const { electionDefinition } = electionFamousNames2021Fixtures;
 const { election } = electionDefinition;
@@ -30,8 +32,111 @@ const testReportProps: AdminTallyReportByPartyProps = {
 };
 
 test('rendered tally report matches snapshot', async () => {
-  const pdfPath = tmpNameSync();
-  await renderToPdf(<AdminTallyReportByParty {...testReportProps} />, pdfPath);
+  const outputPath = tmpNameSync();
+  await renderToPdf({
+    document: <AdminTallyReportByParty {...testReportProps} />,
+    outputPath,
+  });
 
-  await expect(pdfPath).toMatchPdfSnapshot();
+  await expect(outputPath).toMatchPdfSnapshot({
+    customSnapshotIdentifier: 'single-page-tally-report',
+  });
+});
+
+test('rendered tally report has minimum of letter when size is LetterRoll', async () => {
+  const outputPath = tmpNameSync();
+  await renderToPdf({
+    document: <AdminTallyReportByParty {...testReportProps} />,
+    outputPath,
+    dimensions: PaperDimensions.LetterRoll,
+  });
+
+  await expect(outputPath).toMatchPdfSnapshot({
+    customSnapshotIdentifier: 'single-page-tally-report',
+  });
+});
+
+function ManyHeadings({ count }: { count: number }): JSX.Element {
+  return (
+    <div>
+      {Array.from({ length: count }, (_, i) => (
+        <h1 key={i}>Item {i + 1}</h1>
+      ))}
+    </div>
+  );
+}
+
+const PDF_SCALING = 200 / 72;
+
+test('by default, large content is split across multiple letter pages', async () => {
+  const outputPath = tmpNameSync();
+  const pdfData = await renderToPdf({ document: <ManyHeadings count={25} /> });
+
+  const pdf = await parsePdf(pdfData);
+  expect(pdf.numPages).toEqual(2);
+  for (let i = 1; i <= pdf.numPages; i += 1) {
+    const page = await pdf.getPage(i);
+    const { height, width } = page.getViewport({ scale: 1 });
+    expect(width * PDF_SCALING).toEqual(1700); // letter
+    expect(height * PDF_SCALING).toEqual(2200); // letter
+  }
+  writeFileSync(outputPath, pdfData);
+  await expect(outputPath).toMatchPdfSnapshot({
+    customSnapshotIdentifier: 'multiple-page-document',
+  });
+});
+
+test('page can be longer than letter when using LetterRoll', async () => {
+  const outputPath = tmpNameSync();
+  const pdfData = await renderToPdf({
+    document: <ManyHeadings count={25} />,
+    outputPath,
+    dimensions: PaperDimensions.LetterRoll,
+  });
+
+  const pdf = await parsePdf(pdfData);
+  expect(pdf.numPages).toEqual(1);
+  const { height, width } = (await pdf.getPage(1)).getViewport({ scale: 1 });
+  expect(width * PDF_SCALING).toEqual(1700); // letter
+  expect(height * PDF_SCALING).toBeGreaterThan(2200); // longer than letter
+  await expect(outputPath).toMatchPdfSnapshot({
+    customSnapshotIdentifier: 'roll-document',
+  });
+});
+
+test('can render multiple documents at once', async () => {
+  const outputPath1 = tmpNameSync();
+  const outputPath2 = tmpNameSync();
+  await renderToPdf([
+    {
+      document: <AdminTallyReportByParty {...testReportProps} />,
+      outputPath: outputPath1,
+    },
+    {
+      document: <ManyHeadings count={25} />,
+      dimensions: PaperDimensions.LetterRoll,
+      outputPath: outputPath2,
+    },
+  ]);
+
+  await expect(outputPath1).toMatchPdfSnapshot({
+    customSnapshotIdentifier: 'single-page-tally-report',
+  });
+  await expect(outputPath2).toMatchPdfSnapshot({
+    customSnapshotIdentifier: 'roll-document',
+  });
+});
+
+test('documents of various sizes all fit on a single page when using LetterRoll', async () => {
+  const specs: RenderSpec[] = [];
+  for (let i = 25; i <= 50; i += 1) {
+    specs.push({
+      document: <ManyHeadings count={i} />,
+      dimensions: PaperDimensions.LetterRoll,
+    });
+  }
+
+  const pdfData = await renderToPdf(specs);
+  const pdfs = await Promise.all(pdfData.map((data) => parsePdf(data)));
+  expect(pdfs.every((pdf) => pdf.numPages === 1)).toEqual(true);
 });

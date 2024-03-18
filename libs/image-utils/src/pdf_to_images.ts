@@ -3,7 +3,12 @@ import { Buffer } from 'buffer';
 import { Canvas, createCanvas, ImageData } from 'canvas';
 import { promises as fs } from 'fs';
 import { basename, dirname, extname, join } from 'path';
-import { CanvasFactory, getDocument, GlobalWorkerOptions } from 'pdfjs-dist';
+import {
+  CanvasFactory,
+  getDocument,
+  GlobalWorkerOptions,
+  PDFDocumentProxy,
+} from 'pdfjs-dist';
 import { writeImageData } from './image_data';
 
 // Extend `pdfjs-dist`'s `render` function to include `canvasFactory`.
@@ -107,6 +112,16 @@ export async function* pdfToImages(
       page: context.getImageData(0, 0, canvas.width, canvas.height),
     };
   }
+}
+
+/**
+ * Parse PDF data with `pdf.js` to get a object with the number of pages and
+ * viewport size, among other metadata. Useful when you want to inspect PDF
+ * metadata but don't need to render the PDF.
+ */
+export async function parsePdf(pdfBytes: Buffer): Promise<PDFDocumentProxy> {
+  const pdf = await getDocument(pdfBytes).promise;
+  return pdf;
 }
 
 /**

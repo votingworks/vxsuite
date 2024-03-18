@@ -249,8 +249,8 @@ export async function createTestDeckTallyReport({
     ballots,
   });
 
-  return await renderToPdf(
-    AdminTallyReportByParty({
+  return await renderToPdf({
+    document: AdminTallyReportByParty({
       electionDefinition,
       title: undefined,
       isOfficial: false,
@@ -259,8 +259,8 @@ export async function createTestDeckTallyReport({
       testId: 'full-test-deck-tally-report',
       tallyReportResults,
       generatedAtTime: generatedAtTime ?? new Date(),
-    })
-  );
+    }),
+  });
 }
 
 export const FULL_TEST_DECK_TALLY_REPORT_FILE_NAME =

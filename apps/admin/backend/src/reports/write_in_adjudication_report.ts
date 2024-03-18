@@ -54,7 +54,7 @@ export async function generateWriteInAdjudicationReportPreview({
     message: `User previewed the write-in adjudication report.`,
     disposition: 'success',
   });
-  return renderToPdf(report);
+  return renderToPdf({ document: report });
 }
 
 /**
@@ -72,7 +72,7 @@ export async function printWriteInAdjudicationReport({
   const report = buildWriteInAdjudicationReport(reportProps);
 
   try {
-    await printer.print({ data: await renderToPdf(report) });
+    await printer.print({ data: await renderToPdf({ document: report }) });
     await logger.logAsCurrentRole(LogEventId.ElectionReportPrinted, {
       message: `User printed the write-in adjudication report.`,
       disposition: 'success',
@@ -101,7 +101,7 @@ export async function exportWriteInAdjudicationReportPdf({
   const report = buildWriteInAdjudicationReport(reportProps);
   const exportFileResult = await exportFile({
     path,
-    data: await renderToPdf(report),
+    data: await renderToPdf({ document: report }),
   });
 
   await logger.logAsCurrentRole(LogEventId.FileSaved, {

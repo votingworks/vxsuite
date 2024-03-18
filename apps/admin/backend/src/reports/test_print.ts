@@ -82,7 +82,7 @@ export async function printTestPage({
     cardCountsList: allMockCardCounts,
   });
 
-  const data = await renderToPdf(report);
+  const data = await renderToPdf({ document: report });
   try {
     await printer.print({ data });
     await logger.logAsCurrentRole(LogEventId.DiagnosticInit, {

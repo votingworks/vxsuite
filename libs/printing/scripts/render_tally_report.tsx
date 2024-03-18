@@ -15,20 +15,22 @@ export async function main(args: readonly string[]): Promise<void> {
   const electionDefinition = (await readElection(electionPath)).unsafeUnwrap();
   const { election } = electionDefinition;
 
-  await renderToPdf(
-    <AdminTallyReportByParty
-      electionDefinition={electionDefinition}
-      isTest={false}
-      isOfficial={false}
-      isForLogicAndAccuracyTesting={false}
-      includeSignatureLines={false}
-      generatedAtTime={new Date()}
-      testId="render-tally-report"
-      tallyReportResults={buildSimpleMockTallyReportResults({
-        election,
-        scannedBallotCount: 0,
-      })}
-    />,
-    outputPath
-  );
+  await renderToPdf({
+    document: (
+      <AdminTallyReportByParty
+        electionDefinition={electionDefinition}
+        isTest={false}
+        isOfficial={false}
+        isForLogicAndAccuracyTesting={false}
+        includeSignatureLines={false}
+        generatedAtTime={new Date()}
+        testId="render-tally-report"
+        tallyReportResults={buildSimpleMockTallyReportResults({
+          election,
+          scannedBallotCount: 0,
+        })}
+      />
+    ),
+    outputPath,
+  });
 }
