@@ -15,8 +15,16 @@ import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 
 const PLAYWRIGHT_PIXELS_PER_INCH = 96;
 
-const DEFAULT_PDF_WIDTH_INCHES = 8.5;
-const DEFAULT_PDF_HEIGHT_INCHES = 11;
+export interface InchDimensions {
+  width: number;
+  height: number;
+}
+
+export const PaperDimensions = {
+  Letter: { width: 8.5, height: 11 },
+  LetterRoll: { width: 8.5, height: Infinity },
+} satisfies Record<string, InchDimensions>;
+
 const DEFAULT_PDF_MARGIN_INCHES = {
   top: 0.5,
   right: 0.5,
@@ -48,14 +56,10 @@ function getContentHeight(page: Page): Promise<number> {
   });
 }
 
-interface RenderOptions {
-  outputPath?: string;
-  expandPageToFitContent?: boolean;
-}
-
 export interface RenderSpec {
   document: JSX.Element;
-  options?: RenderOptions;
+  dimensions?: InchDimensions;
+  outputPath?: string;
 }
 
 export async function renderToPdf(spec: RenderSpec[]): Promise<Buffer[]>;
@@ -75,22 +79,25 @@ export async function renderToPdf(
   const context = await browser.newContext();
   const page = await context.newPage();
 
-  // set the viewport size such that the content is the same width as it will
-  // be in the PDF, which allows us to determine the necessary height to fit
-  // the page to the content. viewport height here is irrelevant, but we have to
-  // set something.
-  await page.setViewportSize({
-    width:
-      (DEFAULT_PDF_WIDTH_INCHES - DEFAULT_PDF_HORIZONTAL_MARGIN) *
-      PLAYWRIGHT_PIXELS_PER_INCH,
-    height:
-      (DEFAULT_PDF_HEIGHT_INCHES - DEFAULT_PDF_VERTICAL_MARGIN) *
-      PLAYWRIGHT_PIXELS_PER_INCH,
-  });
-
   const buffers: Buffer[] = [];
 
-  for (const { document, options = {} } of specs) {
+  for (const {
+    document,
+    outputPath,
+    dimensions: { width, height } = PaperDimensions.Letter,
+  } of specs) {
+    // set the viewport size such that the content is the same width as it will
+    // be in the PDF, which allows us to determine the necessary height to fit
+    // the page to the content. viewport height here is irrelevant, but we have to
+    // set something.
+    await page.setViewportSize({
+      width:
+        (width - DEFAULT_PDF_HORIZONTAL_MARGIN) * PLAYWRIGHT_PIXELS_PER_INCH,
+      height:
+        (PaperDimensions.Letter.height - DEFAULT_PDF_VERTICAL_MARGIN) *
+        PLAYWRIGHT_PIXELS_PER_INCH,
+    });
+
     const documentWithGlobalStyles = (
       <React.Fragment>
         {/* Initial report ported from VxAdmin, thus `desktop` theme to match styles */}
@@ -140,17 +147,18 @@ export async function renderToPdf(
       waitUntil: 'load',
     });
 
-    const minimumHeightToFitContentInches =
+    const contentHeight =
       (await getContentHeight(page)) / PLAYWRIGHT_PIXELS_PER_INCH +
       DEFAULT_PDF_VERTICAL_MARGIN;
-    const heightInches = options.expandPageToFitContent
-      ? Math.max(minimumHeightToFitContentInches, DEFAULT_PDF_HEIGHT_INCHES)
-      : DEFAULT_PDF_HEIGHT_INCHES;
     buffers.push(
       await page.pdf({
-        path: options.outputPath,
-        width: inchesToText(DEFAULT_PDF_WIDTH_INCHES),
-        height: inchesToText(heightInches),
+        path: outputPath,
+        width: inchesToText(width),
+        height: inchesToText(
+          height === Infinity
+            ? Math.max(PaperDimensions.Letter.height, contentHeight)
+            : PaperDimensions.Letter.height
+        ),
         margin: mapObject(DEFAULT_PDF_MARGIN_INCHES, inchesToText),
         printBackground: true, // necessary to render shaded backgrounds
       })

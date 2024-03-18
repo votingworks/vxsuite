@@ -31,8 +31,6 @@ export async function main(args: readonly string[]): Promise<void> {
         })}
       />
     ),
-    options: {
-      outputPath,
-    },
+    outputPath,
   });
 }

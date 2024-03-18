@@ -8,10 +8,9 @@ import {
   AdminTallyReportByPartyProps,
 } from '@votingworks/ui';
 import { tmpNameSync } from 'tmp';
-import React from 'react';
 import { parsePdf } from '@votingworks/image-utils';
 import { writeFileSync } from 'fs';
-import { RenderSpec, renderToPdf } from './render';
+import { PaperDimensions, RenderSpec, renderToPdf } from './render';
 
 const { electionDefinition } = electionFamousNames2021Fixtures;
 const { election } = electionDefinition;
@@ -36,9 +35,7 @@ test('rendered tally report matches snapshot', async () => {
   const outputPath = tmpNameSync();
   await renderToPdf({
     document: <AdminTallyReportByParty {...testReportProps} />,
-    options: {
-      outputPath,
-    },
+    outputPath,
   });
 
   await expect(outputPath).toMatchPdfSnapshot({
@@ -46,14 +43,12 @@ test('rendered tally report matches snapshot', async () => {
   });
 });
 
-test('rendered tally report has minimum of the default height if using "expand to fit"', async () => {
+test('rendered tally report has minimum of letter when size is LetterRoll', async () => {
   const outputPath = tmpNameSync();
   await renderToPdf({
     document: <AdminTallyReportByParty {...testReportProps} />,
-    options: {
-      outputPath,
-      expandPageToFitContent: true,
-    },
+    outputPath,
+    dimensions: PaperDimensions.LetterRoll,
   });
 
   await expect(outputPath).toMatchPdfSnapshot({
@@ -91,14 +86,12 @@ test('by default, large content is split across multiple letter pages', async ()
   });
 });
 
-test('page can be longer than letter when using "expand to fit"', async () => {
+test('page can be longer than letter when using LetterRoll', async () => {
   const outputPath = tmpNameSync();
   const pdfData = await renderToPdf({
     document: <ManyHeadings count={25} />,
-    options: {
-      outputPath,
-      expandPageToFitContent: true,
-    },
+    outputPath,
+    dimensions: PaperDimensions.LetterRoll,
   });
 
   const pdf = await parsePdf(pdfData);
@@ -107,7 +100,7 @@ test('page can be longer than letter when using "expand to fit"', async () => {
   expect(width * PDF_SCALING).toEqual(1700); // letter
   expect(height * PDF_SCALING).toBeGreaterThan(2200); // longer than letter
   await expect(outputPath).toMatchPdfSnapshot({
-    customSnapshotIdentifier: 'expand-to-fit-document',
+    customSnapshotIdentifier: 'roll-document',
   });
 });
 
@@ -117,16 +110,12 @@ test('can render multiple documents at once', async () => {
   await renderToPdf([
     {
       document: <AdminTallyReportByParty {...testReportProps} />,
-      options: {
-        outputPath: outputPath1,
-      },
+      outputPath: outputPath1,
     },
     {
       document: <ManyHeadings count={25} />,
-      options: {
-        expandPageToFitContent: true,
-        outputPath: outputPath2,
-      },
+      dimensions: PaperDimensions.LetterRoll,
+      outputPath: outputPath2,
     },
   ]);
 
@@ -134,18 +123,16 @@ test('can render multiple documents at once', async () => {
     customSnapshotIdentifier: 'single-page-tally-report',
   });
   await expect(outputPath2).toMatchPdfSnapshot({
-    customSnapshotIdentifier: 'expand-to-fit-document',
+    customSnapshotIdentifier: 'roll-document',
   });
 });
 
-test('documents of various sizes all fit on a single page when using "expand to fit"', async () => {
+test('documents of various sizes all fit on a single page when using LetterRoll', async () => {
   const specs: RenderSpec[] = [];
   for (let i = 25; i <= 50; i += 1) {
     specs.push({
       document: <ManyHeadings count={i} />,
-      options: {
-        expandPageToFitContent: true,
-      },
+      dimensions: PaperDimensions.LetterRoll,
     });
   }
 
