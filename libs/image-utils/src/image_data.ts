@@ -8,8 +8,9 @@ import {
 } from 'canvas';
 import { createWriteStream } from 'fs';
 import { promises as stream } from 'stream';
+import { assert } from '@votingworks/basics';
 import { assertInteger } from './numeric';
-import { int, usize } from './types';
+import { int, u8, usize } from './types';
 
 /**
  * The number of channels an RGBA color image has (4).
@@ -60,6 +61,39 @@ export async function loadImageData(
   const context = canvas.getContext('2d');
   context.drawImage(img, 0, 0);
   return context.getImageData(0, 0, img.width, img.height);
+}
+
+/**
+ * Creates an image data from grayscale pixels.
+ */
+export function fromGrayScale(
+  pixels: ArrayLike<u8>,
+  width: usize,
+  height: usize
+): ImageData {
+  assert(width > 0 && Number.isInteger(width), 'Invalid width');
+  assert(height > 0 && Number.isInteger(height), 'Invalid height');
+  assert(pixels.length === width * height, 'Invalid pixel count');
+
+  const imageDataBuffer = new Uint8ClampedArray(
+    width * height * RGBA_CHANNEL_COUNT
+  );
+
+  // fill the buffer with 0xff to make it opaque
+  imageDataBuffer.fill(0xff);
+
+  for (
+    let grayIndex = 0, rgbaIndex = 0;
+    grayIndex < pixels.length;
+    grayIndex += 1, rgbaIndex += RGBA_CHANNEL_COUNT
+  ) {
+    const gray = pixels[grayIndex] as u8;
+    imageDataBuffer[rgbaIndex] = gray;
+    imageDataBuffer[rgbaIndex + 1] = gray;
+    imageDataBuffer[rgbaIndex + 2] = gray;
+  }
+
+  return createImageData(imageDataBuffer, width, height);
 }
 
 /**

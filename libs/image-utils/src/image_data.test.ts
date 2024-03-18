@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer';
 import { ImageData, createImageData } from 'canvas';
 import fc from 'fast-check';
 import { writeFile } from 'fs/promises';
@@ -6,6 +7,7 @@ import { arbitraryImageData } from '../test/arbitraries';
 import {
   RGBA_CHANNEL_COUNT,
   ensureImageData,
+  fromGrayScale,
   getImageChannelCount,
   isRgba,
   loadImage,
@@ -27,6 +29,61 @@ test('getImageChannelCount always returns an integer', () => {
     fc.property(arbitraryImageData(), (imageData) => {
       expect(getImageChannelCount(imageData)).toEqual(RGBA_CHANNEL_COUNT);
     })
+  );
+});
+
+test('fromGrayScale', () => {
+  expect(() => fromGrayScale(Buffer.of(0), 0, 1)).toThrow('Invalid width');
+  expect(() => fromGrayScale(Buffer.of(0), 1, 0)).toThrow('Invalid height');
+  expect(() => fromGrayScale(Buffer.of(0), 1, 2)).toThrow(
+    'Invalid pixel count'
+  );
+
+  // accepts a Buffer
+  expect(fromGrayScale(Buffer.of(0), 1, 1)).toBeInstanceOf(ImageData);
+
+  // accepts a Uint8ClampedArray
+  expect(fromGrayScale(Uint8ClampedArray.of(0), 1, 1)).toBeInstanceOf(
+    ImageData
+  );
+
+  // accepts a number[]
+  expect(fromGrayScale([0], 1, 1)).toBeInstanceOf(ImageData);
+
+  fc.assert(
+    fc.property(
+      fc
+        .tuple(fc.integer({ min: 1, max: 10 }), fc.integer({ min: 1, max: 10 }))
+        .chain(([width, height]) =>
+          fc.tuple(
+            fc.array(fc.integer({ min: 0, max: 0xff }), {
+              minLength: width * height,
+              maxLength: width * height,
+            }),
+            fc.constant(width),
+            fc.constant(height)
+          )
+        ),
+      ([pixels, width, height]) => {
+        const imageData = fromGrayScale(pixels, width, height);
+        expect({
+          width: imageData.width,
+          height: imageData.height,
+          dataLength: imageData.data.length,
+        }).toEqual({
+          width,
+          height,
+          dataLength: width * height * RGBA_CHANNEL_COUNT,
+        });
+
+        for (const [i, pixel] of pixels.entries()) {
+          expect(imageData.data[i * RGBA_CHANNEL_COUNT]).toEqual(pixel);
+          expect(imageData.data[i * RGBA_CHANNEL_COUNT + 1]).toEqual(pixel);
+          expect(imageData.data[i * RGBA_CHANNEL_COUNT + 2]).toEqual(pixel);
+          expect(imageData.data[i * RGBA_CHANNEL_COUNT + 3]).toEqual(0xff);
+        }
+      }
+    )
   );
 });
 

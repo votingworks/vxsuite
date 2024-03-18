@@ -17,7 +17,7 @@ import {
   ScanSide,
   SensorStatus,
 } from '@votingworks/custom-scanner';
-import { RGBA_CHANNEL_COUNT, writeImageData } from '@votingworks/image-utils';
+import { fromGrayScale, writeImageData } from '@votingworks/image-utils';
 import { LogEventId, BaseLogger, LogLine } from '@votingworks/logging';
 import {
   Id,
@@ -26,7 +26,6 @@ import {
   SheetInterpretationWithPages,
   SheetOf,
 } from '@votingworks/types';
-import { createImageData } from 'canvas';
 import { join } from 'path';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
 import { v4 as uuid } from 'uuid';
@@ -332,22 +331,8 @@ async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
   return await mapSheet(images, async (image, side) => {
     const { scannedImagesPath } = workspace;
     const path = join(scannedImagesPath, `${sheetPrefix}-${side}.jpeg`);
-    const grayPixels = image.imageBuffer;
-    const rgbaPixels = new Uint8ClampedArray(
-      image.imageWidth * image.imageHeight * RGBA_CHANNEL_COUNT
-    ).fill(255);
-    for (
-      let fromOffset = 0, toOffset = 0;
-      fromOffset < grayPixels.length;
-      toOffset += RGBA_CHANNEL_COUNT, fromOffset += 1
-    ) {
-      const luma = grayPixels[fromOffset];
-      rgbaPixels[toOffset] = luma;
-      rgbaPixels[toOffset + 1] = luma;
-      rgbaPixels[toOffset + 2] = luma;
-    }
-    const imageData = createImageData(
-      rgbaPixels,
+    const imageData = fromGrayScale(
+      image.imageBuffer,
       image.imageWidth,
       image.imageHeight
     );
