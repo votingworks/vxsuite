@@ -47,7 +47,6 @@ import type { MachineConfig } from '@votingworks/mark-scan-backend';
 import styled from 'styled-components';
 import { DateWithoutTime, find, throwIllegalValue } from '@votingworks/basics';
 
-import { DiagnosticsScreen } from './diagnostics_screen';
 import { LoadPaperPage } from './load_paper_page';
 import {
   getStateMachineState,
@@ -197,7 +196,6 @@ export function PollWorkerScreen({
   function cancelEnableLiveMode() {
     return setIsConfirmingEnableLiveMode(false);
   }
-  const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(false);
 
   const canSelectBallotStyle = pollsState === 'polls_open';
   const [isHidingSelectBallotStyle, setIsHidingSelectBallotStyle] =
@@ -302,14 +300,6 @@ export function PollWorkerScreen({
     }
 
     return null;
-  }
-
-  if (isDiagnosticsScreenOpen) {
-    return (
-      <DiagnosticsScreen
-        onBackButtonPress={() => setIsDiagnosticsScreenOpen(false)}
-      />
-    );
   }
 
   return (
@@ -430,11 +420,6 @@ export function PollWorkerScreen({
                     );
                   }
                 )}
-              </P>
-              <P>
-                <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
-                  System Diagnostics
-                </Button>
               </P>
               <P>
                 <Button onPress={reload}>Reset Accessible Controller</Button>

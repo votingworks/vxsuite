@@ -1,37 +1,24 @@
-import userEvent from '@testing-library/user-event';
-import { mockOf } from '@votingworks/test-utils';
 import { MemoryRouter } from 'react-router-dom';
-import { DateTime } from 'luxon';
-import { render, screen } from '../../test/react_testing_library';
+import userEvent from '@testing-library/user-event';
+import {
+  fireEvent,
+  render,
+  screen,
+  within,
+} from '../../test/react_testing_library';
 import {
   DiagnosticsScreen,
   DiagnosticsScreenProps,
 } from './diagnostics_screen';
-import { AccessibleControllerDiagnosticScreen } from './accessible_controller_diagnostic_screen';
 import {
   ApiMock,
   createApiMock,
   provideApi,
 } from '../../test/helpers/mock_api_client';
+import { DIAGNOSTIC_STEPS } from './accessible_controller_diagnostic_screen';
+import { HIGHLIGHT_FILL } from '../components/accessible_controller_illustration';
 
 let apiMock: ApiMock;
-
-jest.mock(
-  './accessible_controller_diagnostic_screen',
-  (): typeof import('./accessible_controller_diagnostic_screen') => ({
-    ...jest.requireActual('./accessible_controller_diagnostic_screen'),
-    AccessibleControllerDiagnosticScreen: jest.fn(),
-  })
-);
-
-function expectToHaveSuccessIcon(element: HTMLElement) {
-  const [icon] = element.getElementsByTagName('svg');
-  expect(icon).toHaveAttribute('data-icon', 'square-check');
-}
-function expectToHaveWarningIcon(element: HTMLElement) {
-  const [icon] = element.getElementsByTagName('svg');
-  expect(icon).toHaveAttribute('data-icon', 'triangle-exclamation');
-}
 
 function renderScreen(props: Partial<DiagnosticsScreenProps> = {}) {
   return render(
@@ -53,114 +40,107 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-describe('System Diagnostics screen: Computer section', () => {
-  it('shows the battery level and power cord status', async () => {
-    apiMock.setBatteryInfo({ level: 0.05, discharging: false });
-    const { unmount } = renderScreen();
-
-    screen.getByRole('heading', { name: 'System Diagnostics' });
-
-    const batteryText = await screen.findByText('Battery: 5%');
-    // The battery level always has a success icon, even when it's low, since
-    // it's only an actionable problem if the computer is not connected to
-    // power, and that would trigger a full-screen alert
-    expectToHaveSuccessIcon(batteryText);
-    const powerCordText = screen.getByText('Power cord connected.');
-    expectToHaveSuccessIcon(powerCordText);
-
-    // Explicitly unmount before the printer status has resolved to verify that
-    // we properly cancel the request for printer status.
-    unmount();
+// screen contents fully tested in libs/ui
+test('data from API is passed to screen contents', async () => {
+  apiMock.setBatteryInfo({ level: 0.5, discharging: true });
+  apiMock.expectGetIsAccessibleControllerInputDetected();
+  apiMock.expectGetApplicationDiskSpaceSummary({
+    available: 1_000_000,
+    used: 1_000_000,
+    total: 2_000_000,
+  });
+  apiMock.expectGetMostRecentAccessibleControllerDiagnostic({
+    type: 'mark-scan-accessible-controller',
+    outcome: 'pass',
+    timestamp: new Date('2022-03-23T11:00:00.000').getTime(),
   });
 
-  it('shows a warning when the power cord is not connected', async () => {
-    apiMock.setBatteryInfo({ level: 0.8, discharging: true });
-    const { unmount } = renderScreen();
+  renderScreen();
 
-    const batteryText = await screen.findByText('Battery: 80%');
-    expectToHaveSuccessIcon(batteryText);
-    const powerCordText = screen.getByText(
-      'No power cord connected. Connect power cord.'
-    );
-    expectToHaveWarningIcon(powerCordText);
+  await screen.findByText('Battery Level: 50%');
+  screen.getByText('Power Source: Battery');
+  screen.getByText('Free Disk Space: 50% (1 GB / 2 GB)');
 
-    // Explicitly unmount before the printer status has resolved to verify that
-    // we properly cancel the request for printer status.
-    unmount();
-  });
+  screen.getByText('Detected');
+  screen.getByText('Test passed, 3/23/2022, 11:00:00 AM');
 });
 
-describe('System Diagnostics screen: Accessible Controller section', () => {
-  it('shows the connection status, has a button to open test, and shows test results', () => {
-    mockOf(AccessibleControllerDiagnosticScreen).mockImplementation((props) => {
-      const { onCancel, onComplete } = props;
+test('accessible controller diagnostic - pass', async () => {
+  apiMock.setBatteryInfo({ level: 0.5, discharging: true });
+  apiMock.expectGetIsAccessibleControllerInputDetected();
+  apiMock.expectGetApplicationDiskSpaceSummary();
+  apiMock.expectGetMostRecentAccessibleControllerDiagnostic();
 
-      function pass() {
-        onComplete({ completedAt: DateTime.now(), passed: true });
-      }
+  renderScreen();
 
-      return (
-        <div>
-          <button data-testid="mockPass" onClick={pass} type="button" />
-          <button data-testid="mockCancel" onClick={onCancel} type="button" />
-        </div>
-      );
-    });
+  userEvent.click(await screen.findButton('Test Accessible Controller'));
 
-    const { unmount } = renderScreen();
+  screen.getByRole('heading', { name: 'Accessible Controller Test' });
 
-    const connectionText = screen.getByText('Accessible controller connected.');
-    expectToHaveSuccessIcon(connectionText);
-
-    expect(screen.queryByTestId('mockPass')).not.toBeInTheDocument();
-
-    userEvent.click(screen.getByText('Start Accessible Controller Test'));
-
-    // Execute happy path so we can get a test result
-    userEvent.click(screen.getByTestId('mockPass'));
-
-    const testResultText = screen.getByText('Test passed.');
-    expectToHaveSuccessIcon(testResultText);
-    screen.getByText('Last tested at 11:23 AM');
-    expect(screen.queryByTestId('mockPass')).not.toBeInTheDocument();
-
-    // Bonus test - if we start a new test and cancel it, last results should still be shown
-    jest.setSystemTime(new Date());
-    userEvent.click(screen.getButton('Start Accessible Controller Test'));
-    userEvent.click(screen.getByTestId('mockCancel'));
-
-    screen.getByText('Test passed.');
-    screen.getByText('Last tested at 11:23 AM');
-
-    unmount();
+  apiMock.expectAddDiagnosticRecord({
+    type: 'mark-scan-accessible-controller',
+    outcome: 'pass',
   });
-
-  it('shows failed test results', () => {
-    mockOf(AccessibleControllerDiagnosticScreen).mockImplementation((props) => (
-      <button
-        data-testid="mockFail"
-        onClick={() =>
-          props.onComplete({
-            completedAt: DateTime.now(),
-            message: 'Up button is not working.',
-            passed: false,
-          })
-        }
-        type="button"
-      />
-    ));
-
-    const { unmount } = renderScreen();
-
-    userEvent.click(screen.getByText('Start Accessible Controller Test'));
-
-    userEvent.click(screen.getByTestId('mockFail'));
-
-    const testResultText = screen.getByText(
-      'Test failed: Up button is not working.'
-    );
-    expectToHaveWarningIcon(testResultText);
-
-    unmount();
+  apiMock.expectGetMostRecentAccessibleControllerDiagnostic({
+    type: 'mark-scan-accessible-controller',
+    outcome: 'pass',
+    timestamp: new Date('2022-03-23T11:23:00.000').getTime(),
   });
+  for (const [i, step] of DIAGNOSTIC_STEPS.entries()) {
+    await screen.findByText(`Step ${i + 1} of ${DIAGNOSTIC_STEPS.length}`);
+    screen.getByText(`${i + 1}. Press the ${step.label.toLowerCase()} button.`);
+    const illustration = screen
+      .getByTitle('Accessible Controller Illustration')
+      .closest('svg') as unknown as HTMLElement;
+    const element = within(illustration).getByTestId(step.button);
+    expect(element).toHaveAttribute('fill', HIGHLIGHT_FILL);
+    screen.getButton(`${step.label} Button is Not Working`);
+    fireEvent.keyDown(illustration, { key: step.key });
+  }
+
+  screen.getByRole('heading', { name: 'System Diagnostics' });
+  await screen.findByText('Test passed, 3/23/2022, 11:23:00 AM');
+});
+
+test('accessible controller diagnostic - cancel', async () => {
+  apiMock.setBatteryInfo({ level: 0.5, discharging: true });
+  apiMock.expectGetIsAccessibleControllerInputDetected();
+  apiMock.expectGetApplicationDiskSpaceSummary();
+  apiMock.expectGetMostRecentAccessibleControllerDiagnostic();
+
+  renderScreen();
+
+  userEvent.click(await screen.findButton('Test Accessible Controller'));
+
+  userEvent.click(await screen.findButton('Cancel Test'));
+  screen.getByRole('heading', { name: 'System Diagnostics' });
+});
+
+test('accessible controller diagnostic - fail', async () => {
+  apiMock.setBatteryInfo({ level: 0.5, discharging: true });
+  apiMock.expectGetIsAccessibleControllerInputDetected();
+  apiMock.expectGetApplicationDiskSpaceSummary();
+  apiMock.expectGetMostRecentAccessibleControllerDiagnostic();
+
+  renderScreen();
+
+  userEvent.click(await screen.findButton('Test Accessible Controller'));
+
+  apiMock.expectAddDiagnosticRecord({
+    type: 'mark-scan-accessible-controller',
+    outcome: 'fail',
+    message: 'up button is not working.',
+  });
+  apiMock.expectGetMostRecentAccessibleControllerDiagnostic({
+    type: 'mark-scan-accessible-controller',
+    outcome: 'fail',
+    message: 'up button is not working.',
+    timestamp: new Date('2022-03-23T11:23:00.000').getTime(),
+  });
+  userEvent.click(await screen.findButton('Up Button is Not Working'));
+
+  screen.getByRole('heading', { name: 'System Diagnostics' });
+  await screen.findByText(
+    'Test failed, 3/23/2022, 11:23:00 AM — up button is not working.'
+  );
 });

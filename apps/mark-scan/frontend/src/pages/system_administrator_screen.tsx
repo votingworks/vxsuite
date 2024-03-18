@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 import {
+  Button,
   H3,
   Main,
   Screen,
   SystemAdministratorScreenContents,
 } from '@votingworks/ui';
 import { logOut } from '../api';
+import { DiagnosticsScreen } from './diagnostics_screen';
 
 const resetPollsToPausedText =
   'The polls are closed and voting is complete. After resetting the polls to paused, it will be possible to re-open the polls and resume voting. The printed ballots count will be preserved.';
@@ -26,6 +28,16 @@ export function SystemAdministratorScreen({
   resetPollsToPaused,
 }: Props): JSX.Element {
   const logOutMutation = logOut.useMutation();
+  const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(false);
+
+  if (isDiagnosticsScreenOpen) {
+    return (
+      <DiagnosticsScreen
+        onBackButtonPress={() => setIsDiagnosticsScreenOpen(false)}
+      />
+    );
+  }
+
   return (
     <Screen>
       <Main padded>
@@ -44,6 +56,11 @@ export function SystemAdministratorScreen({
           unconfigureMachine={unconfigureMachine}
           isMachineConfigured={isMachineConfigured}
           logOut={() => logOutMutation.mutate()}
+          additionalButtons={
+            <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
+              System Diagnostics
+            </Button>
+          }
         />
       </Main>
     </Screen>

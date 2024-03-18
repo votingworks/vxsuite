@@ -239,8 +239,9 @@ create table diagnostics (
   id integer primary key,
   type text not null,
   outcome text not null check (outcome = 'pass' or outcome = 'fail'),
+  message text,
   timestamp number not null
-);
+);  
 
 -- to track data changes in order to invalidate cached data
 create table data_versions (

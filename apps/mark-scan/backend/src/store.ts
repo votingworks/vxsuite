@@ -2,7 +2,14 @@
 // The durable datastore for configuration info.
 //
 
-import { UiStringsStore, createUiStringStore } from '@votingworks/backend';
+import {
+  UiStringsStore,
+  addDiagnosticRecord,
+  createUiStringStore,
+  getMaximumUsableDiskSpace,
+  getMostRecentDiagnosticRecord,
+  updateMaximumUsableDiskSpace,
+} from '@votingworks/backend';
 import { Optional } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
 import {
@@ -16,6 +23,8 @@ import {
   PollsState,
   safeParse,
   PollsStateSchema,
+  DiagnosticRecord,
+  DiagnosticType,
 } from '@votingworks/types';
 import { join } from 'path';
 
@@ -343,5 +352,23 @@ export class Store {
       'update election set ballots_cast_since_last_ballot_box_change = ?',
       ballotsCastCount
     );
+  }
+
+  addDiagnosticRecord(record: Omit<DiagnosticRecord, 'timestamp'>): void {
+    addDiagnosticRecord(this.client, record);
+  }
+
+  getMostRecentDiagnosticRecord(
+    type: DiagnosticType
+  ): DiagnosticRecord | undefined {
+    return getMostRecentDiagnosticRecord(this.client, type);
+  }
+
+  getMaximumUsableDiskSpace(): number {
+    return getMaximumUsableDiskSpace(this.client);
+  }
+
+  updateMaximumUsableDiskSpace(space: number): void {
+    updateMaximumUsableDiskSpace(this.client, space);
   }
 }

@@ -1,7 +1,7 @@
 import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
 import { ThemeProvider } from 'styled-components';
 import { DiagnosticRecord } from '@votingworks/types';
-import { LaptopSection } from './laptop_section';
+import { ComputerSection } from './computer_section';
 import { CentralScannerSection } from './central_scanner_section';
 import { makeTheme } from '../themes/make_theme';
 import { PrintedReport } from '../reports/layout';
@@ -22,7 +22,7 @@ export function CentralScanReadinessReportContents({
 }: ReportContentsProps): JSX.Element {
   return (
     <div>
-      <LaptopSection
+      <ComputerSection
         batteryInfo={batteryInfo}
         diskSpaceSummary={diskSpaceSummary}
       />

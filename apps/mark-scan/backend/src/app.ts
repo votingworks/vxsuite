@@ -13,6 +13,7 @@ import {
   PrecinctSelection,
   InterpretedBmdPage,
   PollsState,
+  DiagnosticRecord,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -28,6 +29,7 @@ import {
   readSignedElectionPackageFromUsb,
   configureUiStrings,
   createSystemCallApi,
+  DiskSpaceSummary,
 } from '@votingworks/backend';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
@@ -39,6 +41,7 @@ import {
   SimpleServerStatus,
 } from './custom-paper-handler';
 import { ElectionState } from './types';
+import { isAccessibleControllerDaemonRunning } from './util/controllerd';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(
@@ -356,6 +359,31 @@ export function buildApi(
       }
 
       return stateMachine.isPatDeviceConnected();
+    },
+
+    getApplicationDiskSpaceSummary(): Promise<DiskSpaceSummary> {
+      return workspace.getDiskSpaceSummary();
+    },
+
+    addDiagnosticRecord(input: Omit<DiagnosticRecord, 'timestamp'>): void {
+      store.addDiagnosticRecord(input);
+      void logger.logAsCurrentRole(LogEventId.DiagnosticComplete, {
+        disposition: input.outcome === 'pass' ? 'success' : 'failure',
+        message: `Diagnostic (${input.type}) completed with outcome: ${input.outcome}.`,
+        type: input.type,
+      });
+    },
+
+    getMostRecentAccessibleControllerDiagnostic(): DiagnosticRecord | null {
+      return (
+        store.getMostRecentDiagnosticRecord(
+          'mark-scan-accessible-controller'
+        ) ?? null
+      );
+    },
+
+    getIsAccessibleControllerInputDetected(): Promise<boolean> {
+      return isAccessibleControllerDaemonRunning();
     },
   });
 }

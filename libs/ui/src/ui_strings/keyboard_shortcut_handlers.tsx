@@ -4,6 +4,16 @@ import { useAvailableLanguages } from '../hooks/use_available_languages';
 import { useLanguageControls } from '../hooks/use_language_controls';
 import { useAudioControls } from '../hooks/use_audio_controls';
 
+export enum ACCESSIBILITY_KEYBINDINGS {
+  TOGGLE_AUDIO = 'M',
+  REPLAY = 'R',
+  DECREASE_PLAYBACK_RATE = ',',
+  INCREASE_PLAYBACK_RATE = '.',
+  TOGGLE_PAUSE = 'P',
+  DECREASE_VOLUME = '-',
+  INCREASE_VOLUME = '=',
+}
+
 /**
  * Installs UI String keyboard shortcuts for dev convenience.
  *   - Shift+L: Switch to next available display/audio language.
@@ -27,25 +37,25 @@ export function KeyboardShortcutHandlers(): React.ReactNode {
           setLanguage(availableLanguages[nextIndex]);
           break;
         }
-        case 'M':
+        case ACCESSIBILITY_KEYBINDINGS.TOGGLE_AUDIO:
           audioControls.toggleEnabled();
           break;
-        case 'R':
+        case ACCESSIBILITY_KEYBINDINGS.REPLAY:
           audioControls.replay();
           break;
-        case ',':
+        case ACCESSIBILITY_KEYBINDINGS.DECREASE_PLAYBACK_RATE:
           audioControls.decreasePlaybackRate();
           break;
-        case '.':
+        case ACCESSIBILITY_KEYBINDINGS.INCREASE_PLAYBACK_RATE:
           audioControls.increasePlaybackRate();
           break;
-        case 'P':
+        case ACCESSIBILITY_KEYBINDINGS.TOGGLE_PAUSE:
           audioControls.togglePause();
           break;
-        case '-':
+        case ACCESSIBILITY_KEYBINDINGS.DECREASE_VOLUME:
           audioControls.decreaseVolume();
           break;
-        case '=':
+        case ACCESSIBILITY_KEYBINDINGS.INCREASE_VOLUME:
           audioControls.increaseVolume();
           break;
         default:

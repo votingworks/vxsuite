@@ -518,13 +518,15 @@ export const getWriteInAdjudicationReportPreview = {
   },
 } as const;
 
-export const getDiagnosticRecords = {
+export const getMostRecentPrinterDiagnostic = {
   queryKey(): QueryKey {
     return ['getDiagnosticRecords'];
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getDiagnosticRecords());
+    return useQuery(this.queryKey(), () =>
+      apiClient.getMostRecentPrinterDiagnostic()
+    );
   },
 } as const;
 
@@ -800,7 +802,9 @@ export const addDiagnosticRecord = {
     const apiClient = useApiClient();
     return useMutation(apiClient.addDiagnosticRecord, {
       async onSuccess() {
-        await queryClient.invalidateQueries(getDiagnosticRecords.queryKey());
+        await queryClient.invalidateQueries(
+          getMostRecentPrinterDiagnostic.queryKey()
+        );
       },
     });
   },

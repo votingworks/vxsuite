@@ -4,7 +4,7 @@ import {
   IppPrinterStateReason,
 } from '@votingworks/types';
 import React from 'react';
-import { Optional, throwIllegalValue } from '@votingworks/basics';
+import { Optional, assert, throwIllegalValue } from '@votingworks/basics';
 import { H2, P } from '../typography';
 import { InfoIcon, LoadingIcon, SuccessIcon, WarningIcon } from './icons';
 
@@ -185,6 +185,10 @@ export function PrinterSection({
   printerStatus: PrinterStatus;
   mostRecentPrinterDiagnostic?: DiagnosticRecord;
 }): JSX.Element {
+  if (mostRecentPrinterDiagnostic) {
+    assert(mostRecentPrinterDiagnostic.type === 'test-print');
+  }
+
   return (
     <React.Fragment>
       <H2>Printer</H2>

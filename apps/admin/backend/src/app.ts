@@ -7,8 +7,6 @@ import {
   CastVoteRecordExportFileName,
   ContestId,
   DEFAULT_SYSTEM_SETTINGS,
-  DiagnosticType,
-  DiagnosticOutcome,
   DiagnosticRecord,
   Id,
   PrinterStatus,
@@ -975,10 +973,7 @@ function buildApi({
       });
     },
 
-    addDiagnosticRecord(input: {
-      type: DiagnosticType;
-      outcome: DiagnosticOutcome;
-    }): void {
+    addDiagnosticRecord(input: Omit<DiagnosticRecord, 'timestamp'>): void {
       store.addDiagnosticRecord(input);
       void logger.logAsCurrentRole(LogEventId.DiagnosticComplete, {
         disposition: input.outcome === 'pass' ? 'success' : 'failure',
@@ -986,8 +981,8 @@ function buildApi({
       });
     },
 
-    getDiagnosticRecords(): DiagnosticRecord[] {
-      return store.getDiagnosticRecords();
+    getMostRecentPrinterDiagnostic(): DiagnosticRecord | null {
+      return store.getMostRecentDiagnosticRecord('test-print') ?? null;
     },
 
     async printTestPage(): Promise<void> {

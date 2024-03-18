@@ -128,23 +128,6 @@ test('live mode on election day', () => {
   ).toBeNull();
 });
 
-test('navigates to System Diagnostics screen', () => {
-  const { unmount } = renderScreen();
-
-  userEvent.click(screen.getByRole('button', { name: 'View More Actions' }));
-  userEvent.click(screen.getByRole('button', { name: 'System Diagnostics' }));
-  screen.getByRole('heading', { name: 'System Diagnostics' });
-
-  userEvent.click(
-    screen.getByRole('button', { name: 'Back to Poll Worker Actions' })
-  );
-  screen.getByText(hasTextAcrossElements('Polls: Open'));
-
-  // Explicitly unmount before the printer status has resolved to verify that
-  // we properly cancel the request for printer status.
-  unmount();
-});
-
 test('can toggle between vote activation and "other actions" during polls open', async () => {
   renderScreen({
     pollsState: 'polls_open',
@@ -156,7 +139,7 @@ test('can toggle between vote activation and "other actions" during polls open',
 
   // switch to other actions pane
   userEvent.click(screen.getByText('View More Actions'));
-  screen.getByText('System Diagnostics');
+  screen.getByText('Reset Accessible Controller');
 
   // switch back
   userEvent.click(screen.getByText('Back to Ballot Style Selection'));

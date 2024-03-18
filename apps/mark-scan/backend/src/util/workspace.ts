@@ -2,6 +2,10 @@ import { ensureDirSync } from 'fs-extra';
 import { join, resolve } from 'path';
 import { InsertedSmartCardAuthMachineState } from '@votingworks/auth';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import {
+  DiskSpaceSummary,
+  initializeGetWorkspaceDiskSpaceSummary,
+} from '@votingworks/backend';
 import { Store } from '../store';
 
 export interface Workspace {
@@ -20,6 +24,11 @@ export interface Workspace {
    * as deleting the workspace and recreating it.
    */
   reset(): void;
+
+  /**
+   * Get the disk space summary for the workspace.
+   */
+  getDiskSpaceSummary: () => Promise<DiskSpaceSummary>;
 }
 
 export function constructAuthMachineState(
@@ -45,6 +54,10 @@ export function createWorkspace(
 
   const dbPath = join(resolvedRoot, 'mark.db');
   const store = options.store || Store.fileStore(dbPath);
+  const getWorkspaceDiskSpaceSummary = initializeGetWorkspaceDiskSpaceSummary(
+    store,
+    [resolvedRoot]
+  );
 
   return {
     path: resolvedRoot,
@@ -52,5 +65,6 @@ export function createWorkspace(
     reset() {
       store.reset();
     },
+    getDiskSpaceSummary: getWorkspaceDiskSpaceSummary,
   };
 }

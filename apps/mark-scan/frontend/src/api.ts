@@ -16,6 +16,7 @@ import {
 } from '@votingworks/ui';
 import { deepEqual } from '@votingworks/basics';
 import {
+  ACCESSIBLE_CONTROLLER_DIAGNOSTIC_POLLING_INTERVAL_MS,
   AUTH_STATUS_POLLING_INTERVAL_MS_OVERRIDE,
   STATE_MACHINE_POLLING_INTERVAL_MS,
 } from './constants';
@@ -146,6 +147,60 @@ export const getStateMachineState = {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.getPaperHandlerState(), {
       refetchInterval: STATE_MACHINE_POLLING_INTERVAL_MS,
+    });
+  },
+} as const;
+
+export const getApplicationDiskSpaceSummary = {
+  queryKey(): QueryKey {
+    return ['getApplicationDiskSpaceSummary'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getApplicationDiskSpaceSummary()
+    );
+  },
+} as const;
+
+export const getMostRecentAccessibleControllerDiagnostic = {
+  queryKey(): QueryKey {
+    return ['getMostRecentAccessibleControllerDiagnostic'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getMostRecentAccessibleControllerDiagnostic()
+    );
+  },
+} as const;
+
+export const getIsAccessibleControllerInputDetected = {
+  queryKey(): QueryKey {
+    return ['getIsAccessibleControllerInputDetected'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getIsAccessibleControllerInputDetected(),
+      {
+        refetchInterval: ACCESSIBLE_CONTROLLER_DIAGNOSTIC_POLLING_INTERVAL_MS,
+      }
+    );
+  },
+} as const;
+
+export const addDiagnosticRecord = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.addDiagnosticRecord, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getMostRecentAccessibleControllerDiagnostic.queryKey()
+        );
+      },
     });
   },
 } as const;
