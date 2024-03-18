@@ -36,6 +36,7 @@
     ]
   },
   "dependencies": {
+    "@types/bun": "^1.0.8",
     "@votingworks/auth": "workspace:*",
     "@votingworks/backend": "workspace:*",
     "@votingworks/basics": "workspace:*",

@@ -4,9 +4,7 @@ import {
   LogSource,
   Logger,
 } from '@votingworks/logging';
-import { Application } from 'express';
 import { DippedSmartCardAuth, JavaCard, MockFileCard } from '@votingworks/auth';
-import { Server } from 'http';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -16,6 +14,7 @@ import { detectUsbDrive, UsbDrive } from '@votingworks/usb-drive';
 import { Printer, detectPrinter } from '@votingworks/printing';
 import { assertDefined } from '@votingworks/basics';
 import { detectDevices } from '@votingworks/backend';
+import { ServeOptions, Server } from 'bun';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 import { buildApp } from './app';
@@ -28,7 +27,7 @@ const debug = rootDebug.extend('server');
  * Options for starting the admin service.
  */
 export interface StartOptions {
-  app: Application;
+  app: ServeOptions;
   logger: BaseLogger;
   port: number | string;
   workspace: Workspace;
@@ -104,11 +103,10 @@ export async function start({
   }
   /* c8 ignore stop */
 
-  const server = resolvedApp.listen(port, async () => {
-    await baseLogger.log(LogEventId.ApplicationStartup, 'system', {
-      message: `Admin Service running at http://localhost:${port}/`,
-      disposition: 'success',
-    });
+  const server = Bun.serve({ port, ...resolvedApp });
+  await baseLogger.log(LogEventId.ApplicationStartup, 'system', {
+    message: `Admin Service running at http://localhost:${port}/`,
+    disposition: 'success',
   });
   return server;
 }

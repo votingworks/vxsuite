@@ -1,7 +1,8 @@
-import type Express from 'express';
+import { assert, assertDefined } from '@votingworks/basics';
+import { ServeOptions } from 'bun';
 import { rootDebug } from './debug';
-import { serialize, deserialize } from './serialization';
-import { isObject, isString } from './util';
+import { deserialize, serialize } from './serialization';
+import { isObject } from './util';
 
 const debug = rootDebug.extend('server');
 
@@ -86,13 +87,8 @@ export function createApi<Methods extends AnyMethods>(
 export class GroutError extends Error {}
 
 /**
- * Creates an express Router with a route handler for each RPC method in a Grout
- * API. This allows you to easily mount the Grout API within a larger Express
- * app like so:
- *
- *  const api = createApi({ ... methods ... });
- *  const app = express();
- *  app.use('/api', buildRouter(api, express));
+ * Creates an object suitable for passing to `Bun.serve` with a route handler
+ * for each RPC method in a Grout API.
  *
  * All routes will use the POST HTTP method with a JSON body (for RPC input) and
  * return a JSON response (for RPC output), using Grout's serialization format
@@ -108,47 +104,51 @@ export class GroutError extends Error {}
  * ensures that consumers of the method will be forced to handle that error case
  * explicitly.
  */
-export function buildRouter(
-  api: AnyApi,
-  // We take the Express module as an argument so that Grout doesn't depend on
-  // Express directly. This allows client packages to use Grout without having
-  // to install Express, and also makes sure we're using the exact same version
-  // of Express as the server package.
-  express: typeof Express
-): Express.Router {
-  const router = express.Router();
-  router.use(
-    express.text({
-      type: 'application/json',
-      limit: '10mb', // Allow large-ish payloads like election definitions
-    })
-  );
+export function buildRouter(api: AnyApi, prefix: string): ServeOptions {
+  assert(prefix.startsWith('/'), 'Prefix must start with a slash');
+  const prefixWithSlash = prefix.endsWith('/') ? prefix : `${prefix}/`;
 
-  for (const [methodName, method] of Object.entries<AnyRpcMethod>(api)) {
-    const path = `/${methodName}`;
-    debug(`Registering route: ${path}`);
-
-    // All routes use the POST method. This doesn't quite follow the traditional
-    // semantics of HTTP, since there may or may not be a side-effect. But it's
-    // better to err on the side of possible side-effects (as opposed to use GET).
-    // We don't try to use the correct HTTP method because that would require
-    // some way to annotate RPC methods with the appropriate method, which is
-    // more complexity for little practical gain.
-    router.post(path, async (request, response) => {
+  return {
+    async fetch(request) {
       try {
-        debug(`Call: ${methodName}(${request.body})`);
-        if (!isString(request.body)) {
-          throw new GroutError(
-            'Request body was parsed as something other than a string.' +
-              " Make sure you haven't added any other body parsers upstream" +
-              ' of the Grout router - e.g. app.use(express.json()).' +
-              ` Body: ${JSON.stringify(request.body)}`
-          );
+        const url = new URL(request.url);
+
+        if (!url.pathname.startsWith(prefixWithSlash)) {
+          return new Response('Not Found', { status: 404 });
         }
 
-        const input = deserialize(request.body);
+        if (request.method !== 'POST') {
+          return new Response('Method Not Allowed', { status: 405 });
+        }
 
-        if (!(isObject(input) || input === undefined)) {
+        if (request.headers.get('content-type') !== 'application/json') {
+          return new Response('Unsupported Media Type', { status: 415 });
+        }
+
+        if (request.headers.get('accept') !== 'application/json') {
+          return new Response('Not Acceptable', { status: 406 });
+        }
+
+        const contentLengthHeader = request.headers.get('content-length');
+        // eslint-disable-next-line vx/gts-safe-number-parse
+        const contentLength = Number(contentLengthHeader);
+
+        // cap the payload size at 10MB
+        if (Number.isNaN(contentLength) || contentLength > 10 * 1024 * 1024) {
+          return new Response('Payload Too Large', { status: 413 });
+        }
+
+        const methodName = url.pathname.slice(prefixWithSlash.length);
+
+        if (!Object.hasOwn(api, methodName)) {
+          return new Response('Not Found', { status: 404 });
+        }
+
+        const method = assertDefined(api[methodName]);
+        const body = await request.text();
+        const input = deserialize(body);
+
+        if (!isObject(input) && input !== undefined) {
           throw new GroutError(
             'Grout methods must be called with an object or undefined as the sole argument.' +
               ` The argument received was: ${JSON.stringify(input)}`
@@ -156,20 +156,47 @@ export function buildRouter(
         }
 
         const result = await method(input);
+
+        if (result?.[Symbol.asyncIterator]) {
+          const iterator = result[Symbol.asyncIterator]();
+          return new Response(
+            new ReadableStream({
+              async start(controller) {
+                for await (const chunk of iterator) {
+                  if (request.signal.aborted) {
+                    break;
+                  }
+                  controller.enqueue(`data: ${serialize(chunk)}`);
+                }
+              },
+            }),
+            {
+              headers: {
+                'Content-Type': 'text/event-stream',
+                'Cache-Control': 'no-cache',
+                Connection: 'keep-alive',
+              },
+            }
+          );
+        }
+
         const jsonResult = serialize(result);
         debug(`Result: ${jsonResult}`);
 
-        response.set('Content-type', 'application/json');
-        response.status(200).send(jsonResult);
+        return new Response(jsonResult, {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        });
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
         debug(`Error: ${message}`);
         // eslint-disable-next-line no-console
         console.error(error); // To aid debugging, log the full error with stack trace
-        response.status(500).json({ message });
+        return new Response(JSON.stringify({ message }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
       }
-    });
-  }
-
-  return router;
+    },
+  };
 }

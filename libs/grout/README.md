@@ -3,9 +3,9 @@
 A library to create type-safe RPC glue code.
 
 Grout lets you define a server API as a plain TS object with async methods.
-Based on this API definition, Grout will create Express route handlers on the
-server side and a type-safe client on the client side, abstracting away the
-details of the underlying HTTP requests.
+Based on this API definition, Grout will create a request handler on the server
+side and a type-safe client on the client side, abstracting away the details of
+the underlying HTTP requests.
 
 ## Installation
 
@@ -52,14 +52,8 @@ const api = grout.createApi({
   },
 });
 
-const app = express();
-
-// When registering the API with an Express app, Grout creates an Express Router
-// to isolate the Grout API routes from other routes in your app. You can mount
-// this router using any path prefix you want - here we use `/api`. It's
-// important that you don't use any other body-parsing middleware upstream of
-// the router - e.g. don't call `app.use(express.json())` before this.
-app.use('/api', buildRouter(api, express));
+// Grout creates a request handler to pass to `Bun.serve`:
+Bun.serve(buildRouter(api, '/api'));
 
 // Don't forget to export the API type - we'll need it for the client.
 export type MyApi = typeof api;

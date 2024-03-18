@@ -24,14 +24,12 @@ import {
   Optional,
   Result,
 } from '@votingworks/basics';
-import express, { Application } from 'express';
 import {
   DippedSmartCardAuthApi,
   LiveCheck,
   prepareSignatureFile,
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
-import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { Printer } from '@votingworks/printing';
 import { createReadStream, promises as fs } from 'fs';
 import path, { join } from 'path';
@@ -64,6 +62,7 @@ import {
   UsbDriveStatus,
 } from '@votingworks/usb-drive';
 import ZipStream from 'zip-stream';
+import { ServeOptions } from 'bun';
 import {
   CastVoteRecordFileRecord,
   CvrFileImportInfo,
@@ -1037,10 +1036,8 @@ export function buildApp({
   logger: Logger;
   usbDrive: UsbDrive;
   printer: Printer;
-}): Application {
-  const app: Application = express();
+}): ServeOptions {
+  // TODO: re-integrate the dev dock API here
   const api = buildApi({ auth, workspace, logger, usbDrive, printer });
-  app.use('/api', grout.buildRouter(api, express));
-  useDevDockRouter(app, express, 'admin');
-  return app;
+  return grout.buildRouter(api, '/api');
 }

@@ -78,6 +78,7 @@
     "zod": "3.14.4"
   },
   "devDependencies": {
+    "@happy-dom/global-registrator": "^13.9.0",
     "@storybook/cli": "^7.2.2",
     "@storybook/react": "^7.2.2",
     "@tanstack/react-query": "4.32.1",
@@ -116,6 +117,7 @@
     "events": "3.3.0",
     "fast-check": "2.23.2",
     "get-contrast": "^3.0.0",
+    "happy-dom": "^13.9.0",
     "history": "4.10.1",
     "is-ci-cli": "2.2.0",
     "jest-environment-jsdom": "^29.6.2",

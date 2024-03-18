@@ -1,7 +1,6 @@
 import { assert } from '@votingworks/basics';
 
 import { LogEventId } from '@votingworks/logging';
-import { Server } from 'http';
 import { dirSync } from 'tmp';
 import { buildMockDippedSmartCardAuth } from '@votingworks/auth';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
@@ -25,17 +24,12 @@ test('starts with default logger and port', async () => {
   const { printer } = createMockPrinterHandler();
   const app = buildApp({ auth, workspace, logger, usbDrive, printer });
 
-  // don't actually listen
-  jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
-    onListening?.();
-    return undefined as unknown as Server;
-  });
   jest.spyOn(console, 'log').mockImplementation();
 
   // start up the server
-  await start({ app, workspace });
-
-  expect(app.listen).toHaveBeenCalledWith(PORT, expect.anything());
+  const server = await start({ app, workspace });
+  expect(server.port).toEqual(PORT);
+  server.stop();
 
   // eslint-disable-next-line no-console
   expect(console.log).toHaveBeenCalled();
@@ -49,17 +43,13 @@ test('start with config options', async () => {
   const { printer } = createMockPrinterHandler();
   const app = buildApp({ auth, workspace, logger, usbDrive, printer });
 
-  // don't actually listen
-  jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
-    onListening?.();
-    return undefined as unknown as Server;
-  });
   jest.spyOn(console, 'log').mockImplementation();
 
   // start up the server
-  await start({ app, workspace, port: 3005, logger });
+  const server = await start({ app, workspace, port: 3005, logger });
+  expect(server.port).toEqual(3005);
+  server.stop();
 
-  expect(app.listen).toHaveBeenCalledWith(3005, expect.anything());
   expect(logger.log).toHaveBeenCalled();
 });
 
@@ -104,15 +94,12 @@ test('logs device attach/un-attach events', async () => {
   const { printer } = createMockPrinterHandler();
   const app = buildApp({ auth, workspace, logger, usbDrive, printer });
 
-  // don't actually listen
-  jest.spyOn(app, 'listen').mockImplementationOnce((_port, onListening) => {
-    onListening?.();
-    return undefined as unknown as Server;
-  });
   jest.spyOn(console, 'log').mockImplementation();
 
   // start up the server
-  await start({ app, workspace, port: 3005, logger });
+  const server = await start({ app, workspace, port: 3005, logger });
+  expect(server.port).toEqual(3005);
+  server.stop();
 
   testDetectDevices(logger);
 });

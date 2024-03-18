@@ -3,23 +3,20 @@
 import { Result, err, ok } from '@votingworks/basics';
 import { expect, spyOn, test } from 'bun:test';
 import { expectTypeOf } from 'expect-type';
-import express from 'express';
-import { AddressInfo } from 'net';
 import { createClient } from './client';
 import { AnyApi, buildRouter, createApi } from './server';
 
 function createTestApp(api: AnyApi) {
-  const app = express();
-
-  app.use('/api', buildRouter(api, express));
-
-  const server = app.listen(0);
-  const { port } = server.address() as AddressInfo;
+  const server = Bun.serve({
+    port: 0,
+    ...buildRouter(api, '/api'),
+  });
+  const { port } = server;
   const baseUrl = `http://localhost:${port}/api`;
   return { server, baseUrl };
 }
 
-test('registers Express routes for an API', async () => {
+test('createApi happy path', async () => {
   interface Person {
     name: string;
     age: number;
@@ -80,7 +77,30 @@ test('registers Express routes for an API', async () => {
     ...mockPerson,
     age: 100,
   });
-  server.close();
+  server.stop();
+});
+
+test('async generator methods', async () => {
+  const api = createApi({
+    async *getNumbers(): AsyncGenerator<number> {
+      yield 1;
+      yield 2;
+      yield 3;
+    },
+  });
+
+  const { server, baseUrl } = createTestApp(api);
+
+  const client = createClient<typeof api>({ baseUrl });
+
+  const numbers = client.getNumbers();
+
+  expect(await numbers.next()).toEqual({ value: 1, done: false });
+  expect(await numbers.next()).toEqual({ value: 2, done: false });
+  expect(await numbers.next()).toEqual({ value: 3, done: false });
+  expect(await numbers.next()).toEqual({ value: undefined, done: true });
+
+  server.stop();
 });
 
 test('sends a 500 for unexpected errors', async () => {
@@ -105,7 +125,7 @@ test('sends a 500 for unexpected errors', async () => {
   expect(consoleErrorSpy).toHaveBeenCalledWith(new Error('Unexpected error'));
   expect(consoleErrorSpy).toHaveBeenCalledWith('Not even an Error');
 
-  server.close();
+  server.stop();
 });
 
 test('works with the Result type', async () => {
@@ -127,7 +147,7 @@ test('works with the Result type', async () => {
   expect(await client.getStuff({ shouldFail: true })).toEqual(
     err(new Error('Known error'))
   );
-  server.close();
+  server.stop();
 });
 
 test('errors if RPC method doesnt have the correct signature', async () => {
@@ -159,29 +179,7 @@ test('errors if RPC method doesnt have the correct signature', async () => {
   expect(client.sqrt(4)).rejects.toThrow(
     'Grout methods must be called with an object or undefined as the sole argument. The argument received was: 4'
   );
-  server.close();
-});
-
-test('errors if app has upstream body-parsing middleware', async () => {
-  const api = createApi({
-    async getStuff(): Promise<number> {
-      return 42;
-    },
-  });
-
-  const app = express();
-  app.use(express.json());
-  app.use('/api', buildRouter(api, express));
-
-  const server = app.listen();
-  const { port } = server.address() as AddressInfo;
-  const baseUrl = `http://localhost:${port}/api`;
-  const client = createClient<typeof api>({ baseUrl });
-
-  expect(client.getStuff()).rejects.toThrow(
-    'Request body was parsed as something other than a string. Make sure you haven\'t added any other body parsers upstream of the Grout router - e.g. app.use(express.json()). Body: {"__grout_type":"undefined","__grout_value":"undefined"}'
-  );
-  server.close();
+  server.stop();
 });
 
 test('client accepts baseUrl with a trailing slash', async () => {
@@ -195,7 +193,7 @@ test('client accepts baseUrl with a trailing slash', async () => {
     baseUrl: `${baseUrl}/`,
   });
   expect(await client.getStuff()).toEqual(42);
-  server.close();
+  server.stop();
 });
 
 test('client errors on incorrect baseUrl', async () => {
@@ -211,7 +209,7 @@ test('client errors on incorrect baseUrl', async () => {
   expect(client.getStuff()).rejects.toThrow(
     `Got 404 for ${baseUrl}wrong/getStuff. Are you sure the baseUrl is correct?`
   );
-  server.close();
+  server.stop();
 });
 
 test('client errors if response is not JSON', async () => {
@@ -223,20 +221,28 @@ test('client errors if response is not JSON', async () => {
       return 42;
     },
   });
-  const app = express();
-  app.post('/api/getStuff', (req, res) => {
-    // Send valid JSON, but not the right Content-type
-    res.set('Content-Type', 'text/plain');
-    res.send('42');
+  const server = Bun.serve({
+    port: 0,
+    fetch(request) {
+      const url = new URL(request.url);
+      switch (url.pathname) {
+        case '/api/getStuff': {
+          // Send valid JSON, but not the right Content-type
+          return new Response('42', {
+            headers: { 'Content-Type': 'text/plain' },
+          });
+        }
+        case '/api/getMoreStuff': {
+          // No Content-type header
+          return new Response('42');
+        }
+        default: {
+          return new Response('Not Found', { status: 404 });
+        }
+      }
+    },
   });
-  app.post('/api/getMoreStuff', (req, res) => {
-    // No Content-type header
-    res.end('42');
-  });
-
-  const server = app.listen();
-  const { port } = server.address() as AddressInfo;
-  const baseUrl = `http://localhost:${port}/api`;
+  const baseUrl = `http://localhost:${server.port}/api`;
   const client = createClient<typeof api>({ baseUrl });
 
   expect(client.getStuff()).rejects.toThrow(
@@ -245,7 +251,7 @@ test('client errors if response is not JSON', async () => {
   expect(client.getMoreStuff()).rejects.toThrow(
     `Response content type is not JSON for ${baseUrl}/getMoreStuff`
   );
-  server.close();
+  server.stop();
 });
 
 test('client handles non-JSON error responses', async () => {
@@ -254,18 +260,19 @@ test('client handles non-JSON error responses', async () => {
       return 42;
     },
   });
-  const app = express();
-  app.post('/api/getStuff', (req, res) => {
-    res.set('Content-Type', 'application/json');
-    // Send invalid JSON (empty response body)
-    res.status(500).send();
+  const server = Bun.serve({
+    port: 0,
+    fetch() {
+      return new Response('', {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    },
   });
-  const server = app.listen(0);
-  const { port } = server.address() as AddressInfo;
-  const baseUrl = `http://localhost:${port}/api`;
+  const baseUrl = `http://localhost:${server.port}/api`;
   const client = createClient<typeof api>({ baseUrl });
   expect(client.getStuff()).rejects.toThrow(/json/i);
-  server.close();
+  server.stop();
 });
 
 test('client handles other server errors', async () => {
@@ -274,14 +281,14 @@ test('client handles other server errors', async () => {
       return 42;
     },
   });
-  const app = express();
-  app.post('/api/getStuff', (req, res) => {
-    res.status(500).send();
+  const server = Bun.serve({
+    port: 0,
+    fetch() {
+      return new Response('Internal Server Error', { status: 500 });
+    },
   });
-  const server = app.listen(0);
-  const { port } = server.address() as AddressInfo;
-  const baseUrl = `http://localhost:${port}/api`;
+  const baseUrl = `http://localhost:${server.port}/api`;
   const client = createClient<typeof api>({ baseUrl });
   expect(client.getStuff()).rejects.toThrow(`Got 500 for ${baseUrl}/getStuff`);
-  server.close();
+  server.stop();
 });

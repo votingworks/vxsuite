@@ -1,4 +1,5 @@
 import fetch from 'cross-fetch';
+import { lines } from '@votingworks/basics';
 import { deserialize, serialize } from './serialization';
 import { AnyApi, AnyRpcMethod, inferApiMethods } from './server';
 import { rootDebug } from './debug';
@@ -10,7 +11,9 @@ const debug = rootDebug.extend('client');
  */
 export type AsyncRpcMethod<Method extends AnyRpcMethod> = (
   ...args: Parameters<Method>
-) => Promise<Awaited<ReturnType<Method>>>;
+) => ReturnType<Method> extends AsyncGenerator<infer T>
+  ? AsyncGenerator<T>
+  : Promise<Awaited<ReturnType<Method>>>;
 
 /**
  * A Grout RPC client based on the type of an API definition.
@@ -79,13 +82,19 @@ export function createClient<Api extends AnyApi>(
           const response = await fetch(url, {
             method: 'POST',
             body: serialize(input),
-            headers: { 'Content-type': 'application/json' },
+            headers: {
+              'Content-type': 'application/json',
+              Accept: 'application/json, text/event-stream',
+            },
           });
           debug(`Response status code: ${response.status}`);
 
           const hasJsonBody = response.headers
             .get('Content-type')
             ?.includes('application/json');
+          const hasEventStreamBody = response.headers
+            .get('Content-type')
+            ?.includes('text/event-stream');
 
           if (!response.ok) {
             if (hasJsonBody) {
@@ -100,16 +109,24 @@ export function createClient<Api extends AnyApi>(
             throw new ServerError(`Got ${response.status} for ${url}`);
           }
 
-          if (!hasJsonBody) {
-            throw new ServerError(
-              `Response content type is not JSON for ${url}`
-            );
+          if (!response.body) {
+            throw new ServerError(`Response body is empty for ${url}`);
           }
 
-          const resultText = await response.text();
-          debug(`Result: ${resultText}`);
-          const result = deserialize(resultText);
-          return result;
+          if (hasJsonBody) {
+            const resultText = await response.text();
+            debug(`Result: ${resultText}`);
+            const result = deserialize(resultText);
+            return result;
+          }
+
+          if (hasEventStreamBody) {
+            return response.body;
+          }
+
+          throw new ServerError(
+            `Response content type is not JSON or SSE for ${url}`
+          );
         } catch (error) {
           const message =
             error instanceof Error
