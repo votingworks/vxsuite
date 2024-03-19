@@ -511,7 +511,7 @@ pub fn interpret_ballot_card(
                 ) => (
                     side_a,
                     side_b,
-                    BallotStyleId::from(format!("card-number-{}", front_metadata.card_number)),
+                    BallotStyleId::from(format!("card-number-{}", front_metadata.card)),
                 ),
                 (
                     BallotPageTimingMarkMetadata::Back(_),
@@ -519,7 +519,7 @@ pub fn interpret_ballot_card(
                 ) => (
                     side_b,
                     side_a,
-                    BallotStyleId::from(format!("card-number-{}", front_metadata.card_number)),
+                    BallotStyleId::from(format!("card-number-{}", front_metadata.card)),
                 ),
                 _ => {
                     return Err(Error::InvalidCardMetadata {
