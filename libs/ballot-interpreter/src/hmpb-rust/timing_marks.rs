@@ -19,7 +19,7 @@ use crate::{
     image_utils::{expand_image, match_template, WHITE},
     interpret::{self, Error},
     qr_code_metadata::BallotPageQrCodeMetadata,
-    timing_mark_metadata::{decode_metadata_from_timing_marks, BallotPageTimingMarkMetadata},
+    timing_mark_metadata::BallotPageTimingMarkMetadata,
 };
 
 /// Represents partial timing marks found in a ballot card.
@@ -1003,7 +1003,7 @@ pub fn detect_metadata_and_normalize_orientation(
     let orientation = detect_orientation_from_grid(&grid);
     let (normalized_grid, normalized_image) =
         normalize_orientation(geometry, grid, image, orientation, debug);
-    let metadata = decode_metadata_from_timing_marks(
+    let metadata = BallotPageTimingMarkMetadata::decode_from_timing_marks(
         geometry,
         &find_actual_bottom_marks(
             &normalized_grid.complete_timing_marks,
