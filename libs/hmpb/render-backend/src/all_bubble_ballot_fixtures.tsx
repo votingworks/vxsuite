@@ -28,7 +28,7 @@ import { Footer } from './next/vx_default_ballot_template';
 import { RenderScratchpad, Renderer } from './next/renderer';
 import { PixelDimensions } from './next/types';
 import { markBallotDocument } from './next/mark_ballot';
-import { concatenatePdfs } from './concatenate_pdfs';
+import { concatenatePdfs } from './next/concatenate_pdfs';
 
 const debug = makeDebug('hmpb:ballot_fixtures');
 

@@ -15,6 +15,7 @@ import {
   GridLayout,
   GridPosition,
   HmpbBallotPageMetadata,
+  Outset,
   PrecinctId,
   safeParseElectionDefinition,
 } from '@votingworks/types';
@@ -31,6 +32,7 @@ import {
   QR_CODE_SIZE,
   QR_CODE_SLOT_CLASS,
   TIMING_MARK_CLASS,
+  WRITE_IN_OPTION_CLASS,
 } from './ballot_components';
 import { PixelDimensions, Pixels } from './types';
 
@@ -213,6 +215,14 @@ export function gridHeightToPixels(
   return height * grid.rowGap;
 }
 
+function pixelsToGridHeight(grid: GridMeasurements, pixels: Pixels): number {
+  return pixels / grid.rowGap;
+}
+
+function pixelsToGridWidth(grid: GridMeasurements, pixels: Pixels): number {
+  return pixels / grid.columnGap;
+}
+
 async function extractGridLayout(
   document: RenderDocument,
   ballotStyleId: BallotStyleId
@@ -264,17 +274,58 @@ async function extractGridLayout(
       return optionPositions;
     })
   );
+  const gridPositions = optionPositionsPerPage.flat();
+
+  // To compute the bounds of write-in options, we'll just look at the first
+  // write-in option box we find. This relies on all write-in option boxes being
+  // the same size. We may want to eventually switch to a data model where we
+  // compute the bounds for every contest option we care about individually.
+  const optionBoundsFromTargetMark: Outset<number> = await (async () => {
+    const writeInOptions = await document.inspectElements(
+      `.${WRITE_IN_OPTION_CLASS}`
+    );
+    const writeInOptionBubbles = await document.inspectElements(
+      `.${WRITE_IN_OPTION_CLASS} .${BUBBLE_CLASS}`
+    );
+    if (writeInOptions.length === 0) {
+      return {
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+      };
+    }
+    const firstWriteInOption = writeInOptions[0];
+    const firstWriteInOptionBubble = writeInOptionBubbles[0];
+    const grid = await measureTimingMarkGrid(document, 1);
+    return {
+      top: pixelsToGridHeight(
+        grid,
+        firstWriteInOptionBubble.y - firstWriteInOption.y
+      ),
+      left: pixelsToGridWidth(
+        grid,
+        firstWriteInOptionBubble.x - firstWriteInOption.x
+      ),
+      right: pixelsToGridWidth(
+        grid,
+        firstWriteInOption.x +
+          firstWriteInOption.width -
+          firstWriteInOptionBubble.x
+      ),
+      bottom: pixelsToGridHeight(
+        grid,
+        firstWriteInOption.y +
+          firstWriteInOption.height -
+          firstWriteInOptionBubble.y
+      ),
+    };
+  })();
 
   return {
     ballotStyleId,
-    gridPositions: optionPositionsPerPage.flat(),
-    // TODO how should this crop area be specified?
-    optionBoundsFromTargetMark: {
-      bottom: 0,
-      left: 0,
-      right: 0,
-      top: 0,
-    },
+    gridPositions,
+    optionBoundsFromTargetMark,
   };
 }
 

@@ -1,11 +1,11 @@
-import { assert, find, uniqueBy } from '@votingworks/basics';
-import { BallotLayout, Document, markBallot } from '@votingworks/hmpb-layout';
+import { assert, assertDefined, find, uniqueBy } from '@votingworks/basics';
 import {
   Admin,
   BallotStyleId,
   ContestId,
   Election,
   ElectionDefinition,
+  GridLayout,
   PrecinctId,
   Tabulation,
 } from '@votingworks/types';
@@ -22,21 +22,13 @@ import {
 import { renderToPdf } from '@votingworks/printing';
 import { Buffer } from 'buffer';
 import { AdminTallyReportByParty } from '@votingworks/ui';
-
-function concatenateDocuments(documents: Document[]): Document {
-  assert(documents.length > 0);
-  const { width, height } = documents[0];
-  assert(
-    documents.every(
-      (document) => document.width === width && document.height === height
-    )
-  );
-  return {
-    width,
-    height,
-    pages: documents.flatMap((document) => document.pages),
-  };
-}
+import {
+  BaseBallotProps,
+  RenderDocument,
+  Renderer,
+  markBallotDocument,
+  concatenatePdfs,
+} from '@votingworks/hmpb-render-backend';
 
 /**
  * Creates a test deck for a precinct that includes:
@@ -46,15 +38,17 @@ function concatenateDocuments(documents: Document[]): Document {
  *
  * The test deck is one long document (intended to be rendered as a single PDF).
  */
-export function createPrecinctTestDeck({
+export async function createPrecinctTestDeck({
+  renderer,
   election,
   precinctId,
   ballots,
 }: {
+  renderer: Renderer;
   election: Election;
   precinctId: PrecinctId;
-  ballots: BallotLayout[];
-}): Document | undefined {
+  ballots: Array<{ props: BaseBallotProps; document: RenderDocument }>;
+}): Promise<Buffer | undefined> {
   const ballotSpecs = generateTestDeckBallots({
     election,
     precinctId,
@@ -63,16 +57,23 @@ export function createPrecinctTestDeck({
   if (ballotSpecs.length === 0) {
     return undefined;
   }
-  const markedBallots = ballotSpecs.map((ballotSpec) => {
-    const { document } = find(
-      ballots,
-      (ballot) =>
-        ballot.gridLayout.ballotStyleId === ballotSpec.ballotStyleId &&
-        ballot.precinctId === ballotSpec.precinctId
-    );
-    return markBallot({ ballot: document, votes: ballotSpec.votes });
-  });
-  return concatenateDocuments(markedBallots);
+  const markedBallots = await Promise.all(
+    ballotSpecs.map(async (ballotSpec) => {
+      const { document } = find(
+        ballots,
+        (ballot) =>
+          ballot.props.ballotStyleId === ballotSpec.ballotStyleId &&
+          ballot.props.precinctId === ballotSpec.precinctId
+      );
+      const markedBallot = await markBallotDocument(
+        renderer,
+        document,
+        ballotSpec.votes
+      );
+      return await markedBallot.renderToPdf();
+    })
+  );
+  return await concatenatePdfs(markedBallots);
 }
 
 /**
@@ -80,16 +81,14 @@ export function createPrecinctTestDeck({
  * arranged by sheet so we can arrange the votes accordingly.
  */
 interface BallotContestLayout {
-  precinctId: PrecinctId;
   ballotStyleId: BallotStyleId;
   contestIdsBySheet: Array<ContestId[]>;
 }
 
 function getBallotContestLayouts(
-  ballots: BallotLayout[]
+  gridLayouts: readonly GridLayout[]
 ): BallotContestLayout[] {
-  return ballots.map((ballot) => {
-    const { precinctId, gridLayout } = ballot;
+  return gridLayouts.map((gridLayout) => {
     const { ballotStyleId } = gridLayout;
     const numSheets = Math.max(
       ...gridLayout.gridPositions.map((gp) => gp.sheetNumber)
@@ -108,20 +107,15 @@ function getBallotContestLayouts(
       contestIdsBySheet[sheetNumber - 1].push(contestId);
     }
     return {
-      precinctId,
       ballotStyleId,
       contestIdsBySheet,
     };
   });
 }
 
-function generateTestDeckCastVoteRecords({
-  election,
-  ballots,
-}: {
-  election: Election;
-  ballots: BallotLayout[];
-}): Tabulation.CastVoteRecord[] {
+function generateTestDeckCastVoteRecords(
+  election: Election
+): Tabulation.CastVoteRecord[] {
   const ballotSpecs: TestDeckBallotSpec[] = generateTestDeckBallots({
     election,
     markingMethod: 'hand',
@@ -129,8 +123,9 @@ function generateTestDeckCastVoteRecords({
     includeOvervotedBallots: false,
   });
 
-  const ballotContestLayouts: BallotContestLayout[] =
-    getBallotContestLayouts(ballots);
+  const ballotContestLayouts: BallotContestLayout[] = getBallotContestLayouts(
+    assertDefined(election.gridLayouts)
+  );
 
   const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
 
@@ -150,9 +145,7 @@ function generateTestDeckCastVoteRecords({
 
     const ballotContestLayout = find(
       ballotContestLayouts,
-      ({ precinctId, ballotStyleId }) =>
-        ballotStyleId === ballotSpec.ballotStyleId &&
-        precinctId === ballotSpec.precinctId
+      ({ ballotStyleId }) => ballotStyleId === ballotSpec.ballotStyleId
     );
 
     // HMPB ballots may be multiple sheets, so generate a CVR for each sheet
@@ -174,17 +167,10 @@ function generateTestDeckCastVoteRecords({
   return cvrs;
 }
 
-export async function getTallyReportResults({
-  election,
-  ballots,
-}: {
-  election: Election;
-  ballots: BallotLayout[];
-}): Promise<Admin.TallyReportResults> {
-  const cvrs = generateTestDeckCastVoteRecords({
-    election,
-    ballots,
-  });
+export async function getTallyReportResults(
+  election: Election
+): Promise<Admin.TallyReportResults> {
+  const cvrs = generateTestDeckCastVoteRecords(election);
 
   if (election.type === 'general') {
     const [electionResults] = groupMapToGroupList(
@@ -235,19 +221,14 @@ export async function getTallyReportResults({
  */
 export async function createTestDeckTallyReport({
   electionDefinition,
-  ballots,
   generatedAtTime,
 }: {
   electionDefinition: ElectionDefinition;
-  ballots: BallotLayout[];
   generatedAtTime?: Date;
 }): Promise<Buffer> {
   const { election } = electionDefinition;
 
-  const tallyReportResults = await getTallyReportResults({
-    election,
-    ballots,
-  });
+  const tallyReportResults = await getTallyReportResults(election);
 
   return await renderToPdf({
     document: AdminTallyReportByParty({

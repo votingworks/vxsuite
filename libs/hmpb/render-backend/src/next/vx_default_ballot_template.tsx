@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   assertDefined,
   iter,
@@ -5,7 +6,6 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import { Buffer } from 'buffer';
-import React from 'react';
 import styled from 'styled-components';
 import {
   AnyContest,
@@ -28,11 +28,12 @@ import {
 } from './render_ballot';
 import { RenderScratchpad } from './renderer';
 import {
-  Bubble as BubbleComponent,
+  Bubble,
   OptionInfo,
   Page,
   QrCodeSlot,
   TimingMarkGrid,
+  WRITE_IN_OPTION_CLASS,
   pageMargins,
 } from './ballot_components';
 import { PixelDimensions } from './types';
@@ -41,10 +42,6 @@ import {
   InstructionsDiagramFillBubble,
   InstructionsDiagramWriteIn,
 } from './svg_assets';
-
-const Bubble = styled(BubbleComponent)`
-  margin-top: 0.05rem;
-`;
 
 const Colors = {
   BLACK: '#000000',
@@ -350,20 +347,23 @@ function CandidateContest({
             >
               <div
                 style={{
-                  display: 'grid',
-                  columnGap: '0.5rem',
-                  gridTemplateColumns: 'min-content 1fr',
-                  alignItems: 'center',
+                  display: 'flex',
+                  gap: '0.5rem',
                 }}
               >
-                <Bubble optionInfo={optionInfo} />
-                <strong>{candidate.name}</strong>
-                {partyText && (
-                  <>
-                    <div />
-                    <div>{partyText}</div>
-                  </>
-                )}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    height: '1.2rem', // Match line-height of text to align bubble to center of first line of candidate name
+                  }}
+                >
+                  <Bubble optionInfo={optionInfo} />
+                </div>
+                <div>
+                  <strong>{candidate.name}</strong>
+                  {partyText && <div>{partyText}</div>}
+                </div>
               </div>
             </li>
           );
@@ -384,26 +384,32 @@ function CandidateContest({
             return (
               <li
                 key={writeInIndex}
+                className={WRITE_IN_OPTION_CLASS}
                 style={{
-                  display: 'grid',
-                  columnGap: '0.5rem',
-                  gridTemplateColumns: 'min-content 1fr',
+                  display: 'flex',
+                  gap: '0.5rem',
                   padding: '0.25rem 0.75rem',
                   paddingTop: '0.9rem',
                   borderTop: `1px solid ${Colors.DARK_GRAY}`,
                 }}
               >
-                <Bubble optionInfo={optionInfo} />
-                <div>
-                  <div>
-                    <div
-                      style={{
-                        borderBottom: `1px solid ${Colors.BLACK}`,
-                        height: '1.25rem',
-                      }}
-                    />
-                    <div style={{ fontSize: '0.8rem' }}>Write-in</div>
-                  </div>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    height: '1.25rem', // Match height of write-in box below to align bubble to center of box
+                  }}
+                >
+                  <Bubble optionInfo={optionInfo} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div
+                    style={{
+                      borderBottom: `1px solid ${Colors.BLACK}`,
+                      height: '1.25rem',
+                    }}
+                  />
+                  <div style={{ fontSize: '0.8rem' }}>Write-in</div>
                 </div>
               </li>
             );
@@ -443,16 +449,22 @@ function BallotMeasureContest({ contest }: { contest: YesNoContest }) {
                 borderTop: `1px solid ${Colors.LIGHT_GRAY}`,
               }}
             >
-              <div
-                style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}
-              >
-                <Bubble
-                  optionInfo={{
-                    type: 'option',
-                    contestId: contest.id,
-                    optionId: option.id,
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    height: '1.2rem', // Match line-height of text to align bubble to center of first line of option label
                   }}
-                />
+                >
+                  <Bubble
+                    optionInfo={{
+                      type: 'option',
+                      contestId: contest.id,
+                      optionId: option.id,
+                    }}
+                  />
+                </div>
                 <strong>{option.label}</strong>
               </div>
             </li>

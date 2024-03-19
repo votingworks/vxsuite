@@ -7,7 +7,6 @@ import {
   ElectionPackageFileName,
   ElectionPackageMetadata,
   getDisplayElectionHash,
-  getPrecinctById,
   Id,
 } from '@votingworks/types';
 
@@ -16,7 +15,6 @@ import {
   renderAllBallotsAndCreateElectionDefinition,
   vxDefaultBallotTemplate,
 } from '@votingworks/hmpb-render-backend';
-import { assertDefined } from '@votingworks/basics';
 import { PORT } from '../globals';
 import {
   extractAndTranslateElectionStrings,
@@ -71,10 +69,8 @@ export async function generateElectionPackage(
       // So we just need to render a single ballot per ballot style to create the election definition
       election.ballotStyles.map((ballotStyle) => ({
         election,
-        ballotStyle,
-        precinct: assertDefined(
-          getPrecinctById({ election, precinctId: ballotStyle.precincts[0] })
-        ),
+        ballotStyleId: ballotStyle.id,
+        precinctId: ballotStyle.precincts[0],
         ballotType: BallotType.Precinct,
         ballotMode: 'test',
         // TODO incorporate translatedElectionStrings

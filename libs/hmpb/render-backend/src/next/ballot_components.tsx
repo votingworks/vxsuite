@@ -180,7 +180,9 @@ export function Bubble({
   );
 }
 
-export const MARK_OVERLAY_CLASS = 'MarkOverlay';
+export const WRITE_IN_OPTION_CLASS = 'write-in-option';
+
+export const MARK_OVERLAY_CLASS = 'mark-overlay';
 
 export function MarkOverlay({
   children,
@@ -203,7 +205,7 @@ export function MarkOverlay({
   );
 }
 
-export const PAGE_CLASS = 'Page';
+export const PAGE_CLASS = 'page';
 
 export function Page({
   pageNumber,

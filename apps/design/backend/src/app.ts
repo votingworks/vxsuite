@@ -21,15 +21,14 @@ import {
 import {
   BallotMode,
   BALLOT_MODES,
-  layOutAllBallotStyles,
   LayoutOptions,
 } from '@votingworks/hmpb-layout';
 import JsZip from 'jszip';
 import {
+  BaseBallotProps,
   createPlaywrightRenderer,
   renderAllBallotsAndCreateElectionDefinition,
   renderBallotPreviewToPdf,
-  renderDocumentToPdf,
   vxDefaultBallotTemplate,
 } from '@votingworks/hmpb-render-backend';
 import { ElectionPackage, ElectionRecord } from './store';
@@ -40,7 +39,6 @@ import {
   createTestDeckTallyReport,
 } from './test_decks';
 import { AppContext } from './context';
-import { extractAndTranslateElectionStrings } from './language_and_audio';
 import { rotateCandidates } from './candidate_rotation';
 
 export function createBlankElection(): Election {
@@ -101,7 +99,7 @@ export function convertVxfPrecincts(election: Election): Precinct[] {
   });
 }
 
-function buildApi({ translator, workspace }: AppContext) {
+function buildApi({ workspace }: AppContext) {
   const { store } = workspace;
 
   return grout.createApi({
@@ -263,48 +261,62 @@ function buildApi({ translator, workspace }: AppContext) {
     async exportTestDecks(input: {
       electionId: Id;
     }): Promise<{ zipContents: Buffer; electionHash: string }> {
-      const {
-        ballotLanguageConfigs,
-        election,
-        layoutOptions,
-        nhCustomContent,
-      } = store.getElection(input.electionId);
-      const { electionDefinition, ballots } = layOutAllBallotStyles({
-        election,
-        ballotType: BallotType.Precinct,
-        ballotMode: 'test',
-        layoutOptions,
-        nhCustomContent,
-        translatedElectionStrings: (
-          await extractAndTranslateElectionStrings(
-            translator,
+      const { election } = store.getElection(input.electionId);
+      const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
+        ballotStyle.precincts.map(
+          (precinctId): BaseBallotProps => ({
             election,
-            ballotLanguageConfigs
-          )
-        ).electionStrings,
-      }).unsafeUnwrap();
+            ballotStyleId: ballotStyle.id,
+            precinctId,
+            ballotType: BallotType.Precinct,
+            ballotMode: 'test',
+          })
+        )
+      );
+      const renderer = await createPlaywrightRenderer();
+      const { electionDefinition, ballotDocuments } =
+        await renderAllBallotsAndCreateElectionDefinition(
+          renderer,
+          vxDefaultBallotTemplate,
+          allBallotProps
+        );
+      const ballots = iter(allBallotProps)
+        .zip(ballotDocuments)
+        .map(([props, document]) => ({
+          props,
+          document,
+        }))
+        .toArray();
+
+      // TODO make sure we incorporate the translatedElectionStrings as they were previously incorporated
+      // translatedElectionStrings: (
+      //   await extractAndTranslateElectionStrings(
+      //     translator,
+      //     election,
+      //     ballotLanguageConfigs
+      //   )
+      // ).electionStrings,
 
       const zip = new JsZip();
 
       for (const precinct of election.precincts) {
-        const testDeckDocument = createPrecinctTestDeck({
+        const testDeckPdf = await createPrecinctTestDeck({
+          renderer,
           election,
           precinctId: precinct.id,
           ballots,
         });
-        if (!testDeckDocument) continue;
-        const pdf = renderDocumentToPdf(testDeckDocument);
+        if (!testDeckPdf) continue;
         const fileName = `${precinct.name.replaceAll(
           ' ',
           '_'
         )}-test-ballots.pdf`;
-        zip.file(fileName, pdf);
-        pdf.end();
+        zip.file(fileName, testDeckPdf);
       }
 
       zip.file(
         FULL_TEST_DECK_TALLY_REPORT_FILE_NAME,
-        createTestDeckTallyReport({ electionDefinition, ballots })
+        createTestDeckTallyReport({ electionDefinition })
       );
 
       return {
