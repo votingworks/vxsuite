@@ -506,7 +506,9 @@ function HeaderAndInstructions({
             fontStyle: m.FontStyles.H3,
           },
           {
-            text: `${precinct.name}, ${election.county.name}, ${election.state}`,
+            text: [precinct.name, election.county.name, election.state]
+              .filter(Boolean)
+              .join(', '),
             fontStyle: m.FontStyles.BODY,
           },
         ],
