@@ -87,29 +87,26 @@ impl BallotConfig {
     #[allow(dead_code)]
     pub fn encode_bits(&self) -> MetadataBits {
         let mut bits_rtl: MetadataBits = [false; METADATA_BITS];
+        copy_bits_from(
+            &mut bits_rtl[Self::BATCH_OR_PRECINCT_OFFSET..Self::CARD_OFFSET],
+            self.batch_or_precinct,
+        );
+        copy_bits_from(
+            &mut bits_rtl[Self::CARD_OFFSET..Self::SEQUENCE_OFFSET],
+            self.card,
+        );
+        copy_bits_from(
+            &mut bits_rtl[Self::SEQUENCE_OFFSET..Self::START_BIT_OFFSET],
+            self.sequence,
+        );
 
-        // batch or precinct number
-        for i in 0..13 {
-            bits_rtl[2 + i] = (self.batch_or_precinct >> i) & 0b1 != 0;
-        }
+        bits_rtl[Self::START_BIT_OFFSET] = true;
 
-        // card number
-        for i in 0..13 {
-            bits_rtl[15 + i] = (self.card >> i) & 0b1 != 0;
-        }
-
-        // sequence number
-        for i in 0..3 {
-            bits_rtl[28 + i] = (self.sequence >> i) & 0b1 != 0;
-        }
-
-        // start bit
-        bits_rtl[31] = true;
-
-        // mod 4 checksum
         let mod_4_checksum = compute_mod_4_checksum(&bits_rtl);
-        bits_rtl[0] = mod_4_checksum & 0b1 != 0;
-        bits_rtl[1] = (mod_4_checksum >> 1) & 0b1 != 0;
+        copy_bits_from(
+            &mut bits_rtl[Self::MOD_4_CHECKSUM_OFFSET..Self::BATCH_OR_PRECINCT_OFFSET],
+            mod_4_checksum,
+        );
 
         bits_rtl
     }
@@ -266,35 +263,16 @@ impl ElectionInfo {
     pub fn encode_bits(&self) -> MetadataBits {
         let mut bits: MetadataBits = [false; METADATA_BITS];
 
-        // election day
-        copy_bits_from_u8(
-            &mut bits[Self::DAY_OFFSET..],
-            Self::MONTH_OFFSET - Self::DAY_OFFSET,
-            self.day,
-        );
-
-        // election month
-        copy_bits_from_u8(
-            &mut bits[Self::MONTH_OFFSET..],
-            Self::YEAR_OFFSET - Self::MONTH_OFFSET,
-            self.month,
-        );
-
-        // election year
-        copy_bits_from_u8(
-            &mut bits[Self::YEAR_OFFSET..],
-            Self::TYPE_CODE_OFFSET - Self::YEAR_OFFSET,
+        copy_bits_from(&mut bits[Self::DAY_OFFSET..Self::MONTH_OFFSET], self.day);
+        copy_bits_from(&mut bits[Self::MONTH_OFFSET..Self::YEAR_OFFSET], self.month);
+        copy_bits_from(
+            &mut bits[Self::YEAR_OFFSET..Self::TYPE_CODE_OFFSET],
             self.year,
         );
-
-        // type code
-        copy_bits_from_u8(
-            &mut bits[Self::TYPE_CODE_OFFSET..],
-            Self::ENDER_CODE_OFFSET - Self::TYPE_CODE_OFFSET,
+        copy_bits_from(
+            &mut bits[Self::TYPE_CODE_OFFSET..Self::ENDER_CODE_OFFSET],
             self.type_code.0,
         );
-
-        // ender code
         bits[Self::ENDER_CODE_OFFSET..].copy_from_slice(&ENDER_CODE);
 
         bits
@@ -313,8 +291,9 @@ fn u16_from_bits(bits: &[bool]) -> u16 {
         .fold(0, |acc, &bit| (acc << 1) + u16::from(bit))
 }
 
-fn copy_bits_from_u8(bits: &mut [bool], count: usize, value: u8) {
-    for (i, bit) in bits.iter_mut().enumerate().take(count) {
+fn copy_bits_from(bits: &mut [bool], value: impl Into<u16>) {
+    let value = value.into();
+    for (i, bit) in bits.iter_mut().enumerate() {
         *bit = (value >> i) & 0b1 != 0;
     }
 }
@@ -446,20 +425,20 @@ mod test {
 
     proptest! {
         #[test]
-        fn test_decode_front_metadata_from_bits_does_not_panic(bits: MetadataBits) {
+        fn test_decode_ballot_config_does_not_panic(bits: MetadataBits) {
             let _ = BallotConfig::decode_bits(&bits);
         }
 
         #[test]
-        fn test_decode_back_metadata_from_bits_does_not_panic(bits: MetadataBits) {
+        fn test_decode_election_info_does_not_panic(bits: MetadataBits) {
             let _ = ElectionInfo::decode_bits(&bits);
         }
 
         #[test]
-        fn test_encode_decode_front_metadata(
-            batch_or_precinct in 0u16..(1 << 13),
-            card in 0u16..(1 << 13),
-            sequence in 0u8..(1 << 3),
+        fn test_ballot_config_coding(
+            batch_or_precinct in 0u16..(1 << (BallotConfig::CARD_OFFSET - BallotConfig::BATCH_OR_PRECINCT_OFFSET)),
+            card in 0u16..(1 << (BallotConfig::SEQUENCE_OFFSET - BallotConfig::CARD_OFFSET)),
+            sequence in 0u8..(1 << (BallotConfig::START_BIT_OFFSET - BallotConfig::SEQUENCE_OFFSET)),
         ) {
             let metadata = BallotConfig::new(
                 batch_or_precinct,
@@ -474,17 +453,17 @@ mod test {
         }
 
         #[test]
-        fn test_encode_decode_back_metadata(
-            election_day in 1u8..=31,
-            election_month in 1u8..=12,
-            election_year in 0u8..100,
-            election_type in indexed_capital_letter(),
+        fn test_election_info_metadata(
+            day in 1u8..=31,
+            month in 1u8..=12,
+            year in 0u8..100,
+            type_code in indexed_capital_letter(),
         ) {
             let original_metadata = ElectionInfo::new(
-                election_day,
-                election_month,
-                election_year,
-                election_type,
+                day,
+                month,
+                year,
+                type_code,
             ).unwrap();
 
             let bits = original_metadata.encode_bits();
