@@ -162,7 +162,6 @@ export type ConvertIssue =
       message: string;
       side: 'front' | 'back';
       timingMarks: PartialTimingMarks;
-      timingMarkBits: readonly boolean[];
       validationError?: ZodError;
     }
   | {
