@@ -697,9 +697,7 @@ export function buildMachine(
             },
             eject_to_front: {
               invoke: pollPaperStatus(),
-              entry: async (context) => {
-                await context.driver.ejectPaperToFront();
-              },
+              entry: ['ejectPaperToFront'],
               on: {
                 NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
               },
@@ -749,7 +747,11 @@ export function buildMachine(
               ],
             },
             poll_worker_auth_ended_unexpectedly: {
-              entry: ['resetContext', 'endCardlessVoterAuth'],
+              entry: [
+                'resetContext',
+                'endCardlessVoterAuth',
+                'ejectPaperToFront',
+              ],
               after: {
                 // The frontend needs time to idle in this state so the user can read the status message
                 [NOTIFICATION_DURATION_MS]: 'not_accepting_paper',
@@ -777,6 +779,9 @@ export function buildMachine(
     },
     {
       actions: {
+        ejectPaperToFront: async (context) => {
+          await context.driver.ejectPaperToFront();
+        },
         resetContext: () => {
           assign({
             interpretation: undefined,
