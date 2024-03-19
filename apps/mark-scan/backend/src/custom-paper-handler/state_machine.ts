@@ -925,6 +925,9 @@ export async function getPaperHandlerStateMachine({
 
       switch (true) {
         case state.matches('voting_flow.not_accepting_paper'):
+        case state.matches('voting_flow.resetting_state_machine_no_delay'):
+          // Frontend has nothing to render for resetting_state_machine_no_delay
+          // so to avoid flicker we just return the state it's guaranteed to transition to
           return 'not_accepting_paper';
         case state.matches('voting_flow.accepting_paper'):
           return 'accepting_paper';
@@ -956,9 +959,6 @@ export async function getPaperHandlerStateMachine({
           return 'jammed';
         case state.matches('voting_flow.jam_physically_cleared'):
           return 'jam_cleared';
-        case state.matches('voting_flow.resetting_state_machine_no_delay'):
-          /* istanbul ignore next - nonblocking state can't be reliably asserted on. Assert on business logic eg. jest mock function calls instead */
-          return 'resetting_state_machine_no_delay';
         case state.matches('voting_flow.resetting_state_machine_after_jam'):
           return 'resetting_state_machine_after_jam';
         case state.matches('voting_flow.ballot_accepted'):
