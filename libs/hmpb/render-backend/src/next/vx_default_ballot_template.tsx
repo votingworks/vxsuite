@@ -119,7 +119,9 @@ function Header({
           {election.title} • {date}
         </h3>
         <div>
-          {precinct.name}, {election.county.name}, {election.state}
+          {[precinct.name, election.county.name, election.state]
+            .filter(Boolean)
+            .join(', ')}
         </div>
       </div>
     </div>

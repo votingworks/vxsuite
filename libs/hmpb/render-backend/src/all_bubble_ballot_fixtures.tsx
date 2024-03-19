@@ -11,6 +11,7 @@ import {
 } from '@votingworks/types';
 import { DateWithoutTime, assertDefined, range } from '@votingworks/basics';
 import { join } from 'path';
+import makeDebug from 'debug';
 import {
   Bubble,
   Page,
@@ -28,6 +29,8 @@ import { RenderScratchpad, Renderer } from './next/renderer';
 import { PixelDimensions } from './next/types';
 import { markBallotDocument } from './next/mark_ballot';
 import { concatenatePdfs } from './concatenate_pdfs';
+
+const debug = makeDebug('hmpb:ballot_fixtures');
 
 const fixturesDir = join(__dirname, '../fixtures');
 const dir = join(fixturesDir, 'all-bubble-ballot');
@@ -49,7 +52,7 @@ const columnsPerInch = 4;
 const rowsPerInch = 4;
 const gridRows = pageDimensions.height * rowsPerInch - 3;
 const gridColumns = pageDimensions.width * columnsPerInch;
-const footerRowHeight = 3;
+const footerRowHeight = 2;
 const numPages = 2;
 
 function createElection(): Election {
@@ -135,14 +138,19 @@ function BallotPageFrame({
 }): JSX.Element {
   const dimensions = ballotPaperDimensions(election.ballotLayout.paperSize);
   return (
-    <Page pageNumber={pageNumber} dimensions={dimensions} margins={pageMargins}>
+    <Page
+      key={pageNumber}
+      pageNumber={pageNumber}
+      dimensions={dimensions}
+      margins={pageMargins}
+    >
       <TimingMarkGrid pageDimensions={dimensions}>
         <div
           style={{
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
-            padding: '0.125in',
+            padding: '0.05in',
           }}
         >
           <div
@@ -173,18 +181,22 @@ async function BallotPageContent(
   const bubbles = (
     <div
       style={{
+        height: '100%',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
+        paddingTop: '0.12in',
+        paddingBottom: '0.055in',
       }}
     >
-      {range(2, gridRows - footerRowHeight).flatMap((row) => (
+      {range(1, gridRows - footerRowHeight - 1).flatMap((row) => (
         <div
           key={`row-${row}`}
           style={{ display: 'flex', justifyContent: 'space-between' }}
         >
-          {range(2, gridColumns).map((column) => (
+          {range(1, gridColumns - 1).map((column) => (
             <Bubble
+              key={`bubble-${row}-${column}`}
               optionInfo={{
                 type: 'option',
                 contestId: contestId(pageNumber),
@@ -196,15 +208,19 @@ async function BallotPageContent(
       ))}
     </div>
   );
+  const contestsLeft = election.contests.slice(1);
   return {
     currentPageElement: bubbles,
-    nextPageProps: {
-      ...restProps,
-      election: {
-        ...election,
-        contests: election.contests.slice(1),
-      },
-    },
+    nextPageProps:
+      contestsLeft.length === 0
+        ? undefined
+        : {
+            ...restProps,
+            election: {
+              ...election,
+              contests: contestsLeft,
+            },
+          },
   };
 }
 
@@ -215,6 +231,8 @@ const allBubbleBallotTemplate: BallotPageTemplate<BaseBallotProps> = {
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export async function generateAllBubbleBallotFixtures(renderer: Renderer) {
+  const blankBallotPath = join(dir, 'blank-ballot.pdf');
+  debug(`Generating: ${blankBallotPath}`);
   const election = createElection();
   const ballotProps: BaseBallotProps = {
     election,
@@ -233,6 +251,8 @@ export async function generateAllBubbleBallotFixtures(renderer: Renderer) {
   const [blankBallot] = ballotDocuments;
   const blankBallotPdf = await blankBallot.renderToPdf();
 
+  const filledBallotPath = join(dir, 'filled-ballot.pdf');
+  debug(`Generating: ${filledBallotPath}`);
   const filledVotes: VotesDict = Object.fromEntries(
     election.contests.map((contest) => [
       contest.id,
@@ -246,6 +266,8 @@ export async function generateAllBubbleBallotFixtures(renderer: Renderer) {
   );
   const filledBallotPdf = await filledBallot.renderToPdf();
 
+  const cyclingTestDeckPath = join(dir, 'cycling-test-deck.pdf');
+  debug(`Generating: ${cyclingTestDeckPath}`);
   const [gridLayout] = assertDefined(electionDefinition.election.gridLayouts);
   const gridPositionByCandidateId = Object.fromEntries(
     gridLayout.gridPositions.map((position) => [
@@ -260,7 +282,12 @@ export async function generateAllBubbleBallotFixtures(renderer: Renderer) {
           contest.id,
           (contest as CandidateContest).candidates.flatMap((candidate) => {
             const { row, column } = gridPositionByCandidateId[candidate.id];
-            if ((row - column - sheetNumber) % 6 === 0) {
+            // Bubbles aren't perfectly aligned with the grid, but they are
+            // extremely close, so rounding is fine
+            if (
+              (Math.round(row) - Math.round(column) - sheetNumber) % 6 ===
+              0
+            ) {
               return [candidate];
             }
             return [];
@@ -280,11 +307,11 @@ export async function generateAllBubbleBallotFixtures(renderer: Renderer) {
   return {
     dir,
     electionDefinition,
-    blankBallotPath: join(dir, 'blank-ballot.pdf'),
+    blankBallotPath,
     blankBallotPdf,
-    filledBallotPath: join(dir, 'filled-ballot.pdf'),
+    filledBallotPath,
     filledBallotPdf,
-    cyclingTestDeckPath: join(dir, 'cycling-test-deck.pdf'),
+    cyclingTestDeckPath,
     cyclingTestDeckPdf,
   };
 }
