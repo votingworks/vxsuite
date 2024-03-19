@@ -6,15 +6,15 @@ import { Document } from '@votingworks/hmpb-layout';
 import { safeParseElection } from '@votingworks/types';
 import {
   allBubbleBallotDir,
-  allBubbleBallotFixtures,
+  generateAllBubbleBallotFixtures,
 } from './all_bubble_ballot_fixtures';
 import { renderDocumentToPdf } from './render_ballot';
 import {
   famousNamesDir,
-  famousNamesFixtures,
-  generalElectionFixtures,
+  generateFamousNamesFixtures,
+  generateGeneralElectionFixtures,
   primaryElectionDir,
-  primaryElectionFixtures,
+  generatePrimaryElectionFixtures,
 } from './ballot_fixtures';
 
 function normalizePdf(pdf: string): string {
@@ -53,7 +53,7 @@ async function checkBallotFixture(
 describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fails', () => {
   test('all bubble ballot fixtures', async () => {
     const { electionDefinition, blankBallot, filledBallot, cyclingTestDeck } =
-      allBubbleBallotFixtures;
+      generateAllBubbleBallotFixtures;
 
     const savedElection = fs.readFileSync(
       join(allBubbleBallotDir, 'election.json'),
@@ -75,7 +75,7 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
 
   test('famous names fixtures', async () => {
     const { electionDefinition, blankBallot, markedBallot } =
-      famousNamesFixtures;
+      generateFamousNamesFixtures;
 
     const savedElection = fs.readFileSync(
       join(famousNamesDir, 'election.json'),
@@ -99,7 +99,7 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
     electionDefinition,
     blankBallot,
     markedBallot,
-  } of generalElectionFixtures) {
+  } of generateGeneralElectionFixtures) {
     test(`general election fixtures - ${basename(electionDir)}`, async () => {
       const savedElection = fs.readFileSync(
         join(electionDir, 'election.json'),
@@ -120,7 +120,7 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
   }
 
   test(`primary election fixtures`, async () => {
-    const { electionDefinition } = primaryElectionFixtures;
+    const { electionDefinition } = generatePrimaryElectionFixtures;
     const savedElection = fs.readFileSync(
       join(primaryElectionDir, 'election.json'),
       'utf8'
@@ -129,7 +129,7 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
       electionDefinition.election
     );
 
-    const { fishParty, mammalParty } = primaryElectionFixtures;
+    const { fishParty, mammalParty } = generatePrimaryElectionFixtures;
     const ballots = {
       'fish-blank-ballot': fishParty.blankBallot,
       'fish-marked-ballot': fishParty.markedBallot,

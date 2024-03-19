@@ -1,6 +1,8 @@
-import { chromium } from 'playwright';
+import React from 'react';
 import ReactDomServer from 'react-dom/server';
+import { chromium } from 'playwright';
 import {
+  RenderDocument,
   RenderScratchpad,
   Renderer,
   createDocument,
@@ -29,6 +31,12 @@ export async function createPlaywrightRenderer(): Promise<Renderer> {
       );
       const document = createDocument(page);
       return createScratchpad(document);
+    },
+
+    async cloneDocument(document: RenderDocument): Promise<RenderDocument> {
+      const page = await context.newPage();
+      await page.setContent(await document.getContent());
+      return createDocument(page);
     },
 
     async cleanup(): Promise<void> {

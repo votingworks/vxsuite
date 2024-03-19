@@ -32,10 +32,10 @@ import {
   OptionInfo,
   Page,
   QrCodeSlot,
-  TIMING_MARK_DIMENSIONS,
-  TimingMark,
+  TimingMarkGrid,
+  pageMargins,
 } from './ballot_components';
-import { InchDimensions, PixelDimensions } from './types';
+import { PixelDimensions } from './types';
 import {
   ArrowRightCircle,
   InstructionsDiagramFillBubble,
@@ -51,90 +51,6 @@ const Colors = {
   LIGHT_GRAY: '#EDEDED',
   DARK_GRAY: '#DADADA',
 } as const;
-
-export const pageMargins = {
-  top: 0.125,
-  right: 0.125,
-  bottom: 0.125,
-  left: 0.125,
-} as const;
-
-function TimingMarkGrid({
-  pageDimensions,
-  children,
-}: {
-  pageDimensions: InchDimensions;
-  children: React.ReactNode;
-}) {
-  // Corresponds to the NH Accuvote ballot grid, which we mimic so that our
-  // interpreter can support both Accuvote-style ballots and our ballots.
-  // This formula is replicated in libs/ballot-interpreter/src/ballot_card.rs.
-  const columnsPerInch = 4;
-  const rowsPerInch = 4;
-  const gridRows = pageDimensions.height * rowsPerInch - 3;
-  const gridColumns = pageDimensions.width * columnsPerInch;
-
-  function TimingMarkRow() {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-        }}
-      >
-        {range(0, gridColumns).map((i) => (
-          <TimingMark key={i} />
-        ))}
-      </div>
-    );
-  }
-
-  function TimingMarkColumn({ style }: { style: React.CSSProperties }) {
-    return (
-      <div
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          justifyContent: 'space-between',
-          position: 'absolute',
-          top: `-${TIMING_MARK_DIMENSIONS.height}in`,
-          height: `calc(100% + ${2 * TIMING_MARK_DIMENSIONS.height}in)`,
-          ...style,
-        }}
-      >
-        {range(0, gridRows).map((i) => (
-          <TimingMark key={i} />
-        ))}
-      </div>
-    );
-  }
-
-  return (
-    <div
-      style={{
-        height: '100%',
-        width: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      <TimingMarkRow />
-      <div
-        style={{
-          flex: 1,
-          position: 'relative',
-          display: 'flex',
-          padding: `0 ${TIMING_MARK_DIMENSIONS.width}in`,
-        }}
-      >
-        <TimingMarkColumn style={{ left: 0 }} />
-        {children}
-        <TimingMarkColumn style={{ right: 0 }} />
-      </div>
-      <TimingMarkRow />
-    </div>
-  );
-}
 
 function Header({
   election,
@@ -268,13 +184,13 @@ function Instructions() {
   );
 }
 
-function Footer({
+export function Footer({
   pageNumber,
   totalPages,
 }: {
   pageNumber: number;
   totalPages: number;
-}) {
+}): JSX.Element {
   const continueVoting = (
     <div
       style={{
@@ -456,12 +372,11 @@ function CandidateContest({
               type: 'write-in',
               contestId: contest.id,
               writeInIndex,
-              // TODO specify a writeInArea in grid coordinates
               writeInArea: {
-                top: 0,
-                left: 0,
-                bottom: 0,
-                right: 0,
+                top: 0.5,
+                left: -1,
+                bottom: 0.5,
+                right: 8,
               },
             };
             return (

@@ -1,5 +1,12 @@
+import React from 'react';
 import { Buffer } from 'buffer';
-import { assert, assertDefined, deepEqual, iter } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  deepEqual,
+  iter,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   BallotStyleId,
   BallotType,
@@ -13,7 +20,7 @@ import {
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
-import { BallotMode } from '@votingworks/hmpb-layout';
+import { BallotMode, PixelPoint } from '@votingworks/hmpb-layout';
 import { RenderDocument, RenderScratchpad, Renderer } from './renderer';
 import {
   BUBBLE_CLASS,
@@ -25,7 +32,7 @@ import {
   QR_CODE_SLOT_CLASS,
   TIMING_MARK_CLASS,
 } from './ballot_components';
-import { PixelDimensions } from './types';
+import { PixelDimensions, Pixels } from './types';
 
 export type FrameComponent<P> = (
   props: P & { children: JSX.Element; pageNumber: number; totalPages: number }
@@ -136,6 +143,76 @@ async function paginateBallotContent<P extends object>(
   );
 }
 
+export interface GridMeasurements {
+  origin: PixelPoint;
+  columnGap: Pixels;
+  rowGap: Pixels;
+  numTimingMarkColumns: number;
+  numTimingMarkRows: number;
+}
+
+export async function measureTimingMarkGrid(
+  document: RenderDocument,
+  pageNumber: number
+): Promise<GridMeasurements> {
+  const timingMarkElements = await document.inspectElements(
+    `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${TIMING_MARK_CLASS}`
+  );
+
+  const minX = Math.min(...timingMarkElements.map((mark) => mark.x));
+  const minY = Math.min(...timingMarkElements.map((mark) => mark.y));
+  const maxX = Math.max(...timingMarkElements.map((mark) => mark.x));
+  const maxY = Math.max(...timingMarkElements.map((mark) => mark.y));
+
+  const gridWidth = maxX - minX;
+  const gridHeight = maxY - minY;
+
+  // The grid origin is the center of the top-left timing mark
+  const originX = minX + timingMarkElements[0].width / 2;
+  const originY = minY + timingMarkElements[0].height / 2;
+
+  // There are two overlayed timing marks in each corner, don't double count them
+  const numTimingMarkRows =
+    timingMarkElements.filter((mark) => mark.x === minX).length - 2;
+  const numTimingMarkColumns =
+    timingMarkElements.filter((mark) => mark.y === minY).length - 2;
+
+  const columnGap = gridWidth / (numTimingMarkColumns - 1);
+  const rowGap = gridHeight / (numTimingMarkRows - 1);
+
+  return {
+    origin: { x: originX, y: originY },
+    numTimingMarkColumns,
+    numTimingMarkRows,
+    columnGap,
+    rowGap,
+  };
+}
+
+export function pixelPointToGridPoint(
+  grid: GridMeasurements,
+  point: PixelPoint
+): { column: number; row: number } {
+  return {
+    column: (point.x - grid.origin.x) / grid.columnGap,
+    row: (point.y - grid.origin.y) / grid.rowGap,
+  };
+}
+
+export function gridWidthToPixels(
+  grid: GridMeasurements,
+  width: number
+): number {
+  return width * grid.columnGap;
+}
+
+export function gridHeightToPixels(
+  grid: GridMeasurements,
+  height: number
+): number {
+  return height * grid.rowGap;
+}
+
 async function extractGridLayout(
   document: RenderDocument,
   ballotStyleId: BallotStyleId
@@ -144,41 +221,7 @@ async function extractGridLayout(
   const optionPositionsPerPage = await Promise.all(
     pages.map(async (_, i) => {
       const pageNumber = i + 1;
-      const timingMarkElements = await document.inspectElements(
-        `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${TIMING_MARK_CLASS}`
-      );
-
-      const minX = Math.min(...timingMarkElements.map((mark) => mark.x));
-      const minY = Math.min(...timingMarkElements.map((mark) => mark.y));
-      const maxX = Math.max(...timingMarkElements.map((mark) => mark.x));
-      const maxY = Math.max(...timingMarkElements.map((mark) => mark.y));
-
-      const gridWidth = maxX - minX;
-      const gridHeight = maxY - minY;
-
-      // The grid origin is the center of the top-left timing mark
-      const originX = minX + timingMarkElements[0].width / 2;
-      const originY = minY + timingMarkElements[0].height / 2;
-
-      // There are two overlayed timing marks in each corner, don't double count them
-      const numTimingMarkRows =
-        timingMarkElements.filter((mark) => mark.x === minX).length - 2;
-      const numTimingMarkColumns =
-        timingMarkElements.filter((mark) => mark.y === minY).length - 2;
-
-      // The rows and columns of the grid are between the timing marks
-      const gridColumnWidth = gridWidth / (numTimingMarkColumns - 1);
-      const gridRowHeight = gridHeight / (numTimingMarkRows - 1);
-
-      function pixelPointToGridPoint(
-        x: number,
-        y: number
-      ): { column: number; row: number } {
-        return {
-          column: (x - originX) / gridColumnWidth,
-          row: (y - originY) / gridRowHeight,
-        };
-      }
+      const grid = await measureTimingMarkGrid(document, pageNumber);
 
       const bubbles = await document.inspectElements(
         `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${BUBBLE_CLASS}`
@@ -188,30 +231,35 @@ async function extractGridLayout(
           sheetNumber: Math.ceil(pageNumber / 2),
           side: pageNumber % 2 === 1 ? 'front' : 'back',
           // Use the grid coordinates for the center of the bubble
-          ...pixelPointToGridPoint(
-            bubble.x + bubble.width / 2,
-            bubble.y + bubble.height / 2
-          ),
+          ...pixelPointToGridPoint(grid, {
+            x: bubble.x + bubble.width / 2,
+            y: bubble.y + bubble.height / 2,
+          }),
         } as const;
         const optionInfo = JSON.parse(bubble.data.optionInfo) as OptionInfo;
-        if (optionInfo.type === 'write-in') {
-          return {
-            ...positionInfo,
-            ...optionInfo,
-            // TODO convert writeInArea from bubble-relative grid coordinates to
-            // absolute pixel coordinates
-            writeInArea: {
-              x: 0,
-              y: 0,
-              width: 0,
-              height: 0,
-            },
-          };
+        switch (optionInfo.type) {
+          case 'option':
+            return {
+              ...positionInfo,
+              ...optionInfo,
+            };
+          case 'write-in': {
+            return {
+              ...positionInfo,
+              ...optionInfo,
+              writeInArea: {
+                x: positionInfo.column - optionInfo.writeInArea.left,
+                y: positionInfo.row - optionInfo.writeInArea.top,
+                width:
+                  optionInfo.writeInArea.left + optionInfo.writeInArea.right,
+                height:
+                  optionInfo.writeInArea.top + optionInfo.writeInArea.bottom,
+              },
+            };
+          }
+          default:
+            return throwIllegalValue(optionInfo);
         }
-        return {
-          ...positionInfo,
-          ...optionInfo,
-        };
       });
       return optionPositions;
     })
@@ -262,7 +310,7 @@ async function addQrCodes(
   }
 }
 
-async function renderBallotTemplate<P extends object>(
+export async function renderBallotTemplate<P extends object>(
   renderer: Renderer,
   template: BallotPageTemplate<P>,
   props: P

@@ -1,3 +1,4 @@
+import React from 'react';
 import { Buffer } from 'buffer';
 import type { Page as PlaywrightPage } from 'playwright';
 import ReactDomServer from 'react-dom/server';
@@ -6,7 +7,10 @@ import { assert } from '@votingworks/basics';
 import { PixelMeasurements } from './types';
 import { PAGE_CLASS } from './ballot_components';
 
-export type Page = Pick<PlaywrightPage, 'evaluate' | 'close' | 'pdf'>;
+export type Page = Pick<
+  PlaywrightPage,
+  'evaluate' | 'close' | 'pdf' | 'content'
+>;
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function createDocument(page: Page) {
@@ -34,6 +38,10 @@ export function createDocument(page: Page) {
         },
         [selector, htmlContent]
       );
+    },
+
+    async getContent(): Promise<string> {
+      return await page.content();
     },
 
     async inspectElements(selector: string) {
@@ -102,5 +110,6 @@ export type RenderScratchpad = ReturnType<typeof createScratchpad>;
 
 export interface Renderer {
   createScratchpad(): Promise<RenderScratchpad>;
+  cloneDocument(document: RenderDocument): Promise<RenderDocument>;
   cleanup(): Promise<void>;
 }

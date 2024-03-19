@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   ROBOTO_REGULAR_FONT_DECLARATIONS,
   ROBOTO_ITALIC_FONT_DECLARATIONS,

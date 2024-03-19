@@ -15,14 +15,16 @@ function browserPage(): Page {
       return fn(arg);
     },
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    pdf(_options) {
+    pdf() {
       return Promise.resolve(Buffer.from(''));
     },
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    close(_options) {
+    close() {
       return Promise.resolve();
+    },
+
+    content() {
+      return Promise.resolve('');
     },
   };
 }
@@ -55,6 +57,9 @@ export function createBrowserPreviewRenderer(): Renderer {
   return {
     createScratchpad() {
       return Promise.resolve(createScratchpad(createBrowserPreviewDocument()));
+    },
+    cloneDocument() {
+      return Promise.resolve(createBrowserPreviewDocument());
     },
     cleanup() {
       return Promise.resolve();

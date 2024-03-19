@@ -8,7 +8,6 @@ import {
   BallotPaperSize,
   SystemSettings,
   BallotType,
-  getBallotStyle,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -183,20 +182,17 @@ function buildApi({ translator, workspace }: AppContext) {
 
       const ballotTypes = [BallotType.Precinct, BallotType.Absentee];
       const ballotProps = election.ballotStyles.flatMap((ballotStyle) =>
-        ballotStyle.precincts.flatMap((precinctId) => {
-          const precinct = assertDefined(
-            getPrecinctById({ election, precinctId })
-          );
-          return ballotTypes.flatMap((ballotType) =>
+        ballotStyle.precincts.flatMap((precinctId) =>
+          ballotTypes.flatMap((ballotType) =>
             BALLOT_MODES.map((ballotMode) => ({
               election,
-              ballotStyle,
-              precinct,
+              ballotStyleId: ballotStyle.id,
+              precinctId,
               ballotType,
               ballotMode,
             }))
-          );
-        })
+          )
+        )
       );
 
       const { ballotDocuments, electionDefinition } =
@@ -217,11 +213,14 @@ function buildApi({ translator, workspace }: AppContext) {
 
       for (const [props, document] of iter(ballotProps).zip(ballotDocuments)) {
         const pdf = await document.renderToPdf();
-        const { precinct, ballotStyle, ballotType, ballotMode } = props;
+        const { precinctId, ballotStyleId, ballotType, ballotMode } = props;
+        const precinct = assertDefined(
+          getPrecinctById({ election, precinctId })
+        );
         const fileName = `${ballotMode}-${ballotType}-ballot-${precinct.name.replaceAll(
           ' ',
           '_'
-        )}-${ballotStyle.id}.pdf`;
+        )}-${ballotStyleId}.pdf`;
         zip.file(fileName, pdf);
       }
 
@@ -242,26 +241,11 @@ function buildApi({ translator, workspace }: AppContext) {
       ballotMode: BallotMode;
     }): Promise<Result<Buffer, Error>> {
       const { election } = store.getElection(input.electionId);
-      const precinct = assertDefined(
-        getPrecinctById({ election, precinctId: input.precinctId })
-      );
-      const ballotStyle = assertDefined(
-        getBallotStyle({
-          election,
-          ballotStyleId: input.ballotStyleId,
-        })
-      );
       const renderer = await createPlaywrightRenderer();
       const ballotPdf = await renderBallotPreviewToPdf(
         renderer,
         vxDefaultBallotTemplate,
-        {
-          election,
-          ballotStyle,
-          precinct,
-          ballotType: input.ballotType,
-          ballotMode: input.ballotMode,
-        }
+        { ...input, election }
       );
       // eslint-disable-next-line no-console
       renderer.cleanup().catch(console.error);

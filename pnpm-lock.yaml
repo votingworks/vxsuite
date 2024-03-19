@@ -4414,12 +4414,18 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
+      debug:
+        specifier: 4.3.4
+        version: 4.3.4(supports-color@5.5.0)
       js-sha256:
         specifier: ^0.9.0
         version: 0.9.0
       path:
         specifier: ^0.12.7
         version: 0.12.7
+      pdf-lib:
+        specifier: ^1.17.1
+        version: 1.17.1
       pdfkit:
         specifier: ^0.13.0
         version: 0.13.0
@@ -4442,6 +4448,9 @@ importers:
       '@jest/types':
         specifier: ^29.6.1
         version: 29.6.1
+      '@types/debug':
+        specifier: 4.1.8
+        version: 4.1.8
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
@@ -9421,6 +9430,18 @@ packages:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.13.0
+
+  /@pdf-lib/standard-fonts@1.0.0:
+    resolution: {integrity: sha512-hU30BK9IUN/su0Mn9VdlVKsWBS6GyhVfqjwl1FjZN4TxP6cCw0jP2w7V3Hf5uX7M0AZJ16vey9yE0ny7Sa59ZA==}
+    dependencies:
+      pako: 1.0.11
+    dev: false
+
+  /@pdf-lib/upng@1.0.1:
+    resolution: {integrity: sha512-dQK2FUMQtowVP00mtIksrlZhdFXQZPC+taih1q4CvPZ5vqdxR/LKBaFg0oAfzd1GlHZXXSPdQfzQnt+ViGvEIQ==}
+    dependencies:
+      pako: 1.0.11
+    dev: false
 
   /@pkgjs/parseargs@0.11.0:
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -19657,6 +19678,15 @@ packages:
     dependencies:
       bindings: 1.5.0
       nan: 2.16.0
+    dev: false
+
+  /pdf-lib@1.17.1:
+    resolution: {integrity: sha512-V/mpyJAoTsN4cnP31vc0wfNA1+p20evqqnap0KLoRUN0Yk/p3wN52DOEsL4oBFcLdb76hlpKPtzJIgo67j/XLw==}
+    dependencies:
+      '@pdf-lib/standard-fonts': 1.0.0
+      '@pdf-lib/upng': 1.0.1
+      pako: 1.0.11
+      tslib: 1.14.1
     dev: false
 
   /pdfjs-dist@2.3.200(webpack@4.46.0):
