@@ -20,7 +20,7 @@ import { getDefaultAuth, getUserRole } from './util/auth';
 import {
   DEV_AUTH_STATUS_POLLING_INTERVAL_MS,
   DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
-  SUCCESS_NOTIFICATION_DURATION_MS,
+  NOTIFICATION_DURATION_MS,
 } from './custom-paper-handler/constants';
 import { PatConnectionStatusReader } from './pat-input/connection_status_reader';
 import { MockPatConnectionStatusReader } from './pat-input/mock_connection_status_reader';
@@ -93,7 +93,7 @@ export async function start({
       patConnectionStatusReader,
       devicePollingIntervalMs: DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
       authPollingIntervalMs: DEV_AUTH_STATUS_POLLING_INTERVAL_MS,
-      notificationDurationMs: SUCCESS_NOTIFICATION_DURATION_MS,
+      notificationDurationMs: NOTIFICATION_DURATION_MS,
     });
   }
 

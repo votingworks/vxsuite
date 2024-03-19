@@ -12,7 +12,7 @@ import { MARK_SCAN_WORKSPACE } from '../../globals';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
-  SUCCESS_NOTIFICATION_DURATION_MS,
+  NOTIFICATION_DURATION_MS,
 } from '../constants';
 import {
   PaperHandlerStateMachine,
@@ -95,7 +95,7 @@ export async function main(): Promise<number> {
     patConnectionStatusReader,
     devicePollingIntervalMs: DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
     authPollingIntervalMs: AUTH_STATUS_POLLING_INTERVAL_MS,
-    notificationDurationMs: SUCCESS_NOTIFICATION_DURATION_MS,
+    notificationDurationMs: NOTIFICATION_DURATION_MS,
   });
   assert(stateMachine !== undefined, 'Unexpected undefined state machine');
 

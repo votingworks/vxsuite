@@ -77,6 +77,7 @@ import { PatDeviceCalibrationPage } from './pages/pat_device_identification/pat_
 import { CastingBallotPage } from './pages/casting_ballot_page';
 import { BallotSuccessfullyCastPage } from './pages/ballot_successfully_cast_page';
 import { EmptyBallotBoxPage } from './pages/empty_ballot_box_page';
+import { PollWorkerAuthEndedUnexpectedlyPage } from './pages/poll_worker_auth_ended_unexpectedly_page';
 import { LOW_BATTERY_THRESHOLD } from './constants';
 
 interface VotingState {
@@ -430,6 +431,15 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
     return <JamClearedPage stateMachineState={stateMachineState} />;
   }
 
+  if (
+    stateMachineState === 'poll_worker_auth_ended_unexpectedly' ||
+    // Handle when the frontend auth state is up to date but the state machine state is not
+    (stateMachineState === 'loading_paper' &&
+      (isCardlessVoterAuth(authStatus) || authStatus.status === 'logged_out'))
+  ) {
+    return <PollWorkerAuthEndedUnexpectedlyPage />;
+  }
+
   if (optionalElectionDefinition && precinctSelection) {
     if (
       authStatus.status === 'logged_out' &&
@@ -513,7 +523,13 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
     }
 
     if (pollsState === 'polls_open') {
-      if (isCardlessVoterAuth(authStatus)) {
+      if (
+        isCardlessVoterAuth(authStatus) &&
+        // accepting_paper expects poll worker auth. If the frontend sees accepting_paper but has cardless voter auth,
+        // it means the state hasn't caught up to auth changes. We check that edge case here to avoid flicker ie.
+        // rendering the ballot briefly before rendering the correct "Insert Card" screen
+        stateMachineState !== 'accepting_paper'
+      ) {
         let ballotContextProviderChild = <Ballot />;
         // Pages that condition on state machine state aren't nested under Ballot because Ballot uses
         // frontend browser routing for flow control and is completely independent of the state machine.

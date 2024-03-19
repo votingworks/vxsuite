@@ -43,8 +43,7 @@ import {
   DEVICE_STATUS_POLLING_INTERVAL_MS,
   DEVICE_STATUS_POLLING_TIMEOUT_MS,
   MAX_BALLOT_BOX_CAPACITY,
-  RESET_AFTER_JAM_DELAY_MS,
-  SUCCESS_NOTIFICATION_DURATION_MS,
+  NOTIFICATION_DURATION_MS,
 } from './constants';
 import {
   isPaperInScanner,
@@ -400,383 +399,401 @@ export function buildMachine(
   BaseActionObject,
   ServiceMap
 > {
-  return createMachine({
-    schema: {
-      /* eslint-disable-next-line vx/gts-object-literal-types */
-      context: {} as Context,
-      /* eslint-disable-next-line vx/gts-object-literal-types */
-      events: {} as PaperHandlerStatusEvent,
-    },
-    id: 'bmd',
-    initial: 'voting_flow',
-    context: initialContext,
-    on: {
-      PAPER_JAM: 'voting_flow.jammed',
-      JAMMED_STATUS_NO_PAPER: 'voting_flow.jam_physically_cleared',
-      PAT_DEVICE_CONNECTED: {
-        // Performing the assign here ensures the PAT device observable will
-        // have an updated value for isPatDeviceConnected
-        actions: assign({
-          isPatDeviceConnected: true,
-        }),
-        target: 'pat_device_connected',
+  return createMachine(
+    {
+      schema: {
+        /* eslint-disable-next-line vx/gts-object-literal-types */
+        context: {} as Context,
+        /* eslint-disable-next-line vx/gts-object-literal-types */
+        events: {} as PaperHandlerStatusEvent,
       },
-      PAT_DEVICE_DISCONNECTED: {
-        // Performing the assign here ensures the PAT device observable will
-        // have an updated value for isPatDeviceConnected
-        actions: assign({
-          isPatDeviceConnected: false,
-        }),
-        target: 'pat_device_disconnected',
+      id: 'bmd',
+      initial: 'voting_flow',
+      context: initialContext,
+      on: {
+        PAPER_JAM: 'voting_flow.jammed',
+        JAMMED_STATUS_NO_PAPER: 'voting_flow.jam_physically_cleared',
+        PAT_DEVICE_CONNECTED: {
+          // Performing the assign here ensures the PAT device observable will
+          // have an updated value for isPatDeviceConnected
+          actions: assign({
+            isPatDeviceConnected: true,
+          }),
+          target: 'pat_device_connected',
+        },
+        PAT_DEVICE_DISCONNECTED: {
+          // Performing the assign here ensures the PAT device observable will
+          // have an updated value for isPatDeviceConnected
+          actions: assign({
+            isPatDeviceConnected: false,
+          }),
+          target: 'pat_device_disconnected',
+        },
+        SET_INTERPRETATION_FIXTURE: {
+          actions: assign({
+            scannedImagePaths: getSampleBallotFilepaths(),
+          }),
+          target: 'voting_flow.interpreting',
+        },
       },
-      SET_INTERPRETATION_FIXTURE: {
-        actions: assign({
-          scannedImagePaths: getSampleBallotFilepaths(),
-        }),
-        target: 'voting_flow.interpreting',
-      },
-    },
-    invoke: [pollPatDeviceConnectionStatus()],
-    states: {
-      voting_flow: {
-        initial: 'not_accepting_paper',
-        states: {
-          history: {
-            type: 'history',
-            history: 'shallow',
-          },
-          // Initial state. Doesn't accept paper and transitions away when the frontend says it's ready to accept
-          not_accepting_paper: {
-            invoke: pollPaperStatus(),
-            on: {
-              // Paper may be inside the machine from previous testing or machine failure. We should eject
-              // the paper (not to ballot bin) because we don't know whether the page has been printed.
-              PAPER_INSIDE_NO_JAM: 'eject_to_front',
-              PAPER_PARKED: 'eject_to_front',
-              BEGIN_ACCEPTING_PAPER: 'accepting_paper',
+      invoke: [pollPatDeviceConnectionStatus()],
+      states: {
+        voting_flow: {
+          initial: 'not_accepting_paper',
+          states: {
+            history: {
+              type: 'history',
+              history: 'shallow',
             },
-          },
-          accepting_paper: {
-            invoke: pollPaperStatus(),
-            on: {
-              PAPER_READY_TO_LOAD: 'loading_paper',
-              PAPER_PARKED: 'waiting_for_ballot_data',
-            },
-          },
-          loading_paper: {
-            invoke: [
-              pollPaperStatus(),
-              {
-                id: 'loadAndPark',
-                src: (context) => {
-                  return loadAndParkPaper(context.driver);
-                },
+            // Initial state. Doesn't accept paper and transitions away when the frontend says it's ready to accept
+            not_accepting_paper: {
+              invoke: pollPaperStatus(),
+              on: {
+                // Paper may be inside the machine from previous testing or machine failure. We should eject
+                // the paper (not to ballot bin) because we don't know whether the page has been printed.
+                PAPER_INSIDE_NO_JAM: 'eject_to_front',
+                PAPER_PARKED: 'eject_to_front',
+                BEGIN_ACCEPTING_PAPER: 'accepting_paper',
               },
-            ],
-            on: {
-              PAPER_PARKED: 'waiting_for_ballot_data',
-              NO_PAPER_ANYWHERE: 'accepting_paper',
             },
-          },
-          waiting_for_ballot_data: {
-            on: {
-              VOTER_INITIATED_PRINT: 'printing_ballot',
-            },
-          },
-          printing_ballot: {
-            invoke: [
-              {
-                id: 'printBallot',
-                src: (context, event) => {
-                  assert(event.type === 'VOTER_INITIATED_PRINT');
-                  return printBallotChunks(context.driver, event.pdfData, {});
-                },
-                onDone: 'scanning',
+            accepting_paper: {
+              invoke: [pollPaperStatus(), pollAuthStatus()],
+              on: {
+                PAPER_READY_TO_LOAD: 'loading_paper',
+                PAPER_PARKED: 'waiting_for_ballot_data',
+                AUTH_STATUS_CARDLESS_VOTER: 'resetting_state_machine_no_delay',
               },
-              pollPaperStatus(),
-            ],
-          },
-          scanning: {
-            invoke: [
-              {
-                id: 'scanAndSave',
-                src: (context) => {
-                  return scanAndSave(context.driver);
+            },
+            loading_paper: {
+              invoke: [
+                pollPaperStatus(),
+                pollAuthStatus(),
+                {
+                  id: 'loadAndPark',
+                  src: (context) => {
+                    return loadAndParkPaper(context.driver);
+                  },
                 },
+              ],
+              on: {
+                PAPER_PARKED: 'waiting_for_ballot_data',
+                NO_PAPER_ANYWHERE: 'accepting_paper',
+                // The poll worker pulled their card too early
+                AUTH_STATUS_CARDLESS_VOTER:
+                  'poll_worker_auth_ended_unexpectedly',
+              },
+            },
+            waiting_for_ballot_data: {
+              on: {
+                VOTER_INITIATED_PRINT: 'printing_ballot',
+              },
+            },
+            printing_ballot: {
+              invoke: [
+                {
+                  id: 'printBallot',
+                  src: (context, event) => {
+                    assert(event.type === 'VOTER_INITIATED_PRINT');
+                    return printBallotChunks(context.driver, event.pdfData, {});
+                  },
+                  onDone: 'scanning',
+                },
+                pollPaperStatus(),
+              ],
+            },
+            scanning: {
+              invoke: [
+                {
+                  id: 'scanAndSave',
+                  src: (context) => {
+                    return scanAndSave(context.driver);
+                  },
+                  onDone: {
+                    target: 'interpreting',
+                    actions: assign({
+                      scannedImagePaths: (_, event) => event.data,
+                    }),
+                  },
+                },
+                pollPaperStatus(),
+              ],
+            },
+            interpreting: {
+              // Paper is in the paper handler for the duration of the interpreting stage and paper handler
+              // motors are never moved, so we don't need to poll paper status or handle jams.
+              invoke: {
+                id: 'interpretScannedBallot',
+                src: loadMetadataAndInterpretBallot,
                 onDone: {
-                  target: 'interpreting',
+                  target: 'transition_interpretation',
                   actions: assign({
-                    scannedImagePaths: (_, event) => event.data,
+                    interpretation: (_, event) => event.data,
                   }),
                 },
               },
-              pollPaperStatus(),
-            ],
-          },
-          interpreting: {
-            // Paper is in the paper handler for the duration of the interpreting stage and paper handler
-            // motors are never moved, so we don't need to poll paper status or handle jams.
-            invoke: {
-              id: 'interpretScannedBallot',
-              src: loadMetadataAndInterpretBallot,
-              onDone: {
-                target: 'transition_interpretation',
-                actions: assign({
-                  interpretation: (_, event) => event.data,
-                }),
-              },
             },
-          },
-          // Intermediate state to conditionally transition based on ballot interpretation
-          transition_interpretation: {
-            entry: (context) => {
-              const interpretationType = assertDefined(
-                context.interpretation
-              )[0].interpretation.type;
-              assert(
-                interpretationType === 'InterpretedBmdPage' ||
-                  interpretationType === 'BlankPage',
-                `Unexpected interpretation type: ${interpretationType}`
-              );
+            // Intermediate state to conditionally transition based on ballot interpretation
+            transition_interpretation: {
+              entry: (context) => {
+                const interpretationType = assertDefined(
+                  context.interpretation
+                )[0].interpretation.type;
+                assert(
+                  interpretationType === 'InterpretedBmdPage' ||
+                    interpretationType === 'BlankPage',
+                  `Unexpected interpretation type: ${interpretationType}`
+                );
+              },
+              always: [
+                {
+                  target: 'presenting_ballot',
+                  cond: (context) =>
+                    // context.interpretation is already asserted in the entry function but Typescript is unaware
+                    assertDefined(context.interpretation)[0].interpretation
+                      .type === 'InterpretedBmdPage',
+                },
+                {
+                  target: 'blank_page_interpretation',
+                  cond: (context) =>
+                    assertDefined(context.interpretation)[0].interpretation
+                      .type === 'BlankPage',
+                },
+              ],
             },
-            always: [
-              {
-                target: 'presenting_ballot',
-                cond: (context) =>
-                  // context.interpretation is already asserted in the entry function but Typescript is unaware
-                  assertDefined(context.interpretation)[0].interpretation
-                    .type === 'InterpretedBmdPage',
-              },
-              {
-                target: 'blank_page_interpretation',
-                cond: (context) =>
-                  assertDefined(context.interpretation)[0].interpretation
-                    .type === 'BlankPage',
-              },
-            ],
-          },
-          blank_page_interpretation: {
-            invoke: pollPaperStatus(),
-            initial: 'presenting_paper',
-            // These nested states differ slightly from the top-level paper load states so we can't reuse the latter.
-            states: {
-              presenting_paper: {
-                // Heavier paper can fail to eject completely and trigger a jam state even though the paper isn't physically jammed.
-                // To work around this, we avoid ejecting to front. Instead, we present the paper so it's held by the device in a
-                // stable non-jam state. We instruct the poll worker to remove the paper directly from the 'presenting' state.
-                entry: async (context) => {
-                  await context.logger.log(
-                    LogEventId.BlankInterpretation,
-                    'system'
-                  );
-                  await context.driver.presentPaper();
-                },
-                on: { NO_PAPER_ANYWHERE: 'accepting_paper' },
-              },
-              accepting_paper: {
-                on: {
-                  PAPER_READY_TO_LOAD: 'load_paper',
-                },
-              },
-              load_paper: {
-                entry: async (context) => {
-                  await context.driver.loadPaper();
-                  await context.driver.parkPaper();
-                },
-                on: {
-                  PAPER_PARKED: {
-                    target: 'done',
-                    actions: () => {
-                      assign({
-                        interpretation: undefined,
-                        scannedImagePaths: undefined,
-                      });
-                    },
+            blank_page_interpretation: {
+              invoke: pollPaperStatus(),
+              initial: 'presenting_paper',
+              // These nested states differ slightly from the top-level paper load states so we can't reuse the latter.
+              states: {
+                presenting_paper: {
+                  // Heavier paper can fail to eject completely and trigger a jam state even though the paper isn't physically jammed.
+                  // To work around this, we avoid ejecting to front. Instead, we present the paper so it's held by the device in a
+                  // stable non-jam state. We instruct the poll worker to remove the paper directly from the 'presenting' state.
+                  entry: async (context) => {
+                    await context.logger.log(
+                      LogEventId.BlankInterpretation,
+                      'system'
+                    );
+                    await context.driver.presentPaper();
                   },
-                  NO_PAPER_ANYWHERE: 'accepting_paper',
+                  on: { NO_PAPER_ANYWHERE: 'accepting_paper' },
+                },
+                accepting_paper: {
+                  on: {
+                    PAPER_READY_TO_LOAD: 'load_paper',
+                  },
+                },
+                load_paper: {
+                  entry: async (context) => {
+                    await context.driver.loadPaper();
+                    await context.driver.parkPaper();
+                  },
+                  on: {
+                    PAPER_PARKED: {
+                      target: 'done',
+                      actions: () => {
+                        assign({
+                          interpretation: undefined,
+                          scannedImagePaths: undefined,
+                        });
+                      },
+                    },
+                    NO_PAPER_ANYWHERE: 'accepting_paper',
+                  },
+                },
+                done: {
+                  type: 'final',
                 },
               },
-              done: {
-                type: 'final',
+              onDone: 'paper_reloaded',
+            },
+            // `paper_reloaded` could be a substate of `blank_page_interpretation` but by keeping
+            // them separate we can avoid exposing all the substates of `blank_page_interpretation`
+            // to the frontend.
+            paper_reloaded: {
+              invoke: pollAuthStatus(),
+              on: {
+                AUTH_STATUS_CARDLESS_VOTER: 'waiting_for_ballot_data',
               },
             },
-            onDone: 'paper_reloaded',
-          },
-          // `paper_reloaded` could be a substate of `blank_page_interpretation` but by keeping
-          // them separate we can avoid exposing all the substates of `blank_page_interpretation`
-          // to the frontend.
-          paper_reloaded: {
-            invoke: pollAuthStatus(),
-            on: {
-              AUTH_STATUS_CARDLESS_VOTER: 'waiting_for_ballot_data',
+            presenting_ballot: {
+              invoke: pollPaperStatus(),
+              entry: async (context) => {
+                await context.driver.presentPaper();
+              },
+              on: {
+                VOTER_VALIDATED_BALLOT: 'eject_to_rear',
+                VOTER_INVALIDATED_BALLOT:
+                  'waiting_for_invalidated_ballot_confirmation',
+                NO_PAPER_ANYWHERE: {
+                  cond: () =>
+                    !isFeatureFlagEnabled(
+                      BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
+                    ),
+                  target: 'resetting_state_machine_after_success',
+                },
+              },
             },
-          },
-          presenting_ballot: {
-            invoke: pollPaperStatus(),
-            entry: async (context) => {
-              await context.driver.presentPaper();
+            waiting_for_invalidated_ballot_confirmation: {
+              initial: 'paper_present',
+              states: {
+                paper_present: {
+                  invoke: pollPaperStatus(),
+                  on: {
+                    NO_PAPER_ANYWHERE: 'paper_absent',
+                  },
+                },
+                paper_absent: {
+                  on: {
+                    POLL_WORKER_CONFIRMED_INVALIDATED_BALLOT: 'done',
+                  },
+                },
+                done: {
+                  type: 'final',
+                },
+              },
+              onDone: 'accepting_paper',
             },
-            on: {
-              VOTER_VALIDATED_BALLOT: 'eject_to_rear',
-              VOTER_INVALIDATED_BALLOT:
-                'waiting_for_invalidated_ballot_confirmation',
-              NO_PAPER_ANYWHERE: {
-                cond: () =>
-                  !isFeatureFlagEnabled(
+            // Eject-to-rear jam handling is a little clunky. It
+            // 1. Tries to transition to success if no paper is detected
+            // 2. If after a timeout we have not transitioned away (because paper still present), transition to jammed state
+            // 3. Jam detection state transitions to jam reset state once it confirms no paper present
+            eject_to_rear: {
+              invoke: pollPaperStatus(),
+              entry: async (context) => {
+                if (
+                  isFeatureFlagEnabled(
                     BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
-                  ),
-                target: 'resetting_state_machine_after_success',
+                  )
+                ) {
+                  return;
+                }
+
+                await context.driver.parkPaper();
+                await context.driver.ejectBallotToRear();
+              },
+              on: {
+                NO_PAPER_ANYWHERE: 'ballot_accepted',
+                PAPER_JAM: 'jammed',
+              },
+              after: {
+                [DELAY_BEFORE_DECLARING_REAR_JAM_MS]: 'jammed',
               },
             },
-          },
-          waiting_for_invalidated_ballot_confirmation: {
-            initial: 'paper_present',
-            states: {
-              paper_present: {
-                invoke: pollPaperStatus(),
-                on: {
-                  NO_PAPER_ANYWHERE: 'paper_absent',
+            ballot_accepted: {
+              entry: (context) => {
+                const { store } = context.workspace;
+                context.workspace.store.setBallotsCastSinceLastBoxChange(
+                  store.getBallotsCastSinceLastBoxChange() + 1
+                );
+              },
+              after: {
+                [initialContext.notificationDurationMs]:
+                  'resetting_state_machine_after_success',
+              },
+            },
+            eject_to_front: {
+              invoke: pollPaperStatus(),
+              entry: ['ejectPaperToFront'],
+              on: {
+                NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
+              },
+            },
+            jammed: {
+              invoke: pollPaperStatus(),
+              on: {
+                NO_PAPER_ANYWHERE: 'jam_physically_cleared',
+              },
+            },
+            jam_physically_cleared: {
+              invoke: {
+                id: 'resetScanAndDriver',
+                src: (context) => {
+                  // Issues `reset scan` command, creates a new WebUSBDevice, and reconnects
+                  return resetAndReconnect(context.driver);
+                },
+                onDone: {
+                  target: 'resetting_state_machine_after_jam',
+                  actions: assign({
+                    // Overwrites the old nonfunctional driver in context with the new functional one
+                    driver: (_, event) => event.data,
+                  }),
                 },
               },
-              paper_absent: {
-                on: {
-                  POLL_WORKER_CONFIRMED_INVALIDATED_BALLOT: 'done',
+            },
+            resetting_state_machine_no_delay: {
+              entry: ['resetContext', 'endCardlessVoterAuth'],
+              always: 'not_accepting_paper',
+            },
+            resetting_state_machine_after_jam: {
+              entry: ['resetContext', 'endCardlessVoterAuth'],
+              after: {
+                [NOTIFICATION_DURATION_MS]: 'not_accepting_paper',
+              },
+            },
+            resetting_state_machine_after_success: {
+              entry: ['resetContext', 'endCardlessVoterAuth'],
+              always: [
+                {
+                  target: 'empty_ballot_box',
+                  cond: (context) =>
+                    context.workspace.store.getBallotsCastSinceLastBoxChange() >=
+                    MAX_BALLOT_BOX_CAPACITY,
                 },
-              },
-              done: {
-                type: 'final',
-              },
+                { target: 'not_accepting_paper' },
+              ],
             },
-            onDone: 'accepting_paper',
-          },
-          // Eject-to-rear jam handling is a little clunky. It
-          // 1. Tries to transition to success if no paper is detected
-          // 2. If after a timeout we have not transitioned away (because paper still present), transition to jammed state
-          // 3. Jam detection state transitions to jam reset state once it confirms no paper present
-          eject_to_rear: {
-            invoke: pollPaperStatus(),
-            entry: async (context) => {
-              if (
-                isFeatureFlagEnabled(
-                  BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
-                )
-              ) {
-                return;
-              }
-
-              await context.driver.parkPaper();
-              await context.driver.ejectBallotToRear();
-            },
-            on: {
-              NO_PAPER_ANYWHERE: 'ballot_accepted',
-              PAPER_JAM: 'jammed',
-            },
-            after: {
-              [DELAY_BEFORE_DECLARING_REAR_JAM_MS]: 'jammed',
-            },
-          },
-          ballot_accepted: {
-            entry: (context) => {
-              const { store } = context.workspace;
-              context.workspace.store.setBallotsCastSinceLastBoxChange(
-                store.getBallotsCastSinceLastBoxChange() + 1
-              );
-            },
-            after: {
-              [initialContext.notificationDurationMs]:
-                'resetting_state_machine_after_success',
-            },
-          },
-          eject_to_front: {
-            invoke: pollPaperStatus(),
-            entry: async (context) => {
-              await context.driver.ejectPaperToFront();
-            },
-            on: {
-              NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
-            },
-          },
-          jammed: {
-            invoke: pollPaperStatus(),
-            on: {
-              NO_PAPER_ANYWHERE: 'jam_physically_cleared',
-            },
-          },
-          jam_physically_cleared: {
-            invoke: {
-              id: 'resetScanAndDriver',
-              src: (context) => {
-                // Issues `reset scan` command, creates a new WebUSBDevice, and reconnects
-                return resetAndReconnect(context.driver);
-              },
-              onDone: {
-                target: 'resetting_state_machine_after_jam',
-                actions: assign({
-                  // Overwrites the old nonfunctional driver in context with the new functional one
-                  driver: (_, event) => event.data,
-                }),
+            poll_worker_auth_ended_unexpectedly: {
+              entry: [
+                'resetContext',
+                'endCardlessVoterAuth',
+                'ejectPaperToFront',
+              ],
+              after: {
+                // The frontend needs time to idle in this state so the user can read the status message
+                [NOTIFICATION_DURATION_MS]: 'not_accepting_paper',
               },
             },
-          },
-          resetting_state_machine_after_jam: {
-            entry: async (context) => {
-              await auth.endCardlessVoterSession(
-                constructAuthMachineState(context.workspace)
-              );
-
-              assign({
-                interpretation: undefined,
-                scannedImagePaths: undefined,
-                isPatDeviceConnected: false,
-              });
-            },
-            after: {
-              // The frontend needs time to idle in this state so the user can read the status message
-              [RESET_AFTER_JAM_DELAY_MS]: 'not_accepting_paper',
-            },
-          },
-          resetting_state_machine_after_success: {
-            entry: async (context) => {
-              await auth.endCardlessVoterSession(
-                constructAuthMachineState(context.workspace)
-              );
-
-              assign({
-                interpretation: undefined,
-                scannedImagePaths: undefined,
-                isPatDeviceConnected: false,
-              });
-            },
-            always: [
-              {
-                target: 'empty_ballot_box',
-                cond: (context) =>
-                  context.workspace.store.getBallotsCastSinceLastBoxChange() >=
-                  MAX_BALLOT_BOX_CAPACITY,
+            // The flow to empty a full ballot box. Can only occur at the end of a voting session.
+            empty_ballot_box: {
+              on: {
+                POLL_WORKER_CONFIRMED_BALLOT_BOX_EMPTIED: 'not_accepting_paper',
               },
-              { target: 'not_accepting_paper' },
-            ],
-          },
-          // The flow to empty a full ballot box. Can only occur at the end of a voting session.
-          empty_ballot_box: {
-            on: {
-              POLL_WORKER_CONFIRMED_BALLOT_BOX_EMPTIED: 'not_accepting_paper',
             },
           },
         },
-      },
-      pat_device_disconnected: {
-        always: 'voting_flow.history',
-      },
-      pat_device_connected: {
-        on: {
-          VOTER_CONFIRMED_PAT_DEVICE_CALIBRATION: 'voting_flow.history',
-          PAT_DEVICE_DISCONNECTED: 'pat_device_disconnected',
-          PAT_DEVICE_CONNECTED: undefined,
+        pat_device_disconnected: {
+          always: 'voting_flow.history',
+        },
+        pat_device_connected: {
+          on: {
+            VOTER_CONFIRMED_PAT_DEVICE_CALIBRATION: 'voting_flow.history',
+            PAT_DEVICE_DISCONNECTED: 'pat_device_disconnected',
+            PAT_DEVICE_CONNECTED: undefined,
+          },
         },
       },
     },
-  });
+    {
+      actions: {
+        ejectPaperToFront: async (context) => {
+          await context.driver.ejectPaperToFront();
+        },
+        resetContext: () => {
+          assign({
+            interpretation: undefined,
+            scannedImagePaths: undefined,
+            isPatDeviceConnected: false,
+          });
+        },
+        endCardlessVoterAuth: async (context) => {
+          await auth.endCardlessVoterSession(
+            constructAuthMachineState(context.workspace)
+          );
+        },
+      },
+    }
+  );
 }
 
 function setUpLogging(
@@ -860,7 +877,7 @@ export async function getPaperHandlerStateMachine({
   deviceTimeoutMs = DEVICE_STATUS_POLLING_TIMEOUT_MS,
   devicePollingIntervalMs = DEVICE_STATUS_POLLING_INTERVAL_MS,
   authPollingIntervalMs = AUTH_STATUS_POLLING_INTERVAL_MS,
-  notificationDurationMs = SUCCESS_NOTIFICATION_DURATION_MS,
+  notificationDurationMs = NOTIFICATION_DURATION_MS,
 }: {
   workspace: Workspace;
   auth: InsertedSmartCardAuthApi;
@@ -905,6 +922,9 @@ export async function getPaperHandlerStateMachine({
 
       switch (true) {
         case state.matches('voting_flow.not_accepting_paper'):
+        case state.matches('voting_flow.resetting_state_machine_no_delay'):
+          // Frontend has nothing to render for resetting_state_machine_no_delay
+          // so to avoid flicker we just return the state it's guaranteed to transition to
           return 'not_accepting_paper';
         case state.matches('voting_flow.accepting_paper'):
           return 'accepting_paper';
@@ -943,6 +963,8 @@ export async function getPaperHandlerStateMachine({
         case state.matches('voting_flow.resetting_state_machine_after_success'):
           /* istanbul ignore next - nonblocking state can't be reliably asserted on. Assert on business logic eg. jest mock function calls instead */
           return 'resetting_state_machine_after_success';
+        case state.matches('voting_flow.poll_worker_auth_ended_unexpectedly'):
+          return 'poll_worker_auth_ended_unexpectedly';
         case state.matches('voting_flow.empty_ballot_box'):
           return 'empty_ballot_box';
         case state.matches('voting_flow.transition_interpretation'):
