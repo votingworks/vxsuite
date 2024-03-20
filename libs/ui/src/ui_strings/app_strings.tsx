@@ -214,6 +214,13 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsBmdCastBallotPreamblePostPrint: () => (
+    <UiString uiStringKey="instructionsBmdCastBallotPreamblePostPrint">
+      Your official ballot has been removed from the printer. Complete the
+      following steps to finish voting:
+    </UiString>
+  ),
+
   instructionsBmdCastBallotStep1: () => (
     <UiString uiStringKey="instructionsBmdCastBallotStep1">
       1. Verify your official ballot.

@@ -111,6 +111,7 @@ export type PaperHandlerStatusEvent =
   | { type: 'PAT_DEVICE_CONNECTED' }
   | { type: 'PAT_DEVICE_DISCONNECTED' }
   | { type: 'VOTER_CONFIRMED_PAT_DEVICE_CALIBRATION' }
+  | { type: 'VOTER_CONFIRMED_SESSION_END' }
   | { type: 'PAT_DEVICE_NO_STATUS_CHANGE' }
   | { type: 'PAT_DEVICE_STATUS_UNHANDLED' }
   | { type: 'POLL_WORKER_CONFIRMED_BALLOT_BOX_EMPTIED' };
@@ -125,6 +126,7 @@ export interface PaperHandlerStateMachine {
   setAcceptingPaper(): void;
   printBallot(pdfData: Buffer): void;
   getInterpretation(): Optional<SheetOf<InterpretFileResult>>;
+  confirmSessionEnd(): void;
   validateBallot(): void;
   invalidateBallot(): void;
   confirmInvalidateBallot(): void;
@@ -630,8 +632,14 @@ export function buildMachine(
                     !isFeatureFlagEnabled(
                       BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
                     ),
-                  target: 'resetting_state_machine_after_success',
+                  target: 'ballot_removed_during_presentation',
                 },
+              },
+            },
+            ballot_removed_during_presentation: {
+              on: {
+                VOTER_CONFIRMED_SESSION_END:
+                  'resetting_state_machine_after_success',
               },
             },
             waiting_for_invalidated_ballot_confirmation: {
@@ -928,6 +936,8 @@ export async function getPaperHandlerStateMachine({
           return 'not_accepting_paper';
         case state.matches('voting_flow.accepting_paper'):
           return 'accepting_paper';
+        case state.matches('voting_flow.ballot_removed_during_presentation'):
+          return 'ballot_removed_during_presentation';
         case state.matches('voting_flow.loading_paper'):
           return 'loading_paper';
         case state.matches('voting_flow.waiting_for_ballot_data'):
@@ -1014,6 +1024,12 @@ export async function getPaperHandlerStateMachine({
           : 'no_interpretation_found'
       );
       return context.interpretation;
+    },
+
+    confirmSessionEnd(): void {
+      machineService.send({
+        type: 'VOTER_CONFIRMED_SESSION_END',
+      });
     },
 
     validateBallot(): void {

@@ -1,6 +1,7 @@
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { fakeKiosk } from '@votingworks/test-utils';
 import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
+import userEvent from '@testing-library/user-event';
 import { electionDefinition } from '../test/helpers/election';
 import { render, screen } from '../test/react_testing_library';
 import { App } from './app';
@@ -157,6 +158,27 @@ test('`empty_ballot_box` state renders EmptyBallotBoxPage', async () => {
 
   apiMock.setPaperHandlerState('empty_ballot_box');
   await screen.findByText('Ballot Box Full');
+});
+
+test('`ballot_removed_during_presentation` state renders CastBallotPage', async () => {
+  apiMock.mockApiClient.getElectionState.reset();
+  apiMock.setAuthStatusCardlessVoterLoggedInWithDefaults(electionDefinition);
+  apiMock.expectGetElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+    pollsState: 'polls_open',
+    isTestMode: false,
+  });
+
+  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+
+  apiMock.setPaperHandlerState('ballot_removed_during_presentation');
+  await screen.findByText(
+    'Your official ballot has been removed from the printer. Complete the following steps to finish voting:'
+  );
+
+  apiMock.expectConfirmSessionEnd();
+
+  userEvent.click(screen.getByText('Done'));
 });
 
 const ballotCastPageTestSpecs: Array<{
