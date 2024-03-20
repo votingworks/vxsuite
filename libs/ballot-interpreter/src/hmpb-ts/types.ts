@@ -164,72 +164,43 @@ export interface BallotPageQrCodeMetadata extends HmpbBallotPageMetadata {
 }
 
 /** Metadata from the ballot card bottom timing marks. */
-export type BallotPageTimingMarkMetadata = (
-  | BallotPageTimingMarkMetadataFront
-  | BallotPageTimingMarkMetadataBack
-) & { source: 'timing-marks' };
+export type BallotPageTimingMarkMetadata = (BallotConfig | ElectionInfo) & {
+  source: 'timing-marks';
+};
 
 /** Metadata encoded on the front side of a ballot card. */
-export interface BallotPageTimingMarkMetadataFront {
+export interface BallotConfig {
   side: 'front';
 
-  /** Raw bits 0-31 in LSB-MSB order (right to left). */
-  bits: boolean[];
-
-  /**
-   * Mod 4 check sum from bits 0-1 (2 bits).
-   *
-   * The mod 4 check sum bits are obtained by adding the number of 1’s in bits 2
-   * through 31, then encoding the results of a mod 4 operation in bits 0 and 1.
-   * For example, if bits 2 through 31 have 18 1’s, bits 0 and 1 will hold the
-   * value 2 (18 mod 4 = 2).
-   */
-  mod4Checksum: u8;
-
-  /** The mod 4 check sum computed from bits 2-31. */
-  computedMod4Checksum: u8;
-
   /** Batch or precinct number from bits 2-14 (13 bits). */
-  batchOrPrecinctNumber: u16;
+  batchOrPrecinct: u16;
 
   /** Card number (CardRotID) from bits 15-27 (13 bits). */
-  cardNumber: u16;
+  card: u16;
 
   /** Sequence number (always 0) from bits 28-30 (3 bits). */
-  sequenceNumber: u8;
-
-  /** Start bit (always 1) from bit 31-31 (1 bit). */
-  startBit: u8;
+  sequence: u8;
 }
 
 /** Metadata encoded on the front side of a ballot card. */
-export interface BallotPageTimingMarkMetadataBack {
+export interface ElectionInfo {
   side: 'back';
 
-  /** Raw bits 0-31 in LSB-MSB order (right-to-left). */
-  bits: boolean[];
-
   /** Election day of month (1..31) from bits 0-4 (5 bits). */
-  electionDay: u8;
+  day: u8;
 
   /** Election month (1..12) from bits 5-8 (4 bits). */
-  electionMonth: u8;
+  month: u8;
 
   /** Election year (2 digits) from bits 9-15 (7 bits). */
-  electionYear: u8;
+  year: u8;
 
   /**
    * Election type from bits 16-20 (5 bits).
    *
    * @example "G" for general election
    */
-  electionType: IndexedCapitalLetter;
-
-  /** Ender code (binary 01111011110) from bits 21-31 (11 bits). */
-  enderCode: boolean[];
-
-  /** Ender code (binary 01111011110) hardcoded to the expected value. */
-  expectedEnderCode: boolean[];
+  typeCode: IndexedCapitalLetter;
 }
 
 /** Represents a single capital letter from A-Z. */
@@ -443,11 +414,11 @@ export type BallotPageMetadataError =
       max: u32;
       metadata: BallotPageTimingMarkMetadata;
     }
-  | { type: 'invalidChecksum'; metadata: BallotPageTimingMarkMetadataFront }
-  | { type: 'invalidEnderCode'; metadata: BallotPageTimingMarkMetadataBack }
+  | { type: 'invalidChecksum'; metadata: BallotConfig }
+  | { type: 'invalidEnderCode'; metadata: ElectionInfo }
   | { type: 'invalidTimingMarkCount'; expected: usize; actual: usize }
   | {
       type: 'ambiguousMetadata';
-      front_metadata: BallotPageTimingMarkMetadataFront;
-      back_metadata: BallotPageTimingMarkMetadataBack;
+      front_metadata: BallotConfig;
+      back_metadata: ElectionInfo;
     };

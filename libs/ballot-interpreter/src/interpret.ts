@@ -52,7 +52,7 @@ import {
 import makeDebug from 'debug';
 import {
   interpret as interpretHmpbBallotSheetRust,
-  BallotPageTimingMarkMetadataFront,
+  BallotConfig,
   Geometry,
   InterpretedBallotCard,
   HmpbInterpretResult as NextInterpretResult,
@@ -309,19 +309,19 @@ export function determineAdjudicationInfoFromScoredContestOptions(
 function buildInterpretedHmpbPageMetadata(
   electionDefinition: ElectionDefinition,
   options: InterpreterOptions,
-  frontMetadata: BallotPageTimingMarkMetadataFront,
+  ballotConfig: BallotConfig,
   side: 'front' | 'back'
 ): HmpbBallotPageMetadata {
   const { election } = electionDefinition;
   const ballotStyle = getBallotStyle({
     election,
-    ballotStyleId: `card-number-${frontMetadata.cardNumber}`,
+    ballotStyleId: `card-number-${ballotConfig.card}`,
   });
-  assert(ballotStyle, `Ballot style ${frontMetadata.cardNumber} not found`);
+  assert(ballotStyle, `Ballot style ${ballotConfig.card} not found`);
   const precinctId = ballotStyle.precincts[0];
   assert(
     precinctId !== undefined,
-    `Precinct ${frontMetadata.batchOrPrecinctNumber} not found`
+    `Precinct ${ballotConfig.batchOrPrecinct} not found`
   );
 
   return {
@@ -407,8 +407,7 @@ function convertInterpretedBallotPage(
           options,
           // For timing mark metadata, always use the front, since it contains
           // the info we need
-          interpretedBallotCard.front
-            .metadata as BallotPageTimingMarkMetadataFront,
+          interpretedBallotCard.front.metadata as BallotConfig,
           side
         );
 

@@ -1,5 +1,5 @@
 import {
-  BallotPageTimingMarkMetadataFront,
+  BallotConfig,
   findTemplateGridAndBubbles,
 } from '@votingworks/ballot-interpreter';
 import {
@@ -104,7 +104,6 @@ export function convertElectionDefinition(
         kind: ConvertIssueKind.InvalidTimingMarkMetadata,
         message: `front page timing mark metadata is invalid: side=${frontGridAndBubbles.metadata.side}`,
         side: 'front',
-        timingMarkBits: frontGridAndBubbles.metadata.bits,
         timingMarks: frontGridAndBubbles.grid.partialTimingMarks,
       });
     }
@@ -115,7 +114,6 @@ export function convertElectionDefinition(
         kind: ConvertIssueKind.InvalidTimingMarkMetadata,
         message: `back page timing mark metadata is invalid: side=${backGridAndBubbles.metadata.side}`,
         side: 'back',
-        timingMarkBits: backGridAndBubbles.metadata.bits,
         timingMarks: backGridAndBubbles.grid.partialTimingMarks,
       });
     }
@@ -127,9 +125,8 @@ export function convertElectionDefinition(
       });
     }
 
-    const frontMetadata =
-      frontGridAndBubbles.metadata as BallotPageTimingMarkMetadataFront;
-    const ballotStyleId = `card-number-${frontMetadata.cardNumber}`;
+    const frontMetadata = frontGridAndBubbles.metadata as BallotConfig;
+    const ballotStyleId = `card-number-${frontMetadata.card}`;
 
     const frontTemplateBubbles = frontGridAndBubbles.bubbles;
     const backTemplateBubbles = backGridAndBubbles.bubbles;
