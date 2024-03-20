@@ -1,6 +1,6 @@
 import { assert, assertDefined } from '@votingworks/basics';
 import { Buffer } from 'buffer';
-import { Canvas, createCanvas, ImageData } from 'canvas';
+import { Canvas, createCanvas } from 'canvas';
 import { promises as fs } from 'fs';
 import { basename, dirname, extname, join } from 'path';
 import {
@@ -9,7 +9,6 @@ import {
   GlobalWorkerOptions,
   PDFDocumentProxy,
 } from 'pdfjs-dist';
-import { writeImageData } from './image_data';
 
 // Extend `pdfjs-dist`'s `render` function to include `canvasFactory`.
 declare module 'pdfjs-dist' {
@@ -77,15 +76,18 @@ function buildCanvasFactory(): CanvasFactory {
 export interface PdfPage {
   readonly pageNumber: number;
   readonly pageCount: number;
-  readonly page: ImageData;
+  readonly page: Buffer;
 }
 
 /**
- * Renders PDF pages as images.
+ * Renders PDF pages as PNG or JPEG images.
  */
 export async function* pdfToImages(
   pdfBytes: Buffer,
-  { scale = 1 } = {}
+  {
+    scale = 1,
+    mimetype = 'image/png',
+  }: { scale?: number; mimetype?: 'image/png' | 'image/jpeg' } = {}
 ): AsyncIterable<PdfPage> {
   const canvas = createCanvas(0, 0);
   const context = canvas.getContext('2d');
@@ -109,7 +111,11 @@ export async function* pdfToImages(
     yield {
       pageCount: pdf.numPages,
       pageNumber: i,
-      page: context.getImageData(0, 0, canvas.width, canvas.height),
+      page:
+        // Help TS match the union type branches to overloaded function signatures
+        mimetype === 'image/png'
+          ? canvas.toBuffer('image/png')
+          : canvas.toBuffer('image/jpeg'),
     };
   }
 }
@@ -155,7 +161,7 @@ export async function main(
     scale: 200 / 72,
   })) {
     const path = join(dir, `${base}-p${pageNumber}.jpg`);
-    await writeImageData(path, page);
+    await fs.writeFile(path, page);
   }
   return 0;
 }

@@ -10,6 +10,7 @@ import {
   pdfToImages,
   setPdfRenderWorkerSrc,
 } from './pdf_to_images';
+import { loadImageData } from './image_data';
 
 const pdfNotRequiringPdfjsIntermediateCanvasBuffer = readFileSync(
   join(
@@ -20,20 +21,19 @@ const pdfNotRequiringPdfjsIntermediateCanvasBuffer = readFileSync(
 const pdfRequiringPdfjsIntermediateCanvasBuffer =
   electionGridLayoutNewHampshireHudsonFixtures.templatePdf.asBuffer();
 
-function assertHasPageCountAndSize(
+async function assertHasPageCountAndSize(
   pages: PdfPage[],
   { pageCount, size }: { pageCount: number; size: Size }
-): void {
+): Promise<void> {
   expect(pages).toHaveLength(pageCount);
-  for (const {
-    page: { width, height },
-  } of pages) {
+  for (const { page } of pages) {
+    const { width, height } = await loadImageData(page);
     expect({ width, height }).toMatchObject(size);
   }
 }
 
 test('yields the right number of images sized correctly', async () => {
-  assertHasPageCountAndSize(
+  await assertHasPageCountAndSize(
     await iter(
       pdfToImages(pdfNotRequiringPdfjsIntermediateCanvasBuffer)
     ).toArray(),
@@ -48,7 +48,7 @@ test('yields the right number of images sized correctly', async () => {
 });
 
 test('can generate images with a different scale', async () => {
-  assertHasPageCountAndSize(
+  await assertHasPageCountAndSize(
     await iter(
       pdfToImages(pdfNotRequiringPdfjsIntermediateCanvasBuffer, { scale: 2 })
     ).toArray(),
@@ -60,13 +60,27 @@ test('can generate images with a different scale', async () => {
 });
 
 test('can render a PDF that requires the PDF.js intermediate canvas', async () => {
-  assertHasPageCountAndSize(
+  await assertHasPageCountAndSize(
     await iter(
       pdfToImages(pdfRequiringPdfjsIntermediateCanvasBuffer)
     ).toArray(),
     {
       pageCount: 2,
       size: { width: 684, height: 1080 },
+    }
+  );
+});
+
+test('can output JPGs', async () => {
+  await assertHasPageCountAndSize(
+    await iter(
+      pdfToImages(pdfNotRequiringPdfjsIntermediateCanvasBuffer, {
+        mimetype: 'image/jpeg',
+      })
+    ).toArray(),
+    {
+      pageCount: 6,
+      size: { width: 612, height: 792 },
     }
   );
 });

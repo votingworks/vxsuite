@@ -1,7 +1,6 @@
 import { readFile } from 'fs/promises';
 import { Buffer } from 'buffer';
 import { pdfToImages } from './pdf_to_images';
-import { toImageBuffer } from './image_data';
 
 /**
  * Options for `toMatchPdfSnapshot`.
@@ -27,8 +26,7 @@ export async function toMatchPdfSnapshot(
     typeof received === 'string' ? await readFile(received) : received;
   const pdfPages = pdfToImages(pdfContents, { scale: 200 / 72 });
   for await (const { page, pageNumber } of pdfPages) {
-    const imageBuffer = toImageBuffer(page);
-    expect(imageBuffer).toMatchImageSnapshot({
+    expect(page).toMatchImageSnapshot({
       customSnapshotIdentifier: options.customSnapshotIdentifier
         ? `${options.customSnapshotIdentifier}-${pageNumber}`
         : undefined,

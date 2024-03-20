@@ -1,21 +1,19 @@
 import { Buffer } from 'buffer';
 import { ImageData, createImageData } from 'canvas';
 import fc from 'fast-check';
-import { writeFile } from 'fs/promises';
 import { fileSync } from 'tmp';
 import { arbitraryImageData } from '../test/arbitraries';
 import {
   RGBA_CHANNEL_COUNT,
-  ensureImageData,
   fromGrayScale,
   getImageChannelCount,
   isRgba,
   loadImage,
   loadImageData,
   toDataUrl,
-  toImageBuffer,
   toImageData,
   writeImageData,
+  ensureImageData,
 } from './image_data';
 
 test('channels', () => {
@@ -192,25 +190,4 @@ test('ensureImageData', () => {
   };
   expect(ensureImageData(imageDataLike) === imageDataLike).toBeFalsy();
   expect(ensureImageData(imageDataLike)).toBeInstanceOf(ImageData);
-});
-
-test('toImageBuffer', async () => {
-  await fc.assert(
-    fc.asyncProperty(
-      arbitraryImageData({ width: 5, height: 5 }),
-      fc.constantFrom<'png' | 'jpeg' | undefined>('png', 'jpeg', undefined),
-      async (imageData, format) => {
-        const buffer = toImageBuffer(imageData, format && `image/${format}`);
-        const filePath = fileSync({ template: `tmp-XXXXXX.${format}` }).name;
-        await writeFile(filePath, buffer);
-        const { width: decodedWidth, height: decodedHeight } = toImageData(
-          await loadImage(filePath)
-        );
-        expect({ width: decodedWidth, height: decodedHeight }).toStrictEqual({
-          width: imageData.width,
-          height: imageData.height,
-        });
-      }
-    )
-  );
 });

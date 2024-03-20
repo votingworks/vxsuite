@@ -131,22 +131,6 @@ export async function writeImageData(
 }
 
 /**
- * Converts an ImageData to an image Buffer.
- */
-export function toImageBuffer(
-  imageData: ImageData,
-  mimeType: 'image/png' | 'image/jpeg' = 'image/png'
-): Buffer {
-  const canvas = createCanvas(imageData.width, imageData.height);
-  const context = canvas.getContext('2d');
-  context.putImageData(ensureImageData(imageData), 0, 0);
-  // Help TS match the union type branches to overloaded function signatures
-  return mimeType === 'image/png'
-    ? canvas.toBuffer(mimeType)
-    : canvas.toBuffer(mimeType);
-}
-
-/**
  * Extracts image data from an image.
  */
 export function toImageData(
