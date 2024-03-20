@@ -6,6 +6,8 @@
 //! for change in signal value. When a button press is detected, it sends
 //! a keypress event for consumption by the mark-scan application.
 
+use clap::Parser;
+use daemon_utils::run_no_op_event_loop;
 use std::{
     io::{self, Read},
     process::exit,
@@ -28,6 +30,14 @@ mod device;
 mod port;
 
 const APP_NAME: &str = "vx-mark-scan-controller-daemon";
+
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    // Whether to allow the daemon to run if no hardware is found.
+    #[arg(short, long)]
+    skip_hardware_check: bool,
+}
 
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
@@ -88,6 +98,12 @@ fn main() -> color_eyre::Result<()> {
                 event_type: EventType::SystemAction,
                 disposition: Disposition::Failure
             );
+            let args = Args::parse();
+            if args.skip_hardware_check {
+                run_no_op_event_loop(&running);
+                exit(0);
+            }
+
             exit(1);
         }
     }

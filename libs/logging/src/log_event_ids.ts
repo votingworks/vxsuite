@@ -19,6 +19,8 @@ export enum LogEventId {
   MachineShutdownInit = 'machine-shutdown-init',
   MachineShutdownComplete = 'machine-shutdown-complete',
   UsbDeviceChangeDetected = 'usb-device-change-detected',
+  Info = 'info',
+  Heartbeat = 'heartbeat',
   ProcessStarted = 'process-started',
   ProcessTerminated = 'process-terminated',
   AuthPinEntry = 'auth-pin-entry',
@@ -180,6 +182,26 @@ const UsbDeviceChangeDetected: LogDetails = {
   eventType: LogEventType.SystemStatus,
   documentationMessage:
     'A message from the machine kernel about an externally-connected USB device, usually when a new device is connected or disconnected.',
+};
+
+const Info: LogDetails = {
+  eventId: LogEventId.Info,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'The process is reporting general status.',
+  restrictInDocumentationToApps: [
+    LogSource.VxMarkScanControllerDaemon,
+    LogSource.VxMarkScanPatDaemon,
+  ],
+};
+
+const Heartbeat: LogDetails = {
+  eventId: LogEventId.Heartbeat,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'The process sent a heartbeat',
+  restrictInDocumentationToApps: [
+    LogSource.VxMarkScanControllerDaemon,
+    LogSource.VxMarkScanPatDaemon,
+  ],
 };
 
 const ProcessStarted: LogDetails = {
@@ -1110,6 +1132,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return MachineShutdownComplete;
     case LogEventId.UsbDeviceChangeDetected:
       return UsbDeviceChangeDetected;
+    case LogEventId.Info:
+      return Info;
+    case LogEventId.Heartbeat:
+      return Heartbeat;
     case LogEventId.ProcessStarted:
       return ProcessStarted;
     case LogEventId.ProcessTerminated:
