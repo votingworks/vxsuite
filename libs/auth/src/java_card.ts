@@ -561,7 +561,16 @@ export class JavaCard implements Card {
         ),
       })
     );
-    const challengeSignature = generalAuthenticateResponse.subarray(4); // Trim metadata
+
+    const [, , generalAuthenticateDynamicAuthenticationBody] = parseTlv(
+      GENERAL_AUTHENTICATE.DYNAMIC_AUTHENTICATION_TEMPLATE_TAG,
+      generalAuthenticateResponse
+    );
+
+    const [, , challengeSignature] = parseTlv(
+      GENERAL_AUTHENTICATE.RESPONSE_TAG,
+      generalAuthenticateDynamicAuthenticationBody
+    );
 
     // Use the cert's public key to verify the generated signature
     const certPublicKey = await extractPublicKeyFromCert(cert);
