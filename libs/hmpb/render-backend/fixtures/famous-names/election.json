@@ -397,7 +397,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.8586482558139537,
-          "row": 12.214912280701755,
+          "row": 12.199683235867447,
           "type": "option",
           "contestId": "mayor",
           "optionId": "sherlock-holmes"
@@ -406,7 +406,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.8586482558139537,
-          "row": 14.217836257309942,
+          "row": 14.202607212475634,
           "type": "option",
           "contestId": "mayor",
           "optionId": "thomas-edison"
@@ -415,13 +415,13 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.8586482558139537,
-          "row": 16.432748538011698,
+          "row": 16.548489278752438,
           "type": "write-in",
           "contestId": "mayor",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.8586482558139537,
-            "y": 15.932748538011698,
+            "y": 16.048489278752438,
             "width": 7,
             "height": 1
           }
@@ -430,7 +430,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.8586482558139537,
-          "row": 21.153143274853804,
+          "row": 21.137914230019494,
           "type": "option",
           "contestId": "controller",
           "optionId": "winston-churchill"
@@ -439,7 +439,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.8586482558139537,
-          "row": 23.15606725146199,
+          "row": 23.14083820662768,
           "type": "option",
           "contestId": "controller",
           "optionId": "oprah-winfrey"
@@ -448,7 +448,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.8586482558139537,
-          "row": 25.158991228070178,
+          "row": 25.143762183235868,
           "type": "option",
           "contestId": "controller",
           "optionId": "louis-armstrong"
@@ -457,13 +457,13 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 1.8586482558139537,
-          "row": 27.37390350877193,
+          "row": 27.489644249512672,
           "type": "write-in",
           "contestId": "controller",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.8586482558139537,
-            "y": 26.87390350877193,
+            "y": 26.989644249512672,
             "width": 7,
             "height": 1
           }
@@ -472,7 +472,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.432291666666668,
-          "row": 12.214912280701755,
+          "row": 12.199683235867447,
           "type": "option",
           "contestId": "attorney",
           "optionId": "john-snow"
@@ -481,7 +481,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.432291666666668,
-          "row": 14.217836257309942,
+          "row": 14.202607212475634,
           "type": "option",
           "contestId": "attorney",
           "optionId": "mark-twain"
@@ -490,13 +490,13 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.432291666666668,
-          "row": 16.432748538011698,
+          "row": 16.548489278752438,
           "type": "write-in",
           "contestId": "attorney",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.432291666666668,
-            "y": 15.932748538011698,
+            "y": 16.048489278752438,
             "width": 7,
             "height": 1
           }
@@ -505,7 +505,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.432291666666668,
-          "row": 21.153143274853804,
+          "row": 21.137914230019494,
           "type": "option",
           "contestId": "public-works-director",
           "optionId": "benjamin-franklin"
@@ -514,7 +514,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.432291666666668,
-          "row": 23.15606725146199,
+          "row": 23.14083820662768,
           "type": "option",
           "contestId": "public-works-director",
           "optionId": "robert-downey-jr"
@@ -523,7 +523,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.432291666666668,
-          "row": 25.158991228070178,
+          "row": 25.143762183235868,
           "type": "option",
           "contestId": "public-works-director",
           "optionId": "bill-nye"
@@ -532,13 +532,13 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 12.432291666666668,
-          "row": 27.37390350877193,
+          "row": 27.489644249512672,
           "type": "write-in",
           "contestId": "public-works-director",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.432291666666668,
-            "y": 26.87390350877193,
+            "y": 26.989644249512672,
             "width": 7,
             "height": 1
           }
@@ -547,7 +547,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 23.005935077519382,
-          "row": 12.214912280701755,
+          "row": 12.199683235867447,
           "type": "option",
           "contestId": "chief-of-police",
           "optionId": "natalie-portman"
@@ -556,7 +556,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 23.005935077519382,
-          "row": 14.217836257309942,
+          "row": 14.202607212475634,
           "type": "option",
           "contestId": "chief-of-police",
           "optionId": "frank-sinatra"
@@ -565,7 +565,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 23.005935077519382,
-          "row": 16.220760233918128,
+          "row": 16.20553118908382,
           "type": "option",
           "contestId": "chief-of-police",
           "optionId": "andy-warhol"
@@ -574,7 +574,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 23.005935077519382,
-          "row": 18.223684210526315,
+          "row": 18.20845516569201,
           "type": "option",
           "contestId": "chief-of-police",
           "optionId": "alfred-hitchcock"
@@ -583,13 +583,13 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 23.005935077519382,
-          "row": 20.438596491228072,
+          "row": 20.554337231968812,
           "type": "write-in",
           "contestId": "chief-of-police",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 24.005935077519382,
-            "y": 19.938596491228072,
+            "y": 20.054337231968812,
             "width": 7,
             "height": 1
           }
@@ -598,7 +598,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 23.005935077519382,
-          "row": 26.000852826510723,
+          "row": 25.985623781676416,
           "type": "option",
           "contestId": "parks-and-recreation-director",
           "optionId": "charles-darwin"
@@ -607,7 +607,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 23.005935077519382,
-          "row": 28.00377680311891,
+          "row": 27.988547758284604,
           "type": "option",
           "contestId": "parks-and-recreation-director",
           "optionId": "stephen-hawking"
@@ -616,7 +616,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 23.005935077519382,
-          "row": 30.006700779727097,
+          "row": 29.99147173489279,
           "type": "option",
           "contestId": "parks-and-recreation-director",
           "optionId": "johan-sebastian-bach"
@@ -625,7 +625,7 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 23.005935077519382,
-          "row": 32.009624756335285,
+          "row": 31.994395711500978,
           "type": "option",
           "contestId": "parks-and-recreation-director",
           "optionId": "alexander-graham-bell"
@@ -634,13 +634,13 @@
           "sheetNumber": 1,
           "side": "front",
           "column": 23.005935077519382,
-          "row": 34.22453703703704,
+          "row": 34.34027777777778,
           "type": "write-in",
           "contestId": "parks-and-recreation-director",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 24.005935077519382,
-            "y": 33.72453703703704,
+            "y": 33.84027777777778,
             "width": 7,
             "height": 1
           }
@@ -649,7 +649,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.8586482558139537,
-          "row": 3.5386208576998053,
+          "row": 3.5233918128654973,
           "type": "option",
           "contestId": "board-of-alderman",
           "optionId": "helen-keller"
@@ -658,7 +658,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.8586482558139537,
-          "row": 5.5415448343079925,
+          "row": 5.526315789473685,
           "type": "option",
           "contestId": "board-of-alderman",
           "optionId": "steve-jobs"
@@ -667,7 +667,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.8586482558139537,
-          "row": 7.54446881091618,
+          "row": 7.529239766081872,
           "type": "option",
           "contestId": "board-of-alderman",
           "optionId": "nikola-tesla"
@@ -676,7 +676,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.8586482558139537,
-          "row": 9.547392787524368,
+          "row": 9.53216374269006,
           "type": "option",
           "contestId": "board-of-alderman",
           "optionId": "vincent-van-gogh"
@@ -685,7 +685,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.8586482558139537,
-          "row": 11.550316764132555,
+          "row": 11.535087719298247,
           "type": "option",
           "contestId": "board-of-alderman",
           "optionId": "pablo-picasso"
@@ -694,7 +694,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.8586482558139537,
-          "row": 13.927266081871347,
+          "row": 13.538011695906434,
           "type": "option",
           "contestId": "board-of-alderman",
           "optionId": "wolfgang-amadeus-mozart"
@@ -703,13 +703,13 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.8586482558139537,
-          "row": 16.516203703703706,
+          "row": 16.631944444444446,
           "type": "write-in",
           "contestId": "board-of-alderman",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 2.8586482558139537,
-            "y": 16.016203703703706,
+            "y": 16.131944444444446,
             "width": 7,
             "height": 1
           }
@@ -718,13 +718,13 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.8586482558139537,
-          "row": 18.65009746588694,
+          "row": 18.76583820662768,
           "type": "write-in",
           "contestId": "board-of-alderman",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 2.8586482558139537,
-            "y": 18.15009746588694,
+            "y": 18.26583820662768,
             "width": 7,
             "height": 1
           }
@@ -733,13 +733,13 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.8586482558139537,
-          "row": 20.783991228070178,
+          "row": 20.89973196881092,
           "type": "write-in",
           "contestId": "board-of-alderman",
           "writeInIndex": 2,
           "writeInArea": {
             "x": 2.8586482558139537,
-            "y": 20.283991228070178,
+            "y": 20.39973196881092,
             "width": 7,
             "height": 1
           }
@@ -748,13 +748,13 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 1.8586482558139537,
-          "row": 22.917884990253413,
+          "row": 23.033625730994153,
           "type": "write-in",
           "contestId": "board-of-alderman",
           "writeInIndex": 3,
           "writeInArea": {
             "x": 2.8586482558139537,
-            "y": 22.417884990253413,
+            "y": 22.533625730994153,
             "width": 7,
             "height": 1
           }
@@ -763,7 +763,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 12.432291666666668,
-          "row": 3.5386208576998053,
+          "row": 3.5233918128654973,
           "type": "option",
           "contestId": "city-council",
           "optionId": "marie-curie"
@@ -772,7 +772,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 12.432291666666668,
-          "row": 5.5415448343079925,
+          "row": 5.526315789473685,
           "type": "option",
           "contestId": "city-council",
           "optionId": "indiana-jones"
@@ -781,7 +781,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 12.432291666666668,
-          "row": 7.54446881091618,
+          "row": 7.529239766081872,
           "type": "option",
           "contestId": "city-council",
           "optionId": "mona-lisa"
@@ -790,7 +790,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 12.432291666666668,
-          "row": 9.547392787524368,
+          "row": 9.53216374269006,
           "type": "option",
           "contestId": "city-council",
           "optionId": "jackie-chan"
@@ -799,7 +799,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 12.432291666666668,
-          "row": 11.550316764132555,
+          "row": 11.535087719298247,
           "type": "option",
           "contestId": "city-council",
           "optionId": "tim-allen"
@@ -808,7 +808,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 12.432291666666668,
-          "row": 13.553240740740742,
+          "row": 13.538011695906434,
           "type": "option",
           "contestId": "city-council",
           "optionId": "mark-antony"
@@ -817,7 +817,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 12.432291666666668,
-          "row": 15.55616471734893,
+          "row": 15.540935672514621,
           "type": "option",
           "contestId": "city-council",
           "optionId": "harriet-tubman"
@@ -826,7 +826,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 12.432291666666668,
-          "row": 17.559088693957115,
+          "row": 17.54385964912281,
           "type": "option",
           "contestId": "city-council",
           "optionId": "martin-luther-king"
@@ -835,7 +835,7 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 12.432291666666668,
-          "row": 19.562012670565302,
+          "row": 19.546783625730995,
           "type": "option",
           "contestId": "city-council",
           "optionId": "marilyn-monroe"
@@ -844,13 +844,13 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 12.432291666666668,
-          "row": 21.77692495126706,
+          "row": 21.8926656920078,
           "type": "write-in",
           "contestId": "city-council",
           "writeInIndex": 0,
           "writeInArea": {
             "x": 13.432291666666668,
-            "y": 21.27692495126706,
+            "y": 21.3926656920078,
             "width": 7,
             "height": 1
           }
@@ -859,13 +859,13 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 12.432291666666668,
-          "row": 23.910818713450293,
+          "row": 24.026559454191034,
           "type": "write-in",
           "contestId": "city-council",
           "writeInIndex": 1,
           "writeInArea": {
             "x": 13.432291666666668,
-            "y": 23.410818713450293,
+            "y": 23.526559454191034,
             "width": 7,
             "height": 1
           }
@@ -874,13 +874,13 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 12.432291666666668,
-          "row": 26.04471247563353,
+          "row": 26.160453216374272,
           "type": "write-in",
           "contestId": "city-council",
           "writeInIndex": 2,
           "writeInArea": {
             "x": 13.432291666666668,
-            "y": 25.54471247563353,
+            "y": 25.660453216374272,
             "width": 7,
             "height": 1
           }
@@ -889,23 +889,23 @@
           "sheetNumber": 1,
           "side": "back",
           "column": 12.432291666666668,
-          "row": 28.178606237816766,
+          "row": 28.294346978557506,
           "type": "write-in",
           "contestId": "city-council",
           "writeInIndex": 3,
           "writeInArea": {
             "x": 13.432291666666668,
-            "y": 27.678606237816766,
+            "y": 27.794346978557506,
             "width": 7,
             "height": 1
           }
         }
       ],
       "optionBoundsFromTargetMark": {
-        "bottom": 0,
-        "left": 0,
-        "right": 0,
-        "top": 0
+        "top": 0.746832358674464,
+        "left": 0.5116279069767442,
+        "right": 9.465116279069768,
+        "bottom": 1.387061403508772
       }
     }
   ]
