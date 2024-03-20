@@ -306,6 +306,7 @@ export async function generateAllBubbleBallotFixtures(renderer: Renderer) {
 
   return {
     dir,
+    electionPath: join(dir, 'election.json'),
     electionDefinition,
     blankBallotPath,
     blankBallotPdf,

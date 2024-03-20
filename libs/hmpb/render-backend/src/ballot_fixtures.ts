@@ -79,6 +79,7 @@ export async function generateFamousNamesFixtures(renderer: Renderer) {
 
   return {
     dir,
+    electionPath: join(dir, 'election.json'),
     electionDefinition,
     ...blankBallotProps,
     blankBallotPdf,
@@ -201,6 +202,7 @@ export async function generateGeneralElectionFixtures(renderer: Renderer) {
     fixtures.push({
       electionDir,
       paperSize,
+      electionPath: join(electionDir, 'election.json'),
       electionDefinition,
       precinctId,
       ballotStyleId: ballotStyle.id,
@@ -310,6 +312,7 @@ export async function generatePrimaryElectionFixtures(renderer: Renderer) {
 
   return {
     dir,
+    electionPath: join(dir, 'election.json'),
     electionDefinition,
     mammalParty: await makePartyFixtures(
       'mammal',
