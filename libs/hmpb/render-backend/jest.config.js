@@ -12,7 +12,13 @@ module.exports = {
       lines: -30,
     },
   },
-  coveragePathIgnorePatterns: ['src/index.ts', 'src/generate_fixtures.ts'],
+  coveragePathIgnorePatterns: [
+    'src/index.ts',
+    'src/generate_fixtures.ts',
+    'src/polyfills.ts',
+    'src/browser_preview.ts',
+    'src/browser_preview_renderer.tsx',
+  ],
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   // jest-image-matcher contains ESM modules ending in .js, so we need to have
   // ts-jest transform them. We use this ignore pattern to not transform any
