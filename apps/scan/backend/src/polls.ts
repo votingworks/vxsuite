@@ -67,12 +67,15 @@ export async function closePolls({
 
   const ballotsCounted = store.getBallotsCounted();
   if (ballotsCounted > 0) {
-    void (await exportCastVoteRecordsToUsbDrive({
+    const exportResult = await exportCastVoteRecordsToUsbDrive({
       mode: 'polls_closing',
       workspace,
       usbDrive,
       logger,
-    }));
+    });
+    exportResult.assertOk(
+      'Failed to finish cast vote record export to USB drive.'
+    );
   }
 }
 

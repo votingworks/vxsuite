@@ -503,6 +503,7 @@ export function PollWorkerScreen({
             transitionType={lastPollsTransition.type}
           />
         );
+      /* istanbul ignore next - compile-time check for completeness */
       default:
         throwIllegalValue(pollWorkerFlowState, 'state');
     }
