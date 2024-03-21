@@ -1321,10 +1321,12 @@ export function layOutInColumns<Element extends ElementWithHeight>({
   elements,
   numColumns,
   maxColumnHeight,
+  gap = 0,
 }: {
   elements: Element[];
   numColumns: number;
   maxColumnHeight: number;
+  gap?: number;
 }): {
   columns: Array<Column<Element>>;
   height: number;
@@ -1335,9 +1337,12 @@ export function layOutInColumns<Element extends ElementWithHeight>({
   }
 
   function columnHeight(column: Column<Element>): number {
-    return iter(column)
-      .map((e) => e.height)
-      .sum();
+    return (
+      iter(column)
+        .map((e) => e.height)
+        .sum() +
+      Math.max(column.length - 1, 0) * gap
+    );
   }
 
   function isColumnOverflowing(column: Column<Element>): boolean {
