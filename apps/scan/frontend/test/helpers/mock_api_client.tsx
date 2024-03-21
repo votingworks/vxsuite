@@ -6,7 +6,6 @@ import {
   ElectionDefinition,
   InsertedSmartCardAuth,
   PollsState,
-  PollsTransitionType,
   PrecinctSelection,
   PrinterStatus,
 } from '@votingworks/types';
@@ -30,7 +29,6 @@ import { TestErrorBoundary } from '@votingworks/ui';
 import { BROTHER_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
 import type { BatteryInfo } from '@votingworks/backend';
 import { mockUsbDriveStatus } from './mock_usb_drive';
-import { getCurrentTime } from '../../src/utils/get_current_time';
 import { mockPollsInfo } from './mock_polls_info';
 import { ApiProvider } from '../../src/api_provider';
 
@@ -174,20 +172,29 @@ export function createApiMock() {
       mockApiClient.getScannerStatus.expectRepeatedCallsWith().resolves(status);
     },
 
-    expectTransitionPolls(expectedTransitionType: PollsTransitionType): void {
-      mockApiClient.transitionPolls
-        .expectCallWith({
-          type: expectedTransitionType,
-          time: getCurrentTime(),
-        })
-        .resolves();
+    expectOpenPolls(): void {
+      mockApiClient.openPolls.expectCallWith().resolves();
     },
 
-    expectExportCastVoteRecordsToUsbDrive(input: {
-      mode: 'full_export' | 'polls_closing';
-    }): void {
+    expectClosePolls(): void {
+      mockApiClient.closePolls.expectCallWith().resolves();
+    },
+
+    expectPauseVoting(): void {
+      mockApiClient.pauseVoting.expectCallWith().resolves();
+    },
+
+    expectResumeVoting(): void {
+      mockApiClient.resumeVoting.expectCallWith().resolves();
+    },
+
+    expectResetPollsToPaused(): void {
+      mockApiClient.resetPollsToPaused.expectCallWith().resolves();
+    },
+
+    expectExportCastVoteRecordsToUsbDrive(): void {
       mockApiClient.exportCastVoteRecordsToUsbDrive
-        .expectCallWith(input)
+        .expectCallWith()
         .resolves(ok());
     },
 

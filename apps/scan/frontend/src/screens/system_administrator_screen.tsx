@@ -11,8 +11,7 @@ import { ElectionDefinition, PollsState } from '@votingworks/types';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Screen } from '../components/layout';
 import { LiveCheckButton } from '../components/live_check_button';
-import { transitionPolls, unconfigureElection, logOut } from '../api';
-import { getCurrentTime } from '../utils/get_current_time';
+import { unconfigureElection, logOut, resetPollsToPaused } from '../api';
 import { usePreviewContext } from '../preview_dashboard';
 
 interface SystemAdministratorScreenProps {
@@ -26,7 +25,7 @@ export function SystemAdministratorScreen({
   pollsState,
   usbDrive,
 }: SystemAdministratorScreenProps): JSX.Element {
-  const transitionPollsMutation = transitionPolls.useMutation();
+  const resetPollsToPausedMutation = resetPollsToPaused.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
   const logOutMutation = logOut.useMutation();
 
@@ -53,11 +52,7 @@ export function SystemAdministratorScreen({
         resetPollsToPausedText="The polls are closed and voting is complete. After resetting the polls to paused, it will be possible to re-open the polls and resume voting. All current cast vote records will be preserved."
         resetPollsToPaused={
           pollsState === 'polls_closed_final'
-            ? () =>
-                transitionPollsMutation.mutateAsync({
-                  type: 'pause_voting',
-                  time: getCurrentTime(),
-                })
+            ? () => resetPollsToPausedMutation.mutateAsync()
             : undefined
         }
         isMachineConfigured={Boolean(electionDefinition)}

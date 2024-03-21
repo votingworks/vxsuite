@@ -13,52 +13,55 @@ import {
 } from '@votingworks/ui';
 import {
   BooleanEnvironmentVariableName,
+  getPollsReportTitle,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import { PollsTransitionType } from '@votingworks/types';
-import {
-  getLogEventIdForPollsTransition,
-  LogEventId,
-  BaseLogger,
-} from '@votingworks/logging';
-import {
-  assert,
-  assertFalsy,
-  Optional,
-  throwIllegalValue,
-} from '@votingworks/basics';
+import { LogEventId, BaseLogger } from '@votingworks/logging';
+import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
 import styled from 'styled-components';
 import pluralize from 'pluralize';
-import type {
-  PollsTransition,
-  PrecinctScannerPollsInfo,
-} from '@votingworks/scan-backend';
+import type { PrecinctScannerPollsInfo } from '@votingworks/scan-backend';
 import {
   ScreenMainCenterChild,
   CenteredScreenProps,
 } from '../components/layout';
 import {
-  exportCastVoteRecordsToUsbDrive,
   getUsbDriveStatus,
-  transitionPolls as apiTransitionPolls,
-  printTallyReport,
+  printReport,
   getPrinterStatus,
+  openPolls as openPollsApi,
+  closePolls as closePollsApi,
+  pauseVoting as pauseVotingApi,
+  resumeVoting as resumeVotingApi,
+  getPollsInfo,
 } from '../api';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 import { LiveCheckButton } from '../components/live_check_button';
 import { CastVoteRecordSyncRequiredModal } from './cast_vote_record_sync_required_screen';
-import { ReprintReportButton } from '../components/reprint_report_button';
-import { getCurrentTime } from '../utils/get_current_time';
-
-export const REPRINT_REPORT_TIMEOUT_SECONDS = 4;
 
 type PollWorkerFlowState =
-  | 'open_polls_prompt'
-  | 'close_polls_prompt'
-  | 'polls_transition_processing'
-  | 'polls_transition_complete'
-  | 'reprinting_report'
-  | 'reprinting_previous_report_complete';
+  | {
+      type: 'open-polls-prompt';
+    }
+  | {
+      type: 'resume-voting-prompt';
+    }
+  | {
+      type: 'close-polls-prompt';
+    }
+  | {
+      type: 'polls-transitioning';
+      transitionType: PollsTransitionType;
+    }
+  | {
+      type: 'printing-report';
+    }
+  | {
+      type: 'post-print';
+      numPages: number;
+      isAfterPollsTransition: boolean;
+    };
 
 function Screen(
   props: Omit<CenteredScreenProps, 'infoBarMode' | 'voterFacing'>
@@ -92,9 +95,178 @@ const BallotsAlreadyScannedScreen = (
   </Screen>
 );
 
+function OpenPollsPromptScreen({
+  onConfirm,
+  onClose,
+  isPrinterReady,
+}: {
+  onConfirm: () => void;
+  onClose: () => void;
+  isPrinterReady: boolean;
+}): JSX.Element {
+  return (
+    <Screen>
+      <CenteredLargeProse>
+        <P>Do you want to open the polls?</P>
+        <P>
+          <Button
+            variant="primary"
+            onPress={onConfirm}
+            disabled={!isPrinterReady}
+          >
+            Yes, Open the Polls
+          </Button>{' '}
+          <Button onPress={onClose}>No</Button>
+        </P>
+        {!isPrinterReady && <P>Attach printer to continue.</P>}
+      </CenteredLargeProse>
+    </Screen>
+  );
+}
+
+function ResumeVotingPromptScreen({
+  onConfirm,
+  onClose,
+  isPrinterReady,
+}: {
+  onConfirm: () => void;
+  onClose: () => void;
+  isPrinterReady: boolean;
+}): JSX.Element {
+  return (
+    <Screen>
+      <CenteredLargeProse>
+        <P>Do you want to resume voting?</P>
+        <P>
+          <Button
+            variant="primary"
+            onPress={onConfirm}
+            disabled={!isPrinterReady}
+          >
+            Yes, Resume Voting
+          </Button>{' '}
+          <Button onPress={onClose}>No</Button>
+        </P>
+        {!isPrinterReady && <P>Attach printer to continue.</P>}
+      </CenteredLargeProse>
+    </Screen>
+  );
+}
+
+function ClosePollsPromptScreen({
+  onConfirm,
+  onClose,
+  isPrinterReady,
+  isCastVoteRecordSyncRequiredModalOpen,
+  onCloseCastVoteRecordSyncRequiredModal,
+}: {
+  onConfirm: () => void;
+  onClose: () => void;
+  isPrinterReady: boolean;
+  isCastVoteRecordSyncRequiredModalOpen: boolean;
+  onCloseCastVoteRecordSyncRequiredModal: () => void;
+}): JSX.Element {
+  return (
+    <Screen>
+      <CenteredLargeProse>
+        <P>Do you want to close the polls?</P>
+        <P>
+          <Button
+            variant="primary"
+            onPress={onConfirm}
+            disabled={!isPrinterReady}
+          >
+            Yes, Close the Polls
+          </Button>{' '}
+          <Button onPress={onClose}>No</Button>
+        </P>
+        {!isPrinterReady && <P>Attach printer to continue.</P>}
+      </CenteredLargeProse>
+      {isCastVoteRecordSyncRequiredModalOpen && (
+        <CastVoteRecordSyncRequiredModal
+          blockedAction="close_polls"
+          closeModal={onCloseCastVoteRecordSyncRequiredModal}
+        />
+      )}
+    </Screen>
+  );
+}
+
+function getPollsTransitioningText(pollsTransitionType: PollsTransitionType) {
+  switch (pollsTransitionType) {
+    case 'close_polls':
+      return 'Closing Polls…';
+    case 'open_polls':
+      return 'Opening Polls…';
+    case 'pause_voting':
+      return 'Pausing Voting…';
+    case 'resume_voting':
+      return 'Resuming Voting…';
+    /* istanbul ignore next - compile-time check for completeness */
+    default:
+      throwIllegalValue(pollsTransitionType);
+  }
+}
+
+function getPollsTransitionedText(pollsTransitionType: PollsTransitionType) {
+  switch (pollsTransitionType) {
+    case 'close_polls':
+      return 'Polls are closed.';
+    case 'open_polls':
+      return 'Polls are open.';
+    case 'resume_voting':
+      return 'Voting resumed.';
+    case 'pause_voting':
+      return 'Voting paused.';
+    /* istanbul ignore next - compile-time check for completeness */
+    default:
+      throwIllegalValue(pollsTransitionType);
+  }
+}
+
+function PostPrintScreen({
+  isAfterPollsTransition,
+  reprint,
+  isPrinterReady,
+  numPages,
+  transitionType,
+}: {
+  isAfterPollsTransition: boolean;
+  reprint: () => void;
+  isPrinterReady: boolean;
+  numPages: number;
+  transitionType: PollsTransitionType;
+}): JSX.Element {
+  return (
+    <Screen>
+      <CenteredLargeProse>
+        {isAfterPollsTransition && (
+          <H1>{getPollsTransitionedText(transitionType)}</H1>
+        )}
+        <P>
+          Insert{' '}
+          {numPages
+            ? `${numPages} ${pluralize('sheet', numPages)} of paper`
+            : 'paper'}{' '}
+          into the printer to print the report.
+        </P>
+        <P>
+          Remove the poll worker card once you have printed all necessary
+          reports.
+        </P>
+        <P>
+          <Button onPress={reprint} disabled={!isPrinterReady}>
+            Print Additional {getPollsReportTitle(transitionType)}
+          </Button>
+        </P>
+      </CenteredLargeProse>
+    </Screen>
+  );
+}
+
 export interface PollWorkerScreenProps {
+  initialPollsInfo: PrecinctScannerPollsInfo;
   scannedBallotCount: number;
-  pollsInfo: PrecinctScannerPollsInfo;
   logger: BaseLogger;
 }
 
@@ -106,17 +278,18 @@ const ButtonGrid = styled.div`
 `;
 
 export function PollWorkerScreen({
+  initialPollsInfo,
   scannedBallotCount,
-  pollsInfo,
   logger,
 }: PollWorkerScreenProps): JSX.Element {
+  const pollsInfoQuery = getPollsInfo.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const printerStatusQuery = getPrinterStatus.useQuery();
-  const transitionPollsMutation = apiTransitionPolls.useMutation();
-  const printTallyReportMutation = printTallyReport.useMutation();
-  const exportCastVoteRecordsMutation =
-    exportCastVoteRecordsToUsbDrive.useMutation();
-  const [numReportPages, setNumReportPages] = useState<number>();
+  const openPollsMutation = openPollsApi.useMutation();
+  const closePollsMutation = closePollsApi.useMutation();
+  const pauseVotingMutation = pauseVotingApi.useMutation();
+  const resumeVotingMutation = resumeVotingApi.useMutation();
+  const printReportMutation = printReport.useMutation();
   const [
     isShowingBallotsAlreadyScannedScreen,
     setIsShowingBallotsAlreadyScannedScreen,
@@ -125,15 +298,15 @@ export function PollWorkerScreen({
     isCastVoteRecordSyncRequiredModalOpen,
     setIsCastVoteRecordSyncRequiredModalOpen,
   ] = useState(false);
-  const { pollsState } = pollsInfo;
 
   function initialPollWorkerFlowState(): Optional<PollWorkerFlowState> {
-    switch (pollsState) {
+    switch (initialPollsInfo.pollsState) {
       case 'polls_closed_initial':
+        return { type: 'open-polls-prompt' };
       case 'polls_paused':
-        return 'open_polls_prompt';
+        return { type: 'resume-voting-prompt' };
       case 'polls_open':
-        return 'close_polls_prompt';
+        return { type: 'close-polls-prompt' };
       default:
         return undefined;
     }
@@ -143,21 +316,11 @@ export function PollWorkerScreen({
     Optional<PollWorkerFlowState>
   >(initialPollWorkerFlowState());
 
-  // Optimistically set lastPollsTransition based on mutation input if it
-  // exists. The query may not have updated by the time we need to show a
-  // screen that depends on lastPollsTransition. During a transition,
-  // lastPollsTransition is really the currentPollsTransition.
-  const lastPollsTransition: Optional<PollsTransition> =
-    transitionPollsMutation.variables
-      ? {
-          ...transitionPollsMutation.variables,
-          ballotCount: scannedBallotCount,
-        }
-      : pollsInfo.pollsState !== 'polls_closed_initial'
-      ? pollsInfo.lastPollsTransition
-      : undefined;
-
-  if (!usbDriveStatusQuery.isSuccess || !printerStatusQuery.isSuccess) {
+  if (
+    !usbDriveStatusQuery.isSuccess ||
+    !printerStatusQuery.isSuccess ||
+    !pollsInfoQuery.isSuccess
+  ) {
     return (
       <Screen>
         <CenteredLargeProse>
@@ -169,268 +332,191 @@ export function PollWorkerScreen({
 
   const usbDriveStatus = usbDriveStatusQuery.data;
   const printerStatus = printerStatusQuery.data;
-  const needsToAttachPrinterToTransitionPolls = !printerStatus?.connected;
+  const isPrinterReady = Boolean(printerStatus?.connected);
+  const pollsInfo = pollsInfoQuery.data;
+  const { pollsState } = pollsInfo;
+  const lastPollsTransition =
+    pollsInfo.pollsState === 'polls_closed_initial'
+      ? undefined
+      : pollsInfo.lastPollsTransition;
 
   function showAllPollWorkerActions() {
     return setPollWorkerFlowState(undefined);
   }
 
-  async function transitionPolls(pollsTransitionType: PollsTransitionType) {
-    try {
-      // In compliance with VVSG 2.0 1.1.3-B, confirm there are no scanned
-      // ballots before opening polls, even though this should be an impossible
-      // state in production.
-      if (pollsTransitionType === 'open_polls' && scannedBallotCount > 0) {
-        setIsShowingBallotsAlreadyScannedScreen(true);
-        await logger.log(LogEventId.PollsOpened, 'poll_worker', {
-          disposition: 'failure',
-          message:
-            'Non-zero ballots scanned count detected upon attempt to open polls.',
-          scannedBallotCount,
-        });
-        return;
-      }
-
-      setPollWorkerFlowState('polls_transition_processing');
-
-      const pollsTransitionTime = getCurrentTime();
-      await transitionPollsMutation.mutateAsync({
-        type: pollsTransitionType,
-        time: pollsTransitionTime,
+  async function openPolls() {
+    // In compliance with VVSG 2.0 1.1.3-B, confirm there are no scanned
+    // ballots before opening polls, even though this should be an impossible
+    // state in production.
+    if (scannedBallotCount > 0) {
+      setIsShowingBallotsAlreadyScannedScreen(true);
+      await logger.log(LogEventId.PollsOpened, 'poll_worker', {
+        disposition: 'failure',
+        message:
+          'Non-zero ballots scanned count detected upon attempt to open polls.',
+        scannedBallotCount,
       });
-
-      const numPages = await printTallyReportMutation.mutateAsync();
-      setNumReportPages(numPages);
-
-      if (pollsTransitionType === 'close_polls' && scannedBallotCount > 0) {
-        (
-          await exportCastVoteRecordsMutation.mutateAsync({
-            mode: 'polls_closing',
-          })
-        ).unsafeUnwrap();
-      }
-
-      await logger.log(
-        getLogEventIdForPollsTransition(pollsTransitionType),
-        'poll_worker',
-        {
-          disposition: 'success',
-          scannedBallotCount,
-        }
-      );
-      setPollWorkerFlowState('polls_transition_complete');
-    } catch (error) {
-      await logger.log(
-        getLogEventIdForPollsTransition(pollsTransitionType),
-        'poll_worker',
-        {
-          disposition: 'failure',
-          error: (error as Error).message,
-        }
-      );
+      return;
     }
+
+    setPollWorkerFlowState({
+      type: 'polls-transitioning',
+      transitionType: 'open_polls',
+    });
+    await openPollsMutation.mutateAsync();
+    const numPages = await printReportMutation.mutateAsync();
+    setPollWorkerFlowState({
+      type: 'post-print',
+      numPages,
+      isAfterPollsTransition: true,
+    });
   }
 
-  function openPolls() {
-    return transitionPolls('open_polls');
-  }
-
-  function closePolls() {
+  async function closePolls() {
     if (usbDriveStatus.doesUsbDriveRequireCastVoteRecordSync) {
       setIsCastVoteRecordSyncRequiredModalOpen(true);
       return;
     }
-    return transitionPolls('close_polls');
+    setPollWorkerFlowState({
+      type: 'polls-transitioning',
+      transitionType: 'close_polls',
+    });
+    await closePollsMutation.mutateAsync();
+    const numPages = await printReportMutation.mutateAsync();
+    setPollWorkerFlowState({
+      type: 'post-print',
+      numPages,
+      isAfterPollsTransition: true,
+    });
   }
 
-  function pauseVoting() {
-    return transitionPolls('pause_voting');
+  async function pauseVoting() {
+    setPollWorkerFlowState({
+      type: 'polls-transitioning',
+      transitionType: 'pause_voting',
+    });
+    await pauseVotingMutation.mutateAsync();
+    const numPages = await printReportMutation.mutateAsync();
+    setPollWorkerFlowState({
+      type: 'post-print',
+      numPages,
+      isAfterPollsTransition: true,
+    });
   }
 
-  function resumeVoting() {
-    return transitionPolls('resume_voting');
+  async function resumeVoting() {
+    setPollWorkerFlowState({
+      type: 'polls-transitioning',
+      transitionType: 'resume_voting',
+    });
+    await resumeVotingMutation.mutateAsync();
+    const numPages = await printReportMutation.mutateAsync();
+    setPollWorkerFlowState({
+      type: 'post-print',
+      numPages,
+      isAfterPollsTransition: true,
+    });
   }
+
+  async function reprintReport(isAfterPollsTransition: boolean) {
+    setPollWorkerFlowState({
+      type: 'printing-report',
+    });
+    const numPages = await printReportMutation.mutateAsync();
+    setPollWorkerFlowState({
+      type: 'post-print',
+      numPages,
+      isAfterPollsTransition,
+    });
+  }
+
+  const allowReprintingReport =
+    lastPollsTransition &&
+    lastPollsTransition.ballotCount === scannedBallotCount;
 
   if (isShowingBallotsAlreadyScannedScreen) {
     return BallotsAlreadyScannedScreen;
   }
 
-  if (pollWorkerFlowState === 'open_polls_prompt') {
-    const pollsTransition: PollsTransitionType =
-      pollsState === 'polls_closed_initial' ? 'open_polls' : 'resume_voting';
-    return (
-      <Screen>
-        <CenteredLargeProse>
-          <P>
-            {pollsTransition === 'open_polls'
-              ? 'Do you want to open the polls?'
-              : 'Do you want to resume voting?'}
-          </P>
-          <P>
-            <Button
-              variant="primary"
-              onPress={transitionPolls}
-              value={pollsTransition}
-              disabled={needsToAttachPrinterToTransitionPolls}
-            >
-              {pollsTransition === 'open_polls'
-                ? 'Yes, Open the Polls'
-                : 'Yes, Resume Voting'}
-            </Button>{' '}
-            <Button onPress={showAllPollWorkerActions}>No</Button>
-          </P>
-          {needsToAttachPrinterToTransitionPolls && (
-            <P>Attach printer to continue.</P>
-          )}
-        </CenteredLargeProse>
-      </Screen>
-    );
-  }
-
-  if (pollWorkerFlowState === 'close_polls_prompt') {
-    return (
-      <Screen>
-        <CenteredLargeProse>
-          <P>Do you want to close the polls?</P>
-          <P>
-            <Button
-              variant="primary"
-              onPress={closePolls}
-              disabled={needsToAttachPrinterToTransitionPolls}
-            >
-              Yes, Close the Polls
-            </Button>{' '}
-            <Button onPress={showAllPollWorkerActions}>No</Button>
-          </P>
-          {needsToAttachPrinterToTransitionPolls && (
-            <P>Attach printer to continue.</P>
-          )}
-        </CenteredLargeProse>
-        {isCastVoteRecordSyncRequiredModalOpen && (
-          <CastVoteRecordSyncRequiredModal
-            blockedAction="close_polls"
-            closeModal={() => setIsCastVoteRecordSyncRequiredModalOpen(false)}
+  if (pollWorkerFlowState) {
+    switch (pollWorkerFlowState.type) {
+      case 'open-polls-prompt':
+        return (
+          <OpenPollsPromptScreen
+            onConfirm={openPolls}
+            onClose={showAllPollWorkerActions}
+            isPrinterReady={isPrinterReady}
           />
-        )}
-      </Screen>
-    );
+        );
+      case 'resume-voting-prompt':
+        return (
+          <ResumeVotingPromptScreen
+            onConfirm={resumeVoting}
+            onClose={showAllPollWorkerActions}
+            isPrinterReady={isPrinterReady}
+          />
+        );
+      case 'close-polls-prompt':
+        return (
+          <ClosePollsPromptScreen
+            onConfirm={closePolls}
+            onClose={showAllPollWorkerActions}
+            isPrinterReady={isPrinterReady}
+            isCastVoteRecordSyncRequiredModalOpen={
+              isCastVoteRecordSyncRequiredModalOpen
+            }
+            onCloseCastVoteRecordSyncRequiredModal={() =>
+              setIsCastVoteRecordSyncRequiredModalOpen(false)
+            }
+          />
+        );
+      case 'polls-transitioning':
+        return (
+          <Screen>
+            <LoadingAnimation />
+            <CenteredLargeProse>
+              <H1>
+                {getPollsTransitioningText(pollWorkerFlowState.transitionType)}
+              </H1>
+            </CenteredLargeProse>
+          </Screen>
+        );
+      case 'printing-report':
+        return (
+          <Screen>
+            <LoadingAnimation />
+            <CenteredLargeProse>
+              <H1>Printing Report…</H1>
+            </CenteredLargeProse>
+          </Screen>
+        );
+      case 'post-print':
+        assert(lastPollsTransition);
+        return (
+          <PostPrintScreen
+            isAfterPollsTransition={pollWorkerFlowState.isAfterPollsTransition}
+            isPrinterReady={isPrinterReady}
+            reprint={() =>
+              reprintReport(pollWorkerFlowState.isAfterPollsTransition)
+            }
+            numPages={pollWorkerFlowState.numPages}
+            transitionType={lastPollsTransition.type}
+          />
+        );
+      default:
+        throwIllegalValue(pollWorkerFlowState, 'state');
+    }
   }
-
-  if (pollWorkerFlowState === 'polls_transition_processing') {
-    assert(lastPollsTransition);
-    const pollsTransitionProcessingText = (() => {
-      const pollsTransitionType = lastPollsTransition.type;
-      switch (pollsTransitionType) {
-        case 'close_polls':
-          return 'Closing Polls…';
-        case 'open_polls':
-          return 'Opening Polls…';
-        case 'pause_voting':
-          return 'Pausing Voting…';
-        case 'resume_voting':
-          return 'Resuming Voting…';
-        /* istanbul ignore next - compile-time check for completeness */
-        default:
-          throwIllegalValue(pollsTransitionType);
-      }
-    })();
-
-    return (
-      <Screen>
-        <LoadingAnimation />
-        <CenteredLargeProse>
-          <H1>{pollsTransitionProcessingText}</H1>
-        </CenteredLargeProse>
-      </Screen>
-    );
-  }
-
-  if (
-    pollWorkerFlowState === 'polls_transition_complete' ||
-    pollWorkerFlowState === 'reprinting_previous_report_complete'
-  ) {
-    assert(lastPollsTransition);
-    const primaryText = (() => {
-      if (pollWorkerFlowState === 'reprinting_previous_report_complete') {
-        return '';
-      }
-
-      const pollsTransitionType = lastPollsTransition.type;
-      switch (pollsTransitionType) {
-        case 'close_polls':
-          return 'Polls are closed.';
-        case 'open_polls':
-          return 'Polls are open.';
-        case 'resume_voting':
-          return 'Voting resumed.';
-        case 'pause_voting':
-          return 'Voting paused.';
-        /* istanbul ignore next - compile-time check for completeness */
-        default:
-          throwIllegalValue(pollsTransitionType);
-      }
-    })();
-
-    return (
-      <Screen>
-        <CenteredLargeProse>
-          {primaryText && <H1>{primaryText}</H1>}
-          <P>
-            Insert{' '}
-            {numReportPages
-              ? `${numReportPages} ${pluralize(
-                  'sheet',
-                  numReportPages
-                )} of paper`
-              : 'paper'}{' '}
-            into the printer to print the report.
-          </P>
-          <P>
-            Remove the poll worker card once you have printed all necessary
-            reports.
-          </P>
-          <P>
-            <ReprintReportButton
-              lastPollsTransition={lastPollsTransition}
-              scannedBallotCount={scannedBallotCount}
-              isAdditional
-              beforePrint={() => setPollWorkerFlowState('reprinting_report')}
-              afterPrint={() =>
-                setPollWorkerFlowState('polls_transition_complete')
-              }
-            />
-          </P>
-        </CenteredLargeProse>
-      </Screen>
-    );
-  }
-
-  if (pollWorkerFlowState === 'reprinting_report') {
-    return (
-      <Screen>
-        <LoadingAnimation />
-        <CenteredLargeProse>
-          <H1>Printing Report…</H1>
-        </CenteredLargeProse>
-      </Screen>
-    );
-  }
-
-  // compile-time check for completeness
-  assertFalsy(pollWorkerFlowState);
 
   const commonActions = (
     <React.Fragment>
       {pollsInfo.pollsState !== 'polls_closed_initial' && (
-        <ReprintReportButton
-          scannedBallotCount={scannedBallotCount}
-          lastPollsTransition={pollsInfo.lastPollsTransition}
-          isAdditional={false}
-          beforePrint={() => setPollWorkerFlowState('reprinting_report')}
-          afterPrint={() =>
-            setPollWorkerFlowState('reprinting_previous_report_complete')
-          }
-        />
+        <Button
+          onPress={() => reprintReport(false)}
+          disabled={!allowReprintingReport || !isPrinterReady}
+        >
+          Print {getPollsReportTitle(pollsInfo.lastPollsTransition.type)}
+        </Button>
       )}
       <PowerDownButton />
       {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (

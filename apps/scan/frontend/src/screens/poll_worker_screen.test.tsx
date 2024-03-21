@@ -65,7 +65,7 @@ function renderScreen(
       apiMock,
       <PollWorkerScreen
         scannedBallotCount={0}
-        pollsInfo={{ pollsState: 'polls_closed_initial' }}
+        initialPollsInfo={{ pollsState: 'polls_closed_initial' }}
         logger={mockBaseLogger()}
         {...props}
       />
@@ -77,9 +77,10 @@ describe('shows Livecheck button only when enabled', () => {
   test('enable livecheck', async () => {
     featureFlagMock.enableFeatureFlag(BooleanEnvironmentVariableName.LIVECHECK);
 
+    apiMock.expectGetPollsInfo('polls_open');
     renderScreen({
       scannedBallotCount: 5,
-      pollsInfo: mockPollsInfo('polls_open'),
+      initialPollsInfo: mockPollsInfo('polls_open'),
     });
 
     userEvent.click(await screen.findByText('No'));
@@ -95,9 +96,10 @@ describe('shows Livecheck button only when enabled', () => {
       BooleanEnvironmentVariableName.LIVECHECK
     );
 
+    apiMock.expectGetPollsInfo('polls_open');
     renderScreen({
       scannedBallotCount: 5,
-      pollsInfo: mockPollsInfo('polls_open'),
+      initialPollsInfo: mockPollsInfo('polls_open'),
     });
 
     userEvent.click(await screen.findByText('No'));
@@ -106,185 +108,120 @@ describe('shows Livecheck button only when enabled', () => {
 });
 
 describe('transitions from polls closed initial', () => {
-  let logger = mockBaseLogger();
   beforeEach(async () => {
-    logger = mockBaseLogger();
+    apiMock.expectGetPollsInfo('polls_closed_initial');
     renderScreen({
       scannedBallotCount: 0,
-      pollsInfo: mockPollsInfo('polls_closed_initial'),
-      logger,
+      initialPollsInfo: mockPollsInfo('polls_closed_initial'),
     });
     await screen.findByText('Do you want to open the polls?');
   });
 
   test('open polls happy path', async () => {
-    apiMock.expectTransitionPolls('open_polls');
+    apiMock.expectOpenPolls();
     apiMock.expectPrintReport();
+    apiMock.expectGetPollsInfo('polls_open');
     userEvent.click(screen.getByText('Yes, Open the Polls'));
     await screen.findByText('Opening Polls…');
     await screen.findByText('Polls are open.');
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.PollsOpened,
-      'poll_worker',
-      expect.objectContaining({
-        disposition: 'success',
-        scannedBallotCount: 0,
-      })
-    );
   });
 
   test('open polls from landing screen', async () => {
-    apiMock.expectTransitionPolls('open_polls');
+    apiMock.expectOpenPolls();
     apiMock.expectPrintReport();
+    apiMock.expectGetPollsInfo('polls_open');
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Open Polls'));
     await screen.findByText('Opening Polls…');
     await screen.findByText('Polls are open.');
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.PollsOpened,
-      'poll_worker',
-      expect.objectContaining({
-        disposition: 'success',
-        scannedBallotCount: 0,
-      })
-    );
   });
 });
 
 describe('transitions from polls open', () => {
-  let logger = mockBaseLogger();
   beforeEach(async () => {
-    logger = mockBaseLogger();
+    apiMock.expectGetPollsInfo('polls_open');
     renderScreen({
       scannedBallotCount: 7,
-      pollsInfo: mockPollsInfo('polls_open'),
-      logger,
+      initialPollsInfo: mockPollsInfo('polls_open'),
     });
     await screen.findByText('Do you want to close the polls?');
   });
 
   test('close polls happy path', async () => {
-    apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'polls_closing' });
-    apiMock.expectTransitionPolls('close_polls');
+    apiMock.expectClosePolls();
     apiMock.expectPrintReport();
+    apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getByText('Yes, Close the Polls'));
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls are closed.');
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.PollsClosed,
-      'poll_worker',
-      expect.objectContaining({
-        disposition: 'success',
-        scannedBallotCount: 7,
-      })
-    );
   });
 
   test('close polls from landing screen', async () => {
-    apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'polls_closing' });
-    apiMock.expectTransitionPolls('close_polls');
+    apiMock.expectClosePolls();
     apiMock.expectPrintReport();
+    apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Close Polls'));
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls are closed.');
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.PollsClosed,
-      'poll_worker',
-      expect.objectContaining({
-        disposition: 'success',
-        scannedBallotCount: 7,
-      })
-    );
   });
 
   test('pause voting', async () => {
-    apiMock.expectTransitionPolls('pause_voting');
+    apiMock.expectPauseVoting();
     apiMock.expectPrintReport();
-
+    apiMock.expectGetPollsInfo('polls_paused');
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Pause Voting'));
     await screen.findByText('Pausing Voting…');
     await screen.findByText('Voting paused.');
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.VotingPaused,
-      'poll_worker',
-      expect.objectContaining({
-        disposition: 'success',
-        scannedBallotCount: 7,
-      })
-    );
   });
 });
 
 describe('transitions from polls paused', () => {
-  let logger = mockBaseLogger();
   beforeEach(async () => {
-    logger = mockBaseLogger();
+    apiMock.expectGetPollsInfo('polls_paused');
     renderScreen({
       scannedBallotCount: 7,
-      pollsInfo: mockPollsInfo('polls_paused'),
-      logger,
+      initialPollsInfo: mockPollsInfo('polls_paused'),
     });
     await screen.findByText('Do you want to resume voting?');
   });
 
   test('resume voting happy path', async () => {
-    apiMock.expectTransitionPolls('resume_voting');
+    apiMock.expectResumeVoting();
     apiMock.expectPrintReport();
+    apiMock.expectGetPollsInfo('polls_open', { type: 'resume_voting' });
     userEvent.click(screen.getByText('Yes, Resume Voting'));
     await screen.findByText('Resuming Voting…');
     await screen.findByText('Voting resumed.');
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.VotingResumed,
-      'poll_worker',
-      expect.objectContaining({
-        disposition: 'success',
-        scannedBallotCount: 7,
-      })
-    );
   });
 
   test('resume voting from landing screen', async () => {
-    apiMock.expectTransitionPolls('resume_voting');
+    apiMock.expectResumeVoting();
     apiMock.expectPrintReport();
+    apiMock.expectGetPollsInfo('polls_open', { type: 'resume_voting' });
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Resume Voting'));
     await screen.findByText('Resuming Voting…');
     await screen.findByText('Voting resumed.');
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.VotingResumed,
-      'poll_worker',
-      expect.objectContaining({
-        disposition: 'success',
-        scannedBallotCount: 7,
-      })
-    );
   });
 
   test('close polls from landing screen', async () => {
-    apiMock.expectTransitionPolls('close_polls');
+    apiMock.expectClosePolls();
     apiMock.expectPrintReport();
-    apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'polls_closing' });
+    apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getByText('No'));
     userEvent.click(await screen.findByText('Close Polls'));
     await screen.findByText('Closing Polls…');
     await screen.findByText('Polls are closed.');
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.PollsClosed,
-      'poll_worker',
-      expect.objectContaining({
-        disposition: 'success',
-        scannedBallotCount: 7,
-      })
-    );
   });
 });
 
 test('no transitions from polls closed final', async () => {
+  apiMock.expectGetPollsInfo('polls_closed_final');
   renderScreen({
     scannedBallotCount: 0,
-    pollsInfo: mockPollsInfo('polls_closed_final'),
+    initialPollsInfo: mockPollsInfo('polls_closed_final'),
   });
   await screen.findByText(
     'Voting is complete and the polls cannot be reopened.'
@@ -299,9 +236,10 @@ test('no transitions from polls closed final', async () => {
 // confirm that we have an alert and logging that meet VVSG 2.0 1.1.3-B
 test('there is a warning if we attempt to open polls with ballots scanned', async () => {
   const logger = mockBaseLogger();
+  apiMock.expectGetPollsInfo('polls_closed_initial');
   renderScreen({
     scannedBallotCount: 1,
-    pollsInfo: mockPollsInfo('polls_closed_initial'),
+    initialPollsInfo: mockPollsInfo('polls_closed_initial'),
     logger,
   });
   await screen.findByText('Do you want to open the polls?');
@@ -322,8 +260,9 @@ test('polls cannot be closed if CVR sync is required', async () => {
   apiMock.expectGetUsbDriveStatus('mounted', {
     doesUsbDriveRequireCastVoteRecordSync: true,
   });
+  apiMock.expectGetPollsInfo('polls_open');
   renderScreen({
-    pollsInfo: mockPollsInfo('polls_open'),
+    initialPollsInfo: mockPollsInfo('polls_open'),
     scannedBallotCount: 1,
   });
 
@@ -360,8 +299,9 @@ test('polls cannot be closed if CVR sync is required, even from polls paused sta
   apiMock.expectGetUsbDriveStatus('mounted', {
     doesUsbDriveRequireCastVoteRecordSync: true,
   });
+  apiMock.expectGetPollsInfo('polls_paused');
   renderScreen({
-    pollsInfo: mockPollsInfo('polls_paused'),
+    initialPollsInfo: mockPollsInfo('polls_paused'),
     scannedBallotCount: 1,
   });
 
@@ -381,8 +321,9 @@ test('polls cannot be closed if CVR sync is required, even from polls paused sta
 
 describe('reprinting previous report', () => {
   test('not available if no previous report', async () => {
+    apiMock.expectGetPollsInfo('polls_closed_initial');
     renderScreen({
-      pollsInfo: mockPollsInfo('polls_closed_initial'),
+      initialPollsInfo: mockPollsInfo('polls_closed_initial'),
     });
 
     userEvent.click(await screen.findByText('No'));
@@ -393,8 +334,9 @@ describe('reprinting previous report', () => {
   });
 
   test('available after polls open + can print additional afterward', async () => {
+    apiMock.expectGetPollsInfo('polls_open');
     renderScreen({
-      pollsInfo: mockPollsInfo('polls_open'),
+      initialPollsInfo: mockPollsInfo('polls_open'),
     });
 
     userEvent.click(await screen.findByText('No'));
@@ -410,8 +352,9 @@ describe('reprinting previous report', () => {
   });
 
   test('available after polls paused', async () => {
+    apiMock.expectGetPollsInfo('polls_paused');
     renderScreen({
-      pollsInfo: mockPollsInfo('polls_paused'),
+      initialPollsInfo: mockPollsInfo('polls_paused'),
     });
 
     userEvent.click(await screen.findByText('No'));
@@ -423,8 +366,9 @@ describe('reprinting previous report', () => {
   });
 
   test('available after polls resumed', async () => {
+    apiMock.expectGetPollsInfo('polls_open', { type: 'resume_voting' });
     renderScreen({
-      pollsInfo: mockPollsInfo('polls_open', { type: 'resume_voting' }),
+      initialPollsInfo: mockPollsInfo('polls_open', { type: 'resume_voting' }),
     });
 
     userEvent.click(await screen.findByText('No'));
@@ -436,8 +380,9 @@ describe('reprinting previous report', () => {
   });
 
   test('available after polls closed', async () => {
+    apiMock.expectGetPollsInfo('polls_closed_final');
     renderScreen({
-      pollsInfo: mockPollsInfo('polls_closed_final'),
+      initialPollsInfo: mockPollsInfo('polls_closed_final'),
     });
 
     const button = await screen.findByText('Print Polls Closed Report');
@@ -450,8 +395,9 @@ describe('reprinting previous report', () => {
 
 describe('must have printer attached to transition polls and print reports', () => {
   test('polls open', async () => {
+    apiMock.expectGetPollsInfo('polls_closed_initial');
     renderScreen({
-      pollsInfo: mockPollsInfo('polls_closed_initial'),
+      initialPollsInfo: mockPollsInfo('polls_closed_initial'),
     });
     apiMock.setPrinterStatus({ connected: false });
     const attachText = await screen.findByText('Attach printer to continue.');
@@ -459,8 +405,9 @@ describe('must have printer attached to transition polls and print reports', () 
 
     apiMock.setPrinterStatus({ connected: true });
     await waitForElementToBeRemoved(attachText);
-    apiMock.expectTransitionPolls('open_polls');
+    apiMock.expectOpenPolls();
     apiMock.expectPrintReport();
+    apiMock.expectGetPollsInfo('polls_open');
     userEvent.click(screen.getByText('Yes, Open the Polls'));
     await screen.findByText('Print Additional Polls Opened Report');
 
@@ -473,12 +420,14 @@ describe('must have printer attached to transition polls and print reports', () 
   });
 
   test('additional reports', async () => {
+    apiMock.expectGetPollsInfo('polls_closed_initial');
     renderScreen({
-      pollsInfo: mockPollsInfo('polls_closed_initial'),
+      initialPollsInfo: mockPollsInfo('polls_closed_initial'),
     });
 
-    apiMock.expectTransitionPolls('open_polls');
+    apiMock.expectOpenPolls();
     apiMock.expectPrintReport();
+    apiMock.expectGetPollsInfo('polls_open');
     userEvent.click(await screen.findByText('Yes, Open the Polls'));
     expect(
       await screen.findByText('Print Additional Polls Opened Report')
@@ -493,8 +442,9 @@ describe('must have printer attached to transition polls and print reports', () 
   });
 
   test('polls close', async () => {
+    apiMock.expectGetPollsInfo('polls_open');
     renderScreen({
-      pollsInfo: mockPollsInfo('polls_open'),
+      initialPollsInfo: mockPollsInfo('polls_open'),
     });
     apiMock.setPrinterStatus({ connected: false });
     const attachText = await screen.findByText('Attach printer to continue.');
@@ -502,8 +452,9 @@ describe('must have printer attached to transition polls and print reports', () 
 
     apiMock.setPrinterStatus({ connected: true });
     await waitForElementToBeRemoved(attachText);
-    apiMock.expectTransitionPolls('close_polls');
+    apiMock.expectClosePolls();
     apiMock.expectPrintReport();
+    apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getByText('Yes, Close the Polls'));
     await screen.findByText('Print Additional Polls Closed Report');
   });

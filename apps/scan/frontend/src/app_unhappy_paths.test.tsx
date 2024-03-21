@@ -216,7 +216,7 @@ test('App shows warning message to connect to power when disconnected', async ()
   // Open Polls
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Yes, Open the Polls');
-  apiMock.expectTransitionPolls('open_polls');
+  apiMock.expectOpenPolls();
   apiMock.expectPrintReport();
   apiMock.expectGetPollsInfo('polls_open');
   userEvent.click(await screen.findByText('Yes, Open the Polls'));

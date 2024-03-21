@@ -267,11 +267,11 @@ export const setTestMode = {
   },
 } as const;
 
-export const transitionPolls = {
+export const openPolls = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.transitionPolls, {
+    return useMutation(apiClient.openPolls, {
       async onSuccess() {
         await queryClient.invalidateQueries(getPollsInfo.queryKey());
       },
@@ -279,10 +279,58 @@ export const transitionPolls = {
   },
 } as const;
 
-export const printTallyReport = {
+export const closePolls = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.closePolls, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getPollsInfo.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const pauseVoting = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.pauseVoting, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getPollsInfo.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const resumeVoting = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.resumeVoting, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getPollsInfo.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const printReport = {
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.printReport);
+  },
+} as const;
+
+export const resetPollsToPaused = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.resetPollsToPaused, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getPollsInfo.queryKey());
+      },
+    });
   },
 } as const;
 

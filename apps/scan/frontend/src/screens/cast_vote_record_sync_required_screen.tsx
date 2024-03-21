@@ -46,18 +46,15 @@ export function CastVoteRecordSyncRequiredScreen({
   function syncCastVoteRecords() {
     setShouldStayOnCastVoteRecordSyncRequiredScreen(true);
     setModalState('syncing');
-    exportCastVoteRecordsToUsbDriveMutation.mutate(
-      { mode: 'full_export' },
-      {
-        onSuccess: (result) => {
-          if (result.isErr()) {
-            setModalState('error');
-            return;
-          }
-          setModalState('success');
-        },
-      }
-    );
+    exportCastVoteRecordsToUsbDriveMutation.mutate(undefined, {
+      onSuccess: (result) => {
+        if (result.isErr()) {
+          setModalState('error');
+          return;
+        }
+        setModalState('success');
+      },
+    });
   }
 
   function closeModal() {
