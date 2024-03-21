@@ -1273,6 +1273,9 @@ importers:
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../../../libs/fixtures
+      '@votingworks/fs':
+        specifier: workspace:*
+        version: link:../../../libs/fs
       '@votingworks/image-utils':
         specifier: workspace:*
         version: link:../../../libs/image-utils

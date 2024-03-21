@@ -66,6 +66,7 @@ export const famousNamesFixtures = (() => {
     electionPath,
     blankBallotPath,
     markedBallotPath,
+    allBallotProps,
     ...blankBallotProps,
     votes,
 
@@ -322,6 +323,7 @@ export const primaryElectionFixtures = (() => {
 
   return {
     dir,
+    allBallotProps,
     electionPath,
     mammalParty,
     fishParty,
