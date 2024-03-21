@@ -9,6 +9,7 @@ import {
   constructTlv,
   parseTlv,
   ResponseApduError,
+  Tlv,
 } from './apdu';
 
 test.each<{
@@ -167,21 +168,25 @@ test('parseTlv invalid length', () => {
 test.each<{
   tagAsByteOrBuffer: Byte | Buffer;
   tlv: Buffer;
-  expectedOutput: [Buffer, Buffer, Buffer];
+  expectedOutput: Tlv;
 }>([
   {
     tagAsByteOrBuffer: 0x01,
     tlv: Buffer.concat([Buffer.of(0x01, 0x7f), Buffer.alloc(0x7f)]),
-    expectedOutput: [Buffer.of(0x01), Buffer.of(0x7f), Buffer.alloc(0x7f)],
+    expectedOutput: {
+      tag: Buffer.of(0x01),
+      length: Buffer.of(0x7f),
+      value: Buffer.alloc(0x7f),
+    },
   },
   {
     tagAsByteOrBuffer: 0x01,
     tlv: Buffer.concat([Buffer.of(0x01, 0x81, 0xff), Buffer.alloc(0xff)]),
-    expectedOutput: [
-      Buffer.of(0x01),
-      Buffer.of(0x81, 0xff),
-      Buffer.alloc(0xff),
-    ],
+    expectedOutput: {
+      tag: Buffer.of(0x01),
+      length: Buffer.of(0x81, 0xff),
+      value: Buffer.alloc(0xff),
+    },
   },
   {
     tagAsByteOrBuffer: 0x01,
@@ -189,19 +194,23 @@ test.each<{
       Buffer.of(0x01, 0x82, 0xff, 0xff),
       Buffer.alloc(0xffff),
     ]),
-    expectedOutput: [
-      Buffer.of(0x01),
-      Buffer.of(0x82, 0xff, 0xff),
-      Buffer.alloc(0xffff),
-    ],
+    expectedOutput: {
+      tag: Buffer.of(0x01),
+      length: Buffer.of(0x82, 0xff, 0xff),
+      value: Buffer.alloc(0xffff),
+    },
   },
   {
     tagAsByteOrBuffer: Buffer.of(0x01, 0x02),
     tlv: Buffer.of(0x01, 0x02, 0x01, 0x00),
-    expectedOutput: [Buffer.of(0x01, 0x02), Buffer.of(0x01), Buffer.of(0x00)],
+    expectedOutput: {
+      tag: Buffer.of(0x01, 0x02),
+      length: Buffer.of(0x01),
+      value: Buffer.of(0x00),
+    },
   },
 ])('parseTlv', ({ tagAsByteOrBuffer, tlv, expectedOutput }) => {
-  expect(parseTlv(tagAsByteOrBuffer, tlv)).toEqual(expectedOutput);
+  expect(parseTlv(tagAsByteOrBuffer, tlv)).toEqual<Tlv>(expectedOutput);
 });
 
 test('constructTlv/parseTlv round trip', () => {
@@ -213,13 +222,12 @@ test('constructTlv/parseTlv round trip', () => {
         const value = Buffer.alloc(valueLength);
         const tlv = constructTlv(tag as Byte, value);
 
-        const [parsedTag, parsedLength, parsedValue] = parseTlv(
-          tag as Byte,
-          tlv
-        );
-        expect(parsedTag).toEqual(Buffer.of(tag));
-        expect(parsedLength).toBeInstanceOf(Buffer);
-        expect(parsedValue.equals(value)).toEqual(true);
+        const parsedTlv = parseTlv(tag as Byte, tlv);
+        expect(parsedTlv).toEqual<Tlv>({
+          tag: Buffer.of(tag),
+          length: expect.any(Buffer),
+          value,
+        });
 
         const wrongTag = ((tag + 1) % 0x100) as Byte;
         expect(() => parseTlv(wrongTag, tlv)).toThrow(

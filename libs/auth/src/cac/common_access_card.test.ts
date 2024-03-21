@@ -105,7 +105,7 @@ function mockCardGetCertificateRequest(
   const certTlv = constructTlv(PUT_DATA.CERT_TAG, derFormatCert);
   const certTlvWithMetadata = Buffer.concat([
     certTlv,
-    Buffer.of(PUT_DATA.CERT_INFO_TAG, 0x01, PUT_DATA.CERT_INFO_UNCOMPRESSED),
+    Buffer.of(PUT_DATA.CERT_INFO_TAG, 0x01, 0x01),
     Buffer.of(PUT_DATA.ERROR_DETECTION_CODE_TAG, 0x00),
   ]);
   mockCardGetDataRequest(objectId, certTlvWithMetadata);

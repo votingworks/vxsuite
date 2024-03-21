@@ -15,6 +15,7 @@ import {
   CardCommand,
   constructTlv,
   parseTlv,
+  parseTlvPartial,
   ResponseApduError,
   SELECT,
 } from '../apdu';
@@ -356,15 +357,15 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
     );
 
     // see Table 7. Data Objects in the Dynamic Authentication Template (Tag '7C')
-    const [, , dynamicAuthenticationTemplate] = parseTlv(
+    const dynamicAuthenticationTemplate = parseTlv(
       GENERAL_AUTHENTICATE.DYNAMIC_AUTHENTICATION_TEMPLATE_TAG,
       generalAuthenticateResponse
-    );
+    ).value;
 
-    const [, , signatureResponse] = parseTlv(
+    const signatureResponse = parseTlv(
       GENERAL_AUTHENTICATE.RESPONSE_TAG,
       dynamicAuthenticationTemplate
-    );
+    ).value;
 
     return ok(signatureResponse);
   }
@@ -412,8 +413,23 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
       return Buffer.of();
     }
 
-    const certTlv = data.subarray(0, -5); // Trim metadata
-    const [, , certInDerFormat] = parseTlv(PUT_DATA.CERT_TAG, certTlv);
+    const [certInDerFormatRemainder, { value: certInDerFormat }] =
+      parseTlvPartial(PUT_DATA.CERT_TAG, data);
+    const [certInfoRemainder, { value: certInfo }] = parseTlvPartial(
+      PUT_DATA.CERT_INFO_TAG,
+      certInDerFormatRemainder
+    );
+    // NOTE: CACs seem to return 0x01 for this. I'm not sure what it means, but
+    // it's not compressed.
+    assert(certInfo[0] === 0x01, 'Expected cert info to be uncompressed');
+    const certErrorDetectionCode = parseTlv(
+      PUT_DATA.ERROR_DETECTION_CODE_TAG,
+      certInfoRemainder
+    ).value;
+    assert(
+      certErrorDetectionCode.length === 0,
+      'Expected no error detection code'
+    );
     return await certDerToPem(certInDerFormat);
   }
 
@@ -451,7 +467,7 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
           data: constructTlv(GET_DATA.TAG_LIST_TAG, objectId),
         })
       );
-      const [, , data] = parseTlv(PUT_DATA.DATA_TAG, dataTlv);
+      const { value: data } = parseTlv(PUT_DATA.DATA_TAG, dataTlv);
       return data;
     } catch {
       return Buffer.of();
@@ -480,20 +496,18 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
       })
     );
 
-    const [, , rsaPublicKeyTlv] = parseTlv(
+    const { value: rsaPublicKey } = parseTlv(
       GENERATE_ASYMMETRIC_KEY_PAIR.RESPONSE_TAG,
       generateKeyPairResponse
     );
-    const [modulusTag, modulusLength, modulusValue] = parseTlv(
+    const [rsaPublicKeyTlvRemainder, { value: modulusValue }] = parseTlvPartial(
       GENERATE_ASYMMETRIC_KEY_PAIR.RESPONSE_RSA_MODULUS_TAG,
-      rsaPublicKeyTlv
+      rsaPublicKey
     );
-    const [, , exponentValue] = parseTlv(
+    const exponentValue = parseTlv(
       GENERATE_ASYMMETRIC_KEY_PAIR.RESPONSE_RSA_EXPONENT_TAG,
-      rsaPublicKeyTlv.subarray(
-        modulusTag.length + modulusLength.length + modulusValue.length
-      )
-    );
+      rsaPublicKeyTlvRemainder
+    ).value;
 
     // construct the DER, which is a bunch of TLVs
     const publicKeyInDerFormat = constructTlv(

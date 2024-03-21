@@ -14,6 +14,7 @@ import {
   CardCommand,
   constructTlv,
   parseTlv,
+  parseTlvPartial,
   ResponseApduError,
   SELECT,
   STATUS_WORD,
@@ -496,10 +497,25 @@ export class JavaCard implements Card {
    */
   private async retrieveCert(certObjectId: Buffer): Promise<Buffer> {
     const data = await this.getData(certObjectId);
-    const certTlv = data.subarray(0, -5); // Trim metadata
-    const [, , certInDerFormat] = parseTlv(PUT_DATA.CERT_TAG, certTlv);
-    const certInPemFormat = await certDerToPem(certInDerFormat);
-    return certInPemFormat;
+    const [certInDerFormatRemainder, { value: certInDerFormat }] =
+      parseTlvPartial(PUT_DATA.CERT_TAG, data);
+    const [certInfoRemainder, { value: certInfo }] = parseTlvPartial(
+      PUT_DATA.CERT_INFO_TAG,
+      certInDerFormatRemainder
+    );
+    assert(
+      certInfo[0] === PUT_DATA.CERT_INFO_UNCOMPRESSED,
+      'Expected cert info to be uncompressed'
+    );
+    const certErrorDetectionCode = parseTlv(
+      PUT_DATA.ERROR_DETECTION_CODE_TAG,
+      certInfoRemainder
+    ).value;
+    assert(
+      certErrorDetectionCode.length === 0,
+      'Expected no error detection code'
+    );
+    return await certDerToPem(certInDerFormat);
   }
 
   /**
@@ -562,12 +578,12 @@ export class JavaCard implements Card {
       })
     );
 
-    const [, , generalAuthenticateDynamicAuthenticationBody] = parseTlv(
+    const { value: generalAuthenticateDynamicAuthenticationBody } = parseTlv(
       GENERAL_AUTHENTICATE.DYNAMIC_AUTHENTICATION_TEMPLATE_TAG,
       generalAuthenticateResponse
     );
 
-    const [, , challengeSignature] = parseTlv(
+    const { value: challengeSignature } = parseTlv(
       GENERAL_AUTHENTICATE.RESPONSE_TAG,
       generalAuthenticateDynamicAuthenticationBody
     );
@@ -609,9 +625,20 @@ export class JavaCard implements Card {
         ),
       })
     );
+
+    const { value: publicKeyEccWrapper } = parseTlv(
+      GENERATE_ASYMMETRIC_KEY_PAIR.RESPONSE_TAG,
+      generateKeyPairResponse
+    );
+
+    const { value: publicKeyDerFormatBody } = parseTlv(
+      GENERATE_ASYMMETRIC_KEY_PAIR.RESPONSE_ECC_POINT_TAG,
+      publicKeyEccWrapper
+    );
+
     const publicKeyInDerFormat = Buffer.concat([
       PUBLIC_KEY_IN_DER_FORMAT_HEADER,
-      generateKeyPairResponse.subarray(5), // Trim metadata
+      publicKeyDerFormatBody,
     ]);
     const publicKeyInPemFormat = await publicKeyDerToPem(publicKeyInDerFormat);
     return publicKeyInPemFormat;
@@ -693,8 +720,8 @@ export class JavaCard implements Card {
         data: constructTlv(GET_DATA.TAG_LIST_TAG, objectId),
       })
     );
-    const [, , data] = parseTlv(PUT_DATA.DATA_TAG, dataTlv);
-    return data;
+    const tlv = parseTlv(PUT_DATA.DATA_TAG, dataTlv);
+    return tlv.value;
   }
 
   private async putData(objectId: Buffer, data: Buffer): Promise<void> {

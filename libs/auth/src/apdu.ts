@@ -286,12 +286,24 @@ export function constructTlv(
 }
 
 /**
- * The inverse of constructTlv, splits a TLV into its tag, length, and value
+ * A Tag-Length-Value (TLV) structure.
+ *
+ * See https://en.wikipedia.org/wiki/Type-length-value for more information.
  */
-export function parseTlv(
+export interface Tlv {
+  tag: Buffer;
+  length: Buffer;
+  value: Buffer;
+}
+
+/**
+ * Parses a TLV from a buffer, returning the remainder of the buffer and the parsed TLV. If the tag
+ * does not match the expected tag, an error is thrown.
+ */
+export function parseTlvPartial(
   tagAsByteOrBuffer: Byte | Buffer,
   tlv: Buffer
-): [tag: Buffer, length: Buffer, value: Buffer] {
+): [remainder: Buffer, tlv: Tlv] {
   const expectedTag = Buffer.isBuffer(tagAsByteOrBuffer)
     ? tagAsByteOrBuffer
     : Buffer.of(tagAsByteOrBuffer);
@@ -343,8 +355,23 @@ export function parseTlv(
     tagLength + lengthBytesLength,
     tagLength + lengthBytesLength + valueLength
   );
+  const remainder = tlv.subarray(tagLength + lengthBytesLength + valueLength);
 
-  return [tag, lengthBytes, value];
+  return [remainder, { tag, length: lengthBytes, value }];
+}
+
+/**
+ * The inverse of constructTlv, splits a TLV into its tag, length, and value. If the tag does not
+ * match the expected tag, an error is thrown. If the entire TLV is not consumed, an error is
+ * thrown.
+ */
+export function parseTlv(tagAsByteOrBuffer: Byte | Buffer, data: Buffer): Tlv {
+  const [remainder, tlv] = parseTlvPartial(tagAsByteOrBuffer, data);
+  assert(
+    remainder.length === 0,
+    `TLV was not fully consumed: remainder=${remainder.toString('hex')}`
+  );
+  return tlv;
 }
 
 /**
