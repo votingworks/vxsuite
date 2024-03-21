@@ -105,9 +105,9 @@ export async function openssl(
   try {
     stdout = await runCommand(['openssl', ...processedParams], { stdin });
   } finally {
-    await Promise.all(
-      tempFileResults.map((tempFile) => tempFile.removeCallback())
-    );
+    for (const tempFile of tempFileResults) {
+      tempFile.removeCallback();
+    }
   }
   return stdout;
 }
