@@ -30,13 +30,16 @@ export function voteToOptionId(vote: Vote[number]): Id {
   return voteIsCandidate(vote) ? vote.id : vote;
 }
 
+export type UnmarkedWriteInVote = { contestId: ContestId } & Pick<
+  WriteInCandidate,
+  'writeInIndex' | 'name'
+>;
+
 export async function markBallotDocument(
   renderer: Renderer,
   ballotDocument: RenderDocument,
   votes: VotesDict,
-  unmarkedWriteIns?: Array<
-    { contestId: ContestId } & Pick<WriteInCandidate, 'writeInIndex' | 'name'>
-  >
+  unmarkedWriteIns?: UnmarkedWriteInVote[]
 ): Promise<RenderDocument> {
   const markedBallotDocument = await renderer.cloneDocument(ballotDocument);
   const pages = await markedBallotDocument.inspectElements(`.${PAGE_CLASS}`);
@@ -95,12 +98,14 @@ export async function markBallotDocument(
                 bubble.y +
                 bubble.height / 2 -
                 gridHeightToPixels(grid, optionInfo.writeInArea.top);
-              const writeInAreaWidth =
-                gridWidthToPixels(grid, optionInfo.writeInArea.right) +
-                gridWidthToPixels(grid, optionInfo.writeInArea.left);
-              const writeInAreaHeight =
-                gridHeightToPixels(grid, optionInfo.writeInArea.bottom) +
-                gridHeightToPixels(grid, optionInfo.writeInArea.top);
+              const writeInAreaWidth = gridWidthToPixels(
+                grid,
+                optionInfo.writeInArea.right + optionInfo.writeInArea.left
+              );
+              const writeInAreaHeight = gridHeightToPixels(
+                grid,
+                optionInfo.writeInArea.bottom + optionInfo.writeInArea.top
+              );
 
               return (
                 <React.Fragment
@@ -125,7 +130,7 @@ export async function markBallotDocument(
                       height: writeInAreaHeight,
                       display: 'flex',
                       justifyContent: 'center',
-                      alignItems: 'center',
+                      alignItems: 'end',
                     }}
                   >
                     {optionVote.name}

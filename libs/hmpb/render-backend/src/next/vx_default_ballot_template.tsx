@@ -375,10 +375,10 @@ function CandidateContest({
               contestId: contest.id,
               writeInIndex,
               writeInArea: {
-                top: 0.5,
-                left: -1,
-                bottom: 0.5,
-                right: 8,
+                top: 0.8,
+                left: -0.9,
+                bottom: 0.2,
+                right: 8.5,
               },
             };
             return (

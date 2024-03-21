@@ -66,6 +66,7 @@
     "@types/styled-components": "^5.1.26",
     "@types/svg-to-pdfkit": "^0.1.0",
     "@types/tmp": "0.2.4",
+    "@votingworks/fs": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/monorepo-utils": "workspace:*",
     "esbuild": "0.17.11",

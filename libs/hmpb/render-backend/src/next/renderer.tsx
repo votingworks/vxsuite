@@ -50,21 +50,24 @@ export function createDocument(page: Page) {
       // than running JS directly in the browser. We use `evaluate` to run the
       // given function in the browser and return the result.
       /* istanbul ignore next - code is evaluated in browser and doesn't work with coverage */
-      // eslint-disable-next-line @typescript-eslint/no-shadow
-      return await page.evaluate((selector) => {
-        const nodes = Array.from(document.querySelectorAll(selector));
-        return nodes.map((node) => {
-          const bounds = node.getBoundingClientRect();
-          return {
-            x: bounds.x,
-            y: bounds.y,
-            width: bounds.width,
-            height: bounds.height,
-            // @ts-expect-error - dataset attribute exists
-            data: node.dataset,
-          };
-        });
-      }, selector);
+      return await page.evaluate(
+        // eslint-disable-next-line @typescript-eslint/no-shadow
+        (selector) => {
+          const nodes = Array.from(document.querySelectorAll(selector));
+          return nodes.map((node) => {
+            const bounds = node.getBoundingClientRect();
+            return {
+              x: bounds.x,
+              y: bounds.y,
+              width: bounds.width,
+              height: bounds.height,
+              // @ts-expect-error - dataset attribute exists
+              data: node.dataset,
+            };
+          });
+        },
+        selector
+      );
     },
 
     async renderToPdf(): Promise<Buffer> {

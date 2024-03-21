@@ -1,98 +1,85 @@
-import * as fs from 'fs';
-import { generateAllBubbleBallotFixtures } from './all_bubble_ballot_fixtures';
+import { mkdir, rm, writeFile } from 'fs/promises';
+import { BallotPaperSize } from '@votingworks/types';
+import { allBubbleBallotFixtures } from './all_bubble_ballot_fixtures';
 import {
-  generateFamousNamesFixtures,
-  generatePrimaryElectionFixtures,
-  generateGeneralElectionFixtures,
   fixturesDir,
+  famousNamesFixtures,
+  generalElectionFixtures,
+  primaryElectionFixtures,
 } from './ballot_fixtures';
-import { Renderer } from './next/renderer';
-import { createPlaywrightRenderer } from './next';
+import { Renderer, createPlaywrightRenderer } from './next';
 
-async function writeAllBubbleBallotFixtures(renderer: Renderer) {
-  const {
-    dir,
-    electionPath,
-    electionDefinition,
-    blankBallotPath,
-    blankBallotPdf,
-    filledBallotPath,
-    filledBallotPdf,
-    cyclingTestDeckPath,
-    cyclingTestDeckPdf,
-  } = await generateAllBubbleBallotFixtures(renderer);
-  fs.mkdirSync(dir, { recursive: true });
-
-  fs.writeFileSync(electionPath, electionDefinition.electionData);
-  fs.writeFileSync(blankBallotPath, blankBallotPdf);
-  fs.writeFileSync(filledBallotPath, filledBallotPdf);
-  fs.writeFileSync(cyclingTestDeckPath, cyclingTestDeckPdf);
+async function generateAllBubbleBallotFixtures(renderer: Renderer) {
+  const fixtures = allBubbleBallotFixtures;
+  const generated = await allBubbleBallotFixtures.generate(renderer);
+  await mkdir(fixtures.dir, { recursive: true });
+  await writeFile(
+    fixtures.electionPath,
+    generated.electionDefinition.electionData
+  );
+  await writeFile(fixtures.blankBallotPath, generated.blankBallotPdf);
+  await writeFile(fixtures.filledBallotPath, generated.filledBallotPdf);
+  await writeFile(fixtures.cyclingTestDeckPath, generated.cyclingTestDeckPdf);
 }
 
-async function writeFamousNamesFixtures(renderer: Renderer) {
-  const {
-    dir,
-    electionPath,
-    electionDefinition,
-    blankBallotPdf,
-    blankBallotPath,
-    markedBallotPdf,
-    markedBallotPath,
-  } = await generateFamousNamesFixtures(renderer);
-
-  fs.mkdirSync(dir, { recursive: true });
-  fs.writeFileSync(electionPath, electionDefinition.electionData);
-  fs.writeFileSync(blankBallotPath, blankBallotPdf);
-  fs.writeFileSync(markedBallotPath, markedBallotPdf);
+async function generateFamousNamesFixtures(renderer: Renderer) {
+  const fixtures = famousNamesFixtures;
+  const generated = await famousNamesFixtures.generate(renderer);
+  await mkdir(fixtures.dir, { recursive: true });
+  await writeFile(
+    fixtures.electionPath,
+    generated.electionDefinition.electionData
+  );
+  await writeFile(fixtures.blankBallotPath, generated.blankBallotPdf);
+  await writeFile(fixtures.markedBallotPath, generated.markedBallotPdf);
 }
 
-async function writeGeneralElectionFixtures(renderer: Renderer) {
-  for (const {
-    electionDir,
-    electionPath,
-    electionDefinition,
-    blankBallotPath,
-    blankBallotPdf,
-    markedBallotPath,
-    markedBallotPdf,
-  } of await generateGeneralElectionFixtures(renderer)) {
-    fs.mkdirSync(electionDir, { recursive: true });
-    fs.writeFileSync(electionPath, electionDefinition.electionData);
-    fs.writeFileSync(blankBallotPath, blankBallotPdf);
-    fs.writeFileSync(markedBallotPath, markedBallotPdf);
+async function generateGeneralElectionFixtures(renderer: Renderer) {
+  const allFixtures = generalElectionFixtures;
+  const allGenerated = await generalElectionFixtures.generate(renderer);
+  for (const paperSize of Object.values(BallotPaperSize)) {
+    const fixtures = allFixtures[paperSize];
+    const generated = allGenerated[paperSize];
+    await mkdir(fixtures.electionDir, { recursive: true });
+    await writeFile(
+      fixtures.electionPath,
+      generated.electionDefinition.electionData
+    );
+    await writeFile(fixtures.blankBallotPath, generated.blankBallotPdf);
+    await writeFile(fixtures.markedBallotPath, generated.markedBallotPdf);
   }
 }
 
-async function writePrimaryElectionFixtures(renderer: Renderer) {
-  const { dir, electionPath, electionDefinition, mammalParty, fishParty } =
-    await generatePrimaryElectionFixtures(renderer);
-  fs.mkdirSync(dir, { recursive: true });
-
-  fs.writeFileSync(electionPath, electionDefinition.electionData);
-
-  for (const partyFixtures of [mammalParty, fishParty]) {
-    const {
-      blankBallotPath,
-      blankBallotPdf,
-      otherPrecinctBlankBallotPath,
-      otherPrecinctBlankBallotPdf,
-      markedBallotPath,
-      markedBallotPdf,
-    } = partyFixtures;
-    fs.writeFileSync(blankBallotPath, blankBallotPdf);
-    fs.writeFileSync(otherPrecinctBlankBallotPath, otherPrecinctBlankBallotPdf);
-    fs.writeFileSync(markedBallotPath, markedBallotPdf);
+async function generatePrimaryElectionFixtures(renderer: Renderer) {
+  const fixtures = primaryElectionFixtures;
+  const generated = await primaryElectionFixtures.generate(renderer);
+  await mkdir(fixtures.dir, { recursive: true });
+  for (const party of ['mammalParty', 'fishParty'] as const) {
+    const partyFixtures = fixtures[party];
+    const partyGenerated = generated[party];
+    await writeFile(
+      partyFixtures.blankBallotPath,
+      partyGenerated.blankBallotPdf
+    );
+    await writeFile(
+      partyFixtures.otherPrecinctBlankBallotPath,
+      partyGenerated.otherPrecinctBlankBallotPdf
+    );
+    await writeFile(
+      partyFixtures.markedBallotPath,
+      partyGenerated.markedBallotPdf
+    );
   }
 }
 
 export async function main(): Promise<void> {
-  fs.rmSync(fixturesDir, { recursive: true, force: true });
+  await rm(fixturesDir, { recursive: true, force: true });
   const renderer = await createPlaywrightRenderer();
 
-  await writeAllBubbleBallotFixtures(renderer);
-  await writeFamousNamesFixtures(renderer);
-  await writeGeneralElectionFixtures(renderer);
-  await writePrimaryElectionFixtures(renderer);
+  await generateAllBubbleBallotFixtures(renderer);
+  await generateFamousNamesFixtures(renderer);
+  await generateGeneralElectionFixtures(renderer);
+  await generatePrimaryElectionFixtures(renderer);
 
   await renderer.cleanup();
 }

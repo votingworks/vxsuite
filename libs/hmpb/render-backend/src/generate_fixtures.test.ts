@@ -1,13 +1,14 @@
 import { Buffer } from 'buffer';
 import * as fs from 'fs';
-import { safeParseElection } from '@votingworks/types';
+import { BallotPaperSize } from '@votingworks/types';
 import { pdfToImages, toImageBuffer } from '@votingworks/image-utils';
 import { iter } from '@votingworks/basics';
-import { generateAllBubbleBallotFixtures } from './all_bubble_ballot_fixtures';
+import { readElection } from '@votingworks/fs';
+import { allBubbleBallotFixtures } from './all_bubble_ballot_fixtures';
 import {
-  generateFamousNamesFixtures,
-  generateGeneralElectionFixtures,
-  generatePrimaryElectionFixtures,
+  famousNamesFixtures,
+  generalElectionFixtures,
+  primaryElectionFixtures,
 } from './ballot_fixtures';
 import { createPlaywrightRenderer } from './next/playwright_renderer';
 import { Renderer } from './next';
@@ -39,88 +40,87 @@ afterAll(async () => {
 
 describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fails', () => {
   test('all bubble ballot fixtures', async () => {
-    const {
-      electionPath,
-      electionDefinition,
-      blankBallotPath,
-      blankBallotPdf,
-      filledBallotPath,
-      filledBallotPdf,
-      cyclingTestDeckPath,
-      cyclingTestDeckPdf,
-    } = await generateAllBubbleBallotFixtures(renderer);
+    const fixtures = allBubbleBallotFixtures;
+    const generated = await allBubbleBallotFixtures.generate(renderer);
 
-    const savedElection = fs.readFileSync(electionPath, 'utf8');
-    expect(safeParseElection(savedElection).ok()).toEqual(
-      electionDefinition.election
+    expect(generated.electionDefinition.election).toEqual(
+      (await readElection(fixtures.electionPath)).ok()?.election
     );
 
-    await expectToMatchSavedPdf(blankBallotPdf, blankBallotPath);
-    await expectToMatchSavedPdf(filledBallotPdf, filledBallotPath);
-    await expectToMatchSavedPdf(cyclingTestDeckPdf, cyclingTestDeckPath);
+    await expectToMatchSavedPdf(
+      generated.blankBallotPdf,
+      fixtures.blankBallotPath
+    );
+    await expectToMatchSavedPdf(
+      generated.filledBallotPdf,
+      fixtures.filledBallotPath
+    );
+    await expectToMatchSavedPdf(
+      generated.cyclingTestDeckPdf,
+      fixtures.cyclingTestDeckPath
+    );
   });
 
   test('famous names fixtures', async () => {
-    const {
-      electionPath,
-      electionDefinition,
-      blankBallotPath,
-      blankBallotPdf,
-      markedBallotPath,
-      markedBallotPdf,
-    } = await generateFamousNamesFixtures(renderer);
+    const fixtures = famousNamesFixtures;
+    const generated = await famousNamesFixtures.generate(renderer);
 
-    const savedElection = fs.readFileSync(electionPath, 'utf8');
-    expect(safeParseElection(savedElection).ok()).toEqual(
-      electionDefinition.election
+    expect(generated.electionDefinition.election).toEqual(
+      (await readElection(fixtures.electionPath)).ok()?.election
     );
 
-    await expectToMatchSavedPdf(blankBallotPdf, blankBallotPath);
-    await expectToMatchSavedPdf(markedBallotPdf, markedBallotPath);
+    await expectToMatchSavedPdf(
+      generated.blankBallotPdf,
+      fixtures.blankBallotPath
+    );
+    await expectToMatchSavedPdf(
+      generated.markedBallotPdf,
+      fixtures.markedBallotPath
+    );
   });
 
   test('general election fixtures', async () => {
-    for (const {
-      electionPath,
-      electionDefinition,
-      blankBallotPath,
-      blankBallotPdf,
-      markedBallotPath,
-      markedBallotPdf,
-    } of await generateGeneralElectionFixtures(renderer)) {
-      const savedElection = fs.readFileSync(electionPath, 'utf8');
-      expect(safeParseElection(savedElection).ok()).toEqual(
-        electionDefinition.election
+    const allFixtures = generalElectionFixtures;
+    const allGenerated = await generalElectionFixtures.generate(renderer);
+    for (const paperSize of Object.values(BallotPaperSize)) {
+      const fixtures = allFixtures[paperSize];
+      const generated = allGenerated[paperSize];
+
+      expect(generated.electionDefinition.election).toEqual(
+        (await readElection(fixtures.electionPath)).ok()?.election
       );
 
-      await expectToMatchSavedPdf(blankBallotPdf, blankBallotPath);
-      await expectToMatchSavedPdf(markedBallotPdf, markedBallotPath);
+      await expectToMatchSavedPdf(
+        generated.blankBallotPdf,
+        fixtures.blankBallotPath
+      );
+      await expectToMatchSavedPdf(
+        generated.markedBallotPdf,
+        fixtures.markedBallotPath
+      );
     }
   });
 
   test(`primary election fixtures`, async () => {
-    const { electionPath, electionDefinition, fishParty, mammalParty } =
-      await generatePrimaryElectionFixtures(renderer);
-    const savedElection = fs.readFileSync(electionPath, 'utf8');
-    expect(safeParseElection(savedElection).ok()).toEqual(
-      electionDefinition.election
-    );
+    const fixtures = primaryElectionFixtures;
+    const generated = await primaryElectionFixtures.generate(renderer);
 
-    await expectToMatchSavedPdf(
-      fishParty.blankBallotPdf,
-      fishParty.blankBallotPath
-    );
-    await expectToMatchSavedPdf(
-      fishParty.markedBallotPdf,
-      fishParty.markedBallotPath
-    );
-    await expectToMatchSavedPdf(
-      mammalParty.blankBallotPdf,
-      mammalParty.blankBallotPath
-    );
-    await expectToMatchSavedPdf(
-      mammalParty.markedBallotPdf,
-      mammalParty.markedBallotPath
-    );
+    for (const party of ['mammalParty', 'fishParty'] as const) {
+      const partyFixtures = fixtures[party];
+      const partyGenerated = generated[party];
+
+      await expectToMatchSavedPdf(
+        partyGenerated.blankBallotPdf,
+        partyFixtures.blankBallotPath
+      );
+      await expectToMatchSavedPdf(
+        partyGenerated.otherPrecinctBlankBallotPdf,
+        partyFixtures.otherPrecinctBlankBallotPath
+      );
+      await expectToMatchSavedPdf(
+        partyGenerated.markedBallotPdf,
+        partyFixtures.markedBallotPath
+      );
+    }
   });
 });

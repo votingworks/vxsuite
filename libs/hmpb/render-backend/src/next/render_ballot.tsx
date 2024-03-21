@@ -191,13 +191,27 @@ export async function measureTimingMarkGrid(
   };
 }
 
+export function pixelsToGridHeight(
+  grid: GridMeasurements,
+  pixels: Pixels
+): number {
+  return pixels / grid.rowGap;
+}
+
+export function pixelsToGridWidth(
+  grid: GridMeasurements,
+  pixels: Pixels
+): number {
+  return pixels / grid.columnGap;
+}
+
 export function pixelPointToGridPoint(
   grid: GridMeasurements,
   point: PixelPoint
 ): { column: number; row: number } {
   return {
-    column: (point.x - grid.origin.x) / grid.columnGap,
-    row: (point.y - grid.origin.y) / grid.rowGap,
+    column: pixelsToGridWidth(grid, point.x - grid.origin.x),
+    row: pixelsToGridHeight(grid, point.y - grid.origin.y),
   };
 }
 
@@ -213,14 +227,6 @@ export function gridHeightToPixels(
   height: number
 ): number {
   return height * grid.rowGap;
-}
-
-function pixelsToGridHeight(grid: GridMeasurements, pixels: Pixels): number {
-  return pixels / grid.rowGap;
-}
-
-function pixelsToGridWidth(grid: GridMeasurements, pixels: Pixels): number {
-  return pixels / grid.columnGap;
 }
 
 async function extractGridLayout(

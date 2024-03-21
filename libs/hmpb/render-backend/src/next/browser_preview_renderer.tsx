@@ -8,6 +8,7 @@ import {
   createScratchpad,
 } from './renderer';
 import { baseStyleElements } from './base_styles';
+import { PAGE_CLASS } from './ballot_components';
 
 function browserPage(): Page {
   return {
@@ -40,7 +41,7 @@ function createBrowserPreviewDocument(): RenderDocument {
           padding: 0.25in;
         }
 
-        .Page {
+        .${PAGE_CLASS} {
           margin-left: auto;
           margin-right: auto;
           margin-bottom: 0.25in;

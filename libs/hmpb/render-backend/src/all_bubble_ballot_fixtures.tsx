@@ -33,7 +33,6 @@ import { concatenatePdfs } from './next/concatenate_pdfs';
 const debug = makeDebug('hmpb:ballot_fixtures');
 
 const fixturesDir = join(__dirname, '../fixtures');
-const dir = join(fixturesDir, 'all-bubble-ballot');
 
 function contestId(page: number) {
   return `test-contest-page-${page}`;
@@ -229,10 +228,12 @@ const allBubbleBallotTemplate: BallotPageTemplate<BaseBallotProps> = {
   contentComponent: BallotPageContent,
 };
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
-export async function generateAllBubbleBallotFixtures(renderer: Renderer) {
+export const allBubbleBallotFixtures = (() => {
+  const dir = join(fixturesDir, 'all-bubble-ballot');
+  const electionPath = join(dir, 'election.json');
   const blankBallotPath = join(dir, 'blank-ballot.pdf');
-  debug(`Generating: ${blankBallotPath}`);
+  const filledBallotPath = join(dir, 'filled-ballot.pdf');
+  const cyclingTestDeckPath = join(dir, 'cycling-test-deck.pdf');
   const election = createElection();
   const ballotProps: BaseBallotProps = {
     election,
@@ -241,78 +242,87 @@ export async function generateAllBubbleBallotFixtures(renderer: Renderer) {
     ballotMode: 'test',
     ballotType: BallotType.Precinct,
   };
-  const { electionDefinition, ballotDocuments } =
-    await renderAllBallotsAndCreateElectionDefinition(
-      renderer,
-      allBubbleBallotTemplate,
-      [ballotProps]
-    );
-
-  const [blankBallot] = ballotDocuments;
-  const blankBallotPdf = await blankBallot.renderToPdf();
-
-  const filledBallotPath = join(dir, 'filled-ballot.pdf');
-  debug(`Generating: ${filledBallotPath}`);
-  const filledVotes: VotesDict = Object.fromEntries(
-    election.contests.map((contest) => [
-      contest.id,
-      (contest as CandidateContest).candidates,
-    ])
-  );
-  const filledBallot = await markBallotDocument(
-    renderer,
-    blankBallot,
-    filledVotes
-  );
-  const filledBallotPdf = await filledBallot.renderToPdf();
-
-  const cyclingTestDeckPath = join(dir, 'cycling-test-deck.pdf');
-  debug(`Generating: ${cyclingTestDeckPath}`);
-  const [gridLayout] = assertDefined(electionDefinition.election.gridLayouts);
-  const gridPositionByCandidateId = Object.fromEntries(
-    gridLayout.gridPositions.map((position) => [
-      (position as GridPositionOption).optionId,
-      position,
-    ])
-  );
-  const cyclingTestDeckSheetPdfs = await Promise.all(
-    range(0, 6).map(async (sheetNumber) => {
-      const votesForSheet: VotesDict = Object.fromEntries(
-        election.contests.map((contest) => [
-          contest.id,
-          (contest as CandidateContest).candidates.flatMap((candidate) => {
-            const { row, column } = gridPositionByCandidateId[candidate.id];
-            // Bubbles aren't perfectly aligned with the grid, but they are
-            // extremely close, so rounding is fine
-            if (
-              (Math.round(row) - Math.round(column) - sheetNumber) % 6 ===
-              0
-            ) {
-              return [candidate];
-            }
-            return [];
-          }),
-        ])
-      );
-      const sheetDocument = await markBallotDocument(
-        renderer,
-        blankBallot,
-        votesForSheet
-      );
-      return await sheetDocument.renderToPdf();
-    })
-  );
-  const cyclingTestDeckPdf = await concatenatePdfs(cyclingTestDeckSheetPdfs);
 
   return {
     dir,
-    electionPath: join(dir, 'election.json'),
-    electionDefinition,
+    electionPath,
     blankBallotPath,
-    blankBallotPdf,
     filledBallotPath,
-    filledBallotPdf,
     cyclingTestDeckPath,
-    cyclingTestDeckPdf,
+
+    async generate(renderer: Renderer) {
+      debug(`Generating: ${blankBallotPath}`);
+      const { electionDefinition, ballotDocuments } =
+        await renderAllBallotsAndCreateElectionDefinition(
+          renderer,
+          allBubbleBallotTemplate,
+          [ballotProps]
+        );
+
+      const [blankBallot] = ballotDocuments;
+      const blankBallotPdf = await blankBallot.renderToPdf();
+
+      debug(`Generating: ${filledBallotPath}`);
+      const filledVotes: VotesDict = Object.fromEntries(
+        election.contests.map((contest) => [
+          contest.id,
+          (contest as CandidateContest).candidates,
+        ])
+      );
+      const filledBallot = await markBallotDocument(
+        renderer,
+        blankBallot,
+        filledVotes
+      );
+      const filledBallotPdf = await filledBallot.renderToPdf();
+
+      debug(`Generating: ${cyclingTestDeckPath}`);
+      const [gridLayout] = assertDefined(
+        electionDefinition.election.gridLayouts
+      );
+      const gridPositionByCandidateId = Object.fromEntries(
+        gridLayout.gridPositions.map((position) => [
+          (position as GridPositionOption).optionId,
+          position,
+        ])
+      );
+      const cyclingTestDeckSheetPdfs = await Promise.all(
+        range(0, 6).map(async (sheetNumber) => {
+          const votesForSheet: VotesDict = Object.fromEntries(
+            election.contests.map((contest) => [
+              contest.id,
+              (contest as CandidateContest).candidates.flatMap((candidate) => {
+                const { row, column } = gridPositionByCandidateId[candidate.id];
+                // Bubbles aren't perfectly aligned with the grid, but they are
+                // extremely close, so rounding is fine
+                if (
+                  (Math.round(row) - Math.round(column) - sheetNumber) % 6 ===
+                  0
+                ) {
+                  return [candidate];
+                }
+                return [];
+              }),
+            ])
+          );
+          const sheetDocument = await markBallotDocument(
+            renderer,
+            blankBallot,
+            votesForSheet
+          );
+          return await sheetDocument.renderToPdf();
+        })
+      );
+      const cyclingTestDeckPdf = await concatenatePdfs(
+        cyclingTestDeckSheetPdfs
+      );
+
+      return {
+        electionDefinition,
+        blankBallotPdf,
+        filledBallotPdf,
+        cyclingTestDeckPdf,
+      };
+    },
   };
-}
+})();

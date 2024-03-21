@@ -3265,6 +3265,9 @@ importers:
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
+      '@votingworks/fs':
+        specifier: workspace:^
+        version: link:../fs
       '@votingworks/hmpb-layout':
         specifier: workspace:*
         version: link:../hmpb/layout
@@ -4475,6 +4478,9 @@ importers:
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
+      '@votingworks/fs':
+        specifier: workspace:*
+        version: link:../../fs
       '@votingworks/image-utils':
         specifier: workspace:*
         version: link:../../image-utils
