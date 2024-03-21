@@ -53,10 +53,7 @@ test('can print and re-print polls opened report', async () => {
       });
 
       // initial polls opened report
-      await apiClient.transitionPolls({
-        type: 'open_polls',
-        time: new Date('2021-01-01T00:00:00.000').getTime(),
-      });
+      await apiClient.openPolls();
       await apiClient.printReport();
       const initialReportPath = mockPrinterHandler.getLastPrintPath();
       assert(initialReportPath !== undefined);
@@ -101,23 +98,15 @@ test('can print voting paused and voting resumed reports', async () => {
 
       await scanBallot(mockScanner, apiClient, workspace.store, 0);
 
-      const time = new Date('2021-01-01T00:00:00.000').getTime();
-
       // pause voting
-      await apiClient.transitionPolls({
-        type: 'pause_voting',
-        time,
-      });
+      await apiClient.pauseVoting();
       await apiClient.printReport();
       await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
         customSnapshotIdentifier: 'voting-paused-report',
       });
 
       // resume voting
-      await apiClient.transitionPolls({
-        type: 'resume_voting',
-        time,
-      });
+      await apiClient.resumeVoting();
       await apiClient.printReport();
       await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
         customSnapshotIdentifier: 'voting-resumed-report',
@@ -146,13 +135,8 @@ test('can tabulate results and print polls closed report', async () => {
       await scanBallot(mockScanner, apiClient, workspace.store, 1);
       await scanBallot(mockScanner, apiClient, workspace.store, 2);
 
-      const time = new Date('2021-01-01T00:00:00.000').getTime();
-
       // close polls
-      await apiClient.transitionPolls({
-        type: 'close_polls',
-        time,
-      });
+      await apiClient.closePolls();
       await apiClient.printReport();
       await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
         customSnapshotIdentifier: 'polls-closed-report',

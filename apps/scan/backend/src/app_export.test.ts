@@ -37,7 +37,10 @@ test('continuous CVR export, including polls closing', async () => {
   await withApp(
     {},
     async ({ apiClient, mockAuth, mockScanner, mockUsbDrive, workspace }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        testMode: true,
+        openPolls: true,
+      });
 
       // Don't wait for continuous export to USB drive in between scans and polls closing so that
       // we can verify that the continuous export mutex prevents continuous export operations from
@@ -52,11 +55,7 @@ test('continuous CVR export, including polls closing', async () => {
         waitForContinuousExportToUsbDrive: false,
       });
 
-      expect(
-        await apiClient.exportCastVoteRecordsToUsbDrive({
-          mode: 'polls_closing',
-        })
-      ).toEqual(ok());
+      await apiClient.closePolls();
 
       const exportDirectoryPaths = await getCastVoteRecordExportDirectoryPaths(
         mockUsbDrive.usbDrive
@@ -114,7 +113,10 @@ test('continuous CVR export, including polls closing, followed by a full export'
   await withApp(
     {},
     async ({ apiClient, mockAuth, mockScanner, mockUsbDrive, workspace }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        testMode: true,
+        openPolls: true,
+      });
 
       // Don't wait for continuous export to USB drive in between scans and polls closing so that
       // we can verify that the continuous export mutex prevents continuous export operations from
@@ -126,20 +128,12 @@ test('continuous CVR export, including polls closing, followed by a full export'
         waitForContinuousExportToUsbDrive: false,
       });
 
-      expect(
-        await apiClient.exportCastVoteRecordsToUsbDrive({
-          mode: 'polls_closing',
-        })
-      ).toEqual(ok());
+      await apiClient.closePolls();
 
-      expect(
-        await apiClient.exportCastVoteRecordsToUsbDrive({
-          mode: 'full_export',
-        })
-      ).toEqual(ok());
+      expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
 
-      // Expect two export directories, one from continuous export and one from the subsequent full
-      // export. Each should contain two CVRs.
+      // Expect two export directories, one from continuous export finished at polls closed
+      // and one from the subsequent full export. Each should contain two CVRs.
       const exportDirectoryPaths = await getCastVoteRecordExportDirectoryPaths(
         mockUsbDrive.usbDrive
       );
@@ -179,7 +173,7 @@ test('continuous CVR export with a mode switch in between', async () => {
 
       await apiClient.setTestMode({ isTestMode: false });
       await apiClient.setTestMode({ isTestMode: true });
-      await apiClient.transitionPolls({ type: 'open_polls', time: Date.now() });
+      await apiClient.openPolls();
 
       await scanBallot(mockScanner, apiClient, workspace.store, 0);
 
@@ -225,11 +219,7 @@ test('CVR resync', async () => {
         Promise.resolve({ status: 'logged_out', reason: 'no_card' })
       );
 
-      expect(
-        await apiClient.exportCastVoteRecordsToUsbDrive({
-          mode: 'full_export',
-        })
-      ).toEqual(ok());
+      expect(await apiClient.exportCastVoteRecordsToUsbDrive()).toEqual(ok());
     }
   );
 });
