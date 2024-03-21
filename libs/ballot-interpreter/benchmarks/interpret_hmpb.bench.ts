@@ -1,7 +1,11 @@
 import { famousNamesFixtures } from '@votingworks/hmpb-render-backend';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import { assert } from '@votingworks/basics';
-import { DEFAULT_MARK_THRESHOLDS } from '@votingworks/types';
+import { assert, assertDefined } from '@votingworks/basics';
+import {
+  DEFAULT_MARK_THRESHOLDS,
+  ElectionDefinition,
+} from '@votingworks/types';
+import { readElection } from '@votingworks/fs';
 import { interpretSheet } from '../src';
 import { ballotPdfToPageImages } from '../test/helpers/interpretation';
 import { benchmarkRegressionTest } from './benchmarking';
@@ -9,8 +13,12 @@ import { benchmarkRegressionTest } from './benchmarking';
 jest.setTimeout(60_000);
 
 describe('Interpretation benchmark', () => {
-  const { electionDefinition, precinctId, blankBallotPath, markedBallotPath } =
+  const { electionPath, precinctId, blankBallotPath, markedBallotPath } =
     famousNamesFixtures;
+  let electionDefinition: ElectionDefinition;
+  beforeAll(async () => {
+    electionDefinition = (await readElection(electionPath)).unsafeUnwrap();
+  });
 
   test('Blank HMPB', async () => {
     const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
@@ -22,7 +30,9 @@ describe('Interpretation benchmark', () => {
         await interpretSheet(
           {
             electionDefinition,
-            precinctSelection: singlePrecinctSelectionFor(precinctId),
+            precinctSelection: singlePrecinctSelectionFor(
+              assertDefined(precinctId)
+            ),
             testMode: true,
             markThresholds: DEFAULT_MARK_THRESHOLDS,
             adjudicationReasons: [],
@@ -44,7 +54,9 @@ describe('Interpretation benchmark', () => {
         await interpretSheet(
           {
             electionDefinition,
-            precinctSelection: singlePrecinctSelectionFor(precinctId),
+            precinctSelection: singlePrecinctSelectionFor(
+              assertDefined(precinctId)
+            ),
             testMode: true,
             markThresholds: DEFAULT_MARK_THRESHOLDS,
             adjudicationReasons: [],

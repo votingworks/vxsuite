@@ -1,4 +1,4 @@
-import { assert, iter } from '@votingworks/basics';
+import { assert, assertDefined, iter } from '@votingworks/basics';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
@@ -13,10 +13,12 @@ import {
   BallotPaperSize,
   BallotType,
   DEFAULT_MARK_THRESHOLDS,
+  ElectionDefinition,
 } from '@votingworks/types';
 import { sliceElectionHash } from '@votingworks/ballot-encoder';
 import { loadImageData } from '@votingworks/image-utils';
 import { createCanvas } from 'canvas';
+import { readElection } from '@votingworks/fs';
 import {
   sortVotesDict,
   ballotPdfToPageImages,
@@ -27,23 +29,24 @@ import {
 import { interpretSheet } from './interpret';
 
 describe('HMPB - Famous Names', () => {
-  const {
-    electionDefinition,
-    precinctId,
-    votes,
-    blankBallotPath,
-    markedBallotPath,
-  } = famousNamesFixtures;
-  const { election } = electionDefinition;
+  const { electionPath, precinctId, votes, blankBallotPath, markedBallotPath } =
+    famousNamesFixtures;
+  let electionDefinition: ElectionDefinition;
+  beforeAll(async () => {
+    electionDefinition = (await readElection(electionPath)).unsafeUnwrap();
+  });
 
   test('Blank ballot interpretation', async () => {
+    const { election } = electionDefinition;
     const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
     expect(ballotImagePaths.length).toEqual(2);
 
     const [frontResult, backResult] = await interpretSheet(
       {
         electionDefinition,
-        precinctSelection: singlePrecinctSelectionFor(precinctId),
+        precinctSelection: singlePrecinctSelectionFor(
+          assertDefined(precinctId)
+        ),
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
@@ -93,7 +96,9 @@ describe('HMPB - Famous Names', () => {
     const [frontResult, backResult] = await interpretSheet(
       {
         electionDefinition,
-        precinctSelection: singlePrecinctSelectionFor(precinctId),
+        precinctSelection: singlePrecinctSelectionFor(
+          assertDefined(precinctId)
+        ),
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
@@ -121,7 +126,9 @@ describe('HMPB - Famous Names', () => {
           ...electionDefinition,
           electionHash: 'wrong election hash',
         },
-        precinctSelection: singlePrecinctSelectionFor(precinctId),
+        precinctSelection: singlePrecinctSelectionFor(
+          assertDefined(precinctId)
+        ),
         testMode: true,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
@@ -134,6 +141,7 @@ describe('HMPB - Famous Names', () => {
   });
 
   test('Wrong precinct', async () => {
+    const { election } = electionDefinition;
     const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
     expect(ballotImagePaths.length).toEqual(2);
     assert(precinctId !== election.precincts[1]!.id);
@@ -162,7 +170,9 @@ describe('HMPB - Famous Names', () => {
     const [frontResult, backResult] = await interpretSheet(
       {
         electionDefinition,
-        precinctSelection: singlePrecinctSelectionFor(precinctId),
+        precinctSelection: singlePrecinctSelectionFor(
+          assertDefined(precinctId)
+        ),
         testMode: false,
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
@@ -175,20 +185,21 @@ describe('HMPB - Famous Names', () => {
   });
 });
 
-for (const {
-  bubblePosition,
-  paperSize,
-  density,
-  electionDefinition,
-  precinctId,
-  ballotStyleId,
-  gridLayout,
-  votes,
-  unmarkedWriteIns,
-  markedBallotPath,
-} of generalElectionFixtures) {
-  describe(`HMPB - general election - bubbles on ${bubblePosition} - ${paperSize} paper - density ${density}`, () => {
+for (const paperSize of Object.values(BallotPaperSize)) {
+  describe(`HMPB - general election - ${paperSize} paper`, () => {
+    const {
+      electionPath,
+      markedBallotPath,
+      precinctId,
+      ballotStyleId,
+      votes,
+      unmarkedWriteIns,
+    } = generalElectionFixtures[paperSize];
+
     test(`Marked ballot interpretation`, async () => {
+      const electionDefinition = (
+        await readElection(electionPath)
+      ).unsafeUnwrap();
       const ballotImagePaths = await ballotPdfToPageImages(markedBallotPath);
 
       for (const [sheetIndex, sheetImagePaths] of iter(ballotImagePaths)
@@ -207,6 +218,9 @@ for (const {
         );
 
         const sheetNumber = sheetIndex + 1;
+        const gridLayout = electionDefinition.election.gridLayouts!.find(
+          (layout) => layout.ballotStyleId === ballotStyleId
+        )!;
         const expectedVotes = votesForSheet(votes, sheetNumber, gridLayout);
         const expectedUnmarkedWriteIns = unmarkedWriteInsForSheet(
           unmarkedWriteIns.map(({ contestId, writeInIndex }) => ({
@@ -306,19 +320,23 @@ for (const {
 }
 
 describe('HMPB - primary election', () => {
-  const { electionDefinition, mammalParty, fishParty } =
-    primaryElectionFixtures;
+  const { electionPath, mammalParty, fishParty } = primaryElectionFixtures;
+  let electionDefinition: ElectionDefinition;
+  beforeAll(async () => {
+    electionDefinition = (await readElection(electionPath)).unsafeUnwrap();
+  });
 
-  for (const partyFixtures of [mammalParty, fishParty]) {
+  for (const [partyLabel, partyFixtures] of Object.entries({
+    mammalParty,
+    fishParty,
+  })) {
     const {
-      partyLabel,
       blankBallotPath,
       markedBallotPath,
       precinctId,
+      ballotStyleId,
       votes,
-      gridLayout,
     } = partyFixtures;
-    const { ballotStyleId } = gridLayout;
 
     test(`${partyLabel} - Blank ballot interpretation`, async () => {
       const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
@@ -334,6 +352,10 @@ describe('HMPB - primary election', () => {
         },
         ballotImagePaths as [string, string]
       );
+
+      const gridLayout = electionDefinition.election.gridLayouts!.find(
+        (layout) => layout.ballotStyleId === ballotStyleId
+      )!;
 
       assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
       expect(frontResult.interpretation.votes).toEqual(
@@ -448,7 +470,9 @@ describe('HMPB - primary election', () => {
 });
 
 test('Non-consecutive page numbers', async () => {
-  const { electionDefinition, blankBallotPath } = generalElectionFixtures[0]!;
+  const { electionPath, blankBallotPath } =
+    generalElectionFixtures[BallotPaperSize.Letter];
+  const electionDefinition = (await readElection(electionPath)).unsafeUnwrap();
   const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
   assert(ballotImagePaths.length > 2);
   const [frontPath, , backPath] = ballotImagePaths;

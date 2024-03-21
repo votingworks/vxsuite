@@ -3266,7 +3266,7 @@ importers:
         specifier: 0.2.4
         version: 0.2.4
       '@votingworks/fs':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../fs
       '@votingworks/hmpb-layout':
         specifier: workspace:*
