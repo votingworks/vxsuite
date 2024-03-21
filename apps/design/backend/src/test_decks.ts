@@ -1,4 +1,4 @@
-import { assert, find, uniqueBy } from '@votingworks/basics';
+import { assert, assertDefined, find, uniqueBy } from '@votingworks/basics';
 import { BallotLayout, Document, markBallot } from '@votingworks/hmpb-layout';
 import {
   Admin,
@@ -113,11 +113,9 @@ function getBallotContestLayouts(
   });
 }
 
-function generateTestDeckCastVoteRecords({
-  election,
-}: {
-  election: Election;
-}): Tabulation.CastVoteRecord[] {
+function generateTestDeckCastVoteRecords(
+  election: Election
+): Tabulation.CastVoteRecord[] {
   const ballotSpecs: TestDeckBallotSpec[] = generateTestDeckBallots({
     election,
     markingMethod: 'hand',
@@ -125,9 +123,8 @@ function generateTestDeckCastVoteRecords({
     includeOvervotedBallots: false,
   });
 
-  assert(election.gridLayouts);
   const ballotContestLayouts: BallotContestLayout[] = getBallotContestLayouts(
-    election.gridLayouts
+    assertDefined(election.gridLayouts)
   );
 
   const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
@@ -170,14 +167,10 @@ function generateTestDeckCastVoteRecords({
   return cvrs;
 }
 
-export async function getTallyReportResults({
-  election,
-}: {
-  election: Election;
-}): Promise<Admin.TallyReportResults> {
-  const cvrs = generateTestDeckCastVoteRecords({
-    election,
-  });
+export async function getTallyReportResults(
+  election: Election
+): Promise<Admin.TallyReportResults> {
+  const cvrs = generateTestDeckCastVoteRecords(election);
 
   if (election.type === 'general') {
     const [electionResults] = groupMapToGroupList(
@@ -235,7 +228,7 @@ export async function createTestDeckTallyReport({
 }): Promise<Buffer> {
   const { election } = electionDefinition;
 
-  const tallyReportResults = await getTallyReportResults({ election });
+  const tallyReportResults = await getTallyReportResults(election);
 
   return await renderToPdf({
     document: AdminTallyReportByParty({

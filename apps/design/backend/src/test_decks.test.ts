@@ -160,7 +160,7 @@ describe('getTallyReportResults', () => {
     }).unsafeUnwrap();
     const { election } = electionDefinition;
 
-    const tallyReportResults = await getTallyReportResults({ election });
+    const tallyReportResults = await getTallyReportResults(election);
 
     expect(tallyReportResults.hasPartySplits).toEqual(false);
     expect(tallyReportResults.contestIds).toEqual(
@@ -208,7 +208,7 @@ describe('getTallyReportResults', () => {
     }).unsafeUnwrap();
     const { election } = electionDefinition;
 
-    const tallyReportResults = await getTallyReportResults({ election });
+    const tallyReportResults = await getTallyReportResults(election);
 
     expect(tallyReportResults.hasPartySplits).toEqual(true);
     expect(tallyReportResults.contestIds).toEqual(
