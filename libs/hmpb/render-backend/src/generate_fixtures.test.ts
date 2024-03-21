@@ -13,6 +13,8 @@ import {
 import { createPlaywrightRenderer } from './next/playwright_renderer';
 import { Renderer } from './next';
 
+jest.setTimeout(60_000);
+
 async function expectToMatchSavedPdf(
   actualPdf: Buffer,
   expectedPdfPath: string

@@ -207,44 +207,48 @@ export const generalElectionFixtures = (() => {
     >),
 
     async generate(renderer: Renderer) {
+      async function generateElectionFixtures(
+        spec: ReturnType<typeof makeElectionFixtureSpec>
+      ) {
+        debug(`Generating: ${spec.blankBallotPath}`);
+        const { electionDefinition, ballotDocuments } =
+          await renderAllBallotsAndCreateElectionDefinition(
+            renderer,
+            vxDefaultBallotTemplate,
+            spec.allBallotProps
+          );
+        const [blankBallot] = assertDefined(
+          iter(ballotDocuments)
+            .zip(spec.allBallotProps)
+            .find(
+              ([, props]) =>
+                props.ballotStyleId === spec.ballotStyleId &&
+                props.precinctId === spec.precinctId
+            )
+        );
+
+        const blankBallotPdf = await blankBallot.renderToPdf();
+        debug(`Generating: ${spec.markedBallotPath}`);
+        const markedBallot = await markBallotDocument(
+          renderer,
+          blankBallot,
+          spec.votes,
+          spec.unmarkedWriteIns
+        );
+        const markedBallotPdf = await markedBallot.renderToPdf();
+
+        return {
+          electionDefinition,
+          blankBallotPdf,
+          markedBallotPdf,
+        };
+      }
+
       return Object.fromEntries(
         await Promise.all(
           Object.entries(fixtureSpecs).map(async ([paperSize, spec]) => {
-            debug(`Generating: ${spec.blankBallotPath}`);
-            const { electionDefinition, ballotDocuments } =
-              await renderAllBallotsAndCreateElectionDefinition(
-                renderer,
-                vxDefaultBallotTemplate,
-                spec.allBallotProps
-              );
-            const [blankBallot] = assertDefined(
-              iter(ballotDocuments)
-                .zip(spec.allBallotProps)
-                .find(
-                  ([, props]) =>
-                    props.ballotStyleId === spec.ballotStyleId &&
-                    props.precinctId === spec.precinctId
-                )
-            );
-
-            const blankBallotPdf = await blankBallot.renderToPdf();
-            debug(`Generating: ${spec.markedBallotPath}`);
-            const markedBallot = await markBallotDocument(
-              renderer,
-              blankBallot,
-              spec.votes,
-              spec.unmarkedWriteIns
-            );
-            const markedBallotPdf = await markedBallot.renderToPdf();
-
-            return [
-              paperSize,
-              {
-                electionDefinition,
-                blankBallotPdf,
-                markedBallotPdf,
-              },
-            ];
+            const generated = await generateElectionFixtures(spec);
+            return [paperSize, generated];
           })
         )
       );
@@ -330,56 +334,55 @@ export const primaryElectionFixtures = (() => {
           allBallotProps
         );
 
-      return Object.fromEntries(
-        await Promise.all(
-          Object.entries({ mammalParty, fishParty }).map(
-            async ([partyLabel, spec]) => {
-              debug(`Generating: ${spec.blankBallotPath}`);
-              const [blankBallot] = assertDefined(
-                iter(ballotDocuments)
-                  .zip(allBallotProps)
-                  .find(
-                    ([, props]) =>
-                      props.ballotStyleId === spec.ballotStyleId &&
-                      props.precinctId === spec.precinctId
-                  )
-              );
-              const blankBallotPdf = await blankBallot.renderToPdf();
+      async function generatePartyFixtures(
+        spec: ReturnType<typeof makePartyFixtureSpec>
+      ) {
+        debug(`Generating: ${spec.blankBallotPath}`);
+        const [blankBallot] = assertDefined(
+          iter(ballotDocuments)
+            .zip(allBallotProps)
+            .find(
+              ([, props]) =>
+                props.ballotStyleId === spec.ballotStyleId &&
+                props.precinctId === spec.precinctId
+            )
+        );
+        const blankBallotPdf = await blankBallot.renderToPdf();
 
-              debug(`Generating: ${spec.otherPrecinctBlankBallotPath}`);
-              const [otherPrecinctBlankBallot] = assertDefined(
-                iter(ballotDocuments)
-                  .zip(allBallotProps)
-                  .find(
-                    ([, props]) =>
-                      props.ballotStyleId === spec.ballotStyleId &&
-                      props.precinctId === spec.otherPrecinctId
-                  )
-              );
-              const otherPrecinctBlankBallotPdf =
-                await otherPrecinctBlankBallot.renderToPdf();
+        debug(`Generating: ${spec.otherPrecinctBlankBallotPath}`);
+        const [otherPrecinctBlankBallot] = assertDefined(
+          iter(ballotDocuments)
+            .zip(allBallotProps)
+            .find(
+              ([, props]) =>
+                props.ballotStyleId === spec.ballotStyleId &&
+                props.precinctId === spec.otherPrecinctId
+            )
+        );
+        const otherPrecinctBlankBallotPdf =
+          await otherPrecinctBlankBallot.renderToPdf();
 
-              debug(`Generating: ${spec.markedBallotPath}`);
-              const markedBallot = await markBallotDocument(
-                renderer,
-                blankBallot,
-                spec.votes
-              );
-              const markedBallotPdf = await markedBallot.renderToPdf();
+        debug(`Generating: ${spec.markedBallotPath}`);
+        const markedBallot = await markBallotDocument(
+          renderer,
+          blankBallot,
+          spec.votes
+        );
+        const markedBallotPdf = await markedBallot.renderToPdf();
 
-              return [
-                partyLabel,
-                {
-                  electionDefinition,
-                  blankBallotPdf,
-                  otherPrecinctBlankBallotPdf,
-                  markedBallotPdf,
-                },
-              ];
-            }
-          )
-        )
-      );
+        return {
+          electionDefinition,
+          blankBallotPdf,
+          otherPrecinctBlankBallotPdf,
+          markedBallotPdf,
+        };
+      }
+
+      return {
+        electionDefinition,
+        mammalParty: await generatePartyFixtures(mammalParty),
+        fishParty: await generatePartyFixtures(fishParty),
+      };
     },
   };
 })();
