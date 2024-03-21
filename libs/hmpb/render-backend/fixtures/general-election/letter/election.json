@@ -1396,9 +1396,9 @@
           "contestId": "county-commissioners",
           "writeInIndex": 0,
           "writeInArea": {
-            "x": 2.8586482558139537,
-            "y": 26.146564327485383,
-            "width": 7,
+            "x": 2.7586482558139536,
+            "y": 25.846564327485382,
+            "width": 7.6,
             "height": 1
           }
         },
@@ -1411,9 +1411,9 @@
           "contestId": "county-commissioners",
           "writeInIndex": 1,
           "writeInArea": {
-            "x": 2.8586482558139537,
-            "y": 28.280458089668617,
-            "width": 7,
+            "x": 2.7586482558139536,
+            "y": 27.980458089668616,
+            "width": 7.6,
             "height": 1
           }
         },
@@ -1426,9 +1426,9 @@
           "contestId": "county-commissioners",
           "writeInIndex": 2,
           "writeInArea": {
-            "x": 2.8586482558139537,
-            "y": 30.414351851851855,
-            "width": 7,
+            "x": 2.7586482558139536,
+            "y": 30.114351851851854,
+            "width": 7.6,
             "height": 1
           }
         },
@@ -1441,9 +1441,9 @@
           "contestId": "county-commissioners",
           "writeInIndex": 3,
           "writeInArea": {
-            "x": 2.8586482558139537,
-            "y": 32.54824561403509,
-            "width": 7,
+            "x": 2.7586482558139536,
+            "y": 32.24824561403509,
+            "width": 7.6,
             "height": 1
           }
         },
@@ -1465,9 +1465,9 @@
           "contestId": "county-registrar-of-wills",
           "writeInIndex": 0,
           "writeInArea": {
-            "x": 13.432291666666668,
-            "y": 5.369273879142301,
-            "width": 7,
+            "x": 13.332291666666668,
+            "y": 5.069273879142301,
+            "width": 7.6,
             "height": 1
           }
         },
@@ -1498,9 +1498,9 @@
           "contestId": "city-mayor",
           "writeInIndex": 0,
           "writeInArea": {
-            "x": 13.432291666666668,
-            "y": 14.307504873294349,
-            "width": 7,
+            "x": 13.332291666666668,
+            "y": 14.007504873294348,
+            "width": 7.6,
             "height": 1
           }
         },
@@ -1567,9 +1567,9 @@
           "contestId": "city-council",
           "writeInIndex": 0,
           "writeInArea": {
-            "x": 24.005935077519382,
-            "y": 15.383893762183236,
-            "width": 7,
+            "x": 23.90593507751938,
+            "y": 15.083893762183235,
+            "width": 7.6,
             "height": 1
           }
         },
@@ -1582,9 +1582,9 @@
           "contestId": "city-council",
           "writeInIndex": 1,
           "writeInArea": {
-            "x": 24.005935077519382,
-            "y": 17.517787524366472,
-            "width": 7,
+            "x": 23.90593507751938,
+            "y": 17.21778752436647,
+            "width": 7.6,
             "height": 1
           }
         },
@@ -1597,9 +1597,9 @@
           "contestId": "city-council",
           "writeInIndex": 2,
           "writeInArea": {
-            "x": 24.005935077519382,
-            "y": 19.65168128654971,
-            "width": 7,
+            "x": 23.90593507751938,
+            "y": 19.35168128654971,
+            "width": 7.6,
             "height": 1
           }
         },
@@ -1992,9 +1992,9 @@
           "contestId": "county-registrar-of-wills",
           "writeInIndex": 0,
           "writeInArea": {
-            "x": 13.432291666666668,
-            "y": 5.369273879142301,
-            "width": 7,
+            "x": 13.332291666666668,
+            "y": 5.069273879142301,
+            "width": 7.6,
             "height": 1
           }
         },

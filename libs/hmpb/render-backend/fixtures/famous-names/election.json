@@ -420,9 +420,9 @@
           "contestId": "mayor",
           "writeInIndex": 0,
           "writeInArea": {
-            "x": 2.8586482558139537,
-            "y": 16.048489278752438,
-            "width": 7,
+            "x": 2.7586482558139536,
+            "y": 15.748489278752437,
+            "width": 7.6,
             "height": 1
           }
         },
@@ -462,9 +462,9 @@
           "contestId": "controller",
           "writeInIndex": 0,
           "writeInArea": {
-            "x": 2.8586482558139537,
-            "y": 26.989644249512672,
-            "width": 7,
+            "x": 2.7586482558139536,
+            "y": 26.68964424951267,
+            "width": 7.6,
             "height": 1
           }
         },
@@ -495,9 +495,9 @@
           "contestId": "attorney",
           "writeInIndex": 0,
           "writeInArea": {
-            "x": 13.432291666666668,
-            "y": 16.048489278752438,
-            "width": 7,
+            "x": 13.332291666666668,
+            "y": 15.748489278752437,
+            "width": 7.6,
             "height": 1
           }
         },
@@ -537,9 +537,9 @@
           "contestId": "public-works-director",
           "writeInIndex": 0,
           "writeInArea": {
-            "x": 13.432291666666668,
-            "y": 26.989644249512672,
-            "width": 7,
+            "x": 13.332291666666668,
+            "y": 26.68964424951267,
+            "width": 7.6,
             "height": 1
           }
         },
@@ -588,9 +588,9 @@
           "contestId": "chief-of-police",
           "writeInIndex": 0,
           "writeInArea": {
-            "x": 24.005935077519382,
-            "y": 20.054337231968812,
-            "width": 7,
+            "x": 23.90593507751938,
+            "y": 19.75433723196881,
+            "width": 7.6,
             "height": 1
           }
         },
@@ -639,9 +639,9 @@
           "contestId": "parks-and-recreation-director",
           "writeInIndex": 0,
           "writeInArea": {
-            "x": 24.005935077519382,
-            "y": 33.84027777777778,
-            "width": 7,
+            "x": 23.90593507751938,
+            "y": 33.54027777777778,
+            "width": 7.6,
             "height": 1
           }
         },
@@ -708,9 +708,9 @@
           "contestId": "board-of-alderman",
           "writeInIndex": 0,
           "writeInArea": {
-            "x": 2.8586482558139537,
-            "y": 16.131944444444446,
-            "width": 7,
+            "x": 2.7586482558139536,
+            "y": 15.831944444444446,
+            "width": 7.6,
             "height": 1
           }
         },
@@ -723,9 +723,9 @@
           "contestId": "board-of-alderman",
           "writeInIndex": 1,
           "writeInArea": {
-            "x": 2.8586482558139537,
-            "y": 18.26583820662768,
-            "width": 7,
+            "x": 2.7586482558139536,
+            "y": 17.96583820662768,
+            "width": 7.6,
             "height": 1
           }
         },
@@ -738,9 +738,9 @@
           "contestId": "board-of-alderman",
           "writeInIndex": 2,
           "writeInArea": {
-            "x": 2.8586482558139537,
-            "y": 20.39973196881092,
-            "width": 7,
+            "x": 2.7586482558139536,
+            "y": 20.099731968810918,
+            "width": 7.6,
             "height": 1
           }
         },
@@ -753,9 +753,9 @@
           "contestId": "board-of-alderman",
           "writeInIndex": 3,
           "writeInArea": {
-            "x": 2.8586482558139537,
-            "y": 22.533625730994153,
-            "width": 7,
+            "x": 2.7586482558139536,
+            "y": 22.233625730994152,
+            "width": 7.6,
             "height": 1
           }
         },
@@ -849,9 +849,9 @@
           "contestId": "city-council",
           "writeInIndex": 0,
           "writeInArea": {
-            "x": 13.432291666666668,
-            "y": 21.3926656920078,
-            "width": 7,
+            "x": 13.332291666666668,
+            "y": 21.0926656920078,
+            "width": 7.6,
             "height": 1
           }
         },
@@ -864,9 +864,9 @@
           "contestId": "city-council",
           "writeInIndex": 1,
           "writeInArea": {
-            "x": 13.432291666666668,
-            "y": 23.526559454191034,
-            "width": 7,
+            "x": 13.332291666666668,
+            "y": 23.226559454191033,
+            "width": 7.6,
             "height": 1
           }
         },
@@ -879,9 +879,9 @@
           "contestId": "city-council",
           "writeInIndex": 2,
           "writeInArea": {
-            "x": 13.432291666666668,
-            "y": 25.660453216374272,
-            "width": 7,
+            "x": 13.332291666666668,
+            "y": 25.36045321637427,
+            "width": 7.6,
             "height": 1
           }
         },
@@ -894,9 +894,9 @@
           "contestId": "city-council",
           "writeInIndex": 3,
           "writeInArea": {
-            "x": 13.432291666666668,
-            "y": 27.794346978557506,
-            "width": 7,
+            "x": 13.332291666666668,
+            "y": 27.494346978557505,
+            "width": 7.6,
             "height": 1
           }
         }
