@@ -1,5 +1,4 @@
 import { assert, assertDefined, find, uniqueBy } from '@votingworks/basics';
-import { BallotLayout, Document, markBallot } from '@votingworks/hmpb-layout';
 import {
   Admin,
   BallotStyleId,
@@ -23,21 +22,13 @@ import {
 import { renderToPdf } from '@votingworks/printing';
 import { Buffer } from 'buffer';
 import { AdminTallyReportByParty } from '@votingworks/ui';
-
-function concatenateDocuments(documents: Document[]): Document {
-  assert(documents.length > 0);
-  const { width, height } = documents[0];
-  assert(
-    documents.every(
-      (document) => document.width === width && document.height === height
-    )
-  );
-  return {
-    width,
-    height,
-    pages: documents.flatMap((document) => document.pages),
-  };
-}
+import {
+  BaseBallotProps,
+  RenderDocument,
+  Renderer,
+  markBallotDocument,
+  concatenatePdfs,
+} from '@votingworks/hmpb-render-backend';
 
 /**
  * Creates a test deck for a precinct that includes:
@@ -47,15 +38,17 @@ function concatenateDocuments(documents: Document[]): Document {
  *
  * The test deck is one long document (intended to be rendered as a single PDF).
  */
-export function createPrecinctTestDeck({
+export async function createPrecinctTestDeck({
+  renderer,
   election,
   precinctId,
   ballots,
 }: {
+  renderer: Renderer;
   election: Election;
   precinctId: PrecinctId;
-  ballots: BallotLayout[];
-}): Document | undefined {
+  ballots: Array<{ props: BaseBallotProps; document: RenderDocument }>;
+}): Promise<Buffer | undefined> {
   const ballotSpecs = generateTestDeckBallots({
     election,
     precinctId,
@@ -64,16 +57,23 @@ export function createPrecinctTestDeck({
   if (ballotSpecs.length === 0) {
     return undefined;
   }
-  const markedBallots = ballotSpecs.map((ballotSpec) => {
-    const { document } = find(
-      ballots,
-      (ballot) =>
-        ballot.gridLayout.ballotStyleId === ballotSpec.ballotStyleId &&
-        ballot.precinctId === ballotSpec.precinctId
-    );
-    return markBallot({ ballot: document, votes: ballotSpec.votes });
-  });
-  return concatenateDocuments(markedBallots);
+  const markedBallots = await Promise.all(
+    ballotSpecs.map(async (ballotSpec) => {
+      const { document } = find(
+        ballots,
+        (ballot) =>
+          ballot.props.ballotStyleId === ballotSpec.ballotStyleId &&
+          ballot.props.precinctId === ballotSpec.precinctId
+      );
+      const markedBallot = await markBallotDocument(
+        renderer,
+        document,
+        ballotSpec.votes
+      );
+      return await markedBallot.renderToPdf();
+    })
+  );
+  return await concatenatePdfs(markedBallots);
 }
 
 /**
