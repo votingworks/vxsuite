@@ -64,6 +64,7 @@
     "@types/node": "16.18.23",
     "@types/node-quirc": "workspace:*",
     "@types/tmp": "0.2.4",
+    "@votingworks/fs": "workspace:*",
     "@votingworks/hmpb-layout": "workspace:*",
     "@votingworks/hmpb-render-backend": "workspace:*",
     "cargo-cp-artifact": "^0.1",
