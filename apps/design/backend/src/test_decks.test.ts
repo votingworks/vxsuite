@@ -1,25 +1,17 @@
+import { readElection } from '@votingworks/fs';
 import {
-  electionFamousNames2021Fixtures,
-  electionGeneralDefinition,
-  electionTwoPartyPrimaryDefinition,
-  electionTwoPartyPrimaryFixtures,
-} from '@votingworks/fixtures';
-import {
-  BallotLayout,
-  DEFAULT_LAYOUT_OPTIONS,
-  layOutAllBallotStyles,
-} from '@votingworks/hmpb-layout';
-import {
-  BallotType,
-  ElectionDefinition,
-  getContests,
-} from '@votingworks/types';
-import { assert, assertDefined, find, iter } from '@votingworks/basics';
+  Renderer,
+  createPlaywrightRenderer,
+  famousNamesFixtures,
+  generalElectionFixtures,
+  primaryElectionFixtures,
+  renderAllBallotsAndCreateElectionDefinition,
+  vxDefaultBallotTemplate,
+} from '@votingworks/hmpb-render-backend';
+import { assert, find, iter } from '@votingworks/basics';
 import {
   buildContestResultsFixture,
-  getBallotStyleById,
   getBallotStylesByPrecinctId,
-  numBallotPositions,
 } from '@votingworks/utils';
 import {
   createPrecinctTestDeck,
@@ -27,119 +19,90 @@ import {
   getTallyReportResults,
 } from './test_decks';
 
-function expectedTestDeckPages(
-  ballots: BallotLayout[],
-  electionDefinition: ElectionDefinition
-): number {
-  return iter(ballots)
-    .map((ballot) => {
-      const { document, gridLayout } = ballot;
-      const ballotStyle = getBallotStyleById(
-        electionDefinition,
-        gridLayout.ballotStyleId
-      );
-      const contests = getContests({
-        election: electionDefinition.election,
-        ballotStyle,
-      });
-      const maxContestOptions = assertDefined(
-        iter(contests).map(numBallotPositions).max()
-      );
-      const blankBallots = 2;
-      const overvotedBallots = 1;
-      return (
-        document.pages.length *
-        (maxContestOptions + blankBallots + overvotedBallots)
-      );
-    })
-    .sum();
-}
+let renderer: Renderer;
+beforeAll(async () => {
+  renderer = await createPlaywrightRenderer();
+});
+afterAll(async () => {
+  await renderer.cleanup();
+});
 
-// We test mainly that the test decks have the right number of pages, relying on
-// the fact that generateTestDeckBallots is tested in
-// libs/utils/src/test_deck_ballots.test.ts (ensuring we generate the ballots
-// with the proper votes) and that markBallot is tested by the ballot fixtures
-// in libs/hmpb/render-backend (ensuring the marks and write-ins look good) and
-// corresponding interpretation tests in libs/ballot-interpreter (ensuring the
-// marks and write-ins are interpreted correctly).
-//
-// Once ballot rendering is faster, it might be nice to also have a snapshot
-// test for test deck PDFs to ensure it all comes together correctly.
 describe('createPrecinctTestDeck', () => {
-  test('for a precinct with one ballot style', () => {
-    const electionDefinition = electionGeneralDefinition;
+  test('for a precinct with one ballot style', async () => {
+    const fixtures = famousNamesFixtures;
+    const electionDefinition = (
+      await readElection(fixtures.electionPath)
+    ).unsafeUnwrap();
     const { election } = electionDefinition;
     const precinctId = election.precincts[0].id;
     assert(
       getBallotStylesByPrecinctId(electionDefinition, precinctId).length === 1
     );
-    const { ballots } = layOutAllBallotStyles({
-      election,
-      ballotType: BallotType.Precinct,
-      ballotMode: 'test',
-      layoutOptions: DEFAULT_LAYOUT_OPTIONS,
-      nhCustomContent: {},
-      translatedElectionStrings: {},
-    }).unsafeUnwrap();
-    const testDeckDocument = createPrecinctTestDeck({
+    const { ballotDocuments } =
+      await renderAllBallotsAndCreateElectionDefinition(
+        renderer,
+        vxDefaultBallotTemplate,
+        fixtures.allBallotProps
+      );
+    const ballots = iter(fixtures.allBallotProps)
+      .zip(ballotDocuments)
+      .map(([props, document]) => ({ props, document }))
+      .toArray();
+
+    const testDeckDocument = await createPrecinctTestDeck({
+      renderer,
       election,
       precinctId,
       ballots,
     });
-    assert(testDeckDocument);
-
-    const precinctBallots = ballots.filter(
-      (ballot) => ballot.precinctId === precinctId
-    );
-    assert(precinctBallots.length === 1);
-    expect(testDeckDocument.pages).toHaveLength(
-      expectedTestDeckPages(precinctBallots, electionDefinition)
-    );
+    await expect(testDeckDocument).toMatchPdfSnapshot();
   });
 
-  test('for a precinct with multiple ballot styles', () => {
-    const electionDefinition = electionTwoPartyPrimaryDefinition;
+  test('for a precinct with multiple ballot styles', async () => {
+    const fixtures = primaryElectionFixtures;
+    const electionDefinition = (
+      await readElection(fixtures.electionPath)
+    ).unsafeUnwrap();
     const { election } = electionDefinition;
     const precinctId = election.precincts[0].id;
     assert(
       getBallotStylesByPrecinctId(electionDefinition, precinctId).length > 1
     );
+    const { ballotDocuments } =
+      await renderAllBallotsAndCreateElectionDefinition(
+        renderer,
+        vxDefaultBallotTemplate,
+        fixtures.allBallotProps
+      );
+    const ballots = iter(fixtures.allBallotProps)
+      .zip(ballotDocuments)
+      .map(([props, document]) => ({ props, document }))
+      .toArray();
 
-    const { ballots } = layOutAllBallotStyles({
-      election,
-      ballotType: BallotType.Precinct,
-      ballotMode: 'test',
-      layoutOptions: DEFAULT_LAYOUT_OPTIONS,
-      nhCustomContent: {},
-      translatedElectionStrings: {},
-    }).unsafeUnwrap();
-    const testDeckDocument = createPrecinctTestDeck({
+    const testDeckDocument = await createPrecinctTestDeck({
+      renderer,
       election,
       precinctId,
       ballots,
     });
-    assert(testDeckDocument);
-
-    const precinctBallots = ballots.filter(
-      (ballot) => ballot.precinctId === precinctId
-    );
-    assert(precinctBallots.length > 1);
-    expect(testDeckDocument.pages).toHaveLength(
-      expectedTestDeckPages(precinctBallots, electionDefinition)
-    );
+    await expect(testDeckDocument).toMatchPdfSnapshot();
   });
 
-  test('for a precinct with no ballot styles', () => {
-    const electionDefinition = electionGeneralDefinition;
+  test('for a precinct with no ballot styles', async () => {
+    const fixtures = generalElectionFixtures.legal;
+    const electionDefinition = (
+      await readElection(fixtures.electionPath)
+    ).unsafeUnwrap();
     const { election } = electionDefinition;
-    const precinctWithNoBallotStyles = election.precincts.find(
+    const precinctWithNoBallotStyles = find(
+      election.precincts,
       (precinct) =>
         getBallotStylesByPrecinctId(electionDefinition, precinct.id).length ===
         0
     );
-    assert(precinctWithNoBallotStyles);
 
-    const testDeckDocument = createPrecinctTestDeck({
+    const testDeckDocument = await createPrecinctTestDeck({
+      renderer,
       election,
       precinctId: precinctWithNoBallotStyles.id,
       ballots: [], // doesn't matter
@@ -150,14 +113,10 @@ describe('createPrecinctTestDeck', () => {
 
 describe('getTallyReportResults', () => {
   test('general', async () => {
-    const { electionDefinition } = layOutAllBallotStyles({
-      election: electionFamousNames2021Fixtures.election,
-      ballotType: BallotType.Precinct,
-      ballotMode: 'test',
-      layoutOptions: DEFAULT_LAYOUT_OPTIONS,
-      nhCustomContent: {},
-      translatedElectionStrings: {},
-    }).unsafeUnwrap();
+    const fixtures = famousNamesFixtures;
+    const electionDefinition = (
+      await readElection(fixtures.electionPath)
+    ).unsafeUnwrap();
     const { election } = electionDefinition;
 
     const tallyReportResults = await getTallyReportResults(election);
@@ -198,14 +157,10 @@ describe('getTallyReportResults', () => {
   });
 
   test('primary', async () => {
-    const { electionDefinition } = layOutAllBallotStyles({
-      election: electionTwoPartyPrimaryFixtures.election,
-      ballotType: BallotType.Precinct,
-      ballotMode: 'test',
-      layoutOptions: DEFAULT_LAYOUT_OPTIONS,
-      nhCustomContent: {},
-      translatedElectionStrings: {},
-    }).unsafeUnwrap();
+    const fixtures = primaryElectionFixtures;
+    const electionDefinition = (
+      await readElection(fixtures.electionPath)
+    ).unsafeUnwrap();
     const { election } = electionDefinition;
 
     const tallyReportResults = await getTallyReportResults(election);
@@ -220,33 +175,36 @@ describe('getTallyReportResults', () => {
     ).toEqual({
       '0': {
         bmd: 0,
-        hmpb: [14],
+        hmpb: [25],
       },
       '1': {
         bmd: 0,
-        hmpb: [12],
+        hmpb: [25],
       },
     });
     const { scannedResults } = tallyReportResults;
     expect(scannedResults.cardCounts).toEqual({
       bmd: 0,
-      hmpb: [26],
+      hmpb: [50],
       manual: 0,
     });
 
     // check one contest
-    expect(scannedResults.contestResults['best-animal-mammal']).toEqual(
+    expect(scannedResults.contestResults['county-leader-mammal']).toEqual(
       buildContestResultsFixture({
-        contest: find(election.contests, (c) => c.id === 'best-animal-mammal'),
+        contest: find(
+          election.contests,
+          (c) => c.id === 'county-leader-mammal'
+        ),
         contestResultsSummary: {
           type: 'candidate',
-          ballots: 14,
+          ballots: 25,
           overvotes: 0,
           undervotes: 0,
           officialOptionTallies: {
-            fox: 4,
-            horse: 6,
-            otter: 4,
+            fox: 5,
+            horse: 10,
+            otter: 10,
           },
         },
         includeGenericWriteIn: false,
@@ -256,14 +214,10 @@ describe('getTallyReportResults', () => {
 });
 
 test('createTestDeckTallyReport', async () => {
-  const { electionDefinition } = layOutAllBallotStyles({
-    election: electionGeneralDefinition.election,
-    ballotType: BallotType.Precinct,
-    ballotMode: 'test',
-    layoutOptions: DEFAULT_LAYOUT_OPTIONS,
-    nhCustomContent: {},
-    translatedElectionStrings: {},
-  }).unsafeUnwrap();
+  const fixtures = generalElectionFixtures.letter;
+  const electionDefinition = (
+    await readElection(fixtures.electionPath)
+  ).unsafeUnwrap();
 
   const reportDocumentBuffer = await createTestDeckTallyReport({
     electionDefinition,
