@@ -146,7 +146,9 @@ test('openssl - error writing temp file', async () => {
 test('openssl - error cleaning up temp files', async () => {
   setTimeout(() => {
     for (const tempFileRemoveCallback of tempFileRemoveCallbacks) {
-      tempFileRemoveCallback.mockRejectedValueOnce(new Error('Whoa!'));
+      tempFileRemoveCallback.mockImplementationOnce(() => {
+        throw new Error('Whoa!');
+      });
     }
     mockChildProcess.emit('close', successExitCode);
   });
