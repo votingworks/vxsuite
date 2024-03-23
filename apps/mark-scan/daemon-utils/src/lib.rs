@@ -13,9 +13,8 @@ const NOOP_LOOP_INTERVAL: Duration = Duration::new(1, 0);
 
 pub fn run_no_op_event_loop(running: &Arc<AtomicBool>) {
     log!(
-        event_id: EventId::Info,
-        event_type: EventType::SystemStatus,
-        message: format!("Connection will not be reattempted. Running a no-op loop, ctrl+c to exit.")
+        EventId::Info,
+        "Connection will not be reattempted. Running a no-op loop, ctrl+c to exit."
     );
 
     let mut last_heartbeat_log_time = Instant::now();
