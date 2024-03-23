@@ -8,7 +8,6 @@ use vx_logging::{log, Disposition, EventId, EventType};
 
 use crate::commands::EchoCommand;
 
-const DEVICE_PATH: &str = "/dev/ttyACM1";
 const DEVICE_BAUD_RATE: u32 = 9600;
 const MAX_ECHO_RESPONSE_WAIT: Duration = Duration::from_secs(5);
 const POLL_INTERVAL: Duration = Duration::from_millis(50);
@@ -18,8 +17,8 @@ pub struct Port {
 }
 
 impl Port {
-    pub fn open() -> color_eyre::Result<Self> {
-        let inner = serialport::new(DEVICE_PATH, DEVICE_BAUD_RATE)
+    pub fn open(path: &str) -> color_eyre::Result<Self> {
+        let inner = serialport::new(path, DEVICE_BAUD_RATE)
             .timeout(POLL_INTERVAL)
             .open()?;
         let mut port = Self { inner };
