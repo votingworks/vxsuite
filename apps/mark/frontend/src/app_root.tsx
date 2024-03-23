@@ -388,6 +388,16 @@ export function AppRoot({
   ) {
     return <SetupCardReaderPage />;
   }
+
+  if (authStatus.status === 'logged_out' && authStatus.reason !== 'no_card') {
+    return (
+      <InvalidCardScreen
+        reasonAndContext={authStatus}
+        recommendedAction="Remove the card to continue."
+      />
+    );
+  }
+
   if (computer.batteryIsLow && !computer.batteryIsCharging) {
     return <SetupPowerPage />;
   }
@@ -511,15 +521,6 @@ export function AppRoot({
           </Gamepad>
         );
       }
-    }
-
-    if (authStatus.status === 'logged_out' && authStatus.reason !== 'no_card') {
-      return (
-        <InvalidCardScreen
-          reasonAndContext={authStatus}
-          recommendedAction="Remove the card to continue."
-        />
-      );
     }
 
     return (
