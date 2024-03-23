@@ -23,6 +23,10 @@ pub enum EventId {
     MachineShutdownComplete,
     #[serde(rename = "usb-device-change-detected")]
     UsbDeviceChangeDetected,
+    #[serde(rename = "info")]
+    Info,
+    #[serde(rename = "heartbeat")]
+    Heartbeat,
     #[serde(rename = "process-started")]
     ProcessStarted,
     #[serde(rename = "process-terminated")]

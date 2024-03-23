@@ -11,5 +11,7 @@ path = "src/patinputd.rs"
 
 [dependencies]
 ctrlc = { workspace = true }
-vx-logging = { workspace = true }
+daemon-utils = { workspace = true }
+clap = { workspace = true, features = ["derive"] }
 uinput = { workspace = true }
+vx-logging = { workspace = true }

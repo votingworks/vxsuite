@@ -42,6 +42,14 @@ IDs are logged with each log to identify the log being written.
 **Type:** [system-status](#system-status)  
 **Description:** A message from the machine kernel about an externally-connected USB device, usually when a new device is connected or disconnected.  
 **Machines:** All
+### info
+**Type:** [system-status](#system-status)  
+**Description:** The process is reporting general status.  
+**Machines:** vx-mark-scan-controller-daemon, vx-mark-scan-pat-daemon
+### heartbeat
+**Type:** [system-status](#system-status)  
+**Description:** The process sent a heartbeat  
+**Machines:** vx-mark-scan-controller-daemon, vx-mark-scan-pat-daemon
 ### process-started
 **Type:** [system-action](#system-action)  
 **Description:** A VotingWorks-authored process (eg. hardware daemon) has been started.  
