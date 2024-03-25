@@ -177,6 +177,10 @@
       "path": "libs/printing"
     },
     {
+      "name": "libs/fujitsu-thermal-printer",
+      "path": "libs/fujitsu-thermal-printer"
+    },
+    {
       "name": "libs/res-to-ts",
       "path": "libs/res-to-ts"
     },
