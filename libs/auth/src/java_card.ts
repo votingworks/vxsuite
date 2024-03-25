@@ -497,9 +497,9 @@ export class JavaCard implements Card {
    */
   private async retrieveCert(certObjectId: Buffer): Promise<Buffer> {
     const data = await this.getData(certObjectId);
-    const [certInDerFormatRemainder, { value: certInDerFormat }] =
+    const [{ value: certInDerFormat }, certInDerFormatRemainder] =
       parseTlvPartial(PUT_DATA.CERT_TAG, data);
-    const [certInfoRemainder, { value: certInfo }] = parseTlvPartial(
+    const [{ value: certInfo }, certInfoRemainder] = parseTlvPartial(
       PUT_DATA.CERT_INFO_TAG,
       certInDerFormatRemainder
     );

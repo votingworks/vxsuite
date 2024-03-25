@@ -303,7 +303,7 @@ export interface Tlv {
 export function parseTlvPartial(
   tagAsByteOrBuffer: Byte | Buffer,
   tlv: Buffer
-): [remainder: Buffer, tlv: Tlv] {
+): [tlv: Tlv, remainder: Buffer] {
   const expectedTag = Buffer.isBuffer(tagAsByteOrBuffer)
     ? tagAsByteOrBuffer
     : Buffer.of(tagAsByteOrBuffer);
@@ -357,7 +357,7 @@ export function parseTlvPartial(
   );
   const remainder = tlv.subarray(tagLength + lengthBytesLength + valueLength);
 
-  return [remainder, { tag, length: lengthBytes, value }];
+  return [{ tag, length: lengthBytes, value }, remainder];
 }
 
 /**
@@ -366,7 +366,7 @@ export function parseTlvPartial(
  * thrown.
  */
 export function parseTlv(tagAsByteOrBuffer: Byte | Buffer, data: Buffer): Tlv {
-  const [remainder, tlv] = parseTlvPartial(tagAsByteOrBuffer, data);
+  const [tlv, remainder] = parseTlvPartial(tagAsByteOrBuffer, data);
   assert(
     remainder.length === 0,
     `TLV was not fully consumed: remainder=${remainder.toString('hex')}`

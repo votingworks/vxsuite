@@ -413,9 +413,9 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
       return Buffer.of();
     }
 
-    const [certInDerFormatRemainder, { value: certInDerFormat }] =
+    const [{ value: certInDerFormat }, certInDerFormatRemainder] =
       parseTlvPartial(PUT_DATA.CERT_TAG, data);
-    const [certInfoRemainder, { value: certInfo }] = parseTlvPartial(
+    const [{ value: certInfo }, certInfoRemainder] = parseTlvPartial(
       PUT_DATA.CERT_INFO_TAG,
       certInDerFormatRemainder
     );
@@ -503,7 +503,7 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
       GENERATE_ASYMMETRIC_KEY_PAIR.RESPONSE_TAG,
       generateKeyPairResponse
     );
-    const [rsaPublicKeyTlvRemainder, { value: modulusValue }] = parseTlvPartial(
+    const [{ value: modulusValue }, rsaPublicKeyTlvRemainder] = parseTlvPartial(
       GENERATE_ASYMMETRIC_KEY_PAIR.RESPONSE_RSA_MODULUS_TAG,
       rsaPublicKey
     );
