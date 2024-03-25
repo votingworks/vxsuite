@@ -10,6 +10,7 @@ create table election (
   last_polls_transition_time integer,
   last_polls_transition_ballot_count integer,
   ballot_count_when_ballot_bag_last_replaced integer not null default 0,
+  has_paper_been_loaded boolean not null default false,
   is_sound_muted boolean not null default false,
   is_ultrasonic_disabled boolean not null default false,
   created_at timestamp not null default current_timestamp
@@ -58,6 +59,14 @@ create table system_settings (
   id integer primary key check (id = 1),
   data text not null -- JSON blob
 );
+
+create table diagnostics (
+  id integer primary key,
+  type text not null,
+  outcome text not null check (outcome = 'pass' or outcome = 'fail'),
+  message text,
+  timestamp number not null
+);  
 
 create table export_directory_name (
   -- Enforce singleton table

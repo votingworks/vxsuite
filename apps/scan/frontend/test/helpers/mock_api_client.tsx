@@ -42,6 +42,7 @@ export const machineConfig: MachineConfig = {
 const defaultConfig: PrecinctScannerConfig = {
   isSoundMuted: false,
   isUltrasonicDisabled: false,
+  hasPaperBeenLoaded: false,
   isTestMode: true,
   ballotCountWhenBallotBagLastReplaced: 0,
   electionDefinition: electionGeneralDefinition,
@@ -68,6 +69,7 @@ export function createApiMock() {
 
   function setPrinterStatus(printerStatus: Partial<PrinterStatus>): void {
     mockApiClient.getPrinterStatus.expectRepeatedCallsWith().resolves({
+      scheme: 'hardware-v3',
       connected: true,
       config: BROTHER_THERMAL_PRINTER_CONFIG,
       ...printerStatus,

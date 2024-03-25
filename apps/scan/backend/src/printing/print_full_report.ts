@@ -1,20 +1,25 @@
-import { Printer, renderToPdf } from '@votingworks/printing';
+import { renderToPdf } from '@votingworks/printing';
 import { assert } from '@votingworks/basics';
 import { isPollsSuspensionTransition } from '@votingworks/utils';
 import {
   PrecinctScannerBallotCountReport,
-  PrecinctScannerTallyReports,
+  MergedPrecinctScannerTallyReports,
 } from '@votingworks/ui';
 import { getDocument } from 'pdfjs-dist';
-import { Store } from './store';
-import { rootDebug } from './util/debug';
-import { getMachineConfig } from './machine_config';
-import { getScannerResults } from './util/results';
-import { getCurrentTime } from './util/get_current_time';
+import { Store } from '../store';
+import { rootDebug } from '../util/debug';
+import { getMachineConfig } from '../machine_config';
+import { getScannerResults } from '../util/results';
+import { Printer } from './printer';
+import { getCurrentTime } from '../util/get_current_time';
 
-const debug = rootDebug.extend('print-report');
+const debug = rootDebug.extend('print-full-report');
 
-export async function printReport({
+/**
+ * Sends the full report (if a primary tally report, all sections) to the printer
+ * and returns the total number of pages. Used for V3 hardware.
+ */
+export async function printFullReport({
   store,
   printer,
 }: {
@@ -50,7 +55,7 @@ export async function printReport({
 
     debug('printing tally report...');
 
-    return PrecinctScannerTallyReports({
+    return MergedPrecinctScannerTallyReports({
       electionDefinition,
       precinctSelection,
       isLiveMode,
@@ -63,7 +68,7 @@ export async function printReport({
   })();
 
   const pdfData = await renderToPdf({ document: report });
-  await printer.print({ data: pdfData });
+  await printer.print(pdfData);
 
   const pdfDocument = await getDocument(pdfData).promise;
   return pdfDocument.numPages;

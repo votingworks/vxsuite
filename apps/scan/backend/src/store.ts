@@ -26,6 +26,8 @@ import {
   safeParseSystemSettings,
   AdjudicationReason,
   PollsTransitionType,
+  DiagnosticRecord,
+  DiagnosticType,
 } from '@votingworks/types';
 import { assert, assertDefined, Optional, typedAs } from '@votingworks/basics';
 import { DateTime } from 'luxon';
@@ -36,8 +38,10 @@ import {
   RejectedSheet,
   Sheet,
   UiStringsStore,
+  addDiagnosticRecord,
   clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult,
   createUiStringStore,
+  getMostRecentDiagnosticRecord,
 } from '@votingworks/backend';
 import {
   clearCastVoteRecordHashes,
@@ -888,6 +892,44 @@ export class Store {
 
     if (!result) return undefined;
     return safeParseSystemSettings(result.data).unsafeUnwrap();
+  }
+
+  getElectionCreatedAt(): Date | undefined {
+    const result = this.client.one(
+      `select datetime(created_at, 'localtime') as createdAt from election`
+    ) as undefined | { createdAt: string };
+    if (!result) return undefined;
+
+    return new Date(result.createdAt);
+  }
+
+  addDiagnosticRecord(record: Omit<DiagnosticRecord, 'timestamp'>): void {
+    addDiagnosticRecord(this.client, record);
+  }
+
+  getMostRecentDiagnosticRecord(
+    type: DiagnosticType
+  ): DiagnosticRecord | undefined {
+    return getMostRecentDiagnosticRecord(this.client, type);
+  }
+
+  getHasPaperBeenLoaded(): boolean {
+    const result = this.client.one(
+      'select has_paper_been_loaded as hasPaperBeenLoaded from election'
+    ) as { hasPaperBeenLoaded: number } | undefined;
+
+    return Boolean(result?.hasPaperBeenLoaded);
+  }
+
+  setHasPaperHasBeenLoaded(hasPaperBeenLoaded: boolean): void {
+    if (!this.hasElection()) {
+      throw new Error('Cannot set paper loaded without an election.');
+    }
+
+    this.client.run(
+      'update election set has_paper_been_loaded = ?',
+      hasPaperBeenLoaded ? 1 : 0
+    );
   }
 
   /**

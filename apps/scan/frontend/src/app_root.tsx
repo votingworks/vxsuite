@@ -208,6 +208,7 @@ export function AppRoot({ logger }: Props): JSX.Element | null {
   if (isPollWorkerAuth(authStatus)) {
     return (
       <PollWorkerScreen
+        electionDefinition={electionDefinition}
         scannedBallotCount={scannerStatus.ballotsCounted}
         pollsInfo={pollsInfo}
         logger={logger}

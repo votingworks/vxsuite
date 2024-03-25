@@ -156,3 +156,15 @@ export function ScreenMainCenterChild(
 ): JSX.Element | null {
   return <Screen {...props} centerContent padded />;
 }
+
+export function PollWorkerFlowScreen(
+  props: Omit<CenteredScreenProps, 'infoBarMode' | 'voterFacing'>
+): JSX.Element {
+  const { children } = props;
+
+  return (
+    <ScreenMainCenterChild infoBarMode="pollworker" voterFacing={false}>
+      {children}
+    </ScreenMainCenterChild>
+  );
+}

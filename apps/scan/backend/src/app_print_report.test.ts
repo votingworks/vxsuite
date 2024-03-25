@@ -49,7 +49,7 @@ test('can print and re-print polls opened report', async () => {
 
       // printing report before polls opened should fail
       await suppressingConsoleOutput(async () => {
-        await expect(apiClient.printReport()).rejects.toThrow();
+        await expect(apiClient.printFullReport()).rejects.toThrow();
       });
 
       // initial polls opened report
@@ -57,7 +57,7 @@ test('can print and re-print polls opened report', async () => {
         type: 'open_polls',
         time: new Date('2021-01-01T00:00:00.000').getTime(),
       });
-      await apiClient.printReport();
+      await apiClient.printFullReport();
       const initialReportPath = mockPrinterHandler.getLastPrintPath();
       assert(initialReportPath !== undefined);
       await expect(initialReportPath).toMatchPdfSnapshot({
@@ -65,7 +65,7 @@ test('can print and re-print polls opened report', async () => {
       });
 
       // allows re-printing identical polls opened report
-      await apiClient.printReport();
+      await apiClient.printFullReport();
       const reprintedReportPath = mockPrinterHandler.getLastPrintPath();
       assert(reprintedReportPath !== undefined);
       await expect(reprintedReportPath).toMatchPdfSnapshot({
@@ -77,7 +77,7 @@ test('can print and re-print polls opened report', async () => {
 
       // you should not be able to print polls opened reports after scanning
       await suppressingConsoleOutput(async () => {
-        await expect(apiClient.printReport()).rejects.toThrow();
+        await expect(apiClient.printFullReport()).rejects.toThrow();
       });
     }
   );
@@ -108,7 +108,7 @@ test('can print voting paused and voting resumed reports', async () => {
         type: 'pause_voting',
         time,
       });
-      await apiClient.printReport();
+      await apiClient.printFullReport();
       await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
         customSnapshotIdentifier: 'voting-paused-report',
       });
@@ -118,7 +118,7 @@ test('can print voting paused and voting resumed reports', async () => {
         type: 'resume_voting',
         time,
       });
-      await apiClient.printReport();
+      await apiClient.printFullReport();
       await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
         customSnapshotIdentifier: 'voting-resumed-report',
       });
@@ -153,7 +153,7 @@ test('can tabulate results and print polls closed report', async () => {
         type: 'close_polls',
         time,
       });
-      await apiClient.printReport();
+      await apiClient.printFullReport();
       await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
         customSnapshotIdentifier: 'polls-closed-report',
       });

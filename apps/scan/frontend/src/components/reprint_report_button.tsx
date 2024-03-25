@@ -1,42 +1,35 @@
 import { Button } from '@votingworks/ui';
 import type { PollsTransition } from '@votingworks/scan-backend';
 import { getPollsReportTitle } from '@votingworks/utils';
-import { getPrinterStatus, printTallyReport } from '../api';
+import { getPrinterStatus } from '../api';
 
 interface ReprintReportButtonProps {
   lastPollsTransition: PollsTransition;
   scannedBallotCount: number;
-  isAdditional: boolean;
-  beforePrint: () => void;
-  afterPrint: (numPages: number) => void;
+  onPress: () => void;
 }
 
 export function ReprintReportButton({
   scannedBallotCount,
   lastPollsTransition,
-  isAdditional,
-  beforePrint,
-  afterPrint,
+  onPress,
 }: ReprintReportButtonProps): JSX.Element | null {
   const printerStatusQuery = getPrinterStatus.useQuery();
-  const printTallyReportMutation = printTallyReport.useMutation();
-
-  async function reprintReport() {
-    beforePrint();
-    const numPages = await printTallyReportMutation.mutateAsync();
-    afterPrint(numPages);
-  }
 
   const ballotCountHasNotChanged =
     lastPollsTransition?.ballotCount === scannedBallotCount;
 
-  const canPrintReport =
-    printerStatusQuery.data?.connected && ballotCountHasNotChanged;
+  const printerStatus = printerStatusQuery.data;
+  const isPrinterReady =
+    printerStatus &&
+    ((printerStatus.scheme === 'hardware-v3' && printerStatus.connected) ||
+      (printerStatus.scheme === 'hardware-v4' &&
+        printerStatus.state === 'idle'));
+  const canPrintReport = isPrinterReady && ballotCountHasNotChanged;
 
   return (
-    <Button onPress={reprintReport} disabled={!canPrintReport}>
-      Print {isAdditional ? 'Additional ' : ''}
-      {getPollsReportTitle(lastPollsTransition.type)}
+    <Button onPress={onPress} disabled={!canPrintReport}>
+      Print {getPollsReportTitle(lastPollsTransition.type)}
     </Button>
   );
 }

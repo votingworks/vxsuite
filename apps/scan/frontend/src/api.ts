@@ -163,6 +163,16 @@ export const getPrinterStatus = {
   },
 } as const;
 
+export const getHasPaperBeenTested = {
+  queryKey(): QueryKey {
+    return ['getHasPaperBeenTested'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getHasPaperBeenTested());
+  },
+} as const;
+
 export const ejectUsbDrive = {
   useMutation() {
     const apiClient = useApiClient();
@@ -198,6 +208,7 @@ export const unconfigureElection = {
       async onSuccess() {
         await queryClient.invalidateQueries(getConfig.queryKey());
         await queryClient.invalidateQueries(getPollsInfo.queryKey());
+        await queryClient.invalidateQueries(getHasPaperBeenTested.queryKey());
         await uiStringsApi.onMachineConfigurationChange(queryClient);
 
         // If doesUsbDriveRequireCastVoteRecordSync was true, unconfiguring resets it back to false
@@ -279,10 +290,17 @@ export const transitionPolls = {
   },
 } as const;
 
-export const printTallyReport = {
+export const printFullReport = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.printReport);
+    return useMutation(apiClient.printFullReport);
+  },
+} as const;
+
+export const printReportSection = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.printReportSection);
   },
 } as const;
 
@@ -340,6 +358,44 @@ export const supportsUltrasonic = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () => apiClient.supportsUltrasonic());
+  },
+} as const;
+
+export const setHasPaperBeenLoaded = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setHasPaperBeenLoaded, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getConfig.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const advancePaper = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.advancePaper);
+  },
+} as const;
+
+export const printTestPage = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.printTestPage);
+  },
+} as const;
+
+export const addDiagnosticRecord = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.addDiagnosticRecord, {
+      onSuccess: async () => {
+        await queryClient.invalidateQueries(getHasPaperBeenTested.queryKey());
+      },
+    });
   },
 } as const;
 

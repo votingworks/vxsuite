@@ -17,14 +17,20 @@ import {
   isIntegrationTest,
 } from '@votingworks/utils';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
-import { detectPrinter } from '@votingworks/printing';
 import { SCAN_WORKSPACE } from './globals';
 import * as customStateMachine from './scanners/custom/state_machine';
 import * as server from './server';
 import { createWorkspace, Workspace } from './util/workspace';
 import { getUserRole } from './util/auth';
+import { getPrinter } from './printing/printer';
 
 export type { Api } from './app';
+export type {
+  PrinterStatus,
+  FujitsuPrinterState,
+  FujitsuPrinterStatus,
+  FujitsuPrintResult,
+} from './printing/printer';
 export * from './types';
 
 loadEnvVarsFromDotenvFiles();
@@ -59,7 +65,7 @@ async function main(): Promise<number> {
   const workspace = await resolveWorkspace();
   const logger = Logger.from(baseLogger, () => getUserRole(auth, workspace));
   const usbDrive = detectUsbDrive(logger);
-  const printer = detectPrinter(logger);
+  const printer = await getPrinter(logger);
 
   const precinctScannerStateMachine =
     customStateMachine.createPrecinctScannerStateMachine({
@@ -70,7 +76,7 @@ async function main(): Promise<number> {
       usbDrive,
     });
 
-  server.start({
+  await server.start({
     auth,
     precinctScannerStateMachine,
     workspace,

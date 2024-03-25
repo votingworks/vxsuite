@@ -28,6 +28,7 @@ import {
   buildMockLogger,
   createPrecinctScannerStateMachineMock,
 } from '../test/helpers/custom_helpers';
+import { wrapLegacyPrinter } from './printing/printer';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -57,7 +58,7 @@ runUiStringApiTests({
     machine: createPrecinctScannerStateMachineMock(),
     workspace,
     usbDrive: mockUsbDrive.usbDrive,
-    printer,
+    printer: wrapLegacyPrinter(printer),
     logger: buildMockLogger(mockAuth, workspace),
   }),
   store: store.getUiStringsStore(),
@@ -84,7 +85,7 @@ describe('configureFromElectionPackageOnUsbDrive', () => {
     machine: createPrecinctScannerStateMachineMock(),
     workspace,
     usbDrive: mockUsbDrive.usbDrive,
-    printer,
+    printer: wrapLegacyPrinter(printer),
     logger: buildMockLogger(mockAuth, workspace),
   });
 
@@ -102,7 +103,7 @@ describe('unconfigureElection', () => {
     machine: createPrecinctScannerStateMachineMock(),
     workspace,
     usbDrive: mockUsbDrive.usbDrive,
-    printer,
+    printer: wrapLegacyPrinter(printer),
     logger: buildMockLogger(mockAuth, workspace),
   });
 

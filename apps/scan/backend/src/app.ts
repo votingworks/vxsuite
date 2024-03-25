@@ -6,8 +6,9 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   ExportCastVoteRecordsToUsbDriveError,
   PrecinctSelection,
-  PrinterStatus,
+  PartyId,
   SinglePrecinctSelection,
+  DiagnosticRecord,
 } from '@votingworks/types';
 import {
   getPollsTransitionDestinationState,
@@ -33,7 +34,7 @@ import {
 } from '@votingworks/basics';
 import { InsertedSmartCardAuthApi, LiveCheck } from '@votingworks/auth';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
-import { Printer } from '@votingworks/printing';
+import { FujitsuPrintResult, Printer, PrinterStatus } from './printing/printer';
 import {
   PrecinctScannerStateMachine,
   PrecinctScannerConfig,
@@ -44,8 +45,13 @@ import {
 import { constructAuthMachineState } from './util/auth';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
-import { printReport } from './print_report';
+import { printFullReport } from './printing/print_full_report';
 import { logPollsTransition } from './util/logging';
+import { printTestPage } from './printing/test_print';
+import {
+  getTallyReportPartyIds,
+  printReportSection,
+} from './printing/print_report_section';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi({
@@ -173,6 +179,7 @@ export function buildApi({
           !machine.supportsUltrasonic() || store.getIsUltrasonicDisabled(),
         ballotCountWhenBallotBagLastReplaced:
           store.getBallotCountWhenBallotBagLastReplaced(),
+        hasPaperBeenLoaded: store.getHasPaperBeenLoaded(),
       };
     },
 
@@ -361,12 +368,26 @@ export function buildApi({
     },
 
     getPrinterStatus(): Promise<PrinterStatus> {
-      return printer.status();
+      return printer.getStatus();
     },
 
-    async printReport(): Promise<number> {
-      const numPages = await printReport({ store, printer });
+    async printFullReport(): Promise<number> {
+      const numPages = await printFullReport({ store, printer });
       return numPages;
+    },
+
+    getTallyReportPartyIds(): Array<PartyId | undefined> {
+      return getTallyReportPartyIds(store);
+    },
+
+    async printReportSection(input: {
+      index: number;
+    }): Promise<FujitsuPrintResult> {
+      return printReportSection({
+        store,
+        printer,
+        index: input.index,
+      });
     },
 
     getScannerStatus(): PrecinctScannerStatus {
@@ -384,6 +405,38 @@ export function buildApi({
 
     returnBallot(): void {
       machine.return();
+    },
+
+    setHasPaperBeenLoaded(input: { hasPaperBeenLoaded: boolean }): void {
+      store.setHasPaperHasBeenLoaded(input.hasPaperBeenLoaded);
+    },
+
+    getHasPaperBeenTested(): boolean {
+      const diagnostic = store.getMostRecentDiagnosticRecord('test-print');
+      const configuredTime = store.getElectionCreatedAt();
+
+      if (!diagnostic || !configuredTime) {
+        return false;
+      }
+
+      return diagnostic.timestamp > configuredTime.getTime();
+    },
+
+    async advancePaper(): Promise<FujitsuPrintResult> {
+      assert(printer.type === 'hardware-v4');
+      await logger.logAsCurrentRole(LogEventId.DiagnosticInit, {
+        message: `User started a print diagnostic by printing a test page.`,
+        disposition: 'success',
+      });
+      return printer.advancePaper();
+    },
+
+    printTestPage(): Promise<FujitsuPrintResult> {
+      return printTestPage({ printer });
+    },
+
+    addDiagnosticRecord(input: Omit<DiagnosticRecord, 'timestamp'>): void {
+      store.addDiagnosticRecord(input);
     },
 
     supportsUltrasonic(): boolean {

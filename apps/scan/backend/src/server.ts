@@ -1,12 +1,12 @@
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
-import { Printer, detectPrinter } from '@votingworks/printing';
 import { detectDevices } from '@votingworks/backend';
 import { buildApp } from './app';
 import { PORT } from './globals';
 import { PrecinctScannerStateMachine } from './types';
 import { Workspace } from './util/workspace';
+import { Printer, getPrinter } from './printing/printer';
 
 export interface StartOptions {
   auth: InsertedSmartCardAuthApi;
@@ -21,17 +21,17 @@ export interface StartOptions {
 /**
  * Starts the server.
  */
-export function start({
+export async function start({
   auth,
   workspace,
   logger,
   precinctScannerStateMachine,
   usbDrive,
   printer,
-}: StartOptions): void {
+}: StartOptions): Promise<void> {
   detectDevices({ logger });
   const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
-  const resolvedPrinter = printer ?? detectPrinter(logger);
+  const resolvedPrinter = printer ?? (await getPrinter(logger));
 
   // Clear any cached data
   workspace.clearUploads();

@@ -46,6 +46,7 @@ import {
 import { Store } from '../../src/store';
 import { PrecinctScannerStateMachine } from '../../src';
 import { getUserRole } from '../../src/util/auth';
+import { wrapLegacyPrinter } from '../../src/printing/printer';
 
 export function buildMockLogger(
   auth: InsertedSmartCardAuthApi,
@@ -116,7 +117,7 @@ export async function withApp(
     machine: precinctScannerMachine,
     workspace,
     usbDrive: mockUsbDrive.usbDrive,
-    printer: mockPrinterHandler.printer,
+    printer: wrapLegacyPrinter(mockPrinterHandler.printer),
     logger,
   });
 
