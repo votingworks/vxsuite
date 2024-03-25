@@ -4,7 +4,7 @@ use ratatui::{
 };
 
 #[derive(Debug, Clone, PartialEq)]
-pub(crate) struct LogEntry<'a> {
+pub struct LogEntry<'a> {
     line: Line<'a>,
     count: u32,
 }
