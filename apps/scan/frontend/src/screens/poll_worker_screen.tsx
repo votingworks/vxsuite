@@ -18,7 +18,7 @@ import {
 } from '@votingworks/utils';
 import { PollsTransitionType } from '@votingworks/types';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
-import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
+import { Optional, throwIllegalValue } from '@votingworks/basics';
 import styled from 'styled-components';
 import pluralize from 'pluralize';
 import type { PrecinctScannerPollsInfo } from '@votingworks/scan-backend';
@@ -59,6 +59,7 @@ type PollWorkerFlowState =
     }
   | {
       type: 'post-print';
+      transitionType: PollsTransitionType;
       numPages: number;
       isAfterPollsTransition: boolean;
     };
@@ -265,7 +266,6 @@ function PostPrintScreen({
 }
 
 export interface PollWorkerScreenProps {
-  initialPollsInfo: PrecinctScannerPollsInfo;
   scannedBallotCount: number;
   logger: BaseLogger;
 }
@@ -277,11 +277,13 @@ const ButtonGrid = styled.div`
   grid-template-columns: 1fr 1fr 1fr;
 `;
 
-export function PollWorkerScreen({
-  initialPollsInfo,
+function PollWorkerScreenContents({
+  pollsInfo,
   scannedBallotCount,
   logger,
-}: PollWorkerScreenProps): JSX.Element {
+}: PollWorkerScreenProps & {
+  pollsInfo: PrecinctScannerPollsInfo;
+}): JSX.Element {
   const pollsInfoQuery = getPollsInfo.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const printerStatusQuery = getPrinterStatus.useQuery();
@@ -300,7 +302,7 @@ export function PollWorkerScreen({
   ] = useState(false);
 
   function initialPollWorkerFlowState(): Optional<PollWorkerFlowState> {
-    switch (initialPollsInfo.pollsState) {
+    switch (pollsInfo.pollsState) {
       case 'polls_closed_initial':
         return { type: 'open-polls-prompt' };
       case 'polls_paused':
@@ -333,12 +335,7 @@ export function PollWorkerScreen({
   const usbDriveStatus = usbDriveStatusQuery.data;
   const printerStatus = printerStatusQuery.data;
   const isPrinterReady = Boolean(printerStatus?.connected);
-  const pollsInfo = pollsInfoQuery.data;
   const { pollsState } = pollsInfo;
-  const lastPollsTransition =
-    pollsInfo.pollsState === 'polls_closed_initial'
-      ? undefined
-      : pollsInfo.lastPollsTransition;
 
   function showAllPollWorkerActions() {
     return setPollWorkerFlowState(undefined);
@@ -367,6 +364,7 @@ export function PollWorkerScreen({
     const numPages = await printReportMutation.mutateAsync();
     setPollWorkerFlowState({
       type: 'post-print',
+      transitionType: 'open_polls',
       numPages,
       isAfterPollsTransition: true,
     });
@@ -385,6 +383,7 @@ export function PollWorkerScreen({
     const numPages = await printReportMutation.mutateAsync();
     setPollWorkerFlowState({
       type: 'post-print',
+      transitionType: 'close_polls',
       numPages,
       isAfterPollsTransition: true,
     });
@@ -399,6 +398,7 @@ export function PollWorkerScreen({
     const numPages = await printReportMutation.mutateAsync();
     setPollWorkerFlowState({
       type: 'post-print',
+      transitionType: 'pause_voting',
       numPages,
       isAfterPollsTransition: true,
     });
@@ -413,26 +413,34 @@ export function PollWorkerScreen({
     const numPages = await printReportMutation.mutateAsync();
     setPollWorkerFlowState({
       type: 'post-print',
+      transitionType: 'resume_voting',
       numPages,
       isAfterPollsTransition: true,
     });
   }
 
-  async function reprintReport(isAfterPollsTransition: boolean) {
+  async function reprintReport({
+    isAfterPollsTransition,
+    transitionType,
+  }: {
+    isAfterPollsTransition: boolean;
+    transitionType: PollsTransitionType;
+  }) {
     setPollWorkerFlowState({
       type: 'printing-report',
     });
     const numPages = await printReportMutation.mutateAsync();
     setPollWorkerFlowState({
       type: 'post-print',
+      transitionType,
       numPages,
       isAfterPollsTransition,
     });
   }
 
   const allowReprintingReport =
-    lastPollsTransition &&
-    lastPollsTransition.ballotCount === scannedBallotCount;
+    pollsInfo.pollsState !== 'polls_closed_initial' &&
+    pollsInfo.lastPollsTransition.ballotCount === scannedBallotCount;
 
   if (isShowingBallotsAlreadyScannedScreen) {
     return BallotsAlreadyScannedScreen;
@@ -491,16 +499,13 @@ export function PollWorkerScreen({
           </Screen>
         );
       case 'post-print':
-        assert(lastPollsTransition);
         return (
           <PostPrintScreen
             isAfterPollsTransition={pollWorkerFlowState.isAfterPollsTransition}
             isPrinterReady={isPrinterReady}
-            reprint={() =>
-              reprintReport(pollWorkerFlowState.isAfterPollsTransition)
-            }
+            reprint={() => reprintReport(pollWorkerFlowState)}
             numPages={pollWorkerFlowState.numPages}
-            transitionType={lastPollsTransition.type}
+            transitionType={pollWorkerFlowState.transitionType}
           />
         );
       /* istanbul ignore next - compile-time check for completeness */
@@ -513,7 +518,12 @@ export function PollWorkerScreen({
     <React.Fragment>
       {pollsInfo.pollsState !== 'polls_closed_initial' && (
         <Button
-          onPress={() => reprintReport(false)}
+          onPress={() =>
+            reprintReport({
+              isAfterPollsTransition: false,
+              transitionType: pollsInfo.lastPollsTransition.type,
+            })
+          }
           disabled={!allowReprintingReport || !isPrinterReady}
         >
           Print {getPollsReportTitle(pollsInfo.lastPollsTransition.type)}
@@ -590,6 +600,19 @@ export function PollWorkerScreen({
         />
       )}
     </Screen>
+  );
+}
+
+export function PollWorkerScreen(
+  props: PollWorkerScreenProps
+): JSX.Element | null {
+  const pollsInfoQuery = getPollsInfo.useQuery();
+
+  if (!pollsInfoQuery.isSuccess) {
+    return null;
+  }
+  return (
+    <PollWorkerScreenContents {...props} pollsInfo={pollsInfoQuery.data} />
   );
 }
 

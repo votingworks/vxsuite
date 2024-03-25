@@ -18,7 +18,6 @@ import {
   provideApi,
   statusNoPaper,
 } from '../../test/helpers/mock_api_client';
-import { mockPollsInfo } from '../../test/helpers/mock_polls_info';
 
 let apiMock: ApiMock;
 
@@ -65,7 +64,6 @@ function renderScreen(
       apiMock,
       <PollWorkerScreen
         scannedBallotCount={0}
-        initialPollsInfo={{ pollsState: 'polls_closed_initial' }}
         logger={mockBaseLogger()}
         {...props}
       />
@@ -80,7 +78,6 @@ describe('shows Livecheck button only when enabled', () => {
     apiMock.expectGetPollsInfo('polls_open');
     renderScreen({
       scannedBallotCount: 5,
-      initialPollsInfo: mockPollsInfo('polls_open'),
     });
 
     userEvent.click(await screen.findByText('No'));
@@ -99,7 +96,6 @@ describe('shows Livecheck button only when enabled', () => {
     apiMock.expectGetPollsInfo('polls_open');
     renderScreen({
       scannedBallotCount: 5,
-      initialPollsInfo: mockPollsInfo('polls_open'),
     });
 
     userEvent.click(await screen.findByText('No'));
@@ -112,7 +108,6 @@ describe('transitions from polls closed initial', () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
     renderScreen({
       scannedBallotCount: 0,
-      initialPollsInfo: mockPollsInfo('polls_closed_initial'),
     });
     await screen.findByText('Do you want to open the polls?');
   });
@@ -142,7 +137,6 @@ describe('transitions from polls open', () => {
     apiMock.expectGetPollsInfo('polls_open');
     renderScreen({
       scannedBallotCount: 7,
-      initialPollsInfo: mockPollsInfo('polls_open'),
     });
     await screen.findByText('Do you want to close the polls?');
   });
@@ -182,7 +176,6 @@ describe('transitions from polls paused', () => {
     apiMock.expectGetPollsInfo('polls_paused');
     renderScreen({
       scannedBallotCount: 7,
-      initialPollsInfo: mockPollsInfo('polls_paused'),
     });
     await screen.findByText('Do you want to resume voting?');
   });
@@ -221,7 +214,6 @@ test('no transitions from polls closed final', async () => {
   apiMock.expectGetPollsInfo('polls_closed_final');
   renderScreen({
     scannedBallotCount: 0,
-    initialPollsInfo: mockPollsInfo('polls_closed_final'),
   });
   await screen.findByText(
     'Voting is complete and the polls cannot be reopened.'
@@ -239,7 +231,6 @@ test('there is a warning if we attempt to open polls with ballots scanned', asyn
   apiMock.expectGetPollsInfo('polls_closed_initial');
   renderScreen({
     scannedBallotCount: 1,
-    initialPollsInfo: mockPollsInfo('polls_closed_initial'),
     logger,
   });
   await screen.findByText('Do you want to open the polls?');
@@ -262,7 +253,6 @@ test('polls cannot be closed if CVR sync is required', async () => {
   });
   apiMock.expectGetPollsInfo('polls_open');
   renderScreen({
-    initialPollsInfo: mockPollsInfo('polls_open'),
     scannedBallotCount: 1,
   });
 
@@ -301,7 +291,6 @@ test('polls cannot be closed if CVR sync is required, even from polls paused sta
   });
   apiMock.expectGetPollsInfo('polls_paused');
   renderScreen({
-    initialPollsInfo: mockPollsInfo('polls_paused'),
     scannedBallotCount: 1,
   });
 
@@ -322,9 +311,7 @@ test('polls cannot be closed if CVR sync is required, even from polls paused sta
 describe('reprinting previous report', () => {
   test('not available if no previous report', async () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
-    renderScreen({
-      initialPollsInfo: mockPollsInfo('polls_closed_initial'),
-    });
+    renderScreen({});
 
     userEvent.click(await screen.findByText('No'));
     expect(screen.getAllByRole('button').map((b) => b.textContent)).toEqual([
@@ -335,9 +322,7 @@ describe('reprinting previous report', () => {
 
   test('available after polls open + can print additional afterward', async () => {
     apiMock.expectGetPollsInfo('polls_open');
-    renderScreen({
-      initialPollsInfo: mockPollsInfo('polls_open'),
-    });
+    renderScreen({});
 
     userEvent.click(await screen.findByText('No'));
     const button = await screen.findByText('Print Polls Opened Report');
@@ -353,9 +338,7 @@ describe('reprinting previous report', () => {
 
   test('available after polls paused', async () => {
     apiMock.expectGetPollsInfo('polls_paused');
-    renderScreen({
-      initialPollsInfo: mockPollsInfo('polls_paused'),
-    });
+    renderScreen({});
 
     userEvent.click(await screen.findByText('No'));
     const button = await screen.findByText('Print Voting Paused Report');
@@ -367,9 +350,7 @@ describe('reprinting previous report', () => {
 
   test('available after polls resumed', async () => {
     apiMock.expectGetPollsInfo('polls_open', { type: 'resume_voting' });
-    renderScreen({
-      initialPollsInfo: mockPollsInfo('polls_open', { type: 'resume_voting' }),
-    });
+    renderScreen({});
 
     userEvent.click(await screen.findByText('No'));
     const button = await screen.findByText('Print Voting Resumed Report');
@@ -381,9 +362,7 @@ describe('reprinting previous report', () => {
 
   test('available after polls closed', async () => {
     apiMock.expectGetPollsInfo('polls_closed_final');
-    renderScreen({
-      initialPollsInfo: mockPollsInfo('polls_closed_final'),
-    });
+    renderScreen({});
 
     const button = await screen.findByText('Print Polls Closed Report');
     expect(button).toBeEnabled();
@@ -396,9 +375,7 @@ describe('reprinting previous report', () => {
 describe('must have printer attached to transition polls and print reports', () => {
   test('polls open', async () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
-    renderScreen({
-      initialPollsInfo: mockPollsInfo('polls_closed_initial'),
-    });
+    renderScreen({});
     apiMock.setPrinterStatus({ connected: false });
     const attachText = await screen.findByText('Attach printer to continue.');
     expect(screen.getButton('Yes, Open the Polls')).toBeDisabled();
@@ -421,9 +398,7 @@ describe('must have printer attached to transition polls and print reports', () 
 
   test('additional reports', async () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
-    renderScreen({
-      initialPollsInfo: mockPollsInfo('polls_closed_initial'),
-    });
+    renderScreen({});
 
     apiMock.expectOpenPolls();
     apiMock.expectPrintReport();
@@ -443,9 +418,7 @@ describe('must have printer attached to transition polls and print reports', () 
 
   test('polls close', async () => {
     apiMock.expectGetPollsInfo('polls_open');
-    renderScreen({
-      initialPollsInfo: mockPollsInfo('polls_open'),
-    });
+    renderScreen({});
     apiMock.setPrinterStatus({ connected: false });
     const attachText = await screen.findByText('Attach printer to continue.');
     expect(screen.getButton('Yes, Close the Polls')).toBeDisabled();
