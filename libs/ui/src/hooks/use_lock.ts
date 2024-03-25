@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useMemo, useRef } from 'react';
 
 export interface Lock {
   lock: () => boolean;
@@ -13,14 +13,17 @@ export interface Lock {
 export function useLock(): Lock {
   const locked = useRef(false);
 
-  return {
-    lock: () => {
-      if (locked.current) return false;
-      locked.current = true;
-      return true;
-    },
-    unlock: () => {
-      locked.current = false;
-    },
-  };
+  const lock = useMemo(() => {
+    return {
+      lock: () => {
+        if (locked.current) return false;
+        locked.current = true;
+        return true;
+      },
+      unlock: () => {
+        locked.current = false;
+      },
+    };
+  }, []);
+  return lock;
 }
