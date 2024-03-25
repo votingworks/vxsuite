@@ -654,7 +654,8 @@ test('Export all ballots', async () => {
   expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(
     expect.any(Object), // Renderer
     vxDefaultBallotTemplate,
-    expectedBallotProps
+    expectedBallotProps,
+    expect.any(Object) // Election strings
   );
 });
 
@@ -710,7 +711,8 @@ test('Export test decks', async () => {
   expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(
     expect.any(Object), // Renderer
     vxDefaultBallotTemplate,
-    expectedBallotProps
+    expectedBallotProps,
+    expect.any(Object) // Election strings
   );
 });
 

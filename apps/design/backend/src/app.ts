@@ -40,6 +40,7 @@ import {
 } from './test_decks';
 import { AppContext } from './context';
 import { rotateCandidates } from './candidate_rotation';
+import { extractAndTranslateElectionStrings } from './language_and_audio';
 
 export function createBlankElection(): Election {
   return {
@@ -99,7 +100,7 @@ export function convertVxfPrecincts(election: Election): Precinct[] {
   });
 }
 
-function buildApi({ workspace }: AppContext) {
+function buildApi({ workspace, translator }: AppContext) {
   const { store } = workspace;
 
   return grout.createApi({
@@ -169,7 +170,9 @@ function buildApi({ workspace }: AppContext) {
     async exportAllBallots(input: {
       electionId: Id;
     }): Promise<{ zipContents: Buffer; electionHash: string }> {
-      const { election } = store.getElection(input.electionId);
+      const { election, ballotLanguageConfigs } = store.getElection(
+        input.electionId
+      );
 
       const zip = new JsZip();
 
@@ -189,22 +192,21 @@ function buildApi({ workspace }: AppContext) {
           )
         )
       );
+      const translatedElectionStrings = (
+        await extractAndTranslateElectionStrings(
+          translator,
+          election,
+          ballotLanguageConfigs
+        )
+      ).electionStrings;
 
       const { ballotDocuments, electionDefinition } =
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
           vxDefaultBallotTemplate,
-          ballotProps
+          ballotProps,
+          translatedElectionStrings
         );
-
-      // TODO make sure we incorporate the translatedElectionStrings as they were previously incorporated
-      // translatedElectionStrings: (
-      //   await extractAndTranslateElectionStrings(
-      //     translator,
-      //     election,
-      //     ballotLanguageConfigs
-      //   )
-      // ).electionStrings,
 
       for (const [props, document] of iter(ballotProps).zip(ballotDocuments)) {
         const pdf = await document.renderToPdf();
@@ -258,7 +260,9 @@ function buildApi({ workspace }: AppContext) {
     async exportTestDecks(input: {
       electionId: Id;
     }): Promise<{ zipContents: Buffer; electionHash: string }> {
-      const { election } = store.getElection(input.electionId);
+      const { election, ballotLanguageConfigs } = store.getElection(
+        input.electionId
+      );
       const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
         ballotStyle.precincts.map(
           (precinctId): BaseBallotProps => ({
@@ -270,12 +274,20 @@ function buildApi({ workspace }: AppContext) {
           })
         )
       );
+      const translatedElectionStrings = (
+        await extractAndTranslateElectionStrings(
+          translator,
+          election,
+          ballotLanguageConfigs
+        )
+      ).electionStrings;
       const renderer = await createPlaywrightRenderer();
       const { electionDefinition, ballotDocuments } =
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
           vxDefaultBallotTemplate,
-          allBallotProps
+          allBallotProps,
+          translatedElectionStrings
         );
       const ballots = iter(allBallotProps)
         .zip(ballotDocuments)
@@ -284,15 +296,6 @@ function buildApi({ workspace }: AppContext) {
           document,
         }))
         .toArray();
-
-      // TODO make sure we incorporate the translatedElectionStrings as they were previously incorporated
-      // translatedElectionStrings: (
-      //   await extractAndTranslateElectionStrings(
-      //     translator,
-      //     election,
-      //     ballotLanguageConfigs
-      //   )
-      // ).electionStrings,
 
       const zip = new JsZip();
 

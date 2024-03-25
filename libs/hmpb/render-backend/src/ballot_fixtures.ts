@@ -12,6 +12,7 @@ import {
   Election,
   getBallotStyle,
   getContests,
+  UiStringsPackage,
   VotesDict,
 } from '@votingworks/types';
 import { join } from 'path';
@@ -25,6 +26,9 @@ import {
 import { Renderer } from './next/renderer';
 
 const debug = makeDebug('hmpb:ballot_fixtures');
+
+// For now, don't include any translated strings in the fixtures
+const translatedElectionStrings: UiStringsPackage = {};
 
 export const fixturesDir = join(__dirname, '../fixtures');
 
@@ -76,7 +80,8 @@ export const famousNamesFixtures = (() => {
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
           vxDefaultBallotTemplate,
-          allBallotProps
+          allBallotProps,
+          translatedElectionStrings
         );
 
       const blankBallot = ballotDocuments[0];
@@ -216,7 +221,8 @@ export const generalElectionFixtures = (() => {
           await renderAllBallotsAndCreateElectionDefinition(
             renderer,
             vxDefaultBallotTemplate,
-            spec.allBallotProps
+            spec.allBallotProps,
+            translatedElectionStrings
           );
         const [blankBallot] = assertDefined(
           iter(ballotDocuments)
@@ -333,7 +339,8 @@ export const primaryElectionFixtures = (() => {
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
           vxDefaultBallotTemplate,
-          allBallotProps
+          allBallotProps,
+          translatedElectionStrings
         );
 
       async function generatePartyFixtures(

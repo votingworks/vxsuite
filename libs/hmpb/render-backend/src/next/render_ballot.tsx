@@ -17,6 +17,8 @@ import {
   HmpbBallotPageMetadata,
   Outset,
   PrecinctId,
+  UiStringsPackage,
+  convertVxfElectionToCdfBallotDefinition,
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
@@ -421,7 +423,8 @@ export async function renderAllBallotsAndCreateElectionDefinition<
 >(
   renderer: Renderer,
   template: BallotPageTemplate<P>,
-  ballotProps: P[]
+  ballotProps: P[],
+  translatedElectionStrings: UiStringsPackage
 ): Promise<{
   ballotDocuments: RenderDocument[];
   electionDefinition: ElectionDefinition;
@@ -467,8 +470,12 @@ export async function renderAllBallotsAndCreateElectionDefinition<
     .toArray();
 
   const electionWithGridLayouts: Election = { ...election, gridLayouts };
+  const cdfElection = convertVxfElectionToCdfBallotDefinition(
+    electionWithGridLayouts,
+    translatedElectionStrings
+  );
   const electionDefinition = safeParseElectionDefinition(
-    JSON.stringify(electionWithGridLayouts, null, 2)
+    JSON.stringify(cdfElection, null, 2)
   ).unsafeUnwrap();
 
   for (const { document, props } of ballotsWithLayouts) {

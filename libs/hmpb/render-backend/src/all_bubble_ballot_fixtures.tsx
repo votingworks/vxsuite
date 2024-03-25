@@ -256,7 +256,8 @@ export const allBubbleBallotFixtures = (() => {
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
           allBubbleBallotTemplate,
-          [ballotProps]
+          [ballotProps],
+          {}
         );
 
       const [blankBallot] = ballotDocuments;

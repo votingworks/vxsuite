@@ -73,9 +73,8 @@ export async function generateElectionPackage(
         precinctId: ballotStyle.precincts[0],
         ballotType: BallotType.Precinct,
         ballotMode: 'test',
-        // TODO incorporate translatedElectionStrings
-        // translatedElectionStrings: electionStrings,
-      }))
+      })),
+      electionStrings
     );
   zip.file(ElectionPackageFileName.ELECTION, electionDefinition.electionData);
   // eslint-disable-next-line no-console

@@ -42,7 +42,8 @@ describe('createPrecinctTestDeck', () => {
       await renderAllBallotsAndCreateElectionDefinition(
         renderer,
         vxDefaultBallotTemplate,
-        fixtures.allBallotProps
+        fixtures.allBallotProps,
+        {}
       );
     const ballots = iter(fixtures.allBallotProps)
       .zip(ballotDocuments)
@@ -72,7 +73,8 @@ describe('createPrecinctTestDeck', () => {
       await renderAllBallotsAndCreateElectionDefinition(
         renderer,
         vxDefaultBallotTemplate,
-        fixtures.allBallotProps
+        fixtures.allBallotProps,
+        {}
       );
     const ballots = iter(fixtures.allBallotProps)
       .zip(ballotDocuments)
