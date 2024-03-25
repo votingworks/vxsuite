@@ -421,7 +421,10 @@ export class CommonAccessCard implements CommonAccessCardCompatibleCard {
     );
     // NOTE: CACs seem to return 0x01 for this. I'm not sure what it means, but
     // it's not compressed.
-    assert(certInfo[0] === 0x01, 'Expected cert info to be uncompressed');
+    assert(
+      certInfo[0] === PUT_DATA.CERT_INFO_UNCOMPRESSED,
+      'Expected cert info to be uncompressed'
+    );
     const certErrorDetectionCode = parseTlv(
       PUT_DATA.ERROR_DETECTION_CODE_TAG,
       certInfoRemainder
