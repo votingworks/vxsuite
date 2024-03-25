@@ -22,10 +22,10 @@ import {
 } from '@votingworks/types';
 import { getSingleYesNoVote, randomBallotId } from '@votingworks/utils';
 
-import { assert } from '@votingworks/basics';
+import { assert, find } from '@votingworks/basics';
 import { NoWrap } from './text';
 import { QrCode } from './qrcode';
-import { Font, H4, H5, H6, P } from './typography';
+import { Font, H4, H5, P } from './typography';
 import { VxThemeProvider } from './themes/vx_theme_provider';
 import { VX_DEFAULT_FONT_FAMILY_DECLARATION } from './fonts/font_family';
 import { Seal } from './seal';
@@ -39,12 +39,50 @@ import {
   NumberString,
 } from './ui_strings';
 
-const Ballot = styled.div`
+export type BmdBallotPrintType = 'vxMark' | 'vsap';
+
+/**
+ * Max margin required to keep the ballot header visible when the page is
+ * partially covered by the VSAP infeed hood.
+ */
+export const MAX_VSAP_TOP_MARGIN = '1.75in';
+
+/**
+ * Min margin required to keep the first row of contests visible when the page
+ * is partially covered by the VSAP infeed hood.
+ */
+export const MIN_VSAP_TOP_MARGIN = '0.5625in';
+
+interface Layout {
+  hideParties: boolean;
+  maxRows: number;
+  minContests: number;
+  topMargin?: typeof MAX_VSAP_TOP_MARGIN | typeof MIN_VSAP_TOP_MARGIN;
+}
+
+export const BMD_BALLOT_LAYOUTS: Record<BmdBallotPrintType, Layout[]> = {
+  vsap: [
+    { minContests: 0, maxRows: 10, hideParties: false, topMargin: '1.75in' },
+    { minContests: 21, maxRows: 10, hideParties: true, topMargin: '0.5625in' },
+    { minContests: 31, maxRows: 9, hideParties: true, topMargin: '0.5625in' },
+    { minContests: 37, maxRows: 8, hideParties: true, topMargin: '0.5625in' },
+    { minContests: 49, maxRows: 7, hideParties: true, topMargin: '0.5625in' },
+  ],
+  vxMark: [
+    { minContests: 0, maxRows: 12, hideParties: false },
+    { minContests: 25, maxRows: 11, hideParties: true },
+    { minContests: 37, maxRows: 11, hideParties: true },
+    { minContests: 45, maxRows: 10, hideParties: true },
+    { minContests: 55, maxRows: 8, hideParties: true },
+  ],
+};
+
+const Ballot = styled.div<{ layout: Layout }>`
   background: #fff;
   color: #000;
   line-height: 1;
   font-family: ${VX_DEFAULT_FONT_FAMILY_DECLARATION};
-  font-size: 16px;
+  font-size: 10pt !important;
   page-break-after: always;
 
   @media screen {
@@ -58,22 +96,14 @@ const Ballot = styled.div`
 `;
 
 interface StyledHeaderProps {
-  largeTopMargin?: boolean;
+  layout: Layout;
 }
 const Header = styled.div<StyledHeaderProps>`
   display: flex;
   flex-direction: row;
   align-items: center;
   border-bottom: 0.2em solid #000;
-  margin-top: ${(p) => (p.largeTopMargin ? '1.75in' : undefined)};
-
-  & h2 {
-    margin-bottom: 0;
-  }
-
-  & h3 {
-    margin-top: 0;
-  }
+  margin-top: ${(p) => p.layout.topMargin};
 
   & > .ballot-header-content {
     flex: 4;
@@ -125,9 +155,9 @@ const QrCodeContainer = styled.div`
 const Content = styled.div`
   flex: 1;
 `;
-const BallotSelections = styled.div`
-  columns: 2;
-  column-gap: 2em;
+const BallotSelections = styled.div<{ numColumns: number }>`
+  columns: ${(p) => p.numColumns};
+  column-gap: 1em;
 `;
 const Contest = styled.div`
   border-bottom: 0.01em solid #000;
@@ -136,9 +166,12 @@ const Contest = styled.div`
   page-break-inside: avoid;
 `;
 
-const ContestTitle = styled(H6)`
+const ContestTitle = styled.div`
+  font-size: 1.125em;
   /* stylelint-disable-next-line font-weight-notation */
   font-weight: normal;
+  margin: 0;
+  margin-bottom: 0.25em;
 `;
 
 const VoteLine = styled.span`
@@ -150,7 +183,11 @@ const VoteLine = styled.span`
 `;
 
 const SecondaryLanguageText = styled.span`
-  font-size: 0.75em;
+  font-size: 0.6em;
+`;
+
+const InlineBlockSpan = styled.span`
+  display: inline-block;
 `;
 
 function DualLanguageText(props: {
@@ -194,17 +231,6 @@ function AdjacentTextWithSeparator(props: { children: JSX.Element }) {
   return <React.Fragment> | {children}</React.Fragment>;
 }
 
-function NewlineText(props: { children: JSX.Element }) {
-  const { children } = props;
-
-  return (
-    <React.Fragment>
-      <br />
-      {children}
-    </React.Fragment>
-  );
-}
-
 function ParenthesizedText(props: { children: JSX.Element }) {
   const { children } = props;
 
@@ -233,6 +259,7 @@ function NoSelection(props: {
 interface CandidateContestResultProps {
   contest: CandidateContest;
   election: Election;
+  layout: Layout;
   primaryBallotLanguage: LanguageCode;
   vote?: CandidateVote;
 }
@@ -240,6 +267,7 @@ interface CandidateContestResultProps {
 function CandidateContestResult({
   contest,
   election,
+  layout,
   primaryBallotLanguage,
   vote = [],
 }: CandidateContestResultProps): JSX.Element {
@@ -258,19 +286,14 @@ function CandidateContestResult({
               <InEnglish>{electionStrings.candidateName(candidate)}</InEnglish>
             )}
           </Font>{' '}
-          {candidate.partyIds && candidate.partyIds.length > 0 && (
-            <DualLanguageText
-              primaryLanguage={primaryBallotLanguage}
-              englishTextWrapper={AdjacentText}
-            >
-              (
-              <CandidatePartyList
-                candidate={candidate}
-                electionParties={election.parties}
-              />
-              )
-            </DualLanguageText>
-          )}
+          {layout.hideParties
+            ? undefined
+            : candidate.partyIds && (
+                <CandidatePartyList
+                  candidate={candidate}
+                  electionParties={election.parties}
+                />
+              )}
           {candidate.isWriteIn && (
             <DualLanguageText
               primaryLanguage={primaryBallotLanguage}
@@ -286,10 +309,12 @@ function CandidateContestResult({
           <Font weight="light">
             <DualLanguageText
               primaryLanguage={primaryBallotLanguage}
-              englishTextWrapper={NewlineText}
+              englishTextWrapper={AdjacentText}
             >
-              [{appStrings.labelNumVotesUnused()}{' '}
-              <NumberString value={remainingChoices} />]
+              <InlineBlockSpan>
+                [{appStrings.labelNumVotesUnused()}{' '}
+                <NumberString value={remainingChoices} />]
+              </InlineBlockSpan>
             </DualLanguageText>
           </Font>
         </VoteLine>
@@ -337,7 +362,7 @@ export interface BmdPaperBallotProps {
   precinctId: PrecinctId;
   votes: VotesDict;
   onRendered?: () => void;
-  largeTopMargin?: boolean;
+  printType: BmdBallotPrintType;
 }
 
 /**
@@ -363,7 +388,7 @@ export function BmdPaperBallot({
   precinctId,
   votes,
   onRendered,
-  largeTopMargin,
+  printType,
 }: BmdPaperBallotProps): JSX.Element {
   const ballotId = generateBallotId();
   const {
@@ -393,10 +418,17 @@ export function BmdPaperBallot({
     }
   }, [onRendered]);
 
+  const layout = find(
+    [...BMD_BALLOT_LAYOUTS[printType]].reverse(),
+    (l) => contests.length >= l.minContests
+  );
+
+  const numColumns = Math.ceil(contests.length / layout.maxRows);
+
   return withPrintTheme(
     <LanguageOverride languageCode={primaryBallotLanguage}>
-      <Ballot aria-hidden>
-        <Header largeTopMargin={largeTopMargin} data-testid="header">
+      <Ballot aria-hidden layout={layout}>
+        <Header layout={layout} data-testid="header">
           <Seal seal={seal} maxWidth="1in" style={{ margin: '0.25em 0' }} />
           <div className="ballot-header-content">
             <H4>
@@ -464,21 +496,24 @@ export function BmdPaperBallot({
           </QrCodeContainer>
         </Header>
         <Content>
-          <BallotSelections>
+          <BallotSelections numColumns={numColumns}>
             {contests.map((contest) => (
               <Contest key={contest.id}>
                 <ContestTitle>
                   <DualLanguageText
                     primaryLanguage={primaryBallotLanguage}
-                    englishTextWrapper={NewlineText}
+                    englishTextWrapper={AdjacentText}
                   >
-                    {electionStrings.contestTitle(contest)}
+                    <InlineBlockSpan>
+                      {electionStrings.contestTitle(contest)}
+                    </InlineBlockSpan>
                   </DualLanguageText>
                 </ContestTitle>
                 {contest.type === 'candidate' && (
                   <CandidateContestResult
                     contest={contest}
                     election={election}
+                    layout={layout}
                     primaryBallotLanguage={primaryBallotLanguage}
                     vote={votes[contest.id] as CandidateVote}
                   />

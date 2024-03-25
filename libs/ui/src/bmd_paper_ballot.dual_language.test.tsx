@@ -143,6 +143,7 @@ describe('non-English ballot style', () => {
         precinctId={spanishBallotStyle.precincts[0]}
         votes={{}}
         onRendered={() => {}}
+        printType="vsap"
       />
     );
 
@@ -188,6 +189,7 @@ describe('non-English ballot style', () => {
           ],
         }}
         onRendered={() => {}}
+        printType="vsap"
       />
     );
 
@@ -209,8 +211,9 @@ describe('non-English ballot style', () => {
     });
 
     for (const partyId of candidate.partyIds!) {
-      expectDualLanguageString({
+      expectSingleLanguageString({
         key: ElectionStringKey.PARTY_NAME,
+        languageCode: LanguageCode.SPANISH,
         subKey: partyId,
       });
     }
@@ -238,6 +241,7 @@ describe('non-English ballot style', () => {
         precinctId={spanishBallotStyle.precincts[0]}
         votes={{}}
         onRendered={() => {}}
+        printType="vsap"
       />
     );
 
@@ -266,6 +270,7 @@ describe('non-English ballot style', () => {
         precinctId={spanishBallotStyle.precincts[0]}
         votes={{ [contest.id]: [contest.yesOption.id] }}
         onRendered={() => {}}
+        printType="vsap"
       />
     );
 
@@ -303,6 +308,7 @@ describe('non-English ballot style', () => {
         precinctId={spanishBallotStyle.precincts[0]}
         votes={{}}
         onRendered={() => {}}
+        printType="vsap"
       />
     );
 
@@ -345,6 +351,7 @@ describe('English ballot style', () => {
         precinctId={englishBallotStyle.precincts[0]}
         votes={votes}
         onRendered={() => {}}
+        printType="vsap"
       />
     );
 
@@ -373,6 +380,7 @@ describe('English ballot style', () => {
         precinctId={englishBallotStyle.precincts[0]}
         votes={{}}
         onRendered={() => {}}
+        printType="vsap"
       />
     );
 

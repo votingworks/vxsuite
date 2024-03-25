@@ -44,6 +44,7 @@ export function PrintPage(): JSX.Element {
       votes={votes}
       generateBallotId={generateBallotId}
       onPrintStarted={onPrintStarted}
+      printType="vxMark"
     />
   );
 }

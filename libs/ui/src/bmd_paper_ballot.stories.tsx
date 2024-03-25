@@ -1,6 +1,7 @@
 import { Meta } from '@storybook/react';
 
 import {
+  CandidateContest,
   Election,
   ElectionStringKey,
   LanguageCode,
@@ -13,7 +14,7 @@ import { generateBallotStyleId } from '@votingworks/utils';
 import styled from 'styled-components';
 import { electionGeneral } from '@votingworks/fixtures';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { find } from '@votingworks/basics';
+import { assert, find } from '@votingworks/basics';
 import {
   BmdPaperBallot as Component,
   BmdPaperBallotProps,
@@ -30,6 +31,25 @@ import {
 } from './bmd_paper_ballot_test_utils';
 import { TouchscreenPalette } from './themes/make_theme';
 
+const ORIGINAL_CONTESTS = electionGeneral.contests;
+
+function getDuplicatedContests(idSuffix: string) {
+  return ORIGINAL_CONTESTS.map((c) => {
+    if (c.type === 'candidate') {
+      const contest: CandidateContest = { ...c, id: `${c.id}${idSuffix}` };
+      return contest;
+    }
+
+    assert(c.type === 'yesno');
+    const contest: YesNoContest = {
+      ...c,
+      id: `${c.id}${idSuffix}`,
+      noOption: { ...c.noOption, id: `${c.noOption.id}${idSuffix}` },
+      yesOption: { ...c.yesOption, id: `${c.yesOption.id}${idSuffix}` },
+    };
+    return contest;
+  });
+}
 const ballotLanguages = [LanguageCode.ENGLISH, LanguageCode.CHINESE_SIMPLIFIED];
 const election: Election = {
   ...electionGeneral,
@@ -43,7 +63,46 @@ const election: Election = {
       languages: [languageCode],
     }))
   ),
+  contests: [
+    ...ORIGINAL_CONTESTS,
+    ...getDuplicatedContests('_dup1'),
+    ...getDuplicatedContests('_dup2'),
+    ...getDuplicatedContests('_dup3'),
+    ...getDuplicatedContests('_dup4'),
+  ],
 };
+
+const ORIGINAL_CONTEST_TITLE_TRANSLATIONS = {
+  '102': '措施 102：车辆减排计划',
+  'city-council': '市议会',
+  'city-mayor': '市长',
+  'county-commissioners': '县专员',
+  'county-registrar-of-wills': '遗嘱登记员',
+  'judicial-elmer-hull': '保留埃尔默·赫尔担任副法官吗？',
+  'judicial-robert-demergue':
+    '保留罗伯特·德默格（Robert Demergue）担任首席大法官？',
+  'lieutenant-governor': '副州长',
+  'measure-101': '措施 101：大学区',
+  'proposition-1': '提案 1：富兰克林县和弗洛维特县的赌博',
+  'question-a': '问题A：财产损失的追偿',
+  'question-b': '问题 B：权力分立',
+  'question-c': '问题C：非经济损失的损害赔偿限额',
+  'representative-district-6': '第 6 区代表',
+  'secretary-of-state': '国务卿',
+  'state-assembly-district-54': '第 54 区议会议员',
+  'state-senator-district-31': '第 31 区参议员',
+  governor: '州长',
+  president: '主席和副主席',
+  senator: '参议员',
+} as const;
+
+function duplicateContestTitleTranslations(idSuffix: string) {
+  return Object.fromEntries(
+    Object.entries(ORIGINAL_CONTEST_TITLE_TRANSLATIONS).map(
+      ([contestId, translation]) => [`${contestId}${idSuffix}`, translation]
+    )
+  );
+}
 
 const TEST_UI_STRINGS: UiStringsPackage = {
   [LanguageCode.CHINESE_SIMPLIFIED]: {
@@ -55,27 +114,11 @@ const TEST_UI_STRINGS: UiStringsPackage = {
         .map((option) => [option.id, option.id.endsWith('no') ? '不' : '是'])
     ),
     [ElectionStringKey.CONTEST_TITLE]: {
-      '102': '措施 102：车辆减排计划',
-      'city-council': '市议会',
-      'city-mayor': '市长',
-      'county-commissioners': '县专员',
-      'county-registrar-of-wills': '遗嘱登记员',
-      'judicial-elmer-hull': '保留埃尔默·赫尔担任副法官吗？',
-      'judicial-robert-demergue':
-        '保留罗伯特·德默格（Robert Demergue）担任首席大法官？',
-      'lieutenant-governor': '副州长',
-      'measure-101': '措施 101：大学区',
-      'proposition-1': '提案 1：富兰克林县和弗洛维特县的赌博',
-      'question-a': '问题A：财产损失的追偿',
-      'question-b': '问题 B：权力分立',
-      'question-c': '问题C：非经济损失的损害赔偿限额',
-      'representative-district-6': '第 6 区代表',
-      'secretary-of-state': '国务卿',
-      'state-assembly-district-54': '第 54 区议会议员',
-      'state-senator-district-31': '第 31 区参议员',
-      governor: '州长',
-      president: '主席和副主席',
-      senator: '参议员',
+      ...ORIGINAL_CONTEST_TITLE_TRANSLATIONS,
+      ...duplicateContestTitleTranslations('_dup1'),
+      ...duplicateContestTitleTranslations('_dup2'),
+      ...duplicateContestTitleTranslations('_dup3'),
+      ...duplicateContestTitleTranslations('_dup4'),
     },
     [ElectionStringKey.ELECTION_TITLE]: '全民选举',
     [ElectionStringKey.PARTY_NAME]: {
@@ -112,6 +155,7 @@ const initialArgs: BmdPaperBallotProps = {
     JSON.stringify(election)
   ).unsafeUnwrap(),
   isLiveMode: true,
+  printType: 'vsap',
   onRendered: () => undefined,
   precinctId: election.precincts[0].id,
   votes: Object.fromEntries(
@@ -141,7 +185,7 @@ const Container = styled.div`
 
       /* Force print-only content to display. */
       display: block !important;
-      padding: 0.375in;
+      padding: 0.22in;
       min-height: 11in;
       width: 8.5in;
     }
@@ -151,11 +195,14 @@ const Container = styled.div`
 const meta: Meta<typeof Component> = {
   title: 'libs-ui/BmdPaperBallot',
   component: Component,
-  args: initialArgs,
+  args: { ...initialArgs, numMockContests: 20 },
   argTypes: {
     ballotStyleId: {
       control: 'radio',
       options: election.ballotStyles.map((b) => b.id).sort(),
+    },
+    numMockContests: {
+      control: { type: 'number', min: 1, max: 100, step: 1 },
     },
   },
   decorators: [
@@ -180,20 +227,39 @@ const meta: Meta<typeof Component> = {
 
 export default meta;
 
-export function BmdPaperBallot(props: BmdPaperBallotProps): JSX.Element {
-  const { ballotStyleId, electionDefinition, votes } = props;
+export function BmdPaperBallot(
+  props: BmdPaperBallotProps & { numMockContests: number }
+): JSX.Element {
+  const { ballotStyleId, electionDefinition, numMockContests, votes, ...rest } =
+    props;
 
   const ballotStyle = find(
     electionDefinition.election.ballotStyles,
     (b) => b.id === ballotStyleId
   );
 
-  const contests = getContests({ ballotStyle, election });
+  const contests = getContests({ ballotStyle, election }).slice(
+    0,
+    numMockContests
+  );
   const filteredVotes = Object.fromEntries(
     Object.entries(votes).filter(([contestId]) =>
       contests.some((c) => c.id === contestId)
     )
   );
 
-  return <Component {...props} votes={filteredVotes} />;
+  return (
+    <Component
+      ballotStyleId={ballotStyleId}
+      electionDefinition={{
+        ...electionDefinition,
+        election: {
+          ...electionDefinition.election,
+          contests,
+        },
+      }}
+      {...rest}
+      votes={filteredVotes}
+    />
+  );
 }

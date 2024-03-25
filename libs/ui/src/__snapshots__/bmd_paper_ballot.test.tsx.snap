@@ -85,31 +85,6 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
   margin-top: 0 !important;
 }
 
-.c13 {
-  font-size: 1em;
-  line-height: 1.3;
-  margin: 0;
-  font-weight: 500;
-  line-height: 1.1700000000000002;
-  margin-bottom: 0.3em;
-  font-size: 1rem;
-  line-height: 1.105;
-  font-weight: 600;
-}
-
-.c13:not(:first-child) {
-  margin-top: 1.25em;
-}
-
-.c13 + h1,
-.c13 + h2,
-.c13 + h3,
-.c13 + h4,
-.c13 + h5,
-.c13 + h6 {
-  margin-top: 0 !important;
-}
-
 .c2 {
   height: 100%;
   width: 100%;
@@ -123,7 +98,7 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
   color: #000;
   line-height: 1;
   font-family: 'Vx Roboto','Noto Emoji',sans-serif;
-  font-size: 16px;
+  font-size: 10pt !important;
   page-break-after: always;
 }
 
@@ -140,14 +115,6 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
   -ms-flex-align: center;
   align-items: center;
   border-bottom: 0.2em solid #000;
-}
-
-.c1 h2 {
-  margin-bottom: 0;
-}
-
-.c1 h3 {
-  margin-top: 0;
 }
 
 .c1 > .ballot-header-content {
@@ -230,10 +197,10 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
 }
 
 .c11 {
-  -webkit-columns: 2;
-  columns: 2;
-  -webkit-column-gap: 2em;
-  column-gap: 2em;
+  -webkit-columns: 1;
+  columns: 1;
+  -webkit-column-gap: 1em;
+  column-gap: 1em;
 }
 
 .c12 {
@@ -244,8 +211,11 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
   page-break-inside: avoid;
 }
 
-.c14 {
+.c13 {
+  font-size: 1.125em;
   font-weight: normal;
+  margin: 0;
+  margin-bottom: 0.25em;
 }
 
 .c15 {
@@ -254,6 +224,10 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
 
 .c15:not(:last-child) {
   margin-bottom: 0.125em;
+}
+
+.c14 {
+  display: inline-block;
 }
 
 @media print {
@@ -397,13 +371,17 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
         <div
           class="c12"
         >
-          <h6
-            class="c13 c14"
+          <div
+            class="c13"
           >
-            <span>
-              President and Vice-President
+            <span
+              class="c14"
+            >
+              <span>
+                President and Vice-President
+              </span>
             </span>
-          </h6>
+          </div>
           <span
             class="c15"
           >
@@ -415,23 +393,25 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
               </span>
             </span>
              
-            (
             <span>
               Federalist
             </span>
-            )
           </span>
         </div>
         <div
           class="c12"
         >
-          <h6
-            class="c13 c14"
+          <div
+            class="c13"
           >
-            <span>
-              Representative, District 6
+            <span
+              class="c14"
+            >
+              <span>
+                Representative, District 6
+              </span>
             </span>
-          </h6>
+          </div>
           <span
             class="c15"
           >
@@ -449,13 +429,17 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
         <div
           class="c12"
         >
-          <h6
-            class="c13 c14"
+          <div
+            class="c13"
           >
-            <span>
-              Lieutenant Governor
+            <span
+              class="c14"
+            >
+              <span>
+                Lieutenant Governor
+              </span>
             </span>
-          </h6>
+          </div>
           <span
             class="c15"
           >
@@ -467,23 +451,25 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
               </span>
             </span>
              
-            (
             <span>
               Federalist
             </span>
-            )
           </span>
         </div>
         <div
           class="c12"
         >
-          <h6
-            class="c13 c14"
+          <div
+            class="c13"
           >
-            <span>
-              Senator, District 31
+            <span
+              class="c14"
+            >
+              <span>
+                Senator, District 31
+              </span>
             </span>
-          </h6>
+          </div>
           <span
             class="c15"
           >
@@ -501,13 +487,17 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
         <div
           class="c12"
         >
-          <h6
-            class="c13 c14"
+          <div
+            class="c13"
           >
-            <span>
-              Assembly Member, District 54
+            <span
+              class="c14"
+            >
+              <span>
+                Assembly Member, District 54
+              </span>
             </span>
-          </h6>
+          </div>
           <span
             class="c15"
           >
@@ -525,13 +515,17 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
         <div
           class="c12"
         >
-          <h6
-            class="c13 c14"
+          <div
+            class="c13"
           >
-            <span>
-              Registrar of Wills
+            <span
+              class="c14"
+            >
+              <span>
+                Registrar of Wills
+              </span>
             </span>
-          </h6>
+          </div>
           <span
             class="c15"
           >
@@ -549,13 +543,17 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
         <div
           class="c12"
         >
-          <h6
-            class="c13 c14"
+          <div
+            class="c13"
           >
-            <span>
-              Retain Robert Demergue as Chief Justice?
+            <span
+              class="c14"
+            >
+              <span>
+                Retain Robert Demergue as Chief Justice?
+              </span>
             </span>
-          </h6>
+          </div>
           <span
             class="c15"
           >
@@ -573,13 +571,17 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
         <div
           class="c12"
         >
-          <h6
-            class="c13 c14"
+          <div
+            class="c13"
           >
-            <span>
-              Question A: Recovery of Property Damages
+            <span
+              class="c14"
+            >
+              <span>
+                Question A: Recovery of Property Damages
+              </span>
             </span>
-          </h6>
+          </div>
           <span
             class="c15"
           >
@@ -595,13 +597,17 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
         <div
           class="c12"
         >
-          <h6
-            class="c13 c14"
+          <div
+            class="c13"
           >
-            <span>
-              Question B: Separation of Powers
+            <span
+              class="c14"
+            >
+              <span>
+                Question B: Separation of Powers
+              </span>
             </span>
-          </h6>
+          </div>
           <span
             class="c15"
           >
@@ -617,13 +623,17 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
         <div
           class="c12"
         >
-          <h6
-            class="c13 c14"
+          <div
+            class="c13"
           >
-            <span>
-              Proposition 1: Gambling in Franklin and Fromwit Counties
+            <span
+              class="c14"
+            >
+              <span>
+                Proposition 1: Gambling in Franklin and Fromwit Counties
+              </span>
             </span>
-          </h6>
+          </div>
           <span
             class="c15"
           >
@@ -641,13 +651,17 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
         <div
           class="c12"
         >
-          <h6
-            class="c13 c14"
+          <div
+            class="c13"
           >
-            <span>
-              Measure 102: Vehicle Abatement Program
+            <span
+              class="c14"
+            >
+              <span>
+                Measure 102: Vehicle Abatement Program
+              </span>
             </span>
-          </h6>
+          </div>
           <span
             class="c15"
           >
