@@ -11,6 +11,7 @@ import {
   appStrings,
   Font,
   ReadOnLoad,
+  MachineType,
 } from '@votingworks/ui';
 
 import {
@@ -35,7 +36,7 @@ export interface PrintPageProps {
     element: JSX.Element,
     printOptions: PrintOptions
   ) => Promise<void>;
-  largeTopMargin?: boolean;
+  machineType: MachineType;
 }
 
 export function PrintPage({
@@ -47,7 +48,7 @@ export function PrintPage({
   generateBallotId,
   onPrintStarted,
   printElement = DefaultPrintElement,
-  largeTopMargin,
+  machineType,
 }: PrintPageProps): JSX.Element {
   const printLock = useLock();
 
@@ -62,7 +63,7 @@ export function PrintPage({
         isLiveMode={isLiveMode}
         precinctId={precinctId}
         votes={votes}
-        largeTopMargin={largeTopMargin}
+        machineType={machineType}
       />,
       { sides: 'one-sided' }
     );
@@ -77,7 +78,7 @@ export function PrintPage({
     votes,
     onPrintStarted,
     printElement,
-    largeTopMargin,
+    machineType,
   ]);
 
   useEffect(() => {

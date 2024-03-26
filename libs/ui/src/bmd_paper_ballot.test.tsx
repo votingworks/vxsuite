@@ -2,6 +2,7 @@ import {
   BallotStyleId,
   BallotType,
   Candidate,
+  CandidateContest,
   ElectionDefinition,
   getBallotStyle,
   getContests,
@@ -17,8 +18,14 @@ import {
 import { encodeBallot } from '@votingworks/ballot-encoder';
 import { hasTextAcrossElements, mockOf } from '@votingworks/test-utils';
 import { fromByteArray } from 'base64-js';
+import { assertDefined, find } from '@votingworks/basics';
 import { render, screen } from '../test/react_testing_library';
-import { BmdPaperBallot } from './bmd_paper_ballot';
+import {
+  ORDERED_BMD_BALLOT_LAYOUTS,
+  MachineType,
+  BmdPaperBallot,
+  MAX_MARK_SCAN_TOP_MARGIN,
+} from './bmd_paper_ballot';
 import * as QrCodeModule from './qrcode';
 
 jest.mock('@votingworks/ballot-encoder', () => {
@@ -57,7 +64,7 @@ function renderBmdPaperBallot({
   votes,
   isLiveMode = false,
   onRendered,
-  largeTopMargin,
+  machineType = 'mark',
 }: {
   electionDefinition: ElectionDefinition;
   ballotStyleId: BallotStyleId;
@@ -65,7 +72,7 @@ function renderBmdPaperBallot({
   votes: { [key: string]: string | string[] | Candidate };
   isLiveMode?: boolean;
   onRendered?: () => void;
-  largeTopMargin?: boolean;
+  machineType?: MachineType;
 }) {
   return render(
     <BmdPaperBallot
@@ -84,7 +91,7 @@ function renderBmdPaperBallot({
         votes
       )}
       onRendered={onRendered}
-      largeTopMargin={largeTopMargin}
+      machineType={machineType}
     />
   );
 }
@@ -155,6 +162,7 @@ test('BmdPaperBallot treats missing entries in the votes dict as undervotes', ()
       precinctId="6525"
       isLiveMode
       votes={{}}
+      machineType="markScan"
     />
   );
 
@@ -284,20 +292,20 @@ describe('BmdPaperBallot calls onRendered', () => {
   });
 });
 
-test('BmdPaperBallot renders a large top margin when prop is passed', () => {
+test('BmdPaperBallot renders a large top margin for VxMarkScan prints', () => {
   renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
     ballotStyleId: '1',
     precinctId: '6525',
     votes: {},
-    largeTopMargin: true,
+    machineType: 'markScan',
   });
 
   const header = screen.getByTestId('header');
-  expect(header).toHaveStyle(`margin-top: 1.75in`);
+  expect(header).toHaveStyle(`margin-top: ${MAX_MARK_SCAN_TOP_MARGIN}`);
 });
 
-test('BmdPaperBallot does not render a large top margin when prop is not passed', () => {
+test('BmdPaperBallot does not render a large top margin for VxMark prints', () => {
   renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
     ballotStyleId: '1',
@@ -307,4 +315,90 @@ test('BmdPaperBallot does not render a large top margin when prop is not passed'
 
   const header = screen.getByTestId('header');
   expect(header).not.toHaveStyle(`margin-top: 1.75in`);
+});
+
+test('BMD_BALLOT_LAYOUTS is properly defined', () => {
+  // Expect no repeated contest thresholds:
+  expect([
+    ...new Set(ORDERED_BMD_BALLOT_LAYOUTS.markScan.map((l) => l.minContests)),
+  ]).toHaveLength(ORDERED_BMD_BALLOT_LAYOUTS.markScan.length);
+  expect([
+    ...new Set(ORDERED_BMD_BALLOT_LAYOUTS.mark.map((l) => l.minContests)),
+  ]).toHaveLength(ORDERED_BMD_BALLOT_LAYOUTS.mark.length);
+
+  // Should be defined in order of increasing contest thresholds:
+  expect(ORDERED_BMD_BALLOT_LAYOUTS.markScan).toEqual(
+    [...ORDERED_BMD_BALLOT_LAYOUTS.markScan].sort(
+      (a, b) => a.minContests - b.minContests
+    )
+  );
+  expect(ORDERED_BMD_BALLOT_LAYOUTS.mark).toEqual(
+    [...ORDERED_BMD_BALLOT_LAYOUTS.mark].sort(
+      (a, b) => a.minContests - b.minContests
+    )
+  );
+
+  // Should an entry with a threshold of 0 contests for each print type:
+  expect(ORDERED_BMD_BALLOT_LAYOUTS.markScan[0].minContests).toEqual(0);
+  expect(ORDERED_BMD_BALLOT_LAYOUTS.mark[0].minContests).toEqual(0);
+
+  // Expect top margins only for MarkScan prints:
+  expect(
+    ORDERED_BMD_BALLOT_LAYOUTS.markScan.every((l) => l.topMargin !== undefined)
+  ).toEqual(true);
+  expect(
+    ORDERED_BMD_BALLOT_LAYOUTS.mark.every((l) => l.topMargin === undefined)
+  ).toEqual(true);
+});
+
+describe('candidate party names', () => {
+  const { election } = electionGeneralDefinition;
+  const baseTestContest = find(
+    election.contests,
+    (c): c is CandidateContest => c.type === 'candidate'
+  );
+
+  function renderWithGeneratedContests(params: { numContests: number }) {
+    const { numContests } = params;
+
+    const contests = Array.from<CandidateContest>({ length: numContests }).map(
+      (_unused, index) => ({ ...baseTestContest, id: `contest-${index}` })
+    );
+
+    const chosenCandidate = assertDefined(contests[0].candidates[0]);
+    const chosenCandidatePartyName = find(
+      election.parties,
+      (p) => p.id === chosenCandidate.partyIds![0]
+    ).name;
+
+    const result = renderBmdPaperBallot({
+      electionDefinition: {
+        ...electionGeneralDefinition,
+        election: { ...election, contests },
+      },
+      ballotStyleId: '5',
+      precinctId: '21',
+      votes: { [contests[0].id]: [chosenCandidate.id] },
+    });
+
+    return { result, chosenCandidatePartyName };
+  }
+
+  test('renders party names in low-density layouts', () => {
+    const { chosenCandidatePartyName } = renderWithGeneratedContests({
+      numContests: 10,
+    });
+
+    screen.getByText(chosenCandidatePartyName);
+  });
+
+  test('omits party names in high-density layouts', () => {
+    const { chosenCandidatePartyName } = renderWithGeneratedContests({
+      numContests: 30,
+    });
+
+    expect(
+      screen.queryByText(chosenCandidatePartyName)
+    ).not.toBeInTheDocument();
+  });
 });

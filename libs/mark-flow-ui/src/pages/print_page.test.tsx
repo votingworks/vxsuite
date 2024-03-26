@@ -17,6 +17,7 @@ test('no votes', async () => {
       isLiveMode={false}
       votes={{}}
       onPrintStarted={jest.fn()}
+      machineType="markScan"
     />
   );
   await expectPrintToMatchSnapshot();
@@ -46,6 +47,7 @@ test('with votes', async () => {
       )}
       isLiveMode={false}
       onPrintStarted={jest.fn()}
+      machineType="markScan"
     />
   );
   await expectPrintToMatchSnapshot();
@@ -62,6 +64,7 @@ test('without votes and inline seal', async () => {
       isLiveMode={false}
       votes={{}}
       onPrintStarted={jest.fn()}
+      machineType="markScan"
     />
   );
   await expectPrintToMatchSnapshot();

@@ -41,7 +41,7 @@ export function PrintPage(): JSX.Element | null {
       votes={votes}
       generateBallotId={generateBallotId}
       printElement={printElementToCustomPaperHandler}
-      largeTopMargin
+      machineType="markScan"
     />
   );
 }
