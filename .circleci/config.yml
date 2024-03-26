@@ -831,6 +831,29 @@ jobs:
       - store_test_results:
           path: libs/fs/reports/
 
+  # @votingworks/fujitsu-thermal-printer
+  test-libs-fujitsu-thermal-printer:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/fujitsu-thermal-printer build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/fujitsu-thermal-printer lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/fujitsu-thermal-printer test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/fujitsu-thermal-printer/reports/
+
   # @votingworks/grout
   test-libs-grout:
     executor: nodejs
@@ -1345,6 +1368,7 @@ workflows:
       - test-libs-eslint-plugin-vx
       - test-libs-fixtures
       - test-libs-fs
+      - test-libs-fujitsu-thermal-printer
       - test-libs-grout
       - test-libs-grout-test-utils
       - test-libs-hmpb-layout
