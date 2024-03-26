@@ -39,36 +39,62 @@ import {
   NumberString,
 } from './ui_strings';
 
-export type BmdBallotPrintType = 'vxMark' | 'vsap';
+export type MachineType = 'mark' | 'markScan';
 
 /**
  * Max margin required to keep the ballot header visible when the page is
  * partially covered by the VSAP infeed hood.
  */
-export const MAX_VSAP_TOP_MARGIN = '1.75in';
+export const MAX_MARK_SCAN_TOP_MARGIN = '1.75in';
 
 /**
  * Min margin required to keep the first row of contests visible when the page
  * is partially covered by the VSAP infeed hood.
  */
-export const MIN_VSAP_TOP_MARGIN = '0.5625in';
+export const MIN_MARK_SCAN_TOP_MARGIN = '0.5625in';
 
 interface Layout {
+  /**
+   * Whether or not to hide candidate party names in candidate contests to save
+   * space in denser layouts.
+   */
   hideParties: boolean;
+
+  /** Maximum number of contest rows per column to print on the ballot. */
   maxRows: number;
+
+  /**
+   * Minimum number of contests required for this layout to be used in printing
+   * a ballot.
+   */
   minContests: number;
-  topMargin?: typeof MAX_VSAP_TOP_MARGIN | typeof MIN_VSAP_TOP_MARGIN;
+
+  /**
+   * Additional top margin to apply to the print to ensure all important content
+   * is visible - necessary for MarkScan, where printouts are partially covered
+   * by the hood of the paper tray when being reviewed by the voter.
+   */
+  topMargin?: typeof MAX_MARK_SCAN_TOP_MARGIN | typeof MIN_MARK_SCAN_TOP_MARGIN;
 }
 
-export const BMD_BALLOT_LAYOUTS: Record<BmdBallotPrintType, Layout[]> = {
-  vsap: [
+/**
+ * Layout config for each {@link MachineType} at various contest-count
+ * thresholds.
+ *
+ * NOTE: Should be defined in order of unique, increasing
+ * {@link Layout.minContests}.
+ */
+export const ORDERED_BMD_BALLOT_LAYOUTS: Readonly<
+  Record<MachineType, readonly Layout[]>
+> = {
+  markScan: [
     { minContests: 0, maxRows: 10, hideParties: false, topMargin: '1.75in' },
     { minContests: 21, maxRows: 10, hideParties: true, topMargin: '0.5625in' },
     { minContests: 31, maxRows: 9, hideParties: true, topMargin: '0.5625in' },
     { minContests: 37, maxRows: 8, hideParties: true, topMargin: '0.5625in' },
     { minContests: 49, maxRows: 7, hideParties: true, topMargin: '0.5625in' },
   ],
-  vxMark: [
+  mark: [
     { minContests: 0, maxRows: 12, hideParties: false },
     { minContests: 25, maxRows: 11, hideParties: true },
     { minContests: 37, maxRows: 11, hideParties: true },
@@ -362,7 +388,7 @@ export interface BmdPaperBallotProps {
   precinctId: PrecinctId;
   votes: VotesDict;
   onRendered?: () => void;
-  printType: BmdBallotPrintType;
+  machineType: MachineType;
 }
 
 /**
@@ -388,7 +414,7 @@ export function BmdPaperBallot({
   precinctId,
   votes,
   onRendered,
-  printType,
+  machineType,
 }: BmdPaperBallotProps): JSX.Element {
   const ballotId = generateBallotId();
   const {
@@ -419,7 +445,7 @@ export function BmdPaperBallot({
   }, [onRendered]);
 
   const layout = find(
-    [...BMD_BALLOT_LAYOUTS[printType]].reverse(),
+    [...ORDERED_BMD_BALLOT_LAYOUTS[machineType]].reverse(),
     (l) => contests.length >= l.minContests
   );
 

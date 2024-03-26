@@ -21,10 +21,10 @@ import { fromByteArray } from 'base64-js';
 import { assertDefined, find } from '@votingworks/basics';
 import { render, screen } from '../test/react_testing_library';
 import {
-  BMD_BALLOT_LAYOUTS,
-  BmdBallotPrintType,
+  ORDERED_BMD_BALLOT_LAYOUTS,
+  MachineType,
   BmdPaperBallot,
-  MAX_VSAP_TOP_MARGIN,
+  MAX_MARK_SCAN_TOP_MARGIN,
 } from './bmd_paper_ballot';
 import * as QrCodeModule from './qrcode';
 
@@ -64,7 +64,7 @@ function renderBmdPaperBallot({
   votes,
   isLiveMode = false,
   onRendered,
-  printType = 'vxMark',
+  machineType = 'mark',
 }: {
   electionDefinition: ElectionDefinition;
   ballotStyleId: BallotStyleId;
@@ -72,7 +72,7 @@ function renderBmdPaperBallot({
   votes: { [key: string]: string | string[] | Candidate };
   isLiveMode?: boolean;
   onRendered?: () => void;
-  printType?: BmdBallotPrintType;
+  machineType?: MachineType;
 }) {
   return render(
     <BmdPaperBallot
@@ -91,7 +91,7 @@ function renderBmdPaperBallot({
         votes
       )}
       onRendered={onRendered}
-      printType={printType}
+      machineType={machineType}
     />
   );
 }
@@ -162,7 +162,7 @@ test('BmdPaperBallot treats missing entries in the votes dict as undervotes', ()
       precinctId="6525"
       isLiveMode
       votes={{}}
-      printType="vsap"
+      machineType="markScan"
     />
   );
 
@@ -292,17 +292,17 @@ describe('BmdPaperBallot calls onRendered', () => {
   });
 });
 
-test('BmdPaperBallot renders a large top margin for VSAP prints', () => {
+test('BmdPaperBallot renders a large top margin for VxMarkScan prints', () => {
   renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
     ballotStyleId: '1',
     precinctId: '6525',
     votes: {},
-    printType: 'vsap',
+    machineType: 'markScan',
   });
 
   const header = screen.getByTestId('header');
-  expect(header).toHaveStyle(`margin-top: ${MAX_VSAP_TOP_MARGIN}`);
+  expect(header).toHaveStyle(`margin-top: ${MAX_MARK_SCAN_TOP_MARGIN}`);
 });
 
 test('BmdPaperBallot does not render a large top margin for VxMark prints', () => {
@@ -320,30 +320,34 @@ test('BmdPaperBallot does not render a large top margin for VxMark prints', () =
 test('BMD_BALLOT_LAYOUTS is properly defined', () => {
   // Expect no repeated contest thresholds:
   expect([
-    ...new Set(BMD_BALLOT_LAYOUTS.vsap.map((l) => l.minContests)),
-  ]).toHaveLength(BMD_BALLOT_LAYOUTS.vsap.length);
+    ...new Set(ORDERED_BMD_BALLOT_LAYOUTS.markScan.map((l) => l.minContests)),
+  ]).toHaveLength(ORDERED_BMD_BALLOT_LAYOUTS.markScan.length);
   expect([
-    ...new Set(BMD_BALLOT_LAYOUTS.vxMark.map((l) => l.minContests)),
-  ]).toHaveLength(BMD_BALLOT_LAYOUTS.vxMark.length);
+    ...new Set(ORDERED_BMD_BALLOT_LAYOUTS.mark.map((l) => l.minContests)),
+  ]).toHaveLength(ORDERED_BMD_BALLOT_LAYOUTS.mark.length);
 
   // Should be defined in order of increasing contest thresholds:
-  expect(BMD_BALLOT_LAYOUTS.vsap).toEqual(
-    [...BMD_BALLOT_LAYOUTS.vsap].sort((a, b) => a.minContests - b.minContests)
+  expect(ORDERED_BMD_BALLOT_LAYOUTS.markScan).toEqual(
+    [...ORDERED_BMD_BALLOT_LAYOUTS.markScan].sort(
+      (a, b) => a.minContests - b.minContests
+    )
   );
-  expect(BMD_BALLOT_LAYOUTS.vxMark).toEqual(
-    [...BMD_BALLOT_LAYOUTS.vxMark].sort((a, b) => a.minContests - b.minContests)
+  expect(ORDERED_BMD_BALLOT_LAYOUTS.mark).toEqual(
+    [...ORDERED_BMD_BALLOT_LAYOUTS.mark].sort(
+      (a, b) => a.minContests - b.minContests
+    )
   );
 
   // Should an entry with a threshold of 0 contests for each print type:
-  expect(BMD_BALLOT_LAYOUTS.vsap[0].minContests).toEqual(0);
-  expect(BMD_BALLOT_LAYOUTS.vxMark[0].minContests).toEqual(0);
+  expect(ORDERED_BMD_BALLOT_LAYOUTS.markScan[0].minContests).toEqual(0);
+  expect(ORDERED_BMD_BALLOT_LAYOUTS.mark[0].minContests).toEqual(0);
 
-  // Expect top margins only for VSAP prints:
+  // Expect top margins only for MarkScan prints:
   expect(
-    BMD_BALLOT_LAYOUTS.vsap.every((l) => l.topMargin !== undefined)
+    ORDERED_BMD_BALLOT_LAYOUTS.markScan.every((l) => l.topMargin !== undefined)
   ).toEqual(true);
   expect(
-    BMD_BALLOT_LAYOUTS.vxMark.every((l) => l.topMargin === undefined)
+    ORDERED_BMD_BALLOT_LAYOUTS.mark.every((l) => l.topMargin === undefined)
   ).toEqual(true);
 });
 
