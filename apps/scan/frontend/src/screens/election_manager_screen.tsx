@@ -10,6 +10,7 @@ import {
   ExportLogsButton,
   UnconfigureMachineButton,
   Icons,
+  TabConfig,
 } from '@votingworks/ui';
 import React, { useState } from 'react';
 import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
@@ -26,6 +27,7 @@ import {
   getConfig,
   getMachineConfig,
   getPollsInfo,
+  getPrinterStatus,
   getUsbDriveStatus,
   logOut,
   setIsSoundMuted,
@@ -37,6 +39,7 @@ import {
 } from '../api';
 import { usePreviewContext } from '../preview_dashboard';
 import { LiveCheckButton } from '../components/live_check_button';
+import { ElectionManagerPrinterTabContent } from '../components/printer_management/election_manager_printer_tab_content';
 
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
 
@@ -58,6 +61,7 @@ export function ElectionManagerScreen({
   const pollsInfoQuery = getPollsInfo.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const authStatusQuery = getAuthStatus.useQuery();
+  const printerStatusQuery = getPrinterStatus.useQuery();
   const machineConfigQuery = getMachineConfig.useQuery();
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const setTestModeMutation = setTestMode.useMutation();
@@ -77,7 +81,8 @@ export function ElectionManagerScreen({
     !usbDriveStatusQuery.isSuccess ||
     !authStatusQuery.isSuccess ||
     !machineConfigQuery.isSuccess ||
-    !pollsInfoQuery.isSuccess
+    !pollsInfoQuery.isSuccess ||
+    !printerStatusQuery.isSuccess
   ) {
     return null;
   }
@@ -86,6 +91,7 @@ export function ElectionManagerScreen({
   const { precinctSelection, isTestMode, isSoundMuted, isUltrasonicDisabled } =
     configQuery.data;
   const { pollsState } = pollsInfoQuery.data;
+  const printerStatus = printerStatusQuery.data;
 
   const isCvrSyncRequired =
     Boolean(usbDriveStatusQuery.data.doesUsbDriveRequireCastVoteRecordSync) &&
@@ -230,6 +236,58 @@ export function ElectionManagerScreen({
     </P>
   ) : null;
 
+  const tabs: TabConfig[] = [
+    {
+      paneId: 'managerSettingsConfiguration',
+      label: 'Configuration',
+      content: (
+        <React.Fragment>
+          {cvrSyncRequiredWarning}
+          {changePrecinctButton}
+          {ballotMode}
+          {unconfigureElectionButton}
+        </React.Fragment>
+      ),
+    },
+  ];
+
+  if (printerStatus.scheme === 'hardware-v4') {
+    const showWarningIcon =
+      printerStatus.state === 'cover-open' ||
+      printerStatus.state === 'no-paper' ||
+      printerStatus.state === 'error' ||
+      !configQuery.data.hasPaperBeenLoaded;
+
+    tabs.push({
+      paneId: 'managerSettingsPrinter',
+      label: 'Printer',
+      icon: showWarningIcon ? 'Warning' : undefined,
+      content: <ElectionManagerPrinterTabContent />,
+    });
+  }
+
+  tabs.push(
+    {
+      paneId: 'managerSettingsData',
+      label: 'CVRs and Logs',
+      content: <React.Fragment>{dataExportButtons}</React.Fragment>,
+    },
+    {
+      paneId: 'managerSettingsSystem',
+      label: 'System Settings',
+      content: (
+        <React.Fragment>
+          {doubleSheetDetectionToggle}
+          {dateTimeButton}
+          {audioMuteToggle}
+          {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (
+            <LiveCheckButton />
+          )}
+        </React.Fragment>
+      ),
+    }
+  );
+
   return (
     <Screen
       infoBarMode="admin"
@@ -237,42 +295,7 @@ export function ElectionManagerScreen({
       title="Election Manager Settings"
       voterFacing={false}
     >
-      <TabbedSection
-        ariaLabel="Election Manager Settings"
-        tabs={[
-          {
-            paneId: 'managerSettingsConfiguration',
-            label: 'Configuration',
-            content: (
-              <React.Fragment>
-                {cvrSyncRequiredWarning}
-                {changePrecinctButton}
-                {ballotMode}
-                {unconfigureElectionButton}
-              </React.Fragment>
-            ),
-          },
-          {
-            paneId: 'managerSettingsData',
-            label: 'CVRs and Logs',
-            content: <React.Fragment>{dataExportButtons}</React.Fragment>,
-          },
-          {
-            paneId: 'managerSettingsSystem',
-            label: 'System Settings',
-            content: (
-              <React.Fragment>
-                {doubleSheetDetectionToggle}
-                {dateTimeButton}
-                {audioMuteToggle}
-                {isFeatureFlagEnabled(
-                  BooleanEnvironmentVariableName.LIVECHECK
-                ) && <LiveCheckButton />}
-              </React.Fragment>
-            ),
-          },
-        ]}
-      />
+      <TabbedSection ariaLabel="Election Manager Settings" tabs={tabs} />
 
       {isConfirmingSwitchToTestMode &&
         (() => {
