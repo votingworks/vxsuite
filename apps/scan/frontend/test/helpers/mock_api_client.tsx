@@ -12,12 +12,15 @@ import {
 import { createMockClient } from '@votingworks/grout-test-utils';
 import type {
   Api,
+  FujitsuPrintResult,
+  FujitsuPrinterStatus,
   MachineConfig,
   PollsTransition,
   PrecinctScannerConfig,
   PrecinctScannerStatus,
+  PrintResult,
 } from '@votingworks/scan-backend';
-import { ok } from '@votingworks/basics';
+import { deferred, err, ok } from '@votingworks/basics';
 import {
   fakeElectionManagerUser,
   fakePollWorkerUser,
@@ -40,6 +43,7 @@ export const machineConfig: MachineConfig = {
 const defaultConfig: PrecinctScannerConfig = {
   isSoundMuted: false,
   isUltrasonicDisabled: false,
+  hasPaperBeenLoaded: false,
   isTestMode: true,
   ballotCountWhenBallotBagLastReplaced: 0,
   electionDefinition: electionGeneralDefinition,
@@ -64,10 +68,20 @@ export function createApiMock() {
     mockApiClient.getAuthStatus.expectRepeatedCallsWith().resolves(authStatus);
   }
 
-  function setPrinterStatus(printerStatus: Partial<PrinterStatus>): void {
+  function setPrinterStatusV3(printerStatus: Partial<PrinterStatus>): void {
     mockApiClient.getPrinterStatus.expectRepeatedCallsWith().resolves({
+      scheme: 'hardware-v3',
       connected: true,
       config: BROTHER_THERMAL_PRINTER_CONFIG,
+      ...printerStatus,
+    });
+  }
+
+  function setPrinterStatusV4(
+    printerStatus: FujitsuPrinterStatus = { state: 'idle' }
+  ): void {
+    mockApiClient.getPrinterStatus.expectRepeatedCallsWith().resolves({
+      scheme: 'hardware-v4',
       ...printerStatus,
     });
   }
@@ -85,7 +99,8 @@ export function createApiMock() {
 
     setAuthStatus,
 
-    setPrinterStatus,
+    setPrinterStatusV3,
+    setPrinterStatusV4,
 
     setBatteryInfo,
 
@@ -219,8 +234,68 @@ export function createApiMock() {
       });
     },
 
-    expectPrintReport(numPages = 1) {
-      mockApiClient.printReport.expectCallWith().resolves(numPages);
+    expectPrintReportV3(pageCount = 1) {
+      mockApiClient.printReport.expectCallWith().resolves({
+        scheme: 'hardware-v3',
+        pageCount,
+      });
+    },
+
+    expectPrintReportV4(errorStatus?: FujitsuPrinterStatus): {
+      resolve: () => void;
+    } {
+      const { resolve, promise } = deferred<PrintResult>();
+
+      mockApiClient.printReport.expectCallWith().returns(promise);
+
+      return {
+        resolve: () => {
+          if (errorStatus) {
+            resolve({
+              scheme: 'hardware-v4',
+              result: err(errorStatus),
+            });
+          } else {
+            resolve({
+              scheme: 'hardware-v4',
+              result: ok(),
+            });
+          }
+        },
+      };
+    },
+
+    expectPrintReportSection(
+      index: number,
+      errorStatus?: FujitsuPrinterStatus
+    ): {
+      resolve: () => void;
+    } {
+      const { resolve, promise } = deferred<FujitsuPrintResult>();
+
+      mockApiClient.printReportSection
+        .expectCallWith({ index })
+        .returns(promise);
+
+      return {
+        resolve: () => {
+          if (errorStatus) {
+            resolve(err(errorStatus));
+          } else {
+            resolve(ok());
+          }
+        },
+      };
+    },
+
+    expectSetHasPaperBeenLoaded(hasPaperBeenLoaded: boolean): void {
+      mockApiClient.setHasPaperBeenLoaded
+        .expectCallWith({ hasPaperBeenLoaded })
+        .resolves();
+    },
+
+    expectPrintTestPage(result: FujitsuPrintResult = ok()): void {
+      mockApiClient.printTestPage.expectCallWith().resolves(result);
     },
   };
 }
