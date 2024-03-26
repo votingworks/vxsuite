@@ -29,6 +29,7 @@
     { "path": "../../../libs/dev-dock/backend/tsconfig.build.json" },
     { "path": "../../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../../libs/fixtures/tsconfig.build.json" },
+    { "path": "../../../libs/fujitsu-thermal-printer/tsconfig.build.json" },
     { "path": "../../../libs/grout/tsconfig.build.json" },
     { "path": "../../../libs/image-utils/tsconfig.build.json" },
     { "path": "../../../libs/logging/tsconfig.build.json" },

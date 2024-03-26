@@ -890,6 +890,25 @@ export class Store {
     return safeParseSystemSettings(result.data).unsafeUnwrap();
   }
 
+  getHasPaperBeenLoaded(): boolean {
+    const result = this.client.one(
+      'select has_paper_been_loaded as hasPaperBeenLoaded from election'
+    ) as { hasPaperBeenLoaded: number } | undefined;
+
+    return Boolean(result?.hasPaperBeenLoaded);
+  }
+
+  setHasPaperHasBeenLoaded(hasPaperBeenLoaded: boolean): void {
+    if (!this.hasElection()) {
+      throw new Error('Cannot set paper loaded without an election.');
+    }
+
+    this.client.run(
+      'update election set has_paper_been_loaded = ?',
+      hasPaperBeenLoaded ? 1 : 0
+    );
+  }
+
   /**
    * Gets the name of the directory that we're continuously exporting to, e.g.
    * TEST__machine_SCAN-0001__2023-08-16_17-02-24. Returns undefined if not yet set.
