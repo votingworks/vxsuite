@@ -391,4 +391,32 @@ export const supportsUltrasonic = {
   },
 } as const;
 
+export const setHasPaperBeenLoaded = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.setHasPaperBeenLoaded, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getConfig.queryKey());
+      },
+    });
+  },
+} as const;
+
+// applicable for V4 hardware only
+export const printReportSection = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.printReportSection);
+  },
+} as const;
+
+// applicable for V4 hardware only
+export const printTestPage = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.printTestPage);
+  },
+} as const;
+
 export const systemCallApi = createSystemCallApi(useApiClient);

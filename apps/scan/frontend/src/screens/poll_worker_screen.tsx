@@ -16,16 +16,14 @@ import {
   getPollsReportTitle,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-import { PollsTransitionType } from '@votingworks/types';
+import { ElectionDefinition, PollsTransitionType } from '@votingworks/types';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { Optional, throwIllegalValue } from '@votingworks/basics';
 import styled from 'styled-components';
-import pluralize from 'pluralize';
-import type { PrecinctScannerPollsInfo } from '@votingworks/scan-backend';
-import {
-  ScreenMainCenterChild,
-  CenteredScreenProps,
-} from '../components/layout';
+import type {
+  PrecinctScannerPollsInfo,
+  PrintResult,
+} from '@votingworks/scan-backend';
 import {
   getUsbDriveStatus,
   printReport,
@@ -39,6 +37,10 @@ import {
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 import { LiveCheckButton } from '../components/live_check_button';
 import { CastVoteRecordSyncRequiredModal } from './cast_vote_record_sync_required_screen';
+import { isPrinterReadyHelper } from '../utils/printer';
+import { LegacyPostPrintScreen } from './poll_worker_legacy_post_print_screen';
+import { FujitsuPostPrintScreen } from './poll_worker_fujitsu_post_print_screen';
+import { Screen } from './poll_worker_shared';
 
 type PollWorkerFlowState =
   | {
@@ -60,21 +62,9 @@ type PollWorkerFlowState =
   | {
       type: 'post-print';
       transitionType: PollsTransitionType;
-      numPages: number;
       isAfterPollsTransition: boolean;
+      printResult: PrintResult;
     };
-
-function Screen(
-  props: Omit<CenteredScreenProps, 'infoBarMode' | 'voterFacing'>
-) {
-  const { children } = props;
-
-  return (
-    <ScreenMainCenterChild infoBarMode="pollworker" voterFacing={false}>
-      {children}
-    </ScreenMainCenterChild>
-  );
-}
 
 const BallotsAlreadyScannedScreen = (
   <Screen>
@@ -209,63 +199,8 @@ function getPollsTransitioningText(pollsTransitionType: PollsTransitionType) {
   }
 }
 
-function getPollsTransitionedText(pollsTransitionType: PollsTransitionType) {
-  switch (pollsTransitionType) {
-    case 'close_polls':
-      return 'Polls are closed.';
-    case 'open_polls':
-      return 'Polls are open.';
-    case 'resume_voting':
-      return 'Voting resumed.';
-    case 'pause_voting':
-      return 'Voting paused.';
-    /* istanbul ignore next - compile-time check for completeness */
-    default:
-      throwIllegalValue(pollsTransitionType);
-  }
-}
-
-function PostPrintScreen({
-  isAfterPollsTransition,
-  reprint,
-  isPrinterReady,
-  numPages,
-  transitionType,
-}: {
-  isAfterPollsTransition: boolean;
-  reprint: () => void;
-  isPrinterReady: boolean;
-  numPages: number;
-  transitionType: PollsTransitionType;
-}): JSX.Element {
-  return (
-    <Screen>
-      <CenteredLargeProse>
-        {isAfterPollsTransition && (
-          <H1>{getPollsTransitionedText(transitionType)}</H1>
-        )}
-        <P>
-          Insert{' '}
-          {numPages
-            ? `${numPages} ${pluralize('sheet', numPages)} of paper`
-            : 'paper'}{' '}
-          into the printer to print the report.
-        </P>
-        <P>
-          Remove the poll worker card once you have printed all necessary
-          reports.
-        </P>
-        <P>
-          <Button onPress={reprint} disabled={!isPrinterReady}>
-            Print Additional {getPollsReportTitle(transitionType)}
-          </Button>
-        </P>
-      </CenteredLargeProse>
-    </Screen>
-  );
-}
-
 export interface PollWorkerScreenProps {
+  electionDefinition: ElectionDefinition;
   scannedBallotCount: number;
   logger: BaseLogger;
 }
@@ -278,6 +213,7 @@ const ButtonGrid = styled.div`
 `;
 
 function PollWorkerScreenContents({
+  electionDefinition,
   pollsInfo,
   scannedBallotCount,
   logger,
@@ -292,6 +228,7 @@ function PollWorkerScreenContents({
   const pauseVotingMutation = pauseVotingApi.useMutation();
   const resumeVotingMutation = resumeVotingApi.useMutation();
   const printReportMutation = printReport.useMutation();
+
   const [
     isShowingBallotsAlreadyScannedScreen,
     setIsShowingBallotsAlreadyScannedScreen,
@@ -334,7 +271,7 @@ function PollWorkerScreenContents({
 
   const usbDriveStatus = usbDriveStatusQuery.data;
   const printerStatus = printerStatusQuery.data;
-  const isPrinterReady = Boolean(printerStatus?.connected);
+  const isPrinterReady = isPrinterReadyHelper(printerStatus);
   const { pollsState } = pollsInfo;
 
   function showAllPollWorkerActions() {
@@ -361,12 +298,12 @@ function PollWorkerScreenContents({
       transitionType: 'open_polls',
     });
     await openPollsMutation.mutateAsync();
-    const numPages = await printReportMutation.mutateAsync();
+    const printResult = await printReportMutation.mutateAsync();
     setPollWorkerFlowState({
       type: 'post-print',
       transitionType: 'open_polls',
-      numPages,
       isAfterPollsTransition: true,
+      printResult,
     });
   }
 
@@ -380,12 +317,12 @@ function PollWorkerScreenContents({
       transitionType: 'close_polls',
     });
     await closePollsMutation.mutateAsync();
-    const numPages = await printReportMutation.mutateAsync();
+    const printResult = await printReportMutation.mutateAsync();
     setPollWorkerFlowState({
       type: 'post-print',
       transitionType: 'close_polls',
-      numPages,
       isAfterPollsTransition: true,
+      printResult,
     });
   }
 
@@ -395,12 +332,12 @@ function PollWorkerScreenContents({
       transitionType: 'pause_voting',
     });
     await pauseVotingMutation.mutateAsync();
-    const numPages = await printReportMutation.mutateAsync();
+    const printResult = await printReportMutation.mutateAsync();
     setPollWorkerFlowState({
       type: 'post-print',
       transitionType: 'pause_voting',
-      numPages,
       isAfterPollsTransition: true,
+      printResult,
     });
   }
 
@@ -410,12 +347,12 @@ function PollWorkerScreenContents({
       transitionType: 'resume_voting',
     });
     await resumeVotingMutation.mutateAsync();
-    const numPages = await printReportMutation.mutateAsync();
+    const printResult = await printReportMutation.mutateAsync();
     setPollWorkerFlowState({
       type: 'post-print',
       transitionType: 'resume_voting',
-      numPages,
       isAfterPollsTransition: true,
+      printResult,
     });
   }
 
@@ -429,12 +366,12 @@ function PollWorkerScreenContents({
     setPollWorkerFlowState({
       type: 'printing-report',
     });
-    const numPages = await printReportMutation.mutateAsync();
+    const printResult = await printReportMutation.mutateAsync();
     setPollWorkerFlowState({
       type: 'post-print',
       transitionType,
-      numPages,
       isAfterPollsTransition,
+      printResult,
     });
   }
 
@@ -499,13 +436,21 @@ function PollWorkerScreenContents({
           </Screen>
         );
       case 'post-print':
+        if (pollWorkerFlowState.printResult.scheme === 'hardware-v3') {
+          return (
+            <LegacyPostPrintScreen
+              isPostPollsTransition={pollWorkerFlowState.isAfterPollsTransition}
+              numPages={pollWorkerFlowState.printResult.pageCount}
+              transitionType={pollWorkerFlowState.transitionType}
+            />
+          );
+        }
         return (
-          <PostPrintScreen
-            isAfterPollsTransition={pollWorkerFlowState.isAfterPollsTransition}
-            isPrinterReady={isPrinterReady}
-            reprint={() => reprintReport(pollWorkerFlowState)}
-            numPages={pollWorkerFlowState.numPages}
-            transitionType={pollWorkerFlowState.transitionType}
+          <FujitsuPostPrintScreen
+            isPostPollsTransition={pollWorkerFlowState.isAfterPollsTransition}
+            pollsTransitionType={pollWorkerFlowState.transitionType}
+            electionDefinition={electionDefinition}
+            initialPrintResult={pollWorkerFlowState.printResult.result}
           />
         );
       /* istanbul ignore next - compile-time check for completeness */
