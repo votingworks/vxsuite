@@ -1345,11 +1345,11 @@ export function layOutInColumns<Element extends ElementWithHeight>({
   }
 
   function heightOfTallestColumn(columns: Array<Column<Element>>): number {
-    return Math.max(...columns.map((column) => columnHeight(column)));
+    return Math.max(...columns.map(columnHeight));
   }
 
   // First, try a greedy approach of filling columns to the max height
-  const greedyColumns: Array<Column<Element>> = emptyColumns();
+  const greedyColumns = emptyColumns();
   let currentColumnIndex = 0;
   let elementIndex = 0;
   while (elementIndex < elements.length && currentColumnIndex < numColumns) {
@@ -1379,17 +1379,16 @@ export function layOutInColumns<Element extends ElementWithHeight>({
   // fitting all the elements.
 
   // Recursively generates all possible ways to fill the columns with the given elements
-  function possibleColumns(
+  function* possibleColumns(
     columnsSoFar: Array<Column<Element>>,
     elementsLeft: Element[]
-  ): Array<Array<Column<Element>>> {
+  ): Iterable<Array<Column<Element>>> {
     if (elementsLeft.length === 0) {
-      return [columnsSoFar];
+      yield columnsSoFar;
+      return;
     }
 
     const [nextElement, ...restElements] = elementsLeft;
-
-    const results: Array<Array<Column<Element>>> = [];
 
     // If there's a current column being filled, try adding the next element to it
     const lastNonEmptyColumnIndex = findLastIndex(
@@ -1403,7 +1402,7 @@ export function layOutInColumns<Element extends ElementWithHeight>({
         nextElement,
       ];
       if (!isColumnOverflowing(newColumns[lastNonEmptyColumnIndex])) {
-        results.push(...possibleColumns(newColumns, restElements));
+        yield* possibleColumns(newColumns, restElements);
       }
     }
 
@@ -1415,15 +1414,12 @@ export function layOutInColumns<Element extends ElementWithHeight>({
       const newColumns = [...columnsSoFar];
       newColumns[firstEmptyColumnIndex] = [nextElement];
       if (!isColumnOverflowing(newColumns[firstEmptyColumnIndex])) {
-        results.push(...possibleColumns(newColumns, restElements));
+        yield* possibleColumns(newColumns, restElements);
       }
     }
-
-    return results;
   }
 
   const allPossibleColumns = possibleColumns(emptyColumns(), elements);
-  assert(allPossibleColumns.length > 0);
 
   function spread(numbers: number[]): number {
     return Math.max(...numbers) - Math.min(...numbers);
@@ -1434,11 +1430,9 @@ export function layOutInColumns<Element extends ElementWithHeight>({
         // Shortest overall height
         (columns) => heightOfTallestColumn(columns),
         // Least difference in height among columns
-        (columns) => spread(columns.map((c) => columnHeight(c))),
+        (columns) => spread(columns.map(columnHeight)),
         // Least gaps (empty columns in the middle)
-        (columns) => {
-          return columns.findIndex((column) => column.length === 0);
-        },
+        (columns) => columns.findIndex((column) => column.length === 0),
       ])
     )
   );
