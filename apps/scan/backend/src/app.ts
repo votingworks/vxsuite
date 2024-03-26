@@ -4,13 +4,11 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import {
   ElectionPackageConfigurationError,
   DEFAULT_SYSTEM_SETTINGS,
-  ExportCastVoteRecordsToUsbDriveError,
   PrecinctSelection,
   PrinterStatus,
   SinglePrecinctSelection,
 } from '@votingworks/types';
 import {
-  getPollsTransitionDestinationState,
   getPrecinctSelectionName,
   isElectionManagerAuth,
   singlePrecinctSelectionFor,
@@ -20,17 +18,10 @@ import {
   createUiStringsApi,
   createSystemCallApi,
   readSignedElectionPackageFromUsb,
-  exportCastVoteRecordsToUsbDrive,
   doesUsbDriveRequireCastVoteRecordSync as doesUsbDriveRequireCastVoteRecordSyncFn,
   configureUiStrings,
 } from '@votingworks/backend';
-import {
-  assert,
-  assertDefined,
-  ok,
-  Result,
-  throwIllegalValue,
-} from '@votingworks/basics';
+import { assert, assertDefined, ok, Result } from '@votingworks/basics';
 import { InsertedSmartCardAuthApi, LiveCheck } from '@votingworks/auth';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { Printer } from '@votingworks/printing';
@@ -38,14 +29,23 @@ import {
   PrecinctScannerStateMachine,
   PrecinctScannerConfig,
   PrecinctScannerStatus,
-  PollsTransition,
   PrecinctScannerPollsInfo,
 } from './types';
 import { constructAuthMachineState } from './util/auth';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
 import { printReport } from './print_report';
-import { logPollsTransition } from './util/logging';
+import {
+  exportCastVoteRecordsToUsbDrive,
+  ExportCastVoteRecordsToUsbDriveResult,
+} from './export';
+import {
+  closePolls,
+  openPolls,
+  pauseVoting,
+  resetPollsToPaused,
+  resumeVoting,
+} from './polls';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi({
@@ -231,41 +231,24 @@ export function buildApi({
       store.setTestMode(input.isTestMode);
     },
 
-    async transitionPolls(
-      input: Omit<PollsTransition, 'ballotCount'>
-    ): Promise<void> {
-      const previousPollsState = store.getPollsState();
-      const newPollsState = getPollsTransitionDestinationState(input.type);
+    async openPolls(): Promise<void> {
+      return openPolls({ store, logger });
+    },
 
-      // Start new batch if opening polls, end batch if pausing or closing polls
-      if (
-        newPollsState === 'polls_open' &&
-        previousPollsState !== 'polls_open'
-      ) {
-        const batchId = store.addBatch();
-        await logger.log(LogEventId.ScannerBatchStarted, 'system', {
-          disposition: 'success',
-          message:
-            'New scanning batch started due to polls being opened or voting being resumed.',
-          batchId,
-        });
-      } else if (
-        newPollsState !== 'polls_open' &&
-        previousPollsState === 'polls_open'
-      ) {
-        const ongoingBatchId = store.getOngoingBatchId();
-        assert(typeof ongoingBatchId === 'string');
-        store.finishBatch({ batchId: ongoingBatchId });
-        await logger.log(LogEventId.ScannerBatchEnded, 'system', {
-          disposition: 'success',
-          message:
-            'Current scanning batch ended due to polls being closed or voting being paused.',
-          batchId: ongoingBatchId,
-        });
-      }
+    async closePolls(): Promise<void> {
+      return closePolls({ workspace, usbDrive, logger });
+    },
 
-      await logPollsTransition(logger, input.type, previousPollsState);
-      store.transitionPolls(input);
+    async pauseVoting(): Promise<void> {
+      return pauseVoting({ store, logger });
+    },
+
+    async resumeVoting(): Promise<void> {
+      return resumeVoting({ store, logger });
+    },
+
+    async resetPollsToPaused(): Promise<void> {
+      return resetPollsToPaused({ store, logger });
     },
 
     async recordBallotBagReplaced(): Promise<void> {
@@ -292,72 +275,13 @@ export function buildApi({
       store.setBallotCountWhenBallotBagLastReplaced(store.getBallotsCounted());
     },
 
-    async exportCastVoteRecordsToUsbDrive(input: {
-      mode: 'full_export' | 'polls_closing';
-    }): Promise<Result<void, ExportCastVoteRecordsToUsbDriveError>> {
-      await logger.logAsCurrentRole(LogEventId.ExportCastVoteRecordsInit, {
-        message:
-          input.mode === 'polls_closing'
-            ? 'Marking cast vote record export as complete on polls close...'
-            : 'Exporting cast vote records...',
+    async exportCastVoteRecordsToUsbDrive(): Promise<ExportCastVoteRecordsToUsbDriveResult> {
+      return exportCastVoteRecordsToUsbDrive({
+        mode: 'full_export',
+        workspace,
+        usbDrive,
+        logger,
       });
-
-      // Use the continuous export mutex to ensure that any pending continuous export
-      // operations finish first
-      let exportResult: Result<void, ExportCastVoteRecordsToUsbDriveError>;
-      switch (input.mode) {
-        case 'full_export': {
-          exportResult = await workspace.continuousExportMutex.withLock(() =>
-            exportCastVoteRecordsToUsbDrive(
-              store,
-              usbDrive,
-              store.forEachSheet(),
-              { scannerType: 'precinct', isFullExport: true }
-            )
-          );
-          break;
-        }
-        case 'polls_closing': {
-          exportResult = await workspace.continuousExportMutex.withLock(() =>
-            exportCastVoteRecordsToUsbDrive(store, usbDrive, [], {
-              scannerType: 'precinct',
-              arePollsClosing: true,
-            })
-          );
-          break;
-        }
-        /* c8 ignore start: Compile-time check for completeness */
-        default: {
-          throwIllegalValue(input.mode);
-        }
-        /* c8 ignore stop */
-      }
-
-      if (exportResult.isErr()) {
-        await logger.logAsCurrentRole(
-          LogEventId.ExportCastVoteRecordsComplete,
-          {
-            disposition: 'failure',
-            message:
-              input.mode === 'polls_closing'
-                ? 'Error marking cast vote record export as complete on polls close.'
-                : 'Error exporting cast vote records.',
-            errorDetails: JSON.stringify(exportResult.err()),
-          }
-        );
-      } else {
-        await logger.logAsCurrentRole(
-          LogEventId.ExportCastVoteRecordsComplete,
-          {
-            disposition: 'success',
-            message:
-              input.mode === 'polls_closing'
-                ? 'Successfully marked cast vote record export as complete on polls close.'
-                : 'Successfully exported cast vote records.',
-          }
-        );
-      }
-      return exportResult;
     },
 
     getPrinterStatus(): Promise<PrinterStatus> {

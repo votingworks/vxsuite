@@ -209,7 +209,6 @@ export function AppRoot({ logger }: Props): JSX.Element | null {
     return (
       <PollWorkerScreen
         scannedBallotCount={scannerStatus.ballotsCounted}
-        pollsInfo={pollsInfo}
         logger={logger}
       />
     );

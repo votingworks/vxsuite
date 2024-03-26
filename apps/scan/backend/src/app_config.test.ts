@@ -3,14 +3,13 @@ import {
   electionGeneralDefinition,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import waitForExpect from 'wait-for-expect';
 import { LogEventId } from '@votingworks/logging';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { err, find, iter, ok, typedAs, unique } from '@votingworks/basics';
+import { err, ok, typedAs } from '@votingworks/basics';
 import {
   fakeElectionManagerUser,
   fakeSessionExpiresAt,
@@ -20,7 +19,7 @@ import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { ElectionDefinition } from '@votingworks/types';
 import { configureApp } from '../test/helpers/shared_helpers';
-import { scanBallot, withApp } from '../test/helpers/custom_helpers';
+import { withApp } from '../test/helpers/custom_helpers';
 import { PrecinctScannerPollsInfo } from '.';
 
 jest.setTimeout(30_000);
@@ -181,124 +180,6 @@ test('setPrecinctSelection will reset polls to closed', async () => {
     );
   });
 });
-
-test('ballot batching', async () => {
-  await withApp(
-    {},
-    async ({
-      apiClient,
-      mockScanner,
-      logger,
-      workspace,
-      mockUsbDrive,
-      mockAuth,
-    }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
-      const { store } = workspace;
-      function getCvrIds() {
-        return iter(store.forEachAcceptedSheet())
-          .map((r) => r.id)
-          .toArray();
-      }
-      function getBatchIds() {
-        return unique(
-          iter(store.forEachAcceptedSheet())
-            .map((r) => r.batchId)
-            .toArray()
-        );
-      }
-
-      // Scan two ballots, which should have the same batch
-      await scanBallot(mockScanner, apiClient, workspace.store, 0);
-      await scanBallot(mockScanner, apiClient, workspace.store, 1);
-      let batchIds = getBatchIds();
-      expect(getCvrIds()).toHaveLength(2);
-      expect(batchIds).toHaveLength(1);
-      const batch1Id = batchIds[0];
-
-      // Pause polls, which should stop the current batch
-      await apiClient.transitionPolls({
-        type: 'pause_voting',
-        time: Date.now(),
-      });
-      await waitForExpect(() => {
-        expect(logger.log).toHaveBeenCalledWith(
-          LogEventId.ScannerBatchEnded,
-          'system',
-          expect.objectContaining({
-            disposition: 'success',
-            message:
-              'Current scanning batch ended due to polls being closed or voting being paused.',
-            batchId: batch1Id,
-          })
-        );
-      });
-
-      // Reopen polls, which should start a new batch
-      await apiClient.transitionPolls({
-        type: 'resume_voting',
-        time: Date.now(),
-      });
-      await waitForExpect(() => {
-        expect(logger.log).toHaveBeenCalledWith(
-          LogEventId.ScannerBatchStarted,
-          'system',
-          expect.objectContaining({
-            disposition: 'success',
-            message:
-              'New scanning batch started due to polls being opened or voting being resumed.',
-            batchId: expect.not.stringMatching(batch1Id),
-          })
-        );
-      });
-
-      // Confirm there is a new, second batch distinct from the first
-      await scanBallot(mockScanner, apiClient, workspace.store, 2);
-      await scanBallot(mockScanner, apiClient, workspace.store, 3);
-      batchIds = getBatchIds();
-      expect(getCvrIds()).toHaveLength(4);
-      expect(batchIds).toHaveLength(2);
-      const batch2Id = find(batchIds, (batchId) => batchId !== batch1Id);
-
-      // Replace the ballot bag, which should create a new batch
-      await apiClient.recordBallotBagReplaced();
-      expect(workspace.store.getBallotCountWhenBallotBagLastReplaced()).toEqual(
-        4
-      );
-      await waitForExpect(() => {
-        expect(logger.log).toHaveBeenCalledWith(
-          LogEventId.ScannerBatchEnded,
-          'system',
-          expect.objectContaining({
-            disposition: 'success',
-            message:
-              'Current scanning batch ended due to ballot bag replacement.',
-            batchId: batch2Id,
-          })
-        );
-      });
-      await waitForExpect(() => {
-        expect(logger.log).toHaveBeenCalledWith(
-          LogEventId.ScannerBatchStarted,
-          'system',
-          expect.objectContaining({
-            disposition: 'success',
-            message:
-              'New scanning batch started due to ballot bag replacement.',
-            batchId: expect.not.stringMatching(batch2Id),
-          })
-        );
-      });
-
-      // Confirm there is a third batch, distinct from the second
-      await scanBallot(mockScanner, apiClient, workspace.store, 4);
-      await scanBallot(mockScanner, apiClient, workspace.store, 5);
-      batchIds = getBatchIds();
-      expect(getCvrIds()).toHaveLength(6);
-      expect(batchIds).toHaveLength(3);
-    }
-  );
-}, 30_000);
 
 test('unconfiguring machine', async () => {
   await withApp(

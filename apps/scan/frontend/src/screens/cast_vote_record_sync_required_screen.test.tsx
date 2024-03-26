@@ -52,7 +52,7 @@ test('CVR sync modal success case', async () => {
       'Cast vote records (CVRs) need to be synced to the USB drive.'
   );
 
-  apiMock.expectExportCastVoteRecordsToUsbDrive({ mode: 'full_export' });
+  apiMock.expectExportCastVoteRecordsToUsbDrive();
   userEvent.click(screen.getByRole('button', { name: 'Sync CVRs' }));
   const modal = await screen.findByRole('alertdialog');
   expect(setShouldStayOnCastVoteRecordSyncRequiredScreen).toHaveBeenCalledTimes(
@@ -83,7 +83,7 @@ test('CVR sync modal error case', async () => {
   );
 
   apiMock.mockApiClient.exportCastVoteRecordsToUsbDrive
-    .expectCallWith({ mode: 'full_export' })
+    .expectCallWith()
     .resolves(err({ type: 'file-system-error', message: '' }));
   userEvent.click(screen.getByRole('button', { name: 'Sync CVRs' }));
   const modal = await screen.findByRole('alertdialog');
