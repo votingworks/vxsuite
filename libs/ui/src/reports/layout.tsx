@@ -18,10 +18,6 @@ export const PrintedReport = styled.section`
   @media print {
     font-size: 12px;
   }
-
-  @page {
-    size: letter portrait;
-  }
 `;
 
 export const PrintedReportPreview = styled.div`
