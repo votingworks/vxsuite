@@ -31,6 +31,14 @@ import {
   MemoryPrinterHandler,
   createMockPrinterHandler,
 } from '@votingworks/printing';
+import {
+  MemoryFujitsuPrinterHandler,
+  createMockFujitsuPrinterHandler,
+} from '@votingworks/fujitsu-thermal-printer';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { Api, buildApp } from '../../src/app';
 import { InterpretFn } from '../../src/interpret';
 import {
@@ -46,6 +54,10 @@ import {
 import { Store } from '../../src/store';
 import { PrecinctScannerStateMachine } from '../../src';
 import { getUserRole } from '../../src/util/auth';
+import {
+  wrapFujitsuThermalPrinter,
+  wrapLegacyPrinter,
+} from '../../src/printing/printer';
 
 export function buildMockLogger(
   auth: InsertedSmartCardAuthApi,
@@ -74,6 +86,7 @@ export async function withApp(
     workspace: Workspace;
     mockUsbDrive: MockUsbDrive;
     mockPrinterHandler: MemoryPrinterHandler;
+    mockFujitsuPrinterHandler: MemoryFujitsuPrinterHandler;
     logger: Logger;
     server: Server;
   }) => Promise<void>
@@ -85,6 +98,7 @@ export async function withApp(
   const mockScanner = mocks.fakeCustomScanner();
   const mockUsbDrive = createMockUsbDrive();
   const mockPrinterHandler = createMockPrinterHandler();
+  const mockFujitsuPrinterHandler = createMockFujitsuPrinterHandler();
   const deferredConnect = deferred<void>();
   async function createCustomClient(): Promise<
     Result<CustomScanner, ErrorCode>
@@ -111,12 +125,17 @@ export async function withApp(
       ...delays,
     },
   });
+  const printer = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.SCAN_USE_FUJITSU_PRINTER
+  )
+    ? wrapFujitsuThermalPrinter(mockFujitsuPrinterHandler.printer)
+    : wrapLegacyPrinter(mockPrinterHandler.printer);
   const app = buildApp({
     auth: mockAuth,
     machine: precinctScannerMachine,
     workspace,
     usbDrive: mockUsbDrive.usbDrive,
-    printer: mockPrinterHandler.printer,
+    printer,
     logger,
   });
 
@@ -139,6 +158,7 @@ export async function withApp(
       workspace,
       mockUsbDrive,
       mockPrinterHandler,
+      mockFujitsuPrinterHandler,
       logger,
       server,
     });
