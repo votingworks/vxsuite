@@ -158,13 +158,13 @@ export function FujitsuPostPrintScreen({
                 onPress={() => printSection(printIndex - 1)}
                 disabled={disablePrinting}
               >
-                Reprint Previous Report
+                Reprint Previous
               </Button>{' '}
               <Button
                 onPress={() => printSection(0)}
                 disabled={disablePrinting}
               >
-                Reprint All Reports
+                Reprint All
               </Button>
             </P>
           </React.Fragment>
@@ -174,7 +174,7 @@ export function FujitsuPostPrintScreen({
               onPress={() => printSection(printIndex - 1)}
               disabled={disablePrinting}
             >
-              Reprint Previous Report
+              Reprint Previous
             </Button>{' '}
             <Button
               variant="primary"

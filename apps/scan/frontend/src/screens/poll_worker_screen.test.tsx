@@ -492,7 +492,7 @@ describe('hardware V4 report printing', () => {
     // try reprinting that report, landing on same page
     const { resolve: resolveMammalReprint } =
       apiMock.expectPrintReportSection(0);
-    userEvent.click(screen.getButton('Reprint Previous Report'));
+    userEvent.click(screen.getButton('Reprint Previous'));
     await screen.findByText('Printing Report…');
     resolveMammalReprint();
     await screen.findByText('Polls are open.');
@@ -508,7 +508,7 @@ describe('hardware V4 report printing', () => {
 
     // you can reprint second page too
     const { resolve: resolveFishReprint } = apiMock.expectPrintReportSection(1);
-    userEvent.click(screen.getButton('Reprint Previous Report'));
+    userEvent.click(screen.getButton('Reprint Previous'));
     await screen.findByText('Printing Report…');
     resolveFishReprint();
     await screen.findByText('Polls are open.');
@@ -526,7 +526,7 @@ describe('hardware V4 report printing', () => {
     // try reprinting from beginning
     const { resolve: resolveMammalReprint2 } =
       apiMock.expectPrintReportSection(0);
-    userEvent.click(screen.getButton('Reprint All Reports'));
+    userEvent.click(screen.getButton('Reprint All'));
     await screen.findByText('Printing Report…');
     resolveMammalReprint2();
     await screen.findByText('Polls are open.');
