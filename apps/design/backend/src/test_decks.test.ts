@@ -150,22 +150,17 @@ describe('createPrecinctTestDeck', () => {
 
 describe('getTallyReportResults', () => {
   test('general', async () => {
-    const { electionDefinition } = electionFamousNames2021Fixtures;
-    const { election } = electionDefinition;
-
-    const { ballots } = layOutAllBallotStyles({
-      election,
+    const { electionDefinition } = layOutAllBallotStyles({
+      election: electionFamousNames2021Fixtures.election,
       ballotType: BallotType.Precinct,
       ballotMode: 'test',
       layoutOptions: DEFAULT_LAYOUT_OPTIONS,
       nhCustomContent: {},
       translatedElectionStrings: {},
     }).unsafeUnwrap();
+    const { election } = electionDefinition;
 
-    const tallyReportResults = await getTallyReportResults({
-      election,
-      ballots,
-    });
+    const tallyReportResults = await getTallyReportResults(election);
 
     expect(tallyReportResults.hasPartySplits).toEqual(false);
     expect(tallyReportResults.contestIds).toEqual(
@@ -203,22 +198,17 @@ describe('getTallyReportResults', () => {
   });
 
   test('primary', async () => {
-    const { electionDefinition } = electionTwoPartyPrimaryFixtures;
-    const { election } = electionDefinition;
-
-    const { ballots } = layOutAllBallotStyles({
-      election,
+    const { electionDefinition } = layOutAllBallotStyles({
+      election: electionTwoPartyPrimaryFixtures.election,
       ballotType: BallotType.Precinct,
       ballotMode: 'test',
       layoutOptions: DEFAULT_LAYOUT_OPTIONS,
       nhCustomContent: {},
       translatedElectionStrings: {},
     }).unsafeUnwrap();
+    const { election } = electionDefinition;
 
-    const tallyReportResults = await getTallyReportResults({
-      election,
-      ballots,
-    });
+    const tallyReportResults = await getTallyReportResults(election);
 
     expect(tallyReportResults.hasPartySplits).toEqual(true);
     expect(tallyReportResults.contestIds).toEqual(
@@ -266,10 +256,8 @@ describe('getTallyReportResults', () => {
 });
 
 test('createTestDeckTallyReport', async () => {
-  const electionDefinition = electionGeneralDefinition;
-  const { election } = electionDefinition;
-  const { ballots } = layOutAllBallotStyles({
-    election,
+  const { electionDefinition } = layOutAllBallotStyles({
+    election: electionGeneralDefinition.election,
     ballotType: BallotType.Precinct,
     ballotMode: 'test',
     layoutOptions: DEFAULT_LAYOUT_OPTIONS,
@@ -279,7 +267,6 @@ test('createTestDeckTallyReport', async () => {
 
   const reportDocumentBuffer = await createTestDeckTallyReport({
     electionDefinition,
-    ballots,
     generatedAtTime: new Date('2021-01-01T00:00:00.000'),
   });
 

@@ -1,4 +1,4 @@
-import { assert, find, uniqueBy } from '@votingworks/basics';
+import { assert, assertDefined, find, uniqueBy } from '@votingworks/basics';
 import { BallotLayout, Document, markBallot } from '@votingworks/hmpb-layout';
 import {
   Admin,
@@ -6,6 +6,7 @@ import {
   ContestId,
   Election,
   ElectionDefinition,
+  GridLayout,
   PrecinctId,
   Tabulation,
 } from '@votingworks/types';
@@ -80,16 +81,14 @@ export function createPrecinctTestDeck({
  * arranged by sheet so we can arrange the votes accordingly.
  */
 interface BallotContestLayout {
-  precinctId: PrecinctId;
   ballotStyleId: BallotStyleId;
   contestIdsBySheet: Array<ContestId[]>;
 }
 
 function getBallotContestLayouts(
-  ballots: BallotLayout[]
+  gridLayouts: readonly GridLayout[]
 ): BallotContestLayout[] {
-  return ballots.map((ballot) => {
-    const { precinctId, gridLayout } = ballot;
+  return gridLayouts.map((gridLayout) => {
     const { ballotStyleId } = gridLayout;
     const numSheets = Math.max(
       ...gridLayout.gridPositions.map((gp) => gp.sheetNumber)
@@ -108,20 +107,15 @@ function getBallotContestLayouts(
       contestIdsBySheet[sheetNumber - 1].push(contestId);
     }
     return {
-      precinctId,
       ballotStyleId,
       contestIdsBySheet,
     };
   });
 }
 
-function generateTestDeckCastVoteRecords({
-  election,
-  ballots,
-}: {
-  election: Election;
-  ballots: BallotLayout[];
-}): Tabulation.CastVoteRecord[] {
+function generateTestDeckCastVoteRecords(
+  election: Election
+): Tabulation.CastVoteRecord[] {
   const ballotSpecs: TestDeckBallotSpec[] = generateTestDeckBallots({
     election,
     markingMethod: 'hand',
@@ -129,8 +123,9 @@ function generateTestDeckCastVoteRecords({
     includeOvervotedBallots: false,
   });
 
-  const ballotContestLayouts: BallotContestLayout[] =
-    getBallotContestLayouts(ballots);
+  const ballotContestLayouts: BallotContestLayout[] = getBallotContestLayouts(
+    assertDefined(election.gridLayouts)
+  );
 
   const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
 
@@ -150,9 +145,7 @@ function generateTestDeckCastVoteRecords({
 
     const ballotContestLayout = find(
       ballotContestLayouts,
-      ({ precinctId, ballotStyleId }) =>
-        ballotStyleId === ballotSpec.ballotStyleId &&
-        precinctId === ballotSpec.precinctId
+      ({ ballotStyleId }) => ballotStyleId === ballotSpec.ballotStyleId
     );
 
     // HMPB ballots may be multiple sheets, so generate a CVR for each sheet
@@ -174,17 +167,10 @@ function generateTestDeckCastVoteRecords({
   return cvrs;
 }
 
-export async function getTallyReportResults({
-  election,
-  ballots,
-}: {
-  election: Election;
-  ballots: BallotLayout[];
-}): Promise<Admin.TallyReportResults> {
-  const cvrs = generateTestDeckCastVoteRecords({
-    election,
-    ballots,
-  });
+export async function getTallyReportResults(
+  election: Election
+): Promise<Admin.TallyReportResults> {
+  const cvrs = generateTestDeckCastVoteRecords(election);
 
   if (election.type === 'general') {
     const [electionResults] = groupMapToGroupList(
@@ -235,19 +221,14 @@ export async function getTallyReportResults({
  */
 export async function createTestDeckTallyReport({
   electionDefinition,
-  ballots,
   generatedAtTime,
 }: {
   electionDefinition: ElectionDefinition;
-  ballots: BallotLayout[];
   generatedAtTime?: Date;
 }): Promise<Buffer> {
   const { election } = electionDefinition;
 
-  const tallyReportResults = await getTallyReportResults({
-    election,
-    ballots,
-  });
+  const tallyReportResults = await getTallyReportResults(election);
 
   return await renderToPdf({
     document: AdminTallyReportByParty({
