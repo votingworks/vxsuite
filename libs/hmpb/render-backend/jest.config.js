@@ -15,6 +15,8 @@ module.exports = {
   coveragePathIgnorePatterns: [
     'src/index.ts',
     'src/generate_fixtures.ts',
+    'src/ballot_fixtures.ts',
+    'src/all_bubble_ballot_fixtures.ts',
     'src/next/polyfills.ts',
     'src/next/browser_preview.ts',
     'src/next/browser_preview_renderer.tsx',

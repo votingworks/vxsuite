@@ -1,4 +1,5 @@
 import { assert, assertDefined, iter, range } from '@votingworks/basics';
+import { Buffer } from 'buffer';
 import {
   electionGeneral,
   electionFamousNames2021Fixtures,
@@ -74,7 +75,7 @@ export const famousNamesFixtures = (() => {
     ...blankBallotProps,
     votes,
 
-    async generate(renderer: Renderer) {
+    async generate(renderer: Renderer, { markedOnly = false } = {}) {
       debug(`Generating: ${blankBallotPath}`);
       const { electionDefinition, ballotDocuments } =
         await renderAllBallotsAndCreateElectionDefinition(
@@ -85,7 +86,9 @@ export const famousNamesFixtures = (() => {
         );
 
       const blankBallot = ballotDocuments[0];
-      const blankBallotPdf = await blankBallot.renderToPdf();
+      const blankBallotPdf = markedOnly
+        ? Buffer.from('')
+        : await blankBallot.renderToPdf();
 
       debug(`Generating: ${markedBallotPath}`);
       const markedBallot = await markBallotDocument(
@@ -212,7 +215,13 @@ export const generalElectionFixtures = (() => {
       ReturnType<typeof makeElectionFixtureSpec>
     >),
 
-    async generate(renderer: Renderer) {
+    async generate(
+      renderer: Renderer,
+      {
+        markedOnly = false,
+        paperSizes = Object.values(BallotPaperSize),
+      }: { markedOnly?: boolean; paperSizes?: BallotPaperSize[] } = {}
+    ) {
       async function generateElectionFixtures(
         spec: ReturnType<typeof makeElectionFixtureSpec>
       ) {
@@ -234,7 +243,10 @@ export const generalElectionFixtures = (() => {
             )
         );
 
-        const blankBallotPdf = await blankBallot.renderToPdf();
+        const blankBallotPdf = markedOnly
+          ? Buffer.from('')
+          : await blankBallot.renderToPdf();
+
         debug(`Generating: ${spec.markedBallotPath}`);
         const markedBallot = await markBallotDocument(
           renderer,
@@ -253,10 +265,15 @@ export const generalElectionFixtures = (() => {
 
       return Object.fromEntries(
         await Promise.all(
-          Object.entries(fixtureSpecs).map(async ([paperSize, spec]) => {
-            const generated = await generateElectionFixtures(spec);
-            return [paperSize, generated];
-          })
+          Object.entries(fixtureSpecs)
+            .filter(
+              ([paperSize]) =>
+                !paperSizes || paperSizes.includes(paperSize as BallotPaperSize)
+            )
+            .map(async ([paperSize, spec]) => {
+              const generated = await generateElectionFixtures(spec);
+              return [paperSize, generated];
+            })
         )
       );
     },
@@ -334,7 +351,7 @@ export const primaryElectionFixtures = (() => {
     mammalParty,
     fishParty,
 
-    async generate(renderer: Renderer) {
+    async generate(renderer: Renderer, { markedOnly = false } = {}) {
       const { electionDefinition, ballotDocuments } =
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
@@ -356,7 +373,9 @@ export const primaryElectionFixtures = (() => {
                 props.precinctId === spec.precinctId
             )
         );
-        const blankBallotPdf = await blankBallot.renderToPdf();
+        const blankBallotPdf = markedOnly
+          ? Buffer.from('')
+          : await blankBallot.renderToPdf();
 
         debug(`Generating: ${spec.otherPrecinctBlankBallotPath}`);
         const [otherPrecinctBlankBallot] = assertDefined(
@@ -368,8 +387,9 @@ export const primaryElectionFixtures = (() => {
                 props.precinctId === spec.otherPrecinctId
             )
         );
-        const otherPrecinctBlankBallotPdf =
-          await otherPrecinctBlankBallot.renderToPdf();
+        const otherPrecinctBlankBallotPdf = markedOnly
+          ? Buffer.from('')
+          : await otherPrecinctBlankBallot.renderToPdf();
 
         debug(`Generating: ${spec.markedBallotPath}`);
         const markedBallot = await markBallotDocument(

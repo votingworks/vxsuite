@@ -12,6 +12,7 @@ import {
 import { DateWithoutTime, assertDefined, range } from '@votingworks/basics';
 import { join } from 'path';
 import makeDebug from 'debug';
+import { Buffer } from 'buffer';
 import {
   Bubble,
   Page,
@@ -250,7 +251,7 @@ export const allBubbleBallotFixtures = (() => {
     filledBallotPath,
     cyclingTestDeckPath,
 
-    async generate(renderer: Renderer) {
+    async generate(renderer: Renderer, { blankOnly = false } = {}) {
       debug(`Generating: ${blankBallotPath}`);
       const { electionDefinition, ballotDocuments } =
         await renderAllBallotsAndCreateElectionDefinition(
@@ -263,60 +264,66 @@ export const allBubbleBallotFixtures = (() => {
       const [blankBallot] = ballotDocuments;
       const blankBallotPdf = await blankBallot.renderToPdf();
 
-      debug(`Generating: ${filledBallotPath}`);
-      const filledVotes: VotesDict = Object.fromEntries(
-        election.contests.map((contest) => [
-          contest.id,
-          (contest as CandidateContest).candidates,
-        ])
-      );
-      const filledBallot = await markBallotDocument(
-        renderer,
-        blankBallot,
-        filledVotes
-      );
-      const filledBallotPdf = await filledBallot.renderToPdf();
+      let filledBallotPdf = Buffer.from('');
+      let cyclingTestDeckPdf = Buffer.from('');
+      if (!blankOnly) {
+        debug(`Generating: ${filledBallotPath}`);
+        const filledVotes: VotesDict = Object.fromEntries(
+          election.contests.map((contest) => [
+            contest.id,
+            (contest as CandidateContest).candidates,
+          ])
+        );
+        const filledBallot = await markBallotDocument(
+          renderer,
+          blankBallot,
+          filledVotes
+        );
+        filledBallotPdf = await filledBallot.renderToPdf();
 
-      debug(`Generating: ${cyclingTestDeckPath}`);
-      const [gridLayout] = assertDefined(
-        electionDefinition.election.gridLayouts
-      );
-      const gridPositionByCandidateId = Object.fromEntries(
-        gridLayout.gridPositions.map((position) => [
-          (position as GridPositionOption).optionId,
-          position,
-        ])
-      );
-      const cyclingTestDeckSheetPdfs = await Promise.all(
-        range(0, 6).map(async (sheetNumber) => {
-          const votesForSheet: VotesDict = Object.fromEntries(
-            election.contests.map((contest) => [
-              contest.id,
-              (contest as CandidateContest).candidates.flatMap((candidate) => {
-                const { row, column } = gridPositionByCandidateId[candidate.id];
-                // Bubbles aren't perfectly aligned with the grid, but they are
-                // extremely close, so rounding is fine
-                if (
-                  (Math.round(row) - Math.round(column) - sheetNumber) % 6 ===
-                  0
-                ) {
-                  return [candidate];
-                }
-                return [];
-              }),
-            ])
-          );
-          const sheetDocument = await markBallotDocument(
-            renderer,
-            blankBallot,
-            votesForSheet
-          );
-          return await sheetDocument.renderToPdf();
-        })
-      );
-      const cyclingTestDeckPdf = await concatenatePdfs(
-        cyclingTestDeckSheetPdfs
-      );
+        debug(`Generating: ${cyclingTestDeckPath}`);
+        const [gridLayout] = assertDefined(
+          electionDefinition.election.gridLayouts
+        );
+        const gridPositionByCandidateId = Object.fromEntries(
+          gridLayout.gridPositions.map((position) => [
+            (position as GridPositionOption).optionId,
+            position,
+          ])
+        );
+        const cyclingTestDeckSheetPdfs = await Promise.all(
+          range(0, 6).map(async (sheetNumber) => {
+            const votesForSheet: VotesDict = Object.fromEntries(
+              election.contests.map((contest) => [
+                contest.id,
+                (contest as CandidateContest).candidates.flatMap(
+                  (candidate) => {
+                    const { row, column } =
+                      gridPositionByCandidateId[candidate.id];
+                    // Bubbles aren't perfectly aligned with the grid, but they are
+                    // extremely close, so rounding is fine
+                    if (
+                      (Math.round(row) - Math.round(column) - sheetNumber) %
+                        6 ===
+                      0
+                    ) {
+                      return [candidate];
+                    }
+                    return [];
+                  }
+                ),
+              ])
+            );
+            const sheetDocument = await markBallotDocument(
+              renderer,
+              blankBallot,
+              votesForSheet
+            );
+            return await sheetDocument.renderToPdf();
+          })
+        );
+        cyclingTestDeckPdf = await concatenatePdfs(cyclingTestDeckSheetPdfs);
+      }
 
       return {
         electionDefinition,
