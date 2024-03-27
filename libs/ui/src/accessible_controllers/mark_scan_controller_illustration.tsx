@@ -1,4 +1,4 @@
-export type ControllerButton =
+export type MarkScanControllerButton =
   | 'up'
   | 'down'
   | 'left'
@@ -11,15 +11,17 @@ export type ControllerButton =
   | 'help'
   | 'pause';
 
-interface AccessibleControllerIllustrationProps {
-  highlight?: ControllerButton;
+interface MarkScanControllerIllustrationProps {
+  highlight?: MarkScanControllerButton;
 }
 
-export const HIGHLIGHT_FILL = '#885fce';
+const HIGHLIGHT_FILL = '#885fce';
+export const MARK_SCAN_CONTROLLER_ILLUSTRATION_HIGHLIGHT_FILL = HIGHLIGHT_FILL;
 
-export function AccessibleControllerIllustration({
+/* istanbul ignore next - temporarily tested via apps/mark-scan */
+export function MarkScanControllerIllustration({
   highlight,
-}: AccessibleControllerIllustrationProps): JSX.Element {
+}: MarkScanControllerIllustrationProps): JSX.Element {
   return (
     <svg
       viewBox="25 40 160 160"
