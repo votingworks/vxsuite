@@ -5105,6 +5105,9 @@ importers:
       '@votingworks/image-utils':
         specifier: workspace:*
         version: link:../image-utils
+      '@votingworks/types':
+        specifier: workspace:^
+        version: link:../types
       zod:
         specifier: 3.14.4
         version: 3.14.4
@@ -5115,6 +5118,9 @@ importers:
       esbuild-runner:
         specifier: 2.2.2
         version: 2.2.2(esbuild@0.17.11)
+      eslint-plugin-vx:
+        specifier: workspace:*
+        version: link:../eslint-plugin-vx
 
   libs/printing:
     dependencies:

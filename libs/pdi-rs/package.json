@@ -41,11 +41,13 @@
   "dependencies": {
     "@votingworks/basics": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
+    "@votingworks/types": "workspace:^",
     "zod": "3.14.4"
   },
   "devDependencies": {
     "@types/node": "16.18.23",
-    "esbuild-runner": "2.2.2"
+    "esbuild-runner": "2.2.2",
+    "eslint-plugin-vx": "workspace:*"
   },
   "packageManager": "pnpm@8.1.0"
 }
