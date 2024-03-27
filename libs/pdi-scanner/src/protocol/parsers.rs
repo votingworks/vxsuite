@@ -584,9 +584,10 @@ pub fn decimal_number(input: &[u8]) -> IResult<&[u8], u16> {
 ///
 /// ```
 /// use pdi_scanner::protocol::parsers::decimal_percentage;
+/// use pdi_scanner::protocol::types::ClampedPercentage;
 ///
-/// assert_eq!(decimal_percentage(b"0"), Ok((&b""[..], 0)));
-/// assert_eq!(decimal_percentage(b"100"), Ok((&b""[..], 100)));
+/// assert_eq!(decimal_percentage(b"0"), Ok((&b""[..], ClampedPercentage::new(0).unwrap())));
+/// assert_eq!(decimal_percentage(b"100"), Ok((&b""[..], ClampedPercentage::new(100).unwrap())));
 /// assert_eq!(decimal_percentage(b"101"), Err(nom::Err::Error(nom::error::Error::new(
 ///    &b"101"[..],
 ///   nom::error::ErrorKind::MapRes,

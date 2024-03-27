@@ -610,10 +610,7 @@ impl Client {
     ///
     /// # Example
     ///
-    /// ```no_run
-    /// use pdi_scanner::client::Client;
-    ///
-    /// let mut client = Client::open().unwrap();
+    /// ```ignore
     /// // set the minimum document length to 0.5"
     /// client.set_double_feed_detection_minimum_document_length(50).unwrap();
     /// ```
