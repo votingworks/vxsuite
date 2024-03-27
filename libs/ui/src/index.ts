@@ -115,3 +115,4 @@ export * from './fonts/roboto';
 export * from './battery_display';
 export * from './battery_low_alert';
 export * from './fonts/font_awesome_styles';
+export * from './save_readiness_report_button';

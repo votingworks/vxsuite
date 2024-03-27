@@ -1,3 +1,4 @@
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import { screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { createApiMock, ApiMock } from '../../test/api';
@@ -16,6 +17,7 @@ beforeEach(() => {
     available: 500_000_000,
     used: 500_000_000,
   });
+  apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
 });
 
 afterEach(() => {
