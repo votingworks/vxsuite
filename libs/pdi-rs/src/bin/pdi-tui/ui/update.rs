@@ -13,7 +13,7 @@ use super::{
 };
 
 pub(crate) fn update(app: &mut App) -> Result<()> {
-    app.log("🔄 Updating app state…");
+    // app.log("🔄 Updating app state…");
     match app.try_recv_matching(Incoming::is_event) {
         Ok(Incoming::BeginScanEvent) => {
             app.log("📄 Scanning document…");
@@ -78,7 +78,7 @@ pub(crate) fn update(app: &mut App) -> Result<()> {
                     }
                     Err(e) => app.log(format!("⚠️ Error disabling auto-scan: {e}")),
                 },
-                (KeyModifiers::NONE, Char('S'), ConnectionState::Connected, _, _) => {
+                (KeyModifiers::SHIFT, Char('S'), ConnectionState::Connected, _, _) => {
                     let status = app.get_scanner_status().unwrap();
                     app.log("📄 Scanner status:");
                     app.log(format!(
@@ -169,7 +169,7 @@ pub(crate) fn update(app: &mut App) -> Result<()> {
                     app.set_auto_scan_config(AutoScanConfig::Enabled(Some(EjectMotion::ToFront)));
                     app.log("📄 Will drop paper out front after scan.");
                 }
-                (KeyModifiers::NONE, Char('F'), _, AutoScanConfig::Enabled(_), _) => {
+                (KeyModifiers::SHIFT, Char('F'), _, AutoScanConfig::Enabled(_), _) => {
                     app.set_auto_scan_config(AutoScanConfig::Enabled(Some(
                         EjectMotion::ToFrontAndHold,
                     )));
@@ -180,7 +180,7 @@ pub(crate) fn update(app: &mut App) -> Result<()> {
                     app.log("📄 Will drop paper out back after scan.");
                 }
                 (
-                    KeyModifiers::NONE,
+                    KeyModifiers::SHIFT,
                     Char('B'),
                     ConnectionState::Connected,
                     AutoScanConfig::Enabled(_),
