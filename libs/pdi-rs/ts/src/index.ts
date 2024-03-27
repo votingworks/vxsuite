@@ -2,15 +2,16 @@ import { z } from 'zod';
 import * as path from 'path';
 import { ChildProcessWithoutNullStreams, spawn } from 'child_process';
 import { createInterface } from 'readline';
+import { SheetOf } from '@votingworks/types';
 import { Deferred, assert, deferred } from '@votingworks/basics';
 import {
   createImageData,
   toRgba,
   writeImageData,
 } from '@votingworks/image-utils';
-import fs from 'fs/promises';
-import { SheetOf } from '../../../types/src';
+import { Buffer } from 'buffer';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface Scanner {
   /**
    * Create a new scanner process and connect to the scanner.
@@ -58,7 +59,7 @@ interface Scanner {
   on(event: Event.MsdCalibrationFailed, listener: () => void): void;
 }
 
-export enum Event {
+enum Event {
   /**
    * The scanner has started scanning a document.
    */
@@ -91,63 +92,64 @@ export enum Event {
   MsdCalibrationFailed = 'msdCalibrationFailed',
 }
 
-export const EventSchema = z.nativeEnum(Event);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const EventSchema = z.nativeEnum(Event);
 
 const BINARY_PATH = path.join(__dirname, '../../../../target/release/pdictl');
 
-interface EnableMsdCommand {
-  commandType: 'enable_msd';
-  enable: boolean;
+interface ScannerStatus {
+  rearLeftSensorCovered: boolean;
+  rearRightSensorCovered: boolean;
+  branderPositionSensorCovered: boolean;
+  hiSpeedMode: boolean;
+  downloadNeeded: boolean;
+  scannerEnabled: boolean;
+  frontLeftSensorCovered: boolean;
+  frontM1SensorCovered: boolean;
+  frontM2SensorCovered: boolean;
+  frontM3SensorCovered: boolean;
+  frontM4SensorCovered: boolean;
+  frontM5SensorCovered: boolean;
+  frontRightSensorCovered: boolean;
+  scannerReady: boolean;
+  xmtAborted: boolean;
+  documentJam: boolean;
+  scanArrayPixelError: boolean;
+  inDiagnosticMode: boolean;
+  documentInScanner: boolean;
+  calibrationOfUnitNeeded: boolean;
 }
 
-interface CalibrateMsdCommand {
-  commandType: 'calibrate_msd';
-  calibrationType: 'single' | 'double';
-}
-
-interface GetMsdCalibrationConfig {
-  commandType: 'get_msd_calibration_config';
-}
-
-interface GetScannerStatus {
-  commandType: 'get_scanner_status';
-}
-
-interface OtherCommand {
-  commandType: 'exit' | 'connect' | 'enable_scanning';
-}
+type EjectMotion = 'toRear' | 'toFront' | 'toFrontAndHold';
 
 type PdictlCommand =
-  | EnableMsdCommand
-  | CalibrateMsdCommand
-  | GetMsdCalibrationConfig
-  | GetScannerStatus
-  | OtherCommand;
+  | { type: 'exit' }
+  | { type: 'connect' }
+  | { type: 'disconnect' }
+  | { type: 'get_scanner_status' }
+  | { type: 'enable_scanning' }
+  | {
+      type: 'eject';
+      ejectMotion: EjectMotion;
+    }
+  | { type: 'enable_msd'; enable: boolean }
+  | { type: 'calibrate_msd'; calibrationType: 'single' | 'double' }
+  | { type: 'get_msd_calibration_config' }
+  | { type: 'other' };
 
-interface PdictlOutgoingScanComplete {
-  outgoingType: 'scan_complete';
-  imageData: [string, string];
-}
-
-interface PdictlOutgoingError {
-  outgoingType: 'error';
-  message: string;
-}
-
-interface PdictlOutgoingOk {
-  outgoingType: 'ok';
-}
-
-type PdictlOutgoing =
-  | PdictlOutgoingScanComplete
-  | PdictlOutgoingError
-  | PdictlOutgoingOk;
+type PdictlResponse =
+  | { type: 'ok' }
+  | { type: 'error'; message: string }
+  | { type: 'scanner_status'; status: ScannerStatus }
+  | { type: 'scan_complete'; imageData: [string, string] };
 
 class ScannerClient {
-  pdictl?: ChildProcessWithoutNullStreams;
-  pendingRequest?: Deferred<unknown>;
+  private pdictl?: ChildProcessWithoutNullStreams;
+  private pendingRequest?: Deferred<PdictlResponse>;
 
   private sendCommand(command: PdictlCommand) {
+    // eslint-disable-next-line no-console
+    console.log('Sent:', command);
     assert(this.pdictl !== undefined);
 
     this.pendingRequest = deferred();
@@ -160,10 +162,11 @@ class ScannerClient {
 
     const rl = createInterface(this.pdictl.stdout);
     rl.on('line', async (line) => {
-      const outgoing = JSON.parse(line) as PdictlOutgoing;
-      console.log('Received response from scanner', outgoing);
-      if (outgoing.outgoingType === 'scan_complete') {
-        const [frontBase64, backBase64] = outgoing.imageData;
+      const response = JSON.parse(line) as PdictlResponse;
+      // eslint-disable-next-line no-console
+      console.log('Received:', response);
+      if (response.type === 'scan_complete') {
+        const [frontBase64, backBase64] = response.imageData;
         const frontBuffer = Buffer.from(frontBase64, 'base64');
         const backBuffer = Buffer.from(backBase64, 'base64');
         const dateString = new Date().toISOString();
@@ -176,7 +179,7 @@ class ScannerClient {
         const rgbaFrontImageData = toRgba(
           grayscaleFrontImageData
         ).unsafeUnwrap();
-        writeImageData(
+        await writeImageData(
           path.join(__dirname, 'images', `front-${dateString}.png`),
           rgbaFrontImageData
         );
@@ -187,7 +190,7 @@ class ScannerClient {
           backBuffer.length / 1728
         );
         const rgbaBackImageData = toRgba(grayscaleBackImageData).unsafeUnwrap();
-        writeImageData(
+        await writeImageData(
           path.join(__dirname, 'images', `back-${dateString}.png`),
           rgbaBackImageData
         );
@@ -201,48 +204,76 @@ class ScannerClient {
         //   backImageData
         // );
       }
-      this.pendingRequest?.resolve(outgoing);
+      this.pendingRequest?.resolve(response);
       this.pendingRequest = undefined;
     });
 
     this.pdictl.stderr.on('data', (data) => {
+      // eslint-disable-next-line no-console
       console.error(`stderr: ${data}`);
     });
 
     this.pdictl.on('close', (code) => {
+      // eslint-disable-next-line no-console
       console.log(`child process exited with code ${code}`);
     });
 
-    this.sendCommand({ commandType: 'connect' });
+    this.sendCommand({ type: 'connect' });
 
     const connectResult = await this.pendingRequest?.promise;
     return connectResult;
   }
 
-  async getScannerStatus(): Promise<unknown> {
+  async getScannerStatus(): Promise<ScannerStatus> {
     assert(this.pdictl !== undefined);
 
     this.sendCommand({
-      commandType: 'get_scanner_status',
+      type: 'get_scanner_status',
     });
     const result = await this.pendingRequest?.promise;
-    return result;
+    assert(result?.type === 'scanner_status');
+    return result.status;
   }
 
   async enableScanning(): Promise<unknown> {
     assert(this.pdictl !== undefined);
 
     this.sendCommand({
-      commandType: 'enable_scanning',
+      type: 'enable_scanning',
     });
+    const result = await this.pendingRequest?.promise;
+    return result;
+  }
+
+  // Will only work if enableScanning has already been called
+  async ejectDocument(ejectMotion: EjectMotion): Promise<unknown> {
+    assert(this.pdictl !== undefined);
+
+    this.sendCommand({
+      type: 'eject',
+      ejectMotion,
+    });
+    const result = await this.pendingRequest?.promise;
+    return result;
+  }
+
+  async disconnect(): Promise<unknown> {
+    assert(this.pdictl !== undefined);
+
+    this.sendCommand({ type: 'disconnect' });
     const result = await this.pendingRequest?.promise;
     return result;
   }
 }
 
-export async function main() {
+// eslint-disable-next-line vx/gts-jsdoc
+export async function main(): Promise<void> {
   const scannerClient = new ScannerClient();
   await scannerClient.connect();
-  // await scannerClient.getScannerStatus();
+  const status = await scannerClient.getScannerStatus();
   await scannerClient.enableScanning();
+  if (status.documentInScanner) {
+    await scannerClient.ejectDocument('toFront');
+  }
+  await scannerClient.disconnect();
 }
