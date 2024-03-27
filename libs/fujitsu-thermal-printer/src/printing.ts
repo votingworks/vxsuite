@@ -312,12 +312,17 @@ export async function printPageBitImage(
   return ok();
 }
 
+/**
+ * The PDF data is at a standard 72 DPI, which we scale up for 200 DPI printer.
+ */
+const PDF_SCALE = 200 / 72;
+
 export async function print(
   driver: FujitsuThermalPrinterDriverInterface,
   pdfData: Uint8Array
 ): Promise<Result<void, RawPrinterStatus>> {
   const pdfImages = pdfToImages(Buffer.from(pdfData), {
-    scale: 200 / 72,
+    scale: PDF_SCALE,
   });
   for await (const { page, pageNumber, pageCount } of pdfImages) {
     debug(`printing page ${pageNumber} of ${pageCount}...`);
