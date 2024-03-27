@@ -6,7 +6,7 @@ use clap::Parser;
 use std::time::Duration;
 use tracing_subscriber::prelude::*;
 
-use pdi_rs::{connect};
+use pdi_rs::connect;
 
 #[derive(Debug, Parser)]
 struct Config {
@@ -60,7 +60,7 @@ fn main() -> color_eyre::Result<()> {
         );
     }
 
-    scanner.stop();
+    scanner.stop(pdi_rs::scanner::StopMode::WaitUntilTransfersComplete);
 
     Ok(())
 }

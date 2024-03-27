@@ -24,7 +24,6 @@ const MAX_LOG_LENGTH: usize = 500;
 // App state
 pub struct App<'a> {
     log: Vec<LogEntry<'a>>,
-    next_scan_index: usize,
     client: Option<Client>,
     scanner: Option<Scanner>,
     auto_scan: AutoScanConfig,
@@ -39,7 +38,6 @@ impl<'a> App<'a> {
     pub fn new() -> Self {
         Self {
             log: vec![],
-            next_scan_index: 1,
             client: None,
             scanner: None,
             auto_scan: AutoScanConfig::default(),
@@ -180,12 +178,6 @@ impl<'a> App<'a> {
 
     pub fn set_watch_status_config(&mut self, config: WatchStatusConfig) {
         self.watch_status = config;
-    }
-
-    pub fn increment_scan_index(&mut self) -> usize {
-        let index = self.next_scan_index;
-        self.next_scan_index += 1;
-        index
     }
 
     pub const fn should_connect(&self) -> bool {
