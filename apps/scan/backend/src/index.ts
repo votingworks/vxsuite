@@ -1,6 +1,4 @@
-import { Buffer } from 'buffer';
 import * as customScanner from '@votingworks/custom-scanner';
-import * as pdi from '@votingworks/pdi-rs';
 import {
   BaseLogger,
   LogEventId,
@@ -72,8 +70,8 @@ async function main(): Promise<number> {
   const printer = await getPrinter(logger);
 
   const precinctScannerStateMachine =
-    pdiStateMachine.createPrecinctScannerStateMachine({
-      createCustomClient: openPdiScanner,
+    customStateMachine.createPrecinctScannerStateMachine({
+      createCustomClient: customScanner.openScanner,
       auth,
       workspace,
       logger,
