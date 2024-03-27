@@ -4976,7 +4976,7 @@ importers:
         specifier: 5.2.2
         version: 5.2.2
 
-  libs/pdi-rs:
+  libs/pdi-scanner:
     dependencies:
       '@votingworks/basics':
         specifier: workspace:*
@@ -4985,7 +4985,7 @@ importers:
         specifier: workspace:*
         version: link:../image-utils
       '@votingworks/types':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../types
       zod:
         specifier: 3.14.4
