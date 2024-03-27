@@ -320,7 +320,7 @@ impl From<DoubleFeedDetectionCalibrationType> for u8 {
 }
 
 /// A percentage value clamped to the range 0..=100.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ClampedPercentage(u8);
 
 impl ClampedPercentage {
@@ -346,7 +346,7 @@ impl ClampedPercentage {
     /// # Example
     ///
     /// ```
-    /// use pdiscan::protocol::types::ClampedPercentage;
+    /// use pdi_scanner::protocol::types::ClampedPercentage;
     ///
     /// let percentage = ClampedPercentage::new(50).unwrap();
     /// assert_eq!(percentage.value(), 50);
