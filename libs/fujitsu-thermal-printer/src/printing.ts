@@ -25,9 +25,11 @@ const BYTES_PER_BIT_IMAGE_ROW = 212;
 const DRIVER_BIT_IMAGE_MAX_HEIGHT = 800;
 const PAGE_DOTS_WIDTH = BYTES_PER_BIT_IMAGE_ROW * BITS_PER_BYTE;
 const IMAGE_DATA_BYTES_PER_PIXEL = 4;
+const LETTER_WIDTH_INCHES = 8.5;
+const PRINTING_DPI = 200;
 
 function* trimAndChunkImageData(imageData: ImageData): Generator<ImageData> {
-  assert(imageData.width === 1700);
+  assert(imageData.width === LETTER_WIDTH_INCHES * PRINTING_DPI);
 
   const trimLeft = (imageData.width - PAGE_DOTS_WIDTH) / 2;
 
