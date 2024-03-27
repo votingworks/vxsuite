@@ -1,6 +1,5 @@
 import { LogEventId } from '@votingworks/logging';
 import { HP_LASER_PRINTER_CONFIG } from '@votingworks/printing';
-import { assert } from '@votingworks/basics';
 import {
   DiskSpaceSummary,
   getBatteryInfo,
@@ -129,8 +128,8 @@ test('test print', async () => {
   });
 });
 
-test('print readiness report', async () => {
-  const { apiClient, mockPrinterHandler, auth, logger } =
+test('print or save readiness report', async () => {
+  const { apiClient, mockPrinterHandler, auth, logger, mockUsbDrive } =
     buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
@@ -143,19 +142,19 @@ test('print readiness report', async () => {
   });
   jest.useRealTimers();
 
-  await apiClient.printReadinessReport();
+  mockUsbDrive.insertUsbDrive({});
+  const exportFileResult = await apiClient.saveReadinessReport();
+  exportFileResult.assertOk('error saving readiness report to USB');
   expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ReadinessReportPrinted,
+    LogEventId.ReadinessReportSaved,
     'system_administrator',
     {
       disposition: 'success',
-      message: 'User printed the equipment readiness report.',
+      message: 'User saved the equipment readiness report to a USB drive.',
     }
   );
 
-  const printPath = mockPrinterHandler.getLastPrintPath();
-  assert(printPath !== undefined);
-
+  const printPath = exportFileResult.unsafeUnwrap()[0]!;
   await expect(printPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'readiness-report',
   });
@@ -170,18 +169,20 @@ test('print readiness report', async () => {
   expect(pdfContents).toContain('Test print successful, 1/1/2021, 12:00:00 AM');
 });
 
-test('print readiness report failure logging', async () => {
-  const { apiClient, auth, logger } = buildTestEnvironment();
+test('save readiness report failure logging', async () => {
+  const { apiClient, auth, logger, mockUsbDrive } = buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
-  await apiClient.printReadinessReport();
+  mockUsbDrive.removeUsbDrive();
+  const exportResult = await apiClient.saveReadinessReport();
+  exportResult.assertErr('unexpected success saving readiness report to USB');
   expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.ReadinessReportPrinted,
+    LogEventId.ReadinessReportSaved,
     'system_administrator',
     {
       disposition: 'failure',
       message:
-        'Error in attempting to print the equipment readiness report: cannot print without printer connected',
+        'Error while attempting to save the equipment readiness report to a USB drive: No USB drive found',
     }
   );
 });

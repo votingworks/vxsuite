@@ -94,7 +94,7 @@ export function SaveBackendFileModal({
             content={
               <P>
                 <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
-                Please insert a USB drive where you would like the save the{' '}
+                Please insert a USB drive where you would like to save the{' '}
                 {fileType}.
               </P>
             }
