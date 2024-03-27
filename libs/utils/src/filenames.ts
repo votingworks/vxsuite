@@ -159,3 +159,15 @@ export function parseCastVoteRecordReportExportDirectoryName(
     time,
   };
 }
+
+export function generateReadinessReportFilename({
+  machineId,
+  generatedAtTime,
+}: {
+  machineId: string;
+  generatedAtTime: Date;
+}): string {
+  return `readiness-report__${machineId}__${generateFileTimeSuffix(
+    generatedAtTime
+  )}.pdf`;
+}
