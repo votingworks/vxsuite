@@ -6,7 +6,7 @@ import { SheetOf } from '@votingworks/types';
 import { Deferred, assert, deferred } from '@votingworks/basics';
 import {
   createImageData,
-  toRgba,
+  fromGrayScale,
   writeImageData,
 } from '@votingworks/image-utils';
 import { Buffer } from 'buffer';
@@ -176,9 +176,11 @@ class ScannerClient {
           1728,
           frontBuffer.length / 1728
         );
-        const rgbaFrontImageData = toRgba(
-          grayscaleFrontImageData
-        ).unsafeUnwrap();
+        const rgbaFrontImageData = fromGrayScale(
+          grayscaleFrontImageData.data,
+          grayscaleFrontImageData.width,
+          grayscaleFrontImageData.height
+        );
         await writeImageData(
           path.join(__dirname, 'images', `front-${dateString}.png`),
           rgbaFrontImageData
@@ -189,7 +191,11 @@ class ScannerClient {
           1728,
           backBuffer.length / 1728
         );
-        const rgbaBackImageData = toRgba(grayscaleBackImageData).unsafeUnwrap();
+        const rgbaBackImageData = fromGrayScale(
+          grayscaleBackImageData.data,
+          grayscaleBackImageData.width,
+          grayscaleBackImageData.height
+        );
         await writeImageData(
           path.join(__dirname, 'images', `back-${dateString}.png`),
           rgbaBackImageData
