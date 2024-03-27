@@ -39,6 +39,7 @@ beforeEach(() => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.setPrinterStatusV3({ connected: true });
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
 });
 
@@ -479,4 +480,63 @@ test('renders buttons for saving logs', async () => {
   userEvent.click(screen.getByText('Save Log File'));
   userEvent.click(screen.getByText('Save'));
   await screen.findByText('Logs Saved');
+});
+
+describe('hardware V4 printer management', () => {
+  beforeEach(() => {
+    apiMock.mockApiClient.getPrinterStatus.reset();
+  });
+
+  test('loading paper for new election happy path', async () => {
+    apiMock.expectGetConfig();
+    apiMock.setPrinterStatusV4();
+    renderScreen({
+      scannerStatus: statusNoPaper,
+      usbDrive: mockUsbDriveStatus('mounted'),
+    });
+    await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
+    const tab = screen.getByRole('tab', { name: 'Printer' });
+    const [icon] = within(tab).getAllByRole('img', { hidden: true });
+    expect(icon).toHaveAttribute('data-icon', 'triangle-exclamation');
+    userEvent.click(tab);
+
+    screen.getByText('Must reload paper and test for the current election');
+    userEvent.click(screen.getButton('Reload Paper'));
+
+    await screen.findByText('Open Printer');
+
+    apiMock.setPrinterStatusV4({ state: 'cover-open' });
+    await screen.findByText('Reload Paper');
+
+    apiMock.setPrinterStatusV4({ state: 'idle' });
+    await screen.findByText('Paper Loaded');
+
+    apiMock.expectPrintTestPage();
+    userEvent.click(screen.getButton('Continue'));
+    await screen.findByText('Test Report Printed');
+
+    apiMock.expectSetHasPaperBeenLoaded(true);
+    apiMock.expectGetConfig({ hasPaperBeenLoaded: true });
+    userEvent.click(screen.getButton('Finish'));
+    await screen.findByText('Printer is loaded and ready');
+  });
+
+  test('overriding load paper flow', async () => {
+    apiMock.expectGetConfig();
+    apiMock.setPrinterStatusV4();
+    renderScreen({
+      scannerStatus: statusNoPaper,
+      usbDrive: mockUsbDriveStatus('mounted'),
+    });
+    await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
+    userEvent.click(screen.getByRole('tab', { name: 'Printer' }));
+
+    apiMock.expectSetHasPaperBeenLoaded(true);
+    apiMock.expectGetConfig({ hasPaperBeenLoaded: true });
+    userEvent.click(screen.getButton('Use Current Paper'));
+
+    await screen.findByText('Printer is loaded and ready');
+  });
 });

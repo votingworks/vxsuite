@@ -33,7 +33,7 @@ test('start passes the state machine and workspace to `buildApp`', async () => {
   const logger = buildMockLogger(auth, workspace);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
-  start({
+  await start({
     auth: buildMockInsertedSmartCardAuth(),
     workspace,
     logger,
@@ -67,14 +67,14 @@ test('start passes the state machine and workspace to `buildApp`', async () => {
   );
 });
 
-test('logs device attach/unattach events', () => {
+test('logs device attach/unattach events', async () => {
   const precinctScannerStateMachine = createPrecinctScannerStateMachineMock();
   const listen = jest.fn();
   const auth = buildMockInsertedSmartCardAuth();
   const logger = buildMockLogger(auth, workspace);
   buildAppMock.mockReturnValueOnce({ listen } as unknown as Application);
 
-  start({
+  await start({
     auth: buildMockInsertedSmartCardAuth(),
     workspace,
     logger,

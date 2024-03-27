@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import { Button } from '../button';
+import { IconName } from '../icons';
 
 export interface TabBarProps<Id extends string = string> {
   activePaneId?: Id;
@@ -10,6 +11,7 @@ export interface TabBarProps<Id extends string = string> {
 
 export interface TabInfo<Id extends string = string> {
   label: React.ReactNode;
+  icon?: IconName | JSX.Element;
   paneId: Id;
 }
 
@@ -28,7 +30,7 @@ const TabButton = styled(Button)<{ active?: boolean }>`
   flex-wrap: nowrap;
   white-space: nowrap;
 
-  svg {
+  svg[data-icon='chevron-right'] {
     margin-left: auto;
     opacity: ${(p) => !p.active && '0'};
   }
@@ -49,7 +51,7 @@ export function TabBar<Id extends string = string>(
       aria-orientation="vertical"
       role="tablist"
     >
-      {tabs.map(({ label, paneId }) => (
+      {tabs.map(({ label, icon, paneId }) => (
         <TabButton
           aria-controls={paneId}
           aria-selected={activePaneId === paneId}
@@ -57,6 +59,7 @@ export function TabBar<Id extends string = string>(
           onPress={() => onChange(paneId)}
           role="tab"
           variant={activePaneId === paneId ? 'primary' : 'neutral'}
+          icon={icon}
           rightIcon="ChevronRight"
           active={activePaneId === paneId}
         >

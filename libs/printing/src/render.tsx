@@ -57,7 +57,7 @@ function getContentHeight(page: Page): Promise<number> {
 }
 
 export interface RenderSpec {
-  document: JSX.Element;
+  document: JSX.Element | JSX.Element[];
   dimensions?: InchDimensions;
   outputPath?: string;
 }

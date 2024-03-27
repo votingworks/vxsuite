@@ -173,6 +173,10 @@
       "path": "libs/custom-paper-handler"
     },
     {
+      "name": "libs/fujitsu-thermal-printer",
+      "path": "libs/fujitsu-thermal-printer"
+    },
+    {
       "name": "libs/printing",
       "path": "libs/printing"
     },

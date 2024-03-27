@@ -5,7 +5,6 @@ import {
   ElectionPackageConfigurationError,
   DEFAULT_SYSTEM_SETTINGS,
   PrecinctSelection,
-  PrinterStatus,
   SinglePrecinctSelection,
 } from '@votingworks/types';
 import {
@@ -24,7 +23,12 @@ import {
 import { assert, assertDefined, ok, Result } from '@votingworks/basics';
 import { InsertedSmartCardAuthApi, LiveCheck } from '@votingworks/auth';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
-import { Printer } from '@votingworks/printing';
+import {
+  FujitsuPrintResult,
+  Printer,
+  PrinterStatus,
+  PrintResult,
+} from './printing/printer';
 import {
   PrecinctScannerStateMachine,
   PrecinctScannerConfig,
@@ -34,7 +38,6 @@ import {
 import { constructAuthMachineState } from './util/auth';
 import { Workspace } from './util/workspace';
 import { getMachineConfig } from './machine_config';
-import { printReport } from './print_report';
 import {
   exportCastVoteRecordsToUsbDrive,
   ExportCastVoteRecordsToUsbDriveResult,
@@ -46,6 +49,9 @@ import {
   resetPollsToPaused,
   resumeVoting,
 } from './polls';
+import { printTestPage } from './printing/test_print';
+import { printFullReport } from './printing/print_full_report';
+import { printReportSection } from './printing/print_report_section';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi({
@@ -173,6 +179,7 @@ export function buildApi({
           !machine.supportsUltrasonic() || store.getIsUltrasonicDisabled(),
         ballotCountWhenBallotBagLastReplaced:
           store.getBallotCountWhenBallotBagLastReplaced(),
+        hasPaperBeenLoaded: store.getHasPaperBeenLoaded(),
       };
     },
 
@@ -285,12 +292,41 @@ export function buildApi({
     },
 
     getPrinterStatus(): Promise<PrinterStatus> {
-      return printer.status();
+      return printer.getStatus();
     },
 
-    async printReport(): Promise<number> {
-      const numPages = await printReport({ store, printer });
-      return numPages;
+    /**
+     * If the printer is a V3 hardware printer (standard CUPS printer) then
+     * this will print the entire report. If the printer is a V4 hardware
+     * printer (embedded Fujitsu thermal roll printer) then this will print the
+     * first section of the report only.
+     */
+    async printReport(): Promise<PrintResult> {
+      if (printer.scheme === 'hardware-v3') {
+        return {
+          scheme: 'hardware-v3',
+          pageCount: await printFullReport({ store, printer }),
+        };
+      }
+
+      return {
+        scheme: 'hardware-v4',
+        result: await printReportSection({ store, printer, index: 0 }),
+      };
+    },
+
+    /**
+     * Prints a specific section of the report, e.g. for a particular party.
+     * This is only used for V4 hardware printers (roll printer).
+     */
+    async printReportSection(input: {
+      index: number;
+    }): Promise<FujitsuPrintResult> {
+      return printReportSection({
+        store,
+        printer,
+        index: input.index,
+      });
     },
 
     getScannerStatus(): PrecinctScannerStatus {
@@ -308,6 +344,14 @@ export function buildApi({
 
     returnBallot(): void {
       machine.return();
+    },
+
+    setHasPaperBeenLoaded(input: { hasPaperBeenLoaded: boolean }): void {
+      store.setHasPaperHasBeenLoaded(input.hasPaperBeenLoaded);
+    },
+
+    printTestPage(): Promise<FujitsuPrintResult> {
+      return printTestPage({ printer });
     },
 
     supportsUltrasonic(): boolean {

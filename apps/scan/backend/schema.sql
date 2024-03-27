@@ -10,6 +10,7 @@ create table election (
   last_polls_transition_time integer,
   last_polls_transition_ballot_count integer,
   ballot_count_when_ballot_bag_last_replaced integer not null default 0,
+  has_paper_been_loaded boolean not null default false,
   is_sound_muted boolean not null default false,
   is_ultrasonic_disabled boolean not null default false,
   created_at timestamp not null default current_timestamp

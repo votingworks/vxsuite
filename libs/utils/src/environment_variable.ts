@@ -48,6 +48,8 @@ export enum BooleanEnvironmentVariableName {
   USE_MOCK_PAPER_HANDLER = 'REACT_APP_VX_USE_MOCK_PAPER_HANDLER',
   // Enables cloud translation and speech synthesis when exporting election packages from VxDesign
   ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS = 'REACT_APP_VX_ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS',
+  // Use legacy CUPS-enabled printing in VxScan, as opposed to the thermal printer with our own driver
+  SCAN_USE_FUJITSU_PRINTER = 'REACT_APP_VX_SCAN_USE_FUJITSU_PRINTER',
 }
 
 // This is not fully generic since string variables may want the getter to return a custom type.
@@ -115,6 +117,8 @@ export function getEnvironmentVariable(
     case BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS:
       return process.env
         .REACT_APP_VX_ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS;
+    case BooleanEnvironmentVariableName.SCAN_USE_FUJITSU_PRINTER:
+      return process.env.REACT_APP_VX_SCAN_USE_FUJITSU_PRINTER;
     /* c8 ignore next 2 */
     default:
       throwIllegalValue(name);
@@ -228,6 +232,12 @@ export function getBooleanEnvVarConfig(
         autoEnableInDevelopment: false,
       };
     case BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS:
+      return {
+        name,
+        allowInProduction: true,
+        autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.SCAN_USE_FUJITSU_PRINTER:
       return {
         name,
         allowInProduction: true,

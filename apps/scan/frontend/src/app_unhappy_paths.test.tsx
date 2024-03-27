@@ -56,6 +56,7 @@ test('backend fails to unconfigure', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo();
   apiMock.setBatteryInfo();
+  apiMock.setPrinterStatusV3({ connected: true });
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.mockApiClient.ejectUsbDrive.expectCallWith().resolves();
   apiMock.mockApiClient.unconfigureElection
@@ -199,7 +200,7 @@ test('App shows warning message to connect to power when disconnected', async ()
   apiMock.expectGetPollsInfo();
   apiMock.setBatteryInfo({ discharging: true });
   apiMock.expectGetScannerStatus(statusNoPaper);
-  apiMock.setPrinterStatus({ connected: true });
+  apiMock.setPrinterStatusV3({ connected: true });
 
   renderApp();
   await screen.findByText('Polls Closed');
@@ -217,7 +218,7 @@ test('App shows warning message to connect to power when disconnected', async ()
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText('Yes, Open the Polls');
   apiMock.expectOpenPolls();
-  apiMock.expectPrintReport();
+  apiMock.expectPrintReportV3();
   apiMock.expectGetPollsInfo('polls_open');
   userEvent.click(await screen.findByText('Yes, Open the Polls'));
   await screen.findByText('Polls are open.');
