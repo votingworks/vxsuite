@@ -1321,12 +1321,13 @@ export function layOutInColumns<Element extends ElementWithHeight>({
   elements,
   numColumns,
   maxColumnHeight,
-  gap = 0,
+  elementGap = 0,
 }: {
   elements: Element[];
   numColumns: number;
   maxColumnHeight: number;
-  gap?: number;
+  // Spacing between elements within a column
+  elementGap?: number;
 }): {
   columns: Array<Column<Element>>;
   height: number;
@@ -1341,7 +1342,7 @@ export function layOutInColumns<Element extends ElementWithHeight>({
       iter(column)
         .map((e) => e.height)
         .sum() +
-      Math.max(column.length - 1, 0) * gap
+      Math.max(column.length - 1, 0) * elementGap
     );
   }
 

@@ -1,36 +1,12 @@
-// import react from '@vitejs/plugin-react';
 import { join } from 'path';
-import { Alias, defineConfig, loadEnv } from 'vite';
+import { Alias, defineConfig } from 'vite';
 import { getWorkspacePackageInfo } from '@votingworks/monorepo-utils';
 
 export default defineConfig(async (env) => {
   const workspaceRootPath = join(__dirname, '../../..');
   const workspacePackages = getWorkspacePackageInfo(workspaceRootPath);
 
-  // const envPrefix = 'REACT_APP_';
-  // const rootDotenvValues = loadEnv(env.mode, workspaceRootPath, envPrefix);
-  // const coreDotenvValues = loadEnv(env.mode, __dirname, envPrefix);
-  // const processEnvDefines = [
-  //   ...Object.entries(rootDotenvValues),
-  //   ...Object.entries(coreDotenvValues),
-  // ].reduce<Record<string, string>>(
-  //   (acc, [key, value]) => ({
-  //     ...acc,
-  //     [`process.env.${key}`]: JSON.stringify(value),
-  //   }),
-  //   {}
-  // );
-
   return {
-    // build: {
-    //   // Write build files to `build` directory.
-    //   outDir: 'build',
-
-    //   // Do not minify build files. We don't need the space savings and this is
-    //   // a minor transparency improvement.
-    //   minify: false,
-    // },
-
     // Replace some code in Node modules, `#define`-style, to avoid referencing
     // Node-only globals like `process`.
     define: {
@@ -52,7 +28,6 @@ export default defineConfig(async (env) => {
         { find: 'fs', replacement: join(__dirname, './src/stubs/fs.ts') },
         { find: 'os', replacement: join(__dirname, './src/stubs/os.ts') },
         { find: 'path', replacement: require.resolve('path/') },
-        // { find: 'util', replacement: require.resolve('util/'), },
 
         // Create aliases for all workspace packages, i.e.
         //
@@ -73,10 +48,5 @@ export default defineConfig(async (env) => {
         ),
       ],
     },
-
-    // plugins: [react()],
-
-    // Pass some environment variables to the client in `import.meta.env`.
-    // envPrefix,
   };
 });

@@ -570,7 +570,9 @@ async function BallotPageContent(
       elements: measuredContests,
       numColumns,
       maxColumnHeight: dimensions.height - heightUsed,
-      gap: gutterWidthPx,
+      // Use the same spacing as the column gutter for vertical spacing between
+      // contests
+      elementGap: gutterWidthPx,
     });
 
     // Put leftover elements back on the front of the queue
