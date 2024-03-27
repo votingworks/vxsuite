@@ -50,7 +50,6 @@
     "@votingworks/grout": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/logging": "workspace:*",
-    "@votingworks/pdi-rs": "workspace:*",
     "@votingworks/printing": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
