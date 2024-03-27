@@ -68,9 +68,6 @@ impl<'a> App<'a> {
             let _ = client.set_feeder_mode(FeederMode::Disabled);
         }
         self.disconnect_client();
-        if let Some(mut scanner) = self.scanner.take() {
-            scanner.stop(StopMode::WaitUntilTransfersComplete);
-        }
     }
 
     pub fn log(&mut self, line: impl Into<Line<'a>>) {
@@ -109,6 +106,9 @@ impl<'a> App<'a> {
     }
 
     pub fn disconnect_client(&mut self) -> bool {
+        if let Some(mut scanner) = self.scanner.take() {
+            scanner.stop(StopMode::WaitUntilTransfersComplete);
+        }
         self.client.take().is_some()
     }
 
