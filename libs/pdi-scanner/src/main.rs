@@ -8,7 +8,7 @@ use std::{
 use tracing_subscriber::prelude::*;
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
-use pdi_rs::{
+use pdi_scanner::{
     client::Client,
     connect,
     protocol::{

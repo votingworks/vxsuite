@@ -5,7 +5,7 @@ use std::{
 
 use ratatui::text::Line;
 
-use pdi_rs::{
+use pdi_scanner::{
     client::Client,
     protocol::{
         packets::Incoming,
@@ -112,7 +112,7 @@ impl<'a> App<'a> {
         self.client.take().is_some()
     }
 
-    pub fn on_connect(&mut self, mut client: Client, scanner: Scanner) -> pdi_rs::Result<()> {
+    pub fn on_connect(&mut self, mut client: Client, scanner: Scanner) -> pdi_scanner::Result<()> {
         client.set_scan_resolution(Resolution::Half)?;
         client.set_color_mode(ColorMode::LowColor)?;
         client.set_scan_side_mode(ScanSideMode::Duplex)?;
@@ -134,7 +134,9 @@ impl<'a> App<'a> {
             remaining_attempts -= 1;
 
             if remaining_attempts == 0 {
-                return Err(pdi_rs::Error::RecvTimeout(RecvTimeoutError::Disconnected));
+                return Err(pdi_scanner::Error::RecvTimeout(
+                    RecvTimeoutError::Disconnected,
+                ));
             }
         }
 
@@ -203,22 +205,22 @@ impl<'a> App<'a> {
     pub fn try_recv_matching(
         &mut self,
         predicate: impl Fn(&Incoming) -> bool,
-    ) -> pdi_rs::Result<Incoming> {
+    ) -> pdi_scanner::Result<Incoming> {
         self.get_client_mut()?.try_recv_matching(predicate)
     }
 
-    pub fn eject_document(&mut self, eject_motion: EjectMotion) -> pdi_rs::Result<()> {
+    pub fn eject_document(&mut self, eject_motion: EjectMotion) -> pdi_scanner::Result<()> {
         self.get_client_mut()?.eject_document(eject_motion)
     }
 
-    pub fn set_feeder_mode(&mut self, mode: FeederMode) -> pdi_rs::Result<()> {
+    pub fn set_feeder_mode(&mut self, mode: FeederMode) -> pdi_scanner::Result<()> {
         self.get_client_mut()?.set_feeder_mode(mode)
     }
 
-    fn get_client_mut(&mut self) -> pdi_rs::Result<&mut Client> {
+    fn get_client_mut(&mut self) -> pdi_scanner::Result<&mut Client> {
         match self.client.as_mut() {
             Some(client) => Ok(client),
-            None => Err(pdi_rs::Error::TryRecvError(TryRecvError::Disconnected)),
+            None => Err(pdi_scanner::Error::TryRecvError(TryRecvError::Disconnected)),
         }
     }
 }

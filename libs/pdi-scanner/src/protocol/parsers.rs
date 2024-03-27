@@ -528,7 +528,7 @@ fn packet_with_crc<'a, O, List: Tuple<&'a [u8], O, nom::error::Error<&'a [u8]>>>
 /// # Example
 ///
 /// ```
-/// use pdi_rs::pdiscan::protocol::parsers::decimal_digit;
+/// use pdi_scanner::protocol::parsers::decimal_digit;
 ///
 /// assert_eq!(decimal_digit(b"0"), Ok((&b""[..], 0)));
 /// assert_eq!(decimal_digit(b"9"), Ok((&b""[..], 9)));
@@ -557,7 +557,7 @@ pub fn decimal_digit(input: &[u8]) -> IResult<&[u8], u8> {
 /// # Example
 ///
 /// ```
-/// use pdi_rs::pdiscan::protocol::parsers::decimal_number;
+/// use pdi_scanner::protocol::parsers::decimal_number;
 ///
 /// assert_eq!(decimal_number(b"0"), Ok((&b""[..], 0)));
 /// assert_eq!(decimal_number(b"123"), Ok((&b""[..], 123)));
@@ -583,7 +583,7 @@ pub fn decimal_number(input: &[u8]) -> IResult<&[u8], u16> {
 /// # Example
 ///
 /// ```
-/// use pdi_rs::pdiscan::protocol::parsers::decimal_percentage;
+/// use pdi_scanner::protocol::parsers::decimal_percentage;
 ///
 /// assert_eq!(decimal_percentage(b"0"), Ok((&b""[..], 0)));
 /// assert_eq!(decimal_percentage(b"100"), Ok((&b""[..], 100)));
@@ -617,7 +617,7 @@ pub fn decimal_percentage(input: &[u8]) -> IResult<&[u8], ClampedPercentage> {
 /// # Example
 ///
 /// ```
-/// use pdi_rs::pdiscan::protocol::parsers::hex_digit;
+/// use pdi_scanner::protocol::parsers::hex_digit;
 ///
 /// assert_eq!(hex_digit(b"0"), Ok((&b""[..], 0)));
 /// assert_eq!(hex_digit(b"f"), Ok((&b""[..], 15)));
@@ -656,7 +656,7 @@ pub fn hex_digit(input: &[u8]) -> IResult<&[u8], u8> {
 /// # Example
 ///
 /// ```
-/// use pdi_rs::pdiscan::protocol::parsers::hex_byte;
+/// use pdi_scanner::protocol::parsers::hex_byte;
 ///
 /// assert_eq!(hex_byte(b"00"), Ok((&b""[..], 0)));
 /// assert_eq!(hex_byte(b"0f"), Ok((&b""[..], 15)));
@@ -678,7 +678,7 @@ simple_request!(get_test_string_request, b"D");
 /// # Example
 ///
 /// ```
-/// use pdi_rs::pdiscan::protocol::parsers::get_test_string_response;
+/// use pdi_scanner::protocol::parsers::get_test_string_response;
 ///
 /// assert_eq!(get_test_string_response(b"\x02D\x03"), Ok((&b""[..], "")));
 /// assert_eq!(get_test_string_response(b"\x02DHello, World!\x03"), Ok((&b""[..], "Hello, World!")));

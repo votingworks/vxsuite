@@ -1,4 +1,4 @@
-use pdi_rs::protocol::types::EjectMotion;
+use pdi_scanner::protocol::types::EjectMotion;
 use ratatui::{
     prelude::*,
     widgets::{self, block::Title},

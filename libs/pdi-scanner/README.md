@@ -1,4 +1,4 @@
-# pdi-rs
+# pdi-scanner
 
 A driver for the PDI PageScan 6 scanner written in Rust (`pdictl`). Also exports
 a TypeScript client that runs the `pdictl` binary and communicates with it over

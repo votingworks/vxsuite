@@ -1061,6 +1061,29 @@ jobs:
       - store_test_results:
           path: libs/monorepo-utils/reports/
 
+  # @votingworks/pdi-scanner
+  test-libs-pdi-scanner:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/pdi-scanner build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/pdi-scanner lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/pdi-scanner test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/pdi-scanner/reports/
+
   # @votingworks/printing
   test-libs-printing:
     executor: nodejs
@@ -1299,6 +1322,24 @@ jobs:
           command: |
             cargo test -p daemon-utils
 
+  test-crate-pdi-scanner:
+    executor: 'nodejs'
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            cargo build -p pdi-scanner
+      - run:
+          name: Lint
+          command: |
+            cargo clippy -p pdi-scanner
+      - run:
+          name: Test
+          command: |
+            cargo test -p pdi-scanner
+
   test-crate-types-rs:
     executor: 'nodejs'
     resource_class: xlarge
@@ -1396,6 +1437,7 @@ workflows:
       - test-libs-mark-flow-ui
       - test-libs-message-coder
       - test-libs-monorepo-utils
+      - test-libs-pdi-scanner
       - test-libs-printing
       - test-libs-res-to-ts
       - test-libs-test-utils
@@ -1407,6 +1449,7 @@ workflows:
       - test-crate-ballot-interpreter
       - test-crate-controllerd
       - test-crate-daemon-utils
+      - test-crate-pdi-scanner
       - test-crate-types-rs
       - test-crate-vx-logging
       - validate-monorepo

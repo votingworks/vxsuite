@@ -2,4 +2,4 @@ target
 *.bmp
 /*.jpeg
 scan-*.png
-images
+ts/src/images

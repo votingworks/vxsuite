@@ -2,7 +2,7 @@ use std::{fmt, io};
 
 use serde::Deserialize;
 
-use pdi_rs::protocol::{
+use pdi_scanner::protocol::{
     self,
     image::{RawImageData, Sheet},
     packets::{Incoming, Packet},

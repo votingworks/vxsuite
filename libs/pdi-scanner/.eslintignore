@@ -1,0 +1,4 @@
+build
+coverage
+jest.config.js
+ts/src/rust_addon.d.ts

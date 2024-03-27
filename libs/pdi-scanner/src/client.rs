@@ -611,7 +611,7 @@ impl Client {
     /// # Example
     ///
     /// ```no_run
-    /// use pdi_rs::pdiscan::client::Client;
+    /// use pdi_scanner::client::Client;
     ///
     /// let mut client = Client::open().unwrap();
     /// // set the minimum document length to 0.5"

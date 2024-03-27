@@ -1,7 +1,7 @@
 use anyhow::Result;
 use ratatui::{prelude::CrosstermBackend, Terminal};
 
-use pdi_rs::connect;
+use pdi_scanner::connect;
 
 use crate::ui::app::ConnectionState;
 

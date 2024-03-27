@@ -9,7 +9,7 @@ use std::{
 };
 use tracing_subscriber::prelude::*;
 
-use pdi_rs::{
+use pdi_scanner::{
     connect,
     protocol::{
         image::{RawImageData, Sheet},

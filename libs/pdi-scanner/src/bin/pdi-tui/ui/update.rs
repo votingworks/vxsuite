@@ -2,7 +2,7 @@ use std::{thread, time::Duration};
 
 use anyhow::Result;
 use crossterm::event::{self, Event::Key, KeyCode::Char, KeyModifiers};
-use pdi_rs::protocol::{
+use pdi_scanner::protocol::{
     packets::Incoming,
     types::{EjectMotion, FeederMode},
 };

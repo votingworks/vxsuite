@@ -1,6 +1,6 @@
 use std::time::Duration;
 
-use pdi_rs::protocol::types::EjectMotion;
+use pdi_scanner::protocol::types::EjectMotion;
 
 #[derive(Clone, Copy, Default)]
 pub enum AutoScanConfig {

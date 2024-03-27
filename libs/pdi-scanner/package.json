@@ -1,5 +1,5 @@
 {
-  "name": "@votingworks/pdi-rs",
+  "name": "@votingworks/pdi-scanner",
   "version": "1.0.0",
   "private": true,
   "description": "Scanner interface for the PDI PageScan 6",
@@ -41,7 +41,7 @@
   "dependencies": {
     "@votingworks/basics": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
-    "@votingworks/types": "workspace:^",
+    "@votingworks/types": "workspace:*",
     "zod": "3.14.4"
   },
   "devDependencies": {

@@ -6,7 +6,7 @@ members = [
   "apps/mark-scan/pat-device-input",
   "libs/ballot-interpreter",
   "libs/logging",
-  "libs/pdi-rs",
+  "libs/pdi-scanner",
   "libs/types-rs",
 ]
 

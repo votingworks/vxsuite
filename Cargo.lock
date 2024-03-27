@@ -1633,7 +1633,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "pdi-rs"
+name = "pdi-scanner"
 version = "0.1.0"
 dependencies = [
  "anyhow",
