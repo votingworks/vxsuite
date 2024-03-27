@@ -100,7 +100,8 @@ impl ScanSideMode {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub enum EjectMotion {
     ToRear,
     ToFront,

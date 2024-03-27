@@ -15,10 +15,11 @@ use pdi_rs::{
         image::{RawImageData, Sheet},
         packets::Incoming,
         types::{
-            DoubleFeedDetectionCalibrationType, DoubleFeedDetectionMode, ScanSideMode, Status,
+            DoubleFeedDetectionCalibrationType, DoubleFeedDetectionMode, EjectMotion, ScanSideMode,
+            Status,
         },
     },
-    scanner::Scanner,
+    scanner::{Scanner, StopMode},
 };
 
 #[derive(Debug, Parser)]
@@ -58,7 +59,7 @@ fn setup_logging(config: &Config) -> color_eyre::Result<()> {
 }
 
 #[derive(Debug, serde::Deserialize)]
-#[serde(tag = "commandType")]
+#[serde(tag = "type")]
 #[serde(rename_all = "camelCase")]
 enum Command {
     #[serde(rename = "exit")]
@@ -67,8 +68,18 @@ enum Command {
     #[serde(rename = "connect")]
     Connect,
 
+    #[serde(rename = "disconnect")]
+    Disconnect,
+
+    #[serde(rename = "get_scanner_status")]
+    GetScannerStatus,
+
     #[serde(rename = "enable_scanning")]
     EnableScanning,
+
+    #[serde(rename = "eject")]
+    #[serde(rename_all = "camelCase")]
+    EjectDocument { eject_motion: EjectMotion },
 
     #[serde(rename = "enable_msd")]
     EnableMsd { enable: bool },
@@ -81,14 +92,11 @@ enum Command {
 
     #[serde(rename = "get_msd_calibration_config")]
     GetMsdCalibrationConfig,
-
-    #[serde(rename = "get_scanner_status")]
-    GetScannerStatus,
 }
 
 #[derive(Debug, serde::Serialize)]
-#[serde(tag = "outgoingType")]
-enum Outgoing {
+#[serde(tag = "type")]
+enum Response {
     #[serde(rename = "ok")]
     Ok,
 
@@ -113,8 +121,8 @@ enum Outgoing {
     ScannerStatus { status: Status },
 }
 
-fn wrap_outgoing(outgoing: &Outgoing) -> color_eyre::Result<()> {
-    serde_json::to_writer(io::stdout(), outgoing)?;
+fn send_response(response: &Response) -> color_eyre::Result<()> {
+    serde_json::to_writer(io::stdout(), response)?;
     let mut stdout = io::stdout().lock();
     stdout.write_all(b"\n")?;
     Ok(())
@@ -153,11 +161,11 @@ fn main() -> color_eyre::Result<()> {
 
                 match (&mut scanner_and_client, command) {
                     (_, Command::Exit) => {
-                        serde_json::to_writer(io::stdout(), &Outgoing::Ok)?;
+                        serde_json::to_writer(io::stdout(), &Response::Ok)?;
                         exit(0)
                     }
                     (Some(_), Command::Connect) => {
-                        wrap_outgoing(&Outgoing::Err {
+                        send_response(&Response::Err {
                             message: "already connected".to_string(),
                         })?;
                     }
@@ -165,30 +173,58 @@ fn main() -> color_eyre::Result<()> {
                         Ok((scanner, mut client)) => {
                             match client.send_connect() {
                                 Ok(()) => {
-                                    wrap_outgoing(&Outgoing::Ok)?;
+                                    send_response(&Response::Ok)?;
                                 }
                                 Err(e) => {
-                                    wrap_outgoing(&Outgoing::Err {
+                                    send_response(&Response::Err {
                                         message: e.to_string(),
                                     })?;
                                 }
                             }
                             scanner_and_client = Some((scanner, client));
-                            wrap_outgoing(&Outgoing::Ok)?;
                         }
                         Err(e) => {
-                            wrap_outgoing(&Outgoing::Err {
+                            send_response(&Response::Err {
                                 message: e.to_string(),
                             })?;
                         }
                     },
+                    (Some((scanner, _)), Command::Disconnect) => {
+                        scanner.stop(StopMode::WaitUntilTransfersComplete);
+                        scanner_and_client = None;
+                        send_response(&Response::Ok)?;
+                    }
+                    (Some((_, client)), Command::GetScannerStatus) => {
+                        match client.get_scanner_status(Duration::from_secs(1)) {
+                            Ok(status) => {
+                                send_response(&Response::ScannerStatus { status })?;
+                            }
+                            Err(e) => {
+                                send_response(&Response::Err {
+                                    message: e.to_string(),
+                                })?;
+                            }
+                        }
+                    }
                     (Some((_, client)), Command::EnableScanning) => {
                         match client.send_enable_scan_commands() {
                             Ok(()) => {
-                                wrap_outgoing(&Outgoing::Ok)?;
+                                send_response(&Response::Ok)?;
                             }
                             Err(e) => {
-                                wrap_outgoing(&Outgoing::Err {
+                                send_response(&Response::Err {
+                                    message: e.to_string(),
+                                })?;
+                            }
+                        }
+                    }
+                    (Some((_, client)), Command::EjectDocument { eject_motion }) => {
+                        match client.eject_document(eject_motion) {
+                            Ok(()) => {
+                                send_response(&Response::Ok)?;
+                            }
+                            Err(e) => {
+                                send_response(&Response::Err {
                                     message: e.to_string(),
                                 })?;
                             }
@@ -201,10 +237,10 @@ fn main() -> color_eyre::Result<()> {
                             DoubleFeedDetectionMode::Disabled
                         }) {
                             Ok(()) => {
-                                wrap_outgoing(&Outgoing::Ok)?;
+                                send_response(&Response::Ok)?;
                             }
                             Err(e) => {
-                                wrap_outgoing(&Outgoing::Err {
+                                send_response(&Response::Err {
                                     message: e.to_string(),
                                 })?;
                             }
@@ -213,10 +249,10 @@ fn main() -> color_eyre::Result<()> {
                     (Some((_, client)), Command::CalibrateMsd { calibration_type }) => {
                         match client.calibrate_double_feed_detection(calibration_type) {
                             Ok(()) => {
-                                wrap_outgoing(&Outgoing::Ok)?;
+                                send_response(&Response::Ok)?;
                             }
                             Err(e) => {
-                                wrap_outgoing(&Outgoing::Err {
+                                send_response(&Response::Err {
                                     message: e.to_string(),
                                 })?;
                             }
@@ -227,7 +263,7 @@ fn main() -> color_eyre::Result<()> {
                             Duration::from_secs(1),
                         ) {
                             Ok(single_sheet_calibration_value) => {
-                                wrap_outgoing(&Outgoing::MsdCalibrationConfig {
+                                send_response(&Response::MsdCalibrationConfig {
                                     led_intensity: 0,
                                     single_sheet_calibration_value,
                                     double_sheet_calibration_value: 0,
@@ -235,26 +271,14 @@ fn main() -> color_eyre::Result<()> {
                                 })?;
                             }
                             Err(e) => {
-                                wrap_outgoing(&Outgoing::Err {
-                                    message: e.to_string(),
-                                })?;
-                            }
-                        }
-                    }
-                    (Some((_, client)), Command::GetScannerStatus) => {
-                        match client.get_scanner_status(Duration::from_secs(1)) {
-                            Ok(status) => {
-                                wrap_outgoing(&Outgoing::ScannerStatus { status })?;
-                            }
-                            Err(e) => {
-                                wrap_outgoing(&Outgoing::Err {
+                                send_response(&Response::Err {
                                     message: e.to_string(),
                                 })?;
                             }
                         }
                     }
                     (None, _) => {
-                        wrap_outgoing(&Outgoing::Err {
+                        send_response(&Response::Err {
                             message: "scanner not connected".to_string(),
                         })?;
                     }
@@ -280,9 +304,7 @@ fn main() -> color_eyre::Result<()> {
                             Ok(Sheet::Duplex(top, bottom)) => {
                                 match (top.to_image(), bottom.to_image()) {
                                     (Some(top_image), Some(bottom_image)) => {
-                                        top_image.save("top.png")?;
-                                        bottom_image.save("bottom.png")?;
-                                        wrap_outgoing(&Outgoing::ScanComplete {
+                                        send_response(&Response::ScanComplete {
                                             image_data: (
                                                 STANDARD.encode(top_image.as_bytes()),
                                                 STANDARD.encode(bottom_image.as_bytes()),
@@ -305,7 +327,7 @@ fn main() -> color_eyre::Result<()> {
                                 ScanSideMode::Duplex
                             ),
                             Err(e) => {
-                                wrap_outgoing(&Outgoing::Err {
+                                send_response(&Response::Err {
                                     message: format!(
                                         "failed to decode the scanned image data: {e}"
                                     ),
