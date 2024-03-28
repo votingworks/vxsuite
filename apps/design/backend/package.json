@@ -80,6 +80,7 @@
     "@types/uuid": "9.0.5",
     "@votingworks/ballot-interpreter": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
+    "@votingworks/fs": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/test-utils": "workspace:*",
     "esbuild": "0.17.11",

@@ -12,11 +12,6 @@ import {
   electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import {
-  DEFAULT_LAYOUT_OPTIONS,
-  layOutAllBallotStyles,
-  LayoutOptions,
-} from '@votingworks/hmpb-layout';
-import {
   AdjudicationReason,
   AnyContest,
   BallotType,
@@ -40,6 +35,16 @@ import {
 } from '@votingworks/utils';
 import { readElectionPackageFromFile } from '@votingworks/backend';
 import { countObjectLeaves, getObjectLeaves } from '@votingworks/test-utils';
+import {
+  BallotMode,
+  DEFAULT_LAYOUT_OPTIONS,
+  LayoutOptions,
+} from '@votingworks/hmpb-layout';
+import {
+  BaseBallotProps,
+  renderAllBallotsAndCreateElectionDefinition,
+  vxDefaultBallotTemplate,
+} from '@votingworks/hmpb-render-backend';
 import {
   ApiClient,
   exportElectionPackage,
@@ -553,18 +558,15 @@ test('Election package export', async () => {
   }
 }, 30_000);
 
-// Rendering an SVG to PDF and then generating the PDF takes about 3s per
-// ballot, so we mock the PDF content generation, which means we'll just
-// generate empty PDFs, which is much faster.
-jest.mock('svg-to-pdfkit');
-
-// Spy on the ballot layout function so we can check that it's called with the
+// Spy on the ballot rendering function so we can check that it's called with the
 // right arguments.
-jest.mock('@votingworks/hmpb-layout', () => {
-  const original = jest.requireActual('@votingworks/hmpb-layout');
+jest.mock('@votingworks/hmpb-render-backend', () => {
+  const original = jest.requireActual('@votingworks/hmpb-render-backend');
   return {
     ...original,
-    layOutAllBallotStyles: jest.fn(original.layOutAllBallotStyles),
+    renderAllBallotsAndCreateElectionDefinition: jest.fn(
+      original.renderAllBallotsAndCreateElectionDefinition
+    ),
   };
 });
 
@@ -584,10 +586,9 @@ test('Export all ballots', async () => {
       electionData: baseElectionDefinition.electionData,
     })
   ).unsafeUnwrap();
-  const { ballotStyles, election, layoutOptions, precincts } =
-    await apiClient.getElection({
-      electionId,
-    });
+  const { ballotStyles, election, precincts } = await apiClient.getElection({
+    electionId,
+  });
 
   const { zipContents } = await apiClient.exportAllBallots({
     electionId,
@@ -628,8 +629,8 @@ test('Export all ballots', async () => {
   for (const file of Object.values(zip.files)) {
     expect(await file.async('text')).toContain('%PDF');
   }
-  expect(layOutAllBallotStyles).toHaveBeenCalledTimes(6);
-  const expectedLayoutCalls = [
+  expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledTimes(1);
+  const ballotCombos: Array<[BallotType, BallotMode]> = [
     [BallotType.Precinct, 'official'],
     [BallotType.Precinct, 'test'],
     [BallotType.Precinct, 'sample'],
@@ -637,19 +638,25 @@ test('Export all ballots', async () => {
     [BallotType.Absentee, 'test'],
     [BallotType.Absentee, 'sample'],
   ];
-  for (const [
-    i,
-    [expectedBallotType, expectedBallotMode],
-  ] of expectedLayoutCalls.entries()) {
-    expect(layOutAllBallotStyles).toHaveBeenNthCalledWith(i + 1, {
-      election,
-      ballotType: expectedBallotType,
-      ballotMode: expectedBallotMode,
-      layoutOptions,
-      nhCustomContent: {},
-      translatedElectionStrings: expect.any(Object),
-    });
-  }
+  const expectedBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
+    ballotStyle.precincts.flatMap((precinctId) =>
+      ballotCombos.map(
+        ([ballotType, ballotMode]): BaseBallotProps => ({
+          election,
+          ballotStyleId: ballotStyle.id,
+          precinctId,
+          ballotType,
+          ballotMode,
+        })
+      )
+    )
+  );
+  expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(
+    expect.any(Object), // Renderer
+    vxDefaultBallotTemplate,
+    expectedBallotProps,
+    expect.any(Object) // Election strings
+  );
 });
 
 test('Export test decks', async () => {
@@ -691,16 +698,23 @@ test('Export test decks', async () => {
   for (const file of Object.values(zip.files)) {
     expect(await file.async('text')).toContain('%PDF');
   }
-  expect(layOutAllBallotStyles).toHaveBeenCalledTimes(1);
-  expect(layOutAllBallotStyles).toHaveBeenCalledWith({
-    election,
-    ballotType: BallotType.Precinct,
-    ballotMode: 'test',
-    layoutOptions: DEFAULT_LAYOUT_OPTIONS,
-    nhCustomContent: {},
-    translatedElectionStrings: expect.any(Object),
-  });
-});
+  expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledTimes(1);
+  const expectedBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
+    ballotStyle.precincts.map((precinctId) => ({
+      election,
+      ballotStyleId: ballotStyle.id,
+      precinctId,
+      ballotType: BallotType.Precinct,
+      ballotMode: 'test',
+    }))
+  );
+  expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(
+    expect.any(Object), // Renderer
+    vxDefaultBallotTemplate,
+    expectedBallotProps,
+    expect.any(Object) // Election strings
+  );
+}, 30_000);
 
 test('Consistency of election hash across exports', async () => {
   // This test runs unnecessarily long if we're generating exports for all

@@ -19,9 +19,13 @@
   },
   "references": [
     { "path": "../layout/tsconfig.build.json" },
-    { "path": "../../../libs/basics/tsconfig.build.json" },
-    { "path": "../../../libs/eslint-plugin-vx/tsconfig.build.json" },
-    { "path": "../../../libs/fixtures/tsconfig.build.json" },
-    { "path": "../../../libs/types/tsconfig.build.json" }
+    { "path": "../../basics/tsconfig.build.json" },
+    { "path": "../../ballot-encoder/tsconfig.build.json" },
+    { "path": "../../eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../../fixtures/tsconfig.build.json" },
+    { "path": "../../fs/tsconfig.build.json" },
+    { "path": "../../image-utils/tsconfig.build.json" },
+    { "path": "../../types/tsconfig.build.json" },
+    { "path": "../../ui/tsconfig.build.json" }
   ]
 }

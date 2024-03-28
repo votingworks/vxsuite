@@ -2,7 +2,6 @@ import { createWriteStream } from 'fs';
 import JsZip from 'jszip';
 import path from 'path';
 import { pipeline } from 'stream/promises';
-import { layOutAllBallotStyles } from '@votingworks/hmpb-layout';
 import {
   BallotType,
   ElectionPackageFileName,
@@ -11,6 +10,11 @@ import {
   Id,
 } from '@votingworks/types';
 
+import {
+  createPlaywrightRenderer,
+  renderAllBallotsAndCreateElectionDefinition,
+  vxDefaultBallotTemplate,
+} from '@votingworks/hmpb-render-backend';
 import { PORT } from '../globals';
 import {
   extractAndTranslateElectionStrings,
@@ -25,13 +29,8 @@ export async function generateElectionPackage(
 ): Promise<void> {
   const { assetDirectoryPath, store } = workspace;
 
-  const {
-    ballotLanguageConfigs,
-    election,
-    layoutOptions,
-    systemSettings,
-    nhCustomContent,
-  } = store.getElection(electionId);
+  const { ballotLanguageConfigs, election, systemSettings } =
+    store.getElection(electionId);
 
   const zip = new JsZip();
 
@@ -61,17 +60,25 @@ export async function generateElectionPackage(
     JSON.stringify(vxElectionStrings, null, 2)
   );
 
-  const { electionDefinition } = layOutAllBallotStyles({
-    election,
-    // Ballot type and ballot mode shouldn't change the election definition, so it doesn't matter
-    // what we pass here
-    ballotType: BallotType.Precinct,
-    ballotMode: 'test',
-    layoutOptions,
-    nhCustomContent,
-    translatedElectionStrings: electionStrings,
-  }).unsafeUnwrap();
+  const renderer = await createPlaywrightRenderer();
+  const { electionDefinition } =
+    await renderAllBallotsAndCreateElectionDefinition(
+      renderer,
+      vxDefaultBallotTemplate,
+      // Each ballot style will have exactly one grid layout regardless of precinct, ballot type, or ballot mode
+      // So we just need to render a single ballot per ballot style to create the election definition
+      election.ballotStyles.map((ballotStyle) => ({
+        election,
+        ballotStyleId: ballotStyle.id,
+        precinctId: ballotStyle.precincts[0],
+        ballotType: BallotType.Precinct,
+        ballotMode: 'test',
+      })),
+      electionStrings
+    );
   zip.file(ElectionPackageFileName.ELECTION, electionDefinition.electionData);
+  // eslint-disable-next-line no-console
+  renderer.cleanup().catch(console.error);
 
   zip.file(
     ElectionPackageFileName.SYSTEM_SETTINGS,

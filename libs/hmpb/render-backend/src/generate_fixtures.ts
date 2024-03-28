@@ -1,132 +1,90 @@
-import { join } from 'path';
-import * as fs from 'fs';
-import { Document } from '@votingworks/hmpb-layout';
-import { finished } from 'stream/promises';
-import { renderDocumentToPdf } from './render_ballot';
+import { mkdir, rm, writeFile } from 'fs/promises';
+import { BallotPaperSize } from '@votingworks/types';
+import { allBubbleBallotFixtures } from './all_bubble_ballot_fixtures';
 import {
-  allBubbleBallotDir,
-  allBubbleBallotFixtures,
-} from './all_bubble_ballot_fixtures';
-import {
-  famousNamesDir,
-  famousNamesFixtures,
   fixturesDir,
-  primaryElectionDir,
-  primaryElectionFixtures,
+  famousNamesFixtures,
   generalElectionFixtures,
+  primaryElectionFixtures,
 } from './ballot_fixtures';
+import { Renderer, createPlaywrightRenderer } from './next';
 
-async function generateBallotFixture(
-  fixtureDir: string,
-  label: string,
-  document: Document
-) {
-  // eslint-disable-next-line no-console
-  console.log(
-    `Generating: ${join(fixtureDir.replace(fixturesDir, ''), label)}`
+async function generateAllBubbleBallotFixtures(renderer: Renderer) {
+  const fixtures = allBubbleBallotFixtures;
+  const generated = await allBubbleBallotFixtures.generate(renderer);
+  await mkdir(fixtures.dir, { recursive: true });
+  await writeFile(
+    fixtures.electionPath,
+    generated.electionDefinition.electionData
   );
-  fs.writeFileSync(
-    join(fixtureDir, `${label}-document.json`),
-    JSON.stringify(document, null, 2)
-  );
-  const pdf = renderDocumentToPdf(document);
-  const fileStream = fs.createWriteStream(join(fixtureDir, `${label}.pdf`));
-  pdf.pipe(fileStream);
-  pdf.end();
-  await finished(fileStream);
+  await writeFile(fixtures.blankBallotPath, generated.blankBallotPdf);
+  await writeFile(fixtures.filledBallotPath, generated.filledBallotPdf);
+  await writeFile(fixtures.cyclingTestDeckPath, generated.cyclingTestDeckPdf);
 }
 
-async function generateAllBubbleBallotFixtures() {
-  fs.mkdirSync(allBubbleBallotDir, { recursive: true });
-
-  const { electionDefinition, blankBallot, filledBallot, cyclingTestDeck } =
-    allBubbleBallotFixtures;
-
-  fs.writeFileSync(
-    join(allBubbleBallotDir, 'election.json'),
-    electionDefinition.electionData
+async function generateFamousNamesFixtures(renderer: Renderer) {
+  const fixtures = famousNamesFixtures;
+  const generated = await famousNamesFixtures.generate(renderer);
+  await mkdir(fixtures.dir, { recursive: true });
+  await writeFile(
+    fixtures.electionPath,
+    generated.electionDefinition.electionData
   );
-
-  const ballots = {
-    'blank-ballot': blankBallot,
-    'filled-ballot': filledBallot,
-    'cycling-test-deck': cyclingTestDeck,
-  } as const;
-  for (const [label, document] of Object.entries(ballots)) {
-    await generateBallotFixture(allBubbleBallotDir, label, document);
-  }
+  await writeFile(fixtures.blankBallotPath, generated.blankBallotPdf);
+  await writeFile(fixtures.markedBallotPath, generated.markedBallotPdf);
 }
 
-async function generateFamousNamesFixtures() {
-  fs.mkdirSync(famousNamesDir, { recursive: true });
-  const { electionDefinition, blankBallot, markedBallot } = famousNamesFixtures;
-
-  fs.writeFileSync(
-    join(famousNamesDir, 'election.json'),
-    electionDefinition.electionData
-  );
-
-  const ballots = {
-    'blank-ballot': blankBallot,
-    'marked-ballot': markedBallot,
-  } as const;
-  for (const [label, document] of Object.entries(ballots)) {
-    await generateBallotFixture(famousNamesDir, label, document);
-  }
-}
-
-async function generateGeneralElectionFixtures() {
-  for (const {
-    electionDefinition,
-    electionDir,
-    blankBallot,
-    markedBallot,
-  } of generalElectionFixtures) {
-    fs.mkdirSync(electionDir, { recursive: true });
-    fs.writeFileSync(
-      join(electionDir, 'election.json'),
-      electionDefinition.electionData
+async function generateGeneralElectionFixtures(renderer: Renderer) {
+  const allFixtures = generalElectionFixtures;
+  const allGenerated = await generalElectionFixtures.generate(renderer);
+  for (const paperSize of Object.values(BallotPaperSize)) {
+    const fixtures = allFixtures[paperSize];
+    const generated = allGenerated[paperSize];
+    await mkdir(fixtures.electionDir, { recursive: true });
+    await writeFile(
+      fixtures.electionPath,
+      generated.electionDefinition.electionData
     );
-
-    const ballots = {
-      'blank-ballot': blankBallot,
-      'marked-ballot': markedBallot,
-    } as const;
-    for (const [label, document] of Object.entries(ballots)) {
-      await generateBallotFixture(electionDir, label, document);
-    }
+    await writeFile(fixtures.blankBallotPath, generated.blankBallotPdf);
+    await writeFile(fixtures.markedBallotPath, generated.markedBallotPdf);
   }
 }
 
-async function generatePrimaryElectionFixtures() {
-  fs.mkdirSync(primaryElectionDir, { recursive: true });
-  const { electionDefinition, mammalParty, fishParty } =
-    primaryElectionFixtures;
-
-  fs.writeFileSync(
-    join(primaryElectionDir, 'election.json'),
-    electionDefinition.electionData
+async function generatePrimaryElectionFixtures(renderer: Renderer) {
+  const fixtures = primaryElectionFixtures;
+  const generated = await primaryElectionFixtures.generate(renderer);
+  await mkdir(fixtures.dir, { recursive: true });
+  await writeFile(
+    fixtures.electionPath,
+    generated.electionDefinition.electionData
   );
 
-  for (const partyFixtures of [mammalParty, fishParty]) {
-    const { partyLabel, blankBallot, markedBallot, otherPrecinctBlankBallot } =
-      partyFixtures;
-    const ballots = {
-      [`${partyLabel}-blank-ballot`]: blankBallot,
-      [`${partyLabel}-marked-ballot`]: markedBallot,
-      [`${partyLabel}-other-precinct-blank-ballot`]: otherPrecinctBlankBallot,
-    } as const;
-    for (const [label, document] of Object.entries(ballots)) {
-      await generateBallotFixture(primaryElectionDir, label, document);
-    }
+  for (const party of ['mammalParty', 'fishParty'] as const) {
+    const partyFixtures = fixtures[party];
+    const partyGenerated = generated[party];
+    await writeFile(
+      partyFixtures.blankBallotPath,
+      partyGenerated.blankBallotPdf
+    );
+    await writeFile(
+      partyFixtures.otherPrecinctBlankBallotPath,
+      partyGenerated.otherPrecinctBlankBallotPdf
+    );
+    await writeFile(
+      partyFixtures.markedBallotPath,
+      partyGenerated.markedBallotPdf
+    );
   }
 }
 
 export async function main(): Promise<void> {
-  fs.rmSync(fixturesDir, { recursive: true });
+  await rm(fixturesDir, { recursive: true, force: true });
+  const renderer = await createPlaywrightRenderer();
 
-  await generateAllBubbleBallotFixtures();
-  await generateFamousNamesFixtures();
-  await generateGeneralElectionFixtures();
-  await generatePrimaryElectionFixtures();
+  await generateAllBubbleBallotFixtures(renderer);
+  await generateFamousNamesFixtures(renderer);
+  await generateGeneralElectionFixtures(renderer);
+  await generatePrimaryElectionFixtures(renderer);
+
+  await renderer.cleanup();
 }

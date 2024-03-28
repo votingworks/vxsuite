@@ -5,8 +5,10 @@ import {
   Candidate,
   CandidateVote,
   DEFAULT_MARK_THRESHOLDS,
+  ElectionDefinition,
 } from '@votingworks/types';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
+import { readElection } from '@votingworks/fs';
 import {
   ballotPdfToPageImages,
   sortVotesDict,
@@ -15,19 +17,18 @@ import { interpretSheet } from './interpret';
 
 describe('Interpret - HMPB - All bubble ballot', () => {
   const {
-    electionDefinition,
+    electionPath,
     blankBallotPath,
     filledBallotPath,
     cyclingTestDeckPath,
   } = allBubbleBallotFixtures;
-  const { election } = electionDefinition;
-  const precinctId = election.precincts[0]!.id;
-
-  const [frontContest, backContest] = election.contests;
-  assert(frontContest?.type === 'candidate');
-  assert(backContest?.type === 'candidate');
+  let electionDefinition: ElectionDefinition;
+  beforeAll(async () => {
+    electionDefinition = (await readElection(electionPath)).unsafeUnwrap();
+  });
 
   test('Blank ballot interpretation', async () => {
+    const precinctId = electionDefinition.election.precincts[0]!.id;
     const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
     expect(ballotImagePaths.length).toEqual(2);
     const [frontResult, backResult] = await interpretSheet(
@@ -53,6 +54,10 @@ describe('Interpret - HMPB - All bubble ballot', () => {
   });
 
   test('Filled ballot interpretation', async () => {
+    const precinctId = electionDefinition.election.precincts[0]!.id;
+    const [frontContest, backContest] = electionDefinition.election.contests;
+    assert(frontContest?.type === 'candidate');
+    assert(backContest?.type === 'candidate');
     const ballotImagePaths = await ballotPdfToPageImages(filledBallotPath);
     expect(ballotImagePaths.length).toEqual(2);
     const [frontResult, backResult] = await interpretSheet(
@@ -78,6 +83,10 @@ describe('Interpret - HMPB - All bubble ballot', () => {
   });
 
   test('Cycling test deck interpretation', async () => {
+    const precinctId = electionDefinition.election.precincts[0]!.id;
+    const [frontContest, backContest] = electionDefinition.election.contests;
+    assert(frontContest?.type === 'candidate');
+    assert(backContest?.type === 'candidate');
     const votes = {
       [frontContest.id]: [] as Candidate[],
       [backContest.id]: [] as Candidate[],
