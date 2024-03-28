@@ -32,6 +32,7 @@ import {
   VoterSettingsManagerContext,
   useAudioControls,
   useLanguageControls,
+  InvalidCardScreen,
 } from '@votingworks/ui';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
@@ -70,9 +71,7 @@ import { PollWorkerScreen } from './pages/poll_worker_screen';
 import { SetupPrinterPage } from './pages/setup_printer_page';
 import { SetupPowerPage } from './pages/setup_power_page';
 import { UnconfiguredScreen } from './pages/unconfigured_screen';
-import { WrongElectionScreen } from './pages/wrong_election_screen';
 import { ReplaceElectionScreen } from './pages/replace_election_screen';
-import { CardErrorScreen } from './pages/card_error_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
 import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper';
 
@@ -389,12 +388,16 @@ export function AppRoot({
   ) {
     return <SetupCardReaderPage />;
   }
-  if (
-    authStatus.status === 'logged_out' &&
-    authStatus.reason === 'card_error'
-  ) {
-    return <CardErrorScreen />;
+
+  if (authStatus.status === 'logged_out' && authStatus.reason !== 'no_card') {
+    return (
+      <InvalidCardScreen
+        reasonAndContext={authStatus}
+        recommendedAction="Remove the card to continue."
+      />
+    );
   }
+
   if (computer.batteryIsLow && !computer.batteryIsCharging) {
     return <SetupPowerPage />;
   }
@@ -465,13 +468,7 @@ export function AppRoot({
     if (!hasPrinterAttached) {
       return <SetupPrinterPage />;
     }
-    if (
-      authStatus.status === 'logged_out' &&
-      authStatus.reason === 'wrong_election' &&
-      authStatus.cardUserRole === 'poll_worker'
-    ) {
-      return <WrongElectionScreen />;
-    }
+
     if (isPollWorkerAuth(authStatus)) {
       return (
         <PollWorkerScreen
