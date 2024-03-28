@@ -2,7 +2,6 @@ use clap::Parser;
 use image::EncodableLayout;
 use std::{
     io::{self, Write},
-    process::exit,
     time::Duration,
 };
 use tracing_subscriber::prelude::*;
@@ -161,7 +160,7 @@ fn main() -> color_eyre::Result<()> {
             Ok(command) => match (&mut client, command) {
                 (_, Command::Exit) => {
                     serde_json::to_writer(io::stdout(), &Response::Ok)?;
-                    exit(0)
+                    return color_eyre::Result::Ok(());
                 }
                 (Some(_), Command::Connect) => {
                     send_response(&Response::Error {
@@ -296,7 +295,9 @@ fn main() -> color_eyre::Result<()> {
             Err(std::sync::mpsc::TryRecvError::Empty) => {}
             Err(std::sync::mpsc::TryRecvError::Disconnected) => {
                 tracing::error!("stdin channel disconnected");
-                exit(-1);
+                return color_eyre::Result::Err(color_eyre::Report::msg(
+                    "stdin channel disconnected",
+                ));
             }
         }
 
