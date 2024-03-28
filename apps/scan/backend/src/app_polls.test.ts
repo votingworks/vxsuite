@@ -50,7 +50,7 @@ test('polls state flow', async () => {
         pollsState: 'polls_closed_initial',
       });
 
-      await apiClient.openPolls();
+      void (await apiClient.openPolls());
       expect(await apiClient.getPollsInfo()).toEqual<PrecinctScannerPollsInfo>({
         pollsState: 'polls_open',
         lastPollsTransition: {
@@ -184,7 +184,7 @@ test('scanner batch flow', async () => {
         return store.getBatches().map((b) => b.id);
       }
 
-      await apiClient.openPolls();
+      void (await apiClient.openPolls());
       let batchIds = getBatchIds();
       expect(batchIds).toHaveLength(1);
       const batch1Id = batchIds[0];

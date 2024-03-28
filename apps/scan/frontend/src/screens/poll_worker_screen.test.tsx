@@ -3,7 +3,6 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
-import { mockBaseLogger, LogEventId } from '@votingworks/logging';
 import {
   waitFor,
   waitForElementToBeRemoved,
@@ -14,6 +13,7 @@ import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
+import { err } from '@votingworks/basics';
 import { screen, RenderResult, render } from '../../test/react_testing_library';
 import { PollWorkerScreen, PollWorkerScreenProps } from './poll_worker_screen';
 import {
@@ -69,7 +69,6 @@ function renderScreen(
       <PollWorkerScreen
         electionDefinition={electionFamousNames2021Fixtures.electionDefinition}
         scannedBallotCount={0}
-        logger={mockBaseLogger()}
         {...props}
       />
     )
@@ -232,23 +231,15 @@ test('no transitions from polls closed final', async () => {
 
 // confirm that we have an alert and logging that meet VVSG 2.0 1.1.3-B
 test('there is a warning if we attempt to open polls with ballots scanned', async () => {
-  const logger = mockBaseLogger();
   apiMock.expectGetPollsInfo('polls_closed_initial');
   renderScreen({
     scannedBallotCount: 1,
-    logger,
   });
   await screen.findByText('Do you want to open the polls?');
+  apiMock.expectOpenPolls(err('ballots-already-scanned'));
+  apiMock.expectGetPollsInfo('polls_closed_initial');
   userEvent.click(screen.getByText('Yes, Open the Polls'));
   await screen.findByText('Ballots Already Scanned');
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.PollsOpened,
-    'poll_worker',
-    expect.objectContaining({
-      disposition: 'failure',
-      scannedBallotCount: 1,
-    })
-  );
 });
 
 test('polls cannot be closed if CVR sync is required', async () => {

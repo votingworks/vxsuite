@@ -15,6 +15,7 @@ import type {
   FujitsuPrintResult,
   FujitsuPrinterStatus,
   MachineConfig,
+  OpenPollsResult,
   PollsTransition,
   PrecinctScannerConfig,
   PrecinctScannerStatus,
@@ -187,8 +188,8 @@ export function createApiMock() {
       mockApiClient.getScannerStatus.expectRepeatedCallsWith().resolves(status);
     },
 
-    expectOpenPolls(): void {
-      mockApiClient.openPolls.expectCallWith().resolves();
+    expectOpenPolls(result: OpenPollsResult = ok()): void {
+      mockApiClient.openPolls.expectCallWith().resolves(result);
     },
 
     expectClosePolls(): void {

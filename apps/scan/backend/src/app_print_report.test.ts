@@ -53,7 +53,7 @@ test('can print and re-print polls opened report', async () => {
       });
 
       // initial polls opened report
-      await apiClient.openPolls();
+      void (await apiClient.openPolls());
       await apiClient.printReport();
       const initialReportPath = mockPrinterHandler.getLastPrintPath();
       assert(initialReportPath !== undefined);
