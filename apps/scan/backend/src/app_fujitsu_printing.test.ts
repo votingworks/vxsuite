@@ -47,7 +47,7 @@ test('printReport prints first section and printReportSection can print the rest
         },
       });
 
-      await apiClient.openPolls();
+      void (await apiClient.openPolls());
       await apiClient.printReport();
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()

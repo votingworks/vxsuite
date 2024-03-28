@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/basics';
+import { Result, assert, err, ok } from '@votingworks/basics';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { Store } from './store';
@@ -6,17 +6,30 @@ import { exportCastVoteRecordsToUsbDrive } from './export';
 import { Workspace } from './util/workspace';
 import { getCurrentTime } from './util/get_current_time';
 
+export type OpenPollsResult = Result<void, 'ballots-already-scanned'>;
+
 export async function openPolls({
   store,
   logger,
 }: {
   store: Store;
   logger: Logger;
-}): Promise<void> {
+}): Promise<OpenPollsResult> {
   const previousPollsState = store.getPollsState();
-  const ballotsCounted = store.getBallotsCounted();
   assert(previousPollsState === 'polls_closed_initial');
-  assert(ballotsCounted === 0);
+
+  // Confirm there are no scanned ballots before opening polls, in compliance
+  // with VVSG 2.0 1.1.3-B, even though it should be an impossible app state.
+  const sheetCount = store.getBallotsCounted();
+  if (sheetCount > 0) {
+    await logger.logAsCurrentRole(LogEventId.PollsOpened, {
+      disposition: 'failure',
+      message:
+        'User prevented from opening polls because ballots have already been scanned.',
+      sheetCount,
+    });
+    return err('ballots-already-scanned');
+  }
 
   store.transitionPolls({ type: 'open_polls', time: getCurrentTime() });
   await logger.logAsCurrentRole(LogEventId.PollsOpened, {
@@ -30,6 +43,8 @@ export async function openPolls({
     message: 'New scanning batch started on polls opened.',
     batchId,
   });
+
+  return ok();
 }
 
 export async function closePolls({

@@ -9,7 +9,6 @@ import {
   fakePrintElementToPdf,
 } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import { mockBaseLogger } from '@votingworks/logging';
 import { getContestDistrictName } from '@votingworks/types';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { assert } from '@votingworks/basics';
@@ -54,7 +53,6 @@ afterEach(() => {
 jest.setTimeout(60_000);
 
 test('MarkAndPrint end-to-end flow', async () => {
-  const logger = mockBaseLogger();
   const electionDefinition = electionGeneralDefinition;
   const { electionHash } = electionDefinition;
   apiMock.expectGetMachineConfig({
@@ -66,9 +64,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
   apiMock.expectGetElectionState();
-  render(
-    <App reload={reload} logger={logger} apiClient={apiMock.mockApiClient} />
-  );
+  render(<App reload={reload} apiClient={apiMock.mockApiClient} />);
   const getByTextWithMarkup = withMarkup(screen.getByText);
   const findByTextWithMarkup = withMarkup(screen.findByText);
 

@@ -43,11 +43,12 @@ import {
   ExportCastVoteRecordsToUsbDriveResult,
 } from './export';
 import {
-  closePolls,
   openPolls,
+  OpenPollsResult,
+  closePolls,
   pauseVoting,
-  resetPollsToPaused,
   resumeVoting,
+  resetPollsToPaused,
 } from './polls';
 import { printTestPage } from './printing/test_print';
 import { printFullReport } from './printing/print_full_report';
@@ -238,7 +239,7 @@ export function buildApi({
       store.setTestMode(input.isTestMode);
     },
 
-    async openPolls(): Promise<void> {
+    async openPolls(): Promise<OpenPollsResult> {
       return openPolls({ store, logger });
     },
 
@@ -280,6 +281,10 @@ export function buildApi({
       }
 
       store.setBallotCountWhenBallotBagLastReplaced(store.getBallotsCounted());
+      await logger.logAsCurrentRole(LogEventId.BallotBagReplaced, {
+        disposition: 'success',
+        message: 'The user confirmed that they replaced the ballot bag.',
+      });
     },
 
     async exportCastVoteRecordsToUsbDrive(): Promise<ExportCastVoteRecordsToUsbDriveResult> {

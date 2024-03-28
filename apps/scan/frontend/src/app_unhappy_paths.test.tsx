@@ -5,7 +5,6 @@ import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
 import { ServerError } from '@votingworks/grout';
-import { mockBaseLogger } from '@votingworks/logging';
 import { PrecinctScannerConfig } from '@votingworks/scan-backend';
 import { render, screen, waitFor } from '../test/react_testing_library';
 import {
@@ -18,9 +17,7 @@ import { App, AppProps } from './app';
 let apiMock: ApiMock;
 
 function renderApp(props: Partial<AppProps> = {}) {
-  const logger = mockBaseLogger();
-  render(<App logger={logger} apiClient={apiMock.mockApiClient} {...props} />);
-  return { logger };
+  render(<App apiClient={apiMock.mockApiClient} {...props} />);
 }
 
 beforeEach(() => {

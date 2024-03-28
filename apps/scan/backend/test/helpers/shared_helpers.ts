@@ -95,7 +95,7 @@ export async function configureApp(
   });
   await apiClient.setTestMode({ isTestMode: testMode });
   if (openPolls) {
-    await apiClient.openPolls();
+    void (await apiClient.openPolls());
   }
 
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>

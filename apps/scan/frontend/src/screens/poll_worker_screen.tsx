@@ -17,7 +17,6 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import { ElectionDefinition, PollsTransitionType } from '@votingworks/types';
-import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { Optional, throwIllegalValue } from '@votingworks/basics';
 import styled from 'styled-components';
 import type {
@@ -202,7 +201,6 @@ function getPollsTransitioningText(pollsTransitionType: PollsTransitionType) {
 export interface PollWorkerScreenProps {
   electionDefinition: ElectionDefinition;
   scannedBallotCount: number;
-  logger: BaseLogger;
 }
 
 const ButtonGrid = styled.div`
@@ -216,7 +214,6 @@ function PollWorkerScreenContents({
   electionDefinition,
   pollsInfo,
   scannedBallotCount,
-  logger,
 }: PollWorkerScreenProps & {
   pollsInfo: PrecinctScannerPollsInfo;
 }): JSX.Element {
@@ -279,25 +276,18 @@ function PollWorkerScreenContents({
   }
 
   async function openPolls() {
-    // In compliance with VVSG 2.0 1.1.3-B, confirm there are no scanned
-    // ballots before opening polls, even though this should be an impossible
-    // state in production.
-    if (scannedBallotCount > 0) {
-      setIsShowingBallotsAlreadyScannedScreen(true);
-      await logger.log(LogEventId.PollsOpened, 'poll_worker', {
-        disposition: 'failure',
-        message:
-          'Non-zero ballots scanned count detected upon attempt to open polls.',
-        scannedBallotCount,
-      });
-      return;
-    }
-
     setPollWorkerFlowState({
       type: 'polls-transitioning',
       transitionType: 'open_polls',
     });
-    await openPollsMutation.mutateAsync();
+
+    const openPollsResult = await openPollsMutation.mutateAsync();
+    if (openPollsResult.isErr()) {
+      // VVSG 2.0 1.1.3-B.2: Alert poll worker to non-zero scan count.
+      setIsShowingBallotsAlreadyScannedScreen(true);
+      return;
+    }
+
     const printResult = await printReportMutation.mutateAsync();
     setPollWorkerFlowState({
       type: 'post-print',

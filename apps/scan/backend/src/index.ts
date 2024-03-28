@@ -32,6 +32,7 @@ export type {
   FujitsuPrinterStatus,
   FujitsuPrintResult,
 } from './printing/printer';
+export type { OpenPollsResult } from './polls';
 export * from './types';
 
 loadEnvVarsFromDotenvFiles();

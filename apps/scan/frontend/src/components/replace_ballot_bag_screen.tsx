@@ -10,7 +10,6 @@ import {
   appStrings,
   useExternalStateChangeListener,
 } from '@votingworks/ui';
-import { LogEventId, BaseLogger, LogSource } from '@votingworks/logging';
 import { Screen } from './layout';
 import { BALLOT_BAG_CAPACITY } from '../config/globals';
 import { recordBallotBagReplaced } from '../api';
@@ -19,13 +18,11 @@ import { FullScreenPromptLayout } from './full_screen_prompt_layout';
 interface Props {
   scannedBallotCount: number;
   pollWorkerAuthenticated: boolean;
-  logger: BaseLogger;
 }
 
 export function ReplaceBallotBagScreen({
   scannedBallotCount,
   pollWorkerAuthenticated,
-  logger,
 }: Props): JSX.Element {
   const recordBallotBagReplacedMutation = recordBallotBagReplaced.useMutation();
   const [confirmed, setConfirmed] = useState(false);
@@ -34,15 +31,7 @@ export function ReplaceBallotBagScreen({
     pollWorkerAuthenticated,
     (newPollWorkerAuthenticated) => {
       if (confirmed && !newPollWorkerAuthenticated) {
-        recordBallotBagReplacedMutation.mutate(undefined, {
-          onSuccess: async () => {
-            await logger.log(LogEventId.BallotBagReplaced, 'poll_worker', {
-              disposition: 'success',
-              message:
-                'Poll worker confirmed that they replaced the ballot bag.',
-            });
-          },
-        });
+        recordBallotBagReplacedMutation.mutate();
       }
     }
   );
@@ -107,7 +96,6 @@ export function BallotBagFullAlertPreview(): JSX.Element {
     <ReplaceBallotBagScreen
       scannedBallotCount={BALLOT_BAG_CAPACITY}
       pollWorkerAuthenticated={false}
-      logger={new BaseLogger(LogSource.VxScanFrontend)}
     />
   );
 }
@@ -117,7 +105,6 @@ export function PollWorkerConfirmationFlowPreview(): JSX.Element {
     <ReplaceBallotBagScreen
       scannedBallotCount={BALLOT_BAG_CAPACITY}
       pollWorkerAuthenticated
-      logger={new BaseLogger(LogSource.VxScanFrontend)}
     />
   );
 }
