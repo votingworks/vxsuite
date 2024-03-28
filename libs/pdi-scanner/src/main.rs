@@ -15,8 +15,8 @@ use pdi_scanner::{
         image::{RawImageData, Sheet, DEFAULT_IMAGE_WIDTH},
         packets::Incoming,
         types::{
-            DoubleFeedDetectionCalibrationType, DoubleFeedDetectionMode, EjectMotion, ScanSideMode,
-            Status,
+            DoubleFeedDetectionCalibrationType, DoubleFeedDetectionMode, EjectMotion, FeederMode,
+            ScanSideMode, Status,
         },
     },
     scanner::Scanner,
@@ -74,6 +74,8 @@ enum Command {
     GetScannerStatus,
 
     EnableScanning,
+
+    DisableScanning,
 
     EjectDocument {
         eject_motion: EjectMotion,
@@ -204,6 +206,18 @@ fn main() -> color_eyre::Result<()> {
                 }
                 (Some(client), Command::EnableScanning) => {
                     match client.send_enable_scan_commands() {
+                        Ok(()) => {
+                            send_response(&Response::Ok)?;
+                        }
+                        Err(e) => {
+                            send_response(&Response::Error {
+                                message: e.to_string(),
+                            })?;
+                        }
+                    }
+                }
+                (Some(client), Command::DisableScanning) => {
+                    match client.set_feeder_mode(FeederMode::Disabled) {
                         Ok(()) => {
                             send_response(&Response::Ok)?;
                         }
