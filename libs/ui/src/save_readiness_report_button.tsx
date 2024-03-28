@@ -1,32 +1,52 @@
-import { Button, Font, Loading, Modal, P } from '@votingworks/ui';
 import React, { useState } from 'react';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import path from 'path';
-import { getUsbDriveStatus, saveReadinessReport } from '../api';
-import { InsertUsbDriveModal, UsbImage } from './insert_usb_drive_modal';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import { ExportDataResult } from '@votingworks/backend';
+import { UseMutationResult } from '@tanstack/react-query';
+import { Button } from './button';
+import { Modal } from './modal';
+import { P, Font } from './typography';
+import { Loading } from './loading';
+
+export interface SaveReadinessReportProps {
+  usbDriveStatus: UsbDriveStatus;
+  saveReadinessReportMutation: UseMutationResult<
+    ExportDataResult,
+    unknown,
+    void,
+    unknown
+  >;
+  usbImage?: React.ReactNode;
+}
 
 function SaveReadinessReportModal({
+  usbDriveStatus,
+  saveReadinessReportMutation,
+  usbImage,
   onClose,
-}: {
+}: SaveReadinessReportProps & {
   onClose: () => void;
 }): JSX.Element | null {
-  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
-  const saveReadinessReportMutation = saveReadinessReport.useMutation();
-
-  if (!usbDriveStatusQuery.isSuccess) {
-    return null;
-  }
-  const usbDriveStatus = usbDriveStatusQuery.data;
-
   const mutationStatus = saveReadinessReportMutation.status;
   assert(mutationStatus !== 'error');
   switch (mutationStatus) {
     case 'idle':
       if (usbDriveStatus.status !== 'mounted') {
         return (
-          <InsertUsbDriveModal
-            onClose={onClose}
-            message="Please insert a USB drive in order to save the readiness report."
+          <Modal
+            title="No USB Drive Detected"
+            content={
+              <React.Fragment>
+                {usbImage}
+                <P>
+                  Please insert a USB drive in order to save the readiness
+                  report.
+                </P>
+              </React.Fragment>
+            }
+            onOverlayClick={onClose}
+            actions={<Button onPress={onClose}>Cancel</Button>}
           />
         );
       }
@@ -36,7 +56,7 @@ function SaveReadinessReportModal({
           title="Save Readiness Report"
           content={
             <React.Fragment>
-              <UsbImage />
+              {usbImage}
               <P>
                 The readiness report will be saved to the mounted USB drive.
               </P>
@@ -97,7 +117,9 @@ function SaveReadinessReportModal({
   }
 }
 
-export function SaveReadinessReportButton(): JSX.Element {
+export function SaveReadinessReportButton(
+  props: SaveReadinessReportProps
+): JSX.Element {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
@@ -106,7 +128,10 @@ export function SaveReadinessReportButton(): JSX.Element {
         Save Readiness Report
       </Button>
       {isModalOpen && (
-        <SaveReadinessReportModal onClose={() => setIsModalOpen(false)} />
+        <SaveReadinessReportModal
+          {...props}
+          onClose={() => setIsModalOpen(false)}
+        />
       )}
     </React.Fragment>
   );

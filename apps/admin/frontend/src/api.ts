@@ -817,10 +817,10 @@ export const printTestPage = {
   },
 } as const;
 
-export const printReadinessReport = {
+export const saveReadinessReport = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.printReadinessReport);
+    return useMutation(apiClient.saveReadinessReport);
   },
 } as const;
 

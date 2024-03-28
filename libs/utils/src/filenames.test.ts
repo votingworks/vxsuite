@@ -9,6 +9,7 @@ import {
   generateCastVoteRecordExportDirectoryName,
   CastVoteRecordExportDirectoryNameComponents,
   parseCastVoteRecordReportExportDirectoryName,
+  generateReadinessReportFilename,
 } from './filenames';
 
 describe('generateElectionBasedSubfolderName', () => {
@@ -212,3 +213,17 @@ test.each<{
     );
   }
 );
+
+test('generateReadinessReportFilename', () => {
+  const machineId = 'SCAN-0001';
+  const generatedAtTime = new Date(2023, 7, 16, 17, 2, 24);
+  const expectedFilename =
+    'readiness-report__SCAN-0001__2023-08-16_17-02-24.pdf';
+
+  const result = generateReadinessReportFilename({
+    machineId,
+    generatedAtTime,
+  });
+
+  expect(result).toEqual(expectedFilename);
+});

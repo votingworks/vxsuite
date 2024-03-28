@@ -125,7 +125,7 @@ import {
   exportTallyReportPdf,
 } from './reports/tally_report';
 import { printTestPage } from './reports/test_print';
-import { printReadinessReport } from './reports/readiness';
+import { saveReadinessReport } from './reports/readiness';
 import { constructAuthMachineState } from './util/auth';
 
 const debug = rootDebug.extend('app');
@@ -992,10 +992,11 @@ function buildApi({
       });
     },
 
-    async printReadinessReport(): Promise<void> {
-      await printReadinessReport({
+    async saveReadinessReport(): Promise<ExportDataResult> {
+      return saveReadinessReport({
         workspace,
         printer,
+        usbDrive,
         logger,
       });
     },

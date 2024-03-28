@@ -1,25 +1,29 @@
 import { AdminReadinessReport } from '@votingworks/ui';
 import { Printer, renderToPdf } from '@votingworks/printing';
 import { LogEventId, Logger } from '@votingworks/logging';
-import { assert } from '@votingworks/basics';
-import { VX_MACHINE_ID, getBatteryInfo } from '@votingworks/backend';
+import {
+  ExportDataResult,
+  Exporter,
+  VX_MACHINE_ID,
+  getBatteryInfo,
+} from '@votingworks/backend';
+import { generateReadinessReportFilename } from '@votingworks/utils';
+import { UsbDrive } from '@votingworks/usb-drive';
 import { Workspace } from '../util/workspace';
 import { getCurrentTime } from '../util/get_current_time';
+import { ADMIN_ALLOWED_EXPORT_PATTERNS } from '../globals';
 
-/**
- * Prints the VxAdmin hardware readiness report.
- */
-export async function printReadinessReport({
+async function getReadinessReport({
   workspace,
   printer,
-  logger,
+  generatedAtTime = new Date(getCurrentTime()),
 }: {
   workspace: Workspace;
   printer: Printer;
-  logger: Logger;
-}): Promise<void> {
+  generatedAtTime?: Date;
+}): Promise<JSX.Element> {
   const { store } = workspace;
-  const report = AdminReadinessReport({
+  return AdminReadinessReport({
     /* c8 ignore start */
     batteryInfo: (await getBatteryInfo()) ?? undefined,
     /* c8 ignore stop */
@@ -28,20 +32,54 @@ export async function printReadinessReport({
     mostRecentPrinterDiagnostic:
       store.getMostRecentDiagnosticRecord('test-print'),
     machineId: VX_MACHINE_ID,
-    generatedAtTime: new Date(getCurrentTime()),
+    generatedAtTime,
   });
+}
 
-  try {
-    await printer.print({ data: await renderToPdf({ document: report }) });
-    await logger.logAsCurrentRole(LogEventId.ReadinessReportPrinted, {
-      message: `User printed the equipment readiness report.`,
+/**
+ * Saves the VxAdmin hardware readiness report to the USB drive.
+ */
+export async function saveReadinessReport({
+  workspace,
+  printer,
+  usbDrive,
+  logger,
+}: {
+  workspace: Workspace;
+  printer: Printer;
+  usbDrive: UsbDrive;
+  logger: Logger;
+}): Promise<ExportDataResult> {
+  const generatedAtTime = new Date(getCurrentTime());
+  const report = await getReadinessReport({ workspace, printer });
+
+  const data = await renderToPdf({ document: report });
+  const exporter = new Exporter({
+    usbDrive,
+    allowedExportPatterns: ADMIN_ALLOWED_EXPORT_PATTERNS,
+  });
+  const exportFileResult = await exporter.exportDataToUsbDrive(
+    '.',
+    generateReadinessReportFilename({
+      generatedAtTime,
+      machineId: VX_MACHINE_ID,
+    }),
+    data
+  );
+
+  if (exportFileResult.isOk()) {
+    await logger.logAsCurrentRole(LogEventId.ReadinessReportSaved, {
+      message: `User saved the equipment readiness report to a USB drive.`,
       disposition: 'success',
     });
-  } catch (error) {
-    assert(error instanceof Error);
-    await logger.logAsCurrentRole(LogEventId.ReadinessReportPrinted, {
-      message: `Error in attempting to print the equipment readiness report: ${error.message}`,
+  } else {
+    await logger.logAsCurrentRole(LogEventId.ReadinessReportSaved, {
+      message: `Error while attempting to save the equipment readiness report to a USB drive: ${
+        exportFileResult.err().message
+      }`,
       disposition: 'failure',
     });
   }
+
+  return exportFileResult;
 }

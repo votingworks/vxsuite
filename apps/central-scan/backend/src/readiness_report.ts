@@ -9,18 +9,12 @@ import {
   getBatteryInfo,
 } from '@votingworks/backend';
 import { renderToPdf } from '@votingworks/printing';
-import { generateFileTimeSuffix } from '@votingworks/utils';
+import { generateReadinessReportFilename } from '@votingworks/utils';
 import { Workspace } from './util/workspace';
 import { getCurrentTime } from './util/get_current_time';
 
-function getReportFilename(time: Date): string {
-  return `readiness-report__${VX_MACHINE_ID}__${generateFileTimeSuffix(
-    time
-  )}.pdf`;
-}
-
 /**
- * Prints the VxAdmin hardware readiness report.
+ * Saves the VxCentralScan hardware readiness report to the USB drive.
  */
 export async function saveReadinessReport({
   workspace,
@@ -34,7 +28,7 @@ export async function saveReadinessReport({
   logger: Logger;
 }): Promise<ExportDataResult> {
   const { store } = workspace;
-  const reportDate = new Date(getCurrentTime());
+  const generatedAtTime = new Date(getCurrentTime());
   const report = CentralScanReadinessReport({
     /* c8 ignore start */
     batteryInfo: (await getBatteryInfo()) ?? undefined,
@@ -44,7 +38,7 @@ export async function saveReadinessReport({
     mostRecentScannerDiagnostic:
       store.getMostRecentDiagnosticRecord('blank-sheet-scan'),
     machineId: VX_MACHINE_ID,
-    generatedAtTime: reportDate,
+    generatedAtTime,
   });
 
   const data = await renderToPdf({ document: report });
@@ -54,7 +48,10 @@ export async function saveReadinessReport({
   });
   const exportFileResult = await exporter.exportDataToUsbDrive(
     '.',
-    getReportFilename(reportDate),
+    generateReadinessReportFilename({
+      generatedAtTime,
+      machineId: VX_MACHINE_ID,
+    }),
     data
   );
 

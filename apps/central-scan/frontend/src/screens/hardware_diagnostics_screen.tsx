@@ -1,13 +1,18 @@
-import { CentralScanReadinessReportContents } from '@votingworks/ui';
+import {
+  CentralScanReadinessReportContents,
+  SaveReadinessReportButton,
+  UsbImage,
+} from '@votingworks/ui';
 import styled from 'styled-components';
 import { NavigationScreen } from '../navigation_screen';
 import {
   getApplicationDiskSpaceSummary,
   getMostRecentScannerDiagnostic,
   getStatus,
+  getUsbDriveStatus,
+  saveReadinessReport,
   systemCallApi,
 } from '../api';
-import { SaveReadinessReportButton } from '../components/save_readiness_report_button';
 import { TestScanButton } from '../components/test_scan_button';
 
 const PageLayout = styled.div`
@@ -23,12 +28,15 @@ export function HardwareDiagnosticsScreen(): JSX.Element {
   const diskSpaceQuery = getApplicationDiskSpaceSummary.useQuery();
   const scannerDiagnosticRecordQuery =
     getMostRecentScannerDiagnostic.useQuery();
+  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
+  const saveReadinessReportMutation = saveReadinessReport.useMutation();
 
   if (
     !batteryInfoQuery.isSuccess ||
     !diskSpaceQuery.isSuccess ||
     !scannerDiagnosticRecordQuery.isSuccess ||
-    !statusQuery.isSuccess
+    !statusQuery.isSuccess ||
+    !usbDriveStatusQuery.isSuccess
   ) {
     return (
       <NavigationScreen title="Hardware Diagnostics">{null}</NavigationScreen>
@@ -53,7 +61,11 @@ export function HardwareDiagnosticsScreen(): JSX.Element {
           />
           <TestScanButton />
         </div>
-        <SaveReadinessReportButton />
+        <SaveReadinessReportButton
+          usbDriveStatus={usbDriveStatusQuery.data}
+          saveReadinessReportMutation={saveReadinessReportMutation}
+          usbImage={<UsbImage />}
+        />
       </PageLayout>
     </NavigationScreen>
   );

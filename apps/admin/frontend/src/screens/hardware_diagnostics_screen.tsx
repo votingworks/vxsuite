@@ -1,4 +1,7 @@
-import { AdminReadinessReportContents } from '@votingworks/ui';
+import {
+  AdminReadinessReportContents,
+  SaveReadinessReportButton,
+} from '@votingworks/ui';
 
 import styled from 'styled-components';
 import { NavigationScreen } from '../components/navigation_screen';
@@ -7,11 +10,12 @@ import {
   getPrinterStatus,
   getApplicationDiskSpaceSummary,
   systemCallApi,
-  printReadinessReport,
+  saveReadinessReport,
+  getUsbDriveStatus,
 } from '../api';
 import { Loading } from '../components/loading';
 import { PrintTestPageButton } from '../components/print_diagnostic_button';
-import { PrintButton } from '../components/print_button';
+import { UsbImage } from '../components/save_backend_file_modal';
 
 const PageLayout = styled.div`
   display: flex;
@@ -25,13 +29,15 @@ export function HardwareDiagnosticsScreen(): JSX.Element {
   const printerStatusQuery = getPrinterStatus.useQuery();
   const diskSpaceQuery = getApplicationDiskSpaceSummary.useQuery();
   const diagnosticRecordQuery = getMostRecentPrinterDiagnostic.useQuery();
-  const printReadinessReportMutation = printReadinessReport.useMutation();
+  const saveReadinessReportMutation = saveReadinessReport.useMutation();
+  const getUsbDriveStatusQuery = getUsbDriveStatus.useQuery();
 
   if (
     !batteryInfoQuery.isSuccess ||
     !printerStatusQuery.isSuccess ||
     !diagnosticRecordQuery.isSuccess ||
-    !diskSpaceQuery.isSuccess
+    !diskSpaceQuery.isSuccess ||
+    !getUsbDriveStatusQuery.isSuccess
   ) {
     return (
       <NavigationScreen title="Hardware Diagnostics">
@@ -57,9 +63,13 @@ export function HardwareDiagnosticsScreen(): JSX.Element {
           />
           <PrintTestPageButton />
         </div>
-        <PrintButton print={() => printReadinessReportMutation.mutateAsync()}>
-          Print Readiness Report
-        </PrintButton>
+        <SaveReadinessReportButton
+          usbDriveStatus={getUsbDriveStatusQuery.data}
+          saveReadinessReportMutation={saveReadinessReportMutation}
+          usbImage={
+            <UsbImage src="/assets/usb-drive.svg" alt="Insert USB Image" />
+          }
+        />
       </PageLayout>
     </NavigationScreen>
   );

@@ -1,5 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import { PrinterConfig } from '@votingworks/types';
+import { ok } from '@votingworks/basics';
 import { screen, within, act } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
@@ -12,6 +13,7 @@ let apiMock: ApiMock;
 beforeEach(() => {
   jest.useFakeTimers().setSystemTime(new Date('2022-06-22T00:00:00.000'));
   apiMock = createApiMock();
+  apiMock.expectGetUsbDriveStatus('mounted');
 });
 
 afterEach(() => {
@@ -204,7 +206,7 @@ describe('disk space summary', () => {
   });
 });
 
-test('printing the readiness report', async () => {
+test('saving the readiness report', async () => {
   apiMock.setPrinterStatus({ connected: true });
   apiMock.expectGetApplicationDiskSpaceSummary();
   apiMock.expectGetMostRecentPrinterDiagnostic();
@@ -212,8 +214,10 @@ test('printing the readiness report', async () => {
     apiMock,
   });
 
-  apiMock.apiClient.printReadinessReport.expectCallWith().resolves();
-  userEvent.click(await screen.findButton('Print Readiness Report'));
+  userEvent.click(await screen.findButton('Save Readiness Report'));
   const modal = await screen.findByRole('alertdialog');
-  within(modal).getByText('Printing');
+  apiMock.apiClient.saveReadinessReport
+    .expectCallWith()
+    .resolves(ok(['mock.pdf']));
+  userEvent.click(within(modal).getByText('Save'));
 });
