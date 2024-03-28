@@ -6,7 +6,6 @@ import {
   isElectionManagerAuth,
   isPollWorkerAuth,
 } from '@votingworks/utils';
-import { BaseLogger } from '@votingworks/logging';
 
 import { assert } from '@votingworks/basics';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
@@ -38,11 +37,7 @@ import { LoginPromptScreen } from './screens/login_prompt_screen';
 import { CastVoteRecordSyncRequiredScreen } from './screens/cast_vote_record_sync_required_screen';
 import { SystemAdministratorScreen } from './screens/system_administrator_screen';
 
-export interface Props {
-  logger: BaseLogger;
-}
-
-export function AppRoot({ logger }: Props): JSX.Element | null {
+export function AppRoot(): JSX.Element | null {
   const authStatusQuery = getAuthStatus.useQuery();
   const configQuery = getConfig.useQuery();
   const pollsInfoQuery = getPollsInfo.useQuery();
@@ -200,7 +195,6 @@ export function AppRoot({ logger }: Props): JSX.Element | null {
       <ReplaceBallotBagScreen
         scannedBallotCount={scannerStatus.ballotsCounted}
         pollWorkerAuthenticated={isPollWorkerAuth(authStatus)}
-        logger={logger}
       />
     );
   }

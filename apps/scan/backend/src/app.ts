@@ -281,6 +281,10 @@ export function buildApi({
       }
 
       store.setBallotCountWhenBallotBagLastReplaced(store.getBallotsCounted());
+      await logger.logAsCurrentRole(LogEventId.BallotBagReplaced, {
+        disposition: 'success',
+        message: 'The user confirmed that they replaced the ballot bag.',
+      });
     },
 
     async exportCastVoteRecordsToUsbDrive(): Promise<ExportCastVoteRecordsToUsbDriveResult> {

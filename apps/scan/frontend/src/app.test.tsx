@@ -1,5 +1,4 @@
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import { mockBaseLogger, LogEventId } from '@votingworks/logging';
 import userEvent from '@testing-library/user-event';
 import {
   advanceTimersAndPromises,
@@ -46,9 +45,7 @@ let apiMock: ApiMock;
 jest.setTimeout(20000);
 
 function renderApp(props: Partial<AppProps> = {}) {
-  const logger = mockBaseLogger();
-  render(<App logger={logger} apiClient={apiMock.mockApiClient} {...props} />);
-  return { logger };
+  render(<App apiClient={apiMock.mockApiClient} {...props} />);
 }
 
 /**
@@ -859,7 +856,7 @@ test('replace ballot bag flow', async () => {
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
-  const { logger } = renderApp();
+  renderApp();
   await screen.findByText(/Insert Your Ballot/i);
 
   await scanBallot();
@@ -902,12 +899,6 @@ test('replace ballot bag flow', async () => {
   apiMock.removeCard();
   await advanceTimersAndPromises(3);
   await screen.findByText(/Insert Your Ballot/i);
-
-  expect(logger.log).toHaveBeenCalledWith(
-    LogEventId.BallotBagReplaced,
-    'poll_worker',
-    expect.anything()
-  );
 
   // Does not prompt again if new threshold hasn't been reached
   apiMock.expectGetScannerStatus(

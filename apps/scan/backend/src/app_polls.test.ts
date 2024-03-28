@@ -251,6 +251,13 @@ test('scanner batch flow', async () => {
           batchId: batch2Id,
         })
       );
+      expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+        LogEventId.BallotBagReplaced,
+        expect.objectContaining({
+          disposition: 'success',
+          message: 'The user confirmed that they replaced the ballot bag.',
+        })
+      );
 
       batchIds = getBatchIds();
       expect(batchIds).toHaveLength(3);
