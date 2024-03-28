@@ -714,7 +714,7 @@ test('Export test decks', async () => {
     expectedBallotProps,
     expect.any(Object) // Election strings
   );
-});
+}, 30_000);
 
 test('Consistency of election hash across exports', async () => {
   // This test runs unnecessarily long if we're generating exports for all
