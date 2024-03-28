@@ -304,10 +304,10 @@ fn main() -> color_eyre::Result<()> {
         if let Some(client) = &mut client {
             if let Ok(event) = client.try_recv_matching(Incoming::is_event) {
                 eprintln!("event: {:?}", event);
-                // TODO: pass the event as JSON via stdout
                 match event {
                     Incoming::BeginScanEvent => {
                         raw_image_data = RawImageData::new();
+                        send_response(&Response::ScanStart)?;
                     }
                     Incoming::EndScanEvent => {
                         match raw_image_data
