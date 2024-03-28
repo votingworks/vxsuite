@@ -27,12 +27,14 @@ const queryClient = new QueryClient({
 
 function MockComponent({
   usbDriveStatus,
+  usbImage,
 }: Omit<SaveReadinessReportProps, 'saveReadinessReportMutation'>): JSX.Element {
   const mutation = useMutation(jestMockMutate);
   return (
     <SaveReadinessReportButton
       saveReadinessReportMutation={mutation}
       usbDriveStatus={usbDriveStatus}
+      usbImage={usbImage}
     />
   );
 }
