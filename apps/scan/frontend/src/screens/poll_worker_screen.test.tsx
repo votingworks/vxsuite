@@ -35,12 +35,6 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   };
 });
 
-const currentTime = new Date();
-
-jest.mock('../utils/get_current_time', () => ({
-  getCurrentTime: () => currentTime.getTime(),
-}));
-
 beforeEach(() => {
   featureFlagMock.resetFeatureFlags();
   window.location.href = '/';

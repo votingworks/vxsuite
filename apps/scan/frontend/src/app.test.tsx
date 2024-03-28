@@ -64,12 +64,6 @@ async function hackActuallyCleanUpReactModal() {
   window.document.body.firstElementChild?.removeAttribute('aria-hidden');
 }
 
-const currentTime = new Date();
-
-jest.mock('./utils/get_current_time', () => ({
-  getCurrentTime: () => currentTime.getTime(),
-}));
-
 beforeEach(() => {
   jest.useFakeTimers();
 

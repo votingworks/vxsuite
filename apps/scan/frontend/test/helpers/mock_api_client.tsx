@@ -29,10 +29,9 @@ import {
   fakeSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
-import { TestErrorBoundary } from '@votingworks/ui';
+import { TestErrorBoundary, mockUsbDriveStatus } from '@votingworks/ui';
 import { BROTHER_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
 import type { BatteryInfo } from '@votingworks/backend';
-import { mockUsbDriveStatus } from './mock_usb_drive';
 import { mockPollsInfo } from './mock_polls_info';
 import { ApiProvider } from '../../src/api_provider';
 
@@ -144,9 +143,11 @@ export function createApiMock() {
       status: UsbDriveStatus['status'],
       options: { doesUsbDriveRequireCastVoteRecordSync?: true } = {}
     ): void {
-      mockApiClient.getUsbDriveStatus
-        .expectRepeatedCallsWith()
-        .resolves(mockUsbDriveStatus(status, options));
+      mockApiClient.getUsbDriveStatus.expectRepeatedCallsWith().resolves({
+        ...mockUsbDriveStatus(status),
+        doesUsbDriveRequireCastVoteRecordSync:
+          options.doesUsbDriveRequireCastVoteRecordSync,
+      });
     },
 
     expectGetMachineConfig(): void {

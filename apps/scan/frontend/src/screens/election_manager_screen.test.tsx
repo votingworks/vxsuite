@@ -6,6 +6,7 @@ import {
 import { fakeKiosk } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { ok } from '@votingworks/basics';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import {
   act,
   render,
@@ -24,7 +25,6 @@ import {
   ElectionManagerScreen,
   ElectionManagerScreenProps,
 } from './election_manager_screen';
-import { mockUsbDriveStatus } from '../../test/helpers/mock_usb_drive';
 
 let apiMock: ApiMock;
 
