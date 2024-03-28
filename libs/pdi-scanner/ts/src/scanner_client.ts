@@ -4,6 +4,7 @@ import { createInterface } from 'readline';
 import {
   Deferred,
   Result,
+  assertDefined,
   deferred,
   err,
   ok,
@@ -16,9 +17,15 @@ import makeDebug from 'debug';
 
 const debug = makeDebug('pdi-scanner');
 
-const PDICTL_PATH = path.join(__dirname, '../../../../target/release/pdictl');
+const PDICTL_PATH = path.join(
+  assertDefined(__dirname.split('libs')[0]),
+  'target/release/pdictl'
+);
 
-interface ScannerStatus {
+/**
+ * The status of the PDI scanner.
+ */
+export interface ScannerStatus {
   rearLeftSensorCovered: boolean;
   rearRightSensorCovered: boolean;
   branderPositionSensorCovered: boolean;
@@ -41,6 +48,15 @@ interface ScannerStatus {
   calibrationOfUnitNeeded: boolean;
 }
 
+/**
+ * An event emitted by the scanner client *not* in response to a command. Can be
+ * received by adding a listener to the client.
+ */
+export type ScannerEvent =
+  | { type: 'error'; message: string }
+  | { type: 'scanStart' }
+  | { type: 'scanComplete'; images: SheetOf<ImageData> };
+
 type EjectMotion = 'toRear' | 'toFront' | 'toFrontAndHold';
 
 type PdictlCommand =
@@ -62,13 +78,23 @@ type PdictlResponse =
   | { type: 'scanStart' }
   | { type: 'scanComplete'; imageData: [string, string] };
 
-type Event =
-  | { type: 'error'; message: string }
-  | { type: 'scanStart' }
-  | { type: 'scanComplete'; images: SheetOf<ImageData> };
-type Listener = (event: Event) => void;
+type Listener = (event: ScannerEvent) => void;
 
 type SimpleResult = Result<void, string>;
+
+function loggableResponse(response: PdictlResponse) {
+  switch (response.type) {
+    case 'scanComplete':
+      return {
+        ...response,
+        imageData: response.imageData.map((imageData) => {
+          return `${imageData.length} bytes`;
+        }),
+      };
+    default:
+      return response;
+  }
+}
 
 /**
  * Creates a client for the PDI scanner. Spawns a `pdictl` process and
@@ -80,7 +106,7 @@ export function createPdiScannerClient() {
   let pdictlIsClosed = false;
 
   let listeners: Listener[] = [];
-  function emit(event: Event) {
+  function emit(event: ScannerEvent) {
     for (const listener of listeners) {
       listener(event);
     }
@@ -90,7 +116,7 @@ export function createPdiScannerClient() {
   const rl = createInterface(pdictl.stdout);
   rl.on('line', (line) => {
     const response = JSON.parse(line) as PdictlResponse;
-    debug('received:', response);
+    debug('received:', loggableResponse(response));
     switch (response.type) {
       case 'scanStart': {
         emit(response);
@@ -172,8 +198,9 @@ export function createPdiScannerClient() {
       return sendSimpleCommand({ type: 'connect' });
     },
 
-    addListener(listener: Listener): void {
+    addListener(listener: Listener): Listener {
       listeners.push(listener);
+      return listener;
     },
 
     removeListener(listener: Listener): void {

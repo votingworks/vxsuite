@@ -2378,6 +2378,9 @@ importers:
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../../../libs/logging
+      '@votingworks/pdi-scanner':
+        specifier: workspace:^
+        version: link:../../../libs/pdi-scanner
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../../libs/printing
