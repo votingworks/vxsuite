@@ -263,3 +263,9 @@ impl Scanner {
         }
     }
 }
+
+impl Drop for Scanner {
+    fn drop(&mut self) {
+        self.stop(StopMode::CancelPendingTransfers);
+    }
+}
