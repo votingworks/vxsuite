@@ -59,66 +59,66 @@ fn setup_logging(config: &Config) -> color_eyre::Result<()> {
 }
 
 #[derive(Debug, serde::Deserialize)]
-#[serde(tag = "type")]
-#[serde(rename_all = "camelCase")]
+#[serde(
+    tag = "type",
+    rename_all = "camelCase",
+    rename_all_fields = "camelCase"
+)]
 enum Command {
-    #[serde(rename = "exit")]
     Exit,
 
-    #[serde(rename = "connect")]
     Connect,
 
-    #[serde(rename = "disconnect")]
     Disconnect,
 
-    #[serde(rename = "get_scanner_status")]
     GetScannerStatus,
 
-    #[serde(rename = "enable_scanning")]
     EnableScanning,
 
-    #[serde(rename = "eject")]
-    #[serde(rename_all = "camelCase")]
-    EjectDocument { eject_motion: EjectMotion },
+    EjectDocument {
+        eject_motion: EjectMotion,
+    },
 
-    #[serde(rename = "enable_msd")]
-    EnableMsd { enable: bool },
+    EnableMsd {
+        enable: bool,
+    },
 
-    #[serde(rename = "calibrate_msd")]
-    #[serde(rename_all = "camelCase")]
     CalibrateMsd {
         calibration_type: DoubleFeedDetectionCalibrationType,
     },
 
-    #[serde(rename = "get_msd_calibration_config")]
     GetMsdCalibrationConfig,
 }
 
 #[derive(Debug, serde::Serialize)]
-#[serde(tag = "type")]
+#[serde(
+    tag = "type",
+    rename_all = "camelCase",
+    rename_all_fields = "camelCase"
+)]
 enum Response {
-    #[serde(rename = "ok")]
     Ok,
 
-    #[serde(rename = "error")]
-    Err { message: String },
+    Error {
+        message: String,
+    },
 
-    #[serde(rename = "scan_complete")]
-    #[serde(rename_all = "camelCase")]
-    ScanComplete { image_data: (String, String) },
+    ScannerStatus {
+        status: Status,
+    },
 
-    #[serde(rename = "msd_calibration_config")]
-    #[serde(rename_all = "camelCase")]
+    ScanStart,
+
+    ScanComplete {
+        image_data: (String, String),
+    },
+
     MsdCalibrationConfig {
         led_intensity: u16,
         single_sheet_calibration_value: u16,
         double_sheet_calibration_value: u16,
         threshold_value: u16,
     },
-
-    #[serde(rename = "scanner_status")]
-    #[serde(rename_all = "camelCase")]
-    ScannerStatus { status: Status },
 }
 
 fn send_response(response: &Response) -> color_eyre::Result<()> {
@@ -162,7 +162,7 @@ fn main() -> color_eyre::Result<()> {
                     exit(0)
                 }
                 (Some(_), Command::Connect) => {
-                    send_response(&Response::Err {
+                    send_response(&Response::Error {
                         message: "already connected".to_string(),
                     })?;
                 }
@@ -173,7 +173,7 @@ fn main() -> color_eyre::Result<()> {
                                 send_response(&Response::Ok)?;
                             }
                             Err(e) => {
-                                send_response(&Response::Err {
+                                send_response(&Response::Error {
                                     message: e.to_string(),
                                 })?;
                             }
@@ -181,7 +181,7 @@ fn main() -> color_eyre::Result<()> {
                         client = Some(c);
                     }
                     Err(e) => {
-                        send_response(&Response::Err {
+                        send_response(&Response::Error {
                             message: e.to_string(),
                         })?;
                     }
@@ -196,7 +196,7 @@ fn main() -> color_eyre::Result<()> {
                             send_response(&Response::ScannerStatus { status })?;
                         }
                         Err(e) => {
-                            send_response(&Response::Err {
+                            send_response(&Response::Error {
                                 message: e.to_string(),
                             })?;
                         }
@@ -208,7 +208,7 @@ fn main() -> color_eyre::Result<()> {
                             send_response(&Response::Ok)?;
                         }
                         Err(e) => {
-                            send_response(&Response::Err {
+                            send_response(&Response::Error {
                                 message: e.to_string(),
                             })?;
                         }
@@ -220,7 +220,7 @@ fn main() -> color_eyre::Result<()> {
                             send_response(&Response::Ok)?;
                         }
                         Err(e) => {
-                            send_response(&Response::Err {
+                            send_response(&Response::Error {
                                 message: e.to_string(),
                             })?;
                         }
@@ -236,7 +236,7 @@ fn main() -> color_eyre::Result<()> {
                             send_response(&Response::Ok)?;
                         }
                         Err(e) => {
-                            send_response(&Response::Err {
+                            send_response(&Response::Error {
                                 message: e.to_string(),
                             })?;
                         }
@@ -248,7 +248,7 @@ fn main() -> color_eyre::Result<()> {
                             send_response(&Response::Ok)?;
                         }
                         Err(e) => {
-                            send_response(&Response::Err {
+                            send_response(&Response::Error {
                                 message: e.to_string(),
                             })?;
                         }
@@ -267,14 +267,14 @@ fn main() -> color_eyre::Result<()> {
                             })?;
                         }
                         Err(e) => {
-                            send_response(&Response::Err {
+                            send_response(&Response::Error {
                                 message: e.to_string(),
                             })?;
                         }
                     }
                 }
                 (None, _) => {
-                    send_response(&Response::Err {
+                    send_response(&Response::Error {
                         message: "scanner not connected".to_string(),
                     })?;
                 }
@@ -324,7 +324,7 @@ fn main() -> color_eyre::Result<()> {
                                 ScanSideMode::Duplex
                             ),
                             Err(e) => {
-                                send_response(&Response::Err {
+                                send_response(&Response::Error {
                                     message: format!(
                                         "failed to decode the scanned image data: {e}"
                                     ),
