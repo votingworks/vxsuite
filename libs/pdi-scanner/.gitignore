@@ -1,0 +1,5 @@
+target
+*.bmp
+/*.jpeg
+scan-*.png
+ts/src/images

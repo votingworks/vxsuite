@@ -78,7 +78,11 @@ export class UsbChannel implements DuplexChannel {
   async connect(): Promise<Result<void, ErrorCode>> {
     try {
       if (!this.connected) {
-        debug('not connected, attempting to open and claim interface');
+        debug(
+          'not connected, attempting to open and claim interface (configuration=%s, interface=%s)',
+          this.options.configurationValue,
+          this.options.interfaceNumber
+        );
         await this.device.open();
         await this.device.selectConfiguration(this.options.configurationValue);
         await this.device.claimInterface(this.options.interfaceNumber);

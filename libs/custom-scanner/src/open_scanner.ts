@@ -40,12 +40,7 @@ export async function openScanner(): Promise<Result<CustomScanner, ErrorCode>> {
     debug('found device: %o', legacyDevice);
     const customA4ScannerChannel = new UsbChannel(
       await WebUSBDevice.createInstance(legacyDevice),
-      {
-        configurationValue: 1,
-        interfaceNumber: 0,
-        readEndpointNumber: 1,
-        writeEndpointNumber: 2,
-      }
+      CustomA4ScannerChannelOptions
     );
     const connectResult = await customA4ScannerChannel.connect();
 
