@@ -42,9 +42,11 @@
     "@votingworks/basics": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
+    "debug": "4.3.4",
     "zod": "3.14.4"
   },
   "devDependencies": {
+    "@types/debug": "4.1.8",
     "@types/node": "16.18.23",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
