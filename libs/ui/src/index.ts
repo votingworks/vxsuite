@@ -1,4 +1,5 @@
 /* istanbul ignore file */
+export * from './accessible_controllers';
 export * from './app_base';
 export * from './auth';
 export * from './big_metric';

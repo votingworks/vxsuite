@@ -7,12 +7,10 @@ import {
   P,
   Screen,
   ACCESSIBILITY_KEYBINDINGS,
+  MarkScanControllerIllustration,
+  MarkScanControllerButton,
 } from '@votingworks/ui';
 import styled from 'styled-components';
-import {
-  ControllerButton,
-  AccessibleControllerIllustration,
-} from '../components/accessible_controller_illustration';
 import { addDiagnosticRecord } from '../api';
 
 const StepContainer = styled.div`
@@ -32,7 +30,7 @@ const StepContainer = styled.div`
 `;
 
 interface DiagnosticStep {
-  button: ControllerButton;
+  button: MarkScanControllerButton;
   label: string;
   key: string;
 }
@@ -125,7 +123,7 @@ function AccessibleControllerButtonDiagnostic({
       <H3>
         {stepIndex + 1}. Press the {step.label.toLowerCase()} button.
       </H3>
-      <AccessibleControllerIllustration highlight={step.button} />
+      <MarkScanControllerIllustration highlight={step.button} />
 
       <Button
         onPress={() =>

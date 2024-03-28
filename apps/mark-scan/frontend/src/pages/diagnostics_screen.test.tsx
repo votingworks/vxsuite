@@ -1,5 +1,6 @@
 import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
+import { MARK_SCAN_CONTROLLER_ILLUSTRATION_HIGHLIGHT_FILL } from '@votingworks/ui';
 import {
   fireEvent,
   render,
@@ -16,7 +17,6 @@ import {
   provideApi,
 } from '../../test/helpers/mock_api_client';
 import { DIAGNOSTIC_STEPS } from './accessible_controller_diagnostic_screen';
-import { HIGHLIGHT_FILL } from '../components/accessible_controller_illustration';
 
 let apiMock: ApiMock;
 
@@ -93,7 +93,10 @@ test('accessible controller diagnostic - pass', async () => {
       .getByTitle('Accessible Controller Illustration')
       .closest('svg') as unknown as HTMLElement;
     const element = within(illustration).getByTestId(step.button);
-    expect(element).toHaveAttribute('fill', HIGHLIGHT_FILL);
+    expect(element).toHaveAttribute(
+      'fill',
+      MARK_SCAN_CONTROLLER_ILLUSTRATION_HIGHLIGHT_FILL
+    );
     screen.getButton(`${step.label} Button is Not Working`);
     fireEvent.keyDown(illustration, { key: step.key });
   }
