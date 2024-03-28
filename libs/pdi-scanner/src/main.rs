@@ -305,10 +305,10 @@ fn main() -> color_eyre::Result<()> {
         if let Some((_, client)) = &mut scanner_and_client {
             if let Ok(event) = client.try_recv_matching(Incoming::is_event) {
                 eprintln!("event: {:?}", event);
-                // TODO: pass the event as JSON via stdout
                 match event {
                     Incoming::BeginScanEvent => {
                         raw_image_data = RawImageData::new();
+                        send_response(&Response::ScanStart)?;
                     }
                     Incoming::EndScanEvent => {
                         match raw_image_data.try_decode_scan(1728, ScanSideMode::Duplex) {
