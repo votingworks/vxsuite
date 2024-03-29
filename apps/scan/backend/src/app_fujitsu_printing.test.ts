@@ -47,7 +47,7 @@ test('printReport prints first section and printReportSection can print the rest
         },
       });
 
-      void (await apiClient.openPolls());
+      (await apiClient.openPolls()).unsafeUnwrap();
       await apiClient.printReport();
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
@@ -55,14 +55,14 @@ test('printReport prints first section and printReportSection can print the rest
         customSnapshotIdentifier: 'fujitsu-mammal-report',
       });
 
-      void (await apiClient.printReportSection({ index: 1 }));
+      (await apiClient.printReportSection({ index: 1 })).unsafeUnwrap();
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
         customSnapshotIdentifier: 'fujitsu-fish-report',
       });
 
-      void (await apiClient.printReportSection({ index: 2 }));
+      (await apiClient.printReportSection({ index: 2 })).unsafeUnwrap();
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
@@ -92,7 +92,7 @@ test('can print test page', async () => {
         },
       });
 
-      void (await apiClient.printTestPage());
+      (await apiClient.printTestPage()).unsafeUnwrap();
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
