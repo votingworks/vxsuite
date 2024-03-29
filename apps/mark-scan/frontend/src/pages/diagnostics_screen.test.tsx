@@ -1,6 +1,10 @@
 import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
-import { MARK_SCAN_CONTROLLER_ILLUSTRATION_HIGHLIGHT_CLASS_NAME } from '@votingworks/ui';
+import {
+  MARK_SCAN_CONTROLLER_ILLUSTRATION_HIGHLIGHT_CLASS_NAME,
+  mockUsbDriveStatus,
+} from '@votingworks/ui';
+import { ok } from '@votingworks/basics';
 import {
   fireEvent,
   render,
@@ -34,6 +38,7 @@ function renderScreen(props: Partial<DiagnosticsScreenProps> = {}) {
 beforeEach(() => {
   jest.useFakeTimers().setSystemTime(new Date('2022-03-23T11:23:00.000'));
   apiMock = createApiMock();
+  apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
 });
 
 afterEach(() => {
@@ -145,4 +150,30 @@ test('accessible controller diagnostic - fail', async () => {
   await screen.findByText(
     'Test failed, 3/23/2022, 11:23:00 AM — up button is not working.'
   );
+});
+
+test('saving report', async () => {
+  apiMock.setBatteryInfo({ level: 0.5, discharging: true });
+  apiMock.expectGetIsAccessibleControllerInputDetected();
+  apiMock.expectGetApplicationDiskSpaceSummary();
+  apiMock.expectGetMostRecentAccessibleControllerDiagnostic();
+
+  renderScreen();
+
+  userEvent.click(await screen.findButton('Save Readiness Report'));
+  apiMock.mockApiClient.saveReadinessReport
+    .expectCallWith()
+    .resolves(ok(['mock-file.pdf']));
+  userEvent.click(await screen.findButton('Save'));
+  await screen.findByText('Readiness Report Saved');
+  screen.getByText(/mock-file.pdf/);
+  userEvent.click(await screen.findButton('Close'));
+
+  // confirm modal resets after exiting
+  userEvent.click(
+    await screen.findButton('Save Readiness Report', {
+      useSparinglyIncludeHidden: true,
+    })
+  );
+  await screen.findByRole('heading', { name: 'Save Readiness Report' });
 });
