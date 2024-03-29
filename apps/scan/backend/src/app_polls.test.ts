@@ -50,7 +50,7 @@ test('polls state flow', async () => {
         pollsState: 'polls_closed_initial',
       });
 
-      await apiClient.openPolls();
+      (await apiClient.openPolls()).unsafeUnwrap();
       expect(await apiClient.getPollsInfo()).toEqual<PrecinctScannerPollsInfo>({
         pollsState: 'polls_open',
         lastPollsTransition: {
@@ -184,7 +184,7 @@ test('scanner batch flow', async () => {
         return store.getBatches().map((b) => b.id);
       }
 
-      await apiClient.openPolls();
+      (await apiClient.openPolls()).unsafeUnwrap();
       let batchIds = getBatchIds();
       expect(batchIds).toHaveLength(1);
       const batch1Id = batchIds[0];
@@ -249,6 +249,13 @@ test('scanner batch flow', async () => {
           message:
             'Current scanning batch ended due to ballot bag replacement.',
           batchId: batch2Id,
+        })
+      );
+      expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
+        LogEventId.BallotBagReplaced,
+        expect.objectContaining({
+          disposition: 'success',
+          message: 'The user confirmed that they replaced the ballot bag.',
         })
       );
 

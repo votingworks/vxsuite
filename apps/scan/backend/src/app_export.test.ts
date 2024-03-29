@@ -173,7 +173,7 @@ test('continuous CVR export with a mode switch in between', async () => {
 
       await apiClient.setTestMode({ isTestMode: false });
       await apiClient.setTestMode({ isTestMode: true });
-      await apiClient.openPolls();
+      (await apiClient.openPolls()).unsafeUnwrap();
 
       await scanBallot(mockScanner, apiClient, workspace.store, 0);
 

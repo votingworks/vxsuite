@@ -1,4 +1,3 @@
-import { mockBaseLogger } from '@votingworks/logging';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
@@ -26,13 +25,7 @@ test('renders an error if election package config endpoint returns an error', as
   apiMock.expectGetElectionState();
   apiMock.setAuthStatusElectionManagerLoggedIn(electionGeneralDefinition);
 
-  render(
-    <App
-      reload={jest.fn()}
-      logger={mockBaseLogger()}
-      apiClient={apiMock.mockApiClient}
-    />
-  );
+  render(<App reload={jest.fn()} apiClient={apiMock.mockApiClient} />);
 
   apiMock.expectConfigureElectionPackageFromUsbError('election_hash_mismatch');
   apiMock.expectGetSystemSettings();
