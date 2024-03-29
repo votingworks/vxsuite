@@ -105,3 +105,28 @@ test('error path', async () => {
     'Error while saving the readiness report: No USB drive found'
   );
 });
+
+test('mutation resets on close', async () => {
+  render(
+    <QueryClientProvider client={queryClient}>
+      <MockComponent usbDriveStatus={mockUsbDriveStatus('mounted')} />
+    </QueryClientProvider>
+  );
+
+  userEvent.click(screen.getButton('Save Readiness Report'));
+  await screen.findByRole('heading', { name: 'Save Readiness Report' });
+
+  jestMockMutate.mockResolvedValueOnce(ok(['mock-file.pdf']));
+  userEvent.click(screen.getButton('Save'));
+  await screen.findByRole('heading', { name: 'Readiness Report Saved' });
+  screen.getByText(/mock-file.pdf/);
+
+  userEvent.click(screen.getButton('Close'));
+
+  userEvent.click(
+    await screen.findButton('Save Readiness Report', {
+      useSparinglyIncludeHidden: true, // button hidden by react-modal's faulty cleanup
+    })
+  );
+  await screen.findByRole('heading', { name: 'Save Readiness Report' });
+});
