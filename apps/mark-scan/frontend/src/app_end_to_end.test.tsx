@@ -169,9 +169,11 @@ test('MarkAndPrint end-to-end flow', async () => {
     reason: 'wrong_election',
     cardUserRole: 'poll_worker',
   });
-  await screen.findByText('Invalid Card Data');
-  screen.getByText('Card is not configured for this election.');
-  screen.getByText('Please ask admin for assistance.');
+  await screen.findByText('Invalid Card');
+  screen.getByText(
+    /The inserted Poll Worker card is programmed for another election and cannot be used to unlock this machine./
+  );
+  screen.getByText(/Remove the card to continue./);
   apiMock.setAuthStatusLoggedOut();
 
   // ---------------

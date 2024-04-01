@@ -22,6 +22,7 @@ import {
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
 import {
+  InvalidCardScreen,
   SetupCardReaderPage,
   UnlockMachineScreen,
   VoterSettingsManagerContext,
@@ -63,9 +64,7 @@ import { InsertCardScreen } from './pages/insert_card_screen';
 import { PollWorkerScreen } from './pages/poll_worker_screen';
 import { SetupPowerPage } from './pages/setup_power_page';
 import { UnconfiguredScreen } from './pages/unconfigured_screen';
-import { WrongElectionScreen } from './pages/wrong_election_screen';
 import { ReplaceElectionScreen } from './pages/replace_election_screen';
-import { CardErrorScreen } from './pages/card_error_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
 import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper';
 import { NoPaperHandlerPage } from './pages/no_paper_handler_page';
@@ -350,12 +349,6 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
     return <NoPaperHandlerPage />;
   }
 
-  if (
-    authStatus.status === 'logged_out' &&
-    authStatus.reason === 'card_error'
-  ) {
-    return <CardErrorScreen />;
-  }
   if (battery && battery.level < LOW_BATTERY_THRESHOLD && battery.discharging) {
     return <SetupPowerPage />;
   }
@@ -371,6 +364,15 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
             // Handled by default query client error handling
           }
         }}
+      />
+    );
+  }
+
+  if (authStatus.status === 'logged_out' && authStatus.reason !== 'no_card') {
+    return (
+      <InvalidCardScreen
+        reasonAndContext={authStatus}
+        recommendedAction="Remove the card to continue."
       />
     );
   }
@@ -445,14 +447,6 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
   }
 
   if (optionalElectionDefinition && precinctSelection) {
-    if (
-      authStatus.status === 'logged_out' &&
-      authStatus.reason === 'wrong_election' &&
-      authStatus.cardUserRole === 'poll_worker'
-    ) {
-      return <WrongElectionScreen />;
-    }
-
     if (stateMachineState === 'empty_ballot_box') {
       return <EmptyBallotBoxPage authStatus={authStatus} />;
     }
