@@ -2,13 +2,13 @@
 
 use std::path::{Path, PathBuf};
 
+use ab_glyph::{FontRef, PxScale};
 use image::{imageops::rotate180, DynamicImage, GrayImage, Rgb, RgbImage};
 use imageproc::drawing::{
     draw_cross_mut, draw_filled_rect_mut, draw_hollow_rect_mut, draw_line_segment_mut,
     draw_text_mut, text_size,
 };
 use log::debug;
-use rusttype::{Font, Scale};
 use types_rs::election::GridPosition;
 use types_rs::geometry::{PixelPosition, PixelUnit, Rect, Segment, SubGridUnit, SubPixelUnit};
 
@@ -39,7 +39,7 @@ pub fn draw_qr_code_debug_image_mut(
 
     match qr_code {
         Some(qr_code) => {
-            let scale = Scale::uniform(20.0);
+            let scale = PxScale::from(20.0);
             let font = monospace_font();
             let fg = WHITE_RGB;
             let bg = DARK_GREEN;
@@ -85,7 +85,7 @@ pub fn draw_qr_code_debug_image_mut(
                 DARK_RED,
                 0,
                 0,
-                Scale::uniform(20.0),
+                PxScale::from(20.0),
                 &monospace_font(),
                 "No QR code found",
             );
@@ -209,7 +209,7 @@ pub fn draw_timing_mark_debug_image_mut(
 
     let font = &monospace_font();
     let font_scale = 15.0;
-    let scale = Scale::uniform(font_scale);
+    let scale = PxScale::from(font_scale);
 
     for (i, rect) in partial_timing_marks.top_rects.iter().enumerate() {
         let center = rect.center();
@@ -427,9 +427,15 @@ pub fn draw_timing_mark_grid_debug_image_mut(
     }
 }
 
-fn monospace_font() -> Font<'static> {
-    Font::try_from_bytes(include_bytes!("../../data/fonts/Inconsolata-Regular.ttf"))
+fn monospace_font() -> FontRef<'static> {
+    FontRef::try_from_slice(include_bytes!("../../data/fonts/Inconsolata-Regular.ttf"))
         .expect("font is valid")
+}
+
+macro_rules! i32ify {
+    ($x:expr) => {
+        i32::try_from($x).expect(format!("{} fits within i32", stringify!($x)).as_str())
+    };
 }
 
 /// Draws a debug image outlining all the scored bubble marks.
@@ -444,7 +450,7 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
     let fill_score_color = DARK_CYAN;
     let font = &monospace_font();
     let font_scale = 20.0;
-    let scale = Scale::uniform(font_scale);
+    let scale = PxScale::from(font_scale);
 
     draw_legend(
         canvas,
@@ -483,7 +489,7 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
                     .expected_bounds
                     .left()
                     .min(scored_bubble_mark.matched_bounds.left())
-                    - option_text_width
+                    - i32ify!(option_text_width)
                     - 5,
                 (scored_bubble_mark
                     .expected_bounds
@@ -494,7 +500,7 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
                         .bottom()
                         .max(scored_bubble_mark.matched_bounds.bottom()))
                     / 2
-                    - (option_text_height / 2),
+                    - i32ify!(option_text_height / 2),
                 scale,
                 font,
                 option_color,
@@ -513,13 +519,13 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
                         .right()
                         .max(scored_bubble_mark.matched_bounds.right()))
                     / 2
-                    - (match_score_text_width / 2),
+                    - i32ify!(match_score_text_width / 2),
                 scored_bubble_mark
                     .expected_bounds
                     .top()
                     .min(scored_bubble_mark.matched_bounds.top())
                     - 5
-                    - match_score_text_height,
+                    - i32ify!(match_score_text_height),
                 scale,
                 font,
                 match_score_color,
@@ -538,7 +544,7 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
                         .right()
                         .max(scored_bubble_mark.matched_bounds.right()))
                     / 2
-                    - (fill_score_text_width / 2),
+                    - i32ify!(fill_score_text_width / 2),
                 scored_bubble_mark
                     .expected_bounds
                     .bottom()
@@ -570,7 +576,7 @@ pub fn draw_scored_write_in_areas(
 ) {
     let font = &monospace_font();
     let font_scale = 20.0;
-    let scale = Scale::uniform(font_scale);
+    let scale = PxScale::from(font_scale);
 
     draw_legend(
         canvas,
@@ -592,9 +598,11 @@ pub fn draw_scored_write_in_areas(
         draw_text_with_background_mut(
             canvas,
             &option_text,
-            scored_write_in_area.bounds.left() - option_text_width - 5,
+            scored_write_in_area.bounds.left()
+                - i32::try_from(option_text_width).expect("option_text_width fits within i32")
+                - 5,
             (scored_write_in_area.bounds.top() + scored_write_in_area.bounds.bottom()) / 2
-                - (option_text_height / 2),
+                - i32ify!(option_text_height / 2),
             scale,
             font,
             DARK_GREEN,
@@ -605,8 +613,8 @@ pub fn draw_scored_write_in_areas(
             canvas,
             &score_text,
             (scored_write_in_area.bounds.left() + scored_write_in_area.bounds.right()) / 2
-                - (score_text_width / 2),
-            scored_write_in_area.bounds.top() - 5 - score_text_height,
+                - i32ify!(score_text_width / 2),
+            scored_write_in_area.bounds.top() - 5 - i32ify!(score_text_height),
             scale,
             font,
             ORANGE,
@@ -627,8 +635,8 @@ fn draw_text_with_background_mut(
     text: &str,
     x: PixelPosition,
     y: PixelPosition,
-    scale: Scale,
-    font: &Font,
+    scale: PxScale,
+    font: &FontRef,
     text_color: Rgb<u8>,
     background_color: Rgb<u8>,
 ) {
@@ -645,7 +653,7 @@ fn draw_text_with_background_mut(
 fn draw_legend(canvas: &mut RgbImage, colored_labels: &Vec<(Rgb<u8>, &str)>) {
     let font = &monospace_font();
     let font_scale = 12.0;
-    let scale = Scale::uniform(font_scale);
+    let scale = PxScale::from(font_scale);
 
     let padding = 10;
     let spacing = 5;
@@ -666,7 +674,7 @@ fn draw_legend(canvas: &mut RgbImage, colored_labels: &Vec<(Rgb<u8>, &str)>) {
             *color,
             WHITE_RGB,
         );
-        legend_top += label_height + spacing;
+        legend_top += i32ify!(label_height + spacing);
     }
 }
 

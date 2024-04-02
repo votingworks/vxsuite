@@ -26,7 +26,7 @@ impl ImageSource {
 /// Gets an `ImageSource` from the argument at the given index.
 pub fn get_image_data_or_path_from_arg(
     cx: &mut FunctionContext,
-    argument: i32,
+    argument: usize,
 ) -> Result<ImageSource, Throw> {
     let argument = cx.argument::<JsValue>(argument)?;
     if let Ok(path) = argument.downcast::<JsString, _>(cx) {
@@ -43,7 +43,7 @@ pub fn get_image_data_or_path_from_arg(
 }
 
 /// Gets a `PathBuf` from the argument at the given index, if it exists.
-pub fn get_path_from_arg_opt(cx: &mut FunctionContext, argument: i32) -> Option<PathBuf> {
+pub fn get_path_from_arg_opt(cx: &mut FunctionContext, argument: usize) -> Option<PathBuf> {
     let argument = cx.argument_opt(argument)?;
     let js_string = argument.downcast::<JsString, _>(cx).ok()?;
     let string = js_string.value(cx);
@@ -53,9 +53,9 @@ pub fn get_path_from_arg_opt(cx: &mut FunctionContext, argument: i32) -> Option<
 /// Gets an `Election` from the argument at the given index.
 pub fn get_election_definition_from_arg(
     cx: &mut FunctionContext,
-    argument: i32,
+    argument: usize,
 ) -> Result<Election, Throw> {
-    let Some(js_election) = cx.argument_opt(0) else {
+    let Some(js_election) = cx.argument_opt(argument) else {
         return cx.throw_type_error(format!(
             "election definition expected at argument {argument}"
         ));
