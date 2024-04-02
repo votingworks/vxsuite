@@ -12,6 +12,7 @@ path = "src/hmpb-rust/lib.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+ab_glyph = { workspace = true }
 clap = { workspace = true }
 image = { workspace = true }
 imageproc = { workspace = true }
@@ -20,7 +21,6 @@ logging_timer = { workspace = true }
 neon = { workspace = true }
 pretty_env_logger = { workspace = true }
 rayon = { workspace = true }
-rusttype = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 itertools = { workspace = true }
