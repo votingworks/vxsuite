@@ -39,7 +39,7 @@ const SIGNAL_B_PIN: Pin = Pin::new(476);
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
-    // Whether to allow the daemon to run if no hardware is found.
+    /// Allow the daemon to run if no hardware is found.
     #[arg(short, long)]
     skip_hardware_check: bool,
 }
@@ -69,6 +69,8 @@ fn set_up_pins() -> io::Result<()> {
 }
 
 fn main() {
+    let args = Args::parse();
+
     set_app_name(APP_NAME);
     log!(EventId::ProcessStarted; EventType::SystemAction);
 
@@ -108,7 +110,6 @@ fn main() {
             message: format!("An error occurred during GPIO pin connection: {err}")
         );
 
-        let args = Args::parse();
         if args.skip_hardware_check {
             run_no_op_event_loop(&running);
             exit(0);
