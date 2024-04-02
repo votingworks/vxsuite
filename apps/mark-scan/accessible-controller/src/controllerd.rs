@@ -36,7 +36,7 @@ const KPB_200_FW_PID: u16 = 16392;
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
-    // Whether to allow the daemon to run if no hardware is found.
+    /// Allow the daemon to run if no hardware is found.
     #[arg(short, long)]
     skip_hardware_check: bool,
 }
@@ -44,6 +44,7 @@ struct Args {
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
 
+    let args = Args::parse();
     set_app_name(APP_NAME);
     log!(
         EventId::ProcessStarted;
@@ -87,7 +88,6 @@ fn main() -> color_eyre::Result<()> {
         exit(0);
     }
 
-    let args = Args::parse();
     if args.skip_hardware_check {
         run_no_op_event_loop(&running);
         exit(0);
