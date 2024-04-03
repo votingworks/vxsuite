@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import { DateTime } from 'luxon';
 import { fakeUseAudioControls, mockOf } from '@votingworks/test-utils';
-import { ReadOnLoad } from '@votingworks/ui';
+import { Keybinding, ReadOnLoad } from '@votingworks/ui';
 import { render, screen, within } from '../../test/react_testing_library';
 import {
   AccessibleControllerDiagnosticScreen,
@@ -72,33 +72,33 @@ describe('Accessible Controller Diagnostic Screen', () => {
     expectToHaveIllustrationHighlight('up-button');
     // Try out pressing an incorrect button to make sure we actually detect the
     // right button.
-    userEvent.keyboard('{ArrowDown}');
+    userEvent.keyboard(`{${Keybinding.FOCUS_NEXT}}`);
     screen.getByText(/Step 1 of 6/);
     // Then press the up button.
     // We have to wrap key presses in act to avoid a warning. This may be due to
     // the fact that the keyDown listener is attached to the document instead of
     // a React component.
-    userEvent.keyboard('{ArrowUp}');
+    userEvent.keyboard(`{${Keybinding.FOCUS_PREVIOUS}}`);
 
     await screen.findByText(/Step 2 of 6/);
     screen.getByText('Press the down button.');
     expectToHaveIllustrationHighlight('down-button');
-    userEvent.keyboard('{ArrowDown}');
+    userEvent.keyboard(`{${Keybinding.FOCUS_NEXT}}`);
 
     await screen.findByText(/Step 3 of 6/);
     screen.getByText('Press the left button.');
     expectToHaveIllustrationHighlight('left-button');
-    userEvent.keyboard('{ArrowLeft}');
+    userEvent.keyboard(`{${Keybinding.PAGE_PREVIOUS}}`);
 
     await screen.findByText(/Step 4 of 6/);
     screen.getByText('Press the right button.');
     expectToHaveIllustrationHighlight('right-button');
-    userEvent.keyboard('{ArrowRight}');
+    userEvent.keyboard(`{${Keybinding.PAGE_NEXT}}`);
 
     await screen.findByText(/Step 5 of 6/);
     screen.getByText('Press the select button.');
     expectToHaveIllustrationHighlight('select-button');
-    userEvent.keyboard('{Enter}');
+    userEvent.keyboard(`{${Keybinding.SELECT}}`);
 
     await screen.findByText(/Step 6 of 6/);
     screen.getByText('Confirm sound is working.');
@@ -106,21 +106,21 @@ describe('Accessible Controller Diagnostic Screen', () => {
     expectToHaveIllustrationHighlight('headphones', true);
     // Try pressing the select button before playing sound to make sure it
     // doesn't work
-    userEvent.keyboard('{Enter}');
+    userEvent.keyboard(`{${Keybinding.SELECT}}`);
     expect(onComplete).not.toHaveBeenCalled();
     expect(
       screen.queryByTestId(MOCK_READ_ON_LOAD_TEST_ID)
     ).not.toBeInTheDocument();
 
     // Then play sound and confirm
-    userEvent.keyboard('{ArrowRight}');
+    userEvent.keyboard(`{${Keybinding.PAGE_NEXT}}`);
     expect(mockAudioControls.setIsEnabled).toHaveBeenCalledTimes(1);
     expect(mockAudioControls.setIsEnabled).toHaveBeenCalledWith(true);
     expect(screen.getByTestId(MOCK_READ_ON_LOAD_TEST_ID)).toHaveTextContent(
       'Press the select button to confirm sound is working.'
     );
 
-    userEvent.keyboard('{Enter}');
+    userEvent.keyboard(`{${Keybinding.SELECT}}`);
 
     expect(onComplete).toHaveBeenCalledWith({
       passed: true,
@@ -131,23 +131,23 @@ describe('Accessible Controller Diagnostic Screen', () => {
   async function passUntilStep(step: number) {
     if (step === 1) return;
     screen.getByText(/Step 1 of 6/);
-    userEvent.keyboard('{ArrowUp}');
+    userEvent.keyboard(`{${Keybinding.FOCUS_PREVIOUS}}`);
 
     if (step === 2) return;
     await screen.findByText(/Step 2 of 6/);
-    userEvent.keyboard('{ArrowDown}');
+    userEvent.keyboard(`{${Keybinding.FOCUS_NEXT}}`);
 
     if (step === 3) return;
     await screen.findByText(/Step 3 of 6/);
-    userEvent.keyboard('{ArrowLeft}');
+    userEvent.keyboard(`{${Keybinding.PAGE_PREVIOUS}}`);
 
     if (step === 4) return;
     await screen.findByText(/Step 4 of 6/);
-    userEvent.keyboard('{ArrowRight}');
+    userEvent.keyboard(`{${Keybinding.PAGE_NEXT}}`);
 
     if (step === 5) return;
     await screen.findByText(/Step 5 of 6/);
-    userEvent.keyboard('{Enter}');
+    userEvent.keyboard(`{${Keybinding.SELECT}}`);
 
     if (step === 6) return;
     throw new Error('Step must be between 1 and 6');

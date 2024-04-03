@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
+  Keybinding,
   AudioOnly,
   Button,
   Font,
@@ -62,8 +63,8 @@ const StepInnerContainer = styled.div`
 `;
 
 interface AccessibleControllerButtonDiagnosticProps {
-  buttonName: MarkControllerButton;
-  buttonKey: string;
+  buttonName: string;
+  buttonKey: MarkControllerButton;
   onSuccess: () => void;
   onFailure: (message: string) => void;
 }
@@ -96,7 +97,7 @@ function AccessibleControllerButtonDiagnostic({
           {buttonName} Button is Not Working
         </Button>
       </div>
-      <MarkControllerIllustration highlight={buttonName} />
+      <MarkControllerIllustration highlight={buttonKey} />
     </StepInnerContainer>
   );
 }
@@ -147,7 +148,10 @@ function AccessibleControllerSoundDiagnostic({
           Sound is Not Working
         </Button>
       </div>
-      <MarkControllerIllustration highlight="Headphones" />
+      <MarkControllerIllustration
+        highlight={Keybinding.PAGE_NEXT}
+        showHeadphones
+      />
     </StepInnerContainer>
   );
 }
@@ -185,12 +189,12 @@ export function AccessibleControllerDiagnosticScreen({
     setStep((previousStep) => previousStep + 1);
   }
 
-  const buttons: Array<[MarkControllerButton, string]> = [
-    ['Up', 'ArrowUp'],
-    ['Down', 'ArrowDown'],
-    ['Left', 'ArrowLeft'],
-    ['Right', 'ArrowRight'],
-    ['Select', 'Enter'],
+  const buttons: Array<[string, MarkControllerButton]> = [
+    ['Up', Keybinding.FOCUS_PREVIOUS],
+    ['Down', Keybinding.FOCUS_NEXT],
+    ['Left', Keybinding.PAGE_PREVIOUS],
+    ['Right', Keybinding.PAGE_NEXT],
+    ['Select', Keybinding.SELECT],
   ];
   const steps = [
     ...buttons.map(([buttonName, buttonKey]) => (

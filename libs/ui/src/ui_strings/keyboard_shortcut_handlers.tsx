@@ -3,20 +3,10 @@ import { useCurrentLanguage } from '../hooks/use_current_language';
 import { useAvailableLanguages } from '../hooks/use_available_languages';
 import { useLanguageControls } from '../hooks/use_language_controls';
 import { useAudioControls } from '../hooks/use_audio_controls';
-
-export enum ACCESSIBILITY_KEYBINDINGS {
-  TOGGLE_AUDIO = 'M',
-  REPLAY = 'R',
-  DECREASE_PLAYBACK_RATE = ',',
-  INCREASE_PLAYBACK_RATE = '.',
-  TOGGLE_PAUSE = 'P',
-  DECREASE_VOLUME = '-',
-  INCREASE_VOLUME = '=',
-}
+import { Keybinding } from '../keybindings';
 
 /**
  * Installs UI String keyboard shortcuts for dev convenience.
- *   - Shift+L: Switch to next available display/audio language.
  */
 export function KeyboardShortcutHandlers(): React.ReactNode {
   const currentLanguageCode = useCurrentLanguage();
@@ -27,7 +17,7 @@ export function KeyboardShortcutHandlers(): React.ReactNode {
   React.useEffect(() => {
     function onKeyPress(event: KeyboardEvent) {
       switch (event.key) {
-        case 'L': {
+        case Keybinding.SWITCH_LANGUAGE: {
           const currentLanguageIndex = availableLanguages.findIndex(
             (l) => l === currentLanguageCode
           );
@@ -37,25 +27,22 @@ export function KeyboardShortcutHandlers(): React.ReactNode {
           setLanguage(availableLanguages[nextIndex]);
           break;
         }
-        case ACCESSIBILITY_KEYBINDINGS.TOGGLE_AUDIO:
+        case Keybinding.TOGGLE_AUDIO:
           audioControls.toggleEnabled();
           break;
-        case ACCESSIBILITY_KEYBINDINGS.REPLAY:
-          audioControls.replay();
-          break;
-        case ACCESSIBILITY_KEYBINDINGS.DECREASE_PLAYBACK_RATE:
+        case Keybinding.PLAYBACK_RATE_DOWN:
           audioControls.decreasePlaybackRate();
           break;
-        case ACCESSIBILITY_KEYBINDINGS.INCREASE_PLAYBACK_RATE:
+        case Keybinding.PLAYBACK_RATE_UP:
           audioControls.increasePlaybackRate();
           break;
-        case ACCESSIBILITY_KEYBINDINGS.TOGGLE_PAUSE:
+        case Keybinding.TOGGLE_PAUSE:
           audioControls.togglePause();
           break;
-        case ACCESSIBILITY_KEYBINDINGS.DECREASE_VOLUME:
+        case Keybinding.VOLUME_DOWN:
           audioControls.decreaseVolume();
           break;
-        case ACCESSIBILITY_KEYBINDINGS.INCREASE_VOLUME:
+        case Keybinding.VOLUME_UP:
           audioControls.increaseVolume();
           break;
         default:
