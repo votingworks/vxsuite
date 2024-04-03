@@ -102,7 +102,11 @@ export const getInterpretation = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getInterpretation());
+    return useQuery(this.queryKey(), () => apiClient.getInterpretation(), {
+      // Avoid caching interpretation results to avoid any potential flicker
+      // between re-renders on interpretation results:
+      cacheTime: 0,
+    });
   },
 } as const;
 
