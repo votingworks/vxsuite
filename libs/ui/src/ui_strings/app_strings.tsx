@@ -179,6 +179,85 @@ export const appStrings = {
     </UiString>
   ),
 
+  helpBmdControllerButtonFocusNext: () => (
+    <UiString uiStringKey="helpBmdControllerButtonFocusNext">
+      This is the Down button, for focusing on the next item in a list of
+      options on a page. You can use the Up and Down buttons to move through
+      candidates in a contest.
+    </UiString>
+  ),
+
+  helpBmdControllerButtonFocusPrevious: () => (
+    <UiString uiStringKey="helpBmdControllerButtonFocusPrevious">
+      This is the Up button, for focusing on the previous item in a list of
+      options on a page. You can use the Up and Down buttons to move through
+      candidates in a contest.
+    </UiString>
+  ),
+
+  helpBmdControllerButtonPageNext: () => (
+    <UiString uiStringKey="helpBmdControllerButtonPageNext">
+      This is the Right button, for moving to the next page or contest. You can
+      use the Left and Right buttons to move through all the contests on your
+      ballot.
+    </UiString>
+  ),
+
+  helpBmdControllerButtonPagePrevious: () => (
+    <UiString uiStringKey="helpBmdControllerButtonPagePrevious">
+      This is the Left button, for returning to the previous page or contest.
+      You can use the Left and Right buttons to move through all the contests on
+      your ballot.
+    </UiString>
+  ),
+
+  helpBmdControllerButtonPlaybackRateDown: () => (
+    <UiString uiStringKey="helpBmdControllerButtonPlaybackRateDown">
+      This button reduces the playback rate of the text-to-speech audio.
+    </UiString>
+  ),
+
+  helpBmdControllerButtonPlaybackRateUp: () => (
+    <UiString uiStringKey="helpBmdControllerButtonPlaybackRateUp">
+      This button increases the playback rate of the text-to-speech audio.
+    </UiString>
+  ),
+
+  helpBmdControllerButtonSelect: () => (
+    <UiString uiStringKey="helpBmdControllerButtonSelect">
+      This is the Select button. Use this button to mark your vote for a
+      candidate or a yes or no option. Pressing the Select button again will
+      remove your previous vote.
+    </UiString>
+  ),
+
+  helpBmdControllerButtonToggleHelp: () => (
+    <UiString uiStringKey="helpBmdControllerButtonToggleHelp">
+      This is the Help button. Press this button again to return to filling out
+      your ballot.
+    </UiString>
+  ),
+
+  helpBmdControllerButtonTogglePause: () => (
+    <UiString uiStringKey="helpBmdControllerButtonTogglePause">
+      This is the Pause button. Use this button to pause the text-to-speech
+      audio. Pressing the Pause button again will resume the text-to-speech
+      audio.
+    </UiString>
+  ),
+
+  helpBmdControllerButtonVolumeDown: () => (
+    <UiString uiStringKey="helpBmdControllerButtonVolumeDown">
+      This button reduces the volume of the text-to-speech audio.
+    </UiString>
+  ),
+
+  helpBmdControllerButtonVolumeUp: () => (
+    <UiString uiStringKey="helpBmdControllerButtonVolumeUp">
+      This button increases the volume of the text-to-speech audio.
+    </UiString>
+  ),
+
   instructionsAskForHelp: () => (
     <UiString uiStringKey="instructionsAskForHelp">
       Please ask a poll worker for help.
@@ -197,13 +276,35 @@ export const appStrings = {
     </UiString>
   ),
 
-  instructionsBmdBallotNavigation: () => (
-    <UiString uiStringKey="instructionsBmdBallotNavigation">
+  instructionsBmdBallotNavigationMark: () => (
+    <UiString uiStringKey="instructionsBmdBallotNavigationMark">
       When voting with the text-to-speech audio, use the accessible controller
       to navigate your ballot. To navigate through the contests, use the left
       and right buttons. To navigate through contest choices, use the up and
       down buttons. To select or unselect a contest choice as your vote, use the
       select button. Press the right button now to advance to the first contest.
+    </UiString>
+  ),
+
+  instructionsBmdBallotNavigationMarkScan: () => (
+    <UiString uiStringKey="instructionsBmdBallotNavigationMarkScan">
+      When voting with the text-to-speech audio, use the accessible controller
+      to navigate your ballot. There are four navigation arrow buttons located
+      near the center of the controller. To navigate through the contests, use
+      the left and right arrows. To navigate through contest choices, use the up
+      and down arrows. To select or unselect a contest choice as your vote, use
+      the circle Select button to the right of the navigation buttons. You can
+      find two volume controls at the top right corner of the controller. The
+      minus button reduces the volume of your audio and the plus button
+      increases the volume. To change the speech rate of your audio, use the two
+      buttons at the bottom right corner of the controller. The down arrow
+      button reduces the speech rate and the up arrow button increases it. To
+      pause or unpause the audio at any time, use the pause button at the bottom
+      left corner of the controller. If you need more information on how to use
+      the controller, press the question mark button at the top left corner at
+      any time. To repeat any content, navigate back to previous content using
+      the up or left arrows. Press the right button now to advance to the first
+      contest.
     </UiString>
   ),
 
@@ -237,6 +338,14 @@ export const appStrings = {
     <UiString uiStringKey="instructionsBmdContestNavigation">
       To navigate through the contest choices, use the down button. To move to
       the next contest, use the right button.
+    </UiString>
+  ),
+
+  instructionsBmdControllerSandboxMarkScan: () => (
+    <UiString uiStringKey="instructionsBmdControllerSandboxMarkScan">
+      Press any button on the controller to learn what it is and how to use it.
+      When you're done, press the question mark shaped “Help” button at the top
+      left corner of the controller again to return to your ballot.
     </UiString>
   ),
 

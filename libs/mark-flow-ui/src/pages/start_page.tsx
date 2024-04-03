@@ -37,6 +37,7 @@ const StartVotingButton = styled(Button)`
 `;
 
 export interface StartPageProps {
+  introAudioText: React.ReactNode;
   ballotStyleId?: BallotStyleId;
   contests: ContestsWithMsEitherNeither;
   electionDefinition?: ElectionDefinition;
@@ -45,8 +46,14 @@ export interface StartPageProps {
 }
 
 export function StartPage(props: StartPageProps): JSX.Element {
-  const { ballotStyleId, contests, electionDefinition, precinctId, onStart } =
-    props;
+  const {
+    ballotStyleId,
+    contests,
+    electionDefinition,
+    introAudioText,
+    precinctId,
+    onStart,
+  } = props;
 
   assert(
     electionDefinition,
@@ -85,7 +92,7 @@ export function StartPage(props: StartPageProps): JSX.Element {
             contestCount={contests.length}
           />
         </ElectionInfoContainer>
-        <AudioOnly>{appStrings.instructionsBmdBallotNavigation()}</AudioOnly>
+        <AudioOnly>{introAudioText}</AudioOnly>
       </ReadOnLoad>
       <StartVotingButtonContainer>
         {startVotingButton}
