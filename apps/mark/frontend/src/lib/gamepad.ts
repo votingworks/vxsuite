@@ -1,81 +1,31 @@
 import { Button } from 'react-gamepad';
-import { mod } from '../utils/mod';
-
-export function getActiveElement(): HTMLElement {
-  return document.activeElement as HTMLElement;
-}
-
-function getFocusableElements(): HTMLElement[] {
-  const tabbableElements = Array.from(
-    document.querySelectorAll(
-      'button:not([aria-hidden="true"]):not([disabled])'
-    )
-  );
-  const ariaHiddenTabbableElements = Array.from(
-    document.querySelectorAll('[aria-hidden="true"] button')
-  );
-  return tabbableElements.filter(
-    (element) => ariaHiddenTabbableElements.indexOf(element) === -1
-  ) as HTMLElement[];
-}
-
-function handleArrowUp() {
-  const focusable = getFocusableElements();
-  const currentIndex = focusable.indexOf(getActiveElement());
-  /* istanbul ignore else */
-  if (focusable.length) {
-    if (currentIndex > -1) {
-      focusable[mod(currentIndex - 1, focusable.length)].focus();
-    } else {
-      focusable[focusable.length - 1].focus();
-    }
-  }
-}
-
-function handleArrowDown() {
-  const focusable = getFocusableElements();
-  const currentIndex = focusable.indexOf(getActiveElement());
-  /* istanbul ignore else */
-  if (focusable.length) {
-    focusable[mod(currentIndex + 1, focusable.length)].focus();
-  }
-}
-
-function handleArrowLeft() {
-  const prevButton = document.getElementById('previous');
-  /* istanbul ignore else */
-  if (prevButton) {
-    prevButton.click();
-  }
-}
-
-function handleArrowRight() {
-  const nextButton = document.getElementById('next');
-  /* istanbul ignore else */
-  if (nextButton) {
-    nextButton.click();
-  }
-}
+import {
+  Keybinding,
+  PageNavigationButtonId,
+  advanceElementFocus,
+  triggerPageNavigationButton,
+} from '@votingworks/ui';
 
 function handleClick() {
-  const activeElement = getActiveElement();
-  activeElement.click();
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.click();
+  }
 }
 
 export function handleGamepadButtonDown(buttonName: Button): void {
   switch (buttonName) {
     case 'DPadUp':
-      handleArrowUp();
+      advanceElementFocus(-1);
       break;
     case 'B':
     case 'DPadDown':
-      handleArrowDown();
+      advanceElementFocus(1);
       break;
     case 'DPadLeft':
-      handleArrowLeft();
+      triggerPageNavigationButton(PageNavigationButtonId.PREVIOUS);
       break;
     case 'DPadRight':
-      handleArrowRight();
+      triggerPageNavigationButton(PageNavigationButtonId.NEXT);
       break;
     case 'A':
       handleClick();
@@ -88,23 +38,23 @@ export function handleGamepadButtonDown(buttonName: Button): void {
 /* istanbul ignore next - triggering keystrokes issue - https://github.com/votingworks/bmd/issues/62 */
 export function handleGamepadKeyboardEvent(event: KeyboardEvent): void {
   switch (event.key) {
-    case 'ArrowUp':
-      handleArrowUp();
+    case Keybinding.FOCUS_PREVIOUS:
+      advanceElementFocus(-1);
       break;
-    case '[':
-    case 'ArrowDown':
-      handleArrowDown();
+    case Keybinding.LEGACY_PAT_MOVE:
+    case Keybinding.FOCUS_NEXT:
+      advanceElementFocus(1);
       break;
-    case 'ArrowLeft':
-      handleArrowLeft();
+    case Keybinding.PAGE_PREVIOUS:
+      triggerPageNavigationButton(PageNavigationButtonId.PREVIOUS);
       break;
-    case 'ArrowRight':
-      handleArrowRight();
+    case Keybinding.PAGE_NEXT:
+      triggerPageNavigationButton(PageNavigationButtonId.NEXT);
       break;
-    case ']':
+    case Keybinding.LEGACY_PAT_SELECT:
       handleClick();
       break;
-    case 'Enter':
+    case Keybinding.SELECT:
       // Enter already acts like a click
       // handleClick()
       break;

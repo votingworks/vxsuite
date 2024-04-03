@@ -7,6 +7,7 @@ import {
   appStrings,
   AudioOnly,
   ReadOnLoad,
+  PageNavigationButtonId,
 } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
@@ -49,7 +50,12 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
   );
 
   const printMyBallotButton = (
-    <LinkButton to={printScreenUrl} id="next" variant="primary" icon="Done">
+    <LinkButton
+      to={printScreenUrl}
+      id={PageNavigationButtonId.NEXT}
+      variant="primary"
+      icon="Done"
+    >
       {appStrings.buttonPrintBallot()}
     </LinkButton>
   );
