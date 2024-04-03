@@ -182,32 +182,32 @@ export const appStrings = {
   helpBmdControllerButtonFocusNext: () => (
     <UiString uiStringKey="helpBmdControllerButtonFocusNext">
       This is the Down button, for focusing on the next item in a list of
-      options on a page. You can use the Up and Down buttons to move back and
-      forth through candidates in a contest.
+      options on a page. You can use the Up and Down buttons to move through
+      candidates in a contest.
     </UiString>
   ),
 
   helpBmdControllerButtonFocusPrevious: () => (
     <UiString uiStringKey="helpBmdControllerButtonFocusPrevious">
       This is the Up button, for focusing on the previous item in a list of
-      options on a page. You can use the Up and Down buttons to move back and
-      forth through candidates in a contest.
+      options on a page. You can use the Up and Down buttons to move through
+      candidates in a contest.
     </UiString>
   ),
 
   helpBmdControllerButtonPageNext: () => (
     <UiString uiStringKey="helpBmdControllerButtonPageNext">
       This is the Right button, for moving to the next page or contest. You can
-      use the Left and Right buttons to move back and forth through all the
-      contests on your ballot.
+      use the Left and Right buttons to move through all the contests on your
+      ballot.
     </UiString>
   ),
 
   helpBmdControllerButtonPagePrevious: () => (
     <UiString uiStringKey="helpBmdControllerButtonPagePrevious">
       This is the Left button, for returning to the previous page or contest.
-      You can use the Left and Right buttons to move back and forth through all
-      the contests on your ballot.
+      You can use the Left and Right buttons to move through all the contests on
+      your ballot.
     </UiString>
   ),
 
@@ -293,7 +293,7 @@ export const appStrings = {
       near the center of the controller. To navigate through the contests, use
       the left and right arrows. To navigate through contest choices, use the up
       and down arrows. To select or unselect a contest choice as your vote, use
-      the circle "select" button to the right of the navigation buttons. You can
+      the circle Select button to the right of the navigation buttons. You can
       find two volume controls at the top right corner of the controller. The
       minus button reduces the volume of your audio and the plus button
       increases the volume. To change the speech rate of your audio, use the two
