@@ -7,7 +7,7 @@ interface MarkScanControllerIllustrationProps {
   highlight?: MarkScanControllerButton;
 }
 
-const BUTTON_CLASS_NAME = 'markScanControllerIllustration--Button';
+const BUTTON_CLASS_NAME = 'markScanControllerIllustrationButton';
 const BUTTON_CLASS_NAME_HIGHLIGHTED = `${BUTTON_CLASS_NAME}--highlighted`;
 const BUTTON_FOREGROUND_CLASS_NAME = `${BUTTON_CLASS_NAME}Foreground`;
 
