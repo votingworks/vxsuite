@@ -1,4 +1,10 @@
-import { LinkButton, appStrings, AudioOnly, P } from '@votingworks/ui';
+import {
+  LinkButton,
+  appStrings,
+  AudioOnly,
+  P,
+  PageNavigationButtonId,
+} from '@votingworks/ui';
 import { CenteredPageLayout } from '../components/centered_page_layout';
 
 // This page is rendered as part of the blank ballot interpretation flow immediately after
@@ -12,7 +18,7 @@ export function ContinueToReviewPage(): JSX.Element {
         <LinkButton
           autoFocus
           to="/review"
-          id="next"
+          id={PageNavigationButtonId.NEXT}
           variant="primary"
           icon="Done"
         >

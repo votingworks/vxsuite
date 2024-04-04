@@ -7,6 +7,7 @@ import {
   AudioOnly,
   Wobble,
   ReadOnLoad,
+  PageNavigationButtonId,
 } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
@@ -73,7 +74,7 @@ export function StartPage(props: StartPageProps): JSX.Element {
       <StartVotingButton
         variant="primary"
         onPress={onStart}
-        id="next"
+        id={PageNavigationButtonId.NEXT}
         rightIcon="Next"
       >
         {appStrings.buttonStartVoting()}

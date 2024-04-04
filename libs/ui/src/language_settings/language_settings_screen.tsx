@@ -19,6 +19,7 @@ import { RadioGroup } from '../radio_group';
 import { DEFAULT_LANGUAGE_CODE } from '../ui_strings/language_context';
 import { useScreenInfo } from '../hooks/use_screen_info';
 import { WithScrollButtons } from '../with_scroll_buttons';
+import { PageNavigationButtonId } from '../accessible_controllers';
 
 export interface LanguageSettingsScreenProps {
   onDone: () => void;
@@ -113,7 +114,7 @@ export function LanguageSettingsScreen(
       <Buttons>
         <Button
           icon="Done"
-          id="next" // Enables right arrow control on accessible controllers.
+          id={PageNavigationButtonId.NEXT}
           onPress={onDone}
           variant="primary"
         >

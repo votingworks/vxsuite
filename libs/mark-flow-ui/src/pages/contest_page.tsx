@@ -10,7 +10,12 @@ import {
   PrecinctId,
   VotesDict,
 } from '@votingworks/types';
-import { LinkButton, appStrings, Button } from '@votingworks/ui';
+import {
+  LinkButton,
+  appStrings,
+  Button,
+  PageNavigationButtonId,
+} from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 
 import { Contest, ContestProps } from '../components/contest';
@@ -101,7 +106,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
   const nextContestButton = (
     <LinkButton
       key={contest.id}
-      id="next"
+      id={PageNavigationButtonId.NEXT}
       rightIcon="Next"
       variant={isVoteComplete ? 'primary' : 'neutral'}
       to={nextContest ? getContestUrl(nextContestIndex) : getReviewPageUrl()}
@@ -117,7 +122,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
       rightIcon="Next"
       variant={isVoteComplete ? 'primary' : 'neutral'}
       to={getReviewPageUrl(contest.id)}
-      id="next"
+      id={PageNavigationButtonId.NEXT}
       ref={reviewButtonRef}
     >
       {appStrings.buttonReview()}
@@ -144,7 +149,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
   const previousContestButton = (
     <LinkButton
       icon="Previous"
-      id="previous"
+      id={PageNavigationButtonId.PREVIOUS}
       to={prevContest ? getContestUrl(prevContestIndex) : getStartPageUrl()}
     >
       {/* TODO(kofi): Maybe something like "Previous" would translate better in this context? */}

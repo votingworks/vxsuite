@@ -19,16 +19,17 @@ import {
   contest1candidate0,
 } from '../../test/helpers/election';
 
-import {
-  getActiveElement,
-  handleGamepadButtonDown as unwrappedHandleGamepadButtonDown,
-} from './gamepad';
+import { handleGamepadButtonDown as unwrappedHandleGamepadButtonDown } from './gamepad';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 function handleGamepadButtonDown(button: Button) {
   act(() => {
     unwrappedHandleGamepadButtonDown(button);
   });
+}
+
+function getActiveElement() {
+  return document.activeElement;
 }
 
 let apiMock: ApiMock;

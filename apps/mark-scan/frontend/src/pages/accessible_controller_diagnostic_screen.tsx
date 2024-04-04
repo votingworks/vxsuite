@@ -6,9 +6,9 @@ import {
   Main,
   P,
   Screen,
-  ACCESSIBILITY_KEYBINDINGS,
   MarkScanControllerIllustration,
   MarkScanControllerButton,
+  Keybinding,
 } from '@votingworks/ui';
 import styled from 'styled-components';
 import { addDiagnosticRecord } from '../api';
@@ -30,66 +30,66 @@ const StepContainer = styled.div`
 `;
 
 interface DiagnosticStep {
-  button: MarkScanControllerButton;
+  button: string;
   label: string;
-  key: string;
+  key: MarkScanControllerButton;
 }
 
 export const DIAGNOSTIC_STEPS: DiagnosticStep[] = [
   {
     button: 'up',
     label: 'Up',
-    key: 'ArrowUp',
+    key: Keybinding.FOCUS_PREVIOUS,
   },
   {
     button: 'down',
     label: 'Down',
-    key: 'ArrowDown',
+    key: Keybinding.FOCUS_NEXT,
   },
   {
     button: 'left',
     label: 'Left',
-    key: 'ArrowLeft',
+    key: Keybinding.PAGE_PREVIOUS,
   },
   {
     button: 'right',
     label: 'Right',
-    key: 'ArrowRight',
+    key: Keybinding.PAGE_NEXT,
   },
   {
     button: 'select',
     label: 'Select',
-    key: 'Enter',
+    key: Keybinding.SELECT,
   },
   {
     button: 'help',
     label: 'Help',
-    key: ACCESSIBILITY_KEYBINDINGS.REPLAY,
+    key: Keybinding.TOGGLE_HELP,
   },
   {
     button: 'volume-down',
     label: 'Volume Down',
-    key: ACCESSIBILITY_KEYBINDINGS.DECREASE_VOLUME,
+    key: Keybinding.VOLUME_DOWN,
   },
   {
     button: 'volume-up',
     label: 'Volume Up',
-    key: ACCESSIBILITY_KEYBINDINGS.INCREASE_VOLUME,
+    key: Keybinding.VOLUME_UP,
   },
   {
     button: 'pause',
     label: 'Pause',
-    key: ACCESSIBILITY_KEYBINDINGS.TOGGLE_PAUSE,
+    key: Keybinding.TOGGLE_PAUSE,
   },
   {
     button: 'rate-down',
     label: 'Decrease Rate',
-    key: ACCESSIBILITY_KEYBINDINGS.DECREASE_PLAYBACK_RATE,
+    key: Keybinding.PLAYBACK_RATE_DOWN,
   },
   {
     button: 'rate-up',
     label: 'Increase Rate',
-    key: ACCESSIBILITY_KEYBINDINGS.INCREASE_PLAYBACK_RATE,
+    key: Keybinding.PLAYBACK_RATE_UP,
   },
 ];
 
@@ -123,7 +123,7 @@ function AccessibleControllerButtonDiagnostic({
       <H3>
         {stepIndex + 1}. Press the {step.label.toLowerCase()} button.
       </H3>
-      <MarkScanControllerIllustration highlight={step.button} />
+      <MarkScanControllerIllustration highlight={step.key} />
 
       <Button
         onPress={() =>
@@ -175,7 +175,7 @@ export function AccessibleControllerDiagnosticScreen({
   const steps = [
     ...DIAGNOSTIC_STEPS.map((curStep, index) => (
       <AccessibleControllerButtonDiagnostic
-        key={curStep.button}
+        key={curStep.key}
         step={curStep}
         stepIndex={index}
         onSuccess={index === DIAGNOSTIC_STEPS.length - 1 ? passTest : nextStep}

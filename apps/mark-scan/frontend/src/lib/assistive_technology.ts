@@ -1,85 +1,36 @@
-import { mod } from '../utils/mod';
-
-const querySelector =
-  'button:not([aria-hidden="true"]):not([disabled]):not([tabindex="-1"]), [role="button"]:not([aria-hidden="true"]):not([disabled]):not([tabindex="-1"])';
-
-export function getActiveElement(): HTMLElement {
-  return document.activeElement as HTMLElement;
-}
-
-function getFocusableElements(): HTMLElement[] {
-  const tabbableElements = Array.from(document.querySelectorAll(querySelector));
-  const ariaHiddenTabbableElements = Array.from(
-    document.querySelectorAll('[aria-hidden="true"] button')
-  );
-  return tabbableElements.filter(
-    (element) => ariaHiddenTabbableElements.indexOf(element) === -1
-  ) as HTMLElement[];
-}
-
-function handleArrowUp() {
-  const focusable = getFocusableElements();
-  const currentIndex = focusable.indexOf(getActiveElement());
-  /* istanbul ignore else */
-  if (focusable.length) {
-    if (currentIndex > -1) {
-      focusable[mod(currentIndex - 1, focusable.length)].focus();
-    } else {
-      focusable[focusable.length - 1].focus();
-    }
-  }
-}
-
-function handleArrowDown() {
-  const focusable = getFocusableElements();
-  const currentIndex = focusable.indexOf(getActiveElement());
-  /* istanbul ignore else */
-  if (focusable.length) {
-    focusable[mod(currentIndex + 1, focusable.length)].focus();
-  }
-}
-
-function handleArrowLeft() {
-  const prevButton = document.getElementById('previous');
-  /* istanbul ignore else */
-  if (prevButton) {
-    prevButton.click();
-  }
-}
-
-function handleArrowRight() {
-  const nextButton = document.getElementById('next');
-  /* istanbul ignore else */
-  if (nextButton) {
-    nextButton.click();
-  }
-}
+import {
+  Keybinding,
+  PageNavigationButtonId,
+  advanceElementFocus,
+  triggerPageNavigationButton,
+} from '@votingworks/ui';
 
 function handleClick() {
-  const activeElement = getActiveElement();
-  activeElement.click();
+  if (document.activeElement instanceof HTMLElement) {
+    document.activeElement.click();
+  }
 }
 
 /* istanbul ignore next */
 export function handleKeyboardEvent(event: KeyboardEvent): void {
   switch (event.key) {
-    case 'ArrowLeft':
-      handleArrowLeft();
+    case Keybinding.PAGE_PREVIOUS:
+      triggerPageNavigationButton(PageNavigationButtonId.PREVIOUS);
       break;
-    case 'ArrowRight':
-      handleArrowRight();
+    case Keybinding.PAGE_NEXT:
+      triggerPageNavigationButton(PageNavigationButtonId.NEXT);
       break;
-    case 'ArrowUp':
-      handleArrowUp();
+    case Keybinding.FOCUS_PREVIOUS:
+      advanceElementFocus(-1);
       break;
-    case 'ArrowDown':
-    case '1':
-      handleArrowDown();
+    case Keybinding.FOCUS_NEXT:
+    case Keybinding.PAT_MOVE:
+      advanceElementFocus(1);
       break;
-    case '2':
+    case Keybinding.PAT_SELECT:
       handleClick();
       break;
-    case 'Enter':
+    case Keybinding.SELECT:
       // Enter already acts like a click
       // handleClick();
       break;

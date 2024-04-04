@@ -5,6 +5,7 @@ import { newTestContext } from '../../test/test_context';
 import { KeyboardShortcutHandlers } from './keyboard_shortcut_handlers';
 import { act, render, screen, waitFor } from '../../test/react_testing_library';
 import { useCurrentLanguage } from '../hooks/use_current_language';
+import { Keybinding } from '..';
 
 const { CHINESE_SIMPLIFIED, ENGLISH, SPANISH } = LanguageCode;
 const audioControls: AudioControls = fakeUseAudioControls();
@@ -44,13 +45,13 @@ test('Shift+L switches display language', async () => {
 
   expect(currentLanguage).toEqual(ENGLISH);
 
-  await act(() => userEvent.keyboard('L'));
+  await act(() => userEvent.keyboard(Keybinding.SWITCH_LANGUAGE));
   expect(currentLanguage).toEqual(SPANISH);
 
-  await act(() => userEvent.keyboard('L'));
+  await act(() => userEvent.keyboard(Keybinding.SWITCH_LANGUAGE));
   expect(currentLanguage).toEqual(CHINESE_SIMPLIFIED);
 
-  await act(() => userEvent.keyboard('L'));
+  await act(() => userEvent.keyboard(Keybinding.SWITCH_LANGUAGE));
   expect(currentLanguage).toEqual(ENGLISH);
 
   // Should be a no-op without the `Shift` key modifier:
@@ -59,13 +60,18 @@ test('Shift+L switches display language', async () => {
 });
 
 test.each([
-  { key: 'M', expectedFnCall: audioControls.toggleEnabled },
-  { key: 'R', expectedFnCall: audioControls.replay },
-  { key: ',', expectedFnCall: audioControls.decreasePlaybackRate },
-  { key: '.', expectedFnCall: audioControls.increasePlaybackRate },
-  { key: 'P', expectedFnCall: audioControls.togglePause },
-  { key: '-', expectedFnCall: audioControls.decreaseVolume },
-  { key: '=', expectedFnCall: audioControls.increaseVolume },
+  { key: Keybinding.TOGGLE_AUDIO, expectedFnCall: audioControls.toggleEnabled },
+  {
+    key: Keybinding.PLAYBACK_RATE_DOWN,
+    expectedFnCall: audioControls.decreasePlaybackRate,
+  },
+  {
+    key: Keybinding.PLAYBACK_RATE_UP,
+    expectedFnCall: audioControls.increasePlaybackRate,
+  },
+  { key: Keybinding.TOGGLE_PAUSE, expectedFnCall: audioControls.togglePause },
+  { key: Keybinding.VOLUME_DOWN, expectedFnCall: audioControls.decreaseVolume },
+  { key: Keybinding.VOLUME_UP, expectedFnCall: audioControls.increaseVolume },
 ])(
   '"$key" key calls expected audioControls function',
   async ({ key, expectedFnCall }) => {
