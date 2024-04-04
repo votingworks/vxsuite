@@ -23,3 +23,7 @@ export enum Keybinding {
   PAT_MOVE = '1',
   PAT_SELECT = '2',
 }
+
+export const KEYBINDINGS: readonly Keybinding[] = Object.values(
+  Keybinding
+).filter((k) => typeof k === 'string');
