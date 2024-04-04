@@ -3,19 +3,23 @@ export enum PageNavigationButtonId {
   PREVIOUS = 'previous',
 }
 
-const FOCUSABLE_ELEMENT_SELECTORS = [
+const TAB_ENABLED_ELEMENT_SELECTORS = [
   'button:not([aria-hidden="true"]):not([disabled]):not([tabindex="-1"])',
   '[role="button"]:not([aria-hidden="true"]):not([disabled]):not([tabindex="-1"])',
 ].join(', ');
 
-const HIDDEN_TAB_ENABLED_ELEMENT_SELECTORS = [
+/**
+ * Selectors for elements that may be tab-enabled, but not focusable as a result
+ * of being a descendant of an `aria-hidden` node.
+ */
+const TAB_ENABLED_ELEMENT_IN_HIDDEN_BLOCK_SELECTORS = [
   '[aria-hidden="true"] button',
   '[aria-hidden="true"] [role="button"]',
 ].join(', ');
 
-function getHiddenTabEnabledElements() {
+function getTabEnabledElementsInHiddenBlocks() {
   return new Set(
-    document.querySelectorAll(HIDDEN_TAB_ENABLED_ELEMENT_SELECTORS)
+    document.querySelectorAll(TAB_ENABLED_ELEMENT_IN_HIDDEN_BLOCK_SELECTORS)
   );
 }
 
@@ -24,11 +28,15 @@ function getHiddenTabEnabledElements() {
  * focusable element in the document, in the specified {@link direction}.
  */
 export function advanceElementFocus(direction: 1 | -1): void {
-  const hiddenTabEnabledElements = getHiddenTabEnabledElements();
+  const allTabEnabledElements = document.querySelectorAll<HTMLElement>(
+    TAB_ENABLED_ELEMENT_SELECTORS
+  );
+  const tabEnabledElementsInHiddenBlocks =
+    getTabEnabledElementsInHiddenBlocks();
 
-  const focusableElements = Array.from(
-    document.querySelectorAll<HTMLElement>(FOCUSABLE_ELEMENT_SELECTORS)
-  ).filter((e) => !hiddenTabEnabledElements.has(e));
+  const focusableElements = Array.from(allTabEnabledElements).filter(
+    (e) => !tabEnabledElementsInHiddenBlocks.has(e)
+  );
   if (focusableElements.length === 0) {
     return;
   }
@@ -49,10 +57,9 @@ export function advanceElementFocus(direction: 1 | -1): void {
  * to advance
  */
 export function triggerPageNavigationButton(id: PageNavigationButtonId): void {
-  const hiddenTabEnabledElements = getHiddenTabEnabledElements();
   const button = document.getElementById(id);
 
-  if (!button || hiddenTabEnabledElements.has(button)) {
+  if (!button || getTabEnabledElementsInHiddenBlocks().has(button)) {
     return;
   }
 
