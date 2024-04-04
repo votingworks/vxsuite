@@ -41,7 +41,6 @@ export function handleGamepadKeyboardEvent(event: KeyboardEvent): void {
     case Keybinding.FOCUS_PREVIOUS:
       advanceElementFocus(-1);
       break;
-    case Keybinding.LEGACY_PAT_MOVE:
     case Keybinding.FOCUS_NEXT:
       advanceElementFocus(1);
       break;
@@ -50,9 +49,6 @@ export function handleGamepadKeyboardEvent(event: KeyboardEvent): void {
       break;
     case Keybinding.PAGE_NEXT:
       triggerPageNavigationButton(PageNavigationButtonId.NEXT);
-      break;
-    case Keybinding.LEGACY_PAT_SELECT:
-      handleClick();
       break;
     case Keybinding.SELECT:
       // Enter already acts like a click
