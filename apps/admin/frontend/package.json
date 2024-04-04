@@ -19,8 +19,8 @@
     "stylelint:run": "stylelint 'src/**/*.{js,jsx,ts,tsx}' && stylelint 'src/**/*.css' --config .stylelintrc-css.js",
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix && stylelint 'src/**/*.css' --config .stylelintrc-css.js --fix",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=America/Anchorage node scripts/test.js --coverage --watchAll=false --reporters=default --reporters=jest-junit --maxWorkers=6",
-    "test:coverage": "TZ=America/Anchorage node scripts/test.js --coverage --watchAll=false",
+    "test:ci": "TZ=America/Anchorage node scripts/test.js --coverage --watchAll=false --reporters=default --reporters=jest-junit --maxWorkers=6  --changedSince=main",
+    "test:coverage": "TZ=America/Anchorage node scripts/test.js --coverage --watchAll=false  --changedSince=main",
     "test:watch": "TZ=America/Anchorage node scripts/test.js",
     "type-check": "tsc --build"
   },

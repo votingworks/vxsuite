@@ -17,7 +17,7 @@
     "lint:fix": "pnpm type-check && eslint . --fix",
     "pre-commit": "lint-staged",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "TZ=America/Anchorage pnpm build && pnpm test:coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
+    "test:ci": "TZ=America/Anchorage pnpm build && pnpm test:coverage --reporters=default --reporters=jest-junit --maxWorkers=6  --changedSince=main",
     "test:coverage": "TZ=America/Anchorage jest --coverage",
     "test:watch": "TZ=America/Anchorage jest --watch",
     "type-check": "tsc --build"
