@@ -13,7 +13,6 @@
   "include": ["src", "test", ".storybook/*"],
   "exclude": [],
   "references": [
-    { "path": "../ballot-encoder/tsconfig.build.json" },
     { "path": "../basics/tsconfig.build.json" },
     { "path": "../eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../fixtures/tsconfig.build.json" },
