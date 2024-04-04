@@ -15,6 +15,8 @@ import { PrintPage } from '../pages/print_page';
 import { ReviewScreen } from '../pages/review_screen';
 import { StartScreen } from '../pages/start_screen';
 
+// trigger tests
+
 const USER_ACTIVITY_EVENT_TYPES: EventsType[] = (() => {
   const allEvents = new Set(DEFAULT_EVENTS);
   // The IdlePage has an autofocus button to enable gamepad interaction,
