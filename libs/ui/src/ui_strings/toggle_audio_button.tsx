@@ -11,6 +11,8 @@ export function ToggleAudioButton(): React.ReactNode {
   const isAudioEnabled = useAudioContext()?.isEnabled || false;
   const audioControls = useAudioControls();
 
+  // trigger tests
+
   const statusText = isAudioEnabled ? (
     <React.Fragment>
       <Icons.SoundOn /> {appStrings.noteVoterSettingsAudioUnmuted()}
