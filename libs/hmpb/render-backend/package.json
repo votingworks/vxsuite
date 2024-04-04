@@ -18,7 +18,7 @@
     "pre-commit": "lint-staged",
     "start": "vite -c vite.config.ts src/next",
     "test": "is-ci test:ci test:watch",
-    "test:ci": "jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
+    "test:ci": "jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=6  --changedSince=main",
     "test:coverage": "jest --coverage",
     "test:debug": "node --inspect-brk $(which jest) --runInBand --no-cache",
     "test:watch": "jest --watch",

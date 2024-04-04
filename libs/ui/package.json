@@ -23,7 +23,7 @@
     "stylelint:run:fix": "stylelint 'src/**/*.{js,jsx,ts,tsx}' --fix",
     "test": "is-ci test:ci test:watch",
     "test:coverage": "TZ=America/Anchorage jest --coverage",
-    "test:ci": "TZ=America/Anchorage jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
+    "test:ci": "TZ=America/Anchorage jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=6  --changedSince=main",
     "test:watch": "TZ=America/Anchorage jest --watch",
     "pre-commit": "lint-staged"
   },
