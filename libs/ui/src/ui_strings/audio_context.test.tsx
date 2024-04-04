@@ -242,3 +242,30 @@ test('reset', () => {
   expect(result.current?.playbackRate).toEqual(DEFAULT_PLAYBACK_RATE);
   expect(result.current?.isPaused).toEqual(false);
 });
+
+test('setControlsEnabled', () => {
+  const { result } = renderHook(useAudioContext, {
+    wrapper: TestContextWrapper,
+  });
+
+  act(() => result.current?.setControlsEnabled(false));
+
+  //
+  // These should all be no-ops when controls are disabled:
+  //
+
+  act(() => result.current?.setIsEnabled(true));
+  expect(result.current?.isEnabled).toEqual(DEFAULT_AUDIO_ENABLED_STATE);
+
+  act(() => result.current?.increasePlaybackRate());
+  expect(result.current?.playbackRate).toEqual(DEFAULT_PLAYBACK_RATE);
+
+  act(() => result.current?.decreasePlaybackRate());
+  expect(result.current?.playbackRate).toEqual(DEFAULT_PLAYBACK_RATE);
+
+  act(() => result.current?.setVolume(AudioVolume.MINIMUM));
+  expect(result.current?.volume).toEqual(DEFAULT_AUDIO_VOLUME);
+
+  act(() => result.current?.setIsPaused(true));
+  expect(result.current?.isPaused).toEqual(false);
+});

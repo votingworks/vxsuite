@@ -13,6 +13,8 @@ import { AudioVolume, DEFAULT_AUDIO_VOLUME } from './audio_volume';
 
 export const DEFAULT_AUDIO_ENABLED_STATE = true;
 
+function noOp() {}
+
 export interface UiStringsAudioContextInterface {
   api: UiStringsReactQueryApi;
   decreasePlaybackRate: () => void;
@@ -21,6 +23,7 @@ export interface UiStringsAudioContextInterface {
   isPaused: boolean;
   playbackRate: number;
   reset: () => void;
+  setControlsEnabled: (enabled: boolean) => void;
   setIsEnabled: (enabled: boolean) => void;
   setIsPaused: (paused: boolean) => void;
   setVolume: (volume: AudioVolume) => void;
@@ -60,6 +63,7 @@ export function UiStringsAudioContextProvider(
 ): JSX.Element {
   const { api, children } = props;
   const [isEnabled, setIsEnabled] = React.useState(DEFAULT_AUDIO_ENABLED_STATE);
+  const [controlsEnabled, setControlsEnabled] = React.useState(true);
   const [isPaused, setIsPaused] = React.useState(true);
   const [playbackRate, setPlaybackRate] = React.useState<number>(
     DEFAULT_PLAYBACK_RATE
@@ -77,6 +81,7 @@ export function UiStringsAudioContextProvider(
   const reset = React.useCallback(() => {
     resetPlaybackSettings();
     setIsEnabled(DEFAULT_AUDIO_ENABLED_STATE);
+    setControlsEnabled(true);
   }, [resetPlaybackSettings]);
 
   React.useEffect(() => {
@@ -129,17 +134,18 @@ export function UiStringsAudioContextProvider(
     <UiStringsAudioContext.Provider
       value={{
         api,
-        decreasePlaybackRate,
-        increasePlaybackRate,
+        decreasePlaybackRate: controlsEnabled ? decreasePlaybackRate : noOp,
+        increasePlaybackRate: controlsEnabled ? increasePlaybackRate : noOp,
         isEnabled,
         isPaused,
         playbackRate,
         reset,
-        setIsEnabled,
-        setIsPaused,
-        setVolume,
-        toggleEnabled,
-        togglePause,
+        setControlsEnabled,
+        setIsEnabled: controlsEnabled ? setIsEnabled : noOp,
+        setIsPaused: controlsEnabled ? setIsPaused : noOp,
+        setVolume: controlsEnabled ? setVolume : noOp,
+        toggleEnabled: controlsEnabled ? toggleEnabled : noOp,
+        togglePause: controlsEnabled ? togglePause : noOp,
         volume,
         webAudioContext: webAudioContextRef.current,
       }}

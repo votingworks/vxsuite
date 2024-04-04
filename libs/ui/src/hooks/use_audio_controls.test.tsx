@@ -17,6 +17,7 @@ test('returns external-facing audio context API', () => {
     decreasePlaybackRate: jest.fn(),
     increasePlaybackRate: jest.fn(),
     reset: jest.fn(),
+    setControlsEnabled: jest.fn(),
     setIsEnabled: jest.fn(),
     toggleEnabled: jest.fn(),
     togglePause: jest.fn(),
