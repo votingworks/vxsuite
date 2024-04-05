@@ -24,14 +24,6 @@ import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { mockCastVoteRecordFileRecord } from '../test/api_mock_data';
 import { MARK_RESULTS_OFFICIAL_BUTTON_TEXT } from './components/mark_official_button';
 
-jest.mock('@votingworks/ballot-encoder', () => {
-  return {
-    ...jest.requireActual('@votingworks/ballot-encoder'),
-    // mock encoded ballot so BMD ballot QR code does not change with every change to election definition
-    encodeBallot: () => new Uint8Array(),
-  };
-});
-
 let apiMock: ApiMock;
 
 beforeEach(() => {

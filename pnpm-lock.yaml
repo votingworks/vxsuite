@@ -346,9 +346,6 @@ importers:
       '@tanstack/react-query-devtools':
         specifier: 4.32.1
         version: 4.32.1(@tanstack/react-query@4.32.1)(react-dom@18.2.0)(react@18.2.0)
-      '@votingworks/ballot-encoder':
-        specifier: workspace:*
-        version: link:../../../libs/ballot-encoder
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
@@ -1010,9 +1007,6 @@ importers:
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
-      '@votingworks/ballot-encoder':
-        specifier: workspace:*
-        version: link:../../../libs/ballot-encoder
       '@votingworks/central-scan-backend':
         specifier: workspace:*
         version: link:../backend
@@ -1674,9 +1668,6 @@ importers:
       '@tanstack/react-query':
         specifier: 4.32.1
         version: 4.32.1(react-dom@18.2.0)(react@18.2.0)
-      '@votingworks/ballot-encoder':
-        specifier: workspace:*
-        version: link:../../../libs/ballot-encoder
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
@@ -2067,9 +2058,6 @@ importers:
       '@tanstack/react-query':
         specifier: 4.32.1
         version: 4.32.1(react-dom@18.2.0)(react@18.2.0)
-      '@votingworks/ballot-encoder':
-        specifier: workspace:*
-        version: link:../../../libs/ballot-encoder
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
@@ -2348,9 +2336,6 @@ importers:
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../../../libs/backend
-      '@votingworks/ballot-encoder':
-        specifier: workspace:*
-        version: link:../../../libs/ballot-encoder
       '@votingworks/ballot-interpreter':
         specifier: workspace:*
         version: link:../../../libs/ballot-interpreter
@@ -4796,9 +4781,6 @@ importers:
       '@fortawesome/react-fontawesome':
         specifier: ^0.2.0
         version: 0.2.0(@fortawesome/fontawesome-svg-core@6.3.0)(react@18.2.0)
-      '@votingworks/ballot-encoder':
-        specifier: workspace:*
-        version: link:../ballot-encoder
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
@@ -6009,7 +5991,7 @@ packages:
       '@babel/helpers': 7.22.6
       '@babel/parser': 7.22.7
       '@babel/template': 7.22.5
-      '@babel/traverse': 7.22.8(supports-color@5.5.0)
+      '@babel/traverse': 7.22.8
       '@babel/types': 7.22.10
       convert-source-map: 1.9.0
       debug: 4.3.4(supports-color@5.5.0)
@@ -6032,7 +6014,7 @@ packages:
       '@babel/helpers': 7.22.6
       '@babel/parser': 7.22.7
       '@babel/template': 7.22.5
-      '@babel/traverse': 7.22.8(supports-color@5.5.0)
+      '@babel/traverse': 7.22.8
       '@babel/types': 7.22.10
       convert-source-map: 1.9.0
       debug: 4.3.4(supports-color@5.5.0)
@@ -6398,7 +6380,7 @@ packages:
     engines: {node: '>=6.9.0'}
     dependencies:
       '@babel/template': 7.22.5
-      '@babel/traverse': 7.22.8(supports-color@5.5.0)
+      '@babel/traverse': 7.22.8
       '@babel/types': 7.22.10
     transitivePeerDependencies:
       - supports-color
@@ -8360,7 +8342,7 @@ packages:
     transitivePeerDependencies:
       - supports-color
 
-  /@babel/traverse@7.22.8(supports-color@5.5.0):
+  /@babel/traverse@7.22.8:
     resolution: {integrity: sha512-y6LPR+wpM2I3qJrsheCTwhIinzkETbplIgPBbwvqPKc+uljeA5gP+3nP8irdYt1mjQaDnlIcG+dw8OjAco4GXw==}
     engines: {node: '>=6.9.0'}
     dependencies:
@@ -10814,7 +10796,7 @@ packages:
     dependencies:
       '@babel/generator': 7.22.9
       '@babel/parser': 7.22.7
-      '@babel/traverse': 7.22.8(supports-color@5.5.0)
+      '@babel/traverse': 7.22.8
       '@babel/types': 7.22.10
       '@storybook/csf': 0.1.1
       '@storybook/types': 7.2.2
@@ -15545,7 +15527,7 @@ packages:
     resolution: {integrity: sha512-YNF+mZ/Wu2FU/gvmzuWtYc8rloubL7wfXCTgouFrnjGVXPA/EeYYA7pupXWrb3Iv1cTBeSSxxJIbK23l4MRNqg==}
     engines: {node: '>=8.3.0'}
     dependencies:
-      '@babel/traverse': 7.22.8(supports-color@5.5.0)
+      '@babel/traverse': 7.22.8
       '@babel/types': 7.22.10
       c8: 7.12.0
     transitivePeerDependencies:
