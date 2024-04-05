@@ -30,8 +30,8 @@ mod device;
 mod port;
 
 const APP_NAME: &str = "vx-mark-scan-controller-daemon";
-const KPB_200_FW_VID: u16 = 10445;
-const KPB_200_FW_PID: u16 = 16392;
+const KPB_200_FW_VID: u16 = 0x28cd;
+const KPB_200_FW_PID: u16 = 0x4008;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]

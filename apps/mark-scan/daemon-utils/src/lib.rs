@@ -8,8 +8,8 @@ use std::{
 };
 use vx_logging::{log, EventId, EventType};
 
-const HEARTBEAT_INTERVAL: Duration = Duration::new(5, 0);
-const NOOP_LOOP_INTERVAL: Duration = Duration::new(1, 0);
+const HEARTBEAT_INTERVAL: Duration = Duration::from_secs(5);
+const NOOP_LOOP_INTERVAL: Duration = Duration::from_secs(1);
 
 pub fn run_no_op_event_loop(running: &Arc<AtomicBool>) {
     log!(
