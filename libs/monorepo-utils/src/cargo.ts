@@ -2,8 +2,8 @@ import { assertDefined, lines } from '@votingworks/basics';
 import { spawn } from 'node:child_process';
 import { getAbsoluteRootPath } from './dependencies';
 
-// patinputd has no tests currently
-const EXCLUDED_PACKAGE_IDS = ['patinputd'];
+// Add untested packages here
+const EXCLUDED_PACKAGE_IDS: string[] = [];
 
 /**
  * Get all Rust crate paths.
