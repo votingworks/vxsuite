@@ -17,7 +17,7 @@ use std::{
         atomic::{AtomicBool, Ordering},
         Arc,
     },
-    thread::{self},
+    thread,
     time::Duration,
 };
 use uinput::{
