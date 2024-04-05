@@ -39,6 +39,24 @@ eventId = "usb-device-change-detected"
 eventType = "system-status"
 documentationMessage = "A message from the machine kernel about an externally-connected USB device, usually when a new device is connected or disconnected."
 
+[Info]
+eventId = "info"
+eventType = "system-status"
+documentationMessage = "The process is reporting general status."
+restrictInDocumentationToApps = [
+  "vx-mark-scan-controller-daemon",
+  "vx-mark-scan-pat-daemon",
+]
+
+[Heartbeat]
+eventId = "heartbeat"
+eventType = "system-status"
+documentationMessage = "The process sent a heartbeat"
+restrictInDocumentationToApps = [
+  "vx-mark-scan-controller-daemon",
+  "vx-mark-scan-pat-daemon",
+]
+
 [ProcessStarted]
 eventId = "process-started"
 eventType = "system-action"

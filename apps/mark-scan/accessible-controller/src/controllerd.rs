@@ -6,6 +6,8 @@
 //! for change in signal value. When a button press is detected, it sends
 //! a keypress event for consumption by the mark-scan application.
 
+use clap::Parser;
+use daemon_utils::run_no_op_event_loop;
 use std::{
     io::{self, Read},
     process::exit,
@@ -28,10 +30,21 @@ mod device;
 mod port;
 
 const APP_NAME: &str = "vx-mark-scan-controller-daemon";
+const KPB_200_FW_VID: u16 = 0x28cd;
+const KPB_200_FW_PID: u16 = 0x4008;
+
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    /// Allow the daemon to run if no hardware is found.
+    #[arg(short, long)]
+    skip_hardware_check: bool,
+}
 
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
 
+    let args = Args::parse();
     set_app_name(APP_NAME);
     log!(
         EventId::ProcessStarted;
@@ -70,7 +83,26 @@ fn main() -> color_eyre::Result<()> {
         EventType::SystemAction
     );
 
-    match Port::open() {
+    if let Some(port) = get_port() {
+        run_event_loop(keyboard, port, &running);
+        exit(0);
+    }
+
+    if args.skip_hardware_check {
+        run_no_op_event_loop(&running);
+        exit(0);
+    }
+
+    log!(
+        event_id: EventId::ProcessTerminated,
+        event_type: EventType::SystemStatus,
+        message: "Could not connect to ATI controller".to_string()
+    );
+    exit(1);
+}
+
+fn get_port() -> Option<Port> {
+    match Port::open_by_ids(KPB_200_FW_VID, KPB_200_FW_PID) {
         Ok(port) => {
             log!(
                 event_id: EventId::ControllerConnectionComplete,
@@ -79,20 +111,19 @@ fn main() -> color_eyre::Result<()> {
                 disposition: Disposition::Success
             );
 
-            run_event_loop(keyboard, port, &running);
+            return Some(port);
         }
         Err(e) => {
             log!(
                 event_id: EventId::ControllerConnectionComplete,
-                message: format!("Failed to open port. Error: {e}"),
+                message: format!("Failed to open controller port. Error: {e}"),
                 event_type: EventType::SystemAction,
                 disposition: Disposition::Failure
             );
-            exit(1);
         }
     }
 
-    Ok(())
+    None
 }
 
 fn run_event_loop(mut keyboard: impl VirtualKeyboard, mut port: Port, running: &Arc<AtomicBool>) {
@@ -112,7 +143,7 @@ fn run_event_loop(mut keyboard: impl VirtualKeyboard, mut port: Port, running: &
             Err(e) => {
                 log!(
                     event_id: EventId::UnknownError,
-                    message: format!("Unexpected error when opening serial port: {e}"),
+                    message: format!("Unexpected error when reading from serial port: {e:?}"),
                     event_type: EventType::SystemStatus
                 );
             }

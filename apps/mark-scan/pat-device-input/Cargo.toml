@@ -10,6 +10,8 @@ path = "src/patinputd.rs"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+clap = { workspace = true, features = ["derive"] }
 ctrlc = { workspace = true }
-vx-logging = { workspace = true }
+daemon-utils = { workspace = true }
 uinput = { workspace = true }
+vx-logging = { workspace = true }

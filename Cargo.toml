@@ -6,6 +6,7 @@ members = [
   "libs/types-rs",
   "apps/mark-scan/accessible-controller",
   "apps/mark-scan/pat-device-input",
+  "apps/mark-scan/daemon-utils",
 ]
 
 [workspace.dependencies]
@@ -22,6 +23,7 @@ imageproc = "0.24.0"
 itertools = "0.12.1"
 log = "0.4.17"
 vx-logging = { path = "libs/logging" }
+daemon-utils = { path = "apps/mark-scan/daemon-utils" }
 logging_timer = "1.1.0"
 neon = { version = "1.0.0", default-features = false, features = ["napi-6"] }
 num_enum = "0.7.1"

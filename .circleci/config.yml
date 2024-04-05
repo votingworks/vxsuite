@@ -1281,6 +1281,24 @@ jobs:
           command: |
             cargo test -p controllerd
 
+  test-crate-daemon-utils:
+    executor: 'nodejs'
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            cargo build -p daemon-utils
+      - run:
+          name: Lint
+          command: |
+            cargo clippy -p daemon-utils
+      - run:
+          name: Test
+          command: |
+            cargo test -p daemon-utils
+
   test-crate-types-rs:
     executor: 'nodejs'
     resource_class: xlarge
@@ -1388,6 +1406,7 @@ workflows:
       - test-libs-utils
       - test-crate-ballot-interpreter
       - test-crate-controllerd
+      - test-crate-daemon-utils
       - test-crate-types-rs
       - test-crate-vx-logging
       - validate-monorepo

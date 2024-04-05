@@ -3,12 +3,11 @@ use std::{
     time::{Duration, Instant},
 };
 
-use serialport::SerialPort;
+use serialport::{available_ports, SerialPort, SerialPortType};
 use vx_logging::{log, Disposition, EventId, EventType};
 
 use crate::commands::EchoCommand;
 
-const DEVICE_PATH: &str = "/dev/ttyACM1";
 const DEVICE_BAUD_RATE: u32 = 9600;
 const MAX_ECHO_RESPONSE_WAIT: Duration = Duration::from_secs(5);
 const POLL_INTERVAL: Duration = Duration::from_millis(50);
@@ -18,13 +17,50 @@ pub struct Port {
 }
 
 impl Port {
-    pub fn open() -> color_eyre::Result<Self> {
-        let inner = serialport::new(DEVICE_PATH, DEVICE_BAUD_RATE)
+    pub fn open_by_ids(vendor_id: u16, product_id: u16) -> color_eyre::Result<Self> {
+        let device_path = Self::get_device_path(vendor_id, product_id)?;
+        Self::open(&device_path)
+    }
+
+    fn open(path: &str) -> color_eyre::Result<Self> {
+        let inner = serialport::new(path, DEVICE_BAUD_RATE)
             .timeout(POLL_INTERVAL)
             .open()?;
         let mut port = Self { inner };
         port.validate_connection()?;
         Ok(port)
+    }
+
+    fn get_device_path(vendor_id: u16, product_id: u16) -> Result<String, io::Error> {
+        match available_ports() {
+            Ok(ports_info) => {
+                for port_info in ports_info {
+                    if let SerialPortType::UsbPort(info) = port_info.port_type {
+                        log!(
+                            event_id: EventId::Info,
+                            event_type: EventType::SystemStatus,
+                            message: format!("Discovered port {}, vendor_id={}, product_id={}", port_info.port_name, info.vid, info.pid)
+                        );
+                        if info.vid == vendor_id && info.pid == product_id {
+                            return Ok(port_info.port_name);
+                        }
+                    }
+                }
+            }
+            Err(e) => {
+                log!(
+                    event_id: EventId::ControllerConnectionComplete,
+                    message: format!("Error listing serialport devices: {e}"),
+                    event_type: EventType::SystemAction,
+                    disposition: Disposition::Failure
+                );
+            }
+        }
+
+        Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            format!("No matching port found for VID {vendor_id} and PID {product_id}"),
+        ))
     }
 
     fn validate_connection(&mut self) -> Result<(), io::Error> {

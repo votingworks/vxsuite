@@ -7,7 +7,8 @@
 //!
 //! Notably, running this daemon is required for the mark-scan app to read PAT
 //! device connection status.
-
+use clap::Parser;
+use daemon_utils::run_no_op_event_loop;
 use pin::Pin;
 use std::{
     io,
@@ -35,6 +36,14 @@ const IS_CONNECTED_PIN: Pin = Pin::new(478);
 const SIGNAL_A_PIN: Pin = Pin::new(481);
 const SIGNAL_B_PIN: Pin = Pin::new(476);
 
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    /// Allow the daemon to run if no hardware is found.
+    #[arg(short, long)]
+    skip_hardware_check: bool,
+}
+
 fn send_key(device: &mut Device, key: keyboard::Key) -> Result<(), uinput::Error> {
     device.click(&key)?;
     device.synchronize()?;
@@ -60,6 +69,8 @@ fn set_up_pins() -> io::Result<()> {
 }
 
 fn main() {
+    let args = Args::parse();
+
     set_app_name(APP_NAME);
     log!(EventId::ProcessStarted; EventType::SystemAction);
 
@@ -98,6 +109,11 @@ fn main() {
             disposition: Disposition::Failure,
             message: format!("An error occurred during GPIO pin connection: {err}")
         );
+
+        if args.skip_hardware_check {
+            run_no_op_event_loop(&running);
+            exit(0);
+        }
         exit(1);
     };
 

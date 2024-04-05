@@ -57,6 +57,10 @@
       "path": "apps/mark-scan/integration-testing"
     },
     {
+      "name": "apps/mark-scan/daemon-utils",
+      "path": "apps/mark-scan/daemon-utils"
+    },
+    {
       "name": "apps/mark-scan/accessible-controller",
       "path": "apps/mark-scan/accessible-controller"
     },
