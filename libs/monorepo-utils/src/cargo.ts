@@ -2,9 +2,6 @@ import { assertDefined, lines } from '@votingworks/basics';
 import { spawn } from 'node:child_process';
 import { getAbsoluteRootPath } from './dependencies';
 
-// patinputd has no tests currently
-const EXCLUDED_PACKAGE_IDS = ['patinputd'];
-
 /**
  * Get all Rust crate paths.
  */
@@ -24,6 +21,5 @@ export async function getRustPackageIds(root: string): Promise<string[]> {
 
   return lines(cargo.stdout)
     .filterMap((line) => (line ? assertDefined(line.split(' ')[0]) : undefined))
-    .filter((packageId) => !EXCLUDED_PACKAGE_IDS.includes(packageId))
     .toArray();
 }
