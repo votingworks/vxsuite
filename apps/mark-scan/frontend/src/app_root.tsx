@@ -17,7 +17,6 @@ import {
   isCardlessVoterAuth,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
-  randomBallotId,
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
@@ -32,7 +31,6 @@ import {
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
-  CastBallotPage,
   mergeMsEitherNeitherContests,
   useBallotStyleManager,
   useSessionSettingsManager,
@@ -40,7 +38,6 @@ import {
 import type { ElectionState } from '@votingworks/mark-scan-backend';
 import {
   checkPin,
-  confirmSessionEnd,
   endCardlessVoterSession,
   getAuthStatus,
   getElectionDefinition,
@@ -55,9 +52,7 @@ import {
   systemCallApi,
 } from './api';
 
-import { Ballot } from './components/ballot';
 import * as GLOBALS from './config/globals';
-import { BallotContext } from './contexts/ballot_context';
 import { handleKeyboardEvent } from './lib/assistive_technology';
 import { AdminScreen } from './pages/admin_screen';
 import { InsertCardScreen } from './pages/insert_card_screen';
@@ -70,7 +65,6 @@ import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election
 import { NoPaperHandlerPage } from './pages/no_paper_handler_page';
 import { JammedPage } from './pages/jammed_page';
 import { JamClearedPage } from './pages/jam_cleared_page';
-import { ValidateBallotPage } from './pages/validate_ballot_page';
 import { BallotInvalidatedPage } from './pages/ballot_invalidated_page';
 import { BlankPageInterpretationPage } from './pages/blank_page_interpretation_page';
 import { PaperReloadedPage } from './pages/paper_reloaded_page';
@@ -80,6 +74,7 @@ import { BallotSuccessfullyCastPage } from './pages/ballot_successfully_cast_pag
 import { EmptyBallotBoxPage } from './pages/empty_ballot_box_page';
 import { PollWorkerAuthEndedUnexpectedlyPage } from './pages/poll_worker_auth_ended_unexpectedly_page';
 import { LOW_BATTERY_THRESHOLD } from './constants';
+import { VoterFlow } from './voter_flow';
 
 interface VotingState {
   votes?: VotesDict;
@@ -166,7 +161,6 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
     : 'no_hardware';
 
   const checkPinMutation = checkPin.useMutation();
-  const confirmSessionEndMutation = confirmSessionEnd.useMutation();
   const startCardlessVoterSessionMutation =
     startCardlessVoterSession.useMutation();
   const startCardlessVoterSessionMutate =
@@ -532,45 +526,20 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
         stateMachineState !== 'accepting_paper' &&
         stateMachineState !== 'not_accepting_paper'
       ) {
-        let ballotContextProviderChild = <Ballot />;
-        // Pages that condition on state machine state aren't nested under Ballot because Ballot uses
-        // frontend browser routing for flow control and is completely independent of the state machine.
-        // We still want to nest some pages that condition on the state machine under BallotContext so we render them here.
-        if (stateMachineState === 'presenting_ballot') {
-          ballotContextProviderChild = <ValidateBallotPage />;
-        }
-
-        if (stateMachineState === 'ballot_removed_during_presentation') {
-          return (
-            <CastBallotPage
-              hidePostVotingInstructions={() => {
-                resetBallot();
-                confirmSessionEndMutation.mutate();
-              }}
-              printingCompleted
-            />
-          );
-        }
-
         return (
-          <BallotContext.Provider
-            value={{
-              machineConfig,
-              precinctId,
-              ballotStyleId,
-              contests,
-              electionDefinition: optionalElectionDefinition,
-              generateBallotId: randomBallotId,
-              isCardlessVoter: isCardlessVoterAuth(authStatus),
-              isLiveMode: !isTestMode,
-              endVoterSession,
-              resetBallot,
-              updateVote,
-              votes: votes ?? blankBallotVotes,
-            }}
-          >
-            {ballotContextProviderChild}
-          </BallotContext.Provider>
+          <VoterFlow
+            ballotStyleId={ballotStyleId}
+            contests={contests}
+            electionDefinition={optionalElectionDefinition}
+            endVoterSession={endVoterSession}
+            isLiveMode={!isTestMode}
+            machineConfig={machineConfig}
+            precinctId={precinctId}
+            resetBallot={resetBallot}
+            stateMachineState={stateMachineState}
+            updateVote={updateVote}
+            votes={votes ?? blankBallotVotes}
+          />
         );
       }
     }

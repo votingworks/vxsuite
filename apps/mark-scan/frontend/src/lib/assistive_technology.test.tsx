@@ -2,7 +2,7 @@ import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { mockOf } from '@votingworks/test-utils';
-import { Keybinding } from '@votingworks/ui';
+import { Keybinding, simulateKeyPress } from '@votingworks/ui';
 import { render, screen, waitFor } from '../../test/react_testing_library';
 
 import { App } from '../app';
@@ -21,15 +21,6 @@ let apiMock: ApiMock;
 
 function getActiveElement() {
   return document.activeElement;
-}
-
-function simulateKeyPress(key: string) {
-  if (key.length === 1) {
-    userEvent.keyboard(key);
-    return;
-  }
-
-  userEvent.keyboard(`[${key}]`);
 }
 
 beforeEach(() => {
