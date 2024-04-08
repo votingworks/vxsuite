@@ -10,7 +10,7 @@ export function useAccessibleControllerHelpTrigger(): UseAccessibleControllerHel
   const [lastKeyPress, setLastKeyPress] = React.useState<string>();
 
   // Toggles `shouldShowHelp` from `false` to `true` on a single
-  // `Keybinding.TOGGLE_HELP` event and toggles `true`` to `false` only after
+  // `Keybinding.TOGGLE_HELP` event and toggles `true` to `false` only after
   // two consecutive `Keybinding.TOGGLE_HELP` events.
   React.useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {

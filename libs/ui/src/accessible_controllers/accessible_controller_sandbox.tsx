@@ -58,8 +58,8 @@ export function AccessibleControllerSandbox<T extends Keybinding>(
 
       // Waiting to update the audio string key in the next tick allows the
       // previous state to get cleared and for the screen reader to stop before
-      // triggering new audio. This enables repeated audio feedback on the
-      // repeated pressed of the same button.
+      // triggering new audio. This enables repeated audio feedback on repeated
+      // presses of the same button.
       window.setTimeout(() => {
         setPressedKey(key);
         setCurrentAudioStringKey(audioStringKey);

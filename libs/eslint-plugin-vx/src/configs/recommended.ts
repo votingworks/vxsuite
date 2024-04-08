@@ -116,6 +116,8 @@ export = {
           'src/setupTests.tsx',
           '**/*.stories.ts',
           '**/*.stories.tsx',
+          '**/test_utils.ts',
+          '**/test_utils.tsx',
           '**/*.bench.ts',
         ],
       },

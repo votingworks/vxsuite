@@ -5,7 +5,7 @@ import {
 } from '@votingworks/test-utils';
 import React from 'react';
 import { assert } from '@votingworks/basics';
-import userEvent from '@testing-library/user-event';
+import { simulateKeyPress as baseSimulateKeyPress } from './test_utils';
 import { UiString } from '../ui_strings/ui_string';
 import {
   AccessibleControllerHelpStrings,
@@ -56,7 +56,7 @@ function newRenderer() {
 }
 
 function simulateKeyPress(key: string) {
-  userEvent.keyboard(key.length === 1 ? key : `[${key}]`);
+  baseSimulateKeyPress(key);
   advanceTimers();
 }
 

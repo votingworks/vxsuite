@@ -1,11 +1,6 @@
 import { renderHook } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { useAccessibleControllerHelpTrigger } from '.';
+import { simulateKeyPress, useAccessibleControllerHelpTrigger } from '.';
 import { KEYBINDINGS, Keybinding } from '../keybindings';
-
-function simulateKeyPress(key: string) {
-  userEvent.keyboard(key.length === 1 ? key : `[${key}]`);
-}
 
 test('toggles "off" to "on" for single keypress', () => {
   const { result } = renderHook(useAccessibleControllerHelpTrigger);
