@@ -89,11 +89,26 @@ function ElectionInfoForm({
       <InputGroup label="Date">
         <input
           type="date"
-          value={
-            electionInfo.date &&
-            new Date(electionInfo.date).toISOString().slice(0, 10)
-          }
-          onChange={onInputChange('date')}
+          value={(() => {
+            if (!electionInfo.date) return '';
+            const date = new Date(electionInfo.date);
+            // Subtract one day to account for timezone bug in the rest of VxSuite 3.1
+            date.setDate(date.getDate() - 1);
+            return date.toISOString().split('T')[0];
+          })()}
+          onChange={(e) => {
+            if (!e.target.value) {
+              setElectionInfo({ ...electionInfo, date: '' });
+              return;
+            }
+            const date = new Date(e.target.value);
+            // Add one day to the date to account for timezone bug in the rest of VxSuite 3.1
+            date.setDate(date.getDate() + 1);
+            setElectionInfo({
+              ...electionInfo,
+              date: date.toISOString().split('T')[0],
+            });
+          }}
           disabled={!isEditing}
         />
       </InputGroup>

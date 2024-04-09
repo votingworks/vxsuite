@@ -2,6 +2,7 @@ import userEvent from '@testing-library/user-event';
 import { Election } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import { createMemoryHistory } from 'history';
+import { assert } from '@votingworks/basics';
 import {
   MockApiClient,
   createMockApiClient,
@@ -97,7 +98,9 @@ test('edit and save election', async () => {
   expect(titleInput).toBeDisabled();
 
   const dateInput = screen.getByLabelText('Date');
-  expect(dateInput).toHaveValue(election.date);
+  // Date input should account for timezone bug
+  assert(election.date === '2020-11-03');
+  expect(dateInput).toHaveValue('2020-11-02');
   expect(dateInput).toBeDisabled();
 
   const typeInput = screen.getByRole('listbox', { name: 'Type' });
@@ -161,7 +164,8 @@ test('edit and save election', async () => {
   const updatedElection: Election = {
     ...election,
     title: 'New Title',
-    date: '2023-09-06',
+    // Date input should account for timezone bug
+    date: '2023-09-07',
     type: 'primary',
     state: 'New State',
     county: {
