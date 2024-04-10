@@ -651,6 +651,18 @@ restrictInDocumentationToApps = [
   "vx-mark-scan-controller-daemon",
 ]
 
+[ConnectToGpioPinInit]
+eventId = "connect-to-gpio-pin-init"
+eventType = "system-action"
+documentationMessage = "mark-scan PAT daemon initiated connection a specific GPIO pin."
+restrictInDocumentationToApps = ["vx-mark-scan-pat-daemon"]
+
+[ConnectToGpioPinComplete]
+eventId = "connect-to-gpio-pin-complete"
+eventType = "system-action"
+documentationMessage = "mark-scan PAT daemon completed connection a specific GPIO pin."
+restrictInDocumentationToApps = ["vx-mark-scan-pat-daemon"]
+
 [ConnectToPatInputInit]
 eventId = "connect-to-pat-input-init"
 eventType = "system-action"

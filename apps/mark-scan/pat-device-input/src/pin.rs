@@ -107,6 +107,7 @@ impl GpioPin {
     // Exports the pin to be globally accessible from userspace. If the pin is already
     // exported, does nothing.
     fn safe_export(&self) -> io::Result<()> {
+        log!(EventId::ConnectToGpioPinInit, "Exporting pin {}", self);
         if let Err(error) = self.export() {
             // When the pin is already exported we expect io::ErrorKind::ResourceBusy.
             // ResourceBusy is unstable so we unconditionally attempt unexport + rexport.
@@ -114,14 +115,19 @@ impl GpioPin {
             log!(
                 EventId::Info,
                 "Error when exporting pin {}: {}. Attempting to unexport and re-export.",
-                self.address,
-                error,
+                self,
+                error
             );
 
             self.unexport()?;
             self.export()?;
         }
 
+        log!(
+            event_id: EventId::ConnectToGpioPinComplete,
+            disposition: vx_logging::Disposition::Success,
+            message: format!("Successfully exported pin {}", self)
+        );
         Ok(())
     }
 
