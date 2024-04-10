@@ -119,6 +119,8 @@ export enum LogEventId {
   PaperHandlerConnection = 'paper-handler-connection',
   CreateVirtualUinputDeviceInit = 'create-virtual-uinput-device-init',
   CreateVirtualUinputDeviceComplete = 'create-virtual-uinput-device-complete',
+  ConnectToGpioPinInit = 'connect-to-gpio-pin-init',
+  ConnectToGpioPinComplete = 'connect-to-gpio-pin-complete',
   ConnectToPatInputInit = 'connect-to-pat-input-init',
   ConnectToPatInputComplete = 'connect-to-pat-input-complete',
   ControllerConnectionInit = 'controller-connection-init',
@@ -1013,6 +1015,22 @@ const CreateVirtualUinputDeviceComplete: LogDetails = {
   ],
 };
 
+const ConnectToGpioPinInit: LogDetails = {
+  eventId: LogEventId.ConnectToGpioPinInit,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'mark-scan PAT daemon initiated connection a specific GPIO pin.',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanPatDaemon],
+};
+
+const ConnectToGpioPinComplete: LogDetails = {
+  eventId: LogEventId.ConnectToGpioPinComplete,
+  eventType: LogEventType.SystemAction,
+  documentationMessage:
+    'mark-scan PAT daemon completed connection a specific GPIO pin.',
+  restrictInDocumentationToApps: [LogSource.VxMarkScanPatDaemon],
+};
+
 const ConnectToPatInputInit: LogDetails = {
   eventId: LogEventId.ConnectToPatInputInit,
   eventType: LogEventType.SystemAction,
@@ -1332,6 +1350,10 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return CreateVirtualUinputDeviceInit;
     case LogEventId.CreateVirtualUinputDeviceComplete:
       return CreateVirtualUinputDeviceComplete;
+    case LogEventId.ConnectToGpioPinInit:
+      return ConnectToGpioPinInit;
+    case LogEventId.ConnectToGpioPinComplete:
+      return ConnectToGpioPinComplete;
     case LogEventId.ConnectToPatInputInit:
       return ConnectToPatInputInit;
     case LogEventId.ConnectToPatInputComplete:
