@@ -214,7 +214,9 @@ impl Scanner {
         )
     }
 
-    /// Stop the scanner. Blocks until cleanup is complete.
+    /// Stop listening for incoming packets and close the connection to the
+    /// scanner. This is automatically called when the `Scanner` instance is
+    /// dropped.
     pub fn stop(&mut self) {
         if let Some(stop_tx) = self.stop_tx.take() {
             stop_tx.send(()).unwrap();
@@ -223,5 +225,11 @@ impl Scanner {
         if let Some(thread_handle) = self.thread_handle.take() {
             thread_handle.join().unwrap();
         }
+    }
+}
+
+impl Drop for Scanner {
+    fn drop(&mut self) {
+        self.stop();
     }
 }

@@ -37,9 +37,9 @@ pub(crate) fn run() -> Result<()> {
 
         if app.should_connect() {
             match connect() {
-                Ok((scanner, client)) => {
+                Ok(client) => {
                     app.log("⚡ Connected to scanner.");
-                    match app.on_connect(client, scanner) {
+                    match app.on_connect(client) {
                         Ok(_) => {
                             app.set_should_connect(false);
                             assert_eq!(app.connection_state(), ConnectionState::Connected);

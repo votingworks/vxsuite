@@ -58,7 +58,7 @@ fn main() -> color_eyre::Result<()> {
     let config = Config::parse();
     setup(&config)?;
 
-    let (mut scanner, mut client) = connect()?;
+    let mut client = connect()?;
 
     let mut raw_image_data = RawImageData::new();
     let mut scan_index = 0;
@@ -149,7 +149,6 @@ fn main() -> color_eyre::Result<()> {
     }
 
     client.set_feeder_mode(FeederMode::Disabled)?;
-    scanner.stop();
 
     Ok(())
 }

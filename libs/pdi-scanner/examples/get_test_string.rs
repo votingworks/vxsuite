@@ -51,7 +51,7 @@ fn main() -> color_eyre::Result<()> {
     let config = Config::parse();
     setup(&config).unwrap();
 
-    let (mut scanner, mut client) = connect()?;
+    let mut client = connect()?;
 
     for n in 1..=config.times {
         println!(
@@ -59,8 +59,6 @@ fn main() -> color_eyre::Result<()> {
             client.get_test_string(Duration::from_secs(1))
         );
     }
-
-    scanner.stop();
 
     Ok(())
 }

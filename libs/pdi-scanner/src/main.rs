@@ -148,7 +148,7 @@ fn main() -> color_eyre::Result<()> {
         }
     });
 
-    let mut scanner_and_client: Option<(Scanner, Client)> = None;
+    let mut client: Option<Client<Scanner>> = None;
     let mut raw_image_data = RawImageData::new();
 
     // Main loop:
@@ -156,7 +156,7 @@ fn main() -> color_eyre::Result<()> {
     // - Process any events or image data received from the scanner
     loop {
         match stdin_rx.try_recv() {
-            Ok(command) => match (&mut scanner_and_client, command) {
+            Ok(command) => match (&mut client, command) {
                 (_, Command::Exit) => {
                     serde_json::to_writer(io::stdout(), &Response::Ok)?;
                     exit(0)
@@ -167,8 +167,8 @@ fn main() -> color_eyre::Result<()> {
                     })?;
                 }
                 (None, Command::Connect) => match connect() {
-                    Ok((scanner, mut client)) => {
-                        match client.send_connect() {
+                    Ok(mut c) => {
+                        match c.send_connect() {
                             Ok(()) => {
                                 send_response(&Response::Ok)?;
                             }
@@ -178,7 +178,7 @@ fn main() -> color_eyre::Result<()> {
                                 })?;
                             }
                         }
-                        scanner_and_client = Some((scanner, client));
+                        client = Some(c);
                     }
                     Err(e) => {
                         send_response(&Response::Err {
@@ -186,12 +186,11 @@ fn main() -> color_eyre::Result<()> {
                         })?;
                     }
                 },
-                (Some((scanner, _)), Command::Disconnect) => {
-                    scanner.stop();
-                    scanner_and_client = None;
+                (Some(_), Command::Disconnect) => {
+                    client = None;
                     send_response(&Response::Ok)?;
                 }
-                (Some((_, client)), Command::GetScannerStatus) => {
+                (Some(client), Command::GetScannerStatus) => {
                     match client.get_scanner_status(Duration::from_secs(1)) {
                         Ok(status) => {
                             send_response(&Response::ScannerStatus { status })?;
@@ -203,7 +202,7 @@ fn main() -> color_eyre::Result<()> {
                         }
                     }
                 }
-                (Some((_, client)), Command::EnableScanning) => {
+                (Some(client), Command::EnableScanning) => {
                     match client.send_enable_scan_commands() {
                         Ok(()) => {
                             send_response(&Response::Ok)?;
@@ -215,7 +214,7 @@ fn main() -> color_eyre::Result<()> {
                         }
                     }
                 }
-                (Some((_, client)), Command::EjectDocument { eject_motion }) => {
+                (Some(client), Command::EjectDocument { eject_motion }) => {
                     match client.eject_document(eject_motion) {
                         Ok(()) => {
                             send_response(&Response::Ok)?;
@@ -227,7 +226,7 @@ fn main() -> color_eyre::Result<()> {
                         }
                     }
                 }
-                (Some((_, client)), Command::EnableMsd { enable }) => {
+                (Some(client), Command::EnableMsd { enable }) => {
                     match client.set_double_feed_detection_mode(if enable {
                         DoubleFeedDetectionMode::RejectDoubleFeeds
                     } else {
@@ -243,7 +242,7 @@ fn main() -> color_eyre::Result<()> {
                         }
                     }
                 }
-                (Some((_, client)), Command::CalibrateMsd { calibration_type }) => {
+                (Some(client), Command::CalibrateMsd { calibration_type }) => {
                     match client.calibrate_double_feed_detection(calibration_type) {
                         Ok(()) => {
                             send_response(&Response::Ok)?;
@@ -255,7 +254,7 @@ fn main() -> color_eyre::Result<()> {
                         }
                     }
                 }
-                (Some((_, client)), Command::GetMsdCalibrationConfig) => {
+                (Some(client), Command::GetMsdCalibrationConfig) => {
                     match client.get_double_feed_detection_single_sheet_calibration_value(
                         Duration::from_secs(1),
                     ) {
@@ -287,7 +286,7 @@ fn main() -> color_eyre::Result<()> {
             }
         }
 
-        if let Some((_, client)) = &mut scanner_and_client {
+        if let Some(client) = &mut client {
             if let Ok(event) = client.try_recv_matching(Incoming::is_event) {
                 eprintln!("event: {:?}", event);
                 // TODO: pass the event as JSON via stdout

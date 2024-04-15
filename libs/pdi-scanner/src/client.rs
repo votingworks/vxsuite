@@ -52,20 +52,25 @@ macro_rules! expect_response_with_prefix {
     };
 }
 
-pub struct Client {
+pub struct Client<T> {
     id: usize,
     unhandled_packets: VecDeque<Incoming>,
     host_to_scanner_tx: mpsc::Sender<(usize, Outgoing)>,
     host_to_scanner_ack_rx: mpsc::Receiver<usize>,
     scanner_to_host_rx: mpsc::Receiver<Incoming>,
+
+    // we only hold on to the scanner handle so that it doesn't get dropped
+    #[allow(dead_code)]
+    scanner_handle: Option<T>,
 }
 
-impl Client {
+impl<T> Client<T> {
     #[must_use]
     pub fn new(
         host_to_scanner_tx: mpsc::Sender<(usize, Outgoing)>,
         host_to_scanner_ack_rx: mpsc::Receiver<usize>,
         scanner_to_host_rx: mpsc::Receiver<Incoming>,
+        scanner_handle: Option<T>,
     ) -> Self {
         Self {
             id: 0,
@@ -73,6 +78,7 @@ impl Client {
             scanner_to_host_rx,
             host_to_scanner_tx,
             host_to_scanner_ack_rx,
+            scanner_handle,
         }
     }
 

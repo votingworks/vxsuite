@@ -10,9 +10,9 @@ pub use types::{Error, Result};
 
 /// Connect to the scanner and return the scanner and client. When you're done,
 /// you should call [`Scanner::stop`] to properly close the connection.
-pub fn connect() -> color_eyre::Result<(Scanner, Client)> {
+pub fn connect() -> color_eyre::Result<Client<Scanner>> {
     let mut scanner = Scanner::open()?;
     let (tx, ack_rx, rx) = scanner.start();
-    let client = Client::new(tx, ack_rx, rx);
-    Ok((scanner, client))
+    let client = Client::new(tx, ack_rx, rx, Some(scanner));
+    Ok(client)
 }

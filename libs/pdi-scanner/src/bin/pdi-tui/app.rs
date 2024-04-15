@@ -24,8 +24,7 @@ const MAX_LOG_LENGTH: usize = 500;
 // App state
 pub struct App<'a> {
     log: Vec<LogEntry<'a>>,
-    client: Option<Client>,
-    scanner: Option<Scanner>,
+    client: Option<Client<Scanner>>,
     auto_scan: AutoScanConfig,
     auto_eject_delay: Duration,
     watch_status: WatchStatusConfig,
@@ -39,7 +38,6 @@ impl<'a> App<'a> {
         Self {
             log: vec![],
             client: None,
-            scanner: None,
             auto_scan: AutoScanConfig::default(),
             auto_eject_delay: Duration::default(),
             watch_status: WatchStatusConfig::default(),
@@ -106,13 +104,10 @@ impl<'a> App<'a> {
     }
 
     pub fn disconnect_client(&mut self) -> bool {
-        if let Some(mut scanner) = self.scanner.take() {
-            scanner.stop();
-        }
         self.client.take().is_some()
     }
 
-    pub fn on_connect(&mut self, mut client: Client, scanner: Scanner) -> pdi_scanner::Result<()> {
+    pub fn on_connect(&mut self, mut client: Client<Scanner>) -> pdi_scanner::Result<()> {
         client.set_scan_resolution(Resolution::Half)?;
         client.set_color_mode(ColorMode::LowColor)?;
         client.set_scan_side_mode(ScanSideMode::Duplex)?;
@@ -141,7 +136,6 @@ impl<'a> App<'a> {
         }
 
         self.client = Some(client);
-        self.scanner = Some(scanner);
 
         Ok(())
     }
@@ -217,7 +211,7 @@ impl<'a> App<'a> {
         self.get_client_mut()?.set_feeder_mode(mode)
     }
 
-    fn get_client_mut(&mut self) -> pdi_scanner::Result<&mut Client> {
+    fn get_client_mut(&mut self) -> pdi_scanner::Result<&mut Client<Scanner>> {
         match self.client.as_mut() {
             Some(client) => Ok(client),
             None => Err(pdi_scanner::Error::TryRecvError(TryRecvError::Disconnected)),
