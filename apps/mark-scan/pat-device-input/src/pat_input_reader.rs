@@ -36,14 +36,11 @@ impl<T: Pin> PatInputReader<T> {
         let mut offset: u16 = POSSIBLE_PIN_OFFSET;
 
         if let Some(probe_pin) = &self.is_connected_pin {
-            // let probe_pin_inner = probe_pin;
             // Earlier kernel versions may succeed without the offset.
             if let Err(err) = probe_pin.probe() {
                 log!(
                     EventId::Info,
-                    "Failed to connect to pin {} with error {}. Retrying without offset.",
-                    probe_pin,
-                    err
+                    "Failed to connect to pin {probe_pin} with error {err}. Retrying without offset."
                 );
                 offset = 0;
             }
@@ -77,34 +74,22 @@ impl<T: Pin> PatInputReader<T> {
 
     pub fn is_connected(&self) -> bool {
         match &self.is_connected_pin {
-            Some(pin) => {
-                return pin.is_active();
-            }
-            None => {
-                return false;
-            }
+            Some(pin) => pin.is_active(),
+            None => false,
         }
     }
 
     pub fn is_signal_a_active(&self) -> bool {
         match &self.signal_a_pin {
-            Some(pin) => {
-                return pin.is_active();
-            }
-            None => {
-                return false;
-            }
+            Some(pin) => pin.is_active(),
+            None => false,
         }
     }
 
     pub fn is_signal_b_active(&self) -> bool {
         match &self.signal_b_pin {
-            Some(pin) => {
-                return pin.is_active();
-            }
-            None => {
-                return false;
-            }
+            Some(pin) => pin.is_active(),
+            None => false,
         }
     }
 }
@@ -119,7 +104,7 @@ impl Pin for MockPin {
     fn new(address: u16) -> Self {
         MockPin {
             address: address,
-            active: false,
+            address,
             probe_error: None,
         }
     }
@@ -159,7 +144,7 @@ mod tests {
         get_mocked_reader(None)
     }
 
-    fn get_mocked_reader(probe_err: Option<io::Error>) -> PatInputReader<MockPin> {
+    fn get_mocked_reader(connection_error: Option<io::Error>) -> PatInputReader<MockPin> {
         PatInputReader {
             is_connected_pin: Some(MockPin {
                 address: IS_CONNECTED_PIN_ADDRESS,
@@ -209,7 +194,7 @@ mod tests {
         assert_eq!(reader.is_connected(), false);
         reader.is_connected_pin.as_mut().unwrap().active = true;
         assert_eq!(reader.is_connected(), true);
-    }
+        assert!(reader.is_connected());
 
     #[test]
     fn test_signal_a() {
@@ -218,7 +203,7 @@ mod tests {
         assert_eq!(reader.is_signal_a_active(), false);
         reader.signal_a_pin.as_mut().unwrap().active = true;
         assert_eq!(reader.is_signal_a_active(), true);
-    }
+        assert!(reader.is_signal_a_active());
 
     #[test]
     fn test_signal_b() {
