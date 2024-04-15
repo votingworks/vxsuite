@@ -13,7 +13,7 @@
   "scripts": {
     "build": "pnpm install:rust-addon && pnpm build:rust-addon && pnpm build:ts",
     "build:ts": "tsc --build tsconfig.build.json",
-    "build:rust-addon": "cargo build --release",
+    "build:rust-addon": "cargo build --release --offline",
     "clean": "cargo clean && rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "install:rust-addon": "cargo fetch",
     "lint": "pnpm type-check && eslint .",
