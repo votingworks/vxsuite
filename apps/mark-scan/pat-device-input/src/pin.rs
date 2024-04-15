@@ -104,8 +104,8 @@ impl Pin for GpioPin {
 }
 
 impl GpioPin {
-    // Exports the pin to be globally accessible from userspace. If the pin is already
-    // exported, does nothing.
+    /// Exports the pin to be globally accessible from userspace. If the pin is already
+    /// exported, does nothing.
     fn safe_export(&self) -> io::Result<()> {
         log!(EventId::ConnectToGpioPinInit, "Exporting pin {}", self);
         if let Err(error) = self.export() {
@@ -114,9 +114,7 @@ impl GpioPin {
             // https://github.com/rust-lang/rust/issues/86442
             log!(
                 EventId::Info,
-                "Error when exporting pin {}: {}. Attempting to unexport and re-export.",
-                self,
-                error
+                "Error when exporting pin {self}: {error}. Attempting to unexport and re-export."
             );
 
             self.unexport()?;
@@ -126,13 +124,13 @@ impl GpioPin {
         log!(
             event_id: EventId::ConnectToGpioPinComplete,
             disposition: vx_logging::Disposition::Success,
-            message: format!("Successfully exported pin {}", self)
+            message: format!("Successfully exported pin {self}")
         );
         Ok(())
     }
 
-    // Exports the pin to be globally accessible from userspace. Returns an error if the
-    // pin has already been exported.
+    /// Exports the pin to be globally accessible from userspace. Returns an error if the
+    /// pin has already been exported.
     fn export(&self) -> io::Result<()> {
         fs::write(EXPORT_PIN_FILEPATH, self.to_string())?;
         // Without this delay subsequent pin operations may fail with a permission error
@@ -140,15 +138,15 @@ impl GpioPin {
         Ok(())
     }
 
-    // Unexports the pin, removing access from userspace.
+    /// Unexports the pin, removing access from userspace.
     fn unexport(&self) -> io::Result<()> {
         fs::write(UNEXPORT_PIN_FILEPATH, self.to_string())
     }
 
-    // Sets the pin direction to "in" so its value is readable. Must be called after
-    // `export`
+    /// Sets the pin direction to "in" so its value is readable. Must be called after
+    /// `export`
     fn set_direction_in(&self) -> io::Result<()> {
-        let filepath = format!("/sys/class/gpio/gpio{self}/direction");
+        let filepath = format!("/sys/class/gpio/gpio{}/direction", self.address);
         fs::write(filepath, b"in")
     }
 }
