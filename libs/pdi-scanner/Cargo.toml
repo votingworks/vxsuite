@@ -29,7 +29,6 @@ libc = { workspace = true }
 nom = { workspace = true }
 psutil = { workspace = true }
 rand = { workspace = true }
-ratatui = { workspace = true }
 rayon = { workspace = true }
 rusb = { workspace = true }
 serde = { workspace = true }
