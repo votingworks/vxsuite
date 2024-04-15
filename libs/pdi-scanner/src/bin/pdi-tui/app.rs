@@ -11,7 +11,7 @@ use pdi_scanner::{
         packets::Incoming,
         types::{ColorMode, EjectMotion, FeederMode, Resolution, ScanSideMode, Status},
     },
-    scanner::{Scanner, StopMode},
+    scanner::Scanner,
 };
 
 use super::{
@@ -107,7 +107,7 @@ impl<'a> App<'a> {
 
     pub fn disconnect_client(&mut self) -> bool {
         if let Some(mut scanner) = self.scanner.take() {
-            scanner.stop(StopMode::WaitUntilTransfersComplete);
+            scanner.stop();
         }
         self.client.take().is_some()
     }

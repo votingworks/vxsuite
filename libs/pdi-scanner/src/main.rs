@@ -19,7 +19,7 @@ use pdi_scanner::{
             Status,
         },
     },
-    scanner::{Scanner, StopMode},
+    scanner::Scanner,
 };
 
 #[derive(Debug, Parser)]
@@ -187,7 +187,7 @@ fn main() -> color_eyre::Result<()> {
                     }
                 },
                 (Some((scanner, _)), Command::Disconnect) => {
-                    scanner.stop(StopMode::WaitUntilTransfersComplete);
+                    scanner.stop();
                     scanner_and_client = None;
                     send_response(&Response::Ok)?;
                 }

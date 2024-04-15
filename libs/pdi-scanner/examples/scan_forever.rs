@@ -16,7 +16,6 @@ use pdi_scanner::{
         packets::Incoming,
         types::{EjectMotion, FeederMode, ScanSideMode},
     },
-    scanner::StopMode,
 };
 
 #[derive(Debug, Parser)]
@@ -150,7 +149,7 @@ fn main() -> color_eyre::Result<()> {
     }
 
     client.set_feeder_mode(FeederMode::Disabled)?;
-    scanner.stop(StopMode::WaitUntilTransfersComplete);
+    scanner.stop();
 
     Ok(())
 }

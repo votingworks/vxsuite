@@ -60,7 +60,7 @@ fn main() -> color_eyre::Result<()> {
         );
     }
 
-    scanner.stop(pdi_scanner::scanner::StopMode::WaitUntilTransfersComplete);
+    scanner.stop();
 
     Ok(())
 }
