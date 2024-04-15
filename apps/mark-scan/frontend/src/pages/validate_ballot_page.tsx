@@ -9,6 +9,7 @@ import {
   appStrings,
   AudioOnly,
   ReadOnLoad,
+  PageNavigationButtonId,
 } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
@@ -72,13 +73,17 @@ export function ValidateBallotPage(): JSX.Element | null {
       actionButtons={
         <React.Fragment>
           <Button
+            id={PageNavigationButtonId.PREVIOUS}
             variant="danger"
             icon="Danger"
             onPress={invalidateBallotCallback}
           >
             {appStrings.buttonBallotIsIncorrect()}
           </Button>
-          <Button onPress={validateBallotCallback}>
+          <Button
+            id={PageNavigationButtonId.PREVIOUS}
+            onPress={validateBallotCallback}
+          >
             {appStrings.buttonBallotIsCorrect()}
           </Button>
         </React.Fragment>
