@@ -4,7 +4,7 @@ use ratatui::{
     widgets::{self, block::Title},
 };
 
-use super::{
+use crate::{
     app::{App, ConnectionState},
     config::{AutoScanConfig, WatchStatusConfig, EJECT_DELAY_STEP},
 };

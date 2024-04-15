@@ -3,9 +3,12 @@ use ratatui::{prelude::CrosstermBackend, Terminal};
 
 use pdi_scanner::connect;
 
-use crate::ui::app::ConnectionState;
-
-use super::{app::App, config::WatchStatusConfig, ui::ui, update::update};
+use crate::{
+    app::{App, ConnectionState},
+    config::WatchStatusConfig,
+    ui::ui,
+    update::update,
+};
 
 pub(crate) fn run() -> Result<()> {
     // ratatui terminal
