@@ -105,7 +105,6 @@ test('shows insert USB Drive screen when there is no USB drive', async () => {
 
 test('app can load and configure from a usb stick', async () => {
   apiMock.authenticateAsElectionManager(electionGeneralDefinition);
-  apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig({
     electionDefinition: undefined,
   });
@@ -161,7 +160,6 @@ test('app can load and configure from a usb stick', async () => {
 });
 
 test('election manager must set precinct', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig({
     precinctSelection: undefined,
   });
@@ -201,7 +199,6 @@ test('election manager must set precinct', async () => {
 test('election manager and poll worker configuration', async () => {
   const electionDefinition = electionGeneralDefinition;
   let config: Partial<PrecinctScannerConfig> = { electionDefinition };
-  apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig(config);
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetScannerStatus(statusNoPaper);
@@ -352,7 +349,6 @@ async function scanBallot() {
 
 test('voter can cast a ballot that scans successfully ', async () => {
   const electionDefinition = electionTwoPartyPrimaryDefinition;
-  apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig({
     electionDefinition,
   });

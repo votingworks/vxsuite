@@ -215,12 +215,6 @@ export function createApiMock() {
         .resolves(ok());
     },
 
-    expectCheckUltrasonicSupported(supportsUltrasonic: boolean): void {
-      mockApiClient.supportsUltrasonic
-        .expectCallWith()
-        .resolves(supportsUltrasonic);
-    },
-
     expectLogOut() {
       mockApiClient.logOut.expectCallWith().resolves();
     },

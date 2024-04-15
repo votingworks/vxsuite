@@ -297,7 +297,6 @@ export function createPrecinctScannerStateMachineMock(): jest.Mocked<PrecinctSca
     status: jest.fn(),
     accept: jest.fn(),
     return: jest.fn(),
-    supportsUltrasonic: jest.fn(),
     stop: jest.fn(),
   };
 }

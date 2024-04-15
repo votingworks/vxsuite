@@ -1423,10 +1423,6 @@ export function createPrecinctScannerStateMachine({
       machineService.send('RETURN');
     },
 
-    supportsUltrasonic: () => {
-      return true;
-    },
-
     stop: () => {
       machineService.stop();
     },

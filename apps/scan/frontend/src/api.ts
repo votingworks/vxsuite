@@ -381,16 +381,6 @@ export const returnBallot = {
   },
 } as const;
 
-export const supportsUltrasonic = {
-  queryKey(): QueryKey {
-    return ['supportsUltrasonic'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.supportsUltrasonic());
-  },
-} as const;
-
 export const setHasPaperBeenLoaded = {
   useMutation() {
     const apiClient = useApiClient();

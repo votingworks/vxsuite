@@ -35,7 +35,6 @@ beforeEach(() => {
   window.kiosk = fakeKiosk();
   apiMock = createApiMock();
   apiMock.expectGetPollsInfo();
-  apiMock.expectCheckUltrasonicSupported(true);
   apiMock.expectGetMachineConfig();
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.expectGetUsbDriveStatus('mounted');
@@ -180,19 +179,7 @@ test('when sounds are muted, shows a button to unmute sounds', async () => {
   await screen.findByRole('button', { name: 'Mute Sounds' });
 });
 
-test('does not show ultrasonic button if not supported', async () => {
-  apiMock.mockApiClient.supportsUltrasonic.reset();
-  apiMock.expectCheckUltrasonicSupported(false);
-  apiMock.expectGetConfig();
-  renderScreen();
-  await screen.findByRole('heading', { name: 'Election Manager Settings' });
-
-  userEvent.click(screen.getByRole('tab', { name: /system/i }));
-
-  expect(screen.queryByText('Disable Double Sheet Detection')).toBeNull();
-});
-
-test('shows ultrasonic toggle when supported', async () => {
+test('shows ultrasonic toggle', async () => {
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });

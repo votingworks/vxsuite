@@ -176,8 +176,7 @@ export function buildApi({
         precinctSelection: store.getPrecinctSelection(),
         isSoundMuted: store.getIsSoundMuted(),
         isTestMode: store.getTestMode(),
-        isUltrasonicDisabled:
-          !machine.supportsUltrasonic() || store.getIsUltrasonicDisabled(),
+        isUltrasonicDisabled: store.getIsUltrasonicDisabled(),
         ballotCountWhenBallotBagLastReplaced:
           store.getBallotCountWhenBallotBagLastReplaced(),
         hasPaperBeenLoaded: store.getHasPaperBeenLoaded(),
@@ -357,10 +356,6 @@ export function buildApi({
 
     printTestPage(): Promise<FujitsuPrintResult> {
       return printTestPage({ printer });
-    },
-
-    supportsUltrasonic(): boolean {
-      return machine.supportsUltrasonic();
     },
 
     ...createUiStringsApi({

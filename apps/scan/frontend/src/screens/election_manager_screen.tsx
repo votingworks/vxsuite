@@ -34,7 +34,6 @@ import {
   setIsUltrasonicDisabled,
   setPrecinctSelection,
   setTestMode,
-  supportsUltrasonic,
   unconfigureElection,
 } from '../api';
 import { usePreviewContext } from '../preview_dashboard';
@@ -56,7 +55,6 @@ export function ElectionManagerScreen({
   scannerStatus,
   usbDrive,
 }: ElectionManagerScreenProps): JSX.Element | null {
-  const supportsUltrasonicQuery = supportsUltrasonic.useQuery();
   const configQuery = getConfig.useQuery();
   const pollsInfoQuery = getPollsInfo.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
@@ -188,19 +186,17 @@ export function ElectionManagerScreen({
 
   const doubleSheetDetectionToggle = (
     <P>
-      {supportsUltrasonicQuery.data === true && (
-        <Button
-          onPress={() =>
-            setIsUltrasonicDisabledMutation.mutate({
-              isUltrasonicDisabled: !isUltrasonicDisabled,
-            })
-          }
-        >
-          {isUltrasonicDisabled
-            ? 'Enable Double Sheet Detection'
-            : 'Disable Double Sheet Detection'}
-        </Button>
-      )}
+      <Button
+        onPress={() =>
+          setIsUltrasonicDisabledMutation.mutate({
+            isUltrasonicDisabled: !isUltrasonicDisabled,
+          })
+        }
+      >
+        {isUltrasonicDisabled
+          ? 'Enable Double Sheet Detection'
+          : 'Disable Double Sheet Detection'}
+      </Button>
     </P>
   );
 
