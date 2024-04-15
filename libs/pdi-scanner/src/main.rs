@@ -12,7 +12,7 @@ use pdi_scanner::{
     client::Client,
     connect,
     protocol::{
-        image::{RawImageData, Sheet},
+        image::{RawImageData, Sheet, DEFAULT_IMAGE_WIDTH},
         packets::Incoming,
         types::{
             DoubleFeedDetectionCalibrationType, DoubleFeedDetectionMode, EjectMotion, ScanSideMode,
@@ -295,7 +295,9 @@ fn main() -> color_eyre::Result<()> {
                         raw_image_data = RawImageData::new();
                     }
                     Incoming::EndScanEvent => {
-                        match raw_image_data.try_decode_scan(1728, ScanSideMode::Duplex) {
+                        match raw_image_data
+                            .try_decode_scan(DEFAULT_IMAGE_WIDTH, ScanSideMode::Duplex)
+                        {
                             Ok(Sheet::Duplex(top, bottom)) => {
                                 match (top.to_image(), bottom.to_image()) {
                                     (Some(top_image), Some(bottom_image)) => {

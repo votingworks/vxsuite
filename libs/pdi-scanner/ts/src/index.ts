@@ -11,6 +11,8 @@ import {
 } from '@votingworks/image-utils';
 import { Buffer } from 'buffer';
 
+const DEFAULT_IMAGE_WIDTH = 1728;
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 interface Scanner {
   /**
@@ -173,8 +175,8 @@ class ScannerClient {
 
         const grayscaleFrontImageData = createImageData(
           Uint8ClampedArray.from(frontBuffer),
-          1728,
-          frontBuffer.length / 1728
+          DEFAULT_IMAGE_WIDTH,
+          frontBuffer.length / DEFAULT_IMAGE_WIDTH
         );
         const rgbaFrontImageData = fromGrayScale(
           grayscaleFrontImageData.data,
@@ -188,8 +190,8 @@ class ScannerClient {
 
         const grayscaleBackImageData = createImageData(
           Uint8ClampedArray.from(backBuffer),
-          1728,
-          backBuffer.length / 1728
+          DEFAULT_IMAGE_WIDTH,
+          backBuffer.length / DEFAULT_IMAGE_WIDTH
         );
         const rgbaBackImageData = fromGrayScale(
           grayscaleBackImageData.data,

@@ -2,6 +2,8 @@ use image::{DynamicImage, GrayImage};
 
 use super::types::ScanSideMode;
 
+pub const DEFAULT_IMAGE_WIDTH: u32 = 1728;
+
 /// Container for raw image data from the scanner. Decodes the data as images
 /// (see [`RawImageData::try_decode_scan`]).
 #[derive(Debug, Default)]
