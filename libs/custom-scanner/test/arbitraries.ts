@@ -40,7 +40,7 @@ import {
   ResponseErrorCode,
   ScanParameters,
   ScanSide,
-  UltrasonicSensorLevelInternal,
+  MultiSheetDetectionSensorLevelInternal,
 } from '../src/types';
 
 /**
@@ -90,10 +90,10 @@ export function arbitraryFormMovement(): fc.Arbitrary<FormMovement> {
 }
 
 /**
- * Builds an arbitrary `UltraSonicSensorLevelInternal` value.
+ * Builds an arbitrary `MultiSheetDetectionSensorLevelInternal` value.
  */
-export function arbitraryUltrasonicSensorLevelInternal(): fc.Arbitrary<UltrasonicSensorLevelInternal> {
-  return arbitraryNumericEnumValue(UltrasonicSensorLevelInternal);
+export function arbitraryMultiSheetDetectionSensorLevelInternal(): fc.Arbitrary<MultiSheetDetectionSensorLevelInternal> {
+  return arbitraryNumericEnumValue(MultiSheetDetectionSensorLevelInternal);
 }
 
 /**
@@ -214,8 +214,9 @@ export function arbitrarySetScanParametersRequestData(): fc.Arbitrary<SetScanPar
     acquireLampOff: fc.boolean(),
     acquireNoPaperSensor: fc.boolean(),
     acquireMotorOff: fc.boolean(),
-    ultrasonicSensorLevel: arbitraryUltrasonicSensorLevelInternal(),
-    disableUltrasonicSensor: fc.boolean(),
+    multiSheetDetectionSensorLevel:
+      arbitraryMultiSheetDetectionSensorLevelInternal(),
+    disableMultiSheetDetectionSensor: fc.boolean(),
     disableHardwareDeskew: fc.boolean(),
     formStandingAfterScan: arbitraryFormStanding(),
     wantedScanSide: arbitraryScanSide(),
@@ -471,7 +472,7 @@ export function arbitraryStatusInternalMessage(): fc.Arbitrary<StatusInternalMes
     endPageB: arbitraryUint8(),
     endScanA: arbitraryUint8(),
     endScanB: arbitraryUint8(),
-    ultrasonic: arbitraryUint8(),
+    multiSheetDetection: arbitraryUint8(),
     paperJam: arbitraryUint8(),
     coverOpen: arbitraryUint8(),
     cancel: arbitraryUint8(),

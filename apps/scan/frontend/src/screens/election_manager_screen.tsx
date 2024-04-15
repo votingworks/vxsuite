@@ -31,7 +31,7 @@ import {
   getUsbDriveStatus,
   logOut,
   setIsSoundMuted,
-  setIsUltrasonicDisabled,
+  setIsMultiSheetDetectionDisabled,
   setPrecinctSelection,
   setTestMode,
   unconfigureElection,
@@ -64,7 +64,8 @@ export function ElectionManagerScreen({
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const setTestModeMutation = setTestMode.useMutation();
   const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
-  const setIsUltrasonicDisabledMutation = setIsUltrasonicDisabled.useMutation();
+  const setIsMultiSheetDetectionDisabledMutation =
+    setIsMultiSheetDetectionDisabled.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const logOutMutation = logOut.useMutation();
@@ -86,8 +87,12 @@ export function ElectionManagerScreen({
   }
 
   const { election } = electionDefinition;
-  const { precinctSelection, isTestMode, isSoundMuted, isUltrasonicDisabled } =
-    configQuery.data;
+  const {
+    precinctSelection,
+    isTestMode,
+    isSoundMuted,
+    isMultiSheetDetectionDisabled,
+  } = configQuery.data;
   const { pollsState } = pollsInfoQuery.data;
   const printerStatus = printerStatusQuery.data;
 
@@ -188,12 +193,12 @@ export function ElectionManagerScreen({
     <P>
       <Button
         onPress={() =>
-          setIsUltrasonicDisabledMutation.mutate({
-            isUltrasonicDisabled: !isUltrasonicDisabled,
+          setIsMultiSheetDetectionDisabledMutation.mutate({
+            isMultiSheetDetectionDisabled: !isMultiSheetDetectionDisabled,
           })
         }
       >
-        {isUltrasonicDisabled
+        {isMultiSheetDetectionDisabled
           ? 'Enable Double Sheet Detection'
           : 'Disable Double Sheet Detection'}
       </Button>

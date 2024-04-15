@@ -176,7 +176,7 @@ export function buildApi({
         precinctSelection: store.getPrecinctSelection(),
         isSoundMuted: store.getIsSoundMuted(),
         isTestMode: store.getTestMode(),
-        isUltrasonicDisabled: store.getIsUltrasonicDisabled(),
+        isMultiSheetDetectionDisabled: store.getIsMultiSheetDetectionDisabled(),
         ballotCountWhenBallotBagLastReplaced:
           store.getBallotCountWhenBallotBagLastReplaced(),
         hasPaperBeenLoaded: store.getHasPaperBeenLoaded(),
@@ -225,8 +225,12 @@ export function buildApi({
       store.setIsSoundMuted(input.isSoundMuted);
     },
 
-    setIsUltrasonicDisabled(input: { isUltrasonicDisabled: boolean }): void {
-      store.setIsUltrasonicDisabled(input.isUltrasonicDisabled);
+    setIsMultiSheetDetectionDisabled(input: {
+      isMultiSheetDetectionDisabled: boolean;
+    }): void {
+      store.setIsMultiSheetDetectionDisabled(
+        input.isMultiSheetDetectionDisabled
+      );
     },
 
     async setTestMode(input: { isTestMode: boolean }): Promise<void> {

@@ -369,7 +369,7 @@ export enum CustomSensorsBitmask {
 export enum JobStatus {
   SCAN = 0x00000001,
   CALIBRATION = 0x00000002,
-  ULTRASONIC = 0x00000004,
+  MULTI_SHEET_DETECTION = 0x00000004,
   FLASH_ACCESS = 0x00000008,
   ADF_LOAD_PAPER = 0x00010000, // (1 << 16)
   ADF_EJECT_PAPER = 0x00020000, // (2 << 16)
@@ -539,7 +539,7 @@ export enum FormStanding {
 }
 
 /**
- * Ultrasonic sensor settings for double/multiple sheet loaded detection.
+ * MultiSheetDetection sensor settings for double/multiple sheet loaded detection.
  */
 export enum DoubleSheetDetectOpt {
   /** Turn OFF the double/multiple sheet detection */
@@ -559,9 +559,9 @@ export enum DoubleSheetDetectOpt {
 }
 
 /**
- * Internal enum for ultrasonic sensor level.
+ * Internal enum for multi sheet detection sensor level.
  */
-export enum UltrasonicSensorLevelInternal {
+export enum MultiSheetDetectionSensorLevelInternal {
   Level1 = 0b00,
   Level2 = 0b01,
   Level3 = 0b10,

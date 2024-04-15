@@ -179,7 +179,7 @@ test('when sounds are muted, shows a button to unmute sounds', async () => {
   await screen.findByRole('button', { name: 'Mute Sounds' });
 });
 
-test('shows ultrasonic toggle', async () => {
+test('shows multi sheet detection toggle', async () => {
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
@@ -189,8 +189,8 @@ test('shows ultrasonic toggle', async () => {
   await screen.findByText('Disable Double Sheet Detection');
 });
 
-test('prompts to enable ultrasonic when disabled ', async () => {
-  apiMock.expectGetConfig({ isUltrasonicDisabled: true });
+test('prompts to enable multi sheet detection when disabled ', async () => {
+  apiMock.expectGetConfig({ isMultiSheetDetectionDisabled: true });
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
@@ -199,17 +199,17 @@ test('prompts to enable ultrasonic when disabled ', async () => {
   await screen.findByText('Enable Double Sheet Detection');
 });
 
-test('disables ultrasonic properly', async () => {
+test('disables multi sheet detection properly', async () => {
   apiMock.expectGetConfig();
   renderScreen();
   await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
   userEvent.click(screen.getByRole('tab', { name: /system/i }));
 
-  apiMock.mockApiClient.setIsUltrasonicDisabled
-    .expectCallWith({ isUltrasonicDisabled: true })
+  apiMock.mockApiClient.setIsMultiSheetDetectionDisabled
+    .expectCallWith({ isMultiSheetDetectionDisabled: true })
     .resolves();
-  apiMock.expectGetConfig({ isUltrasonicDisabled: true });
+  apiMock.expectGetConfig({ isMultiSheetDetectionDisabled: true });
   userEvent.click(await screen.findButton('Disable Double Sheet Detection'));
   await screen.findButton('Enable Double Sheet Detection');
   await screen.findByText('Enable Double Sheet Detection');

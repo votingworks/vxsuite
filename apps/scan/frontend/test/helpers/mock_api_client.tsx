@@ -42,7 +42,7 @@ export const machineConfig: MachineConfig = {
 
 const defaultConfig: PrecinctScannerConfig = {
   isSoundMuted: false,
-  isUltrasonicDisabled: false,
+  isMultiSheetDetectionDisabled: false,
   hasPaperBeenLoaded: false,
   isTestMode: true,
   ballotCountWhenBallotBagLastReplaced: 0,

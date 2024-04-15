@@ -49,7 +49,7 @@ export interface PrecinctScannerConfig {
   systemSettings: SystemSettings;
   precinctSelection?: PrecinctSelection;
   isSoundMuted: boolean;
-  isUltrasonicDisabled: boolean;
+  isMultiSheetDetectionDisabled: boolean;
   hasPaperBeenLoaded: boolean;
   // "Config" that is specific to each election session
   isTestMode: boolean;

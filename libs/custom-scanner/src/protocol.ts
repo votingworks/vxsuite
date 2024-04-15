@@ -44,7 +44,7 @@ import {
   ReleaseType,
   ResponseErrorCode,
   ScanSide,
-  UltrasonicSensorLevelInternal,
+  MultiSheetDetectionSensorLevelInternal,
 } from './types';
 
 const debug = baseDebug.extend('protocol');
@@ -194,9 +194,9 @@ export const StatusInternalMessage = message({
   endScanB: uint8(),
 
   /**
-   * Byte 28. Ultrasonic status.
+   * Byte 28. MultiSheetDetection status.
    */
-  ultrasonic: uint8(),
+  multiSheetDetection: uint8(),
 
   /**
    * Byte 29. 'J' if there is a paper jam, but which kind of jam depends on bit
@@ -440,12 +440,12 @@ export const SetScanParametersRequestData = message({
   byte7Unused: padding(8),
 
   /** Byte 8.6 (0x40) and 8.7 (0x80) */
-  ultrasonicSensorLevel: uint2<UltrasonicSensorLevelInternal>(
-    UltrasonicSensorLevelInternal
+  multiSheetDetectionSensorLevel: uint2<MultiSheetDetectionSensorLevelInternal>(
+    MultiSheetDetectionSensorLevelInternal
   ),
 
   /** Byte 8.5 (0x20) */
-  disableUltrasonicSensor: uint1(),
+  disableMultiSheetDetectionSensor: uint1(),
 
   /** Byte 8.4 (0x10) */
   disableHardwareDeskew: uint1(),
