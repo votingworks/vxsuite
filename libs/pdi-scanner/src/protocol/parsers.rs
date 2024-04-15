@@ -1249,7 +1249,6 @@ simple_response!(calibration_pixel_error_front_array_white, b"#19");
 simple_response!(calibration_timeout_error, b"#1A");
 simple_response!(calibration_speed_value_error, b"#1B");
 simple_response!(calibration_speed_box_error, b"#1C");
-// TODO: fill out the rest
 simple_response!(begin_scan_event, b"#30");
 simple_response!(end_scan_event, b"#31");
 simple_response!(double_feed_event, b"#33");
