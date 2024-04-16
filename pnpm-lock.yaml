@@ -5106,6 +5106,40 @@ importers:
         specifier: 5.2.2
         version: 5.2.2
 
+  libs/pdi-scanner:
+    dependencies:
+      '@votingworks/basics':
+        specifier: workspace:*
+        version: link:../basics
+      '@votingworks/image-utils':
+        specifier: workspace:*
+        version: link:../image-utils
+      '@votingworks/types':
+        specifier: workspace:*
+        version: link:../types
+      zod:
+        specifier: 3.14.4
+        version: 3.14.4
+    devDependencies:
+      '@types/node':
+        specifier: 16.18.23
+        version: 16.18.23
+      esbuild-runner:
+        specifier: 2.2.2
+        version: 2.2.2(esbuild@0.17.11)
+      eslint-plugin-vx:
+        specifier: workspace:*
+        version: link:../eslint-plugin-vx
+      is-ci:
+        specifier: ^3.0.1
+        version: 3.0.1
+      jest:
+        specifier: ^29.6.2
+        version: 29.6.2(@types/node@16.18.23)
+      jest-junit:
+        specifier: ^16.0.0
+        version: 16.0.0
+
   libs/printing:
     dependencies:
       '@votingworks/basics':
@@ -17237,6 +17271,13 @@ packages:
     hasBin: true
     dependencies:
       ci-info: 2.0.0
+
+  /is-ci@3.0.1:
+    resolution: {integrity: sha512-ZYvCgrefwqoQ6yTyYUbQu64HsITZ3NfKX1lzaEYdkTDcfKzzCI/wthRRYKkdjHKFVgNiXKAKm65Zo1pk2as/QQ==}
+    hasBin: true
+    dependencies:
+      ci-info: 3.8.0
+    dev: true
 
   /is-core-module@2.10.0:
     resolution: {integrity: sha512-Erxj2n/LDAZ7H8WNJXd9tw38GYM3dv8rk8Zcs+jJuxYTW7sozH+SS8NtrSjVL1/vpLvWi1hxy96IzjJ3EHTJJg==}

@@ -1,9 +1,9 @@
 import * as customScanner from '@votingworks/custom-scanner';
 import {
-  LogEventId,
   BaseLogger,
-  LogSource,
+  LogEventId,
   Logger,
+  LogSource,
 } from '@votingworks/logging';
 import { detectUsbDrive } from '@votingworks/usb-drive';
 import {

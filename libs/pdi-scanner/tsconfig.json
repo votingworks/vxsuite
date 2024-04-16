@@ -1,0 +1,23 @@
+{
+  "extends": "../../tsconfig.shared.json",
+  "include": ["ts/src", "ts/test"],
+  "exclude": [],
+  "compilerOptions": {
+    "module": "node16",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "composite": true,
+    "noEmit": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true
+  },
+  "references": [
+    { "path": "../basics/tsconfig.build.json" },
+    { "path": "../eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../image-utils/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" }
+  ]
+}
