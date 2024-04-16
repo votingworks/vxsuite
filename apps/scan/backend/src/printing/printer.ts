@@ -9,15 +9,11 @@ import {
 } from '@votingworks/fujitsu-thermal-printer';
 import {
   BooleanEnvironmentVariableName,
-  getEnvironmentVariable,
+  isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import { BaseLogger } from '@votingworks/logging';
 import { assert, Result } from '@votingworks/basics';
 import { Buffer } from 'buffer';
-
-export const USE_FUJITSU_PRINTER = getEnvironmentVariable(
-  BooleanEnvironmentVariableName.SCAN_USE_FUJITSU_PRINTER
-);
 
 export type PrinterStatus =
   | ({
@@ -89,7 +85,7 @@ export function wrapFujitsuThermalPrinter(
 export async function getPrinter(logger: BaseLogger): Promise<Printer> {
   /* c8 ignore start */
   if (
-    getEnvironmentVariable(
+    isFeatureFlagEnabled(
       BooleanEnvironmentVariableName.SCAN_USE_FUJITSU_PRINTER
     )
   ) {
