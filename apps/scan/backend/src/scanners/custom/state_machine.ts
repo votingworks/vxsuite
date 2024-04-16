@@ -312,13 +312,14 @@ async function reset({ client }: Context): Promise<void> {
 async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
   assert(client);
   debug('Scanning');
-  const isUltrasonicDisabled = workspace.store.getIsUltrasonicDisabled();
+  const isMultiSheetDetectionDisabled =
+    workspace.store.getIsMultiSheetDetectionDisabled();
   const scanResult = await client.scan({
     wantedScanSide: ScanSide.A_AND_B,
     resolution: ImageResolution.RESOLUTION_200_DPI,
     imageColorDepth: ImageColorDepthType.Grey8bpp,
     formStandingAfterScan: FormStanding.HOLD_TICKET,
-    doubleSheetDetection: isUltrasonicDisabled
+    doubleSheetDetection: isMultiSheetDetectionDisabled
       ? DoubleSheetDetectOpt.DetectOff
       : DoubleSheetDetectOpt.Level1,
   });
@@ -1421,10 +1422,6 @@ export function createPrecinctScannerStateMachine({
 
     return: () => {
       machineService.send('RETURN');
-    },
-
-    supportsUltrasonic: () => {
-      return true;
     },
 
     stop: () => {

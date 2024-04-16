@@ -31,10 +31,9 @@ import {
   getUsbDriveStatus,
   logOut,
   setIsSoundMuted,
-  setIsUltrasonicDisabled,
+  setIsMultiSheetDetectionDisabled,
   setPrecinctSelection,
   setTestMode,
-  supportsUltrasonic,
   unconfigureElection,
 } from '../api';
 import { usePreviewContext } from '../preview_dashboard';
@@ -56,7 +55,6 @@ export function ElectionManagerScreen({
   scannerStatus,
   usbDrive,
 }: ElectionManagerScreenProps): JSX.Element | null {
-  const supportsUltrasonicQuery = supportsUltrasonic.useQuery();
   const configQuery = getConfig.useQuery();
   const pollsInfoQuery = getPollsInfo.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
@@ -66,7 +64,8 @@ export function ElectionManagerScreen({
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const setTestModeMutation = setTestMode.useMutation();
   const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
-  const setIsUltrasonicDisabledMutation = setIsUltrasonicDisabled.useMutation();
+  const setIsMultiSheetDetectionDisabledMutation =
+    setIsMultiSheetDetectionDisabled.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const logOutMutation = logOut.useMutation();
@@ -88,8 +87,12 @@ export function ElectionManagerScreen({
   }
 
   const { election } = electionDefinition;
-  const { precinctSelection, isTestMode, isSoundMuted, isUltrasonicDisabled } =
-    configQuery.data;
+  const {
+    precinctSelection,
+    isTestMode,
+    isSoundMuted,
+    isMultiSheetDetectionDisabled,
+  } = configQuery.data;
   const { pollsState } = pollsInfoQuery.data;
   const printerStatus = printerStatusQuery.data;
 
@@ -188,19 +191,17 @@ export function ElectionManagerScreen({
 
   const doubleSheetDetectionToggle = (
     <P>
-      {supportsUltrasonicQuery.data === true && (
-        <Button
-          onPress={() =>
-            setIsUltrasonicDisabledMutation.mutate({
-              isUltrasonicDisabled: !isUltrasonicDisabled,
-            })
-          }
-        >
-          {isUltrasonicDisabled
-            ? 'Enable Double Sheet Detection'
-            : 'Disable Double Sheet Detection'}
-        </Button>
-      )}
+      <Button
+        onPress={() =>
+          setIsMultiSheetDetectionDisabledMutation.mutate({
+            isMultiSheetDetectionDisabled: !isMultiSheetDetectionDisabled,
+          })
+        }
+      >
+        {isMultiSheetDetectionDisabled
+          ? 'Enable Double Sheet Detection'
+          : 'Disable Double Sheet Detection'}
+      </Button>
     </P>
   );
 

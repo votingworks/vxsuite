@@ -4,7 +4,7 @@ import {
   DoubleSheetDetectOpt,
   ImageResolution,
   ScanParameters,
-  UltrasonicSensorLevelInternal,
+  MultiSheetDetectionSensorLevelInternal,
 } from './types';
 
 type ResolutionProps = Pick<
@@ -37,21 +37,21 @@ const resolutionPropsMap: Record<number, ResolutionProps> = {
 };
 
 /**
- * Converts the high-level double sheet detection parameter to the specific internal ultrasonic level desired
+ * Converts the high-level double sheet detection parameter to the specific internal multi sheet detection level desired
  */
-function convertToUltrasonicSensorLevelInternal(
+function convertToMultiSheetDetectionSensorLevelInternal(
   option: DoubleSheetDetectOpt
-): UltrasonicSensorLevelInternal {
+): MultiSheetDetectionSensorLevelInternal {
   switch (option) {
     case DoubleSheetDetectOpt.Level1:
     case DoubleSheetDetectOpt.DetectOff:
-      return UltrasonicSensorLevelInternal.Level1;
+      return MultiSheetDetectionSensorLevelInternal.Level1;
     case DoubleSheetDetectOpt.Level2:
-      return UltrasonicSensorLevelInternal.Level2;
+      return MultiSheetDetectionSensorLevelInternal.Level2;
     case DoubleSheetDetectOpt.Level3:
-      return UltrasonicSensorLevelInternal.Level3;
+      return MultiSheetDetectionSensorLevelInternal.Level3;
     case DoubleSheetDetectOpt.Level4:
-      return UltrasonicSensorLevelInternal.Level4;
+      return MultiSheetDetectionSensorLevelInternal.Level4;
     /* c8 ignore next 2 */
     default:
       throwIllegalValue(option);
@@ -87,10 +87,11 @@ export function convertToInternalScanParameters(
     acquireLampOff: false,
     acquireNoPaperSensor: true,
     acquireMotorOff: false,
-    ultrasonicSensorLevel: convertToUltrasonicSensorLevelInternal(
-      scanParameters.doubleSheetDetection
-    ),
-    disableUltrasonicSensor:
+    multiSheetDetectionSensorLevel:
+      convertToMultiSheetDetectionSensorLevelInternal(
+        scanParameters.doubleSheetDetection
+      ),
+    disableMultiSheetDetectionSensor:
       scanParameters.doubleSheetDetection === DoubleSheetDetectOpt.DetectOff,
     disableHardwareDeskew: true,
     formStandingAfterScan: scanParameters.formStandingAfterScan,

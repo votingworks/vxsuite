@@ -234,11 +234,11 @@ export const setIsSoundMuted = {
   },
 } as const;
 
-export const setIsUltrasonicDisabled = {
+export const setIsMultiSheetDetectionDisabled = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.setIsUltrasonicDisabled, {
+    return useMutation(apiClient.setIsMultiSheetDetectionDisabled, {
       async onSuccess() {
         await queryClient.invalidateQueries(getConfig.queryKey());
       },
@@ -378,16 +378,6 @@ export const returnBallot = {
   useMutation() {
     const apiClient = useApiClient();
     return useMutation(apiClient.returnBallot);
-  },
-} as const;
-
-export const supportsUltrasonic = {
-  queryKey(): QueryKey {
-    return ['supportsUltrasonic'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.supportsUltrasonic());
   },
 } as const;
 

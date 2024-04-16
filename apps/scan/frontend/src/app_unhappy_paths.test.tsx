@@ -49,7 +49,6 @@ test('when backend does not respond shows error screen', async () => {
 });
 
 test('backend fails to unconfigure', async () => {
-  apiMock.expectCheckUltrasonicSupported(false);
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo();
   apiMock.setBatteryInfo();
