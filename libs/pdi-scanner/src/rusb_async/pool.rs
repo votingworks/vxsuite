@@ -137,18 +137,44 @@ impl<C: UsbContext> TransferPool<C> {
     }
 
     pub fn poll_endpoint(&mut self, endpoint: u8, timeout: Duration) -> Result<Vec<u8>> {
-        for (index, transfer) in self.pending.iter_mut().enumerate() {
-            if transfer.transfer().endpoint == endpoint {
+        // We look for the first pending transfer that matches `endpoint`. Once
+        // we find it, we poll it to completion or timeout, and then return the
+        // data. However, we need to remove the transfer from `pending` in a
+        // safe way (i.e. not while iterating over it). We do this by creating a
+        // new `VecDeque` and moving all transfers that are not the one we are
+        // looking for into it. This means we cannot return early or exit the
+        // loop early, as we need to process all transfers to ensure they are
+        // all moved to the new `VecDeque`.
+
+        let mut new_pending = VecDeque::new();
+        let mut result: Option<Result<Vec<u8>>> = None;
+
+        for mut transfer in self.pending.drain(..) {
+            // Only look for a matching transfer if we haven't already found one
+            // and determined it is completed or timed out.
+            if result.is_none() && transfer.transfer().endpoint == endpoint {
                 if poll_completed(self.device.context(), timeout, transfer.completed_flag()) {
-                    let mut transfer = self.pending.remove(index).unwrap();
-                    return transfer.handle_completed();
+                    result = Some(transfer.handle_completed());
+
+                    // Skip adding the transfer to the new `VecDeque` as we have
+                    // already handled it.
+                    continue;
                 }
 
-                return Err(Error::PollTimeout);
+                // If the transfer timed out, we need to return an error. We
+                // cannot return early, as we need to process all transfers to
+                // ensure they are all moved to the new `VecDeque`.
+                result = Some(Err(Error::PollTimeout));
             }
+
+            // Add all transfers that are not the one we are looking for to the
+            // new `VecDeque`.
+            new_pending.push_back(transfer);
         }
 
-        Err(Error::NoTransfersPending)
+        assert!(self.pending.is_empty(), "All transfers should be moved");
+        self.pending = new_pending;
+        result.unwrap_or(Err(Error::NoTransfersPending))
     }
 
     pub fn cancel_all(&mut self) {
