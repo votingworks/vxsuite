@@ -776,6 +776,7 @@ pub fn get_scanner_status_response(input: &[u8]) -> IResult<&[u8], Status> {
                 byte0 & 0b0000_0100 != 0,
                 byte0 & 0b0000_1000 != 0,
                 byte0 & 0b0001_0000 != 0,
+                // 0b0010_0000 is reserved for future use
                 byte0 & 0b0100_0000 != 0,
                 byte1 & 0b0000_0001 != 0,
                 byte1 & 0b0000_0010 != 0,
