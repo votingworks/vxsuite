@@ -197,15 +197,21 @@ fn main() -> color_eyre::Result<()> {
                 }
                 (None, Command::Connect) => match connect() {
                     Ok(mut c) => {
-                        match c.send_connect() {
+                        match c.send_initial_commands_after_connect(Duration::from_millis(500)) {
                             Ok(()) => {
                                 send_response(&Response::Ok)?;
                             }
-                            Err(e) => {
-                                send_response(&Response::Error {
-                                    message: e.to_string(),
-                                })?;
-                            }
+                            // Sometimes, after closing the previous scanner
+                            // connection, a new connection will time out during
+                            // these first commands. Until we get to the bottom
+                            // of why that's happening, we just retry once,
+                            // which seems to resolve it.
+                            Err(_) => match c
+                                .send_initial_commands_after_connect(Duration::from_secs(3))
+                            {
+                                Ok(()) => send_response(&Response::Ok)?,
+                                Err(e) => send_error(&e)?,
+                            },
                         }
                         client = Some(c);
                     }
