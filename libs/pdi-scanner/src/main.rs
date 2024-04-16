@@ -19,6 +19,7 @@ use pdi_scanner::{
         },
     },
     scanner::Scanner,
+    Error, UsbError,
 };
 
 #[derive(Debug, Parser)]
@@ -92,6 +93,15 @@ enum Command {
 }
 
 #[derive(Debug, serde::Serialize)]
+#[serde(rename_all = "camelCase", rename_all_fields = "camelCase")]
+enum ErrorCode {
+    Disconnected,
+    AlreadyConnected,
+    ScanFailed,
+    Other,
+}
+
+#[derive(Debug, serde::Serialize)]
 #[serde(
     tag = "type",
     rename_all = "camelCase",
@@ -101,7 +111,8 @@ enum Response {
     Ok,
 
     Error {
-        message: String,
+        code: ErrorCode,
+        message: Option<String>,
     },
 
     ScannerStatus {
@@ -127,6 +138,22 @@ fn send_response(response: &Response) -> color_eyre::Result<()> {
     let mut stdout = io::stdout().lock();
     stdout.write_all(b"\n")?;
     Ok(())
+}
+
+fn send_error(error: &Error) -> color_eyre::Result<()> {
+    let coded_error = match error {
+        Error::Usb(UsbError::Rusb(rusb::Error::NotFound))
+        | Error::Usb(UsbError::Rusb(rusb::Error::Io)) => Response::Error {
+            code: ErrorCode::Disconnected,
+            message: None,
+        },
+
+        _ => Response::Error {
+            code: ErrorCode::Other,
+            message: Some(error.to_string()),
+        },
+    };
+    send_response(&coded_error)
 }
 
 fn main() -> color_eyre::Result<()> {
@@ -164,7 +191,8 @@ fn main() -> color_eyre::Result<()> {
                 }
                 (Some(_), Command::Connect) => {
                     send_response(&Response::Error {
-                        message: "already connected".to_string(),
+                        code: ErrorCode::AlreadyConnected,
+                        message: None,
                     })?;
                 }
                 (None, Command::Connect) => match connect() {
@@ -181,11 +209,7 @@ fn main() -> color_eyre::Result<()> {
                         }
                         client = Some(c);
                     }
-                    Err(e) => {
-                        send_response(&Response::Error {
-                            message: e.to_string(),
-                        })?;
-                    }
+                    Err(e) => send_error(&e)?,
                 },
                 (Some(_), Command::Disconnect) => {
                     client = None;
@@ -193,50 +217,26 @@ fn main() -> color_eyre::Result<()> {
                 }
                 (Some(client), Command::GetScannerStatus) => {
                     match client.get_scanner_status(Duration::from_secs(1)) {
-                        Ok(status) => {
-                            send_response(&Response::ScannerStatus { status })?;
-                        }
-                        Err(e) => {
-                            send_response(&Response::Error {
-                                message: e.to_string(),
-                            })?;
-                        }
+                        Ok(status) => send_response(&Response::ScannerStatus { status })?,
+                        Err(e) => send_error(&e)?,
                     }
                 }
                 (Some(client), Command::EnableScanning) => {
                     match client.send_enable_scan_commands() {
-                        Ok(()) => {
-                            send_response(&Response::Ok)?;
-                        }
-                        Err(e) => {
-                            send_response(&Response::Error {
-                                message: e.to_string(),
-                            })?;
-                        }
+                        Ok(()) => send_response(&Response::Ok)?,
+                        Err(e) => send_error(&e)?,
                     }
                 }
                 (Some(client), Command::DisableScanning) => {
                     match client.set_feeder_mode(FeederMode::Disabled) {
-                        Ok(()) => {
-                            send_response(&Response::Ok)?;
-                        }
-                        Err(e) => {
-                            send_response(&Response::Error {
-                                message: e.to_string(),
-                            })?;
-                        }
+                        Ok(()) => send_response(&Response::Ok)?,
+                        Err(e) => send_error(&e)?,
                     }
                 }
                 (Some(client), Command::EjectDocument { eject_motion }) => {
                     match client.eject_document(eject_motion) {
-                        Ok(()) => {
-                            send_response(&Response::Ok)?;
-                        }
-                        Err(e) => {
-                            send_response(&Response::Error {
-                                message: e.to_string(),
-                            })?;
-                        }
+                        Ok(()) => send_response(&Response::Ok)?,
+                        Err(e) => send_error(&e)?,
                     }
                 }
                 (Some(client), Command::EnableMsd { enable }) => {
@@ -245,26 +245,14 @@ fn main() -> color_eyre::Result<()> {
                     } else {
                         DoubleFeedDetectionMode::Disabled
                     }) {
-                        Ok(()) => {
-                            send_response(&Response::Ok)?;
-                        }
-                        Err(e) => {
-                            send_response(&Response::Error {
-                                message: e.to_string(),
-                            })?;
-                        }
+                        Ok(()) => send_response(&Response::Ok)?,
+                        Err(e) => send_error(&e)?,
                     }
                 }
                 (Some(client), Command::CalibrateMsd { calibration_type }) => {
                     match client.calibrate_double_feed_detection(calibration_type) {
-                        Ok(()) => {
-                            send_response(&Response::Ok)?;
-                        }
-                        Err(e) => {
-                            send_response(&Response::Error {
-                                message: e.to_string(),
-                            })?;
-                        }
+                        Ok(()) => send_response(&Response::Ok)?,
+                        Err(e) => send_error(&e)?,
                     }
                 }
                 (Some(client), Command::GetMsdCalibrationConfig) => {
@@ -279,16 +267,13 @@ fn main() -> color_eyre::Result<()> {
                                 threshold_value: 0,
                             })?;
                         }
-                        Err(e) => {
-                            send_response(&Response::Error {
-                                message: e.to_string(),
-                            })?;
-                        }
+                        Err(e) => send_error(&e)?,
                     }
                 }
                 (None, _) => {
                     send_response(&Response::Error {
-                        message: "scanner not connected".to_string(),
+                        code: ErrorCode::Disconnected,
+                        message: None,
                     })?;
                 }
             },
@@ -324,13 +309,26 @@ fn main() -> color_eyre::Result<()> {
                                         })?;
                                     }
                                     (Some(_), None) => {
-                                        eprintln!("failed to decode bottom image");
+                                        send_response(&Response::Error {
+                                            code: ErrorCode::ScanFailed,
+                                            message: Some(
+                                                "failed to decode bottom image".to_owned(),
+                                            ),
+                                        })?;
                                     }
                                     (None, Some(_)) => {
-                                        eprintln!("failed to decode top image");
+                                        send_response(&Response::Error {
+                                            code: ErrorCode::ScanFailed,
+                                            message: Some("failed to decode top image".to_owned()),
+                                        })?;
                                     }
                                     (None, None) => {
-                                        eprintln!("failed to decode top & bottom images");
+                                        send_response(&Response::Error {
+                                            code: ErrorCode::ScanFailed,
+                                            message: Some(
+                                                "failed to decode top and bottom images".to_owned(),
+                                            ),
+                                        })?;
                                     }
                                 }
                             }
@@ -340,9 +338,10 @@ fn main() -> color_eyre::Result<()> {
                             ),
                             Err(e) => {
                                 send_response(&Response::Error {
-                                    message: format!(
+                                    code: ErrorCode::ScanFailed,
+                                    message: Some(format!(
                                         "failed to decode the scanned image data: {e}"
-                                    ),
+                                    )),
                                 })?;
                             }
                         }
