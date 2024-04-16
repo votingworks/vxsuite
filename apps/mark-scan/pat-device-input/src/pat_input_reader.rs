@@ -103,8 +103,8 @@ pub struct MockPin {
 impl Pin for MockPin {
     fn new(address: u16) -> Self {
         MockPin {
-            address: address,
             address,
+            active: false,
             probe_error: None,
         }
     }
@@ -149,7 +149,7 @@ mod tests {
             is_connected_pin: Some(MockPin {
                 address: IS_CONNECTED_PIN_ADDRESS,
                 active: false,
-                probe_error: probe_err,
+                probe_error: connection_error,
             }),
             signal_a_pin: Some(MockPin {
                 address: SIGNAL_A_PIN_ADDRESS,
@@ -191,26 +191,26 @@ mod tests {
     fn test_is_connected() {
         let mut reader = get_default_mocked_reader();
 
-        assert_eq!(reader.is_connected(), false);
+        assert!(!reader.is_connected());
         reader.is_connected_pin.as_mut().unwrap().active = true;
-        assert_eq!(reader.is_connected(), true);
         assert!(reader.is_connected());
+    }
 
     #[test]
     fn test_signal_a() {
         let mut reader = get_default_mocked_reader();
 
-        assert_eq!(reader.is_signal_a_active(), false);
+        assert!(!reader.is_signal_a_active());
         reader.signal_a_pin.as_mut().unwrap().active = true;
-        assert_eq!(reader.is_signal_a_active(), true);
         assert!(reader.is_signal_a_active());
+    }
 
     #[test]
     fn test_signal_b() {
         let mut reader = get_default_mocked_reader();
 
-        assert_eq!(reader.is_signal_b_active(), false);
+        assert!(!reader.is_signal_b_active());
         reader.signal_b_pin.as_mut().unwrap().active = true;
-        assert_eq!(reader.is_signal_b_active(), true);
+        assert!(reader.is_signal_b_active());
     }
 }
