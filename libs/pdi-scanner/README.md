@@ -9,7 +9,7 @@ stdin/stdout.
 To run a TypeScript demo script:
 
 ```sh
-./ts/src/run
+./ts/src/demo
 ```
 
 ## Development

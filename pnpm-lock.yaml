@@ -5117,10 +5117,16 @@ importers:
       '@votingworks/types':
         specifier: workspace:*
         version: link:../types
+      debug:
+        specifier: 4.3.4
+        version: 4.3.4(supports-color@5.5.0)
       zod:
         specifier: 3.14.4
         version: 3.14.4
     devDependencies:
+      '@types/debug':
+        specifier: 4.1.8
+        version: 4.1.8
       '@types/node':
         specifier: 16.18.23
         version: 16.18.23
