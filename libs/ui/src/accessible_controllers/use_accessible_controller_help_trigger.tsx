@@ -5,6 +5,8 @@ export interface UseAccessibleControllerHelpTriggerResult {
   shouldShowControllerSandbox: boolean;
 }
 
+const IGNORED_MODIFIER_KEY_PRESSES = new Set(['Shift']);
+
 export function useAccessibleControllerHelpTrigger(): UseAccessibleControllerHelpTriggerResult {
   const [shouldShowHelp, setShouldShowHelp] = React.useState(false);
   const [lastKeyPress, setLastKeyPress] = React.useState<string>();
@@ -28,7 +30,11 @@ export function useAccessibleControllerHelpTrigger(): UseAccessibleControllerHel
         return;
       }
 
-      setLastKeyPress(event.key);
+      // Store the last recognized key press, ignoring modifier keys that are
+      // used in combination with character keys for some keybindings.
+      if (!IGNORED_MODIFIER_KEY_PRESSES.has(event.key)) {
+        setLastKeyPress(event.key);
+      }
     }
 
     document.addEventListener('keydown', onKeyDown);

@@ -25,6 +25,7 @@ test('toggles "on" to "off" for two consecutive keypresses', () => {
   expect(result.current.shouldShowControllerSandbox).toEqual(true);
 
   simulateKeyPress(Keybinding.TOGGLE_HELP);
+  simulateKeyPress('Shift'); // Should be ignored.
   simulateKeyPress(Keybinding.TOGGLE_HELP);
   expect(result.current.shouldShowControllerSandbox).toEqual(false);
 });
