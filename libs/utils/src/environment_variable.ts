@@ -72,6 +72,10 @@ export interface StringEnvironmentConfig {
   zodSchema?: ZodSchema;
 }
 
+/**
+ * @private Don't use this function directly, instead use isFeatureFlagEnabled,
+ * which will check the env var's config and convert it to a boolean.
+ */
 export function getEnvironmentVariable(
   name: BooleanEnvironmentVariableName | StringEnvironmentVariableName
 ): string | undefined {
