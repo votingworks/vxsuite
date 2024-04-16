@@ -24,10 +24,15 @@ function SaveReadinessReportModal({
   usbDriveStatus,
   saveReadinessReportMutation,
   usbImage,
-  onClose,
+  onClose: exitModal,
 }: SaveReadinessReportProps & {
   onClose: () => void;
 }): JSX.Element | null {
+  function onClose() {
+    saveReadinessReportMutation.reset();
+    exitModal();
+  }
+
   const mutationStatus = saveReadinessReportMutation.status;
   assert(mutationStatus !== 'error');
   switch (mutationStatus) {

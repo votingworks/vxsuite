@@ -30,6 +30,7 @@ import {
   configureUiStrings,
   createSystemCallApi,
   DiskSpaceSummary,
+  ExportDataResult,
 } from '@votingworks/backend';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
@@ -42,6 +43,7 @@ import {
 } from './custom-paper-handler';
 import { ElectionState } from './types';
 import { isAccessibleControllerDaemonRunning } from './util/controllerd';
+import { saveReadinessReport } from './readiness_report';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(
@@ -390,6 +392,14 @@ export function buildApi(
 
     getIsAccessibleControllerInputDetected(): Promise<boolean> {
       return isAccessibleControllerDaemonRunning();
+    },
+
+    saveReadinessReport(): Promise<ExportDataResult> {
+      return saveReadinessReport({
+        workspace,
+        usbDrive,
+        logger,
+      });
     },
   });
 }

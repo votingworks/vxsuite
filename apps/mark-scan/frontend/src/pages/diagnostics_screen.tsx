@@ -6,6 +6,7 @@ import {
   P,
   MarkScanReadinessReportContents,
   Loading,
+  SaveReadinessReportButton,
 } from '@votingworks/ui';
 import { useHistory, Switch, Route } from 'react-router-dom';
 import { AccessibleControllerDiagnosticScreen } from './accessible_controller_diagnostic_screen';
@@ -13,6 +14,8 @@ import {
   getApplicationDiskSpaceSummary,
   getIsAccessibleControllerInputDetected,
   getMostRecentAccessibleControllerDiagnostic,
+  getUsbDriveStatus,
+  saveReadinessReport,
   systemCallApi,
 } from '../api';
 
@@ -29,6 +32,8 @@ export function DiagnosticsScreen({
   const diskSpaceQuery = getApplicationDiskSpaceSummary.useQuery();
   const isAccessibleControllerInputDetectedQuery =
     getIsAccessibleControllerInputDetected.useQuery();
+  const saveReadinessReportMutation = saveReadinessReport.useMutation();
+  const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
 
   const history = useHistory();
 
@@ -36,7 +41,8 @@ export function DiagnosticsScreen({
     !batteryQuery.isSuccess ||
     !mostRecentAccessibleControllerDiagnosticQuery.isSuccess ||
     !diskSpaceQuery.isSuccess ||
-    !isAccessibleControllerInputDetectedQuery.isSuccess
+    !isAccessibleControllerInputDetectedQuery.isSuccess ||
+    !usbDriveStatusQuery.isSuccess
   ) {
     return (
       <Screen>
@@ -68,7 +74,11 @@ export function DiagnosticsScreen({
                 onPress={onBackButtonPress}
               >
                 Back
-              </Button>
+              </Button>{' '}
+              <SaveReadinessReportButton
+                saveReadinessReportMutation={saveReadinessReportMutation}
+                usbDriveStatus={usbDriveStatusQuery.data}
+              />
             </P>
             <MarkScanReadinessReportContents
               diskSpaceSummary={diskSpaceSummary}

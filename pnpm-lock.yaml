@@ -1544,9 +1544,15 @@ importers:
       '@votingworks/message-coder':
         specifier: workspace:*
         version: link:../../../libs/message-coder
+      '@votingworks/printing':
+        specifier: workspace:*
+        version: link:../../../libs/printing
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../../libs/types
+      '@votingworks/ui':
+        specifier: workspace:*
+        version: link:../../../libs/ui
       '@votingworks/usb-drive':
         specifier: workspace:*
         version: link:../../../libs/usb-drive
@@ -1605,6 +1611,9 @@ importers:
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
+      '@types/jest-image-snapshot':
+        specifier: ^6.4.0
+        version: 6.4.0
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
@@ -1641,6 +1650,9 @@ importers:
       jest:
         specifier: ^29.6.2
         version: 29.6.2(@types/node@16.18.23)
+      jest-image-snapshot:
+        specifier: ^6.4.0
+        version: 6.4.0(jest@29.6.2)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
