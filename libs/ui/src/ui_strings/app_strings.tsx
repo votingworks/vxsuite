@@ -415,13 +415,11 @@ export const appStrings = {
     </UiString>
   ),
 
-  // TODO(kofi): I think these instructions could be improved a bit. Not sure
-  // it's obvious to a vision-impaired voter that they have to navigate down to
-  // the confirm/reject buttons at the bottom of the screen.
   instructionsBmdScanReviewConfirmation: () => (
     <UiString uiStringKey="instructionsBmdScanReviewConfirmation">
-      If your selections are correct, press "My Ballot is Correct”. If there is
-      an error, press "My Ballot is Incorrect” and alert a poll worker.
+      If your selections are correct, press the Right button to confirm your
+      choices and cast your ballot. If there is an error, press the Left button
+      to mark this ballot as incorrect and alert a poll worker.
     </UiString>
   ),
 
