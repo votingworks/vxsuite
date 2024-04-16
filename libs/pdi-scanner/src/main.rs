@@ -58,7 +58,7 @@ fn setup_logging(config: &Config) -> color_eyre::Result<()> {
     Ok(())
 }
 
-#[derive(Debug, serde::Deserialize)]
+#[derive(Debug, serde::Deserialize, PartialEq)]
 #[serde(
     tag = "type",
     rename_all = "camelCase",
@@ -98,6 +98,7 @@ enum ErrorCode {
     Disconnected,
     AlreadyConnected,
     ScanFailed,
+    ScanInProgress,
     Other,
 }
 
@@ -178,111 +179,123 @@ fn main() -> color_eyre::Result<()> {
 
     let mut client: Option<Client<Scanner>> = None;
     let mut raw_image_data = RawImageData::new();
+    let mut scan_in_progress = false;
 
     // Main loop:
     // - Process any commands received on stdin
     // - Process any events or image data received from the scanner
     loop {
         match stdin_rx.try_recv() {
-            Ok(command) => match (&mut client, command) {
-                (_, Command::Exit) => {
+            Ok(command) => {
+                if command == Command::Exit {
                     serde_json::to_writer(io::stdout(), &Response::Ok)?;
                     return color_eyre::Result::Ok(());
                 }
-                (Some(_), Command::Connect) => {
+                if scan_in_progress {
                     send_response(&Response::Error {
-                        code: ErrorCode::AlreadyConnected,
+                        code: ErrorCode::ScanInProgress,
                         message: None,
                     })?;
+                    continue;
                 }
-                (None, Command::Connect) => match connect() {
-                    Ok(mut c) => {
-                        match c.send_initial_commands_after_connect(Duration::from_millis(500)) {
-                            Ok(()) => {
-                                send_response(&Response::Ok)?;
-                            }
-                            // Sometimes, after closing the previous scanner
-                            // connection, a new connection will time out during
-                            // these first commands. Until we get to the bottom
-                            // of why that's happening, we just retry once,
-                            // which seems to resolve it.
-                            Err(_) => match c
-                                .send_initial_commands_after_connect(Duration::from_secs(3))
+                match (&mut client, command) {
+                    (_, Command::Exit) => unreachable!(),
+                    (Some(_), Command::Connect) => {
+                        send_response(&Response::Error {
+                            code: ErrorCode::AlreadyConnected,
+                            message: None,
+                        })?;
+                    }
+                    (None, Command::Connect) => match connect() {
+                        Ok(mut c) => {
+                            match c.send_initial_commands_after_connect(Duration::from_millis(500))
                             {
-                                Ok(()) => send_response(&Response::Ok)?,
-                                Err(e) => send_error(&e)?,
-                            },
-                        }
-                        client = Some(c);
-                    }
-                    Err(e) => send_error(&e)?,
-                },
-                (Some(_), Command::Disconnect) => {
-                    client = None;
-                    send_response(&Response::Ok)?;
-                }
-                (Some(client), Command::GetScannerStatus) => {
-                    match client.get_scanner_status(Duration::from_secs(1)) {
-                        Ok(status) => send_response(&Response::ScannerStatus { status })?,
-                        Err(e) => send_error(&e)?,
-                    }
-                }
-                (Some(client), Command::EnableScanning) => {
-                    match client.send_enable_scan_commands() {
-                        Ok(()) => send_response(&Response::Ok)?,
-                        Err(e) => send_error(&e)?,
-                    }
-                }
-                (Some(client), Command::DisableScanning) => {
-                    match client.set_feeder_mode(FeederMode::Disabled) {
-                        Ok(()) => send_response(&Response::Ok)?,
-                        Err(e) => send_error(&e)?,
-                    }
-                }
-                (Some(client), Command::EjectDocument { eject_motion }) => {
-                    match client.eject_document(eject_motion) {
-                        Ok(()) => send_response(&Response::Ok)?,
-                        Err(e) => send_error(&e)?,
-                    }
-                }
-                (Some(client), Command::EnableMsd { enable }) => {
-                    match client.set_double_feed_detection_mode(if enable {
-                        DoubleFeedDetectionMode::RejectDoubleFeeds
-                    } else {
-                        DoubleFeedDetectionMode::Disabled
-                    }) {
-                        Ok(()) => send_response(&Response::Ok)?,
-                        Err(e) => send_error(&e)?,
-                    }
-                }
-                (Some(client), Command::CalibrateMsd { calibration_type }) => {
-                    match client.calibrate_double_feed_detection(calibration_type) {
-                        Ok(()) => send_response(&Response::Ok)?,
-                        Err(e) => send_error(&e)?,
-                    }
-                }
-                (Some(client), Command::GetMsdCalibrationConfig) => {
-                    match client.get_double_feed_detection_single_sheet_calibration_value(
-                        Duration::from_secs(1),
-                    ) {
-                        Ok(single_sheet_calibration_value) => {
-                            send_response(&Response::MsdCalibrationConfig {
-                                led_intensity: 0,
-                                single_sheet_calibration_value,
-                                double_sheet_calibration_value: 0,
-                                threshold_value: 0,
-                            })?;
+                                Ok(()) => {
+                                    send_response(&Response::Ok)?;
+                                }
+                                // Sometimes, after closing the previous scanner
+                                // connection, a new connection will time out during
+                                // these first commands. Until we get to the bottom
+                                // of why that's happening, we just retry once,
+                                // which seems to resolve it.
+                                Err(_) => match c
+                                    .send_initial_commands_after_connect(Duration::from_secs(3))
+                                {
+                                    Ok(()) => send_response(&Response::Ok)?,
+                                    Err(e) => send_error(&e)?,
+                                },
+                            }
+                            client = Some(c);
                         }
                         Err(e) => send_error(&e)?,
+                    },
+                    (Some(_), Command::Disconnect) => {
+                        client = None;
+                        send_response(&Response::Ok)?;
+                    }
+                    (Some(client), Command::GetScannerStatus) => {
+                        match client.get_scanner_status(Duration::from_secs(1)) {
+                            Ok(status) => send_response(&Response::ScannerStatus { status })?,
+                            Err(e) => send_error(&e)?,
+                        }
+                    }
+                    (Some(client), Command::EnableScanning) => {
+                        match client.send_enable_scan_commands() {
+                            Ok(()) => send_response(&Response::Ok)?,
+                            Err(e) => send_error(&e)?,
+                        }
+                    }
+                    (Some(client), Command::DisableScanning) => {
+                        match client.set_feeder_mode(FeederMode::Disabled) {
+                            Ok(()) => send_response(&Response::Ok)?,
+                            Err(e) => send_error(&e)?,
+                        }
+                    }
+                    (Some(client), Command::EjectDocument { eject_motion }) => {
+                        match client.eject_document(eject_motion) {
+                            Ok(()) => send_response(&Response::Ok)?,
+                            Err(e) => send_error(&e)?,
+                        }
+                    }
+                    (Some(client), Command::EnableMsd { enable }) => {
+                        match client.set_double_feed_detection_mode(if enable {
+                            DoubleFeedDetectionMode::RejectDoubleFeeds
+                        } else {
+                            DoubleFeedDetectionMode::Disabled
+                        }) {
+                            Ok(()) => send_response(&Response::Ok)?,
+                            Err(e) => send_error(&e)?,
+                        }
+                    }
+                    (Some(client), Command::CalibrateMsd { calibration_type }) => {
+                        match client.calibrate_double_feed_detection(calibration_type) {
+                            Ok(()) => send_response(&Response::Ok)?,
+                            Err(e) => send_error(&e)?,
+                        }
+                    }
+                    (Some(client), Command::GetMsdCalibrationConfig) => {
+                        match client.get_double_feed_detection_single_sheet_calibration_value(
+                            Duration::from_secs(1),
+                        ) {
+                            Ok(single_sheet_calibration_value) => {
+                                send_response(&Response::MsdCalibrationConfig {
+                                    led_intensity: 0,
+                                    single_sheet_calibration_value,
+                                    double_sheet_calibration_value: 0,
+                                    threshold_value: 0,
+                                })?;
+                            }
+                            Err(e) => send_error(&e)?,
+                        }
+                    }
+                    (None, _) => {
+                        send_response(&Response::Error {
+                            code: ErrorCode::Disconnected,
+                            message: None,
+                        })?;
                     }
                 }
-                (None, _) => {
-                    send_response(&Response::Error {
-                        code: ErrorCode::Disconnected,
-                        message: None,
-                    })?;
-                }
-            },
+            }
             Err(std::sync::mpsc::TryRecvError::Empty) => {}
             Err(std::sync::mpsc::TryRecvError::Disconnected) => {
                 tracing::error!("stdin channel disconnected");
@@ -297,6 +310,7 @@ fn main() -> color_eyre::Result<()> {
                 eprintln!("event: {:?}", event);
                 match event {
                     Incoming::BeginScanEvent => {
+                        scan_in_progress = true;
                         raw_image_data = RawImageData::new();
                         send_response(&Response::ScanStart)?;
                     }
@@ -351,6 +365,7 @@ fn main() -> color_eyre::Result<()> {
                                 })?;
                             }
                         }
+                        scan_in_progress = false;
                     }
                     _ => {}
                 }
