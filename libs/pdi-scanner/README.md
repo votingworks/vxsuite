@@ -12,12 +12,6 @@ To run a TypeScript demo script:
 ./ts/src/run
 ```
 
-To run an interactive demo of `pdictl`:
-
-```sh
-cargo run --bin pdi-tui
-```
-
 ## Development
 
 ```sh
@@ -29,4 +23,12 @@ pnpm test
 
 # build
 pnpm build
+```
+
+To enable debug logging, set the
+[`RUST_LOG` environment variable](https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/struct.EnvFilter.html)
+as appropriate, for example:
+
+```sh
+RUST_LOG=debug ./ts/src/run
 ```
