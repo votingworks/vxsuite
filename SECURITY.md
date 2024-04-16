@@ -17,7 +17,7 @@ All vulnerabilities that have been addressed in VotingWorks voting machines that
 
 # Vulnerability Handling
 We handle vulnerabilities using the following Coordinated Vulnerability Disclosure process:
-- the reporter reports the vulnerability privately to VotingWorks.
+- The reporter reports the vulnerability privately to VotingWorks.
 - VotingWorks works privately with the reporter to understand the vulnerability, with an initial response within 10 business days of receipt of the report.
 - VotingWorks prepares fixes as needed for reported vulnerabilities. Some fixes will be operational, others in software, and others potentially in hardware. Where the issues affect a third-party component, VotingWorks will do its best to coordinate advisories and disclosures with other involved parties.
 - When fixes require certification by the appropriate agencies, notably the Election Assistance Commission, VotingWorks works with these agencies to certify the fixes.
