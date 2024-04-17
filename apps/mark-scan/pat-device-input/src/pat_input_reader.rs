@@ -53,7 +53,7 @@ impl<T: Pin> PatInputReader<T> {
         match offset {
             None => Err(io::Error::new(
                 io::ErrorKind::ConnectionRefused,
-                format!("Unable to connect to probe pins at offsets: {:?}", offsets),
+                format!("Unable to connect to probe pins at offsets: {offsets:?}"),
             )),
             Some(confirmed_offset) => {
                 let is_connected_pin = T::new(IS_CONNECTED_PIN_ADDRESS + confirmed_offset);
