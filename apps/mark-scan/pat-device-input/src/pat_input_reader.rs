@@ -203,8 +203,7 @@ mod tests {
 
     fn get_default_mocked_reader() -> PatInputReader<MockPin> {
         let mut reader: PatInputReader<MockPin> = PatInputReader::new();
-        let result = reader.connect();
-        assert!(result.is_ok());
+        reader.connect().unwrap();
         reader
     }
 
@@ -231,8 +230,7 @@ mod tests {
     fn test_connect_no_offset() {
         set_app_name("test");
         let mut reader: PatInputReader<MockNoOffsetPin> = PatInputReader::new();
-        let result = reader.connect();
-        assert!(result.is_ok());
+        reader.connect().unwrap();
         assert_eq!(
             reader.is_connected_pin.unwrap().address,
             IS_CONNECTED_PIN_ADDRESS
