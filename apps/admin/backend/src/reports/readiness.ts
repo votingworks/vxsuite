@@ -23,6 +23,14 @@ async function getReadinessReport({
   generatedAtTime?: Date;
 }): Promise<JSX.Element> {
   const { store } = workspace;
+  const currentElectionId = store.getCurrentElectionId();
+  const electionRecord = currentElectionId
+    ? store.getElection(currentElectionId)
+    : undefined;
+  const electionDefinition = electionRecord
+    ? electionRecord.electionDefinition
+    : undefined;
+
   return AdminReadinessReport({
     /* c8 ignore start */
     batteryInfo: (await getBatteryInfo()) ?? undefined,
@@ -33,6 +41,7 @@ async function getReadinessReport({
       store.getMostRecentDiagnosticRecord('test-print'),
     machineId: VX_MACHINE_ID,
     generatedAtTime,
+    electionDefinition,
   });
 }
 

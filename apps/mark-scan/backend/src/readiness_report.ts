@@ -15,7 +15,7 @@ import { getCurrentTime } from './util/get_current_time';
 import { isAccessibleControllerDaemonRunning } from './util/controllerd';
 
 /**
- * Saves the VxCentralScan hardware readiness report to the USB drive.
+ * Saves the VxMarkScan hardware readiness report to the USB drive.
  */
 export async function saveReadinessReport({
   workspace,
@@ -28,6 +28,8 @@ export async function saveReadinessReport({
 }): Promise<ExportDataResult> {
   const { store } = workspace;
   const generatedAtTime = new Date(getCurrentTime());
+  const electionDefinition = store.getElectionDefinition();
+  const precinctSelection = store.getPrecinctSelection();
   const report = MarkScanReadinessReport({
     batteryInfo:
       /* istanbul ignore next */ (await getBatteryInfo()) ?? undefined,
@@ -38,6 +40,9 @@ export async function saveReadinessReport({
       store.getMostRecentDiagnosticRecord('mark-scan-accessible-controller'),
     machineId: VX_MACHINE_ID,
     generatedAtTime,
+    electionDefinition,
+    expectPrecinctSelection: true,
+    precinctSelection,
   });
   const data = await renderToPdf({ document: report });
 
