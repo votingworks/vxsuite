@@ -1322,6 +1322,24 @@ jobs:
           command: |
             cargo test -p daemon-utils
 
+  test-crate-patinputd:
+    executor: 'nodejs'
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            cargo build -p patinputd
+      - run:
+          name: Lint
+          command: |
+            cargo clippy -p patinputd
+      - run:
+          name: Test
+          command: |
+            cargo test -p patinputd
+
   test-crate-pdi-scanner:
     executor: 'nodejs'
     resource_class: xlarge
@@ -1449,6 +1467,7 @@ workflows:
       - test-crate-ballot-interpreter
       - test-crate-controllerd
       - test-crate-daemon-utils
+      - test-crate-patinputd
       - test-crate-pdi-scanner
       - test-crate-types-rs
       - test-crate-vx-logging

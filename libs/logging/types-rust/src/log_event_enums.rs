@@ -223,6 +223,10 @@ pub enum EventId {
     CreateVirtualUinputDeviceInit,
     #[serde(rename = "create-virtual-uinput-device-complete")]
     CreateVirtualUinputDeviceComplete,
+    #[serde(rename = "connect-to-gpio-pin-init")]
+    ConnectToGpioPinInit,
+    #[serde(rename = "connect-to-gpio-pin-complete")]
+    ConnectToGpioPinComplete,
     #[serde(rename = "connect-to-pat-input-init")]
     ConnectToPatInputInit,
     #[serde(rename = "connect-to-pat-input-complete")]

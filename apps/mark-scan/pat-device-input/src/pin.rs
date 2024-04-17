@@ -2,12 +2,23 @@ use std::{
     fmt,
     fs::{self, File},
     io::{self, Read},
+    thread::sleep,
+    time::Duration,
 };
 
 use vx_logging::{log, EventId};
 
 const EXPORT_PIN_FILEPATH: &str = "/sys/class/gpio/export";
 const UNEXPORT_PIN_FILEPATH: &str = "/sys/class/gpio/unexport";
+const EXPORT_DELAY: Duration = Duration::from_millis(250);
+
+pub trait Pin: fmt::Display {
+    fn new(address: u16) -> Self;
+    fn probe(&self) -> Result<(), io::Error>;
+    fn set_up(&self) -> Result<(), io::Error>;
+    fn tear_down(&self);
+    fn is_active(&self) -> bool;
+}
 
 /// Pin provides an interface to read GPIO pins that support the sysfs protocol.
 ///
@@ -20,61 +31,40 @@ const UNEXPORT_PIN_FILEPATH: &str = "/sys/class/gpio/unexport";
 /// let is_active = MY_PIN.is_active();
 /// do_something_with_value(is_active);
 /// ```
-pub struct Pin {
+pub struct GpioPin {
     address: u16,
 }
 
-impl Pin {
+impl Pin for GpioPin {
     /// Creates a new instance of Pin at the given address (pin number).
-    pub const fn new(address: u16) -> Self {
+    fn new(address: u16) -> Self {
         Self { address }
     }
 
-    // Exports the pin to be globally accessible from userspace.
-    fn export(&self) -> io::Result<()> {
-        fs::write(EXPORT_PIN_FILEPATH, self.to_string())
-    }
-
-    // Unexports the pin, removing access from userspace.
-    fn unexport(&self) -> io::Result<()> {
-        fs::write(UNEXPORT_PIN_FILEPATH, self.to_string())
-    }
-
-    // Sets the pin direction to "in" so its value is readable. Must be called after
-    // `export`
-    fn set_direction_in(&self) -> io::Result<()> {
-        let filepath = format!("/sys/class/gpio/gpio{self}/direction");
-        fs::write(filepath, b"in")
-    }
-
     /// Removes access to the pin from userspace.
-    pub fn tear_down(&self) {
+    fn tear_down(&self) {
         self.unexport()
             .expect("Unexpected failure to tear down pin");
     }
 
-    /// Makes the pin accessible from userspace. If the pin is already set up due to
-    /// a previous `set_up` call, or from other callers of the sysfs interface, `set_up`
-    /// will tear down the pin and attempt one more time to set up. This may cause
-    /// interruption to other processes attempting to read the pin value.
-    pub fn set_up(&self) -> io::Result<()> {
-        if let Err(err) = self.export() {
-            log!(
-                EventId::Unspecified,
-                "Pin {self} export failed with err {err}. Attempting to unexport.",
-            );
-            self.unexport()?;
-            log!(EventId::Unspecified, "Unexported pin {self} successfully");
-            self.export()?;
-        }
+    /// Attempts to export the pin. If successful, cleans up by unexporting
+    /// the pin and returning an empty Result. Does nothing if the pin is
+    /// already exported.
+    fn probe(&self) -> io::Result<()> {
+        self.safe_export()?;
+        self.unexport()
+    }
 
+    /// Makes the pin accessible from userspace or does nothing if it's already exported.
+    fn set_up(&self) -> io::Result<()> {
+        self.safe_export()?;
         self.set_direction_in()
     }
 
     /// Reads the pin value and returns the boolean inverse of the pin's raw value.
     /// # Example
     /// When the pin's value is b'0', `is_active` returns true.
-    pub fn is_active(&self) -> bool {
+    fn is_active(&self) -> bool {
         let filepath = format!("/sys/class/gpio/gpio{self}/value");
         let Ok(mut file) = File::open(filepath) else {
             log!(
@@ -113,7 +103,55 @@ impl Pin {
     }
 }
 
-impl fmt::Display for Pin {
+impl GpioPin {
+    /// Exports the pin to be globally accessible from userspace. If the pin is already
+    /// exported, does nothing.
+    fn safe_export(&self) -> io::Result<()> {
+        log!(EventId::ConnectToGpioPinInit, "Exporting pin {}", self);
+        if let Err(error) = self.export() {
+            // When the pin is already exported we expect io::ErrorKind::ResourceBusy.
+            // ResourceBusy is unstable so we unconditionally attempt unexport + rexport.
+            // https://github.com/rust-lang/rust/issues/86442
+            log!(
+                EventId::Info,
+                "Error when exporting pin {self}: {error}. Attempting to unexport and re-export."
+            );
+
+            self.unexport()?;
+            self.export()?;
+        }
+
+        log!(
+            event_id: EventId::ConnectToGpioPinComplete,
+            disposition: vx_logging::Disposition::Success,
+            message: format!("Successfully exported pin {self}")
+        );
+        Ok(())
+    }
+
+    /// Exports the pin to be globally accessible from userspace. Returns an error if the
+    /// pin has already been exported.
+    fn export(&self) -> io::Result<()> {
+        fs::write(EXPORT_PIN_FILEPATH, self.to_string())?;
+        // Without this delay subsequent pin operations may fail with a permission error
+        sleep(EXPORT_DELAY);
+        Ok(())
+    }
+
+    /// Unexports the pin, removing access from userspace.
+    fn unexport(&self) -> io::Result<()> {
+        fs::write(UNEXPORT_PIN_FILEPATH, self.to_string())
+    }
+
+    /// Sets the pin direction to "in" so its value is readable. Must be called after
+    /// `export`
+    fn set_direction_in(&self) -> io::Result<()> {
+        let filepath = format!("/sys/class/gpio/gpio{}/direction", self.address);
+        fs::write(filepath, b"in")
+    }
+}
+
+impl fmt::Display for GpioPin {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.address)
     }

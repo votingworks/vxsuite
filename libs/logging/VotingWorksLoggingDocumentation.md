@@ -442,6 +442,14 @@ IDs are logged with each log to identify the log being written.
 **Type:** [system-action](#system-action)  
 **Description:** A hardware daemon finished creating a uinput virtual device.  
 **Machines:** vx-mark-scan-pat-daemon, vx-mark-scan-controller-daemon
+### connect-to-gpio-pin-init
+**Type:** [system-action](#system-action)  
+**Description:** mark-scan PAT daemon initiated connection a specific GPIO pin.  
+**Machines:** vx-mark-scan-pat-daemon
+### connect-to-gpio-pin-complete
+**Type:** [system-action](#system-action)  
+**Description:** mark-scan PAT daemon completed connection a specific GPIO pin.  
+**Machines:** vx-mark-scan-pat-daemon
 ### connect-to-pat-input-init
 **Type:** [system-action](#system-action)  
 **Description:** mark-scan PAT daemon initiated connection to the PAT device input.  
