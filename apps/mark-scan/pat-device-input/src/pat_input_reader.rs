@@ -25,7 +25,7 @@ pub struct PatInputReader<T: Pin> {
 impl<T: Pin> PatInputReader<T> {
     pub fn new() -> Self {
         Self {
-            is_connected_pin: Some(T::new(IS_CONNECTED_PIN_ADDRESS + POSSIBLE_PIN_OFFSET)),
+            is_connected_pin: None,
             signal_a_pin: None,
             signal_b_pin: None,
         }
@@ -33,31 +33,43 @@ impl<T: Pin> PatInputReader<T> {
 
     pub fn connect(&mut self) -> Result<(), io::Error> {
         // Prod is expected to use the offset so attempt with offset first.
-        let mut offset: u16 = POSSIBLE_PIN_OFFSET;
-
-        if let Some(probe_pin) = &self.is_connected_pin {
-            // Earlier kernel versions may succeed without the offset.
-            if let Err(err) = probe_pin.probe() {
-                log!(
+        let offsets = &[POSSIBLE_PIN_OFFSET, 0];
+        let mut offset: Option<u16> = None;
+        for &potential_offset in offsets {
+            let pin_to_probe = T::new(IS_CONNECTED_PIN_ADDRESS + potential_offset);
+            match pin_to_probe.probe() {
+                Err(err) => log!(
                     EventId::Info,
-                    "Failed to connect to pin {probe_pin} with error {err}. Retrying without offset."
-                );
-                offset = 0;
+                    "Failed to connect to pin {pin_to_probe} with error {err}.",
+                ),
+                Ok(()) => {
+                    log!(EventId::Info, "Valid offset found: {potential_offset}");
+                    offset = Some(potential_offset);
+                    break;
+                }
             }
         }
 
-        let is_connected_pin = T::new(IS_CONNECTED_PIN_ADDRESS + offset);
-        let signal_a_pin = T::new(SIGNAL_A_PIN_ADDRESS + offset);
-        let signal_b_pin = T::new(SIGNAL_B_PIN_ADDRESS + offset);
-        is_connected_pin.set_up()?;
-        signal_a_pin.set_up()?;
-        signal_b_pin.set_up()?;
+        match offset {
+            None => Err(io::Error::new(
+                io::ErrorKind::ConnectionRefused,
+                format!("Unable to connect to probe pins at offsets: {:?}", offsets),
+            )),
+            Some(confirmed_offset) => {
+                let is_connected_pin = T::new(IS_CONNECTED_PIN_ADDRESS + confirmed_offset);
+                let signal_a_pin = T::new(SIGNAL_A_PIN_ADDRESS + confirmed_offset);
+                let signal_b_pin = T::new(SIGNAL_B_PIN_ADDRESS + confirmed_offset);
+                is_connected_pin.set_up()?;
+                signal_a_pin.set_up()?;
+                signal_b_pin.set_up()?;
 
-        self.is_connected_pin = Some(is_connected_pin);
-        self.signal_a_pin = Some(signal_a_pin);
-        self.signal_b_pin = Some(signal_b_pin);
+                self.is_connected_pin = Some(is_connected_pin);
+                self.signal_a_pin = Some(signal_a_pin);
+                self.signal_b_pin = Some(signal_b_pin);
 
-        Ok(())
+                Ok(())
+            }
+        }
     }
 
     pub fn tear_down(&self) {
@@ -94,7 +106,7 @@ impl<T: Pin> PatInputReader<T> {
     }
 }
 
-pub struct MockPin {
+struct MockPin {
     address: u16,
     active: bool,
     probe_error: Option<io::Error>,
@@ -134,6 +146,55 @@ impl fmt::Display for MockPin {
     }
 }
 
+// Fails to probe for any address that uses the offset
+struct MockNoOffsetPin {
+    address: u16,
+    active: bool,
+    probe_error: Option<io::Error>,
+}
+
+impl Pin for MockNoOffsetPin {
+    fn new(address: u16) -> Self {
+        let mut probe_error = None;
+        if address > POSSIBLE_PIN_OFFSET {
+            probe_error = Some(io::Error::new(
+                io::ErrorKind::AddrNotAvailable,
+                "Test error",
+            ))
+        }
+
+        MockNoOffsetPin {
+            address,
+            active: false,
+            probe_error,
+        }
+    }
+
+    fn probe(&self) -> Result<(), io::Error> {
+        if let Some(probe_error) = &self.probe_error {
+            // io::Error doesn't implement clone()
+            return Err(io::Error::new(probe_error.kind(), probe_error.to_string()));
+        }
+        Ok(())
+    }
+
+    fn set_up(&self) -> Result<(), io::Error> {
+        Ok(())
+    }
+
+    fn tear_down(&self) {}
+
+    fn is_active(&self) -> bool {
+        self.active
+    }
+}
+
+impl fmt::Display for MockNoOffsetPin {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.address)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use vx_logging::set_app_name;
@@ -141,50 +202,43 @@ mod tests {
     use super::*;
 
     fn get_default_mocked_reader() -> PatInputReader<MockPin> {
-        get_mocked_reader(None)
-    }
-
-    fn get_mocked_reader(connection_error: Option<io::Error>) -> PatInputReader<MockPin> {
-        PatInputReader {
-            is_connected_pin: Some(MockPin {
-                address: IS_CONNECTED_PIN_ADDRESS,
-                active: false,
-                probe_error: connection_error,
-            }),
-            signal_a_pin: Some(MockPin {
-                address: SIGNAL_A_PIN_ADDRESS,
-                active: false,
-                probe_error: None,
-            }),
-            signal_b_pin: Some(MockPin {
-                address: SIGNAL_B_PIN_ADDRESS,
-                active: false,
-                probe_error: None,
-            }),
-        }
+        let mut reader: PatInputReader<MockPin> = PatInputReader::new();
+        let result = reader.connect();
+        assert!(result.is_ok());
+        reader
     }
 
     #[test]
     fn test_connect_offset() {
         set_app_name("test");
-        let mut reader = get_default_mocked_reader();
-        reader.connect().unwrap();
+        let reader = get_default_mocked_reader();
+
         assert_eq!(
             reader.is_connected_pin.unwrap().address,
             IS_CONNECTED_PIN_ADDRESS + POSSIBLE_PIN_OFFSET
+        );
+        assert_eq!(
+            reader.signal_a_pin.unwrap().address,
+            SIGNAL_A_PIN_ADDRESS + POSSIBLE_PIN_OFFSET
+        );
+        assert_eq!(
+            reader.signal_b_pin.unwrap().address,
+            SIGNAL_B_PIN_ADDRESS + POSSIBLE_PIN_OFFSET
         );
     }
 
     #[test]
     fn test_connect_no_offset() {
         set_app_name("test");
-        let mut reader =
-            get_mocked_reader(Some(io::Error::new(io::ErrorKind::NotFound, "Test Error")));
-        reader.connect().unwrap();
+        let mut reader: PatInputReader<MockNoOffsetPin> = PatInputReader::new();
+        let result = reader.connect();
+        assert!(result.is_ok());
         assert_eq!(
             reader.is_connected_pin.unwrap().address,
             IS_CONNECTED_PIN_ADDRESS
         );
+        assert_eq!(reader.signal_a_pin.unwrap().address, SIGNAL_A_PIN_ADDRESS);
+        assert_eq!(reader.signal_b_pin.unwrap().address, SIGNAL_B_PIN_ADDRESS);
     }
 
     #[test]
