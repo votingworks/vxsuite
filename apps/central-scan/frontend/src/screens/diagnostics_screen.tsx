@@ -23,7 +23,7 @@ const PageLayout = styled.div`
   align-items: flex-start;
 `;
 
-export function HardwareDiagnosticsScreen(): JSX.Element {
+export function DiagnosticsScreen(): JSX.Element {
   const statusQuery = getStatus.useQuery();
   const electionDefinitionQuery = getElectionDefinition.useQuery();
   const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
@@ -41,9 +41,7 @@ export function HardwareDiagnosticsScreen(): JSX.Element {
     !scannerDiagnosticRecordQuery.isSuccess ||
     !usbDriveStatusQuery.isSuccess
   ) {
-    return (
-      <NavigationScreen title="Hardware Diagnostics">{null}</NavigationScreen>
-    );
+    return <NavigationScreen title="Diagnostics">{null}</NavigationScreen>;
   }
 
   const { isScannerAttached } = statusQuery.data;
@@ -54,7 +52,7 @@ export function HardwareDiagnosticsScreen(): JSX.Element {
     scannerDiagnosticRecordQuery.data ?? undefined;
 
   return (
-    <NavigationScreen title="Hardware Diagnostics">
+    <NavigationScreen title="Diagnostics">
       <PageLayout>
         <div>
           <CentralScanReadinessReportContents

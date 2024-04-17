@@ -26,7 +26,7 @@ const PageLayout = styled.div`
   align-items: flex-start;
 `;
 
-export function HardwareDiagnosticsScreen(): JSX.Element {
+export function DiagnosticsScreen(): JSX.Element {
   const { electionDefinition } = useContext(AppContext);
   const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
   const printerStatusQuery = getPrinterStatus.useQuery();
@@ -43,7 +43,7 @@ export function HardwareDiagnosticsScreen(): JSX.Element {
     !getUsbDriveStatusQuery.isSuccess
   ) {
     return (
-      <NavigationScreen title="Hardware Diagnostics">
+      <NavigationScreen title="Diagnostics">
         <Loading isFullscreen />
       </NavigationScreen>
     );
@@ -55,7 +55,7 @@ export function HardwareDiagnosticsScreen(): JSX.Element {
   const mostRecentPrinterDiagnostic = diagnosticRecordQuery.data ?? undefined;
 
   return (
-    <NavigationScreen title="Hardware Diagnostics">
+    <NavigationScreen title="Diagnostics">
       <PageLayout>
         <div>
           <AdminReadinessReportContents

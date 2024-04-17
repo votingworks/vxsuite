@@ -3,7 +3,7 @@ import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { screen } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { createApiMock, ApiMock } from '../../test/api';
-import { HardwareDiagnosticsScreen } from './hardware_diagnostics_screen';
+import { DiagnosticsScreen } from './diagnostics_screen';
 
 let apiMock: ApiMock;
 
@@ -25,12 +25,12 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-test('hardware diagnostics screen', async () => {
+test('diagnostics screen', async () => {
   apiMock.setStatus();
   apiMock.expectGetElectionDefinition(null);
   apiMock.expectGetMostRecentScannerDiagnostic();
 
-  renderInAppContext(<HardwareDiagnosticsScreen />, {
+  renderInAppContext(<DiagnosticsScreen />, {
     apiMock,
   });
 
@@ -50,7 +50,7 @@ test('shows most recent diagnostic', async () => {
     timestamp: new Date('2021-01-01T00:00:00').getTime(),
   });
 
-  renderInAppContext(<HardwareDiagnosticsScreen />, {
+  renderInAppContext(<DiagnosticsScreen />, {
     apiMock,
   });
 
