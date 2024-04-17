@@ -63,7 +63,7 @@ fn main() -> color_eyre::Result<()> {
     let mut raw_image_data = RawImageData::new();
     let mut scan_index = 0;
 
-    client.send_connect()?;
+    client.send_initial_commands_after_connect(Duration::from_secs(3))?;
     client.send_enable_scan_commands()?;
     println!("waiting for sheet…");
 

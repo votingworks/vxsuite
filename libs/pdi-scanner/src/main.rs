@@ -2,7 +2,6 @@ use clap::Parser;
 use image::EncodableLayout;
 use std::{
     io::{self, Write},
-    process::exit,
     time::Duration,
 };
 use tracing_subscriber::prelude::*;
@@ -15,11 +14,12 @@ use pdi_scanner::{
         image::{RawImageData, Sheet, DEFAULT_IMAGE_WIDTH},
         packets::Incoming,
         types::{
-            DoubleFeedDetectionCalibrationType, DoubleFeedDetectionMode, EjectMotion, ScanSideMode,
-            Status,
+            DoubleFeedDetectionCalibrationType, DoubleFeedDetectionMode, EjectMotion, FeederMode,
+            ScanSideMode, Status,
         },
     },
     scanner::Scanner,
+    Error, UsbError,
 };
 
 #[derive(Debug, Parser)]
@@ -59,66 +59,79 @@ fn setup_logging(config: &Config) -> color_eyre::Result<()> {
 }
 
 #[derive(Debug, serde::Deserialize)]
-#[serde(tag = "type")]
-#[serde(rename_all = "camelCase")]
+#[serde(
+    tag = "type",
+    rename_all = "camelCase",
+    rename_all_fields = "camelCase"
+)]
 enum Command {
-    #[serde(rename = "exit")]
     Exit,
 
-    #[serde(rename = "connect")]
     Connect,
 
-    #[serde(rename = "disconnect")]
     Disconnect,
 
-    #[serde(rename = "get_scanner_status")]
     GetScannerStatus,
 
-    #[serde(rename = "enable_scanning")]
     EnableScanning,
 
-    #[serde(rename = "eject")]
-    #[serde(rename_all = "camelCase")]
-    EjectDocument { eject_motion: EjectMotion },
+    DisableScanning,
 
-    #[serde(rename = "enable_msd")]
-    EnableMsd { enable: bool },
+    EjectDocument {
+        eject_motion: EjectMotion,
+    },
 
-    #[serde(rename = "calibrate_msd")]
-    #[serde(rename_all = "camelCase")]
+    EnableMsd {
+        enable: bool,
+    },
+
     CalibrateMsd {
         calibration_type: DoubleFeedDetectionCalibrationType,
     },
 
-    #[serde(rename = "get_msd_calibration_config")]
     GetMsdCalibrationConfig,
 }
 
 #[derive(Debug, serde::Serialize)]
-#[serde(tag = "type")]
+#[serde(rename_all = "camelCase", rename_all_fields = "camelCase")]
+enum ErrorCode {
+    Disconnected,
+    AlreadyConnected,
+    ScanFailed,
+    ScanInProgress,
+    Other,
+}
+
+#[derive(Debug, serde::Serialize)]
+#[serde(
+    tag = "type",
+    rename_all = "camelCase",
+    rename_all_fields = "camelCase"
+)]
 enum Response {
-    #[serde(rename = "ok")]
     Ok,
 
-    #[serde(rename = "error")]
-    Err { message: String },
+    Error {
+        code: ErrorCode,
+        message: Option<String>,
+    },
 
-    #[serde(rename = "scan_complete")]
-    #[serde(rename_all = "camelCase")]
-    ScanComplete { image_data: (String, String) },
+    ScannerStatus {
+        status: Status,
+    },
 
-    #[serde(rename = "msd_calibration_config")]
-    #[serde(rename_all = "camelCase")]
+    ScanStart,
+
+    ScanComplete {
+        image_data: (String, String),
+    },
+
     MsdCalibrationConfig {
         led_intensity: u16,
         single_sheet_calibration_value: u16,
         double_sheet_calibration_value: u16,
         threshold_value: u16,
     },
-
-    #[serde(rename = "scanner_status")]
-    #[serde(rename_all = "camelCase")]
-    ScannerStatus { status: Status },
 }
 
 fn send_response(response: &Response) -> color_eyre::Result<()> {
@@ -126,6 +139,22 @@ fn send_response(response: &Response) -> color_eyre::Result<()> {
     let mut stdout = io::stdout().lock();
     stdout.write_all(b"\n")?;
     Ok(())
+}
+
+fn send_error(error: &Error) -> color_eyre::Result<()> {
+    let coded_error = match error {
+        Error::Usb(UsbError::Rusb(rusb::Error::NotFound))
+        | Error::Usb(UsbError::Rusb(rusb::Error::Io)) => Response::Error {
+            code: ErrorCode::Disconnected,
+            message: None,
+        },
+
+        _ => Response::Error {
+            code: ErrorCode::Other,
+            message: Some(error.to_string()),
+        },
+    };
+    send_response(&coded_error)
 }
 
 fn main() -> color_eyre::Result<()> {
@@ -150,149 +179,140 @@ fn main() -> color_eyre::Result<()> {
 
     let mut client: Option<Client<Scanner>> = None;
     let mut raw_image_data = RawImageData::new();
+    let mut scan_in_progress = false;
 
     // Main loop:
     // - Process any commands received on stdin
     // - Process any events or image data received from the scanner
     loop {
         match stdin_rx.try_recv() {
-            Ok(command) => match (&mut client, command) {
-                (_, Command::Exit) => {
+            Ok(command) => {
+                if matches!(command, Command::Exit) {
                     serde_json::to_writer(io::stdout(), &Response::Ok)?;
-                    exit(0)
+                    return color_eyre::Result::Ok(());
                 }
-                (Some(_), Command::Connect) => {
-                    send_response(&Response::Err {
-                        message: "already connected".to_string(),
+                if scan_in_progress {
+                    send_response(&Response::Error {
+                        code: ErrorCode::ScanInProgress,
+                        message: None,
                     })?;
+                    continue;
                 }
-                (None, Command::Connect) => match connect() {
-                    Ok(mut c) => {
-                        match c.send_connect() {
-                            Ok(()) => {
-                                send_response(&Response::Ok)?;
-                            }
-                            Err(e) => {
-                                send_response(&Response::Err {
-                                    message: e.to_string(),
-                                })?;
-                            }
-                        }
-                        client = Some(c);
-                    }
-                    Err(e) => {
-                        send_response(&Response::Err {
-                            message: e.to_string(),
+                match (&mut client, command) {
+                    (_, Command::Exit) => unreachable!(),
+                    (Some(_), Command::Connect) => {
+                        send_response(&Response::Error {
+                            code: ErrorCode::AlreadyConnected,
+                            message: None,
                         })?;
                     }
-                },
-                (Some(_), Command::Disconnect) => {
-                    client = None;
-                    send_response(&Response::Ok)?;
-                }
-                (Some(client), Command::GetScannerStatus) => {
-                    match client.get_scanner_status(Duration::from_secs(1)) {
-                        Ok(status) => {
-                            send_response(&Response::ScannerStatus { status })?;
+                    (None, Command::Connect) => match connect() {
+                        Ok(mut c) => {
+                            match c.send_initial_commands_after_connect(Duration::from_millis(500))
+                            {
+                                Ok(()) => {
+                                    send_response(&Response::Ok)?;
+                                }
+                                // Sometimes, after closing the previous scanner
+                                // connection, a new connection will time out during
+                                // these first commands. Until we get to the bottom
+                                // of why that's happening, we just retry once,
+                                // which seems to resolve it.
+                                Err(_) => match c
+                                    .send_initial_commands_after_connect(Duration::from_secs(3))
+                                {
+                                    Ok(()) => send_response(&Response::Ok)?,
+                                    Err(e) => send_error(&e)?,
+                                },
+                            }
+                            client = Some(c);
                         }
-                        Err(e) => {
-                            send_response(&Response::Err {
-                                message: e.to_string(),
-                            })?;
+                        Err(e) => send_error(&e)?,
+                    },
+                    (Some(_), Command::Disconnect) => {
+                        client = None;
+                        send_response(&Response::Ok)?;
+                    }
+                    (Some(client), Command::GetScannerStatus) => {
+                        match client.get_scanner_status(Duration::from_secs(1)) {
+                            Ok(status) => send_response(&Response::ScannerStatus { status })?,
+                            Err(e) => send_error(&e)?,
                         }
                     }
-                }
-                (Some(client), Command::EnableScanning) => {
-                    match client.send_enable_scan_commands() {
-                        Ok(()) => {
-                            send_response(&Response::Ok)?;
-                        }
-                        Err(e) => {
-                            send_response(&Response::Err {
-                                message: e.to_string(),
-                            })?;
+                    (Some(client), Command::EnableScanning) => {
+                        match client.send_enable_scan_commands() {
+                            Ok(()) => send_response(&Response::Ok)?,
+                            Err(e) => send_error(&e)?,
                         }
                     }
-                }
-                (Some(client), Command::EjectDocument { eject_motion }) => {
-                    match client.eject_document(eject_motion) {
-                        Ok(()) => {
-                            send_response(&Response::Ok)?;
-                        }
-                        Err(e) => {
-                            send_response(&Response::Err {
-                                message: e.to_string(),
-                            })?;
+                    (Some(client), Command::DisableScanning) => {
+                        match client.set_feeder_mode(FeederMode::Disabled) {
+                            Ok(()) => send_response(&Response::Ok)?,
+                            Err(e) => send_error(&e)?,
                         }
                     }
-                }
-                (Some(client), Command::EnableMsd { enable }) => {
-                    match client.set_double_feed_detection_mode(if enable {
-                        DoubleFeedDetectionMode::RejectDoubleFeeds
-                    } else {
-                        DoubleFeedDetectionMode::Disabled
-                    }) {
-                        Ok(()) => {
-                            send_response(&Response::Ok)?;
-                        }
-                        Err(e) => {
-                            send_response(&Response::Err {
-                                message: e.to_string(),
-                            })?;
+                    (Some(client), Command::EjectDocument { eject_motion }) => {
+                        match client.eject_document(eject_motion) {
+                            Ok(()) => send_response(&Response::Ok)?,
+                            Err(e) => send_error(&e)?,
                         }
                     }
-                }
-                (Some(client), Command::CalibrateMsd { calibration_type }) => {
-                    match client.calibrate_double_feed_detection(calibration_type) {
-                        Ok(()) => {
-                            send_response(&Response::Ok)?;
-                        }
-                        Err(e) => {
-                            send_response(&Response::Err {
-                                message: e.to_string(),
-                            })?;
+                    (Some(client), Command::EnableMsd { enable }) => {
+                        match client.set_double_feed_detection_mode(if enable {
+                            DoubleFeedDetectionMode::RejectDoubleFeeds
+                        } else {
+                            DoubleFeedDetectionMode::Disabled
+                        }) {
+                            Ok(()) => send_response(&Response::Ok)?,
+                            Err(e) => send_error(&e)?,
                         }
                     }
-                }
-                (Some(client), Command::GetMsdCalibrationConfig) => {
-                    match client.get_double_feed_detection_single_sheet_calibration_value(
-                        Duration::from_secs(1),
-                    ) {
-                        Ok(single_sheet_calibration_value) => {
-                            send_response(&Response::MsdCalibrationConfig {
-                                led_intensity: 0,
-                                single_sheet_calibration_value,
-                                double_sheet_calibration_value: 0,
-                                threshold_value: 0,
-                            })?;
-                        }
-                        Err(e) => {
-                            send_response(&Response::Err {
-                                message: e.to_string(),
-                            })?;
+                    (Some(client), Command::CalibrateMsd { calibration_type }) => {
+                        match client.calibrate_double_feed_detection(calibration_type) {
+                            Ok(()) => send_response(&Response::Ok)?,
+                            Err(e) => send_error(&e)?,
                         }
                     }
+                    (Some(client), Command::GetMsdCalibrationConfig) => {
+                        match client.get_double_feed_detection_single_sheet_calibration_value(
+                            Duration::from_secs(1),
+                        ) {
+                            Ok(single_sheet_calibration_value) => {
+                                send_response(&Response::MsdCalibrationConfig {
+                                    led_intensity: 0,
+                                    single_sheet_calibration_value,
+                                    double_sheet_calibration_value: 0,
+                                    threshold_value: 0,
+                                })?;
+                            }
+                            Err(e) => send_error(&e)?,
+                        }
+                    }
+                    (None, _) => {
+                        send_response(&Response::Error {
+                            code: ErrorCode::Disconnected,
+                            message: None,
+                        })?;
+                    }
                 }
-                (None, _) => {
-                    send_response(&Response::Err {
-                        message: "scanner not connected".to_string(),
-                    })?;
-                }
-            },
+            }
             Err(std::sync::mpsc::TryRecvError::Empty) => {}
             Err(std::sync::mpsc::TryRecvError::Disconnected) => {
                 tracing::error!("stdin channel disconnected");
-                exit(-1);
+                return color_eyre::Result::Err(color_eyre::Report::msg(
+                    "stdin channel disconnected",
+                ));
             }
         }
 
         if let Some(client) = &mut client {
             if let Ok(event) = client.try_recv_matching(Incoming::is_event) {
                 eprintln!("event: {:?}", event);
-                // TODO: pass the event as JSON via stdout
                 match event {
                     Incoming::BeginScanEvent => {
+                        scan_in_progress = true;
                         raw_image_data = RawImageData::new();
+                        send_response(&Response::ScanStart)?;
                     }
                     Incoming::EndScanEvent => {
                         match raw_image_data
@@ -309,13 +329,26 @@ fn main() -> color_eyre::Result<()> {
                                         })?;
                                     }
                                     (Some(_), None) => {
-                                        eprintln!("failed to decode bottom image");
+                                        send_response(&Response::Error {
+                                            code: ErrorCode::ScanFailed,
+                                            message: Some(
+                                                "failed to decode bottom image".to_owned(),
+                                            ),
+                                        })?;
                                     }
                                     (None, Some(_)) => {
-                                        eprintln!("failed to decode top image");
+                                        send_response(&Response::Error {
+                                            code: ErrorCode::ScanFailed,
+                                            message: Some("failed to decode top image".to_owned()),
+                                        })?;
                                     }
                                     (None, None) => {
-                                        eprintln!("failed to decode top & bottom images");
+                                        send_response(&Response::Error {
+                                            code: ErrorCode::ScanFailed,
+                                            message: Some(
+                                                "failed to decode top and bottom images".to_owned(),
+                                            ),
+                                        })?;
                                     }
                                 }
                             }
@@ -324,13 +357,15 @@ fn main() -> color_eyre::Result<()> {
                                 ScanSideMode::Duplex
                             ),
                             Err(e) => {
-                                send_response(&Response::Err {
-                                    message: format!(
+                                send_response(&Response::Error {
+                                    code: ErrorCode::ScanFailed,
+                                    message: Some(format!(
                                         "failed to decode the scanned image data: {e}"
-                                    ),
+                                    )),
                                 })?;
                             }
                         }
+                        scan_in_progress = false;
                     }
                     _ => {}
                 }

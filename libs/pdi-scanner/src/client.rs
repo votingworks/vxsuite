@@ -748,8 +748,7 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if any of the commands fail to
     /// validate or if the response is not received within the timeout.
-    pub fn send_connect(&mut self) -> Result<()> {
-        let timeout = Duration::from_secs(5);
+    pub fn send_initial_commands_after_connect(&mut self, timeout: Duration) -> Result<()> {
         let deadline = Instant::now() + timeout;
 
         // OUT DisableFeederRequest
