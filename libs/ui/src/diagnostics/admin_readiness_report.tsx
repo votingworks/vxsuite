@@ -1,35 +1,26 @@
-import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
-import { DiagnosticRecord, PrinterStatus } from '@votingworks/types';
 import { ThemeProvider } from 'styled-components';
-import { ComputerSection } from './computer_section';
-import { PrinterSection } from './printer_section';
+import { ComputerSection, ComputerSectionProps } from './computer_section';
+import { PrinterSection, PrinterSectionProps } from './printer_section';
 import { PrintedReport } from '../reports/layout';
 import { makeTheme } from '../themes/make_theme';
 import { ReadinessReportHeader } from './report_header';
+import {
+  ConfigurationSectionProps,
+  ConfigurationSection,
+} from './configuration_section';
 
-interface ReportContentsProps {
-  batteryInfo?: BatteryInfo;
-  diskSpaceSummary: DiskSpaceSummary;
-  printerStatus: PrinterStatus;
-  mostRecentPrinterDiagnostic?: DiagnosticRecord;
-}
+type ReportContentsProps = ComputerSectionProps &
+  PrinterSectionProps &
+  ConfigurationSectionProps;
 
-export function AdminReadinessReportContents({
-  batteryInfo,
-  diskSpaceSummary,
-  printerStatus,
-  mostRecentPrinterDiagnostic,
-}: ReportContentsProps): JSX.Element {
+export function AdminReadinessReportContents(
+  props: ReportContentsProps
+): JSX.Element {
   return (
     <div>
-      <ComputerSection
-        batteryInfo={batteryInfo}
-        diskSpaceSummary={diskSpaceSummary}
-      />
-      <PrinterSection
-        printerStatus={printerStatus}
-        mostRecentPrinterDiagnostic={mostRecentPrinterDiagnostic}
-      />
+      <ConfigurationSection {...props} />
+      <ComputerSection {...props} />
+      <PrinterSection {...props} />
     </div>
   );
 }

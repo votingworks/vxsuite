@@ -1,4 +1,5 @@
 import { hasTextAcrossElements } from '@votingworks/test-utils';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { CentralScanReadinessReport } from '.';
 import { render, screen } from '../../test/react_testing_library';
 
@@ -24,29 +25,22 @@ test('CentralScanReadinessReport', () => {
         outcome: 'pass',
         timestamp: generatedAtTime.getTime(),
       }}
+      electionDefinition={electionTwoPartyPrimaryDefinition}
     />
   );
 
-  expect(
-    screen.getByText('VxCentralScan Readiness Report')
-  ).toBeInTheDocument();
-  expect(
-    screen.getByText(hasTextAcrossElements('Machine ID: MOCK'))
-  ).toBeInTheDocument();
-  expect(
-    screen.getByText(
-      hasTextAcrossElements(
-        'Date: Saturday, January 1, 2022 at 12:00:00 AM AKST'
-      )
-    )
-  ).toBeInTheDocument();
+  screen.getByText('VxCentralScan Readiness Report');
+  screen.getByText(hasTextAcrossElements('Machine ID: MOCK'));
+  screen.getByText(
+    hasTextAcrossElements('Date: Saturday, January 1, 2022 at 12:00:00 AM AKST')
+  );
 
-  expect(screen.getByText('Battery Level: 50%')).toBeInTheDocument();
-  expect(screen.getByText('Power Source: Battery')).toBeInTheDocument();
+  screen.getByText(/Example Primary Election/);
+  screen.getByText('Battery Level: 50%');
+  screen.getByText('Power Source: Battery');
   screen.getByText('Free Disk Space: 50% (500 GB / 1000 GB)');
 
-  expect(screen.getByText('Connected')).toBeInTheDocument();
-  expect(
-    screen.getByText('Test scan successful, 1/1/2022, 12:00:00 AM')
-  ).toBeInTheDocument();
+  screen.getByText('Connected');
+
+  screen.getByText('Test scan successful, 1/1/2022, 12:00:00 AM');
 });

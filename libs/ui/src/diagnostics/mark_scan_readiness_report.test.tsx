@@ -1,4 +1,6 @@
 import { hasTextAcrossElements } from '@votingworks/test-utils';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { MarkScanReadinessReport } from './mark_scan_readiness_report';
 import { render, screen } from '../../test/react_testing_library';
 
@@ -25,21 +27,18 @@ test('MarkScanReadinessReport', () => {
       accessibleControllerSectionChildren={<p>passed child</p>}
       generatedAtTime={generatedAtTime}
       machineId={machineId}
+      electionDefinition={electionTwoPartyPrimaryDefinition}
+      precinctSelection={ALL_PRECINCTS_SELECTION}
     />
   );
 
-  expect(screen.getByText('VxMarkScan Readiness Report')).toBeInTheDocument();
-  expect(
-    screen.getByText(hasTextAcrossElements('Machine ID: MOCK'))
-  ).toBeInTheDocument();
-  expect(
-    screen.getByText(
-      hasTextAcrossElements(
-        'Date: Saturday, January 1, 2022 at 12:00:00 AM AKST'
-      )
-    )
-  ).toBeInTheDocument();
-
+  screen.getByText('VxMarkScan Readiness Report');
+  screen.getByText(hasTextAcrossElements('Machine ID: MOCK'));
+  screen.getByText(
+    hasTextAcrossElements('Date: Saturday, January 1, 2022 at 12:00:00 AM AKST')
+  );
+  screen.getByText(/Example Primary Election/);
+  screen.getByText(/All Precincts/);
   screen.getByText('Battery Level: 50%');
   screen.getByText('Power Source: Battery');
   screen.getByText('Detected');

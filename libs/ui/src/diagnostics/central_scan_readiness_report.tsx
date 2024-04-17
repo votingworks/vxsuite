@@ -1,35 +1,29 @@
-import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
 import { ThemeProvider } from 'styled-components';
-import { DiagnosticRecord } from '@votingworks/types';
-import { ComputerSection } from './computer_section';
-import { CentralScannerSection } from './central_scanner_section';
+import { ComputerSection, ComputerSectionProps } from './computer_section';
+import {
+  CentralScannerSection,
+  CentralScannerSectionProps,
+} from './central_scanner_section';
 import { makeTheme } from '../themes/make_theme';
 import { PrintedReport } from '../reports/layout';
 import { ReadinessReportHeader } from './report_header';
+import {
+  ConfigurationSectionProps,
+  ConfigurationSection,
+} from './configuration_section';
 
-interface ReportContentsProps {
-  batteryInfo?: BatteryInfo;
-  diskSpaceSummary: DiskSpaceSummary;
-  isScannerAttached: boolean;
-  mostRecentScannerDiagnostic?: DiagnosticRecord;
-}
+type ReportContentsProps = ComputerSectionProps &
+  CentralScannerSectionProps &
+  ConfigurationSectionProps;
 
-export function CentralScanReadinessReportContents({
-  batteryInfo,
-  diskSpaceSummary,
-  isScannerAttached,
-  mostRecentScannerDiagnostic,
-}: ReportContentsProps): JSX.Element {
+export function CentralScanReadinessReportContents(
+  props: ReportContentsProps
+): JSX.Element {
   return (
     <div>
-      <ComputerSection
-        batteryInfo={batteryInfo}
-        diskSpaceSummary={diskSpaceSummary}
-      />
-      <CentralScannerSection
-        isScannerAttached={isScannerAttached}
-        mostRecentScannerDiagnostic={mostRecentScannerDiagnostic}
-      />
+      <ConfigurationSection {...props} />
+      <ComputerSection {...props} />
+      <CentralScannerSection {...props} />
     </div>
   );
 }
