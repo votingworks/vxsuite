@@ -100,7 +100,7 @@ impl ScanSideMode {
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub enum EjectMotion {
     ToRear,
@@ -289,7 +289,7 @@ impl TryFrom<u16> for CalibrationStatus {
     }
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub enum DoubleFeedDetectionCalibrationType {
     #[serde(rename = "single")]
     SingleSheet,

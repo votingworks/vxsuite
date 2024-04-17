@@ -58,7 +58,7 @@ fn setup_logging(config: &Config) -> color_eyre::Result<()> {
     Ok(())
 }
 
-#[derive(Debug, serde::Deserialize, PartialEq)]
+#[derive(Debug, serde::Deserialize)]
 #[serde(
     tag = "type",
     rename_all = "camelCase",
@@ -187,7 +187,7 @@ fn main() -> color_eyre::Result<()> {
     loop {
         match stdin_rx.try_recv() {
             Ok(command) => {
-                if command == Command::Exit {
+                if matches!(command, Command::Exit) {
                     serde_json::to_writer(io::stdout(), &Response::Ok)?;
                     return color_eyre::Result::Ok(());
                 }
