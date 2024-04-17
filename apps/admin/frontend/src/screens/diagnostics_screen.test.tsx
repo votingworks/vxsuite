@@ -5,7 +5,7 @@ import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { screen, within, act } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
-import { HardwareDiagnosticsScreen } from './hardware_diagnostics_screen';
+import { DiagnosticsScreen } from './diagnostics_screen';
 import { hackActuallyCleanUpReactModal } from '../../test/react_modal_cleanup';
 import { TEST_PAGE_PRINT_DELAY_SECONDS } from '../components/print_diagnostic_button';
 
@@ -37,7 +37,7 @@ test('battery state ', async () => {
   apiMock.setPrinterStatus({ connected: false });
   apiMock.expectGetApplicationDiskSpaceSummary();
   apiMock.expectGetMostRecentPrinterDiagnostic();
-  renderInAppContext(<HardwareDiagnosticsScreen />, {
+  renderInAppContext(<DiagnosticsScreen />, {
     apiMock,
   });
 
@@ -77,7 +77,7 @@ test('displays printer state and allows diagnostic', async () => {
   apiMock.setPrinterStatus({ connected: false });
   apiMock.expectGetApplicationDiskSpaceSummary();
   apiMock.expectGetMostRecentPrinterDiagnostic();
-  renderInAppContext(<HardwareDiagnosticsScreen />, {
+  renderInAppContext(<DiagnosticsScreen />, {
     apiMock,
   });
 
@@ -180,7 +180,7 @@ describe('disk space summary', () => {
       used: 0.08 * 1_000_000,
       total: 100 * 1_000_000,
     });
-    renderInAppContext(<HardwareDiagnosticsScreen />, {
+    renderInAppContext(<DiagnosticsScreen />, {
       apiMock,
     });
 
@@ -196,7 +196,7 @@ describe('disk space summary', () => {
       used: 97.6 * 1_000_000,
       total: 100 * 1_000_000,
     });
-    renderInAppContext(<HardwareDiagnosticsScreen />, {
+    renderInAppContext(<DiagnosticsScreen />, {
       apiMock,
     });
 
@@ -211,7 +211,7 @@ test('configuration info', async () => {
   apiMock.setPrinterStatus();
   apiMock.expectGetApplicationDiskSpaceSummary();
   apiMock.expectGetMostRecentPrinterDiagnostic();
-  renderInAppContext(<HardwareDiagnosticsScreen />, {
+  renderInAppContext(<DiagnosticsScreen />, {
     apiMock,
     electionDefinition: electionTwoPartyPrimaryDefinition,
   });
@@ -223,7 +223,7 @@ test('saving the readiness report', async () => {
   apiMock.setPrinterStatus({ connected: true });
   apiMock.expectGetApplicationDiskSpaceSummary();
   apiMock.expectGetMostRecentPrinterDiagnostic();
-  renderInAppContext(<HardwareDiagnosticsScreen />, {
+  renderInAppContext(<DiagnosticsScreen />, {
     apiMock,
   });
 
