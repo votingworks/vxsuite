@@ -8,7 +8,8 @@ import {
 import { LogEventId } from '@votingworks/logging';
 import { join } from 'path';
 import { typedAs } from '@votingworks/basics';
-import { DiagnosticRecord } from '@votingworks/types';
+import { DiagnosticRecord, TEST_JURISDICTION } from '@votingworks/types';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { mockSystemAdministratorAuth } from '../test/helpers/auth';
 import { withApp } from '../test/helpers/setup_app';
 
@@ -52,49 +53,55 @@ jest.mock('./util/get_current_time', () => ({
   getCurrentTime: () => reportPrintedTime.getTime(),
 }));
 
+const jurisdiction = TEST_JURISDICTION;
+
 test('save readiness report', async () => {
-  await withApp(async ({ apiClient, mockUsbDrive, scanner, auth, logger }) => {
-    mockSystemAdministratorAuth(auth);
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
+  await withApp(
+    async ({ apiClient, mockUsbDrive, scanner, auth, logger, importer }) => {
+      mockSystemAdministratorAuth(auth);
+      importer.configure(electionDefinition, jurisdiction);
 
-    // mock a successful scan diagnostic
-    jest.useFakeTimers();
-    jest.setSystemTime(reportPrintedTime.getTime());
-    scanner
-      .withNextScannerSession()
-      .sheet([
-        join(__dirname, '../test/fixtures/blank-sheet-front.jpg'),
-        join(__dirname, '../test/fixtures/blank-sheet-back.jpg'),
-      ])
-      .end();
-    await apiClient.performScanDiagnostic();
-    jest.useRealTimers();
+      // mock a successful scan diagnostic
+      jest.useFakeTimers();
+      jest.setSystemTime(reportPrintedTime.getTime());
+      scanner
+        .withNextScannerSession()
+        .sheet([
+          join(__dirname, '../test/fixtures/blank-sheet-front.jpg'),
+          join(__dirname, '../test/fixtures/blank-sheet-back.jpg'),
+        ])
+        .end();
+      await apiClient.performScanDiagnostic();
+      jest.useRealTimers();
 
-    mockUsbDrive.insertUsbDrive({});
-    const exportResult = await apiClient.saveReadinessReport();
-    exportResult.assertOk('Failed to save readiness report');
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.ReadinessReportSaved,
-      'system_administrator',
-      {
-        disposition: 'success',
-        message: 'User saved the equipment readiness report to a USB drive.',
-      }
-    );
+      mockUsbDrive.insertUsbDrive({});
+      const exportResult = await apiClient.saveReadinessReport();
+      exportResult.assertOk('Failed to save readiness report');
+      expect(logger.log).toHaveBeenCalledWith(
+        LogEventId.ReadinessReportSaved,
+        'system_administrator',
+        {
+          disposition: 'success',
+          message: 'User saved the equipment readiness report to a USB drive.',
+        }
+      );
 
-    const exportPath = exportResult.ok()![0];
-    await expect(exportPath).toMatchPdfSnapshot({
-      customSnapshotIdentifier: 'readiness-report',
-    });
+      const exportPath = exportResult.ok()![0];
+      await expect(exportPath).toMatchPdfSnapshot({
+        customSnapshotIdentifier: 'readiness-report',
+      });
 
-    const pdfContents = await pdfToText(exportPath);
-    expect(pdfContents).toContain('VxCentralScan Readiness Report');
-    expect(pdfContents).toContain('Battery Level: 50%');
-    expect(pdfContents).toContain('Power Source: External Power Supply');
-    expect(pdfContents).toContain('Free Disk Space: 90% (9 GB / 10 GB)');
-    expect(pdfContents).toContain('Connected');
+      const pdfContents = await pdfToText(exportPath);
+      expect(pdfContents).toContain('VxCentralScan Readiness Report');
+      expect(pdfContents).toContain('Battery Level: 50%');
+      expect(pdfContents).toContain('Power Source: External Power Supply');
+      expect(pdfContents).toContain('Free Disk Space: 90% (9 GB / 10 GB)');
+      expect(pdfContents).toContain('Connected');
 
-    mockUsbDrive.removeUsbDrive();
-  });
+      mockUsbDrive.removeUsbDrive();
+    }
+  );
 });
 
 describe('scan diagnostic', () => {

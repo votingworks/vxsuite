@@ -4,13 +4,15 @@ import { assert } from '@votingworks/basics';
 import { H2, P } from '../typography';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
 
+export interface CentralScannerSectionProps {
+  isScannerAttached: boolean;
+  mostRecentScannerDiagnostic?: DiagnosticRecord;
+}
+
 export function CentralScannerSection({
   isScannerAttached,
   mostRecentScannerDiagnostic,
-}: {
-  isScannerAttached: boolean;
-  mostRecentScannerDiagnostic?: DiagnosticRecord;
-}): JSX.Element {
+}: CentralScannerSectionProps): JSX.Element {
   if (mostRecentScannerDiagnostic) {
     assert(mostRecentScannerDiagnostic.type === 'blank-sheet-scan');
   }

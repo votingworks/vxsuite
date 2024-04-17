@@ -29,6 +29,7 @@ export async function saveReadinessReport({
 }): Promise<ExportDataResult> {
   const { store } = workspace;
   const generatedAtTime = new Date(getCurrentTime());
+  const electionDefinition = store.getElectionDefinition();
   const report = CentralScanReadinessReport({
     /* c8 ignore start */
     batteryInfo: (await getBatteryInfo()) ?? undefined,
@@ -39,6 +40,7 @@ export async function saveReadinessReport({
       store.getMostRecentDiagnosticRecord('blank-sheet-scan'),
     machineId: VX_MACHINE_ID,
     generatedAtTime,
+    electionDefinition,
   });
 
   const data = await renderToPdf({ document: report });

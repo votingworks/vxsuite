@@ -37,7 +37,7 @@ import { SinglePrecinctTallyReportScreen } from '../screens/reporting/single_pre
 import { PrecinctBallotCountReport } from '../screens/reporting/precinct_ballot_count_report_screen';
 import { VotingMethodBallotCountReport } from '../screens/reporting/voting_method_ballot_count_report_screen';
 import { FullElectionTallyReportScreen } from '../screens/reporting/full_election_tally_report_screen';
-import { HardwareDiagnosticsScreen } from '../screens/hardware_diagnostics_screen';
+import { DiagnosticsScreen } from '../screens/diagnostics_screen';
 
 export function AppRoutes(): JSX.Element {
   const { electionDefinition, configuredAt, auth } = useContext(AppContext);
@@ -98,7 +98,7 @@ export function AppRoutes(): JSX.Element {
               <SettingsScreen />
             </Route>
             <Route exact path={routerPaths.hardwareDiagnostics}>
-              <HardwareDiagnosticsScreen />
+              <DiagnosticsScreen />
             </Route>
             <Redirect to={routerPaths.election} />
           </Switch>
@@ -130,7 +130,7 @@ export function AppRoutes(): JSX.Element {
             <SettingsScreen />
           </Route>
           <Route exact path={routerPaths.hardwareDiagnostics}>
-            <HardwareDiagnosticsScreen />
+            <DiagnosticsScreen />
           </Route>
           <Redirect to={routerPaths.election} />
         </Switch>

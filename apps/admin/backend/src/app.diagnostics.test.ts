@@ -8,7 +8,12 @@ import {
 } from '@votingworks/backend';
 import { mockOf } from '@votingworks/test-utils';
 import { DiagnosticRecord } from '@votingworks/types';
-import { buildTestEnvironment, mockSystemAdministratorAuth } from '../test/app';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import {
+  buildTestEnvironment,
+  configureMachine,
+  mockSystemAdministratorAuth,
+} from '../test/app';
 
 jest.mock(
   '@votingworks/backend',
@@ -133,6 +138,7 @@ test('print or save readiness report', async () => {
     buildTestEnvironment();
   mockSystemAdministratorAuth(auth);
 
+  await configureMachine(apiClient, auth, electionTwoPartyPrimaryDefinition);
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
   await apiClient.printTestPage();
   jest.useFakeTimers().setSystemTime(new Date('2021-01-01T00:00:00.000'));
@@ -161,6 +167,7 @@ test('print or save readiness report', async () => {
 
   const pdfContents = await pdfToText(printPath);
   expect(pdfContents).toContain('VxAdmin Readiness Report');
+  expect(pdfContents).toContain('Example Primary Election');
   expect(pdfContents).toContain('Battery Level: 50%');
   expect(pdfContents).toContain('Power Source: External Power Supply');
   expect(pdfContents).toContain('Free Disk Space: 90% (9 GB / 10 GB)');

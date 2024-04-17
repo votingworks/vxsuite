@@ -1,4 +1,5 @@
 import {
+  ALL_PRECINCTS_SELECTION,
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
@@ -14,20 +15,14 @@ import {
   pdfToText,
 } from '@votingworks/backend';
 import { MockUsbDrive } from '@votingworks/usb-drive';
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { Api } from './app';
 import { PatConnectionStatusReader } from './pat-input/connection_status_reader';
-import { createApp } from '../test/app_helpers';
+import { configureApp, createApp } from '../test/app_helpers';
 import { PaperHandlerStateMachine } from './custom-paper-handler/state_machine';
 import { isAccessibleControllerDaemonRunning } from './util/controllerd';
 
 const TEST_POLLING_INTERVAL_MS = 5;
-
-jest.mock('fs/promises', (): typeof import('fs/promises') => {
-  return {
-    ...jest.requireActual('fs/promises'),
-    readFile: jest.fn(),
-  };
-});
 
 jest.mock('@votingworks/custom-paper-handler');
 
@@ -59,6 +54,7 @@ jest.mock('./pat-input/connection_status_reader');
 jest.mock('./util/controllerd');
 
 let apiClient: grout.Client<Api>;
+let auth: InsertedSmartCardAuthApi;
 let server: Server;
 let stateMachine: PaperHandlerStateMachine;
 let patConnectionStatusReader: PatConnectionStatusReader;
@@ -84,6 +80,7 @@ beforeEach(async () => {
     pollingIntervalMs: TEST_POLLING_INTERVAL_MS,
   });
   apiClient = result.apiClient;
+  auth = result.mockAuth;
   logger = result.logger;
   server = result.server;
   stateMachine = result.stateMachine;
@@ -164,7 +161,10 @@ test('saving the readiness report', async () => {
   });
   jest.useRealTimers();
 
-  mockUsbDrive.insertUsbDrive({});
+  await configureApp(apiClient, auth, mockUsbDrive);
+  await apiClient.setPrecinctSelection({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+  });
   const exportResult = await apiClient.saveReadinessReport();
   exportResult.assertOk('Failed to save readiness report');
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
@@ -182,6 +182,8 @@ test('saving the readiness report', async () => {
 
   const pdfContents = await pdfToText(exportPath);
   expect(pdfContents).toContain('VxMarkScan Readiness Report');
+  expect(pdfContents).toContain('Lincoln Municipal General Election');
+  expect(pdfContents).toContain('All Precincts');
   expect(pdfContents).toContain('Battery Level: 50%');
   expect(pdfContents).toContain('Power Source: External Power Supply');
   expect(pdfContents).toContain('Free Disk Space: 90% (9 GB / 10 GB)');

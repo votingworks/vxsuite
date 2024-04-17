@@ -1,6 +1,10 @@
 import { ThemeProvider } from 'styled-components';
 import { ComputerSection, ComputerSectionProps } from './computer_section';
 import {
+  ConfigurationSectionProps,
+  ConfigurationSection,
+} from './configuration_section';
+import {
   MarkScanControllerSection,
   MarkScanControllerSectionProps,
 } from './mark_scan_controller_section';
@@ -9,13 +13,15 @@ import { PrintedReport } from '../reports/layout';
 import { ReadinessReportHeader } from './report_header';
 
 type ReportContentsProps = ComputerSectionProps &
-  MarkScanControllerSectionProps;
+  MarkScanControllerSectionProps &
+  ConfigurationSectionProps;
 
 export function MarkScanReadinessReportContents(
   props: ReportContentsProps
 ): JSX.Element {
   return (
     <div>
+      <ConfigurationSection {...props} expectPrecinctSelection />
       <ComputerSection {...props} />
       <MarkScanControllerSection {...props} />
     </div>

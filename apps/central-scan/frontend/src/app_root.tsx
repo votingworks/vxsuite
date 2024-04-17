@@ -32,7 +32,7 @@ import {
 } from './api';
 import { UnconfiguredElectionScreenWrapper } from './screens/unconfigured_election_screen_wrapper';
 import { SystemAdministratorSettingsScreen } from './screens/system_administrator_settings_screen';
-import { HardwareDiagnosticsScreen } from './screens/hardware_diagnostics_screen';
+import { DiagnosticsScreen } from './screens/diagnostics_screen';
 
 export interface AppRootProps {
   logger: BaseLogger;
@@ -135,7 +135,7 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
             <SystemAdministratorSettingsScreen />
           </Route>
           <Route path="/hardware-diagnostics">
-            <HardwareDiagnosticsScreen />
+            <DiagnosticsScreen />
           </Route>
           <Redirect to="/system-administrator-settings" />
         </Switch>

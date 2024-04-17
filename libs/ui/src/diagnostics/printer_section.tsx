@@ -178,13 +178,15 @@ export function PrinterStatusDisplay({
   );
 }
 
+export interface PrinterSectionProps {
+  printerStatus: PrinterStatus;
+  mostRecentPrinterDiagnostic?: DiagnosticRecord;
+}
+
 export function PrinterSection({
   printerStatus,
   mostRecentPrinterDiagnostic,
-}: {
-  printerStatus: PrinterStatus;
-  mostRecentPrinterDiagnostic?: DiagnosticRecord;
-}): JSX.Element {
+}: PrinterSectionProps): JSX.Element {
   if (mostRecentPrinterDiagnostic) {
     assert(mostRecentPrinterDiagnostic.type === 'test-print');
   }
