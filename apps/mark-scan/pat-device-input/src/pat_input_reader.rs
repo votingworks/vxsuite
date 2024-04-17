@@ -230,7 +230,7 @@ mod tests {
     #[test]
     fn test_connect_no_offset() {
         set_app_name("test");
-        let mut reader: PatInputReader<MockNoOffsetPin> = PatInputReader::new();
+        let mut reader = PatInputReader::<MockNoOffsetPin>::new();
         let result = reader.connect();
         assert!(result.is_ok());
         assert_eq!(
