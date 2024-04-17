@@ -1,8 +1,7 @@
 import { Route } from 'react-router-dom';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
-import userEvent from '@testing-library/user-event';
-import { Paths } from '@votingworks/mark-flow-ui';
+import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
 import { screen } from '../../test/react_testing_library';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 
@@ -32,7 +31,7 @@ it('Renders ReviewScreen in Landscape orientation', () => {
   screen.getByText('Review Your Votes');
 });
 
-it('renders voter settings button', () => {
+it('renders as voter screen', () => {
   const history = createMemoryHistory({ initialEntries: ['/review'] });
 
   renderWithBallotContext(<Route path="/review" component={ReviewScreen} />, {
@@ -42,8 +41,5 @@ it('renders voter settings button', () => {
     route: '/review',
   });
 
-  expect(history.location.pathname).toEqual('/review');
-
-  userEvent.click(screen.getButton('Settings'));
-  expect(history.location.pathname).toEqual(Paths.VOTER_SETTINGS);
+  screen.getByTestId(MARK_FLOW_UI_VOTER_SCREEN_TEST_ID);
 });

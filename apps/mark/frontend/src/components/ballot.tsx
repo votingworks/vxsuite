@@ -6,9 +6,8 @@ import {
   IdleTimerProvider,
 } from 'react-idle-timer';
 
-import { IDLE_TIMEOUT_SECONDS, Paths } from '@votingworks/mark-flow-ui';
+import { IDLE_TIMEOUT_SECONDS } from '@votingworks/mark-flow-ui';
 import { ContestScreen } from '../pages/contest_screen';
-import { VoterSettingsPage } from '../pages/voter_settings_page';
 import { IdlePage } from '../pages/idle_page';
 import { NotFoundPage } from '../pages/not_found_page';
 import { PrintPage } from '../pages/print_page';
@@ -54,9 +53,6 @@ export function Ballot(): JSX.Element {
         <Switch>
           <Route path="/" exact>
             <StartScreen />
-          </Route>
-          <Route path={Paths.VOTER_SETTINGS} exact>
-            <VoterSettingsPage />
           </Route>
           <Route path="/contests/:contestNumber">
             <ContestScreen />

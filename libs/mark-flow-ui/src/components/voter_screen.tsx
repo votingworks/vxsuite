@@ -8,6 +8,7 @@ import {
   LanguageSettingsScreen,
   Main,
   Screen,
+  VoterSettings,
   useScreenInfo,
 } from '@votingworks/ui';
 import { SizeMode } from '@votingworks/types';
@@ -21,6 +22,8 @@ export interface VoterScreenProps {
   centerContent?: boolean;
   padded?: boolean;
 }
+
+export const MARK_FLOW_UI_VOTER_SCREEN_TEST_ID = 'markFlowUiVoterScreen';
 
 const COMPACT_SIZE_MODES = new Set<SizeMode>(['touchLarge', 'touchExtraLarge']);
 
@@ -104,12 +107,22 @@ export function VoterScreen(props: VoterScreenProps): JSX.Element {
   const { actionButtons, breadcrumbs, centerContent, children, padded } = props;
 
   const [showLanguageSettings, setShowLanguageSettings] = React.useState(false);
+  const [showVoterSettings, setShowVoterSettings] = React.useState(false);
 
   const screenInfo = useScreenInfo();
 
   if (showLanguageSettings) {
     return (
       <LanguageSettingsScreen onDone={() => setShowLanguageSettings(false)} />
+    );
+  }
+
+  if (showVoterSettings) {
+    return (
+      <VoterSettings
+        allowAudioVideoOnlyToggles
+        onClose={() => setShowVoterSettings(false)}
+      />
     );
   }
 
@@ -120,7 +133,7 @@ export function VoterScreen(props: VoterScreenProps): JSX.Element {
   const menuButtons = (
     <React.Fragment>
       <LanguageSettingsButton onPress={() => setShowLanguageSettings(true)} />
-      <VoterSettingsButton />
+      <VoterSettingsButton onPress={() => setShowVoterSettings(true)} />
     </React.Fragment>
   );
 
@@ -146,7 +159,7 @@ export function VoterScreen(props: VoterScreenProps): JSX.Element {
   }
 
   return (
-    <Screen flexDirection="row">
+    <Screen flexDirection="row" data-testid={MARK_FLOW_UI_VOTER_SCREEN_TEST_ID}>
       <Body centerChild={centerContent} flexColumn padded={padded}>
         {children}
       </Body>
