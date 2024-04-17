@@ -1,6 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import { PrinterConfig } from '@votingworks/types';
 import { ok } from '@votingworks/basics';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { screen, within, act } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
@@ -204,6 +205,18 @@ describe('disk space summary', () => {
       'triangle-exclamation'
     );
   });
+});
+
+test('configuration info', async () => {
+  apiMock.setPrinterStatus();
+  apiMock.expectGetApplicationDiskSpaceSummary();
+  apiMock.expectGetMostRecentPrinterDiagnostic();
+  renderInAppContext(<HardwareDiagnosticsScreen />, {
+    apiMock,
+    electionDefinition: electionTwoPartyPrimaryDefinition,
+  });
+
+  await screen.findByText(/Example Primary Election/);
 });
 
 test('saving the readiness report', async () => {

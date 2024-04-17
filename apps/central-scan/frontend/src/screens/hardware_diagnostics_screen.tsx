@@ -7,6 +7,7 @@ import styled from 'styled-components';
 import { NavigationScreen } from '../navigation_screen';
 import {
   getApplicationDiskSpaceSummary,
+  getElectionDefinition,
   getMostRecentScannerDiagnostic,
   getStatus,
   getUsbDriveStatus,
@@ -24,6 +25,7 @@ const PageLayout = styled.div`
 
 export function HardwareDiagnosticsScreen(): JSX.Element {
   const statusQuery = getStatus.useQuery();
+  const electionDefinitionQuery = getElectionDefinition.useQuery();
   const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
   const diskSpaceQuery = getApplicationDiskSpaceSummary.useQuery();
   const scannerDiagnosticRecordQuery =
@@ -32,10 +34,11 @@ export function HardwareDiagnosticsScreen(): JSX.Element {
   const saveReadinessReportMutation = saveReadinessReport.useMutation();
 
   if (
+    !statusQuery.isSuccess ||
+    !electionDefinitionQuery.isSuccess ||
     !batteryInfoQuery.isSuccess ||
     !diskSpaceQuery.isSuccess ||
     !scannerDiagnosticRecordQuery.isSuccess ||
-    !statusQuery.isSuccess ||
     !usbDriveStatusQuery.isSuccess
   ) {
     return (
@@ -43,11 +46,12 @@ export function HardwareDiagnosticsScreen(): JSX.Element {
     );
   }
 
+  const { isScannerAttached } = statusQuery.data;
+  const electionDefinition = electionDefinitionQuery.data ?? undefined;
   const batteryInfo = batteryInfoQuery.data;
   const diskSpaceSummary = diskSpaceQuery.data;
   const scannerDiagnosticRecord =
     scannerDiagnosticRecordQuery.data ?? undefined;
-  const { isScannerAttached } = statusQuery.data;
 
   return (
     <NavigationScreen title="Hardware Diagnostics">
@@ -58,6 +62,7 @@ export function HardwareDiagnosticsScreen(): JSX.Element {
             diskSpaceSummary={diskSpaceSummary}
             isScannerAttached={isScannerAttached}
             mostRecentScannerDiagnostic={scannerDiagnosticRecord}
+            electionDefinition={electionDefinition}
           />
           <TestScanButton />
         </div>

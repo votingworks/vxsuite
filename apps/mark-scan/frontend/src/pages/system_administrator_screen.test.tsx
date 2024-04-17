@@ -71,11 +71,12 @@ test('navigates to System Diagnostics screen', async () => {
     )
   );
 
+  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionState();
   apiMock.setBatteryInfo();
   apiMock.expectGetIsAccessibleControllerInputDetected();
   apiMock.expectGetMostRecentAccessibleControllerDiagnostic();
   apiMock.expectGetApplicationDiskSpaceSummary();
-  apiMock.setBatteryInfo();
 
   userEvent.click(screen.getButton('System Diagnostics'));
   screen.getByRole('heading', { name: 'System Diagnostics' });

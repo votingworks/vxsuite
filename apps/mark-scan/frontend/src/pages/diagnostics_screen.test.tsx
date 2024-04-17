@@ -5,6 +5,8 @@ import {
   mockUsbDriveStatus,
 } from '@votingworks/ui';
 import { ok } from '@votingworks/basics';
+import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import {
   fireEvent,
   render,
@@ -39,6 +41,12 @@ beforeEach(() => {
   jest.useFakeTimers().setSystemTime(new Date('2022-03-23T11:23:00.000'));
   apiMock = createApiMock();
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
+  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionState();
+  apiMock.setBatteryInfo({ level: 0.5, discharging: true });
+  apiMock.expectGetApplicationDiskSpaceSummary();
+  apiMock.expectGetIsAccessibleControllerInputDetected();
+  apiMock.expectGetMostRecentAccessibleControllerDiagnostic();
 });
 
 afterEach(() => {
@@ -47,13 +55,13 @@ afterEach(() => {
 
 // screen contents fully tested in libs/ui
 test('data from API is passed to screen contents', async () => {
-  apiMock.setBatteryInfo({ level: 0.5, discharging: true });
-  apiMock.expectGetIsAccessibleControllerInputDetected();
+  apiMock.mockApiClient.getApplicationDiskSpaceSummary.reset();
   apiMock.expectGetApplicationDiskSpaceSummary({
     available: 1_000_000,
     used: 1_000_000,
     total: 2_000_000,
   });
+  apiMock.mockApiClient.getMostRecentAccessibleControllerDiagnostic.reset();
   apiMock.expectGetMostRecentAccessibleControllerDiagnostic({
     type: 'mark-scan-accessible-controller',
     outcome: 'pass',
@@ -71,11 +79,6 @@ test('data from API is passed to screen contents', async () => {
 });
 
 test('accessible controller diagnostic - pass', async () => {
-  apiMock.setBatteryInfo({ level: 0.5, discharging: true });
-  apiMock.expectGetIsAccessibleControllerInputDetected();
-  apiMock.expectGetApplicationDiskSpaceSummary();
-  apiMock.expectGetMostRecentAccessibleControllerDiagnostic();
-
   renderScreen();
 
   userEvent.click(await screen.findButton('Test Accessible Controller'));
@@ -110,11 +113,6 @@ test('accessible controller diagnostic - pass', async () => {
 });
 
 test('accessible controller diagnostic - cancel', async () => {
-  apiMock.setBatteryInfo({ level: 0.5, discharging: true });
-  apiMock.expectGetIsAccessibleControllerInputDetected();
-  apiMock.expectGetApplicationDiskSpaceSummary();
-  apiMock.expectGetMostRecentAccessibleControllerDiagnostic();
-
   renderScreen();
 
   userEvent.click(await screen.findButton('Test Accessible Controller'));
@@ -124,11 +122,6 @@ test('accessible controller diagnostic - cancel', async () => {
 });
 
 test('accessible controller diagnostic - fail', async () => {
-  apiMock.setBatteryInfo({ level: 0.5, discharging: true });
-  apiMock.expectGetIsAccessibleControllerInputDetected();
-  apiMock.expectGetApplicationDiskSpaceSummary();
-  apiMock.expectGetMostRecentAccessibleControllerDiagnostic();
-
   renderScreen();
 
   userEvent.click(await screen.findButton('Test Accessible Controller'));
@@ -152,12 +145,21 @@ test('accessible controller diagnostic - fail', async () => {
   );
 });
 
-test('saving report', async () => {
-  apiMock.setBatteryInfo({ level: 0.5, discharging: true });
-  apiMock.expectGetIsAccessibleControllerInputDetected();
-  apiMock.expectGetApplicationDiskSpaceSummary();
-  apiMock.expectGetMostRecentAccessibleControllerDiagnostic();
+test('election information', async () => {
+  apiMock.mockApiClient.getElectionDefinition.reset();
+  apiMock.expectGetElectionDefinition(electionTwoPartyPrimaryDefinition);
+  apiMock.mockApiClient.getElectionState.reset();
+  apiMock.expectGetElectionState({
+    precinctSelection: ALL_PRECINCTS_SELECTION,
+  });
 
+  renderScreen();
+
+  await screen.findByText(/Example Primary Election/);
+  await screen.findByText(/All Precincts/);
+});
+
+test('saving report', async () => {
   renderScreen();
 
   userEvent.click(await screen.findButton('Save Readiness Report'));

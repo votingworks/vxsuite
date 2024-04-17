@@ -4,6 +4,7 @@ import {
 } from '@votingworks/ui';
 
 import styled from 'styled-components';
+import { useContext } from 'react';
 import { NavigationScreen } from '../components/navigation_screen';
 import {
   getMostRecentPrinterDiagnostic,
@@ -16,6 +17,7 @@ import {
 import { Loading } from '../components/loading';
 import { PrintTestPageButton } from '../components/print_diagnostic_button';
 import { UsbImage } from '../components/save_backend_file_modal';
+import { AppContext } from '../contexts/app_context';
 
 const PageLayout = styled.div`
   display: flex;
@@ -25,6 +27,7 @@ const PageLayout = styled.div`
 `;
 
 export function HardwareDiagnosticsScreen(): JSX.Element {
+  const { electionDefinition } = useContext(AppContext);
   const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
   const printerStatusQuery = getPrinterStatus.useQuery();
   const diskSpaceQuery = getApplicationDiskSpaceSummary.useQuery();
@@ -60,6 +63,7 @@ export function HardwareDiagnosticsScreen(): JSX.Element {
             diskSpaceSummary={diskSpaceSummary}
             printerStatus={printerStatus}
             mostRecentPrinterDiagnostic={mostRecentPrinterDiagnostic}
+            electionDefinition={electionDefinition}
           />
           <PrintTestPageButton />
         </div>

@@ -12,6 +12,8 @@ import { useHistory, Switch, Route } from 'react-router-dom';
 import { AccessibleControllerDiagnosticScreen } from './accessible_controller_diagnostic_screen';
 import {
   getApplicationDiskSpaceSummary,
+  getElectionDefinition,
+  getElectionState,
   getIsAccessibleControllerInputDetected,
   getMostRecentAccessibleControllerDiagnostic,
   getUsbDriveStatus,
@@ -26,22 +28,26 @@ export interface DiagnosticsScreenProps {
 export function DiagnosticsScreen({
   onBackButtonPress,
 }: DiagnosticsScreenProps): JSX.Element {
+  const electionDefinitionQuery = getElectionDefinition.useQuery();
+  const electionStateQuery = getElectionState.useQuery();
   const batteryQuery = systemCallApi.getBatteryInfo.useQuery();
-  const mostRecentAccessibleControllerDiagnosticQuery =
-    getMostRecentAccessibleControllerDiagnostic.useQuery();
   const diskSpaceQuery = getApplicationDiskSpaceSummary.useQuery();
   const isAccessibleControllerInputDetectedQuery =
     getIsAccessibleControllerInputDetected.useQuery();
-  const saveReadinessReportMutation = saveReadinessReport.useMutation();
+  const mostRecentAccessibleControllerDiagnosticQuery =
+    getMostRecentAccessibleControllerDiagnostic.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
+  const saveReadinessReportMutation = saveReadinessReport.useMutation();
 
   const history = useHistory();
 
   if (
+    !electionDefinitionQuery.isSuccess ||
+    !electionStateQuery.isSuccess ||
     !batteryQuery.isSuccess ||
-    !mostRecentAccessibleControllerDiagnosticQuery.isSuccess ||
     !diskSpaceQuery.isSuccess ||
     !isAccessibleControllerInputDetectedQuery.isSuccess ||
+    !mostRecentAccessibleControllerDiagnosticQuery.isSuccess ||
     !usbDriveStatusQuery.isSuccess
   ) {
     return (
@@ -54,12 +60,14 @@ export function DiagnosticsScreen({
     );
   }
 
+  const electionDefinition = electionDefinitionQuery.data ?? undefined;
+  const { precinctSelection } = electionStateQuery.data;
   const battery = batteryQuery.data ?? undefined;
-  const mostRecentAccessibleControllerDiagnostic =
-    mostRecentAccessibleControllerDiagnosticQuery.data ?? undefined;
   const diskSpaceSummary = diskSpaceQuery.data;
   const isAccessibleControllerInputDetected =
     isAccessibleControllerInputDetectedQuery.data;
+  const mostRecentAccessibleControllerDiagnostic =
+    mostRecentAccessibleControllerDiagnosticQuery.data ?? undefined;
 
   return (
     <Switch>
@@ -81,13 +89,15 @@ export function DiagnosticsScreen({
               />
             </P>
             <MarkScanReadinessReportContents
-              diskSpaceSummary={diskSpaceSummary}
+              electionDefinition={electionDefinition}
+              precinctSelection={precinctSelection}
               batteryInfo={battery}
-              mostRecentAccessibleControllerDiagnostic={
-                mostRecentAccessibleControllerDiagnostic
-              }
+              diskSpaceSummary={diskSpaceSummary}
               isAccessibleControllerInputDetected={
                 isAccessibleControllerInputDetected
+              }
+              mostRecentAccessibleControllerDiagnostic={
+                mostRecentAccessibleControllerDiagnostic
               }
               accessibleControllerSectionChildren={
                 <Button onPress={() => history.push('/accessible-controller')}>
