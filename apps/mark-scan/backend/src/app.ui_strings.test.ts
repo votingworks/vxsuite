@@ -16,8 +16,8 @@ import {
 } from '@votingworks/utils';
 
 import {
-  fakeElectionManagerUser,
-  fakeSessionExpiresAt,
+  mockElectionManagerUser,
+  mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { Store } from './store';
@@ -77,8 +77,8 @@ describe('configureElectionPackageFromUsb', () => {
     mockAuth.getAuthStatus.mockImplementation(() =>
       Promise.resolve({
         status: 'logged_in',
-        user: fakeElectionManagerUser(electionPackage.electionDefinition),
-        sessionExpiresAt: fakeSessionExpiresAt(),
+        user: mockElectionManagerUser(electionPackage.electionDefinition),
+        sessionExpiresAt: mockSessionExpiresAt(),
       })
     );
   });

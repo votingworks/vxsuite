@@ -5,8 +5,8 @@ import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client';
 import { screen } from '../../test/react_testing_library';
 import { EmptyBallotBoxPage } from './empty_ballot_box_page';
 import {
-  fakeCardlessVoterLoggedInAuth,
-  fakePollWorkerAuth,
+  mockCardlessVoterLoggedInAuth,
+  mockPollWorkerAuth,
 } from '../../test/helpers/fake_auth';
 
 let apiMock: ApiMock;
@@ -21,7 +21,7 @@ afterEach(() => {
 
 test('requires poll worker auth', () => {
   const electionDefinition = electionGeneralDefinition;
-  const authStatus = fakeCardlessVoterLoggedInAuth(electionDefinition);
+  const authStatus = mockCardlessVoterLoggedInAuth(electionDefinition);
   render(<EmptyBallotBoxPage authStatus={authStatus} />, {
     apiMock,
   });
@@ -32,7 +32,7 @@ test('requires poll worker auth', () => {
 test('calls expectConfirmBallotBoxEmptied when button is clicked', () => {
   const electionDefinition = electionGeneralDefinition;
   apiMock.expectConfirmBallotBoxEmptied();
-  const authStatus = fakePollWorkerAuth(electionDefinition);
+  const authStatus = mockPollWorkerAuth(electionDefinition);
   render(<EmptyBallotBoxPage authStatus={authStatus} />, {
     apiMock,
   });

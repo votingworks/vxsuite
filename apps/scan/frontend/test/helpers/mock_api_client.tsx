@@ -23,10 +23,10 @@ import type {
 } from '@votingworks/scan-backend';
 import { deferred, err, ok } from '@votingworks/basics';
 import {
-  fakeElectionManagerUser,
-  fakePollWorkerUser,
-  fakeSessionExpiresAt,
-  fakeSystemAdministratorUser,
+  mockElectionManagerUser,
+  mockPollWorkerUser,
+  mockSessionExpiresAt,
+  mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { TestErrorBoundary, mockUsbDriveStatus } from '@votingworks/ui';
@@ -107,28 +107,28 @@ export function createApiMock() {
     authenticateAsSystemAdministrator() {
       setAuthStatus({
         status: 'logged_in',
-        user: fakeSystemAdministratorUser(),
-        sessionExpiresAt: fakeSessionExpiresAt(),
+        user: mockSystemAdministratorUser(),
+        sessionExpiresAt: mockSessionExpiresAt(),
       });
     },
 
     authenticateAsElectionManager(electionDefinition: ElectionDefinition) {
       setAuthStatus({
         status: 'logged_in',
-        user: fakeElectionManagerUser({
+        user: mockElectionManagerUser({
           electionHash: electionDefinition.electionHash,
         }),
-        sessionExpiresAt: fakeSessionExpiresAt(),
+        sessionExpiresAt: mockSessionExpiresAt(),
       });
     },
 
     authenticateAsPollWorker(electionDefinition: ElectionDefinition) {
       setAuthStatus({
         status: 'logged_in',
-        user: fakePollWorkerUser({
+        user: mockPollWorkerUser({
           electionHash: electionDefinition.electionHash,
         }),
-        sessionExpiresAt: fakeSessionExpiresAt(),
+        sessionExpiresAt: mockSessionExpiresAt(),
       });
     },
 

@@ -1,7 +1,7 @@
 import {
-  fakeElectionManagerUser,
-  fakePollWorkerUser,
-  fakeSystemAdministratorUser,
+  mockElectionManagerUser,
+  mockPollWorkerUser,
+  mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 
 import {
@@ -11,9 +11,9 @@ import {
   CardDetails,
 } from './card';
 
-const systemAdministratorUser = fakeSystemAdministratorUser();
-const electionManagerUser = fakeElectionManagerUser();
-const pollWorkerUser = fakePollWorkerUser();
+const systemAdministratorUser = mockSystemAdministratorUser();
+const electionManagerUser = mockElectionManagerUser();
+const pollWorkerUser = mockPollWorkerUser();
 const systemAdministratorCardDetails: CardDetails = {
   user: systemAdministratorUser,
 };

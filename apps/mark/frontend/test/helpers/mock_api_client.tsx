@@ -18,11 +18,11 @@ import {
   SystemSettings,
 } from '@votingworks/types';
 import {
-  fakeCardlessVoterUser,
-  fakeElectionManagerUser,
-  fakePollWorkerUser,
-  fakeSessionExpiresAt,
-  fakeSystemAdministratorUser,
+  mockCardlessVoterUser,
+  mockElectionManagerUser,
+  mockPollWorkerUser,
+  mockSessionExpiresAt,
+  mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { err, ok, Result } from '@votingworks/basics';
 import { TestErrorBoundary } from '@votingworks/ui';
@@ -93,8 +93,8 @@ export function createApiMock() {
     setAuthStatusSystemAdministratorLoggedIn() {
       setAuthStatus({
         status: 'logged_in',
-        user: fakeSystemAdministratorUser(),
-        sessionExpiresAt: fakeSessionExpiresAt(),
+        user: mockSystemAdministratorUser(),
+        sessionExpiresAt: mockSessionExpiresAt(),
       });
     },
 
@@ -103,10 +103,10 @@ export function createApiMock() {
     ) {
       setAuthStatus({
         status: 'logged_in',
-        user: fakeElectionManagerUser({
+        user: mockElectionManagerUser({
           electionHash: electionDefinition.electionHash,
         }),
-        sessionExpiresAt: fakeSessionExpiresAt(),
+        sessionExpiresAt: mockSessionExpiresAt(),
       });
     },
 
@@ -121,10 +121,10 @@ export function createApiMock() {
 
       setAuthStatus({
         status: 'logged_in',
-        user: fakePollWorkerUser({ electionHash }),
-        sessionExpiresAt: fakeSessionExpiresAt(),
+        user: mockPollWorkerUser({ electionHash }),
+        sessionExpiresAt: mockSessionExpiresAt(),
         cardlessVoterUser: cardlessVoterUserParams
-          ? fakeCardlessVoterUser(cardlessVoterUserParams)
+          ? mockCardlessVoterUser(cardlessVoterUserParams)
           : undefined,
       });
     },
@@ -134,8 +134,8 @@ export function createApiMock() {
     ) {
       setAuthStatus({
         status: 'logged_in',
-        user: fakeCardlessVoterUser(cardlessVoterUserParams),
-        sessionExpiresAt: fakeSessionExpiresAt(),
+        user: mockCardlessVoterUser(cardlessVoterUserParams),
+        sessionExpiresAt: mockSessionExpiresAt(),
       });
     },
 

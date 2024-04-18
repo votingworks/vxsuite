@@ -2,9 +2,9 @@ import { Buffer } from 'buffer';
 import fs from 'fs';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import {
-  fakeElectionManagerUser,
-  fakePollWorkerUser,
-  fakeSystemAdministratorUser,
+  mockElectionManagerUser,
+  mockPollWorkerUser,
+  mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 
 import {
@@ -20,9 +20,9 @@ const { electionHash } = electionGeneralDefinition;
 const pin = '123456';
 const wrongPin = '234567';
 
-const systemAdministratorUser = fakeSystemAdministratorUser();
-const electionManagerUser = fakeElectionManagerUser({ electionHash });
-const pollWorkerUser = fakePollWorkerUser({ electionHash });
+const systemAdministratorUser = mockSystemAdministratorUser();
+const electionManagerUser = mockElectionManagerUser({ electionHash });
+const pollWorkerUser = mockPollWorkerUser({ electionHash });
 
 test.each<MockFileContents>([
   {

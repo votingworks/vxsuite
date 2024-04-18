@@ -8,9 +8,9 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
-  fakeSystemAdministratorUser,
-  fakeElectionManagerUser,
-  fakePollWorkerUser,
+  mockSystemAdministratorUser,
+  mockElectionManagerUser,
+  mockPollWorkerUser,
   fakeKiosk,
   fakeFileWriter,
 } from '@votingworks/test-utils';
@@ -23,19 +23,19 @@ const noCardStatus: CardStatus = {
 const systemAdminCardStatus: CardStatus = {
   status: 'ready',
   cardDetails: {
-    user: fakeSystemAdministratorUser(),
+    user: mockSystemAdministratorUser(),
   },
 };
 const electionManagerCardStatus: CardStatus = {
   status: 'ready',
   cardDetails: {
-    user: fakeElectionManagerUser(),
+    user: mockElectionManagerUser(),
   },
 };
 const pollWorkerCardStatus: CardStatus = {
   status: 'ready',
   cardDetails: {
-    user: fakePollWorkerUser(),
+    user: mockPollWorkerUser(),
     hasPin: false,
   },
 };

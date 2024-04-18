@@ -1,10 +1,10 @@
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import {
-  fakeElectionManagerUser,
-  fakePollWorkerUser,
-  fakeSessionExpiresAt,
-  fakeSystemAdministratorUser,
+  mockElectionManagerUser,
+  mockPollWorkerUser,
+  mockSessionExpiresAt,
+  mockSystemAdministratorUser,
   mockOf,
 } from '@votingworks/test-utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
@@ -83,7 +83,7 @@ test('unlock_machine (system_administrator)', async () => {
 
   auth.getAuthStatus.mockResolvedValue({
     status: 'checking_pin',
-    user: fakeSystemAdministratorUser(),
+    user: mockSystemAdministratorUser(),
   });
 
   expect(
@@ -102,8 +102,8 @@ test('logged_in:system_administrator', async () => {
 
   auth.getAuthStatus.mockResolvedValue({
     status: 'logged_in',
-    user: fakeSystemAdministratorUser(),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockSystemAdministratorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   });
 
   expect(
@@ -120,7 +120,7 @@ test('unlock_machine (election_manager)', async () => {
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
 
-  const electionManagerUser = fakeElectionManagerUser({
+  const electionManagerUser = mockElectionManagerUser({
     electionHash: electionGeneralDefinition.electionHash,
   });
 
@@ -148,7 +148,7 @@ test('unlock_machine (poll_worker)', async () => {
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
 
-  const pollWorkerUser = fakePollWorkerUser({
+  const pollWorkerUser = mockPollWorkerUser({
     electionHash: electionGeneralDefinition.electionHash,
   });
 
@@ -176,14 +176,14 @@ test('unconfigured:election (election_manager)', async () => {
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
 
-  const electionManagerUser = fakeElectionManagerUser({
+  const electionManagerUser = mockElectionManagerUser({
     electionHash: electionGeneralDefinition.electionHash,
   });
 
   auth.getAuthStatus.mockResolvedValue({
     status: 'logged_in',
     user: electionManagerUser,
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   });
 
   expect(
@@ -200,14 +200,14 @@ test('unconfigured:election (poll_worker)', async () => {
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
 
-  const pollWorkerUser = fakePollWorkerUser({
+  const pollWorkerUser = mockPollWorkerUser({
     electionHash: electionGeneralDefinition.electionHash,
   });
 
   auth.getAuthStatus.mockResolvedValue({
     status: 'logged_in',
     user: pollWorkerUser,
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   });
 
   expect(
@@ -223,7 +223,7 @@ test('logged_in:election_manager', async () => {
   const auth = buildMockInsertedSmartCardAuth();
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
-  const electionManagerUser = fakeElectionManagerUser({
+  const electionManagerUser = mockElectionManagerUser({
     electionHash: electionGeneralDefinition.electionHash,
   });
 
@@ -235,7 +235,7 @@ test('logged_in:election_manager', async () => {
   auth.getAuthStatus.mockResolvedValue({
     status: 'logged_in',
     user: electionManagerUser,
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   });
 
   expect(
@@ -251,7 +251,7 @@ test('unconfigured:precinct', async () => {
   const auth = buildMockInsertedSmartCardAuth();
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
-  const pollWorkerUser = fakePollWorkerUser({
+  const pollWorkerUser = mockPollWorkerUser({
     electionHash: electionGeneralDefinition.electionHash,
   });
 
@@ -263,7 +263,7 @@ test('unconfigured:precinct', async () => {
   auth.getAuthStatus.mockResolvedValue({
     status: 'logged_in',
     user: pollWorkerUser,
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   });
 
   expect(
@@ -279,7 +279,7 @@ test('insert_usb_drive', async () => {
   const auth = buildMockInsertedSmartCardAuth();
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
-  const pollWorkerUser = fakePollWorkerUser({
+  const pollWorkerUser = mockPollWorkerUser({
     electionHash: electionGeneralDefinition.electionHash,
   });
 
@@ -291,7 +291,7 @@ test('insert_usb_drive', async () => {
   auth.getAuthStatus.mockResolvedValue({
     status: 'logged_in',
     user: pollWorkerUser,
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   });
 
   store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
@@ -310,7 +310,7 @@ test('replace_ballot_bag', async () => {
   const auth = buildMockInsertedSmartCardAuth();
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
-  const pollWorkerUser = fakePollWorkerUser({
+  const pollWorkerUser = mockPollWorkerUser({
     electionHash: electionGeneralDefinition.electionHash,
   });
 
@@ -322,7 +322,7 @@ test('replace_ballot_bag', async () => {
   auth.getAuthStatus.mockResolvedValue({
     status: 'logged_in',
     user: pollWorkerUser,
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   });
 
   store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
@@ -343,7 +343,7 @@ test('logged_in:poll_worker', async () => {
   const auth = buildMockInsertedSmartCardAuth();
   const store = Store.memoryStore();
   const mockUsbDrive = createMockUsbDrive();
-  const pollWorkerUser = fakePollWorkerUser({
+  const pollWorkerUser = mockPollWorkerUser({
     electionHash: electionGeneralDefinition.electionHash,
   });
 
@@ -355,7 +355,7 @@ test('logged_in:poll_worker', async () => {
   auth.getAuthStatus.mockResolvedValue({
     status: 'logged_in',
     user: pollWorkerUser,
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   });
 
   store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);

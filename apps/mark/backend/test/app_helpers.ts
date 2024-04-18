@@ -11,8 +11,8 @@ import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { Server } from 'http';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
-  fakeElectionManagerUser,
-  fakeSessionExpiresAt,
+  mockElectionManagerUser,
+  mockSessionExpiresAt,
   mockOf,
 } from '@votingworks/test-utils';
 import {
@@ -79,8 +79,8 @@ export async function configureApp(
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
-      user: fakeElectionManagerUser({ electionHash, jurisdiction }),
-      sessionExpiresAt: fakeSessionExpiresAt(),
+      user: mockElectionManagerUser({ electionHash, jurisdiction }),
+      sessionExpiresAt: mockSessionExpiresAt(),
     })
   );
   mockUsbDrive.insertUsbDrive(

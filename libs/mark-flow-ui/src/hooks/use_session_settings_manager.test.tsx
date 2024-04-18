@@ -7,9 +7,9 @@ import {
   useCurrentLanguage,
 } from '@votingworks/ui';
 import {
-  fakeCardlessVoterUser,
-  fakeElectionManagerUser,
-  fakeSessionExpiresAt,
+  mockCardlessVoterUser,
+  mockElectionManagerUser,
+  mockSessionExpiresAt,
   fakeUseAudioControls,
   mockOf,
 } from '@votingworks/test-utils';
@@ -74,8 +74,8 @@ test('Resets settings when election official logs in', () => {
     <TestHookWrapper
       authStatus={{
         status: 'logged_in',
-        user: fakeCardlessVoterUser(),
-        sessionExpiresAt: fakeSessionExpiresAt(),
+        user: mockCardlessVoterUser(),
+        sessionExpiresAt: mockSessionExpiresAt(),
       }}
       votes={ACTIVE_VOTING_SESSION_VOTES}
     />,
@@ -110,8 +110,8 @@ test('Resets settings when election official logs in', () => {
     <TestHookWrapper
       authStatus={{
         status: 'logged_in',
-        user: fakeElectionManagerUser(),
-        sessionExpiresAt: fakeSessionExpiresAt(),
+        user: mockElectionManagerUser(),
+        sessionExpiresAt: mockSessionExpiresAt(),
       }}
       votes={ACTIVE_VOTING_SESSION_VOTES}
     />
@@ -140,8 +140,8 @@ test('Resets settings when election official logs in', () => {
     <TestHookWrapper
       authStatus={{
         status: 'logged_in',
-        user: fakeCardlessVoterUser(),
-        sessionExpiresAt: fakeSessionExpiresAt(),
+        user: mockCardlessVoterUser(),
+        sessionExpiresAt: mockSessionExpiresAt(),
       }}
       votes={ACTIVE_VOTING_SESSION_VOTES}
     />
@@ -161,8 +161,8 @@ test('Resets theme to default if returning to a new voter session', () => {
     <TestHookWrapper
       authStatus={{
         status: 'logged_in',
-        user: fakeCardlessVoterUser(),
-        sessionExpiresAt: fakeSessionExpiresAt(),
+        user: mockCardlessVoterUser(),
+        sessionExpiresAt: mockSessionExpiresAt(),
       }}
       votes={ACTIVE_VOTING_SESSION_VOTES}
     />,
@@ -188,8 +188,8 @@ test('Resets theme to default if returning to a new voter session', () => {
     <TestHookWrapper
       authStatus={{
         status: 'logged_in',
-        user: fakeElectionManagerUser(),
-        sessionExpiresAt: fakeSessionExpiresAt(),
+        user: mockElectionManagerUser(),
+        sessionExpiresAt: mockSessionExpiresAt(),
       }}
       votes={ACTIVE_VOTING_SESSION_VOTES}
     />
@@ -215,8 +215,8 @@ test('Resets theme to default if returning to a new voter session', () => {
     <TestHookWrapper
       authStatus={{
         status: 'logged_in',
-        user: fakeCardlessVoterUser(),
-        sessionExpiresAt: fakeSessionExpiresAt(),
+        user: mockCardlessVoterUser(),
+        sessionExpiresAt: mockSessionExpiresAt(),
       }}
       votes={NEW_VOTING_SESSION_VOTES}
     />

@@ -1,8 +1,8 @@
 import userEvent from '@testing-library/user-event';
 import {
-  fakeElectionManagerUser,
-  fakeSessionExpiresAt,
-  fakeSystemAdministratorUser,
+  mockElectionManagerUser,
+  mockSessionExpiresAt,
+  mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import {
   ElectionManagerLoggedIn,
@@ -39,8 +39,8 @@ afterEach(() => {
 describe('as System Admin', () => {
   const auth: SystemAdministratorLoggedIn = {
     status: 'logged_in',
-    user: fakeSystemAdministratorUser(),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockSystemAdministratorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
     programmableCard: { status: 'no_card' },
   };
 
@@ -97,10 +97,10 @@ describe('as System Admin', () => {
 describe('as Election Manager', () => {
   const auth: ElectionManagerLoggedIn = {
     status: 'logged_in',
-    user: fakeElectionManagerUser({
+    user: mockElectionManagerUser({
       electionHash: eitherNeitherElectionDefinition.electionHash,
     }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   };
 
   test('Date and time', () => {

@@ -7,8 +7,8 @@ import { createApiMock, ApiMock } from '../../test/helpers/mock_api_client';
 import { screen } from '../../test/react_testing_library';
 import { BallotInvalidatedPage } from './ballot_invalidated_page';
 import {
-  fakeCardlessVoterLoggedInAuth,
-  fakePollWorkerAuth,
+  mockCardlessVoterLoggedInAuth,
+  mockPollWorkerAuth,
 } from '../../test/helpers/fake_auth';
 
 let apiMock: ApiMock;
@@ -40,7 +40,7 @@ function renderWithAuthAndBallotContext(
 describe('with poll worker auth', () => {
   test('renders the correct message when paper is present', () => {
     const electionDefinition = electionGeneralDefinition;
-    const auth = fakePollWorkerAuth(electionDefinition);
+    const auth = mockPollWorkerAuth(electionDefinition);
     renderWithAuthAndBallotContext(auth);
 
     screen.getByText('Please remove the incorrect ballot.');
@@ -48,7 +48,7 @@ describe('with poll worker auth', () => {
 
   test('renders the correct message when paper is not present', () => {
     const electionDefinition = electionGeneralDefinition;
-    const auth = fakePollWorkerAuth(electionDefinition);
+    const auth = mockPollWorkerAuth(electionDefinition);
     renderWithAuthAndBallotContext(auth, false);
 
     screen.getByText(
@@ -59,7 +59,7 @@ describe('with poll worker auth', () => {
   test('calls confirmInvalidateBallot when button is clicked', () => {
     const electionDefinition = electionGeneralDefinition;
     apiMock.expectConfirmInvalidateBallot();
-    const auth = fakePollWorkerAuth(electionDefinition);
+    const auth = mockPollWorkerAuth(electionDefinition);
     renderWithAuthAndBallotContext(auth, false);
 
     userEvent.click(screen.getByText('Continue'));
@@ -70,7 +70,7 @@ describe('with cardless voter auth', () => {
   test('renders instructions to alert a poll worker', async () => {
     const electionDefinition = electionGeneralDefinition;
 
-    const auth = fakeCardlessVoterLoggedInAuth(electionDefinition);
+    const auth = mockCardlessVoterLoggedInAuth(electionDefinition);
     renderWithAuthAndBallotContext(auth);
 
     await screen.findByText('Ask a Poll Worker for Help');

@@ -26,8 +26,8 @@ import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen';
 import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import {
-  fakeCardlessVoterAuth,
-  fakePollWorkerAuth,
+  mockCardlessVoterAuth,
+  mockPollWorkerAuth,
 } from '../../test/helpers/fake_auth';
 import { ApiProvider } from '../api_provider';
 
@@ -54,7 +54,7 @@ afterEach(() => {
 
 function renderScreen(
   props: Partial<PollworkerScreenProps> = {},
-  pollWorkerAuth: InsertedSmartCardAuth.PollWorkerLoggedIn = fakePollWorkerAuth(
+  pollWorkerAuth: InsertedSmartCardAuth.PollWorkerLoggedIn = mockPollWorkerAuth(
     electionGeneralDefinition
   ),
   electionDefinition: ElectionDefinition = electionGeneralDefinition
@@ -96,7 +96,7 @@ test('switching out of test mode on election day', () => {
   });
   apiMock.expectSetTestMode(false);
   renderScreen({
-    pollWorkerAuth: fakePollWorkerAuth(electionDefinition),
+    pollWorkerAuth: mockPollWorkerAuth(electionDefinition),
     electionDefinition,
   });
 
@@ -148,7 +148,7 @@ test('can toggle between vote activation and "other actions" during polls open',
 
 test('returns instruction page if status is `waiting_for_ballot_data`', async () => {
   const electionDefinition = electionGeneralDefinition;
-  const pollWorkerAuth = fakeCardlessVoterAuth(electionDefinition);
+  const pollWorkerAuth = mockCardlessVoterAuth(electionDefinition);
   apiMock.setPaperHandlerState('waiting_for_ballot_data');
 
   renderScreen({
@@ -163,7 +163,7 @@ test('returns instruction page if status is `waiting_for_ballot_data`', async ()
 
 test('returns null if status is unhandled', () => {
   const electionDefinition = electionGeneralDefinition;
-  const pollWorkerAuth = fakeCardlessVoterAuth(electionDefinition);
+  const pollWorkerAuth = mockCardlessVoterAuth(electionDefinition);
   apiMock.setPaperHandlerState('scanning');
 
   renderScreen({
@@ -183,7 +183,7 @@ test('renders a warning screen when hardware check is off', async () => {
   );
 
   const electionDefinition = electionGeneralDefinition;
-  const pollWorkerAuth = fakeCardlessVoterAuth(electionDefinition);
+  const pollWorkerAuth = mockCardlessVoterAuth(electionDefinition);
   apiMock.setPaperHandlerState('no_hardware');
 
   renderScreen({
@@ -216,7 +216,7 @@ test('displays only default English ballot styles', async () => {
   renderScreen({
     pollsState: 'polls_open',
     machineConfig: fakeMachineConfig(),
-    pollWorkerAuth: fakePollWorkerAuth(electionDefinition),
+    pollWorkerAuth: mockPollWorkerAuth(electionDefinition),
     electionDefinition,
   });
 

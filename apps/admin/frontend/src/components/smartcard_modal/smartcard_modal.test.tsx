@@ -5,10 +5,10 @@ import {
   electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import {
-  fakeElectionManagerUser,
-  fakePollWorkerUser,
-  fakeSessionExpiresAt,
-  fakeSystemAdministratorUser,
+  mockElectionManagerUser,
+  mockPollWorkerUser,
+  mockSessionExpiresAt,
+  mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -59,7 +59,7 @@ test('Smartcard modal displays card details', async () => {
     expectedFooter: string;
   }> = [
     {
-      programmedUser: fakeSystemAdministratorUser(),
+      programmedUser: mockSystemAdministratorUser(),
       expectedHeading: 'System Administrator Card',
       expectedElectionString: undefined,
       shouldResetCardPinButtonBeDisplayed: true,
@@ -67,7 +67,7 @@ test('Smartcard modal displays card details', async () => {
       expectedFooter: 'Remove card to cancel.',
     },
     {
-      programmedUser: fakeElectionManagerUser({ electionHash }),
+      programmedUser: mockElectionManagerUser({ electionHash }),
       expectedHeading: 'Election Manager Card',
       expectedElectionString: 'General Election — Tuesday, November 3, 2020',
       shouldResetCardPinButtonBeDisplayed: true,
@@ -75,7 +75,7 @@ test('Smartcard modal displays card details', async () => {
       expectedFooter: 'Remove card to cancel.',
     },
     {
-      programmedUser: fakePollWorkerUser({ electionHash }),
+      programmedUser: mockPollWorkerUser({ electionHash }),
       expectedHeading: 'Poll Worker Card',
       expectedElectionString: 'General Election — Tuesday, November 3, 2020',
       shouldResetCardPinButtonBeDisplayed: false,
@@ -83,7 +83,7 @@ test('Smartcard modal displays card details', async () => {
       expectedFooter: 'Remove card to cancel.',
     },
     {
-      programmedUser: fakeElectionManagerUser({
+      programmedUser: mockElectionManagerUser({
         electionHash: otherElectionHash,
       }),
       expectedHeading: 'Election Manager Card',
@@ -93,7 +93,7 @@ test('Smartcard modal displays card details', async () => {
       expectedFooter: 'Remove card to cancel.',
     },
     {
-      programmedUser: fakePollWorkerUser({ electionHash: otherElectionHash }),
+      programmedUser: mockPollWorkerUser({ electionHash: otherElectionHash }),
       expectedHeading: 'Poll Worker Card',
       expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
@@ -117,8 +117,8 @@ test('Smartcard modal displays card details', async () => {
 
     apiMock.setAuthStatus({
       status: 'logged_in',
-      user: fakeSystemAdministratorUser(),
-      sessionExpiresAt: fakeSessionExpiresAt(),
+      user: mockSystemAdministratorUser(),
+      sessionExpiresAt: mockSessionExpiresAt(),
       programmableCard: { status: 'ready', programmedUser },
     });
 
@@ -145,8 +145,8 @@ test('Smartcard modal displays card details', async () => {
 
     apiMock.setAuthStatus({
       status: 'logged_in',
-      user: fakeSystemAdministratorUser(),
-      sessionExpiresAt: fakeSessionExpiresAt(),
+      user: mockSystemAdministratorUser(),
+      sessionExpiresAt: mockSessionExpiresAt(),
       programmableCard: { status: 'no_card' },
     });
     await waitFor(() =>
@@ -172,7 +172,7 @@ test('Smartcard modal displays card details when no election definition on machi
     expectedFooter: string;
   }> = [
     {
-      programmedUser: fakeSystemAdministratorUser(),
+      programmedUser: mockSystemAdministratorUser(),
       expectedHeading: 'System Administrator Card',
       expectedElectionString: undefined,
       shouldResetCardPinButtonBeDisplayed: true,
@@ -180,7 +180,7 @@ test('Smartcard modal displays card details when no election definition on machi
       expectedFooter: 'Remove card to cancel.',
     },
     {
-      programmedUser: fakeElectionManagerUser({ electionHash }),
+      programmedUser: mockElectionManagerUser({ electionHash }),
       expectedHeading: 'Election Manager Card',
       expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
@@ -188,7 +188,7 @@ test('Smartcard modal displays card details when no election definition on machi
       expectedFooter: 'Remove card to leave this screen.',
     },
     {
-      programmedUser: fakePollWorkerUser({ electionHash }),
+      programmedUser: mockPollWorkerUser({ electionHash }),
       expectedHeading: 'Poll Worker Card',
       expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
@@ -211,8 +211,8 @@ test('Smartcard modal displays card details when no election definition on machi
 
     apiMock.setAuthStatus({
       status: 'logged_in',
-      user: fakeSystemAdministratorUser(),
-      sessionExpiresAt: fakeSessionExpiresAt(),
+      user: mockSystemAdministratorUser(),
+      sessionExpiresAt: mockSessionExpiresAt(),
       programmableCard: { status: 'ready', programmedUser },
     });
 
@@ -246,8 +246,8 @@ test('Smartcard modal displays card details when no election definition on machi
 
     apiMock.setAuthStatus({
       status: 'logged_in',
-      user: fakeSystemAdministratorUser(),
-      sessionExpiresAt: fakeSessionExpiresAt(),
+      user: mockSystemAdministratorUser(),
+      sessionExpiresAt: mockSessionExpiresAt(),
       programmableCard: { status: 'no_card' },
     });
     await waitFor(() =>
@@ -272,21 +272,21 @@ test('Programming election manager and poll worker smartcards', async () => {
   }> = [
     {
       role: 'election_manager',
-      programmedUser: fakeElectionManagerUser({ electionHash }),
+      programmedUser: mockElectionManagerUser({ electionHash }),
       newPin: '123456',
       expectedHeadingAfterProgramming: 'Election Manager Card',
       expectedSuccessText: [/New card PIN is /, '123-456'],
     },
     {
       role: 'poll_worker',
-      programmedUser: fakePollWorkerUser({ electionHash }),
+      programmedUser: mockPollWorkerUser({ electionHash }),
       newPin: undefined, // Poll worker card PINs are not enabled
       expectedHeadingAfterProgramming: 'Poll Worker Card',
       expectedSuccessText: ['New card created.'],
     },
     {
       role: 'poll_worker',
-      programmedUser: fakePollWorkerUser({ electionHash }),
+      programmedUser: mockPollWorkerUser({ electionHash }),
       newPin: '123456', // Poll worker card PINs are enabled
       expectedHeadingAfterProgramming: 'Poll Worker Card',
       expectedSuccessText: [/New card PIN is /, '123-456'],
@@ -307,8 +307,8 @@ test('Programming election manager and poll worker smartcards', async () => {
 
     apiMock.setAuthStatus({
       status: 'logged_in',
-      user: fakeSystemAdministratorUser(),
-      sessionExpiresAt: fakeSessionExpiresAt(),
+      user: mockSystemAdministratorUser(),
+      sessionExpiresAt: mockSessionExpiresAt(),
       programmableCard: { status: 'ready', programmedUser: undefined },
     });
 
@@ -339,8 +339,8 @@ test('Programming election manager and poll worker smartcards', async () => {
     await screen.findByText(/Programming card/);
     apiMock.setAuthStatus({
       status: 'logged_in',
-      user: fakeSystemAdministratorUser(),
-      sessionExpiresAt: fakeSessionExpiresAt(),
+      user: mockSystemAdministratorUser(),
+      sessionExpiresAt: mockSessionExpiresAt(),
       programmableCard: { status: 'ready', programmedUser },
     });
     await within(modal).findByRole('heading', {
@@ -354,8 +354,8 @@ test('Programming election manager and poll worker smartcards', async () => {
 
     apiMock.setAuthStatus({
       status: 'logged_in',
-      user: fakeSystemAdministratorUser(),
-      sessionExpiresAt: fakeSessionExpiresAt(),
+      user: mockSystemAdministratorUser(),
+      sessionExpiresAt: mockSessionExpiresAt(),
       programmableCard: { status: 'no_card' },
     });
     await waitFor(() =>
@@ -380,8 +380,8 @@ test('Programming system administrator smartcards', async () => {
 
   apiMock.setAuthStatus({
     status: 'logged_in',
-    user: fakeSystemAdministratorUser(),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockSystemAdministratorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
     programmableCard: { status: 'ready', programmedUser: undefined },
   });
 
@@ -399,11 +399,11 @@ test('Programming system administrator smartcards', async () => {
   await screen.findByText(/Programming card/);
   apiMock.setAuthStatus({
     status: 'logged_in',
-    user: fakeSystemAdministratorUser(),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockSystemAdministratorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
     programmableCard: {
       status: 'ready',
-      programmedUser: fakeSystemAdministratorUser(),
+      programmedUser: mockSystemAdministratorUser(),
     },
   });
   await within(modal).findByRole('heading', {
@@ -415,8 +415,8 @@ test('Programming system administrator smartcards', async () => {
 
   apiMock.setAuthStatus({
     status: 'logged_in',
-    user: fakeSystemAdministratorUser(),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockSystemAdministratorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
     programmableCard: { status: 'no_card' },
   });
   await waitFor(() =>
@@ -437,8 +437,8 @@ test('Programming smartcards when no election definition on machine', async () =
 
   apiMock.setAuthStatus({
     status: 'logged_in',
-    user: fakeSystemAdministratorUser(),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockSystemAdministratorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
     programmableCard: { status: 'ready', programmedUser: undefined },
   });
 
@@ -457,8 +457,8 @@ test('Programming smartcards when no election definition on machine', async () =
 
   apiMock.setAuthStatus({
     status: 'logged_in',
-    user: fakeSystemAdministratorUser(),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockSystemAdministratorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
     programmableCard: { status: 'no_card' },
   });
   await waitFor(() =>
@@ -489,15 +489,15 @@ test('Resetting smartcard PINs', async () => {
     expectedHeading: string;
   }> = [
     {
-      programmedUser: fakeSystemAdministratorUser(),
+      programmedUser: mockSystemAdministratorUser(),
       expectedHeading: 'System Administrator Card',
     },
     {
-      programmedUser: fakeElectionManagerUser({ electionHash }),
+      programmedUser: mockElectionManagerUser({ electionHash }),
       expectedHeading: 'Election Manager Card',
     },
     {
-      programmedUser: fakePollWorkerUser({ electionHash }),
+      programmedUser: mockPollWorkerUser({ electionHash }),
       expectedHeading: 'Poll Worker Card',
     },
   ];
@@ -510,8 +510,8 @@ test('Resetting smartcard PINs', async () => {
 
     apiMock.setAuthStatus({
       status: 'logged_in',
-      user: fakeSystemAdministratorUser(),
-      sessionExpiresAt: fakeSessionExpiresAt(),
+      user: mockSystemAdministratorUser(),
+      sessionExpiresAt: mockSessionExpiresAt(),
       programmableCard: { status: 'ready', programmedUser },
     });
 
@@ -528,8 +528,8 @@ test('Resetting smartcard PINs', async () => {
 
     apiMock.setAuthStatus({
       status: 'logged_in',
-      user: fakeSystemAdministratorUser(),
-      sessionExpiresAt: fakeSessionExpiresAt(),
+      user: mockSystemAdministratorUser(),
+      sessionExpiresAt: mockSessionExpiresAt(),
       programmableCard: { status: 'no_card' },
     });
     await waitFor(() =>
@@ -552,11 +552,11 @@ test('Resetting system administrator smartcard PINs when no election definition 
 
   apiMock.setAuthStatus({
     status: 'logged_in',
-    user: fakeSystemAdministratorUser(),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockSystemAdministratorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
     programmableCard: {
       status: 'ready',
-      programmedUser: fakeSystemAdministratorUser(),
+      programmedUser: mockSystemAdministratorUser(),
     },
   });
 
@@ -573,8 +573,8 @@ test('Resetting system administrator smartcard PINs when no election definition 
 
   apiMock.setAuthStatus({
     status: 'logged_in',
-    user: fakeSystemAdministratorUser(),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockSystemAdministratorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
     programmableCard: { status: 'no_card' },
   });
   await waitFor(() =>
@@ -598,12 +598,12 @@ test('Unprogramming smartcards', async () => {
     expectedSuccessText: string;
   }> = [
     {
-      programmedUser: fakeElectionManagerUser({ electionHash }),
+      programmedUser: mockElectionManagerUser({ electionHash }),
       expectedHeadingBeforeUnprogramming: 'Election Manager Card',
       expectedSuccessText: 'Election Manager card has been unprogrammed.',
     },
     {
-      programmedUser: fakePollWorkerUser({ electionHash }),
+      programmedUser: mockPollWorkerUser({ electionHash }),
       expectedHeadingBeforeUnprogramming: 'Poll Worker Card',
       expectedSuccessText: 'Poll Worker card has been unprogrammed.',
     },
@@ -618,8 +618,8 @@ test('Unprogramming smartcards', async () => {
 
     apiMock.setAuthStatus({
       status: 'logged_in',
-      user: fakeSystemAdministratorUser(),
-      sessionExpiresAt: fakeSessionExpiresAt(),
+      user: mockSystemAdministratorUser(),
+      sessionExpiresAt: mockSessionExpiresAt(),
       programmableCard: { status: 'ready', programmedUser },
     });
 
@@ -634,8 +634,8 @@ test('Unprogramming smartcards', async () => {
     await screen.findByText(/Unprogramming card/);
     apiMock.setAuthStatus({
       status: 'logged_in',
-      user: fakeSystemAdministratorUser(),
-      sessionExpiresAt: fakeSessionExpiresAt(),
+      user: mockSystemAdministratorUser(),
+      sessionExpiresAt: mockSessionExpiresAt(),
       programmableCard: { status: 'ready', programmedUser: undefined },
     });
     await within(modal).findByRole('heading', {
@@ -645,8 +645,8 @@ test('Unprogramming smartcards', async () => {
 
     apiMock.setAuthStatus({
       status: 'logged_in',
-      user: fakeSystemAdministratorUser(),
-      sessionExpiresAt: fakeSessionExpiresAt(),
+      user: mockSystemAdministratorUser(),
+      sessionExpiresAt: mockSessionExpiresAt(),
       programmableCard: { status: 'no_card' },
     });
     await waitFor(() =>
@@ -693,21 +693,21 @@ test('Error handling', async () => {
         'Error creating System Administrator card. Please try again.',
     },
     {
-      programmedUser: fakeElectionManagerUser({ electionHash }),
+      programmedUser: mockElectionManagerUser({ electionHash }),
       buttonToPress: 'Reset Card PIN',
       expectedProgressText: 'Resetting card PIN',
       expectedErrorText:
         'Error resetting Election Manager card PIN. Please try again.',
     },
     {
-      programmedUser: fakeElectionManagerUser({ electionHash }),
+      programmedUser: mockElectionManagerUser({ electionHash }),
       buttonToPress: 'Unprogram Card',
       expectedProgressText: 'Unprogramming card',
       expectedErrorText:
         'Error unprogramming Election Manager card. Please try again.',
     },
     {
-      programmedUser: fakePollWorkerUser({ electionHash }),
+      programmedUser: mockPollWorkerUser({ electionHash }),
       buttonToPress: 'Unprogram Card',
       expectedProgressText: 'Unprogramming card',
       expectedErrorText:
@@ -756,8 +756,8 @@ test('Error handling', async () => {
 
     apiMock.setAuthStatus({
       status: 'logged_in',
-      user: fakeSystemAdministratorUser(),
-      sessionExpiresAt: fakeSessionExpiresAt(),
+      user: mockSystemAdministratorUser(),
+      sessionExpiresAt: mockSessionExpiresAt(),
       programmableCard: { status: 'ready', programmedUser },
     });
 
@@ -768,8 +768,8 @@ test('Error handling', async () => {
 
     apiMock.setAuthStatus({
       status: 'logged_in',
-      user: fakeSystemAdministratorUser(),
-      sessionExpiresAt: fakeSessionExpiresAt(),
+      user: mockSystemAdministratorUser(),
+      sessionExpiresAt: mockSessionExpiresAt(),
       programmableCard: { status: 'no_card' },
     });
     await waitFor(() =>
@@ -786,16 +786,16 @@ test('Backwards card handling', async () => {
 
   apiMock.setAuthStatus({
     status: 'logged_in',
-    user: fakeSystemAdministratorUser(),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockSystemAdministratorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
     programmableCard: { status: 'card_error' },
   });
   await screen.findByText('Card is Backwards');
 
   apiMock.setAuthStatus({
     status: 'logged_in',
-    user: fakeSystemAdministratorUser(),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockSystemAdministratorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
     programmableCard: { status: 'no_card' },
   });
   await waitFor(() =>

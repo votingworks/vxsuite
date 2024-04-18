@@ -1,6 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import {
-  fakeElectionManagerUser,
+  mockElectionManagerUser,
   fakeKiosk,
   expectPrintToPdf,
   hasTextAcrossElements,
@@ -78,7 +78,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Insert election manager card and enter incorrect PIN
   apiMock.setAuthStatus({
     status: 'checking_pin',
-    user: fakeElectionManagerUser(electionDefinition),
+    user: mockElectionManagerUser(electionDefinition),
   });
   await screen.findByText('Enter the card PIN');
   apiMock.mockApiClient.checkPin.expectCallWith({ pin: '111111' }).resolves();
@@ -90,7 +90,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   userEvent.click(screen.getByText('1'));
   apiMock.setAuthStatus({
     status: 'checking_pin',
-    user: fakeElectionManagerUser({ electionHash }),
+    user: mockElectionManagerUser({ electionHash }),
     wrongPinEnteredAt: new Date(),
   });
   await screen.findByText('Incorrect PIN. Please try again.');

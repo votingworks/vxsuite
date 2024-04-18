@@ -9,8 +9,8 @@ import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 
 import {
-  fakeElectionManagerUser,
-  fakeSessionExpiresAt,
+  mockElectionManagerUser,
+  mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 import {
   BooleanEnvironmentVariableName,
@@ -74,8 +74,8 @@ describe('configureFromElectionPackageOnUsbDrive', () => {
     mockAuth.getAuthStatus.mockImplementation(() =>
       Promise.resolve({
         status: 'logged_in',
-        user: fakeElectionManagerUser(electionPackage.electionDefinition),
-        sessionExpiresAt: fakeSessionExpiresAt(),
+        user: mockElectionManagerUser(electionPackage.electionDefinition),
+        sessionExpiresAt: mockSessionExpiresAt(),
       })
     );
   });

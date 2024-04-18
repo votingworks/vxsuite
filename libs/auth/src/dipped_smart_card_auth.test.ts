@@ -11,9 +11,9 @@ import {
   BaseLogger,
 } from '@votingworks/logging';
 import {
-  fakeElectionManagerUser,
-  fakePollWorkerUser,
-  fakeSystemAdministratorUser,
+  mockElectionManagerUser,
+  mockPollWorkerUser,
+  mockSystemAdministratorUser,
   mockOf,
 } from '@votingworks/test-utils';
 import {
@@ -83,12 +83,12 @@ const defaultMachineState: DippedSmartCardAuthMachineState = {
     DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
   overallSessionTimeLimitHours: DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
 };
-const systemAdministratorUser = fakeSystemAdministratorUser({ jurisdiction });
-const electionManagerUser = fakeElectionManagerUser({
+const systemAdministratorUser = mockSystemAdministratorUser({ jurisdiction });
+const electionManagerUser = mockElectionManagerUser({
   jurisdiction,
   electionHash,
 });
-const pollWorkerUser = fakePollWorkerUser({ jurisdiction, electionHash });
+const pollWorkerUser = mockPollWorkerUser({ jurisdiction, electionHash });
 
 function mockCardStatus(cardStatus: CardStatus) {
   mockCard.getCardStatus.expectRepeatedCallsWith().resolves(cardStatus);

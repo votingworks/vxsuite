@@ -14,8 +14,8 @@ import {
   generateBallotStyleId,
 } from '@votingworks/utils';
 import {
-  fakePollWorkerUser,
-  fakeSessionExpiresAt,
+  mockPollWorkerUser,
+  mockSessionExpiresAt,
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
@@ -46,19 +46,19 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-function fakePollWorkerAuth(
+function mockPollWorkerAuth(
   electionDefinition: ElectionDefinition
 ): InsertedSmartCardAuth.PollWorkerLoggedIn {
   return {
     status: 'logged_in',
-    user: fakePollWorkerUser({ electionHash: electionDefinition.electionHash }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockPollWorkerUser({ electionHash: electionDefinition.electionHash }),
+    sessionExpiresAt: mockSessionExpiresAt(),
   };
 }
 
 function renderScreen(
   props: Partial<PollworkerScreenProps> = {},
-  pollWorkerAuth: InsertedSmartCardAuth.PollWorkerLoggedIn = fakePollWorkerAuth(
+  pollWorkerAuth: InsertedSmartCardAuth.PollWorkerLoggedIn = mockPollWorkerAuth(
     electionGeneralDefinition
   ),
   electionDefinition: ElectionDefinition = electionGeneralDefinition
@@ -100,7 +100,7 @@ test('switching out of test mode on election day', () => {
   });
   apiMock.expectSetTestMode(false);
   renderScreen({
-    pollWorkerAuth: fakePollWorkerAuth(electionDefinition),
+    pollWorkerAuth: mockPollWorkerAuth(electionDefinition),
     electionDefinition,
   });
 
@@ -187,7 +187,7 @@ test('displays only default English ballot styles', async () => {
   renderScreen({
     pollsState: 'polls_open',
     machineConfig: fakeMachineConfig(),
-    pollWorkerAuth: fakePollWorkerAuth(electionDefinition),
+    pollWorkerAuth: mockPollWorkerAuth(electionDefinition),
     electionDefinition,
   });
 

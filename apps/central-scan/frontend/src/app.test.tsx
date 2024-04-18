@@ -1,9 +1,9 @@
 import fetchMock from 'fetch-mock';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import {
-  fakeElectionManagerUser,
-  fakeSessionExpiresAt,
-  fakeSystemAdministratorUser,
+  mockElectionManagerUser,
+  mockSessionExpiresAt,
+  mockSystemAdministratorUser,
   hasTextAcrossElements,
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
@@ -67,8 +67,8 @@ export async function authenticateAsSystemAdministrator(
 
   apiMock.setAuthStatus({
     status: 'logged_in',
-    user: fakeSystemAdministratorUser(),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockSystemAdministratorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
     programmableCard: { status: 'no_card' },
   });
   await screen.findByText('Lock Machine');
@@ -84,10 +84,10 @@ export async function authenticateAsElectionManager(
 
   apiMock.setAuthStatus({
     status: 'logged_in',
-    user: fakeElectionManagerUser({
+    user: mockElectionManagerUser({
       electionHash: electionDefinition.electionHash,
     }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   });
   await screen.findByText(postAuthText);
 }
@@ -237,7 +237,7 @@ test('authentication works', async () => {
   // Insert an election manager card and enter the wrong PIN.
   apiMock.setAuthStatus({
     status: 'checking_pin',
-    user: fakeElectionManagerUser(electionGeneralDefinition),
+    user: mockElectionManagerUser(electionGeneralDefinition),
   });
   await screen.findByText('Enter the card PIN');
   apiMock.expectCheckPin('111111');
@@ -249,7 +249,7 @@ test('authentication works', async () => {
   userEvent.click(screen.getByText('1'));
   apiMock.setAuthStatus({
     status: 'checking_pin',
-    user: fakeElectionManagerUser(electionGeneralDefinition),
+    user: mockElectionManagerUser(electionGeneralDefinition),
     wrongPinEnteredAt: new Date(),
   });
   await screen.findByText('Incorrect PIN. Please try again.');
@@ -273,7 +273,7 @@ test('authentication works', async () => {
   // Insert election manager card and enter correct PIN.
   apiMock.setAuthStatus({
     status: 'checking_pin',
-    user: fakeElectionManagerUser(electionGeneralDefinition),
+    user: mockElectionManagerUser(electionGeneralDefinition),
   });
   await screen.findByText('Enter the card PIN');
   apiMock.expectCheckPin('123456');
@@ -287,16 +287,16 @@ test('authentication works', async () => {
   // 'Remove Card' screen is shown after successful authentication.
   apiMock.setAuthStatus({
     status: 'remove_card',
-    user: fakeElectionManagerUser(electionGeneralDefinition),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockElectionManagerUser(electionGeneralDefinition),
+    sessionExpiresAt: mockSessionExpiresAt(),
   });
   await screen.findByText('Remove card to unlock VxCentralScan');
 
   // Machine is unlocked when card removed
   apiMock.setAuthStatus({
     status: 'logged_in',
-    user: fakeElectionManagerUser(electionGeneralDefinition),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockElectionManagerUser(electionGeneralDefinition),
+    sessionExpiresAt: mockSessionExpiresAt(),
   });
   await screen.findByRole('heading', { name: 'Scan Ballots' });
 
