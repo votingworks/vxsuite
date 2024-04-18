@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import { fakeChildProcess, mockReadable, mockWritable } from './child_process';
+import { mockChildProcess, mockReadable, mockWritable } from './child_process';
 
 test('mockReadable', () => {
   const onReadable = jest.fn();
@@ -95,8 +95,8 @@ test('mockWritable', async () => {
   ]);
 });
 
-test('fakeChildProcess', () => {
-  const child = fakeChildProcess();
+test('mockChildProcess', () => {
+  const child = mockChildProcess();
 
   expect(typeof child.pid).toEqual('number');
   child.stdin.write('hello child!\n');

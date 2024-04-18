@@ -1,8 +1,8 @@
-import { fakePrinter } from './fake_printer';
+import { mockPrinter } from './fake_printer';
 
-test('fakePrinter will use the provided print callback', async () => {
+test('mockPrinter will use the provided print callback', async () => {
   const printFn = jest.fn();
-  const printer = fakePrinter({ print: printFn });
+  const printer = mockPrinter({ print: printFn });
   await printer.print({ sides: 'one-sided' });
   expect(printFn).toHaveBeenCalled();
 });

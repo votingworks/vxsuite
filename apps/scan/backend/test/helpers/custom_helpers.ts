@@ -95,7 +95,7 @@ export async function withApp(
   const workspace =
     preconfiguredWorkspace ?? createWorkspace(tmp.dirSync().name);
   const logger = buildMockLogger(mockAuth, workspace);
-  const mockScanner = mocks.fakeCustomScanner();
+  const mockScanner = mocks.mockCustomScanner();
   const mockUsbDrive = createMockUsbDrive();
   const mockPrinterHandler = createMockPrinterHandler();
   const mockFujitsuPrinterHandler = createMockFujitsuPrinterHandler();

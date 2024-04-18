@@ -5,7 +5,7 @@ export function mockDevices(
   props: Partial<KioskBrowser.Device> = {}
 ): KioskBrowser.Device {
   return {
-    deviceName: 'fake device',
+    deviceName: 'mock device',
     deviceAddress: 0,
     locationId: 0,
     manufacturer: 'Acme Inc.',
@@ -35,9 +35,9 @@ export function mockPrinterInfo(
 ): KioskBrowser.PrinterInfo {
   return {
     connected: false,
-    description: props.name ?? 'Fake Printer',
+    description: props.name ?? 'Mock Printer',
     isDefault: false,
-    name: 'Fake Printer',
+    name: 'Mock Printer',
     state: 'idle',
     stateReasons: ['none'],
     markerInfos: [mockMarkerInfo()],

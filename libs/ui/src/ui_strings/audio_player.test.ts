@@ -40,11 +40,11 @@ function newMockWebAudioContext() {
   return {
     createBuffer: jest.fn(),
     decodeAudioData: jest.fn(),
-    destination: { fake: 'web audio destination' },
+    destination: { mock: 'web audio destination' },
   } as unknown as jest.Mocked<AudioContext>;
 }
 
-function newFakeAudioBuffer(samples: number[]) {
+function newMockAudioBuffer(samples: number[]) {
   return {
     getChannelData: (channelIndex: number) => {
       expect(channelIndex).toEqual(FIRST_AUDIO_CHANNEL_INDEX);
@@ -107,7 +107,7 @@ function newMockGrainPlayer() {
 test('lazy-initializes ToneJS only once', async () => {
   const mockWebAudioContext = newMockWebAudioContext();
   mockWebAudioContext.decodeAudioData.mockResolvedValue(
-    newFakeAudioBuffer([1, 1, 0])
+    newMockAudioBuffer([1, 1, 0])
   );
   mockWebAudioContext.createBuffer.mockReturnValue({
     copyToChannel: jest.fn(),
@@ -164,7 +164,7 @@ test('trims beginning silence', async () => {
     expect(buffer).toEqual(Buffer.from(testClip.dataBase64, 'base64').buffer);
 
     return Promise.resolve(
-      newFakeAudioBuffer([
+      newMockAudioBuffer([
         0,
         0,
         -SILENT_SAMPLE_VALUE,
@@ -202,7 +202,7 @@ test('trims beginning silence', async () => {
 test('play()', async () => {
   const mockWebAudioContext = newMockWebAudioContext();
   mockWebAudioContext.decodeAudioData.mockResolvedValue(
-    newFakeAudioBuffer([1, 1, 0])
+    newMockAudioBuffer([1, 1, 0])
   );
   mockWebAudioContext.createBuffer.mockReturnValue({
     copyToChannel: jest.fn(),
@@ -246,7 +246,7 @@ test('play()', async () => {
 test('stop()', async () => {
   const mockWebAudioContext = newMockWebAudioContext();
   mockWebAudioContext.decodeAudioData.mockResolvedValue(
-    newFakeAudioBuffer([1, 1, 0])
+    newMockAudioBuffer([1, 1, 0])
   );
   mockWebAudioContext.createBuffer.mockReturnValue({
     copyToChannel: jest.fn(),
@@ -279,7 +279,7 @@ test('stop()', async () => {
 test('setVolume()', async () => {
   const mockWebAudioContext = newMockWebAudioContext();
   mockWebAudioContext.decodeAudioData.mockResolvedValue(
-    newFakeAudioBuffer([1, 1, 0])
+    newMockAudioBuffer([1, 1, 0])
   );
   mockWebAudioContext.createBuffer.mockReturnValue({
     copyToChannel: jest.fn(),
@@ -306,7 +306,7 @@ test('setVolume()', async () => {
 test('setPlaybackRate()', async () => {
   const mockWebAudioContext = newMockWebAudioContext();
   mockWebAudioContext.decodeAudioData.mockResolvedValue(
-    newFakeAudioBuffer([1, 1, 0])
+    newMockAudioBuffer([1, 1, 0])
   );
   mockWebAudioContext.createBuffer.mockReturnValue({
     copyToChannel: jest.fn(),

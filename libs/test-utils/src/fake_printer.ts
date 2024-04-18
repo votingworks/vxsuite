@@ -1,6 +1,6 @@
 import { Printer } from '@votingworks/types';
 
-export function fakePrinter({
+export function mockPrinter({
   print = async () => {
     // do nothing
   },

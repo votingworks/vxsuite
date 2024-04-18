@@ -1,14 +1,14 @@
 export type Chunk = Parameters<KioskBrowser.FileWriter['write']>[0];
 
-export interface FakeFileWriter extends KioskBrowser.FileWriter {
+export interface MockFileWriter extends KioskBrowser.FileWriter {
   chunks: readonly Chunk[];
 }
 
-export function fakeFileWriter(): jest.Mocked<FakeFileWriter> {
+export function mockFileWriter(): jest.Mocked<MockFileWriter> {
   const chunks: Chunk[] = [];
 
   return {
-    filename: '/fake/file',
+    filename: '/mock/file',
     write: jest.fn().mockImplementation((chunk) => {
       chunks.push(chunk);
     }),

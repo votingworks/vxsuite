@@ -15,7 +15,7 @@ export interface MockWritable extends Writable {
 }
 
 /**
- * Makes a fake readable stream.
+ * Makes a mock readable stream.
  */
 export function mockReadable(): MockReadable {
   const readable = new EventEmitter() as MockReadable;
@@ -66,7 +66,7 @@ export function mockReadable(): MockReadable {
 }
 
 /**
- * Makes a fake writable stream.
+ * Makes a mock writable stream.
  */
 export function mockWritable(): MockWritable {
   const writable = new EventEmitter() as MockWritable;
@@ -157,16 +157,16 @@ export function mockWritable(): MockWritable {
   return writable;
 }
 
-export interface FakeChildProcess extends ChildProcess {
+export interface MockChildProcess extends ChildProcess {
   stdin: MockWritable;
   stdout: MockReadable;
   stderr: MockReadable;
 }
 
 /**
- * Creates a fake child process with fake streams.
+ * Creates a mock child process with mock streams.
  */
-export function fakeChildProcess(): FakeChildProcess {
+export function mockChildProcess(): MockChildProcess {
   const result: Partial<ChildProcess> = {
     pid: Math.floor(Math.random() * 10_000),
     stdin: mockWritable(),
@@ -175,5 +175,5 @@ export function fakeChildProcess(): FakeChildProcess {
     kill: jest.fn(),
   };
 
-  return Object.assign(new EventEmitter(), result) as FakeChildProcess;
+  return Object.assign(new EventEmitter(), result) as MockChildProcess;
 }

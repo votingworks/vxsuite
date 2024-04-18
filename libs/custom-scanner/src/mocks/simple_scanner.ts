@@ -115,7 +115,7 @@ export const MOCK_DOUBLE_SHEET_CLEARED: ScannerStatus = {
 /**
  * Builds a `Custom Scanner` instance with mock methods.
  */
-export function fakeCustomScanner(): jest.Mocked<CustomScanner> {
+export function mockCustomScanner(): jest.Mocked<CustomScanner> {
   return {
     getReleaseVersion: jest.fn(),
     getStatus: jest.fn().mockResolvedValue(ok(MOCK_NO_PAPER)),

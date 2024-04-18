@@ -3,7 +3,7 @@ import {
   advancePromises,
   advanceTimersAndPromises,
   mockKiosk,
-  fakePrinter,
+  mockPrinter,
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
 import { sleep } from '@votingworks/basics';
@@ -16,7 +16,7 @@ import {
   printElementWhenReady,
 } from './print_element';
 
-const printer = fakePrinter();
+const printer = mockPrinter();
 
 jest.mock('@votingworks/utils', () => {
   return {
@@ -26,15 +26,15 @@ jest.mock('@votingworks/utils', () => {
 });
 
 const simpleElement: JSX.Element = <p>Print me!</p>;
-const fakeOptions: PrintOptions = { sides: 'one-sided' };
+const mockOptions: PrintOptions = { sides: 'one-sided' };
 
 describe('printElement', () => {
   test('calls print with expected args', async () => {
     await suppressingConsoleOutput(async () => {
-      await printElement(simpleElement, fakeOptions);
+      await printElement(simpleElement, mockOptions);
       expect(printer.print).toHaveBeenCalledTimes(1);
       expect(printer.print).toHaveBeenLastCalledWith(
-        expect.objectContaining(fakeOptions)
+        expect.objectContaining(mockOptions)
       );
     });
   });
@@ -80,7 +80,7 @@ describe('printElement', () => {
           <img ref={image1Ref} src="./image1.svg" alt="" />
           <img ref={image2Ref} src="./image2.svg" alt="" />
         </div>,
-        fakeOptions
+        mockOptions
       );
       await screen.findByText('Print Me!');
       expect(printer.print).not.toHaveBeenCalled();
@@ -104,7 +104,7 @@ describe('printElement', () => {
 
       expect.assertions(2);
       try {
-        await printElement(simpleElement, fakeOptions);
+        await printElement(simpleElement, mockOptions);
       } catch (e) {
         expect(e).toEqual(printError);
       }

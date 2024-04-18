@@ -12,7 +12,7 @@ import {
   mockElectionManagerUser,
   mockPollWorkerUser,
   mockKiosk,
-  fakeFileWriter,
+  mockFileWriter,
 } from '@votingworks/test-utils';
 import { CardStatus } from '@votingworks/auth';
 import { DevDock } from './dev_dock';
@@ -281,7 +281,7 @@ test('screenshot button', async () => {
   });
 
   const screenshotBuffer = Buffer.of();
-  const fileWriter = fakeFileWriter();
+  const fileWriter = mockFileWriter();
   kiosk.captureScreenshot.mockResolvedValueOnce(screenshotBuffer);
   kiosk.saveAs.mockResolvedValueOnce(fileWriter);
   userEvent.click(screenshotButton);
