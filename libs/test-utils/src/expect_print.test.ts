@@ -9,8 +9,8 @@ import {
   expectTestToEndWithAllPrintsAsserted,
   expectPrint,
   ExpectPrintError,
-  fakePrintElement,
-  fakePrintElementWhenReady,
+  mockPrintElement,
+  mockPrintElementWhenReady,
   resetExpectPrint,
   simulateErrorOnNextPrint,
   expectPrintToMatchSnapshot,
@@ -36,33 +36,33 @@ const simpleElement = getElement('simple');
 const simpleElementWithCallback = getElementWithCallback('simple');
 const fakeOptions: PrintOptions = { sides: 'one-sided' };
 
-test('fakePrintElement functions throw errors on un-asserted elements', async () => {
+test('mockPrintElement functions throw errors on un-asserted elements', async () => {
   expect.assertions(4);
 
   try {
-    await fakePrintElement(simpleElement, fakeOptions);
-    await fakePrintElement(simpleElement, fakeOptions);
+    await mockPrintElement(simpleElement, fakeOptions);
+    await mockPrintElement(simpleElement, fakeOptions);
   } catch (e) {
     expect(e).toBeInstanceOf(ExpectPrintError);
   }
 
   try {
-    await fakePrintElement(simpleElement, fakeOptions);
-    await fakePrintElementWhenReady(simpleElementWithCallback, fakeOptions);
+    await mockPrintElement(simpleElement, fakeOptions);
+    await mockPrintElementWhenReady(simpleElementWithCallback, fakeOptions);
   } catch (e) {
     expect(e).toBeInstanceOf(ExpectPrintError);
   }
 
   try {
-    await fakePrintElementWhenReady(simpleElementWithCallback, fakeOptions);
-    await fakePrintElement(simpleElement, fakeOptions);
+    await mockPrintElementWhenReady(simpleElementWithCallback, fakeOptions);
+    await mockPrintElement(simpleElement, fakeOptions);
   } catch (e) {
     expect(e).toBeInstanceOf(ExpectPrintError);
   }
 
   try {
-    await fakePrintElementWhenReady(simpleElementWithCallback, fakeOptions);
-    await fakePrintElementWhenReady(simpleElementWithCallback, fakeOptions);
+    await mockPrintElementWhenReady(simpleElementWithCallback, fakeOptions);
+    await mockPrintElementWhenReady(simpleElementWithCallback, fakeOptions);
   } catch (e) {
     expect(e).toBeInstanceOf(ExpectPrintError);
   }
@@ -74,21 +74,21 @@ describe('expectTestToEndWithAllPrintsAsserted', () => {
   });
 
   test('does throw if element printed', async () => {
-    await fakePrintElement(simpleElement, fakeOptions);
+    await mockPrintElement(simpleElement, fakeOptions);
     expect(expectTestToEndWithAllPrintsAsserted).toThrow(ExpectPrintError);
   });
 
   test('does throw if element with callback printed', async () => {
-    await fakePrintElementWhenReady(simpleElementWithCallback, fakeOptions);
+    await mockPrintElementWhenReady(simpleElementWithCallback, fakeOptions);
     expect(expectTestToEndWithAllPrintsAsserted).toThrow(ExpectPrintError);
   });
 
   test('cleans up expectPrint state', async () => {
-    await fakePrintElement(simpleElement, fakeOptions);
+    await mockPrintElement(simpleElement, fakeOptions);
     expect(expectTestToEndWithAllPrintsAsserted).toThrow(ExpectPrintError);
 
     // Printing another element should not throw an error
-    await fakePrintElement(simpleElement, fakeOptions);
+    await mockPrintElement(simpleElement, fakeOptions);
   });
 });
 
@@ -103,22 +103,22 @@ describe('expectPrint', () => {
   });
 
   test('can expect multiple prints and use inspection', async () => {
-    await fakePrintElement(getElement('1'), fakeOptions);
+    await mockPrintElement(getElement('1'), fakeOptions);
     await expectPrint((printedElement) => {
       expect(printedElement.getByText('1')).toBeTruthy();
     });
 
-    await fakePrintElementWhenReady(getElementWithCallback('2'), fakeOptions);
+    await mockPrintElementWhenReady(getElementWithCallback('2'), fakeOptions);
     await expectPrint((printedElement) => {
       expect(printedElement.getByText('2')).toBeTruthy();
     });
 
-    await fakePrintElementWhenReady(getElementWithCallback('3'), fakeOptions);
+    await mockPrintElementWhenReady(getElementWithCallback('3'), fakeOptions);
     await expectPrint((printedElement) => {
       expect(printedElement.getByText('3')).toBeTruthy();
     });
 
-    await fakePrintElement(getElement('4'), fakeOptions);
+    await mockPrintElement(getElement('4'), fakeOptions);
     await expectPrint((printedElement) => {
       expect(printedElement.getByText('4')).toBeTruthy();
     });
@@ -127,10 +127,10 @@ describe('expectPrint', () => {
   });
 
   test('can expect prints without inspection', async () => {
-    await fakePrintElement(simpleElement, fakeOptions);
+    await mockPrintElement(simpleElement, fakeOptions);
     await expectPrint();
 
-    await fakePrintElementWhenReady(simpleElementWithCallback, fakeOptions);
+    await mockPrintElementWhenReady(simpleElementWithCallback, fakeOptions);
     await expectPrint();
 
     expectTestToEndWithAllPrintsAsserted();
@@ -138,7 +138,7 @@ describe('expectPrint', () => {
 
   test('can access printOptions', async () => {
     expect.assertions(1);
-    await fakePrintElement(simpleElement, { sides: 'two-sided-long-edge' });
+    await mockPrintElement(simpleElement, { sides: 'two-sided-long-edge' });
     await expectPrint((_printedElement, printOptions) => {
       expect(printOptions).toMatchObject({ sides: 'two-sided-long-edge' });
     });
@@ -148,7 +148,7 @@ describe('expectPrint', () => {
     expect.assertions(1);
     render(getElement('screen'));
     screen.getByText('screen');
-    await fakePrintElement(simpleElement, { sides: 'two-sided-long-edge' });
+    await mockPrintElement(simpleElement, { sides: 'two-sided-long-edge' });
     try {
       await expectPrint((printedElement) => {
         printedElement.getByText('not in doc');
@@ -159,7 +159,7 @@ describe('expectPrint', () => {
   });
 
   test('cleans up expectPrint state after error', async () => {
-    await fakePrintElement(simpleElement, fakeOptions);
+    await mockPrintElement(simpleElement, fakeOptions);
     try {
       await expectPrint((printedElement) => {
         printedElement.getByText('not in doc');
@@ -169,35 +169,35 @@ describe('expectPrint', () => {
     }
 
     // Printing another element should not throw an error
-    await fakePrintElement(simpleElement, fakeOptions);
+    await mockPrintElement(simpleElement, fakeOptions);
   });
 });
 
 test('simulateErrorOnNextPrint', async () => {
   expect.assertions(3);
 
-  // Works for fakePrintElement
+  // Works for mockPrintElement
   simulateErrorOnNextPrint();
   try {
-    await fakePrintElement(simpleElement, fakeOptions);
+    await mockPrintElement(simpleElement, fakeOptions);
   } catch (error) {
     expect(error).toBeInstanceOf(Error);
   }
 
   // Should be able to print and assert normally now
-  await fakePrintElement(simpleElement, fakeOptions);
+  await mockPrintElement(simpleElement, fakeOptions);
   await expectPrint();
 
-  // Works for fakePrintElementWhenReady, with custom error
+  // Works for mockPrintElementWhenReady, with custom error
   simulateErrorOnNextPrint(new Error('message'));
   try {
-    await fakePrintElementWhenReady(simpleElementWithCallback, fakeOptions);
+    await mockPrintElementWhenReady(simpleElementWithCallback, fakeOptions);
   } catch (error) {
     expect(error).toBeInstanceOf(Error);
     expect((error as Error).message).toEqual('message');
   }
 
-  await fakePrintElementWhenReady(simpleElementWithCallback, fakeOptions);
+  await mockPrintElementWhenReady(simpleElementWithCallback, fakeOptions);
   await expectPrint();
 });
 
@@ -205,7 +205,7 @@ test('deferNextPrint', async () => {
   expect.assertions(1);
 
   const { resolve } = deferNextPrint();
-  const printPromise = fakePrintElement(simpleElement, fakeOptions);
+  const printPromise = mockPrintElement(simpleElement, fakeOptions);
 
   try {
     await expectPrint();
@@ -220,6 +220,6 @@ test('deferNextPrint', async () => {
 });
 
 test('expectPrintToMatchSnapshot', async () => {
-  await fakePrintElement(simpleElement, fakeOptions);
+  await mockPrintElement(simpleElement, fakeOptions);
   await expectPrintToMatchSnapshot();
 });

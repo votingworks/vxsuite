@@ -2,8 +2,8 @@ import '@testing-library/jest-dom/extend-expect';
 import 'jest-styled-components';
 import { configure } from '@testing-library/react';
 import {
-  fakePrintElement,
-  fakePrintElementWhenReady,
+  mockPrintElement,
+  mockPrintElementWhenReady,
 } from '@votingworks/test-utils';
 
 configure({ asyncUtilTimeout: 5_000 });
@@ -12,8 +12,8 @@ jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => {
   const original = jest.requireActual('@votingworks/ui');
   return {
     ...original,
-    printElementWhenReady: fakePrintElementWhenReady,
-    printElement: fakePrintElement,
+    printElementWhenReady: mockPrintElementWhenReady,
+    printElement: mockPrintElement,
   };
 });
 

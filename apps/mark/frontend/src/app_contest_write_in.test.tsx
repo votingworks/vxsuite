@@ -1,7 +1,7 @@
 import {
   expectPrint,
-  fakePrintElement,
-  fakePrintElementWhenReady,
+  mockPrintElement,
+  mockPrintElementWhenReady,
   mockOf,
 } from '@votingworks/test-utils';
 import { ALL_PRECINCTS_SELECTION, MemoryHardware } from '@votingworks/utils';
@@ -33,8 +33,8 @@ jest.mock(
 
 jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
   ...jest.requireActual('@votingworks/ui'),
-  printElementWhenReady: fakePrintElementWhenReady,
-  printElement: fakePrintElement,
+  printElementWhenReady: mockPrintElementWhenReady,
+  printElement: mockPrintElement,
 }));
 
 /**

@@ -4,9 +4,9 @@ import {
   fakeKiosk,
   expectPrintToPdf,
   hasTextAcrossElements,
-  fakePrintElement,
-  fakePrintElementWhenReady,
-  fakePrintElementToPdf,
+  mockPrintElement,
+  mockPrintElementWhenReady,
+  mockPrintElementToPdf,
 } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { getContestDistrictName } from '@votingworks/types';
@@ -30,9 +30,9 @@ import { getMockInterpretation } from '../test/helpers/interpretation';
 
 jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
   ...jest.requireActual('@votingworks/ui'),
-  printElementWhenReady: fakePrintElementWhenReady,
-  printElement: fakePrintElement,
-  printElementToPdf: fakePrintElementToPdf,
+  printElementWhenReady: mockPrintElementWhenReady,
+  printElement: mockPrintElement,
+  printElementToPdf: mockPrintElementToPdf,
 }));
 
 let apiMock: ApiMock;

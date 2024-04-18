@@ -6,9 +6,9 @@ import '@testing-library/jest-dom/extend-expect';
 import 'jest-styled-components';
 import {
   expectTestToEndWithAllPrintsAsserted,
-  fakePrintElement as mockPrintElement,
-  fakePrintElementWhenReady as mockPrintElementWhenReady,
-  fakePrintElementToPdf as mockPrintElementToPdf,
+  mockPrintElement,
+  mockPrintElementWhenReady,
+  mockPrintElementToPdf,
 } from '@votingworks/test-utils';
 import { configure } from '../test/react_testing_library';
 import {

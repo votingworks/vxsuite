@@ -8,8 +8,8 @@ import {
 } from '@votingworks/types';
 import {
   expectPrint,
-  fakePrintElement,
-  fakePrintElementWhenReady,
+  mockPrintElement,
+  mockPrintElementWhenReady,
   hasTextAcrossElements,
   PrintRenderResult,
 } from '@votingworks/test-utils';
@@ -34,8 +34,8 @@ import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
   ...jest.requireActual('@votingworks/ui'),
-  printElementWhenReady: fakePrintElementWhenReady,
-  printElement: fakePrintElement,
+  printElementWhenReady: mockPrintElementWhenReady,
+  printElement: mockPrintElement,
 }));
 
 let apiMock: ApiMock;
