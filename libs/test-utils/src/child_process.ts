@@ -3,22 +3,22 @@ import { ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';
 import { Readable, Writable } from 'stream';
 
-export interface FakeReadable extends Readable {
+export interface MockReadable extends Readable {
   append(chunk: string): void;
   end(): void;
 }
 
-export interface FakeWritable extends Writable {
+export interface MockWritable extends Writable {
   toBuffer(): Buffer;
   toString(): string;
   writes: ReadonlyArray<{ chunk: unknown; encoding?: string }>;
 }
 
 /**
- * Makes a fake readable stream.
+ * Makes a mock readable stream.
  */
-export function fakeReadable(): FakeReadable {
-  const readable = new EventEmitter() as FakeReadable;
+export function mockReadable(): MockReadable {
+  const readable = new EventEmitter() as MockReadable;
   let buffer: string | undefined;
   let isPaused = false;
   let pendingChunks: unknown[] = [];
@@ -66,10 +66,10 @@ export function fakeReadable(): FakeReadable {
 }
 
 /**
- * Makes a fake writable stream.
+ * Makes a mock writable stream.
  */
-export function fakeWritable(): FakeWritable {
-  const writable = new EventEmitter() as FakeWritable;
+export function mockWritable(): MockWritable {
+  const writable = new EventEmitter() as MockWritable;
   const writes: Array<{ chunk: unknown; encoding?: string }> = [];
 
   writable.writes = writes;
@@ -105,7 +105,7 @@ export function fakeWritable(): FakeWritable {
     return true;
   });
 
-  writable.end = jest.fn((...args: unknown[]): FakeWritable => {
+  writable.end = jest.fn((...args: unknown[]): MockWritable => {
     let chunk: unknown;
     let encoding: unknown;
     let callback: unknown;
@@ -157,23 +157,23 @@ export function fakeWritable(): FakeWritable {
   return writable;
 }
 
-export interface FakeChildProcess extends ChildProcess {
-  stdin: FakeWritable;
-  stdout: FakeReadable;
-  stderr: FakeReadable;
+export interface MockChildProcess extends ChildProcess {
+  stdin: MockWritable;
+  stdout: MockReadable;
+  stderr: MockReadable;
 }
 
 /**
- * Creates a fake child process with fake streams.
+ * Creates a mock child process with mock streams.
  */
-export function fakeChildProcess(): FakeChildProcess {
+export function mockChildProcess(): MockChildProcess {
   const result: Partial<ChildProcess> = {
     pid: Math.floor(Math.random() * 10_000),
-    stdin: fakeWritable(),
-    stdout: fakeReadable(),
-    stderr: fakeReadable(),
+    stdin: mockWritable(),
+    stdout: mockReadable(),
+    stderr: mockReadable(),
     kill: jest.fn(),
   };
 
-  return Object.assign(new EventEmitter(), result) as FakeChildProcess;
+  return Object.assign(new EventEmitter(), result) as MockChildProcess;
 }

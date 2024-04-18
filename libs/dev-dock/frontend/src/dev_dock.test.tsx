@@ -8,11 +8,11 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
-  fakeSystemAdministratorUser,
-  fakeElectionManagerUser,
-  fakePollWorkerUser,
-  fakeKiosk,
-  fakeFileWriter,
+  mockSystemAdministratorUser,
+  mockElectionManagerUser,
+  mockPollWorkerUser,
+  mockKiosk,
+  mockFileWriter,
 } from '@votingworks/test-utils';
 import { CardStatus } from '@votingworks/auth';
 import { DevDock } from './dev_dock';
@@ -23,19 +23,19 @@ const noCardStatus: CardStatus = {
 const systemAdminCardStatus: CardStatus = {
   status: 'ready',
   cardDetails: {
-    user: fakeSystemAdministratorUser(),
+    user: mockSystemAdministratorUser(),
   },
 };
 const electionManagerCardStatus: CardStatus = {
   status: 'ready',
   cardDetails: {
-    user: fakeElectionManagerUser(),
+    user: mockElectionManagerUser(),
   },
 };
 const pollWorkerCardStatus: CardStatus = {
   status: 'ready',
   cardDetails: {
-    user: fakePollWorkerUser(),
+    user: mockPollWorkerUser(),
     hasPin: false,
   },
 };
@@ -50,7 +50,7 @@ jest.mock('@votingworks/utils', () => {
 });
 
 let mockApiClient: MockClient<Api>;
-let mockKiosk!: jest.Mocked<KioskBrowser.Kiosk>;
+let kiosk!: jest.Mocked<KioskBrowser.Kiosk>;
 
 beforeEach(() => {
   mockApiClient = createMockClient<Api>();
@@ -70,8 +70,8 @@ beforeEach(() => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_USB_DRIVE
   );
-  mockKiosk = fakeKiosk();
-  window.kiosk = mockKiosk;
+  kiosk = mockKiosk();
+  window.kiosk = kiosk;
 });
 
 afterEach(() => {
@@ -281,14 +281,14 @@ test('screenshot button', async () => {
   });
 
   const screenshotBuffer = Buffer.of();
-  const fileWriter = fakeFileWriter();
-  mockKiosk.captureScreenshot.mockResolvedValueOnce(screenshotBuffer);
-  mockKiosk.saveAs.mockResolvedValueOnce(fileWriter);
+  const fileWriter = mockFileWriter();
+  kiosk.captureScreenshot.mockResolvedValueOnce(screenshotBuffer);
+  kiosk.saveAs.mockResolvedValueOnce(fileWriter);
   userEvent.click(screenshotButton);
 
   await waitFor(() => {
-    expect(mockKiosk.captureScreenshot).toHaveBeenCalled();
-    expect(mockKiosk.saveAs).toHaveBeenCalled();
+    expect(kiosk.captureScreenshot).toHaveBeenCalled();
+    expect(kiosk.saveAs).toHaveBeenCalled();
     expect(fileWriter.write).toHaveBeenCalledWith(screenshotBuffer);
   });
 });

@@ -405,7 +405,7 @@ test('adjudication', () => {
         .electionData,
     jurisdiction,
   });
-  function fakePage(i: 0 | 1): PageInterpretationWithFiles {
+  function mockPage(i: 0 | 1): PageInterpretationWithFiles {
     const metadata: BallotMetadata = {
       electionHash:
         electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
@@ -489,7 +489,7 @@ test('adjudication', () => {
     };
   }
   const batchId = store.addBatch();
-  const ballotId = store.addSheet(uuid(), batchId, [fakePage(0), fakePage(1)]);
+  const ballotId = store.addSheet(uuid(), batchId, [mockPage(0), mockPage(1)]);
 
   // check the review paths
   const reviewSheet = store.getNextAdjudicationSheet();

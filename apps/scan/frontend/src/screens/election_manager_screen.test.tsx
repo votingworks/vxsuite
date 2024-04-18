@@ -3,7 +3,7 @@ import {
   electionGeneralDefinition,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
-import { fakeKiosk } from '@votingworks/test-utils';
+import { mockKiosk } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { ok } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
@@ -32,7 +32,7 @@ jest.useFakeTimers();
 
 beforeEach(() => {
   window.location.href = '/';
-  window.kiosk = fakeKiosk();
+  window.kiosk = mockKiosk();
   apiMock = createApiMock();
   apiMock.expectGetPollsInfo();
   apiMock.expectGetMachineConfig();

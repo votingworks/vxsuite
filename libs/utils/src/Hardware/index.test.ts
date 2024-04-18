@@ -1,4 +1,4 @@
-import { fakeDevice, fakeKiosk } from '@votingworks/test-utils';
+import { mockDevices, mockKiosk } from '@votingworks/test-utils';
 import { getHardware } from '.';
 import { KioskHardware } from './kiosk_hardware';
 import {
@@ -14,7 +14,7 @@ import {
 
 it('getHardware returns KioskHardware when window.kiosk is set', () => {
   try {
-    window.kiosk = fakeKiosk();
+    window.kiosk = mockKiosk();
     const hardware = getHardware();
     expect(hardware).toBeInstanceOf(KioskHardware);
   } finally {
@@ -29,13 +29,13 @@ it('getHardware does not return KioskHardware when window.kiosk is not set', () 
 });
 
 it('isAccessibleController does not match just any device', () => {
-  expect(isAccessibleController(fakeDevice())).toEqual(false);
+  expect(isAccessibleController(mockDevices())).toEqual(false);
 });
 
 it('isAccessibleController matches a device with the right vendor and product id', () => {
   expect(
     isAccessibleController(
-      fakeDevice({
+      mockDevices({
         vendorId: AccessibleControllerVendorId,
         productId: AccessibleControllerProductId,
       })
@@ -44,13 +44,13 @@ it('isAccessibleController matches a device with the right vendor and product id
 });
 
 it('isBatchScanner does not match just any device', () => {
-  expect(isBatchScanner(fakeDevice())).toEqual(false);
+  expect(isBatchScanner(mockDevices())).toEqual(false);
 });
 
 it('isBatchScanner matches a device with the right vendor and product id', () => {
   expect(
     isBatchScanner(
-      fakeDevice({
+      mockDevices({
         vendorId: FujitsuScannerVendorId,
       })
     )
@@ -58,13 +58,13 @@ it('isBatchScanner matches a device with the right vendor and product id', () =>
 });
 
 it('isPrecinctScanner does not match just any device', () => {
-  expect(isPrecinctScanner(fakeDevice())).toEqual(false);
+  expect(isPrecinctScanner(mockDevices())).toEqual(false);
 });
 
 it('isPrecinctScanner matches a device with the right vendor and product id', () => {
   expect(
     isPrecinctScanner(
-      fakeDevice({
+      mockDevices({
         vendorId: CustomScannerVendorId,
         productId: CustomA4ScannerProductId,
       })

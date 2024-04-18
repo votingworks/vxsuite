@@ -1,6 +1,6 @@
 import {
   advanceTimers,
-  fakeUseAudioControls,
+  mockUseAudioControls,
   mockOf,
 } from '@votingworks/test-utils';
 import React from 'react';
@@ -16,7 +16,7 @@ import { act, screen } from '../../test/react_testing_library';
 import { Keybinding } from '../keybindings';
 import { newTestContext } from '../../test/test_context';
 
-const mockAudioControls = fakeUseAudioControls();
+const mockAudioControls = mockUseAudioControls();
 
 jest.mock(
   '../ui_strings/ui_string',

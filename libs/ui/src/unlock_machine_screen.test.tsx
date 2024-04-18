@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import userEvent from '@testing-library/user-event';
 import {
-  fakeSystemAdministratorUser,
+  mockSystemAdministratorUser,
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import { DippedSmartCardAuth } from '@votingworks/types';
@@ -16,7 +16,7 @@ beforeEach(() => {
 
 const checkingPinAuthStatus: DippedSmartCardAuth.CheckingPin = {
   status: 'checking_pin',
-  user: fakeSystemAdministratorUser(),
+  user: mockSystemAdministratorUser(),
 };
 
 test('PIN submission', async () => {

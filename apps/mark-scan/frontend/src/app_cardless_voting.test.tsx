@@ -3,12 +3,12 @@ import {
   ALL_PRECINCTS_SELECTION,
 } from '@votingworks/utils';
 import {
-  FakeKiosk,
+  MockKiosk,
   expectPrintToPdf,
-  fakeKiosk,
-  fakePrintElement,
-  fakePrintElementWhenReady,
-  fakePrintElementToPdf,
+  mockKiosk,
+  mockPrintElement,
+  mockPrintElementWhenReady,
+  mockPrintElementToPdf,
 } from '@votingworks/test-utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
@@ -28,19 +28,19 @@ import { getMockInterpretation } from '../test/helpers/interpretation';
 
 jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
   ...jest.requireActual('@votingworks/ui'),
-  printElementWhenReady: fakePrintElementWhenReady,
-  printElement: fakePrintElement,
-  printElementToPdf: fakePrintElementToPdf,
+  printElementWhenReady: mockPrintElementWhenReady,
+  printElement: mockPrintElement,
+  printElementToPdf: mockPrintElementToPdf,
 }));
 
 let apiMock: ApiMock;
-let kiosk: FakeKiosk;
+let kiosk: MockKiosk;
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   apiMock = createApiMock();
-  kiosk = fakeKiosk();
+  kiosk = mockKiosk();
   window.kiosk = kiosk;
   apiMock.setPaperHandlerState('not_accepting_paper');
 });

@@ -1,5 +1,5 @@
 import userEvent from '@testing-library/user-event';
-import { fakeMarkerInfo, mockOf } from '@votingworks/test-utils';
+import { mockMarkerInfo, mockOf } from '@votingworks/test-utils';
 import { MemoryHardware } from '@votingworks/utils';
 import { MemoryRouter } from 'react-router-dom';
 import { DateTime } from 'luxon';
@@ -8,7 +8,7 @@ import {
   DiagnosticsScreen,
   DiagnosticsScreenProps,
 } from './diagnostics_screen';
-import { fakeDevices } from '../../test/helpers/fake_devices';
+import { mockDevices } from '../../test/helpers/mock_devices';
 import { AccessibleControllerDiagnosticScreen } from './accessible_controller_diagnostic_screen';
 
 jest.mock(
@@ -33,7 +33,7 @@ function renderScreen(props: Partial<DiagnosticsScreenProps> = {}) {
     <MemoryRouter>
       <DiagnosticsScreen
         hardware={MemoryHardware.buildStandard()}
-        devices={fakeDevices()}
+        devices={mockDevices()}
         onBackButtonPress={jest.fn()}
         {...props}
       />
@@ -47,7 +47,7 @@ beforeEach(() => {
 
 describe('System Diagnostics screen: Computer section', () => {
   it('shows the battery level and power cord status', () => {
-    const devices = fakeDevices({
+    const devices = mockDevices({
       computer: { batteryLevel: 0.05, batteryIsLow: true },
     });
     const { unmount } = renderScreen({ devices });
@@ -68,7 +68,7 @@ describe('System Diagnostics screen: Computer section', () => {
   });
 
   it('shows a warning when the power cord is not connected', () => {
-    const devices = fakeDevices({
+    const devices = mockDevices({
       computer: { batteryIsCharging: false },
     });
     const { unmount } = renderScreen({ devices });
@@ -106,7 +106,7 @@ describe('System Diagnostics screen: Printer section', () => {
     hardware.setPrinterIppAttributes({
       state: 'stopped',
       stateReasons: ['marker-supply-low-warning'],
-      markerInfos: [fakeMarkerInfo({ level: 2 })],
+      markerInfos: [mockMarkerInfo({ level: 2 })],
     });
     userEvent.click(refreshButton);
 
@@ -150,7 +150,7 @@ describe('System Diagnostics screen: Printer section', () => {
         'door-open-warning',
         'media-needed-error',
       ],
-      markerInfos: [fakeMarkerInfo()],
+      markerInfos: [mockMarkerInfo()],
     });
     renderScreen({ hardware });
 
@@ -165,7 +165,7 @@ describe('System Diagnostics screen: Printer section', () => {
     hardware.setPrinterIppAttributes({
       state: 'stopped',
       stateReasons: ['some-other-reason-warning'],
-      markerInfos: [fakeMarkerInfo()],
+      markerInfos: [mockMarkerInfo()],
     });
     renderScreen({ hardware });
 
@@ -178,7 +178,7 @@ describe('System Diagnostics screen: Printer section', () => {
     hardware.setPrinterIppAttributes({
       state: 'stopped',
       stateReasons: ['123'],
-      markerInfos: [fakeMarkerInfo()],
+      markerInfos: [mockMarkerInfo()],
     });
     renderScreen({ hardware });
 
@@ -191,7 +191,7 @@ describe('System Diagnostics screen: Printer section', () => {
     hardware.setPrinterIppAttributes({
       state: 'idle',
       stateReasons: ['none'],
-      markerInfos: [fakeMarkerInfo({ level: -2 })],
+      markerInfos: [mockMarkerInfo({ level: -2 })],
     });
     renderScreen({ hardware });
 
@@ -246,7 +246,7 @@ describe('System Diagnostics screen: Accessible Controller section', () => {
   });
 
   it('shows when the controller is disconnected', () => {
-    const devices = fakeDevices();
+    const devices = mockDevices();
     devices.accessibleController = undefined;
     const { unmount } = renderScreen({ devices });
 

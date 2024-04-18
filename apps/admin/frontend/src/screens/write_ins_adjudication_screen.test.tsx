@@ -70,9 +70,9 @@ function expectGetQueueMetadata({
 
 test('zoomable ballot image', async () => {
   const contestId = 'best-animal-mammal';
-  function fakeWriteInImage(id: string): Partial<WriteInImageView> {
+  function mockWriteInImage(id: string): Partial<WriteInImageView> {
     return {
-      imageUrl: `fake-image-data-${id}`,
+      imageUrl: `mock-image-data-${id}`,
       ballotCoordinates: {
         x: 0,
         y: 0,
@@ -98,9 +98,9 @@ test('zoomable ballot image', async () => {
   apiMock.expectGetFirstPendingWriteInId(contestId, 'id-174');
   expectGetQueueMetadata({ total: 2, pending: 2, contestId });
   apiMock.expectGetWriteInCandidates([], contestId);
-  apiMock.expectGetWriteInImageView('id-174', fakeWriteInImage('174'));
+  apiMock.expectGetWriteInImageView('id-174', mockWriteInImage('174'));
   apiMock.expectGetWriteInAdjudicationContext('id-174');
-  apiMock.expectGetWriteInImageView('id-175', fakeWriteInImage('175'));
+  apiMock.expectGetWriteInImageView('id-175', mockWriteInImage('175'));
   apiMock.expectGetWriteInAdjudicationContext('id-175');
 
   renderScreen(contestId, {
@@ -112,7 +112,7 @@ test('zoomable ballot image', async () => {
   let ballotImage = await screen.findByRole('img', {
     name: /ballot with write-in/i,
   });
-  expect(ballotImage).toHaveAttribute('src', 'fake-image-data-174');
+  expect(ballotImage).toHaveAttribute('src', 'mock-image-data-174');
 
   // Initially zoomed in to show the write-in area
   const expectedZoomedInWidth =
@@ -155,7 +155,7 @@ test('zoomable ballot image', async () => {
   ballotImage = await screen.findByRole('img', {
     name: /ballot with write-in/i,
   });
-  expect(ballotImage).toHaveAttribute('src', 'fake-image-data-175');
+  expect(ballotImage).toHaveAttribute('src', 'mock-image-data-175');
   expect(ballotImage).toHaveStyle({ width: `${expectedZoomedInWidth}px` });
   zoomInButton = screen.getButton(/Zoom In/);
   zoomOutButton = screen.getButton(/Zoom Out/);

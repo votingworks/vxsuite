@@ -15,9 +15,9 @@ import {
   testCdfBallotDefinition,
 } from '@votingworks/types';
 import {
-  fakeElectionManagerUser,
-  fakePollWorkerUser,
-  fakeSessionExpiresAt,
+  mockElectionManagerUser,
+  mockPollWorkerUser,
+  mockSessionExpiresAt,
   mockOf,
   zipFile,
 } from '@votingworks/test-utils';
@@ -393,10 +393,10 @@ test('readElectionPackageFromUsb can read an election package from usb', async (
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
-    user: fakeElectionManagerUser({
+    user: mockElectionManagerUser({
       electionHash: electionDefinition.electionHash,
     }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   };
 
   const mockUsbDrive = createMockUsbDrive();
@@ -433,10 +433,10 @@ test("readElectionPackageFromUsb uses default system settings when system settin
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
-    user: fakeElectionManagerUser({
+    user: mockElectionManagerUser({
       electionHash: electionDefinition.electionHash,
     }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   };
 
   const mockUsbDrive = createMockUsbDrive();
@@ -488,10 +488,10 @@ test('errors if election hash on provided auth is different than election packag
     electionFamousNames2021Fixtures;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
-    user: fakeElectionManagerUser({
+    user: mockElectionManagerUser({
       electionHash: electionDefinition.electionHash,
     }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   };
 
   const mockUsbDrive = createMockUsbDrive();
@@ -514,10 +514,10 @@ test('errors if there is no election package on usb drive', async () => {
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
-    user: fakeElectionManagerUser({
+    user: mockElectionManagerUser({
       electionHash: electionDefinition.electionHash,
     }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   };
 
   const mockUsbDrive = createMockUsbDrive();
@@ -538,10 +538,10 @@ test('errors if a user is authenticated but is not an election manager', async (
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
-    user: fakePollWorkerUser({
+    user: mockPollWorkerUser({
       electionHash: electionDefinition.electionHash,
     }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   };
 
   const mockUsbDrive = createMockUsbDrive();
@@ -565,10 +565,10 @@ test('configures using the most recently created election package for an electio
   const { election, electionHash } = electionDefinition;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
-    user: fakeElectionManagerUser({
+    user: mockElectionManagerUser({
       electionHash: electionDefinition.electionHash,
     }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   };
 
   const mockUsbDrive = createMockUsbDrive();
@@ -627,10 +627,10 @@ test('configures using the most recently created election package across electio
 
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
-    user: fakeElectionManagerUser({
+    user: mockElectionManagerUser({
       electionHash: electionDefinition.electionHash,
     }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   };
 
   const mockUsbDrive = createMockUsbDrive();
@@ -686,10 +686,10 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
   const { election, electionHash } = electionDefinition;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
-    user: fakeElectionManagerUser({
+    user: mockElectionManagerUser({
       electionHash: electionDefinition.electionHash,
     }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   };
 
   const mockUsbDrive = createMockUsbDrive();
@@ -742,8 +742,8 @@ test('readElectionPackageFromUsb returns error result if election package authen
   const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
-    user: fakeElectionManagerUser({ electionHash }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockElectionManagerUser({ electionHash }),
+    sessionExpiresAt: mockSessionExpiresAt(),
   };
 
   const mockUsbDrive = createMockUsbDrive();
@@ -774,8 +774,8 @@ test('readElectionPackageFromUsb ignores election package authentication errors 
   const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
-    user: fakeElectionManagerUser({ electionHash }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockElectionManagerUser({ electionHash }),
+    sessionExpiresAt: mockSessionExpiresAt(),
   };
 
   const mockUsbDrive = createMockUsbDrive();

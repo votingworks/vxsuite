@@ -1,4 +1,4 @@
-import { advancePromises, fakeKiosk } from '@votingworks/test-utils';
+import { advancePromises, mockKiosk } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import { err, ok } from '@votingworks/basics';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
@@ -8,12 +8,12 @@ import { SaveBackendFileModal } from './save_backend_file_modal';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
-let mockKiosk = fakeKiosk();
+let kiosk = mockKiosk();
 let apiMock: ApiMock;
 
 beforeEach(() => {
-  mockKiosk = fakeKiosk();
-  window.kiosk = mockKiosk;
+  kiosk = mockKiosk();
+  window.kiosk = kiosk;
   apiMock = createApiMock();
 });
 
@@ -61,7 +61,7 @@ test('has development shortcut to export file without USB drive', async () => {
   const mockShowSaveDialog = jest
     .fn()
     .mockResolvedValue({ filePath: '/user/batch-export.csv' });
-  mockKiosk.showSaveDialog = mockShowSaveDialog;
+  kiosk.showSaveDialog = mockShowSaveDialog;
 
   const originalEnv: NodeJS.ProcessEnv = { ...process.env };
   process.env = {
@@ -139,7 +139,7 @@ test('happy usb path - save as', async () => {
   const mockShowSaveDialog = jest.fn().mockResolvedValue({
     filePath: 'test-mount-point/batch-export.csv',
   });
-  mockKiosk.showSaveDialog = mockShowSaveDialog;
+  kiosk.showSaveDialog = mockShowSaveDialog;
 
   const saveFile = jest.fn().mockResolvedValue(ok());
 
@@ -260,7 +260,7 @@ test('shows error screen if saving file failed on backend', () => {
 
 test('can cancel save dialog', async () => {
   const mockShowSaveDialog = jest.fn().mockResolvedValue({ canceled: true });
-  mockKiosk.showSaveDialog = mockShowSaveDialog;
+  kiosk.showSaveDialog = mockShowSaveDialog;
 
   const saveFile = jest.fn().mockResolvedValue(ok());
 

@@ -1,44 +1,44 @@
 import {
-  fakeCardlessVoterUser,
-  fakePollWorkerUser,
-  fakeSessionExpiresAt,
+  mockCardlessVoterUser,
+  mockPollWorkerUser,
+  mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 import { ElectionDefinition, InsertedSmartCardAuth } from '@votingworks/types';
 
-export function fakePollWorkerAuth(
+export function mockPollWorkerAuth(
   electionDefinition: ElectionDefinition
 ): InsertedSmartCardAuth.PollWorkerLoggedIn {
   return {
     status: 'logged_in',
-    user: fakePollWorkerUser({ electionHash: electionDefinition.electionHash }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockPollWorkerUser({ electionHash: electionDefinition.electionHash }),
+    sessionExpiresAt: mockSessionExpiresAt(),
   };
 }
 
-export function fakeCardlessVoterAuth(
+export function mockCardlessVoterAuth(
   electionDefinition: ElectionDefinition
 ): InsertedSmartCardAuth.PollWorkerLoggedIn {
   const ballotStyleId = electionDefinition.election.ballotStyles[0].id;
   const precinctId = electionDefinition.election.precincts[0].id;
 
   return {
-    ...fakePollWorkerAuth(electionDefinition),
-    cardlessVoterUser: fakeCardlessVoterUser({
+    ...mockPollWorkerAuth(electionDefinition),
+    cardlessVoterUser: mockCardlessVoterUser({
       ballotStyleId,
       precinctId,
     }),
   };
 }
 
-export function fakeCardlessVoterLoggedInAuth(
+export function mockCardlessVoterLoggedInAuth(
   electionDefinition: ElectionDefinition
 ): InsertedSmartCardAuth.CardlessVoterLoggedIn {
   const ballotStyleId = electionDefinition.election.ballotStyles[0].id;
   const precinctId = electionDefinition.election.precincts[0].id;
 
   return {
-    ...fakePollWorkerAuth(electionDefinition),
-    user: fakeCardlessVoterUser({
+    ...mockPollWorkerAuth(electionDefinition),
+    user: mockCardlessVoterUser({
       ballotStyleId,
       precinctId,
     }),

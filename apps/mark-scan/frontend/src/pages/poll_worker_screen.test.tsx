@@ -23,12 +23,12 @@ import { fireEvent, screen } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
 
 import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen';
-import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
+import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import {
-  fakeCardlessVoterAuth,
-  fakePollWorkerAuth,
-} from '../../test/helpers/fake_auth';
+  mockCardlessVoterAuth,
+  mockPollWorkerAuth,
+} from '../../test/helpers/mock_auth';
 import { ApiProvider } from '../api_provider';
 
 const { election } = electionGeneralDefinition;
@@ -54,7 +54,7 @@ afterEach(() => {
 
 function renderScreen(
   props: Partial<PollworkerScreenProps> = {},
-  pollWorkerAuth: InsertedSmartCardAuth.PollWorkerLoggedIn = fakePollWorkerAuth(
+  pollWorkerAuth: InsertedSmartCardAuth.PollWorkerLoggedIn = mockPollWorkerAuth(
     electionGeneralDefinition
   ),
   electionDefinition: ElectionDefinition = electionGeneralDefinition
@@ -70,7 +70,7 @@ function renderScreen(
         isLiveMode={false}
         pollsState="polls_open"
         ballotsPrintedCount={0}
-        machineConfig={fakeMachineConfig()}
+        machineConfig={mockMachineConfig()}
         reload={jest.fn()}
         precinctSelection={singlePrecinctSelectionFor(
           electionDefinition.election.precincts[0].id
@@ -96,7 +96,7 @@ test('switching out of test mode on election day', () => {
   });
   apiMock.expectSetTestMode(false);
   renderScreen({
-    pollWorkerAuth: fakePollWorkerAuth(electionDefinition),
+    pollWorkerAuth: mockPollWorkerAuth(electionDefinition),
     electionDefinition,
   });
 
@@ -131,7 +131,7 @@ test('live mode on election day', () => {
 test('can toggle between vote activation and "other actions" during polls open', async () => {
   renderScreen({
     pollsState: 'polls_open',
-    machineConfig: fakeMachineConfig(),
+    machineConfig: mockMachineConfig(),
   });
 
   // confirm we start with polls open
@@ -148,13 +148,13 @@ test('can toggle between vote activation and "other actions" during polls open',
 
 test('returns instruction page if status is `waiting_for_ballot_data`', async () => {
   const electionDefinition = electionGeneralDefinition;
-  const pollWorkerAuth = fakeCardlessVoterAuth(electionDefinition);
+  const pollWorkerAuth = mockCardlessVoterAuth(electionDefinition);
   apiMock.setPaperHandlerState('waiting_for_ballot_data');
 
   renderScreen({
     pollsState: 'polls_open',
     pollWorkerAuth,
-    machineConfig: fakeMachineConfig(),
+    machineConfig: mockMachineConfig(),
     electionDefinition,
   });
 
@@ -163,13 +163,13 @@ test('returns instruction page if status is `waiting_for_ballot_data`', async ()
 
 test('returns null if status is unhandled', () => {
   const electionDefinition = electionGeneralDefinition;
-  const pollWorkerAuth = fakeCardlessVoterAuth(electionDefinition);
+  const pollWorkerAuth = mockCardlessVoterAuth(electionDefinition);
   apiMock.setPaperHandlerState('scanning');
 
   renderScreen({
     pollsState: 'polls_open',
     pollWorkerAuth,
-    machineConfig: fakeMachineConfig(),
+    machineConfig: mockMachineConfig(),
     electionDefinition,
   });
 
@@ -183,13 +183,13 @@ test('renders a warning screen when hardware check is off', async () => {
   );
 
   const electionDefinition = electionGeneralDefinition;
-  const pollWorkerAuth = fakeCardlessVoterAuth(electionDefinition);
+  const pollWorkerAuth = mockCardlessVoterAuth(electionDefinition);
   apiMock.setPaperHandlerState('no_hardware');
 
   renderScreen({
     pollsState: 'polls_open',
     pollWorkerAuth,
-    machineConfig: fakeMachineConfig(),
+    machineConfig: mockMachineConfig(),
     electionDefinition,
   });
 
@@ -215,8 +215,8 @@ test('displays only default English ballot styles', async () => {
   };
   renderScreen({
     pollsState: 'polls_open',
-    machineConfig: fakeMachineConfig(),
-    pollWorkerAuth: fakePollWorkerAuth(electionDefinition),
+    machineConfig: mockMachineConfig(),
+    pollWorkerAuth: mockPollWorkerAuth(electionDefinition),
     electionDefinition,
   });
 

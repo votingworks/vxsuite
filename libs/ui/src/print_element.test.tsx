@@ -2,8 +2,8 @@ import React, { useEffect } from 'react';
 import {
   advancePromises,
   advanceTimersAndPromises,
-  fakeKiosk,
-  fakePrinter,
+  mockKiosk,
+  mockPrinter,
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
 import { sleep } from '@votingworks/basics';
@@ -16,7 +16,7 @@ import {
   printElementWhenReady,
 } from './print_element';
 
-const printer = fakePrinter();
+const printer = mockPrinter();
 
 jest.mock('@votingworks/utils', () => {
   return {
@@ -26,15 +26,15 @@ jest.mock('@votingworks/utils', () => {
 });
 
 const simpleElement: JSX.Element = <p>Print me!</p>;
-const fakeOptions: PrintOptions = { sides: 'one-sided' };
+const mockOptions: PrintOptions = { sides: 'one-sided' };
 
 describe('printElement', () => {
   test('calls print with expected args', async () => {
     await suppressingConsoleOutput(async () => {
-      await printElement(simpleElement, fakeOptions);
+      await printElement(simpleElement, mockOptions);
       expect(printer.print).toHaveBeenCalledTimes(1);
       expect(printer.print).toHaveBeenLastCalledWith(
-        expect.objectContaining(fakeOptions)
+        expect.objectContaining(mockOptions)
       );
     });
   });
@@ -80,7 +80,7 @@ describe('printElement', () => {
           <img ref={image1Ref} src="./image1.svg" alt="" />
           <img ref={image2Ref} src="./image2.svg" alt="" />
         </div>,
-        fakeOptions
+        mockOptions
       );
       await screen.findByText('Print Me!');
       expect(printer.print).not.toHaveBeenCalled();
@@ -104,7 +104,7 @@ describe('printElement', () => {
 
       expect.assertions(2);
       try {
-        await printElement(simpleElement, fakeOptions);
+        await printElement(simpleElement, mockOptions);
       } catch (e) {
         expect(e).toEqual(printError);
       }
@@ -165,9 +165,9 @@ test('printElementWhenReady prints only after element uses callback', async () =
 
 test('printElementToPdfWhenReady prints only after element uses callback', async () => {
   await suppressingConsoleOutput(async () => {
-    const mockKiosk = fakeKiosk();
-    mockKiosk.printToPDF = jest.fn();
-    window.kiosk = mockKiosk;
+    const kiosk = mockKiosk();
+    kiosk.printToPDF = jest.fn();
+    window.kiosk = kiosk;
 
     let readyToPrintSpy = jest.fn();
 
@@ -179,23 +179,23 @@ test('printElementToPdfWhenReady prints only after element uses callback', async
     const printToPdfPromise = printElementToPdfWhenReady(renderSleeperElement);
 
     while (readyToPrintSpy.mock.calls.length === 0) {
-      expect(mockKiosk.printToPDF).not.toHaveBeenCalled();
+      expect(kiosk.printToPDF).not.toHaveBeenCalled();
       await advanceTimersAndPromises(1);
     }
     await printToPdfPromise;
-    expect(mockKiosk.printToPDF).toHaveBeenCalledTimes(1);
+    expect(kiosk.printToPDF).toHaveBeenCalledTimes(1);
 
     window.kiosk = undefined;
   });
 });
 
 describe('printElementToPdf', () => {
-  let mockKiosk = fakeKiosk();
+  let kiosk = mockKiosk();
 
   beforeEach(() => {
-    mockKiosk = fakeKiosk();
-    mockKiosk.printToPDF = jest.fn();
-    window.kiosk = mockKiosk;
+    kiosk = mockKiosk();
+    kiosk.printToPDF = jest.fn();
+    window.kiosk = kiosk;
   });
 
   afterEach(() => {
@@ -207,13 +207,13 @@ describe('printElementToPdf', () => {
       const printToPdfPromise = printElementToPdf(simpleElement);
 
       await waitFor(() => {
-        expect(mockKiosk.printToPDF).not.toHaveBeenCalled();
+        expect(kiosk.printToPDF).not.toHaveBeenCalled();
         screen.getByText('Print me!');
       });
 
       await printToPdfPromise;
       expect(screen.queryByText('Print me!')).not.toBeInTheDocument();
-      expect(mockKiosk.printToPDF).toHaveBeenCalledTimes(1);
+      expect(kiosk.printToPDF).toHaveBeenCalledTimes(1);
     });
   });
 });

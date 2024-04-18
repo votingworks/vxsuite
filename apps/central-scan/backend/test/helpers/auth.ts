@@ -1,5 +1,5 @@
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
-import { fakeSessionExpiresAt } from '@votingworks/test-utils';
+import { mockSessionExpiresAt } from '@votingworks/test-utils';
 import { ElectionDefinition, TEST_JURISDICTION } from '@votingworks/types';
 
 export function mockElectionManagerAuth(
@@ -14,7 +14,7 @@ export function mockElectionManagerAuth(
       jurisdiction,
       electionHash: electionDefinition.electionHash,
     },
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   });
 }
 
@@ -28,7 +28,7 @@ export function mockSystemAdministratorAuth(
       role: 'system_administrator',
       jurisdiction,
     },
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    sessionExpiresAt: mockSessionExpiresAt(),
     programmableCard: { status: 'no_card' },
   });
 }

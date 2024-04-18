@@ -1,12 +1,12 @@
 import userEvent from '@testing-library/user-event';
 import {
-  fakeElectionManagerUser,
-  fakeKiosk,
+  mockElectionManagerUser,
+  mockKiosk,
   expectPrintToPdf,
   hasTextAcrossElements,
-  fakePrintElement,
-  fakePrintElementWhenReady,
-  fakePrintElementToPdf,
+  mockPrintElement,
+  mockPrintElementWhenReady,
+  mockPrintElementToPdf,
 } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { getContestDistrictName } from '@votingworks/types';
@@ -30,19 +30,19 @@ import { getMockInterpretation } from '../test/helpers/interpretation';
 
 jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
   ...jest.requireActual('@votingworks/ui'),
-  printElementWhenReady: fakePrintElementWhenReady,
-  printElement: fakePrintElement,
-  printElementToPdf: fakePrintElementToPdf,
+  printElementWhenReady: mockPrintElementWhenReady,
+  printElement: mockPrintElement,
+  printElementToPdf: mockPrintElementToPdf,
 }));
 
 let apiMock: ApiMock;
-let kiosk = fakeKiosk();
+let kiosk = mockKiosk();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   apiMock = createApiMock();
-  kiosk = fakeKiosk();
+  kiosk = mockKiosk();
   window.kiosk = kiosk;
 });
 
@@ -78,7 +78,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Insert election manager card and enter incorrect PIN
   apiMock.setAuthStatus({
     status: 'checking_pin',
-    user: fakeElectionManagerUser(electionDefinition),
+    user: mockElectionManagerUser(electionDefinition),
   });
   await screen.findByText('Enter the card PIN');
   apiMock.mockApiClient.checkPin.expectCallWith({ pin: '111111' }).resolves();
@@ -90,7 +90,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   userEvent.click(screen.getByText('1'));
   apiMock.setAuthStatus({
     status: 'checking_pin',
-    user: fakeElectionManagerUser({ electionHash }),
+    user: mockElectionManagerUser({ electionHash }),
     wrongPinEnteredAt: new Date(),
   });
   await screen.findByText('Incorrect PIN. Please try again.');

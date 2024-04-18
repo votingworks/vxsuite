@@ -12,10 +12,10 @@ import {
   BaseLogger,
 } from '@votingworks/logging';
 import {
-  fakeCardlessVoterUser,
-  fakeElectionManagerUser,
-  fakePollWorkerUser,
-  fakeSystemAdministratorUser,
+  mockCardlessVoterUser,
+  mockElectionManagerUser,
+  mockPollWorkerUser,
+  mockSystemAdministratorUser,
   mockOf,
 } from '@votingworks/test-utils';
 import {
@@ -86,13 +86,13 @@ const defaultMachineState: InsertedSmartCardAuthMachineState = {
     DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
   overallSessionTimeLimitHours: DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
 };
-const systemAdministratorUser = fakeSystemAdministratorUser({ jurisdiction });
-const electionManagerUser = fakeElectionManagerUser({
+const systemAdministratorUser = mockSystemAdministratorUser({ jurisdiction });
+const electionManagerUser = mockElectionManagerUser({
   jurisdiction,
   electionHash,
 });
-const pollWorkerUser = fakePollWorkerUser({ jurisdiction, electionHash });
-const cardlessVoterUser = fakeCardlessVoterUser();
+const pollWorkerUser = mockPollWorkerUser({ jurisdiction, electionHash });
+const cardlessVoterUser = mockCardlessVoterUser();
 
 function mockCardStatus(cardStatus: CardStatus) {
   mockCard.getCardStatus.expectRepeatedCallsWith().resolves(cardStatus);

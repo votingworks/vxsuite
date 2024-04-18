@@ -4,8 +4,8 @@ import fs from 'fs/promises';
 import { Readable, Writable } from 'stream';
 import { fileSync } from 'tmp';
 import {
-  fakeChildProcess as newMockChildProcess,
-  FakeChildProcess as MockChildProcess,
+  mockChildProcess as newMockChildProcess,
+  MockChildProcess,
   mockOf,
 } from '@votingworks/test-utils';
 

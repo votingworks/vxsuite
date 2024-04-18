@@ -11,8 +11,8 @@ import {
 } from '@votingworks/utils';
 import { err, ok, typedAs } from '@votingworks/basics';
 import {
-  fakeElectionManagerUser,
-  fakeSessionExpiresAt,
+  mockElectionManagerUser,
+  mockSessionExpiresAt,
   mockOf,
 } from '@votingworks/test-utils';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
@@ -40,8 +40,8 @@ function mockElectionManager(
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
-      user: fakeElectionManagerUser(electionDefinition),
-      sessionExpiresAt: fakeSessionExpiresAt(),
+      user: mockElectionManagerUser(electionDefinition),
+      sessionExpiresAt: mockSessionExpiresAt(),
     })
   );
 }

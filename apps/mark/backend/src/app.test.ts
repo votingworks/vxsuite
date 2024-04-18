@@ -5,9 +5,9 @@ import {
   systemSettings,
 } from '@votingworks/fixtures';
 import {
-  fakeElectionManagerUser,
-  fakePollWorkerUser,
-  fakeSessionExpiresAt,
+  mockElectionManagerUser,
+  mockPollWorkerUser,
+  mockSessionExpiresAt,
   mockOf,
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
@@ -56,8 +56,8 @@ function mockElectionManagerAuth(electionDefinition: ElectionDefinition) {
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
-      user: fakeElectionManagerUser(electionDefinition),
-      sessionExpiresAt: fakeSessionExpiresAt(),
+      user: mockElectionManagerUser(electionDefinition),
+      sessionExpiresAt: mockSessionExpiresAt(),
     })
   );
 }
@@ -66,8 +66,8 @@ function mockPollWorkerAuth(electionDefinition: ElectionDefinition) {
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
-      user: fakePollWorkerUser(electionDefinition),
-      sessionExpiresAt: fakeSessionExpiresAt(),
+      user: mockPollWorkerUser(electionDefinition),
+      sessionExpiresAt: mockSessionExpiresAt(),
     })
   );
 }

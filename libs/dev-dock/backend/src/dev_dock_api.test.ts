@@ -7,9 +7,9 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
-  fakeElectionManagerUser,
-  fakePollWorkerUser,
-  fakeSystemAdministratorUser,
+  mockElectionManagerUser,
+  mockPollWorkerUser,
+  mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { DEV_JURISDICTION } from '@votingworks/auth';
 import {
@@ -90,7 +90,7 @@ test('card mock endpoints', async () => {
   await expect(apiClient.getCardStatus()).resolves.toEqual({
     status: 'ready',
     cardDetails: {
-      user: fakeSystemAdministratorUser({ jurisdiction: DEV_JURISDICTION }),
+      user: mockSystemAdministratorUser({ jurisdiction: DEV_JURISDICTION }),
     },
   });
 
@@ -103,7 +103,7 @@ test('card mock endpoints', async () => {
   await expect(apiClient.getCardStatus()).resolves.toEqual({
     status: 'ready',
     cardDetails: {
-      user: fakeElectionManagerUser({
+      user: mockElectionManagerUser({
         electionHash: electionGeneralDefinition.electionHash,
         jurisdiction: DEV_JURISDICTION,
       }),
@@ -116,7 +116,7 @@ test('card mock endpoints', async () => {
   await expect(apiClient.getCardStatus()).resolves.toEqual({
     status: 'ready',
     cardDetails: {
-      user: fakePollWorkerUser({
+      user: mockPollWorkerUser({
         electionHash: electionGeneralDefinition.electionHash,
         jurisdiction: DEV_JURISDICTION,
       }),
@@ -147,7 +147,7 @@ test('election setting', async () => {
   await expect(apiClient.getCardStatus()).resolves.toEqual({
     status: 'ready',
     cardDetails: {
-      user: fakeElectionManagerUser({
+      user: mockElectionManagerUser({
         electionHash:
           electionFamousNames2021Fixtures.electionDefinition.electionHash,
         jurisdiction: DEV_JURISDICTION,

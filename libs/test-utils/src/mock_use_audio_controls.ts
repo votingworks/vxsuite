@@ -1,6 +1,6 @@
 import { AudioControls } from '@votingworks/types';
 
-export function fakeUseAudioControls(): jest.Mocked<AudioControls> {
+export function mockUseAudioControls(): jest.Mocked<AudioControls> {
   return {
     decreasePlaybackRate: jest.fn(),
     decreaseVolume: jest.fn(),

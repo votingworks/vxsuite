@@ -1,6 +1,6 @@
 import React from 'react';
 import {
-  fakeKiosk,
+  mockKiosk,
   mockOf,
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
@@ -34,7 +34,7 @@ let apiMock: ApiMock;
 beforeEach(() => {
   jest.useFakeTimers();
   apiMock = createApiMock();
-  window.kiosk = fakeKiosk();
+  window.kiosk = mockKiosk();
 });
 
 afterEach(() => {

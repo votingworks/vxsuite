@@ -63,7 +63,7 @@ export class ServerError extends Error {}
 export function createClient<Api extends AnyApi>(
   options: ClientOptions
 ): Client<Api> {
-  // We use a Proxy to create a client object that fakes the type of the API but
+  // We use a Proxy to create a client object that mocks the type of the API but
   // dynamically converts method calls into HTTP requests. When accessing
   // client.doSomething(), the variable methodName will be "doSomething" -
   // that's the magic of the Proxy!

@@ -1,5 +1,5 @@
 import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
-import { fakeReadable, fakeWritable, mockOf } from '@votingworks/test-utils';
+import { mockReadable, mockWritable, mockOf } from '@votingworks/test-utils';
 import { createImageData } from 'canvas';
 import { readFileSync } from 'fs';
 import { fileSync } from 'tmp';
@@ -21,9 +21,9 @@ jest.mock(
 
 test('--help', async () => {
   const io: Stdio = {
-    stdin: fakeReadable(),
-    stdout: fakeWritable(),
-    stderr: fakeWritable(),
+    stdin: mockReadable(),
+    stdout: mockWritable(),
+    stderr: mockWritable(),
   };
 
   expect(await main(['--help'], io)).toEqual(0);
@@ -36,9 +36,9 @@ test('--help', async () => {
 
 test('-h', async () => {
   const io: Stdio = {
-    stdin: fakeReadable(),
-    stdout: fakeWritable(),
-    stderr: fakeWritable(),
+    stdin: mockReadable(),
+    stdout: mockWritable(),
+    stderr: mockWritable(),
   };
 
   expect(await main(['-h'], io)).toEqual(0);
@@ -51,9 +51,9 @@ test('-h', async () => {
 
 test('missing output after --output', async () => {
   const io: Stdio = {
-    stdin: fakeReadable(),
-    stdout: fakeWritable(),
-    stderr: fakeWritable(),
+    stdin: mockReadable(),
+    stdout: mockWritable(),
+    stderr: mockWritable(),
   };
 
   const exitCode = await main(
@@ -75,9 +75,9 @@ test('missing output after --output', async () => {
 
 test('unexpected option', async () => {
   const io: Stdio = {
-    stdin: fakeReadable(),
-    stdout: fakeWritable(),
-    stderr: fakeWritable(),
+    stdin: mockReadable(),
+    stdout: mockWritable(),
+    stderr: mockWritable(),
   };
 
   const exitCode = await main(['--nope'], io);
@@ -91,9 +91,9 @@ test('unexpected option', async () => {
 
 test('unexpected argument', async () => {
   const io: Stdio = {
-    stdin: fakeReadable(),
-    stdout: fakeWritable(),
-    stderr: fakeWritable(),
+    stdin: mockReadable(),
+    stdout: mockWritable(),
+    stderr: mockWritable(),
   };
 
   const exitCode = await main(
@@ -110,9 +110,9 @@ test('unexpected argument', async () => {
 
 test('missing definition path', async () => {
   const io: Stdio = {
-    stdin: fakeReadable(),
-    stdout: fakeWritable(),
-    stderr: fakeWritable(),
+    stdin: mockReadable(),
+    stdout: mockWritable(),
+    stderr: mockWritable(),
   };
 
   const exitCode = await main(['front.jpeg', 'back.jpeg'], io);
@@ -126,9 +126,9 @@ test('missing definition path', async () => {
 
 test('missing front ballot path', async () => {
   const io: Stdio = {
-    stdin: fakeReadable(),
-    stdout: fakeWritable(),
-    stderr: fakeWritable(),
+    stdin: mockReadable(),
+    stdout: mockWritable(),
+    stderr: mockWritable(),
   };
 
   const exitCode = await main(['definition.xml'], io);
@@ -142,9 +142,9 @@ test('missing front ballot path', async () => {
 
 test('missing back ballot path', async () => {
   const io: Stdio = {
-    stdin: fakeReadable(),
-    stdout: fakeWritable(),
-    stderr: fakeWritable(),
+    stdin: mockReadable(),
+    stdout: mockWritable(),
+    stderr: mockWritable(),
   };
 
   const exitCode = await main(['definition.xml', 'front.jpeg'], io);
@@ -158,9 +158,9 @@ test('missing back ballot path', async () => {
 
 test('convert to stdout', async () => {
   const io: Stdio = {
-    stdin: fakeReadable(),
-    stdout: fakeWritable(),
-    stderr: fakeWritable(),
+    stdin: mockReadable(),
+    stdout: mockWritable(),
+    stderr: mockWritable(),
   };
 
   const { election } = electionGridLayoutNewHampshireHudsonFixtures;
@@ -193,9 +193,9 @@ test('convert to stdout', async () => {
 
 test('convert to file', async () => {
   const io: Stdio = {
-    stdin: fakeReadable(),
-    stdout: fakeWritable(),
-    stderr: fakeWritable(),
+    stdin: mockReadable(),
+    stdout: mockWritable(),
+    stderr: mockWritable(),
   };
 
   const { election } = electionGridLayoutNewHampshireHudsonFixtures;
@@ -233,9 +233,9 @@ test('convert to file', async () => {
 
 test('convert fails', async () => {
   const io: Stdio = {
-    stdin: fakeReadable(),
-    stdout: fakeWritable(),
-    stderr: fakeWritable(),
+    stdin: mockReadable(),
+    stdout: mockWritable(),
+    stderr: mockWritable(),
   };
 
   mockOf(convertElectionDefinition).mockReturnValue(

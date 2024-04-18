@@ -121,7 +121,7 @@ interface GenerateCvrsParams {
 }
 
 /**
- * Generate a fake page layout for a ballot.
+ * Generate a mock page layout for a ballot.
  */
 export function generateBallotPageLayouts(
   election: Election,

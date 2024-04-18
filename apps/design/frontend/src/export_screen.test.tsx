@@ -50,7 +50,7 @@ test('export all ballots', async () => {
   await screen.findByRole('heading', { name: 'Export' });
 
   apiMock.exportAllBallots.expectCallWith({ electionId }).resolves({
-    zipContents: Buffer.from('fake-zip-contents'),
+    zipContents: Buffer.from('mock-zip-contents'),
     electionHash: '1234567890abcdef',
   });
 
@@ -58,7 +58,7 @@ test('export all ballots', async () => {
 
   await waitFor(() => {
     expect(fileDownloadMock).toHaveBeenCalledWith(
-      Buffer.from('fake-zip-contents'),
+      Buffer.from('mock-zip-contents'),
       'ballots-1234567890.zip'
     );
   });
@@ -69,7 +69,7 @@ test('export test decks', async () => {
   await screen.findByRole('heading', { name: 'Export' });
 
   apiMock.exportTestDecks.expectCallWith({ electionId }).resolves({
-    zipContents: Buffer.from('fake-zip-contents'),
+    zipContents: Buffer.from('mock-zip-contents'),
     electionHash: '1234567890abcdef',
   });
 
@@ -77,7 +77,7 @@ test('export test decks', async () => {
 
   await waitFor(() => {
     expect(fileDownloadMock).toHaveBeenCalledWith(
-      Buffer.from('fake-zip-contents'),
+      Buffer.from('mock-zip-contents'),
       'test-decks-1234567890.zip'
     );
   });

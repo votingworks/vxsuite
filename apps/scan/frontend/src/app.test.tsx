@@ -2,7 +2,7 @@ import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import {
   advanceTimersAndPromises,
-  fakeSystemAdministratorUser,
+  mockSystemAdministratorUser,
   mockOf,
 } from '@votingworks/test-utils';
 import {
@@ -762,7 +762,7 @@ test('system administrator allowed to log in on unconfigured machine', async () 
 
   apiMock.setAuthStatus({
     status: 'checking_pin',
-    user: fakeSystemAdministratorUser(),
+    user: mockSystemAdministratorUser(),
   });
   await screen.findByText('Enter the card PIN');
 });

@@ -14,7 +14,7 @@ import { randomBallotId } from '@votingworks/utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { render as testRender } from './react_testing_library';
 import { BallotContext } from '../src/contexts/ballot_context';
-import { fakeMachineConfig } from './helpers/fake_machine_config';
+import { mockMachineConfig } from './helpers/mock_machine_config';
 
 export function render(
   component: React.ReactNode,
@@ -28,7 +28,7 @@ export function render(
     generateBallotId = randomBallotId,
     isCardlessVoter = false,
     isLiveMode = false,
-    machineConfig = fakeMachineConfig(),
+    machineConfig = mockMachineConfig(),
     precinctId,
     resetBallot = jest.fn(),
     updateTally = jest.fn(),

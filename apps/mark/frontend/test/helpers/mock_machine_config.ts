@@ -1,6 +1,6 @@
 import type { MachineConfig } from '@votingworks/mark-backend';
 
-export function fakeMachineConfig({
+export function mockMachineConfig({
   machineId = '000',
   codeVersion = 'test',
   screenOrientation = 'portrait',

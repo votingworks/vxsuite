@@ -36,8 +36,8 @@ export function resetExpectPrintToPdf(): void {
 }
 
 /**
- * Throws the provided error the next time that fakePrintElement, fakePrintElementToPdf, or
- * fakePrintElementWhenReady are called. Used to simulate errors we
+ * Throws the provided error the next time that mockPrintElement, mockPrintElementToPdf, or
+ * mockPrintElementWhenReady are called. Used to simulate errors we
  * may receive from the printer itself.
  */
 export function simulateErrorOnNextPrint(error: Error = new Error()): void {
@@ -77,7 +77,7 @@ function expectAllPrintsAsserted(message: string) {
   }
 }
 
-export async function fakePrintElement(
+export async function mockPrintElement(
   element: JSX.Element,
   printOptions: PrintOptions
 ): Promise<void> {
@@ -101,7 +101,7 @@ export async function fakePrintElement(
   return Promise.resolve();
 }
 
-export async function fakePrintElementToPdf(
+export async function mockPrintElementToPdf(
   element: JSX.Element
 ): Promise<Uint8Array> {
   expectAllPrintsAsserted(
@@ -120,7 +120,7 @@ export async function fakePrintElementToPdf(
   return Promise.resolve(new Uint8Array(0));
 }
 
-export async function fakePrintElementWhenReady(
+export async function mockPrintElementWhenReady(
   elementWithCallback: ElementWithCallback,
   printOptions: PrintOptions
 ): Promise<void> {
@@ -168,7 +168,7 @@ function getPrintRoot() {
 }
 
 /**
- * Renders the element passed to fakePrintElement and allows assertions
+ * Renders the element passed to mockPrintElement and allows assertions
  * against its content.
  *
  * @param inspect method which runs queries against the render result
@@ -187,7 +187,7 @@ function inspectPrintedElement(inspect: InspectPrintFunction): void {
 }
 
 /**
- * Renders the element passed to fakePrintElementToPdf and allows assertions
+ * Renders the element passed to mockPrintElementToPdf and allows assertions
  * against its content.
  *
  * @param inspect method which runs queries against the render result
@@ -206,7 +206,7 @@ function inspectPdfPrintedElement(inspect: InspectPrintFunction): void {
 }
 
 /**
- * Renders the element with callback passed to fakePrintElementWhenReady
+ * Renders the element with callback passed to mockPrintElementWhenReady
  * and allows assertions against its content.
  *
  * @param inspect method which runs queries against the render result

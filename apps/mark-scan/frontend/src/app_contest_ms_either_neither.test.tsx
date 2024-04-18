@@ -10,9 +10,9 @@ import {
   expectPrintToPdf,
   hasTextAcrossElements,
   PrintRenderResult,
-  fakePrintElement,
-  fakePrintElementWhenReady,
-  fakePrintElementToPdf,
+  mockPrintElement,
+  mockPrintElementWhenReady,
+  mockPrintElementToPdf,
 } from '@votingworks/test-utils';
 
 import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
@@ -35,9 +35,9 @@ import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
   ...jest.requireActual('@votingworks/ui'),
-  printElementWhenReady: fakePrintElementWhenReady,
-  printElement: fakePrintElement,
-  printElementToPdf: fakePrintElementToPdf,
+  printElementWhenReady: mockPrintElementWhenReady,
+  printElement: mockPrintElement,
+  printElementToPdf: mockPrintElementToPdf,
 }));
 
 let apiMock: ApiMock;

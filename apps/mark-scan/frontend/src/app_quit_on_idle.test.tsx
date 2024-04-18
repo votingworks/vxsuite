@@ -1,4 +1,4 @@
-import { fakeKiosk } from '@votingworks/test-utils';
+import { mockKiosk } from '@votingworks/test-utils';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';
@@ -22,7 +22,7 @@ beforeEach(() => {
   jest.useFakeTimers();
   createReactIdleTimerMocks();
   window.location.href = '/';
-  window.kiosk = fakeKiosk();
+  window.kiosk = mockKiosk();
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
   apiMock.setPaperHandlerState('waiting_for_ballot_data');

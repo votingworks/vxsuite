@@ -11,9 +11,9 @@ import {
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
-  fakeElectionManagerUser,
-  fakeSessionExpiresAt,
-  fakeSystemAdministratorUser,
+  mockElectionManagerUser,
+  mockSessionExpiresAt,
+  mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import type { MachineConfig } from '@votingworks/admin-backend';
 import {
@@ -91,16 +91,16 @@ export function renderInAppContext(
     auth = electionDefinition === 'NONE'
       ? {
           status: 'logged_in',
-          user: fakeSystemAdministratorUser(),
-          sessionExpiresAt: fakeSessionExpiresAt(),
+          user: mockSystemAdministratorUser(),
+          sessionExpiresAt: mockSessionExpiresAt(),
           programmableCard: { status: 'no_card' },
         }
       : {
           status: 'logged_in',
-          user: fakeElectionManagerUser({
+          user: mockElectionManagerUser({
             electionHash: electionDefinition.electionHash,
           }),
-          sessionExpiresAt: fakeSessionExpiresAt(),
+          sessionExpiresAt: mockSessionExpiresAt(),
         },
     machineConfig = {
       machineId: '0000',

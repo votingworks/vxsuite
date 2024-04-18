@@ -1,4 +1,4 @@
-import { fakeKiosk } from '@votingworks/test-utils';
+import { mockKiosk } from '@votingworks/test-utils';
 
 import { ElectronFile, mockUsbDriveStatus } from '@votingworks/ui';
 import userEvent from '@testing-library/user-event';
@@ -100,7 +100,7 @@ test('when USB is not present or valid', async () => {
 
 describe('when USB is properly mounted', () => {
   test('no files found screen & manual load', async () => {
-    window.kiosk = fakeKiosk();
+    window.kiosk = mockKiosk();
     const closeFn = jest.fn();
     apiMock.expectGetCastVoteRecordFileMode('unlocked');
     apiMock.expectGetCastVoteRecordFiles([]);

@@ -3,9 +3,9 @@ import {
   DippedSmartCardAuthApi,
 } from '@votingworks/auth';
 import {
-  fakeElectionManagerUser,
-  fakeSessionExpiresAt,
-  fakeSystemAdministratorUser,
+  mockElectionManagerUser,
+  mockSessionExpiresAt,
+  mockSystemAdministratorUser,
   mockOf,
   zipFile,
 } from '@votingworks/test-utils';
@@ -73,8 +73,8 @@ export function mockSystemAdministratorAuth(
 ): void {
   mockAuthStatus(auth, {
     status: 'logged_in',
-    user: fakeSystemAdministratorUser(),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockSystemAdministratorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
     programmableCard: { status: 'no_card' },
   });
 }
@@ -85,8 +85,8 @@ export function mockElectionManagerAuth(
 ): void {
   mockAuthStatus(auth, {
     status: 'logged_in',
-    user: fakeElectionManagerUser({ electionHash }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockElectionManagerUser({ electionHash }),
+    sessionExpiresAt: mockSessionExpiresAt(),
   });
 }
 

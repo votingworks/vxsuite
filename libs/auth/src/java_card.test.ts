@@ -5,9 +5,9 @@ import waitForExpect from 'wait-for-expect';
 import { assert } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
-  fakeElectionManagerUser,
-  fakePollWorkerUser,
-  fakeSystemAdministratorUser,
+  mockElectionManagerUser,
+  mockPollWorkerUser,
+  mockSystemAdministratorUser,
   mockOf,
 } from '@votingworks/test-utils';
 import { Byte, TEST_JURISDICTION } from '@votingworks/types';
@@ -85,9 +85,9 @@ afterEach(() => {
 });
 
 const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
-const systemAdministratorUser = fakeSystemAdministratorUser();
-const electionManagerUser = fakeElectionManagerUser({ electionHash });
-const pollWorkerUser = fakePollWorkerUser({ electionHash });
+const systemAdministratorUser = mockSystemAdministratorUser();
+const electionManagerUser = mockElectionManagerUser({ electionHash });
+const pollWorkerUser = mockPollWorkerUser({ electionHash });
 
 const mockChallenge = 'VotingWorks';
 function generateChallengeOverride(): string {

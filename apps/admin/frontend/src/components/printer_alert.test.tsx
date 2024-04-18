@@ -1,8 +1,8 @@
 import { PrinterRichStatus, PrinterStatus } from '@votingworks/types';
 import {
-  fakeElectionManagerUser,
-  fakeSessionExpiresAt,
-  fakeSystemAdministratorUser,
+  mockElectionManagerUser,
+  mockSessionExpiresAt,
+  mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 import {
@@ -44,16 +44,16 @@ const ALERT_STATUS: PrinterStatus = {
 function setElectionManagerAuth() {
   apiMock.setAuthStatus({
     status: 'logged_in',
-    user: fakeElectionManagerUser(),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockElectionManagerUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   });
 }
 
 function setSystemAdministratorAuth() {
   apiMock.setAuthStatus({
     status: 'logged_in',
-    user: fakeSystemAdministratorUser(),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockSystemAdministratorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
     programmableCard: { status: 'no_card' },
   });
 }

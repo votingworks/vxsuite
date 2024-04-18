@@ -4,7 +4,7 @@ import React from 'react';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { act, render, screen } from '../test/react_testing_library';
 import { VoterFlow } from './voter_flow';
-import { fakeMachineConfig } from '../test/helpers/fake_machine_config';
+import { mockMachineConfig } from '../test/helpers/mock_machine_config';
 import { Ballot } from './components/ballot';
 
 let setMockControllerHelpTriggered:
@@ -51,7 +51,7 @@ test('replaces screen with accessible controller sandbox when triggered', () => 
         electionDefinition,
         endVoterSession: jest.fn(),
         isLiveMode: true,
-        machineConfig: fakeMachineConfig(),
+        machineConfig: mockMachineConfig(),
         resetBallot: jest.fn(),
         stateMachineState: 'waiting_for_ballot_data',
         updateVote: jest.fn(),

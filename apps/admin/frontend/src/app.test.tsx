@@ -7,8 +7,8 @@ import {
 } from '@votingworks/fixtures';
 import { err } from '@votingworks/basics';
 import {
-  fakeElectionManagerUser,
-  fakeSessionExpiresAt,
+  mockElectionManagerUser,
+  mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 import {
   fireEvent,
@@ -131,7 +131,7 @@ test('authentication works', async () => {
   // Insert an election manager card and enter the wrong PIN.
   apiMock.setAuthStatus({
     status: 'checking_pin',
-    user: fakeElectionManagerUser({
+    user: mockElectionManagerUser({
       electionHash: eitherNeitherElectionDefinition.electionHash,
     }),
   });
@@ -145,7 +145,7 @@ test('authentication works', async () => {
   fireEvent.click(screen.getByText('1'));
   apiMock.setAuthStatus({
     status: 'checking_pin',
-    user: fakeElectionManagerUser({
+    user: mockElectionManagerUser({
       electionHash: eitherNeitherElectionDefinition.electionHash,
     }),
     wrongPinEnteredAt: new Date(),
@@ -164,7 +164,7 @@ test('authentication works', async () => {
   // Insert election manager card and enter correct PIN.
   apiMock.setAuthStatus({
     status: 'checking_pin',
-    user: fakeElectionManagerUser({
+    user: mockElectionManagerUser({
       electionHash: eitherNeitherElectionDefinition.electionHash,
     }),
   });
@@ -180,20 +180,20 @@ test('authentication works', async () => {
   // 'Remove Card' screen is shown after successful authentication.
   apiMock.setAuthStatus({
     status: 'remove_card',
-    user: fakeElectionManagerUser({
+    user: mockElectionManagerUser({
       electionHash: eitherNeitherElectionDefinition.electionHash,
     }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   });
   await screen.findByText('Remove card to unlock VxAdmin');
 
   // Machine is unlocked when card removed
   apiMock.setAuthStatus({
     status: 'logged_in',
-    user: fakeElectionManagerUser({
+    user: mockElectionManagerUser({
       electionHash: eitherNeitherElectionDefinition.electionHash,
     }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   });
   await screen.findByText('Lock Machine');
 

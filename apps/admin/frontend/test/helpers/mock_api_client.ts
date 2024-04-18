@@ -25,9 +25,9 @@ import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import { Buffer } from 'buffer';
 import {
   MockFunction,
-  fakeElectionManagerUser,
-  fakeSessionExpiresAt,
-  fakeSystemAdministratorUser,
+  mockElectionManagerUser,
+  mockSessionExpiresAt,
+  mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import {
   Admin,
@@ -154,8 +154,8 @@ export function createApiMock(
       await screen.findByText('VxAdmin is Locked');
       this.setAuthStatus({
         status: 'logged_in',
-        user: fakeSystemAdministratorUser(),
-        sessionExpiresAt: fakeSessionExpiresAt(),
+        user: mockSystemAdministratorUser(),
+        sessionExpiresAt: mockSessionExpiresAt(),
         programmableCard: { status: 'no_card' },
       });
       await screen.findByText('Lock Machine');
@@ -169,10 +169,10 @@ export function createApiMock(
 
       this.setAuthStatus({
         status: 'logged_in',
-        user: fakeElectionManagerUser({
+        user: mockElectionManagerUser({
           electionHash: electionDefinition.electionHash,
         }),
-        sessionExpiresAt: fakeSessionExpiresAt(),
+        sessionExpiresAt: mockSessionExpiresAt(),
       });
       await screen.findByText('Lock Machine');
     },

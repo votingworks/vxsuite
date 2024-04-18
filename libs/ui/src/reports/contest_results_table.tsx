@@ -45,7 +45,7 @@ const Contest = styled.div`
 
 const ContestTable = styled.table`
   width: 100%;
-  height: 1px; /* fake height, allows TallyContainer to stretch to full height */
+  height: 1px; /* mock height, allows TallyContainer to stretch to full height */
   border-collapse: collapse;
 
   & tr {

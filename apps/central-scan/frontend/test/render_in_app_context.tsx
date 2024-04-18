@@ -7,8 +7,8 @@ import React from 'react';
 import { Router } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
-  fakeElectionManagerUser,
-  fakeSessionExpiresAt,
+  mockElectionManagerUser,
+  mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { render, RenderResult } from './react_testing_library';
@@ -39,10 +39,10 @@ export function makeAppContext({
   usbDriveStatus = { status: 'no_drive' },
   auth = {
     status: 'logged_in',
-    user: fakeElectionManagerUser({
+    user: mockElectionManagerUser({
       electionHash: electionDefinition.electionHash,
     }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    sessionExpiresAt: mockSessionExpiresAt(),
   },
   logger = new BaseLogger(LogSource.VxCentralScanFrontend),
 }: Partial<AppContextInterface> = {}): AppContextInterface {

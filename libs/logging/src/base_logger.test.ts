@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { fakeKiosk } from '@votingworks/test-utils';
+import { mockKiosk } from '@votingworks/test-utils';
 import { LogEventId } from './log_event_ids';
 import { LogEventType } from './base_types/log_event_types';
 import { CLIENT_SIDE_LOG_SOURCES, LogSource } from './base_types/log_source';
@@ -31,7 +31,7 @@ test('logger logs server logs as expected', async () => {
 
 test('logger logs client logs as expected through kiosk browser with overridden message', async () => {
   console.log = jest.fn();
-  const kiosk = fakeKiosk();
+  const kiosk = mockKiosk();
   const logger = new BaseLogger(LogSource.VxAdminFrontend, kiosk);
   await logger.log(LogEventId.ElectionConfigured, 'election_manager', {
     message: 'On my tallest tiptoes',
@@ -56,7 +56,7 @@ test('logger logs client logs as expected through kiosk browser with overridden 
 
 test('defaults to default message when defined and no disposition', async () => {
   console.log = jest.fn();
-  const kiosk = fakeKiosk();
+  const kiosk = mockKiosk();
   const logger = new BaseLogger(LogSource.VxAdminFrontend, kiosk);
   await logger.log(LogEventId.ElectionUnconfigured, 'election_manager');
   expect(kiosk.log).toHaveBeenCalledTimes(1);

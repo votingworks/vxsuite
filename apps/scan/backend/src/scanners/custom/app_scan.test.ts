@@ -15,9 +15,9 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
-  fakeElectionManagerUser,
-  fakePollWorkerUser,
-  fakeSessionExpiresAt,
+  mockElectionManagerUser,
+  mockPollWorkerUser,
+  mockSessionExpiresAt,
   mockOf,
 } from '@votingworks/test-utils';
 import { doesUsbDriveRequireCastVoteRecordSync } from '@votingworks/backend';
@@ -502,8 +502,8 @@ test('scanning paused when election manager card is inserted', async () => {
       mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
         Promise.resolve({
           status: 'logged_in',
-          user: fakeElectionManagerUser(electionPackage.electionDefinition),
-          sessionExpiresAt: fakeSessionExpiresAt(),
+          user: mockElectionManagerUser(electionPackage.electionDefinition),
+          sessionExpiresAt: mockSessionExpiresAt(),
         })
       );
 
@@ -547,8 +547,8 @@ test('scanning paused when poll worker card is inserted', async () => {
       mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
         Promise.resolve({
           status: 'logged_in',
-          user: fakePollWorkerUser(electionPackage.electionDefinition),
-          sessionExpiresAt: fakeSessionExpiresAt(),
+          user: mockPollWorkerUser(electionPackage.electionDefinition),
+          sessionExpiresAt: mockSessionExpiresAt(),
         })
       );
 

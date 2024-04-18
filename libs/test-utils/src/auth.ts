@@ -8,7 +8,7 @@ import {
   TEST_JURISDICTION,
 } from '@votingworks/types';
 
-export function fakeSystemAdministratorUser(
+export function mockSystemAdministratorUser(
   props: Partial<SystemAdministratorUser> = {}
 ): SystemAdministratorUser {
   return {
@@ -18,7 +18,7 @@ export function fakeSystemAdministratorUser(
   };
 }
 
-export function fakeElectionManagerUser(
+export function mockElectionManagerUser(
   props: Partial<ElectionManagerUser> = {}
 ): ElectionManagerUser {
   return {
@@ -29,7 +29,7 @@ export function fakeElectionManagerUser(
   };
 }
 
-export function fakePollWorkerUser(
+export function mockPollWorkerUser(
   props: Partial<PollWorkerUser> = {}
 ): PollWorkerUser {
   return {
@@ -40,7 +40,7 @@ export function fakePollWorkerUser(
   };
 }
 
-export function fakeCardlessVoterUser(
+export function mockCardlessVoterUser(
   props: Partial<CardlessVoterUser> = {}
 ): CardlessVoterUser {
   return {
@@ -51,7 +51,7 @@ export function fakeCardlessVoterUser(
   };
 }
 
-export function fakeSessionExpiresAt(): Date {
+export function mockSessionExpiresAt(): Date {
   return DateTime.now()
     .plus({ hours: DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS })
     .toJSDate();

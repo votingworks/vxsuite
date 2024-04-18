@@ -4,8 +4,8 @@ import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
 import {
-  fakeElectionManagerUser,
-  fakeSessionExpiresAt,
+  mockElectionManagerUser,
+  mockSessionExpiresAt,
   mockOf,
 } from '@votingworks/test-utils';
 import {
@@ -75,8 +75,8 @@ export async function configureApp(
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
-      user: fakeElectionManagerUser(electionPackage.electionDefinition),
-      sessionExpiresAt: fakeSessionExpiresAt(),
+      user: mockElectionManagerUser(electionPackage.electionDefinition),
+      sessionExpiresAt: mockSessionExpiresAt(),
     })
   );
 

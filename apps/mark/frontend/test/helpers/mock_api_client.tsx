@@ -18,16 +18,16 @@ import {
   SystemSettings,
 } from '@votingworks/types';
 import {
-  fakeCardlessVoterUser,
-  fakeElectionManagerUser,
-  fakePollWorkerUser,
-  fakeSessionExpiresAt,
-  fakeSystemAdministratorUser,
+  mockCardlessVoterUser,
+  mockElectionManagerUser,
+  mockPollWorkerUser,
+  mockSessionExpiresAt,
+  mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import { err, ok, Result } from '@votingworks/basics';
 import { TestErrorBoundary } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { fakeMachineConfig } from './fake_machine_config';
+import { mockMachineConfig } from './mock_machine_config';
 import { initialElectionState } from '../../src/app_root';
 import { ApiProvider } from '../../src/api_provider';
 
@@ -93,8 +93,8 @@ export function createApiMock() {
     setAuthStatusSystemAdministratorLoggedIn() {
       setAuthStatus({
         status: 'logged_in',
-        user: fakeSystemAdministratorUser(),
-        sessionExpiresAt: fakeSessionExpiresAt(),
+        user: mockSystemAdministratorUser(),
+        sessionExpiresAt: mockSessionExpiresAt(),
       });
     },
 
@@ -103,10 +103,10 @@ export function createApiMock() {
     ) {
       setAuthStatus({
         status: 'logged_in',
-        user: fakeElectionManagerUser({
+        user: mockElectionManagerUser({
           electionHash: electionDefinition.electionHash,
         }),
-        sessionExpiresAt: fakeSessionExpiresAt(),
+        sessionExpiresAt: mockSessionExpiresAt(),
       });
     },
 
@@ -121,10 +121,10 @@ export function createApiMock() {
 
       setAuthStatus({
         status: 'logged_in',
-        user: fakePollWorkerUser({ electionHash }),
-        sessionExpiresAt: fakeSessionExpiresAt(),
+        user: mockPollWorkerUser({ electionHash }),
+        sessionExpiresAt: mockSessionExpiresAt(),
         cardlessVoterUser: cardlessVoterUserParams
-          ? fakeCardlessVoterUser(cardlessVoterUserParams)
+          ? mockCardlessVoterUser(cardlessVoterUserParams)
           : undefined,
       });
     },
@@ -134,8 +134,8 @@ export function createApiMock() {
     ) {
       setAuthStatus({
         status: 'logged_in',
-        user: fakeCardlessVoterUser(cardlessVoterUserParams),
-        sessionExpiresAt: fakeSessionExpiresAt(),
+        user: mockCardlessVoterUser(cardlessVoterUserParams),
+        sessionExpiresAt: mockSessionExpiresAt(),
       });
     },
 
@@ -163,7 +163,7 @@ export function createApiMock() {
     expectGetMachineConfig(props: Partial<MachineConfig> = {}): void {
       mockApiClient.getMachineConfig
         .expectCallWith()
-        .resolves(fakeMachineConfig(props));
+        .resolves(mockMachineConfig(props));
     },
 
     expectGetMachineConfigToError(): void {

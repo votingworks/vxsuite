@@ -1,9 +1,9 @@
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
-  fakeCardlessVoterUser,
-  fakeElectionManagerUser,
-  fakePollWorkerUser,
-  fakeSessionExpiresAt,
+  mockCardlessVoterUser,
+  mockElectionManagerUser,
+  mockPollWorkerUser,
+  mockSessionExpiresAt,
   mockOf,
 } from '@votingworks/test-utils';
 import { CardlessVoterUser, ElectionDefinition } from '@votingworks/types';
@@ -15,8 +15,8 @@ export function mockElectionManagerAuth(
   mockOf(auth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
-      user: fakeElectionManagerUser(electionDefinition),
-      sessionExpiresAt: fakeSessionExpiresAt(),
+      user: mockElectionManagerUser(electionDefinition),
+      sessionExpiresAt: mockSessionExpiresAt(),
     })
   );
 }
@@ -28,8 +28,8 @@ export function mockPollWorkerAuth(
   mockOf(auth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
-      user: fakePollWorkerUser(electionDefinition),
-      sessionExpiresAt: fakeSessionExpiresAt(),
+      user: mockPollWorkerUser(electionDefinition),
+      sessionExpiresAt: mockSessionExpiresAt(),
     })
   );
 }
@@ -41,8 +41,8 @@ export function mockCardlessVoterAuth(
   mockOf(auth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
-      user: fakeCardlessVoterUser(cardlessVoterProps),
-      sessionExpiresAt: fakeSessionExpiresAt(),
+      user: mockCardlessVoterUser(cardlessVoterProps),
+      sessionExpiresAt: mockSessionExpiresAt(),
     })
   );
 }

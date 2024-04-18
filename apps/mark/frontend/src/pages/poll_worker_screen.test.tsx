@@ -14,8 +14,8 @@ import {
   generateBallotStyleId,
 } from '@votingworks/utils';
 import {
-  fakePollWorkerUser,
-  fakeSessionExpiresAt,
+  mockPollWorkerUser,
+  mockSessionExpiresAt,
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
@@ -28,8 +28,8 @@ import { render } from '../../test/test_utils';
 import { defaultPrecinctId } from '../../test/helpers/election';
 
 import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen';
-import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
-import { fakeDevices } from '../../test/helpers/fake_devices';
+import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
+import { mockDevices } from '../../test/helpers/mock_devices';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { ApiProvider } from '../api_provider';
 
@@ -46,19 +46,19 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
-function fakePollWorkerAuth(
+function mockPollWorkerAuth(
   electionDefinition: ElectionDefinition
 ): InsertedSmartCardAuth.PollWorkerLoggedIn {
   return {
     status: 'logged_in',
-    user: fakePollWorkerUser({ electionHash: electionDefinition.electionHash }),
-    sessionExpiresAt: fakeSessionExpiresAt(),
+    user: mockPollWorkerUser({ electionHash: electionDefinition.electionHash }),
+    sessionExpiresAt: mockSessionExpiresAt(),
   };
 }
 
 function renderScreen(
   props: Partial<PollworkerScreenProps> = {},
-  pollWorkerAuth: InsertedSmartCardAuth.PollWorkerLoggedIn = fakePollWorkerAuth(
+  pollWorkerAuth: InsertedSmartCardAuth.PollWorkerLoggedIn = mockPollWorkerAuth(
     electionGeneralDefinition
   ),
   electionDefinition: ElectionDefinition = electionGeneralDefinition
@@ -75,9 +75,9 @@ function renderScreen(
         isLiveMode={false}
         pollsState="polls_open"
         ballotsPrintedCount={0}
-        machineConfig={fakeMachineConfig()}
+        machineConfig={mockMachineConfig()}
         hardware={MemoryHardware.buildStandard()}
-        devices={fakeDevices()}
+        devices={mockDevices()}
         reload={jest.fn()}
         {...props}
       />
@@ -100,7 +100,7 @@ test('switching out of test mode on election day', () => {
   });
   apiMock.expectSetTestMode(false);
   renderScreen({
-    pollWorkerAuth: fakePollWorkerAuth(electionDefinition),
+    pollWorkerAuth: mockPollWorkerAuth(electionDefinition),
     electionDefinition,
   });
 
@@ -152,7 +152,7 @@ test('navigates to System Diagnostics screen', () => {
 test('can toggle between vote activation and "other actions" during polls open', async () => {
   renderScreen({
     pollsState: 'polls_open',
-    machineConfig: fakeMachineConfig(),
+    machineConfig: mockMachineConfig(),
   });
 
   // confirm we start with polls open
@@ -186,8 +186,8 @@ test('displays only default English ballot styles', async () => {
   };
   renderScreen({
     pollsState: 'polls_open',
-    machineConfig: fakeMachineConfig(),
-    pollWorkerAuth: fakePollWorkerAuth(electionDefinition),
+    machineConfig: mockMachineConfig(),
+    pollWorkerAuth: mockPollWorkerAuth(electionDefinition),
     electionDefinition,
   });
 

@@ -1,9 +1,9 @@
-import { fakeKiosk } from '@votingworks/test-utils';
+import { mockKiosk } from '@votingworks/test-utils';
 import { getPrinter, LocalPrinter, NullPrinter } from '.';
 
 test('`getPrinter` makes a kiosk printer if kiosk printing is available', async () => {
   try {
-    window.kiosk = fakeKiosk();
+    window.kiosk = mockKiosk();
     await getPrinter().print({ sides: 'one-sided' });
     expect(window.kiosk.print).toHaveBeenCalledTimes(1);
   } finally {

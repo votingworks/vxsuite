@@ -1,10 +1,10 @@
 import userEvent from '@testing-library/user-event';
 import {
   expectPrint,
-  fakeElectionManagerUser,
-  fakeKiosk,
-  fakePrintElement,
-  fakePrintElementWhenReady,
+  mockElectionManagerUser,
+  mockKiosk,
+  mockPrintElement,
+  mockPrintElementWhenReady,
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import { MemoryHardware, singlePrecinctSelectionFor } from '@votingworks/utils';
@@ -31,18 +31,18 @@ import { configureFromUsbThenRemove } from '../test/helpers/election_package';
 
 jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
   ...jest.requireActual('@votingworks/ui'),
-  printElementWhenReady: fakePrintElementWhenReady,
-  printElement: fakePrintElement,
+  printElementWhenReady: mockPrintElementWhenReady,
+  printElement: mockPrintElement,
 }));
 
 let apiMock: ApiMock;
-let kiosk = fakeKiosk();
+let kiosk = mockKiosk();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   apiMock = createApiMock();
-  kiosk = fakeKiosk();
+  kiosk = mockKiosk();
   window.kiosk = kiosk;
 });
 
@@ -86,7 +86,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Insert election manager card and enter incorrect PIN
   apiMock.setAuthStatus({
     status: 'checking_pin',
-    user: fakeElectionManagerUser(electionDefinition),
+    user: mockElectionManagerUser(electionDefinition),
   });
   await screen.findByText('Enter the card PIN');
   apiMock.mockApiClient.checkPin.expectCallWith({ pin: '111111' }).resolves();
@@ -98,7 +98,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   userEvent.click(screen.getByText('1'));
   apiMock.setAuthStatus({
     status: 'checking_pin',
-    user: fakeElectionManagerUser({ electionHash }),
+    user: mockElectionManagerUser({ electionHash }),
     wrongPinEnteredAt: new Date(),
   });
   await screen.findByText('Incorrect PIN. Please try again.');
