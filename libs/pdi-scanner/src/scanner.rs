@@ -9,11 +9,7 @@ use std::{
 
 use rusb::UsbContext;
 
-use crate::{
-    protocol::parsers,
-    rusb_async::{self, Error},
-    Result,
-};
+use crate::{protocol::parsers, rusb_async, Result};
 
 use super::protocol::packets::{self, Incoming};
 
@@ -64,7 +60,7 @@ impl Scanner {
     ) -> (
         Sender<(usize, packets::Outgoing)>,
         Receiver<usize>,
-        Receiver<packets::Incoming>,
+        Receiver<Result<packets::Incoming>>,
     ) {
         /// The endpoint for sending commands to the scanner.
         const ENDPOINT_OUT: u8 = 0x05;
@@ -143,7 +139,7 @@ impl Scanner {
                             match parsers::any_incoming(&data) {
                                 Ok(([], packet)) => {
                                     tracing::debug!("Received incoming packet: {packet:?}");
-                                    scanner_to_host_tx.send(packet).unwrap();
+                                    scanner_to_host_tx.send(Ok(packet)).unwrap();
                                 }
                                 Ok((remaining, packet)) => {
                                     tracing::warn!(
@@ -152,7 +148,7 @@ impl Scanner {
                                         remaining = String::from_utf8_lossy(remaining)
                                     );
                                     scanner_to_host_tx
-                                        .send(Incoming::Unknown(data.to_vec()))
+                                        .send(Ok(Incoming::Unknown(data.to_vec())))
                                         .unwrap();
                                 }
                                 Err(err) => {
@@ -161,7 +157,7 @@ impl Scanner {
                                         data = String::from_utf8_lossy(&data)
                                     );
                                     scanner_to_host_tx
-                                        .send(Incoming::Unknown(data.to_vec()))
+                                        .send(Ok(Incoming::Unknown(data.to_vec())))
                                         .unwrap();
                                 }
                             }
@@ -174,9 +170,8 @@ impl Scanner {
                         }
                         Err(rusb_async::Error::PollTimeout) => {}
                         Err(err) => {
-                            if !matches!(err, Error::Cancelled) {
-                                tracing::error!("Error while polling primary IN endpoint: {err}");
-                            }
+                            tracing::error!("Error while polling primary IN endpoint: {err}");
+                            scanner_to_host_tx.send(Err(err.into())).unwrap();
                             break;
                         }
                     }
@@ -187,7 +182,7 @@ impl Scanner {
                         Ok(data) => {
                             tracing::debug!("Received image data: {len} bytes", len = data.len());
                             scanner_to_host_tx
-                                .send(packets::Incoming::ImageData(data.clone()))
+                                .send(Ok(packets::Incoming::ImageData(data.clone())))
                                 .unwrap();
 
                             // resubmit the transfer to receive more data
@@ -197,9 +192,8 @@ impl Scanner {
                         }
                         Err(rusb_async::Error::PollTimeout) => {}
                         Err(err) => {
-                            if !matches!(err, Error::Cancelled) {
-                                tracing::error!("Error while polling image data endpoint: {err}");
-                            }
+                            tracing::error!("Error while polling image data endpoint: {err}");
+                            scanner_to_host_tx.send(Err(err.into())).unwrap();
                             break;
                         }
                     }
@@ -219,7 +213,10 @@ impl Scanner {
     /// dropped.
     pub fn stop(&mut self) {
         if let Some(stop_tx) = self.stop_tx.take() {
-            stop_tx.send(()).unwrap();
+            // send will only error if its receiver has been dropped, which
+            // means the scanner is already cleaned up, so it's safe to ignore
+            // the error here.
+            let _ = stop_tx.send(());
         }
 
         if let Some(thread_handle) = self.thread_handle.take() {

@@ -57,7 +57,7 @@ pub struct Client<T> {
     unhandled_packets: VecDeque<Incoming>,
     host_to_scanner_tx: mpsc::Sender<(usize, Outgoing)>,
     host_to_scanner_ack_rx: mpsc::Receiver<usize>,
-    scanner_to_host_rx: mpsc::Receiver<Incoming>,
+    scanner_to_host_rx: mpsc::Receiver<Result<Incoming>>,
 
     // we only hold on to the scanner handle so that it doesn't get dropped
     #[allow(dead_code)]
@@ -69,7 +69,7 @@ impl<T> Client<T> {
     pub fn new(
         host_to_scanner_tx: mpsc::Sender<(usize, Outgoing)>,
         host_to_scanner_ack_rx: mpsc::Receiver<usize>,
-        scanner_to_host_rx: mpsc::Receiver<Incoming>,
+        scanner_to_host_rx: mpsc::Receiver<Result<Incoming>>,
         scanner_handle: Option<T>,
     ) -> Self {
         Self {
@@ -463,11 +463,12 @@ impl<T> Client<T> {
         }
 
         match self.scanner_to_host_rx.try_recv()? {
-            packet if predicate(&packet) => Ok(packet),
-            packet => {
+            Ok(packet) if predicate(&packet) => Ok(packet),
+            Ok(packet) => {
                 self.unhandled_packets.push_back(packet);
                 Err(Error::TryRecvError(mpsc::TryRecvError::Empty))
             }
+            err => err,
         }
     }
 
@@ -505,8 +506,9 @@ impl<T> Client<T> {
                 .scanner_to_host_rx
                 .recv_timeout(deadline.saturating_duration_since(Instant::now()))?
             {
-                packet if predicate(&packet) => return Ok(packet),
-                packet => self.unhandled_packets.push_back(packet),
+                Ok(packet) if predicate(&packet) => return Ok(packet),
+                Ok(packet) => self.unhandled_packets.push_back(packet),
+                err => return err,
             }
         }
     }
