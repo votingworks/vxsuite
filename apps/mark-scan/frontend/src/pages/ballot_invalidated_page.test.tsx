@@ -9,7 +9,7 @@ import { BallotInvalidatedPage } from './ballot_invalidated_page';
 import {
   mockCardlessVoterLoggedInAuth,
   mockPollWorkerAuth,
-} from '../../test/helpers/fake_auth';
+} from '../../test/helpers/mock_auth';
 
 let apiMock: ApiMock;
 beforeEach(() => {

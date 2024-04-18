@@ -7,7 +7,7 @@ import { EmptyBallotBoxPage } from './empty_ballot_box_page';
 import {
   mockCardlessVoterLoggedInAuth,
   mockPollWorkerAuth,
-} from '../../test/helpers/fake_auth';
+} from '../../test/helpers/mock_auth';
 
 let apiMock: ApiMock;
 

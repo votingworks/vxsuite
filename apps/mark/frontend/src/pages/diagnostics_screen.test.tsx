@@ -8,7 +8,7 @@ import {
   DiagnosticsScreen,
   DiagnosticsScreenProps,
 } from './diagnostics_screen';
-import { mockDevices } from '../../test/helpers/fake_devices';
+import { mockDevices } from '../../test/helpers/mock_devices';
 import { AccessibleControllerDiagnosticScreen } from './accessible_controller_diagnostic_screen';
 
 jest.mock(

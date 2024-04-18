@@ -14,7 +14,7 @@ import { randomBallotId } from '@votingworks/utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { render as testRender } from './react_testing_library';
 import { BallotContext } from '../src/contexts/ballot_context';
-import { mockMachineConfig } from './helpers/fake_machine_config';
+import { mockMachineConfig } from './helpers/mock_machine_config';
 
 export function render(
   component: React.ReactNode,

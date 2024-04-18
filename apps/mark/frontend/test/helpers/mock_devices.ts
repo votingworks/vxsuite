@@ -1,4 +1,7 @@
-import { mockDevices, mockPrinterInfo } from '@votingworks/test-utils';
+import {
+  mockDevices as genericMockDevices,
+  mockPrinterInfo,
+} from '@votingworks/test-utils';
 import { Devices } from '@votingworks/ui';
 
 interface PartialDevices {
@@ -15,6 +18,6 @@ export function mockDevices(devices: PartialDevices = {}): Devices {
       batteryIsCharging: true,
       ...(devices.computer ?? {}),
     },
-    accessibleController: mockDevices(devices.accessibleController),
+    accessibleController: genericMockDevices(devices.accessibleController),
   };
 }

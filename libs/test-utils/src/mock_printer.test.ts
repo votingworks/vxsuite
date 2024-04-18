@@ -1,4 +1,4 @@
-import { mockPrinter } from './fake_printer';
+import { mockPrinter } from './mock_printer';
 
 test('mockPrinter will use the provided print callback', async () => {
   const printFn = jest.fn();

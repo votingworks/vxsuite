@@ -4,7 +4,7 @@ import {
 } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { screen } from '../../test/react_testing_library';
-import { mockMachineConfig } from '../../test/helpers/fake_machine_config';
+import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
 import { render } from '../../test/test_utils';
 import {
   ReplaceElectionScreen,

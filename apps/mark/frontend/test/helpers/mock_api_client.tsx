@@ -27,7 +27,7 @@ import {
 import { err, ok, Result } from '@votingworks/basics';
 import { TestErrorBoundary } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { mockMachineConfig } from './fake_machine_config';
+import { mockMachineConfig } from './mock_machine_config';
 import { initialElectionState } from '../../src/app_root';
 import { ApiProvider } from '../../src/api_provider';
 

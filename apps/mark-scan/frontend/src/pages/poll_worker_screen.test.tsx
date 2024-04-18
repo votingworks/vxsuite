@@ -23,12 +23,12 @@ import { fireEvent, screen } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
 
 import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen';
-import { mockMachineConfig } from '../../test/helpers/fake_machine_config';
+import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import {
   mockCardlessVoterAuth,
   mockPollWorkerAuth,
-} from '../../test/helpers/fake_auth';
+} from '../../test/helpers/mock_auth';
 import { ApiProvider } from '../api_provider';
 
 const { election } = electionGeneralDefinition;

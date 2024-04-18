@@ -4,7 +4,7 @@ import React from 'react';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { act, render, screen } from '../test/react_testing_library';
 import { VoterFlow } from './voter_flow';
-import { mockMachineConfig } from '../test/helpers/fake_machine_config';
+import { mockMachineConfig } from '../test/helpers/mock_machine_config';
 import { Ballot } from './components/ballot';
 
 let setMockControllerHelpTriggered:

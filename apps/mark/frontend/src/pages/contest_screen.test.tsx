@@ -3,7 +3,7 @@ import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
 import { screen } from '../../test/react_testing_library';
-import { mockMachineConfig } from '../../test/helpers/fake_machine_config';
+import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
 
 import { render as renderWithBallotContext } from '../../test/test_utils';
 
