@@ -4,6 +4,7 @@ import { createInterface } from 'readline';
 import {
   Deferred,
   Result,
+  assert,
   assertDefined,
   deferred,
   err,
@@ -72,9 +73,9 @@ export type ScannerError =
  * received by adding a listener to the client.
  */
 export type ScannerEvent =
-  | ({ type: 'error' } & ScannerError)
-  | { type: 'scanStart' }
-  | { type: 'scanComplete'; images: SheetOf<ImageData> };
+  | ({ event: 'error' } & ScannerError)
+  | { event: 'scanStart' }
+  | { event: 'scanComplete'; images: SheetOf<ImageData> };
 
 /**
  * An event listener for any {@link ScannerEvent} emitted by the scanner.
@@ -90,41 +91,57 @@ export type EjectMotion = 'toRear' | 'toFront' | 'toFrontAndHold';
  * Internal type to represent the JSON commands sent to `pdictl`
  */
 type PdictlCommand =
-  | { type: 'exit' }
-  | { type: 'connect' }
-  | { type: 'disconnect' }
-  | { type: 'getScannerStatus' }
-  | { type: 'enableScanning' }
-  | { type: 'disableScanning' }
+  | { command: 'exit' }
+  | { command: 'connect' }
+  | { command: 'disconnect' }
+  | { command: 'getScannerStatus' }
+  | { command: 'enableScanning' }
+  | { command: 'disableScanning' }
   | {
-      type: 'ejectDocument';
+      command: 'ejectDocument';
       ejectMotion: EjectMotion;
     };
 
 /**
- * Internal type to represent the JSON responses received from `pdictl`. A
- * response can be received in response to a command, or as an unsolicited
- * event.
+ * Internal type to represent the JSON messages received from `pdictl` in
+ * response to commands.
  */
 type PdictlResponse =
-  | { type: 'ok' }
-  | ({ type: 'error' } & ScannerError)
-  | { type: 'scannerStatus'; status: ScannerStatus }
-  | { type: 'scanStart' }
-  | { type: 'scanComplete'; imageData: [string, string] };
+  | { response: 'ok' }
+  | ({ response: 'error' } & ScannerError)
+  | { response: 'scannerStatus'; status: ScannerStatus };
+
+/**
+ * Internal type to represent the JSON messages received from `pdictl` as
+ * unsolicited events (i.e. not in response to a command).
+ */
+type PdictlEvent =
+  | ({ event: 'error' } & ScannerError)
+  | { event: 'scanStart' }
+  | { event: 'scanComplete'; imageData: [string, string] };
+
+type PdictlMessage = PdictlResponse | PdictlEvent;
 
 type SimpleResult = Result<void, ScannerError>;
 
-function loggableResponse(response: PdictlResponse) {
-  if (response.type === 'scanComplete') {
+function isEvent(message: PdictlMessage): message is PdictlEvent {
+  return 'event' in message;
+}
+
+function isResponse(message: PdictlMessage): message is PdictlResponse {
+  return 'response' in message;
+}
+
+function loggableMessage(message: PdictlMessage) {
+  if (isEvent(message) && message.event === 'scanComplete') {
     return {
-      ...response,
-      imageData: response.imageData.map(
+      ...message,
+      imageData: message.imageData.map(
         (imageData) => `${imageData.length} bytes`
       ),
     };
   }
-  return response;
+  return message;
 }
 
 /**
@@ -156,50 +173,45 @@ export function createPdiScannerClient() {
   // command or an unsolicited event.
   const rl = createInterface(pdictl.stdout);
   rl.on('line', (line) => {
-    const response = JSON.parse(line) as PdictlResponse;
-    debug('received: %o', loggableResponse(response));
+    const message = JSON.parse(line) as PdictlMessage;
+    debug('received: %o', loggableMessage(message));
 
-    switch (response.type) {
-      case 'scanStart': {
-        emit(response);
-        break;
-      }
-      case 'scanComplete': {
-        emit({
-          type: 'scanComplete',
-          images: mapSheet(response.imageData, (imageData) => {
-            const buffer = Buffer.from(imageData, 'base64');
-            const grayscaleImage = createImageData(
-              Uint8ClampedArray.from(buffer),
-              SCAN_IMAGE_WIDTH,
-              buffer.length / SCAN_IMAGE_WIDTH
-            );
-            return fromGrayScale(
-              grayscaleImage.data,
-              grayscaleImage.width,
-              grayscaleImage.height
-            );
-          }),
-        });
-        break;
-      }
-      case 'error': {
-        if (pendingResponse) {
-          pendingResponse.resolve(response);
-          pendingResponse = undefined;
-        } else {
-          emit(response);
+    if (isResponse(message)) {
+      pendingResponse?.resolve(message);
+      pendingResponse = undefined;
+    } else {
+      assert(isEvent(message));
+      switch (message.event) {
+        case 'scanStart': {
+          emit(message);
+          break;
         }
-        break;
-      }
-      case 'ok':
-      case 'scannerStatus': {
-        pendingResponse?.resolve(response);
-        pendingResponse = undefined;
-        break;
-      }
-      default: {
-        throwIllegalValue(response, 'type');
+        case 'scanComplete': {
+          emit({
+            event: 'scanComplete',
+            images: mapSheet(message.imageData, (imageData) => {
+              const buffer = Buffer.from(imageData, 'base64');
+              const grayscaleImage = createImageData(
+                Uint8ClampedArray.from(buffer),
+                SCAN_IMAGE_WIDTH,
+                buffer.length / SCAN_IMAGE_WIDTH
+              );
+              return fromGrayScale(
+                grayscaleImage.data,
+                grayscaleImage.width,
+                grayscaleImage.height
+              );
+            }),
+          });
+          break;
+        }
+        case 'error': {
+          emit(message);
+          break;
+        }
+        default: {
+          throwIllegalValue(message, 'event');
+        }
       }
     }
   });
@@ -216,13 +228,13 @@ export function createPdiScannerClient() {
   async function sendCommand(command: PdictlCommand): Promise<PdictlResponse> {
     if (pdictlIsClosed) {
       return {
-        type: 'error',
+        response: 'error',
         code: 'disconnected',
       };
     }
     if (pendingResponse) {
       return {
-        type: 'error',
+        response: 'error',
         code: 'commandInProgress',
       };
     }
@@ -236,16 +248,16 @@ export function createPdiScannerClient() {
   async function sendSimpleCommand(
     command: PdictlCommand
   ): Promise<SimpleResult> {
-    const response = await sendCommand(command);
-    switch (response.type) {
+    const result = await sendCommand(command);
+    switch (result.response) {
       case 'ok':
         return ok();
       case 'error':
-        return err(response);
+        return err(result);
       default:
         return err({
           code: 'other',
-          message: `Unexpected response: ${response.type}`,
+          message: `Unexpected response: ${result.response}`,
         });
     }
   }
@@ -270,23 +282,23 @@ export function createPdiScannerClient() {
      * Connects to the scanner. Must be called before any other commands.
      */
     async connect(): Promise<SimpleResult> {
-      return sendSimpleCommand({ type: 'connect' });
+      return sendSimpleCommand({ command: 'connect' });
     },
 
     /**
      * Queries the current {@link ScannerStatus} from the scanner.
      */
     async getScannerStatus(): Promise<Result<ScannerStatus, ScannerError>> {
-      const response = await sendCommand({ type: 'getScannerStatus' });
-      switch (response.type) {
+      const result = await sendCommand({ command: 'getScannerStatus' });
+      switch (result.response) {
         case 'scannerStatus':
-          return ok(response.status);
+          return ok(result.status);
         case 'error':
-          return err(response);
+          return err(result);
         default:
           return err({
             code: 'other',
-            message: `Unexpected response: ${response.type}`,
+            message: `Unexpected response: ${result.response}`,
           });
       }
     },
@@ -296,14 +308,14 @@ export function createPdiScannerClient() {
      * automatically scan any document inserted into the scanner.
      */
     async enableScanning(): Promise<SimpleResult> {
-      return sendSimpleCommand({ type: 'enableScanning' });
+      return sendSimpleCommand({ command: 'enableScanning' });
     },
 
     /**
      * Disables the scanner's feeder, preventing it from feeding any documents.
      */
     async disableScanning(): Promise<SimpleResult> {
-      return sendSimpleCommand({ type: 'disableScanning' });
+      return sendSimpleCommand({ command: 'disableScanning' });
     },
 
     /**
@@ -312,14 +324,14 @@ export function createPdiScannerClient() {
      * will happen.
      */
     async ejectDocument(ejectMotion: EjectMotion): Promise<SimpleResult> {
-      return sendSimpleCommand({ type: 'ejectDocument', ejectMotion });
+      return sendSimpleCommand({ command: 'ejectDocument', ejectMotion });
     },
 
     /**
      * Disconnects pdictl from the scanner, but keeps it running.
      */
     async disconnect(): Promise<SimpleResult> {
-      return sendSimpleCommand({ type: 'disconnect' });
+      return sendSimpleCommand({ command: 'disconnect' });
     },
 
     /**
@@ -327,7 +339,7 @@ export function createPdiScannerClient() {
      * disconnect and shutdown.
      */
     async exit(): Promise<SimpleResult> {
-      const command: PdictlCommand = { type: 'exit' };
+      const command: PdictlCommand = { command: 'exit' };
       pdictl.stdin.write(JSON.stringify(command));
       pdictl.stdin.write('\n');
       debug('sent:', command);
