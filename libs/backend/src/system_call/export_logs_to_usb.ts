@@ -49,6 +49,7 @@ async function exportLogsToUsbHelper({
   try {
     await execFile('mkdir', ['-p', machineNamePath]);
     await execFile('cp', ['-r', LOG_DIR, destinationDirectory]);
+    await execFile('sync', [status.mountPoint]);
   } catch {
     return err('copy-failed');
   }
