@@ -2,11 +2,10 @@ import * as path from 'path';
 import { spawn } from 'child_process';
 import { createInterface } from 'readline';
 import {
-  Deferred,
   Result,
   assert,
   assertDefined,
-  deferred,
+  deferredQueue,
   err,
   ok,
   throwIllegalValue,
@@ -165,9 +164,9 @@ export function createPdiScannerClient() {
     }
   }
 
-  // pdictl only processes one command at a time, so once we send a command, we
-  // can wait on a single response.
-  let pendingResponse: Deferred<PdictlResponse> | undefined;
+  // pdictl queues the commands it receives and only processes one command at a
+  // time, so we track the commands we sent in a queue.
+  const pendingResponseQueue = deferredQueue<PdictlResponse>();
 
   // Listen for output from pdictl. We may receive either a response to a
   // command or an unsolicited event.
@@ -177,41 +176,41 @@ export function createPdiScannerClient() {
     debug('received: %o', loggableMessage(message));
 
     if (isResponse(message)) {
-      pendingResponse?.resolve(message);
-      pendingResponse = undefined;
-    } else {
-      assert(isEvent(message));
-      switch (message.event) {
-        case 'scanStart': {
-          emit(message);
-          break;
-        }
-        case 'scanComplete': {
-          emit({
-            event: 'scanComplete',
-            images: mapSheet(message.imageData, (imageData) => {
-              const buffer = Buffer.from(imageData, 'base64');
-              const grayscaleImage = createImageData(
-                Uint8ClampedArray.from(buffer),
-                SCAN_IMAGE_WIDTH,
-                buffer.length / SCAN_IMAGE_WIDTH
-              );
-              return fromGrayScale(
-                grayscaleImage.data,
-                grayscaleImage.width,
-                grayscaleImage.height
-              );
-            }),
-          });
-          break;
-        }
-        case 'error': {
-          emit(message);
-          break;
-        }
-        default: {
-          throwIllegalValue(message, 'event');
-        }
+      pendingResponseQueue.resolve(message);
+      return;
+    }
+
+    assert(isEvent(message));
+    switch (message.event) {
+      case 'scanStart': {
+        emit(message);
+        break;
+      }
+      case 'scanComplete': {
+        emit({
+          event: 'scanComplete',
+          images: mapSheet(message.imageData, (imageData) => {
+            const buffer = Buffer.from(imageData, 'base64');
+            const grayscaleImage = createImageData(
+              Uint8ClampedArray.from(buffer),
+              SCAN_IMAGE_WIDTH,
+              buffer.length / SCAN_IMAGE_WIDTH
+            );
+            return fromGrayScale(
+              grayscaleImage.data,
+              grayscaleImage.width,
+              grayscaleImage.height
+            );
+          }),
+        });
+        break;
+      }
+      case 'error': {
+        emit(message);
+        break;
+      }
+      default: {
+        throwIllegalValue(message, 'event');
       }
     }
   });
@@ -232,17 +231,11 @@ export function createPdiScannerClient() {
         code: 'disconnected',
       };
     }
-    if (pendingResponse) {
-      return {
-        response: 'error',
-        code: 'commandInProgress',
-      };
-    }
-    pendingResponse = deferred();
+    const pendingResponse = pendingResponseQueue.get();
     pdictl.stdin.write(JSON.stringify(command));
     pdictl.stdin.write('\n');
     debug('sent:', command);
-    return pendingResponse.promise;
+    return pendingResponse;
   }
 
   async function sendSimpleCommand(

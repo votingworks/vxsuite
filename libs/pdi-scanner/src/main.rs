@@ -197,7 +197,8 @@ fn main() -> color_eyre::Result<()> {
     let config = Config::parse();
     setup(&config)?;
 
-    // Listen for commands from stdin in a child thread
+    // Listen for commands from stdin in a child thread, since reading from
+    // stdin is blocking.
     let (stdin_tx, stdin_rx) = std::sync::mpsc::channel();
     std::thread::spawn(move || loop {
         let mut buffer = String::new();
@@ -218,8 +219,11 @@ fn main() -> color_eyre::Result<()> {
     let mut scan_in_progress = false;
 
     // Main loop:
-    // - Process any commands received on stdin
-    // - Process any events or image data received from the scanner
+    // - Process any commands received on stdin. Note that our command
+    // processing is blocking, so we are guaranteed to only process one command
+    // at a time. Additional commands will be queued up in the channel.
+    // - Process any events or image data received from the scanner. These could
+    // be sent by the scanner at any time.
     loop {
         match stdin_rx.try_recv() {
             Ok(command) => {
