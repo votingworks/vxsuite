@@ -7,7 +7,7 @@ import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { safeParseInt } from '@votingworks/types';
 import { FujitsuThermalPrinter, getFujitsuThermalPrinter } from './printer';
-import { SpeedSetting } from './driver';
+import { QualitySetting, SpeedSetting } from './driver';
 
 /**
  * Command line interface for interacting with the paper handler driver.
@@ -21,6 +21,7 @@ enum Command {
   Print = 'print',
   PrintFixture = 'print-fixture',
   SetSpeed = 'set-speed',
+  SetQuality = 'set-quality',
 }
 const commandList = Object.values(Command);
 
@@ -28,10 +29,11 @@ function printUsage() {
   console.log(`Usage:\n`);
   console.log(`    status (get printer status)`);
   console.log(`    poll (poll printer status)`);
-  console.log(`    print-fixture (print example report)`);
-  console.log(`    print <path> (print from file, 8.5in wide PDF)`);
+  console.log(`    print-fixture <times> (print example report)`);
+  console.log(`    print <path> <times> (print from file, 8.5in wide PDF)`);
   console.log(`    advance <millimeters> (move the paper forward)`);
   console.log(`    set-speed <11|12|13|14|15|21|22|23|24|25>`);
+  console.log(`    set-quality <high|normal>`);
 }
 
 function printFromFile(printer: FujitsuThermalPrinter, path: string) {
@@ -41,6 +43,19 @@ function printFromFile(printer: FujitsuThermalPrinter, path: string) {
   }
 
   return printer.print(readFileSync(path));
+}
+
+function getTimesFromArg(timesArg?: string): number {
+  if (!timesArg) {
+    return 1;
+  }
+
+  const timesArgParseResult = safeParseInt(timesArg);
+  if (!timesArgParseResult.isOk()) {
+    return 1;
+  }
+
+  return timesArgParseResult.ok();
 }
 
 const fixturePath = join(
@@ -59,6 +74,11 @@ const speedMapping: Record<number, SpeedSetting> = {
   23: SpeedSetting.Type2Mode3,
   24: SpeedSetting.Type2Mode4,
   25: SpeedSetting.Type2Mode5,
+};
+
+const qualityMapping: Record<string, QualitySetting> = {
+  high: QualitySetting.LongTermStorage,
+  normal: QualitySetting.Normal,
 };
 
 async function handleCommand(
@@ -85,11 +105,16 @@ async function handleCommand(
         printUsage();
         break;
       }
-      await printFromFile(printer, path);
+
+      for (let i = 0; i < getTimesFromArg(args[1]); i += 1) {
+        await printFromFile(printer, path);
+      }
       break;
     }
     case Command.PrintFixture:
-      await printFromFile(printer, fixturePath);
+      for (let i = 0; i < getTimesFromArg(args[0]); i += 1) {
+        await printFromFile(printer, fixturePath);
+      }
       break;
     case Command.PollStatus:
       setInterval(async () => {
@@ -108,6 +133,21 @@ async function handleCommand(
         break;
       }
       await printer.setSpeed(speed);
+      break;
+    }
+    case Command.SetQuality: {
+      const key = args[0];
+      if (!key) {
+        printUsage();
+        break;
+      }
+
+      const quality = qualityMapping[key];
+      if (!quality) {
+        printUsage();
+        break;
+      }
+      await printer.setQuality(quality);
       break;
     }
     default:

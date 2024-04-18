@@ -78,3 +78,13 @@ export const SetSpeedSettingCommand = message({
   command: literal(0x1b, 0x73),
   speed: uint8(),
 });
+
+export enum QualitySetting {
+  LongTermStorage = 0x03,
+  Normal = 0x04,
+}
+
+export const SetQualityCommand = message({
+  command: literal(0x1d, 0x45),
+  quality: uint8(),
+});

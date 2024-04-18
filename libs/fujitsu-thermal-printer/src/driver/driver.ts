@@ -13,6 +13,8 @@ import {
   FeedForwardCommand,
   SpeedSetting,
   SetSpeedSettingCommand,
+  QualitySetting,
+  SetQualityCommand,
 } from './coders';
 import { Uint16toUint8, Uint8 } from '../bits';
 import { CompressedBitImage } from './types';
@@ -57,6 +59,7 @@ export interface FujitsuThermalPrinterDriverInterface {
   printBitImage(bitImage: CompressedBitImage): void;
   feedForward(dots: number): Promise<void>;
   setSpeed(speed: SpeedSetting): Promise<void>;
+  setQuality(quality: QualitySetting): Promise<void>;
 }
 
 export class FujitsuThermalPrinterDriver
@@ -192,6 +195,11 @@ export class FujitsuThermalPrinterDriver
   async setSpeed(speed: SpeedSetting): Promise<void> {
     debug(`setting speed to ${SpeedSetting[speed]}...`);
     await this.transferOut(SetSpeedSettingCommand, { speed });
+  }
+
+  async setQuality(quality: QualitySetting): Promise<void> {
+    debug(`setting quality to ${QualitySetting[quality]}...`);
+    await this.transferOut(SetQualityCommand, { quality });
   }
 }
 
