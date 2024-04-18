@@ -216,7 +216,7 @@ impl Scanner {
             // send will only error if its receiver has been dropped, which
             // means the scanner is already cleaned up, so it's safe to ignore
             // the error here.
-            stop_tx.send(()).ok();
+            let _ = stop_tx.send(());
         }
 
         if let Some(thread_handle) = self.thread_handle.take() {
