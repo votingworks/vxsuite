@@ -75,7 +75,6 @@ export function ValidateBallotPage(): JSX.Element | null {
           <Button
             id={PageNavigationButtonId.PREVIOUS}
             variant="danger"
-            icon="Danger"
             onPress={invalidateBallotCallback}
           >
             {appStrings.buttonBallotIsIncorrect()}
