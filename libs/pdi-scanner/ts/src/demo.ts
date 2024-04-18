@@ -1,16 +1,9 @@
 import { sleep } from '@votingworks/basics';
-import { ScannerClient, createPdiScannerClient } from './scanner_client';
-
-let scannerClient: ScannerClient;
-let interrupted = false;
-
-process.on('SIGINT', () => {
-  interrupted = true;
-});
+import { createPdiScannerClient } from './scanner_client';
 
 // eslint-disable-next-line vx/gts-jsdoc
 export async function main(): Promise<void> {
-  scannerClient = createPdiScannerClient();
+  const scannerClient = createPdiScannerClient();
   (await scannerClient.connect()).unsafeUnwrap();
 
   let status = (await scannerClient.getScannerStatus()).unsafeUnwrap();
@@ -24,9 +17,7 @@ export async function main(): Promise<void> {
     (await scannerClient.enableScanning()).unsafeUnwrap();
   }
 
-  while (!interrupted) {
+  for (;;) {
     await sleep(1000);
   }
-
-  (await scannerClient.exit()).unsafeUnwrap();
 }

@@ -22,6 +22,8 @@ const PDICTL_PATH = path.join(
   'target/release/pdictl'
 );
 
+const SCAN_IMAGE_WIDTH = 1728;
+
 /**
  * The status of the PDI scanner.
  */
@@ -117,9 +119,9 @@ function loggableResponse(response: PdictlResponse) {
   if (response.type === 'scanComplete') {
     return {
       ...response,
-      imageData: response.imageData.map((imageData) => {
-        return `${imageData.length} bytes`;
-      }),
+      imageData: response.imageData.map(
+        (imageData) => `${imageData.length} bytes`
+      ),
     };
   }
   return response;
@@ -136,7 +138,7 @@ function loggableResponse(response: PdictlResponse) {
  */
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function createPdiScannerClient() {
-  const pdictl = spawn(PDICTL_PATH, { detached: true });
+  const pdictl = spawn(PDICTL_PATH);
   let pdictlIsClosed = false;
 
   let listeners: Listener[] = [];
@@ -155,7 +157,7 @@ export function createPdiScannerClient() {
   const rl = createInterface(pdictl.stdout);
   rl.on('line', (line) => {
     const response = JSON.parse(line) as PdictlResponse;
-    debug('received:', loggableResponse(response));
+    debug('received: %o', loggableResponse(response));
 
     switch (response.type) {
       case 'scanStart': {
@@ -169,8 +171,8 @@ export function createPdiScannerClient() {
             const buffer = Buffer.from(imageData, 'base64');
             const grayscaleImage = createImageData(
               Uint8ClampedArray.from(buffer),
-              1728,
-              buffer.length / 1728
+              SCAN_IMAGE_WIDTH,
+              buffer.length / SCAN_IMAGE_WIDTH
             );
             return fromGrayScale(
               grayscaleImage.data,
