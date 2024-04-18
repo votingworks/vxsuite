@@ -1,9 +1,9 @@
 import { createImageData, writeImageData } from '@votingworks/image-utils';
 import {
-  FakeReadable,
-  fakeReadable,
-  FakeWritable,
-  fakeWritable,
+  MockReadable,
+  mockReadable,
+  MockWritable,
+  mockWritable,
 } from '@votingworks/test-utils';
 import { SheetOf } from '@votingworks/types';
 import { Optional, throwIllegalValue } from '@votingworks/basics';
@@ -151,9 +151,9 @@ export function makeMockScanner(): MockScanner {
 }
 
 export interface MockChildProcess extends ChildProcess {
-  stdin: FakeWritable;
-  stdout: FakeReadable;
-  stderr: FakeReadable;
+  stdin: MockWritable;
+  stdout: MockReadable;
+  stderr: MockReadable;
 }
 
 /**
@@ -162,9 +162,9 @@ export interface MockChildProcess extends ChildProcess {
 export function makeMockChildProcess(): MockChildProcess {
   const result: Partial<ChildProcess> = {
     pid: Math.floor(Math.random() * 10_000),
-    stdin: fakeWritable(),
-    stdout: fakeReadable(),
-    stderr: fakeReadable(),
+    stdin: mockWritable(),
+    stdout: mockReadable(),
+    stderr: mockReadable(),
   };
 
   return Object.assign(new EventEmitter(), result) as MockChildProcess;

@@ -2,7 +2,7 @@ import {
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireTestBallotFixtures,
 } from '@votingworks/fixtures';
-import { fakeReadable, fakeWritable } from '@votingworks/test-utils';
+import { mockReadable, mockWritable } from '@votingworks/test-utils';
 import {
   CVR,
   CastVoteRecordBatchMetadata,
@@ -28,9 +28,9 @@ const electionDefinitionPathNhTestBallot =
 async function run(
   args: string[]
 ): Promise<{ exitCode: number; stdout: string; stderr: string }> {
-  const stdin = fakeReadable();
-  const stdout = fakeWritable();
-  const stderr = fakeWritable();
+  const stdin = mockReadable();
+  const stdout = mockWritable();
+  const stderr = mockWritable();
 
   const exitCode = await main(
     [process.argv0, resolve(__dirname, './main'), ...args],

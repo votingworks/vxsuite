@@ -1,11 +1,11 @@
 import { Buffer } from 'buffer';
-import { fakeChildProcess, fakeReadable, fakeWritable } from './child_process';
+import { fakeChildProcess, mockReadable, mockWritable } from './child_process';
 
-test('fakeReadable', () => {
+test('mockReadable', () => {
   const onReadable = jest.fn();
   const onData = jest.fn();
   const onEnd = jest.fn();
-  const readable = fakeReadable()
+  const readable = mockReadable()
     .on('readable', onReadable)
     .on('data', onData)
     .on('end', onEnd);
@@ -44,8 +44,8 @@ test('fakeReadable', () => {
   expect(onEnd).toHaveBeenCalledTimes(1);
 });
 
-test('fakeWritable', async () => {
-  const writable = fakeWritable();
+test('mockWritable', async () => {
+  const writable = mockWritable();
   expect(writable.toBuffer()).toEqual(Buffer.of());
   expect(writable.toString()).toEqual('');
 

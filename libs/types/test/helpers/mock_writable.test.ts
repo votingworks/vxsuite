@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import { mockWritable } from './mock_writable';
 
-test('fakeWritable', async () => {
+test('mockWritable', async () => {
   const writable = mockWritable();
   expect(writable.toBuffer()).toEqual(Buffer.of());
   expect(writable.toString()).toEqual('');
