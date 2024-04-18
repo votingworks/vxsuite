@@ -46,6 +46,28 @@ test('candidate contest with no votes', () => {
   expect(screen.getByText('You may still vote in this contest.')).toBeTruthy();
 });
 
+test('candidate contest interpretation result with no votes', () => {
+  const contest = find(
+    electionGeneral.contests,
+    (c): c is CandidateContest => c.type === 'candidate'
+  );
+
+  render(
+    <Review
+      contests={[contest]}
+      election={electionGeneral}
+      isInterpretationResult
+      precinctId={electionGeneral.precincts[0].id}
+      returnToContest={jest.fn()}
+      votes={{}}
+    />
+  );
+
+  within(screen.getByTestId(`contest-wrapper-${contest.id}`)).getByText(
+    'no selection'
+  );
+});
+
 test('candidate contest with votes but still undervoted', () => {
   const contest: CandidateContest = {
     ...find(
@@ -68,9 +90,7 @@ test('candidate contest with votes but still undervoted', () => {
     />
   );
 
-  screen.getByText(
-    hasTextAcrossElements(/votes remaining in this contest: 2/i)
-  );
+  screen.getByText(hasTextAcrossElements(/number of unused votes: 2/i));
 });
 
 test('candidate contest fully voted', () => {
@@ -131,6 +151,23 @@ describe('yesno contest', () => {
       expect(returnToContest).toHaveBeenCalledWith(contest.id);
     }
   );
+
+  test('empty vote interpretation result', () => {
+    render(
+      <Review
+        election={electionGeneral}
+        contests={[contest]}
+        isInterpretationResult
+        precinctId={electionGeneral.precincts[0].id}
+        returnToContest={jest.fn()}
+        votes={{}}
+      />
+    );
+
+    within(screen.getByTestId(`contest-wrapper-${contest.id}`)).getByText(
+      'no selection'
+    );
+  });
 });
 
 describe('ms-either-neither contest', () => {
@@ -149,6 +186,7 @@ describe('ms-either-neither contest', () => {
   const contests = mergeMsEitherNeitherContests(
     electionDefinition.election.contests
   );
+  const mergedContest = find(contests, (c) => c.type === 'ms-either-neither');
 
   test.each([
     [eitherNeitherContest.yesOption.id, pickOneContest.yesOption.id],
@@ -171,7 +209,6 @@ describe('ms-either-neither contest', () => {
       />
     );
 
-    const mergedContest = find(contests, (c) => c.type === 'ms-either-neither');
     const contestVoteSummary = within(
       screen.getByTestId(`contest-${mergedContest.id}`)
     );
@@ -194,6 +231,23 @@ describe('ms-either-neither contest', () => {
     if (!eitherNeitherVote || !pickOneVote) {
       contestVoteSummary.getByText('You may still vote in this contest.');
     }
+  });
+
+  test('empty vote in interpretation result', () => {
+    render(
+      <Review
+        contests={[mergedContest]}
+        election={electionDefinition.election}
+        isInterpretationResult
+        precinctId={electionDefinition.election.precincts[0].id}
+        returnToContest={jest.fn()}
+        votes={{}}
+      />
+    );
+
+    within(screen.getByTestId(`contest-${mergedContest.id}`)).getByText(
+      'no selection'
+    );
   });
 });
 

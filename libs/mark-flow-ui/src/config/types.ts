@@ -42,18 +42,21 @@ export interface BallotContextInterface {
 export interface CandidateContestResultInterface {
   contest: CandidateContest;
   election: Election;
+  isInterpretationResult?: boolean;
   precinctId: PrecinctId;
   vote: CandidateVote;
 }
 export interface YesNoContestResultInterface {
   contest: YesNoContest;
   election: Election;
+  isInterpretationResult?: boolean;
   vote: OptionalYesNoVote;
 }
 export interface MsEitherNeitherContestResultInterface {
   contest: MsEitherNeitherContest;
   election: Election;
   eitherNeitherContestVote: OptionalYesNoVote;
+  isInterpretationResult?: boolean;
   pickOneContestVote: OptionalYesNoVote;
 }
 

@@ -102,6 +102,7 @@ export function ValidateBallotPage(): JSX.Element | null {
           precinctId={precinctId}
           votes={votes}
           selectionsAreEditable={false}
+          isInterpretationResult
         />
       </WithScrollButtons>
     </VoterScreen>
