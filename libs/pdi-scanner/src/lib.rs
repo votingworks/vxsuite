@@ -1,6 +1,6 @@
 pub mod client;
 pub mod protocol;
-mod rusb_async;
+pub mod rusb_async;
 pub mod scanner;
 mod types;
 

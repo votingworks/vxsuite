@@ -2,6 +2,7 @@ use clap::Parser;
 use image::EncodableLayout;
 use std::{
     io::{self, Write},
+    sync::mpsc,
     time::Duration,
 };
 use tracing_subscriber::prelude::*;
@@ -18,6 +19,7 @@ use pdi_scanner::{
             ScanSideMode, Status,
         },
     },
+    rusb_async,
     scanner::Scanner,
     Error, UsbError,
 };
@@ -144,7 +146,8 @@ fn send_response(response: &Response) -> color_eyre::Result<()> {
 fn send_error(error: &Error) -> color_eyre::Result<()> {
     let coded_error = match error {
         Error::Usb(UsbError::Rusb(rusb::Error::NotFound))
-        | Error::Usb(UsbError::Rusb(rusb::Error::Io)) => Response::Error {
+        | Error::Usb(UsbError::Rusb(rusb::Error::Io))
+        | Error::Usb(UsbError::RusbAsync(rusb_async::Error::Stall)) => Response::Error {
             code: ErrorCode::Disconnected,
             message: None,
         },
@@ -305,76 +308,87 @@ fn main() -> color_eyre::Result<()> {
             }
         }
 
-        if let Some(client) = &mut client {
-            if let Ok(event) = client.try_recv_matching(Incoming::is_event) {
-                eprintln!("event: {:?}", event);
-                match event {
-                    Incoming::BeginScanEvent => {
-                        scan_in_progress = true;
-                        raw_image_data = RawImageData::new();
-                        send_response(&Response::ScanStart)?;
-                    }
-                    Incoming::EndScanEvent => {
-                        match raw_image_data
-                            .try_decode_scan(DEFAULT_IMAGE_WIDTH, ScanSideMode::Duplex)
-                        {
-                            Ok(Sheet::Duplex(top, bottom)) => {
-                                match (top.to_image(), bottom.to_image()) {
-                                    (Some(top_image), Some(bottom_image)) => {
-                                        send_response(&Response::ScanComplete {
-                                            image_data: (
-                                                STANDARD.encode(top_image.as_bytes()),
-                                                STANDARD.encode(bottom_image.as_bytes()),
-                                            ),
-                                        })?;
-                                    }
-                                    (Some(_), None) => {
-                                        send_response(&Response::Error {
-                                            code: ErrorCode::ScanFailed,
-                                            message: Some(
-                                                "failed to decode bottom image".to_owned(),
-                                            ),
-                                        })?;
-                                    }
-                                    (None, Some(_)) => {
-                                        send_response(&Response::Error {
-                                            code: ErrorCode::ScanFailed,
-                                            message: Some("failed to decode top image".to_owned()),
-                                        })?;
-                                    }
-                                    (None, None) => {
-                                        send_response(&Response::Error {
-                                            code: ErrorCode::ScanFailed,
-                                            message: Some(
-                                                "failed to decode top and bottom images".to_owned(),
-                                            ),
-                                        })?;
-                                    }
+        if let Some(c) = &mut client {
+            match c.try_recv_matching(Incoming::is_event) {
+                Ok(Incoming::BeginScanEvent) => {
+                    scan_in_progress = true;
+                    raw_image_data = RawImageData::new();
+                    send_response(&Response::ScanStart)?;
+                }
+                Ok(Incoming::EndScanEvent) => {
+                    match raw_image_data.try_decode_scan(DEFAULT_IMAGE_WIDTH, ScanSideMode::Duplex)
+                    {
+                        Ok(Sheet::Duplex(top, bottom)) => {
+                            match (top.to_image(), bottom.to_image()) {
+                                (Some(top_image), Some(bottom_image)) => {
+                                    send_response(&Response::ScanComplete {
+                                        image_data: (
+                                            STANDARD.encode(top_image.as_bytes()),
+                                            STANDARD.encode(bottom_image.as_bytes()),
+                                        ),
+                                    })?;
+                                }
+                                (Some(_), None) => {
+                                    send_response(&Response::Error {
+                                        code: ErrorCode::ScanFailed,
+                                        message: Some("failed to decode bottom image".to_owned()),
+                                    })?;
+                                }
+                                (None, Some(_)) => {
+                                    send_response(&Response::Error {
+                                        code: ErrorCode::ScanFailed,
+                                        message: Some("failed to decode top image".to_owned()),
+                                    })?;
+                                }
+                                (None, None) => {
+                                    send_response(&Response::Error {
+                                        code: ErrorCode::ScanFailed,
+                                        message: Some(
+                                            "failed to decode top and bottom images".to_owned(),
+                                        ),
+                                    })?;
                                 }
                             }
-                            Ok(_) => unreachable!(
-                                "try_decode_scan called with {:?} returned non-duplex sheet",
-                                ScanSideMode::Duplex
-                            ),
-                            Err(e) => {
-                                send_response(&Response::Error {
-                                    code: ErrorCode::ScanFailed,
-                                    message: Some(format!(
-                                        "failed to decode the scanned image data: {e}"
-                                    )),
-                                })?;
-                            }
                         }
-                        scan_in_progress = false;
+                        Ok(_) => unreachable!(
+                            "try_decode_scan called with {:?} returned non-duplex sheet",
+                            ScanSideMode::Duplex
+                        ),
+                        Err(e) => {
+                            send_response(&Response::Error {
+                                code: ErrorCode::ScanFailed,
+                                message: Some(format!(
+                                    "failed to decode the scanned image data: {e}"
+                                )),
+                            })?;
+                        }
                     }
-                    _ => {}
+                    scan_in_progress = false;
                 }
+                Ok(event) => {
+                    tracing::info!("unhandled event: {event:?}");
+                }
+                Err(Error::TryRecvError(mpsc::TryRecvError::Empty)) => {}
+                Err(Error::TryRecvError(mpsc::TryRecvError::Disconnected)) => {
+                    tracing::debug!("scanner channel disconnected");
+                    client = None;
+                }
+                Err(e) => send_error(&e)?,
             }
+        }
 
-            if let Ok(Incoming::ImageData(image_data)) =
-                client.try_recv_matching(|incoming| matches!(incoming, Incoming::ImageData(_)))
-            {
-                raw_image_data.extend_from_slice(&image_data);
+        if let Some(c) = &mut client {
+            match c.try_recv_matching(|incoming| matches!(incoming, Incoming::ImageData(_))) {
+                Ok(Incoming::ImageData(image_data)) => {
+                    raw_image_data.extend_from_slice(&image_data);
+                }
+                Ok(_) => unreachable!(),
+                Err(Error::TryRecvError(mpsc::TryRecvError::Empty)) => {}
+                Err(Error::TryRecvError(mpsc::TryRecvError::Disconnected)) => {
+                    tracing::debug!("scanner channel disconnected");
+                    client = None;
+                }
+                Err(e) => send_error(&e)?,
             }
         }
     }
