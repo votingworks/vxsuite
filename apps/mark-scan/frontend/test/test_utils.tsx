@@ -15,7 +15,7 @@ import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { render as testRender } from './react_testing_library';
 
 import { BallotContext } from '../src/contexts/ballot_context';
-import { fakeMachineConfig } from './helpers/fake_machine_config';
+import { mockMachineConfig } from './helpers/fake_machine_config';
 import { ApiMock, createApiMock } from './helpers/mock_api_client';
 import { ApiProvider } from '../src/api_provider';
 
@@ -31,7 +31,7 @@ export function render(
     generateBallotId = randomBallotId,
     isCardlessVoter = false,
     isLiveMode = false,
-    machineConfig = fakeMachineConfig(),
+    machineConfig = mockMachineConfig(),
     precinctId,
     resetBallot = jest.fn(),
     updateVote = jest.fn(),

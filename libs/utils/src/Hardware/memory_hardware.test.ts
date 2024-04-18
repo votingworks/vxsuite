@@ -1,4 +1,4 @@
-import { fakeDevice } from '@votingworks/test-utils';
+import { mockDevices } from '@votingworks/test-utils';
 import { MemoryHardware } from './memory_hardware';
 
 it('has a standard config with all the typical hardware', async () => {
@@ -35,12 +35,12 @@ it('has no connected devices by default', async () => {
 
 it('does not have devices that have not been added', () => {
   const hardware = MemoryHardware.build();
-  expect(hardware.hasDevice(fakeDevice())).toEqual(false);
+  expect(hardware.hasDevice(mockDevices())).toEqual(false);
 });
 
 it('has devices that have been added', () => {
   const hardware = MemoryHardware.build();
-  const device = fakeDevice();
+  const device = mockDevices();
 
   hardware.addDevice(device);
   expect(hardware.hasDevice(device)).toEqual(true);
@@ -48,7 +48,7 @@ it('has devices that have been added', () => {
 
 it('sets connected to true by adding a missing device', () => {
   const hardware = MemoryHardware.build();
-  const device = fakeDevice();
+  const device = mockDevices();
 
   jest.spyOn(hardware, 'addDevice');
   hardware.setDeviceConnected(device, true);
@@ -58,7 +58,7 @@ it('sets connected to true by adding a missing device', () => {
 
 it('does nothing when setting connected to true for an already added device', () => {
   const hardware = MemoryHardware.build();
-  const device = fakeDevice();
+  const device = mockDevices();
 
   hardware.addDevice(device);
   jest.spyOn(hardware, 'addDevice');
@@ -69,7 +69,7 @@ it('does nothing when setting connected to true for an already added device', ()
 
 it('sets connected to false by removing a connected device', () => {
   const hardware = MemoryHardware.build();
-  const device = fakeDevice();
+  const device = mockDevices();
 
   hardware.addDevice(device);
   jest.spyOn(hardware, 'removeDevice');
@@ -80,7 +80,7 @@ it('sets connected to false by removing a connected device', () => {
 
 it('does nothing when setting connected to false for an already missing device', () => {
   const hardware = MemoryHardware.build();
-  const device = fakeDevice();
+  const device = mockDevices();
 
   jest.spyOn(hardware, 'removeDevice');
   hardware.setDeviceConnected(device, false);
@@ -91,7 +91,7 @@ it('does nothing when setting connected to false for an already missing device',
 it('triggers callbacks when adding devices', () => {
   const hardware = MemoryHardware.build();
   const callback = jest.fn();
-  const device = fakeDevice();
+  const device = mockDevices();
 
   hardware.devices.subscribe(callback);
   hardware.addDevice(device);
@@ -101,7 +101,7 @@ it('triggers callbacks when adding devices', () => {
 it('triggers callbacks when removing devices', () => {
   const hardware = MemoryHardware.build();
   const callback = jest.fn();
-  const device = fakeDevice();
+  const device = mockDevices();
 
   hardware.addDevice(device);
 
@@ -114,7 +114,7 @@ it('triggers callbacks when removing devices', () => {
 
 it('throws when adding the same device twice', () => {
   const hardware = MemoryHardware.build();
-  const device = fakeDevice();
+  const device = mockDevices();
 
   hardware.addDevice(device);
   expect(() => hardware.addDevice(device)).toThrowError(/already added/);
@@ -122,7 +122,7 @@ it('throws when adding the same device twice', () => {
 
 it('throws when removing a device that was never added', () => {
   const hardware = MemoryHardware.build();
-  const device = fakeDevice();
+  const device = mockDevices();
 
   expect(() => hardware.removeDevice(device)).toThrowError(/never added/);
 });
@@ -130,7 +130,7 @@ it('throws when removing a device that was never added', () => {
 it('allows unsubscribing from a device subscription', () => {
   const hardware = MemoryHardware.build();
   const callback = jest.fn();
-  const device = fakeDevice();
+  const device = mockDevices();
 
   const unsubscribe = hardware.devices.subscribe(callback);
   unsubscribe();

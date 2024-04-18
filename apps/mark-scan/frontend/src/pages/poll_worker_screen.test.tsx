@@ -23,7 +23,7 @@ import { fireEvent, screen } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
 
 import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen';
-import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
+import { mockMachineConfig } from '../../test/helpers/fake_machine_config';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import {
   mockCardlessVoterAuth,
@@ -70,7 +70,7 @@ function renderScreen(
         isLiveMode={false}
         pollsState="polls_open"
         ballotsPrintedCount={0}
-        machineConfig={fakeMachineConfig()}
+        machineConfig={mockMachineConfig()}
         reload={jest.fn()}
         precinctSelection={singlePrecinctSelectionFor(
           electionDefinition.election.precincts[0].id
@@ -131,7 +131,7 @@ test('live mode on election day', () => {
 test('can toggle between vote activation and "other actions" during polls open', async () => {
   renderScreen({
     pollsState: 'polls_open',
-    machineConfig: fakeMachineConfig(),
+    machineConfig: mockMachineConfig(),
   });
 
   // confirm we start with polls open
@@ -154,7 +154,7 @@ test('returns instruction page if status is `waiting_for_ballot_data`', async ()
   renderScreen({
     pollsState: 'polls_open',
     pollWorkerAuth,
-    machineConfig: fakeMachineConfig(),
+    machineConfig: mockMachineConfig(),
     electionDefinition,
   });
 
@@ -169,7 +169,7 @@ test('returns null if status is unhandled', () => {
   renderScreen({
     pollsState: 'polls_open',
     pollWorkerAuth,
-    machineConfig: fakeMachineConfig(),
+    machineConfig: mockMachineConfig(),
     electionDefinition,
   });
 
@@ -189,7 +189,7 @@ test('renders a warning screen when hardware check is off', async () => {
   renderScreen({
     pollsState: 'polls_open',
     pollWorkerAuth,
-    machineConfig: fakeMachineConfig(),
+    machineConfig: mockMachineConfig(),
     electionDefinition,
   });
 
@@ -215,7 +215,7 @@ test('displays only default English ballot styles', async () => {
   };
   renderScreen({
     pollsState: 'polls_open',
-    machineConfig: fakeMachineConfig(),
+    machineConfig: mockMachineConfig(),
     pollWorkerAuth: mockPollWorkerAuth(electionDefinition),
     electionDefinition,
   });

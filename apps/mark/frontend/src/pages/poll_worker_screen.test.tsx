@@ -28,8 +28,8 @@ import { render } from '../../test/test_utils';
 import { defaultPrecinctId } from '../../test/helpers/election';
 
 import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen';
-import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
-import { fakeDevices } from '../../test/helpers/fake_devices';
+import { mockMachineConfig } from '../../test/helpers/fake_machine_config';
+import { mockDevices } from '../../test/helpers/fake_devices';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { ApiProvider } from '../api_provider';
 
@@ -75,9 +75,9 @@ function renderScreen(
         isLiveMode={false}
         pollsState="polls_open"
         ballotsPrintedCount={0}
-        machineConfig={fakeMachineConfig()}
+        machineConfig={mockMachineConfig()}
         hardware={MemoryHardware.buildStandard()}
-        devices={fakeDevices()}
+        devices={mockDevices()}
         reload={jest.fn()}
         {...props}
       />
@@ -152,7 +152,7 @@ test('navigates to System Diagnostics screen', () => {
 test('can toggle between vote activation and "other actions" during polls open', async () => {
   renderScreen({
     pollsState: 'polls_open',
-    machineConfig: fakeMachineConfig(),
+    machineConfig: mockMachineConfig(),
   });
 
   // confirm we start with polls open
@@ -186,7 +186,7 @@ test('displays only default English ballot styles', async () => {
   };
   renderScreen({
     pollsState: 'polls_open',
-    machineConfig: fakeMachineConfig(),
+    machineConfig: mockMachineConfig(),
     pollWorkerAuth: mockPollWorkerAuth(electionDefinition),
     electionDefinition,
   });

@@ -1,6 +1,6 @@
 import {
   expectPrintToPdf,
-  fakeKiosk,
+  mockKiosk,
   mockOf,
   mockPrintElement,
   mockPrintElementWhenReady,
@@ -20,7 +20,7 @@ import { singleSeatContestWithWriteIn } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
-let kiosk = fakeKiosk();
+let kiosk = mockKiosk();
 
 jest.mock(
   '@votingworks/mark-flow-ui',
@@ -72,7 +72,7 @@ function setUpMockContestPage() {
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
-  kiosk = fakeKiosk();
+  kiosk = mockKiosk();
   window.kiosk = kiosk;
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();

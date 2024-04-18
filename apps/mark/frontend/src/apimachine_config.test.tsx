@@ -19,7 +19,7 @@ afterEach(() => {
 
 test('machineConfig is fetched from api client by default', async () => {
   apiMock.expectGetMachineConfig({
-    codeVersion: 'fake-code-version',
+    codeVersion: 'mock-code-version',
   });
   apiMock.expectGetElectionDefinition(
     electionFamousNames2021Fixtures.electionDefinition
@@ -31,5 +31,5 @@ test('machineConfig is fetched from api client by default', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(
     electionFamousNames2021Fixtures.electionDefinition
   );
-  await screen.findByText('fake-code-version');
+  await screen.findByText('mock-code-version');
 });

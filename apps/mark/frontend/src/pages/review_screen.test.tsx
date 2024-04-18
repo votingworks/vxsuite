@@ -3,7 +3,7 @@ import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { createMemoryHistory } from 'history';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
 import { screen } from '../../test/react_testing_library';
-import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
+import { mockMachineConfig } from '../../test/helpers/fake_machine_config';
 
 import { render as renderWithBallotContext } from '../../test/test_utils';
 
@@ -26,7 +26,7 @@ it('Renders ReviewScreen in Landscape orientation', () => {
     route: '/review',
     precinctId: electionGeneral.precincts[0].id,
     ballotStyleId: electionGeneral.ballotStyles[0].id,
-    machineConfig: fakeMachineConfig({ screenOrientation: 'landscape' }),
+    machineConfig: mockMachineConfig({ screenOrientation: 'landscape' }),
   });
   screen.getByText('Review Your Votes');
 });

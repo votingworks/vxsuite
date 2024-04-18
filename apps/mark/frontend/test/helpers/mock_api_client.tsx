@@ -27,7 +27,7 @@ import {
 import { err, ok, Result } from '@votingworks/basics';
 import { TestErrorBoundary } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { fakeMachineConfig } from './fake_machine_config';
+import { mockMachineConfig } from './fake_machine_config';
 import { initialElectionState } from '../../src/app_root';
 import { ApiProvider } from '../../src/api_provider';
 
@@ -163,7 +163,7 @@ export function createApiMock() {
     expectGetMachineConfig(props: Partial<MachineConfig> = {}): void {
       mockApiClient.getMachineConfig
         .expectCallWith()
-        .resolves(fakeMachineConfig(props));
+        .resolves(mockMachineConfig(props));
     },
 
     expectGetMachineConfigToError(): void {

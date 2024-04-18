@@ -1,5 +1,5 @@
 import { LogEventId, mockBaseLogger } from '@votingworks/logging';
-import { fakeMarkerInfo, mockOf } from '@votingworks/test-utils';
+import { mockMarkerInfo, mockOf } from '@votingworks/test-utils';
 import {
   AccessibleControllerProductId,
   AccessibleControllerVendorId,
@@ -52,7 +52,7 @@ test('can connect printer as expected', () => {
     name: 'HL-L5100DN_series',
     state: 'idle',
     stateReasons: ['none'],
-    markerInfos: [fakeMarkerInfo()],
+    markerInfos: [mockMarkerInfo()],
   };
 
   act(() => hardware.setPrinterConnected(true));

@@ -1,5 +1,5 @@
 import userEvent from '@testing-library/user-event';
-import { fakeKiosk, mockOf } from '@votingworks/test-utils';
+import { mockKiosk, mockOf } from '@votingworks/test-utils';
 import { isVxDev } from '@votingworks/utils';
 import {
   screen,
@@ -110,7 +110,7 @@ test.each(renderTestCases)(
 
 test('Quit button makes expected call', () => {
   mockOf(isVxDev).mockImplementation(() => true);
-  window.kiosk = fakeKiosk();
+  window.kiosk = mockKiosk();
   const unconfigureMachine = jest.fn();
   render(
     <SystemAdministratorScreenContents

@@ -1,7 +1,7 @@
 import userEvent from '@testing-library/user-event';
 import {
   mockElectionManagerUser,
-  fakeKiosk,
+  mockKiosk,
   expectPrintToPdf,
   hasTextAcrossElements,
   mockPrintElement,
@@ -36,13 +36,13 @@ jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
 }));
 
 let apiMock: ApiMock;
-let kiosk = fakeKiosk();
+let kiosk = mockKiosk();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   apiMock = createApiMock();
-  kiosk = fakeKiosk();
+  kiosk = mockKiosk();
   window.kiosk = kiosk;
 });
 

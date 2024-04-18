@@ -15,7 +15,7 @@ import { election, defaultPrecinctId } from '../../test/helpers/election';
 import { advanceTimers } from '../../test/helpers/timers';
 
 import { AdminScreen, AdminScreenProps } from './admin_screen';
-import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
+import { mockMachineConfig } from '../../test/helpers/fake_machine_config';
 import {
   ApiMock,
   createApiMock,
@@ -44,7 +44,7 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
         electionDefinition={asElectionDefinition(election)}
         isTestMode
         unconfigure={jest.fn()}
-        machineConfig={fakeMachineConfig({
+        machineConfig={mockMachineConfig({
           codeVersion: 'test', // Override default
         })}
         pollsState="polls_open"

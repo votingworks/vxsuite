@@ -1,6 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import { AudioControls, LanguageCode } from '@votingworks/types';
-import { advancePromises, fakeUseAudioControls } from '@votingworks/test-utils';
+import { advancePromises, mockUseAudioControls } from '@votingworks/test-utils';
 import { newTestContext } from '../../test/test_context';
 import { KeyboardShortcutHandlers } from './keyboard_shortcut_handlers';
 import { act, render, screen, waitFor } from '../../test/react_testing_library';
@@ -8,7 +8,7 @@ import { useCurrentLanguage } from '../hooks/use_current_language';
 import { Keybinding } from '..';
 
 const { CHINESE_SIMPLIFIED, ENGLISH, SPANISH } = LanguageCode;
-const audioControls: AudioControls = fakeUseAudioControls();
+const audioControls: AudioControls = mockUseAudioControls();
 
 jest.mock(
   '../hooks/use_audio_controls',

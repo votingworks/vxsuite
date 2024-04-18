@@ -7,7 +7,7 @@ import { createMemoryHistory } from 'history';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { MARK_FLOW_UI_VOTER_SCREEN_TEST_ID } from '@votingworks/mark-flow-ui';
 import { screen } from '../../test/react_testing_library';
-import { fakeMachineConfig } from '../../test/helpers/fake_machine_config';
+import { mockMachineConfig } from '../../test/helpers/fake_machine_config';
 import { render } from '../../test/test_utils';
 import { StartScreen } from './start_screen';
 
@@ -33,7 +33,7 @@ test('renders StartScreen in Landscape Orientation', () => {
     electionDefinition,
     precinctId: 'precinct-1',
     route: '/',
-    machineConfig: fakeMachineConfig({ screenOrientation: 'landscape' }),
+    machineConfig: mockMachineConfig({ screenOrientation: 'landscape' }),
   });
   const heading = screen.getByRole('heading', {
     name: /Example Primary Election/,

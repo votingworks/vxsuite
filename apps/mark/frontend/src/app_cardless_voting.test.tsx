@@ -4,9 +4,9 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import {
-  FakeKiosk,
+  MockKiosk,
   expectPrint,
-  fakeKiosk,
+  mockKiosk,
   mockPrintElement,
   mockPrintElementWhenReady,
 } from '@votingworks/test-utils';
@@ -29,13 +29,13 @@ jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
 }));
 
 let apiMock: ApiMock;
-let kiosk: FakeKiosk;
+let kiosk: MockKiosk;
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   apiMock = createApiMock();
-  kiosk = fakeKiosk();
+  kiosk = mockKiosk();
   window.kiosk = kiosk;
 });
 

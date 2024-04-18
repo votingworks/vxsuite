@@ -1,5 +1,5 @@
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import { fakeKiosk } from '@votingworks/test-utils';
+import { mockKiosk } from '@votingworks/test-utils';
 import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import userEvent from '@testing-library/user-event';
 import { electionDefinition } from '../test/helpers/election';
@@ -8,13 +8,13 @@ import { App } from './app';
 import { createApiMock, ApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
-let kiosk = fakeKiosk();
+let kiosk = mockKiosk();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   apiMock = createApiMock();
-  kiosk = fakeKiosk();
+  kiosk = mockKiosk();
   window.kiosk = kiosk;
 
   apiMock.expectGetMachineConfig();

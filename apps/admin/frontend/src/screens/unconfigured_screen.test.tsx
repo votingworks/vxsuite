@@ -1,5 +1,5 @@
 import userEvent from '@testing-library/user-event';
-import { fakeKiosk } from '@votingworks/test-utils';
+import { mockKiosk } from '@votingworks/test-utils';
 import { err } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { renderInAppContext } from '../../test/render_in_app_context';
@@ -89,9 +89,9 @@ test('configures from election packages on USB drive', async () => {
 });
 
 test('configures from selected file', async () => {
-  const mockKiosk = fakeKiosk();
-  window.kiosk = mockKiosk;
-  mockKiosk.showOpenDialog.mockResolvedValueOnce({
+  const kiosk = mockKiosk();
+  window.kiosk = kiosk;
+  kiosk.showOpenDialog.mockResolvedValueOnce({
     canceled: false,
     filePaths: ['/path/to/election-package.zip'],
   });

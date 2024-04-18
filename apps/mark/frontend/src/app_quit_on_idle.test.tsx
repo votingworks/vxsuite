@@ -1,4 +1,4 @@
-import { fakeKiosk } from '@votingworks/test-utils';
+import { mockKiosk } from '@votingworks/test-utils';
 import { MemoryHardware, ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import { electionGeneralDefinition } from '@votingworks/fixtures';
@@ -22,7 +22,7 @@ jest.useFakeTimers();
 beforeEach(() => {
   createReactIdleTimerMocks();
   window.location.href = '/';
-  window.kiosk = fakeKiosk();
+  window.kiosk = mockKiosk();
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
 });

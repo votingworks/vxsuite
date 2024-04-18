@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import {
   advancePromises,
   advanceTimersAndPromises,
-  fakeKiosk,
+  mockKiosk,
   fakePrinter,
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
@@ -165,9 +165,9 @@ test('printElementWhenReady prints only after element uses callback', async () =
 
 test('printElementToPdfWhenReady prints only after element uses callback', async () => {
   await suppressingConsoleOutput(async () => {
-    const mockKiosk = fakeKiosk();
-    mockKiosk.printToPDF = jest.fn();
-    window.kiosk = mockKiosk;
+    const kiosk = mockKiosk();
+    kiosk.printToPDF = jest.fn();
+    window.kiosk = kiosk;
 
     let readyToPrintSpy = jest.fn();
 
@@ -179,23 +179,23 @@ test('printElementToPdfWhenReady prints only after element uses callback', async
     const printToPdfPromise = printElementToPdfWhenReady(renderSleeperElement);
 
     while (readyToPrintSpy.mock.calls.length === 0) {
-      expect(mockKiosk.printToPDF).not.toHaveBeenCalled();
+      expect(kiosk.printToPDF).not.toHaveBeenCalled();
       await advanceTimersAndPromises(1);
     }
     await printToPdfPromise;
-    expect(mockKiosk.printToPDF).toHaveBeenCalledTimes(1);
+    expect(kiosk.printToPDF).toHaveBeenCalledTimes(1);
 
     window.kiosk = undefined;
   });
 });
 
 describe('printElementToPdf', () => {
-  let mockKiosk = fakeKiosk();
+  let kiosk = mockKiosk();
 
   beforeEach(() => {
-    mockKiosk = fakeKiosk();
-    mockKiosk.printToPDF = jest.fn();
-    window.kiosk = mockKiosk;
+    kiosk = mockKiosk();
+    kiosk.printToPDF = jest.fn();
+    window.kiosk = kiosk;
   });
 
   afterEach(() => {
@@ -207,13 +207,13 @@ describe('printElementToPdf', () => {
       const printToPdfPromise = printElementToPdf(simpleElement);
 
       await waitFor(() => {
-        expect(mockKiosk.printToPDF).not.toHaveBeenCalled();
+        expect(kiosk.printToPDF).not.toHaveBeenCalled();
         screen.getByText('Print me!');
       });
 
       await printToPdfPromise;
       expect(screen.queryByText('Print me!')).not.toBeInTheDocument();
-      expect(mockKiosk.printToPDF).toHaveBeenCalledTimes(1);
+      expect(kiosk.printToPDF).toHaveBeenCalledTimes(1);
     });
   });
 });

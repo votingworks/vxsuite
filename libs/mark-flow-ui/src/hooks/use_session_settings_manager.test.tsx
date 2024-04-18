@@ -10,7 +10,7 @@ import {
   mockCardlessVoterUser,
   mockElectionManagerUser,
   mockSessionExpiresAt,
-  fakeUseAudioControls,
+  mockUseAudioControls,
   mockOf,
 } from '@votingworks/test-utils';
 import { AudioControls, LanguageCode, VotesDict } from '@votingworks/types';
@@ -20,7 +20,7 @@ import {
   useSessionSettingsManager,
 } from './use_session_settings_manager';
 
-const mockAudioControls = fakeUseAudioControls();
+const mockAudioControls = mockUseAudioControls();
 const mockLanguageControls: jest.Mocked<LanguageControls> = {
   reset: jest.fn(),
   setLanguage: jest.fn(),
