@@ -11,6 +11,7 @@ import {
   FONT_AWESOME_STYLES,
 } from '@votingworks/ui';
 import { mapObject } from '@votingworks/basics';
+import { writeFileSync } from 'fs';
 import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 
 const PLAYWRIGHT_PIXELS_PER_INCH = 96;
@@ -141,6 +142,10 @@ export async function renderToPdf(
         <body dangerouslySetInnerHTML={{ __html: reportHtml }} />
       </html>
     );
+
+    if (outputPath) {
+      writeFileSync(outputPath.replace('.pdf', '.html'), documentHtml);
+    }
 
     // add the doctype so that the browser uses the correct user agent stylesheet
     await page.setContent(`${HTML_DOCTYPE}\n${documentHtml}`, {

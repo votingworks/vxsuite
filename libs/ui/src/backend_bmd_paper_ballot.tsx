@@ -114,10 +114,6 @@ const Ballot = styled.div<{ layout: Layout }>`
   font-size: 10pt !important;
   page-break-after: always;
 
-  @media screen {
-    display: none;
-  }
-
   @page {
     margin: 0.375in;
     size: letter portrait;
