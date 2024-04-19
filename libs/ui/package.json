@@ -74,8 +74,7 @@
     "react-router-dom": "^5.3.4",
     "react-select": "^5.7.4",
     "tone": "^14.7.77",
-    "use-interval": "1.4.0",
-    "zod": "3.14.4"
+    "use-interval": "1.4.0"
   },
   "devDependencies": {
     "@storybook/cli": "^7.2.2",

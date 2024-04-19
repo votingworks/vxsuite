@@ -31,12 +31,9 @@
     ]
   },
   "dependencies": {
-    "@antongolub/iso8601": "^1.2.1",
     "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
-    "@votingworks/utils": "workspace:*",
-    "js-sha256": "^0.9.0",
-    "zod": "3.14.4"
+    "js-sha256": "^0.9.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.3",
