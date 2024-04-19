@@ -7,6 +7,22 @@ import { Optional, assertDefined } from '@votingworks/basics';
 import { Screen } from '../screen';
 import { UiStringsReactQueryApi } from '../hooks/ui_strings_api';
 
+export const DEFAULT_LANGUAGE_CODE = LanguageCode.ENGLISH;
+export const DEFAULT_I18NEXT_NAMESPACE = 'translation';
+
+export interface FixedLanguageContextInterface {
+  currentLanguageCode: LanguageCode;
+  i18next: i18n;
+  translationFunction: ReturnType<typeof useTranslation>['t'];
+}
+
+export const FixedLanguageContext =
+  React.createContext<Optional<FixedLanguageContextInterface>>(undefined);
+
+export function useFixedLanguageContext(): Optional<FixedLanguageContextInterface> {
+  return React.useContext(FixedLanguageContext);
+}
+
 export interface LanguageContextInterface {
   api: UiStringsReactQueryApi;
   availableLanguages: LanguageCode[];
@@ -15,9 +31,6 @@ export interface LanguageContextInterface {
   setLanguage: (code: LanguageCode) => void;
   translationFunction: ReturnType<typeof useTranslation>['t'];
 }
-
-export const DEFAULT_LANGUAGE_CODE = LanguageCode.ENGLISH;
-export const DEFAULT_I18NEXT_NAMESPACE = 'translation';
 
 export const LanguageContext =
   React.createContext<Optional<LanguageContextInterface>>(undefined);

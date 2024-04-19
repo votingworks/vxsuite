@@ -38,7 +38,7 @@ export default {
       {
         lexer: 'JsxLexer',
         attr: 'uiStringKey',
-        componentFunctions: ['UiString'],
+        componentFunctions: ['Component'],
       },
     ],
 

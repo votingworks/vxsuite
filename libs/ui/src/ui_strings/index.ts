@@ -1,5 +1,6 @@
 export * from './app_strings';
 export * from './audio_only';
+export * from './backend_strings';
 export * from './date_string';
 export * from './election_strings';
 export * from './language_override';

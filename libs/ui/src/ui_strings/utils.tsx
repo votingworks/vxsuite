@@ -22,8 +22,10 @@ import { electionStrings } from './election_strings';
 export function CandidatePartyList(props: {
   candidate: Candidate;
   electionParties: Parties;
+  electionStringsOverride?: typeof electionStrings;
 }): JSX.Element {
-  const { candidate, electionParties } = props;
+  const { candidate, electionParties, electionStringsOverride } = props;
+  const resolvedElectionStrings = electionStringsOverride || electionStrings;
 
   return (
     <React.Fragment>
@@ -36,7 +38,7 @@ export function CandidatePartyList(props: {
            * way to do this.
            */}
           {i > 0 && <React.Fragment>, </React.Fragment>}
-          {electionStrings.partyName(party)}
+          {resolvedElectionStrings.partyName(party)}
         </React.Fragment>
       ))}
     </React.Fragment>
@@ -65,14 +67,19 @@ export function PrecinctSelectionName(props: {
 export function PrimaryElectionTitlePrefix(props: {
   ballotStyleId: BallotStyleId;
   election: Election;
+  electionStringsOverride?: typeof electionStrings;
 }): React.ReactNode {
-  const { ballotStyleId, election } = props;
+  const { ballotStyleId, election, electionStringsOverride } = props;
   const party = getPartyForBallotStyle({ ballotStyleId, election });
   if (!party) {
     return null;
   }
 
+  const resolvedElectionStrings = electionStringsOverride || electionStrings;
+
   return (
-    <React.Fragment>{electionStrings.partyFullName(party)} </React.Fragment>
+    <React.Fragment>
+      {resolvedElectionStrings.partyFullName(party)}{' '}
+    </React.Fragment>
   );
 }

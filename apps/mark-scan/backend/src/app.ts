@@ -14,6 +14,8 @@ import {
   InterpretedBmdPage,
   PollsState,
   DiagnosticRecord,
+  VotesDict,
+  LanguageCode,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -21,6 +23,7 @@ import {
   isElectionManagerAuth,
   isFeatureFlagEnabled,
   isPollWorkerAuth,
+  randomBallotId,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 
@@ -44,6 +47,7 @@ import {
 import { ElectionState } from './types';
 import { isAccessibleControllerDaemonRunning } from './util/controllerd';
 import { saveReadinessReport } from './readiness_report';
+import { renderBallot } from './util/render_ballot';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(
@@ -200,6 +204,20 @@ export function buildApi(
       assert(stateMachine, 'No state machine');
 
       stateMachine.setPatDeviceIsCalibrated();
+    },
+
+    async renderBallot(input: {
+      precinctId: string;
+      ballotStyleId: string;
+      votes: VotesDict;
+      ballotId?: string;
+      languageCode: LanguageCode;
+    }): Promise<void> {
+      await renderBallot({
+        store,
+        ballotId: randomBallotId(),
+        ...input,
+      });
     },
 
     printBallot(input: { pdfData: Buffer }): void {

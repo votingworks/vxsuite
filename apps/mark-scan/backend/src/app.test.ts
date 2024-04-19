@@ -25,6 +25,7 @@ import * as grout from '@votingworks/grout';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
+  LanguageCode,
   safeParseSystemSettings,
 } from '@votingworks/types';
 import { MockUsbDrive } from '@votingworks/usb-drive';
@@ -115,6 +116,15 @@ async function setUpUsbAndConfigureElection(
       systemSettings: safeParseSystemSettings(
         systemSettings.asText()
       ).unsafeUnwrap(),
+      uiStrings: {
+        en: {
+          titleBallotId: 'Ballot ID',
+          titleBallotStyle: 'Ballot Style',
+          titleOfficialBallot: 'Official Ballot',
+          titlePrecinct: 'Precinct',
+          titleUnofficialTestBallot: 'Unofficial Test Ballo',
+        },
+      },
     })
   );
 
@@ -486,4 +496,16 @@ test('setPatDeviceIsCalibrated', async () => {
 
   await apiClient.setPatDeviceIsCalibrated();
   await waitForStatus('not_accepting_paper');
+});
+
+test.only('renderBallot', async () => {
+  await configureForTestElection();
+
+  await apiClient.renderBallot({
+    precinctId: '23',
+    ballotStyleId: '12',
+    votes: {},
+    languageCode: LanguageCode.ENGLISH,
+    ballotId: '12345',
+  });
 });
