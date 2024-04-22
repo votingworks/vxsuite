@@ -19,6 +19,7 @@ import {
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
 import { SCAN_WORKSPACE } from './globals';
 import * as customStateMachine from './scanners/custom/state_machine';
+import * as pdiStateMachine from './scanners/pdi/state_machine';
 import * as server from './server';
 import { createWorkspace, Workspace } from './util/workspace';
 import { getUserRole } from './util/auth';
@@ -69,14 +70,22 @@ async function main(): Promise<number> {
   const usbDrive = detectUsbDrive(logger);
   const printer = await getPrinter(logger);
 
-  const precinctScannerStateMachine =
-    customStateMachine.createPrecinctScannerStateMachine({
-      createCustomClient: customScanner.openScanner,
-      auth,
-      workspace,
-      logger,
-      usbDrive,
-    });
+  const precinctScannerStateMachine = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.USE_PDI_SCANNER
+  )
+    ? pdiStateMachine.createPrecinctScannerStateMachine({
+        workspace,
+        usbDrive,
+        auth,
+        logger,
+      })
+    : customStateMachine.createPrecinctScannerStateMachine({
+        createCustomClient: customScanner.openScanner,
+        auth,
+        workspace,
+        logger,
+        usbDrive,
+      });
 
   await server.start({
     auth,
