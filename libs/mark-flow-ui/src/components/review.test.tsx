@@ -56,7 +56,7 @@ test('candidate contest interpretation result with no votes', () => {
     <Review
       contests={[contest]}
       election={electionGeneral}
-      isInterpretationResult
+      selectionsAreEditable={false}
       precinctId={electionGeneral.precincts[0].id}
       returnToContest={jest.fn()}
       votes={{}}
@@ -157,7 +157,7 @@ describe('yesno contest', () => {
       <Review
         election={electionGeneral}
         contests={[contest]}
-        isInterpretationResult
+        selectionsAreEditable={false}
         precinctId={electionGeneral.precincts[0].id}
         returnToContest={jest.fn()}
         votes={{}}
@@ -238,7 +238,7 @@ describe('ms-either-neither contest', () => {
       <Review
         contests={[mergedContest]}
         election={electionDefinition.election}
-        isInterpretationResult
+        selectionsAreEditable={false}
         precinctId={electionDefinition.election.precincts[0].id}
         returnToContest={jest.fn()}
         votes={{}}

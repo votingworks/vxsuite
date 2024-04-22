@@ -53,14 +53,14 @@ function CandidateContestResult({
   contest,
   vote = [],
   election,
-  isInterpretationResult,
+  selectionsAreEditable,
 }: CandidateContestResultInterface): JSX.Element {
   const district = getContestDistrict(election, contest);
   const remainingChoices = contest.seats - vote.length;
 
-  const noVotesString = isInterpretationResult
-    ? appStrings.noteBallotContestNoSelection()
-    : appStrings.warningNoVotesForContest();
+  const noVotesString = selectionsAreEditable
+    ? appStrings.warningNoVotesForContest()
+    : appStrings.noteBallotContestNoSelection();
 
   return (
     <VoterContestSummary
@@ -101,7 +101,7 @@ function YesNoContestResult({
   vote,
   contest,
   election,
-  isInterpretationResult,
+  selectionsAreEditable,
 }: YesNoContestResultInterface): JSX.Element {
   const district = getContestDistrict(election, contest);
   const yesNo = getSingleYesNoVote(vote);
@@ -117,9 +117,9 @@ function YesNoContestResult({
       ]
     : [];
 
-  const noVotesString = isInterpretationResult
-    ? appStrings.noteBallotContestNoSelection()
-    : appStrings.warningNoVotesForContest();
+  const noVotesString = selectionsAreEditable
+    ? appStrings.warningNoVotesForContest()
+    : appStrings.noteBallotContestNoSelection();
 
   return (
     <VoterContestSummary
@@ -137,7 +137,7 @@ function MsEitherNeitherContestResult({
   election,
   eitherNeitherContestVote,
   pickOneContestVote,
-  isInterpretationResult,
+  selectionsAreEditable,
 }: MsEitherNeitherContestResultInterface): JSX.Element {
   const district = getContestDistrict(election, contest);
   /* istanbul ignore next */
@@ -167,9 +167,9 @@ function MsEitherNeitherContestResult({
     });
   }
 
-  const noVotesString = isInterpretationResult
-    ? appStrings.noteBallotContestNoSelection()
-    : appStrings.warningNoVotesForContest();
+  const noVotesString = selectionsAreEditable
+    ? appStrings.warningNoVotesForContest()
+    : appStrings.noteBallotContestNoSelection();
 
   return (
     <VoterContestSummary
@@ -190,7 +190,6 @@ export interface ReviewProps {
   votes: VotesDict;
   returnToContest?: (contestId: string) => void;
   selectionsAreEditable?: boolean;
-  isInterpretationResult?: boolean;
 }
 
 export function Review({
@@ -200,7 +199,6 @@ export function Review({
   votes,
   returnToContest,
   selectionsAreEditable = true,
-  isInterpretationResult,
 }: ReviewProps): JSX.Element {
   function onChangeClick(contestId: ContestId) {
     if (!returnToContest) {
@@ -248,7 +246,7 @@ export function Review({
               <CandidateContestResult
                 contest={contest}
                 election={election}
-                isInterpretationResult={isInterpretationResult}
+                selectionsAreEditable={selectionsAreEditable}
                 precinctId={precinctId}
                 vote={votes[contest.id] as CandidateVote}
               />
@@ -258,7 +256,7 @@ export function Review({
                 vote={votes[contest.id] as YesNoVote}
                 contest={contest}
                 election={election}
-                isInterpretationResult={isInterpretationResult}
+                selectionsAreEditable={selectionsAreEditable}
               />
             )}
             {contest.type === 'ms-either-neither' && (
@@ -268,7 +266,7 @@ export function Review({
                 eitherNeitherContestVote={
                   votes[contest.eitherNeitherContestId] as OptionalYesNoVote
                 }
-                isInterpretationResult={isInterpretationResult}
+                selectionsAreEditable={selectionsAreEditable}
                 pickOneContestVote={
                   votes[contest.pickOneContestId] as OptionalYesNoVote
                 }

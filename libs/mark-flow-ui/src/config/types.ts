@@ -42,22 +42,22 @@ export interface BallotContextInterface {
 export interface CandidateContestResultInterface {
   contest: CandidateContest;
   election: Election;
-  isInterpretationResult?: boolean;
   precinctId: PrecinctId;
+  selectionsAreEditable?: boolean;
   vote: CandidateVote;
 }
 export interface YesNoContestResultInterface {
   contest: YesNoContest;
   election: Election;
-  isInterpretationResult?: boolean;
   vote: OptionalYesNoVote;
+  selectionsAreEditable?: boolean;
 }
 export interface MsEitherNeitherContestResultInterface {
   contest: MsEitherNeitherContest;
   election: Election;
   eitherNeitherContestVote: OptionalYesNoVote;
-  isInterpretationResult?: boolean;
   pickOneContestVote: OptionalYesNoVote;
+  selectionsAreEditable?: boolean;
 }
 
 // Machine Config
