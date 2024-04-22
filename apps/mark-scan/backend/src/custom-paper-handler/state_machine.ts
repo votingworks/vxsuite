@@ -34,6 +34,8 @@ import {
   isFeatureFlagEnabled,
   isPollWorkerAuth,
 } from '@votingworks/utils';
+// Will be used later in sample ballot interpretation
+// import { electionDefinition as electionMarkScanDiagnosticDefinition } from './electionPaperHandlerDiagnostic/election.json';
 import { Workspace, constructAuthMachineState } from '../util/workspace';
 import { SimpleServerStatus } from './types';
 import {
