@@ -71,7 +71,6 @@ function renderScreen(
         pollsState="polls_open"
         ballotsPrintedCount={0}
         machineConfig={mockMachineConfig()}
-        reload={jest.fn()}
         precinctSelection={singlePrecinctSelectionFor(
           electionDefinition.election.precincts[0].id
         )}
