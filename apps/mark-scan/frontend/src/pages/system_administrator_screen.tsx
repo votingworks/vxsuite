@@ -8,7 +8,7 @@ import {
   SystemAdministratorScreenContents,
 } from '@votingworks/ui';
 import { logOut } from '../api';
-import { DiagnosticsScreen } from './diagnostics_screen';
+import { DiagnosticsScreen } from './diagnostics/diagnostics_screen';
 
 const resetPollsToPausedText =
   'The polls are closed and voting is complete. After resetting the polls to paused, it will be possible to re-open the polls and resume voting. The printed ballots count will be preserved.';
