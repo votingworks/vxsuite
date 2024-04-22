@@ -138,7 +138,7 @@ test('can toggle between vote activation and "other actions" during polls open',
 
   // switch to other actions pane
   userEvent.click(screen.getByText('View More Actions'));
-  screen.getByText('Reset Accessible Controller');
+  screen.getByRole('heading', { name: /poll worker actions/i });
 
   // switch back
   userEvent.click(screen.getByText('Back to Ballot Style Selection'));

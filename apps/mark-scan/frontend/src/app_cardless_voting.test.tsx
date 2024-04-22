@@ -71,7 +71,7 @@ test('Cardless Voting Flow', async () => {
     precinctSelection: CENTER_SPRINGFIELD_PRECINCT_SELECTION,
     pollsState: 'polls_open',
   });
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
   const findByTextWithMarkup = withMarkup(screen.findByText);
 
   await screen.findByText('Insert Card');
@@ -225,7 +225,7 @@ test('in "All Precincts" mode, poll worker must select a precinct first', async 
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',
   });
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   await screen.findByText('Insert Card');
 

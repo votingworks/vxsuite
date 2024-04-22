@@ -28,7 +28,7 @@ test('Shows card backwards screen when card connection error occurs', async () =
     pollsState: 'polls_open',
   });
 
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
   await screen.findByText('Insert Card');
 
   apiMock.setAuthStatus({

@@ -80,10 +80,6 @@ interface VotingState {
   votes?: VotesDict;
 }
 
-export interface Props {
-  reload: VoidFunction;
-}
-
 export const blankBallotVotes: VotesDict = {};
 
 export const initialElectionState: Readonly<ElectionState> = {
@@ -133,7 +129,7 @@ function votingStateReducer(
   }
 }
 
-export function AppRoot({ reload }: Props): JSX.Element | null {
+export function AppRoot(): JSX.Element | null {
   const [votingState, dispatchVotingState] = useReducer(
     votingStateReducer,
     initialVotingState
@@ -508,7 +504,6 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
           ballotsPrintedCount={ballotsPrintedCount}
           machineConfig={machineConfig}
           hasVotes={!!votes}
-          reload={reload}
           precinctSelection={precinctSelection}
         />
       );

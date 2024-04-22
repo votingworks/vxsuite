@@ -60,11 +60,10 @@ test('MarkAndPrint end-to-end flow', async () => {
   });
   apiMock.setPaperHandlerState('not_accepting_paper');
   const expectedElectionHash = electionDefinition.electionHash.substring(0, 10);
-  const reload = jest.fn();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
   apiMock.expectGetElectionState();
-  render(<App reload={reload} apiClient={apiMock.mockApiClient} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
   const getByTextWithMarkup = withMarkup(screen.getByText);
   const findByTextWithMarkup = withMarkup(screen.findByText);
 
@@ -187,10 +186,9 @@ test('MarkAndPrint end-to-end flow', async () => {
     within(await screen.findByRole('alertdialog')).getByText('Open Polls')
   );
   await screen.findByText('Select Voter’s Ballot Style');
-  // Force refresh
+
+  // Close polls:
   userEvent.click(screen.getByText('View More Actions'));
-  userEvent.click(screen.getByText('Reset Accessible Controller'));
-  expect(reload).toHaveBeenCalledTimes(1);
   await screen.findByText('Close Polls');
 
   // Remove card

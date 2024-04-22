@@ -23,7 +23,6 @@ const DEFAULT_SCREEN_TYPE: ScreenType = 'elo15';
 const DEFAULT_SIZE_MODE: SizeMode = 'touchMedium';
 
 export interface Props {
-  reload?: VoidFunction;
   logger?: BaseLogger;
   apiClient?: ApiClient;
   queryClient?: QueryClient;
@@ -35,7 +34,6 @@ const RESTART_MESSAGE =
   'Ask a poll worker to restart the ballot marking device.';
 
 export function App({
-  reload = () => window.location.reload(),
   logger = new BaseLogger(LogSource.VxMarkScanFrontend, window.kiosk),
   /* istanbul ignore next */ apiClient = createApiClient(),
   queryClient = createQueryClient(),
@@ -62,7 +60,7 @@ export function App({
               logger={logger}
             >
               <VisualModeDisabledOverlay />
-              <AppRoot reload={reload} />
+              <AppRoot />
               <SessionTimeLimitTracker />
             </AppErrorBoundary>
           </ApiProvider>

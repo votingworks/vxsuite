@@ -11,9 +11,7 @@ export function buildApp(apiMock: ReturnType<typeof createApiMock>): {
   const logger = mockBaseLogger();
   const reload = jest.fn();
   function renderApp() {
-    return render(
-      <App reload={reload} logger={logger} apiClient={apiMock.mockApiClient} />
-    );
+    return render(<App logger={logger} apiClient={apiMock.mockApiClient} />);
   }
 
   return {

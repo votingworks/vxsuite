@@ -41,7 +41,7 @@ it('Single Seat Contest', async () => {
     pollsState: 'polls_open',
   });
 
-  render(<App reload={jest.fn()} apiClient={apiMock.mockApiClient} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
   await advanceTimersAndPromises();
 
   // Start voter session

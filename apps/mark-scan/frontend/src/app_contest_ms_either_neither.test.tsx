@@ -224,7 +224,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
     pollsState: 'polls_open',
   });
 
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({

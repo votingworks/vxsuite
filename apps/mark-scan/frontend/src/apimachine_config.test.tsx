@@ -27,7 +27,7 @@ test('machineConfig is fetched from api client by default', async () => {
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
   });
-  render(<App reload={jest.fn()} apiClient={apiMock.mockApiClient} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
   await advanceTimersAndPromises();
   apiMock.setAuthStatusPollWorkerLoggedIn(
     electionFamousNames2021Fixtures.electionDefinition
