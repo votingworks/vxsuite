@@ -6,6 +6,7 @@ import { act, render, screen } from '../test/react_testing_library';
 import { VoterFlow } from './voter_flow';
 import { mockMachineConfig } from '../test/helpers/mock_machine_config';
 import { Ballot } from './components/ballot';
+import { PatDeviceCalibrationPage } from './pages/pat_device_identification/pat_device_calibration_page';
 
 let setMockControllerHelpTriggered:
   | ((shouldShowHelp: boolean) => void)
@@ -29,6 +30,8 @@ jest.mock('./components/ballot', (): typeof import('./components/ballot') => ({
   ...jest.requireActual('./components/ballot'),
   Ballot: jest.fn(),
 }));
+
+jest.mock('./pages/pat_device_identification/pat_device_calibration_page');
 
 jest.mock('./api', (): typeof import('./api') => ({
   ...jest.requireActual('./api'),
@@ -65,5 +68,55 @@ test('replaces screen with accessible controller sandbox when triggered', () => 
 
   act(() => setMockControllerHelpTriggered!(true));
   screen.getByTestId('mockControllerSandbox');
+  expect(screen.queryByTestId('mockBallotScreen')).not.toBeInTheDocument();
+});
+
+test('replaces screen with PAT device calibration when connected', () => {
+  mockOf(Ballot).mockReturnValue(<div data-testid="mockBallotScreen" />);
+  mockOf(PatDeviceCalibrationPage).mockReturnValue(
+    <div data-testid="mockPatCalibrationScreen" />
+  );
+
+  const electionDefinition = electionGeneralDefinition;
+  const { contests } = electionDefinition.election;
+
+  const { rerender } = render(
+    <VoterFlow
+      {...{
+        contests,
+        electionDefinition,
+        endVoterSession: jest.fn(),
+        isLiveMode: true,
+        machineConfig: mockMachineConfig(),
+        resetBallot: jest.fn(),
+        stateMachineState: 'waiting_for_ballot_data',
+        updateVote: jest.fn(),
+        votes: {},
+      }}
+    />
+  );
+
+  screen.getByTestId('mockBallotScreen');
+  expect(
+    screen.queryByTestId('mockPatCalibrationScreen')
+  ).not.toBeInTheDocument();
+
+  // Re-render with `pat_device_connected` state machine state:
+  rerender(
+    <VoterFlow
+      {...{
+        contests,
+        electionDefinition,
+        endVoterSession: jest.fn(),
+        isLiveMode: true,
+        machineConfig: mockMachineConfig(),
+        resetBallot: jest.fn(),
+        stateMachineState: 'pat_device_connected', //
+        updateVote: jest.fn(),
+        votes: {},
+      }}
+    />
+  );
+  screen.getByTestId('mockPatCalibrationScreen');
   expect(screen.queryByTestId('mockBallotScreen')).not.toBeInTheDocument();
 });
