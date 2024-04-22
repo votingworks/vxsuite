@@ -1,6 +1,12 @@
 import express, { Application } from 'express';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { assert, ok, Result, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  ok,
+  Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import { Buffer } from 'buffer';
 import {
@@ -14,6 +20,7 @@ import {
   InterpretedBmdPage,
   PollsState,
   DiagnosticRecord,
+  DiagnosticType,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -44,6 +51,20 @@ import {
 import { ElectionState } from './types';
 import { isAccessibleControllerDaemonRunning } from './util/controllerd';
 import { saveReadinessReport } from './readiness_report';
+import { Store } from './store';
+
+function addDiagnosticRecordAndLog(
+  store: Store,
+  record: Omit<DiagnosticRecord, 'timestamp'>,
+  logger: Logger
+) {
+  store.addDiagnosticRecord(record);
+  void logger.logAsCurrentRole(LogEventId.DiagnosticComplete, {
+    disposition: record.outcome === 'pass' ? 'success' : 'failure',
+    message: `Diagnostic (${record.type}) completed with outcome: ${record.outcome}.`,
+    type: record.type,
+  });
+}
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(
@@ -172,6 +193,7 @@ export function buildApi(
     },
 
     getPaperHandlerState(): SimpleServerStatus {
+      /* istanbul ignore next */
       if (!stateMachine) {
         return 'no_hardware';
       }
@@ -210,6 +232,7 @@ export function buildApi(
           BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
         )
       ) {
+        /* istanbul ignore next */
         if (!stateMachine) {
           return;
         }
@@ -374,20 +397,13 @@ export function buildApi(
     },
 
     addDiagnosticRecord(input: Omit<DiagnosticRecord, 'timestamp'>): void {
-      store.addDiagnosticRecord(input);
-      void logger.logAsCurrentRole(LogEventId.DiagnosticComplete, {
-        disposition: input.outcome === 'pass' ? 'success' : 'failure',
-        message: `Diagnostic (${input.type}) completed with outcome: ${input.outcome}.`,
-        type: input.type,
-      });
+      addDiagnosticRecordAndLog(store, input, logger);
     },
 
-    getMostRecentAccessibleControllerDiagnostic(): DiagnosticRecord | null {
-      return (
-        store.getMostRecentDiagnosticRecord(
-          'mark-scan-accessible-controller'
-        ) ?? null
-      );
+    getMostRecentDiagnostic(input: {
+      diagnosticType: DiagnosticType;
+    }): DiagnosticRecord | null {
+      return store.getMostRecentDiagnosticRecord(input.diagnosticType) ?? null;
     },
 
     getIsAccessibleControllerInputDetected(): Promise<boolean> {
@@ -400,6 +416,20 @@ export function buildApi(
         usbDrive,
         logger,
       });
+    },
+
+    startPaperHandlerDiagnostic(): void {
+      if (!stateMachine) {
+        const record: Omit<DiagnosticRecord, 'timestamp'> = {
+          type: 'mark-scan-paper-handler',
+          outcome: 'fail',
+          message: 'Printer/Scanner failed to connect',
+        };
+        addDiagnosticRecordAndLog(store, record, logger);
+        return;
+      }
+
+      assertDefined(stateMachine).startPaperHandlerDiagnostic();
     },
   });
 }

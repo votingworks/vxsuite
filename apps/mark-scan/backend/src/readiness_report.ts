@@ -43,6 +43,8 @@ export async function saveReadinessReport({
     electionDefinition,
     expectPrecinctSelection: true,
     precinctSelection,
+    isPaperHandlerDetected: true,
+    onStartPaperHandlerDiagnostic: () => {},
   });
   const data = await renderToPdf({ document: report });
 

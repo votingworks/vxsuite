@@ -1,4 +1,5 @@
 import { assert } from '@votingworks/basics';
+import tmp from 'tmp';
 import {
   electionFamousNames2021Fixtures,
   systemSettings,
@@ -30,8 +31,9 @@ import {
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { PaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { LogEventId, Logger } from '@votingworks/logging';
+import { AddressInfo } from 'net';
 import { createApp } from '../test/app_helpers';
-import { Api } from './app';
+import { Api, buildApp } from './app';
 import { PaperHandlerStateMachine } from './custom-paper-handler';
 import { ElectionState } from './types';
 import {
@@ -43,6 +45,7 @@ import {
   getPaperInFrontStatus,
 } from './custom-paper-handler/test_utils';
 import { PatConnectionStatusReader } from './pat-input/connection_status_reader';
+import { createWorkspace } from './util/workspace';
 
 const TEST_POLLING_INTERVAL_MS = 5;
 
@@ -486,4 +489,34 @@ test('setPatDeviceIsCalibrated', async () => {
 
   await apiClient.setPatDeviceIsCalibrated();
   await waitForStatus('not_accepting_paper');
+});
+
+test('addDiagnosticRecord', async () => {
+  await apiClient.addDiagnosticRecord({
+    type: 'mark-scan-accessible-controller',
+    outcome: 'pass',
+    message: 'test message',
+  });
+  const diagnostic = await apiClient.getMostRecentDiagnostic({
+    diagnosticType: 'mark-scan-accessible-controller',
+  });
+  assert(diagnostic, 'Expected diagnostic to be defined');
+  expect(diagnostic.type).toEqual('mark-scan-accessible-controller');
+  expect(diagnostic.outcome).toEqual('pass');
+  expect(diagnostic.message).toEqual('test message');
+});
+
+test('startPaperHandlerDiagnostic fails test if no state machine', async () => {
+  const workspace = createWorkspace(tmp.dirSync().name);
+  const app = buildApp(mockAuth, logger, workspace, mockUsbDrive.usbDrive);
+  const serverNoStateMachine = app.listen();
+  const { port } = serverNoStateMachine.address() as AddressInfo;
+  const baseUrl = `http://localhost:${port}/api`;
+
+  const apiClientNoStateMachine = grout.createClient<Api>({ baseUrl });
+  await apiClientNoStateMachine.startPaperHandlerDiagnostic();
+  const diagnostic = await apiClientNoStateMachine.getMostRecentDiagnostic({
+    diagnosticType: 'mark-scan-paper-handler',
+  });
+  expect(diagnostic?.outcome).toEqual('fail');
 });
