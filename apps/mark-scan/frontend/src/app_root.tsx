@@ -68,7 +68,6 @@ import { JamClearedPage } from './pages/jam_cleared_page';
 import { BallotInvalidatedPage } from './pages/ballot_invalidated_page';
 import { BlankPageInterpretationPage } from './pages/blank_page_interpretation_page';
 import { PaperReloadedPage } from './pages/paper_reloaded_page';
-import { PatDeviceCalibrationPage } from './pages/pat_device_identification/pat_device_calibration_page';
 import { CastingBallotPage } from './pages/casting_ballot_page';
 import { BallotSuccessfullyCastPage } from './pages/ballot_successfully_cast_page';
 import { EmptyBallotBoxPage } from './pages/empty_ballot_box_page';
@@ -464,10 +463,6 @@ export function AppRoot(): JSX.Element | null {
         // PollWorkerScreen will warn that votes exist in ballot state, but preserving
         // ballot state is the desired behavior when handling blank page interpretations.
         return <BlankPageInterpretationPage authStatus={authStatus} />;
-      }
-
-      if (stateMachineState === 'pat_device_connected') {
-        return <PatDeviceCalibrationPage />;
       }
 
       if (

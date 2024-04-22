@@ -21,6 +21,7 @@ import { Ballot } from './components/ballot';
 import { ValidateBallotPage } from './pages/validate_ballot_page';
 import { BallotContext } from './contexts/ballot_context';
 import { confirmSessionEnd } from './api';
+import { PatDeviceCalibrationPage } from './pages/pat_device_identification/pat_device_calibration_page';
 
 export interface VoterFlowProps {
   contests: ContestsWithMsEitherNeither;
@@ -42,6 +43,11 @@ export function VoterFlow(props: VoterFlowProps): React.ReactNode {
   const confirmSessionEndMutation = confirmSessionEnd.useMutation();
 
   const { shouldShowControllerSandbox } = useAccessibleControllerHelpTrigger();
+
+  if (stateMachineState === 'pat_device_connected') {
+    return <PatDeviceCalibrationPage />;
+  }
+
   if (shouldShowControllerSandbox) {
     return <MarkScanControllerSandbox />;
   }
