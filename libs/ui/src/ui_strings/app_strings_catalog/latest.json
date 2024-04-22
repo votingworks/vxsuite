@@ -153,7 +153,7 @@
   "letterY": "Y",
   "letterZ": "Z",
   "noteAskPollWorkerForHelp": "Ask a poll worker if you need help.",
-  "noteBallotContestNoSelection": "no selection",
+  "noteBallotContestNoSelection": "No Selection",
   "noteBmdBallotBoxIsFull": "A poll worker must empty the full ballot box.",
   "noteBmdBallotSheetLoaded": "The ballot sheet has been loaded. You will have a chance to review your selections before reprinting your ballot.",
   "noteBmdCastingBallot": "Casting Ballot...",
