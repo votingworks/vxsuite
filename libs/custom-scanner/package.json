@@ -27,8 +27,7 @@
     "buffer": "^6.0.3",
     "chalk": "4.1.2",
     "debug": "4.3.4",
-    "usb": "^2.6.0",
-    "zod": "3.14.4"
+    "usb": "^2.6.0"
   },
   "devDependencies": {
     "@types/debug": "4.1.8",
