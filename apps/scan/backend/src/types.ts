@@ -1,10 +1,12 @@
 import {
   ElectionDefinition,
+  Id,
   PageInterpretation,
   PollsState,
   PollsTransitionType,
   PrecinctSelection,
   SheetInterpretation,
+  SheetInterpretationWithPages,
   SystemSettings,
 } from '@votingworks/types';
 import { PrecinctScannerState } from '@votingworks/types/src/precinct_scanner';
@@ -33,6 +35,21 @@ export type PrecinctScannerErrorType =
   | 'unexpected_paper_status'
   | 'unexpected_event'
   | 'client_error';
+
+export class PrecinctScannerError extends Error {
+  constructor(
+    // eslint-disable-next-line vx/gts-no-public-class-fields
+    public type: PrecinctScannerErrorType,
+    message?: string
+  ) {
+    super(message ?? type);
+  }
+}
+
+export type InterpretationResult = SheetInterpretationWithPages & {
+  sheetId: Id;
+};
+
 export interface PrecinctScannerMachineStatus {
   state: PrecinctScannerState;
   interpretation?: SheetInterpretation;

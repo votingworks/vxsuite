@@ -19,13 +19,7 @@ import {
 } from '@votingworks/custom-scanner';
 import { fromGrayScale, writeImageData } from '@votingworks/image-utils';
 import { LogEventId, BaseLogger, LogLine } from '@votingworks/logging';
-import {
-  Id,
-  mapSheet,
-  SheetInterpretation,
-  SheetInterpretationWithPages,
-  SheetOf,
-} from '@votingworks/types';
+import { mapSheet, SheetInterpretation, SheetOf } from '@votingworks/types';
 import { join } from 'path';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
 import { v4 as uuid } from 'uuid';
@@ -41,19 +35,19 @@ import {
   StateNodeConfig,
   TransitionConfig,
 } from 'xstate';
-import { exportCastVoteRecordsToUsbDrive } from '@votingworks/backend';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { interpret as defaultInterpret, InterpretFn } from '../../interpret';
-import { Store } from '../../store';
 import {
-  PrecinctScannerErrorType,
+  InterpretationResult,
+  PrecinctScannerError,
   PrecinctScannerMachineStatus,
   PrecinctScannerStateMachine,
 } from '../../types';
 import { rootDebug } from '../../util/debug';
 import { Workspace } from '../../util/workspace';
 import { isReadyToScan } from '../../app_flow';
+import { recordAcceptedSheet, recordRejectedSheet } from '../shared';
 
 const debug = rootDebug.extend('state-machine');
 const debugPaperStatus = debug.extend('paper-status');
@@ -68,18 +62,6 @@ async function defaultCreateCustomClient(): Promise<
 }
 
 export type CreateCustomClient = typeof defaultCreateCustomClient;
-
-class PrecinctScannerError extends Error {
-  constructor(
-    // eslint-disable-next-line vx/gts-no-public-class-fields
-    public type: PrecinctScannerErrorType,
-    message?: string
-  ) {
-    super(message ?? type);
-  }
-}
-
-type InterpretationResult = SheetInterpretationWithPages & { sheetId: Id };
 
 interface Context {
   client?: CustomScanner;
@@ -397,86 +379,6 @@ async function finishAcceptAndLoadPaper({ client }: Context) {
   return result.unsafeUnwrap();
 }
 
-function storeInterpretedSheet(
-  store: Store,
-  sheetId: Id,
-  interpretation: SheetInterpretationWithPages
-): Id {
-  const ongoingBatchId = store.getOngoingBatchId();
-  assert(typeof ongoingBatchId === 'string');
-  const addedSheetId = store.addSheet(
-    sheetId,
-    ongoingBatchId,
-    interpretation.pages
-  );
-  return addedSheetId;
-}
-
-async function recordAcceptedSheet(
-  { continuousExportMutex, store }: Workspace,
-  usbDrive: UsbDrive,
-  { interpretation }: Context
-) {
-  assert(interpretation);
-  const { sheetId } = interpretation;
-  store.withTransaction(() => {
-    storeInterpretedSheet(store, sheetId, interpretation);
-
-    // If we're storing an accepted sheet that needed review, that means that it was "adjudicated"
-    // (i.e. the voter said to count it without changing anything).
-    if (interpretation.type === 'NeedsReviewSheet') {
-      store.adjudicateSheet(sheetId);
-    }
-
-    // Marked as complete within exportCastVoteRecordsToUsbDrive
-    store.addPendingContinuousExportOperation(sheetId);
-  });
-
-  const exportResult = await continuousExportMutex.withLock(() =>
-    exportCastVoteRecordsToUsbDrive(
-      store,
-      usbDrive,
-      [assertDefined(store.getSheet(sheetId))],
-      { scannerType: 'precinct' }
-    )
-  );
-  exportResult.unsafeUnwrap();
-
-  debug('Stored accepted sheet: %s', sheetId);
-}
-
-async function recordRejectedSheet(
-  { continuousExportMutex, store }: Workspace,
-  usbDrive: UsbDrive,
-  { interpretation }: Context
-) {
-  if (!interpretation) return;
-  const { sheetId } = interpretation;
-  store.withTransaction(() => {
-    storeInterpretedSheet(store, sheetId, interpretation);
-
-    // We want to keep rejected ballots in the store, but not count them. We accomplish this by
-    // "deleting" them, which just marks them as deleted and is how we indicate that an interpreted
-    // ballot wasn't counted.
-    store.deleteSheet(sheetId);
-
-    // Marked as complete within exportCastVoteRecordsToUsbDrive
-    store.addPendingContinuousExportOperation(sheetId);
-  });
-
-  const exportResult = await continuousExportMutex.withLock(() =>
-    exportCastVoteRecordsToUsbDrive(
-      store,
-      usbDrive,
-      [assertDefined(store.getSheet(sheetId))],
-      { scannerType: 'precinct' }
-    )
-  );
-  exportResult.unsafeUnwrap();
-
-  debug('Stored rejected sheet: %s', sheetId);
-}
-
 const clearLastScan = assign({
   scannedSheet: undefined,
   interpretation: undefined,
@@ -656,7 +558,8 @@ function buildMachine({
       initial: 'starting',
       states: {
         starting: {
-          entry: (context) => recordRejectedSheet(workspace, usbDrive, context),
+          entry: (context) =>
+            recordRejectedSheet(workspace, usbDrive, context.interpretation),
           invoke: {
             src: reject,
             // Calling `reject` tells the Custom scanner to eject the ballot
@@ -996,7 +899,12 @@ function buildMachine({
         accepting: acceptingState,
         accepted: {
           id: 'accepted',
-          entry: (context) => recordAcceptedSheet(workspace, usbDrive, context),
+          entry: (context) =>
+            recordAcceptedSheet(
+              workspace,
+              usbDrive,
+              assertDefined(context.interpretation)
+            ),
           invoke: pollPaperStatus(),
           initial: 'scanning_paused',
           on: { SCANNER_NO_PAPER: doNothing },
