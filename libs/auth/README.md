@@ -66,6 +66,18 @@ script can be used to unprogram a card. This can come in handy if you ever need
 to unprogram a system administrator card, the one type of card that can't be
 unprogrammed through VxAdmin.
 
+#### OpenFIPS201 Applet Updating Script
+
+This script builds the latest main of
+[our fork of the OpenFIPS201 applet](https://github.com/votingworks/OpenFIPS201)
+and copies the built applet to the relevant location in VxSuite so that it can
+be used by the above configuration script. The script clones the fork to the
+temp directory, so it doesn't need to have already been cloned.
+
+```
+./scripts/update-openfips201-applet
+```
+
 ### System Administrator Java Card Programming Script
 
 This script programs a first system administrator Java Card to bootstrap both
