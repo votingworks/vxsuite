@@ -738,7 +738,7 @@ export const appStrings = {
   ),
 
   noteBallotContestNoSelection: () => (
-    <UiString uiStringKey="noteBallotContestNoSelection">no selection</UiString>
+    <UiString uiStringKey="noteBallotContestNoSelection">No Selection</UiString>
   ),
 
   noteBmdBallotSheetLoaded: () => (

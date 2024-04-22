@@ -110,7 +110,7 @@ test('Renders Ballot with EitherNeither: blank', async () => {
     expect(
       printedElement.getAllByText(
         hasTextAcrossElements(
-          new RegExp(`${eitherNeitherContest.title}.?[no selection]`)
+          new RegExp(`${eitherNeitherContest.title}.?[No Selection]`)
         )
       )
     ).toHaveLength(2);
@@ -140,7 +140,7 @@ test('Renders Ballot with EitherNeither: Either & blank', async () => {
   await expectPrint((printedElement) => {
     expectPrintedVotes(printedElement, {
       eitherNeither: assertDefined(eitherNeitherContest.yesOption).label,
-      pickOne: '[no selection]',
+      pickOne: '[No Selection]',
     });
   });
 });
@@ -195,7 +195,7 @@ test('Renders Ballot with EitherNeither: blank & secondOption', async () => {
   });
   await expectPrint((printedElement) => {
     expectPrintedVotes(printedElement, {
-      eitherNeither: '[no selection]',
+      eitherNeither: '[No selection]',
       pickOne: assertDefined(pickOneContest.noOption).label,
     });
   });

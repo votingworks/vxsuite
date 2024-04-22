@@ -53,9 +53,14 @@ function CandidateContestResult({
   contest,
   vote = [],
   election,
+  selectionsAreEditable,
 }: CandidateContestResultInterface): JSX.Element {
   const district = getContestDistrict(election, contest);
   const remainingChoices = contest.seats - vote.length;
+
+  const noVotesString = selectionsAreEditable
+    ? appStrings.warningNoVotesForContest()
+    : appStrings.noteBallotContestNoSelection();
 
   return (
     <VoterContestSummary
@@ -65,10 +70,10 @@ function CandidateContestResult({
       undervoteWarning={
         remainingChoices > 0 ? (
           vote.length === 0 ? (
-            appStrings.warningNoVotesForContest()
+            noVotesString
           ) : (
             <React.Fragment>
-              {appStrings.labelNumVotesRemaining()}{' '}
+              {appStrings.labelNumVotesUnused()}{' '}
               <NumberString value={remainingChoices} />
             </React.Fragment>
           )
@@ -96,6 +101,7 @@ function YesNoContestResult({
   vote,
   contest,
   election,
+  selectionsAreEditable,
 }: YesNoContestResultInterface): JSX.Element {
   const district = getContestDistrict(election, contest);
   const yesNo = getSingleYesNoVote(vote);
@@ -111,14 +117,16 @@ function YesNoContestResult({
       ]
     : [];
 
+  const noVotesString = selectionsAreEditable
+    ? appStrings.warningNoVotesForContest()
+    : appStrings.noteBallotContestNoSelection();
+
   return (
     <VoterContestSummary
       districtName={electionStrings.districtName(district)}
       title={electionStrings.contestTitle(contest)}
       titleType="h2"
-      undervoteWarning={
-        !yesNo ? appStrings.warningNoVotesForContest() : undefined
-      }
+      undervoteWarning={!yesNo ? noVotesString : undefined}
       votes={votes}
     />
   );
@@ -129,6 +137,7 @@ function MsEitherNeitherContestResult({
   election,
   eitherNeitherContestVote,
   pickOneContestVote,
+  selectionsAreEditable,
 }: MsEitherNeitherContestResultInterface): JSX.Element {
   const district = getContestDistrict(election, contest);
   /* istanbul ignore next */
@@ -158,15 +167,17 @@ function MsEitherNeitherContestResult({
     });
   }
 
+  const noVotesString = selectionsAreEditable
+    ? appStrings.warningNoVotesForContest()
+    : appStrings.noteBallotContestNoSelection();
+
   return (
     <VoterContestSummary
       data-testid={`contest-${contest.id}`}
       districtName={electionStrings.districtName(district)}
       title={electionStrings.contestTitle(contest)}
       titleType="h2"
-      undervoteWarning={
-        votes.length < 2 ? appStrings.warningNoVotesForContest() : undefined
-      }
+      undervoteWarning={votes.length < 2 ? noVotesString : undefined}
       votes={votes}
     />
   );
@@ -235,6 +246,7 @@ export function Review({
               <CandidateContestResult
                 contest={contest}
                 election={election}
+                selectionsAreEditable={selectionsAreEditable}
                 precinctId={precinctId}
                 vote={votes[contest.id] as CandidateVote}
               />
@@ -244,6 +256,7 @@ export function Review({
                 vote={votes[contest.id] as YesNoVote}
                 contest={contest}
                 election={election}
+                selectionsAreEditable={selectionsAreEditable}
               />
             )}
             {contest.type === 'ms-either-neither' && (
@@ -253,6 +266,7 @@ export function Review({
                 eitherNeitherContestVote={
                   votes[contest.eitherNeitherContestId] as OptionalYesNoVote
                 }
+                selectionsAreEditable={selectionsAreEditable}
                 pickOneContestVote={
                   votes[contest.pickOneContestId] as OptionalYesNoVote
                 }

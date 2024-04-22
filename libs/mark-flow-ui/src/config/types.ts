@@ -43,18 +43,21 @@ export interface CandidateContestResultInterface {
   contest: CandidateContest;
   election: Election;
   precinctId: PrecinctId;
+  selectionsAreEditable?: boolean;
   vote: CandidateVote;
 }
 export interface YesNoContestResultInterface {
   contest: YesNoContest;
   election: Election;
   vote: OptionalYesNoVote;
+  selectionsAreEditable?: boolean;
 }
 export interface MsEitherNeitherContestResultInterface {
   contest: MsEitherNeitherContest;
   election: Election;
   eitherNeitherContestVote: OptionalYesNoVote;
   pickOneContestVote: OptionalYesNoVote;
+  selectionsAreEditable?: boolean;
 }
 
 // Machine Config

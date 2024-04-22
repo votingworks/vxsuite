@@ -287,9 +287,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   await screen.findByText('Review Your Votes');
   screen.getByText(countyCommissionersContest.candidates[0].name);
   screen.getByText(countyCommissionersContest.candidates[1].name);
-  screen.getByText(
-    hasTextAcrossElements(/Votes remaining in this contest: 2/i)
-  );
+  screen.getByText(hasTextAcrossElements(/number of unused votes: 2/i));
 
   // Print Screen
   apiMock.expectIncrementBallotsPrintedCount();
