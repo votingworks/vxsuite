@@ -64,7 +64,7 @@ test('candidate contest interpretation result with no votes', () => {
   );
 
   within(screen.getByTestId(`contest-wrapper-${contest.id}`)).getByText(
-    'no selection'
+    /no selection/i
   );
 });
 
@@ -165,7 +165,7 @@ describe('yesno contest', () => {
     );
 
     within(screen.getByTestId(`contest-wrapper-${contest.id}`)).getByText(
-      'no selection'
+      /no selection/i
     );
   });
 });
@@ -246,7 +246,7 @@ describe('ms-either-neither contest', () => {
     );
 
     within(screen.getByTestId(`contest-${mergedContest.id}`)).getByText(
-      'no selection'
+      /no selection/i
     );
   });
 });
