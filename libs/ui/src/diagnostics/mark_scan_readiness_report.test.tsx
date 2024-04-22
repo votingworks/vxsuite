@@ -18,6 +18,13 @@ test('MarkScanReadinessReport', () => {
         available: 500000000,
         used: 500000000,
       }}
+      mostRecentPaperHandlerDiagnostic={{
+        type: 'mark-scan-paper-handler',
+        outcome: 'pass',
+        timestamp: generatedAtTime.getTime(),
+      }}
+      isPaperHandlerDetected
+      onStartPaperHandlerDiagnostic={jest.fn()}
       mostRecentAccessibleControllerDiagnostic={{
         type: 'mark-scan-accessible-controller',
         outcome: 'pass',
@@ -41,7 +48,9 @@ test('MarkScanReadinessReport', () => {
   screen.getByText(/All Precincts/);
   screen.getByText('Battery Level: 50%');
   screen.getByText('Power Source: Battery');
-  screen.getByText('Detected');
-  screen.getByText(/Test passed/);
+  screen.getByTestId('paperHandlerDetected');
+  screen.getByTestId('accessibleControllerDetected');
+  screen.getByTestId('paperHandlerTestPassed');
+  screen.getByTestId('accessibleControllerTestPassed');
   screen.getByText('passed child');
 });

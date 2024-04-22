@@ -26,11 +26,11 @@ export function MarkScanControllerSection({
     <React.Fragment>
       <H2>Accessible Controller</H2>
       {isAccessibleControllerInputDetected ? (
-        <P>
+        <P data-testid="accessibleControllerDetected">
           <SuccessIcon /> Detected
         </P>
       ) : (
-        <P>
+        <P data-testid="accessibleControllerNotDetected">
           <WarningIcon /> Not detected
         </P>
       )}
@@ -49,7 +49,7 @@ export function MarkScanControllerSection({
             : ''}
         </P>
       ) : (
-        <P>
+        <P data-testid="accessibleControllerTestPassed">
           <SuccessIcon /> Test passed,{' '}
           {new Date(
             mostRecentAccessibleControllerDiagnostic.timestamp

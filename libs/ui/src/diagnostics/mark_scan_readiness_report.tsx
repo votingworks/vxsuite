@@ -12,8 +12,14 @@ import { makeTheme } from '../themes/make_theme';
 import { PrintedReport } from '../reports/layout';
 import { ReadinessReportHeader } from './report_header';
 
+import {
+  MarkScanPaperHandlerSection,
+  MarkScanPaperHandlerSectionProps,
+} from './mark_scan_paper_handler_section';
+
 type ReportContentsProps = ComputerSectionProps &
   MarkScanControllerSectionProps &
+  MarkScanPaperHandlerSectionProps &
   ConfigurationSectionProps;
 
 export function MarkScanReadinessReportContents(
@@ -23,6 +29,7 @@ export function MarkScanReadinessReportContents(
     <div>
       <ConfigurationSection {...props} expectPrecinctSelection />
       <ComputerSection {...props} />
+      <MarkScanPaperHandlerSection {...props} />
       <MarkScanControllerSection {...props} />
     </div>
   );
