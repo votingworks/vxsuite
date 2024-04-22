@@ -9,7 +9,7 @@ import { Buffer } from 'buffer';
 const BALLOT_FIXTURE_FRONT_PATH = join(
   __dirname,
   'fixtures',
-  'ballot-pdf-data.bin'
+  'sample-ballot-large-top-margin.pdf'
 );
 export const MAX_FIXTURE_FILE_SIZE_BYTES = 1024 * 1024 * 50;
 
