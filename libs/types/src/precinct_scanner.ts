@@ -19,6 +19,7 @@ export const PRECINCT_SCANNER_STATES = [
   'recovering_from_error',
   'double_sheet_jammed',
   'unrecoverable_error',
+  'paused',
 ] as const;
 
 export type PrecinctScannerState = (typeof PRECINCT_SCANNER_STATES)[number];
