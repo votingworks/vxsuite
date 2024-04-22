@@ -42,7 +42,7 @@ it('accessible controller handling works', async () => {
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',
   });
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
   await advanceTimersAndPromises();
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({
@@ -120,7 +120,7 @@ it('auto-focuses "next" button on contest screen after voting', async () => {
   });
   mockOf(apiMock.mockApiClient.isPatDeviceConnected).mockResolvedValue(true);
 
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
   await advanceTimersAndPromises();
   // Start voter session
   apiMock.setAuthStatusCardlessVoterLoggedIn({

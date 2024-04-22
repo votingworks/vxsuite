@@ -39,7 +39,7 @@ test('app renders a notice when election hash on card does not match that of mac
     pollsState: 'polls_open',
   });
 
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   // insert election manager card with different election
   apiMock.setAuthStatusElectionManagerLoggedIn(

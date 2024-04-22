@@ -34,7 +34,7 @@ jest.setTimeout(30000);
 test('`jammed` state renders jam page', async () => {
   apiMock.setPaperHandlerState('jammed');
 
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   await screen.findByText('Paper is Jammed');
 });
@@ -43,7 +43,7 @@ test('`jam_cleared` state renders jam cleared page', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   apiMock.setPaperHandlerState('jam_cleared');
 
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   await screen.findByText('Jam Cleared');
   screen.getByText(/The hardware is resetting/);
@@ -53,7 +53,7 @@ test('`resetting_state_machine_after_jam` state renders jam cleared page', async
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   apiMock.setPaperHandlerState('resetting_state_machine_after_jam');
 
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   await screen.findByText('Jam Cleared');
   screen.getByText(/The hardware has been reset/);
@@ -67,7 +67,7 @@ test('`waiting_for_invalidated_ballot_confirmation` state renders ballot invalid
     pollsState: 'polls_open',
   });
 
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   apiMock.setPaperHandlerState(
     'waiting_for_invalidated_ballot_confirmation.paper_present'
@@ -84,7 +84,7 @@ test('`waiting_for_invalidated_ballot_confirmation` state renders ballot invalid
     pollsState: 'polls_open',
   });
 
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   apiMock.setPaperHandlerState(
     'waiting_for_invalidated_ballot_confirmation.paper_present'
@@ -101,7 +101,7 @@ test('`waiting_for_invalidated_ballot_confirmation` state renders ballot invalid
 test('`blank_page_interpretation` state renders BlankPageInterpretationPage for cardless voter auth', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
 
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   apiMock.setPaperHandlerState('blank_page_interpretation');
   apiMock.setAuthStatusCardlessVoterLoggedInWithDefaults(electionDefinition);
@@ -112,7 +112,7 @@ test('`blank_page_interpretation` state renders BlankPageInterpretationPage for 
 test('`blank_page_interpretation` state renders BlankPageInterpretationPage for poll worker auth', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
 
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   apiMock.setPaperHandlerState('blank_page_interpretation');
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
@@ -127,7 +127,7 @@ test('`blank_page_interpretation` state renders BlankPageInterpretationPage for 
 test('`pat_device_connected` state renders PAT device calibration page', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
 
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   apiMock.setPaperHandlerState('pat_device_connected');
   apiMock.setAuthStatusCardlessVoterLoggedInWithDefaults(electionDefinition);
@@ -137,7 +137,7 @@ test('`pat_device_connected` state renders PAT device calibration page', async (
 test('`paper_reloaded` state renders PaperReloadedPage', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
 
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   apiMock.setPaperHandlerState('paper_reloaded');
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition, {
@@ -154,7 +154,7 @@ test('`paper_reloaded` state renders PaperReloadedPage', async () => {
 test('`empty_ballot_box` state renders EmptyBallotBoxPage', async () => {
   apiMock.setAuthStatusCardlessVoterLoggedInWithDefaults(electionDefinition);
 
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   apiMock.setPaperHandlerState('empty_ballot_box');
   await screen.findByText('Ballot Box Full');
@@ -169,7 +169,7 @@ test('`ballot_removed_during_presentation` state renders CastBallotPage', async 
     isTestMode: false,
   });
 
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   apiMock.setPaperHandlerState('ballot_removed_during_presentation');
   await screen.findByText(
@@ -200,7 +200,7 @@ test.each(ballotCastPageTestSpecs)(
     apiMock.setAuthStatusCardlessVoterLoggedInWithDefaults(electionDefinition);
     apiMock.setPaperHandlerState(state);
 
-    render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+    render(<App apiClient={apiMock.mockApiClient} />);
 
     await screen.findByText('Your ballot was cast!');
     await screen.findByText('Thank you for voting.');
@@ -229,7 +229,7 @@ test.each(authEndedEarlyPageTestSpecs)(
       apiMock.setAuthStatusLoggedOut();
     }
 
-    render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+    render(<App apiClient={apiMock.mockApiClient} />);
 
     await screen.findByText(
       'The poll worker card was removed before paper loading completed. Please try again.'

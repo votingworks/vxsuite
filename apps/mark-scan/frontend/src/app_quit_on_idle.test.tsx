@@ -46,7 +46,7 @@ test('Insert Card screen idle timeout to quit app', async () => {
     pollsState: 'polls_open',
   });
 
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   // Ensure we're on the Insert Card screen
   await screen.findByText('Insert Card');

@@ -98,7 +98,7 @@ it('Single Seat Contest with Write In', async () => {
   const { fireUpdateVoteEvent, getLatestVotes, goToReviewPage } =
     setUpMockContestPage();
 
-  const app = <App apiClient={apiMock.mockApiClient} reload={jest.fn()} />;
+  const app = <App apiClient={apiMock.mockApiClient} />;
   const { rerender } = render(app);
 
   // Start voter session

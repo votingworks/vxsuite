@@ -25,7 +25,7 @@ test('renders an error if election package config endpoint returns an error', as
   apiMock.expectGetElectionState();
   apiMock.setAuthStatusElectionManagerLoggedIn(electionGeneralDefinition);
 
-  render(<App reload={jest.fn()} apiClient={apiMock.mockApiClient} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   apiMock.expectConfigureElectionPackageFromUsbError('election_hash_mismatch');
   apiMock.expectGetSystemSettings();

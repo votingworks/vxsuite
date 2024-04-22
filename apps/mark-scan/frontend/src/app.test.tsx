@@ -4,7 +4,6 @@ import {
   mockOf,
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import fetchMock from 'fetch-mock';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
@@ -63,7 +62,7 @@ it('Displays error boundary if the api returns an unexpected error', async () =>
   apiMock.expectGetMachineConfigToError();
   apiMock.mockApiClient.reboot.expectRepeatedCallsWith().resolves();
   await suppressingConsoleOutput(async () => {
-    render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+    render(<App apiClient={apiMock.mockApiClient} />);
     await advanceTimersAndPromises();
     screen.getByText('Something went wrong');
     userEvent.click(await screen.findButton('Restart'));
@@ -75,7 +74,7 @@ it('prevents context menus from appearing', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
   apiMock.expectGetElectionState();
-  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   const { oncontextmenu } = window;
 
@@ -136,36 +135,4 @@ it('uses ballot style management hook', async () => {
       electionDefinition: electionGeneralDefinition,
     })
   );
-});
-
-// This test is only really here to provide coverage for the default value for
-// `App`'s `reload` prop.
-it('uses window.location.reload by default', async () => {
-  const electionDefinition = electionGeneralDefinition;
-
-  // Stub location in a way that's good enough for this test, but not good
-  // enough for general `window.location` use.
-  const reload = jest.fn();
-  apiMock.expectGetMachineConfig();
-  apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(electionDefinition);
-  apiMock.expectGetElectionState({
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-  });
-
-  jest.spyOn(window, 'location', 'get').mockReturnValue({
-    ...window.location,
-    reload,
-  });
-
-  // Set up in an already-configured state.
-  render(<App apiClient={apiMock.mockApiClient} />);
-
-  await advanceTimersAndPromises();
-
-  // Force refresh
-  apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
-  await advanceTimersAndPromises();
-  userEvent.click(await screen.findByText('Reset Accessible Controller'));
-  expect(reload).toHaveBeenCalledTimes(1);
 });

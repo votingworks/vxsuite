@@ -148,7 +148,6 @@ export interface PollworkerScreenProps {
   pollsState: PollsState;
   ballotsPrintedCount: number;
   machineConfig: MachineConfig;
-  reload: () => void;
   precinctSelection: PrecinctSelection;
 }
 
@@ -162,7 +161,6 @@ export function PollWorkerScreen({
   ballotsPrintedCount,
   machineConfig,
   hasVotes,
-  reload,
   precinctSelection,
 }: PollworkerScreenProps): JSX.Element | null {
   const { election } = electionDefinition;
@@ -420,9 +418,6 @@ export function PollWorkerScreen({
                     );
                   }
                 )}
-              </P>
-              <P>
-                <Button onPress={reload}>Reset Accessible Controller</Button>
               </P>
             </React.Fragment>
           )}
