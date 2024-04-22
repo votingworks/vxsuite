@@ -75,7 +75,8 @@ test('navigates to System Diagnostics screen', async () => {
   apiMock.expectGetElectionState();
   apiMock.setBatteryInfo();
   apiMock.expectGetIsAccessibleControllerInputDetected();
-  apiMock.expectGetMostRecentAccessibleControllerDiagnostic();
+  apiMock.expectGetMostRecentDiagnostic('mark-scan-accessible-controller');
+  apiMock.expectGetMostRecentDiagnostic('mark-scan-paper-handler');
   apiMock.expectGetApplicationDiskSpaceSummary();
 
   userEvent.click(screen.getButton('System Diagnostics'));

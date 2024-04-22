@@ -167,6 +167,23 @@ export const getApplicationDiskSpaceSummary = {
   },
 } as const;
 
+export const getMostRecentPaperHandlerDiagnostic = {
+  queryKey(): QueryKey {
+    return ['getMostRecentPaperHandlerDiagnostic'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () =>
+        apiClient.getMostRecentDiagnostic({
+          diagnosticType: 'mark-scan-paper-handler',
+        }),
+      { cacheTime: 0 }
+    );
+  },
+} as const;
+
 export const getMostRecentAccessibleControllerDiagnostic = {
   queryKey(): QueryKey {
     return ['getMostRecentAccessibleControllerDiagnostic'];
@@ -174,7 +191,9 @@ export const getMostRecentAccessibleControllerDiagnostic = {
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(this.queryKey(), () =>
-      apiClient.getMostRecentAccessibleControllerDiagnostic()
+      apiClient.getMostRecentDiagnostic({
+        diagnosticType: 'mark-scan-accessible-controller',
+      })
     );
   },
 } as const;
@@ -482,6 +501,18 @@ export const isPatDeviceConnected = {
 
     return useQuery(this.queryKey(), () => apiClient.isPatDeviceConnected(), {
       refetchInterval: STATE_MACHINE_POLLING_INTERVAL_MS,
+    });
+  },
+} as const;
+
+export const startPaperHandlerDiagnostic = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.startPaperHandlerDiagnostic, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getStateMachineState.queryKey());
+      },
     });
   },
 } as const;
