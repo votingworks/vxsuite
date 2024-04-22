@@ -21,7 +21,7 @@ import {
 import { Buffer } from 'buffer';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
 import { Optional, assert, assertDefined } from '@votingworks/basics';
-import { SheetOf } from '@votingworks/types';
+import { MarkThresholds, SheetOf } from '@votingworks/types';
 import {
   InterpretFileResult,
   interpretSimplexBmdBallotFromFilepath,
@@ -33,9 +33,11 @@ import {
   isCardlessVoterAuth,
   isFeatureFlagEnabled,
   isPollWorkerAuth,
+  isSystemAdministratorAuth,
+  singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-// Will be used later in sample ballot interpretation
-// import { electionDefinition as electionMarkScanDiagnosticDefinition } from './electionPaperHandlerDiagnostic/election.json';
+import { readFile } from '@votingworks/fs';
+import { electionDefinition as electionMarkScanDiagnosticDefinition } from './electionPaperHandlerDiagnostic/election.json';
 import { Workspace, constructAuthMachineState } from '../util/workspace';
 import { SimpleServerStatus } from './types';
 import {
@@ -67,7 +69,10 @@ import {
   ORIGIN_SWIFTY_PRODUCT_ID,
   ORIGIN_VENDOR_ID,
 } from '../pat-input/constants';
-import { getSampleBallotFilepath } from './filepaths';
+import {
+  getDiagnosticBallotFilepath,
+  getSampleBallotFilepath,
+} from './filepaths';
 
 interface Context {
   auth: InsertedSmartCardAuthApi;
@@ -107,8 +112,10 @@ export type PaperHandlerStatusEvent =
   | { type: 'SET_INTERPRETATION_FIXTURE' }
   | { type: 'VOTER_VALIDATED_BALLOT' }
   | { type: 'VOTER_INVALIDATED_BALLOT' }
+  | { type: 'AUTH_STATUS_SYSTEM_ADMIN' }
   | { type: 'AUTH_STATUS_CARDLESS_VOTER' }
   | { type: 'AUTH_STATUS_POLL_WORKER' }
+  | { type: 'AUTH_STATUS_LOGGED_OUT' }
   | { type: 'AUTH_STATUS_UNHANDLED' }
   | { type: 'PAT_DEVICE_CONNECTED' }
   | { type: 'PAT_DEVICE_DISCONNECTED' }
@@ -116,7 +123,8 @@ export type PaperHandlerStatusEvent =
   | { type: 'VOTER_CONFIRMED_SESSION_END' }
   | { type: 'PAT_DEVICE_NO_STATUS_CHANGE' }
   | { type: 'PAT_DEVICE_STATUS_UNHANDLED' }
-  | { type: 'POLL_WORKER_CONFIRMED_BALLOT_BOX_EMPTIED' };
+  | { type: 'POLL_WORKER_CONFIRMED_BALLOT_BOX_EMPTIED' }
+  | { type: 'SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC' };
 
 const debug = makeDebug('mark-scan:state-machine');
 const debugEvents = debug.extend('events');
@@ -137,6 +145,7 @@ export interface PaperHandlerStateMachine {
   setInterpretationFixture(): void;
   isPatDeviceConnected(): boolean;
   addTransitionListener(listener: () => void): void;
+  startPaperHandlerDiagnostic(): void;
 }
 
 export function paperHandlerStatusToEvent(
@@ -251,12 +260,20 @@ function buildAuthStatusObservable() {
             constructAuthMachineState(workspace)
           );
 
+          if (isSystemAdministratorAuth(authStatus)) {
+            return { type: 'AUTH_STATUS_SYSTEM_ADMIN' };
+          }
+
           if (isCardlessVoterAuth(authStatus)) {
             return { type: 'AUTH_STATUS_CARDLESS_VOTER' };
           }
 
           if (isPollWorkerAuth(authStatus)) {
             return { type: 'AUTH_STATUS_POLL_WORKER' };
+          }
+
+          if (authStatus.status === 'logged_out') {
+            return { type: 'AUTH_STATUS_LOGGED_OUT' };
           }
 
           debug('Unhandled auth status in observable: %O', authStatus);
@@ -443,6 +460,8 @@ export function buildMachine(
           }),
           target: 'voting_flow.interpreting',
         },
+        SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC:
+          'paper_handler_diagnostic',
       },
       invoke: [pollPatDeviceConnectionStatus()],
       states: {
@@ -459,8 +478,8 @@ export function buildMachine(
               on: {
                 // Paper may be inside the machine from previous testing or machine failure. We should eject
                 // the paper (not to ballot bin) because we don't know whether the page has been printed.
-                PAPER_INSIDE_NO_JAM: 'eject_to_front',
                 PAPER_PARKED: 'eject_to_front',
+                PAPER_INSIDE_NO_JAM: 'eject_to_front',
                 BEGIN_ACCEPTING_PAPER: 'accepting_paper',
               },
             },
@@ -805,6 +824,172 @@ export function buildMachine(
             },
           },
         },
+        paper_handler_diagnostic: {
+          initial: 'prompt_for_paper',
+          on: {
+            // Reset to state machine initial state if auth is ended
+            AUTH_STATUS_LOGGED_OUT: 'paper_handler_diagnostic.done',
+          },
+          invoke: pollAuthStatus(),
+          states: {
+            prompt_for_paper: {
+              invoke: pollPaperStatus(),
+              on: {
+                PAPER_READY_TO_LOAD: 'load_paper',
+              },
+            },
+            load_paper: {
+              invoke: [
+                pollPaperStatus(),
+                {
+                  id: 'diagnostic.loadAndPark',
+                  src: (context) => {
+                    return loadAndParkPaper(context.driver);
+                  },
+                },
+              ],
+              on: {
+                PAPER_PARKED: 'print_ballot_fixture',
+                NO_PAPER_ANYWHERE: 'prompt_for_paper',
+              },
+            },
+            print_ballot_fixture: {
+              invoke: {
+                id: 'diagnostic.printBallotFixture',
+                src: async (context) => {
+                  const pdfDataResult = await readFile(
+                    getDiagnosticBallotFilepath(),
+                    {
+                      maxSize: 1024 * 1024 * 50,
+                    }
+                  );
+                  return printBallotChunks(
+                    context.driver,
+                    pdfDataResult.unsafeUnwrap(),
+                    {}
+                  );
+                },
+                onDone: 'scan_ballot',
+              },
+            },
+            scan_ballot: {
+              invoke: {
+                id: 'diagnostic.scanAndSave',
+                src: async (context) => {
+                  return await scanAndSave(context.driver);
+                },
+                onDone: {
+                  target: 'interpret_ballot',
+                  actions: assign({
+                    scannedBallotImagePath: (_, event) => event.data,
+                  }),
+                },
+              },
+            },
+            interpret_ballot: {
+              invoke: {
+                id: 'diagnostic.interpretScannedBallot',
+                src: async (context) => {
+                  const { scannedBallotImagePath } = context;
+                  const electionDefinition =
+                    electionMarkScanDiagnosticDefinition;
+                  const precinctSelection = singlePrecinctSelectionFor(
+                    electionDefinition.election.precincts[1].id
+                  );
+
+                  const markThresholds: MarkThresholds = {
+                    marginal: 0.05,
+                    definite: 0.07,
+                    writeInTextArea: 0.05,
+                  };
+
+                  const interpretation =
+                    await interpretSimplexBmdBallotFromFilepath(
+                      assertDefined(
+                        scannedBallotImagePath,
+                        'Expected scannedImagePaths in context'
+                      ),
+                      {
+                        electionDefinition,
+                        precinctSelection,
+                        testMode: true,
+                        markThresholds,
+                        adjudicationReasons: [],
+                      }
+                    );
+                  return interpretation;
+                },
+                onDone: {
+                  target: 'transition_interpretation',
+                  actions: assign({
+                    interpretation: (_, event) => event.data,
+                  }),
+                },
+              },
+            },
+            transition_interpretation: {
+              always: [
+                {
+                  target: 'failure',
+                  cond: (context) =>
+                    !context.interpretation ||
+                    !context.interpretation[0] ||
+                    context.interpretation[0].interpretation.type !==
+                      'InterpretedBmdPage',
+                },
+                {
+                  target: 'eject_to_rear',
+                  cond: (context) =>
+                    // context.interpretation is guaranteed to be defined after the check above
+                    assertDefined(context.interpretation)[0].interpretation
+                      .type === 'InterpretedBmdPage',
+                },
+              ],
+            },
+            eject_to_rear: {
+              invoke: pollPaperStatus(),
+              entry: async (context) => {
+                await context.driver.ejectBallotToRear();
+              },
+              on: {
+                NO_PAPER_ANYWHERE: 'success',
+              },
+              after: {
+                [DELAY_BEFORE_DECLARING_REAR_JAM_MS]: 'failure',
+              },
+            },
+            success: {
+              entry: async (context) => {
+                context.workspace.store.addDiagnosticRecord({
+                  type: 'mark-scan-paper-handler',
+                  outcome: 'pass',
+                });
+                await context.driver.ejectBallotToRear();
+              },
+              onDone: 'done',
+            },
+            failure: {
+              entry: (context) => {
+                context.workspace.store.addDiagnosticRecord({
+                  type: 'mark-scan-paper-handler',
+                  outcome: 'fail',
+                });
+              },
+              always: 'done',
+            },
+            done: {
+              entry: async (context) => {
+                const status = await context.driver.getPaperHandlerStatus();
+                if (isPaperInInput(status) || isPaperInScanner(status)) {
+                  await context.driver.parkPaper();
+                  await context.driver.ejectBallotToRear();
+                }
+              },
+              type: 'final',
+            },
+          },
+          onDone: 'voting_flow.history',
+        },
         pat_device_disconnected: {
           always: 'voting_flow.history',
         },
@@ -970,6 +1155,26 @@ export async function getPaperHandlerStateMachine({
       const { state } = machineService;
 
       switch (true) {
+        case state.matches('paper_handler_diagnostic.prompt_for_paper'):
+          return 'paper_handler_diagnostic.prompt_for_paper';
+        case state.matches('paper_handler_diagnostic.load_paper'):
+          return 'paper_handler_diagnostic.load_paper';
+        case state.matches('paper_handler_diagnostic.print_ballot_fixture'):
+          return 'paper_handler_diagnostic.print_ballot_fixture';
+        case state.matches('paper_handler_diagnostic.scan_ballot'):
+          return 'paper_handler_diagnostic.scan_ballot';
+        case state.matches('paper_handler_diagnostic.interpret_ballot'):
+        case state.matches(
+          'paper_handler_diagnostic.transition_interpretation'
+        ):
+          return 'paper_handler_diagnostic.interpret_ballot';
+        case state.matches('paper_handler_diagnostic.eject_to_rear'):
+          return 'paper_handler_diagnostic.eject_to_rear';
+        case state.matches('paper_handler_diagnostic.success'):
+          return 'paper_handler_diagnostic.success';
+        case state.matches('paper_handler_diagnostic.failure'):
+          /* istanbul ignore next - nonblocking state can't be reliably asserted on. Instead, assert on presence of diagnostic record */
+          return 'paper_handler_diagnostic.failure';
         case state.matches('voting_flow.not_accepting_paper'):
         case state.matches('voting_flow.resetting_state_machine_no_delay'):
           // Frontend has nothing to render for resetting_state_machine_no_delay
@@ -1122,6 +1327,12 @@ export async function getPaperHandlerStateMachine({
 
     addTransitionListener(listener) {
       machineService.onTransition(listener);
+    },
+
+    startPaperHandlerDiagnostic(): void {
+      machineService.send({
+        type: 'SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC',
+      });
     },
   };
 }

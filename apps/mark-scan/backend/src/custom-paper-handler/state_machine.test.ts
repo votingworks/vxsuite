@@ -67,7 +67,9 @@ import {
 import { getSampleBallotFilepath } from './filepaths';
 import {
   mockCardlessVoterAuth,
+  mockLoggedOutAuth,
   mockPollWorkerAuth,
+  mockSystemAdminAuth,
 } from '../../test/auth_helpers';
 import { MAX_BALLOT_BOX_CAPACITY } from './constants';
 import {
@@ -711,4 +713,83 @@ test('poll_worker_auth_ended_unexpectedly', async () => {
     precinctId,
   });
   await expectStatusTransitionTo('poll_worker_auth_ended_unexpectedly');
+});
+
+describe('paper handler diagnostic', () => {
+  test('happy path', async () => {
+    mockSystemAdminAuth(auth);
+    const { store } = workspace;
+
+    expect(
+      store.getMostRecentDiagnosticRecord('mark-scan-paper-handler')
+    ).toEqual(undefined);
+    mockOf(printBallotChunks).mockImplementation(async () => {
+      await sleep(TEST_POLL_INTERVAL_MS);
+    });
+    mockOf(scanAndSave).mockImplementation(async () => {
+      await sleep(TEST_POLL_INTERVAL_MS);
+      return getSampleBallotFilepaths();
+    });
+
+    machine.startPaperHandlerDiagnostic();
+    await waitForStatus('paper_handler_diagnostic.prompt_for_paper');
+    setMockDeviceStatus(getPaperInFrontStatus());
+    await waitForStatus('paper_handler_diagnostic.load_paper');
+    setMockDeviceStatus(getPaperParkedStatus());
+    await waitForStatus('paper_handler_diagnostic.print_ballot_fixture');
+    await waitForStatus('paper_handler_diagnostic.scan_ballot');
+    await waitForStatus('paper_handler_diagnostic.interpret_ballot');
+    await waitForStatus('paper_handler_diagnostic.eject_to_rear');
+    setMockDeviceStatus(getDefaultPaperHandlerStatus());
+    await waitForStatus('paper_handler_diagnostic.success');
+
+    expect(
+      store.getMostRecentDiagnosticRecord('mark-scan-paper-handler')?.outcome
+    ).toEqual('pass');
+  });
+
+  test('failure', async () => {
+    mockSystemAdminAuth(auth);
+    const { store } = workspace;
+
+    expect(
+      store.getMostRecentDiagnosticRecord('mark-scan-paper-handler')
+    ).toEqual(undefined);
+    mockOf(printBallotChunks).mockImplementation(async () => {
+      await sleep(TEST_POLL_INTERVAL_MS);
+    });
+    mockOf(scanAndSave).mockImplementation(async () => {
+      await sleep(TEST_POLL_INTERVAL_MS);
+      return [getBlankSheetFixturePath(), getBlankSheetFixturePath()];
+    });
+
+    machine.startPaperHandlerDiagnostic();
+    await waitForStatus('paper_handler_diagnostic.prompt_for_paper');
+    setMockDeviceStatus(getPaperInFrontStatus());
+    await waitForStatus('paper_handler_diagnostic.load_paper');
+    setMockDeviceStatus(getPaperParkedStatus());
+    await waitForStatus('paper_handler_diagnostic.print_ballot_fixture');
+    await waitForStatus('paper_handler_diagnostic.scan_ballot');
+    await waitForStatus('paper_handler_diagnostic.interpret_ballot');
+
+    // States transition too fast to reliably assert on, so just wait one polling cycle
+    // and assert end state
+    await sleep(TEST_POLL_INTERVAL_MS);
+    expect(
+      store.getMostRecentDiagnosticRecord('mark-scan-paper-handler')?.outcome
+    ).toEqual('fail');
+    await waitForStatus('ejecting_to_front');
+  });
+
+  test('system admin log out', async () => {
+    machine.setAcceptingPaper();
+    expect(machine.getSimpleStatus()).toEqual('accepting_paper');
+
+    mockSystemAdminAuth(auth);
+    machine.startPaperHandlerDiagnostic();
+    await waitForStatus('paper_handler_diagnostic.prompt_for_paper');
+
+    mockLoggedOutAuth(auth);
+    await waitForStatus('accepting_paper');
+  });
 });
