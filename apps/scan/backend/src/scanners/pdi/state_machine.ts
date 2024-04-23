@@ -324,8 +324,25 @@ function buildMachine({
       initial: 'connecting',
       strict: true,
       context: { client: initialClient },
+      invoke: listenForScannerEvents,
 
       on: {
+        SCANNER_EVENT: [
+          {
+            cond: (_, { event }) => event.event === 'coverOpen',
+            target: 'coverOpen',
+          },
+          {
+            target: '#error',
+            actions: assign({
+              error: (_, { event }) =>
+                new PrecinctScannerError(
+                  'unexpected_event',
+                  `Unexpected event: ${event.event}`
+                ),
+            }),
+          },
+        ],
         SCANNER_ERROR: [
           {
             cond: (_, { error }) => error.code === 'disconnected',
@@ -373,6 +390,10 @@ function buildMachine({
               on: {
                 SCANNER_STATUS: [
                   {
+                    cond: (_, { status }) => status.coverOpen,
+                    target: '#coverOpen',
+                  },
+                  {
                     cond: (_, { status }) =>
                       status.documentInScanner && anyRearSensorCovered(status),
                     target: '#rejecting',
@@ -417,16 +438,6 @@ function buildMachine({
                     cond: (_, { event }) => event.event === 'scanStart',
                     target: '#scanning',
                   },
-                  {
-                    target: '#error',
-                    actions: assign({
-                      error: (_, { event }) =>
-                        new PrecinctScannerError(
-                          'unexpected_event',
-                          `Unexpected event: ${event.event}`
-                        ),
-                    }),
-                  },
                 ],
               },
             },
@@ -464,16 +475,6 @@ function buildMachine({
                       },
                     }),
                     target: 'checkingComplete',
-                  },
-                  {
-                    target: '#error',
-                    actions: assign({
-                      error: (_, { event }) =>
-                        new PrecinctScannerError(
-                          'unexpected_event',
-                          `Unexpected event: ${event.event}`
-                        ),
-                    }),
                   },
                 ],
                 SCANNER_ERROR: [
@@ -549,7 +550,6 @@ function buildMachine({
         },
 
         readyToAccept: {
-          invoke: listenForScannerEvents, // Detect disconnections
           on: { ACCEPT: 'accepting' },
         },
 
@@ -588,7 +588,6 @@ function buildMachine({
         },
 
         needsReview: {
-          invoke: listenForScannerEvents, // Detect disconnections
           on: {
             ACCEPT: 'acceptingAfterReview',
             RETURN: 'returning',
@@ -624,6 +623,17 @@ function buildMachine({
                 target: 'waitingForBallot',
               },
             ],
+          },
+        },
+
+        coverOpen: {
+          id: 'coverOpen',
+          invoke: listenForScannerEvents,
+          on: {
+            SCANNER_EVENT: {
+              cond: (_, { event }) => event.event === 'coverClosed',
+              target: 'waitingForBallot',
+            },
           },
         },
 
@@ -823,6 +833,8 @@ export function createPrecinctScannerStateMachine({
             return 'rejected';
           case state.matches('jammed'):
             return 'jammed';
+          case state.matches('coverOpen'):
+            return 'cover_open';
           case state.matches('error'):
             return 'recovering_from_error';
           case state.matches('unrecoverableError'):
