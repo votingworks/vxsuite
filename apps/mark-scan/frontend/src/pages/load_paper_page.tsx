@@ -1,13 +1,17 @@
-import { P, appStrings } from '@votingworks/ui';
-import { CenteredPageLayout } from '../components/centered_page_layout';
+import { Icons, P } from '@votingworks/ui';
+import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
 
 export function LoadPaperPage(): JSX.Element {
   return (
-    <CenteredPageLayout
-      title={appStrings.titleBmdLoadPaperScreen()}
-      voterFacing
+    <CenteredCardPageLayout
+      icon={<Icons.Info />}
+      title="Load Blank Ballot Sheet"
+      voterFacing={false}
     >
-      <P>{appStrings.instructionsBmdLoadPaper()}</P>
-    </CenteredPageLayout>
+      <P>
+        Please feed one sheet of paper into the front input tray. The printer
+        will automatically grab the paper when positioned correctly.
+      </P>
+    </CenteredCardPageLayout>
   );
 }

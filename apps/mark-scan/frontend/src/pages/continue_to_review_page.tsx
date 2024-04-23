@@ -4,15 +4,17 @@ import {
   AudioOnly,
   P,
   PageNavigationButtonId,
+  Icons,
 } from '@votingworks/ui';
-import { CenteredPageLayout } from '../components/centered_page_layout';
+import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
 
 // This page is rendered as part of the blank ballot interpretation flow immediately after
 // the poll worker card is removed. To protect voter privacy, we render this screen first to
 // ask the voter to approve before showing ballot selections on screen.
 export function ContinueToReviewPage(): JSX.Element {
   return (
-    <CenteredPageLayout
+    <CenteredCardPageLayout
+      icon={<Icons.Info />}
       title={appStrings.titleBmdReadyToReview()}
       buttons={
         <LinkButton
@@ -29,6 +31,6 @@ export function ContinueToReviewPage(): JSX.Element {
     >
       <P>{appStrings.noteBmdBallotSheetLoaded()}</P>
       <AudioOnly>{appStrings.instructionsBmdSelectToContinue()}</AudioOnly>
-    </CenteredPageLayout>
+    </CenteredCardPageLayout>
   );
 }

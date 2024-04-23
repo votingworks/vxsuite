@@ -1,8 +1,8 @@
-import { Button, P } from '@votingworks/ui';
+import { Button, Icons, P } from '@votingworks/ui';
 import { useHistory } from 'react-router-dom';
 import { useEffect } from 'react';
 import { confirmInvalidateBallot } from '../api';
-import { CenteredPageLayout } from '../components/centered_page_layout';
+import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
 
 interface Props {
   paperPresent: boolean;
@@ -19,18 +19,25 @@ export function RemoveInvalidatedBallotPage(props: Props): JSX.Element {
   });
 
   return (
-    <CenteredPageLayout
+    <CenteredCardPageLayout
+      icon={
+        paperPresent ? (
+          <Icons.Warning color="warning" />
+        ) : (
+          <Icons.Done color="success" />
+        )
+      }
       title={paperPresent ? 'Remove Ballot' : 'Ballot Removed'}
       buttons={
         <Button
           disabled={paperPresent}
           onPress={() => confirmInvalidateBallotMutation.mutate(undefined)}
+          variant="primary"
         >
           Continue
         </Button>
       }
       voterFacing={false}
-      textAlign="left"
     >
       {paperPresent ? (
         <P>Please remove the incorrect ballot.</P>
@@ -39,6 +46,6 @@ export function RemoveInvalidatedBallotPage(props: Props): JSX.Element {
           The incorrect ballot has been removed. Remember to spoil the ballot.
         </P>
       )}
-    </CenteredPageLayout>
+    </CenteredCardPageLayout>
   );
 }

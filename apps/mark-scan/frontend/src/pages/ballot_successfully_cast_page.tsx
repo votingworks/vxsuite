@@ -1,20 +1,14 @@
-import {
-  FullScreenIconWrapper,
-  H1,
-  Icons,
-  P,
-  appStrings,
-} from '@votingworks/ui';
-import { CenteredPageLayout } from '../components/centered_page_layout';
+import { Icons, P, appStrings } from '@votingworks/ui';
+import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
 
 export function BallotSuccessfullyCastPage(): JSX.Element {
   return (
-    <CenteredPageLayout voterFacing>
-      <FullScreenIconWrapper>
-        <Icons.Done color="success" />
-      </FullScreenIconWrapper>
-      <H1 align="left">{appStrings.titleBallotSuccessfullyCastPage()}</H1>
+    <CenteredCardPageLayout
+      icon={<Icons.Done color="success" />}
+      title={appStrings.titleBallotSuccessfullyCastPage()}
+      voterFacing
+    >
       <P align="left">{appStrings.noteThankYouForVoting()}</P>
-    </CenteredPageLayout>
+    </CenteredCardPageLayout>
   );
 }
