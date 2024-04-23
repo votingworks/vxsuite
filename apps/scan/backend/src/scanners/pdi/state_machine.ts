@@ -639,10 +639,23 @@ function buildMachine({
 
         disconnected: {
           id: 'disconnected',
-          after: {
-            DELAY_RECONNECT: {
-              actions: assign({ client: () => createPdiScannerClient() }),
-              target: 'connecting',
+          initial: 'waiting',
+          states: {
+            waiting: {
+              after: {
+                DELAY_RECONNECT: {
+                  actions: assign({ client: () => createPdiScannerClient() }),
+                  target: 'reconnecting',
+                },
+              },
+            },
+            reconnecting: {
+              invoke: {
+                src: async ({ client }) =>
+                  (await client.connect()).unsafeUnwrap(),
+                onDone: '#waitingForBallot',
+                onError: 'waiting',
+              },
             },
           },
         },
