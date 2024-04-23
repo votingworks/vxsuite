@@ -76,6 +76,7 @@ export function VoterScreen({
         // istanbul ignore next
         case 'connecting':
         case 'disconnected':
+        case 'cover_open':
         case 'no_paper':
         case 'hardware_ready_to_scan':
         case 'paused':
@@ -106,7 +107,12 @@ export function VoterScreen({
   const scannerStatus = scannerStatusQuery.data;
 
   switch (scannerStatus.state) {
+    // These states are handled in AppRoot, since they should show a message for
+    // all user types, not just voters.
     case 'disconnected':
+    case 'cover_open':
+      return null;
+    // This state should pass quickly, so we don't show a message
     case 'connecting':
       return null;
     // When a user (e.g. poll worker) removes their card, there may be a slight

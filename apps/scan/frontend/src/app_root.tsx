@@ -36,6 +36,7 @@ import { VoterScreen } from './screens/voter_screen';
 import { LoginPromptScreen } from './screens/login_prompt_screen';
 import { CastVoteRecordSyncRequiredScreen } from './screens/cast_vote_record_sync_required_screen';
 import { SystemAdministratorScreen } from './screens/system_administrator_screen';
+import { ScannerCoverOpenScreen } from './screens/scanner_cover_open_screen';
 
 export function AppRoot(): JSX.Element | null {
   const authStatusQuery = getAuthStatus.useQuery();
@@ -146,6 +147,10 @@ export function AppRoot(): JSX.Element | null {
         scannedBallotCount={scannerStatus.ballotsCounted}
       />
     );
+  }
+
+  if (scannerStatus.state === 'cover_open') {
+    return <ScannerCoverOpenScreen />;
   }
 
   if (authStatus.status === 'checking_pin') {

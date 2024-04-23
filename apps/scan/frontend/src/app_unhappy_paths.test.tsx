@@ -178,6 +178,19 @@ test('shows power cable message when there is no scanner and tablet is not plugg
   await screen.findByRole('heading', { name: 'Polls Closed' });
 });
 
+test('shows message when scanner cover is open', async () => {
+  apiMock.expectGetConfig();
+  apiMock.expectGetPollsInfo();
+  apiMock.setBatteryInfo();
+  apiMock.expectGetScannerStatus({
+    ...statusNoPaper,
+    state: 'cover_open',
+  });
+  renderApp();
+  await screen.findByRole('heading', { name: 'Scanner Cover is Open' });
+  screen.getByText('Please ask a poll worker for help.');
+});
+
 test('shows instructions to restart when the scanner client crashed', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo('polls_open');
