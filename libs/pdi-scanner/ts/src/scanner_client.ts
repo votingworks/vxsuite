@@ -32,7 +32,7 @@ export interface ScannerStatus {
   rearRightSensorCovered: boolean;
   branderPositionSensorCovered: boolean;
   hiSpeedMode: boolean;
-  downloadNeeded: boolean;
+  coverOpen: boolean;
   scannerEnabled: boolean;
   frontLeftSensorCovered: boolean;
   frontM1SensorCovered: boolean;

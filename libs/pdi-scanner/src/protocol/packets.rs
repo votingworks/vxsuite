@@ -78,7 +78,7 @@ pub enum Outgoing {
     /// - Bit 1 (0x02): Rear Right Sensor Covered = 1 (Omitted in Ultrascan)
     /// - Bit 2 (0x04): Brander Position Sensor Covered = 1
     /// - Bit 3 (0x08): Hi Speed Mode = 1
-    /// - Bit 4 (0x10): Download Needed = 1
+    /// - Bit 4 (0x10): Cover Open = 1
     /// - Bit 5 (0x20): Future Use (not defined) = 1
     /// - Bit 6 (0x40): Scanner Enabled = 1
     /// - Bit 7 (0x80): Always Set to 1
@@ -855,7 +855,7 @@ pub enum Incoming {
     /// - Bit 1 (0x02): Rear Right Sensor Covered = 1 (Omitted in Ultrascan)
     /// - Bit 2 (0x04): Brander Position Sensor Covered = 1
     /// - Bit 3 (0x08): Hi Speed Mode = 1
-    /// - Bit 4 (0x10): Download Needed = 1
+    /// - Bit 4 (0x10): Cover Open = 1
     /// - Bit 5 (0x20): Future Use (not defined) = 1
     /// - Bit 6 (0x40): Scanner Enabled = 1
     /// - Bit 7 (0x80): Always Set to 1
