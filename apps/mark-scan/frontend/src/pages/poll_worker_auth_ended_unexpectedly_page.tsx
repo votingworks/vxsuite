@@ -1,10 +1,17 @@
-import { appStrings, P } from '@votingworks/ui';
-import { CenteredPageLayout } from '../components/centered_page_layout';
+import { appStrings, Icons, P } from '@votingworks/ui';
+import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
 
 export function PollWorkerAuthEndedUnexpectedlyPage(): JSX.Element {
   return (
-    <CenteredPageLayout title={appStrings.noteBmdSessionRestart()} voterFacing>
-      <P>{appStrings.notePollWorkerAuthEndedBeforePaperLoadComplete()}</P>
-    </CenteredPageLayout>
+    <CenteredCardPageLayout
+      icon={<Icons.Warning />}
+      title={appStrings.noteBmdSessionRestart()}
+      voterFacing={false}
+    >
+      <P>
+        The poll worker card was removed before paper loading completed. Please
+        try again.
+      </P>
+    </CenteredCardPageLayout>
   );
 }

@@ -356,13 +356,6 @@ export const appStrings = {
     </UiString>
   ),
 
-  instructionsBmdLoadPaper: () => (
-    <UiString uiStringKey="instructionsBmdLoadPaper">
-      Please feed one sheet of paper into the front input tray. The printer will
-      automatically grab the paper when positioned correctly.
-    </UiString>
-  ),
-
   instructionsBmdPaperJam: () => (
     <UiString uiStringKey="instructionsBmdPaperJam">
       Please alert a poll worker to clear the jam, opening the printer cover or
@@ -894,13 +887,6 @@ export const appStrings = {
     <UiString uiStringKey="noteVoterSettingsAudioUnmuted">Audio is on</UiString>
   ),
 
-  notePollWorkerAuthEndedBeforePaperLoadComplete: () => (
-    <UiString uiStringKey="notePollWorkerAuthEndedBeforePaperLoadComplete">
-      The poll worker card was removed before paper loading completed. Please
-      try again.
-    </UiString>
-  ),
-
   promptBmdConfirmRemoveWriteIn: () => (
     <UiString uiStringKey="promptBmdConfirmRemoveWriteIn">
       Do you want to deselect and remove your write-in candidate?
@@ -957,12 +943,6 @@ export const appStrings = {
 
   titleBmdJammedScreen: () => (
     <UiString uiStringKey="titleBmdJammedScreen">Paper is Jammed</UiString>
-  ),
-
-  titleBmdLoadPaperScreen: () => (
-    <UiString uiStringKey="titleBmdLoadPaperScreen">
-      Load Blank Ballot Sheet
-    </UiString>
   ),
 
   titleBmdPatCalibrationConfirmExitScreen: () => (

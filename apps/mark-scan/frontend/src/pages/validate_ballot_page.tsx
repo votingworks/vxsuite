@@ -80,7 +80,7 @@ export function ValidateBallotPage(): JSX.Element | null {
             {appStrings.buttonBallotIsIncorrect()}
           </Button>
           <Button
-            id={PageNavigationButtonId.PREVIOUS}
+            id={PageNavigationButtonId.NEXT}
             onPress={validateBallotCallback}
           >
             {appStrings.buttonBallotIsCorrect()}

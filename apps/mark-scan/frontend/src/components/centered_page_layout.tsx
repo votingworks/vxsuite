@@ -1,26 +1,41 @@
 import React from 'react';
+import styled from 'styled-components';
 
-import { Align, Font, H2, Main, ReadOnLoad, Screen } from '@votingworks/ui';
+import {
+  Align,
+  Font,
+  Main,
+  ReadOnLoad as ReadOnLoadBase,
+  Screen,
+} from '@votingworks/ui';
 import { VoterScreen, ButtonFooter } from '@votingworks/mark-flow-ui';
 
 export interface CenteredPageLayoutProps {
   buttons?: React.ReactNode;
   children: React.ReactNode;
-  title?: React.ReactNode;
   voterFacing: boolean;
   textAlign?: Align;
 }
 
+const ReadOnLoad = styled(ReadOnLoadBase)`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
+
+const Content = styled(Font)`
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+`;
+
 export function CenteredPageLayout(
   props: CenteredPageLayoutProps
 ): JSX.Element {
-  const { buttons, children, title, textAlign, voterFacing } = props;
+  const { buttons, children, textAlign, voterFacing } = props;
 
   const mainContent = (
-    <Font align={textAlign || 'center'}>
-      {title && <H2 as="h1">{title}</H2>}
-      {children}
-    </Font>
+    <Content align={textAlign || 'center'}>{children}</Content>
   );
 
   if (voterFacing) {

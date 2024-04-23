@@ -1,10 +1,14 @@
-import { appStrings, P } from '@votingworks/ui';
-import { CenteredPageLayout } from '../components/centered_page_layout';
+import { appStrings, Icons, P } from '@votingworks/ui';
+import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
 
 export function JammedPage(): JSX.Element {
   return (
-    <CenteredPageLayout title={appStrings.titleBmdJammedScreen()} voterFacing>
+    <CenteredCardPageLayout
+      icon={<Icons.Warning color="warning" />}
+      title={appStrings.titleBmdJammedScreen()}
+      voterFacing
+    >
       <P>{appStrings.instructionsBmdPaperJam()}</P>
-    </CenteredPageLayout>
+    </CenteredCardPageLayout>
   );
 }
