@@ -475,16 +475,6 @@ function buildMachine({
                     target: 'checkingComplete',
                   },
                   {
-                    cond: (_, { event }) =>
-                      event.event === 'error' && event.code === 'scanFailed',
-                    target: '#rejecting',
-                    actions: assign({
-                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                      error: (_context) =>
-                        new PrecinctScannerError('scanning_failed'),
-                    }),
-                  },
-                  {
                     target: '#error',
                     actions: assign({
                       error: (_, { event }) =>
@@ -492,6 +482,17 @@ function buildMachine({
                           'unexpected_event',
                           `Unexpected event: ${event.event}`
                         ),
+                    }),
+                  },
+                ],
+                SCANNER_ERROR: [
+                  {
+                    cond: (_, { error }) => error.code === 'scanFailed',
+                    target: '#rejecting',
+                    actions: assign({
+                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                      error: (_context) =>
+                        new PrecinctScannerError('scanning_failed'),
                     }),
                   },
                 ],
