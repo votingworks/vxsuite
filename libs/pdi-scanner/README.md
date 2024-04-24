@@ -9,7 +9,7 @@ stdin/stdout.
 To run a TypeScript demo script:
 
 ```sh
-./ts/src/demo
+./src/ts/demo
 ```
 
 ## Development
@@ -25,10 +25,12 @@ pnpm test
 pnpm build
 ```
 
-To enable debug logging, set the
+To enable Rust debug logging, set the
 [`RUST_LOG` environment variable](https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/struct.EnvFilter.html)
-as appropriate, for example:
+as appropriate.
+
+To enable TS debug logging, set `DEBUG=pdi-scanner`.
 
 ```sh
-RUST_LOG=debug ./ts/src/run
+RUST_LOG=debug DEBUG=pdi-scanner ./src/ts/demo
 ```

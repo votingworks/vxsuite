@@ -3,13 +3,17 @@ name = "pdi-scanner"
 version = "0.1.0"
 edition = "2021"
 
+[lib]
+name = "pdi_scanner"
+path = "src/rust/lib.rs"
+
 [[bin]]
 name = "pdictl"
-path = "src/main.rs"
+path = "src/rust/main.rs"
 
 [[bin]]
 name = "pdi-parse-traffic"
-path = "src/parse_traffic.rs"
+path = "src/rust/parse_traffic.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
