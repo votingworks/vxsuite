@@ -148,7 +148,7 @@ pub struct Status {
     /// Byte 0, Bit 3 (0x08)
     pub hi_speed_mode: bool,
     /// Byte 0, Bit 4 (0x10)
-    pub download_needed: bool,
+    pub cover_open: bool,
     /// Byte 0, Bit 5 (0x20) – not defined
     /// future_use: bool,
     /// Byte 0, Bit 6 (0x40)
@@ -193,7 +193,7 @@ impl Status {
         rear_right_sensor_covered: bool,
         brander_position_sensor_covered: bool,
         hi_speed_mode: bool,
-        download_needed: bool,
+        cover_open: bool,
         scanner_enabled: bool,
         front_left_sensor_covered: bool,
         front_m1_sensor_covered: bool,
@@ -215,7 +215,7 @@ impl Status {
             rear_right_sensor_covered,
             brander_position_sensor_covered,
             hi_speed_mode,
-            download_needed,
+            cover_open,
             scanner_enabled,
             front_left_sensor_covered,
             front_m1_sensor_covered,

@@ -1001,6 +1001,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  titleScannerCoverIsOpen: () => (
+    <UiString uiStringKey="titleScannerCoverIsOpen">
+      Scanner Cover is Open
+    </UiString>
+  ),
+
   titleVoterSettings: () => (
     <UiString uiStringKey="titleVoterSettings">Settings:</UiString>
   ),

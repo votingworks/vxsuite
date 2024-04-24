@@ -32,7 +32,7 @@ export interface ScannerStatus {
   rearRightSensorCovered: boolean;
   branderPositionSensorCovered: boolean;
   hiSpeedMode: boolean;
-  downloadNeeded: boolean;
+  coverOpen: boolean;
   scannerEnabled: boolean;
   frontLeftSensorCovered: boolean;
   frontM1SensorCovered: boolean;
@@ -74,7 +74,9 @@ export type ScannerError =
 export type ScannerEvent =
   | ({ event: 'error' } & ScannerError)
   | { event: 'scanStart' }
-  | { event: 'scanComplete'; images: SheetOf<ImageData> };
+  | { event: 'scanComplete'; images: SheetOf<ImageData> }
+  | { event: 'coverOpen' }
+  | { event: 'coverClosed' };
 
 /**
  * An event listener for any {@link ScannerEvent} emitted by the scanner.
@@ -117,7 +119,9 @@ type PdictlResponse =
 type PdictlEvent =
   | ({ event: 'error' } & ScannerError)
   | { event: 'scanStart' }
-  | { event: 'scanComplete'; imageData: [string, string] };
+  | { event: 'scanComplete'; imageData: [string, string] }
+  | { event: 'coverOpen' }
+  | { event: 'coverClosed' };
 
 type PdictlMessage = PdictlResponse | PdictlEvent;
 
@@ -205,7 +209,9 @@ export function createPdiScannerClient() {
         });
         break;
       }
-      case 'error': {
+      case 'error':
+      case 'coverOpen':
+      case 'coverClosed': {
         emit(message);
         break;
       }

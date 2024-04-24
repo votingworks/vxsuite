@@ -147,6 +147,9 @@ enum Event {
     ScanComplete {
         image_data: (String, String),
     },
+
+    CoverOpen,
+    CoverClosed,
 }
 
 #[derive(Debug, serde::Serialize)]
@@ -401,6 +404,12 @@ fn main() -> color_eyre::Result<()> {
                         }
                     }
                     scan_in_progress = false;
+                }
+                Ok(Incoming::CoverOpenEvent) => {
+                    send_event(Event::CoverOpen)?;
+                }
+                Ok(Incoming::CoverClosedEvent) => {
+                    send_event(Event::CoverClosed)?;
                 }
                 Ok(event) => {
                     tracing::info!("unhandled event: {event:?}");

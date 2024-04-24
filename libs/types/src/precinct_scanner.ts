@@ -15,6 +15,7 @@ export const PRECINCT_SCANNER_STATES = [
   'rejecting',
   'rejected',
   'jammed',
+  'cover_open',
   'both_sides_have_paper',
   'recovering_from_error',
   'double_sheet_jammed',
