@@ -56,7 +56,7 @@ const scannerStatus: ScannerStatus = {
   rearRightSensorCovered: false,
   branderPositionSensorCovered: false,
   hiSpeedMode: true,
-  downloadNeeded: false,
+  coverOpen: false,
   scannerEnabled: false,
   frontLeftSensorCovered: false,
   frontM1SensorCovered: false,
