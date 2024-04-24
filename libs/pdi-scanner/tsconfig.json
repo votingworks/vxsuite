@@ -18,6 +18,7 @@
     { "path": "../basics/tsconfig.build.json" },
     { "path": "../eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../image-utils/tsconfig.build.json" },
+    { "path": "../test-utils/tsconfig.build.json" },
     { "path": "../types/tsconfig.build.json" }
   ]
 }
