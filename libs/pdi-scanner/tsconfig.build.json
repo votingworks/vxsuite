@@ -1,10 +1,10 @@
 {
   "extends": "./tsconfig.json",
-  "include": ["ts/src"],
+  "include": ["src/ts"],
   "exclude": ["**/*.test.ts", "**/*.test.tsx"],
   "compilerOptions": {
     "noEmit": false,
-    "rootDir": "ts/src",
+    "rootDir": "src/ts",
     "outDir": "build",
     "declaration": true
   },

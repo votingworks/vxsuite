@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.shared.json",
-  "include": ["ts/src", "ts/test"],
+  "include": ["src/ts", "test"],
   "exclude": [],
   "compilerOptions": {
     "module": "node16",
@@ -18,6 +18,7 @@
     { "path": "../basics/tsconfig.build.json" },
     { "path": "../eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../image-utils/tsconfig.build.json" },
+    { "path": "../test-utils/tsconfig.build.json" },
     { "path": "../types/tsconfig.build.json" }
   ]
 }

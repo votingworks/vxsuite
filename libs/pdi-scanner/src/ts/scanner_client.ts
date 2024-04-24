@@ -22,7 +22,10 @@ const PDICTL_PATH = path.join(
   'target/release/pdictl'
 );
 
-const SCAN_IMAGE_WIDTH = 1728;
+/**
+ * The width of the image produced by the scanner.
+ */
+export const SCAN_IMAGE_WIDTH = 1728;
 
 /**
  * The status of the PDI scanner.
@@ -42,11 +45,11 @@ export interface ScannerStatus {
   /**
    * @deprecated Not used by PageScan 6, always false.
    */
-  frontM5SensorCovered: never;
+  frontM5SensorCovered: false;
   /**
    * @deprecated Not used by PageScan 6, always false.
    */
-  frontRightSensorCovered: never;
+  frontRightSensorCovered: false;
   scannerReady: boolean;
   xmtAborted: boolean;
   documentJam: boolean;
@@ -62,7 +65,6 @@ export interface ScannerStatus {
 export type ScannerError =
   | { code: 'disconnected' }
   | { code: 'alreadyConnected' }
-  | { code: 'commandInProgress' }
   | { code: 'scanInProgress' }
   | { code: 'scanFailed' }
   | { code: 'other'; message: string };
@@ -116,7 +118,7 @@ type PdictlResponse =
  * Internal type to represent the JSON messages received from `pdictl` as
  * unsolicited events (i.e. not in response to a command).
  */
-type PdictlEvent =
+export type PdictlEvent =
   | ({ event: 'error' } & ScannerError)
   | { event: 'scanStart' }
   | { event: 'scanComplete'; imageData: [string, string] }
@@ -215,13 +217,15 @@ export function createPdiScannerClient() {
         emit(message);
         break;
       }
-      default: {
+      /* c8 ignore start */
+      default:
         throwIllegalValue(message, 'event');
-      }
+      /* c8 ignore stop */
     }
   });
 
   pdictl.stderr.on('data', (data) => {
+    /* c8 ignore next */
     debug('pdictl stderr:', data.toString('utf-8'));
   });
 
