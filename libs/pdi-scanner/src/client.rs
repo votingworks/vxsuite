@@ -219,19 +219,26 @@ impl<T> Client<T> {
     }
 
     /// Ejects the document from the scanner according to the specified motion.
+    /// Disables the feeder afterwards to protect against a second document
+    /// sneaking in.
     ///
     /// # Errors
     ///
     /// This function will return an error if the connection to the scanner is
     /// lost.
     pub fn eject_document(&mut self, eject_motion: EjectMotion) -> Result<()> {
+        // The feeder needs to be enabled for the eject command to work.
+        self.set_feeder_mode(FeederMode::AutoScanSheets)?;
         self.send(match eject_motion {
             EjectMotion::ToRear => Outgoing::EjectDocumentToRearOfScannerRequest,
             EjectMotion::ToFront => Outgoing::EjectDocumentToFrontOfScannerRequest,
             EjectMotion::ToFrontAndHold => {
                 Outgoing::EjectDocumentToFrontOfScannerAndHoldInInputRollersRequest
             }
-        })
+        })?;
+        // It's safest to always disable the feeder after ejecting a document to
+        // protect against a second document sneaking in.
+        self.set_feeder_mode(FeederMode::Disabled)
     }
 
     /// Adjusts the bitonal threshold by 1. The threshold is a percentage of the

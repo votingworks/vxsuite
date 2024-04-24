@@ -222,9 +222,7 @@ function buildMachine({
         invoke: [
           {
             src: async ({ client }) => {
-              (await client.enableScanning()).unsafeUnwrap();
               (await client.ejectDocument('toFrontAndHold')).unsafeUnwrap();
-              (await client.disableScanning()).unsafeUnwrap();
             },
             onDone: 'checkingComplete',
             onError: {
@@ -293,13 +291,6 @@ function buildMachine({
           {
             src: async ({ client }) => {
               (await client.ejectDocument('toRear')).unsafeUnwrap();
-              // Prevent a second ballot from getting sucked all the way through
-              // while the first is ejecting by disabling the feeder
-              // immediately. This results in the second ballot getting
-              // partially fed and then stopping, which we can then reject.
-              // We can't disable the feeder before ejecting because then the
-              // eject command doesn't work.
-              (await client.disableScanning()).unsafeUnwrap();
             },
             onDone: 'checkingComplete',
             onError: {
