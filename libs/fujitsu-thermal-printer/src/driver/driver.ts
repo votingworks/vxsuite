@@ -13,8 +13,10 @@ import {
   FeedForwardCommand,
   SpeedSetting,
   SetSpeedSettingCommand,
-  QualitySetting,
   SetQualityCommand,
+  QualityDetails,
+  convertQualityDetails,
+  SetStandardEnergyCommand,
 } from './coders';
 import { Uint16toUint8, Uint8 } from '../bits';
 import { CompressedBitImage } from './types';
@@ -59,7 +61,8 @@ export interface FujitsuThermalPrinterDriverInterface {
   printBitImage(bitImage: CompressedBitImage): void;
   feedForward(dots: number): Promise<void>;
   setSpeed(speed: SpeedSetting): Promise<void>;
-  setQuality(quality: QualitySetting): Promise<void>;
+  setQuality(details: QualityDetails): Promise<void>;
+  setStandardEnergy(value: number): Promise<void>;
 }
 
 export class FujitsuThermalPrinterDriver
@@ -197,9 +200,18 @@ export class FujitsuThermalPrinterDriver
     await this.transferOut(SetSpeedSettingCommand, { speed });
   }
 
-  async setQuality(quality: QualitySetting): Promise<void> {
-    debug(`setting quality to ${QualitySetting[quality]}...`);
-    await this.transferOut(SetQualityCommand, { quality });
+  async setQuality(details: QualityDetails): Promise<void> {
+    debug(
+      `setting quality to ${details.quality} with automatic division ${
+        details.automaticDivision ? 'on' : 'off'
+      }...`
+    );
+    await this.transferOut(SetQualityCommand, convertQualityDetails(details));
+  }
+
+  async setStandardEnergy(value: number): Promise<void> {
+    debug(`setting standard energy to ${value}...`);
+    await this.transferOut(SetStandardEnergyCommand, { value });
   }
 }
 

@@ -7,7 +7,7 @@ import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { safeParseInt } from '@votingworks/types';
 import { FujitsuThermalPrinter, getFujitsuThermalPrinter } from './printer';
-import { QualitySetting, SpeedSetting } from './driver';
+import { QualityDetails, SpeedSetting } from './driver';
 
 /**
  * Command line interface for interacting with the paper handler driver.
@@ -22,28 +22,9 @@ enum Command {
   PrintFixture = 'print-fixture',
   SetSpeed = 'set-speed',
   SetQuality = 'set-quality',
+  SetStandardEnergy = 'set-standard-energy',
 }
 const commandList = Object.values(Command);
-
-function printUsage() {
-  console.log(`Usage:\n`);
-  console.log(`    status (get printer status)`);
-  console.log(`    poll (poll printer status)`);
-  console.log(`    print-fixture <times> (print example report)`);
-  console.log(`    print <path> <times> (print from file, 8.5in wide PDF)`);
-  console.log(`    advance <millimeters> (move the paper forward)`);
-  console.log(`    set-speed <11|12|13|14|15|21|22|23|24|25>`);
-  console.log(`    set-quality <high|normal>`);
-}
-
-function printFromFile(printer: FujitsuThermalPrinter, path: string) {
-  if (!existsSync(path)) {
-    printUsage();
-    return;
-  }
-
-  return printer.print(readFileSync(path));
-}
 
 function getTimesFromArg(timesArg?: string): number {
   if (!timesArg) {
@@ -76,10 +57,33 @@ const speedMapping: Record<number, SpeedSetting> = {
   25: SpeedSetting.Type2Mode5,
 };
 
-const qualityMapping: Record<string, QualitySetting> = {
-  high: QualitySetting.LongTermStorage,
-  normal: QualitySetting.Normal,
+const qualityMapping: Record<string, QualityDetails> = {
+  'high-auto-div': { quality: 'high', automaticDivision: true },
+  'high-standard': { quality: 'high', automaticDivision: false },
+  'normal-auto-div': { quality: 'normal', automaticDivision: true },
+  'normal-standard': { quality: 'normal', automaticDivision: false },
 };
+
+function printUsage() {
+  console.log(`Usage:\n`);
+  console.log(`    status (get printer status)`);
+  console.log(`    poll (poll printer status)`);
+  console.log(`    print-fixture <times> (print example report)`);
+  console.log(`    print <path> <times> (print from file, 8.5in wide PDF)`);
+  console.log(`    advance <millimeters> (move the paper forward)`);
+  console.log(`    set-speed <${Object.keys(speedMapping).join('|')}>`);
+  console.log(`    set-quality <${Object.keys(qualityMapping).join('|')}>`);
+  console.log(`    set-standard-energy <value>`);
+}
+
+function printFromFile(printer: FujitsuThermalPrinter, path: string) {
+  if (!existsSync(path)) {
+    printUsage();
+    return;
+  }
+
+  return printer.print(readFileSync(path));
+}
 
 async function handleCommand(
   printer: FujitsuThermalPrinter,
@@ -148,6 +152,15 @@ async function handleCommand(
         break;
       }
       await printer.setQuality(quality);
+      break;
+    }
+    case Command.SetStandardEnergy: {
+      const parseResult = safeParseInt(args[0]);
+      if (!parseResult.isOk()) {
+        printUsage();
+        break;
+      }
+      await printer.setStandardEnergy(parseResult.ok());
       break;
     }
     default:

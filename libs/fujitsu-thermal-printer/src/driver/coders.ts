@@ -79,12 +79,32 @@ export const SetSpeedSettingCommand = message({
   speed: uint8(),
 });
 
-export enum QualitySetting {
-  LongTermStorage = 0x03,
-  Normal = 0x04,
+export interface QualityDetails {
+  quality: 'high' | 'normal';
+  automaticDivision: boolean;
 }
 
 export const SetQualityCommand = message({
   command: literal(0x1d, 0x45),
-  quality: uint8(),
+  automaticDivision: uint1(),
+  unused: padding(4),
+  qualityBit2: uint1(),
+  qualityBit1: uint1(),
+  qualityBit0: uint1(),
+});
+
+export function convertQualityDetails(
+  details: QualityDetails
+): CoderType<typeof SetQualityCommand> {
+  return {
+    qualityBit2: details.quality === 'normal',
+    qualityBit1: details.quality === 'high',
+    qualityBit0: details.quality === 'high',
+    automaticDivision: details.automaticDivision,
+  };
+}
+
+export const SetStandardEnergyCommand = message({
+  command: literal(0x1c, 0x45),
+  value: uint8(),
 });

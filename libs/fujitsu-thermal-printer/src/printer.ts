@@ -3,7 +3,7 @@ import { Buffer } from 'buffer';
 import { print } from './printing';
 import {
   FujitsuThermalPrinterDriverInterface,
-  QualitySetting,
+  QualityDetails,
   SpeedSetting,
   getFujitsuThermalPrinterDriver,
 } from './driver';
@@ -88,9 +88,14 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
     debug(`set speed to ${speed}`);
   }
 
-  async setQuality(quality: QualitySetting): Promise<void> {
-    await this.driver.setQuality(quality);
-    debug(`set quality to ${quality}`);
+  async setQuality(details: QualityDetails): Promise<void> {
+    await this.driver.setQuality(details);
+    debug(`updated quality setting`);
+  }
+
+  async setStandardEnergy(value: number): Promise<void> {
+    await this.driver.setStandardEnergy(value);
+    debug(`set standard energy to ${value}`);
   }
 }
 
