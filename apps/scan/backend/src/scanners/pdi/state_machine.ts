@@ -16,6 +16,7 @@ import {
   assign,
   createMachine,
   interpret as interpretStateMachine,
+  sendParent,
 } from 'xstate';
 import { v4 as uuid } from 'uuid';
 import { SheetInterpretation, SheetOf, mapSheet } from '@votingworks/types';
@@ -24,7 +25,6 @@ import { writeImageData } from '@votingworks/image-utils';
 import { BaseLogger, LogEventId, LogLine } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { switchMap, timer } from 'rxjs';
 import { interpret } from '../../interpret';
 import { Workspace } from '../../util/workspace';
 import { rootDebug } from '../../util/debug';
@@ -163,33 +163,64 @@ function buildMachine({
   const initialClient = createScannerClient();
   const delays = { ...defaultDelays, ...delayOverrides } as const;
 
+  function createPollingChildMachine(
+    id: string,
+    queryFn: (context: Pick<Context, 'client'>) => Promise<Event>,
+    delay: keyof Delays
+  ) {
+    return createMachine<Pick<Context, 'client'>>(
+      {
+        id,
+        initial: 'querying',
+        states: {
+          querying: {
+            invoke: {
+              src: queryFn,
+              onDone: {
+                target: 'waiting',
+                actions: sendParent((_, event) => event.data),
+              },
+            },
+          },
+          waiting: {
+            after: { [delay]: 'querying' },
+          },
+        },
+      },
+      { delays }
+    );
+  }
+
   const pollScanningEnabled: InvokeConfig<Context, Event> = {
-    src: () =>
-      timer(0, delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL).pipe(
-        switchMap(async () => {
-          const enabled = await isReadyToScan({
-            auth,
-            store: workspace.store,
-            usbDrive,
-          });
-          return enabled
-            ? { type: 'SCANNING_ENABLED' }
-            : { type: 'SCANNING_DISABLED' };
-        })
-      ),
+    src: createPollingChildMachine(
+      'pollScanningEnabled',
+      async () => {
+        const enabled = await isReadyToScan({
+          auth,
+          store: workspace.store,
+          usbDrive,
+        });
+        return enabled
+          ? { type: 'SCANNING_ENABLED' }
+          : { type: 'SCANNING_DISABLED' };
+      },
+      'DELAY_SCANNING_ENABLED_POLLING_INTERVAL'
+    ),
+    data: (context) => ({ client: context.client }),
   };
 
   const pollScannerStatus: InvokeConfig<Context, Event> = {
-    src: ({ client }) => {
-      return timer(0, delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL).pipe(
-        switchMap(async () => {
-          const statusResult = await client.getScannerStatus();
-          return statusResult.isOk()
-            ? { type: 'SCANNER_STATUS', status: statusResult.ok() }
-            : { type: 'SCANNER_ERROR', error: statusResult.err() };
-        })
-      );
-    },
+    src: createPollingChildMachine(
+      'pollScannerStatus',
+      async ({ client }) => {
+        const statusResult = await client.getScannerStatus();
+        return statusResult.isOk()
+          ? { type: 'SCANNER_STATUS', status: statusResult.ok() }
+          : { type: 'SCANNER_ERROR', error: statusResult.err() };
+      },
+      'DELAY_SCANNER_STATUS_POLLING_INTERVAL'
+    ),
+    data: (context) => ({ client: context.client }),
   };
 
   const listenForScannerEvents: InvokeConfig<Context, Event> = {
