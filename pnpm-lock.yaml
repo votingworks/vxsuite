@@ -1590,8 +1590,8 @@ importers:
         specifier: 9.0.1
         version: 9.0.1
       xstate:
-        specifier: ^4.32.1
-        version: 4.32.1
+        specifier: ^4.33.0
+        version: 4.33.0
       zod:
         specifier: 3.14.4
         version: 3.14.4
@@ -2442,8 +2442,8 @@ importers:
         specifier: 9.0.1
         version: 9.0.1
       xstate:
-        specifier: ^4.32.1
-        version: 4.32.1
+        specifier: ^4.33.0
+        version: 4.33.0
       zod:
         specifier: 3.14.4
         version: 3.14.4
@@ -23604,8 +23604,8 @@ packages:
   /xmlchars@2.2.0:
     resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}
 
-  /xstate@4.32.1:
-    resolution: {integrity: sha512-QYUd+3GkXZ8i6qdixnOn28bL3EvA++LONYL/EMWwKlFSh/hiLndJ8YTnz77FDs+JUXcwU7NZJg7qoezoRHc4GQ==}
+  /xstate@4.33.0:
+    resolution: {integrity: sha512-+oari/Nt2cBq79mklnGA9Tsb6kv7ln+cIMfrH6n642XpTEG6sMRHg4GkooAbGbcslG3Ff9uH2jmGRP+1uoZ/Xw==}
     dev: false
 
   /xtend@4.0.2:
