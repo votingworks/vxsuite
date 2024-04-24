@@ -231,7 +231,6 @@ fn main() -> color_eyre::Result<()> {
         match stdin_rx.try_recv() {
             Ok(command) => {
                 if matches!(command, Command::Exit) {
-                    serde_json::to_writer(io::stdout(), &Response::Ok)?;
                     return color_eyre::Result::Ok(());
                 }
                 if scan_in_progress {
