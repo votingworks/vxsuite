@@ -29,7 +29,6 @@ export async function recordAcceptedSheet(
   usbDrive: UsbDrive,
   interpretation: InterpretationResult
 ): Promise<void> {
-  assert(interpretation);
   const { sheetId } = interpretation;
   store.withTransaction(() => {
     storeInterpretedSheet(store, sheetId, interpretation);
