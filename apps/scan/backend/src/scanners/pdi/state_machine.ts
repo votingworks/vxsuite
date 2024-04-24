@@ -5,7 +5,6 @@ import {
   ScannerError,
   ScannerEvent,
   ScannerStatus,
-  createPdiScannerClient,
 } from '@votingworks/pdi-scanner';
 import assert from 'assert';
 import {
@@ -154,7 +153,7 @@ function buildMachine({
   auth,
   delayOverrides = {},
 }: {
-  createScannerClient: typeof createPdiScannerClient;
+  createScannerClient: () => ScannerClient;
   workspace: Workspace;
   usbDrive: UsbDrive;
   auth: InsertedSmartCardAuthApi;
@@ -675,7 +674,7 @@ function buildMachine({
             waiting: {
               after: {
                 DELAY_RECONNECT: {
-                  actions: assign({ client: () => createPdiScannerClient() }),
+                  actions: assign({ client: () => createScannerClient() }),
                   target: 'reconnecting',
                 },
               },
@@ -705,7 +704,7 @@ function buildMachine({
               },
             },
             reconnecting: {
-              entry: assign({ client: () => createPdiScannerClient() }),
+              entry: assign({ client: () => createScannerClient() }),
               invoke: {
                 src: async ({ client }) =>
                   (await client.connect()).unsafeUnwrap(),
@@ -814,12 +813,14 @@ function setupLogging(
  * It's implemented using XState (https://xstate.js.org/docs/).
  */
 export function createPrecinctScannerStateMachine({
+  createScannerClient,
   workspace,
   usbDrive,
   auth,
   logger,
   delays,
 }: {
+  createScannerClient: () => ScannerClient;
   workspace: Workspace;
   usbDrive: UsbDrive;
   auth: InsertedSmartCardAuthApi;
@@ -827,7 +828,7 @@ export function createPrecinctScannerStateMachine({
   delays?: Partial<Delays>;
 }): PrecinctScannerStateMachine {
   const machine = buildMachine({
-    createScannerClient: createPdiScannerClient,
+    createScannerClient,
     workspace,
     usbDrive,
     auth,
