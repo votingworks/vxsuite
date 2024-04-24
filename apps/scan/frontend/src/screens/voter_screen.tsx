@@ -78,6 +78,7 @@ export function VoterScreen({
         case 'disconnected':
         case 'no_paper':
         case 'hardware_ready_to_scan':
+        case 'paused':
         case 'scanning':
         case 'returning_to_rescan':
         case 'ready_to_accept':
@@ -108,6 +109,10 @@ export function VoterScreen({
     case 'disconnected':
     case 'connecting':
       return null;
+    // When a user (e.g. poll worker) removes their card, there may be a slight
+    // delay between when the auth status changes and the scanner unpauses, so
+    // we may see the `paused` state here briefly.
+    case 'paused':
     case 'no_paper':
       return (
         <InsertBallotScreen
