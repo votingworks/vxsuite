@@ -24,6 +24,7 @@ import { writeImageData } from '@votingworks/image-utils';
 import { BaseLogger, LogEventId, LogLine } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import { Clock } from 'xstate/lib/interpreter';
 import { interpret } from '../../interpret';
 import { Workspace } from '../../util/workspace';
 import { rootDebug } from '../../util/debug';
@@ -138,29 +139,26 @@ export interface Delays {
   DELAY_SCANNING_TIMEOUT: number;
 }
 
-const defaultDelays: Delays = {
+export const delays = {
   DELAY_SCANNING_ENABLED_POLLING_INTERVAL: 500,
   DELAY_SCANNER_STATUS_POLLING_INTERVAL: 500,
   DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 2_500,
   DELAY_RECONNECT: 500,
   DELAY_SCANNING_TIMEOUT: 5_000,
-};
+} satisfies Delays;
 
 function buildMachine({
   createScannerClient,
   workspace,
   usbDrive,
   auth,
-  delayOverrides = {},
 }: {
   createScannerClient: () => ScannerClient;
   workspace: Workspace;
   usbDrive: UsbDrive;
   auth: InsertedSmartCardAuthApi;
-  delayOverrides?: Partial<Delays>;
 }) {
   const initialClient = createScannerClient();
-  const delays = { ...defaultDelays, ...delayOverrides } as const;
 
   function createPollingChildMachine(
     id: string,
@@ -818,23 +816,25 @@ export function createPrecinctScannerStateMachine({
   usbDrive,
   auth,
   logger,
-  delays,
+  clock,
 }: {
   createScannerClient: () => ScannerClient;
   workspace: Workspace;
   usbDrive: UsbDrive;
   auth: InsertedSmartCardAuthApi;
   logger: BaseLogger;
-  delays?: Partial<Delays>;
+  clock?: Clock;
 }): PrecinctScannerStateMachine {
   const machine = buildMachine({
     createScannerClient,
     workspace,
     usbDrive,
     auth,
-    delayOverrides: delays,
   });
-  const machineService = interpretStateMachine(machine).start();
+  const machineService = interpretStateMachine(
+    machine,
+    clock && { clock }
+  ).start();
   setupLogging(machineService, logger);
 
   return {
