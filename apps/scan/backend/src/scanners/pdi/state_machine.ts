@@ -659,10 +659,10 @@ function buildMachine({
 
         coverOpen: {
           id: 'coverOpen',
-          invoke: listenForScannerEvents,
+          invoke: pollScannerStatus,
           on: {
-            SCANNER_EVENT: {
-              cond: (_, { event }) => event.event === 'coverClosed',
+            SCANNER_STATUS: {
+              cond: (_, { status }) => !status.coverOpen,
               target: 'waitingForBallot',
             },
           },
