@@ -41,13 +41,13 @@ export function useSessionSettingsManager(
   const { reset: resetLanguage, setLanguage } = useLanguageControls();
   const currentLanguage = useCurrentLanguage();
 
-  React.useEffect(() => {
-    const wasPreviouslyLoggedInAsVoter =
-      previousAuthStatusRef.current &&
-      isCardlessVoterAuth(previousAuthStatusRef.current);
-    const isLoggedInAsVoter = isCardlessVoterAuth(authStatus);
-    const isVotingSessionActive = !!votes;
+  const wasPreviouslyLoggedInAsVoter =
+    previousAuthStatusRef.current &&
+    isCardlessVoterAuth(previousAuthStatusRef.current);
+  const isLoggedInAsVoter = isCardlessVoterAuth(authStatus);
+  const isVotingSessionActive = !!votes;
 
+  React.useEffect(() => {
     // Reset to default settings and disable audio when election official logs
     // in during a voter session:
     if (wasPreviouslyLoggedInAsVoter && !isLoggedInAsVoter) {
@@ -86,10 +86,12 @@ export function useSessionSettingsManager(
     authStatus,
     currentLanguage,
     currentTheme,
-    voterSettingsManager,
+    isLoggedInAsVoter,
+    isVotingSessionActive,
     resetAudioSettings,
     resetLanguage,
     setLanguage,
-    votes,
+    voterSettingsManager,
+    wasPreviouslyLoggedInAsVoter,
   ]);
 }
