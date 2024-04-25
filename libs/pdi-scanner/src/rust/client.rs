@@ -5,12 +5,9 @@ use std::{
 };
 
 use crate::{
-    protocol::{
-        parsers,
-        types::{
-            AutoRunOutAtEndOfScanBehavior, Direction, DoubleFeedDetectionMode, EjectPauseMode,
-            FeederMode, PickOnCommandMode, Side,
-        },
+    protocol::types::{
+        AutoRunOutAtEndOfScanBehavior, Direction, DoubleFeedDetectionMode, EjectPauseMode,
+        FeederMode, PickOnCommandMode, Side,
     },
     types::UsbError,
     Error, Result,
@@ -44,12 +41,6 @@ macro_rules! send_and_recv {
         $client.send($outgoing)?;
         recv!($client, $pattern $(if $guard)? => $consequent, Instant::now() + $timeout)
     }};
-}
-
-macro_rules! expect_response_with_prefix {
-    ($client:expr, $prefix:expr, $deadline:expr $(,)?) => {
-        recv!($client, Incoming::Unknown(data) if data.starts_with($prefix) => (), $deadline)
-    };
 }
 
 pub struct Client<T> {
@@ -417,38 +408,6 @@ impl<T> Client<T> {
         };
 
         self.send(Outgoing::SetScanDelayIntervalForDocumentFeedRequest { delay_interval })
-    }
-
-    /// Validate that a command can be properly validated by the associated
-    /// parser and then send it to the scanner. This differs from [`Client::validate_and_send_command`]
-    /// in that it assumes the command will always validate and does not return a [Result].
-    fn validate_and_send_command_unchecked<O>(
-        &mut self,
-        command_body: &[u8],
-        parser: impl Fn(&[u8]) -> nom::IResult<&[u8], O>,
-    ) {
-        self.validate_and_send_command(&Command::new(command_body), parser)
-            .expect("unchecked command should always validate");
-    }
-
-    /// Validate that a command can be properly validated by the associated
-    /// parser and then send it to the scanner.
-    ///
-    /// # Errors
-    ///
-    /// This function will return an error if the command fails to validate.
-    fn validate_and_send_command<O>(
-        &mut self,
-        command: &Command,
-        parser: impl Fn(&[u8]) -> nom::IResult<&[u8], O>,
-    ) -> Result<()> {
-        let Ok(([], _)) = parser(&command.to_bytes()) else {
-            return Err(Error::ValidateRequest(format!(
-                "command failed to validate: {command:?}"
-            )));
-        };
-        self.send_command(command)?;
-        Ok(())
     }
 
     /// Calls `predicate` on each unhandled packet and returns the first packet
