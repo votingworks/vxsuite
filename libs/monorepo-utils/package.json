@@ -56,7 +56,7 @@
     "prettier": "3.0.3",
     "sort-package-json": "^1.50.0",
     "ts-jest": "29.1.1",
-    "typescript": "5.2.2"
+    "typescript": "5.4.5"
   },
   "packageManager": "pnpm@8.1.0"
 }
