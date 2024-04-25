@@ -134,6 +134,7 @@ export interface PaperHandlerStateMachine {
   setPatDeviceIsCalibrated(): void;
   setInterpretationFixture(): void;
   isPatDeviceConnected(): boolean;
+  addTransitionListener(listener: () => void): void;
 }
 
 export function paperHandlerStatusToEvent(
@@ -616,6 +617,7 @@ export function buildMachine(
               invoke: pollAuthStatus(),
               on: {
                 AUTH_STATUS_CARDLESS_VOTER: 'waiting_for_ballot_data',
+                AUTH_STATUS_UNHANDLED: 'not_accepting_paper',
               },
             },
             presenting_ballot: {
@@ -734,10 +736,37 @@ export function buildMachine(
               always: 'not_accepting_paper',
             },
             resetting_state_machine_after_jam: {
-              entry: ['resetContext', 'endCardlessVoterAuth'],
-              after: {
-                [NOTIFICATION_DURATION_MS]: 'not_accepting_paper',
+              invoke: [pollPaperStatus(), pollAuthStatus()],
+              initial: 'reset_interpretation',
+              states: {
+                reset_interpretation: {
+                  entry: ['clearInterpretation'],
+                  on: {
+                    AUTH_STATUS_CARDLESS_VOTER: 'accepting_paper',
+                    AUTH_STATUS_POLL_WORKER: 'accepting_paper',
+                    AUTH_STATUS_UNHANDLED: 'done',
+                  },
+                },
+                accepting_paper: {
+                  on: {
+                    PAPER_READY_TO_LOAD: 'load_paper',
+                  },
+                },
+                load_paper: {
+                  entry: async (context) => {
+                    await context.driver.loadPaper();
+                    await context.driver.parkPaper();
+                  },
+                  on: {
+                    NO_PAPER_ANYWHERE: 'accepting_paper',
+                    PAPER_PARKED: 'done',
+                  },
+                },
+                done: {
+                  type: 'final',
+                },
               },
+              onDone: 'paper_reloaded',
             },
             resetting_state_machine_after_success: {
               entry: ['resetContext', 'endCardlessVoterAuth'],
@@ -792,6 +821,12 @@ export function buildMachine(
             interpretation: undefined,
             scannedImagePaths: undefined,
             isPatDeviceConnected: false,
+          });
+        },
+        clearInterpretation: () => {
+          assign({
+            interpretation: undefined,
+            scannedImagePaths: undefined,
           });
         },
         endCardlessVoterAuth: async (context) => {
@@ -1067,6 +1102,10 @@ export async function getPaperHandlerStateMachine({
 
     isPatDeviceConnected(): boolean {
       return machineService.state.context.isPatDeviceConnected;
+    },
+
+    addTransitionListener(listener) {
+      machineService.onTransition(listener);
     },
   };
 }
