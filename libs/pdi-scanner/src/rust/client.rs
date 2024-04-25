@@ -749,126 +749,23 @@ impl<T> Client<T> {
         })
     }
 
-    /// Connects to the scanner using the same commands that were captured by
-    /// wireshark from the `scan_demo` program. Some of them may not be
-    /// necessary, but they're included for now.
+    /// Sends commands to make sure the scanner starts in the correct state after connecting.
     ///
     /// # Errors
     ///
     /// This function will return an error if any of the commands fail to
     /// validate or if the response is not received within the timeout.
     pub fn send_initial_commands_after_connect(&mut self, timeout: Duration) -> Result<()> {
-        let deadline = Instant::now() + timeout;
-
-        // OUT DisableFeederRequest
+        self.get_test_string(timeout)?;
         self.set_feeder_mode(FeederMode::Disabled)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 4f 03 c7> } (string: "\u{2}O\u{3}�") (length: 4)
-        self.send_command(&Command::new(b"O"))?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 1b 55 03 a0> } (string: "\u{2}\u{1b}U\u{3}�") (length: 5)
-        self.send_command(&Command::new(b"\x1bU"))?;
+
+        // This command enables "flow control" on the scanner
+        // // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 1b 55 03 a0> } (string: "\u{2}\u{1b}U\u{3}�") (length: 5)
+        // self.send_command(&Command::new(b"\x1bU"))?;
+
+        // Turn on CRC checking on the scanner
         // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 1b 4b 03 1b> } (string: "\u{2}\u{1b}K\u{3}\u{1b}") (length: 5)
         self.send_command(&Command::new(b"\x1bK"))?;
-        // OUT GetFirmwareVersionRequest
-        // IN GetFirmwareVersionResponse(Version { product_id: "9072", major: "20", minor: "28", cpld_version: "X" })
-        self.get_firmware_version(timeout)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 3c 30 30 38 03 29> } (string: "\u{2}<008\u{3})") (length: 7)
-        self.send_command(&Command::new(b"<008"))?;
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 3c 30 30 38 30 30 30 30 38 30 32 32 03> } (string: "\u{2}<00800008022\u{3}") (length: 14)
-        expect_response_with_prefix!(self, b"\x02<008", deadline)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 3c 30 33 38 03 cb> } (string: "\u{2}<038\u{3}�") (length: 7)
-        self.send_command(&Command::new(b"<038"))?;
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 3c 30 33 38 30 30 30 36 38 44 38 30 03> } (string: "\u{2}<03800068D80\u{3}") (length: 14)
-        expect_response_with_prefix!(self, b"\x02<", deadline)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 3c 30 31 34 03 42> } (string: "\u{2}<014\u{3}B") (length: 7)
-        self.send_command(&Command::new(b"<014"))?;
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 3c 30 31 34 30 30 30 30 30 30 30 30 03> } (string: "\u{2}<01400000000\u{3}") (length: 14)
-        expect_response_with_prefix!(self, b"\x02<", deadline)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 3c 30 30 37 03 bf> } (string: "\u{2}<007\u{3}�") (length: 7)
-        self.send_command(&Command::new(b"<007"))?;
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 3c 30 30 37 33 33 33 33 33 33 33 33 03> } (string: "\u{2}<00733333333\u{3}") (length: 14)
-        expect_response_with_prefix!(self, b"\x02<", deadline)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 3c 30 30 39 03 be> } (string: "\u{2}<009\u{3}�") (length: 7)
-        self.send_command(&Command::new(b"<009"))?;
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 3c 30 30 39 30 30 30 30 30 30 30 38 03> } (string: "\u{2}<00900000008\u{3}") (length: 14)
-        expect_response_with_prefix!(self, b"\x02<", deadline)?;
-        // OUT GetSerialNumberRequest
-        // IN GetSetSerialNumberResponse([48, 48, 48, 48, 48, 48, 48, 48])
-        self.get_serial_number(timeout)?;
-        // OUT GetScannerSettingsRequest
-        // IN GetScannerSettingsResponse(Settings { dpi_setting: 406, bits_per_pixel: 1, total_array_pixels: 6912, num_of_arrays: 3, calibration_status: CalibrationOk, number_of_calibration_tables: Some(2) })
-        self.get_scanner_settings(timeout)?;
-        // OUT GetCalibrationInformationRequest { resolution: Some(Native) }
-        self.validate_and_send_command_unchecked(
-            b"W0",
-            parsers::get_calibration_information_request,
-        );
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 57 80 0d 08 bf bf b8 bb ba bf b9 b5 b4 b7 bb b7 b5 b4 b8 bb b5 b8 b6 b9 bb b7 b7 b6 ba bb b7 b6 b5 bc ba b7 b8 b6 bb bb b6 b9 b8 bf ba b9 b8 b8 bf bb b9 ba bb bf bc b9 ba bb bf bd bd ba be c2 bb bd ba bf c0 bd be bc c2 c0 bb bd bc c1 c2 bc bd be c4 c1 bd bc be c2 c1 bd bf bf c4 c1 bf c0 c0 c4 bf …> } (string: "\u{2}W�\r\u{8}�����������������������������������������������������������»�������������¼�����������������Ŀ") (length: 6922)
-        expect_response_with_prefix!(self, b"\x02W", deadline)?;
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 57 80 0d 18 a3 a3 a3 a3 a3 a5 a4 ab af aa ac ad b4 b6 b2 b4 b4 b9 b7 b3 b5 b5 b8 b9 b5 b6 b7 bd b9 b8 b7 bb bf bd b9 ba bb c0 bb bc bb bf c0 bc bb ba be c1 bb bb ba bf c0 ba bb bd c1 c1 bb be bf c3 c0 bc c0 bf c3 c2 be bf be c3 be be bb c0 c3 c0 bf be c1 c4 bd bd bd c2 c2 be bf bd c0 c1 bd bf bd …> } (string: "\u{2}W�\r\u{18}�������������������������������������������������������������������¾��þ��������Ľ���¾�������") (length: 6922)
-        expect_response_with_prefix!(self, b"\x02W", deadline)?;
-        // OUT GetCalibrationInformationRequest { resolution: Some(Half) }
-        self.validate_and_send_command_unchecked(
-            b"W1",
-            parsers::get_calibration_information_request,
-        );
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 57 c0 06 08 b0 b0 b0 af b4 af b4 b1 b2 b6 b3 b7 b2 b6 b5 b5 b8 b5 b9 b6 b4 bb b7 ba b7 b8 bc b9 bf ba ba bc ba bf b9 bd bc bc c1 bc bf be be c0 be c0 bc be be bc c2 bd be c0 bf c1 be c0 c0 c0 c3 c0 c3 bf c2 c2 c1 c4 c0 c4 c5 c2 c8 c2 c4 c4 c3 c6 c2 c6 c3 c3 c8 c3 c6 c6 c3 c8 c4 c8 c3 c5 c6 c3 c9 …> } (string: "\u{2}W�\u{6}\u{8}��������������������������������������������������½����������ÿ�������������������������������") (length: 3466)
-        expect_response_with_prefix!(self, b"\x02W", deadline)?;
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 57 c0 06 18 a9 a9 a9 a9 a9 af ae b2 b1 af b5 b0 b6 b3 b4 b9 b6 b8 b7 b8 b9 b4 bb b6 b7 b8 b7 bc b8 ba b8 ba be b8 bb b9 b8 bb bb be ba bb bd bb bf bb be be bc c0 bc bd bd bb bf bb be bb bd bd bc bf be bf c1 bf c2 c0 c1 bf be c2 be c0 c1 bf c2 bd c2 c1 c0 c2 be c4 bf be c1 be c3 bf c1 c0 c1 c2 bf …> } (string: "\u{2}W�\u{6}\u{18}�����������������������������������������������������������������������¾���½���¾Ŀ���ÿ���¿") (length: 3466)
-        expect_response_with_prefix!(self, b"\x02W", deadline)?;
-        // OUT GetScannerStatusRequest
-        // IN GetScannerStatusResponse(Status { rear_left_sensor_covered: false, rear_right_sensor_covered: false, brander_position_sensor_covered: false, hi_speed_mode: true, download_needed: false, scanner_enabled: false, front_left_sensor_covered: false, front_m1_sensor_covered: false, front_m2_sensor_covered: false, front_m3_sensor_covered: false, front_m4_sensor_covered: false, front_m5_sensor_covered: false, front_right_sensor_covered: false, scanner_ready: true, xmt_aborted: false, document_jam: false, scan_array_pixel_error: false, in_diagnostic_mode: false, document_in_scanner: false, calibration_of_unit_needed: false })
-        self.get_scanner_status(timeout)?;
-        // OUT GetRequiredInputSensorsRequest
-        // IN GetSetRequiredInputSensorsResponse { current_sensors_required: 2, total_sensors_available: 5 }
-        self.get_required_input_sensors(timeout)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 6e 33 61 31 30 30 03 7a> } (string: "\u{2}n3a100\u{3}z") (length: 9)
-        self.send_command(&Command::new(b"n3a100"))?;
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 6e 33 61 31 30 30 3d 35 30 03> } (string: "\u{2}n3a100=50\u{3}") (length: 11)
-        expect_response_with_prefix!(self, b"\x02n", deadline)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 6e 33 61 31 30 31 03 ed> } (string: "\u{2}n3a101\u{3}�") (length: 9)
-        self.send_command(&Command::new(b"n3a101"))?;
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 6e 33 61 31 30 31 3d 34 30 03> } (string: "\u{2}n3a101=40\u{3}") (length: 11)
-        expect_response_with_prefix!(self, b"\x02n", deadline)?;
-        // OUT IncreaseTopCISSensorThresholdBy1Request
-        // IN AdjustTopCISSensorThresholdResponse { percent_white_threshold: 76 }
-        self.adjust_bitonal_threshold_by_1(Side::Top, Direction::Increase, timeout)?;
-        // OUT DecreaseTopCISSensorThresholdBy1Request
-        // IN AdjustTopCISSensorThresholdResponse { percent_white_threshold: 75 }
-        self.adjust_bitonal_threshold_by_1(Side::Top, Direction::Decrease, timeout)?;
-        // OUT IncreaseBottomCISSensorThresholdBy1Request
-        // IN AdjustBottomCISSensorThresholdResponse { percent_white_threshold: 76 }
-        self.adjust_bitonal_threshold_by_1(Side::Bottom, Direction::Increase, timeout)?;
-        // OUT DecreaseBottomCISSensorThresholdBy1Request
-        // IN AdjustBottomCISSensorThresholdResponse { percent_white_threshold: 75 }
-        self.adjust_bitonal_threshold_by_1(Side::Bottom, Direction::Decrease, timeout)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 23 34 03 60> } (string: "\u{2}#4\u{3}`") (length: 5)
-        self.send_command(&Command::new(b"#4"))?;
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 58 32 30 32 38 03> } (string: "\u{2}X2028\u{3}") (length: 7)
-        expect_response_with_prefix!(self, b"\x02X", deadline)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 23 35 03 f7> } (string: "\u{2}#5\u{3}�") (length: 5)
-        self.send_command(&Command::new(b"#5"))?;
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 58 36 35 38 35 36 31 35 37 03> } (string: "\u{2}X65856157\u{3}") (length: 11)
-        expect_response_with_prefix!(self, b"\x02X", deadline)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 23 33 03 ab> } (string: "\u{2}#3\u{3}�") (length: 5)
-        self.send_command(&Command::new(b"#3"))?;
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 58 31 30 30 35 03> } (string: "\u{2}X1005\u{3}") (length: 7)
-        expect_response_with_prefix!(self, b"\x02X", deadline)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 23 30 03 85> } (string: "\u{2}#0\u{3}�") (length: 5)
-        self.send_command(&Command::new(b"#0"))?;
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 58 35 38 03> } (string: "\u{2}X58\u{3}") (length: 5)
-        expect_response_with_prefix!(self, b"\x02X", deadline)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 23 31 03 12> } (string: "\u{2}#1\u{3}\u{12}") (length: 5)
-        self.send_command(&Command::new(b"#1"))?;
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 58 43 03> } (string: "\u{2}XC\u{3}") (length: 4)
-        expect_response_with_prefix!(self, b"\x02X", deadline)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 23 32 03 3c> } (string: "\u{2}#2\u{3}<") (length: 5)
-        self.send_command(&Command::new(b"#2"))?;
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 58 34 34 39 39 35 03> } (string: "\u{2}X44995\u{3}") (length: 8)
-        expect_response_with_prefix!(self, b"\x02X", deadline)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 23 36 03 d9> } (string: "\u{2}#6\u{3}�") (length: 5)
-        self.send_command(&Command::new(b"#6"))?;
-        // IN UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x85, data: <02 58 34 03> } (string: "\u{2}X4\u{3}") (length: 4)
-        expect_response_with_prefix!(self, b"\x02X", deadline)?;
 
         Ok(())
     }
