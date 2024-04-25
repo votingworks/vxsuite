@@ -1,6 +1,7 @@
-import { Main, Screen, Text, H1 } from '@votingworks/ui';
+import { Icons, P } from '@votingworks/ui';
 import { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
+import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
 
 export function PaperReloadedPage(): JSX.Element {
   // Messy, but this flow eventually ends up in BallotContext. By setting path now
@@ -12,16 +13,13 @@ export function PaperReloadedPage(): JSX.Element {
   });
 
   return (
-    <Screen>
-      <Main padded centerChild>
-        <Text center>
-          <H1>Remove Poll Worker Card</H1>
-          <p>
-            The ballot sheet has been loaded. Remove the poll worker card to
-            continue.
-          </p>
-        </Text>
-      </Main>
-    </Screen>
+    <CenteredCardPageLayout
+      icon={<Icons.Done color="success" />}
+      title="Remove Poll Worker Card"
+      voterFacing={false}
+    >
+      <P>The ballot sheet has been loaded.</P>
+      <P>Remove the poll worker card to continue.</P>
+    </CenteredCardPageLayout>
   );
 }

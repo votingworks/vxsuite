@@ -417,13 +417,18 @@ export function AppRoot(): JSX.Element | null {
   }
 
   if (stateMachineState === 'jammed') {
-    return <JammedPage />;
+    return <JammedPage authStatus={authStatus} votes={votes} />;
   }
   if (
     stateMachineState === 'jam_cleared' ||
     stateMachineState === 'resetting_state_machine_after_jam'
   ) {
-    return <JamClearedPage stateMachineState={stateMachineState} />;
+    return (
+      <JamClearedPage
+        authStatus={authStatus}
+        stateMachineState={stateMachineState}
+      />
+    );
   }
 
   if (
