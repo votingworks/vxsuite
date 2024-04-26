@@ -512,8 +512,11 @@ export function AppRoot(): JSX.Element | null {
         // This problem is caused by conditioning on auth in both the frontend and backend. The long term fix is to
         // move auth entirely to the backend.
         // https://github.com/votingworks/vxsuite/issues/3985
-        stateMachineState !== 'accepting_paper' &&
-        stateMachineState !== 'not_accepting_paper'
+        (isFeatureFlagEnabled(
+          BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
+        ) ||
+          (stateMachineState !== 'accepting_paper' &&
+            stateMachineState !== 'not_accepting_paper'))
       ) {
         return (
           <VoterFlow
