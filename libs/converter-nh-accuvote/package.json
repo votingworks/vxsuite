@@ -25,7 +25,7 @@
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
-    "@xmldom/xmldom": "^0.8.1",
+    "@xmldom/xmldom": "^0.8.4",
     "buffer": "^6.0.3",
     "canvas": "2.9.1",
     "chalk": "4.1.2",
