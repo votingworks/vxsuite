@@ -1,12 +1,6 @@
 import express, { Application } from 'express';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import {
-  assert,
-  assertDefined,
-  ok,
-  Result,
-  throwIllegalValue,
-} from '@votingworks/basics';
+import { assert, ok, Result, throwIllegalValue } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import { Buffer } from 'buffer';
 import {
@@ -385,6 +379,7 @@ export function buildApi(
     },
 
     isPatDeviceConnected(): boolean {
+      /* istanbul ignore next */
       if (!stateMachine) {
         return false;
       }
@@ -415,6 +410,7 @@ export function buildApi(
         workspace,
         usbDrive,
         logger,
+        stateMachine,
       });
     },
 
@@ -429,7 +425,7 @@ export function buildApi(
         return;
       }
 
-      assertDefined(stateMachine).startPaperHandlerDiagnostic();
+      stateMachine.startPaperHandlerDiagnostic();
     },
   });
 }

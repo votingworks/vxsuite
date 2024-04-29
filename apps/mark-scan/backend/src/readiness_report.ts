@@ -13,6 +13,7 @@ import { generateReadinessReportFilename } from '@votingworks/utils';
 import { Workspace } from './util/workspace';
 import { getCurrentTime } from './util/get_current_time';
 import { isAccessibleControllerDaemonRunning } from './util/controllerd';
+import { PaperHandlerStateMachine } from './custom-paper-handler';
 
 /**
  * Saves the VxMarkScan hardware readiness report to the USB drive.
@@ -21,10 +22,12 @@ export async function saveReadinessReport({
   workspace,
   usbDrive,
   logger,
+  stateMachine,
 }: {
   workspace: Workspace;
   usbDrive: UsbDrive;
   logger: Logger;
+  stateMachine?: PaperHandlerStateMachine;
 }): Promise<ExportDataResult> {
   const { store } = workspace;
   const generatedAtTime = new Date(getCurrentTime());
@@ -43,8 +46,9 @@ export async function saveReadinessReport({
     electionDefinition,
     expectPrecinctSelection: true,
     precinctSelection,
-    isPaperHandlerDetected: true,
-    onStartPaperHandlerDiagnostic: () => {},
+    isPaperHandlerDetected: !!(
+      stateMachine && stateMachine.getSimpleStatus() !== 'no_hardware'
+    ),
   });
   const data = await renderToPdf({ document: report });
 
