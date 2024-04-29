@@ -84,6 +84,7 @@ export async function start({
 
   let stateMachine;
   // Allow the driver to start without a state machine for tests
+  /* istanbul ignore next */
   if (driver) {
     stateMachine = await getPaperHandlerStateMachine({
       workspace,
