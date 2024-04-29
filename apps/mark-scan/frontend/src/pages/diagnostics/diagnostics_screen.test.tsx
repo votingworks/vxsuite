@@ -2,7 +2,10 @@ import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import {
   MARK_SCAN_CONTROLLER_ILLUSTRATION_HIGHLIGHT_CLASS_NAME,
+  expectDetected,
+  expectDiagnosticResult,
   mockUsbDriveStatus,
+  DiagnosticSectionTitle,
 } from '@votingworks/ui';
 import { ok } from '@votingworks/basics';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
@@ -78,12 +81,13 @@ test('data from API is passed to screen contents', async () => {
   renderScreen();
 
   await screen.findByText('Battery Level: 50%');
+
   screen.getByText('Power Source: Battery');
   screen.getByText('Free Disk Space: 50% (1 GB / 2 GB)');
 
-  screen.getByTestId('paperHandlerDetected');
+  expectDetected(screen, DiagnosticSectionTitle.PaperHandler, true);
+  expectDetected(screen, DiagnosticSectionTitle.AccessibleController, true);
   screen.getByText('Test passed, 3/23/2022, 11:05:00 AM');
-  screen.getByTestId('accessibleControllerDetected');
   screen.getByText('Test passed, 3/23/2022, 11:00:00 AM');
 });
 
@@ -218,5 +222,5 @@ test('ending paper handler diagnostic refetches the diagnostic record', async ()
   userEvent.click(await screen.findButton('Complete Test'));
 
   await screen.findByText(/Test passed/);
-  screen.getByTestId('paperHandlerTestPassed');
+  expectDiagnosticResult(screen, DiagnosticSectionTitle.PaperHandler, true);
 });
