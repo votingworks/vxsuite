@@ -3,6 +3,8 @@ import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { MarkScanReadinessReport } from './mark_scan_readiness_report';
 import { render, screen } from '../../test/react_testing_library';
+import { expectDetected, expectDiagnosticResult } from './test_utils';
+import { DiagnosticSectionTitle } from './components';
 
 test('MarkScanReadinessReport', () => {
   const generatedAtTime = new Date('2022-01-01T00:00:00');
@@ -24,7 +26,6 @@ test('MarkScanReadinessReport', () => {
         timestamp: generatedAtTime.getTime(),
       }}
       isPaperHandlerDetected
-      onStartPaperHandlerDiagnostic={jest.fn()}
       mostRecentAccessibleControllerDiagnostic={{
         type: 'mark-scan-accessible-controller',
         outcome: 'pass',
@@ -48,9 +49,13 @@ test('MarkScanReadinessReport', () => {
   screen.getByText(/All Precincts/);
   screen.getByText('Battery Level: 50%');
   screen.getByText('Power Source: Battery');
-  screen.getByTestId('paperHandlerDetected');
-  screen.getByTestId('accessibleControllerDetected');
-  screen.getByTestId('paperHandlerTestPassed');
-  screen.getByTestId('accessibleControllerTestPassed');
+  expectDetected(screen, DiagnosticSectionTitle.PaperHandler, true);
+  expectDetected(screen, DiagnosticSectionTitle.AccessibleController, true);
+  expectDiagnosticResult(screen, DiagnosticSectionTitle.PaperHandler, true);
+  expectDiagnosticResult(
+    screen,
+    DiagnosticSectionTitle.AccessibleController,
+    true
+  );
   screen.getByText('passed child');
 });

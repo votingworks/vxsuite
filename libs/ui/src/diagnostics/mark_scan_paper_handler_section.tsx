@@ -3,32 +3,32 @@ import { assert } from '@votingworks/basics';
 import { DiagnosticRecord } from '@votingworks/types';
 import { H2, P } from '../typography';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
-import { Button } from '../button';
+import { DiagnosticSection, DiagnosticSectionTitle } from './components';
 
 export interface MarkScanPaperHandlerSectionProps {
   mostRecentPaperHandlerDiagnostic?: DiagnosticRecord;
   isPaperHandlerDetected: boolean;
-  onStartPaperHandlerDiagnostic: () => void;
+  paperHandlerSectionChildren?: React.ReactNode;
 }
 
 export function MarkScanPaperHandlerSection({
   mostRecentPaperHandlerDiagnostic,
   isPaperHandlerDetected,
-  onStartPaperHandlerDiagnostic,
+  paperHandlerSectionChildren,
 }: MarkScanPaperHandlerSectionProps): JSX.Element {
   if (mostRecentPaperHandlerDiagnostic) {
     assert(mostRecentPaperHandlerDiagnostic.type === 'mark-scan-paper-handler');
   }
 
   return (
-    <React.Fragment>
-      <H2>Printer/Scanner</H2>
+    <DiagnosticSection>
+      <H2>{DiagnosticSectionTitle.PaperHandler}</H2>
       {isPaperHandlerDetected ? (
-        <P data-testid="paperHandlerDetected">
+        <P>
           <SuccessIcon /> Detected
         </P>
       ) : (
-        <P data-testid="paperHandlerNotDetected">
+        <P>
           <WarningIcon /> Not detected
         </P>
       )}
@@ -47,16 +47,14 @@ export function MarkScanPaperHandlerSection({
             : ''}
         </P>
       ) : (
-        <P data-testid="paperHandlerTestPassed">
+        <P>
           <SuccessIcon /> Test passed,{' '}
           {new Date(
             mostRecentPaperHandlerDiagnostic.timestamp
           ).toLocaleString()}
         </P>
       )}
-      <Button onPress={onStartPaperHandlerDiagnostic}>
-        Test Printer/Scanner
-      </Button>
-    </React.Fragment>
+      {paperHandlerSectionChildren}
+    </DiagnosticSection>
   );
 }

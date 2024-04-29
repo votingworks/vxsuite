@@ -3,6 +3,7 @@ import React from 'react';
 import { assert } from '@votingworks/basics';
 import { H2, P } from '../typography';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
+import { DiagnosticSection, DiagnosticSectionTitle } from './components';
 
 export interface MarkScanControllerSectionProps {
   isAccessibleControllerInputDetected: boolean;
@@ -23,14 +24,14 @@ export function MarkScanControllerSection({
   }
 
   return (
-    <React.Fragment>
-      <H2>Accessible Controller</H2>
+    <DiagnosticSection>
+      <H2>{DiagnosticSectionTitle.AccessibleController}</H2>
       {isAccessibleControllerInputDetected ? (
-        <P data-testid="accessibleControllerDetected">
+        <P>
           <SuccessIcon /> Detected
         </P>
       ) : (
-        <P data-testid="accessibleControllerNotDetected">
+        <P>
           <WarningIcon /> Not detected
         </P>
       )}
@@ -49,7 +50,7 @@ export function MarkScanControllerSection({
             : ''}
         </P>
       ) : (
-        <P data-testid="accessibleControllerTestPassed">
+        <P>
           <SuccessIcon /> Test passed,{' '}
           {new Date(
             mostRecentAccessibleControllerDiagnostic.timestamp
@@ -57,6 +58,6 @@ export function MarkScanControllerSection({
         </P>
       )}
       {accessibleControllerSectionChildren}
-    </React.Fragment>
+    </DiagnosticSection>
   );
 }

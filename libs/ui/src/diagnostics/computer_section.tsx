@@ -3,6 +3,7 @@ import React from 'react';
 import { format } from '@votingworks/utils';
 import { H2, H6, P } from '../typography';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
+import { DiagnosticSection } from './components';
 
 export const FREE_DISK_SPACE_RATIO_WARN_THRESHOLD = 0.05;
 
@@ -88,10 +89,10 @@ export function ComputerSection({
   diskSpaceSummary,
 }: ComputerSectionProps): JSX.Element {
   return (
-    <React.Fragment>
+    <DiagnosticSection>
       <H2>Computer</H2>
       <PowerSection batteryInfo={batteryInfo} />
       <StorageSection diskSpaceSummary={diskSpaceSummary} />
-    </React.Fragment>
+    </DiagnosticSection>
   );
 }

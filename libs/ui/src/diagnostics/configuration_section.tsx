@@ -9,6 +9,7 @@ import React from 'react';
 import { assert } from '@votingworks/basics';
 import { H2, P } from '../typography';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
+import { DiagnosticSection } from './components';
 
 export interface ConfigurationSectionProps {
   electionDefinition?: ElectionDefinition;
@@ -62,7 +63,7 @@ export function ConfigurationSection({
   const { election } = electionDefinition;
 
   return (
-    <React.Fragment>
+    <DiagnosticSection>
       <H2>Configuration</H2>
       <P>
         <SuccessIcon /> Election: {election.title},{' '}
@@ -85,6 +86,6 @@ export function ConfigurationSection({
           {getBallotStyleIds(election, precinctSelection).join(', ')}
         </P>
       )}
-    </React.Fragment>
+    </DiagnosticSection>
   );
 }
