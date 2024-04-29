@@ -76,6 +76,7 @@ import {
   ORIGIN_SWIFTY_PRODUCT_ID,
   ORIGIN_VENDOR_ID,
 } from '../pat-input/constants';
+import { DIAGNOSTIC_MOCK_BALLOT_JPG_PATH } from './diagnostic/utils';
 
 // Use shorter polling interval in tests to reduce run times
 const TEST_POLL_INTERVAL_MS = 50;
@@ -229,6 +230,10 @@ afterEach(async () => {
 
 function setMockDeviceStatus(status: PaperHandlerStatus) {
   mockOf(driver.getPaperHandlerStatus).mockResolvedValue(status);
+}
+
+function getMockBallotFilepaths(): SheetOf<string> {
+  return [DIAGNOSTIC_MOCK_BALLOT_JPG_PATH, getBlankSheetFixturePath()];
 }
 
 describe('not_accepting_paper', () => {
@@ -728,10 +733,11 @@ describe('paper handler diagnostic', () => {
     });
     mockOf(scanAndSave).mockImplementation(async () => {
       await sleep(TEST_POLL_INTERVAL_MS);
-      return getSampleBallotFilepaths();
+      return getMockBallotFilepaths();
     });
 
     machine.startPaperHandlerDiagnostic();
+    await waitForStatus('paper_handler_diagnostic.loading');
     await waitForStatus('paper_handler_diagnostic.prompt_for_paper');
     setMockDeviceStatus(getPaperInFrontStatus());
     await waitForStatus('paper_handler_diagnostic.load_paper');
@@ -787,7 +793,7 @@ describe('paper handler diagnostic', () => {
 
     mockSystemAdminAuth(auth);
     machine.startPaperHandlerDiagnostic();
-    await waitForStatus('paper_handler_diagnostic.prompt_for_paper');
+    await waitForStatus('paper_handler_diagnostic.loading');
 
     mockLoggedOutAuth(auth);
     await waitForStatus('accepting_paper');

@@ -21,7 +21,11 @@ import {
 import { Buffer } from 'buffer';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
 import { Optional, assert, assertDefined } from '@votingworks/basics';
-import { MarkThresholds, SheetOf } from '@votingworks/types';
+import {
+  ElectionDefinition,
+  MarkThresholds,
+  SheetOf,
+} from '@votingworks/types';
 import {
   InterpretFileResult,
   interpretSimplexBmdBallotFromFilepath,
@@ -36,8 +40,6 @@ import {
   isSystemAdministratorAuth,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { readFile } from '@votingworks/fs';
-import { electionDefinition as electionMarkScanDiagnosticDefinition } from './electionPaperHandlerDiagnostic/election.json';
 import { Workspace, constructAuthMachineState } from '../util/workspace';
 import { SimpleServerStatus } from './types';
 import {
@@ -69,10 +71,11 @@ import {
   ORIGIN_SWIFTY_PRODUCT_ID,
   ORIGIN_VENDOR_ID,
 } from '../pat-input/constants';
+import { getSampleBallotFilepath } from './filepaths';
 import {
-  getDiagnosticBallotFilepath,
-  getSampleBallotFilepath,
-} from './filepaths';
+  getMockBallotPdfData,
+  getPaperHandlerDiagnosticElectionDefinition,
+} from './diagnostic/utils';
 
 interface Context {
   auth: InsertedSmartCardAuthApi;
@@ -87,10 +90,36 @@ interface Context {
   isPatDeviceConnected: boolean;
   interpretation?: SheetOf<InterpretFileResult>;
   logger: BaseLogger;
+  paperHandlerDiagnosticElection?: ElectionDefinition;
+  diagnosticError?: DiagnosticError;
 }
 
 function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
   return xassign<Context, any>(arg);
+}
+
+class DiagnosticError extends Error {
+  constructor(
+    userFacingMessage: string,
+    private readonly rootError?: Error
+  ) {
+    super(userFacingMessage);
+  }
+
+  getRootError() {
+    return this.rootError;
+  }
+}
+
+function createOnDiagnosticErrorHandler(userFacingMessage: string) {
+  return {
+    target: 'failure',
+    actions: assign({
+      diagnosticError: (_, event) => {
+        return new DiagnosticError(userFacingMessage, event.data);
+      },
+    }),
+  };
 }
 
 export type PaperHandlerStatusEvent =
@@ -236,8 +265,9 @@ function buildPaperStatusObservable() {
           }),
           timeout({
             each: deviceTimeoutMs,
-            /* istanbul ignore next */
-            with: () => throwError(() => new Error('paper_status_timed_out')),
+            with: () =>
+              /* istanbul ignore next */
+              throwError(() => new Error('paper_status_timed_out')),
           })
         )
     );
@@ -285,7 +315,6 @@ function buildAuthStatusObservable() {
       }),
       timeout({
         each: AUTH_STATUS_POLLING_TIMEOUT_MS,
-        /* istanbul ignore next */
         with: () => throwError(() => new Error('auth_status_timed_out')),
       })
     );
@@ -825,13 +854,32 @@ export function buildMachine(
           },
         },
         paper_handler_diagnostic: {
-          initial: 'prompt_for_paper',
+          initial: 'load_mock_election',
           on: {
             // Reset to state machine initial state if auth is ended
             AUTH_STATUS_LOGGED_OUT: 'paper_handler_diagnostic.done',
           },
           invoke: pollAuthStatus(),
           states: {
+            load_mock_election: {
+              invoke: {
+                id: 'diagnostic.readElectionJson',
+                src: async () => {
+                  const electionResult =
+                    await getPaperHandlerDiagnosticElectionDefinition();
+                  return electionResult.unsafeUnwrap();
+                },
+                onDone: {
+                  actions: assign({
+                    paperHandlerDiagnosticElection: (_, event) => event.data,
+                  }),
+                  target: 'prompt_for_paper',
+                },
+                onError: createOnDiagnosticErrorHandler(
+                  'Error loading paper handler diagnostic.'
+                ),
+              },
+            },
             prompt_for_paper: {
               invoke: pollPaperStatus(),
               on: {
@@ -846,6 +894,9 @@ export function buildMachine(
                   src: (context) => {
                     return loadAndParkPaper(context.driver);
                   },
+                  onError: createOnDiagnosticErrorHandler(
+                    'Error loading paper.'
+                  ),
                 },
               ],
               on: {
@@ -857,19 +908,11 @@ export function buildMachine(
               invoke: {
                 id: 'diagnostic.printBallotFixture',
                 src: async (context) => {
-                  const pdfDataResult = await readFile(
-                    getDiagnosticBallotFilepath(),
-                    {
-                      maxSize: 1024 * 1024 * 50,
-                    }
-                  );
-                  return printBallotChunks(
-                    context.driver,
-                    pdfDataResult.unsafeUnwrap(),
-                    {}
-                  );
+                  const ballotData = await getMockBallotPdfData();
+                  return printBallotChunks(context.driver, ballotData, {});
                 },
                 onDone: 'scan_ballot',
+                onError: createOnDiagnosticErrorHandler('Error printing.'),
               },
             },
             scan_ballot: {
@@ -884,6 +927,9 @@ export function buildMachine(
                     scannedBallotImagePath: (_, event) => event.data,
                   }),
                 },
+                onError: createOnDiagnosticErrorHandler(
+                  'Error scanning test ballot.'
+                ),
               },
             },
             interpret_ballot: {
@@ -891,10 +937,11 @@ export function buildMachine(
                 id: 'diagnostic.interpretScannedBallot',
                 src: async (context) => {
                   const { scannedBallotImagePath } = context;
-                  const electionDefinition =
-                    electionMarkScanDiagnosticDefinition;
+                  const electionDefinition = assertDefined(
+                    context.paperHandlerDiagnosticElection
+                  );
                   const precinctSelection = singlePrecinctSelectionFor(
-                    electionDefinition.election.precincts[1].id
+                    electionDefinition.election.precincts[0].id
                   );
 
                   const markThresholds: MarkThresholds = {
@@ -917,40 +964,32 @@ export function buildMachine(
                         adjudicationReasons: [],
                       }
                     );
+
+                  const interpretationType =
+                    interpretation[0].interpretation.type;
+                  if (interpretationType !== 'InterpretedBmdPage') {
+                    throw new Error(
+                      `Unexpected interpretation type: ${interpretationType}`
+                    );
+                  }
+
                   return interpretation;
                 },
                 onDone: {
-                  target: 'transition_interpretation',
+                  target: 'eject_to_rear',
                   actions: assign({
                     interpretation: (_, event) => event.data,
                   }),
                 },
+                onError: createOnDiagnosticErrorHandler(
+                  'Error interpreting test ballot.'
+                ),
               },
-            },
-            transition_interpretation: {
-              always: [
-                {
-                  target: 'failure',
-                  cond: (context) =>
-                    !context.interpretation ||
-                    !context.interpretation[0] ||
-                    context.interpretation[0].interpretation.type !==
-                      'InterpretedBmdPage',
-                },
-                {
-                  target: 'eject_to_rear',
-                  cond: (context) =>
-                    // context.interpretation is guaranteed to be defined after the check above
-                    assertDefined(context.interpretation)[0].interpretation
-                      .type === 'InterpretedBmdPage',
-                },
-              ],
             },
             eject_to_rear: {
               invoke: pollPaperStatus(),
-              entry: async (context) => {
-                await context.driver.ejectBallotToRear();
-              },
+              entry: async (context) =>
+                await context.driver.ejectBallotToRear(),
               on: {
                 NO_PAPER_ANYWHERE: 'success',
               },
@@ -969,10 +1008,21 @@ export function buildMachine(
               onDone: 'done',
             },
             failure: {
-              entry: (context) => {
+              entry: async (context) => {
+                await context.logger.log(
+                  LogEventId.DiagnosticComplete,
+                  'system',
+                  {
+                    disposition: 'failure',
+                    userFacingMessage: context.diagnosticError?.message,
+                    systemMessage:
+                      context.diagnosticError?.getRootError()?.message,
+                  }
+                );
                 context.workspace.store.addDiagnosticRecord({
                   type: 'mark-scan-paper-handler',
                   outcome: 'fail',
+                  message: context.diagnosticError?.message,
                 });
               },
               always: 'done',
@@ -1155,6 +1205,8 @@ export async function getPaperHandlerStateMachine({
       const { state } = machineService;
 
       switch (true) {
+        case state.matches('paper_handler_diagnostic.load_mock_election'):
+          return 'paper_handler_diagnostic.loading';
         case state.matches('paper_handler_diagnostic.prompt_for_paper'):
           return 'paper_handler_diagnostic.prompt_for_paper';
         case state.matches('paper_handler_diagnostic.load_paper'):
@@ -1164,9 +1216,6 @@ export async function getPaperHandlerStateMachine({
         case state.matches('paper_handler_diagnostic.scan_ballot'):
           return 'paper_handler_diagnostic.scan_ballot';
         case state.matches('paper_handler_diagnostic.interpret_ballot'):
-        case state.matches(
-          'paper_handler_diagnostic.transition_interpretation'
-        ):
           return 'paper_handler_diagnostic.interpret_ballot';
         case state.matches('paper_handler_diagnostic.eject_to_rear'):
           return 'paper_handler_diagnostic.eject_to_rear';
