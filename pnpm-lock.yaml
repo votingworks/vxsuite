@@ -3430,8 +3430,8 @@ importers:
         specifier: workspace:*
         version: link:../utils
       '@xmldom/xmldom':
-        specifier: ^0.8.1
-        version: 0.8.1
+        specifier: ^0.8.4
+        version: 0.8.4
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
@@ -4469,9 +4469,6 @@ importers:
       '@votingworks/ui':
         specifier: workspace:*
         version: link:../../ui
-      '@xmldom/xmldom':
-        specifier: ^0.8.1
-        version: 0.8.1
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
@@ -12317,8 +12314,8 @@ packages:
       '@webassemblyjs/wast-parser': 1.9.0
       '@xtuc/long': 4.2.2
 
-  /@xmldom/xmldom@0.8.1:
-    resolution: {integrity: sha512-4wOae+5N2RZ+CZXd9ZKwkaDi55IxrSTOjHpxTvQQ4fomtOJmqVxbmICA9jE1jvnqNhpfgz8cnfFagG86wV/xLQ==}
+  /@xmldom/xmldom@0.8.4:
+    resolution: {integrity: sha512-JIsjTbWBWJHb2t1D4UNZIJ6ohlRYCdoGzeHSzTorMH2zOq3UKlSBzFBMBdFK3xnUD/ANHw/SUzl/vx0z0JrqRw==}
     engines: {node: '>=10.0.0'}
     dev: false
 
