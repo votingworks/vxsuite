@@ -14,7 +14,6 @@ import {
 } from '@votingworks/utils';
 import { detectUsbDrive, UsbDrive } from '@votingworks/usb-drive';
 import { Printer, detectPrinter } from '@votingworks/printing';
-import { assertDefined } from '@votingworks/basics';
 import { detectDevices } from '@votingworks/backend';
 import { ADMIN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -88,7 +87,7 @@ export async function start({
     });
 
     const logger = Logger.from(baseLogger, () =>
-      getUserRole(auth, assertDefined(resolvedWorkspace))
+      getUserRole(auth, resolvedWorkspace)
     );
 
     const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);

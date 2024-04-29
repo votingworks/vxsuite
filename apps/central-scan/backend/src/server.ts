@@ -13,7 +13,6 @@ import {
   isIntegrationTest,
 } from '@votingworks/utils';
 import { UsbDrive, detectUsbDrive } from '@votingworks/usb-drive';
-import { assertDefined } from '@votingworks/basics';
 import { detectDevices } from '@votingworks/backend';
 import { PORT, SCAN_WORKSPACE } from './globals';
 import { Importer } from './importer';
@@ -87,7 +86,7 @@ export async function start({
     });
 
     const logger = Logger.from(baseLogger, () =>
-      getUserRole(auth, assertDefined(resolvedWorkspace))
+      getUserRole(auth, resolvedWorkspace)
     );
 
     const resolvedBatchScanner =
@@ -120,14 +119,8 @@ export async function start({
       disposition: 'success',
     });
 
-    if (resolvedWorkspace) {
-      await baseLogger.log(
-        LogEventId.ScanServiceConfigurationMessage,
-        'system',
-        {
-          message: `Scanning ballots into ${resolvedWorkspace.ballotImagesPath}`,
-        }
-      );
-    }
+    await baseLogger.log(LogEventId.ScanServiceConfigurationMessage, 'system', {
+      message: `Scanning ballots into ${resolvedWorkspace.ballotImagesPath}`,
+    });
   });
 }

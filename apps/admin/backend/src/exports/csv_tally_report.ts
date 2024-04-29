@@ -104,7 +104,7 @@ function* generateDataRows({
   hasManualResults: boolean;
 }): Generator<string> {
   const { election } = electionDefinition;
-  const batchLookup = generateBatchLookup(store, assertDefined(electionId));
+  const batchLookup = generateBatchLookup(store, electionId);
 
   for (const resultsGroup of resultGroups) {
     const groupFilter = combineGroupSpecifierAndFilter(
@@ -278,7 +278,7 @@ export async function* generateTallyReportCsv({
   ]);
   yield* generateDataRows({
     electionDefinition,
-    electionId: assertDefined(electionId),
+    electionId,
     overallExportFilter: filter,
     resultGroups,
     metadataStructure,
