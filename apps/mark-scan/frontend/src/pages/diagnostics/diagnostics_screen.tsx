@@ -139,12 +139,12 @@ export function DiagnosticsScreen({
       </Route>
       <Route path="/paper-handler">
         <PaperHandlerDiagnosticScreen
-          onClose={() => {
+          onClose={async () => {
             history.push('/');
             // The diagnostic record is written by the backend after successful rear ejection.
             // Invalidating the query at the time of the last mutation in this flow is still too early
             // so we have to manually refetch.
-            void mostRecentPaperHandlerDiagnosticQuery.refetch();
+            await mostRecentPaperHandlerDiagnosticQuery.refetch();
           }}
         />
       </Route>
