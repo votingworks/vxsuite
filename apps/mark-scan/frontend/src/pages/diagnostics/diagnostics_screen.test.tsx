@@ -201,9 +201,7 @@ test('pressing the button to start the paper handler diagnostic calls the right 
 
   userEvent.click(await screen.findButton('Test Printer/Scanner'));
   apiMock.setPaperHandlerState('paper_handler_diagnostic.prompt_for_paper');
-  await screen.findByText(
-    /Please feed one sheet of paper into the front input tray./
-  );
+  await screen.findByText('Please insert a sheet of ballot paper.');
 });
 
 test('ending paper handler diagnostic refetches the diagnostic record', async () => {

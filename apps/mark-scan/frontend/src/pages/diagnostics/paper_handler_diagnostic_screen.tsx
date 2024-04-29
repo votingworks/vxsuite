@@ -1,12 +1,4 @@
-import {
-  Button,
-  H2,
-  Loading,
-  Main,
-  P,
-  Screen,
-  appStrings,
-} from '@votingworks/ui';
+import { Button, H2, Loading, Main, P, Screen } from '@votingworks/ui';
 import {
   CancelButtonContainer,
   StepContainer,
@@ -36,18 +28,16 @@ export function PaperHandlerDiagnosticScreen({
       case 'paper_handler_diagnostic.load_paper':
         // Reuse appStrings value because we can, but other strings
         // don't need to be appStrings because this page isn't voter-facing
-        contents = <P>{appStrings.instructionsBmdLoadPaper()}</P>;
+        contents = <P>Please insert a sheet of ballot paper.</P>;
         break;
       case 'paper_handler_diagnostic.print_ballot_fixture':
       case 'paper_handler_diagnostic.scan_ballot':
       case 'paper_handler_diagnostic.interpret_ballot':
-        contents = <P>A sample test ballot is being printed and scanned.</P>;
+        contents = <P>A test ballot is being printed and scanned.</P>;
         break;
       case 'paper_handler_diagnostic.eject_to_rear':
         contents = (
-          <P>
-            The sample test ballot was confirmed and is ejecting to the rear.
-          </P>
+          <P>The test ballot was confirmed and is ejecting to the rear.</P>
         );
         break;
       case 'paper_handler_diagnostic.success':

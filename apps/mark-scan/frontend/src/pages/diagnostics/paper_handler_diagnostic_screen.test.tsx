@@ -39,7 +39,7 @@ const statusesToExpectedText: TestSpec[] = [
       'paper_handler_diagnostic.prompt_for_paper',
       'paper_handler_diagnostic.load_paper',
     ],
-    expectedText: /Please feed one sheet of paper into the front input tray./,
+    expectedText: 'Please insert a sheet of ballot paper.',
   },
   {
     description: 'in progress',
@@ -48,13 +48,12 @@ const statusesToExpectedText: TestSpec[] = [
       'paper_handler_diagnostic.scan_ballot',
       'paper_handler_diagnostic.interpret_ballot',
     ],
-    expectedText: 'A sample test ballot is being printed and scanned.',
+    expectedText: 'A test ballot is being printed and scanned.',
   },
   {
     description: 'ejecting',
     statuses: ['paper_handler_diagnostic.eject_to_rear'],
-    expectedText:
-      'The sample test ballot was confirmed and is ejecting to the rear.',
+    expectedText: 'The test ballot was confirmed and is ejecting to the rear.',
   },
   {
     description: 'success',
