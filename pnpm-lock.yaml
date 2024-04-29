@@ -1198,8 +1198,8 @@ importers:
         specifier: ^3.9.1
         version: 3.9.1
       pdfkit:
-        specifier: ^0.13.0
-        version: 0.13.0
+        specifier: ^0.14.0
+        version: 0.14.0
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -1241,8 +1241,8 @@ importers:
         specifier: 16.18.23
         version: 16.18.23
       '@types/pdfkit':
-        specifier: ^0.12.9
-        version: 0.12.9
+        specifier: ^0.13.4
+        version: 0.13.4
       '@types/react':
         specifier: 18.2.18
         version: 18.2.18
@@ -4482,8 +4482,8 @@ importers:
         specifier: ^1.17.1
         version: 1.17.1
       pdfkit:
-        specifier: ^0.13.0
-        version: 0.13.0
+        specifier: ^0.14.0
+        version: 0.14.0
       playwright:
         specifier: ^1.40.1
         version: 1.40.1
@@ -4513,8 +4513,8 @@ importers:
         specifier: 16.18.23
         version: 16.18.23
       '@types/pdfkit':
-        specifier: ^0.12.9
-        version: 0.12.9
+        specifier: ^0.13.4
+        version: 0.13.4
       '@types/react':
         specifier: 18.2.18
         version: 18.2.18
@@ -10653,8 +10653,8 @@ packages:
     resolution: {integrity: sha512-aGyFfB4Q8QjaSR3cBTiJfnFXBU6SXQaBVM7ADfBaZzq4L7EGbjuSoqXfHJofZmLFBfKzZ9b+9nXO2FfUIsw77w==}
     dev: true
 
-  /@types/pdfkit@0.12.9:
-    resolution: {integrity: sha512-z0y4rQky+nvno3nzyNUeZbrx2YvwP0GEfnpk8o3zG7jL4FYCZk9Vn11DzM+HC4RPzaJDOg9kiLzl3lng4FDcLA==}
+  /@types/pdfkit@0.13.4:
+    resolution: {integrity: sha512-ixGNDHYJCCKuamY305wbfYSphZ2WPe8FPkjn8oF4fHV+PgPV4V+hecPh2VOS2h4RNtpSB3zQcR4sCpNvvrEb1A==}
     dependencies:
       '@types/node': 16.18.23
     dev: true
@@ -10829,7 +10829,7 @@ packages:
   /@types/svg-to-pdfkit@0.1.0:
     resolution: {integrity: sha512-zlsSPfZzGu/gbrTZQuiFqXswL1noRUjYXqQE4i5/fc2pMU5pkLsZtXeCQ1Bu05YIwswGF5XFwN3307RlQoioeQ==}
     dependencies:
-      '@types/pdfkit': 0.12.9
+      '@types/pdfkit': 0.13.4
     dev: true
 
   /@types/symlink-or-copy@1.2.1:
@@ -13047,8 +13047,8 @@ packages:
       randombytes: 2.1.0
       randomfill: 1.0.4
 
-  /crypto-js@4.1.1:
-    resolution: {integrity: sha512-o2JlM7ydqd3Qk9CA0L4NL6mTzU2sdx96a+oOfPu8Mkl/PK51vSyoi8/rQ8NknZtk44vq15lmhAj9CIAGwgeWKw==}
+  /crypto-js@4.2.0:
+    resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
     dev: false
 
   /crypto-random-string@2.0.0:
@@ -18635,10 +18635,10 @@ packages:
       - supports-color
     dev: false
 
-  /pdfkit@0.13.0:
-    resolution: {integrity: sha512-AW79eHU5eLd2vgRDS9z3bSoi0FA+gYm+100LLosrQQMLUzOBGVOhG7ABcMFpJu7Bpg+MT74XYHi4k9EuU/9EZw==}
+  /pdfkit@0.14.0:
+    resolution: {integrity: sha512-Hnor8/78jhHm6ONrxWhrqOwAVALlBnFyWOF8sstBZMiqHZgZ5A6RU+Q3yahhw82plxpT7LOfH3b3qcOX6rzMQg==}
     dependencies:
-      crypto-js: 4.1.1
+      crypto-js: 4.2.0
       fontkit: 1.9.0
       linebreak: 1.1.0
       png-js: 1.0.0
@@ -20929,7 +20929,7 @@ packages:
   /svg-to-pdfkit@0.1.8:
     resolution: {integrity: sha512-QItiGZBy5TstGy+q8mjQTMGRlDDOARXLxH+sgVm1n/LYeo0zFcQlcCh8m4zi8QxctrxB9Kue/lStc/RD5iLadQ==}
     dependencies:
-      pdfkit: 0.13.0
+      pdfkit: 0.14.0
     dev: false
 
   /symbol-tree@3.2.4:
