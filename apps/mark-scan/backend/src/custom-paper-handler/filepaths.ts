@@ -7,8 +7,7 @@ export function getDiagnosticBallotFilepath(): string {
 
 export function getSampleBallotFilepath(): string {
   return join(
-    __dirname,
-    'ballot-assets',
+    BALLOT_ASSET_DIR,
     'bmd-ballot-general-north-springfield-style-5.jpg'
   );
 }
