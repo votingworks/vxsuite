@@ -112,10 +112,16 @@ export function DiagnosticsScreen({
               mostRecentPaperHandlerDiagnostic={
                 mostRecentPaperHandlerDiagnostic
               }
-              onStartPaperHandlerDiagnostic={() => {
-                startPaperHandlerDiagnosticMutation.mutate();
-                history.push('/paper-handler');
-              }}
+              paperHandlerSectionChildren={
+                <Button
+                  onPress={() => {
+                    startPaperHandlerDiagnosticMutation.mutate();
+                    history.push('/paper-handler');
+                  }}
+                >
+                  Test Printer/Scanner
+                </Button>
+              }
               isAccessibleControllerInputDetected={
                 isAccessibleControllerInputDetected
               }
