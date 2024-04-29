@@ -486,6 +486,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** The user has started a hardware diagnostic.  
 **Machines:** All
+### diagnostic-error
+**Type:** [user-action](#user-action)  
+**Description:** An error occurred when running a diagnostic.  
+**Machines:** All
 ### diagnostic-complete
 **Type:** [user-action](#user-action)  
 **Description:** The user has completed a hardware diagnostic.  

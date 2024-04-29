@@ -717,6 +717,11 @@ eventId = "diagnostic-init"
 eventType = "user-action"
 documentationMessage = "The user has started a hardware diagnostic."
 
+[DiagnosticError]
+eventId = "diagnostic-error"
+eventType = "user-action"
+documentationMessage = "An error occurred when running a diagnostic."
+
 [DiagnosticComplete]
 eventId = "diagnostic-complete"
 eventType = "user-action"
