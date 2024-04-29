@@ -20,8 +20,6 @@ module.exports = {
     '!**/*.d.ts',
     '!**/types.ts',
     '!src/**/index.ts',
-    // TODO add tests for PDI state machine
-    '!src/scanners/pdi/state_machine.ts',
   ],
   coverageThreshold: {
     global: {
