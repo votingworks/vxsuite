@@ -43,6 +43,8 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: apps/admin/backend/reports/
+      - store_artifacts:
+          path: apps/admin/backend/src/__image_snapshots__/__diff_output__/
 
   # @votingworks/admin-frontend
   test-apps-admin-frontend:
@@ -119,6 +121,8 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: apps/central-scan/backend/reports/
+      - store_artifacts:
+          path: apps/central-scan/backend/src/__image_snapshots__/__diff_output__/
 
   # @votingworks/central-scan-frontend
   test-apps-central-scan-frontend:
@@ -195,6 +199,8 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: apps/design/backend/reports/
+      - store_artifacts:
+          path: apps/design/backend/src/__image_snapshots__/__diff_output__/
 
   # @votingworks/design-frontend
   test-apps-design-frontend:
@@ -241,6 +247,8 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: apps/mark-scan/backend/reports/
+      - store_artifacts:
+          path: apps/mark-scan/backend/src/__image_snapshots__/__diff_output__/
 
   # @votingworks/mark-scan-frontend
   test-apps-mark-scan-frontend:
@@ -393,6 +401,8 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: apps/scan/backend/reports/
+      - store_artifacts:
+          path: apps/scan/backend/src/__image_snapshots__/__diff_output__/
 
   # @votingworks/scan-frontend
   test-apps-scan-frontend:
@@ -554,6 +564,8 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/ballot-interpreter/reports/
+      - store_artifacts:
+          path: libs/ballot-interpreter/src/__image_snapshots__/__diff_output__/
 
   # @votingworks/basics
   test-libs-basics:
@@ -1106,6 +1118,8 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/printing/reports/
+      - store_artifacts:
+          path: libs/printing/src/__image_snapshots__/__diff_output__/
 
   # @votingworks/res-to-ts
   test-libs-res-to-ts:

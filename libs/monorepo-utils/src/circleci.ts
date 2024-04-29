@@ -21,6 +21,7 @@ function generateTestJobForNodeJsPackage(
   }
 
   const hasPlaywrightTests = existsSync(`${pkg.path}/playwright.config.ts`);
+  const hasSnapshotTests = existsSync(`${pkg.path}/src/__image_snapshots__`);
   const isIntegrationTestJob = hasPlaywrightTests;
   const lines = [
     `# ${pkg.name}`,
@@ -56,11 +57,18 @@ function generateTestJobForNodeJsPackage(
     `        path: ${pkg.relativePath}/reports/`,
   ];
 
-  if (hasPlaywrightTests) {
+  if (hasSnapshotTests || hasPlaywrightTests) {
+    lines.push(`    - store_artifacts:`);
+  }
+
+  if (hasSnapshotTests) {
     lines.push(
-      `    - store_artifacts:`,
-      `        path: ${pkg.relativePath}/test-results/`
+      `        path: ${pkg.relativePath}/src/__image_snapshots__/__diff_output__/`
     );
+  }
+
+  if (hasPlaywrightTests) {
+    lines.push(`        path: ${pkg.relativePath}/test-results/`);
   }
 
   return lines;
