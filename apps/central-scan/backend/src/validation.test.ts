@@ -25,7 +25,7 @@ const BmdPage: InterpretedBmdPage = {
   votes: {},
 };
 
-const BlankPage: BlankPage = {
+const BlankPageInstance: BlankPage = {
   type: 'BlankPage',
 };
 
@@ -79,13 +79,13 @@ const HmpbPage2: InterpretedHmpbPage = {
 
 test('BMD ballot', () => {
   expect(
-    validateSheetInterpretation([BmdPage, BlankPage]).err()
+    validateSheetInterpretation([BmdPage, BlankPageInstance]).err()
   ).toBeUndefined();
 });
 
 test('BMD ballot reversed', () => {
   expect(
-    validateSheetInterpretation([BmdPage, BlankPage]).err()
+    validateSheetInterpretation([BmdPage, BlankPageInstance]).err()
   ).toBeUndefined();
 });
 

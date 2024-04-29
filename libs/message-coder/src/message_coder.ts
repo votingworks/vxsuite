@@ -104,7 +104,7 @@ class MessageCoder<P extends MessageCoderParts<object>>
         continue;
       }
 
-      if (!coder.canEncode((value as ObjectFromParts<P>)[k])) {
+      if (!coder.canEncode((value as ObjectFromParts<P>)[k as keyof P])) {
         return false;
       }
     }
@@ -129,7 +129,7 @@ class MessageCoder<P extends MessageCoderParts<object>>
       let length = 0;
       for (const [k, v] of Object.entries(this.parts)) {
         const coder = v as Coder<ObjectFromParts<P>[keyof ObjectFromParts<P>]>;
-        length += coder.bitLength(value[k]).okOrElse(fail);
+        length += coder.bitLength(value[k as keyof P]).okOrElse(fail);
       }
       return length;
     });
@@ -148,7 +148,7 @@ class MessageCoder<P extends MessageCoderParts<object>>
         bitOffset = (
           coder instanceof PaddingCoder
             ? coder.encodeInto(undefined, buffer, bitOffset)
-            : coder.encodeInto(value[k], buffer, bitOffset)
+            : coder.encodeInto(value[k as keyof P], buffer, bitOffset)
         ).okOrElse(fail);
       }
 

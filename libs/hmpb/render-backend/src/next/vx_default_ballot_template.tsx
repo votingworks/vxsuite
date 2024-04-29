@@ -10,7 +10,7 @@ import styled from 'styled-components';
 import {
   AnyContest,
   BallotType,
-  CandidateContest,
+  CandidateContest as CandidateContestStruct,
   Election,
   YesNoContest,
   ballotPaperDimensions,
@@ -306,7 +306,7 @@ function CandidateContest({
   contest,
 }: {
   election: Election;
-  contest: CandidateContest;
+  contest: CandidateContestStruct;
 }) {
   return (
     <Box
