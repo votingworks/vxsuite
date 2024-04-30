@@ -286,7 +286,7 @@ pub fn find_actual_bottom_marks(
             let rect_area = rect.width() * rect.height();
             if rect_sub_image
                 .pixels()
-                .filter(|(_, _, luma)| luma.0[0] < threshold)
+                .filter(|(_, _, luma)| luma.0[0] <= threshold)
                 .count()
                 > (rect_area / 2) as usize
             {
