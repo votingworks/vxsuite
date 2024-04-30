@@ -1,7 +1,6 @@
 import { assert, iter, sleep } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { Buffer } from 'buffer';
-import { SheetOf } from '@votingworks/types';
 import {
   ImageConversionOptions,
   PaperHandlerDriver,
@@ -14,7 +13,6 @@ import { pdfToImages } from '@votingworks/image-utils';
 import { tmpNameSync } from 'tmp';
 import { PRINT_DPI, RESET_DELAY_MS, SCAN_DPI } from './constants';
 import { isPaperAnywhere } from './scanner_status';
-import { getBlankSheetFixturePath } from './filepaths';
 
 const debug = makeDebug('mark-scan:custom-paper-handler:application-driver');
 
@@ -78,10 +76,7 @@ export async function printBallotChunks(
   );
 }
 
-export async function scanAndSave(
-  driver: PaperHandlerDriver
-): Promise<SheetOf<string>> {
-  debug('+scanAndSave');
+export async function scanAndSave(driver: PaperHandlerDriver): Promise<string> {
   const pathOutFront = tmpNameSync({ postfix: '.jpeg' });
   const status = await driver.getPaperHandlerStatus();
   // Scan can happen from loaded or parked state. If the paper is not loaded or parked
@@ -91,11 +86,10 @@ export async function scanAndSave(
   }
 
   await driver.scanAndSave(pathOutFront);
-  debug('Scan successful');
 
   // We can only print to one side from the thermal printer, but the interpret flow expects
   // a SheetOf 2 pages. Use an image of a blank sheet for the 2nd page.
-  return [pathOutFront, getBlankSheetFixturePath()];
+  return pathOutFront;
 }
 
 export async function loadAndParkPaper(

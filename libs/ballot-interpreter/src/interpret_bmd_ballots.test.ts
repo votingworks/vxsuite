@@ -14,7 +14,145 @@ import {
 } from '@votingworks/utils';
 import { typedAs } from '@votingworks/basics';
 import { sliceElectionHash } from '@votingworks/ballot-encoder';
-import { interpretSheet } from './interpret';
+import {
+  interpretSheet,
+  interpretSimplexBmdBallotFromFilepath,
+} from './interpret';
+
+const expectedInterpretation = `
+  [
+    {
+      "ballotId": undefined,
+      "metadata": {
+        "ballotStyleId": "1",
+        "ballotType": "precinct",
+        "electionHash": "c58b27d55ee6d01008c2",
+        "isTestMode": true,
+        "precinctId": "23",
+      },
+      "type": "InterpretedBmdPage",
+      "votes": {
+        "attorney": [
+          {
+            "id": "john-snow",
+            "name": "John Snow",
+            "partyIds": [
+              "1",
+            ],
+          },
+        ],
+        "board-of-alderman": [
+          {
+            "id": "helen-keller",
+            "name": "Helen Keller",
+            "partyIds": [
+              "0",
+            ],
+          },
+          {
+            "id": "steve-jobs",
+            "name": "Steve Jobs",
+            "partyIds": [
+              "1",
+            ],
+          },
+          {
+            "id": "nikola-tesla",
+            "name": "Nikola Tesla",
+            "partyIds": [
+              "0",
+            ],
+          },
+          {
+            "id": "vincent-van-gogh",
+            "name": "Vincent Van Gogh",
+            "partyIds": [
+              "1",
+            ],
+          },
+        ],
+        "chief-of-police": [
+          {
+            "id": "natalie-portman",
+            "name": "Natalie Portman",
+            "partyIds": [
+              "0",
+            ],
+          },
+        ],
+        "city-council": [
+          {
+            "id": "marie-curie",
+            "name": "Marie Curie",
+            "partyIds": [
+              "0",
+            ],
+          },
+          {
+            "id": "indiana-jones",
+            "name": "Indiana Jones",
+            "partyIds": [
+              "1",
+            ],
+          },
+          {
+            "id": "mona-lisa",
+            "name": "Mona Lisa",
+            "partyIds": [
+              "3",
+            ],
+          },
+          {
+            "id": "jackie-chan",
+            "name": "Jackie Chan",
+            "partyIds": [
+              "3",
+            ],
+          },
+        ],
+        "controller": [
+          {
+            "id": "winston-churchill",
+            "name": "Winston Churchill",
+            "partyIds": [
+              "0",
+            ],
+          },
+        ],
+        "mayor": [
+          {
+            "id": "sherlock-holmes",
+            "name": "Sherlock Holmes",
+            "partyIds": [
+              "0",
+            ],
+          },
+        ],
+        "parks-and-recreation-director": [
+          {
+            "id": "charles-darwin",
+            "name": "Charles Darwin",
+            "partyIds": [
+              "0",
+            ],
+          },
+        ],
+        "public-works-director": [
+          {
+            "id": "benjamin-franklin",
+            "name": "Benjamin Franklin",
+            "partyIds": [
+              "0",
+            ],
+          },
+        ],
+      },
+    },
+    {
+      "type": "BlankPage",
+    },
+  ]
+`;
 
 describe('VX BMD interpretation', () => {
   const fixtures = electionFamousNames2021Fixtures;
@@ -34,141 +172,9 @@ describe('VX BMD interpretation', () => {
       },
       validBmdSheet
     );
-    expect(mapSheet(result, ({ interpretation }) => interpretation))
-      .toMatchInlineSnapshot(`
-      [
-        {
-          "ballotId": undefined,
-          "metadata": {
-            "ballotStyleId": "1",
-            "ballotType": "precinct",
-            "electionHash": "c58b27d55ee6d01008c2",
-            "isTestMode": true,
-            "precinctId": "23",
-          },
-          "type": "InterpretedBmdPage",
-          "votes": {
-            "attorney": [
-              {
-                "id": "john-snow",
-                "name": "John Snow",
-                "partyIds": [
-                  "1",
-                ],
-              },
-            ],
-            "board-of-alderman": [
-              {
-                "id": "helen-keller",
-                "name": "Helen Keller",
-                "partyIds": [
-                  "0",
-                ],
-              },
-              {
-                "id": "steve-jobs",
-                "name": "Steve Jobs",
-                "partyIds": [
-                  "1",
-                ],
-              },
-              {
-                "id": "nikola-tesla",
-                "name": "Nikola Tesla",
-                "partyIds": [
-                  "0",
-                ],
-              },
-              {
-                "id": "vincent-van-gogh",
-                "name": "Vincent Van Gogh",
-                "partyIds": [
-                  "1",
-                ],
-              },
-            ],
-            "chief-of-police": [
-              {
-                "id": "natalie-portman",
-                "name": "Natalie Portman",
-                "partyIds": [
-                  "0",
-                ],
-              },
-            ],
-            "city-council": [
-              {
-                "id": "marie-curie",
-                "name": "Marie Curie",
-                "partyIds": [
-                  "0",
-                ],
-              },
-              {
-                "id": "indiana-jones",
-                "name": "Indiana Jones",
-                "partyIds": [
-                  "1",
-                ],
-              },
-              {
-                "id": "mona-lisa",
-                "name": "Mona Lisa",
-                "partyIds": [
-                  "3",
-                ],
-              },
-              {
-                "id": "jackie-chan",
-                "name": "Jackie Chan",
-                "partyIds": [
-                  "3",
-                ],
-              },
-            ],
-            "controller": [
-              {
-                "id": "winston-churchill",
-                "name": "Winston Churchill",
-                "partyIds": [
-                  "0",
-                ],
-              },
-            ],
-            "mayor": [
-              {
-                "id": "sherlock-holmes",
-                "name": "Sherlock Holmes",
-                "partyIds": [
-                  "0",
-                ],
-              },
-            ],
-            "parks-and-recreation-director": [
-              {
-                "id": "charles-darwin",
-                "name": "Charles Darwin",
-                "partyIds": [
-                  "0",
-                ],
-              },
-            ],
-            "public-works-director": [
-              {
-                "id": "benjamin-franklin",
-                "name": "Benjamin Franklin",
-                "partyIds": [
-                  "0",
-                ],
-              },
-            ],
-          },
-        },
-        {
-          "type": "BlankPage",
-        },
-      ]
-    `);
+    expect(
+      mapSheet(result, ({ interpretation }) => interpretation)
+    ).toMatchInlineSnapshot(expectedInterpretation);
   });
 
   test('properly detects test ballot in live mode', async () => {
@@ -280,5 +286,21 @@ describe('VX BMD interpretation', () => {
     expect(interpretationResult[1].interpretation.type).toEqual(
       'UnreadablePage'
     );
+  });
+
+  test('interpretSimplexBmdBallotFromFilepath', async () => {
+    const result = await interpretSimplexBmdBallotFromFilepath(
+      bmdSummaryBallotPage,
+      {
+        electionDefinition,
+        precinctSelection: ALL_PRECINCTS_SELECTION,
+        testMode: true,
+        markThresholds: DEFAULT_MARK_THRESHOLDS,
+        adjudicationReasons: [],
+      }
+    );
+    expect(
+      mapSheet(result, ({ interpretation }) => interpretation)
+    ).toMatchInlineSnapshot(expectedInterpretation);
   });
 });

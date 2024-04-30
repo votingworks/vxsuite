@@ -9,7 +9,8 @@ import {
   ok,
   Ok,
 } from '@votingworks/basics';
-import { loadImageData } from '@votingworks/image-utils';
+import { ImageData } from 'canvas';
+import { fromGrayScale, loadImageData } from '@votingworks/image-utils';
 import {
   BallotMetadata,
   BallotType,
@@ -586,17 +587,14 @@ async function interpretHmpb(
 }
 
 /**
- * Interpret a BMD ballot sheet and convert the result into the result format
- * used by the rest of VxSuite.
+ * Interpret a ballot sheet and convert the result into
+ * the result format used by the rest of VxSuite.
  */
-export async function interpretBmdBallot(
-  sheet: SheetOf<string>,
+async function interpretBmdBallot(
+  ballotImages: SheetOf<ImageData>,
   options: InterpreterOptions
 ): Promise<SheetOf<InterpretFileResult>> {
   const { electionDefinition, precinctSelection, testMode } = options;
-  const ballotImages = await mapSheet(sheet, (ballotImagePath) =>
-    loadImageData(ballotImagePath)
-  );
   const interpretResult = await interpretVxBmdBallotSheet(
     electionDefinition,
     ballotImages
@@ -699,6 +697,36 @@ export async function interpretBmdBallot(
 }
 
 /**
+ * Interpret a single-sided BMD ballot sheet and convert the result into
+ * the result format used by the rest of VxSuite.
+ */
+export async function interpretSimplexBmdBallotFromFilepath(
+  frontFilepath: string,
+  options: InterpreterOptions
+): Promise<SheetOf<InterpretFileResult>> {
+  const ballotImages: SheetOf<ImageData> = [
+    await loadImageData(frontFilepath),
+    fromGrayScale(new Uint8ClampedArray([0]), 1, 1),
+  ];
+  return interpretBmdBallot(ballotImages, options);
+}
+
+/**
+ * Interpret a BMD ballot sheet and convert the result into the result format
+ * used by the rest of VxSuite.
+ */
+async function interpretBmdBallotFromFilepaths(
+  sheet: SheetOf<string>,
+  options: InterpreterOptions
+): Promise<SheetOf<InterpretFileResult>> {
+  const ballotImages = await mapSheet(sheet, (ballotImagePath) =>
+    loadImageData(ballotImagePath)
+  );
+
+  return interpretBmdBallot(ballotImages, options);
+}
+
+/**
  * Interpret a sheet of ballot images.
  */
 export async function interpretSheet(
@@ -711,7 +739,7 @@ export async function interpretSheet(
     if (options.electionDefinition.election.gridLayouts) {
       return await interpretHmpb(sheet, options);
     }
-    return await interpretBmdBallot(sheet, options);
+    return await interpretBmdBallotFromFilepaths(sheet, options);
   } finally {
     timer.end();
   }
