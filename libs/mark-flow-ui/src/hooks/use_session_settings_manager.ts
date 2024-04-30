@@ -5,6 +5,7 @@ import { isCardlessVoterAuth } from '@votingworks/utils';
 import {
   VoterSettingsManagerContext,
   useAudioControls,
+  useAudioEnabled,
   useCurrentLanguage,
   useCurrentTheme,
   useLanguageControls,
@@ -21,6 +22,7 @@ export interface UseSessionSettingsManagerParams {
 }
 
 interface VoterSettings {
+  isAudioEnabled: boolean;
   language: LanguageCode;
   theme: DefaultTheme;
 }
@@ -37,9 +39,11 @@ export function useSessionSettingsManager(
   const voterSettingsManager = React.useContext(VoterSettingsManagerContext);
   const currentTheme = useCurrentTheme();
 
-  const { reset: resetAudioSettings } = useAudioControls();
+  const { reset: resetAudioSettings, setIsEnabled: setAudioEnabled } =
+    useAudioControls();
   const { reset: resetLanguage, setLanguage } = useLanguageControls();
   const currentLanguage = useCurrentLanguage();
+  const isAudioEnabled = useAudioEnabled();
 
   const wasPreviouslyLoggedInAsVoter =
     previousAuthStatusRef.current &&
@@ -52,11 +56,13 @@ export function useSessionSettingsManager(
     // in during a voter session:
     if (wasPreviouslyLoggedInAsVoter && !isLoggedInAsVoter) {
       voterSettingsRef.current = {
+        isAudioEnabled,
         language: currentLanguage,
         theme: currentTheme,
       };
       voterSettingsManager.resetThemes();
       resetLanguage();
+      setAudioEnabled(false);
     }
 
     if (
@@ -71,6 +77,7 @@ export function useSessionSettingsManager(
         voterSettingsManager.setColorMode(voterSettings.theme.colorMode);
         voterSettingsManager.setSizeMode(voterSettings.theme.sizeMode);
         setLanguage(voterSettings.language);
+        setAudioEnabled(voterSettings.isAudioEnabled);
       } else {
         // [VVSG 2.0 7.1-A] Reset themes to default if this is a new voting
         // session:
@@ -86,10 +93,12 @@ export function useSessionSettingsManager(
     authStatus,
     currentLanguage,
     currentTheme,
+    isAudioEnabled,
     isLoggedInAsVoter,
     isVotingSessionActive,
     resetAudioSettings,
     resetLanguage,
+    setAudioEnabled,
     setLanguage,
     voterSettingsManager,
     wasPreviouslyLoggedInAsVoter,

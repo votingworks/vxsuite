@@ -5,6 +5,7 @@ import {
   VoterSettingsManagerContextInterface,
   LanguageControls,
   useCurrentLanguage,
+  useAudioEnabled,
 } from '@votingworks/ui';
 import {
   mockCardlessVoterUser,
@@ -30,10 +31,12 @@ jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
   ...jest.requireActual('@votingworks/ui'),
   ReadOnLoad: jest.fn(),
   useAudioControls: () => mockAudioControls,
+  useAudioEnabled: jest.fn(),
   useCurrentLanguage: jest.fn(),
   useLanguageControls: () => mockLanguageControls,
 }));
 
+const mockUseAudioEnabled = mockOf(useAudioEnabled);
 const mockUseCurrentLanguage = mockOf(useCurrentLanguage);
 
 const DEFAULT_THEME: Partial<DefaultTheme> = {
@@ -56,12 +59,16 @@ function TestHookWrapper(props: UseSessionSettingsManagerParams): null {
   return null;
 }
 
+const ALLOWED_AUDIO_CONTROLS: ReadonlySet<keyof AudioControls> = new Set<
+  keyof AudioControls
+>(['reset', 'setIsEnabled']);
+
 afterEach(() => {
   // Catch any unexpected audio control usage:
   for (const method of Object.keys(mockAudioControls) as Array<
     keyof AudioControls
   >) {
-    if (method === 'reset') {
+    if (ALLOWED_AUDIO_CONTROLS.has(method)) {
       continue;
     }
 
@@ -91,6 +98,7 @@ test('Resets settings when election official logs in', () => {
   expect(mockLanguageControls.reset).not.toHaveBeenCalled();
   expect(mockLanguageControls.setLanguage).not.toHaveBeenCalled();
   expect(mockAudioControls.reset).not.toHaveBeenCalled();
+  expect(mockAudioControls.setIsEnabled).not.toHaveBeenCalled();
 
   // Simulate changing session settings as voter:
   act(() => {
@@ -104,6 +112,7 @@ test('Resets settings when election official logs in', () => {
     })
   );
   mockUseCurrentLanguage.mockReturnValue(SPANISH);
+  mockUseAudioEnabled.mockReturnValue(true);
 
   // Should reset session settings on Election Manager login:
   rerender(
@@ -121,6 +130,8 @@ test('Resets settings when election official logs in', () => {
   );
   expect(mockLanguageControls.reset).toHaveBeenCalled();
   expect(mockAudioControls.reset).not.toHaveBeenCalled();
+  expect(mockLanguageControls.setLanguage).not.toHaveBeenCalled();
+  expect(mockAudioControls.setIsEnabled).toHaveBeenLastCalledWith(false);
 
   // Simulate changing session settings as Election Manager:
   act(() => {
@@ -153,6 +164,7 @@ test('Resets settings when election official logs in', () => {
     })
   );
   expect(mockLanguageControls.setLanguage).toHaveBeenCalledWith(SPANISH);
+  expect(mockAudioControls.setIsEnabled).toHaveBeenLastCalledWith(true);
   expect(mockAudioControls.reset).not.toHaveBeenCalled();
 });
 
@@ -175,6 +187,7 @@ test('Resets theme to default if returning to a new voter session', () => {
     voterSettingsManager.setSizeMode('touchExtraLarge');
   });
   mockUseCurrentLanguage.mockReturnValue(SPANISH);
+  mockUseAudioEnabled.mockReturnValue(false);
 
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<DefaultTheme>>({
@@ -209,6 +222,7 @@ test('Resets theme to default if returning to a new voter session', () => {
   mockLanguageControls.reset.mockReset();
   mockLanguageControls.setLanguage.mockReset();
   mockAudioControls.reset.mockReset();
+  mockAudioControls.setIsEnabled.mockReset();
 
   // Should reset to default if voter session has been reset:
   rerender(
@@ -227,4 +241,5 @@ test('Resets theme to default if returning to a new voter session', () => {
   expect(mockLanguageControls.reset).toHaveBeenCalled();
   expect(mockLanguageControls.setLanguage).not.toHaveBeenCalled();
   expect(mockAudioControls.reset).toHaveBeenCalled();
+  expect(mockAudioControls.setIsEnabled).not.toHaveBeenCalled();
 });
