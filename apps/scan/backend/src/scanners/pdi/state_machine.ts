@@ -346,8 +346,18 @@ function buildMachine({
               target: '#rejecting',
             },
             {
-              cond: (_, { status }) => !status.documentInScanner,
+              cond: (_, { status }) => !anyRearSensorCovered(status),
               target: '#accepted',
+            },
+            // If a second ballot is inserted before the first is fully ejected,
+            // go back to paperInFront. The first ballot will likely be fully
+            // ejected by the time the second ballot is removed. Attempting to
+            // eject the first ballot again will be a no-op (since it was
+            // already ejected), and we'll successfully transition to the
+            // accepted state.
+            {
+              cond: (_, { status }) => anyFrontSensorCovered(status),
+              target: 'paperInFront',
             },
           ],
         },
