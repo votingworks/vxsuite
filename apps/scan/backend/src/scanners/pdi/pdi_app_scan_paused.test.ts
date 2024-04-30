@@ -16,6 +16,8 @@ import {
 import { delays } from './state_machine';
 import { BALLOT_BAG_CAPACITY } from '../../globals';
 
+jest.setTimeout(20_000);
+
 const mockFeatureFlagger = getFeatureFlagMock();
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {

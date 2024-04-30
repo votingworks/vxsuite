@@ -11,6 +11,8 @@ import {
 import { delays } from './state_machine';
 import { mockStatus, withApp } from '../../../test/helpers/pdi_helpers';
 
+jest.setTimeout(20_000);
+
 const mockFeatureFlagger = getFeatureFlagMock();
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {

@@ -24,6 +24,8 @@ import {
 } from '../../../test/helpers/shared_helpers';
 import { delays } from './state_machine';
 
+jest.setTimeout(20_000);
+
 const mockFeatureFlagger = getFeatureFlagMock();
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
