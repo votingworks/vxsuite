@@ -383,6 +383,15 @@ function buildMachine({
             target: 'coverOpen',
           },
           {
+            // We don't need coverClosed events, since we check for the
+            // coverOpen flag in the status instead when we're in the coverOpen
+            // state. But we don't want to treat it as an unexpected event, so
+            // we just do nothing,
+            cond: (_, { event }) => event.event === 'coverClosed',
+            target: undefined,
+          },
+          /* c8 ignore start - fallback case, shouldn't happen */
+          {
             target: '#error',
             actions: assign({
               error: (_, { event }) =>
@@ -392,6 +401,7 @@ function buildMachine({
                 ),
             }),
           },
+          /* c8 ignore stop */
         ],
         SCANNER_ERROR: [
           {
