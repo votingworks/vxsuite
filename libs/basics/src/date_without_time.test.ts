@@ -31,7 +31,13 @@ describe('DateWithoutTime', () => {
     // actually test it.
     const expectedDate = new Date();
     expectedDate.setFullYear(2024);
-    expectedDate.setMonth(1); // Months are weirdly 0-indexed
+    // Set date to 1 before setting month, since setMonth depends on the date
+    // value. According to MDN docs: "Conceptually it will add the number of
+    // days given by the current day of the month to the 1st day of the new
+    // month specified as the parameter, to return the new date."
+    expectedDate.setDate(1);
+    // Months are weirdly 0-indexed
+    expectedDate.setMonth(1);
     expectedDate.setDate(26);
     expectedDate.setHours(0);
     expectedDate.setMinutes(0);
