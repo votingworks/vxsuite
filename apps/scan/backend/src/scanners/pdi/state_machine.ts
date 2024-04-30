@@ -168,6 +168,9 @@ function buildMachine({
     return createMachine<Pick<Context, 'client'>>(
       {
         id,
+        strict: true,
+        predictableActionArguments: true,
+
         initial: 'querying',
         states: {
           querying: {
@@ -349,11 +352,12 @@ function buildMachine({
   return createMachine<Context, Event>(
     {
       id: 'precinct_scanner',
-      initial: 'connecting',
       strict: true,
-      context: { client: initialClient },
-      invoke: listenForScannerEvents,
+      predictableActionArguments: true,
 
+      context: { client: initialClient },
+
+      invoke: listenForScannerEvents,
       on: {
         SCANNER_EVENT: [
           {
@@ -383,6 +387,7 @@ function buildMachine({
         ],
       },
 
+      initial: 'connecting',
       states: {
         connecting: {
           invoke: {
