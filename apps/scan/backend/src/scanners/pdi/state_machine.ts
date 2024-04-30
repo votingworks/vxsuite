@@ -403,16 +403,10 @@ function buildMachine({
           },
           /* c8 ignore stop */
         ],
-        SCANNER_ERROR: [
-          {
-            cond: (_, { error }) => error.code === 'disconnected',
-            target: 'disconnected',
-          },
-          {
-            target: 'error',
-            actions: assign({ error: (_, { error }) => error }),
-          },
-        ],
+        SCANNER_ERROR: {
+          target: 'error',
+          actions: assign({ error: (_, { error }) => error }),
+        },
       },
 
       initial: 'connecting',
@@ -422,7 +416,7 @@ function buildMachine({
             src: async ({ client }) => (await client.connect()).unsafeUnwrap(),
             onDone: 'waitingForBallot',
             onError: {
-              target: 'disconnected',
+              target: 'error',
               actions: assign({ error: (_, event) => event.data }),
             },
           },
@@ -724,6 +718,13 @@ function buildMachine({
         error: {
           id: 'error',
           initial: 'exiting',
+          always: {
+            cond: (context) =>
+              context.error !== undefined &&
+              'code' in context.error &&
+              context.error.code === 'disconnected',
+            target: 'disconnected',
+          },
           states: {
             exiting: {
               invoke: {
