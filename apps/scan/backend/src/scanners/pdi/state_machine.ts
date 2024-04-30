@@ -137,6 +137,11 @@ export interface Delays {
    * reconnecting to the scanner.
    */
   DELAY_SCANNING_TIMEOUT: number;
+  /**
+   * How long to attempt accepting a ballot before giving up and declaring a
+   * jam.
+   */
+  DELAY_ACCEPTING_TIMEOUT: number;
 }
 
 export const delays = {
@@ -145,6 +150,7 @@ export const delays = {
   DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 2_500,
   DELAY_RECONNECT: 500,
   DELAY_SCANNING_TIMEOUT: 5_000,
+  DELAY_ACCEPTING_TIMEOUT: 5_000,
 } satisfies Delays;
 
 function buildMachine({
@@ -344,6 +350,18 @@ function buildMachine({
               target: '#accepted',
             },
           ],
+        },
+        // If the ballot jams during accept, we don't usually get a documentJam
+        // status, so we need to catch it with a timeout instead.
+        after: {
+          DELAY_ACCEPTING_TIMEOUT: {
+            target: '#rejecting',
+            actions: assign({
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              error: (_context) =>
+                new PrecinctScannerError('paper_in_back_after_accept'),
+            }),
+          },
         },
       },
     },
