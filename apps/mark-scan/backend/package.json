@@ -8,7 +8,7 @@
     "build"
   ],
   "scripts": {
-    "build": "tsc --build tsconfig.build.json && copyfiles -u 3 src/custom-paper-handler/ballot-assets/*.* build/custom-paper-handler/ballot-assets",
+    "build": "tsc --build tsconfig.build.json && copyfiles -u 3 src/custom-paper-handler/ballot-assets/*.* build/custom-paper-handler/ballot-assets && copyfiles -u 3 src/custom-paper-handler/diagnostic/*.* build/custom-paper-handler/diagnostic",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint .",
