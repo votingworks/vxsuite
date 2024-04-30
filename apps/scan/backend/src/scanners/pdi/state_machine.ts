@@ -563,10 +563,21 @@ function buildMachine({
                     cond: (_, { status }) => status.documentJam,
                     target: '#rejecting',
                   },
-                  // If the ballot doesn't get caught by the feeder, go back to waiting
+                  // This guard was put in during initial development to prevent
+                  // against cases where the scanner fails to grab the ballot.
+                  // Currently, those cases seem to be yielding a `scanFailed`
+                  // event, so we aren't hitting this guard. Nevertheless, it
+                  // seems like a good backup, so leaving it here.
                   {
                     cond: (_, { status }) => !status.documentInScanner,
-                    target: '#waitingForBallot',
+                    target: '#error',
+                    /* c8 ignore start */
+                    actions: assign({
+                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                      error: (_context) =>
+                        new PrecinctScannerError('scanning_failed'),
+                    }),
+                    /* c8 ignore stop */
                   },
                   { target: '#interpreting' },
                 ],
