@@ -792,6 +792,7 @@ function setupLogging(
         'votes',
         'unmarkedWriteIns',
         'adjudicationInfo',
+        'reasons',
         // Hide large values
         'layout',
         'client',
