@@ -814,6 +814,7 @@ function setupLogging(
       );
     })
     .onChange(async (context, previousContext) => {
+      /* c8 ignore next */
       if (!previousContext) return;
       const changed = Object.entries(context).filter(
         ([key, value]) => previousContext[key as keyof Context] !== value
@@ -931,6 +932,7 @@ export function createPrecinctScannerStateMachine({
             return 'recovering_from_error';
           case state.matches('unrecoverableError'):
             return 'unrecoverable_error';
+          /* c8 ignore next 2 */
           default:
             throw new Error(`Unexpected state: ${state.value}`);
         }
