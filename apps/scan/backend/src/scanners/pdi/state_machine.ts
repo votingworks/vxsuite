@@ -706,6 +706,7 @@ function buildMachine({
         disconnected: {
           id: 'disconnected',
           initial: 'waiting',
+          entry: assign({ interpretation: undefined }),
           states: {
             waiting: {
               after: {
