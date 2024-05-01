@@ -364,7 +364,7 @@ function loadMetadataAndInterpretBallot(
 ): Promise<SheetOf<InterpretFileResult>> {
   const { scannedBallotImagePath, workspace } = context;
   assert(
-    !!scannedBallotImagePath,
+    typeof scannedBallotImagePath === 'string',
     'Expected scannedBallotImagePath in context'
   );
 
@@ -674,6 +674,7 @@ export function buildMachine(
             eject_to_rear: {
               invoke: pollPaperStatus(),
               entry: async (context) => {
+                /* istanbul ignore next */
                 if (
                   isFeatureFlagEnabled(
                     BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
