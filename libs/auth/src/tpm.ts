@@ -12,7 +12,7 @@ const TPM_OPENSSL_PROVIDER = 'tpm2';
  * Prepares the OpenSSL params necessary to use the TPM
  */
 export function tpmOpensslParams(
-  opensslParam: '-CAkey' | '-key' | '-sign'
+  opensslParam: '-CAkey' | '-inkey' | '-key'
 ): string[] {
   return [
     opensslParam,

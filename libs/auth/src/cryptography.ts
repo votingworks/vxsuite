@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import fs from 'fs/promises';
 import path from 'path';
-import { Stream } from 'stream';
+import { Readable, Stream } from 'stream';
 import { FileResult, fileSync } from 'tmp';
 import { z } from 'zod';
 import { throwIllegalValue } from '@votingworks/basics';
@@ -474,13 +474,20 @@ export function parseSignMessageInputExcludingMessage(
 export async function signMessageHelper({
   signingPrivateKey,
 }: SignMessageInputExcludingMessage): Promise<Buffer> {
-  const signParams: OpensslParam[] = (() => {
+  // While it's possible to hash and sign with a single OpenSSL command, we separate the two
+  // actions. Hashing large inputs with the TPM can be extremely slow. So in production, we hash
+  // using the main processor and only sign using the TPM.
+  const hash = await openssl(['dgst', '-sha256', '-binary'], {
+    stdin: process.stdin,
+  });
+
+  const inKeyParams: OpensslParam[] = (() => {
     switch (signingPrivateKey.source) {
       case 'file': {
-        return ['-sign', signingPrivateKey.path];
+        return ['-inkey', signingPrivateKey.path];
       }
       case 'tpm': {
-        return tpmOpensslParams('-sign');
+        return tpmOpensslParams('-inkey');
       }
       /* istanbul ignore next: Compile-time check for completeness */
       default: {
@@ -488,9 +495,13 @@ export async function signMessageHelper({
       }
     }
   })();
-  return await openssl(['dgst', '-sha256', ...signParams], {
-    stdin: process.stdin,
+  const signature = await openssl(['pkeyutl', '-sign', ...inKeyParams], {
+    // Though small and not a stream, still pass the hash through the standard input to avoid
+    // having to temporarily write it to disk
+    stdin: Readable.from(hash),
   });
+
+  return signature;
 }
 
 /**

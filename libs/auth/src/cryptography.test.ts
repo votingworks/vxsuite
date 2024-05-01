@@ -550,9 +550,9 @@ test.each<{
     description: 'signing with private key file',
     signingPrivateKey: { source: 'file', path: '/path/to/private-key.pem' },
     expectedOpensslSignatureRequestParams: [
-      'dgst',
-      '-sha256',
+      'pkeyutl',
       '-sign',
+      '-inkey',
       '/path/to/private-key.pem',
     ],
   },
@@ -560,9 +560,9 @@ test.each<{
     description: 'signing with TPM private key',
     signingPrivateKey: { source: 'tpm' },
     expectedOpensslSignatureRequestParams: [
-      'dgst',
-      '-sha256',
+      'pkeyutl',
       '-sign',
+      '-inkey',
       'handle:0x81000001',
       '-provider',
       'tpm2',
@@ -575,13 +575,21 @@ test.each<{
   async ({ signingPrivateKey, expectedOpensslSignatureRequestParams }) => {
     setTimeout(() => {
       mockChildProcess.emit('close', successExitCode);
+      setTimeout(() => {
+        mockChildProcess.emit('close', successExitCode);
+      });
     });
 
     await signMessageHelper({ signingPrivateKey });
 
-    expect(spawn).toHaveBeenCalledTimes(1);
+    expect(spawn).toHaveBeenCalledTimes(2);
+    expect(spawn).toHaveBeenNthCalledWith(1, 'openssl', [
+      'dgst',
+      '-sha256',
+      '-binary',
+    ]);
     expect(spawn).toHaveBeenNthCalledWith(
-      1,
+      2,
       'openssl',
       expectedOpensslSignatureRequestParams
     );
