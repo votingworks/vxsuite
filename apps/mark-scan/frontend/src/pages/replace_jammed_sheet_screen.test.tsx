@@ -15,5 +15,23 @@ test('resetting_state_machine_after_jam  state', () => {
   );
 
   screen.getByRole('heading', { name: /jam cleared/i });
+  screen.getByText(/please wait/i);
+});
+
+test('accepting_paper_after_jam  state', () => {
+  render(
+    <ReplaceJammedSheetScreen stateMachineState="accepting_paper_after_jam" />
+  );
+
+  screen.getByRole('heading', { name: /jam cleared/i });
   screen.getByText(/load a new sheet/i);
+});
+
+test('loading_paper_after_jam  state', () => {
+  render(
+    <ReplaceJammedSheetScreen stateMachineState="loading_paper_after_jam" />
+  );
+
+  screen.getByRole('heading', { name: /jam cleared/i });
+  screen.getByText(/loading new sheet/i);
 });

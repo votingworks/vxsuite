@@ -306,7 +306,6 @@ describe('paper jam', () => {
     await expectStatusTransitionTo('jam_cleared');
 
     resetDriverResult.resolve(driver);
-    // Internal state "resetting_state_machine_after_jam.reset_interpretation":
     await expectStatusTransitionTo('resetting_state_machine_after_jam');
 
     await expectStatusTransitionTo('paper_reloaded');
@@ -332,11 +331,9 @@ describe('paper jam', () => {
     setMockDeviceStatus(getDefaultPaperHandlerStatus());
 
     resetDriverResult.resolve(driver);
-    // Internal state "resetting_state_machine_after_jam.reset_interpretation":
     await expectStatusTransitionTo('resetting_state_machine_after_jam');
 
-    // Internal state "resetting_state_machine_after_jam.accepting_paper":
-    await expectStatusTransitionTo('resetting_state_machine_after_jam');
+    await expectStatusTransitionTo('accepting_paper_after_jam');
 
     jest.spyOn(driver, 'parkPaper').mockImplementation(() => {
       setMockDeviceStatus(getPaperParkedStatus());
@@ -344,8 +341,7 @@ describe('paper jam', () => {
     });
 
     setMockDeviceStatus(getPaperInFrontStatus());
-    // Internal state "resetting_state_machine_after_jam.load_paper":
-    await expectStatusTransitionTo('resetting_state_machine_after_jam');
+    await expectStatusTransitionTo('loading_paper_after_jam');
     await expectStatusTransitionTo('paper_reloaded');
     expect(driver.loadPaper).toHaveBeenCalledTimes(1);
     expect(driver.parkPaper).toHaveBeenCalledTimes(1);
@@ -368,11 +364,9 @@ describe('paper jam', () => {
     setMockDeviceStatus(getDefaultPaperHandlerStatus());
 
     resetDriverResult.resolve(driver);
-    // Internal state "resetting_state_machine_after_jam.reset_interpretation":
     await expectStatusTransitionTo('resetting_state_machine_after_jam');
 
-    // Internal state "resetting_state_machine_after_jam.accepting_paper":
-    await expectStatusTransitionTo('resetting_state_machine_after_jam');
+    await expectStatusTransitionTo('accepting_paper_after_jam');
 
     jest.spyOn(driver, 'parkPaper').mockImplementation(() => {
       setMockDeviceStatus(getPaperParkedStatus());
@@ -380,8 +374,7 @@ describe('paper jam', () => {
     });
 
     setMockDeviceStatus(getPaperInFrontStatus());
-    // Internal state "resetting_state_machine_after_jam.load_paper":
-    await expectStatusTransitionTo('resetting_state_machine_after_jam');
+    await expectStatusTransitionTo('loading_paper_after_jam');
     await expectStatusTransitionTo('paper_reloaded');
     expect(driver.loadPaper).toHaveBeenCalledTimes(1);
     expect(driver.parkPaper).toHaveBeenCalledTimes(1);

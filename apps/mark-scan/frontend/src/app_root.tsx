@@ -421,7 +421,9 @@ export function AppRoot(): JSX.Element | null {
   }
   if (
     stateMachineState === 'jam_cleared' ||
-    stateMachineState === 'resetting_state_machine_after_jam'
+    stateMachineState === 'resetting_state_machine_after_jam' ||
+    stateMachineState === 'accepting_paper_after_jam' ||
+    stateMachineState === 'loading_paper_after_jam'
   ) {
     return (
       <JamClearedPage

@@ -1001,8 +1001,18 @@ export async function getPaperHandlerStateMachine({
           return 'jammed';
         case state.matches('voting_flow.jam_physically_cleared'):
           return 'jam_cleared';
-        case state.matches('voting_flow.resetting_state_machine_after_jam'):
+        case state.matches(
+          'voting_flow.resetting_state_machine_after_jam.reset_interpretation'
+        ):
           return 'resetting_state_machine_after_jam';
+        case state.matches(
+          'voting_flow.resetting_state_machine_after_jam.accepting_paper'
+        ):
+          return 'accepting_paper_after_jam';
+        case state.matches(
+          'voting_flow.resetting_state_machine_after_jam.load_paper'
+        ):
+          return 'loading_paper_after_jam';
         case state.matches('voting_flow.ballot_accepted'):
           return 'ballot_accepted';
         case state.matches('voting_flow.resetting_state_machine_after_success'):

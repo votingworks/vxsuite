@@ -12,6 +12,7 @@ import { JammedPage } from './pages/jammed_page';
 import { JamClearedPage } from './pages/jam_cleared_page';
 import { BallotContext } from './contexts/ballot_context';
 import { StartScreen } from './pages/start_screen';
+import { JAM_CLEARED_STATES } from './pages/replace_jammed_sheet_screen';
 
 jest.mock('./pages/jam_cleared_page');
 jest.mock('./pages/jammed_page');
@@ -96,7 +97,7 @@ test('`jam_cleared` state renders jam cleared page', async () => {
   await screen.findByText('mockJamClearedPage');
 });
 
-test('`resetting_state_machine_after_jam` state renders jam cleared page', async () => {
+test.each(JAM_CLEARED_STATES)('%s state renders JamClearedPage', async () => {
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);
   apiMock.setPaperHandlerState('resetting_state_machine_after_jam');
 

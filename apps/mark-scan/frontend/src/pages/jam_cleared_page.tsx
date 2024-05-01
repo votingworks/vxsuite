@@ -1,15 +1,10 @@
 import { appStrings, P } from '@votingworks/ui';
-import type { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import { InsertedSmartCardAuth } from '@votingworks/types';
 import { AskPollWorkerPage } from './ask_poll_worker_page';
-import { ReplaceJammedSheetScreen } from './replace_jammed_sheet_screen';
-
-const JAM_CLEARED_STATES = [
-  'jam_cleared',
-  'resetting_state_machine_after_jam',
-] as const satisfies readonly SimpleServerStatus[];
-
-export type JamClearedState = (typeof JAM_CLEARED_STATES)[number];
+import {
+  JamClearedState,
+  ReplaceJammedSheetScreen,
+} from './replace_jammed_sheet_screen';
 
 export interface JamClearedPageProps {
   authStatus:
