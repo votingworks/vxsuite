@@ -358,8 +358,7 @@ export const appStrings = {
 
   instructionsBmdPaperJam: () => (
     <UiString uiStringKey="instructionsBmdPaperJam">
-      Please alert a poll worker to clear the jam, opening the printer cover or
-      ballot box if necessary.
+      Please alert a poll worker to clear the jam.
     </UiString>
   ),
 
@@ -806,6 +805,12 @@ export const appStrings = {
   noteBmdInterpretationProblem: () => (
     <UiString uiStringKey="noteBmdInterpretationProblem">
       There was a problem interpreting your ballot.
+    </UiString>
+  ),
+
+  noteBmdReloadSheetAfterPaperJam: () => (
+    <UiString uiStringKey="noteBmdReloadSheetAfterPaperJam">
+      Please ask a poll worker to load a new ballot sheet.
     </UiString>
   ),
 

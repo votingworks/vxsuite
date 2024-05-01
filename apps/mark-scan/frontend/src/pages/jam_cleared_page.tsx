@@ -1,44 +1,33 @@
-import { appStrings, Icons, P } from '@votingworks/ui';
-import type { SimpleServerStatus } from '@votingworks/mark-scan-backend';
-import React from 'react';
-import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
+import { appStrings, P } from '@votingworks/ui';
+import { InsertedSmartCardAuth } from '@votingworks/types';
+import { AskPollWorkerPage } from './ask_poll_worker_page';
+import {
+  JamClearedState,
+  ReplaceJammedSheetScreen,
+} from './replace_jammed_sheet_screen';
 
-const JAM_CLEARED_STATES = [
-  'jam_cleared',
-  'resetting_state_machine_after_jam',
-] as const satisfies readonly SimpleServerStatus[];
-
-export type JamClearedState = (typeof JAM_CLEARED_STATES)[number];
-
-interface Props {
+export interface JamClearedPageProps {
+  authStatus:
+    | InsertedSmartCardAuth.CardlessVoterLoggedIn
+    | InsertedSmartCardAuth.PollWorkerLoggedIn
+    | InsertedSmartCardAuth.LoggedOut;
   stateMachineState: JamClearedState;
 }
 
-const STATUS_MESSAGES: Readonly<Record<JamClearedState, JSX.Element>> = {
-  jam_cleared: (
-    <React.Fragment>
-      <Icons.Loading /> {appStrings.noteBmdHardwareResetting()}
-    </React.Fragment>
-  ),
-  resetting_state_machine_after_jam: (
-    <React.Fragment>
-      <Icons.Done color="success" /> {appStrings.noteBmdHardwareReset()}
-    </React.Fragment>
-  ),
-};
+export function JamClearedPage(props: JamClearedPageProps): JSX.Element {
+  const { authStatus, stateMachineState } = props;
 
-export function JamClearedPage({ stateMachineState }: Props): JSX.Element {
+  const nonVoterScreen = (
+    <ReplaceJammedSheetScreen stateMachineState={stateMachineState} />
+  );
+
+  if (authStatus.status === 'logged_out') {
+    return nonVoterScreen;
+  }
+
   return (
-    <CenteredCardPageLayout
-      icon={<Icons.Done color="success" />}
-      title={appStrings.titleBmdJamClearedScreen()}
-      voterFacing
-    >
-      <P>
-        {STATUS_MESSAGES[stateMachineState]}
-        <br />
-        {appStrings.noteBmdSessionRestart()}
-      </P>
-    </CenteredCardPageLayout>
+    <AskPollWorkerPage authStatus={authStatus} pollWorkerPage={nonVoterScreen}>
+      <P>{appStrings.noteBmdReloadSheetAfterPaperJam()}</P>
+    </AskPollWorkerPage>
   );
 }
