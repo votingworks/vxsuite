@@ -135,12 +135,14 @@ export const mockStatus = {
 } satisfies Record<string, ScannerStatus>;
 
 export function createMockPdiScannerClient(): MockPdiScannerClient {
-  let listeners: Listener[] = [];
   const getScannerStatusMock = jest.fn();
   function setScannerStatus(status: ScannerStatus) {
     getScannerStatusMock.mockResolvedValue(ok(status));
   }
   setScannerStatus(mockStatus.idleScanningDisabled);
+
+  const listeners = new Set<Listener>();
+
   return {
     emitEvent: (event: ScannerEvent) => {
       for (const listener of listeners) {
@@ -150,11 +152,11 @@ export function createMockPdiScannerClient(): MockPdiScannerClient {
     setScannerStatus,
     client: {
       addListener: jest.fn((listener) => {
-        listeners.push(listener);
+        listeners.add(listener);
         return listener;
       }),
       removeListener: jest.fn((listener) => {
-        listeners = listeners.filter((l) => l !== listener);
+        listeners.delete(listener);
       }),
       connect: jest.fn(),
       getScannerStatus: getScannerStatusMock,
