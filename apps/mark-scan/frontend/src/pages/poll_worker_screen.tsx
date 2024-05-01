@@ -276,7 +276,7 @@ export function PollWorkerScreen({
               {precinct.name}
             </Font>
           </H3>
-          <p>Paper has been loaded.</p>
+          <P>Paper has been loaded.</P>
           <ol style={{ marginBottom: '0' }}>
             <li>
               <P>
