@@ -1088,10 +1088,7 @@ export const testCdfBallotDefinition: BallotDefinition = {
 
   vxSeal: '<svg>test seal</svg>',
 
-  GeneratedDate: new DateWithoutTime('2021-06-06')
-    .toMidnightDatetimeWithSystemTimezone()
-    .toISOString()
-    .replace(/.\d\d\dZ$/, 'Z'),
+  GeneratedDate: '2021-06-06T00:00:00Z',
   Issuer: 'VotingWorks',
   IssuerAbbreviation: 'VX',
   VendorApplicationId: 'VxSuite',
