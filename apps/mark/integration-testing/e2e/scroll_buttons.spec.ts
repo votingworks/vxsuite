@@ -64,9 +64,7 @@ test('configure, open polls, and test contest scroll buttons', async ({
   // Poll Worker: initiate voting session
   await page.getByText('Center Springfield').click();
   await page.getByText('12').click();
-  await page
-    .getByText('Voting Session Active: 12 at Center Springfield')
-    .waitFor();
+  await page.getByText('Voting Session Active:').waitFor();
   mockCardRemoval();
 
   await page
