@@ -17,7 +17,7 @@ import {
   useAudioContext,
 } from '../src/ui_strings/audio_context';
 import { UiStringsContextProvider } from '../src/ui_strings/ui_strings_context';
-import { RenderResult, render } from './react_testing_library';
+import { RenderResult, render, renderHook } from './react_testing_library';
 import {
   QUERY_CLIENT_DEFAULT_OPTIONS,
   VxRenderOptions,
@@ -40,6 +40,7 @@ export interface TestContext {
     ui: React.ReactElement,
     renderOptions?: VxRenderOptions
   ) => RenderResult;
+  renderHook: typeof renderHook;
 }
 
 export function newTestContext(
@@ -142,6 +143,7 @@ export function newTestContext(
         rerender: (newUi) => result.rerender(<Wrapper>{newUi}</Wrapper>),
       };
     },
+    renderHook: (renderer) => renderHook(renderer, { wrapper: Wrapper }),
     getAudioContext: () => currentAudioContext,
     getAudioControls: () => currentAudioControls,
     getLanguageContext: () => currentLanguageContext,
