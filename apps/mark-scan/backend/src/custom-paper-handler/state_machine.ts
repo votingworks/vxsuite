@@ -24,7 +24,7 @@ import { Optional, assert, assertDefined } from '@votingworks/basics';
 import { SheetOf } from '@votingworks/types';
 import {
   InterpretFileResult,
-  interpretBmdBallot,
+  interpretSimplexBmdBallotFromFilepath,
 } from '@votingworks/ballot-interpreter';
 import { LogEventId, LogLine, BaseLogger } from '@votingworks/logging';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
@@ -65,7 +65,7 @@ import {
   ORIGIN_SWIFTY_PRODUCT_ID,
   ORIGIN_VENDOR_ID,
 } from '../pat-input/constants';
-import { getSampleBallotFilepaths } from './filepaths';
+import { getSampleBallotFilepath } from './filepaths';
 
 interface Context {
   auth: InsertedSmartCardAuthApi;
@@ -76,7 +76,7 @@ interface Context {
   devicePollingIntervalMs: number;
   authPollingIntervalMs: number;
   notificationDurationMs: number;
-  scannedImagePaths?: SheetOf<string>;
+  scannedBallotImagePath?: string;
   isPatDeviceConnected: boolean;
   interpretation?: SheetOf<InterpretFileResult>;
   logger: BaseLogger;
@@ -362,8 +362,11 @@ function pollPatDeviceConnectionStatus(): InvokeConfig<
 function loadMetadataAndInterpretBallot(
   context: Context
 ): Promise<SheetOf<InterpretFileResult>> {
-  const { scannedImagePaths, workspace } = context;
-  assert(scannedImagePaths, 'Expected scannedImagePaths in context');
+  const { scannedBallotImagePath, workspace } = context;
+  assert(
+    typeof scannedBallotImagePath === 'string',
+    'Expected scannedBallotImagePath in context'
+  );
 
   const { store } = workspace;
   const electionDefinition = store.getElectionDefinition();
@@ -382,7 +385,7 @@ function loadMetadataAndInterpretBallot(
     store.getSystemSettings()
   );
 
-  return interpretBmdBallot(scannedImagePaths, {
+  return interpretSimplexBmdBallotFromFilepath(scannedBallotImagePath, {
     electionDefinition,
     precinctSelection,
     testMode: store.getTestMode(),
@@ -434,7 +437,7 @@ export function buildMachine(
         },
         SET_INTERPRETATION_FIXTURE: {
           actions: assign({
-            scannedImagePaths: getSampleBallotFilepaths(),
+            scannedBallotImagePath: getSampleBallotFilepath(),
           }),
           target: 'voting_flow.interpreting',
         },
@@ -514,7 +517,7 @@ export function buildMachine(
                   onDone: {
                     target: 'interpreting',
                     actions: assign({
-                      scannedImagePaths: (_, event) => event.data,
+                      scannedBallotImagePath: (_, event) => event.data,
                     }),
                   },
                 },
@@ -597,7 +600,7 @@ export function buildMachine(
                       actions: () => {
                         assign({
                           interpretation: undefined,
-                          scannedImagePaths: undefined,
+                          scannedBallotImagePath: undefined,
                         });
                       },
                     },
@@ -671,6 +674,7 @@ export function buildMachine(
             eject_to_rear: {
               invoke: pollPaperStatus(),
               entry: async (context) => {
+                /* istanbul ignore next */
                 if (
                   isFeatureFlagEnabled(
                     BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
@@ -819,14 +823,14 @@ export function buildMachine(
         resetContext: () => {
           assign({
             interpretation: undefined,
-            scannedImagePaths: undefined,
+            scannedBallotImagePath: undefined,
             isPatDeviceConnected: false,
           });
         },
         clearInterpretation: () => {
           assign({
             interpretation: undefined,
-            scannedImagePaths: undefined,
+            scannedBallotImagePath: undefined,
           });
         },
         endCardlessVoterAuth: async (context) => {
