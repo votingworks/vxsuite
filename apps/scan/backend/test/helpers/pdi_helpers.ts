@@ -145,7 +145,10 @@ export function createMockPdiScannerClient(): MockPdiScannerClient {
 
   return {
     emitEvent: (event: ScannerEvent) => {
-      for (const listener of listeners) {
+      // Snapshot the current set of listeners so that new listeners can be
+      // added/removed as a side effect of calling a listener without also
+      // receiving this event.
+      for (const listener of [...listeners]) {
         listener(event);
       }
     },
