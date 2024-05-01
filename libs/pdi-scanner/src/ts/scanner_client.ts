@@ -163,9 +163,12 @@ export function createPdiScannerClient() {
   const pdictl = spawn(PDICTL_PATH);
   let pdictlIsClosed = false;
 
-  let listeners: Listener[] = [];
+  const listeners = new Set<Listener>();
   function emit(event: ScannerEvent) {
-    for (const listener of listeners) {
+    // Snapshot the current set of listeners so that new listeners can be
+    // added/removed as a side effect of calling a listener without also
+    // receiving this event.
+    for (const listener of [...listeners]) {
       listener(event);
     }
   }
@@ -270,7 +273,7 @@ export function createPdiScannerClient() {
      * Add a {@link Listener} for any {@link ScannerEvent} emitted by the scanner.
      */
     addListener(listener: Listener): Listener {
-      listeners.push(listener);
+      listeners.add(listener);
       return listener;
     },
 
@@ -278,7 +281,7 @@ export function createPdiScannerClient() {
      * Remove a previously added {@link Listener}.
      */
     removeListener(listener: Listener): void {
-      listeners = listeners.filter((l) => l !== listener);
+      listeners.delete(listener);
     },
 
     /**

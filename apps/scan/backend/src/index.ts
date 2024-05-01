@@ -17,6 +17,7 @@ import {
   isIntegrationTest,
 } from '@votingworks/utils';
 import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
+import { createPdiScannerClient } from '@votingworks/pdi-scanner';
 import { SCAN_WORKSPACE } from './globals';
 import * as customStateMachine from './scanners/custom/state_machine';
 import * as pdiStateMachine from './scanners/pdi/state_machine';
@@ -74,6 +75,7 @@ async function main(): Promise<number> {
     BooleanEnvironmentVariableName.USE_PDI_SCANNER
   )
     ? pdiStateMachine.createPrecinctScannerStateMachine({
+        createScannerClient: createPdiScannerClient,
         workspace,
         usbDrive,
         auth,

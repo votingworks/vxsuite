@@ -5,7 +5,6 @@ import {
   ScannerError,
   ScannerEvent,
   ScannerStatus,
-  createPdiScannerClient,
 } from '@votingworks/pdi-scanner';
 import assert from 'assert';
 import {
@@ -25,6 +24,7 @@ import { writeImageData } from '@votingworks/image-utils';
 import { BaseLogger, LogEventId, LogLine } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import { Clock } from 'xstate/lib/interpreter';
 import { interpret } from '../../interpret';
 import { Workspace } from '../../util/workspace';
 import { rootDebug } from '../../util/debug';
@@ -137,31 +137,34 @@ export interface Delays {
    * reconnecting to the scanner.
    */
   DELAY_SCANNING_TIMEOUT: number;
+  /**
+   * How long to attempt accepting a ballot before giving up and declaring a
+   * jam.
+   */
+  DELAY_ACCEPTING_TIMEOUT: number;
 }
 
-const defaultDelays: Delays = {
+export const delays = {
   DELAY_SCANNING_ENABLED_POLLING_INTERVAL: 500,
   DELAY_SCANNER_STATUS_POLLING_INTERVAL: 500,
   DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 2_500,
   DELAY_RECONNECT: 500,
   DELAY_SCANNING_TIMEOUT: 5_000,
-};
+  DELAY_ACCEPTING_TIMEOUT: 5_000,
+} satisfies Delays;
 
 function buildMachine({
   createScannerClient,
   workspace,
   usbDrive,
   auth,
-  delayOverrides = {},
 }: {
-  createScannerClient: typeof createPdiScannerClient;
+  createScannerClient: () => ScannerClient;
   workspace: Workspace;
   usbDrive: UsbDrive;
   auth: InsertedSmartCardAuthApi;
-  delayOverrides?: Partial<Delays>;
 }) {
   const initialClient = createScannerClient();
-  const delays = { ...defaultDelays, ...delayOverrides } as const;
 
   function createPollingChildMachine(
     id: string,
@@ -171,6 +174,9 @@ function buildMachine({
     return createMachine<Pick<Context, 'client'>>(
       {
         id,
+        strict: true,
+        predictableActionArguments: true,
+
         initial: 'querying',
         states: {
           querying: {
@@ -345,6 +351,18 @@ function buildMachine({
             },
           ],
         },
+        // If the ballot jams during accept, we don't usually get a documentJam
+        // status, so we need to catch it with a timeout instead.
+        after: {
+          DELAY_ACCEPTING_TIMEOUT: {
+            target: '#rejecting',
+            actions: assign({
+              // eslint-disable-next-line @typescript-eslint/no-unused-vars
+              error: (_context) =>
+                new PrecinctScannerError('paper_in_back_after_accept'),
+            }),
+          },
+        },
       },
     },
   };
@@ -352,17 +370,27 @@ function buildMachine({
   return createMachine<Context, Event>(
     {
       id: 'precinct_scanner',
-      initial: 'connecting',
       strict: true,
-      context: { client: initialClient },
-      invoke: listenForScannerEvents,
+      predictableActionArguments: true,
 
+      context: { client: initialClient },
+
+      invoke: listenForScannerEvents,
       on: {
         SCANNER_EVENT: [
           {
             cond: (_, { event }) => event.event === 'coverOpen',
             target: 'coverOpen',
           },
+          {
+            // We don't need coverClosed events, since we check for the
+            // coverOpen flag in the status instead when we're in the coverOpen
+            // state. But we don't want to treat it as an unexpected event, so
+            // we just do nothing,
+            cond: (_, { event }) => event.event === 'coverClosed',
+            target: undefined,
+          },
+          /* c8 ignore start - fallback case, shouldn't happen */
           {
             target: '#error',
             actions: assign({
@@ -373,26 +401,22 @@ function buildMachine({
                 ),
             }),
           },
+          /* c8 ignore stop */
         ],
-        SCANNER_ERROR: [
-          {
-            cond: (_, { error }) => error.code === 'disconnected',
-            target: 'disconnected',
-          },
-          {
-            target: 'error',
-            actions: assign({ error: (_, { error }) => error }),
-          },
-        ],
+        SCANNER_ERROR: {
+          target: 'error',
+          actions: assign({ error: (_, { error }) => error }),
+        },
       },
 
+      initial: 'connecting',
       states: {
         connecting: {
           invoke: {
             src: async ({ client }) => (await client.connect()).unsafeUnwrap(),
             onDone: 'waitingForBallot',
             onError: {
-              target: 'disconnected',
+              target: 'error',
               actions: assign({ error: (_, event) => event.data }),
             },
           },
@@ -539,10 +563,21 @@ function buildMachine({
                     cond: (_, { status }) => status.documentJam,
                     target: '#rejecting',
                   },
-                  // If the ballot doesn't get caught by the feeder, go back to waiting
+                  // This guard was put in during initial development to prevent
+                  // against cases where the scanner fails to grab the ballot.
+                  // Currently, those cases seem to be yielding a `scanFailed`
+                  // event, so we aren't hitting this guard. Nevertheless, it
+                  // seems like a good backup, so leaving it here.
                   {
                     cond: (_, { status }) => !status.documentInScanner,
-                    target: '#waitingForBallot',
+                    target: '#error',
+                    /* c8 ignore start */
+                    actions: assign({
+                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                      error: (_context) =>
+                        new PrecinctScannerError('scanning_failed'),
+                    }),
+                    /* c8 ignore stop */
                   },
                   { target: '#interpreting' },
                 ],
@@ -671,11 +706,12 @@ function buildMachine({
         disconnected: {
           id: 'disconnected',
           initial: 'waiting',
+          entry: assign({ interpretation: undefined }),
           states: {
             waiting: {
               after: {
                 DELAY_RECONNECT: {
-                  actions: assign({ client: () => createPdiScannerClient() }),
+                  actions: assign({ client: () => createScannerClient() }),
                   target: 'reconnecting',
                 },
               },
@@ -694,6 +730,13 @@ function buildMachine({
         error: {
           id: 'error',
           initial: 'exiting',
+          always: {
+            cond: (context) =>
+              context.error !== undefined &&
+              'code' in context.error &&
+              context.error.code === 'disconnected',
+            target: 'disconnected',
+          },
           states: {
             exiting: {
               invoke: {
@@ -705,7 +748,7 @@ function buildMachine({
               },
             },
             reconnecting: {
-              entry: assign({ client: () => createPdiScannerClient() }),
+              entry: assign({ client: () => createScannerClient() }),
               invoke: {
                 src: async ({ client }) =>
                   (await client.connect()).unsafeUnwrap(),
@@ -749,6 +792,7 @@ function setupLogging(
         'votes',
         'unmarkedWriteIns',
         'adjudicationInfo',
+        'reasons',
         // Hide large values
         'layout',
         'client',
@@ -770,6 +814,7 @@ function setupLogging(
       );
     })
     .onChange(async (context, previousContext) => {
+      /* c8 ignore next */
       if (!previousContext) return;
       const changed = Object.entries(context).filter(
         ([key, value]) => previousContext[key as keyof Context] !== value
@@ -814,26 +859,30 @@ function setupLogging(
  * It's implemented using XState (https://xstate.js.org/docs/).
  */
 export function createPrecinctScannerStateMachine({
+  createScannerClient,
   workspace,
   usbDrive,
   auth,
   logger,
-  delays,
+  clock,
 }: {
+  createScannerClient: () => ScannerClient;
   workspace: Workspace;
   usbDrive: UsbDrive;
   auth: InsertedSmartCardAuthApi;
   logger: BaseLogger;
-  delays?: Partial<Delays>;
+  clock?: Clock;
 }): PrecinctScannerStateMachine {
   const machine = buildMachine({
-    createScannerClient: createPdiScannerClient,
+    createScannerClient,
     workspace,
     usbDrive,
     auth,
-    delayOverrides: delays,
   });
-  const machineService = interpretStateMachine(machine).start();
+  const machineService = interpretStateMachine(
+    machine,
+    clock && { clock }
+  ).start();
   setupLogging(machineService, logger);
 
   return {
@@ -883,6 +932,7 @@ export function createPrecinctScannerStateMachine({
             return 'recovering_from_error';
           case state.matches('unrecoverableError'):
             return 'unrecoverable_error';
+          /* c8 ignore next 2 */
           default:
             throw new Error(`Unexpected state: ${state.value}`);
         }

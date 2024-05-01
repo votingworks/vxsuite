@@ -177,6 +177,21 @@ test('addListener/removeListener', async () => {
   });
 });
 
+// Regression test for a bug in which a new listener added by a triggered
+// listener would receive the same event that triggered the original listener.
+test('listeners can add new listeners that dont receive the same event', async () => {
+  const client = createPdiScannerClient();
+  const listener2 = jest.fn();
+  const listener1 = jest.fn(() => client.addListener(listener2));
+  client.addListener(listener1);
+  const scanStartEvent: ScannerEvent = { event: 'scanStart' };
+  mockStdoutResponse(scanStartEvent);
+  await backendWaitFor(() =>
+    expect(listener1).toHaveBeenCalledWith(scanStartEvent)
+  );
+  expect(listener2).not.toHaveBeenCalled();
+});
+
 test('converts image data from scanComplete event', async () => {
   const client = createPdiScannerClient();
   const listener = jest.fn();
