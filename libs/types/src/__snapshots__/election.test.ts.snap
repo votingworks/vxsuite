@@ -34,6 +34,7 @@ VXF error: [
   {
     "code": "custom",
     "message": "Input not instance of DateWithoutTime",
+    "fatal": true,
     "path": [
       "date"
     ]
@@ -194,14 +195,13 @@ CDF error: [
     "message": "Required"
   },
   {
-    "code": "invalid_enum_value",
-    "options": [
-      "1.0.0"
-    ],
+    "expected": "'1.0.0'",
+    "received": "undefined",
+    "code": "invalid_type",
     "path": [
       "Version"
     ],
-    "message": "Invalid enum value. Expected '1.0.0'"
+    "message": "Required"
   }
 ]]
 `;

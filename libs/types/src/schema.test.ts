@@ -37,95 +37,7 @@ test('parsing gives specific errors for nested objects', () => {
         ],
       })
       .unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "invalid_union",
-        "unionErrors": [
-          {
-            "issues": [
-              {
-                "code": "invalid_type",
-                "expected": "string",
-                "received": "number",
-                "path": [
-                  "contests",
-                  1,
-                  "title"
-                ],
-                "message": "Expected string, received number"
-              }
-            ],
-            "name": "ZodError"
-          },
-          {
-            "issues": [
-              {
-                "code": "invalid_type",
-                "expected": "string",
-                "received": "number",
-                "path": [
-                  "contests",
-                  1,
-                  "title"
-                ],
-                "message": "Expected string, received number"
-              },
-              {
-                "code": "invalid_literal",
-                "expected": "yesno",
-                "path": [
-                  "contests",
-                  1,
-                  "type"
-                ],
-                "message": "Invalid literal value, expected \\"yesno\\""
-              },
-              {
-                "code": "invalid_type",
-                "expected": "string",
-                "received": "undefined",
-                "path": [
-                  "contests",
-                  1,
-                  "description"
-                ],
-                "message": "Required"
-              },
-              {
-                "code": "invalid_type",
-                "expected": "object",
-                "received": "undefined",
-                "path": [
-                  "contests",
-                  1,
-                  "yesOption"
-                ],
-                "message": "Required"
-              },
-              {
-                "code": "invalid_type",
-                "expected": "object",
-                "received": "undefined",
-                "path": [
-                  "contests",
-                  1,
-                  "noOption"
-                ],
-                "message": "Required"
-              }
-            ],
-            "name": "ZodError"
-          }
-        ],
-        "path": [
-          "contests",
-          1
-        ],
-        "message": "Invalid input"
-      }
-    ]]
-  `);
+  ).toMatchSnapshot();
 });
 
 test('ensures election date is YYYY-MM-DD', () => {
@@ -136,17 +48,7 @@ test('ensures election date is YYYY-MM-DD', () => {
         date: 'not ISO',
       })
       .unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "custom",
-        "message": "Date must be in the format YYYY-MM-DD",
-        "path": [
-          "date"
-        ]
-      }
-    ]]
-  `);
+  ).toMatchSnapshot();
 });
 
 test('parsing a valid election object succeeds', () => {
@@ -173,17 +75,7 @@ test('contest IDs cannot start with an underscore', () => {
       ...electionGeneral.contests[0],
       id: '_president',
     }).unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "custom",
-        "message": "IDs may not start with an underscore",
-        "path": [
-          "id"
-        ]
-      }
-    ]]
-  `);
+  ).toMatchSnapshot();
 });
 
 test('allows valid adjudication reasons', () => {
@@ -209,26 +101,7 @@ test('supports ballot layout paper size', () => {
         },
       })
       .unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "invalid_enum_value",
-        "options": [
-          "letter",
-          "legal",
-          "custom-8.5x17",
-          "custom-8.5x18",
-          "custom-8.5x21",
-          "custom-8.5x22"
-        ],
-        "path": [
-          "ballotLayout",
-          "paperSize"
-        ],
-        "message": "Invalid enum value. Expected 'letter' | 'legal' | 'custom-8.5x17' | 'custom-8.5x18' | 'custom-8.5x21' | 'custom-8.5x22'"
-      }
-    ]]
-  `);
+  ).toMatchSnapshot();
 
   expect(
     t
@@ -237,19 +110,7 @@ test('supports ballot layout paper size', () => {
         ballotLayout: 'letter',
       })
       .unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "invalid_type",
-        "expected": "object",
-        "received": "string",
-        "path": [
-          "ballotLayout"
-        ],
-        "message": "Expected object, received string"
-      }
-    ]]
-  `);
+  ).toMatchSnapshot();
 });
 
 test('parsing validates district references', () => {
@@ -260,20 +121,7 @@ test('parsing validates district references', () => {
         districts: [{ id: 'DIS', name: 'DIS' }],
       })
       .unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "custom",
-        "path": [
-          "ballotStyles",
-          0,
-          "districts",
-          0
-        ],
-        "message": "Ballot style '1' has district 'D', but no such district is defined. Districts defined: [DIS]."
-      }
-    ]]
-  `);
+  ).toMatchSnapshot();
 });
 
 test('parsing validates precinct references', () => {
@@ -284,20 +132,7 @@ test('parsing validates precinct references', () => {
         precincts: [{ id: 'PRE', name: 'PRE' }],
       })
       .unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "custom",
-        "path": [
-          "ballotStyles",
-          0,
-          "precincts",
-          0
-        ],
-        "message": "Ballot style '1' has precinct 'P', but no such precinct is defined. Precincts defined: [PRE]."
-      }
-    ]]
-  `);
+  ).toMatchSnapshot();
 });
 
 test('parsing validates contest party references', () => {
@@ -322,19 +157,7 @@ test('parsing validates contest party references', () => {
         ],
       })
       .unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "custom",
-        "path": [
-          "contests",
-          0,
-          "partyId"
-        ],
-        "message": "Contest 'CC' has party 'not-a-party', but no such party is defined. Parties defined: [PARTY]."
-      }
-    ]]
-  `);
+  ).toMatchSnapshot();
 });
 
 test('parsing validates candidate party references', () => {
@@ -365,22 +188,7 @@ test('parsing validates candidate party references', () => {
         ],
       })
       .unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "custom",
-        "path": [
-          "contests",
-          0,
-          "candidates",
-          0,
-          "partyIds",
-          0
-        ],
-        "message": "Candidate 'C' in contest 'CC' has party 'not-a-party', but no such party is defined. Parties defined: [PARTY]."
-      }
-    ]]
-  `);
+  ).toMatchSnapshot();
 });
 
 test('validates uniqueness of district ids', () => {
@@ -391,19 +199,7 @@ test('validates uniqueness of district ids', () => {
         districts: [...electionGeneral.districts, ...electionGeneral.districts],
       })
       .unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "custom",
-        "path": [
-          "districts",
-          1,
-          "id"
-        ],
-        "message": "Duplicate district 'D' found."
-      }
-    ]]
-  `);
+  ).toMatchSnapshot();
 });
 
 test('validates uniqueness of ballot style ids', () => {
@@ -412,18 +208,7 @@ test('validates uniqueness of ballot style ids', () => {
       ...electionGeneral.ballotStyles,
       ...electionGeneral.ballotStyles,
     ]).unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "custom",
-        "path": [
-          1,
-          "id"
-        ],
-        "message": "Duplicate ballot style '1' found."
-      }
-    ]]
-  `);
+  ).toMatchSnapshot();
 });
 
 test('validates uniqueness of precinct ids', () => {
@@ -434,19 +219,7 @@ test('validates uniqueness of precinct ids', () => {
         precincts: [...electionGeneral.precincts, ...electionGeneral.precincts],
       })
       .unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "custom",
-        "path": [
-          "precincts",
-          1,
-          "id"
-        ],
-        "message": "Duplicate precinct 'P' found."
-      }
-    ]]
-  `);
+  ).toMatchSnapshot();
 });
 
 test('validates uniqueness of contest ids', () => {
@@ -457,48 +230,7 @@ test('validates uniqueness of contest ids', () => {
         contests: [...electionGeneral.contests, ...electionGeneral.contests],
       })
       .unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "custom",
-        "path": [
-          "contests",
-          2,
-          "id"
-        ],
-        "message": "Duplicate contest 'CC' found."
-      },
-      {
-        "code": "custom",
-        "path": [
-          "contests",
-          3,
-          "id"
-        ],
-        "message": "Duplicate contest 'YNC' found."
-      },
-      {
-        "code": "custom",
-        "path": [
-          "contests",
-          2,
-          "yes/noOption",
-          "id"
-        ],
-        "message": "Duplicate yes/no contest option 'YNC-option-yes' found."
-      },
-      {
-        "code": "custom",
-        "path": [
-          "contests",
-          3,
-          "yes/noOption",
-          "id"
-        ],
-        "message": "Duplicate yes/no contest option 'YNC-option-no' found."
-      }
-    ]]
-  `);
+  ).toMatchSnapshot();
 });
 
 test('validates uniqueness of party ids', () => {
@@ -509,19 +241,7 @@ test('validates uniqueness of party ids', () => {
         parties: [...electionGeneral.parties, ...electionGeneral.parties],
       })
       .unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "custom",
-        "path": [
-          "parties",
-          1,
-          "id"
-        ],
-        "message": "Duplicate party 'PARTY' found."
-      }
-    ]]
-  `);
+  ).toMatchSnapshot();
 });
 
 test('validates uniqueness of candidate ids within a contest', () => {
@@ -532,19 +252,7 @@ test('validates uniqueness of candidate ids within a contest', () => {
       ...contest,
       candidates: [...contest.candidates, ...contest.candidates],
     }).unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "custom",
-        "path": [
-          "candidates",
-          1,
-          "id"
-        ],
-        "message": "Duplicate candidate 'C' found."
-      }
-    ]]
-  `);
+  ).toMatchSnapshot();
 });
 
 test('safeParseVxfElectionDefinition computes the election hash', () => {
