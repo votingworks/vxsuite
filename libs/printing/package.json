@@ -47,7 +47,7 @@
     "styled-components": "^5.3.11",
     "tmp": "^0.2.1",
     "tmp-promise": "^3.0.3",
-    "zod": "3.14.4"
+    "zod": "3.23.5"
   },
   "devDependencies": {
     "@types/debug": "4.1.8",

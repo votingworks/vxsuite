@@ -61,7 +61,7 @@
     "tmp": "^0.2.1",
     "usb": "^2.6.0",
     "uuid": "9.0.1",
-    "zod": "3.14.4"
+    "zod": "3.23.5"
   },
   "devDependencies": {
     "@types/debug": "4.1.8",
