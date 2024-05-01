@@ -12,6 +12,7 @@ import {
   singlePrecinctSelectionFor,
   MemoryHardware,
   generateBallotStyleId,
+  extractBallotStyleGroupId,
 } from '@votingworks/utils';
 import {
   mockPollWorkerUser,
@@ -193,7 +194,7 @@ test('displays only default English ballot styles', async () => {
 
   await screen.findByText(hasTextAcrossElements('Select Voter’s Ballot Style'));
 
-  screen.getButton(ballotStyleEnglish.id);
+  screen.getButton(extractBallotStyleGroupId(ballotStyleEnglish.id));
   expect(
     screen.queryByRole('button', { name: ballotStyleSpanish.id })
   ).not.toBeInTheDocument();

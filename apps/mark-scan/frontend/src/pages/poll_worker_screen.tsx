@@ -12,7 +12,6 @@ import {
 import {
   Button,
   ButtonList,
-  HorizontalRule,
   Main,
   Modal,
   Prose,
@@ -27,7 +26,6 @@ import {
   Font,
   H4,
   Icons,
-  FullScreenIconWrapper,
   H3,
   H6,
   Text,
@@ -41,6 +39,7 @@ import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
   getDefaultLanguageBallotStyles,
+  extractBallotStyleGroupId,
 } from '@votingworks/utils';
 
 import type { MachineConfig } from '@votingworks/mark-scan-backend';
@@ -55,6 +54,7 @@ import {
   setTestMode,
 } from '../api';
 import { PaperHandlerHardwareCheckDisabledScreen } from './paper_handler_hardware_check_disabled_screen';
+import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
 
 const VotingSession = styled.div`
   margin: 30px 0 60px;
@@ -260,40 +260,44 @@ export function PollWorkerScreen({
 
     if (stateMachineState === 'waiting_for_ballot_data') {
       return (
-        <Screen>
-          <Main centerChild padded>
-            <Prose>
-              <FullScreenIconWrapper align="center">
-                <Icons.Done color="success" />
-              </FullScreenIconWrapper>
-              <H2 as="h1" align="center">
-                {`Voting Session Active: ${ballotStyleId} at ${precinct.name}`}
-              </H2>
-              <p>Paper has been loaded.</p>
-              <ol style={{ marginBottom: '0' }}>
-                <li>
-                  <P>
-                    Instruct the voter to press the{' '}
-                    <Font weight="bold" noWrap>
-                      Start Voting
-                    </Font>{' '}
-                    button on the next screen.
-                  </P>
-                </li>
-                <li>
-                  <P>Remove the poll worker card to continue.</P>
-                </li>
-              </ol>
-              <HorizontalRule>or</HorizontalRule>
-              <P align="center">Deactivate this voter session to start over.</P>
-              <P align="center">
-                <Button onPress={resetCardlessVoterSession}>
-                  Deactivate Voting Session
-                </Button>
+        <CenteredCardPageLayout
+          buttons={
+            <Button onPress={resetCardlessVoterSession}>
+              Deactivate Voting Session
+            </Button>
+          }
+          icon={<Icons.Done color="success" />}
+          title="Voting Session Active:"
+          voterFacing={false}
+        >
+          <H3 as="h2">
+            <Font weight="regular">
+              Ballot Style {extractBallotStyleGroupId(ballotStyleId)} at{' '}
+              {precinct.name}
+            </Font>
+          </H3>
+          <p>Paper has been loaded.</p>
+          <ol style={{ marginBottom: '0' }}>
+            <li>
+              <P>
+                Instruct the voter to press the{' '}
+                <Font weight="bold" noWrap>
+                  Start Voting
+                </Font>{' '}
+                button on the next screen.
               </P>
-            </Prose>
-          </Main>
-        </Screen>
+            </li>
+            <li>
+              <P>Remove the poll worker card to continue.</P>
+            </li>
+          </ol>
+          <P>
+            <Caption>
+              <Icons.Info /> To start over, press the button below to deactivate
+              the voter session.
+            </Caption>
+          </P>
+        </CenteredCardPageLayout>
       );
     }
 
@@ -368,7 +372,7 @@ export function PollWorkerScreen({
                           });
                         }}
                       >
-                        {ballotStyle.id}
+                        {extractBallotStyleGroupId(ballotStyle.id)}
                       </Button>
                     ))}
                   </ButtonList>
