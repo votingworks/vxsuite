@@ -39,7 +39,7 @@ export function generateBallotStyleId(params: {
   );
 }
 
-function extractBallotStyleGroupId(
+export function extractBallotStyleGroupId(
   ballotStyleId: BallotStyleId
 ): BallotStyleId {
   return ballotStyleId.split(ID_LANGUAGES_SEPARATOR)[0] || ballotStyleId;

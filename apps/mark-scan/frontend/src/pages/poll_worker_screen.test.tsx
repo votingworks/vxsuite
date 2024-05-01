@@ -10,6 +10,7 @@ import {
 
 import {
   BooleanEnvironmentVariableName,
+  extractBallotStyleGroupId,
   generateBallotStyleId,
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
@@ -221,7 +222,7 @@ test('displays only default English ballot styles', async () => {
 
   await screen.findByText(hasTextAcrossElements('Select Voter’s Ballot Style'));
 
-  screen.getButton(ballotStyleEnglish.id);
+  screen.getButton(extractBallotStyleGroupId(ballotStyleEnglish.id));
   expect(
     screen.queryByRole('button', { name: ballotStyleSpanish.id })
   ).not.toBeInTheDocument();

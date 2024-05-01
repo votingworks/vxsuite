@@ -164,7 +164,8 @@ test('Cardless Voting Flow', async () => {
       precinctId: '23',
     },
   });
-  await screen.findByText('Voting Session Active: 12 at Center Springfield');
+  await screen.findByText('Voting Session Active:');
+  await screen.findByText('Ballot Style 12 at Center Springfield');
 
   // Poll Worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({

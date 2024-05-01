@@ -40,6 +40,7 @@ import {
   getPollsTransitionAction,
   getPollTransitionsFromState,
   getDefaultLanguageBallotStyles,
+  extractBallotStyleGroupId,
 } from '@votingworks/utils';
 
 import type { MachineConfig } from '@votingworks/mark-backend';
@@ -238,8 +239,14 @@ export function PollWorkerScreen({
               <Icons.Done color="success" />
             </FullScreenIconWrapper>
             <H2 as="h1" align="center">
-              {`Voting Session Active: ${ballotStyleId} at ${precinct.name}`}
+              Voting Session Active:
             </H2>
+            <H3 as="h2" align="center">
+              <Font weight="regular">
+                Ballot Style {extractBallotStyleGroupId(ballotStyleId)} at{' '}
+                {precinct.name}
+              </Font>
+            </H3>
             <ol style={{ marginBottom: '0' }}>
               <li>
                 <P>
@@ -341,7 +348,7 @@ export function PollWorkerScreen({
                           )
                         }
                       >
-                        {ballotStyle.id}
+                        {extractBallotStyleGroupId(ballotStyle.id)}
                       </Button>
                     ))}
                   </ButtonList>

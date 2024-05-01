@@ -146,7 +146,8 @@ test('poll worker selects ballot style, voter votes', async () => {
       precinctId: '23',
     },
   });
-  await screen.findByText('Voting Session Active: 12 at Center Springfield');
+  await screen.findByText('Voting Session Active:');
+  await screen.findByText('Ballot Style 12 at Center Springfield');
 
   // Poll Worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
@@ -241,7 +242,8 @@ test('in "All Precincts" mode, poll worker must select a precinct first', async 
       precinctId: '23',
     },
   });
-  await screen.findByText('Voting Session Active: 12 at Center Springfield');
+  await screen.findByText('Voting Session Active:');
+  await screen.findByText('Ballot Style 12 at Center Springfield');
 
   // Poll Worker removes their card
   apiMock.setAuthStatusCardlessVoterLoggedIn({
