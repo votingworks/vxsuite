@@ -37,6 +37,9 @@ beforeEach(() => {
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_CUSTOM_SCANNER
+  );
 });
 
 test('insert second ballot before first ballot accept', async () => {

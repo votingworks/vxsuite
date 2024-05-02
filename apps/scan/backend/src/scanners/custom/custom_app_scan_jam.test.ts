@@ -40,6 +40,9 @@ beforeEach(() => {
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_CUSTOM_SCANNER
+  );
 });
 
 test('jam on scan', async () => {
