@@ -19,9 +19,15 @@ import {
 } from '@votingworks/utils';
 import waitForExpect from 'wait-for-expect';
 import { MockUsbDrive } from '@votingworks/usb-drive';
+import { Logger, mockLogger, LogSource } from '@votingworks/logging';
 import { Api } from '../../src/app';
-import { PrecinctScannerStatus } from '../../src/types';
+import {
+  PrecinctScannerStateMachine,
+  PrecinctScannerStatus,
+} from '../../src/types';
 import { Store } from '../../src/store';
+import { getUserRole } from '../../src/util/auth';
+import { Workspace } from '../../src/util/workspace';
 
 export async function expectStatus(
   apiClient: grout.Client<Api>,
@@ -119,4 +125,22 @@ export async function waitForContinuousExportToUsbDrive(
     10000,
     250
   );
+}
+
+export function buildMockLogger(
+  auth: InsertedSmartCardAuthApi,
+  workspace: Workspace
+): Logger {
+  return mockLogger(LogSource.VxScanBackend, () =>
+    getUserRole(auth, workspace)
+  );
+}
+
+export function createPrecinctScannerStateMachineMock(): jest.Mocked<PrecinctScannerStateMachine> {
+  return {
+    status: jest.fn(),
+    accept: jest.fn(),
+    return: jest.fn(),
+    stop: jest.fn(),
+  };
 }

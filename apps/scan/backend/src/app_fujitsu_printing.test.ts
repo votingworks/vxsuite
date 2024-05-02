@@ -4,7 +4,7 @@ import {
 } from '@votingworks/utils';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { configureApp } from '../test/helpers/shared_helpers';
-import { withApp } from '../test/helpers/custom_helpers';
+import { withApp } from '../test/helpers/pdi_helpers';
 
 jest.setTimeout(60_000);
 
@@ -33,7 +33,6 @@ jest.mock('./util/get_current_time', () => ({
 
 test('printReport prints first section and printReportSection can print the rest', async () => {
   await withApp(
-    {},
     async ({
       apiClient,
       mockUsbDrive,
@@ -78,7 +77,6 @@ test('printReport prints first section and printReportSection can print the rest
 
 test('can print test page', async () => {
   await withApp(
-    {},
     async ({
       apiClient,
       mockUsbDrive,

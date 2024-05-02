@@ -36,19 +36,23 @@ import {
   sampleBallotImages,
 } from '@votingworks/fixtures';
 import { SheetOf } from '@votingworks/types';
-import { createPrecinctScannerStateMachine } from '../../src/scanners/pdi/state_machine';
+import {
+  createPrecinctScannerStateMachine,
+  delays,
+} from '../../src/scanners/pdi/state_machine';
 import { Workspace, createWorkspace } from '../../src/util/workspace';
 import { Api, buildApp } from '../../src/app';
-import { buildMockLogger } from './custom_helpers';
 import {
   wrapFujitsuThermalPrinter,
   wrapLegacyPrinter,
 } from '../../src/printing/printer';
 import {
+  buildMockLogger,
   expectStatus,
   waitForContinuousExportToUsbDrive,
   waitForStatus,
 } from './shared_helpers';
+import { Store } from '../../src/store';
 
 export interface MockPdiScannerClient {
   emitEvent: (event: ScannerEvent) => void;
@@ -175,10 +179,11 @@ export function createMockPdiScannerClient(): MockPdiScannerClient {
 export async function simulateScan(
   apiClient: grout.Client<Api>,
   mockScanner: MockPdiScannerClient,
-  images: SheetOf<ImageData>
+  images: SheetOf<ImageData>,
+  ballotsCounted = 0
 ): Promise<void> {
   mockScanner.emitEvent({ event: 'scanStart' });
-  await expectStatus(apiClient, { state: 'scanning' });
+  await expectStatus(apiClient, { state: 'scanning', ballotsCounted });
   mockScanner.setScannerStatus(mockStatus.documentInRear);
   mockScanner.emitEvent({
     event: 'scanComplete',
@@ -298,3 +303,48 @@ export const ballotImages = {
     await electionFamousNames2021Fixtures.machineMarkedBallotPage2.asImageData(),
   ],
 } satisfies Record<string, () => Promise<SheetOf<ImageData>>>;
+
+export async function scanBallot(
+  mockScanner: MockPdiScannerClient,
+  clock: SimulatedClock,
+  apiClient: grout.Client<Api>,
+  store: Store,
+  initialBallotsCounted: number,
+  options: { waitForContinuousExportToUsbDrive?: boolean } = {}
+): Promise<void> {
+  clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+  await waitForStatus(apiClient, {
+    state: 'no_paper',
+    ballotsCounted: initialBallotsCounted,
+  });
+  await simulateScan(
+    apiClient,
+    mockScanner,
+    await ballotImages.completeBmd(),
+    initialBallotsCounted
+  );
+  await waitForStatus(apiClient, {
+    state: 'ready_to_accept',
+    ballotsCounted: initialBallotsCounted,
+    interpretation: { type: 'ValidSheet' },
+  });
+
+  await apiClient.acceptBallot();
+  expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith('toRear');
+  mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+  clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
+  await waitForStatus(apiClient, {
+    state: 'accepted',
+    interpretation: { type: 'ValidSheet' },
+    ballotsCounted: initialBallotsCounted + 1,
+  });
+  clock.increment(delays.DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT);
+  await waitForStatus(apiClient, {
+    state: 'no_paper',
+    ballotsCounted: initialBallotsCounted + 1,
+  });
+
+  if (options.waitForContinuousExportToUsbDrive ?? true) {
+    await waitForContinuousExportToUsbDrive(store);
+  }
+}

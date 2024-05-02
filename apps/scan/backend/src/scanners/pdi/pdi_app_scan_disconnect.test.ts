@@ -28,10 +28,10 @@ import {
   configureApp,
   expectStatus,
   waitForStatus,
+  buildMockLogger,
 } from '../../../test/helpers/shared_helpers';
 import { createPrecinctScannerStateMachine, delays } from './state_machine';
 import { createWorkspace } from '../../util/workspace';
-import { buildMockLogger } from '../../../test/helpers/custom_helpers';
 
 jest.setTimeout(20_000);
 

@@ -24,11 +24,11 @@ import { createMockPrinterHandler } from '@votingworks/printing';
 import { Store } from './store';
 import { buildApi } from './app';
 import { createWorkspace } from './util/workspace';
+import { wrapLegacyPrinter } from './printing/printer';
 import {
   buildMockLogger,
   createPrecinctScannerStateMachineMock,
-} from '../test/helpers/custom_helpers';
-import { wrapLegacyPrinter } from './printing/printer';
+} from '../test/helpers/shared_helpers';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
