@@ -11,7 +11,7 @@ import {
 } from '@votingworks/utils';
 
 import { mockOf } from '@votingworks/test-utils';
-import { withApp } from '../test/helpers/custom_helpers';
+import { withApp } from '../test/helpers/pdi_helpers';
 import { configureApp } from '../test/helpers/shared_helpers';
 
 const jurisdiction = TEST_JURISDICTION;
@@ -51,7 +51,7 @@ beforeEach(() => {
 });
 
 test('getAuthStatus', async () => {
-  await withApp({}, async ({ apiClient, mockAuth, mockUsbDrive }) => {
+  await withApp(async ({ apiClient, mockAuth, mockUsbDrive }) => {
     await configureApp(apiClient, mockAuth, mockUsbDrive, { electionPackage });
     mockOf(mockAuth.getAuthStatus).mockClear(); // Clear mock calls from configureApp
 
@@ -66,7 +66,7 @@ test('getAuthStatus', async () => {
 });
 
 test('checkPin', async () => {
-  await withApp({}, async ({ apiClient, mockAuth, mockUsbDrive }) => {
+  await withApp(async ({ apiClient, mockAuth, mockUsbDrive }) => {
     await configureApp(apiClient, mockAuth, mockUsbDrive, { electionPackage });
 
     await apiClient.checkPin({ pin: '123456' });
@@ -80,7 +80,7 @@ test('checkPin', async () => {
 });
 
 test('logOut', async () => {
-  await withApp({}, async ({ apiClient, mockAuth, mockUsbDrive }) => {
+  await withApp(async ({ apiClient, mockAuth, mockUsbDrive }) => {
     await configureApp(apiClient, mockAuth, mockUsbDrive, { electionPackage });
 
     await apiClient.logOut();
@@ -94,7 +94,7 @@ test('logOut', async () => {
 });
 
 test('updateSessionExpiry', async () => {
-  await withApp({}, async ({ apiClient, mockAuth, mockUsbDrive }) => {
+  await withApp(async ({ apiClient, mockAuth, mockUsbDrive }) => {
     await configureApp(apiClient, mockAuth, mockUsbDrive, { electionPackage });
 
     await apiClient.updateSessionExpiry({
@@ -110,7 +110,8 @@ test('updateSessionExpiry', async () => {
 });
 
 test('getAuthStatus before election definition has been configured', async () => {
-  await withApp({}, async ({ apiClient, mockAuth }) => {
+  await withApp(async ({ apiClient, mockAuth }) => {
+    mockOf(mockAuth.getAuthStatus).mockClear(); // Clear mock calls from state machine
     await apiClient.getAuthStatus();
     expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
     expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(
@@ -121,7 +122,7 @@ test('getAuthStatus before election definition has been configured', async () =>
 });
 
 test('checkPin before election definition has been configured', async () => {
-  await withApp({}, async ({ apiClient, mockAuth }) => {
+  await withApp(async ({ apiClient, mockAuth }) => {
     await apiClient.checkPin({ pin: '123456' });
     expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
     expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
@@ -133,7 +134,7 @@ test('checkPin before election definition has been configured', async () => {
 });
 
 test('logOut before election definition has been configured', async () => {
-  await withApp({}, async ({ apiClient, mockAuth }) => {
+  await withApp(async ({ apiClient, mockAuth }) => {
     await apiClient.logOut();
     expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
     expect(mockAuth.logOut).toHaveBeenNthCalledWith(
@@ -144,7 +145,7 @@ test('logOut before election definition has been configured', async () => {
 });
 
 test('updateSessionExpiry before election definition has been configured', async () => {
-  await withApp({}, async ({ apiClient, mockAuth }) => {
+  await withApp(async ({ apiClient, mockAuth }) => {
     await apiClient.updateSessionExpiry({
       sessionExpiresAt: DateTime.now().plus({ seconds: 60 }).toJSDate(),
     });

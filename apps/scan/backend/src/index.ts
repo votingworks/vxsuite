@@ -72,21 +72,21 @@ async function main(): Promise<number> {
   const printer = await getPrinter(logger);
 
   const precinctScannerStateMachine = isFeatureFlagEnabled(
-    BooleanEnvironmentVariableName.USE_PDI_SCANNER
+    BooleanEnvironmentVariableName.USE_CUSTOM_SCANNER
   )
-    ? pdiStateMachine.createPrecinctScannerStateMachine({
-        createScannerClient: createPdiScannerClient,
-        workspace,
-        usbDrive,
-        auth,
-        logger,
-      })
-    : customStateMachine.createPrecinctScannerStateMachine({
+    ? customStateMachine.createPrecinctScannerStateMachine({
         createCustomClient: customScanner.openScanner,
         auth,
         workspace,
         logger,
         usbDrive,
+      })
+    : pdiStateMachine.createPrecinctScannerStateMachine({
+        createScannerClient: createPdiScannerClient,
+        workspace,
+        usbDrive,
+        auth,
+        logger,
       });
 
   await server.start({

@@ -28,10 +28,10 @@ import {
   configureApp,
   expectStatus,
   waitForStatus,
+  buildMockLogger,
 } from '../../../test/helpers/shared_helpers';
 import { createPrecinctScannerStateMachine, delays } from './state_machine';
 import { createWorkspace } from '../../util/workspace';
-import { buildMockLogger } from '../../../test/helpers/custom_helpers';
 
 jest.setTimeout(20_000);
 
@@ -47,9 +47,6 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 beforeEach(() => {
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
-  );
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_PDI_SCANNER
   );
 });
 

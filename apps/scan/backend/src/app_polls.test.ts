@@ -5,10 +5,10 @@ import {
 } from '@votingworks/utils';
 import { find, iter } from '@votingworks/basics';
 import { configureApp } from '../test/helpers/shared_helpers';
-import { scanBallot, withApp } from '../test/helpers/custom_helpers';
+import { scanBallot, withApp } from '../test/helpers/pdi_helpers';
 import { PrecinctScannerPollsInfo } from '.';
 
-jest.setTimeout(30_000);
+jest.setTimeout(60_000);
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -33,7 +33,6 @@ beforeEach(() => {
 
 test('polls state flow', async () => {
   await withApp(
-    {},
     async ({
       apiClient,
       mockScanner,
@@ -41,6 +40,7 @@ test('polls state flow', async () => {
       mockAuth,
       workspace,
       logger,
+      clock,
     }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         testMode: true,
@@ -67,7 +67,7 @@ test('polls state flow', async () => {
         })
       );
 
-      await scanBallot(mockScanner, apiClient, workspace.store, 0);
+      await scanBallot(mockScanner, clock, apiClient, workspace.store, 0);
       await apiClient.pauseVoting();
       expect(await apiClient.getPollsInfo()).toEqual<PrecinctScannerPollsInfo>({
         pollsState: 'polls_paused',
@@ -102,7 +102,7 @@ test('polls state flow', async () => {
         })
       );
 
-      await scanBallot(mockScanner, apiClient, workspace.store, 1);
+      await scanBallot(mockScanner, clock, apiClient, workspace.store, 1);
       await apiClient.closePolls();
       expect(await apiClient.getPollsInfo()).toEqual<PrecinctScannerPollsInfo>({
         pollsState: 'polls_closed_final',
@@ -161,7 +161,6 @@ test('polls state flow', async () => {
 
 test('scanner batch flow', async () => {
   await withApp(
-    {},
     async ({
       apiClient,
       mockScanner,
@@ -169,6 +168,7 @@ test('scanner batch flow', async () => {
       workspace,
       mockUsbDrive,
       mockAuth,
+      clock,
     }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         testMode: true,
@@ -200,8 +200,8 @@ test('scanner batch flow', async () => {
       );
 
       // Scan two ballots, which should have the same batch
-      await scanBallot(mockScanner, apiClient, workspace.store, 0);
-      await scanBallot(mockScanner, apiClient, workspace.store, 1);
+      await scanBallot(mockScanner, clock, apiClient, workspace.store, 0);
+      await scanBallot(mockScanner, clock, apiClient, workspace.store, 1);
       expect(getCvrIds()).toHaveLength(2);
 
       // Pause voting, which should stop the current batch
@@ -229,8 +229,8 @@ test('scanner batch flow', async () => {
       );
 
       // Confirm there is a new, second batch distinct from the first
-      await scanBallot(mockScanner, apiClient, workspace.store, 2);
-      await scanBallot(mockScanner, apiClient, workspace.store, 3);
+      await scanBallot(mockScanner, clock, apiClient, workspace.store, 2);
+      await scanBallot(mockScanner, clock, apiClient, workspace.store, 3);
       batchIds = getBatchIds();
       expect(getCvrIds()).toHaveLength(4);
       expect(batchIds).toHaveLength(2);
@@ -276,8 +276,8 @@ test('scanner batch flow', async () => {
       );
 
       // Confirm there is a third batch, distinct from the second
-      await scanBallot(mockScanner, apiClient, workspace.store, 4);
-      await scanBallot(mockScanner, apiClient, workspace.store, 5);
+      await scanBallot(mockScanner, clock, apiClient, workspace.store, 4);
+      await scanBallot(mockScanner, clock, apiClient, workspace.store, 5);
       batchIds = getBatchIds();
       expect(getCvrIds()).toHaveLength(6);
       expect(batchIds).toHaveLength(3);

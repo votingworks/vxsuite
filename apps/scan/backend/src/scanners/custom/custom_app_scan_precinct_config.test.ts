@@ -30,6 +30,9 @@ beforeEach(() => {
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_CUSTOM_SCANNER
+  );
 });
 
 test('bmd ballot is rejected when scanned for wrong precinct', async () => {

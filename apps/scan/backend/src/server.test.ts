@@ -10,7 +10,7 @@ import { createWorkspace, Workspace } from './util/workspace';
 import {
   buildMockLogger,
   createPrecinctScannerStateMachineMock,
-} from '../test/helpers/custom_helpers';
+} from '../test/helpers/shared_helpers';
 
 jest.mock('./app');
 

@@ -26,9 +26,6 @@ beforeEach(() => {
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_PDI_SCANNER
-  );
 });
 
 test('cover open while waiting for ballots', async () => {

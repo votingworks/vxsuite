@@ -20,7 +20,7 @@ import {
 } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
 import { RGBA_CHANNEL_COUNT, isRgba } from '@votingworks/image-utils';
-import { LogSource, Logger, mockLogger } from '@votingworks/logging';
+import { Logger } from '@votingworks/logging';
 import { SheetOf, mapSheet } from '@votingworks/types';
 import { Application } from 'express';
 import { Server } from 'http';
@@ -47,26 +47,16 @@ import {
 } from '../../src/scanners/custom/state_machine';
 import { Workspace, createWorkspace } from '../../src/util/workspace';
 import {
+  buildMockLogger,
   expectStatus,
   waitForContinuousExportToUsbDrive,
   waitForStatus,
 } from './shared_helpers';
 import { Store } from '../../src/store';
-import { PrecinctScannerStateMachine } from '../../src';
-import { getUserRole } from '../../src/util/auth';
 import {
   wrapFujitsuThermalPrinter,
   wrapLegacyPrinter,
 } from '../../src/printing/printer';
-
-export function buildMockLogger(
-  auth: InsertedSmartCardAuthApi,
-  workspace: Workspace
-): Logger {
-  return mockLogger(LogSource.VxScanBackend, () =>
-    getUserRole(auth, workspace)
-  );
-}
 
 export async function withApp(
   {
@@ -290,13 +280,4 @@ export async function scanBallot(
   if (options.waitForContinuousExportToUsbDrive ?? true) {
     await waitForContinuousExportToUsbDrive(store);
   }
-}
-
-export function createPrecinctScannerStateMachineMock(): jest.Mocked<PrecinctScannerStateMachine> {
-  return {
-    status: jest.fn(),
-    accept: jest.fn(),
-    return: jest.fn(),
-    stop: jest.fn(),
-  };
 }

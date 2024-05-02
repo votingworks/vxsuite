@@ -50,8 +50,8 @@ export enum BooleanEnvironmentVariableName {
   ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS = 'REACT_APP_VX_ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS',
   // Use legacy CUPS-enabled printing in VxScan, as opposed to the thermal printer with our own driver
   SCAN_USE_FUJITSU_PRINTER = 'REACT_APP_VX_SCAN_USE_FUJITSU_PRINTER',
-  // Use the PDI scanner in VxScan (as opposed to the Custom scanner)
-  USE_PDI_SCANNER = 'REACT_APP_VX_USE_PDI_SCANNER',
+  // Use the Custom scanner in VxScan (as opposed to the PDI scanner)
+  USE_CUSTOM_SCANNER = 'REACT_APP_VX_USE_CUSTOM_SCANNER',
 }
 
 // This is not fully generic since string variables may want the getter to return a custom type.
@@ -125,8 +125,8 @@ export function getEnvironmentVariable(
         .REACT_APP_VX_ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS;
     case BooleanEnvironmentVariableName.SCAN_USE_FUJITSU_PRINTER:
       return process.env.REACT_APP_VX_SCAN_USE_FUJITSU_PRINTER;
-    case BooleanEnvironmentVariableName.USE_PDI_SCANNER:
-      return process.env.REACT_APP_VX_USE_PDI_SCANNER;
+    case BooleanEnvironmentVariableName.USE_CUSTOM_SCANNER:
+      return process.env.REACT_APP_VX_USE_CUSTOM_SCANNER;
     /* c8 ignore next 2 */
     default:
       throwIllegalValue(name);
@@ -251,7 +251,7 @@ export function getBooleanEnvVarConfig(
         allowInProduction: true,
         autoEnableInDevelopment: false,
       };
-    case BooleanEnvironmentVariableName.USE_PDI_SCANNER:
+    case BooleanEnvironmentVariableName.USE_CUSTOM_SCANNER:
       return {
         name,
         allowInProduction: true,

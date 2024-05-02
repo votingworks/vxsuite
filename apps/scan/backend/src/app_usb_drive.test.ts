@@ -3,7 +3,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 
-import { scanBallot, withApp } from '../test/helpers/custom_helpers';
+import { scanBallot, withApp } from '../test/helpers/pdi_helpers';
 import { configureApp } from '../test/helpers/shared_helpers';
 
 const mockFeatureFlagger = getFeatureFlagMock();
@@ -23,7 +23,7 @@ beforeEach(() => {
 });
 
 test('getUsbDriveStatus', async () => {
-  await withApp({}, async ({ apiClient, mockUsbDrive }) => {
+  await withApp(async ({ apiClient, mockUsbDrive }) => {
     mockUsbDrive.removeUsbDrive();
     await expect(apiClient.getUsbDriveStatus()).resolves.toEqual({
       status: 'no_drive',
@@ -37,7 +37,7 @@ test('getUsbDriveStatus', async () => {
 });
 
 test('ejectUsbDrive', async () => {
-  await withApp({}, async ({ apiClient, mockUsbDrive }) => {
+  await withApp(async ({ apiClient, mockUsbDrive }) => {
     mockUsbDrive.usbDrive.eject.expectCallWith().resolves();
     await expect(apiClient.ejectUsbDrive()).resolves.toBeUndefined();
   });
@@ -45,8 +45,14 @@ test('ejectUsbDrive', async () => {
 
 test('doesUsbDriveRequireCastVoteRecordSync is properly populated', async () => {
   await withApp(
-    {},
-    async ({ apiClient, mockAuth, mockUsbDrive, mockScanner, workspace }) => {
+    async ({
+      apiClient,
+      mockAuth,
+      mockUsbDrive,
+      mockScanner,
+      workspace,
+      clock,
+    }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
       const mountedUsbDriveStatus = {
         status: 'mounted',
@@ -57,7 +63,7 @@ test('doesUsbDriveRequireCastVoteRecordSync is properly populated', async () => 
         mountedUsbDriveStatus
       );
 
-      await scanBallot(mockScanner, apiClient, workspace.store, 0);
+      await scanBallot(mockScanner, clock, apiClient, workspace.store, 0);
       await expect(apiClient.getUsbDriveStatus()).resolves.toEqual(
         mountedUsbDriveStatus
       );

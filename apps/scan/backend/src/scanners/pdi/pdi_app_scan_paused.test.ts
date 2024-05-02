@@ -31,9 +31,6 @@ beforeEach(() => {
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_PDI_SCANNER
-  );
 });
 
 test('if election manager card inserted, scanning paused', async () => {

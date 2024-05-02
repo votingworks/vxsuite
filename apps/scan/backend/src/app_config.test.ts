@@ -19,7 +19,7 @@ import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { ElectionDefinition } from '@votingworks/types';
 import { configureApp } from '../test/helpers/shared_helpers';
-import { withApp } from '../test/helpers/custom_helpers';
+import { withApp } from '../test/helpers/pdi_helpers';
 import { PrecinctScannerPollsInfo } from '.';
 
 jest.setTimeout(30_000);
@@ -67,7 +67,7 @@ test('uses machine config from env', async () => {
     VX_CODE_VERSION: 'test-code-version',
   };
 
-  await withApp({}, async ({ apiClient }) => {
+  await withApp(async ({ apiClient }) => {
     expect(await apiClient.getMachineConfig()).toEqual({
       machineId: 'test-machine-id',
       codeVersion: 'test-code-version',
@@ -78,7 +78,7 @@ test('uses machine config from env', async () => {
 });
 
 test('uses default machine config if not set', async () => {
-  await withApp({}, async ({ apiClient }) => {
+  await withApp(async ({ apiClient }) => {
     expect(await apiClient.getMachineConfig()).toEqual({
       machineId: '0000',
       codeVersion: 'dev',
@@ -87,7 +87,7 @@ test('uses default machine config if not set', async () => {
 });
 
 test("fails to configure if there's no election package on the usb drive", async () => {
-  await withApp({}, async ({ apiClient, mockAuth, mockUsbDrive }) => {
+  await withApp(async ({ apiClient, mockAuth, mockUsbDrive }) => {
     mockElectionManager(mockAuth, electionGeneralDefinition);
     mockUsbDrive.insertUsbDrive({});
     expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
@@ -102,7 +102,7 @@ test("fails to configure if there's no election package on the usb drive", async
 });
 
 test('fails to configure election package if logged out', async () => {
-  await withApp({}, async ({ apiClient, mockAuth }) => {
+  await withApp(async ({ apiClient, mockAuth }) => {
     mockLoggedOut(mockAuth);
     expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
       err('auth_required_before_election_package_load')
@@ -111,7 +111,7 @@ test('fails to configure election package if logged out', async () => {
 });
 
 test('fails to configure election package if election definition on card does not match that of the election package', async () => {
-  await withApp({}, async ({ apiClient, mockUsbDrive, mockAuth }) => {
+  await withApp(async ({ apiClient, mockUsbDrive, mockAuth }) => {
     mockElectionManager(
       mockAuth,
       electionFamousNames2021Fixtures.electionDefinition
@@ -130,7 +130,7 @@ test('fails to configure election package if election definition on card does no
 test("if there's only one precinct in the election, it's selected automatically on configure", async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition;
-  await withApp({}, async ({ apiClient, mockUsbDrive, mockAuth }) => {
+  await withApp(async ({ apiClient, mockUsbDrive, mockAuth }) => {
     mockElectionManager(mockAuth, electionDefinition);
     mockUsbDrive.insertUsbDrive(
       await mockElectionPackageFileTree({
@@ -149,7 +149,7 @@ test("if there's only one precinct in the election, it's selected automatically 
 });
 
 test('setPrecinctSelection will reset polls to closed', async () => {
-  await withApp({}, async ({ apiClient, mockUsbDrive, mockAuth, logger }) => {
+  await withApp(async ({ apiClient, mockUsbDrive, mockAuth, logger }) => {
     await configureApp(apiClient, mockAuth, mockUsbDrive);
 
     expect(await apiClient.getPollsInfo()).toEqual(
@@ -182,16 +182,13 @@ test('setPrecinctSelection will reset polls to closed', async () => {
 });
 
 test('unconfiguring machine', async () => {
-  await withApp(
-    {},
-    async ({ apiClient, mockUsbDrive, workspace, mockAuth }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive);
+  await withApp(async ({ apiClient, mockUsbDrive, workspace, mockAuth }) => {
+    await configureApp(apiClient, mockAuth, mockUsbDrive);
 
-      jest.spyOn(workspace, 'reset');
+    jest.spyOn(workspace, 'reset');
 
-      await apiClient.unconfigureElection();
+    await apiClient.unconfigureElection();
 
-      expect(workspace.reset).toHaveBeenCalledTimes(1);
-    }
-  );
+    expect(workspace.reset).toHaveBeenCalledTimes(1);
+  });
 });
