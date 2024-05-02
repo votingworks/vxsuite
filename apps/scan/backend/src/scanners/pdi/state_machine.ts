@@ -715,9 +715,18 @@ function buildMachine({
 
         disconnected: {
           id: 'disconnected',
-          initial: 'waiting',
+          initial: 'exiting',
           entry: assign({ interpretation: undefined }),
           states: {
+            exiting: {
+              invoke: {
+                src: async ({ client }) => {
+                  (await client.exit()).unsafeUnwrap();
+                },
+                onDone: 'waiting',
+                onError: '#error',
+              },
+            },
             waiting: {
               after: {
                 DELAY_RECONNECT: {
@@ -731,7 +740,7 @@ function buildMachine({
                 src: async ({ client }) =>
                   (await client.connect()).unsafeUnwrap(),
                 onDone: '#waitingForBallot',
-                onError: 'waiting',
+                onError: '#error',
               },
             },
           },
@@ -739,15 +748,20 @@ function buildMachine({
 
         error: {
           id: 'error',
-          initial: 'exiting',
-          always: {
-            cond: (context) =>
-              context.error !== undefined &&
-              'code' in context.error &&
-              context.error.code === 'disconnected',
-            target: 'disconnected',
-          },
+          initial: 'checkingErrorCode',
           states: {
+            checkingErrorCode: {
+              always: [
+                {
+                  cond: (context) =>
+                    context.error !== undefined &&
+                    'code' in context.error &&
+                    context.error.code === 'disconnected',
+                  target: '#disconnected',
+                },
+                { target: 'exiting' },
+              ],
+            },
             exiting: {
               invoke: {
                 src: async ({ client }) => {
