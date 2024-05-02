@@ -3,7 +3,7 @@
   "include": ["src", "src/data/*.json", "tools"],
   "exclude": [],
   "compilerOptions": {
-    "module": "node16",
+    "module": "commonjs",
     "lib": ["dom", "dom.iterable", "esnext"],
     "composite": true,
     "noEmit": true,
