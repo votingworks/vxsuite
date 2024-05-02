@@ -67,6 +67,7 @@ export type ScannerError =
   | { code: 'alreadyConnected' }
   | { code: 'scanInProgress' }
   | { code: 'scanFailed' }
+  | { code: 'multipleSheetsDetected' }
   | { code: 'other'; message: string };
 
 /**

@@ -97,8 +97,9 @@ enum Command {
 enum ErrorCode {
     Disconnected,
     AlreadyConnected,
-    ScanFailed,
     ScanInProgress,
+    ScanFailed,
+    MultipleSheetsDetected,
     Other,
 }
 
@@ -407,6 +408,12 @@ fn main() -> color_eyre::Result<()> {
                 }
                 Ok(Incoming::CoverClosedEvent) => {
                     send_event(Event::CoverClosed)?;
+                }
+                Ok(Incoming::DoubleFeedEvent) => {
+                    send_event(Event::Error {
+                        code: ErrorCode::MultipleSheetsDetected,
+                        message: None,
+                    })?;
                 }
                 Ok(event) => {
                     tracing::info!("unhandled event: {event:?}");
