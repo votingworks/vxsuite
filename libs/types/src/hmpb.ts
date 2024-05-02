@@ -175,4 +175,5 @@ export const MarkAdjudicationsSchema: z.ZodSchema<MarkAdjudications> = z.array(
   MarkAdjudicationSchema
 );
 
+export type Side = 'front' | 'back';
 export type SheetOf<T> = readonly [T, T];

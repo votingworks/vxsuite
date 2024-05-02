@@ -649,6 +649,8 @@ export const PrecinctScannerStateSchema = z.enum([
   'both_sides_have_paper',
   'recovering_from_error',
   'unrecoverable_error',
+  'returning_to_rescan',
+  'double_sheet_jammed',
 ]);
 export type PrecinctScannerState = z.infer<typeof PrecinctScannerStateSchema>;
 
@@ -701,6 +703,8 @@ export const PrecinctScannerErrorTypeSchema = z.enum([
   'unexpected_paper_status',
   'unexpected_event',
   'plustek_error',
+  'paper_in_both_sides_after_reconnect',
+  'client_error'
 ]);
 export type PrecinctScannerErrorType = z.infer<
   typeof PrecinctScannerErrorTypeSchema

@@ -1,6 +1,5 @@
 import {
   assert,
-  assertDefined,
   Result,
   throwIllegalValue,
 } from '@votingworks/basics';
@@ -20,7 +19,11 @@ import {
 } from '@votingworks/custom-scanner';
 import { toRgba, writeImageData } from '@votingworks/image-utils';
 import { LogEventId, Logger, LogLine } from '@votingworks/logging';
-import { Id, mapSheet, SheetInterpretation, SheetOf } from '@votingworks/types';
+import { Id, SheetOf, ok, Side } from '@votingworks/types';
+import {
+  SheetInterpretation,
+  PrecinctScannerInterpreter,
+} from './precinct_scanner_interpreter';
 import { createImageData } from 'canvas';
 import { join } from 'path';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
@@ -37,18 +40,15 @@ import {
   StateNodeConfig,
   TransitionConfig,
 } from 'xstate';
-import { SheetInterpretationWithPages } from '@votingworks/ballot-interpreter';
-import { exportCastVoteRecordsToUsbDrive } from '@votingworks/backend';
-import { UsbDrive } from '@votingworks/usb-drive';
-import { interpret as defaultInterpret, InterpretFn } from '../../interpret';
-import { Store } from '../../store';
+// import { SheetInterpretationWithPages } from '@votingworks/ballot-interpreter';
+// import { interpret as defaultInterpret, InterpretFn } from '../../interpret';
+import { Store } from './store';
 import {
-  PrecinctScannerErrorType,
-  PrecinctScannerMachineStatus,
   PrecinctScannerStateMachine,
-} from '../../types';
-import { rootDebug } from '../../util/debug';
-import { Workspace } from '../../util/workspace';
+} from './precinct_scanner_state_machine';
+import { Scan } from '@votingworks/api';
+import { rootDebug } from './util/debug';
+import { Workspace } from './util/workspace';
 
 const debug = rootDebug.extend('state-machine');
 const debugPaperStatus = debug.extend('paper-status');
@@ -67,14 +67,14 @@ export type CreateCustomClient = typeof defaultCreateCustomClient;
 class PrecinctScannerError extends Error {
   constructor(
     // eslint-disable-next-line vx/gts-no-public-class-fields
-    public type: PrecinctScannerErrorType,
+    public type: Scan.PrecinctScannerErrorType,
     message?: string
   ) {
     super(message ?? type);
   }
 }
 
-type InterpretationResult = SheetInterpretationWithPages & { sheetId: Id };
+type InterpretationResult = SheetInterpretation & { sheetId: Id };
 
 interface Context {
   client?: CustomScanner;
@@ -305,15 +305,16 @@ async function reset({ client }: Context): Promise<void> {
 async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
   assert(client);
   debug('Scanning');
-  const isUltrasonicDisabled = workspace.store.getIsUltrasonicDisabled();
+  // const isUltrasonicDisabled = workspace.store.getIsUltrasonicDisabled();
   const scanResult = await client.scan({
     wantedScanSide: ScanSide.A_AND_B,
     resolution: ImageResolution.RESOLUTION_200_DPI,
     imageColorDepth: ImageColorDepthType.Grey8bpp,
     formStandingAfterScan: FormStanding.HOLD_TICKET,
-    doubleSheetDetection: isUltrasonicDisabled
-      ? DoubleSheetDetectOpt.DetectOff
-      : DoubleSheetDetectOpt.Level1,
+    // doubleSheetDetection: isUltrasonicDisabled
+    //   ? DoubleSheetDetectOpt.DetectOff
+    //   : DoubleSheetDetectOpt.Level1,
+    doubleSheetDetection: DoubleSheetDetectOpt.DetectOff,
   });
   debug('Scan result: %o', scanResult);
   const images = scanResult.unsafeUnwrap();
@@ -373,7 +374,8 @@ async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
   // FIXME: we should be able to use the image format directly, but the
   // rest of the system expects file paths instead of image buffers.
   const sheetPrefix = uuid();
-  return await mapSheet(images, async (image, side) => {
+
+  async function imageToPath(image:ImageFromScanner, side: Side) {
     const trimmedImage = trimBlackFromTopAndBottomOfImage(image);
 
     const { scannedImagesPath } = workspace;
@@ -384,28 +386,22 @@ async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
         trimmedImage.imageWidth,
         trimmedImage.imageHeight
       )
-    ).assertOk('convert to RGBA');
+    ).unsafeUnwrap();
     await writeImageData(path, imageData);
     return path;
-  });
+  }
+
+  return [await imageToPath(images[0], 'front'), await imageToPath(images[1], 'back')];
 }
 
 async function interpretSheet(
-  interpret: InterpretFn,
-  { scannedSheet, workspace }: Context
+  interpreter: PrecinctScannerInterpreter,
+  { scannedSheet }: Context
 ): Promise<InterpretationResult> {
   assert(scannedSheet);
   const sheetId = uuid();
-  const { store } = workspace;
   const interpretation = (
-    await interpret(sheetId, scannedSheet, {
-      electionDefinition: assertDefined(store.getElectionDefinition()),
-      precinctSelection: assertDefined(store.getPrecinctSelection()),
-      testMode: store.getTestMode(),
-      ballotImagesPath: workspace.ballotImagesPath,
-      markThresholds: store.getMarkThresholds(),
-      adjudicationReasons: store.getAdjudicationReasons(),
-    })
+    await interpreter.interpret(sheetId, scannedSheet)
   ).unsafeUnwrap();
   return {
     ...interpretation,
@@ -448,80 +444,41 @@ async function finishAcceptAndLoadPaper({ client }: Context) {
 function storeInterpretedSheet(
   store: Store,
   sheetId: Id,
-  interpretation: SheetInterpretationWithPages
+  interpretation: SheetInterpretation
 ): Id {
-  const ongoingBatchId = store.getOngoingBatchId();
-  assert(typeof ongoingBatchId === 'string');
-  const addedSheetId = store.addSheet(
-    sheetId,
-    ongoingBatchId,
-    interpretation.pages
-  );
+  // For now, we create one batch per ballot, since we don't use the concept of
+  // batches for precinct scanning. In the future, it might make more sense to
+  // have one batch per scanning session (e.g. from polls open to polls close).
+  const batchId = store.addBatch();
+  const addedSheetId = store.addSheet(sheetId, batchId, interpretation.pages);
+  store.finishBatch({ batchId });
   return addedSheetId;
 }
 
-async function recordAcceptedSheet(
-  { continuousExportMutex, store }: Workspace,
-  usbDrive: UsbDrive,
-  { interpretation }: Context
-) {
+function recordAcceptedSheet({ store }: Workspace, { interpretation }: Context) {
+  assert(store);
   assert(interpretation);
   const { sheetId } = interpretation;
-  store.withTransaction(() => {
-    storeInterpretedSheet(store, sheetId, interpretation);
-
-    // If we're storing an accepted sheet that needed review, that means that it was "adjudicated"
-    // (i.e. the voter said to count it without changing anything).
-    if (interpretation.type === 'NeedsReviewSheet') {
-      store.adjudicateSheet(sheetId);
-    }
-
-    // Marked as complete within exportCastVoteRecordsToUsbDrive
-    store.addPendingContinuousExportOperation(sheetId);
-  });
-
-  const exportResult = await continuousExportMutex.withLock(() =>
-    exportCastVoteRecordsToUsbDrive(
-      store,
-      usbDrive,
-      [assertDefined(store.getSheet(sheetId))],
-      { scannerType: 'precinct' }
-    )
-  );
-  exportResult.unsafeUnwrap();
-
+  storeInterpretedSheet(store, sheetId, interpretation);
+  // If we're storing an accepted sheet that needed review that means it was
+  // "adjudicated" (i.e. the voter said to count it without changing anything)
+  if (interpretation.type === 'NeedsReviewSheet') {
+    store.adjudicateSheet(sheetId, 'front', []);
+    store.adjudicateSheet(sheetId, 'back', []);
+  }
   debug('Stored accepted sheet: %s', sheetId);
 }
 
-async function recordRejectedSheet(
-  { continuousExportMutex, store }: Workspace,
-  usbDrive: UsbDrive,
-  { interpretation }: Context
-) {
+function recordRejectedSheet({ store }: Workspace, { interpretation }: Context) {
+  assert(store);
   if (!interpretation) return;
   const { sheetId } = interpretation;
-  store.withTransaction(() => {
-    storeInterpretedSheet(store, sheetId, interpretation);
-
-    // We want to keep rejected ballots in the store, but not count them. We accomplish this by
-    // "deleting" them, which just marks them as deleted and is how we indicate that an interpreted
-    // ballot wasn't counted.
-    store.deleteSheet(sheetId);
-
-    // Marked as complete within exportCastVoteRecordsToUsbDrive
-    store.addPendingContinuousExportOperation(sheetId);
-  });
-
-  const exportResult = await continuousExportMutex.withLock(() =>
-    exportCastVoteRecordsToUsbDrive(
-      store,
-      usbDrive,
-      [assertDefined(store.getSheet(sheetId))],
-      { scannerType: 'precinct' }
-    )
-  );
-  exportResult.unsafeUnwrap();
-
+  storeInterpretedSheet(store, sheetId, interpretation);
+  // We want to keep rejected ballots in the store so we know what happened, but
+  // not count them. The way to do that is to "delete" them, which just marks
+  // them as deleted and currently is the way to indicate an interpreted ballot
+  // was not counted.
+  store.deleteSheet(sheetId);
   debug('Stored rejected sheet: %s', sheetId);
 }
 
@@ -539,14 +496,12 @@ const doNothing: TransitionConfig<Context, Event> = { target: undefined };
 function buildMachine({
   createCustomClient = defaultCreateCustomClient,
   workspace,
-  interpret,
-  usbDrive,
+  interpreter,
   delayOverrides,
 }: {
   createCustomClient?: CreateCustomClient;
   workspace: Workspace;
-  interpret: InterpretFn;
-  usbDrive: UsbDrive;
+  interpreter: PrecinctScannerInterpreter;
   delayOverrides: Partial<Delays>;
 }) {
   const delays: Delays = { ...defaultDelays, ...delayOverrides };
@@ -701,7 +656,7 @@ function buildMachine({
       initial: 'starting',
       states: {
         starting: {
-          entry: (context) => recordRejectedSheet(workspace, usbDrive, context),
+          entry: (context) => recordRejectedSheet(workspace, context),
           invoke: {
             src: reject,
             // Calling `reject` tells the Custom scanner to eject the ballot
@@ -958,7 +913,7 @@ function buildMachine({
           states: {
             starting: {
               invoke: {
-                src: (context) => interpretSheet(interpret, context),
+                src: (context) => interpretSheet(interpreter, context),
                 onDone: {
                   target: 'routing_result',
                   actions: assign({
@@ -1027,7 +982,7 @@ function buildMachine({
         accepting: acceptingState,
         accepted: {
           id: 'accepted',
-          entry: (context) => recordAcceptedSheet(workspace, usbDrive, context),
+          entry: (context) => recordAcceptedSheet(workspace, context),
           invoke: pollPaperStatus(),
           initial: 'scanning_paused',
           on: { SCANNER_NO_PAPER: doNothing },
@@ -1322,30 +1277,27 @@ function errorToString(error: NonNullable<Context['error']>) {
 export function createPrecinctScannerStateMachine({
   createCustomClient,
   workspace,
-  interpret = defaultInterpret,
+  interpreter,
   logger,
-  usbDrive,
   delays = {},
 }: {
   createCustomClient?: CreateCustomClient;
   workspace: Workspace;
-  interpret?: InterpretFn;
+  interpreter: PrecinctScannerInterpreter;
   logger: Logger;
-  usbDrive: UsbDrive;
   delays?: Partial<Delays>;
 }): PrecinctScannerStateMachine {
   const machine = buildMachine({
     createCustomClient,
     workspace,
-    interpret,
-    usbDrive,
+    interpreter,
     delayOverrides: delays,
   });
   const machineService = interpretStateMachine(machine).start();
   setupLogging(machineService, logger);
 
   return {
-    status: (): PrecinctScannerMachineStatus => {
+    status: (): Scan.PrecinctScannerMachineStatus => {
       const { state } = machineService;
       const scannerState = (() => {
         // We use state.matches as recommended by the XState docs. This allows
@@ -1408,7 +1360,8 @@ export function createPrecinctScannerStateMachine({
       const { error, interpretation } = state.context;
 
       // Remove interpretation details that are only used internally (e.g. sheetId, pages)
-      const interpretationResult: SheetInterpretation | undefined = (() => {
+      const interpretationResult: Scan.SheetInterpretation | undefined =
+      (() => {
         if (!interpretation) return undefined;
         switch (interpretation.type) {
           case 'ValidSheet':
@@ -1423,7 +1376,6 @@ export function createPrecinctScannerStateMachine({
               type: interpretation.type,
               reasons: interpretation.reasons,
             };
-          /* c8 ignore next 2 */
           default:
             throwIllegalValue(interpretation, 'type');
         }
@@ -1456,8 +1408,12 @@ export function createPrecinctScannerStateMachine({
       machineService.send('RETURN');
     },
 
-    supportsUltrasonic: () => {
-      return true;
-    },
+    retry: () => {},
+
+    calibrate: () => Promise.resolve(ok()),
+
+    // supportsUltrasonic: () => {
+    //   return true;
+    // },
   };
 }
