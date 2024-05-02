@@ -294,14 +294,14 @@ async function reset({ client }: Context): Promise<void> {
 async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
   assert(client);
   debug('Scanning');
-  const isMultiSheetDetectionDisabled =
-    workspace.store.getIsMultiSheetDetectionDisabled();
+  const isDoubleSheetDetectionDisabled =
+    workspace.store.getIsDoubleFeedDetectionDisabled();
   const scanResult = await client.scan({
     wantedScanSide: ScanSide.A_AND_B,
     resolution: ImageResolution.RESOLUTION_200_DPI,
     imageColorDepth: ImageColorDepthType.Grey8bpp,
     formStandingAfterScan: FormStanding.HOLD_TICKET,
-    doubleSheetDetection: isMultiSheetDetectionDisabled
+    doubleSheetDetection: isDoubleSheetDetectionDisabled
       ? DoubleSheetDetectOpt.DetectOff
       : DoubleSheetDetectOpt.Level1,
   });

@@ -67,6 +67,7 @@ export type ScannerError =
   | { code: 'alreadyConnected' }
   | { code: 'scanInProgress' }
   | { code: 'scanFailed' }
+  | { code: 'doubleFeedDetected' }
   | { code: 'other'; message: string };
 
 /**
@@ -98,7 +99,7 @@ type PdictlCommand =
   | { command: 'connect' }
   | { command: 'disconnect' }
   | { command: 'getScannerStatus' }
-  | { command: 'enableScanning' }
+  | { command: 'enableScanning'; doubleFeedDetectionEnabled: boolean }
   | { command: 'disableScanning' }
   | {
       command: 'ejectDocument';
@@ -313,8 +314,15 @@ export function createPdiScannerClient() {
      * Enables the scanner's feeder. Once enabled, the scanner will
      * automatically scan any document inserted into the scanner.
      */
-    async enableScanning(): Promise<SimpleResult> {
-      return sendSimpleCommand({ command: 'enableScanning' });
+    async enableScanning({
+      doubleFeedDetectionEnabled,
+    }: {
+      doubleFeedDetectionEnabled: boolean;
+    }): Promise<SimpleResult> {
+      return sendSimpleCommand({
+        command: 'enableScanning',
+        doubleFeedDetectionEnabled,
+      });
     },
 
     /**

@@ -75,16 +75,14 @@ enum Command {
 
     GetScannerStatus,
 
-    EnableScanning,
+    EnableScanning {
+        double_feed_detection_enabled: bool,
+    },
 
     DisableScanning,
 
     EjectDocument {
         eject_motion: EjectMotion,
-    },
-
-    EnableMsd {
-        enable: bool,
     },
 
     CalibrateMsd {
@@ -99,8 +97,9 @@ enum Command {
 enum ErrorCode {
     Disconnected,
     AlreadyConnected,
-    ScanFailed,
     ScanInProgress,
+    ScanFailed,
+    DoubleFeedDetected,
     Other,
 }
 
@@ -281,8 +280,18 @@ fn main() -> color_eyre::Result<()> {
                             Err(e) => send_error_response(&e)?,
                         }
                     }
-                    (Some(client), Command::EnableScanning) => {
-                        match client.send_enable_scan_commands() {
+                    (
+                        Some(client),
+                        Command::EnableScanning {
+                            double_feed_detection_enabled,
+                        },
+                    ) => {
+                        let double_feed_detection_mode = if double_feed_detection_enabled {
+                            DoubleFeedDetectionMode::RejectDoubleFeeds
+                        } else {
+                            DoubleFeedDetectionMode::Disabled
+                        };
+                        match client.send_enable_scan_commands(double_feed_detection_mode) {
                             Ok(()) => send_response(Response::Ok)?,
                             Err(e) => send_error_response(&e)?,
                         }
@@ -295,16 +304,6 @@ fn main() -> color_eyre::Result<()> {
                     }
                     (Some(client), Command::EjectDocument { eject_motion }) => {
                         match client.eject_document(eject_motion) {
-                            Ok(()) => send_response(Response::Ok)?,
-                            Err(e) => send_error_response(&e)?,
-                        }
-                    }
-                    (Some(client), Command::EnableMsd { enable }) => {
-                        match client.set_double_feed_detection_mode(if enable {
-                            DoubleFeedDetectionMode::RejectDoubleFeeds
-                        } else {
-                            DoubleFeedDetectionMode::Disabled
-                        }) {
                             Ok(()) => send_response(Response::Ok)?,
                             Err(e) => send_error_response(&e)?,
                         }
@@ -409,6 +408,12 @@ fn main() -> color_eyre::Result<()> {
                 }
                 Ok(Incoming::CoverClosedEvent) => {
                     send_event(Event::CoverClosed)?;
+                }
+                Ok(Incoming::DoubleFeedEvent) => {
+                    send_event(Event::Error {
+                        code: ErrorCode::DoubleFeedDetected,
+                        message: None,
+                    })?;
                 }
                 Ok(event) => {
                     tracing::info!("unhandled event: {event:?}");

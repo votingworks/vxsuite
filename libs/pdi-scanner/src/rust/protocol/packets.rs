@@ -555,14 +555,14 @@ pub enum Outgoing {
     GetDoubleFeedDetectionLedIntensityRequest,
 
     /// Requests the double feed detection calibration value for a single sheet
-    /// (`n3a30`).
+    /// (`n3a10`).
     GetDoubleFeedDetectionSingleSheetCalibrationValueRequest,
 
     /// Requests the double feed detection calibration value for a double sheet
     /// (`n3a20`).
     GetDoubleFeedDetectionDoubleSheetCalibrationValueRequest,
 
-    /// Requests the double feed detection threshold value (`n3a10`).
+    /// Requests the double feed detection threshold value (`n3a90`).
     GetDoubleFeedDetectionDoubleSheetThresholdValueRequest,
 
     RawPacket(Vec<u8>),

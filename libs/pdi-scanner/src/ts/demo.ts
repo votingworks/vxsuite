@@ -8,7 +8,9 @@ export async function main(): Promise<void> {
   const scannerClient = createPdiScannerClient();
   (await scannerClient.connect()).unsafeUnwrap();
 
-  (await scannerClient.enableScanning()).unsafeUnwrap();
+  (
+    await scannerClient.enableScanning({ doubleFeedDetectionEnabled: true })
+  ).unsafeUnwrap();
 
   let state = 'waitingForBallot';
   scannerClient.addListener((event) => {
@@ -27,7 +29,9 @@ export async function main(): Promise<void> {
   for (;;) {
     if (state === 'scanComplete') {
       (await scannerClient.ejectDocument('toRear')).unsafeUnwrap();
-      (await scannerClient.enableScanning()).unsafeUnwrap();
+      (
+        await scannerClient.enableScanning({ doubleFeedDetectionEnabled: true })
+      ).unsafeUnwrap();
       state = 'waitingForBallot';
     }
     await sleep(1000);

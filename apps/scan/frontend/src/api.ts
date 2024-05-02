@@ -234,11 +234,11 @@ export const setIsSoundMuted = {
   },
 } as const;
 
-export const setIsMultiSheetDetectionDisabled = {
+export const setIsDoubleFeedDetectionDisabled = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.setIsMultiSheetDetectionDisabled, {
+    return useMutation(apiClient.setIsDoubleFeedDetectionDisabled, {
       async onSuccess() {
         await queryClient.invalidateQueries(getConfig.queryKey());
       },

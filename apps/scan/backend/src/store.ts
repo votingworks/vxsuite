@@ -276,19 +276,19 @@ export class Store {
   }
 
   /**
-   * Gets whether multi sheet detection is disabled.
+   * Gets whether double feed detection is disabled.
    */
-  getIsMultiSheetDetectionDisabled(): boolean {
+  getIsDoubleFeedDetectionDisabled(): boolean {
     const electionRow = this.client.one(
-      'select is_multi_sheet_detection_disabled as isMultiSheetDetectionDisabled from election'
-    ) as { isMultiSheetDetectionDisabled: number } | undefined;
+      'select is_double_feed_detection_disabled as isDoubleFeedDetectionDisabled from election'
+    ) as { isDoubleFeedDetectionDisabled: number } | undefined;
 
     if (!electionRow) {
-      // we will not disable multi sheet detection by default once an election is defined
+      // we will not disable double feed detection by default once an election is defined
       return false;
     }
 
-    return Boolean(electionRow.isMultiSheetDetectionDisabled);
+    return Boolean(electionRow.isDoubleFeedDetectionDisabled);
   }
 
   /**
@@ -306,20 +306,20 @@ export class Store {
   }
 
   /**
-   * Sets whether or not to enable multi sheet detection, if supported.
+   * Sets whether or not to enable double feed detection.
    */
-  setIsMultiSheetDetectionDisabled(
-    isMultiSheetDetectionDisabled: boolean
+  setIsDoubleFeedDetectionDisabled(
+    isDoubleFeedDetectionDisabled: boolean
   ): void {
     if (!this.hasElection()) {
       throw new Error(
-        'Cannot toggle multi sheet detection without an election.'
+        'Cannot toggle double feed detection without an election.'
       );
     }
 
     this.client.run(
-      'update election set is_multi_sheet_detection_disabled = ?',
-      isMultiSheetDetectionDisabled ? 1 : 0
+      'update election set is_double_feed_detection_disabled = ?',
+      isDoubleFeedDetectionDisabled ? 1 : 0
     );
   }
 
