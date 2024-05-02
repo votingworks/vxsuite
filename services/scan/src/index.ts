@@ -44,28 +44,28 @@ for (const dotenvFile of dotenvFiles) {
 
 const logger = new Logger(LogSource.VxScanService);
 
-async function createMockPlustekClient(): Promise<
-  Result<ScannerClient, Error>
-> {
-  const client = new MockScannerClient();
-  await client.connect();
-  const port = MOCK_SCANNER_PORT;
-  process.stdout.write(
-    `Starting mock plustek scanner API at http://localhost:${port}/mock\n`
-  );
-  process.stdout.write(
-    `→ Load paper: curl -X PUT -d '{"files":["/path/to/front.jpg", "/path/to/back.jpg"]}' -H 'Content-Type: application/json' http://localhost:${port}/mock\n`
-  );
-  process.stdout.write(
-    `→ Remove paper: curl -X DELETE http://localhost:${port}/mock\n`
-  );
-  plustekMockServer(client).listen(port);
-  return ok(client);
-}
-const createPlustekClient =
-  VX_MACHINE_TYPE === 'precinct-scanner' && MOCK_SCANNER_HTTP
-    ? createMockPlustekClient
-    : undefined;
+// async function createMockPlustekClient(): Promise<
+//   Result<ScannerClient, Error>
+// > {
+//   const client = new MockScannerClient();
+//   await client.connect();
+//   const port = MOCK_SCANNER_PORT;
+//   process.stdout.write(
+//     `Starting mock plustek scanner API at http://localhost:${port}/mock\n`
+//   );
+//   process.stdout.write(
+//     `→ Load paper: curl -X PUT -d '{"files":["/path/to/front.jpg", "/path/to/back.jpg"]}' -H 'Content-Type: application/json' http://localhost:${port}/mock\n`
+//   );
+//   process.stdout.write(
+//     `→ Remove paper: curl -X DELETE http://localhost:${port}/mock\n`
+//   );
+//   plustekMockServer(client).listen(port);
+//   return ok(client);
+// }
+// const createPlustekClient =
+//   VX_MACHINE_TYPE === 'precinct-scanner' && MOCK_SCANNER_HTTP
+//     ? createMockPlustekClient
+//     : undefined;
 
 function getScanner(): BatchScanner | undefined {
   if (VX_MACHINE_TYPE !== 'bsd') return undefined;
@@ -82,7 +82,7 @@ function getScanner(): BatchScanner | undefined {
 }
 
 async function main(): Promise<number> {
-  await server.start({ batchScanner: getScanner(), createPlustekClient });
+  await server.start({ batchScanner: getScanner() });
   return 0;
 }
 

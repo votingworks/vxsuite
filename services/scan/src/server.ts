@@ -5,7 +5,6 @@
 
 import { Logger, LogEventId, LogSource } from '@votingworks/logging';
 import express, { Application } from 'express';
-import { createClient } from '@votingworks/plustek-sdk';
 import { assert } from '@votingworks/utils';
 import { PORT, SCAN_WORKSPACE, VX_MACHINE_TYPE } from './globals';
 import { Importer } from './importer';
@@ -14,9 +13,8 @@ import { createWorkspace, Workspace } from './util/workspace';
 import * as workers from './workers/combined';
 import { childProcessPool, WorkerPool } from './workers/pool';
 import {
-  CreatePlustekClient,
   createPrecinctScannerStateMachine,
-} from './precinct_scanner_state_machine';
+} from './custom_state_machine';
 import { buildPrecinctScannerApp } from './precinct_scanner_app';
 import { buildCentralScannerApp } from './central_scanner_app';
 import { createInterpreter } from './precinct_scanner_interpreter';
@@ -26,7 +24,6 @@ export interface StartOptions {
   batchScanner: BatchScanner;
   importer: Importer;
   app: Application;
-  createPlustekClient: CreatePlustekClient;
   logger: Logger;
   workspace: Workspace;
   machineType: 'bsd' | 'precinct-scanner';
@@ -39,7 +36,6 @@ export async function start({
   port = PORT,
   batchScanner,
   importer,
-  createPlustekClient = createClient,
   app,
   logger = new Logger(LogSource.VxScanService),
   workspace,
@@ -77,8 +73,13 @@ export async function start({
 
   if (machineType === 'precinct-scanner') {
     const precinctScannerInterpreter = createInterpreter();
+    // const precinctScannerMachine = createPrecinctScannerStateMachine({
+    //   createPlustekClient,
+    //   workspace: resolvedWorkspace,
+    //   interpreter: precinctScannerInterpreter,
+    //   logger,
+    // });
     const precinctScannerMachine = createPrecinctScannerStateMachine({
-      createPlustekClient,
       workspace: resolvedWorkspace,
       interpreter: precinctScannerInterpreter,
       logger,
