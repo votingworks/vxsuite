@@ -1,4 +1,3 @@
-import { Result, err } from '@votingworks/basics';
 import { readFile } from '@votingworks/fs';
 import Buffer from 'buffer';
 import {
@@ -7,6 +6,7 @@ import {
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { join } from 'path';
+import { Result, err } from '@votingworks/basics';
 
 // Used by state machine
 const DIAGNOSTIC_MOCK_BALLOT_PDF_PATH = join(

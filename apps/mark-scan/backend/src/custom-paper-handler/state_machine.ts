@@ -670,6 +670,7 @@ export function buildMachine(
               invoke: pollAuthStatus(),
               on: {
                 AUTH_STATUS_CARDLESS_VOTER: 'waiting_for_ballot_data',
+                AUTH_STATUS_LOGGED_OUT: 'not_accepting_paper',
                 AUTH_STATUS_UNHANDLED: 'not_accepting_paper',
               },
             },
@@ -798,6 +799,8 @@ export function buildMachine(
                   on: {
                     AUTH_STATUS_CARDLESS_VOTER: 'accepting_paper',
                     AUTH_STATUS_POLL_WORKER: 'accepting_paper',
+                    AUTH_STATUS_SYSTEM_ADMIN: 'accepting_paper',
+                    AUTH_STATUS_LOGGED_OUT: 'done',
                     AUTH_STATUS_UNHANDLED: 'done',
                   },
                 },
@@ -854,32 +857,13 @@ export function buildMachine(
           },
         },
         paper_handler_diagnostic: {
-          initial: 'load_mock_election',
+          initial: 'prompt_for_paper',
           on: {
             // Reset to state machine initial state if auth is ended
             AUTH_STATUS_LOGGED_OUT: 'paper_handler_diagnostic.done',
           },
           invoke: pollAuthStatus(),
           states: {
-            load_mock_election: {
-              invoke: {
-                id: 'diagnostic.readElectionJson',
-                src: async () => {
-                  const electionResult =
-                    await getPaperHandlerDiagnosticElectionDefinition();
-                  return electionResult.unsafeUnwrap();
-                },
-                onDone: {
-                  actions: assign({
-                    paperHandlerDiagnosticElection: (_, event) => event.data,
-                  }),
-                  target: 'prompt_for_paper',
-                },
-                onError: createOnDiagnosticErrorHandler(
-                  'Error loading paper handler diagnostic.'
-                ),
-              },
-            },
             prompt_for_paper: {
               invoke: pollPaperStatus(),
               on: {
@@ -907,10 +891,10 @@ export function buildMachine(
             print_ballot_fixture: {
               invoke: {
                 id: 'diagnostic.printBallotFixture',
-                src: async (context) => {
-                  const ballotData = await getMockBallotPdfData();
-                  return printBallotChunks(context.driver, ballotData, {});
-                },
+                src: (context) =>
+                  getMockBallotPdfData().then((ballotData) =>
+                    printBallotChunks(context.driver, ballotData, {})
+                  ),
                 onDone: 'scan_ballot',
                 onError: createOnDiagnosticErrorHandler('Error printing.'),
               },
@@ -918,9 +902,7 @@ export function buildMachine(
             scan_ballot: {
               invoke: {
                 id: 'diagnostic.scanAndSave',
-                src: async (context) => {
-                  return await scanAndSave(context.driver);
-                },
+                src: (context) => scanAndSave(context.driver),
                 onDone: {
                   target: 'interpret_ballot',
                   actions: assign({
@@ -935,7 +917,7 @@ export function buildMachine(
             interpret_ballot: {
               invoke: {
                 id: 'diagnostic.interpretScannedBallot',
-                src: async (context) => {
+                src: (context) => {
                   const { scannedBallotImagePath } = context;
                   const electionDefinition = assertDefined(
                     context.paperHandlerDiagnosticElection
@@ -950,35 +932,35 @@ export function buildMachine(
                     writeInTextArea: 0.05,
                   };
 
-                  const interpretation =
-                    await interpretSimplexBmdBallotFromFilepath(
-                      assertDefined(
-                        scannedBallotImagePath,
-                        'Expected scannedImagePaths in context'
-                      ),
-                      {
-                        electionDefinition,
-                        precinctSelection,
-                        testMode: true,
-                        markThresholds,
-                        adjudicationReasons: [],
-                      }
-                    );
-
-                  const interpretationType =
-                    interpretation[0].interpretation.type;
-                  if (interpretationType !== 'InterpretedBmdPage') {
-                    throw new Error(
-                      `Unexpected interpretation type: ${interpretationType}`
-                    );
-                  }
-
-                  return interpretation;
+                  return interpretSimplexBmdBallotFromFilepath(
+                    assertDefined(
+                      scannedBallotImagePath,
+                      'Expected scannedImagePaths in context'
+                    ),
+                    {
+                      electionDefinition,
+                      precinctSelection,
+                      testMode: true,
+                      markThresholds,
+                      adjudicationReasons: [],
+                    }
+                  );
                 },
                 onDone: {
                   target: 'eject_to_rear',
                   actions: assign({
-                    interpretation: (_, event) => event.data,
+                    interpretation: (_, event) => {
+                      const interpretation = event.data;
+                      const interpretationType =
+                        interpretation[0].interpretation.type;
+                      if (interpretationType !== 'InterpretedBmdPage') {
+                        throw new Error(
+                          `Unexpected interpretation type: ${interpretationType}`
+                        );
+                      }
+
+                      return interpretation;
+                    },
                   }),
                 },
                 onError: createOnDiagnosticErrorHandler(
@@ -988,8 +970,7 @@ export function buildMachine(
             },
             eject_to_rear: {
               invoke: pollPaperStatus(),
-              entry: async (context) =>
-                await context.driver.ejectBallotToRear(),
+              entry: (context) => context.driver.ejectBallotToRear(),
               on: {
                 NO_PAPER_ANYWHERE: 'success',
               },
@@ -998,12 +979,12 @@ export function buildMachine(
               },
             },
             success: {
-              entry: async (context) => {
+              entry: (context) => {
                 context.workspace.store.addDiagnosticRecord({
                   type: 'mark-scan-paper-handler',
                   outcome: 'pass',
                 });
-                await context.driver.ejectBallotToRear();
+                return context.driver.ejectBallotToRear();
               },
               onDone: 'done',
             },
@@ -1173,6 +1154,8 @@ export async function getPaperHandlerStateMachine({
   authPollingIntervalMs: number;
   notificationDurationMs: number;
 }): Promise<Optional<PaperHandlerStateMachine>> {
+  const diagnosticElectionDefinitionResult =
+    await getPaperHandlerDiagnosticElectionDefinition();
   const initialContext: Context = {
     auth,
     workspace,
@@ -1184,6 +1167,9 @@ export async function getPaperHandlerStateMachine({
     authPollingIntervalMs,
     notificationDurationMs,
     logger,
+    paperHandlerDiagnosticElection: diagnosticElectionDefinitionResult.isOk()
+      ? diagnosticElectionDefinitionResult.ok()
+      : undefined,
   };
 
   const machine = buildMachine(initialContext, auth);
@@ -1205,8 +1191,6 @@ export async function getPaperHandlerStateMachine({
       const { state } = machineService;
 
       switch (true) {
-        case state.matches('paper_handler_diagnostic.load_mock_election'):
-          return 'paper_handler_diagnostic.loading';
         case state.matches('paper_handler_diagnostic.prompt_for_paper'):
           return 'paper_handler_diagnostic.prompt_for_paper';
         case state.matches('paper_handler_diagnostic.load_paper'):

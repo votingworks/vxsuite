@@ -232,10 +232,6 @@ function setMockDeviceStatus(status: PaperHandlerStatus) {
   mockOf(driver.getPaperHandlerStatus).mockResolvedValue(status);
 }
 
-function getMockBallotFilepaths(): SheetOf<string> {
-  return [DIAGNOSTIC_MOCK_BALLOT_JPG_PATH, getBlankSheetFixturePath()];
-}
-
 describe('not_accepting_paper', () => {
   it('transitions to accepting_paper state on BEGIN_ACCEPTING_PAPER event', () => {
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
@@ -546,13 +542,16 @@ test('elections with grid layouts still try to interpret BMD ballots', async () 
   );
 });
 
-test('blank page interpretation', async () => {
+async function writeTmpBlankImage(): Promise<string> {
   const blankImage = fromGrayScale(new Uint8ClampedArray([0]), 1, 1);
-  const imageName = 'blank-image.jpg';
-  const mockScannedBallotImagePath = join(dirSync().name, imageName);
+  const path = join(dirSync().name, 'blank-image.jpg');
+  await writeImageData(path, blankImage);
+  return path;
+}
 
+test('blank page interpretation', async () => {
   const ballotPdfData = await readBallotFixture();
-  await writeImageData(mockScannedBallotImagePath, blankImage);
+  const mockScannedBallotImagePath = await writeTmpBlankImage();
 
   await executePrintBallotAndAssert(
     ballotPdfData,
@@ -728,26 +727,22 @@ describe('paper handler diagnostic', () => {
     expect(
       store.getMostRecentDiagnosticRecord('mark-scan-paper-handler')
     ).toEqual(undefined);
-    mockOf(printBallotChunks).mockImplementation(async () => {
-      await sleep(TEST_POLL_INTERVAL_MS);
-    });
-    mockOf(scanAndSave).mockImplementation(async () => {
-      await sleep(TEST_POLL_INTERVAL_MS);
-      return getMockBallotFilepaths();
-    });
+    mockOf(printBallotChunks).mockResolvedValue();
+    mockOf(scanAndSave).mockResolvedValue(DIAGNOSTIC_MOCK_BALLOT_JPG_PATH);
 
     machine.startPaperHandlerDiagnostic();
-    await waitForStatus('paper_handler_diagnostic.loading');
-    await waitForStatus('paper_handler_diagnostic.prompt_for_paper');
+    await expectStatusTransitionTo('paper_handler_diagnostic.prompt_for_paper');
     setMockDeviceStatus(getPaperInFrontStatus());
-    await waitForStatus('paper_handler_diagnostic.load_paper');
+    await expectStatusTransitionTo('paper_handler_diagnostic.load_paper');
     setMockDeviceStatus(getPaperParkedStatus());
-    await waitForStatus('paper_handler_diagnostic.print_ballot_fixture');
-    await waitForStatus('paper_handler_diagnostic.scan_ballot');
-    await waitForStatus('paper_handler_diagnostic.interpret_ballot');
-    await waitForStatus('paper_handler_diagnostic.eject_to_rear');
+    await expectStatusTransitionTo(
+      'paper_handler_diagnostic.print_ballot_fixture'
+    );
+    await expectStatusTransitionTo('paper_handler_diagnostic.scan_ballot');
+    await expectStatusTransitionTo('paper_handler_diagnostic.interpret_ballot');
+    await expectStatusTransitionTo('paper_handler_diagnostic.eject_to_rear');
     setMockDeviceStatus(getDefaultPaperHandlerStatus());
-    await waitForStatus('paper_handler_diagnostic.success');
+    await expectStatusTransitionTo('paper_handler_diagnostic.success');
 
     expect(
       store.getMostRecentDiagnosticRecord('mark-scan-paper-handler')?.outcome
@@ -761,30 +756,26 @@ describe('paper handler diagnostic', () => {
     expect(
       store.getMostRecentDiagnosticRecord('mark-scan-paper-handler')
     ).toEqual(undefined);
-    mockOf(printBallotChunks).mockImplementation(async () => {
-      await sleep(TEST_POLL_INTERVAL_MS);
-    });
-    mockOf(scanAndSave).mockImplementation(async () => {
-      await sleep(TEST_POLL_INTERVAL_MS);
-      return [getBlankSheetFixturePath(), getBlankSheetFixturePath()];
-    });
+    mockOf(printBallotChunks).mockResolvedValue();
+    const mockScannedBallotImagePath = await writeTmpBlankImage();
+    mockOf(scanAndSave).mockResolvedValue(mockScannedBallotImagePath);
 
     machine.startPaperHandlerDiagnostic();
-    await waitForStatus('paper_handler_diagnostic.prompt_for_paper');
+    await expectStatusTransitionTo('paper_handler_diagnostic.prompt_for_paper');
     setMockDeviceStatus(getPaperInFrontStatus());
-    await waitForStatus('paper_handler_diagnostic.load_paper');
+    await expectStatusTransitionTo('paper_handler_diagnostic.load_paper');
     setMockDeviceStatus(getPaperParkedStatus());
-    await waitForStatus('paper_handler_diagnostic.print_ballot_fixture');
-    await waitForStatus('paper_handler_diagnostic.scan_ballot');
-    await waitForStatus('paper_handler_diagnostic.interpret_ballot');
+    await expectStatusTransitionTo(
+      'paper_handler_diagnostic.print_ballot_fixture'
+    );
+    await expectStatusTransitionTo('paper_handler_diagnostic.scan_ballot');
+    await expectStatusTransitionTo('paper_handler_diagnostic.interpret_ballot');
+    await expectStatusTransitionTo('paper_handler_diagnostic.failure');
+    await expectStatusTransitionTo('ejecting_to_front');
 
-    // States transition too fast to reliably assert on, so just wait one polling cycle
-    // and assert end state
-    await sleep(TEST_POLL_INTERVAL_MS);
     expect(
       store.getMostRecentDiagnosticRecord('mark-scan-paper-handler')?.outcome
     ).toEqual('fail');
-    await waitForStatus('ejecting_to_front');
   });
 
   test('system admin log out', async () => {
@@ -793,9 +784,9 @@ describe('paper handler diagnostic', () => {
 
     mockSystemAdminAuth(auth);
     machine.startPaperHandlerDiagnostic();
-    await waitForStatus('paper_handler_diagnostic.loading');
+    await expectStatusTransitionTo('paper_handler_diagnostic.prompt_for_paper');
 
     mockLoggedOutAuth(auth);
-    await waitForStatus('accepting_paper');
+    await expectStatusTransitionTo('accepting_paper');
   });
 });

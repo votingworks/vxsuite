@@ -19,7 +19,6 @@ export const SimpleStatusSchema = z.union([
   z.literal('paper_handler_diagnostic.eject_to_rear'),
   z.literal('paper_handler_diagnostic.failure'),
   z.literal('paper_handler_diagnostic.interpret_ballot'),
-  z.literal('paper_handler_diagnostic.loading'),
   z.literal('paper_handler_diagnostic.load_paper'),
   z.literal('paper_handler_diagnostic.print_ballot_fixture'),
   z.literal('paper_handler_diagnostic.prompt_for_paper'),
