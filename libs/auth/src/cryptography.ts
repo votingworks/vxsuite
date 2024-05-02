@@ -475,8 +475,10 @@ export async function signMessageHelper({
   signingPrivateKey,
 }: SignMessageInputExcludingMessage): Promise<Buffer> {
   // While it's possible to hash and sign with a single OpenSSL command, we separate the two
-  // actions. Hashing large inputs with the TPM can be extremely slow. So in production, we hash
-  // using the main processor and only sign using the TPM.
+  // actions. Hashing large inputs with the TPM can be extremely slow, so in production, we hash
+  // using the main processor and only sign using the TPM. We perform the hashing with OpenSSL and
+  // not the Node crypto module because it's easier to make the former FIPS compliant than the
+  // latter.
   const hash = await openssl(['dgst', '-sha256', '-binary'], {
     stdin: process.stdin,
   });

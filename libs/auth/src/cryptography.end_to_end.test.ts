@@ -1,4 +1,3 @@
-import { Buffer } from 'buffer';
 import { Readable } from 'stream';
 import { TEST_JURISDICTION } from '@votingworks/types';
 
@@ -62,14 +61,13 @@ test('signMessage end-to-end', async () => {
     fileType: 'vx-scan-private-key.pem',
   });
 
-  const message = Buffer.from('abcd', 'utf-8');
   const messageSignature = await signMessage({
-    message: Readable.from(message),
+    message: Readable.from('abcd'),
     signingPrivateKey: { source: 'file', path: vxScanPrivateKeyPath },
   });
   const vxScanPublicKey = await extractPublicKeyFromCert(vxScanCertPath);
   await verifySignature({
-    message: Readable.from(message),
+    message: Readable.from('abcd'),
     messageSignature,
     publicKey: vxScanPublicKey,
   });

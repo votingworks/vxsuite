@@ -575,9 +575,9 @@ test.each<{
   async ({ signingPrivateKey, expectedOpensslSignatureRequestParams }) => {
     setTimeout(() => {
       mockChildProcess.emit('close', successExitCode);
-      setTimeout(() => {
-        mockChildProcess.emit('close', successExitCode);
-      });
+    });
+    setTimeout(() => {
+      mockChildProcess.emit('close', successExitCode);
     });
 
     await signMessageHelper({ signingPrivateKey });
