@@ -9,7 +9,8 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   SheetInterpretation,
 } from '@votingworks/types';
-import { typedAs } from '@votingworks/basics';
+import { Result, deferred, ok, typedAs } from '@votingworks/basics';
+import { ScannerError } from '@votingworks/pdi-scanner';
 import {
   ballotImages,
   mockStatus,
@@ -41,7 +42,7 @@ beforeEach(() => {
   );
 });
 
-test('insert second ballot before first ballot accept', async () => {
+test('insert second ballot after scan', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
@@ -90,8 +91,7 @@ test('insert second ballot before first ballot accept', async () => {
   );
 });
 
-test('insert second ballot while first ballot is accepting', async () => {
-  const interpretation: SheetInterpretation = { type: 'ValidSheet' };
+test('insert second ballot before accept', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
@@ -107,6 +107,7 @@ test('insert second ballot while first ballot is accepting', async () => {
         mockScanner,
         await ballotImages.completeHmpb()
       );
+      const interpretation: SheetInterpretation = { type: 'ValidSheet' };
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation,
@@ -129,7 +130,108 @@ test('insert second ballot while first ballot is accepting', async () => {
   );
 });
 
-test('insert second ballot while first ballot is accepted after review', async () => {
+test('insert second ballot during accept, stopped in front', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        electionPackage:
+          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
+      });
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'no_paper' });
+
+      await simulateScan(
+        apiClient,
+        mockScanner,
+        await ballotImages.completeHmpb()
+      );
+      const interpretation: SheetInterpretation = { type: 'ValidSheet' };
+      await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation,
+      });
+
+      const deferredEject = deferred<Result<void, ScannerError>>();
+      mockScanner.client.ejectDocument.mockResolvedValueOnce(
+        deferredEject.promise
+      );
+
+      await apiClient.acceptBallot();
+      await waitForStatus(apiClient, { state: 'accepting', interpretation });
+
+      // Simulate a second ballot inserted during the eject command and getting
+      // stopped in the front of the scanner
+      mockScanner.setScannerStatus(mockStatus.documentInFront);
+      deferredEject.resolve(ok());
+      await waitForStatus(apiClient, {
+        state: 'accepted',
+        interpretation,
+        ballotsCounted: 1,
+      });
+
+      clock.increment(delays.DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT);
+      await waitForStatus(apiClient, {
+        state: 'rejected',
+        error: 'paper_in_front_after_reconnect',
+        ballotsCounted: 1,
+      });
+    }
+  );
+});
+
+test('insert second ballot during accept, stopped in middle', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        electionPackage:
+          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
+      });
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'no_paper' });
+
+      await simulateScan(
+        apiClient,
+        mockScanner,
+        await ballotImages.completeHmpb()
+      );
+      const interpretation: SheetInterpretation = { type: 'ValidSheet' };
+      await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation,
+      });
+
+      const deferredEject = deferred<Result<void, ScannerError>>();
+      mockScanner.client.ejectDocument.mockResolvedValueOnce(
+        deferredEject.promise
+      );
+
+      await apiClient.acceptBallot();
+      await waitForStatus(apiClient, { state: 'accepting', interpretation });
+
+      // Simulate a second ballot inserted during the eject command and getting
+      // pulled into the middle of the scanner
+      mockScanner.setScannerStatus(mockStatus.documentInFrontAndRear);
+      deferredEject.resolve(ok());
+      await waitForStatus(apiClient, {
+        state: 'both_sides_have_paper',
+        interpretation,
+      });
+
+      // Simulate removing the second ballot from the scanner
+      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
+      await waitForStatus(apiClient, {
+        state: 'accepted',
+        interpretation,
+        ballotsCounted: 1,
+      });
+    }
+  );
+});
+
+test('insert second ballot before accept after review', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
