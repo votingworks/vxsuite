@@ -12,6 +12,11 @@ import {
 import { Result, deferred, ok, typedAs } from '@votingworks/basics';
 import { ScannerError } from '@votingworks/pdi-scanner';
 import {
+  mockElectionManagerUser,
+  mockOf,
+  mockSessionExpiresAt,
+} from '@votingworks/test-utils';
+import {
   ballotImages,
   mockStatus,
   simulateScan,
@@ -274,6 +279,77 @@ test('insert second ballot before accept after review', async () => {
       await waitForStatus(apiClient, {
         state: 'accepting_after_review',
         interpretation,
+      });
+    }
+  );
+});
+
+test('insert two sheets at once', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'no_paper' });
+
+      mockScanner.emitEvent({ event: 'scanStart' });
+      await expectStatus(apiClient, { state: 'scanning' });
+      // Scanner stops the scan immediately when multiple sheets are detected,
+      // usually before the rear sensors are covered
+      mockScanner.setScannerStatus(mockStatus.documentInFront);
+      mockScanner.emitEvent({ event: 'error', code: 'multipleSheetsDetected' });
+      mockScanner.emitEvent({ event: 'error', code: 'scanFailed' });
+
+      await waitForStatus(apiClient, {
+        state: 'rejected',
+        error: 'multiple_sheets_detected',
+      });
+
+      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'no_paper' });
+    }
+  );
+});
+
+test('disabling multi-sheet detection', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
+      await apiClient.setIsMultiSheetDetectionDisabled({
+        isMultiSheetDetectionDisabled: true,
+      });
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'no_paper' });
+      expect(mockScanner.client.enableScanning).toHaveBeenLastCalledWith({
+        multiSheetDetectionEnabled: false,
+      });
+
+      // Simulate an election manager logging in to disable multi-sheet
+      // detection, since that's how it would happen in real-world usage. The
+      // state machine only calls enableScanning when it transitions back into
+      // the 'waitingForBallot' state, so we need to log out to trigger the
+      // transition to 'paused' first to actually register the change.
+      mockOf(mockAuth.getAuthStatus).mockResolvedValue({
+        status: 'logged_in',
+        user: mockElectionManagerUser(),
+        sessionExpiresAt: mockSessionExpiresAt(),
+      });
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'paused' });
+      await apiClient.setIsMultiSheetDetectionDisabled({
+        isMultiSheetDetectionDisabled: false,
+      });
+      mockOf(mockAuth.getAuthStatus).mockResolvedValue({
+        status: 'logged_out',
+        reason: 'no_card',
+      });
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'no_paper' });
+      expect(mockScanner.client.enableScanning).toHaveBeenLastCalledWith({
+        multiSheetDetectionEnabled: true,
       });
     }
   );

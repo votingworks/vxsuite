@@ -164,6 +164,7 @@ function buildMachine({
   usbDrive: UsbDrive;
   auth: InsertedSmartCardAuthApi;
 }) {
+  const { store } = workspace;
   const initialClient = createScannerClient();
 
   function createPollingChildMachine(
@@ -201,11 +202,7 @@ function buildMachine({
     src: createPollingChildMachine(
       'pollScanningEnabled',
       async () => {
-        const enabled = await isReadyToScan({
-          auth,
-          store: workspace.store,
-          usbDrive,
-        });
+        const enabled = await isReadyToScan({ auth, store, usbDrive });
         return enabled
           ? { type: 'SCANNING_ENABLED' }
           : { type: 'SCANNING_DISABLED' };
@@ -491,8 +488,14 @@ function buildMachine({
               invoke: [
                 pollScanningEnabled,
                 {
-                  src: async ({ client }) =>
-                    (await client.enableScanning()).unsafeUnwrap(),
+                  src: async ({ client }) => {
+                    (
+                      await client.enableScanning({
+                        multiSheetDetectionEnabled:
+                          !store.getIsMultiSheetDetectionDisabled(),
+                      })
+                    ).unsafeUnwrap();
+                  },
                 },
                 listenForScannerEvents,
               ],
@@ -543,13 +546,31 @@ function buildMachine({
                   },
                 ],
                 SCANNER_ERROR: [
+                  // A multipleSheetsDetected event will always be followed by a
+                  // scanFailed event (which indicates that the scan actually
+                  // stopped), so we don't transition states yet, just record
+                  // that it happened. Otherwise, we'd have a scanFailed event
+                  // come in later and be unhandled.
+                  {
+                    cond: (_, { error }) =>
+                      error.code === 'multipleSheetsDetected',
+                    actions: assign({
+                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                      error: (_context) =>
+                        new PrecinctScannerError('multiple_sheets_detected'),
+                    }),
+                  },
                   {
                     cond: (_, { error }) => error.code === 'scanFailed',
                     target: '#rejecting',
                     actions: assign({
-                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                      error: (_context) =>
-                        new PrecinctScannerError('scanning_failed'),
+                      error: (context) =>
+                        // Don't overwrite the multiple_sheets_detected error if
+                        // we already caught that
+                        context.error instanceof PrecinctScannerError &&
+                        context.error.type === 'multiple_sheets_detected'
+                          ? context.error
+                          : new PrecinctScannerError('scanning_failed'),
                     }),
                   },
                 ],

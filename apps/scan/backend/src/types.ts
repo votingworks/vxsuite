@@ -28,6 +28,7 @@ export type PrecinctScannerErrorType =
   | 'scanning_timed_out'
   | 'scanning_failed'
   | 'both_sides_have_paper'
+  | 'multiple_sheets_detected'
   | 'paper_in_back_after_accept'
   | 'paper_in_front_after_reconnect'
   | 'paper_in_back_after_reconnect'

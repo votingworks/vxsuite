@@ -100,3 +100,18 @@ test('render correct unreadable ballot screen', async () => {
     'There was a problem scanning your ballot. Please scan it again.'
   );
 });
+
+test('double sheet error screen', async () => {
+  render(
+    provideApi(
+      apiMock,
+      <ScanErrorScreen
+        error="multiple_sheets_detected"
+        isTestMode
+        scannedBallotCount={42}
+      />
+    )
+  );
+  await screen.findByText('Ballot Not Counted');
+  await screen.findByText('Remove your ballot and insert one sheet at a time.');
+});
