@@ -748,15 +748,20 @@ function buildMachine({
 
         error: {
           id: 'error',
-          initial: 'exiting',
-          always: {
-            cond: (context) =>
-              context.error !== undefined &&
-              'code' in context.error &&
-              context.error.code === 'disconnected',
-            target: 'disconnected',
-          },
+          initial: 'checkingErrorCode',
           states: {
+            checkingErrorCode: {
+              always: [
+                {
+                  cond: (context) =>
+                    context.error !== undefined &&
+                    'code' in context.error &&
+                    context.error.code === 'disconnected',
+                  target: '#disconnected',
+                },
+                { target: 'exiting' },
+              ],
+            },
             exiting: {
               invoke: {
                 src: async ({ client }) => {
