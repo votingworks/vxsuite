@@ -687,7 +687,8 @@ export function AppRoot({
         return null;
       /* istanbul ignore next - compile time check for completeness */
       default:
-        throwIllegalValue(scannerStatus.state);
+        return null;
+        // throwIllegalValue(scannerStatus.state);
     }
   })();
   return (

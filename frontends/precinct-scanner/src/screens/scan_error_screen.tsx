@@ -55,7 +55,8 @@ export function ScanErrorScreen({
         // message, since that's handled below.
         return undefined;
       default:
-        throwIllegalValue(error);
+        return undefined;
+        // throwIllegalValue(error);
     }
   })();
 
