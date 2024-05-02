@@ -60,7 +60,7 @@ import {
   loadAndParkPaper,
   printBallotChunks,
 } from './application_driver';
-import { PatConnectionStatusReader } from '../pat-input/connection_status_reader';
+import { PatConnectionStatusReaderInterface } from '../pat-input/connection_status_reader';
 import {
   ORIGIN_SWIFTY_PRODUCT_ID,
   ORIGIN_VENDOR_ID,
@@ -71,7 +71,7 @@ interface Context {
   auth: InsertedSmartCardAuthApi;
   workspace: Workspace;
   driver: PaperHandlerDriverInterface;
-  patConnectionStatusReader: PatConnectionStatusReader;
+  patConnectionStatusReader: PatConnectionStatusReaderInterface;
   deviceTimeoutMs: number;
   devicePollingIntervalMs: number;
   authPollingIntervalMs: number;
@@ -930,7 +930,7 @@ export async function getPaperHandlerStateMachine({
   auth: InsertedSmartCardAuthApi;
   logger: BaseLogger;
   driver: PaperHandlerDriverInterface;
-  patConnectionStatusReader: PatConnectionStatusReader;
+  patConnectionStatusReader: PatConnectionStatusReaderInterface;
   deviceTimeoutMs?: number;
   devicePollingIntervalMs: number;
   authPollingIntervalMs: number;

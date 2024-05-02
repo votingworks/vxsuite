@@ -22,7 +22,10 @@ import {
   DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
   NOTIFICATION_DURATION_MS,
 } from './custom-paper-handler/constants';
-import { PatConnectionStatusReader } from './pat-input/connection_status_reader';
+import {
+  PatConnectionStatusReader,
+  PatConnectionStatusReaderInterface,
+} from './pat-input/connection_status_reader';
 import { MockPatConnectionStatusReader } from './pat-input/mock_connection_status_reader';
 
 export interface StartOptions {
@@ -74,7 +77,8 @@ export async function start({
     getUserRole(resolvedAuth, workspace)
   );
   const driver = await resolveDriver(logger);
-  let patConnectionStatusReader = new PatConnectionStatusReader(logger);
+  let patConnectionStatusReader: PatConnectionStatusReaderInterface =
+    new PatConnectionStatusReader(logger);
   const canReadPatConnectionStatus = await patConnectionStatusReader.open();
 
   if (!canReadPatConnectionStatus) {

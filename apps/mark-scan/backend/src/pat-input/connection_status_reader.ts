@@ -1,11 +1,21 @@
+/* eslint-disable vx/gts-no-public-class-fields */
+// props must be public to be defined in the interface
+
 import * as fs from 'fs/promises';
+import { open as fsOpen } from '@votingworks/fs';
 import { assert } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
-import { PATH_TO_PAT_CONNECTION_STATUS_PIN } from './constants';
+import { join } from 'path';
+import {
+  GPIO_PATH_PREFIX,
+  PAT_CONNECTION_STATUS_PIN,
+  PAT_GPIO_OFFSET,
+} from './constants';
 
 export interface PatConnectionStatusReaderInterface {
   readonly logger: BaseLogger;
+  readonly gpioPathPrefix: string;
   open(): Promise<boolean>;
   close(): Promise<void>;
   isPatDeviceConnected(): Promise<boolean>;
@@ -17,31 +27,52 @@ export class PatConnectionStatusReader
   private file?: fs.FileHandle;
 
   constructor(
-    // logger prop must be public to be defined in the interface
-    // eslint-disable-next-line vx/gts-no-public-class-fields
     readonly logger: BaseLogger,
-    private readonly filePath?: string
-  ) {
-    // We don't use the default initializer syntax because then we'd have to
-    // also make filePath a no-op constructor argument in the mock
-    if (!filePath) {
-      this.filePath = PATH_TO_PAT_CONNECTION_STATUS_PIN;
-    }
-  }
+    readonly gpioPathPrefix: string = GPIO_PATH_PREFIX
+  ) {}
 
   async open(): Promise<boolean> {
-    assert(this.filePath !== undefined);
-    try {
-      await fs.access(this.filePath, fs.constants.R_OK);
-    } catch (err) {
-      await this.logger.log(LogEventId.PatDeviceError, 'system', {
-        message: `${this.filePath} is not accessible from VxMarkScan backend. It may be unexported or the backend may be running on development hardware.`,
-      });
+    await this.logger.log(LogEventId.ConnectToPatInputInit, 'system');
 
+    const possiblePinAddresses = [
+      PAT_CONNECTION_STATUS_PIN + PAT_GPIO_OFFSET,
+      PAT_CONNECTION_STATUS_PIN,
+    ];
+
+    let pinFileHandle: fs.FileHandle | undefined;
+    for (const address of possiblePinAddresses) {
+      const path = join(this.gpioPathPrefix, `gpio${address}`, 'value');
+
+      const openResult = await fsOpen(path);
+      if (openResult.isOk()) {
+        pinFileHandle = openResult.ok();
+        break;
+      }
+
+      if (openResult.isErr()) {
+        const openError = openResult.err();
+        /* istanbul ignore next */
+        if (!openError.message.match('ENOENT')) {
+          await this.logger.log(LogEventId.ConnectToGpioPinComplete, 'system', {
+            message: `Unexpected error connecting to pin at ${address}: ${openError}`,
+            disposition: 'failure',
+          });
+        }
+      }
+    }
+
+    if (!pinFileHandle) {
+      await this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {
+        message: `PatConnectionStatusReader failed to connect to PAT input. Attempted pins: ${possiblePinAddresses}`,
+        disposition: 'failure',
+      });
       return false;
     }
 
-    this.file = await fs.open(this.filePath);
+    await this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {
+      disposition: 'success',
+    });
+    this.file = pinFileHandle;
     return true;
   }
 
