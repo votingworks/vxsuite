@@ -3,7 +3,7 @@
   "include": ["src"],
   "exclude": [],
   "compilerOptions": {
-    "module": "node16",
+    "module": "commonjs",
     "lib": ["esnext"],
     "composite": true,
     "noEmit": true,
