@@ -715,9 +715,18 @@ function buildMachine({
 
         disconnected: {
           id: 'disconnected',
-          initial: 'waiting',
+          initial: 'exiting',
           entry: assign({ interpretation: undefined }),
           states: {
+            exiting: {
+              invoke: {
+                src: async ({ client }) => {
+                  (await client.exit()).unsafeUnwrap();
+                },
+                onDone: 'waiting',
+                onError: '#error',
+              },
+            },
             waiting: {
               after: {
                 DELAY_RECONNECT: {
@@ -731,7 +740,7 @@ function buildMachine({
                 src: async ({ client }) =>
                   (await client.connect()).unsafeUnwrap(),
                 onDone: '#waitingForBallot',
-                onError: 'waiting',
+                onError: '#error',
               },
             },
           },

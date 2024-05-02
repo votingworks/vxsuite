@@ -94,6 +94,7 @@ test('scanner disconnected on startup', async () => {
     expect(precinctScannerMachine.status()).toEqual({ state: 'disconnected' });
   });
   precinctScannerMachine.stop();
+  expect(mockScanner.client.exit).toHaveBeenCalled(); // Previous client should have been cleaned up
 });
 
 test('scanner disconnected while waiting for ballots', async () => {
@@ -113,6 +114,7 @@ test('scanner disconnected while waiting for ballots', async () => {
       simulateReconnect(mockScanner);
       clock.increment(delays.DELAY_RECONNECT);
       await waitForStatus(apiClient, { state: 'no_paper' });
+      expect(mockScanner.client.exit).toHaveBeenCalled(); // Previous client should have been cleaned up
     }
   );
 });

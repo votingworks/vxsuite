@@ -167,7 +167,7 @@ export function createMockPdiScannerClient(): MockPdiScannerClient {
       disableScanning: jest.fn().mockResolvedValue(ok()),
       ejectDocument: jest.fn().mockResolvedValue(ok()),
       disconnect: jest.fn().mockResolvedValue(ok()),
-      exit: jest.fn(),
+      exit: jest.fn().mockResolvedValue(ok()),
     },
   };
 }
