@@ -174,3 +174,5 @@ export type MarkAdjudications = readonly MarkAdjudication[];
 export const MarkAdjudicationsSchema: z.ZodSchema<MarkAdjudications> = z.array(
   MarkAdjudicationSchema
 );
+
+export type SheetOf<T> = readonly [T, T];
