@@ -75,16 +75,14 @@ enum Command {
 
     GetScannerStatus,
 
-    EnableScanning,
+    EnableScanning {
+        multi_sheet_detection_enabled: bool,
+    },
 
     DisableScanning,
 
     EjectDocument {
         eject_motion: EjectMotion,
-    },
-
-    EnableMsd {
-        enable: bool,
     },
 
     CalibrateMsd {
@@ -281,8 +279,18 @@ fn main() -> color_eyre::Result<()> {
                             Err(e) => send_error_response(&e)?,
                         }
                     }
-                    (Some(client), Command::EnableScanning) => {
-                        match client.send_enable_scan_commands() {
+                    (
+                        Some(client),
+                        Command::EnableScanning {
+                            multi_sheet_detection_enabled,
+                        },
+                    ) => {
+                        let double_feed_detection_mode = if multi_sheet_detection_enabled {
+                            DoubleFeedDetectionMode::RejectDoubleFeeds
+                        } else {
+                            DoubleFeedDetectionMode::Disabled
+                        };
+                        match client.send_enable_scan_commands(double_feed_detection_mode) {
                             Ok(()) => send_response(Response::Ok)?,
                             Err(e) => send_error_response(&e)?,
                         }
@@ -295,16 +303,6 @@ fn main() -> color_eyre::Result<()> {
                     }
                     (Some(client), Command::EjectDocument { eject_motion }) => {
                         match client.eject_document(eject_motion) {
-                            Ok(()) => send_response(Response::Ok)?,
-                            Err(e) => send_error_response(&e)?,
-                        }
-                    }
-                    (Some(client), Command::EnableMsd { enable }) => {
-                        match client.set_double_feed_detection_mode(if enable {
-                            DoubleFeedDetectionMode::RejectDoubleFeeds
-                        } else {
-                            DoubleFeedDetectionMode::Disabled
-                        }) {
                             Ok(()) => send_response(Response::Ok)?,
                             Err(e) => send_error_response(&e)?,
                         }

@@ -98,7 +98,7 @@ type PdictlCommand =
   | { command: 'connect' }
   | { command: 'disconnect' }
   | { command: 'getScannerStatus' }
-  | { command: 'enableScanning' }
+  | { command: 'enableScanning'; multiSheetDetectionEnabled: boolean }
   | { command: 'disableScanning' }
   | {
       command: 'ejectDocument';
@@ -313,8 +313,15 @@ export function createPdiScannerClient() {
      * Enables the scanner's feeder. Once enabled, the scanner will
      * automatically scan any document inserted into the scanner.
      */
-    async enableScanning(): Promise<SimpleResult> {
-      return sendSimpleCommand({ command: 'enableScanning' });
+    async enableScanning({
+      multiSheetDetectionEnabled,
+    }: {
+      multiSheetDetectionEnabled: boolean;
+    }): Promise<SimpleResult> {
+      return sendSimpleCommand({
+        command: 'enableScanning',
+        multiSheetDetectionEnabled,
+      });
     },
 
     /**

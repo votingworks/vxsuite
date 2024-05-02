@@ -737,25 +737,33 @@ impl<T> Client<T> {
     ///
     /// This function will return an error if any of the commands fail to
     /// validate or if the response is not received within the timeout.
-    pub fn send_enable_scan_commands(&mut self) -> Result<()> {
+    pub fn send_enable_scan_commands(
+        &mut self,
+        double_feed_detection_mode: DoubleFeedDetectionMode,
+    ) -> Result<()> {
         let timeout = Duration::from_secs(5);
 
         // OUT SetScannerImageDensityToHalfNativeResolutionRequest
         self.set_scan_resolution(Resolution::Half)?;
         // OUT SetScannerToDuplexModeRequest
         self.set_scan_side_mode(ScanSideMode::Duplex)?;
-        // OUT UNKNOWN Packet { transfer_type: 0x03, endpoint_address: 0x05, data: <02 67 03 79> } (string: "\u{2}g\u{3}y") (length: 4)
+        // OUT Enable AutoScanStart
         self.send_command(&Command::new(b"g"))?;
         // OUT DisablePickOnCommandModeRequest
         self.set_pick_on_command_mode(PickOnCommandMode::FeederStaysEnabledBetweenScans)?;
-        // OUT DisableDoubleFeedDetectionRequest
-        // self.set_double_feed_detection_enabled(false);
         // OUT SetDoubleFeedDetectionSensitivityRequest { percentage: 50 }
         self.set_double_feed_sensitivity(ClampedPercentage::new_unchecked(50))?;
-        // OUT SetDoubleFeedDetectionMinimumDocumentLengthRequest { length_in_hundredths_of_an_inch: 40 }
-        self.set_double_feed_detection_minimum_document_length(40)?;
-        // OUT EnableDoubleFeedDetectionRequest
-        // self.set_double_feed_detection_enabled(true);
+        // OUT SetDoubleFeedDetectionMinimumDocumentLengthRequest { length_in_hundredths_of_an_inch: 100 }
+        // From the docs:
+        //      The higher the value in this tag, the longer the overlap needs to be
+        //      before a double feed is detected. If horizontal black lines are
+        //      present on the documents, an appropriate setting of this tag will
+        //      allow you to skip those lines.
+        // Since our ballots have thick black areas (timing marks, illustrations),
+        // we set this to a full inch to be safe.
+        self.set_double_feed_detection_minimum_document_length(100)?;
+        // OUT DisableDoubleFeedDetectionRequest
+        self.set_double_feed_detection_mode(double_feed_detection_mode)?;
         // OUT DisableEjectPauseRequest
         self.set_eject_pause_mode(EjectPauseMode::DoNotCheckForInputPaper)?;
         // OUT TransmitInLowBitsPerPixelRequest
@@ -780,9 +788,6 @@ impl<T> Client<T> {
         self.set_scan_delay_interval_for_document_feed(Duration::ZERO)?;
         // OUT SetLengthOfDocumentToScanRequest { length_byte: 203, unit_byte: Some(49) }
         self.set_length_of_document_to_scan(0.0)?;
-        // OUT GetTestStringRequest
-        // IN GetTestStringResponse(" Test Message USB 1.1/2.0 Communication")
-        self.get_test_string(timeout)?;
         // OUT EnableFeederRequest
         self.set_feeder_mode(FeederMode::AutoScanSheets)?;
 
