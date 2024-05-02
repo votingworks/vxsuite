@@ -1,23 +1,35 @@
 import { sleep } from '@votingworks/basics';
 import { createPdiScannerClient } from './scanner_client';
 
-// eslint-disable-next-line vx/gts-jsdoc
+/**
+ * A simple demo that continuously scans ballots.
+ */
 export async function main(): Promise<void> {
   const scannerClient = createPdiScannerClient();
   (await scannerClient.connect()).unsafeUnwrap();
 
-  let status = (await scannerClient.getScannerStatus()).unsafeUnwrap();
-  if (status.documentInScanner) {
-    (await scannerClient.enableScanning()).unsafeUnwrap();
-    (await scannerClient.ejectDocument('toRear')).unsafeUnwrap();
-    (await scannerClient.disableScanning()).unsafeUnwrap();
-  }
-  status = (await scannerClient.getScannerStatus()).unsafeUnwrap();
-  if (!status.scannerEnabled) {
-    (await scannerClient.enableScanning()).unsafeUnwrap();
-  }
+  (await scannerClient.enableScanning()).unsafeUnwrap();
+
+  let state = 'waitingForBallot';
+  scannerClient.addListener((event) => {
+    switch (event.event) {
+      case 'scanStart':
+        state = 'scanning';
+        break;
+      case 'scanComplete':
+        state = 'scanComplete';
+        break;
+      default:
+        break;
+    }
+  });
 
   for (;;) {
+    if (state === 'scanComplete') {
+      (await scannerClient.ejectDocument('toRear')).unsafeUnwrap();
+      (await scannerClient.enableScanning()).unsafeUnwrap();
+      state = 'waitingForBallot';
+    }
     await sleep(1000);
   }
 }
