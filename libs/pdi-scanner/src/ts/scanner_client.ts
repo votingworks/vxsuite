@@ -67,7 +67,7 @@ export type ScannerError =
   | { code: 'alreadyConnected' }
   | { code: 'scanInProgress' }
   | { code: 'scanFailed' }
-  | { code: 'multipleSheetsDetected' }
+  | { code: 'doubleFeedDetected' }
   | { code: 'other'; message: string };
 
 /**
@@ -99,7 +99,7 @@ type PdictlCommand =
   | { command: 'connect' }
   | { command: 'disconnect' }
   | { command: 'getScannerStatus' }
-  | { command: 'enableScanning'; multiSheetDetectionEnabled: boolean }
+  | { command: 'enableScanning'; doubleFeedDetectionEnabled: boolean }
   | { command: 'disableScanning' }
   | {
       command: 'ejectDocument';
@@ -315,13 +315,13 @@ export function createPdiScannerClient() {
      * automatically scan any document inserted into the scanner.
      */
     async enableScanning({
-      multiSheetDetectionEnabled,
+      doubleFeedDetectionEnabled,
     }: {
-      multiSheetDetectionEnabled: boolean;
+      doubleFeedDetectionEnabled: boolean;
     }): Promise<SimpleResult> {
       return sendSimpleCommand({
         command: 'enableScanning',
-        multiSheetDetectionEnabled,
+        doubleFeedDetectionEnabled,
       });
     },
 

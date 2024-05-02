@@ -84,27 +84,27 @@ test('getScannerStatus', async () => {
   expectStdinCommand({ command: 'getScannerStatus' });
 });
 
-test('enableScanning({ multiSheetDetectionEnabled: true })', async () => {
+test('enableScanning({ doubleFeedDetectionEnabled: true })', async () => {
   const client = createPdiScannerClient();
   mockStdoutResponse({ response: 'ok' });
   expect(
-    await client.enableScanning({ multiSheetDetectionEnabled: true })
+    await client.enableScanning({ doubleFeedDetectionEnabled: true })
   ).toEqual(ok());
   expectStdinCommand({
     command: 'enableScanning',
-    multiSheetDetectionEnabled: true,
+    doubleFeedDetectionEnabled: true,
   });
 });
 
-test('enableScanning({ multiSheetDetectionEnabled: false })', async () => {
+test('enableScanning({ doubleFeedDetectionEnabled: false })', async () => {
   const client = createPdiScannerClient();
   mockStdoutResponse({ response: 'ok' });
   expect(
-    await client.enableScanning({ multiSheetDetectionEnabled: false })
+    await client.enableScanning({ doubleFeedDetectionEnabled: false })
   ).toEqual(ok());
   expectStdinCommand({
     command: 'enableScanning',
-    multiSheetDetectionEnabled: false,
+    doubleFeedDetectionEnabled: false,
   });
 });
 
@@ -240,11 +240,11 @@ test('queues overlapping commands', async () => {
   const client = createPdiScannerClient();
   const command1Promise = client.getScannerStatus();
   const command2Promise = client.enableScanning({
-    multiSheetDetectionEnabled: true,
+    doubleFeedDetectionEnabled: true,
   });
   expectStdinCommands([
     { command: 'getScannerStatus' },
-    { command: 'enableScanning', multiSheetDetectionEnabled: true },
+    { command: 'enableScanning', doubleFeedDetectionEnabled: true },
   ]);
   mockStdoutResponse({ response: 'scannerStatus', status: scannerStatus });
   mockStdoutResponse({ response: 'ok' });
@@ -286,7 +286,7 @@ test('simple commands handle unexpected response', async () => {
   const client = createPdiScannerClient();
   mockStdoutResponse({ response: 'scannerStatus', status: scannerStatus });
   expect(
-    await client.enableScanning({ multiSheetDetectionEnabled: true })
+    await client.enableScanning({ doubleFeedDetectionEnabled: true })
   ).toEqual(
     err({ code: 'other', message: 'Unexpected response: scannerStatus' })
   );
@@ -296,6 +296,6 @@ test('simple commands handle error response', async () => {
   const client = createPdiScannerClient();
   mockStdoutResponse({ response: 'error', code: 'scanInProgress' });
   expect(
-    await client.enableScanning({ multiSheetDetectionEnabled: true })
+    await client.enableScanning({ doubleFeedDetectionEnabled: true })
   ).toEqual(err({ response: 'error', code: 'scanInProgress' }));
 });

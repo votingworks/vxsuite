@@ -28,7 +28,7 @@ export type PrecinctScannerErrorType =
   | 'scanning_timed_out'
   | 'scanning_failed'
   | 'both_sides_have_paper'
-  | 'multiple_sheets_detected'
+  | 'double_feed_detected'
   | 'paper_in_back_after_accept'
   | 'paper_in_front_after_reconnect'
   | 'paper_in_back_after_reconnect'
@@ -67,7 +67,7 @@ export interface PrecinctScannerConfig {
   systemSettings: SystemSettings;
   precinctSelection?: PrecinctSelection;
   isSoundMuted: boolean;
-  isMultiSheetDetectionDisabled: boolean;
+  isDoubleFeedDetectionDisabled: boolean;
   hasPaperBeenLoaded: boolean;
   // "Config" that is specific to each election session
   isTestMode: boolean;

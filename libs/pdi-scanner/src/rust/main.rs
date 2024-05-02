@@ -76,7 +76,7 @@ enum Command {
     GetScannerStatus,
 
     EnableScanning {
-        multi_sheet_detection_enabled: bool,
+        double_feed_detection_enabled: bool,
     },
 
     DisableScanning,
@@ -99,7 +99,7 @@ enum ErrorCode {
     AlreadyConnected,
     ScanInProgress,
     ScanFailed,
-    MultipleSheetsDetected,
+    DoubleFeedDetected,
     Other,
 }
 
@@ -283,10 +283,10 @@ fn main() -> color_eyre::Result<()> {
                     (
                         Some(client),
                         Command::EnableScanning {
-                            multi_sheet_detection_enabled,
+                            double_feed_detection_enabled,
                         },
                     ) => {
-                        let double_feed_detection_mode = if multi_sheet_detection_enabled {
+                        let double_feed_detection_mode = if double_feed_detection_enabled {
                             DoubleFeedDetectionMode::RejectDoubleFeeds
                         } else {
                             DoubleFeedDetectionMode::Disabled
@@ -411,7 +411,7 @@ fn main() -> color_eyre::Result<()> {
                 }
                 Ok(Incoming::DoubleFeedEvent) => {
                     send_event(Event::Error {
-                        code: ErrorCode::MultipleSheetsDetected,
+                        code: ErrorCode::DoubleFeedDetected,
                         message: None,
                     })?;
                 }

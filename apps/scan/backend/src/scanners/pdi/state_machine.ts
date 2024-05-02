@@ -491,8 +491,8 @@ function buildMachine({
                   src: async ({ client }) => {
                     (
                       await client.enableScanning({
-                        multiSheetDetectionEnabled:
-                          !store.getIsMultiSheetDetectionDisabled(),
+                        doubleFeedDetectionEnabled:
+                          !store.getIsDoubleFeedDetectionDisabled(),
                       })
                     ).unsafeUnwrap();
                   },
@@ -546,18 +546,17 @@ function buildMachine({
                   },
                 ],
                 SCANNER_ERROR: [
-                  // A multipleSheetsDetected event will always be followed by a
+                  // A doubleFeedDetected event will always be followed by a
                   // scanFailed event (which indicates that the scan actually
                   // stopped), so we don't transition states yet, just record
                   // that it happened. Otherwise, we'd have a scanFailed event
                   // come in later and be unhandled.
                   {
-                    cond: (_, { error }) =>
-                      error.code === 'multipleSheetsDetected',
+                    cond: (_, { error }) => error.code === 'doubleFeedDetected',
                     actions: assign({
                       // eslint-disable-next-line @typescript-eslint/no-unused-vars
                       error: (_context) =>
-                        new PrecinctScannerError('multiple_sheets_detected'),
+                        new PrecinctScannerError('double_feed_detected'),
                     }),
                   },
                   {
@@ -565,10 +564,10 @@ function buildMachine({
                     target: '#rejecting',
                     actions: assign({
                       error: (context) =>
-                        // Don't overwrite the multiple_sheets_detected error if
+                        // Don't overwrite the double_feed_detected error if
                         // we already caught that
                         context.error instanceof PrecinctScannerError &&
-                        context.error.type === 'multiple_sheets_detected'
+                        context.error.type === 'double_feed_detected'
                           ? context.error
                           : new PrecinctScannerError('scanning_failed'),
                     }),

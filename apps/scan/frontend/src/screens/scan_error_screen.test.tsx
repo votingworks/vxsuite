@@ -101,12 +101,12 @@ test('render correct unreadable ballot screen', async () => {
   );
 });
 
-test('double sheet error screen', async () => {
+test('double feed error screen', async () => {
   render(
     provideApi(
       apiMock,
       <ScanErrorScreen
-        error="multiple_sheets_detected"
+        error="double_feed_detected"
         isTestMode
         scannedBallotCount={42}
       />

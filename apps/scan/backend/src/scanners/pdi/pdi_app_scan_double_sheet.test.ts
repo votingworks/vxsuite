@@ -297,12 +297,12 @@ test('insert two sheets at once', async () => {
       // Scanner stops the scan immediately when multiple sheets are detected,
       // usually before the rear sensors are covered
       mockScanner.setScannerStatus(mockStatus.documentInFront);
-      mockScanner.emitEvent({ event: 'error', code: 'multipleSheetsDetected' });
+      mockScanner.emitEvent({ event: 'error', code: 'doubleFeedDetected' });
       mockScanner.emitEvent({ event: 'error', code: 'scanFailed' });
 
       await waitForStatus(apiClient, {
         state: 'rejected',
-        error: 'multiple_sheets_detected',
+        error: 'double_feed_detected',
       });
 
       mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
@@ -312,21 +312,21 @@ test('insert two sheets at once', async () => {
   );
 });
 
-test('disabling multi-sheet detection', async () => {
+test('disabling double feed detection', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
-      await apiClient.setIsMultiSheetDetectionDisabled({
-        isMultiSheetDetectionDisabled: true,
+      await apiClient.setIsDoubleFeedDetectionDisabled({
+        isDoubleFeedDetectionDisabled: true,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });
       expect(mockScanner.client.enableScanning).toHaveBeenLastCalledWith({
-        multiSheetDetectionEnabled: false,
+        doubleFeedDetectionEnabled: false,
       });
 
-      // Simulate an election manager logging in to disable multi-sheet
+      // Simulate an election manager logging in to disable double feed
       // detection, since that's how it would happen in real-world usage. The
       // state machine only calls enableScanning when it transitions back into
       // the 'waitingForBallot' state, so we need to log out to trigger the
@@ -338,8 +338,8 @@ test('disabling multi-sheet detection', async () => {
       });
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'paused' });
-      await apiClient.setIsMultiSheetDetectionDisabled({
-        isMultiSheetDetectionDisabled: false,
+      await apiClient.setIsDoubleFeedDetectionDisabled({
+        isDoubleFeedDetectionDisabled: false,
       });
       mockOf(mockAuth.getAuthStatus).mockResolvedValue({
         status: 'logged_out',
@@ -349,7 +349,7 @@ test('disabling multi-sheet detection', async () => {
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });
       expect(mockScanner.client.enableScanning).toHaveBeenLastCalledWith({
-        multiSheetDetectionEnabled: true,
+        doubleFeedDetectionEnabled: true,
       });
     }
   );

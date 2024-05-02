@@ -176,7 +176,7 @@ export function buildApi({
         precinctSelection: store.getPrecinctSelection(),
         isSoundMuted: store.getIsSoundMuted(),
         isTestMode: store.getTestMode(),
-        isMultiSheetDetectionDisabled: store.getIsMultiSheetDetectionDisabled(),
+        isDoubleFeedDetectionDisabled: store.getIsDoubleFeedDetectionDisabled(),
         ballotCountWhenBallotBagLastReplaced:
           store.getBallotCountWhenBallotBagLastReplaced(),
         hasPaperBeenLoaded: store.getHasPaperBeenLoaded(),
@@ -225,11 +225,11 @@ export function buildApi({
       store.setIsSoundMuted(input.isSoundMuted);
     },
 
-    setIsMultiSheetDetectionDisabled(input: {
-      isMultiSheetDetectionDisabled: boolean;
+    setIsDoubleFeedDetectionDisabled(input: {
+      isDoubleFeedDetectionDisabled: boolean;
     }): void {
-      store.setIsMultiSheetDetectionDisabled(
-        input.isMultiSheetDetectionDisabled
+      store.setIsDoubleFeedDetectionDisabled(
+        input.isDoubleFeedDetectionDisabled
       );
     },
 

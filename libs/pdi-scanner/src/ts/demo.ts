@@ -9,7 +9,7 @@ export async function main(): Promise<void> {
   (await scannerClient.connect()).unsafeUnwrap();
 
   (
-    await scannerClient.enableScanning({ multiSheetDetectionEnabled: true })
+    await scannerClient.enableScanning({ doubleFeedDetectionEnabled: true })
   ).unsafeUnwrap();
 
   let state = 'waitingForBallot';
@@ -30,7 +30,7 @@ export async function main(): Promise<void> {
     if (state === 'scanComplete') {
       (await scannerClient.ejectDocument('toRear')).unsafeUnwrap();
       (
-        await scannerClient.enableScanning({ multiSheetDetectionEnabled: true })
+        await scannerClient.enableScanning({ doubleFeedDetectionEnabled: true })
       ).unsafeUnwrap();
       state = 'waitingForBallot';
     }

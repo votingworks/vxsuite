@@ -47,7 +47,7 @@ export function ScanErrorScreen({
       case 'paper_in_back_after_accept':
       case 'paper_in_both_sides_after_reconnect':
         return appStrings.instructionsScannerRemoveBallotToContinue();
-      case 'multiple_sheets_detected':
+      case 'double_feed_detected':
         return appStrings.instructionsScannerRemoveDoubleSheet();
       case 'paper_status_timed_out':
       case 'scanning_timed_out':

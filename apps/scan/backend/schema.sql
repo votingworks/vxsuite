@@ -12,7 +12,7 @@ create table election (
   ballot_count_when_ballot_bag_last_replaced integer not null default 0,
   has_paper_been_loaded boolean not null default false,
   is_sound_muted boolean not null default false,
-  is_multi_sheet_detection_disabled boolean not null default false,
+  is_double_feed_detection_disabled boolean not null default false,
   created_at timestamp not null default current_timestamp
 );
 
