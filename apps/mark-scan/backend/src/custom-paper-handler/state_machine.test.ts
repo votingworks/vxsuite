@@ -157,10 +157,15 @@ async function advanceMockTimersAndPromises(milliseconds = 1000) {
   await Promise.resolve();
 }
 
-async function waitForTransition() {
+async function waitForTransition(status: SimpleServerStatus) {
   const { promise, resolve } = deferred<void>();
 
-  machine.addTransitionListener(resolve);
+  // onTransition may be called when state value doesn't change
+  machine.addTransitionListener(() => {
+    if (machine.getSimpleStatus() === status) {
+      resolve();
+    }
+  });
 
   return promise;
 }
@@ -174,7 +179,7 @@ async function expectStatusTransitionTo(
   waitTimeMs?: number
 ) {
   await advanceMockTimersAndPromises(waitTimeMs);
-  await waitForTransition();
+  await waitForTransition(status);
 
   expectCurrentStatus(status);
 }
@@ -724,23 +729,39 @@ describe('paper handler diagnostic', () => {
     mockSystemAdminAuth(auth);
     const { store } = workspace;
 
+    mockOf(printBallotChunks).mockResolvedValue();
+
+    const mockScanResult = deferred<string>();
+    mockOf(scanAndSave).mockResolvedValue(mockScanResult.promise);
+
+    const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+    mockOf(interpretSimplexBmdBallotFromFilepath).mockResolvedValue(
+      mockInterpretResult.promise
+    );
+
     expect(
       store.getMostRecentDiagnosticRecord('mark-scan-paper-handler')
     ).toEqual(undefined);
-    mockOf(printBallotChunks).mockResolvedValue();
-    mockOf(scanAndSave).mockResolvedValue(DIAGNOSTIC_MOCK_BALLOT_JPG_PATH);
 
     machine.startPaperHandlerDiagnostic();
     await expectStatusTransitionTo('paper_handler_diagnostic.prompt_for_paper');
+
     setMockDeviceStatus(getPaperInFrontStatus());
     await expectStatusTransitionTo('paper_handler_diagnostic.load_paper');
+
     setMockDeviceStatus(getPaperParkedStatus());
     await expectStatusTransitionTo(
       'paper_handler_diagnostic.print_ballot_fixture'
     );
+
     await expectStatusTransitionTo('paper_handler_diagnostic.scan_ballot');
+
+    mockScanResult.resolve(DIAGNOSTIC_MOCK_BALLOT_JPG_PATH);
     await expectStatusTransitionTo('paper_handler_diagnostic.interpret_ballot');
+
+    mockInterpretResult.resolve(SUCCESSFUL_INTERPRETATION_MOCK);
     await expectStatusTransitionTo('paper_handler_diagnostic.eject_to_rear');
+
     setMockDeviceStatus(getDefaultPaperHandlerStatus());
     await expectStatusTransitionTo('paper_handler_diagnostic.success');
 
@@ -753,25 +774,36 @@ describe('paper handler diagnostic', () => {
     mockSystemAdminAuth(auth);
     const { store } = workspace;
 
+    mockOf(printBallotChunks).mockResolvedValue();
+
+    const mockScanResult = deferred<string>();
+    mockOf(scanAndSave).mockResolvedValue(mockScanResult.promise);
+
+    const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+    mockOf(interpretSimplexBmdBallotFromFilepath).mockResolvedValue(
+      mockInterpretResult.promise
+    );
+
     expect(
       store.getMostRecentDiagnosticRecord('mark-scan-paper-handler')
     ).toEqual(undefined);
-    mockOf(printBallotChunks).mockResolvedValue();
-    const mockScannedBallotImagePath = await writeTmpBlankImage();
-    mockOf(scanAndSave).mockResolvedValue(mockScannedBallotImagePath);
 
     machine.startPaperHandlerDiagnostic();
     await expectStatusTransitionTo('paper_handler_diagnostic.prompt_for_paper');
+
     setMockDeviceStatus(getPaperInFrontStatus());
     await expectStatusTransitionTo('paper_handler_diagnostic.load_paper');
+
+    console.log('1');
     setMockDeviceStatus(getPaperParkedStatus());
     await expectStatusTransitionTo(
       'paper_handler_diagnostic.print_ballot_fixture'
     );
+
     await expectStatusTransitionTo('paper_handler_diagnostic.scan_ballot');
-    await expectStatusTransitionTo('paper_handler_diagnostic.interpret_ballot');
-    await expectStatusTransitionTo('paper_handler_diagnostic.failure');
-    await expectStatusTransitionTo('ejecting_to_front');
+
+    mockScanResult.reject('Test scan error');
+    await expectStatusTransitionTo('not_accepting_paper');
 
     expect(
       store.getMostRecentDiagnosticRecord('mark-scan-paper-handler')?.outcome

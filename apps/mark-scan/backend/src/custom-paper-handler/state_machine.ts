@@ -17,6 +17,7 @@ import {
   PropertyAssigner,
   ServiceMap,
   StateSchema,
+  State,
 } from 'xstate';
 import { Buffer } from 'buffer';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
@@ -173,7 +174,11 @@ export interface PaperHandlerStateMachine {
   setPatDeviceIsCalibrated(): void;
   setInterpretationFixture(): void;
   isPatDeviceConnected(): boolean;
-  addTransitionListener(listener: () => void): void;
+  addTransitionListener(
+    listener: (
+      state: State<Context, PaperHandlerStatusEvent, any, any, any>
+    ) => void
+  ): void;
   startPaperHandlerDiagnostic(): void;
 }
 
@@ -989,24 +994,24 @@ export function buildMachine(
               onDone: 'done',
             },
             failure: {
-              entry: async (context) => {
-                await context.logger.log(
-                  LogEventId.DiagnosticComplete,
-                  'system',
-                  {
-                    disposition: 'failure',
-                    userFacingMessage: context.diagnosticError?.message,
-                    systemMessage:
-                      context.diagnosticError?.getRootError()?.message,
-                  }
-                );
+              entry: (context) => {
                 context.workspace.store.addDiagnosticRecord({
                   type: 'mark-scan-paper-handler',
                   outcome: 'fail',
                   message: context.diagnosticError?.message,
                 });
               },
-              always: 'done',
+              invoke: {
+                id: 'diagnostic.failure',
+                src: (context) =>
+                  context.logger.log(LogEventId.DiagnosticComplete, 'system', {
+                    disposition: 'failure',
+                    userFacingMessage: context.diagnosticError?.message,
+                    systemMessage:
+                      context.diagnosticError?.getRootError()?.message,
+                  }),
+                onDone: 'done',
+              },
             },
             done: {
               entry: async (context) => {
