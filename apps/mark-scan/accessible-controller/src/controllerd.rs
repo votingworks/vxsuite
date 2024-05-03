@@ -15,6 +15,8 @@ use std::{
         atomic::{AtomicBool, Ordering},
         Arc,
     },
+    thread::sleep,
+    time::Duration,
 };
 use uinput::event::keyboard;
 use vx_logging::{log, set_app_name, Disposition, EventId, EventType};
@@ -32,6 +34,7 @@ mod port;
 const APP_NAME: &str = "vx-mark-scan-controller-daemon";
 const KPB_200_FW_VID: u16 = 0x28cd;
 const KPB_200_FW_PID: u16 = 0x4008;
+const STARTUP_SLEEP_DURATION: Duration = Duration::from_millis(3000);
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -43,6 +46,9 @@ struct Args {
 
 fn main() -> color_eyre::Result<()> {
     color_eyre::install()?;
+    // Give the controller device time to register with the OS. The echo command
+    // will sometimes fail without this pause.
+    sleep(STARTUP_SLEEP_DURATION);
 
     let args = Args::parse();
     set_app_name(APP_NAME);

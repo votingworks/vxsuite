@@ -4,4 +4,8 @@ export const ORIGIN_SWIFTY_PRODUCT_ID = 0x0012;
 
 // Constants for built-in 3.5mm jack GPIO integration
 export const PAT_CONNECTION_STATUS_PIN = 478;
-export const PATH_TO_PAT_CONNECTION_STATUS_PIN = `/sys/class/gpio/gpio${PAT_CONNECTION_STATUS_PIN}/value`;
+// More recent versions of Debian offset the expected GPIO addresses
+// eg. the connection status pin is addressed at 478 + 512 = 990
+export const PAT_GPIO_OFFSET = 512;
+
+export const GPIO_PATH_PREFIX = '/sys/class/gpio';

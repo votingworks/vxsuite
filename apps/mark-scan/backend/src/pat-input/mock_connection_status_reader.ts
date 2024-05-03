@@ -1,5 +1,7 @@
+/* eslint-disable vx/gts-no-public-class-fields */
 import { BaseLogger } from '@votingworks/logging';
 import { PatConnectionStatusReaderInterface } from './connection_status_reader';
+import { GPIO_PATH_PREFIX } from './constants';
 
 // This mock is intended for developing on PAT flows without PAT hardware.
 // It's also used to create a no-op mock for tests that just need
@@ -12,9 +14,8 @@ export class MockPatConnectionStatusReader
   private mockConnectedStatus: boolean = false;
 
   constructor(
-    // logger prop must be public to be defined in the interface
-    // eslint-disable-next-line vx/gts-no-public-class-fields
-    readonly logger: BaseLogger
+    readonly logger: BaseLogger,
+    readonly gpioPathPrefix: string = GPIO_PATH_PREFIX
   ) {}
 
   open(): Promise<boolean> {
