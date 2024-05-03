@@ -1,4 +1,4 @@
 #!/usr/bin/env node
 
 require('esbuild-runner/register');
-require('./create_production_machine_cert_signing_request').main();
+require('./src/create_production_machine_cert_signing_request').main();

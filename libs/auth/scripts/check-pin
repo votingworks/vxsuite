@@ -1,4 +1,4 @@
 #!/usr/bin/env node
 
 require('esbuild-runner/register');
-require('./check_pin').main(process.argv.slice(2));
+require('./src/check_pin').main(process.argv.slice(2));
