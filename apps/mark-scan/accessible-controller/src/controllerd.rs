@@ -34,7 +34,7 @@ mod port;
 const APP_NAME: &str = "vx-mark-scan-controller-daemon";
 const KPB_200_FW_VID: u16 = 0x28cd;
 const KPB_200_FW_PID: u16 = 0x4008;
-const STARTUP_SLEEP_DURATION: Duration = Duration::from_millis(1500);
+const STARTUP_SLEEP_DURATION: Duration = Duration::from_millis(3000);
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
