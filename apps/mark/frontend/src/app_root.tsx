@@ -20,6 +20,7 @@ import {
   isPollWorkerAuth,
   isSystemAdministratorAuth,
   randomBallotId,
+  isVendorAuth,
 } from '@votingworks/utils';
 
 import { BaseLogger } from '@votingworks/logging';
@@ -414,6 +415,11 @@ export function AppRoot({
         }}
       />
     );
+  }
+
+  /* istanbul ignore next */
+  if (isVendorAuth(authStatus)) {
+    return null;
   }
 
   if (isSystemAdministratorAuth(authStatus)) {

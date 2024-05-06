@@ -5,6 +5,7 @@ import {
   isSystemAdministratorAuth,
   isElectionManagerAuth,
   isPollWorkerAuth,
+  isVendorAuth,
 } from '@votingworks/utils';
 
 import { assert } from '@votingworks/basics';
@@ -114,7 +115,7 @@ export function AppRoot(): JSX.Element | null {
 
   if (
     authStatus.status === 'checking_pin' &&
-    authStatus.user.role === 'system_administrator'
+    ['vendor', 'system_administrator'].includes(authStatus.user.role)
   ) {
     return (
       <UnlockMachineScreen
@@ -128,6 +129,11 @@ export function AppRoot(): JSX.Element | null {
         }}
       />
     );
+  }
+
+  /* istanbul ignore next */
+  if (isVendorAuth(authStatus)) {
+    return null;
   }
 
   if (isSystemAdministratorAuth(authStatus)) {

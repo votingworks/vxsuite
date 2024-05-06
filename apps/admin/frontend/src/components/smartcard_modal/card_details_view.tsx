@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { assert } from '@votingworks/basics';
-import { ElectionDefinition, User } from '@votingworks/types';
+import { ElectionDefinition, User, UserWithCard } from '@votingworks/types';
 import { Button, Font, H1, P } from '@votingworks/ui';
 
 import {
@@ -29,7 +29,7 @@ function checkDoesCardElectionHashMatchMachineElectionHash(
 
 interface Props {
   actionStatus?: SmartcardActionStatus;
-  programmedUser: User;
+  programmedUser: UserWithCard;
   setActionStatus: (actionStatus?: SmartcardActionStatus) => void;
 }
 
@@ -54,7 +54,7 @@ export function CardDetailsView({
     );
 
   function resetCardPin() {
-    assert(role !== 'cardless_voter');
+    assert(role !== 'vendor');
 
     setActionStatus({
       action: 'PinReset',
@@ -171,7 +171,9 @@ export function CardDetailsView({
 
       <Font align="center">
         <H1>{userRoleToReadableString(role)} Card</H1>
-        {role !== 'system_administrator' && <P>{electionDisplayString}</P>}
+        {role !== 'vendor' && role !== 'system_administrator' && (
+          <P>{electionDisplayString}</P>
+        )}
         {bodyContent}
       </Font>
     </React.Fragment>

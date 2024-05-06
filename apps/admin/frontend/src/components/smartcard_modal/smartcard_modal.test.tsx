@@ -9,6 +9,7 @@ import {
   mockPollWorkerUser,
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
+  mockVendorUser,
 } from '@votingworks/test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -58,6 +59,14 @@ test('Smartcard modal displays card details', async () => {
     shouldUnprogramCardButtonBeDisplayed: boolean;
     expectedFooter: string;
   }> = [
+    {
+      programmedUser: mockVendorUser(),
+      expectedHeading: 'Vendor Card',
+      expectedElectionString: undefined,
+      shouldResetCardPinButtonBeDisplayed: false,
+      shouldUnprogramCardButtonBeDisplayed: false,
+      expectedFooter: 'Remove card to leave this screen.',
+    },
     {
       programmedUser: mockSystemAdministratorUser(),
       expectedHeading: 'System Administrator Card',
@@ -171,6 +180,14 @@ test('Smartcard modal displays card details when no election definition on machi
     shouldElectionDefinitionPromptBeDisplayed: boolean;
     expectedFooter: string;
   }> = [
+    {
+      programmedUser: mockVendorUser(),
+      expectedHeading: 'Vendor Card',
+      expectedElectionString: undefined,
+      shouldResetCardPinButtonBeDisplayed: false,
+      shouldElectionDefinitionPromptBeDisplayed: true,
+      expectedFooter: 'Remove card to leave this screen.',
+    },
     {
       programmedUser: mockSystemAdministratorUser(),
       expectedHeading: 'System Administrator Card',

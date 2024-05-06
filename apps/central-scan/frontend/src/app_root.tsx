@@ -3,6 +3,7 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import {
   isElectionManagerAuth,
   isSystemAdministratorAuth,
+  isVendorAuth,
 } from '@votingworks/utils';
 import {
   Main,
@@ -14,6 +15,7 @@ import {
   H1,
 } from '@votingworks/ui';
 import { BaseLogger } from '@votingworks/logging';
+import { assert } from '@votingworks/basics';
 import { AppContext, AppContextInterface } from './contexts/app_context';
 
 import { ScanBallotsScreen } from './screens/scan_ballots_screen';
@@ -127,6 +129,11 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
     return <RemoveCardScreen productName="VxCentralScan" />;
   }
 
+  /* istanbul ignore next */
+  if (isVendorAuth(authStatus)) {
+    return null;
+  }
+
   if (isSystemAdministratorAuth(authStatus)) {
     return (
       <AppContext.Provider value={currentContext}>
@@ -161,6 +168,7 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
     );
   }
 
+  assert(isElectionManagerAuth(authStatus));
   return (
     <AppContext.Provider value={currentContext}>
       <Switch>
