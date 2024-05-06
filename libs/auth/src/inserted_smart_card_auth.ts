@@ -27,6 +27,7 @@ import {
 
 import {
   arePollWorkerCardDetails,
+  areUniversalVendorCardDetails,
   Card,
   CardDetails,
   CardStatus,
@@ -388,6 +389,11 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
                   cardDetails.numIncorrectPinAttempts
                 );
                 switch (user.role) {
+                  case 'vendor': {
+                    return skipPinEntry
+                      ? { status: 'logged_in', user, sessionExpiresAt }
+                      : { status: 'checking_pin', user, lockedOutUntil };
+                  }
                   case 'system_administrator': {
                     return skipPinEntry
                       ? { status: 'logged_in', user, sessionExpiresAt }
@@ -436,25 +442,42 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
         switch (action.checkPinResponse.response) {
           case 'correct': {
             const sessionExpiresAt = computeSessionEndTime(machineState);
-            if (currentAuthStatus.user.role === 'system_administrator') {
-              return {
-                status: 'logged_in',
-                user: currentAuthStatus.user,
-                sessionExpiresAt,
-              };
-            }
-            if (currentAuthStatus.user.role === 'election_manager') {
-              return {
-                status: 'logged_in',
-                user: currentAuthStatus.user,
-                sessionExpiresAt,
-              };
-            }
-            return {
-              status: 'logged_in',
-              user: currentAuthStatus.user,
-              sessionExpiresAt,
-            };
+            return (() => {
+              switch (currentAuthStatus.user.role) {
+                case 'vendor': {
+                  return {
+                    status: 'logged_in',
+                    user: currentAuthStatus.user,
+                    sessionExpiresAt,
+                  };
+                }
+                case 'system_administrator': {
+                  return {
+                    status: 'logged_in',
+                    user: currentAuthStatus.user,
+                    sessionExpiresAt,
+                  };
+                }
+                case 'election_manager': {
+                  return {
+                    status: 'logged_in',
+                    user: currentAuthStatus.user,
+                    sessionExpiresAt,
+                  };
+                }
+                case 'poll_worker': {
+                  return {
+                    status: 'logged_in',
+                    user: currentAuthStatus.user,
+                    sessionExpiresAt,
+                  };
+                }
+                /* istanbul ignore next: Compile-time check for completeness */
+                default: {
+                  throwIllegalValue(currentAuthStatus.user, 'role');
+                }
+              }
+            })();
           }
           case 'incorrect': {
             return {
@@ -510,7 +533,8 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
 
     if (
       machineState.jurisdiction &&
-      user.jurisdiction !== machineState.jurisdiction
+      user.jurisdiction !== machineState.jurisdiction &&
+      !areUniversalVendorCardDetails(cardDetails)
     ) {
       return err('wrong_jurisdiction');
     }
