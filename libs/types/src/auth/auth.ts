@@ -2,6 +2,11 @@ import { z } from 'zod';
 
 import { BallotStyleId, PrecinctId } from '../election';
 
+export interface VendorUser {
+  readonly role: 'vendor';
+  readonly jurisdiction: string;
+}
+
 export interface SystemAdministratorUser {
   readonly role: 'system_administrator';
   readonly jurisdiction: string;
@@ -26,6 +31,7 @@ export interface CardlessVoterUser {
 }
 
 export type User =
+  | VendorUser
   | SystemAdministratorUser
   | ElectionManagerUser
   | PollWorkerUser
@@ -36,6 +42,7 @@ export type UserWithCard = Exclude<User, CardlessVoterUser>;
 export type UserRole = User['role'];
 
 export const UserRoleSchema: z.ZodSchema<UserRole> = z.union([
+  z.literal('vendor'),
   z.literal('system_administrator'),
   z.literal('election_manager'),
   z.literal('poll_worker'),

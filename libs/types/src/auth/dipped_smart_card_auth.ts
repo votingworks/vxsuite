@@ -2,6 +2,7 @@ import {
   ElectionManagerUser,
   SystemAdministratorUser,
   UserWithCard,
+  VendorUser,
 } from './auth';
 
 export interface LoggedOut {
@@ -22,7 +23,7 @@ export interface LoggedOut {
 
 export interface CheckingPin {
   readonly status: 'checking_pin';
-  readonly user: SystemAdministratorUser | ElectionManagerUser;
+  readonly user: VendorUser | SystemAdministratorUser | ElectionManagerUser;
   readonly error?: { error: unknown; erroredAt: Date };
   readonly lockedOutUntil?: Date;
   readonly wrongPinEnteredAt?: Date;
@@ -30,7 +31,7 @@ export interface CheckingPin {
 
 export interface RemoveCard {
   readonly status: 'remove_card';
-  readonly user: SystemAdministratorUser | ElectionManagerUser;
+  readonly user: VendorUser | SystemAdministratorUser | ElectionManagerUser;
   readonly sessionExpiresAt: Date;
 }
 
@@ -45,6 +46,12 @@ interface ProgrammableCardNotReady {
 
 export type ProgrammableCard = ProgrammableCardReady | ProgrammableCardNotReady;
 
+export interface VendorLoggedIn {
+  readonly status: 'logged_in';
+  readonly user: VendorUser;
+  readonly sessionExpiresAt: Date;
+}
+
 export interface SystemAdministratorLoggedIn {
   readonly status: 'logged_in';
   readonly user: SystemAdministratorUser;
@@ -58,7 +65,10 @@ export interface ElectionManagerLoggedIn {
   readonly sessionExpiresAt: Date;
 }
 
-export type LoggedIn = SystemAdministratorLoggedIn | ElectionManagerLoggedIn;
+export type LoggedIn =
+  | VendorLoggedIn
+  | SystemAdministratorLoggedIn
+  | ElectionManagerLoggedIn;
 
 export type AuthStatus = LoggedOut | CheckingPin | RemoveCard | LoggedIn;
 
