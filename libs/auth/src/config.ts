@@ -1,7 +1,7 @@
 import path from 'path';
 import { isIntegrationTest, isVxDev } from '@votingworks/utils';
 
-import { getRequiredEnvVar } from './env_vars';
+import { getRequiredEnvVar, isNodeEnvProduction } from './env_vars';
 import { FileKey, TpmKey } from './keys';
 
 /**
@@ -22,9 +22,7 @@ export const PROD_VX_CERT_AUTHORITY_CERT_PATH = path.join(
 );
 
 function shouldUseProdCerts(): boolean {
-  return (
-    process.env.NODE_ENV === 'production' && !isVxDev() && !isIntegrationTest()
-  );
+  return isNodeEnvProduction() && !isVxDev() && !isIntegrationTest();
 }
 
 function getVxCertAuthorityCertPath(): string {
@@ -62,15 +60,30 @@ function getMachineCertPathAndPrivateKey(): {
   };
 }
 
+interface VxAdminCardProgrammingConfig {
+  configType: 'vx_admin';
+  vxAdminCertAuthorityCertPath: string;
+  vxAdminPrivateKey: FileKey | TpmKey;
+}
+
+interface VxCardProgrammingConfig {
+  configType: 'vx';
+  vxPrivateKey: FileKey;
+}
+
+/**
+ * Config params for card programming, by either a VxAdmin or VotingWorks directly
+ */
+export type CardProgrammingConfig =
+  | VxAdminCardProgrammingConfig
+  | VxCardProgrammingConfig;
+
 /**
  * Config params for the Java Card implementation of the card API
  */
 export interface JavaCardConfig {
-  /** Only VxAdmin should provide these params, for card programming */
-  cardProgrammingConfig?: {
-    vxAdminCertAuthorityCertPath: string;
-    vxAdminPrivateKey: FileKey | TpmKey;
-  };
+  /** For card programming */
+  cardProgrammingConfig?: CardProgrammingConfig;
   /** The path to the VotingWorks cert authority cert */
   vxCertAuthorityCertPath: string;
 
@@ -83,18 +96,34 @@ export interface JavaCardConfig {
  */
 export function constructJavaCardConfig(): JavaCardConfig {
   const machineType = getRequiredEnvVar('VX_MACHINE_TYPE');
-  let cardProgrammingConfig:
-    | JavaCardConfig['cardProgrammingConfig']
-    | undefined;
+  let cardProgrammingConfig: CardProgrammingConfig | undefined;
   if (machineType === 'admin') {
     const { certPath, privateKey } = getMachineCertPathAndPrivateKey();
     cardProgrammingConfig = {
+      configType: 'vx_admin',
       vxAdminCertAuthorityCertPath: certPath,
       vxAdminPrivateKey: privateKey,
     };
   }
   return {
     cardProgrammingConfig,
+    vxCertAuthorityCertPath: getVxCertAuthorityCertPath(),
+  };
+}
+
+/**
+ * Constructs a Java Card config given relevant env vars, for VotingWorks programming, specifically
+ * initial Java Card configuration and vendor card programming
+ */
+export function constructJavaCardConfigForVxProgramming(): JavaCardConfig {
+  const vxPrivateKeyPath = shouldUseProdCerts()
+    ? getRequiredEnvVar('VX_PRIVATE_KEY_PATH')
+    : path.join(__dirname, '../certs/dev/vx-private-key.pem');
+  return {
+    cardProgrammingConfig: {
+      configType: 'vx',
+      vxPrivateKey: { source: 'file', path: vxPrivateKeyPath },
+    },
     vxCertAuthorityCertPath: getVxCertAuthorityCertPath(),
   };
 }
