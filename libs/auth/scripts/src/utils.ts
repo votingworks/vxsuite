@@ -1,10 +1,12 @@
 import { Buffer } from 'buffer';
-import { sleep } from '@votingworks/basics';
+import { sleep, throwIllegalValue } from '@votingworks/basics';
+import { SystemAdministratorUser, VendorUser } from '@votingworks/types';
 import { generatePin, hyphenatePin } from '@votingworks/utils';
 
 import { ResponseApduError } from '../../src/apdu';
 import { CardStatusReady, StatefulCard } from '../../src/card';
 import { openssl } from '../../src/cryptography';
+import { isNodeEnvProduction } from '../../src/env_vars';
 import { JavaCard } from '../../src/java_card';
 
 /**
@@ -38,18 +40,16 @@ export async function waitForReadyCardStatus<T>(
 /**
  * Programs a system administrator Java Card
  */
-export async function programSystemAdministratorJavaCard({
+export async function programJavaCard({
   card,
-  isProduction,
-  jurisdiction,
+  user,
 }: {
   card: JavaCard;
-  isProduction: boolean;
-  jurisdiction: string;
+  user: VendorUser | SystemAdministratorUser;
 }): Promise<void> {
   const initialJavaCardConfigurationScriptReminder = `
 ${
-  isProduction
+  isNodeEnvProduction()
     ? 'Have you run this card through the configure-java-card script yet?'
     : 'Have you run this card through the configure-dev-java-card script yet?'
 }
@@ -59,12 +59,21 @@ Run that and then retry.
 
   await waitForReadyCardStatus(card);
 
-  const pin = isProduction ? generatePin() : '000000';
+  const pin = isNodeEnvProduction() ? generatePin() : '000000';
   try {
-    await card.program({
-      user: { role: 'system_administrator', jurisdiction },
-      pin,
-    });
+    switch (user.role) {
+      case 'vendor': {
+        await card.program({ user, pin });
+        break;
+      }
+      case 'system_administrator': {
+        await card.program({ user, pin });
+        break;
+      }
+      default: {
+        throwIllegalValue(user, 'role');
+      }
+    }
   } catch (error) {
     if (error instanceof ResponseApduError) {
       throw new Error(

@@ -11,15 +11,21 @@ import { PROD_VX_CERT_AUTHORITY_CERT_PATH } from '../../src/config';
 import { createCert } from '../../src/cryptography';
 import { getRequiredEnvVar } from '../../src/env_vars';
 import { JavaCard } from '../../src/java_card';
-import {
-  generatePrivateKey,
-  programSystemAdministratorJavaCard,
-} from './utils';
+import { generatePrivateKey, programJavaCard } from './utils';
 
-const jurisdiction = getRequiredEnvVar('VX_MACHINE_JURISDICTION');
-const vxPrivateKeyPath = getRequiredEnvVar('VX_PRIVATE_KEY_PATH');
+interface ScriptEnv {
+  jurisdiction: string;
+  vxPrivateKeyPath: string;
+}
+
+function readScriptEnvVars(): ScriptEnv {
+  const jurisdiction = getRequiredEnvVar('VX_MACHINE_JURISDICTION');
+  const vxPrivateKeyPath = getRequiredEnvVar('VX_PRIVATE_KEY_PATH');
+  return { jurisdiction, vxPrivateKeyPath };
+}
 
 async function instantiateJavaCardWithOneOffVxAdminPrivateKeyAndCertAuthorityCert(
+  { jurisdiction, vxPrivateKeyPath }: ScriptEnv,
   tempDirectoryPath: string
 ): Promise<JavaCard> {
   const vxAdminPrivateKey = await generatePrivateKey();
@@ -48,6 +54,7 @@ async function instantiateJavaCardWithOneOffVxAdminPrivateKeyAndCertAuthorityCer
 
   const card = new JavaCard({
     cardProgrammingConfig: {
+      configType: 'vx_admin',
       vxAdminCertAuthorityCertPath,
       vxAdminPrivateKey: { source: 'file', path: vxAdminPrivateKeyPath },
     },
@@ -66,14 +73,18 @@ export async function main(): Promise<void> {
   let tempDirectory: tmp.DirResult | undefined;
   try {
     tempDirectory = tmp.dirSync({ unsafeCleanup: true });
+    const scriptEnv = readScriptEnvVars();
     const card =
       await instantiateJavaCardWithOneOffVxAdminPrivateKeyAndCertAuthorityCert(
+        scriptEnv,
         tempDirectory.name
       );
-    await programSystemAdministratorJavaCard({
+    await programJavaCard({
       card,
-      jurisdiction,
-      isProduction: true,
+      user: {
+        role: 'system_administrator',
+        jurisdiction: scriptEnv.jurisdiction,
+      },
     });
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);

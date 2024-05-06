@@ -5,9 +5,12 @@ import { extractErrorMessage, lines } from '@votingworks/basics';
 import { Byte } from '@votingworks/types';
 
 import { CommandApdu, constructTlv } from '../../src/apdu';
-import { getRequiredEnvVar } from '../../src/env_vars';
 import {
-  CARD_VX_ADMIN_CERT,
+  constructJavaCardConfigForVxProgramming,
+  JavaCardConfig,
+} from '../../src/config';
+import {
+  CARD_IDENTITY_CERT,
   CARD_VX_CERT,
   DEFAULT_PIN,
   GENERIC_STORAGE_SPACE,
@@ -70,11 +73,6 @@ const PUT_DATA_ADMIN = {
   KEY_ATTRIBUTE_NONE: 0x00,
 } as const;
 
-const vxCertAuthorityCertPath = getRequiredEnvVar(
-  'VX_CERT_AUTHORITY_CERT_PATH'
-);
-const vxPrivateKeyPath = getRequiredEnvVar('VX_PRIVATE_KEY_PATH');
-
 function sectionLog(symbol: string, message: string): void {
   console.log('-'.repeat(3 + message.length));
   console.log(`${symbol} ${message}`);
@@ -91,6 +89,16 @@ function checkForScriptDependencies(): void {
       'Missing script dependencies; install using `make install-script-dependencies` in libs/auth'
     );
   }
+}
+
+interface ScriptEnv {
+  javaCardConfig: JavaCardConfig;
+}
+
+function readScriptEnvVars(): ScriptEnv {
+  return {
+    javaCardConfig: constructJavaCardConfigForVxProgramming(), // Uses env vars
+  };
 }
 
 async function installApplet(): Promise<void> {
@@ -217,13 +225,13 @@ async function runAppletConfigurationCommands(): Promise<void> {
       PUT_DATA_ADMIN.ACCESS_MODE_ALWAYS
     ),
     configureKeySlotCommandApdu(
-      CARD_VX_ADMIN_CERT.PRIVATE_KEY_ID,
+      CARD_IDENTITY_CERT.PRIVATE_KEY_ID,
       PUT_DATA_ADMIN.ACCESS_MODE_PIN_GATED
     ),
 
     // Configure data object slots
     configureDataObjectSlotCommandApdu(CARD_VX_CERT.OBJECT_ID),
-    configureDataObjectSlotCommandApdu(CARD_VX_ADMIN_CERT.OBJECT_ID),
+    configureDataObjectSlotCommandApdu(CARD_IDENTITY_CERT.OBJECT_ID),
     configureDataObjectSlotCommandApdu(VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID),
     ...GENERIC_STORAGE_SPACE.OBJECT_IDS.map((objectId) =>
       configureDataObjectSlotCommandApdu(objectId)
@@ -262,25 +270,26 @@ async function runAppletConfigurationCommands(): Promise<void> {
   }
 }
 
-async function createAndStoreCardVxCert(): Promise<void> {
+async function createAndStoreCardVxCert({
+  javaCardConfig,
+}: ScriptEnv): Promise<void> {
   sectionLog('🔏', 'Creating and storing card VotingWorks cert...');
-  const card = new JavaCard({ vxCertAuthorityCertPath });
+
+  const card = new JavaCard(javaCardConfig);
   await waitForReadyCardStatus(card);
-  await card.createAndStoreCardVxCert({
-    source: 'file',
-    path: vxPrivateKeyPath,
-  });
+  await card.createAndStoreCardVxCert();
 }
 
 /**
- * An initial Java Card configuration script to be run at the Bakery
+ * An initial Java Card configuration script to be run at a VotingWorks facility
  */
 export async function main(): Promise<void> {
   try {
     checkForScriptDependencies();
+    const scriptEnv = readScriptEnvVars();
     await installApplet();
     await runAppletConfigurationCommands();
-    await createAndStoreCardVxCert();
+    await createAndStoreCardVxCert(scriptEnv);
     sectionLog('✅', 'Done!');
     process.exit(0); // Smart card scripts require an explicit exit or else they hang
   } catch (error) {

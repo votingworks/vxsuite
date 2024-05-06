@@ -1,16 +1,27 @@
 import { extractErrorMessage } from '@votingworks/basics';
 
-import { constructMachineCertSubject } from '../../src/certs';
+import { constructMachineCertSubject, MachineType } from '../../src/certs';
 import { createCertSigningRequest } from '../../src/cryptography';
 import { getRequiredEnvVar } from '../../src/env_vars';
 
-const machineType = getRequiredEnvVar('VX_MACHINE_TYPE');
-const jurisdiction =
-  machineType === 'admin'
-    ? getRequiredEnvVar('VX_MACHINE_JURISDICTION')
-    : undefined;
+interface ScriptEnv {
+  machineType: MachineType;
+  jurisdiction?: string;
+}
 
-async function createProductionMachineCertSigningRequest(): Promise<void> {
+function readScriptEnvVars(): ScriptEnv {
+  const machineType = getRequiredEnvVar('VX_MACHINE_TYPE');
+  const jurisdiction =
+    machineType === 'admin'
+      ? getRequiredEnvVar('VX_MACHINE_JURISDICTION')
+      : undefined;
+  return { machineType, jurisdiction };
+}
+
+async function createProductionMachineCertSigningRequest({
+  machineType,
+  jurisdiction,
+}: ScriptEnv): Promise<void> {
   const certSigningRequest = await createCertSigningRequest({
     certKey: { source: 'tpm' },
     certSubject: constructMachineCertSubject(machineType, jurisdiction),
@@ -23,7 +34,8 @@ async function createProductionMachineCertSigningRequest(): Promise<void> {
  */
 export async function main(): Promise<void> {
   try {
-    await createProductionMachineCertSigningRequest();
+    const scriptEnv = readScriptEnvVars();
+    await createProductionMachineCertSigningRequest(scriptEnv);
   } catch (error) {
     console.error(`❌ ${extractErrorMessage(error)}`);
     process.exit(1);
