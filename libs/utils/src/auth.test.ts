@@ -4,6 +4,7 @@ import {
   mockPollWorkerUser,
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
+  mockVendorUser,
 } from '@votingworks/test-utils';
 import { DippedSmartCardAuth, InsertedSmartCardAuth } from '@votingworks/types';
 
@@ -12,7 +13,24 @@ import {
   isElectionManagerAuth,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
+  isVendorAuth,
 } from './auth';
+
+const vendorAuthStatus: {
+  dipped: DippedSmartCardAuth.VendorLoggedIn;
+  inserted: InsertedSmartCardAuth.VendorLoggedIn;
+} = {
+  dipped: {
+    status: 'logged_in',
+    user: mockVendorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
+  },
+  inserted: {
+    status: 'logged_in',
+    user: mockVendorUser(),
+    sessionExpiresAt: mockSessionExpiresAt(),
+  },
+};
 
 const systemAdministratorAuthStatus: {
   dipped: DippedSmartCardAuth.SystemAdministratorLoggedIn;
@@ -89,11 +107,21 @@ const loggedOutAuthStatus: {
 };
 
 const checkingPinAuthStatus: {
+  dippedVendor: DippedSmartCardAuth.CheckingPin;
+  insertedVendor: InsertedSmartCardAuth.CheckingPin;
   dippedSysAdmin: DippedSmartCardAuth.CheckingPin;
   insertedSysAdmin: InsertedSmartCardAuth.CheckingPin;
   dippedElectionManager: DippedSmartCardAuth.CheckingPin;
   insertedElectionManager: InsertedSmartCardAuth.CheckingPin;
 } = {
+  dippedVendor: {
+    status: 'checking_pin',
+    user: mockVendorUser(),
+  },
+  insertedVendor: {
+    status: 'checking_pin',
+    user: mockVendorUser(),
+  },
   dippedSysAdmin: {
     status: 'checking_pin',
     user: mockSystemAdministratorUser(),
@@ -123,6 +151,33 @@ interface InsertedTestCase {
 }
 
 test.each([
+  { authStatus: vendorAuthStatus.dipped, result: true },
+  { authStatus: systemAdministratorAuthStatus.dipped, result: false },
+  { authStatus: electionManagerAuthStatus.dipped, result: false },
+  { authStatus: loggedOutAuthStatus.dipped, result: false },
+  { authStatus: checkingPinAuthStatus.dippedVendor, result: false },
+])(
+  'isVendorAuth with dipped smart card auth statuses',
+  ({ authStatus, result }: DippedTestCase) => {
+    expect(isVendorAuth(authStatus)).toEqual(result);
+  }
+);
+
+test.each([
+  { authStatus: vendorAuthStatus.inserted, result: true },
+  { authStatus: systemAdministratorAuthStatus.inserted, result: false },
+  { authStatus: electionManagerAuthStatus.inserted, result: false },
+  { authStatus: loggedOutAuthStatus.inserted, result: false },
+  { authStatus: checkingPinAuthStatus.insertedVendor, result: false },
+])(
+  'isVendorAuth with inserted smart card auth statuses',
+  ({ authStatus, result }: InsertedTestCase) => {
+    expect(isVendorAuth(authStatus)).toEqual(result);
+  }
+);
+
+test.each([
+  { authStatus: vendorAuthStatus.dipped, result: false },
   { authStatus: systemAdministratorAuthStatus.dipped, result: true },
   { authStatus: electionManagerAuthStatus.dipped, result: false },
   { authStatus: loggedOutAuthStatus.dipped, result: false },
@@ -135,6 +190,7 @@ test.each([
 );
 
 test.each([
+  { authStatus: vendorAuthStatus.inserted, result: false },
   { authStatus: systemAdministratorAuthStatus.inserted, result: true },
   { authStatus: electionManagerAuthStatus.inserted, result: false },
   { authStatus: loggedOutAuthStatus.inserted, result: false },
@@ -147,6 +203,7 @@ test.each([
 );
 
 test.each([
+  { authStatus: vendorAuthStatus.dipped, result: false },
   { authStatus: systemAdministratorAuthStatus.dipped, result: false },
   { authStatus: electionManagerAuthStatus.dipped, result: true },
   { authStatus: loggedOutAuthStatus.dipped, result: false },
@@ -159,6 +216,7 @@ test.each([
 );
 
 test.each([
+  { authStatus: vendorAuthStatus.inserted, result: false },
   { authStatus: systemAdministratorAuthStatus.inserted, result: false },
   { authStatus: electionManagerAuthStatus.inserted, result: true },
   { authStatus: loggedOutAuthStatus.inserted, result: false },
