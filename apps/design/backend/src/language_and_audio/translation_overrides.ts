@@ -12,6 +12,6 @@ export const GLOBAL_TRANSLATION_OVERRIDES: TranslationOverrides = {
   [LanguageCode.CHINESE_SIMPLIFIED]: {},
   [LanguageCode.CHINESE_TRADITIONAL]: {},
   [LanguageCode.SPANISH]: {
-    'Green Party': 'El Partido Verde',
+    'Green Party': 'Partido Verde',
   },
 };
