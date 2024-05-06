@@ -181,6 +181,7 @@ function SmartCardControl({
     poll_worker: 'Poll Worker',
     election_manager: 'Election Manager',
     system_administrator: 'System Admin',
+    vendor: 'Vendor',
   }[role];
   return (
     <SmartCardButton
@@ -212,6 +213,7 @@ const SmartCardMocksDisabledMessage = styled.div`
 `;
 
 const ROLES = [
+  'vendor',
   'system_administrator',
   'election_manager',
   'poll_worker',
