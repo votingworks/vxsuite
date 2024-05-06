@@ -5,6 +5,7 @@ import {
   mockElectionManagerUser,
   mockPollWorkerUser,
   mockSystemAdministratorUser,
+  mockVendorUser,
 } from '@votingworks/test-utils';
 
 import {
@@ -20,6 +21,7 @@ const { electionHash } = electionGeneralDefinition;
 const pin = '123456';
 const wrongPin = '234567';
 
+const vendorUser = mockVendorUser();
 const systemAdministratorUser = mockSystemAdministratorUser();
 const electionManagerUser = mockElectionManagerUser({ electionHash });
 const pollWorkerUser = mockPollWorkerUser({ electionHash });
@@ -29,6 +31,16 @@ test.each<MockFileContents>([
     cardStatus: { status: 'no_card' },
     data: undefined,
     pin: undefined,
+  },
+  {
+    cardStatus: {
+      status: 'ready',
+      cardDetails: {
+        user: vendorUser,
+      },
+    },
+    data: undefined,
+    pin,
   },
   {
     cardStatus: {
@@ -83,6 +95,22 @@ test('MockFileCard basic mocking', async () => {
 
   expect(await card.getCardStatus()).toEqual({
     status: 'no_card',
+  });
+
+  mockCard({
+    cardStatus: {
+      status: 'ready',
+      cardDetails: {
+        user: vendorUser,
+      },
+    },
+    pin,
+  });
+  expect(await card.getCardStatus()).toEqual({
+    status: 'ready',
+    cardDetails: {
+      user: vendorUser,
+    },
   });
 
   mockCard({
@@ -195,6 +223,15 @@ test('MockFileCard programming', async () => {
       cardDetails: undefined,
     },
   });
+
+  await card.program({ user: vendorUser, pin });
+  expect(await card.getCardStatus()).toEqual({
+    status: 'ready',
+    cardDetails: {
+      user: vendorUser,
+    },
+  });
+  expect(await card.checkPin(pin)).toEqual({ response: 'correct' });
 
   await card.program({ user: systemAdministratorUser, pin });
   expect(await card.getCardStatus()).toEqual({

@@ -5,6 +5,7 @@ import {
   ArtifactAuthenticationConfig,
   constructArtifactAuthenticationConfig,
   constructJavaCardConfig,
+  constructJavaCardConfigForVxProgramming,
   constructLiveCheckConfig,
   JavaCardConfig,
   LiveCheckConfig,
@@ -35,6 +36,7 @@ test.each<{
     machineType: 'admin',
     expectedOutput: {
       cardProgrammingConfig: {
+        configType: 'vx_admin',
         vxAdminCertAuthorityCertPath: expect.stringContaining(
           '/certs/dev/vx-admin-cert-authority-cert.pem'
         ),
@@ -62,6 +64,7 @@ test.each<{
     machineType: 'admin',
     expectedOutput: {
       cardProgrammingConfig: {
+        configType: 'vx_admin',
         vxAdminCertAuthorityCertPath:
           '/vx/config/vx-admin-cert-authority-cert.pem',
         vxAdminPrivateKey: { source: 'tpm' },
@@ -86,6 +89,7 @@ test.each<{
     machineType: 'admin',
     expectedOutput: {
       cardProgrammingConfig: {
+        configType: 'vx_admin',
         vxAdminCertAuthorityCertPath: expect.stringContaining(
           '/certs/dev/vx-admin-cert-authority-cert.pem'
         ),
@@ -115,6 +119,7 @@ test.each<{
     machineType: 'admin',
     expectedOutput: {
       cardProgrammingConfig: {
+        configType: 'vx_admin',
         vxAdminCertAuthorityCertPath: expect.stringContaining(
           '/certs/dev/vx-admin-cert-authority-cert.pem'
         ),
@@ -155,6 +160,52 @@ test.each<{
     );
 
     expect(constructJavaCardConfig()).toEqual(expectedOutput);
+  }
+);
+
+test.each<{
+  nodeEnv: NodeJS.ProcessEnv['NODE_ENV'];
+  vxPrivateKeyPath?: string;
+  expectedOutput: JavaCardConfig;
+}>([
+  {
+    nodeEnv: 'development',
+    expectedOutput: {
+      cardProgrammingConfig: {
+        configType: 'vx',
+        vxPrivateKey: {
+          source: 'file',
+          path: expect.stringContaining('/certs/dev/vx-private-key.pem'),
+        },
+      },
+      vxCertAuthorityCertPath: expect.stringContaining(
+        '/certs/dev/vx-cert-authority-cert.pem'
+      ),
+    },
+  },
+  {
+    nodeEnv: 'production',
+    vxPrivateKeyPath: '/path/to/vx-private-key.pem',
+    expectedOutput: {
+      cardProgrammingConfig: {
+        configType: 'vx',
+        vxPrivateKey: {
+          source: 'file',
+          path: '/path/to/vx-private-key.pem',
+        },
+      },
+      vxCertAuthorityCertPath: expect.stringContaining(
+        '/certs/prod/vx-cert-authority-cert.pem'
+      ),
+    },
+  },
+])(
+  'constructJavaCardConfigForVxProgramming - nodeEnv = $nodeEnv, vxPrivateKeyPath = $vxPrivateKeyPath',
+  ({ nodeEnv, vxPrivateKeyPath, expectedOutput }) => {
+    (process.env.NODE_ENV as string) = nodeEnv;
+    process.env['VX_PRIVATE_KEY_PATH'] = vxPrivateKeyPath;
+
+    expect(constructJavaCardConfigForVxProgramming()).toEqual(expectedOutput);
   }
 );
 
