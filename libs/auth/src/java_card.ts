@@ -8,6 +8,7 @@ import {
   ElectionManagerUser,
   PollWorkerUser,
   SystemAdministratorUser,
+  VendorUser,
 } from '@votingworks/types';
 
 import {
@@ -34,18 +35,22 @@ import {
   parseCardDetailsFromCert,
   parseCert,
 } from './certs';
-import { constructJavaCardConfig, JavaCardConfig } from './config';
+import {
+  CardProgrammingConfig,
+  constructJavaCardConfig,
+  JavaCardConfig,
+} from './config';
 import {
   certDerToPem,
   certPemToDer,
   createCert,
+  CreateCertInput,
   extractPublicKeyFromCert,
   PUBLIC_KEY_IN_DER_FORMAT_HEADER,
   publicKeyDerToPem,
   verifyFirstCertWasSignedBySecondCert,
   verifySignature,
 } from './cryptography';
-import { FileKey, TpmKey } from './keys';
 import {
   construct8BytePinBuffer,
   CRYPTOGRAPHIC_ALGORITHM_IDENTIFIER,
@@ -92,15 +97,16 @@ export const CARD_VX_CERT = {
 } as const;
 
 /**
- * The card's VxAdmin-issued cert
+ * The card's VxAdmin-issued cert or a vendor card's second VotingWorks-issued cert. This cert
+ * indicates the card's identity (i.e., user role, jurisdiction, election hash, etc.).
  */
-export const CARD_VX_ADMIN_CERT = {
+export const CARD_IDENTITY_CERT = {
   OBJECT_ID: pivDataObjectId(0xf1),
   PRIVATE_KEY_ID: 0xf1,
 } as const;
 
 /**
- * The cert authority cert of the VxAdmin that programmed the card
+ * The cert authority cert of the VxAdmin that programmed the card. Not relevant for vendor cards.
  */
 export const VX_ADMIN_CERT_AUTHORITY_CERT = {
   OBJECT_ID: pivDataObjectId(0xf2),
@@ -145,7 +151,7 @@ export const GENERIC_STORAGE_SPACE = {
  * inspiration from the NIST PIV standard but diverges where PIV doesn't suit our needs.
  */
 export class JavaCard implements Card {
-  private readonly cardProgrammingConfig?: JavaCardConfig['cardProgrammingConfig'];
+  private readonly cardProgrammingConfig?: CardProgrammingConfig;
   private readonly cardReader: CardReader;
   // See TestJavaCard in test/utils.ts to understand why this is protected instead of private
   protected cardStatus: CardStatus;
@@ -205,15 +211,15 @@ export class JavaCard implements Card {
   async checkPin(pin: string): Promise<CheckPinResponse> {
     await this.selectApplet();
 
-    const cardVxAdminCert = await this.retrieveCert(
-      CARD_VX_ADMIN_CERT.OBJECT_ID
+    const cardIdentityCert = await this.retrieveCert(
+      CARD_IDENTITY_CERT.OBJECT_ID
     );
     try {
       // Verify that the card has a private key that corresponds to the public key in the card
-      // VxAdmin cert
+      // identity cert
       await this.verifyCardPrivateKey(
-        CARD_VX_ADMIN_CERT.PRIVATE_KEY_ID,
-        cardVxAdminCert,
+        CARD_IDENTITY_CERT.PRIVATE_KEY_ID,
+        cardIdentityCert,
         pin
       );
     } catch (error) {
@@ -254,6 +260,7 @@ export class JavaCard implements Card {
 
   async program(
     input:
+      | { user: VendorUser; pin: string }
       | { user: SystemAdministratorUser; pin: string }
       | { user: ElectionManagerUser; pin: string }
       | { user: PollWorkerUser; pin?: string }
@@ -262,8 +269,6 @@ export class JavaCard implements Card {
       this.cardProgrammingConfig !== undefined,
       'cardProgrammingConfig must be defined'
     );
-    const { vxAdminCertAuthorityCertPath, vxAdminPrivateKey } =
-      this.cardProgrammingConfig;
     const { user } = input;
     const hasPin = input.pin !== undefined;
     const pin = input.pin ?? DEFAULT_PIN;
@@ -272,16 +277,15 @@ export class JavaCard implements Card {
     await this.resetPinAndInvalidateCard(pin);
 
     const publicKey = await this.generateAsymmetricKeyPair(
-      CARD_VX_ADMIN_CERT.PRIVATE_KEY_ID,
+      CARD_IDENTITY_CERT.PRIVATE_KEY_ID,
       pin
     );
-    const vxAdminCertAuthorityCertDetails = await parseCert(
-      await fs.readFile(vxAdminCertAuthorityCertPath)
-    );
-    assert(vxAdminCertAuthorityCertDetails.component === 'admin');
-    assert(user.jurisdiction === vxAdminCertAuthorityCertDetails.jurisdiction);
     let cardDetails: CardDetails;
     switch (user.role) {
+      case 'vendor': {
+        cardDetails = { user };
+        break;
+      }
       case 'system_administrator': {
         cardDetails = { user };
         break;
@@ -299,28 +303,62 @@ export class JavaCard implements Card {
         throwIllegalValue(user, 'role');
       }
     }
-    const cardVxAdminCert = await createCert({
+    const createCertInputBase: Pick<
+      CreateCertInput,
+      'certKeyInput' | 'certSubject'
+    > = {
       certKeyInput: {
         type: 'public',
         key: { source: 'inline', content: publicKey.toString('utf-8') },
       },
       certSubject: constructCardCertSubject(cardDetails),
-      expiryInDays:
-        user.role === 'system_administrator'
-          ? CERT_EXPIRY_IN_DAYS.SYSTEM_ADMINISTRATOR_CARD_VX_ADMIN_CERT
-          : CERT_EXPIRY_IN_DAYS.ELECTION_CARD_VX_ADMIN_CERT,
-      signingCertAuthorityCertPath: vxAdminCertAuthorityCertPath,
-      signingPrivateKey: vxAdminPrivateKey,
-    });
-    await this.storeCert(CARD_VX_ADMIN_CERT.OBJECT_ID, cardVxAdminCert);
+    };
 
-    const vxAdminCertAuthorityCert = await fs.readFile(
-      vxAdminCertAuthorityCertPath
-    );
-    await this.storeCert(
-      VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID,
-      vxAdminCertAuthorityCert
-    );
+    if (user.role === 'vendor') {
+      assert(this.cardProgrammingConfig.configType === 'vx');
+      const { vxPrivateKey } = this.cardProgrammingConfig;
+
+      // Store card identity cert
+      const cardIdentityCert = await createCert({
+        ...createCertInputBase,
+        expiryInDays: CERT_EXPIRY_IN_DAYS.VENDOR_CARD_IDENTITY_CERT,
+        signingCertAuthorityCertPath: this.vxCertAuthorityCertPath,
+        signingPrivateKey: vxPrivateKey,
+      });
+      await this.storeCert(CARD_IDENTITY_CERT.OBJECT_ID, cardIdentityCert);
+    } else {
+      assert(this.cardProgrammingConfig.configType === 'vx_admin');
+      const { vxAdminCertAuthorityCertPath, vxAdminPrivateKey } =
+        this.cardProgrammingConfig;
+
+      // Store card identity cert
+      const cardIdentityCert = await createCert({
+        ...createCertInputBase,
+        expiryInDays:
+          user.role === 'system_administrator'
+            ? CERT_EXPIRY_IN_DAYS.SYSTEM_ADMINISTRATOR_CARD_IDENTITY_CERT
+            : CERT_EXPIRY_IN_DAYS.ELECTION_CARD_IDENTITY_CERT,
+        signingCertAuthorityCertPath: vxAdminCertAuthorityCertPath,
+        signingPrivateKey: vxAdminPrivateKey,
+      });
+      await this.storeCert(CARD_IDENTITY_CERT.OBJECT_ID, cardIdentityCert);
+
+      // Store VxAdmin cert authority cert
+      const vxAdminCertAuthorityCert = await fs.readFile(
+        vxAdminCertAuthorityCertPath
+      );
+      const vxAdminCertAuthorityCertDetails = await parseCert(
+        vxAdminCertAuthorityCert
+      );
+      assert(vxAdminCertAuthorityCertDetails.component === 'admin');
+      assert(
+        user.jurisdiction === vxAdminCertAuthorityCertDetails.jurisdiction
+      );
+      await this.storeCert(
+        VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID,
+        vxAdminCertAuthorityCert
+      );
+    }
 
     this.cardStatus = { status: 'ready', cardDetails };
   }
@@ -332,7 +370,7 @@ export class JavaCard implements Card {
     );
     await this.selectApplet();
     await this.resetPinAndInvalidateCard(DEFAULT_PIN);
-    await this.clearCert(CARD_VX_ADMIN_CERT.OBJECT_ID);
+    await this.clearCert(CARD_IDENTITY_CERT.OBJECT_ID);
     await this.clearCert(VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID);
     await this.clearData();
     this.cardStatus = { status: 'ready', cardDetails: undefined };
@@ -420,43 +458,54 @@ export class JavaCard implements Card {
       this.vxCertAuthorityCertPath
     );
 
-    // Verify that the card VxAdmin cert was signed by VxAdmin
-    const cardVxAdminCert = await this.retrieveCert(
-      CARD_VX_ADMIN_CERT.OBJECT_ID
+    const cardIdentityCert = await this.retrieveCert(
+      CARD_IDENTITY_CERT.OBJECT_ID
     );
-    const vxAdminCertAuthorityCert = await this.retrieveCert(
-      VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID
-    );
-    await verifyFirstCertWasSignedBySecondCert(
-      cardVxAdminCert,
-      vxAdminCertAuthorityCert
-    );
+    const cardDetails = await parseCardDetailsFromCert(cardIdentityCert);
 
-    // Verify that the VxAdmin cert authority cert on the card is a valid VxAdmin cert, signed by
-    // VotingWorks
-    const vxAdminCertAuthorityCertDetails = await parseCert(
-      vxAdminCertAuthorityCert
-    );
-    assert(vxAdminCertAuthorityCertDetails.component === 'admin');
-    await verifyFirstCertWasSignedBySecondCert(
-      vxAdminCertAuthorityCert,
-      this.vxCertAuthorityCertPath
-    );
+    // Verify the card identity cert, the details of verification being dependent on whether the
+    // card is a vendor card or a VxAdmin-programmed card
+    if (cardDetails.user.role === 'vendor') {
+      // Verify that the card identity cert was signed by VotingWorks
+      await verifyFirstCertWasSignedBySecondCert(
+        cardIdentityCert,
+        this.vxCertAuthorityCertPath
+      );
+    } else {
+      // Verify that the card identity cert was signed by VxAdmin
+      const vxAdminCertAuthorityCert = await this.retrieveCert(
+        VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID
+      );
+      await verifyFirstCertWasSignedBySecondCert(
+        cardIdentityCert,
+        vxAdminCertAuthorityCert
+      );
+
+      // Verify that the VxAdmin cert authority cert on the card is a valid VxAdmin cert, signed by
+      // VotingWorks
+      const vxAdminCertAuthorityCertDetails = await parseCert(
+        vxAdminCertAuthorityCert
+      );
+      assert(vxAdminCertAuthorityCertDetails.component === 'admin');
+      await verifyFirstCertWasSignedBySecondCert(
+        vxAdminCertAuthorityCert,
+        this.vxCertAuthorityCertPath
+      );
+
+      assert(
+        cardDetails.user.jurisdiction ===
+          vxAdminCertAuthorityCertDetails.jurisdiction
+      );
+    }
 
     // Verify that the card has a private key that corresponds to the public key in the card
     // VotingWorks cert
     await this.verifyCardPrivateKey(CARD_VX_CERT.PRIVATE_KEY_ID, cardVxCert);
 
-    const cardDetails = await parseCardDetailsFromCert(cardVxAdminCert);
-    assert(
-      cardDetails.user.jurisdiction ===
-        vxAdminCertAuthorityCertDetails.jurisdiction
-    );
-
     /**
      * If the card doesn't have a PIN:
      * Verify that the card has a private key that corresponds to the public key in the card
-     * VxAdmin cert
+     * identity cert
      *
      * If the card does have a PIN:
      * Perform this verification later in checkPin because operations with this private key are
@@ -466,8 +515,8 @@ export class JavaCard implements Card {
       arePollWorkerCardDetails(cardDetails) && !cardDetails.hasPin;
     if (cardDoesNotHavePin) {
       await this.verifyCardPrivateKey(
-        CARD_VX_ADMIN_CERT.PRIVATE_KEY_ID,
-        cardVxAdminCert,
+        CARD_IDENTITY_CERT.PRIVATE_KEY_ID,
+        cardIdentityCert,
         DEFAULT_PIN
       );
     }
@@ -507,10 +556,10 @@ export class JavaCard implements Card {
       certInfo[0] === PUT_DATA.CERT_INFO_UNCOMPRESSED,
       'Expected cert info to be uncompressed'
     );
-    const certErrorDetectionCode = parseTlv(
+    const { value: certErrorDetectionCode } = parseTlv(
       PUT_DATA.ERROR_DETECTION_CODE_TAG,
       certInfoRemainder
-    ).value;
+    );
     assert(
       certErrorDetectionCode.length === 0,
       'Expected no error detection code'
@@ -755,14 +804,14 @@ export class JavaCard implements Card {
   async retrieveCertByIdentifier(
     certIdentifier:
       | 'cardVxCert'
-      | 'cardVxAdminCert'
+      | 'cardIdentityCert'
       | 'vxAdminCertAuthorityCert'
   ): Promise<Buffer> {
     await this.selectApplet();
 
     const certConfigs = {
       cardVxCert: CARD_VX_CERT,
-      cardVxAdminCert: CARD_VX_ADMIN_CERT,
+      cardIdentityCert: CARD_IDENTITY_CERT,
       vxAdminCertAuthorityCert: VX_ADMIN_CERT_AUTHORITY_CERT,
     } as const;
     return await this.retrieveCert(certConfigs[certIdentifier].OBJECT_ID);
@@ -772,9 +821,9 @@ export class JavaCard implements Card {
    * Creates and stores the card's VotingWorks-issued cert. Used by the initial card configuration
    * script.
    */
-  async createAndStoreCardVxCert(
-    vxPrivateKey: FileKey | TpmKey
-  ): Promise<void> {
+  async createAndStoreCardVxCert(): Promise<void> {
+    assert(this.cardProgrammingConfig !== undefined);
+    assert(this.cardProgrammingConfig.configType === 'vx');
     await this.selectApplet();
 
     const publicKey = await this.generateAsymmetricKeyPair(
@@ -788,7 +837,7 @@ export class JavaCard implements Card {
       certSubject: constructCardCertSubjectWithoutJurisdictionAndCardType(),
       expiryInDays: CERT_EXPIRY_IN_DAYS.CARD_VX_CERT,
       signingCertAuthorityCertPath: this.vxCertAuthorityCertPath,
-      signingPrivateKey: vxPrivateKey,
+      signingPrivateKey: this.cardProgrammingConfig.vxPrivateKey,
     });
     await this.storeCert(CARD_VX_CERT.OBJECT_ID, cardVxCert);
   }
