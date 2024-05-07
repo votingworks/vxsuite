@@ -735,24 +735,12 @@ function buildMachine({
 
         disconnected: {
           id: 'disconnected',
-          initial: 'exiting',
+          initial: 'waiting',
           entry: assign({ interpretation: undefined }),
           states: {
-            exiting: {
-              invoke: {
-                src: async ({ client }) => {
-                  (await client.exit()).unsafeUnwrap();
-                },
-                onDone: 'waiting',
-                onError: '#error',
-              },
-            },
             waiting: {
               after: {
-                DELAY_RECONNECT: {
-                  actions: assign({ client: () => createScannerClient() }),
-                  target: 'reconnecting',
-                },
+                DELAY_RECONNECT: 'reconnecting',
               },
             },
             reconnecting: {
