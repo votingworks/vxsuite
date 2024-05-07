@@ -547,6 +547,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * attempt to pull paper in. if none is pulled in, command still returns positive.
    */
   async loadPaper(): Promise<boolean> {
+    debug('loadPaper');
     return this.handleGenericCommandWithAcknowledgement(
       LoadPaperCommand,
       undefined
@@ -558,6 +559,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * no paper to eject, handler will do nothing and return positive acknowledgement.
    */
   async ejectPaperToFront(): Promise<boolean> {
+    debug('ejectPaperToFront');
     return this.handleGenericCommandWithAcknowledgement(
       EjectPaperCommand,
       undefined
@@ -570,6 +572,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * positive acknowledgement. When parked, parkSensor should be true.
    */
   async parkPaper(): Promise<boolean> {
+    debug('parkPaper');
     return this.handleGenericCommandWithAcknowledgement(
       ParkPaperCommand,
       undefined
@@ -582,6 +585,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * state from the state where paper has not been picked up yet?
    */
   presentPaper(): Promise<boolean> {
+    debug('presentPaper');
     return this.handleGenericCommandWithAcknowledgement(
       PresentPaperAndHoldCommand,
       undefined
@@ -593,6 +597,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * no paper to eject, handler will do nothing and return positive acknowledgement.
    */
   async ejectBallotToRear(): Promise<boolean> {
+    debug('ejectBallotToRear');
     return this.handleGenericCommandWithAcknowledgement(
       EjectPaperToBallotCommand,
       undefined
@@ -600,6 +605,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   }
 
   calibrate(): Promise<boolean> {
+    debug('calibrate');
     return this.handleGenericCommandWithAcknowledgement(
       ScannerCalibrationCommand,
       undefined
@@ -614,6 +620,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * a variety of positions.
    */
   enablePrint(): Promise<boolean> {
+    debug('enablePrint');
     return this.handleGenericCommandWithAcknowledgement(
       EnablePrintCommand,
       undefined
@@ -624,6 +631,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * Moves print head to UP position, does not move paper
    */
   disablePrint(): Promise<boolean> {
+    debug('disablePrint');
     return this.handleGenericCommandWithAcknowledgement(
       DisablePrintCommand,
       undefined

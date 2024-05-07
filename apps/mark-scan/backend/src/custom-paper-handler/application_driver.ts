@@ -85,7 +85,9 @@ export async function scanAndSave(driver: PaperHandlerDriver): Promise<string> {
     throw new Error('Paper has been removed');
   }
 
+  debug('Starting scanAndSave to', pathOutFront);
   await driver.scanAndSave(pathOutFront);
+  debug('Completed scanAndSave');
 
   // We can only print to one side from the thermal printer, but the interpret flow expects
   // a SheetOf 2 pages. Use an image of a blank sheet for the 2nd page.

@@ -508,6 +508,7 @@ export function buildMachine(
               ],
             },
             scanning: {
+              entry: () => debug('+scanning'),
               invoke: [
                 {
                   id: 'scanAndSave',
@@ -525,6 +526,7 @@ export function buildMachine(
               ],
             },
             interpreting: {
+              entry: () => debug('+interpreting'),
               // Paper is in the paper handler for the duration of the interpreting stage and paper handler
               // motors are never moved, so we don't need to poll paper status or handle jams.
               invoke: {
