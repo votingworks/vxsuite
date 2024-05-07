@@ -115,6 +115,7 @@ export const PACKET_SIZE = 65536;
 export enum ReturnCodes {
   POSITIVE_ACKNOWLEDGEMENT = 0x06,
   NEGATIVE_ACKNOWLEDGEMENT = 0x15,
+  UNKNOWN = 0x12,
 }
 
 export async function getPaperHandlerWebDevice(): Promise<
@@ -390,6 +391,9 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
       case ReturnCodes.NEGATIVE_ACKNOWLEDGEMENT:
         debug('negative acknowledgement');
         return false;
+      case ReturnCodes.UNKNOWN:
+        debug('unknown acknowledgement');
+        return true;
       default:
         throw new Error(`uninterpretable acknowledgement: ${code}`);
     }
