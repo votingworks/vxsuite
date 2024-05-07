@@ -3,7 +3,7 @@
 // the interface shared by implementation and mock. Interfaces definitionally can't have private properties.
 import { findByIds, WebUSBDevice } from 'usb';
 import makeDebug from 'debug';
-import { assert, Optional, Result, sleep } from '@votingworks/basics';
+import { assert, assertDefined, Optional, Result, sleep } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import {
   byteArray,
@@ -465,10 +465,16 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
         rawResponse.data.byteOffset,
         rawResponse.data.byteLength
       );
+      debug(`Scan response buffer: ${responseBuffer}`);
       const header = responseBuffer.slice(0, SCAN_HEADER_LENGTH_BYTES);
-      const response: ScanResponse = ScanResponse.decode(
+      debug(`Scan response header: ${header}`);
+      const responseResult = ScanResponse.decode(
         Buffer.from(header)
-      ).unsafeUnwrap();
+      );
+      if (responseResult.isErr()) {
+        debug('Error decoding ScanResponse: %s', responseResult.err());
+      }
+      const response: ScanResponse = assertDefined(responseResult.ok());
       scanStatus = response.returnCode;
       const { sizeX, sizeY } = response;
       // `sizeX` is the width of the current data block. The scan command always returns an empty data block as the last packet,
