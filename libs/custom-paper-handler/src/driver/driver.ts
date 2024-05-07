@@ -366,7 +366,8 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     value: T
   ): Promise<boolean> {
     await this.genericLock.acquire();
-    console.log(`transferOutGeneric command buffer: ${value}`);
+    console.log(`transferOutGeneric coder command: ${JSON.stringify(coder)}`);
+    console.log(`transferOutGeneric command args: ${JSON.stringify(value)}`);
     const transferOutResult = await this.transferOutGeneric(coder, value);
     assert(transferOutResult.status === 'ok'); // TODO: Handling
 
@@ -458,6 +459,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     // 2. Each data block can fit within a single `transferInGeneric` call
     while (scanStatus === OK_CONTINUE) {
       const rawResponse = await this.transferInGeneric();
+      debug(`rawResponse: ${JSON.stringify(rawResponse)}`);
       assert(rawResponse?.data);
 
       const responseBuffer = new Uint8Array(
