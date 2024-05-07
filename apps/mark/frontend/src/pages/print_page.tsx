@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { PrintPage as MarkFlowPrintPage } from '@votingworks/mark-flow-ui';
 import { assert } from '@votingworks/basics';
 import { BallotContext } from '../contexts/ballot_context';
@@ -21,12 +21,12 @@ export function PrintPage(): JSX.Element {
 
   const printerTimer = useRef(0);
 
-  function onPrintStarted() {
+  const onPrintStarted = React.useCallback(() => {
     updateTally();
     printerTimer.current = window.setTimeout(() => {
       resetBallot(true);
     }, BALLOT_PRINTING_TIMEOUT_SECONDS * 1000);
-  }
+  }, [resetBallot, updateTally]);
 
   // Make sure we clean up any pending timeout on unmount
   useEffect(() => {
@@ -43,7 +43,7 @@ export function PrintPage(): JSX.Element {
       isLiveMode={isLiveMode}
       votes={votes}
       generateBallotId={generateBallotId}
-      onPrintStarted={onPrintStarted}
+      onPrint={onPrintStarted}
       machineType="mark"
     />
   );

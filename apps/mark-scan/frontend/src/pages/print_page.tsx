@@ -1,14 +1,10 @@
-import { useContext } from 'react';
+import React, { useContext } from 'react';
 import { PrintPage as MarkFlowPrintPage } from '@votingworks/mark-flow-ui';
 import { assert } from '@votingworks/basics';
-import { PrintOptions } from '@votingworks/types';
-import { printElementToPdf } from '@votingworks/ui';
-import makeDebug from 'debug';
 import { Buffer } from 'buffer';
 import { BallotContext } from '../contexts/ballot_context';
 import { printBallot } from '../api';
 
-const debug = makeDebug('mark-scan:print-page');
 export function PrintPage(): JSX.Element | null {
   const {
     electionDefinition,
@@ -21,16 +17,14 @@ export function PrintPage(): JSX.Element | null {
   assert(electionDefinition, 'electionDefinition is not defined');
   assert(typeof ballotStyleId === 'string', 'ballotStyleId is not defined');
   assert(typeof precinctId === 'string', 'precinctId is not defined');
-  const printBallotMutation = printBallot.useMutation();
+  const mutatePrintBallot = printBallot.useMutation().mutate;
 
-  async function printElementToCustomPaperHandler(
-    element: JSX.Element,
-    options: PrintOptions
-  ): Promise<void> {
-    debug(`Ignoring print options with keys: ${Object.keys(options)}`);
-    const pdfData = Buffer.from(await printElementToPdf(element));
-    printBallotMutation.mutate({ pdfData });
-  }
+  const onPdfReady = React.useCallback(
+    (pdfData: Uint8Array) => {
+      mutatePrintBallot({ pdfData: Buffer.from(pdfData) });
+    },
+    [mutatePrintBallot]
+  );
 
   return (
     <MarkFlowPrintPage
@@ -40,7 +34,8 @@ export function PrintPage(): JSX.Element | null {
       isLiveMode={isLiveMode}
       votes={votes}
       generateBallotId={generateBallotId}
-      printElement={printElementToCustomPaperHandler}
+      printToPdf
+      onPrint={onPdfReady}
       machineType="markScan"
     />
   );
