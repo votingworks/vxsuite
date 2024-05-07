@@ -1,0 +1,325 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`contest IDs cannot start with an underscore 1`] = `
+[ZodError: [
+  {
+    "code": "custom",
+    "message": "IDs may not start with an underscore",
+    "path": [
+      "id"
+    ]
+  }
+]]
+`;
+
+exports[`ensures election date is YYYY-MM-DD 1`] = `
+[ZodError: [
+  {
+    "code": "custom",
+    "message": "Date must be in the format YYYY-MM-DD",
+    "path": [
+      "date"
+    ]
+  }
+]]
+`;
+
+exports[`parsing gives specific errors for nested objects 1`] = `
+[ZodError: [
+  {
+    "code": "invalid_union",
+    "unionErrors": [
+      {
+        "issues": [
+          {
+            "code": "invalid_type",
+            "expected": "string",
+            "received": "number",
+            "path": [
+              "contests",
+              1,
+              "title"
+            ],
+            "message": "Expected string, received number"
+          }
+        ],
+        "name": "ZodError"
+      },
+      {
+        "issues": [
+          {
+            "code": "invalid_type",
+            "expected": "string",
+            "received": "number",
+            "path": [
+              "contests",
+              1,
+              "title"
+            ],
+            "message": "Expected string, received number"
+          },
+          {
+            "received": "candidate",
+            "code": "invalid_literal",
+            "expected": "yesno",
+            "path": [
+              "contests",
+              1,
+              "type"
+            ],
+            "message": "Invalid literal value, expected \\"yesno\\""
+          },
+          {
+            "code": "invalid_type",
+            "expected": "string",
+            "received": "undefined",
+            "path": [
+              "contests",
+              1,
+              "description"
+            ],
+            "message": "Required"
+          },
+          {
+            "code": "invalid_type",
+            "expected": "object",
+            "received": "undefined",
+            "path": [
+              "contests",
+              1,
+              "yesOption"
+            ],
+            "message": "Required"
+          },
+          {
+            "code": "invalid_type",
+            "expected": "object",
+            "received": "undefined",
+            "path": [
+              "contests",
+              1,
+              "noOption"
+            ],
+            "message": "Required"
+          }
+        ],
+        "name": "ZodError"
+      }
+    ],
+    "path": [
+      "contests",
+      1
+    ],
+    "message": "Invalid input"
+  }
+]]
+`;
+
+exports[`parsing validates candidate party references 1`] = `
+[ZodError: [
+  {
+    "code": "custom",
+    "path": [
+      "contests",
+      0,
+      "candidates",
+      0,
+      "partyIds",
+      0
+    ],
+    "message": "Candidate 'C' in contest 'CC' has party 'not-a-party', but no such party is defined. Parties defined: [PARTY]."
+  }
+]]
+`;
+
+exports[`parsing validates contest party references 1`] = `
+[ZodError: [
+  {
+    "code": "custom",
+    "path": [
+      "contests",
+      0,
+      "partyId"
+    ],
+    "message": "Contest 'CC' has party 'not-a-party', but no such party is defined. Parties defined: [PARTY]."
+  }
+]]
+`;
+
+exports[`parsing validates district references 1`] = `
+[ZodError: [
+  {
+    "code": "custom",
+    "path": [
+      "ballotStyles",
+      0,
+      "districts",
+      0
+    ],
+    "message": "Ballot style '1' has district 'D', but no such district is defined. Districts defined: [DIS]."
+  }
+]]
+`;
+
+exports[`parsing validates precinct references 1`] = `
+[ZodError: [
+  {
+    "code": "custom",
+    "path": [
+      "ballotStyles",
+      0,
+      "precincts",
+      0
+    ],
+    "message": "Ballot style '1' has precinct 'P', but no such precinct is defined. Precincts defined: [PRE]."
+  }
+]]
+`;
+
+exports[`supports ballot layout paper size 1`] = `
+[ZodError: [
+  {
+    "received": "A4",
+    "code": "invalid_enum_value",
+    "options": [
+      "letter",
+      "legal",
+      "custom-8.5x17",
+      "custom-8.5x18",
+      "custom-8.5x21",
+      "custom-8.5x22"
+    ],
+    "path": [
+      "ballotLayout",
+      "paperSize"
+    ],
+    "message": "Invalid enum value. Expected 'letter' | 'legal' | 'custom-8.5x17' | 'custom-8.5x18' | 'custom-8.5x21' | 'custom-8.5x22', received 'A4'"
+  }
+]]
+`;
+
+exports[`supports ballot layout paper size 2`] = `
+[ZodError: [
+  {
+    "code": "invalid_type",
+    "expected": "object",
+    "received": "string",
+    "path": [
+      "ballotLayout"
+    ],
+    "message": "Expected object, received string"
+  }
+]]
+`;
+
+exports[`validates uniqueness of ballot style ids 1`] = `
+[ZodError: [
+  {
+    "code": "custom",
+    "path": [
+      1,
+      "id"
+    ],
+    "message": "Duplicate ballot style '1' found."
+  }
+]]
+`;
+
+exports[`validates uniqueness of candidate ids within a contest 1`] = `
+[ZodError: [
+  {
+    "code": "custom",
+    "path": [
+      "candidates",
+      1,
+      "id"
+    ],
+    "message": "Duplicate candidate 'C' found."
+  }
+]]
+`;
+
+exports[`validates uniqueness of contest ids 1`] = `
+[ZodError: [
+  {
+    "code": "custom",
+    "path": [
+      "contests",
+      2,
+      "id"
+    ],
+    "message": "Duplicate contest 'CC' found."
+  },
+  {
+    "code": "custom",
+    "path": [
+      "contests",
+      3,
+      "id"
+    ],
+    "message": "Duplicate contest 'YNC' found."
+  },
+  {
+    "code": "custom",
+    "path": [
+      "contests",
+      2,
+      "yes/noOption",
+      "id"
+    ],
+    "message": "Duplicate yes/no contest option 'YNC-option-yes' found."
+  },
+  {
+    "code": "custom",
+    "path": [
+      "contests",
+      3,
+      "yes/noOption",
+      "id"
+    ],
+    "message": "Duplicate yes/no contest option 'YNC-option-no' found."
+  }
+]]
+`;
+
+exports[`validates uniqueness of district ids 1`] = `
+[ZodError: [
+  {
+    "code": "custom",
+    "path": [
+      "districts",
+      1,
+      "id"
+    ],
+    "message": "Duplicate district 'D' found."
+  }
+]]
+`;
+
+exports[`validates uniqueness of party ids 1`] = `
+[ZodError: [
+  {
+    "code": "custom",
+    "path": [
+      "parties",
+      1,
+      "id"
+    ],
+    "message": "Duplicate party 'PARTY' found."
+  }
+]]
+`;
+
+exports[`validates uniqueness of precinct ids 1`] = `
+[ZodError: [
+  {
+    "code": "custom",
+    "path": [
+      "precincts",
+      1,
+      "id"
+    ],
+    "message": "Duplicate precinct 'P' found."
+  }
+]]
+`;

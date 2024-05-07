@@ -26,17 +26,7 @@ test('disallows invalid mark thresholds', () => {
         markThresholds: { definite: 0.2, marginal: 0.3 },
       })
     ).unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "custom",
-        "message": "marginal mark threshold must be less than or equal to definite mark threshold",
-        "path": [
-          "markThresholds"
-        ]
-      }
-    ]]
-  `);
+  ).toMatchSnapshot();
 
   expect(
     safeParseSystemSettings(
@@ -45,20 +35,7 @@ test('disallows invalid mark thresholds', () => {
         markThresholds: { marginal: 0.3 },
       })
     ).unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "invalid_type",
-        "expected": "number",
-        "received": "undefined",
-        "path": [
-          "markThresholds",
-          "definite"
-        ],
-        "message": "Required"
-      }
-    ]]
-  `);
+  ).toMatchSnapshot();
 
   expect(
     safeParseSystemSettings(
@@ -67,21 +44,7 @@ test('disallows invalid mark thresholds', () => {
         markThresholds: { definite: 1.2, marginal: 0.3 },
       })
     ).unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "too_big",
-        "maximum": 1,
-        "type": "number",
-        "inclusive": true,
-        "message": "Number must be less than or equal to 1",
-        "path": [
-          "markThresholds",
-          "definite"
-        ]
-      }
-    ]]
-  `);
+  ).toMatchSnapshot();
 });
 
 test('disallows invalid adjudication reasons', () => {
@@ -93,42 +56,7 @@ test('disallows invalid adjudication reasons', () => {
         centralScanAdjudicationReasons: ['abcdefg'],
       })
     ).unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "invalid_enum_value",
-        "options": [
-          "UninterpretableBallot",
-          "MarginalMark",
-          "Overvote",
-          "Undervote",
-          "BlankBallot",
-          "UnmarkedWriteIn"
-        ],
-        "path": [
-          "centralScanAdjudicationReasons",
-          0
-        ],
-        "message": "Invalid enum value. Expected 'UninterpretableBallot' | 'MarginalMark' | 'Overvote' | 'Undervote' | 'BlankBallot' | 'UnmarkedWriteIn'"
-      },
-      {
-        "code": "invalid_enum_value",
-        "options": [
-          "UninterpretableBallot",
-          "MarginalMark",
-          "Overvote",
-          "Undervote",
-          "BlankBallot",
-          "UnmarkedWriteIn"
-        ],
-        "path": [
-          "precinctScanAdjudicationReasons",
-          0
-        ],
-        "message": "Invalid enum value. Expected 'UninterpretableBallot' | 'MarginalMark' | 'Overvote' | 'Undervote' | 'BlankBallot' | 'UnmarkedWriteIn'"
-      }
-    ]]
-  `);
+  ).toMatchSnapshot();
 
   expect(
     safeParseSystemSettings(
@@ -137,17 +65,5 @@ test('disallows invalid adjudication reasons', () => {
         centralScanAdjudicationReasons: 'foooo',
       })
     ).unsafeUnwrapErr()
-  ).toMatchInlineSnapshot(`
-    [ZodError: [
-      {
-        "code": "invalid_type",
-        "expected": "array",
-        "received": "string",
-        "path": [
-          "centralScanAdjudicationReasons"
-        ],
-        "message": "Expected array, received string"
-      }
-    ]]
-  `);
+  ).toMatchSnapshot();
 });

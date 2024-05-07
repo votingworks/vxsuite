@@ -1,0 +1,98 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`disallows invalid adjudication reasons 1`] = `
+[ZodError: [
+  {
+    "received": "abcdefg",
+    "code": "invalid_enum_value",
+    "options": [
+      "UninterpretableBallot",
+      "MarginalMark",
+      "Overvote",
+      "Undervote",
+      "BlankBallot",
+      "UnmarkedWriteIn"
+    ],
+    "path": [
+      "centralScanAdjudicationReasons",
+      0
+    ],
+    "message": "Invalid enum value. Expected 'UninterpretableBallot' | 'MarginalMark' | 'Overvote' | 'Undervote' | 'BlankBallot' | 'UnmarkedWriteIn', received 'abcdefg'"
+  },
+  {
+    "received": "abcdefg",
+    "code": "invalid_enum_value",
+    "options": [
+      "UninterpretableBallot",
+      "MarginalMark",
+      "Overvote",
+      "Undervote",
+      "BlankBallot",
+      "UnmarkedWriteIn"
+    ],
+    "path": [
+      "precinctScanAdjudicationReasons",
+      0
+    ],
+    "message": "Invalid enum value. Expected 'UninterpretableBallot' | 'MarginalMark' | 'Overvote' | 'Undervote' | 'BlankBallot' | 'UnmarkedWriteIn', received 'abcdefg'"
+  }
+]]
+`;
+
+exports[`disallows invalid adjudication reasons 2`] = `
+[ZodError: [
+  {
+    "code": "invalid_type",
+    "expected": "array",
+    "received": "string",
+    "path": [
+      "centralScanAdjudicationReasons"
+    ],
+    "message": "Expected array, received string"
+  }
+]]
+`;
+
+exports[`disallows invalid mark thresholds 1`] = `
+[ZodError: [
+  {
+    "code": "custom",
+    "message": "marginal mark threshold must be less than or equal to definite mark threshold",
+    "path": [
+      "markThresholds"
+    ]
+  }
+]]
+`;
+
+exports[`disallows invalid mark thresholds 2`] = `
+[ZodError: [
+  {
+    "code": "invalid_type",
+    "expected": "number",
+    "received": "undefined",
+    "path": [
+      "markThresholds",
+      "definite"
+    ],
+    "message": "Required"
+  }
+]]
+`;
+
+exports[`disallows invalid mark thresholds 3`] = `
+[ZodError: [
+  {
+    "code": "too_big",
+    "maximum": 1,
+    "type": "number",
+    "inclusive": true,
+    "exact": false,
+    "message": "Number must be less than or equal to 1",
+    "path": [
+      "markThresholds",
+      "definite"
+    ]
+  }
+]]
+`;

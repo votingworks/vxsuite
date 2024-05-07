@@ -43,7 +43,7 @@
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/types": "workspace:*",
     "debug": "4.3.4",
-    "zod": "3.14.4"
+    "zod": "3.23.5"
   },
   "devDependencies": {
     "@types/debug": "4.1.8",

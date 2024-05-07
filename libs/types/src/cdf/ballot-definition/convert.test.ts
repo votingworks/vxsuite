@@ -313,11 +313,7 @@ test('safeParseCdfBallotDefinition', () => {
         (unit) => unit.Type === 'state'
       ),
     })
-  ).toMatchInlineSnapshot(`
-    Err {
-      "error": [Error: unable to find an element matching a predicate],
-    }
-  `);
+  ).toMatchSnapshot();
 
   // Duplicate ids should be rejected
   expect(
@@ -332,11 +328,7 @@ test('safeParseCdfBallotDefinition', () => {
         '@id': `same-id-${i}`,
       })),
     })
-  ).toMatchInlineSnapshot(`
-    Err {
-      "error": [Error: Ballot definition contains duplicate @ids: same-id-0, same-id-1],
-    }
-  `);
+  ).toMatchSnapshot();
 
   expect(safeParseCdfBallotDefinition(testCdfBallotDefinition)).toEqual(
     ok({
