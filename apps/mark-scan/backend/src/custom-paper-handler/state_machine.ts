@@ -845,13 +845,15 @@ function setUpLogging(
     .onEvent(async (event) => {
       // To protect voter privacy, we only log the event type (since some event
       // objects include ballot interpretations)
-      await logger.log(
-        LogEventId.MarkScanStateMachineEvent,
-        'system',
-        { message: `Event: ${event.type}` },
-        /* istanbul ignore next */
-        (logLine: LogLine) => debugEvents(logLine.message)
-      );
+      if (event.type !== 'PAT_DEVICE_NO_STATUS_CHANGE') {
+        await logger.log(
+          LogEventId.MarkScanStateMachineEvent,
+          'system',
+          { message: `Event: ${event.type}` },
+          /* istanbul ignore next */
+          (logLine: LogLine) => debugEvents(logLine.message)
+        );
+      }
     })
     .onChange(async (context, previousContext) => {
       if (!previousContext) return;
