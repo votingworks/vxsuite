@@ -63,6 +63,9 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
   transferInGeneric(): Promise<USBInTransferResult> {
     throw new Error('Method not implemented.');
   }
+  transferInAcknowledgement(): Promise<boolean> {
+    throw new Error('Method not implemented.');
+  }
   clearGenericInBuffer(): Promise<void> {
     throw new Error('Method not implemented.');
   }
@@ -92,62 +95,62 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
     _expectedRequestId: RealTimeRequestIds,
     _response:
       | {
-          requestId: number;
-          returnCode: number;
-          parkSensor: boolean;
-          paperOutSensor: boolean;
-          paperPostCisSensor: boolean;
-          paperPreCisSensor: boolean;
-          paperInputLeftInnerSensor: boolean;
-          paperInputRightInnerSensor: boolean;
-          paperInputLeftOuterSensor: boolean;
-          paperInputRightOuterSensor: boolean;
-          printHeadInPosition: boolean;
-          scanTimeout: boolean;
-          motorMove: boolean;
-          scanInProgress: boolean;
-          jamEncoder: boolean;
-          paperJam: boolean;
-          coverOpen: boolean;
-          optoSensor: boolean;
-          ballotBoxDoorSensor: boolean;
-          ballotBoxAttachSensor: boolean;
-          preHeadSensor: boolean;
-          startOfPacket?: unknown;
-          token?: unknown;
-          optionalDataLength?: unknown;
-        }
+        requestId: number;
+        returnCode: number;
+        parkSensor: boolean;
+        paperOutSensor: boolean;
+        paperPostCisSensor: boolean;
+        paperPreCisSensor: boolean;
+        paperInputLeftInnerSensor: boolean;
+        paperInputRightInnerSensor: boolean;
+        paperInputLeftOuterSensor: boolean;
+        paperInputRightOuterSensor: boolean;
+        printHeadInPosition: boolean;
+        scanTimeout: boolean;
+        motorMove: boolean;
+        scanInProgress: boolean;
+        jamEncoder: boolean;
+        paperJam: boolean;
+        coverOpen: boolean;
+        optoSensor: boolean;
+        ballotBoxDoorSensor: boolean;
+        ballotBoxAttachSensor: boolean;
+        preHeadSensor: boolean;
+        startOfPacket?: unknown;
+        token?: unknown;
+        optionalDataLength?: unknown;
+      }
       | {
-          requestId: number;
-          returnCode: number;
-          coverOpen: boolean;
-          ticketPresentInOutput: boolean;
-          paperNotPresent: boolean;
-          dragPaperMotorOn: boolean;
-          spooling: boolean;
-          printingHeadUpError: boolean;
-          notAcknowledgeCommandError: boolean;
-          powerSupplyVoltageError: boolean;
-          headNotConnected: boolean;
-          comError: boolean;
-          headTemperatureError: boolean;
-          diverterError: boolean;
-          headErrorLocked: boolean;
-          printingHeadReadyToPrint: boolean;
-          eepromError: boolean;
-          ramError: boolean;
-          startOfPacket?: unknown;
-          token?: unknown;
-          optionalDataLength?: unknown;
-          dle?: unknown;
-          eot?: unknown;
-        }
+        requestId: number;
+        returnCode: number;
+        coverOpen: boolean;
+        ticketPresentInOutput: boolean;
+        paperNotPresent: boolean;
+        dragPaperMotorOn: boolean;
+        spooling: boolean;
+        printingHeadUpError: boolean;
+        notAcknowledgeCommandError: boolean;
+        powerSupplyVoltageError: boolean;
+        headNotConnected: boolean;
+        comError: boolean;
+        headTemperatureError: boolean;
+        diverterError: boolean;
+        headErrorLocked: boolean;
+        printingHeadReadyToPrint: boolean;
+        eepromError: boolean;
+        ramError: boolean;
+        startOfPacket?: unknown;
+        token?: unknown;
+        optionalDataLength?: unknown;
+        dle?: unknown;
+        eot?: unknown;
+      }
       | {
-          requestId: number;
-          returnCode: number;
-          startOfPacket?: unknown;
-          token?: unknown;
-        }
+        requestId: number;
+        returnCode: number;
+        startOfPacket?: unknown;
+        token?: unknown;
+      }
   ): void {
     throw new Error('Method not implemented.');
   }

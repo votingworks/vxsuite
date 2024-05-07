@@ -34,6 +34,7 @@ export interface PaperHandlerDriverInterface {
   disconnect(): Promise<void>;
   getWebDevice(): MinimalWebUsbDevice;
   transferInGeneric(): Promise<USBInTransferResult>;
+  transferInAcknowledgement(): Promise<boolean>;
   clearGenericInBuffer(): Promise<void>;
   transferOutRealTime(requestId: Uint8): Promise<USBOutTransferResult>;
   transferInRealTime(): Promise<USBInTransferResult>;

@@ -372,6 +372,10 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     const transferOutResult = await this.transferOutGeneric(coder, value);
     assert(transferOutResult.status === 'ok'); // TODO: Handling
 
+    return this.transferInAcknowledgement();
+  }
+
+  async transferInAcknowledgement(): Promise<boolean> {
     const transferInResult = await this.transferInGeneric();
     assert(transferInResult.status === 'ok'); // TODO: Handling
     this.genericLock.release();
@@ -392,8 +396,8 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
         debug('negative acknowledgement');
         return false;
       case ReturnCodes.UNKNOWN:
-        debug('unknown acknowledgement');
-        return true;
+        debug('unknown response code. retrying reading acknowledgement');
+        return this.transferInAcknowledgement();
       default:
         throw new Error(`uninterpretable acknowledgement: ${code}`);
     }
