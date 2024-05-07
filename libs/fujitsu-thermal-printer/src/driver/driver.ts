@@ -194,22 +194,3 @@ export class FujitsuThermalPrinterDriver
     await this.transferOut(SetSpeedSettingCommand, { speed });
   }
 }
-
-/**
- * Class constructors cannot be async, so we need a factory function to
- * asynchronously create a FujitsuThermalPrinterDriver.
- */
-export async function getFujitsuThermalPrinterDriver(): Promise<
-  Optional<FujitsuThermalPrinterDriver>
-> {
-  const thermalPrinterWebDevice = await getDevice();
-  if (!thermalPrinterWebDevice) {
-    return;
-  }
-
-  const thermalPrinterDriver = new FujitsuThermalPrinterDriver(
-    thermalPrinterWebDevice
-  );
-  await thermalPrinterDriver.connect();
-  return thermalPrinterDriver;
-}

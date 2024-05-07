@@ -6,8 +6,7 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 import { existsSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { safeParseInt } from '@votingworks/types';
-import { FujitsuThermalPrinter, getFujitsuThermalPrinter } from './printer';
-import { SpeedSetting } from './driver';
+import { FujitsuThermalPrinter } from './printer';
 
 /**
  * Command line interface for interacting with the paper handler driver.
@@ -20,7 +19,6 @@ enum Command {
   AdvancePaper = 'advance',
   Print = 'print',
   PrintFixture = 'print-fixture',
-  SetSpeed = 'set-speed',
 }
 const commandList = Object.values(Command);
 
@@ -31,7 +29,6 @@ function printUsage() {
   console.log(`    print-fixture (print example report)`);
   console.log(`    print <path> (print from file, 8.5in wide PDF)`);
   console.log(`    advance <millimeters> (move the paper forward)`);
-  console.log(`    set-speed <11|12|13|14|15|21|22|23|24|25>`);
 }
 
 function printFromFile(printer: FujitsuThermalPrinter, path: string) {
@@ -47,19 +44,6 @@ const fixturePath = join(
   __dirname,
   '../test/fixtures/tally-report-single-page.pdf'
 );
-
-const speedMapping: Record<number, SpeedSetting> = {
-  11: SpeedSetting.Type1Mode1,
-  12: SpeedSetting.Type1Mode2,
-  13: SpeedSetting.Type1Mode3,
-  14: SpeedSetting.Type1Mode4,
-  15: SpeedSetting.Type1Mode5,
-  21: SpeedSetting.Type2Mode1,
-  22: SpeedSetting.Type2Mode2,
-  23: SpeedSetting.Type2Mode3,
-  24: SpeedSetting.Type2Mode4,
-  25: SpeedSetting.Type2Mode5,
-};
 
 async function handleCommand(
   printer: FujitsuThermalPrinter,
@@ -96,20 +80,6 @@ async function handleCommand(
         console.log(await printer.getStatus());
       }, 1000);
       break;
-    case Command.SetSpeed: {
-      const parseResult = safeParseInt(args[0]);
-      if (!parseResult.isOk()) {
-        printUsage();
-        break;
-      }
-      const speed = speedMapping[parseResult.ok()];
-      if (!speed) {
-        printUsage();
-        break;
-      }
-      await printer.setSpeed(speed);
-      break;
-    }
     default:
       throwIllegalValue(command);
   }
@@ -120,7 +90,7 @@ async function handleCommand(
 export async function main(): Promise<number> {
   printUsage();
 
-  const printer = await getFujitsuThermalPrinter();
+  const printer = new FujitsuThermalPrinter();
   assert(printer, 'Could not get printer. Is a printer connected?');
 
   const lines = createInterface(process.stdin);

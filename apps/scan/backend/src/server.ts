@@ -21,17 +21,17 @@ export interface StartOptions {
 /**
  * Starts the server.
  */
-export async function start({
+export function start({
   auth,
   workspace,
   logger,
   precinctScannerStateMachine,
   usbDrive,
   printer,
-}: StartOptions): Promise<void> {
+}: StartOptions): void {
   detectDevices({ logger });
   const resolvedUsbDrive = usbDrive ?? detectUsbDrive(logger);
-  const resolvedPrinter = printer ?? (await getPrinter(logger));
+  const resolvedPrinter = printer ?? getPrinter(logger);
 
   // Clear any cached data
   workspace.clearUploads();
