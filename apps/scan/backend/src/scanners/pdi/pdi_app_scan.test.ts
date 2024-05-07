@@ -13,6 +13,7 @@ import {
 import { ScannerError } from '@votingworks/pdi-scanner';
 import {
   ballotImages,
+  createMockPdiScannerClient,
   mockStatus,
   simulateScan,
   withApp,
@@ -457,12 +458,19 @@ test('if scanning times out, ballot rejected', async () => {
       mockScanner.setScannerStatus(mockStatus.documentInRear);
 
       // If scanning times out, we expect the scanner client to be exited and a
-      // new client to be created (which will reuse the same mock scanner
-      // client, given the way our tests are set up, so we need to get the mock
-      // ready).
+      // new client to be created
       const deferredExit = deferred<Result<void, ScannerError>>();
       mockScanner.client.exit.mockReturnValueOnce(deferredExit.promise);
-      mockScanner.client.connect.mockResolvedValueOnce(ok());
+      const oldMockScannerClient = mockScanner.client;
+
+      const newMockScanner = createMockPdiScannerClient();
+      newMockScanner.client.connect.mockResolvedValueOnce(ok());
+      newMockScanner.setScannerStatus(mockStatus.documentInRear);
+      // `withApp` sets up the mocks to return `mockScanner.client` when
+      // `createPdiScannerClient` is called, so we mutate it to point to our new
+      // client.
+      // eslint-disable-next-line no-param-reassign
+      mockScanner.client = newMockScanner.client;
 
       clock.increment(delays.DELAY_SCANNING_TIMEOUT);
       await waitForStatus(apiClient, {
@@ -470,13 +478,13 @@ test('if scanning times out, ballot rejected', async () => {
         error: 'scanning_timed_out',
       });
       deferredExit.resolve(ok());
-      expect(mockScanner.client.exit).toHaveBeenCalled();
-      expect(mockScanner.client.connect).toHaveBeenCalled();
+      expect(oldMockScannerClient.exit).toHaveBeenCalled();
 
       await waitForStatus(apiClient, {
         state: 'rejecting',
         error: 'paper_in_back_after_reconnect',
       });
+      expect(newMockScanner.client.connect).toHaveBeenCalled();
 
       // Make sure the underlying error got logged correctly
       expect(logger.log).toHaveBeenCalledWith(
@@ -490,6 +498,12 @@ test('if scanning times out, ballot rejected', async () => {
         },
         expect.any(Function)
       );
+
+      // Make sure event listener was added to new client (regression test for
+      // bug where we weren't adding the root event listener to the new client)
+      newMockScanner.setScannerStatus(mockStatus.coverOpen);
+      newMockScanner.emitEvent({ event: 'coverOpen' });
+      await waitForStatus(apiClient, { state: 'cover_open' });
     }
   );
 });
