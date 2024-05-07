@@ -53,8 +53,16 @@ make install-script-dependencies
 ./scripts/configure-java-card
 ```
 
-For local development, you can use the following command, which sets the
-relevant env vars for local development and then calls the base script:
+For production, you can use the following command:
+
+```
+NODE_ENV=production \
+  VX_PRIVATE_KEY_PATH=/path/to/vx-private-key.pem \
+  ./scripts/configure-java-card
+```
+
+For development, you can use the following wrapper command, which sets the
+relevant env vars for development and then calls the base script:
 
 ```
 ./scripts/configure-dev-java-card
@@ -81,9 +89,9 @@ temp directory, so it doesn't need to have already been cloned.
 ### System Administrator Java Card Programming Script
 
 This script programs a first system administrator Java Card to bootstrap both
-production machine usage and local development. Once you have your first system
-administrator card, you can program all other cards, including additional system
-administrator cards, through the VxAdmin UI.
+production machine usage and development. Once you have your first system
+administrator card, you can program all other cards (excluding vendor cards),
+including additional system administrator cards, through the VxAdmin UI.
 
 The script uses the `NODE_ENV` env var to determine whether to program a
 production or development card. Programming a production card requires
@@ -94,8 +102,8 @@ additional production-machine-specific env vars.
 ./scripts/program-system-administrator-java-card
 ```
 
-For local development, you can use the following command, which sets the
-relevant env vars for local development and then calls the base script:
+For development, you can use the following wrapper command, which sets the
+relevant env vars for development and then calls the base script:
 
 ```
 ./scripts/program-dev-system-administrator-java-card
@@ -112,9 +120,43 @@ cards after we've shipped a VxAdmin.
 
 ```
 VX_MACHINE_JURISDICTION=<jurisdiction> \
-  VX_PRIVATE_KEY_PATH=/path/to/vx-private-key.pem \
-  ./scripts/program-production-system-administrator-java-card-without-vx-admin
+    VX_PRIVATE_KEY_PATH=/path/to/vx-private-key.pem \
+    ./scripts/program-production-system-administrator-java-card-without-vx-admin
 ```
+
+### Vendor Java Card Programming Script
+
+This script programs a vendor Java Card.
+
+The script uses the `NODE_ENV` env var to determine whether to program a
+production or development card.
+
+```
+# With the relevant env vars set, a card reader connected, and a Java Card in the card reader
+./scripts/program-vendor-java-card
+```
+
+For production, you can use the following command:
+
+```
+NODE_ENV=production \
+    VX_MACHINE_JURISDICTION=<jurisdiction> \
+    VX_PRIVATE_KEY_PATH=/path/to/vx-private-key.pem \
+    ./scripts/program-vendor-java-card
+```
+
+If you want the card to be a universal vendor card granting vendor access to
+machines regardless of their jurisdiction, specify \* for the jurisdiction.
+
+For development, you can use the following wrapper command, which sets the
+relevant env vars for development and then calls the base script:
+
+```
+./scripts/program-dev-vendor-java-card
+```
+
+The initial Java Card configuration script needs to be run before this script
+can be run. This script will remind you if you haven't done so.
 
 ### Java Card Detail Reading Script
 
@@ -164,9 +206,9 @@ you might have to `ps aux | grep node` for lingering Node processes.
 
 ### Card Mocking Script
 
-If you'd like to mock cards during local development (instead of using a real
-card reader), add `REACT_APP_VX_USE_MOCK_CARDS=TRUE` to your `.env.local` and
-use this script:
+If you'd like to mock cards during development (instead of using a real card
+reader), add `REACT_APP_VX_USE_MOCK_CARDS=TRUE` to your `.env.local` and use
+this script:
 
 ```
 ./scripts/mock-card
