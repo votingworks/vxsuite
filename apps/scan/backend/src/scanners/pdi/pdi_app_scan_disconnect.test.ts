@@ -426,3 +426,28 @@ test('scanner disconnected after rejecting', async () => {
     }
   );
 });
+
+test('scanner error on reconnect', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'no_paper' });
+
+      simulateDisconnect(mockScanner);
+      await waitForStatus(apiClient, { state: 'disconnected' });
+
+      // Sometimes when the scanner is disconnected while scanning, it will not
+      // reconnect and require a restart
+      mockScanner.client.connect.mockResolvedValue(
+        err({
+          code: 'other',
+          message: 'failed to receive: timed out waiting on channel',
+        })
+      );
+      clock.increment(delays.DELAY_RECONNECT);
+      await waitForStatus(apiClient, { state: 'unrecoverable_error' });
+    }
+  );
+});

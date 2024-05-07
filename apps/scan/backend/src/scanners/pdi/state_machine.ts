@@ -748,7 +748,10 @@ function buildMachine({
                 src: async ({ client }) =>
                   (await client.connect()).unsafeUnwrap(),
                 onDone: '#waitingForBallot',
-                onError: '#error',
+                onError: {
+                  target: '#error',
+                  actions: assign({ error: (_, event) => event.data }),
+                },
               },
             },
           },
