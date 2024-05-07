@@ -275,7 +275,10 @@ fn main() -> color_eyre::Result<()> {
                         send_response(Response::Ok)?;
                     }
                     (Some(client), Command::GetScannerStatus) => {
-                        match client.get_scanner_status(Duration::from_secs(1)) {
+                        // We use a long-ish timeout here because the scanner
+                        // may sometimes be delayed in sending a response (e.g.
+                        // if its busy ejecting a long sheet of paper).
+                        match client.get_scanner_status(Duration::from_secs(2)) {
                             Ok(status) => send_response(Response::ScannerStatus { status })?,
                             Err(e) => send_error_response(&e)?,
                         }
