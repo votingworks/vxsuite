@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
-import { createRoot } from 'react-dom/client';
+import React from 'react';
+import ReactDom from 'react-dom';
 import styled from 'styled-components';
 
-import { ElementWithCallback, PrintOptions } from '@votingworks/types';
+import { PrintOptions } from '@votingworks/types';
 import { getPrinter } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
 
@@ -12,126 +12,8 @@ const PrintOnly = styled.div`
   }
 `;
 
-/**
- * Render an element and call the provided print function. The function to render
- * the element takes a callback to indicate when the component has finished rendering
- * and is ready to be printed. This accommodates components that may want to do
- * multiple renders or post-processing before being ready to print.
- * */
-async function printElementWhenReadyHelper<PrintResult>(
-  elementWithOnReadyCallback: ElementWithCallback,
-  print: () => Promise<PrintResult>
-): Promise<PrintResult> {
-  const printRoot = document.createElement('div');
-  printRoot.id = 'print-root';
-  printRoot.dataset['testid'] = 'print-root';
-  document.body.appendChild(printRoot);
-  const reactPrintRoot = createRoot(printRoot);
-
-  async function waitForImagesToLoad() {
-    const imageLoadPromises = Array.from(printRoot.querySelectorAll('img'))
-      .filter((imgElement) => !imgElement.complete)
-      .map((imgElement) => {
-        return new Promise<void>((resolve: () => void, reject: () => void) => {
-          imgElement.onload = resolve; // eslint-disable-line no-param-reassign
-          imgElement.onerror = reject; // eslint-disable-line no-param-reassign
-        });
-      });
-
-    return Promise.all(imageLoadPromises);
-  }
-
-  return new Promise<PrintResult>((resolve, reject) => {
-    async function printAndTeardown() {
-      try {
-        const printResult = await print();
-        resolve(printResult);
-      } catch (e) {
-        reject(e);
-      } finally {
-        reactPrintRoot.unmount();
-        printRoot.remove();
-      }
-    }
-
-    async function onElementReady() {
-      await waitForImagesToLoad();
-      await printAndTeardown();
-    }
-
-    reactPrintRoot.render(
-      <PrintOnly>{elementWithOnReadyCallback(onElementReady)}</PrintOnly>
-    );
-  });
-}
-
-/**
- * Wrapper component to give a regular component an "onRendered" callback prop
- * that will get called after the first render of the component finishes.
- * */
-function WrapperWithCallbackAfterFirstRender({
-  children,
-  onRendered,
-}: {
-  children: JSX.Element;
-  onRendered: () => void;
-}) {
-  useEffect(() => {
-    onRendered();
-  }, [onRendered]);
-  return children;
-}
-
-/**
- * Renders regular React components that are ready to print after their initial
- * render, then  calls the provided print function.
- * */
-function printElementSuper<PrintResult>(
-  element: JSX.Element,
-  print: () => Promise<PrintResult>
-): Promise<PrintResult> {
-  const elementWithCallbackAfterFirstRender: ElementWithCallback = (
-    onElementReady
-  ) => (
-    <WrapperWithCallbackAfterFirstRender onRendered={onElementReady}>
-      {element}
-    </WrapperWithCallbackAfterFirstRender>
-  );
-
-  return printElementWhenReadyHelper(
-    elementWithCallbackAfterFirstRender,
-    print
-  );
-}
-
-function printWithOptions(printOptions: PrintOptions) {
-  return () => {
-    return getPrinter().print(printOptions);
-  };
-}
-
-/**
- * Renders a React component that takes a callback to indicate when rendering
- * is finished, and sends it to the printer when ready.
- */
-export async function printElementWhenReady(
-  elementWithOnReadyCallback: ElementWithCallback,
-  printOptions: PrintOptions
-): Promise<void> {
-  return printElementWhenReadyHelper(
-    elementWithOnReadyCallback,
-    printWithOptions(printOptions)
-  );
-}
-
-/**
- * Renders a React component and sends it to the printer.
- */
-export async function printElement(
-  element: JSX.Element,
-  printOptions: PrintOptions
-): Promise<void> {
-  return printElementSuper(element, printWithOptions(printOptions));
+async function printWithOptions(printOptions: PrintOptions) {
+  await getPrinter().print(printOptions);
 }
 
 /**
@@ -144,17 +26,125 @@ async function printToPdf(): Promise<Uint8Array> {
   return pdfData;
 }
 
-export async function printElementToPdfWhenReady(
-  elementWithOnReadyCallback: ElementWithCallback
-): Promise<Uint8Array> {
-  return printElementWhenReadyHelper(elementWithOnReadyCallback, printToPdf);
+function getPrintRoot() {
+  const existingElement = document.getElementById('print-root');
+
+  if (existingElement) {
+    return existingElement;
+  }
+
+  const newElement = document.createElement('div');
+  newElement.id = 'print-root';
+  newElement.dataset['testid'] = 'print-root';
+  document.body.appendChild(newElement);
+
+  return newElement;
 }
 
-/**
- * Renders a React component and returns a promise for it as PDF data.
- */
-export async function printElementToPdf(
-  element: JSX.Element
-): Promise<Uint8Array> {
-  return printElementSuper(element, printToPdf);
+function Printable(props: { children: React.ReactNode }) {
+  const { children } = props;
+
+  return ReactDom.createPortal(
+    <PrintOnly aria-hidden>{children}</PrintOnly>,
+    getPrintRoot()
+  );
+}
+
+export interface PrintToPdfProps {
+  children: React.ReactNode;
+  onDataReady: (pdfData: Uint8Array) => void;
+}
+
+export function PrintToPdf(props: PrintToPdfProps): JSX.Element {
+  const { children, onDataReady } = props;
+  const [printError, setPrintError] = React.useState<unknown>();
+
+  //
+  // Store props in refs to avoid any prop changes re-triggering the print
+  // effect below:
+  //
+
+  const onDataReadyRef = React.useRef(onDataReady);
+  React.useEffect(() => {
+    onDataReadyRef.current = onDataReady;
+  }, [onDataReady]);
+
+  //
+  // Trigger a print-to-pdf of the current page after initial render:
+  //
+
+  React.useEffect(() => {
+    async function doPrint() {
+      let pdfData: Uint8Array;
+      try {
+        pdfData = await printToPdf();
+      } catch (error) {
+        setPrintError(error);
+        return;
+      }
+
+      onDataReadyRef.current(pdfData);
+    }
+
+    // Wait for next tick to print, to allow images to render.
+    window.setTimeout(doPrint);
+  }, []);
+
+  if (printError) {
+    throw printError;
+  }
+
+  return <Printable>{children}</Printable>;
+}
+
+export interface PrintElementProps {
+  children: React.ReactNode;
+  onPrintStarted: () => void;
+  printOptions: PrintOptions;
+}
+
+export function PrintElement(props: PrintElementProps): JSX.Element {
+  const { children, onPrintStarted, printOptions } = props;
+  const [printError, setPrintError] = React.useState<unknown>();
+
+  //
+  // Store props in refs to avoid any prop changes re-triggering the print
+  // effect below:
+  //
+
+  const onPrintStartedRef = React.useRef(onPrintStarted);
+  React.useEffect(() => {
+    onPrintStartedRef.current = onPrintStarted;
+  }, [onPrintStarted]);
+
+  const printOptionsRef = React.useRef(printOptions);
+  React.useEffect(() => {
+    printOptionsRef.current = printOptions;
+  }, [printOptions]);
+
+  //
+  // Trigger a print of the current page after initial render:
+  //
+
+  React.useEffect(() => {
+    async function doPrint() {
+      try {
+        await printWithOptions(printOptionsRef.current);
+      } catch (error) {
+        setPrintError(error);
+        return;
+      }
+
+      onPrintStartedRef.current();
+    }
+
+    // Wait for next tick to print, to allow images to render.
+    window.setTimeout(doPrint);
+  }, []);
+
+  if (printError) {
+    throw printError;
+  }
+
+  return <Printable>{children}</Printable>;
 }

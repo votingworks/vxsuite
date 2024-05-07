@@ -1,20 +1,13 @@
-import React, { useEffect } from 'react';
 import {
   advancePromises,
-  advanceTimersAndPromises,
   mockKiosk,
   mockPrinter,
   suppressingConsoleOutput,
 } from '@votingworks/test-utils';
-import { sleep } from '@votingworks/basics';
 import { PrintOptions } from '@votingworks/types';
-import { screen, waitFor } from '../test/react_testing_library';
-import {
-  printElement,
-  printElementToPdf,
-  printElementToPdfWhenReady,
-  printElementWhenReady,
-} from './print_element';
+import { render, screen } from '../test/react_testing_library';
+import { PrintElement, PrintToPdf } from './print_element';
+import { TestErrorBoundary } from './error_boundary';
 
 const printer = mockPrinter();
 
@@ -25,176 +18,75 @@ jest.mock('@votingworks/utils', () => {
   };
 });
 
-const simpleElement: JSX.Element = <p>Print me!</p>;
 const mockOptions: PrintOptions = { sides: 'one-sided' };
 
-describe('printElement', () => {
+describe('PrintElement', () => {
   test('calls print with expected args', async () => {
-    await suppressingConsoleOutput(async () => {
-      await printElement(simpleElement, mockOptions);
-      expect(printer.print).toHaveBeenCalledTimes(1);
-      expect(printer.print).toHaveBeenLastCalledWith(
-        expect.objectContaining(mockOptions)
-      );
-    });
-  });
+    const onPrintStarted = jest.fn();
 
-  test('removes element after print', async () => {
-    await suppressingConsoleOutput(async () => {
-      const printPromise = printElement(simpleElement, {
-        sides: 'one-sided',
-      });
+    render(
+      <PrintElement onPrintStarted={onPrintStarted} printOptions={mockOptions}>
+        <p>Print me!</p>
+      </PrintElement>
+    );
 
-      await screen.findByText('Print me!');
-      await printPromise;
-      expect(screen.queryByText('Print me!')).not.toBeInTheDocument();
-    });
-  });
+    screen.getByText('Print me!');
 
-  test('calls print AFTER element is rendered', async () => {
-    await suppressingConsoleOutput(async () => {
-      const printPromise = printElement(simpleElement, {
-        sides: 'one-sided',
-      });
-
-      await waitFor(() => {
-        expect(printer.print).not.toHaveBeenCalled();
-        screen.getByText('Print me!');
-      });
-
-      await printPromise;
-      expect(screen.queryByText('Print me!')).not.toBeInTheDocument();
-      expect(printer.print).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  test('waits for images to load', async () => {
-    await suppressingConsoleOutput(async () => {
-      const image1Ref = React.createRef<HTMLImageElement>();
-      const image2Ref = React.createRef<HTMLImageElement>();
-
-      const printPromise = printElement(
-        <div>
-          <p>Print Me!</p>
-          <img alt="" />
-          <img ref={image1Ref} src="./image1.svg" alt="" />
-          <img ref={image2Ref} src="./image2.svg" alt="" />
-        </div>,
-        mockOptions
-      );
-      await screen.findByText('Print Me!');
-      expect(printer.print).not.toHaveBeenCalled();
-
-      image1Ref.current!.dispatchEvent(new Event('load'));
-      await advancePromises();
-      expect(printer.print).not.toHaveBeenCalled();
-
-      image2Ref.current!.dispatchEvent(new Event('load'));
-      await advancePromises();
-      expect(printer.print).toHaveBeenCalledTimes(1);
-
-      await printPromise;
-    });
-  });
-
-  test('if print fails, bubbles up error and cleans up', async () => {
-    await suppressingConsoleOutput(async () => {
-      const printError = new Error();
-      printer.print.mockRejectedValueOnce(printError);
-
-      expect.assertions(2);
-      try {
-        await printElement(simpleElement, mockOptions);
-      } catch (e) {
-        expect(e).toEqual(printError);
-      }
-
-      expect(screen.queryByTestId('print-root')).not.toBeInTheDocument();
-    });
-  });
-
-  test('printed elements have "visibility: hidden;" wrapper ', async () => {
-    await suppressingConsoleOutput(async () => {
-      const printPromise = printElement(simpleElement, {
-        sides: 'one-sided',
-      });
-
-      await waitFor(() => {
-        const element = screen.getByText('Print me!');
-        expect(element.parentElement).toHaveStyleRule('visibility', 'hidden', {
-          media: 'screen',
-        });
-      });
-      await printPromise;
-    });
-  });
-});
-
-function SleeperElement({ afterSleep }: { afterSleep: () => void }) {
-  useEffect(() => {
-    async function sleepThenResolve() {
-      await sleep(500);
-      afterSleep();
-    }
-    void sleepThenResolve();
-  }, [afterSleep]);
-  return simpleElement;
-}
-
-test('printElementWhenReady prints only after element uses callback', async () => {
-  await suppressingConsoleOutput(async () => {
-    let readyToPrintSpy = jest.fn();
-
-    function renderSleeperElement(readyToPrint: () => void) {
-      readyToPrintSpy = jest.fn(readyToPrint);
-      return <SleeperElement afterSleep={readyToPrintSpy} />;
-    }
-
-    const printPromise = printElementWhenReady(renderSleeperElement, {
-      sides: 'one-sided',
-    });
-
-    while (readyToPrintSpy.mock.calls.length === 0) {
-      expect(printer.print).not.toHaveBeenCalled();
-      await advanceTimersAndPromises(1);
-    }
-    await printPromise;
+    await advancePromises();
     expect(printer.print).toHaveBeenCalledTimes(1);
+    expect(printer.print).toHaveBeenLastCalledWith(
+      expect.objectContaining(mockOptions)
+    );
+    expect(onPrintStarted).toHaveBeenCalledTimes(1);
+  });
+
+  test('if print fails, bubbles up error', async () => {
+    await suppressingConsoleOutput(async () => {
+      const onPrintStarted = jest.fn();
+
+      printer.print.mockRejectedValueOnce('print error');
+
+      render(
+        <TestErrorBoundary>
+          <PrintElement
+            onPrintStarted={onPrintStarted}
+            printOptions={mockOptions}
+          >
+            <p>Print me!</p>
+          </PrintElement>
+        </TestErrorBoundary>
+      );
+
+      await screen.findByText('Test Error Boundary');
+      screen.getByText('print error');
+
+      expect(onPrintStarted).not.toHaveBeenCalled();
+    });
+  });
+
+  test('printed elements have "visibility: hidden;" wrapper ', () => {
+    render(
+      <PrintElement onPrintStarted={jest.fn()} printOptions={mockOptions}>
+        <p>Print me!</p>
+      </PrintElement>
+    );
+
+    screen.getByText('Print me!');
+
+    const element = screen.getByText('Print me!');
+    expect(element.parentElement).toHaveStyleRule('visibility', 'hidden', {
+      media: 'screen',
+    });
   });
 });
 
-test('printElementToPdfWhenReady prints only after element uses callback', async () => {
-  await suppressingConsoleOutput(async () => {
-    const kiosk = mockKiosk();
-    kiosk.printToPDF = jest.fn();
-    window.kiosk = kiosk;
-
-    let readyToPrintSpy = jest.fn();
-
-    function renderSleeperElement(readyToPrint: () => void) {
-      readyToPrintSpy = jest.fn(readyToPrint);
-      return <SleeperElement afterSleep={readyToPrintSpy} />;
-    }
-
-    const printToPdfPromise = printElementToPdfWhenReady(renderSleeperElement);
-
-    while (readyToPrintSpy.mock.calls.length === 0) {
-      expect(kiosk.printToPDF).not.toHaveBeenCalled();
-      await advanceTimersAndPromises(1);
-    }
-    await printToPdfPromise;
-    expect(kiosk.printToPDF).toHaveBeenCalledTimes(1);
-
-    window.kiosk = undefined;
-  });
-});
-
-describe('printElementToPdf', () => {
+describe('PrintToPdf', () => {
   let kiosk = mockKiosk();
+  const MOCK_PDF_DATA = new Uint8Array([2, 1, 1]);
 
   beforeEach(() => {
     kiosk = mockKiosk();
-    kiosk.printToPDF = jest.fn();
+    kiosk.printToPDF = jest.fn().mockResolvedValue(MOCK_PDF_DATA);
     window.kiosk = kiosk;
   });
 
@@ -203,17 +95,45 @@ describe('printElementToPdf', () => {
   });
 
   test('calls printToPdf after element is rendered', async () => {
+    const onDataReady = jest.fn();
+
+    kiosk.printToPDF = jest.fn().mockResolvedValue(MOCK_PDF_DATA);
+
+    render(
+      <PrintToPdf onDataReady={onDataReady}>
+        <p>Print me!</p>
+      </PrintToPdf>
+    );
+
+    const contents = screen.getByText('Print me!');
+    expect(contents.parentElement).toHaveStyleRule('visibility', 'hidden', {
+      media: 'screen',
+    });
+
+    await advancePromises();
+    expect(kiosk.printToPDF).toHaveBeenCalledTimes(1);
+    expect(onDataReady).toHaveBeenCalledTimes(1);
+    expect(onDataReady).toHaveBeenCalledWith(MOCK_PDF_DATA);
+  });
+
+  test('propagates print errors', async () => {
     await suppressingConsoleOutput(async () => {
-      const printToPdfPromise = printElementToPdf(simpleElement);
+      const onDataReady = jest.fn();
 
-      await waitFor(() => {
-        expect(kiosk.printToPDF).not.toHaveBeenCalled();
-        screen.getByText('Print me!');
-      });
+      kiosk.printToPDF.mockRejectedValueOnce('print error');
 
-      await printToPdfPromise;
-      expect(screen.queryByText('Print me!')).not.toBeInTheDocument();
-      expect(kiosk.printToPDF).toHaveBeenCalledTimes(1);
+      render(
+        <TestErrorBoundary>
+          <PrintToPdf onDataReady={onDataReady}>
+            <p>Print me!</p>
+          </PrintToPdf>
+        </TestErrorBoundary>
+      );
+
+      await screen.findByText('Test Error Boundary');
+      screen.getByText('print error');
+
+      expect(onDataReady).not.toHaveBeenCalled();
     });
   });
 });

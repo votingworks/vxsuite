@@ -156,7 +156,6 @@ const initialArgs: BmdPaperBallotProps = {
   ).unsafeUnwrap(),
   isLiveMode: true,
   machineType: 'markScan',
-  onRendered: () => undefined,
   precinctId: election.precincts[0].id,
   votes: Object.fromEntries(
     election.contests.map((c) => [

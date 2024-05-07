@@ -63,7 +63,6 @@ function renderBmdPaperBallot({
   precinctId,
   votes,
   isLiveMode = false,
-  onRendered,
   machineType = 'mark',
 }: {
   electionDefinition: ElectionDefinition;
@@ -71,7 +70,6 @@ function renderBmdPaperBallot({
   precinctId: PrecinctId;
   votes: { [key: string]: string | string[] | Candidate };
   isLiveMode?: boolean;
-  onRendered?: () => void;
   machineType?: MachineType;
 }) {
   return render(
@@ -90,7 +88,6 @@ function renderBmdPaperBallot({
         }),
         votes
       )}
-      onRendered={onRendered}
       machineType={machineType}
     />
   );
@@ -275,21 +272,6 @@ test('BmdPaperBallot passes expected data to encodeBallot for use in QR code', (
     }),
     expect.anything()
   );
-});
-
-describe('BmdPaperBallot calls onRendered', () => {
-  test('when "seal" present', () => {
-    const onRendered = jest.fn();
-    renderBmdPaperBallot({
-      electionDefinition: electionGeneralDefinition,
-      ballotStyleId: '5',
-      precinctId: '21',
-      votes: {},
-      onRendered,
-    });
-
-    expect(onRendered).toHaveBeenCalledTimes(1);
-  });
 });
 
 test('BmdPaperBallot renders a large top margin for VxMarkScan prints', () => {

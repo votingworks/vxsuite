@@ -142,7 +142,6 @@ describe('non-English ballot style', () => {
         isLiveMode
         precinctId={spanishBallotStyle.precincts[0]}
         votes={{}}
-        onRendered={() => {}}
         machineType="markScan"
       />
     );
@@ -188,7 +187,6 @@ describe('non-English ballot style', () => {
             { id: 'write-in', name: 'PRINCESS FIONA', isWriteIn: true },
           ],
         }}
-        onRendered={() => {}}
         machineType="markScan"
       />
     );
@@ -240,7 +238,6 @@ describe('non-English ballot style', () => {
         isLiveMode
         precinctId={spanishBallotStyle.precincts[0]}
         votes={{}}
-        onRendered={() => {}}
         machineType="markScan"
       />
     );
@@ -269,7 +266,6 @@ describe('non-English ballot style', () => {
         isLiveMode
         precinctId={spanishBallotStyle.precincts[0]}
         votes={{ [contest.id]: [contest.yesOption.id] }}
-        onRendered={() => {}}
         machineType="markScan"
       />
     );
@@ -307,7 +303,6 @@ describe('non-English ballot style', () => {
         isLiveMode
         precinctId={spanishBallotStyle.precincts[0]}
         votes={{}}
-        onRendered={() => {}}
         machineType="markScan"
       />
     );
@@ -350,7 +345,6 @@ describe('English ballot style', () => {
         isLiveMode
         precinctId={englishBallotStyle.precincts[0]}
         votes={votes}
-        onRendered={() => {}}
         machineType="markScan"
       />
     );
@@ -379,7 +373,6 @@ describe('English ballot style', () => {
         isLiveMode
         precinctId={englishBallotStyle.precincts[0]}
         votes={{}}
-        onRendered={() => {}}
         machineType="markScan"
       />
     );
