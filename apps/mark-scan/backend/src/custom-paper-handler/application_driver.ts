@@ -77,15 +77,18 @@ export async function printBallotChunks(
 }
 
 export async function scanAndSave(driver: PaperHandlerDriver): Promise<string> {
+  debug('+scanAndSave');
   const pathOutFront = tmpNameSync({ postfix: '.jpeg' });
+  debug('saving scan to', pathOutFront);
   const status = await driver.getPaperHandlerStatus();
+  debug('status: %s', status);
   // Scan can happen from loaded or parked state. If the paper is not loaded or parked
   // it means the voter may have taken the paper out of the infeed
   if (!isPaperAnywhere(status)) {
     throw new Error('Paper has been removed');
   }
 
-  debug('Starting scanAndSave to', pathOutFront);
+  debug('Starting scanAndSave');
   await driver.scanAndSave(pathOutFront);
   debug('Completed scanAndSave');
 

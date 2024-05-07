@@ -366,6 +366,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     value: T
   ): Promise<boolean> {
     await this.genericLock.acquire();
+    console.log(`transferOutGeneric command buffer: ${value}`);
     const transferOutResult = await this.transferOutGeneric(coder, value);
     assert(transferOutResult.status === 'ok'); // TODO: Handling
 
@@ -374,7 +375,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     this.genericLock.release();
     const { data } = transferInResult;
     assert(data);
-    console.log(Buffer.from(data.buffer));
+    console.log('Transfer in data:', Buffer.from(data.buffer));
     const result = AcknowledgementResponse.decode(Buffer.from(data.buffer));
     if (result.isErr()) {
       debug(`Error decoding transferInGeneric response: ${result.err()}`);
@@ -506,6 +507,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   }
 
   async scanAndSave(pathOut: string): Promise<ImageFromScanner> {
+    debug('setting scan direction');
     await this.setScanDirection('backward');
     const grayscaleResult = await this.scan();
     debug(
