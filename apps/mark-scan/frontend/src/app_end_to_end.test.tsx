@@ -2,11 +2,8 @@ import userEvent from '@testing-library/user-event';
 import {
   mockElectionManagerUser,
   mockKiosk,
-  expectPrintToPdf,
   hasTextAcrossElements,
-  mockPrintElement,
-  mockPrintElementWhenReady,
-  mockPrintElementToPdf,
+  mockOf,
 } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { getContestDistrictName } from '@votingworks/types';
@@ -27,12 +24,16 @@ import {
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { configureFromUsbThenRemove } from '../test/helpers/election_package';
 import { getMockInterpretation } from '../test/helpers/interpretation';
+import {
+  MOCK_BALLOT_PDF_DATA,
+  MOCK_PRINT_PAGE_TEST_ID,
+  MockPrintPage,
+} from '../test/helpers/mock_print_page';
+import { PrintPage } from './pages/print_page';
 
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
-  ...jest.requireActual('@votingworks/ui'),
-  printElementWhenReady: mockPrintElementWhenReady,
-  printElement: mockPrintElement,
-  printElementToPdf: mockPrintElementToPdf,
+jest.mock('./pages/print_page', (): typeof import('./pages/print_page') => ({
+  ...jest.requireActual('./pages/print_page'),
+  PrintPage: jest.fn(),
 }));
 
 let apiMock: ApiMock;
@@ -44,6 +45,8 @@ beforeEach(() => {
   apiMock = createApiMock();
   kiosk = mockKiosk();
   window.kiosk = kiosk;
+
+  mockOf(PrintPage).mockImplementation(MockPrintPage);
 });
 
 afterEach(() => {
@@ -287,11 +290,10 @@ test('MarkAndPrint end-to-end flow', async () => {
   screen.getByText(hasTextAcrossElements(/number of unused votes: 2/i));
 
   // Print Screen
-  apiMock.expectPrintBallot();
+  apiMock.expectPrintBallot(MOCK_BALLOT_PDF_DATA);
   apiMock.expectGetElectionState({ ballotsPrintedCount: 1 });
   userEvent.click(screen.getByText(/Print My ballot/i));
-  screen.getByText(/Printing Your Official Ballot/i);
-  await expectPrintToPdf();
+  screen.getByTestId(MOCK_PRINT_PAGE_TEST_ID);
 
   const mockInterpretation = getMockInterpretation(electionDefinition);
   apiMock.expectGetInterpretation(mockInterpretation);

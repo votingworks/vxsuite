@@ -1,11 +1,9 @@
 import userEvent from '@testing-library/user-event';
 import {
-  expectPrint,
   mockElectionManagerUser,
   mockKiosk,
-  mockPrintElement,
-  mockPrintElementWhenReady,
   hasTextAcrossElements,
+  mockOf,
 } from '@votingworks/test-utils';
 import { MemoryHardware, singlePrecinctSelectionFor } from '@votingworks/utils';
 import { mockBaseLogger } from '@votingworks/logging';
@@ -17,6 +15,10 @@ import * as GLOBALS from './config/globals';
 import { App } from './app';
 
 import { withMarkup } from '../test/helpers/with_markup';
+import {
+  MOCK_PRINT_PAGE_TEST_ID,
+  MockPrintPage,
+} from '../test/helpers/mock_print_page';
 
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
@@ -28,11 +30,11 @@ import {
 } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { configureFromUsbThenRemove } from '../test/helpers/election_package';
+import { PrintPage } from './pages/print_page';
 
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
-  ...jest.requireActual('@votingworks/ui'),
-  printElementWhenReady: mockPrintElementWhenReady,
-  printElement: mockPrintElement,
+jest.mock('./pages/print_page', (): typeof import('./pages/print_page') => ({
+  ...jest.requireActual('./pages/print_page'),
+  PrintPage: jest.fn(),
 }));
 
 let apiMock: ApiMock;
@@ -44,6 +46,8 @@ beforeEach(() => {
   apiMock = createApiMock();
   kiosk = mockKiosk();
   window.kiosk = kiosk;
+
+  mockOf(PrintPage).mockImplementation(MockPrintPage);
 });
 
 afterEach(() => {
@@ -293,8 +297,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectIncrementBallotsPrintedCount();
   apiMock.expectGetElectionState({ ballotsPrintedCount: 1 });
   userEvent.click(screen.getByText(/Print My ballot/i));
-  screen.getByText(/Printing Your Official Ballot/i);
-  await expectPrint();
+  screen.getByTestId(MOCK_PRINT_PAGE_TEST_ID);
 
   // Expire timeout for display of "Printing Ballot" screen
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);

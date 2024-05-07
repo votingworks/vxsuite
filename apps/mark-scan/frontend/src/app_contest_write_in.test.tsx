@@ -1,11 +1,4 @@
-import {
-  expectPrintToPdf,
-  mockKiosk,
-  mockOf,
-  mockPrintElement,
-  mockPrintElementWhenReady,
-  mockPrintElementToPdf,
-} from '@votingworks/test-utils';
+import { mockKiosk, mockOf } from '@votingworks/test-utils';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
@@ -18,6 +11,12 @@ import { advanceTimers } from '../test/helpers/timers';
 
 import { singleSeatContestWithWriteIn } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import {
+  MOCK_BALLOT_PDF_DATA,
+  MOCK_PRINT_PAGE_TEST_ID,
+  MockPrintPage,
+} from '../test/helpers/mock_print_page';
+import { PrintPage } from './pages/print_page';
 
 let apiMock: ApiMock;
 let kiosk = mockKiosk();
@@ -30,11 +29,9 @@ jest.mock(
   })
 );
 
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
-  ...jest.requireActual('@votingworks/ui'),
-  printElementWhenReady: mockPrintElementWhenReady,
-  printElement: mockPrintElement,
-  printElementToPdf: mockPrintElementToPdf,
+jest.mock('./pages/print_page', (): typeof import('./pages/print_page') => ({
+  ...jest.requireActual('./pages/print_page'),
+  PrintPage: jest.fn(),
 }));
 
 /**
@@ -78,6 +75,8 @@ beforeEach(() => {
   apiMock.expectGetSystemSettings();
   apiMock.setPaperHandlerState('waiting_for_ballot_data');
   setUpMockContestPage();
+
+  mockOf(PrintPage).mockImplementation(MockPrintPage);
 });
 
 afterEach(() => {
@@ -145,13 +144,9 @@ it('Single Seat Contest with Write In', async () => {
   expect(screen.getByText(/\(write-in\)/)).toBeTruthy();
 
   // Print Screen
-  apiMock.expectPrintBallot();
+  apiMock.expectPrintBallot(MOCK_BALLOT_PDF_DATA);
   apiMock.expectGetElectionState({ ballotsPrintedCount: 1 });
   fireEvent.click(screen.getByText(/Print My ballot/i));
   advanceTimers();
-  screen.getByText(/Printing Your Official Ballot/i);
-  await expectPrintToPdf((printedElement) => {
-    expect(printedElement.getByText('Official Ballot')).toBeTruthy();
-    expect(printedElement.getByText('(write-in)')).toBeTruthy();
-  });
+  screen.getByTestId(MOCK_PRINT_PAGE_TEST_ID);
 });

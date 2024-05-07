@@ -3,13 +3,7 @@ import {
   MemoryHardware,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import {
-  MockKiosk,
-  expectPrint,
-  mockKiosk,
-  mockPrintElement,
-  mockPrintElementWhenReady,
-} from '@votingworks/test-utils';
+import { MockKiosk, mockKiosk, mockOf } from '@votingworks/test-utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { render, screen, within } from '../test/react_testing_library';
@@ -21,11 +15,15 @@ import { presidentContest, voterContests } from '../test/helpers/election';
 import { withMarkup } from '../test/helpers/with_markup';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { PrintPage } from './pages/print_page';
+import {
+  MOCK_PRINT_PAGE_TEST_ID,
+  MockPrintPage,
+} from '../test/helpers/mock_print_page';
 
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
-  ...jest.requireActual('@votingworks/ui'),
-  printElementWhenReady: mockPrintElementWhenReady,
-  printElement: mockPrintElement,
+jest.mock('./pages/print_page', (): typeof import('./pages/print_page') => ({
+  ...jest.requireActual('./pages/print_page'),
+  PrintPage: jest.fn(),
 }));
 
 let apiMock: ApiMock;
@@ -37,6 +35,8 @@ beforeEach(() => {
   apiMock = createApiMock();
   kiosk = mockKiosk();
   window.kiosk = kiosk;
+
+  mockOf(PrintPage).mockImplementation(MockPrintPage);
 });
 
 afterEach(() => {
@@ -179,8 +179,7 @@ test('poll worker selects ballot style, voter votes', async () => {
     ballotsPrintedCount: 1,
   });
   userEvent.click(screen.getByText(/Print My ballot/i));
-  screen.getByText(/Printing Your Official Ballot/i);
-  await expectPrint();
+  screen.getByTestId(MOCK_PRINT_PAGE_TEST_ID);
 
   // Reset ballot
   await advanceTimersAndPromises();

@@ -2,14 +2,7 @@ import {
   singlePrecinctSelectionFor,
   ALL_PRECINCTS_SELECTION,
 } from '@votingworks/utils';
-import {
-  MockKiosk,
-  expectPrintToPdf,
-  mockKiosk,
-  mockPrintElement,
-  mockPrintElementWhenReady,
-  mockPrintElementToPdf,
-} from '@votingworks/test-utils';
+import { MockKiosk, mockKiosk, mockOf } from '@votingworks/test-utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import {
@@ -18,6 +11,11 @@ import {
   screen,
   within,
 } from '../test/react_testing_library';
+import {
+  MOCK_BALLOT_PDF_DATA,
+  MOCK_PRINT_PAGE_TEST_ID,
+  MockPrintPage,
+} from '../test/helpers/mock_print_page';
 
 import { App } from './app';
 
@@ -25,12 +23,11 @@ import { presidentContest, voterContests } from '../test/helpers/election';
 import { withMarkup } from '../test/helpers/with_markup';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { getMockInterpretation } from '../test/helpers/interpretation';
+import { PrintPage } from './pages/print_page';
 
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
-  ...jest.requireActual('@votingworks/ui'),
-  printElementWhenReady: mockPrintElementWhenReady,
-  printElement: mockPrintElement,
-  printElementToPdf: mockPrintElementToPdf,
+jest.mock('./pages/print_page', (): typeof import('./pages/print_page') => ({
+  ...jest.requireActual('./pages/print_page'),
+  PrintPage: jest.fn(),
 }));
 
 let apiMock: ApiMock;
@@ -43,6 +40,8 @@ beforeEach(() => {
   kiosk = mockKiosk();
   window.kiosk = kiosk;
   apiMock.setPaperHandlerState('not_accepting_paper');
+
+  mockOf(PrintPage).mockImplementation(MockPrintPage);
 });
 
 afterEach(() => {
@@ -192,13 +191,12 @@ test('Cardless Voting Flow', async () => {
   }
 
   // Advance to print ballot
-  apiMock.expectPrintBallot();
+  apiMock.expectPrintBallot(MOCK_BALLOT_PDF_DATA);
   apiMock.expectGetElectionState({
     ballotsPrintedCount: 1,
   });
   fireEvent.click(screen.getByText(/Print My ballot/i));
-  screen.getByText(/Printing Your Official Ballot/i);
-  await expectPrintToPdf();
+  screen.getByTestId(MOCK_PRINT_PAGE_TEST_ID);
 
   // Validate ballot page
   const mockInterpretation = getMockInterpretation(electionDefinition);

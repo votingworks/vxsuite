@@ -1,9 +1,4 @@
-import {
-  expectPrint,
-  mockPrintElement,
-  mockPrintElementWhenReady,
-  mockOf,
-} from '@votingworks/test-utils';
+import { mockOf } from '@votingworks/test-utils';
 import { ALL_PRECINCTS_SELECTION, MemoryHardware } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
@@ -20,6 +15,11 @@ import {
 
 import { singleSeatContestWithWriteIn } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { PrintPage } from './pages/print_page';
+import {
+  MOCK_PRINT_PAGE_TEST_ID,
+  MockPrintPage,
+} from '../test/helpers/mock_print_page';
 
 let apiMock: ApiMock;
 
@@ -31,10 +31,9 @@ jest.mock(
   })
 );
 
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
-  ...jest.requireActual('@votingworks/ui'),
-  printElementWhenReady: mockPrintElementWhenReady,
-  printElement: mockPrintElement,
+jest.mock('./pages/print_page', (): typeof import('./pages/print_page') => ({
+  ...jest.requireActual('./pages/print_page'),
+  PrintPage: jest.fn(),
 }));
 
 /**
@@ -75,6 +74,8 @@ beforeEach(() => {
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
   setUpMockContestPage();
+
+  mockOf(PrintPage).mockImplementation(MockPrintPage);
 });
 
 afterEach(() => {
@@ -152,9 +153,5 @@ it('Single Seat Contest with Write In', async () => {
   apiMock.expectGetElectionState();
   fireEvent.click(screen.getByText(/Print My ballot/i));
   advanceTimers();
-  screen.getByText(/Printing Your Official Ballot/i);
-  await expectPrint((printedElement) => {
-    expect(printedElement.getByText('Official Ballot')).toBeTruthy();
-    expect(printedElement.getByText('(write-in)')).toBeTruthy();
-  });
+  screen.getByTestId(MOCK_PRINT_PAGE_TEST_ID);
 });
