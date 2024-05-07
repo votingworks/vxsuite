@@ -475,10 +475,8 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
         rawResponse.data.byteOffset,
         rawResponse.data.byteLength
       );
-      serverDebug('buffer', rawResponse.data.buffer);
-      serverDebug('byteOffset', rawResponse.data.byteOffset);
-      serverDebug('byteLength', rawResponse.data.byteLength);
-      debug(`Scan response buffer: ${responseBuffer}`);
+      serverDebug('Scan response byteOffset', rawResponse.data.byteOffset);
+      serverDebug('Scan response byteLength', rawResponse.data.byteLength);
       const header = responseBuffer.slice(0, SCAN_HEADER_LENGTH_BYTES);
       debug(`Scan response header: ${header}`);
       const responseResult = ScanResponse.decode(
