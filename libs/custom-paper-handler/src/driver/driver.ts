@@ -374,6 +374,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     this.genericLock.release();
     const { data } = transferInResult;
     assert(data);
+    console.log(data.buffer);
     const result = AcknowledgementResponse.decode(Buffer.from(data.buffer));
     if (result.isErr()) {
       debug(`Error decoding transferInGeneric response: ${result.err()}`);
