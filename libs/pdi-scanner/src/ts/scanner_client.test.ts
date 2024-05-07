@@ -156,7 +156,7 @@ test('exit', async () => {
   expect(await client.getScannerStatus()).toEqual(
     err({
       response: 'error',
-      code: 'disconnected',
+      code: 'exited',
     })
   );
 });
@@ -258,7 +258,7 @@ test('handles unexpected pdictl exit', async () => {
   expect(await client.getScannerStatus()).toEqual(
     err({
       response: 'error',
-      code: 'disconnected',
+      code: 'exited',
     })
   );
 });
