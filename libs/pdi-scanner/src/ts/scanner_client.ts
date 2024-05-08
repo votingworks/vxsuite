@@ -63,11 +63,21 @@ export interface ScannerStatus {
  * Coded error responses from the scanner client.
  */
 export type ScannerError =
+  /** The pdictl process has exited and a new client should be created */
+  | { code: 'exited' }
+  /** The scanner is disconnected */
   | { code: 'disconnected' }
+  /** The scanner is already connected, can't connect again */
   | { code: 'alreadyConnected' }
+  /** A scan is in progress and can't be interrupted with other commands */
   | { code: 'scanInProgress' }
+  /** Scanning failed */
   | { code: 'scanFailed' }
+  /** More than one sheet was detected during scanning. Always followed by a
+   * `scanFailed` event.
+   */
   | { code: 'doubleFeedDetected' }
+  /** Another error occurred. See `message` for details. */
   | { code: 'other'; message: string };
 
 /**
@@ -242,7 +252,7 @@ export function createPdiScannerClient() {
     if (pdictlIsClosed) {
       return {
         response: 'error',
-        code: 'disconnected',
+        code: 'exited',
       };
     }
     const pendingResponse = pendingResponseQueue.get();

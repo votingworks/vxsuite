@@ -1,4 +1,5 @@
-import { LogSource } from '.';
+import { typedAs } from '@votingworks/basics';
+import { LogEventType, LogLine, LogSource } from '.';
 import { LogEventId } from './log_event_ids';
 import { mockBaseLogger, mockLogger } from './test_utils';
 
@@ -6,6 +7,22 @@ test('mockBaseLogger returns a logger with a spy on logger.log', async () => {
   const logger = mockBaseLogger();
   await logger.log(LogEventId.MachineBootInit, 'system');
   expect(logger.log).toHaveBeenCalledWith(LogEventId.MachineBootInit, 'system');
+});
+
+test('mockLogger returns a logger that can print debug logs', async () => {
+  const logger = mockLogger(LogSource.System);
+  const debug = jest.fn();
+  await logger.log(LogEventId.MachineBootInit, 'system', undefined, debug);
+  expect(debug).toHaveBeenCalledWith(
+    typedAs<LogLine>({
+      source: LogSource.System,
+      eventId: LogEventId.MachineBootInit,
+      eventType: LogEventType.SystemAction,
+      user: 'system',
+      disposition: 'na',
+      details: undefined,
+    })
+  );
 });
 
 test('mockLogger', async () => {

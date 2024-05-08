@@ -1,6 +1,7 @@
 use clap::Parser;
 use image::EncodableLayout;
 use std::{
+    cell::Cell,
     io::{self, Write},
     sync::mpsc,
     time::Duration,
@@ -165,14 +166,6 @@ fn send_to_stdout(message: Message) -> color_eyre::Result<()> {
     Ok(())
 }
 
-fn send_response(response: Response) -> color_eyre::Result<()> {
-    send_to_stdout(Message::Response(response))
-}
-
-fn send_event(event: Event) -> color_eyre::Result<()> {
-    send_to_stdout(Message::Event(event))
-}
-
 fn error_to_code_and_message(error: &Error) -> (ErrorCode, Option<String>) {
     match error {
         Error::Usb(UsbError::Rusb(rusb::Error::NotFound))
@@ -183,16 +176,6 @@ fn error_to_code_and_message(error: &Error) -> (ErrorCode, Option<String>) {
 
         _ => (ErrorCode::Other, Some(error.to_string())),
     }
-}
-
-fn send_error_response(error: &Error) -> color_eyre::Result<()> {
-    let (code, message) = error_to_code_and_message(error);
-    send_response(Response::Error { code, message })
-}
-
-fn send_error_event(error: &Error) -> color_eyre::Result<()> {
-    let (code, message) = error_to_code_and_message(error);
-    send_event(Event::Error { code, message })
 }
 
 fn main() -> color_eyre::Result<()> {
@@ -218,7 +201,33 @@ fn main() -> color_eyre::Result<()> {
 
     let mut client: Option<Client<Scanner>> = None;
     let mut raw_image_data = RawImageData::new();
-    let mut scan_in_progress = false;
+
+    // We reject sending a command while a scan is in progress because it will
+    // interrupt the scan. To ensure this flag gets reset whenever a scan stops
+    // (whether successfully or with an error or disconnection), we manage this
+    // flag in the send_response/send_event functions, since they are called in
+    // basically every case when the scanner state changes.
+    let scan_in_progress = Cell::new(false);
+
+    let send_response = |response: Response| -> color_eyre::Result<()> {
+        scan_in_progress.replace(false);
+        send_to_stdout(Message::Response(response))
+    };
+
+    let send_event = |event: Event| -> color_eyre::Result<()> {
+        scan_in_progress.replace(matches!(event, Event::ScanStart));
+        send_to_stdout(Message::Event(event))
+    };
+
+    let send_error_response = |error: &Error| -> color_eyre::Result<()> {
+        let (code, message) = error_to_code_and_message(error);
+        send_response(Response::Error { code, message })
+    };
+
+    let send_error_event = |error: &Error| -> color_eyre::Result<()> {
+        let (code, message) = error_to_code_and_message(error);
+        send_event(Event::Error { code, message })
+    };
 
     // Main loop:
     // - Process any commands received on stdin. Note that our command
@@ -232,7 +241,7 @@ fn main() -> color_eyre::Result<()> {
                 if matches!(command, Command::Exit) {
                     return color_eyre::Result::Ok(());
                 }
-                if scan_in_progress {
+                if scan_in_progress.get() {
                     send_response(Response::Error {
                         code: ErrorCode::ScanInProgress,
                         message: None,
@@ -352,7 +361,6 @@ fn main() -> color_eyre::Result<()> {
         if let Some(c) = &mut client {
             match c.try_recv_matching(Incoming::is_event) {
                 Ok(Incoming::BeginScanEvent) => {
-                    scan_in_progress = true;
                     raw_image_data = RawImageData::new();
                     send_event(Event::ScanStart)?;
                 }
@@ -404,7 +412,6 @@ fn main() -> color_eyre::Result<()> {
                             })?;
                         }
                     }
-                    scan_in_progress = false;
                 }
                 Ok(Incoming::CoverOpenEvent) => {
                     send_event(Event::CoverOpen)?;

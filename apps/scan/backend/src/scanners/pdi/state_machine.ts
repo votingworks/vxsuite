@@ -8,14 +8,17 @@ import {
 } from '@votingworks/pdi-scanner';
 import assert from 'assert';
 import {
+  ActorRef,
   BaseActionObject,
   Interpreter,
   InvokeConfig,
+  Sender,
   StateNodeConfig,
   assign,
   createMachine,
   interpret as interpretStateMachine,
   sendParent,
+  spawn,
 } from 'xstate';
 import { v4 as uuid } from 'uuid';
 import { SheetInterpretation, SheetOf, mapSheet } from '@votingworks/types';
@@ -93,6 +96,7 @@ interface Context {
   scanImages?: SheetOf<ImageData>;
   interpretation?: InterpretationResult;
   error?: ScannerError | PrecinctScannerError | Error;
+  rootListenerRef?: ActorRef<Event>;
 }
 
 type Event =
@@ -226,17 +230,33 @@ function buildMachine({
     data: (context) => ({ client: context.client }),
   };
 
+  function addEventListener(client: ScannerClient, callback: Sender<Event>) {
+    return client.addListener((event) => {
+      callback(
+        event.event === 'error'
+          ? { type: 'SCANNER_ERROR', error: event }
+          : { type: 'SCANNER_EVENT', event }
+      );
+    });
+  }
+
+  // To ensure we catch scanner events no matter what state the machine is in,
+  // we spawn a long-lived actor that is referenced in the context (rather than
+  // invoking it in a specific state). These events will be caught in the root
+  // `on` handlers.
+  const listenForScannerEventsAtRoot = assign({
+    rootListenerRef: ({ client }) =>
+      spawn((callback) => {
+        const listener = addEventListener(client, callback);
+        return () => client.removeListener(listener);
+      }),
+  });
+
   const listenForScannerEvents: InvokeConfig<Context, Event> = {
     src:
       ({ client }) =>
       (callback) => {
-        const listener = client.addListener((event) => {
-          callback(
-            event.event === 'error'
-              ? { type: 'SCANNER_ERROR', error: event }
-              : { type: 'SCANNER_EVENT', event }
-          );
-        });
+        const listener = addEventListener(client, callback);
         return () => client.removeListener(listener);
       },
   };
@@ -382,7 +402,8 @@ function buildMachine({
 
       context: { client: initialClient },
 
-      invoke: listenForScannerEvents,
+      // Listen for scanner events at the root level (see rootListenerRef to see
+      // how the listener is created).
       on: {
         SCANNER_EVENT: [
           {
@@ -419,6 +440,7 @@ function buildMachine({
       initial: 'connecting',
       states: {
         connecting: {
+          entry: listenForScannerEventsAtRoot,
           invoke: {
             src: async ({ client }) => (await client.connect()).unsafeUnwrap(),
             onDone: 'waitingForBallot',
@@ -735,24 +757,12 @@ function buildMachine({
 
         disconnected: {
           id: 'disconnected',
-          initial: 'exiting',
+          initial: 'waiting',
           entry: assign({ interpretation: undefined }),
           states: {
-            exiting: {
-              invoke: {
-                src: async ({ client }) => {
-                  (await client.exit()).unsafeUnwrap();
-                },
-                onDone: 'waiting',
-                onError: '#error',
-              },
-            },
             waiting: {
               after: {
-                DELAY_RECONNECT: {
-                  actions: assign({ client: () => createScannerClient() }),
-                  target: 'reconnecting',
-                },
+                DELAY_RECONNECT: 'reconnecting',
               },
             },
             reconnecting: {
@@ -760,7 +770,10 @@ function buildMachine({
                 src: async ({ client }) =>
                   (await client.connect()).unsafeUnwrap(),
                 onDone: '#waitingForBallot',
-                onError: '#error',
+                onError: {
+                  target: '#error',
+                  actions: assign({ error: (_, event) => event.data }),
+                },
               },
             },
           },
@@ -790,9 +803,10 @@ function buildMachine({
                 onDone: 'reconnecting',
                 onError: 'reconnecting',
               },
+              exit: assign({ client: () => createScannerClient() }),
             },
             reconnecting: {
-              entry: assign({ client: () => createScannerClient() }),
+              entry: listenForScannerEventsAtRoot,
               invoke: {
                 src: async ({ client }) =>
                   (await client.connect()).unsafeUnwrap(),
@@ -840,6 +854,7 @@ function setupLogging(
         // Hide large values
         'layout',
         'client',
+        'rootListenerRef',
       ].includes(key)
     ) {
       return '[hidden]';
