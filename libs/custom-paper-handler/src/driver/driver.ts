@@ -194,7 +194,8 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
         sleep(1000).then(() => {
           return true;
         }),
-        this.transferInGeneric().then(() => {
+        this.transferInGeneric().then((data) => {
+          console.log('flushed transferInGeneric data', data);
           return false;
         }),
       ]);
