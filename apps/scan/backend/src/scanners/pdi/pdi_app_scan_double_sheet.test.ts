@@ -166,17 +166,30 @@ test('insert second ballot during accept, stopped in front', async () => {
       // stopped in the front of the scanner
       mockScanner.setScannerStatus(mockStatus.documentInFront);
       deferredEject.resolve(ok());
+      const ballotsCounted = 1;
       await waitForStatus(apiClient, {
         state: 'accepted',
         interpretation,
-        ballotsCounted: 1,
+        ballotsCounted,
       });
 
       clock.increment(delays.DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT);
+      // Ballot will be scanned normally
       await waitForStatus(apiClient, {
-        state: 'rejected',
-        error: 'paper_in_front_after_reconnect',
-        ballotsCounted: 1,
+        state: 'no_paper',
+        ballotsCounted,
+      });
+      expect(mockScanner.client.enableScanning).toHaveBeenCalled();
+      await simulateScan(
+        apiClient,
+        mockScanner,
+        await ballotImages.completeHmpb(),
+        ballotsCounted
+      );
+      await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation,
+        ballotsCounted,
       });
     }
   );
@@ -279,6 +292,66 @@ test('insert second ballot before accept after review', async () => {
       await waitForStatus(apiClient, {
         state: 'accepting_after_review',
         interpretation,
+      });
+    }
+  );
+});
+
+test('insert second ballot after accept, should be scanned', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        electionPackage:
+          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
+      });
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'no_paper' });
+
+      await simulateScan(
+        apiClient,
+        mockScanner,
+        await ballotImages.completeHmpb()
+      );
+      const interpretation: SheetInterpretation = { type: 'ValidSheet' };
+      await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation,
+      });
+
+      mockScanner.client.enableScanning.mockClear();
+      await apiClient.acceptBallot();
+      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
+      const ballotsCounted = 1;
+      await waitForStatus(apiClient, {
+        state: 'accepted',
+        interpretation,
+        ballotsCounted,
+      });
+      // Ensure that scanning was disabled and not re-enabled yet
+      expect(mockScanner.client.ejectDocument).toHaveBeenCalled(); // Disables scanning
+      expect(mockScanner.client.enableScanning).not.toHaveBeenCalled();
+
+      // Simulate inserting a second ballot
+      mockScanner.setScannerStatus(mockStatus.documentInFront);
+
+      clock.increment(delays.DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT);
+      await waitForStatus(apiClient, {
+        state: 'no_paper',
+        ballotsCounted,
+      });
+      expect(mockScanner.client.enableScanning).toHaveBeenCalled();
+      await simulateScan(
+        apiClient,
+        mockScanner,
+        await ballotImages.completeHmpb(),
+        ballotsCounted
+      );
+      await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation,
+        ballotsCounted,
       });
     }
   );
