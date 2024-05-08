@@ -44,8 +44,12 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
     const driver = new FujitsuThermalPrinterDriver(device);
     await driver.connect();
 
-    // standardize the printer config state
+    // standardize the printer's configuration
     await driver.resetPrinter();
+    await driver.setPrintQuality({
+      paperQuality: 'long-term-storage',
+      automaticDivision: true,
+    });
     await driver.setReplyParameter(IDLE_REPLY_PARAMETER);
 
     return driver;
