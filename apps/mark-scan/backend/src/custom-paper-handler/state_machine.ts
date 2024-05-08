@@ -521,6 +521,13 @@ export function buildMachine(
                       scannedBallotImagePath: (_, event) => event.data,
                     }),
                   },
+                  onError: {
+                    target: 'resetting_state_machine_after_jam',
+                    actions: (context, event) =>
+                      context.logger.log(LogEventId.UnknownError, 'system', {
+                        message: `Error in scan stage: ${event.data}`,
+                      }),
+                  },
                 },
                 pollPaperStatus(),
               ],

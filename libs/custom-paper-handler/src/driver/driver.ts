@@ -396,8 +396,9 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
         debug('negative acknowledgement');
         return false;
       case ReturnCodes.UNKNOWN:
-        debug('unknown response code. retrying reading acknowledgement');
-        return this.transferInAcknowledgement();
+        debug('unknown response code. throwing error.');
+        throw new Error(`Unhandled response code ${ReturnCodes.UNKNOWN}`)
+      // return this.transferInAcknowledgement();
       default:
         throw new Error(`uninterpretable acknowledgement: ${code}`);
     }
