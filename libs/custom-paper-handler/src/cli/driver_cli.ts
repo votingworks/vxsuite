@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 
+import fs from 'fs/promises';
 import { createInterface } from 'readline';
 import { pdfToImages } from '@votingworks/image-utils';
 import { Buffer } from 'buffer';
@@ -10,8 +11,11 @@ import { tmpdir } from 'os';
 import { getPaperHandlerDriver } from '../driver/helpers';
 import { ballotFixture } from '../test/fixtures';
 import { chunkBinaryBitmap, imageDataToBinaryBitmap } from '../printing';
-import { DEVICE_MAX_WIDTH_DOTS } from '../driver/constants';
-import { PaperHandlerDriverInterface } from '../driver';
+import { VERTICAL_DOTS_IN_CHUNK } from '../driver/constants';
+import { PaperHandlerDriver, PaperHandlerDriverInterface } from '../driver';
+
+const SCAN_DPI = 72;
+const PRINT_DPI = 200;
 
 /**
  * Command line interface for interacting with the paper handler driver.
@@ -69,50 +73,48 @@ async function scan(driver: PaperHandlerDriverInterface): Promise<void> {
  * Unsafely prints a ballot from ballot fixtures. Adapted from paper_handler_machine.
  * Precondition: enable-print command has succeeded
  */
-async function printBallot(driver: PaperHandlerDriverInterface): Promise<void> {
-  console.time('pdf to image');
-  const page = await getOnlyPageFromPdf(Buffer.from(ballotFixture));
-  console.timeEnd('pdf to image');
-  console.time('image to binary');
-  // For prototype we expect image to have the same number of dots as the printer width.
-  // This is likely a requirement long term but we should have guarantees upstream.
+export async function printBallotChunks(
+  driver: PaperHandlerDriver,
+  pdfData: Buffer,
+): Promise<void> {
+  console.log('+printBallotChunks');
+  const enablePrintPromise = driver.enablePrint();
+  const pageInfo = await iter(
+    pdfToImages(pdfData, { scale: PRINT_DPI / SCAN_DPI })
+  ).first();
+  // A PDF must have at least 1 page but iter doesn't know this.
+  // `pdfData` of length 0 will fail in `pdfToImages`.
+  assert(pageInfo);
   assert(
-    page.width <= DEVICE_MAX_WIDTH_DOTS,
-    `Expected max width ${DEVICE_MAX_WIDTH_DOTS} but got ${page.width}`
+    pageInfo.pageCount === 1,
+    `Unexpected page count ${pageInfo.pageCount}`
   );
+  const { page } = pageInfo;
 
   const ballotBinaryBitmap = imageDataToBinaryBitmap(page, {});
-  console.log(`bitmap width: ${ballotBinaryBitmap.width}`);
-  console.log(`bitmap height: ${ballotBinaryBitmap.height}`);
-  console.timeEnd('image to binary');
-  console.time('binary to chunks');
-
   const customChunkedBitmaps = chunkBinaryBitmap(ballotBinaryBitmap);
-  console.log(`num chunk rows: ${customChunkedBitmaps.length}`);
-  console.timeEnd('binary to chunks');
 
+  await enablePrintPromise;
   let dotsSkipped = 0;
-  console.log(`begin printing ${customChunkedBitmaps.length} chunks`);
-  let i = 0;
   for (const customChunkedBitmap of customChunkedBitmaps) {
     if (customChunkedBitmap.empty) {
-      dotsSkipped += 24;
+      dotsSkipped += VERTICAL_DOTS_IN_CHUNK;
     } else {
       if (dotsSkipped) {
-        console.log('setting relative vertical print position');
         await driver.setRelativeVerticalPrintPosition(dotsSkipped * 2); // assuming default vertical units, 1 / 408 units
         dotsSkipped = 0;
       }
-      console.time(`printing chunk ${i}`);
       await driver.printChunk(customChunkedBitmap);
-      console.timeEnd(`printing chunk ${i}`);
     }
-    i += 1;
   }
-  console.log(`Done printing ballot. ${i} chunks printed.`);
+  console.log(
+    '-printBallotChunks. Completed printing %d chunks total',
+    customChunkedBitmaps.length
+  );
 }
 
 async function setDefaults(driver: PaperHandlerDriverInterface) {
+
   await driver.initializePrinter();
   console.log('initialized printer');
   await driver.setLineSpacing(0);
@@ -152,7 +154,8 @@ async function handleCommand(
     command === Command.PrintSampleBallotShorthand
   ) {
     console.log('Printing sample ballot');
-    await printBallot(driver);
+    const data = await fs.readFile(join(__dirname, 'ballot.pdf'));
+    await printBallotChunks(driver, data);
   } else if (command === Command.ResetScan) {
     console.log('Resetting scan');
     await driver.resetScan();
