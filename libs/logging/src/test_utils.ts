@@ -1,7 +1,8 @@
 import { Logger } from './logger';
 import { LogSource } from './base_types/log_source';
-import { LoggingUserRole } from './types';
+import { LogDispositionStandardTypes, LogLine, LoggingUserRole } from './types';
 import { BaseLogger } from './base_logger';
+import { getDetailsForEventId } from './log_event_ids';
 
 export function mockBaseLogger(
   logSource: LogSource = LogSource.System
@@ -18,7 +19,28 @@ export function mockLogger(
 ): Logger {
   const logger = new Logger(source, getCurrentRole);
 
-  logger.log = jest.fn();
+  // eslint-disable-next-line @typescript-eslint/require-await
+  logger.log = jest.fn(async (eventId, user, logData, outerDebug) => {
+    if (outerDebug) {
+      const eventSpecificDetails = getDetailsForEventId(eventId);
+      /* istanbul ignore next */
+      const {
+        message = eventSpecificDetails.defaultMessage,
+        disposition = LogDispositionStandardTypes.NotApplicable,
+        ...additionalData
+      } = logData ?? {};
+      const logLine: LogLine = {
+        source,
+        eventId,
+        eventType: eventSpecificDetails.eventType,
+        user,
+        message,
+        disposition,
+        ...additionalData,
+      };
+      outerDebug(logLine);
+    }
+  });
   logger.logAsCurrentRole = jest.fn(async (eventId, logData) =>
     logData
       ? logger.log(eventId, await getCurrentRole(), logData)
