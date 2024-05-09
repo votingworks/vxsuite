@@ -443,11 +443,47 @@ function buildMachine({
           entry: listenForScannerEventsAtRoot,
           invoke: {
             src: async ({ client }) => (await client.connect()).unsafeUnwrap(),
-            onDone: 'waitingForBallot',
+            onDone: 'checkingInitialStatus',
             onError: {
               target: 'error',
               actions: assign({ error: (_, event) => event.data }),
             },
+          },
+        },
+
+        checkingInitialStatus: {
+          id: 'checkingInitialStatus',
+          invoke: pollScannerStatus,
+          on: {
+            SCANNER_STATUS: [
+              // We need to check for coverOpen on connect, since we won't get
+              // an event (since the cover is already open).
+              {
+                cond: (_, { status }) => status.coverOpen,
+                target: '#coverOpen',
+              },
+              {
+                cond: (_, { status }) => anyRearSensorCovered(status),
+                target: '#rejecting',
+                actions: [
+                  assign({
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    error: (_context) =>
+                      new PrecinctScannerError('paper_in_back_after_reconnect'),
+                  }),
+                ],
+              },
+              {
+                cond: (_, { status }) => anyFrontSensorCovered(status),
+                target: '#rejected',
+                actions: assign({
+                  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                  error: (_context) =>
+                    new PrecinctScannerError('paper_in_front_after_reconnect'),
+                }),
+              },
+              { target: 'waitingForBallot' },
+            ],
           },
         },
 
@@ -458,7 +494,8 @@ function buildMachine({
         // scanning. When that occurs, the scan is interrupted.
         //
         // Since we don't poll scanner status, we have an initial check when
-        // entering this state to ensure the scanner is clear of ballots.
+        // entering this state to ensure the scanner doesn't have a ballot in
+        // the rear. (A ballot in the front is ok - we can scan it.)
         waitingForBallot: {
           id: 'waitingForBallot',
           entry: assign({
@@ -474,12 +511,7 @@ function buildMachine({
               on: {
                 SCANNER_STATUS: [
                   {
-                    cond: (_, { status }) => status.coverOpen,
-                    target: '#coverOpen',
-                  },
-                  {
-                    cond: (_, { status }) =>
-                      status.documentInScanner && anyRearSensorCovered(status),
+                    cond: (_, { status }) => anyRearSensorCovered(status),
                     target: '#rejecting',
                     actions: [
                       assign({
@@ -490,17 +522,6 @@ function buildMachine({
                           ),
                       }),
                     ],
-                  },
-                  {
-                    cond: (_, { status }) => status.documentInScanner,
-                    target: '#rejected',
-                    actions: assign({
-                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                      error: (_context) =>
-                        new PrecinctScannerError(
-                          'paper_in_front_after_reconnect'
-                        ),
-                    }),
                   },
                   { target: 'waiting' },
                 ],
@@ -778,7 +799,7 @@ function buildMachine({
               invoke: {
                 src: async ({ client }) =>
                   (await client.connect()).unsafeUnwrap(),
-                onDone: '#waitingForBallot',
+                onDone: '#checkingInitialStatus',
                 onError: {
                   target: '#error',
                   actions: assign({ error: (_, event) => event.data }),
@@ -819,7 +840,7 @@ function buildMachine({
               invoke: {
                 src: async ({ client }) =>
                   (await client.connect()).unsafeUnwrap(),
-                onDone: '#waitingForBallot',
+                onDone: '#checkingInitialStatus',
                 onError: '#unrecoverableError',
               },
             },
@@ -961,6 +982,7 @@ export function createPrecinctScannerStateMachine({
         // us to add new substates to a state without breaking this switch.
         switch (true) {
           case state.matches('connecting'):
+          case state.matches('checkingInitialStatus'):
             return 'connecting';
           case state.matches('disconnected'):
             return 'disconnected';

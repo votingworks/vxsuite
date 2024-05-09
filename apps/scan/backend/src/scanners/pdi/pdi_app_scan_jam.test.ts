@@ -259,3 +259,26 @@ test('jam while returning', async () => {
     }
   );
 });
+
+// We haven't seen this exact pattern happen in practice - the PDI scanner seems
+// to be good at clearing the jam flag when jams are cleared, but it's a good
+// way to test the sanity check to catch a document in the scanner at the
+// beginning of the #waitingForBallot state.
+test('jam cleared but ballot still in rear of scanner', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
+
+      mockScanner.setScannerStatus(mockStatus.jammed);
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'jammed' });
+
+      mockScanner.setScannerStatus(mockStatus.documentInRear);
+      clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
+      await waitForStatus(apiClient, {
+        state: 'rejecting',
+        error: 'paper_in_back_after_reconnect',
+      });
+    }
+  );
+});
