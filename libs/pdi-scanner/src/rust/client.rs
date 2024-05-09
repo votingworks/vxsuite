@@ -90,7 +90,7 @@ impl<T> Client<T> {
             .iter()
             .filter(|packet| !packet.is_event())
             .collect::<Vec<_>>();
-        if unhandled_non_event_packets.len() > 0 {
+        if unhandled_non_event_packets.is_empty() {
             tracing::debug!("clearing unhandled packets: {unhandled_non_event_packets:?}");
             self.unhandled_packets.retain(Incoming::is_event);
         }
