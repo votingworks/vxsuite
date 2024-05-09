@@ -1087,6 +1087,16 @@ pub enum Incoming {
     /// the same time.
     DoubleFeedEvent,
 
+    // An unsolicited message from the scanner indicating that the scanner has
+    // paused ejecting a document to the rear because the front sensors were
+    // covered (presumably due to another document being inserted).
+    EjectPauseEvent,
+
+    // An unsolicited message from the scanner indicating that the scanner has
+    // resumed ejecting after an EjectPause event since the front sensors are
+    // now clear.
+    EjectResumeEvent,
+
     /// An unsolicited message from the scanner indicating that the scanner has
     /// completed the double-feed detection calibration.
     DoubleFeedCalibrationCompleteEvent,
@@ -1129,6 +1139,8 @@ impl Incoming {
                 | Self::BeginScanEvent
                 | Self::EndScanEvent
                 | Self::DoubleFeedEvent
+                | Self::EjectPauseEvent
+                | Self::EjectResumeEvent
                 | Self::DoubleFeedCalibrationCompleteEvent
                 | Self::DoubleFeedCalibrationTimedOutEvent
         )

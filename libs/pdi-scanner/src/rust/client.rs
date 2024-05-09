@@ -38,6 +38,7 @@ macro_rules! recv {
 
 macro_rules! send_and_recv {
     ($client:expr => $outgoing:expr, $pattern:pat $(if $guard:expr)? => $consequent:expr, $timeout:expr $(,)?) => {{
+        $client.clear_unhandled_packets_except_events();
         $client.send($outgoing)?;
         recv!($client, $pattern $(if $guard)? => $consequent, Instant::now() + $timeout)
     }};
@@ -70,6 +71,28 @@ impl<T> Client<T> {
             host_to_scanner_tx,
             host_to_scanner_ack_rx,
             scanner_handle,
+        }
+    }
+
+    // There should only be one command/response occurring at a time, so before
+    // we send a command that expects a response, we should clear out any old
+    // responses. This ensures we don't get an outdated response (e.g. a previous scanner
+    // status that didn't get received when its command was sent). Thus, this
+    // method is called in the send_and_recv! macro.
+    //
+    // This accounts for the fact that there are cases where the scanner will
+    // delay sending a response to a command (e.g. when the "eject pause"
+    // feature pauses the scanner, it will queue commands received during that
+    // time).
+    fn clear_unhandled_packets_except_events(&mut self) {
+        let unhandled_non_event_packets = self
+            .unhandled_packets
+            .iter()
+            .filter(|packet| !packet.is_event())
+            .collect::<Vec<_>>();
+        if unhandled_non_event_packets.len() > 0 {
+            tracing::debug!("clearing unhandled packets: {unhandled_non_event_packets:?}");
+            self.unhandled_packets.retain(Incoming::is_event);
         }
     }
 
@@ -220,6 +243,10 @@ impl<T> Client<T> {
     pub fn eject_document(&mut self, eject_motion: EjectMotion) -> Result<()> {
         // The feeder needs to be enabled for the eject command to work.
         self.set_feeder_mode(FeederMode::AutoScanSheets)?;
+        self.set_eject_pause_mode(match eject_motion {
+            EjectMotion::ToRear => EjectPauseMode::PauseWhileInputPaperDetected,
+            _ => EjectPauseMode::DoNotCheckForInputPaper,
+        })?;
         self.send(match eject_motion {
             EjectMotion::ToRear => Outgoing::EjectDocumentToRearOfScannerRequest,
             EjectMotion::ToFront => Outgoing::EjectDocumentToFrontOfScannerRequest,
@@ -764,8 +791,6 @@ impl<T> Client<T> {
         self.set_double_feed_detection_minimum_document_length(100)?;
         // OUT DisableDoubleFeedDetectionRequest
         self.set_double_feed_detection_mode(double_feed_detection_mode)?;
-        // OUT DisableEjectPauseRequest
-        self.set_eject_pause_mode(EjectPauseMode::DoNotCheckForInputPaper)?;
         // OUT TransmitInLowBitsPerPixelRequest
         self.set_color_mode(ColorMode::LowColor)?;
         // OUT DisableAutoRunOutAtEndOfScanRequest
