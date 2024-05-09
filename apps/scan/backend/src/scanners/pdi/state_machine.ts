@@ -746,7 +746,16 @@ function buildMachine({
 
         coverOpen: {
           id: 'coverOpen',
-          invoke: pollScannerStatus,
+          invoke: [
+            // The scanner will try to scan ballots (unsuccessfully) while the
+            // cover is open - we have to explicitly disable scanning.
+            {
+              src: async ({ client }) => {
+                (await client.disableScanning()).unsafeUnwrap();
+              },
+            },
+            pollScannerStatus,
+          ],
           on: {
             SCANNER_STATUS: {
               cond: (_, { status }) => !status.coverOpen,

@@ -36,14 +36,18 @@ test('cover open while waiting for ballots', async () => {
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });
 
+      mockScanner.client.disableScanning.mockClear();
+      mockScanner.client.enableScanning.mockClear();
       mockScanner.setScannerStatus(mockStatus.coverOpen);
       mockScanner.emitEvent({ event: 'coverOpen' });
       await waitForStatus(apiClient, { state: 'cover_open' });
+      expect(mockScanner.client.disableScanning).toHaveBeenCalled();
 
       mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
       mockScanner.emitEvent({ event: 'coverClosed' });
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });
+      expect(mockScanner.client.enableScanning).toHaveBeenCalled();
     }
   );
 });
