@@ -30,11 +30,10 @@ export interface FujitsuThermalPrinterInterface {
 export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
   private driver?: FujitsuThermalPrinterDriverInterface;
 
-  private async getDriver(): Promise<
-    Optional<FujitsuThermalPrinterDriverInterface>
-  > {
-    if (this.driver) return this.driver;
-
+  /**
+   * Initializes and returns a new driver instance.
+   */
+  private async getDriver(): Promise<Optional<FujitsuThermalPrinterDriver>> {
     const device = await getDevice();
     if (!device) {
       // the device is not attached or there is an access issue
@@ -56,22 +55,23 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
   }
 
   /**
-   * Gets a the status of the printer. Handles device connection and
-   * disconnection. All other printer methods should check status via this
-   * method to ensure the printer is connected.
+   * Gets the status of the printer. Handles device connection and disconnection.
    */
   async getStatus(): Promise<PrinterStatus> {
-    this.driver = await this.getDriver();
+    // try to initialize the driver if it does not yet exist
     if (!this.driver) {
-      return { state: 'error', type: 'disconnected' };
+      this.driver = await this.getDriver();
+      // if we failed to initialize the driver, the device is likely not connected
+      if (!this.driver) {
+        return { state: 'error', type: 'disconnected' };
+      }
     }
 
     try {
       const status = await this.driver.getStatus();
       return summarizeRawStatus(status);
     } catch {
-      // when a previously responsive driver fails to return a response, it is
-      // most likely that the device was disconnected
+      // if a status request fails, the device was likely disconnected
       this.driver = undefined;
       return { state: 'error', type: 'disconnected' };
     }
@@ -80,11 +80,6 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
   async advancePaper(
     millimeters: number
   ): Promise<Result<void, PrinterStatus>> {
-    const initialStatus = await this.getStatus();
-    if (initialStatus.state !== 'idle') {
-      debug(`advance paper command ignored because printer is not idle`);
-      return err(initialStatus);
-    }
     assert(this.driver);
 
     await this.driver.setReplyParameter(LINE_FEED_REPLY_PARAMETER);
@@ -94,6 +89,7 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
       await this.driver.feedForward(dotLines);
       dotLinesRemaining -= dotLines;
     }
+
     await this.driver.setReplyParameter(IDLE_REPLY_PARAMETER);
     const result = await waitForPrintReadyStatus(this.driver, {
       interval: 100,
@@ -111,11 +107,6 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
   }
 
   async print(data: Buffer): Promise<Result<void, PrinterStatus>> {
-    const initialStatus = await this.getStatus();
-    if (initialStatus.state !== 'idle') {
-      debug(`print command ignored because printer is not idle`);
-      return err(initialStatus);
-    }
     assert(this.driver);
 
     const printResult = await print(this.driver, data);
