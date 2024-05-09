@@ -89,7 +89,9 @@ export type ScannerEvent =
   | { event: 'scanStart' }
   | { event: 'scanComplete'; images: SheetOf<ImageData> }
   | { event: 'coverOpen' }
-  | { event: 'coverClosed' };
+  | { event: 'coverClosed' }
+  | { event: 'ejectPaused' }
+  | { event: 'ejectResumed' };
 
 /**
  * An event listener for any {@link ScannerEvent} emitted by the scanner.
@@ -134,7 +136,9 @@ export type PdictlEvent =
   | { event: 'scanStart' }
   | { event: 'scanComplete'; imageData: [string, string] }
   | { event: 'coverOpen' }
-  | { event: 'coverClosed' };
+  | { event: 'coverClosed' }
+  | { event: 'ejectPaused' }
+  | { event: 'ejectResumed' };
 
 type PdictlMessage = PdictlResponse | PdictlEvent;
 
@@ -227,7 +231,9 @@ export function createPdiScannerClient() {
       }
       case 'error':
       case 'coverOpen':
-      case 'coverClosed': {
+      case 'coverClosed':
+      case 'ejectPaused':
+      case 'ejectResumed': {
         emit(message);
         break;
       }

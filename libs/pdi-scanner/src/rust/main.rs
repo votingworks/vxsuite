@@ -150,6 +150,8 @@ enum Event {
 
     CoverOpen,
     CoverClosed,
+    EjectPaused,
+    EjectResumed,
 }
 
 #[derive(Debug, serde::Serialize)]
@@ -424,6 +426,12 @@ fn main() -> color_eyre::Result<()> {
                         code: ErrorCode::DoubleFeedDetected,
                         message: None,
                     })?;
+                }
+                Ok(Incoming::EjectPauseEvent) => {
+                    send_event(Event::EjectPaused)?;
+                }
+                Ok(Incoming::EjectResumeEvent) => {
+                    send_event(Event::EjectResumed)?;
                 }
                 Ok(event) => {
                     tracing::info!("unhandled event: {event:?}");

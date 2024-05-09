@@ -429,6 +429,8 @@ fn any_event(input: &[u8]) -> IResult<&[u8], Incoming> {
             value(Incoming::BeginScanEvent, begin_scan_event),
             value(Incoming::EndScanEvent, end_scan_event),
             value(Incoming::DoubleFeedEvent, double_feed_event),
+            value(Incoming::EjectPauseEvent, eject_pause_event),
+            value(Incoming::EjectResumeEvent, eject_resume_event),
         )),
         alt((
             value(Incoming::CoverOpenEvent, cover_open_event_alternate),
@@ -1253,6 +1255,8 @@ simple_response!(calibration_speed_box_error, b"#1C");
 simple_response!(begin_scan_event, b"#30");
 simple_response!(end_scan_event, b"#31");
 simple_response!(double_feed_event, b"#33");
+simple_response!(eject_pause_event, b"#36");
+simple_response!(eject_resume_event, b"#37");
 
 // undocumented DFD-related events
 simple_response!(double_feed_calibration_complete_event, b"#90");

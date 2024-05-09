@@ -312,34 +312,17 @@ function buildMachine({
     Event,
     BaseActionObject
   > = {
-    initial: 'checkingForPaperInFront',
+    initial: 'starting',
+    // The scanner will catch paper inserted into the front during the eject
+    // and emit an ejectPaused event. This might happen in our starting or
+    // checkingComplete states, so we catch it here.
+    on: {
+      SCANNER_EVENT: {
+        cond: (_, { event }) => event.event === 'ejectPaused',
+        target: '.paperInFront',
+      },
+    },
     states: {
-      // Prevent a second ballot from getting sucked in when we are
-      // accepting the current ballot by ensuring the front of the scanner is
-      // clear of paper.
-      checkingForPaperInFront: {
-        invoke: pollScannerStatus,
-        on: {
-          SCANNER_STATUS: [
-            {
-              cond: (_, { status }) => anyFrontSensorCovered(status),
-              target: 'paperInFront',
-            },
-            { target: 'starting' },
-          ],
-        },
-      },
-      paperInFront: {
-        invoke: pollScannerStatus,
-        on: {
-          SCANNER_STATUS: [
-            {
-              cond: (_, { status }) => !anyFrontSensorCovered(status),
-              target: 'checkingForPaperInFront',
-            },
-          ],
-        },
-      },
       starting: {
         invoke: [
           {
@@ -354,6 +337,14 @@ function buildMachine({
           },
         ],
       },
+      paperInFront: {
+        on: {
+          SCANNER_EVENT: {
+            cond: (_, { event }) => event.event === 'ejectResumed',
+            target: 'checkingComplete',
+          },
+        },
+      },
       checkingComplete: {
         invoke: pollScannerStatus,
         on: {
@@ -365,16 +356,6 @@ function buildMachine({
             {
               cond: (_, { status }) => !anyRearSensorCovered(status),
               target: '#accepted',
-            },
-            // If a second ballot is inserted before the first is fully ejected,
-            // go back to paperInFront. The first ballot will likely be fully
-            // ejected by the time the second ballot is removed. Attempting to
-            // eject the first ballot again will be a no-op (since it was
-            // already ejected), and we'll successfully transition to the
-            // accepted state.
-            {
-              cond: (_, { status }) => anyFrontSensorCovered(status),
-              target: 'paperInFront',
             },
           ],
         },
