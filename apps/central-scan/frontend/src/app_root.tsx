@@ -13,6 +13,7 @@ import {
   Screen,
   SetupCardReaderPage,
   H1,
+  VendorScreen,
 } from '@votingworks/ui';
 import { BaseLogger } from '@votingworks/logging';
 import { assert } from '@votingworks/basics';
@@ -31,6 +32,8 @@ import {
   getStatus,
   getTestMode,
   getUsbDriveStatus,
+  logOut,
+  systemCallApi,
 } from './api';
 import { UnconfiguredElectionScreenWrapper } from './screens/unconfigured_election_screen_wrapper';
 import { SystemAdministratorSettingsScreen } from './screens/system_administrator_settings_screen';
@@ -46,6 +49,9 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
   const authStatusQuery = getAuthStatus.useQuery();
   const checkPinMutation = checkPin.useMutation();
   const statusQuery = getStatus.useQuery();
+  const logOutMutation = logOut.useMutation();
+  const rebootToVendorMenuMutation =
+    systemCallApi.rebootToVendorMenu.useMutation();
 
   const getTestModeQuery = getTestMode.useQuery();
   const isTestMode = getTestModeQuery.data ?? false;
@@ -129,9 +135,13 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
     return <RemoveCardScreen productName="VxCentralScan" />;
   }
 
-  /* istanbul ignore next */
   if (isVendorAuth(authStatus)) {
-    return null;
+    return (
+      <VendorScreen
+        logOut={() => logOutMutation.mutate()}
+        rebootToVendorMenu={() => rebootToVendorMenuMutation.mutate()}
+      />
+    );
   }
 
   if (isSystemAdministratorAuth(authStatus)) {

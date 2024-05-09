@@ -34,6 +34,7 @@ import {
   useAudioControls,
   useLanguageControls,
   InvalidCardScreen,
+  VendorScreen,
 } from '@votingworks/ui';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
@@ -57,6 +58,7 @@ import {
   startCardlessVoterSession,
   unconfigureMachine,
   updateCardlessVoterBallotStyle,
+  systemCallApi,
 } from './api';
 
 import { Ballot } from './components/ballot';
@@ -187,6 +189,8 @@ export function AppRoot({
     incrementBallotsPrintedCountMutation.mutate;
   const setPollsStateMutation = setPollsState.useMutation();
   const setPollsStateMutateAsync = setPollsStateMutation.mutateAsync;
+  const rebootToVendorMenuMutation =
+    systemCallApi.rebootToVendorMenu.useMutation();
 
   const getElectionDefinitionQuery = getElectionDefinition.useQuery();
   const optionalElectionDefinition = getElectionDefinitionQuery.data;
@@ -402,6 +406,7 @@ export function AppRoot({
   if (computer.batteryIsLow && !computer.batteryIsCharging) {
     return <SetupPowerPage />;
   }
+
   if (authStatus.status === 'checking_pin') {
     return (
       <UnlockMachineScreen
@@ -417,9 +422,12 @@ export function AppRoot({
     );
   }
 
-  /* istanbul ignore next */
   if (isVendorAuth(authStatus)) {
-    return null;
+    return (
+      <VendorScreen
+        rebootToVendorMenu={() => rebootToVendorMenuMutation.mutate()}
+      />
+    );
   }
 
   if (isSystemAdministratorAuth(authStatus)) {
@@ -433,6 +441,7 @@ export function AppRoot({
       />
     );
   }
+
   if (isElectionManagerAuth(authStatus)) {
     if (!optionalElectionDefinition) {
       return <UnconfiguredElectionScreenWrapper />;
@@ -470,6 +479,7 @@ export function AppRoot({
       />
     );
   }
+
   if (optionalElectionDefinition && appPrecinct) {
     if (!hasPrinterAttached) {
       return <SetupPrinterPage />;
@@ -494,6 +504,7 @@ export function AppRoot({
         />
       );
     }
+
     if (pollsState === 'polls_open' && showPostVotingInstructions) {
       return (
         <CastBallotPage
@@ -501,6 +512,7 @@ export function AppRoot({
         />
       );
     }
+
     if (pollsState === 'polls_open') {
       if (isCardlessVoterAuth(authStatus)) {
         return (
@@ -545,5 +557,6 @@ export function AppRoot({
       </IdleTimerProvider>
     );
   }
+
   return <UnconfiguredScreen />;
 }

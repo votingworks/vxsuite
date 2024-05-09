@@ -5,6 +5,7 @@ import { Logger } from '@votingworks/logging';
 import { exportLogsToUsb } from './export_logs_to_usb';
 import { reboot } from './reboot';
 import { rebootToBios } from './reboot_to_bios';
+import { rebootToVendorMenu } from './reboot_to_vendor_menu';
 import { powerDown } from './power_down';
 import { setClock } from './set_clock';
 import { getBatteryInfo } from './get_battery_info';
@@ -23,6 +24,7 @@ function buildApi({
       exportLogsToUsb({ usbDrive, logger, machineId }),
     reboot,
     rebootToBios: async () => rebootToBios(logger),
+    rebootToVendorMenu: async () => rebootToVendorMenu(logger),
     powerDown: async () => powerDown(logger),
     setClock,
     getBatteryInfo,

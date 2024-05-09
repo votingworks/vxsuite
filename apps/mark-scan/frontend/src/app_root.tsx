@@ -25,6 +25,7 @@ import {
   InvalidCardScreen,
   SetupCardReaderPage,
   UnlockMachineScreen,
+  VendorScreen,
   VoterSettingsManagerContext,
   useAudioControls,
   useLanguageControls,
@@ -169,6 +170,8 @@ export function AppRoot(): JSX.Element | null {
   const unconfigureMachineMutateAsync = unconfigureMachineMutation.mutateAsync;
   const setPollsStateMutation = setPollsState.useMutation();
   const setPollsStateMutateAsync = setPollsStateMutation.mutateAsync;
+  const rebootToVendorMenuMutation =
+    systemCallApi.rebootToVendorMenu.useMutation();
 
   const getElectionDefinitionQuery = getElectionDefinition.useQuery();
   const optionalElectionDefinition = getElectionDefinitionQuery.data;
@@ -367,9 +370,12 @@ export function AppRoot(): JSX.Element | null {
     );
   }
 
-  /* istanbul ignore next */
   if (isVendorAuth(authStatus)) {
-    return null;
+    return (
+      <VendorScreen
+        rebootToVendorMenu={() => rebootToVendorMenuMutation.mutate()}
+      />
+    );
   }
 
   if (isSystemAdministratorAuth(authStatus)) {
@@ -425,6 +431,7 @@ export function AppRoot(): JSX.Element | null {
   if (stateMachineState === 'jammed') {
     return <JammedPage authStatus={authStatus} votes={votes} />;
   }
+
   if (
     stateMachineState === 'jam_cleared' ||
     stateMachineState === 'resetting_state_machine_after_jam' ||

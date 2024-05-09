@@ -29,6 +29,12 @@ function createReactQueryApi(getApiClient: () => SystemCallApiClient) {
         return useMutation(async(apiClient.rebootToBios));
       },
     },
+    rebootToVendorMenu: {
+      useMutation: () => {
+        const apiClient = getApiClient();
+        return useMutation(async(apiClient.rebootToVendorMenu));
+      },
+    },
     powerDown: {
       useMutation: () => {
         const apiClient = getApiClient();

@@ -1,6 +1,10 @@
 import { useState } from 'react';
 
-import { SetupCardReaderPage, UnlockMachineScreen } from '@votingworks/ui';
+import {
+  SetupCardReaderPage,
+  UnlockMachineScreen,
+  VendorScreen,
+} from '@votingworks/ui';
 import {
   isSystemAdministratorAuth,
   isElectionManagerAuth,
@@ -45,6 +49,8 @@ export function AppRoot(): JSX.Element | null {
   const pollsInfoQuery = getPollsInfo.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const checkPinMutation = checkPin.useMutation();
+  const rebootToVendorMenuMutation =
+    systemCallApi.rebootToVendorMenu.useMutation();
 
   const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
 
@@ -131,9 +137,12 @@ export function AppRoot(): JSX.Element | null {
     );
   }
 
-  /* istanbul ignore next */
   if (isVendorAuth(authStatus)) {
-    return null;
+    return (
+      <VendorScreen
+        rebootToVendorMenu={() => rebootToVendorMenuMutation.mutate()}
+      />
+    );
   }
 
   if (isSystemAdministratorAuth(authStatus)) {
