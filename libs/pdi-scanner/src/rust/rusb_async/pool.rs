@@ -89,18 +89,6 @@ impl<C: UsbContext> TransferPool<C> {
     }
 
     #[allow(unused)]
-    pub unsafe fn submit_control_raw(&mut self, buffer: Vec<u8>) -> Result<()> {
-        // Safety: If transfer is submitted, it is pushed onto `pending` where it will be
-        // dropped before `device` is freed.
-        unsafe {
-            let mut transfer = Transfer::control_raw(self.device.as_raw(), buffer);
-            transfer.submit()?;
-            self.pending.push_back(transfer);
-            Ok(())
-        }
-    }
-
-    #[allow(unused)]
     pub fn submit_interrupt(&mut self, endpoint: u8, buf: Vec<u8>) -> Result<()> {
         // Safety: If transfer is submitted, it is pushed onto `pending` where it will be
         // dropped before `device` is freed.
