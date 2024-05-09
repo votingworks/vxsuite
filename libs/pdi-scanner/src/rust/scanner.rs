@@ -13,6 +13,12 @@ use crate::{protocol::parsers, rusb_async, Result};
 
 use super::protocol::packets::{self, Incoming};
 
+type ScannerChannels = (
+    Sender<(usize, packets::Outgoing)>,
+    Receiver<usize>,
+    Receiver<Result<packets::Incoming>>,
+);
+
 pub struct Scanner {
     device_handle: Arc<rusb::DeviceHandle<rusb::Context>>,
     default_timeout: Duration,
@@ -55,13 +61,7 @@ impl Scanner {
         self.default_timeout = timeout;
     }
 
-    pub fn start(
-        &mut self,
-    ) -> (
-        Sender<(usize, packets::Outgoing)>,
-        Receiver<usize>,
-        Receiver<Result<packets::Incoming>>,
-    ) {
+    pub fn start(&mut self) -> ScannerChannels {
         /// The endpoint for sending commands to the scanner.
         const ENDPOINT_OUT: u8 = 0x05;
 
@@ -97,12 +97,9 @@ impl Scanner {
                     .unwrap();
 
                 loop {
-                    match stop_rx.try_recv() {
-                        Ok(()) => {
-                            tracing::debug!("Scanner thread received stop signal");
-                            break;
-                        }
-                        Err(_) => {}
+                    if let Ok(()) = stop_rx.try_recv() {
+                        tracing::debug!("Scanner thread received stop signal");
+                        break;
                     }
 
                     match host_to_scanner_rx.try_recv() {
