@@ -33,7 +33,9 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
   /**
    * Initializes and returns a new driver instance.
    */
-  private async getDriver(): Promise<Optional<FujitsuThermalPrinterDriver>> {
+  private async initializeDriver(): Promise<
+    Optional<FujitsuThermalPrinterDriver>
+  > {
     const device = await getDevice();
     if (!device) {
       // the device is not attached or there is an access issue
@@ -58,20 +60,17 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
    * Gets the status of the printer. Handles device connection and disconnection.
    */
   async getStatus(): Promise<PrinterStatus> {
-    // try to initialize the driver if it does not yet exist
+    this.driver ??= await this.initializeDriver();
+    // if we failed to initialize the driver, the device is likely not connected
     if (!this.driver) {
-      this.driver = await this.getDriver();
-      // if we failed to initialize the driver, the device is likely not connected
-      if (!this.driver) {
-        return { state: 'error', type: 'disconnected' };
-      }
+      return { state: 'error', type: 'disconnected' };
     }
 
     try {
       const status = await this.driver.getStatus();
       return summarizeRawStatus(status);
     } catch {
-      // if a status request fails, the device was likely disconnected
+      // if a status request fails, the device is likely no longer connected
       this.driver = undefined;
       return { state: 'error', type: 'disconnected' };
     }
