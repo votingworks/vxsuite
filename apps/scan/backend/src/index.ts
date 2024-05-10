@@ -69,7 +69,7 @@ async function main(): Promise<number> {
   const workspace = await resolveWorkspace();
   const logger = Logger.from(baseLogger, () => getUserRole(auth, workspace));
   const usbDrive = detectUsbDrive(logger);
-  const printer = await getPrinter(logger);
+  const printer = getPrinter(logger);
 
   const precinctScannerStateMachine = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.USE_CUSTOM_SCANNER
@@ -89,7 +89,7 @@ async function main(): Promise<number> {
         logger,
       });
 
-  await server.start({
+  server.start({
     auth,
     precinctScannerStateMachine,
     workspace,

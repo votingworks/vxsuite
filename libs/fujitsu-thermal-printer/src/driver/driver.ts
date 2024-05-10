@@ -11,8 +11,9 @@ import {
   PrinterStatusResponse,
   SetReplyParameterCommand,
   FeedForwardCommand,
-  SpeedSetting,
-  SetSpeedSettingCommand,
+  PrintQuality,
+  SetPrintQuality,
+  convertPrintQualityToCoderValue,
 } from './coders';
 import { Uint16toUint8, Uint8 } from '../bits';
 import { CompressedBitImage } from './types';
@@ -52,11 +53,11 @@ export interface FujitsuThermalPrinterDriverInterface {
   connect(): Promise<void>;
   disconnect(): Promise<void>;
   resetPrinter(): Promise<void>;
+  setPrintQuality(printQuality: PrintQuality): Promise<void>;
   getStatus(): Promise<RawPrinterStatus>;
   setReplyParameter(parameter: Uint8): Promise<void>;
   printBitImage(bitImage: CompressedBitImage): void;
   feedForward(dots: number): Promise<void>;
-  setSpeed(speed: SpeedSetting): Promise<void>;
 }
 
 export class FujitsuThermalPrinterDriver
@@ -189,27 +190,17 @@ export class FujitsuThermalPrinterDriver
     await this.transferOut(FeedForwardCommand, { dots });
   }
 
-  async setSpeed(speed: SpeedSetting): Promise<void> {
-    debug(`setting speed to ${SpeedSetting[speed]}...`);
-    await this.transferOut(SetSpeedSettingCommand, { speed });
+  async setPrintQuality(printQuality: PrintQuality): Promise<void> {
+    debug(
+      `setting print quality to "${
+        printQuality.paperQuality
+      }" and turning auto-division ${
+        printQuality.automaticDivision ? 'on' : 'off'
+      }...`
+    );
+    await this.transferOut(
+      SetPrintQuality,
+      convertPrintQualityToCoderValue(printQuality)
+    );
   }
-}
-
-/**
- * Class constructors cannot be async, so we need a factory function to
- * asynchronously create a FujitsuThermalPrinterDriver.
- */
-export async function getFujitsuThermalPrinterDriver(): Promise<
-  Optional<FujitsuThermalPrinterDriver>
-> {
-  const thermalPrinterWebDevice = await getDevice();
-  if (!thermalPrinterWebDevice) {
-    return;
-  }
-
-  const thermalPrinterDriver = new FujitsuThermalPrinterDriver(
-    thermalPrinterWebDevice
-  );
-  await thermalPrinterDriver.connect();
-  return thermalPrinterDriver;
 }

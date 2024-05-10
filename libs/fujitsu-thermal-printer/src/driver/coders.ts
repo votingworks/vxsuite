@@ -61,20 +61,29 @@ export const FeedForwardCommand = message({
   dots: uint8(),
 });
 
-export enum SpeedSetting {
-  Type1Mode1 = 0x60,
-  Type1Mode2 = 0x61,
-  Type1Mode3 = 0x62,
-  Type1Mode4 = 0x63,
-  Type1Mode5 = 0x64,
-  Type2Mode1 = 0xc0,
-  Type2Mode2 = 0xc1,
-  Type2Mode3 = 0xc2,
-  Type2Mode4 = 0xc3,
-  Type2Mode5 = 0xc4,
+export interface PrintQuality {
+  // long term storage is the printer default
+  paperQuality: 'long-term-storage' | 'standard';
+  automaticDivision: boolean;
 }
 
-export const SetSpeedSettingCommand = message({
-  command: literal(0x1b, 0x73),
-  speed: uint8(),
+export const SetPrintQuality = message({
+  command: literal(0x1d, 0x45),
+  automaticDivision: uint1(),
+  unused: padding(4),
+  qualityBit2: uint1(),
+  qualityBit1: uint1(),
+  qualityBit0: uint1(),
 });
+
+export function convertPrintQualityToCoderValue(
+  details: PrintQuality
+): CoderType<typeof SetPrintQuality> {
+  const isLongTermStorageQuality = details.paperQuality === 'long-term-storage';
+  return {
+    qualityBit2: !isLongTermStorageQuality,
+    qualityBit1: isLongTermStorageQuality,
+    qualityBit0: isLongTermStorageQuality,
+    automaticDivision: details.automaticDivision,
+  };
+}

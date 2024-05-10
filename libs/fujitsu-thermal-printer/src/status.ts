@@ -13,7 +13,8 @@ export type ErrorType =
   | 'hardware'
   | 'supply-voltage'
   | 'receive-data'
-  | 'temperature';
+  | 'temperature'
+  | 'disconnected';
 
 export function getErrorType(status: RawPrinterStatus): ErrorType {
   if (status.temperatureError) {
