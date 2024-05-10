@@ -36,6 +36,7 @@ async function checkPin({ cardType }: CheckPinInput): Promise<void> {
       break;
     }
     case 'vxsuite': {
+      (process.env.NODE_ENV as string) = 'development';
       (process.env.VX_MACHINE_TYPE as string) = 'admin';
       card = new JavaCard();
       break;

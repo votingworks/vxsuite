@@ -5,6 +5,7 @@ import {
   ElectionManagerUser,
   PollWorkerUser,
   SystemAdministratorUser,
+  VendorUser,
 } from '@votingworks/types';
 
 import { Card, CardStatus, CheckPinResponse } from './card';
@@ -150,6 +151,7 @@ export class MockFileCard implements Card {
 
   program(
     input:
+      | { user: VendorUser; pin: string }
       | { user: SystemAdministratorUser; pin: string }
       | { user: ElectionManagerUser; pin: string }
       | { user: PollWorkerUser; pin?: string }
@@ -158,6 +160,16 @@ export class MockFileCard implements Card {
     const hasPin = pin !== undefined;
 
     switch (user.role) {
+      case 'vendor': {
+        writeToMockFile({
+          cardStatus: {
+            status: 'ready',
+            cardDetails: { user },
+          },
+          pin,
+        });
+        break;
+      }
       case 'system_administrator': {
         writeToMockFile({
           cardStatus: {

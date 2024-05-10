@@ -11,6 +11,7 @@ import { DEV_JURISDICTION } from '../../src/jurisdictions';
 import { mockCard } from '../../src/mock_file_card';
 
 const CARD_TYPES = [
+  'vendor',
   'system-administrator',
   'election-manager',
   'poll-worker',
@@ -44,6 +45,7 @@ async function parseCommandLineArgs(
     .hide('help')
     .version(false)
     .example('$ mock-card --help', '')
+    .example('$ mock-card --card-type vendor', '')
     .example('$ mock-card --card-type system-administrator', '')
     .example(
       '$ mock-card --card-type election-manager \\\n' +
@@ -110,6 +112,21 @@ async function parseCommandLineArgs(
 
 function mockCardWrapper({ cardType, electionHash }: MockCardInput) {
   switch (cardType) {
+    case 'vendor': {
+      mockCard({
+        cardStatus: {
+          status: 'ready',
+          cardDetails: {
+            user: {
+              role: 'vendor',
+              jurisdiction: DEV_JURISDICTION,
+            },
+          },
+        },
+        pin: '000000',
+      });
+      break;
+    }
     case 'system-administrator': {
       mockCard({
         cardStatus: {

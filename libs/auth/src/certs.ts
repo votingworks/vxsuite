@@ -21,7 +21,7 @@ const VX_CUSTOM_CERT_FIELD = {
   COMPONENT: `${VX_IANA_ENTERPRISE_OID}.1`,
   /** Format: {state-2-letter-abbreviation}.{county-or-town} (e.g. ms.warren or ca.los-angeles) */
   JURISDICTION: `${VX_IANA_ENTERPRISE_OID}.2`,
-  /** One of: system-administrator, election-manager, poll-worker, poll-worker-with-pin */
+  /** One of: vendor, system-administrator, election-manager, poll-worker, poll-worker-with-pin */
   CARD_TYPE: `${VX_IANA_ENTERPRISE_OID}.3`,
   /** The SHA-256 hash of the election definition  */
   ELECTION_HASH: `${VX_IANA_ENTERPRISE_OID}.4`,
@@ -57,6 +57,12 @@ interface VxScanCustomCertFields {
   component: 'scan';
 }
 
+interface VendorCardCustomCertFields {
+  component: 'card';
+  jurisdiction: string;
+  cardType: 'vendor';
+}
+
 interface SystemAdministratorCardCustomCertFields {
   component: 'card';
   jurisdiction: string;
@@ -71,6 +77,7 @@ interface ElectionCardCustomCertFields {
 }
 
 type CardCustomCertFields =
+  | VendorCardCustomCertFields
   | SystemAdministratorCardCustomCertFields
   | ElectionCardCustomCertFields;
 
@@ -126,6 +133,13 @@ const VxScanCustomCertFieldsSchema: z.ZodSchema<VxScanCustomCertFields> =
     component: z.literal('scan'),
   });
 
+const VendorCardCustomCertFieldsSchema: z.ZodSchema<VendorCardCustomCertFields> =
+  z.object({
+    component: z.literal('card'),
+    jurisdiction: z.string(),
+    cardType: z.literal('vendor'),
+  });
+
 const SystemAdministratorCardCustomCertFieldsSchema: z.ZodSchema<SystemAdministratorCardCustomCertFields> =
   z.object({
     component: z.literal('card'),
@@ -146,6 +160,7 @@ const ElectionCardCustomCertFieldsSchema: z.ZodSchema<ElectionCardCustomCertFiel
   });
 
 const CardCustomCertFieldsSchema: z.ZodSchema<CardCustomCertFields> = z.union([
+  VendorCardCustomCertFieldsSchema,
   SystemAdministratorCardCustomCertFieldsSchema,
   ElectionCardCustomCertFieldsSchema,
 ]);
@@ -168,8 +183,9 @@ const CustomCertFieldsSchema: z.ZodSchema<CustomCertFields> = z.union([
 export const CERT_EXPIRY_IN_DAYS = {
   MACHINE_VX_CERT: 365 * 100, // 100 years
   CARD_VX_CERT: 365 * 100, // 100 years
-  SYSTEM_ADMINISTRATOR_CARD_VX_ADMIN_CERT: 365 * 5, // 5 years
-  ELECTION_CARD_VX_ADMIN_CERT: Math.round(365 * 0.5), // 6 months
+  VENDOR_CARD_IDENTITY_CERT: 7, // 1 week
+  SYSTEM_ADMINISTRATOR_CARD_IDENTITY_CERT: 365 * 5, // 5 years
+  ELECTION_CARD_IDENTITY_CERT: Math.round(365 * 0.5), // 6 months
 
   /** Used by dev/test cert-generation scripts */
   DEV: 365 * 100, // 100 years
@@ -219,6 +235,11 @@ export async function parseCardDetailsFromCert(
   const { jurisdiction, cardType } = certDetails;
 
   switch (cardType) {
+    case 'vendor': {
+      return {
+        user: { role: 'vendor', jurisdiction },
+      };
+    }
     case 'system-administrator': {
       return {
         user: { role: 'system_administrator', jurisdiction },
@@ -261,6 +282,10 @@ export function constructCardCertSubject(cardDetails: CardDetails): string {
   let cardType: CardType;
   let electionHash: string | undefined;
   switch (user.role) {
+    case 'vendor': {
+      cardType = 'vendor';
+      break;
+    }
     case 'system_administrator': {
       cardType = 'system-administrator';
       break;

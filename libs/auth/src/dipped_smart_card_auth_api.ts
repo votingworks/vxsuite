@@ -7,6 +7,7 @@ import {
   PollWorkerUser,
   StartingCardLockoutDurationSeconds,
   SystemAdministratorUser,
+  VendorUser,
 } from '@votingworks/types';
 
 /**
@@ -31,6 +32,7 @@ export interface DippedSmartCardAuthApi {
   programCard(
     machineState: DippedSmartCardAuthMachineState,
     input:
+      | { userRole: VendorUser['role'] }
       | { userRole: SystemAdministratorUser['role'] }
       | { userRole: ElectionManagerUser['role'] }
       | { userRole: PollWorkerUser['role'] }

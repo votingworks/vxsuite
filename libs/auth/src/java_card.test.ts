@@ -9,6 +9,7 @@ import {
   mockPollWorkerUser,
   mockSystemAdministratorUser,
   mockOf,
+  mockVendorUser,
 } from '@votingworks/test-utils';
 import { Byte, TEST_JURISDICTION } from '@votingworks/types';
 
@@ -37,7 +38,7 @@ import {
   publicKeyDerToPem,
 } from './cryptography';
 import {
-  CARD_VX_ADMIN_CERT,
+  CARD_IDENTITY_CERT,
   CARD_VX_CERT,
   DEFAULT_PIN,
   GENERIC_STORAGE_SPACE,
@@ -85,6 +86,7 @@ afterEach(() => {
 });
 
 const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
+const vendorUser = mockVendorUser();
 const systemAdministratorUser = mockSystemAdministratorUser();
 const electionManagerUser = mockElectionManagerUser({ electionHash });
 const pollWorkerUser = mockPollWorkerUser({ electionHash });
@@ -101,9 +103,10 @@ const config: JavaCardConfig = {
   }),
 };
 
-const configWithCardProgrammingConfig: JavaCardConfig = {
+const configWithVxAdminCardProgrammingConfig: JavaCardConfig = {
   ...config,
   cardProgrammingConfig: {
+    configType: 'vx_admin',
     vxAdminCertAuthorityCertPath: getTestFilePath({
       fileType: 'vx-admin-cert-authority-cert.pem',
     }),
@@ -111,6 +114,19 @@ const configWithCardProgrammingConfig: JavaCardConfig = {
       source: 'file',
       path: getTestFilePath({
         fileType: 'vx-admin-private-key.pem',
+      }),
+    },
+  },
+};
+
+const configWithVxCardProgrammingConfig: JavaCardConfig = {
+  ...config,
+  cardProgrammingConfig: {
+    configType: 'vx',
+    vxPrivateKey: {
+      source: 'file',
+      path: getTestFilePath({
+        fileType: 'vx-private-key.pem',
       }),
     },
   },
@@ -355,31 +371,49 @@ test.each<{
   cardType: CardType;
   vxCertAuthorityCert: TestFileSetId;
   cardVxCert: TestFileSetId;
-  cardVxAdminCert?: TestFileSetId;
+  cardIdentityCert?: TestFileSetId;
   vxAdminCertAuthorityCert?: TestFileSetId;
   cardVxPrivateKey?: TestFileSetId;
-  cardVxAdminPrivateKey?: TestFileSetId;
+  cardIdentityPrivateKey?: TestFileSetId;
   numRemainingPinAttempts?: number | Error;
-  isCardVxAdminCertRetrievalRequestExpected: boolean;
+  isCardIdentityCertRetrievalRequestExpected: boolean;
   isVxAdminCertAuthorityCertRetrievalRequestExpected: boolean;
   isCardVxPrivateKeySignatureRequestExpected: boolean;
-  isCardVxAdminPrivateKeySignatureRequestExpected: boolean;
+  isCardIdentityPrivateKeySignatureRequestExpected: boolean;
   isCardGetNumRemainingPinAttemptsRequestExpected: boolean;
   expectedCardDetails?: CardDetails;
 }>([
+  {
+    description: 'vendor card happy path',
+    cardType: 'vendor',
+    vxCertAuthorityCert: '1',
+    cardVxCert: '1',
+    cardIdentityCert: '1',
+    vxAdminCertAuthorityCert: '1',
+    cardVxPrivateKey: '1',
+    numRemainingPinAttempts: MAX_NUM_INCORRECT_PIN_ATTEMPTS,
+    isCardIdentityCertRetrievalRequestExpected: true,
+    isVxAdminCertAuthorityCertRetrievalRequestExpected: false,
+    isCardVxPrivateKeySignatureRequestExpected: true,
+    isCardIdentityPrivateKeySignatureRequestExpected: false,
+    isCardGetNumRemainingPinAttemptsRequestExpected: true,
+    expectedCardDetails: {
+      user: vendorUser,
+    },
+  },
   {
     description: 'system administrator card happy path',
     cardType: 'system-administrator',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardVxAdminCert: '1',
+    cardIdentityCert: '1',
     vxAdminCertAuthorityCert: '1',
     cardVxPrivateKey: '1',
     numRemainingPinAttempts: MAX_NUM_INCORRECT_PIN_ATTEMPTS,
-    isCardVxAdminCertRetrievalRequestExpected: true,
+    isCardIdentityCertRetrievalRequestExpected: true,
     isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
     isCardVxPrivateKeySignatureRequestExpected: true,
-    isCardVxAdminPrivateKeySignatureRequestExpected: false,
+    isCardIdentityPrivateKeySignatureRequestExpected: false,
     isCardGetNumRemainingPinAttemptsRequestExpected: true,
     expectedCardDetails: {
       user: systemAdministratorUser,
@@ -390,14 +424,14 @@ test.each<{
     cardType: 'election-manager',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardVxAdminCert: '1',
+    cardIdentityCert: '1',
     vxAdminCertAuthorityCert: '1',
     cardVxPrivateKey: '1',
     numRemainingPinAttempts: MAX_NUM_INCORRECT_PIN_ATTEMPTS,
-    isCardVxAdminCertRetrievalRequestExpected: true,
+    isCardIdentityCertRetrievalRequestExpected: true,
     isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
     isCardVxPrivateKeySignatureRequestExpected: true,
-    isCardVxAdminPrivateKeySignatureRequestExpected: false,
+    isCardIdentityPrivateKeySignatureRequestExpected: false,
     isCardGetNumRemainingPinAttemptsRequestExpected: true,
     expectedCardDetails: {
       user: electionManagerUser,
@@ -408,14 +442,14 @@ test.each<{
     cardType: 'poll-worker',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardVxAdminCert: '1',
+    cardIdentityCert: '1',
     vxAdminCertAuthorityCert: '1',
     cardVxPrivateKey: '1',
-    cardVxAdminPrivateKey: '1',
-    isCardVxAdminCertRetrievalRequestExpected: true,
+    cardIdentityPrivateKey: '1',
+    isCardIdentityCertRetrievalRequestExpected: true,
     isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
     isCardVxPrivateKeySignatureRequestExpected: true,
-    isCardVxAdminPrivateKeySignatureRequestExpected: true,
+    isCardIdentityPrivateKeySignatureRequestExpected: true,
     isCardGetNumRemainingPinAttemptsRequestExpected: false,
     expectedCardDetails: {
       user: pollWorkerUser,
@@ -427,15 +461,15 @@ test.each<{
     cardType: 'poll-worker-with-pin',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardVxAdminCert: '1',
+    cardIdentityCert: '1',
     vxAdminCertAuthorityCert: '1',
     cardVxPrivateKey: '1',
-    cardVxAdminPrivateKey: '1',
+    cardIdentityPrivateKey: '1',
     numRemainingPinAttempts: MAX_NUM_INCORRECT_PIN_ATTEMPTS,
-    isCardVxAdminCertRetrievalRequestExpected: true,
+    isCardIdentityCertRetrievalRequestExpected: true,
     isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
     isCardVxPrivateKeySignatureRequestExpected: true,
-    isCardVxAdminPrivateKeySignatureRequestExpected: false,
+    isCardIdentityPrivateKeySignatureRequestExpected: false,
     isCardGetNumRemainingPinAttemptsRequestExpected: true,
     expectedCardDetails: {
       user: pollWorkerUser,
@@ -447,24 +481,37 @@ test.each<{
     cardType: 'poll-worker',
     vxCertAuthorityCert: '1',
     cardVxCert: '2',
-    isCardVxAdminCertRetrievalRequestExpected: false,
+    isCardIdentityCertRetrievalRequestExpected: false,
     isVxAdminCertAuthorityCertRetrievalRequestExpected: false,
     isCardVxPrivateKeySignatureRequestExpected: false,
-    isCardVxAdminPrivateKeySignatureRequestExpected: false,
+    isCardIdentityPrivateKeySignatureRequestExpected: false,
     isCardGetNumRemainingPinAttemptsRequestExpected: false,
     expectedCardDetails: undefined,
   },
   {
-    description: 'card VxAdmin cert was not signed by VxAdmin',
+    description: 'vendor card identity cert was not signed by VotingWorks',
+    cardType: 'vendor',
+    vxCertAuthorityCert: '1',
+    cardVxCert: '1',
+    cardIdentityCert: '2',
+    isCardIdentityCertRetrievalRequestExpected: true,
+    isVxAdminCertAuthorityCertRetrievalRequestExpected: false,
+    isCardVxPrivateKeySignatureRequestExpected: false,
+    isCardIdentityPrivateKeySignatureRequestExpected: false,
+    isCardGetNumRemainingPinAttemptsRequestExpected: false,
+    expectedCardDetails: undefined,
+  },
+  {
+    description: 'non-vendor card identity cert was not signed by VxAdmin',
     cardType: 'poll-worker',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardVxAdminCert: '2',
+    cardIdentityCert: '2',
     vxAdminCertAuthorityCert: '1',
-    isCardVxAdminCertRetrievalRequestExpected: true,
+    isCardIdentityCertRetrievalRequestExpected: true,
     isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
     isCardVxPrivateKeySignatureRequestExpected: false,
-    isCardVxAdminPrivateKeySignatureRequestExpected: false,
+    isCardIdentityPrivateKeySignatureRequestExpected: false,
     isCardGetNumRemainingPinAttemptsRequestExpected: false,
     expectedCardDetails: undefined,
   },
@@ -473,12 +520,12 @@ test.each<{
     cardType: 'poll-worker',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardVxAdminCert: '2',
+    cardIdentityCert: '2',
     vxAdminCertAuthorityCert: '2',
-    isCardVxAdminCertRetrievalRequestExpected: true,
+    isCardIdentityCertRetrievalRequestExpected: true,
     isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
     isCardVxPrivateKeySignatureRequestExpected: false,
-    isCardVxAdminPrivateKeySignatureRequestExpected: false,
+    isCardIdentityPrivateKeySignatureRequestExpected: false,
     isCardGetNumRemainingPinAttemptsRequestExpected: false,
     expectedCardDetails: undefined,
   },
@@ -489,31 +536,31 @@ test.each<{
     cardType: 'poll-worker',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardVxAdminCert: '1',
+    cardIdentityCert: '1',
     vxAdminCertAuthorityCert: '1',
     cardVxPrivateKey: '2',
-    isCardVxAdminCertRetrievalRequestExpected: true,
+    isCardIdentityCertRetrievalRequestExpected: true,
     isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
     isCardVxPrivateKeySignatureRequestExpected: true,
-    isCardVxAdminPrivateKeySignatureRequestExpected: false,
+    isCardIdentityPrivateKeySignatureRequestExpected: false,
     isCardGetNumRemainingPinAttemptsRequestExpected: false,
     expectedCardDetails: undefined,
   },
   {
     description:
       'card does not have a private key that corresponds to ' +
-      'the public key in the card VxAdmin cert',
+      'the public key in the card identity cert',
     cardType: 'poll-worker',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardVxAdminCert: '1',
+    cardIdentityCert: '1',
     vxAdminCertAuthorityCert: '1',
     cardVxPrivateKey: '1',
-    cardVxAdminPrivateKey: '2',
-    isCardVxAdminCertRetrievalRequestExpected: true,
+    cardIdentityPrivateKey: '2',
+    isCardIdentityCertRetrievalRequestExpected: true,
     isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
     isCardVxPrivateKeySignatureRequestExpected: true,
-    isCardVxAdminPrivateKeySignatureRequestExpected: true,
+    isCardIdentityPrivateKeySignatureRequestExpected: true,
     isCardGetNumRemainingPinAttemptsRequestExpected: false,
     expectedCardDetails: undefined,
   },
@@ -522,14 +569,14 @@ test.each<{
     cardType: 'election-manager',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardVxAdminCert: '1',
+    cardIdentityCert: '1',
     vxAdminCertAuthorityCert: '1',
     cardVxPrivateKey: '1',
     numRemainingPinAttempts: MAX_NUM_INCORRECT_PIN_ATTEMPTS - 5,
-    isCardVxAdminCertRetrievalRequestExpected: true,
+    isCardIdentityCertRetrievalRequestExpected: true,
     isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
     isCardVxPrivateKeySignatureRequestExpected: true,
-    isCardVxAdminPrivateKeySignatureRequestExpected: false,
+    isCardIdentityPrivateKeySignatureRequestExpected: false,
     isCardGetNumRemainingPinAttemptsRequestExpected: true,
     expectedCardDetails: {
       numIncorrectPinAttempts: 5,
@@ -541,14 +588,14 @@ test.each<{
     cardType: 'election-manager',
     vxCertAuthorityCert: '1',
     cardVxCert: '1',
-    cardVxAdminCert: '1',
+    cardIdentityCert: '1',
     vxAdminCertAuthorityCert: '1',
     cardVxPrivateKey: '1',
     numRemainingPinAttempts: new Error('Whoa!'),
-    isCardVxAdminCertRetrievalRequestExpected: true,
+    isCardIdentityCertRetrievalRequestExpected: true,
     isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
     isCardVxPrivateKeySignatureRequestExpected: true,
-    isCardVxAdminPrivateKeySignatureRequestExpected: false,
+    isCardIdentityPrivateKeySignatureRequestExpected: false,
     isCardGetNumRemainingPinAttemptsRequestExpected: true,
     expectedCardDetails: undefined,
   },
@@ -558,15 +605,15 @@ test.each<{
     cardType,
     vxCertAuthorityCert,
     cardVxCert,
-    cardVxAdminCert,
+    cardIdentityCert,
     vxAdminCertAuthorityCert,
     cardVxPrivateKey,
-    cardVxAdminPrivateKey,
+    cardIdentityPrivateKey,
     numRemainingPinAttempts,
-    isCardVxAdminCertRetrievalRequestExpected,
+    isCardIdentityCertRetrievalRequestExpected,
     isVxAdminCertAuthorityCertRetrievalRequestExpected,
     isCardVxPrivateKeySignatureRequestExpected,
-    isCardVxAdminPrivateKeySignatureRequestExpected,
+    isCardIdentityPrivateKeySignatureRequestExpected,
     isCardGetNumRemainingPinAttemptsRequestExpected,
     expectedCardDetails,
   }) => {
@@ -587,13 +634,13 @@ test.each<{
         cardType,
       })
     );
-    if (isCardVxAdminCertRetrievalRequestExpected) {
-      assert(cardVxAdminCert !== undefined);
+    if (isCardIdentityCertRetrievalRequestExpected) {
+      assert(cardIdentityCert !== undefined);
       mockCardCertRetrievalRequest(
-        CARD_VX_ADMIN_CERT.OBJECT_ID,
+        CARD_IDENTITY_CERT.OBJECT_ID,
         getTestFilePath({
-          setId: cardVxAdminCert,
-          fileType: 'card-vx-admin-cert.der',
+          setId: cardIdentityCert,
+          fileType: 'card-identity-cert.der',
           cardType,
         })
       );
@@ -619,14 +666,14 @@ test.each<{
         })
       );
     }
-    if (isCardVxAdminPrivateKeySignatureRequestExpected) {
-      assert(cardVxAdminPrivateKey !== undefined);
+    if (isCardIdentityPrivateKeySignatureRequestExpected) {
+      assert(cardIdentityPrivateKey !== undefined);
       mockCardPinVerificationRequest(DEFAULT_PIN);
       await mockCardSignatureRequest(
-        CARD_VX_ADMIN_CERT.PRIVATE_KEY_ID,
+        CARD_IDENTITY_CERT.PRIVATE_KEY_ID,
         getTestFilePath({
-          setId: cardVxAdminPrivateKey,
-          fileType: 'card-vx-admin-private-key.pem',
+          setId: cardIdentityPrivateKey,
+          fileType: 'card-identity-private-key.pem',
           cardType,
         })
       );
@@ -693,18 +740,18 @@ test.each<{
 
     mockCardAppletSelectionRequest();
     mockCardCertRetrievalRequest(
-      CARD_VX_ADMIN_CERT.OBJECT_ID,
+      CARD_IDENTITY_CERT.OBJECT_ID,
       getTestFilePath({
-        fileType: 'card-vx-admin-cert.der',
+        fileType: 'card-identity-cert.der',
         cardType: 'system-administrator',
       })
     );
     mockCardPinVerificationRequest('123456', cardPinVerificationRequestError);
     if (!cardPinVerificationRequestError) {
       await mockCardSignatureRequest(
-        CARD_VX_ADMIN_CERT.PRIVATE_KEY_ID,
+        CARD_IDENTITY_CERT.PRIVATE_KEY_ID,
         getTestFilePath({
-          fileType: 'card-vx-admin-private-key.pem',
+          fileType: 'card-identity-private-key.pem',
           cardType: 'system-administrator',
         }),
         cardSignatureRequestError
@@ -723,14 +770,44 @@ test.each<{
 
 test.each<{
   description: string;
+  config: JavaCardConfig;
   programInput: Parameters<ProgrammableCard['program']>[0];
   expectedCardType: CardType;
   expectedCertSubject: string;
   expectedExpiryInDays: number;
+  expectedSigningCertAuthorityCertPath: string;
+  expectedSigningPrivateKeyPath: string;
+  isVxAdminCertAuthorityCertRetrievalRequestExpected: boolean;
   expectedCardDetailsAfterProgramming: CardDetails;
 }>([
   {
+    description: 'vendor card',
+    config: configWithVxCardProgrammingConfig,
+    programInput: {
+      user: vendorUser,
+      pin: '123456',
+    },
+    expectedCardType: 'vendor',
+    expectedCertSubject:
+      '/C=US/ST=CA/O=VotingWorks' +
+      '/1.3.6.1.4.1.59817.1=card' +
+      `/1.3.6.1.4.1.59817.2=${TEST_JURISDICTION}` +
+      '/1.3.6.1.4.1.59817.3=vendor/',
+    expectedExpiryInDays: 7,
+    expectedSigningCertAuthorityCertPath: getTestFilePath({
+      fileType: 'vx-cert-authority-cert.pem',
+    }),
+    expectedSigningPrivateKeyPath: getTestFilePath({
+      fileType: 'vx-private-key.pem',
+    }),
+    isVxAdminCertAuthorityCertRetrievalRequestExpected: false,
+    expectedCardDetailsAfterProgramming: {
+      user: vendorUser,
+    },
+  },
+  {
     description: 'system administrator card',
+    config: configWithVxAdminCardProgrammingConfig,
     programInput: {
       user: systemAdministratorUser,
       pin: '123456',
@@ -742,12 +819,20 @@ test.each<{
       `/1.3.6.1.4.1.59817.2=${TEST_JURISDICTION}` +
       '/1.3.6.1.4.1.59817.3=system-administrator/',
     expectedExpiryInDays: 365 * 5,
+    expectedSigningCertAuthorityCertPath: getTestFilePath({
+      fileType: 'vx-admin-cert-authority-cert.pem',
+    }),
+    expectedSigningPrivateKeyPath: getTestFilePath({
+      fileType: 'vx-admin-private-key.pem',
+    }),
+    isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
     expectedCardDetailsAfterProgramming: {
       user: systemAdministratorUser,
     },
   },
   {
     description: 'election manager card',
+    config: configWithVxAdminCardProgrammingConfig,
     programInput: {
       user: electionManagerUser,
       pin: '123456',
@@ -760,12 +845,20 @@ test.each<{
       '/1.3.6.1.4.1.59817.3=election-manager' +
       `/1.3.6.1.4.1.59817.4=${electionHash}/`,
     expectedExpiryInDays: Math.round(365 * 0.5),
+    expectedSigningCertAuthorityCertPath: getTestFilePath({
+      fileType: 'vx-admin-cert-authority-cert.pem',
+    }),
+    expectedSigningPrivateKeyPath: getTestFilePath({
+      fileType: 'vx-admin-private-key.pem',
+    }),
+    isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
     expectedCardDetailsAfterProgramming: {
       user: electionManagerUser,
     },
   },
   {
     description: 'poll worker card',
+    config: configWithVxAdminCardProgrammingConfig,
     programInput: {
       user: pollWorkerUser,
     },
@@ -777,6 +870,13 @@ test.each<{
       '/1.3.6.1.4.1.59817.3=poll-worker' +
       `/1.3.6.1.4.1.59817.4=${electionHash}/`,
     expectedExpiryInDays: Math.round(365 * 0.5),
+    expectedSigningCertAuthorityCertPath: getTestFilePath({
+      fileType: 'vx-admin-cert-authority-cert.pem',
+    }),
+    expectedSigningPrivateKeyPath: getTestFilePath({
+      fileType: 'vx-admin-private-key.pem',
+    }),
+    isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
     expectedCardDetailsAfterProgramming: {
       user: pollWorkerUser,
       hasPin: false,
@@ -784,6 +884,7 @@ test.each<{
   },
   {
     description: 'poll worker card with PIN',
+    config: configWithVxAdminCardProgrammingConfig,
     programInput: {
       user: pollWorkerUser,
       pin: '123456',
@@ -796,6 +897,13 @@ test.each<{
       '/1.3.6.1.4.1.59817.3=poll-worker-with-pin' +
       `/1.3.6.1.4.1.59817.4=${electionHash}/`,
     expectedExpiryInDays: Math.round(365 * 0.5),
+    expectedSigningCertAuthorityCertPath: getTestFilePath({
+      fileType: 'vx-admin-cert-authority-cert.pem',
+    }),
+    expectedSigningPrivateKeyPath: getTestFilePath({
+      fileType: 'vx-admin-private-key.pem',
+    }),
+    isVxAdminCertAuthorityCertRetrievalRequestExpected: true,
     expectedCardDetailsAfterProgramming: {
       user: pollWorkerUser,
       hasPin: true,
@@ -804,42 +912,48 @@ test.each<{
 ])(
   'Programming - $description',
   async ({
+    config: configToUse,
     programInput,
     expectedCardType,
     expectedCertSubject,
     expectedExpiryInDays,
+    expectedSigningCertAuthorityCertPath,
+    expectedSigningPrivateKeyPath,
+    isVxAdminCertAuthorityCertRetrievalRequestExpected,
     expectedCardDetailsAfterProgramming,
   }) => {
-    const javaCard = new JavaCard(configWithCardProgrammingConfig);
+    const javaCard = new JavaCard(configToUse);
 
     const pin = ('pin' in programInput && programInput.pin) || DEFAULT_PIN;
     mockCardAppletSelectionRequest();
     mockCardPinResetRequest(pin);
     mockCardPinVerificationRequest(pin);
     mockCardKeyPairGenerationRequest(
-      CARD_VX_ADMIN_CERT.PRIVATE_KEY_ID,
+      CARD_IDENTITY_CERT.PRIVATE_KEY_ID,
       getTestFilePath({
-        fileType: 'card-vx-admin-public-key.der',
+        fileType: 'card-identity-public-key.der',
         cardType: expectedCardType,
       })
     );
-    const cardVxAdminCertPath = getTestFilePath({
-      fileType: 'card-vx-admin-cert.der',
+    const cardIdentityCertPath = getTestFilePath({
+      fileType: 'card-identity-cert.der',
       cardType: expectedCardType,
     });
     mockOf(createCert).mockImplementationOnce(() =>
-      certDerToPem(fs.readFileSync(cardVxAdminCertPath))
+      certDerToPem(fs.readFileSync(cardIdentityCertPath))
     );
     mockCardCertStorageRequest(
-      CARD_VX_ADMIN_CERT.OBJECT_ID,
-      cardVxAdminCertPath
+      CARD_IDENTITY_CERT.OBJECT_ID,
+      cardIdentityCertPath
     );
-    mockCardCertStorageRequest(
-      VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID,
-      getTestFilePath({
-        fileType: 'vx-admin-cert-authority-cert.der',
-      })
-    );
+    if (isVxAdminCertAuthorityCertRetrievalRequestExpected) {
+      mockCardCertStorageRequest(
+        VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID,
+        getTestFilePath({
+          fileType: 'vx-admin-cert-authority-cert.der',
+        })
+      );
+    }
 
     await javaCard.program(programInput);
     expect(createCert).toHaveBeenCalledTimes(1);
@@ -852,7 +966,7 @@ test.each<{
             await publicKeyDerToPem(
               fs.readFileSync(
                 getTestFilePath({
-                  fileType: 'card-vx-admin-public-key.der',
+                  fileType: 'card-identity-public-key.der',
                   cardType: expectedCardType,
                 })
               )
@@ -862,14 +976,10 @@ test.each<{
       },
       certSubject: expectedCertSubject,
       expiryInDays: expectedExpiryInDays,
-      signingCertAuthorityCertPath: getTestFilePath({
-        fileType: 'vx-admin-cert-authority-cert.pem',
-      }),
+      signingCertAuthorityCertPath: expectedSigningCertAuthorityCertPath,
       signingPrivateKey: {
         source: 'file',
-        path: getTestFilePath({
-          fileType: 'vx-admin-private-key.pem',
-        }),
+        path: expectedSigningPrivateKeyPath,
       },
     });
 
@@ -881,11 +991,11 @@ test.each<{
 );
 
 test('Unprogramming', async () => {
-  const javaCard = new JavaCard(configWithCardProgrammingConfig);
+  const javaCard = new JavaCard(configWithVxAdminCardProgrammingConfig);
 
   mockCardAppletSelectionRequest();
   mockCardPinResetRequest(DEFAULT_PIN);
-  mockCardPutDataRequest(CARD_VX_ADMIN_CERT.OBJECT_ID, Buffer.of());
+  mockCardPutDataRequest(CARD_IDENTITY_CERT.OBJECT_ID, Buffer.of());
   mockCardPutDataRequest(VX_ADMIN_CERT_AUTHORITY_CERT.OBJECT_ID, Buffer.of());
   mockCardAppletSelectionRequest();
   for (const objectId of GENERIC_STORAGE_SPACE.OBJECT_IDS) {
@@ -1053,7 +1163,7 @@ test('retrieveCertByIdentifier', async () => {
 });
 
 test('createAndStoreCardVxCert', async () => {
-  const javaCard = new JavaCard(config);
+  const javaCard = new JavaCard(configWithVxCardProgrammingConfig);
 
   mockCardAppletSelectionRequest();
   mockCardKeyPairGenerationRequest(
@@ -1072,12 +1182,7 @@ test('createAndStoreCardVxCert', async () => {
   );
   mockCardCertStorageRequest(CARD_VX_CERT.OBJECT_ID, cardVxCertPath);
 
-  await javaCard.createAndStoreCardVxCert({
-    source: 'file',
-    path: getTestFilePath({
-      fileType: 'vx-private-key.pem',
-    }),
-  });
+  await javaCard.createAndStoreCardVxCert();
   expect(createCert).toHaveBeenCalledTimes(1);
   expect(createCert).toHaveBeenNthCalledWith(1, {
     certKeyInput: {

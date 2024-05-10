@@ -56,6 +56,7 @@ function printCardDetails(extendedCardDetails?: ExtendedCardDetails): void {
   const { cardDetails, env } = extendedCardDetails ?? {};
   const { jurisdiction, role } = cardDetails?.user ?? {};
   const electionHash =
+    cardDetails?.user.role !== 'vendor' &&
     cardDetails?.user.role !== 'system_administrator'
       ? cardDetails?.user.electionHash
       : undefined;

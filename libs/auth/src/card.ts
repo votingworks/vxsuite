@@ -1,11 +1,18 @@
+import { Buffer } from 'buffer';
 import {
   ElectionManagerUser,
   PollWorkerUser,
   SystemAdministratorUser,
+  VendorUser,
 } from '@votingworks/types';
-import { Buffer } from 'buffer';
 
 import { ResponseApduError } from './apdu';
+import { UNIVERSAL_VENDOR_CARD_JURISDICTION } from './jurisdictions';
+
+interface VendorCardDetails {
+  user: VendorUser;
+  numIncorrectPinAttempts?: number;
+}
 
 interface SystemAdministratorCardDetails {
   user: SystemAdministratorUser;
@@ -32,9 +39,32 @@ interface PollWorkerCardDetails {
  * Details about a programmed card
  */
 export type CardDetails =
+  | VendorCardDetails
   | SystemAdministratorCardDetails
   | ElectionManagerCardDetails
   | PollWorkerCardDetails;
+
+/**
+ * A CardDetails type guard
+ */
+export function areVendorCardDetails(
+  cardDetails: CardDetails
+): cardDetails is VendorCardDetails {
+  return cardDetails.user.role === 'vendor';
+}
+
+/**
+ * An extension of {@link areVendorCardDetails} that checks whether a card is a universal vendor
+ * card granting vendor access to machines regardless of their jurisdiction
+ */
+export function areUniversalVendorCardDetails(
+  cardDetails: CardDetails
+): cardDetails is VendorCardDetails {
+  return (
+    areVendorCardDetails(cardDetails) &&
+    cardDetails.user.jurisdiction === UNIVERSAL_VENDOR_CARD_JURISDICTION
+  );
+}
 
 /**
  * A CardDetails type guard
@@ -134,6 +164,7 @@ export interface PinProtectedCard {
 export interface ProgrammableCard extends PinProtectedCard {
   program(
     input:
+      | { user: VendorUser; pin: string }
       | { user: SystemAdministratorUser; pin: string }
       | { user: ElectionManagerUser; pin: string }
       | { user: PollWorkerUser; pin?: string }

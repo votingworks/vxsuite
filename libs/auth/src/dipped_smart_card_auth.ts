@@ -7,9 +7,9 @@ import {
   throwIllegalValue,
 } from '@votingworks/basics';
 import {
+  BaseLogger,
   LogDispositionStandardTypes,
   LogEventId,
-  BaseLogger,
 } from '@votingworks/logging';
 import { DippedSmartCardAuth as DippedSmartCardAuthTypes } from '@votingworks/types';
 import {
@@ -17,9 +17,9 @@ import {
   generatePin,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
-
 import {
   arePollWorkerCardDetails,
+  areUniversalVendorCardDetails,
   Card,
   CardDetails,
   CardStatus,
@@ -460,7 +460,8 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
                   assert(cardDetails !== undefined);
                   const { user } = cardDetails;
                   assert(
-                    user.role === 'system_administrator' ||
+                    user.role === 'vendor' ||
+                      user.role === 'system_administrator' ||
                       user.role === 'election_manager'
                   );
                   const skipPinEntry = isFeatureFlagEnabled(
@@ -506,18 +507,29 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
           case 'remove_card': {
             if (action.cardStatus.status === 'no_card') {
               const { user, sessionExpiresAt } = currentAuthStatus;
-              if (user.role === 'system_administrator') {
-                return {
-                  status: 'logged_in',
-                  user,
-                  sessionExpiresAt,
-                  programmableCard: cardStatusToProgrammableCard(
-                    machineState,
-                    action.cardStatus
-                  ),
-                };
+              switch (user.role) {
+                case 'vendor': {
+                  return { status: 'logged_in', user, sessionExpiresAt };
+                }
+                case 'system_administrator': {
+                  return {
+                    status: 'logged_in',
+                    user,
+                    sessionExpiresAt,
+                    programmableCard: cardStatusToProgrammableCard(
+                      machineState,
+                      action.cardStatus
+                    ),
+                  };
+                }
+                case 'election_manager': {
+                  return { status: 'logged_in', user, sessionExpiresAt };
+                }
+                /* istanbul ignore next: Compile-time check for completeness */
+                default: {
+                  throwIllegalValue(user, 'role');
+                }
               }
-              return { status: 'logged_in', user, sessionExpiresAt };
             }
             return currentAuthStatus;
           }
@@ -618,12 +630,17 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
 
     if (
       machineState.jurisdiction &&
-      user.jurisdiction !== machineState.jurisdiction
+      user.jurisdiction !== machineState.jurisdiction &&
+      !areUniversalVendorCardDetails(cardDetails)
     ) {
       return err('wrong_jurisdiction');
     }
 
-    if (!['system_administrator', 'election_manager'].includes(user.role)) {
+    if (
+      !['vendor', 'system_administrator', 'election_manager'].includes(
+        user.role
+      )
+    ) {
       return err('user_role_not_allowed');
     }
 

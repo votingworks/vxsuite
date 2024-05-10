@@ -25,15 +25,11 @@ test.each<{ subject: string; expectedCustomCertFields: CustomCertFields }>([
   {
     subject:
       'subject=C = US, ST = CA, O = VotingWorks, ' +
-      '1.3.6.1.4.1.59817.1 = card, ' +
-      `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
-      '1.3.6.1.4.1.59817.3 = election-manager, ' +
-      `1.3.6.1.4.1.59817.4 = ${electionHash}`,
+      '1.3.6.1.4.1.59817.1 = admin, ' +
+      `1.3.6.1.4.1.59817.2 = ${jurisdiction}`,
     expectedCustomCertFields: {
-      component: 'card',
+      component: 'admin',
       jurisdiction,
-      cardType: 'election-manager',
-      electionHash,
     },
   },
   {
@@ -51,11 +47,15 @@ test.each<{ subject: string; expectedCustomCertFields: CustomCertFields }>([
   {
     subject:
       'subject=C = US, ST = CA, O = VotingWorks, ' +
-      '1.3.6.1.4.1.59817.1 = admin, ' +
-      `1.3.6.1.4.1.59817.2 = ${jurisdiction}`,
+      '1.3.6.1.4.1.59817.1 = card, ' +
+      `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
+      '1.3.6.1.4.1.59817.3 = election-manager, ' +
+      `1.3.6.1.4.1.59817.4 = ${electionHash}`,
     expectedCustomCertFields: {
-      component: 'admin',
+      component: 'card',
       jurisdiction,
+      cardType: 'election-manager',
+      electionHash,
     },
   },
 ])('parseCert', async ({ subject, expectedCustomCertFields }) => {
@@ -125,6 +125,16 @@ test.each<{
   subject: string;
   expectedCardDetails: CardDetails;
 }>([
+  {
+    subject:
+      'subject=C = US, ST = CA, O = VotingWorks, ' +
+      '1.3.6.1.4.1.59817.1 = card, ' +
+      `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
+      '1.3.6.1.4.1.59817.3 = vendor',
+    expectedCardDetails: {
+      user: { role: 'vendor', jurisdiction },
+    },
+  },
   {
     subject:
       'subject=C = US, ST = CA, O = VotingWorks, ' +
@@ -211,6 +221,16 @@ test.each<{
   cardDetails: CardDetails;
   expectedSubject: string;
 }>([
+  {
+    cardDetails: {
+      user: { role: 'vendor', jurisdiction },
+    },
+    expectedSubject:
+      '/C=US/ST=CA/O=VotingWorks' +
+      '/1.3.6.1.4.1.59817.1=card' +
+      `/1.3.6.1.4.1.59817.2=${jurisdiction}` +
+      '/1.3.6.1.4.1.59817.3=vendor/',
+  },
   {
     cardDetails: {
       user: { role: 'system_administrator', jurisdiction },

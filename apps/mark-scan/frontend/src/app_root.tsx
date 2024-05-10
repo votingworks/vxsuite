@@ -19,6 +19,7 @@ import {
   isSystemAdministratorAuth,
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
+  isVendorAuth,
 } from '@votingworks/utils';
 import {
   InvalidCardScreen,
@@ -364,6 +365,11 @@ export function AppRoot(): JSX.Element | null {
         recommendedAction="Remove the card to continue."
       />
     );
+  }
+
+  /* istanbul ignore next */
+  if (isVendorAuth(authStatus)) {
+    return null;
   }
 
   if (isSystemAdministratorAuth(authStatus)) {

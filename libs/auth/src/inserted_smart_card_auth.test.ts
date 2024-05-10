@@ -17,6 +17,7 @@ import {
   mockPollWorkerUser,
   mockSystemAdministratorUser,
   mockOf,
+  mockVendorUser,
 } from '@votingworks/test-utils';
 import {
   DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
@@ -86,6 +87,7 @@ const defaultMachineState: InsertedSmartCardAuthMachineState = {
     DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
   overallSessionTimeLimitHours: DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
 };
+const vendorUser = mockVendorUser({ jurisdiction });
 const systemAdministratorUser = mockSystemAdministratorUser({ jurisdiction });
 const electionManagerUser = mockElectionManagerUser({
   jurisdiction,
@@ -255,6 +257,13 @@ test.each<{
   machineState: DippedSmartCardAuthMachineState;
   cardDetails: CardDetails;
 }>([
+  {
+    description: 'vendor card',
+    machineState: defaultMachineState,
+    cardDetails: {
+      user: vendorUser,
+    },
+  },
   {
     description: 'system administrator card',
     machineState: defaultMachineState,
@@ -605,6 +614,44 @@ test.each<{
       status: 'logged_out',
       reason: 'wrong_jurisdiction',
       cardJurisdiction: otherJurisdiction,
+      cardUserRole: 'system_administrator',
+      machineJurisdiction: jurisdiction,
+    },
+    expectedLog: [
+      LogEventId.AuthLogin,
+      'system_administrator',
+      {
+        disposition: LogDispositionStandardTypes.Failure,
+        message: 'User failed login.',
+        reason: 'wrong_jurisdiction',
+      },
+    ],
+  },
+  {
+    description:
+      'skips jurisdiction validation if vendor card with wildcard jurisdiction',
+    config: defaultConfig,
+    machineState: defaultMachineState,
+    cardDetails: {
+      user: { ...vendorUser, jurisdiction: '*' },
+    },
+    expectedAuthStatus: {
+      status: 'checking_pin',
+      user: { ...vendorUser, jurisdiction: '*' },
+    },
+  },
+  {
+    description:
+      'does not skip jurisdiction validation if non-vendor card with wildcard jurisdiction',
+    config: defaultConfig,
+    machineState: defaultMachineState,
+    cardDetails: {
+      user: { ...systemAdministratorUser, jurisdiction: '*' },
+    },
+    expectedAuthStatus: {
+      status: 'logged_out',
+      reason: 'wrong_jurisdiction',
+      cardJurisdiction: '*',
       cardUserRole: 'system_administrator',
       machineJurisdiction: jurisdiction,
     },
@@ -1270,6 +1317,13 @@ test.each<{
   machineState: DippedSmartCardAuthMachineState;
   cardDetails: CardDetails;
 }>([
+  {
+    description: 'vendor card',
+    machineState: defaultMachineState,
+    cardDetails: {
+      user: vendorUser,
+    },
+  },
   {
     description: 'system administrator card',
     machineState: defaultMachineState,

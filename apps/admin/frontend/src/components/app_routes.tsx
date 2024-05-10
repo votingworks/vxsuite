@@ -9,10 +9,13 @@ import {
 
 import {
   BooleanEnvironmentVariableName,
+  isElectionManagerAuth,
   isFeatureFlagEnabled,
   isSystemAdministratorAuth,
+  isVendorAuth,
 } from '@votingworks/utils';
 import type { ManualResultsVotingMethod } from '@votingworks/admin-backend';
+import { assert } from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context';
 import { routerPaths } from '../router_paths';
 import { ElectionScreen } from '../screens/election_screen';
@@ -39,7 +42,7 @@ import { VotingMethodBallotCountReport } from '../screens/reporting/voting_metho
 import { FullElectionTallyReportScreen } from '../screens/reporting/full_election_tally_report_screen';
 import { DiagnosticsScreen } from '../screens/diagnostics_screen';
 
-export function AppRoutes(): JSX.Element {
+export function AppRoutes(): JSX.Element | null {
   const { electionDefinition, configuredAt, auth } = useContext(AppContext);
   const election = electionDefinition?.election;
   const checkPinMutation = checkPin.useMutation();
@@ -84,6 +87,11 @@ export function AppRoutes(): JSX.Element {
         }
       />
     );
+  }
+
+  /* istanbul ignore next */
+  if (isVendorAuth(auth)) {
+    return null;
   }
 
   if (isSystemAdministratorAuth(auth)) {
@@ -140,6 +148,7 @@ export function AppRoutes(): JSX.Element {
   }
 
   // Election manager UI
+  assert(isElectionManagerAuth(auth));
   return (
     <Switch>
       <Route exact path={routerPaths.election}>

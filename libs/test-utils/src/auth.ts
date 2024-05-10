@@ -6,7 +6,16 @@ import {
   PollWorkerUser,
   SystemAdministratorUser,
   TEST_JURISDICTION,
+  VendorUser,
 } from '@votingworks/types';
+
+export function mockVendorUser(props: Partial<VendorUser> = {}): VendorUser {
+  return {
+    role: 'vendor',
+    jurisdiction: TEST_JURISDICTION,
+    ...props,
+  };
+}
 
 export function mockSystemAdministratorUser(
   props: Partial<SystemAdministratorUser> = {}

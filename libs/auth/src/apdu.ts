@@ -286,9 +286,7 @@ export function constructTlv(
 }
 
 /**
- * A Tag-Length-Value (TLV) structure.
- *
- * See https://en.wikipedia.org/wiki/Type-length-value for more information.
+ * A parsed TLV. See {@link constructTlv} for more context.
  */
 export interface Tlv {
   tag: Buffer;
@@ -361,9 +359,9 @@ export function parseTlvPartial(
 }
 
 /**
- * The inverse of constructTlv, splits a TLV into its tag, length, and value. If the tag does not
- * match the expected tag, an error is thrown. If the entire TLV is not consumed, an error is
- * thrown.
+ * The inverse of {@link constructTlv}, splits a TLV into its tag, length, and value. If the tag
+ * does not match the expected tag, an error is thrown. If the entire TLV is not consumed, an error
+ * is thrown.
  */
 export function parseTlv(tagAsByteOrBuffer: Byte | Buffer, data: Buffer): Tlv {
   const [tlv, remainder] = parseTlvPartial(tagAsByteOrBuffer, data);
