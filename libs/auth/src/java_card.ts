@@ -89,7 +89,8 @@ export const PUK = Buffer.of(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
 export const MAX_NUM_INCORRECT_PIN_ATTEMPTS = 15;
 
 /**
- * The card's VotingWorks-issued cert
+ * This cert is issued by VotingWorks during initial Java Card configuration. The cert indicates
+ * that the card is an authentic VotingWorks card.
  */
 export const CARD_VX_CERT = {
   OBJECT_ID: pivDataObjectId(0xf0),
@@ -97,8 +98,9 @@ export const CARD_VX_CERT = {
 } as const;
 
 /**
- * The card's VxAdmin-issued cert or a vendor card's second VotingWorks-issued cert. This cert
- * indicates the card's identity (i.e., user role, jurisdiction, election hash, etc.).
+ * This cert is issued during card programming, by VotingWorks directly for vendor cards and by
+ * VxAdmin for all other cards. The cert indicates the card's identity, i.e, user role,
+ * jurisdiction, election hash, etc.
  */
 export const CARD_IDENTITY_CERT = {
   OBJECT_ID: pivDataObjectId(0xf1),

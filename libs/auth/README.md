@@ -42,8 +42,8 @@ frontend error boundary, which throwing errors on the backend typically does.
 ### Initial Java Card Configuration Script
 
 This script configures a Java Card for use with VotingWorks machines. The script
-will be run at the Bakery for production cards and can be run locally for local
-development.
+will be run at a VotingWorks facility for production cards and can be run
+locally for development.
 
 ```
 # Install script dependencies
