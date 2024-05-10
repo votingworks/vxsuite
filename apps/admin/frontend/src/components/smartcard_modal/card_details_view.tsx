@@ -152,7 +152,10 @@ export function CardDetailsView({
         <P>Remove card to cancel.</P>
       </React.Fragment>
     );
-  } else if (!electionDefinition) {
+  } else if (
+    ['election_manager', 'poll_worker'].includes(role) &&
+    !electionDefinition
+  ) {
     bodyContent = (
       <React.Fragment>
         <P>An election must be defined before cards can be created.</P>

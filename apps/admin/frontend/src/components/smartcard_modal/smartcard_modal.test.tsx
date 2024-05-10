@@ -185,7 +185,7 @@ test('Smartcard modal displays card details when no election definition on machi
       expectedHeading: 'Vendor Card',
       expectedElectionString: undefined,
       shouldResetCardPinButtonBeDisplayed: false,
-      shouldElectionDefinitionPromptBeDisplayed: true,
+      shouldElectionDefinitionPromptBeDisplayed: false,
       expectedFooter: 'Remove card to leave this screen.',
     },
     {
