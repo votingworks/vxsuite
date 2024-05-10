@@ -21,6 +21,7 @@ import {
 } from './constants';
 import { setUpMockWebUsbDevice } from './test_utils';
 import {
+  LoadPaperCommand,
   PaperHandlerBitmap,
   PrinterStatusRealTimeExchangeResponse,
   SensorStatusRealTimeExchangeResponse,
@@ -639,4 +640,83 @@ test('bufferChunk', async () => {
     GENERIC_ENDPOINT_OUT,
     Buffer.from(expectation)
   );
+});
+
+function getMockTransferInResponse(data: Buffer): Promise<USBInTransferResult> {
+  return Promise.resolve({
+    status: 'ok',
+    data: new DataView(new Uint8Array(data).buffer),
+  });
+}
+
+describe('handleGenericCommandWithAcknowledgement', () => {
+  test.each([
+    {
+      code: ReturnCodes.POSITIVE_ACKNOWLEDGEMENT,
+      expectedValue: true,
+    },
+    {
+      code: ReturnCodes.NEGATIVE_ACKNOWLEDGEMENT,
+      expectedValue: false,
+    },
+  ])('handles expected return code $code', async ({ code, expectedValue }) => {
+    const transferInSpy = jest.spyOn(paperHandlerDriver, 'transferInGeneric');
+
+    transferInSpy.mockReturnValueOnce(
+      getMockTransferInResponse(Buffer.of(code))
+    );
+
+    expect(
+      await paperHandlerDriver.handleGenericCommandWithAcknowledgement(
+        // Use any valid coder for this test
+        LoadPaperCommand,
+        undefined
+      )
+    ).toEqual(expectedValue);
+  });
+  test('retries on 0x12 response', async () => {
+    const transferInSpy = jest.spyOn(paperHandlerDriver, 'transferInGeneric');
+
+    transferInSpy
+      .mockReturnValueOnce(
+        getMockTransferInResponse(
+          Buffer.of(ReturnCodes.INVALID_STATUS_TRANSMISSION_ARGUMENT)
+        )
+      )
+      .mockReturnValueOnce(
+        getMockTransferInResponse(
+          Buffer.of(ReturnCodes.POSITIVE_ACKNOWLEDGEMENT)
+        )
+      );
+
+    expect(
+      await paperHandlerDriver.handleGenericCommandWithAcknowledgement(
+        // Use any valid coder for this test
+        LoadPaperCommand,
+        undefined
+      )
+    ).toEqual(true);
+  });
+
+  test('retries on real-time status transmission response', async () => {
+    const transferInSpy = jest.spyOn(paperHandlerDriver, 'transferInGeneric');
+
+    transferInSpy
+      .mockReturnValueOnce(
+        getMockTransferInResponse(Buffer.of(0x10, 0x0f, 0x00, 0x00, 0x00, 0x20))
+      )
+      .mockReturnValueOnce(
+        getMockTransferInResponse(
+          Buffer.of(ReturnCodes.POSITIVE_ACKNOWLEDGEMENT)
+        )
+      );
+
+    expect(
+      await paperHandlerDriver.handleGenericCommandWithAcknowledgement(
+        // Use any valid coder for this test
+        LoadPaperCommand,
+        undefined
+      )
+    ).toEqual(true);
+  });
 });
