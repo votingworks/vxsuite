@@ -57,8 +57,8 @@ For production, you can use the following command:
 
 ```
 NODE_ENV=production \
-  VX_PRIVATE_KEY_PATH=/path/to/vx-private-key.pem \
-  ./scripts/configure-java-card
+    VX_PRIVATE_KEY_PATH=/path/to/vx-private-key.pem \
+    ./scripts/configure-java-card
 ```
 
 For development, you can use the following wrapper command, which sets the
@@ -146,7 +146,7 @@ NODE_ENV=production \
 ```
 
 If you want the card to be a universal vendor card granting vendor access to
-machines regardless of their jurisdiction, specify \* for the jurisdiction.
+machines regardless of their jurisdiction, specify `*` for the jurisdiction.
 
 For development, you can use the following wrapper command, which sets the
 relevant env vars for development and then calls the base script:
@@ -190,7 +190,7 @@ The script works not only with VxSuite cards but also with Common Access Cards:
 This script creates a production machine cert signing request, using the
 machine's TPM key, given which the VotingWorks certification terminal will
 create a machine cert. Because the script requires a TPM, it can only be run on
-real hardware.
+production hardware.
 
 ```
 # With the relevant env vars set
