@@ -1,5 +1,5 @@
 import { fromByteArray } from 'base64-js';
-import React, { useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 
 import { encodeBallot } from '@votingworks/ballot-encoder';
@@ -110,10 +110,6 @@ const Ballot = styled.div<{ layout: Layout }>`
   font-family: ${VX_DEFAULT_FONT_FAMILY_DECLARATION};
   font-size: 10pt !important;
   page-break-after: always;
-
-  @media screen {
-    display: none;
-  }
 
   @page {
     margin: 0.375in;
@@ -413,7 +409,6 @@ export function BmdPaperBallot({
   isLiveMode,
   precinctId,
   votes,
-  onRendered,
   machineType,
 }: BmdPaperBallotProps): JSX.Element {
   const ballotId = generateBallotId();
@@ -437,12 +432,6 @@ export function BmdPaperBallot({
     isTestMode: !isLiveMode,
     ballotType: BallotType.Precinct,
   });
-
-  useEffect(() => {
-    if (onRendered) {
-      onRendered();
-    }
-  }, [onRendered]);
 
   const layout = find(
     [...ORDERED_BMD_BALLOT_LAYOUTS[machineType]].reverse(),

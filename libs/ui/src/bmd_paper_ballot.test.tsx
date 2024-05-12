@@ -277,21 +277,6 @@ test('BmdPaperBallot passes expected data to encodeBallot for use in QR code', (
   );
 });
 
-describe('BmdPaperBallot calls onRendered', () => {
-  test('when "seal" present', () => {
-    const onRendered = jest.fn();
-    renderBmdPaperBallot({
-      electionDefinition: electionGeneralDefinition,
-      ballotStyleId: '5',
-      precinctId: '21',
-      votes: {},
-      onRendered,
-    });
-
-    expect(onRendered).toHaveBeenCalledTimes(1);
-  });
-});
-
 test('BmdPaperBallot renders a large top margin for VxMarkScan prints', () => {
   renderBmdPaperBallot({
     electionDefinition: electionWithMsEitherNeitherDefinition,
