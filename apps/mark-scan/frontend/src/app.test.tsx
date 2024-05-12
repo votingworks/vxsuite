@@ -1,9 +1,5 @@
 import React from 'react';
-import {
-  mockKiosk,
-  mockOf,
-  suppressingConsoleOutput,
-} from '@votingworks/test-utils';
+import { mockOf, suppressingConsoleOutput } from '@votingworks/test-utils';
 
 import fetchMock from 'fetch-mock';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
@@ -33,7 +29,6 @@ let apiMock: ApiMock;
 beforeEach(() => {
   jest.useFakeTimers();
   apiMock = createApiMock();
-  window.kiosk = mockKiosk();
 });
 
 afterEach(() => {
