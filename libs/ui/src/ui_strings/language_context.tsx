@@ -1,13 +1,22 @@
 import React from 'react';
 import i18next, { i18n } from 'i18next';
-import { initReactI18next, useTranslation } from 'react-i18next';
+import { initReactI18next, useSSR, useTranslation } from 'react-i18next';
 
-import { LanguageCode } from '@votingworks/types';
-import { Optional, assertDefined } from '@votingworks/basics';
+import { LanguageCode, UiStringTranslations } from '@votingworks/types';
+import { Optional, assert, assertDefined } from '@votingworks/basics';
 import { Screen } from '../screen';
 import { UiStringsReactQueryApi } from '../hooks/ui_strings_api';
 
-export interface LanguageContextInterface {
+export const DEFAULT_LANGUAGE_CODE = LanguageCode.ENGLISH;
+export const DEFAULT_I18NEXT_NAMESPACE = 'translation';
+
+export interface BackendLanguageContextInterface {
+  currentLanguageCode: LanguageCode;
+  i18next: i18n;
+  translationFunction: ReturnType<typeof useTranslation>['t'];
+}
+
+export interface FrontendLanguageContextInterface {
   api: UiStringsReactQueryApi;
   availableLanguages: LanguageCode[];
   currentLanguageCode: LanguageCode;
@@ -16,14 +25,23 @@ export interface LanguageContextInterface {
   translationFunction: ReturnType<typeof useTranslation>['t'];
 }
 
-export const DEFAULT_LANGUAGE_CODE = LanguageCode.ENGLISH;
-export const DEFAULT_I18NEXT_NAMESPACE = 'translation';
+export type LanguageContextInterface =
+  | (FrontendLanguageContextInterface & { executionContext: 'frontend' })
+  | (BackendLanguageContextInterface & { executionContext: 'backend' });
 
 export const LanguageContext =
   React.createContext<Optional<LanguageContextInterface>>(undefined);
 
 export function useLanguageContext(): Optional<LanguageContextInterface> {
   return React.useContext(LanguageContext);
+}
+
+export function useFrontendLanguageContext(): Optional<FrontendLanguageContextInterface> {
+  const languageContext = React.useContext(LanguageContext);
+  if (!languageContext) return undefined;
+
+  assert(languageContext.executionContext === 'frontend');
+  return languageContext;
 }
 
 const i18nextInitPromise = i18next.use(initReactI18next).init({
@@ -44,7 +62,7 @@ const i18nextInitPromise = i18next.use(initReactI18next).init({
  */
 export function UiStringsLoader(): React.ReactNode {
   const context = assertDefined(
-    useLanguageContext(),
+    useFrontendLanguageContext(),
     'LanguageContext required for UiStringsLoader'
   );
   const languageCode = context.currentLanguageCode;
@@ -63,13 +81,13 @@ export function UiStringsLoader(): React.ReactNode {
   return null;
 }
 
-export interface LanguageContextProviderProps {
+export interface FrontendLanguageContextProviderProps {
   api: UiStringsReactQueryApi;
   children: React.ReactNode;
 }
 
-export function LanguageContextProvider(
-  props: LanguageContextProviderProps
+export function FrontendLanguageContextProvider(
+  props: FrontendLanguageContextProviderProps
 ): JSX.Element {
   const { api, children } = props;
 
@@ -103,6 +121,7 @@ export function LanguageContextProvider(
   return (
     <LanguageContext.Provider
       value={{
+        executionContext: 'frontend',
         api,
         availableLanguages: availableLanguagesQuery.data,
         currentLanguageCode,
@@ -112,6 +131,47 @@ export function LanguageContextProvider(
       }}
     >
       <UiStringsLoader />
+      {children}
+    </LanguageContext.Provider>
+  );
+}
+
+export interface BackendLanguageContextProviderProps {
+  languageCode: LanguageCode;
+  uiStringTranslations?: UiStringTranslations;
+  children: React.ReactNode;
+}
+
+export function BackendLanguageContextProvider({
+  languageCode,
+  uiStringTranslations,
+  children,
+}: BackendLanguageContextProviderProps): JSX.Element {
+  // Although you can pass an initial i18n store to  `useSSR`, it only
+  // sets the i18n store on the very first render. For example, if you have
+  // a machine configured with a UI strings catalog, unconfigure, then reconfigure,
+  // i18n will not be re-initialize with the the new initial i18n store.
+  // Thus, we just need to add a resource bundle on every render.
+  useSSR({}, languageCode);
+  if (uiStringTranslations) {
+    i18next.addResourceBundle(
+      languageCode,
+      DEFAULT_I18NEXT_NAMESPACE,
+      uiStringTranslations
+    );
+  }
+
+  const { t: translationFunction } = i18next;
+
+  return (
+    <LanguageContext.Provider
+      value={{
+        executionContext: 'backend',
+        currentLanguageCode: languageCode,
+        i18next,
+        translationFunction,
+      }}
+    >
       {children}
     </LanguageContext.Provider>
   );

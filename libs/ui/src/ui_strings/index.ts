@@ -3,6 +3,7 @@ export * from './audio_only';
 export * from './date_string';
 export * from './election_strings';
 export * from './language_override';
+export { BackendLanguageContextProvider } from './language_context';
 export * from './number_string';
 export * from './read_on_load';
 export * from './toggle_audio_button';

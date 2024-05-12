@@ -4,7 +4,7 @@ import { LanguageCode } from '@votingworks/types';
 
 import {
   DEFAULT_LANGUAGE_CODE,
-  useLanguageContext,
+  useFrontendLanguageContext,
 } from '../ui_strings/language_context';
 
 export interface LanguageControls {
@@ -15,7 +15,7 @@ export interface LanguageControls {
 function noOp() {}
 
 export function useLanguageControls(): LanguageControls {
-  const languageContext = useLanguageContext();
+  const languageContext = useFrontendLanguageContext();
 
   const setLanguage = languageContext?.setLanguage || noOp;
 
