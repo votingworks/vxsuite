@@ -1,24 +1,9 @@
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import { Route } from 'react-router-dom';
-import {
-  getBallotStyle,
-  getContestDistrictName,
-  getContests,
-  vote,
-} from '@votingworks/types';
-import {
-  expectPrintToPdf,
-  hasTextAcrossElements,
-  PrintRenderResult,
-  mockPrintElement,
-  mockPrintElementWhenReady,
-  mockPrintElementToPdf,
-} from '@votingworks/test-utils';
+import { getContestDistrictName } from '@votingworks/types';
 
 import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import { assert, assertDefined, find } from '@votingworks/basics';
 import userEvent from '@testing-library/user-event';
-import { PrintPage } from './pages/print_page';
 import {
   fireEvent,
   render,
@@ -27,18 +12,10 @@ import {
 } from '../test/react_testing_library';
 import { App } from './app';
 
-import { render as renderWithBallotContext } from '../test/test_utils';
 import { withMarkup } from '../test/helpers/with_markup';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
-
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
-  ...jest.requireActual('@votingworks/ui'),
-  printElementWhenReady: mockPrintElementWhenReady,
-  printElement: mockPrintElement,
-  printElementToPdf: mockPrintElementToPdf,
-}));
 
 let apiMock: ApiMock;
 const electionDefinition = electionWithMsEitherNeitherDefinition;
@@ -68,150 +45,7 @@ const pickOneContest = find(
 assert(eitherNeitherContest.type === 'yesno');
 assert(pickOneContest.type === 'yesno');
 
-const ballotStyleId = '1';
 const precinctId = '6526';
-
-function expectPrintedVotes(
-  printedElement: PrintRenderResult,
-  expectedVotes: {
-    eitherNeither: string;
-    pickOne: string;
-  }
-) {
-  const { eitherNeither, pickOne } = expectedVotes;
-  printedElement.getByText(
-    hasTextAcrossElements(
-      new RegExp(`${eitherNeitherContest.title}.?${eitherNeither}`)
-    )
-  );
-  printedElement.getByText(
-    hasTextAcrossElements(new RegExp(`${pickOneContest.title}.?${pickOne}`))
-  );
-}
-
-test('Renders Ballot with EitherNeither: blank', async () => {
-  apiMock.expectPrintBallot();
-  renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
-    apiMock,
-    ballotStyleId,
-    precinctId,
-    route: '/print',
-    electionDefinition,
-    votes: vote(
-      getContests({
-        ballotStyle: getBallotStyle({
-          election,
-          ballotStyleId,
-        })!,
-        election,
-      }),
-      {
-        [eitherNeitherContestId]: [],
-        [pickOneContestId]: [],
-      }
-    ),
-  });
-
-  await expectPrintToPdf((printedElement) => {
-    expect(
-      printedElement.getAllByText(
-        hasTextAcrossElements(
-          new RegExp(`${eitherNeitherContest.title}.?[No Selection]`)
-        )
-      )
-    ).toHaveLength(2);
-  });
-});
-
-test('Renders Ballot with EitherNeither: Either & blank', async () => {
-  apiMock.expectPrintBallot();
-  renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
-    apiMock,
-    ballotStyleId,
-    precinctId,
-    route: '/print',
-    electionDefinition,
-    votes: vote(
-      getContests({
-        ballotStyle: getBallotStyle({
-          election,
-          ballotStyleId,
-        })!,
-        election,
-      }),
-      {
-        [eitherNeitherContestId]: [eitherNeitherContest.yesOption.id],
-        [pickOneContestId]: [],
-      }
-    ),
-  });
-  await expectPrintToPdf((printedElement) => {
-    expectPrintedVotes(printedElement, {
-      eitherNeither: assertDefined(eitherNeitherContest.yesOption).label,
-      pickOne: '[No Selection]',
-    });
-  });
-});
-
-test('Renders Ballot with EitherNeither: Neither & firstOption', async () => {
-  apiMock.expectPrintBallot();
-  renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
-    apiMock,
-    ballotStyleId,
-    precinctId,
-    route: '/print',
-    electionDefinition,
-    votes: vote(
-      getContests({
-        ballotStyle: getBallotStyle({
-          election,
-          ballotStyleId,
-        })!,
-        election,
-      }),
-      {
-        [eitherNeitherContestId]: [eitherNeitherContest.noOption.id],
-        [pickOneContestId]: [pickOneContest.yesOption.id],
-      }
-    ),
-  });
-  await expectPrintToPdf((printedElement) => {
-    expectPrintedVotes(printedElement, {
-      eitherNeither: assertDefined(eitherNeitherContest.noOption).label,
-      pickOne: assertDefined(pickOneContest.yesOption).label,
-    });
-  });
-});
-
-test('Renders Ballot with EitherNeither: blank & secondOption', async () => {
-  apiMock.expectPrintBallot();
-  renderWithBallotContext(<Route path="/print" component={PrintPage} />, {
-    apiMock,
-    ballotStyleId,
-    precinctId,
-    route: '/print',
-    electionDefinition,
-    votes: vote(
-      getContests({
-        ballotStyle: getBallotStyle({
-          election,
-          ballotStyleId,
-        })!,
-        election,
-      }),
-      {
-        [eitherNeitherContestId]: [],
-        [pickOneContestId]: [pickOneContest.noOption.id],
-      }
-    ),
-  });
-  await expectPrintToPdf((printedElement) => {
-    expectPrintedVotes(printedElement, {
-      eitherNeither: '[No Selection]',
-      pickOne: assertDefined(pickOneContest.noOption).label,
-    });
-  });
-});
 
 test('Can vote on a Mississippi Either Neither Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //

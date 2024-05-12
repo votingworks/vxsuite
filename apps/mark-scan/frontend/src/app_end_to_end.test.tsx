@@ -1,15 +1,10 @@
 import userEvent from '@testing-library/user-event';
 import {
   mockElectionManagerUser,
-  mockKiosk,
-  expectPrintToPdf,
   hasTextAcrossElements,
-  mockPrintElement,
-  mockPrintElementWhenReady,
-  mockPrintElementToPdf,
 } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import { getContestDistrictName } from '@votingworks/types';
+import { LanguageCode, getContestDistrictName } from '@votingworks/types';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { assert } from '@votingworks/basics';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
@@ -28,22 +23,12 @@ import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { configureFromUsbThenRemove } from '../test/helpers/election_package';
 import { getMockInterpretation } from '../test/helpers/interpretation';
 
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
-  ...jest.requireActual('@votingworks/ui'),
-  printElementWhenReady: mockPrintElementWhenReady,
-  printElement: mockPrintElement,
-  printElementToPdf: mockPrintElementToPdf,
-}));
-
 let apiMock: ApiMock;
-let kiosk = mockKiosk();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   apiMock = createApiMock();
-  kiosk = mockKiosk();
-  window.kiosk = kiosk;
 });
 
 afterEach(() => {
@@ -287,11 +272,22 @@ test('MarkAndPrint end-to-end flow', async () => {
   screen.getByText(hasTextAcrossElements(/number of unused votes: 2/i));
 
   // Print Screen
-  apiMock.expectPrintBallot();
+  apiMock.expectPrintBallot({
+    languageCode: LanguageCode.ENGLISH,
+    precinctId: '23',
+    ballotStyleId: '12',
+    votes: {
+      [presidentContest.id]: [presidentCandidateToVoteFor],
+      [measure102Contest.id]: [measure102Contest.yesOption.id],
+      [countyCommissionersContest.id]: [
+        countyCommissionersContest.candidates[0],
+        countyCommissionersContest.candidates[1],
+      ],
+    },
+  });
   apiMock.expectGetElectionState({ ballotsPrintedCount: 1 });
   userEvent.click(screen.getByText(/Print My ballot/i));
   screen.getByText(/Printing Your Official Ballot/i);
-  await expectPrintToPdf();
 
   const mockInterpretation = getMockInterpretation(electionDefinition);
   apiMock.expectGetInterpretation(mockInterpretation);

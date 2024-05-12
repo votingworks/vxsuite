@@ -1,10 +1,10 @@
 import React from 'react';
-import { Buffer } from 'buffer';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
 import type {
   Api,
   ElectionState,
   MachineConfig,
+  PrintBallotProps,
   SimpleServerStatus,
 } from '@votingworks/mark-scan-backend';
 import {
@@ -215,8 +215,8 @@ export function createApiMock() {
       mockApiClient.unconfigureMachine.expectCallWith().resolves();
     },
 
-    expectPrintBallot(pdfData = Buffer.of()): void {
-      mockApiClient.printBallot.expectCallWith({ pdfData }).resolves();
+    expectPrintBallot(props: PrintBallotProps): void {
+      mockApiClient.printBallot.expectCallWith(props).resolves();
     },
 
     expectGetInterpretation(
