@@ -1,4 +1,9 @@
-import { PollsState, PrecinctSelection } from '@votingworks/types';
+import {
+  LanguageCode,
+  PollsState,
+  PrecinctSelection,
+  VotesDict,
+} from '@votingworks/types';
 
 export interface MachineConfig {
   machineId: string;
@@ -14,3 +19,11 @@ export interface ElectionState {
 }
 
 export type ScreenOrientation = 'portrait' | 'landscape';
+
+export interface PrintBallotProps {
+  languageCode: LanguageCode;
+  precinctId: string;
+  ballotStyleId: string;
+  votes: VotesDict;
+  ballotId?: string;
+}

@@ -409,7 +409,7 @@ async function executePrintBallotAndAssert(
   setMockDeviceStatus(getPaperParkedStatus());
   await expectStatusTransitionTo('waiting_for_ballot_data');
 
-  machine.printBallot(ballotPdfData);
+  void machine.printBallot(ballotPdfData);
   expectCurrentStatus('printing_ballot');
   expect(printBallotChunks).toHaveBeenCalledTimes(1);
 
@@ -453,24 +453,6 @@ test('voting flow happy path', async () => {
 });
 
 describe('removing ballot during presentation state', () => {
-  test('is a no op if USE_MOCK_PAPER_HANDLER=true', async () => {
-    const ballotPdfData = await readBallotFixture();
-    const scannedBallotFixtureFilepaths = getSampleBallotFilepath();
-    featureFlagMock.enableFeatureFlag(
-      BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
-    );
-    await executePrintBallotAndAssert(
-      ballotPdfData,
-      scannedBallotFixtureFilepaths
-    );
-
-    setMockDeviceStatus(getPaperInFrontStatus());
-    await expectStatusTransitionTo('presenting_ballot');
-
-    setMockDeviceStatus(getDefaultPaperHandlerStatus());
-    await expectStatusTransitionTo('presenting_ballot');
-  });
-
   test('goes to ballot_removed_during_presentation state', async () => {
     const ballotPdfData = await readBallotFixture();
     const scannedBallotFixtureFilepaths = getSampleBallotFilepath();

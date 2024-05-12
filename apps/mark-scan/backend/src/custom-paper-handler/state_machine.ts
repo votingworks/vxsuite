@@ -20,7 +20,7 @@ import {
 } from 'xstate';
 import { Buffer } from 'buffer';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
-import { Optional, assert, assertDefined } from '@votingworks/basics';
+import { Optional, assert, assertDefined, iter } from '@votingworks/basics';
 import { SheetOf } from '@votingworks/types';
 import {
   InterpretFileResult,
@@ -34,6 +34,8 @@ import {
   isFeatureFlagEnabled,
   isPollWorkerAuth,
 } from '@votingworks/utils';
+import { tmpNameSync } from 'tmp';
+import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 import { Workspace, constructAuthMachineState } from '../util/workspace';
 import { SimpleServerStatus } from './types';
 import {
@@ -65,7 +67,6 @@ import {
   ORIGIN_SWIFTY_PRODUCT_ID,
   ORIGIN_VENDOR_ID,
 } from '../pat-input/constants';
-import { getSampleBallotFilepath } from './filepaths';
 
 interface Context {
   auth: InsertedSmartCardAuthApi;
@@ -102,7 +103,7 @@ export type PaperHandlerStatusEvent =
   | { type: 'PAPER_IN_INPUT' }
   | { type: 'POLL_WORKER_CONFIRMED_INVALIDATED_BALLOT' }
   | { type: 'SCANNING' }
-  | { type: 'SET_INTERPRETATION_FIXTURE' }
+  | { type: 'SET_INTERPRETATION_FIXTURE'; jpgPath: string }
   | { type: 'VOTER_VALIDATED_BALLOT' }
   | { type: 'VOTER_INVALIDATED_BALLOT' }
   | { type: 'AUTH_STATUS_CARDLESS_VOTER' }
@@ -124,7 +125,7 @@ export interface PaperHandlerStateMachine {
   getRawDeviceStatus(): Promise<PaperHandlerStatus>;
   getSimpleStatus(): SimpleServerStatus;
   setAcceptingPaper(): void;
-  printBallot(pdfData: Buffer): void;
+  printBallot(pdfData: Buffer): Promise<void>;
   getInterpretation(): Optional<SheetOf<InterpretFileResult>>;
   confirmSessionEnd(): void;
   validateBallot(): void;
@@ -132,7 +133,6 @@ export interface PaperHandlerStateMachine {
   confirmInvalidateBallot(): void;
   confirmBallotBoxEmptied(): void;
   setPatDeviceIsCalibrated(): void;
-  setInterpretationFixture(): void;
   isPatDeviceConnected(): boolean;
   addTransitionListener(listener: () => void): void;
 }
@@ -437,7 +437,7 @@ export function buildMachine(
         },
         SET_INTERPRETATION_FIXTURE: {
           actions: assign({
-            scannedBallotImagePath: getSampleBallotFilepath(),
+            scannedBallotImagePath: (_context, event) => event.jpgPath,
           }),
           target: 'voting_flow.interpreting',
         },
@@ -632,13 +632,7 @@ export function buildMachine(
                 VOTER_VALIDATED_BALLOT: 'eject_to_rear',
                 VOTER_INVALIDATED_BALLOT:
                   'waiting_for_invalidated_ballot_confirmation',
-                NO_PAPER_ANYWHERE: {
-                  cond: () =>
-                    !isFeatureFlagEnabled(
-                      BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
-                    ),
-                  target: 'ballot_removed_during_presentation',
-                },
+                NO_PAPER_ANYWHERE: 'ballot_removed_during_presentation',
               },
             },
             ballot_removed_during_presentation: {
@@ -1049,17 +1043,29 @@ export async function getPaperHandlerStateMachine({
       });
     },
 
-    printBallot(pdfData: Buffer): void {
-      machineService.send({
-        type: 'VOTER_INITIATED_PRINT',
-        pdfData,
-      });
-    },
+    async printBallot(pdfData: Buffer): Promise<void> {
+      if (
+        isFeatureFlagEnabled(
+          BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
+        )
+      ) {
+        const pdfPages = iter(pdfToImages(pdfData));
+        const pdfPage = await pdfPages.first();
+        assert(pdfPage);
 
-    setInterpretationFixture(): void {
-      machineService.send({
-        type: 'SET_INTERPRETATION_FIXTURE',
-      });
+        const jpgPath = tmpNameSync({ postfix: '.jpg' });
+        await writeImageData(jpgPath, pdfPage.page);
+
+        machineService.send({
+          type: 'SET_INTERPRETATION_FIXTURE',
+          jpgPath,
+        });
+      } else {
+        machineService.send({
+          type: 'VOTER_INITIATED_PRINT',
+          pdfData,
+        });
+      }
     },
 
     getInterpretation(): Optional<SheetOf<InterpretFileResult>> {

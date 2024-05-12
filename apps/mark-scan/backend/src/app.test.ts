@@ -1,9 +1,10 @@
-import { assert } from '@votingworks/basics';
+import { assert, mapObject } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   systemSettings,
   electionTwoPartyPrimaryFixtures,
   electionGeneralDefinition,
+  electionGeneralFixtures,
 } from '@votingworks/fixtures';
 import {
   backendWaitFor,
@@ -16,19 +17,25 @@ import {
   ELECTION_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
+  generateMockVotes,
   singlePrecinctSelectionFor,
+  getMockMultiLanguageElectionDefinition,
 } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { Server } from 'http';
 import * as grout from '@votingworks/grout';
 import {
+  CandidateVote,
   DEFAULT_SYSTEM_SETTINGS,
   ElectionDefinition,
+  LanguageCode,
+  UiStringsPackage,
+  VotesDict,
   safeParseSystemSettings,
 } from '@votingworks/types';
 import { MockUsbDrive } from '@votingworks/usb-drive';
-import { PaperHandlerDriver } from '@votingworks/custom-paper-handler';
+import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { createApp } from '../test/app_helpers';
 import { Api } from './app';
@@ -41,6 +48,7 @@ import {
 import {
   getDefaultPaperHandlerStatus,
   getPaperInFrontStatus,
+  getPaperParkedStatus,
 } from './custom-paper-handler/test_utils';
 import { PatConnectionStatusReader } from './pat-input/connection_status_reader';
 
@@ -63,13 +71,16 @@ let mockAuth: InsertedSmartCardAuthApi;
 let mockUsbDrive: MockUsbDrive;
 let server: Server;
 let stateMachine: PaperHandlerStateMachine;
-let driver: PaperHandlerDriver;
+let driver: MockPaperHandlerDriver;
 let patConnectionStatusReader: PatConnectionStatusReader;
 let logger: Logger;
 
 beforeEach(async () => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  );
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
   );
 
   patConnectionStatusReader = new PatConnectionStatusReader(logger);
@@ -106,7 +117,8 @@ async function waitForStatus(status: string): Promise<void> {
 }
 
 async function setUpUsbAndConfigureElection(
-  electionDefinition: ElectionDefinition
+  electionDefinition: ElectionDefinition,
+  uiStrings?: UiStringsPackage
 ) {
   mockElectionManagerAuth(mockAuth, electionDefinition);
   mockUsbDrive.insertUsbDrive(
@@ -115,6 +127,7 @@ async function setUpUsbAndConfigureElection(
       systemSettings: safeParseSystemSettings(
         systemSettings.asText()
       ).unsafeUnwrap(),
+      uiStrings,
     })
   );
 
@@ -125,11 +138,14 @@ async function setUpUsbAndConfigureElection(
   );
 }
 
-async function configureForTestElection() {
-  await setUpUsbAndConfigureElection(electionGeneralDefinition);
+async function configureForTestElection(
+  electionDefinition: ElectionDefinition,
+  uiStrings?: UiStringsPackage
+) {
+  await setUpUsbAndConfigureElection(electionDefinition, uiStrings);
   await apiClient.setPrecinctSelection({
     precinctSelection: singlePrecinctSelectionFor(
-      electionGeneralDefinition.election.precincts[1].id
+      electionDefinition.election.precincts[1].id
     ),
   });
 }
@@ -360,20 +376,8 @@ test('setting precinct', async () => {
   );
 });
 
-test('printing a ballot increments the printed ballot count', async () => {
-  await expectElectionState({ ballotsPrintedCount: 0 });
-
-  await setUpUsbAndConfigureElection(
-    electionFamousNames2021Fixtures.electionDefinition
-  );
-  await expectElectionState({ ballotsPrintedCount: 0 });
-
-  await apiClient.printBallot({ pdfData: Buffer.from('pdf data') });
-  await expectElectionState({ ballotsPrintedCount: 1 });
-});
-
 test('empty ballot box requires poll worker auth', async () => {
-  await configureForTestElection();
+  await configureForTestElection(electionGeneralDefinition);
 
   await suppressingConsoleOutput(async () => {
     await expect(apiClient.confirmBallotBoxEmptied()).rejects.toThrow(
@@ -383,7 +387,7 @@ test('empty ballot box requires poll worker auth', async () => {
 });
 
 test('empty ballot box', async () => {
-  await configureForTestElection();
+  await configureForTestElection(electionGeneralDefinition);
   mockPollWorkerAuth(mockAuth, electionGeneralDefinition);
 
   await apiClient.confirmBallotBoxEmptied();
@@ -394,46 +398,47 @@ test('empty ballot box', async () => {
 });
 
 test('getPaperHandlerState returns state machine state', async () => {
-  await configureForTestElection();
+  await configureForTestElection(electionGeneralDefinition);
   await apiClient.setAcceptingPaperState();
   expect(await apiClient.getPaperHandlerState()).toEqual('accepting_paper');
-});
-
-test('setAcceptingPaperState is a no-op when USE_MOCK_PAPER_HANDLER flag is on', async () => {
-  expect(await apiClient.getPaperHandlerState()).toEqual('not_accepting_paper');
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
-  );
-  await apiClient.setAcceptingPaperState();
-  expect(await apiClient.getPaperHandlerState()).toEqual('not_accepting_paper');
-});
-
-test('printBallot sets the interpretation fixture when USE_MOCK_PAPER_HANDLER is on', async () => {
-  await configureForTestElection();
-
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
-  );
-  await apiClient.printBallot({ pdfData: Buffer.of() });
-  await waitForStatus('presenting_ballot');
-  const interpretation = await apiClient.getInterpretation();
-  assert(interpretation);
-  expect(interpretation.type).toEqual('InterpretedBmdPage');
-  expect(interpretation.votes['102']).toEqual(['measure-102-option-yes']);
 });
 
 test('getInterpretation returns null if no interpretation is stored on the state machine', async () => {
   expect(await apiClient.getInterpretation()).toEqual(null);
 });
 
-test('ballot invalidation flow', async () => {
-  await configureForTestElection();
-  // Skip session start, paper load, etc stages
-  mockOf(driver.getPaperHandlerStatus).mockResolvedValue(
+async function mockLoadFlow(
+  testApiClient: grout.Client<Api>,
+  testDriver: MockPaperHandlerDriver
+) {
+  await testApiClient.setAcceptingPaperState();
+  mockOf(testDriver.getPaperHandlerStatus).mockResolvedValue(
     getPaperInFrontStatus()
   );
-  stateMachine.setInterpretationFixture();
+  await waitForStatus('loading_paper');
+  mockOf(testDriver.getPaperHandlerStatus).mockResolvedValue(
+    getPaperParkedStatus()
+  );
+  await waitForStatus('waiting_for_ballot_data');
+}
+
+async function mockLoadAndPrint(
+  testApiClient: grout.Client<Api>,
+  testDriver: MockPaperHandlerDriver
+) {
+  await mockLoadFlow(testApiClient, testDriver);
+  await testApiClient.printBallot({
+    languageCode: LanguageCode.ENGLISH,
+    precinctId: '21',
+    ballotStyleId: '12',
+    votes: {},
+  });
   await waitForStatus('presenting_ballot');
+}
+
+test('ballot invalidation flow', async () => {
+  await configureForTestElection(electionGeneralDefinition);
+  await mockLoadAndPrint(apiClient, driver);
   await apiClient.invalidateBallot();
   await waitForStatus(
     'waiting_for_invalidated_ballot_confirmation.paper_present'
@@ -450,25 +455,15 @@ test('ballot invalidation flow', async () => {
 });
 
 test('ballot validation flow', async () => {
-  await configureForTestElection();
-  // Skip session start, paper load, etc stages
-  mockOf(driver.getPaperHandlerStatus).mockResolvedValue(
-    getPaperInFrontStatus()
-  );
-  stateMachine.setInterpretationFixture();
-  await waitForStatus('presenting_ballot');
+  await configureForTestElection(electionGeneralDefinition);
+  await mockLoadAndPrint(apiClient, driver);
   await apiClient.validateBallot();
   await waitForStatus('ejecting_to_rear');
 });
 
 test('removing ballot during presentation', async () => {
-  await configureForTestElection();
-  // Skip session start, paper load, etc stages
-  mockOf(driver.getPaperHandlerStatus).mockResolvedValue(
-    getPaperInFrontStatus()
-  );
-  stateMachine.setInterpretationFixture();
-  await waitForStatus('presenting_ballot');
+  await configureForTestElection(electionGeneralDefinition);
+  await mockLoadAndPrint(apiClient, driver);
   mockOf(driver.getPaperHandlerStatus).mockResolvedValue(
     getDefaultPaperHandlerStatus()
   );
@@ -486,4 +481,89 @@ test('setPatDeviceIsCalibrated', async () => {
 
   await apiClient.setPatDeviceIsCalibrated();
   await waitForStatus('not_accepting_paper');
+});
+
+function sortVotes(votes: VotesDict): VotesDict {
+  return mapObject(votes, (vote) => {
+    assert(vote);
+
+    if (typeof vote[0] === 'object') {
+      return (vote as CandidateVote)
+        .slice()
+        .sort((a, b) => a.id.localeCompare(b.id));
+    }
+
+    return vote.slice().sort();
+  });
+}
+
+function expectVotesEqual(expected: VotesDict, actual: VotesDict) {
+  expect(sortVotes(actual)).toEqual(sortVotes(expected));
+}
+
+test('printing ballots', async () => {
+  const printBallotSpy = jest.spyOn(stateMachine, 'printBallot');
+
+  const electionDefinition = getMockMultiLanguageElectionDefinition(
+    electionGeneralDefinition,
+    [LanguageCode.ENGLISH, LanguageCode.CHINESE_SIMPLIFIED]
+  );
+  await configureForTestElection(
+    electionDefinition,
+    electionGeneralFixtures.ELECTION_GENERAL_TEST_UI_STRINGS_CHINESE_SIMPLIFIED
+  );
+
+  await expectElectionState({ ballotsPrintedCount: 0 });
+
+  // vote a ballot in English
+  await mockLoadFlow(apiClient, driver);
+  const mockVotes = generateMockVotes(electionDefinition.election);
+  await apiClient.printBallot({
+    precinctId: '21',
+    ballotStyleId: electionDefinition.election.ballotStyles.find(
+      (bs) => bs.languages?.includes(LanguageCode.ENGLISH)
+    )!.id,
+    votes: mockVotes,
+    languageCode: LanguageCode.ENGLISH,
+    ballotId: '12345',
+  });
+
+  await expectElectionState({ ballotsPrintedCount: 1 });
+  const pdfData = printBallotSpy.mock.calls[0][0];
+  await expect(pdfData).toMatchPdfSnapshot();
+
+  await waitForStatus('presenting_ballot');
+  const interpretation = await apiClient.getInterpretation();
+  assert(interpretation);
+  expect(interpretation.type).toEqual('InterpretedBmdPage');
+  expectVotesEqual(interpretation.votes, mockVotes);
+
+  await apiClient.validateBallot();
+  await waitForStatus('ejecting_to_rear');
+  mockOf(driver.getPaperHandlerStatus).mockResolvedValue(
+    getDefaultPaperHandlerStatus()
+  );
+  await waitForStatus('not_accepting_paper');
+
+  // vote a ballot in Chinese
+  await mockLoadFlow(apiClient, driver);
+  await apiClient.printBallot({
+    precinctId: '21',
+    ballotStyleId: electionDefinition.election.ballotStyles.find(
+      (bs) => bs.languages?.includes(LanguageCode.CHINESE_SIMPLIFIED)
+    )!.id,
+    votes: mockVotes,
+    languageCode: LanguageCode.CHINESE_SIMPLIFIED,
+    ballotId: '12345',
+  });
+
+  await expectElectionState({ ballotsPrintedCount: 2 });
+  const pdfDataChinese = printBallotSpy.mock.calls[1][0];
+  await expect(pdfDataChinese).toMatchPdfSnapshot();
+
+  await waitForStatus('presenting_ballot');
+  const interpretationChinese = await apiClient.getInterpretation();
+  assert(interpretationChinese);
+  expect(interpretationChinese.type).toEqual('InterpretedBmdPage');
+  expectVotesEqual(interpretationChinese.votes, mockVotes);
 });
