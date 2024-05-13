@@ -491,6 +491,7 @@ export function buildMachine(
             },
             waiting_for_ballot_data: {
               on: {
+                NO_PAPER_ANYWHERE: 'accepting_paper',
                 VOTER_INITIATED_PRINT: 'printing_ballot',
               },
             },
