@@ -68,7 +68,7 @@
     "@votingworks/hmpb-layout": "workspace:*",
     "@votingworks/hmpb-render-backend": "workspace:*",
     "cargo-cp-artifact": "^0.1",
-    "esbuild": "0.17.11",
+    "esbuild": "0.21.2",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "fs-extra": "11.1.1",
