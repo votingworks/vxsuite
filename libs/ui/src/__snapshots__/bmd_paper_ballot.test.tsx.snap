@@ -238,12 +238,6 @@ exports[`BmdPaperBallot renders votes for candidate contests and yes-no contests
 
 }
 
-@media screen {
-  .c0 {
-    display: none;
-  }
-}
-
 <div>
   <div
     aria-hidden="true"

@@ -2,7 +2,6 @@ import express, { Application } from 'express';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { assert, ok, Result, throwIllegalValue } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
-import { Buffer } from 'buffer';
 import {
   ElectionPackageConfigurationError,
   BallotStyleId,
@@ -16,10 +15,8 @@ import {
   DiagnosticRecord,
 } from '@votingworks/types';
 import {
-  BooleanEnvironmentVariableName,
   getPrecinctSelectionName,
   isElectionManagerAuth,
-  isFeatureFlagEnabled,
   isPollWorkerAuth,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
@@ -41,9 +38,10 @@ import {
   PaperHandlerStateMachine,
   SimpleServerStatus,
 } from './custom-paper-handler';
-import { ElectionState } from './types';
+import { ElectionState, PrintBallotProps } from './types';
 import { isAccessibleControllerDaemonRunning } from './util/controllerd';
 import { saveReadinessReport } from './readiness_report';
+import { renderBallot } from './util/render_ballot';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(
@@ -180,16 +178,7 @@ export function buildApi(
     },
 
     setAcceptingPaperState(): void {
-      if (
-        isFeatureFlagEnabled(
-          BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
-        )
-      ) {
-        return;
-      }
-
       assert(stateMachine);
-
       stateMachine.setAcceptingPaper();
     },
 
@@ -202,27 +191,15 @@ export function buildApi(
       stateMachine.setPatDeviceIsCalibrated();
     },
 
-    printBallot(input: { pdfData: Buffer }): void {
+    async printBallot(input: PrintBallotProps): Promise<void> {
+      assert(stateMachine);
       store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
 
-      if (
-        isFeatureFlagEnabled(
-          BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
-        )
-      ) {
-        if (!stateMachine) {
-          return;
-        }
-
-        // Mock print behavior when no paper handler is connected.
-        // Skips the print state, sets the scanned ballot filepaths to
-        // a fixture for Sample General Election, North Springfield, ballot style 5,
-        // and continues to the interpretation state.
-        stateMachine.setInterpretationFixture();
-      }
-
-      assert(stateMachine);
-      void stateMachine.printBallot(input.pdfData);
+      const pdfData = await renderBallot({
+        store,
+        ...input,
+      });
+      void stateMachine.printBallot(pdfData);
     },
 
     getInterpretation(): InterpretedBmdPage | null {

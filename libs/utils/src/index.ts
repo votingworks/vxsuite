@@ -1,6 +1,7 @@
 export * from './as_boolean';
 export * from './auth';
 export * from './ballot_styles';
+export * from './bmd_votes_mock';
 export * from './pins';
 export * from './cast_vote_records';
 export * from './compressed_tallies';
@@ -18,6 +19,7 @@ export * from './Hardware';
 export * from './hmpb';
 export * from './json_stream';
 export * from './make_async';
+export * from './multi_language_mock';
 export * from './mutex';
 export * from './perf';
 export * from './polls';

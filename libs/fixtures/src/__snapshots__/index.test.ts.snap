@@ -5,7 +5,7 @@ exports[`has various election definitions 1`] = `
   "electionFamousNames2021Fixtures",
   "electionGeneral",
   "electionGeneralDefinition",
-  "electionGeneralJson",
+  "electionGeneralFixtures",
   "electionGridLayoutNewHampshireHudsonFixtures",
   "electionGridLayoutNewHampshireTestBallotFixtures",
   "electionMultiPartyPrimaryFixtures",

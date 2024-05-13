@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import {
   electionGeneralDefinition,
-  electionGeneralJson,
+  electionGeneralFixtures,
 } from '@votingworks/fixtures';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
@@ -40,7 +40,9 @@ test('configure, open polls, and test contest scroll buttons', async ({
     .waitFor();
 
   usbHandler.insert(
-    await mockElectionPackageFileTree(electionGeneralJson.toElectionPackage())
+    await mockElectionPackageFileTree(
+      electionGeneralFixtures.toElectionPackage()
+    )
   );
 
   // Election Manager: set precinct

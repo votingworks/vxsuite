@@ -11,7 +11,7 @@ export {
   electionDefinition as electionGeneralDefinition,
   election as electionGeneral,
 } from './data/electionGeneral/election.json';
-export * as electionGeneralJson from './data/electionGeneral/election.json';
+export * as electionGeneralFixtures from './data/electionGeneral';
 export {
   electionDefinition as multiPartyPrimaryElectionDefinition,
   election as multiPartyPrimaryElection,

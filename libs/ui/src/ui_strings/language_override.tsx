@@ -35,7 +35,7 @@ export function LanguageOverride(
         currentLanguageCode: languageCode,
       }}
     >
-      <UiStringsLoader />
+      {parentContext.executionContext === 'frontend' && <UiStringsLoader />}
       {children}
     </LanguageContext.Provider>
   );

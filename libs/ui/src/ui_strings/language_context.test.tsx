@@ -1,9 +1,17 @@
 import { LanguageCode } from '@votingworks/types';
 import { act } from 'react-dom/test-utils';
-import { waitFor } from '../../test/react_testing_library';
-import { newTestContext } from '../../test/test_context';
-import { TEST_UI_STRING_TRANSLATIONS } from '../../test/test_ui_strings';
 import {
+  screen,
+  waitFor,
+  render as genericRender,
+} from '../../test/react_testing_library';
+import { newTestContext } from '../../test/test_context';
+import {
+  TEST_UI_STRING_TRANSLATIONS,
+  testUiStrings,
+} from '../../test/test_ui_strings';
+import {
+  BackendLanguageContextProvider,
   DEFAULT_I18NEXT_NAMESPACE,
   DEFAULT_LANGUAGE_CODE,
 } from './language_context';
@@ -63,4 +71,28 @@ test('setLanguage', async () => {
       DEFAULT_I18NEXT_NAMESPACE
     )
   ).toEqual(TEST_UI_STRING_TRANSLATIONS[LanguageCode.CHINESE_TRADITIONAL]);
+});
+
+test('BackendLanguageContextProvider', async () => {
+  genericRender(
+    <BackendLanguageContextProvider
+      currentLanguageCode={DEFAULT_LANGUAGE_CODE}
+      uiStringsPackage={TEST_UI_STRING_TRANSLATIONS}
+    >
+      {testUiStrings.planetName('planet3')}
+    </BackendLanguageContextProvider>
+  );
+
+  await screen.findByText('Earth');
+
+  genericRender(
+    <BackendLanguageContextProvider
+      currentLanguageCode={LanguageCode.SPANISH}
+      uiStringsPackage={TEST_UI_STRING_TRANSLATIONS}
+    >
+      {testUiStrings.planetName('planet3')}
+    </BackendLanguageContextProvider>
+  );
+
+  await screen.findByText('Tierra');
 });

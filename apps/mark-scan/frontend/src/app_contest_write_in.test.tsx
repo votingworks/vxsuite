@@ -1,16 +1,14 @@
-import {
-  expectPrintToPdf,
-  mockKiosk,
-  mockOf,
-  mockPrintElement,
-  mockPrintElementWhenReady,
-  mockPrintElementToPdf,
-} from '@votingworks/test-utils';
+import { mockOf } from '@votingworks/test-utils';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { ContestPage, ContestPageProps } from '@votingworks/mark-flow-ui';
-import { ContestId, OptionalVote, VotesDict } from '@votingworks/types';
+import {
+  ContestId,
+  LanguageCode,
+  OptionalVote,
+  VotesDict,
+} from '@votingworks/types';
 import { useHistory } from 'react-router-dom';
 import { act, fireEvent, render, screen } from '../test/react_testing_library';
 import { App } from './app';
@@ -20,7 +18,6 @@ import { singleSeatContestWithWriteIn } from '../test/helpers/election';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
-let kiosk = mockKiosk();
 
 jest.mock(
   '@votingworks/mark-flow-ui',
@@ -29,13 +26,6 @@ jest.mock(
     ContestPage: jest.fn(),
   })
 );
-
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
-  ...jest.requireActual('@votingworks/ui'),
-  printElementWhenReady: mockPrintElementWhenReady,
-  printElement: mockPrintElement,
-  printElementToPdf: mockPrintElementToPdf,
-}));
 
 /**
  * Mocks the mark-flow-ui {@link ContestPage} to avoid re-testing the write-in
@@ -72,8 +62,6 @@ function setUpMockContestPage() {
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
-  kiosk = mockKiosk();
-  window.kiosk = kiosk;
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
   apiMock.setPaperHandlerState('waiting_for_ballot_data');
@@ -145,13 +133,18 @@ it('Single Seat Contest with Write In', async () => {
   expect(screen.getByText(/\(write-in\)/)).toBeTruthy();
 
   // Print Screen
-  apiMock.expectPrintBallot();
+  apiMock.expectPrintBallot({
+    languageCode: LanguageCode.ENGLISH,
+    precinctId: '23',
+    ballotStyleId: '12',
+    votes: {
+      [singleSeatContestWithWriteIn.id]: [
+        { id: 'write-in', name: 'SAL', isWriteIn: true, writeInIndex: 0 },
+      ],
+    },
+  });
   apiMock.expectGetElectionState({ ballotsPrintedCount: 1 });
   fireEvent.click(screen.getByText(/Print My ballot/i));
   advanceTimers();
   screen.getByText(/Printing Your Official Ballot/i);
-  await expectPrintToPdf((printedElement) => {
-    expect(printedElement.getByText('Official Ballot')).toBeTruthy();
-    expect(printedElement.getByText('(write-in)')).toBeTruthy();
-  });
 });

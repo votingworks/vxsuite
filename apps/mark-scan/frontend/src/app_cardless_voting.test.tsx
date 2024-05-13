@@ -2,16 +2,9 @@ import {
   singlePrecinctSelectionFor,
   ALL_PRECINCTS_SELECTION,
 } from '@votingworks/utils';
-import {
-  MockKiosk,
-  expectPrintToPdf,
-  mockKiosk,
-  mockPrintElement,
-  mockPrintElementWhenReady,
-  mockPrintElementToPdf,
-} from '@votingworks/test-utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
+import { LanguageCode } from '@votingworks/types';
 import {
   fireEvent,
   render,
@@ -26,22 +19,12 @@ import { withMarkup } from '../test/helpers/with_markup';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { getMockInterpretation } from '../test/helpers/interpretation';
 
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
-  ...jest.requireActual('@votingworks/ui'),
-  printElementWhenReady: mockPrintElementWhenReady,
-  printElement: mockPrintElement,
-  printElementToPdf: mockPrintElementToPdf,
-}));
-
 let apiMock: ApiMock;
-let kiosk: MockKiosk;
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   apiMock = createApiMock();
-  kiosk = mockKiosk();
-  window.kiosk = kiosk;
   apiMock.setPaperHandlerState('not_accepting_paper');
 });
 
@@ -192,13 +175,19 @@ test('Cardless Voting Flow', async () => {
   }
 
   // Advance to print ballot
-  apiMock.expectPrintBallot();
+  apiMock.expectPrintBallot({
+    languageCode: LanguageCode.ENGLISH,
+    precinctId: '23',
+    ballotStyleId: '12',
+    votes: {
+      president: [presidentContest.candidates[0]],
+    },
+  });
   apiMock.expectGetElectionState({
     ballotsPrintedCount: 1,
   });
   fireEvent.click(screen.getByText(/Print My ballot/i));
   screen.getByText(/Printing Your Official Ballot/i);
-  await expectPrintToPdf();
 
   // Validate ballot page
   const mockInterpretation = getMockInterpretation(electionDefinition);

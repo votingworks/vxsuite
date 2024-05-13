@@ -42,7 +42,7 @@ function printUsage() {
 
 function printBallotFixture(stateMachine: PaperHandlerStateMachine) {
   const pdfData = readFileSync(pathToPdfData, { encoding: null });
-  stateMachine.printBallot(pdfData);
+  void stateMachine.printBallot(pdfData);
 }
 
 function handleCommand(

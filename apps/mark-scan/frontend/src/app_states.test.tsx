@@ -1,5 +1,5 @@
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import { mockKiosk, mockOf } from '@votingworks/test-utils';
+import { mockOf } from '@votingworks/test-utils';
 import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import userEvent from '@testing-library/user-event';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
@@ -19,14 +19,11 @@ jest.mock('./pages/jammed_page');
 jest.mock('./pages/start_screen');
 
 let apiMock: ApiMock;
-let kiosk = mockKiosk();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   apiMock = createApiMock();
-  kiosk = mockKiosk();
-  window.kiosk = kiosk;
 
   apiMock.expectGetMachineConfig();
   apiMock.expectGetElectionDefinition(electionDefinition);

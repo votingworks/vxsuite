@@ -9,8 +9,8 @@ import {
   createUiStringsApi,
 } from '../src/hooks/ui_strings_api';
 import {
-  LanguageContextInterface,
-  useLanguageContext,
+  FrontendLanguageContextInterface,
+  useFrontendLanguageContext,
 } from '../src/ui_strings/language_context';
 import {
   UiStringsAudioContextInterface,
@@ -34,7 +34,7 @@ type ApiClient = UiStringsApiClient & SystemCallApiClient;
 export interface TestContext {
   getAudioContext: () => Optional<UiStringsAudioContextInterface>;
   getAudioControls: () => Optional<AudioControls>;
-  getLanguageContext: () => Optional<LanguageContextInterface>;
+  getLanguageContext: () => Optional<FrontendLanguageContextInterface>;
   mockApiClient: jest.Mocked<ApiClient>;
   render: (
     ui: React.ReactElement,
@@ -52,14 +52,14 @@ export function newTestContext(
     };
   } = {}
 ): TestContext {
-  let currentLanguageContext: Optional<LanguageContextInterface>;
+  let currentLanguageContext: Optional<FrontendLanguageContextInterface>;
   let currentAudioContext: Optional<UiStringsAudioContextInterface>;
   let currentAudioControls: Optional<AudioControls>;
 
   function ContextConsumer() {
     currentAudioContext = useAudioContext();
     currentAudioControls = useAudioControls();
-    currentLanguageContext = useLanguageContext();
+    currentLanguageContext = useFrontendLanguageContext();
     return null;
   }
 

@@ -21,7 +21,7 @@ import {
   UiStringsReactQueryApi,
   createUiStringsApi,
 } from '..';
-import { useLanguageContext } from './language_context';
+import { useFrontendLanguageContext } from './language_context';
 
 const initialProps: Partial<Props> = {
   children: null,
@@ -41,7 +41,7 @@ const queryClient = new QueryClient({
 });
 
 function LanguagePicker(): React.ReactNode {
-  const languageContext = useLanguageContext();
+  const languageContext = useFrontendLanguageContext();
   if (!languageContext) {
     return null;
   }

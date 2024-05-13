@@ -6,8 +6,8 @@ import { createUiStringsApi } from './ui_strings_api';
 import { UiStringsContextProvider, useCurrentLanguage } from '..';
 import {
   DEFAULT_LANGUAGE_CODE,
-  LanguageContextInterface,
-  useLanguageContext,
+  FrontendLanguageContextInterface,
+  useFrontendLanguageContext,
 } from '../ui_strings/language_context';
 
 test('returns default language when rendered without context', () => {
@@ -32,10 +32,10 @@ test('returns current language when rendered within context', async () => {
     );
   }
 
-  let setLanguage: LanguageContextInterface['setLanguage'];
+  let setLanguage: FrontendLanguageContextInterface['setLanguage'];
   const { result } = renderHook(
     () => {
-      setLanguage = useLanguageContext()!.setLanguage;
+      setLanguage = useFrontendLanguageContext()!.setLanguage;
       return useCurrentLanguage();
     },
     { wrapper: TestHookWrapper }
