@@ -2,7 +2,7 @@ import React from 'react';
 import i18next, { i18n } from 'i18next';
 import { initReactI18next, useSSR, useTranslation } from 'react-i18next';
 
-import { LanguageCode, UiStringTranslations } from '@votingworks/types';
+import { LanguageCode, UiStringsPackage } from '@votingworks/types';
 import { Optional, assert, assertDefined } from '@votingworks/basics';
 import { Screen } from '../screen';
 import { UiStringsReactQueryApi } from '../hooks/ui_strings_api';
@@ -137,14 +137,14 @@ export function FrontendLanguageContextProvider(
 }
 
 export interface BackendLanguageContextProviderProps {
-  languageCode: LanguageCode;
-  uiStringTranslations?: UiStringTranslations;
+  currentLanguageCode: LanguageCode;
+  uiStringsPackage: UiStringsPackage;
   children: React.ReactNode;
 }
 
 export function BackendLanguageContextProvider({
-  languageCode,
-  uiStringTranslations,
+  currentLanguageCode,
+  uiStringsPackage,
   children,
 }: BackendLanguageContextProviderProps): JSX.Element {
   // Although you can pass an initial i18n store to  `useSSR`, it only
@@ -152,8 +152,10 @@ export function BackendLanguageContextProvider({
   // a machine configured with a UI strings catalog, unconfigure, then reconfigure,
   // i18n will not be re-initialize with the the new initial i18n store.
   // Thus, we just need to add a resource bundle on every render.
-  useSSR({}, languageCode);
-  if (uiStringTranslations) {
+  useSSR({}, currentLanguageCode);
+  for (const [languageCode, uiStringTranslations] of Object.entries(
+    uiStringsPackage
+  )) {
     i18next.addResourceBundle(
       languageCode,
       DEFAULT_I18NEXT_NAMESPACE,
@@ -167,7 +169,7 @@ export function BackendLanguageContextProvider({
     <LanguageContext.Provider
       value={{
         executionContext: 'backend',
-        currentLanguageCode: languageCode,
+        currentLanguageCode,
         i18next,
         translationFunction,
       }}

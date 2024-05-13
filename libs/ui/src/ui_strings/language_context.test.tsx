@@ -76,8 +76,8 @@ test('setLanguage', async () => {
 test('BackendLanguageContextProvider', async () => {
   genericRender(
     <BackendLanguageContextProvider
-      languageCode={DEFAULT_LANGUAGE_CODE}
-      uiStringTranslations={TEST_UI_STRING_TRANSLATIONS[DEFAULT_LANGUAGE_CODE]}
+      currentLanguageCode={DEFAULT_LANGUAGE_CODE}
+      uiStringsPackage={TEST_UI_STRING_TRANSLATIONS}
     >
       {testUiStrings.planetName('planet3')}
     </BackendLanguageContextProvider>
@@ -87,8 +87,8 @@ test('BackendLanguageContextProvider', async () => {
 
   genericRender(
     <BackendLanguageContextProvider
-      languageCode={LanguageCode.SPANISH}
-      uiStringTranslations={TEST_UI_STRING_TRANSLATIONS[LanguageCode.SPANISH]}
+      currentLanguageCode={LanguageCode.SPANISH}
+      uiStringsPackage={TEST_UI_STRING_TRANSLATIONS}
     >
       {testUiStrings.planetName('planet3')}
     </BackendLanguageContextProvider>
