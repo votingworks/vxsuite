@@ -18,7 +18,6 @@ import {
   getPrecinctSelectionName,
   isElectionManagerAuth,
   isPollWorkerAuth,
-  randomBallotId,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 
@@ -198,8 +197,7 @@ export function buildApi(
 
       const pdfData = await renderBallot({
         store,
-        ballotId: randomBallotId(),
-        ...input, // any passed ballotId will override randomBallotId()
+        ...input,
       });
       void stateMachine.printBallot(pdfData);
     },

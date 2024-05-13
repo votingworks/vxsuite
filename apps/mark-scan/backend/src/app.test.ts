@@ -63,6 +63,7 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
     ...jest.requireActual('@votingworks/utils'),
     isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
       featureFlagMock.isEnabled(flag),
+    randomBallotId: () => '12345',
   };
 });
 
@@ -525,7 +526,6 @@ test('printing ballots', async () => {
     )!.id,
     votes: mockVotes,
     languageCode: LanguageCode.ENGLISH,
-    ballotId: '12345',
   });
 
   await expectElectionState({ ballotsPrintedCount: 1 });
@@ -554,7 +554,6 @@ test('printing ballots', async () => {
     )!.id,
     votes: mockVotes,
     languageCode: LanguageCode.CHINESE_SIMPLIFIED,
-    ballotId: '12345',
   });
 
   await expectElectionState({ ballotsPrintedCount: 2 });

@@ -25,5 +25,4 @@ export interface PrintBallotProps {
   precinctId: string;
   ballotStyleId: string;
   votes: VotesDict;
-  ballotId?: string;
 }

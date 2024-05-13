@@ -7,6 +7,7 @@ import {
   BmdPaperBallot,
   BackendLanguageContextProvider,
 } from '@votingworks/ui';
+import { randomBallotId } from '@votingworks/utils';
 import { Store } from '../store';
 
 export interface RenderBallotProps {
@@ -14,7 +15,6 @@ export interface RenderBallotProps {
   precinctId: string;
   ballotStyleId: string;
   votes: VotesDict;
-  ballotId: string;
   languageCode: LanguageCode;
 }
 
@@ -22,7 +22,6 @@ export async function renderBallot({
   store,
   precinctId,
   ballotStyleId,
-  ballotId,
   votes,
   languageCode,
 }: RenderBallotProps): Promise<Buffer> {
@@ -46,7 +45,7 @@ export async function renderBallot({
         precinctId={precinctId}
         votes={votes}
         isLiveMode={isLiveMode}
-        generateBallotId={() => ballotId}
+        generateBallotId={randomBallotId}
         machineType="markScan"
       />
     </BackendLanguageContextProvider>
