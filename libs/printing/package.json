@@ -59,7 +59,7 @@
     "@types/styled-components": "^5.1.26",
     "@types/tmp": "0.2.4",
     "@votingworks/image-utils": "workspace:*",
-    "esbuild": "0.17.11",
+    "esbuild": "0.21.2",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",

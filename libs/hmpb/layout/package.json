@@ -40,7 +40,7 @@
     "debug": "4.3.4",
     "dotenv": "16.3.1",
     "dotenv-expand": "9.0.0",
-    "esbuild": "0.17.11",
+    "esbuild": "0.21.2",
     "esbuild-runner": "2.2.2",
     "path": "^0.12.7"
   },
