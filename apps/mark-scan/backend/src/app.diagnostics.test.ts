@@ -149,9 +149,6 @@ jest.mock('./util/get_current_time', () => ({
 }));
 
 test('saving the readiness report', async () => {
-  // The VotingWorks logo has a small diff we weren't able to identify the root cause of
-  const failureThreshold = 0.001;
-
   jest.useFakeTimers().setSystemTime(reportPrintedTime.getTime());
   await apiClient.addDiagnosticRecord({
     type: 'mark-scan-accessible-controller',
@@ -180,7 +177,6 @@ test('saving the readiness report', async () => {
 
   const exportPath = exportResult.ok()![0];
   await expect(exportPath).toMatchPdfSnapshot({
-    failureThreshold,
     customSnapshotIdentifier: 'readiness-report',
   });
 
