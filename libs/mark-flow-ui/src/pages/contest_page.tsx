@@ -176,6 +176,7 @@ export function ContestPage(props: ContestPageProps): JSX.Element {
       }
     >
       <Contest
+        key={contest.id} // Force a re-mount for every contest to reset scroll state.
         election={electionDefinition.election}
         breadcrumbs={breadcrumbsMetadata}
         contest={contest}
