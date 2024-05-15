@@ -255,11 +255,11 @@ export const setPollsState = {
   },
 } as const;
 
-export const incrementBallotsPrintedCount = {
+export const printBallot = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.incrementBallotsPrintedCount, {
+    return useMutation(apiClient.printBallot, {
       async onSuccess() {
         await queryClient.invalidateQueries(getElectionState.queryKey());
       },

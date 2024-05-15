@@ -14,16 +14,16 @@ import {
 export const printingMessageTimeoutSeconds = 5;
 
 export interface PrintPageProps {
-  print: () => Promise<void>;
+  print: () => void;
 }
 
 export function PrintPage({ print }: PrintPageProps): JSX.Element {
   const printLock = useLock();
 
-  const printBallot = useCallback(async () => {
+  const printBallot = useCallback(() => {
     /* istanbul ignore if */
     if (!printLock.lock()) return;
-    await print();
+    print();
   }, [print, printLock]);
 
   useEffect(() => {

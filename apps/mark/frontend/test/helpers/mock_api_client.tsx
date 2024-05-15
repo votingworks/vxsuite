@@ -5,6 +5,7 @@ import type {
   Api,
   MachineConfig,
   ElectionState,
+  PrintBallotProps,
 } from '@votingworks/mark-backend';
 import {
   ElectionPackageConfigurationError,
@@ -232,8 +233,8 @@ export function createApiMock() {
         .resolves();
     },
 
-    expectIncrementBallotsPrintedCount() {
-      mockApiClient.incrementBallotsPrintedCount.expectCallWith().resolves();
+    expectPrintBallot(input: PrintBallotProps) {
+      mockApiClient.printBallot.expectCallWith(input).resolves();
     },
   };
 }

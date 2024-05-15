@@ -6,14 +6,11 @@ import { BallotContext } from '../contexts/ballot_context';
 import { printBallot } from '../api';
 
 export function PrintPage(): JSX.Element | null {
-  const { electionDefinition, ballotStyleId, precinctId, votes } =
-    useContext(BallotContext);
-  assert(electionDefinition, 'electionDefinition is not defined');
+  const { ballotStyleId, precinctId, votes } = useContext(BallotContext);
   const languageCode = useCurrentLanguage();
   const printBallotMutation = printBallot.useMutation();
 
-  // eslint-disable-next-line @typescript-eslint/require-await
-  async function print(): Promise<void> {
+  function print(): void {
     assert(ballotStyleId !== undefined);
     assert(precinctId !== undefined);
     printBallotMutation.mutate({

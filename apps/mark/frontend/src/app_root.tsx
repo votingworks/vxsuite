@@ -52,7 +52,6 @@ import {
   getMachineConfig,
   getUsbDriveStatus,
   getElectionState,
-  incrementBallotsPrintedCount,
   setPollsState,
   startCardlessVoterSession,
   unconfigureMachine,
@@ -181,10 +180,6 @@ export function AppRoot({
     endCardlessVoterSessionMutation.mutateAsync;
   const unconfigureMachineMutation = unconfigureMachine.useMutation();
   const unconfigureMachineMutateAsync = unconfigureMachineMutation.mutateAsync;
-  const incrementBallotsPrintedCountMutation =
-    incrementBallotsPrintedCount.useMutation();
-  const incrementBallotsPrintedCountMutate =
-    incrementBallotsPrintedCountMutation.mutate;
   const setPollsStateMutation = setPollsState.useMutation();
   const setPollsStateMutateAsync = setPollsStateMutation.mutateAsync;
 
@@ -289,10 +284,6 @@ export function AppRoot({
       // Handled by default query client error handling
     }
   }, [setPollsStateMutateAsync]);
-
-  const updateTally = useCallback(() => {
-    incrementBallotsPrintedCountMutate();
-  }, [incrementBallotsPrintedCountMutate]);
 
   const activateCardlessBallot = useCallback(
     (sessionPrecinctId: PrecinctId, sessionBallotStyleId: BallotStyleId) => {
@@ -513,7 +504,6 @@ export function AppRoot({
                 contests,
                 electionDefinition: optionalElectionDefinition,
                 generateBallotId: randomBallotId,
-                updateTally,
                 isCardlessVoter: isCardlessVoterAuth(authStatus),
                 isLiveMode: !isTestMode,
                 endVoterSession,
