@@ -1,6 +1,5 @@
 import userEvent from '@testing-library/user-event';
 import { mockMarkerInfo, mockOf } from '@votingworks/test-utils';
-import { MemoryHardware } from '@votingworks/utils';
 import { MemoryRouter } from 'react-router-dom';
 import { DateTime } from 'luxon';
 import { render, screen } from '../../test/react_testing_library';
@@ -10,6 +9,8 @@ import {
 } from './diagnostics_screen';
 import { mockDevices } from '../../test/helpers/mock_devices';
 import { AccessibleControllerDiagnosticScreen } from './accessible_controller_diagnostic_screen';
+import { ApiProvider } from '../api_provider';
+import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 
 jest.mock(
   './accessible_controller_diagnostic_screen',
@@ -18,6 +19,17 @@ jest.mock(
     AccessibleControllerDiagnosticScreen: jest.fn(),
   })
 );
+
+let apiMock: ApiMock;
+
+beforeEach(() => {
+  jest.useFakeTimers();
+  apiMock = createApiMock();
+});
+
+afterEach(() => {
+  apiMock.mockApiClient.assertComplete();
+});
 
 function expectToHaveSuccessIcon(element: HTMLElement) {
   const [icon] = element.getElementsByTagName('svg');
@@ -30,14 +42,15 @@ function expectToHaveWarningIcon(element: HTMLElement) {
 
 function renderScreen(props: Partial<DiagnosticsScreenProps> = {}) {
   return render(
-    <MemoryRouter>
-      <DiagnosticsScreen
-        hardware={MemoryHardware.buildStandard()}
-        devices={mockDevices()}
-        onBackButtonPress={jest.fn()}
-        {...props}
-      />
-    </MemoryRouter>
+    <ApiProvider apiClient={apiMock.mockApiClient} noAudio>
+      <MemoryRouter>
+        <DiagnosticsScreen
+          devices={mockDevices()}
+          onBackButtonPress={jest.fn()}
+          {...props}
+        />
+      </MemoryRouter>
+    </ApiProvider>
   );
 }
 
@@ -87,115 +100,23 @@ describe('System Diagnostics screen: Computer section', () => {
 });
 
 describe('System Diagnostics screen: Printer section', () => {
-  it('shows the current printer status and has a button to refresh', async () => {
-    const hardware = MemoryHardware.buildStandard();
-    renderScreen({ hardware });
-
-    screen.getByText('Loading printer status…');
-
-    let printerStatusText = await screen.findByText('Printer status: Ready');
-    expectToHaveSuccessIcon(printerStatusText);
-    let tonerLevelText = screen.getByText('Toner level: 92%');
-    expectToHaveSuccessIcon(tonerLevelText);
-
-    const refreshButton = screen.getByRole('button', {
-      name: 'Refresh Printer Status',
+  it('shows the current printer status', async () => {
+    apiMock.setPrinterStatus({
+      connected: true,
+      richStatus: {
+        state: 'stopped',
+        stateReasons: ['marker-supply-low-warning'],
+        markerInfos: [mockMarkerInfo({ level: 2 })],
+      },
     });
-    screen.getByText('Last updated at 11:23 AM');
 
-    hardware.setPrinterIppAttributes({
-      state: 'stopped',
-      stateReasons: ['marker-supply-low-warning'],
-      markerInfos: [mockMarkerInfo({ level: 2 })],
-    });
-    userEvent.click(refreshButton);
-
-    screen.getByText('Loading printer status…');
-
-    printerStatusText = await screen.findByText('Printer status: Stopped');
-    expectToHaveWarningIcon(printerStatusText);
-    const warningText = screen.getByText(
-      'Warning: The printer is low on toner. Replace toner cartridge.'
-    );
-    expectToHaveWarningIcon(warningText);
-    tonerLevelText = screen.getByText('Toner level: 2%');
-    expectToHaveWarningIcon(tonerLevelText);
-  });
-
-  it('shows a warning when the printer status cannot be loaded', async () => {
-    const hardware = MemoryHardware.buildStandard();
-    hardware.setPrinterIppAttributes({
-      state: 'unknown',
-    });
-    renderScreen({ hardware });
+    renderScreen();
 
     const printerStatusText = await screen.findByText(
-      'Could not get printer status.'
+      'Stopped - The printer is low on toner. Replace toner cartridge.'
     );
     expectToHaveWarningIcon(printerStatusText);
-
-    screen.getByRole('button', {
-      name: 'Refresh Printer Status',
-    });
-    screen.getByText('Last updated at 11:23 AM');
-  });
-
-  it('shows only the highest priority printer state reason', async () => {
-    const hardware = MemoryHardware.buildStandard();
-    hardware.setPrinterIppAttributes({
-      state: 'stopped',
-      stateReasons: [
-        'media-empty',
-        'marker-supply-low-report',
-        'door-open-warning',
-        'media-needed-error',
-      ],
-      markerInfos: [mockMarkerInfo()],
-    });
-    renderScreen({ hardware });
-
-    const warningText = await screen.findByText(
-      'Warning: The printer is out of paper. Add paper to the printer.'
-    );
-    expectToHaveWarningIcon(warningText);
-  });
-
-  it('shows the plain printer-state-reasons text for unrecognized printer state reasons', async () => {
-    const hardware = MemoryHardware.buildStandard();
-    hardware.setPrinterIppAttributes({
-      state: 'stopped',
-      stateReasons: ['some-other-reason-warning'],
-      markerInfos: [mockMarkerInfo()],
-    });
-    renderScreen({ hardware });
-
-    const warningText = await screen.findByText('Warning: some-other-reason');
-    expectToHaveWarningIcon(warningText);
-  });
-
-  it("doesn't show warning when printer-state-reasons can't be parsed", async () => {
-    const hardware = MemoryHardware.buildStandard();
-    hardware.setPrinterIppAttributes({
-      state: 'stopped',
-      stateReasons: ['123'],
-      markerInfos: [mockMarkerInfo()],
-    });
-    renderScreen({ hardware });
-
-    await screen.findByText('Printer status: Stopped');
-    expect(screen.queryByText(/Warning/)).not.toBeInTheDocument();
-  });
-
-  it("handles negative toner level (which indicates that the toner level can't be read)", async () => {
-    const hardware = MemoryHardware.buildStandard();
-    hardware.setPrinterIppAttributes({
-      state: 'idle',
-      stateReasons: ['none'],
-      markerInfos: [mockMarkerInfo({ level: -2 })],
-    });
-    renderScreen({ hardware });
-
-    const tonerLevelText = await screen.findByText('Toner level: Unknown');
+    const tonerLevelText = screen.getByText('Toner Level: 2%');
     expectToHaveWarningIcon(tonerLevelText);
   });
 });

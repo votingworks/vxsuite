@@ -162,7 +162,7 @@ describe('Displays setup warning messages and errors screens', () => {
 
     // Disconnect Printer
     act(() => {
-      hardware.setPrinterConnected(false);
+      apiMock.setPrinterStatus({ connected: false });
     });
     await advanceTimersAndPromises();
     screen.getByText('No Printer Detected');

@@ -8,6 +8,7 @@ import {
   PrecinctId,
   BallotStyleId,
   InsertedSmartCardAuth,
+  PrinterStatus,
 } from '@votingworks/types';
 
 import Gamepad from 'react-gamepad';
@@ -28,12 +29,12 @@ import { BaseLogger } from '@votingworks/logging';
 import {
   SetupCardReaderPage,
   useDevices,
-  usePrevious,
   UnlockMachineScreen,
   VoterSettingsManagerContext,
   useAudioControls,
   useLanguageControls,
   InvalidCardScreen,
+  useQueryChangeListener,
 } from '@votingworks/ui';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
@@ -56,6 +57,7 @@ import {
   startCardlessVoterSession,
   unconfigureMachine,
   updateCardlessVoterBallotStyle,
+  getPrinterStatus,
 } from './api';
 
 import { Ballot } from './components/ballot';
@@ -159,10 +161,13 @@ export function AppRoot({
   const machineConfigQuery = getMachineConfig.useQuery();
 
   const devices = useDevices({ hardware, logger });
-  const { printer: printerInfo, accessibleController, computer } = devices;
-  const hasPrinterAttached = printerInfo !== undefined;
-  const previousHasPrinterAttached = usePrevious(hasPrinterAttached);
+  const { accessibleController, computer } = devices;
 
+  const printerStatusQuery = getPrinterStatus.useQuery();
+  const printerStatus: PrinterStatus = printerStatusQuery.isSuccess
+    ? printerStatusQuery.data
+    : { connected: false };
+  const hasPrinterAttached = printerStatus.connected;
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const authStatusQuery = getAuthStatus.useQuery();
   const authStatus = authStatusQuery.isSuccess
@@ -333,15 +338,14 @@ export function AppRoot({
     }
   }, [endCardlessVoterSessionMutateAsync]);
 
-  // Handle Hardware Observer Subscription
-  useEffect(() => {
-    function resetBallotOnPrinterDetach() {
-      if (previousHasPrinterAttached && !hasPrinterAttached) {
+  // Reset the ballot if the printer is disconnected mid-voting
+  useQueryChangeListener(printerStatusQuery, {
+    onChange: (currentPrinterStatus, previousPrinterStatus) => {
+      if (previousPrinterStatus?.connected && !currentPrinterStatus.connected) {
         resetBallot();
       }
-    }
-    void resetBallotOnPrinterDetach();
-  }, [previousHasPrinterAttached, hasPrinterAttached, resetBallot]);
+    },
+  });
 
   // Handle Keyboard Input
   useEffect(() => {
@@ -478,7 +482,6 @@ export function AppRoot({
           pollsState={pollsState}
           ballotsPrintedCount={ballotsPrintedCount}
           machineConfig={machineConfig}
-          hardware={hardware}
           devices={devices}
           hasVotes={!!votes}
           reload={reload}
