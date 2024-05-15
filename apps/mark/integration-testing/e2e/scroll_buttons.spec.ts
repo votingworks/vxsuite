@@ -4,6 +4,10 @@ import {
   electionGeneralFixtures,
 } from '@votingworks/fixtures';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
+import {
+  HP_LASER_PRINTER_CONFIG,
+  getMockFilePrinterHandler,
+} from '@votingworks/printing';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import assert from 'assert';
 import {
@@ -14,6 +18,7 @@ import {
 import { enterPin, findMoreButtons, forceReset } from './helpers';
 
 const usbHandler = getMockFileUsbDriveHandler();
+const printerHandler = getMockFilePrinterHandler();
 
 test.beforeEach(async ({ page }) => {
   usbHandler.cleanup();
@@ -25,6 +30,8 @@ test('configure, open polls, and test contest scroll buttons', async ({
 }) => {
   const electionDefinition = electionGeneralDefinition;
   const { electionHash } = electionDefinition;
+  printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+
   await page.goto('/');
 
   // Election Manager: configure

@@ -30,6 +30,7 @@
     "@votingworks/backend": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/grout": "workspace:*",
+    "@votingworks/printing": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/usb-drive": "workspace:*",
     "concurrently": "7.6.0",
