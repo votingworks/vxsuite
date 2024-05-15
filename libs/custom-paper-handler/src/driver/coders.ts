@@ -84,12 +84,7 @@ export type SensorStatusRealTimeExchangeResponse = CoderType<
   typeof SensorStatusRealTimeExchangeResponse
 >;
 
-export const PrinterStatusRealTimeExchangeResponse = message({
-  startOfPacket: literal(0x82),
-  requestId: uint8(),
-  token: literal(TOKEN),
-  returnCode: uint8(),
-  optionalDataLength: literal(6),
+const printerStatusMessage = {
   // Byte 0 fixed
   dle: literal(0x10),
   // Byte 1 fixed
@@ -121,6 +116,15 @@ export const PrinterStatusRealTimeExchangeResponse = message({
   eepromError: uint1(),
   ramError: uint1(),
   byte3Padding1: padding(2),
+} as const;
+
+export const PrinterStatusRealTimeExchangeResponse = message({
+  startOfPacket: literal(0x82),
+  requestId: uint8(),
+  token: literal(TOKEN),
+  returnCode: uint8(),
+  optionalDataLength: literal(6),
+  ...printerStatusMessage,
 });
 export type PrinterStatusRealTimeExchangeResponse = CoderType<
   typeof PrinterStatusRealTimeExchangeResponse
@@ -137,37 +141,7 @@ export type RealTimeExchangeResponseWithoutData = CoderType<
   typeof RealTimeExchangeResponseWithoutData
 >;
 
-export const RealTimeStatusTransmission = message({
-  // Bytes 1 and 2 response signature
-  startOfPacket: literal(0x10, 0x0f),
-  // Byte 3 paper status
-  reserved1: padding(2),
-  ticketPresentInOutput: uint1(),
-  reserved2: padding(4),
-  paperPresent: uint1(),
-  // Byte 4 user status
-  reserved3: padding(4),
-  coverOpened: uint1(),
-  spooling: uint1(),
-  dragPaperMotorOn: uint1(),
-  printingHeadUpError: uint1(),
-  // Byte 5 recoverable error status
-  reserved4: padding(2),
-  notAcknowledgeCommandError: uint1(),
-  reserved5: padding(1),
-  powerSupplyVoltageError: uint1(),
-  headNotConnected: uint1(),
-  comError: uint1(),
-  headTemperatureError: uint1(),
-  // Byte 6 unrecoverable error status
-  diverterError: uint1(),
-  headErrorLocked: uint1(),
-  printingHeadReadyToPrint: uint1(),
-  byte3Padding0: padding(1),
-  eepromError: uint1(),
-  ramError: uint1(),
-  reserved6: padding(2),
-});
+export const RealTimeStatusTransmission = message(printerStatusMessage);
 export type RealTimeStatusTransmission = CoderType<
   typeof RealTimeStatusTransmission
 >;
