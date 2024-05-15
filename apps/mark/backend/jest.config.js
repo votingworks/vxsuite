@@ -11,6 +11,7 @@ module.exports = {
   // tsconfig.json values.
   roots: ['<rootDir>/src'],
   setupFiles: ['<rootDir>/test/set_env_vars.ts'],
+  setupFilesAfterEnv: ['<rootDir>/test/setup_custom_matchers.ts'],
   collectCoverageFrom: [
     '**/*.{ts,tsx}',
     '!**/node_modules/**',

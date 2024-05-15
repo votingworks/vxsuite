@@ -1961,6 +1961,9 @@ importers:
       '@votingworks/grout':
         specifier: workspace:*
         version: link:../../../libs/grout
+      '@votingworks/image-utils':
+        specifier: workspace:*
+        version: link:../../../libs/image-utils
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../../../libs/logging
@@ -1970,6 +1973,9 @@ importers:
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../../libs/types
+      '@votingworks/ui':
+        specifier: workspace:*
+        version: link:../../../libs/ui
       '@votingworks/usb-drive':
         specifier: workspace:*
         version: link:../../../libs/usb-drive
@@ -1991,6 +1997,12 @@ importers:
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
+      react:
+        specifier: 18.2.0
+        version: 18.2.0
+      react-dom:
+        specifier: 18.2.0
+        version: 18.2.0(react@18.2.0)
       tmp:
         specifier: ^0.2.1
         version: 0.2.1
@@ -2013,12 +2025,21 @@ importers:
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
+      '@types/jest-image-snapshot':
+        specifier: ^6.4.0
+        version: 6.4.0
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
       '@types/node':
         specifier: 16.18.23
         version: 16.18.23
+      '@types/react':
+        specifier: 18.2.18
+        version: 18.2.18
+      '@types/react-dom':
+        specifier: ^18.2.7
+        version: 18.2.7
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -2040,6 +2061,9 @@ importers:
       jest:
         specifier: ^29.6.2
         version: 29.6.2(@types/node@16.18.23)
+      jest-image-snapshot:
+        specifier: ^6.4.0
+        version: 6.4.0(jest@29.6.2)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
