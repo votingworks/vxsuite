@@ -34,7 +34,8 @@ import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import { Printer } from '@votingworks/printing';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
-import { ElectionState } from './types';
+import { ElectionState, PrintBallotProps } from './types';
+import { printBallot } from './util/print_ballot';
 
 function constructAuthMachineState(
   workspace: Workspace
@@ -191,8 +192,13 @@ export function buildApi(
       machineId: getMachineConfig().machineId,
     }),
 
-    incrementBallotsPrintedCount() {
+    async printBallot(input: PrintBallotProps) {
       store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
+      await printBallot({
+        store,
+        printer,
+        ...input,
+      });
     },
 
     async setPollsState(input: { pollsState: PollsState }) {

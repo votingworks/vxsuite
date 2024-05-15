@@ -1,4 +1,5 @@
 import { PollsState, PrecinctSelection } from '@votingworks/types';
+import { PrintBallotProps as BackendPrintBallotProps } from './util/print_ballot';
 
 export interface MachineConfig {
   machineId: string;
@@ -14,3 +15,8 @@ export interface ElectionState {
 }
 
 export type ScreenOrientation = 'portrait' | 'landscape';
+
+export type PrintBallotProps = Omit<
+  BackendPrintBallotProps,
+  'store' | 'printer'
+>;

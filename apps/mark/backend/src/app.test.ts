@@ -1,6 +1,8 @@
 import { assert } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
+  electionGeneralDefinition,
+  electionGeneralFixtures,
   electionTwoPartyPrimaryFixtures,
   systemSettings,
 } from '@votingworks/fixtures';
@@ -19,6 +21,8 @@ import {
   SystemSettingsSchema,
   ElectionDefinition,
   PrinterStatus,
+  UiStringsPackage,
+  LanguageCode,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -26,6 +30,8 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
+  getMockMultiLanguageElectionDefinition,
+  generateMockVotes,
 } from '@votingworks/utils';
 
 import { Buffer } from 'buffer';
@@ -48,6 +54,7 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
     ...jest.requireActual('@votingworks/utils'),
     isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
+    randomBallotId: () => '12345',
   };
 });
 
@@ -235,7 +242,8 @@ async function expectElectionState(expected: Partial<ElectionState>) {
 
 async function configureMachine(
   usbDrive: MockUsbDrive,
-  electionDefinition: ElectionDefinition
+  electionDefinition: ElectionDefinition,
+  uiStrings?: UiStringsPackage
 ) {
   mockElectionManagerAuth(electionDefinition);
 
@@ -246,6 +254,7 @@ async function configureMachine(
         systemSettings.asText(),
         SystemSettingsSchema
       ).unsafeUnwrap(),
+      uiStrings,
     })
   );
 
@@ -365,19 +374,6 @@ test('setting precinct', async () => {
   );
 });
 
-test('incrementing printed ballot count', async () => {
-  await expectElectionState({ ballotsPrintedCount: 0 });
-
-  await configureMachine(
-    mockUsbDrive,
-    electionFamousNames2021Fixtures.electionDefinition
-  );
-  await expectElectionState({ ballotsPrintedCount: 0 });
-
-  await apiClient.incrementBallotsPrintedCount();
-  await expectElectionState({ ballotsPrintedCount: 1 });
-});
-
 test('printer status', async () => {
   expect(await apiClient.getPrinterStatus()).toEqual<PrinterStatus>({
     connected: false,
@@ -392,5 +388,51 @@ test('printer status', async () => {
   mockPrinterHandler.disconnectPrinter();
   expect(await apiClient.getPrinterStatus()).toEqual<PrinterStatus>({
     connected: false,
+  });
+});
+
+test('printing ballots', async () => {
+  const electionDefinition = getMockMultiLanguageElectionDefinition(
+    electionGeneralDefinition,
+    [LanguageCode.ENGLISH, LanguageCode.CHINESE_SIMPLIFIED]
+  );
+  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  await configureMachine(
+    mockUsbDrive,
+    electionDefinition,
+    electionGeneralFixtures.ELECTION_GENERAL_TEST_UI_STRINGS_CHINESE_SIMPLIFIED
+  );
+
+  await expectElectionState({ ballotsPrintedCount: 0 });
+
+  // vote a ballot in English
+  const mockVotes = generateMockVotes(electionDefinition.election);
+  await apiClient.printBallot({
+    precinctId: '21',
+    ballotStyleId: electionDefinition.election.ballotStyles.find(
+      (bs) => bs.languages?.includes(LanguageCode.ENGLISH)
+    )!.id,
+    votes: mockVotes,
+    languageCode: LanguageCode.ENGLISH,
+  });
+
+  await expectElectionState({ ballotsPrintedCount: 1 });
+  await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
+    customSnapshotIdentifier: 'english-ballot',
+  });
+
+  // vote a ballot in Chinese
+  await apiClient.printBallot({
+    precinctId: '21',
+    ballotStyleId: electionDefinition.election.ballotStyles.find(
+      (bs) => bs.languages?.includes(LanguageCode.CHINESE_SIMPLIFIED)
+    )!.id,
+    votes: mockVotes,
+    languageCode: LanguageCode.CHINESE_SIMPLIFIED,
+  });
+
+  await expectElectionState({ ballotsPrintedCount: 2 });
+  await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
+    customSnapshotIdentifier: 'chinese-ballot',
   });
 });
