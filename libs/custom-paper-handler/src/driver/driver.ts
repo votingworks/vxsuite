@@ -375,13 +375,14 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     const transferOutResult = await this.transferOutGeneric(coder, value);
     assert(transferOutResult.status === 'ok'); // TODO: Handling
 
-    return this.transferInAcknowledgement();
+    const isAckSuccessful = this.transferInAcknowledgement();
+    this.genericLock.release();
+    return isAckSuccessful;
   }
 
   async transferInAcknowledgement(): Promise<boolean> {
     const transferInResult = await this.transferInGeneric();
     assert(transferInResult.status === 'ok'); // TODO: Handling
-    this.genericLock.release();
     const { data } = transferInResult;
     assert(data);
 
