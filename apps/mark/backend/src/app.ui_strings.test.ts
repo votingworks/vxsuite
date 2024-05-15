@@ -20,6 +20,7 @@ import {
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
+import { createMockPrinterHandler } from '@votingworks/printing';
 import { Store } from './store';
 import { createWorkspace } from './util/workspace';
 import { Api, buildApi } from './app';
@@ -49,6 +50,7 @@ runUiStringApiTests({
   api: buildApi(
     mockAuth,
     createMockUsbDrive().usbDrive,
+    createMockPrinterHandler().printer,
     buildMockLogger(mockAuth, workspace),
     workspace
   ),
@@ -69,6 +71,7 @@ describe('configureElectionPackageFromUsb', () => {
     api = buildApi(
       mockAuth,
       mockUsbDrive.usbDrive,
+      createMockPrinterHandler().printer,
       buildMockLogger(mockAuth, workspace),
       workspace
     );
@@ -94,6 +97,7 @@ describe('unconfigureMachine', () => {
   const api = buildApi(
     mockAuth,
     createMockUsbDrive().usbDrive,
+    createMockPrinterHandler().printer,
     buildMockLogger(mockAuth, workspace),
     workspace
   );

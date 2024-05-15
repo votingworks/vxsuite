@@ -18,6 +18,7 @@ import {
   safeParseJson,
   SystemSettingsSchema,
   ElectionDefinition,
+  PrinterStatus,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -33,6 +34,10 @@ import { Server } from 'http';
 import * as grout from '@votingworks/grout';
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { LogEventId, Logger } from '@votingworks/logging';
+import {
+  HP_LASER_PRINTER_CONFIG,
+  MemoryPrinterHandler,
+} from '@votingworks/printing';
 import { createApp } from '../test/app_helpers';
 import { Api } from './app';
 import { ElectionState } from '.';
@@ -50,6 +55,7 @@ let apiClient: grout.Client<Api>;
 let logger: Logger;
 let mockAuth: InsertedSmartCardAuthApi;
 let mockUsbDrive: MockUsbDrive;
+let mockPrinterHandler: MemoryPrinterHandler;
 let server: Server;
 
 function mockElectionManagerAuth(electionDefinition: ElectionDefinition) {
@@ -86,7 +92,8 @@ beforeEach(() => {
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
 
-  ({ apiClient, mockAuth, mockUsbDrive, server, logger } = createApp());
+  ({ apiClient, mockAuth, mockUsbDrive, mockPrinterHandler, server, logger } =
+    createApp());
 });
 
 afterEach(() => {
@@ -369,4 +376,21 @@ test('incrementing printed ballot count', async () => {
 
   await apiClient.incrementBallotsPrintedCount();
   await expectElectionState({ ballotsPrintedCount: 1 });
+});
+
+test('printer status', async () => {
+  expect(await apiClient.getPrinterStatus()).toEqual<PrinterStatus>({
+    connected: false,
+  });
+
+  mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
+  expect(await apiClient.getPrinterStatus()).toMatchObject<PrinterStatus>({
+    connected: true,
+    config: HP_LASER_PRINTER_CONFIG,
+  });
+
+  mockPrinterHandler.disconnectPrinter();
+  expect(await apiClient.getPrinterStatus()).toEqual<PrinterStatus>({
+    connected: false,
+  });
 });
