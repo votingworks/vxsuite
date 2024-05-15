@@ -41,7 +41,7 @@ export type MachineType =
 
 export const DEFAULT_PRINTERS: Record<MachineType, Optional<PrinterConfig>> = {
   admin: HP_LASER_PRINTER_CONFIG,
-  mark: undefined, // not yet implemented
+  mark: HP_LASER_PRINTER_CONFIG,
   scan: BROTHER_THERMAL_PRINTER_CONFIG,
   'mark-scan': undefined,
   'central-scan': undefined,

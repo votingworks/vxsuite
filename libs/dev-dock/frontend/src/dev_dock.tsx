@@ -482,7 +482,7 @@ const PrinterButton = styled.button<{ isConnected: boolean }>`
   }
 `;
 
-const APPS_WITH_PRINTER: MachineType[] = ['admin', 'scan'];
+const APPS_WITH_PRINTER: MachineType[] = ['admin', 'scan', 'mark'];
 
 function PrinterMockControl() {
   const queryClient = useQueryClient();
