@@ -42,6 +42,14 @@ import {
 export type MachineType = 'mark' | 'markScan';
 
 /**
+ * Maximum number of contests we can reasonably fit on a single page of a BMD
+ * paper ballot without sacrificing too much readability.
+ *
+ * TODO(kofi): Enforce this limit in VxDesign.
+ */
+export const MAX_BMD_PAPER_BALLOT_CONTESTS = 135;
+
+/**
  * Max margin required to keep the ballot header visible when the page is
  * partially covered by the VSAP infeed hood.
  */
@@ -54,6 +62,13 @@ export const MAX_MARK_SCAN_TOP_MARGIN = '1.75in';
 export const MIN_MARK_SCAN_TOP_MARGIN = '0.5625in';
 
 interface Layout {
+  /**
+   * Optional font size override. Default font size is set to `10pt`, which is
+   * the minimum size that satisfies VVSG 2.0 print size requirements. This
+   * should only be used for high-contest-count ballots.
+   */
+  fontSizePt?: number;
+
   /**
    * Whether or not to hide candidate party names in candidate contests to save
    * space in denser layouts.
@@ -88,22 +103,57 @@ export const ORDERED_BMD_BALLOT_LAYOUTS: Readonly<
   Record<MachineType, readonly Layout[]>
 > = {
   markScan: [
-    { minContests: 0, maxRows: 10, hideParties: false, topMargin: '1.75in' },
-    { minContests: 21, maxRows: 10, hideParties: true, topMargin: '0.5625in' },
-    { minContests: 31, maxRows: 9, hideParties: true, topMargin: '0.5625in' },
-    { minContests: 37, maxRows: 8, hideParties: true, topMargin: '0.5625in' },
-    { minContests: 49, maxRows: 7, hideParties: true, topMargin: '0.5625in' },
+    { minContests: 0, maxRows: 8, hideParties: false, topMargin: '1.75in' },
+    { minContests: 25, maxRows: 9, hideParties: true, topMargin: '0.5625in' },
+    {
+      minContests: 31,
+      fontSizePt: 9,
+      maxRows: 11,
+      hideParties: true,
+      topMargin: '0.5625in',
+    },
+    {
+      minContests: 46,
+      fontSizePt: 8,
+      maxRows: 12,
+      hideParties: true,
+      topMargin: '0.5625in',
+    },
+    {
+      minContests: 51,
+      fontSizePt: 7,
+      maxRows: 13,
+      hideParties: true,
+      topMargin: '0.5625in',
+    },
+    {
+      minContests: 66,
+      fontSizePt: 6,
+      maxRows: 17,
+      hideParties: true,
+      topMargin: '0.5625in',
+    },
+    {
+      minContests: 86,
+      fontSizePt: 5,
+      maxRows: 20,
+      hideParties: true,
+      topMargin: '0.5625in',
+    },
   ],
   mark: [
-    { minContests: 0, maxRows: 12, hideParties: false },
-    { minContests: 25, maxRows: 11, hideParties: true },
-    { minContests: 37, maxRows: 11, hideParties: true },
-    { minContests: 45, maxRows: 10, hideParties: true },
-    { minContests: 55, maxRows: 8, hideParties: true },
+    { minContests: 0, maxRows: 13, hideParties: false },
+    { minContests: 14, maxRows: 12, hideParties: false },
+    { minContests: 25, maxRows: 10, hideParties: true },
+    { minContests: 31, maxRows: 11, hideParties: true, fontSizePt: 9 },
+    { minContests: 46, maxRows: 12, hideParties: true, fontSizePt: 8 },
+    { minContests: 56, maxRows: 13, hideParties: true, fontSizePt: 7 },
+    { minContests: 66, maxRows: 17, hideParties: true, fontSizePt: 6 },
+    { minContests: 86, maxRows: 22, hideParties: true, fontSizePt: 5 },
   ],
 };
 
-const Ballot = styled.div<{ layout: Layout }>`
+const Ballot = styled.div`
   background: #fff;
   color: #000;
   line-height: 1;
@@ -174,8 +224,9 @@ const QrCodeContainer = styled.div`
     }
   }
 `;
-const Content = styled.div`
+const Content = styled.div<{ layout: Layout }>`
   flex: 1;
+  font-size: ${(p) => p.layout.fontSizePt || 10}pt !important;
 `;
 const BallotSelections = styled.div<{ numColumns: number }>`
   columns: ${(p) => p.numColumns};
@@ -183,15 +234,17 @@ const BallotSelections = styled.div<{ numColumns: number }>`
 `;
 const Contest = styled.div`
   border-bottom: 0.01em solid #000;
-  padding: 0.5em 0;
+  padding: 0.25em 0;
   break-inside: avoid;
   page-break-inside: avoid;
 `;
 
 const ContestTitle = styled.div`
+  align-items: baseline;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25em;
   font-size: 1.125em;
-  /* stylelint-disable-next-line font-weight-notation */
-  font-weight: normal;
   margin: 0;
   margin-bottom: 0.25em;
 `;
@@ -200,7 +253,7 @@ const VoteLine = styled.span`
   display: block;
 
   &:not(:last-child) {
-    margin-bottom: 0.125em;
+    margin-bottom: 0.1em;
   }
 `;
 
@@ -442,7 +495,7 @@ export function BmdPaperBallot({
 
   return withPrintTheme(
     <LanguageOverride languageCode={primaryBallotLanguage}>
-      <Ballot aria-hidden layout={layout}>
+      <Ballot aria-hidden>
         <Header layout={layout} data-testid="header">
           <Seal seal={seal} maxWidth="1in" style={{ margin: '0.25em 0' }} />
           <div className="ballot-header-content">
@@ -510,7 +563,7 @@ export function BmdPaperBallot({
             </div>
           </QrCodeContainer>
         </Header>
-        <Content>
+        <Content layout={layout}>
           <BallotSelections numColumns={numColumns}>
             {contests.map((contest) => (
               <Contest key={contest.id}>

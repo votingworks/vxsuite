@@ -4,10 +4,10 @@ import { UiStringTranslations } from '@votingworks/types';
  * The maximum number for which we generate audio.
  * Increase as needed, but keep as low as possible to minimize audio file bloat.
  *
- * Current maximum needed is the "number of seconds remaining" readout on
- * the BMD idle screen.
+ * Current maximum needed is the maximum number of contests supported in our
+ * BMDs.
  */
-export const MAXIMUM_SUPPORTED_NUMBER_FOR_TTS = 45;
+export const MAXIMUM_SUPPORTED_NUMBER_FOR_TTS = 135;
 export const NUMBER_STRINGS_BASE_I18N_KEY = 'number';
 
 export function getI18nKeyForNumber(value: number): string {

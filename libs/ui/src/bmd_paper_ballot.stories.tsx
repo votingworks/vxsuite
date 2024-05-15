@@ -18,6 +18,7 @@ import { assert, find } from '@votingworks/basics';
 import {
   BmdPaperBallot as Component,
   BmdPaperBallotProps,
+  MAX_BMD_PAPER_BALLOT_CONTESTS,
 } from './bmd_paper_ballot';
 import {
   UiStringsReactQueryApi,
@@ -69,6 +70,8 @@ const election: Election = {
     ...getDuplicatedContests('_dup2'),
     ...getDuplicatedContests('_dup3'),
     ...getDuplicatedContests('_dup4'),
+    ...getDuplicatedContests('_dup5'),
+    ...getDuplicatedContests('_dup6'),
   ],
 };
 
@@ -119,6 +122,8 @@ const TEST_UI_STRINGS: UiStringsPackage = {
       ...duplicateContestTitleTranslations('_dup2'),
       ...duplicateContestTitleTranslations('_dup3'),
       ...duplicateContestTitleTranslations('_dup4'),
+      ...duplicateContestTitleTranslations('_dup5'),
+      ...duplicateContestTitleTranslations('_dup6'),
     },
     [ElectionStringKey.ELECTION_TITLE]: '全民选举',
     [ElectionStringKey.PARTY_NAME]: {
@@ -185,7 +190,7 @@ const Container = styled.div`
 
       /* Force print-only content to display. */
       display: block !important;
-      padding: 0.22in;
+      padding: 0.4in;
       min-height: 11in;
       width: 8.5in;
     }
@@ -202,7 +207,12 @@ const meta: Meta<typeof Component> = {
       options: election.ballotStyles.map((b) => b.id).sort(),
     },
     numMockContests: {
-      control: { type: 'number', min: 1, max: 100, step: 1 },
+      control: {
+        type: 'number',
+        min: 1,
+        max: MAX_BMD_PAPER_BALLOT_CONTESTS,
+        step: 1,
+      },
     },
   },
   decorators: [

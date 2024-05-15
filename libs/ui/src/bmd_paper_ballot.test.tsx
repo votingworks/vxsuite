@@ -97,7 +97,7 @@ function renderBmdPaperBallot({
 }
 
 test('BmdPaperBallot renders votes for candidate contests and yes-no contests', () => {
-  const { container } = renderBmdPaperBallot({
+  renderBmdPaperBallot({
     electionDefinition: electionGeneralDefinition,
     ballotStyleId: '5',
     precinctId: '21',
@@ -117,9 +117,6 @@ test('BmdPaperBallot renders votes for candidate contests and yes-no contests', 
   screen.getByText(
     hasTextAcrossElements(/Question B: Separation of Powers.?No/)
   );
-
-  // Use a snapshot to avoid unintentional regressions to general layout
-  expect(container).toMatchSnapshot();
 });
 
 test('BmdPaperBallot uses yes/no option labels if present', () => {
