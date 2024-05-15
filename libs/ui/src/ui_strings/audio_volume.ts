@@ -44,10 +44,13 @@ export enum AudioVolume {
  * in roughly an output level of {@link MIN_VOLUME_DB_SPL} when the OS volume is
  * set to its maximum output level.
  *
- * TODO(kofi): Re-calibrate this value on prod hardware once we've settled on a
- * model of headphones.
+ * Last Calibration: 2024-05-14 on VSAP with JLAB Studio On-Ear Headphones.
+ *
+ * TODO: Might be worth defining different offsets for different machines
+ * (VxMark vs VxMarkScan), since audio hardware and output levels will likely
+ * differ between the two.
  */
-const GOOGLE_CLOUD_TTS_GAIN_OFFSET_FOR_MIN_VOLUME = -80;
+const GOOGLE_CLOUD_TTS_GAIN_OFFSET_FOR_MIN_VOLUME = -68;
 
 export function getAudioGainAmountDb(volume: AudioVolume): number {
   // eslint-disable-next-line vx/gts-safe-number-parse
