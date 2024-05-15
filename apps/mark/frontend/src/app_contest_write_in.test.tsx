@@ -1,9 +1,4 @@
-import {
-  expectPrint,
-  mockPrintElement,
-  mockPrintElementWhenReady,
-  mockOf,
-} from '@votingworks/test-utils';
+import { mockOf } from '@votingworks/test-utils';
 import { ALL_PRECINCTS_SELECTION, MemoryHardware } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
@@ -30,12 +25,6 @@ jest.mock(
     ContestPage: jest.fn(),
   })
 );
-
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
-  ...jest.requireActual('@votingworks/ui'),
-  printElementWhenReady: mockPrintElementWhenReady,
-  printElement: mockPrintElement,
-}));
 
 /**
  * Mocks the mark-flow-ui {@link ContestPage} to avoid re-testing the write-in
@@ -148,13 +137,22 @@ it('Single Seat Contest with Write In', async () => {
   expect(screen.getByText(/\(write-in\)/)).toBeTruthy();
 
   // Print Screen
-  apiMock.expectIncrementBallotsPrintedCount();
+  apiMock.expectPrintBallot({
+    ballotStyleId: '12',
+    precinctId: '23',
+    votes: {
+      [singleSeatContestWithWriteIn.id]: [
+        {
+          id: 'write-in',
+          isWriteIn: true,
+          name: 'SAL',
+          writeInIndex: 0,
+        },
+      ],
+    },
+  });
   apiMock.expectGetElectionState();
   fireEvent.click(screen.getByText(/Print My ballot/i));
   advanceTimers();
   screen.getByText(/Printing Your Official Ballot/i);
-  await expectPrint((printedElement) => {
-    expect(printedElement.getByText('Official Ballot')).toBeTruthy();
-    expect(printedElement.getByText('(write-in)')).toBeTruthy();
-  });
 });

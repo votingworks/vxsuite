@@ -17,6 +17,7 @@ import {
   PrecinctId,
   PrecinctSelection,
   SystemSettings,
+  LanguageCode,
 } from '@votingworks/types';
 import {
   mockCardlessVoterUser,
@@ -233,8 +234,17 @@ export function createApiMock() {
         .resolves();
     },
 
-    expectPrintBallot(input: PrintBallotProps) {
-      mockApiClient.printBallot.expectCallWith(input).resolves();
+    expectPrintBallot(
+      input: Omit<PrintBallotProps, 'languageCode'> & {
+        languageCode?: LanguageCode;
+      }
+    ) {
+      mockApiClient.printBallot
+        .expectCallWith({
+          languageCode: LanguageCode.ENGLISH,
+          ...input,
+        })
+        .resolves();
     },
   };
 }
