@@ -256,9 +256,22 @@ describe('eject_to_front', () => {
       setStatus: () => setMockDeviceStatus(getDefaultPaperHandlerStatus()),
     },
     {
-      description: 'paper is in front input',
+      description: 'paper triggers all front sensors',
       setStatus: () => setMockDeviceStatus(getPaperInFrontStatus()),
     },
+    ...[
+      'paperInputLeftInnerSensor',
+      'paperInputLeftOuterSensor',
+      'paperInputRightInnerSensor',
+      'paperInputRightOuterSensor',
+    ].map((sensor) => ({
+      description: `paper triggers only ${sensor} sensor`,
+      setStatus: () =>
+        setMockDeviceStatus({
+          ...getDefaultPaperHandlerStatus(),
+          [sensor]: true,
+        }),
+    })),
   ])('transitions when $description', async ({ setStatus }) => {
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
     setMockDeviceStatus(getPaperParkedStatus());

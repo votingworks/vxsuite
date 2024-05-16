@@ -53,7 +53,7 @@ import {
   isPaperInOutput,
   isPaperAnywhere,
   isPaperJammed,
-  isPaperPartiallyInInput,
+  isPaperInInput,
 } from './scanner_status';
 import {
   scanAndSave,
@@ -167,7 +167,7 @@ export function paperHandlerStatusToEvent(
   }
 
   /* istanbul ignore next */
-  if (isPaperPartiallyInInput(paperHandlerStatus)) {
+  if (isPaperInInput(paperHandlerStatus)) {
     return { type: 'PAPER_IN_INPUT' };
   }
 
