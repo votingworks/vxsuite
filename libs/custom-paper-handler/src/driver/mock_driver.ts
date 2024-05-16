@@ -63,6 +63,9 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
   transferInGeneric(): Promise<USBInTransferResult> {
     throw new Error('Method not implemented.');
   }
+  transferInAcknowledgement(): Promise<boolean> {
+    throw new Error('Method not implemented.');
+  }
   clearGenericInBuffer(): Promise<void> {
     throw new Error('Method not implemented.');
   }

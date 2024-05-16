@@ -11,6 +11,7 @@ import {
   CoderError,
   literal,
   message,
+  oneOf,
 } from '@votingworks/message-coder';
 import { createImageData, writeImageData } from '@votingworks/image-utils';
 import {
@@ -76,6 +77,7 @@ import {
   PrintAndFeedPaperCommand,
   PrinterStatusRealTimeExchangeResponse,
   RealTimeExchangeResponseWithoutData,
+  RealTimeStatusTransmission,
   ScanCommand,
   ScannerCalibrationCommand,
   ScanResponse,
@@ -115,6 +117,10 @@ export const PACKET_SIZE = 65536;
 export enum ReturnCodes {
   POSITIVE_ACKNOWLEDGEMENT = 0x06,
   NEGATIVE_ACKNOWLEDGEMENT = 0x15,
+  // Return code when the `Real-time status transmission` command is invoked
+  // when buffered data coincidentally contains a byte sequence matching
+  // that command's hex code
+  INVALID_STATUS_TRANSMISSION_ARGUMENT = 0x12,
 }
 
 export async function getPaperHandlerWebDevice(): Promise<
@@ -369,27 +375,66 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     const transferOutResult = await this.transferOutGeneric(coder, value);
     assert(transferOutResult.status === 'ok'); // TODO: Handling
 
+    const isAckSuccessful = this.transferInAcknowledgement();
+    this.genericLock.release();
+    return isAckSuccessful;
+  }
+
+  async transferInAcknowledgement(): Promise<boolean> {
     const transferInResult = await this.transferInGeneric();
     assert(transferInResult.status === 'ok'); // TODO: Handling
-    this.genericLock.release();
     const { data } = transferInResult;
     assert(data);
-    const result = AcknowledgementResponse.decode(Buffer.from(data.buffer));
+
+    // If data buffered to the `generic transfer-out buffer` contains the command code
+    // for `Real-time status transmission` (0x10 0x04 n), that command will be executed.
+    // It is executed regardless of whether the buffered data is received as part of a
+    // different command and ignores convention that `Real-time status transmission` is
+    // expected to use the real-time channels.
+    //
+    // eg. `bufferChunk()` uses `Select image print mode` to buffer PDF data to the
+    // generic out buffer. If the PDF data contains the byte sequence `0x10 0x04 0x12`,
+    // the device will execute `Real-time status transmission` and return a 6 byte response
+    // on the generic transfer-in buffer.
+    //
+    // If the PDF data contains byte sequence `0x10 0x04 0x03`, where 0x03 is an invalid
+    // argument for `Real-time status transmission`, the printer will return 1 byte 0x12
+    // on the generic transfer-in buffer. 0x12 is an undocumented response code but
+    // presumably means "Invalid argument" or similar.
+
+    const TransferInData = oneOf(
+      RealTimeStatusTransmission,
+      AcknowledgementResponse
+    );
+    const result = TransferInData.decode(Buffer.from(data.buffer));
     if (result.isErr()) {
       debug(`Error decoding transferInGeneric response: ${result.err()}`);
       return false;
     }
+
     const code = result.ok();
-    switch (code) {
-      case ReturnCodes.POSITIVE_ACKNOWLEDGEMENT:
-        debug('positive acknowledgement');
-        return true;
-      case ReturnCodes.NEGATIVE_ACKNOWLEDGEMENT:
-        debug('negative acknowledgement');
-        return false;
-      default:
-        throw new Error(`uninterpretable acknowledgement: ${code}`);
+    if (typeof code === 'number') {
+      switch (code) {
+        case ReturnCodes.POSITIVE_ACKNOWLEDGEMENT:
+          debug('positive acknowledgement');
+          return true;
+        case ReturnCodes.NEGATIVE_ACKNOWLEDGEMENT:
+          debug('negative acknowledgement');
+          return false;
+        case ReturnCodes.INVALID_STATUS_TRANSMISSION_ARGUMENT:
+          debug(
+            'Handled unrestricted malformed execution of "Real-time status transmission" command. Retrying transferInAcknowledgement.'
+          );
+          return this.transferInAcknowledgement();
+        default:
+          throw new Error(`Uninterpretable acknowledgement code: ${code}`);
+      }
     }
+
+    debug(
+      'Handled unrestricted execution of "Real-time status transmission" command. Retrying transferInAcknowledgement.'
+    );
+    return this.transferInAcknowledgement();
   }
 
   async getScannerCapability(): Promise<ScannerCapability> {
@@ -505,6 +550,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   }
 
   async scanAndSave(pathOut: string): Promise<ImageFromScanner> {
+    debug('setting scan direction');
     await this.setScanDirection('backward');
     const grayscaleResult = await this.scan();
     debug(
@@ -547,6 +593,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * attempt to pull paper in. if none is pulled in, command still returns positive.
    */
   async loadPaper(): Promise<boolean> {
+    debug('loadPaper');
     return this.handleGenericCommandWithAcknowledgement(
       LoadPaperCommand,
       undefined
@@ -558,6 +605,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * no paper to eject, handler will do nothing and return positive acknowledgement.
    */
   async ejectPaperToFront(): Promise<boolean> {
+    debug('ejectPaperToFront');
     return this.handleGenericCommandWithAcknowledgement(
       EjectPaperCommand,
       undefined
@@ -570,6 +618,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * positive acknowledgement. When parked, parkSensor should be true.
    */
   async parkPaper(): Promise<boolean> {
+    debug('parkPaper');
     return this.handleGenericCommandWithAcknowledgement(
       ParkPaperCommand,
       undefined
@@ -582,6 +631,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * state from the state where paper has not been picked up yet?
    */
   presentPaper(): Promise<boolean> {
+    debug('presentPaper');
     return this.handleGenericCommandWithAcknowledgement(
       PresentPaperAndHoldCommand,
       undefined
@@ -593,6 +643,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * no paper to eject, handler will do nothing and return positive acknowledgement.
    */
   async ejectBallotToRear(): Promise<boolean> {
+    debug('ejectBallotToRear');
     return this.handleGenericCommandWithAcknowledgement(
       EjectPaperToBallotCommand,
       undefined
@@ -600,6 +651,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   }
 
   calibrate(): Promise<boolean> {
+    debug('calibrate');
     return this.handleGenericCommandWithAcknowledgement(
       ScannerCalibrationCommand,
       undefined
@@ -614,6 +666,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * a variety of positions.
    */
   enablePrint(): Promise<boolean> {
+    debug('enablePrint');
     return this.handleGenericCommandWithAcknowledgement(
       EnablePrintCommand,
       undefined
@@ -624,6 +677,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
    * Moves print head to UP position, does not move paper
    */
   disablePrint(): Promise<boolean> {
+    debug('disablePrint');
     return this.handleGenericCommandWithAcknowledgement(
       DisablePrintCommand,
       undefined

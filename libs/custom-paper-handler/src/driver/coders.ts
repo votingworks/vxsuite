@@ -84,12 +84,7 @@ export type SensorStatusRealTimeExchangeResponse = CoderType<
   typeof SensorStatusRealTimeExchangeResponse
 >;
 
-export const PrinterStatusRealTimeExchangeResponse = message({
-  startOfPacket: literal(0x82),
-  requestId: uint8(),
-  token: literal(TOKEN),
-  returnCode: uint8(),
-  optionalDataLength: literal(6),
+const printerStatusMessage = {
   // Byte 0 fixed
   dle: literal(0x10),
   // Byte 1 fixed
@@ -121,6 +116,15 @@ export const PrinterStatusRealTimeExchangeResponse = message({
   eepromError: uint1(),
   ramError: uint1(),
   byte3Padding1: padding(2),
+} as const;
+
+export const PrinterStatusRealTimeExchangeResponse = message({
+  startOfPacket: literal(0x82),
+  requestId: uint8(),
+  token: literal(TOKEN),
+  returnCode: uint8(),
+  optionalDataLength: literal(6),
+  ...printerStatusMessage,
 });
 export type PrinterStatusRealTimeExchangeResponse = CoderType<
   typeof PrinterStatusRealTimeExchangeResponse
@@ -135,6 +139,11 @@ export const RealTimeExchangeResponseWithoutData = message({
 });
 export type RealTimeExchangeResponseWithoutData = CoderType<
   typeof RealTimeExchangeResponseWithoutData
+>;
+
+export const RealTimeStatusTransmission = message(printerStatusMessage);
+export type RealTimeStatusTransmission = CoderType<
+  typeof RealTimeStatusTransmission
 >;
 
 export const AcknowledgementResponse = uint8();
