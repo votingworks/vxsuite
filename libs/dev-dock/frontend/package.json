@@ -62,7 +62,7 @@
     "jest-junit": "^16.0.0",
     "jest-watch-typeahead": "^2.2.2",
     "lint-staged": "11.0.0",
-    "react": "18.2.0",
+    "react": "18.3.1",
     "sort-package-json": "^1.50.0",
     "styled-components": "^5.3.11",
     "ts-jest": "29.1.1"
@@ -70,7 +70,7 @@
   "peerDependencies": {
     "@tanstack/react-query": "4.32.1",
     "@tanstack/react-query-devtools": "4.32.1",
-    "react": "18.2.0",
+    "react": "18.3.1",
     "styled-components": "^5.3.11"
   },
   "packageManager": "pnpm@8.1.0"

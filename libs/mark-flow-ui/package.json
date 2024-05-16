@@ -104,8 +104,8 @@
     "lorem-ipsum": "^2.0.8",
     "parse-css-color": "^0.2.1",
     "path": "^0.12.7",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
     "sort-package-json": "^1.50.0",
     "stream-browserify": "^3.0.0",
     "styled-components": "^5.3.11",
@@ -114,8 +114,8 @@
     "vite": "4.5.0"
   },
   "peerDependencies": {
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
     "styled-components": "^5.3.11"
   },
   "packageManager": "pnpm@8.1.0"
