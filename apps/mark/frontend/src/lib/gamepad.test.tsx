@@ -1,4 +1,4 @@
-import { MemoryHardware, ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { Button } from 'react-gamepad';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import {
@@ -46,7 +46,6 @@ afterEach(() => {
 });
 
 it('gamepad controls work', async () => {
-  const hardware = MemoryHardware.buildStandard();
   apiMock.expectGetMachineConfig();
 
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
@@ -55,13 +54,7 @@ it('gamepad controls work', async () => {
     pollsState: 'polls_open',
   });
 
-  render(
-    <App
-      hardware={hardware}
-      apiClient={apiMock.mockApiClient}
-      reload={jest.fn()}
-    />
-  );
+  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
   await advanceTimersAndPromises();
 
   // Start voter session

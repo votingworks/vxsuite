@@ -1,10 +1,6 @@
 import React from 'react';
-import {
-  mockKiosk,
-  mockOf,
-  suppressingConsoleOutput,
-} from '@votingworks/test-utils';
-import { ALL_PRECINCTS_SELECTION, MemoryHardware } from '@votingworks/utils';
+import { mockOf, suppressingConsoleOutput } from '@votingworks/test-utils';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import fetchMock from 'fetch-mock';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
@@ -34,7 +30,6 @@ let apiMock: ApiMock;
 beforeEach(() => {
   jest.useFakeTimers();
   apiMock = createApiMock();
-  window.kiosk = mockKiosk();
 });
 
 afterEach(() => {
@@ -49,10 +44,9 @@ it('will throw an error when using default api', async () => {
       codeVersion: '3.14',
     },
   });
-  const hardware = MemoryHardware.buildStandard();
 
   await suppressingConsoleOutput(async () => {
-    render(<App hardware={hardware} />);
+    render(<App />);
     await screen.findByText('Something went wrong');
   });
 });
@@ -62,16 +56,9 @@ it('Displays error boundary if the api returns an unexpected error', async () =>
   apiMock.expectGetElectionDefinition(null);
   apiMock.expectGetElectionState();
   apiMock.expectGetMachineConfigToError();
-  const hardware = MemoryHardware.buildStandard();
   apiMock.mockApiClient.reboot.expectCallWith().resolves();
   await suppressingConsoleOutput(async () => {
-    render(
-      <App
-        hardware={hardware}
-        apiClient={apiMock.mockApiClient}
-        reload={jest.fn()}
-      />
-    );
+    render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
     await advanceTimersAndPromises();
     screen.getByText('Something went wrong');
     userEvent.click(screen.getButton('Restart'));
@@ -161,14 +148,12 @@ it('uses window.location.reload by default', async () => {
 
   // Set up in an already-configured state.
   const electionDefinition = electionGeneralDefinition;
-  const hardware = MemoryHardware.buildStandard();
-
   apiMock.expectGetElectionDefinition(electionDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
   });
 
-  render(<App hardware={hardware} apiClient={apiMock.mockApiClient} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   await advanceTimersAndPromises();
 

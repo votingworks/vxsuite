@@ -3,7 +3,7 @@ import {
   asElectionDefinition,
   electionGeneralDefinition,
 } from '@votingworks/fixtures';
-import { ALL_PRECINCTS_SELECTION, MemoryHardware } from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { DateWithoutTime } from '@votingworks/basics';
 import { render, screen, waitFor } from '../test/react_testing_library';
 
@@ -28,14 +28,14 @@ it('Prompts to change from test mode to live mode on election day', async () => 
     ...electionGeneralDefinition.election,
     date: DateWithoutTime.today(),
   });
-  const hardware = MemoryHardware.buildStandard();
+
   apiMock.expectGetMachineConfig();
   apiMock.expectGetElectionDefinition(electionDefinition);
   apiMock.expectGetElectionState({
     isTestMode: true,
     precinctSelection: ALL_PRECINCTS_SELECTION,
   });
-  render(<App apiClient={apiMock.mockApiClient} hardware={hardware} />);
+  render(<App apiClient={apiMock.mockApiClient} />);
 
   await screen.findByText('Test Ballot Mode');
   apiMock.setAuthStatusPollWorkerLoggedIn(electionDefinition);

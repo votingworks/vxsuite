@@ -3,11 +3,7 @@ import React from 'react';
 import { Router } from 'react-router-dom';
 
 import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
-import {
-  ElectionDefinition,
-  Printer,
-  DippedSmartCardAuth,
-} from '@votingworks/types';
+import { ElectionDefinition, DippedSmartCardAuth } from '@votingworks/types';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
@@ -42,7 +38,6 @@ export interface RenderInAppContextParams {
   electionDefinition?: ElectionDefinition | 'NONE';
   configuredAt?: Iso8601Timestamp;
   isOfficialResults?: boolean;
-  printer?: Printer;
   usbDriveStatus?: UsbDriveStatus;
   auth?: DippedSmartCardAuth.AuthStatus;
   machineConfig?: MachineConfig;

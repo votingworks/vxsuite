@@ -1,6 +1,5 @@
 import { BrowserRouter } from 'react-router-dom';
 
-import { getHardware } from '@votingworks/utils';
 import { BaseLogger, LogSource } from '@votingworks/logging';
 import { QueryClient } from '@tanstack/react-query';
 import {
@@ -10,7 +9,7 @@ import {
 } from '@votingworks/ui';
 import { ColorMode, ScreenType, SizeMode } from '@votingworks/types';
 
-import { AppRoot, Props as AppRootProps } from './app_root';
+import { AppRoot } from './app_root';
 import { ApiClient, createApiClient, createQueryClient } from './api';
 import { SessionTimeLimitTracker } from './components/session_time_limit_tracker';
 import { ApiProvider } from './api_provider';
@@ -27,9 +26,8 @@ const RESTART_MESSAGE =
   'Ask a poll worker to restart the ballot marking device.';
 
 export interface Props {
-  hardware?: AppRootProps['hardware'];
   reload?: VoidFunction;
-  logger?: AppRootProps['logger'];
+  logger?: BaseLogger;
   apiClient?: ApiClient;
   queryClient?: QueryClient;
   enableStringTranslation?: boolean;
@@ -37,7 +35,6 @@ export interface Props {
 }
 
 export function App({
-  hardware = getHardware(),
   reload = () => window.location.reload(),
   logger = new BaseLogger(LogSource.VxMarkFrontend, window.kiosk),
   /* istanbul ignore next */ apiClient = createApiClient(),
@@ -65,7 +62,7 @@ export function App({
               logger={logger}
             >
               <VisualModeDisabledOverlay />
-              <AppRoot hardware={hardware} reload={reload} logger={logger} />
+              <AppRoot reload={reload} />
               <SessionTimeLimitTracker />
             </AppErrorBoundary>
           </ApiProvider>

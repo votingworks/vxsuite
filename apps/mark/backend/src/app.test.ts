@@ -47,6 +47,7 @@ import {
 import { createApp } from '../test/app_helpers';
 import { Api } from './app';
 import { ElectionState } from '.';
+import { isAccessibleControllerAttached } from './util/accessible_controller';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -57,6 +58,8 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
     randomBallotId: () => '12345',
   };
 });
+
+jest.mock('./util/accessible_controller');
 
 let apiClient: grout.Client<Api>;
 let logger: Logger;
@@ -435,4 +438,16 @@ test('printing ballots', async () => {
   await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'chinese-ballot',
   });
+});
+
+test('getAccessibleControllerConnected', async () => {
+  const isAccessibleControllerAttachedMock = mockOf(
+    isAccessibleControllerAttached
+  );
+
+  isAccessibleControllerAttachedMock.mockReturnValue(true);
+  expect(await apiClient.getAccessibleControllerConnected()).toEqual(true);
+
+  isAccessibleControllerAttachedMock.mockReturnValue(false);
+  expect(await apiClient.getAccessibleControllerConnected()).toEqual(false);
 });

@@ -1,16 +1,27 @@
 import userEvent from '@testing-library/user-event';
-import { mockMarkerInfo, mockOf } from '@votingworks/test-utils';
+import { advanceTimersAndPromises, mockOf } from '@votingworks/test-utils';
 import { MemoryRouter } from 'react-router-dom';
 import { DateTime } from 'luxon';
+import { act } from 'react-dom/test-utils';
+import { IppMarkerInfo } from '@votingworks/types';
 import { render, screen } from '../../test/react_testing_library';
 import {
   DiagnosticsScreen,
   DiagnosticsScreenProps,
 } from './diagnostics_screen';
-import { mockDevices } from '../../test/helpers/mock_devices';
 import { AccessibleControllerDiagnosticScreen } from './accessible_controller_diagnostic_screen';
 import { ApiProvider } from '../api_provider';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import { ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS } from '../api';
+
+export const MOCK_MARKER_INFO: IppMarkerInfo = {
+  color: '#000000',
+  highLevel: 100,
+  level: 2,
+  lowLevel: 2,
+  name: 'black cartridge',
+  type: 'toner-cartridge',
+};
 
 jest.mock(
   './accessible_controller_diagnostic_screen',
@@ -44,11 +55,7 @@ function renderScreen(props: Partial<DiagnosticsScreenProps> = {}) {
   return render(
     <ApiProvider apiClient={apiMock.mockApiClient} noAudio>
       <MemoryRouter>
-        <DiagnosticsScreen
-          devices={mockDevices()}
-          onBackButtonPress={jest.fn()}
-          {...props}
-        />
+        <DiagnosticsScreen onBackButtonPress={jest.fn()} {...props} />
       </MemoryRouter>
     </ApiProvider>
   );
@@ -59,15 +66,13 @@ beforeEach(() => {
 });
 
 describe('System Diagnostics screen: Computer section', () => {
-  it('shows the battery level and power cord status', () => {
-    const devices = mockDevices({
-      computer: { batteryLevel: 0.05, batteryIsLow: true },
-    });
-    const { unmount } = renderScreen({ devices });
+  it('shows the battery level and power cord status', async () => {
+    apiMock.setBatteryInfo({ level: 0.05, discharging: false });
+    const { unmount } = renderScreen();
 
     screen.getByRole('heading', { name: 'System Diagnostics' });
 
-    const batteryText = screen.getByText('Battery: 5%');
+    const batteryText = await screen.findByText('Battery: 5%');
     // The battery level always has a success icon, even when it's low, since
     // it's only an actionable problem if the computer is not connected to
     // power, and that would trigger a full-screen alert
@@ -80,13 +85,11 @@ describe('System Diagnostics screen: Computer section', () => {
     unmount();
   });
 
-  it('shows a warning when the power cord is not connected', () => {
-    const devices = mockDevices({
-      computer: { batteryIsCharging: false },
-    });
-    const { unmount } = renderScreen({ devices });
+  it('shows a warning when the power cord is not connected', async () => {
+    apiMock.setBatteryInfo({ level: 0.8, discharging: true });
+    const { unmount } = renderScreen();
 
-    const batteryText = screen.getByText('Battery: 80%');
+    const batteryText = await screen.findByText('Battery: 80%');
     expectToHaveSuccessIcon(batteryText);
     const powerCordText = screen.getByText(
       'No power cord connected. Connect power cord.'
@@ -106,7 +109,7 @@ describe('System Diagnostics screen: Printer section', () => {
       richStatus: {
         state: 'stopped',
         stateReasons: ['marker-supply-low-warning'],
-        markerInfos: [mockMarkerInfo({ level: 2 })],
+        markerInfos: [MOCK_MARKER_INFO],
       },
     });
 
@@ -122,7 +125,7 @@ describe('System Diagnostics screen: Printer section', () => {
 });
 
 describe('System Diagnostics screen: Accessible Controller section', () => {
-  it('shows the connection status, has a button to open test, and shows test results', () => {
+  it('shows the connection status, has a button to open test, and shows test results', async () => {
     mockOf(AccessibleControllerDiagnosticScreen).mockImplementation((props) => {
       const { onCancel, onComplete } = props;
 
@@ -140,8 +143,7 @@ describe('System Diagnostics screen: Accessible Controller section', () => {
 
     const { unmount } = renderScreen();
 
-    const connectionText = screen.getByText('Accessible controller connected.');
-    expectToHaveSuccessIcon(connectionText);
+    await screen.findByText('Accessible controller connected.');
 
     expect(screen.queryByTestId('mockPass')).not.toBeInTheDocument();
 
@@ -166,15 +168,28 @@ describe('System Diagnostics screen: Accessible Controller section', () => {
     unmount();
   });
 
-  it('shows when the controller is disconnected', () => {
-    const devices = mockDevices();
-    devices.accessibleController = undefined;
-    const { unmount } = renderScreen({ devices });
+  it('shows connection status', async () => {
+    const { unmount } = renderScreen();
 
-    const connectionText = screen.getByText(
+    const connectedText = await screen.findByText(
+      'Accessible controller connected.'
+    );
+    expectToHaveSuccessIcon(connectedText);
+    expect(
+      screen.queryByText('Start Accessible Controller Test')
+    ).toBeInTheDocument();
+
+    act(() => {
+      apiMock.setAccessibleControllerConnected(false);
+    });
+    await advanceTimersAndPromises(
+      ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS / 1000
+    );
+
+    const disconnectedText = await screen.findByText(
       'No accessible controller connected.'
     );
-    expectToHaveWarningIcon(connectionText);
+    expectToHaveWarningIcon(disconnectedText);
     expect(
       screen.queryByText('Start Accessible Controller Test')
     ).not.toBeInTheDocument();
@@ -182,7 +197,7 @@ describe('System Diagnostics screen: Accessible Controller section', () => {
     unmount();
   });
 
-  it('shows failed test results', () => {
+  it('shows failed test results', async () => {
     mockOf(AccessibleControllerDiagnosticScreen).mockImplementation((props) => (
       <button
         data-testid="mockFail"
@@ -199,6 +214,7 @@ describe('System Diagnostics screen: Accessible Controller section', () => {
 
     const { unmount } = renderScreen();
 
+    await screen.findByText('Accessible controller connected.');
     userEvent.click(screen.getByText('Start Accessible Controller Test'));
 
     userEvent.click(screen.getByTestId('mockFail'));

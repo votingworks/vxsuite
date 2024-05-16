@@ -2,7 +2,7 @@ import {
   electionGeneral,
   electionGeneralDefinition,
 } from '@votingworks/fixtures';
-import { ALL_PRECINCTS_SELECTION, MemoryHardware } from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import { getContestDistrictName } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
@@ -38,8 +38,6 @@ afterEach(() => {
 it('Single Seat Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
-  const hardware = MemoryHardware.buildStandard();
-
   apiMock.expectGetMachineConfig();
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
   apiMock.expectGetElectionState({
@@ -47,13 +45,7 @@ it('Single Seat Contest', async () => {
     pollsState: 'polls_open',
   });
 
-  render(
-    <App
-      apiClient={apiMock.mockApiClient}
-      hardware={hardware}
-      reload={jest.fn()}
-    />
-  );
+  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
   await advanceTimersAndPromises();
 
   // Start voter session

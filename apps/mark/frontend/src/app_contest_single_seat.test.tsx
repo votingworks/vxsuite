@@ -1,4 +1,4 @@
-import { ALL_PRECINCTS_SELECTION, MemoryHardware } from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import userEvent from '@testing-library/user-event';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
@@ -33,21 +33,13 @@ it('Single Seat Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
   apiMock.expectGetMachineConfig();
-  const hardware = MemoryHardware.buildStandard();
-
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',
   });
 
-  render(
-    <App
-      hardware={hardware}
-      reload={jest.fn()}
-      apiClient={apiMock.mockApiClient}
-    />
-  );
+  render(<App reload={jest.fn()} apiClient={apiMock.mockApiClient} />);
   await advanceTimersAndPromises();
 
   // Start voter session

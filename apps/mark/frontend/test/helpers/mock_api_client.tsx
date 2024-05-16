@@ -31,6 +31,7 @@ import {
 import { err, ok, Result } from '@votingworks/basics';
 import { TestErrorBoundary } from '@votingworks/ui';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import type { BatteryInfo } from '@votingworks/backend';
 import { mockMachineConfig } from './mock_machine_config';
 import { initialElectionState } from '../../src/app_root';
 import { ApiProvider } from '../../src/api_provider';
@@ -52,13 +53,19 @@ interface CardlessVoterUserParams {
 
 type MockApiClient = Omit<
   MockClient<Api>,
-  'getAuthStatus' | 'getUsbDriveStatus'
+  | 'getAuthStatus'
+  | 'getUsbDriveStatus'
+  | 'getPrinterStatus'
+  | 'getBatteryInfo'
+  | 'getAccessibleControllerConnected'
 > & {
   // Because this is polled so frequently, we opt for a standard jest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
   getAuthStatus: jest.Mock;
+  getBatteryInfo: jest.Mock;
   getPrinterStatus: jest.Mock;
   getUsbDriveStatus: jest.Mock;
+  getAccessibleControllerConnected: jest.Mock;
 };
 
 function createMockApiClient(): MockApiClient {
@@ -67,6 +74,9 @@ function createMockApiClient(): MockApiClient {
   // of the mockApiClient, so we override like this instead
   (mockApiClient.getAuthStatus as unknown as jest.Mock) = jest.fn(() =>
     Promise.resolve({ status: 'logged_out', reason: 'no_card' })
+  );
+  (mockApiClient.getBatteryInfo as unknown as jest.Mock) = jest.fn(() =>
+    Promise.resolve(null)
   );
   (mockApiClient.getPrinterStatus as unknown as jest.Mock) = jest.fn(() =>
     Promise.resolve({
@@ -77,6 +87,8 @@ function createMockApiClient(): MockApiClient {
   (mockApiClient.getUsbDriveStatus as unknown as jest.Mock) = jest.fn(() =>
     Promise.resolve({ status: 'no_drive' })
   );
+  (mockApiClient.getAccessibleControllerConnected as unknown as jest.Mock) =
+    jest.fn(() => Promise.resolve(true));
   return mockApiClient as unknown as MockApiClient;
 }
 
@@ -92,6 +104,10 @@ export function createApiMock() {
     mockApiClient.getAuthStatus.mockImplementation(() =>
       Promise.resolve(authStatus)
     );
+  }
+
+  function setBatteryInfo(batteryInfo?: BatteryInfo): void {
+    mockApiClient.getBatteryInfo.mockResolvedValue(batteryInfo ?? null);
   }
 
   function setPrinterStatus(printerStatus: Partial<PrinterStatus> = {}): void {
@@ -110,6 +126,12 @@ export function createApiMock() {
     );
   }
 
+  function setAccessibleControllerConnected(connected: boolean): void {
+    mockApiClient.getAccessibleControllerConnected.mockImplementation(() =>
+      Promise.resolve(connected)
+    );
+  }
+
   const electionStateRef: { current: ElectionState } = {
     current: initialElectionState,
   };
@@ -117,9 +139,13 @@ export function createApiMock() {
   return {
     mockApiClient,
 
+    setBatteryInfo,
+
     setPrinterStatus,
 
     setUsbDriveStatus,
+
+    setAccessibleControllerConnected,
 
     setAuthStatus,
 
