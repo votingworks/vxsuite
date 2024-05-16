@@ -249,6 +249,25 @@ describe('not_accepting_paper', () => {
   });
 });
 
+describe('eject_to_front', () => {
+  test.each([
+    {
+      description: 'paper is absent',
+      setStatus: () => setMockDeviceStatus(getDefaultPaperHandlerStatus()),
+    },
+    {
+      description: 'paper is in front input',
+      setStatus: () => setMockDeviceStatus(getPaperInFrontStatus()),
+    },
+  ])('transitions when $description', async ({ setStatus }) => {
+    expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
+    setMockDeviceStatus(getPaperParkedStatus());
+    await expectStatusTransitionTo('ejecting_to_front');
+    setStatus();
+    await expectStatusTransitionTo('not_accepting_paper');
+  });
+});
+
 describe('accepting_paper', () => {
   it('transitions to loading_paper state when front sensors are triggered', async () => {
     machine.setAcceptingPaper();

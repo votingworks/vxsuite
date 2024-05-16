@@ -28,7 +28,7 @@ export function isPaperInScanner(
   );
 }
 
-export function isPaperInInput(
+export function isPaperPartiallyInInput(
   paperHandlerStatus: PaperHandlerStatus
 ): boolean {
   return (
@@ -53,7 +53,7 @@ export function isPaperAnywhere(
   paperHandlerStatus: PaperHandlerStatus
 ): boolean {
   return (
-    isPaperInInput(paperHandlerStatus) ||
+    isPaperPartiallyInInput(paperHandlerStatus) ||
     isPaperInOutput(paperHandlerStatus) ||
     isPaperInScanner(paperHandlerStatus)
   );

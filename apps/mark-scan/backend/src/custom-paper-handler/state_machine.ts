@@ -53,7 +53,7 @@ import {
   isPaperInOutput,
   isPaperAnywhere,
   isPaperJammed,
-  isPaperInInput,
+  isPaperPartiallyInInput,
 } from './scanner_status';
 import {
   scanAndSave,
@@ -167,7 +167,7 @@ export function paperHandlerStatusToEvent(
   }
 
   /* istanbul ignore next */
-  if (isPaperInInput(paperHandlerStatus)) {
+  if (isPaperPartiallyInInput(paperHandlerStatus)) {
     return { type: 'PAPER_IN_INPUT' };
   }
 
@@ -705,6 +705,11 @@ export function buildMachine(
               entry: ['ejectPaperToFront'],
               on: {
                 NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
+                // Sometimes paper ejected to front is not held by the motors but
+                // will still trigger input sensors.
+                // In this case we still want to allow the machine to progress.
+                PAPER_READY_TO_LOAD: 'resetting_state_machine_after_success',
+                PAPER_IN_INPUT: 'resetting_state_machine_after_success',
               },
             },
             jammed: {
