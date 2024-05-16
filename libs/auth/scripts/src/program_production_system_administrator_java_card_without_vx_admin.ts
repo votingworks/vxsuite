@@ -81,6 +81,7 @@ export async function main(): Promise<void> {
       );
     await programJavaCard({
       card,
+      isProduction: true,
       user: {
         role: 'system_administrator',
         jurisdiction: scriptEnv.jurisdiction,

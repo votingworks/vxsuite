@@ -6,7 +6,6 @@ import { generatePin, hyphenatePin } from '@votingworks/utils';
 import { ResponseApduError } from '../../src/apdu';
 import { CardStatusReady, StatefulCard } from '../../src/card';
 import { openssl } from '../../src/cryptography';
-import { isNodeEnvProduction } from '../../src/env_vars';
 import { JavaCard } from '../../src/java_card';
 
 /**
@@ -38,18 +37,20 @@ export async function waitForReadyCardStatus<T>(
 }
 
 /**
- * Programs a system administrator Java Card
+ * Programs a vendor or system administrator Java Card
  */
 export async function programJavaCard({
   card,
+  isProduction,
   user,
 }: {
   card: JavaCard;
+  isProduction: boolean;
   user: VendorUser | SystemAdministratorUser;
 }): Promise<void> {
   const initialJavaCardConfigurationScriptReminder = `
 ${
-  isNodeEnvProduction()
+  isProduction
     ? 'Have you run this card through the configure-java-card script yet?'
     : 'Have you run this card through the configure-dev-java-card script yet?'
 }
@@ -59,7 +60,7 @@ Run that and then retry.
 
   await waitForReadyCardStatus(card);
 
-  const pin = isNodeEnvProduction() ? generatePin() : '000000';
+  const pin = isProduction ? generatePin() : '000000';
   try {
     switch (user.role) {
       case 'vendor': {

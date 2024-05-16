@@ -10,16 +10,18 @@ import { DEV_JURISDICTION } from '../../src/jurisdictions';
 import { programJavaCard } from './utils';
 
 interface ScriptEnv {
+  isProduction: boolean;
   javaCardConfig: JavaCardConfig;
   jurisdiction: string;
 }
 
 function readScriptEnvVars(): ScriptEnv {
+  const isProduction = isNodeEnvProduction();
   const javaCardConfig = constructJavaCardConfigForVxProgramming(); // Uses env vars
-  const jurisdiction = isNodeEnvProduction()
+  const jurisdiction = isProduction
     ? getRequiredEnvVar('VX_MACHINE_JURISDICTION')
     : DEV_JURISDICTION;
-  return { javaCardConfig, jurisdiction };
+  return { isProduction, javaCardConfig, jurisdiction };
 }
 
 /**
@@ -28,10 +30,11 @@ function readScriptEnvVars(): ScriptEnv {
  */
 export async function main(): Promise<void> {
   try {
-    const { javaCardConfig, jurisdiction } = readScriptEnvVars();
+    const { isProduction, javaCardConfig, jurisdiction } = readScriptEnvVars();
     const card = new JavaCard(javaCardConfig);
     await programJavaCard({
       card,
+      isProduction,
       user: { role: 'vendor', jurisdiction },
     });
     process.exit(0); // Smart card scripts require an explicit exit or else they hang
