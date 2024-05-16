@@ -1,6 +1,6 @@
 /* istanbul ignore file - tested via VxSuite apps. */
 
-import { Optional } from '@votingworks/basics';
+import { Optional, typedAs } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
 import {
   LanguageCode,
@@ -12,6 +12,7 @@ import {
   UiStringAudioClipSchema,
   UiStringAudioIds,
   UiStringAudioIdsSchema,
+  UiStringsPackage,
   UiStringTranslations,
   UiStringTranslationsSchema,
 } from '@votingworks/types';
@@ -21,6 +22,8 @@ export interface UiStringsStore {
   addLanguage(code: LanguageCode): void;
 
   getLanguages(): LanguageCode[];
+
+  getAllUiStrings(): UiStringsPackage;
 
   getUiStrings(languageCode: LanguageCode): UiStringTranslations | null;
 
@@ -85,6 +88,31 @@ export function createUiStringStore(dbClient: DbClient): UiStringsStore {
       return result.map((row) =>
         safeParse(LanguageCodeSchema, row.code).unsafeUnwrap()
       );
+    },
+
+    getAllUiStrings() {
+      const rows = dbClient.all(
+        `
+      select
+        data,
+        language_code as languageCode
+      from ui_strings
+    `
+      ) as Array<{ data: string; languageCode: string }>;
+
+      return rows.reduce((acc, row) => {
+        const languageCode = safeParse(
+          LanguageCodeSchema,
+          row.languageCode
+        ).unsafeUnwrap();
+        const data = safeParseJson(
+          row.data,
+          UiStringTranslationsSchema
+        ).unsafeUnwrap();
+
+        acc[languageCode] = data;
+        return acc;
+      }, typedAs<UiStringsPackage>({}));
     },
 
     getUiStrings(languageCode) {

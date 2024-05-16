@@ -1,5 +1,5 @@
 import { PrintSides, Printer, renderToPdf } from '@votingworks/printing';
-import { LanguageCode, UiStringsPackage, VotesDict } from '@votingworks/types';
+import { LanguageCode, VotesDict } from '@votingworks/types';
 
 import { assertDefined } from '@votingworks/basics';
 import {
@@ -29,17 +29,10 @@ export async function printBallot({
   const electionDefinition = assertDefined(store.getElectionDefinition());
   const isLiveMode = !store.getTestMode();
 
-  const uiStringsPackage: UiStringsPackage = {};
-  for (const language of store.getUiStringsStore().getLanguages()) {
-    uiStringsPackage[language] = assertDefined(
-      store.getUiStringsStore().getUiStrings(language)
-    );
-  }
-
   const ballot = (
     <BackendLanguageContextProvider
       currentLanguageCode={languageCode}
-      uiStringsPackage={uiStringsPackage}
+      uiStringsPackage={store.getUiStringsStore().getAllUiStrings()}
     >
       <BmdPaperBallot
         electionDefinition={electionDefinition}
