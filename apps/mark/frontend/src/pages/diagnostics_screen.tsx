@@ -12,7 +12,7 @@ import {
   Icons,
   PrinterStatusDisplay,
 } from '@votingworks/ui';
-import { formatTime } from '@votingworks/utils';
+import { format, formatTime } from '@votingworks/utils';
 import { useHistory, Switch, Route } from 'react-router-dom';
 import styled from 'styled-components';
 import { PrinterStatus } from '@votingworks/types';
@@ -50,7 +50,7 @@ function ComputerStatus({ batteryInfo }: ComputerStatusProps) {
     <React.Fragment>
       <P>
         {CHECKBOX_ICON} Battery:{' '}
-        {batteryInfo && `${Math.round(batteryInfo.level * 100)}%`}
+        {batteryInfo && `${format.percent(batteryInfo.level)}`}
       </P>
       {!batteryInfo?.discharging ? (
         <P>{CHECKBOX_ICON} Power cord connected.</P>
