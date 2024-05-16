@@ -31,7 +31,6 @@ import {
   useLanguageControls,
   InvalidCardScreen,
   useQueryChangeListener,
-  LOW_BATTERY_THRESHOLD,
 } from '@votingworks/ui';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
@@ -379,7 +378,7 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
   const batteryInfo = batteryInfoQuery.data;
   const batteryIsDischarging = batteryInfo ? batteryInfo.discharging : false;
   const batteryIsLow = batteryInfo
-    ? batteryInfo.level < LOW_BATTERY_THRESHOLD
+    ? batteryInfo.level < GLOBALS.LOW_BATTERY_THRESHOLD
     : false;
 
   if (

@@ -1,7 +1,7 @@
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
-import { BATTERY_POLLING_INTERVAL } from '@votingworks/ui';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { BATTERY_POLLING_INTERVAL_GROUT } from '@votingworks/ui';
 import {
   act,
   render,
@@ -133,7 +133,7 @@ describe('Displays setup warning messages and errors screens', () => {
         discharging: true,
       });
     });
-    await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL / 1000);
+    await advanceTimersAndPromises(BATTERY_POLLING_INTERVAL_GROUT / 1000);
     await findByTextWithMarkup(lowBatteryErrorScreenText);
 
     // Remove battery, i.e. we're on a desktop

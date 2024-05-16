@@ -3,7 +3,6 @@ import {
   electionTwoPartyPrimaryDefinition,
   electionGeneralDefinition,
 } from '@votingworks/fixtures';
-import { MockKiosk, mockKiosk } from '@votingworks/test-utils';
 import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { screen } from '../test/react_testing_library';
 import { render } from '../test/test_utils';
@@ -11,14 +10,11 @@ import { App } from './app';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
 let apiMock: ApiMock;
-let kiosk: MockKiosk;
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   apiMock = createApiMock();
-  kiosk = mockKiosk();
-  window.kiosk = kiosk;
 });
 
 afterEach(() => {

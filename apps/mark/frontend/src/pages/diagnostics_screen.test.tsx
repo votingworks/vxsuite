@@ -1,12 +1,9 @@
 import userEvent from '@testing-library/user-event';
-import {
-  advanceTimersAndPromises,
-  mockMarkerInfo,
-  mockOf,
-} from '@votingworks/test-utils';
+import { advanceTimersAndPromises, mockOf } from '@votingworks/test-utils';
 import { MemoryRouter } from 'react-router-dom';
 import { DateTime } from 'luxon';
 import { act } from 'react-dom/test-utils';
+import { IppMarkerInfo } from '@votingworks/types';
 import { render, screen } from '../../test/react_testing_library';
 import {
   DiagnosticsScreen,
@@ -16,6 +13,15 @@ import { AccessibleControllerDiagnosticScreen } from './accessible_controller_di
 import { ApiProvider } from '../api_provider';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS } from '../api';
+
+export const MOCK_MARKER_INFO: IppMarkerInfo = {
+  color: '#000000',
+  highLevel: 100,
+  level: 2,
+  lowLevel: 2,
+  name: 'black cartridge',
+  type: 'toner-cartridge',
+};
 
 jest.mock(
   './accessible_controller_diagnostic_screen',
@@ -103,7 +109,7 @@ describe('System Diagnostics screen: Printer section', () => {
       richStatus: {
         state: 'stopped',
         stateReasons: ['marker-supply-low-warning'],
-        markerInfos: [mockMarkerInfo({ level: 2 })],
+        markerInfos: [MOCK_MARKER_INFO],
       },
     });
 

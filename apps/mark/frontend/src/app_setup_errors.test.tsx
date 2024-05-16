@@ -1,6 +1,5 @@
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
-import { LOW_BATTERY_THRESHOLD } from '@votingworks/ui';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import {
   act,
@@ -16,6 +15,7 @@ import { advanceTimersAndPromises } from '../test/helpers/timers';
 import { withMarkup } from '../test/helpers/with_markup';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS } from './api';
+import { LOW_BATTERY_THRESHOLD } from './config/globals';
 
 let apiMock: ApiMock;
 
