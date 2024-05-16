@@ -15,15 +15,15 @@ import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 
 const PLAYWRIGHT_PIXELS_PER_INCH = 96;
 
-export interface InchDimensions {
+export interface PaperDimensions {
   width: number;
   height: number;
 }
 
-export const PaperDimensions = {
+export const PAPER_DIMENSIONS = {
   Letter: { width: 8.5, height: 11 },
   LetterRoll: { width: 8.5, height: Infinity },
-} satisfies Record<string, InchDimensions>;
+} satisfies Record<string, PaperDimensions>;
 
 const DEFAULT_PDF_MARGIN_INCHES = {
   top: 0.5,
@@ -58,7 +58,7 @@ function getContentHeight(page: Page): Promise<number> {
 
 export interface RenderSpec {
   document: JSX.Element | JSX.Element[];
-  dimensions?: InchDimensions;
+  dimensions?: PaperDimensions;
   outputPath?: string;
 }
 
@@ -84,7 +84,7 @@ export async function renderToPdf(
   for (const {
     document,
     outputPath,
-    dimensions: { width, height } = PaperDimensions.Letter,
+    dimensions: { width, height } = PAPER_DIMENSIONS.Letter,
   } of specs) {
     // set the viewport size such that the content is the same width as it will
     // be in the PDF, which allows us to determine the necessary height to fit
@@ -94,7 +94,7 @@ export async function renderToPdf(
       width:
         (width - DEFAULT_PDF_HORIZONTAL_MARGIN) * PLAYWRIGHT_PIXELS_PER_INCH,
       height:
-        (PaperDimensions.Letter.height - DEFAULT_PDF_VERTICAL_MARGIN) *
+        (PAPER_DIMENSIONS.Letter.height - DEFAULT_PDF_VERTICAL_MARGIN) *
         PLAYWRIGHT_PIXELS_PER_INCH,
     });
 
@@ -156,8 +156,8 @@ export async function renderToPdf(
         width: inchesToText(width),
         height: inchesToText(
           height === Infinity
-            ? Math.max(PaperDimensions.Letter.height, contentHeight)
-            : PaperDimensions.Letter.height
+            ? Math.max(PAPER_DIMENSIONS.Letter.height, contentHeight)
+            : PAPER_DIMENSIONS.Letter.height
         ),
         margin: mapObject(DEFAULT_PDF_MARGIN_INCHES, inchesToText),
         printBackground: true, // necessary to render shaded backgrounds

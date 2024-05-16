@@ -6,7 +6,7 @@ import {
   PrecinctScannerBallotCountReport,
   PrecinctScannerTallyReports,
 } from '@votingworks/ui';
-import { PaperDimensions, renderToPdf } from '@votingworks/printing';
+import { PAPER_DIMENSIONS, renderToPdf } from '@votingworks/printing';
 import { PrintResult } from '@votingworks/fujitsu-thermal-printer';
 import { Store } from '../store';
 import { getMachineConfig } from '../machine_config';
@@ -94,7 +94,7 @@ export async function printReportSection({
   const section = await getReportSection(store, index);
   const data = await renderToPdf({
     document: section,
-    dimensions: PaperDimensions.LetterRoll,
+    dimensions: PAPER_DIMENSIONS.LetterRoll,
   });
   return printer.print(data);
 }
