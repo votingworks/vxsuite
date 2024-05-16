@@ -1798,6 +1798,9 @@ importers:
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
+      '@types/kiosk-browser':
+        specifier: workspace:*
+        version: link:../../../libs/@types/kiosk-browser
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
@@ -2212,6 +2215,9 @@ importers:
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
+      '@types/kiosk-browser':
+        specifier: workspace:*
+        version: link:../../../libs/@types/kiosk-browser
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
