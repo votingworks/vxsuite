@@ -128,13 +128,13 @@ describe('Displays setup warning messages and errors screens', () => {
 
     // Disconnect Power
     act(() => {
-      hardware.setBatteryDischarging(true);
+      apiMock.setBatteryInfo({ discharging: true, level: 1 });
     });
     await screen.findByText(noPowerDetectedWarningText);
 
     // Reconnect Power
     act(() => {
-      hardware.setBatteryDischarging(false);
+      apiMock.setBatteryInfo({ discharging: false, level: 1 });
     });
     await waitForElementToBeRemoved(
       screen.queryByText(noPowerDetectedWarningText)
@@ -197,34 +197,45 @@ describe('Displays setup warning messages and errors screens', () => {
 
     // Remove charger and reduce battery level slightly
     act(() => {
-      hardware.setBatteryDischarging(true);
-      hardware.setBatteryLevel(0.6);
+      apiMock.setBatteryInfo({
+        discharging: true,
+        level: 0.6,
+      });
     });
     await screen.findByText(noPowerDetectedWarningText);
     screen.getByText(insertCardScreenText);
 
     // Battery level drains below low threshold
     act(() => {
-      hardware.setBatteryLevel(LOW_BATTERY_THRESHOLD / 2);
+      apiMock.setBatteryInfo({
+        discharging: true,
+        level: LOW_BATTERY_THRESHOLD / 2,
+      });
     });
     await findByTextWithMarkup(lowBatteryErrorScreenText);
 
     // Attach charger and back on Insert Card screen
     act(() => {
-      hardware.setBatteryDischarging(false);
+      apiMock.setBatteryInfo({
+        discharging: false,
+        level: LOW_BATTERY_THRESHOLD / 2,
+      });
     });
     await screen.findByText(insertCardScreenText);
     expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy();
 
     // Unplug charger and show warning again
     act(() => {
-      hardware.setBatteryDischarging(true);
+      apiMock.setBatteryInfo({
+        discharging: true,
+        level: LOW_BATTERY_THRESHOLD / 2,
+      });
     });
     await findByTextWithMarkup(lowBatteryErrorScreenText);
 
     // Remove battery, i.e. we're on a desktop
     act(() => {
-      hardware.removeBattery();
+      apiMock.setBatteryInfo();
     });
     await screen.findByText(insertCardScreenText);
     expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy();

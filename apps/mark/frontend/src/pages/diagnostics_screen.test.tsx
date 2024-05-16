@@ -59,15 +59,13 @@ beforeEach(() => {
 });
 
 describe('System Diagnostics screen: Computer section', () => {
-  it('shows the battery level and power cord status', () => {
-    const devices = mockDevices({
-      computer: { batteryLevel: 0.05, batteryIsLow: true },
-    });
-    const { unmount } = renderScreen({ devices });
+  it('shows the battery level and power cord status', async () => {
+    apiMock.setBatteryInfo({ level: 0.05, discharging: false });
+    const { unmount } = renderScreen();
 
     screen.getByRole('heading', { name: 'System Diagnostics' });
 
-    const batteryText = screen.getByText('Battery: 5%');
+    const batteryText = await screen.findByText('Battery: 5%');
     // The battery level always has a success icon, even when it's low, since
     // it's only an actionable problem if the computer is not connected to
     // power, and that would trigger a full-screen alert
@@ -80,13 +78,11 @@ describe('System Diagnostics screen: Computer section', () => {
     unmount();
   });
 
-  it('shows a warning when the power cord is not connected', () => {
-    const devices = mockDevices({
-      computer: { batteryIsCharging: false },
-    });
-    const { unmount } = renderScreen({ devices });
+  it('shows a warning when the power cord is not connected', async () => {
+    apiMock.setBatteryInfo({ level: 0.8, discharging: true });
+    const { unmount } = renderScreen();
 
-    const batteryText = screen.getByText('Battery: 80%');
+    const batteryText = await screen.findByText('Battery: 80%');
     expectToHaveSuccessIcon(batteryText);
     const powerCordText = screen.getByText(
       'No power cord connected. Connect power cord.'

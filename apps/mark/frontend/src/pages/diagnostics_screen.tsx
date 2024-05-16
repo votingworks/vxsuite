@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   Button,
-  ComputerStatus as ComputerStatusType,
   Devices,
   H1,
   H4,
@@ -17,13 +16,13 @@ import {
 import { formatTime } from '@votingworks/utils';
 import { useHistory, Switch, Route } from 'react-router-dom';
 import styled from 'styled-components';
-import { assert } from '@votingworks/basics';
 import { PrinterStatus } from '@votingworks/types';
+import type { BatteryInfo } from '@votingworks/backend';
 import {
   AccessibleControllerDiagnosticScreen,
   AccessibleControllerDiagnosticResults,
 } from './accessible_controller_diagnostic_screen';
-import { getPrinterStatus } from '../api';
+import { getPrinterStatus, systemCallApi } from '../api';
 
 const ButtonAndTimestamp = styled.div`
   display: flex;
@@ -40,17 +39,17 @@ const CHECKBOX_ICON = <Icons.Checkbox color="success" />;
 const WARNING_ICON = <Icons.Warning color="warning" />;
 
 interface ComputerStatusProps {
-  computer: ComputerStatusType;
+  batteryInfo?: BatteryInfo;
 }
 
-function ComputerStatus({ computer }: ComputerStatusProps) {
+function ComputerStatus({ batteryInfo }: ComputerStatusProps) {
   return (
     <React.Fragment>
       <P>
         {CHECKBOX_ICON} Battery:{' '}
-        {computer.batteryLevel && `${Math.round(computer.batteryLevel * 100)}%`}
+        {batteryInfo && `${Math.round(batteryInfo.level * 100)}%`}
       </P>
-      {computer.batteryIsCharging ? (
+      {!batteryInfo?.discharging ? (
         <P>{CHECKBOX_ICON} Power cord connected.</P>
       ) : (
         <P>{WARNING_ICON} No power cord connected. Connect power cord.</P>
@@ -106,11 +105,8 @@ export function DiagnosticsScreen({
   devices,
   onBackButtonPress,
 }: DiagnosticsScreenProps): JSX.Element {
-  // Since we show full-screen alerts for specific hardware states, there are
-  // certain cases that we will never see in this screen
-  assert(
-    !(devices.computer.batteryIsLow && !devices.computer.batteryIsCharging)
-  );
+  const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
+  const batteryInfo = batteryInfoQuery.data ?? undefined;
   const printerStatusQuery = getPrinterStatus.useQuery();
   const printerStatus: PrinterStatus = printerStatusQuery.isSuccess
     ? printerStatusQuery.data
@@ -142,7 +138,7 @@ export function DiagnosticsScreen({
                 To navigate through the available actions, use the down arrow.
               </span>
               <H4 as="h2">Computer</H4>
-              <ComputerStatus computer={devices.computer} />
+              <ComputerStatus batteryInfo={batteryInfo} />
               <H4 as="h2">Printer</H4>
               <PrinterStatusDisplay printerStatus={printerStatus} />
               <H4 as="h2">Accessible Controller</H4>

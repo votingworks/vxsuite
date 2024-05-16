@@ -35,6 +35,7 @@ import {
   useLanguageControls,
   InvalidCardScreen,
   useQueryChangeListener,
+  LOW_BATTERY_THRESHOLD,
 } from '@votingworks/ui';
 
 import { assert, throwIllegalValue } from '@votingworks/basics';
@@ -58,6 +59,7 @@ import {
   unconfigureMachine,
   updateCardlessVoterBallotStyle,
   getPrinterStatus,
+  systemCallApi,
 } from './api';
 
 import { Ballot } from './components/ballot';
@@ -161,8 +163,9 @@ export function AppRoot({
   const machineConfigQuery = getMachineConfig.useQuery();
 
   const devices = useDevices({ hardware, logger });
-  const { accessibleController, computer } = devices;
+  const { accessibleController } = devices;
 
+  const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
   const printerStatusQuery = getPrinterStatus.useQuery();
   const printerStatus: PrinterStatus = printerStatusQuery.isSuccess
     ? printerStatusQuery.data
@@ -371,12 +374,19 @@ export function AppRoot({
   if (
     !machineConfigQuery.isSuccess ||
     !authStatusQuery.isSuccess ||
-    !usbDriveStatusQuery.isSuccess
+    !usbDriveStatusQuery.isSuccess ||
+    !printerStatusQuery.isSuccess ||
+    !batteryInfoQuery.isSuccess
   ) {
     return null;
   }
   const usbDriveStatus = usbDriveStatusQuery.data;
   const machineConfig = machineConfigQuery.data;
+  const batteryInfo = batteryInfoQuery.data;
+  const batteryIsDischarging = batteryInfo ? batteryInfo.discharging : false;
+  const batteryIsLow = batteryInfo
+    ? batteryInfo.level < LOW_BATTERY_THRESHOLD
+    : false;
 
   if (
     authStatus.status === 'logged_out' &&
@@ -394,7 +404,7 @@ export function AppRoot({
     );
   }
 
-  if (computer.batteryIsLow && !computer.batteryIsCharging) {
+  if (batteryIsLow && batteryIsDischarging) {
     return <SetupPowerPage />;
   }
   if (authStatus.status === 'checking_pin') {
@@ -531,7 +541,7 @@ export function AppRoot({
           appPrecinct={appPrecinct}
           electionDefinition={optionalElectionDefinition}
           showNoAccessibleControllerWarning={!accessibleController}
-          showNoChargerAttachedWarning={!computer.batteryIsCharging}
+          showNoChargerAttachedWarning={batteryIsDischarging}
           isLiveMode={!isTestMode}
           pollsState={pollsState}
         />
