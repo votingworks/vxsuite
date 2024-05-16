@@ -3,7 +3,7 @@ import {
   mockElectionManagerUser,
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
-import { MemoryHardware, singlePrecinctSelectionFor } from '@votingworks/utils';
+import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { mockBaseLogger } from '@votingworks/logging';
 import { getContestDistrictName } from '@votingworks/types';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
@@ -43,7 +43,6 @@ test('MarkAndPrint end-to-end flow', async () => {
   const logger = mockBaseLogger();
   const electionDefinition = electionGeneralDefinition;
   const { electionHash } = electionDefinition;
-  const hardware = MemoryHardware.buildStandard();
   apiMock.expectGetMachineConfig({
     screenOrientation: 'portrait',
   });
@@ -53,12 +52,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectGetElectionDefinition(null);
   apiMock.expectGetElectionState();
   render(
-    <App
-      hardware={hardware}
-      reload={reload}
-      logger={logger}
-      apiClient={apiMock.mockApiClient}
-    />
+    <App reload={reload} logger={logger} apiClient={apiMock.mockApiClient} />
   );
   const getByTextWithMarkup = withMarkup(screen.getByText);
   const findByTextWithMarkup = withMarkup(screen.findByText);

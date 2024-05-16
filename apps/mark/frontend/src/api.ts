@@ -18,6 +18,7 @@ import {
 } from '@votingworks/ui';
 
 const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
+export const ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS = 3000;
 
 export type ApiClient = grout.Client<Api>;
 
@@ -92,6 +93,22 @@ export const getPrinterStatus = {
         return isUnchanged ? oldData : newData;
       },
     });
+  },
+} as const;
+
+export const getAccessibleControllerConnected = {
+  queryKey(): QueryKey {
+    return ['getAccessibleControllerConnected'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getAccessibleControllerConnected(),
+      {
+        refetchInterval: ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS,
+      }
+    );
   },
 } as const;
 

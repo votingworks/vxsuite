@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   Button,
-  Devices,
   H1,
   H4,
   LinkButton,
@@ -22,7 +21,11 @@ import {
   AccessibleControllerDiagnosticScreen,
   AccessibleControllerDiagnosticResults,
 } from './accessible_controller_diagnostic_screen';
-import { getPrinterStatus, systemCallApi } from '../api';
+import {
+  getAccessibleControllerConnected,
+  getPrinterStatus,
+  systemCallApi,
+} from '../api';
 
 const ButtonAndTimestamp = styled.div`
   display: flex;
@@ -59,15 +62,15 @@ function ComputerStatus({ batteryInfo }: ComputerStatusProps) {
 }
 
 interface AccessibleControllerStatusProps {
-  accessibleController?: KioskBrowser.Device;
+  accessibleControllerConnected: boolean;
   diagnosticResults?: AccessibleControllerDiagnosticResults;
 }
 
 function AccessibleControllerStatus({
-  accessibleController,
+  accessibleControllerConnected,
   diagnosticResults,
 }: AccessibleControllerStatusProps) {
-  if (!accessibleController) {
+  if (!accessibleControllerConnected) {
     return <P>{WARNING_ICON} No accessible controller connected.</P>;
   }
 
@@ -97,12 +100,10 @@ function AccessibleControllerStatus({
 }
 
 export interface DiagnosticsScreenProps {
-  devices: Devices;
   onBackButtonPress: () => void;
 }
 
 export function DiagnosticsScreen({
-  devices,
   onBackButtonPress,
 }: DiagnosticsScreenProps): JSX.Element {
   const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
@@ -111,6 +112,11 @@ export function DiagnosticsScreen({
   const printerStatus: PrinterStatus = printerStatusQuery.isSuccess
     ? printerStatusQuery.data
     : { connected: false };
+  const accessibleControllerConnectedQuery =
+    getAccessibleControllerConnected.useQuery();
+  const accessibleControllerConnected = Boolean(
+    accessibleControllerConnectedQuery.data
+  );
 
   const [
     accessibleControllerDiagnosticResults,
@@ -143,7 +149,7 @@ export function DiagnosticsScreen({
               <PrinterStatusDisplay printerStatus={printerStatus} />
               <H4 as="h2">Accessible Controller</H4>
               <AccessibleControllerStatus
-                accessibleController={devices.accessibleController}
+                accessibleControllerConnected={accessibleControllerConnected}
                 diagnosticResults={accessibleControllerDiagnosticResults}
               />
             </Prose>

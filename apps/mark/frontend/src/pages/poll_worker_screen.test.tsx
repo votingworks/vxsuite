@@ -29,7 +29,6 @@ import { defaultPrecinctId } from '../../test/helpers/election';
 
 import { PollWorkerScreen, PollworkerScreenProps } from './poll_worker_screen';
 import { mockMachineConfig } from '../../test/helpers/mock_machine_config';
-import { mockDevices } from '../../test/helpers/mock_devices';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { ApiProvider } from '../api_provider';
 
@@ -76,7 +75,6 @@ function renderScreen(
         pollsState="polls_open"
         ballotsPrintedCount={0}
         machineConfig={mockMachineConfig()}
-        devices={mockDevices()}
         reload={jest.fn()}
         {...props}
       />

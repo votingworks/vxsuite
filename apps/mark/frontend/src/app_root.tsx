@@ -15,7 +15,6 @@ import Gamepad from 'react-gamepad';
 import { useHistory } from 'react-router-dom';
 import { IdleTimerProvider } from 'react-idle-timer';
 import {
-  Hardware,
   isElectionManagerAuth,
   isCardlessVoterAuth,
   isPollWorkerAuth,
@@ -24,11 +23,8 @@ import {
   isVendorAuth,
 } from '@votingworks/utils';
 
-import { BaseLogger } from '@votingworks/logging';
-
 import {
   SetupCardReaderPage,
-  useDevices,
   UnlockMachineScreen,
   VoterSettingsManagerContext,
   useAudioControls,
@@ -60,6 +56,7 @@ import {
   updateCardlessVoterBallotStyle,
   getPrinterStatus,
   systemCallApi,
+  getAccessibleControllerConnected,
 } from './api';
 
 import { Ballot } from './components/ballot';
@@ -85,9 +82,7 @@ export interface VotingState {
 }
 
 export interface Props {
-  hardware: Hardware;
   reload: VoidFunction;
-  logger: BaseLogger;
 }
 
 export const stateStorageKey = 'state';
@@ -142,11 +137,7 @@ function votingStateReducer(
   }
 }
 
-export function AppRoot({
-  hardware,
-  reload,
-  logger,
-}: Props): JSX.Element | null {
+export function AppRoot({ reload }: Props): JSX.Element | null {
   const PostVotingInstructionsTimeout = useRef(0);
   const [votingState, dispatchVotingState] = useReducer(
     votingStateReducer,
@@ -162,9 +153,6 @@ export function AppRoot({
 
   const machineConfigQuery = getMachineConfig.useQuery();
 
-  const devices = useDevices({ hardware, logger });
-  const { accessibleController } = devices;
-
   const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
   const printerStatusQuery = getPrinterStatus.useQuery();
   const printerStatus: PrinterStatus = printerStatusQuery.isSuccess
@@ -176,6 +164,11 @@ export function AppRoot({
   const authStatus = authStatusQuery.isSuccess
     ? authStatusQuery.data
     : InsertedSmartCardAuth.DEFAULT_AUTH_STATUS;
+  const accessibleControllerConnectedQuery =
+    getAccessibleControllerConnected.useQuery();
+  const accessibleControllerConnected = Boolean(
+    accessibleControllerConnectedQuery.data
+  );
 
   const checkPinMutation = checkPin.useMutation();
   const startCardlessVoterSessionMutation =
@@ -376,7 +369,8 @@ export function AppRoot({
     !authStatusQuery.isSuccess ||
     !usbDriveStatusQuery.isSuccess ||
     !printerStatusQuery.isSuccess ||
-    !batteryInfoQuery.isSuccess
+    !batteryInfoQuery.isSuccess ||
+    !accessibleControllerConnectedQuery.isSuccess
   ) {
     return null;
   }
@@ -492,7 +486,6 @@ export function AppRoot({
           pollsState={pollsState}
           ballotsPrintedCount={ballotsPrintedCount}
           machineConfig={machineConfig}
-          devices={devices}
           hasVotes={!!votes}
           reload={reload}
         />
@@ -540,7 +533,7 @@ export function AppRoot({
         <InsertCardScreen
           appPrecinct={appPrecinct}
           electionDefinition={optionalElectionDefinition}
-          showNoAccessibleControllerWarning={!accessibleController}
+          showNoAccessibleControllerWarning={!accessibleControllerConnected}
           showNoChargerAttachedWarning={batteryIsDischarging}
           isLiveMode={!isTestMode}
           pollsState={pollsState}

@@ -1,4 +1,4 @@
-import { MemoryHardware, singlePrecinctSelectionFor } from '@votingworks/utils';
+import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { getContestDistrictName } from '@votingworks/types';
 
 import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
@@ -49,7 +49,6 @@ const precinctId = '6526';
 test('Can vote on a Mississippi Either Neither Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
-  const hardware = MemoryHardware.buildStandard();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(electionDefinition);
@@ -59,13 +58,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
     pollsState: 'polls_open',
   });
 
-  render(
-    <App
-      hardware={hardware}
-      apiClient={apiMock.mockApiClient}
-      reload={jest.fn()}
-    />
-  );
+  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
   await advanceTimersAndPromises();
 
   // Start voter session

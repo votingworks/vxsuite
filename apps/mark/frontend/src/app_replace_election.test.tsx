@@ -1,4 +1,4 @@
-import { ALL_PRECINCTS_SELECTION, MemoryHardware } from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import {
   electionTwoPartyPrimaryDefinition,
   electionGeneralDefinition,
@@ -28,7 +28,6 @@ afterEach(() => {
 jest.setTimeout(2000);
 
 test('app renders a notice when election hash on card does not match that of machine config', async () => {
-  const hardware = MemoryHardware.buildStandard();
   apiMock.expectGetMachineConfig();
   // Set up an already-configured election
   apiMock.expectGetSystemSettings(DEFAULT_SYSTEM_SETTINGS);
@@ -40,13 +39,7 @@ test('app renders a notice when election hash on card does not match that of mac
     pollsState: 'polls_open',
   });
 
-  render(
-    <App
-      hardware={hardware}
-      apiClient={apiMock.mockApiClient}
-      reload={jest.fn()}
-    />
-  );
+  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
 
   // insert election manager card with different election
   apiMock.setAuthStatusElectionManagerLoggedIn(

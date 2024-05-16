@@ -1,6 +1,5 @@
 import {
   ALL_PRECINCTS_SELECTION,
-  MemoryHardware,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
@@ -33,7 +32,6 @@ const CENTER_SPRINGFIELD_PRECINCT_SELECTION = singlePrecinctSelectionFor('23');
 
 test('poll worker selects ballot style, voter votes', async () => {
   const electionDefinition = electionGeneralDefinition;
-  const hardware = MemoryHardware.buildStandard();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
@@ -41,13 +39,7 @@ test('poll worker selects ballot style, voter votes', async () => {
     precinctSelection: CENTER_SPRINGFIELD_PRECINCT_SELECTION,
     pollsState: 'polls_open',
   });
-  render(
-    <App
-      hardware={hardware}
-      apiClient={apiMock.mockApiClient}
-      reload={jest.fn()}
-    />
-  );
+  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
   const findByTextWithMarkup = withMarkup(screen.findByText);
 
   await screen.findByText('Insert Card');
@@ -193,7 +185,6 @@ test('poll worker selects ballot style, voter votes', async () => {
 
 test('in "All Precincts" mode, poll worker must select a precinct first', async () => {
   const electionDefinition = electionGeneralDefinition;
-  const hardware = MemoryHardware.buildStandard();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
@@ -201,13 +192,7 @@ test('in "All Precincts" mode, poll worker must select a precinct first', async 
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',
   });
-  render(
-    <App
-      hardware={hardware}
-      apiClient={apiMock.mockApiClient}
-      reload={jest.fn()}
-    />
-  );
+  render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
   const findByTextWithMarkup = withMarkup(screen.findByText);
 
   await screen.findByText('Insert Card');

@@ -1,4 +1,4 @@
-import { MemoryHardware, ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 
 import { LOW_BATTERY_THRESHOLD } from '@votingworks/ui';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
@@ -15,6 +15,7 @@ import { advanceTimersAndPromises } from '../test/helpers/timers';
 
 import { withMarkup } from '../test/helpers/with_markup';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
+import { ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS } from './api';
 
 let apiMock: ApiMock;
 
@@ -36,22 +37,13 @@ const noPowerDetectedWarningText = 'No Power Detected.';
 describe('Displays setup warning messages and errors screens', () => {
   it('Displays warning if Accessible Controller connection is lost', async () => {
     apiMock.expectGetMachineConfig();
-    const hardware = MemoryHardware.buildStandard();
-    hardware.setAccessibleControllerConnected(true);
-
     apiMock.expectGetElectionDefinition(electionGeneralDefinition);
     apiMock.expectGetElectionState({
       precinctSelection: ALL_PRECINCTS_SELECTION,
       pollsState: 'polls_open',
     });
 
-    render(
-      <App
-        hardware={hardware}
-        apiClient={apiMock.mockApiClient}
-        reload={jest.fn()}
-      />
-    );
+    render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
     const accessibleControllerWarningText =
       'Voting with an accessible controller is not currently available.';
 
@@ -61,37 +53,34 @@ describe('Displays setup warning messages and errors screens', () => {
 
     // Disconnect Accessible Controller
     act(() => {
-      hardware.setAccessibleControllerConnected(false);
+      apiMock.setAccessibleControllerConnected(false);
     });
-    await advanceTimersAndPromises();
+    await advanceTimersAndPromises(
+      ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS / 1000
+    );
     screen.getByText(accessibleControllerWarningText);
     screen.getByText(insertCardScreenText);
 
     // Reconnect Accessible Controller
     act(() => {
-      hardware.setAccessibleControllerConnected(true);
+      apiMock.setAccessibleControllerConnected(true);
     });
-    await advanceTimersAndPromises();
+    await advanceTimersAndPromises(
+      ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS / 1000
+    );
     expect(screen.queryByText(accessibleControllerWarningText)).toBeFalsy();
     screen.getByText(insertCardScreenText);
   });
 
   it('Displays error screen if Card Reader connection is lost', async () => {
     apiMock.expectGetMachineConfig();
-    const hardware = MemoryHardware.buildStandard();
     apiMock.expectGetElectionDefinition(electionGeneralDefinition);
     apiMock.expectGetElectionState({
       precinctSelection: ALL_PRECINCTS_SELECTION,
       pollsState: 'polls_open',
     });
 
-    render(
-      <App
-        hardware={hardware}
-        apiClient={apiMock.mockApiClient}
-        reload={jest.fn()}
-      />
-    );
+    render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
 
     // Start on Insert Card screen
     await screen.findByText(insertCardScreenText);
@@ -109,20 +98,13 @@ describe('Displays setup warning messages and errors screens', () => {
 
   it('Displays error screen if Power connection is lost', async () => {
     apiMock.expectGetMachineConfig();
-    const hardware = MemoryHardware.buildStandard();
     apiMock.expectGetElectionDefinition(electionGeneralDefinition);
     apiMock.expectGetElectionState({
       precinctSelection: ALL_PRECINCTS_SELECTION,
       pollsState: 'polls_open',
     });
 
-    render(
-      <App
-        hardware={hardware}
-        apiClient={apiMock.mockApiClient}
-        reload={jest.fn()}
-      />
-    );
+    render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
 
     await screen.findByText('Insert Card');
 
@@ -143,20 +125,13 @@ describe('Displays setup warning messages and errors screens', () => {
 
   it('Admin screen trumps "No Printer Detected" error', async () => {
     apiMock.expectGetMachineConfig();
-    const hardware = MemoryHardware.buildStandard();
     apiMock.expectGetElectionDefinition(electionGeneralDefinition);
     apiMock.expectGetElectionState({
       precinctSelection: ALL_PRECINCTS_SELECTION,
       pollsState: 'polls_open',
     });
 
-    render(
-      <App
-        hardware={hardware}
-        apiClient={apiMock.mockApiClient}
-        reload={jest.fn()}
-      />
-    );
+    render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
 
     await screen.findByText('Insert Card');
 
@@ -176,20 +151,13 @@ describe('Displays setup warning messages and errors screens', () => {
 
   it('Displays "discharging battery" warning message and "discharging battery + low battery" error screen', async () => {
     apiMock.expectGetMachineConfig();
-    const hardware = MemoryHardware.buildStandard();
     apiMock.expectGetElectionDefinition(electionGeneralDefinition);
     apiMock.expectGetElectionState({
       precinctSelection: ALL_PRECINCTS_SELECTION,
       pollsState: 'polls_open',
     });
 
-    render(
-      <App
-        hardware={hardware}
-        apiClient={apiMock.mockApiClient}
-        reload={jest.fn()}
-      />
-    );
+    render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
     const findByTextWithMarkup = withMarkup(screen.findByText);
 
     // Start on Insert Card screen

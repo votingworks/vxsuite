@@ -1,16 +1,21 @@
 import userEvent from '@testing-library/user-event';
-import { mockMarkerInfo, mockOf } from '@votingworks/test-utils';
+import {
+  advanceTimersAndPromises,
+  mockMarkerInfo,
+  mockOf,
+} from '@votingworks/test-utils';
 import { MemoryRouter } from 'react-router-dom';
 import { DateTime } from 'luxon';
+import { act } from 'react-dom/test-utils';
 import { render, screen } from '../../test/react_testing_library';
 import {
   DiagnosticsScreen,
   DiagnosticsScreenProps,
 } from './diagnostics_screen';
-import { mockDevices } from '../../test/helpers/mock_devices';
 import { AccessibleControllerDiagnosticScreen } from './accessible_controller_diagnostic_screen';
 import { ApiProvider } from '../api_provider';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
+import { ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS } from '../api';
 
 jest.mock(
   './accessible_controller_diagnostic_screen',
@@ -44,11 +49,7 @@ function renderScreen(props: Partial<DiagnosticsScreenProps> = {}) {
   return render(
     <ApiProvider apiClient={apiMock.mockApiClient} noAudio>
       <MemoryRouter>
-        <DiagnosticsScreen
-          devices={mockDevices()}
-          onBackButtonPress={jest.fn()}
-          {...props}
-        />
+        <DiagnosticsScreen onBackButtonPress={jest.fn()} {...props} />
       </MemoryRouter>
     </ApiProvider>
   );
@@ -118,7 +119,7 @@ describe('System Diagnostics screen: Printer section', () => {
 });
 
 describe('System Diagnostics screen: Accessible Controller section', () => {
-  it('shows the connection status, has a button to open test, and shows test results', () => {
+  it('shows the connection status, has a button to open test, and shows test results', async () => {
     mockOf(AccessibleControllerDiagnosticScreen).mockImplementation((props) => {
       const { onCancel, onComplete } = props;
 
@@ -136,8 +137,7 @@ describe('System Diagnostics screen: Accessible Controller section', () => {
 
     const { unmount } = renderScreen();
 
-    const connectionText = screen.getByText('Accessible controller connected.');
-    expectToHaveSuccessIcon(connectionText);
+    await screen.findByText('Accessible controller connected.');
 
     expect(screen.queryByTestId('mockPass')).not.toBeInTheDocument();
 
@@ -162,15 +162,28 @@ describe('System Diagnostics screen: Accessible Controller section', () => {
     unmount();
   });
 
-  it('shows when the controller is disconnected', () => {
-    const devices = mockDevices();
-    devices.accessibleController = undefined;
-    const { unmount } = renderScreen({ devices });
+  it('shows connection status', async () => {
+    const { unmount } = renderScreen();
 
-    const connectionText = screen.getByText(
+    const connectedText = await screen.findByText(
+      'Accessible controller connected.'
+    );
+    expectToHaveSuccessIcon(connectedText);
+    expect(
+      screen.queryByText('Start Accessible Controller Test')
+    ).toBeInTheDocument();
+
+    act(() => {
+      apiMock.setAccessibleControllerConnected(false);
+    });
+    await advanceTimersAndPromises(
+      ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS / 1000
+    );
+
+    const disconnectedText = await screen.findByText(
       'No accessible controller connected.'
     );
-    expectToHaveWarningIcon(connectionText);
+    expectToHaveWarningIcon(disconnectedText);
     expect(
       screen.queryByText('Start Accessible Controller Test')
     ).not.toBeInTheDocument();
@@ -178,7 +191,7 @@ describe('System Diagnostics screen: Accessible Controller section', () => {
     unmount();
   });
 
-  it('shows failed test results', () => {
+  it('shows failed test results', async () => {
     mockOf(AccessibleControllerDiagnosticScreen).mockImplementation((props) => (
       <button
         data-testid="mockFail"
@@ -195,6 +208,7 @@ describe('System Diagnostics screen: Accessible Controller section', () => {
 
     const { unmount } = renderScreen();
 
+    await screen.findByText('Accessible controller connected.');
     userEvent.click(screen.getByText('Start Accessible Controller Test'));
 
     userEvent.click(screen.getByTestId('mockFail'));

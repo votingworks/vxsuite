@@ -1,5 +1,5 @@
 import { mockOf } from '@votingworks/test-utils';
-import { ALL_PRECINCTS_SELECTION, MemoryHardware } from '@votingworks/utils';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { ContestPage, ContestPageProps } from '@votingworks/mark-flow-ui';
@@ -73,7 +73,6 @@ afterEach(() => {
 it('Single Seat Contest with Write In', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
 
-  const hardware = MemoryHardware.buildStandard();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetElectionDefinition(electionGeneralDefinition);
   apiMock.expectGetElectionState({
@@ -85,13 +84,8 @@ it('Single Seat Contest with Write In', async () => {
   const { fireUpdateVoteEvent, getLatestVotes, goToReviewPage } =
     setUpMockContestPage();
 
-  render(
-    <App
-      hardware={hardware}
-      apiClient={apiMock.mockApiClient}
-      reload={jest.fn()}
-    />
-  );
+  const app = <App apiClient={apiMock.mockApiClient} />;
+  const { rerender } = render(app);
   await advanceTimersAndPromises();
 
   // Start voter session
@@ -130,6 +124,7 @@ it('Single Seat Contest with Write In', async () => {
 
   // Go to review page and confirm write in exists
   act(() => goToReviewPage());
+  rerender(app); // no component change so we need to force a rerender
 
   // Review Screen
   await screen.findByText('Review Your Votes');

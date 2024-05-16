@@ -12,7 +12,6 @@ import {
 import {
   Button,
   ButtonList,
-  Devices,
   HorizontalRule,
   Main,
   Modal,
@@ -142,7 +141,6 @@ export interface PollworkerScreenProps {
   pollsState: PollsState;
   ballotsPrintedCount: number;
   machineConfig: MachineConfig;
-  devices: Devices;
   reload: () => void;
 }
 
@@ -156,7 +154,6 @@ export function PollWorkerScreen({
   pollsState,
   ballotsPrintedCount,
   machineConfig,
-  devices,
   hasVotes,
   reload,
 }: PollworkerScreenProps): JSX.Element {
@@ -274,7 +271,6 @@ export function PollWorkerScreen({
   if (isDiagnosticsScreenOpen) {
     return (
       <DiagnosticsScreen
-        devices={devices}
         onBackButtonPress={() => setIsDiagnosticsScreenOpen(false)}
       />
     );

@@ -18,6 +18,7 @@ module.exports = {
     '!src/index.ts',
     '!src/types.ts',
     '!test/**/*',
+    '!src/util/accessible_controller.ts',
   ],
   coverageThreshold: {
     global: {

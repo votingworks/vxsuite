@@ -53,7 +53,11 @@ interface CardlessVoterUserParams {
 
 type MockApiClient = Omit<
   MockClient<Api>,
-  'getAuthStatus' | 'getUsbDriveStatus' | 'getPrinterStatus' | 'getBatteryInfo'
+  | 'getAuthStatus'
+  | 'getUsbDriveStatus'
+  | 'getPrinterStatus'
+  | 'getBatteryInfo'
+  | 'getAccessibleControllerConnected'
 > & {
   // Because this is polled so frequently, we opt for a standard jest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
@@ -61,6 +65,7 @@ type MockApiClient = Omit<
   getBatteryInfo: jest.Mock;
   getPrinterStatus: jest.Mock;
   getUsbDriveStatus: jest.Mock;
+  getAccessibleControllerConnected: jest.Mock;
 };
 
 function createMockApiClient(): MockApiClient {
@@ -82,6 +87,8 @@ function createMockApiClient(): MockApiClient {
   (mockApiClient.getUsbDriveStatus as unknown as jest.Mock) = jest.fn(() =>
     Promise.resolve({ status: 'no_drive' })
   );
+  (mockApiClient.getAccessibleControllerConnected as unknown as jest.Mock) =
+    jest.fn(() => Promise.resolve(true));
   return mockApiClient as unknown as MockApiClient;
 }
 
@@ -119,6 +126,12 @@ export function createApiMock() {
     );
   }
 
+  function setAccessibleControllerConnected(connected: boolean): void {
+    mockApiClient.getAccessibleControllerConnected.mockImplementation(() =>
+      Promise.resolve(connected)
+    );
+  }
+
   const electionStateRef: { current: ElectionState } = {
     current: initialElectionState,
   };
@@ -131,6 +144,8 @@ export function createApiMock() {
     setPrinterStatus,
 
     setUsbDriveStatus,
+
+    setAccessibleControllerConnected,
 
     setAuthStatus,
 

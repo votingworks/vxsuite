@@ -36,6 +36,7 @@ import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
 import { ElectionState, PrintBallotProps } from './types';
 import { printBallot } from './util/print_ballot';
+import { isAccessibleControllerAttached } from './util/accessible_controller';
 
 function constructAuthMachineState(
   workspace: Workspace
@@ -88,6 +89,10 @@ export function buildApi(
 
     getPrinterStatus(): Promise<PrinterStatus> {
       return printer.status();
+    },
+
+    getAccessibleControllerConnected(): boolean {
+      return isAccessibleControllerAttached();
     },
 
     updateSessionExpiry(input: { sessionExpiresAt: Date }) {
