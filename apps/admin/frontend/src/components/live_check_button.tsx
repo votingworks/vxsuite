@@ -37,7 +37,7 @@ export function LiveCheckButton(): JSX.Element {
 
   return (
     <React.Fragment>
-      <Button onPress={openLiveCheckModal}>Live Check</Button>
+      <Button onPress={openLiveCheckModal}>Hash Validation</Button>
       {isLiveCheckModalOpen && <LiveCheckModal onClose={closeLiveCheckModal} />}
     </React.Fragment>
   );
