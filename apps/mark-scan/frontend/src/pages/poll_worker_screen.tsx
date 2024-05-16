@@ -55,6 +55,7 @@ import {
 } from '../api';
 import { PaperHandlerHardwareCheckDisabledScreen } from './paper_handler_hardware_check_disabled_screen';
 import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
+import { LiveCheckButton } from '../components/live_check_button';
 
 const VotingSession = styled.div`
   margin: 30px 0 60px;
@@ -423,6 +424,13 @@ export function PollWorkerScreen({
                   }
                 )}
               </P>
+              {isFeatureFlagEnabled(
+                BooleanEnvironmentVariableName.LIVECHECK
+              ) && (
+                /* istanbul ignore next */ <P>
+                  <LiveCheckButton />
+                </P>
+              )}
             </React.Fragment>
           )}
         </Prose>
