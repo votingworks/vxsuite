@@ -14,6 +14,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   PollsState,
   PrecinctSelection,
+  PrinterStatus,
 } from '@votingworks/types';
 import {
   getPrecinctSelectionName,
@@ -30,9 +31,11 @@ import {
 import { LogEventId, Logger } from '@votingworks/logging';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
+import { Printer } from '@votingworks/printing';
 import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
-import { ElectionState } from './types';
+import { ElectionState, PrintBallotProps } from './types';
+import { printBallot } from './util/print_ballot';
 
 function constructAuthMachineState(
   workspace: Workspace
@@ -52,6 +55,7 @@ function constructAuthMachineState(
 export function buildApi(
   auth: InsertedSmartCardAuthApi,
   usbDrive: UsbDrive,
+  printer: Printer,
   logger: Logger,
   workspace: Workspace
 ) {
@@ -80,6 +84,10 @@ export function buildApi(
 
     async ejectUsbDrive(): Promise<void> {
       return usbDrive.eject();
+    },
+
+    getPrinterStatus(): Promise<PrinterStatus> {
+      return printer.status();
     },
 
     updateSessionExpiry(input: { sessionExpiresAt: Date }) {
@@ -184,8 +192,13 @@ export function buildApi(
       machineId: getMachineConfig().machineId,
     }),
 
-    incrementBallotsPrintedCount() {
+    async printBallot(input: PrintBallotProps) {
       store.setBallotsPrintedCount(store.getBallotsPrintedCount() + 1);
+      await printBallot({
+        store,
+        printer,
+        ...input,
+      });
     },
 
     async setPollsState(input: { pollsState: PollsState }) {
@@ -257,10 +270,11 @@ export function buildApp(
   auth: InsertedSmartCardAuthApi,
   logger: Logger,
   workspace: Workspace,
-  usbDrive: UsbDrive
+  usbDrive: UsbDrive,
+  printer: Printer
 ): Application {
   const app: Application = express();
-  const api = buildApi(auth, usbDrive, logger, workspace);
+  const api = buildApi(auth, usbDrive, printer, logger, workspace);
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express, 'mark');
   return app;

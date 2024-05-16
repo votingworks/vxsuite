@@ -3,13 +3,6 @@ import {
   MemoryHardware,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import {
-  MockKiosk,
-  expectPrint,
-  mockKiosk,
-  mockPrintElement,
-  mockPrintElementWhenReady,
-} from '@votingworks/test-utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import userEvent from '@testing-library/user-event';
 import { render, screen, within } from '../test/react_testing_library';
@@ -22,21 +15,12 @@ import { withMarkup } from '../test/helpers/with_markup';
 import { advanceTimersAndPromises } from '../test/helpers/timers';
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
-  ...jest.requireActual('@votingworks/ui'),
-  printElementWhenReady: mockPrintElementWhenReady,
-  printElement: mockPrintElement,
-}));
-
 let apiMock: ApiMock;
-let kiosk: MockKiosk;
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   apiMock = createApiMock();
-  kiosk = mockKiosk();
-  window.kiosk = kiosk;
 });
 
 afterEach(() => {
@@ -174,13 +158,18 @@ test('poll worker selects ballot style, voter votes', async () => {
   }
 
   // Advance to print ballot
-  apiMock.expectIncrementBallotsPrintedCount();
+  apiMock.expectPrintBallot({
+    ballotStyleId: '12',
+    precinctId: '23',
+    votes: {
+      [presidentContest.id]: [presidentContest.candidates[0]],
+    },
+  });
   apiMock.expectGetElectionState({
     ballotsPrintedCount: 1,
   });
   userEvent.click(screen.getByText(/Print My ballot/i));
   screen.getByText(/Printing Your Official Ballot/i);
-  await expectPrint();
 
   // Reset ballot
   await advanceTimersAndPromises();

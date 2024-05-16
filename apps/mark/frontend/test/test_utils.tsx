@@ -31,7 +31,6 @@ export function render(
     machineConfig = mockMachineConfig(),
     precinctId,
     resetBallot = jest.fn(),
-    updateTally = jest.fn(),
     updateVote = jest.fn(),
     votes = {},
   }: {
@@ -48,7 +47,6 @@ export function render(
     precinctId?: PrecinctId;
     resetBallot?(): void;
     setUserSettings?(): void;
-    updateTally?(): void;
     updateVote?(): void;
     votes?: VotesDict;
   } = {}
@@ -67,7 +65,6 @@ export function render(
           endVoterSession,
           precinctId,
           resetBallot,
-          updateTally,
           updateVote,
           votes,
         }}

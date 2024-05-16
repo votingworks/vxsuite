@@ -17,6 +17,8 @@ import {
   createUiStringsApi,
 } from '@votingworks/ui';
 
+const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
+
 export type ApiClient = grout.Client<Api>;
 
 export function createApiClient(): ApiClient {
@@ -67,6 +69,27 @@ export const ejectUsbDrive = {
     return useMutation(apiClient.ejectUsbDrive, {
       async onSuccess() {
         await queryClient.invalidateQueries(getUsbDriveStatus.queryKey());
+      },
+    });
+  },
+} as const;
+
+export const getPrinterStatus = {
+  queryKey(): QueryKey {
+    return ['getPrinterStatus'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getPrinterStatus(), {
+      refetchInterval: PRINTER_STATUS_POLLING_INTERVAL_MS,
+      structuralSharing(oldData, newData) {
+        if (!oldData) {
+          return newData;
+        }
+
+        // Prevent unnecessary re-renders of dependent components
+        const isUnchanged = deepEqual(oldData, newData);
+        return isUnchanged ? oldData : newData;
       },
     });
   },
@@ -255,11 +278,11 @@ export const setPollsState = {
   },
 } as const;
 
-export const incrementBallotsPrintedCount = {
+export const printBallot = {
   useMutation() {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
-    return useMutation(apiClient.incrementBallotsPrintedCount, {
+    return useMutation(apiClient.printBallot, {
       async onSuccess() {
         await queryClient.invalidateQueries(getElectionState.queryKey());
       },

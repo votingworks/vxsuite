@@ -5,7 +5,6 @@ export * from './backend_wait_for';
 export * from './child_process';
 export * from './compressed_tallies';
 export * from './console';
-export * from './expect_print';
 export * from './mock_file_writer';
 export * from './mock_kiosk';
 export * from './mock_printer';

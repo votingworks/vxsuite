@@ -66,6 +66,11 @@ export function runUiStringMachineConfigurationTests(
       appStrings[LanguageCode.SPANISH]
     );
     expect(store.getUiStrings(LanguageCode.CHINESE_TRADITIONAL)).toBeNull();
+
+    expect(store.getAllUiStrings()).toEqual({
+      [LanguageCode.ENGLISH]: store.getUiStrings(LanguageCode.ENGLISH),
+      [LanguageCode.SPANISH]: store.getUiStrings(LanguageCode.SPANISH),
+    });
   });
 
   test('is a no-op for missing uiStrings package', async () => {

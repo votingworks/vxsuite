@@ -13,6 +13,7 @@ import {
 } from '@votingworks/utils';
 import { detectUsbDrive } from '@votingworks/usb-drive';
 import { initializeSystemAudio } from '@votingworks/backend';
+import { detectPrinter } from '@votingworks/printing';
 import { buildApp } from './app';
 import { Workspace } from './util/workspace';
 import { getUserRole } from './util/auth';
@@ -54,10 +55,11 @@ export async function start({
     /* istanbul ignore next */ () => getUserRole(resolvedAuth, workspace)
   );
   const usbDrive = detectUsbDrive(logger);
+  const printer = detectPrinter(logger);
 
   await initializeSystemAudio();
 
-  const app = buildApp(resolvedAuth, logger, workspace, usbDrive);
+  const app = buildApp(resolvedAuth, logger, workspace, usbDrive, printer);
 
   return app.listen(
     port,

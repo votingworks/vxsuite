@@ -5,6 +5,7 @@ import type {
   Api,
   MachineConfig,
   ElectionState,
+  PrintBallotProps,
 } from '@votingworks/mark-backend';
 import {
   ElectionPackageConfigurationError,
@@ -16,6 +17,9 @@ import {
   PrecinctId,
   PrecinctSelection,
   SystemSettings,
+  LanguageCode,
+  PrinterStatus,
+  PrinterConfig,
 } from '@votingworks/types';
 import {
   mockCardlessVoterUser,
@@ -31,6 +35,16 @@ import { mockMachineConfig } from './mock_machine_config';
 import { initialElectionState } from '../../src/app_root';
 import { ApiProvider } from '../../src/api_provider';
 
+// the below is copied from libs/printing to avoid importing a backend package
+export const MOCK_PRINTER_CONFIG: PrinterConfig = {
+  label: 'HP LaserJet Pro M404n',
+  vendorId: 1008,
+  productId: 49450,
+  baseDeviceUri: 'usb://HP/LaserJet%20Pro%20M404-M405',
+  ppd: 'generic-postscript-driver.ppd',
+  supportsIpp: true,
+};
+
 interface CardlessVoterUserParams {
   ballotStyleId: BallotStyleId;
   precinctId: PrecinctId;
@@ -43,6 +57,7 @@ type MockApiClient = Omit<
   // Because this is polled so frequently, we opt for a standard jest mock instead of a
   // libs/test-utils mock since the latter requires every call to be explicitly mocked
   getAuthStatus: jest.Mock;
+  getPrinterStatus: jest.Mock;
   getUsbDriveStatus: jest.Mock;
 };
 
@@ -52,6 +67,12 @@ function createMockApiClient(): MockApiClient {
   // of the mockApiClient, so we override like this instead
   (mockApiClient.getAuthStatus as unknown as jest.Mock) = jest.fn(() =>
     Promise.resolve({ status: 'logged_out', reason: 'no_card' })
+  );
+  (mockApiClient.getPrinterStatus as unknown as jest.Mock) = jest.fn(() =>
+    Promise.resolve({
+      connected: true,
+      config: MOCK_PRINTER_CONFIG,
+    })
   );
   (mockApiClient.getUsbDriveStatus as unknown as jest.Mock) = jest.fn(() =>
     Promise.resolve({ status: 'no_drive' })
@@ -73,6 +94,16 @@ export function createApiMock() {
     );
   }
 
+  function setPrinterStatus(printerStatus: Partial<PrinterStatus> = {}): void {
+    mockApiClient.getPrinterStatus.mockImplementation(() =>
+      Promise.resolve({
+        connected: true,
+        config: MOCK_PRINTER_CONFIG,
+        ...printerStatus,
+      })
+    );
+  }
+
   function setUsbDriveStatus(usbDriveStatus: UsbDriveStatus): void {
     mockApiClient.getUsbDriveStatus.mockImplementation(() =>
       Promise.resolve(usbDriveStatus)
@@ -85,6 +116,8 @@ export function createApiMock() {
 
   return {
     mockApiClient,
+
+    setPrinterStatus,
 
     setUsbDriveStatus,
 
@@ -232,8 +265,17 @@ export function createApiMock() {
         .resolves();
     },
 
-    expectIncrementBallotsPrintedCount() {
-      mockApiClient.incrementBallotsPrintedCount.expectCallWith().resolves();
+    expectPrintBallot(
+      input: Omit<PrintBallotProps, 'languageCode'> & {
+        languageCode?: LanguageCode;
+      }
+    ) {
+      mockApiClient.printBallot
+        .expectCallWith({
+          languageCode: LanguageCode.ENGLISH,
+          ...input,
+        })
+        .resolves();
     },
   };
 }

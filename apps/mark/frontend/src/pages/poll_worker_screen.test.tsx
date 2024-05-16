@@ -10,7 +10,6 @@ import {
 
 import {
   singlePrecinctSelectionFor,
-  MemoryHardware,
   generateBallotStyleId,
   extractBallotStyleGroupId,
 } from '@votingworks/utils';
@@ -77,7 +76,6 @@ function renderScreen(
         pollsState="polls_open"
         ballotsPrintedCount={0}
         machineConfig={mockMachineConfig()}
-        hardware={MemoryHardware.buildStandard()}
         devices={mockDevices()}
         reload={jest.fn()}
         {...props}

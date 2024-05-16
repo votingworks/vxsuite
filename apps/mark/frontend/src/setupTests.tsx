@@ -4,7 +4,6 @@ import 'jest-styled-components';
 import '@testing-library/jest-dom/extend-expect';
 import fetchMock from 'fetch-mock';
 import { TextDecoder, TextEncoder } from 'util';
-import { expectTestToEndWithAllPrintsAsserted } from '@votingworks/test-utils';
 import { configure } from '../test/react_testing_library';
 import './polyfills';
 
@@ -29,7 +28,6 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  expectTestToEndWithAllPrintsAsserted();
   fetchMock.restore();
 });
 

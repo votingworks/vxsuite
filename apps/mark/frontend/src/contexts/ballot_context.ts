@@ -14,7 +14,6 @@ const ballot: BallotContextInterface = {
   generateBallotId: () => '',
   endVoterSession: () => Promise.resolve(),
   resetBallot: () => undefined,
-  updateTally: () => undefined,
   updateVote: () => undefined,
   votes: {},
 };

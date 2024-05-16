@@ -1,6 +1,5 @@
-import { renderToPdf } from '@votingworks/printing';
+import { PrintSides, Printer, renderToPdf } from '@votingworks/printing';
 import { LanguageCode, VotesDict } from '@votingworks/types';
-import { Buffer } from 'buffer';
 
 import { assertDefined } from '@votingworks/basics';
 import {
@@ -10,7 +9,8 @@ import {
 import { randomBallotId } from '@votingworks/utils';
 import { Store } from '../store';
 
-export interface RenderBallotProps {
+export interface PrintBallotProps {
+  printer: Printer;
   store: Store;
   precinctId: string;
   ballotStyleId: string;
@@ -18,13 +18,14 @@ export interface RenderBallotProps {
   languageCode: LanguageCode;
 }
 
-export async function renderBallot({
+export async function printBallot({
+  printer,
   store,
   precinctId,
   ballotStyleId,
   votes,
   languageCode,
-}: RenderBallotProps): Promise<Buffer> {
+}: PrintBallotProps): Promise<void> {
   const electionDefinition = assertDefined(store.getElectionDefinition());
   const isLiveMode = !store.getTestMode();
 
@@ -40,12 +41,15 @@ export async function renderBallot({
         votes={votes}
         isLiveMode={isLiveMode}
         generateBallotId={randomBallotId}
-        machineType="markScan"
+        machineType="mark"
       />
     </BackendLanguageContextProvider>
   );
 
-  return renderToPdf({
-    document: ballot,
+  return printer.print({
+    data: await renderToPdf({
+      document: ballot,
+    }),
+    sides: PrintSides.OneSided,
   });
 }

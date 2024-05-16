@@ -34,7 +34,6 @@ import {
 } from '@votingworks/ui';
 
 import {
-  Hardware,
   getPollsTransitionDestinationState,
   getPollsStateName,
   getPollsTransitionAction,
@@ -143,7 +142,6 @@ export interface PollworkerScreenProps {
   pollsState: PollsState;
   ballotsPrintedCount: number;
   machineConfig: MachineConfig;
-  hardware: Hardware;
   devices: Devices;
   reload: () => void;
 }
@@ -158,7 +156,6 @@ export function PollWorkerScreen({
   pollsState,
   ballotsPrintedCount,
   machineConfig,
-  hardware,
   devices,
   hasVotes,
   reload,
@@ -277,7 +274,6 @@ export function PollWorkerScreen({
   if (isDiagnosticsScreenOpen) {
     return (
       <DiagnosticsScreen
-        hardware={hardware}
         devices={devices}
         onBackButtonPress={() => setIsDiagnosticsScreenOpen(false)}
       />

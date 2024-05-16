@@ -1,10 +1,6 @@
 import userEvent from '@testing-library/user-event';
 import {
-  expectPrint,
   mockElectionManagerUser,
-  mockKiosk,
-  mockPrintElement,
-  mockPrintElementWhenReady,
   hasTextAcrossElements,
 } from '@votingworks/test-utils';
 import { MemoryHardware, singlePrecinctSelectionFor } from '@votingworks/utils';
@@ -29,21 +25,12 @@ import {
 import { ApiMock, createApiMock } from '../test/helpers/mock_api_client';
 import { configureFromUsbThenRemove } from '../test/helpers/election_package';
 
-jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
-  ...jest.requireActual('@votingworks/ui'),
-  printElementWhenReady: mockPrintElementWhenReady,
-  printElement: mockPrintElement,
-}));
-
 let apiMock: ApiMock;
-let kiosk = mockKiosk();
 
 beforeEach(() => {
   jest.useFakeTimers();
   window.location.href = '/';
   apiMock = createApiMock();
-  kiosk = mockKiosk();
-  window.kiosk = kiosk;
 });
 
 afterEach(() => {
@@ -290,11 +277,19 @@ test('MarkAndPrint end-to-end flow', async () => {
   screen.getByText(hasTextAcrossElements(/number of unused votes: 2/i));
 
   // Print Screen
-  apiMock.expectIncrementBallotsPrintedCount();
+  apiMock.expectPrintBallot({
+    ballotStyleId: '12',
+    precinctId: '23',
+    votes: {
+      [presidentContest.id]: [presidentContest.candidates[0]],
+      [measure102Contest.id]: [measure102Contest.yesOption.id],
+      [countyCommissionersContest.id]:
+        countyCommissionersContest.candidates.slice(0, 2),
+    },
+  });
   apiMock.expectGetElectionState({ ballotsPrintedCount: 1 });
   userEvent.click(screen.getByText(/Print My ballot/i));
   screen.getByText(/Printing Your Official Ballot/i);
-  await expectPrint();
 
   // Expire timeout for display of "Printing Ballot" screen
   await advanceTimersAndPromises(GLOBALS.BALLOT_PRINTING_TIMEOUT_SECONDS);
