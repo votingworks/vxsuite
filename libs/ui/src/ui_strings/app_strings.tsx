@@ -370,7 +370,7 @@ export const appStrings = {
 
   instructionsBmdPatCalibrationIntroStep: () => (
     <UiString uiStringKey="instructionsBmdPatCalibrationIntroStep">
-      Trigger any input to continue.
+      Trigger any input twice to continue.
     </UiString>
   ),
 
@@ -382,13 +382,13 @@ export const appStrings = {
 
   instructionsBmdPatCalibrationTryInput: () => (
     <UiString uiStringKey="instructionsBmdPatCalibrationTryInput">
-      Try an input to continue.
+      Try an input twice to continue.
     </UiString>
   ),
 
   instructionsBmdPatCalibrationTryOtherInput: () => (
     <UiString uiStringKey="instructionsBmdPatCalibrationTryOtherInput">
-      Try the other input.
+      Try the other input twice.
     </UiString>
   ),
 
