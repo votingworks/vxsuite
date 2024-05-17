@@ -14,7 +14,7 @@ test('advances to next step', () => {
   );
 
   screen.getByText('Personal Assistive Technology Device Identification');
-  screen.getByText('Trigger any input to continue.');
+  screen.getByText('Trigger any input twice to continue.');
   userEvent.keyboard('1');
   screen.getByText('Identify the "Move" Input');
 });

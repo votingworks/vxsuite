@@ -62,7 +62,7 @@ test.each(testSpecs)(
     });
     userEvent.keyboard(otherKey);
     screen.getByRole('heading', { name: `Input Triggered: "${otherInput}"` });
-    screen.getByText('Try the other input.');
+    screen.getByText('Try the other input twice.');
 
     userEvent.keyboard(desiredKey);
     screen.getByRole('heading', {
