@@ -10,7 +10,7 @@ import {
 import { tmpNameSync } from 'tmp';
 import { parsePdf } from '@votingworks/image-utils';
 import { writeFileSync } from 'fs';
-import { PaperDimensions, RenderSpec, renderToPdf } from './render';
+import { PAPER_DIMENSIONS, RenderSpec, renderToPdf } from './render';
 
 const { electionDefinition } = electionFamousNames2021Fixtures;
 const { election } = electionDefinition;
@@ -48,7 +48,7 @@ test('rendered tally report has minimum of letter when size is LetterRoll', asyn
   await renderToPdf({
     document: <AdminTallyReportByParty {...testReportProps} />,
     outputPath,
-    dimensions: PaperDimensions.LetterRoll,
+    paperDimensions: PAPER_DIMENSIONS.LetterRoll,
   });
 
   await expect(outputPath).toMatchPdfSnapshot({
@@ -91,7 +91,7 @@ test('page can be longer than letter when using LetterRoll', async () => {
   const pdfData = await renderToPdf({
     document: <ManyHeadings count={25} />,
     outputPath,
-    dimensions: PaperDimensions.LetterRoll,
+    paperDimensions: PAPER_DIMENSIONS.LetterRoll,
   });
 
   const pdf = await parsePdf(pdfData);
@@ -114,7 +114,7 @@ test('can render multiple documents at once', async () => {
     },
     {
       document: <ManyHeadings count={25} />,
-      dimensions: PaperDimensions.LetterRoll,
+      paperDimensions: PAPER_DIMENSIONS.LetterRoll,
       outputPath: outputPath2,
     },
   ]);
@@ -132,11 +132,24 @@ test('documents of various sizes all fit on a single page when using LetterRoll'
   for (let i = 25; i <= 50; i += 1) {
     specs.push({
       document: <ManyHeadings count={i} />,
-      dimensions: PaperDimensions.LetterRoll,
+      paperDimensions: PAPER_DIMENSIONS.LetterRoll,
     });
   }
 
   const pdfData = await renderToPdf(specs);
   const pdfs = await Promise.all(pdfData.map((data) => parsePdf(data)));
   expect(pdfs.every((pdf) => pdf.numPages === 1)).toEqual(true);
+});
+
+test('renders with custom margins', async () => {
+  const outputPath = tmpNameSync();
+  await renderToPdf({
+    document: <AdminTallyReportByParty {...testReportProps} />,
+    outputPath,
+    marginDimensions: { top: 0, right: 0, bottom: 0, left: 0 },
+  });
+
+  await expect(outputPath).toMatchPdfSnapshot({
+    customSnapshotIdentifier: 'no-margins',
+  });
 });

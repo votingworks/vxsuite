@@ -10,31 +10,33 @@ import {
   VxThemeProvider,
   FONT_AWESOME_STYLES,
 } from '@votingworks/ui';
-import { mapObject } from '@votingworks/basics';
 import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 
 const PLAYWRIGHT_PIXELS_PER_INCH = 96;
 
-export interface InchDimensions {
+export interface PaperDimensions {
   width: number;
   height: number;
 }
 
-export const PaperDimensions = {
+export const PAPER_DIMENSIONS = {
   Letter: { width: 8.5, height: 11 },
   LetterRoll: { width: 8.5, height: Infinity },
-} satisfies Record<string, InchDimensions>;
+} satisfies Record<string, PaperDimensions>;
 
-const DEFAULT_PDF_MARGIN_INCHES = {
+export interface MarginDimensions {
+  top: number;
+  right: number;
+  bottom: number;
+  left: number;
+}
+
+export const DEFAULT_MARGIN_DIMENSIONS: MarginDimensions = {
   top: 0.5,
   right: 0.5,
   bottom: 0.5,
   left: 0.5,
 } as const;
-const DEFAULT_PDF_VERTICAL_MARGIN =
-  DEFAULT_PDF_MARGIN_INCHES.bottom + DEFAULT_PDF_MARGIN_INCHES.top;
-const DEFAULT_PDF_HORIZONTAL_MARGIN =
-  DEFAULT_PDF_MARGIN_INCHES.left + DEFAULT_PDF_MARGIN_INCHES.right;
 
 function inchesToText(inches: number): string {
   return `${inches}in`;
@@ -58,7 +60,8 @@ function getContentHeight(page: Page): Promise<number> {
 
 export interface RenderSpec {
   document: JSX.Element | JSX.Element[];
-  dimensions?: InchDimensions;
+  paperDimensions?: PaperDimensions;
+  marginDimensions?: MarginDimensions;
   outputPath?: string;
 }
 
@@ -84,17 +87,20 @@ export async function renderToPdf(
   for (const {
     document,
     outputPath,
-    dimensions: { width, height } = PaperDimensions.Letter,
+    paperDimensions: { width, height } = PAPER_DIMENSIONS.Letter,
+    marginDimensions = DEFAULT_MARGIN_DIMENSIONS,
   } of specs) {
+    const verticalMargin = marginDimensions.top + marginDimensions.bottom;
+    const horizontalMargin = marginDimensions.left + marginDimensions.right;
+
     // set the viewport size such that the content is the same width as it will
     // be in the PDF, which allows us to determine the necessary height to fit
     // the page to the content. viewport height here is irrelevant, but we have to
     // set something.
     await page.setViewportSize({
-      width:
-        (width - DEFAULT_PDF_HORIZONTAL_MARGIN) * PLAYWRIGHT_PIXELS_PER_INCH,
+      width: (width - horizontalMargin) * PLAYWRIGHT_PIXELS_PER_INCH,
       height:
-        (PaperDimensions.Letter.height - DEFAULT_PDF_VERTICAL_MARGIN) *
+        (PAPER_DIMENSIONS.Letter.height - verticalMargin) *
         PLAYWRIGHT_PIXELS_PER_INCH,
     });
 
@@ -149,17 +155,22 @@ export async function renderToPdf(
 
     const contentHeight =
       (await getContentHeight(page)) / PLAYWRIGHT_PIXELS_PER_INCH +
-      DEFAULT_PDF_VERTICAL_MARGIN;
+      verticalMargin;
     buffers.push(
       await page.pdf({
         path: outputPath,
         width: inchesToText(width),
         height: inchesToText(
           height === Infinity
-            ? Math.max(PaperDimensions.Letter.height, contentHeight)
-            : PaperDimensions.Letter.height
+            ? Math.max(PAPER_DIMENSIONS.Letter.height, contentHeight)
+            : PAPER_DIMENSIONS.Letter.height
         ),
-        margin: mapObject(DEFAULT_PDF_MARGIN_INCHES, inchesToText),
+        margin: {
+          top: inchesToText(marginDimensions.top),
+          right: inchesToText(marginDimensions.right),
+          bottom: inchesToText(marginDimensions.bottom),
+          left: inchesToText(marginDimensions.left),
+        },
         printBackground: true, // necessary to render shaded backgrounds
       })
     );
