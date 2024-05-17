@@ -79,10 +79,10 @@ describe('shows Livecheck button only when enabled', () => {
     });
 
     userEvent.click(await screen.findByText('No'));
-    expect(screen.queryByText('Live Check')).toBeTruthy();
+    expect(screen.queryByText('Hash Validation')).toBeTruthy();
 
     apiMock.expectGenerateLiveCheckQrCodeValue();
-    userEvent.click(screen.getByText('Live Check'));
+    userEvent.click(screen.getByText('Hash Validation'));
     await screen.findByText('Done');
   });
 
@@ -97,7 +97,7 @@ describe('shows Livecheck button only when enabled', () => {
     });
 
     userEvent.click(await screen.findByText('No'));
-    expect(screen.queryByText('Live Check')).toBeFalsy();
+    expect(screen.queryByText('Hash Validation')).toBeFalsy();
   });
 });
 

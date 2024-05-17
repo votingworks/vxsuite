@@ -38,7 +38,7 @@ export function LiveCheckModal({
 }: Props): JSX.Element | null {
   return (
     <Modal
-      title="Live Check"
+      title="Hash Validation"
       content={
         <React.Fragment>
           <P>Scan this QR code at https://check.voting.works</P>

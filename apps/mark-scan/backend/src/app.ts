@@ -1,5 +1,5 @@
 import express, { Application } from 'express';
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import { InsertedSmartCardAuthApi, LiveCheck } from '@votingworks/auth';
 import { assert, ok, Result, throwIllegalValue } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
@@ -376,6 +376,16 @@ export function buildApi(
         workspace,
         usbDrive,
         logger,
+      });
+    },
+
+    /* istanbul ignore next */
+    generateLiveCheckQrCodeValue() {
+      const { machineId } = getMachineConfig();
+      const electionDefinition = workspace.store.getElectionDefinition();
+      return new LiveCheck().generateQrCodeValue({
+        machineId,
+        electionHash: electionDefinition?.electionHash,
       });
     },
   });

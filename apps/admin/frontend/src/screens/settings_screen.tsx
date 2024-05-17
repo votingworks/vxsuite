@@ -46,7 +46,7 @@ export function SettingsScreen(): JSX.Element {
       )}
       {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (
         <React.Fragment>
-          <H2>Live Check</H2>
+          <H2>Hash Validation</H2>
           <P>
             <LiveCheckButton />
           </P>

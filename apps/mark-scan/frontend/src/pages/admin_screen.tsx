@@ -25,11 +25,16 @@ import {
 import type { MachineConfig } from '@votingworks/mark-scan-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
+import {
   ejectUsbDrive,
   logOut,
   setPrecinctSelection,
   setTestMode,
 } from '../api';
+import { LiveCheckButton } from '../components/live_check_button';
 
 export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;
@@ -145,17 +150,29 @@ export function AdminScreen({
         <P>
           <Icons.Checkbox color="success" /> Election Definition is loaded.
         </P>
-        <UnconfigureMachineButton
-          isMachineConfigured
-          unconfigureMachine={unconfigure}
-        />
+        <P>
+          <UnconfigureMachineButton
+            isMachineConfigured
+            unconfigureMachine={unconfigure}
+          />
+        </P>
         <H6 as="h2">USB</H6>
-        <UsbControllerButton
-          primary
-          usbDriveStatus={usbDriveStatus}
-          usbDriveEject={() => ejectUsbDriveMutation.mutate()}
-          usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
-        />
+        <P>
+          <UsbControllerButton
+            primary
+            usbDriveStatus={usbDriveStatus}
+            usbDriveEject={() => ejectUsbDriveMutation.mutate()}
+            usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
+          />
+        </P>
+        {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (
+          /* istanbul ignore next */ <React.Fragment>
+            <H6 as="h2">Security</H6>
+            <P>
+              <LiveCheckButton />
+            </P>
+          </React.Fragment>
+        )}
       </Main>
       {election && (
         <ElectionInfoBar
