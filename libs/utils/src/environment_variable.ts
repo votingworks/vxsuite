@@ -52,6 +52,8 @@ export enum BooleanEnvironmentVariableName {
   SCAN_USE_FUJITSU_PRINTER = 'REACT_APP_VX_SCAN_USE_FUJITSU_PRINTER',
   // Use the Custom scanner in VxScan (as opposed to the PDI scanner)
   USE_CUSTOM_SCANNER = 'REACT_APP_VX_USE_CUSTOM_SCANNER',
+  // Put VxScan in "shoeshine mode" where it will scan a single ballot back and forth continuously
+  ENABLE_SCAN_SHOESHINE_MODE = 'REACT_APP_VX_ENABLE_SCAN_SHOESHINE_MODE',
 }
 
 // This is not fully generic since string variables may want the getter to return a custom type.
@@ -127,6 +129,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_SCAN_USE_FUJITSU_PRINTER;
     case BooleanEnvironmentVariableName.USE_CUSTOM_SCANNER:
       return process.env.REACT_APP_VX_USE_CUSTOM_SCANNER;
+    case BooleanEnvironmentVariableName.ENABLE_SCAN_SHOESHINE_MODE:
+      return process.env.REACT_APP_VX_ENABLE_SCAN_SHOESHINE_MODE;
     /* c8 ignore next 2 */
     default:
       throwIllegalValue(name);
@@ -255,6 +259,12 @@ export function getBooleanEnvVarConfig(
       return {
         name,
         allowInProduction: true,
+        autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.ENABLE_SCAN_SHOESHINE_MODE:
+      return {
+        name,
+        allowInProduction: false,
         autoEnableInDevelopment: false,
       };
     /* c8 ignore next 2 */
