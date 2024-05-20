@@ -48,6 +48,8 @@ export enum BooleanEnvironmentVariableName {
   USE_MOCK_PAPER_HANDLER = 'REACT_APP_VX_USE_MOCK_PAPER_HANDLER',
   // Enables cloud translation and speech synthesis when exporting election packages from VxDesign
   ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS = 'REACT_APP_VX_ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS',
+  // Put VxScan in "shoeshine mode" where it will scan a single ballot back and forth continuously
+  ENABLE_SCAN_SHOESHINE_MODE = 'REACT_APP_VX_ENABLE_SCAN_SHOESHINE_MODE',
 }
 
 // This is not fully generic since string variables may want the getter to return a custom type.
@@ -115,6 +117,8 @@ export function getEnvironmentVariable(
     case BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS:
       return process.env
         .REACT_APP_VX_ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS;
+    case BooleanEnvironmentVariableName.ENABLE_SCAN_SHOESHINE_MODE:
+      return process.env.REACT_APP_VX_ENABLE_SCAN_SHOESHINE_MODE;
     /* c8 ignore next 2 */
     default:
       throwIllegalValue(name);
@@ -231,6 +235,12 @@ export function getBooleanEnvVarConfig(
       return {
         name,
         allowInProduction: true,
+        autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.ENABLE_SCAN_SHOESHINE_MODE:
+      return {
+        name,
+        allowInProduction: false,
         autoEnableInDevelopment: false,
       };
     /* c8 ignore next 2 */
