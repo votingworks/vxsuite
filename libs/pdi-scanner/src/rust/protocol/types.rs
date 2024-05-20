@@ -106,6 +106,7 @@ pub enum EjectMotion {
     ToRear,
     ToFront,
     ToFrontAndHold,
+    ToFrontAndRescan,
 }
 
 #[derive(Debug, Clone)]

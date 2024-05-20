@@ -253,6 +253,7 @@ impl<T> Client<T> {
             EjectMotion::ToFrontAndHold => {
                 Outgoing::EjectDocumentToFrontOfScannerAndHoldInInputRollersRequest
             }
+            EjectMotion::ToFrontAndRescan => Outgoing::RescanDocumentHeldInEscrowPositionRequest,
         })?;
         // It's safest to always disable the feeder after ejecting a document to
         // protect against a second document sneaking in.

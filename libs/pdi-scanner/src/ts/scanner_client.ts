@@ -101,7 +101,11 @@ export type Listener = (event: ScannerEvent) => void;
 /**
  * Which direction to eject the document, and whether to hold it there.
  */
-export type EjectMotion = 'toRear' | 'toFront' | 'toFrontAndHold';
+export type EjectMotion =
+  | 'toRear'
+  | 'toFront'
+  | 'toFrontAndHold'
+  | 'toFrontAndRescan';
 
 /**
  * Internal type to represent the JSON commands sent to `pdictl`
