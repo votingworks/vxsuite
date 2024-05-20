@@ -43,29 +43,31 @@ export async function main(
     return 1;
   }
 
-  for (const ballotStyle of election.ballotStyles) {
-    for (const precinctId of ballotStyle.precincts) {
-      const metadata: BallotPageMetadata = {
-        ballotStyleId: ballotStyle.id,
-        precinctId,
-        ballotType: BallotType.Precinct,
-        isTestMode: true,
-        electionHash,
-        pageNumber: 1,
-      };
+  for (const isTestMode of [true, false]) {
+    for (const ballotStyle of election.ballotStyles) {
+      for (const precinctId of ballotStyle.precincts) {
+        const metadata: BallotPageMetadata = {
+          ballotStyleId: ballotStyle.id,
+          precinctId,
+          ballotType: BallotType.Precinct,
+          isTestMode,
+          electionHash,
+          pageNumber: 1,
+        };
 
-      const [page1Image, page2Image] = encodeMetadata(
-        election,
-        metadata,
-        encoding
-      );
-      const outputPathBase = `${outputPath.replace(/\.png$/, '')}-${
-        ballotStyle.id
-      }-${precinctId}`;
-      await writeImageData(`${outputPathBase}-p1.png`, page1Image);
-      await writeImageData(`${outputPathBase}-p2.png`, page2Image);
-      io.stdout.write(`${outputPathBase}-p1.png\n`);
-      io.stdout.write(`${outputPathBase}-p2.png\n`);
+        const [page1Image, page2Image] = encodeMetadata(
+          election,
+          metadata,
+          encoding
+        );
+        const outputPathBase = `${outputPath.replace(/\.png$/, '')}-${
+          ballotStyle.id
+        }-${precinctId}-${isTestMode ? 'testmode' : 'livemode'}`;
+        await writeImageData(`${outputPathBase}-p1.png`, page1Image);
+        await writeImageData(`${outputPathBase}-p2.png`, page2Image);
+        io.stdout.write(`${outputPathBase}-p1.png\n`);
+        io.stdout.write(`${outputPathBase}-p2.png\n`);
+      }
     }
   }
   return 0;
