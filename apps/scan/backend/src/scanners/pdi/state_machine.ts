@@ -12,7 +12,6 @@ import {
   BaseActionObject,
   Interpreter,
   InvokeConfig,
-  Sender,
   StateNodeConfig,
   assign,
   createMachine,
@@ -230,36 +229,22 @@ function buildMachine({
     data: (context) => ({ client: context.client }),
   };
 
-  function addEventListener(client: ScannerClient, callback: Sender<Event>) {
-    return client.addListener((event) => {
-      callback(
-        event.event === 'error'
-          ? { type: 'SCANNER_ERROR', error: event }
-          : { type: 'SCANNER_EVENT', event }
-      );
-    });
-  }
-
   // To ensure we catch scanner events no matter what state the machine is in,
   // we spawn a long-lived actor that is referenced in the context (rather than
-  // invoking it in a specific state). These events will be caught in the root
-  // `on` handlers.
-  const listenForScannerEventsAtRoot = assign({
+  // invoking it in a specific state).
+  const listenForScannerEventsAtRoot = assign<Context>({
     rootListenerRef: ({ client }) =>
       spawn((callback) => {
-        const listener = addEventListener(client, callback);
+        const listener = client.addListener((event) => {
+          callback(
+            event.event === 'error'
+              ? { type: 'SCANNER_ERROR', error: event }
+              : { type: 'SCANNER_EVENT', event }
+          );
+        });
         return () => client.removeListener(listener);
       }),
   });
-
-  const listenForScannerEvents: InvokeConfig<Context, Event> = {
-    src:
-      ({ client }) =>
-      (callback) => {
-        const listener = addEventListener(client, callback);
-        return () => client.removeListener(listener);
-      },
-  };
 
   const rejectingState: StateNodeConfig<
     Context,
@@ -521,7 +506,6 @@ function buildMachine({
                     ).unsafeUnwrap();
                   },
                 },
-                listenForScannerEvents,
               ],
               on: {
                 SCANNING_DISABLED: '#paused',
@@ -555,7 +539,6 @@ function buildMachine({
           initial: 'waitingForScanComplete',
           states: {
             waitingForScanComplete: {
-              invoke: listenForScannerEvents,
               on: {
                 SCANNER_EVENT: [
                   {
