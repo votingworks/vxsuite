@@ -28,6 +28,10 @@ import { BaseLogger, LogEventId, LogLine } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { Clock } from 'xstate/lib/interpreter';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { interpret } from '../../interpret';
 import { Workspace } from '../../util/workspace';
 import { rootDebug } from '../../util/debug';
@@ -170,6 +174,9 @@ function buildMachine({
 }) {
   const { store } = workspace;
   const initialClient = createScannerClient();
+  const isShoeshineModeEnabled = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.ENABLE_SCAN_SHOESHINE_MODE
+  );
 
   function createPollingChildMachine(
     id: string,
@@ -670,7 +677,7 @@ function buildMachine({
         },
 
         readyToAccept: {
-          on: { ACCEPT: 'accepting' },
+          on: { ACCEPT: isShoeshineModeEnabled ? 'accepted' : 'accepting' },
         },
 
         accepting: acceptingState,
@@ -684,7 +691,15 @@ function buildMachine({
               assertDefined(context.interpretation)
             ),
           after: {
-            DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 'waitingForBallot',
+            // We wait a bit in the accepted state in order to make sure the
+            // voter has time to view the success message. In addition, it's
+            // important to wait at least 2 seconds before scanning another
+            // ballot because there is a limit to how many scan cycles the
+            // scanner can perform per minute without overheating and damaging
+            // the hardware. This is particularly relevant in shoeshine mode.
+            DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: isShoeshineModeEnabled
+              ? 'shoeshineModeRescanningBallot'
+              : 'waitingForBallot',
           },
         },
 
@@ -829,6 +844,36 @@ function buildMachine({
         },
 
         unrecoverableError: { id: 'unrecoverableError' },
+
+        shoeshineModeRescanningBallot: {
+          initial: 'rescanning',
+          states: {
+            rescanning: {
+              invoke: {
+                src: async ({ client }) => {
+                  (
+                    await client.ejectDocument('toFrontAndRescan')
+                  ).unsafeUnwrap();
+                },
+                onDone: 'waitingForScanStart',
+                onError: {
+                  target: '#error',
+                  actions: assign({ error: (_, event) => event.data }),
+                },
+              },
+            },
+            waitingForScanStart: {
+              on: {
+                SCANNER_EVENT: [
+                  {
+                    cond: (_, { event }) => event.event === 'scanStart',
+                    target: '#scanning',
+                  },
+                ],
+              },
+            },
+          },
+        },
       },
     },
     { delays }
@@ -1003,6 +1048,8 @@ export function createPrecinctScannerStateMachine({
             return 'recovering_from_error';
           case state.matches('unrecoverableError'):
             return 'unrecoverable_error';
+          case state.matches('shoeshineModeRescanningBallot'):
+            return 'accepted';
           /* c8 ignore next 2 */
           default:
             throw new Error(`Unexpected state: ${state.value}`);
