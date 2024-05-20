@@ -232,7 +232,7 @@ function buildMachine({
   // To ensure we catch scanner events no matter what state the machine is in,
   // we spawn a long-lived actor that is referenced in the context (rather than
   // invoking it in a specific state).
-  const listenForScannerEventsAtRoot = assign({
+  const listenForScannerEventsAtRoot = assign<Context>({
     rootListenerRef: ({ client }) =>
       spawn((callback) => {
         const listener = client.addListener((event) => {
