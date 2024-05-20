@@ -1,14 +1,9 @@
-import { PrecinctScannerTallyReport } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
-import { renderToPdf } from '@votingworks/printing';
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import {
-  ALL_PRECINCTS_SELECTION,
-  getEmptyElectionResults,
-} from '@votingworks/utils';
-import { VX_MACHINE_ID } from '@votingworks/backend';
-import { getCurrentTime } from '../util/get_current_time';
+import { readFile } from 'fs/promises';
+import { join } from 'path';
 import { FujitsuPrintResult, Printer } from './printer';
+
+const TEST_PRINT_PDF_PATH = join(__dirname, 'test-print.pdf');
 
 /**
  * Prints a test page for diagnostic purposes. Uses a mock tally
@@ -21,21 +16,6 @@ export async function printTestPage({
   printer: Printer;
 }): Promise<FujitsuPrintResult> {
   assert(printer.scheme === 'hardware-v4');
-  const { electionDefinition } = electionFamousNames2021Fixtures;
-  const { election } = electionDefinition;
-  const { contests } = election;
-  const report = PrecinctScannerTallyReport({
-    electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
-    precinctSelection: ALL_PRECINCTS_SELECTION,
-    contests,
-    scannedElectionResults: getEmptyElectionResults(election),
-    pollsTransition: 'open_polls',
-    isLiveMode: false,
-    pollsTransitionedTime: getCurrentTime(),
-    reportPrintedTime: getCurrentTime(),
-    precinctScannerMachineId: VX_MACHINE_ID,
-  });
 
-  const data = await renderToPdf({ document: report });
-  return await printer.print(data);
+  return await printer.print(await readFile(TEST_PRINT_PDF_PATH));
 }
