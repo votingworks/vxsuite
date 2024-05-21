@@ -636,7 +636,7 @@ pub fn draw_contest_layouts_debug_image_mut(
 ) {
     let font = &monospace_font();
     let font_scale = 20.0;
-    let scale = Scale::uniform(font_scale);
+    let scale = PxScale::from(font_scale);
 
     for contest_layout in contest_layouts {
         for (option_layout, color) in contest_layout
