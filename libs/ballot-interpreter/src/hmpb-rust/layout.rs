@@ -3,6 +3,7 @@ use serde::Serialize;
 use types_rs::election::{ContestId, GridLayout, GridLocation, GridPosition, OptionId};
 use types_rs::geometry::{GridUnit, Point, Rect, SubGridUnit};
 
+use crate::debug::{self, ImageDebugWriter};
 use crate::{ballot_card::BallotSide, timing_marks::TimingMarkGrid};
 
 #[derive(Debug, Serialize)]
@@ -97,6 +98,7 @@ pub fn build_interpreted_page_layout(
     grid_layout: &GridLayout,
     sheet_number: u32,
     side: BallotSide,
+    debug: &ImageDebugWriter,
 ) -> Option<Vec<InterpretedContestLayout>> {
     let contest_ids_in_grid_layout_order = grid_layout
         .grid_positions
@@ -108,7 +110,7 @@ pub fn build_interpreted_page_layout(
         .unique()
         .collect::<Vec<_>>();
 
-    contest_ids_in_grid_layout_order
+    let layouts = contest_ids_in_grid_layout_order
         .iter()
         .map(|contest_id| {
             let grid_positions = grid_layout
@@ -135,5 +137,11 @@ pub fn build_interpreted_page_layout(
                 options,
             })
         })
-        .collect()
+        .collect::<Option<Vec<_>>>()?;
+
+    debug.write("contest_layouts", |canvas| {
+        debug::draw_contest_layouts_debug_image_mut(canvas, &layouts);
+    });
+
+    Some(layouts)
 }

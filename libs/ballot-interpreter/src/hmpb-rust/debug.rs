@@ -18,6 +18,7 @@ fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
         .to_owned()
 }
 
+use crate::layout::InterpretedContestLayout;
 use crate::{
     image_utils::{
         BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GREEN, DARK_RED, GREEN, ORANGE, PINK, RAINBOW, RED,
@@ -618,6 +619,37 @@ pub fn draw_scored_write_in_areas(
             imageproc_rect_from_rect(&scored_write_in_area.bounds),
             DARK_GREEN,
         );
+    }
+}
+
+pub fn draw_contest_layouts_debug_image_mut(
+    canvas: &mut RgbImage,
+    contest_layouts: &Vec<InterpretedContestLayout>,
+) {
+    let font = &monospace_font();
+    let font_scale = 20.0;
+    let scale = Scale::uniform(font_scale);
+
+    for contest_layout in contest_layouts {
+        for (i, option_layout) in (&contest_layout.options).into_iter().enumerate() {
+            let option_label = option_layout.option_id.to_string();
+            let color = if i % 2 == 0 { DARK_BLUE } else { DARK_GREEN };
+            draw_text_with_background_mut(
+                canvas,
+                &option_label,
+                option_layout.bounds.left(),
+                option_layout.bounds.top(),
+                scale,
+                font,
+                WHITE_RGB,
+                color,
+            );
+            draw_hollow_rect_mut(
+                canvas,
+                imageproc_rect_from_rect(&option_layout.bounds),
+                color,
+            );
+        }
     }
 }
 
