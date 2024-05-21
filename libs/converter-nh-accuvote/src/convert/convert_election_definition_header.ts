@@ -253,7 +253,9 @@ export function convertElectionDefinitionHeader(
     const seats =
       safeParseNumber(
         winnerNote?.match(/Vote for not more than (\d+)/)?.[1]
-      ).ok() ?? 1;
+      ).ok() ??
+      safeParseNumber(winnerNote?.match(/Vote for up to (\d+)/)?.[1]).ok() ??
+      1;
 
     const [writeInElements, candidateElements] = iter(
       Array.from(contestElement.getElementsByTagName('CandidateName'))
