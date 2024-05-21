@@ -567,10 +567,10 @@ pub fn interpret_ballot_card(
     );
 
     let (front_contest_layouts, back_contest_layouts) = map_pair(
-        (&front_grid, BallotSide::Front),
-        (&back_grid, BallotSide::Back),
-        |(grid, side)| {
-            build_interpreted_page_layout(grid, grid_layout, sheet_number, side)
+        (&front_grid, BallotSide::Front, &front_debug),
+        (&back_grid, BallotSide::Back, &back_debug),
+        |(grid, side, debug)| {
+            build_interpreted_page_layout(grid, grid_layout, sheet_number, side, debug)
                 .ok_or(Error::CouldNotComputeLayout { side })
         },
     );
