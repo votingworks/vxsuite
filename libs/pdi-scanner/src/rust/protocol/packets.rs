@@ -742,7 +742,10 @@ impl Outgoing {
                 parsers::eject_document_to_front_of_scanner_request
             ),
             Self::EjectEscrowDocumentRequest => todo!(),
-            Self::RescanDocumentHeldInEscrowPositionRequest => todo!(),
+            Self::RescanDocumentHeldInEscrowPositionRequest => checked!(
+                Command::new(b"["),
+                parsers::rescan_document_held_in_escrow_position_request
+            ),
             Self::EnableDoubleFeedDetectionRequest => checked!(
                 Command::new(b"n"),
                 parsers::enable_double_feed_detection_request
