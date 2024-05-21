@@ -624,16 +624,19 @@ pub fn draw_scored_write_in_areas(
 
 pub fn draw_contest_layouts_debug_image_mut(
     canvas: &mut RgbImage,
-    contest_layouts: &Vec<InterpretedContestLayout>,
+    contest_layouts: &[InterpretedContestLayout],
 ) {
     let font = &monospace_font();
     let font_scale = 20.0;
     let scale = Scale::uniform(font_scale);
 
     for contest_layout in contest_layouts {
-        for (i, option_layout) in (&contest_layout.options).into_iter().enumerate() {
+        for (option_layout, color) in contest_layout
+            .options
+            .iter()
+            .zip([DARK_BLUE, DARK_GREEN].into_iter().cycle())
+        {
             let option_label = option_layout.option_id.to_string();
-            let color = if i % 2 == 0 { DARK_BLUE } else { DARK_GREEN };
             draw_text_with_background_mut(
                 canvas,
                 &option_label,
