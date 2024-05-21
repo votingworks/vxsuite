@@ -37,6 +37,10 @@ import {
 } from 'xstate';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { interpret as defaultInterpret, InterpretFn } from '../../interpret';
 import {
   InterpretationResult,
@@ -407,6 +411,9 @@ function buildMachine({
 }) {
   const delays: Delays = { ...defaultDelays, ...delayOverrides };
   const { store } = workspace;
+  const isShoeshineModeEnabled = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.ENABLE_SCAN_SHOESHINE_MODE
+  );
 
   function pollPaperStatus(
     pollingInterval: number = delays.DELAY_PAPER_STATUS_POLLING_INTERVAL
@@ -892,7 +899,7 @@ function buildMachine({
           id: 'ready_to_accept',
           invoke: pollPaperStatus(),
           on: {
-            ACCEPT: 'accepting',
+            ACCEPT: isShoeshineModeEnabled ? 'accepted' : 'accepting',
             SCANNER_READY_TO_EJECT: doNothing,
           },
         },
