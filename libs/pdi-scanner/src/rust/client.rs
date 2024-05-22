@@ -810,7 +810,7 @@ impl<T> Client<T> {
         // OUT SetRequiredInputSensorsRequest { sensors: 2 }
         self.set_required_input_sensors(2)?;
 
-        // Set the max lenght of the document to scan to 0.5" less than the
+        // Set the max length of the document to scan to 0.5" less than the
         // paper length. Experimentally, this seems to result in the scanner
         // successfully scanning paper of the given length but rejecting two
         // pieces of paper inserted back to back. Crucially, it stops the motors
