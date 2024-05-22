@@ -293,6 +293,32 @@ test('insert second ballot after accept, should be scanned', async () => {
   );
 });
 
+test('insert two sheets back-to-back as if they were one long sheet', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'no_paper' });
+
+      mockScanner.emitEvent({ event: 'scanStart' });
+      await expectStatus(apiClient, { state: 'scanning' });
+      // Since we set the max paper length, the scanner will declare a jam in
+      // this case
+      mockScanner.setScannerStatus(mockStatus.jammed);
+      mockScanner.emitEvent({
+        event: 'scanComplete',
+        images: await ballotImages.completeBmd(),
+      });
+      await waitForStatus(apiClient, { state: 'jammed' });
+
+      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'no_paper' });
+    }
+  );
+});
+
 test('insert two sheets at once', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
@@ -331,9 +357,11 @@ test('disabling double feed detection', async () => {
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });
-      expect(mockScanner.client.enableScanning).toHaveBeenLastCalledWith({
-        doubleFeedDetectionEnabled: false,
-      });
+      expect(mockScanner.client.enableScanning).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          doubleFeedDetectionEnabled: false,
+        })
+      );
 
       // Simulate an election manager logging in to disable double feed
       // detection, since that's how it would happen in real-world usage. The
@@ -357,9 +385,11 @@ test('disabling double feed detection', async () => {
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });
-      expect(mockScanner.client.enableScanning).toHaveBeenLastCalledWith({
-        doubleFeedDetectionEnabled: true,
-      });
+      expect(mockScanner.client.enableScanning).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          doubleFeedDetectionEnabled: true,
+        })
+      );
     }
   );
 });

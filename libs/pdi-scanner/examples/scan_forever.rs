@@ -64,7 +64,7 @@ fn main() -> color_eyre::Result<()> {
     let mut scan_index = 0;
 
     client.send_initial_commands_after_connect(Duration::from_secs(3))?;
-    client.send_enable_scan_commands(DoubleFeedDetectionMode::RejectDoubleFeeds)?;
+    client.send_enable_scan_commands(DoubleFeedDetectionMode::RejectDoubleFeeds, 11.0)?;
     println!("waiting for sheet…");
 
     let running = Arc::new(AtomicBool::new(true));

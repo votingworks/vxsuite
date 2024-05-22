@@ -115,7 +115,11 @@ type PdictlCommand =
   | { command: 'connect' }
   | { command: 'disconnect' }
   | { command: 'getScannerStatus' }
-  | { command: 'enableScanning'; doubleFeedDetectionEnabled: boolean }
+  | {
+      command: 'enableScanning';
+      doubleFeedDetectionEnabled: boolean;
+      paperLengthInches: number;
+    }
   | { command: 'disableScanning' }
   | {
       command: 'ejectDocument';
@@ -336,12 +340,15 @@ export function createPdiScannerClient() {
      */
     async enableScanning({
       doubleFeedDetectionEnabled,
+      paperLengthInches,
     }: {
       doubleFeedDetectionEnabled: boolean;
+      paperLengthInches: number;
     }): Promise<SimpleResult> {
       return sendSimpleCommand({
         command: 'enableScanning',
         doubleFeedDetectionEnabled,
+        paperLengthInches,
       });
     },
 
