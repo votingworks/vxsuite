@@ -768,6 +768,7 @@ impl<T> Client<T> {
     pub fn send_enable_scan_commands(
         &mut self,
         double_feed_detection_mode: DoubleFeedDetectionMode,
+        paper_length_inches: f32,
     ) -> Result<()> {
         let timeout = Duration::from_secs(5);
 
@@ -808,12 +809,18 @@ impl<T> Client<T> {
         self.set_threshold(Side::Bottom, ClampedPercentage::new_unchecked(75), timeout)?;
         // OUT SetRequiredInputSensorsRequest { sensors: 2 }
         self.set_required_input_sensors(2)?;
-        // OUT SetLengthOfDocumentToScanRequest { length_byte: 32, unit_byte: None }
-        self.set_length_of_document_to_scan(0.0)?;
+
+        // Set the max lenght of the document to scan to 0.5" less than the
+        // paper length. Experimentally, this seems to result in the scanner
+        // successfully scanning paper of the given length but rejecting two
+        // pieces of paper inserted back to back. Crucially, it stops the motors
+        // quickly enough to avoid the first piece of paper being ejected out of
+        // the rear accidentally. If you set the max length to the exact paper
+        // length, the scanner will not stop quickly enough.
+        // OUT SetLengthOfDocumentToScanRequest
+        self.set_length_of_document_to_scan(paper_length_inches - 0.5)?;
         // OUT SetScanDelayIntervalForDocumentFeedRequest { delay_interval: 0ns }
         self.set_scan_delay_interval_for_document_feed(Duration::ZERO)?;
-        // OUT SetLengthOfDocumentToScanRequest { length_byte: 203, unit_byte: Some(49) }
-        self.set_length_of_document_to_scan(0.0)?;
         // OUT EnableFeederRequest
         self.set_feeder_mode(FeederMode::AutoScanSheets)?;
 

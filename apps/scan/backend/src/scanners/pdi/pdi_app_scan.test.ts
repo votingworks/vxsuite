@@ -59,7 +59,10 @@ test('configure and scan hmpb', async () => {
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });
-      expect(mockScanner.client.enableScanning).toHaveBeenCalled();
+      expect(mockScanner.client.enableScanning).toHaveBeenCalledWith({
+        doubleFeedDetectionEnabled: true,
+        paperLengthInches: 11,
+      });
 
       await simulateScan(
         apiClient,
@@ -136,7 +139,10 @@ test('configure and scan bmd ballot', async () => {
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });
-      expect(mockScanner.client.enableScanning).toHaveBeenCalled();
+      expect(mockScanner.client.enableScanning).toHaveBeenCalledWith({
+        doubleFeedDetectionEnabled: true,
+        paperLengthInches: 11,
+      });
 
       await simulateScan(
         apiClient,

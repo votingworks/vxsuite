@@ -78,6 +78,7 @@ enum Command {
 
     EnableScanning {
         double_feed_detection_enabled: bool,
+        paper_length_inches: f32,
     },
 
     DisableScanning,
@@ -298,6 +299,7 @@ fn main() -> color_eyre::Result<()> {
                         Some(client),
                         Command::EnableScanning {
                             double_feed_detection_enabled,
+                            paper_length_inches,
                         },
                     ) => {
                         let double_feed_detection_mode = if double_feed_detection_enabled {
@@ -305,7 +307,10 @@ fn main() -> color_eyre::Result<()> {
                         } else {
                             DoubleFeedDetectionMode::Disabled
                         };
-                        match client.send_enable_scan_commands(double_feed_detection_mode) {
+                        match client.send_enable_scan_commands(
+                            double_feed_detection_mode,
+                            paper_length_inches,
+                        ) {
                             Ok(()) => send_response(Response::Ok)?,
                             Err(e) => send_error_response(&e)?,
                         }

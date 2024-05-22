@@ -20,7 +20,12 @@ import {
   spawn,
 } from 'xstate';
 import { v4 as uuid } from 'uuid';
-import { SheetInterpretation, SheetOf, mapSheet } from '@votingworks/types';
+import {
+  SheetInterpretation,
+  SheetOf,
+  ballotPaperDimensions,
+  mapSheet,
+} from '@votingworks/types';
 import { join } from 'path';
 import { writeImageData } from '@votingworks/image-utils';
 import { BaseLogger, LogEventId, LogLine } from '@votingworks/logging';
@@ -505,10 +510,17 @@ function buildMachine({
                 pollScanningEnabled,
                 {
                   src: async ({ client }) => {
+                    const electionDefinition = store.getElectionDefinition();
+                    if (!electionDefinition) return;
+                    const paperLengthInches = ballotPaperDimensions(
+                      electionDefinition.election.ballotLayout.paperSize
+                    ).height;
+                    const doubleFeedDetectionEnabled =
+                      !store.getIsDoubleFeedDetectionDisabled();
                     (
                       await client.enableScanning({
-                        doubleFeedDetectionEnabled:
-                          !store.getIsDoubleFeedDetectionDisabled(),
+                        doubleFeedDetectionEnabled,
+                        paperLengthInches,
                       })
                     ).unsafeUnwrap();
                   },
