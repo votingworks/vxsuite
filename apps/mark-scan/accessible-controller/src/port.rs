@@ -67,13 +67,40 @@ impl Port {
         let echo_command = EchoCommand::new(&[0x01, 0x02, 0x03, 0x04, 0x05]);
         let echo_command: Vec<u8> = echo_command.into();
         let port = &mut self.inner;
+        let mut serial_buf = [0; 1024];
+
+        // Clear the controller in-buffer. The in-buffer will contain data if buttons on the
+        // controller are pressed before the echo command is sent to the controller. That data
+        // will break parsing of the echo response below.
+        match port.bytes_to_read() {
+            Ok(0) => (),
+            Ok(num_bytes) => {
+                match port.clear(serialport::ClearBuffer::Input) {
+                    Ok(_) => log!( event_id: EventId::Info,
+                        event_type: EventType::SystemStatus,
+                        message: format!("Cleared {num_bytes} bytes from controller in-buffer")
+                    ),
+                    Err(e) => log!(
+                        event_id: EventId::UnknownError,
+                        message: format!("Error clearing in-buffer: {e:?}"),
+                        event_type: EventType::SystemStatus
+                    ),
+                };
+            }
+            Err(e) => log!(
+                event_id: EventId::UnknownError,
+                message: format!("Error checking bytes to read: {e:?}"),
+                event_type: EventType::SystemStatus
+            ),
+        }
+
+        // Send echo command
         match port.write(&echo_command) {
             Ok(_) => log!(EventId::ControllerHandshakeInit; EventType::SystemAction),
             Err(error) => eprintln!("{error:?}"),
         }
 
-        let mut serial_buf = [0; 20];
-
+        // Parse echo response
         let start_time = Instant::now();
         loop {
             match port.read(&mut serial_buf) {
