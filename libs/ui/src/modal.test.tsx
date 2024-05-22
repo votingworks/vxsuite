@@ -185,3 +185,37 @@ describe('when in voter audio context', () => {
     screen.getByText('Content!');
   });
 });
+
+test('aria-hidden is set and cleared properly', () => {
+  // ensure there is a root element
+  render(<div id="test-root" />);
+
+  const root = document.body.firstElementChild;
+
+  const { unmount, rerender } = render(
+    <div>
+      <Modal
+        title={<span>TITLE</span>}
+        content={<span>Content!</span>}
+        actions={<span>Do not read this</span>}
+      />
+    </div>
+  );
+
+  expect(root).toHaveAttribute('aria-hidden', 'true');
+
+  // cause the `appElement` to change if it's not cached
+  rerender(
+    <div>
+      <Modal
+        title={<span>TITLE</span>}
+        content={<span>Content!</span>}
+        actions={<span>Do not read this</span>}
+      />
+    </div>
+  );
+
+  // unmount should clear the aria-hidden attribute
+  unmount();
+  expect(root).not.toHaveAttribute('aria-hidden');
+});

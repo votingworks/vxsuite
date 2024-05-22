@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useMemo } from 'react';
 import ReactModal from 'react-modal';
 import styled, { DefaultTheme } from 'styled-components';
 import { rgba } from 'polished';
@@ -206,9 +206,12 @@ export function Modal({
   );
 
   /* istanbul ignore next - can't get document.getElementById working in test */
-  const appElement =
-    document.getElementById('root') ??
-    (document.body.firstElementChild as HTMLElement);
+  const appElement = useMemo(
+    () =>
+      document.getElementById('root') ??
+      (document.body.firstElementChild as HTMLElement | null),
+    []
+  );
   assert(appElement);
   return (
     <ReactModal

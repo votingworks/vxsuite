@@ -123,10 +123,6 @@ test('mutation resets on close', async () => {
 
   userEvent.click(screen.getButton('Close'));
 
-  userEvent.click(
-    await screen.findButton('Save Readiness Report', {
-      useSparinglyIncludeHidden: true, // button hidden by react-modal's faulty cleanup
-    })
-  );
+  userEvent.click(await screen.findButton('Save Readiness Report'));
   await screen.findByRole('heading', { name: 'Save Readiness Report' });
 });
