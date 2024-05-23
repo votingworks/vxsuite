@@ -971,6 +971,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  noteVoterSettingsAudioNoHeadphones: () => (
+    <UiString uiStringKey="noteVoterSettingsAudioNoHeadphones">
+      No headphones detected.
+    </UiString>
+  ),
+
   noteVoterSettingsAudioUnmuted: () => (
     <UiString uiStringKey="noteVoterSettingsAudioUnmuted">Audio is on</UiString>
   ),

@@ -65,7 +65,7 @@ function createReactQueryApi(getApiClient: () => SystemCallApiClient) {
       },
       useQuery() {
         const apiClient = getApiClient();
-        return useQuery(this.queryKey(), apiClient.getAudioInfo, {
+        return useQuery(this.queryKey(), () => apiClient.getAudioInfo(), {
           refetchInterval: AUDIO_INFO_POLLING_INTERVAL_MS,
         });
       },

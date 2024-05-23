@@ -15,6 +15,22 @@ import {
 } from './audio_playback_rate';
 import { newTestContext } from '../../test/test_context';
 
+let setMockHeadphonesPluggedIn: (isPluggedIn: boolean) => void;
+
+jest.mock(
+  '../hooks/use_headphones_plugged_in',
+  (): typeof import('../hooks/use_headphones_plugged_in') => ({
+    ...jest.requireActual('../hooks/use_headphones_plugged_in'),
+    useHeadphonesPluggedIn() {
+      const [isPluggedIn, setIsPluggedIn] = React.useState(true);
+
+      setMockHeadphonesPluggedIn = setIsPluggedIn;
+
+      return isPluggedIn;
+    },
+  })
+);
+
 const { mockApiClient } = newTestContext();
 const mockUiStringsApi = createUiStringsApi(() => mockApiClient);
 
@@ -267,4 +283,29 @@ test('setControlsEnabled', () => {
 
   act(() => result.current?.setIsPaused(true));
   expect(result.current?.isPaused).toEqual(false);
+});
+
+test('disables audio when headphones are unplugged', () => {
+  const { result } = renderHook(useAudioContext, {
+    wrapper: TestContextWrapper,
+  });
+
+  act(() => setMockHeadphonesPluggedIn(true));
+  act(() => result.current?.setIsEnabled(true));
+  expect(result.current?.isEnabled).toEqual(true);
+
+  act(() => setMockHeadphonesPluggedIn(false));
+  expect(result.current?.isEnabled).toEqual(false);
+
+  // `setIsEnabled()` should be a no-op:
+  act(() => result.current?.setIsEnabled(true));
+  expect(result.current?.isEnabled).toEqual(false);
+
+  // `reset()` should be a no-op for the enabled state:
+  act(() => result.current?.reset());
+  expect(result.current?.isEnabled).toEqual(false);
+
+  // Should get re-enabled when headphones are plugged in:
+  act(() => setMockHeadphonesPluggedIn(true));
+  expect(result.current?.isEnabled).toEqual(true);
 });

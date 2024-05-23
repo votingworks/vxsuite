@@ -192,6 +192,7 @@
   "noteScannerUndervoteContestsCardSingular": "All other votes in this contest will count, even if you leave some blank.",
   "noteThankYouForVoting": "Thank you for voting.",
   "noteVoterSettingsAudioMuted": "Audio is muted",
+  "noteVoterSettingsAudioNoHeadphones": "No headphones detected.",
   "noteVoterSettingsAudioUnmuted": "Audio is on",
   "number0": "0",
   "number1": "1",
