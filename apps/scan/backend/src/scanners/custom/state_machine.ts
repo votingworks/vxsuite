@@ -21,7 +21,6 @@ import { fromGrayScale, writeImageData } from '@votingworks/image-utils';
 import { LogEventId, BaseLogger, LogLine } from '@votingworks/logging';
 import { mapSheet, SheetInterpretation, SheetOf } from '@votingworks/types';
 import { join } from 'path';
-import { switchMap, throwError, timeout, timer } from 'rxjs';
 import { v4 as uuid } from 'uuid';
 import {
   assign as xassign,
@@ -34,6 +33,7 @@ import {
   PropertyAssigner,
   StateNodeConfig,
   TransitionConfig,
+  sendParent,
 } from 'xstate';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
@@ -41,6 +41,8 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
+import { escalate } from 'xstate/lib/actions';
+import { Clock } from 'xstate/lib/interpreter';
 import { interpret as defaultInterpret, InterpretFn } from '../../interpret';
 import {
   InterpretationResult,
@@ -113,7 +115,7 @@ export interface Delays {
   DELAY_JAM_WHEN_SCANNING: number;
 }
 
-const defaultDelays: Delays = {
+export const delays = {
   // Time between calls to get paper status from the scanner.
   DELAY_PAPER_STATUS_POLLING_INTERVAL: 500,
   // Time between calls to get paper status from the scanner during ballot accept. We poll at a
@@ -154,7 +156,7 @@ const defaultDelays: Delays = {
   // When scanning fails with a jam error the jam state may take a moment to stablize,
   // delay before deciding what type of jam to proceed with.
   DELAY_JAM_WHEN_SCANNING: 500,
-};
+} satisfies Delays;
 
 function connectToCustom(createCustomClient: CreateCustomClient) {
   return async (): Promise<CustomScanner> => {
@@ -256,36 +258,6 @@ function scannerStatusErrorToEvent(error: ErrorCode): ScannerStatusEvent {
         `Unexpected paper status error: ${ErrorCode[error]} (${error})`
       );
   }
-}
-
-/**
- * Create an observable that polls the paper status and emits state machine
- * events. Some known errors are converted into events, allowing polling to
- * continue. Unexpected errors will end polling.
- */
-function buildPaperStatusObserver(
-  pollingInterval: number,
-  pollingTimeout: number
-) {
-  return ({ client }: Context) => {
-    assert(client);
-    return timer(0, pollingInterval).pipe(
-      switchMap(async () => {
-        const status = await client.getStatus();
-        debugPaperStatus('Paper status: %o', status);
-        const mapped = status.isOk()
-          ? scannerStatusToEvent(status.ok())
-          : scannerStatusErrorToEvent(status.err());
-        debugPaperStatus('Mapped paper status: %o', mapped);
-        return mapped;
-      }),
-      timeout({
-        each: pollingTimeout,
-        with: () =>
-          throwError(() => new PrecinctScannerError('paper_status_timed_out')),
-      })
-    );
-  };
 }
 
 async function reset({ client }: Context): Promise<void> {
@@ -400,29 +372,62 @@ function buildMachine({
   workspace,
   interpret,
   usbDrive,
-  delayOverrides,
 }: {
   createCustomClient?: CreateCustomClient;
   auth: InsertedSmartCardAuthApi;
   workspace: Workspace;
   interpret: InterpretFn;
   usbDrive: UsbDrive;
-  delayOverrides: Partial<Delays>;
 }) {
-  const delays: Delays = { ...defaultDelays, ...delayOverrides };
   const { store } = workspace;
   const isShoeshineModeEnabled = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.ENABLE_SCAN_SHOESHINE_MODE
   );
 
   function pollPaperStatus(
-    pollingInterval: number = delays.DELAY_PAPER_STATUS_POLLING_INTERVAL
+    pollingIntervalDelay: keyof Delays = 'DELAY_PAPER_STATUS_POLLING_INTERVAL'
   ): InvokeConfig<Context, Event> {
     return {
-      src: buildPaperStatusObserver(
-        pollingInterval,
-        delays.DELAY_PAPER_STATUS_POLLING_TIMEOUT
+      src: createMachine<Pick<Context, 'client'>>(
+        {
+          id: 'poll_paper_status',
+          strict: true,
+          predictableActionArguments: true,
+
+          initial: 'querying',
+          states: {
+            querying: {
+              invoke: {
+                src: async ({ client }) => {
+                  const status = await assertDefined(client).getStatus();
+                  debugPaperStatus('Paper status: %o', status);
+                  const mapped = status.isOk()
+                    ? scannerStatusToEvent(status.ok())
+                    : scannerStatusErrorToEvent(status.err());
+                  debugPaperStatus('Mapped paper status: %o', mapped);
+                  return mapped;
+                },
+                onDone: {
+                  target: 'waiting',
+                  actions: sendParent((_, event) => event.data),
+                },
+              },
+              after: {
+                DELAY_PAPER_STATUS_POLLING_TIMEOUT: {
+                  actions: escalate(
+                    new PrecinctScannerError('paper_status_timed_out')
+                  ),
+                },
+              },
+            },
+            waiting: {
+              after: { [pollingIntervalDelay]: 'querying' },
+            },
+          },
+        },
+        { delays }
       ),
+      data: (context) => ({ client: context.client }),
       onError: {
         target: '#error',
         actions: assign({ error: (_, event) => event.data }),
@@ -453,7 +458,7 @@ function buildMachine({
       },
       checking_completed: {
         invoke: pollPaperStatus(
-          delays.DELAY_PAPER_STATUS_POLLING_INTERVAL_DURING_ACCEPT
+          'DELAY_PAPER_STATUS_POLLING_INTERVAL_DURING_ACCEPT'
         ),
         on: {
           SCANNER_NO_PAPER: 'finish_accept',
@@ -608,6 +613,7 @@ function buildMachine({
       id: 'precinct_scanner',
       initial: 'connecting',
       strict: true,
+      predictableActionArguments: true,
       context: { auth, workspace, usbDrive },
       on: {
         SCANNER_DISCONNECTED: 'disconnected',
@@ -1112,7 +1118,7 @@ function buildMachine({
         },
       },
     },
-    { delays: { ...delays } }
+    { delays }
   );
 }
 
@@ -1210,7 +1216,7 @@ export function createPrecinctScannerStateMachine({
   interpret = defaultInterpret,
   logger,
   usbDrive,
-  delays = {},
+  clock,
 }: {
   createCustomClient?: CreateCustomClient;
   auth: InsertedSmartCardAuthApi;
@@ -1218,7 +1224,7 @@ export function createPrecinctScannerStateMachine({
   interpret?: InterpretFn;
   logger: BaseLogger;
   usbDrive: UsbDrive;
-  delays?: Partial<Delays>;
+  clock?: Clock;
 }): PrecinctScannerStateMachine {
   const machine = buildMachine({
     createCustomClient,
@@ -1226,9 +1232,11 @@ export function createPrecinctScannerStateMachine({
     workspace,
     interpret,
     usbDrive,
-    delayOverrides: delays,
   });
-  const machineService = interpretStateMachine(machine).start();
+  const machineService = interpretStateMachine(
+    machine,
+    clock && { clock }
+  ).start();
   setupLogging(machineService, logger);
 
   return {

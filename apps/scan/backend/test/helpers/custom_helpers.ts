@@ -3,7 +3,7 @@ import {
   InsertedSmartCardAuthApi,
   buildMockInsertedSmartCardAuth,
 } from '@votingworks/auth';
-import { Result, assert, deferred, ok } from '@votingworks/basics';
+import { Result, assert, deferred, ok, sleep } from '@votingworks/basics';
 import {
   CustomScanner,
   ErrorCode,
@@ -39,11 +39,11 @@ import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
+import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import { Api, buildApp } from '../../src/app';
-import { InterpretFn } from '../../src/interpret';
 import {
-  Delays,
   createPrecinctScannerStateMachine,
+  delays,
 } from '../../src/scanners/custom/state_machine';
 import { Workspace, createWorkspace } from '../../src/util/workspace';
 import {
@@ -59,15 +59,6 @@ import {
 } from '../../src/printing/printer';
 
 export async function withApp(
-  {
-    delays = {},
-    preconfiguredWorkspace,
-    interpret,
-  }: {
-    delays?: Partial<Delays>;
-    preconfiguredWorkspace?: Workspace;
-    interpret?: InterpretFn;
-  },
   fn: (context: {
     apiClient: grout.Client<Api>;
     app: Application;
@@ -79,11 +70,11 @@ export async function withApp(
     mockFujitsuPrinterHandler: MemoryFujitsuPrinterHandler;
     logger: Logger;
     server: Server;
+    clock: SimulatedClock;
   }) => Promise<void>
 ): Promise<void> {
   const mockAuth = buildMockInsertedSmartCardAuth();
-  const workspace =
-    preconfiguredWorkspace ?? createWorkspace(tmp.dirSync().name);
+  const workspace = createWorkspace(tmp.dirSync().name);
   const logger = buildMockLogger(mockAuth, workspace);
   const mockScanner = mocks.mockCustomScanner();
   const mockUsbDrive = createMockUsbDrive();
@@ -100,20 +91,14 @@ export async function withApp(
     await deferredConnect.promise;
     return ok(mockScanner);
   }
+  const clock = new SimulatedClock();
   const precinctScannerMachine = createPrecinctScannerStateMachine({
     auth: mockAuth,
     createCustomClient,
     workspace,
-    interpret,
     logger,
     usbDrive: mockUsbDrive.usbDrive,
-    delays: {
-      DELAY_RECONNECT: 100,
-      DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: 100,
-      DELAY_ACCEPTED_RESET_TO_NO_PAPER: 500,
-      DELAY_PAPER_STATUS_POLLING_INTERVAL: 50,
-      ...delays,
-    },
+    clock,
   });
   const printer = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.SCAN_USE_FUJITSU_PRINTER
@@ -151,6 +136,7 @@ export async function withApp(
       mockFujitsuPrinterHandler,
       logger,
       server,
+      clock,
     });
     mockUsbDrive.assertComplete();
   } finally {
@@ -237,10 +223,15 @@ export const ballotImages = {
  */
 export function simulateScan(
   mockScanner: jest.Mocked<CustomScanner>,
-  ballotImage: SheetOf<ImageFromScanner>
+  ballotImage: SheetOf<ImageFromScanner>,
+  clock: SimulatedClock
 ): void {
   let didScan = false;
-  mockScanner.getStatus.mockImplementation(() => {
+  mockScanner.getStatus.mockImplementation(async () => {
+    // Simulate an actual async call so that we don't get trapped in a sync
+    // execution loop switching between hardware_ready_to_scan and
+    // check_app_ready_to_scan states.
+    await sleep(1);
     if (!didScan) {
       return Promise.resolve(ok(mocks.MOCK_READY_TO_SCAN));
     }
@@ -250,6 +241,7 @@ export function simulateScan(
     didScan = true;
     return Promise.resolve(ok(ballotImage));
   });
+  clock.increment(delays.DELAY_PAPER_STATUS_POLLING_INTERVAL);
 }
 
 export async function scanBallot(
