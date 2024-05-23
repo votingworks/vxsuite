@@ -1,5 +1,5 @@
 {
-  "name": "@votingworks/hmpb-render-backend",
+  "name": "@votingworks/hmpb",
   "version": "0.1.0",
   "private": true,
   "main": "build/index.js",

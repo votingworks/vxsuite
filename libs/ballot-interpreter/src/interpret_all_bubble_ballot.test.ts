@@ -1,5 +1,5 @@
 import { assert, iter, Optional } from '@votingworks/basics';
-import { allBubbleBallotFixtures } from '@votingworks/hmpb-render-backend';
+import { allBubbleBallotFixtures } from '@votingworks/hmpb';
 import {
   AdjudicationReason,
   Candidate,

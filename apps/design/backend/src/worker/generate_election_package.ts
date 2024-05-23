@@ -14,7 +14,7 @@ import {
   createPlaywrightRenderer,
   renderAllBallotsAndCreateElectionDefinition,
   vxDefaultBallotTemplate,
-} from '@votingworks/hmpb-render-backend';
+} from '@votingworks/hmpb';
 import { PORT } from '../globals';
 import {
   extractAndTranslateElectionStrings,

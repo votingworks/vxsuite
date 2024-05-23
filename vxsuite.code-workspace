@@ -145,8 +145,8 @@
       "path": "libs/grout/test-utils"
     },
     {
-      "name": "libs/hmpb/render-backend",
-      "path": "libs/hmpb/render-backend"
+      "name": "libs/hmpb",
+      "path": "libs/hmpb"
     },
     {
       "name": "libs/image-utils",

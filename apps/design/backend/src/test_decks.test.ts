@@ -7,7 +7,7 @@ import {
   primaryElectionFixtures,
   renderAllBallotsAndCreateElectionDefinition,
   vxDefaultBallotTemplate,
-} from '@votingworks/hmpb-render-backend';
+} from '@votingworks/hmpb';
 import { assert, find, iter } from '@votingworks/basics';
 import {
   buildContestResultsFixture,

@@ -13,7 +13,7 @@
     { "path": "../../libs/basics/tsconfig.build.json" },
     { "path": "../../libs/eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../../libs/fixtures/tsconfig.build.json" },
-    { "path": "../../libs/hmpb/render-backend/tsconfig.build.json" },
+    { "path": "../../libs/hmpb/tsconfig.build.json" },
     { "path": "../../libs/image-utils/tsconfig.build.json" },
     { "path": "../../libs/types/tsconfig.build.json" },
     { "path": "../../libs/utils/tsconfig.build.json" }

@@ -19,7 +19,7 @@ export type {
   PrecinctWithoutSplits,
 } from './types';
 export type { Api } from './app';
-export type { BallotMode } from '@votingworks/hmpb-render-backend';
+export type { BallotMode } from '@votingworks/hmpb';
 
 // Frontend tests import these for generating test data
 export { generateBallotStyles } from './ballot_styles';

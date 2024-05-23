@@ -1,4 +1,4 @@
-const shared = require('../../../jest.config.shared');
+const shared = require('../../jest.config.shared');
 
 /**
  * @type {import('@jest/types').Config.InitialOptions}

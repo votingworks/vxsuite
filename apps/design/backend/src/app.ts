@@ -27,7 +27,7 @@ import {
   renderAllBallotsAndCreateElectionDefinition,
   renderBallotPreviewToPdf,
   vxDefaultBallotTemplate,
-} from '@votingworks/hmpb-render-backend';
+} from '@votingworks/hmpb';
 import { ElectionPackage, ElectionRecord } from './store';
 import { Precinct } from './types';
 import {

@@ -1,4 +1,4 @@
-import { famousNamesFixtures } from '@votingworks/hmpb-render-backend';
+import { famousNamesFixtures } from '@votingworks/hmpb';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { assert, assertDefined } from '@votingworks/basics';
 import {

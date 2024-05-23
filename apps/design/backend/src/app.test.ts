@@ -34,7 +34,7 @@ import {
   BaseBallotProps,
   renderAllBallotsAndCreateElectionDefinition,
   vxDefaultBallotTemplate,
-} from '@votingworks/hmpb-render-backend';
+} from '@votingworks/hmpb';
 import {
   exportElectionPackage,
   isMockCloudSynthesizedSpeech,
@@ -518,8 +518,8 @@ test('Election package export', async () => {
 
 // Spy on the ballot rendering function so we can check that it's called with the
 // right arguments.
-jest.mock('@votingworks/hmpb-render-backend', () => {
-  const original = jest.requireActual('@votingworks/hmpb-render-backend');
+jest.mock('@votingworks/hmpb', () => {
+  const original = jest.requireActual('@votingworks/hmpb');
   return {
     ...original,
     renderAllBallotsAndCreateElectionDefinition: jest.fn(
@@ -581,7 +581,7 @@ test('Export all ballots', async () => {
       .sort()
   );
 
-  // Ballot appearance is tested by fixtures in libs/hmpb/render-backend, so we
+  // Ballot appearance is tested by fixtures in libs/hmpb, so we
   // just make sure we got a PDF and that we called the layout function with the
   // right arguments.
   for (const file of Object.values(zip.files)) {

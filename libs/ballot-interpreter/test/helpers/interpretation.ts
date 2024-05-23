@@ -9,7 +9,7 @@ import {
 } from '@votingworks/types';
 import { tmpNameSync } from 'tmp';
 import { readFile } from 'fs/promises';
-import { voteToOptionId } from '@votingworks/hmpb-render-backend';
+import { voteToOptionId } from '@votingworks/hmpb';
 
 export async function ballotPdfToPageImages(
   pdfFile: string
