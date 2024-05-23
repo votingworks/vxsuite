@@ -36,58 +36,52 @@ beforeEach(() => {
 });
 
 test('bmd ballot is rejected when scanned for wrong precinct', async () => {
-  await withApp(
-    {},
-    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-      // Ballot should be rejected when configured for the wrong precinct
-      await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        precinctId: '22',
-        testMode: true,
-      });
+  await withApp(async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
+    // Ballot should be rejected when configured for the wrong precinct
+    await configureApp(apiClient, mockAuth, mockUsbDrive, {
+      precinctId: '22',
+      testMode: true,
+    });
 
-      const interpretation: SheetInterpretation = {
-        type: 'InvalidSheet',
-        reason: 'invalid_precinct',
-      };
+    const interpretation: SheetInterpretation = {
+      type: 'InvalidSheet',
+      reason: 'invalid_precinct',
+    };
 
-      simulateScan(mockScanner, await ballotImages.completeBmd());
+    simulateScan(mockScanner, await ballotImages.completeBmd());
 
-      await waitForStatus(apiClient, {
-        state: 'rejecting',
-        interpretation,
-      });
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      await waitForStatus(apiClient, {
-        state: 'rejected',
-        interpretation,
-      });
+    await waitForStatus(apiClient, {
+      state: 'rejecting',
+      interpretation,
+    });
+    mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
+    await waitForStatus(apiClient, {
+      state: 'rejected',
+      interpretation,
+    });
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_NO_PAPER));
-      await waitForStatus(apiClient, { state: 'no_paper' });
-    }
-  );
+    mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_NO_PAPER));
+    await waitForStatus(apiClient, { state: 'no_paper' });
+  });
 });
 
 test('bmd ballot is accepted if precinct is set for the right precinct', async () => {
-  await withApp(
-    {},
-    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-      // Configure for the proper precinct and verify the ballot scans
-      await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        precinctId: '23',
-        testMode: true,
-      });
+  await withApp(async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
+    // Configure for the proper precinct and verify the ballot scans
+    await configureApp(apiClient, mockAuth, mockUsbDrive, {
+      precinctId: '23',
+      testMode: true,
+    });
 
-      const validInterpretation: SheetInterpretation = {
-        type: 'ValidSheet',
-      };
+    const validInterpretation: SheetInterpretation = {
+      type: 'ValidSheet',
+    };
 
-      simulateScan(mockScanner, await ballotImages.completeBmd());
+    simulateScan(mockScanner, await ballotImages.completeBmd());
 
-      await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
-        interpretation: validInterpretation,
-      });
-    }
-  );
+    await waitForStatus(apiClient, {
+      state: 'ready_to_accept',
+      interpretation: validInterpretation,
+    });
+  });
 });

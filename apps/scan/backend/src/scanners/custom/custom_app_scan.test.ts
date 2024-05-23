@@ -4,12 +4,18 @@ import {
   AdjudicationReasonInfo,
   DEFAULT_SYSTEM_SETTINGS,
   SheetInterpretation,
+  SheetOf,
 } from '@votingworks/types';
 import waitForExpect from 'wait-for-expect';
 import { assertDefined, err, ok, sleep, typedAs } from '@votingworks/basics';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { BaseLogger } from '@votingworks/logging';
-import { ErrorCode, ScannerStatus, mocks } from '@votingworks/custom-scanner';
+import {
+  ErrorCode,
+  ImageFromScanner,
+  ScannerStatus,
+  mocks,
+} from '@votingworks/custom-scanner';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
@@ -103,9 +109,6 @@ beforeEach(() => {
 
 test('configure and scan hmpb', async () => {
   await withApp(
-    {
-      delays: { DELAY_ACCEPTED_RESET_TO_NO_PAPER: 1500 },
-    },
     async ({ apiClient, mockScanner, mockUsbDrive, logger, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         electionPackage:
@@ -147,7 +150,6 @@ test('configure and scan hmpb', async () => {
 
 test('configure and scan bmd ballot', async () => {
   await withApp(
-    {},
     async ({ apiClient, mockScanner, mockUsbDrive, logger, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
 
@@ -186,7 +188,6 @@ test('configure and scan bmd ballot', async () => {
 
 test('ballot needs review - return', async () => {
   await withApp(
-    {},
     async ({
       apiClient,
       mockScanner,
@@ -248,7 +249,6 @@ test('ballot needs review - return', async () => {
 // TODO test all the invalid ballot reasons?
 test('invalid ballot rejected', async () => {
   await withApp(
-    {},
     async ({
       apiClient,
       mockScanner,
@@ -289,99 +289,75 @@ test('invalid ballot rejected', async () => {
 });
 
 test('blank sheet ballot rejected', async () => {
-  await withApp(
-    {},
-    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive);
+  await withApp(async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
+    await configureApp(apiClient, mockAuth, mockUsbDrive);
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
+    mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
 
-      const interpretation: SheetInterpretation = {
-        type: 'InvalidSheet',
-        reason: 'unknown',
-      };
+    const interpretation: SheetInterpretation = {
+      type: 'InvalidSheet',
+      reason: 'unknown',
+    };
 
-      simulateScan(mockScanner, await ballotImages.blankSheet());
-      await waitForStatus(apiClient, {
-        state: 'rejecting',
-        interpretation,
-      });
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      await waitForStatus(apiClient, {
-        state: 'rejected',
-        interpretation,
-      });
+    simulateScan(mockScanner, await ballotImages.blankSheet());
+    await waitForStatus(apiClient, {
+      state: 'rejecting',
+      interpretation,
+    });
+    mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
+    await waitForStatus(apiClient, {
+      state: 'rejected',
+      interpretation,
+    });
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_NO_PAPER));
-      await waitForStatus(apiClient, { state: 'no_paper' });
-    }
-  );
+    mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_NO_PAPER));
+    await waitForStatus(apiClient, { state: 'no_paper' });
+  });
 });
 
 test('scan fail immediately gives up', async () => {
-  await withApp(
-    {},
-    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive);
+  await withApp(async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
+    await configureApp(apiClient, mockAuth, mockUsbDrive);
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      mockScanner.scan.mockResolvedValue(err(ErrorCode.NoDocumentToBeScanned));
-      await waitForStatus(apiClient, {
-        state: 'rejected',
-        error: 'scanning_failed',
-      });
-    }
-  );
+    mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
+    mockScanner.scan.mockResolvedValue(err(ErrorCode.NoDocumentToBeScanned));
+    await waitForStatus(apiClient, {
+      state: 'rejected',
+      error: 'scanning_failed',
+    });
+  });
 });
 
 test('unexpected interpretation error retries and eventually fails', async () => {
-  const interpret = jest.fn();
+  await withApp(async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
+    await configureApp(apiClient, mockAuth, mockUsbDrive);
 
-  await withApp(
-    {
-      interpret,
-    },
-    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive);
+    mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
+    mockScanner.scan.mockImplementation(() => {
+      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
+      // Trigger interpretation error by passing empty images array
+      return Promise.resolve(ok([] as unknown as SheetOf<ImageFromScanner>));
+    });
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      mockScanner.scan.mockImplementation(async () => {
-        mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
-        return Promise.resolve(ok(await ballotImages.blankSheet()));
-      });
+    // interpret.mockImplementation(() => {
+    //   mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
+    //   throw new Error('interpret error');
+    // });
 
-      interpret.mockImplementation(() => {
-        mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-        throw new Error('interpret error');
-      });
-
-      for (let i = 0; i < MAX_FAILED_SCAN_ATTEMPTS; i += 1) {
-        await waitForExpect(() => {
-          expect(mockScanner.scan).toHaveBeenCalledTimes(i + 1);
-        });
-        await waitForExpect(() => {
-          expect(interpret).toHaveBeenCalledTimes(i + 1);
-        });
-      }
+    for (let i = 0; i < MAX_FAILED_SCAN_ATTEMPTS; i += 1) {
       await waitForExpect(() => {
-        expect(interpret).toHaveBeenCalledTimes(MAX_FAILED_SCAN_ATTEMPTS + 1);
-      });
-      await waitForStatus(apiClient, {
-        state: 'rejected',
-        error: 'client_error',
+        expect(mockScanner.scan).toHaveBeenCalledTimes(i + 1);
       });
     }
-  );
+    await waitForStatus(apiClient, {
+      state: 'rejected',
+      error: 'client_error',
+    });
+  });
 });
 
 test('scanning time out', async () => {
   await withApp(
-    {
-      delays: {
-        DELAY_SCANNING_TIMEOUT: 50,
-        DELAY_RECONNECT_ON_UNEXPECTED_ERROR: 500,
-      },
-    },
     async ({ apiClient, mockScanner, logger, mockUsbDrive, mockAuth }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
@@ -493,98 +469,91 @@ test("scannerStatusToEvent's cases are exhaustive and can all be reached", () =>
 });
 
 test('scanning paused when election manager card is inserted', async () => {
-  await withApp(
-    {},
-    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-      const electionPackage =
-        electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage();
-      await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage,
-      });
+  await withApp(async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
+    const electionPackage =
+      electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage();
+    await configureApp(apiClient, mockAuth, mockUsbDrive, {
+      electionPackage,
+    });
 
-      mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
-        Promise.resolve({
-          status: 'logged_in',
-          user: mockElectionManagerUser(electionPackage.electionDefinition),
-          sessionExpiresAt: mockSessionExpiresAt(),
-        })
-      );
+    mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+      Promise.resolve({
+        status: 'logged_in',
+        user: mockElectionManagerUser(electionPackage.electionDefinition),
+        sessionExpiresAt: mockSessionExpiresAt(),
+      })
+    );
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      simulateScan(mockScanner, await ballotImages.completeHmpb());
+    mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
+    simulateScan(mockScanner, await ballotImages.completeHmpb());
 
-      // we don't scan because the election manager card is inserted
-      await waitForStatus(apiClient, {
-        state: 'hardware_ready_to_scan',
-      });
+    // we don't scan because the election manager card is inserted
+    await waitForStatus(apiClient, {
+      state: 'hardware_ready_to_scan',
+    });
 
-      // remove the card
-      mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
-        Promise.resolve({
-          status: 'logged_out',
-          reason: 'no_card',
-        })
-      );
+    // remove the card
+    mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+      Promise.resolve({
+        status: 'logged_out',
+        reason: 'no_card',
+      })
+    );
 
-      // now we can scan
-      await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
-        interpretation: {
-          type: 'ValidSheet',
-        },
-      });
-    }
-  );
+    // now we can scan
+    await waitForStatus(apiClient, {
+      state: 'ready_to_accept',
+      interpretation: {
+        type: 'ValidSheet',
+      },
+    });
+  });
 });
 
 test('scanning paused when poll worker card is inserted', async () => {
-  await withApp(
-    {},
-    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-      const electionPackage =
-        electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage();
-      await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage,
-      });
+  await withApp(async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
+    const electionPackage =
+      electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage();
+    await configureApp(apiClient, mockAuth, mockUsbDrive, {
+      electionPackage,
+    });
 
-      mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
-        Promise.resolve({
-          status: 'logged_in',
-          user: mockPollWorkerUser(electionPackage.electionDefinition),
-          sessionExpiresAt: mockSessionExpiresAt(),
-        })
-      );
+    mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+      Promise.resolve({
+        status: 'logged_in',
+        user: mockPollWorkerUser(electionPackage.electionDefinition),
+        sessionExpiresAt: mockSessionExpiresAt(),
+      })
+    );
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-      simulateScan(mockScanner, await ballotImages.completeHmpb());
+    mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
+    simulateScan(mockScanner, await ballotImages.completeHmpb());
 
-      // we don't scan because the poll worker card is inserted
-      await waitForStatus(apiClient, {
-        state: 'hardware_ready_to_scan',
-      });
+    // we don't scan because the poll worker card is inserted
+    await waitForStatus(apiClient, {
+      state: 'hardware_ready_to_scan',
+    });
 
-      // remove the card
-      mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
-        Promise.resolve({
-          status: 'logged_out',
-          reason: 'no_card',
-        })
-      );
+    // remove the card
+    mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
+      Promise.resolve({
+        status: 'logged_out',
+        reason: 'no_card',
+      })
+    );
 
-      // now we can scan
-      await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
-        interpretation: {
-          type: 'ValidSheet',
-        },
-      });
-    }
-  );
+    // now we can scan
+    await waitForStatus(apiClient, {
+      state: 'ready_to_accept',
+      interpretation: {
+        type: 'ValidSheet',
+      },
+    });
+  });
 });
 
 test('scanning paused when ballot bag needs replacement', async () => {
   await withApp(
-    {},
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, workspace }) => {
       const electionPackage =
         electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage();
