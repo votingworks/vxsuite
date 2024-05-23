@@ -26,7 +26,6 @@
     { "path": "../../../libs/fixtures/tsconfig.build.json" },
     { "path": "../../../libs/fs/tsconfig.build.json" },
     { "path": "../../../libs/grout/tsconfig.build.json" },
-    { "path": "../../../libs/hmpb/layout/tsconfig.build.json" },
     { "path": "../../../libs/hmpb/render-backend/tsconfig.build.json" },
     { "path": "../../../libs/image-utils/tsconfig.build.json" },
     { "path": "../../../libs/printing/tsconfig.build.json" },

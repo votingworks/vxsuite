@@ -39,7 +39,6 @@
     "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
-    "@votingworks/hmpb-layout": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/ui": "workspace:*",
     "buffer": "^6.0.3",

@@ -145,10 +145,6 @@
       "path": "libs/grout/test-utils"
     },
     {
-      "name": "libs/hmpb/layout",
-      "path": "libs/hmpb/layout"
-    },
-    {
       "name": "libs/hmpb/render-backend",
       "path": "libs/hmpb/render-backend"
     },

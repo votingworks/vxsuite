@@ -43,7 +43,6 @@
     "@votingworks/basics": "workspace:*",
     "@votingworks/db": "workspace:*",
     "@votingworks/grout": "workspace:*",
-    "@votingworks/hmpb-layout": "workspace:*",
     "@votingworks/hmpb-render-backend": "workspace:*",
     "@votingworks/printing": "workspace:*",
     "@votingworks/types": "workspace:*",
