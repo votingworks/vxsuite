@@ -172,10 +172,6 @@ test('saving report', async () => {
   userEvent.click(await screen.findButton('Close'));
 
   // confirm modal resets after exiting
-  userEvent.click(
-    await screen.findButton('Save Readiness Report', {
-      useSparinglyIncludeHidden: true,
-    })
-  );
+  userEvent.click(await screen.findButton('Save Readiness Report'));
   await screen.findByRole('heading', { name: 'Save Readiness Report' });
 });

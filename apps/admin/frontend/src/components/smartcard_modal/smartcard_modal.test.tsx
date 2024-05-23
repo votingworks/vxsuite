@@ -378,9 +378,7 @@ test('Programming election manager and poll worker smartcards', async () => {
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
-    // For some reason, we need to use the "hidden" option here, even though the
-    // heading is not hidden
-    await screen.findByRole('heading', { name: 'Election', hidden: true });
+    await screen.findByRole('heading', { name: 'Election' });
   }
 });
 
@@ -552,9 +550,7 @@ test('Resetting smartcard PINs', async () => {
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
-    // For some reason, we need to use the "hidden" option here, even though the
-    // heading is not hidden
-    await screen.findByRole('heading', { name: 'Election', hidden: true });
+    await screen.findByRole('heading', { name: 'Election' });
   }
 });
 
@@ -669,9 +665,7 @@ test('Unprogramming smartcards', async () => {
     await waitFor(() =>
       expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
     );
-    // For some reason, we need to use the "hidden" option here, even though the
-    // heading is not hidden
-    await screen.findByRole('heading', { name: 'Election', hidden: true });
+    await screen.findByRole('heading', { name: 'Election' });
   }
 });
 
