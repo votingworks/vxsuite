@@ -502,6 +502,10 @@ IDs are logged with each log to identify the log being written.
 **Type:** [user-action](#user-action)  
 **Description:** The user has saved an equipment readiness report.  
 **Machines:** All
+### headphones-detection-errors
+**Type:** [application-status](#application-status)  
+**Description:** Error while attempting to detect headphones.  
+**Machines:** All
 ### unknown-error
 **Type:** [application-status](#application-status)  
 **Description:** Machine encountered an unknown error.  

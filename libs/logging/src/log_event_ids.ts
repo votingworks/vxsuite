@@ -134,6 +134,7 @@ export enum LogEventId {
   DiagnosticComplete = 'diagnostic-complete',
   ReadinessReportPrinted = 'readiness-report-printed',
   ReadinessReportSaved = 'readiness-report-saved',
+  HeadphonesDetectionError = 'headphones-detection-errors',
   UnknownError = 'unknown-error',
 }
 
@@ -1126,6 +1127,12 @@ const ReadinessReportSaved: LogDetails = {
   documentationMessage: 'The user has saved an equipment readiness report.',
 };
 
+const HeadphonesDetectionError: LogDetails = {
+  eventId: LogEventId.HeadphonesDetectionError,
+  eventType: LogEventType.ApplicationStatus,
+  documentationMessage: 'Error while attempting to detect headphones.',
+};
+
 const UnknownError: LogDetails = {
   eventId: LogEventId.UnknownError,
   eventType: LogEventType.ApplicationStatus,
@@ -1387,6 +1394,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return ReadinessReportPrinted;
     case LogEventId.ReadinessReportSaved:
       return ReadinessReportSaved;
+    case LogEventId.HeadphonesDetectionError:
+      return HeadphonesDetectionError;
     case LogEventId.UnknownError:
       return UnknownError;
     /* istanbul ignore next - compile time check for completeness */

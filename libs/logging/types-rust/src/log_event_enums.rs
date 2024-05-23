@@ -253,6 +253,8 @@ pub enum EventId {
     ReadinessReportPrinted,
     #[serde(rename = "readiness-report-saved")]
     ReadinessReportSaved,
+    #[serde(rename = "headphones-detection-errors")]
+    HeadphonesDetectionError,
     #[serde(rename = "unknown-error")]
     UnknownError,
 }
