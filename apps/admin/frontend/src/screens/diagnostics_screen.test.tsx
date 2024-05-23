@@ -6,7 +6,6 @@ import { screen, within, act } from '../../test/react_testing_library';
 import { renderInAppContext } from '../../test/render_in_app_context';
 import { ApiMock, createApiMock } from '../../test/helpers/mock_api_client';
 import { DiagnosticsScreen } from './diagnostics_screen';
-import { hackActuallyCleanUpReactModal } from '../../test/react_modal_cleanup';
 import { TEST_PAGE_PRINT_DELAY_SECONDS } from '../components/print_diagnostic_button';
 
 let apiMock: ApiMock;
@@ -137,7 +136,6 @@ test('displays printer state and allows diagnostic', async () => {
   await screen.findByText('Test Print Failed');
   userEvent.click(screen.getButton('Close'));
   expect(screen.queryByRole('alertdialog')).toBeNull();
-  await hackActuallyCleanUpReactModal();
   await expectTextWithIcon(
     'Test print failed, 6/22/2022, 12:00:00 PM',
     'triangle-exclamation'

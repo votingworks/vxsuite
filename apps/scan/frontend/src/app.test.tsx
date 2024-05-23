@@ -48,22 +48,6 @@ function renderApp(props: Partial<AppProps> = {}) {
   render(<App apiClient={apiMock.mockApiClient} {...props} />);
 }
 
-/**
- * HACK: The modal library we're using applies an `aria-hidden` attribute
- * to the root element when a modal is open and removes it when the modal
- * is closed, but this isn't happening in the jest environment, for some
- * reason. Works as expected in production.
- * We're removing the attribute here to make sure our getByRole queries work
- * properly.
- */
-async function hackActuallyCleanUpReactModal() {
-  await waitFor(() => {
-    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-  });
-
-  window.document.body.firstElementChild?.removeAttribute('aria-hidden');
-}
-
 beforeEach(() => {
   jest.useFakeTimers();
 
@@ -216,8 +200,6 @@ test('election manager and poll worker configuration', async () => {
   apiMock.expectGetConfig(config);
   apiMock.expectGetPollsInfo('polls_closed_initial');
 
-  await hackActuallyCleanUpReactModal();
-
   userEvent.click(
     await screen.findByRole('option', {
       name: 'Official Ballot Mode',
@@ -285,8 +267,6 @@ test('election manager and poll worker configuration', async () => {
   apiMock.authenticateAsPollWorker(electionDefinition);
   await screen.findByText('Do you want to open the polls?');
   userEvent.click(await screen.findByText('Yes, Open the Polls'));
-
-  await hackActuallyCleanUpReactModal();
 
   await screen.findByText(
     'Remove the poll worker card once you have printed all necessary reports.'
