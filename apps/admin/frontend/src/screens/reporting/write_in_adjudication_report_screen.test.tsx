@@ -14,7 +14,6 @@ import {
   waitForElementToBeRemoved,
   within,
 } from '../../../test/react_testing_library';
-import { hackActuallyCleanUpReactModal } from '../../../test/react_modal_cleanup';
 
 let apiMock: ApiMock;
 
@@ -52,7 +51,6 @@ test('renders provided data', async () => {
   userEvent.click(screen.getButton('Print Report'));
   const printModal = await screen.findByRole('alertdialog');
   await waitForElementToBeRemoved(printModal);
-  await hackActuallyCleanUpReactModal();
 
   jest.setSystemTime(new Date('2021-01-01T00:00:00'));
   apiMock.apiClient.exportWriteInAdjudicationReportPdf

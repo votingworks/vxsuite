@@ -10,7 +10,6 @@ import { screen, within } from '../../../test/react_testing_library';
 import { ApiMock, createApiMock } from '../../../test/helpers/mock_api_client';
 import { ExportFileButton } from './export_file_button';
 import { generateReportFilename } from '../../utils/reporting';
-import { hackActuallyCleanUpReactModal } from '../../../test/react_modal_cleanup';
 
 let apiMock: ApiMock;
 
@@ -114,7 +113,6 @@ test('overall flow', async () => {
   );
   userEvent.click(within(modal).getButton('Close'));
   expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-  await hackActuallyCleanUpReactModal();
 
   expect(jestMockMutate).toHaveBeenCalledTimes(1);
   expect(jestMockMutate).toHaveBeenCalledWith({
