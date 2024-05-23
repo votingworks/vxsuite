@@ -94,7 +94,6 @@ export function convertVxfPrecincts(election: Election): Precinct[] {
         id: `${precinct.id}-split-${index + 1}`,
         name: `${precinct.name} - Split ${index + 1}`,
         districtIds: ballotStyle.districts,
-        nhCustomContent: {},
       })),
     };
   });

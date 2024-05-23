@@ -47,7 +47,6 @@ export function makeElectionRecord(baseElection: Election): ElectionRecord {
     ballotStyles,
     layoutOptions: DEFAULT_LAYOUT_OPTIONS,
     createdAt: new Date().toISOString(),
-    nhCustomContent: {},
     ballotLanguageConfigs,
   };
 }

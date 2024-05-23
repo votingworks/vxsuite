@@ -1,15 +1,8 @@
-import {
-  DateWithoutTime,
-  Optional,
-  assert,
-  find,
-  iter,
-} from '@votingworks/basics';
+import { DateWithoutTime, Optional, assert } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
 import {
   DEFAULT_LAYOUT_OPTIONS,
   LayoutOptions,
-  NhCustomContentByBallotStyle,
 } from '@votingworks/hmpb-layout';
 import {
   Id,
@@ -32,7 +25,6 @@ import {
   BallotStyle,
   Precinct,
   convertToVxfBallotStyle,
-  hasSplits,
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
 
@@ -55,7 +47,6 @@ export interface ElectionRecord {
   systemSettings: SystemSettings;
   layoutOptions: LayoutOptions;
   createdAt: Iso8601Timestamp;
-  nhCustomContent: NhCustomContentByBallotStyle;
   ballotLanguageConfigs: BallotLanguageConfigs;
 }
 
@@ -112,48 +103,6 @@ export interface ElectionPackage {
   url?: string;
 }
 
-export function getNhCustomContentByBallotStyle(
-  precincts: Precinct[],
-  ballotStyles: BallotStyle[]
-): NhCustomContentByBallotStyle {
-  return Object.fromEntries(
-    ballotStyles.map((ballotStyle) => {
-      // TODO: We should probably be translating the NH custom content based on
-      // the ballot style language.
-      const splitsWithCustomContent = iter(ballotStyle.precinctsOrSplits)
-        .filterMap((precinctOrSplit) => {
-          if (precinctOrSplit.splitId) {
-            const precinct = find(
-              precincts,
-              (p) => p.id === precinctOrSplit.precinctId
-            );
-            assert(hasSplits(precinct));
-            const split = find(
-              precinct.splits,
-              (s) => s.id === precinctOrSplit.splitId
-            );
-            if (Object.keys(split.nhCustomContent).length > 0) {
-              return split;
-            }
-          }
-          return undefined;
-        })
-        .toArray();
-      /* istanbul ignore next */
-      if (splitsWithCustomContent.length > 1) {
-        // TODO validate this when saving custom content, not loading it
-        // eslint-disable-next-line no-console
-        console.error(
-          `Warning: Multiple precinct splits that have the same ballot style have different NH custom content. Splits with same ballot style: ${splitsWithCustomContent
-            .map((s) => s.name)
-            .join(', ')}`
-        );
-      }
-      return [ballotStyle.id, splitsWithCustomContent[0]?.nhCustomContent];
-    })
-  );
-}
-
 function convertSqliteTimestampToIso8601(
   sqliteTimestamp: string
 ): Iso8601Timestamp {
@@ -180,10 +129,6 @@ function hydrateElection(row: {
     parties: rawElection.parties,
     precincts,
   });
-  const nhCustomContent = getNhCustomContentByBallotStyle(
-    precincts,
-    ballotStyles
-  );
   // Fill in our precinct/ballot style overrides in the VXF election format.
   // This is important for pieces of the code that rely on the VXF election
   // (e.g. rendering ballots)
@@ -208,7 +153,6 @@ function hydrateElection(row: {
     ballotStyles,
     systemSettings,
     layoutOptions,
-    nhCustomContent,
     createdAt: convertSqliteTimestampToIso8601(row.createdAt),
     ballotLanguageConfigs,
   };

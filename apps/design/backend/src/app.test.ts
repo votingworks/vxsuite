@@ -13,19 +13,13 @@ import {
 } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
-  AnyContest,
   BallotType,
   CandidateContest,
-  Contests,
   DEFAULT_SYSTEM_SETTINGS,
-  District,
   DistrictId,
   Election,
   ElectionStringKey,
-  ElectionType,
   LanguageCode,
-  Parties,
-  PartyId,
   SystemSettings,
 } from '@votingworks/types';
 import {
@@ -46,7 +40,6 @@ import {
   vxDefaultBallotTemplate,
 } from '@votingworks/hmpb-render-backend';
 import {
-  ApiClient,
   exportElectionPackage,
   isMockCloudSynthesizedSpeech,
   mockCloudTranslatedText,
@@ -60,7 +53,6 @@ import {
   Precinct,
   convertToVxfBallotStyle,
   getAllBallotLanguages,
-  hasSplits,
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
 import { ElectionRecord } from '.';
@@ -123,7 +115,6 @@ test('CRUD elections', async () => {
     ballotStyles: [],
     precincts: [],
     layoutOptions: DEFAULT_LAYOUT_OPTIONS,
-    nhCustomContent: {},
     createdAt: expect.any(String),
     ballotLanguageConfigs: getTempBallotLanguageConfigsForCert(),
   });
@@ -165,7 +156,6 @@ test('CRUD elections', async () => {
     // TODO test that ballot styles/precincts are correct
     ballotStyles: expectedBallotStyles,
     precincts: expectedPrecincts,
-    nhCustomContent: {},
     createdAt: expect.any(String),
     layoutOptions: DEFAULT_LAYOUT_OPTIONS,
     ballotLanguageConfigs: getTempBallotLanguageConfigsForCert(),
@@ -758,154 +748,3 @@ test('Consistency of election hash across exports', async () => {
     ]),
   ]).toHaveLength(1);
 }, 30_000);
-
-describe('Ballot style generation', () => {
-  const districts: District[] = [
-    {
-      id: 'district-1' as DistrictId,
-      name: 'District 1',
-    },
-    {
-      id: 'district-2' as DistrictId,
-      name: 'District 2',
-    },
-    {
-      id: 'district-3' as DistrictId,
-      name: 'District 3',
-    },
-  ];
-  const [district1, district2, district3] = districts;
-
-  function makeContest(
-    id: string,
-    districtId: DistrictId,
-    partyId?: PartyId
-  ): AnyContest {
-    return {
-      id,
-      districtId,
-      type: 'candidate',
-      title: id,
-      candidates: [],
-      allowWriteIns: true,
-      seats: 1,
-      partyId,
-    };
-  }
-
-  async function setupElection(
-    apiClient: ApiClient,
-    spec: {
-      type: ElectionType;
-      districts: District[];
-      precincts: Precinct[];
-      contests: Contests;
-      parties?: Parties;
-    }
-  ) {
-    const electionId = (
-      await apiClient.createElection({ electionData: undefined })
-    ).unsafeUnwrap();
-    const { election } = await apiClient.getElection({ electionId });
-    await apiClient.updateElection({
-      electionId,
-      election: {
-        ...election,
-        type: spec.type,
-        districts: spec.districts,
-        contests: spec.contests,
-        parties: spec.parties ?? [],
-      },
-    });
-    await apiClient.updatePrecincts({ electionId, precincts: spec.precincts });
-    return electionId;
-  }
-
-  test('General election with NH custom content', async () => {
-    const { apiClient } = setupApp();
-
-    const precincts: Precinct[] = [
-      {
-        id: 'precinct-1',
-        name: 'Precinct 1',
-        districtIds: [district1.id],
-      },
-      {
-        id: 'precinct-2',
-        name: 'Precinct 2',
-        splits: [
-          {
-            id: 'precinct-2-split-1',
-            name: 'Precinct 2 - Split 1',
-            districtIds: [district1.id, district2.id],
-            nhCustomContent: {
-              electionTitle: 'Annual Town Election',
-              clerkSignatureImage: '<svg>town clerk signature image data</svg>',
-              clerkSignatureCaption: 'Town Clerk',
-            },
-          },
-          {
-            id: 'precinct-2-split-2',
-            name: 'Precinct 2 - Split 2',
-            districtIds: [district1.id, district3.id],
-            nhCustomContent: {
-              electionTitle: 'Annual School District Election',
-              clerkSignatureImage:
-                '<svg>school district clerk signature image data</svg>',
-              clerkSignatureCaption: 'School District Clerk',
-            },
-          },
-        ],
-      },
-    ];
-    const contests: Contests = [
-      makeContest('contest-1', district1.id),
-      makeContest('contest-2', district2.id),
-    ];
-
-    const electionId = await setupElection(apiClient, {
-      type: 'general',
-      districts,
-      precincts,
-      contests,
-    });
-
-    const { ballotStyles, nhCustomContent } = await apiClient.getElection({
-      electionId,
-    });
-    const [, precinct2] = precincts;
-    assert(hasSplits(precinct2));
-    const [split1, split2] = precinct2.splits;
-    expect(nhCustomContent).toEqual(
-      Object.fromEntries(
-        ballotStyles.map((b) => {
-          if (b.precinctsOrSplits.some((p) => p.splitId === split1.id)) {
-            return [
-              b.id,
-              {
-                electionTitle: 'Annual Town Election',
-                clerkSignatureImage:
-                  '<svg>town clerk signature image data</svg>',
-                clerkSignatureCaption: 'Town Clerk',
-              },
-            ];
-          }
-
-          if (b.precinctsOrSplits.some((p) => p.splitId === split2.id)) {
-            return [
-              b.id,
-              {
-                electionTitle: 'Annual School District Election',
-                clerkSignatureImage:
-                  '<svg>school district clerk signature image data</svg>',
-                clerkSignatureCaption: 'School District Clerk',
-              },
-            ];
-          }
-
-          return [b.id, undefined];
-        })
-      )
-    );
-  });
-});
