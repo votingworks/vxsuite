@@ -5,7 +5,6 @@ import {
   electionFamousNames2021Fixtures,
   electionPrimaryPrecinctSplitsFixtures,
 } from '@votingworks/fixtures';
-import { voteIsCandidate } from '@votingworks/hmpb-layout';
 import {
   BallotPaperSize,
   BallotStyle,
@@ -18,7 +17,7 @@ import {
 } from '@votingworks/types';
 import { join } from 'path';
 import makeDebug from 'debug';
-import { markBallotDocument } from './mark_ballot';
+import { markBallotDocument, voteIsCandidate } from './mark_ballot';
 import {
   BaseBallotProps,
   renderAllBallotsAndCreateElectionDefinition,

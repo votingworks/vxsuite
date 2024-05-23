@@ -20,7 +20,6 @@ import {
   getPartyForBallotStyle,
   getPrecinctById,
 } from '@votingworks/types';
-import { BallotMode, layOutInColumns } from '@votingworks/hmpb-layout';
 import {
   BallotPageTemplate,
   BaseBallotProps,
@@ -36,12 +35,13 @@ import {
   WRITE_IN_OPTION_CLASS,
   pageMargins,
 } from './ballot_components';
-import { PixelDimensions } from './types';
+import { BallotMode, PixelDimensions } from './types';
 import {
   ArrowRightCircle,
   InstructionsDiagramFillBubble,
   InstructionsDiagramWriteIn,
 } from './svg_assets';
+import { layOutInColumns } from './layout_in_columns';
 
 const Colors = {
   BLACK: '#000000',
