@@ -41,12 +41,8 @@ test('returns current language when rendered within context', async () => {
     { wrapper: TestHookWrapper }
   );
 
-  await waitFor(() => expect(result.current).toEqual(DEFAULT_LANGUAGE_CODE), {
-    timeout: 100,
-  });
+  await waitFor(() => expect(result.current).toEqual(DEFAULT_LANGUAGE_CODE));
 
   act(() => setLanguage(LanguageCode.SPANISH));
-  await waitFor(() => expect(result.current).toEqual(LanguageCode.SPANISH), {
-    timeout: 100,
-  });
+  await waitFor(() => expect(result.current).toEqual(LanguageCode.SPANISH));
 });

@@ -30,9 +30,7 @@ test('returns available languages from backend', async () => {
     wrapper: TestHookWrapper,
   });
 
-  await waitFor(() => expect(result.current).toEqual([ENGLISH, SPANISH]), {
-    timeout: 100,
-  });
+  await waitFor(() => expect(result.current).toEqual([ENGLISH, SPANISH]));
 });
 
 test('returns only default language when rendered without context', () => {
