@@ -1,6 +1,5 @@
 import userEvent from '@testing-library/user-event';
 import { BallotPaperSize, Election } from '@votingworks/types';
-import { LayoutOptions } from '@votingworks/hmpb-layout';
 import {
   provideApi,
   createMockApiClient,
@@ -130,10 +129,6 @@ test('Ballot layout tab', async () => {
   const paperSizeRadioGroup = screen.getByRole('radiogroup', {
     name: 'Paper Size',
   });
-  const densityRadioGroup = screen.getByRole('radiogroup', { name: 'Density' });
-  const bubblePositionControl = screen.getByRole('listbox', {
-    name: 'Bubble Position',
-  });
 
   // Paper size initial state
   for (const optionName of [
@@ -154,51 +149,11 @@ test('Ballot layout tab', async () => {
     within(paperSizeRadioGroup).getByLabelText('8.5 x 11 inches (Letter)')
   ).toBeChecked();
 
-  // Density initial state
-  expect(
-    within(densityRadioGroup).getByRole('radio', {
-      name: 'Default',
-      checked: true,
-    })
-  ).toBeDisabled();
-  expect(
-    within(densityRadioGroup).getByRole('radio', {
-      name: 'Medium',
-      checked: false,
-    })
-  ).toBeDisabled();
-  expect(
-    within(densityRadioGroup).getByRole('radio', {
-      name: 'Condensed',
-      checked: false,
-    })
-  ).toBeDisabled();
-
-  // Bubble position initial state
-  expect(
-    within(bubblePositionControl).getByRole('option', {
-      name: 'Left',
-      selected: true,
-    })
-  ).toBeDisabled();
-  expect(
-    within(bubblePositionControl).getByRole('option', {
-      name: 'Right',
-      selected: false,
-    })
-  ).toBeDisabled();
-
   // Edit
   userEvent.click(screen.getByRole('button', { name: /Edit/ }));
 
   userEvent.click(screen.getByLabelText('8.5 x 17 inches'));
   expect(screen.getByLabelText('8.5 x 17 inches')).toBeChecked();
-
-  userEvent.click(screen.getByLabelText('Medium'));
-  expect(screen.getByLabelText('Medium')).toBeChecked();
-
-  userEvent.click(screen.getByRole('option', { name: 'Right' }));
-  screen.getByRole('option', { name: 'Right', selected: true });
 
   // Save
   const updatedElection: Election = {
@@ -208,38 +163,18 @@ test('Ballot layout tab', async () => {
       paperSize: BallotPaperSize.Custom17,
     },
   };
-  const updatedLayoutOptions: LayoutOptions = {
-    layoutDensity: 1,
-    bubblePosition: 'right',
-  };
   apiMock.updateElection
     .expectCallWith({
       electionId,
       election: updatedElection,
     })
     .resolves();
-  apiMock.updateLayoutOptions
-    .expectCallWith({
-      electionId,
-      layoutOptions: updatedLayoutOptions,
-    })
-    .resolves();
   apiMock.getElection.expectCallWith({ electionId }).resolves({
     ...generalElectionRecord,
     election: updatedElection,
-    layoutOptions: updatedLayoutOptions,
   });
-  // Extra refetch because of the dual mutations
-  apiMock.getElection.expectCallWith({ electionId }).resolves({
-    ...generalElectionRecord,
-    election: updatedElection,
-    layoutOptions: updatedLayoutOptions,
-  });
-
   userEvent.click(screen.getByRole('button', { name: /Save/ }));
   await screen.findByRole('button', { name: /Edit/ });
 
   expect(screen.getByLabelText('8.5 x 17 inches')).toBeChecked();
-  expect(screen.getByLabelText('Medium')).toBeChecked();
-  screen.getByRole('option', { name: 'Right', selected: true });
 });

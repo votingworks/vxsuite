@@ -31,10 +31,6 @@ import { readElectionPackageFromFile } from '@votingworks/backend';
 import { countObjectLeaves, getObjectLeaves } from '@votingworks/test-utils';
 import {
   BallotMode,
-  DEFAULT_LAYOUT_OPTIONS,
-  LayoutOptions,
-} from '@votingworks/hmpb-layout';
-import {
   BaseBallotProps,
   renderAllBallotsAndCreateElectionDefinition,
   vxDefaultBallotTemplate,
@@ -114,7 +110,6 @@ test('CRUD elections', async () => {
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     ballotStyles: [],
     precincts: [],
-    layoutOptions: DEFAULT_LAYOUT_OPTIONS,
     createdAt: expect.any(String),
     ballotLanguageConfigs: getTempBallotLanguageConfigsForCert(),
   });
@@ -157,7 +152,6 @@ test('CRUD elections', async () => {
     ballotStyles: expectedBallotStyles,
     precincts: expectedPrecincts,
     createdAt: expect.any(String),
-    layoutOptions: DEFAULT_LAYOUT_OPTIONS,
     ballotLanguageConfigs: getTempBallotLanguageConfigsForCert(),
   });
 
@@ -263,32 +257,6 @@ test('Update system settings', async () => {
   expect(await apiClient.getElection({ electionId })).toEqual({
     ...electionRecord,
     systemSettings: updatedSystemSettings,
-  });
-});
-
-test('Update layout options', async () => {
-  const { apiClient } = setupApp();
-  const electionId = (
-    await apiClient.createElection({ electionData: undefined })
-  ).unsafeUnwrap();
-  const electionRecord = await apiClient.getElection({ electionId });
-
-  expect(electionRecord.layoutOptions).toEqual(DEFAULT_LAYOUT_OPTIONS);
-
-  const updatedLayoutOptions: LayoutOptions = {
-    bubblePosition: 'right',
-    layoutDensity: 2,
-  };
-  expect(updatedLayoutOptions).not.toEqual(DEFAULT_LAYOUT_OPTIONS);
-
-  await apiClient.updateLayoutOptions({
-    electionId,
-    layoutOptions: updatedLayoutOptions,
-  });
-
-  expect(await apiClient.getElection({ electionId })).toEqual({
-    ...electionRecord,
-    layoutOptions: updatedLayoutOptions,
   });
 });
 

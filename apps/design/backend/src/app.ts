@@ -18,13 +18,10 @@ import {
   ok,
   Result,
 } from '@votingworks/basics';
+import JsZip from 'jszip';
 import {
   BallotMode,
   BALLOT_MODES,
-  LayoutOptions,
-} from '@votingworks/hmpb-layout';
-import JsZip from 'jszip';
-import {
   BaseBallotProps,
   createPlaywrightRenderer,
   renderAllBallotsAndCreateElectionDefinition,
@@ -153,13 +150,6 @@ function buildApi({ workspace, translator }: AppContext) {
 
     updatePrecincts(input: { electionId: Id; precincts: Precinct[] }): void {
       store.updatePrecincts(input.electionId, input.precincts);
-    },
-
-    updateLayoutOptions(input: {
-      electionId: Id;
-      layoutOptions: LayoutOptions;
-    }): void {
-      store.updateLayoutOptions(input.electionId, input.layoutOptions);
     },
 
     deleteElection(input: { electionId: Id }): void {
