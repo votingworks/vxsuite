@@ -4,68 +4,114 @@ import { throwIllegalValue } from '@votingworks/basics';
 import { asBoolean } from './as_boolean';
 
 export enum BooleanEnvironmentVariableName {
-  // Enables the write in adjudication tab in VxAdmin, and enables exporting images with write ins in the scan service
+  /**
+   * Enables the write in adjudication tab in VxAdmin, and enables exporting
+   * images with write ins in the scan service
+   */
   WRITE_IN_ADJUDICATION = 'REACT_APP_VX_ENABLE_WRITE_IN_ADJUDICATION',
-  // When enabled VxAdmin will generate 000000 as the PIN for any created smartcard.
+  /**
+   * When enabled VxAdmin will generate 000000 as the PIN for any created smartcard.
+   */
   ALL_ZERO_SMARTCARD_PIN = 'REACT_APP_VX_ENABLE_ALL_ZERO_SMARTCARD_PIN_GENERATION',
-  // Enables livecheck in VxScan.
+  /** Enables livecheck in VxScan. */
   LIVECHECK = 'REACT_APP_VX_ENABLE_LIVECHECK',
-  // Enables the React Query Devtools in development.
+  /** Enables the React Query Devtools in development. */
   ENABLE_REACT_QUERY_DEVTOOLS = 'REACT_APP_VX_ENABLE_REACT_QUERY_DEVTOOLS',
-  // Enables the VxSuite Dev Dock in development. See libs/dev-dock.
+  /** Enables the VxSuite Dev Dock in development. See libs/dev-dock. */
   ENABLE_DEV_DOCK = 'REACT_APP_VX_ENABLE_DEV_DOCK',
-  // Skips PIN entry during authentication
+  /** Skips PIN entry during authentication */
   SKIP_PIN_ENTRY = 'REACT_APP_VX_SKIP_PIN_ENTRY',
-  // Use mock cards instead of a real card reader. Meant for development and integration tests.
-  // Real smart cards will not work when this flag is enabled.
+  /**
+   * Use mock cards instead of a real card reader. Meant for development and integration tests.
+   * Real smart cards will not work when this flag is enabled.
+   */
   USE_MOCK_CARDS = 'REACT_APP_VX_USE_MOCK_CARDS',
-  // Use a mock USB drive instead of real USB drives. Meant for development and integration tests.
-  // Real USBs will not work when this flag is enabled.
+  /**
+   * Use a mock USB drive instead of real USB drives. Meant for development and integration tests.
+   * Real USBs will not work when this flag is enabled.
+   */
   USE_MOCK_USB_DRIVE = 'REACT_APP_VX_USE_MOCK_USB_DRIVE',
-  // Use a mock printer instead of a real printer. Meant for development and integration tests.
-  // Real printers will not connect when this flag is enabled.
+  /**
+   * Use a mock printer instead of a real printer. Meant for development and integration tests.
+   * Real printers will not connect when this flag is enabled.
+   */
   USE_MOCK_PRINTER = 'REACT_APP_VX_USE_MOCK_PRINTER',
-  // Skips election hash checks when importing CVRs to allow using old fixtures
-  // in development even as their respective election definitions change.
+  /**
+   * Skips election hash checks when importing CVRs to allow using old fixtures
+   * in development even as their respective election definitions change.
+   */
   SKIP_CVR_ELECTION_HASH_CHECK = 'REACT_APP_VX_SKIP_CVR_ELECTION_HASH_CHECK',
-  // Skips election hash checks when scanning to allow using old fixtures in
-  // development even as their respective election definitions change.
+  /**
+   * Skips election hash checks when scanning to allow using old fixtures in
+   * development even as their respective election definitions change.
+   */
   SKIP_SCAN_ELECTION_HASH_CHECK = 'REACT_APP_VX_SKIP_SCAN_ELECTION_HASH_CHECK',
-  // Skips authentication (i.e. signature verification) of election packages on import
+  /**
+   * Skips authentication (i.e. signature verification) of election packages on import
+   */
   SKIP_ELECTION_PACKAGE_AUTHENTICATION = 'REACT_APP_VX_SKIP_ELECTION_PACKAGE_AUTHENTICATION',
-  // Skips authentication (i.e. signature verification) of cast vote records on import
+  /**
+   * Skips authentication (i.e. signature verification) of cast vote records on import
+   */
   SKIP_CAST_VOTE_RECORDS_AUTHENTICATION = 'REACT_APP_VX_SKIP_CAST_VOTE_RECORDS_AUTHENTICATION',
-  // Excludes original snapshots in cast vote record reports, decreasing export size and
-  // import/export time
+  /**
+   * Excludes original snapshots in cast vote record reports, decreasing export size and
+   * import/export time
+   */
   CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_ORIGINAL_SNAPSHOTS = 'REACT_APP_VX_CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_ORIGINAL_SNAPSHOTS',
-  // Excludes redundant metadata in cast vote record reports, decreasing export size and
-  // import/export time
+  /**
+   * Excludes redundant metadata in cast vote record reports, decreasing export size and
+   * import/export time
+   */
   CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_REDUNDANT_METADATA = 'REACT_APP_VX_CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_REDUNDANT_METADATA',
-  // Disables the ballot box check on VxMarkScan. If false, the app will block until the ballot
-  // box is attached
+  /**
+   * Disables the ballot box check on VxMarkScan. If false, the app will block until the ballot
+   * box is attached
+   */
   DISABLE_BALLOT_BOX_CHECK = 'REACT_APP_VX_DISABLE_BALLOT_BOX_CHECK',
-  // Allows VxMarkScan to run without a connection to the Custom paper handler
+  /**
+   * Allows VxMarkScan to run without a connection to the Custom paper handler
+   */
   USE_MOCK_PAPER_HANDLER = 'REACT_APP_VX_USE_MOCK_PAPER_HANDLER',
-  // Enables cloud translation and speech synthesis when exporting election packages from VxDesign
+  /**
+   * Enables cloud translation and speech synthesis when exporting election packages from VxDesign
+   */
   ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS = 'REACT_APP_VX_ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS',
-  // Use legacy CUPS-enabled printing in VxScan, as opposed to the thermal printer with our own driver
+  /**
+   * Use legacy CUPS-enabled printing in VxScan, as opposed to the thermal printer with our own driver
+   */
   SCAN_USE_FUJITSU_PRINTER = 'REACT_APP_VX_SCAN_USE_FUJITSU_PRINTER',
-  // Use the Custom scanner in VxScan (as opposed to the PDI scanner)
+  /** Use the Custom scanner in VxScan (as opposed to the PDI scanner) */
   USE_CUSTOM_SCANNER = 'REACT_APP_VX_USE_CUSTOM_SCANNER',
+  /**
+   * Enables screen reader audio only when headphones are plugged in.
+   *
+   * NOTE: This will only work on real machines with a headphone port, not VMs.
+   */
+  ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES = 'REACT_APP_VX_ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES',
 }
 
 // This is not fully generic since string variables may want the getter to return a custom type.
 export enum StringEnvironmentVariableName {
-  // Converter for input/output files in VxAdmin
+  /** Converter for input/output files in VxAdmin */
   CONVERTER = 'REACT_APP_VX_CONVERTER',
 }
 
 export interface BooleanEnvironmentConfig {
   name: BooleanEnvironmentVariableName;
-  // When false this flag will never be enabled when NODE_ENV is production.
+  /**
+   * When false this flag will never be enabled when NODE_ENV is production.
+   */
   allowInProduction: boolean;
-  // When true the script that generates .env files will turn this flag on by default.
+  /**
+   * When true the script that generates .env files will turn this flag on by default.
+   */
   autoEnableInDevelopment: boolean;
+  /**
+   * If specified, overrides {@link autoEnableInDevelopment} when generating
+   * .env files for VxDev.
+   */
+  autoEnableInVxDev?: boolean;
 }
 
 export interface StringEnvironmentConfig {
@@ -127,6 +173,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_SCAN_USE_FUJITSU_PRINTER;
     case BooleanEnvironmentVariableName.USE_CUSTOM_SCANNER:
       return process.env.REACT_APP_VX_USE_CUSTOM_SCANNER;
+    case BooleanEnvironmentVariableName.ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES:
+      return process.env.REACT_APP_VX_ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES;
     /* c8 ignore next 2 */
     default:
       throwIllegalValue(name);
@@ -256,6 +304,13 @@ export function getBooleanEnvVarConfig(
         name,
         allowInProduction: true,
         autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES:
+      return {
+        name,
+        allowInProduction: true,
+        autoEnableInDevelopment: false,
+        autoEnableInVxDev: true,
       };
     /* c8 ignore next 2 */
     default:
