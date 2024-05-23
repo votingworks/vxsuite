@@ -42,6 +42,7 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import { escalate } from 'xstate/lib/actions';
+import { Clock } from 'xstate/lib/interpreter';
 import { interpret as defaultInterpret, InterpretFn } from '../../interpret';
 import {
   InterpretationResult,
@@ -114,7 +115,7 @@ export interface Delays {
   DELAY_JAM_WHEN_SCANNING: number;
 }
 
-const defaultDelays: Delays = {
+const delays = {
   // Time between calls to get paper status from the scanner.
   DELAY_PAPER_STATUS_POLLING_INTERVAL: 500,
   // Time between calls to get paper status from the scanner during ballot accept. We poll at a
@@ -155,7 +156,7 @@ const defaultDelays: Delays = {
   // When scanning fails with a jam error the jam state may take a moment to stablize,
   // delay before deciding what type of jam to proceed with.
   DELAY_JAM_WHEN_SCANNING: 500,
-};
+} satisfies Delays;
 
 function connectToCustom(createCustomClient: CreateCustomClient) {
   return async (): Promise<CustomScanner> => {
@@ -371,16 +372,13 @@ function buildMachine({
   workspace,
   interpret,
   usbDrive,
-  delayOverrides,
 }: {
   createCustomClient?: CreateCustomClient;
   auth: InsertedSmartCardAuthApi;
   workspace: Workspace;
   interpret: InterpretFn;
   usbDrive: UsbDrive;
-  delayOverrides: Partial<Delays>;
 }) {
-  const delays: Delays = { ...defaultDelays, ...delayOverrides };
   const { store } = workspace;
   const isShoeshineModeEnabled = isFeatureFlagEnabled(
     BooleanEnvironmentVariableName.ENABLE_SCAN_SHOESHINE_MODE
@@ -427,7 +425,7 @@ function buildMachine({
             },
           },
         },
-        { delays: { ...delays } }
+        { delays }
       ),
       data: (context) => ({ client: context.client }),
       onError: {
@@ -1120,7 +1118,7 @@ function buildMachine({
         },
       },
     },
-    { delays: { ...delays } }
+    { delays }
   );
 }
 
@@ -1218,7 +1216,7 @@ export function createPrecinctScannerStateMachine({
   interpret = defaultInterpret,
   logger,
   usbDrive,
-  delays = {},
+  clock,
 }: {
   createCustomClient?: CreateCustomClient;
   auth: InsertedSmartCardAuthApi;
@@ -1226,7 +1224,7 @@ export function createPrecinctScannerStateMachine({
   interpret?: InterpretFn;
   logger: BaseLogger;
   usbDrive: UsbDrive;
-  delays?: Partial<Delays>;
+  clock?: Clock;
 }): PrecinctScannerStateMachine {
   const machine = buildMachine({
     createCustomClient,
@@ -1234,9 +1232,11 @@ export function createPrecinctScannerStateMachine({
     workspace,
     interpret,
     usbDrive,
-    delayOverrides: delays,
   });
-  const machineService = interpretStateMachine(machine).start();
+  const machineService = interpretStateMachine(
+    machine,
+    clock && { clock }
+  ).start();
   setupLogging(machineService, logger);
 
   return {
