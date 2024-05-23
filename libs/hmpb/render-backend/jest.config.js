@@ -17,9 +17,9 @@ module.exports = {
     'src/generate_fixtures.ts',
     'src/ballot_fixtures.ts',
     'src/all_bubble_ballot_fixtures.ts',
-    'src/next/polyfills.ts',
-    'src/next/browser_preview.ts',
-    'src/next/browser_preview_renderer.tsx',
+    'src/polyfills.ts',
+    'src/browser_preview.ts',
+    'src/browser_preview_renderer.tsx',
   ],
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
   // jest-image-matcher contains ESM modules ending in .js, so we need to have

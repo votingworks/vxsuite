@@ -16,7 +16,7 @@
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "pre-commit": "lint-staged",
-    "start": "vite -c vite.config.ts src/next",
+    "start": "vite -c vite.config.ts src/preview",
     "test": "is-ci test:ci test:watch",
     "test:ci": "jest --coverage --reporters=default --reporters=jest-junit --maxWorkers=6",
     "test:coverage": "jest --coverage",

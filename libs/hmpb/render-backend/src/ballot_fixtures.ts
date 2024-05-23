@@ -18,13 +18,13 @@ import {
 } from '@votingworks/types';
 import { join } from 'path';
 import makeDebug from 'debug';
+import { markBallotDocument } from './mark_ballot';
 import {
   BaseBallotProps,
   renderAllBallotsAndCreateElectionDefinition,
-  vxDefaultBallotTemplate,
-  markBallotDocument,
-} from './next';
-import { Renderer } from './next/renderer';
+} from './render_ballot';
+import { vxDefaultBallotTemplate } from './vx_default_ballot_template';
+import { Renderer } from './renderer';
 
 const debug = makeDebug('hmpb:ballot_fixtures');
 

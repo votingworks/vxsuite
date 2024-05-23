@@ -13,23 +13,18 @@ import { DateWithoutTime, assertDefined, range } from '@votingworks/basics';
 import { join } from 'path';
 import makeDebug from 'debug';
 import { Buffer } from 'buffer';
-import {
-  Bubble,
-  Page,
-  TimingMarkGrid,
-  pageMargins,
-} from './next/ballot_components';
+import { Bubble, Page, TimingMarkGrid, pageMargins } from './ballot_components';
 import {
   BallotPageTemplate,
   BaseBallotProps,
   PagedElementResult,
   renderAllBallotsAndCreateElectionDefinition,
-} from './next/render_ballot';
-import { Footer } from './next/vx_default_ballot_template';
-import { RenderScratchpad, Renderer } from './next/renderer';
-import { PixelDimensions } from './next/types';
-import { markBallotDocument } from './next/mark_ballot';
-import { concatenatePdfs } from './next/concatenate_pdfs';
+} from './render_ballot';
+import { Footer } from './vx_default_ballot_template';
+import { RenderScratchpad, Renderer } from './renderer';
+import { PixelDimensions } from './types';
+import { markBallotDocument } from './mark_ballot';
+import { concatenatePdfs } from './concatenate_pdfs';
 
 const debug = makeDebug('hmpb:ballot_fixtures');
 

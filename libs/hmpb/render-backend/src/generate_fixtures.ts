@@ -7,7 +7,8 @@ import {
   generalElectionFixtures,
   primaryElectionFixtures,
 } from './ballot_fixtures';
-import { Renderer, createPlaywrightRenderer } from './next';
+import { Renderer } from './renderer';
+import { createPlaywrightRenderer } from './playwright_renderer';
 
 async function generateAllBubbleBallotFixtures(renderer: Renderer) {
   const fixtures = allBubbleBallotFixtures;
