@@ -16,6 +16,7 @@ import {
   simulateScan,
   withApp,
 } from '../../../test/helpers/custom_helpers';
+import { delays } from './state_machine';
 
 jest.setTimeout(20_000);
 
@@ -40,51 +41,52 @@ beforeEach(() => {
 });
 
 test('shoeshine mode scans the same ballot repeatedly', async () => {
-  await withApp(async ({ apiClient, mockScanner, mockUsbDrive, mockAuth }) => {
-    await configureApp(apiClient, mockAuth, mockUsbDrive, {
-      electionPackage:
-        electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
-    });
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        electionPackage:
+          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
+      });
 
-    mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
+      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
 
-    const interpretation: SheetInterpretation = {
-      type: 'ValidSheet',
-    };
+      const interpretation: SheetInterpretation = {
+        type: 'ValidSheet',
+      };
 
-    simulateScan(mockScanner, await ballotImages.completeHmpb());
-    await waitForStatus(apiClient, { state: 'scanning' });
-    await waitForStatus(apiClient, {
-      state: 'ready_to_accept',
-      interpretation,
-    });
+      simulateScan(mockScanner, await ballotImages.completeHmpb(), clock);
+      await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation,
+      });
 
-    await apiClient.acceptBallot();
-    const ballotsCounted = 1;
-    await expectStatus(apiClient, {
-      state: 'accepted',
-      interpretation,
-      ballotsCounted,
-    });
-    await waitForStatus(apiClient, {
-      state: 'returning_to_rescan',
-      ballotsCounted,
-    });
+      await apiClient.acceptBallot();
+      const ballotsCounted = 1;
+      await expectStatus(apiClient, {
+        state: 'accepted',
+        interpretation,
+        ballotsCounted,
+      });
+      clock.increment(delays.DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT);
+      await waitForStatus(apiClient, {
+        state: 'returning_to_rescan',
+        ballotsCounted,
+      });
 
-    mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-    simulateScan(mockScanner, await ballotImages.completeHmpb());
-    await waitForStatus(apiClient, { state: 'scanning', ballotsCounted });
-    await waitForStatus(apiClient, {
-      state: 'ready_to_accept',
-      interpretation,
-      ballotsCounted,
-    });
+      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
+      simulateScan(mockScanner, await ballotImages.completeHmpb(), clock);
+      await waitForStatus(apiClient, {
+        state: 'ready_to_accept',
+        interpretation,
+        ballotsCounted,
+      });
 
-    await apiClient.acceptBallot();
-    await expectStatus(apiClient, {
-      state: 'accepted',
-      interpretation,
-      ballotsCounted: 2,
-    });
-  });
+      await apiClient.acceptBallot();
+      await expectStatus(apiClient, {
+        state: 'accepted',
+        interpretation,
+        ballotsCounted: 2,
+      });
+    }
+  );
 });

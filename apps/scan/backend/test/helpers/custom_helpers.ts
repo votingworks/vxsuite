@@ -3,7 +3,7 @@ import {
   InsertedSmartCardAuthApi,
   buildMockInsertedSmartCardAuth,
 } from '@votingworks/auth';
-import { Result, assert, deferred, ok } from '@votingworks/basics';
+import { Result, assert, deferred, ok, sleep } from '@votingworks/basics';
 import {
   CustomScanner,
   ErrorCode,
@@ -41,7 +41,10 @@ import {
 } from '@votingworks/utils';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import { Api, buildApp } from '../../src/app';
-import { createPrecinctScannerStateMachine } from '../../src/scanners/custom/state_machine';
+import {
+  createPrecinctScannerStateMachine,
+  delays,
+} from '../../src/scanners/custom/state_machine';
 import { Workspace, createWorkspace } from '../../src/util/workspace';
 import {
   buildMockLogger,
@@ -220,10 +223,15 @@ export const ballotImages = {
  */
 export function simulateScan(
   mockScanner: jest.Mocked<CustomScanner>,
-  ballotImage: SheetOf<ImageFromScanner>
+  ballotImage: SheetOf<ImageFromScanner>,
+  clock: SimulatedClock
 ): void {
   let didScan = false;
-  mockScanner.getStatus.mockImplementation(() => {
+  mockScanner.getStatus.mockImplementation(async () => {
+    // Simulate an actual async call so that we don't get trapped in a sync
+    // execution loop switching between hardware_ready_to_scan and
+    // check_app_ready_to_scan states.
+    await sleep(1);
     if (!didScan) {
       return Promise.resolve(ok(mocks.MOCK_READY_TO_SCAN));
     }
@@ -233,6 +241,7 @@ export function simulateScan(
     didScan = true;
     return Promise.resolve(ok(ballotImage));
   });
+  clock.increment(delays.DELAY_PAPER_STATUS_POLLING_INTERVAL);
 }
 
 export async function scanBallot(

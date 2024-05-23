@@ -176,7 +176,14 @@ test('configure and scan bmd ballot', async () => {
 
 test('ballot needs review - return', async () => {
   await withApp(
-    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+    async ({
+      apiClient,
+      mockScanner,
+      mockUsbDrive,
+      mockAuth,
+      workspace,
+      clock,
+    }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         electionPackage:
           electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(
@@ -222,6 +229,9 @@ test('ballot needs review - return', async () => {
       mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await expectStatus(apiClient, { state: 'no_paper' });
+
+      // Make sure the ballot was still recorded in the db for backup purposes
+      expect(Array.from(workspace.store.forEachSheet())).toHaveLength(1);
     }
   );
 });
@@ -280,7 +290,14 @@ test('ballot needs review - accept', async () => {
 
 test('ballot with wrong election rejected', async () => {
   await withApp(
-    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+    async ({
+      apiClient,
+      mockScanner,
+      mockUsbDrive,
+      mockAuth,
+      workspace,
+      clock,
+    }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -309,6 +326,9 @@ test('ballot with wrong election rejected', async () => {
       mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await expectStatus(apiClient, { state: 'no_paper' });
+
+      // Make sure the ballot was still recorded in the db for backup purposes
+      expect(Array.from(workspace.store.forEachSheet())).toHaveLength(1);
     }
   );
 });

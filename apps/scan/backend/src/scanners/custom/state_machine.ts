@@ -115,7 +115,7 @@ export interface Delays {
   DELAY_JAM_WHEN_SCANNING: number;
 }
 
-const delays = {
+export const delays = {
   // Time between calls to get paper status from the scanner.
   DELAY_PAPER_STATUS_POLLING_INTERVAL: 500,
   // Time between calls to get paper status from the scanner during ballot accept. We poll at a
