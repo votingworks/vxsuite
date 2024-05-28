@@ -23,9 +23,9 @@ import {
   TaskHeader,
   TaskScreen,
 } from '@votingworks/ui';
-import { BallotMode } from '@votingworks/hmpb-layout';
 import { Document, Page, pdfjs } from 'react-pdf';
 import { format } from '@votingworks/utils';
+import type { BallotMode } from '@votingworks/design-backend';
 import { getElection, getBallotPreviewPdf } from './api';
 import { routes } from './routes';
 import { Column, FieldName as BaseFieldName, Row } from './layout';

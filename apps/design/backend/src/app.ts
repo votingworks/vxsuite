@@ -18,19 +18,16 @@ import {
   ok,
   Result,
 } from '@votingworks/basics';
+import JsZip from 'jszip';
 import {
   BallotMode,
   BALLOT_MODES,
-  LayoutOptions,
-} from '@votingworks/hmpb-layout';
-import JsZip from 'jszip';
-import {
   BaseBallotProps,
   createPlaywrightRenderer,
   renderAllBallotsAndCreateElectionDefinition,
   renderBallotPreviewToPdf,
   vxDefaultBallotTemplate,
-} from '@votingworks/hmpb-render-backend';
+} from '@votingworks/hmpb';
 import { ElectionPackage, ElectionRecord } from './store';
 import { Precinct } from './types';
 import {
@@ -94,7 +91,6 @@ export function convertVxfPrecincts(election: Election): Precinct[] {
         id: `${precinct.id}-split-${index + 1}`,
         name: `${precinct.name} - Split ${index + 1}`,
         districtIds: ballotStyle.districts,
-        nhCustomContent: {},
       })),
     };
   });
@@ -154,13 +150,6 @@ function buildApi({ workspace, translator }: AppContext) {
 
     updatePrecincts(input: { electionId: Id; precincts: Precinct[] }): void {
       store.updatePrecincts(input.electionId, input.precincts);
-    },
-
-    updateLayoutOptions(input: {
-      electionId: Id;
-      layoutOptions: LayoutOptions;
-    }): void {
-      store.updateLayoutOptions(input.electionId, input.layoutOptions);
     },
 
     deleteElection(input: { electionId: Id }): void {

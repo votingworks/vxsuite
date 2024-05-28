@@ -6,7 +6,6 @@ import {
   LinkButton,
   P,
   Button,
-  SegmentedButton,
   RadioGroup,
   MainHeader,
   MainContent,
@@ -19,8 +18,7 @@ import {
   getPartyForBallotStyle,
 } from '@votingworks/types';
 import { useState } from 'react';
-import { LayoutOptions } from '@votingworks/hmpb-layout';
-import { getElection, updateElection, updateLayoutOptions } from './api';
+import { getElection, updateElection } from './api';
 import { Form, FormActionsRow, NestedTr } from './layout';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
@@ -31,17 +29,13 @@ import { TabBar, TabPanel } from './tabs';
 function BallotDesignForm({
   electionId,
   savedElection,
-  savedLayoutOptions,
 }: {
   electionId: string;
   savedElection: Election;
-  savedLayoutOptions: LayoutOptions;
 }): JSX.Element {
   const [isEditing, setIsEditing] = useState(false);
   const [ballotLayout, setBallotLayout] = useState(savedElection.ballotLayout);
-  const [layoutOptions, setLayoutOptions] = useState(savedLayoutOptions);
   const updateElectionMutation = updateElection.useMutation();
-  const updateLayoutOptionsMutation = updateLayoutOptions.useMutation();
 
   function onSavePress() {
     updateElectionMutation.mutate(
@@ -53,18 +47,9 @@ function BallotDesignForm({
         },
       },
       {
-        onSuccess: () =>
-          updateLayoutOptionsMutation.mutate(
-            {
-              electionId,
-              layoutOptions,
-            },
-            {
-              onSuccess: () => {
-                setIsEditing(false);
-              },
-            }
-          ),
+        onSuccess: () => {
+          setIsEditing(false);
+        },
       }
     );
   }
@@ -87,42 +72,11 @@ function BallotDesignForm({
         disabled={!isEditing}
       />
 
-      <RadioGroup
-        label="Density"
-        options={[
-          { value: 0, label: 'Default' },
-          { value: 1, label: 'Medium' },
-          { value: 2, label: 'Condensed' },
-        ]}
-        value={layoutOptions.layoutDensity}
-        onChange={(layoutDensity) =>
-          setLayoutOptions({ ...layoutOptions, layoutDensity })
-        }
-        disabled={!isEditing}
-      />
-
-      <SegmentedButton
-        label="Bubble Position"
-        options={[
-          { id: 'left', label: 'Left' },
-          { id: 'right', label: 'Right' },
-        ]}
-        selectedOptionId={layoutOptions.bubblePosition}
-        onChange={(targetMarkPosition) =>
-          setLayoutOptions({
-            ...layoutOptions,
-            bubblePosition: targetMarkPosition,
-          })
-        }
-        disabled={!isEditing}
-      />
-
       {isEditing ? (
         <FormActionsRow>
           <Button
             onPress={() => {
               setBallotLayout(savedElection.ballotLayout);
-              setLayoutOptions(savedLayoutOptions);
               setIsEditing(false);
             }}
           >
@@ -277,15 +231,11 @@ function BallotLayoutTab(): JSX.Element | null {
     return null;
   }
 
-  const { election, layoutOptions } = getElectionQuery.data;
+  const { election } = getElectionQuery.data;
 
   return (
     <TabPanel>
-      <BallotDesignForm
-        electionId={electionId}
-        savedElection={election}
-        savedLayoutOptions={layoutOptions}
-      />
+      <BallotDesignForm electionId={electionId} savedElection={election} />
     </TabPanel>
   );
 }

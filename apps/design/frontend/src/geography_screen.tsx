@@ -29,7 +29,6 @@ import {
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import type { Precinct, PrecinctSplit } from '@votingworks/design-backend';
-import styled from 'styled-components';
 import { ElectionNavScreen } from './nav_screen';
 import { ElectionIdParams, electionParamRoutes, routes } from './routes';
 import { TabPanel, TabBar } from './tabs';
@@ -45,7 +44,6 @@ import {
 } from './layout';
 import { getElection, updateElection, updatePrecincts } from './api';
 import { generateId, hasSplits, replaceAtIndex } from './utils';
-import { ImageInput } from './image_input';
 
 function DistrictsTab(): JSX.Element | null {
   const { electionId } = useParams<ElectionIdParams>();
@@ -402,12 +400,6 @@ function PrecinctsTab(): JSX.Element | null {
   );
 }
 
-const ClerkSignatureImageInput = styled(ImageInput)`
-  img {
-    height: 4rem;
-  }
-`;
-
 function createBlankPrecinct(): Precinct {
   return {
     name: '',
@@ -485,7 +477,6 @@ function PrecinctForm({
           id: generateId(),
           name: '',
           districtIds: [],
-          nhCustomContent: {},
         },
       ]);
     } else {
@@ -494,13 +485,11 @@ function PrecinctForm({
           id: generateId(),
           name: '',
           districtIds: precinct.districtIds,
-          nhCustomContent: {},
         },
         {
           id: generateId(),
           name: '',
           districtIds: [],
-          nhCustomContent: {},
         },
       ]);
     }
@@ -578,56 +567,6 @@ function PrecinctForm({
                         })
                       }
                     />
-                    <InputGroup label="Election Title Override">
-                      <input
-                        type="text"
-                        value={split.nhCustomContent.electionTitle ?? ''}
-                        onChange={(e) =>
-                          setSplit(index, {
-                            ...split,
-                            nhCustomContent: {
-                              ...split.nhCustomContent,
-                              electionTitle: e.target.value,
-                            },
-                          })
-                        }
-                      />
-                    </InputGroup>
-
-                    <div>
-                      <FieldName>Clerk Signature Image</FieldName>
-                      <ClerkSignatureImageInput
-                        value={split.nhCustomContent.clerkSignatureImage}
-                        onChange={(value) =>
-                          setSplit(index, {
-                            ...split,
-                            nhCustomContent: {
-                              ...split.nhCustomContent,
-                              clerkSignatureImage: value,
-                            },
-                          })
-                        }
-                        buttonLabel="Upload Image"
-                      />
-                    </div>
-
-                    <InputGroup label="Clerk Signature Caption">
-                      <input
-                        type="text"
-                        value={
-                          split.nhCustomContent.clerkSignatureCaption ?? ''
-                        }
-                        onChange={(e) =>
-                          setSplit(index, {
-                            ...split,
-                            nhCustomContent: {
-                              ...split.nhCustomContent,
-                              clerkSignatureCaption: e.target.value,
-                            },
-                          })
-                        }
-                      />
-                    </InputGroup>
 
                     <Button
                       style={{ marginTop: 'auto' }}

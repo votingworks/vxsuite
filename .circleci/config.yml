@@ -900,8 +900,8 @@ jobs:
       - store_test_results:
           path: libs/grout/test-utils/reports/
 
-  # @votingworks/hmpb-layout
-  test-libs-hmpb-layout:
+  # @votingworks/hmpb
+  test-libs-hmpb:
     executor: nodejs
     resource_class: xlarge
     steps:
@@ -909,42 +909,19 @@ jobs:
       - run:
           name: Build
           command: |
-            pnpm --dir libs/hmpb/layout build
+            pnpm --dir libs/hmpb build
       - run:
           name: Lint
           command: |
-            pnpm --dir libs/hmpb/layout lint
+            pnpm --dir libs/hmpb lint
       - run:
           name: Test
           command: |
-            pnpm --dir libs/hmpb/layout test
+            pnpm --dir libs/hmpb test
           environment:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
-          path: libs/hmpb/layout/reports/
-
-  # @votingworks/hmpb-render-backend
-  test-libs-hmpb-render-backend:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/hmpb/render-backend build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/hmpb/render-backend lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/hmpb/render-backend test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/hmpb/render-backend/reports/
+          path: libs/hmpb/reports/
 
   # @votingworks/image-utils
   test-libs-image-utils:
@@ -1448,8 +1425,7 @@ workflows:
       - test-libs-fujitsu-thermal-printer
       - test-libs-grout
       - test-libs-grout-test-utils
-      - test-libs-hmpb-layout
-      - test-libs-hmpb-render-backend
+      - test-libs-hmpb
       - test-libs-image-utils
       - test-libs-logging
       - test-libs-mark-flow-ui

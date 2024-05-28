@@ -1,4 +1,3 @@
-import { NhCustomContent } from '@votingworks/hmpb-layout';
 import {
   BallotStyle as VxfBallotStyle,
   BallotStyleId,
@@ -44,7 +43,6 @@ export interface PrecinctSplit {
   districtIds: readonly DistrictId[];
   id: Id;
   name: string;
-  nhCustomContent: NhCustomContent;
 }
 export type Precinct = PrecinctWithoutSplits | PrecinctWithSplits;
 

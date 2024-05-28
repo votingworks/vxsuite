@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Api } from '@votingworks/design-backend';
+import type { Api, BallotMode } from '@votingworks/design-backend';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
@@ -9,7 +9,6 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import { BallotType, Id } from '@votingworks/types';
-import { BallotMode } from '@votingworks/hmpb-layout';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -115,18 +114,6 @@ export const updatePrecincts = {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.updatePrecincts, {
-      async onSuccess(_, { electionId }) {
-        await queryClient.invalidateQueries(getElection.queryKey(electionId));
-      },
-    });
-  },
-} as const;
-
-export const updateLayoutOptions = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-    return useMutation(apiClient.updateLayoutOptions, {
       async onSuccess(_, { electionId }) {
         await queryClient.invalidateQueries(getElection.queryKey(electionId));
       },

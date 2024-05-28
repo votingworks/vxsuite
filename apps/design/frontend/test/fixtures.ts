@@ -9,7 +9,6 @@ import {
   electionPrimaryPrecinctSplitsFixtures,
   electionGeneral,
 } from '@votingworks/fixtures';
-import { DEFAULT_LAYOUT_OPTIONS } from '@votingworks/hmpb-layout';
 import {
   DEFAULT_SYSTEM_SETTINGS,
   Election,
@@ -45,9 +44,7 @@ export function makeElectionRecord(baseElection: Election): ElectionRecord {
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     precincts,
     ballotStyles,
-    layoutOptions: DEFAULT_LAYOUT_OPTIONS,
     createdAt: new Date().toISOString(),
-    nhCustomContent: {},
     ballotLanguageConfigs,
   };
 }

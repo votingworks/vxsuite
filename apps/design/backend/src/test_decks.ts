@@ -28,7 +28,7 @@ import {
   Renderer,
   markBallotDocument,
   concatenatePdfs,
-} from '@votingworks/hmpb-render-backend';
+} from '@votingworks/hmpb';
 
 /**
  * Creates a test deck for a precinct that includes:

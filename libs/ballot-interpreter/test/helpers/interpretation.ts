@@ -1,5 +1,4 @@
 import { assertDefined, iter, unique } from '@votingworks/basics';
-import { voteToOptionId } from '@votingworks/hmpb-layout';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 import {
   ContestId,
@@ -10,6 +9,7 @@ import {
 } from '@votingworks/types';
 import { tmpNameSync } from 'tmp';
 import { readFile } from 'fs/promises';
+import { voteToOptionId } from '@votingworks/hmpb';
 
 export async function ballotPdfToPageImages(
   pdfFile: string

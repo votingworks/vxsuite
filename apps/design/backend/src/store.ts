@@ -1,16 +1,5 @@
-import {
-  DateWithoutTime,
-  Optional,
-  assert,
-  find,
-  iter,
-} from '@votingworks/basics';
+import { DateWithoutTime, Optional, assert } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
-import {
-  DEFAULT_LAYOUT_OPTIONS,
-  LayoutOptions,
-  NhCustomContentByBallotStyle,
-} from '@votingworks/hmpb-layout';
 import {
   Id,
   Iso8601Timestamp,
@@ -32,7 +21,6 @@ import {
   BallotStyle,
   Precinct,
   convertToVxfBallotStyle,
-  hasSplits,
 } from './types';
 import { generateBallotStyles } from './ballot_styles';
 
@@ -53,9 +41,7 @@ export interface ElectionRecord {
   precincts: Precinct[];
   ballotStyles: BallotStyle[];
   systemSettings: SystemSettings;
-  layoutOptions: LayoutOptions;
   createdAt: Iso8601Timestamp;
-  nhCustomContent: NhCustomContentByBallotStyle;
   ballotLanguageConfigs: BallotLanguageConfigs;
 }
 
@@ -112,48 +98,6 @@ export interface ElectionPackage {
   url?: string;
 }
 
-export function getNhCustomContentByBallotStyle(
-  precincts: Precinct[],
-  ballotStyles: BallotStyle[]
-): NhCustomContentByBallotStyle {
-  return Object.fromEntries(
-    ballotStyles.map((ballotStyle) => {
-      // TODO: We should probably be translating the NH custom content based on
-      // the ballot style language.
-      const splitsWithCustomContent = iter(ballotStyle.precinctsOrSplits)
-        .filterMap((precinctOrSplit) => {
-          if (precinctOrSplit.splitId) {
-            const precinct = find(
-              precincts,
-              (p) => p.id === precinctOrSplit.precinctId
-            );
-            assert(hasSplits(precinct));
-            const split = find(
-              precinct.splits,
-              (s) => s.id === precinctOrSplit.splitId
-            );
-            if (Object.keys(split.nhCustomContent).length > 0) {
-              return split;
-            }
-          }
-          return undefined;
-        })
-        .toArray();
-      /* istanbul ignore next */
-      if (splitsWithCustomContent.length > 1) {
-        // TODO validate this when saving custom content, not loading it
-        // eslint-disable-next-line no-console
-        console.error(
-          `Warning: Multiple precinct splits that have the same ballot style have different NH custom content. Splits with same ballot style: ${splitsWithCustomContent
-            .map((s) => s.name)
-            .join(', ')}`
-        );
-      }
-      return [ballotStyle.id, splitsWithCustomContent[0]?.nhCustomContent];
-    })
-  );
-}
-
 function convertSqliteTimestampToIso8601(
   sqliteTimestamp: string
 ): Iso8601Timestamp {
@@ -165,14 +109,12 @@ function hydrateElection(row: {
   electionData: string;
   precinctData: string;
   systemSettingsData: string;
-  layoutOptionsData: string;
   createdAt: string;
   ballotLanguageConfigs: BallotLanguageConfigs;
 }): ElectionRecord {
   const { ballotLanguageConfigs } = row;
   const rawElection = JSON.parse(row.electionData);
   const precincts: Precinct[] = JSON.parse(row.precinctData);
-  const layoutOptions = JSON.parse(row.layoutOptionsData);
   const ballotStyles = generateBallotStyles({
     ballotLanguageConfigs,
     contests: rawElection.contests,
@@ -180,10 +122,6 @@ function hydrateElection(row: {
     parties: rawElection.parties,
     precincts,
   });
-  const nhCustomContent = getNhCustomContentByBallotStyle(
-    precincts,
-    ballotStyles
-  );
   // Fill in our precinct/ballot style overrides in the VXF election format.
   // This is important for pieces of the code that rely on the VXF election
   // (e.g. rendering ballots)
@@ -207,8 +145,6 @@ function hydrateElection(row: {
     precincts,
     ballotStyles,
     systemSettings,
-    layoutOptions,
-    nhCustomContent,
     createdAt: convertSqliteTimestampToIso8601(row.createdAt),
     ballotLanguageConfigs,
   };
@@ -245,7 +181,6 @@ export class Store {
           election_data as electionData,
           system_settings_data as systemSettingsData,
           precinct_data as precinctData,
-          layout_options_data as layoutOptionsData,
           created_at as createdAt
         from elections
       `) as Array<{
@@ -253,7 +188,6 @@ export class Store {
         electionData: string;
         systemSettingsData: string;
         precinctData: string;
-        layoutOptionsData: string;
         createdAt: string;
       }>
     ).map((row) =>
@@ -273,7 +207,6 @@ export class Store {
         election_data as electionData,
         system_settings_data as systemSettingsData,
         precinct_data as precinctData,
-        layout_options_data as layoutOptionsData,
         created_at as createdAt
       from elections
       where id = ?
@@ -283,7 +216,6 @@ export class Store {
       electionData: string;
       systemSettingsData: string;
       precinctData: string;
-      layoutOptionsData: string;
       createdAt: string;
     };
     assert(electionRow !== undefined);
@@ -302,16 +234,14 @@ export class Store {
       insert into elections (
         election_data,
         system_settings_data,
-        precinct_data,
-        layout_options_data
+        precinct_data
       )
-      values (?, ?, ?, ?)
+      values (?, ?, ?)
       returning (id)
       `,
       JSON.stringify(election),
       JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
-      JSON.stringify(precincts),
-      JSON.stringify(DEFAULT_LAYOUT_OPTIONS)
+      JSON.stringify(precincts)
     ) as {
       id: string;
     };
@@ -350,18 +280,6 @@ export class Store {
       where id = ?
       `,
       JSON.stringify(precincts),
-      electionId
-    );
-  }
-
-  updateLayoutOptions(electionId: Id, layoutOptions: LayoutOptions): void {
-    this.client.run(
-      `
-      update elections
-      set layout_options_data = ?
-      where id = ?
-      `,
-      JSON.stringify(layoutOptions),
       electionId
     );
   }

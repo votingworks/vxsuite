@@ -7,7 +7,7 @@ import {
   famousNamesFixtures,
   primaryElectionFixtures,
   generalElectionFixtures,
-} from '@votingworks/hmpb-render-backend';
+} from '@votingworks/hmpb';
 import {
   AdjudicationReason,
   BallotPaperSize,

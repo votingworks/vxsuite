@@ -1,28 +1,30 @@
 {
   "extends": "../../tsconfig.shared.json",
-  "include": ["src", "test", "benchmarks"],
+  "include": ["src", "test"],
   "exclude": [],
   "compilerOptions": {
-    "module": "node16",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
     "composite": true,
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "lib": ["esnext"],
+    "module": "node16",
+    "moduleResolution": "node16",
     "noEmit": true,
     "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "esModuleInterop": true,
+    "resolveJsonModule": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true
+    "noUncheckedIndexedAccess": false
   },
   "references": [
-    { "path": "../ballot-encoder/tsconfig.build.json" },
     { "path": "../basics/tsconfig.build.json" },
+    { "path": "../ballot-encoder/tsconfig.build.json" },
     { "path": "../eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../fixtures/tsconfig.build.json" },
     { "path": "../fs/tsconfig.build.json" },
-    { "path": "../hmpb/tsconfig.build.json" },
     { "path": "../image-utils/tsconfig.build.json" },
     { "path": "../types/tsconfig.build.json" },
-    { "path": "../utils/tsconfig.build.json" }
+    { "path": "../ui/tsconfig.build.json" }
   ]
 }

@@ -24,3 +24,6 @@ export type PixelMeasurements = Measurements<Pixels>;
 export type Inches = number;
 export type InchDimensions = Dimensions<Inches>;
 export type InchMargins = Margins<Inches>;
+
+export const BALLOT_MODES = ['official', 'test', 'sample'] as const;
+export type BallotMode = (typeof BALLOT_MODES)[number];

@@ -76,21 +76,18 @@ describe('generateBallotStyles()', () => {
       id: 'precinct-3-split-1',
       name: 'Precinct 2 - Split 1',
       districtIds: [district1.id, district2.id],
-      nhCustomContent: {},
     }),
     district1Only: typedAs<PrecinctSplit>({
       id: 'precinct-2-split-2',
       name: 'Precinct 2 - Split 2',
       // Should share a ballot style with precinct-1, since same districts assigned
       districtIds: [district1.id],
-      nhCustomContent: {},
     }),
     noDistricts: typedAs<PrecinctSplit>({
       id: 'precinct-2-split-4',
       name: 'Precinct 2 - Split 3',
       // Shouldn't get a ballot style, since no districts assigned
       districtIds: [],
-      nhCustomContent: {},
     }),
   } as const;
   const precinct3District1And2: Precinct = {

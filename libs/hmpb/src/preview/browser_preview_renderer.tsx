@@ -6,9 +6,9 @@ import {
   Renderer,
   createDocument,
   createScratchpad,
-} from './renderer';
-import { baseStyleElements } from './base_styles';
-import { PAGE_CLASS } from './ballot_components';
+} from '../renderer';
+import { baseStyleElements } from '../base_styles';
+import { PAGE_CLASS } from '../ballot_components';
 
 function browserPage(): Page {
   return {

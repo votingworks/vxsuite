@@ -2,16 +2,16 @@ import './polyfills';
 import { BallotType, VotesDict, getContests } from '@votingworks/types';
 import { electionGeneral } from '@votingworks/fixtures';
 import { assertDefined, range } from '@votingworks/basics';
-import { vxDefaultBallotTemplate } from './vx_default_ballot_template';
+import { vxDefaultBallotTemplate } from '../vx_default_ballot_template';
 import {
   BaseBallotProps,
   gridWidthToPixels,
   measureTimingMarkGrid,
   renderBallotTemplate,
-} from './render_ballot';
+} from '../render_ballot';
 import { createBrowserPreviewRenderer } from './browser_preview_renderer';
-import { markBallotDocument, voteIsCandidate } from './mark_ballot';
-import { BUBBLE_CLASS, OptionInfo, PAGE_CLASS } from './ballot_components';
+import { markBallotDocument, voteIsCandidate } from '../mark_ballot';
+import { BUBBLE_CLASS, OptionInfo, PAGE_CLASS } from '../ballot_components';
 
 const election = electionGeneral;
 const ballotStyle = election.ballotStyles[0];

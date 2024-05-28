@@ -23,7 +23,6 @@ import {
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
 import { encodeHmpbBallotPageMetadata } from '@votingworks/ballot-encoder';
-import { BallotMode, PixelPoint } from '@votingworks/hmpb-layout';
 import { RenderDocument, RenderScratchpad, Renderer } from './renderer';
 import {
   BUBBLE_CLASS,
@@ -36,7 +35,7 @@ import {
   TIMING_MARK_CLASS,
   WRITE_IN_OPTION_CLASS,
 } from './ballot_components';
-import { PixelDimensions, Pixels } from './types';
+import { BallotMode, PixelDimensions, Pixels, Point } from './types';
 
 export type FrameComponent<P> = (
   props: P & { children: JSX.Element; pageNumber: number; totalPages: number }
@@ -148,7 +147,7 @@ async function paginateBallotContent<P extends object>(
 }
 
 export interface GridMeasurements {
-  origin: PixelPoint;
+  origin: Point<Pixels>;
   columnGap: Pixels;
   rowGap: Pixels;
   numTimingMarkColumns: number;
@@ -209,7 +208,7 @@ export function pixelsToGridWidth(
 
 export function pixelPointToGridPoint(
   grid: GridMeasurements,
-  point: PixelPoint
+  point: Point<Pixels>
 ): { column: number; row: number } {
   return {
     column: pixelsToGridWidth(grid, point.x - grid.origin.x),

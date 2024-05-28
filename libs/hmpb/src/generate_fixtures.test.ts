@@ -10,8 +10,8 @@ import {
   generalElectionFixtures,
   primaryElectionFixtures,
 } from './ballot_fixtures';
-import { createPlaywrightRenderer } from './next/playwright_renderer';
-import { Renderer } from './next';
+import { createPlaywrightRenderer } from './playwright_renderer';
+import { Renderer } from './renderer';
 
 jest.setTimeout(120_000);
 
