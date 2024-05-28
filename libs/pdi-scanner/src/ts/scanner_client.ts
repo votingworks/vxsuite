@@ -91,7 +91,9 @@ export type ScannerEvent =
   | { event: 'coverOpen' }
   | { event: 'coverClosed' }
   | { event: 'ejectPaused' }
-  | { event: 'ejectResumed' };
+  | { event: 'ejectResumed' }
+  | { event: 'doubleFeedCalibrationComplete' }
+  | { event: 'doubleFeedCalibrationTimedOut' };
 
 /**
  * An event listener for any {@link ScannerEvent} emitted by the scanner.
@@ -106,6 +108,21 @@ export type EjectMotion =
   | 'toFront'
   | 'toFrontAndHold'
   | 'toFrontAndRescan';
+
+/**
+ * Whether the calibration operation will use a single piece of paper or two pieces of paper.
+ */
+export type DoubleFeedDetectionCalibrationType = 'single' | 'double';
+
+/**
+ * Internal configuration values set by the double feed detection calibration process.
+ */
+export interface DoubleFeedDetectionCalibrationConfig {
+  ledIntensity: number;
+  singleSheetCalibrationValue: number;
+  doubleSheetCalibrationValue: number;
+  thresholdValue: number;
+}
 
 /**
  * Internal type to represent the JSON commands sent to `pdictl`
@@ -124,7 +141,12 @@ type PdictlCommand =
   | {
       command: 'ejectDocument';
       ejectMotion: EjectMotion;
-    };
+    }
+  | {
+      command: 'calibrateDoubleFeedDetection';
+      calibrationType: DoubleFeedDetectionCalibrationType;
+    }
+  | { command: 'getDoubleFeedDetectionCalibrationConfig' };
 
 /**
  * Internal type to represent the JSON messages received from `pdictl` in
@@ -133,7 +155,11 @@ type PdictlCommand =
 type PdictlResponse =
   | { response: 'ok' }
   | ({ response: 'error' } & ScannerError)
-  | { response: 'scannerStatus'; status: ScannerStatus };
+  | { response: 'scannerStatus'; status: ScannerStatus }
+  | {
+      response: 'doubleFeedDetectionCalibrationConfig';
+      config: DoubleFeedDetectionCalibrationConfig;
+    };
 
 /**
  * Internal type to represent the JSON messages received from `pdictl` as
@@ -146,7 +172,9 @@ export type PdictlEvent =
   | { event: 'coverOpen' }
   | { event: 'coverClosed' }
   | { event: 'ejectPaused' }
-  | { event: 'ejectResumed' };
+  | { event: 'ejectResumed' }
+  | { event: 'doubleFeedCalibrationComplete' }
+  | { event: 'doubleFeedCalibrationTimedOut' };
 
 type PdictlMessage = PdictlResponse | PdictlEvent;
 
@@ -241,7 +269,9 @@ export function createPdiScannerClient() {
       case 'coverOpen':
       case 'coverClosed':
       case 'ejectPaused':
-      case 'ejectResumed': {
+      case 'ejectResumed':
+      case 'doubleFeedCalibrationComplete':
+      case 'doubleFeedCalibrationTimedOut': {
         emit(message);
         break;
       }
@@ -366,6 +396,49 @@ export function createPdiScannerClient() {
      */
     async ejectDocument(ejectMotion: EjectMotion): Promise<SimpleResult> {
       return sendSimpleCommand({ command: 'ejectDocument', ejectMotion });
+    },
+
+    /**
+     * Puts the scanner into double feed detection calibration mode for either a
+     * single or double sheet. The scanner will wait for you to insert the
+     * sheet(s) to calibrate, but this command returns immediately. To find out
+     * when the calibration is complete, listen for the
+     * `doubleFeedCalibrationComplete` event (or`doubleFeedCalibrationTimedOut`).
+     *
+     * Note that you should always perform the double sheet calibration first
+     * followed by the single sheet calibration.
+     */
+    async calibrateDoubleFeedDetection(
+      calibrationType: DoubleFeedDetectionCalibrationType
+    ): Promise<SimpleResult> {
+      return sendSimpleCommand({
+        command: 'calibrateDoubleFeedDetection',
+        calibrationType,
+      });
+    },
+
+    /**
+     * Retrieves the internal configuration values set by the double feed
+     * detection calibration process. They cannot be set directly, but it can be
+     * useful for debugging to see the results of the calibration process.
+     */
+    async getDoubleFeedDetectionCalibrationConfig(): Promise<
+      Result<DoubleFeedDetectionCalibrationConfig, ScannerError>
+    > {
+      const result = await sendCommand({
+        command: 'getDoubleFeedDetectionCalibrationConfig',
+      });
+      switch (result.response) {
+        case 'doubleFeedDetectionCalibrationConfig':
+          return ok(result.config);
+        case 'error':
+          return err(result);
+        default:
+          return err({
+            code: 'other',
+            message: `Unexpected response: ${result.response}`,
+          });
+      }
     },
 
     /**
