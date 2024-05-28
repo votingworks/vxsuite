@@ -23,7 +23,7 @@ const mockFeatureFlagger = getFeatureFlagMock();
 function createTestContext() {
   return newTestContext({
     // The audio context uses the `useHeadphonesPluggedIn` hook, so disabling
-    // the audio context to focus these tests on the test instance of hte hook.
+    // the audio context to focus these tests on the test instance of the hook.
     uiStringsApiOptions: { noAudio: true },
   });
 }
