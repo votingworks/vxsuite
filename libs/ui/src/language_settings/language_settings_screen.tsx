@@ -19,7 +19,10 @@ import { RadioGroup } from '../radio_group';
 import { DEFAULT_LANGUAGE_CODE } from '../ui_strings/language_context';
 import { useScreenInfo } from '../hooks/use_screen_info';
 import { WithScrollButtons } from '../with_scroll_buttons';
-import { PageNavigationButtonId } from '../accessible_controllers';
+import {
+  PageNavigationButtonId,
+  AssistiveTechInstructions,
+} from '../accessible_controllers';
 
 export interface LanguageSettingsScreenProps {
   onDone: () => void;
@@ -84,12 +87,10 @@ export function LanguageSettingsScreen(
         <ReadOnLoad>
           <H2 as="h1">{appStrings.titleLanguageSettingsScreen()}</H2>
           <AudioOnly>
-            {/*
-             * TODO(kofi): These instructions should be overridden with
-             * PAT-specific instructions when a sip-and-puff device is
-             * connected.
-             */}
-            {appStrings.instructionsLanguageSettingsScreen()}
+            <AssistiveTechInstructions
+              controllerString={appStrings.instructionsLanguageSettingsScreen()}
+              patDeviceString={appStrings.instructionsLanguageSettingsScreenPatDevice()}
+            />
           </AudioOnly>
         </ReadOnLoad>
       </Header>

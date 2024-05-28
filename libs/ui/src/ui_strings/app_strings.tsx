@@ -95,6 +95,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  buttonBmdReviewCardActionPatDevice: () => (
+    <UiString uiStringKey="buttonBmdReviewCardActionPatDevice">
+      Use the select input to change your votes for this contest.
+    </UiString>
+  ),
+
   buttonBmdSkipPatCalibration: () => (
     <UiString uiStringKey="buttonBmdSkipPatCalibration">
       Skip Identification
@@ -308,6 +314,19 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsBmdBallotNavigationMarkScanPatDevice: () => (
+    <UiString uiStringKey="instructionsBmdBallotNavigationMarkScanPatDevice">
+      When voting with the text-to-speech audio, use your personal assistive
+      device to navigate your ballot. To navigate through contest choices, use
+      the move input. To select or unselect a contest choice as your vote, use
+      the select input. To navigate through the contests, use the move input to
+      navigate to the controls labelled "next" and "back" and use the select
+      input to navigate to a new contest. To get started, use the move input to
+      navigate to the control labelled "start voting" and then use the select
+      input to advance to the first contest.
+    </UiString>
+  ),
+
   instructionsBmdCastBallotPreamble: () => (
     <UiString uiStringKey="instructionsBmdCastBallotPreamble">
       Your official ballot is printing. Complete the following steps to finish
@@ -338,6 +357,14 @@ export const appStrings = {
     <UiString uiStringKey="instructionsBmdContestNavigation">
       To navigate through the contest choices, use the down button. To move to
       the next contest, use the right button.
+    </UiString>
+  ),
+
+  instructionsBmdContestNavigationPatDevice: () => (
+    <UiString uiStringKey="instructionsBmdContestNavigationPatDevice">
+      To navigate through the contest choices, use the move input. To move to
+      the next contest, use the move input to navigate to the control labelled
+      "next" and then use the select input to continue.
     </UiString>
   ),
 
@@ -399,8 +426,23 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsBmdReviewPageNavigationPatDevice: () => (
+    <UiString uiStringKey="instructionsBmdReviewPageNavigationPatDevice">
+      To review your votes, advance through the ballot contests using the move
+      input.
+    </UiString>
+  ),
+
   instructionsBmdReviewPageChangingVotes: () => (
     <UiString uiStringKey="instructionsBmdReviewPageChangingVotes">
+      To change your vote in any contest, use the select button to navigate to
+      that contest. When you are finished making your ballot selections and
+      ready to print your ballot, use the right button to print your ballot.
+    </UiString>
+  ),
+
+  instructionsBmdReviewPageChangingVotesPatDevice: () => (
+    <UiString uiStringKey="instructionsBmdReviewPageChangingVotesPatDevice">
       To change your vote in any contest, use the select button to navigate to
       that contest. When you are finished making your ballot selections and
       ready to print your ballot, use the right button to print your ballot.
@@ -415,9 +457,25 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsBmdScanReviewConfirmationPatDevice: () => (
+    <UiString uiStringKey="instructionsBmdScanReviewConfirmationPatDevice">
+      If your selections are correct, use the move input to navigate to the
+      control labelled "my ballot is correct" and then use the select input to
+      confirm your choices and cast your ballot. If there is an error, select
+      the option labelled "my ballot is incorrect" to mark this ballot as
+      incorrect and alert a poll worker.
+    </UiString>
+  ),
+
   instructionsBmdSelectToContinue: () => (
     <UiString uiStringKey="instructionsBmdSelectToContinue">
       Press the select button to continue.
+    </UiString>
+  ),
+
+  instructionsBmdSelectToContinuePatDevice: () => (
+    <UiString uiStringKey="instructionsBmdSelectToContinuePatDevice">
+      Use the select input to continue.
     </UiString>
   ),
 
@@ -428,11 +486,27 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsBmdWriteInFormNavigationPatDevice: () => (
+    <UiString uiStringKey="instructionsBmdWriteInFormNavigationPatDevice">
+      Use the move input to navigate between the letters of a standard keyboard.
+      Use the select input to select the current letter.
+    </UiString>
+  ),
+
   instructionsLanguageSettingsScreen: () => (
     <UiString uiStringKey="instructionsLanguageSettingsScreen">
       Use the up and down buttons to navigate through the available ballot
       languages. To select a language, use the select button. When you're done,
       use the right button to continue voting.
+    </UiString>
+  ),
+
+  instructionsLanguageSettingsScreenPatDevice: () => (
+    <UiString uiStringKey="instructionsLanguageSettingsScreenPatDevice">
+      Use the move input to navigate through the available ballot languages. To
+      select a language, use the select input. When you're done, use the move
+      input to navigate to the control labelled "done" and then use the select
+      input to continue voting.
     </UiString>
   ),
 

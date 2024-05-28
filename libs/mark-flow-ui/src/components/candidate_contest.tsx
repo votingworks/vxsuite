@@ -28,6 +28,7 @@ import {
   AudioOnly,
   electionStrings,
   ReadOnLoad,
+  AssistiveTechInstructions,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
@@ -258,7 +259,10 @@ export function CandidateContest({
             {appStrings.labelNumVotesRemaining()}{' '}
             <NumberString value={contest.seats - vote.length} weight="bold" />
             <AudioOnly>
-              {appStrings.instructionsBmdContestNavigation()}
+              <AssistiveTechInstructions
+                controllerString={appStrings.instructionsBmdContestNavigation()}
+                patDeviceString={appStrings.instructionsBmdContestNavigationPatDevice()}
+              />
             </AudioOnly>
           </Caption>
         </ContestHeader>
@@ -376,7 +380,10 @@ export function CandidateContest({
             <P>
               {appStrings.warningOvervoteCandidateContest()}
               <AudioOnly>
-                {appStrings.instructionsBmdSelectToContinue()}
+                <AssistiveTechInstructions
+                  controllerString={appStrings.instructionsBmdSelectToContinue()}
+                  patDeviceString={appStrings.instructionsBmdSelectToContinuePatDevice()}
+                />
               </AudioOnly>
             </P>
           }
@@ -388,7 +395,10 @@ export function CandidateContest({
             >
               {appStrings.buttonOkay()}
               <AudioOnly>
-                {appStrings.instructionsBmdSelectToContinue()}
+                <AssistiveTechInstructions
+                  controllerString={appStrings.instructionsBmdSelectToContinue()}
+                  patDeviceString={appStrings.instructionsBmdSelectToContinuePatDevice()}
+                />
               </AudioOnly>
             </Button>
           }
@@ -441,7 +451,10 @@ export function CandidateContest({
                     <AudioOnly>
                       {writeInModalTitle}
                       {appStrings.labelBmdWriteInForm()}
-                      {appStrings.instructionsBmdWriteInFormNavigation()}
+                      <AssistiveTechInstructions
+                        controllerString={appStrings.instructionsBmdWriteInFormNavigation()}
+                        patDeviceString={appStrings.instructionsBmdWriteInFormNavigationPatDevice()}
+                      />
                     </AudioOnly>
                     <P align="right">
                       <Caption>

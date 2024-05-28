@@ -17,6 +17,7 @@ import {
   AudioOnly,
   electionStrings,
   appStrings,
+  AssistiveTechInstructions,
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
@@ -82,7 +83,10 @@ export function YesNoContest({
           <Caption>
             <AudioOnly>
               {electionStrings.contestDescription(contest)}
-              {appStrings.instructionsBmdContestNavigation()}
+              <AssistiveTechInstructions
+                controllerString={appStrings.instructionsBmdContestNavigation()}
+                patDeviceString={appStrings.instructionsBmdContestNavigationPatDevice()}
+              />
             </AudioOnly>
           </Caption>
         </ContestHeader>
@@ -133,7 +137,10 @@ export function YesNoContest({
             <P>
               {appStrings.warningOvervoteYesNoContest()}
               <AudioOnly>
-                {appStrings.instructionsBmdSelectToContinue()}
+                <AssistiveTechInstructions
+                  controllerString={appStrings.instructionsBmdSelectToContinue()}
+                  patDeviceString={appStrings.instructionsBmdSelectToContinuePatDevice()}
+                />
               </AudioOnly>
             </P>
           }
@@ -141,7 +148,10 @@ export function YesNoContest({
             <Button variant="primary" autoFocus onPress={closeOvervoteAlert}>
               {appStrings.buttonOkay()}
               <AudioOnly>
-                {appStrings.instructionsBmdSelectToContinue()}
+                <AssistiveTechInstructions
+                  controllerString={appStrings.instructionsBmdSelectToContinue()}
+                  patDeviceString={appStrings.instructionsBmdSelectToContinuePatDevice()}
+                />
               </AudioOnly>
             </Button>
           }

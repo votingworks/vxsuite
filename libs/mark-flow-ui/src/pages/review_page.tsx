@@ -8,6 +8,7 @@ import {
   AudioOnly,
   ReadOnLoad,
   PageNavigationButtonId,
+  AssistiveTechInstructions,
 } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
@@ -65,8 +66,14 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
       <ContentHeader>
         <H1>{appStrings.titleBmdReviewScreen()}</H1>
         <AudioOnly>
-          {appStrings.instructionsBmdReviewPageNavigation()}{' '}
-          {appStrings.instructionsBmdReviewPageChangingVotes()}
+          <AssistiveTechInstructions
+            controllerString={appStrings.instructionsBmdReviewPageNavigation()}
+            patDeviceString={appStrings.instructionsBmdReviewPageNavigationPatDevice()}
+          />{' '}
+          <AssistiveTechInstructions
+            controllerString={appStrings.instructionsBmdReviewPageChangingVotes()}
+            patDeviceString={appStrings.instructionsBmdReviewPageChangingVotesPatDevice()}
+          />
         </AudioOnly>
       </ContentHeader>
       <WithScrollButtons>
