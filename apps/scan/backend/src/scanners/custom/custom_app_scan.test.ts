@@ -565,6 +565,7 @@ test('scanning paused when election manager card is inserted', async () => {
 
       simulateScan(mockScanner, await ballotImages.completeHmpb(), clock);
 
+      clock.increment(delays.DELAY_APP_READY_TO_SCAN_POLLING_INTERVAL);
       // we don't scan because the election manager card is inserted
       await waitForStatus(apiClient, {
         state: 'hardware_ready_to_scan',
@@ -579,6 +580,7 @@ test('scanning paused when election manager card is inserted', async () => {
       );
 
       // now we can scan
+      clock.increment(delays.DELAY_APP_READY_TO_SCAN_POLLING_INTERVAL);
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation: {
@@ -607,6 +609,7 @@ test('scanning paused when poll worker card is inserted', async () => {
       );
 
       simulateScan(mockScanner, await ballotImages.completeHmpb(), clock);
+      clock.increment(delays.DELAY_APP_READY_TO_SCAN_POLLING_INTERVAL);
 
       // we don't scan because the poll worker card is inserted
       await waitForStatus(apiClient, {
@@ -622,6 +625,7 @@ test('scanning paused when poll worker card is inserted', async () => {
       );
 
       // now we can scan
+      clock.increment(delays.DELAY_APP_READY_TO_SCAN_POLLING_INTERVAL);
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation: {
@@ -655,6 +659,7 @@ test('scanning paused when ballot bag needs replacement', async () => {
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       simulateScan(mockScanner, await ballotImages.completeHmpb(), clock);
+      clock.increment(delays.DELAY_APP_READY_TO_SCAN_POLLING_INTERVAL);
 
       // we don't scan because the ballot bag needs replacement
       await waitForStatus(apiClient, {
@@ -671,6 +676,7 @@ test('scanning paused when ballot bag needs replacement', async () => {
       doesUsbDriveRequireCastVoteRecordSyncMock.mockResolvedValue(false);
 
       // now we can scan
+      clock.increment(delays.DELAY_APP_READY_TO_SCAN_POLLING_INTERVAL);
       await waitForStatus(apiClient, {
         state: 'ready_to_accept',
         interpretation: {

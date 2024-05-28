@@ -113,6 +113,7 @@ export interface Delays {
   DELAY_RECONNECT_ON_UNEXPECTED_ERROR: number;
   DELAY_WAIT_FOR_JAM_CLEARED: number;
   DELAY_JAM_WHEN_SCANNING: number;
+  DELAY_APP_READY_TO_SCAN_POLLING_INTERVAL: number;
 }
 
 export const delays = {
@@ -156,6 +157,9 @@ export const delays = {
   // When scanning fails with a jam error the jam state may take a moment to stablize,
   // delay before deciding what type of jam to proceed with.
   DELAY_JAM_WHEN_SCANNING: 500,
+  // When scanning is paused (e.g. when a card is inserted), how often to
+  // recheck if scanning has been unpaused.
+  DELAY_APP_READY_TO_SCAN_POLLING_INTERVAL: 500,
 } satisfies Delays;
 
 function connectToCustom(createCustomClient: CreateCustomClient) {
@@ -752,24 +756,34 @@ function buildMachine({
           on: {
             SCAN: 'scanning',
             SCANNER_NO_PAPER: 'no_paper',
-            SCANNER_READY_TO_SCAN: 'check_app_ready_to_scan',
+            SCANNER_READY_TO_SCAN: doNothing,
           },
-        },
-        check_app_ready_to_scan: {
-          invoke: {
-            src: async () => isReadyToScan({ auth, store, usbDrive }),
-            onDone: [
-              {
-                target: 'scanning',
-                cond: (_context, event) => event.data,
+          initial: 'checking_app_ready_to_scan',
+          states: {
+            checking_app_ready_to_scan: {
+              invoke: {
+                src: async () => isReadyToScan({ auth, store, usbDrive }),
+                onDone: [
+                  {
+                    target: '#scanning',
+                    cond: (_context, event) => event.data,
+                  },
+                  {
+                    target: 'waiting',
+                  },
+                ],
               },
-              {
-                target: 'hardware_ready_to_scan',
+            },
+            waiting: {
+              after: {
+                DELAY_APP_READY_TO_SCAN_POLLING_INTERVAL:
+                  'checking_app_ready_to_scan',
               },
-            ],
+            },
           },
         },
         scanning: {
+          id: 'scanning',
           initial: 'starting_scan',
           states: {
             starting_scan: {
