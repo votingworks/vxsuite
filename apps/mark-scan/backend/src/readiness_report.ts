@@ -34,10 +34,12 @@ export async function saveReadinessReport({
     batteryInfo:
       /* istanbul ignore next */ (await getBatteryInfo()) ?? undefined,
     diskSpaceSummary: await workspace.getDiskSpaceSummary(),
-    isAccessibleControllerInputDetected:
-      await isAccessibleControllerDaemonRunning(),
-    mostRecentAccessibleControllerDiagnostic:
-      store.getMostRecentDiagnosticRecord('mark-scan-accessible-controller'),
+    accessibleControllerProps: {
+      isDeviceConnected: await isAccessibleControllerDaemonRunning(),
+      mostRecentDiagnosticRecord: store.getMostRecentDiagnosticRecord(
+        'mark-scan-accessible-controller'
+      ),
+    },
     machineId: VX_MACHINE_ID,
     generatedAtTime,
     electionDefinition,

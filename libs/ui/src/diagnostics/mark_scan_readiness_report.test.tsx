@@ -18,13 +18,15 @@ test('MarkScanReadinessReport', () => {
         available: 500000000,
         used: 500000000,
       }}
-      mostRecentAccessibleControllerDiagnostic={{
-        type: 'mark-scan-accessible-controller',
-        outcome: 'pass',
-        timestamp: generatedAtTime.getTime(),
+      accessibleControllerProps={{
+        mostRecentDiagnosticRecord: {
+          type: 'mark-scan-accessible-controller',
+          outcome: 'pass',
+          timestamp: generatedAtTime.getTime(),
+        },
+        isDeviceConnected: true,
+        children: <p>passed child</p>,
       }}
-      isAccessibleControllerInputDetected
-      accessibleControllerSectionChildren={<p>passed child</p>}
       generatedAtTime={generatedAtTime}
       machineId={machineId}
       electionDefinition={electionTwoPartyPrimaryDefinition}

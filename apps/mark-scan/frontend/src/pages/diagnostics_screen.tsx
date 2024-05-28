@@ -93,17 +93,18 @@ export function DiagnosticsScreen({
               precinctSelection={precinctSelection}
               batteryInfo={battery}
               diskSpaceSummary={diskSpaceSummary}
-              isAccessibleControllerInputDetected={
-                isAccessibleControllerInputDetected
-              }
-              mostRecentAccessibleControllerDiagnostic={
-                mostRecentAccessibleControllerDiagnostic
-              }
-              accessibleControllerSectionChildren={
-                <Button onPress={() => history.push('/accessible-controller')}>
-                  Test Accessible Controller
-                </Button>
-              }
+              accessibleControllerProps={{
+                isDeviceConnected: isAccessibleControllerInputDetected,
+                mostRecentDiagnosticRecord:
+                  mostRecentAccessibleControllerDiagnostic,
+                children: (
+                  <Button
+                    onPress={() => history.push('/accessible-controller')}
+                  >
+                    Test Accessible Controller
+                  </Button>
+                ),
+              }}
             />
           </Main>
         </Screen>
