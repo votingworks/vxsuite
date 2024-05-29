@@ -94,7 +94,9 @@ afterEach(async () => {
 
 test('diagnostic records', async () => {
   expect(
-    await apiClient.getMostRecentAccessibleControllerDiagnostic()
+    await apiClient.getMostRecentDiagnostic({
+      diagnosticType: 'mark-scan-accessible-controller',
+    })
   ).toBeNull();
   jest.useFakeTimers().setSystemTime(0);
   await apiClient.addDiagnosticRecord({
@@ -103,7 +105,9 @@ test('diagnostic records', async () => {
     message: 'up button not working',
   });
   expect(
-    await apiClient.getMostRecentAccessibleControllerDiagnostic()
+    await apiClient.getMostRecentDiagnostic({
+      diagnosticType: 'mark-scan-accessible-controller',
+    })
   ).toEqual<DiagnosticRecord>({
     type: 'mark-scan-accessible-controller',
     outcome: 'fail',
@@ -116,7 +120,9 @@ test('diagnostic records', async () => {
     outcome: 'pass',
   });
   expect(
-    await apiClient.getMostRecentAccessibleControllerDiagnostic()
+    await apiClient.getMostRecentDiagnostic({
+      diagnosticType: 'mark-scan-accessible-controller',
+    })
   ).toEqual<DiagnosticRecord>({
     type: 'mark-scan-accessible-controller',
     outcome: 'pass',
@@ -152,6 +158,10 @@ test('saving the readiness report', async () => {
   jest.useFakeTimers().setSystemTime(reportPrintedTime.getTime());
   await apiClient.addDiagnosticRecord({
     type: 'mark-scan-accessible-controller',
+    outcome: 'pass',
+  });
+  await apiClient.addDiagnosticRecord({
+    type: 'mark-scan-paper-handler',
     outcome: 'pass',
   });
   mockOf(isAccessibleControllerDaemonRunning).mockResolvedValueOnce(true);

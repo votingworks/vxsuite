@@ -13,6 +13,7 @@ import {
   InterpretedBmdPage,
   PollsState,
   DiagnosticRecord,
+  DiagnosticType,
 } from '@votingworks/types';
 import {
   getPrecinctSelectionName,
@@ -368,12 +369,10 @@ export function buildApi(
       addDiagnosticRecordAndLog(store, input, logger);
     },
 
-    getMostRecentAccessibleControllerDiagnostic(): DiagnosticRecord | null {
-      return (
-        store.getMostRecentDiagnosticRecord(
-          'mark-scan-accessible-controller'
-        ) ?? null
-      );
+    getMostRecentDiagnostic(input: {
+      diagnosticType: DiagnosticType;
+    }): DiagnosticRecord | null {
+      return store.getMostRecentDiagnosticRecord(input.diagnosticType) ?? null;
     },
 
     getIsAccessibleControllerInputDetected(): Promise<boolean> {
@@ -385,8 +384,7 @@ export function buildApi(
         workspace,
         usbDrive,
         logger,
-        // Uncomment once support for paper handler diagnostic is merged in libs/ui
-        // stateMachine,
+        stateMachine,
       });
     },
 

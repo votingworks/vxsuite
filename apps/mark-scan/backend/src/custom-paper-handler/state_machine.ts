@@ -77,7 +77,7 @@ import {
 import {
   getMockBallotPdfData,
   getPaperHandlerDiagnosticElectionDefinition,
-} from './diagnostic/utils';
+} from './diagnostic';
 
 interface Context {
   auth: InsertedSmartCardAuthApi;

@@ -19,6 +19,7 @@ import {
   PrecinctId,
   PrecinctSelection,
   SystemSettings,
+  DiagnosticType,
 } from '@votingworks/types';
 import {
   mockCardlessVoterUser,
@@ -320,6 +321,10 @@ export function createApiMock() {
       mockApiClient.setTestMode.expectCallWith({ isTestMode }).resolves();
     },
 
+    expectStartPaperHandlerDiagnostic() {
+      mockApiClient.startPaperHandlerDiagnostic.expectCallWith().resolves();
+    },
+
     expectSetPrecinctSelection(precinctSelection: PrecinctSelection) {
       mockApiClient.setPrecinctSelection
         .expectCallWith({ precinctSelection })
@@ -336,11 +341,12 @@ export function createApiMock() {
       mockApiClient.addDiagnosticRecord.expectCallWith(record).resolves();
     },
 
-    expectGetMostRecentAccessibleControllerDiagnostic(
+    expectGetMostRecentDiagnostic(
+      diagnosticType: DiagnosticType,
       record?: DiagnosticRecord
     ) {
-      mockApiClient.getMostRecentAccessibleControllerDiagnostic
-        .expectCallWith()
+      mockApiClient.getMostRecentDiagnostic
+        .expectCallWith({ diagnosticType })
         .resolves(record ?? null);
     },
 
