@@ -8,7 +8,7 @@
     "build"
   ],
   "scripts": {
-    "build": "tsc --build tsconfig.build.json && copyfiles -u 3 src/custom-paper-handler/fixtures/*.jpg build/custom-paper-handler/fixtures",
+    "build": "tsc --build tsconfig.build.json",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "format": "prettier '**/*.+(css|graphql|json|less|md|mdx|sass|scss|yaml|yml)' --write",
     "lint": "pnpm type-check && eslint .",

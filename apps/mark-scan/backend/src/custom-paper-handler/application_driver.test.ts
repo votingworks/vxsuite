@@ -88,7 +88,7 @@ test('print ballot', async () => {
 
 test('printBallotChunks errors when too many pages of data', async () => {
   const pdfDataResult = await readFile(
-    join(__dirname, 'fixtures', '2-page-pdf.pdf'),
+    join(__dirname, 'test_utils', 'fixtures', '2-page-pdf.pdf'),
     {
       maxSize: MAX_FIXTURE_FILE_SIZE_BYTES,
     }
