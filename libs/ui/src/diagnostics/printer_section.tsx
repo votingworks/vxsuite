@@ -7,6 +7,7 @@ import React from 'react';
 import { Optional, assert, throwIllegalValue } from '@votingworks/basics';
 import { H2, P } from '../typography';
 import { InfoIcon, LoadingIcon, SuccessIcon, WarningIcon } from './icons';
+import { DiagnosticSection } from './components';
 
 /**
  * IPP printer-state-reasons explain what's going on with a printer in detail.
@@ -192,7 +193,7 @@ export function PrinterSection({
   }
 
   return (
-    <React.Fragment>
+    <DiagnosticSection>
       <H2>Printer</H2>
       <PrinterStatusDisplay printerStatus={printerStatus} />
       {!mostRecentPrinterDiagnostic ? (
@@ -210,6 +211,6 @@ export function PrinterSection({
           {new Date(mostRecentPrinterDiagnostic.timestamp).toLocaleString()}
         </P>
       )}
-    </React.Fragment>
+    </DiagnosticSection>
   );
 }

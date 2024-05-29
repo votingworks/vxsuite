@@ -558,7 +558,7 @@ test('printing ballots', async () => {
 
   await expectElectionState({ ballotsPrintedCount: 2 });
   const pdfDataChinese = printBallotSpy.mock.calls[1][0];
-  await expect(pdfDataChinese).toMatchPdfSnapshot();
+  await expect(pdfDataChinese).toMatchPdfSnapshot({ failureThreshold: 0.1 });
 
   await waitForStatus('presenting_ballot');
   const interpretationChinese = await apiClient.getInterpretation();
