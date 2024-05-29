@@ -1,12 +1,14 @@
 import styled, { DefaultTheme } from 'styled-components';
 import { assert } from '@votingworks/basics';
 import { SizeMode } from '@votingworks/types';
+import { JustifyContent } from './layout';
 
 export interface MainProps {
   padded?: boolean;
   centerChild?: boolean;
   flexRow?: boolean;
   flexColumn?: boolean;
+  justifyContent?: JustifyContent;
 }
 
 const CONTENT_SPACING_VALUES_REM: Readonly<Record<SizeMode, number>> = {
@@ -36,7 +38,12 @@ export const Main = styled('main')<MainProps>`
   flex-direction: ${({ centerChild, flexColumn }) =>
     (centerChild || flexColumn) && 'column'};
   align-items: ${({ centerChild }) => centerChild && 'center'};
-  justify-content: ${({ centerChild }) => centerChild && 'center'};
+  justify-content: ${({ centerChild, justifyContent }) => {
+    if (centerChild) {
+      return 'center';
+    }
+    return justifyContent || undefined;
+  }};
   overflow: auto;
   padding: ${(p) => (p.padded ? getSpacingValueRem(p) : 0)}rem;
   position: relative; /* For sticky header */
