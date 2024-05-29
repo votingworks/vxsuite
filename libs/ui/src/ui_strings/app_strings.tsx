@@ -321,9 +321,10 @@ export const appStrings = {
       the move input. To select or unselect a contest choice as your vote, use
       the select input. To navigate through the contests, use the move input to
       navigate to the controls labelled "next" and "back" and use the select
-      input to navigate to a new contest. To get started, use the move input to
-      navigate to the control labelled "start voting" and then use the select
-      input to advance to the first contest.
+      input. After marking your votes in a contest, focus will automatically
+      move to the "next" control for your convenience. To get started, use the
+      move input to navigate to the control labelled "start voting" and then use
+      the select input to advance to the first contest.
     </UiString>
   ),
 
@@ -362,7 +363,7 @@ export const appStrings = {
 
   instructionsBmdContestNavigationPatDevice: () => (
     <UiString uiStringKey="instructionsBmdContestNavigationPatDevice">
-      To navigate through the contest choices, use the move input. To move to
+      To navigate through the contest choices, use the move input. To advance to
       the next contest, use the move input to navigate to the control labelled
       "next" and then use the select input to continue.
     </UiString>
@@ -443,9 +444,11 @@ export const appStrings = {
 
   instructionsBmdReviewPageChangingVotesPatDevice: () => (
     <UiString uiStringKey="instructionsBmdReviewPageChangingVotesPatDevice">
-      To change your vote in any contest, use the select button to navigate to
+      To change your vote in any contest, use the select input to navigate to
       that contest. When you are finished making your ballot selections and
-      ready to print your ballot, use the right button to print your ballot.
+      ready to print your ballot, use the move input to navigate to the control
+      labelled "print my ballot" and then use the select input to start
+      printing.
     </UiString>
   ),
 
