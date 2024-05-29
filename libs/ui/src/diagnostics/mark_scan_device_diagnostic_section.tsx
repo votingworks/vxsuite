@@ -3,7 +3,6 @@ import React from 'react';
 import { assert } from '@votingworks/basics';
 import { H2, P } from '../typography';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
-import { DiagnosticSection } from './components';
 
 export interface MarkScanDeviceDiagnosticSectionProps {
   isDeviceConnected: boolean;
@@ -25,7 +24,7 @@ export function MarkScanDeviceDiagnosticSection({
   }
 
   return (
-    <DiagnosticSection>
+    <section>
       <H2>{title}</H2>
       {isDeviceConnected ? (
         <P>
@@ -55,6 +54,6 @@ export function MarkScanDeviceDiagnosticSection({
         </P>
       )}
       {children}
-    </DiagnosticSection>
+    </section>
   );
 }

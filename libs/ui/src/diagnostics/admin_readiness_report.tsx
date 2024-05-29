@@ -8,6 +8,7 @@ import {
   ConfigurationSectionProps,
   ConfigurationSection,
 } from './configuration_section';
+import { ReportContents } from './components';
 
 type ReportContentsProps = ComputerSectionProps &
   PrinterSectionProps &
@@ -17,11 +18,11 @@ export function AdminReadinessReportContents(
   props: ReportContentsProps
 ): JSX.Element {
   return (
-    <div>
+    <ReportContents>
       <ConfigurationSection {...props} />
       <ComputerSection {...props} />
       <PrinterSection {...props} />
-    </div>
+    </ReportContents>
   );
 }
 

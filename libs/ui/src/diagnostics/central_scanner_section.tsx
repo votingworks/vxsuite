@@ -2,7 +2,6 @@ import { DiagnosticRecord } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { H2, P } from '../typography';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
-import { DiagnosticSection } from './components';
 
 export interface CentralScannerSectionProps {
   isScannerAttached: boolean;
@@ -18,7 +17,7 @@ export function CentralScannerSection({
   }
 
   return (
-    <DiagnosticSection>
+    <section>
       <H2>Scanner</H2>
       {isScannerAttached ? (
         <P>
@@ -44,6 +43,6 @@ export function CentralScannerSection({
           {new Date(mostRecentScannerDiagnostic.timestamp).toLocaleString()}
         </P>
       )}
-    </DiagnosticSection>
+    </section>
   );
 }
