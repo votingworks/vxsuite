@@ -39,9 +39,11 @@ export function ScannerDoubleFeedCalibrationScreen(): JSX.Element | null {
   const endDoubleFeedCalibrationMutation =
     endDoubleFeedCalibration.useMutation();
 
+  /* istanbul ignore next */
   if (!scannerStatusQuery.isSuccess) return null;
   const status = scannerStatusQuery.data;
 
+  /* istanbul ignore next */
   assert(
     status.state === 'calibrating_double_feed_detection.double_sheet' ||
       status.state === 'calibrating_double_feed_detection.single_sheet' ||
@@ -124,6 +126,7 @@ export function ScannerDoubleFeedCalibrationScreen(): JSX.Element | null {
       );
     }
 
+    /* istanbul ignore next */
     default:
       throwIllegalValue(status.state);
   }
