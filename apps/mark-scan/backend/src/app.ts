@@ -385,7 +385,8 @@ export function buildApi(
         workspace,
         usbDrive,
         logger,
-        stateMachine,
+        // Uncomment once support for paper handler diagnostic is merged in libs/ui
+        // stateMachine,
       });
     },
 
