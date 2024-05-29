@@ -381,6 +381,20 @@ export const returnBallot = {
   },
 } as const;
 
+export const beginDoubleFeedCalibration = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.beginDoubleFeedCalibration);
+  },
+} as const;
+
+export const endDoubleFeedCalibration = {
+  useMutation() {
+    const apiClient = useApiClient();
+    return useMutation(apiClient.endDoubleFeedCalibration);
+  },
+} as const;
+
 export const setHasPaperBeenLoaded = {
   useMutation() {
     const apiClient = useApiClient();

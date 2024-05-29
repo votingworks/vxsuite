@@ -21,6 +21,9 @@ export const PRECINCT_SCANNER_STATES = [
   'double_sheet_jammed',
   'unrecoverable_error',
   'paused',
+  'calibrating_double_feed_detection.double_sheet',
+  'calibrating_double_feed_detection.single_sheet',
+  'calibrating_double_feed_detection.done',
 ] as const;
 
 export type PrecinctScannerState = (typeof PRECINCT_SCANNER_STATES)[number];

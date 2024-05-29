@@ -35,6 +35,7 @@ import {
   setPrecinctSelection,
   setTestMode,
   unconfigureElection,
+  beginDoubleFeedCalibration,
 } from '../api';
 import { usePreviewContext } from '../preview_dashboard';
 import { LiveCheckButton } from '../components/live_check_button';
@@ -66,6 +67,8 @@ export function ElectionManagerScreen({
   const setIsSoundMutedMutation = setIsSoundMuted.useMutation();
   const setIsDoubleFeedDetectionDisabledMutation =
     setIsDoubleFeedDetectionDisabled.useMutation();
+  const beginDoubleFeedCalibrationMutation =
+    beginDoubleFeedCalibration.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
   const ejectUsbDriveMutation = ejectUsbDrive.useMutation();
   const logOutMutation = logOut.useMutation();
@@ -205,6 +208,14 @@ export function ElectionManagerScreen({
     </P>
   );
 
+  const calibrateDoubleSheetDetectionButton = (
+    <P>
+      <Button onPress={() => beginDoubleFeedCalibrationMutation.mutate()}>
+        Calibrate Double Sheet Detection
+      </Button>
+    </P>
+  );
+
   const audioMuteToggle = (
     <P>
       <Button
@@ -279,6 +290,7 @@ export function ElectionManagerScreen({
       content: (
         <React.Fragment>
           {doubleSheetDetectionToggle}
+          {calibrateDoubleSheetDetectionButton}
           {dateTimeButton}
           {audioMuteToggle}
           {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (

@@ -5,7 +5,7 @@ import {
   P,
   appStrings,
 } from '@votingworks/ui';
-import { throwIllegalValue } from '@votingworks/basics';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import type { PrecinctScannerErrorType } from '@votingworks/scan-backend';
 import { InvalidInterpretationReason } from '@votingworks/types';
 import { Screen } from '../components/layout';
@@ -26,6 +26,8 @@ export function ScanErrorScreen({
 }: Props): JSX.Element {
   const errorMessage = (() => {
     if (!error) return undefined;
+    // We don't use this screen during double feed calibration
+    assert(error !== 'double_feed_calibration_timed_out');
     switch (error) {
       // Invalid ballot interpretations
       case 'invalid_test_mode':
