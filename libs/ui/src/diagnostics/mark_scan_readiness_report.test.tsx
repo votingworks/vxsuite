@@ -29,6 +29,15 @@ test('MarkScanReadinessReport', () => {
         isDeviceConnected: true,
         children: <p>passed controller child</p>,
       }}
+      paperHandlerProps={{
+        mostRecentDiagnosticRecord: {
+          type: 'mark-scan-paper-handler',
+          outcome: 'pass',
+          timestamp: generatedAtTime.getTime(),
+        },
+        isDeviceConnected: true,
+        children: <p>passed paper handler child</p>,
+      }}
       generatedAtTime={generatedAtTime}
       machineId={machineId}
       electionDefinition={electionTwoPartyPrimaryDefinition}
@@ -45,11 +54,14 @@ test('MarkScanReadinessReport', () => {
   screen.getByText(/All Precincts/);
   screen.getByText('Battery Level: 50%');
   screen.getByText('Power Source: Battery');
+  expectDetected(screen, DiagnosticSectionTitle.PaperHandler, true);
   expectDetected(screen, DiagnosticSectionTitle.AccessibleController, true);
+  expectDiagnosticResult(screen, DiagnosticSectionTitle.PaperHandler, true);
   expectDiagnosticResult(
     screen,
     DiagnosticSectionTitle.AccessibleController,
     true
   );
   screen.getByText('passed controller child');
+  screen.getByText('passed paper handler child');
 });
