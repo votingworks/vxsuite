@@ -170,6 +170,10 @@ export function createMockPdiScannerClient(): MockPdiScannerClient {
       enableScanning: jest.fn().mockResolvedValue(ok()),
       disableScanning: jest.fn().mockResolvedValue(ok()),
       ejectDocument: jest.fn().mockResolvedValue(ok()),
+      calibrateDoubleFeedDetection: jest.fn().mockResolvedValue(ok()),
+      getDoubleFeedDetectionCalibrationConfig: jest
+        .fn()
+        .mockRejectedValue(new Error('Not used')),
       disconnect: jest.fn().mockResolvedValue(ok()),
       exit: jest.fn().mockResolvedValue(ok()),
     },
