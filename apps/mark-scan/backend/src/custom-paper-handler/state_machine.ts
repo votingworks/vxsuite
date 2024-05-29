@@ -33,6 +33,7 @@ import {
   isCardlessVoterAuth,
   isFeatureFlagEnabled,
   isPollWorkerAuth,
+  isSystemAdministratorAuth,
 } from '@votingworks/utils';
 import { tmpNameSync } from 'tmp';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
@@ -106,8 +107,10 @@ export type PaperHandlerStatusEvent =
   | { type: 'SET_INTERPRETATION_FIXTURE'; jpgPath: string }
   | { type: 'VOTER_VALIDATED_BALLOT' }
   | { type: 'VOTER_INVALIDATED_BALLOT' }
+  | { type: 'AUTH_STATUS_SYSTEM_ADMIN' }
   | { type: 'AUTH_STATUS_CARDLESS_VOTER' }
   | { type: 'AUTH_STATUS_POLL_WORKER' }
+  | { type: 'AUTH_STATUS_LOGGED_OUT' }
   | { type: 'AUTH_STATUS_UNHANDLED' }
   | { type: 'PAT_DEVICE_CONNECTED' }
   | { type: 'PAT_DEVICE_DISCONNECTED' }
@@ -249,12 +252,20 @@ function buildAuthStatusObservable() {
             constructAuthMachineState(workspace)
           );
 
+          if (isSystemAdministratorAuth(authStatus)) {
+            return { type: 'AUTH_STATUS_SYSTEM_ADMIN' };
+          }
+
           if (isCardlessVoterAuth(authStatus)) {
             return { type: 'AUTH_STATUS_CARDLESS_VOTER' };
           }
 
           if (isPollWorkerAuth(authStatus)) {
             return { type: 'AUTH_STATUS_POLL_WORKER' };
+          }
+
+          if (authStatus.status === 'logged_out') {
+            return { type: 'AUTH_STATUS_LOGGED_OUT' };
           }
 
           debug('Unhandled auth status in observable: %O', authStatus);
@@ -620,6 +631,7 @@ export function buildMachine(
               invoke: pollAuthStatus(),
               on: {
                 AUTH_STATUS_CARDLESS_VOTER: 'waiting_for_ballot_data',
+                AUTH_STATUS_LOGGED_OUT: 'not_accepting_paper',
                 AUTH_STATUS_UNHANDLED: 'not_accepting_paper',
               },
             },
@@ -747,6 +759,8 @@ export function buildMachine(
                   on: {
                     AUTH_STATUS_CARDLESS_VOTER: 'accepting_paper',
                     AUTH_STATUS_POLL_WORKER: 'accepting_paper',
+                    AUTH_STATUS_SYSTEM_ADMIN: 'accepting_paper',
+                    AUTH_STATUS_LOGGED_OUT: 'done',
                     AUTH_STATUS_UNHANDLED: 'done',
                   },
                 },
