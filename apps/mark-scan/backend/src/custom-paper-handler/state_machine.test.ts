@@ -56,6 +56,7 @@ import {
   getPaperInsideStatus,
   getPaperJammedStatus,
   getPaperParkedStatus,
+  getSampleBallotFilepath,
   readBallotFixture,
 } from './test_utils';
 import { SimpleServerStatus } from '.';
@@ -64,7 +65,6 @@ import {
   resetAndReconnect,
   scanAndSave,
 } from './application_driver';
-import { getSampleBallotFilepath } from './filepaths';
 import {
   mockCardlessVoterAuth,
   mockPollWorkerAuth,
