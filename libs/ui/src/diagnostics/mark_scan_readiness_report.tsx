@@ -12,6 +12,7 @@ import {
   MarkScanDeviceDiagnosticSectionProps,
 } from './mark_scan_device_diagnostic_section';
 import { ReportContents } from './components';
+import { DiagnosticSectionTitle } from './types';
 
 type NonpresentationalSectionProps = Omit<
   MarkScanDeviceDiagnosticSectionProps,
@@ -34,7 +35,7 @@ export function MarkScanReadinessReportContents(
       <MarkScanDeviceDiagnosticSection
         {...accessibleControllerProps}
         diagnosticType="mark-scan-accessible-controller"
-        title="Accessible Controller"
+        title={DiagnosticSectionTitle.AccessibleController}
       />
     </ReportContents>
   );

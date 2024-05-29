@@ -3,13 +3,14 @@ import React from 'react';
 import { assert } from '@votingworks/basics';
 import { H2, P } from '../typography';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
+import { DiagnosticSectionTitle } from './types';
 
 export interface MarkScanDeviceDiagnosticSectionProps {
   isDeviceConnected: boolean;
   diagnosticType: DiagnosticType;
   mostRecentDiagnosticRecord?: DiagnosticRecord;
   children?: React.ReactNode;
-  title: string;
+  title: DiagnosticSectionTitle;
 }
 
 export function MarkScanDeviceDiagnosticSection({

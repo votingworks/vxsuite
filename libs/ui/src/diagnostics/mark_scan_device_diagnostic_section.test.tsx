@@ -4,6 +4,7 @@ import {
   MarkScanDeviceDiagnosticSection,
   MarkScanDeviceDiagnosticSectionProps,
 } from './mark_scan_device_diagnostic_section';
+import { DiagnosticSectionTitle } from './types';
 
 function renderComponent(
   props: Partial<MarkScanDeviceDiagnosticSectionProps> = {}
@@ -11,7 +12,7 @@ function renderComponent(
   const {
     isDeviceConnected = true,
     diagnosticType = 'mark-scan-accessible-controller',
-    title = 'Accessible Controller',
+    title = DiagnosticSectionTitle.AccessibleController,
     mostRecentDiagnosticRecord,
     children,
   } = props;
