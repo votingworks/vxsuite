@@ -11,6 +11,7 @@ import {
   ConfigurationSectionProps,
   ConfigurationSection,
 } from './configuration_section';
+import { ReportContents } from './components';
 
 type ReportContentsProps = ComputerSectionProps &
   CentralScannerSectionProps &
@@ -20,11 +21,11 @@ export function CentralScanReadinessReportContents(
   props: ReportContentsProps
 ): JSX.Element {
   return (
-    <div>
+    <ReportContents>
       <ConfigurationSection {...props} />
       <ComputerSection {...props} />
       <CentralScannerSection {...props} />
-    </div>
+    </ReportContents>
   );
 }
 

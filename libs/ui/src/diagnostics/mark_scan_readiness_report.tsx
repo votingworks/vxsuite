@@ -11,6 +11,7 @@ import {
   MarkScanDeviceDiagnosticSection,
   MarkScanDeviceDiagnosticSectionProps,
 } from './mark_scan_device_diagnostic_section';
+import { ReportContents } from './components';
 
 type NonpresentationalSectionProps = Omit<
   MarkScanDeviceDiagnosticSectionProps,
@@ -27,7 +28,7 @@ export function MarkScanReadinessReportContents(
 ): JSX.Element {
   const { accessibleControllerProps } = props;
   return (
-    <div>
+    <ReportContents>
       <ConfigurationSection {...props} expectPrecinctSelection />
       <ComputerSection {...props} />
       <MarkScanDeviceDiagnosticSection
@@ -35,7 +36,7 @@ export function MarkScanReadinessReportContents(
         diagnosticType="mark-scan-accessible-controller"
         title="Accessible Controller"
       />
-    </div>
+    </ReportContents>
   );
 }
 

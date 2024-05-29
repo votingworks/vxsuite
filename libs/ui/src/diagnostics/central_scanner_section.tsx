@@ -1,4 +1,3 @@
-import React from 'react';
 import { DiagnosticRecord } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import { H2, P } from '../typography';
@@ -18,7 +17,7 @@ export function CentralScannerSection({
   }
 
   return (
-    <React.Fragment>
+    <section>
       <H2>Scanner</H2>
       {isScannerAttached ? (
         <P>
@@ -44,6 +43,6 @@ export function CentralScannerSection({
           {new Date(mostRecentScannerDiagnostic.timestamp).toLocaleString()}
         </P>
       )}
-    </React.Fragment>
+    </section>
   );
 }

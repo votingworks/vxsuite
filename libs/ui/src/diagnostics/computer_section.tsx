@@ -88,10 +88,10 @@ export function ComputerSection({
   diskSpaceSummary,
 }: ComputerSectionProps): JSX.Element {
   return (
-    <React.Fragment>
+    <section>
       <H2>Computer</H2>
       <PowerSection batteryInfo={batteryInfo} />
       <StorageSection diskSpaceSummary={diskSpaceSummary} />
-    </React.Fragment>
+    </section>
   );
 }

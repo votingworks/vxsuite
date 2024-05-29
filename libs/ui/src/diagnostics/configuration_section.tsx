@@ -5,7 +5,6 @@ import {
   getDisplayElectionHash,
   getPrecinctById,
 } from '@votingworks/types';
-import React from 'react';
 import { assert } from '@votingworks/basics';
 import { H2, P } from '../typography';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
@@ -51,18 +50,18 @@ export function ConfigurationSection({
 }: ConfigurationSectionProps): JSX.Element {
   if (!electionDefinition) {
     return (
-      <React.Fragment>
+      <section>
         <H2>Configuration</H2>
         <P>
           <InfoIcon /> No election currently loaded on device.
         </P>
-      </React.Fragment>
+      </section>
     );
   }
   const { election } = electionDefinition;
 
   return (
-    <React.Fragment>
+    <section>
       <H2>Configuration</H2>
       <P>
         <SuccessIcon /> Election: {election.title},{' '}
@@ -85,6 +84,6 @@ export function ConfigurationSection({
           {getBallotStyleIds(election, precinctSelection).join(', ')}
         </P>
       )}
-    </React.Fragment>
+    </section>
   );
 }

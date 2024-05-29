@@ -24,7 +24,7 @@ export function MarkScanDeviceDiagnosticSection({
   }
 
   return (
-    <React.Fragment>
+    <section>
       <H2>{title}</H2>
       {isDeviceConnected ? (
         <P>
@@ -54,6 +54,6 @@ export function MarkScanDeviceDiagnosticSection({
         </P>
       )}
       {children}
-    </React.Fragment>
+    </section>
   );
 }

@@ -192,7 +192,7 @@ export function PrinterSection({
   }
 
   return (
-    <React.Fragment>
+    <section>
       <H2>Printer</H2>
       <PrinterStatusDisplay printerStatus={printerStatus} />
       {!mostRecentPrinterDiagnostic ? (
@@ -210,6 +210,6 @@ export function PrinterSection({
           {new Date(mostRecentPrinterDiagnostic.timestamp).toLocaleString()}
         </P>
       )}
-    </React.Fragment>
+    </section>
   );
 }
