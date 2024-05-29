@@ -35,7 +35,8 @@ export type PrecinctScannerErrorType =
   | 'paper_in_both_sides_after_reconnect'
   | 'unexpected_paper_status'
   | 'unexpected_event'
-  | 'client_error';
+  | 'client_error'
+  | 'double_feed_calibration_timed_out';
 
 export class PrecinctScannerError extends Error {
   constructor(
@@ -86,6 +87,9 @@ export interface PrecinctScannerStateMachine {
   // in the status.
   accept: () => void;
   return: () => void;
+
+  beginDoubleFeedCalibration: () => void;
+  endDoubleFeedCalibration: () => void;
 
   // Stop the state machine and release any resources it is using.
   stop: () => void;

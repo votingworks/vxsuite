@@ -123,7 +123,9 @@ type Event =
   | { type: 'ACCEPT' }
   | { type: 'RETURN' }
   | { type: 'SCANNING_ENABLED' }
-  | { type: 'SCANNING_DISABLED' };
+  | { type: 'SCANNING_DISABLED' }
+  | { type: 'BEGIN_DOUBLE_FEED_CALIBRATION' }
+  | { type: 'END_DOUBLE_FEED_CALIBRATION' };
 
 export interface Delays {
   /**
@@ -550,6 +552,7 @@ function buildMachine({
           ],
           on: {
             SCANNING_ENABLED: 'waitingForBallot',
+            BEGIN_DOUBLE_FEED_CALIBRATION: 'calibratingDoubleFeedDetection',
           },
         },
 
@@ -740,6 +743,70 @@ function buildMachine({
                 target: 'waitingForBallot',
               },
             ],
+          },
+        },
+
+        calibratingDoubleFeedDetection: {
+          on: {
+            SCANNER_EVENT: {
+              cond: (_, { event }) =>
+                event.event === 'doubleFeedCalibrationTimedOut',
+              target: '.done',
+              actions: assign({
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                error: (_context) =>
+                  new PrecinctScannerError('double_feed_calibration_timed_out'),
+              }),
+            },
+          },
+          initial: 'doubleSheet',
+          states: {
+            doubleSheet: {
+              invoke: {
+                src: async ({ client }) => {
+                  (
+                    await client.calibrateDoubleFeedDetection('double')
+                  ).unsafeUnwrap();
+                },
+                onError: {
+                  target: '#error',
+                  actions: assign({ error: (_, event) => event.data }),
+                },
+              },
+              on: {
+                SCANNER_EVENT: {
+                  cond: (_, { event }) =>
+                    event.event === 'doubleFeedCalibrationComplete',
+                  target: 'singleSheet',
+                },
+              },
+            },
+            singleSheet: {
+              invoke: {
+                src: async ({ client }) => {
+                  (
+                    await client.calibrateDoubleFeedDetection('single')
+                  ).unsafeUnwrap();
+                },
+                onError: {
+                  target: '#error',
+                  actions: assign({ error: (_, event) => event.data }),
+                },
+              },
+              on: {
+                SCANNER_EVENT: {
+                  cond: (_, { event }) =>
+                    event.event === 'doubleFeedCalibrationComplete',
+                  target: 'done',
+                },
+              },
+            },
+            done: {
+              on: {
+                END_DOUBLE_FEED_CALIBRATION: '#paused',
+              },
+              exit: assign({ error: undefined }),
+            },
           },
         },
 
@@ -1044,6 +1111,12 @@ export function createPrecinctScannerStateMachine({
             return 'recovering_from_error';
           case state.matches('unrecoverableError'):
             return 'unrecoverable_error';
+          case state.matches('calibratingDoubleFeedDetection.doubleSheet'):
+            return 'calibrating_double_feed_detection.double_sheet';
+          case state.matches('calibratingDoubleFeedDetection.singleSheet'):
+            return 'calibrating_double_feed_detection.single_sheet';
+          case state.matches('calibratingDoubleFeedDetection.done'):
+            return 'calibrating_double_feed_detection.done';
           case state.matches('shoeshineModeRescanningBallot'):
             return 'accepted';
           /* c8 ignore next 2 */
@@ -1080,6 +1153,7 @@ export function createPrecinctScannerStateMachine({
         'rejecting',
         'rejected',
         'recovering_from_error',
+        'calibrating_double_feed_detection.done',
       ].includes(scannerState);
       const errorDetails =
         error && stateNeedsErrorDetails
@@ -1100,6 +1174,14 @@ export function createPrecinctScannerStateMachine({
 
     return: () => {
       machineService.send('RETURN');
+    },
+
+    beginDoubleFeedCalibration: () => {
+      machineService.send('BEGIN_DOUBLE_FEED_CALIBRATION');
+    },
+
+    endDoubleFeedCalibration: () => {
+      machineService.send('END_DOUBLE_FEED_CALIBRATION');
     },
 
     stop: () => {

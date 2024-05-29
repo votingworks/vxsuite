@@ -354,6 +354,14 @@ export function buildApi({
       machine.return();
     },
 
+    beginDoubleFeedCalibration(): void {
+      machine.beginDoubleFeedCalibration();
+    },
+
+    endDoubleFeedCalibration(): void {
+      machine.endDoubleFeedCalibration();
+    },
+
     setHasPaperBeenLoaded(input: { hasPaperBeenLoaded: boolean }): void {
       store.setHasPaperHasBeenLoaded(input.hasPaperBeenLoaded);
     },
