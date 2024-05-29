@@ -1,4 +1,3 @@
-/* istanbul ignore file */
 import { within } from '@testing-library/react';
 import { assertDefined } from '@votingworks/basics';
 import { VxScreen } from '../themes/render_with_themes';

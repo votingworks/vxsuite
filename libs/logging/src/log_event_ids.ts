@@ -130,6 +130,7 @@ export enum LogEventId {
   ErrorSettingSigintHandler = 'error-setting-sigint-handler',
   UnexpectedHardwareDeviceResponse = 'unexpected-hardware-device-response',
   DiagnosticInit = 'diagnostic-init',
+  DiagnosticError = 'diagnostic-error',
   DiagnosticComplete = 'diagnostic-complete',
   ReadinessReportPrinted = 'readiness-report-printed',
   ReadinessReportSaved = 'readiness-report-saved',
@@ -1101,6 +1102,12 @@ const DiagnosticInit: LogDetails = {
   documentationMessage: 'The user has started a hardware diagnostic.',
 };
 
+const DiagnosticError: LogDetails = {
+  eventId: LogEventId.DiagnosticError,
+  eventType: LogEventType.UserAction,
+  documentationMessage: 'An error occurred when running a diagnostic.',
+};
+
 const DiagnosticComplete: LogDetails = {
   eventId: LogEventId.DiagnosticComplete,
   eventType: LogEventType.UserAction,
@@ -1372,6 +1379,8 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return UnexpectedHardwareDeviceResponse;
     case LogEventId.DiagnosticInit:
       return DiagnosticInit;
+    case LogEventId.DiagnosticError:
+      return DiagnosticError;
     case LogEventId.DiagnosticComplete:
       return DiagnosticComplete;
     case LogEventId.ReadinessReportPrinted:

@@ -2,7 +2,10 @@ import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import {
   MARK_SCAN_CONTROLLER_ILLUSTRATION_HIGHLIGHT_CLASS_NAME,
+  expectDetected,
+  expectDiagnosticResult,
   mockUsbDriveStatus,
+  DiagnosticSectionTitle,
 } from '@votingworks/ui';
 import { ok } from '@votingworks/basics';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
@@ -12,7 +15,7 @@ import {
   render,
   screen,
   within,
-} from '../../test/react_testing_library';
+} from '../../../test/react_testing_library';
 import {
   DiagnosticsScreen,
   DiagnosticsScreenProps,
@@ -21,7 +24,7 @@ import {
   ApiMock,
   createApiMock,
   provideApi,
-} from '../../test/helpers/mock_api_client';
+} from '../../../test/helpers/mock_api_client';
 import { DIAGNOSTIC_STEPS } from './accessible_controller_diagnostic_screen';
 
 let apiMock: ApiMock;
@@ -46,7 +49,8 @@ beforeEach(() => {
   apiMock.setBatteryInfo({ level: 0.5, discharging: true });
   apiMock.expectGetApplicationDiskSpaceSummary();
   apiMock.expectGetIsAccessibleControllerInputDetected();
-  apiMock.expectGetMostRecentAccessibleControllerDiagnostic();
+  apiMock.expectGetMostRecentDiagnostic('mark-scan-accessible-controller');
+  apiMock.expectGetMostRecentDiagnostic('mark-scan-paper-handler');
 });
 
 afterEach(() => {
@@ -55,26 +59,36 @@ afterEach(() => {
 
 // screen contents fully tested in libs/ui
 test('data from API is passed to screen contents', async () => {
+  apiMock.mockApiClient.getMostRecentDiagnostic.reset();
   apiMock.mockApiClient.getApplicationDiskSpaceSummary.reset();
   apiMock.expectGetApplicationDiskSpaceSummary({
     available: 1_000_000,
     used: 1_000_000,
     total: 2_000_000,
   });
-  apiMock.mockApiClient.getMostRecentAccessibleControllerDiagnostic.reset();
-  apiMock.expectGetMostRecentAccessibleControllerDiagnostic({
+  // apiMock.mockApiClient.getMostRecentAccessibleControllerDiagnostic.reset();
+  apiMock.expectGetMostRecentDiagnostic('mark-scan-accessible-controller', {
     type: 'mark-scan-accessible-controller',
     outcome: 'pass',
     timestamp: new Date('2022-03-23T11:00:00.000').getTime(),
+  });
+  apiMock.expectGetMostRecentDiagnostic('mark-scan-paper-handler', {
+    type: 'mark-scan-paper-handler',
+    outcome: 'pass',
+    timestamp: new Date('2022-03-23T11:05:00.000').getTime(),
   });
 
   renderScreen();
 
   await screen.findByText('Battery Level: 50%');
+
   screen.getByText('Power Source: Battery');
   screen.getByText('Free Disk Space: 50% (1 GB / 2 GB)');
 
-  screen.getByText('Detected');
+  screen.debug();
+  expectDetected(screen, DiagnosticSectionTitle.PaperHandler, true);
+  expectDetected(screen, DiagnosticSectionTitle.AccessibleController, true);
+  screen.getByText('Test passed, 3/23/2022, 11:05:00 AM');
   screen.getByText('Test passed, 3/23/2022, 11:00:00 AM');
 });
 
@@ -89,11 +103,12 @@ test('accessible controller diagnostic - pass', async () => {
     type: 'mark-scan-accessible-controller',
     outcome: 'pass',
   });
-  apiMock.expectGetMostRecentAccessibleControllerDiagnostic({
+  apiMock.expectGetMostRecentDiagnostic('mark-scan-accessible-controller', {
     type: 'mark-scan-accessible-controller',
     outcome: 'pass',
     timestamp: new Date('2022-03-23T11:23:00.000').getTime(),
   });
+
   for (const [i, step] of DIAGNOSTIC_STEPS.entries()) {
     await screen.findByText(`Step ${i + 1} of ${DIAGNOSTIC_STEPS.length}`);
     screen.getByText(`${i + 1}. Press the ${step.label.toLowerCase()} button.`);
@@ -131,7 +146,7 @@ test('accessible controller diagnostic - fail', async () => {
     outcome: 'fail',
     message: 'up button is not working.',
   });
-  apiMock.expectGetMostRecentAccessibleControllerDiagnostic({
+  apiMock.expectGetMostRecentDiagnostic('mark-scan-accessible-controller', {
     type: 'mark-scan-accessible-controller',
     outcome: 'fail',
     message: 'up button is not working.',
@@ -174,4 +189,33 @@ test('saving report', async () => {
   // confirm modal resets after exiting
   userEvent.click(await screen.findButton('Save Readiness Report'));
   await screen.findByRole('heading', { name: 'Save Readiness Report' });
+});
+
+test('pressing the button to start the paper handler diagnostic calls the right mutation', async () => {
+  apiMock.expectStartPaperHandlerDiagnostic();
+
+  renderScreen();
+
+  userEvent.click(await screen.findButton('Test Printer/Scanner'));
+  apiMock.setPaperHandlerState('paper_handler_diagnostic.prompt_for_paper');
+  await screen.findByText('Please insert a sheet of ballot paper.');
+});
+
+test('ending paper handler diagnostic refetches the diagnostic record', async () => {
+  apiMock.expectStartPaperHandlerDiagnostic();
+
+  renderScreen();
+  userEvent.click(await screen.findButton('Test Printer/Scanner'));
+
+  apiMock.setPaperHandlerState('paper_handler_diagnostic.success');
+
+  apiMock.expectGetMostRecentDiagnostic('mark-scan-paper-handler', {
+    type: 'mark-scan-paper-handler',
+    outcome: 'pass',
+    timestamp: new Date('2022-03-23T11:23:00.000').getTime(),
+  });
+  userEvent.click(await screen.findButton('Complete Test'));
+
+  await screen.findByText(/Test passed/);
+  expectDiagnosticResult(screen, DiagnosticSectionTitle.PaperHandler, true);
 });

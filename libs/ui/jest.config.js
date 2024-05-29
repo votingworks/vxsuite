@@ -15,6 +15,7 @@ module.exports = {
   },
   coveragePathIgnorePatterns: [
     'src/reports/index.ts',
+    'src/diagnostics/test_utils.ts',
     '.*\\.stories\\.ts',
     '.*\\.stories\\.tsx',
     // Purely presentational components:

@@ -3,6 +3,8 @@ import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import { MarkScanReadinessReport } from './mark_scan_readiness_report';
 import { render, screen } from '../../test/react_testing_library';
+import { expectDetected, expectDiagnosticResult } from './test_utils';
+import { DiagnosticSectionTitle } from './types';
 
 test('MarkScanReadinessReport', () => {
   const generatedAtTime = new Date('2022-01-01T00:00:00');
@@ -25,7 +27,16 @@ test('MarkScanReadinessReport', () => {
           timestamp: generatedAtTime.getTime(),
         },
         isDeviceConnected: true,
-        children: <p>passed child</p>,
+        children: <p>passed controller child</p>,
+      }}
+      paperHandlerProps={{
+        mostRecentDiagnosticRecord: {
+          type: 'mark-scan-paper-handler',
+          outcome: 'pass',
+          timestamp: generatedAtTime.getTime(),
+        },
+        isDeviceConnected: true,
+        children: <p>passed paper handler child</p>,
       }}
       generatedAtTime={generatedAtTime}
       machineId={machineId}
@@ -43,7 +54,14 @@ test('MarkScanReadinessReport', () => {
   screen.getByText(/All Precincts/);
   screen.getByText('Battery Level: 50%');
   screen.getByText('Power Source: Battery');
-  screen.getByText('Detected');
-  screen.getByText(/Test passed/);
-  screen.getByText('passed child');
+  expectDetected(screen, DiagnosticSectionTitle.PaperHandler, true);
+  expectDetected(screen, DiagnosticSectionTitle.AccessibleController, true);
+  expectDiagnosticResult(screen, DiagnosticSectionTitle.PaperHandler, true);
+  expectDiagnosticResult(
+    screen,
+    DiagnosticSectionTitle.AccessibleController,
+    true
+  );
+  screen.getByText('passed controller child');
+  screen.getByText('passed paper handler child');
 });

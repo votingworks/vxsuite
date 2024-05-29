@@ -13,6 +13,7 @@ import {
   InterpretedBmdPage,
   PollsState,
   DiagnosticRecord,
+  DiagnosticType,
 } from '@votingworks/types';
 import {
   getPrecinctSelectionName,
@@ -42,6 +43,20 @@ import { ElectionState, PrintBallotProps } from './types';
 import { isAccessibleControllerDaemonRunning } from './util/controllerd';
 import { saveReadinessReport } from './readiness_report';
 import { renderBallot } from './util/render_ballot';
+import { Store } from './store';
+
+function addDiagnosticRecordAndLog(
+  store: Store,
+  record: Omit<DiagnosticRecord, 'timestamp'>,
+  logger: Logger
+) {
+  store.addDiagnosticRecord(record);
+  void logger.logAsCurrentRole(LogEventId.DiagnosticComplete, {
+    disposition: record.outcome === 'pass' ? 'success' : 'failure',
+    message: `Diagnostic (${record.type}) completed with outcome: ${record.outcome}.`,
+    type: record.type,
+  });
+}
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(
@@ -170,6 +185,7 @@ export function buildApi(
     },
 
     getPaperHandlerState(): SimpleServerStatus {
+      /* istanbul ignore next */
       if (!stateMachine) {
         return 'no_hardware';
       }
@@ -339,6 +355,7 @@ export function buildApi(
     },
 
     isPatDeviceConnected(): boolean {
+      /* istanbul ignore next */
       if (!stateMachine) {
         return false;
       }
@@ -351,20 +368,13 @@ export function buildApi(
     },
 
     addDiagnosticRecord(input: Omit<DiagnosticRecord, 'timestamp'>): void {
-      store.addDiagnosticRecord(input);
-      void logger.logAsCurrentRole(LogEventId.DiagnosticComplete, {
-        disposition: input.outcome === 'pass' ? 'success' : 'failure',
-        message: `Diagnostic (${input.type}) completed with outcome: ${input.outcome}.`,
-        type: input.type,
-      });
+      addDiagnosticRecordAndLog(store, input, logger);
     },
 
-    getMostRecentAccessibleControllerDiagnostic(): DiagnosticRecord | null {
-      return (
-        store.getMostRecentDiagnosticRecord(
-          'mark-scan-accessible-controller'
-        ) ?? null
-      );
+    getMostRecentDiagnostic(input: {
+      diagnosticType: DiagnosticType;
+    }): DiagnosticRecord | null {
+      return store.getMostRecentDiagnosticRecord(input.diagnosticType) ?? null;
     },
 
     getIsAccessibleControllerInputDetected(): Promise<boolean> {
@@ -376,6 +386,7 @@ export function buildApi(
         workspace,
         usbDrive,
         logger,
+        stateMachine,
       });
     },
 
@@ -387,6 +398,20 @@ export function buildApi(
         machineId,
         electionHash: electionDefinition?.electionHash,
       });
+    },
+
+    startPaperHandlerDiagnostic(): void {
+      if (!stateMachine) {
+        const record: Omit<DiagnosticRecord, 'timestamp'> = {
+          type: 'mark-scan-paper-handler',
+          outcome: 'fail',
+          message: 'Printer/Scanner failed to connect',
+        };
+        addDiagnosticRecordAndLog(store, record, logger);
+        return;
+      }
+
+      stateMachine.startPaperHandlerDiagnostic();
     },
   });
 }

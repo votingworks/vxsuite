@@ -4,7 +4,8 @@
 export type DiagnosticType =
   | 'test-print'
   | 'blank-sheet-scan'
-  | 'mark-scan-accessible-controller';
+  | 'mark-scan-accessible-controller'
+  | 'mark-scan-paper-handler';
 
 /**
  * The outcome of a hardware diagnostics test.

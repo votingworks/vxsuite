@@ -143,18 +143,4 @@ describe('Displays setup warning messages and errors screens', () => {
     await screen.findByText(insertCardScreenText);
     expect(screen.queryByText(noPowerDetectedWarningText)).toBeFalsy();
   });
-
-  it('displays paper handler connection error if no paper handler', async () => {
-    apiMock.setPaperHandlerState('no_hardware');
-    apiMock.expectGetMachineConfig();
-    apiMock.expectGetElectionDefinition(electionGeneralDefinition);
-    apiMock.expectGetElectionState({
-      precinctSelection: ALL_PRECINCTS_SELECTION,
-      pollsState: 'polls_open',
-    });
-
-    render(<App apiClient={apiMock.mockApiClient} />);
-
-    await screen.findByText('No Connection to Printer-Scanner');
-  });
 });
