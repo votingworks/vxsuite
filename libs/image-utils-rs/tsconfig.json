@@ -1,0 +1,29 @@
+{
+  "extends": "../../tsconfig.shared.json",
+  "include": ["src", "test", "benchmarks"],
+  "exclude": [],
+  "compilerOptions": {
+    "module": "node16",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "composite": true,
+    "noEmit": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true
+  },
+  "references": [
+    { "path": "../ballot-encoder/tsconfig.build.json" },
+    { "path": "../basics/tsconfig.build.json" },
+    { "path": "../eslint-plugin-vx/tsconfig.build.json" },
+    { "path": "../fixtures/tsconfig.build.json" },
+    { "path": "../fs/tsconfig.build.json" },
+    { "path": "../hmpb/layout/tsconfig.build.json" },
+    { "path": "../hmpb/render-backend/tsconfig.build.json" },
+    { "path": "../image-utils/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" },
+    { "path": "../utils/tsconfig.build.json" }
+  ]
+}

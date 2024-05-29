@@ -157,6 +157,10 @@
       "path": "libs/image-utils"
     },
     {
+      "name": "libs/image-utils-rs",
+      "path": "libs/image-utils-rs"
+    },
+    {
       "name": "libs/logging",
       "path": "libs/logging"
     },

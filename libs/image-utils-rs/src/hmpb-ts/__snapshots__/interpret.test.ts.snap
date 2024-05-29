@@ -1,0 +1,2155 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`interpret \`ImageData\` objects 1`] = `
+[
+  {
+    "bounds": {
+      "height": 102,
+      "left": 372,
+      "top": 455,
+      "width": 1301,
+    },
+    "contestId": "Governor-061a401b",
+    "options": [
+      {
+        "bounds": {
+          "height": 102,
+          "left": 372,
+          "top": 455,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 8,
+          "side": "front",
+        },
+        "optionId": "Josiah-Bartlett-1bb99985",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 722,
+          "top": 455,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 8,
+          "side": "front",
+        },
+        "optionId": "Hannah-Dustin-ab4ef7c8",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1072,
+          "top": 455,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 26,
+          "row": 8,
+          "side": "front",
+        },
+        "optionId": "John-Spencer-9ffb5970",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1372,
+          "top": 455,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 8,
+          "side": "front",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 102,
+      "left": 373,
+      "top": 606,
+      "width": 1300,
+    },
+    "contestId": "United-States-Senator-d3f1c75b",
+    "options": [
+      {
+        "bounds": {
+          "height": 102,
+          "left": 373,
+          "top": 606,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 11,
+          "side": "front",
+        },
+        "optionId": "John-Langdon-5951c8e1",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 723,
+          "top": 606,
+          "width": 300,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 11,
+          "side": "front",
+        },
+        "optionId": "William-Preston-3778fcd5",
+      },
+      {
+        "bounds": {
+          "height": 101,
+          "left": 1372,
+          "top": 606,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 11,
+          "side": "front",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 103,
+      "left": 373,
+      "top": 757,
+      "width": 1301,
+    },
+    "contestId": "Representative-in-Congress-24683b44",
+    "options": [
+      {
+        "bounds": {
+          "height": 103,
+          "left": 373,
+          "top": 757,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 14,
+          "side": "front",
+        },
+        "optionId": "Jeremiah-Smith-469560c9",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 723,
+          "top": 757,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 14,
+          "side": "front",
+        },
+        "optionId": "Nicholas-Gilman-1791aed7",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1072,
+          "top": 757,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 26,
+          "row": 14,
+          "side": "front",
+        },
+        "optionId": "Richard-Coote-b9095636",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1372,
+          "top": 757,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 14,
+          "side": "front",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 102,
+      "left": 373,
+      "top": 908,
+      "width": 1301,
+    },
+    "contestId": "Executive-Councilor-bb22557f",
+    "options": [
+      {
+        "bounds": {
+          "height": 101,
+          "left": 373,
+          "top": 909,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 17,
+          "side": "front",
+        },
+        "optionId": "Anne-Waldron-ee0cbc85",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 723,
+          "top": 908,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 17,
+          "side": "front",
+        },
+        "optionId": "Daniel-Webster-13f77b2d",
+      },
+      {
+        "bounds": {
+          "height": 101,
+          "left": 1373,
+          "top": 908,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 17,
+          "side": "front",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 104,
+      "left": 373,
+      "top": 1058,
+      "width": 1301,
+    },
+    "contestId": "State-Senator-391381f8",
+    "options": [
+      {
+        "bounds": {
+          "height": 103,
+          "left": 373,
+          "top": 1059,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 20,
+          "side": "front",
+        },
+        "optionId": "James-Poole-db5ef4bd",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 723,
+          "top": 1059,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 20,
+          "side": "front",
+        },
+        "optionId": "Matthew-Thornton-f66fec5e",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1373,
+          "top": 1058,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 20,
+          "side": "front",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 356,
+      "left": 374,
+      "top": 1209,
+      "width": 1301,
+    },
+    "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+    "options": [
+      {
+        "bounds": {
+          "height": 102,
+          "left": 374,
+          "top": 1261,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 24,
+          "side": "front",
+        },
+        "optionId": "Obadiah-Carrigan-5c95145a",
+      },
+      {
+        "bounds": {
+          "height": 101,
+          "left": 374,
+          "top": 1362,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 26,
+          "side": "front",
+        },
+        "optionId": "Mary-Baker-Eddy-350785d5",
+      },
+      {
+        "bounds": {
+          "height": 103,
+          "left": 374,
+          "top": 1462,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 28,
+          "side": "front",
+        },
+        "optionId": "Samuel-Bell-17973275",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 724,
+          "top": 1210,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 23,
+          "side": "front",
+        },
+        "optionId": "Samuel-Livermore-f927fef1",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 724,
+          "top": 1310,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 25,
+          "side": "front",
+        },
+        "optionId": "Elijah-Miller-a52e6988",
+      },
+      {
+        "bounds": {
+          "height": 103,
+          "left": 724,
+          "top": 1411,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 27,
+          "side": "front",
+        },
+        "optionId": "Isaac-Hill-d6c9deeb",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1073,
+          "top": 1260,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 26,
+          "row": 24,
+          "side": "front",
+        },
+        "optionId": "Abigail-Bartlett-4e46c9d4",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1074,
+          "top": 1360,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 26,
+          "row": 26,
+          "side": "front",
+        },
+        "optionId": "Jacob-Freese-b5146505",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1373,
+          "top": 1209,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 23,
+          "side": "front",
+        },
+        "optionId": "write-in-0",
+      },
+      {
+        "bounds": {
+          "height": 101,
+          "left": 1374,
+          "top": 1310,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 25,
+          "side": "front",
+        },
+        "optionId": "write-in-1",
+      },
+      {
+        "bounds": {
+          "height": 103,
+          "left": 1373,
+          "top": 1410,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 27,
+          "side": "front",
+        },
+        "optionId": "write-in-2",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 104,
+      "left": 375,
+      "top": 1661,
+      "width": 1301,
+    },
+    "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+    "options": [
+      {
+        "bounds": {
+          "height": 102,
+          "left": 375,
+          "top": 1663,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 32,
+          "side": "front",
+        },
+        "optionId": "Abeil-Foster-ded38e36",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 725,
+          "top": 1662,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 32,
+          "side": "front",
+        },
+        "optionId": "Charles-H-Hersey-096286a4",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1074,
+          "top": 1661,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 26,
+          "row": 32,
+          "side": "front",
+        },
+        "optionId": "William-Lovejoy-fde3c2df",
+      },
+      {
+        "bounds": {
+          "height": 101,
+          "left": 1374,
+          "top": 1661,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 32,
+          "side": "front",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+]
+`;
+
+exports[`interpret \`ImageData\` objects 2`] = `
+[
+  {
+    "bounds": {
+      "height": 102,
+      "left": 382,
+      "top": 253,
+      "width": 1301,
+    },
+    "contestId": "Sheriff-4243fe0b",
+    "options": [
+      {
+        "bounds": {
+          "height": 102,
+          "left": 382,
+          "top": 253,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 4,
+          "side": "back",
+        },
+        "optionId": "Edward-Randolph-bf4c848a",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 732,
+          "top": 253,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 4,
+          "side": "back",
+        },
+        "optionId": "Edward-Randolph-bf4c848a",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1382,
+          "top": 253,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 4,
+          "side": "back",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 101,
+      "left": 382,
+      "top": 405,
+      "width": 1301,
+    },
+    "contestId": "County-Attorney-133f910f",
+    "options": [
+      {
+        "bounds": {
+          "height": 101,
+          "left": 382,
+          "top": 405,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 7,
+          "side": "back",
+        },
+        "optionId": "Ezra-Bartlett-8f95223c",
+      },
+      {
+        "bounds": {
+          "height": 101,
+          "left": 732,
+          "top": 405,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 7,
+          "side": "back",
+        },
+        "optionId": "Mary-Woolson-dc0b854a",
+      },
+      {
+        "bounds": {
+          "height": 101,
+          "left": 1382,
+          "top": 405,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 7,
+          "side": "back",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 103,
+      "left": 382,
+      "top": 555,
+      "width": 1302,
+    },
+    "contestId": "County-Treasurer-87d25a31",
+    "options": [
+      {
+        "bounds": {
+          "height": 102,
+          "left": 382,
+          "top": 555,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 10,
+          "side": "back",
+        },
+        "optionId": "John-Smith-ef61a579",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 732,
+          "top": 555,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 10,
+          "side": "back",
+        },
+        "optionId": "Jane-Jones-9caa141f",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1382,
+          "top": 556,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 10,
+          "side": "back",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 102,
+      "left": 382,
+      "top": 707,
+      "width": 1301,
+    },
+    "contestId": "Register-of-Deeds-a1278df2",
+    "options": [
+      {
+        "bounds": {
+          "height": 101,
+          "left": 382,
+          "top": 707,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 13,
+          "side": "back",
+        },
+        "optionId": "John-Mann-b56bbdd3",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 732,
+          "top": 707,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 13,
+          "side": "back",
+        },
+        "optionId": "Ellen-A-Stileman-14408737",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1382,
+          "top": 707,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 13,
+          "side": "back",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 103,
+      "left": 381,
+      "top": 857,
+      "width": 1302,
+    },
+    "contestId": "Register-of-Probate-a4117da8",
+    "options": [
+      {
+        "bounds": {
+          "height": 102,
+          "left": 381,
+          "top": 857,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 16,
+          "side": "back",
+        },
+        "optionId": "Nathaniel-Parker-56a06c29",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 731,
+          "top": 857,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 16,
+          "side": "back",
+        },
+        "optionId": "Claire-Cutts-07a436e7",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1381,
+          "top": 858,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 16,
+          "side": "back",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 103,
+      "left": 382,
+      "top": 1008,
+      "width": 1300,
+    },
+    "contestId": "County-Commissioner-d6feed25",
+    "options": [
+      {
+        "bounds": {
+          "height": 102,
+          "left": 382,
+          "top": 1008,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 19,
+          "side": "back",
+        },
+        "optionId": "Ichabod-Goodwin-55e8de1f",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 732,
+          "top": 1008,
+          "width": 300,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 19,
+          "side": "back",
+        },
+        "optionId": "Valbe-Cady-ba3af3af",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1381,
+          "top": 1009,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 19,
+          "side": "back",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 103,
+      "left": 1080,
+      "top": 1260,
+      "width": 602,
+    },
+    "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
+    "options": [
+      {
+        "bounds": {
+          "height": 103,
+          "left": 1080,
+          "top": 1260,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 26,
+          "row": 24,
+          "side": "back",
+        },
+        "optionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1380,
+          "top": 1261,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 24,
+          "side": "back",
+        },
+        "optionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
+      },
+    ],
+  },
+]
+`;
+
+exports[`interpret images from paths 1`] = `
+[
+  {
+    "bounds": {
+      "height": 102,
+      "left": 372,
+      "top": 455,
+      "width": 1301,
+    },
+    "contestId": "Governor-061a401b",
+    "options": [
+      {
+        "bounds": {
+          "height": 102,
+          "left": 372,
+          "top": 455,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 8,
+          "side": "front",
+        },
+        "optionId": "Josiah-Bartlett-1bb99985",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 722,
+          "top": 455,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 8,
+          "side": "front",
+        },
+        "optionId": "Hannah-Dustin-ab4ef7c8",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1072,
+          "top": 455,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 26,
+          "row": 8,
+          "side": "front",
+        },
+        "optionId": "John-Spencer-9ffb5970",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1372,
+          "top": 455,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 8,
+          "side": "front",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 102,
+      "left": 373,
+      "top": 606,
+      "width": 1300,
+    },
+    "contestId": "United-States-Senator-d3f1c75b",
+    "options": [
+      {
+        "bounds": {
+          "height": 102,
+          "left": 373,
+          "top": 606,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 11,
+          "side": "front",
+        },
+        "optionId": "John-Langdon-5951c8e1",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 723,
+          "top": 606,
+          "width": 300,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 11,
+          "side": "front",
+        },
+        "optionId": "William-Preston-3778fcd5",
+      },
+      {
+        "bounds": {
+          "height": 101,
+          "left": 1372,
+          "top": 606,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 11,
+          "side": "front",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 103,
+      "left": 373,
+      "top": 757,
+      "width": 1301,
+    },
+    "contestId": "Representative-in-Congress-24683b44",
+    "options": [
+      {
+        "bounds": {
+          "height": 103,
+          "left": 373,
+          "top": 757,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 14,
+          "side": "front",
+        },
+        "optionId": "Jeremiah-Smith-469560c9",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 723,
+          "top": 757,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 14,
+          "side": "front",
+        },
+        "optionId": "Nicholas-Gilman-1791aed7",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1072,
+          "top": 757,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 26,
+          "row": 14,
+          "side": "front",
+        },
+        "optionId": "Richard-Coote-b9095636",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1372,
+          "top": 757,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 14,
+          "side": "front",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 102,
+      "left": 373,
+      "top": 908,
+      "width": 1301,
+    },
+    "contestId": "Executive-Councilor-bb22557f",
+    "options": [
+      {
+        "bounds": {
+          "height": 101,
+          "left": 373,
+          "top": 909,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 17,
+          "side": "front",
+        },
+        "optionId": "Anne-Waldron-ee0cbc85",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 723,
+          "top": 908,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 17,
+          "side": "front",
+        },
+        "optionId": "Daniel-Webster-13f77b2d",
+      },
+      {
+        "bounds": {
+          "height": 101,
+          "left": 1373,
+          "top": 908,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 17,
+          "side": "front",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 104,
+      "left": 373,
+      "top": 1058,
+      "width": 1301,
+    },
+    "contestId": "State-Senator-391381f8",
+    "options": [
+      {
+        "bounds": {
+          "height": 103,
+          "left": 373,
+          "top": 1059,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 20,
+          "side": "front",
+        },
+        "optionId": "James-Poole-db5ef4bd",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 723,
+          "top": 1059,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 20,
+          "side": "front",
+        },
+        "optionId": "Matthew-Thornton-f66fec5e",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1373,
+          "top": 1058,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 20,
+          "side": "front",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 356,
+      "left": 374,
+      "top": 1209,
+      "width": 1301,
+    },
+    "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+    "options": [
+      {
+        "bounds": {
+          "height": 102,
+          "left": 374,
+          "top": 1261,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 24,
+          "side": "front",
+        },
+        "optionId": "Obadiah-Carrigan-5c95145a",
+      },
+      {
+        "bounds": {
+          "height": 101,
+          "left": 374,
+          "top": 1362,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 26,
+          "side": "front",
+        },
+        "optionId": "Mary-Baker-Eddy-350785d5",
+      },
+      {
+        "bounds": {
+          "height": 103,
+          "left": 374,
+          "top": 1462,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 28,
+          "side": "front",
+        },
+        "optionId": "Samuel-Bell-17973275",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 724,
+          "top": 1210,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 23,
+          "side": "front",
+        },
+        "optionId": "Samuel-Livermore-f927fef1",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 724,
+          "top": 1310,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 25,
+          "side": "front",
+        },
+        "optionId": "Elijah-Miller-a52e6988",
+      },
+      {
+        "bounds": {
+          "height": 103,
+          "left": 724,
+          "top": 1411,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 27,
+          "side": "front",
+        },
+        "optionId": "Isaac-Hill-d6c9deeb",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1073,
+          "top": 1260,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 26,
+          "row": 24,
+          "side": "front",
+        },
+        "optionId": "Abigail-Bartlett-4e46c9d4",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1074,
+          "top": 1360,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 26,
+          "row": 26,
+          "side": "front",
+        },
+        "optionId": "Jacob-Freese-b5146505",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1373,
+          "top": 1209,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 23,
+          "side": "front",
+        },
+        "optionId": "write-in-0",
+      },
+      {
+        "bounds": {
+          "height": 101,
+          "left": 1374,
+          "top": 1310,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 25,
+          "side": "front",
+        },
+        "optionId": "write-in-1",
+      },
+      {
+        "bounds": {
+          "height": 103,
+          "left": 1373,
+          "top": 1410,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 27,
+          "side": "front",
+        },
+        "optionId": "write-in-2",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 104,
+      "left": 375,
+      "top": 1661,
+      "width": 1301,
+    },
+    "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+    "options": [
+      {
+        "bounds": {
+          "height": 102,
+          "left": 375,
+          "top": 1663,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 32,
+          "side": "front",
+        },
+        "optionId": "Abeil-Foster-ded38e36",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 725,
+          "top": 1662,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 32,
+          "side": "front",
+        },
+        "optionId": "Charles-H-Hersey-096286a4",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1074,
+          "top": 1661,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 26,
+          "row": 32,
+          "side": "front",
+        },
+        "optionId": "William-Lovejoy-fde3c2df",
+      },
+      {
+        "bounds": {
+          "height": 101,
+          "left": 1374,
+          "top": 1661,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 32,
+          "side": "front",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+]
+`;
+
+exports[`interpret images from paths 2`] = `
+[
+  {
+    "bounds": {
+      "height": 102,
+      "left": 382,
+      "top": 253,
+      "width": 1301,
+    },
+    "contestId": "Sheriff-4243fe0b",
+    "options": [
+      {
+        "bounds": {
+          "height": 102,
+          "left": 382,
+          "top": 253,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 4,
+          "side": "back",
+        },
+        "optionId": "Edward-Randolph-bf4c848a",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 732,
+          "top": 253,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 4,
+          "side": "back",
+        },
+        "optionId": "Edward-Randolph-bf4c848a",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1382,
+          "top": 253,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 4,
+          "side": "back",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 101,
+      "left": 382,
+      "top": 405,
+      "width": 1301,
+    },
+    "contestId": "County-Attorney-133f910f",
+    "options": [
+      {
+        "bounds": {
+          "height": 101,
+          "left": 382,
+          "top": 405,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 7,
+          "side": "back",
+        },
+        "optionId": "Ezra-Bartlett-8f95223c",
+      },
+      {
+        "bounds": {
+          "height": 101,
+          "left": 732,
+          "top": 405,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 7,
+          "side": "back",
+        },
+        "optionId": "Mary-Woolson-dc0b854a",
+      },
+      {
+        "bounds": {
+          "height": 101,
+          "left": 1382,
+          "top": 405,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 7,
+          "side": "back",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 103,
+      "left": 382,
+      "top": 555,
+      "width": 1302,
+    },
+    "contestId": "County-Treasurer-87d25a31",
+    "options": [
+      {
+        "bounds": {
+          "height": 102,
+          "left": 382,
+          "top": 555,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 10,
+          "side": "back",
+        },
+        "optionId": "John-Smith-ef61a579",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 732,
+          "top": 555,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 10,
+          "side": "back",
+        },
+        "optionId": "Jane-Jones-9caa141f",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1382,
+          "top": 556,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 10,
+          "side": "back",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 102,
+      "left": 382,
+      "top": 707,
+      "width": 1301,
+    },
+    "contestId": "Register-of-Deeds-a1278df2",
+    "options": [
+      {
+        "bounds": {
+          "height": 101,
+          "left": 382,
+          "top": 707,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 13,
+          "side": "back",
+        },
+        "optionId": "John-Mann-b56bbdd3",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 732,
+          "top": 707,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 13,
+          "side": "back",
+        },
+        "optionId": "Ellen-A-Stileman-14408737",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1382,
+          "top": 707,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 13,
+          "side": "back",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 103,
+      "left": 381,
+      "top": 857,
+      "width": 1302,
+    },
+    "contestId": "Register-of-Probate-a4117da8",
+    "options": [
+      {
+        "bounds": {
+          "height": 102,
+          "left": 381,
+          "top": 857,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 16,
+          "side": "back",
+        },
+        "optionId": "Nathaniel-Parker-56a06c29",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 731,
+          "top": 857,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 16,
+          "side": "back",
+        },
+        "optionId": "Claire-Cutts-07a436e7",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1381,
+          "top": 858,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 16,
+          "side": "back",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 103,
+      "left": 382,
+      "top": 1008,
+      "width": 1300,
+    },
+    "contestId": "County-Commissioner-d6feed25",
+    "options": [
+      {
+        "bounds": {
+          "height": 102,
+          "left": 382,
+          "top": 1008,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 12,
+          "row": 19,
+          "side": "back",
+        },
+        "optionId": "Ichabod-Goodwin-55e8de1f",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 732,
+          "top": 1008,
+          "width": 300,
+        },
+        "gridLocation": {
+          "column": 19,
+          "row": 19,
+          "side": "back",
+        },
+        "optionId": "Valbe-Cady-ba3af3af",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1381,
+          "top": 1009,
+          "width": 301,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 19,
+          "side": "back",
+        },
+        "optionId": "write-in-0",
+      },
+    ],
+  },
+  {
+    "bounds": {
+      "height": 103,
+      "left": 1080,
+      "top": 1260,
+      "width": 602,
+    },
+    "contestId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
+    "options": [
+      {
+        "bounds": {
+          "height": 103,
+          "left": 1080,
+          "top": 1260,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 26,
+          "row": 24,
+          "side": "back",
+        },
+        "optionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes",
+      },
+      {
+        "bounds": {
+          "height": 102,
+          "left": 1380,
+          "top": 1261,
+          "width": 302,
+        },
+        "gridLocation": {
+          "column": 32,
+          "row": 24,
+          "side": "back",
+        },
+        "optionId": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no",
+      },
+    ],
+  },
+]
+`;
+
+exports[`score write in areas 1`] = `
+[
+  {
+    "bounds": {
+      "height": 45,
+      "left": 1372,
+      "top": 472,
+      "width": 226,
+    },
+    "gridPosition": {
+      "column": 32,
+      "contestId": "Governor-061a401b",
+      "row": 8,
+      "sheetNumber": 1,
+      "side": "front",
+      "type": "write-in",
+      "writeInArea": {
+        "height": 0.85,
+        "width": 4.5,
+        "x": 27,
+        "y": 7.35,
+      },
+      "writeInIndex": 0,
+    },
+    "score": 0,
+  },
+  {
+    "bounds": {
+      "height": 44,
+      "left": 1372,
+      "top": 623,
+      "width": 226,
+    },
+    "gridPosition": {
+      "column": 32,
+      "contestId": "United-States-Senator-d3f1c75b",
+      "row": 11,
+      "sheetNumber": 1,
+      "side": "front",
+      "type": "write-in",
+      "writeInArea": {
+        "height": 0.85,
+        "width": 4.5,
+        "x": 27,
+        "y": 10.35,
+      },
+      "writeInIndex": 0,
+    },
+    "score": 0,
+  },
+  {
+    "bounds": {
+      "height": 44,
+      "left": 1372,
+      "top": 774,
+      "width": 226,
+    },
+    "gridPosition": {
+      "column": 32,
+      "contestId": "Representative-in-Congress-24683b44",
+      "row": 14,
+      "sheetNumber": 1,
+      "side": "front",
+      "type": "write-in",
+      "writeInArea": {
+        "height": 0.85,
+        "width": 4.5,
+        "x": 27,
+        "y": 13.35,
+      },
+      "writeInIndex": 0,
+    },
+    "score": 0,
+  },
+  {
+    "bounds": {
+      "height": 43,
+      "left": 1373,
+      "top": 925,
+      "width": 227,
+    },
+    "gridPosition": {
+      "column": 32,
+      "contestId": "Executive-Councilor-bb22557f",
+      "row": 17,
+      "sheetNumber": 1,
+      "side": "front",
+      "type": "write-in",
+      "writeInArea": {
+        "height": 0.85,
+        "width": 4.5,
+        "x": 27,
+        "y": 16.35,
+      },
+      "writeInIndex": 0,
+    },
+    "score": 0.12693371,
+  },
+  {
+    "bounds": {
+      "height": 45,
+      "left": 1373,
+      "top": 1075,
+      "width": 226,
+    },
+    "gridPosition": {
+      "column": 32,
+      "contestId": "State-Senator-391381f8",
+      "row": 20,
+      "sheetNumber": 1,
+      "side": "front",
+      "type": "write-in",
+      "writeInArea": {
+        "height": 0.85,
+        "width": 4.5,
+        "x": 27,
+        "y": 19.35,
+      },
+      "writeInIndex": 0,
+    },
+    "score": 0,
+  },
+  {
+    "bounds": {
+      "height": 45,
+      "left": 1373,
+      "top": 1226,
+      "width": 226,
+    },
+    "gridPosition": {
+      "column": 32,
+      "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+      "row": 23,
+      "sheetNumber": 1,
+      "side": "front",
+      "type": "write-in",
+      "writeInArea": {
+        "height": 0.85,
+        "width": 4.5,
+        "x": 27,
+        "y": 22.35,
+      },
+      "writeInIndex": 0,
+    },
+    "score": 0,
+  },
+  {
+    "bounds": {
+      "height": 44,
+      "left": 1374,
+      "top": 1327,
+      "width": 226,
+    },
+    "gridPosition": {
+      "column": 32,
+      "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+      "row": 25,
+      "sheetNumber": 1,
+      "side": "front",
+      "type": "write-in",
+      "writeInArea": {
+        "height": 0.85,
+        "width": 4.5,
+        "x": 27,
+        "y": 24.35,
+      },
+      "writeInIndex": 1,
+    },
+    "score": 0,
+  },
+  {
+    "bounds": {
+      "height": 44,
+      "left": 1374,
+      "top": 1427,
+      "width": 226,
+    },
+    "gridPosition": {
+      "column": 32,
+      "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
+      "row": 27,
+      "sheetNumber": 1,
+      "side": "front",
+      "type": "write-in",
+      "writeInArea": {
+        "height": 0.85,
+        "width": 4.5,
+        "x": 27,
+        "y": 26.35,
+      },
+      "writeInIndex": 2,
+    },
+    "score": 0,
+  },
+  {
+    "bounds": {
+      "height": 43,
+      "left": 1374,
+      "top": 1678,
+      "width": 227,
+    },
+    "gridPosition": {
+      "column": 32,
+      "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
+      "row": 32,
+      "sheetNumber": 1,
+      "side": "front",
+      "type": "write-in",
+      "writeInArea": {
+        "height": 0.85,
+        "width": 4.5,
+        "x": 27,
+        "y": 31.35,
+      },
+      "writeInIndex": 0,
+    },
+    "score": 0,
+  },
+]
+`;
+
+exports[`score write in areas 2`] = `
+[
+  {
+    "bounds": {
+      "height": 44,
+      "left": 1382,
+      "top": 270,
+      "width": 226,
+    },
+    "gridPosition": {
+      "column": 32,
+      "contestId": "Sheriff-4243fe0b",
+      "row": 4,
+      "sheetNumber": 1,
+      "side": "back",
+      "type": "write-in",
+      "writeInArea": {
+        "height": 0.85,
+        "width": 4.5,
+        "x": 27,
+        "y": 3.35,
+      },
+      "writeInIndex": 0,
+    },
+    "score": 0.0053298473,
+  },
+  {
+    "bounds": {
+      "height": 43,
+      "left": 1382,
+      "top": 422,
+      "width": 226,
+    },
+    "gridPosition": {
+      "column": 32,
+      "contestId": "County-Attorney-133f910f",
+      "row": 7,
+      "sheetNumber": 1,
+      "side": "back",
+      "type": "write-in",
+      "writeInArea": {
+        "height": 0.85,
+        "width": 4.5,
+        "x": 27,
+        "y": 6.35,
+      },
+      "writeInIndex": 0,
+    },
+    "score": 0,
+  },
+  {
+    "bounds": {
+      "height": 44,
+      "left": 1382,
+      "top": 573,
+      "width": 227,
+    },
+    "gridPosition": {
+      "column": 32,
+      "contestId": "County-Treasurer-87d25a31",
+      "row": 10,
+      "sheetNumber": 1,
+      "side": "back",
+      "type": "write-in",
+      "writeInArea": {
+        "height": 0.85,
+        "width": 4.5,
+        "x": 27,
+        "y": 9.35,
+      },
+      "writeInIndex": 0,
+    },
+    "score": 0.11613937,
+  },
+  {
+    "bounds": {
+      "height": 44,
+      "left": 1382,
+      "top": 724,
+      "width": 226,
+    },
+    "gridPosition": {
+      "column": 32,
+      "contestId": "Register-of-Deeds-a1278df2",
+      "row": 13,
+      "sheetNumber": 1,
+      "side": "back",
+      "type": "write-in",
+      "writeInArea": {
+        "height": 0.85,
+        "width": 4.5,
+        "x": 27,
+        "y": 12.35,
+      },
+      "writeInIndex": 0,
+    },
+    "score": 0,
+  },
+  {
+    "bounds": {
+      "height": 44,
+      "left": 1382,
+      "top": 875,
+      "width": 225,
+    },
+    "gridPosition": {
+      "column": 32,
+      "contestId": "Register-of-Probate-a4117da8",
+      "row": 16,
+      "sheetNumber": 1,
+      "side": "back",
+      "type": "write-in",
+      "writeInArea": {
+        "height": 0.85,
+        "width": 4.5,
+        "x": 27,
+        "y": 15.35,
+      },
+      "writeInIndex": 0,
+    },
+    "score": 0.026565656,
+  },
+  {
+    "bounds": {
+      "height": 45,
+      "left": 1381,
+      "top": 1026,
+      "width": 226,
+    },
+    "gridPosition": {
+      "column": 32,
+      "contestId": "County-Commissioner-d6feed25",
+      "row": 19,
+      "sheetNumber": 1,
+      "side": "back",
+      "type": "write-in",
+      "writeInArea": {
+        "height": 0.85,
+        "width": 4.5,
+        "x": 27,
+        "y": 18.35,
+      },
+      "writeInIndex": 0,
+    },
+    "score": 0.091740415,
+  },
+]
+`;
