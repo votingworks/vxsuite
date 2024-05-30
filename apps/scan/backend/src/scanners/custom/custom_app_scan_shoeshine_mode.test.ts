@@ -1,7 +1,10 @@
 import { ok } from '@votingworks/basics';
 import { mocks } from '@votingworks/custom-scanner';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
-import { SheetInterpretation } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  SheetInterpretation,
+} from '@votingworks/types';
 import {
   getFeatureFlagMock,
   BooleanEnvironmentVariableName,
@@ -35,9 +38,6 @@ beforeEach(() => {
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.USE_CUSTOM_SCANNER
   );
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_SCAN_SHOESHINE_MODE
-  );
 });
 
 test('shoeshine mode scans the same ballot repeatedly', async () => {
@@ -45,7 +45,12 @@ test('shoeshine mode scans the same ballot repeatedly', async () => {
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
+          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(
+            {
+              ...DEFAULT_SYSTEM_SETTINGS,
+              precinctScanEnableShoeshineMode: true,
+            }
+          ),
       });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
