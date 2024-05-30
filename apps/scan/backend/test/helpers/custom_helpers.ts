@@ -3,7 +3,7 @@ import {
   InsertedSmartCardAuthApi,
   buildMockInsertedSmartCardAuth,
 } from '@votingworks/auth';
-import { Result, assert, deferred, ok, sleep } from '@votingworks/basics';
+import { Result, assert, deferred, ok } from '@votingworks/basics';
 import {
   CustomScanner,
   ErrorCode,
@@ -228,10 +228,6 @@ export function simulateScan(
 ): void {
   let didScan = false;
   mockScanner.getStatus.mockImplementation(async () => {
-    // Simulate an actual async call so that we don't get trapped in a sync
-    // execution loop switching between hardware_ready_to_scan and
-    // check_app_ready_to_scan states.
-    await sleep(1);
     if (!didScan) {
       return Promise.resolve(ok(mocks.MOCK_READY_TO_SCAN));
     }
