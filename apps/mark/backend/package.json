@@ -54,7 +54,6 @@
     "js-sha256": "^0.9.0",
     "luxon": "^3.0.0",
     "react": "18.3.1",
-    "react-dom": "18.3.1",
     "tmp": "^0.2.1",
     "zod": "3.23.5"
   },
@@ -67,8 +66,7 @@
     "@types/jest-image-snapshot": "^6.4.0",
     "@types/luxon": "^3.0.0",
     "@types/node": "16.18.23",
-    "@types/react": "18.2.18",
-    "@types/react-dom": "^18.2.7",
+    "@types/react": "18.3.3",
     "@types/tmp": "0.2.4",
     "@votingworks/test-utils": "workspace:*",
     "esbuild": "0.21.2",

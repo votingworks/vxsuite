@@ -3,7 +3,7 @@ import { mockUsbDriveStatus } from '@votingworks/ui';
 import type { ExportDataResult } from '@votingworks/admin-backend';
 import { ok } from '@votingworks/basics';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { renderInAppContext } from '../../../test/render_in_app_context';
 import { screen, within } from '../../../test/react_testing_library';

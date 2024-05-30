@@ -1,5 +1,5 @@
 import { LanguageCode, UiStringsPackage } from '@votingworks/types';
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
 import {
   render as renderWithoutContext,
   screen,

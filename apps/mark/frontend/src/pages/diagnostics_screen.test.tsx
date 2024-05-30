@@ -2,7 +2,7 @@ import userEvent from '@testing-library/user-event';
 import { advanceTimersAndPromises, mockOf } from '@votingworks/test-utils';
 import { MemoryRouter } from 'react-router-dom';
 import { DateTime } from 'luxon';
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
 import { IppMarkerInfo } from '@votingworks/types';
 import { render, screen } from '../../test/react_testing_library';
 import {

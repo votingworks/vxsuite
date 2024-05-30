@@ -33,7 +33,7 @@
     ]
   },
   "dependencies": {
-    "@testing-library/react": "^14.0.0",
+    "@testing-library/react": "^15.0.7",
     "@votingworks/basics": "workspace:*",
     "@votingworks/types": "workspace:*",
     "buffer": "^6.0.3",
@@ -50,7 +50,7 @@
     "@types/kiosk-browser": "workspace:*",
     "@types/luxon": "^3.0.0",
     "@types/node": "16.18.23",
-    "@types/react": "18.2.18",
+    "@types/react": "18.3.3",
     "@types/zip-stream": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",
@@ -59,7 +59,6 @@
     "jest-junit": "^16.0.0",
     "jest-watch-typeahead": "^2.2.2",
     "lint-staged": "11.0.0",
-    "react-dom": "18.3.1",
     "sort-package-json": "^1.50.0",
     "ts-jest": "29.1.1"
   },

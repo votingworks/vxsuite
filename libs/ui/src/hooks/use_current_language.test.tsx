@@ -1,7 +1,7 @@
 import { renderHook, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LanguageCode } from '@votingworks/types';
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
 import { createUiStringsApi } from './ui_strings_api';
 import { UiStringsContextProvider, useCurrentLanguage } from '..';
 import {

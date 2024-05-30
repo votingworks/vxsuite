@@ -2,7 +2,7 @@ import {
   renderHook as renderHookWithoutContext,
   waitFor,
 } from '@testing-library/react';
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
 import { useAudioEnabled } from './use_audio_enabled';
 import { newTestContext } from '../../test/test_context';
 
