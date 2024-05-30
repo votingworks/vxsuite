@@ -989,7 +989,7 @@ export function buildMachine(
                     message: context.diagnosticError
                       ? context.diagnosticError.message
                       : /* istanbul ignore next - no use of ?. operator to get Jest to recognize this ignore comment */
-                        undefined,
+                        'No diagnostic error stored in state machine context',
                   }),
                 onDone: 'done',
               },

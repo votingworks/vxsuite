@@ -66,7 +66,6 @@ test('data from API is passed to screen contents', async () => {
     used: 1_000_000,
     total: 2_000_000,
   });
-  // apiMock.mockApiClient.getMostRecentAccessibleControllerDiagnostic.reset();
   apiMock.expectGetMostRecentDiagnostic('mark-scan-accessible-controller', {
     type: 'mark-scan-accessible-controller',
     outcome: 'pass',
