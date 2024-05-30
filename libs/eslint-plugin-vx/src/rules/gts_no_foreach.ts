@@ -220,7 +220,7 @@ const rule: TSESLint.RuleModule<'noForEach', readonly unknown[]> = createRule({
        * `continue`s.
        */
       ReturnStatement(node: TSESTree.ReturnStatement): void {
-        const currentForEach = forEachStack[forEachStack.length - 1];
+        const currentForEach = forEachStack.at(-1);
 
         if (currentForEach?.functionLevel !== functionLevel - 1) {
           return;
@@ -251,7 +251,7 @@ const rule: TSESLint.RuleModule<'noForEach', readonly unknown[]> = createRule({
           return;
         }
 
-        const currentForEach = forEachStack[forEachStack.length - 1];
+        const currentForEach = forEachStack.at(-1);
         if (currentForEach?.forEachCall !== node) {
           return;
         }

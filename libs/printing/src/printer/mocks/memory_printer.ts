@@ -78,7 +78,7 @@ export function createMockPrinterHandler(): MemoryPrinterHandler {
 
     getLastPrintPath() {
       const { printJobHistory } = mockPrinterState;
-      return printJobHistory[printJobHistory.length - 1]?.filename;
+      return printJobHistory.at(-1)?.filename;
     },
 
     cleanup() {

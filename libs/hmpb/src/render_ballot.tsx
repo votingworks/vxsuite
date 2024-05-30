@@ -100,8 +100,7 @@ async function paginateBallotContent<P extends object>(
       `.${CONTENT_SLOT_CLASS}`
     );
     const currentPageProps: P =
-      pagedContentResults[pagedContentResults.length - 1]?.nextPageProps ??
-      props;
+      pagedContentResults.at(-1)?.nextPageProps ?? props;
 
     if (
       deepEqual(
@@ -129,7 +128,7 @@ async function paginateBallotContent<P extends object>(
       scratchpad
     );
     pagedContentResults.push(pagedContentResult);
-  } while (pagedContentResults[pagedContentResults.length - 1].nextPageProps);
+  } while (pagedContentResults.at(-1)?.nextPageProps);
 
   if (pagedContentResults.length % 2 === 1) {
     pagedContentResults.push(await contentComponent(undefined, scratchpad));

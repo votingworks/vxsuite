@@ -125,7 +125,7 @@ export function PickDateTimeModal({
     const year = name === 'year' ? partValue : newValue.year;
     const month = name === 'month' ? partValue : newValue.month;
     const daysInMonth = getDaysInMonth(year, month);
-    const lastDayOfMonth = daysInMonth[daysInMonth.length - 1].day;
+    const lastDayOfMonth = daysInMonth.at(-1)?.day;
     const day = name === 'day' ? partValue : newValue.day;
     setNewValue(
       DateTime.fromObject(

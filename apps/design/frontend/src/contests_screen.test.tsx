@@ -2,7 +2,7 @@ import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import type { ElectionRecord } from '@votingworks/design-backend';
 import { CandidateContest, YesNoContest } from '@votingworks/types';
-import { assert, iter } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import {
   MockApiClient,
   createMockApiClient,
@@ -436,7 +436,7 @@ describe('Contests tab', () => {
     expect(rows).toHaveLength(
       electionWithNewContestRecord.election.contests.length + 1
     );
-    const lastRow = rows[rows.length - 1];
+    const lastRow = rows.at(-1)!;
     expect(
       within(lastRow)
         .getAllByRole('cell')
@@ -568,7 +568,7 @@ describe('Contests tab', () => {
     userEvent.click(screen.getByRole('button', { name: 'Reorder Contests' }));
 
     const [contest1Title, contest2Title, contest3Title] = originalOrder;
-    const contest1Row = screen.getByText(contest1Title!).closest('tr')!;
+    const contest1Row = screen.getByText(contest1Title).closest('tr')!;
     expect(
       within(contest1Row).getByRole('button', { name: 'Move Up' })
     ).toBeDisabled();
@@ -576,12 +576,12 @@ describe('Contests tab', () => {
       within(contest1Row).getByRole('button', { name: 'Move Down' })
     );
 
-    const contest3Row = screen.getByText(contest3Title!).closest('tr')!;
+    const contest3Row = screen.getByText(contest3Title).closest('tr')!;
     userEvent.click(
       within(contest3Row).getByRole('button', { name: 'Move Up' })
     );
 
-    const lastContestRow = iter(screen.getAllByRole('row')).last()!;
+    const lastContestRow = screen.getAllByRole('row').at(-1)!;
     expect(
       within(lastContestRow).getByRole('button', { name: 'Move Down' })
     ).toBeDisabled();
