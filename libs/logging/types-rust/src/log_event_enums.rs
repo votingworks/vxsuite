@@ -245,6 +245,8 @@ pub enum EventId {
     UnexpectedHardwareDeviceResponse,
     #[serde(rename = "diagnostic-init")]
     DiagnosticInit,
+    #[serde(rename = "diagnostic-error")]
+    DiagnosticError,
     #[serde(rename = "diagnostic-complete")]
     DiagnosticComplete,
     #[serde(rename = "readiness-report-printed")]

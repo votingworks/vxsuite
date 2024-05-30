@@ -12,7 +12,7 @@ import {
   buildMockInsertedSmartCardAuth,
 } from '@votingworks/auth';
 import { advanceTimers, mockOf } from '@votingworks/test-utils';
-import { deferred } from '@votingworks/basics';
+import { assert, deferred } from '@votingworks/basics';
 import {
   electionGeneralDefinition,
   electionGridLayoutNewHampshireHudsonFixtures,
@@ -30,7 +30,6 @@ import {
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { assert } from 'console';
 import {
   InterpretFileResult,
   interpretSimplexBmdBallotFromFilepath,
@@ -56,8 +55,8 @@ import {
   getPaperInsideStatus,
   getPaperJammedStatus,
   getPaperParkedStatus,
-  getSampleBallotFilepath,
   readBallotFixture,
+  getSampleBallotFilepath,
 } from './test_utils';
 import { SimpleServerStatus } from '.';
 import {
@@ -67,13 +66,17 @@ import {
 } from './application_driver';
 import {
   mockCardlessVoterAuth,
+  mockLoggedOutAuth,
   mockPollWorkerAuth,
+  mockSystemAdminAuth,
 } from '../../test/auth_helpers';
 import { MAX_BALLOT_BOX_CAPACITY } from './constants';
 import {
   ORIGIN_SWIFTY_PRODUCT_ID,
   ORIGIN_VENDOR_ID,
 } from '../pat-input/constants';
+import { DIAGNOSTIC_MOCK_BALLOT_JPG_PATH } from './diagnostic/utils';
+import { Store } from '../store';
 
 // Use shorter polling interval in tests to reduce run times
 const TEST_POLL_INTERVAL_MS = 50;
@@ -154,10 +157,15 @@ async function advanceMockTimersAndPromises(milliseconds = 1000) {
   await Promise.resolve();
 }
 
-async function waitForTransition() {
+async function waitForTransition(status: SimpleServerStatus) {
   const { promise, resolve } = deferred<void>();
 
-  machine.addTransitionListener(resolve);
+  // onTransition may be called when state value doesn't change
+  machine.addTransitionListener(() => {
+    if (machine.getSimpleStatus() === status) {
+      resolve();
+    }
+  });
 
   return promise;
 }
@@ -171,7 +179,7 @@ async function expectStatusTransitionTo(
   waitTimeMs?: number
 ) {
   await advanceMockTimersAndPromises(waitTimeMs);
-  await waitForTransition();
+  await waitForTransition(status);
 
   expectCurrentStatus(status);
 }
@@ -553,13 +561,16 @@ test('elections with grid layouts still try to interpret BMD ballots', async () 
   );
 });
 
-test('blank page interpretation', async () => {
+async function writeTmpBlankImage(): Promise<string> {
   const blankImage = fromGrayScale(new Uint8ClampedArray([0]), 1, 1);
-  const imageName = 'blank-image.jpg';
-  const mockScannedBallotImagePath = join(dirSync().name, imageName);
+  const path = join(dirSync().name, 'blank-image.jpg');
+  await writeImageData(path, blankImage);
+  return path;
+}
 
+test('blank page interpretation', async () => {
   const ballotPdfData = await readBallotFixture();
-  await writeImageData(mockScannedBallotImagePath, blankImage);
+  const mockScannedBallotImagePath = await writeTmpBlankImage();
 
   await executePrintBallotAndAssert(
     ballotPdfData,
@@ -725,4 +736,85 @@ test('poll_worker_auth_ended_unexpectedly', async () => {
     precinctId,
   });
   await expectStatusTransitionTo('poll_worker_auth_ended_unexpectedly');
+});
+
+describe('paper handler diagnostic', () => {
+  async function executeDiagnosticPrint(store: Store) {
+    mockOf(printBallotChunks).mockResolvedValue();
+
+    expect(
+      store.getMostRecentDiagnosticRecord('mark-scan-paper-handler')
+    ).toEqual(undefined);
+
+    machine.startPaperHandlerDiagnostic();
+    await expectStatusTransitionTo('paper_handler_diagnostic.prompt_for_paper');
+
+    setMockDeviceStatus(getPaperInFrontStatus());
+    await expectStatusTransitionTo('paper_handler_diagnostic.load_paper');
+
+    setMockDeviceStatus(getPaperParkedStatus());
+    await expectStatusTransitionTo(
+      'paper_handler_diagnostic.print_ballot_fixture'
+    );
+    await expectStatusTransitionTo('paper_handler_diagnostic.scan_ballot');
+  }
+
+  test('happy path', async () => {
+    mockSystemAdminAuth(auth);
+    const { store } = workspace;
+
+    const mockScanResult = deferred<string>();
+    mockOf(scanAndSave).mockResolvedValue(mockScanResult.promise);
+
+    const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+    mockOf(interpretSimplexBmdBallotFromFilepath).mockResolvedValue(
+      mockInterpretResult.promise
+    );
+
+    await executeDiagnosticPrint(store);
+
+    mockScanResult.resolve(DIAGNOSTIC_MOCK_BALLOT_JPG_PATH);
+    await expectStatusTransitionTo('paper_handler_diagnostic.interpret_ballot');
+
+    mockInterpretResult.resolve(SUCCESSFUL_INTERPRETATION_MOCK);
+    await expectStatusTransitionTo('paper_handler_diagnostic.eject_to_rear');
+
+    setMockDeviceStatus(getDefaultPaperHandlerStatus());
+    await expectStatusTransitionTo('paper_handler_diagnostic.success');
+
+    expect(
+      store.getMostRecentDiagnosticRecord('mark-scan-paper-handler')?.outcome
+    ).toEqual('pass');
+  });
+
+  test('failure', async () => {
+    mockSystemAdminAuth(auth);
+    const { store } = workspace;
+
+    mockOf(printBallotChunks).mockResolvedValue();
+
+    const mockScanResult = deferred<string>();
+    mockOf(scanAndSave).mockResolvedValue(mockScanResult.promise);
+
+    await executeDiagnosticPrint(store);
+
+    mockScanResult.reject('Test scan error');
+    await expectStatusTransitionTo('not_accepting_paper');
+
+    expect(
+      store.getMostRecentDiagnosticRecord('mark-scan-paper-handler')?.outcome
+    ).toEqual('fail');
+  });
+
+  test('system admin log out', async () => {
+    machine.setAcceptingPaper();
+    expect(machine.getSimpleStatus()).toEqual('accepting_paper');
+
+    mockSystemAdminAuth(auth);
+    machine.startPaperHandlerDiagnostic();
+    await expectStatusTransitionTo('paper_handler_diagnostic.prompt_for_paper');
+
+    mockLoggedOutAuth(auth);
+    await expectStatusTransitionTo('accepting_paper');
+  });
 });

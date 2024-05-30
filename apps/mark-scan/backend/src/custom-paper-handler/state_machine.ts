@@ -17,11 +17,16 @@ import {
   PropertyAssigner,
   ServiceMap,
   StateSchema,
+  State,
 } from 'xstate';
 import { Buffer } from 'buffer';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
 import { Optional, assert, assertDefined, iter } from '@votingworks/basics';
-import { SheetOf } from '@votingworks/types';
+import {
+  ElectionDefinition,
+  MarkThresholds,
+  SheetOf,
+} from '@votingworks/types';
 import {
   InterpretFileResult,
   interpretSimplexBmdBallotFromFilepath,
@@ -33,6 +38,8 @@ import {
   isCardlessVoterAuth,
   isFeatureFlagEnabled,
   isPollWorkerAuth,
+  isSystemAdministratorAuth,
+  singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { tmpNameSync } from 'tmp';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
@@ -67,6 +74,10 @@ import {
   ORIGIN_SWIFTY_PRODUCT_ID,
   ORIGIN_VENDOR_ID,
 } from '../pat-input/constants';
+import {
+  getMockBallotPdfData,
+  getPaperHandlerDiagnosticElectionDefinition,
+} from './diagnostic/utils';
 
 interface Context {
   auth: InsertedSmartCardAuthApi;
@@ -81,10 +92,23 @@ interface Context {
   isPatDeviceConnected: boolean;
   interpretation?: SheetOf<InterpretFileResult>;
   logger: BaseLogger;
+  paperHandlerDiagnosticElection?: ElectionDefinition;
+  diagnosticError?: Error;
 }
 
 function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
   return xassign<Context, any>(arg);
+}
+
+function createOnDiagnosticErrorHandler() {
+  return {
+    target: 'failure',
+    actions: assign({
+      diagnosticError: (_: unknown, event: any) => {
+        return event.data as Error;
+      },
+    }),
+  };
 }
 
 export type PaperHandlerStatusEvent =
@@ -106,8 +130,10 @@ export type PaperHandlerStatusEvent =
   | { type: 'SET_INTERPRETATION_FIXTURE'; jpgPath: string }
   | { type: 'VOTER_VALIDATED_BALLOT' }
   | { type: 'VOTER_INVALIDATED_BALLOT' }
+  | { type: 'AUTH_STATUS_SYSTEM_ADMIN' }
   | { type: 'AUTH_STATUS_CARDLESS_VOTER' }
   | { type: 'AUTH_STATUS_POLL_WORKER' }
+  | { type: 'AUTH_STATUS_LOGGED_OUT' }
   | { type: 'AUTH_STATUS_UNHANDLED' }
   | { type: 'PAT_DEVICE_CONNECTED' }
   | { type: 'PAT_DEVICE_DISCONNECTED' }
@@ -115,7 +141,8 @@ export type PaperHandlerStatusEvent =
   | { type: 'VOTER_CONFIRMED_SESSION_END' }
   | { type: 'PAT_DEVICE_NO_STATUS_CHANGE' }
   | { type: 'PAT_DEVICE_STATUS_UNHANDLED' }
-  | { type: 'POLL_WORKER_CONFIRMED_BALLOT_BOX_EMPTIED' };
+  | { type: 'POLL_WORKER_CONFIRMED_BALLOT_BOX_EMPTIED' }
+  | { type: 'SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC' };
 
 const debug = makeDebug('mark-scan:state-machine');
 const debugEvents = debug.extend('events');
@@ -134,7 +161,12 @@ export interface PaperHandlerStateMachine {
   confirmBallotBoxEmptied(): void;
   setPatDeviceIsCalibrated(): void;
   isPatDeviceConnected(): boolean;
-  addTransitionListener(listener: () => void): void;
+  addTransitionListener(
+    listener: (
+      state: State<Context, PaperHandlerStatusEvent, any, any, any>
+    ) => void
+  ): void;
+  startPaperHandlerDiagnostic(): void;
 }
 
 export function paperHandlerStatusToEvent(
@@ -249,6 +281,10 @@ function buildAuthStatusObservable() {
             constructAuthMachineState(workspace)
           );
 
+          if (isSystemAdministratorAuth(authStatus)) {
+            return { type: 'AUTH_STATUS_SYSTEM_ADMIN' };
+          }
+
           if (isCardlessVoterAuth(authStatus)) {
             return { type: 'AUTH_STATUS_CARDLESS_VOTER' };
           }
@@ -257,7 +293,11 @@ function buildAuthStatusObservable() {
             return { type: 'AUTH_STATUS_POLL_WORKER' };
           }
 
-          debug('Unhandled auth status in observable: %O', authStatus);
+          if (authStatus.status === 'logged_out') {
+            return { type: 'AUTH_STATUS_LOGGED_OUT' };
+          }
+
+          /* istanbul ignore next - unreachable if exhaustive */
           return { type: 'AUTH_STATUS_UNHANDLED' };
         } catch (err) {
           debug('Error in auth observable: %O', err);
@@ -441,6 +481,8 @@ export function buildMachine(
           }),
           target: 'voting_flow.interpreting',
         },
+        SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC:
+          'paper_handler_diagnostic',
       },
       invoke: [pollPatDeviceConnectionStatus()],
       states: {
@@ -620,6 +662,7 @@ export function buildMachine(
               invoke: pollAuthStatus(),
               on: {
                 AUTH_STATUS_CARDLESS_VOTER: 'waiting_for_ballot_data',
+                AUTH_STATUS_LOGGED_OUT: 'not_accepting_paper',
                 AUTH_STATUS_UNHANDLED: 'not_accepting_paper',
               },
             },
@@ -747,6 +790,8 @@ export function buildMachine(
                   on: {
                     AUTH_STATUS_CARDLESS_VOTER: 'accepting_paper',
                     AUTH_STATUS_POLL_WORKER: 'accepting_paper',
+                    AUTH_STATUS_SYSTEM_ADMIN: 'accepting_paper',
+                    AUTH_STATUS_LOGGED_OUT: 'done',
                     AUTH_STATUS_UNHANDLED: 'done',
                   },
                 },
@@ -801,6 +846,166 @@ export function buildMachine(
               },
             },
           },
+        },
+        paper_handler_diagnostic: {
+          initial: 'prompt_for_paper',
+          on: {
+            // Reset to state machine initial state if auth is ended
+            AUTH_STATUS_LOGGED_OUT: 'paper_handler_diagnostic.done',
+          },
+          invoke: pollAuthStatus(),
+          states: {
+            prompt_for_paper: {
+              invoke: pollPaperStatus(),
+              on: {
+                PAPER_READY_TO_LOAD: 'load_paper',
+              },
+            },
+            load_paper: {
+              invoke: [
+                pollPaperStatus(),
+                {
+                  id: 'diagnostic.loadAndPark',
+                  src: (context) => {
+                    return loadAndParkPaper(context.driver);
+                  },
+                  onError: createOnDiagnosticErrorHandler(),
+                },
+              ],
+              on: {
+                PAPER_PARKED: 'print_ballot_fixture',
+                NO_PAPER_ANYWHERE: 'prompt_for_paper',
+              },
+            },
+            print_ballot_fixture: {
+              invoke: {
+                id: 'diagnostic.printBallotFixture',
+                src: (context) =>
+                  getMockBallotPdfData().then((ballotData) =>
+                    printBallotChunks(context.driver, ballotData, {})
+                  ),
+                onDone: 'scan_ballot',
+                onError: createOnDiagnosticErrorHandler(),
+              },
+            },
+            scan_ballot: {
+              invoke: {
+                id: 'diagnostic.scanAndSave',
+                src: (context) => scanAndSave(context.driver),
+                onDone: {
+                  target: 'interpret_ballot',
+                  actions: assign({
+                    scannedBallotImagePath: (_, event) => event.data,
+                  }),
+                },
+                onError: createOnDiagnosticErrorHandler(),
+              },
+            },
+            interpret_ballot: {
+              invoke: {
+                id: 'diagnostic.interpretScannedBallot',
+                src: (context) => {
+                  const { scannedBallotImagePath } = context;
+                  const electionDefinition = assertDefined(
+                    context.paperHandlerDiagnosticElection
+                  );
+                  const precinctSelection = singlePrecinctSelectionFor(
+                    electionDefinition.election.precincts[0].id
+                  );
+
+                  const markThresholds: MarkThresholds = {
+                    marginal: 0.05,
+                    definite: 0.07,
+                    writeInTextArea: 0.05,
+                  };
+
+                  return interpretSimplexBmdBallotFromFilepath(
+                    assertDefined(
+                      scannedBallotImagePath,
+                      'Expected scannedImagePaths in context'
+                    ),
+                    {
+                      electionDefinition,
+                      precinctSelection,
+                      testMode: true,
+                      markThresholds,
+                      adjudicationReasons: [],
+                    }
+                  );
+                },
+                onDone: {
+                  target: 'eject_to_rear',
+                  actions: assign({
+                    interpretation: (_, event) => {
+                      const interpretation = event.data;
+                      const interpretationType =
+                        interpretation[0].interpretation.type;
+                      /* istanbul ignore next */
+                      if (interpretationType !== 'InterpretedBmdPage') {
+                        throw new Error(
+                          `Unexpected interpretation type: ${interpretationType}`
+                        );
+                      }
+
+                      return interpretation;
+                    },
+                  }),
+                },
+                onError: createOnDiagnosticErrorHandler(),
+              },
+            },
+            eject_to_rear: {
+              invoke: pollPaperStatus(),
+              entry: (context) => context.driver.ejectBallotToRear(),
+              on: {
+                NO_PAPER_ANYWHERE: 'success',
+              },
+              after: {
+                [DELAY_BEFORE_DECLARING_REAR_JAM_MS]: 'failure',
+              },
+            },
+            success: {
+              entry: (context) => {
+                context.workspace.store.addDiagnosticRecord({
+                  type: 'mark-scan-paper-handler',
+                  outcome: 'pass',
+                });
+                return context.driver.ejectBallotToRear();
+              },
+              onDone: 'done',
+            },
+            failure: {
+              entry: (context) => {
+                context.workspace.store.addDiagnosticRecord({
+                  type: 'mark-scan-paper-handler',
+                  outcome: 'fail',
+                });
+              },
+              invoke: {
+                id: 'diagnostic.failure',
+                src: (context) =>
+                  context.logger.log(LogEventId.DiagnosticComplete, 'system', {
+                    disposition: 'failure',
+                    message: context.diagnosticError
+                      ? context.diagnosticError.message
+                      : /* istanbul ignore next - no use of ?. operator to get Jest to recognize this ignore comment */
+                        undefined,
+                  }),
+                onDone: 'done',
+              },
+            },
+            done: {
+              entry: async (context) => {
+                const status = await context.driver.getPaperHandlerStatus();
+                if (isPaperInInput(status) || isPaperInScanner(status)) {
+                  await context.driver.parkPaper();
+                  await context.driver.ejectBallotToRear();
+                }
+              },
+              type: 'final',
+            },
+          },
+          onDone: 'voting_flow.history',
         },
         pat_device_disconnected: {
           always: 'voting_flow.history',
@@ -937,6 +1142,8 @@ export async function getPaperHandlerStateMachine({
   authPollingIntervalMs: number;
   notificationDurationMs: number;
 }): Promise<Optional<PaperHandlerStateMachine>> {
+  const diagnosticElectionDefinitionResult =
+    await getPaperHandlerDiagnosticElectionDefinition();
   const initialContext: Context = {
     auth,
     workspace,
@@ -948,6 +1155,10 @@ export async function getPaperHandlerStateMachine({
     authPollingIntervalMs,
     notificationDurationMs,
     logger,
+    paperHandlerDiagnosticElection: diagnosticElectionDefinitionResult.isOk()
+      ? diagnosticElectionDefinitionResult.ok()
+      : /* istanbul ignore next */
+        undefined,
   };
 
   const machine = buildMachine(initialContext, auth);
@@ -969,6 +1180,23 @@ export async function getPaperHandlerStateMachine({
       const { state } = machineService;
 
       switch (true) {
+        case state.matches('paper_handler_diagnostic.prompt_for_paper'):
+          return 'paper_handler_diagnostic.prompt_for_paper';
+        case state.matches('paper_handler_diagnostic.load_paper'):
+          return 'paper_handler_diagnostic.load_paper';
+        case state.matches('paper_handler_diagnostic.print_ballot_fixture'):
+          return 'paper_handler_diagnostic.print_ballot_fixture';
+        case state.matches('paper_handler_diagnostic.scan_ballot'):
+          return 'paper_handler_diagnostic.scan_ballot';
+        case state.matches('paper_handler_diagnostic.interpret_ballot'):
+          return 'paper_handler_diagnostic.interpret_ballot';
+        case state.matches('paper_handler_diagnostic.eject_to_rear'):
+          return 'paper_handler_diagnostic.eject_to_rear';
+        case state.matches('paper_handler_diagnostic.success'):
+          return 'paper_handler_diagnostic.success';
+        case state.matches('paper_handler_diagnostic.failure'):
+          /* istanbul ignore next - nonblocking state can't be reliably asserted on. Instead, assert on presence of diagnostic record */
+          return 'paper_handler_diagnostic.failure';
         case state.matches('voting_flow.not_accepting_paper'):
         case state.matches('voting_flow.resetting_state_machine_no_delay'):
           // Frontend has nothing to render for resetting_state_machine_no_delay
@@ -1133,6 +1361,12 @@ export async function getPaperHandlerStateMachine({
 
     addTransitionListener(listener) {
       machineService.onTransition(listener);
+    },
+
+    startPaperHandlerDiagnostic(): void {
+      machineService.send({
+        type: 'SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC',
+      });
     },
   };
 }
