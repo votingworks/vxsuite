@@ -568,7 +568,7 @@ describe('Contests tab', () => {
     userEvent.click(screen.getByRole('button', { name: 'Reorder Contests' }));
 
     const [contest1Title, contest2Title, contest3Title] = originalOrder;
-    const contest1Row = screen.getByText(contest1Title).closest('tr')!;
+    const contest1Row = screen.getByText(contest1Title!).closest('tr')!;
     expect(
       within(contest1Row).getByRole('button', { name: 'Move Up' })
     ).toBeDisabled();
@@ -576,7 +576,7 @@ describe('Contests tab', () => {
       within(contest1Row).getByRole('button', { name: 'Move Down' })
     );
 
-    const contest3Row = screen.getByText(contest3Title).closest('tr')!;
+    const contest3Row = screen.getByText(contest3Title!).closest('tr')!;
     userEvent.click(
       within(contest3Row).getByRole('button', { name: 'Move Up' })
     );
