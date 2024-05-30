@@ -4,7 +4,7 @@ import {
 } from '@votingworks/types';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
 import userEvent from '@testing-library/user-event';
 import {
   advanceTimers,

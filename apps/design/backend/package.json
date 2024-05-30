@@ -56,7 +56,6 @@
     "js-sha256": "^0.9.0",
     "jszip": "^3.9.1",
     "react": "18.3.1",
-    "react-dom": "18.3.1",
     "uuid": "9.0.1",
     "zod": "3.23.5"
   },
@@ -69,8 +68,7 @@
     "@types/jest-image-snapshot": "^6.4.0",
     "@types/lodash.get": "^4.4.9",
     "@types/node": "16.18.23",
-    "@types/react": "18.2.18",
-    "@types/react-dom": "^18.2.7",
+    "@types/react": "18.3.3",
     "@types/tmp": "0.2.4",
     "@types/uuid": "9.0.5",
     "@votingworks/ballot-interpreter": "workspace:*",

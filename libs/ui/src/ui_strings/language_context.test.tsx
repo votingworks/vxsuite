@@ -1,5 +1,5 @@
 import { LanguageCode } from '@votingworks/types';
-import { act } from 'react-dom/test-utils';
+import { act } from 'react';
 import {
   screen,
   waitFor,

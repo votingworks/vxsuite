@@ -1,7 +1,6 @@
 import { LanguageCode, UiStringAudioClips } from '@votingworks/types';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import React from 'react';
-import { act } from 'react-dom/test-utils';
+import React, { act } from 'react';
 import { renderHook, waitFor } from '../../test/react_testing_library';
 import { createUiStringsApi, UiStringsApiClient } from './ui_strings_api';
 

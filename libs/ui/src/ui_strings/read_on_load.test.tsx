@@ -1,6 +1,5 @@
 import { assert } from '@votingworks/basics';
-import { act } from 'react-dom/test-utils';
-import React from 'react';
+import React, { act } from 'react';
 import { createMemoryHistory } from 'history';
 import { Route, Router } from 'react-router-dom';
 import { ReadOnLoad } from './read_on_load';

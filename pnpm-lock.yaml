@@ -207,9 +207,6 @@ importers:
       react:
         specifier: 18.3.1
         version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
       tmp:
         specifier: ^0.2.1
         version: 0.2.1
@@ -266,11 +263,8 @@ importers:
         specifier: ^3.0.6
         version: 3.0.6
       '@types/react':
-        specifier: 18.2.18
-        version: 18.2.18
-      '@types/react-dom':
-        specifier: ^18.2.7
-        version: 18.2.7
+        specifier: 18.3.3
+        version: 18.3.3
       '@types/supertest':
         specifier: ^2.0.10
         version: 2.0.10
@@ -456,7 +450,7 @@ importers:
         version: 18.3.1(react@18.3.1)
       react-pdf:
         specifier: 7.7.0
-        version: 7.7.0(@types/react@18.2.18)(react-dom@18.3.1)(react@18.3.1)
+        version: 7.7.0(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)
       react-router-dom:
         specifier: ^5.3.4
         version: 5.3.4(react@18.3.1)
@@ -495,11 +489,11 @@ importers:
         specifier: ^5.17.0
         version: 5.17.0
       '@testing-library/react':
-        specifier: ^14.0.0
-        version: 14.0.0(react-dom@18.3.1)(react@18.3.1)
+        specifier: ^15.0.7
+        version: 15.0.7(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)
       '@testing-library/user-event':
         specifier: ^13.5.0
-        version: 13.5.0(@testing-library/dom@9.3.1)
+        version: 13.5.0(@testing-library/dom@10.1.0)
       '@types/base64-js':
         specifier: ^1.3.0
         version: 1.3.0
@@ -537,11 +531,11 @@ importers:
         specifier: ^0.0.29
         version: 0.0.29
       '@types/react':
-        specifier: 18.2.18
-        version: 18.2.18
+        specifier: 18.3.3
+        version: 18.3.3
       '@types/react-dom':
-        specifier: ^18.2.7
-        version: 18.2.7
+        specifier: 18.3.0
+        version: 18.3.0
       '@types/react-router-dom':
         specifier: ^5.3.3
         version: 5.3.3
@@ -948,11 +942,11 @@ importers:
         specifier: ^5.17.0
         version: 5.17.0
       '@testing-library/react':
-        specifier: ^14.0.0
-        version: 14.0.0(react-dom@18.3.1)(react@18.3.1)
+        specifier: ^15.0.7
+        version: 15.0.7(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)
       '@testing-library/user-event':
         specifier: ^13.5.0
-        version: 13.5.0(@testing-library/dom@9.3.1)
+        version: 13.5.0(@testing-library/dom@10.1.0)
       '@types/connect':
         specifier: ^3.4.35
         version: 3.4.35
@@ -981,11 +975,11 @@ importers:
         specifier: ^0.0.29
         version: 0.0.29
       '@types/react':
-        specifier: 18.2.18
-        version: 18.2.18
+        specifier: 18.3.3
+        version: 18.3.3
       '@types/react-dom':
-        specifier: ^18.2.7
-        version: 18.2.7
+        specifier: 18.3.0
+        version: 18.3.0
       '@types/react-router-dom':
         specifier: ^5.3.3
         version: 5.3.3
@@ -1197,9 +1191,6 @@ importers:
       react:
         specifier: 18.3.1
         version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
       uuid:
         specifier: 9.0.1
         version: 9.0.1
@@ -1232,11 +1223,8 @@ importers:
         specifier: 16.18.23
         version: 16.18.23
       '@types/react':
-        specifier: 18.2.18
-        version: 18.2.18
-      '@types/react-dom':
-        specifier: ^18.2.7
-        version: 18.2.7
+        specifier: 18.3.3
+        version: 18.3.3
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -1365,7 +1353,7 @@ importers:
         version: 7.1.0(react-dom@18.3.1)(react@18.3.1)
       react-pdf:
         specifier: 7.7.0
-        version: 7.7.0(@types/react@18.2.18)(react-dom@18.3.1)(react@18.3.1)
+        version: 7.7.0(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)
       react-router-dom:
         specifier: ^5.3.4
         version: 5.3.4(react@18.3.1)
@@ -1380,11 +1368,11 @@ importers:
         specifier: ^5.17.0
         version: 5.17.0
       '@testing-library/react':
-        specifier: ^14.0.0
-        version: 14.0.0(react-dom@18.3.1)(react@18.3.1)
+        specifier: ^15.0.7
+        version: 15.0.7(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)
       '@testing-library/user-event':
         specifier: ^13.5.0
-        version: 13.5.0(@testing-library/dom@9.3.1)
+        version: 13.5.0(@testing-library/dom@10.1.0)
       '@types/debug':
         specifier: 4.1.8
         version: 4.1.8
@@ -1398,11 +1386,11 @@ importers:
         specifier: ^29.5.3
         version: 29.5.3
       '@types/react':
-        specifier: 18.2.18
-        version: 18.2.18
+        specifier: 18.3.3
+        version: 18.3.3
       '@types/react-dom':
-        specifier: ^18.2.7
-        version: 18.2.7
+        specifier: 18.3.0
+        version: 18.3.0
       '@types/react-router-dom':
         specifier: ^5.3.3
         version: 5.3.3
@@ -1562,9 +1550,6 @@ importers:
       react:
         specifier: 18.3.1
         version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
       rxjs:
         specifier: 7.8.1
         version: 7.8.1
@@ -1609,11 +1594,8 @@ importers:
         specifier: ^1.3.2
         version: 1.3.2
       '@types/react':
-        specifier: 18.2.18
-        version: 18.2.18
-      '@types/react-dom':
-        specifier: ^18.2.7
-        version: 18.2.7
+        specifier: 18.3.3
+        version: 18.3.3
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -1772,11 +1754,11 @@ importers:
         specifier: ^5.17.0
         version: 5.17.0
       '@testing-library/react':
-        specifier: ^14.0.0
-        version: 14.0.0(react-dom@18.3.1)(react@18.3.1)
+        specifier: ^15.0.7
+        version: 15.0.7(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)
       '@testing-library/user-event':
         specifier: ^13.5.0
-        version: 13.5.0(@testing-library/dom@9.3.1)
+        version: 13.5.0(@testing-library/dom@10.1.0)
       '@types/connect':
         specifier: ^3.4.35
         version: 3.4.35
@@ -1802,11 +1784,11 @@ importers:
         specifier: ^0.0.29
         version: 0.0.29
       '@types/react':
-        specifier: 18.2.18
-        version: 18.2.18
+        specifier: 18.3.3
+        version: 18.3.3
       '@types/react-dom':
-        specifier: ^18.2.7
-        version: 18.2.7
+        specifier: 18.3.0
+        version: 18.3.0
       '@types/react-router-dom':
         specifier: ^5.3.3
         version: 5.3.3
@@ -1997,9 +1979,6 @@ importers:
       react:
         specifier: 18.3.1
         version: 18.3.1
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
       tmp:
         specifier: ^0.2.1
         version: 0.2.1
@@ -2032,11 +2011,8 @@ importers:
         specifier: 16.18.23
         version: 16.18.23
       '@types/react':
-        specifier: 18.2.18
-        version: 18.2.18
-      '@types/react-dom':
-        specifier: ^18.2.7
-        version: 18.2.7
+        specifier: 18.3.3
+        version: 18.3.3
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -2189,11 +2165,11 @@ importers:
         specifier: ^5.17.0
         version: 5.17.0
       '@testing-library/react':
-        specifier: ^14.0.0
-        version: 14.0.0(react-dom@18.3.1)(react@18.3.1)
+        specifier: ^15.0.7
+        version: 15.0.7(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)
       '@testing-library/user-event':
         specifier: ^13.5.0
-        version: 13.5.0(@testing-library/dom@9.3.1)
+        version: 13.5.0(@testing-library/dom@10.1.0)
       '@types/connect':
         specifier: ^3.4.35
         version: 3.4.35
@@ -2219,11 +2195,11 @@ importers:
         specifier: ^0.0.29
         version: 0.0.29
       '@types/react':
-        specifier: 18.2.18
-        version: 18.2.18
+        specifier: 18.3.3
+        version: 18.3.3
       '@types/react-dom':
-        specifier: ^18.2.7
-        version: 18.2.7
+        specifier: 18.3.0
+        version: 18.3.0
       '@types/react-gamepad':
         specifier: ^1.0.3
         version: 1.0.3
@@ -2645,11 +2621,11 @@ importers:
         specifier: ^5.17.0
         version: 5.17.0
       '@testing-library/react':
-        specifier: ^14.0.0
-        version: 14.0.0(react-dom@18.3.1)(react@18.3.1)
+        specifier: ^15.0.7
+        version: 15.0.7(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)
       '@testing-library/user-event':
         specifier: ^13.5.0
-        version: 13.5.0(@testing-library/dom@9.3.1)
+        version: 13.5.0(@testing-library/dom@10.1.0)
       '@types/connect':
         specifier: ^3.4.35
         version: 3.4.35
@@ -2675,11 +2651,11 @@ importers:
         specifier: ^0.0.29
         version: 0.0.29
       '@types/react':
-        specifier: 18.2.18
-        version: 18.2.18
+        specifier: 18.3.3
+        version: 18.3.3
       '@types/react-dom':
-        specifier: ^18.2.7
-        version: 18.2.7
+        specifier: 18.3.0
+        version: 18.3.0
       '@types/react-router-dom':
         specifier: ^5.3.3
         version: 5.3.3
@@ -3938,11 +3914,11 @@ importers:
         specifier: ^5.17.0
         version: 5.17.0
       '@testing-library/react':
-        specifier: ^14.0.0
-        version: 14.0.0(react-dom@18.3.1)(react@18.3.1)
+        specifier: ^15.0.7
+        version: 15.0.7(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)
       '@testing-library/user-event':
         specifier: ^13.5.0
-        version: 13.5.0(@testing-library/dom@9.3.1)
+        version: 13.5.0(@testing-library/dom@10.1.0)
       '@types/express':
         specifier: 4.17.14
         version: 4.17.14
@@ -3956,8 +3932,8 @@ importers:
         specifier: 16.18.23
         version: 16.18.23
       '@types/react':
-        specifier: 18.2.18
-        version: 18.2.18
+        specifier: 18.3.3
+        version: 18.3.3
       '@types/styled-components':
         specifier: ^5.1.26
         version: 5.1.26
@@ -4062,8 +4038,8 @@ importers:
         specifier: 16.18.23
         version: 16.18.23
       '@types/react':
-        specifier: 18.2.18
-        version: 18.2.18
+        specifier: 18.3.3
+        version: 18.3.3
       '@typescript-eslint/rule-tester':
         specifier: ^6.7.0
         version: 6.7.0(@eslint/eslintrc@2.1.2)(eslint@8.49.0)(typescript@5.4.5)
@@ -4440,11 +4416,11 @@ importers:
         specifier: 16.18.23
         version: 16.18.23
       '@types/react':
-        specifier: 18.2.18
-        version: 18.2.18
+        specifier: 18.3.3
+        version: 18.3.3
       '@types/react-dom':
-        specifier: ^18.2.7
-        version: 18.2.7
+        specifier: 18.3.0
+        version: 18.3.0
       '@types/styled-components':
         specifier: ^5.1.26
         version: 5.1.26
@@ -4743,11 +4719,11 @@ importers:
         specifier: ^5.17.0
         version: 5.17.0
       '@testing-library/react':
-        specifier: ^14.0.0
-        version: 14.0.0(react-dom@18.3.1)(react@18.3.1)
+        specifier: ^15.0.7
+        version: 15.0.7(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)
       '@testing-library/user-event':
         specifier: ^13.5.0
-        version: 13.5.0(@testing-library/dom@9.3.1)
+        version: 13.5.0(@testing-library/dom@10.1.0)
       '@types/base64-js':
         specifier: ^1.3.0
         version: 1.3.0
@@ -4776,11 +4752,11 @@ importers:
         specifier: ^0.0.29
         version: 0.0.29
       '@types/react':
-        specifier: 18.2.18
-        version: 18.2.18
+        specifier: 18.3.3
+        version: 18.3.3
       '@types/react-dom':
-        specifier: ^18.2.7
-        version: 18.2.7
+        specifier: 18.3.0
+        version: 18.3.0
       '@types/react-modal':
         specifier: ^3.13.1
         version: 3.13.1
@@ -5104,11 +5080,11 @@ importers:
         specifier: 16.18.23
         version: 16.18.23
       '@types/react':
-        specifier: 18.2.18
-        version: 18.2.18
+        specifier: 18.3.3
+        version: 18.3.3
       '@types/react-dom':
-        specifier: ^18.2.7
-        version: 18.2.7
+        specifier: 18.3.0
+        version: 18.3.0
       '@types/styled-components':
         specifier: ^5.1.26
         version: 5.1.26
@@ -5210,8 +5186,8 @@ importers:
   libs/test-utils:
     dependencies:
       '@testing-library/react':
-        specifier: ^14.0.0
-        version: 14.0.0(react-dom@18.3.1)(react@18.3.1)
+        specifier: ^15.0.7
+        version: 15.0.7(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
@@ -5256,8 +5232,8 @@ importers:
         specifier: 16.18.23
         version: 16.18.23
       '@types/react':
-        specifier: 18.2.18
-        version: 18.2.18
+        specifier: 18.3.3
+        version: 18.3.3
       '@types/zip-stream':
         specifier: workspace:*
         version: link:../@types/zip-stream
@@ -5282,9 +5258,6 @@ importers:
       lint-staged:
         specifier: 11.0.0
         version: 11.0.0
-      react-dom:
-        specifier: 18.3.1
-        version: 18.3.1(react@18.3.1)
       sort-package-json:
         specifier: ^1.50.0
         version: 1.50.0
@@ -5326,8 +5299,8 @@ importers:
         specifier: 16.18.23
         version: 16.18.23
       '@types/react':
-        specifier: 18.2.18
-        version: 18.2.18
+        specifier: 18.3.3
+        version: 18.3.3
       '@votingworks/cdf-schema-builder':
         specifier: workspace:*
         version: link:../cdf-schema-builder
@@ -5394,8 +5367,8 @@ importers:
         specifier: ^0.2.0
         version: 0.2.0(@fortawesome/fontawesome-svg-core@6.3.0)(react@18.3.1)
       '@testing-library/react':
-        specifier: ^14.0.0
-        version: 14.0.0(react-dom@18.3.1)(react@18.3.1)
+        specifier: ^15.0.7
+        version: 15.0.7(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)
       '@votingworks/backend':
         specifier: workspace:*
         version: link:../backend
@@ -5470,7 +5443,7 @@ importers:
         version: 5.3.4(react@18.3.1)
       react-select:
         specifier: ^5.7.4
-        version: 5.7.4(@types/react@18.2.18)(react-dom@18.3.1)(react@18.3.1)
+        version: 5.7.4(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1)
       tone:
         specifier: ^14.7.77
         version: 14.7.77
@@ -5492,7 +5465,7 @@ importers:
         version: 5.17.0
       '@testing-library/user-event':
         specifier: ^13.5.0
-        version: 13.5.0(@testing-library/dom@9.3.1)
+        version: 13.5.0(@testing-library/dom@10.1.0)
       '@types/base64-js':
         specifier: ^1.3.0
         version: 1.3.0
@@ -5533,11 +5506,11 @@ importers:
         specifier: ^0.0.29
         version: 0.0.29
       '@types/react':
-        specifier: 18.2.18
-        version: 18.2.18
+        specifier: 18.3.3
+        version: 18.3.3
       '@types/react-dom':
-        specifier: ^18.2.7
-        version: 18.2.7
+        specifier: 18.3.0
+        version: 18.3.0
       '@types/react-i18next':
         specifier: ^8.1.0
         version: 8.1.0(i18next@23.5.1)(react-dom@18.3.1)(react@18.3.1)
@@ -7513,7 +7486,7 @@ packages:
   /@emotion/memoize@0.8.1:
     resolution: {integrity: sha512-W2P2c/VRW1/1tLox0mVUalvnWXxavmv/Oum2aPsRcoDJuob75FC3Y8FbpfLwUegRcxINtGUMPq0tFCvYNTBXNA==}
 
-  /@emotion/react@11.11.1(@types/react@18.2.18)(react@18.3.1):
+  /@emotion/react@11.11.1(@types/react@18.3.3)(react@18.3.1):
     resolution: {integrity: sha512-5mlW1DquU5HaxjLkfkGN1GA/fvVGdyHURRiX/0FHl2cfIfRxSOfmxEH5YS43edp0OldZrZ+dkBKbngxcNCdZvA==}
     peerDependencies:
       '@types/react': '*'
@@ -7529,7 +7502,7 @@ packages:
       '@emotion/use-insertion-effect-with-fallbacks': 1.0.1(react@18.3.1)
       '@emotion/utils': 1.2.1
       '@emotion/weak-memoize': 0.3.1
-      '@types/react': 18.2.18
+      '@types/react': 18.3.3
       hoist-non-react-statics: 3.3.2
       react: 18.3.1
     dev: false
@@ -8682,7 +8655,7 @@ packages:
       react: '>=16'
     dependencies:
       '@types/mdx': 2.0.3
-      '@types/react': 18.2.18
+      '@types/react': 18.3.3
       react: 18.3.1
     dev: true
 
@@ -10274,14 +10247,14 @@ packages:
       react-dom: 18.3.1(react@18.3.1)
       use-sync-external-store: 1.2.0(react@18.3.1)
 
-  /@testing-library/dom@9.3.1:
-    resolution: {integrity: sha512-0DGPd9AR3+iDTjGoMpxIkAsUihHZ3Ai6CneU6bRRrffXMgzCdlNk43jTrD2/5LT6CBb3MWTP8v510JzYtahD2w==}
-    engines: {node: '>=14'}
+  /@testing-library/dom@10.1.0:
+    resolution: {integrity: sha512-wdsYKy5zupPyLCW2Je5DLHSxSfbIp6h80WoHOQc+RPtmPGA52O9x5MJEkv92Sjonpq+poOAtUKhh1kBGAXBrNA==}
+    engines: {node: '>=18'}
     dependencies:
       '@babel/code-frame': 7.22.5
       '@babel/runtime': 7.23.9
       '@types/aria-query': 5.0.1
-      aria-query: 5.1.3
+      aria-query: 5.3.0
       chalk: 4.1.2
       dom-accessibility-api: 0.5.16
       lz-string: 1.5.0
@@ -10302,27 +10275,32 @@ packages:
       redent: 3.0.0
     dev: true
 
-  /@testing-library/react@14.0.0(react-dom@18.3.1)(react@18.3.1):
-    resolution: {integrity: sha512-S04gSNJbYE30TlIMLTzv6QCTzt9AqIF5y6s6SzVFILNcNvbV/jU96GeiTPillGQo+Ny64M/5PV7klNYYgv5Dfg==}
-    engines: {node: '>=14'}
+  /@testing-library/react@15.0.7(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1):
+    resolution: {integrity: sha512-cg0RvEdD1TIhhkm1IeYMQxrzy0MtUNfa3minv4MjbgcYzJAZ7yD0i0lwoPOTPr+INtiXFezt2o8xMSnyHhEn2Q==}
+    engines: {node: '>=18'}
     peerDependencies:
+      '@types/react': ^18.0.0
       react: ^18.0.0
       react-dom: ^18.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
     dependencies:
-      '@babel/runtime': 7.22.6
-      '@testing-library/dom': 9.3.1
-      '@types/react-dom': 18.2.7
+      '@babel/runtime': 7.23.9
+      '@testing-library/dom': 10.1.0
+      '@types/react': 18.3.3
+      '@types/react-dom': 18.3.0
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  /@testing-library/user-event@13.5.0(@testing-library/dom@9.3.1):
+  /@testing-library/user-event@13.5.0(@testing-library/dom@10.1.0):
     resolution: {integrity: sha512-5Kwtbo3Y/NowpkbRuSepbyMFkZmHgD+vPzYB/RJ4oxt5Gj/avFFBYjhw27cqSVPVw/3a67NK1PbiIr9k4Gwmdg==}
     engines: {node: '>=10', npm: '>=6'}
     peerDependencies:
       '@testing-library/dom': '>=7.21.4'
     dependencies:
       '@babel/runtime': 7.22.6
-      '@testing-library/dom': 9.3.1
+      '@testing-library/dom': 10.1.0
     dev: true
 
   /@tootallnate/once@2.0.0:
@@ -10548,7 +10526,7 @@ packages:
   /@types/hoist-non-react-statics@3.3.1:
     resolution: {integrity: sha512-iMIqiko6ooLrTh1joXodJK5X9xeEALT1kM5G3ZLhD3hszxBdIEd5C75U834D9mLcINgD4OyZf5uQXjkuYydWvA==}
     dependencies:
-      '@types/react': 18.2.18
+      '@types/react': 18.3.3
       hoist-non-react-statics: 3.3.2
     dev: true
 
@@ -10812,15 +10790,15 @@ packages:
     resolution: {integrity: sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==}
     dev: true
 
-  /@types/react-dom@18.2.7:
-    resolution: {integrity: sha512-GRaAEriuT4zp9N4p1i8BDBYmEyfo+xQ3yHjJU4eiK5NDa1RmUZG+unZABUTK4/Ox/M+GaHwb6Ow8rUITrtjszA==}
+  /@types/react-dom@18.3.0:
+    resolution: {integrity: sha512-EhwApuTmMBmXuFOikhQLIBUn6uFg81SwLMOAUgodJF14SOBOCMdU04gDoYi0WOJJHD144TL32z4yDqCW3dnkQg==}
     dependencies:
-      '@types/react': 18.2.18
+      '@types/react': 18.3.3
 
   /@types/react-gamepad@1.0.3:
     resolution: {integrity: sha512-3nwhsEa0anwl7XlT/L8y6yXdUb/qXO/frDcFeFKGt5ydTi5ECXv14RbJdCe3/yokowszftM+CAAjVTvldJJRVg==}
     dependencies:
-      '@types/react': 18.2.18
+      '@types/react': 18.3.3
     dev: true
 
   /@types/react-i18next@8.1.0(i18next@23.5.1)(react-dom@18.3.1)(react@18.3.1):
@@ -10838,14 +10816,14 @@ packages:
   /@types/react-modal@3.13.1:
     resolution: {integrity: sha512-iY/gPvTDIy6Z+37l+ibmrY+GTV4KQTHcCyR5FIytm182RQS69G5ps4PH2FxtC7bAQ2QRHXMevsBgck7IQruHNg==}
     dependencies:
-      '@types/react': 18.2.18
+      '@types/react': 18.3.3
     dev: true
 
   /@types/react-router-dom@5.3.3:
     resolution: {integrity: sha512-kpqnYK4wcdm5UaWI3fLcELopqLrHgLqNsdpHauzlQktfkHL3npOSwtj1Uz9oKBAzs7lFtVkV8j83voAz2D8fhw==}
     dependencies:
       '@types/history': 4.7.11
-      '@types/react': 18.2.18
+      '@types/react': 18.3.3
       '@types/react-router': 5.1.20
     dev: true
 
@@ -10853,20 +10831,19 @@ packages:
     resolution: {integrity: sha512-jGjmu/ZqS7FjSH6owMcD5qpq19+1RS9DeVRqfl1FeBMxTDQAGwlMWOcs52NDoXaNKyG3d1cYQFMs9rCrb88o9Q==}
     dependencies:
       '@types/history': 4.7.11
-      '@types/react': 18.2.18
+      '@types/react': 18.3.3
     dev: true
 
   /@types/react-transition-group@4.4.6:
     resolution: {integrity: sha512-VnCdSxfcm08KjsJVQcfBmhEQAPnLB8G08hAxn39azX1qYBQ/5RVQuoHuKIcfKOdncuaUvEpFKFzEvbtIMsfVew==}
     dependencies:
-      '@types/react': 18.2.18
+      '@types/react': 18.3.3
     dev: false
 
-  /@types/react@18.2.18:
-    resolution: {integrity: sha512-da4NTSeBv/P34xoZPhtcLkmZuJ+oYaCxHmyHzwaDQo9RQPBeXV+06gEk2FpqEcsX9XrnNLvRpVh6bdavDSjtiQ==}
+  /@types/react@18.3.3:
+    resolution: {integrity: sha512-hti/R0pS0q1/xx+TsI73XIqk26eBsISZ2R0wUijXIngRK9R/e7Xw/cXVxQK7R5JjW+SV4zGcn5hXjudkN/pLIw==}
     dependencies:
       '@types/prop-types': 15.7.5
-      '@types/scheduler': 0.16.3
       csstype: 3.1.2
 
   /@types/readable-stream@2.3.9:
@@ -10889,9 +10866,6 @@ packages:
     dependencies:
       '@types/node': 16.18.23
     dev: false
-
-  /@types/scheduler@0.16.3:
-    resolution: {integrity: sha512-5cJ8CB4yAx7BH1oMvdU0Jh9lrEXyPkar6F9G/ERswkCuvP4KQZfZkSjcMbAICCpQTN4OuZn8tz0HiKv9TGZgrQ==}
 
   /@types/semver@7.5.0:
     resolution: {integrity: sha512-G8hZ6XJiHnuhQKR7ZmysCeJWE08o8T0AXtk5darsCaTVsYZhhgUrq53jizaR2FvsoeCwJhlmwTjkXBY5Pn/ZHw==}
@@ -10927,7 +10901,7 @@ packages:
     resolution: {integrity: sha512-KuKJ9Z6xb93uJiIyxo/+ksS7yLjS1KzG6iv5i78dhVg/X3u5t1H7juRWqVmodIdz6wGVaIApo1u01kmFRdJHVw==}
     dependencies:
       '@types/hoist-non-react-statics': 3.3.1
-      '@types/react': 18.2.18
+      '@types/react': 18.3.3
       csstype: 3.1.2
     dev: true
 
@@ -11769,16 +11743,10 @@ packages:
       '@babel/runtime-corejs3': 7.15.3
     dev: false
 
-  /aria-query@5.1.3:
-    resolution: {integrity: sha512-R5iJ5lkuHybztUfuOAznmboyjWq8O6sqNqtK7CLOqdydi54VNbORp49mb14KbWgG1QD3JFO9hJdZ+y4KutfdOQ==}
-    dependencies:
-      deep-equal: 2.2.2
-
   /aria-query@5.3.0:
     resolution: {integrity: sha512-b0P0sZPKtyu8HkeRAfCq0IfURZK+SuwMjY1UXGBU27wpAiTwQAIlq56IbIO+ytk/JjS1fMR14ee5WBBfKi5J6A==}
     dependencies:
       dequal: 2.0.3
-    dev: true
 
   /arr-diff@4.0.0:
     resolution: {integrity: sha512-YVIQ82gZPGBebQV/a8dar4AitzCQs0jjXwMPZllpXMaGjXPYVUawSxQrRsjhjupyVxEvbHgUmIhKVlND+j02kA==}
@@ -11791,12 +11759,6 @@ packages:
   /arr-union@3.1.0:
     resolution: {integrity: sha512-sKpyeERZ02v1FeCZT8lrfJq5u6goHCtpTAzPwJYe7c8SPFOboNjNg1vz2L4VTn9T4PQxEx13TbXLmYUcS6Ug7Q==}
     engines: {node: '>=0.10.0'}
-
-  /array-buffer-byte-length@1.0.0:
-    resolution: {integrity: sha512-LPuwb2P+NrQw3XhxGc36+XSvuBPopovXYTR9Ew++Du9Yb/bx5AzBfrIsBoj0EZUifjQU+sHL21sseZ3jerWO/A==}
-    dependencies:
-      call-bind: 1.0.2
-      is-array-buffer: 3.0.2
 
   /array-flatten@1.1.1:
     resolution: {integrity: sha512-PCVAQswWemu6UdxsDFFX/+gVeYqKAod3D3UVm91jHwynguOwAvYPhx8nNlM++NqRcK6CxxpUafjmhIdKiHibqg==}
@@ -13371,28 +13333,6 @@ packages:
       type-detect: 4.0.8
     dev: false
 
-  /deep-equal@2.2.2:
-    resolution: {integrity: sha512-xjVyBf0w5vH0I42jdAZzOKVldmPgSulmiyPRywoyq7HXC9qdgo17kxJE+rdnif5Tz6+pIrpJI8dCpMNLIGkUiA==}
-    dependencies:
-      array-buffer-byte-length: 1.0.0
-      call-bind: 1.0.2
-      es-get-iterator: 1.1.3
-      get-intrinsic: 1.2.1
-      is-arguments: 1.1.1
-      is-array-buffer: 3.0.2
-      is-date-object: 1.0.5
-      is-regex: 1.1.4
-      is-shared-array-buffer: 1.0.2
-      isarray: 2.0.5
-      object-is: 1.1.5
-      object-keys: 1.1.1
-      object.assign: 4.1.4
-      regexp.prototype.flags: 1.5.0
-      side-channel: 1.0.4
-      which-boxed-primitive: 1.0.2
-      which-collection: 1.0.1
-      which-typed-array: 1.1.11
-
   /deep-extend@0.6.0:
     resolution: {integrity: sha512-LOHxIOaPYdHlJRtCQfDIVZtfw/ufM8+rVj649RIHzcm/vGwQRXFt6OPqIFWsm2XEMrNIEtWR64sY1LEKD2vAOA==}
     engines: {node: '>=4.0.0'}
@@ -13821,19 +13761,6 @@ packages:
       typed-array-length: 1.0.4
       unbox-primitive: 1.0.2
       which-typed-array: 1.1.11
-
-  /es-get-iterator@1.1.3:
-    resolution: {integrity: sha512-sPZmqHBe6JIiTfN5q2pEi//TwxmAFHwj/XEuYjTuse78i8KxaqMTTzxPoFKuzRpDpTJ+0NAbpfenkmH2rePtuw==}
-    dependencies:
-      call-bind: 1.0.2
-      get-intrinsic: 1.2.1
-      has-symbols: 1.0.3
-      is-arguments: 1.1.1
-      is-map: 2.0.2
-      is-set: 2.0.2
-      is-string: 1.0.7
-      isarray: 2.0.5
-      stop-iteration-iterator: 1.0.0
 
   /es-module-lexer@0.9.3:
     resolution: {integrity: sha512-1HQ2M2sPtxwnvOvT1ZClHyQDiggdNjURWpY2we6aMKCQiUVxTmVs2UYPLIrD84sS+kMdUwfBSylbJPwNnBrnHQ==}
@@ -16268,9 +16195,6 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /is-map@2.0.2:
-    resolution: {integrity: sha512-cOZFQQozTha1f4MxLFzlgKYPTyj26picdZTx82hbc/Xf4K/tZOOXSCkMvU4pKioRXGDLJRn0GM7Upe7kR721yg==}
-
   /is-named-css-color@1.0.0:
     resolution: {integrity: sha512-8U8MlUMBJ3RiDpbYY5QGmIxGKGmK8c96bnESYyY0rA4BwqN7EPOF9gG/TFktKd4J+p5isdEQ+1x5cwOkSUWCsw==}
     dependencies:
@@ -16372,9 +16296,6 @@ packages:
     resolution: {integrity: sha512-AGOriNp96vNBd3HtU+RzFEc75FfR5ymiYv8E553I71SCeXBiMsVDUtdio1OEFvrPyLIQ9tVR5RxXIFe5PUFjMg==}
     engines: {node: '>=6'}
 
-  /is-set@2.0.2:
-    resolution: {integrity: sha512-+2cnTEZeY5z/iXGbLhPrOAaK/Mau5k5eXq9j14CpRTftq0pAJu2MwVRSZhyZWBzx3o6X795Lz6Bpb6R0GKf37g==}
-
   /is-shared-array-buffer@1.0.2:
     resolution: {integrity: sha512-sqN2UDu1/0y6uvXyStCOzyhAjCSlHceFoMKJW8W9EU9cvic/QdsZ0kEU93HEy3IUEFZIiH/3w+AH/UQbPHNdhA==}
     dependencies:
@@ -16429,19 +16350,10 @@ packages:
     engines: {node: '>=0.10.0'}
     dev: false
 
-  /is-weakmap@2.0.1:
-    resolution: {integrity: sha512-NSBR4kH5oVj1Uwvv970ruUkCV7O1mzgVFO4/rev2cLRda9Tm9HrL70ZPut4rOHgY0FNrUu9BCbXA2sdQ+x0chA==}
-
   /is-weakref@1.0.2:
     resolution: {integrity: sha512-qctsuLZmIQ0+vSSMfoVvyFe2+GSEvnmZ2ezTup1SBse9+twCCeial6EEi3Nc2KFcf6+qz2FBPnjXsk8xhKSaPQ==}
     dependencies:
       call-bind: 1.0.2
-
-  /is-weakset@2.0.2:
-    resolution: {integrity: sha512-t2yVvttHkQktwnNNmBQ98AhENLdPUTDTE21uPqAQ0ARwQfGeQKRVS0NNurH7bTf7RrvcVn1OOge45CnBeHCSmg==}
-    dependencies:
-      call-bind: 1.0.2
-      get-intrinsic: 1.2.1
 
   /is-what@4.1.15:
     resolution: {integrity: sha512-uKua1wfy3Yt+YqsD6mTUEa2zSi3G1oPlqTflgaPJ7z63vUGN5pxFpnQfeSLMFnJDEsdvOtkp1rUWkYjB4YfhgA==}
@@ -16472,9 +16384,6 @@ packages:
 
   /isarray@1.0.0:
     resolution: {integrity: sha512-VLghIWNM6ELQzo7zwmcg0NmTVyWKYjvIeM83yjp0wRDTmUnrM678fQbcKBo6n2CJEF0szoG//ytg+TKla89ALQ==}
-
-  /isarray@2.0.5:
-    resolution: {integrity: sha512-xHjhDr3cNBK0BzdUJSPXZntQUx/mwMS5Rw4A7lPJ90XGAO6ISP/ePDNuo0vhqOZU+UD5JoodwCAAoZQd3FeAKw==}
 
   /isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
@@ -17758,7 +17667,7 @@ packages:
   /merge-descriptors@1.0.1:
     resolution: {integrity: sha512-cCi6g3/Zr1iqQi6ySbseM1Xvooa98N0w31jzUYrXPX2xqObmFGHJ0tQ5u74H3mVh7wLouTseZyYIq39g8cNp1w==}
 
-  /merge-refs@1.2.2(@types/react@18.2.18):
+  /merge-refs@1.2.2(@types/react@18.3.3):
     resolution: {integrity: sha512-RwcT7GsQR3KbuLw1rRuodq4Nt547BKEBkliZ0qqsrpyNne9bGTFtsFIsIpx82huWhcl3kOlOlH4H0xkPk/DqVw==}
     peerDependencies:
       '@types/react': ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -17766,7 +17675,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@types/react': 18.2.18
+      '@types/react': 18.3.3
     dev: false
 
   /merge-stream@2.0.0:
@@ -19469,7 +19378,7 @@ packages:
       react: '>=16'
       react-dom: '>=16'
     dependencies:
-      '@types/react': 18.2.18
+      '@types/react': 18.3.3
       prop-types: 15.8.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
@@ -19515,7 +19424,7 @@ packages:
       warning: 4.0.3
     dev: false
 
-  /react-pdf@7.7.0(@types/react@18.2.18)(react-dom@18.3.1)(react@18.3.1):
+  /react-pdf@7.7.0(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-704ObLnRDm5lixL4e6NXNLaincBHGNLo+NGdbO3rEXE963NlNzwLxFpmKcbdXHAMQL4rYJQWb1L0w5IL6y8Osw==}
     peerDependencies:
       '@types/react': ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -19525,12 +19434,12 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@types/react': 18.2.18
+      '@types/react': 18.3.3
       clsx: 2.1.0
       dequal: 2.0.3
       make-cancellable-promise: 1.3.2
       make-event-props: 1.6.2
-      merge-refs: 1.2.2(@types/react@18.2.18)
+      merge-refs: 1.2.2(@types/react@18.3.3)
       pdfjs-dist: 3.11.174
       prop-types: 15.8.1
       react: 18.3.1
@@ -19633,7 +19542,7 @@ packages:
       tiny-warning: 1.0.3
     dev: false
 
-  /react-select@5.7.4(@types/react@18.2.18)(react-dom@18.3.1)(react@18.3.1):
+  /react-select@5.7.4(@types/react@18.3.3)(react-dom@18.3.1)(react@18.3.1):
     resolution: {integrity: sha512-NhuE56X+p9QDFh4BgeygHFIvJJszO1i1KSkg/JPcIJrbovyRtI+GuOEa4XzFCEpZRAEoEI8u/cAHK+jG/PgUzQ==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -19641,7 +19550,7 @@ packages:
     dependencies:
       '@babel/runtime': 7.22.6
       '@emotion/cache': 11.11.0
-      '@emotion/react': 11.11.1(@types/react@18.2.18)(react@18.3.1)
+      '@emotion/react': 11.11.1(@types/react@18.3.3)(react@18.3.1)
       '@floating-ui/dom': 1.5.1
       '@types/react-transition-group': 4.4.6
       memoize-one: 6.0.0
@@ -19649,7 +19558,7 @@ packages:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
       react-transition-group: 4.4.5(react-dom@18.3.1)(react@18.3.1)
-      use-isomorphic-layout-effect: 1.1.2(@types/react@18.2.18)(react@18.3.1)
+      use-isomorphic-layout-effect: 1.1.2(@types/react@18.3.3)(react@18.3.1)
     transitivePeerDependencies:
       - '@types/react'
     dev: false
@@ -20637,12 +20546,6 @@ packages:
   /statuses@2.0.1:
     resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}
     engines: {node: '>= 0.8'}
-
-  /stop-iteration-iterator@1.0.0:
-    resolution: {integrity: sha512-iCGQj+0l0HOdZ2AEeBADlsRC+vsnDsZsbdSiH1yNSjcfKM7fdpCMfqAL/dwF5BLiw/XhRft/Wax6zQbhq2BcjQ==}
-    engines: {node: '>= 0.4'}
-    dependencies:
-      internal-slot: 1.0.5
 
   /store2@2.14.2:
     resolution: {integrity: sha512-siT1RiqlfQnGqgT/YzXVUNsom9S0H1OX+dpdGN1xkyYATo4I6sep5NmsRD/40s3IIOvlCq6akxkqG82urIZW1w==}
@@ -21810,7 +21713,7 @@ packages:
       react: 18.3.1
     dev: false
 
-  /use-isomorphic-layout-effect@1.1.2(@types/react@18.2.18)(react@18.3.1):
+  /use-isomorphic-layout-effect@1.1.2(@types/react@18.3.3)(react@18.3.1):
     resolution: {integrity: sha512-49L8yCO3iGT/ZF9QttjwLF/ZD9Iwto5LnH5LmEdk/6cFmXddqi2ulF0edxTwjj+7mqvpVVGQWvbXZdn32wRSHA==}
     peerDependencies:
       '@types/react': '*'
@@ -21819,7 +21722,7 @@ packages:
       '@types/react':
         optional: true
     dependencies:
-      '@types/react': 18.2.18
+      '@types/react': 18.3.3
       react: 18.3.1
     dev: false
 
@@ -22257,14 +22160,6 @@ packages:
       is-number-object: 1.0.7
       is-string: 1.0.7
       is-symbol: 1.0.4
-
-  /which-collection@1.0.1:
-    resolution: {integrity: sha512-W8xeTUwaln8i3K/cY1nGXzdnVZlidBcagyNFtBdD5kxnb4TvGKR7FfSIS3mYpwWS1QUCutfKz8IY8RjftB0+1A==}
-    dependencies:
-      is-map: 2.0.2
-      is-set: 2.0.2
-      is-weakmap: 2.0.1
-      is-weakset: 2.0.2
 
   /which-typed-array@1.1.11:
     resolution: {integrity: sha512-qe9UWWpkeG5yzZ0tNYxDmd7vo58HDBc39mZ0xWWpolAGADdFOzkfamWLDxkOWcvHQKVmdTyQdLD4NOfjLWTKew==}
