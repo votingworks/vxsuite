@@ -73,7 +73,7 @@ const rule: TSESLint.RuleModule<'useFunctionDeclaration', readonly unknown[]> =
         },
 
         ThisExpression(): void {
-          const pendingReport = pendingReports[pendingReports.length - 1];
+          const pendingReport = pendingReports.at(-1);
 
           if (pendingReport?.functionLevel === functionLevel) {
             pendingReport.usesThis = true;
@@ -91,7 +91,7 @@ const rule: TSESLint.RuleModule<'useFunctionDeclaration', readonly unknown[]> =
         'VariableDeclarator:exit': (
           node: TSESTree.VariableDeclarator
         ): void => {
-          if (pendingReports[pendingReports.length - 1]?.declarator === node) {
+          if (pendingReports.at(-1)?.declarator === node) {
             const { declaration, id, init, usesThis } =
               pendingReports.pop() as PendingReport;
 

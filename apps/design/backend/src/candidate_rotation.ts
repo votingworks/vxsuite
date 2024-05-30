@@ -1,4 +1,4 @@
-import { assertDefined, iter } from '@votingworks/basics';
+import { assertDefined } from '@votingworks/basics';
 import { AnyContest } from '@votingworks/types';
 
 // Maps the number of candidates in a contest to the index at which to rotate
@@ -40,7 +40,7 @@ export function rotateCandidates(contest: AnyContest): AnyContest {
 
   // Lacking structured name data, we approximate last name by using the last word
   function lastName(name: string): string {
-    return assertDefined(iter(name.split(' ')).last());
+    return assertDefined(name.split(' ').at(-1));
   }
 
   const orderedCandidates = [...contest.candidates].sort((a, b) =>

@@ -2,7 +2,7 @@ import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import type { ElectionRecord } from '@votingworks/design-backend';
 import { CandidateContest, YesNoContest } from '@votingworks/types';
-import { assert, iter } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import {
   MockApiClient,
   createMockApiClient,
@@ -436,7 +436,7 @@ describe('Contests tab', () => {
     expect(rows).toHaveLength(
       electionWithNewContestRecord.election.contests.length + 1
     );
-    const lastRow = rows[rows.length - 1];
+    const lastRow = rows.at(-1)!;
     expect(
       within(lastRow)
         .getAllByRole('cell')
@@ -581,7 +581,7 @@ describe('Contests tab', () => {
       within(contest3Row).getByRole('button', { name: 'Move Up' })
     );
 
-    const lastContestRow = iter(screen.getAllByRole('row')).last()!;
+    const lastContestRow = screen.getAllByRole('row').at(-1)!;
     expect(
       within(lastContestRow).getByRole('button', { name: 'Move Down' })
     ).toBeDisabled();
