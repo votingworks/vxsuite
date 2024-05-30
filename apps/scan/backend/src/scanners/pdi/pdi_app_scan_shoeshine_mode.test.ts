@@ -3,7 +3,10 @@ import {
   getFeatureFlagMock,
   BooleanEnvironmentVariableName,
 } from '@votingworks/utils';
-import { SheetInterpretation } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  SheetInterpretation,
+} from '@votingworks/types';
 import {
   ballotImages,
   simulateScan,
@@ -31,17 +34,21 @@ beforeEach(() => {
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.ENABLE_SCAN_SHOESHINE_MODE
-  );
 });
+
+const electionPackage =
+  electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(
+    {
+      ...DEFAULT_SYSTEM_SETTINGS,
+      precinctScanEnableShoeshineMode: true,
+    }
+  );
 
 test('shoeshine mode scans the same ballot repeatedly', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
+        electionPackage,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
@@ -105,8 +112,7 @@ test('handles error on eject for rescan', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        electionPackage:
-          electionGridLayoutNewHampshireTestBallotFixtures.electionJson.toElectionPackage(),
+        electionPackage,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
