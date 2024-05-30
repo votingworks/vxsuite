@@ -1,12 +1,11 @@
-import { readFile } from '@votingworks/fs';
+import { ReadElectionError, readElection, readFile } from '@votingworks/fs';
 import Buffer from 'buffer';
 import {
   ElectionDefinition,
   ElectionPackageFileName,
-  safeParseElectionDefinition,
 } from '@votingworks/types';
 import { join } from 'path';
-import { Result, err } from '@votingworks/basics';
+import { Result } from '@votingworks/basics';
 
 // Used by state machine
 const DIAGNOSTIC_MOCK_BALLOT_PDF_PATH = join(
@@ -21,19 +20,19 @@ export const DIAGNOSTIC_MOCK_BALLOT_JPG_PATH = join(
   'mocks',
   'diagnostic-mock-ballot.jpg'
 );
+
+const DIAGNOSTIC_ELECTION_PATH = join(
+  __dirname,
+  'mocks',
+  ElectionPackageFileName.ELECTION
+);
+
 const FILE_MAX_SIZE = 1024 * 1024 * 5; // 5 mb
 
 export async function getPaperHandlerDiagnosticElectionDefinition(
-  path: string = join(__dirname, 'mocks', ElectionPackageFileName.ELECTION)
-): Promise<Result<ElectionDefinition, Error>> {
-  const electionFileReadResult = await readFile(path, {
-    maxSize: FILE_MAX_SIZE,
-  });
-  if (electionFileReadResult.isErr()) {
-    return err(new Error(`Failed to read election file at ${path}`));
-  }
-  const electionData = electionFileReadResult.ok().toString();
-  return safeParseElectionDefinition(electionData);
+  path: string = DIAGNOSTIC_ELECTION_PATH
+): Promise<Result<ElectionDefinition, ReadElectionError>> {
+  return readElection(path);
 }
 
 export async function getMockBallotPdfData(): Promise<Buffer> {

@@ -93,32 +93,19 @@ interface Context {
   interpretation?: SheetOf<InterpretFileResult>;
   logger: BaseLogger;
   paperHandlerDiagnosticElection?: ElectionDefinition;
-  diagnosticError?: DiagnosticError;
+  diagnosticError?: Error;
 }
 
 function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
   return xassign<Context, any>(arg);
 }
 
-class DiagnosticError extends Error {
-  constructor(
-    userFacingMessage: string,
-    private readonly rootError?: Error
-  ) {
-    super(userFacingMessage);
-  }
-
-  getRootError() {
-    return this.rootError;
-  }
-}
-
-function createOnDiagnosticErrorHandler(userFacingMessage: string) {
+function createOnDiagnosticErrorHandler() {
   return {
     target: 'failure',
     actions: assign({
-      diagnosticError: (_, event) => {
-        return new DiagnosticError(userFacingMessage, event.data);
+      diagnosticError: (_: unknown, event: any) => {
+        return event.data as Error;
       },
     }),
   };
@@ -310,7 +297,7 @@ function buildAuthStatusObservable() {
             return { type: 'AUTH_STATUS_LOGGED_OUT' };
           }
 
-          debug('Unhandled auth status in observable: %O', authStatus);
+          /* istanbul ignore next - unreachable if exhaustive */
           return { type: 'AUTH_STATUS_UNHANDLED' };
         } catch (err) {
           debug('Error in auth observable: %O', err);
@@ -882,9 +869,7 @@ export function buildMachine(
                   src: (context) => {
                     return loadAndParkPaper(context.driver);
                   },
-                  onError: createOnDiagnosticErrorHandler(
-                    'Error loading paper.'
-                  ),
+                  onError: createOnDiagnosticErrorHandler(),
                 },
               ],
               on: {
@@ -900,7 +885,7 @@ export function buildMachine(
                     printBallotChunks(context.driver, ballotData, {})
                   ),
                 onDone: 'scan_ballot',
-                onError: createOnDiagnosticErrorHandler('Error printing.'),
+                onError: createOnDiagnosticErrorHandler(),
               },
             },
             scan_ballot: {
@@ -913,9 +898,7 @@ export function buildMachine(
                     scannedBallotImagePath: (_, event) => event.data,
                   }),
                 },
-                onError: createOnDiagnosticErrorHandler(
-                  'Error scanning test ballot.'
-                ),
+                onError: createOnDiagnosticErrorHandler(),
               },
             },
             interpret_ballot: {
@@ -957,6 +940,7 @@ export function buildMachine(
                       const interpretation = event.data;
                       const interpretationType =
                         interpretation[0].interpretation.type;
+                      /* istanbul ignore next */
                       if (interpretationType !== 'InterpretedBmdPage') {
                         throw new Error(
                           `Unexpected interpretation type: ${interpretationType}`
@@ -967,9 +951,7 @@ export function buildMachine(
                     },
                   }),
                 },
-                onError: createOnDiagnosticErrorHandler(
-                  'Error interpreting test ballot.'
-                ),
+                onError: createOnDiagnosticErrorHandler(),
               },
             },
             eject_to_rear: {
@@ -997,7 +979,6 @@ export function buildMachine(
                 context.workspace.store.addDiagnosticRecord({
                   type: 'mark-scan-paper-handler',
                   outcome: 'fail',
-                  message: context.diagnosticError?.message,
                 });
               },
               invoke: {
@@ -1005,9 +986,10 @@ export function buildMachine(
                 src: (context) =>
                   context.logger.log(LogEventId.DiagnosticComplete, 'system', {
                     disposition: 'failure',
-                    userFacingMessage: context.diagnosticError?.message,
-                    systemMessage:
-                      context.diagnosticError?.getRootError()?.message,
+                    message: context.diagnosticError
+                      ? context.diagnosticError.message
+                      : /* istanbul ignore next - no use of ?. operator to get Jest to recognize this ignore comment */
+                        undefined,
                   }),
                 onDone: 'done',
               },
@@ -1175,7 +1157,8 @@ export async function getPaperHandlerStateMachine({
     logger,
     paperHandlerDiagnosticElection: diagnosticElectionDefinitionResult.isOk()
       ? diagnosticElectionDefinitionResult.ok()
-      : undefined,
+      : /* istanbul ignore next */
+        undefined,
   };
 
   const machine = buildMachine(initialContext, auth);

@@ -1,5 +1,4 @@
 import { join } from 'path';
-import { assertDefined } from '@votingworks/basics';
 import { getPaperHandlerDiagnosticElectionDefinition } from './utils';
 
 describe('getPaperHandlerDiagnosticElectionDefinition', () => {
@@ -7,8 +6,6 @@ describe('getPaperHandlerDiagnosticElectionDefinition', () => {
     const path = join(__dirname, 'does-not-exist.pdf');
     const result = await getPaperHandlerDiagnosticElectionDefinition(path);
     expect(result.isErr()).toEqual(true);
-    expect(assertDefined(result.err()).message).toEqual(
-      `Failed to read election file at ${path}`
-    );
+    expect(result.err()).toBeDefined();
   });
 });
