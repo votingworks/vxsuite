@@ -7,7 +7,12 @@ import * as grout from '@votingworks/grout';
 import { Server } from 'http';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { mockOf } from '@votingworks/test-utils';
-import { DiagnosticRecord } from '@votingworks/types';
+import {
+  BallotId,
+  BallotType,
+  DiagnosticRecord,
+  SheetOf,
+} from '@votingworks/types';
 import {
   DiskSpaceSummary,
   getBatteryInfo,
@@ -16,15 +21,42 @@ import {
 } from '@votingworks/backend';
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
+import {
+  MockPaperHandlerDriver,
+  PaperHandlerStatus,
+} from '@votingworks/custom-paper-handler';
+import { assertDefined, deferred } from '@votingworks/basics';
+import {
+  InterpretFileResult,
+  interpretSimplexBmdBallotFromFilepath,
+} from '@votingworks/ballot-interpreter';
+import { readElection } from '@votingworks/fs';
 import { Api } from './app';
 import { PatConnectionStatusReader } from './pat-input/connection_status_reader';
-import { configureApp, createApp } from '../test/app_helpers';
+import {
+  configureApp,
+  createApp,
+  waitForStatus as waitForStatusHelper,
+} from '../test/app_helpers';
 import { PaperHandlerStateMachine } from './custom-paper-handler/state_machine';
 import { isAccessibleControllerDaemonRunning } from './util/controllerd';
+import {
+  getDefaultPaperHandlerStatus,
+  getPaperInFrontStatus,
+  getPaperParkedStatus,
+} from './custom-paper-handler/test_utils';
+import { mockSystemAdminAuth } from '../test/auth_helpers';
+import {
+  DIAGNOSTIC_ELECTION_PATH,
+  getDiagnosticMockBallotImagePath,
+} from './custom-paper-handler/diagnostic';
+import {
+  loadAndParkPaper,
+  scanAndSave,
+} from './custom-paper-handler/application_driver';
+import { BLANK_PAGE_MOCK, MOCK_IMAGE } from '../test/ballot_helpers';
 
 const TEST_POLLING_INTERVAL_MS = 5;
-
-jest.mock('@votingworks/custom-paper-handler');
 
 const featureFlagMock = getFeatureFlagMock();
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
@@ -52,8 +84,12 @@ jest.mock(
 
 jest.mock('./pat-input/connection_status_reader');
 jest.mock('./util/controllerd');
+jest.mock('./custom-paper-handler/application_driver');
+jest.mock('@votingworks/custom-paper-handler');
+jest.mock('@votingworks/ballot-interpreter');
 
 let apiClient: grout.Client<Api>;
+let driver: MockPaperHandlerDriver;
 let auth: InsertedSmartCardAuthApi;
 let server: Server;
 let stateMachine: PaperHandlerStateMachine;
@@ -61,7 +97,16 @@ let patConnectionStatusReader: PatConnectionStatusReader;
 let mockUsbDrive: MockUsbDrive;
 let logger: Logger;
 
+async function waitForStatus(
+  status: string,
+  interval = TEST_POLLING_INTERVAL_MS
+): Promise<void> {
+  await waitForStatusHelper(apiClient, interval, status);
+}
+
 beforeEach(async () => {
+  jest.resetAllMocks();
+
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
@@ -85,6 +130,7 @@ beforeEach(async () => {
   server = result.server;
   stateMachine = result.stateMachine;
   mockUsbDrive = result.mockUsbDrive;
+  driver = result.driver;
 });
 
 afterEach(async () => {
@@ -226,4 +272,94 @@ test('failure saving the readiness report', async () => {
         'Error while attempting to save the equipment readiness report to a USB drive: No USB drive found',
     }
   );
+});
+
+function mockDriverStatus(status: PaperHandlerStatus) {
+  mockOf(driver.getPaperHandlerStatus).mockResolvedValue(status);
+}
+
+describe('paper handler diagnostic', () => {
+  test('success', async () => {
+    const electionDefinition = (
+      await readElection(DIAGNOSTIC_ELECTION_PATH)
+    ).unsafeUnwrap();
+
+    mockSystemAdminAuth(auth);
+
+    const mockScanResult = deferred<string>();
+    const scannedPath = await getDiagnosticMockBallotImagePath();
+    mockOf(scanAndSave).mockResolvedValue(mockScanResult.promise);
+
+    const interpretationMock: SheetOf<InterpretFileResult> = [
+      {
+        interpretation: {
+          type: 'InterpretedBmdPage',
+          ballotId: '1_en' as BallotId,
+          metadata: {
+            electionHash: 'hash',
+            ballotType: BallotType.Precinct,
+            ballotStyleId: electionDefinition.election.ballotStyles[0].id,
+            precinctId: electionDefinition.election.precincts[0].id,
+            isTestMode: true,
+          },
+          votes: {},
+        },
+        normalizedImage: MOCK_IMAGE,
+      },
+      BLANK_PAGE_MOCK,
+    ];
+    const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+    mockOf(interpretSimplexBmdBallotFromFilepath).mockResolvedValue(
+      mockInterpretResult.promise
+    );
+
+    mockDriverStatus(getDefaultPaperHandlerStatus());
+
+    await apiClient.startPaperHandlerDiagnostic();
+    await waitForStatus('paper_handler_diagnostic.prompt_for_paper');
+
+    mockDriverStatus(getPaperInFrontStatus());
+    await waitForStatus('paper_handler_diagnostic.load_paper');
+
+    mockDriverStatus(getPaperParkedStatus());
+    await waitForStatus('paper_handler_diagnostic.print_ballot_fixture');
+    // Chromium, used by print_ballot_fixture, needs ~150ms to spin up.
+    // 75ms with retries is long enough.
+    await waitForStatus('paper_handler_diagnostic.scan_ballot', 75);
+
+    mockScanResult.resolve(scannedPath);
+    await waitForStatus('paper_handler_diagnostic.interpret_ballot');
+
+    mockInterpretResult.resolve(interpretationMock);
+    await waitForStatus('paper_handler_diagnostic.eject_to_rear');
+
+    mockDriverStatus(getDefaultPaperHandlerStatus());
+    await waitForStatus('paper_handler_diagnostic.success');
+
+    const record = await apiClient.getMostRecentDiagnostic({
+      diagnosticType: 'mark-scan-paper-handler',
+    });
+    expect(assertDefined(record).outcome).toEqual('pass');
+  });
+
+  test('failure', async () => {
+    mockSystemAdminAuth(auth);
+
+    mockOf(loadAndParkPaper).mockRejectedValue('error');
+
+    mockDriverStatus(getDefaultPaperHandlerStatus());
+    await apiClient.startPaperHandlerDiagnostic();
+
+    await waitForStatus('paper_handler_diagnostic.prompt_for_paper');
+
+    mockDriverStatus(getPaperInFrontStatus());
+    // Error is hit as soon as paper is loaded, sending state machine back to
+    // its history state in the voting flow
+    await waitForStatus('not_accepting_paper');
+
+    const record = await apiClient.getMostRecentDiagnostic({
+      diagnosticType: 'mark-scan-paper-handler',
+    });
+    expect(assertDefined(record).outcome).toEqual('fail');
+  });
 });

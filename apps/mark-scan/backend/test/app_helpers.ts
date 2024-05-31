@@ -19,6 +19,7 @@ import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
   mockOf,
+  backendWaitFor,
 } from '@votingworks/test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
@@ -57,10 +58,11 @@ export async function getMockStateMachine(
   patConnectionStatusReader: PatConnectionStatusReaderInterface,
   driver: MockPaperHandlerDriver,
   logger: BaseLogger,
-  pollingIntervalMs?: number
+  pollingIntervalMs?: number,
+  authOverride?: InsertedSmartCardAuthApi
 ): Promise<PaperHandlerStateMachine> {
   // State machine setup
-  const auth = buildMockInsertedSmartCardAuth();
+  const auth = authOverride ?? buildMockInsertedSmartCardAuth();
   const stateMachine = await getPaperHandlerStateMachine({
     workspace,
     auth,
@@ -111,7 +113,8 @@ export async function createApp(
     patConnectionStatusReader,
     driver,
     logger,
-    options?.pollingIntervalMs
+    options?.pollingIntervalMs,
+    mockAuth
   );
 
   const app = buildApp(
@@ -169,5 +172,18 @@ export async function configureApp(
       status: 'logged_out',
       reason: 'no_card',
     })
+  );
+}
+
+export async function waitForStatus(
+  apiClient: grout.Client<Api>,
+  interval: number,
+  status: string
+): Promise<void> {
+  await backendWaitFor(
+    async () => {
+      expect(await apiClient.getPaperHandlerState()).toEqual(status);
+    },
+    { interval, retries: 3 }
   );
 }
