@@ -10,6 +10,7 @@ import {
   AudioOnly,
   ReadOnLoad,
   PageNavigationButtonId,
+  AssistiveTechInstructions,
 } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
@@ -91,8 +92,14 @@ export function ValidateBallotPage(): JSX.Element | null {
       <ContentHeader>
         <H1>{appStrings.titleBmdReviewScreen()}</H1>
         <AudioOnly>
-          {appStrings.instructionsBmdReviewPageNavigation()}{' '}
-          {appStrings.instructionsBmdScanReviewConfirmation()}
+          <AssistiveTechInstructions
+            controllerString={appStrings.instructionsBmdReviewPageNavigation()}
+            patDeviceString={appStrings.instructionsBmdReviewPageNavigationPatDevice()}
+          />{' '}
+          <AssistiveTechInstructions
+            controllerString={appStrings.instructionsBmdScanReviewConfirmation()}
+            patDeviceString={appStrings.instructionsBmdScanReviewConfirmationPatDevice()}
+          />
         </AudioOnly>
       </ContentHeader>
       <WithScrollButtons>

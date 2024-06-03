@@ -22,6 +22,7 @@ import {
   electionStrings,
   NumberString,
   WithAltAudio,
+  AssistiveTechInstructions,
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
@@ -233,7 +234,12 @@ export function Review({
                 <Button tabIndex={-1} onPress={() => onChangeClick(contest.id)}>
                   <Caption>
                     <WithAltAudio
-                      audioText={appStrings.buttonBmdReviewCardAction()}
+                      audioText={
+                        <AssistiveTechInstructions
+                          controllerString={appStrings.buttonBmdReviewCardAction()}
+                          patDeviceString={appStrings.buttonBmdReviewCardActionPatDevice()}
+                        />
+                      }
                     >
                       <Icons.Edit /> {appStrings.buttonChange()}
                     </WithAltAudio>

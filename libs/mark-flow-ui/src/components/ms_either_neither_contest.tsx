@@ -8,6 +8,7 @@ import {
   appStrings,
   AudioOnly,
   electionStrings,
+  AssistiveTechInstructions,
 } from '@votingworks/ui';
 
 import {
@@ -172,7 +173,10 @@ export function MsEitherNeitherContest({
         </Caption>
         <AudioOnly>
           {electionStrings.contestDescription(contest.eitherNeitherContest)}{' '}
-          {appStrings.instructionsBmdContestNavigation()}
+          <AssistiveTechInstructions
+            controllerString={appStrings.instructionsBmdContestNavigation()}
+            patDeviceString={appStrings.instructionsBmdContestNavigationPatDevice()}
+          />
         </AudioOnly>
       </ContestHeader>
       <WithScrollButtons>

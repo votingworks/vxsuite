@@ -15,12 +15,13 @@ import {
 import type { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import {
   MarkScanControllerSandbox,
+  PatDeviceContextProvider,
   useAccessibleControllerHelpTrigger,
 } from '@votingworks/ui';
 import { Ballot } from './components/ballot';
 import { ValidateBallotPage } from './pages/validate_ballot_page';
 import { BallotContext } from './contexts/ballot_context';
-import { confirmSessionEnd } from './api';
+import * as api from './api';
 import { PatDeviceCalibrationPage } from './pages/pat_device_identification/pat_device_calibration_page';
 
 export interface VoterFlowProps {
@@ -40,7 +41,9 @@ export interface VoterFlowProps {
 export function VoterFlow(props: VoterFlowProps): React.ReactNode {
   const { resetBallot, stateMachineState, ...rest } = props;
 
-  const confirmSessionEndMutation = confirmSessionEnd.useMutation();
+  const confirmSessionEndMutation = api.confirmSessionEnd.useMutation();
+  const isPathDeviceConnected =
+    api.isPatDeviceConnected.useQuery().data || false;
 
   const { shouldShowControllerSandbox } = useAccessibleControllerHelpTrigger();
 
@@ -82,7 +85,9 @@ export function VoterFlow(props: VoterFlowProps): React.ReactNode {
         resetBallot,
       }}
     >
-      {ballotContextProviderChild}
+      <PatDeviceContextProvider isPatDeviceConnected={isPathDeviceConnected}>
+        {ballotContextProviderChild}
+      </PatDeviceContextProvider>
     </BallotContext.Provider>
   );
 }
