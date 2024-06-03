@@ -155,6 +155,6 @@ describe('Displays setup warning messages and errors screens', () => {
 
     render(<App apiClient={apiMock.mockApiClient} />);
 
-    await screen.findByText('No Connection to Printer-Scanner');
+    await screen.findByText('Internal Connection Problem');
   });
 });
