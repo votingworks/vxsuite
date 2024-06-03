@@ -1,9 +1,14 @@
 import React from 'react';
-import i18next, { i18n } from 'i18next';
-import { initReactI18next, useSSR, useTranslation } from 'react-i18next';
+import i18next, { InitOptions, i18n } from 'i18next';
+import { initReactI18next, useTranslation } from 'react-i18next';
 
 import { LanguageCode, UiStringsPackage } from '@votingworks/types';
-import { Optional, assert, assertDefined } from '@votingworks/basics';
+import {
+  Optional,
+  assert,
+  assertDefined,
+  mapObject,
+} from '@votingworks/basics';
 import { Screen } from '../screen';
 import { UiStringsReactQueryApi } from '../hooks/ui_strings_api';
 
@@ -44,7 +49,7 @@ export function useFrontendLanguageContext(): Optional<FrontendLanguageContextIn
   return languageContext;
 }
 
-const i18nextInitPromise = i18next.use(initReactI18next).init({
+const i18NextOptions: InitOptions = {
   lng: DEFAULT_LANGUAGE_CODE,
   supportedLngs: Object.values(LanguageCode),
   interpolation: {
@@ -55,7 +60,9 @@ const i18nextInitPromise = i18next.use(initReactI18next).init({
     bindI18n: 'languageChanged loaded',
     bindI18nStore: 'added removed',
   },
-});
+};
+
+const i18nextInitPromise = i18next.use(initReactI18next).init(i18NextOptions);
 
 /**
  * Loads UI Strings for the specified language from the backend, if available.
@@ -147,31 +154,28 @@ export function BackendLanguageContextProvider({
   uiStringsPackage,
   children,
 }: BackendLanguageContextProviderProps): JSX.Element {
-  // Although you can pass an initial i18n store to  `useSSR`, it only
-  // sets the i18n store on the very first render. For example, if you have
-  // a machine configured with a UI strings catalog, unconfigure, then reconfigure,
-  // i18n will not be re-initialize with the the new initial i18n store.
-  // Thus, we just need to add a resource bundle on every render.
-  useSSR({}, currentLanguageCode);
-  for (const [languageCode, uiStringTranslations] of Object.entries(
-    uiStringsPackage
-  )) {
-    i18next.addResourceBundle(
-      languageCode,
-      DEFAULT_I18NEXT_NAMESPACE,
-      uiStringTranslations
-    );
-  }
-
-  const { t: translationFunction } = i18next;
+  const i18nextInstance = i18next
+    .createInstance({
+      ...i18NextOptions,
+      lng: currentLanguageCode,
+      resources: mapObject(uiStringsPackage, (translations) => ({
+        [DEFAULT_I18NEXT_NAMESPACE]: translations,
+      })),
+    })
+    .use(initReactI18next);
+  // Since we have already loaded the translation resources and are passing
+  // them in explicitly above, we can set initImmediate to false to tell i18next to
+  // initialize synchronously. However, we still need to deal with the Promise
+  // returned by init(), but it will never reject so it's safe to ignore.
+  void i18nextInstance.init({ initImmediate: false });
 
   return (
     <LanguageContext.Provider
       value={{
         executionContext: 'backend',
         currentLanguageCode,
-        i18next,
-        translationFunction,
+        i18next: i18nextInstance,
+        translationFunction: i18nextInstance.t,
       }}
     >
       {children}
