@@ -173,13 +173,10 @@ export const getMostRecentPaperHandlerDiagnostic = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(
-      this.queryKey(),
-      () =>
-        apiClient.getMostRecentDiagnostic({
-          diagnosticType: 'mark-scan-paper-handler',
-        }),
-      { cacheTime: 0 }
+    return useQuery(this.queryKey(), () =>
+      apiClient.getMostRecentDiagnostic({
+        diagnosticType: 'mark-scan-paper-handler',
+      })
     );
   },
 } as const;
