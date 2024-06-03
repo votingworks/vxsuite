@@ -59,7 +59,6 @@ export function DiagnosticsScreen({
     !isAccessibleControllerInputDetectedQuery.isSuccess ||
     !mostRecentAccessibleControllerDiagnosticQuery.isSuccess ||
     !usbDriveStatusQuery.isSuccess ||
-    !usbDriveStatusQuery.isSuccess ||
     !getStateMachineStateQuery.isSuccess ||
     !mostRecentPaperHandlerDiagnosticQuery.isSuccess
   ) {

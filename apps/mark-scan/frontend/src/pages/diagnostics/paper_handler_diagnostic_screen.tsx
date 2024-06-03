@@ -63,7 +63,7 @@ export function PaperHandlerDiagnosticScreen({
         );
         break;
       default:
-        contents = <Loading />;
+      // No-op because `contents` is already assigned above
     }
   }
 
