@@ -282,6 +282,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsBmdAskForRestart: () => (
+    <UiString uiStringKey="instructionsBmdAskForRestart">
+      Ask a poll worker to restart the machine.
+    </UiString>
+  ),
+
   instructionsBmdBallotNavigationMark: () => (
     <UiString uiStringKey="instructionsBmdBallotNavigationMark">
       When voting with the text-to-speech audio, use the accessible controller

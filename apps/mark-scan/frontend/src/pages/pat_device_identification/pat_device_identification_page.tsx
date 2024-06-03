@@ -10,8 +10,8 @@ import { VoterScreen } from '@votingworks/mark-flow-ui';
 import styled from 'styled-components';
 import {
   DiagnosticScreenHeader,
-  StepContainer,
-} from '../diagnostic_screen_components';
+  PatStepContainer,
+} from '../diagnostics/diagnostic_screen_components';
 import { PatIntroductionStep } from './pat_introduction_step';
 import { IdentifyInputStep } from './identify_input_step';
 import { handleKeyboardEvent } from '../../lib/assistive_technology';
@@ -94,7 +94,7 @@ export function PatDeviceIdentificationPage({
             {statusStrings[currentStepId]}
           </P>
         </DiagnosticScreenHeader>
-        <StepContainer>{steps[currentStepId]}</StepContainer>
+        <PatStepContainer>{steps[currentStepId]}</PatStepContainer>
       </ReadOnLoad>
     </VoterScreen>
   );

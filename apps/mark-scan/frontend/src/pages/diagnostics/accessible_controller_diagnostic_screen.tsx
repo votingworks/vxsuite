@@ -10,24 +10,11 @@ import {
   MarkScanControllerButton,
   Keybinding,
 } from '@votingworks/ui';
-import styled from 'styled-components';
-import { addDiagnosticRecord } from '../api';
-
-const StepContainer = styled.div`
-  padding: 1rem;
-  margin-top: 2rem;
-  display: flex;
-  flex-direction: column;
-
-  svg {
-    align-self: center;
-    width: 24em;
-  }
-
-  button {
-    margin-top: 2rem;
-  }
-`;
+import { addDiagnosticRecord } from '../../api';
+import {
+  CancelButtonContainer,
+  StepContainer,
+} from './diagnostic_screen_components';
 
 interface DiagnosticStep {
   button: string;
@@ -135,12 +122,6 @@ function AccessibleControllerButtonDiagnostic({
     </StepContainer>
   );
 }
-
-const CancelButtonContainer = styled.div`
-  margin: 1rem;
-  margin-top: 5rem;
-  align-self: center;
-`;
 
 export interface AccessibleControllerDiagnosticProps {
   onClose: () => void;

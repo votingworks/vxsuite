@@ -16,10 +16,14 @@ import {
   getElectionState,
   getIsAccessibleControllerInputDetected,
   getMostRecentAccessibleControllerDiagnostic,
+  getMostRecentPaperHandlerDiagnostic,
+  getStateMachineState,
   getUsbDriveStatus,
   saveReadinessReport,
+  startPaperHandlerDiagnostic,
   systemCallApi,
-} from '../api';
+} from '../../api';
+import { PaperHandlerDiagnosticScreen } from './paper_handler_diagnostic_screen';
 
 export interface DiagnosticsScreenProps {
   onBackButtonPress: () => void;
@@ -38,6 +42,12 @@ export function DiagnosticsScreen({
     getMostRecentAccessibleControllerDiagnostic.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const saveReadinessReportMutation = saveReadinessReport.useMutation();
+  const getStateMachineStateQuery = getStateMachineState.useQuery();
+  const mostRecentPaperHandlerDiagnosticQuery =
+    getMostRecentPaperHandlerDiagnostic.useQuery();
+
+  const startPaperHandlerDiagnosticMutation =
+    startPaperHandlerDiagnostic.useMutation();
 
   const history = useHistory();
 
@@ -48,7 +58,9 @@ export function DiagnosticsScreen({
     !diskSpaceQuery.isSuccess ||
     !isAccessibleControllerInputDetectedQuery.isSuccess ||
     !mostRecentAccessibleControllerDiagnosticQuery.isSuccess ||
-    !usbDriveStatusQuery.isSuccess
+    !usbDriveStatusQuery.isSuccess ||
+    !getStateMachineStateQuery.isSuccess ||
+    !mostRecentPaperHandlerDiagnosticQuery.isSuccess
   ) {
     return (
       <Screen>
@@ -68,6 +80,9 @@ export function DiagnosticsScreen({
     isAccessibleControllerInputDetectedQuery.data;
   const mostRecentAccessibleControllerDiagnostic =
     mostRecentAccessibleControllerDiagnosticQuery.data ?? undefined;
+  const stateMachineState = getStateMachineStateQuery.data;
+  const mostRecentPaperHandlerDiagnostic =
+    mostRecentPaperHandlerDiagnosticQuery.data ?? undefined;
 
   return (
     <Switch>
@@ -105,6 +120,20 @@ export function DiagnosticsScreen({
                   </Button>
                 ),
               }}
+              paperHandlerProps={{
+                isDeviceConnected: stateMachineState !== 'no_hardware',
+                mostRecentDiagnosticRecord: mostRecentPaperHandlerDiagnostic,
+                children: (
+                  <Button
+                    onPress={() => {
+                      startPaperHandlerDiagnosticMutation.mutate();
+                      history.push('/paper-handler');
+                    }}
+                  >
+                    Test Printer/Scanner
+                  </Button>
+                ),
+              }}
             />
           </Main>
         </Screen>
@@ -112,6 +141,17 @@ export function DiagnosticsScreen({
       <Route path="/accessible-controller">
         <AccessibleControllerDiagnosticScreen
           onClose={() => history.push('/')}
+        />
+      </Route>
+      <Route path="/paper-handler">
+        <PaperHandlerDiagnosticScreen
+          onClose={async () => {
+            history.push('/');
+            // The diagnostic record is written by the backend after successful rear ejection.
+            // Invalidating the query at the time of the last mutation in this flow is still too early
+            // so we have to manually refetch.
+            await mostRecentPaperHandlerDiagnosticQuery.refetch();
+          }}
         />
       </Route>
     </Switch>

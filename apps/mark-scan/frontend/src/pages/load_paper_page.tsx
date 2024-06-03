@@ -8,10 +8,7 @@ export function LoadPaperPage(): JSX.Element {
       title="Load Blank Ballot Sheet"
       voterFacing={false}
     >
-      <P>
-        Please feed one sheet of paper into the front input tray. The printer
-        will automatically grab the paper when positioned correctly.
-      </P>
+      <P>Please feed one sheet of paper into the front input tray.</P>
     </CenteredCardPageLayout>
   );
 }
