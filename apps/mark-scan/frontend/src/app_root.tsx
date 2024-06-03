@@ -74,6 +74,7 @@ import { EmptyBallotBoxPage } from './pages/empty_ballot_box_page';
 import { PollWorkerAuthEndedUnexpectedlyPage } from './pages/poll_worker_auth_ended_unexpectedly_page';
 import { LOW_BATTERY_THRESHOLD } from './constants';
 import { VoterFlow } from './voter_flow';
+import { NoPaperHandlerPage } from './pages/no_paper_handler_page';
 
 interface VotingState {
   votes?: VotesDict;
@@ -329,6 +330,13 @@ export function AppRoot(): JSX.Element | null {
     authStatus.reason === 'no_card_reader'
   ) {
     return <SetupCardReaderPage />;
+  }
+
+  if (
+    stateMachineState === 'no_hardware' &&
+    !isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER)
+  ) {
+    return <NoPaperHandlerPage />;
   }
 
   if (battery && battery.level < LOW_BATTERY_THRESHOLD && battery.discharging) {
