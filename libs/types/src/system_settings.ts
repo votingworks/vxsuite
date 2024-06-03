@@ -62,6 +62,7 @@ export interface SystemSettings {
   readonly centralScanAdjudicationReasons: readonly AdjudicationReason[];
   readonly precinctScanAdjudicationReasons: readonly AdjudicationReason[];
   readonly precinctScanDisallowCastingOvervotes: boolean;
+  readonly precinctScanEnableShoeshineMode?: boolean;
 }
 
 export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
@@ -74,6 +75,7 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
     z.lazy(() => AdjudicationReasonSchema)
   ),
   precinctScanDisallowCastingOvervotes: z.boolean(),
+  precinctScanEnableShoeshineMode: z.boolean().optional(),
 });
 
 /**

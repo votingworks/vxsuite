@@ -25,6 +25,5 @@ declare namespace NodeJS {
     REACT_APP_VX_CONVERTER?: string;
     REACT_APP_VX_SKIP_SYSTEM_AUDIO_SETUP?: string;
     REACT_APP_VX_USE_CUSTOM_SCANNER?: string;
-    REACT_APP_VX_ENABLE_SCAN_SHOESHINE_MODE?: string;
   }
 }

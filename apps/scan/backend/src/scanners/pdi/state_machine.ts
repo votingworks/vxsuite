@@ -32,10 +32,6 @@ import { BaseLogger, LogEventId, LogLine } from '@votingworks/logging';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { Clock } from 'xstate/lib/interpreter';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
 import { interpret } from '../../interpret';
 import { Workspace } from '../../util/workspace';
 import { rootDebug } from '../../util/debug';
@@ -180,9 +176,12 @@ function buildMachine({
 }) {
   const { store } = workspace;
   const initialClient = createScannerClient();
-  const isShoeshineModeEnabled = isFeatureFlagEnabled(
-    BooleanEnvironmentVariableName.ENABLE_SCAN_SHOESHINE_MODE
-  );
+
+  function isShoeshineModeEnabled() {
+    return Boolean(
+      assertDefined(store.getSystemSettings()).precinctScanEnableShoeshineMode
+    );
+  }
 
   function createPollingChildMachine(
     id: string,
@@ -675,7 +674,12 @@ function buildMachine({
         },
 
         readyToAccept: {
-          on: { ACCEPT: isShoeshineModeEnabled ? 'accepted' : 'accepting' },
+          on: {
+            ACCEPT: [
+              { cond: isShoeshineModeEnabled, target: 'accepted' },
+              { target: 'accepting' },
+            ],
+          },
         },
 
         accepting: acceptingState,
@@ -695,9 +699,13 @@ function buildMachine({
             // ballot because there is a limit to how many scan cycles the
             // scanner can perform per minute without overheating and damaging
             // the hardware. This is particularly relevant in shoeshine mode.
-            DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: isShoeshineModeEnabled
-              ? 'shoeshineModeRescanningBallot'
-              : 'waitingForBallot',
+            DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT: [
+              {
+                cond: isShoeshineModeEnabled,
+                target: 'shoeshineModeRescanningBallot',
+              },
+              { target: 'waitingForBallot' },
+            ],
           },
         },
 
