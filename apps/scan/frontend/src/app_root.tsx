@@ -38,6 +38,7 @@ import { LoginPromptScreen } from './screens/login_prompt_screen';
 import { CastVoteRecordSyncRequiredScreen } from './screens/cast_vote_record_sync_required_screen';
 import { SystemAdministratorScreen } from './screens/system_administrator_screen';
 import { ScannerCoverOpenScreen } from './screens/scanner_cover_open_screen';
+import { ScannerDoubleFeedCalibrationScreen } from './screens/scanner_double_feed_calibration_screen';
 
 export function AppRoot(): JSX.Element | null {
   const authStatusQuery = getAuthStatus.useQuery();
@@ -157,6 +158,14 @@ export function AppRoot(): JSX.Element | null {
 
   if (scannerStatus.state === 'cover_open') {
     return <ScannerCoverOpenScreen />;
+  }
+
+  if (
+    scannerStatus.state === 'calibrating_double_feed_detection.double_sheet' ||
+    scannerStatus.state === 'calibrating_double_feed_detection.single_sheet' ||
+    scannerStatus.state === 'calibrating_double_feed_detection.done'
+  ) {
+    return <ScannerDoubleFeedCalibrationScreen />;
   }
 
   if (authStatus.status === 'checking_pin') {

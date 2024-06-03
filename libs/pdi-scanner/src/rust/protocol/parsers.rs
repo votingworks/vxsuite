@@ -363,6 +363,18 @@ fn any_response(input: &[u8]) -> IResult<&[u8], Incoming> {
             get_double_feed_detection_led_intensity_response,
             Incoming::GetDoubleFeedDetectionLedIntensityResponse,
         ),
+        map(
+            get_double_feed_detection_single_sheet_calibration_value_response,
+            Incoming::GetDoubleFeedDetectionSingleSheetCalibrationValueResponse,
+        ),
+        map(
+            get_double_feed_detection_double_sheet_calibration_value_response,
+            Incoming::GetDoubleFeedDetectionDoubleSheetCalibrationValueResponse,
+        ),
+        map(
+            get_double_feed_detection_threshold_value_response,
+            Incoming::GetDoubleFeedDetectionDoubleSheetThresholdValueResponse,
+        ),
     ))(input)
 }
 
@@ -896,10 +908,7 @@ simple_request!(
 pub fn get_double_feed_detection_single_sheet_calibration_value_response(
     input: &[u8],
 ) -> IResult<&[u8], u16> {
-    map(
-        packet((tag(b"n3a10="), decimal_number)),
-        |(_, intensity)| intensity,
-    )(input)
+    map(packet((tag(b"n3a10="), decimal_number)), |(_, value)| value)(input)
 }
 
 simple_request!(
@@ -916,10 +925,7 @@ simple_request!(
 pub fn get_double_feed_detection_double_sheet_calibration_value_response(
     input: &[u8],
 ) -> IResult<&[u8], u16> {
-    map(
-        packet((tag(b"n3a20="), decimal_number)),
-        |(_, intensity)| intensity,
-    )(input)
+    map(packet((tag(b"n3a20="), decimal_number)), |(_, value)| value)(input)
 }
 
 simple_request!(
@@ -934,10 +940,7 @@ simple_request!(
 ///
 /// Returns an error if the input does not match the expected format.
 pub fn get_double_feed_detection_threshold_value_response(input: &[u8]) -> IResult<&[u8], u16> {
-    map(
-        packet((tag(b"n3a90="), decimal_number)),
-        |(_, intensity)| intensity,
-    )(input)
+    map(packet((tag(b"n3a90="), decimal_number)), |(_, value)| value)(input)
 }
 
 simple_request!(get_double_feed_detection_sensors_count_request, b"n3a40");

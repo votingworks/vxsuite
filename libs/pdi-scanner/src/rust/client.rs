@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use std::{
     collections::VecDeque,
     sync::mpsc,
@@ -20,6 +21,15 @@ use super::protocol::{
         EjectMotion, Resolution, ScanSideMode, Settings, Speed, Status, Version,
     },
 };
+
+#[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DoubleFeedDetectionCalibrationConfig {
+    led_intensity: u16,
+    single_sheet_calibration_value: u16,
+    double_sheet_calibration_value: u16,
+    threshold_value: u16,
+}
 
 macro_rules! recv {
     ($client:expr, $pattern:pat $(if $guard:expr)? => $consequent:expr, $deadline:expr $(,)?) => {{
@@ -649,6 +659,7 @@ impl<T> Client<T> {
         &mut self,
         calibration_type: DoubleFeedDetectionCalibrationType,
     ) -> Result<()> {
+        self.set_double_feed_detection_mode(DoubleFeedDetectionMode::Disabled)?;
         self.send(Outgoing::CalibrateDoubleFeedDetectionRequest(
             calibration_type,
         ))
@@ -720,6 +731,26 @@ impl<T> Client<T> {
             Incoming::GetDoubleFeedDetectionDoubleSheetThresholdValueResponse(value) => value,
             timeout
         )
+    }
+
+    pub fn get_double_feed_detection_calibration_config(
+        &mut self,
+        timeout: Duration,
+    ) -> Result<DoubleFeedDetectionCalibrationConfig> {
+        let led_intensity = self.get_double_feed_detection_led_intensity(timeout)?;
+        let single_sheet_calibration_value =
+            self.get_double_feed_detection_single_sheet_calibration_value(timeout)?;
+        let double_sheet_calibration_value =
+            self.get_double_feed_detection_double_sheet_calibration_value(timeout)?;
+        let threshold_value =
+            self.get_double_feed_detection_double_sheet_threshold_value(timeout)?;
+
+        Ok(DoubleFeedDetectionCalibrationConfig {
+            led_intensity,
+            single_sheet_calibration_value,
+            double_sheet_calibration_value,
+            threshold_value,
+        })
     }
 
     /// Enables or disables the array light source.

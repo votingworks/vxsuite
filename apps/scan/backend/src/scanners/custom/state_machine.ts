@@ -1364,5 +1364,14 @@ export function createPrecinctScannerStateMachine({
     stop: () => {
       machineService.stop();
     },
+
+    /* c8 ignore start */
+    beginDoubleFeedCalibration: () => {
+      throw new Error('Not supported');
+    },
+    endDoubleFeedCalibration: () => {
+      throw new Error('Not supported');
+    },
+    /* c8 ignore stop */
   };
 }

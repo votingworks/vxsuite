@@ -142,5 +142,7 @@ export function createPrecinctScannerStateMachineMock(): jest.Mocked<PrecinctSca
     accept: jest.fn(),
     return: jest.fn(),
     stop: jest.fn(),
+    beginDoubleFeedCalibration: jest.fn(),
+    endDoubleFeedCalibration: jest.fn(),
   };
 }

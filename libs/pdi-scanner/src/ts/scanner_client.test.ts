@@ -10,6 +10,7 @@ import { fromGrayScale } from '@votingworks/image-utils';
 import { Buffer } from 'buffer';
 import {
   createPdiScannerClient,
+  DoubleFeedDetectionCalibrationConfig,
   PdictlEvent,
   SCAN_IMAGE_WIDTH,
   ScannerEvent,
@@ -138,6 +139,55 @@ test('ejectDocument(toFrontAndHold)', async () => {
     command: 'ejectDocument',
     ejectMotion: 'toFrontAndHold',
   });
+});
+
+test('calibrateDoubleFeedDetection', async () => {
+  const client = createPdiScannerClient();
+  mockStdoutResponse({ response: 'ok' });
+  expect(await client.calibrateDoubleFeedDetection('double')).toEqual(ok());
+  mockStdoutResponse({ response: 'ok' });
+  expect(await client.calibrateDoubleFeedDetection('single')).toEqual(ok());
+  expectStdinCommands([
+    {
+      command: 'calibrateDoubleFeedDetection',
+      calibrationType: 'double',
+    },
+    {
+      command: 'calibrateDoubleFeedDetection',
+      calibrationType: 'single',
+    },
+  ]);
+});
+
+test('getDoubleFeedDetectionCalibrationConfig', async () => {
+  const client = createPdiScannerClient();
+  const expectedConfig: DoubleFeedDetectionCalibrationConfig = {
+    ledIntensity: 100,
+    singleSheetCalibrationValue: 50,
+    doubleSheetCalibrationValue: 200,
+    thresholdValue: 125,
+  };
+  mockStdoutResponse({
+    response: 'doubleFeedDetectionCalibrationConfig',
+    config: expectedConfig,
+  });
+  expect(await client.getDoubleFeedDetectionCalibrationConfig()).toEqual(
+    ok(expectedConfig)
+  );
+  expectStdinCommand({ command: 'getDoubleFeedDetectionCalibrationConfig' });
+
+  mockStdoutResponse({ response: 'error', code: 'disconnected' });
+  expect(await client.getDoubleFeedDetectionCalibrationConfig()).toEqual(
+    err({ response: 'error', code: 'disconnected' })
+  );
+
+  mockStdoutResponse({ response: 'ok' });
+  expect(await client.getDoubleFeedDetectionCalibrationConfig()).toEqual(
+    err({
+      code: 'other',
+      message: 'Unexpected response: ok',
+    })
+  );
 });
 
 test('disconnect', async () => {

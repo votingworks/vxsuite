@@ -10,7 +10,7 @@ use tracing_subscriber::prelude::*;
 
 use base64::{engine::general_purpose::STANDARD, Engine as _};
 use pdi_scanner::{
-    client::Client,
+    client::{Client, DoubleFeedDetectionCalibrationConfig},
     connect,
     protocol::{
         image::{RawImageData, Sheet, DEFAULT_IMAGE_WIDTH},
@@ -87,11 +87,11 @@ enum Command {
         eject_motion: EjectMotion,
     },
 
-    CalibrateMsd {
+    CalibrateDoubleFeedDetection {
         calibration_type: DoubleFeedDetectionCalibrationType,
     },
 
-    GetMsdCalibrationConfig,
+    GetDoubleFeedDetectionCalibrationConfig,
 }
 
 #[derive(Debug, serde::Serialize)]
@@ -123,11 +123,8 @@ enum Response {
         status: Status,
     },
 
-    MsdCalibrationConfig {
-        led_intensity: u16,
-        single_sheet_calibration_value: u16,
-        double_sheet_calibration_value: u16,
-        threshold_value: u16,
+    DoubleFeedDetectionCalibrationConfig {
+        config: DoubleFeedDetectionCalibrationConfig,
     },
 }
 
@@ -151,8 +148,12 @@ enum Event {
 
     CoverOpen,
     CoverClosed,
+
     EjectPaused,
     EjectResumed,
+
+    DoubleFeedCalibrationComplete,
+    DoubleFeedCalibrationTimedOut,
 }
 
 #[derive(Debug, serde::Serialize)]
@@ -327,23 +328,20 @@ fn main() -> color_eyre::Result<()> {
                             Err(e) => send_error_response(&e)?,
                         }
                     }
-                    (Some(client), Command::CalibrateMsd { calibration_type }) => {
+                    (Some(client), Command::CalibrateDoubleFeedDetection { calibration_type }) => {
                         match client.calibrate_double_feed_detection(calibration_type) {
                             Ok(()) => send_response(Response::Ok)?,
                             Err(e) => send_error_response(&e)?,
                         }
                     }
-                    (Some(client), Command::GetMsdCalibrationConfig) => {
-                        match client.get_double_feed_detection_single_sheet_calibration_value(
-                            Duration::from_secs(1),
-                        ) {
-                            Ok(single_sheet_calibration_value) => {
-                                send_response(Response::MsdCalibrationConfig {
-                                    led_intensity: 0,
-                                    single_sheet_calibration_value,
-                                    double_sheet_calibration_value: 0,
-                                    threshold_value: 0,
-                                })?;
+                    (Some(client), Command::GetDoubleFeedDetectionCalibrationConfig) => {
+                        match client
+                            .get_double_feed_detection_calibration_config(Duration::from_secs(1))
+                        {
+                            Ok(config) => {
+                                send_response(Response::DoubleFeedDetectionCalibrationConfig {
+                                    config,
+                                })?
                             }
                             Err(e) => send_error_response(&e)?,
                         }
@@ -437,6 +435,12 @@ fn main() -> color_eyre::Result<()> {
                 }
                 Ok(Incoming::EjectResumeEvent) => {
                     send_event(Event::EjectResumed)?;
+                }
+                Ok(Incoming::DoubleFeedCalibrationCompleteEvent) => {
+                    send_event(Event::DoubleFeedCalibrationComplete)?;
+                }
+                Ok(Incoming::DoubleFeedCalibrationTimedOutEvent) => {
+                    send_event(Event::DoubleFeedCalibrationTimedOut)?;
                 }
                 Ok(event) => {
                     tracing::info!("unhandled event: {event:?}");

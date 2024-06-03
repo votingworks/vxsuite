@@ -88,6 +88,9 @@ export function VoterScreen({
         case 'returning':
         case 'returned':
         case 'rejected':
+        case 'calibrating_double_feed_detection.double_sheet':
+        case 'calibrating_double_feed_detection.single_sheet':
+        case 'calibrating_double_feed_detection.done':
         case 'recovering_from_error': {
           // No sound
           break;
@@ -106,12 +109,20 @@ export function VoterScreen({
   }
   const scannerStatus = scannerStatusQuery.data;
 
+  // These states are handled in AppRoot since they should show a message for
+  // all user types, not just voters.
+  assert(scannerStatus.state !== 'disconnected');
+  assert(scannerStatus.state !== 'cover_open');
+  // These states are handled in AppRoot because once calibration starts, it
+  // can't be canceled (even by auth change).
+  assert(
+    scannerStatus.state !== 'calibrating_double_feed_detection.double_sheet' &&
+      scannerStatus.state !==
+        'calibrating_double_feed_detection.single_sheet' &&
+      scannerStatus.state !== 'calibrating_double_feed_detection.done'
+  );
+
   switch (scannerStatus.state) {
-    // These states are handled in AppRoot, since they should show a message for
-    // all user types, not just voters.
-    case 'disconnected':
-    case 'cover_open':
-      return null;
     // This state should pass quickly, so we don't show a message
     case 'connecting':
       return null;

@@ -948,3 +948,91 @@ test('clears CVR sync required screen if no longer required', async () => {
   apiMock.expectGetUsbDriveStatus('mounted');
   await screen.findByText('Insert Your Ballot');
 });
+
+test('double feed detection calibration success', async () => {
+  apiMock.expectGetConfig();
+  apiMock.expectGetPollsInfo('polls_closed_initial');
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV3({ connected: true });
+  renderApp();
+
+  apiMock.authenticateAsElectionManager(electionGeneralDefinition);
+  userEvent.click(await screen.findByRole('tab', { name: 'System Settings' }));
+
+  apiMock.mockApiClient.beginDoubleFeedCalibration.expectCallWith().resolves();
+  userEvent.click(await screen.findButton('Calibrate Double Sheet Detection'));
+
+  apiMock.expectGetScannerStatus({
+    state: 'calibrating_double_feed_detection.double_sheet',
+    ballotsCounted: 0,
+  });
+  await screen.findByRole('heading', {
+    name: 'Double Sheet Detection Calibration',
+  });
+  screen.getByText('Insert Two Blank Sheets');
+
+  // Removing the card shouldn't exit calibration - the only way out is through
+  apiMock.removeCard();
+
+  apiMock.expectGetScannerStatus({
+    state: 'calibrating_double_feed_detection.single_sheet',
+    ballotsCounted: 0,
+  });
+  await screen.findByText('Insert One Blank Sheet');
+
+  apiMock.expectGetScannerStatus({
+    state: 'calibrating_double_feed_detection.done',
+    ballotsCounted: 0,
+  });
+  await screen.findByText('Calibration Complete');
+
+  apiMock.mockApiClient.endDoubleFeedCalibration.expectCallWith().resolves();
+  userEvent.click(await screen.findByRole('button', { name: 'Close' }));
+
+  apiMock.expectGetScannerStatus({
+    state: 'paused',
+    ballotsCounted: 0,
+  });
+  await screen.findByRole('heading', { name: 'Polls Closed' });
+});
+
+test('double feed detection calibration failure', async () => {
+  apiMock.expectGetConfig();
+  apiMock.expectGetPollsInfo('polls_closed_initial');
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV3({ connected: true });
+  renderApp();
+
+  apiMock.authenticateAsElectionManager(electionGeneralDefinition);
+  userEvent.click(await screen.findByRole('tab', { name: 'System Settings' }));
+
+  apiMock.mockApiClient.beginDoubleFeedCalibration.expectCallWith().resolves();
+  userEvent.click(await screen.findButton('Calibrate Double Sheet Detection'));
+
+  apiMock.expectGetScannerStatus({
+    state: 'calibrating_double_feed_detection.double_sheet',
+    ballotsCounted: 0,
+  });
+  await screen.findByRole('heading', {
+    name: 'Double Sheet Detection Calibration',
+  });
+  screen.getByText('Insert Two Blank Sheets');
+
+  apiMock.expectGetScannerStatus({
+    state: 'calibrating_double_feed_detection.done',
+    error: 'double_feed_calibration_timed_out',
+    ballotsCounted: 0,
+  });
+  await screen.findByText('Calibration Failed');
+
+  apiMock.mockApiClient.endDoubleFeedCalibration.expectCallWith().resolves();
+  userEvent.click(await screen.findByRole('button', { name: 'Close' }));
+
+  apiMock.expectGetScannerStatus({
+    state: 'paused',
+    ballotsCounted: 0,
+  });
+  await screen.findByRole('heading', { name: 'Election Manager Settings' });
+});
