@@ -28,7 +28,7 @@ import { Renderer } from './renderer';
 const debug = makeDebug('hmpb:ballot_fixtures');
 
 // For now, don't include any translated strings in the fixtures
-const translatedElectionStrings: UiStringsPackage = {};
+const translatedStrings: UiStringsPackage = {};
 
 export const fixturesDir = join(__dirname, '../fixtures');
 
@@ -43,6 +43,7 @@ export const famousNamesFixtures = (() => {
     ballotStyle.precincts.map(
       (precinctId): BaseBallotProps => ({
         election,
+        translatedStrings,
         ballotStyleId: ballotStyle.id,
         precinctId,
         ballotType: BallotType.Precinct,
@@ -80,8 +81,7 @@ export const famousNamesFixtures = (() => {
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
           vxDefaultBallotTemplate,
-          allBallotProps,
-          translatedElectionStrings
+          allBallotProps
         );
 
       const blankBallot = ballotDocuments[0];
@@ -125,6 +125,7 @@ export const generalElectionFixtures = (() => {
       ballotStyle.precincts.map(
         (precinctId): BaseBallotProps => ({
           election,
+          translatedStrings,
           ballotStyleId: ballotStyle.id,
           precinctId,
           ballotType: BallotType.Absentee,
@@ -229,8 +230,7 @@ export const generalElectionFixtures = (() => {
           await renderAllBallotsAndCreateElectionDefinition(
             renderer,
             vxDefaultBallotTemplate,
-            spec.allBallotProps,
-            translatedElectionStrings
+            spec.allBallotProps
           );
         const [blankBallot] = assertDefined(
           iter(ballotDocuments)
@@ -288,6 +288,7 @@ export const primaryElectionFixtures = (() => {
     ballotStyle.precincts.map(
       (precinctId): BaseBallotProps => ({
         election,
+        translatedStrings,
         ballotStyleId: ballotStyle.id,
         precinctId,
         ballotType: BallotType.Precinct,
@@ -355,8 +356,7 @@ export const primaryElectionFixtures = (() => {
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
           vxDefaultBallotTemplate,
-          allBallotProps,
-          translatedElectionStrings
+          allBallotProps
         );
 
       async function generatePartyFixtures(

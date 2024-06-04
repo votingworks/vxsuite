@@ -1,6 +1,9 @@
 import './polyfills';
 import { BallotType, VotesDict, getContests } from '@votingworks/types';
-import { electionGeneral } from '@votingworks/fixtures';
+import {
+  electionGeneral,
+  electionGeneralFixtures,
+} from '@votingworks/fixtures';
 import { assertDefined, range } from '@votingworks/basics';
 import { vxDefaultBallotTemplate } from '../vx_default_ballot_template';
 import {
@@ -21,6 +24,8 @@ const exampleBallotProps: BaseBallotProps = {
   precinctId: ballotStyle.precincts[0],
   ballotType: BallotType.Precinct,
   ballotMode: 'official',
+  translatedStrings:
+    electionGeneralFixtures.ELECTION_GENERAL_TEST_UI_STRINGS_CHINESE_SIMPLIFIED,
 };
 
 /**

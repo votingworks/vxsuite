@@ -8,6 +8,7 @@ import {
   ElectionPackageMetadata,
   getDisplayElectionHash,
   Id,
+  mergeUiStrings,
 } from '@votingworks/types';
 
 import {
@@ -61,6 +62,7 @@ export async function generateElectionPackage(
   );
 
   const renderer = await createPlaywrightRenderer();
+  const translatedStrings = mergeUiStrings(electionStrings, appStrings);
   const { electionDefinition } =
     await renderAllBallotsAndCreateElectionDefinition(
       renderer,
@@ -69,12 +71,12 @@ export async function generateElectionPackage(
       // So we just need to render a single ballot per ballot style to create the election definition
       election.ballotStyles.map((ballotStyle) => ({
         election,
+        translatedStrings,
         ballotStyleId: ballotStyle.id,
         precinctId: ballotStyle.precincts[0],
         ballotType: BallotType.Precinct,
         ballotMode: 'test',
-      })),
-      electionStrings
+      }))
     );
   zip.file(ElectionPackageFileName.ELECTION, electionDefinition.electionData);
   // eslint-disable-next-line no-console
