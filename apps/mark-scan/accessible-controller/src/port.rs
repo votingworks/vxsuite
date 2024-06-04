@@ -76,7 +76,7 @@ impl Port {
             Ok(0) => (),
             Ok(num_bytes) => {
                 match port.clear(serialport::ClearBuffer::Input) {
-                    Ok(_) => log!( event_id: EventId::Info,
+                    Ok(()) => log!( event_id: EventId::Info,
                         event_type: EventType::SystemStatus,
                         message: format!("Cleared {num_bytes} bytes from controller in-buffer")
                     ),
