@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { mergeObjects } from '@votingworks/basics';
 import { Dictionary } from './generic';
 import { LanguageCode } from './language_code';
 
@@ -54,3 +55,14 @@ export const UiStringsPackageSchema: z.ZodType<UiStringsPackage> = z.record(
   z.nativeEnum(LanguageCode),
   UiStringTranslationsSchema
 );
+
+/**
+ * Combines two UI strings packages, returning a new package. The second package
+ * takes precedence in the case of key conflicts.
+ */
+export function mergeUiStrings(
+  strings: UiStringsPackage,
+  ...otherStrings: UiStringsPackage[]
+): UiStringsPackage {
+  return otherStrings.reduce((acc, other) => mergeObjects(acc, other), strings);
+}

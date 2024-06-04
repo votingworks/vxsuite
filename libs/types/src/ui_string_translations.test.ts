@@ -3,6 +3,7 @@ import { LanguageCode } from './language_code';
 import {
   UiStringsPackage,
   UiStringsPackageSchema,
+  mergeUiStrings,
 } from './ui_string_translations';
 
 test('valid structure', () => {
@@ -60,4 +61,34 @@ test('invalid structure', () => {
   );
 
   expect(result.isOk()).toEqual(false);
+});
+
+test('mergeUiStrings', () => {
+  const strings1: UiStringsPackage = {
+    [LanguageCode.ENGLISH]: {
+      appString: 'EN app string translation',
+      appString2: 'EN app string 2 translation',
+    },
+    [LanguageCode.SPANISH]: {
+      appString: 'ES app string translation',
+    },
+  };
+
+  const strings2: UiStringsPackage = {
+    [LanguageCode.ENGLISH]: {
+      appString: 'EN app string translation 2',
+      appString3: 'EN app string 3 translation 2',
+    },
+  };
+
+  expect(mergeUiStrings(strings1, strings2)).toEqual({
+    [LanguageCode.ENGLISH]: {
+      appString: 'EN app string translation 2',
+      appString2: 'EN app string 2 translation',
+      appString3: 'EN app string 3 translation 2',
+    },
+    [LanguageCode.SPANISH]: {
+      appString: 'ES app string translation',
+    },
+  });
 });
