@@ -131,7 +131,9 @@ export function AccessibleControllerDiagnosticScreen({
   onClose,
 }: AccessibleControllerDiagnosticProps): JSX.Element {
   const [step, setStep] = useState(0);
-  const addDiagnosticRecordMutation = addDiagnosticRecord.useMutation();
+  const addDiagnosticRecordMutation = addDiagnosticRecord.useMutation(
+    'mark-scan-accessible-controller'
+  );
 
   function passTest() {
     addDiagnosticRecordMutation.mutate({

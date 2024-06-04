@@ -27,7 +27,7 @@ export function ContestScreen(): JSX.Element {
     React.useContext(BallotContext);
 
   const isPathDeviceConnected = Boolean(
-    api.isPatDeviceConnected.useQuery().data
+    api.getIsPatDeviceConnected.useQuery().data
   );
 
   return (

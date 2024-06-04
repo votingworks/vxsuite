@@ -51,6 +51,12 @@ export async function saveReadinessReport({
         'mark-scan-paper-handler'
       ),
     },
+    patInputProps: {
+      isDeviceConnected: !!stateMachine?.isPatDeviceConnected(),
+      mostRecentDiagnosticRecord: store.getMostRecentDiagnosticRecord(
+        'mark-scan-paper-handler'
+      ),
+    },
     machineId: VX_MACHINE_ID,
     generatedAtTime,
     electionDefinition,

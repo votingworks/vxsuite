@@ -43,7 +43,7 @@ export function VoterFlow(props: VoterFlowProps): React.ReactNode {
 
   const confirmSessionEndMutation = api.confirmSessionEnd.useMutation();
   const isPathDeviceConnected =
-    api.isPatDeviceConnected.useQuery().data || false;
+    api.getIsPatDeviceConnected.useQuery().data || false;
 
   const { shouldShowControllerSandbox } = useAccessibleControllerHelpTrigger();
 

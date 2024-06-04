@@ -77,6 +77,7 @@
   "instructionsBmdPatCalibrationTriggerInputAgain": "Trigger the input again to continue.",
   "instructionsBmdPatCalibrationTryInput": "Try an input to continue.",
   "instructionsBmdPatCalibrationTryOtherInput": "Try the other input.",
+  "instructionsBmdPatDiagnosticConfirmExitScreen": "You may end the diagnostic test or go back to the previous screen.",
   "instructionsBmdReviewPageChangingVotes": "To change your vote in any contest, use the select button to navigate to that contest. When you are finished making your ballot selections and ready to print your ballot, use the right button to print your ballot.",
   "instructionsBmdReviewPageChangingVotesPatDevice": "To change your vote in any contest, use the select input to navigate to that contest. When you are finished making your ballot selections and ready to print your ballot, use the move input to navigate to the control labelled \"print my ballot\" and then use the select input to start printing.",
   "instructionsBmdReviewPageNavigation": "To review your votes, advance through the ballot contests using the up and down buttons.",

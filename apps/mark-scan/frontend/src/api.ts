@@ -15,6 +15,7 @@ import {
   createUiStringsApi,
 } from '@votingworks/ui';
 import { deepEqual } from '@votingworks/basics';
+import { DiagnosticType } from '@votingworks/types';
 import {
   ACCESSIBLE_CONTROLLER_DIAGNOSTIC_POLLING_INTERVAL_MS,
   AUTH_STATUS_POLLING_INTERVAL_MS_OVERRIDE,
@@ -167,15 +168,15 @@ export const getApplicationDiskSpaceSummary = {
   },
 } as const;
 
-export const getMostRecentPaperHandlerDiagnostic = {
-  queryKey(): QueryKey {
-    return ['getMostRecentPaperHandlerDiagnostic'];
+export const getMostRecentDiagnostic = {
+  queryKey(diagnosticType: DiagnosticType): QueryKey {
+    return ['getMostRecentPaperHandlerDiagnostic', diagnosticType];
   },
-  useQuery() {
+  useQuery(diagnosticType: DiagnosticType) {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () =>
+    return useQuery(this.queryKey(diagnosticType), () =>
       apiClient.getMostRecentDiagnostic({
-        diagnosticType: 'mark-scan-paper-handler',
+        diagnosticType,
       })
     );
   },
@@ -212,13 +213,13 @@ export const getIsAccessibleControllerInputDetected = {
 } as const;
 
 export const addDiagnosticRecord = {
-  useMutation() {
+  useMutation(diagnosticType: DiagnosticType) {
     const apiClient = useApiClient();
     const queryClient = useQueryClient();
     return useMutation(apiClient.addDiagnosticRecord, {
       async onSuccess() {
         await queryClient.invalidateQueries(
-          getMostRecentAccessibleControllerDiagnostic.queryKey()
+          getMostRecentDiagnostic.queryKey(diagnosticType)
         );
       },
     });
@@ -488,9 +489,9 @@ export const saveReadinessReport = {
   },
 } as const;
 
-export const isPatDeviceConnected = {
+export const getIsPatDeviceConnected = {
   queryKey(): QueryKey {
-    return ['isPatDeviceConnected'];
+    return ['getIsPatDeviceConnected'];
   },
 
   useQuery() {

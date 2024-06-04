@@ -6,11 +6,15 @@ import { PortraitStepInnerContainer } from './portrait_step_inner_container';
 interface Props {
   onPressBack: () => void;
   onPressContinue: () => void;
+  nextButtonLabel?: JSX.Element;
+  description?: JSX.Element;
 }
 
 export function ConfirmExitPatDeviceIdentificationPage({
   onPressBack,
   onPressContinue,
+  nextButtonLabel,
+  description,
 }: Props): JSX.Element {
   return (
     <VoterScreen
@@ -21,7 +25,7 @@ export function ConfirmExitPatDeviceIdentificationPage({
             {appStrings.buttonBack()}
           </Button>
           <Button variant="primary" rightIcon="Next" onPress={onPressContinue}>
-            {appStrings.buttonContinueVoting()}
+            {nextButtonLabel ?? appStrings.buttonContinueVoting()}
           </Button>
         </React.Fragment>
       }
@@ -30,7 +34,10 @@ export function ConfirmExitPatDeviceIdentificationPage({
         <ReadOnLoad>
           <Icons.Done color="success" />
           <H1>{appStrings.titleBmdPatCalibrationConfirmExitScreen()}</H1>
-          <P>{appStrings.instructionsBmdPatCalibrationConfirmExitScreen()}</P>
+          <P>
+            {description ??
+              appStrings.instructionsBmdPatCalibrationConfirmExitScreen()}
+          </P>
         </ReadOnLoad>
       </PortraitStepInnerContainer>
     </VoterScreen>
