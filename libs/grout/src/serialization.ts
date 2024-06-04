@@ -6,9 +6,6 @@ import {
   isResult,
   ok,
   Result,
-} from '@votingworks/basics';
-import { DateTime } from 'luxon';
-import {
   isArray,
   isBoolean,
   isFunction,
@@ -18,7 +15,8 @@ import {
   isPlainObject,
   isSet,
   isString,
-} from './util';
+} from '@votingworks/basics';
+import { DateTime } from 'luxon';
 
 type JsonBuiltInValue =
   | null

@@ -1,13 +1,15 @@
-import { ok } from '@votingworks/basics';
+import { ok } from './result';
 import {
   isArray,
   isBoolean,
   isFunction,
+  isMap,
   isNumber,
   isObject,
   isPlainObject,
+  isSet,
   isString,
-} from './util';
+} from './type_guards';
 
 test('isBoolean', () => {
   expect(isBoolean(true)).toEqual(true);
@@ -115,4 +117,41 @@ test('isFunction', () => {
   expect(isFunction('')).toEqual(false);
   expect(isFunction([])).toEqual(false);
   expect(isFunction({})).toEqual(false);
+});
+
+test('isMap', () => {
+  expect(isMap(new Map())).toEqual(true);
+  expect(
+    isMap(
+      new Map([
+        ['a', 1],
+        ['b', 2],
+      ])
+    )
+  ).toEqual(true);
+
+  expect(isMap(null)).toEqual(false);
+  expect(isMap(undefined)).toEqual(false);
+  expect(isMap(true)).toEqual(false);
+  expect(isMap(0)).toEqual(false);
+  expect(isMap('')).toEqual(false);
+  expect(isMap([])).toEqual(false);
+  expect(isMap({})).toEqual(false);
+  expect(isMap(() => 0)).toEqual(false);
+  expect(isMap(new Set())).toEqual(false);
+});
+
+test('isSet', () => {
+  expect(isSet(new Set())).toEqual(true);
+  expect(isSet(new Set([1, 2, 3]))).toEqual(true);
+
+  expect(isSet(null)).toEqual(false);
+  expect(isSet(undefined)).toEqual(false);
+  expect(isSet(true)).toEqual(false);
+  expect(isSet(0)).toEqual(false);
+  expect(isSet('')).toEqual(false);
+  expect(isSet([])).toEqual(false);
+  expect(isSet({})).toEqual(false);
+  expect(isSet(() => 0)).toEqual(false);
+  expect(isSet(new Map())).toEqual(false);
 });
