@@ -44,7 +44,7 @@ export function AdminReadinessReport({
     >
       <PrintedReport>
         <ReadinessReportHeader
-          machineType="VxAdmin"
+          reportType="VxAdmin"
           generatedAtTime={generatedAtTime}
           machineId={machineId}
         />
