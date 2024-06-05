@@ -78,3 +78,24 @@ test('varies sizes based on screen type', () => {
   expect(elo13ScreenTheme.sizes).not.toEqual(elo15ScreenTheme.sizes);
   expect(elo15ScreenTheme.sizes).not.toEqual(thinkpad15ScreenTheme.sizes);
 });
+
+test('ignores screen type for print theme', () => {
+  const elo13PrintTheme = makeTheme({
+    colorMode: 'print',
+    screenType: 'elo13',
+    sizeMode: 'print',
+  });
+  const elo15PrintTheme = makeTheme({
+    colorMode: 'print',
+    screenType: 'elo15',
+    sizeMode: 'print',
+  });
+  const thinkpad15PrintTheme = makeTheme({
+    colorMode: 'print',
+    screenType: 'lenovoThinkpad15',
+    sizeMode: 'print',
+  });
+
+  expect(elo13PrintTheme.sizes).toEqual(elo15PrintTheme.sizes);
+  expect(elo15PrintTheme.sizes).toEqual(thinkpad15PrintTheme.sizes);
+});

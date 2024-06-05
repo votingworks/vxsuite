@@ -18,6 +18,20 @@ export interface GlobalStylesProps {
   showScrollBars?: boolean;
 }
 
+const LEGACY_PRINT_STYLES = css`
+  @media print {
+    html {
+      background: #fff;
+      color: #000;
+      font-size: 16px !important;
+    }
+
+    svg {
+      color: black !important; /* Icons should be black in print */
+    }
+  }
+`;
+
 /**
  * Common global styling for VxSuite apps.
  *
@@ -51,17 +65,7 @@ ${NORMALIZE_CSS}
     user-select: none;
   }
 
-  @media print {
-    html {
-      background: #fff;
-      color: #000;
-      font-size: 16px !important;
-    }
-
-    svg {
-      color: black !important; /* Icons should be black in print */
-    }
-  }
+  ${(p) => (p.theme.sizeMode === 'print' ? undefined : LEGACY_PRINT_STYLES)}
 
   body {
     margin: 0;

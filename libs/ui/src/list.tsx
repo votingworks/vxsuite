@@ -14,6 +14,7 @@ interface ContainerProps {
 
 const CONTENT_SPACING_VALUES_REM: Readonly<Record<SizeMode, number>> = {
   desktop: 0.35,
+  print: 0.35,
   touchSmall: 0.35,
   touchMedium: 0.35,
   touchLarge: 0.2,

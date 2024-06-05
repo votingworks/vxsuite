@@ -1,7 +1,7 @@
 import React from 'react';
 import parseCssColor from 'parse-css-color';
 import { assert } from '@votingworks/basics';
-import { ThemeConsumer } from 'styled-components';
+import { ServerStyleSheet, ThemeConsumer } from 'styled-components';
 import { UiTheme } from '@votingworks/types';
 import { act, render } from '@testing-library/react';
 
@@ -81,6 +81,34 @@ test('renders with selected themes', () => {
   expect(parseCssColor(computedStyles.color)).toEqual(
     parseCssColor(expectedTheme.colors.onBackground)
   );
+});
+
+test('adds legacy print media styles when using print theme', () => {
+  const styleSheet = new ServerStyleSheet();
+
+  render(
+    styleSheet.collectStyles(
+      <AppBase defaultColorMode="desktop" defaultSizeMode="desktop">
+        <div>foo</div>
+      </AppBase>
+    )
+  );
+
+  expect(styleSheet.getStyleTags()).toMatch('font-size:16px !important');
+});
+
+test('skips legacy print media styles when using print theme', () => {
+  const styleSheet = new ServerStyleSheet();
+
+  render(
+    styleSheet.collectStyles(
+      <AppBase defaultColorMode="print" defaultSizeMode="print">
+        <div>foo</div>
+      </AppBase>
+    )
+  );
+
+  expect(styleSheet.getStyleTags()).not.toMatch('font-size:16px !important');
 });
 
 test('implements ThemeManagerContext interface', () => {

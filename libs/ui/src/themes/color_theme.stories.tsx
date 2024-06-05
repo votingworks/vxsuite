@@ -21,6 +21,7 @@ function contrastGrade(colorMode: ColorMode, ratio: number): string {
       break;
     }
 
+    case 'print':
     case 'contrastHighLight':
     case 'contrastHighDark': {
       if (ratio >= 20) {

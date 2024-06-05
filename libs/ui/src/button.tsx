@@ -311,6 +311,7 @@ function disabledStyles(p: ThemedStyledButtonProps): CSSObject {
 
 const paddingStyles: Record<SizeMode, string> = {
   desktop: '0.5rem 1.25rem',
+  print: '0.5rem 1.25rem',
   touchSmall: '0.5rem 0.75rem',
   touchMedium: '0.5rem 0.75em',
   touchLarge: '0.35rem 0.35rem',
@@ -319,6 +320,7 @@ const paddingStyles: Record<SizeMode, string> = {
 
 const gapStyles: Record<SizeMode, string> = {
   desktop: '0.5rem',
+  print: '0.5rem',
   touchSmall: '0.5rem',
   touchMedium: '0.5rem',
   touchLarge: '0.25rem',
@@ -327,6 +329,7 @@ const gapStyles: Record<SizeMode, string> = {
 
 const borderWidths: Record<SizeMode, keyof SizeTheme['bordersRem']> = {
   desktop: 'thin',
+  print: 'thin',
   touchSmall: 'medium',
   touchMedium: 'medium',
   touchLarge: 'thin',
