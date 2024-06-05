@@ -38,6 +38,10 @@ import {
 import { AppContext } from './context';
 import { rotateCandidates } from './candidate_rotation';
 import { extractAndTranslateElectionStrings } from './language_and_audio';
+import { renderBallotStyleReadinessReport } from './ballot_style_reports';
+
+export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
+  'ballot-style-readiness-report.pdf';
 
 export function createBlankElection(): Election {
   return {
@@ -209,6 +213,15 @@ function buildApi({ workspace, translator }: AppContext) {
         )}-${ballotStyleId}.pdf`;
         zip.file(fileName, pdf);
       }
+
+      const readinessReportPdf = await renderBallotStyleReadinessReport({
+        componentProps: {
+          electionDefinition,
+          generatedAtTime: new Date(),
+        },
+        renderer,
+      });
+      zip.file(BALLOT_STYLE_READINESS_REPORT_FILE_NAME, readinessReportPdf);
 
       // eslint-disable-next-line no-console
       renderer.cleanup().catch(console.error);
