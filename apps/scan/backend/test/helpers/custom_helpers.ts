@@ -19,7 +19,11 @@ import {
   sampleBallotImages,
 } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
-import { RGBA_CHANNEL_COUNT, isRgba } from '@votingworks/image-utils';
+import {
+  ImageData,
+  RGBA_CHANNEL_COUNT,
+  isRgba,
+} from '@votingworks/image-utils';
 import { Logger } from '@votingworks/logging';
 import { SheetOf, mapSheet } from '@votingworks/types';
 import { Application } from 'express';

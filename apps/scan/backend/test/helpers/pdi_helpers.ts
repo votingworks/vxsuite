@@ -1,3 +1,4 @@
+import { ImageData } from '@votingworks/image-utils';
 import * as grout from '@votingworks/grout';
 import * as tmp from 'tmp';
 import { Application } from 'express';

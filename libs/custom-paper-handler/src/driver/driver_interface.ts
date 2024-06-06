@@ -1,6 +1,7 @@
 import { Coder, CoderError, Uint16, Uint8 } from '@votingworks/message-coder';
 import { Result } from '@votingworks/basics';
 import { ImageFromScanner } from '@votingworks/custom-scanner';
+import { ImageData } from '@votingworks/image-utils';
 import { MinimalWebUsbDevice } from './minimal_web_usb_device';
 import { Lock } from './lock';
 import {

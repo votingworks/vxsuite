@@ -1,6 +1,11 @@
 import { assert, assertDefined } from '@votingworks/basics';
 import { Buffer } from 'buffer';
-import { Canvas, createCanvas, ImageData } from 'canvas';
+import {
+  Canvas,
+  createCanvas,
+  ImageData,
+  CanvasRenderingContext2D,
+} from 'canvas';
 import { promises as fs } from 'fs';
 import { basename, dirname, extname, join } from 'path';
 import {
@@ -101,7 +106,7 @@ export async function* pdfToImages(
     canvas.height = viewport.height;
 
     await page.render({
-      canvasContext: context,
+      canvasContext: context as unknown as globalThis.CanvasRenderingContext2D,
       viewport,
       canvasFactory: buildCanvasFactory(),
     }).promise;

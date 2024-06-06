@@ -374,8 +374,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       canvas:
-        specifier: 2.9.1
-        version: 2.9.1
+        specifier: 2.11.2
+        version: 2.11.2
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
@@ -414,7 +414,7 @@ importers:
         version: 0.9.0
       jsdom:
         specifier: 20.0.1
-        version: 20.0.1(canvas@2.9.1)
+        version: 20.0.1(canvas@2.11.2)
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -595,7 +595,7 @@ importers:
         version: 29.6.2(@types/node@16.18.23)
       jest-environment-jsdom:
         specifier: ^29.6.2
-        version: 29.6.2(canvas@2.9.1)
+        version: 29.6.2(canvas@2.11.2)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -745,8 +745,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       canvas:
-        specifier: 2.9.1
-        version: 2.9.1
+        specifier: 2.11.2
+        version: 2.11.2
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
@@ -1039,7 +1039,7 @@ importers:
         version: 29.6.2(@types/node@16.18.23)
       jest-environment-jsdom:
         specifier: ^29.6.2
-        version: 29.6.2(canvas@2.9.1)
+        version: 29.6.2(canvas@2.11.2)
       jest-fetch-mock:
         specifier: ^3.0.3
         version: 3.0.3
@@ -1435,7 +1435,7 @@ importers:
         version: 29.6.2(@types/node@16.18.23)
       jest-environment-jsdom:
         specifier: ^29.6.2
-        version: 29.6.2(canvas@2.9.1)
+        version: 29.6.2(canvas@2.11.2)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -1527,8 +1527,8 @@ importers:
         specifier: workspace:*
         version: link:../../../libs/utils
       canvas:
-        specifier: 2.9.1
-        version: 2.9.1
+        specifier: 2.11.2
+        version: 2.11.2
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
@@ -1687,8 +1687,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       canvas:
-        specifier: 2.9.1
-        version: 2.9.1
+        specifier: 2.11.2
+        version: 2.11.2
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
@@ -1842,7 +1842,7 @@ importers:
         version: 29.6.2(@types/node@16.18.23)
       jest-environment-jsdom:
         specifier: ^29.6.2
-        version: 29.6.2(canvas@2.9.1)
+        version: 29.6.2(canvas@2.11.2)
       jest-fetch-mock:
         specifier: ^3.0.3
         version: 3.0.3
@@ -2256,7 +2256,7 @@ importers:
         version: 29.6.2(@types/node@16.18.23)
       jest-environment-jsdom:
         specifier: ^29.6.2
-        version: 29.6.2(canvas@2.9.1)
+        version: 29.6.2(canvas@2.11.2)
       jest-fetch-mock:
         specifier: ^3.0.3
         version: 3.0.3
@@ -2406,8 +2406,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       canvas:
-        specifier: 2.9.1
-        version: 2.9.1
+        specifier: 2.11.2
+        version: 2.11.2
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
@@ -2706,7 +2706,7 @@ importers:
         version: 29.6.2(@types/node@16.18.23)
       jest-environment-jsdom:
         specifier: ^29.6.2
-        version: 29.6.2(canvas@2.9.1)
+        version: 29.6.2(canvas@2.11.2)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -3217,8 +3217,8 @@ importers:
         specifier: 8.2.0
         version: 8.2.0
       canvas:
-        specifier: 2.9.1
-        version: 2.9.1
+        specifier: 2.11.2
+        version: 2.11.2
       chalk:
         specifier: 4.1.2
         version: 4.1.2
@@ -3358,7 +3358,7 @@ importers:
         version: link:../basics
       jsdom:
         specifier: 20.0.1
-        version: 20.0.1(canvas@2.9.1)
+        version: 20.0.1(canvas@2.11.2)
       json-schema:
         specifier: ^0.4.0
         version: 0.4.0
@@ -3427,8 +3427,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       canvas:
-        specifier: 2.9.1
-        version: 2.9.1
+        specifier: 2.11.2
+        version: 2.11.2
       chalk:
         specifier: 4.1.2
         version: 4.1.2
@@ -3443,7 +3443,7 @@ importers:
         version: 0.9.0
       jsdom:
         specifier: 20.0.1
-        version: 20.0.1(canvas@2.9.1)
+        version: 20.0.1(canvas@2.11.2)
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -3960,7 +3960,7 @@ importers:
         version: 29.6.2(@types/node@16.18.23)
       jest-environment-jsdom:
         specifier: ^29.6.2
-        version: 29.6.2(canvas@2.9.1)
+        version: 29.6.2(canvas@2.11.2)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -4071,8 +4071,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
       canvas:
-        specifier: 2.9.1
-        version: 2.9.1
+        specifier: 2.11.2
+        version: 2.11.2
       csv-writer:
         specifier: ^1.6.0
         version: 1.6.0
@@ -4491,8 +4491,8 @@ importers:
         specifier: workspace:*
         version: link:../utils
       canvas:
-        specifier: 2.9.1
-        version: 2.9.1
+        specifier: 2.11.2
+        version: 2.11.2
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
@@ -4810,7 +4810,7 @@ importers:
         version: 29.6.2(@types/node@16.18.23)
       jest-environment-jsdom:
         specifier: ^29.6.2
-        version: 29.6.2(canvas@2.9.1)
+        version: 29.6.2(canvas@2.11.2)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -5248,7 +5248,7 @@ importers:
         version: 29.6.2(@types/node@16.18.23)
       jest-environment-jsdom:
         specifier: ^29.6.2
-        version: 29.6.2(canvas@2.9.1)
+        version: 29.6.2(canvas@2.11.2)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -5582,7 +5582,7 @@ importers:
         version: 29.6.2(@types/node@16.18.23)
       jest-environment-jsdom:
         specifier: ^29.6.2
-        version: 29.6.2(canvas@2.9.1)
+        version: 29.6.2(canvas@2.11.2)
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -5797,7 +5797,7 @@ importers:
         version: 29.6.2(@types/node@16.18.23)
       jest-environment-jsdom:
         specifier: ^29.6.2
-        version: 29.6.2(canvas@2.9.1)
+        version: 29.6.2(canvas@2.11.2)
       jest-fetch-mock:
         specifier: ^3.0.3
         version: 3.0.3
@@ -11710,6 +11710,7 @@ packages:
   /are-we-there-yet@2.0.0:
     resolution: {integrity: sha512-Ci/qENmwHnsYo9xKIcUJN5LeDKdJ6R1Z1j9V/J5wyq8nh/mYPEpIKJbBZXtZjG04HiK7zV/p6Vs9952MrMeUIw==}
     engines: {node: '>=10'}
+    deprecated: This package is no longer supported.
     dependencies:
       delegates: 1.0.0
       readable-stream: 3.6.2
@@ -12496,20 +12497,6 @@ packages:
 
   /canvas@2.11.2:
     resolution: {integrity: sha512-ItanGBMrmRV7Py2Z+Xhs7cT+FNt5K0vPL4p9EZ/UX/Mu7hFbkxSjKF2KVtPwX7UYWp7dRKnrTvReflgrItJbdw==}
-    engines: {node: '>=6'}
-    requiresBuild: true
-    dependencies:
-      '@mapbox/node-pre-gyp': 1.0.9
-      nan: 2.17.0
-      simple-get: 3.1.1
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
-    dev: false
-    optional: true
-
-  /canvas@2.9.1:
-    resolution: {integrity: sha512-vSQti1uG/2gjv3x6QLOZw7TctfufaerTWbVe+NSduHxxLGB+qf3kFgQ6n66DSnuoINtVUjrLLIK2R+lxrBG07A==}
     engines: {node: '>=6'}
     requiresBuild: true
     dependencies:
@@ -15107,6 +15094,7 @@ packages:
   /gauge@3.0.2:
     resolution: {integrity: sha512-+5J6MS/5XksCuXq++uFRsnUd7Ovu1XenbeuIuNRJxYWjgQbPuFhT14lAvsWfqfAmnwluf1OwMjz39HjfLPci0Q==}
     engines: {node: '>=10'}
+    deprecated: This package is no longer supported.
     dependencies:
       aproba: 2.0.0
       color-support: 1.1.3
@@ -15310,6 +15298,7 @@ packages:
 
   /glob@7.2.3:
     resolution: {integrity: sha512-nFR0zLpU2YCaRxwoCJvL6UvCH2JFyFVIvwTLsIf21AuHlMskA1hhTdk+LlYJtOlYt9v6dvszD2BGRqBL+iQK9Q==}
+    deprecated: Glob versions prior to v9 are no longer supported
     dependencies:
       fs.realpath: 1.0.0
       inflight: 1.0.6
@@ -16581,7 +16570,7 @@ packages:
       jest-util: 29.6.2
       pretty-format: 29.6.2
 
-  /jest-environment-jsdom@29.6.2(canvas@2.9.1):
+  /jest-environment-jsdom@29.6.2(canvas@2.11.2):
     resolution: {integrity: sha512-7oa/+266AAEgkzae8i1awNEfTfjwawWKLpiw2XesZmaoVVj9u9t8JOYx18cG29rbPNtkUlZ8V4b5Jb36y/VxoQ==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     peerDependencies:
@@ -16595,10 +16584,10 @@ packages:
       '@jest/types': 29.6.1
       '@types/jsdom': 20.0.1
       '@types/node': 16.18.23
-      canvas: 2.9.1
+      canvas: 2.11.2
       jest-mock: 29.6.2
       jest-util: 29.6.2
-      jsdom: 20.0.1(canvas@2.9.1)
+      jsdom: 20.0.1(canvas@2.11.2)
     transitivePeerDependencies:
       - bufferutil
       - supports-color
@@ -17016,7 +17005,7 @@ packages:
       - supports-color
     dev: true
 
-  /jsdom@20.0.1(canvas@2.9.1):
+  /jsdom@20.0.1(canvas@2.11.2):
     resolution: {integrity: sha512-pksjj7Rqoa+wdpkKcLzQRHhJCEE42qQhl/xLMUKHgoSejaKOdaXEAnqs6uDNwMl/fciHTzKeR8Wm8cw7N+g98A==}
     engines: {node: '>=14'}
     peerDependencies:
@@ -17028,7 +17017,7 @@ packages:
       abab: 2.0.6
       acorn: 8.10.0
       acorn-globals: 7.0.1
-      canvas: 2.9.1
+      canvas: 2.11.2
       cssom: 0.5.0
       cssstyle: 2.3.0
       data-urls: 3.0.2
@@ -18193,6 +18182,7 @@ packages:
 
   /npmlog@5.0.1:
     resolution: {integrity: sha512-AqZtDUWOMKs1G/8lwylVjrdYgqA4d9nu8hc+0gzRxlDb1I10+FHBGMXs6aiQHFdCUUlqH99MUMuLfzWDNDtfxw==}
+    deprecated: This package is no longer supported.
     dependencies:
       are-we-there-yet: 2.0.0
       console-control-strings: 1.1.0
@@ -20016,6 +20006,7 @@ packages:
 
   /rimraf@2.6.3:
     resolution: {integrity: sha512-mwqeW5XsA2qAejG46gYdENaxXjx9onRNCfn7L0duuP4hCuTIi/QO7PDK07KJfp1d+izWPrzEJDcSqBa0OZQriA==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
     dependencies:
       glob: 7.2.3

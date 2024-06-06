@@ -1,3 +1,4 @@
+import { ImageData } from 'canvas';
 import { Result, err, ok } from '@votingworks/basics';
 import { SheetOf } from '@votingworks/types';
 import { findTemplateGridAndBubbles as findTemplateGridAndBubblesImpl } from './rust_addon';

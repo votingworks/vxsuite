@@ -13,7 +13,11 @@ import {
   message,
   oneOf,
 } from '@votingworks/message-coder';
-import { createImageData, writeImageData } from '@votingworks/image-utils';
+import {
+  createImageData,
+  ImageData,
+  writeImageData,
+} from '@votingworks/image-utils';
 import {
   ImageColorDepthType,
   ImageFileFormat,

@@ -1,3 +1,4 @@
+import { ImageData } from 'canvas';
 import { DOMParser } from '@xmldom/xmldom';
 import { NewHampshireBallotCardDefinition } from '../../src/convert/types';
 

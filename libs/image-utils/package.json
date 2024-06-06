@@ -23,7 +23,7 @@
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
-    "canvas": "2.9.1",
+    "canvas": "2.11.2",
     "debug": "4.3.4",
     "pdfjs-dist": "2.3.200",
     "tmp": "^0.2.1"

@@ -1,3 +1,4 @@
+import { ImageData } from 'canvas';
 import { Result, err, ok } from '@votingworks/basics';
 import {
   CompletedBallot,

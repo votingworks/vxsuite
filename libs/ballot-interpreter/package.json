@@ -49,7 +49,7 @@
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",
     "better-sqlite3": "8.2.0",
-    "canvas": "2.9.1",
+    "canvas": "2.11.2",
     "chalk": "4.1.2",
     "debug": "4.3.4",
     "node-quirc": "^2.2.1",

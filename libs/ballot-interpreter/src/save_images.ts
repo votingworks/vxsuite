@@ -1,4 +1,4 @@
-import { writeImageData } from '@votingworks/image-utils';
+import { ImageData, writeImageData } from '@votingworks/image-utils';
 import { Side } from '@votingworks/types';
 import { join, parse } from 'path';
 
