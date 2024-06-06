@@ -6,6 +6,7 @@ import {
   DEFAULT_MARK_THRESHOLDS,
   InvalidElectionHashPage,
   mapSheet,
+  PageInterpretation,
   SheetOf,
 } from '@votingworks/types';
 import {
@@ -14,10 +15,15 @@ import {
 } from '@votingworks/utils';
 import { typedAs } from '@votingworks/basics';
 import { sliceElectionHash } from '@votingworks/ballot-encoder';
+import { mockOf } from '@votingworks/test-utils';
 import {
   interpretSheet,
   interpretSimplexBmdBallotFromFilepath,
 } from './interpret';
+import { normalizeBallotMode } from './validation';
+import { InterpreterOptions } from './types';
+
+jest.mock('./validation');
 
 const expectedInterpretation = `
   [
@@ -153,6 +159,10 @@ const expectedInterpretation = `
     },
   ]
 `;
+
+beforeEach(() => {
+  mockOf(normalizeBallotMode).mockImplementation((input) => input);
+});
 
 describe('VX BMD interpretation', () => {
   const fixtures = electionFamousNames2021Fixtures;
@@ -302,5 +312,30 @@ describe('VX BMD interpretation', () => {
     expect(
       mapSheet(result, ({ interpretation }) => interpretation)
     ).toMatchInlineSnapshot(expectedInterpretation);
+  });
+
+  test('normalizes ballot modes', async () => {
+    const options: InterpreterOptions = {
+      adjudicationReasons: [],
+      allowOfficialBallotsInTestMode: true,
+      electionDefinition,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      precinctSelection: singlePrecinctSelectionFor('23'),
+      testMode: true,
+    };
+
+    const blankPageInterpretation: PageInterpretation = { type: 'BlankPage' };
+    mockOf(normalizeBallotMode).mockImplementation(
+      (_input, interpreterOptions) => {
+        expect(interpreterOptions).toEqual(options);
+
+        return blankPageInterpretation;
+      }
+    );
+
+    const interpretationResult = await interpretSheet(options, validBmdSheet);
+    expect(interpretationResult[0].interpretation).toEqual(
+      blankPageInterpretation
+    );
   });
 });

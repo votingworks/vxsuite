@@ -14,11 +14,13 @@ import {
   BallotType,
   DEFAULT_MARK_THRESHOLDS,
   ElectionDefinition,
+  PageInterpretation,
 } from '@votingworks/types';
 import { sliceElectionHash } from '@votingworks/ballot-encoder';
 import { loadImageData } from '@votingworks/image-utils';
 import { createCanvas } from 'canvas';
 import { readElection } from '@votingworks/fs';
+import { mockOf } from '@votingworks/test-utils';
 import {
   sortVotesDict,
   ballotPdfToPageImages,
@@ -27,6 +29,14 @@ import {
   unmarkedWriteInsForSheet,
 } from '../test/helpers/interpretation';
 import { interpretSheet } from './interpret';
+import { normalizeBallotMode } from './validation';
+import { InterpreterOptions } from './types';
+
+jest.mock('./validation');
+
+beforeEach(() => {
+  mockOf(normalizeBallotMode).mockImplementation((input) => input);
+});
 
 describe('HMPB - Famous Names', () => {
   const { electionPath, precinctId, votes, blankBallotPath, markedBallotPath } =
@@ -182,6 +192,39 @@ describe('HMPB - Famous Names', () => {
 
     expect(frontResult.interpretation.type).toEqual('InvalidTestModePage');
     expect(backResult.interpretation.type).toEqual('InvalidTestModePage');
+  });
+
+  test('normalizes ballot mode', async () => {
+    const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
+    expect(ballotImagePaths.length).toEqual(2);
+
+    const options: InterpreterOptions = {
+      electionDefinition,
+      precinctSelection: singlePrecinctSelectionFor(assertDefined(precinctId)),
+      testMode: false,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      adjudicationReasons: [],
+    };
+
+    const blankPageInterpretation: PageInterpretation = { type: 'BlankPage' };
+    mockOf(normalizeBallotMode).mockImplementation(
+      (_input, interpreterOptions) => {
+        expect(interpreterOptions).toEqual(options);
+
+        return blankPageInterpretation;
+      }
+    );
+
+    const interpretationResult = await interpretSheet(
+      options,
+      ballotImagePaths as [string, string]
+    );
+    expect(interpretationResult[0].interpretation).toEqual(
+      blankPageInterpretation
+    );
+    expect(interpretationResult[1].interpretation).toEqual(
+      blankPageInterpretation
+    );
   });
 });
 

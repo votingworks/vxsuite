@@ -9,6 +9,7 @@ import {
   AdjudicationReason,
   safeParseElectionDefinition,
   DEFAULT_MARK_THRESHOLDS,
+  PageInterpretation,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -16,7 +17,16 @@ import {
 } from '@votingworks/utils';
 import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
+import { mockOf } from '@votingworks/test-utils';
 import { interpretSheet } from './interpret';
+import { normalizeBallotMode } from './validation';
+import { InterpreterOptions } from './types';
+
+jest.mock('./validation');
+
+beforeEach(() => {
+  mockOf(normalizeBallotMode).mockImplementation((input) => input);
+});
 
 describe('NH HMPB interpretation', () => {
   const fixtures = electionGridLayoutNewHampshireTestBallotFixtures;
@@ -203,6 +213,34 @@ describe('NH HMPB interpretation', () => {
         ({ interpretation }) => interpretation.type
       )
     ).toEqual(['InvalidPrecinctPage', 'InvalidPrecinctPage']);
+  });
+
+  test('normalizes ballot modes', async () => {
+    const options: InterpreterOptions = {
+      adjudicationReasons: [],
+      allowOfficialBallotsInTestMode: true,
+      electionDefinition,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      precinctSelection: singlePrecinctSelectionFor('23'),
+      testMode: true,
+    };
+
+    const blankPageInterpretation: PageInterpretation = { type: 'BlankPage' };
+    mockOf(normalizeBallotMode).mockImplementation(
+      (_input, interpreterOptions) => {
+        expect(interpreterOptions).toEqual(options);
+
+        return blankPageInterpretation;
+      }
+    );
+
+    const interpretationResult = await interpretSheet(options, validHmpbSheet);
+    expect(interpretationResult[0].interpretation).toEqual(
+      blankPageInterpretation
+    );
+    expect(interpretationResult[1].interpretation).toEqual(
+      blankPageInterpretation
+    );
   });
 });
 
