@@ -33,6 +33,10 @@ function generateTestJobForNodeJsPackage(
     `        name: Install NodeJS v20`,
     `        command: |`,
     `          curl -sLo- https://nodejs.org/dist/v20.14.0/node-v20.14.0-linux-x64.tar.xz | sudo tar -xJf - -C /usr/local --strip-components=1`,
+    `    - run:`,
+    `        name: Update to PNPM v8.3.1`,
+    `        command: |`,
+    `          sudo npm i -g pnpm@8.3.1`,
     `    - checkout-and-install`,
     ...(hasPlaywrightTests
       ? [
