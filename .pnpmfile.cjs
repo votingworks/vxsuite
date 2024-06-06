@@ -66,5 +66,13 @@ function readPackage(pkg, context) {
     );
   }
 
+  if (pkg.name === 'nan') {
+    // nan v2.16.0 is not compatible with Node.js v20
+    pkg.version = '2.19.0';
+    context.log(
+      'Using nan v2.19.0 to avoid compatibility issues with Node.js v20'
+    );
+  }
+
   return pkg;
 }
