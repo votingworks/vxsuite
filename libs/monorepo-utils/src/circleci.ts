@@ -29,6 +29,10 @@ function generateTestJobForNodeJsPackage(
     `  executor: ${isIntegrationTestJob ? 'nodejs-browsers' : 'nodejs'}`,
     `  resource_class: xlarge`,
     `  steps:`,
+    `    - run:`,
+    `        name: Install NodeJS v20`,
+    `        command: |`,
+    `          curl -sLo- https://nodejs.org/dist/v20.14.0/node-v20.14.0-linux-x64.tar.xz | sudo tar -xJf - -C /usr/local --strip-components=1`,
     `    - checkout-and-install`,
     ...(hasPlaywrightTests
       ? [
