@@ -75,6 +75,8 @@ async function interpretSheet(
       ballotImagesPath: workspace.ballotImagesPath,
       markThresholds: store.getMarkThresholds(),
       adjudicationReasons: store.getAdjudicationReasons(),
+      allowOfficialBallotsInTestMode:
+        store.getSystemSettings()?.allowOfficialBallotsInTestMode,
     })
   ).unsafeUnwrap();
   return {

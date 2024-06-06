@@ -57,6 +57,7 @@ export const MarkThresholdsSchema: z.ZodSchema<MarkThresholds> = z
  * (and therefore not needing to reprint ballots, for example).
  */
 export interface SystemSettings {
+  readonly allowOfficialBallotsInTestMode?: boolean;
   readonly auth: AuthSettings;
   readonly markThresholds: MarkThresholds;
   readonly centralScanAdjudicationReasons: readonly AdjudicationReason[];
@@ -65,6 +66,7 @@ export interface SystemSettings {
 }
 
 export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
+  allowOfficialBallotsInTestMode: z.boolean().optional(),
   auth: AuthSettingsSchema,
   markThresholds: MarkThresholdsSchema,
   centralScanAdjudicationReasons: z.array(
