@@ -10,6 +10,7 @@ import {
   PLAYBACK_RATE_INCREMENT_AMOUNT,
 } from './audio_playback_rate';
 import { AudioVolume, DEFAULT_AUDIO_VOLUME } from './audio_volume';
+import { useHeadphonesPluggedIn } from '../hooks/use_headphones_plugged_in';
 
 export const DEFAULT_AUDIO_ENABLED_STATE = true;
 
@@ -62,13 +63,16 @@ export function UiStringsAudioContextProvider(
   props: UiStringsAudioContextProviderProps
 ): JSX.Element {
   const { api, children } = props;
-  const [isEnabled, setIsEnabled] = React.useState(DEFAULT_AUDIO_ENABLED_STATE);
+  const [isEnabled, setIsEnabledInternal] = React.useState(
+    DEFAULT_AUDIO_ENABLED_STATE
+  );
   const [controlsEnabled, setControlsEnabled] = React.useState(true);
   const [isPaused, setIsPaused] = React.useState(true);
   const [playbackRate, setPlaybackRate] = React.useState<number>(
     DEFAULT_PLAYBACK_RATE
   );
   const [volume, setVolume] = React.useState<AudioVolume>(DEFAULT_AUDIO_VOLUME);
+  const headphonesPluggedIn = useHeadphonesPluggedIn();
 
   const webAudioContextRef = React.useRef(getWebAudioContextInstance());
 
@@ -78,11 +82,25 @@ export function UiStringsAudioContextProvider(
     setIsPaused(false);
   }, []);
 
+  const setIsEnabled = React.useCallback(
+    (enabled: boolean) => {
+      if (headphonesPluggedIn) {
+        setIsEnabledInternal(enabled);
+      }
+    },
+    [headphonesPluggedIn]
+  );
+
   const reset = React.useCallback(() => {
     resetPlaybackSettings();
     setIsEnabled(DEFAULT_AUDIO_ENABLED_STATE);
     setControlsEnabled(true);
-  }, [resetPlaybackSettings]);
+  }, [resetPlaybackSettings, setIsEnabled]);
+
+  React.useEffect(
+    () => setIsEnabledInternal(headphonesPluggedIn),
+    [headphonesPluggedIn]
+  );
 
   React.useEffect(() => {
     if (isEnabled) {
@@ -127,7 +145,7 @@ export function UiStringsAudioContextProvider(
 
   const toggleEnabled = React.useCallback(
     () => setIsEnabled(!isEnabled),
-    [isEnabled]
+    [isEnabled, setIsEnabled]
   );
 
   return (

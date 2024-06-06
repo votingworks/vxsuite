@@ -737,6 +737,11 @@ eventId = "readiness-report-saved"
 eventType = "user-action"
 documentationMessage = "The user has saved an equipment readiness report."
 
+[HeadphonesDetectionError]
+eventId = "headphones-detection-errors"
+eventType = "application-status"
+documentationMessage = "Error while attempting to detect headphones."
+
 [UnknownError]
 eventId = "unknown-error"
 eventType = "application-status"

@@ -87,6 +87,7 @@ export function newTestContext(
     setClock: jest.fn(),
     exportLogsToUsb: jest.fn(),
     getBatteryInfo: jest.fn(),
+    getAudioInfo: jest.fn(),
   };
 
   const mockApiClient = {

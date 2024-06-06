@@ -88,7 +88,10 @@ async function generateEnvFile(filePath: string, isVexDev: boolean) {
     (flag) => getBooleanEnvVarConfig(flag)
   );
   for (const flag of flagDetails) {
-    await boolQuestion(flag.name, flag.autoEnableInDevelopment);
+    await boolQuestion(
+      flag.name,
+      flag.autoEnableInVxDev ?? flag.autoEnableInDevelopment
+    );
   }
   const stringDetails = Object.values(StringEnvironmentVariableName).map(
     (variable) => getStringEnvVarConfig(variable)

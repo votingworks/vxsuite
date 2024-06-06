@@ -5,6 +5,7 @@ import { mockOf } from '@votingworks/test-utils';
 import { LogEventId, Logger, mockLogger } from '@votingworks/logging';
 import { SystemCallApi, createSystemCallApi } from './api';
 import { execFile } from '../exec';
+import { getAudioInfo } from './get_audio_info';
 
 jest.mock('fs/promises', () => ({
   ...jest.requireActual('fs/promises'),
@@ -15,6 +16,8 @@ jest.mock('../exec', (): typeof import('../exec') => ({
   ...jest.requireActual('../exec'),
   execFile: jest.fn(),
 }));
+
+jest.mock('./get_audio_info');
 
 const execMock = mockOf(execFile);
 
@@ -83,4 +86,9 @@ test('setClock', async () => {
     'set-time',
     '2020-11-03 09:00:00',
   ]);
+});
+
+test('getAudioInfo', async () => {
+  mockOf(getAudioInfo).mockResolvedValue({ headphonesActive: true });
+  await expect(api.getAudioInfo()).resolves.toEqual({ headphonesActive: true });
 });
