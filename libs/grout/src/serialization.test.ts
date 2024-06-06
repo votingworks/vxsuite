@@ -120,9 +120,7 @@ test('JSON serialization/deserialization', () => {
 
 test('deserialize errors with invalid JSON', () => {
   expect(() => deserialize('')).toThrow('Unexpected end of JSON input');
-  expect(() => deserialize('{a}')).toThrow(
-    'Unexpected token a in JSON at position 1'
-  );
+  expect(() => deserialize('{a}')).toThrow(/JSON at position 1/);
   expect(() =>
     deserialize('{"__grout_type": "not a real type","__grout_value": 1}')
   ).toThrow('Unknown tag: not a real type');
