@@ -23,6 +23,7 @@
     "@votingworks/basics": "workspace:*",
     "@votingworks/custom-scanner": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
+    "@votingworks/image-utils-rs": "workspace:*",
     "@votingworks/message-coder": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/utils": "workspace:*",

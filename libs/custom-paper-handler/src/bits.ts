@@ -1,4 +1,3 @@
-import { assert } from '@votingworks/basics';
 import { UINT_16_MAX } from './driver/constants';
 
 /**
@@ -291,84 +290,6 @@ export const Uint8Max: Uint8 = 255;
  * Bitmask for the most significant bit in Uint8
  */
 export const Uint8MostSignificantBitMask: Uint8 = 128;
-
-/**
- * Binary array for debugging
- */
-type BinaryStringRepresentation = '0' | '1';
-export type BinaryArray = [
-  BinaryStringRepresentation,
-  BinaryStringRepresentation,
-  BinaryStringRepresentation,
-  BinaryStringRepresentation,
-  BinaryStringRepresentation,
-  BinaryStringRepresentation,
-  BinaryStringRepresentation,
-  BinaryStringRepresentation,
-];
-
-export function getZeroBinaryArray(): BinaryArray {
-  return ['0', '0', '0', '0', '0', '0', '0', '0'];
-}
-
-/**
- * Array of booleans representing the bits in a byte. Although unenforceable,
- * use to represent MSB-first to mirror how we would represent binary.
- */
-export type BitArray = [
-  boolean,
-  boolean,
-  boolean,
-  boolean,
-  boolean,
-  boolean,
-  boolean,
-  boolean,
-];
-
-export function getZeroBitArray(): BitArray {
-  return [false, false, false, false, false, false, false, false];
-}
-
-export function Uint8ToBitArray(value: Uint8): BitArray {
-  let shiftingValue: number = value;
-
-  const bitArray = getZeroBitArray();
-  for (let i = 0; i < Uint8Size; i += 1) {
-    bitArray[i] = Boolean(shiftingValue & Uint8MostSignificantBitMask);
-    shiftingValue <<= 1;
-  }
-  return bitArray;
-}
-
-export function Uint8ToBinaryArray(value: Uint8): BinaryArray {
-  let shiftingValue: number = value;
-
-  const bitArray = getZeroBinaryArray();
-  for (let i = 0; i < Uint8Size; i += 1) {
-    const booleanValue = shiftingValue & Uint8MostSignificantBitMask;
-    bitArray[i] = booleanValue ? '1' : '0';
-    shiftingValue <<= 1;
-  }
-  return bitArray;
-}
-
-const BIT_MULTIPLIERS = [128, 64, 32, 16, 8, 4, 2, 1];
-
-export function bitArrayToByte(bits: BitArray): Uint8 {
-  if (bits.length !== 8) {
-    throw new Error('invalid bit array');
-  }
-
-  let result = 0;
-  for (const [index, bit] of bits.entries()) {
-    const multiplier = BIT_MULTIPLIERS[index];
-    assert(multiplier !== undefined);
-    if (bit) result += multiplier;
-  }
-
-  return result as Uint8;
-}
 
 /**
  * Just using an alias for readability because we don't have a great way to represent this in typescript.

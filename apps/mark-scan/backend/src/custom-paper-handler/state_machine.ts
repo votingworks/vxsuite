@@ -4,6 +4,7 @@ import HID from 'node-hid';
 import {
   PaperHandlerStatus,
   PaperHandlerDriverInterface,
+  printPdf,
 } from '@votingworks/custom-paper-handler';
 import {
   assign as xassign,
@@ -60,7 +61,6 @@ import {
   setDefaults,
   resetAndReconnect,
   loadAndParkPaper,
-  printBallotChunks,
 } from './application_driver';
 import { PatConnectionStatusReaderInterface } from '../pat-input/connection_status_reader';
 import {
@@ -500,7 +500,7 @@ export function buildMachine(
                   id: 'printBallot',
                   src: (context, event) => {
                     assert(event.type === 'VOTER_INITIATED_PRINT');
-                    return printBallotChunks(context.driver, event.pdfData, {});
+                    return printPdf(context.driver, event.pdfData);
                   },
                   onDone: 'scanning',
                 },

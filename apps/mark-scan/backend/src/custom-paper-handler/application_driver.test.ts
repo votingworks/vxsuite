@@ -1,27 +1,16 @@
 import {
   MinimalWebUsbDevice,
   PaperHandlerDriver,
-  imageDataToBinaryBitmap,
-  chunkBinaryBitmap,
-  VERTICAL_DOTS_IN_CHUNK,
   getPaperHandlerDriver,
   PaperHandlerStatus,
 } from '@votingworks/custom-paper-handler';
-import { Buffer } from 'buffer';
-import { join } from 'path';
-import { readFile } from '@votingworks/fs';
 import { mockOf } from '@votingworks/test-utils';
 import {
   loadAndParkPaper,
-  printBallotChunks,
   resetAndReconnect,
   scanAndSave,
 } from './application_driver';
-import {
-  MAX_FIXTURE_FILE_SIZE_BYTES,
-  getDefaultPaperHandlerStatus,
-  readBallotFixture,
-} from './test_utils';
+import { getDefaultPaperHandlerStatus } from './test_utils';
 
 jest.mock('@votingworks/custom-paper-handler');
 
@@ -38,66 +27,6 @@ beforeEach(() => {
     selectConfiguration: jest.fn(),
   };
   driver = new PaperHandlerDriver(webDevice);
-});
-
-test('print ballot', async () => {
-  // Valid test ballot in pdf format. We need to supply real data so
-  // printBallot won't error when calling pdfToImages, but this data
-  // doesn't impact assertions in this test
-  const pdfData = await readBallotFixture();
-
-  // Nonsensical test data but it's enough to make the assertions we need.
-  // This data shouldn't be treated as a realistic representation
-  mockOf(imageDataToBinaryBitmap).mockReturnValue({
-    width: 2,
-    height: 2,
-    data: [true, false],
-  });
-  mockOf(chunkBinaryBitmap).mockReturnValue([
-    {
-      width: 0,
-      data: Buffer.of(),
-      empty: true,
-    },
-    {
-      width: 1,
-      data: Buffer.of(1),
-    },
-    {
-      width: 1,
-      data: Buffer.of(0),
-    },
-  ]);
-
-  await printBallotChunks(driver, pdfData);
-
-  // Setup and data conversion functions that are called no matter what
-  expect(driver.enablePrint).toHaveBeenCalledTimes(1);
-  expect(imageDataToBinaryBitmap).toHaveBeenCalled();
-  expect(chunkBinaryBitmap).toHaveBeenCalled();
-
-  // Assert because the test data includes an empty chunk
-  expect(driver.setRelativeVerticalPrintPosition).toHaveBeenCalledTimes(1);
-  expect(driver.setRelativeVerticalPrintPosition).toHaveBeenCalledWith(
-    VERTICAL_DOTS_IN_CHUNK * 2
-  );
-
-  // Called once for each nonempty chunk
-  expect(driver.printChunk).toHaveBeenCalledTimes(2);
-});
-
-test('printBallotChunks errors when too many pages of data', async () => {
-  const pdfDataResult = await readFile(
-    join(__dirname, 'fixtures', '2-page-pdf.pdf'),
-    {
-      maxSize: MAX_FIXTURE_FILE_SIZE_BYTES,
-    }
-  );
-  const pdfData = pdfDataResult.unsafeUnwrap();
-
-  await expect(printBallotChunks(driver, pdfData)).rejects.toThrow(
-    'Unexpected page count 2'
-  );
 });
 
 test('scanAndSave success', async () => {

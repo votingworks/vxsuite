@@ -3562,6 +3562,9 @@ importers:
       '@votingworks/image-utils':
         specifier: workspace:*
         version: link:../image-utils
+      '@votingworks/image-utils-rs':
+        specifier: workspace:*
+        version: link:../image-utils-rs
       '@votingworks/message-coder':
         specifier: workspace:*
         version: link:../message-coder

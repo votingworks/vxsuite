@@ -9,8 +9,7 @@ import { join } from 'path';
 import { tmpdir } from 'os';
 import { getPaperHandlerDriver } from '../driver/helpers';
 import { ballotFixture } from '../test/fixtures';
-import { chunkBinaryBitmap, imageDataToBinaryBitmap } from '../printing';
-import { DEVICE_MAX_WIDTH_DOTS } from '../driver/constants';
+import { printPdf } from '../printing';
 import { PaperHandlerDriverInterface } from '../driver';
 
 /**
@@ -65,53 +64,6 @@ async function scan(driver: PaperHandlerDriverInterface): Promise<void> {
   await driver.scanAndSave(pathOut);
 }
 
-/**
- * Unsafely prints a ballot from ballot fixtures. Adapted from paper_handler_machine.
- * Precondition: enable-print command has succeeded
- */
-async function printBallot(driver: PaperHandlerDriverInterface): Promise<void> {
-  console.time('pdf to image');
-  const page = await getOnlyPageFromPdf(Buffer.from(ballotFixture));
-  console.timeEnd('pdf to image');
-  console.time('image to binary');
-  // For prototype we expect image to have the same number of dots as the printer width.
-  // This is likely a requirement long term but we should have guarantees upstream.
-  assert(
-    page.width <= DEVICE_MAX_WIDTH_DOTS,
-    `Expected max width ${DEVICE_MAX_WIDTH_DOTS} but got ${page.width}`
-  );
-
-  const ballotBinaryBitmap = imageDataToBinaryBitmap(page, {});
-  console.log(`bitmap width: ${ballotBinaryBitmap.width}`);
-  console.log(`bitmap height: ${ballotBinaryBitmap.height}`);
-  console.timeEnd('image to binary');
-  console.time('binary to chunks');
-
-  const customChunkedBitmaps = chunkBinaryBitmap(ballotBinaryBitmap);
-  console.log(`num chunk rows: ${customChunkedBitmaps.length}`);
-  console.timeEnd('binary to chunks');
-
-  let dotsSkipped = 0;
-  console.log(`begin printing ${customChunkedBitmaps.length} chunks`);
-  let i = 0;
-  for (const customChunkedBitmap of customChunkedBitmaps) {
-    if (customChunkedBitmap.empty) {
-      dotsSkipped += 24;
-    } else {
-      if (dotsSkipped) {
-        console.log('setting relative vertical print position');
-        await driver.setRelativeVerticalPrintPosition(dotsSkipped * 2); // assuming default vertical units, 1 / 408 units
-        dotsSkipped = 0;
-      }
-      console.time(`printing chunk ${i}`);
-      await driver.printChunk(customChunkedBitmap);
-      console.timeEnd(`printing chunk ${i}`);
-    }
-    i += 1;
-  }
-  console.log(`Done printing ballot. ${i} chunks printed.`);
-}
-
 async function setDefaults(driver: PaperHandlerDriverInterface) {
   await driver.initializePrinter();
   console.log('initialized printer');
@@ -152,7 +104,7 @@ async function handleCommand(
     command === Command.PrintSampleBallotShorthand
   ) {
     console.log('Printing sample ballot');
-    await printBallot(driver);
+    await printPdf(driver, Buffer.from(ballotFixture));
   } else if (command === Command.ResetScan) {
     console.log('Resetting scan');
     await driver.resetScan();

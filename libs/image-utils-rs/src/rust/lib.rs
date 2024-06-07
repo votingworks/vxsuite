@@ -8,7 +8,7 @@ use neon::prelude::*;
 mod bitmap;
 mod custom_paper_handler;
 mod js;
-mod rasterize;
+mod pdf;
 
 /// Entry point for the Neon module. Exports values to JavaScript.
 #[neon::main]

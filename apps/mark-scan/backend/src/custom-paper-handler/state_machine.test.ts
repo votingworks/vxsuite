@@ -3,6 +3,7 @@ import {
   PaperHandlerDriver,
   MinimalWebUsbDevice,
   PaperHandlerStatus,
+  printPdf,
 } from '@votingworks/custom-paper-handler';
 import { Buffer } from 'buffer';
 import { dirSync } from 'tmp';
@@ -59,11 +60,7 @@ import {
   readBallotFixture,
 } from './test_utils';
 import { SimpleServerStatus } from '.';
-import {
-  printBallotChunks,
-  resetAndReconnect,
-  scanAndSave,
-} from './application_driver';
+import { resetAndReconnect, scanAndSave } from './application_driver';
 import { getSampleBallotFilepath } from './filepaths';
 import {
   mockCardlessVoterAuth,
@@ -427,7 +424,7 @@ async function executePrintBallotAndAssert(
   scanFixtureFilepath: string,
   interpretationResult: SheetOf<InterpretFileResult> = SUCCESSFUL_INTERPRETATION_MOCK
 ): Promise<void> {
-  mockOf(printBallotChunks).mockResolvedValue();
+  mockOf(printPdf).mockResolvedValue();
 
   const mockScanResult = deferred<string>();
   mockOf(scanAndSave).mockResolvedValue(mockScanResult.promise);
@@ -443,7 +440,7 @@ async function executePrintBallotAndAssert(
 
   void machine.printBallot(ballotPdfData);
   expectCurrentStatus('printing_ballot');
-  expect(printBallotChunks).toHaveBeenCalledTimes(1);
+  expect(printPdf).toHaveBeenCalledTimes(1);
 
   await expectStatusTransitionTo('scanning');
   expect(scanAndSave).toBeCalledTimes(1);

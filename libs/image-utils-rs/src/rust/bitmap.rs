@@ -1,4 +1,4 @@
-use image::DynamicImage;
+use image::{DynamicImage, GenericImageView, Pixel};
 use itertools::Itertools;
 
 pub struct BinaryImage {
@@ -13,9 +13,8 @@ pub struct BitmapOptions {
 
 pub fn image_to_bitmap(image: &DynamicImage, options: &BitmapOptions) -> BinaryImage {
     let data = image
-        .to_luma8()
         .pixels()
-        .map(|pixel| pixel[0] < options.white_threshold)
+        .map(|pixel| pixel.2.to_luma()[0] < options.white_threshold)
         .collect_vec();
 
     BinaryImage {

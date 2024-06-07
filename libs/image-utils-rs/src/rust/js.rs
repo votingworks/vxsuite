@@ -14,10 +14,10 @@ fn get_options_from_arg(
 ) -> Result<CustomPaperHandlerBitmapOptions, Throw> {
     let options = cx.argument::<JsObject>(argument)?;
 
-    let width: i32 = options
-        .get::<JsNumber, _, _>(cx, "width")
+    let scale: f32 = options
+        .get::<JsNumber, _, _>(cx, "scale")
         .ok()
-        .map_or(0.0, |b| b.value(cx)) as i32;
+        .map_or(0.0, |b| b.value(cx)) as f32;
 
     let white_threshold: u8 = options
         .get::<JsNumber, _, _>(cx, "whiteThreshold")
@@ -25,7 +25,7 @@ fn get_options_from_arg(
         .map_or(0.0, |b| b.value(cx)) as u8;
 
     Ok(CustomPaperHandlerBitmapOptions {
-        width,
+        scale,
         white_threshold,
     })
 }

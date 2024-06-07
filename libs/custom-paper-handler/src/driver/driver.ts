@@ -96,12 +96,7 @@ import {
 import { PaperHandlerDriverInterface } from './driver_interface';
 import { MinimalWebUsbDevice } from './minimal_web_usb_device';
 
-const serverDebug = makeDebug('mark-scan:custom-paper-handler:driver');
-
-function debug(msg: string, prefix?: string) {
-  const fullMsg = prefix ? `[${prefix}] ${msg}` : msg;
-  serverDebug(fullMsg);
-}
+const debug = makeDebug('mark-scan:custom-paper-handler:driver');
 
 // USB Interface Information
 const VENDOR_ID = 0x0dd4;

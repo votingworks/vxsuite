@@ -8,7 +8,7 @@ test('pdfToCustomPaperHandlerBitmapSeries', () => {
       readFileSync(path.join(__dirname, '../../test/fixtures/ballot_1700.pdf')),
       {
         whiteThreshold: 230,
-        width: 1700,
+        scale: 200 / 72,
       }
     )
   );

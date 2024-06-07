@@ -1,17 +1,11 @@
-import { assert, iter, sleep } from '@votingworks/basics';
+import { assert, sleep } from '@votingworks/basics';
 import makeDebug from 'debug';
-import { Buffer } from 'buffer';
 import {
-  ImageConversionOptions,
   PaperHandlerDriver,
-  VERTICAL_DOTS_IN_CHUNK,
-  chunkBinaryBitmap,
   getPaperHandlerDriver,
-  imageDataToBinaryBitmap,
 } from '@votingworks/custom-paper-handler';
-import { pdfToImages } from '@votingworks/image-utils';
 import { tmpNameSync } from 'tmp';
-import { PRINT_DPI, RESET_DELAY_MS, SCAN_DPI } from './constants';
+import { RESET_DELAY_MS } from './constants';
 import { isPaperAnywhere } from './scanner_status';
 
 const debug = makeDebug('mark-scan:custom-paper-handler:application-driver');
@@ -33,47 +27,6 @@ export async function setDefaults(driver: PaperHandlerDriver): Promise<void> {
   debug('set line spacing to 0');
   await driver.setPrintingSpeed('slow');
   debug('set printing speed to slow');
-}
-
-export async function printBallotChunks(
-  driver: PaperHandlerDriver,
-  pdfData: Buffer,
-  options: Partial<ImageConversionOptions> = {}
-): Promise<void> {
-  debug('+printBallotChunks');
-  const enablePrintPromise = driver.enablePrint();
-  const pageInfo = await iter(
-    pdfToImages(pdfData, { scale: PRINT_DPI / SCAN_DPI })
-  ).first();
-  // A PDF must have at least 1 page but iter doesn't know this.
-  // `pdfData` of length 0 will fail in `pdfToImages`.
-  assert(pageInfo);
-  assert(
-    pageInfo.pageCount === 1,
-    `Unexpected page count ${pageInfo.pageCount}`
-  );
-  const { page } = pageInfo;
-
-  const ballotBinaryBitmap = imageDataToBinaryBitmap(page, options);
-  const customChunkedBitmaps = chunkBinaryBitmap(ballotBinaryBitmap);
-
-  await enablePrintPromise;
-  let dotsSkipped = 0;
-  for (const customChunkedBitmap of customChunkedBitmaps) {
-    if (customChunkedBitmap.empty) {
-      dotsSkipped += VERTICAL_DOTS_IN_CHUNK;
-    } else {
-      if (dotsSkipped) {
-        await driver.setRelativeVerticalPrintPosition(dotsSkipped * 2); // assuming default vertical units, 1 / 408 units
-        dotsSkipped = 0;
-      }
-      await driver.printChunk(customChunkedBitmap);
-    }
-  }
-  debug(
-    '-printBallotChunks. Completed printing %d chunks total',
-    customChunkedBitmaps.length
-  );
 }
 
 export async function scanAndSave(driver: PaperHandlerDriver): Promise<string> {

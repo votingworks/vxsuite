@@ -3,8 +3,8 @@ use itertools::Itertools;
 
 use crate::bitmap::image_to_bitmap;
 use crate::bitmap::BitmapOptions;
-use crate::rasterize::pdf_to_images;
-use crate::rasterize::RasterizeOptions;
+use crate::pdf::pdf_to_images;
+use crate::pdf::PdfOptions;
 
 const BITMAP_HEIGHT: u32 = 24;
 
@@ -14,7 +14,7 @@ pub struct CustomPaperHandlerBitmap {
 }
 
 pub struct CustomPaperHandlerBitmapOptions {
-    pub width: i32,
+    pub scale: f32,
     pub white_threshold: u8,
 }
 
@@ -24,8 +24,8 @@ pub fn pdf_to_custom_paper_handler_bitmap_series(
 ) -> Vec<Option<CustomPaperHandlerBitmap>> {
     let images = pdf_to_images(
         pdf_data,
-        &RasterizeOptions {
-            width: options.width,
+        &PdfOptions {
+            scale: options.scale,
         },
     );
 
@@ -47,11 +47,7 @@ pub fn pdf_to_custom_paper_handler_bitmap_series(
             whites += 1;
         }
     });
-    println!("whites: {}", whites);
-    println!("blacks: {}", blacks);
-
     let num_bitmaps = image.height / BITMAP_HEIGHT;
-    println!("num_bitmaps: {}", num_bitmaps);
     (0..num_bitmaps)
         .into_iter()
         .map(|k| {
