@@ -1016,7 +1016,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "image-utils"
+name = "image-utils-rs"
 version = "0.1.0"
 dependencies = [
  "bitvec",

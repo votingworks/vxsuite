@@ -38,16 +38,29 @@ pub fn pdf_to_custom_paper_handler_bitmap_series(
         },
     );
 
-    let num_bitmaps = image.data.len() as u32 / BITMAP_HEIGHT;
+    let mut whites = 0;
+    let mut blacks = 0;
+    image.data.iter().for_each(|x| {
+        if *x {
+            blacks += 1;
+        } else {
+            whites += 1;
+        }
+    });
+    println!("whites: {}", whites);
+    println!("blacks: {}", blacks);
+
+    let num_bitmaps = image.height / BITMAP_HEIGHT;
+    println!("num_bitmaps: {}", num_bitmaps);
     (0..num_bitmaps)
         .into_iter()
-        .map(|_k| {
+        .map(|k| {
             let mut bitmap: BitVec<u8, Msb0> = bitvec![u8, Msb0;];
             let mut empty: bool = true;
 
             for j in 0..image.width {
-                for i in 0..BITMAP_HEIGHT {
-                    if image.data[(j * image.width + i) as usize] {
+                for i in (k * BITMAP_HEIGHT)..((k + 1) * BITMAP_HEIGHT) {
+                    if image.data[(i as usize) * (image.width as usize) + j as usize] {
                         bitmap.push(true);
                         empty = false;
                     } else {

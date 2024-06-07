@@ -12,7 +12,7 @@
   ],
   "scripts": {
     "build": "pnpm install:rust-addon && pnpm build:rust-addon && pnpm build:ts",
-    "build:rust-addon": "cargo-cp-artifact -nc build/ts/rust_addon.node -- cargo build --message-format=json-render-diagnostics --release --offline",
+    "build:rust-addon": "cargo-cp-artifact -nc build/ts/rust_addon.node -- cargo build --message-format=json-render-diagnostics --release --offline --verbose",
     "build:ts": "tsc --build tsconfig.build.json",
     "clean": "cargo clean && rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "install:rust-addon": "cargo fetch",
