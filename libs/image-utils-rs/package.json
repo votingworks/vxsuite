@@ -1,8 +1,8 @@
 {
-  "name": "@votingworks/ballot-interpreter",
+  "name": "@votingworks/image-utils-rs",
   "version": "1.0.0",
   "private": true,
-  "description": "Interpreter for scanned ballot images",
+  "description": "Utilities for handling image data",
   "license": "AGPL-3.0",
   "author": "VotingWorks Eng <eng@voting.works>",
   "main": "build/index.js",
@@ -11,9 +11,8 @@
     "build"
   ],
   "scripts": {
-    "benchmark": "jest --runInBand --projects benchmarks",
     "build": "pnpm install:rust-addon && pnpm build:rust-addon && pnpm build:ts",
-    "build:rust-addon": "cargo-cp-artifact -nc build/hmpb-ts/rust_addon.node -- cargo build --message-format=json-render-diagnostics --release --offline",
+    "build:rust-addon": "cargo-cp-artifact -nc build/ts/rust_addon.node -- cargo build --message-format=json-render-diagnostics --release --offline",
     "build:ts": "tsc --build tsconfig.build.json",
     "clean": "cargo clean && rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "install:rust-addon": "cargo fetch",
@@ -40,15 +39,8 @@
     ]
   },
   "dependencies": {
-    "@votingworks/ballot-encoder": "workspace:*",
     "@votingworks/basics": "workspace:*",
-    "@votingworks/fixtures": "workspace:*",
-    "@votingworks/image-utils": "workspace:*",
-    "@votingworks/qrdetect": "^1.0.1",
     "@votingworks/types": "workspace:*",
-    "@votingworks/utils": "workspace:*",
-    "better-sqlite3": "8.2.0",
-    "canvas": "2.9.1",
     "chalk": "4.1.2",
     "debug": "4.3.4",
     "node-quirc": "^2.2.1",
@@ -64,9 +56,6 @@
     "@types/node": "16.18.23",
     "@types/node-quirc": "workspace:*",
     "@types/tmp": "0.2.4",
-    "@votingworks/fs": "workspace:*",
-    "@votingworks/hmpb-layout": "workspace:*",
-    "@votingworks/hmpb-render-backend": "workspace:*",
     "cargo-cp-artifact": "^0.1",
     "esbuild": "0.21.2",
     "esbuild-runner": "2.2.2",

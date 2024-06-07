@@ -13,6 +13,7 @@ export * as BallotDefinition from './cdf/ballot-definition';
 export * from './cdf/ballot-definition/convert';
 export * from './cdf/ballot-definition/fixtures';
 export * from './converter_client';
+export * from './custom_paper_handler';
 export * from './diagnostics';
 export * from './dom';
 export * from './election';
