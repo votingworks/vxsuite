@@ -85,7 +85,7 @@ Run that and then retry.
         break;
       }
       case 'poll_worker': {
-        await card.program({ user, pin });
+        await card.program({ user });
         break;
       }
       default: {
