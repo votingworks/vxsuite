@@ -1,0 +1,4 @@
+#!/usr/bin/env node
+
+require('esbuild-runner/register');
+require('./src/program_production_election_manager_java_card_without_vx_admin').main();

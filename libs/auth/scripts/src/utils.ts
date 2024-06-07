@@ -1,6 +1,10 @@
 import { Buffer } from 'buffer';
 import { sleep, throwIllegalValue } from '@votingworks/basics';
-import { SystemAdministratorUser, VendorUser } from '@votingworks/types';
+import {
+  ElectionManagerUser,
+  SystemAdministratorUser,
+  VendorUser,
+} from '@votingworks/types';
 import { generatePin, hyphenatePin } from '@votingworks/utils';
 
 import { ResponseApduError } from '../../src/apdu';
@@ -46,7 +50,7 @@ export async function programJavaCard({
 }: {
   card: JavaCard;
   isProduction: boolean;
-  user: VendorUser | SystemAdministratorUser;
+  user: VendorUser | SystemAdministratorUser | ElectionManagerUser;
 }): Promise<void> {
   const initialJavaCardConfigurationScriptReminder = `
 ${
@@ -68,6 +72,10 @@ Run that and then retry.
         break;
       }
       case 'system_administrator': {
+        await card.program({ user, pin });
+        break;
+      }
+      case 'election_manager': {
         await card.program({ user, pin });
         break;
       }
