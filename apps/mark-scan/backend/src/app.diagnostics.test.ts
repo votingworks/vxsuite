@@ -325,7 +325,7 @@ describe('paper handler diagnostic', () => {
     await waitForStatus('paper_handler_diagnostic.print_ballot_fixture');
     // Chromium, used by print_ballot_fixture, needs ~150ms to spin up.
     // 75ms with retries is long enough.
-    await waitForStatus('paper_handler_diagnostic.scan_ballot', 75);
+    await waitForStatus('paper_handler_diagnostic.scan_ballot', 150);
 
     mockScanResult.resolve(scannedPath);
     await waitForStatus('paper_handler_diagnostic.interpret_ballot');
