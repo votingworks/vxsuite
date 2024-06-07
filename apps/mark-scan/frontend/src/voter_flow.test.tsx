@@ -54,7 +54,7 @@ function TestContext(props: React.PropsWithChildren) {
 }
 
 beforeEach(() => {
-  mockApi.mockApiClient.isPatDeviceConnected.mockReturnValue(false);
+  mockApi.mockApiClient.getIsPatDeviceConnected.mockReturnValue(false);
 });
 
 test('replaces screen with accessible controller sandbox when triggered', () => {
@@ -147,7 +147,7 @@ test('replaces screen with PAT device calibration when connected', () => {
 });
 
 test('sets up the PatDeviceContextProvider', async () => {
-  mockApi.mockApiClient.isPatDeviceConnected.mockReturnValue(true);
+  mockApi.mockApiClient.getIsPatDeviceConnected.mockReturnValue(true);
 
   mockOf(Ballot).mockImplementation(() => {
     const isPatDeviceConnected = useIsPatDeviceConnected();

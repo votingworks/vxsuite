@@ -48,7 +48,7 @@ export function DiagnosticsScreen({
   const mostRecentAccessibleControllerDiagnosticQuery =
     getMostRecentDiagnostic.useQuery('mark-scan-accessible-controller');
   const mostRecentPaperHandlerDiagnosticQuery =
-    getMostRecentDiagnostic.useQuery('mark-scan-accessible-controller');
+    getMostRecentDiagnostic.useQuery('mark-scan-paper-handler');
   const mostRecentPatInputDiagnosticQuery = getMostRecentDiagnostic.useQuery(
     'mark-scan-pat-input'
   );
@@ -72,7 +72,8 @@ export function DiagnosticsScreen({
     !usbDriveStatusQuery.isSuccess ||
     !getStateMachineStateQuery.isSuccess ||
     !mostRecentAccessibleControllerDiagnosticQuery.isSuccess ||
-    !mostRecentPaperHandlerDiagnosticQuery.isSuccess
+    !mostRecentPaperHandlerDiagnosticQuery.isSuccess ||
+    !mostRecentPatInputDiagnosticQuery.isSuccess
   ) {
     return (
       <Screen>

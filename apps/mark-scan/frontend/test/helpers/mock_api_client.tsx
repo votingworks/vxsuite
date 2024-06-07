@@ -55,7 +55,7 @@ type MockApiClient = Omit<
   getPaperHandlerState: jest.Mock;
   getUsbDriveStatus: jest.Mock;
   getBatteryInfo: jest.Mock;
-  isPatDeviceConnected: jest.Mock;
+  getIsPatDeviceConnected: jest.Mock;
 };
 
 function createMockApiClient(): MockApiClient {
@@ -74,8 +74,8 @@ function createMockApiClient(): MockApiClient {
   (mockApiClient.getBatteryInfo as unknown as jest.Mock) = jest.fn(() =>
     Promise.resolve(null)
   );
-  (mockApiClient.isPatDeviceConnected as unknown as jest.Mock) = jest.fn(() =>
-    Promise.resolve(false)
+  (mockApiClient.getIsPatDeviceConnected as unknown as jest.Mock) = jest.fn(
+    () => Promise.resolve(false)
   );
 
   return mockApiClient as unknown as MockApiClient;
@@ -335,6 +335,10 @@ export function createApiMock() {
       mockApiClient.getIsAccessibleControllerInputDetected
         .expectRepeatedCallsWith()
         .resolves(detected);
+    },
+
+    setIsPatDeviceConnected(connected: boolean): void {
+      mockApiClient.getIsPatDeviceConnected.mockResolvedValue(connected);
     },
 
     expectAddDiagnosticRecord(record: Omit<DiagnosticRecord, 'timestamp'>) {

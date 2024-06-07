@@ -49,8 +49,10 @@ beforeEach(() => {
   apiMock.setBatteryInfo({ level: 0.5, discharging: true });
   apiMock.expectGetApplicationDiskSpaceSummary();
   apiMock.expectGetIsAccessibleControllerInputDetected();
+  apiMock.setIsPatDeviceConnected(true);
   apiMock.expectGetMostRecentDiagnostic('mark-scan-accessible-controller');
   apiMock.expectGetMostRecentDiagnostic('mark-scan-paper-handler');
+  apiMock.expectGetMostRecentDiagnostic('mark-scan-pat-input');
 });
 
 afterEach(() => {
@@ -76,6 +78,11 @@ test('data from API is passed to screen contents', async () => {
     outcome: 'pass',
     timestamp: new Date('2022-03-23T11:05:00.000').getTime(),
   });
+  apiMock.expectGetMostRecentDiagnostic('mark-scan-pat-input', {
+    type: 'mark-scan-pat-input',
+    outcome: 'pass',
+    timestamp: new Date('2022-03-23T11:10:00.000').getTime(),
+  });
 
   renderScreen();
 
@@ -87,6 +94,8 @@ test('data from API is passed to screen contents', async () => {
   screen.debug();
   expectDetected(screen, DiagnosticSectionTitle.PaperHandler, true);
   expectDetected(screen, DiagnosticSectionTitle.AccessibleController, true);
+  expectDetected(screen, DiagnosticSectionTitle.PatInput, true);
+  screen.getByText('Test passed, 3/23/2022, 11:10:00 AM');
   screen.getByText('Test passed, 3/23/2022, 11:05:00 AM');
   screen.getByText('Test passed, 3/23/2022, 11:00:00 AM');
 });

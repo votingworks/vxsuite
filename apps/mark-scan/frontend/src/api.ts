@@ -497,9 +497,13 @@ export const getIsPatDeviceConnected = {
   useQuery() {
     const apiClient = useApiClient();
 
-    return useQuery(this.queryKey(), () => apiClient.isPatDeviceConnected(), {
-      refetchInterval: STATE_MACHINE_POLLING_INTERVAL_MS,
-    });
+    return useQuery(
+      this.queryKey(),
+      () => apiClient.getIsPatDeviceConnected(),
+      {
+        refetchInterval: STATE_MACHINE_POLLING_INTERVAL_MS,
+      }
+    );
   },
 } as const;
 
