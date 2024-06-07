@@ -2,6 +2,7 @@ import { Buffer } from 'buffer';
 import { sleep, throwIllegalValue } from '@votingworks/basics';
 import {
   ElectionManagerUser,
+  PollWorkerUser,
   SystemAdministratorUser,
   VendorUser,
 } from '@votingworks/types';
@@ -50,7 +51,11 @@ export async function programJavaCard({
 }: {
   card: JavaCard;
   isProduction: boolean;
-  user: VendorUser | SystemAdministratorUser | ElectionManagerUser;
+  user:
+    | VendorUser
+    | SystemAdministratorUser
+    | ElectionManagerUser
+    | PollWorkerUser;
 }): Promise<void> {
   const initialJavaCardConfigurationScriptReminder = `
 ${
@@ -76,6 +81,10 @@ Run that and then retry.
         break;
       }
       case 'election_manager': {
+        await card.program({ user, pin });
+        break;
+      }
+      case 'poll_worker': {
         await card.program({ user, pin });
         break;
       }

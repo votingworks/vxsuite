@@ -85,7 +85,7 @@ export async function main(): Promise<void> {
       card,
       isProduction: true,
       user: {
-        role: 'election_manager',
+        role: 'poll_worker',
         jurisdiction: scriptEnv.jurisdiction,
         electionHash: scriptEnv.electionHash,
       },
