@@ -182,20 +182,6 @@ export const getMostRecentDiagnostic = {
   },
 } as const;
 
-export const getMostRecentAccessibleControllerDiagnostic = {
-  queryKey(): QueryKey {
-    return ['getMostRecentAccessibleControllerDiagnostic'];
-  },
-  useQuery() {
-    const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () =>
-      apiClient.getMostRecentDiagnostic({
-        diagnosticType: 'mark-scan-accessible-controller',
-      })
-    );
-  },
-} as const;
-
 export const getIsAccessibleControllerInputDetected = {
   queryKey(): QueryKey {
     return ['getIsAccessibleControllerInputDetected'];
