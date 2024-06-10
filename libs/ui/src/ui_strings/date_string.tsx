@@ -1,18 +1,15 @@
 import { format } from '@votingworks/utils';
 import { useLanguageContext } from './language_context';
-import { Font, FontProps } from '../typography';
+import { FontProps } from '../typography';
 
 export interface DateStringProps extends FontProps {
   value: Date;
 }
-export function DateString(props: DateStringProps): JSX.Element {
-  const { value, ...rest } = props;
-
+export function DateString({ value }: DateStringProps): JSX.Element {
   const languageContext = useLanguageContext();
-
   return (
-    <Font {...rest}>
+    <span>
       {format.localeLongDate(value, languageContext?.currentLanguageCode)}
-    </Font>
+    </span>
   );
 }
