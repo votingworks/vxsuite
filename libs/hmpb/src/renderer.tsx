@@ -3,7 +3,7 @@ import { Buffer } from 'buffer';
 import type { Page as PlaywrightPage } from 'playwright';
 import ReactDomServer from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';
-import { assert } from '@votingworks/basics';
+import { assert, sleep } from '@votingworks/basics';
 import { PixelMeasurements } from './types';
 import { PAGE_CLASS } from './ballot_components';
 
@@ -121,6 +121,7 @@ export function createScratchpad(document: RenderDocument) {
         'Scratchpad has been converted to a document'
       );
       await document.setContent('body', content);
+      await sleep(1); // Wait for content to render (sometimes SVGs are a tiny bit slow)
       return await document.inspectElements(selector);
     },
 
