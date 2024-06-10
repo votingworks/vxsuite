@@ -176,19 +176,8 @@ test('with browser override', async () => {
   await expect(outputPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'with-browser-override',
   });
-});
 
-test('with deferred rendering', async () => {
-  const outputPath = tmpNameSync();
-  await renderToPdf({
-    document: () => <div>with deferred rendering</div>,
-    outputPath,
-    usePrintTheme: true,
-  });
-
-  await expect(outputPath).toMatchPdfSnapshot({
-    customSnapshotIdentifier: 'with-deferred-rendering',
-  });
+  await browserOverride.close();
 });
 
 test('uses print theme when specified', async () => {
@@ -199,7 +188,7 @@ test('uses print theme when specified', async () => {
 
     return <P>legacy theme</P>;
   }
-  await renderToPdf({ document: () => <LegacyThemeComponent /> });
+  await renderToPdf({ document: <LegacyThemeComponent /> });
 
   function PrintThemeComponent() {
     const theme = useCurrentTheme();
@@ -209,7 +198,7 @@ test('uses print theme when specified', async () => {
     return <P>print theme</P>;
   }
   await renderToPdf({
-    document: () => <PrintThemeComponent />,
+    document: <PrintThemeComponent />,
     usePrintTheme: true,
   });
 });

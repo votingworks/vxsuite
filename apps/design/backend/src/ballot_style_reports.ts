@@ -17,9 +17,11 @@ export function renderBallotStyleReadinessReport(
 ): Promise<Buffer> {
   const { renderer, componentProps } = params;
 
-  function document() {
-    return BallotStyleReadinessReport(componentProps);
-  }
-
-  return renderToPdf({ document, usePrintTheme: true }, renderer.getBrowser());
+  return renderToPdf(
+    {
+      document: BallotStyleReadinessReport(componentProps),
+      usePrintTheme: true,
+    },
+    renderer.getBrowser()
+  );
 }

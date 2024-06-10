@@ -38,13 +38,17 @@ const electionDefinition = safeParseElectionDefinition(
 ).unsafeUnwrap();
 
 test('PDF layout regression test', async () => {
+  const renderer = await createPlaywrightRenderer();
+
   const reportPdf = await renderBallotStyleReadinessReport({
     componentProps: {
       electionDefinition,
       generatedAtTime: new Date('2021-07-25, 08:00'),
     },
-    renderer: await createPlaywrightRenderer(),
+    renderer,
   });
 
   await expect(reportPdf).toMatchPdfSnapshot();
+
+  await renderer.cleanup();
 });

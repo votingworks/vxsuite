@@ -58,10 +58,8 @@ function getContentHeight(page: Page): Promise<number> {
   });
 }
 
-export type DocumentRenderer = () => JSX.Element | JSX.Element[];
-
 export interface RenderSpec {
-  document: JSX.Element | JSX.Element[] | DocumentRenderer;
+  document: JSX.Element | JSX.Element[];
   paperDimensions?: PaperDimensions;
   marginDimensions?: MarginDimensions;
   outputPath?: string;
@@ -127,9 +125,7 @@ export async function renderToPdf(
           screenType="builtIn"
         >
           <GlobalStyles />
-          <div id={CONTENT_WRAPPER_ID}>
-            {typeof document === 'function' ? document() : document}
-          </div>
+          <div id={CONTENT_WRAPPER_ID}>{document}</div>
         </VxThemeProvider>
       </React.Fragment>
     );
