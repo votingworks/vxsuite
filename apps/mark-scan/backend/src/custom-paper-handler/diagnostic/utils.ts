@@ -28,6 +28,12 @@ export function renderDiagnosticMockBallot(
   );
 }
 
+/**
+ * This function is for testing only, such as mocking the driver scanAndSave response
+ * during the scanning state of the paper handler diagnostic.
+ * It renders a mock ballot for the paper handler diagnostic election as an image,
+ * saves it to a tmp dir, and returns the filepath.
+ */
 export async function getDiagnosticMockBallotImagePath(): Promise<string> {
   const electionDefinitionResult = await readElection(DIAGNOSTIC_ELECTION_PATH);
   const electionDefinition = electionDefinitionResult.unsafeUnwrap();
