@@ -3,6 +3,7 @@
 import {
   BallotStyleId,
   Candidate,
+  CandidateContest,
   ContestLike,
   County,
   District,
@@ -66,6 +67,12 @@ export const electionStrings = {
   [Key.CONTEST_OPTION_LABEL]: (option: YesNoOption) => (
     <UiString uiStringKey={Key.CONTEST_OPTION_LABEL} uiStringSubKey={option.id}>
       {option.label}
+    </UiString>
+  ),
+
+  [Key.CONTEST_TERM]: (contest: CandidateContest) => (
+    <UiString uiStringKey={Key.CONTEST_TERM} uiStringSubKey={contest.id}>
+      {contest.termDescription}
     </UiString>
   ),
 

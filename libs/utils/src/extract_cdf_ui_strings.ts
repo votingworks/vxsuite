@@ -129,6 +129,12 @@ const extractorFns: Record<
     }
   },
 
+  [ElectionStringKey.CONTEST_TERM]() {
+    // No-Op: This election string is not available via CDF.
+    // It is currently extracted directly from the
+    // `@votingworks/types/ElectionPackageFileName.VX_ELECTION_STRINGS` file.
+  },
+
   [ElectionStringKey.CONTEST_TITLE](cdfElection, uiStrings) {
     for (const contest of assertDefined(cdfElection.Election[0]).Contest) {
       setInternationalizedUiStrings({

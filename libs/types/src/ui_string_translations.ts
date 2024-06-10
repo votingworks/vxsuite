@@ -13,6 +13,7 @@ export enum ElectionStringKey {
   CANDIDATE_NAME = 'candidateName',
   CONTEST_DESCRIPTION = 'contestDescription',
   CONTEST_OPTION_LABEL = 'contestOptionLabel',
+  CONTEST_TERM = 'contestTerm',
   CONTEST_TITLE = 'contestTitle',
   COUNTY_NAME = 'countyName',
   DISTRICT_NAME = 'districtName',

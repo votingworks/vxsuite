@@ -263,6 +263,14 @@ const tests: Record<ElectionStringKey, () => void> = {
     });
   },
 
+  [ElectionStringKey.CONTEST_TERM]() {
+    const uiStrings = extractCdfUiStrings(testCdfBallotDefinition);
+
+    expect(
+      uiStrings[LanguageCode.ENGLISH]?.[ElectionStringKey.CONTEST_TERM]
+    ).toBeUndefined();
+  },
+
   [ElectionStringKey.CONTEST_TITLE]() {
     const uiStrings = extractCdfUiStrings({
       ...testCdfBallotDefinition,
