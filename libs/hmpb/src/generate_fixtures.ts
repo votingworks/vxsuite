@@ -1,5 +1,5 @@
 import { mkdir, rm, writeFile } from 'fs/promises';
-import { BallotPaperSize } from '@votingworks/types';
+import { iter } from '@votingworks/basics';
 import { allBubbleBallotFixtures } from './all_bubble_ballot_fixtures';
 import {
   fixturesDir,
@@ -36,18 +36,16 @@ async function generateFamousNamesFixtures(renderer: Renderer) {
 }
 
 async function generateGeneralElectionFixtures(renderer: Renderer) {
-  const allFixtures = generalElectionFixtures;
-  const allGenerated = await generalElectionFixtures.generate(renderer);
-  for (const paperSize of Object.values(BallotPaperSize)) {
-    const fixtures = allFixtures[paperSize];
-    const generated = allGenerated[paperSize];
-    await mkdir(fixtures.electionDir, { recursive: true });
+  const specs = generalElectionFixtures.fixtureSpecs;
+  const allGenerated = await generalElectionFixtures.generate(renderer, specs);
+  for (const [spec, generated] of iter(specs).zip(allGenerated)) {
+    await mkdir(spec.electionDir, { recursive: true });
     await writeFile(
-      fixtures.electionPath,
+      spec.electionPath,
       generated.electionDefinition.electionData
     );
-    await writeFile(fixtures.blankBallotPath, generated.blankBallotPdf);
-    await writeFile(fixtures.markedBallotPath, generated.markedBallotPdf);
+    await writeFile(spec.blankBallotPath, generated.blankBallotPdf);
+    await writeFile(spec.markedBallotPath, generated.markedBallotPdf);
   }
 }
 
