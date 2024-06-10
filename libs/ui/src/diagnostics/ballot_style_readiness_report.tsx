@@ -9,7 +9,7 @@ import {
 import { format } from '@votingworks/utils';
 import React from 'react';
 import { ReadinessReportHeader } from './report_header';
-import { Font, H2, H3 } from '../typography';
+import { Font, H3 } from '../typography';
 
 export interface BallotStyleReadinessReportProps {
   electionDefinition: ElectionDefinition;
@@ -21,6 +21,7 @@ const BallotStyleInfoList = styled.div`
   flex-direction: column;
   gap: 1.5rem;
   line-height: 1;
+  padding-top: 1.5rem;
 `;
 
 const BallotStyleInfo = styled.div`
@@ -106,12 +107,17 @@ export function BallotStyleReadinessReport(
   return (
     <div>
       <ReadinessReportHeader
+        additionalMetadata={[
+          {
+            label: 'Election',
+            value: `${election.title}, ${getDisplayElectionHash(
+              electionDefinition
+            )}`,
+          },
+        ]}
         generatedAtTime={generatedAtTime}
-        reportType="VxSuite Ballot Style"
+        reportType="Ballot Style"
       />
-      <H2>
-        {election.title}, {getDisplayElectionHash(electionDefinition)}
-      </H2>
       <BallotStyleInfoList>
         {election.ballotStyles.map((b) => (
           <BallotStyleInfo key={b.id}>

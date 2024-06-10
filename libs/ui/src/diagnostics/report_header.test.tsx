@@ -41,3 +41,23 @@ test('no machine ID', () => {
   screen.getByText(format.localeLongDateAndTime(generatedAtTime));
   expect(screen.queryByText('Machine ID')).not.toBeInTheDocument();
 });
+
+test('with additional metadata', () => {
+  const generatedAtTime = new Date('2022-01-01T00:00:00');
+
+  render(
+    <ReadinessReportHeader
+      additionalMetadata={[
+        { label: 'Election', value: 'Primary Election, a1b2c3' },
+        { label: 'User', value: 'System Administrator' },
+      ]}
+      generatedAtTime={generatedAtTime}
+      reportType="Ballot Style"
+    />
+  );
+
+  screen.getByRole('heading', { name: 'Ballot Style Readiness Report' });
+  screen.getByText(format.localeLongDateAndTime(generatedAtTime));
+  screen.getByText(hasTextAcrossElements('Election: Primary Election, a1b2c3'));
+  screen.getByText(hasTextAcrossElements('User: System Administrator'));
+});
