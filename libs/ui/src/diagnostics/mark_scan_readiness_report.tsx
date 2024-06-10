@@ -23,12 +23,13 @@ type ReportContentsProps = ConfigurationSectionProps &
   ComputerSectionProps & {
     accessibleControllerProps: NonpresentationalSectionProps;
     paperHandlerProps: NonpresentationalSectionProps;
+    patInputProps: NonpresentationalSectionProps;
   };
 
 export function MarkScanReadinessReportContents(
   props: ReportContentsProps
 ): JSX.Element {
-  const { accessibleControllerProps, paperHandlerProps } = props;
+  const { accessibleControllerProps, paperHandlerProps, patInputProps } = props;
   return (
     <ReportContents>
       <ConfigurationSection {...props} expectPrecinctSelection />
@@ -42,6 +43,11 @@ export function MarkScanReadinessReportContents(
         {...paperHandlerProps}
         diagnosticType="mark-scan-paper-handler"
         title={DiagnosticSectionTitle.PaperHandler}
+      />
+      <MarkScanDeviceDiagnosticSection
+        {...patInputProps}
+        diagnosticType="mark-scan-pat-input"
+        title={DiagnosticSectionTitle.PatInput}
       />
     </ReportContents>
   );

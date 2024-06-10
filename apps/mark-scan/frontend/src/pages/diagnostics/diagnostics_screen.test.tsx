@@ -6,6 +6,7 @@ import {
   expectDiagnosticResult,
   mockUsbDriveStatus,
   DiagnosticSectionTitle,
+  Keybinding,
 } from '@votingworks/ui';
 import { ok } from '@votingworks/basics';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
@@ -49,8 +50,10 @@ beforeEach(() => {
   apiMock.setBatteryInfo({ level: 0.5, discharging: true });
   apiMock.expectGetApplicationDiskSpaceSummary();
   apiMock.expectGetIsAccessibleControllerInputDetected();
+  apiMock.setIsPatDeviceConnected(true);
   apiMock.expectGetMostRecentDiagnostic('mark-scan-accessible-controller');
   apiMock.expectGetMostRecentDiagnostic('mark-scan-paper-handler');
+  apiMock.expectGetMostRecentDiagnostic('mark-scan-pat-input');
 });
 
 afterEach(() => {
@@ -76,6 +79,11 @@ test('data from API is passed to screen contents', async () => {
     outcome: 'pass',
     timestamp: new Date('2022-03-23T11:05:00.000').getTime(),
   });
+  apiMock.expectGetMostRecentDiagnostic('mark-scan-pat-input', {
+    type: 'mark-scan-pat-input',
+    outcome: 'pass',
+    timestamp: new Date('2022-03-23T11:10:00.000').getTime(),
+  });
 
   renderScreen();
 
@@ -84,9 +92,10 @@ test('data from API is passed to screen contents', async () => {
   screen.getByText('Power Source: Battery');
   screen.getByText('Free Disk Space: 50% (1 GB / 2 GB)');
 
-  screen.debug();
   expectDetected(screen, DiagnosticSectionTitle.PaperHandler, true);
   expectDetected(screen, DiagnosticSectionTitle.AccessibleController, true);
+  expectDetected(screen, DiagnosticSectionTitle.PatInput, true);
+  screen.getByText('Test passed, 3/23/2022, 11:10:00 AM');
   screen.getByText('Test passed, 3/23/2022, 11:05:00 AM');
   screen.getByText('Test passed, 3/23/2022, 11:00:00 AM');
 });
@@ -217,4 +226,59 @@ test('ending paper handler diagnostic refetches the diagnostic record', async ()
 
   await screen.findByText(/Test passed/);
   expectDiagnosticResult(screen, DiagnosticSectionTitle.PaperHandler, true);
+});
+
+test('PAT diagnostic success', async () => {
+  renderScreen();
+
+  userEvent.click(await screen.findButton('Test PAT Input (Sip & Puff)'));
+  apiMock.setPaperHandlerState('pat_device_connected');
+  await screen.findByText(
+    'Personal Assistive Technology Device Identification'
+  );
+
+  // Continue past intructions
+  userEvent.keyboard(Keybinding.PAT_MOVE);
+
+  // Identify first input
+  userEvent.keyboard(Keybinding.PAT_MOVE);
+  userEvent.keyboard(Keybinding.PAT_MOVE);
+
+  // Identify second input
+  userEvent.keyboard(Keybinding.PAT_SELECT);
+  userEvent.keyboard(Keybinding.PAT_SELECT);
+
+  screen.getByText('Device Inputs Identified');
+
+  screen.getByText(
+    'You may end the diagnostic test or go back to the previous screen.'
+  );
+
+  apiMock.expectAddDiagnosticRecord({
+    type: 'mark-scan-pat-input',
+    outcome: 'pass',
+  });
+  apiMock.expectGetMostRecentDiagnostic('mark-scan-pat-input');
+  apiMock.expectSetPatDeviceIsCalibrated();
+  userEvent.click(screen.getByText('Done'));
+});
+
+test('PAT diagnostic early exit', async () => {
+  renderScreen();
+
+  userEvent.click(await screen.findButton('Test PAT Input (Sip & Puff)'));
+  apiMock.setPaperHandlerState('pat_device_connected');
+  await screen.findByText(
+    'Personal Assistive Technology Device Identification'
+  );
+
+  apiMock.expectAddDiagnosticRecord({
+    type: 'mark-scan-pat-input',
+    outcome: 'fail',
+    message: 'Test was ended early.',
+  });
+  apiMock.expectGetMostRecentDiagnostic('mark-scan-pat-input');
+  apiMock.expectSetPatDeviceIsCalibrated();
+
+  userEvent.click(screen.getByText('Skip Identification'));
 });

@@ -1,6 +1,8 @@
+import { Keybinding } from '@votingworks/ui';
+
 export const behaviorToKeypressMap = {
-  Move: '1',
-  Select: '2',
+  Move: Keybinding.PAT_MOVE,
+  Select: Keybinding.PAT_SELECT,
 } as const;
 
 export const validKeypressValues: string[] = Object.values(

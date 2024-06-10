@@ -38,6 +38,15 @@ test('MarkScanReadinessReport', () => {
         isDeviceConnected: true,
         children: <p>passed paper handler child</p>,
       }}
+      patInputProps={{
+        mostRecentDiagnosticRecord: {
+          type: 'mark-scan-pat-input',
+          outcome: 'pass',
+          timestamp: generatedAtTime.getTime(),
+        },
+        isDeviceConnected: true,
+        children: <p>passed PAT input child</p>,
+      }}
       generatedAtTime={generatedAtTime}
       machineId={machineId}
       electionDefinition={electionTwoPartyPrimaryDefinition}
@@ -56,7 +65,9 @@ test('MarkScanReadinessReport', () => {
   screen.getByText('Power Source: Battery');
   expectDetected(screen, DiagnosticSectionTitle.PaperHandler, true);
   expectDetected(screen, DiagnosticSectionTitle.AccessibleController, true);
+  expectDetected(screen, DiagnosticSectionTitle.PatInput, true);
   expectDiagnosticResult(screen, DiagnosticSectionTitle.PaperHandler, true);
+  expectDiagnosticResult(screen, DiagnosticSectionTitle.PatInput, true);
   expectDiagnosticResult(
     screen,
     DiagnosticSectionTitle.AccessibleController,
@@ -64,4 +75,5 @@ test('MarkScanReadinessReport', () => {
   );
   screen.getByText('passed controller child');
   screen.getByText('passed paper handler child');
+  screen.getByText('passed PAT input child');
 });

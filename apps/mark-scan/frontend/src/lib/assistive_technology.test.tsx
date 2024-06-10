@@ -118,7 +118,7 @@ it('auto-focuses "next" button on contest screen after voting', async () => {
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',
   });
-  mockOf(apiMock.mockApiClient.isPatDeviceConnected).mockResolvedValue(true);
+  mockOf(apiMock.mockApiClient.getIsPatDeviceConnected).mockResolvedValue(true);
 
   render(<App apiClient={apiMock.mockApiClient} />);
   await advanceTimersAndPromises();

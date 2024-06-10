@@ -26,8 +26,8 @@ export function ContestScreen(): JSX.Element {
   const { contests, electionDefinition, precinctId, updateVote, votes } =
     React.useContext(BallotContext);
 
-  const isPathDeviceConnected = Boolean(
-    api.isPatDeviceConnected.useQuery().data
+  const isPatDeviceConnected = Boolean(
+    api.getIsPatDeviceConnected.useQuery().data
   );
 
   return (
@@ -37,7 +37,7 @@ export function ContestScreen(): JSX.Element {
       getContestUrl={getContestUrl}
       getReviewPageUrl={getReviewPageUrl}
       getStartPageUrl={getStartPageUrl}
-      isPatDeviceConnected={isPathDeviceConnected}
+      isPatDeviceConnected={isPatDeviceConnected}
       precinctId={precinctId}
       updateVote={updateVote}
       votes={votes}

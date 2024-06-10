@@ -7,6 +7,7 @@ import {
   MarkScanReadinessReportContents,
   Loading,
   SaveReadinessReportButton,
+  appStrings,
 } from '@votingworks/ui';
 import { useHistory, Switch, Route } from 'react-router-dom';
 import { AccessibleControllerDiagnosticScreen } from './accessible_controller_diagnostic_screen';
@@ -15,15 +16,17 @@ import {
   getElectionDefinition,
   getElectionState,
   getIsAccessibleControllerInputDetected,
-  getMostRecentAccessibleControllerDiagnostic,
-  getMostRecentPaperHandlerDiagnostic,
   getStateMachineState,
   getUsbDriveStatus,
+  getIsPatDeviceConnected,
   saveReadinessReport,
   startPaperHandlerDiagnostic,
   systemCallApi,
+  getMostRecentDiagnostic,
+  addDiagnosticRecord,
 } from '../../api';
 import { PaperHandlerDiagnosticScreen } from './paper_handler_diagnostic_screen';
+import { PatDeviceCalibrationPage } from '../pat_device_identification/pat_device_calibration_page';
 
 export interface DiagnosticsScreenProps {
   onBackButtonPress: () => void;
@@ -38,16 +41,24 @@ export function DiagnosticsScreen({
   const diskSpaceQuery = getApplicationDiskSpaceSummary.useQuery();
   const isAccessibleControllerInputDetectedQuery =
     getIsAccessibleControllerInputDetected.useQuery();
-  const mostRecentAccessibleControllerDiagnosticQuery =
-    getMostRecentAccessibleControllerDiagnostic.useQuery();
+  const isPatDeviceConnectedQuery = getIsPatDeviceConnected.useQuery();
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
-  const saveReadinessReportMutation = saveReadinessReport.useMutation();
   const getStateMachineStateQuery = getStateMachineState.useQuery();
+
+  const mostRecentAccessibleControllerDiagnosticQuery =
+    getMostRecentDiagnostic.useQuery('mark-scan-accessible-controller');
   const mostRecentPaperHandlerDiagnosticQuery =
-    getMostRecentPaperHandlerDiagnostic.useQuery();
+    getMostRecentDiagnostic.useQuery('mark-scan-paper-handler');
+  const mostRecentPatInputDiagnosticQuery = getMostRecentDiagnostic.useQuery(
+    'mark-scan-pat-input'
+  );
 
   const startPaperHandlerDiagnosticMutation =
     startPaperHandlerDiagnostic.useMutation();
+  const addPatDiagnosticRecordMutation = addDiagnosticRecord.useMutation(
+    'mark-scan-pat-input'
+  );
+  const saveReadinessReportMutation = saveReadinessReport.useMutation();
 
   const history = useHistory();
 
@@ -57,10 +68,12 @@ export function DiagnosticsScreen({
     !batteryQuery.isSuccess ||
     !diskSpaceQuery.isSuccess ||
     !isAccessibleControllerInputDetectedQuery.isSuccess ||
-    !mostRecentAccessibleControllerDiagnosticQuery.isSuccess ||
+    !isPatDeviceConnectedQuery.isSuccess ||
     !usbDriveStatusQuery.isSuccess ||
     !getStateMachineStateQuery.isSuccess ||
-    !mostRecentPaperHandlerDiagnosticQuery.isSuccess
+    !mostRecentAccessibleControllerDiagnosticQuery.isSuccess ||
+    !mostRecentPaperHandlerDiagnosticQuery.isSuccess ||
+    !mostRecentPatInputDiagnosticQuery.isSuccess
   ) {
     return (
       <Screen>
@@ -78,11 +91,15 @@ export function DiagnosticsScreen({
   const diskSpaceSummary = diskSpaceQuery.data;
   const isAccessibleControllerInputDetected =
     isAccessibleControllerInputDetectedQuery.data;
+  const isPatDeviceConnected = isPatDeviceConnectedQuery.data;
+  const stateMachineState = getStateMachineStateQuery.data;
+
   const mostRecentAccessibleControllerDiagnostic =
     mostRecentAccessibleControllerDiagnosticQuery.data ?? undefined;
-  const stateMachineState = getStateMachineStateQuery.data;
   const mostRecentPaperHandlerDiagnostic =
     mostRecentPaperHandlerDiagnosticQuery.data ?? undefined;
+  const mostRecentPatInputDiagnostic =
+    mostRecentPatInputDiagnosticQuery.data ?? undefined;
 
   return (
     <Switch>
@@ -134,6 +151,19 @@ export function DiagnosticsScreen({
                   </Button>
                 ),
               }}
+              patInputProps={{
+                isDeviceConnected: isPatDeviceConnected,
+                mostRecentDiagnosticRecord: mostRecentPatInputDiagnostic,
+                children: (
+                  <Button
+                    onPress={() => {
+                      history.push('/pat-input');
+                    }}
+                  >
+                    Test PAT Input (Sip & Puff)
+                  </Button>
+                ),
+              }}
             />
           </Main>
         </Screen>
@@ -151,6 +181,31 @@ export function DiagnosticsScreen({
             // Invalidating the query at the time of the last mutation in this flow is still too early
             // so we have to manually refetch.
             await mostRecentPaperHandlerDiagnosticQuery.refetch();
+          }}
+        />
+      </Route>
+      <Route path="/pat-input">
+        <PatDeviceCalibrationPage
+          successScreenButtonLabel={appStrings.buttonDone()}
+          successScreenDescription={
+            <span>
+              You may end the diagnostic test or go back to the previous screen.
+            </span>
+          }
+          onSuccessfulCalibration={() => {
+            addPatDiagnosticRecordMutation.mutate({
+              type: 'mark-scan-pat-input',
+              outcome: 'pass',
+            });
+            history.push('/');
+          }}
+          onSkipCalibration={() => {
+            addPatDiagnosticRecordMutation.mutate({
+              type: 'mark-scan-pat-input',
+              outcome: 'fail',
+              message: 'Test was ended early.',
+            });
+            history.push('/');
           }}
         />
       </Route>

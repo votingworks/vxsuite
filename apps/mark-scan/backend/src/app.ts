@@ -353,7 +353,7 @@ export function buildApi(
       };
     },
 
-    isPatDeviceConnected(): boolean {
+    getIsPatDeviceConnected(): boolean {
       if (!stateMachine) {
         return false;
       }
