@@ -396,12 +396,6 @@ export const appStrings = {
     </UiString>
   ),
 
-  instructionsBmdPatDiagnosticConfirmExitScreen: () => (
-    <UiString uiStringKey="instructionsBmdPatDiagnosticConfirmExitScreen">
-      You may end the diagnostic test or go back to the previous screen.
-    </UiString>
-  ),
-
   instructionsBmdPatCalibrationConfirmExitScreen: () => (
     <UiString uiStringKey="instructionsBmdPatCalibrationConfirmExitScreen">
       You may continue with voting or go back to the previous screen.

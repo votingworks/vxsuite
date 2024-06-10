@@ -187,7 +187,11 @@ export function DiagnosticsScreen({
       <Route path="/pat-input">
         <PatDeviceCalibrationPage
           successScreenButtonLabel={appStrings.buttonDone()}
-          successScreenDescription={appStrings.instructionsBmdPatDiagnosticConfirmExitScreen()}
+          successScreenDescription={
+            <span>
+              You may end the diagnostic test or go back to the previous screen.
+            </span>
+          }
           onSuccessfulCalibration={() => {
             addPatDiagnosticRecordMutation.mutate({
               type: 'mark-scan-pat-input',

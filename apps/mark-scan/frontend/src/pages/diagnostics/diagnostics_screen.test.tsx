@@ -6,6 +6,7 @@ import {
   expectDiagnosticResult,
   mockUsbDriveStatus,
   DiagnosticSectionTitle,
+  Keybinding,
 } from '@votingworks/ui';
 import { ok } from '@votingworks/basics';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
@@ -237,15 +238,15 @@ test('PAT diagnostic success', async () => {
   );
 
   // Continue past intructions
-  userEvent.keyboard('1');
+  userEvent.keyboard(Keybinding.PAT_MOVE);
 
   // Identify first input
-  userEvent.keyboard('1');
-  userEvent.keyboard('1');
+  userEvent.keyboard(Keybinding.PAT_MOVE);
+  userEvent.keyboard(Keybinding.PAT_MOVE);
 
   // Identify second input
-  userEvent.keyboard('2');
-  userEvent.keyboard('2');
+  userEvent.keyboard(Keybinding.PAT_SELECT);
+  userEvent.keyboard(Keybinding.PAT_SELECT);
 
   screen.getByText('Device Inputs Identified');
 

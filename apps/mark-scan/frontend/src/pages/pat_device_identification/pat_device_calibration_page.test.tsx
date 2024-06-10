@@ -1,4 +1,5 @@
 import userEvent from '@testing-library/user-event';
+import { Keybinding } from '@votingworks/ui';
 import { render, screen } from '../../../test/react_testing_library';
 import {
   PatDeviceCalibrationPage,
@@ -19,15 +20,15 @@ afterEach(() => {
 
 function identifyInputs(): void {
   // Continue past intructions
-  userEvent.keyboard('1');
+  userEvent.keyboard(Keybinding.PAT_MOVE);
 
   // Identify first input
-  userEvent.keyboard('1');
-  userEvent.keyboard('1');
+  userEvent.keyboard(Keybinding.PAT_MOVE);
+  userEvent.keyboard(Keybinding.PAT_MOVE);
 
   // Identify second input
-  userEvent.keyboard('2');
-  userEvent.keyboard('2');
+  userEvent.keyboard(Keybinding.PAT_SELECT);
+  userEvent.keyboard(Keybinding.PAT_SELECT);
 
   screen.getByText('Device Inputs Identified');
 }
