@@ -1,5 +1,11 @@
 import './polyfills';
-import { BallotType, VotesDict, getContests } from '@votingworks/types';
+import {
+  BallotStyle,
+  BallotType,
+  LanguageCode,
+  VotesDict,
+  getContests,
+} from '@votingworks/types';
 import {
   electionGeneral,
   electionGeneralFixtures,
@@ -17,15 +23,20 @@ import { markBallotDocument, voteIsCandidate } from '../mark_ballot';
 import { BUBBLE_CLASS, OptionInfo, PAGE_CLASS } from '../ballot_components';
 
 const election = electionGeneral;
-const ballotStyle = election.ballotStyles[0];
+const ballotStyle: BallotStyle = {
+  ...election.ballotStyles[0],
+  languages: [LanguageCode.CHINESE_SIMPLIFIED, LanguageCode.ENGLISH],
+};
 const exampleBallotProps: BaseBallotProps = {
-  election,
+  election: {
+    ...election,
+    ballotStyles: [ballotStyle],
+  },
   ballotStyleId: ballotStyle.id,
   precinctId: ballotStyle.precincts[0],
-  ballotType: BallotType.Precinct,
+  ballotType: BallotType.Absentee,
   ballotMode: 'official',
-  translatedStrings:
-    electionGeneralFixtures.ELECTION_GENERAL_TEST_UI_STRINGS_CHINESE_SIMPLIFIED,
+  translatedStrings: electionGeneralFixtures.uiStrings,
 };
 
 /**
