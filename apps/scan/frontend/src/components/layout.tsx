@@ -40,6 +40,7 @@ export type CenteredScreenProps = Omit<ScreenProps, 'centered' | 'padded'>;
 
 const CONTENT_SPACING_VALUES_REM: Readonly<Record<SizeMode, number>> = {
   desktop: 0.5, // unused
+  print: 0.5, // unused
   touchSmall: 0.5,
   touchMedium: 0.35,
   touchLarge: 0.25,

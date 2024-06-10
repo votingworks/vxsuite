@@ -114,6 +114,8 @@ export const DesktopPalette = {
   Red95: 'hsl(0, 75%, 16%)',
 } satisfies ColorPalette;
 
+export const PrintPalette = TouchscreenPalette;
+
 /**
  * Physical text size ranges from the VVSG 2.0 specification, representing the
  * capital letter height in millimeters.
@@ -127,6 +129,8 @@ const VVSG_CAPITAL_LETTER_HEIGHTS_MM: Record<
   touchLarge: { max: 7.1, min: 6.4 },
   touchExtraLarge: { max: 9.0, min: 8.5 },
 };
+
+const VVSG_MINIMUM_PRINT_FONT_SIZE_PTS = 10;
 
 /**
  * CSS font-size values refer to the full-body height of the font, while VVSG
@@ -263,12 +267,24 @@ export const colorThemes: Record<ColorMode, ColorTheme> = {
     warningAccent: DesktopPalette.Orange50,
     dangerAccent: DesktopPalette.Red60,
   },
+
+  print: expandToFullColorTheme({
+    background: TouchscreenPalette.Gray0,
+    danger: TouchscreenPalette.Gray100,
+    onBackground: TouchscreenPalette.Gray100,
+    primary: TouchscreenPalette.Gray100,
+    successAccent: TouchscreenPalette.Gray100,
+    warningAccent: TouchscreenPalette.Gray100,
+  }),
 };
 
 const INCHES_PER_MM = 1 / 25.4;
 
+/** Standard resolution for prints: */
+const PIXELS_PER_INCH_PRINT = 72;
+
 /** Standard resolution for web images/measurements: */
-const PIXELS_PER_INCH_WEB = 72;
+const PIXELS_PER_INCH_WEB = 96;
 
 const SCREEN_WIDTH_PIXELS_ELO_15 = 1080;
 const SCREEN_WIDTH_INCHES_ELO_15 = 7.62;
@@ -306,6 +322,10 @@ function mmToPx(mm: number, screenType: ScreenType): number {
   const pixelsPerInch: number = devicePixelsPerInch[screenType]();
 
   return mm * INCHES_PER_MM * pixelsPerInch;
+}
+
+function ptToPx(pt: number): number {
+  return (pt / PIXELS_PER_INCH_PRINT) * PIXELS_PER_INCH_WEB;
 }
 
 function getFontSize({ screenType, sizeMode }: SizeThemeParams): number {
@@ -357,6 +377,34 @@ const sizeThemes: Record<SizeMode, (p: SizeThemeParams) => SizeTheme> = {
     lineHeight: 1.3,
     minTouchAreaSeparationPx: 0, // Not used on desktop
     minTouchAreaSizePx: 0, // Not used on desktop
+  }),
+  print: () => ({
+    borderRadiusRem: 0.5,
+    bordersRem: {
+      hairline: 0.06,
+      thin: 0.1,
+      medium: 0.15,
+      thick: 0.25,
+    },
+    fontDefault: ptToPx(VVSG_MINIMUM_PRINT_FONT_SIZE_PTS),
+    fontWeight: {
+      bold: 600,
+      light: 200,
+      regular: 300,
+      semiBold: 500,
+    },
+    headingsRem: {
+      h1: 2.25,
+      h2: 1.75,
+      h3: 1.5,
+      h4: 1.25,
+      h5: 1.125,
+      h6: 1,
+    },
+    letterSpacingEm: 0.01,
+    lineHeight: 1.3,
+    minTouchAreaSeparationPx: 0, // Not used for prints
+    minTouchAreaSizePx: 0, // Not used for prints
   }),
   touchSmall: (p) => ({
     borderRadiusRem: 0.25,

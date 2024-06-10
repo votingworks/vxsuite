@@ -13,6 +13,7 @@ export interface MainProps {
 
 const CONTENT_SPACING_VALUES_REM: Readonly<Record<SizeMode, number>> = {
   desktop: 1,
+  print: 1,
   touchSmall: 0.5,
   touchMedium: 0.35,
   touchLarge: 0.25,

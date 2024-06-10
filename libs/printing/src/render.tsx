@@ -1,4 +1,4 @@
-import { Page, chromium } from 'playwright';
+import { Browser, Page, chromium } from 'playwright';
 import ReactDom from 'react-dom/server';
 import React from 'react';
 import { Buffer } from 'buffer';
@@ -63,22 +63,32 @@ export interface RenderSpec {
   paperDimensions?: PaperDimensions;
   marginDimensions?: MarginDimensions;
   outputPath?: string;
+  usePrintTheme?: boolean;
 }
 
-export async function renderToPdf(spec: RenderSpec[]): Promise<Buffer[]>;
-export async function renderToPdf(spec: RenderSpec): Promise<Buffer>;
 export async function renderToPdf(
-  spec: RenderSpec | RenderSpec[]
+  spec: RenderSpec[],
+  browserOverride?: Browser
+): Promise<Buffer[]>;
+export async function renderToPdf(
+  spec: RenderSpec,
+  browserOverride?: Browser
+): Promise<Buffer>;
+export async function renderToPdf(
+  spec: RenderSpec | RenderSpec[],
+  browserOverride?: Browser
 ): Promise<Buffer | Buffer[]> {
   const specs = Array.isArray(spec) ? spec : [spec];
 
-  const browser = await chromium.launch({
-    // font hinting (https://fonts.google.com/knowledge/glossary/hinting)
-    // is on by default, but causes fonts to render more awkwardly at higher
-    // resolutions, so we disable it
-    args: ['--font-render-hinting=none'],
-    executablePath: OPTIONAL_EXECUTABLE_PATH_OVERRIDE,
-  });
+  const browser =
+    browserOverride ||
+    (await chromium.launch({
+      // font hinting (https://fonts.google.com/knowledge/glossary/hinting)
+      // is on by default, but causes fonts to render more awkwardly at higher
+      // resolutions, so we disable it
+      args: ['--font-render-hinting=none'],
+      executablePath: OPTIONAL_EXECUTABLE_PATH_OVERRIDE,
+    }));
   const context = await browser.newContext();
   const page = await context.newPage();
 
@@ -89,6 +99,7 @@ export async function renderToPdf(
     outputPath,
     paperDimensions: { width, height } = PAPER_DIMENSIONS.Letter,
     marginDimensions = DEFAULT_MARGIN_DIMENSIONS,
+    usePrintTheme,
   } of specs) {
     const verticalMargin = marginDimensions.top + marginDimensions.bottom;
     const horizontalMargin = marginDimensions.left + marginDimensions.right;
@@ -107,14 +118,15 @@ export async function renderToPdf(
     const documentWithGlobalStyles = (
       <React.Fragment>
         {/* Initial report ported from VxAdmin, thus `desktop` theme to match styles */}
+        {/* TODO: Migrate older prints to print theme. */}
         <VxThemeProvider
-          colorMode="desktop"
-          sizeMode="desktop"
+          colorMode={usePrintTheme ? 'print' : 'desktop'}
+          sizeMode={usePrintTheme ? 'print' : 'desktop'}
           screenType="builtIn"
         >
           <GlobalStyles />
+          <div id={CONTENT_WRAPPER_ID}>{document}</div>
         </VxThemeProvider>
-        <div id={CONTENT_WRAPPER_ID}>{document}</div>
       </React.Fragment>
     );
     const sheet = new ServerStyleSheet();
@@ -177,7 +189,11 @@ export async function renderToPdf(
   }
 
   await context.close();
-  await browser.close();
+
+  // Close the browser if it was created just for this render:
+  if (!browserOverride) {
+    await browser.close();
+  }
 
   return Array.isArray(spec) ? buffers : buffers[0];
 }

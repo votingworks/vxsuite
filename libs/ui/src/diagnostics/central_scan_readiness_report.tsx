@@ -47,7 +47,7 @@ export function CentralScanReadinessReport({
     >
       <PrintedReport>
         <ReadinessReportHeader
-          machineType="VxCentralScan"
+          reportType="VxCentralScan"
           generatedAtTime={generatedAtTime}
           machineId={machineId}
         />

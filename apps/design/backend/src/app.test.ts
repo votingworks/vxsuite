@@ -28,7 +28,11 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { readElectionPackageFromFile } from '@votingworks/backend';
-import { countObjectLeaves, getObjectLeaves } from '@votingworks/test-utils';
+import {
+  countObjectLeaves,
+  getObjectLeaves,
+  mockOf,
+} from '@votingworks/test-utils';
 import {
   BallotMode,
   BaseBallotProps,
@@ -53,6 +57,8 @@ import {
 import { generateBallotStyles } from './ballot_styles';
 import { ElectionRecord } from '.';
 import { getTempBallotLanguageConfigsForCert } from './store';
+import { renderBallotStyleReadinessReport } from './ballot_style_reports';
+import { BALLOT_STYLE_READINESS_REPORT_FILE_NAME } from './app';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -63,7 +69,15 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   };
 });
 
+jest.mock('./ballot_style_reports');
+
 const { setupApp, cleanup } = testSetupHelpers();
+
+const MOCK_READINESS_REPORT_CONTENTS = '%PDF - MockReadinessReport';
+const MOCK_READINESS_REPORT_PDF = Buffer.from(
+  MOCK_READINESS_REPORT_CONTENTS,
+  'utf-8'
+);
 
 afterAll(cleanup);
 
@@ -71,6 +85,10 @@ beforeEach(() => {
   mockFeatureFlagger.resetFeatureFlags();
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
+  );
+
+  mockOf(renderBallotStyleReadinessReport).mockResolvedValue(
+    MOCK_READINESS_REPORT_PDF
   );
 });
 
@@ -553,8 +571,9 @@ test('Export all ballots', async () => {
   });
   const zip = await JsZip.loadAsync(zipContents);
 
-  expect(Object.keys(zip.files).sort()).toEqual(
-    ballotStyles
+  const expectedFileNames = [
+    BALLOT_STYLE_READINESS_REPORT_FILE_NAME,
+    ...ballotStyles
       .flatMap(({ id, precinctsOrSplits }) =>
         precinctsOrSplits.map((p) => ({
           ballotStyleId: id,
@@ -577,9 +596,13 @@ test('Export all ballots', async () => {
           `test-absentee-${suffix}`,
           `sample-absentee-${suffix}`,
         ];
-      })
-      .sort()
-  );
+      }),
+  ].sort();
+  expect(Object.keys(zip.files).sort()).toEqual(expectedFileNames);
+
+  const readinessReportFileContents =
+    await zip.files[BALLOT_STYLE_READINESS_REPORT_FILE_NAME].async('text');
+  expect(readinessReportFileContents).toContain(MOCK_READINESS_REPORT_CONTENTS);
 
   // Ballot appearance is tested by fixtures in libs/hmpb, so we
   // just make sure we got a PDF and that we called the layout function with the

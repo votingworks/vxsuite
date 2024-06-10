@@ -6,11 +6,15 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   AdminTallyReportByParty,
   AdminTallyReportByPartyProps,
+  P,
+  useCurrentTheme,
 } from '@votingworks/ui';
 import { tmpNameSync } from 'tmp';
 import { parsePdf } from '@votingworks/image-utils';
 import { writeFileSync } from 'fs';
+import { chromium } from 'playwright';
 import { PAPER_DIMENSIONS, RenderSpec, renderToPdf } from './render';
+import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 
 const { electionDefinition } = electionFamousNames2021Fixtures;
 const { election } = electionDefinition;
@@ -151,5 +155,50 @@ test('renders with custom margins', async () => {
 
   await expect(outputPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'no-margins',
+  });
+});
+
+test('with browser override', async () => {
+  const browserOverride = await chromium.launch({
+    args: ['--font-render-hinting=none'],
+    executablePath: OPTIONAL_EXECUTABLE_PATH_OVERRIDE,
+  });
+
+  const outputPath = tmpNameSync();
+  await renderToPdf(
+    {
+      document: <div>with browser override</div>,
+      outputPath,
+    },
+    browserOverride
+  );
+
+  await expect(outputPath).toMatchPdfSnapshot({
+    customSnapshotIdentifier: 'with-browser-override',
+  });
+
+  await browserOverride.close();
+});
+
+test('uses print theme when specified', async () => {
+  function LegacyThemeComponent() {
+    const theme = useCurrentTheme();
+    expect(theme.colorMode).toEqual('desktop');
+    expect(theme.sizeMode).toEqual('desktop');
+
+    return <P>legacy theme</P>;
+  }
+  await renderToPdf({ document: <LegacyThemeComponent /> });
+
+  function PrintThemeComponent() {
+    const theme = useCurrentTheme();
+    expect(theme.colorMode).toEqual('print');
+    expect(theme.sizeMode).toEqual('print');
+
+    return <P>print theme</P>;
+  }
+  await renderToPdf({
+    document: <PrintThemeComponent />,
+    usePrintTheme: true,
   });
 });

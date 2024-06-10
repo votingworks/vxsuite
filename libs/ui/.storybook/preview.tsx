@@ -39,6 +39,7 @@ const sizeThemeToolBarItems: Record<SizeMode, SizeModeToolBarItem> = {
   touchMedium: { title: 'Medium (Touch)', value: 'touchMedium' },
   touchLarge: { title: 'Large (Touch)', value: 'touchLarge' },
   touchExtraLarge: { title: 'Extra Large (Touch)', value: 'touchExtraLarge' },
+  print: { title: 'Print', value: 'print' },
 };
 
 const DEFAULT_COLOR_MODE: ColorMode = 'desktop';
@@ -54,6 +55,7 @@ const colorThemeToolBarItems: Record<ColorMode, ColorModeToolBarItem> = {
   },
   contrastMedium: { title: 'Medium Contrast', value: 'contrastMedium' },
   contrastLow: { title: 'Low Contrast', value: 'contrastLow' },
+  print: { title: 'Print', value: 'print' },
 };
 
 /**

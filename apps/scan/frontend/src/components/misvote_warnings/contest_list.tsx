@@ -20,6 +20,7 @@ export interface ContestListProps {
 
 const CONTENT_SPACING_VALUES_REM: Readonly<Record<SizeMode, number>> = {
   desktop: 0.5,
+  print: 0.5,
   touchSmall: 0.5,
   touchMedium: 0.5,
   touchLarge: 0.25,
