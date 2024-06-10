@@ -303,27 +303,31 @@ async function extractGridLayout(
     }
     const firstWriteInOption = writeInOptions[0];
     const firstWriteInOptionBubble = writeInOptionBubbles[0];
+    const firstWriteInOptionBubbleCenter: Point<Pixels> = {
+      x: firstWriteInOptionBubble.x + firstWriteInOptionBubble.width / 2,
+      y: firstWriteInOptionBubble.y + firstWriteInOptionBubble.height / 2,
+    };
     const grid = await measureTimingMarkGrid(document, 1);
     return {
       top: pixelsToGridHeight(
         grid,
-        firstWriteInOptionBubble.y - firstWriteInOption.y
+        firstWriteInOptionBubbleCenter.y - firstWriteInOption.y
       ),
       left: pixelsToGridWidth(
         grid,
-        firstWriteInOptionBubble.x - firstWriteInOption.x
+        firstWriteInOptionBubbleCenter.x - firstWriteInOption.x
       ),
       right: pixelsToGridWidth(
         grid,
         firstWriteInOption.x +
           firstWriteInOption.width -
-          firstWriteInOptionBubble.x
+          firstWriteInOptionBubbleCenter.x
       ),
       bottom: pixelsToGridHeight(
         grid,
         firstWriteInOption.y +
           firstWriteInOption.height -
-          firstWriteInOptionBubble.y
+          firstWriteInOptionBubbleCenter.y
       ),
     };
   })();
