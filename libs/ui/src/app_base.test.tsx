@@ -83,7 +83,7 @@ test('renders with selected themes', () => {
   );
 });
 
-test('adds legacy print media styles when using print theme', () => {
+test('adds legacy print media styles when using non-print theme', () => {
   const styleSheet = new ServerStyleSheet();
 
   render(
