@@ -96,10 +96,14 @@ beforeEach(() => {
 });
 
 test('renders report header', () => {
+  const { election } = electionGeneralDefinition;
   mockOf(ReadinessReportHeader).mockImplementation((props) => {
     expect(props).toEqual<ReadinessReportHeaderProps>({
+      additionalMetadata: [
+        { label: 'Election', value: expect.stringContaining(election.title) },
+      ],
       generatedAtTime: MOCK_GENERATION_DATE,
-      reportType: 'VxSuite Ballot Style',
+      reportType: 'Ballot Style',
     });
 
     return <div data-testid="MockReportHeader" />;
