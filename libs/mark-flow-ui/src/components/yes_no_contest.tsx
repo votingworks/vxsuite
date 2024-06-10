@@ -18,6 +18,7 @@ import {
   electionStrings,
   appStrings,
   AssistiveTechInstructions,
+  Pre,
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
@@ -82,7 +83,7 @@ export function YesNoContest({
         >
           <Caption>
             <AudioOnly>
-              {electionStrings.contestDescription(contest)}
+              {electionStrings.contestDescription(contest, Pre)}
               <AssistiveTechInstructions
                 controllerString={appStrings.instructionsBmdContestNavigation()}
                 patDeviceString={appStrings.instructionsBmdContestNavigationPatDevice()}
@@ -91,7 +92,7 @@ export function YesNoContest({
           </Caption>
         </ContestHeader>
         <WithScrollButtons>
-          <Caption>{electionStrings.contestDescription(contest)}</Caption>
+          <Caption>{electionStrings.contestDescription(contest, Pre)}</Caption>
         </WithScrollButtons>
         <ContestFooter>
           <ChoicesGrid data-testid="contest-choices">
