@@ -28,19 +28,19 @@ const baseStyles = `
     margin: 0;
   }
   h1 {
-    font-size: 1.8em;
+    font-size: 1.4em;
   }
   h2 {
-    font-size: 1.5em;
-  }
-  h3 {
     font-size: 1.2em;
   }
+  h3 {
+    font-size: 1.1em;
+  }
   h4 {
-    font-size: 1.125em;
+    font-size: 1em;
   }
   h5 {
-    font-size: 1.075em;
+    font-size: 1em;
   }
   h6 {
     font-size: 1em;
