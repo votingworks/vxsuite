@@ -1169,7 +1169,7 @@ importers:
         version: link:../../../libs/utils
       debug:
         specifier: 4.3.4
-        version: 4.3.4(supports-color@5.5.0)
+        version: 4.3.4
       dotenv:
         specifier: 16.3.1
         version: 16.3.1
@@ -3015,7 +3015,7 @@ importers:
         version: 6.0.3
       debug:
         specifier: 4.3.4
-        version: 4.3.4(supports-color@5.5.0)
+        version: 4.3.4
       dotenv:
         specifier: 16.3.1
         version: 16.3.1
@@ -3031,9 +3031,6 @@ importers:
       jszip:
         specifier: ^3.9.1
         version: 3.9.1
-      lodash.merge:
-        specifier: ^4.6.2
-        version: 4.6.2
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
@@ -3074,9 +3071,6 @@ importers:
       '@types/jest':
         specifier: ^29.5.3
         version: 29.5.3
-      '@types/lodash.merge':
-        specifier: ^4.6.9
-        version: 4.6.9
       '@types/lodash.set':
         specifier: ^4.3.7
         version: 4.3.7
@@ -3139,7 +3133,7 @@ importers:
         version: 1.53.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.4.5)
+        version: 29.1.1(@babel/core@7.22.9)(jest@29.6.2)(typescript@5.4.5)
 
   libs/ballot-encoder:
     dependencies:
@@ -5933,7 +5927,7 @@ packages:
       '@babel/traverse': 7.22.8
       '@babel/types': 7.22.10
       convert-source-map: 1.9.0
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
       gensync: 1.0.0-beta.2
       json5: 2.2.3
       semver: 6.3.1
@@ -7340,7 +7334,7 @@ packages:
       '@babel/helper-split-export-declaration': 7.22.6
       '@babel/parser': 7.22.7
       '@babel/types': 7.22.10
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
       globals: 11.12.0
     transitivePeerDependencies:
       - supports-color
@@ -10636,12 +10630,6 @@ packages:
       '@types/lodash': 4.14.202
     dev: true
 
-  /@types/lodash.merge@4.6.9:
-    resolution: {integrity: sha512-23sHDPmzd59kUgWyKGiOMO2Qb9YtqRO/x4IhkgNUiPQ1+5MUVqi6bCZeq9nBJ17msjIMbEIO5u+XW4Kz6aGUhQ==}
-    dependencies:
-      '@types/lodash': 4.14.202
-    dev: true
-
   /@types/lodash.sample@4.2.9:
     resolution: {integrity: sha512-sKxUUQ/+257F0lM6zmozoD0KvsD8C8rvaSNOfL0gRhvgZIs3/Iwe0yJdqZN0wIfEiGw8eyO0Cgzg5NJbCzc78g==}
     dependencies:
@@ -11553,7 +11541,7 @@ packages:
     resolution: {integrity: sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==}
     engines: {node: '>= 6.0.0'}
     dependencies:
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
 
@@ -11561,7 +11549,7 @@ packages:
     resolution: {integrity: sha512-o/zjMZRhJxny7OyEF+Op8X+efiELC7k7yOjMzgfzVqOzXqkBkWI79YoTdOtsuWd5BWhAGAuOY/Xa6xpiaWXiNg==}
     engines: {node: '>= 14'}
     dependencies:
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -13264,6 +13252,17 @@ packages:
     dependencies:
       ms: 2.1.3
       supports-color: 5.5.0
+
+  /debug@4.3.4:
+    resolution: {integrity: sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==}
+    engines: {node: '>=6.0'}
+    peerDependencies:
+      supports-color: '*'
+    peerDependenciesMeta:
+      supports-color:
+        optional: true
+    dependencies:
+      ms: 2.1.2
 
   /debug@4.3.4(supports-color@5.5.0):
     resolution: {integrity: sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==}
@@ -15721,7 +15720,7 @@ packages:
     dependencies:
       '@tootallnate/once': 2.0.0
       agent-base: 6.0.2
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
 
@@ -15775,7 +15774,7 @@ packages:
     engines: {node: '>= 6'}
     dependencies:
       agent-base: 6.0.2
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
 
@@ -15784,7 +15783,7 @@ packages:
     engines: {node: '>= 14'}
     dependencies:
       agent-base: 7.1.0
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -16426,7 +16425,7 @@ packages:
     resolution: {integrity: sha512-n3s8EwkdFIJCG3BPKBYvskgXGoy88ARzvegkitk60NxRdwltLOTaH7CUiMRXvwYorl0Q712iEjcWB+fK/MrWVw==}
     engines: {node: '>=10'}
     dependencies:
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
       istanbul-lib-coverage: 3.2.0
       source-map: 0.6.1
     transitivePeerDependencies:
@@ -17271,7 +17270,7 @@ packages:
       cli-truncate: 2.1.0
       commander: 7.2.0
       cosmiconfig: 7.0.1
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
       dedent: 0.7.0
       enquirer: 2.3.6
       execa: 5.1.1
@@ -20000,7 +19999,7 @@ packages:
     engines: {node: '>=14'}
     dependencies:
       '@types/request': 2.48.11
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.4
       extend: 3.0.2
       teeny-request: 9.0.0
     transitivePeerDependencies:
@@ -21365,6 +21364,40 @@ packages:
       '@jest/types': 29.6.1
       bs-logger: 0.2.6
       esbuild: 0.21.2
+      fast-json-stable-stringify: 2.1.0
+      jest: 29.6.2(@types/node@16.18.23)
+      jest-util: 29.6.2
+      json5: 2.2.3
+      lodash.memoize: 4.1.2
+      make-error: 1.3.6
+      semver: 7.5.4
+      typescript: 5.4.5
+      yargs-parser: 21.1.1
+    dev: true
+
+  /ts-jest@29.1.1(@babel/core@7.22.9)(jest@29.6.2)(typescript@5.4.5):
+    resolution: {integrity: sha512-D6xjnnbP17cC85nliwGiL+tpoKN0StpgE0TeOjXQTU6MVCfsB4v7aW05CgQ/1OywGb0x/oy9hHFnN+sczTiRaA==}
+    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
+    hasBin: true
+    peerDependencies:
+      '@babel/core': '>=7.0.0-beta.0 <8'
+      '@jest/types': ^29.0.0
+      babel-jest: ^29.0.0
+      esbuild: '*'
+      jest: ^29.0.0
+      typescript: '>=4.3 <6'
+    peerDependenciesMeta:
+      '@babel/core':
+        optional: true
+      '@jest/types':
+        optional: true
+      babel-jest:
+        optional: true
+      esbuild:
+        optional: true
+    dependencies:
+      '@babel/core': 7.22.9
+      bs-logger: 0.2.6
       fast-json-stable-stringify: 2.1.0
       jest: 29.6.2(@types/node@16.18.23)
       jest-util: 29.6.2
