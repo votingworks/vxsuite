@@ -49,7 +49,7 @@ describe('HMPB - Famous Names', () => {
   test('Blank ballot interpretation', async () => {
     const { election } = electionDefinition;
     const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
-    expect(ballotImagePaths.length).toEqual(2);
+    expect(ballotImagePaths).toHaveLength(2);
 
     const [frontResult, backResult] = await interpretSheet(
       {
@@ -101,7 +101,7 @@ describe('HMPB - Famous Names', () => {
 
   test('Marked ballot interpretation', async () => {
     const ballotImagePaths = await ballotPdfToPageImages(markedBallotPath);
-    expect(ballotImagePaths.length).toEqual(2);
+    expect(ballotImagePaths).toHaveLength(2);
 
     const [frontResult, backResult] = await interpretSheet(
       {
@@ -128,7 +128,7 @@ describe('HMPB - Famous Names', () => {
 
   test('Wrong election', async () => {
     const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
-    expect(ballotImagePaths.length).toEqual(2);
+    expect(ballotImagePaths).toHaveLength(2);
 
     const [frontResult, backResult] = await interpretSheet(
       {
@@ -153,7 +153,7 @@ describe('HMPB - Famous Names', () => {
   test('Wrong precinct', async () => {
     const { election } = electionDefinition;
     const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
-    expect(ballotImagePaths.length).toEqual(2);
+    expect(ballotImagePaths).toHaveLength(2);
     assert(precinctId !== election.precincts[1]!.id);
 
     const [frontResult, backResult] = await interpretSheet(
@@ -175,7 +175,7 @@ describe('HMPB - Famous Names', () => {
 
   test('Wrong test mode', async () => {
     const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
-    expect(ballotImagePaths.length).toEqual(2);
+    expect(ballotImagePaths).toHaveLength(2);
 
     const [frontResult, backResult] = await interpretSheet(
       {
@@ -196,7 +196,7 @@ describe('HMPB - Famous Names', () => {
 
   test('normalizes ballot mode', async () => {
     const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
-    expect(ballotImagePaths.length).toEqual(2);
+    expect(ballotImagePaths).toHaveLength(2);
 
     const options: InterpreterOptions = {
       electionDefinition,
@@ -383,7 +383,7 @@ describe('HMPB - primary election', () => {
 
     test(`${partyLabel} - Blank ballot interpretation`, async () => {
       const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
-      expect(ballotImagePaths.length).toEqual(2);
+      expect(ballotImagePaths).toHaveLength(2);
 
       const [frontResult, backResult] = await interpretSheet(
         {
@@ -429,7 +429,7 @@ describe('HMPB - primary election', () => {
 
     test(`${partyLabel} - Marked ballot interpretation`, async () => {
       const ballotImagePaths = await ballotPdfToPageImages(markedBallotPath);
-      expect(ballotImagePaths.length).toEqual(2);
+      expect(ballotImagePaths).toHaveLength(2);
 
       const [frontResult, backResult] = await interpretSheet(
         {
@@ -460,8 +460,8 @@ describe('HMPB - primary election', () => {
     const precinct2Paths = await ballotPdfToPageImages(
       mammalParty.otherPrecinctBlankBallotPath
     );
-    expect(precinct1Paths.length).toEqual(2);
-    expect(precinct2Paths.length).toEqual(2);
+    expect(precinct1Paths).toHaveLength(2);
+    expect(precinct2Paths).toHaveLength(2);
     const [frontPath] = precinct1Paths;
     const [, backPath] = precinct2Paths;
 
@@ -489,8 +489,8 @@ describe('HMPB - primary election', () => {
     const ballotStyle2Paths = await ballotPdfToPageImages(
       fishParty.blankBallotPath
     );
-    expect(ballotStyle1Paths.length).toEqual(2);
-    expect(ballotStyle2Paths.length).toEqual(2);
+    expect(ballotStyle1Paths).toHaveLength(2);
+    expect(ballotStyle2Paths).toHaveLength(2);
     const [frontPath] = ballotStyle1Paths;
     const [, backPath] = ballotStyle2Paths;
 
