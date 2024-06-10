@@ -1,44 +1,50 @@
-import { ReadElectionError, readElection, readFile } from '@votingworks/fs';
-import Buffer from 'buffer';
+import { readElection } from '@votingworks/fs';
 import {
   ElectionDefinition,
   ElectionPackageFileName,
 } from '@votingworks/types';
 import { join } from 'path';
-import { Result } from '@votingworks/basics';
+import { generateMockVotes } from '@votingworks/utils';
+import { pdfToImages, writeImageData } from '@votingworks/image-utils';
+import { iter, assert, assertDefined } from '@votingworks/basics';
+import tmp from 'tmp';
+import { Buffer } from 'buffer';
+import { renderTestModeBallotWithoutLanguageContext } from '../../util/render_ballot';
 
-// Used by state machine
-const DIAGNOSTIC_MOCK_BALLOT_PDF_PATH = join(
+export const DIAGNOSTIC_ELECTION_PATH = join(
   __dirname,
-  'mocks',
-  'diagnostic-mock-ballot.pdf'
-);
-
-// Used by state machine tests
-export const DIAGNOSTIC_MOCK_BALLOT_JPG_PATH = join(
-  __dirname,
-  'mocks',
-  'diagnostic-mock-ballot.jpg'
-);
-
-const DIAGNOSTIC_ELECTION_PATH = join(
-  __dirname,
-  'mocks',
   ElectionPackageFileName.ELECTION
 );
 
-const FILE_MAX_SIZE = 1024 * 1024 * 5; // 5 mb
-
-export async function getPaperHandlerDiagnosticElectionDefinition(
-  path: string = DIAGNOSTIC_ELECTION_PATH
-): Promise<Result<ElectionDefinition, ReadElectionError>> {
-  return readElection(path);
+export function renderDiagnosticMockBallot(
+  electionDefinition: ElectionDefinition
+): Promise<Buffer> {
+  const { election } = electionDefinition;
+  return renderTestModeBallotWithoutLanguageContext(
+    electionDefinition,
+    election.precincts[0].id,
+    election.ballotStyles[0].id,
+    generateMockVotes(election)
+  );
 }
 
-export async function getMockBallotPdfData(): Promise<Buffer> {
-  const result = await readFile(DIAGNOSTIC_MOCK_BALLOT_PDF_PATH, {
-    maxSize: FILE_MAX_SIZE,
-  });
-  // Error must be handled by caller
-  return result.unsafeUnwrap();
+/**
+ * This function is for testing only, such as mocking the driver scanAndSave response
+ * during the scanning state of the paper handler diagnostic.
+ * It renders a mock ballot for the paper handler diagnostic election as an image,
+ * saves it to a tmp dir, and returns the filepath.
+ */
+export async function getDiagnosticMockBallotImagePath(): Promise<string> {
+  const electionDefinitionResult = await readElection(DIAGNOSTIC_ELECTION_PATH);
+  const electionDefinition = electionDefinitionResult.unsafeUnwrap();
+
+  const pdfData = await renderDiagnosticMockBallot(electionDefinition);
+
+  const first = assertDefined(
+    await iter(pdfToImages(pdfData, { scale: 200 / 72 })).first()
+  );
+  assert(first.pageCount === 1);
+  const file = tmp.fileSync({ postfix: '.jpg' });
+  await writeImageData(file.name, first.page);
+  return file.name;
 }

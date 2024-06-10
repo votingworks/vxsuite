@@ -36,7 +36,6 @@ import {
 } from '@votingworks/ballot-interpreter';
 import { fromGrayScale, writeImageData } from '@votingworks/image-utils';
 import { join } from 'path';
-import { ImageData } from 'canvas';
 import {
   PaperHandlerStateMachine,
   getPaperHandlerStateMachine,
@@ -75,8 +74,11 @@ import {
   ORIGIN_SWIFTY_PRODUCT_ID,
   ORIGIN_VENDOR_ID,
 } from '../pat-input/constants';
-import { DIAGNOSTIC_MOCK_BALLOT_JPG_PATH } from './diagnostic/utils';
-import { Store } from '../store';
+import {
+  BLANK_PAGE_INTERPRETATION_MOCK,
+  BLANK_PAGE_MOCK,
+  MOCK_IMAGE,
+} from '../../test/ballot_helpers';
 
 // Use shorter polling interval in tests to reduce run times
 const TEST_POLL_INTERVAL_MS = 50;
@@ -115,23 +117,6 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
       featureFlagMock.isEnabled(flag),
   };
 });
-
-const MOCK_IMAGE: ImageData = {
-  colorSpace: 'srgb',
-  data: new Uint8ClampedArray(),
-  height: 0,
-  width: 0,
-} as const;
-
-const BLANK_PAGE_MOCK: InterpretFileResult = {
-  interpretation: { type: 'BlankPage' },
-  normalizedImage: MOCK_IMAGE,
-};
-
-const BLANK_PAGE_INTERPRETATION_MOCK: SheetOf<InterpretFileResult> = [
-  BLANK_PAGE_MOCK,
-  BLANK_PAGE_MOCK,
-];
 
 const SUCCESSFUL_INTERPRETATION_MOCK: SheetOf<InterpretFileResult> = [
   {
@@ -739,73 +724,6 @@ test('poll_worker_auth_ended_unexpectedly', async () => {
 });
 
 describe('paper handler diagnostic', () => {
-  async function executeDiagnosticPrint(store: Store) {
-    mockOf(printBallotChunks).mockResolvedValue();
-
-    expect(
-      store.getMostRecentDiagnosticRecord('mark-scan-paper-handler')
-    ).toEqual(undefined);
-
-    machine.startPaperHandlerDiagnostic();
-    await expectStatusTransitionTo('paper_handler_diagnostic.prompt_for_paper');
-
-    setMockDeviceStatus(getPaperInFrontStatus());
-    await expectStatusTransitionTo('paper_handler_diagnostic.load_paper');
-
-    setMockDeviceStatus(getPaperParkedStatus());
-    await expectStatusTransitionTo(
-      'paper_handler_diagnostic.print_ballot_fixture'
-    );
-    await expectStatusTransitionTo('paper_handler_diagnostic.scan_ballot');
-  }
-
-  test('happy path', async () => {
-    mockSystemAdminAuth(auth);
-    const { store } = workspace;
-
-    const mockScanResult = deferred<string>();
-    mockOf(scanAndSave).mockResolvedValue(mockScanResult.promise);
-
-    const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
-    mockOf(interpretSimplexBmdBallotFromFilepath).mockResolvedValue(
-      mockInterpretResult.promise
-    );
-
-    await executeDiagnosticPrint(store);
-
-    mockScanResult.resolve(DIAGNOSTIC_MOCK_BALLOT_JPG_PATH);
-    await expectStatusTransitionTo('paper_handler_diagnostic.interpret_ballot');
-
-    mockInterpretResult.resolve(SUCCESSFUL_INTERPRETATION_MOCK);
-    await expectStatusTransitionTo('paper_handler_diagnostic.eject_to_rear');
-
-    setMockDeviceStatus(getDefaultPaperHandlerStatus());
-    await expectStatusTransitionTo('paper_handler_diagnostic.success');
-
-    expect(
-      store.getMostRecentDiagnosticRecord('mark-scan-paper-handler')?.outcome
-    ).toEqual('pass');
-  });
-
-  test('failure', async () => {
-    mockSystemAdminAuth(auth);
-    const { store } = workspace;
-
-    mockOf(printBallotChunks).mockResolvedValue();
-
-    const mockScanResult = deferred<string>();
-    mockOf(scanAndSave).mockResolvedValue(mockScanResult.promise);
-
-    await executeDiagnosticPrint(store);
-
-    mockScanResult.reject('Test scan error');
-    await expectStatusTransitionTo('not_accepting_paper');
-
-    expect(
-      store.getMostRecentDiagnosticRecord('mark-scan-paper-handler')?.outcome
-    ).toEqual('fail');
-  });
-
   test('system admin log out', async () => {
     machine.setAcceptingPaper();
     expect(machine.getSimpleStatus()).toEqual('accepting_paper');

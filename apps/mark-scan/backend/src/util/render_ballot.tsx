@@ -1,5 +1,9 @@
 import { renderToPdf } from '@votingworks/printing';
-import { LanguageCode, VotesDict } from '@votingworks/types';
+import {
+  ElectionDefinition,
+  LanguageCode,
+  VotesDict,
+} from '@votingworks/types';
 import { Buffer } from 'buffer';
 
 import { assertDefined } from '@votingworks/basics';
@@ -16,6 +20,29 @@ export interface RenderBallotProps {
   ballotStyleId: string;
   votes: VotesDict;
   languageCode: LanguageCode;
+}
+
+export async function renderTestModeBallotWithoutLanguageContext(
+  electionDefinition: ElectionDefinition,
+  precinctId: string,
+  ballotStyleId: string,
+  votes: VotesDict
+): Promise<Buffer> {
+  const ballot = (
+    <BmdPaperBallot
+      electionDefinition={electionDefinition}
+      ballotStyleId={ballotStyleId}
+      precinctId={precinctId}
+      votes={votes}
+      isLiveMode={false}
+      generateBallotId={randomBallotId}
+      machineType="markScan"
+    />
+  );
+
+  return renderToPdf({
+    document: ballot,
+  });
 }
 
 export async function renderBallot({

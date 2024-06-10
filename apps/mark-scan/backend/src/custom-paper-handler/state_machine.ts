@@ -43,6 +43,7 @@ import {
 } from '@votingworks/utils';
 import { tmpNameSync } from 'tmp';
 import { pdfToImages, writeImageData } from '@votingworks/image-utils';
+import { readElection } from '@votingworks/fs';
 import { Workspace, constructAuthMachineState } from '../util/workspace';
 import { SimpleServerStatus } from './types';
 import {
@@ -75,8 +76,8 @@ import {
   ORIGIN_VENDOR_ID,
 } from '../pat-input/constants';
 import {
-  getMockBallotPdfData,
-  getPaperHandlerDiagnosticElectionDefinition,
+  DIAGNOSTIC_ELECTION_PATH,
+  renderDiagnosticMockBallot,
 } from './diagnostic';
 
 interface Context {
@@ -518,9 +519,7 @@ export function buildMachine(
                 pollAuthStatus(),
                 {
                   id: 'loadAndPark',
-                  src: (context) => {
-                    return loadAndParkPaper(context.driver);
-                  },
+                  src: (context) => loadAndParkPaper(context.driver),
                 },
               ],
               on: {
@@ -866,9 +865,7 @@ export function buildMachine(
                 pollPaperStatus(),
                 {
                   id: 'diagnostic.loadAndPark',
-                  src: (context) => {
-                    return loadAndParkPaper(context.driver);
-                  },
+                  src: (context) => loadAndParkPaper(context.driver),
                   onError: createOnDiagnosticErrorHandler(),
                 },
               ],
@@ -880,10 +877,15 @@ export function buildMachine(
             print_ballot_fixture: {
               invoke: {
                 id: 'diagnostic.printBallotFixture',
-                src: (context) =>
-                  getMockBallotPdfData().then((ballotData) =>
-                    printBallotChunks(context.driver, ballotData, {})
-                  ),
+                src: (context) => {
+                  const electionDefinition = assertDefined(
+                    context.paperHandlerDiagnosticElection
+                  );
+                  return renderDiagnosticMockBallot(electionDefinition).then(
+                    (ballotData) =>
+                      printBallotChunks(context.driver, ballotData, {})
+                  );
+                },
                 onDone: 'scan_ballot',
                 onError: createOnDiagnosticErrorHandler(),
               },
@@ -1142,8 +1144,9 @@ export async function getPaperHandlerStateMachine({
   authPollingIntervalMs: number;
   notificationDurationMs: number;
 }): Promise<Optional<PaperHandlerStateMachine>> {
-  const diagnosticElectionDefinitionResult =
-    await getPaperHandlerDiagnosticElectionDefinition();
+  const diagnosticElectionDefinitionResult = await readElection(
+    DIAGNOSTIC_ELECTION_PATH
+  );
   const initialContext: Context = {
     auth,
     workspace,
@@ -1184,16 +1187,21 @@ export async function getPaperHandlerStateMachine({
           return 'paper_handler_diagnostic.prompt_for_paper';
         case state.matches('paper_handler_diagnostic.load_paper'):
           return 'paper_handler_diagnostic.load_paper';
+        /* istanbul ignore next */
         case state.matches('paper_handler_diagnostic.print_ballot_fixture'):
+          /* istanbul ignore next */
           return 'paper_handler_diagnostic.print_ballot_fixture';
         case state.matches('paper_handler_diagnostic.scan_ballot'):
           return 'paper_handler_diagnostic.scan_ballot';
+        /* istanbul ignore next */
         case state.matches('paper_handler_diagnostic.interpret_ballot'):
+          /* istanbul ignore next */
           return 'paper_handler_diagnostic.interpret_ballot';
         case state.matches('paper_handler_diagnostic.eject_to_rear'):
           return 'paper_handler_diagnostic.eject_to_rear';
         case state.matches('paper_handler_diagnostic.success'):
           return 'paper_handler_diagnostic.success';
+        /* istanbul ignore next */
         case state.matches('paper_handler_diagnostic.failure'):
           /* istanbul ignore next - nonblocking state can't be reliably asserted on. Instead, assert on presence of diagnostic record */
           return 'paper_handler_diagnostic.failure';

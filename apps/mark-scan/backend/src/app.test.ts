@@ -7,11 +7,7 @@ import {
   electionGeneralDefinition,
   electionGeneralFixtures,
 } from '@votingworks/fixtures';
-import {
-  backendWaitFor,
-  mockOf,
-  suppressingConsoleOutput,
-} from '@votingworks/test-utils';
+import { mockOf, suppressingConsoleOutput } from '@votingworks/test-utils';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -39,7 +35,10 @@ import { MockUsbDrive } from '@votingworks/usb-drive';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { AddressInfo } from 'net';
-import { createApp } from '../test/app_helpers';
+import {
+  createApp,
+  waitForStatus as waitForStatusHelper,
+} from '../test/app_helpers';
 import { Api, buildApp } from './app';
 import { PaperHandlerStateMachine } from './custom-paper-handler';
 import { ElectionState } from './types';
@@ -112,12 +111,7 @@ afterEach(async () => {
 });
 
 async function waitForStatus(status: string): Promise<void> {
-  await backendWaitFor(
-    async () => {
-      expect(await apiClient.getPaperHandlerState()).toEqual(status);
-    },
-    { interval: TEST_POLLING_INTERVAL_MS, retries: 3 }
-  );
+  await waitForStatusHelper(apiClient, TEST_POLLING_INTERVAL_MS, status);
 }
 
 async function setUpUsbAndConfigureElection(
