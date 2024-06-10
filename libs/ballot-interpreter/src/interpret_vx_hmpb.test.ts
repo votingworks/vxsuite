@@ -60,13 +60,13 @@ describe('HMPB - Famous Names', () => {
       'chief-of-police': [],
       controller: [],
       mayor: [],
-      'parks-and-recreation-director': [],
       'public-works-director': [],
     });
     assert(backResult.interpretation.type === 'InterpretedHmpbPage');
     expect(backResult.interpretation.votes).toEqual({
       'board-of-alderman': [],
       'city-council': [],
+      'parks-and-recreation-director': [],
     });
 
     expect(frontResult.interpretation.metadata).toEqual({
@@ -185,8 +185,8 @@ describe('HMPB - Famous Names', () => {
   });
 });
 
-for (const paperSize of Object.values(BallotPaperSize)) {
-  describe(`HMPB - general election - ${paperSize} paper`, () => {
+for (const spec of generalElectionFixtures.fixtureSpecs) {
+  describe(`HMPB - general election - ${spec.paperSize} paper - language: ${spec.languageCode}`, () => {
     const {
       electionPath,
       markedBallotPath,
@@ -194,7 +194,7 @@ for (const paperSize of Object.values(BallotPaperSize)) {
       ballotStyleId,
       votes,
       unmarkedWriteIns,
-    } = generalElectionFixtures[paperSize];
+    } = spec;
 
     test(`Marked ballot interpretation`, async () => {
       const electionDefinition = (
@@ -267,9 +267,8 @@ for (const paperSize of Object.values(BallotPaperSize)) {
         });
 
         // Snapshot the ballot images with write-in crops drawn on them
-        // We want to cover different bubble positions and densities, but to
-        // save time we don't test across paper sizes.
-        if (paperSize === BallotPaperSize.Letter) {
+        // To save time we don't test across paper sizes.
+        if (spec.paperSize === BallotPaperSize.Letter) {
           for (const [pageImagePath, interpretation] of iter(
             sheetImagePaths
           ).zip([frontResult.interpretation, backResult.interpretation])) {
@@ -471,7 +470,7 @@ describe('HMPB - primary election', () => {
 
 test('Non-consecutive page numbers', async () => {
   const { electionPath, blankBallotPath } =
-    generalElectionFixtures[BallotPaperSize.Letter];
+    generalElectionFixtures.fixtureSpecs[0]!;
   const electionDefinition = (await readElection(electionPath)).unsafeUnwrap();
   const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
   assert(ballotImagePaths.length > 2);
