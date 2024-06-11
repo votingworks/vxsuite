@@ -323,8 +323,8 @@ describe('paper handler diagnostic', () => {
 
     mockDriverStatus(getPaperParkedStatus());
     await waitForStatus('paper_handler_diagnostic.print_ballot_fixture');
-    // Chromium, used by print_ballot_fixture, needs ~150ms to spin up
-    await waitForStatus('paper_handler_diagnostic.scan_ballot', 150);
+    // Chromium, used by print_ballot_fixture, needs some time to spin up
+    await waitForStatus('paper_handler_diagnostic.scan_ballot', 300);
 
     mockScanResult.resolve(scannedPath);
     await waitForStatus('paper_handler_diagnostic.interpret_ballot');
