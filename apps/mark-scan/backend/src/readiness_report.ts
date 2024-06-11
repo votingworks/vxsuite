@@ -57,6 +57,11 @@ export async function saveReadinessReport({
         'mark-scan-pat-input'
       ),
     },
+    headphoneInputProps: {
+      mostRecentDiagnosticRecord: store.getMostRecentDiagnosticRecord(
+        'mark-scan-headphone-input'
+      ),
+    },
     machineId: VX_MACHINE_ID,
     generatedAtTime,
     electionDefinition,

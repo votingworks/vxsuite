@@ -54,6 +54,7 @@ beforeEach(() => {
   apiMock.expectGetMostRecentDiagnostic('mark-scan-accessible-controller');
   apiMock.expectGetMostRecentDiagnostic('mark-scan-paper-handler');
   apiMock.expectGetMostRecentDiagnostic('mark-scan-pat-input');
+  apiMock.expectGetMostRecentDiagnostic('mark-scan-headphone-input');
 });
 
 afterEach(() => {
@@ -84,6 +85,11 @@ test('data from API is passed to screen contents', async () => {
     outcome: 'pass',
     timestamp: new Date('2022-03-23T11:10:00.000').getTime(),
   });
+  apiMock.expectGetMostRecentDiagnostic('mark-scan-headphone-input', {
+    type: 'mark-scan-headphone-input',
+    outcome: 'pass',
+    timestamp: new Date('2022-03-23T11:15:00.000').getTime(),
+  });
 
   renderScreen();
 
@@ -95,6 +101,7 @@ test('data from API is passed to screen contents', async () => {
   expectDetected(screen, DiagnosticSectionTitle.PaperHandler, true);
   expectDetected(screen, DiagnosticSectionTitle.AccessibleController, true);
   expectDetected(screen, DiagnosticSectionTitle.PatInput, true);
+  screen.getByText('Test passed, 3/23/2022, 11:15:00 AM');
   screen.getByText('Test passed, 3/23/2022, 11:10:00 AM');
   screen.getByText('Test passed, 3/23/2022, 11:05:00 AM');
   screen.getByText('Test passed, 3/23/2022, 11:00:00 AM');
@@ -281,4 +288,21 @@ test('PAT diagnostic early exit', async () => {
   apiMock.expectSetPatDeviceIsCalibrated();
 
   userEvent.click(screen.getByText('Skip Identification'));
+});
+
+test('navigating to and from headphone diagnostic', async () => {
+  apiMock.expectAddDiagnosticRecord({
+    type: 'mark-scan-headphone-input',
+    outcome: 'pass',
+  });
+
+  renderScreen();
+
+  userEvent.click(await screen.findButton('Test Front Headphone Input'));
+  await screen.findByText('Headphone Input Test');
+
+  // Failure case is tested in headphone_input_diagnostic_screen.test.tsx
+  apiMock.expectGetMostRecentDiagnostic('mark-scan-headphone-input');
+  userEvent.click(screen.getByText('Sound is audible'));
+  await screen.findByText('System Diagnostics');
 });
