@@ -27,7 +27,10 @@ async function expectToMatchSavedPdf(
     { page: actualPage },
     { page: expectedPage },
   ] of pdfPagePairs) {
-    expect(toImageBuffer(actualPage)).toMatchImage(toImageBuffer(expectedPage));
+    expect(toImageBuffer(actualPage)).toMatchImage(
+      toImageBuffer(expectedPage),
+      { dumpDiffToConsole: true }
+    );
   }
 }
 

@@ -6,7 +6,10 @@ declare global {
   namespace jest {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     interface Matchers<R> {
-      toMatchImage(expected: Buffer): CustomMatcherResult;
+      toMatchImage(
+        expected: Buffer,
+        options?: { dumpDiffToConsole: boolean }
+      ): CustomMatcherResult;
     }
   }
 }
