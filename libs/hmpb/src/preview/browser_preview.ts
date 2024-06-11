@@ -1,5 +1,6 @@
 import './polyfills';
 import {
+  BallotPaperSize,
   BallotStyle,
   BallotType,
   LanguageCode,
@@ -25,17 +26,21 @@ import { BUBBLE_CLASS, OptionInfo, PAGE_CLASS } from '../ballot_components';
 const election = electionGeneral;
 const ballotStyle: BallotStyle = {
   ...election.ballotStyles[0],
-  languages: [LanguageCode.CHINESE_SIMPLIFIED, LanguageCode.ENGLISH],
+  languages: [LanguageCode.SPANISH, LanguageCode.ENGLISH],
 };
 const exampleBallotProps: BaseBallotProps = {
   election: {
     ...election,
+    ballotLayout: {
+      ...election.ballotLayout,
+      paperSize: BallotPaperSize.Legal,
+    },
     ballotStyles: [ballotStyle],
   },
   ballotStyleId: ballotStyle.id,
   precinctId: ballotStyle.precincts[0],
   ballotType: BallotType.Absentee,
-  ballotMode: 'official',
+  ballotMode: 'sample',
   translatedStrings: electionGeneralFixtures.uiStrings,
 };
 

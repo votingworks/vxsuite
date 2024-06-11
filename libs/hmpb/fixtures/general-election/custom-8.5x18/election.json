@@ -13,8 +13,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "全民选举"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "全民選舉"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "General Election"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "Eleccion general"
           }
         ]
       },
@@ -997,8 +1012,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "总裁和副总裁"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "主席和副主席"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "President and Vice-President"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "Presidente y Vicepresidente"
               }
             ]
           },
@@ -1076,8 +1106,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "参议员"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "參議員"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Senator"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "Senador"
               }
             ]
           },
@@ -1165,8 +1210,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "第 6 区代表"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "第六區代表"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Representative, District 6"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "Representante, Distrito 6"
               }
             ]
           },
@@ -1234,8 +1294,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "州长"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "州長"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Governor"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "Gobernador"
               }
             ]
           },
@@ -1413,8 +1488,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "副州长"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "副州長"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Lieutenant Governor"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "Teniente gobernador"
               }
             ]
           },
@@ -1522,8 +1612,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "国务卿"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "國務卿"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Secretary of State"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "secretario de Estado"
               }
             ]
           },
@@ -1561,8 +1666,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "第 31 区参议员"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "第 31 選區參議員"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Senator, District 31"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "Senador, Distrito 31"
               }
             ]
           },
@@ -1590,8 +1710,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "第 54 区议员"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "第 54 區議員"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Assembly Member, District 54"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "Miembro de la Asamblea, Distrito 54"
               }
             ]
           },
@@ -1639,8 +1774,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "县委员"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "縣專員"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "County Commissioners"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "Comisionados del condado"
               }
             ]
           },
@@ -1788,8 +1938,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "遗嘱登记官"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "遺囑登記官"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Registrar of Wills"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "registrador de testamentos"
               }
             ]
           },
@@ -1822,8 +1987,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "市长"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "市長"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Mayor"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "Alcalde"
               }
             ]
           },
@@ -1866,8 +2046,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "市议会"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "市議會"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "City Council"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "Ayuntamiento"
               }
             ]
           },
@@ -1960,8 +2155,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "保留罗伯特·德梅格 (Robert Demergue) 担任首席大法官？"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "保留羅伯特·德默格（Robert Demergue）擔任首席大法官？"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Retain Robert Demergue as Chief Justice?"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "¿Conservar a Robert Demergue como presidente del Tribunal Supremo?"
               }
             ]
           },
@@ -1970,8 +2180,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "罗伯特·德梅尔格是否应留任汉密尔顿上诉法院首席大法官？"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "羅伯特·德默格 (Robert Demergue) 是否應繼續擔任漢密爾頓上訴法院首席法官？"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Shall Robert Demergue be retained as Chief Justice of the Hamilton Court of Appeals?"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "¿Se mantendrá a Robert Demergue como presidente del Tribunal de Apelaciones de Hamilton?"
               }
             ]
           },
@@ -1984,8 +2209,23 @@
                 "Text": [
                   {
                     "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hans",
+                    "Content": "是的"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hant",
+                    "Content": "是的"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
                     "Language": "en",
                     "Content": "Yes"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "es-US",
+                    "Content": "Sí"
                   }
                 ]
               }
@@ -1998,7 +2238,22 @@
                 "Text": [
                   {
                     "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hans",
+                    "Content": "不"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hant",
+                    "Content": "不"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
                     "Language": "en",
+                    "Content": "No"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "es-US",
                     "Content": "No"
                   }
                 ]
@@ -2016,8 +2271,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "保留埃尔默·赫尔 (Elmer Hull) 为副法官吗？"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "保留埃爾默·赫爾擔任副法官嗎？"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Retain Elmer Hull as Associate Justice?"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "¿Conservar a Elmer Hull como juez asociado?"
               }
             ]
           },
@@ -2026,8 +2296,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "埃尔默·赫尔是否应留任汉密尔顿上诉法院副法官？"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "埃爾默·赫爾 (Elmer Hull) 是否應繼續擔任漢密爾頓上訴法院副法官？"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Shall Elmer Hull be retained as Associate Justice of the Hamilton Court of Appeals?"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "¿Se debe conservar a Elmer Hull como juez asociado del Tribunal de Apelaciones de Hamilton?"
               }
             ]
           },
@@ -2040,8 +2325,23 @@
                 "Text": [
                   {
                     "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hans",
+                    "Content": "是的"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hant",
+                    "Content": "是的"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
                     "Language": "en",
                     "Content": "Yes"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "es-US",
+                    "Content": "Sí"
                   }
                 ]
               }
@@ -2054,7 +2354,22 @@
                 "Text": [
                   {
                     "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hans",
+                    "Content": "不"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hant",
+                    "Content": "不"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
                     "Language": "en",
+                    "Content": "No"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "es-US",
                     "Content": "No"
                   }
                 ]
@@ -2072,8 +2387,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "问题A：财产损失的追偿"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "問題A：財產損失的追償"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Question A: Recovery of Property Damages"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "Pregunta A: Recuperación de daños a la propiedad"
               }
             ]
           },
@@ -2082,8 +2412,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "是否应该对州宪法进行修正，以关于与不动产改良工程建设相关的损害赔偿，以及与此相关的禁止限制或损害财产所有人因未能以良好和熟练的方式建造改良工程而造成的损害赔偿的权利的法律？"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "是否應就與不動產改善工程建設相關的損害賠償問題對州憲法進行修訂，並禁止制定限製或損害業主因未進行不動產改善工程建設而造成損害賠償的權利的法律？"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Shall there be an amendment to the State constitution concerning recovery of damages relating to construction of real property improvements, and, in connection therewith, prohibiting laws that limit or impair a property owner's right to recover damages caused by a failure to construct an improvement in a good and workmanlike manner?"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "¿Habrá una enmienda a la constitución del Estado relativa a la recuperación de daños relacionados con la construcción de mejoras a bienes inmuebles y, en relación con ello, prohibir leyes que limiten o menoscaben el derecho del propietario a recuperar los daños causados ​​por no construir una mejora en un buena y profesional manera?"
               }
             ]
           },
@@ -2096,8 +2441,23 @@
                 "Text": [
                   {
                     "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hans",
+                    "Content": "是的"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hant",
+                    "Content": "是的"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
                     "Language": "en",
                     "Content": "Yes"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "es-US",
+                    "Content": "Sí"
                   }
                 ]
               }
@@ -2110,7 +2470,22 @@
                 "Text": [
                   {
                     "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hans",
+                    "Content": "不"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hant",
+                    "Content": "不"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
                     "Language": "en",
+                    "Content": "No"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "es-US",
                     "Content": "No"
                   }
                 ]
@@ -2128,8 +2503,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "问题 B：权力分立"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "問題 B：權力分立"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Question B: Separation of Powers"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "Pregunta B: Separación de poderes"
               }
             ]
           },
@@ -2138,8 +2528,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "是否应修改州宪法，以确保州政府三权分立：立法机构、行政机构和司法机构？\n\na. 宪法第三条第六款应修改如下：\n\n第六款。在其他政府任职\n\n参议员和众议员不得在州政府担任其他任命职务。"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "是否應該對州憲法進行修正案，以確保州政府三個部門（立法部門、行政部門和司法部門）之間的政府權力分立？ \n\nA。章程第三條第六節修改為： \n\n第六節 在其他政府任職 \n\n參議員和眾議員不得擔任州政府指定的其他職位。"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Shall there be amendments to the State constitution intended to have the collective effect of ensuring the separation of governmental power among the three branches of state government: the legislative branch, the executive branch and the judicial branch? \n\na. Article III, Section 6 of the Constitution shall be amended to read as follows: \n\nSection 6. Holding of offices under other governments \n\nSenators and representatives not to hold other appointed offices under state government."
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "¿Habrá enmiendas a la constitución del Estado destinadas a tener el efecto colectivo de garantizar la separación del poder gubernamental entre los tres poderes del gobierno estatal: el poder legislativo, el poder ejecutivo y el poder judicial? \n\na. Se enmienda el Artículo III, Sección 6 de la Constitución para que lea como sigue: \n\nSección 6. Desempeño de cargos bajo otros gobiernos \n\nLos senadores y representantes no ocuparán otros cargos designados bajo el gobierno estatal."
               }
             ]
           },
@@ -2152,8 +2557,23 @@
                 "Text": [
                   {
                     "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hans",
+                    "Content": "是的"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hant",
+                    "Content": "是的"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
                     "Language": "en",
                     "Content": "Yes"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "es-US",
+                    "Content": "Sí"
                   }
                 ]
               }
@@ -2166,7 +2586,22 @@
                 "Text": [
                   {
                     "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hans",
+                    "Content": "不"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hant",
+                    "Content": "不"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
                     "Language": "en",
+                    "Content": "No"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "es-US",
                     "Content": "No"
                   }
                 ]
@@ -2184,8 +2619,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "问题 C：非经济损失赔偿限额"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "問題 C：非經濟損失的賠償限額"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Question C: Limits to Damages for Non-Economic Loss"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "Pregunta C: Límites a los daños por pérdidas no económicas"
               }
             ]
           },
@@ -2194,8 +2644,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "是否应该对州宪法进行修正，允许州立法机构颁布法律，限制因医疗保健提供者造成的伤害或死亡而可获得的非经济损失赔偿金额？"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "是否應該對州憲法進行修訂，允許州立法機構頒布法律，限制因醫療保健提供者造成的傷害或死亡而可能判給的非經濟損失的賠償金額？"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Shall there be an amendment to the State constitution allowing the State legislature to enact laws limiting the amount of damages for non-economic loss that could be awarded for injury or death caused by a health care provider?"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "¿Habrá una enmienda a la constitución estatal que permita a la legislatura estatal promulgar leyes que limiten el monto de la indemnización por pérdidas no económicas que podrían otorgarse por lesiones o muerte causadas por un proveedor de atención médica?"
               }
             ]
           },
@@ -2208,8 +2673,23 @@
                 "Text": [
                   {
                     "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hans",
+                    "Content": "是的"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hant",
+                    "Content": "是的"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
                     "Language": "en",
                     "Content": "Yes"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "es-US",
+                    "Content": "Sí"
                   }
                 ]
               }
@@ -2222,7 +2702,22 @@
                 "Text": [
                   {
                     "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hans",
+                    "Content": "不"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hant",
+                    "Content": "不"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
                     "Language": "en",
+                    "Content": "No"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "es-US",
                     "Content": "No"
                   }
                 ]
@@ -2240,8 +2735,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "提案 1：富兰克林县和弗罗威特县的赌博业"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "提案 1：富蘭克林縣和弗羅維特縣的賭博"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Proposition 1: Gambling in Franklin and Fromwit Counties"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "Propuesta 1: Juegos de azar en los condados de Franklin y Fromwit"
               }
             ]
           },
@@ -2250,8 +2760,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "是否应修改州宪法，授权富兰克林县和弗罗威特县举行全民公决，决定是否批准在本修正案生效日前两个日历年内在该县举办过现场赛马或游戏的现有持牌彩池设施（纯种马和马具赛马、赛狗和回力球）中开设老虎机？需要实施立法。"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "是否應該對州憲法進行修正案，授權富蘭克林縣和弗洛威特縣就是否授權在進行過現場賽馬或迴力賽的現有許可彩池設施（純種馬和挽具賽馬、灰狗賽馬和迴力賽）中使用老虎機進行全民投票？需要立法實施。"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Shall there be an amendment to the State constitution authorizing Franklin and Fromwit Counties to hold referenda on whether to authorize slot machines in existing, licensed pari-mutuel facilities (thoroughbred and harness racing, greyhound racing, and jai alai) that have conducted live racing or games in that county during each of the last two calendar years before effective date of this amendment? Requires implementing legislation."
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "¿Debería haber una enmienda a la constitución estatal que autorice a los condados de Franklin y Fromwit a celebrar referendos sobre si se deben autorizar las máquinas tragamonedas en instalaciones de pari-mutuel existentes y con licencia (carreras de pura sangre y trineos, carreras de galgos y jai alai) que hayan realizado carreras en vivo o juegos en ese condado durante cada uno de los últimos dos años calendario antes de la fecha de vigencia de esta enmienda? Requiere legislación de implementación."
               }
             ]
           },
@@ -2264,8 +2789,23 @@
                 "Text": [
                   {
                     "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hans",
+                    "Content": "是的"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hant",
+                    "Content": "是的"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
                     "Language": "en",
                     "Content": "Yes"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "es-US",
+                    "Content": "Sí"
                   }
                 ]
               }
@@ -2278,7 +2818,22 @@
                 "Text": [
                   {
                     "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hans",
+                    "Content": "不"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hant",
+                    "Content": "不"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
                     "Language": "en",
+                    "Content": "No"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "es-US",
                     "Content": "No"
                   }
                 ]
@@ -2296,8 +2851,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "措施 101：大学区"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "措施 101：大學區"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Measure 101: College District"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "Medida 101: Distrito Universitario"
               }
             ]
           },
@@ -2306,8 +2876,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "为了升级 Diablo Valley、富兰克林学院和圣布伦特伍德中心的教育设施，并通过对教室和实验室进行现代化改造、建设卫生、医疗、科学和技术培训设施以及实施基础设施改进，帮助学生为就业和转学做好准备，富兰克林社区学院区是否应以合法利率发行 4.5 亿美元债券，并进行独立监督和审计，并将所有资金用于当地场地？"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "升級迪亞波羅谷、富蘭克林學院和聖布倫特伍德中心的教育設施，透過現代化教室和實驗室、建造健康、醫療、科學和技術培訓設施以及實施基礎設施，幫助學生為就業和大學轉學做好準備富蘭克林社區學院區是否應以法定利率發行 4.5 億美元的債券，並進行獨立監督、審計，並將所有資金都花在當地？"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "To upgrade educational facilities at Diablo Valley, and Franklin, Colleges, and the San Brentwood center, and help prepare students for jobs and college transfer by modernizing classrooms and labs, building facilities for health, medical, science, and technology training, and implementing infrastructure improvements, shall the Franklin Community College District issue $450 million of bonds at legal interest rates with independent oversight, audits, and all funds spent on local sites?"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "Mejorar las instalaciones educativas en Diablo Valley, Franklin, Colleges y el centro de San Brentwood, y ayudar a preparar a los estudiantes para trabajos y transferencias universitarias mediante la modernización de aulas y laboratorios, la construcción de instalaciones para capacitación en salud, medicina, ciencia y tecnología, e implementación de infraestructura. mejoras, ¿deberá el Distrito de Colegios Comunitarios de Franklin emitir $450 millones en bonos a tasas de interés legales con supervisión independiente, auditorías y todos los fondos gastados en sitios locales?"
               }
             ]
           },
@@ -2320,8 +2905,23 @@
                 "Text": [
                   {
                     "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hans",
+                    "Content": "是的"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hant",
+                    "Content": "是的"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
                     "Language": "en",
                     "Content": "Yes"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "es-US",
+                    "Content": "Sí"
                   }
                 ]
               }
@@ -2334,7 +2934,22 @@
                 "Text": [
                   {
                     "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hans",
+                    "Content": "不"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hant",
+                    "Content": "不"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
                     "Language": "en",
+                    "Content": "No"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "es-US",
                     "Content": "No"
                   }
                 ]
@@ -2352,8 +2967,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "措施 102：车辆减排计划"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "措施 102：車輛減量計劃"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Measure 102: Vehicle Abatement Program"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "Medida 102: Programa de reducción de vehículos"
               }
             ]
           },
@@ -2362,8 +2992,23 @@
             "Text": [
               {
                 "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hans",
+                "Content": "富兰克林县车辆减排计划和车辆登记费（每辆车一美元，某些商用车在登记时需额外支付两美元）是否应从 2021 年 7 月 1 日起续期十年，用于减排和清除被遗弃、损坏、拆卸或无法运行的车辆？"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "zh-Hant",
+                "Content": "富蘭克林縣車輛減排計畫和車輛登記費（每輛車1 美元，某些商用車輛在車輛登記時另需支付2 美元）是否應自2021 年7 月1 日起續簽10 年期，用於減排和清除廢棄、失事、拆除或失效的車輛？"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
                 "Language": "en",
                 "Content": "Should the Franklin County Vehicle Abatement Program and vehicle registration fees (one dollar per vehicle and an additional two dollars for certain commercial vehicles payable upon registration of a vehicle) be renewed for a ten-year term beginning July 1, 2021, for the abatement and removal of abandoned, wrecked, dismantled, or inoperative vehicles?"
+              },
+              {
+                "@type": "BallotDefinition.LanguageString",
+                "Language": "es-US",
+                "Content": "¿Debería renovarse el Programa de reducción de vehículos del condado de Franklin y las tarifas de registro de vehículos (un dólar por vehículo y dos dólares adicionales para ciertos vehículos comerciales pagaderos al registrar un vehículo) por un período de diez años a partir del 1 de julio de 2021, para la reducción y ¿Remoción de vehículos abandonados, destrozados, desmantelados o inoperativos?"
               }
             ]
           },
@@ -2376,8 +3021,23 @@
                 "Text": [
                   {
                     "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hans",
+                    "Content": "是的"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hant",
+                    "Content": "是的"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
                     "Language": "en",
                     "Content": "Yes"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "es-US",
+                    "Content": "Sí"
                   }
                 ]
               }
@@ -2390,7 +3050,22 @@
                 "Text": [
                   {
                     "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hans",
+                    "Content": "不"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "zh-Hant",
+                    "Content": "不"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
                     "Language": "en",
+                    "Content": "No"
+                  },
+                  {
+                    "@type": "BallotDefinition.LanguageString",
+                    "Language": "es-US",
                     "Content": "No"
                   }
                 ]
@@ -2416,8 +3091,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -2429,8 +3104,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 13.396385453474677,
+                          "X": 1.6881056201550388,
+                          "Y": 14.66099823321555,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2445,8 +3120,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 16.22220995288575,
+                          "X": 1.6881056201550388,
+                          "Y": 17.48682273262662,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2461,8 +3136,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 19.04803445229682,
+                          "X": 1.6881056201550388,
+                          "Y": 20.312647232037694,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2477,8 +3152,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 21.87385895170789,
+                          "X": 1.6881056201550388,
+                          "Y": 23.138471731448764,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2493,8 +3168,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 24.699683451118965,
+                          "X": 1.6881056201550388,
+                          "Y": 25.964296230859837,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2509,8 +3184,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 28.293911955241462,
+                          "X": 1.6881056201550388,
+                          "Y": 29.558524734982335,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2530,8 +3205,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -2543,8 +3218,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 33.994368374558306,
+                          "X": 1.6881056201550388,
+                          "Y": 35.239583333333336,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2559,8 +3234,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 36.051788869257955,
+                          "X": 1.6881056201550388,
+                          "Y": 37.297003828032985,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2575,8 +3250,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 38.109209363957596,
+                          "X": 1.6881056201550388,
+                          "Y": 39.354424322732626,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2591,8 +3266,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 40.93503386336867,
+                          "X": 1.6881056201550388,
+                          "Y": 42.1802488221437,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2607,8 +3282,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 42.99245435806832,
+                          "X": 1.6881056201550388,
+                          "Y": 44.237669316843345,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2623,8 +3298,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 45.049874852767964,
+                          "X": 1.6881056201550388,
+                          "Y": 46.295089811542994,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2639,8 +3314,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 47.10729534746761,
+                          "X": 1.6881056201550388,
+                          "Y": 48.35251030624264,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2660,8 +3335,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -2673,8 +3348,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 52.03934776207303,
+                          "X": 1.6881056201550388,
+                          "Y": 53.265164899882215,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2689,8 +3364,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 54.09676825677268,
+                          "X": 1.6881056201550388,
+                          "Y": 55.322585394581864,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2705,8 +3380,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 56.154188751472326,
+                          "X": 1.6881056201550388,
+                          "Y": 57.38000588928151,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2721,8 +3396,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 58.21160924617197,
+                          "X": 1.6881056201550388,
+                          "Y": 59.437426383981155,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2737,8 +3412,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 60.269029740871616,
+                          "X": 1.6881056201550388,
+                          "Y": 61.494846878680804,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2758,8 +3433,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -2771,8 +3446,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 12.53161808009423,
+                          "X": 12.261749031007753,
+                          "Y": 13.815628680800943,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2787,8 +3462,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 14.589038574793877,
+                          "X": 12.261749031007753,
+                          "Y": 15.87304917550059,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2803,8 +3478,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 16.646459069493524,
+                          "X": 12.261749031007753,
+                          "Y": 17.930469670200235,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2819,8 +3494,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 18.70387956419317,
+                          "X": 12.261749031007753,
+                          "Y": 19.987890164899884,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2835,8 +3510,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 20.761300058892818,
+                          "X": 12.261749031007753,
+                          "Y": 22.04531065959953,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2851,8 +3526,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 22.818720553592463,
+                          "X": 12.261749031007753,
+                          "Y": 24.10273115429918,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2867,8 +3542,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 24.87614104829211,
+                          "X": 12.261749031007753,
+                          "Y": 26.160151648998824,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2883,8 +3558,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 26.933561542991757,
+                          "X": 12.261749031007753,
+                          "Y": 28.217572143698472,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2899,8 +3574,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 28.990982037691403,
+                          "X": 12.261749031007753,
+                          "Y": 30.274992638398118,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2915,8 +3590,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 31.04840253239105,
+                          "X": 12.261749031007753,
+                          "Y": 32.332413133097766,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2931,8 +3606,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 33.1058230270907,
+                          "X": 12.261749031007753,
+                          "Y": 34.38983362779741,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2947,8 +3622,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 35.16324352179034,
+                          "X": 12.261749031007753,
+                          "Y": 36.44725412249706,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2963,8 +3638,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 37.22066401648999,
+                          "X": 12.261749031007753,
+                          "Y": 38.504674617196706,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2979,8 +3654,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 39.27808451118964,
+                          "X": 12.261749031007753,
+                          "Y": 40.562095111896355,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -2995,8 +3670,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 41.33550500588928,
+                          "X": 12.261749031007753,
+                          "Y": 42.619515606595996,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3011,8 +3686,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 43.39292550058893,
+                          "X": 12.261749031007753,
+                          "Y": 44.676936101295645,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3032,8 +3707,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -3045,8 +3720,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.005935077519382,
-                          "Y": 12.53161808009423,
+                          "X": 22.835392441860467,
+                          "Y": 13.815628680800943,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3061,8 +3736,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.005935077519382,
-                          "Y": 14.589038574793877,
+                          "X": 22.835392441860467,
+                          "Y": 15.87304917550059,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3077,8 +3752,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.005935077519382,
-                          "Y": 16.646459069493524,
+                          "X": 22.835392441860467,
+                          "Y": 17.930469670200235,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3093,8 +3768,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.005935077519382,
-                          "Y": 18.70387956419317,
+                          "X": 22.835392441860467,
+                          "Y": 19.987890164899884,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3109,8 +3784,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.005935077519382,
-                          "Y": 20.761300058892818,
+                          "X": 22.835392441860467,
+                          "Y": 22.04531065959953,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3125,8 +3800,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.005935077519382,
-                          "Y": 22.818720553592463,
+                          "X": 22.835392441860467,
+                          "Y": 24.10273115429918,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3141,8 +3816,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.005935077519382,
-                          "Y": 24.87614104829211,
+                          "X": 22.835392441860467,
+                          "Y": 26.160151648998824,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3157,8 +3832,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.005935077519382,
-                          "Y": 26.933561542991757,
+                          "X": 22.835392441860467,
+                          "Y": 28.217572143698472,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3173,8 +3848,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.005935077519382,
-                          "Y": 28.990982037691403,
+                          "X": 22.835392441860467,
+                          "Y": 30.274992638398118,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3194,8 +3869,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -3207,8 +3882,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.005935077519382,
-                          "Y": 33.923034452296825,
+                          "X": 22.835392441860467,
+                          "Y": 35.18764723203769,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3223,8 +3898,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.005935077519382,
-                          "Y": 35.98045494699647,
+                          "X": 22.835392441860467,
+                          "Y": 37.24506772673734,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3244,8 +3919,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -3257,8 +3932,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.005935077519382,
-                          "Y": 40.91250736160189,
+                          "X": 22.835392441860467,
+                          "Y": 42.15772232037692,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3278,8 +3953,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -3291,8 +3966,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.005935077519382,
-                          "Y": 46.70932714958775,
+                          "X": 22.835392441860467,
+                          "Y": 47.9157464664311,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3307,8 +3982,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.005935077519382,
-                          "Y": 48.7667476442874,
+                          "X": 22.835392441860467,
+                          "Y": 49.973166961130744,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3323,8 +3998,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.005935077519382,
-                          "Y": 50.82416813898705,
+                          "X": 22.835392441860467,
+                          "Y": 52.03058745583039,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3344,8 +4019,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -3357,8 +4032,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 3.6192579505300357,
+                          "X": 1.6881056201550388,
+                          "Y": 3.599860129564193,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3373,8 +4048,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 5.676678445229682,
+                          "X": 1.6881056201550388,
+                          "Y": 5.65728062426384,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3389,8 +4064,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 8.502502944640755,
+                          "X": 1.6881056201550388,
+                          "Y": 8.483105123674912,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3405,8 +4080,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 10.559923439340402,
+                          "X": 1.6881056201550388,
+                          "Y": 10.54052561837456,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3421,8 +4096,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 12.617343934040049,
+                          "X": 1.6881056201550388,
+                          "Y": 12.597946113074206,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3437,8 +4112,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 14.674764428739694,
+                          "X": 1.6881056201550388,
+                          "Y": 14.655366607773853,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3453,8 +4128,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 16.73218492343934,
+                          "X": 1.6881056201550388,
+                          "Y": 16.7127871024735,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3469,8 +4144,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 18.78960541813899,
+                          "X": 1.6881056201550388,
+                          "Y": 18.770207597173147,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3485,8 +4160,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 20.847025912838635,
+                          "X": 1.6881056201550388,
+                          "Y": 20.827628091872793,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3501,8 +4176,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 22.90444640753828,
+                          "X": 1.6881056201550388,
+                          "Y": 22.885048586572438,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3517,8 +4192,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 24.96186690223793,
+                          "X": 1.6881056201550388,
+                          "Y": 24.942469081272087,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3533,8 +4208,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 27.371576855123678,
+                          "X": 1.6881056201550388,
+                          "Y": 27.352179034157835,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3545,9 +4220,9 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 2.7586482558139536,
-                          "Y": 26.571576855123677,
-                          "W": 7.6,
+                          "X": 2.588105620155039,
+                          "Y": 26.552179034157835,
+                          "W": 7.799999999999999,
                           "H": 1
                         }
                       ]
@@ -3560,8 +4235,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 29.56353062426384,
+                          "X": 1.6881056201550388,
+                          "Y": 29.544132803297998,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3572,9 +4247,9 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 2.7586482558139536,
-                          "Y": 28.76353062426384,
-                          "W": 7.6,
+                          "X": 2.588105620155039,
+                          "Y": 28.744132803297997,
+                          "W": 7.799999999999999,
                           "H": 1
                         }
                       ]
@@ -3587,8 +4262,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 31.755484393404007,
+                          "X": 1.6881056201550388,
+                          "Y": 31.736086572438165,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3599,9 +4274,9 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 2.7586482558139536,
-                          "Y": 30.955484393404006,
-                          "W": 7.6,
+                          "X": 2.588105620155039,
+                          "Y": 30.936086572438164,
+                          "W": 7.799999999999999,
                           "H": 1
                         }
                       ]
@@ -3614,8 +4289,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 33.947438162544174,
+                          "X": 1.6881056201550388,
+                          "Y": 33.92804034157833,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3626,9 +4301,9 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 2.7586482558139536,
-                          "Y": 33.14743816254418,
-                          "W": 7.6,
+                          "X": 2.588105620155039,
+                          "Y": 33.128040341578334,
+                          "W": 7.799999999999999,
                           "H": 1
                         }
                       ]
@@ -3646,8 +4321,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -3659,8 +4334,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 12.432291666666668,
-                          "Y": 3.6192579505300357,
+                          "X": 12.261749031007753,
+                          "Y": 3.599860129564193,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3675,8 +4350,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 12.432291666666668,
-                          "Y": 6.028967903415784,
+                          "X": 12.261749031007753,
+                          "Y": 6.009570082449941,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3687,9 +4362,9 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 13.332291666666668,
-                          "Y": 5.228967903415784,
-                          "W": 7.6,
+                          "X": 13.161749031007753,
+                          "Y": 5.209570082449941,
+                          "W": 7.799999999999999,
                           "H": 1
                         }
                       ]
@@ -3707,8 +4382,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -3720,8 +4395,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 12.432291666666668,
-                          "Y": 10.74326413427562,
+                          "X": 12.261749031007753,
+                          "Y": 10.704468492343935,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3736,8 +4411,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 12.432291666666668,
-                          "Y": 12.800684628975265,
+                          "X": 12.261749031007753,
+                          "Y": 12.761888987043582,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3752,8 +4427,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 12.432291666666668,
-                          "Y": 15.210394581861014,
+                          "X": 12.261749031007753,
+                          "Y": 15.17159893992933,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3764,9 +4439,9 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 13.332291666666668,
-                          "Y": 14.410394581861013,
-                          "W": 7.6,
+                          "X": 13.161749031007753,
+                          "Y": 14.37159893992933,
+                          "W": 7.799999999999999,
                           "H": 1
                         }
                       ]
@@ -3784,8 +4459,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -3797,8 +4472,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 23.005935077519382,
-                          "Y": 3.6192579505300357,
+                          "X": 22.835392441860467,
+                          "Y": 3.599860129564193,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3813,8 +4488,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 23.005935077519382,
-                          "Y": 5.676678445229682,
+                          "X": 22.835392441860467,
+                          "Y": 5.65728062426384,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3829,8 +4504,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 23.005935077519382,
-                          "Y": 7.734098939929329,
+                          "X": 22.835392441860467,
+                          "Y": 7.714701118963487,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3845,8 +4520,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 23.005935077519382,
-                          "Y": 9.791519434628976,
+                          "X": 22.835392441860467,
+                          "Y": 9.772121613663133,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3861,8 +4536,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 23.005935077519382,
-                          "Y": 11.848939929328623,
+                          "X": 22.835392441860467,
+                          "Y": 11.82954210836278,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3877,8 +4552,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 23.005935077519382,
-                          "Y": 13.90636042402827,
+                          "X": 22.835392441860467,
+                          "Y": 13.886962603062427,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3893,8 +4568,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 23.005935077519382,
-                          "Y": 16.316070376914016,
+                          "X": 22.835392441860467,
+                          "Y": 16.296672555948174,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3905,9 +4580,9 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 23.90593507751938,
-                          "Y": 15.516070376914016,
-                          "W": 7.6,
+                          "X": 23.735392441860466,
+                          "Y": 15.496672555948173,
+                          "W": 7.799999999999999,
                           "H": 1
                         }
                       ]
@@ -3920,8 +4595,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 23.005935077519382,
-                          "Y": 18.508024146054183,
+                          "X": 22.835392441860467,
+                          "Y": 18.48862632508834,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3932,9 +4607,9 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 23.90593507751938,
-                          "Y": 17.708024146054182,
-                          "W": 7.6,
+                          "X": 23.735392441860466,
+                          "Y": 17.68862632508834,
+                          "W": 7.799999999999999,
                           "H": 1
                         }
                       ]
@@ -3947,8 +4622,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 23.005935077519382,
-                          "Y": 20.69997791519435,
+                          "X": 22.835392441860467,
+                          "Y": 20.680580094228507,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3959,9 +4634,9 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 23.90593507751938,
-                          "Y": 19.89997791519435,
-                          "W": 7.6,
+                          "X": 23.735392441860466,
+                          "Y": 19.880580094228506,
+                          "W": 7.799999999999999,
                           "H": 1
                         }
                       ]
@@ -3979,8 +4654,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -3992,8 +4667,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 41.13589517078917,
+                          "X": 1.6881056201550388,
+                          "Y": 41.231632803298,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4008,8 +4683,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 42.42491166077739,
+                          "X": 1.6881056201550388,
+                          "Y": 42.52064929328622,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4029,8 +4704,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -4042,8 +4717,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 48.19795347467609,
+                          "X": 1.6881056201550388,
+                          "Y": 49.27359393404005,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4058,8 +4733,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 49.48696996466431,
+                          "X": 1.6881056201550388,
+                          "Y": 50.56261042402827,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4079,8 +4754,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -4092,8 +4767,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 60.73520318021202,
+                          "X": 1.6881056201550388,
+                          "Y": 61.92597909305065,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4108,8 +4783,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 62.02421967020024,
+                          "X": 1.6881056201550388,
+                          "Y": 63.21499558303887,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4129,8 +4804,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -4142,8 +4817,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 17.719113372093023,
-                          "Y": 47.95516784452297,
+                          "X": 17.548570736434108,
+                          "Y": 47.224933745583044,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4158,8 +4833,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 17.719113372093023,
-                          "Y": 49.244184334511196,
+                          "X": 17.548570736434108,
+                          "Y": 48.513950235571265,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4179,8 +4854,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -4192,8 +4867,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 17.719113372093023,
-                          "Y": 58.95560954063605,
+                          "X": 17.548570736434108,
+                          "Y": 57.57210689045937,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4208,8 +4883,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 17.719113372093023,
-                          "Y": 60.24462603062427,
+                          "X": 17.548570736434108,
+                          "Y": 58.86112338044759,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4229,8 +4904,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -4242,8 +4917,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 2,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 13.009054770318022,
+                          "X": 1.6881056201550388,
+                          "Y": 12.355786219081272,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4258,8 +4933,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 2,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 14.298071260306244,
+                          "X": 1.6881056201550388,
+                          "Y": 13.644802709069495,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4279,8 +4954,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -4292,8 +4967,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 2,
                           "Side": "front",
-                          "X": 17.719113372093023,
-                          "Y": 12.144287396937575,
+                          "X": 17.548570736434108,
+                          "Y": 12.201855123674912,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4308,8 +4983,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 2,
                           "Side": "front",
-                          "X": 17.719113372093023,
-                          "Y": 13.433303886925795,
+                          "X": 17.548570736434108,
+                          "Y": 13.490871613663135,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4329,8 +5004,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -4342,8 +5017,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 2,
                           "Side": "front",
-                          "X": 17.719113372093023,
-                          "Y": 24.6815371024735,
+                          "X": 17.548570736434108,
+                          "Y": 24.854240282685513,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4358,8 +5033,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 2,
                           "Side": "front",
-                          "X": 17.719113372093023,
-                          "Y": 25.970553592461723,
+                          "X": 17.548570736434108,
+                          "Y": 26.143256772673734,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4394,8 +5069,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -4407,8 +5082,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 13.396385453474677,
+                          "X": 1.6881056201550388,
+                          "Y": 14.66099823321555,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4423,8 +5098,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 16.22220995288575,
+                          "X": 1.6881056201550388,
+                          "Y": 17.48682273262662,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4439,8 +5114,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 19.04803445229682,
+                          "X": 1.6881056201550388,
+                          "Y": 20.312647232037694,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4455,8 +5130,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 21.87385895170789,
+                          "X": 1.6881056201550388,
+                          "Y": 23.138471731448764,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4471,8 +5146,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 24.699683451118965,
+                          "X": 1.6881056201550388,
+                          "Y": 25.964296230859837,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4487,8 +5162,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 28.293911955241462,
+                          "X": 1.6881056201550388,
+                          "Y": 29.558524734982335,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4508,8 +5183,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -4521,8 +5196,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 12.53161808009423,
+                          "X": 12.261749031007753,
+                          "Y": 13.815628680800943,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4537,8 +5212,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 14.589038574793877,
+                          "X": 12.261749031007753,
+                          "Y": 15.87304917550059,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4553,8 +5228,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 16.646459069493524,
+                          "X": 12.261749031007753,
+                          "Y": 17.930469670200235,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4569,8 +5244,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 18.70387956419317,
+                          "X": 12.261749031007753,
+                          "Y": 19.987890164899884,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4585,8 +5260,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 20.761300058892818,
+                          "X": 12.261749031007753,
+                          "Y": 22.04531065959953,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4606,8 +5281,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -4619,8 +5294,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 25.693352473498233,
+                          "X": 12.261749031007753,
+                          "Y": 26.957965253239106,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4635,8 +5310,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 27.750772968197882,
+                          "X": 12.261749031007753,
+                          "Y": 29.015385747938755,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4651,8 +5326,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 29.808193462897528,
+                          "X": 12.261749031007753,
+                          "Y": 31.0728062426384,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4667,8 +5342,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 31.865613957597176,
+                          "X": 12.261749031007753,
+                          "Y": 33.13022673733805,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4683,8 +5358,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 33.923034452296825,
+                          "X": 12.261749031007753,
+                          "Y": 35.18764723203769,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4699,8 +5374,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 35.98045494699647,
+                          "X": 12.261749031007753,
+                          "Y": 37.24506772673734,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4715,8 +5390,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 38.037875441696116,
+                          "X": 12.261749031007753,
+                          "Y": 39.30248822143699,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4731,8 +5406,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 40.095295936395765,
+                          "X": 12.261749031007753,
+                          "Y": 41.35990871613664,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4747,8 +5422,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.432291666666668,
-                          "Y": 42.152716431095406,
+                          "X": 12.261749031007753,
+                          "Y": 43.41732921083628,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4768,8 +5443,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -4781,8 +5456,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.005935077519382,
-                          "Y": 12.53161808009423,
+                          "X": 22.835392441860467,
+                          "Y": 13.815628680800943,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4802,8 +5477,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -4815,8 +5490,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.005935077519382,
-                          "Y": 18.328437868080094,
+                          "X": 22.835392441860467,
+                          "Y": 19.573652826855124,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4831,8 +5506,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.005935077519382,
-                          "Y": 20.385858362779743,
+                          "X": 22.835392441860467,
+                          "Y": 21.631073321554773,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4847,8 +5522,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.005935077519382,
-                          "Y": 22.443278857479388,
+                          "X": 22.835392441860467,
+                          "Y": 23.688493816254418,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4868,8 +5543,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -4881,8 +5556,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.005935077519382,
-                          "Y": 27.375331272084807,
+                          "X": 22.835392441860467,
+                          "Y": 28.601148409893995,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4897,8 +5572,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.005935077519382,
-                          "Y": 29.785041224970556,
+                          "X": 22.835392441860467,
+                          "Y": 31.010858362779743,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4909,9 +5584,9 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.90593507751938,
-                          "Y": 28.985041224970555,
-                          "W": 7.6,
+                          "X": 23.735392441860466,
+                          "Y": 30.210858362779742,
+                          "W": 7.799999999999999,
                           "H": 1
                         }
                       ]
@@ -4929,8 +5604,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -4942,8 +5617,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 49.55892962308599,
+                          "X": 1.6881056201550388,
+                          "Y": 50.93867785630153,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4958,8 +5633,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 50.84794611307421,
+                          "X": 1.6881056201550388,
+                          "Y": 52.22769434628976,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4979,8 +5654,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -4992,8 +5667,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 62.096179328621915,
+                          "X": 17.548570736434108,
+                          "Y": 55.549101884570085,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5008,8 +5683,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.8586482558139537,
-                          "Y": 63.385195818610136,
+                          "X": 17.548570736434108,
+                          "Y": 56.838118374558306,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5029,8 +5704,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -5041,9 +5716,9 @@
                         {
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
-                          "Side": "front",
-                          "X": 17.719113372093023,
-                          "Y": 56.378202296819794,
+                          "Side": "back",
+                          "X": 1.6881056201550388,
+                          "Y": 12.201855123674912,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5057,9 +5732,9 @@
                         {
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
-                          "Side": "front",
-                          "X": 17.719113372093023,
-                          "Y": 57.667218786808014,
+                          "Side": "back",
+                          "X": 1.6881056201550388,
+                          "Y": 13.490871613663135,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5079,8 +5754,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -5092,8 +5767,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 13.009054770318022,
+                          "X": 17.548570736434108,
+                          "Y": 12.355786219081272,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5108,8 +5783,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.8586482558139537,
-                          "Y": 14.298071260306244,
+                          "X": 17.548570736434108,
+                          "Y": 13.644802709069495,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5129,8 +5804,8 @@
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
                     "top": 1.0168212603062428,
-                    "left": 0.9206637596899225,
-                    "right": 9.056080426356589,
+                    "left": 0.7501211240310078,
+                    "right": 9.226623062015504,
                     "bottom": 1.1751325088339224
                   },
                   "PhysicalContestOption": [
@@ -5142,8 +5817,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 17.719113372093023,
-                          "Y": 10.703842756183747,
+                          "X": 17.548570736434108,
+                          "Y": 25.008171378091873,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5158,8 +5833,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 17.719113372093023,
-                          "Y": 11.992859246171967,
+                          "X": 17.548570736434108,
+                          "Y": 26.297187868080098,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5191,8 +5866,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "联邦党"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "聯邦黨"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "Federalist Party"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "Partido Federalista"
           }
         ]
       },
@@ -5211,8 +5901,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "联邦党人"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "聯邦黨人"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "Federalist"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "Federalista"
           }
         ]
       }
@@ -5225,8 +5930,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "人民党"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "人民黨"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "People’s Party"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "Partido Popular"
           }
         ]
       },
@@ -5245,8 +5965,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "人们"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "人們"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "People’s"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "de la gente"
           }
         ]
       }
@@ -5259,8 +5994,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "自由党"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "自由黨"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "Liberty Party"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "Partido de la Libertad"
           }
         ]
       },
@@ -5279,8 +6029,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "自由"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "自由"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "Liberty"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "Libertad"
           }
         ]
       }
@@ -5293,8 +6058,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "宪法党"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "憲法黨"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "Constitution Party"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "Partido de la Constitución"
           }
         ]
       },
@@ -5313,8 +6093,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "宪法"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "憲法"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "Constitution"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "Constitución"
           }
         ]
       }
@@ -5327,8 +6122,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "辉格党"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "輝格黨"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "Whig Party"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "Partido Whig"
           }
         ]
       },
@@ -5347,7 +6157,22 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "辉格党"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "輝格黨"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
+            "Content": "Whig"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
             "Content": "Whig"
           }
         ]
@@ -5361,8 +6186,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "工党"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "工黨"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "Labor Party"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "Labor de fiesta"
           }
         ]
       },
@@ -5381,8 +6221,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "劳动"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "勞動"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "Labor"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "Mano de obra"
           }
         ]
       }
@@ -5395,8 +6250,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "独立党"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "獨立黨"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "Independent Party"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "Partido Independiente"
           }
         ]
       },
@@ -5415,8 +6285,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "独立的"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "獨立的"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "Independent"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "Independiente"
           }
         ]
       }
@@ -5429,8 +6314,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "民主党"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "民主黨"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "Democratic Party"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "partido Democrático"
           }
         ]
       },
@@ -5449,8 +6349,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "民主党人"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "民主黨"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "Democrat"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "Demócrata"
           }
         ]
       }
@@ -5463,8 +6378,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "共和党"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "共和黨"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "Republican Party"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "partido Republicano"
           }
         ]
       },
@@ -5483,8 +6413,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "共和党人"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "共和黨"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "Republican"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "Republicano"
           }
         ]
       }
@@ -5499,8 +6444,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "汉密尔顿州"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "漢密爾頓州"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "State of Hamilton"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "Estado de Hamilton"
           }
         ]
       },
@@ -5517,8 +6477,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "富兰克林县"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "富蘭克林縣"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "Franklin County"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "Condado de Franklin"
           }
         ]
       },
@@ -5537,8 +6512,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "第一区"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "1區"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "District 1"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "Distrito 1"
           }
         ]
       },
@@ -5557,8 +6547,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "第 2 区"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "2區"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "District 2"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "Distrito 2"
           }
         ]
       },
@@ -5592,8 +6597,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "斯普林菲尔德中心"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "斯普林菲爾德中心"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "Center Springfield"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "Centro Springfield"
           }
         ]
       },
@@ -5607,8 +6627,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "北斯普林菲尔德"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "北斯普林菲爾德"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "North Springfield"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "Norte de Springfield"
           }
         ]
       },
@@ -5626,8 +6661,23 @@
         "Text": [
           {
             "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hans",
+            "Content": "南斯普林菲尔德"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "zh-Hant",
+            "Content": "南斯普林菲爾德"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
             "Language": "en",
             "Content": "South Springfield"
+          },
+          {
+            "@type": "BallotDefinition.LanguageString",
+            "Language": "es-US",
+            "Content": "Sur de Springfield"
           }
         ]
       },
