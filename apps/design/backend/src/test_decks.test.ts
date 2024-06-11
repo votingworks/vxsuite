@@ -42,8 +42,7 @@ describe('createPrecinctTestDeck', () => {
       await renderAllBallotsAndCreateElectionDefinition(
         renderer,
         vxDefaultBallotTemplate,
-        fixtures.allBallotProps,
-        {}
+        fixtures.allBallotProps
       );
     const ballots = iter(fixtures.allBallotProps)
       .zip(ballotDocuments)
@@ -73,8 +72,7 @@ describe('createPrecinctTestDeck', () => {
       await renderAllBallotsAndCreateElectionDefinition(
         renderer,
         vxDefaultBallotTemplate,
-        fixtures.allBallotProps,
-        {}
+        fixtures.allBallotProps
       );
     const ballots = iter(fixtures.allBallotProps)
       .zip(ballotDocuments)
@@ -91,7 +89,7 @@ describe('createPrecinctTestDeck', () => {
   });
 
   test('for a precinct with no ballot styles', async () => {
-    const fixtures = generalElectionFixtures.legal;
+    const fixtures = generalElectionFixtures.fixtureSpecs[0];
     const electionDefinition = (
       await readElection(fixtures.electionPath)
     ).unsafeUnwrap();
@@ -216,7 +214,7 @@ describe('getTallyReportResults', () => {
 });
 
 test('createTestDeckTallyReport', async () => {
-  const fixtures = generalElectionFixtures.letter;
+  const fixtures = generalElectionFixtures.fixtureSpecs[0];
   const electionDefinition = (
     await readElection(fixtures.electionPath)
   ).unsafeUnwrap();

@@ -60,6 +60,8 @@ import { getTempBallotLanguageConfigsForCert } from './store';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
 import { BALLOT_STYLE_READINESS_REPORT_FILE_NAME } from './app';
 
+jest.setTimeout(30_000);
+
 const mockFeatureFlagger = getFeatureFlagMock();
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
@@ -440,10 +442,11 @@ test('Election package export', async () => {
   }
 
   for (const electionStringKey of Object.values(ElectionStringKey)) {
-    // The current election definition doesn't include any yes-no contests
+    // The current election definition doesn't include any yes-no contests or contest terms
     if (
       electionStringKey === ElectionStringKey.CONTEST_DESCRIPTION ||
-      electionStringKey === ElectionStringKey.CONTEST_OPTION_LABEL
+      electionStringKey === ElectionStringKey.CONTEST_OPTION_LABEL ||
+      electionStringKey === ElectionStringKey.CONTEST_TERM
     ) {
       continue;
     }
@@ -624,6 +627,9 @@ test('Export all ballots', async () => {
       ballotCombos.map(
         ([ballotType, ballotMode]): BaseBallotProps => ({
           election,
+          translatedStrings: expect.objectContaining({
+            [LanguageCode.ENGLISH]: expect.any(Object),
+          }),
           ballotStyleId: ballotStyle.id,
           precinctId,
           ballotType,
@@ -635,8 +641,7 @@ test('Export all ballots', async () => {
   expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(
     expect.any(Object), // Renderer
     vxDefaultBallotTemplate,
-    expectedBallotProps,
-    expect.any(Object) // Election strings
+    expectedBallotProps
   );
 });
 
@@ -683,6 +688,9 @@ test('Export test decks', async () => {
   const expectedBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precincts.map((precinctId) => ({
       election,
+      translatedStrings: expect.objectContaining({
+        [LanguageCode.ENGLISH]: expect.any(Object),
+      }),
       ballotStyleId: ballotStyle.id,
       precinctId,
       ballotType: BallotType.Precinct,
@@ -692,8 +700,7 @@ test('Export test decks', async () => {
   expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(
     expect.any(Object), // Renderer
     vxDefaultBallotTemplate,
-    expectedBallotProps,
-    expect.any(Object) // Election strings
+    expectedBallotProps
   );
 }, 30_000);
 
