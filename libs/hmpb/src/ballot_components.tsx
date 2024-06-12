@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import React from 'react';
-import { Outset } from '@votingworks/types';
+import { ELECTION_HASH_DISPLAY_LENGTH, Outset } from '@votingworks/types';
 import { range } from '@votingworks/basics';
 import { InchDimensions, InchMargins } from './types';
 
@@ -137,6 +137,18 @@ export function QrCodeSlot(): JSX.Element {
     >
       <div style={{ border: '1px solid black', height: '100%' }} />
     </div>
+  );
+}
+
+export const ELECTION_HASH_SLOT_CLASS = 'election-hash-slot';
+
+export function ElectionHashSlot(): JSX.Element {
+  return (
+    <span className={ELECTION_HASH_SLOT_CLASS}>
+      {range(0, ELECTION_HASH_DISPLAY_LENGTH)
+        .map(() => '0')
+        .join('')}
+    </span>
   );
 }
 

@@ -19,6 +19,7 @@ import {
   PrecinctId,
   UiStringsPackage,
   convertVxfElectionToCdfBallotDefinition,
+  getDisplayElectionHash,
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
@@ -28,6 +29,7 @@ import {
   BUBBLE_CLASS,
   CONTENT_SLOT_CLASS,
   ContentSlot,
+  ELECTION_HASH_SLOT_CLASS,
   OptionInfo,
   PAGE_CLASS,
   QR_CODE_SIZE,
@@ -339,7 +341,7 @@ async function extractGridLayout(
   };
 }
 
-async function addQrCodes(
+async function addQrCodesAndElectionHashes(
   document: RenderDocument,
   election: Election,
   metadata: Omit<HmpbBallotPageMetadata, 'pageNumber'>
@@ -368,6 +370,12 @@ async function addQrCodes(
       `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${QR_CODE_SLOT_CLASS}`,
       qrCode
     );
+    if (pageNumber % 2 === 1) {
+      await document.setContent(
+        `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${ELECTION_HASH_SLOT_CLASS}`,
+        <>{getDisplayElectionHash(metadata)}</>
+      );
+    }
   }
 }
 
@@ -482,7 +490,7 @@ export async function renderAllBallotsAndCreateElectionDefinition<
 
   for (const { document, props } of ballotsWithLayouts) {
     if (props.ballotMode !== 'sample') {
-      await addQrCodes(document, electionDefinition.election, {
+      await addQrCodesAndElectionHashes(document, electionDefinition.election, {
         electionHash: electionDefinition.electionHash,
         ballotStyleId: props.ballotStyleId,
         precinctId: props.precinctId,

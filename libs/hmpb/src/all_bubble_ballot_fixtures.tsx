@@ -163,7 +163,13 @@ function BallotPageFrame({
           >
             {children}
           </div>
-          <Footer pageNumber={pageNumber} totalPages={totalPages} />
+          <Footer
+            election={election}
+            ballotStyleId={election.ballotStyles[0].id}
+            precinctId={election.precincts[0].id}
+            pageNumber={pageNumber}
+            totalPages={totalPages}
+          />
         </div>
       </TimingMarkGrid>
     </Page>
