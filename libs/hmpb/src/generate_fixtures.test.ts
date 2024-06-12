@@ -27,7 +27,10 @@ async function expectToMatchSavedPdf(
     { page: actualPage },
     { page: expectedPage },
   ] of pdfPagePairs) {
-    expect(toImageBuffer(actualPage)).toMatchImage(toImageBuffer(expectedPage));
+    expect(toImageBuffer(actualPage)).toMatchImage(
+      toImageBuffer(expectedPage),
+      { dumpDiffToConsole: true }
+    );
   }
 }
 
@@ -97,28 +100,31 @@ describe('fixtures are up to date - run `pnpm generate-fixtures` if this test fa
     const paperSizesToTest = process.env.CI
       ? [BallotPaperSize.Letter, BallotPaperSize.Legal]
       : Object.values(BallotPaperSize);
-    const allGenerated = await generalElectionFixtures.generate(renderer, {
-      markedOnly: Boolean(process.env.CI),
-      paperSizes: paperSizesToTest,
-    });
-    for (const paperSize of paperSizesToTest) {
-      const fixtures = allFixtures[paperSize];
-      const generated = allGenerated[paperSize];
-
+    const specs = allFixtures.fixtureSpecs.filter((spec) =>
+      paperSizesToTest.includes(spec.paperSize)
+    );
+    const allGenerated = await generalElectionFixtures.generate(
+      renderer,
+      specs,
+      {
+        markedOnly: Boolean(process.env.CI),
+      }
+    );
+    for (const [spec, generated] of iter(specs).zip(allGenerated)) {
       expect(generated.electionDefinition.election).toEqual(
-        (await readElection(fixtures.electionPath)).ok()?.election
+        (await readElection(spec.electionPath)).ok()?.election
       );
 
       // Speed up CI tests by only checking marked ballot
       if (!process.env.CI) {
         await expectToMatchSavedPdf(
           generated.blankBallotPdf,
-          fixtures.blankBallotPath
+          spec.blankBallotPath
         );
       }
       await expectToMatchSavedPdf(
         generated.markedBallotPdf,
-        fixtures.markedBallotPath
+        spec.markedBallotPath
       );
     }
   });

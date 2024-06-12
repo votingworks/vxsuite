@@ -4,6 +4,7 @@ import {
   electionGeneral,
   electionFamousNames2021Fixtures,
   electionPrimaryPrecinctSplitsFixtures,
+  electionGeneralFixtures,
 } from '@votingworks/fixtures';
 import {
   BallotPaperSize,
@@ -12,6 +13,7 @@ import {
   Election,
   getBallotStyle,
   getContests,
+  LanguageCode,
   UiStringsPackage,
   VotesDict,
 } from '@votingworks/types';
@@ -28,7 +30,7 @@ import { Renderer } from './renderer';
 const debug = makeDebug('hmpb:ballot_fixtures');
 
 // For now, don't include any translated strings in the fixtures
-const translatedElectionStrings: UiStringsPackage = {};
+const translatedStrings: UiStringsPackage = {};
 
 export const fixturesDir = join(__dirname, '../fixtures');
 
@@ -43,6 +45,7 @@ export const famousNamesFixtures = (() => {
     ballotStyle.precincts.map(
       (precinctId): BaseBallotProps => ({
         election,
+        translatedStrings,
         ballotStyleId: ballotStyle.id,
         precinctId,
         ballotType: BallotType.Precinct,
@@ -80,8 +83,7 @@ export const famousNamesFixtures = (() => {
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
           vxDefaultBallotTemplate,
-          allBallotProps,
-          translatedElectionStrings
+          allBallotProps
         );
 
       const blankBallot = ballotDocuments[0];
@@ -109,22 +111,21 @@ export const famousNamesFixtures = (() => {
 export const generalElectionFixtures = (() => {
   const dir = join(fixturesDir, 'general-election');
 
-  function makeElectionFixtureSpec(paperSize: BallotPaperSize) {
-    const electionDir = join(dir, paperSize);
+  function makeElectionFixtureSpec(election: Election) {
+    const electionDir = join(
+      dir,
+      [election.ballotLayout.paperSize, election.ballotStyles[0].languages?.[0]]
+        .filter((label) => Boolean(label))
+        .join('-')
+    );
     const electionPath = join(electionDir, 'election.json');
     const blankBallotPath = join(electionDir, 'blank-ballot.pdf');
     const markedBallotPath = join(electionDir, 'marked-ballot.pdf');
-    const election: Election = {
-      ...electionGeneral,
-      ballotLayout: {
-        ...electionGeneral.ballotLayout,
-        paperSize,
-      },
-    };
     const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
       ballotStyle.precincts.map(
         (precinctId): BaseBallotProps => ({
           election,
+          translatedStrings: electionGeneralFixtures.uiStrings,
           ballotStyleId: ballotStyle.id,
           precinctId,
           ballotType: BallotType.Absentee,
@@ -189,7 +190,8 @@ export const generalElectionFixtures = (() => {
 
     return {
       electionDir,
-      paperSize,
+      paperSize: election.ballotLayout.paperSize,
+      languageCode: ballotStyle.languages?.[0] ?? LanguageCode.ENGLISH,
       electionPath,
       allBallotProps,
       precinctId,
@@ -201,25 +203,44 @@ export const generalElectionFixtures = (() => {
     };
   }
 
-  const fixtureSpecs = Object.fromEntries(
-    Object.values(BallotPaperSize).map((paperSize) => [
-      paperSize as BallotPaperSize,
-      makeElectionFixtureSpec(paperSize),
-    ])
+  const paperSizeElections = Object.values(BallotPaperSize).map(
+    (paperSize) => ({
+      ...electionGeneral,
+      ballotLayout: { ...electionGeneral.ballotLayout, paperSize },
+    })
+  );
+
+  const languageElections = [
+    LanguageCode.CHINESE_SIMPLIFIED,
+    LanguageCode.CHINESE_TRADITIONAL,
+    LanguageCode.SPANISH,
+  ].map((language) => ({
+    ...electionGeneral,
+    ballotLayout: {
+      ...electionGeneral.ballotLayout,
+      paperSize: BallotPaperSize.Legal,
+    },
+    ballotStyles: electionGeneral.ballotStyles.map((ballotStyle) => ({
+      ...ballotStyle,
+      languages: [language, LanguageCode.ENGLISH],
+    })),
+  }));
+
+  const fixtureSpecs = [...paperSizeElections, ...languageElections].map(
+    makeElectionFixtureSpec
   );
 
   return {
-    ...(fixtureSpecs as Record<
-      BallotPaperSize,
-      ReturnType<typeof makeElectionFixtureSpec>
-    >),
+    fixtureSpecs,
 
     async generate(
       renderer: Renderer,
+      specs: Array<ReturnType<typeof makeElectionFixtureSpec>>,
       {
         markedOnly = false,
-        paperSizes = Object.values(BallotPaperSize),
-      }: { markedOnly?: boolean; paperSizes?: BallotPaperSize[] } = {}
+      }: {
+        markedOnly?: boolean;
+      } = {}
     ) {
       async function generateElectionFixtures(
         spec: ReturnType<typeof makeElectionFixtureSpec>
@@ -229,8 +250,7 @@ export const generalElectionFixtures = (() => {
           await renderAllBallotsAndCreateElectionDefinition(
             renderer,
             vxDefaultBallotTemplate,
-            spec.allBallotProps,
-            translatedElectionStrings
+            spec.allBallotProps
           );
         const [blankBallot] = assertDefined(
           iter(ballotDocuments)
@@ -262,19 +282,7 @@ export const generalElectionFixtures = (() => {
         };
       }
 
-      return Object.fromEntries(
-        await Promise.all(
-          Object.entries(fixtureSpecs)
-            .filter(
-              ([paperSize]) =>
-                !paperSizes || paperSizes.includes(paperSize as BallotPaperSize)
-            )
-            .map(async ([paperSize, spec]) => {
-              const generated = await generateElectionFixtures(spec);
-              return [paperSize, generated];
-            })
-        )
-      );
+      return await Promise.all(specs.map(generateElectionFixtures));
     },
   };
 })();
@@ -288,6 +296,7 @@ export const primaryElectionFixtures = (() => {
     ballotStyle.precincts.map(
       (precinctId): BaseBallotProps => ({
         election,
+        translatedStrings,
         ballotStyleId: ballotStyle.id,
         precinctId,
         ballotType: BallotType.Precinct,
@@ -355,8 +364,7 @@ export const primaryElectionFixtures = (() => {
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
           vxDefaultBallotTemplate,
-          allBallotProps,
-          translatedElectionStrings
+          allBallotProps
         );
 
       async function generatePartyFixtures(

@@ -403,7 +403,7 @@ test('printing ballots', async () => {
   await configureMachine(
     mockUsbDrive,
     electionDefinition,
-    electionGeneralFixtures.ELECTION_GENERAL_TEST_UI_STRINGS_CHINESE_SIMPLIFIED
+    electionGeneralFixtures.uiStrings
   );
 
   await expectElectionState({ ballotsPrintedCount: 0 });

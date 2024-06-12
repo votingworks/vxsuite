@@ -37,8 +37,8 @@ import {
 } from './test_decks';
 import { AppContext } from './context';
 import { rotateCandidates } from './candidate_rotation';
-import { extractAndTranslateElectionStrings } from './language_and_audio';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
+import { translateBallotStrings } from './language_and_audio/ballot_strings';
 
 export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';
@@ -166,8 +166,12 @@ function buildApi({ workspace, translator }: AppContext) {
       const { election, ballotLanguageConfigs } = store.getElection(
         input.electionId
       );
-
-      const zip = new JsZip();
+      const translatedStrings = await translateBallotStrings(
+        translator,
+        election,
+        ballotLanguageConfigs,
+        'latest'
+      );
 
       const renderer = await createPlaywrightRenderer();
 
@@ -177,6 +181,7 @@ function buildApi({ workspace, translator }: AppContext) {
           ballotTypes.flatMap((ballotType) =>
             BALLOT_MODES.map((ballotMode) => ({
               election,
+              translatedStrings,
               ballotStyleId: ballotStyle.id,
               precinctId,
               ballotType,
@@ -185,21 +190,15 @@ function buildApi({ workspace, translator }: AppContext) {
           )
         )
       );
-      const translatedElectionStrings = (
-        await extractAndTranslateElectionStrings(
-          translator,
-          election,
-          ballotLanguageConfigs
-        )
-      ).electionStrings;
 
       const { ballotDocuments, electionDefinition } =
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
           vxDefaultBallotTemplate,
-          ballotProps,
-          translatedElectionStrings
+          ballotProps
         );
+
+      const zip = new JsZip();
 
       for (const [props, document] of iter(ballotProps).zip(ballotDocuments)) {
         const pdf = await document.renderToPdf();
@@ -239,12 +238,20 @@ function buildApi({ workspace, translator }: AppContext) {
       ballotType: BallotType;
       ballotMode: BallotMode;
     }): Promise<Result<Buffer, Error>> {
-      const { election } = store.getElection(input.electionId);
+      const { election, ballotLanguageConfigs } = store.getElection(
+        input.electionId
+      );
+      const translatedStrings = await translateBallotStrings(
+        translator,
+        election,
+        ballotLanguageConfigs,
+        'latest'
+      );
       const renderer = await createPlaywrightRenderer();
       const ballotPdf = await renderBallotPreviewToPdf(
         renderer,
         vxDefaultBallotTemplate,
-        { ...input, election }
+        { ...input, election, translatedStrings }
       );
       // eslint-disable-next-line no-console
       renderer.cleanup().catch(console.error);
@@ -265,10 +272,17 @@ function buildApi({ workspace, translator }: AppContext) {
       const { election, ballotLanguageConfigs } = store.getElection(
         input.electionId
       );
+      const translatedStrings = await translateBallotStrings(
+        translator,
+        election,
+        ballotLanguageConfigs,
+        'latest'
+      );
       const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
         ballotStyle.precincts.map(
           (precinctId): BaseBallotProps => ({
             election,
+            translatedStrings,
             ballotStyleId: ballotStyle.id,
             precinctId,
             ballotType: BallotType.Precinct,
@@ -276,20 +290,12 @@ function buildApi({ workspace, translator }: AppContext) {
           })
         )
       );
-      const translatedElectionStrings = (
-        await extractAndTranslateElectionStrings(
-          translator,
-          election,
-          ballotLanguageConfigs
-        )
-      ).electionStrings;
       const renderer = await createPlaywrightRenderer();
       const { electionDefinition, ballotDocuments } =
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
           vxDefaultBallotTemplate,
-          allBallotProps,
-          translatedElectionStrings
+          allBallotProps
         );
       const ballots = iter(allBallotProps)
         .zip(ballotDocuments)

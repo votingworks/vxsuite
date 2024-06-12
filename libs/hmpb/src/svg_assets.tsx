@@ -107,7 +107,11 @@ export function InstructionsDiagramFillBubble(): JSX.Element {
   );
 }
 
-export function InstructionsDiagramWriteIn(): JSX.Element {
+export function InstructionsDiagramWriteIn({
+  writeInLabel,
+}: {
+  writeInLabel: React.ReactNode;
+}): JSX.Element {
   return (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 259.16 73.5">
       <title>instructions-diagram-write-in</title>
@@ -174,15 +178,9 @@ export function InstructionsDiagramWriteIn(): JSX.Element {
           strokeWidth: 2,
         }}
       />
-      <text
-        style={{
-          fontSize: 16,
-          fill: '#221f1f',
-        }}
-        transform="translate(65.84 65.79)"
-      >
-        Write-in
-      </text>
+      <foreignObject x="65" y="51" width="200" height="50">
+        {writeInLabel}
+      </foreignObject>
       <rect x={12} y={20} width={45} height={30} rx={15} ry={15} />
     </svg>
   );

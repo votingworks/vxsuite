@@ -3,6 +3,7 @@
 import {
   BallotStyleId,
   Candidate,
+  CandidateContest,
   ContestLike,
   County,
   District,
@@ -15,8 +16,7 @@ import {
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
 
-import { UiString } from './ui_string';
-import { Pre } from '../typography';
+import { UiString, UiStringProps } from './ui_string';
 import { DateString } from './date_string';
 import { InEnglish, LanguageOverride } from './language_override';
 
@@ -53,9 +53,12 @@ export const electionStrings = {
     </InEnglish>
   ),
 
-  [Key.CONTEST_DESCRIPTION]: (contest: ContestWithDescription) => (
+  [Key.CONTEST_DESCRIPTION]: (
+    contest: ContestWithDescription,
+    as?: UiStringProps['as']
+  ) => (
     <UiString
-      as={Pre}
+      as={as}
       uiStringKey={Key.CONTEST_DESCRIPTION}
       uiStringSubKey={contest.id}
     >
@@ -66,6 +69,12 @@ export const electionStrings = {
   [Key.CONTEST_OPTION_LABEL]: (option: YesNoOption) => (
     <UiString uiStringKey={Key.CONTEST_OPTION_LABEL} uiStringSubKey={option.id}>
       {option.label}
+    </UiString>
+  ),
+
+  [Key.CONTEST_TERM]: (contest: CandidateContest) => (
+    <UiString uiStringKey={Key.CONTEST_TERM} uiStringSubKey={contest.id}>
+      {contest.termDescription}
     </UiString>
   ),
 

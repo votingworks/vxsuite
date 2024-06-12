@@ -408,6 +408,7 @@ export async function renderBallotPreviewToPdf<P extends object>(
  */
 export interface BaseBallotProps {
   election: Election;
+  translatedStrings: UiStringsPackage;
   ballotStyleId: BallotStyleId;
   precinctId: PrecinctId;
   ballotType: BallotType;
@@ -425,21 +426,20 @@ export async function renderAllBallotsAndCreateElectionDefinition<
 >(
   renderer: Renderer,
   template: BallotPageTemplate<P>,
-  ballotProps: P[],
-  translatedElectionStrings: UiStringsPackage
+  ballotProps: P[]
 ): Promise<{
   ballotDocuments: RenderDocument[];
   electionDefinition: ElectionDefinition;
 }> {
-  const { election } = ballotProps[0];
+  const { election, translatedStrings } = ballotProps[0];
   assert(ballotProps.every((props) => props.election === election));
+  assert(
+    ballotProps.every((props) => props.translatedStrings === translatedStrings)
+  );
 
   const ballotsWithLayouts = await Promise.all(
     ballotProps.map(async (props) => {
-      const document = await renderBallotTemplate(renderer, template, {
-        ...props, // eslint-disable-line vx/gts-spread-like-types
-        election,
-      });
+      const document = await renderBallotTemplate(renderer, template, props);
       const gridLayout = await extractGridLayout(document, props.ballotStyleId);
       return {
         document,
@@ -474,7 +474,7 @@ export async function renderAllBallotsAndCreateElectionDefinition<
   const electionWithGridLayouts: Election = { ...election, gridLayouts };
   const cdfElection = convertVxfElectionToCdfBallotDefinition(
     electionWithGridLayouts,
-    translatedElectionStrings
+    translatedStrings
   );
   const electionDefinition = safeParseElectionDefinition(
     JSON.stringify(cdfElection, null, 2)

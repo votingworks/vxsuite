@@ -1,6 +1,5 @@
 import { join } from 'path';
 import { Buffer } from 'buffer';
-import merge from 'lodash.merge';
 import readline from 'readline';
 import {
   Result,
@@ -33,15 +32,15 @@ import {
   ElectionPackageFileName,
   UiStringAudioClip,
   UiStringAudioClipSchema,
-  UiStringAudioIdsPackage,
   UiStringAudioIdsPackageSchema,
-  UiStringsPackage,
   UiStringsPackageSchema,
   safeParseElectionDefinitionExtended,
   safeParseJson,
   safeParseSystemSettings,
   ElectionPackageMetadata,
   ElectionPackageMetadataSchema,
+  mergeUiStrings,
+  UiStringAudioIdsPackage,
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { UsbDrive } from '@votingworks/usb-drive';
@@ -127,38 +126,36 @@ async function readElectionPackageFromBuffer(
 
     // UI Strings:
 
-    const uiStrings: UiStringsPackage = {};
     const appStringsEntry = maybeGetFileByName(
       entries,
       ElectionPackageFileName.APP_STRINGS
     );
-    if (appStringsEntry) {
-      const appStrings = safeParseJson(
+    const appStrings =
+      appStringsEntry &&
+      safeParseJson(
         await readTextEntry(appStringsEntry),
         UiStringsPackageSchema
       ).unsafeUnwrap();
-
-      merge(uiStrings, appStrings);
-    }
 
     // Extract non-CDF election strings:
     const vxElectionStringsEntry = maybeGetFileByName(
       entries,
       ElectionPackageFileName.VX_ELECTION_STRINGS
     );
-    if (vxElectionStringsEntry) {
-      const vxElectionStrings = safeParseJson(
+    const vxElectionStrings =
+      vxElectionStringsEntry &&
+      safeParseJson(
         await readTextEntry(vxElectionStringsEntry),
         UiStringsPackageSchema
       ).unsafeUnwrap();
 
-      merge(uiStrings, vxElectionStrings);
-    }
+    const electionStrings = cdfElection && extractCdfUiStrings(cdfElection);
 
-    if (cdfElection) {
-      const electionStrings = extractCdfUiStrings(cdfElection);
-      merge(uiStrings, electionStrings);
-    }
+    const uiStrings = mergeUiStrings(
+      appStrings ?? {},
+      vxElectionStrings ?? {},
+      electionStrings ?? {}
+    );
 
     // UI String Audio IDs:
 

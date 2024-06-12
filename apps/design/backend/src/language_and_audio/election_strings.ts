@@ -1,4 +1,4 @@
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import {
   CandidateContest,
   Election,
@@ -58,6 +58,10 @@ const electionStringConfigs: Record<ElectionStringKey, ElectionStringConfig> = {
   [ElectionStringKey.CONTEST_OPTION_LABEL]: {
     translatable: true,
     translationsCanBeStoredInCdf: true,
+  },
+  [ElectionStringKey.CONTEST_TERM]: {
+    translatable: true,
+    translationsCanBeStoredInCdf: false,
   },
   [ElectionStringKey.CONTEST_TITLE]: {
     translatable: true,
@@ -161,6 +165,17 @@ const electionStringExtractorFns: Record<
           stringInEnglish: contest.noOption.label,
         },
       ]);
+  },
+  [ElectionStringKey.CONTEST_TERM](election) {
+    return election.contests
+      .filter(
+        (contest): contest is CandidateContest => contest.type === 'candidate'
+      )
+      .filter((contest) => contest.termDescription)
+      .map((contest) => ({
+        stringKey: [ElectionStringKey.CONTEST_TERM, contest.id],
+        stringInEnglish: assertDefined(contest.termDescription),
+      }));
   },
   [ElectionStringKey.CONTEST_TITLE](election) {
     return election.contests.map((contest) => ({

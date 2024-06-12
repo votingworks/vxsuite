@@ -1,7 +1,7 @@
 import type Express from 'express';
+import { isObject, isString } from '@votingworks/basics';
 import { rootDebug } from './debug';
 import { serialize, deserialize } from './serialization';
-import { isObject, isString } from './util';
 
 const debug = rootDebug.extend('server');
 

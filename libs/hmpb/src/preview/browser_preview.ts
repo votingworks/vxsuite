@@ -1,6 +1,16 @@
 import './polyfills';
-import { BallotType, VotesDict, getContests } from '@votingworks/types';
-import { electionGeneral } from '@votingworks/fixtures';
+import {
+  BallotPaperSize,
+  BallotStyle,
+  BallotType,
+  LanguageCode,
+  VotesDict,
+  getContests,
+} from '@votingworks/types';
+import {
+  electionGeneral,
+  electionGeneralFixtures,
+} from '@votingworks/fixtures';
 import { assertDefined, range } from '@votingworks/basics';
 import { vxDefaultBallotTemplate } from '../vx_default_ballot_template';
 import {
@@ -14,13 +24,24 @@ import { markBallotDocument, voteIsCandidate } from '../mark_ballot';
 import { BUBBLE_CLASS, OptionInfo, PAGE_CLASS } from '../ballot_components';
 
 const election = electionGeneral;
-const ballotStyle = election.ballotStyles[0];
+const ballotStyle: BallotStyle = {
+  ...election.ballotStyles[0],
+  languages: [LanguageCode.SPANISH, LanguageCode.ENGLISH],
+};
 const exampleBallotProps: BaseBallotProps = {
-  election,
+  election: {
+    ...election,
+    ballotLayout: {
+      ...election.ballotLayout,
+      paperSize: BallotPaperSize.Legal,
+    },
+    ballotStyles: [ballotStyle],
+  },
   ballotStyleId: ballotStyle.id,
   precinctId: ballotStyle.precincts[0],
-  ballotType: BallotType.Precinct,
-  ballotMode: 'official',
+  ballotType: BallotType.Absentee,
+  ballotMode: 'sample',
+  translatedStrings: electionGeneralFixtures.uiStrings,
 };
 
 /**
