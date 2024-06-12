@@ -3,7 +3,7 @@ import { Buffer } from 'buffer';
 import type { Page as PlaywrightPage } from 'playwright';
 import ReactDomServer from 'react-dom/server';
 import { ServerStyleSheet } from 'styled-components';
-import { assert, sleep } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import { PixelMeasurements } from './types';
 import { PAGE_CLASS } from './ballot_components';
 
@@ -42,7 +42,15 @@ export function createDocument(page: Page) {
           if (!node) {
             throw new Error(`No element found with selector: ${selector}`);
           }
-          node.innerHTML = content;
+
+          // After we set the innerHTML, we wait for the DOM to finish updating
+          // with the new content, which will be picked up by the
+          // MutationObserver registered on the node.
+          return new Promise<void>((resolve) => {
+            const observer = new MutationObserver(() => resolve());
+            observer.observe(node, { childList: true });
+            node.innerHTML = content;
+          });
         },
         [selector, htmlContent]
       );
@@ -121,7 +129,6 @@ export function createScratchpad(document: RenderDocument) {
         'Scratchpad has been converted to a document'
       );
       await document.setContent('body', content);
-      await sleep(1); // Wait for content to render (sometimes SVGs are a tiny bit slow)
       return await document.inspectElements(selector);
     },
 
