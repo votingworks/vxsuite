@@ -25,6 +25,22 @@ pnpm test
 pnpm build
 ```
 
+You can then run the demo script to test that the driver is working properly, note that this script does NOT print anything on the command line, it simply will put the scanner in a loop where it will start reading in pages that are fed in. 
+
+If the demo script outputs the following error you need to give higher permissions to the USB Device: 
+
+```sh
+{
+  response: 'error',
+  code: 'other',
+  message: 'usb error: rusb error: Access denied (insufficient permissions)'
+}
+```
+You can do that by running `lsusb` and look for the entry that reads something like “Andrew Pargeter & Associates PageScan 6D” take note of the Bus and Device 3 digit IDs. Then run:
+```sh
+sudo chmod 777 /dev/bus/usb/<3-digit-bus-number>/<3-digit-device-number>
+```
+
 To enable Rust debug logging, set the
 [`RUST_LOG` environment variable](https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/struct.EnvFilter.html)
 as appropriate.
