@@ -13,7 +13,12 @@ import { DateWithoutTime, assertDefined, range } from '@votingworks/basics';
 import { join } from 'path';
 import makeDebug from 'debug';
 import { Buffer } from 'buffer';
-import { Bubble, Page, TimingMarkGrid, pageMargins } from './ballot_components';
+import {
+  Bubble,
+  Page,
+  TimingMarkGrid,
+  pageMarginsInches,
+} from './ballot_components';
 import {
   BallotPageTemplate,
   BaseBallotProps,
@@ -137,7 +142,7 @@ function BallotPageFrame({
       key={pageNumber}
       pageNumber={pageNumber}
       dimensions={dimensions}
-      margins={pageMargins}
+      margins={pageMarginsInches}
     >
       <TimingMarkGrid pageDimensions={dimensions}>
         <div
