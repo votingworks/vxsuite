@@ -35,7 +35,7 @@ import {
 } from '../api';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 import { LiveCheckButton } from '../components/live_check_button';
-import { CastVoteRecordSyncRequiredModal } from './cast_vote_record_sync_required_screen';
+import { CastVoteRecordSyncRequiredScreen } from './cast_vote_record_sync_required_screen';
 import { isPrinterReadyHelper } from '../utils/printer';
 import { LegacyPostPrintScreen } from './poll_worker_legacy_post_print_screen';
 import { FujitsuPostPrintScreen } from './poll_worker_fujitsu_post_print_screen';
@@ -147,14 +147,10 @@ function ClosePollsPromptScreen({
   onConfirm,
   onClose,
   isPrinterReady,
-  isCastVoteRecordSyncRequiredModalOpen,
-  onCloseCastVoteRecordSyncRequiredModal,
 }: {
   onConfirm: () => void;
   onClose: () => void;
   isPrinterReady: boolean;
-  isCastVoteRecordSyncRequiredModalOpen: boolean;
-  onCloseCastVoteRecordSyncRequiredModal: () => void;
 }): JSX.Element {
   return (
     <Screen>
@@ -172,12 +168,6 @@ function ClosePollsPromptScreen({
         </P>
         {!isPrinterReady && <P>Attach printer to continue.</P>}
       </CenteredLargeProse>
-      {isCastVoteRecordSyncRequiredModalOpen && (
-        <CastVoteRecordSyncRequiredModal
-          blockedAction="close_polls"
-          closeModal={onCloseCastVoteRecordSyncRequiredModal}
-        />
-      )}
     </Screen>
   );
 }
@@ -231,8 +221,8 @@ function PollWorkerScreenContents({
     setIsShowingBallotsAlreadyScannedScreen,
   ] = useState(false);
   const [
-    isCastVoteRecordSyncRequiredModalOpen,
-    setIsCastVoteRecordSyncRequiredModalOpen,
+    shouldStayOnCastVoteRecordSyncRequiredScreen,
+    setShouldStayOnCastVoteRecordSyncRequiredScreen,
   ] = useState(false);
 
   function initialPollWorkerFlowState(): Optional<PollWorkerFlowState> {
@@ -298,10 +288,6 @@ function PollWorkerScreenContents({
   }
 
   async function closePolls() {
-    if (usbDriveStatus.doesUsbDriveRequireCastVoteRecordSync) {
-      setIsCastVoteRecordSyncRequiredModalOpen(true);
-      return;
-    }
     setPollWorkerFlowState({
       type: 'polls-transitioning',
       transitionType: 'close_polls',
@@ -373,6 +359,22 @@ function PollWorkerScreenContents({
     return BallotsAlreadyScannedScreen;
   }
 
+  if (
+    usbDriveStatus.doesUsbDriveRequireCastVoteRecordSync ||
+    // This ensures that we don't immediately transition away from the CVR sync success message.
+    // We can't rely on doesUsbDriveRequireCastVoteRecordSync because it becomes false as soon as
+    // the sync completes.
+    shouldStayOnCastVoteRecordSyncRequiredScreen
+  ) {
+    return (
+      <CastVoteRecordSyncRequiredScreen
+        setShouldStayOnCastVoteRecordSyncRequiredScreen={
+          setShouldStayOnCastVoteRecordSyncRequiredScreen
+        }
+      />
+    );
+  }
+
   if (pollWorkerFlowState) {
     switch (pollWorkerFlowState.type) {
       case 'open-polls-prompt':
@@ -397,12 +399,6 @@ function PollWorkerScreenContents({
             onConfirm={closePolls}
             onClose={showAllPollWorkerActions}
             isPrinterReady={isPrinterReady}
-            isCastVoteRecordSyncRequiredModalOpen={
-              isCastVoteRecordSyncRequiredModalOpen
-            }
-            onCloseCastVoteRecordSyncRequiredModal={() =>
-              setIsCastVoteRecordSyncRequiredModalOpen(false)
-            }
           />
         );
       case 'polls-transitioning':
@@ -528,12 +524,6 @@ function PollWorkerScreenContents({
     <Screen>
       <H1>Poll Worker Actions</H1>
       {content}
-      {isCastVoteRecordSyncRequiredModalOpen && (
-        <CastVoteRecordSyncRequiredModal
-          blockedAction="close_polls"
-          closeModal={() => setIsCastVoteRecordSyncRequiredModalOpen(false)}
-        />
-      )}
     </Screen>
   );
 }

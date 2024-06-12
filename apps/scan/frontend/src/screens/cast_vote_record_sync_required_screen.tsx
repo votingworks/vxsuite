@@ -7,25 +7,16 @@ import {
   Loading,
   Modal,
   P,
+  appStrings,
 } from '@votingworks/ui';
 
 import { exportCastVoteRecordsToUsbDrive } from '../api';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 import { ScreenMainCenterChild } from '../components/layout';
 
-type BlockedAction = 'close_polls';
-
-const CAST_VOTE_RECORD_SYNC_REQUIRED_PROMPTS: Record<
-  BlockedAction | 'default',
-  string
-> = {
-  default:
-    'The inserted USB drive does not contain up-to-date records of the votes cast at this scanner. ' +
-    'Cast vote records (CVRs) need to be synced to the USB drive.',
-  close_polls:
-    'Cast vote records (CVRs) need to be synced to the inserted USB drive before you can close polls. ' +
-    'Remove your poll worker card to sync.',
-};
+const CAST_VOTE_RECORD_SYNC_REQUIRED_PROMPT =
+  'The inserted USB drive does not contain up-to-date records of the votes cast at this scanner. ' +
+  'Cast vote records (CVRs) need to be synced to the USB drive.';
 
 type ModalState = 'closed' | 'syncing' | 'success' | 'error';
 
@@ -33,6 +24,25 @@ interface Props {
   setShouldStayOnCastVoteRecordSyncRequiredScreen: (
     shouldStayOnCastVoteRecordSyncRequiredScreen: boolean
   ) => void;
+}
+
+export function CastVoteRecordSyncRequiredVoterScreen(): JSX.Element {
+  return (
+    <ScreenMainCenterChild voterFacing={false}>
+      <FullScreenPromptLayout
+        title={appStrings.titleScannerCvrSyncRequired()}
+        image={
+          <FullScreenIconWrapper>
+            <Icons.Warning color="warning" />
+          </FullScreenIconWrapper>
+        }
+      >
+        <P>{appStrings.warningCvrsNeedSync()}</P>
+        {/* Poll-worker-facing string - not translated: */}
+        <P>Insert a poll worker card to continue.</P>
+      </FullScreenPromptLayout>
+    </ScreenMainCenterChild>
+  );
 }
 
 export function CastVoteRecordSyncRequiredScreen({
@@ -107,7 +117,7 @@ export function CastVoteRecordSyncRequiredScreen({
           </FullScreenIconWrapper>
         }
       >
-        <P>{CAST_VOTE_RECORD_SYNC_REQUIRED_PROMPTS.default}</P>
+        <P>{CAST_VOTE_RECORD_SYNC_REQUIRED_PROMPT}</P>
         <P>
           <Button variant="primary" onPress={syncCastVoteRecords}>
             Sync CVRs
@@ -116,28 +126,5 @@ export function CastVoteRecordSyncRequiredScreen({
       </FullScreenPromptLayout>
       {modal}
     </ScreenMainCenterChild>
-  );
-}
-
-interface CastVoteRecordSyncRequiredModalProps {
-  blockedAction: BlockedAction;
-  closeModal: () => void;
-}
-
-/**
- * A secondary modal for explaining that an action is blocked until cast vote records have been
- * synced. Nudges users toward the primary {@link CastVoteRecordSyncRequiredScreen}.
- */
-export function CastVoteRecordSyncRequiredModal({
-  blockedAction,
-  closeModal,
-}: CastVoteRecordSyncRequiredModalProps): JSX.Element {
-  return (
-    <Modal
-      title="CVR Sync Required"
-      content={<P>{CAST_VOTE_RECORD_SYNC_REQUIRED_PROMPTS[blockedAction]}</P>}
-      actions={<Button onPress={closeModal}>Cancel</Button>}
-      onOverlayClick={closeModal}
-    />
   );
 }
