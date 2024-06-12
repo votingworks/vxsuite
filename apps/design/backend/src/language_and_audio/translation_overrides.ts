@@ -301,5 +301,6 @@ export const GLOBAL_TRANSLATION_OVERRIDES: TranslationOverrides = {
       'No se encontraron votos al escanear esto votación.',
     'The scanner is in live mode and a test ballot was detected.':
       'El escáner está en modo en vivo y se detectó una boleta.',
+    'Sample Absentee Ballot': 'Modelo de boleta de voto ausente',
   },
 };
