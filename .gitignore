@@ -22,6 +22,7 @@ junit.xml
 .env.test.local
 .env.production.local
 .vscode
+*.local
 
 *.log
 *~
