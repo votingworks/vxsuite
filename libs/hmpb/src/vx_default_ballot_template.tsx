@@ -4,16 +4,19 @@ import {
   iter,
   range,
   throwIllegalValue,
+  unique,
 } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import styled from 'styled-components';
 import {
   AnyContest,
   BallotStyle,
+  BallotStyleId,
   BallotType,
   CandidateContest as CandidateContestStruct,
   Election,
   LanguageCode,
+  PrecinctId,
   YesNoContest,
   ballotPaperDimensions,
   getBallotStyle,
@@ -29,6 +32,7 @@ import {
   electionStrings,
   useLanguageContext,
 } from '@votingworks/ui';
+import { extractBallotStyleGroupId, format } from '@votingworks/utils';
 import {
   BallotPageTemplate,
   BaseBallotProps,
@@ -37,6 +41,7 @@ import {
 import { RenderScratchpad } from './renderer';
 import {
   Bubble,
+  ElectionHashSlot,
   OptionInfo,
   Page,
   QrCodeSlot,
@@ -132,13 +137,14 @@ const Box = styled.div<{ fill?: 'transparent' | 'tinted' }>`
 function Header({
   election,
   ballotStyleId,
-  precinctId,
   ballotType,
   ballotMode,
-}: Pick<
-  BaseBallotProps,
-  'election' | 'ballotStyleId' | 'precinctId' | 'ballotType' | 'ballotMode'
->) {
+}: {
+  election: Election;
+  ballotStyleId: BallotStyleId;
+  ballotType: BallotType;
+  ballotMode: BallotMode;
+}) {
   const ballotTitles: Record<BallotMode, Record<BallotType, JSX.Element>> = {
     official: {
       [BallotType.Precinct]: appStrings.hmpbOfficialBallot(),
@@ -162,8 +168,6 @@ function Header({
     election.type === 'primary'
       ? assertDefined(getPartyForBallotStyle({ election, ballotStyleId }))
       : undefined;
-
-  const precinct = assertDefined(getPrecinctById({ election, precinctId }));
 
   return (
     <div
@@ -191,7 +195,6 @@ function Header({
           {party && <h1>{electionStrings.partyFullName(party)}</h1>}
           <h2>{electionStrings.electionTitle(election)}</h2>
           <h2>{electionStrings.electionDate(election)}</h2>
-          <div>{electionStrings.precinctName(precinct)}</div>
           <div>
             {/* TODO comma-delimiting the components of a location doesn't
             necessarily work in all languages. We need to figure out a
@@ -290,12 +293,31 @@ function Instructions({ languageCode }: { languageCode?: LanguageCode }) {
 }
 
 export function Footer({
+  election,
+  ballotStyleId,
+  precinctId,
   pageNumber,
   totalPages,
 }: {
+  election: Election;
+  ballotStyleId: BallotStyleId;
+  precinctId: PrecinctId;
   pageNumber: number;
   totalPages: number;
 }): JSX.Element {
+  const precinct = assertDefined(getPrecinctById({ election, precinctId }));
+  const languageCode = primaryLanguageCode(
+    assertDefined(getBallotStyle({ election, ballotStyleId }))
+  );
+  const languageText = unique([languageCode, LanguageCode.ENGLISH])
+    .map((code) =>
+      format.languageDisplayName({
+        languageCode: code,
+        displayLanguageCode: LanguageCode.ENGLISH,
+      })
+    )
+    .join(' / ');
+
   const continueVoting = (
     <div
       style={{
@@ -327,30 +349,65 @@ export function Footer({
     pageNumber === totalPages ? ballotComplete : continueVoting;
 
   return (
-    <div style={{ display: 'flex', gap: '0.75rem' }}>
-      <QrCodeSlot />
-      <Box
-        fill="tinted"
-        style={{
-          padding: '0.25rem 0.5rem',
-          flex: 1,
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-        }}
-      >
-        <div>
-          <div style={{ fontSize: '0.85rem' }}>
-            <DualLanguageText delimiter="/">
-              {appStrings.hmpbPage()}
-            </DualLanguageText>
+    <div>
+      <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <QrCodeSlot />
+        <Box
+          fill="tinted"
+          style={{
+            padding: '0.25rem 0.5rem',
+            flex: 1,
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <div>
+            <div style={{ fontSize: '0.85rem' }}>
+              <DualLanguageText delimiter="/">
+                {appStrings.hmpbPage()}
+              </DualLanguageText>
+            </div>
+            <h1>
+              {pageNumber}/{totalPages}
+            </h1>
           </div>
-          <h1>
-            {pageNumber}/{totalPages}
-          </h1>
+          <div>{endOfPageInstruction}</div>
+        </Box>
+      </div>
+      {pageNumber % 2 === 1 && (
+        <div
+          style={{
+            fontSize: '8pt',
+            display: 'flex',
+            justifyContent: 'space-between',
+            gap: '0.5rem',
+            borderWidth: '1px',
+            marginTop: '0.325rem',
+            // There's padding at the bottom of the timing mark grid that we
+            // want to eat into a little bit here, so we set a height that's
+            // slightly smaller than the actual height of this text and let it
+            // overflow a bit.
+            height: '0.5rem',
+          }}
+        >
+          <span>
+            Election:{' '}
+            <b>
+              <ElectionHashSlot />
+            </b>
+          </span>
+          <span>
+            Ballot Style: <b>{extractBallotStyleGroupId(ballotStyleId)}</b>
+          </span>
+          <span>
+            Precinct: <b>{precinct.name}</b>
+          </span>
+          <span>
+            Language: <b>{languageText}</b>
+          </span>
         </div>
-        <div>{endOfPageInstruction}</div>
-      </Box>
+      )}
     </div>
   );
 }
@@ -401,7 +458,6 @@ function BallotPageFrame({
                 <Header
                   election={election}
                   ballotStyleId={ballotStyleId}
-                  precinctId={precinctId}
                   ballotType={ballotType}
                   ballotMode={ballotMode}
                 />
@@ -418,7 +474,13 @@ function BallotPageFrame({
             >
               {children}
             </div>
-            <Footer pageNumber={pageNumber} totalPages={totalPages} />
+            <Footer
+              election={election}
+              ballotStyleId={ballotStyleId}
+              precinctId={precinctId}
+              pageNumber={pageNumber}
+              totalPages={totalPages}
+            />
           </div>
         </TimingMarkGrid>
       </Page>

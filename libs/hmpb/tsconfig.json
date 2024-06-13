@@ -25,6 +25,7 @@
     { "path": "../fs/tsconfig.build.json" },
     { "path": "../image-utils/tsconfig.build.json" },
     { "path": "../types/tsconfig.build.json" },
-    { "path": "../ui/tsconfig.build.json" }
+    { "path": "../ui/tsconfig.build.json" },
+    { "path": "../utils/tsconfig.build.json" }
   ]
 }
