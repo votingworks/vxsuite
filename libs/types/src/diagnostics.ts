@@ -6,7 +6,8 @@ export type DiagnosticType =
   | 'blank-sheet-scan'
   | 'mark-scan-accessible-controller'
   | 'mark-scan-paper-handler'
-  | 'mark-scan-pat-input';
+  | 'mark-scan-pat-input'
+  | 'mark-scan-headphone-input';
 
 /**
  * The outcome of a hardware diagnostics test.

@@ -6,7 +6,7 @@ import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
 import { DiagnosticSectionTitle } from './types';
 
 export interface MarkScanDeviceDiagnosticSectionProps {
-  isDeviceConnected: boolean;
+  isDeviceConnected?: boolean;
   diagnosticType: DiagnosticType;
   mostRecentDiagnosticRecord?: DiagnosticRecord;
   children?: React.ReactNode;
@@ -24,18 +24,27 @@ export function MarkScanDeviceDiagnosticSection({
     assert(mostRecentDiagnosticRecord.type === diagnosticType);
   }
 
-  return (
-    <section>
-      <H2>{title}</H2>
-      {isDeviceConnected ? (
+  let detectedText = null;
+  if (isDeviceConnected !== undefined) {
+    if (isDeviceConnected === true) {
+      detectedText = (
         <P>
           <SuccessIcon /> Detected
         </P>
-      ) : (
+      );
+    } else {
+      detectedText = (
         <P>
           <WarningIcon /> Not detected
         </P>
-      )}
+      );
+    }
+  }
+
+  return (
+    <section>
+      <H2>{title}</H2>
+      {detectedText}
       {!mostRecentDiagnosticRecord ? (
         <P>
           <InfoIcon /> No test on record

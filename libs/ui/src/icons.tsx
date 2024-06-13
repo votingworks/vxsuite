@@ -46,6 +46,7 @@ import {
   faVolumeXmark,
   faVolumeHigh,
   faEyeSlash,
+  faPlay,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -309,6 +310,10 @@ export const Icons = {
 
   SoundOn(props) {
     return <FaIcon {...props} type={faVolumeHigh} />;
+  },
+
+  Play(props) {
+    return <FaIcon {...props} type={faPlay} />;
   },
 
   RotateRight(props) {

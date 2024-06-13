@@ -47,6 +47,14 @@ test('MarkScanReadinessReport', () => {
         isDeviceConnected: true,
         children: <p>passed PAT input child</p>,
       }}
+      headphoneInputProps={{
+        mostRecentDiagnosticRecord: {
+          type: 'mark-scan-headphone-input',
+          outcome: 'pass',
+          timestamp: generatedAtTime.getTime(),
+        },
+        children: <p>passed headphone input child</p>,
+      }}
       generatedAtTime={generatedAtTime}
       machineId={machineId}
       electionDefinition={electionTwoPartyPrimaryDefinition}
@@ -68,6 +76,7 @@ test('MarkScanReadinessReport', () => {
   expectDetected(screen, DiagnosticSectionTitle.PatInput, true);
   expectDiagnosticResult(screen, DiagnosticSectionTitle.PaperHandler, true);
   expectDiagnosticResult(screen, DiagnosticSectionTitle.PatInput, true);
+  expectDiagnosticResult(screen, DiagnosticSectionTitle.HeadphoneInput, true);
   expectDiagnosticResult(
     screen,
     DiagnosticSectionTitle.AccessibleController,
@@ -76,4 +85,5 @@ test('MarkScanReadinessReport', () => {
   screen.getByText('passed controller child');
   screen.getByText('passed paper handler child');
   screen.getByText('passed PAT input child');
+  screen.getByText('passed headphone input child');
 });

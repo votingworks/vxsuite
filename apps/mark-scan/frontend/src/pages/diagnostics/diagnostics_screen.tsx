@@ -26,6 +26,7 @@ import {
   addDiagnosticRecord,
 } from '../../api';
 import { PaperHandlerDiagnosticScreen } from './paper_handler_diagnostic_screen';
+import { HeadphoneInputDiagnosticScreen } from './headphone_input_diagnostic_screen';
 import { PatDeviceCalibrationPage } from '../pat_device_identification/pat_device_calibration_page';
 
 export interface DiagnosticsScreenProps {
@@ -52,6 +53,8 @@ export function DiagnosticsScreen({
   const mostRecentPatInputDiagnosticQuery = getMostRecentDiagnostic.useQuery(
     'mark-scan-pat-input'
   );
+  const mostRecentHeadphoneInputDiagnosticQuery =
+    getMostRecentDiagnostic.useQuery('mark-scan-headphone-input');
 
   const startPaperHandlerDiagnosticMutation =
     startPaperHandlerDiagnostic.useMutation();
@@ -73,7 +76,8 @@ export function DiagnosticsScreen({
     !getStateMachineStateQuery.isSuccess ||
     !mostRecentAccessibleControllerDiagnosticQuery.isSuccess ||
     !mostRecentPaperHandlerDiagnosticQuery.isSuccess ||
-    !mostRecentPatInputDiagnosticQuery.isSuccess
+    !mostRecentPatInputDiagnosticQuery.isSuccess ||
+    !mostRecentHeadphoneInputDiagnosticQuery.isSuccess
   ) {
     return (
       <Screen>
@@ -100,6 +104,8 @@ export function DiagnosticsScreen({
     mostRecentPaperHandlerDiagnosticQuery.data ?? undefined;
   const mostRecentPatInputDiagnostic =
     mostRecentPatInputDiagnosticQuery.data ?? undefined;
+  const mostRecentHeadphoneInputDiagnostic =
+    mostRecentHeadphoneInputDiagnosticQuery.data ?? undefined;
 
   return (
     <Switch>
@@ -164,6 +170,18 @@ export function DiagnosticsScreen({
                   </Button>
                 ),
               }}
+              headphoneInputProps={{
+                mostRecentDiagnosticRecord: mostRecentHeadphoneInputDiagnostic,
+                children: (
+                  <Button
+                    onPress={() => {
+                      history.push('/headphone-input');
+                    }}
+                  >
+                    Test Front Headphone Input
+                  </Button>
+                ),
+              }}
             />
           </Main>
         </Screen>
@@ -205,6 +223,13 @@ export function DiagnosticsScreen({
               outcome: 'fail',
               message: 'Test was ended early.',
             });
+            history.push('/');
+          }}
+        />
+      </Route>
+      <Route path="/headphone-input">
+        <HeadphoneInputDiagnosticScreen
+          onClose={() => {
             history.push('/');
           }}
         />

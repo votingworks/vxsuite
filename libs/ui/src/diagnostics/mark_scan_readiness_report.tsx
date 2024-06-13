@@ -19,17 +19,28 @@ type NonpresentationalSectionProps = Omit<
   'diagnosticType' | 'title'
 >;
 
+type HeadphoneInputSectionProps = Omit<
+  NonpresentationalSectionProps,
+  'isDeviceConnected'
+>;
+
 type ReportContentsProps = ConfigurationSectionProps &
   ComputerSectionProps & {
     accessibleControllerProps: NonpresentationalSectionProps;
     paperHandlerProps: NonpresentationalSectionProps;
     patInputProps: NonpresentationalSectionProps;
+    headphoneInputProps: HeadphoneInputSectionProps;
   };
 
 export function MarkScanReadinessReportContents(
   props: ReportContentsProps
 ): JSX.Element {
-  const { accessibleControllerProps, paperHandlerProps, patInputProps } = props;
+  const {
+    accessibleControllerProps,
+    headphoneInputProps,
+    paperHandlerProps,
+    patInputProps,
+  } = props;
   return (
     <ReportContents>
       <ConfigurationSection {...props} expectPrecinctSelection />
@@ -48,6 +59,11 @@ export function MarkScanReadinessReportContents(
         {...patInputProps}
         diagnosticType="mark-scan-pat-input"
         title={DiagnosticSectionTitle.PatInput}
+      />
+      <MarkScanDeviceDiagnosticSection
+        {...headphoneInputProps}
+        diagnosticType="mark-scan-headphone-input"
+        title={DiagnosticSectionTitle.HeadphoneInput}
       />
     </ReportContents>
   );
