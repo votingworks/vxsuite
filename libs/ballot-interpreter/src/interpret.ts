@@ -20,7 +20,6 @@ import {
   InvalidTestModePage,
   mapSheet,
   PageInterpretation,
-  PrecinctSelection,
   SheetOf,
   AdjudicationInfo,
   AnyContest,
@@ -39,7 +38,6 @@ import {
   Rect,
   WriteInAreaStatus,
   WriteInId,
-  MarkThresholds,
   AdjudicationReason,
   PageInterpretationWithFiles,
   Id,
@@ -67,19 +65,10 @@ import {
 import { interpret as interpretVxBmdBallotSheet } from './bmd';
 import { getAllPossibleAdjudicationReasons } from './adjudication_reasons';
 import { saveSheetImage } from './save_images';
+import { InterpreterOptions } from './types';
+import { normalizeBallotMode } from './validation';
 
 const debug = makeDebug('ballot-interpreter:scan:interpreter');
-
-/**
- * Options for interpreting a sheet of ballot images.
- */
-export interface InterpreterOptions {
-  electionDefinition: ElectionDefinition;
-  precinctSelection: PrecinctSelection;
-  testMode: boolean;
-  markThresholds: MarkThresholds;
-  adjudicationReasons: readonly AdjudicationReason[];
-}
 
 /**
  * Result of interpreting a sheet of ballot images.
@@ -503,17 +492,18 @@ export async function convertRustInterpretResult(
  */
 function validateInterpretResults(
   results: SheetOf<InterpretFileResult>,
-  {
-    electionHash,
+  options: InterpreterOptions
+): SheetOf<InterpretFileResult> {
+  const {
+    electionDefinition: { electionHash },
     precinctSelection,
     testMode,
-  }: {
-    electionHash: string;
-    precinctSelection: PrecinctSelection;
-    testMode: boolean;
-  }
-): SheetOf<InterpretFileResult> {
-  return mapSheet(results, ({ interpretation, normalizedImage }) => {
+  } = options;
+
+  return mapSheet(results, (result) => {
+    const { normalizedImage } = result;
+    const interpretation = normalizeBallotMode(result.interpretation, options);
+
     if (!('metadata' in interpretation)) {
       return { interpretation, normalizedImage };
     }
@@ -571,18 +561,14 @@ async function interpretHmpb(
   sheet: SheetOf<string>,
   options: InterpreterOptions
 ): Promise<SheetOf<InterpretFileResult>> {
-  const { electionDefinition, precinctSelection, testMode } = options;
+  const { electionDefinition } = options;
   const result = interpretHmpbBallotSheetRust(electionDefinition, sheet, {
     scoreWriteIns: shouldScoreWriteIns(options),
   });
 
   return validateInterpretResults(
     (await convertRustInterpretResult(options, result, sheet)).unsafeUnwrap(),
-    {
-      electionHash: electionDefinition.electionHash,
-      precinctSelection,
-      testMode,
-    }
+    options
   );
 }
 
@@ -594,7 +580,7 @@ async function interpretBmdBallot(
   ballotImages: SheetOf<ImageData>,
   options: InterpreterOptions
 ): Promise<SheetOf<InterpretFileResult>> {
-  const { electionDefinition, precinctSelection, testMode } = options;
+  const { electionDefinition } = options;
   const interpretResult = await interpretVxBmdBallotSheet(
     electionDefinition,
     ballotImages
@@ -689,11 +675,7 @@ async function interpretBmdBallot(
     normalizedImage: blankPageImage,
   };
 
-  return validateInterpretResults([front, back], {
-    electionHash: electionDefinition.electionHash,
-    precinctSelection,
-    testMode,
-  });
+  return validateInterpretResults([front, back], options);
 }
 
 /**

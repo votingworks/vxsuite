@@ -3204,6 +3204,9 @@ importers:
       '@votingworks/qrdetect':
         specifier: ^1.0.1
         version: 1.0.1
+      '@votingworks/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
       '@votingworks/types':
         specifier: workspace:*
         version: link:../types
