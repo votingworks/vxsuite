@@ -1371,7 +1371,7 @@ export const appStrings = {
 
   warningCvrsNeedSync: () => (
     <UiString uiStringKey="warningCvrsNeedSync">
-      A poll worker must sync Cast vote records (CVRs) to the USB drive.
+      A poll worker must sync cast vote records (CVRs) to the USB drive.
     </UiString>
   ),
 

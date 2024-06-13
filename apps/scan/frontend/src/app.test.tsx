@@ -914,7 +914,7 @@ test('requires CVR sync if necessary', async () => {
   renderApp();
 
   await screen.findByText(
-    'A poll worker must sync Cast vote records (CVRs) to the USB drive.'
+    'A poll worker must sync cast vote records (CVRs) to the USB drive.'
   );
 
   apiMock.authenticateAsPollWorker(electionGeneralDefinition);
@@ -947,7 +947,7 @@ test('clears CVR sync required screen if no longer required', async () => {
   renderApp();
 
   await screen.findByText(
-    'A poll worker must sync Cast vote records (CVRs) to the USB drive.'
+    'A poll worker must sync cast vote records (CVRs) to the USB drive.'
   );
 
   apiMock.expectGetUsbDriveStatus('mounted');
