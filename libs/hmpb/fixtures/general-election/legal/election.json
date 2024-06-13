@@ -3090,10 +3090,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -3104,8 +3104,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.6881056201550388,
-                          "Y": 14.487728310502282,
+                          "X": 1.7057359660574414,
+                          "Y": 15.18740428790199,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3120,8 +3120,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.6881056201550388,
-                          "Y": 17.28015601217656,
+                          "X": 1.7057359660574414,
+                          "Y": 17.996937212863706,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3136,8 +3136,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.6881056201550388,
-                          "Y": 20.072583713850836,
+                          "X": 1.7057359660574414,
+                          "Y": 20.80647013782542,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3152,8 +3152,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.6881056201550388,
-                          "Y": 22.865011415525114,
+                          "X": 1.7057359660574414,
+                          "Y": 23.616003062787136,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3168,8 +3168,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.6881056201550388,
-                          "Y": 25.65743911719939,
+                          "X": 1.7057359660574414,
+                          "Y": 26.42553598774885,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3184,8 +3184,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.6881056201550388,
-                          "Y": 29.209189497716896,
+                          "X": 1.7057359660574414,
+                          "Y": 29.999042879019907,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3204,10 +3204,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -3218,8 +3218,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 13.652349695585997,
+                          "X": 12.274702186684074,
+                          "Y": 14.346908499234303,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3234,8 +3234,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 15.685454718417047,
+                          "X": 12.274702186684074,
+                          "Y": 16.392467457886674,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3250,8 +3250,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 17.718559741248097,
+                          "X": 12.274702186684074,
+                          "Y": 18.43802641653905,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3266,8 +3266,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 20.510987442922374,
+                          "X": 12.274702186684074,
+                          "Y": 21.247559341500764,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3282,8 +3282,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 22.544092465753423,
+                          "X": 12.274702186684074,
+                          "Y": 23.29311830015314,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3298,8 +3298,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 24.577197488584474,
+                          "X": 12.274702186684074,
+                          "Y": 25.33867725880551,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3314,8 +3314,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 26.610302511415526,
+                          "X": 12.274702186684074,
+                          "Y": 27.384236217457886,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3334,10 +3334,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -3348,8 +3348,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 31.464897260273972,
+                          "X": 12.274702186684074,
+                          "Y": 32.26856814701378,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3364,8 +3364,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 33.49800228310502,
+                          "X": 12.274702186684074,
+                          "Y": 34.31412710566615,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3380,8 +3380,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 35.531107305936075,
+                          "X": 12.274702186684074,
+                          "Y": 36.35968606431853,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3396,8 +3396,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 37.56421232876712,
+                          "X": 12.274702186684074,
+                          "Y": 38.4052450229709,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3412,8 +3412,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 39.59731735159817,
+                          "X": 12.274702186684074,
+                          "Y": 40.450803981623274,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3432,10 +3432,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -3446,8 +3446,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 22.835392441860467,
-                          "Y": 13.652349695585997,
+                          "X": 22.843668407310705,
+                          "Y": 14.346908499234303,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3462,8 +3462,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 22.835392441860467,
-                          "Y": 15.685454718417047,
+                          "X": 22.843668407310705,
+                          "Y": 16.392467457886674,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3478,8 +3478,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 22.835392441860467,
-                          "Y": 17.718559741248097,
+                          "X": 22.843668407310705,
+                          "Y": 18.43802641653905,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3494,8 +3494,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 22.835392441860467,
-                          "Y": 19.75166476407915,
+                          "X": 22.843668407310705,
+                          "Y": 20.483585375191424,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3510,8 +3510,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 22.835392441860467,
-                          "Y": 21.784769786910196,
+                          "X": 22.843668407310705,
+                          "Y": 22.529144333843796,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3526,8 +3526,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 22.835392441860467,
-                          "Y": 23.817874809741248,
+                          "X": 22.843668407310705,
+                          "Y": 24.57470329249617,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3542,8 +3542,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 22.835392441860467,
-                          "Y": 25.850979832572296,
+                          "X": 22.843668407310705,
+                          "Y": 26.620262251148542,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3558,8 +3558,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 22.835392441860467,
-                          "Y": 27.884084855403348,
+                          "X": 22.843668407310705,
+                          "Y": 28.665821209800917,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3574,8 +3574,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 22.835392441860467,
-                          "Y": 29.9171898782344,
+                          "X": 22.843668407310705,
+                          "Y": 30.711380168453292,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3590,8 +3590,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 22.835392441860467,
-                          "Y": 31.950294901065448,
+                          "X": 22.843668407310705,
+                          "Y": 32.75693912710567,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3606,8 +3606,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 22.835392441860467,
-                          "Y": 33.9833999238965,
+                          "X": 22.843668407310705,
+                          "Y": 34.80249808575804,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3622,8 +3622,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 22.835392441860467,
-                          "Y": 36.01650494672755,
+                          "X": 22.843668407310705,
+                          "Y": 36.84805704441041,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3638,8 +3638,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 22.835392441860467,
-                          "Y": 38.049609969558595,
+                          "X": 22.843668407310705,
+                          "Y": 38.89361600306278,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3654,8 +3654,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 22.835392441860467,
-                          "Y": 40.08271499238965,
+                          "X": 22.843668407310705,
+                          "Y": 40.93917496171516,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3670,8 +3670,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 22.835392441860467,
-                          "Y": 42.1158200152207,
+                          "X": 22.843668407310705,
+                          "Y": 42.98473392036753,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3686,8 +3686,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 22.835392441860467,
-                          "Y": 44.14892503805175,
+                          "X": 22.843668407310705,
+                          "Y": 45.0302928790199,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3706,10 +3706,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -3720,8 +3720,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 3.5573154490106544,
+                          "X": 1.7057359660574414,
+                          "Y": 3.579106049004594,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3736,8 +3736,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 5.590420471841704,
+                          "X": 1.7057359660574414,
+                          "Y": 5.624665007656968,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3752,8 +3752,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 7.623525494672755,
+                          "X": 1.7057359660574414,
+                          "Y": 7.670223966309341,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3768,8 +3768,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 9.656630517503805,
+                          "X": 1.7057359660574414,
+                          "Y": 9.715782924961715,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3784,8 +3784,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 11.689735540334855,
+                          "X": 1.7057359660574414,
+                          "Y": 11.761341883614088,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3800,8 +3800,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 13.722840563165905,
+                          "X": 1.7057359660574414,
+                          "Y": 13.806900842266462,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3816,8 +3816,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 15.755945585996955,
+                          "X": 1.7057359660574414,
+                          "Y": 15.852459800918835,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3832,8 +3832,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 17.789050608828006,
+                          "X": 1.7057359660574414,
+                          "Y": 17.898018759571208,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3848,8 +3848,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 19.822155631659054,
+                          "X": 1.7057359660574414,
+                          "Y": 19.943577718223583,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3868,10 +3868,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -3882,8 +3882,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 24.676750380517504,
+                          "X": 1.7057359660574414,
+                          "Y": 24.827909647779478,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3898,8 +3898,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 26.709855403348552,
+                          "X": 1.7057359660574414,
+                          "Y": 26.873468606431853,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3918,10 +3918,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -3932,8 +3932,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 31.564450152207,
+                          "X": 1.7057359660574414,
+                          "Y": 31.757800535987748,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3952,10 +3952,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -3966,8 +3966,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 37.254423515981735,
+                          "X": 1.7057359660574414,
+                          "Y": 37.48262825421133,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3982,8 +3982,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 39.287528538812786,
+                          "X": 1.7057359660574414,
+                          "Y": 39.528187212863706,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -3998,8 +3998,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 41.32063356164383,
+                          "X": 1.7057359660574414,
+                          "Y": 41.57374617151608,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4018,10 +4018,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -4032,8 +4032,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 12.261749031007753,
-                          "Y": 3.5573154490106544,
+                          "X": 12.274702186684074,
+                          "Y": 3.579106049004594,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4048,8 +4048,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 12.261749031007753,
-                          "Y": 5.590420471841704,
+                          "X": 12.274702186684074,
+                          "Y": 5.624665007656968,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4064,8 +4064,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 12.261749031007753,
-                          "Y": 8.382848173515981,
+                          "X": 12.274702186684074,
+                          "Y": 8.434197932618682,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4080,8 +4080,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 12.261749031007753,
-                          "Y": 10.415953196347031,
+                          "X": 12.274702186684074,
+                          "Y": 10.479756891271055,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4096,8 +4096,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 12.261749031007753,
-                          "Y": 12.449058219178081,
+                          "X": 12.274702186684074,
+                          "Y": 12.52531584992343,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4112,8 +4112,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 12.261749031007753,
-                          "Y": 14.482163242009133,
+                          "X": 12.274702186684074,
+                          "Y": 14.570874808575804,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4128,8 +4128,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 12.261749031007753,
-                          "Y": 16.51526826484018,
+                          "X": 12.274702186684074,
+                          "Y": 16.616433767228177,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4144,8 +4144,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 12.261749031007753,
-                          "Y": 18.548373287671232,
+                          "X": 12.274702186684074,
+                          "Y": 18.661992725880552,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4160,8 +4160,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 12.261749031007753,
-                          "Y": 20.581478310502284,
+                          "X": 12.274702186684074,
+                          "Y": 20.707551684532923,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4176,8 +4176,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 12.261749031007753,
-                          "Y": 22.614583333333332,
+                          "X": 12.274702186684074,
+                          "Y": 22.7531106431853,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4192,8 +4192,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 12.261749031007753,
-                          "Y": 24.647688356164384,
+                          "X": 12.274702186684074,
+                          "Y": 24.79866960183767,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4208,8 +4208,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 12.261749031007753,
-                          "Y": 27.02891933028919,
+                          "X": 12.274702186684074,
+                          "Y": 27.19448698315467,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4220,8 +4220,8 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 13.161749031007753,
-                          "Y": 26.22891933028919,
+                          "X": 13.174702186684074,
+                          "Y": 26.394486983154668,
                           "W": 7.799999999999999,
                           "H": 1
                         }
@@ -4235,8 +4235,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 12.261749031007753,
-                          "Y": 29.194967656012174,
+                          "X": 12.274702186684074,
+                          "Y": 29.373803598774884,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4247,8 +4247,8 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 13.161749031007753,
-                          "Y": 28.394967656012174,
+                          "X": 13.174702186684074,
+                          "Y": 28.573803598774884,
                           "W": 7.799999999999999,
                           "H": 1
                         }
@@ -4262,8 +4262,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 12.261749031007753,
-                          "Y": 31.361015981735157,
+                          "X": 12.274702186684074,
+                          "Y": 31.553120214395097,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4274,8 +4274,8 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 13.161749031007753,
-                          "Y": 30.561015981735157,
+                          "X": 13.174702186684074,
+                          "Y": 30.753120214395096,
                           "W": 7.799999999999999,
                           "H": 1
                         }
@@ -4289,8 +4289,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 12.261749031007753,
-                          "Y": 33.52706430745814,
+                          "X": 12.274702186684074,
+                          "Y": 33.73243683001531,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4301,8 +4301,8 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 13.161749031007753,
-                          "Y": 32.72706430745814,
+                          "X": 13.174702186684074,
+                          "Y": 32.93243683001531,
                           "W": 7.799999999999999,
                           "H": 1
                         }
@@ -4320,10 +4320,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -4334,8 +4334,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 22.835392441860467,
-                          "Y": 3.5573154490106544,
+                          "X": 22.843668407310705,
+                          "Y": 3.579106049004594,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4350,8 +4350,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 22.835392441860467,
-                          "Y": 5.938546423135464,
+                          "X": 22.843668407310705,
+                          "Y": 5.974923430321592,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4362,8 +4362,8 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 23.735392441860466,
-                          "Y": 5.138546423135464,
+                          "X": 23.743668407310704,
+                          "Y": 5.174923430321592,
                           "W": 7.799999999999999,
                           "H": 1
                         }
@@ -4381,10 +4381,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -4395,8 +4395,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 22.835392441860467,
-                          "Y": 10.577958523592084,
+                          "X": 22.843668407310705,
+                          "Y": 10.642754594180705,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4411,8 +4411,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 22.835392441860467,
-                          "Y": 12.611063546423136,
+                          "X": 22.843668407310705,
+                          "Y": 12.688313552833078,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4427,8 +4427,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 22.835392441860467,
-                          "Y": 14.992294520547945,
+                          "X": 22.843668407310705,
+                          "Y": 15.084130934150076,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4439,8 +4439,8 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 23.735392441860466,
-                          "Y": 14.192294520547945,
+                          "X": 23.743668407310704,
+                          "Y": 14.284130934150076,
                           "W": 7.799999999999999,
                           "H": 1
                         }
@@ -4458,10 +4458,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -4472,8 +4472,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 22.835392441860467,
-                          "Y": 19.631706621004565,
+                          "X": 22.843668407310705,
+                          "Y": 19.751962098009187,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4488,8 +4488,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 22.835392441860467,
-                          "Y": 21.664811643835616,
+                          "X": 22.843668407310705,
+                          "Y": 21.797521056661562,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4504,8 +4504,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 22.835392441860467,
-                          "Y": 23.697916666666664,
+                          "X": 22.843668407310705,
+                          "Y": 23.843080015313934,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4520,8 +4520,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 22.835392441860467,
-                          "Y": 25.731021689497716,
+                          "X": 22.843668407310705,
+                          "Y": 25.88863897396631,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4536,8 +4536,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 22.835392441860467,
-                          "Y": 27.764126712328768,
+                          "X": 22.843668407310705,
+                          "Y": 27.93419793261868,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4552,8 +4552,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 22.835392441860467,
-                          "Y": 29.797231735159816,
+                          "X": 22.843668407310705,
+                          "Y": 29.979756891271055,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4568,8 +4568,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 22.835392441860467,
-                          "Y": 32.178462709284624,
+                          "X": 22.843668407310705,
+                          "Y": 32.375574272588054,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4580,8 +4580,8 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 23.735392441860466,
-                          "Y": 31.378462709284623,
+                          "X": 23.743668407310704,
+                          "Y": 31.575574272588053,
                           "W": 7.799999999999999,
                           "H": 1
                         }
@@ -4595,8 +4595,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 22.835392441860467,
-                          "Y": 34.344511035007606,
+                          "X": 22.843668407310705,
+                          "Y": 34.55489088820827,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4607,8 +4607,8 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 23.735392441860466,
-                          "Y": 33.54451103500761,
+                          "X": 23.743668407310704,
+                          "Y": 33.75489088820827,
                           "W": 7.799999999999999,
                           "H": 1
                         }
@@ -4622,8 +4622,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 22.835392441860467,
-                          "Y": 36.51055936073059,
+                          "X": 22.843668407310705,
+                          "Y": 36.73420750382848,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4634,8 +4634,8 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 23.735392441860466,
-                          "Y": 35.71055936073059,
+                          "X": 23.743668407310704,
+                          "Y": 35.93420750382848,
                           "W": 7.799999999999999,
                           "H": 1
                         }
@@ -4653,10 +4653,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -4667,8 +4667,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 2,
                           "Side": "front",
-                          "X": 1.6881056201550388,
-                          "Y": 6.135178843226789,
+                          "X": 1.7057359660574414,
+                          "Y": 6.172760336906585,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4683,8 +4683,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 2,
                           "Side": "front",
-                          "X": 1.6881056201550388,
-                          "Y": 7.4089611872146115,
+                          "X": 1.7057359660574414,
+                          "Y": 7.454345329249617,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4703,10 +4703,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -4717,8 +4717,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 2,
                           "Side": "front",
-                          "X": 1.6881056201550388,
-                          "Y": 14.082096651445966,
+                          "X": 1.7057359660574414,
+                          "Y": 14.168357580398162,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4733,8 +4733,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 2,
                           "Side": "front",
-                          "X": 1.6881056201550388,
-                          "Y": 15.35587899543379,
+                          "X": 1.7057359660574414,
+                          "Y": 15.449942572741193,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4753,10 +4753,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -4767,8 +4767,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 2,
                           "Side": "front",
-                          "X": 1.6881056201550388,
-                          "Y": 26.584950532724505,
+                          "X": 1.7057359660574414,
+                          "Y": 26.747798621745787,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4783,8 +4783,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 2,
                           "Side": "front",
-                          "X": 1.6881056201550388,
-                          "Y": 27.858732876712327,
+                          "X": 1.7057359660574414,
+                          "Y": 28.029383614088818,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4803,10 +4803,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -4817,8 +4817,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 2,
                           "Side": "front",
-                          "X": 1.6881056201550388,
-                          "Y": 40.454337899543376,
+                          "X": 1.7057359660574414,
+                          "Y": 40.702143950995406,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4833,8 +4833,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 2,
                           "Side": "front",
-                          "X": 1.6881056201550388,
-                          "Y": 41.7281202435312,
+                          "X": 1.7057359660574414,
+                          "Y": 41.983728943338434,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4853,10 +4853,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -4867,8 +4867,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 2,
                           "Side": "front",
-                          "X": 17.548570736434108,
-                          "Y": 8.413146879756468,
+                          "X": 17.559521866840733,
+                          "Y": 9.22865620214395,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4883,8 +4883,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 2,
                           "Side": "front",
-                          "X": 17.548570736434108,
-                          "Y": 9.686929223744292,
+                          "X": 17.559521866840733,
+                          "Y": 10.510241194486982,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4903,10 +4903,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -4917,8 +4917,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 2,
                           "Side": "front",
-                          "X": 17.548570736434108,
-                          "Y": 22.43464611872146,
+                          "X": 17.559521866840733,
+                          "Y": 23.336045176110257,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4933,8 +4933,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 2,
                           "Side": "front",
-                          "X": 17.548570736434108,
-                          "Y": 23.708428462709286,
+                          "X": 17.559521866840733,
+                          "Y": 24.617630168453292,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4953,10 +4953,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -4967,8 +4967,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 2,
                           "Side": "front",
-                          "X": 17.548570736434108,
-                          "Y": 36.30403348554033,
+                          "X": 17.559521866840733,
+                          "Y": 37.29039050535987,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -4983,8 +4983,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 2,
                           "Side": "front",
-                          "X": 17.548570736434108,
-                          "Y": 37.577815829528156,
+                          "X": 17.559521866840733,
+                          "Y": 38.57197549770291,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5003,10 +5003,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -5017,8 +5017,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 2,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 10.691114916286148,
+                          "X": 1.7057359660574414,
+                          "Y": 10.756604134762634,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5033,8 +5033,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 2,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 11.964897260273972,
+                          "X": 1.7057359660574414,
+                          "Y": 12.038189127105666,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5068,10 +5068,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -5082,8 +5082,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.6881056201550388,
-                          "Y": 14.487728310502282,
+                          "X": 1.7057359660574414,
+                          "Y": 15.18740428790199,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5098,8 +5098,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.6881056201550388,
-                          "Y": 17.28015601217656,
+                          "X": 1.7057359660574414,
+                          "Y": 17.996937212863706,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5114,8 +5114,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.6881056201550388,
-                          "Y": 20.072583713850836,
+                          "X": 1.7057359660574414,
+                          "Y": 20.80647013782542,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5130,8 +5130,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.6881056201550388,
-                          "Y": 22.865011415525114,
+                          "X": 1.7057359660574414,
+                          "Y": 23.616003062787136,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5146,8 +5146,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.6881056201550388,
-                          "Y": 25.65743911719939,
+                          "X": 1.7057359660574414,
+                          "Y": 26.42553598774885,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5162,8 +5162,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 1.6881056201550388,
-                          "Y": 29.209189497716896,
+                          "X": 1.7057359660574414,
+                          "Y": 29.999042879019907,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5182,10 +5182,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -5196,8 +5196,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 13.652349695585997,
+                          "X": 12.274702186684074,
+                          "Y": 14.346908499234303,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5212,8 +5212,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 15.685454718417047,
+                          "X": 12.274702186684074,
+                          "Y": 16.392467457886674,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5228,8 +5228,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 17.718559741248097,
+                          "X": 12.274702186684074,
+                          "Y": 18.43802641653905,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5244,8 +5244,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 19.75166476407915,
+                          "X": 12.274702186684074,
+                          "Y": 20.483585375191424,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5260,8 +5260,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 21.784769786910196,
+                          "X": 12.274702186684074,
+                          "Y": 22.529144333843796,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5280,10 +5280,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -5294,8 +5294,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 26.639364535768646,
+                          "X": 12.274702186684074,
+                          "Y": 27.41347626339969,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5310,8 +5310,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 28.672469558599694,
+                          "X": 12.274702186684074,
+                          "Y": 29.459035222052066,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5326,8 +5326,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 30.705574581430746,
+                          "X": 12.274702186684074,
+                          "Y": 31.50459418070444,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5342,8 +5342,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 32.7386796042618,
+                          "X": 12.274702186684074,
+                          "Y": 33.550153139356816,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5358,8 +5358,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 34.77178462709284,
+                          "X": 12.274702186684074,
+                          "Y": 35.59571209800919,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5374,8 +5374,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 36.804889649923894,
+                          "X": 12.274702186684074,
+                          "Y": 37.64127105666156,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5390,8 +5390,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 38.837994672754945,
+                          "X": 12.274702186684074,
+                          "Y": 39.68683001531393,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5406,8 +5406,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 40.871099695586,
+                          "X": 12.274702186684074,
+                          "Y": 41.73238897396631,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5422,8 +5422,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 12.261749031007753,
-                          "Y": 42.90420471841705,
+                          "X": 12.274702186684074,
+                          "Y": 43.77794793261868,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5442,10 +5442,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -5456,8 +5456,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 22.835392441860467,
-                          "Y": 13.652349695585997,
+                          "X": 22.843668407310705,
+                          "Y": 14.346908499234303,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5476,10 +5476,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -5490,8 +5490,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 22.835392441860467,
-                          "Y": 19.34232305936073,
+                          "X": 22.843668407310705,
+                          "Y": 20.071736217457886,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5506,8 +5506,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 22.835392441860467,
-                          "Y": 21.37542808219178,
+                          "X": 22.843668407310705,
+                          "Y": 22.117295176110257,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5522,8 +5522,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 22.835392441860467,
-                          "Y": 23.40853310502283,
+                          "X": 22.843668407310705,
+                          "Y": 24.162854134762632,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5542,10 +5542,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -5556,8 +5556,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 22.835392441860467,
-                          "Y": 28.26312785388128,
+                          "X": 22.843668407310705,
+                          "Y": 29.047186064318527,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5572,8 +5572,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 22.835392441860467,
-                          "Y": 30.644358828006087,
+                          "X": 22.843668407310705,
+                          "Y": 31.443003445635526,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5584,8 +5584,8 @@
                           "@type": "BallotDefinition.WriteInPosition",
                           "Sheet": 1,
                           "Side": "front",
-                          "X": 23.735392441860466,
-                          "Y": 29.844358828006087,
+                          "X": 23.743668407310704,
+                          "Y": 30.643003445635525,
                           "W": 7.799999999999999,
                           "H": 1
                         }
@@ -5603,10 +5603,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -5617,8 +5617,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 6.135178843226789,
+                          "X": 1.7057359660574414,
+                          "Y": 6.172760336906585,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5633,8 +5633,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 7.4089611872146115,
+                          "X": 1.7057359660574414,
+                          "Y": 7.454345329249617,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5653,10 +5653,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -5667,8 +5667,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 18.638032724505326,
+                          "X": 1.7057359660574414,
+                          "Y": 18.75220137825421,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5683,8 +5683,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 19.91181506849315,
+                          "X": 1.7057359660574414,
+                          "Y": 20.03378637059724,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5703,10 +5703,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -5717,8 +5717,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 32.5074200913242,
+                          "X": 1.7057359660574414,
+                          "Y": 32.706546707503826,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5733,8 +5733,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 1.6881056201550388,
-                          "Y": 33.781202435312025,
+                          "X": 1.7057359660574414,
+                          "Y": 33.98813169984686,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5753,10 +5753,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -5767,8 +5767,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 17.548570736434108,
-                          "Y": 12.209760273972602,
+                          "X": 17.559521866840733,
+                          "Y": 12.284552067381316,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5783,8 +5783,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 17.548570736434108,
-                          "Y": 13.483542617960426,
+                          "X": 17.559521866840733,
+                          "Y": 13.566137059724348,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5803,10 +5803,10 @@
                   "@type": "BallotDefinition.PhysicalContest",
                   "BallotFormatId": "ballot-format",
                   "vxOptionBoundsFromTargetMark": {
-                    "top": 1.0048040334855404,
-                    "left": 0.7501211240310078,
-                    "right": 9.226623062015504,
-                    "bottom": 1.1612442922374429
+                    "top": 1.010959035222052,
+                    "left": 0.7579552872062664,
+                    "right": 9.207877774151436,
+                    "bottom": 1.1683575803981623
                   },
                   "PhysicalContestOption": [
                     {
@@ -5817,8 +5817,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 17.548570736434108,
-                          "Y": 24.712614155251142,
+                          "X": 17.559521866840733,
+                          "Y": 24.86399310872894,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1
@@ -5833,8 +5833,8 @@
                           "@type": "BallotDefinition.OptionPosition",
                           "Sheet": 1,
                           "Side": "back",
-                          "X": 17.548570736434108,
-                          "Y": 25.986396499238964,
+                          "X": 17.559521866840733,
+                          "Y": 26.145578101071973,
                           "H": 0,
                           "W": 0,
                           "NumberVotes": 1

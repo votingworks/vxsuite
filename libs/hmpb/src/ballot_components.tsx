@@ -4,11 +4,14 @@ import { Outset } from '@votingworks/types';
 import { range } from '@votingworks/basics';
 import { InchDimensions, InchMargins } from './types';
 
-export const pageMargins = {
-  top: 0.125,
-  right: 0.125,
-  bottom: 0.125,
-  left: 0.125,
+/**
+ * Based on HP LaserJet m404
+ */
+export const pageMarginsInches = {
+  top: 0.16667, // 12pt
+  bottom: 0.16667, // 12pt
+  right: 0.16667, // 12pt
+  left: 0.16667, // 12pt
 } as const;
 
 export const TIMING_MARK_DIMENSIONS: InchDimensions = {

@@ -42,7 +42,7 @@ import {
   QrCodeSlot,
   TimingMarkGrid,
   WRITE_IN_OPTION_CLASS,
-  pageMargins,
+  pageMarginsInches,
 } from './ballot_components';
 import { BallotMode, PixelDimensions } from './types';
 import {
@@ -384,7 +384,7 @@ function BallotPageFrame({
       <Page
         pageNumber={pageNumber}
         dimensions={pageDimensions}
-        margins={pageMargins}
+        margins={pageMarginsInches}
       >
         <TimingMarkGrid pageDimensions={pageDimensions}>
           <div
