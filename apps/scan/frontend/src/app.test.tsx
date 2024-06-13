@@ -910,8 +910,14 @@ test('requires CVR sync if necessary', async () => {
   apiMock.expectGetUsbDriveStatus('mounted', {
     doesUsbDriveRequireCastVoteRecordSync: true,
   });
+  apiMock.setPrinterStatusV3({ connected: true });
   renderApp();
 
+  await screen.findByText(
+    'A poll worker must sync cast vote records (CVRs) to the USB drive.'
+  );
+
+  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
   await screen.findByText(
     'The inserted USB drive does not contain up-to-date records of the votes cast at this scanner. ' +
       'Cast vote records (CVRs) need to be synced to the USB drive.'
@@ -928,7 +934,7 @@ test('requires CVR sync if necessary', async () => {
   await waitFor(() =>
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument()
   );
-  await screen.findByText('Insert Your Ballot');
+  await screen.findByText('Do you want to close the polls?');
 });
 
 test('clears CVR sync required screen if no longer required', async () => {
@@ -941,8 +947,7 @@ test('clears CVR sync required screen if no longer required', async () => {
   renderApp();
 
   await screen.findByText(
-    'The inserted USB drive does not contain up-to-date records of the votes cast at this scanner. ' +
-      'Cast vote records (CVRs) need to be synced to the USB drive.'
+    'A poll worker must sync cast vote records (CVRs) to the USB drive.'
   );
 
   apiMock.expectGetUsbDriveStatus('mounted');

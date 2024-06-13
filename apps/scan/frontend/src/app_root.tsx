@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 import { SetupCardReaderPage, UnlockMachineScreen } from '@votingworks/ui';
 import {
   isSystemAdministratorAuth,
@@ -35,7 +33,7 @@ import {
 } from './api';
 import { VoterScreen } from './screens/voter_screen';
 import { LoginPromptScreen } from './screens/login_prompt_screen';
-import { CastVoteRecordSyncRequiredScreen } from './screens/cast_vote_record_sync_required_screen';
+import { CastVoteRecordSyncRequiredVoterScreen } from './screens/cast_vote_record_sync_required_screen';
 import { SystemAdministratorScreen } from './screens/system_administrator_screen';
 import { ScannerCoverOpenScreen } from './screens/scanner_cover_open_screen';
 import { ScannerDoubleFeedCalibrationScreen } from './screens/scanner_double_feed_calibration_screen';
@@ -52,11 +50,6 @@ export function AppRoot(): JSX.Element | null {
   const scannerStatusQuery = getScannerStatus.useQuery({
     refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   });
-
-  const [
-    shouldStayOnCastVoteRecordSyncRequiredScreen,
-    setShouldStayOnCastVoteRecordSyncRequiredScreen,
-  ] = useState(false);
 
   if (
     !(
@@ -242,20 +235,8 @@ export function AppRoot(): JSX.Element | null {
     );
   }
 
-  if (
-    usbDrive.doesUsbDriveRequireCastVoteRecordSync ||
-    // This ensures that we don't immediately transition away from the CVR sync success message.
-    // We can't rely on doesUsbDriveRequireCastVoteRecordSync because it becomes false as soon as
-    // the sync completes.
-    shouldStayOnCastVoteRecordSyncRequiredScreen
-  ) {
-    return (
-      <CastVoteRecordSyncRequiredScreen
-        setShouldStayOnCastVoteRecordSyncRequiredScreen={
-          setShouldStayOnCastVoteRecordSyncRequiredScreen
-        }
-      />
-    );
+  if (usbDrive.doesUsbDriveRequireCastVoteRecordSync) {
+    return <CastVoteRecordSyncRequiredVoterScreen />;
   }
 
   return (

@@ -1301,6 +1301,12 @@ export const appStrings = {
     <UiString uiStringKey="titleRemoveYourBallot">Remove Your Ballot</UiString>
   ),
 
+  titleScannerCvrSyncRequired: () => (
+    <UiString uiStringKey="titleScannerCvrSyncRequired">
+      CVR Sync Required
+    </UiString>
+  ),
+
   titleScannerBallotNotCounted: () => (
     <UiString uiStringKey="titleScannerBallotNotCounted">
       Ballot Not Counted
@@ -1360,6 +1366,12 @@ export const appStrings = {
   titleUnofficialTestBallot: () => (
     <UiString uiStringKey="titleUnofficialTestBallot">
       Unofficial TEST Ballot
+    </UiString>
+  ),
+
+  warningCvrsNeedSync: () => (
+    <UiString uiStringKey="warningCvrsNeedSync">
+      A poll worker must sync cast vote records (CVRs) to the USB drive.
     </UiString>
   ),
 
