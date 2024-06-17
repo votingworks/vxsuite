@@ -11,6 +11,7 @@ export * from './card';
 export * from './cast_vote_records';
 export * from './centered_large_prose';
 export * from './checkbox_group';
+export * from './checkbox_button';
 export * from './contest_choice_button';
 export * from './double_feed_calibration_images';
 export * from './voter_settings';

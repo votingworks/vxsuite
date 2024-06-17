@@ -7,6 +7,7 @@ import {
   CheckboxGroup,
   MainContent,
   MainHeader,
+  CheckboxButton,
 } from '@votingworks/ui';
 import { useParams } from 'react-router-dom';
 import { AdjudicationReason, Id, SystemSettings } from '@votingworks/types';
@@ -83,23 +84,15 @@ export function TabulationForm({
               }
               disabled={!isEditing}
             />
-            <CheckboxGroup
-              label=""
-              options={[
-                {
-                  label: 'Disallow Casting Overvotes',
-                  value: 'precinctScanDisallowCastingOvervotes',
-                },
-              ]}
-              value={
+            <CheckboxButton
+              label="Disallow Casting Overvotes"
+              isChecked={
                 tabulationSettings.precinctScanDisallowCastingOvervotes
-                  ? ['precinctScanDisallowCastingOvervotes']
-                  : []
               }
-              onChange={(value) =>
+              onChange={(isChecked) =>
                 setTabulationSettings({
                   ...tabulationSettings,
-                  precinctScanDisallowCastingOvervotes: value.length > 0,
+                  precinctScanDisallowCastingOvervotes: isChecked,
                 })
               }
               disabled={!isEditing}
