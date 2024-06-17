@@ -4,7 +4,6 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   TEST_JURISDICTION,
 } from '@votingworks/types';
-import { typedAs } from '@votingworks/basics';
 import { withApp } from '../test/helpers/setup_app';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 
@@ -41,16 +40,14 @@ test('scanBatch with multiple sheets', async () => {
     expect(status.adjudicationsRemaining).toEqual(0);
     expect(status.canUnconfigure).toEqual(true);
     expect(status.batches.length).toEqual(1);
-    expect(status.batches[0]).toEqual(
-      typedAs<BatchInfo>({
-        id: expect.any(String),
-        batchNumber: 1,
-        label: 'Batch 1',
-        count: 3,
-        startedAt: expect.any(String),
-        endedAt: expect.any(String),
-      })
-    );
+    expect(status.batches[0]).toEqual<BatchInfo>({
+      id: expect.any(String),
+      batchNumber: 1,
+      label: 'Batch 1',
+      count: 3,
+      startedAt: expect.any(String),
+      endedAt: expect.any(String),
+    });
   });
 });
 
@@ -85,16 +82,14 @@ test('continueScanning after invalid ballot', async () => {
       expect(status.adjudicationsRemaining).toEqual(1);
       expect(status.canUnconfigure).toEqual(true);
       expect(status.batches.length).toEqual(1);
-      expect(status.batches[0]).toEqual(
-        typedAs<BatchInfo>({
-          id: expect.any(String),
-          batchNumber: 1,
-          label: 'Batch 1',
-          count: 2,
-          startedAt: expect.any(String),
-          endedAt: undefined, // not ended
-        })
-      );
+      expect(status.batches[0]).toEqual<BatchInfo>({
+        id: expect.any(String),
+        batchNumber: 1,
+        label: 'Batch 1',
+        count: 2,
+        startedAt: expect.any(String),
+        endedAt: undefined, // not ended
+      });
     }
     await apiClient.continueScanning({ forceAccept: false });
     await importer.waitForEndOfBatchOrScanningPause();
@@ -103,16 +98,14 @@ test('continueScanning after invalid ballot', async () => {
       expect(status.adjudicationsRemaining).toEqual(0);
       expect(status.canUnconfigure).toEqual(true);
       expect(status.batches.length).toEqual(1);
-      expect(status.batches[0]).toEqual(
-        typedAs<BatchInfo>({
-          id: expect.any(String),
-          batchNumber: 1,
-          label: 'Batch 1',
-          count: 2, // bad ballot removed
-          startedAt: expect.any(String),
-          endedAt: expect.any(String),
-        })
-      );
+      expect(status.batches[0]).toEqual<BatchInfo>({
+        id: expect.any(String),
+        batchNumber: 1,
+        label: 'Batch 1',
+        count: 2, // bad ballot removed
+        startedAt: expect.any(String),
+        endedAt: expect.any(String),
+      });
     }
   });
 });

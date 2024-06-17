@@ -1,4 +1,4 @@
-import { err, ok, typedAs } from '@votingworks/basics';
+import { err, ok } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import fc from 'fast-check';
 import { toBitOffset } from './bits';
@@ -21,8 +21,8 @@ test('fixed string', () => {
   expect(coder.encodeInto('abc', buffer, 0)).toEqual(ok(40));
   // 0x01 is the fill value
   expect(buffer).toEqual(Buffer.from('abc\0\0\x01\x01\x01\x01\x01'));
-  expect(coder.decodeFrom(buffer, 0)).toEqual(
-    typedAs<DecodeResult<coder>>(ok({ value: 'abc', bitOffset: 40 }))
+  expect(coder.decodeFrom(buffer, 0)).toEqual<DecodeResult<coder>>(
+    ok({ value: 'abc', bitOffset: 40 })
   );
 });
 
@@ -33,8 +33,8 @@ test('fixed string with trailing nulls', () => {
 
   expect(coder.default()).toEqual('\0\0\0\0\0');
   expect(coder.encodeInto('abc', buffer, 0)).toEqual(ok(40));
-  expect(coder.decodeFrom(buffer, 0)).toEqual(
-    typedAs<DecodeResult<coder>>(ok({ value: 'abc\0\0', bitOffset: 40 }))
+  expect(coder.decodeFrom(buffer, 0)).toEqual<DecodeResult<coder>>(
+    ok({ value: 'abc\0\0', bitOffset: 40 })
   );
   expect(coder.decode(buffer)).toEqual(ok('abc\0\0'));
 });
@@ -74,11 +74,9 @@ test('fixed string random', () => {
           ok(bitOffset + coder.bitLength(s).unsafeUnwrap())
         );
         expect(buffer.slice(byteOffset).toString('utf8')).toEqual(s);
-        expect(coder.decodeFrom(buffer, toBitOffset(byteOffset))).toEqual(
-          typedAs<DecodeResult<coder>>(
-            ok({ value: s, bitOffset: toBitOffset(byteOffset + byteLength) })
-          )
-        );
+        expect(coder.decodeFrom(buffer, toBitOffset(byteOffset))).toEqual<
+          DecodeResult<coder>
+        >(ok({ value: s, bitOffset: toBitOffset(byteOffset + byteLength) }));
       }
     )
   );

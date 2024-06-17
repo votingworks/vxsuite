@@ -1186,16 +1186,14 @@ test('convertManualElectionResults', () => {
       ballotCount: 5,
       contestResults: {},
     })
-  ).toEqual(
-    typedAs<Tabulation.ElectionResults>({
-      cardCounts: {
-        bmd: 0,
-        hmpb: [],
-        manual: 5,
-      },
-      contestResults: {},
-    })
-  );
+  ).toEqual<Tabulation.ElectionResults>({
+    cardCounts: {
+      bmd: 0,
+      hmpb: [],
+      manual: 5,
+    },
+    contestResults: {},
+  });
 });
 
 test('mergeManualWriteInTallies', () => {

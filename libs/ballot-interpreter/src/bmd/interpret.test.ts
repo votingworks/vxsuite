@@ -4,10 +4,10 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   sampleBallotImages,
 } from '@votingworks/fixtures';
-import { assert, err, typedAs } from '@votingworks/basics';
+import { assert, err } from '@votingworks/basics';
 import { SheetOf } from '@votingworks/types';
 import { sliceElectionHash } from '@votingworks/ballot-encoder';
-import { InterpretError, interpret } from './interpret';
+import { InterpretResult, interpret } from './interpret';
 
 test.each([
   [
@@ -52,13 +52,11 @@ test('votes not found', async () => {
     electionFamousNames2021Fixtures.electionDefinition,
     card
   );
-  expect(result).toEqual(
-    err(
-      typedAs<InterpretError>({
-        type: 'votes-not-found',
-        source: [{ type: 'blank-page' }, { type: 'blank-page' }],
-      })
-    )
+  expect(result).toEqual<InterpretResult>(
+    err({
+      type: 'votes-not-found',
+      source: [{ type: 'blank-page' }, { type: 'blank-page' }],
+    })
   );
 });
 
@@ -71,13 +69,11 @@ test('multiple QR codes', async () => {
     electionFamousNames2021Fixtures.electionDefinition,
     card
   );
-  expect(result).toEqual(
-    err(
-      typedAs<InterpretError>({
-        type: 'multiple-qr-codes',
-        source: expect.anything(),
-      })
-    )
+  expect(result).toEqual<InterpretResult>(
+    err({
+      type: 'multiple-qr-codes',
+      source: expect.anything(),
+    })
   );
 });
 
@@ -90,18 +86,16 @@ test('mismatched election', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
     card
   );
-  expect(result).toEqual(
-    err(
-      typedAs<InterpretError>({
-        type: 'mismatched-election',
-        expectedElectionHash: sliceElectionHash(
-          electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
-            .electionHash
-        ),
-        actualElectionHash: sliceElectionHash(
-          electionFamousNames2021Fixtures.electionDefinition.electionHash
-        ),
-      })
-    )
+  expect(result).toEqual<InterpretResult>(
+    err({
+      type: 'mismatched-election',
+      expectedElectionHash: sliceElectionHash(
+        electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
+          .electionHash
+      ),
+      actualElectionHash: sliceElectionHash(
+        electionFamousNames2021Fixtures.electionDefinition.electionHash
+      ),
+    })
   );
 });

@@ -13,7 +13,6 @@ import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { typedAs } from '@votingworks/basics';
 import { sliceElectionHash } from '@votingworks/ballot-encoder';
 import { mockOf } from '@votingworks/test-utils';
 import {
@@ -253,13 +252,13 @@ describe('VX BMD interpretation', () => {
       validBmdSheet
     );
 
-    expect(interpretationResult[0].interpretation).toEqual(
-      typedAs<InvalidElectionHashPage>({
-        type: 'InvalidElectionHashPage',
-        actualElectionHash: sliceElectionHash(electionDefinition.electionHash),
-        expectedElectionHash: 'd34db33f',
-      })
-    );
+    expect(
+      interpretationResult[0].interpretation
+    ).toEqual<InvalidElectionHashPage>({
+      type: 'InvalidElectionHashPage',
+      actualElectionHash: sliceElectionHash(electionDefinition.electionHash),
+      expectedElectionHash: 'd34db33f',
+    });
   });
 
   test('properly identifies blank sheets', async () => {

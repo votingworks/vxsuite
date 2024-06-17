@@ -1,4 +1,4 @@
-import { assertDefined, err, ok, typedAs } from '@votingworks/basics';
+import { assertDefined, err, ok } from '@votingworks/basics';
 import { mockOf } from '@votingworks/test-utils';
 import { Byte } from '@votingworks/types';
 import { Buffer } from 'buffer';
@@ -256,11 +256,9 @@ test('checkPin: success', async () => {
       'hex'
     ),
   });
-  expect(await cac.checkPin('1234')).toEqual(
-    typedAs<CheckPinResponse>({
-      response: 'correct',
-    })
-  );
+  expect(await cac.checkPin('1234')).toEqual<CheckPinResponse>({
+    response: 'correct',
+  });
 });
 
 test('checkPin: failure', async () => {
@@ -272,12 +270,10 @@ test('checkPin: failure', async () => {
     await certPemToDer(DEV_CERT_PEM)
   );
   mockCardPinVerificationRequest('1234', new ResponseApduError([0x69, 0x82]));
-  expect(await cac.checkPin('1234')).toEqual(
-    typedAs<CheckPinResponse>({
-      response: 'incorrect',
-      numIncorrectPinAttempts: -1,
-    })
-  );
+  expect(await cac.checkPin('1234')).toEqual<CheckPinResponse>({
+    response: 'incorrect',
+    numIncorrectPinAttempts: -1,
+  });
 });
 
 test('checkPin: failure with incorrect pin status word', async () => {
@@ -289,12 +285,10 @@ test('checkPin: failure with incorrect pin status word', async () => {
     await certPemToDer(DEV_CERT_PEM)
   );
   mockCardPinVerificationRequest('1234', new ResponseApduError([0x63, 0xc1]));
-  expect(await cac.checkPin('1234')).toEqual(
-    typedAs<CheckPinResponse>({
-      response: 'incorrect',
-      numIncorrectPinAttempts: -1,
-    })
-  );
+  expect(await cac.checkPin('1234')).toEqual<CheckPinResponse>({
+    response: 'incorrect',
+    numIncorrectPinAttempts: -1,
+  });
 });
 
 test('checkPin: failure with card error', async () => {
@@ -306,12 +300,10 @@ test('checkPin: failure with card error', async () => {
     await certPemToDer(DEV_CERT_PEM)
   );
   mockCardPinVerificationRequest('1234', new ResponseApduError([0x6f, 0x00]));
-  expect(await cac.checkPin('1234')).toEqual(
-    typedAs<CheckPinResponse>({
-      response: 'error',
-      error: new ResponseApduError([0x6f, 0x00]),
-    })
-  );
+  expect(await cac.checkPin('1234')).toEqual<CheckPinResponse>({
+    response: 'error',
+    error: new ResponseApduError([0x6f, 0x00]),
+  });
 });
 
 test('checkPin: unexpected error', async () => {

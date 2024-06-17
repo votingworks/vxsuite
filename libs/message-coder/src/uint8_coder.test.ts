@@ -1,4 +1,4 @@
-import { err, ok, typedAs } from '@votingworks/basics';
+import { err, ok } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import * as fc from 'fast-check';
 import { MAX_UINT8 } from './constants';
@@ -21,9 +21,9 @@ test('uint8', () => {
           ok(bitOffset + 8)
         );
         expect(buffer.readUInt8(byteOffset)).toEqual(value);
-        expect(field.decodeFrom(buffer, bitOffset)).toEqual(
-          typedAs<DecodeResult<field>>(ok({ value, bitOffset: bitOffset + 8 }))
-        );
+        expect(field.decodeFrom(buffer, bitOffset)).toEqual<
+          DecodeResult<field>
+        >(ok({ value, bitOffset: bitOffset + 8 }));
       }
     )
   );

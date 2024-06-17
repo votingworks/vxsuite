@@ -17,12 +17,12 @@ test('empty message', () => {
   expect(m.default()).toEqual({});
   expect(m.bitLength({})).toEqual(ok(0));
   expect(m.encode({})).toEqual(ok(Buffer.alloc(0)));
-  expect(m.decode(Buffer.alloc(0))).toEqual(typedAs<m>(ok({})));
+  expect(m.decode(Buffer.alloc(0))).toEqual<m>(ok({}));
 
   const buffer = Buffer.alloc(100);
   expect(m.encodeInto({}, buffer, 0)).toEqual(ok(0));
-  expect(m.decodeFrom(buffer, 0)).toEqual(
-    typedAs<DecodeResult<m>>(ok({ value: {}, bitOffset: 0 }))
+  expect(m.decodeFrom(buffer, 0)).toEqual<DecodeResult<m>>(
+    ok({ value: {}, bitOffset: 0 })
   );
 });
 

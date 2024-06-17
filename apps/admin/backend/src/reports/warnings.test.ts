@@ -5,7 +5,6 @@ import {
   buildSimpleMockTallyReportResults,
   getEmptyCardCounts,
 } from '@votingworks/utils';
-import { typedAs } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimary,
@@ -24,11 +23,9 @@ describe('getBallotCountReportWarning', () => {
       getBallotCountReportWarning({
         allCardCounts: [],
       })
-    ).toEqual(
-      typedAs<BallotCountReportWarning>({
-        type: 'no-reports-match-filter',
-      })
-    );
+    ).toEqual<BallotCountReportWarning>({
+      type: 'no-reports-match-filter',
+    });
   });
 
   test("doesn't give a warning on zero report", () => {
@@ -36,11 +33,9 @@ describe('getBallotCountReportWarning', () => {
       getBallotCountReportWarning({
         allCardCounts: [getEmptyCardCounts()],
       })
-    ).toEqual(
-      typedAs<BallotCountReportWarning>({
-        type: 'none',
-      })
-    );
+    ).toEqual<BallotCountReportWarning>({
+      type: 'none',
+    });
   });
 });
 
@@ -51,11 +46,9 @@ describe('getTallyReportWarning', () => {
         allTallyReports: [],
         election: electionTwoPartyPrimary,
       })
-    ).toEqual(
-      typedAs<TallyReportWarning>({
-        type: 'no-reports-match-filter',
-      })
-    );
+    ).toEqual<TallyReportWarning>({
+      type: 'no-reports-match-filter',
+    });
   });
 
   test("doesn't give a warning on zero report", () => {
@@ -70,11 +63,9 @@ describe('getTallyReportWarning', () => {
         ],
         election,
       })
-    ).toEqual(
-      typedAs<TallyReportWarning>({
-        type: 'none',
-      })
-    );
+    ).toEqual<TallyReportWarning>({
+      type: 'none',
+    });
   });
 
   test('does give warning when contest has votes all for one option', () => {
@@ -169,14 +160,12 @@ describe('getTallyReportWarning', () => {
 
       expect(
         getTallyReportWarning({ allTallyReports: [tallyReport], election })
-      ).toEqual(
-        typedAs<TallyReportWarning>({
-          type: 'privacy',
-          subType: 'contest-same-vote',
-          contestIds: expectedContestIds,
-          isOnlyOneReport: false,
-        })
-      );
+      ).toEqual<TallyReportWarning>({
+        type: 'privacy',
+        subType: 'contest-same-vote',
+        contestIds: expectedContestIds,
+        isOnlyOneReport: false,
+      });
     }
   });
 
@@ -205,13 +194,11 @@ describe('getTallyReportWarning', () => {
         allTallyReports: [tallyReport],
         election,
       })
-    ).toEqual(
-      typedAs<TallyReportWarning>({
-        type: 'privacy',
-        subType: 'low-ballot-count',
-        isOnlyOneReport: true,
-      })
-    );
+    ).toEqual<TallyReportWarning>({
+      type: 'privacy',
+      subType: 'low-ballot-count',
+      isOnlyOneReport: true,
+    });
   });
 
   test('includes manual results   assessing all-same-vote privacy risk', () => {
@@ -272,24 +259,20 @@ describe('getTallyReportWarning', () => {
         allTallyReports: [tallyReportWithoutManualResults],
         election,
       })
-    ).toEqual(
-      typedAs<TallyReportWarning>({
-        contestIds: ['fishing'],
-        isOnlyOneReport: false,
-        subType: 'contest-same-vote',
-        type: 'privacy',
-      })
-    );
+    ).toEqual<TallyReportWarning>({
+      contestIds: ['fishing'],
+      isOnlyOneReport: false,
+      subType: 'contest-same-vote',
+      type: 'privacy',
+    });
 
     expect(
       getTallyReportWarning({
         allTallyReports: [tallyReportWithManualResults],
         election,
       })
-    ).toEqual(
-      typedAs<TallyReportWarning>({
-        type: 'none',
-      })
-    );
+    ).toEqual<TallyReportWarning>({
+      type: 'none',
+    });
   });
 });

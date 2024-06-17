@@ -89,64 +89,64 @@ test('constitutional question ovals get placed on the grid correctly', async () 
   //   'utf8'
   // );
 
-  expect(converted).toEqual(
-    typedAs<ConvertResult extends Result<infer T, unknown> ? T : never>({
-      issues: expect.any(Array),
-      election: expect.objectContaining({
-        contests: expect.arrayContaining([
-          {
-            type: 'yesno',
-            id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
-            title: 'Constitutional Amendment Question #1',
-            description:
-              'Shall there be a convention to amend or revise the constitution?',
-            districtId: unsafeParse(
-              DistrictIdSchema,
-              'town-id-00701-precinct-id-'
-            ),
-            yesOption: {
-              id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
-              label: 'Yes',
-            },
-            noOption: {
-              id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no',
-              label: 'No',
-            },
+  expect(converted).toEqual<
+    ConvertResult extends Result<infer T, unknown> ? T : never
+  >({
+    issues: expect.any(Array),
+    election: expect.objectContaining({
+      contests: expect.arrayContaining([
+        {
+          type: 'yesno',
+          id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
+          title: 'Constitutional Amendment Question #1',
+          description:
+            'Shall there be a convention to amend or revise the constitution?',
+          districtId: unsafeParse(
+            DistrictIdSchema,
+            'town-id-00701-precinct-id-'
+          ),
+          yesOption: {
+            id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
+            label: 'Yes',
           },
-        ]),
-        gridLayouts: [
-          expect.objectContaining({
-            gridPositions: expect.arrayContaining(
-              typedAs<GridPosition[]>([
-                {
-                  type: 'option',
-                  contestId:
-                    'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
-                  optionId:
-                    'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
-                  sheetNumber: 1,
-                  side: 'back',
-                  column: 26,
-                  row: 24,
-                },
-                {
-                  type: 'option',
-                  contestId:
-                    'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
-                  optionId:
-                    'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no',
-                  sheetNumber: 1,
-                  side: 'back',
-                  column: 32,
-                  row: 24,
-                },
-              ])
-            ),
-          }),
-        ],
-      }),
-    })
-  );
+          noOption: {
+            id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no',
+            label: 'No',
+          },
+        },
+      ]),
+      gridLayouts: [
+        expect.objectContaining({
+          gridPositions: expect.arrayContaining(
+            typedAs<GridPosition[]>([
+              {
+                type: 'option',
+                contestId:
+                  'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
+                optionId:
+                  'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
+                sheetNumber: 1,
+                side: 'back',
+                column: 26,
+                row: 24,
+              },
+              {
+                type: 'option',
+                contestId:
+                  'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc',
+                optionId:
+                  'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-no',
+                sheetNumber: 1,
+                side: 'back',
+                column: 32,
+                row: 24,
+              },
+            ])
+          ),
+        }),
+      ],
+    }),
+  });
 
   for (const issue of converted.issues) {
     expect(issue).not.toMatchObject({

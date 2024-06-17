@@ -1,4 +1,3 @@
-import { typedAs } from '@votingworks/basics';
 import { DocumentedEntity } from './types';
 import {
   extractDocumentation,
@@ -108,73 +107,71 @@ test('extractDocumentationForSchema', () => {
     []
   );
 
-  expect(extractDocumentationForSchema(schema)).toEqual(
-    typedAs<DocumentedEntity[]>([
-      {
-        kind: 'DocumentedType',
-        type: 'DayOfWeek',
-        documentation: 'A day of the week.',
-      },
-      {
-        kind: 'DocumentedProperty',
-        type: 'DayOfWeek',
-        name: 'Monday',
-        documentation: 'The first day of the week.',
-      },
-      {
-        kind: 'DocumentedProperty',
-        type: 'DayOfWeek',
-        name: 'Tuesday',
-        documentation: '',
-      },
-      {
-        kind: 'DocumentedProperty',
-        type: 'DayOfWeek',
-        name: 'Wednesday',
-      },
-      {
-        kind: 'DocumentedProperty',
-        type: 'DayOfWeek',
-        name: 'Thursday',
-      },
-      {
-        kind: 'DocumentedProperty',
-        type: 'DayOfWeek',
-        name: 'Friday',
-      },
-      {
-        kind: 'DocumentedProperty',
-        type: 'DayOfWeek',
-        name: 'Saturday',
-      },
-      {
-        kind: 'DocumentedProperty',
-        type: 'DayOfWeek',
-        name: 'Sunday',
-      },
-      {
-        kind: 'DocumentedType',
-        type: 'Person',
-        documentation: 'A person.',
-      },
-      {
-        kind: 'DocumentedProperty',
-        type: 'Person',
-        name: 'birthday',
-        documentation: `The person's birthday.`,
-      },
-      {
-        kind: 'DocumentedType',
-        type: 'PersonWithAddress',
-        extends: 'Person',
-      },
-      {
-        kind: 'DocumentedType',
-        type: 'Employee',
-        extends: 'PersonWithAddress',
-      },
-    ])
-  );
+  expect(extractDocumentationForSchema(schema)).toEqual<DocumentedEntity[]>([
+    {
+      kind: 'DocumentedType',
+      type: 'DayOfWeek',
+      documentation: 'A day of the week.',
+    },
+    {
+      kind: 'DocumentedProperty',
+      type: 'DayOfWeek',
+      name: 'Monday',
+      documentation: 'The first day of the week.',
+    },
+    {
+      kind: 'DocumentedProperty',
+      type: 'DayOfWeek',
+      name: 'Tuesday',
+      documentation: '',
+    },
+    {
+      kind: 'DocumentedProperty',
+      type: 'DayOfWeek',
+      name: 'Wednesday',
+    },
+    {
+      kind: 'DocumentedProperty',
+      type: 'DayOfWeek',
+      name: 'Thursday',
+    },
+    {
+      kind: 'DocumentedProperty',
+      type: 'DayOfWeek',
+      name: 'Friday',
+    },
+    {
+      kind: 'DocumentedProperty',
+      type: 'DayOfWeek',
+      name: 'Saturday',
+    },
+    {
+      kind: 'DocumentedProperty',
+      type: 'DayOfWeek',
+      name: 'Sunday',
+    },
+    {
+      kind: 'DocumentedType',
+      type: 'Person',
+      documentation: 'A person.',
+    },
+    {
+      kind: 'DocumentedProperty',
+      type: 'Person',
+      name: 'birthday',
+      documentation: `The person's birthday.`,
+    },
+    {
+      kind: 'DocumentedType',
+      type: 'PersonWithAddress',
+      extends: 'Person',
+    },
+    {
+      kind: 'DocumentedType',
+      type: 'Employee',
+      extends: 'PersonWithAddress',
+    },
+  ]);
 
   getChildOfType(
     getChildOfType(schema, 'xsd:simpleType')!,
@@ -188,13 +185,11 @@ test('extractDocumentationForSchema', () => {
     complexTypeElement.remove();
   }
 
-  expect(extractDocumentationForSchema(schema)).toEqual(
-    typedAs<DocumentedEntity[]>([
-      {
-        kind: 'DocumentedType',
-        type: 'DayOfWeek',
-        documentation: 'A day of the week.',
-      },
-    ])
-  );
+  expect(extractDocumentationForSchema(schema)).toEqual<DocumentedEntity[]>([
+    {
+      kind: 'DocumentedType',
+      type: 'DayOfWeek',
+      documentation: 'A day of the week.',
+    },
+  ]);
 });

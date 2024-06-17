@@ -7,7 +7,6 @@ import {
 } from '@votingworks/backend';
 import { LogEventId } from '@votingworks/logging';
 import { join } from 'path';
-import { typedAs } from '@votingworks/basics';
 import { DiagnosticRecord, TEST_JURISDICTION } from '@votingworks/types';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import { mockSystemAdministratorAuth } from '../test/helpers/auth';
@@ -128,13 +127,13 @@ describe('scan diagnostic', () => {
 
       await apiClient.performScanDiagnostic();
 
-      expect(await apiClient.getMostRecentScannerDiagnostic()).toEqual(
-        typedAs<DiagnosticRecord>({
-          type: 'blank-sheet-scan',
-          outcome: 'pass',
-          timestamp: 0,
-        })
-      );
+      expect(
+        await apiClient.getMostRecentScannerDiagnostic()
+      ).toEqual<DiagnosticRecord>({
+        type: 'blank-sheet-scan',
+        outcome: 'pass',
+        timestamp: 0,
+      });
 
       expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
         LogEventId.DiagnosticInit,
@@ -166,13 +165,13 @@ describe('scan diagnostic', () => {
         .end();
       await apiClient.performScanDiagnostic();
 
-      expect(await apiClient.getMostRecentScannerDiagnostic()).toEqual(
-        typedAs<DiagnosticRecord>({
-          type: 'blank-sheet-scan',
-          outcome: 'fail',
-          timestamp: 0,
-        })
-      );
+      expect(
+        await apiClient.getMostRecentScannerDiagnostic()
+      ).toEqual<DiagnosticRecord>({
+        type: 'blank-sheet-scan',
+        outcome: 'fail',
+        timestamp: 0,
+      });
       expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
         LogEventId.DiagnosticComplete,
         {
@@ -197,13 +196,13 @@ describe('scan diagnostic', () => {
         .end();
       await apiClient.performScanDiagnostic();
 
-      expect(await apiClient.getMostRecentScannerDiagnostic()).toEqual(
-        typedAs<DiagnosticRecord>({
-          type: 'blank-sheet-scan',
-          outcome: 'fail',
-          timestamp: 0,
-        })
-      );
+      expect(
+        await apiClient.getMostRecentScannerDiagnostic()
+      ).toEqual<DiagnosticRecord>({
+        type: 'blank-sheet-scan',
+        outcome: 'fail',
+        timestamp: 0,
+      });
       expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
         LogEventId.DiagnosticComplete,
         {
@@ -222,13 +221,13 @@ describe('scan diagnostic', () => {
       scanner.withNextScannerSession().end();
       await apiClient.performScanDiagnostic();
 
-      expect(await apiClient.getMostRecentScannerDiagnostic()).toEqual(
-        typedAs<DiagnosticRecord>({
-          type: 'blank-sheet-scan',
-          outcome: 'fail',
-          timestamp: 0,
-        })
-      );
+      expect(
+        await apiClient.getMostRecentScannerDiagnostic()
+      ).toEqual<DiagnosticRecord>({
+        type: 'blank-sheet-scan',
+        outcome: 'fail',
+        timestamp: 0,
+      });
       expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
         LogEventId.DiagnosticComplete,
         {

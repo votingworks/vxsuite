@@ -9,7 +9,7 @@ import {
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { err, ok, typedAs } from '@votingworks/basics';
+import { err, ok } from '@votingworks/basics';
 import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
@@ -152,25 +152,21 @@ test('setPrecinctSelection will reset polls to closed', async () => {
   await withApp(async ({ apiClient, mockUsbDrive, mockAuth, logger }) => {
     await configureApp(apiClient, mockAuth, mockUsbDrive);
 
-    expect(await apiClient.getPollsInfo()).toEqual(
-      typedAs<PrecinctScannerPollsInfo>({
-        pollsState: 'polls_open',
-        lastPollsTransition: {
-          type: 'open_polls',
-          time: expect.anything(),
-          ballotCount: 0,
-        },
-      })
-    );
+    expect(await apiClient.getPollsInfo()).toEqual<PrecinctScannerPollsInfo>({
+      pollsState: 'polls_open',
+      lastPollsTransition: {
+        type: 'open_polls',
+        time: expect.anything(),
+        ballotCount: 0,
+      },
+    });
 
     await apiClient.setPrecinctSelection({
       precinctSelection: singlePrecinctSelectionFor('21'),
     });
-    expect(await apiClient.getPollsInfo()).toEqual(
-      typedAs<PrecinctScannerPollsInfo>({
-        pollsState: 'polls_closed_initial',
-      })
-    );
+    expect(await apiClient.getPollsInfo()).toEqual<PrecinctScannerPollsInfo>({
+      pollsState: 'polls_closed_initial',
+    });
     expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
       LogEventId.PrecinctConfigurationChanged,
       {

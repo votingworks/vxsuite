@@ -277,27 +277,25 @@ test('get next sheet layouts', async () => {
     .get(`/central-scanner/scan/hmpb/review/next-sheet`)
     .expect(200);
 
-  expect(response.body).toEqual(
-    typedAs<Scan.GetNextReviewSheetResponse>({
-      interpreted: {
-        id: 'mock-review-sheet',
-        front: {
-          image: { url: '/url/front' },
-          interpretation: frontInterpretation,
-        },
-        back: {
-          image: { url: '/url/back' },
-          interpretation: backInterpretation,
-        },
+  expect(response.body).toEqual<Scan.GetNextReviewSheetResponse>({
+    interpreted: {
+      id: 'mock-review-sheet',
+      front: {
+        image: { url: '/url/front' },
+        interpretation: frontInterpretation,
       },
-      layouts: {
-        front: frontInterpretation.layout,
-        back: backInterpretation.layout,
+      back: {
+        image: { url: '/url/back' },
+        interpretation: backInterpretation,
       },
-      definitions: {
-        front: { contestIds: expect.any(Array) },
-        back: { contestIds: expect.any(Array) },
-      },
-    })
-  );
+    },
+    layouts: {
+      front: frontInterpretation.layout,
+      back: backInterpretation.layout,
+    },
+    definitions: {
+      front: { contestIds: expect.any(Array) },
+      back: { contestIds: expect.any(Array) },
+    },
+  });
 });

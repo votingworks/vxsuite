@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 import { existsSync, readFileSync, readdirSync } from 'fs';
-import { sleep, typedAs } from '@votingworks/basics';
+import { sleep } from '@votingworks/basics';
 import { PrinterStatus } from '@votingworks/types';
 import {
   DEFAULT_MOCK_USB_DRIVE_DIR,
@@ -20,9 +20,9 @@ test('mock file printer', async () => {
   const filePrinter = new MockFilePrinter();
   const filePrinterHandler = getMockFilePrinterHandler();
 
-  expect(await filePrinter.status()).toEqual(
-    typedAs<PrinterStatus>({ connected: false })
-  );
+  expect(await filePrinter.status()).toEqual<PrinterStatus>({
+    connected: false,
+  });
   expect(filePrinterHandler.getPrinterStatus()).toEqual(
     await filePrinter.status()
   );
@@ -31,13 +31,11 @@ test('mock file printer', async () => {
   ).rejects.toThrow();
 
   filePrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
-  expect(await filePrinter.status()).toEqual(
-    typedAs<PrinterStatus>({
-      connected: true,
-      config: HP_LASER_PRINTER_CONFIG,
-      richStatus: MOCK_PRINTER_RICH_STATUS,
-    })
-  );
+  expect(await filePrinter.status()).toEqual<PrinterStatus>({
+    connected: true,
+    config: HP_LASER_PRINTER_CONFIG,
+    richStatus: MOCK_PRINTER_RICH_STATUS,
+  });
   expect(filePrinterHandler.getPrinterStatus()).toEqual(
     await filePrinter.status()
   );
@@ -66,9 +64,9 @@ test('mock file printer', async () => {
   );
 
   filePrinterHandler.disconnectPrinter();
-  expect(await filePrinter.status()).toEqual(
-    typedAs<PrinterStatus>({ connected: false })
-  );
+  expect(await filePrinter.status()).toEqual<PrinterStatus>({
+    connected: false,
+  });
   expect(filePrinterHandler.getPrinterStatus()).toEqual(
     await filePrinter.status()
   );

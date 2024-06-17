@@ -23,53 +23,49 @@ test('createEnumFromDefinition', () => {
   expect(createEnumFromDefinition('foo', {})).toBeUndefined();
   expect(
     createEnumFromDefinition('foo', { type: 'string', enum: ['a', 'b'] })
-  ).toEqual(
-    typedAs<Enum>({
-      name: 'foo',
-      values: [
-        {
-          name: 'A',
-          value: 'a',
-        },
-        {
-          name: 'B',
-          value: 'b',
-        },
-      ],
-    })
-  );
+  ).toEqual<Enum>({
+    name: 'foo',
+    values: [
+      {
+        name: 'A',
+        value: 'a',
+      },
+      {
+        name: 'B',
+        value: 'b',
+      },
+    ],
+  });
 });
 
 test('convertToGenericType', () => {
-  expect(convertToGenericType({ type: 'string' })).toEqual(
-    typedAs<Type>({ kind: 'string' })
-  );
-  expect(convertToGenericType({ type: 'string', enum: ['a', 'b'] })).toEqual(
-    typedAs<Type>({
-      kind: 'union',
-      types: [
-        { kind: 'literal', value: 'a' },
-        { kind: 'literal', value: 'b' },
-      ],
-    })
-  );
-  expect(convertToGenericType({ type: 'boolean' })).toEqual(
-    typedAs<Type>({ kind: 'boolean' })
-  );
-  expect(convertToGenericType({ type: 'integer' })).toEqual(
-    typedAs<Type>({ kind: 'integer' })
-  );
-  expect(convertToGenericType({ type: 'number' })).toEqual(
-    typedAs<Type>({ kind: 'number' })
-  );
+  expect(convertToGenericType({ type: 'string' })).toEqual<Type>({
+    kind: 'string',
+  });
+  expect(
+    convertToGenericType({ type: 'string', enum: ['a', 'b'] })
+  ).toEqual<Type>({
+    kind: 'union',
+    types: [
+      { kind: 'literal', value: 'a' },
+      { kind: 'literal', value: 'b' },
+    ],
+  });
+  expect(convertToGenericType({ type: 'boolean' })).toEqual<Type>({
+    kind: 'boolean',
+  });
+  expect(convertToGenericType({ type: 'integer' })).toEqual<Type>({
+    kind: 'integer',
+  });
+  expect(convertToGenericType({ type: 'number' })).toEqual<Type>({
+    kind: 'number',
+  });
   expect(
     convertToGenericType({ type: 'array', items: { type: 'string' } })
-  ).toEqual(
-    typedAs<Type>({
-      kind: 'array',
-      items: { kind: 'string' },
-    })
-  );
+  ).toEqual<Type>({
+    kind: 'array',
+    items: { kind: 'string' },
+  });
   expect(convertToGenericType({ $ref: '#/definitions/foo' })).toEqual({
     kind: 'reference',
     name: 'foo',
@@ -90,12 +86,10 @@ test('createInterfaceFromDefinition', () => {
       type: 'object',
       additionalProperties: false,
     })
-  ).toEqual(
-    typedAs<Interface>({
-      name: 'Person',
-      properties: [],
-    })
-  );
+  ).toEqual<Interface>({
+    name: 'Person',
+    properties: [],
+  });
   expect(
     createInterfaceFromDefinition('Person', {
       type: 'object',
@@ -106,13 +100,11 @@ test('createInterfaceFromDefinition', () => {
         age: { type: 'integer' },
       },
     })
-  ).toEqual(
-    typedAs<Interface>({
-      name: 'Person',
-      properties: [
-        { name: 'name', type: { kind: 'string' }, required: true },
-        { name: 'age', type: { kind: 'integer' }, required: false },
-      ],
-    })
-  );
+  ).toEqual<Interface>({
+    name: 'Person',
+    properties: [
+      { name: 'name', type: { kind: 'string' }, required: true },
+      { name: 'age', type: { kind: 'integer' }, required: false },
+    ],
+  });
 });

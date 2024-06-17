@@ -99,16 +99,16 @@ test('readElectionPackageFromFile reads an election package without system setti
         .electionData,
   });
   const file = saveTmpFile(pkg);
-  expect((await readElectionPackageFromFile(file)).unsafeUnwrap()).toEqual(
-    typedAs<ElectionPackageWithFileContents>({
-      electionDefinition:
-        electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
-      systemSettings: DEFAULT_SYSTEM_SETTINGS,
-      uiStrings: {},
-      uiStringAudioClips: [],
-      fileContents: expect.any(Buffer),
-    })
-  );
+  expect(
+    (await readElectionPackageFromFile(file)).unsafeUnwrap()
+  ).toEqual<ElectionPackageWithFileContents>({
+    electionDefinition:
+      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
+    systemSettings: DEFAULT_SYSTEM_SETTINGS,
+    uiStrings: {},
+    uiStringAudioClips: [],
+    fileContents: expect.any(Buffer),
+  });
 });
 
 test('readElectionPackageFromFile reads an election package with system settings from a file', async () => {
@@ -121,16 +121,16 @@ test('readElectionPackageFromFile reads an election package with system settings
     ),
   });
   const file = saveTmpFile(pkg);
-  expect((await readElectionPackageFromFile(file)).unsafeUnwrap()).toEqual(
-    typedAs<ElectionPackageWithFileContents>({
-      electionDefinition:
-        electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
-      systemSettings: DEFAULT_SYSTEM_SETTINGS,
-      uiStrings: {},
-      uiStringAudioClips: [],
-      fileContents: expect.any(Buffer),
-    })
-  );
+  expect(
+    (await readElectionPackageFromFile(file)).unsafeUnwrap()
+  ).toEqual<ElectionPackageWithFileContents>({
+    electionDefinition:
+      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
+    systemSettings: DEFAULT_SYSTEM_SETTINGS,
+    uiStrings: {},
+    uiStringAudioClips: [],
+    fileContents: expect.any(Buffer),
+  });
 });
 
 test('readElectionPackageFromFile loads available ui strings', async () => {

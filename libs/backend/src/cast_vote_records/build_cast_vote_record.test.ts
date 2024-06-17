@@ -1,4 +1,4 @@
-import { assert, find, typedAs } from '@votingworks/basics';
+import { assert, find } from '@votingworks/basics';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   BallotIdSchema,
@@ -729,28 +729,26 @@ test('buildCastVoteRecord - HMPB ballot with unmarked write-in', () => {
     (cs) => cs.ContestSelectionId === 'write-in-1'
   );
 
-  expect(unmarkedWriteInSelection).toEqual(
-    typedAs<CVR.CVRContestSelection>({
-      '@type': 'CVR.CVRContestSelection',
-      ContestSelectionId: 'write-in-1',
-      OptionPosition: 5,
-      Status: [CVR.ContestSelectionStatus.NeedsAdjudication],
-      SelectionPosition: [
-        {
-          '@type': 'CVR.SelectionPosition',
-          HasIndication: CVR.IndicationStatus.No,
-          NumberVotes: 1,
-          IsAllocable: CVR.AllocationStatus.Unknown,
-          Status: [CVR.PositionStatus.Other],
-          OtherStatus: 'unmarked-write-in',
-          CVRWriteIn: {
-            '@type': 'CVR.CVRWriteIn',
-            WriteInImage: expectedFrontImageData,
-          },
+  expect(unmarkedWriteInSelection).toEqual<CVR.CVRContestSelection>({
+    '@type': 'CVR.CVRContestSelection',
+    ContestSelectionId: 'write-in-1',
+    OptionPosition: 5,
+    Status: [CVR.ContestSelectionStatus.NeedsAdjudication],
+    SelectionPosition: [
+      {
+        '@type': 'CVR.SelectionPosition',
+        HasIndication: CVR.IndicationStatus.No,
+        NumberVotes: 1,
+        IsAllocable: CVR.AllocationStatus.Unknown,
+        Status: [CVR.PositionStatus.Other],
+        OtherStatus: 'unmarked-write-in',
+        CVRWriteIn: {
+          '@type': 'CVR.CVRWriteIn',
+          WriteInImage: expectedFrontImageData,
         },
-      ],
-    })
-  );
+      },
+    ],
+  });
 });
 
 describe('hash manipulation', () => {

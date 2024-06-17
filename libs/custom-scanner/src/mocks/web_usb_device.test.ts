@@ -1,4 +1,3 @@
-import { typedAs } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { mockWebUsbDevice } from './web_usb_device';
 
@@ -150,11 +149,9 @@ test('read/write with halts', async () => {
   await device.clearHalt('in', 8);
 
   await device.mockStallEndpoint(8);
-  expect(await device.transferIn(8, 1)).toEqual(
-    typedAs<USBInTransferResult>({
-      status: 'stall',
-    })
-  );
+  expect(await device.transferIn(8, 1)).toEqual<USBInTransferResult>({
+    status: 'stall',
+  });
   await device.clearHalt('in', 8);
   await expect(
     device.mockAddTransferInData(10, Buffer.of(1, 2, 3))
@@ -163,40 +160,38 @@ test('read/write with halts', async () => {
   const arrayBuffer = new ArrayBuffer(3);
   const uint8Array = new Uint8Array(arrayBuffer);
   uint8Array.set([1, 2, 3]);
-  expect(await device.transferIn(8, 1)).toEqual(
-    typedAs<USBInTransferResult>({
-      status: 'ok',
-      data: new DataView(arrayBuffer, 0, 3),
-    })
-  );
+  expect(await device.transferIn(8, 1)).toEqual<USBInTransferResult>({
+    status: 'ok',
+    data: new DataView(arrayBuffer, 0, 3),
+  });
   await expect(device.transferIn(10, 1)).rejects.toThrow(
     'endpoint direction is out'
   );
 
   await device.mockStallEndpoint(10);
-  expect(await device.transferOut(10, Buffer.of(1, 2, 3))).toEqual(
-    typedAs<USBOutTransferResult>({
-      status: 'stall',
-      bytesWritten: 0,
-    })
-  );
+  expect(
+    await device.transferOut(10, Buffer.of(1, 2, 3))
+  ).toEqual<USBOutTransferResult>({
+    status: 'stall',
+    bytesWritten: 0,
+  });
   await expect(device.clearHalt('in', 10)).rejects.toThrow(
     'endpoint direction does not match'
   );
   await device.clearHalt('out', 10);
   expect(await device.mockGetTransferOutData(10)).toHaveLength(0);
-  expect(await device.transferOut(10, Buffer.of(1, 2, 3))).toEqual(
-    typedAs<USBOutTransferResult>({
-      status: 'ok',
-      bytesWritten: 3,
-    })
-  );
-  expect(await device.transferOut(10, arrayBuffer)).toEqual(
-    typedAs<USBOutTransferResult>({
-      status: 'ok',
-      bytesWritten: 3,
-    })
-  );
+  expect(
+    await device.transferOut(10, Buffer.of(1, 2, 3))
+  ).toEqual<USBOutTransferResult>({
+    status: 'ok',
+    bytesWritten: 3,
+  });
+  expect(
+    await device.transferOut(10, arrayBuffer)
+  ).toEqual<USBOutTransferResult>({
+    status: 'ok',
+    bytesWritten: 3,
+  });
   expect(await device.mockGetTransferOutData(10)).toHaveLength(2);
   await expect(device.transferOut(8, Buffer.of(1, 2, 3))).rejects.toThrow(
     'endpoint direction is in'
@@ -206,16 +201,12 @@ test('read/write with halts', async () => {
   await device.mockLimitNextTransferInSize(8, 2);
   await device.mockLimitNextTransferInSize(8, 1);
   await device.mockAddTransferInData(8, Buffer.of(1, 2, 3));
-  expect(await device.transferIn(8, 3)).toEqual(
-    typedAs<USBInTransferResult>({
-      status: 'ok',
-      data: new DataView(arrayBuffer, 0, 2),
-    })
-  );
-  expect(await device.transferIn(8, 3)).toEqual(
-    typedAs<USBInTransferResult>({
-      status: 'ok',
-      data: new DataView(arrayBuffer, 2, 1),
-    })
-  );
+  expect(await device.transferIn(8, 3)).toEqual<USBInTransferResult>({
+    status: 'ok',
+    data: new DataView(arrayBuffer, 0, 2),
+  });
+  expect(await device.transferIn(8, 3)).toEqual<USBInTransferResult>({
+    status: 'ok',
+    data: new DataView(arrayBuffer, 2, 1),
+  });
 });
