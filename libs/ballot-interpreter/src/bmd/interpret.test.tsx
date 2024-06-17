@@ -5,55 +5,13 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   sampleBallotImages,
 } from '@votingworks/fixtures';
-import { pdfToImages } from '@votingworks/image-utils';
-import { renderToPdf } from '@votingworks/printing';
-import {
-  ElectionDefinition,
-  SheetOf,
-  VotesDict,
-  vote,
-} from '@votingworks/types';
-import { BmdPaperBallot } from '@votingworks/ui';
-import { Buffer } from 'buffer';
+import { SheetOf, vote } from '@votingworks/types';
 import { ImageData } from 'canvas';
+import {
+  convertBallotToImages,
+  renderTestModeBallot,
+} from '../../test/helpers/ballots';
 import { InterpretResult, interpret } from './interpret';
-
-async function renderTestModeBallot(
-  electionDefinition: ElectionDefinition,
-  precinctId: string,
-  ballotStyleId: string,
-  votes: VotesDict
-): Promise<Buffer> {
-  const ballot = (
-    <BmdPaperBallot
-      electionDefinition={electionDefinition}
-      ballotStyleId={ballotStyleId}
-      precinctId={precinctId}
-      votes={votes}
-      isLiveMode={false}
-      generateBallotId={() => '1'}
-      machineType="mark"
-    />
-  );
-
-  return renderToPdf({
-    document: ballot,
-  });
-}
-
-async function convertBallotToImages(pdf: Buffer): Promise<SheetOf<ImageData>> {
-  const [page1, page2] = await iter(pdfToImages(pdf, { scale: 200 / 72 }))
-    .map((page) => page.page)
-    .take(2)
-    .toArray();
-
-  return [
-    assertDefined(page1),
-    // if there's only one page, use a blank page for the back
-    page2 ??
-      (await electionFamousNames2021Fixtures.machineMarkedBallotPage2.asImageData()),
-  ];
-}
 
 const famousNamesVotes = vote(
   electionFamousNames2021Fixtures.election.contests,
