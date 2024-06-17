@@ -2,6 +2,7 @@
 resolver = "2"
 members = [
   "apps/mark-scan/accessible-controller",
+  "apps/mark-scan/fai-100-controller",
   "apps/mark-scan/daemon-utils",
   "apps/mark-scan/pat-device-input",
   "libs/ballot-interpreter",
