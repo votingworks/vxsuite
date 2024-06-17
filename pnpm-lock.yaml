@@ -373,9 +373,6 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
-      canvas:
-        specifier: 2.11.2
-        version: 2.11.2
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
@@ -595,7 +592,7 @@ importers:
         version: 29.6.2(@types/node@16.18.23)
       jest-environment-jsdom:
         specifier: ^29.6.2
-        version: 29.6.2(canvas@2.11.2)
+        version: 29.6.2
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -1039,7 +1036,7 @@ importers:
         version: 29.6.2(@types/node@16.18.23)
       jest-environment-jsdom:
         specifier: ^29.6.2
-        version: 29.6.2(canvas@2.11.2)
+        version: 29.6.2
       jest-fetch-mock:
         specifier: ^3.0.3
         version: 3.0.3
@@ -1435,7 +1432,7 @@ importers:
         version: 29.6.2(@types/node@16.18.23)
       jest-environment-jsdom:
         specifier: ^29.6.2
-        version: 29.6.2(canvas@2.11.2)
+        version: 29.6.2
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -1686,9 +1683,6 @@ importers:
       buffer:
         specifier: ^6.0.3
         version: 6.0.3
-      canvas:
-        specifier: 2.11.2
-        version: 2.11.2
       debug:
         specifier: 4.3.4
         version: 4.3.4(supports-color@5.5.0)
@@ -1842,7 +1836,7 @@ importers:
         version: 29.6.2(@types/node@16.18.23)
       jest-environment-jsdom:
         specifier: ^29.6.2
-        version: 29.6.2(canvas@2.11.2)
+        version: 29.6.2
       jest-fetch-mock:
         specifier: ^3.0.3
         version: 3.0.3
@@ -2256,7 +2250,7 @@ importers:
         version: 29.6.2(@types/node@16.18.23)
       jest-environment-jsdom:
         specifier: ^29.6.2
-        version: 29.6.2(canvas@2.11.2)
+        version: 29.6.2
       jest-fetch-mock:
         specifier: ^3.0.3
         version: 3.0.3
@@ -2706,7 +2700,7 @@ importers:
         version: 29.6.2(@types/node@16.18.23)
       jest-environment-jsdom:
         specifier: ^29.6.2
-        version: 29.6.2(canvas@2.11.2)
+        version: 29.6.2
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -3960,7 +3954,7 @@ importers:
         version: 29.6.2(@types/node@16.18.23)
       jest-environment-jsdom:
         specifier: ^29.6.2
-        version: 29.6.2(canvas@2.11.2)
+        version: 29.6.2
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -4810,7 +4804,7 @@ importers:
         version: 29.6.2(@types/node@16.18.23)
       jest-environment-jsdom:
         specifier: ^29.6.2
-        version: 29.6.2(canvas@2.11.2)
+        version: 29.6.2
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -5248,7 +5242,7 @@ importers:
         version: 29.6.2(@types/node@16.18.23)
       jest-environment-jsdom:
         specifier: ^29.6.2
-        version: 29.6.2(canvas@2.11.2)
+        version: 29.6.2
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -5582,7 +5576,7 @@ importers:
         version: 29.6.2(@types/node@16.18.23)
       jest-environment-jsdom:
         specifier: ^29.6.2
-        version: 29.6.2(canvas@2.11.2)
+        version: 29.6.2
       jest-junit:
         specifier: ^16.0.0
         version: 16.0.0
@@ -5797,7 +5791,7 @@ importers:
         version: 29.6.2(@types/node@16.18.23)
       jest-environment-jsdom:
         specifier: ^29.6.2
-        version: 29.6.2(canvas@2.11.2)
+        version: 29.6.2
       jest-fetch-mock:
         specifier: ^3.0.3
         version: 3.0.3
@@ -16570,7 +16564,7 @@ packages:
       jest-util: 29.6.2
       pretty-format: 29.6.2
 
-  /jest-environment-jsdom@29.6.2(canvas@2.11.2):
+  /jest-environment-jsdom@29.6.2:
     resolution: {integrity: sha512-7oa/+266AAEgkzae8i1awNEfTfjwawWKLpiw2XesZmaoVVj9u9t8JOYx18cG29rbPNtkUlZ8V4b5Jb36y/VxoQ==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     peerDependencies:
@@ -16584,7 +16578,6 @@ packages:
       '@jest/types': 29.6.1
       '@types/jsdom': 20.0.1
       '@types/node': 16.18.23
-      canvas: 2.11.2
       jest-mock: 29.6.2
       jest-util: 29.6.2
       jsdom: 20.0.1(canvas@2.11.2)
