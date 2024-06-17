@@ -49,10 +49,12 @@ test('export all ballots', async () => {
   renderScreen();
   await screen.findByRole('heading', { name: 'Export' });
 
-  apiMock.exportAllBallots.expectCallWith({ electionId }).resolves({
-    zipContents: Buffer.from('mock-zip-contents'),
-    electionHash: '1234567890abcdef',
-  });
+  apiMock.exportAllBallots
+    .expectCallWith({ electionId, electionSerializationFormat: 'vxf' })
+    .resolves({
+      zipContents: Buffer.from('mock-zip-contents'),
+      electionHash: '1234567890abcdef',
+    });
 
   userEvent.click(screen.getButton('Export All Ballots'));
 
@@ -68,10 +70,12 @@ test('export test decks', async () => {
   renderScreen();
   await screen.findByRole('heading', { name: 'Export' });
 
-  apiMock.exportTestDecks.expectCallWith({ electionId }).resolves({
-    zipContents: Buffer.from('mock-zip-contents'),
-    electionHash: '1234567890abcdef',
-  });
+  apiMock.exportTestDecks
+    .expectCallWith({ electionId, electionSerializationFormat: 'vxf' })
+    .resolves({
+      zipContents: Buffer.from('mock-zip-contents'),
+      electionHash: '1234567890abcdef',
+    });
 
   userEvent.click(screen.getButton('Export Test Decks'));
 
@@ -88,7 +92,9 @@ test('export election package', async () => {
   await screen.findByRole('heading', { name: 'Export' });
 
   const taskCreatedAt = new Date();
-  apiMock.exportElectionPackage.expectCallWith({ electionId }).resolves();
+  apiMock.exportElectionPackage
+    .expectCallWith({ electionId, electionSerializationFormat: 'vxf' })
+    .resolves();
   apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
     task: {
       createdAt: taskCreatedAt,
@@ -133,7 +139,9 @@ test('export election package error handling', async () => {
   await screen.findByRole('heading', { name: 'Export' });
 
   const taskCreatedAt = new Date();
-  apiMock.exportElectionPackage.expectCallWith({ electionId }).resolves();
+  apiMock.exportElectionPackage
+    .expectCallWith({ electionId, electionSerializationFormat: 'vxf' })
+    .resolves();
   apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
     task: {
       createdAt: taskCreatedAt,
@@ -168,4 +176,75 @@ test('export election package error handling', async () => {
 
   await screen.findByText('An unexpected error occurred. Please try again.');
   expect(mockOf(downloadFile)).not.toHaveBeenCalled();
+});
+
+test('using CDF', async () => {
+  renderScreen();
+  await screen.findByRole('heading', { name: 'Export' });
+
+  userEvent.click(
+    screen.getByRole('checkbox', {
+      name: 'Format election using CDF',
+      checked: false,
+    })
+  );
+  screen.getByRole('checkbox', {
+    name: 'Format election using CDF',
+    checked: true,
+  });
+
+  apiMock.exportAllBallots
+    .expectCallWith({ electionId, electionSerializationFormat: 'cdf' })
+    .resolves({
+      zipContents: Buffer.from('mock-zip-contents'),
+      electionHash: '1234567890abcdef',
+    });
+  userEvent.click(screen.getButton('Export All Ballots'));
+  await waitFor(() => {
+    expect(fileDownloadMock).toHaveBeenCalledWith(
+      Buffer.from('mock-zip-contents'),
+      'ballots-1234567890.zip'
+    );
+  });
+
+  apiMock.exportTestDecks
+    .expectCallWith({ electionId, electionSerializationFormat: 'cdf' })
+    .resolves({
+      zipContents: Buffer.from('mock-zip-contents'),
+      electionHash: '1234567890abcdef',
+    });
+  userEvent.click(screen.getButton('Export Test Decks'));
+  await waitFor(() => {
+    expect(fileDownloadMock).toHaveBeenCalledWith(
+      Buffer.from('mock-zip-contents'),
+      'test-decks-1234567890.zip'
+    );
+  });
+
+  apiMock.exportElectionPackage
+    .expectCallWith({ electionId, electionSerializationFormat: 'cdf' })
+    .resolves();
+  apiMock.getElectionPackage.expectRepeatedCallsWith({ electionId }).resolves({
+    task: {
+      createdAt: new Date(),
+      id: '1',
+      payload: JSON.stringify({
+        electionId,
+        electionSerializationFormat: 'cdf',
+      }),
+      taskName: 'generate_election_package',
+    },
+  });
+  userEvent.click(screen.getButton('Export Election Package'));
+
+  userEvent.click(
+    screen.getByRole('checkbox', {
+      name: 'Format election using CDF',
+      checked: true,
+    })
+  );
+  screen.getByRole('checkbox', {
+    name: 'Format election using CDF',
+    checked: false,
+  });
 });

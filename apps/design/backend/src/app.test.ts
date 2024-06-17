@@ -297,22 +297,29 @@ test('Election package management', async () => {
   expect(electionPackageBeforeExport).toEqual({});
 
   // Initiate an export
-  await apiClient.exportElectionPackage({ electionId });
+  await apiClient.exportElectionPackage({
+    electionId,
+    electionSerializationFormat: 'vxf',
+  });
+  const expectedPayload = `{"electionId":"${electionId}","electionSerializationFormat":"vxf"}`;
   const electionPackageAfterInitiatingExport =
     await apiClient.getElectionPackage({ electionId });
   expect(electionPackageAfterInitiatingExport).toEqual({
     task: {
       createdAt: expect.any(Date),
       id: expect.any(String),
-      payload: `{"electionId":"${electionId}"}`,
+      payload: expectedPayload,
       taskName: 'generate_election_package',
     },
   });
   const taskId = assertDefined(electionPackageAfterInitiatingExport.task).id;
 
   // Check that initiating an export before a prior has completed doesn't trigger a new background
-  // task
-  await apiClient.exportElectionPackage({ electionId });
+  // task (even with a different serialization format)
+  await apiClient.exportElectionPackage({
+    electionId,
+    electionSerializationFormat: 'cdf',
+  });
   const electionPackageAfterInitiatingRedundantExport =
     await apiClient.getElectionPackage({ electionId });
   expect(electionPackageAfterInitiatingRedundantExport).toEqual(
@@ -329,7 +336,7 @@ test('Election package management', async () => {
       completedAt: expect.any(Date),
       createdAt: expect.any(Date),
       id: taskId,
-      payload: `{"electionId":"${electionId}"}`,
+      payload: expectedPayload,
       startedAt: expect.any(Date),
       taskName: 'generate_election_package',
     },
@@ -337,14 +344,17 @@ test('Election package management', async () => {
   });
 
   // Check that initiating an export after a prior has completed does trigger a new background task
-  await apiClient.exportElectionPackage({ electionId });
+  await apiClient.exportElectionPackage({
+    electionId,
+    electionSerializationFormat: 'vxf',
+  });
   const electionPackageAfterInitiatingSecondExport =
     await apiClient.getElectionPackage({ electionId });
   expect(electionPackageAfterInitiatingSecondExport).toEqual({
     task: {
       createdAt: expect.any(Date),
       id: expect.any(String),
-      payload: `{"electionId":"${electionId}"}`,
+      payload: expectedPayload,
       taskName: 'generate_election_package',
     },
     url: expect.stringMatching(/.*\/election-package-[0-9a-z]{10}\.zip$/),
@@ -383,6 +393,7 @@ test('Election package export', async () => {
     apiClient,
     electionId,
     workspace,
+    electionSerializationFormat: 'vxf',
   });
 
   const {
@@ -571,6 +582,7 @@ test('Export all ballots', async () => {
 
   const { zipContents } = await apiClient.exportAllBallots({
     electionId,
+    electionSerializationFormat: 'vxf',
   });
   const zip = await JsZip.loadAsync(zipContents);
 
@@ -641,7 +653,8 @@ test('Export all ballots', async () => {
   expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(
     expect.any(Object), // Renderer
     vxDefaultBallotTemplate,
-    expectedBallotProps
+    expectedBallotProps,
+    'vxf'
   );
 });
 
@@ -664,6 +677,7 @@ test('Export test decks', async () => {
 
   const { zipContents } = await apiClient.exportTestDecks({
     electionId,
+    electionSerializationFormat: 'vxf',
   });
   const zip = await JsZip.loadAsync(zipContents);
 
@@ -700,7 +714,8 @@ test('Export test decks', async () => {
   expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledWith(
     expect.any(Object), // Renderer
     vxDefaultBallotTemplate,
-    expectedBallotProps
+    expectedBallotProps,
+    'vxf'
   );
 }, 30_000);
 
@@ -723,20 +738,72 @@ test('Consistency of election hash across exports', async () => {
 
   const allBallotsOutput = await apiClient.exportAllBallots({
     electionId,
+    electionSerializationFormat: 'vxf',
   });
 
   const testDecksOutput = await apiClient.exportTestDecks({
     electionId,
+    electionSerializationFormat: 'vxf',
   });
 
   const electionPackageFilePath = await exportElectionPackage({
     apiClient,
     electionId,
     workspace,
+    electionSerializationFormat: 'vxf',
   });
   const { electionDefinition } = (
     await readElectionPackageFromFile(electionPackageFilePath)
   ).unsafeUnwrap();
+
+  expect([
+    ...new Set([
+      allBallotsOutput.electionHash,
+      testDecksOutput.electionHash,
+      electionDefinition.electionHash,
+    ]),
+  ]).toHaveLength(1);
+}, 30_000);
+
+test('CDF exports', async () => {
+  // This test runs unnecessarily long if we're generating exports for all
+  // languages, so disabling multi-language support for this case:
+  mockFeatureFlagger.disableFeatureFlag(
+    BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS
+  );
+
+  const baseElectionDefinition =
+    electionFamousNames2021Fixtures.electionDefinition;
+  const { apiClient, workspace } = setupApp();
+
+  const electionId = (
+    await apiClient.createElection({
+      electionData: baseElectionDefinition.electionData,
+    })
+  ).unsafeUnwrap();
+
+  const allBallotsOutput = await apiClient.exportAllBallots({
+    electionId,
+    electionSerializationFormat: 'cdf',
+  });
+
+  const testDecksOutput = await apiClient.exportTestDecks({
+    electionId,
+    electionSerializationFormat: 'cdf',
+  });
+
+  const electionPackageFilePath = await exportElectionPackage({
+    apiClient,
+    electionId,
+    workspace,
+    electionSerializationFormat: 'cdf',
+  });
+  const { electionDefinition } = (
+    await readElectionPackageFromFile(electionPackageFilePath)
+  ).unsafeUnwrap();
+  expect(electionDefinition.electionData).toMatch(
+    /"@type": "BallotDefinition.BallotDefinition"/
+  );
 
   expect([
     ...new Set([
