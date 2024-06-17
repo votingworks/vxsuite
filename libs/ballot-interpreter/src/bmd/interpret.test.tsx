@@ -1,5 +1,5 @@
 import { sliceElectionHash } from '@votingworks/ballot-encoder';
-import { assert, assertDefined, err, iter } from '@votingworks/basics';
+import { assert, err } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireTestBallotFixtures,
