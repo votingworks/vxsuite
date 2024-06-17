@@ -34,14 +34,15 @@ import { LogEventId, Logger } from '@votingworks/logging';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import {
+  MockPaperHandlerStatus,
   PaperHandlerDriverInterface,
-  isMockPaperHandler,
 } from '@votingworks/custom-paper-handler';
 import { getMachineConfig } from './machine_config';
 import { Workspace, constructAuthMachineState } from './util/workspace';
 import {
   PaperHandlerStateMachine,
   SimpleServerStatus,
+  buildMockPaperHandlerApi,
 } from './custom-paper-handler';
 import { ElectionState, PrintBallotProps } from './types';
 import { isAccessibleControllerDaemonRunning } from './util/controllerd';
@@ -200,12 +201,6 @@ export function buildApi(
     setAcceptingPaperState(): void {
       assert(stateMachine);
       stateMachine.setAcceptingPaper();
-
-      // TODO(kofi): Remove once we've added mock paper handler functionality to the
-      // dev dock:
-      if (isMockPaperHandler(paperHandler)) {
-        void paperHandler.setMockStatus({ mockStatus: 'paperInserted' });
-      }
     },
 
     /**
@@ -422,10 +417,14 @@ export function buildApi(
 
       stateMachine.startPaperHandlerDiagnostic();
     },
+
+    ...buildMockPaperHandlerApi({ paperHandler }),
   });
 }
 
 export type Api = ReturnType<typeof buildApi>;
+
+export type { MockPaperHandlerStatus };
 
 export function buildApp(
   auth: InsertedSmartCardAuthApi,

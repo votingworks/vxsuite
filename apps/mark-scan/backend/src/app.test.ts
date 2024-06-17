@@ -48,15 +48,9 @@ import {
 } from '../test/auth_helpers';
 import { PatConnectionStatusReader } from './pat-input/connection_status_reader';
 import { createWorkspace } from './util/workspace';
-import {
-  getDefaultPaperHandlerStatus,
-  getPaperInFrontStatus,
-  getPaperParkedStatus,
-} from './custom-paper-handler/test_utils';
 
 const TEST_POLLING_INTERVAL_MS = 5;
 
-jest.mock('@votingworks/custom-paper-handler');
 jest.mock('./pat-input/connection_status_reader');
 
 const featureFlagMock = getFeatureFlagMock();
@@ -410,13 +404,7 @@ async function mockLoadFlow(
   testDriver: MockPaperHandlerDriver
 ) {
   await testApiClient.setAcceptingPaperState();
-  mockOf(testDriver.getPaperHandlerStatus).mockResolvedValue(
-    getPaperInFrontStatus()
-  );
-  await waitForStatus('loading_paper');
-  mockOf(testDriver.getPaperHandlerStatus).mockResolvedValue(
-    getPaperParkedStatus()
-  );
+  testDriver.setMockStatus('paperInserted');
   await waitForStatus('waiting_for_ballot_data');
 }
 
@@ -442,9 +430,7 @@ test('ballot invalidation flow', async () => {
     'waiting_for_invalidated_ballot_confirmation.paper_present'
   );
 
-  mockOf(driver.getPaperHandlerStatus).mockResolvedValue(
-    getDefaultPaperHandlerStatus()
-  );
+  driver.setMockStatus('noPaper');
   await waitForStatus(
     'waiting_for_invalidated_ballot_confirmation.paper_absent'
   );
@@ -456,15 +442,13 @@ test('ballot validation flow', async () => {
   await configureForTestElection(electionGeneralDefinition);
   await mockLoadAndPrint(apiClient, driver);
   await apiClient.validateBallot();
-  await waitForStatus('ejecting_to_rear');
+  await waitForStatus('ballot_accepted');
 });
 
 test('removing ballot during presentation', async () => {
   await configureForTestElection(electionGeneralDefinition);
   await mockLoadAndPrint(apiClient, driver);
-  mockOf(driver.getPaperHandlerStatus).mockResolvedValue(
-    getDefaultPaperHandlerStatus()
-  );
+  driver.setMockStatus('noPaper');
   await waitForStatus('ballot_removed_during_presentation');
   await apiClient.confirmSessionEnd();
   await waitForStatus('not_accepting_paper');
@@ -536,10 +520,7 @@ test('printing ballots', async () => {
   expectVotesEqual(interpretation.votes, mockVotes);
 
   await apiClient.validateBallot();
-  await waitForStatus('ejecting_to_rear');
-  mockOf(driver.getPaperHandlerStatus).mockResolvedValue(
-    getDefaultPaperHandlerStatus()
-  );
+  await waitForStatus('ballot_accepted');
   await waitForStatus('not_accepting_paper');
 
   // vote a ballot in Chinese

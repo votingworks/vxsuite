@@ -55,6 +55,7 @@ import {
 } from '../api';
 import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
 import { LiveCheckButton } from '../components/live_check_button';
+import * as api from '../api';
 
 const VotingSession = styled.div`
   margin: 30px 0 60px;
@@ -203,6 +204,22 @@ export function PollWorkerScreen({
     setTestModeMutation.mutate({ isTestMode: false });
     setIsConfirmingEnableLiveMode(false);
   }
+
+  // TODO(kofi): Remove once we've added mock paper handler functionality to the
+  // dev dock:
+  const setMockPaperHandlerStatus =
+    api.setMockPaperHandlerStatus.useMutation().mutate;
+  React.useEffect(() => {
+    // istanbul ignore next
+    if (
+      stateMachineState === 'accepting_paper' &&
+      isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
+      )
+    ) {
+      setMockPaperHandlerStatus({ mockStatus: 'paperInserted' });
+    }
+  }, [setMockPaperHandlerStatus, stateMachineState]);
 
   if (
     stateMachineState === 'accepting_paper' ||

@@ -521,3 +521,68 @@ export const startPaperHandlerDiagnostic = {
 } as const;
 
 export const systemCallApi = createSystemCallApi(useApiClient);
+
+// istanbul ignore next
+export const getMockPaperHandlerStatus = {
+  queryKey: ['getMockPaperHandlerStatus'] as QueryKey,
+
+  useQuery() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    const result = useQuery(this.queryKey, () =>
+      apiClient.getMockPaperHandlerStatus()
+    );
+
+    // Re-fetch whenever the state machine state changes to avoid additional
+    // polling:
+    const stateMachineState = getStateMachineState.useQuery().data;
+    React.useEffect(() => {
+      void queryClient.invalidateQueries(this.queryKey);
+    }, [queryClient, stateMachineState]);
+
+    return result;
+  },
+} as const;
+
+// istanbul ignore next
+export const setMockPaperHandlerStatus = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+
+    return useMutation(apiClient.setMockPaperHandlerStatus, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(getMockPaperHandlerStatus.queryKey);
+      },
+    });
+  },
+} as const;
+
+// istanbul ignore next
+export const getMockPaperHandlerOperationDelayMs = {
+  queryKey: ['getMockPaperHandlerOperationDelayMs'] as QueryKey,
+
+  useQuery() {
+    const apiClient = useApiClient();
+
+    return useQuery(this.queryKey, () =>
+      apiClient.getMockPaperHandlerOperationDelayMs()
+    );
+  },
+} as const;
+
+// istanbul ignore next
+export const setMockPaperHandlerOperationDelay = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+
+    return useMutation(apiClient.setMockPaperHandlerOperationDelay, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getMockPaperHandlerOperationDelayMs.queryKey
+        );
+      },
+    });
+  },
+} as const;
