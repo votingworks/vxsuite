@@ -4,6 +4,7 @@ import path from 'path';
 import { pipeline } from 'stream/promises';
 import {
   BallotType,
+  ElectionSerializationFormat,
   ElectionPackageFileName,
   ElectionPackageMetadata,
   getDisplayElectionHash,
@@ -26,7 +27,13 @@ import { WorkerContext } from './context';
 
 export async function generateElectionPackage(
   { speechSynthesizer, translator, workspace }: WorkerContext,
-  { electionId }: { electionId: Id }
+  {
+    electionId,
+    electionSerializationFormat,
+  }: {
+    electionId: Id;
+    electionSerializationFormat: ElectionSerializationFormat;
+  }
 ): Promise<void> {
   const { assetDirectoryPath, store } = workspace;
 
@@ -76,7 +83,8 @@ export async function generateElectionPackage(
         precinctId: ballotStyle.precincts[0],
         ballotType: BallotType.Precinct,
         ballotMode: 'test',
-      }))
+      })),
+      electionSerializationFormat
     );
   zip.file(ElectionPackageFileName.ELECTION, electionDefinition.electionData);
   // eslint-disable-next-line no-console

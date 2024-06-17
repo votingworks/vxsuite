@@ -601,6 +601,12 @@ export type OptionalElectionDefinition = Optional<ElectionDefinition>;
 export const OptionalElectionDefinitionSchema: z.ZodSchema<OptionalElectionDefinition> =
   ElectionDefinitionSchema.optional();
 
+export const ELECTION_SERIALIZATION_FORMATS = ['vxf', 'cdf'] as const;
+export type ElectionSerializationFormat =
+  (typeof ELECTION_SERIALIZATION_FORMATS)[number];
+export const ElectionSerializationFormatSchema: z.ZodSchema<ElectionSerializationFormat> =
+  z.enum(ELECTION_SERIALIZATION_FORMATS);
+
 export enum BallotType {
   Precinct = 'precinct',
   Absentee = 'absentee',

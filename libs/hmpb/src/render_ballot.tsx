@@ -12,6 +12,7 @@ import {
   BallotType,
   Election,
   ElectionDefinition,
+  ElectionSerializationFormat,
   GridLayout,
   GridPosition,
   HmpbBallotPageMetadata,
@@ -434,7 +435,8 @@ export async function renderAllBallotsAndCreateElectionDefinition<
 >(
   renderer: Renderer,
   template: BallotPageTemplate<P>,
-  ballotProps: P[]
+  ballotProps: P[],
+  electionSerializationFormat: ElectionSerializationFormat
 ): Promise<{
   ballotDocuments: RenderDocument[];
   electionDefinition: ElectionDefinition;
@@ -480,12 +482,22 @@ export async function renderAllBallotsAndCreateElectionDefinition<
     .toArray();
 
   const electionWithGridLayouts: Election = { ...election, gridLayouts };
-  const cdfElection = convertVxfElectionToCdfBallotDefinition(
-    electionWithGridLayouts,
-    translatedStrings
-  );
+  const electionToHash = (() => {
+    switch (electionSerializationFormat) {
+      case 'vxf':
+        return electionWithGridLayouts;
+      case 'cdf':
+        return convertVxfElectionToCdfBallotDefinition(
+          electionWithGridLayouts,
+          translatedStrings
+        );
+      default:
+        /* istanbul ignore next */
+        throwIllegalValue(electionSerializationFormat);
+    }
+  })();
   const electionDefinition = safeParseElectionDefinition(
-    JSON.stringify(cdfElection, null, 2)
+    JSON.stringify(electionToHash, null, 2)
   ).unsafeUnwrap();
 
   for (const { document, props } of ballotsWithLayouts) {

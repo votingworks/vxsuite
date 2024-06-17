@@ -8,6 +8,7 @@ import {
   SystemSettings,
   safeParseSystemSettings,
   LanguageCode,
+  ElectionSerializationFormat,
 } from '@votingworks/types';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
@@ -316,7 +317,10 @@ export class Store {
     };
   }
 
-  createElectionPackageBackgroundTask(electionId: Id): void {
+  createElectionPackageBackgroundTask(
+    electionId: Id,
+    electionSerializationFormat: ElectionSerializationFormat
+  ): void {
     this.client.transaction(() => {
       // If a task is already in progress, don't create a new one
       const { task } = this.getElectionPackage(electionId);
@@ -326,6 +330,7 @@ export class Store {
 
       const taskId = this.createBackgroundTask('generate_election_package', {
         electionId,
+        electionSerializationFormat,
       });
       this.client.run(
         `

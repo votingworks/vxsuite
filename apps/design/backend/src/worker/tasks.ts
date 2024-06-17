@@ -1,6 +1,9 @@
 import { z } from 'zod';
 import { throwIllegalValue } from '@votingworks/basics';
-import { safeParseJson } from '@votingworks/types';
+import {
+  ElectionSerializationFormatSchema,
+  safeParseJson,
+} from '@votingworks/types';
 
 import { BackgroundTask } from '../store';
 import { WorkerContext } from './context';
@@ -14,7 +17,10 @@ export async function processBackgroundTask(
     case 'generate_election_package': {
       const parsedPayload = safeParseJson(
         payload,
-        z.object({ electionId: z.string() })
+        z.object({
+          electionId: z.string(),
+          electionSerializationFormat: ElectionSerializationFormatSchema,
+        })
       ).unsafeUnwrap();
       await generateElectionPackage(context, parsedPayload);
       break;
