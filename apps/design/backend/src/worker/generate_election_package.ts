@@ -57,15 +57,14 @@ export async function generateElectionPackage(
     JSON.stringify(appStrings, null, 2)
   );
 
-  const { electionStrings, vxElectionStrings } =
-    await extractAndTranslateElectionStrings(
-      translator,
-      election,
-      ballotLanguageConfigs
-    );
+  const electionStrings = await extractAndTranslateElectionStrings(
+    translator,
+    election,
+    ballotLanguageConfigs
+  );
   zip.file(
-    ElectionPackageFileName.VX_ELECTION_STRINGS,
-    JSON.stringify(vxElectionStrings, null, 2)
+    ElectionPackageFileName.ELECTION_STRINGS,
+    JSON.stringify(electionStrings, null, 2)
   );
 
   const renderer = await createPlaywrightRenderer();

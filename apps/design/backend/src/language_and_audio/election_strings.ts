@@ -24,7 +24,6 @@ interface ElectionStringConfigNotTranslatable {
 
 interface ElectionStringConfigTranslatable {
   translatable: true;
-  translationsCanBeStoredInCdf: boolean;
   customTranslationMethod?: (input: {
     election: Election;
     languageCode: LanguageCode;
@@ -39,7 +38,6 @@ type ElectionStringConfig =
 const electionStringConfigs: Record<ElectionStringKey, ElectionStringConfig> = {
   [ElectionStringKey.BALLOT_LANGUAGE]: {
     translatable: true,
-    translationsCanBeStoredInCdf: false,
     customTranslationMethod: (p) =>
       format.languageDisplayName({
         languageCode: p.languageCode,
@@ -53,31 +51,24 @@ const electionStringConfigs: Record<ElectionStringKey, ElectionStringConfig> = {
   },
   [ElectionStringKey.CONTEST_DESCRIPTION]: {
     translatable: true,
-    translationsCanBeStoredInCdf: true,
   },
   [ElectionStringKey.CONTEST_OPTION_LABEL]: {
     translatable: true,
-    translationsCanBeStoredInCdf: true,
   },
   [ElectionStringKey.CONTEST_TERM]: {
     translatable: true,
-    translationsCanBeStoredInCdf: false,
   },
   [ElectionStringKey.CONTEST_TITLE]: {
     translatable: true,
-    translationsCanBeStoredInCdf: true,
   },
   [ElectionStringKey.COUNTY_NAME]: {
     translatable: true,
-    translationsCanBeStoredInCdf: true,
   },
   [ElectionStringKey.DISTRICT_NAME]: {
     translatable: true,
-    translationsCanBeStoredInCdf: true,
   },
   [ElectionStringKey.ELECTION_DATE]: {
     translatable: true,
-    translationsCanBeStoredInCdf: false,
     customTranslationMethod: ({ election, languageCode }) =>
       format.localeLongDate(
         election.date.toMidnightDatetimeWithSystemTimezone(),
@@ -86,23 +77,18 @@ const electionStringConfigs: Record<ElectionStringKey, ElectionStringConfig> = {
   },
   [ElectionStringKey.ELECTION_TITLE]: {
     translatable: true,
-    translationsCanBeStoredInCdf: true,
   },
   [ElectionStringKey.PARTY_FULL_NAME]: {
     translatable: true,
-    translationsCanBeStoredInCdf: true,
   },
   [ElectionStringKey.PARTY_NAME]: {
     translatable: true,
-    translationsCanBeStoredInCdf: true,
   },
   [ElectionStringKey.PRECINCT_NAME]: {
     translatable: true,
-    translationsCanBeStoredInCdf: true,
   },
   [ElectionStringKey.STATE_NAME]: {
     translatable: true,
-    translationsCanBeStoredInCdf: true,
   },
 };
 
@@ -262,12 +248,7 @@ export async function extractAndTranslateElectionStrings(
   translator: GoogleCloudTranslator,
   election: Election,
   ballotLanguageConfigs: BallotLanguageConfigs
-): Promise<{
-  /** All election strings */
-  electionStrings: UiStringsPackage;
-  /** The subset of election strings to be added to the vxElectionStrings.json file */
-  vxElectionStrings: UiStringsPackage;
-}> {
+): Promise<UiStringsPackage> {
   const languages = getAllBallotLanguages(ballotLanguageConfigs);
   const untranslatedElectionStrings = extractElectionStrings(election);
   const electionStringsNotToTranslate = untranslatedElectionStrings.filter(
@@ -290,7 +271,6 @@ export async function extractAndTranslateElectionStrings(
   );
 
   const electionStrings: UiStringsPackage = {};
-  const vxElectionStrings: UiStringsPackage = {};
 
   // Election strings not to translate
   for (const electionString of electionStringsNotToTranslate) {
@@ -319,17 +299,6 @@ export async function extractAndTranslateElectionStrings(
       const stringInLanguage = stringsInLanguage[i];
       const config = getElectionStringConfig(electionString);
       assert(config.translatable);
-
-      /* istanbul ignore next: We don't yet have any strings that are cloud translated and can't be
-        stored in the CDF ballot definition */
-      if (!config.translationsCanBeStoredInCdf) {
-        setUiString(
-          vxElectionStrings,
-          languageCode,
-          stringKey,
-          stringInLanguage
-        );
-      }
       setUiString(electionStrings, languageCode, stringKey, stringInLanguage);
     }
   }
@@ -345,18 +314,9 @@ export async function extractAndTranslateElectionStrings(
         languageCode,
         stringInEnglish,
       });
-
-      if (!config.translationsCanBeStoredInCdf) {
-        setUiString(
-          vxElectionStrings,
-          languageCode,
-          stringKey,
-          stringInLanguage
-        );
-      }
       setUiString(electionStrings, languageCode, stringKey, stringInLanguage);
     }
   }
 
-  return { electionStrings, vxElectionStrings };
+  return electionStrings;
 }
