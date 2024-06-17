@@ -31,7 +31,6 @@ let apiMock: ApiMock;
 jest.useFakeTimers();
 
 beforeEach(() => {
-  window.location.href = '/';
   window.kiosk = mockKiosk();
   apiMock = createApiMock();
   apiMock.expectGetPollsInfo();

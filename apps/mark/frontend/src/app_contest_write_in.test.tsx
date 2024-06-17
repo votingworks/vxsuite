@@ -60,7 +60,6 @@ function setUpMockContestPage() {
 
 beforeEach(() => {
   jest.useFakeTimers();
-  window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
   setUpMockContestPage();

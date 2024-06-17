@@ -21,7 +21,6 @@ let apiMock: ApiMock;
 jest.useFakeTimers();
 beforeEach(() => {
   createReactIdleTimerMocks();
-  window.location.href = '/';
   window.kiosk = mockKiosk();
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
