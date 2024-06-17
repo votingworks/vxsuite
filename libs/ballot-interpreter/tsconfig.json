@@ -6,6 +6,7 @@
     "module": "node16",
     "lib": ["dom", "dom.iterable", "esnext"],
     "composite": true,
+    "jsx": "react-jsx",
     "noEmit": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
@@ -22,7 +23,9 @@
     { "path": "../fs/tsconfig.build.json" },
     { "path": "../hmpb/tsconfig.build.json" },
     { "path": "../image-utils/tsconfig.build.json" },
+    { "path": "../printing/tsconfig.build.json" },
     { "path": "../types/tsconfig.build.json" },
+    { "path": "../ui/tsconfig.build.json" },
     { "path": "../utils/tsconfig.build.json" }
   ]
 }
