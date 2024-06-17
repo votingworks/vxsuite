@@ -10,7 +10,11 @@ import {
   ok,
   throwIllegalValue,
 } from '@votingworks/basics';
-import { createImageData, fromGrayScale } from '@votingworks/image-utils';
+import {
+  ImageData,
+  createImageData,
+  fromGrayScale,
+} from '@votingworks/image-utils';
 import { Buffer } from 'buffer';
 import { SheetOf, mapSheet } from '@votingworks/types';
 import makeDebug from 'debug';
@@ -87,7 +91,10 @@ export type ScannerError =
 export type ScannerEvent =
   | ({ event: 'error' } & ScannerError)
   | { event: 'scanStart' }
-  | { event: 'scanComplete'; images: SheetOf<ImageData> }
+  | {
+      event: 'scanComplete';
+      images: SheetOf<ImageData>;
+    }
   | { event: 'coverOpen' }
   | { event: 'coverClosed' }
   | { event: 'ejectPaused' }

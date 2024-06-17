@@ -1,5 +1,5 @@
 import { IteratorPlus, Result, assert, iter, ok } from '@votingworks/basics';
-import { pdfToImages } from '@votingworks/image-utils';
+import { ImageData, pdfToImages } from '@votingworks/image-utils';
 import { BITS_PER_BYTE } from '@votingworks/message-coder';
 import { readFileSync } from 'fs';
 import { Buffer } from 'buffer';
@@ -176,11 +176,11 @@ export function imageDataToBinaryBitmap(
   const data: boolean[] = [];
 
   for (let i = 0; i < imageData.data.length; i += 4) {
-    const r = imageData.data[i];
-    const g = imageData.data[i + 1];
-    const b = imageData.data[i + 2];
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    data.push(rgbToBinary(r!, g!, b!, options));
+    const r = imageData.data[i] as number;
+    const g = imageData.data[i + 1] as number;
+    const b = imageData.data[i + 2] as number;
+
+    data.push(rgbToBinary(r, g, b, options));
   }
 
   return {

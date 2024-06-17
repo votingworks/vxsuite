@@ -1,3 +1,4 @@
+import { ImageData } from 'canvas';
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { interpret as interpretImpl } from './rust_addon';
 import { interpret } from './interpret';

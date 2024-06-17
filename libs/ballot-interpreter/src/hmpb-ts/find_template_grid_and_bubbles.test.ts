@@ -1,3 +1,4 @@
+import { ImageData } from 'canvas';
 import { err, typedAs } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,

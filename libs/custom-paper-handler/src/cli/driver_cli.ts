@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 
 import { createInterface } from 'readline';
-import { pdfToImages } from '@votingworks/image-utils';
+import { ImageData, pdfToImages } from '@votingworks/image-utils';
 import { Buffer } from 'buffer';
 import { assert, iter, sleep } from '@votingworks/basics';
 import { exit } from 'process';

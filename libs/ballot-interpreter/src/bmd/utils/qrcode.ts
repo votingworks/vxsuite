@@ -4,7 +4,7 @@ import {
   detectRawBytesBmdBallot as detectMetadata,
   isVxBallot,
 } from '@votingworks/ballot-encoder';
-import { crop } from '@votingworks/image-utils';
+import { ImageData, crop } from '@votingworks/image-utils';
 import { Rect, Size } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import makeDebug from 'debug';
@@ -178,7 +178,7 @@ export async function detect(
     {
       name: 'quirc',
       detect: async (croppedImage: ImageData): Promise<Buffer[]> => {
-        const results = await quircDecode(croppedImage);
+        const results = await quircDecode(croppedImage as globalThis.ImageData);
         return results
           .filter((result): result is QRCode => !('err' in result))
           .map((result) => result.data);

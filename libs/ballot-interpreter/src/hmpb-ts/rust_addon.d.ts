@@ -1,4 +1,5 @@
 import { Election } from '@votingworks/types';
+import { ImageData } from 'canvas';
 import { type TemplateGridAndBubbles } from './find_template_grid_and_bubbles';
 
 /**

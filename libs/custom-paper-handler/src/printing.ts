@@ -1,5 +1,6 @@
 import { assert, iter } from '@votingworks/basics';
 import { BITS_PER_BYTE } from '@votingworks/message-coder';
+import { ImageData } from '@votingworks/image-utils';
 import { BitArray, bitArrayToByte, Uint8Max } from './bits';
 import { DEVICE_MAX_WIDTH_DOTS } from './driver/constants';
 import { PaperHandlerBitmap } from './driver/coders';
