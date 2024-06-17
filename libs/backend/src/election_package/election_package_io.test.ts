@@ -176,8 +176,8 @@ test('readElectionPackageFromFile loads available ui strings', async () => {
   });
 });
 
-test('readElectionPackageFromFile loads vx election strings', async () => {
-  const vxElectionStrings: UiStringsPackage = {
+test('readElectionPackageFromFile loads election strings', async () => {
+  const electionStrings: UiStringsPackage = {
     [LanguageCode.ENGLISH]: {
       [ElectionStringKey.BALLOT_LANGUAGE]: 'English',
       [ElectionStringKey.ELECTION_DATE]: 'The Day The Earth Stood Still',
@@ -192,8 +192,7 @@ test('readElectionPackageFromFile loads vx election strings', async () => {
   const testCdfElectionData = JSON.stringify(testCdfBallotDefinition);
   const pkg = await zipFile({
     [ElectionPackageFileName.ELECTION]: testCdfElectionData,
-    [ElectionPackageFileName.VX_ELECTION_STRINGS]:
-      JSON.stringify(vxElectionStrings),
+    [ElectionPackageFileName.ELECTION_STRINGS]: JSON.stringify(electionStrings),
   });
   const file = saveTmpFile(pkg);
 
