@@ -4,7 +4,6 @@ import {
 } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { waitFor, waitForElementToBeRemoved } from '@testing-library/react';
-import { BROTHER_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
 import {
   electionFamousNames2021Fixtures,
   electionTwoPartyPrimaryDefinition,
@@ -18,6 +17,7 @@ import {
   provideApi,
   statusNoPaper,
 } from '../../test/helpers/mock_api_client';
+import { BROTHER_THERMAL_PRINTER_CONFIG } from '../../test/helpers/fixtures';
 
 let apiMock: ApiMock;
 

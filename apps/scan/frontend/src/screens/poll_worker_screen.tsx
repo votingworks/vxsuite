@@ -36,7 +36,10 @@ import {
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 import { LiveCheckButton } from '../components/live_check_button';
 import { CastVoteRecordSyncRequiredScreen } from './cast_vote_record_sync_required_screen';
-import { isPrinterReadyHelper } from '../utils/printer';
+import {
+  PollsFlowPrinterSummary,
+  getPollsFlowPrinterSummary,
+} from '../utils/printer';
 import { LegacyPostPrintScreen } from './poll_worker_legacy_post_print_screen';
 import { FujitsuPostPrintScreen } from './poll_worker_fujitsu_post_print_screen';
 import { Screen } from './poll_worker_shared';
@@ -85,14 +88,29 @@ const BallotsAlreadyScannedScreen = (
   </Screen>
 );
 
+function PrinterAlertText({
+  printerSummary,
+}: {
+  printerSummary: PollsFlowPrinterSummary;
+}): JSX.Element | null {
+  if (printerSummary.ready) {
+    return null;
+  }
+  return (
+    <P>
+      <Icons.Warning /> {printerSummary.alertText}
+    </P>
+  );
+}
+
 function OpenPollsPromptScreen({
   onConfirm,
   onClose,
-  isPrinterReady,
+  printerSummary,
 }: {
   onConfirm: () => void;
   onClose: () => void;
-  isPrinterReady: boolean;
+  printerSummary: PollsFlowPrinterSummary;
 }): JSX.Element {
   return (
     <Screen>
@@ -102,13 +120,13 @@ function OpenPollsPromptScreen({
           <Button
             variant="primary"
             onPress={onConfirm}
-            disabled={!isPrinterReady}
+            disabled={!printerSummary.ready}
           >
             Yes, Open the Polls
           </Button>{' '}
           <Button onPress={onClose}>No</Button>
         </P>
-        {!isPrinterReady && <P>Attach printer to continue.</P>}
+        <PrinterAlertText printerSummary={printerSummary} />
       </CenteredLargeProse>
     </Screen>
   );
@@ -117,11 +135,11 @@ function OpenPollsPromptScreen({
 function ResumeVotingPromptScreen({
   onConfirm,
   onClose,
-  isPrinterReady,
+  printerSummary,
 }: {
   onConfirm: () => void;
   onClose: () => void;
-  isPrinterReady: boolean;
+  printerSummary: PollsFlowPrinterSummary;
 }): JSX.Element {
   return (
     <Screen>
@@ -131,13 +149,13 @@ function ResumeVotingPromptScreen({
           <Button
             variant="primary"
             onPress={onConfirm}
-            disabled={!isPrinterReady}
+            disabled={!printerSummary.ready}
           >
             Yes, Resume Voting
           </Button>{' '}
           <Button onPress={onClose}>No</Button>
         </P>
-        {!isPrinterReady && <P>Attach printer to continue.</P>}
+        <PrinterAlertText printerSummary={printerSummary} />
       </CenteredLargeProse>
     </Screen>
   );
@@ -146,11 +164,11 @@ function ResumeVotingPromptScreen({
 function ClosePollsPromptScreen({
   onConfirm,
   onClose,
-  isPrinterReady,
+  printerSummary,
 }: {
   onConfirm: () => void;
   onClose: () => void;
-  isPrinterReady: boolean;
+  printerSummary: PollsFlowPrinterSummary;
 }): JSX.Element {
   return (
     <Screen>
@@ -160,13 +178,13 @@ function ClosePollsPromptScreen({
           <Button
             variant="primary"
             onPress={onConfirm}
-            disabled={!isPrinterReady}
+            disabled={!printerSummary.ready}
           >
             Yes, Close the Polls
           </Button>{' '}
           <Button onPress={onClose}>No</Button>
         </P>
-        {!isPrinterReady && <P>Attach printer to continue.</P>}
+        <PrinterAlertText printerSummary={printerSummary} />
       </CenteredLargeProse>
     </Screen>
   );
@@ -258,7 +276,7 @@ function PollWorkerScreenContents({
 
   const usbDriveStatus = usbDriveStatusQuery.data;
   const printerStatus = printerStatusQuery.data;
-  const isPrinterReady = isPrinterReadyHelper(printerStatus);
+  const printerSummary = getPollsFlowPrinterSummary(printerStatus);
   const { pollsState } = pollsInfo;
 
   function showAllPollWorkerActions() {
@@ -382,7 +400,7 @@ function PollWorkerScreenContents({
           <OpenPollsPromptScreen
             onConfirm={openPolls}
             onClose={showAllPollWorkerActions}
-            isPrinterReady={isPrinterReady}
+            printerSummary={printerSummary}
           />
         );
       case 'resume-voting-prompt':
@@ -390,7 +408,7 @@ function PollWorkerScreenContents({
           <ResumeVotingPromptScreen
             onConfirm={resumeVoting}
             onClose={showAllPollWorkerActions}
-            isPrinterReady={isPrinterReady}
+            printerSummary={printerSummary}
           />
         );
       case 'close-polls-prompt':
@@ -398,7 +416,7 @@ function PollWorkerScreenContents({
           <ClosePollsPromptScreen
             onConfirm={closePolls}
             onClose={showAllPollWorkerActions}
-            isPrinterReady={isPrinterReady}
+            printerSummary={printerSummary}
           />
         );
       case 'polls-transitioning':
@@ -455,7 +473,7 @@ function PollWorkerScreenContents({
               transitionType: pollsInfo.lastPollsTransition.type,
             })
           }
-          disabled={!allowReprintingReport || !isPrinterReady}
+          disabled={!allowReprintingReport || !printerSummary.ready}
         >
           Print {getPollsReportTitle(pollsInfo.lastPollsTransition.type)}
         </Button>
