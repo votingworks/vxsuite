@@ -721,6 +721,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "fai100-controllerd"
+version = "0.1.0"
+dependencies = [
+ "clap",
+ "color-eyre",
+ "crc16",
+ "ctrlc",
+ "daemon-utils",
+ "hex",
+ "num_enum",
+ "rusb",
+ "serde",
+ "serde_json",
+ "thiserror",
+ "uinput",
+ "vx-logging",
+]
+
+[[package]]
 name = "fastrand"
 version = "2.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
