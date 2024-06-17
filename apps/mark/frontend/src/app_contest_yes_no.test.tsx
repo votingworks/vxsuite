@@ -26,7 +26,6 @@ let apiMock: ApiMock;
 
 beforeEach(() => {
   jest.useFakeTimers();
-  window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
 });

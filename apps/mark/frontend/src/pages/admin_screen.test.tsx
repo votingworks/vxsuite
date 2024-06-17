@@ -26,7 +26,6 @@ let apiMock: ApiMock;
 
 beforeEach(() => {
   jest.useFakeTimers().setSystemTime(new Date('2020-10-31T00:00:00.000'));
-  window.location.href = '/';
   apiMock = createApiMock();
 });
 

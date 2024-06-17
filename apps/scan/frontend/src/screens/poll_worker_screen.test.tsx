@@ -33,7 +33,6 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 
 beforeEach(() => {
   featureFlagMock.resetFeatureFlags();
-  window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetConfig();
