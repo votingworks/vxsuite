@@ -5,37 +5,18 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   sampleBallotImages,
 } from '@votingworks/fixtures';
-import { SheetOf, vote } from '@votingworks/types';
+import { SheetOf } from '@votingworks/types';
 import { ImageData } from 'canvas';
+import {
+  DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
+  DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
+  DEFAULT_FAMOUS_NAMES_VOTES,
+} from '../../test/fixtures';
 import {
   convertBallotToImages,
   renderTestModeBallot,
 } from '../../test/helpers/ballots';
 import { InterpretResult, interpret } from './interpret';
-
-const famousNamesVotes = vote(
-  electionFamousNames2021Fixtures.election.contests,
-  {
-    mayor: 'sherlock-holmes',
-    controller: 'winston-churchill',
-    attorney: 'john-snow',
-    'public-works-director': 'benjamin-franklin',
-    'chief-of-police': 'natalie-portman',
-    'parks-and-recreation-director': 'charles-darwin',
-    'board-of-alderman': [
-      'helen-keller',
-      'steve-jobs',
-      'nikola-tesla',
-      'vincent-van-gogh',
-    ],
-    'city-council': [
-      'marie-curie',
-      'indiana-jones',
-      'mona-lisa',
-      'jackie-chan',
-    ],
-  }
-);
 
 let famousNamesBmdCard: SheetOf<ImageData>;
 
@@ -43,9 +24,9 @@ beforeAll(async () => {
   famousNamesBmdCard = await convertBallotToImages(
     await renderTestModeBallot(
       electionFamousNames2021Fixtures.electionDefinition,
-      '23',
-      '1',
-      famousNamesVotes
+      DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
+      DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
+      DEFAULT_FAMOUS_NAMES_VOTES
     )
   );
 });

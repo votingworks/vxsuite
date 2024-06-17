@@ -1,163 +1,41 @@
+import { sliceElectionHash } from '@votingworks/ballot-encoder';
 import {
   electionFamousNames2021Fixtures,
   electionGeneralDefinition,
 } from '@votingworks/fixtures';
+import { writeImageData } from '@votingworks/image-utils';
+import { mockOf } from '@votingworks/test-utils';
 import {
+  BallotStyleId,
   DEFAULT_MARK_THRESHOLDS,
   InvalidElectionHashPage,
-  mapSheet,
   PageInterpretation,
+  PrecinctId,
   SheetOf,
+  mapSheet,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { sliceElectionHash } from '@votingworks/ballot-encoder';
-import { mockOf } from '@votingworks/test-utils';
+import {
+  DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
+  DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
+  DEFAULT_FAMOUS_NAMES_VOTES,
+} from '../test/fixtures';
+import {
+  convertBallotToImages,
+  renderTestModeBallot,
+} from '../test/helpers/ballots';
+import { tmpDir } from '../test/helpers/tmp';
 import {
   interpretSheet,
   interpretSimplexBmdBallotFromFilepath,
 } from './interpret';
-import { normalizeBallotMode } from './validation';
 import { InterpreterOptions } from './types';
+import { normalizeBallotMode } from './validation';
 
 jest.mock('./validation');
-
-const expectedInterpretation = `
-  [
-    {
-      "ballotId": undefined,
-      "metadata": {
-        "ballotStyleId": "1",
-        "ballotType": "precinct",
-        "electionHash": "c58b27d55ee6d01008c2",
-        "isTestMode": true,
-        "precinctId": "23",
-      },
-      "type": "InterpretedBmdPage",
-      "votes": {
-        "attorney": [
-          {
-            "id": "john-snow",
-            "name": "John Snow",
-            "partyIds": [
-              "1",
-            ],
-          },
-        ],
-        "board-of-alderman": [
-          {
-            "id": "helen-keller",
-            "name": "Helen Keller",
-            "partyIds": [
-              "0",
-            ],
-          },
-          {
-            "id": "steve-jobs",
-            "name": "Steve Jobs",
-            "partyIds": [
-              "1",
-            ],
-          },
-          {
-            "id": "nikola-tesla",
-            "name": "Nikola Tesla",
-            "partyIds": [
-              "0",
-            ],
-          },
-          {
-            "id": "vincent-van-gogh",
-            "name": "Vincent Van Gogh",
-            "partyIds": [
-              "1",
-            ],
-          },
-        ],
-        "chief-of-police": [
-          {
-            "id": "natalie-portman",
-            "name": "Natalie Portman",
-            "partyIds": [
-              "0",
-            ],
-          },
-        ],
-        "city-council": [
-          {
-            "id": "marie-curie",
-            "name": "Marie Curie",
-            "partyIds": [
-              "0",
-            ],
-          },
-          {
-            "id": "indiana-jones",
-            "name": "Indiana Jones",
-            "partyIds": [
-              "1",
-            ],
-          },
-          {
-            "id": "mona-lisa",
-            "name": "Mona Lisa",
-            "partyIds": [
-              "3",
-            ],
-          },
-          {
-            "id": "jackie-chan",
-            "name": "Jackie Chan",
-            "partyIds": [
-              "3",
-            ],
-          },
-        ],
-        "controller": [
-          {
-            "id": "winston-churchill",
-            "name": "Winston Churchill",
-            "partyIds": [
-              "0",
-            ],
-          },
-        ],
-        "mayor": [
-          {
-            "id": "sherlock-holmes",
-            "name": "Sherlock Holmes",
-            "partyIds": [
-              "0",
-            ],
-          },
-        ],
-        "parks-and-recreation-director": [
-          {
-            "id": "charles-darwin",
-            "name": "Charles Darwin",
-            "partyIds": [
-              "0",
-            ],
-          },
-        ],
-        "public-works-director": [
-          {
-            "id": "benjamin-franklin",
-            "name": "Benjamin Franklin",
-            "partyIds": [
-              "0",
-            ],
-          },
-        ],
-      },
-    },
-    {
-      "type": "BlankPage",
-    },
-  ]
-`;
 
 beforeEach(() => {
   mockOf(normalizeBallotMode).mockImplementation((input) => input);
@@ -166,9 +44,31 @@ beforeEach(() => {
 describe('VX BMD interpretation', () => {
   const fixtures = electionFamousNames2021Fixtures;
   const { electionDefinition } = fixtures;
-  const bmdSummaryBallotPage = fixtures.machineMarkedBallotPage1.asFilePath();
-  const bmdBlankPage = fixtures.machineMarkedBallotPage2.asFilePath();
-  const validBmdSheet: SheetOf<string> = [bmdSummaryBallotPage, bmdBlankPage];
+  const ballotStyleId: BallotStyleId = DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID;
+  const precinctId: PrecinctId = DEFAULT_FAMOUS_NAMES_PRECINCT_ID;
+
+  let bmdSummaryBallotPage: string;
+  let bmdBlankPage: string;
+  let validBmdSheet: SheetOf<string>;
+
+  beforeAll(async () => {
+    const ballotImages = await convertBallotToImages(
+      await renderTestModeBallot(
+        electionFamousNames2021Fixtures.electionDefinition,
+        precinctId,
+        ballotStyleId,
+        DEFAULT_FAMOUS_NAMES_VOTES
+      )
+    );
+
+    const dir = tmpDir();
+    validBmdSheet = await mapSheet(ballotImages, async (image, side) => {
+      const path = `${dir}/${side}.png`;
+      await writeImageData(path, image);
+      return path;
+    });
+    [bmdSummaryBallotPage, bmdBlankPage] = validBmdSheet;
+  });
 
   test('extracts votes encoded in a QR code', async () => {
     const result = await interpretSheet(
@@ -183,7 +83,7 @@ describe('VX BMD interpretation', () => {
     );
     expect(
       mapSheet(result, ({ interpretation }) => interpretation)
-    ).toMatchInlineSnapshot(expectedInterpretation);
+    ).toMatchSnapshot();
   });
 
   test('properly detects test ballot in live mode', async () => {
@@ -225,7 +125,7 @@ describe('VX BMD interpretation', () => {
       {
         electionDefinition,
         testMode: true,
-        precinctSelection: singlePrecinctSelectionFor('23'),
+        precinctSelection: singlePrecinctSelectionFor(precinctId),
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
       },
@@ -245,7 +145,7 @@ describe('VX BMD interpretation', () => {
           electionHash: 'd34db33f',
         },
         testMode: true,
-        precinctSelection: singlePrecinctSelectionFor('23'),
+        precinctSelection: singlePrecinctSelectionFor(precinctId),
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [],
       },
@@ -310,7 +210,7 @@ describe('VX BMD interpretation', () => {
     );
     expect(
       mapSheet(result, ({ interpretation }) => interpretation)
-    ).toMatchInlineSnapshot(expectedInterpretation);
+    ).toMatchSnapshot();
   });
 
   test('normalizes ballot modes', async () => {
@@ -319,7 +219,7 @@ describe('VX BMD interpretation', () => {
       allowOfficialBallotsInTestMode: true,
       electionDefinition,
       markThresholds: DEFAULT_MARK_THRESHOLDS,
-      precinctSelection: singlePrecinctSelectionFor('23'),
+      precinctSelection: singlePrecinctSelectionFor(precinctId),
       testMode: true,
     };
 
