@@ -4,6 +4,12 @@ import HID from 'node-hid';
 import {
   PaperHandlerStatus,
   PaperHandlerDriverInterface,
+  isPaperInScanner,
+  isPaperReadyToLoad,
+  isPaperInOutput,
+  isPaperAnywhere,
+  isPaperJammed,
+  isPaperInInput,
 } from '@votingworks/custom-paper-handler';
 import {
   assign as xassign,
@@ -55,14 +61,6 @@ import {
   MAX_BALLOT_BOX_CAPACITY,
   NOTIFICATION_DURATION_MS,
 } from './constants';
-import {
-  isPaperInScanner,
-  isPaperReadyToLoad,
-  isPaperInOutput,
-  isPaperAnywhere,
-  isPaperJammed,
-  isPaperInInput,
-} from './scanner_status';
 import {
   scanAndSave,
   setDefaults,

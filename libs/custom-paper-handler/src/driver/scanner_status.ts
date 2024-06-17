@@ -1,4 +1,4 @@
-import { PaperHandlerStatus } from '@votingworks/custom-paper-handler';
+import { PaperHandlerStatus } from './coders';
 
 export function isPaperReadyToLoad(
   paperHandlerStatus: PaperHandlerStatus

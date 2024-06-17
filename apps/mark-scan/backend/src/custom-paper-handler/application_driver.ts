@@ -8,11 +8,11 @@ import {
   chunkBinaryBitmap,
   getPaperHandlerDriver,
   imageDataToBinaryBitmap,
+  isPaperAnywhere,
 } from '@votingworks/custom-paper-handler';
 import { pdfToImages } from '@votingworks/image-utils';
 import { tmpNameSync } from 'tmp';
 import { PRINT_DPI, RESET_DELAY_MS, SCAN_DPI } from './constants';
-import { isPaperAnywhere } from './scanner_status';
 
 const debug = makeDebug('mark-scan:custom-paper-handler:application-driver');
 
