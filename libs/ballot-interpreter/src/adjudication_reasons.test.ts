@@ -9,7 +9,7 @@ import {
   YesNoContest,
 } from '@votingworks/types';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
-import { assert, typedAs } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import { allContestOptions } from '@votingworks/utils';
 import {
   getAllPossibleAdjudicationReasons,
@@ -78,16 +78,14 @@ test('a ballot with marginal marks', () => {
     })
   );
 
-  expect(reasons).toEqual(
-    typedAs<AdjudicationReasonInfo[]>([
-      {
-        type: AdjudicationReason.MarginalMark,
-        contestId: bestAnimalMammal.id,
-        optionId: bestAnimalMammalCandidate2.id,
-        optionIndex: 1,
-      },
-    ])
-  );
+  expect(reasons).toEqual<AdjudicationReasonInfo[]>([
+    {
+      type: AdjudicationReason.MarginalMark,
+      contestId: bestAnimalMammal.id,
+      optionId: bestAnimalMammalCandidate2.id,
+      optionIndex: 1,
+    },
+  ]);
 
   expect(reasons.map(adjudicationReasonDescription)).toEqual([
     "Contest 'best-animal-mammal' has a marginal mark for option 'otter'.",
@@ -100,20 +98,18 @@ test('a ballot with no marks', () => {
     generateMockContestOptionScores(bestAnimalMammal, {})
   );
 
-  expect(reasons).toEqual(
-    typedAs<AdjudicationReasonInfo[]>([
-      {
-        type: AdjudicationReason.Undervote,
-        contestId: bestAnimalMammal.id,
-        optionIds: [],
-        optionIndexes: [],
-        expected: 1,
-      },
-      {
-        type: AdjudicationReason.BlankBallot,
-      },
-    ])
-  );
+  expect(reasons).toEqual<AdjudicationReasonInfo[]>([
+    {
+      type: AdjudicationReason.Undervote,
+      contestId: bestAnimalMammal.id,
+      optionIds: [],
+      optionIndexes: [],
+      expected: 1,
+    },
+    {
+      type: AdjudicationReason.BlankBallot,
+    },
+  ]);
 
   expect(reasons.map(adjudicationReasonDescription)).toEqual([
     "Contest 'best-animal-mammal' is undervoted, expected 1 but got none.",
@@ -137,20 +133,15 @@ test('a ballot with too many marks', () => {
     })
   );
 
-  expect(reasons).toEqual(
-    typedAs<AdjudicationReasonInfo[]>([
-      {
-        type: AdjudicationReason.Overvote,
-        contestId: bestAnimalMammal.id,
-        optionIds: [
-          bestAnimalMammalCandidate1.id,
-          bestAnimalMammalCandidate2.id,
-        ],
-        optionIndexes: [0, 1],
-        expected: 1,
-      },
-    ])
-  );
+  expect(reasons).toEqual<AdjudicationReasonInfo[]>([
+    {
+      type: AdjudicationReason.Overvote,
+      contestId: bestAnimalMammal.id,
+      optionIds: [bestAnimalMammalCandidate1.id, bestAnimalMammalCandidate2.id],
+      optionIndexes: [0, 1],
+      expected: 1,
+    },
+  ]);
 
   expect(reasons.map(adjudicationReasonDescription)).toEqual([
     "Contest 'best-animal-mammal' is overvoted, expected 1 but got 2: 'horse', 'otter'.",
@@ -173,35 +164,33 @@ test('multiple contests with issues', () => {
     ]
   );
 
-  expect(reasons).toEqual(
-    typedAs<AdjudicationReasonInfo[]>([
-      {
-        type: AdjudicationReason.MarginalMark,
-        contestId: bestAnimalMammal.id,
-        optionId: bestAnimalMammalCandidate1.id,
-        optionIndex: 0,
-      },
-      {
-        type: AdjudicationReason.Undervote,
-        contestId: bestAnimalMammal.id,
-        optionIds: [],
-        expected: 1,
-        optionIndexes: [],
-      },
-      {
-        type: AdjudicationReason.Overvote,
-        contestId: zooCouncilMammal.id,
-        optionIds: [
-          zooCouncilMammalCandidate1.id,
-          zooCouncilMammalCandidate2.id,
-          zooCouncilMammalCandidate3.id,
-          zooCouncilMammalCandidate4.id,
-        ],
-        optionIndexes: [0, 1, 2, 3],
-        expected: 3,
-      },
-    ])
-  );
+  expect(reasons).toEqual<AdjudicationReasonInfo[]>([
+    {
+      type: AdjudicationReason.MarginalMark,
+      contestId: bestAnimalMammal.id,
+      optionId: bestAnimalMammalCandidate1.id,
+      optionIndex: 0,
+    },
+    {
+      type: AdjudicationReason.Undervote,
+      contestId: bestAnimalMammal.id,
+      optionIds: [],
+      expected: 1,
+      optionIndexes: [],
+    },
+    {
+      type: AdjudicationReason.Overvote,
+      contestId: zooCouncilMammal.id,
+      optionIds: [
+        zooCouncilMammalCandidate1.id,
+        zooCouncilMammalCandidate2.id,
+        zooCouncilMammalCandidate3.id,
+        zooCouncilMammalCandidate4.id,
+      ],
+      optionIndexes: [0, 1, 2, 3],
+      expected: 3,
+    },
+  ]);
 
   expect(reasons.map(adjudicationReasonDescription)).toEqual([
     "Contest 'best-animal-mammal' has a marginal mark for option 'horse'.",
@@ -219,17 +208,15 @@ test('yesno contest overvotes', () => {
     })
   );
 
-  expect(reasons).toEqual(
-    typedAs<AdjudicationReasonInfo[]>([
-      {
-        type: AdjudicationReason.Overvote,
-        contestId: ballotMeasure3.id,
-        optionIds: [ballotMeasure3.yesOption.id, ballotMeasure3.noOption.id],
-        optionIndexes: [0, 1],
-        expected: 1,
-      },
-    ])
-  );
+  expect(reasons).toEqual<AdjudicationReasonInfo[]>([
+    {
+      type: AdjudicationReason.Overvote,
+      contestId: ballotMeasure3.id,
+      optionIds: [ballotMeasure3.yesOption.id, ballotMeasure3.noOption.id],
+      optionIndexes: [0, 1],
+      expected: 1,
+    },
+  ]);
 
   expect(reasons.map(adjudicationReasonDescription)).toEqual([
     "Contest 'fishing' is overvoted, expected 1 but got 2: 'ban-fishing', 'allow-fishing'.",

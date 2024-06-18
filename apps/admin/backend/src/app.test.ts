@@ -1,4 +1,4 @@
-import { assert, err, ok, typedAs } from '@votingworks/basics';
+import { assert, err, ok } from '@votingworks/basics';
 import {
   electionTwoPartyPrimaryFixtures,
   electionGeneral,
@@ -373,25 +373,19 @@ test('usbDrive', async () => {
 test('printer status', async () => {
   const { mockPrinterHandler, apiClient } = buildTestEnvironment();
 
-  expect(await apiClient.getPrinterStatus()).toEqual(
-    typedAs<PrinterStatus>({
-      connected: false,
-    })
-  );
+  expect(await apiClient.getPrinterStatus()).toEqual<PrinterStatus>({
+    connected: false,
+  });
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
-  expect(await apiClient.getPrinterStatus()).toEqual(
-    typedAs<PrinterStatus>(
-      getMockConnectedPrinterStatus(HP_LASER_PRINTER_CONFIG)
-    )
+  expect(await apiClient.getPrinterStatus()).toEqual<PrinterStatus>(
+    getMockConnectedPrinterStatus(HP_LASER_PRINTER_CONFIG)
   );
 
   mockPrinterHandler.disconnectPrinter();
 
-  expect(await apiClient.getPrinterStatus()).toEqual(
-    typedAs<PrinterStatus>({
-      connected: false,
-    })
-  );
+  expect(await apiClient.getPrinterStatus()).toEqual<PrinterStatus>({
+    connected: false,
+  });
 });

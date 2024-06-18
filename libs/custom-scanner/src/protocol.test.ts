@@ -150,56 +150,47 @@ test('checkAnswer', () => {
   const ackAnswer = AckResponseMessage.encode({
     jobId: 0x01,
   }).assertOk('should encode');
-  expect(checkAnswer(ackAnswer)).toEqual(
-    typedAs<CheckAnswerResult>({ type: 'ack', jobId: 0x01 })
-  );
+  expect(checkAnswer(ackAnswer)).toEqual<CheckAnswerResult>({
+    type: 'ack',
+    jobId: 0x01,
+  });
 
   const formatErrorAnswer = ErrorResponseMessage.encode({
     errorCode: ResponseErrorCode.FORMAT_ERROR,
   }).assertOk('should encode');
-  expect(checkAnswer(formatErrorAnswer)).toEqual(
-    typedAs<CheckAnswerResult>({
-      type: 'error',
-      errorCode: ErrorCode.CommunicationUnknownError,
-    })
-  );
+  expect(checkAnswer(formatErrorAnswer)).toEqual<CheckAnswerResult>({
+    type: 'error',
+    errorCode: ErrorCode.CommunicationUnknownError,
+  });
 
   const invalidCommandErrorAnswer = ErrorResponseMessage.encode({
     errorCode: ResponseErrorCode.INVALID_COMMAND,
   }).assertOk('should encode');
-  expect(checkAnswer(invalidCommandErrorAnswer)).toEqual(
-    typedAs<CheckAnswerResult>({
-      type: 'error',
-      errorCode: ErrorCode.InvalidCommand,
-    })
-  );
+  expect(checkAnswer(invalidCommandErrorAnswer)).toEqual<CheckAnswerResult>({
+    type: 'error',
+    errorCode: ErrorCode.InvalidCommand,
+  });
 
   const jobNotValidErrorAnswer = ErrorResponseMessage.encode({
     errorCode: ResponseErrorCode.INVALID_JOB_ID,
   }).assertOk('should encode');
-  expect(checkAnswer(jobNotValidErrorAnswer)).toEqual(
-    typedAs<CheckAnswerResult>({
-      type: 'error',
-      errorCode: ErrorCode.JobNotValid,
-    })
-  );
+  expect(checkAnswer(jobNotValidErrorAnswer)).toEqual<CheckAnswerResult>({
+    type: 'error',
+    errorCode: ErrorCode.JobNotValid,
+  });
 
   const dataAnswer = DataResponseMessage.encode({
     data: 'hello',
   }).assertOk('should encode');
-  expect(checkAnswer(dataAnswer)).toEqual(
-    typedAs<CheckAnswerResult>({
-      type: 'data',
-      data: 'hello',
-    })
-  );
+  expect(checkAnswer(dataAnswer)).toEqual<CheckAnswerResult>({
+    type: 'data',
+    data: 'hello',
+  });
 
-  expect(checkAnswer(Buffer.alloc(0))).toEqual(
-    typedAs<CheckAnswerResult>({
-      type: 'other',
-      buffer: Buffer.alloc(0),
-    })
-  );
+  expect(checkAnswer(Buffer.alloc(0))).toEqual<CheckAnswerResult>({
+    type: 'other',
+    buffer: Buffer.alloc(0),
+  });
 });
 
 test('sendRequest (experiment)', async () => {

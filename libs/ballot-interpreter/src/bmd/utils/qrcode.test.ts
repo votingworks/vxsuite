@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import { err, ok, typedAs } from '@votingworks/basics';
+import { err, ok } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   sampleBallotImages,
@@ -10,23 +10,19 @@ test('does not find QR codes when there are none to find', async () => {
   const detectResult = await detectInBallot(
     await sampleBallotImages.notBallot.asImageData()
   );
-  expect(detectResult).toEqual(
-    typedAs<QrCodePageResult>(err({ type: 'no-qr-code' }))
-  );
+  expect(detectResult).toEqual<QrCodePageResult>(err({ type: 'no-qr-code' }));
 });
 
 test('can read metadata encoded in a QR code with base64', async () => {
   const detectResult = await detectInBallot(
     await electionFamousNames2021Fixtures.machineMarkedBallotPage1.asImageData()
   );
-  expect(detectResult).toEqual(
-    typedAs<QrCodePageResult>(
-      ok({
-        data: expect.any(Buffer),
-        position: 'top',
-        detector: 'qrdetect',
-      })
-    )
+  expect(detectResult).toEqual<QrCodePageResult>(
+    ok({
+      data: expect.any(Buffer),
+      position: 'top',
+      detector: 'qrdetect',
+    })
   );
 });
 

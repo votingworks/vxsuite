@@ -5,7 +5,7 @@ import {
 } from '@votingworks/test-utils';
 import { ContestOption } from '@votingworks/types';
 import fc from 'fast-check';
-import { assert, typedAs } from '@votingworks/basics';
+import { assert } from '@votingworks/basics';
 import { allContestOptions } from './all_contest_options';
 
 test('candidate contest with no write-ins', () => {
@@ -108,24 +108,22 @@ test('candidate contest with provided write-in IDs', () => {
 test('yesno contest', () => {
   fc.assert(
     fc.property(arbitraryYesNoContest(), (contest) => {
-      expect(Array.from(allContestOptions(contest))).toEqual(
-        typedAs<ContestOption[]>([
-          {
-            type: 'yesno',
-            id: contest.yesOption.id,
-            contestId: contest.id,
-            name: contest.yesOption.label,
-            optionIndex: 0,
-          },
-          {
-            type: 'yesno',
-            id: contest.noOption.id,
-            contestId: contest.id,
-            name: contest.noOption.label,
-            optionIndex: 1,
-          },
-        ])
-      );
+      expect(Array.from(allContestOptions(contest))).toEqual<ContestOption[]>([
+        {
+          type: 'yesno',
+          id: contest.yesOption.id,
+          contestId: contest.id,
+          name: contest.yesOption.label,
+          optionIndex: 0,
+        },
+        {
+          type: 'yesno',
+          id: contest.noOption.id,
+          contestId: contest.id,
+          name: contest.noOption.label,
+          optionIndex: 1,
+        },
+      ]);
     })
   );
 });

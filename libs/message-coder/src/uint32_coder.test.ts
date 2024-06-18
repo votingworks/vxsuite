@@ -1,4 +1,4 @@
-import { err, ok, typedAs } from '@votingworks/basics';
+import { err, ok } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import * as fc from 'fast-check';
 import { MAX_UINT32 } from './constants';
@@ -21,9 +21,9 @@ test('uint32', () => {
           ok(bitOffset + 32)
         );
         expect(buffer.readUInt32LE(byteOffset)).toEqual(value);
-        expect(field.decodeFrom(buffer, bitOffset)).toEqual(
-          typedAs<DecodeResult<field>>(ok({ value, bitOffset: bitOffset + 32 }))
-        );
+        expect(field.decodeFrom(buffer, bitOffset)).toEqual<
+          DecodeResult<field>
+        >(ok({ value, bitOffset: bitOffset + 32 }));
       }
     )
   );
@@ -44,9 +44,9 @@ test('uint32 with little-endian=false', () => {
           ok(bitOffset + 32)
         );
         expect(buffer.readUInt32BE(byteOffset)).toEqual(value);
-        expect(field.decodeFrom(buffer, bitOffset)).toEqual(
-          typedAs<DecodeResult<field>>(ok({ value, bitOffset: bitOffset + 32 }))
-        );
+        expect(field.decodeFrom(buffer, bitOffset)).toEqual<
+          DecodeResult<field>
+        >(ok({ value, bitOffset: bitOffset + 32 }));
       }
     )
   );

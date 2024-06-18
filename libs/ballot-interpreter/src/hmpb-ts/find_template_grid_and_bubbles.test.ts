@@ -1,5 +1,5 @@
 import { ImageData } from 'canvas';
-import { err, typedAs } from '@votingworks/basics';
+import { err } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   sampleBallotImages,
@@ -17,9 +17,10 @@ test('find layout from template images', async () => {
   const [front, back] = findTemplateGridAndBubbles(ballotImages).unsafeUnwrap();
 
   // the particulars of the grid are tested in template.rs
-  expect([front, back]).toEqual(
-    typedAs<SheetOf<TimingMarkGrid>>([expect.any(Object), expect.any(Object)])
-  );
+  expect([front, back]).toEqual<SheetOf<TimingMarkGrid>>([
+    expect.any(Object),
+    expect.any(Object),
+  ]);
   expect(front.metadata.side).toEqual('front');
   expect(back.metadata.side).toEqual('back');
   expect(front.bubbles).toBeDefined();

@@ -4,7 +4,6 @@ import {
   SheetOf,
   SheetValidationError,
 } from '@votingworks/types';
-import { typedAs } from '@votingworks/basics';
 import { canonicalizeSheet } from './canonicalize';
 import {
   interpretedBmdPage,
@@ -70,13 +69,11 @@ test('BMD ballot with two BMD sides', () => {
     [interpretedBmdPage, interpretedBmdPage],
     filenames
   ).unsafeUnwrapErr();
-  expect(error).toEqual(
-    typedAs<SheetValidationError>({
-      type: 'invalid-sheet',
-      subType: 'incompatible-interpretation-types',
-      interpretationTypes: ['InterpretedBmdPage', 'InterpretedBmdPage'],
-    })
-  );
+  expect(error).toEqual<SheetValidationError>({
+    type: 'invalid-sheet',
+    subType: 'incompatible-interpretation-types',
+    interpretationTypes: ['InterpretedBmdPage', 'InterpretedBmdPage'],
+  });
 });
 
 test('HMPB ballot with non-consecutive pages', () => {
@@ -84,13 +81,11 @@ test('HMPB ballot with non-consecutive pages', () => {
     [interpretedHmpbPage1, interpretedHmpbPage1],
     filenames
   ).unsafeUnwrapErr();
-  expect(error).toEqual(
-    typedAs<SheetValidationError>({
-      type: 'invalid-sheet',
-      subType: 'non-consecutive-page-numbers',
-      pageNumbers: [1, 1],
-    })
-  );
+  expect(error).toEqual<SheetValidationError>({
+    type: 'invalid-sheet',
+    subType: 'non-consecutive-page-numbers',
+    pageNumbers: [1, 1],
+  });
 });
 
 test('HMPB ballot with mismatched ballot style', () => {
@@ -104,13 +99,11 @@ test('HMPB ballot with mismatched ballot style', () => {
     ],
     filenames
   ).unsafeUnwrapErr();
-  expect(error).toEqual(
-    typedAs<SheetValidationError>({
-      type: 'invalid-sheet',
-      subType: 'mismatched-ballot-style-ids',
-      ballotStyleIds: ['2F', '1M'],
-    })
-  );
+  expect(error).toEqual<SheetValidationError>({
+    type: 'invalid-sheet',
+    subType: 'mismatched-ballot-style-ids',
+    ballotStyleIds: ['2F', '1M'],
+  });
 });
 
 test('HMPB ballot with mismatched precinct', () => {
@@ -128,13 +121,11 @@ test('HMPB ballot with mismatched precinct', () => {
     filenames
   ).unsafeUnwrapErr();
 
-  expect(error).toEqual(
-    typedAs<SheetValidationError>({
-      type: 'invalid-sheet',
-      subType: 'mismatched-precinct-ids',
-      precinctIds: ['precinct-1', 'precinct-2'],
-    })
-  );
+  expect(error).toEqual<SheetValidationError>({
+    type: 'invalid-sheet',
+    subType: 'mismatched-precinct-ids',
+    precinctIds: ['precinct-1', 'precinct-2'],
+  });
 });
 
 test('HMPB ballot with mismatched election', () => {
@@ -152,13 +143,11 @@ test('HMPB ballot with mismatched election', () => {
     filenames
   ).unsafeUnwrapErr();
 
-  expect(error).toEqual(
-    typedAs<SheetValidationError>({
-      type: 'invalid-sheet',
-      subType: 'mismatched-election-hashes',
-      electionHashes: ['abc', 'def'],
-    })
-  );
+  expect(error).toEqual<SheetValidationError>({
+    type: 'invalid-sheet',
+    subType: 'mismatched-election-hashes',
+    electionHashes: ['abc', 'def'],
+  });
 });
 
 test('HMPB ballot with mismatched ballot type', () => {
@@ -176,13 +165,11 @@ test('HMPB ballot with mismatched ballot type', () => {
     filenames
   ).unsafeUnwrapErr();
 
-  expect(error).toEqual(
-    typedAs<SheetValidationError>({
-      type: 'invalid-sheet',
-      subType: 'mismatched-ballot-types',
-      ballotTypes: [BallotType.Precinct, BallotType.Absentee],
-    })
-  );
+  expect(error).toEqual<SheetValidationError>({
+    type: 'invalid-sheet',
+    subType: 'mismatched-ballot-types',
+    ballotTypes: [BallotType.Precinct, BallotType.Absentee],
+  });
 });
 
 test('sheet with HMPB and BMD pages', () => {
@@ -190,13 +177,11 @@ test('sheet with HMPB and BMD pages', () => {
     [interpretedHmpbPage1, interpretedBmdPage],
     filenames
   ).unsafeUnwrapErr();
-  expect(error).toEqual(
-    typedAs<SheetValidationError>({
-      type: 'invalid-sheet',
-      subType: 'incompatible-interpretation-types',
-      interpretationTypes: ['InterpretedHmpbPage', 'InterpretedBmdPage'],
-    })
-  );
+  expect(error).toEqual<SheetValidationError>({
+    type: 'invalid-sheet',
+    subType: 'incompatible-interpretation-types',
+    interpretationTypes: ['InterpretedHmpbPage', 'InterpretedBmdPage'],
+  });
 });
 
 test('sheet with BMD and HMPB pages', () => {
@@ -204,11 +189,9 @@ test('sheet with BMD and HMPB pages', () => {
     [interpretedBmdPage, interpretedHmpbPage1],
     filenames
   ).unsafeUnwrapErr();
-  expect(error).toEqual(
-    typedAs<SheetValidationError>({
-      type: 'invalid-sheet',
-      subType: 'incompatible-interpretation-types',
-      interpretationTypes: ['InterpretedBmdPage', 'InterpretedHmpbPage'],
-    })
-  );
+  expect(error).toEqual<SheetValidationError>({
+    type: 'invalid-sheet',
+    subType: 'incompatible-interpretation-types',
+    interpretationTypes: ['InterpretedBmdPage', 'InterpretedHmpbPage'],
+  });
 });

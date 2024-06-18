@@ -5,7 +5,6 @@ import {
   InterpretedBmdPage,
   InterpretedHmpbPage,
 } from '@votingworks/types';
-import { typedAs } from '@votingworks/basics';
 import {
   describeValidationError,
   validateSheetInterpretation,
@@ -94,12 +93,10 @@ test('BMD ballot with two BMD sides', () => {
     BmdPage,
     BmdPage,
   ]).unsafeUnwrapErr();
-  expect(error).toEqual(
-    typedAs<ValidationError>({
-      type: ValidationErrorType.InvalidFrontBackPageTypes,
-      types: ['InterpretedBmdPage', 'InterpretedBmdPage'],
-    })
-  );
+  expect(error).toEqual<ValidationError>({
+    type: ValidationErrorType.InvalidFrontBackPageTypes,
+    types: ['InterpretedBmdPage', 'InterpretedBmdPage'],
+  });
   expect(describeValidationError(error)).toEqual(
     `expected the back of a BMD page to be blank, but got 'InterpretedBmdPage'`
   );
@@ -110,12 +107,10 @@ test('HMPB ballot with non-consecutive pages', () => {
     HmpbPage1,
     HmpbPage1,
   ]).unsafeUnwrapErr();
-  expect(error).toEqual(
-    typedAs<ValidationError>({
-      type: ValidationErrorType.NonConsecutivePages,
-      pageNumbers: [1, 1],
-    })
-  );
+  expect(error).toEqual<ValidationError>({
+    type: ValidationErrorType.NonConsecutivePages,
+    pageNumbers: [1, 1],
+  });
   expect(describeValidationError(error)).toEqual(
     `expected a sheet to have consecutive page numbers, but got front=1 back=1`
   );
@@ -129,12 +124,10 @@ test('HMPB ballot with mismatched ballot style', () => {
       metadata: { ...HmpbPage2.metadata, ballotStyleId: '34' },
     },
   ]).unsafeUnwrapErr();
-  expect(error).toEqual(
-    typedAs<ValidationError>({
-      type: ValidationErrorType.MismatchedBallotStyle,
-      ballotStyleIds: ['12', '34'],
-    })
-  );
+  expect(error).toEqual<ValidationError>({
+    type: ValidationErrorType.MismatchedBallotStyle,
+    ballotStyleIds: ['12', '34'],
+  });
   expect(describeValidationError(error)).toEqual(
     `expected a sheet to have the same ballot style, but got front=12 back=34`
   );
@@ -149,12 +142,10 @@ test('HMPB ballot with mismatched precinct', () => {
     },
   ]).unsafeUnwrapErr();
 
-  expect(error).toEqual(
-    typedAs<ValidationError>({
-      type: ValidationErrorType.MismatchedPrecinct,
-      precinctIds: ['23', '34'],
-    })
-  );
+  expect(error).toEqual<ValidationError>({
+    type: ValidationErrorType.MismatchedPrecinct,
+    precinctIds: ['23', '34'],
+  });
   expect(describeValidationError(error)).toEqual(
     `expected a sheet to have the same precinct, but got front=23 back=34`
   );
@@ -169,12 +160,10 @@ test('HMPB ballot with mismatched election', () => {
     },
   ]).unsafeUnwrapErr();
 
-  expect(error).toEqual(
-    typedAs<ValidationError>({
-      type: ValidationErrorType.MismatchedElectionHash,
-      electionHashes: ['abc', 'def'],
-    })
-  );
+  expect(error).toEqual<ValidationError>({
+    type: ValidationErrorType.MismatchedElectionHash,
+    electionHashes: ['abc', 'def'],
+  });
   expect(describeValidationError(error)).toEqual(
     `expected a sheet to have the same election hash, but got front=abc back=def`
   );
@@ -189,12 +178,10 @@ test('HMPB ballot with mismatched ballot type', () => {
     },
   ]).unsafeUnwrapErr();
 
-  expect(error).toEqual(
-    typedAs<ValidationError>({
-      type: ValidationErrorType.MismatchedBallotType,
-      ballotTypes: [BallotType.Absentee, BallotType.Precinct],
-    })
-  );
+  expect(error).toEqual<ValidationError>({
+    type: ValidationErrorType.MismatchedBallotType,
+    ballotTypes: [BallotType.Absentee, BallotType.Precinct],
+  });
   expect(describeValidationError(error)).toEqual(
     `expected a sheet to have the same ballot type, but got front=absentee back=precinct`
   );
@@ -205,12 +192,10 @@ test('sheet with HMPB and BMD pages', () => {
     HmpbPage1,
     BmdPage,
   ]).unsafeUnwrapErr();
-  expect(error).toEqual(
-    typedAs<ValidationError>({
-      type: ValidationErrorType.InvalidFrontBackPageTypes,
-      types: ['InterpretedHmpbPage', 'InterpretedBmdPage'],
-    })
-  );
+  expect(error).toEqual<ValidationError>({
+    type: ValidationErrorType.InvalidFrontBackPageTypes,
+    types: ['InterpretedHmpbPage', 'InterpretedBmdPage'],
+  });
   expect(describeValidationError(error)).toEqual(
     `expected the a HMPB page to be another HMPB page, but got 'InterpretedBmdPage'`
   );
@@ -221,12 +206,10 @@ test('sheet with BMD and HMPB pages', () => {
     BmdPage,
     HmpbPage1,
   ]).unsafeUnwrapErr();
-  expect(error).toEqual(
-    typedAs<ValidationError>({
-      type: ValidationErrorType.InvalidFrontBackPageTypes,
-      types: ['InterpretedBmdPage', 'InterpretedHmpbPage'],
-    })
-  );
+  expect(error).toEqual<ValidationError>({
+    type: ValidationErrorType.InvalidFrontBackPageTypes,
+    types: ['InterpretedBmdPage', 'InterpretedHmpbPage'],
+  });
   expect(describeValidationError(error)).toEqual(
     `expected the back of a BMD page to be blank, but got 'InterpretedHmpbPage'`
   );

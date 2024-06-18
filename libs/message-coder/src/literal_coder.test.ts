@@ -1,4 +1,4 @@
-import { err, ok, typedAs } from '@votingworks/basics';
+import { err, ok } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import * as fc from 'fast-check';
 import { literal } from './literal_coder';
@@ -39,13 +39,11 @@ test('literal', () => {
         expect(buffer.subarray(byteOffset, byteOffset + bytes.length)).toEqual(
           Buffer.from(bytes)
         );
-        expect(lit.decodeFrom(buffer, bitOffset)).toEqual(
-          typedAs<DecodeResult<lit>>(
-            ok({
-              value: undefined,
-              bitOffset: bitOffset + bytes.length * 8,
-            })
-          )
+        expect(lit.decodeFrom(buffer, bitOffset)).toEqual<DecodeResult<lit>>(
+          ok({
+            value: undefined,
+            bitOffset: bitOffset + bytes.length * 8,
+          })
         );
       }
     )

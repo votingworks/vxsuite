@@ -1,4 +1,4 @@
-import { integers, iter, typedAs } from '@votingworks/basics';
+import { integers, iter } from '@votingworks/basics';
 import * as fc from 'fast-check';
 import { jsonStream, JsonStreamInput, JsonStreamOptions } from './json_stream';
 
@@ -116,27 +116,25 @@ test('allows iterables instead of arrays at any nesting level', async () => {
         },
       ])
     )
-  ).toEqual(
-    typedAs<Movie[]>([
-      {
-        title: 'The Matrix',
-        actors: [
-          {
-            name: 'Keanu Reeves',
-            awards: ['MTV Movie & TV Award for Best Male Performance'],
-          },
-          {
-            name: 'Laurence Fishburne',
-            awards: ['MTV Movie & TV Award for Best Fight'],
-          },
-          {
-            name: 'Carrie-Anne Moss',
-            awards: ['Empire Award for Best Newcomer'],
-          },
-        ],
-      },
-    ])
-  );
+  ).toEqual<Movie[]>([
+    {
+      title: 'The Matrix',
+      actors: [
+        {
+          name: 'Keanu Reeves',
+          awards: ['MTV Movie & TV Award for Best Male Performance'],
+        },
+        {
+          name: 'Laurence Fishburne',
+          awards: ['MTV Movie & TV Award for Best Fight'],
+        },
+        {
+          name: 'Carrie-Anne Moss',
+          awards: ['Empire Award for Best Newcomer'],
+        },
+      ],
+    },
+  ]);
 });
 
 test('fails with circular references', async () => {
