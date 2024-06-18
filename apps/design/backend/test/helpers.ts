@@ -6,7 +6,7 @@ import * as tmp from 'tmp';
 import * as grout from '@votingworks/grout';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { assertDefined } from '@votingworks/basics';
-import { LanguageCode } from '@votingworks/types';
+import { ElectionSerializationFormat, LanguageCode } from '@votingworks/types';
 import { buildApp } from '../src/app';
 import type { Api } from '../src/app';
 import {
@@ -156,12 +156,17 @@ export async function exportElectionPackage({
   apiClient,
   electionId,
   workspace,
+  electionSerializationFormat,
 }: {
   apiClient: ApiClient;
   electionId: string;
   workspace: Workspace;
+  electionSerializationFormat: ElectionSerializationFormat;
 }): Promise<string> {
-  await apiClient.exportElectionPackage({ electionId });
+  await apiClient.exportElectionPackage({
+    electionId,
+    electionSerializationFormat,
+  });
   await processNextBackgroundTaskIfAny(workspace);
 
   const electionPackage = await apiClient.getElectionPackage({

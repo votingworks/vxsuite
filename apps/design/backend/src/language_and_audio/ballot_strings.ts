@@ -19,7 +19,7 @@ export async function translateBallotStrings(
   ballotLanguageConfigs: BallotLanguageConfigs,
   machineVersion: MachineVersion
 ): Promise<UiStringsPackage> {
-  const { electionStrings } = await extractAndTranslateElectionStrings(
+  const electionStrings = await extractAndTranslateElectionStrings(
     translator,
     election,
     ballotLanguageConfigs

@@ -8,6 +8,7 @@ import {
   BallotPaperSize,
   SystemSettings,
   BallotType,
+  ElectionSerializationFormat,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -162,6 +163,7 @@ function buildApi({ workspace, translator }: AppContext) {
 
     async exportAllBallots(input: {
       electionId: Id;
+      electionSerializationFormat: ElectionSerializationFormat;
     }): Promise<{ zipContents: Buffer; electionHash: string }> {
       const { election, ballotLanguageConfigs } = store.getElection(
         input.electionId
@@ -195,7 +197,8 @@ function buildApi({ workspace, translator }: AppContext) {
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
           vxDefaultBallotTemplate,
-          ballotProps
+          ballotProps,
+          input.electionSerializationFormat
         );
 
       const zip = new JsZip();
@@ -262,12 +265,22 @@ function buildApi({ workspace, translator }: AppContext) {
       return store.getElectionPackage(electionId);
     },
 
-    exportElectionPackage({ electionId }: { electionId: Id }): void {
-      store.createElectionPackageBackgroundTask(electionId);
+    exportElectionPackage({
+      electionId,
+      electionSerializationFormat,
+    }: {
+      electionId: Id;
+      electionSerializationFormat: ElectionSerializationFormat;
+    }): void {
+      store.createElectionPackageBackgroundTask(
+        electionId,
+        electionSerializationFormat
+      );
     },
 
     async exportTestDecks(input: {
       electionId: Id;
+      electionSerializationFormat: ElectionSerializationFormat;
     }): Promise<{ zipContents: Buffer; electionHash: string }> {
       const { election, ballotLanguageConfigs } = store.getElection(
         input.electionId
@@ -295,7 +308,8 @@ function buildApi({ workspace, translator }: AppContext) {
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
           vxDefaultBallotTemplate,
-          allBallotProps
+          allBallotProps,
+          input.electionSerializationFormat
         );
       const ballots = iter(allBallotProps)
         .zip(ballotDocuments)

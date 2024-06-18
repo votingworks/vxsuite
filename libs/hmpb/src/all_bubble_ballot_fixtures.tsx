@@ -264,7 +264,8 @@ export const allBubbleBallotFixtures = (() => {
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
           allBubbleBallotTemplate,
-          [ballotProps]
+          [ballotProps],
+          'vxf'
         );
 
       const [blankBallot] = ballotDocuments;

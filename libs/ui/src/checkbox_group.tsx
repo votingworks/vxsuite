@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Button } from './button';
+import { CheckboxButton } from './checkbox_button';
 
 interface Option {
   label: string;
@@ -33,23 +33,6 @@ const OptionsContainer = styled.div<{ direction: 'row' | 'column' }>`
   gap: 0.25rem;
 `;
 
-const Option = styled(Button)`
-  background-color: ${(p) =>
-    p.color === 'neutral' && p.theme.colors.containerLow};
-  border-color: ${(p) => p.theme.colors.outline};
-  flex-wrap: nowrap;
-  font-weight: ${(p) => p.theme.sizes.fontWeight.regular};
-  justify-content: start;
-  padding-left: 0.5rem;
-  text-align: left;
-
-  /* Increase contrast between selected/unselected options when disabled by
-   * removing the darkening filter for unselected options. */
-  &[disabled] {
-    ${(p) => p.color === 'neutral' && `filter: none;`}
-  }
-`;
-
 /**
  * A group of labeled checkboxes that allow the user to select multiple options.
  */
@@ -69,24 +52,19 @@ export function CheckboxGroup({
         {options.map((option) => {
           const isSelected = value.includes(option.value);
           return (
-            <Option
+            <CheckboxButton
               key={option.label}
-              aria-checked={isSelected}
+              label={option.label}
               disabled={disabled}
-              role="checkbox"
-              fill={isSelected ? 'tinted' : 'outlined'}
-              color={isSelected ? 'primary' : 'neutral'}
-              onPress={() => {
+              isChecked={isSelected}
+              onChange={() => {
                 if (isSelected) {
                   onChange(value.filter((v) => v !== option.value));
                 } else {
                   onChange([...value, option.value]);
                 }
               }}
-              icon={isSelected ? 'Checkbox' : 'Square'}
-            >
-              {option.label}
-            </Option>
+            />
           );
         })}
       </OptionsContainer>

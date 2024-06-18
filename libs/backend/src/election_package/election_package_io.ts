@@ -138,23 +138,26 @@ async function readElectionPackageFromBuffer(
       ).unsafeUnwrap();
 
     // Extract non-CDF election strings:
-    const vxElectionStringsEntry = maybeGetFileByName(
+    const electionStringsEntry = maybeGetFileByName(
       entries,
-      ElectionPackageFileName.VX_ELECTION_STRINGS
+      ElectionPackageFileName.ELECTION_STRINGS
     );
-    const vxElectionStrings =
-      vxElectionStringsEntry &&
+    const electionStrings =
+      electionStringsEntry &&
       safeParseJson(
-        await readTextEntry(vxElectionStringsEntry),
+        await readTextEntry(electionStringsEntry),
         UiStringsPackageSchema
       ).unsafeUnwrap();
 
-    const electionStrings = cdfElection && extractCdfUiStrings(cdfElection);
+    // In the case that the election is formatted using CDF, extract translated
+    // strings from the CDF election and prioritize those over translations from
+    // the election strings file.
+    const cdfElectionStrings = cdfElection && extractCdfUiStrings(cdfElection);
 
     const uiStrings = mergeUiStrings(
       appStrings ?? {},
-      vxElectionStrings ?? {},
-      electionStrings ?? {}
+      electionStrings ?? {},
+      cdfElectionStrings ?? {}
     );
 
     // UI String Audio IDs:

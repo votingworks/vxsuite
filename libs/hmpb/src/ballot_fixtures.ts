@@ -83,7 +83,8 @@ export const famousNamesFixtures = (() => {
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
           vxDefaultBallotTemplate,
-          allBallotProps
+          allBallotProps,
+          'vxf'
         );
 
       const blankBallot = ballotDocuments[0];
@@ -250,7 +251,8 @@ export const generalElectionFixtures = (() => {
           await renderAllBallotsAndCreateElectionDefinition(
             renderer,
             vxDefaultBallotTemplate,
-            spec.allBallotProps
+            spec.allBallotProps,
+            'vxf'
           );
         const [blankBallot] = assertDefined(
           iter(ballotDocuments)
@@ -364,7 +366,8 @@ export const primaryElectionFixtures = (() => {
         await renderAllBallotsAndCreateElectionDefinition(
           renderer,
           vxDefaultBallotTemplate,
-          allBallotProps
+          allBallotProps,
+          'vxf'
         );
 
       async function generatePartyFixtures(

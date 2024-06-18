@@ -17,7 +17,7 @@ export enum ElectionPackageFileName {
   ELECTION = 'election.json',
   METADATA = 'metadata.json',
   SYSTEM_SETTINGS = 'systemSettings.json',
-  VX_ELECTION_STRINGS = 'vxElectionStrings.json',
+  ELECTION_STRINGS = 'electionStrings.json',
 }
 
 export interface ElectionPackage {

@@ -4,6 +4,7 @@ import path from 'path';
 import { pipeline } from 'stream/promises';
 import {
   BallotType,
+  ElectionSerializationFormat,
   ElectionPackageFileName,
   ElectionPackageMetadata,
   getDisplayElectionHash,
@@ -26,7 +27,13 @@ import { WorkerContext } from './context';
 
 export async function generateElectionPackage(
   { speechSynthesizer, translator, workspace }: WorkerContext,
-  { electionId }: { electionId: Id }
+  {
+    electionId,
+    electionSerializationFormat,
+  }: {
+    electionId: Id;
+    electionSerializationFormat: ElectionSerializationFormat;
+  }
 ): Promise<void> {
   const { assetDirectoryPath, store } = workspace;
 
@@ -50,15 +57,14 @@ export async function generateElectionPackage(
     JSON.stringify(appStrings, null, 2)
   );
 
-  const { electionStrings, vxElectionStrings } =
-    await extractAndTranslateElectionStrings(
-      translator,
-      election,
-      ballotLanguageConfigs
-    );
+  const electionStrings = await extractAndTranslateElectionStrings(
+    translator,
+    election,
+    ballotLanguageConfigs
+  );
   zip.file(
-    ElectionPackageFileName.VX_ELECTION_STRINGS,
-    JSON.stringify(vxElectionStrings, null, 2)
+    ElectionPackageFileName.ELECTION_STRINGS,
+    JSON.stringify(electionStrings, null, 2)
   );
 
   const renderer = await createPlaywrightRenderer();
@@ -76,7 +82,8 @@ export async function generateElectionPackage(
         precinctId: ballotStyle.precincts[0],
         ballotType: BallotType.Precinct,
         ballotMode: 'test',
-      }))
+      })),
+      electionSerializationFormat
     );
   zip.file(ElectionPackageFileName.ELECTION, electionDefinition.electionData);
   // eslint-disable-next-line no-console

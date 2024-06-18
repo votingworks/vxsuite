@@ -8,10 +8,14 @@ import {
   useQueryChangeListener,
   LoadingButton,
   Icons,
+  CheckboxButton,
 } from '@votingworks/ui';
 import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
-import { getDisplayElectionHash } from '@votingworks/types';
+import {
+  ElectionSerializationFormat,
+  getDisplayElectionHash,
+} from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import {
   exportAllBallots,
@@ -31,6 +35,8 @@ export function ExportScreen(): JSX.Element | null {
   const exportElectionPackageMutation = exportElectionPackage.useMutation();
   const exportTestDecksMutation = exportTestDecks.useMutation();
 
+  const [electionSerializationFormat, setElectionSerializationFormat] =
+    useState<ElectionSerializationFormat>('vxf');
   const [exportError, setExportError] = useState<string>();
 
   useQueryChangeListener(electionPackageQuery, {
@@ -54,7 +60,7 @@ export function ExportScreen(): JSX.Element | null {
   function onPressExportAllBallots() {
     setExportError(undefined);
     exportAllBallotsMutation.mutate(
-      { electionId },
+      { electionId, electionSerializationFormat },
       {
         onSuccess: ({ zipContents, electionHash }) => {
           fileDownload(
@@ -69,7 +75,7 @@ export function ExportScreen(): JSX.Element | null {
   function onPressExportTestDecks() {
     setExportError(undefined);
     exportTestDecksMutation.mutate(
-      { electionId },
+      { electionId, electionSerializationFormat },
       {
         onSuccess: ({ zipContents, electionHash }) => {
           fileDownload(
@@ -83,7 +89,10 @@ export function ExportScreen(): JSX.Element | null {
 
   function onPressExportElectionPackage() {
     setExportError(undefined);
-    exportElectionPackageMutation.mutate({ electionId });
+    exportElectionPackageMutation.mutate({
+      electionId,
+      electionSerializationFormat,
+    });
   }
 
   if (!electionPackageQuery.isSuccess) {
@@ -132,6 +141,16 @@ export function ExportScreen(): JSX.Element | null {
             <Icons.Danger /> An unexpected error occurred. Please try again.
           </P>
         )}
+
+        <P style={{ width: 'max-content' }}>
+          <CheckboxButton
+            label="Format election using CDF"
+            isChecked={electionSerializationFormat === 'cdf'}
+            onChange={(isChecked) =>
+              setElectionSerializationFormat(isChecked ? 'cdf' : 'vxf')
+            }
+          />
+        </P>
       </MainContent>
     </ElectionNavScreen>
   );
