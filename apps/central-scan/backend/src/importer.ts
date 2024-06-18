@@ -268,6 +268,7 @@ export class Importer {
    */
   async startImport(): Promise<string> {
     this.getElectionDefinition(); // ensure election definition is loaded
+    //  TODO(#4939) const hasImprinter = await this.scanner.isImprinterAttached();
 
     if (this.sheetGenerator) {
       throw new Error('scanning already in progress');

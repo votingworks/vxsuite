@@ -98,6 +98,10 @@ export function makeMockScanner(): MockScanner {
       return true;
     },
 
+    async isImprinterAttached(): Promise<boolean> {
+      return Promise.resolve(false);
+    },
+
     scanSheets(): BatchControl {
       const session = nextScannerSession;
       nextScannerSession = undefined;

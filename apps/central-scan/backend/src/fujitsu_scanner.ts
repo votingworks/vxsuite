@@ -18,6 +18,9 @@ export const FUJITSU_VENDOR_ID = 0x4c5;
 export const FUJITSU_FI_7160_PRODUCT_ID = 0x132e;
 export const FUJITSU_FI_8170_PRODUCT_ID = 0x15ff;
 
+export const EXPECTED_IMPRINTER_UNATTACHED_ERROR =
+  'attempted to set readonly option endorser';
+
 export interface BatchControl {
   scanSheet(): Promise<SheetOf<string> | undefined>;
   endBatch(): Promise<void>;
@@ -30,6 +33,7 @@ export interface ScanOptions {
 
 export interface BatchScanner {
   isAttached(): boolean;
+  isImprinterAttached(): Promise<boolean>;
   scanSheets(options?: ScanOptions): BatchControl;
 }
 
@@ -80,6 +84,31 @@ export class FujitsuScanner implements BatchScanner {
     return isDeviceAttached(
       (device) => device.deviceDescriptor.idVendor === FUJITSU_VENDOR_ID
     );
+  }
+
+  async isImprinterAttached(): Promise<boolean> {
+    return new Promise((resolve) => {
+      const process = streamExecFile('scanimage', [
+        '-d',
+        'fujitsu',
+        '--endorser=yes',
+        '--format=jpeg',
+        '-n',
+      ]);
+
+      assert(process.stderr);
+      process.stderr.on('data', (data: string) => {
+        // If there is no imprinter attached a message will be sent to stderr
+        // that the endorser parameter is readonly.
+        if (data.includes(EXPECTED_IMPRINTER_UNATTACHED_ERROR)) {
+          resolve(false);
+        }
+      });
+
+      process.on('close', () => {
+        resolve(true);
+      });
+    });
   }
 
   scanSheets({

@@ -4,6 +4,7 @@ import { ChildProcess } from 'child_process';
 import { mockOf } from '@votingworks/test-utils';
 import { Device, isDeviceAttached } from '@votingworks/backend';
 import {
+  EXPECTED_IMPRINTER_UNATTACHED_ERROR,
   FUJITSU_VENDOR_ID,
   FujitsuScanner,
   ScannerMode,
@@ -306,4 +307,31 @@ test('attached based on detected USB devices', () => {
       },
     } as unknown as Device)
   ).toEqual(false);
+});
+
+test('fujitsu scanner calls scanimage to determine if imprinter is attached', async () => {
+  const scanimage = makeMockChildProcess();
+  const scanner = new FujitsuScanner({
+    logger: new BaseLogger(LogSource.VxScanService),
+  });
+
+  exec.mockReturnValueOnce(scanimage);
+  const isImprinterAttached = scanner.isImprinterAttached();
+  scanimage.emit('close', 0, null);
+  await expect(isImprinterAttached).resolves.toEqual(true);
+});
+
+test('fujitsu scanner calls scanimage to determine if imprinter is attached handles unattached state as expected', async () => {
+  const scanimage = makeMockChildProcess();
+  const scanner = new FujitsuScanner({
+    logger: new BaseLogger(LogSource.VxScanService),
+  });
+
+  exec.mockReturnValueOnce(scanimage);
+  const isImprinterAttached = scanner.isImprinterAttached();
+  scanimage.stderr.append(
+    `some text ${EXPECTED_IMPRINTER_UNATTACHED_ERROR} more text`
+  );
+  scanimage.emit('close', 0, null);
+  await expect(isImprinterAttached).resolves.toEqual(false);
 });
