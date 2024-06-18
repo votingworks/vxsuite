@@ -61,9 +61,13 @@ export const famousNamesFixtures = (() => {
   const votes: VotesDict = Object.fromEntries(
     contests.map((contest, i) => {
       assert(contest.type === 'candidate');
-      const candidates = range(0, contest.seats).map(
-        (j) => contest.candidates[(i + j) % contest.candidates.length]
-      );
+      const candidates = range(0, contest.seats)
+        .map((j) => contest.candidates[(i + j) % contest.candidates.length])
+        // list candidates in the order they appear on the ballot
+        .sort(
+          (a, b) =>
+            contest.candidates.indexOf(a) - contest.candidates.indexOf(b)
+        );
       return [contest.id, candidates];
     })
   );

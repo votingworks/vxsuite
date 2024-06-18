@@ -3,7 +3,6 @@ import {
   electionFamousNames2021Fixtures,
   electionGeneralDefinition,
 } from '@votingworks/fixtures';
-import { writeImageData } from '@votingworks/image-utils';
 import { mockOf } from '@votingworks/test-utils';
 import {
   BallotStyleId,
@@ -23,11 +22,7 @@ import {
   DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
   DEFAULT_FAMOUS_NAMES_VOTES,
 } from '../test/fixtures';
-import {
-  convertBallotToImages,
-  renderTestModeBallot,
-} from '../test/helpers/ballots';
-import { tmpDir } from '../test/helpers/tmp';
+import { ballotFixture, renderTestModeBallot } from '../test/helpers/ballots';
 import {
   interpretSheet,
   interpretSimplexBmdBallotFromFilepath,
@@ -52,21 +47,14 @@ describe('VX BMD interpretation', () => {
   let validBmdSheet: SheetOf<string>;
 
   beforeAll(async () => {
-    const ballotImages = await convertBallotToImages(
+    validBmdSheet = await ballotFixture(
       await renderTestModeBallot(
         electionFamousNames2021Fixtures.electionDefinition,
         precinctId,
         ballotStyleId,
         DEFAULT_FAMOUS_NAMES_VOTES
       )
-    );
-
-    const dir = tmpDir();
-    validBmdSheet = await mapSheet(ballotImages, async (image, side) => {
-      const path = `${dir}/${side}.png`;
-      await writeImageData(path, image);
-      return path;
-    });
+    ).asBmdSheetPaths();
     [bmdSummaryBallotPage, bmdBlankPage] = validBmdSheet;
   });
 

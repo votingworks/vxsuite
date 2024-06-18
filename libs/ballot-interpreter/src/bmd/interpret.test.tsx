@@ -13,15 +13,16 @@ import {
   DEFAULT_FAMOUS_NAMES_VOTES,
 } from '../../test/fixtures';
 import {
-  convertBallotToImages,
+  BallotFixture,
+  ballotFixture,
   renderTestModeBallot,
 } from '../../test/helpers/ballots';
 import { InterpretResult, interpret } from './interpret';
 
-let famousNamesBmdCard: SheetOf<ImageData>;
+let famousNamesBmdBallot: BallotFixture;
 
 beforeAll(async () => {
-  famousNamesBmdCard = await convertBallotToImages(
+  famousNamesBmdBallot = ballotFixture(
     await renderTestModeBallot(
       electionFamousNames2021Fixtures.electionDefinition,
       DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
@@ -32,7 +33,7 @@ beforeAll(async () => {
 });
 
 test('happy path: front, back', async () => {
-  const card = famousNamesBmdCard;
+  const card = await famousNamesBmdBallot.asBmdSheetImages();
   const result = await interpret(
     electionFamousNames2021Fixtures.electionDefinition,
     card
@@ -47,7 +48,7 @@ test('happy path: front, back', async () => {
 });
 
 test('happy path: back, front', async () => {
-  const card = famousNamesBmdCard;
+  const card = await famousNamesBmdBallot.asBmdSheetImages();
   const result = await interpret(
     electionFamousNames2021Fixtures.electionDefinition,
     [card[1], card[0]]
@@ -79,10 +80,8 @@ test('votes not found', async () => {
 });
 
 test('multiple QR codes', async () => {
-  const card: SheetOf<ImageData> = [
-    famousNamesBmdCard[0],
-    famousNamesBmdCard[0],
-  ];
+  const [page1] = await famousNamesBmdBallot.asBmdSheetImages();
+  const card: SheetOf<ImageData> = [page1, page1];
   const result = await interpret(
     electionFamousNames2021Fixtures.electionDefinition,
     card
@@ -96,7 +95,7 @@ test('multiple QR codes', async () => {
 });
 
 test('mismatched election', async () => {
-  const card = famousNamesBmdCard;
+  const card = await famousNamesBmdBallot.asBmdSheetImages();
   const result = await interpret(
     electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
     card
