@@ -1,4 +1,4 @@
-import { assert, mapObject } from '@votingworks/basics';
+import { assert, deferred, mapObject } from '@votingworks/basics';
 import tmp from 'tmp';
 import {
   electionFamousNames2021Fixtures,
@@ -439,10 +439,16 @@ test('ballot invalidation flow', async () => {
 });
 
 test('ballot validation flow', async () => {
+  const deferredEjection = deferred<boolean>();
+  const mockEject = jest.spyOn(driver, 'ejectBallotToRear');
+  mockEject.mockReturnValue(deferredEjection.promise);
+
   await configureForTestElection(electionGeneralDefinition);
   await mockLoadAndPrint(apiClient, driver);
   await apiClient.validateBallot();
-  await waitForStatus('ballot_accepted');
+  await waitForStatus('ejecting_to_rear');
+
+  deferredEjection.resolve(true);
 });
 
 test('removing ballot during presentation', async () => {
@@ -486,6 +492,10 @@ function expectVotesEqual(expected: VotesDict, actual: VotesDict) {
 test('printing ballots', async () => {
   const printBallotSpy = jest.spyOn(stateMachine, 'printBallot');
 
+  const deferredEjection = deferred<boolean>();
+  const mockEject = jest.spyOn(driver, 'ejectBallotToRear');
+  mockEject.mockReturnValue(deferredEjection.promise);
+
   const electionDefinition = getMockMultiLanguageElectionDefinition(
     electionGeneralDefinition,
     [LanguageCode.ENGLISH, LanguageCode.CHINESE_SIMPLIFIED]
@@ -520,7 +530,10 @@ test('printing ballots', async () => {
   expectVotesEqual(interpretation.votes, mockVotes);
 
   await apiClient.validateBallot();
-  await waitForStatus('ballot_accepted');
+  await waitForStatus('ejecting_to_rear');
+
+  deferredEjection.resolve(true);
+  driver.setMockStatus('noPaper');
   await waitForStatus('not_accepting_paper');
 
   // vote a ballot in Chinese

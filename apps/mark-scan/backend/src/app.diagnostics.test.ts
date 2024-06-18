@@ -21,10 +21,7 @@ import {
 } from '@votingworks/backend';
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import {
-  MockPaperHandlerDriver,
-  PaperHandlerStatus,
-} from '@votingworks/custom-paper-handler';
+import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { assertDefined, deferred } from '@votingworks/basics';
 import {
   InterpretFileResult,
@@ -40,11 +37,6 @@ import {
 } from '../test/app_helpers';
 import { PaperHandlerStateMachine } from './custom-paper-handler/state_machine';
 import { isAccessibleControllerDaemonRunning } from './util/controllerd';
-import {
-  getDefaultPaperHandlerStatus,
-  getPaperInFrontStatus,
-  getPaperParkedStatus,
-} from './custom-paper-handler/test_utils';
 import { mockSystemAdminAuth } from '../test/auth_helpers';
 import {
   DIAGNOSTIC_ELECTION_PATH,
@@ -85,7 +77,6 @@ jest.mock(
 jest.mock('./pat-input/connection_status_reader');
 jest.mock('./util/controllerd');
 jest.mock('./custom-paper-handler/application_driver');
-jest.mock('@votingworks/custom-paper-handler');
 jest.mock('@votingworks/ballot-interpreter');
 
 let apiClient: grout.Client<Api>;
@@ -274,10 +265,6 @@ test('failure saving the readiness report', async () => {
   );
 });
 
-function mockDriverStatus(status: PaperHandlerStatus) {
-  mockOf(driver.getPaperHandlerStatus).mockResolvedValue(status);
-}
-
 describe('paper handler diagnostic', () => {
   test('success', async () => {
     const electionDefinition = (
@@ -313,15 +300,15 @@ describe('paper handler diagnostic', () => {
       mockInterpretResult.promise
     );
 
-    mockDriverStatus(getDefaultPaperHandlerStatus());
+    driver.setMockStatus('noPaper');
 
     await apiClient.startPaperHandlerDiagnostic();
     await waitForStatus('paper_handler_diagnostic.prompt_for_paper');
 
-    mockDriverStatus(getPaperInFrontStatus());
+    driver.setMockStatus('paperInserted');
     await waitForStatus('paper_handler_diagnostic.load_paper');
 
-    mockDriverStatus(getPaperParkedStatus());
+    driver.setMockStatus('paperParked');
     await waitForStatus('paper_handler_diagnostic.print_ballot_fixture');
     // Chromium, used by print_ballot_fixture, needs some time to spin up
     await waitForStatus('paper_handler_diagnostic.scan_ballot', 300);
@@ -332,7 +319,7 @@ describe('paper handler diagnostic', () => {
     mockInterpretResult.resolve(interpretationMock);
     await waitForStatus('paper_handler_diagnostic.eject_to_rear');
 
-    mockDriverStatus(getDefaultPaperHandlerStatus());
+    driver.setMockStatus('noPaper');
     await waitForStatus('paper_handler_diagnostic.success');
 
     const record = await apiClient.getMostRecentDiagnostic({
@@ -346,12 +333,12 @@ describe('paper handler diagnostic', () => {
 
     mockOf(loadAndParkPaper).mockRejectedValue('error');
 
-    mockDriverStatus(getDefaultPaperHandlerStatus());
+    driver.setMockStatus('noPaper');
     await apiClient.startPaperHandlerDiagnostic();
 
     await waitForStatus('paper_handler_diagnostic.prompt_for_paper');
 
-    mockDriverStatus(getPaperInFrontStatus());
+    driver.setMockStatus('paperInserted');
     // Error is hit as soon as paper is loaded, sending state machine back to
     // its history state in the voting flow
     await waitForStatus('not_accepting_paper');
