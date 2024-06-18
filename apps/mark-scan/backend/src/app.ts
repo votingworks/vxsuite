@@ -33,6 +33,10 @@ import {
 import { LogEventId, Logger } from '@votingworks/logging';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
+import {
+  PaperHandlerDriverInterface,
+  isMockPaperHandler,
+} from '@votingworks/custom-paper-handler';
 import { getMachineConfig } from './machine_config';
 import { Workspace, constructAuthMachineState } from './util/workspace';
 import {
@@ -64,7 +68,8 @@ export function buildApi(
   usbDrive: UsbDrive,
   logger: Logger,
   workspace: Workspace,
-  stateMachine?: PaperHandlerStateMachine
+  stateMachine?: PaperHandlerStateMachine,
+  paperHandler?: PaperHandlerDriverInterface
 ) {
   const { store } = workspace;
 
@@ -195,6 +200,12 @@ export function buildApi(
     setAcceptingPaperState(): void {
       assert(stateMachine);
       stateMachine.setAcceptingPaper();
+
+      // TODO(kofi): Remove once we've added mock paper handler functionality to the
+      // dev dock:
+      if (isMockPaperHandler(paperHandler)) {
+        void paperHandler.setMockStatus({ mockStatus: 'paperInserted' });
+      }
     },
 
     /**
@@ -214,7 +225,7 @@ export function buildApi(
         store,
         ...input,
       });
-      void stateMachine.printBallot(pdfData);
+      stateMachine.printBallot(pdfData);
     },
 
     getInterpretation(): InterpretedBmdPage | null {
@@ -421,10 +432,18 @@ export function buildApp(
   logger: Logger,
   workspace: Workspace,
   usbDrive: UsbDrive,
-  stateMachine?: PaperHandlerStateMachine
+  stateMachine?: PaperHandlerStateMachine,
+  paperHandler?: PaperHandlerDriverInterface
 ): Application {
   const app: Application = express();
-  const api = buildApi(auth, usbDrive, logger, workspace, stateMachine);
+  const api = buildApi(
+    auth,
+    usbDrive,
+    logger,
+    workspace,
+    stateMachine,
+    paperHandler
+  );
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express, 'mark-scan');
   return app;

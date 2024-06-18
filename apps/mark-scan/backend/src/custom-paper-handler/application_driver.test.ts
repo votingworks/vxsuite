@@ -6,6 +6,9 @@ import {
   VERTICAL_DOTS_IN_CHUNK,
   getPaperHandlerDriver,
   PaperHandlerStatus,
+  isPaperAnywhere,
+  MockPaperHandlerDriver,
+  isMockPaperHandler,
 } from '@votingworks/custom-paper-handler';
 import { Buffer } from 'buffer';
 import { join } from 'path';
@@ -106,6 +109,7 @@ test('scanAndSave success', async () => {
     parkSensor: true,
   };
   mockOf(driver.getPaperHandlerStatus).mockResolvedValue(status);
+  mockOf(isPaperAnywhere).mockReturnValue(true);
 
   await scanAndSave(driver);
 
@@ -138,6 +142,14 @@ test('resetAndReconnect', async () => {
   expect(newMockDriver.setLineSpacing).toHaveBeenCalledWith(0);
   expect(newMockDriver.setPrintingSpeed).toHaveBeenCalledTimes(1);
   expect(newMockDriver.setPrintingSpeed).toHaveBeenCalledWith('slow');
+});
+
+test('resetAndReconnect - is no-op for mock driver', async () => {
+  const mockDriver = new MockPaperHandlerDriver();
+  mockOf(isMockPaperHandler).mockReturnValue(true);
+
+  expect(await resetAndReconnect(mockDriver)).toEqual(mockDriver);
+  expect(mockOf(getPaperHandlerDriver)).not.toHaveBeenCalled();
 });
 
 test('loadAndParkPaper', async () => {

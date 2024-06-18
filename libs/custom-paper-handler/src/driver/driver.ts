@@ -1,6 +1,3 @@
-/* eslint-disable vx/gts-no-public-class-fields */
-// public class fields allowed so the driver class can inherit from PaperHandlerDriverInterface,
-// the interface shared by implementation and mock. Interfaces definitionally can't have private properties.
 import { findByIds, WebUSBDevice } from 'usb';
 import makeDebug from 'debug';
 import { assert, Optional, Result, sleep } from '@votingworks/basics';
@@ -18,13 +15,6 @@ import {
   ImageData,
   writeImageData,
 } from '@votingworks/image-utils';
-import {
-  ImageColorDepthType,
-  ImageFileFormat,
-  ImageFromScanner,
-  ImageResolution,
-  ScanSide,
-} from '@votingworks/custom-scanner';
 import {
   assertNumberIsInRangeInclusive,
   assertUint16,
@@ -150,10 +140,10 @@ export async function getPaperHandlerWebDevice(): Promise<
 }
 
 export class PaperHandlerDriver implements PaperHandlerDriverInterface {
-  readonly genericLock = new Lock();
-  readonly realTimeLock = new Lock();
-  readonly scannerConfig: ScannerConfig = getDefaultConfig();
-  webDevice: MinimalWebUsbDevice;
+  private readonly genericLock = new Lock();
+  private readonly realTimeLock = new Lock();
+  private readonly scannerConfig: ScannerConfig = getDefaultConfig();
+  private readonly webDevice: MinimalWebUsbDevice;
 
   constructor(_webDevice: MinimalWebUsbDevice) {
     this.webDevice = _webDevice;
@@ -179,13 +169,6 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     // debug('released usb interface');
     await this.webDevice.close();
     debug('closed web usb device');
-  }
-
-  /**
-   * Should be private, but exposed for development.
-   */
-  getWebDevice(): MinimalWebUsbDevice {
-    return this.webDevice;
   }
 
   /**
@@ -553,7 +536,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     );
   }
 
-  async scanAndSave(pathOut: string): Promise<ImageFromScanner> {
+  async scanAndSave(pathOut: string): Promise<void> {
     debug('setting scan direction');
     await this.setScanDirection('backward');
     const grayscaleResult = await this.scan();
@@ -579,17 +562,6 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
         (luminance << 24) | (luminance << 16) | (luminance << 8) | 255;
     }
     await writeImageData(pathOut, colorResult);
-
-    const imageMetadata: ImageFromScanner = {
-      imageBuffer: Buffer.from(colorResult.data),
-      imageWidth: grayscaleResult.width,
-      imageHeight: grayscaleResult.height,
-      imageDepth: ImageColorDepthType.Color24bpp, // Hardcode for now?
-      imageFormat: ImageFileFormat.Jpeg,
-      scanSide: ScanSide.A,
-      imageResolution: ImageResolution.RESOLUTION_200_DPI, // Confirm this
-    };
-    return imageMetadata;
   }
 
   /**

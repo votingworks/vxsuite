@@ -53,7 +53,6 @@ import {
   setPollsState,
   setTestMode,
 } from '../api';
-import { PaperHandlerHardwareCheckDisabledScreen } from './paper_handler_hardware_check_disabled_screen';
 import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
 import { LiveCheckButton } from '../components/live_check_button';
 
@@ -248,14 +247,6 @@ export function PollWorkerScreen({
   }
 
   if (pollWorkerAuth.cardlessVoterUser) {
-    if (
-      isFeatureFlagEnabled(
-        BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
-      )
-    ) {
-      return <PaperHandlerHardwareCheckDisabledScreen />;
-    }
-
     const { precinctId, ballotStyleId } = pollWorkerAuth.cardlessVoterUser;
     const precinct = find(election.precincts, (p) => p.id === precinctId);
 

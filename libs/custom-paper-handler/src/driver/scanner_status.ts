@@ -58,3 +58,7 @@ export function isPaperAnywhere(
     isPaperInScanner(paperHandlerStatus)
   );
 }
+
+export function isPaperParked(paperHandlerStatus: PaperHandlerStatus): boolean {
+  return paperHandlerStatus.parkSensor;
+}

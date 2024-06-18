@@ -17,8 +17,6 @@ import {
   isCardlessVoterAuth,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
-  isFeatureFlagEnabled,
-  BooleanEnvironmentVariableName,
   isVendorAuth,
 } from '@votingworks/utils';
 import {
@@ -332,10 +330,7 @@ export function AppRoot(): JSX.Element | null {
     return <SetupCardReaderPage />;
   }
 
-  if (
-    stateMachineState === 'no_hardware' &&
-    !isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER)
-  ) {
+  if (stateMachineState === 'no_hardware') {
     return <NoPaperHandlerPage />;
   }
 
@@ -453,14 +448,8 @@ export function AppRoot(): JSX.Element | null {
       return <EmptyBallotBoxPage authStatus={authStatus} />;
     }
 
-    if (
-      !isFeatureFlagEnabled(
-        BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
-      )
-    ) {
-      if (stateMachineState === 'ejecting_to_rear') {
-        return <CastingBallotPage />;
-      }
+    if (stateMachineState === 'ejecting_to_rear') {
+      return <CastingBallotPage />;
     }
 
     if (
@@ -526,11 +515,8 @@ export function AppRoot(): JSX.Element | null {
         // This problem is caused by conditioning on auth in both the frontend and backend. The long term fix is to
         // move auth entirely to the backend.
         // https://github.com/votingworks/vxsuite/issues/3985
-        (isFeatureFlagEnabled(
-          BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
-        ) ||
-          (stateMachineState !== 'accepting_paper' &&
-            stateMachineState !== 'not_accepting_paper'))
+        stateMachineState !== 'accepting_paper' &&
+        stateMachineState !== 'not_accepting_paper'
       ) {
         return (
           <VoterFlow
