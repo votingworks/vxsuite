@@ -86,6 +86,10 @@ export class LoopScanner implements BatchScanner {
     return true;
   }
 
+  isImprinterAttached(): Promise<boolean> {
+    return Promise.resolve(false);
+  }
+
   /**
    * "Scans" the next sheet by returning the paths for the next two images.
    */
