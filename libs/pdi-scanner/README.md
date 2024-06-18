@@ -25,21 +25,24 @@ pnpm test
 pnpm build
 ```
 
-You can then run the demo script to test that the driver is working properly, note that this script does NOT print anything on the command line, it simply will put the scanner in a loop where it will start reading in pages that are fed in. 
-
-If the demo script outputs the following error you need to give higher permissions to the USB Device: 
+Add this udev rule to `/etc/udev/rules.d/99-pdi-scanner.rules` to allow the
+scanner to be accessed without root permissions:
 
 ```sh
-{
-  response: 'error',
-  code: 'other',
-  message: 'usb error: rusb error: Access denied (insufficient permissions)'
-}
+SUBSYSTEM=="usb", ATTR{idVendor}=="0bd7", ATTR{idProduct}=="a002", MODE="0660", GROUP="scanner"
 ```
-You can do that by running `lsusb` and look for the entry that reads something like “Andrew Pargeter & Associates PageScan 6D” take note of the Bus and Device 3 digit IDs. Then run:
+
+Then reload the udev rules:
+
 ```sh
-sudo chmod 777 /dev/bus/usb/<3-digit-bus-number>/<3-digit-device-number>
+sudo udevadm control --reload-rules
+sudo udevadm trigger
 ```
+
+You can then run the demo script to test that the driver is working properly,
+note that this script does NOT print anything on the command line, it simply
+will put the scanner in a loop where it will start reading in pages that are fed
+in.
 
 To enable Rust debug logging, set the
 [`RUST_LOG` environment variable](https://docs.rs/tracing-subscriber/latest/tracing_subscriber/filter/struct.EnvFilter.html)
