@@ -327,7 +327,7 @@ export function arbitraryRequest(): fc.Arbitrary<AnyRequest> {
           type: 'JobCreateRequest',
           coder: JobCreateRequest,
           value,
-        } as const)
+        }) as const
     ),
     arbitraryJobEndRequest().map(
       (value) =>
@@ -335,7 +335,7 @@ export function arbitraryRequest(): fc.Arbitrary<AnyRequest> {
           type: 'JobEndRequest',
           coder: JobEndRequest,
           value,
-        } as const)
+        }) as const
     ),
     arbitraryGetImageDataRequest().map(
       (value) =>
@@ -343,7 +343,7 @@ export function arbitraryRequest(): fc.Arbitrary<AnyRequest> {
           type: 'GetImageDataRequest',
           coder: GetImageDataRequest,
           value,
-        } as const)
+        }) as const
     ),
     arbitrarySetScanParametersRequest().map(
       (value) =>
@@ -351,7 +351,7 @@ export function arbitraryRequest(): fc.Arbitrary<AnyRequest> {
           type: 'SetScanParametersRequest',
           coder: SetScanParametersRequest,
           value,
-        } as const)
+        }) as const
     ),
     arbitrarySetScanParametersRequestData().map(
       (value) =>
@@ -359,7 +359,7 @@ export function arbitraryRequest(): fc.Arbitrary<AnyRequest> {
           type: 'SetScanParametersRequestData',
           coder: SetScanParametersRequestData,
           value,
-        } as const)
+        }) as const
     ),
     arbitraryStartScanRequest().map(
       (value) =>
@@ -367,7 +367,7 @@ export function arbitraryRequest(): fc.Arbitrary<AnyRequest> {
           type: 'StartScanRequest',
           coder: StartScanRequest,
           value,
-        } as const)
+        }) as const
     ),
     arbitraryStopScanRequest().map(
       (value) =>
@@ -375,7 +375,7 @@ export function arbitraryRequest(): fc.Arbitrary<AnyRequest> {
           type: 'StopScanRequest',
           coder: StopScanRequest,
           value,
-        } as const)
+        }) as const
     ),
     arbitraryHardwareResetRequest().map(
       (value) =>
@@ -383,7 +383,7 @@ export function arbitraryRequest(): fc.Arbitrary<AnyRequest> {
           type: 'HardwareResetRequest',
           coder: HardwareResetRequest,
           value,
-        } as const)
+        }) as const
     ),
     arbitraryFormMovementRequest().map(
       (value) =>
@@ -391,7 +391,7 @@ export function arbitraryRequest(): fc.Arbitrary<AnyRequest> {
           type: 'FormMovementRequest',
           coder: FormMovementRequest,
           value,
-        } as const)
+        }) as const
     ),
     arbitraryStatusInternalRequest().map(
       (value) =>
@@ -399,7 +399,7 @@ export function arbitraryRequest(): fc.Arbitrary<AnyRequest> {
           type: 'StatusInternalRequest',
           coder: StatusInternalRequest,
           value,
-        } as const)
+        }) as const
     ),
     arbitraryReleaseVersionRequest().map(
       (value) =>
@@ -407,7 +407,7 @@ export function arbitraryRequest(): fc.Arbitrary<AnyRequest> {
           type: 'ReleaseVersionRequest',
           coder: ReleaseVersionRequest,
           value,
-        } as const)
+        }) as const
     ),
     arbitraryMapParametersRequest().map(
       (value) =>
@@ -415,7 +415,7 @@ export function arbitraryRequest(): fc.Arbitrary<AnyRequest> {
           type: 'MapParametersRequest',
           coder: MapParametersRequest,
           value,
-        } as const)
+        }) as const
     ),
     arbitraryMapParametersRequestData().map(
       (value) =>
@@ -423,7 +423,7 @@ export function arbitraryRequest(): fc.Arbitrary<AnyRequest> {
           type: 'MapParametersRequestData',
           coder: MapParametersRequestData,
           value,
-        } as const)
+        }) as const
     )
   );
 }
@@ -499,7 +499,7 @@ export function arbitraryResponse(): fc.Arbitrary<AnyResponse> {
           type: 'AckResponseMessage',
           coder: AckResponseMessage,
           value,
-        } as const)
+        }) as const
     ),
     arbitraryErrorResponseMessage().map(
       (value) =>
@@ -507,7 +507,7 @@ export function arbitraryResponse(): fc.Arbitrary<AnyResponse> {
           type: 'ErrorResponseMessage',
           coder: ErrorResponseMessage,
           value,
-        } as const)
+        }) as const
     ),
     arbitraryDataResponseMessage().map(
       (value) =>
@@ -515,7 +515,7 @@ export function arbitraryResponse(): fc.Arbitrary<AnyResponse> {
           type: 'DataResponseMessage',
           coder: DataResponseMessage,
           value,
-        } as const)
+        }) as const
     ),
     arbitraryStatusInternalMessage().map(
       (value) =>
@@ -523,7 +523,7 @@ export function arbitraryResponse(): fc.Arbitrary<AnyResponse> {
           type: 'StatusInternalMessage',
           coder: StatusInternalMessage,
           value,
-        } as const)
+        }) as const
     )
   );
 }
