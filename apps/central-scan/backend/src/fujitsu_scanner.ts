@@ -2,11 +2,7 @@ import { assert, deferredQueue } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { join } from 'path';
 import { dirSync } from 'tmp';
-import {
-  BallotPaperSize,
-  SheetOf,
-  ballotPaperDimensions,
-} from '@votingworks/types';
+import { BallotPaperSize, ballotPaperDimensions } from '@votingworks/types';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { isDeviceAttached } from '@votingworks/backend';
 import { streamExecFile } from './exec';
@@ -21,8 +17,14 @@ export const FUJITSU_FI_8170_PRODUCT_ID = 0x15ff;
 export const EXPECTED_IMPRINTER_UNATTACHED_ERROR =
   'attempted to set readonly option endorser';
 
+export interface ScannedSheetInfo {
+  frontPath: string;
+  backPath: string;
+  ballotAuditId?: string;
+}
+
 export interface BatchControl {
-  scanSheet(): Promise<SheetOf<string> | undefined>;
+  scanSheet(): Promise<ScannedSheetInfo | undefined>;
   endBatch(): Promise<void>;
 }
 
@@ -165,7 +167,7 @@ export class FujitsuScanner implements BatchScanner {
     );
 
     const scannedFiles: string[] = [];
-    const results = deferredQueue<Promise<SheetOf<string> | undefined>>();
+    const results = deferredQueue<Promise<ScannedSheetInfo | undefined>>();
     let done = false;
     const scanimage = streamExecFile('scanimage', args);
 
@@ -194,7 +196,16 @@ export class FujitsuScanner implements BatchScanner {
       scannedFiles.push(path);
       if (scannedFiles.length % 2 === 0) {
         const [frontPath, backPath] = scannedFiles.slice(-2);
-        results.resolve(Promise.resolve([frontPath, backPath]));
+        results.resolve(
+          Promise.resolve({
+            frontPath,
+            backPath,
+            ballotAuditId:
+              imprintIdPrefix !== undefined
+                ? `${imprintIdPrefix}_${zeroPad(scannedFiles.length / 2)}`
+                : undefined, // TODO(CARO) figure out what this should actually be
+          })
+        );
       }
     });
 
@@ -238,7 +249,7 @@ export class FujitsuScanner implements BatchScanner {
     });
 
     return {
-      scanSheet: async (): Promise<SheetOf<string> | undefined> => {
+      scanSheet: async (): Promise<ScannedSheetInfo | undefined> => {
         if (results.isEmpty() && !done) {
           debug(
             'scanimage [pid=%d] sending RETURN twice to scan another sheet',

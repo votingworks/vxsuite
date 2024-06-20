@@ -12,7 +12,11 @@ import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { interpretSheetAndSaveImages } from '@votingworks/ballot-interpreter';
 import { Logger } from '@votingworks/logging';
-import { BatchControl, BatchScanner } from './fujitsu_scanner';
+import {
+  BatchControl,
+  BatchScanner,
+  ScannedSheetInfo,
+} from './fujitsu_scanner';
 import { Workspace } from './util/workspace';
 import {
   describeValidationError,
@@ -67,18 +71,29 @@ export class Importer {
   }
 
   private async sheetAdded(
-    paths: SheetOf<string>,
+    sheetInfo: ScannedSheetInfo,
     batchId: string
   ): Promise<string> {
     const start = Date.now();
     try {
-      debug('sheetAdded %o batchId=%s STARTING', paths, batchId);
-      return await this.importSheet(batchId, paths[0], paths[1]);
+      debug(
+        'sheetAdded %s %s batchId=%s STARTING',
+        sheetInfo.frontPath,
+        sheetInfo.backPath,
+        batchId
+      );
+      return await this.importSheet(
+        batchId,
+        sheetInfo.frontPath,
+        sheetInfo.backPath,
+        sheetInfo.ballotAuditId
+      );
     } finally {
       const end = Date.now();
       debug(
-        'sheetAdded %o batchId=%s FINISHED in %dms',
-        paths,
+        'sheetAdded %s %s batchId=%s FINISHED in %dms',
+        sheetInfo.frontPath,
+        sheetInfo.backPath,
         batchId,
         Math.round(end - start)
       );
@@ -88,7 +103,8 @@ export class Importer {
   async importSheet(
     batchId: string,
     frontInputImagePath: string,
-    backInputImagePath: string
+    backInputImagePath: string,
+    ballotAuditId?: string
   ): Promise<string> {
     let sheetId = uuid();
     const interpretResult = await this.interpretSheet(sheetId, [
@@ -148,7 +164,8 @@ export class Importer {
       frontImagePath,
       frontInterpretation,
       backImagePath,
-      backInterpretation
+      backInterpretation,
+      ballotAuditId
     );
 
     const batch = this.workspace.store.getBatch(batchId);
@@ -188,7 +205,8 @@ export class Importer {
     frontImagePath: string,
     frontInterpretation: PageInterpretation,
     backImagePath: string,
-    backInterpretation: PageInterpretation
+    backInterpretation: PageInterpretation,
+    ballotAuditId?: string
   ): Promise<string> {
     if ('metadata' in frontInterpretation && 'metadata' in backInterpretation) {
       if (
@@ -204,22 +222,28 @@ export class Importer {
             backImagePath,
             backInterpretation,
             frontImagePath,
-            frontInterpretation
+            frontInterpretation,
+            ballotAuditId
           );
         }
       }
     }
 
-    const ballotId = this.workspace.store.addSheet(uuid(), batchId, [
-      {
-        imagePath: frontImagePath,
-        interpretation: frontInterpretation,
-      },
-      {
-        imagePath: backImagePath,
-        interpretation: backInterpretation,
-      },
-    ]);
+    const ballotId = this.workspace.store.addSheet(
+      uuid(),
+      batchId,
+      [
+        {
+          imagePath: frontImagePath,
+          interpretation: frontInterpretation,
+        },
+        {
+          imagePath: backImagePath,
+          interpretation: backInterpretation,
+        },
+      ],
+      ballotAuditId
+    );
 
     return ballotId;
   }

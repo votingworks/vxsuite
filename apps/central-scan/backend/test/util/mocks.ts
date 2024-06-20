@@ -5,12 +5,15 @@ import {
   MockWritable,
   mockWritable,
 } from '@votingworks/test-utils';
-import { SheetOf } from '@votingworks/types';
 import { Optional, throwIllegalValue } from '@votingworks/basics';
 import { ChildProcess } from 'child_process';
 import { EventEmitter } from 'events';
 import { fileSync } from 'tmp';
-import { BatchControl, BatchScanner } from '../../src/fujitsu_scanner';
+import {
+  BatchControl,
+  BatchScanner,
+  ScannedSheetInfo,
+} from '../../src/fujitsu_scanner';
 
 export function makeMock<T>(Cls: new (...args: never[]) => T): jest.Mocked<T> {
   if (!jest.isMockFunction(Cls)) {
@@ -22,7 +25,7 @@ export function makeMock<T>(Cls: new (...args: never[]) => T): jest.Mocked<T> {
 }
 
 type ScanSessionStep =
-  | { type: 'sheet'; sheet: SheetOf<string> }
+  | { type: 'sheet'; sheet: ScannedSheetInfo }
   | { type: 'error'; error: Error };
 
 /**
@@ -39,7 +42,7 @@ class ScannerSessionPlan {
   /**
    * Adds a scanning step to the session.
    */
-  sheet(sheet: SheetOf<string>): this {
+  sheet(sheet: ScannedSheetInfo): this {
     if (this.ended) {
       throw new Error('cannot add a sheet scan step to an ended session');
     }
@@ -115,7 +118,7 @@ export function makeMockScanner(): MockScanner {
 
       return {
         // eslint-disable-next-line @typescript-eslint/require-await
-        scanSheet: async (): Promise<SheetOf<string> | undefined> => {
+        scanSheet: async (): Promise<ScannedSheetInfo | undefined> => {
           const step = session.getStep(stepIndex);
           stepIndex += 1;
 
