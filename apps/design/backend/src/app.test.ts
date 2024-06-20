@@ -293,6 +293,8 @@ test('Election package management', async () => {
   ).unsafeUnwrap();
   const election = await apiClient.getElection({ electionId });
 
+  // Without mocking all the translations some ballot styles for non-English languages don't fit on a letter
+  // page for this election. To get around this we use legal paper size for the purposes of this test.
   await apiClient.updateElection({
     electionId,
     election: {
