@@ -14,7 +14,7 @@ import {
 } from '@votingworks/ballot-interpreter';
 import { rootDebug } from './util/debug';
 
-function combinePageInterpretationsForSheet(
+export function combinePageInterpretationsForSheet(
   pages: SheetOf<PageInterpretationWithFiles>
 ): SheetInterpretation {
   const [front, back] = pages;
