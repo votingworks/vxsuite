@@ -268,7 +268,7 @@ export class Importer {
    */
   async startImport(): Promise<string> {
     this.getElectionDefinition(); // ensure election definition is loaded
-    //  TODO(#4939) const hasImprinter = await this.scanner.isImprinterAttached();
+    const hasImprinter = await this.scanner.isImprinterAttached();
 
     if (this.sheetGenerator) {
       throw new Error('scanning already in progress');
@@ -290,6 +290,8 @@ export class Importer {
     this.sheetGenerator = this.scanner.scanSheets({
       directory: batchScanDirectory,
       pageSize: ballotPaperSize,
+      // If the imprinter is attached automatically imprint an ID prefixed by the batchID
+      imprintIdPrefix: hasImprinter ? `${this.batchId}` : undefined,
     });
 
     this.continueImport({ forceAccept: false });
