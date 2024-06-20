@@ -9530,6 +9530,7 @@
   "title": "Test Election - All Bubble Ballot",
   "type": "general",
   "seal": "",
+  "ballotStrings": {},
   "gridLayouts": [
     {
       "ballotStyleId": "sheet-1",
