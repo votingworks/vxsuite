@@ -6,6 +6,15 @@ exports[`safeParseElection shows VXF and CDF parsing errors 1`] = `
 VXF error: [
   {
     "code": "invalid_type",
+    "expected": "object",
+    "received": "undefined",
+    "path": [
+      "ballotStrings"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
     "expected": "array",
     "received": "undefined",
     "path": [

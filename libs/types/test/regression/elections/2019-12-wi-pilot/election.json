@@ -70,5 +70,6 @@
       "districts": ["1"]
     }
   ],
-  "sealURL": "/seals/Seal_of_Wisconsin.svg"
+  "sealURL": "/seals/Seal_of_Wisconsin.svg",
+  "ballotStrings": {}
 }

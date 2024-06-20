@@ -353,5 +353,6 @@
       "districts": ["1", "100000047"]
     }
   ],
-  "sealURL": "/seals/Seal_of_Mississippi_BW.svg"
+  "sealURL": "/seals/Seal_of_Mississippi_BW.svg",
+  "ballotStrings": {}
 }

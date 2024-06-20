@@ -1,3 +1,4 @@
+import { assertDefined } from '@votingworks/basics';
 import { Election, PartyIdSchema } from '../src/election';
 import { safeParseElection } from '../src/election_parsing';
 import { unsafeParse } from '../src/generic';
@@ -66,7 +67,45 @@ export const electionData = `
     }
   ],
   "seal": "<svg>test seal</svg>",
-  "state": "STATE"
+  "state": "STATE",
+  "ballotStrings": {
+    "en": {
+       "ballotLanguage": "English",
+       "ballotStyleId": {
+          "1": "1"
+       },
+       "candidateName": {
+          "C": "CANDIDATE"
+       },
+       "contestDescription": {
+          "YNC": "DESCRIPTION"
+       },
+       "contestOptionLabel": {
+          "YNC-option-yes": "Yes",
+          "YNC-option-no": "No"
+       },
+       "contestTitle": {
+          "CC": "TITLE",
+          "YNC": "TITLE"
+       },
+       "countyName": "COUNTY",
+       "districtName": {
+          "D": "DISTRICT"
+       },
+       "electionDate": "November 3, 2020",
+       "electionTitle": "ELECTION",
+       "partyFullName": {
+          "PARTY": "POLITICAL PARTY"
+       },
+       "partyName": {
+          "PARTY": "PARTY"
+       },
+       "precinctName": {
+          "P": "PRECINCT"
+       },
+       "stateName": "STATE"
+    }
+  }
 }`;
 export const election: Election =
   safeParseElection(electionData).unsafeUnwrap();
@@ -119,6 +158,29 @@ export const primaryElection: Election = {
       fullName: 'Republican Party',
     },
   ],
+  ballotStrings: {
+    en: {
+      ...assertDefined(election.ballotStrings.en),
+      electionTitle: 'Primary Election',
+      ballotStyleId: {
+        '1D': '1D',
+        '1R': '1R',
+      },
+      contestTitle: {
+        CCD: 'TITLE',
+        CCR: 'TITLE',
+        YNC: 'TITLE',
+      },
+      partyFullName: {
+        [democraticPartyId]: 'Democratic Party',
+        [republicanPartyId]: 'Republican Party',
+      },
+      partyName: {
+        [democraticPartyId]: 'Democrat',
+        [republicanPartyId]: 'Republican',
+      },
+    },
+  },
 };
 
 const electionTwoPartyPrimaryData = `
@@ -306,8 +368,63 @@ const electionTwoPartyPrimaryData = `
     }
   ],
   "seal": "<svg>test seal</svg>",
-  "centralScanAdjudicationReasons": ["BlankBallot"],
-  "precinctScanAdjudicationReasons": ["BlankBallot"]
+  "ballotStrings": {
+    "en": {
+      "ballotLanguage": "English",
+      "ballotStyleId": {
+        "1M": "1M",
+        "2F": "2F"
+      },
+      "candidateName": {
+        "horse": "Horse",
+        "otter": "Otter",
+        "fox": "Fox",
+        "seahorse": "Seahorse",
+        "salmon": "Salmon",
+        "zebra": "Zebra",
+        "lion": "Lion",
+        "kangaroo": "Kangaroo",
+        "elephant": "Elephant",
+        "manta-ray": "Manta Ray",
+        "pufferfish": "Pufferfish",
+        "rockfish": "Rockfish",
+        "triggerfish": "Triggerfish"
+      },
+      "contestDescription": {
+        "fishing": "Should fishing be banned in all city owned lakes and rivers?"
+      },
+      "contestOptionLabel": {
+        "ban-fishing": "YES",
+        "allow-fishing": "NO"
+      },
+      "contestTitle": {
+        "best-animal-mammal": "Best Animal",
+        "best-animal-fish": "Best Animal",
+        "zoo-council-mammal": "Zoo Council",
+        "aquarium-council-fish": "Zoo Council",
+        "fishing": "Ballot Measure 3"
+      },
+      "countyName": "Sample County",
+      "districtName": {
+        "district-1": "District 1"
+      },
+      "electionDate": "September 8, 2021",
+      "electionTitle": "Example Primary Election - Minimal Exhaustive",
+      "partyFullName": {
+        "0": "Mammal Party",
+        "1": "Fish Party"
+      },
+      "partyName": {
+        "0": "Mammal",
+        "1": "Fish"
+      },
+      "precinctName": {
+        "precinct-1": "Precinct 1",
+        "precinct-2": "Precinct 2"
+      },
+      "stateName": "State of Sample"
+    }
+  }
 }`;
 export const electionTwoPartyPrimary: Election = safeParseElection(
   electionTwoPartyPrimaryData
