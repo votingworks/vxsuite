@@ -292,7 +292,7 @@ export function safeParseElection(
   return ok(result.ok().vxfElection);
 }
 
-export interface ExtendedElectionDefinition {
+interface ExtendedElectionDefinition {
   cdfElection?: Cdf.BallotDefinition;
   electionDefinition: ElectionDefinition;
 }

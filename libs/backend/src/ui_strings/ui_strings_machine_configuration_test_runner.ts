@@ -1,15 +1,14 @@
 /* istanbul ignore file - test util */
 
 import {
+  ElectionDefinition,
   ElectionPackage,
-  ExtendedElectionDefinition,
   LanguageCode,
   UiStringAudioClips,
   UiStringAudioIdsPackage,
   UiStringsPackage,
 } from '@votingworks/types';
 import { MockUsbDrive } from '@votingworks/usb-drive';
-import { extractCdfUiStrings } from '@votingworks/utils';
 import { Result, assertDefined } from '@votingworks/basics';
 import { UiStringsStore } from './ui_strings_store';
 import { mockElectionPackageFileTree } from '../election_package/test_utils';
@@ -18,7 +17,7 @@ type MockUsbDriveLike = Pick<MockUsbDrive, 'insertUsbDrive'>;
 
 /** Test context for {@link runUiStringMachineConfigurationTests}. */
 export interface UiStringConfigTestContext {
-  electionPackage: ExtendedElectionDefinition;
+  electionDefinition: ElectionDefinition;
   getMockUsbDrive(): MockUsbDriveLike;
   runConfigureMachine(): Promise<Result<unknown, unknown>>;
   store: UiStringsStore;
@@ -31,12 +30,9 @@ export interface UiStringConfigTestContext {
 export function runUiStringMachineConfigurationTests(
   context: UiStringConfigTestContext
 ): void {
-  const { electionPackage, getMockUsbDrive, runConfigureMachine, store } =
+  const { electionDefinition, getMockUsbDrive, runConfigureMachine, store } =
     context;
-  const { cdfElection, electionDefinition } = electionPackage;
-  const expectedElectionStrings = extractCdfUiStrings(
-    assertDefined(cdfElection)
-  );
+  const expectedElectionStrings = electionDefinition.election.ballotStrings;
 
   async function doTestConfigure(usbElectionPackage: ElectionPackage) {
     getMockUsbDrive().insertUsbDrive(

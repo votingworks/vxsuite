@@ -17,7 +17,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
-  safeParseElectionDefinitionExtended,
+  safeParseElectionDefinition,
   testCdfBallotDefinition,
 } from '@votingworks/types';
 import { createMockPrinterHandler } from '@votingworks/printing';
@@ -44,7 +44,7 @@ const workspace = createWorkspace(tmp.dirSync().name, { store });
 const mockUsbDrive = createMockUsbDrive();
 const { printer } = createMockPrinterHandler();
 const mockAuth = buildMockInsertedSmartCardAuth();
-const electionPackage = safeParseElectionDefinitionExtended(
+const electionDefinition = safeParseElectionDefinition(
   JSON.stringify(testCdfBallotDefinition)
 ).unsafeUnwrap();
 
@@ -74,7 +74,7 @@ describe('configureFromElectionPackageOnUsbDrive', () => {
     mockAuth.getAuthStatus.mockImplementation(() =>
       Promise.resolve({
         status: 'logged_in',
-        user: mockElectionManagerUser(electionPackage.electionDefinition),
+        user: mockElectionManagerUser(electionDefinition),
         sessionExpiresAt: mockSessionExpiresAt(),
       })
     );
@@ -90,7 +90,7 @@ describe('configureFromElectionPackageOnUsbDrive', () => {
   });
 
   runUiStringMachineConfigurationTests({
-    electionPackage,
+    electionDefinition,
     getMockUsbDrive: () => mockUsbDrive,
     runConfigureMachine: () => api.configureFromElectionPackageOnUsbDrive(),
     store: store.getUiStringsStore(),
