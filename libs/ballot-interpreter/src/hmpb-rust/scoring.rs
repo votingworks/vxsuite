@@ -64,25 +64,6 @@ pub struct ScoredBubbleMark {
     /// The bounds of the bubble mark in the scanned source image that was
     /// determined to be the best match.
     pub matched_bounds: Rect,
-
-    /// The cropped source image at `matched_bounds`.
-    #[serde(skip_serializing)]
-    pub source_image: GrayImage,
-
-    /// The cropped source image at `matched_bounds` with each pixel binarized
-    /// to either 0 (black) or 255 (white).
-    #[serde(skip_serializing)]
-    pub binarized_source_image: GrayImage,
-
-    /// A binarized diff image of `binarized_source_image` with the template.
-    /// The more white pixels, the better the match.
-    #[serde(skip_serializing)]
-    pub match_diff_image: GrayImage,
-
-    /// A binarized diff image of `binarized_source_image` with the fill of the
-    /// template. The more black pixels, the better the fill.
-    #[serde(skip_serializing)]
-    pub fill_diff_image: GrayImage,
 }
 
 impl std::fmt::Debug for ScoredBubbleMark {
@@ -169,6 +150,12 @@ pub fn score_bubble_mark(
     maximum_search_distance: PixelUnit,
     threshold: u8,
 ) -> Option<ScoredBubbleMark> {
+    struct Match {
+        bounds: Rect,
+        score: UnitIntervalScore,
+        diff: GrayImage,
+    }
+
     let center_x = expected_bubble_center.x.round() as PixelUnit;
     let center_y = expected_bubble_center.y.round() as PixelUnit;
     let left = center_x - bubble_template.width() / 2;
@@ -176,9 +163,7 @@ pub fn score_bubble_mark(
     let width = bubble_template.width();
     let height = bubble_template.height();
     let expected_bounds = Rect::new(left as PixelPosition, top as PixelPosition, width, height);
-    let mut best_match_score = UnitIntervalScore(UnitIntervalValue::NEG_INFINITY);
-    let mut best_match_bounds: Option<Rect> = None;
-    let mut best_match_diff: Option<GrayImage> = None;
+    let mut best_match = None;
 
     for offset_x in
         -(maximum_search_distance as PixelPosition)..(maximum_search_distance as PixelPosition)
@@ -204,23 +189,32 @@ pub fn score_bubble_mark(
             let match_diff = diff(&cropped_and_thresholded, bubble_template);
             let match_score = UnitIntervalScore(ratio(&match_diff, WHITE));
 
-            if match_score > best_match_score {
-                best_match_score = match_score;
-                best_match_bounds = Some(Rect::new(x, y, width, bubble_template.height()));
-                best_match_diff = Some(match_diff);
+            match best_match {
+                None => {
+                    best_match = Some(Match {
+                        bounds: Rect::new(x, y, width, height),
+                        score: match_score,
+                        diff: match_diff,
+                    });
+                }
+                Some(ref mut best_match) => {
+                    if match_score > best_match.score {
+                        best_match.bounds = Rect::new(x, y, width, height);
+                        best_match.score = match_score;
+                        best_match.diff = match_diff;
+                    }
+                }
             }
         }
     }
 
-    let best_match_bounds = best_match_bounds?;
-    let best_match_diff = best_match_diff?;
-
+    let best_match = best_match?;
     let source_image = img
         .view(
-            best_match_bounds.left() as PixelUnit,
-            best_match_bounds.top() as PixelUnit,
-            best_match_bounds.width(),
-            best_match_bounds.height(),
+            best_match.bounds.left() as PixelUnit,
+            best_match.bounds.top() as PixelUnit,
+            best_match.bounds.width(),
+            best_match.bounds.height(),
         )
         .to_image();
     let binarized_source_image = imageproc::contrast::threshold(&source_image, threshold);
@@ -229,14 +223,10 @@ pub fn score_bubble_mark(
 
     Some(ScoredBubbleMark {
         location: *location,
-        match_score: best_match_score,
+        match_score: best_match.score,
         fill_score,
         expected_bounds,
-        matched_bounds: best_match_bounds,
-        source_image,
-        binarized_source_image,
-        match_diff_image: best_match_diff,
-        fill_diff_image: diff_image,
+        matched_bounds: best_match.bounds,
     })
 }
 
