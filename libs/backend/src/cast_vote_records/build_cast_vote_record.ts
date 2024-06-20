@@ -518,6 +518,7 @@ type BuildCastVoteRecordParams = {
   batchId: string;
   electionOptionPositionMap?: ElectionOptionPositionMap;
   indexInBatch?: number;
+  ballotAuditId?: string;
 } & (
   | {
       ballotMarkingMode: 'machine';
@@ -543,6 +544,7 @@ export function buildCastVoteRecord({
   castVoteRecordId,
   batchId,
   indexInBatch,
+  ballotAuditId,
   electionOptionPositionMap,
   ...rest
 }: BuildCastVoteRecordParams): CVR.CVR {
@@ -566,6 +568,7 @@ export function buildCastVoteRecord({
     ElectionId: electionId,
     BatchId: batchId, // VVSG 2.0 1.1.5-G.6
     BatchSequenceId: indexInBatch, // VVSG 2.0 1.1.5-G.7
+    BallotAuditId: ballotAuditId,
     UniqueId: castVoteRecordId,
   };
 
