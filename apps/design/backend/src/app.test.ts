@@ -13,6 +13,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   AdjudicationReason,
+  BallotPaperSize,
   BallotType,
   CandidateContest,
   DEFAULT_SYSTEM_SETTINGS,
@@ -290,6 +291,20 @@ test('Election package management', async () => {
       electionData: baseElectionDefinition.electionData,
     })
   ).unsafeUnwrap();
+  const election = await apiClient.getElection({ electionId });
+
+  // Without mocking all the translations some ballot styles for non-English languages don't fit on a letter
+  // page for this election. To get around this we use legal paper size for the purposes of this test.
+  await apiClient.updateElection({
+    electionId,
+    election: {
+      ...election.election,
+      ballotLayout: {
+        ...election.election.ballotLayout,
+        paperSize: BallotPaperSize.Legal,
+      },
+    },
+  });
 
   const electionPackageBeforeExport = await apiClient.getElectionPackage({
     electionId,
@@ -368,6 +383,15 @@ test('Election package management', async () => {
 test('Election package export', async () => {
   const baseElectionDefinition =
     electionFamousNames2021Fixtures.electionDefinition;
+  // Without mocking all the translations some ballot styles for non-English languages don't fit on a letter
+  // page for this election. To get around this we use legal paper size for the purposes of this test.
+  const electionWithLegalPaper: Election = {
+    ...baseElectionDefinition.election,
+    ballotLayout: {
+      ...baseElectionDefinition.election.ballotLayout,
+      paperSize: BallotPaperSize.Legal,
+    },
+  };
   const mockSystemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
     precinctScanAdjudicationReasons: [
@@ -379,7 +403,7 @@ test('Election package export', async () => {
 
   const electionId = (
     await apiClient.createElection({
-      electionData: baseElectionDefinition.electionData,
+      electionData: JSON.stringify(electionWithLegalPaper),
     })
   ).unsafeUnwrap();
   await apiClient.updateSystemSettings({
@@ -387,6 +411,7 @@ test('Election package export', async () => {
     systemSettings: mockSystemSettings,
   });
   const electionRecord = await apiClient.getElection({ electionId });
+
   const { ballotLanguageConfigs, election: appElection } = electionRecord;
 
   const electionPackageFilePath = await exportElectionPackage({
@@ -423,7 +448,7 @@ test('Election package export', async () => {
   //
 
   expect(electionDefinition.election).toEqual({
-    ...baseElectionDefinition.election,
+    ...electionWithLegalPaper,
 
     // Ballot styles are generated in the app, ignoring the ones in the inputted election
     // definition

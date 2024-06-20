@@ -5,13 +5,14 @@ import { range } from '@votingworks/basics';
 import { InchDimensions, InchMargins } from './types';
 
 /**
- * Based on HP LaserJet m404
+ * Include 5mm margins by default to create room for an imprinting ID
+ * Margins meet or exceed 404 and 4001 series HP printer recommendations.
  */
 export const pageMarginsInches = {
   top: 0.16667, // 12pt
   bottom: 0.16667, // 12pt
-  right: 0.16667, // 12pt
-  left: 0.16667, // 12pt
+  right: 0.19685, // 5mm
+  left: 0.19685, // 5mm
 } as const;
 
 export const TIMING_MARK_DIMENSIONS: InchDimensions = {
