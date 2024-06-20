@@ -43,13 +43,17 @@ export function createDocument(page: Page) {
             throw new Error(`No element found with selector: ${selector}`);
           }
 
+          node.innerHTML = content;
           // After we set the innerHTML, we wait for the DOM to finish updating
-          // with the new content, which will be picked up by the
-          // MutationObserver registered on the node.
+          // with the new content. requestAnimationFrame will call the supplied
+          // callback before the next repaint, so we call it twice to wait for
+          // exactly one repaint to occur.
           return new Promise<void>((resolve) => {
-            const observer = new MutationObserver(() => resolve());
-            observer.observe(node, { childList: true });
-            node.innerHTML = content;
+            requestAnimationFrame(() => {
+              requestAnimationFrame(() => {
+                resolve();
+              });
+            });
           });
         },
         [selector, htmlContent]
