@@ -7,11 +7,11 @@ use logging_timer::time;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
 use serde::Serialize;
-use types_rs::election::UnitIntervalValue;
 use types_rs::geometry::{
     find_largest_subset_intersecting_line, intersection_of_lines, GridUnit, PixelPosition,
     PixelUnit, Point, Rect, Segment, Size, SubGridUnit, SubPixelUnit,
 };
+use types_rs::{election::UnitIntervalValue, geometry::IntersectionBounds};
 
 use crate::{
     ballot_card::{Geometry, Orientation},
@@ -270,11 +270,8 @@ pub fn find_actual_bottom_marks(
         .bottom_rects
         .par_iter()
         .map(|rect| {
-            let Some(rect_within_image) =
-                rect.intersect(&Rect::new(0, 0, image.width(), image.height()))
-            else {
-                return None;
-            };
+            let rect_within_image =
+                rect.intersect(&Rect::new(0, 0, image.width(), image.height()))?;
 
             let rect_sub_image = GenericImageView::view(
                 image,
@@ -362,8 +359,7 @@ pub fn find_timing_mark_shapes(
     });
     let candidate_timing_marks = contours
         .iter()
-        .enumerate()
-        .filter_map(|(_i, contour)| {
+        .filter_map(|contour| {
             if contour.border_type == BorderType::Hole {
                 let contour_bounds = get_contour_bounding_rect(contour).offset(
                     -PixelPosition::from(BORDER_SIZE),
@@ -496,25 +492,25 @@ pub fn find_partial_timing_marks_from_candidate_rects(
     let top_left_intersection = intersection_of_lines(
         &Segment::new(top_start_rect_center, top_last_rect_center),
         &Segment::new(left_start_rect_center, left_last_rect_center),
-        false,
+        IntersectionBounds::Unbounded,
     )?;
 
     let top_right_intersection = intersection_of_lines(
         &Segment::new(top_start_rect_center, top_last_rect_center),
         &Segment::new(right_start_rect_center, right_last_rect_center),
-        false,
+        IntersectionBounds::Unbounded,
     )?;
 
     let bottom_left_intersection = intersection_of_lines(
         &Segment::new(bottom_start_rect_center, bottom_last_rect_center),
         &Segment::new(left_start_rect_center, left_last_rect_center),
-        false,
+        IntersectionBounds::Unbounded,
     )?;
 
     let bottom_right_intersection = intersection_of_lines(
         &Segment::new(bottom_start_rect_center, bottom_last_rect_center),
         &Segment::new(right_start_rect_center, right_last_rect_center),
-        false,
+        IntersectionBounds::Unbounded,
     )?;
 
     let partial_timing_marks = Partial {
