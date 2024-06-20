@@ -64,6 +64,7 @@ export function createBlankElection(): Election {
       paperSize: BallotPaperSize.Letter,
       metadataEncoding: 'qr-code',
     },
+    ballotStrings: {},
   };
 }
 

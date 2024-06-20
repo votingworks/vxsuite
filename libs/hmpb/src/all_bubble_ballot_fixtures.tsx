@@ -123,6 +123,7 @@ function createElection(): Election {
     title: 'Test Election - All Bubble Ballot',
     type: 'general',
     seal: '',
+    ballotStrings: {},
   };
 }
 
