@@ -1,30 +1,39 @@
-import { ImageData } from 'canvas';
+import { sliceElectionHash } from '@votingworks/ballot-encoder';
+import { assert, err } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireTestBallotFixtures,
   sampleBallotImages,
 } from '@votingworks/fixtures';
-import { assert, err } from '@votingworks/basics';
 import { SheetOf } from '@votingworks/types';
-import { sliceElectionHash } from '@votingworks/ballot-encoder';
+import { ImageData } from 'canvas';
+import {
+  DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
+  DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
+  DEFAULT_FAMOUS_NAMES_VOTES,
+} from '../../test/fixtures';
+import {
+  BallotFixture,
+  ballotFixture,
+  renderTestModeBallot,
+} from '../../test/helpers/ballots';
 import { InterpretResult, interpret } from './interpret';
 
-test.each([
-  [
-    'front, back',
-    electionFamousNames2021Fixtures.machineMarkedBallotPage1,
-    electionFamousNames2021Fixtures.machineMarkedBallotPage2,
-  ],
-  [
-    'back, front',
-    electionFamousNames2021Fixtures.machineMarkedBallotPage2,
-    electionFamousNames2021Fixtures.machineMarkedBallotPage1,
-  ],
-])('happy path: %s', async (name, front, back) => {
-  const card: SheetOf<ImageData> = [
-    await front.asImageData(),
-    await back.asImageData(),
-  ];
+let famousNamesBmdBallot: BallotFixture;
+
+beforeAll(async () => {
+  famousNamesBmdBallot = ballotFixture(
+    await renderTestModeBallot(
+      electionFamousNames2021Fixtures.electionDefinition,
+      DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
+      DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
+      DEFAULT_FAMOUS_NAMES_VOTES
+    )
+  );
+});
+
+test('happy path: front, back', async () => {
+  const card = await famousNamesBmdBallot.asBmdSheetImages();
   const result = await interpret(
     electionFamousNames2021Fixtures.electionDefinition,
     card
@@ -34,13 +43,23 @@ test.each([
 
   // don't use Jest `toEqual` matcher because it tries to pretty print the
   // ImageData objects, which is slow and causes the test to time out
-  if (name === 'front, back') {
-    assert(summaryBallotImage === card[0]);
-    assert(blankPageImage === card[1]);
-  } else {
-    assert(summaryBallotImage === card[1]);
-    assert(blankPageImage === card[0]);
-  }
+  assert(summaryBallotImage === card[0]);
+  assert(blankPageImage === card[1]);
+});
+
+test('happy path: back, front', async () => {
+  const card = await famousNamesBmdBallot.asBmdSheetImages();
+  const result = await interpret(
+    electionFamousNames2021Fixtures.electionDefinition,
+    [card[1], card[0]]
+  );
+  const { ballot, summaryBallotImage, blankPageImage } = result.unsafeUnwrap();
+  expect(ballot).toMatchSnapshot();
+
+  // don't use Jest `toEqual` matcher because it tries to pretty print the
+  // ImageData objects, which is slow and causes the test to time out
+  assert(summaryBallotImage === card[0]);
+  assert(blankPageImage === card[1]);
 });
 
 test('votes not found', async () => {
@@ -61,10 +80,8 @@ test('votes not found', async () => {
 });
 
 test('multiple QR codes', async () => {
-  const card: SheetOf<ImageData> = [
-    await electionFamousNames2021Fixtures.machineMarkedBallotPage1.asImageData(),
-    await electionFamousNames2021Fixtures.machineMarkedBallotPage1.asImageData(),
-  ];
+  const [page1] = await famousNamesBmdBallot.asBmdSheetImages();
+  const card: SheetOf<ImageData> = [page1, page1];
   const result = await interpret(
     electionFamousNames2021Fixtures.electionDefinition,
     card
@@ -78,10 +95,7 @@ test('multiple QR codes', async () => {
 });
 
 test('mismatched election', async () => {
-  const card: SheetOf<ImageData> = [
-    await electionFamousNames2021Fixtures.machineMarkedBallotPage1.asImageData(),
-    await electionFamousNames2021Fixtures.machineMarkedBallotPage2.asImageData(),
-  ];
+  const card = await famousNamesBmdBallot.asBmdSheetImages();
   const result = await interpret(
     electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
     card

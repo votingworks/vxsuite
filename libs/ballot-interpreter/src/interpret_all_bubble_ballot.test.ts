@@ -1,4 +1,5 @@
-import { assert, iter, Optional } from '@votingworks/basics';
+import { assert, Optional } from '@votingworks/basics';
+import { readElection } from '@votingworks/fs';
 import { allBubbleBallotFixtures } from '@votingworks/hmpb';
 import {
   AdjudicationReason,
@@ -8,11 +9,8 @@ import {
   ElectionDefinition,
 } from '@votingworks/types';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import { readElection } from '@votingworks/fs';
-import {
-  ballotPdfToPageImages,
-  sortVotesDict,
-} from '../test/helpers/interpretation';
+import { ballotFixture } from '../test/helpers/ballots';
+import { sortVotesDict } from '../test/helpers/interpretation';
 import { interpretSheet } from './interpret';
 
 describe('Interpret - HMPB - All bubble ballot', () => {
@@ -29,7 +27,8 @@ describe('Interpret - HMPB - All bubble ballot', () => {
 
   test('Blank ballot interpretation', async () => {
     const precinctId = electionDefinition.election.precincts[0]!.id;
-    const ballotImagePaths = await ballotPdfToPageImages(blankBallotPath);
+    const ballot = ballotFixture(blankBallotPath);
+    const ballotImagePaths = await ballot.asHmpbPaths().toArray();
     expect(ballotImagePaths.length).toEqual(2);
     const [frontResult, backResult] = await interpretSheet(
       {
@@ -58,7 +57,8 @@ describe('Interpret - HMPB - All bubble ballot', () => {
     const [frontContest, backContest] = electionDefinition.election.contests;
     assert(frontContest?.type === 'candidate');
     assert(backContest?.type === 'candidate');
-    const ballotImagePaths = await ballotPdfToPageImages(filledBallotPath);
+    const ballot = ballotFixture(filledBallotPath);
+    const ballotImagePaths = await ballot.asHmpbPaths().toArray();
     expect(ballotImagePaths.length).toEqual(2);
     const [frontResult, backResult] = await interpretSheet(
       {
@@ -92,8 +92,8 @@ describe('Interpret - HMPB - All bubble ballot', () => {
       [backContest.id]: [] as Candidate[],
     } as const;
 
-    const ballotImagePaths = await ballotPdfToPageImages(cyclingTestDeckPath);
-    for (const sheetImagePaths of iter(ballotImagePaths).chunks(2)) {
+    const ballot = ballotFixture(cyclingTestDeckPath);
+    for await (const sheetImagePaths of ballot.asHmpbPaths().chunks(2)) {
       expect(sheetImagePaths.length).toEqual(2);
       const [frontResult, backResult] = await interpretSheet(
         {

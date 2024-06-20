@@ -709,6 +709,80 @@ async function interpretBmdBallotFromFilepaths(
 }
 
 /**
+ * Scores an interpretation result to determine which interpretation is more
+ * relevant. The higher the score, the more relevant the interpretation is. In
+ * general, a more relevant interpretation is one which contains more specific
+ * information.
+ */
+function scoreInterpretFileResult(
+  result: SheetOf<InterpretFileResult>
+): number {
+  const [frontType, backType] = mapSheet(result, (r) => r.interpretation.type);
+
+  if (
+    (frontType === 'InterpretedBmdPage' && backType === 'BlankPage') ||
+    (frontType === 'BlankPage' && backType === 'InterpretedBmdPage')
+  ) {
+    return 0;
+  }
+
+  if (
+    frontType === 'InterpretedHmpbPage' &&
+    backType === 'InterpretedHmpbPage'
+  ) {
+    return 0;
+  }
+
+  if (frontType === 'BlankPage' || backType === 'BlankPage') {
+    return -100;
+  }
+
+  if (frontType === 'UnreadablePage' || backType === 'UnreadablePage') {
+    return -90;
+  }
+
+  if (
+    frontType === 'InvalidPrecinctPage' ||
+    backType === 'InvalidPrecinctPage'
+  ) {
+    return -80;
+  }
+
+  if (
+    frontType === 'InvalidTestModePage' ||
+    backType === 'InvalidTestModePage'
+  ) {
+    return -70;
+  }
+
+  if (
+    frontType === 'InvalidElectionHashPage' ||
+    backType === 'InvalidElectionHashPage'
+  ) {
+    return -60;
+  }
+
+  throw new Error(`Unexpected result types: ${frontType}, ${backType}`);
+}
+
+/**
+ * Chooses which interpretation to use based on which one is more relevant.
+ */
+function chooseInterpretationToUse(
+  bmdInterpretation: SheetOf<InterpretFileResult>,
+  hmpbInterpretation?: SheetOf<InterpretFileResult>
+): SheetOf<InterpretFileResult> {
+  if (!hmpbInterpretation) {
+    return bmdInterpretation;
+  }
+
+  return scoreInterpretFileResult(bmdInterpretation) >
+    scoreInterpretFileResult(hmpbInterpretation)
+    ? bmdInterpretation
+    : hmpbInterpretation;
+}
+
+/**
  * Interpret a sheet of ballot images.
  */
 export async function interpretSheet(
@@ -718,10 +792,23 @@ export async function interpretSheet(
   const timer = time(debug, `interpretSheet: ${sheet.join(', ')}`);
 
   try {
-    if (options.electionDefinition.election.gridLayouts) {
-      return await interpretHmpb(sheet, options);
+    const hmpbInterpretation = options.electionDefinition.election.gridLayouts
+      ? await interpretHmpb(sheet, options)
+      : undefined;
+
+    if (
+      hmpbInterpretation?.[0].interpretation.type === 'InterpretedHmpbPage' &&
+      hmpbInterpretation[1].interpretation.type === 'InterpretedHmpbPage'
+    ) {
+      return hmpbInterpretation;
     }
-    return await interpretBmdBallotFromFilepaths(sheet, options);
+
+    const bmdInterpretation = await interpretBmdBallotFromFilepaths(
+      sheet,
+      options
+    );
+
+    return chooseInterpretationToUse(bmdInterpretation, hmpbInterpretation);
   } finally {
     timer.end();
   }

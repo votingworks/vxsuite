@@ -1,5 +1,11 @@
-import { assertDefined, iter, unique } from '@votingworks/basics';
-import { pdfToImages, writeImageData } from '@votingworks/image-utils';
+import {
+  AsyncIteratorPlus,
+  assertDefined,
+  iter,
+  unique,
+} from '@votingworks/basics';
+import { voteToOptionId } from '@votingworks/hmpb';
+import { writeImageData } from '@votingworks/image-utils';
 import {
   ContestId,
   GridLayout,
@@ -7,23 +13,19 @@ import {
   Vote,
   VotesDict,
 } from '@votingworks/types';
+import { ImageData } from 'canvas';
 import { tmpNameSync } from 'tmp';
-import { readFile } from 'fs/promises';
-import { voteToOptionId } from '@votingworks/hmpb';
 
-export async function ballotPdfToPageImages(
-  pdfFile: string
-): Promise<string[]> {
-  const pdfContents = await readFile(pdfFile);
-  const pdfImages = pdfToImages(pdfContents, { scale: 200 / 72 });
-  return await iter(pdfImages)
-    .map(async ({ page }) => {
-      // We need PNGs for jest-image-snapshot to work
+export function writePageImagesToImagePaths(
+  pageImages: Iterable<ImageData> | AsyncIterable<ImageData>
+): AsyncIteratorPlus<string> {
+  return iter(pageImages as AsyncIterable<ImageData>)
+    .async()
+    .map(async (page) => {
       const path = tmpNameSync({ postfix: '.png' });
       await writeImageData(path, page);
       return path;
-    })
-    .toArray();
+    });
 }
 
 function isContestOnSheet(
