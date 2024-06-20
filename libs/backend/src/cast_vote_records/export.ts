@@ -158,6 +158,7 @@ export interface AcceptedSheet {
   readonly type: 'accepted';
   readonly id: Id;
   readonly batchId: Id;
+  readonly ballotAuditId?: Id;
   readonly interpretation: SheetOf<PageInterpretation>;
   readonly frontImagePath: string;
   readonly backImagePath: string;
@@ -175,6 +176,7 @@ export interface AcceptedSheet {
 export interface RejectedSheet {
   readonly type: 'rejected';
   readonly id: Id;
+  readonly ballotAuditId?: Id;
   readonly frontImagePath: string;
   readonly backImagePath: string;
 }
@@ -314,7 +316,7 @@ async function buildCastVoteRecord(
   const electionOptionPositionMap = buildElectionOptionPositionMap(election);
   const scannerId = VX_MACHINE_ID;
 
-  const { id, batchId, indexInBatch } = sheet;
+  const { id, batchId, indexInBatch, ballotAuditId } = sheet;
   const castVoteRecordId =
     (canonicalizedSheet.type === 'bmd' &&
       canonicalizedSheet.interpretation.ballotId) ||
@@ -336,6 +338,7 @@ async function buildCastVoteRecord(
     return baseBuildCastVoteRecord({
       ballotMarkingMode: 'machine',
       batchId,
+      ballotAuditId,
       castVoteRecordId,
       electionDefinition,
       electionId,
@@ -352,6 +355,7 @@ async function buildCastVoteRecord(
   return baseBuildCastVoteRecord({
     ballotMarkingMode: 'hand',
     batchId,
+    ballotAuditId,
     castVoteRecordId,
     definiteMarkThreshold: markThresholds.definite,
     electionDefinition,
