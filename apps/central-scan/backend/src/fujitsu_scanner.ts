@@ -29,6 +29,7 @@ export interface BatchControl {
 export interface ScanOptions {
   directory?: string;
   pageSize?: BallotPaperSize;
+  imprintIdPrefix?: string; // Prefix for the audit ID to imprint on the ballot, an undefined value means no imprinting
 }
 
 export interface BatchScanner {
@@ -114,6 +115,7 @@ export class FujitsuScanner implements BatchScanner {
   scanSheets({
     directory = dirSync().name,
     pageSize = BallotPaperSize.Letter,
+    imprintIdPrefix,
   }: ScanOptions = {}): BatchControl {
     const args: string[] = [
       '-d',
@@ -128,6 +130,12 @@ export class FujitsuScanner implements BatchScanner {
       `--batch-print`,
       `--batch-prompt`,
     ];
+
+    if (imprintIdPrefix !== undefined) {
+      args.push('--endorser=yes');
+      // Imprint the prefix followed by a sequential index for each page in the batch
+      args.push('--endorser-string', `${imprintIdPrefix}_%04d`);
+    }
 
     const MM_PER_INCH = 25.3967;
     function toMillimeters(inches: number): string {

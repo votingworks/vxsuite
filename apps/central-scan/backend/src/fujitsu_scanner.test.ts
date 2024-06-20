@@ -28,6 +28,8 @@ const exec = streamExecFile as unknown as jest.MockedFunction<
   (file: string, args: readonly string[]) => ChildProcess
 >;
 
+// TODO(CARO) - test with imprint prefix defined and undefined
+
 test('fujitsu scanner calls scanimage with fujitsu device type', async () => {
   const scanimage = makeMockChildProcess();
   const scanner = new FujitsuScanner({
@@ -136,6 +138,63 @@ test('fujitsu scanner does not specify a mode by default', () => {
   expect(exec).not.toHaveBeenCalledWith(
     'scanimage',
     expect.arrayContaining(['--mode'])
+  );
+});
+
+test('fujitsu scanner does not imprint by default', () => {
+  const scanimage = makeMockChildProcess();
+  const scanner = new FujitsuScanner({
+    logger: new BaseLogger(LogSource.VxScanService),
+  });
+
+  exec.mockReturnValueOnce(scanimage);
+  scanner.scanSheets();
+
+  scanimage.stderr.append(
+    [
+      'Scanning infinity pages, incrementing by 1, numbering from 1\n',
+      'Place document no. 1 on the scanner.\n',
+      'Press <RETURN> to continue.\n',
+      'Press Ctrl + D to terminate.\n',
+    ].join('')
+  );
+  expect(exec).not.toHaveBeenCalledWith(
+    'scanimage',
+    expect.arrayContaining(['--endorser=yes'])
+  );
+  expect(exec).not.toHaveBeenCalledWith(
+    'scanimage',
+    expect.arrayContaining(['--endorser-string'])
+  );
+});
+
+test('fujitsu scanner does imprint as expected when given an imprint ID prefix', () => {
+  const scanimage = makeMockChildProcess();
+  const scanner = new FujitsuScanner({
+    logger: new BaseLogger(LogSource.VxScanService),
+  });
+
+  exec.mockReturnValueOnce(scanimage);
+  scanner.scanSheets({
+    imprintIdPrefix: 'TEST-BATCH-ID',
+  });
+
+  scanimage.stderr.append(
+    [
+      'Scanning infinity pages, incrementing by 1, numbering from 1\n',
+      'Place document no. 1 on the scanner.\n',
+      'Press <RETURN> to continue.\n',
+      'Press Ctrl + D to terminate.\n',
+    ].join('')
+  );
+  expect(exec).toHaveBeenCalledWith(
+    'scanimage',
+    expect.arrayContaining(['--endorser=yes'])
+  );
+
+  expect(exec).toHaveBeenCalledWith(
+    'scanimage',
+    expect.arrayContaining(['--endorser-string', 'TEST-BATCH-ID_%04d'])
   );
 });
 
