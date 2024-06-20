@@ -84,21 +84,14 @@ export const HmpbPrelude: readonly Uint8[] = [
 ];
 
 /**
- * Detects whether `data` is a v1-encoded ballot.
+ * Detect whether `data` is a votingworks encoded ballot / metadata.
  */
-export function detectRawBytesBmdBallot(data: Uint8Array): boolean {
+export function isVxBallot(data: Uint8Array): boolean {
   const prelude = data.slice(0, BmdPrelude.length);
   return (
     prelude.length === BmdPrelude.length &&
     prelude.every((byte, i) => byte === BmdPrelude[i])
   );
-}
-
-/**
- * Detect whether `data` is a votingworks encoded ballot / metadata.
- */
-export function isVxBallot(data: Uint8Array): boolean {
-  return detectRawBytesBmdBallot(data);
 }
 
 /**

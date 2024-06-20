@@ -16,7 +16,6 @@ import { BitReader, BitWriter, toUint8 } from './bits';
 import {
   decodeBallot,
   decodeElectionHash,
-  detectRawBytesBmdBallot,
   isVxBallot,
   ELECTION_HASH_LENGTH,
   encodeBallot,
@@ -47,15 +46,6 @@ test('sliceElectionHash', () => {
 });
 
 test('can detect an encoded ballot', () => {
-  expect(detectRawBytesBmdBallot(Uint8Array.of(...BmdPrelude))).toEqual(true);
-  expect(detectRawBytesBmdBallot(Uint8Array.of())).toEqual(false);
-  expect(detectRawBytesBmdBallot(Uint8Array.of(0, ...BmdPrelude))).toEqual(
-    false
-  );
-  expect(
-    detectRawBytesBmdBallot(Uint8Array.of(...BmdPrelude.slice(0, -2)))
-  ).toEqual(false);
-
   expect(isVxBallot(Uint8Array.of(...BmdPrelude))).toEqual(true);
   expect(isVxBallot(Uint8Array.of())).toEqual(false);
   expect(isVxBallot(Uint8Array.of(0, ...BmdPrelude))).toEqual(false);

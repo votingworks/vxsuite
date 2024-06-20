@@ -1,9 +1,6 @@
 import { detect as qrdetect } from '@votingworks/qrdetect';
 import { decode as quircDecode, QRCode } from 'node-quirc';
-import {
-  detectRawBytesBmdBallot as detectMetadata,
-  isVxBallot,
-} from '@votingworks/ballot-encoder';
+import { isVxBallot } from '@votingworks/ballot-encoder';
 import { ImageData, crop } from '@votingworks/image-utils';
 import { Rect, Size } from '@votingworks/types';
 import { Buffer } from 'buffer';
@@ -17,27 +14,16 @@ const LEGAL_WIDTH_TO_HEIGHT_RATIO = 8.5 / 14;
 
 const debug = makeDebug('ballot-interpreter:bmd:qrcode');
 
-function isBase64(string: string): boolean {
-  return Buffer.from(string, 'base64').toString('base64') === string;
-}
-
-function maybeDecodeBase64(data: Buffer): Buffer {
+/**
+ * Decodes a base64 string from bytes representing a UTF-8 string. If either the
+ * UTF-8 or base64 decoding fails, the original data is returned.
+ */
+function decodeBase64FromUtf8(utf8StringData: Buffer): Buffer {
   try {
-    if (detectMetadata(data)) {
-      // BMD ballot, leave it
-      return data;
-    }
-
-    const base64string = new TextDecoder().decode(data);
-
-    if (!isBase64(base64string)) {
-      // not base64, leave it
-      return data;
-    }
-    const decodedData = Buffer.from(base64string, 'base64');
-    return decodedData;
+    return Buffer.from(new TextDecoder().decode(utf8StringData), 'base64');
   } catch {
-    return data;
+    /* istanbul ignore next */
+    return utf8StringData;
   }
 }
 
@@ -208,8 +194,8 @@ export async function detect(
       // Sometimes, our QR code detectors hallucinate and see QR codes in the noise
       // We filter the QR codes down to the ones that look like Vx ballot data.
       const recognizedResults = results
-        .map((result) => maybeDecodeBase64(result))
-        .filter((result) => isVxBallot(result));
+        .map(decodeBase64FromUtf8)
+        .filter(isVxBallot);
 
       if (recognizedResults.length === 0) {
         debug('%s no recognized QR codes in %s', detector.name, position);
