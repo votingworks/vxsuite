@@ -46,6 +46,7 @@ function termDescriptionForContest(
   ballotDefinition: Cdf.BallotDefinition,
   contestId: string
 ): string | undefined {
+  /* istanbul ignore next */
   return (ballotDefinition.Office ?? []).find(
     (office) => office['@id'] === officeId(contestId)
   )?.Term.Label;
@@ -154,7 +155,9 @@ const extractorFns: Record<
   },
 
   [ElectionStringKey.CANDIDATE_NAME](cdfElection, uiStrings) {
-    const candidates = assertDefined(cdfElection.Election[0]).Candidate || [];
+    const candidates =
+      assertDefined(cdfElection.Election[0]).Candidate ||
+      /* istanbul ignore next */ [];
     for (const candidate of candidates) {
       setInternationalizedUiStrings({
         stringKey: [ElectionStringKey.CANDIDATE_NAME, candidate['@id']],

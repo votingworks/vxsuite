@@ -301,7 +301,7 @@ export interface ExtendedElectionDefinition {
  * Parses `value` as a JSON `Election`, computing the election hash if the
  * result is `Ok`.
  */
-export function safeParseElectionDefinitionExtended(
+function safeParseElectionDefinitionExtended(
   value: string
 ): Result<ExtendedElectionDefinition, z.ZodError | SyntaxError> {
   const result = safeParseElectionExtended(value);
