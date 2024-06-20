@@ -8,7 +8,6 @@ export * from './compressed_tallies';
 export * from './date';
 export * from './elections';
 export * from './environment_variable';
-export * from './extract_cdf_ui_strings';
 export * as format from './format';
 export * from './features';
 export * from './features_mock';

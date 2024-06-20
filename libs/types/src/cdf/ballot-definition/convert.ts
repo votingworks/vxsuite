@@ -15,6 +15,7 @@ import {
   unique,
   wrapException,
 } from '@votingworks/basics';
+import setWith from 'lodash.setwith';
 import * as Cdf from '.';
 import * as Vxf from '../../election';
 import { ballotPaperDimensions, getContests } from '../../election_utils';
@@ -28,6 +29,326 @@ import {
 
 function officeId(contestId: Vxf.ContestId): string {
   return `office-${contestId}`;
+}
+
+function getElectionDistricts(
+  cdfBallotDefinition: Cdf.BallotDefinition
+): Cdf.ReportingUnit[] {
+  // Any GpUnit that is associated with contests is a "district" in VXF
+  return cdfBallotDefinition.GpUnit.filter((gpUnit) =>
+    cdfBallotDefinition.Election[0].Contest.some(
+      (contest) => contest.ElectionDistrictId === gpUnit['@id']
+    )
+  );
+}
+
+function termDescriptionForContest(
+  ballotDefinition: Cdf.BallotDefinition,
+  contestId: string
+): string | undefined {
+  return (ballotDefinition.Office ?? []).find(
+    (office) => office['@id'] === officeId(contestId)
+  )?.Term.Label;
+}
+
+const SUPPORTED_LANGUAGES = new Set<string>(Object.values(LanguageCode));
+
+/**
+ * String translation string key, with support for one level of optional nesting
+ * for strings of the same type that vary based on content ID(e.g.
+ * `['contestTitle', contest.id]`).
+ *
+ * See https://www.i18next.com/translation-function/essentials#accessing-keys
+ */
+type StringKey = ElectionStringKey | [ElectionStringKey, string];
+
+/**
+ * Sets the appropriate language strings in supported languages for the given
+ * internationalized CDF ballot content text.
+ */
+function setInternationalizedUiStrings(params: {
+  uiStrings: UiStringsPackage;
+  stringKey: StringKey;
+  values: readonly Cdf.LanguageString[];
+}) {
+  const { stringKey, uiStrings, values } = params;
+
+  for (const value of values) {
+    const languageCode = value.Language;
+    if (!SUPPORTED_LANGUAGES.has(languageCode)) {
+      continue;
+    }
+
+    const valuePath = [languageCode, stringKey].flat();
+    setWith(uiStrings, valuePath, value.Content, Object);
+  }
+}
+
+/**
+ * Sets the default English language string for the given ballot content text.
+ * Used for content that will be spoken, but not translated, like ballot style.
+ */
+function setStaticUiString(params: {
+  uiStrings: UiStringsPackage;
+  stringKey: StringKey;
+  value: string;
+}) {
+  const { stringKey, uiStrings, value } = params;
+
+  const valuePath = [LanguageCode.ENGLISH, stringKey].flat();
+  setWith(uiStrings, valuePath, value, Object);
+}
+
+/**
+ * Returns all the language codes in use in a CDF election based on the election
+ * title internationalized text.
+ */
+function electionLanguageCodes(cdfElection: Cdf.BallotDefinition): string[] {
+  const electionTitleStrings = assertDefined(cdfElection.Election[0]).Name.Text;
+  return electionTitleStrings
+    .map((string) => string.Language)
+    .filter((languageCode) => SUPPORTED_LANGUAGES.has(languageCode));
+}
+
+const extractorFns: Record<
+  ElectionStringKey,
+  (cdfElection: Cdf.BallotDefinition, uiStrings: UiStringsPackage) => void
+> = {
+  [ElectionStringKey.BALLOT_LANGUAGE](cdfElection, uiStrings) {
+    // CDF does not support internationalized text for this string, so we just
+    // use JS to internationalize the language code.
+    setInternationalizedUiStrings({
+      uiStrings,
+      stringKey: ElectionStringKey.BALLOT_LANGUAGE,
+      values: electionLanguageCodes(cdfElection).map(
+        (languageCode): Cdf.LanguageString => ({
+          '@type': 'BallotDefinition.LanguageString',
+          Language: languageCode,
+          Content: assertDefined(
+            new Intl.DisplayNames([languageCode], {
+              type: 'language',
+              style: 'narrow',
+              fallback: 'none',
+            }).of(languageCode)
+          ),
+        })
+      ),
+    });
+  },
+
+  [ElectionStringKey.BALLOT_STYLE_ID](cdfElection, uiStrings) {
+    for (const ballotStyle of assertDefined(cdfElection.Election[0])
+      .BallotStyle) {
+      const ballotStyleId = assertDefined(
+        ballotStyle.ExternalIdentifier[0]
+      ).Value;
+
+      setStaticUiString({
+        stringKey: [ElectionStringKey.BALLOT_STYLE_ID, ballotStyleId],
+        uiStrings,
+        // TODO(kofi): Should we start populating the `Label` field to provide
+        // more user-friendly display values?
+        value: assertDefined(ballotStyle.ExternalIdentifier[0]).Value,
+      });
+    }
+  },
+
+  [ElectionStringKey.CANDIDATE_NAME](cdfElection, uiStrings) {
+    const candidates = assertDefined(cdfElection.Election[0]).Candidate || [];
+    for (const candidate of candidates) {
+      setInternationalizedUiStrings({
+        stringKey: [ElectionStringKey.CANDIDATE_NAME, candidate['@id']],
+        uiStrings,
+        values: candidate.BallotName.Text,
+      });
+    }
+  },
+
+  [ElectionStringKey.CONTEST_DESCRIPTION](cdfElection, uiStrings) {
+    for (const contest of assertDefined(cdfElection.Election[0]).Contest) {
+      if (contest['@type'] !== 'BallotDefinition.BallotMeasureContest') {
+        continue;
+      }
+
+      setInternationalizedUiStrings({
+        stringKey: [ElectionStringKey.CONTEST_DESCRIPTION, contest['@id']],
+        uiStrings,
+        values: contest.FullText.Text,
+      });
+    }
+  },
+
+  [ElectionStringKey.CONTEST_OPTION_LABEL](cdfElection, uiStrings) {
+    for (const contest of assertDefined(cdfElection.Election[0]).Contest) {
+      if (contest['@type'] !== 'BallotDefinition.BallotMeasureContest') {
+        continue;
+      }
+
+      for (const option of contest.ContestOption) {
+        setInternationalizedUiStrings({
+          stringKey: [ElectionStringKey.CONTEST_OPTION_LABEL, option['@id']],
+          uiStrings,
+          values: option.Selection.Text,
+        });
+      }
+    }
+  },
+
+  [ElectionStringKey.CONTEST_TERM](cdfElection, uiStrings) {
+    // CDF does not support internationalized text for this string, so we just
+    // use the provided English text.
+    for (const contest of assertDefined(cdfElection.Election[0]).Contest) {
+      const termDescription = termDescriptionForContest(
+        cdfElection,
+        contest['@id']
+      );
+      if (termDescription) {
+        setInternationalizedUiStrings({
+          stringKey: [ElectionStringKey.CONTEST_TERM, contest['@id']],
+          uiStrings,
+          values: electionLanguageCodes(cdfElection).map(
+            (languageCode): Cdf.LanguageString => ({
+              '@type': 'BallotDefinition.LanguageString',
+              Language: languageCode,
+              Content: termDescription,
+            })
+          ),
+        });
+      }
+    }
+  },
+
+  [ElectionStringKey.CONTEST_TITLE](cdfElection, uiStrings) {
+    for (const contest of assertDefined(cdfElection.Election[0]).Contest) {
+      setInternationalizedUiStrings({
+        stringKey: [ElectionStringKey.CONTEST_TITLE, contest['@id']],
+        uiStrings,
+        values: contest.BallotTitle.Text,
+      });
+    }
+  },
+
+  [ElectionStringKey.COUNTY_NAME](cdfElection, uiStrings) {
+    const county = cdfElection.GpUnit.find(
+      (gpUnit) => gpUnit.Type === Cdf.ReportingUnitType.County
+    );
+
+    if (!county) {
+      return;
+    }
+
+    setInternationalizedUiStrings({
+      stringKey: ElectionStringKey.COUNTY_NAME,
+      uiStrings,
+      values: county.Name.Text,
+    });
+  },
+
+  [ElectionStringKey.DISTRICT_NAME](cdfElection, uiStrings) {
+    const districts = getElectionDistricts(cdfElection);
+
+    for (const district of districts) {
+      setInternationalizedUiStrings({
+        stringKey: [ElectionStringKey.DISTRICT_NAME, district['@id']],
+        uiStrings,
+        values: district.Name.Text,
+      });
+    }
+  },
+
+  [ElectionStringKey.ELECTION_DATE](cdfElection, uiStrings) {
+    // CDF does not support internationalized text for this string, so we format
+    // it using JS.
+    setInternationalizedUiStrings({
+      stringKey: ElectionStringKey.ELECTION_DATE,
+      uiStrings,
+      values: electionLanguageCodes(cdfElection).map(
+        (languageCode): Cdf.LanguageString => ({
+          '@type': 'BallotDefinition.LanguageString',
+          Language: languageCode,
+          Content: new Intl.DateTimeFormat(languageCode, {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric',
+          }).format(
+            new DateWithoutTime(
+              assertDefined(cdfElection.Election[0]).StartDate
+            ).toMidnightDatetimeWithSystemTimezone()
+          ),
+        })
+      ),
+    });
+  },
+
+  [ElectionStringKey.ELECTION_TITLE](cdfElection, uiStrings) {
+    setInternationalizedUiStrings({
+      stringKey: ElectionStringKey.ELECTION_TITLE,
+      uiStrings,
+      values: assertDefined(cdfElection.Election[0]).Name.Text,
+    });
+  },
+
+  [ElectionStringKey.PARTY_FULL_NAME](cdfElection, uiStrings) {
+    for (const party of cdfElection.Party) {
+      setInternationalizedUiStrings({
+        stringKey: [ElectionStringKey.PARTY_FULL_NAME, party['@id']],
+        uiStrings,
+        values: party.Name.Text,
+      });
+    }
+  },
+
+  [ElectionStringKey.PARTY_NAME](cdfElection, uiStrings) {
+    for (const party of cdfElection.Party) {
+      setInternationalizedUiStrings({
+        stringKey: [ElectionStringKey.PARTY_NAME, party['@id']],
+        uiStrings,
+        values: party.vxBallotLabel.Text,
+      });
+    }
+  },
+
+  [ElectionStringKey.PRECINCT_NAME](cdfElection, uiStrings) {
+    for (const gpUnit of cdfElection.GpUnit) {
+      if (gpUnit.Type !== Cdf.ReportingUnitType.Precinct) {
+        continue;
+      }
+
+      setInternationalizedUiStrings({
+        stringKey: [ElectionStringKey.PRECINCT_NAME, gpUnit['@id']],
+        uiStrings,
+        values: gpUnit.Name.Text,
+      });
+    }
+  },
+
+  [ElectionStringKey.STATE_NAME](cdfElection, uiStrings) {
+    const state = cdfElection.GpUnit.find(
+      (gpUnit) => gpUnit.Type === Cdf.ReportingUnitType.State
+    );
+
+    if (!state) {
+      return;
+    }
+
+    setInternationalizedUiStrings({
+      stringKey: ElectionStringKey.STATE_NAME,
+      uiStrings,
+      values: state.Name.Text,
+    });
+  },
+};
+
+export function extractCdfUiStrings(
+  cdfElection: Cdf.BallotDefinition
+): UiStringsPackage {
+  const uiStrings: UiStringsPackage = {};
+
+  for (const extractorFn of Object.values(extractorFns)) {
+    extractorFn(cdfElection, uiStrings);
+  }
+
+  return uiStrings;
 }
 
 function getUiString(
@@ -531,27 +852,12 @@ export function convertVxfElectionToCdfBallotDefinition(
   };
 }
 
-export function getElectionDistricts(
-  cdfBallotDefinition: Cdf.BallotDefinition
-): Cdf.ReportingUnit[] {
-  // Any GpUnit that is associated with contests is a "district" in VXF
-  return cdfBallotDefinition.GpUnit.filter((gpUnit) =>
-    cdfBallotDefinition.Election[0].Contest.some(
-      (contest) => contest.ElectionDistrictId === gpUnit['@id']
-    )
-  );
-}
-
 export function convertCdfBallotDefinitionToVxfElection(
   cdfBallotDefinition: Cdf.BallotDefinition
 ): Vxf.Election {
   const election = cdfBallotDefinition.Election[0];
   const gpUnits = cdfBallotDefinition.GpUnit;
   const ballotFormat = cdfBallotDefinition.BallotFormat[0];
-  const offices =
-    cdfBallotDefinition.Office ??
-    /* istanbul ignore next */
-    [];
 
   const state = find(
     gpUnits,
@@ -681,9 +987,10 @@ export function convertCdfBallotDefinitionToVxfElection(
             partyId: contest.PrimaryPartyIds
               ? (contest.PrimaryPartyIds[0] as Vxf.PartyId)
               : undefined,
-            termDescription: offices.find(
-              (office) => office['@id'] === officeId(contest['@id'])
-            )?.Term.Label,
+            termDescription: termDescriptionForContest(
+              cdfBallotDefinition,
+              contest['@id']
+            ),
           };
         }
         case 'BallotDefinition.BallotMeasureContest': {
@@ -773,6 +1080,8 @@ export function convertCdfBallotDefinitionToVxfElection(
       }),
       metadataEncoding: 'qr-code',
     },
+
+    ballotStrings: extractCdfUiStrings(cdfBallotDefinition),
 
     gridLayouts: (() => {
       const gridLayouts = election.BallotStyle.filter(

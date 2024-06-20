@@ -1,11 +1,9 @@
-import {
-  BallotDefinition,
-  ElectionStringKey,
-  LanguageCode,
-  testCdfBallotDefinition,
-} from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
-import { extractCdfUiStrings } from './extract_cdf_ui_strings';
+import { extractCdfUiStrings } from './convert';
+import * as BallotDefinition from './index';
+import { testCdfBallotDefinition } from './fixtures';
+import { ElectionStringKey } from '../../ui_string_translations';
+import { LanguageCode } from '../../language_code';
 
 function buildInternationalizedText(
   values: Record<string, string>
@@ -34,7 +32,7 @@ const tests: Record<ElectionStringKey, () => void> = {
 
     expect(
       uiStrings[LanguageCode.ENGLISH]?.[ElectionStringKey.BALLOT_LANGUAGE]
-    ).toBeUndefined();
+    ).toEqual('English');
   },
 
   [ElectionStringKey.BALLOT_STYLE_ID]() {
@@ -268,7 +266,7 @@ const tests: Record<ElectionStringKey, () => void> = {
 
     expect(
       uiStrings[LanguageCode.ENGLISH]?.[ElectionStringKey.CONTEST_TERM]
-    ).toBeUndefined();
+    ).toEqual({ 'contest-1': '1 year' });
   },
 
   [ElectionStringKey.CONTEST_TITLE]() {
@@ -415,7 +413,7 @@ const tests: Record<ElectionStringKey, () => void> = {
 
     expect(
       uiStrings[LanguageCode.ENGLISH]?.[ElectionStringKey.ELECTION_DATE]
-    ).toBeUndefined();
+    ).toEqual('June 6, 2021');
   },
 
   [ElectionStringKey.ELECTION_TITLE]() {
