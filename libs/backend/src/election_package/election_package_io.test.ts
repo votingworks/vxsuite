@@ -3,13 +3,13 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   ElectionPackageFileName,
   ElectionPackageMetadata,
-  ElectionStringKey,
   InsertedSmartCardAuth,
   LanguageCode,
   SystemSettings,
   UiStringAudioClips,
   UiStringAudioIdsPackage,
   UiStringsPackage,
+  safeParseElection,
   safeParseElectionDefinition,
   safeParseSystemSettings,
   testCdfBallotDefinition,
@@ -26,6 +26,7 @@ import {
   electionFamousNames2021Fixtures,
   systemSettings,
   electionGridLayoutNewHampshireTestBallotFixtures,
+  electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import { assert, assertDefined, err, ok, typedAs } from '@votingworks/basics';
 import {
@@ -33,7 +34,6 @@ import {
   BooleanEnvironmentVariableName,
   generateElectionBasedSubfolderName,
   getFeatureFlagMock,
-  extractCdfUiStrings,
 } from '@votingworks/utils';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { join } from 'path';
@@ -93,29 +93,28 @@ function saveTmpFile(contents: Buffer) {
 }
 
 test('readElectionPackageFromFile reads an election package without system settings from a file', async () => {
+  const { electionDefinition } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
   const pkg = await zipFile({
-    [ElectionPackageFileName.ELECTION]:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
-        .electionData,
+    [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
   });
   const file = saveTmpFile(pkg);
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ElectionPackageWithFileContents>({
-    electionDefinition:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
+    electionDefinition,
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
-    uiStrings: {},
+    uiStrings: electionDefinition.election.ballotStrings,
     uiStringAudioClips: [],
     fileContents: expect.any(Buffer),
   });
 });
 
 test('readElectionPackageFromFile reads an election package with system settings from a file', async () => {
+  const { electionDefinition } =
+    electionGridLayoutNewHampshireTestBallotFixtures;
   const pkg = await zipFile({
-    [ElectionPackageFileName.ELECTION]:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
-        .electionData,
+    [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
     [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(
       typedAs<SystemSettings>(DEFAULT_SYSTEM_SETTINGS)
     ),
@@ -124,16 +123,16 @@ test('readElectionPackageFromFile reads an election package with system settings
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ElectionPackageWithFileContents>({
-    electionDefinition:
-      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
+    electionDefinition,
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
-    uiStrings: {},
+    uiStrings: electionDefinition.election.ballotStrings,
     uiStringAudioClips: [],
     fileContents: expect.any(Buffer),
   });
 });
 
 test('readElectionPackageFromFile loads available ui strings', async () => {
+  const electionDefinition = electionGeneralDefinition;
   const appStrings: UiStringsPackage = {
     [LanguageCode.ENGLISH]: {
       foo: 'bar',
@@ -145,30 +144,38 @@ test('readElectionPackageFromFile loads available ui strings', async () => {
     },
   };
 
-  const testCdfElectionData = JSON.stringify(testCdfBallotDefinition);
-
   const pkg = await zipFile({
-    [ElectionPackageFileName.ELECTION]: testCdfElectionData,
+    [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
     [ElectionPackageFileName.APP_STRINGS]: JSON.stringify(appStrings),
   });
   const file = saveTmpFile(pkg);
 
-  const expectedElectionStrings = extractCdfUiStrings(testCdfBallotDefinition);
+  const expectedElectionStrings = electionDefinition.election.ballotStrings;
   const expectedUiStrings: UiStringsPackage = {
     [LanguageCode.ENGLISH]: {
       ...assertDefined(appStrings[LanguageCode.ENGLISH]),
       ...assertDefined(expectedElectionStrings[LanguageCode.ENGLISH]),
     },
+    [LanguageCode.CHINESE_SIMPLIFIED]: {
+      ...assertDefined(
+        expectedElectionStrings[LanguageCode.CHINESE_SIMPLIFIED]
+      ),
+    },
     [LanguageCode.CHINESE_TRADITIONAL]: {
       ...assertDefined(appStrings[LanguageCode.CHINESE_TRADITIONAL]),
+      ...assertDefined(
+        expectedElectionStrings[LanguageCode.CHINESE_TRADITIONAL]
+      ),
+    },
+    [LanguageCode.SPANISH]: {
+      ...assertDefined(expectedElectionStrings[LanguageCode.SPANISH]),
     },
   };
 
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ElectionPackageWithFileContents>({
-    electionDefinition:
-      safeParseElectionDefinition(testCdfElectionData).unsafeUnwrap(),
+    electionDefinition,
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     uiStrings: expectedUiStrings,
     uiStringAudioClips: [],
@@ -176,46 +183,23 @@ test('readElectionPackageFromFile loads available ui strings', async () => {
   });
 });
 
-test('readElectionPackageFromFile loads election strings', async () => {
-  const electionStrings: UiStringsPackage = {
-    [LanguageCode.ENGLISH]: {
-      [ElectionStringKey.BALLOT_LANGUAGE]: 'English',
-      [ElectionStringKey.ELECTION_DATE]: 'The Day The Earth Stood Still',
-      [ElectionStringKey.ELECTION_TITLE]: 'Should be overridden by CDF string',
-    },
-    [LanguageCode.SPANISH]: {
-      [ElectionStringKey.BALLOT_LANGUAGE]: 'Español',
-      [ElectionStringKey.ELECTION_DATE]: 'El día que la Tierra se detuvo',
-    },
-  };
-
+test('readElectionPackageFromFile loads election strings from CDF', async () => {
   const testCdfElectionData = JSON.stringify(testCdfBallotDefinition);
   const pkg = await zipFile({
     [ElectionPackageFileName.ELECTION]: testCdfElectionData,
-    [ElectionPackageFileName.ELECTION_STRINGS]: JSON.stringify(electionStrings),
   });
   const file = saveTmpFile(pkg);
 
-  const expectedCdfStrings = extractCdfUiStrings(testCdfBallotDefinition);
-  const expectedUiStrings: UiStringsPackage = {
-    [LanguageCode.ENGLISH]: {
-      [ElectionStringKey.BALLOT_LANGUAGE]: 'English',
-      [ElectionStringKey.ELECTION_DATE]: 'The Day The Earth Stood Still',
-      ...assertDefined(expectedCdfStrings[LanguageCode.ENGLISH]),
-    },
-    [LanguageCode.SPANISH]: {
-      [ElectionStringKey.BALLOT_LANGUAGE]: 'Español',
-      [ElectionStringKey.ELECTION_DATE]: 'El día que la Tierra se detuvo',
-    },
-  };
-
+  const expectedCdfStrings = safeParseElection(
+    testCdfBallotDefinition
+  ).unsafeUnwrap().ballotStrings;
   expect(
     (await readElectionPackageFromFile(file)).unsafeUnwrap()
   ).toEqual<ElectionPackageWithFileContents>({
     electionDefinition:
       safeParseElectionDefinition(testCdfElectionData).unsafeUnwrap(),
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
-    uiStrings: expectedUiStrings,
+    uiStrings: expectedCdfStrings,
     uiStringAudioClips: [],
     fileContents: expect.any(Buffer),
   });
@@ -257,7 +241,7 @@ test('readElectionPackageFromFile loads UI string audio IDs', async () => {
   ).toEqual<ElectionPackageWithFileContents>({
     electionDefinition,
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
-    uiStrings: {},
+    uiStrings: electionDefinition.election.ballotStrings,
     uiStringAudioIds: expectedAudioIds,
     uiStringAudioClips: [],
     fileContents: expect.any(Buffer),
@@ -287,7 +271,7 @@ test('readElectionPackageFromFile loads UI string audio clips', async () => {
   ).toEqual<ElectionPackageWithFileContents>({
     electionDefinition,
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
-    uiStrings: {},
+    uiStrings: electionDefinition.election.ballotStrings,
     uiStringAudioClips: audioClips,
     fileContents: expect.any(Buffer),
   });
@@ -312,7 +296,7 @@ test('readElectionPackageFromFile reads metadata', async () => {
     metadata,
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     uiStringAudioClips: [],
-    uiStrings: {},
+    uiStrings: electionDefinition.election.ballotStrings,
     fileContents: expect.any(Buffer),
   });
 });
