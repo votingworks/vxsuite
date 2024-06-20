@@ -268,6 +268,12 @@ impl Segment {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum IntersectionBounds {
+    Unbounded,
+    Bounded,
+}
+
 /// Determines an intersection point of two line segments. If `bounded` is set
 /// to `true`, the intersection point must be within the bounds of both
 /// segments. If `bounded` is set to `false`, the intersection point may be
@@ -276,7 +282,7 @@ impl Segment {
 pub fn intersection_of_lines(
     segment1: &Segment,
     segment2: &Segment,
-    bounded: bool,
+    bounds: IntersectionBounds,
 ) -> Option<Point<SubPixelUnit>> {
     let p1 = segment1.start;
     let p2 = segment1.end;
@@ -288,7 +294,9 @@ pub fn intersection_of_lines(
     }
     let u_a = (p4.x - p3.x).mul_add(p1.y - p3.y, -(p4.y - p3.y) * (p1.x - p3.x)) / d;
     let u_b = (p2.x - p1.x).mul_add(p1.y - p3.y, -(p2.y - p1.y) * (p1.x - p3.x)) / d;
-    if !bounded || ((0.0..=1.0).contains(&u_a) && (0.0..=1.0).contains(&u_b)) {
+    if matches!(bounds, IntersectionBounds::Unbounded)
+        || ((0.0..=1.0).contains(&u_a) && (0.0..=1.0).contains(&u_b))
+    {
         return Some(Point::new(
             u_a.mul_add(p2.x - p1.x, p1.x),
             u_a.mul_add(p2.y - p1.y, p1.y),
@@ -300,7 +308,7 @@ pub fn intersection_of_lines(
 /// Determines whether the two line segments intersect.
 #[must_use]
 pub fn segments_intersect(line1: &Segment, line2: &Segment) -> bool {
-    intersection_of_lines(line1, line2, true).is_some()
+    intersection_of_lines(line1, line2, IntersectionBounds::Bounded).is_some()
 }
 
 /// Determines whether a line segment intersects a rectangle.

@@ -29,7 +29,7 @@ pub struct BallotConfig {
     /// Batch or precinct number from bits 2-14 (13 bits).
     pub batch_or_precinct: u16,
 
-    /// Card number (CardRotID) from bits 15-27 (13 bits).
+    /// Card number (cardRotID) from bits 15-27 (13 bits).
     pub card: u16,
 
     /// Sequence number (always 0) from bits 28-30 (3 bits).
