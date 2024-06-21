@@ -69,7 +69,6 @@ export interface PrecinctScannerConfig {
   precinctSelection?: PrecinctSelection;
   isSoundMuted: boolean;
   isDoubleFeedDetectionDisabled: boolean;
-  hasPaperBeenLoaded: boolean;
   // "Config" that is specific to each election session
   isTestMode: boolean;
   ballotCountWhenBallotBagLastReplaced: number;

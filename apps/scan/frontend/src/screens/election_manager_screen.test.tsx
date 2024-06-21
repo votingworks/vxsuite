@@ -7,6 +7,7 @@ import { mockKiosk } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { ok } from '@votingworks/basics';
 import { mockUsbDriveStatus } from '@votingworks/ui';
+import { FujitsuPrinterStatus } from '@votingworks/scan-backend';
 import {
   act,
   render,
@@ -25,6 +26,7 @@ import {
   ElectionManagerScreen,
   ElectionManagerScreenProps,
 } from './election_manager_screen';
+import { RELOAD_REMINDER_TEXT } from '../components/printer_management/election_manager_printer_tab_content';
 
 let apiMock: ApiMock;
 
@@ -469,60 +471,84 @@ test('renders buttons for saving logs', async () => {
 });
 
 describe('hardware V4 printer management', () => {
-  beforeEach(() => {
-    apiMock.mockApiClient.getPrinterStatus.reset();
-  });
-
-  test('loading paper for new election happy path', async () => {
+  test('loading paper + printing test page', async () => {
     apiMock.expectGetConfig();
-    apiMock.setPrinterStatusV4();
+    apiMock.setPrinterStatusV4({ state: 'no-paper' });
     renderScreen({
       scannerStatus: statusNoPaper,
       usbDrive: mockUsbDriveStatus('mounted'),
     });
     await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
-    const tab = screen.getByRole('tab', { name: 'Printer' });
+    const tab = await screen.findByRole('tab', { name: 'Printer' });
     const [icon] = within(tab).getAllByRole('img', { hidden: true });
     expect(icon).toHaveAttribute('data-icon', 'triangle-exclamation');
     userEvent.click(tab);
 
-    screen.getByText('Must reload paper and test for the current election');
-    userEvent.click(screen.getButton('Reload Paper'));
+    screen.getByText('The printer is not loaded with paper');
 
-    await screen.findByText('Open Printer');
-
+    // load paper flow
+    userEvent.click(screen.getButton('Load Paper'));
+    await screen.findByRole('alertdialog');
+    screen.getByText('Remove Paper Roll Holder');
     apiMock.setPrinterStatusV4({ state: 'cover-open' });
-    await screen.findByText('Reload Paper');
-
+    await screen.findByText('Load New Paper Roll');
     apiMock.setPrinterStatusV4({ state: 'idle' });
     await screen.findByText('Paper Loaded');
-
-    apiMock.expectPrintTestPage();
-    userEvent.click(screen.getButton('Continue'));
-    await screen.findByText('Test Report Printed');
-
-    apiMock.expectSetHasPaperBeenLoaded(true);
-    apiMock.expectGetConfig({ hasPaperBeenLoaded: true });
-    userEvent.click(screen.getButton('Finish'));
-    await screen.findByText('Printer is loaded and ready');
-  });
-
-  test('overriding load paper flow', async () => {
-    apiMock.expectGetConfig();
-    apiMock.setPrinterStatusV4();
-    renderScreen({
-      scannerStatus: statusNoPaper,
-      usbDrive: mockUsbDriveStatus('mounted'),
+    userEvent.click(screen.getButton('Cancel'));
+    await waitFor(() => {
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     });
-    await screen.findByRole('heading', { name: 'Election Manager Settings' });
 
-    userEvent.click(screen.getByRole('tab', { name: 'Printer' }));
+    // happiest path is to print a test page directly from the loading paper flow,
+    // but that's tested elsewhere and this is also a valid flow
 
-    apiMock.expectSetHasPaperBeenLoaded(true);
-    apiMock.expectGetConfig({ hasPaperBeenLoaded: true });
-    userEvent.click(screen.getButton('Use Current Paper'));
+    // print test page flow
+    const testPrint = apiMock.expectPrintTestPage();
+    userEvent.click(await screen.findButton('Print Test Page'));
+    await screen.findByText('Printing');
+    testPrint.resolve();
+    await screen.findByText('Test Page Printed');
+    userEvent.click(screen.getButton('Close'));
+    await waitFor(() => {
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    });
 
-    await screen.findByText('Printer is loaded and ready');
+    screen.getByText('The printer is loaded with paper');
+    screen.getByText(RELOAD_REMINDER_TEXT);
   });
+
+  test.each<{
+    status: FujitsuPrinterStatus;
+    message: string;
+  }>([
+    {
+      status: { state: 'error', type: 'disconnected' },
+      message: 'The printer is disconnected',
+    },
+    {
+      status: { state: 'error', type: 'hardware' },
+      message: 'The printer encountered an error',
+    },
+    {
+      status: { state: 'cover-open' },
+      message: 'The paper roll holder is not attached to the printer',
+    },
+  ])(
+    'uncommon printer status message - $message',
+    async ({ status, message }) => {
+      apiMock.expectGetConfig();
+      apiMock.setPrinterStatusV4(status);
+      renderScreen({
+        scannerStatus: statusNoPaper,
+        usbDrive: mockUsbDriveStatus('mounted'),
+      });
+      await screen.findByRole('heading', { name: 'Election Manager Settings' });
+
+      const tab = await screen.findByRole('tab', { name: 'Printer' });
+      userEvent.click(tab);
+
+      screen.getByText(message);
+    }
+  );
 });

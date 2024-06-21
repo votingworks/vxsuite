@@ -13,6 +13,7 @@ import { getPartyById, getPollsReportTitle } from '@votingworks/utils';
 import type { FujitsuPrintResult } from '@votingworks/scan-backend';
 import { Screen, getPostPollsTransitionHeaderText } from './poll_worker_shared';
 import { getPrinterStatus, printReportSection } from '../api';
+import { PollWorkerLoadAndReprintButton } from '../components/printer_management/poll_worker_load_and_reprint_button';
 
 function getReportManifest(
   electionDefinition: ElectionDefinition
@@ -44,6 +45,7 @@ export function FujitsuPostPrintScreen({
   isPostPollsTransition: boolean;
   initialPrintResult: FujitsuPrintResult;
 }): JSX.Element {
+  // we start on index 1 because we printed the first report before transitioning to this screen
   const [printIndex, setPrintIndex] = useState(1);
   const [printResult, setPrintResult] =
     useState<Optional<FujitsuPrintResult>>(initialPrintResult);
@@ -51,6 +53,12 @@ export function FujitsuPostPrintScreen({
   const printReportSectionMutateAsync = printReportSectionMutation.mutateAsync;
   const printerStatusQuery = getPrinterStatus.useQuery();
   const reportManifest = getReportManifest(electionDefinition);
+
+  function getReportSectionTitle(index: number): string {
+    assert(reportManifest);
+    const section = reportManifest[index];
+    return `${section} ${getPollsReportTitle(pollsTransitionType)}`;
+  }
 
   const printSection = useCallback(
     async (index: number) => {
@@ -62,19 +70,7 @@ export function FujitsuPostPrintScreen({
     [printReportSectionMutateAsync]
   );
 
-  // this status should not be possible in production, where the parent
-  // component has already run the query, but it's possible in testing
-  if (!printerStatusQuery.isSuccess) {
-    return (
-      <Screen>
-        <LoadingAnimation />
-        <CenteredLargeProse>
-          <H1>Loading…</H1>
-        </CenteredLargeProse>
-      </Screen>
-    );
-  }
-
+  assert(printerStatusQuery.isSuccess);
   const printerStatus = printerStatusQuery.data;
   assert(printerStatus.scheme === 'hardware-v4');
   const disablePrinting = printerStatus.state !== 'idle';
@@ -96,6 +92,9 @@ export function FujitsuPostPrintScreen({
 
   if (printResult.isErr()) {
     const errorStatus = printResult.err();
+    const reprintText = !reportManifest
+      ? `Reprint ${getPollsReportTitle(pollsTransitionType)}`
+      : `Reprint ${getReportSectionTitle(printIndex - 1)}`;
 
     return (
       <Screen>
@@ -103,9 +102,13 @@ export function FujitsuPostPrintScreen({
           <H1>Printing Stopped</H1>
           <P>
             {errorStatus.state === 'no-paper'
-              ? 'The printer ran out of paper while printing. Remove your poll worker card, load new paper, and restart report printing.'
-              : 'The printer encountered an unexpected error.'}
+              ? 'The report did not finish printing because the printer ran out of paper.'
+              : 'The report did not finish printing because the printer encountered an unexpected error.'}
           </P>
+          <PollWorkerLoadAndReprintButton
+            reprint={() => printSection(printIndex - 1)}
+            reprintText={reprintText}
+          />
         </CenteredLargeProse>
       </Screen>
     );
@@ -131,12 +134,6 @@ export function FujitsuPostPrintScreen({
     );
   }
 
-  function getReportTitle(index: number): string {
-    assert(reportManifest);
-    const section = reportManifest[index];
-    return `${section} ${getPollsReportTitle(pollsTransitionType)}`;
-  }
-
   const reportsLeft = reportManifest.length - printIndex;
 
   return (
@@ -144,8 +141,8 @@ export function FujitsuPostPrintScreen({
       <CenteredLargeProse>
         {header}
         <P>
-          Finished printing the {getReportTitle(printIndex - 1)}. Remove the
-          report from the printer by gently tearing it against the tear bar.
+          Finished printing the {getReportSectionTitle(printIndex - 1)}. Remove
+          the report from the printer by gently tearing it against the tear bar.
         </P>
         {reportsLeft === 0 ? (
           <React.Fragment>
