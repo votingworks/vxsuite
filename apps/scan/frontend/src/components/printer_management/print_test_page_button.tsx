@@ -2,6 +2,7 @@ import React from 'react';
 import { assert } from '@votingworks/basics';
 import { Button, Loading, Modal, P } from '@votingworks/ui';
 import { getPrinterStatus, printTestPage } from '../../api';
+import { PRINTER_FLOW_STRINGS } from '../../utils/printer';
 
 export function PrintTestPageButton(): JSX.Element | null {
   const printerStatusQuery = getPrinterStatus.useQuery();
@@ -35,13 +36,9 @@ export function PrintTestPageButton(): JSX.Element | null {
       if (errorStatus.state === 'no-paper') {
         return (
           <Modal
-            title="Print Failed"
+            title={PRINTER_FLOW_STRINGS.testPrintNoPaperFailureTitle}
             content={
-              <P>
-                The print stopped because paper is no longer detected in the
-                printer. The paper may be misaligned. Try reloading the paper
-                roll.
-              </P>
+              <P>{PRINTER_FLOW_STRINGS.testPrintNoPaperFailureContent}</P>
             }
             actions={<Button onPress={resetFlow}>Close</Button>}
           />
@@ -50,12 +47,8 @@ export function PrintTestPageButton(): JSX.Element | null {
 
       return (
         <Modal
-          title="Printer Error"
-          content={
-            <P>
-              The printer has encountered an unexpected error while printing.
-            </P>
-          }
+          title={PRINTER_FLOW_STRINGS.testPrintHardFailureTitle}
+          content={<P>{PRINTER_FLOW_STRINGS.testPrintHardFailureContent}</P>}
           actions={<Button onPress={resetFlow}>Close</Button>}
         />
       );
@@ -63,13 +56,8 @@ export function PrintTestPageButton(): JSX.Element | null {
 
     return (
       <Modal
-        title="Test Page Printed"
-        content={
-          <P>
-            Remove and inspect the test page to confirm it printed legibly. If
-            it did not, try reloading the paper.
-          </P>
-        }
+        title={PRINTER_FLOW_STRINGS.testPrintSuccessTitle}
+        content={<P>{PRINTER_FLOW_STRINGS.testPrintSuccessContent}</P>}
         actions={
           <Button variant="primary" onPress={resetFlow}>
             Close

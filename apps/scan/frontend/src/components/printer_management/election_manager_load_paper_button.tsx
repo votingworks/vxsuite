@@ -8,6 +8,7 @@ import {
 } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/basics';
 import { getPrinterStatus, printTestPage } from '../../api';
+import { PRINTER_FLOW_STRINGS } from '../../utils/printer';
 
 function ElectionManagerLoadPaperModal({
   onClose,
@@ -47,13 +48,8 @@ function ElectionManagerLoadPaperModal({
       // modal shouldn't be open-able if the printer is in an error state
       return (
         <Modal
-          title="Remove Paper Roll Holder"
-          content={
-            <P>
-              Open the access door to reveal the printer. Press the green lever
-              on the paper roll holder to separate it from the printer.
-            </P>
-          }
+          title={PRINTER_FLOW_STRINGS.removePaperRollHolderTitle}
+          content={<P>{PRINTER_FLOW_STRINGS.removePaperRollHolderContent}</P>}
           actions={<Button onPress={onClose}>Cancel</Button>}
         />
       );
@@ -64,36 +60,25 @@ function ElectionManagerLoadPaperModal({
       case 'error':
         return (
           <Modal
-            title="Printer Error"
-            content={<P>The printer has encountered an unexpected error.</P>}
+            title={PRINTER_FLOW_STRINGS.prePrintErrorTitle}
+            content={<P>{PRINTER_FLOW_STRINGS.prePrintErrorContent}</P>}
             actions={<Button onPress={onClose}>Close</Button>}
           />
         );
       case 'cover-open':
         return (
           <Modal
-            title="Load New Paper Roll"
-            content={
-              <P>
-                Slide a new roll of paper onto the roll holder. Unroll enough
-                paper to pull it over the tear bar and toward you. Holding the
-                end of the paper with your thumbs, push the roll holder back
-                onto the printer so it clicks into place.
-              </P>
-            }
+            title={PRINTER_FLOW_STRINGS.loadNewPaperRollTitle}
+            content={<P>{PRINTER_FLOW_STRINGS.loadNewPaperRollContent}</P>}
             actions={<Button onPress={onClose}>Cancel</Button>}
           />
         );
       case 'no-paper':
         return (
           <Modal
-            title="No Paper Detected"
+            title={PRINTER_FLOW_STRINGS.noPaperDetectedAfterReloadTitle}
             content={
-              <P>
-                The paper roll holder was reattached but no paper is detected.
-                It may not be loaded correctly. Try to remove the roll holder
-                and load the paper again.
-              </P>
+              <P>{PRINTER_FLOW_STRINGS.noPaperDetectedAfterReloadContent}</P>
             }
             actions={<Button onPress={onClose}>Cancel</Button>}
           />
@@ -102,12 +87,9 @@ function ElectionManagerLoadPaperModal({
       case 'idle':
         return (
           <Modal
-            title="Paper Loaded"
+            title={PRINTER_FLOW_STRINGS.paperLoadedTitle}
             content={
-              <P>
-                Paper is now loaded. To ensure the paper is correctly loaded,
-                the printer will print a test page.
-              </P>
+              <P>{PRINTER_FLOW_STRINGS.paperLoadedContentElectionManager}</P>
             }
             actions={
               <React.Fragment>
@@ -141,14 +123,8 @@ function ElectionManagerLoadPaperModal({
     if (errorStatus.state === 'no-paper') {
       return (
         <Modal
-          title="Print Failed"
-          content={
-            <P>
-              The print stopped because paper is no longer detected in the
-              printer. The paper may be misaligned. Try reloading the paper
-              roll.
-            </P>
-          }
+          title={PRINTER_FLOW_STRINGS.testPrintNoPaperFailureTitle}
+          content={<P>{PRINTER_FLOW_STRINGS.testPrintNoPaperFailureContent}</P>}
           actions={
             <React.Fragment>
               <Button variant="primary" onPress={restartFlow}>
@@ -163,10 +139,8 @@ function ElectionManagerLoadPaperModal({
 
     return (
       <Modal
-        title="Printer Error"
-        content={
-          <P>The printer has encountered an unexpected error while printing.</P>
-        }
+        title={PRINTER_FLOW_STRINGS.testPrintHardFailureTitle}
+        content={<P>{PRINTER_FLOW_STRINGS.testPrintHardFailureContent}</P>}
         actions={<Button onPress={onClose}>Close</Button>}
       />
     );
@@ -174,13 +148,8 @@ function ElectionManagerLoadPaperModal({
 
   return (
     <Modal
-      title="Test Page Printed"
-      content={
-        <P>
-          Remove and inspect the test page to confirm it printed legibly. If it
-          did not, press retry to reload the paper.
-        </P>
-      }
+      title={PRINTER_FLOW_STRINGS.testPrintSuccessTitle}
+      content={<P>{PRINTER_FLOW_STRINGS.testPrintSuccessContent}</P>}
       actions={
         <React.Fragment>
           <Button variant="primary" onPress={onClose}>
