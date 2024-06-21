@@ -264,11 +264,7 @@ export function ElectionManagerScreen({
   ];
 
   if (printerStatus.scheme === 'hardware-v4') {
-    const showWarningIcon =
-      printerStatus.state === 'cover-open' ||
-      printerStatus.state === 'no-paper' ||
-      printerStatus.state === 'error' ||
-      !configQuery.data.hasPaperBeenLoaded;
+    const showWarningIcon = printerStatus.state !== 'idle';
 
     tabs.push({
       paneId: 'managerSettingsPrinter',

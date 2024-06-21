@@ -43,7 +43,6 @@ export const machineConfig: MachineConfig = {
 const defaultConfig: PrecinctScannerConfig = {
   isSoundMuted: false,
   isDoubleFeedDetectionDisabled: false,
-  hasPaperBeenLoaded: false,
   isTestMode: true,
   ballotCountWhenBallotBagLastReplaced: 0,
   electionDefinition: electionGeneralDefinition,
@@ -284,14 +283,18 @@ export function createApiMock() {
       };
     },
 
-    expectSetHasPaperBeenLoaded(hasPaperBeenLoaded: boolean): void {
-      mockApiClient.setHasPaperBeenLoaded
-        .expectCallWith({ hasPaperBeenLoaded })
-        .resolves();
-    },
+    expectPrintTestPage(result: FujitsuPrintResult = ok()): {
+      resolve: () => void;
+    } {
+      const { resolve, promise } = deferred<FujitsuPrintResult>();
 
-    expectPrintTestPage(result: FujitsuPrintResult = ok()): void {
-      mockApiClient.printTestPage.expectCallWith().resolves(result);
+      mockApiClient.printTestPage.expectCallWith().returns(promise);
+
+      return {
+        resolve: () => {
+          resolve(result);
+        },
+      };
     },
   };
 }
