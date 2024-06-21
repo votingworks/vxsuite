@@ -179,7 +179,6 @@ export function buildApi({
         isDoubleFeedDetectionDisabled: store.getIsDoubleFeedDetectionDisabled(),
         ballotCountWhenBallotBagLastReplaced:
           store.getBallotCountWhenBallotBagLastReplaced(),
-        hasPaperBeenLoaded: store.getHasPaperBeenLoaded(),
       };
     },
 
@@ -360,10 +359,6 @@ export function buildApi({
 
     endDoubleFeedCalibration(): void {
       machine.endDoubleFeedCalibration();
-    },
-
-    setHasPaperBeenLoaded(input: { hasPaperBeenLoaded: boolean }): void {
-      store.setHasPaperHasBeenLoaded(input.hasPaperBeenLoaded);
     },
 
     printTestPage(): Promise<FujitsuPrintResult> {
