@@ -9,6 +9,7 @@ import {
   electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
 import { err } from '@votingworks/basics';
+import { PollsState } from '@votingworks/types';
 import { screen, RenderResult, render } from '../../test/react_testing_library';
 import { PollWorkerScreen, PollWorkerScreenProps } from './poll_worker_screen';
 import {
@@ -458,14 +459,6 @@ describe('hardware V4 report printing', () => {
     await screen.findByText('Polls are open.');
     screen.getByText(/Fish Party Polls Opened Report/);
 
-    // you can reprint second page too
-    const { resolve: resolveFishReprint } = apiMock.expectPrintReportSection(1);
-    userEvent.click(screen.getButton('Reprint Previous'));
-    await screen.findByText('Printing Report…');
-    resolveFishReprint();
-    await screen.findByText('Polls are open.');
-    screen.getByText(/Fish Party Polls Opened Report/);
-
     // continue printing third page
     const { resolve: resolveNonpartisan } = apiMock.expectPrintReportSection(2);
     userEvent.click(screen.getButton('Print Next'));
@@ -475,7 +468,15 @@ describe('hardware V4 report printing', () => {
     screen.getByText(/Nonpartisan Contests Polls Opened Report/);
     screen.getByText(/Remove the poll worker card/);
 
-    // try reprinting from beginning
+    // you can reprint last page too
+    const { resolve: resolveFishReprint } = apiMock.expectPrintReportSection(2);
+    userEvent.click(screen.getButton('Reprint Previous'));
+    await screen.findByText('Printing Report…');
+    resolveFishReprint();
+    await screen.findByText('Polls are open.');
+    screen.getByText(/Nonpartisan Contests Polls Opened Report/);
+
+    // try reprinting all the pages
     const { resolve: resolveMammalReprint2 } =
       apiMock.expectPrintReportSection(0);
     userEvent.click(screen.getButton('Reprint All'));
@@ -485,11 +486,11 @@ describe('hardware V4 report printing', () => {
     screen.getByText(/Mammal Party Polls Opened Report/);
   });
 
-  test('out of paper while printing', async () => {
+  test('out of paper while printing, reload, reprint', async () => {
     apiMock.setPrinterStatusV4();
     apiMock.expectGetPollsInfo('polls_closed_initial');
     apiMock.expectOpenPolls();
-    const { resolve } = apiMock.expectPrintReportV4({ state: 'no-paper' });
+
     apiMock.expectGetPollsInfo('polls_open');
     renderScreen({
       electionDefinition: electionTwoPartyPrimaryDefinition,
@@ -497,18 +498,47 @@ describe('hardware V4 report printing', () => {
 
     // close polls but fail the print
     await screen.findByText('Do you want to open the polls?');
+    const { resolve } = apiMock.expectPrintReportV4({ state: 'no-paper' });
+    apiMock.setPrinterStatusV4({ state: 'no-paper' });
     userEvent.click(screen.getByText('Yes, Open the Polls'));
     await screen.findByText('Opening Polls…');
     resolve();
     await screen.findByText('Printing Stopped');
     screen.getByText(/out of paper/);
+
+    // reloading flow
+    userEvent.click(await screen.findButton('Load Paper'));
+    await screen.findByRole('alertdialog');
+    screen.getByText('Remove Paper Roll Holder');
+
+    apiMock.setPrinterStatusV4({ state: 'cover-open' });
+    await screen.findByText('Load New Paper Roll');
+
+    apiMock.setPrinterStatusV4({ state: 'idle' });
+    await screen.findByText('Paper Loaded');
+
+    userEvent.click(screen.getButton('Close'));
+    await waitFor(() => {
+      expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+    });
+
+    // reprint
+    await screen.findButton('Reprint Mammal Party Polls Opened Report');
+    const { resolve: resolveMammalReprint } =
+      apiMock.expectPrintReportSection(0);
+    userEvent.click(
+      await screen.findButton('Reprint Mammal Party Polls Opened Report')
+    );
+    await screen.findByText('Printing Report…');
+    resolveMammalReprint();
+    await screen.findByText('Polls are open.');
+    screen.getByText(/Mammal Party Polls Opened Report/);
   });
 
   test('printer error while printing', async () => {
     apiMock.setPrinterStatusV4();
     apiMock.expectGetPollsInfo('polls_closed_initial');
     apiMock.expectOpenPolls();
-    const { resolve } = apiMock.expectPrintReportV4({ state: 'cover-open' });
     apiMock.expectGetPollsInfo('polls_open');
     renderScreen({
       electionDefinition: electionTwoPartyPrimaryDefinition,
@@ -516,10 +546,50 @@ describe('hardware V4 report printing', () => {
 
     // close polls but fail the print
     await screen.findByText('Do you want to open the polls?');
+    const { resolve } = apiMock.expectPrintReportV4({
+      state: 'error',
+      type: 'disconnected',
+    });
     userEvent.click(screen.getByText('Yes, Open the Polls'));
     await screen.findByText('Opening Polls…');
     resolve();
     await screen.findByText('Printing Stopped');
     screen.getByText(/unexpected error/);
+  });
+
+  test.each<PollsState>(['polls_closed_initial', 'polls_paused', 'polls_open'])(
+    'printer status messages show on flow screen: %s',
+    async (state) => {
+      apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
+      apiMock.expectGetPollsInfo(state);
+      renderScreen({
+        electionDefinition: electionTwoPartyPrimaryDefinition,
+      });
+
+      await screen.findByText('The printer is disconnected');
+      expect(screen.getButton(/Yes/)).toBeDisabled();
+    }
+  );
+
+  test('poll worker menu supports loading printer paper flow', async () => {
+    apiMock.expectGetPollsInfo('polls_open');
+    apiMock.setPrinterStatusV4({ state: 'no-paper' });
+    renderScreen({});
+
+    userEvent.click(await screen.findByText('No'));
+    userEvent.click(await screen.findByText('Load Printer Paper'));
+    await screen.findByText('Remove Paper Roll Holder');
+  });
+
+  test('if printer is loaded, poll worker menu shows reprint button as normal', async () => {
+    apiMock.expectGetPollsInfo('polls_open');
+    apiMock.setPrinterStatusV4({ state: 'idle' });
+    renderScreen({});
+
+    userEvent.click(await screen.findByText('No'));
+    const { resolve } = apiMock.expectPrintReportV4();
+    userEvent.click(await screen.findButton('Print Polls Opened Report'));
+    resolve();
+    await screen.findButton('Reprint Polls Opened Report');
   });
 });

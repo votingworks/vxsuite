@@ -19,18 +19,18 @@ export function getPollsFlowPrinterAlertText(
         case 'idle':
           return undefined;
         case 'cover-open':
-          return 'The printer is open.';
+          return 'The paper roll holder is not attached to the printer';
         case 'no-paper':
-          return 'The printer is not loaded with paper.';
+          return 'The printer is not loaded with paper';
         case 'error':
           switch (status.type) {
             case 'disconnected':
-              return 'The printer is disconnected.';
+              return 'The printer is disconnected';
             case 'temperature':
             case 'supply-voltage':
             case 'receive-data':
             case 'hardware':
-              return 'The printer encountered an error.';
+              return 'The printer encountered an error';
             // istanbul ignore next
             default:
               throwIllegalValue(status.type);

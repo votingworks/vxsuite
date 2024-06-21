@@ -43,6 +43,7 @@ import {
 import { LegacyPostPrintScreen } from './poll_worker_legacy_post_print_screen';
 import { FujitsuPostPrintScreen } from './poll_worker_fujitsu_post_print_screen';
 import { Screen } from './poll_worker_shared';
+import { PollWorkerLoadAndReprintButton } from '../components/printer_management/poll_worker_load_and_reprint_button';
 
 type PollWorkerFlowState =
   | {
@@ -465,19 +466,34 @@ function PollWorkerScreenContents({
 
   const commonActions = (
     <React.Fragment>
-      {pollsInfo.pollsState !== 'polls_closed_initial' && (
-        <Button
-          onPress={() =>
-            reprintReport({
-              isAfterPollsTransition: false,
-              transitionType: pollsInfo.lastPollsTransition.type,
-            })
-          }
-          disabled={!allowReprintingReport || !printerSummary.ready}
-        >
-          Print {getPollsReportTitle(pollsInfo.lastPollsTransition.type)}
-        </Button>
-      )}
+      {pollsInfo.pollsState !== 'polls_closed_initial' &&
+        (printerStatus.scheme === 'hardware-v4' ? (
+          <PollWorkerLoadAndReprintButton
+            reprint={() =>
+              reprintReport({
+                isAfterPollsTransition: false,
+                transitionType: pollsInfo.lastPollsTransition.type,
+              })
+            }
+            reprintText={`Print ${getPollsReportTitle(
+              pollsInfo.lastPollsTransition.type
+            )}`}
+            disablePrinting={!allowReprintingReport}
+            loadPaperText="Load Printer Paper"
+          />
+        ) : (
+          <Button
+            onPress={() =>
+              reprintReport({
+                isAfterPollsTransition: false,
+                transitionType: pollsInfo.lastPollsTransition.type,
+              })
+            }
+            disabled={!allowReprintingReport || !printerSummary.ready}
+          >
+            Print {getPollsReportTitle(pollsInfo.lastPollsTransition.type)}
+          </Button>
+        ))}
       <PowerDownButton />
       {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (
         <LiveCheckButton />

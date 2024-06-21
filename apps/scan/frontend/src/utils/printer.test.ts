@@ -29,7 +29,10 @@ test('getPollsFlowPrinterSummary', () => {
       scheme: 'hardware-v4',
       state: 'cover-open',
     })
-  ).toEqual({ ready: false, alertText: 'The printer is open.' });
+  ).toEqual({
+    ready: false,
+    alertText: 'The paper roll holder is not attached to the printer',
+  });
 
   expect(
     getPollsFlowPrinterSummary({
@@ -38,7 +41,7 @@ test('getPollsFlowPrinterSummary', () => {
     })
   ).toEqual({
     ready: false,
-    alertText: 'The printer is not loaded with paper.',
+    alertText: 'The printer is not loaded with paper',
   });
 
   expect(
@@ -47,7 +50,7 @@ test('getPollsFlowPrinterSummary', () => {
       state: 'error',
       type: 'disconnected',
     })
-  ).toEqual({ ready: false, alertText: 'The printer is disconnected.' });
+  ).toEqual({ ready: false, alertText: 'The printer is disconnected' });
 
   const errorTypes = [
     'temperature',
@@ -62,6 +65,6 @@ test('getPollsFlowPrinterSummary', () => {
         state: 'error',
         type,
       })
-    ).toEqual({ ready: false, alertText: 'The printer encountered an error.' });
+    ).toEqual({ ready: false, alertText: 'The printer encountered an error' });
   }
 });
