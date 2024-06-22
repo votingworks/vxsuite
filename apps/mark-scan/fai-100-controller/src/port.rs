@@ -1,180 +1,209 @@
-use std::{
-    fmt, io, thread,
-    time::{Duration, Instant},
-};
+use std::{io, time::Duration};
 
-use serialport::{available_ports, SerialPort, SerialPortType};
-use vx_logging::{log, Disposition, EventId, EventType};
+use color_eyre::eyre::Result;
+use rusb::{Context, Device, DeviceDescriptor, DeviceHandle, Direction, TransferType, UsbContext};
 
-use crate::commands::{VersionCommand, VersionResponse};
-
-const DEVICE_BAUD_RATE: u32 = 9600;
-const MAX_ECHO_RESPONSE_WAIT: Duration = Duration::from_secs(5);
-const POLL_INTERVAL: Duration = Duration::from_millis(50);
+#[derive(Debug)]
+struct Endpoint {
+    config: u8,
+    iface: u8,
+    setting: u8,
+    address: u8,
+}
 
 pub struct Port {
-    inner: Box<dyn SerialPort>,
+    endpoint_in: Endpoint,
+    endpoint_out: Endpoint,
+    handle: DeviceHandle<Context>,
 }
 
 impl Port {
-    pub fn open_by_ids(vendor_id: u16, product_id: u16) -> color_eyre::Result<Self> {
-        let device_path = Self::get_device_path(vendor_id, product_id)?;
-        Self::open(&device_path)
+    fn open_device<T: UsbContext>(
+        context: &mut T,
+        vid: u16,
+        pid: u16,
+    ) -> Option<(Device<T>, DeviceDescriptor, DeviceHandle<T>)> {
+        let devices = match context.devices() {
+            Ok(d) => d,
+            Err(_) => return None,
+        };
+
+        for device in devices.iter() {
+            let device_desc = match device.device_descriptor() {
+                Ok(d) => d,
+                Err(_) => continue,
+            };
+
+            if device_desc.vendor_id() == vid && device_desc.product_id() == pid {
+                match device.open() {
+                    Ok(handle) => return Some((device, device_desc, handle)),
+                    Err(e) => panic!("Device found but failed to open: {}", e),
+                }
+            }
+        }
+
+        None
     }
 
-    fn open(path: &str) -> color_eyre::Result<Self> {
-        let inner = serialport::new(path, DEVICE_BAUD_RATE)
-            .timeout(POLL_INTERVAL)
-            .open()?;
-        let mut port = Self { inner };
-        port.validate_connection()?;
-        Ok(port)
-    }
+    fn find_endpoint<T: UsbContext>(
+        device: &mut Device<T>,
+        device_desc: &DeviceDescriptor,
+        transfer_type: TransferType,
+        direction: Direction,
+    ) -> Option<Endpoint> {
+        for n in 0..device_desc.num_configurations() {
+            let config_desc = match device.config_descriptor(n) {
+                Ok(c) => c,
+                Err(_) => continue,
+            };
 
-    fn get_device_path(vendor_id: u16, product_id: u16) -> Result<String, io::Error> {
-        match available_ports() {
-            Ok(ports_info) => {
-                for port_info in ports_info {
-                    if let SerialPortType::UsbPort(info) = port_info.port_type {
-                        log!(
-                            event_id: EventId::Info,
-                            event_type: EventType::SystemStatus,
-                            message: format!("Discovered port {}, vendor_id={}, product_id={}", port_info.port_name, info.vid, info.pid)
-                        );
-                        if info.vid == vendor_id && info.pid == product_id {
-                            return Ok(port_info.port_name);
+            for interface in config_desc.interfaces() {
+                for interface_desc in interface.descriptors() {
+                    for endpoint_desc in interface_desc.endpoint_descriptors() {
+                        if endpoint_desc.direction() == direction
+                            && endpoint_desc.transfer_type() == transfer_type
+                        {
+                            return Some(Endpoint {
+                                config: config_desc.number(),
+                                iface: interface_desc.interface_number(),
+                                setting: interface_desc.setting_number(),
+                                address: endpoint_desc.address(),
+                            });
                         }
                     }
                 }
             }
-            Err(e) => {
-                log!(
-                    event_id: EventId::ControllerConnectionComplete,
-                    message: format!("Error listing serialport devices: {e}"),
-                    event_type: EventType::SystemAction,
-                    disposition: Disposition::Failure
-                );
-            }
         }
 
-        Err(io::Error::new(
-            io::ErrorKind::NotFound,
-            format!("No matching port found for VID {vendor_id} and PID {product_id}"),
-        ))
+        None
     }
 
-    fn validate_connection(&mut self) -> Result<(), io::Error> {
-        let version_command = VersionCommand {};
-        let version_command: Vec<u8> = version_command.into();
-        let port = &mut self.inner;
-        let mut serial_buf = [0; 1024];
-
-        // Clear the controller in-buffer. The in-buffer will contain data if buttons on the
-        // controller are pressed before the echo command is sent to the controller. That data
-        // will break parsing of the echo response below.
-        match port.bytes_to_read() {
-            Ok(0) => (),
-            Ok(num_bytes) => {
-                match port.clear(serialport::ClearBuffer::Input) {
-                    Ok(()) => log!(
-                        event_id: EventId::Info,
-                        event_type: EventType::SystemStatus,
-                        message: format!("Cleared {num_bytes} bytes from controller in-buffer")
-                    ),
-                    Err(e) => log!(
-                        event_id: EventId::UnknownError,
-                        message: format!("Error clearing in-buffer: {e:?}"),
-                        event_type: EventType::SystemStatus
-                    ),
-                };
+    fn claim_interface<T: UsbContext>(
+        handle: &mut DeviceHandle<T>,
+        endpoint: &Endpoint,
+    ) -> Result<()> {
+        let has_kernel_driver = match handle.kernel_driver_active(endpoint.iface) {
+            Ok(true) => {
+                handle.detach_kernel_driver(endpoint.iface).ok();
+                true
             }
-            Err(e) => log!(
-                event_id: EventId::UnknownError,
-                message: format!("Error checking bytes to read: {e:?}"),
-                event_type: EventType::SystemStatus
-            ),
+            _ => false,
+        };
+        println!(" - kernel driver? {}", has_kernel_driver);
+
+        handle.set_active_configuration(endpoint.config)?;
+        handle.claim_interface(endpoint.iface)?;
+        handle.set_alternate_setting(endpoint.iface, endpoint.setting)?;
+
+        if has_kernel_driver {
+            handle.attach_kernel_driver(endpoint.iface).ok();
+        }
+        Ok(())
+    }
+
+    pub fn write_interrupt(&mut self, buf: &[u8]) -> Result<usize, rusb::Error> {
+        println!("Writing to endpoint: {:?}", self.endpoint_out.address);
+
+        let timeout = Duration::from_secs(1);
+
+        self.handle
+            .write_interrupt(self.endpoint_out.address, buf, timeout)
+    }
+
+    fn get_interrupt_endpoint<T: UsbContext>(
+        device: &mut Device<T>,
+        device_desc: &DeviceDescriptor,
+        handle: &mut DeviceHandle<T>,
+        direction: Direction,
+    ) -> Result<Endpoint> {
+        handle.reset()?;
+
+        let timeout = Duration::from_secs(5);
+        let languages = handle.read_languages(timeout)?;
+
+        println!("Active configuration: {}", handle.active_configuration()?);
+        println!("Languages: {:?}", languages);
+
+        if !languages.is_empty() {
+            let language = languages[0];
+
+            println!(
+                "Manufacturer: {:?}",
+                handle
+                    .read_manufacturer_string(language, device_desc, timeout)
+                    .ok()
+            );
+            println!(
+                "Product: {:?}",
+                handle
+                    .read_product_string(language, device_desc, timeout)
+                    .ok()
+            );
+            println!(
+                "Serial Number: {:?}",
+                handle
+                    .read_serial_number_string(language, device_desc, timeout)
+                    .ok()
+            );
         }
 
-        // Send version command
-        match port.write(&version_command) {
-            Ok(_) => log!(EventId::ControllerHandshakeInit; EventType::SystemAction),
-            Err(error) => eprintln!("{error:?}"),
+        match Self::find_endpoint(device, device_desc, TransferType::Interrupt, direction) {
+            Some(endpoint) => Ok(endpoint),
+            // TODO real error handling
+            None => panic!("No interrupt endpoint for direction {:?}", direction),
         }
+    }
 
-        // Parse version response
-        let start_time = Instant::now();
-        loop {
-            match port.read(&mut serial_buf) {
-                Ok(size) => match VersionResponse::try_from(&serial_buf[..size]) {
-                    Ok(response) => {
-                        log!(
-                            event_id: EventId::ControllerHandshakeComplete,
-                            event_type: EventType::SystemAction,
-                            disposition: Disposition::Success,
-                            message: format!("Version: {}", response.version)
-                        );
-                        return Ok(());
-                    }
-                    Err(error) => {
-                        log!(
-                            event_id: EventId::ControllerHandshakeComplete,
-                            event_type: EventType::SystemAction,
-                            disposition: Disposition::Failure,
-                            message: format!("Error reading GetFirmwareVersion response: {error}")
-                        );
-                    }
-                },
-                Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
-                Err(e) => {
-                    log!(
-                        event_id: EventId::ControllerHandshakeComplete,
-                        message: format!("Error reading echo response: {e:?}"),
-                        event_type: EventType::SystemAction,
-                        disposition: Disposition::Failure
-                    );
-                }
+    pub fn open_by_ids(vendor_id: u16, product_id: u16) -> color_eyre::Result<Self> {
+        let mut usb_context = Context::new().unwrap();
+
+        match Self::open_device(&mut usb_context, vendor_id, product_id) {
+            Some((mut device, device_desc, mut handle)) => {
+                let endpoint_in = Self::get_interrupt_endpoint(
+                    &mut device,
+                    &device_desc,
+                    &mut handle,
+                    Direction::In,
+                )?;
+
+                // Interface can be claimed only once for both endpoints
+                Self::claim_interface(&mut handle, &endpoint_in)?;
+
+                let endpoint_out = Self::get_interrupt_endpoint(
+                    &mut device,
+                    &device_desc,
+                    &mut handle,
+                    Direction::Out,
+                )?;
+                Ok(Self {
+                    endpoint_in,
+                    endpoint_out,
+                    handle,
+                })
             }
-
-            if start_time.elapsed() >= MAX_ECHO_RESPONSE_WAIT {
-                break;
-            }
-
-            thread::sleep(POLL_INTERVAL);
+            // TODO real error handling
+            None => panic!("could not find device {:04x}:{:04x}", vendor_id, product_id),
         }
-
-        log!(
-            event_id: EventId::ControllerHandshakeComplete,
-            message: "No echo response received".to_string(),
-            event_type: EventType::SystemAction,
-            disposition: Disposition::Failure
-        );
-        Err(io::Error::new(
-            io::ErrorKind::TimedOut,
-            "No echo response received",
-        ))
     }
 }
 
 impl io::Read for Port {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        self.inner.read(buf)
-    }
-}
+        println!("Reading from endpoint: {:?}", self.endpoint_in.address);
+        let timeout = Duration::from_millis(1);
 
-impl fmt::Debug for Port {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Port")
-            .field(
-                "name",
-                &self.inner.name().unwrap_or_else(|| "n/a".to_string()),
-            )
-            .field(
-                "baud_rate",
-                match &self.inner.baud_rate() {
-                    Ok(rate) => rate,
-                    Err(err) => err,
-                },
-            )
-            .finish()
+        match self
+            .handle
+            .read_interrupt(self.endpoint_in.address, buf, timeout)
+        {
+            Ok(len) => {
+                println!(" - read from interrupt endpoint: {:?}", &buf[..len]);
+                Ok(len)
+            }
+            Err(rusb::Error::Timeout) => {
+                Err(io::Error::new(io::ErrorKind::TimedOut, "Read timed out"))
+            }
+            Err(err) => Err(io::Error::new(io::ErrorKind::Other, format!("{:?}", err))),
+        }
     }
 }

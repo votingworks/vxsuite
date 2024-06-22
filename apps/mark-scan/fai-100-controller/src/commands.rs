@@ -1,4 +1,4 @@
-use uinput::event::keyboard;
+// use uinput::event::keyboard;
 
 use crate::device::{Signal, Status};
 
@@ -40,13 +40,43 @@ const SENDER_ID: u32 = 0xD0BB55AA;
 enum CommandId {
     NotificationStatus = 0xab,
     GetFirmwareVersion = 0x50,
+    GetNotificationValues = 0xc1,
+    EnableNotifications = 0xac,
+}
+
+const MULTIBYTE_COMMAND_PREFIX: u8 = 0x1b;
+
+pub struct EnableNotificationsCommand {}
+
+impl From<EnableNotificationsCommand> for Vec<u8> {
+    fn from(_command: EnableNotificationsCommand) -> Self {
+        const EXPECTED_LENGTH: usize = 31;
+        let mut bytes = Self::with_capacity(EXPECTED_LENGTH);
+        // All commands start with device sender ID
+        bytes.extend_from_slice(&u32::to_le_bytes(SENDER_ID));
+        // Unused padding
+        bytes.append(&mut vec![0; 16]);
+        // LE u32 size of upcoming noise + data = 7 bytes
+        bytes.push(0x07);
+        bytes.append(&mut vec![0; 3]);
+        // 2 bytes of noise
+        bytes.append(&mut vec![0xff; 2]);
+        // 5 bytes of data
+        bytes.push(MULTIBYTE_COMMAND_PREFIX);
+        bytes.push(CommandId::EnableNotifications as u8);
+        // Bitmask describing which status notifications to operate on. We want all of them turned on.
+        bytes.push(0xff);
+        // Unused byte
+        bytes.push(0x00);
+        // 0x01 == enable notifications for notifications described by bitmask
+        bytes.push(0x01);
+
+        bytes
+    }
 }
 
 #[derive(Debug)]
 pub struct VersionCommand {}
-pub struct VersionResponse {
-    pub version: u32,
-}
 
 impl From<VersionCommand> for Vec<u8> {
     // TODO VersionCommand struct is overkill atm. Probably should
@@ -68,6 +98,34 @@ impl From<VersionCommand> for Vec<u8> {
 
         bytes
     }
+}
+
+#[derive(Debug)]
+pub struct GetNotificationValues {}
+
+impl From<GetNotificationValues> for Vec<u8> {
+    fn from(_command: GetNotificationValues) -> Self {
+        const EXPECTED_LENGTH: usize = 27;
+        let mut bytes = Self::with_capacity(EXPECTED_LENGTH);
+        // All commands start with device sender ID
+        bytes.extend_from_slice(&u32::to_le_bytes(SENDER_ID));
+        // Unused padding
+        bytes.append(&mut vec![0; 16]);
+        // LE u32 size of upcoming noise + data = 3 bytes
+        bytes.push(0x03);
+        bytes.append(&mut vec![0; 3]);
+        // 2 bytes of noise
+        bytes.append(&mut vec![0xff; 2]);
+        // 1 byte of data (just the command ID)
+        bytes.push(CommandId::GetNotificationValues as u8);
+
+        bytes
+    }
+}
+
+#[derive(Debug)]
+pub struct VersionResponse {
+    pub version: u32,
 }
 
 impl TryFrom<&[u8]> for VersionResponse {
@@ -209,6 +267,7 @@ impl TryFrom<&[u8]> for NotificationStatusResponse {
     }
 }
 
+/*
 pub fn handle_command(data: &[u8]) -> Result<Option<(keyboard::Key, bool)>, CommandError> {
     let NotificationStatusResponse { signal, status } = data.try_into()?;
 
@@ -271,6 +330,7 @@ pub fn handle_command(data: &[u8]) -> Result<Option<(keyboard::Key, bool)>, Comm
     }
     Ok(Some((key, send_shift)))
 }
+    */
 
 // #[cfg(test)]
 // #[allow(clippy::unwrap_used)]

@@ -1,11 +1,12 @@
-use std::{thread, time::Duration};
+// use std::{thread, time::Duration};
 
 use uinput::{
-    event::{keyboard, Keyboard},
+    // event::{keyboard, Keyboard},
+    event::keyboard,
     Device,
 };
 
-const UINPUT_PATH: &str = "/dev/uinput";
+// const UINPUT_PATH: &str = "/dev/uinput";
 
 #[derive(Debug, num_enum::TryFromPrimitive, PartialEq, Eq)]
 #[repr(u8)]
@@ -102,6 +103,7 @@ impl VirtualKeyboard for Device {
     }
 }
 
+/*
 pub fn create_keyboard(name: &str) -> color_eyre::Result<impl VirtualKeyboard> {
     let keyboard = uinput::open(UINPUT_PATH)?
         .name(name)?
@@ -111,3 +113,4 @@ pub fn create_keyboard(name: &str) -> color_eyre::Result<impl VirtualKeyboard> {
     thread::sleep(Duration::from_secs(1));
     Ok(keyboard)
 }
+*/

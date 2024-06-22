@@ -7,6 +7,9 @@
 //! a keypress event for consumption by the mark-scan application.
 
 use clap::Parser;
+use commands::{
+    EnableNotificationsCommand, GetNotificationValues, VersionCommand, VersionResponse,
+};
 use daemon_utils::run_no_op_event_loop;
 use std::{
     io::{self, Read},
@@ -15,15 +18,16 @@ use std::{
         atomic::{AtomicBool, Ordering},
         Arc,
     },
+    thread,
     thread::sleep,
-    time::Duration,
+    time::{Duration, Instant},
 };
-use uinput::event::keyboard;
+// use uinput::event::keyboard;
 use vx_logging::{log, set_app_name, Disposition, EventId, EventType};
 
 use crate::{
-    commands::handle_command,
-    device::{create_keyboard, VirtualKeyboard},
+    // commands::handle_command,
+    // device::{create_keyboard, VirtualKeyboard},
     port::Port,
 };
 
@@ -32,10 +36,11 @@ mod device;
 mod port;
 
 const APP_NAME: &str = "vx-mark-scan-fai-100-controller-daemon";
-// TODO update based on hardware
 const FAI_100_VID: u16 = 0x28cd;
-const FAI_100_PID: u16 = 0x4008;
+const FAI_100_PID: u16 = 0x4004;
 const STARTUP_SLEEP_DURATION: Duration = Duration::from_millis(3000);
+const MAX_ECHO_RESPONSE_WAIT: Duration = Duration::from_secs(5);
+const POLL_INTERVAL: Duration = Duration::from_millis(1);
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -74,6 +79,7 @@ fn main() -> color_eyre::Result<()> {
     }
 
     // Create virtual device for keypress events
+    /*
     log!(
         EventId::CreateVirtualUinputDeviceInit;
         EventType::SystemAction
@@ -84,15 +90,21 @@ fn main() -> color_eyre::Result<()> {
         disposition: Disposition::Success,
         event_type: EventType::SystemAction
     );
+    */
 
     log!(
         EventId::ControllerConnectionInit;
         EventType::SystemAction
     );
 
-    if let Some(port) = get_port() {
-        run_event_loop(keyboard, port, &running);
-        exit(0);
+    if let Some(mut port) = get_port() {
+        log!(
+            event_id: EventId::Info,
+            disposition: Disposition::Success,
+            event_type: EventType::SystemStatus,
+            message: ("Connected to port successfully").to_string()
+        );
+        run_event_loop(&mut port, &running);
     }
 
     if args.skip_hardware_check {
@@ -113,7 +125,7 @@ fn get_port() -> Option<Port> {
         Ok(port) => {
             log!(
                 event_id: EventId::ControllerConnectionComplete,
-                message: format!("Receiving data on port: {port:?}"),
+                // message: format!("Receiving data on port: {port:?}"),
                 event_type: EventType::SystemAction,
                 disposition: Disposition::Success
             );
@@ -133,8 +145,95 @@ fn get_port() -> Option<Port> {
     None
 }
 
-fn run_event_loop(mut keyboard: impl VirtualKeyboard, mut port: Port, running: &Arc<AtomicBool>) {
-    let mut serial_buf = [0; 1000];
+fn validate_connection(port: &mut Port) -> Result<(), io::Error> {
+    let version_cmd = VersionCommand {};
+    let version_cmd: Vec<u8> = version_cmd.into();
+    println!("Writing version command: {:x?}", version_cmd);
+    match port.write_interrupt(&version_cmd) {
+        Ok(bytes) => println!("{bytes} bytes written"),
+        Err(e) => log!(
+            event_id: EventId::UnknownError,
+            message: format!("Unexpected error when writing: {e:?}"),
+            event_type: EventType::SystemStatus
+        ),
+    }
+
+    let start_time = Instant::now();
+    let mut buf: [u8; 256] = [0; 256];
+    loop {
+        match port.read(&mut buf) {
+            Ok(size) => match VersionResponse::try_from(&buf[..size]) {
+                Ok(response) => {
+                    log!(
+                        event_id: EventId::ControllerHandshakeComplete,
+                        event_type: EventType::SystemAction,
+                        disposition: Disposition::Success,
+                        message: format!("Version: {}", response.version)
+                    );
+                    return Ok(());
+                }
+                Err(error) => {
+                    log!(
+                        event_id: EventId::ControllerHandshakeComplete,
+                        event_type: EventType::SystemAction,
+                        disposition: Disposition::Failure,
+                        message: format!("Error reading GetFirmwareVersion response: {error}")
+                    );
+                }
+            },
+            Err(ref e) if e.kind() == io::ErrorKind::TimedOut => {
+                println!("No data received from IN ENDPOINT")
+            }
+            Err(e) => {
+                log!(
+                    event_id: EventId::ControllerHandshakeComplete,
+                    message: format!("Error reading echo response: {e:?}"),
+                    event_type: EventType::SystemAction,
+                    disposition: Disposition::Failure
+                );
+            }
+        }
+
+        if start_time.elapsed() >= MAX_ECHO_RESPONSE_WAIT {
+            break;
+        }
+
+        println!("Waiting {:?}", POLL_INTERVAL);
+        thread::sleep(POLL_INTERVAL);
+    }
+
+    log!(
+        event_id: EventId::ControllerHandshakeComplete,
+        message: "No echo response received".to_string(),
+        event_type: EventType::SystemAction,
+        disposition: Disposition::Failure
+    );
+    Err(io::Error::new(
+        io::ErrorKind::TimedOut,
+        "No echo response received",
+    ))
+}
+
+// fn run_event_loop(mut keyboard: impl VirtualKeyboard, mut port: Port, running: &Arc<AtomicBool>) {
+fn run_event_loop(port: &mut Port, running: &Arc<AtomicBool>) {
+    let mut buf: [u8; 256] = [0; 256];
+
+    // Enable notifications
+    let enable_notifications_command = EnableNotificationsCommand {};
+    let enable_notifications_command: Vec<u8> = enable_notifications_command.into();
+    println!(
+        "Writing enable_notifications command: {:x?}",
+        enable_notifications_command
+    );
+    match port.write_interrupt(&enable_notifications_command) {
+        Ok(bytes) => println!("{bytes} bytes written"),
+        Err(e) => log!(
+            event_id: EventId::UnknownError,
+            message: format!("Unexpected error when writing enable_notifications command: {e:?}"),
+            event_type: EventType::SystemStatus
+        ),
+    }
+
     loop {
         if !running.load(Ordering::SeqCst) {
             log!(
@@ -143,43 +242,64 @@ fn run_event_loop(mut keyboard: impl VirtualKeyboard, mut port: Port, running: &
             );
             break;
         }
-        match port.read(&mut serial_buf) {
-            Ok(size) => on_port_data_received(&mut keyboard, &serial_buf[..size]),
+
+        let get_notifications_command = GetNotificationValues {};
+        let get_notifications_command: Vec<u8> = get_notifications_command.into();
+        println!(
+            "Writing get_notifications_command: {:x?}",
+            get_notifications_command
+        );
+        match port.write_interrupt(&get_notifications_command) {
+            Ok(bytes) => println!("{bytes} bytes written"),
+            Err(e) => log!(
+                event_id: EventId::UnknownError,
+                message: format!("Unexpected error when writing get_notifications_command: {e:?}"),
+                event_type: EventType::SystemStatus
+            ),
+        }
+
+        match port.read(&mut buf) {
+            // Ok(_) => on_port_data_received(&mut keyboard, &serial_buf[..size]),
+            Ok(_) => println!("Read ok"),
             // Timeout error just means no event was sent in the current polling period
             Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
             Err(e) => {
                 log!(
                     event_id: EventId::UnknownError,
-                    message: format!("Unexpected error when reading from serial port: {e:?}"),
+                    message: format!("Unexpected error when reading from interrupt endpoint: {e:?}"),
                     event_type: EventType::SystemStatus
                 );
             }
         }
     }
-}
 
-fn on_port_data_received(keyboard: &mut impl VirtualKeyboard, data: &[u8]) {
-    match handle_command(data) {
-        Ok(Some((key, send_shift))) => {
-            if let Err(err) = keyboard.send_keystroke(
-                key,
-                if send_shift {
-                    &[keyboard::Key::LeftShift]
-                } else {
-                    &[]
-                },
-            ) {
-                log!(EventId::UnknownError, "Error sending key: {err}");
-            }
-        }
-        Ok(None) => {}
-        Err(err) => log!(
-            event_id: EventId::UnknownError,
-            message: format!("Unexpected error when handling controller command: {err}"),
-            event_type: EventType::SystemStatus
-        ),
+    if let Err(err) = validate_connection(port) {
+        panic!("Error validating connection: {:?}", err)
     }
 }
+
+// fn on_port_data_received(keyboard: &mut impl VirtualKeyboard, data: &[u8]) {
+//     match handle_command(data) {
+//         Ok(Some((key, send_shift))) => {
+//             if let Err(err) = keyboard.send_keystroke(
+//                 key,
+//                 if send_shift {
+//                     &[keyboard::Key::LeftShift]
+//                 } else {
+//                     &[]
+//                 },
+//             ) {
+//                 log!(EventId::UnknownError, "Error sending key: {err}");
+//             }
+//         }
+//         Ok(None) => {}
+//         Err(err) => log!(
+//             event_id: EventId::UnknownError,
+//             message: format!("Unexpected error when handling controller command: {err}"),
+//             event_type: EventType::SystemStatus
+//         ),
+//     }
+// }
 
 // #[cfg(test)]
 // #[allow(clippy::unwrap_used)]
