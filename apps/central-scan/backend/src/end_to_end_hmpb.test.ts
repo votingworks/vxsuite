@@ -71,10 +71,12 @@ test('going through the whole process works - HMPB', async () => {
         const nextSession = scanner.withNextScannerSession();
 
         // scan some sample ballots
-        nextSession.sheet([
-          electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asFilePath(),
-          electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asFilePath(),
-        ]);
+        nextSession.sheet({
+          frontPath:
+            electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asFilePath(),
+          backPath:
+            electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asFilePath(),
+        });
 
         nextSession.end();
 

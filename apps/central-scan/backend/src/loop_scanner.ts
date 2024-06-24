@@ -1,15 +1,18 @@
 import { readFileSync } from 'fs-extra';
 import { dirname, resolve } from 'path';
-import { SheetOf, mapSheet } from '@votingworks/types';
-import { BatchControl, BatchScanner } from './fujitsu_scanner';
+import {
+  BatchControl,
+  BatchScanner,
+  ScannedSheetInfo,
+} from './fujitsu_scanner';
 
-type Batch = ReadonlyArray<SheetOf<string>>;
+type Batch = readonly ScannedSheetInfo[];
 
 export function parseBatches(
   imagePathsAndBatchSeparators: readonly string[]
 ): Batch[] {
-  const batches: Array<Array<SheetOf<string>>> = [];
-  let currentBatch: Array<SheetOf<string>> = [];
+  const batches: Array<ScannedSheetInfo[]> = [];
+  let currentBatch: ScannedSheetInfo[] = [];
 
   for (let i = 0; i < imagePathsAndBatchSeparators.length; i += 1) {
     const entry = imagePathsAndBatchSeparators[i].trim();
@@ -35,7 +38,7 @@ export function parseBatches(
         );
       }
 
-      currentBatch.push([frontPath, backPath]);
+      currentBatch.push({ frontPath, backPath });
     }
   }
 
@@ -56,11 +59,18 @@ export function parseBatchesFromEnv(env?: string): Batch[] | undefined {
     const batches = parseBatches(
       readFileSync(batchManifestPath, 'utf8').split('\n')
     ).map((batch) =>
-      batch.map((sheet) =>
-        mapSheet(sheet, (imagePath) =>
-          resolve(process.cwd(), dirname(batchManifestPath), imagePath)
-        )
-      )
+      batch.map((sheet) => ({
+        frontPath: resolve(
+          process.cwd(),
+          dirname(batchManifestPath),
+          sheet.frontPath
+        ),
+        backPath: resolve(
+          process.cwd(),
+          dirname(batchManifestPath),
+          sheet.backPath
+        ),
+      }))
     );
     return batches;
   }
@@ -100,7 +110,7 @@ export class LoopScanner implements BatchScanner {
     let sheetIndex = 0;
 
     return {
-      async scanSheet(): Promise<SheetOf<string> | undefined> {
+      async scanSheet(): Promise<ScannedSheetInfo | undefined> {
         sheetIndex += 1;
         return currentBatch?.[sheetIndex - 1];
       },

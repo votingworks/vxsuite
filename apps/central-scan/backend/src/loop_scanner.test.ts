@@ -2,9 +2,12 @@ import { readFileSync, writeFileSync } from 'fs-extra';
 import { join } from 'path';
 import { fileSync } from 'tmp';
 import { LoopScanner, parseBatches, parseBatchesFromEnv } from './loop_scanner';
+import { ScannedSheetInfo } from './fujitsu_scanner';
 
-function readFiles(paths: readonly string[]): string[] {
-  return paths.map((path) => readFileSync(path, 'utf8'));
+function readFiles(sheetInfo: ScannedSheetInfo): string[] {
+  return [sheetInfo.frontPath, sheetInfo.backPath].map((path) =>
+    readFileSync(path, 'utf8')
+  );
 }
 
 test('copies files in pairs', async () => {
@@ -13,7 +16,10 @@ test('copies files in pairs', async () => {
     writeFileSync(path, (i + 1).toString(), 'utf8');
     return path;
   });
-  const scanner = new LoopScanner([[[f1, f2]], [[f3, f4]]]);
+  const scanner = new LoopScanner([
+    [{ frontPath: f1, backPath: f2 }],
+    [{ frontPath: f3, backPath: f4 }],
+  ]);
 
   expect(readFiles((await scanner.scanSheets().scanSheet())!)).toEqual([
     '1',

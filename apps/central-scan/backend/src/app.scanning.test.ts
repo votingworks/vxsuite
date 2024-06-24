@@ -19,18 +19,24 @@ test('scanBatch with multiple sheets', async () => {
 
     scanner
       .withNextScannerSession()
-      .sheet([
-        electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
-        electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
-      ])
-      .sheet([
-        electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
-        electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
-      ])
-      .sheet([
-        electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
-        electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
-      ])
+      .sheet({
+        frontPath:
+          electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
+        backPath:
+          electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
+      })
+      .sheet({
+        frontPath:
+          electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
+        backPath:
+          electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
+      })
+      .sheet({
+        frontPath:
+          electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
+        backPath:
+          electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
+      })
       .end();
 
     await apiClient.scanBatch();
@@ -61,18 +67,24 @@ test('continueScanning after invalid ballot', async () => {
 
     scanner
       .withNextScannerSession()
-      .sheet([
-        electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
-        electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
-      ])
-      .sheet([
-        electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
-        electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(), // invalid BMD ballot
-      ])
-      .sheet([
-        electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
-        electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
-      ])
+      .sheet({
+        frontPath:
+          electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
+        backPath:
+          electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
+      })
+      .sheet({
+        frontPath:
+          electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
+        backPath:
+          electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(), // invalid BMD ballot
+      })
+      .sheet({
+        frontPath:
+          electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
+        backPath:
+          electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
+      })
       .end();
 
     await apiClient.scanBatch();

@@ -20,7 +20,7 @@ export const EXPECTED_IMPRINTER_UNATTACHED_ERROR =
 export interface ScannedSheetInfo {
   frontPath: string;
   backPath: string;
-  ballotAudit?: string;
+  ballotAuditId?: string;
 }
 
 export interface BatchControl {

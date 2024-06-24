@@ -66,10 +66,10 @@ test('save readiness report', async () => {
       jest.setSystemTime(reportPrintedTime.getTime());
       scanner
         .withNextScannerSession()
-        .sheet([
-          join(__dirname, '../test/fixtures/blank-sheet-front.jpg'),
-          join(__dirname, '../test/fixtures/blank-sheet-back.jpg'),
-        ])
+        .sheet({
+          frontPath: join(__dirname, '../test/fixtures/blank-sheet-front.jpg'),
+          backPath: join(__dirname, '../test/fixtures/blank-sheet-back.jpg'),
+        })
         .end();
       await apiClient.performScanDiagnostic();
       jest.useRealTimers();
@@ -119,10 +119,10 @@ describe('scan diagnostic', () => {
 
       scanner
         .withNextScannerSession()
-        .sheet([
-          join(__dirname, '../test/fixtures/blank-sheet-front.jpg'),
-          join(__dirname, '../test/fixtures/blank-sheet-back.jpg'),
-        ])
+        .sheet({
+          frontPath: join(__dirname, '../test/fixtures/blank-sheet-front.jpg'),
+          backPath: join(__dirname, '../test/fixtures/blank-sheet-back.jpg'),
+        })
         .end();
 
       await apiClient.performScanDiagnostic();
@@ -158,10 +158,10 @@ describe('scan diagnostic', () => {
 
       scanner
         .withNextScannerSession()
-        .sheet([
-          join(__dirname, '../test/fixtures/streaked-page.jpg'),
-          join(__dirname, '../test/fixtures/blank-sheet-back.jpg'),
-        ])
+        .sheet({
+          frontPath: join(__dirname, '../test/fixtures/streaked-page.jpg'),
+          backPath: join(__dirname, '../test/fixtures/blank-sheet-back.jpg'),
+        })
         .end();
       await apiClient.performScanDiagnostic();
 
@@ -189,10 +189,10 @@ describe('scan diagnostic', () => {
 
       scanner
         .withNextScannerSession()
-        .sheet([
-          join(__dirname, '../test/fixtures/blank-sheet-front.jpg'),
-          join(__dirname, '../test/fixtures/streaked-page.jpg'),
-        ])
+        .sheet({
+          frontPath: join(__dirname, '../test/fixtures/blank-sheet-front.jpg'),
+          backPath: join(__dirname, '../test/fixtures/streaked-page.jpg'),
+        })
         .end();
       await apiClient.performScanDiagnostic();
 

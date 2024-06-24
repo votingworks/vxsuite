@@ -1,7 +1,6 @@
 import { LogEventId, Logger } from '@votingworks/logging';
 import { runBlankPaperDiagnostic } from '@votingworks/ballot-interpreter';
-import { SheetOf } from '@votingworks/types';
-import { BatchScanner } from './fujitsu_scanner';
+import { BatchScanner, ScannedSheetInfo } from './fujitsu_scanner';
 import { Store } from './store';
 
 export type ScanDiagnosticOutcome = 'no-paper' | 'pass' | 'fail';
@@ -17,7 +16,7 @@ export async function performScanDiagnostic(
   });
 
   const batchControl = scanner.scanSheets();
-  let sheets: SheetOf<string> | undefined;
+  let sheets: ScannedSheetInfo | undefined;
   try {
     sheets = await batchControl.scanSheet();
   } catch {
@@ -37,7 +36,8 @@ export async function performScanDiagnostic(
     return 'no-paper';
   }
 
-  const [pathA, pathB] = sheets;
+  const pathA = sheets.frontPath;
+  const pathB = sheets.backPath;
 
   const didPass =
     runBlankPaperDiagnostic(pathA) && runBlankPaperDiagnostic(pathB);

@@ -53,10 +53,12 @@ test('going through the whole process works - BMD', async () => {
         // define the next scanner session & scan some sample ballots
         scanner
           .withNextScannerSession()
-          .sheet([
-            electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
-            electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
-          ])
+          .sheet({
+            frontPath:
+              electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
+            backPath:
+              electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
+          })
           .end();
         await apiClient.scanBatch();
 
