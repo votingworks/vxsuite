@@ -106,6 +106,18 @@ describe('rotateCandidates', () => {
 
     expect((rotateCandidates(contest) as CandidateContest).candidates).toEqual([
       {
+        id: '3',
+        name: 'John Curtis',
+      },
+      {
+        id: '4',
+        name: 'Adam Dean',
+      },
+      {
+        id: '5',
+        name: 'Frank French',
+      },
+      {
         id: '6',
         name: 'Candy Lozenge',
       },
@@ -132,18 +144,6 @@ describe('rotateCandidates', () => {
       {
         id: '2',
         name: 'Bruce Brown',
-      },
-      {
-        id: '3',
-        name: 'John Curtis',
-      },
-      {
-        id: '4',
-        name: 'Adam Dean',
-      },
-      {
-        id: '5',
-        name: 'Frank French',
       },
     ]);
   });
