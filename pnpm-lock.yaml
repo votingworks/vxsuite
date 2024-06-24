@@ -802,6 +802,9 @@ importers:
       '@types/uuid':
         specifier: 9.0.5
         version: 9.0.5
+      '@votingworks/bmd-ballot-fixtures':
+        specifier: workspace:*
+        version: link:../../../libs/bmd-ballot-fixtures
       esbuild:
         specifier: 0.21.2
         version: 0.21.2
@@ -2348,6 +2351,9 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
+      '@votingworks/bmd-ballot-fixtures':
+        specifier: workspace:*
+        version: link:../../../libs/bmd-ballot-fixtures
       '@votingworks/converter-nh-accuvote':
         specifier: workspace:*
         version: link:../../../libs/converter-nh-accuvote
@@ -3253,9 +3259,6 @@ importers:
       '@types/node-quirc':
         specifier: workspace:*
         version: link:../@types/node-quirc
-      '@types/react':
-        specifier: 18.3.3
-        version: 18.3.3
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
@@ -3268,12 +3271,6 @@ importers:
       '@votingworks/hmpb':
         specifier: workspace:*
         version: link:../hmpb
-      '@votingworks/printing':
-        specifier: workspace:*
-        version: link:../printing
-      '@votingworks/ui':
-        specifier: workspace:*
-        version: link:../ui
       cargo-cp-artifact:
         specifier: ^0.1
         version: 0.1.7
@@ -3307,9 +3304,6 @@ importers:
       lint-staged:
         specifier: 11.0.0
         version: 11.0.0
-      react:
-        specifier: 18.3.1
-        version: 18.3.1
       sort-package-json:
         specifier: ^1.50.0
         version: 1.50.0
