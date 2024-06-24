@@ -202,7 +202,7 @@ export class FujitsuScanner implements BatchScanner {
             backPath,
             ballotAuditId:
               imprintIdPrefix !== undefined
-                ? `${imprintIdPrefix}_${zeroPad(scannedFiles.length / 2)}`
+                ? `${imprintIdPrefix}_${zeroPad(scannedFiles.length / 2, 4)}`
                 : undefined, // TODO(CARO) figure out what this should actually be
           })
         );

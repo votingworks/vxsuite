@@ -25,7 +25,7 @@ create table batches (
 create table sheets (
   id varchar(36) primary key,
   batch_id varchar(36),
-  batch_audit_id varchar(41), -- <batch_id>_<4-digit-sequence>
+  ballot_audit_id varchar(41), -- <batch_id>_<4-digit-sequence>
 
   -- Paths for the sheet images.
   front_image_path text unique,

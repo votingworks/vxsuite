@@ -92,7 +92,7 @@ function sheetRowToAcceptedSheet(row: SheetRow): AcceptedSheet {
     type: 'accepted',
     id: row.id,
     batchId: row.batchId,
-    ballotAuditId: row.ballotAuditId,
+    ballotAuditId: row.ballotAuditId || undefined,
     interpretation: mapSheet(
       [row.frontInterpretationJson, row.backInterpretationJson],
       (json) => safeParseJson(json, PageInterpretationSchema).unsafeUnwrap()
@@ -623,7 +623,7 @@ export class Store {
             back_image_path,
             back_interpretation_json,
             requires_adjudication,
-            finished_adjudication_at,
+            finished_adjudication_at
           ) values (
             ?, ?, ?, ?, ?, ?, ?, ?, ?
           )`,

@@ -38,8 +38,8 @@ test('copies files in pairs', async () => {
 test('parses an inline manifest from an environment variable', () => {
   expect(parseBatchesFromEnv('01.png,02.png,03.png,04.png')).toEqual([
     [
-      ['01.png', '02.png'],
-      ['03.png', '04.png'],
+      { frontPath: '01.png', backPath: '02.png' },
+      { frontPath: '03.png', backPath: '04.png' },
     ],
   ]);
 });
@@ -49,8 +49,14 @@ test('interprets relative file paths in a manifest file as relative to the file'
   writeFileSync(manifestPath, '01.png\n02.png\n03.png\n04.png', 'utf8');
   expect(parseBatchesFromEnv(`@${manifestPath}`)).toEqual([
     [
-      [join(manifestPath, '..', '01.png'), join(manifestPath, '..', '02.png')],
-      [join(manifestPath, '..', '03.png'), join(manifestPath, '..', '04.png')],
+      {
+        frontPath: join(manifestPath, '..', '01.png'),
+        backPath: join(manifestPath, '..', '02.png'),
+      },
+      {
+        frontPath: join(manifestPath, '..', '03.png'),
+        backPath: join(manifestPath, '..', '04.png'),
+      },
     ],
   ]);
 });
@@ -60,25 +66,29 @@ test('preserves absolute paths in a manifest file', () => {
   writeFileSync(manifestPath, '/01.png\n/02.png\n/03.png\n/04.png', 'utf8');
   expect(parseBatchesFromEnv(`@${manifestPath}`)).toEqual([
     [
-      ['/01.png', '/02.png'],
-      ['/03.png', '/04.png'],
+      { frontPath: '/01.png', backPath: '/02.png' },
+      { frontPath: '/03.png', backPath: '/04.png' },
     ],
   ]);
 });
 
 test('interprets multiple path separators in a row as a batch separator', () => {
   expect(parseBatchesFromEnv('01.png,02.png,,,03.png,04.png')).toEqual([
-    [['01.png', '02.png']],
-    [['03.png', '04.png']],
+    [{ frontPath: '01.png', backPath: '02.png' }],
+    [{ frontPath: '03.png', backPath: '04.png' }],
   ]);
 });
 
 test('ignores comments', () => {
   expect(parseBatches(['# comment', '01.png', '02.png'])).toEqual([
-    [['01.png', '02.png']],
+    [{ frontPath: '01.png', backPath: '02.png' }],
   ]);
 });
 
 test('always attached', () => {
   expect(new LoopScanner([]).isAttached()).toEqual(true);
+});
+
+test('does not support imprinting', async () => {
+  expect(await new LoopScanner([]).isImprinterAttached()).toEqual(false);
 });
