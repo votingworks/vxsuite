@@ -18,11 +18,11 @@ fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
     imageproc::rect::Rect::at(rect.left(), rect.top()).of_size(rect.width(), rect.height())
 }
 
+use crate::image_utils::rainbow;
 use crate::layout::InterpretedContestLayout;
 use crate::{
     image_utils::{
-        BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GREEN, DARK_RED, GREEN, ORANGE, PINK, RAINBOW, RED,
-        WHITE_RGB,
+        BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GREEN, DARK_RED, GREEN, ORANGE, PINK, RED, WHITE_RGB,
     },
     qr_code::Detected,
     scoring::{ScoredBubbleMark, ScoredPositionAreas},
@@ -95,12 +95,8 @@ pub fn draw_qr_code_debug_image_mut(
 }
 
 pub fn draw_contours_debug_image_mut(canvas: &mut RgbImage, contour_rects: &[Rect]) {
-    for (i, rect) in contour_rects.iter().enumerate() {
-        draw_hollow_rect_mut(
-            canvas,
-            imageproc_rect_from_rect(rect),
-            RAINBOW[i % RAINBOW.len()],
-        );
+    for (rect, color) in contour_rects.iter().zip(rainbow()) {
+        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(rect), color);
     }
 }
 
@@ -110,20 +106,12 @@ pub fn draw_candidate_timing_marks_debug_image_mut(
     contour_rects: &[Rect],
     candidate_timing_marks: &[Rect],
 ) {
-    for (i, rect) in contour_rects.iter().enumerate() {
-        draw_hollow_rect_mut(
-            canvas,
-            imageproc_rect_from_rect(rect),
-            RAINBOW[i % RAINBOW.len()],
-        );
+    for (rect, color) in contour_rects.iter().zip(rainbow()) {
+        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(rect), color);
     }
 
-    for (i, rect) in candidate_timing_marks.iter().enumerate() {
-        draw_filled_rect_mut(
-            canvas,
-            imageproc_rect_from_rect(rect),
-            RAINBOW[i % RAINBOW.len()],
-        );
+    for (rect, color) in candidate_timing_marks.iter().zip(rainbow()) {
+        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), color);
     }
 }
 

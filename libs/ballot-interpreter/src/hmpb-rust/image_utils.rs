@@ -25,6 +25,10 @@ pub const DARK_CYAN: Rgb<u8> = Rgb([0, 127, 127]);
 pub const PINK: Rgb<u8> = Rgb([255, 0, 255]);
 pub const RAINBOW: [Rgb<u8>; 7] = [RED, ORANGE, YELLOW, GREEN, BLUE, INDIGO, VIOLET];
 
+pub fn rainbow() -> impl Iterator<Item = Rgb<u8>> {
+    RAINBOW.iter().copied().cycle()
+}
+
 /// An inset is a set of pixel offsets from the edges of an image.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 pub struct Inset {
