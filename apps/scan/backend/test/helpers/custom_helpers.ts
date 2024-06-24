@@ -15,6 +15,7 @@ import {
 } from '@votingworks/custom-scanner';
 import {
   electionFamousNames2021Fixtures,
+  electionGeneralDefinition,
   electionGridLayoutNewHampshireTestBallotFixtures,
   sampleBallotImages,
 } from '@votingworks/fixtures';
@@ -44,6 +45,12 @@ import {
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
 import { SimulatedClock } from 'xstate/lib/SimulatedClock';
+import {
+  DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
+  DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
+  DEFAULT_FAMOUS_NAMES_VOTES,
+  renderBmdBallotFixture,
+} from '@votingworks/bmd-ballot-fixtures';
 import { Api, buildApp } from '../../src/app';
 import {
   createPrecinctScannerStateMachine,
@@ -53,6 +60,7 @@ import { Workspace, createWorkspace } from '../../src/util/workspace';
 import {
   buildMockLogger,
   expectStatus,
+  pdfToImageSheet,
   waitForContinuousExportToUsbDrive,
   waitForStatus,
 } from './shared_helpers';
@@ -188,10 +196,17 @@ export const ballotImages = {
       await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asImageData(),
     ]),
   completeBmd: async () =>
-    customSheetOfImagesFromScannerFromBallotImageData([
-      await electionFamousNames2021Fixtures.machineMarkedBallotPage1.asImageData(),
-      await electionFamousNames2021Fixtures.machineMarkedBallotPage2.asImageData(),
-    ]),
+    customSheetOfImagesFromScannerFromBallotImageData(
+      await pdfToImageSheet(
+        await renderBmdBallotFixture({
+          electionDefinition:
+            electionFamousNames2021Fixtures.electionDefinition,
+          ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
+          precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
+          votes: DEFAULT_FAMOUS_NAMES_VOTES,
+        })
+      )
+    ),
   overvoteHmpb: async () =>
     customSheetOfImagesFromScannerFromBallotImageData([
       await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedOvervoteFront.asImageData(),
@@ -203,19 +218,17 @@ export const ballotImages = {
       await electionGridLayoutNewHampshireTestBallotFixtures.scanUnmarkedBack.asImageData(),
     ]),
   wrongElection: async () =>
-    customSheetOfImagesFromScannerFromBallotImageData([
-      // A BMD ballot front from a different election
-      await sampleBallotImages.sampleBatch1Ballot1.asImageData(),
-      // Blank BMD ballot back
-      await electionFamousNames2021Fixtures.machineMarkedBallotPage2.asImageData(),
-    ]),
-  // The interpreter expects two different image files, so we use two
-  // different blank page images
+    customSheetOfImagesFromScannerFromBallotImageData(
+      await pdfToImageSheet(
+        await renderBmdBallotFixture({
+          electionDefinition: electionGeneralDefinition,
+        })
+      )
+    ),
   blankSheet: async () =>
     customSheetOfImagesFromScannerFromBallotImageData([
       await sampleBallotImages.blankPage.asImageData(),
-      // Blank BMD ballot back
-      await electionFamousNames2021Fixtures.machineMarkedBallotPage2.asImageData(),
+      await sampleBallotImages.blankPage.asImageData(),
     ]),
 } as const;
 

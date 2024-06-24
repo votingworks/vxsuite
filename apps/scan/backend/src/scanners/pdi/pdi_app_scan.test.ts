@@ -11,6 +11,7 @@ import {
   SheetInterpretation,
 } from '@votingworks/types';
 import { ScannerError } from '@votingworks/pdi-scanner';
+import { DEFAULT_FAMOUS_NAMES_PRECINCT_ID } from '@votingworks/bmd-ballot-fixtures';
 import {
   ballotImages,
   createMockPdiScannerClient,
@@ -134,7 +135,7 @@ test('configure and scan bmd ballot', async () => {
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, {
         testMode: true,
-        precinctId: '23',
+        precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
       });
 
       clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);

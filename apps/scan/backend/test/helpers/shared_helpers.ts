@@ -1,5 +1,5 @@
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { ok } from '@votingworks/basics';
+import { iter, ok } from '@votingworks/basics';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import * as grout from '@votingworks/grout';
@@ -12,6 +12,8 @@ import {
   ElectionPackage,
   PrecinctId,
   PrecinctScannerState,
+  SheetOf,
+  asSheet,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -20,6 +22,8 @@ import {
 import waitForExpect from 'wait-for-expect';
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { Logger, mockLogger, LogSource } from '@votingworks/logging';
+import { pdfToImages, ImageData } from '@votingworks/image-utils';
+import { Buffer } from 'buffer';
 import { Api } from '../../src/app';
 import {
   PrecinctScannerStateMachine,
@@ -145,4 +149,14 @@ export function createPrecinctScannerStateMachineMock(): jest.Mocked<PrecinctSca
     beginDoubleFeedCalibration: jest.fn(),
     endDoubleFeedCalibration: jest.fn(),
   };
+}
+
+export async function pdfToImageSheet(
+  pdf: Buffer
+): Promise<SheetOf<ImageData>> {
+  return asSheet(
+    await iter(pdfToImages(pdf, { scale: 200 / 72 }))
+      .map(({ page }) => page)
+      .toArray()
+  );
 }
