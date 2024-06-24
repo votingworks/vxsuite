@@ -37,6 +37,7 @@
     ]
   },
   "dependencies": {
+    "@votingworks/fixtures": "workspace:*",
     "@votingworks/printing": "workspace:*",
     "@votingworks/types": "workspace:*",
     "@votingworks/ui": "workspace:*"
@@ -46,7 +47,6 @@
     "@types/jest-image-snapshot": "^6.4.0",
     "@types/react": "18.3.3",
     "@votingworks/basics": "workspace:*",
-    "@votingworks/fixtures": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "eslint-plugin-vx": "workspace:*",
     "is-ci-cli": "2.2.0",

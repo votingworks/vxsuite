@@ -4,22 +4,25 @@ import {
   DEFAULT_MARK_THRESHOLDS,
   InterpretedHmpbPage,
   PageInterpretation,
+  asSheet,
 } from '@votingworks/types';
 import { readElection } from '@votingworks/fs';
-import { assertDefined } from '@votingworks/basics';
-import { ballotFixture, renderTestModeBallot } from '../test/helpers/ballots';
+import { renderBmdBallotFixture } from '@votingworks/bmd-ballot-fixtures';
 import { interpretSheet } from './interpret';
+import { pdfToPageImagePaths } from '../test/helpers/interpretation';
 
 test('interpret BMD ballot for an election supporting hand-marked paper ballots', async () => {
   const electionDefinition = (
     await readElection(famousNamesFixtures.electionPath)
   ).unsafeUnwrap();
-  const bmdBallot = ballotFixture(
-    await renderTestModeBallot(
-      electionDefinition,
-      assertDefined(famousNamesFixtures.precinctId),
-      assertDefined(famousNamesFixtures.ballotStyleId),
-      famousNamesFixtures.votes
+  const bmdBallot = asSheet(
+    await pdfToPageImagePaths(
+      await renderBmdBallotFixture({
+        electionDefinition,
+        precinctId: famousNamesFixtures.precinctId,
+        ballotStyleId: famousNamesFixtures.ballotStyleId,
+        votes: famousNamesFixtures.votes,
+      })
     )
   );
 
@@ -31,7 +34,7 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
     },
-    await bmdBallot.asBmdSheetPaths()
+    bmdBallot
   );
 
   expect(bmdPage1Result.interpretation).toMatchObject<
@@ -44,7 +47,9 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
     type: 'BlankPage',
   });
 
-  const hmpbBallot = ballotFixture(famousNamesFixtures.markedBallotPath);
+  const hmpbBallot = asSheet(
+    await pdfToPageImagePaths(famousNamesFixtures.markedBallotPath)
+  );
 
   const [hmpbPage1Result, hmpbPage2Result] = await interpretSheet(
     {
@@ -54,7 +59,7 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
     },
-    (await hmpbBallot.asHmpbPaths().toArray()) as [string, string]
+    hmpbBallot
   );
 
   expect(hmpbPage1Result.interpretation).toMatchObject<

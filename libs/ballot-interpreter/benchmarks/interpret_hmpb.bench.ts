@@ -7,23 +7,21 @@ import {
 } from '@votingworks/types';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { interpretSheet } from '../src';
-import { ballotFixture } from '../test/helpers/ballots';
 import { benchmarkRegressionTest } from './benchmarking';
+import { pdfToPageImagePaths } from '../test/helpers/interpretation';
 
 jest.setTimeout(60_000);
 
 describe('Interpretation benchmark', () => {
   const { electionPath, precinctId, blankBallotPath, markedBallotPath } =
     famousNamesFixtures;
-  const blankBallot = ballotFixture(blankBallotPath);
-  const markedBallot = ballotFixture(markedBallotPath);
   let electionDefinition: ElectionDefinition;
   beforeAll(async () => {
     electionDefinition = (await readElection(electionPath)).unsafeUnwrap();
   });
 
   test('Blank HMPB', async () => {
-    const ballotImagePaths = await blankBallot.asHmpbPaths().toArray();
+    const ballotImagePaths = await pdfToPageImagePaths(blankBallotPath);
     assert(ballotImagePaths.length === 2);
 
     await benchmarkRegressionTest({
@@ -47,7 +45,7 @@ describe('Interpretation benchmark', () => {
   });
 
   test('Marked HMPB', async () => {
-    const ballotImagePaths = await markedBallot.asHmpbPaths().toArray();
+    const ballotImagePaths = await pdfToPageImagePaths(markedBallotPath);
     assert(ballotImagePaths.length === 2);
 
     await benchmarkRegressionTest({

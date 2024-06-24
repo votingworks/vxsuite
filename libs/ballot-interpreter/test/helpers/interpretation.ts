@@ -5,7 +5,11 @@ import {
   unique,
 } from '@votingworks/basics';
 import { voteToOptionId } from '@votingworks/hmpb';
-import { writeImageData } from '@votingworks/image-utils';
+import {
+  pdfToImages,
+  writeImageData,
+  ImageData,
+} from '@votingworks/image-utils';
 import {
   ContestId,
   GridLayout,
@@ -13,19 +17,27 @@ import {
   Vote,
   VotesDict,
 } from '@votingworks/types';
-import { ImageData } from 'canvas';
 import { tmpNameSync } from 'tmp';
+import { Buffer } from 'buffer';
+import { readFileSync } from 'fs';
 
-export function writePageImagesToImagePaths(
-  pageImages: Iterable<ImageData> | AsyncIterable<ImageData>
-): AsyncIteratorPlus<string> {
-  return iter(pageImages as AsyncIterable<ImageData>)
-    .async()
+export function pdfToPageImages(
+  pdf: Buffer | string
+): AsyncIteratorPlus<ImageData> {
+  const pdfData = typeof pdf === 'string' ? readFileSync(pdf) : pdf;
+  return iter(pdfToImages(pdfData, { scale: 200 / 72 })).map(
+    ({ page }) => page
+  );
+}
+
+export function pdfToPageImagePaths(pdf: Buffer | string): Promise<string[]> {
+  return pdfToPageImages(pdf)
     .map(async (page) => {
       const path = tmpNameSync({ postfix: '.png' });
       await writeImageData(path, page);
       return path;
-    });
+    })
+    .toArray();
 }
 
 function isContestOnSheet(

@@ -1,29 +1,31 @@
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { loadImageData } from '@votingworks/image-utils';
-import { DEFAULT_MARK_THRESHOLDS } from '@votingworks/types';
+import { DEFAULT_MARK_THRESHOLDS, asSheet } from '@votingworks/types';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import {
   DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
   DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
   DEFAULT_FAMOUS_NAMES_VOTES,
-} from '../test/fixtures';
-import { ballotFixture, renderTestModeBallot } from '../test/helpers/ballots';
+  renderBmdBallotFixture,
+} from '@votingworks/bmd-ballot-fixtures';
 import { tmpDir } from '../test/helpers/tmp';
 import { interpretSheetAndSaveImages } from './interpret';
+import { pdfToPageImagePaths } from '../test/helpers/interpretation';
 
 test('interprets ballot images and saves images for storage', async () => {
   const fixtures = electionFamousNames2021Fixtures;
   const { electionDefinition } = fixtures;
-  const testBallot = ballotFixture(
-    await renderTestModeBallot(
-      fixtures.electionDefinition,
-      DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
-      DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
-      DEFAULT_FAMOUS_NAMES_VOTES
+  const testBallot = asSheet(
+    await pdfToPageImagePaths(
+      await renderBmdBallotFixture({
+        electionDefinition,
+        precinctId: DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
+        ballotStyleId: DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
+        votes: DEFAULT_FAMOUS_NAMES_VOTES,
+      })
     )
   );
 
-  const validBmdSheet = await testBallot.asBmdSheetPaths();
   const ballotImagesPath = tmpDir();
   const result = await interpretSheetAndSaveImages(
     {
@@ -33,7 +35,7 @@ test('interprets ballot images and saves images for storage', async () => {
       markThresholds: DEFAULT_MARK_THRESHOLDS,
       adjudicationReasons: [],
     },
-    validBmdSheet,
+    testBallot,
     'sheet-id',
     ballotImagesPath
   );

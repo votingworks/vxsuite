@@ -11,6 +11,7 @@ import {
   PageInterpretation,
   PrecinctId,
   SheetOf,
+  asSheet,
   mapSheet,
 } from '@votingworks/types';
 import {
@@ -21,8 +22,9 @@ import {
   DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
   DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
   DEFAULT_FAMOUS_NAMES_VOTES,
-} from '../test/fixtures';
-import { ballotFixture, renderTestModeBallot } from '../test/helpers/ballots';
+  renderBmdBallotFixture,
+} from '@votingworks/bmd-ballot-fixtures';
+import { pdfToPageImagePaths } from '../test/helpers/interpretation';
 import {
   interpretSheet,
   interpretSimplexBmdBallotFromFilepath,
@@ -47,14 +49,17 @@ describe('VX BMD interpretation', () => {
   let validBmdSheet: SheetOf<string>;
 
   beforeAll(async () => {
-    validBmdSheet = await ballotFixture(
-      await renderTestModeBallot(
-        electionFamousNames2021Fixtures.electionDefinition,
-        precinctId,
-        ballotStyleId,
-        DEFAULT_FAMOUS_NAMES_VOTES
+    validBmdSheet = asSheet(
+      await pdfToPageImagePaths(
+        await renderBmdBallotFixture({
+          electionDefinition:
+            electionFamousNames2021Fixtures.electionDefinition,
+          precinctId,
+          ballotStyleId,
+          votes: DEFAULT_FAMOUS_NAMES_VOTES,
+        })
       )
-    ).asBmdSheetPaths();
+    );
     [bmdSummaryBallotPage, bmdBlankPage] = validBmdSheet;
   });
 

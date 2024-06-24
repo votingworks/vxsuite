@@ -3259,6 +3259,9 @@ importers:
       '@types/tmp':
         specifier: 0.2.4
         version: 0.2.4
+      '@votingworks/bmd-ballot-fixtures':
+        specifier: workspace:*
+        version: link:../bmd-ballot-fixtures
       '@votingworks/fs':
         specifier: workspace:*
         version: link:../fs
@@ -3362,6 +3365,9 @@ importers:
 
   libs/bmd-ballot-fixtures:
     dependencies:
+      '@votingworks/fixtures':
+        specifier: workspace:*
+        version: link:../fixtures
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../printing
@@ -3384,9 +3390,6 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../basics
-      '@votingworks/fixtures':
-        specifier: workspace:*
-        version: link:../fixtures
       '@votingworks/image-utils':
         specifier: workspace:*
         version: link:../image-utils

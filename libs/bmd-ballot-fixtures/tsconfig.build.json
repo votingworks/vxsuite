@@ -9,6 +9,7 @@
     "declaration": true
   },
   "references": [
+    { "path": "../fixtures/tsconfig.build.json" },
     { "path": "../image-utils/tsconfig.build.json" },
     { "path": "../printing/tsconfig.build.json" },
     { "path": "../types/tsconfig.build.json" },
