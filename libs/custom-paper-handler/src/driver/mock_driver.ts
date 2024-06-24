@@ -85,7 +85,7 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
   private pendingStatusChangeTimerId?: NodeJS.Timeout;
 
   constructor() {
-    void this.setMockStatus('noPaper');
+    this.setMockStatus('noPaper');
   }
 
   connect(): Promise<void> {
