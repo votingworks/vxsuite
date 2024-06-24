@@ -414,7 +414,6 @@ export function Footer({
 
 function BallotPageFrame({
   election,
-  translatedStrings,
   ballotStyleId,
   precinctId,
   ballotType,
@@ -436,7 +435,7 @@ function BallotPageFrame({
     <BackendLanguageContextProvider
       key={pageNumber}
       currentLanguageCode={primaryLanguageCode(ballotStyle)}
-      uiStringsPackage={translatedStrings}
+      uiStringsPackage={election.ballotStrings}
     >
       <Page
         pageNumber={pageNumber}
@@ -792,7 +791,7 @@ async function BallotPageContent(
     const contestMeasurements = await scratchpad.measureElements(
       <BackendLanguageContextProvider
         currentLanguageCode={primaryLanguageCode(ballotStyle)}
-        uiStringsPackage={restProps.translatedStrings}
+        uiStringsPackage={election.ballotStrings}
       >
         {contestElements.map((contest, i) => (
           <div

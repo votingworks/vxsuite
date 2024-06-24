@@ -168,12 +168,16 @@ function buildApi({ workspace, translator }: AppContext) {
       const { election, ballotLanguageConfigs } = store.getElection(
         input.electionId
       );
-      const translatedStrings = await translateBallotStrings(
+      const ballotStrings = await translateBallotStrings(
         translator,
         election,
         ballotLanguageConfigs,
         'latest'
       );
+      const electionWithBallotStrings: Election = {
+        ...election,
+        ballotStrings,
+      };
 
       const renderer = await createPlaywrightRenderer();
 
@@ -182,8 +186,7 @@ function buildApi({ workspace, translator }: AppContext) {
         ballotStyle.precincts.flatMap((precinctId) =>
           ballotTypes.flatMap((ballotType) =>
             BALLOT_MODES.map((ballotMode) => ({
-              election,
-              translatedStrings,
+              election: electionWithBallotStrings,
               ballotStyleId: ballotStyle.id,
               precinctId,
               ballotType,
@@ -244,17 +247,21 @@ function buildApi({ workspace, translator }: AppContext) {
       const { election, ballotLanguageConfigs } = store.getElection(
         input.electionId
       );
-      const translatedStrings = await translateBallotStrings(
+      const ballotStrings = await translateBallotStrings(
         translator,
         election,
         ballotLanguageConfigs,
         'latest'
       );
+      const electionWithBallotStrings: Election = {
+        ...election,
+        ballotStrings,
+      };
       const renderer = await createPlaywrightRenderer();
       const ballotPdf = await renderBallotPreviewToPdf(
         renderer,
         vxDefaultBallotTemplate,
-        { ...input, election, translatedStrings }
+        { ...input, election: electionWithBallotStrings }
       );
       // eslint-disable-next-line no-console
       renderer.cleanup().catch(console.error);
@@ -285,17 +292,20 @@ function buildApi({ workspace, translator }: AppContext) {
       const { election, ballotLanguageConfigs } = store.getElection(
         input.electionId
       );
-      const translatedStrings = await translateBallotStrings(
+      const ballotStrings = await translateBallotStrings(
         translator,
         election,
         ballotLanguageConfigs,
         'latest'
       );
+      const electionWithBallotStrings: Election = {
+        ...election,
+        ballotStrings,
+      };
       const allBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
         ballotStyle.precincts.map(
           (precinctId): BaseBallotProps => ({
-            election,
-            translatedStrings,
+            election: electionWithBallotStrings,
             ballotStyleId: ballotStyle.id,
             precinctId,
             ballotType: BallotType.Precinct,

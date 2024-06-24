@@ -18,7 +18,6 @@ import {
   HmpbBallotPageMetadata,
   Outset,
   PrecinctId,
-  UiStringsPackage,
   convertVxfElectionToCdfBallotDefinition,
   getDisplayElectionHash,
   safeParseElectionDefinition,
@@ -417,7 +416,6 @@ export async function renderBallotPreviewToPdf<P extends object>(
  */
 export interface BaseBallotProps {
   election: Election;
-  translatedStrings: UiStringsPackage;
   ballotStyleId: BallotStyleId;
   precinctId: PrecinctId;
   ballotType: BallotType;
@@ -441,11 +439,8 @@ export async function renderAllBallotsAndCreateElectionDefinition<
   ballotDocuments: RenderDocument[];
   electionDefinition: ElectionDefinition;
 }> {
-  const { election, translatedStrings } = ballotProps[0];
+  const { election } = ballotProps[0];
   assert(ballotProps.every((props) => props.election === election));
-  assert(
-    ballotProps.every((props) => props.translatedStrings === translatedStrings)
-  );
 
   const ballotsWithLayouts = await Promise.all(
     ballotProps.map(async (props) => {
@@ -487,10 +482,7 @@ export async function renderAllBallotsAndCreateElectionDefinition<
       case 'vxf':
         return electionWithGridLayouts;
       case 'cdf':
-        return convertVxfElectionToCdfBallotDefinition(
-          electionWithGridLayouts,
-          translatedStrings
-        );
+        return convertVxfElectionToCdfBallotDefinition(electionWithGridLayouts);
       default:
         /* istanbul ignore next */
         throwIllegalValue(electionSerializationFormat);

@@ -2,6 +2,7 @@ import {
   Election,
   MachineVersion,
   UiStringsPackage,
+  filterUiStrings,
   mergeUiStrings,
 } from '@votingworks/types';
 import { BallotLanguageConfigs } from '../types';
@@ -29,5 +30,10 @@ export async function translateBallotStrings(
     machineVersion,
     ballotLanguageConfigs
   );
-  return mergeUiStrings(electionStrings, appStrings);
+  // Temporary hack: Only pass the HMPB app strings to the renderer.
+  // TODO: construct and translate these as a separate package
+  const hmpbStrings = filterUiStrings(appStrings, (stringKey) =>
+    stringKey.startsWith('hmpb')
+  );
+  return mergeUiStrings(electionStrings, hmpbStrings);
 }

@@ -378,8 +378,7 @@ function getUiString(
 }
 
 export function convertVxfElectionToCdfBallotDefinition(
-  vxfElection: Vxf.Election,
-  translatedElectionStrings: UiStringsPackage
+  vxfElection: Vxf.Election
 ): Cdf.BallotDefinition {
   function text(
     content: string,
@@ -401,7 +400,7 @@ export function convertVxfElectionToCdfBallotDefinition(
       }
 
       const stringInLanguage = getUiString(
-        translatedElectionStrings,
+        vxfElection.ballotStrings,
         languageCode,
         stringKey
       );
