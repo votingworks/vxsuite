@@ -123,7 +123,6 @@ export type PaperHandlerStatusEvent =
   | { type: 'PAPER_IN_INPUT' }
   | { type: 'POLL_WORKER_CONFIRMED_INVALIDATED_BALLOT' }
   | { type: 'SCANNING' }
-  | { type: 'SET_INTERPRETATION_FIXTURE'; jpgPath: string }
   | { type: 'VOTER_VALIDATED_BALLOT' }
   | { type: 'VOTER_INVALIDATED_BALLOT' }
   | { type: 'AUTH_STATUS_SYSTEM_ADMIN' }
@@ -470,12 +469,6 @@ export function buildMachine(
             isPatDeviceConnected: false,
           }),
           target: 'pat_device_disconnected',
-        },
-        SET_INTERPRETATION_FIXTURE: {
-          actions: assign({
-            scannedBallotImagePath: (_context, event) => event.jpgPath,
-          }),
-          target: 'voting_flow.interpreting',
         },
         SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC:
           'paper_handler_diagnostic',
