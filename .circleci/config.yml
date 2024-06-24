@@ -592,6 +592,31 @@ jobs:
       - store_test_results:
           path: libs/basics/reports/
 
+  # @votingworks/bmd-ballot-fixtures
+  test-libs-bmd-ballot-fixtures:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/bmd-ballot-fixtures build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/bmd-ballot-fixtures lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/bmd-ballot-fixtures test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/bmd-ballot-fixtures/reports/
+      - store_artifacts:
+          path: libs/bmd-ballot-fixtures/src/__image_snapshots__/__diff_output__/
+
   # @votingworks/cdf-schema-builder
   test-libs-cdf-schema-builder:
     executor: nodejs
@@ -1427,6 +1452,7 @@ workflows:
       - test-libs-ballot-encoder
       - test-libs-ballot-interpreter
       - test-libs-basics
+      - test-libs-bmd-ballot-fixtures
       - test-libs-cdf-schema-builder
       - test-libs-converter-nh-accuvote
       - test-libs-custom-paper-handler

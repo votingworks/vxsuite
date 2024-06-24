@@ -6,36 +6,11 @@ import {
 } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import { pdfToImages } from '@votingworks/image-utils';
-import { renderToPdf } from '@votingworks/printing';
-import { ElectionDefinition, SheetOf, VotesDict } from '@votingworks/types';
-import { BmdPaperBallot } from '@votingworks/ui';
+import { SheetOf } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import { ImageData } from 'canvas';
 import { readFileSync } from 'fs';
 import { writePageImagesToImagePaths } from './interpretation';
-
-export async function renderTestModeBallot(
-  electionDefinition: ElectionDefinition,
-  precinctId: string,
-  ballotStyleId: string,
-  votes: VotesDict
-): Promise<Buffer> {
-  const ballot = (
-    <BmdPaperBallot
-      electionDefinition={electionDefinition}
-      ballotStyleId={ballotStyleId}
-      precinctId={precinctId}
-      votes={votes}
-      isLiveMode={false}
-      generateBallotId={() => '1'}
-      machineType="mark"
-    />
-  );
-
-  return renderToPdf({
-    document: ballot,
-  });
-}
 
 function renderPdfDataToPageImages(pdf: Buffer): AsyncIteratorPlus<ImageData> {
   return iter(pdfToImages(pdf, { scale: 200 / 72 })).map((page) => page.page);

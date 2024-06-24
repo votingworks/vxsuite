@@ -101,6 +101,10 @@
       "path": "libs/basics"
     },
     {
+      "name": "libs/bmd-ballot-fixtures",
+      "path": "libs/bmd-ballot-fixtures"
+    },
+    {
       "name": "libs/cdf-schema-builder",
       "path": "libs/cdf-schema-builder"
     },
