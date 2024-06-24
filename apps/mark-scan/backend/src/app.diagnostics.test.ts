@@ -316,6 +316,11 @@ describe('paper handler diagnostic', () => {
     mockScanResult.resolve(scannedPath);
     await waitForStatus('paper_handler_diagnostic.interpret_ballot');
 
+    // Simulate a delay between the `ejectBallotToRear` call and the paper
+    // getting ejected to allow us to test for the `eject_to_rear` state
+    // transition:
+    jest.spyOn(driver, 'ejectBallotToRear').mockResolvedValue(true);
+
     mockInterpretResult.resolve(interpretationMock);
     await waitForStatus('paper_handler_diagnostic.eject_to_rear');
 
