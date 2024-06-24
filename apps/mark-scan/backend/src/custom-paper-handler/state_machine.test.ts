@@ -80,7 +80,6 @@ const TEST_POLL_INTERVAL_MS = 50;
 // detect `ballot_accepted` state
 const TEST_NOTIFICATION_DURATION_MS = 150;
 
-// jest.mock('@votingworks/custom-paper-handler');
 jest.mock('@votingworks/ballot-interpreter');
 jest.mock('./application_driver');
 jest.mock('../pat-input/connection_status_reader');
