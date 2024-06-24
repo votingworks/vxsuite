@@ -13,6 +13,7 @@ import {
 import { ok, sleep } from '@votingworks/basics';
 import { withApp } from '../test/helpers/setup_app';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
+import { generateBmdBallotFixture } from '../test/helpers/ballots';
 
 // we need more time for ballot interpretation
 jest.setTimeout(20000);
@@ -49,15 +50,10 @@ test('going through the whole process works - BMD', async () => {
 
       await apiClient.setTestMode({ testMode: true });
 
+      const ballot = await generateBmdBallotFixture();
       {
         // define the next scanner session & scan some sample ballots
-        scanner
-          .withNextScannerSession()
-          .sheet([
-            electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
-            electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
-          ])
-          .end();
+        scanner.withNextScannerSession().sheet(ballot).end();
         await apiClient.scanBatch();
 
         await importer.waitForEndOfBatchOrScanningPause();

@@ -4,13 +4,15 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   TEST_JURISDICTION,
 } from '@votingworks/types';
-import { withApp } from '../test/helpers/setup_app';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
+import { withApp } from '../test/helpers/setup_app';
+import { generateBmdBallotFixture } from '../test/helpers/ballots';
 
 const jurisdiction = TEST_JURISDICTION;
 
 test('scanBatch with multiple sheets', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
+  const ballot = await generateBmdBallotFixture();
   await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
     mockElectionManagerAuth(auth, electionDefinition);
     importer.configure(electionDefinition, jurisdiction);
@@ -19,18 +21,9 @@ test('scanBatch with multiple sheets', async () => {
 
     scanner
       .withNextScannerSession()
-      .sheet([
-        electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
-        electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
-      ])
-      .sheet([
-        electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
-        electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
-      ])
-      .sheet([
-        electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
-        electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
-      ])
+      .sheet(ballot)
+      .sheet(ballot)
+      .sheet(ballot)
       .end();
 
     await apiClient.scanBatch();
@@ -53,6 +46,7 @@ test('scanBatch with multiple sheets', async () => {
 
 test('continueScanning after invalid ballot', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
+  const ballot = await generateBmdBallotFixture();
   await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
     mockElectionManagerAuth(auth, electionDefinition);
     importer.configure(electionDefinition, jurisdiction);
@@ -61,18 +55,10 @@ test('continueScanning after invalid ballot', async () => {
 
     scanner
       .withNextScannerSession()
-      .sheet([
-        electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
-        electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
-      ])
-      .sheet([
-        electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
-        electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(), // invalid BMD ballot
-      ])
-      .sheet([
-        electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
-        electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
-      ])
+      .sheet(ballot)
+      // Invalid BMD ballot
+      .sheet([ballot[1], ballot[1]])
+      .sheet(ballot)
       .end();
 
     await apiClient.scanBatch();
