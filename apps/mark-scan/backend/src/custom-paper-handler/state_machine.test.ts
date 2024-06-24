@@ -153,11 +153,10 @@ async function expectStatusTransitionTo(
   expectCurrentStatus(status);
 }
 
-async function expectMockPaperHandlerStatus(
+function expectMockPaperHandlerStatus(
   mockDriver: MockPaperHandlerDriver,
   mockStatus: MockPaperHandlerStatus
 ) {
-  await jest.advanceTimersByTimeAsync(mockDriver.getMockOperationDelayMs());
   expect(mockDriver.getMockStatus()).toEqual(mockStatus);
 }
 
@@ -333,7 +332,7 @@ describe('paper jam', () => {
     driver.setMockStatus('paperInserted');
     await expectStatusTransitionTo('loading_paper_after_jam');
     await expectStatusTransitionTo('paper_reloaded');
-    await expectMockPaperHandlerStatus(driver, 'paperParked');
+    expectMockPaperHandlerStatus(driver, 'paperParked');
   });
 
   it('during voter session - with cardless voter auth', async () => {
@@ -358,7 +357,7 @@ describe('paper jam', () => {
     driver.setMockStatus('paperInserted');
     await expectStatusTransitionTo('loading_paper_after_jam');
     await expectStatusTransitionTo('paper_reloaded');
-    await expectMockPaperHandlerStatus(driver, 'paperParked');
+    expectMockPaperHandlerStatus(driver, 'paperParked');
   });
 
   it('jam_cleared triggered for JAMMED_STATUS_NO_PAPER event', async () => {
@@ -419,7 +418,7 @@ test('voting flow happy path', async () => {
   );
 
   await expectStatusTransitionTo('presenting_ballot');
-  await expectMockPaperHandlerStatus(driver, 'presentingPaper');
+  expectMockPaperHandlerStatus(driver, 'presentingPaper');
 
   machine.validateBallot();
   await expectStatusTransitionTo('ejecting_to_rear');
@@ -464,7 +463,7 @@ test('ballot box empty flow', async () => {
   );
 
   await expectStatusTransitionTo('presenting_ballot');
-  await expectMockPaperHandlerStatus(driver, 'presentingPaper');
+  expectMockPaperHandlerStatus(driver, 'presentingPaper');
 
   machine.validateBallot();
   await expectStatusTransitionTo('ejecting_to_rear');
@@ -525,7 +524,7 @@ test('blank page interpretation', async () => {
 
   // Remove blank ballot
   mockPollWorkerAuth(auth, electionGeneralDefinition);
-  await expectMockPaperHandlerStatus(driver, 'presentingPaper');
+  expectMockPaperHandlerStatus(driver, 'presentingPaper');
   driver.setMockStatus('noPaper');
   await expectStatusTransitionTo('blank_page_interpretation');
 
@@ -533,7 +532,7 @@ test('blank page interpretation', async () => {
   driver.setMockStatus('paperInserted');
   await expectStatusTransitionTo('blank_page_interpretation');
 
-  await expectMockPaperHandlerStatus(driver, 'paperParked');
+  expectMockPaperHandlerStatus(driver, 'paperParked');
 
   await expectStatusTransitionTo('paper_reloaded');
 

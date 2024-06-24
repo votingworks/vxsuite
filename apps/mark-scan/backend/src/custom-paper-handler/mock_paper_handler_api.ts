@@ -30,21 +30,5 @@ export function buildMockPaperHandlerApi(params: {
 
       paperHandler.setMockStatus(input.mockStatus);
     },
-
-    getMockPaperHandlerOperationDelayMs(): number {
-      if (!isMockPaperHandler(paperHandler)) {
-        return 0;
-      }
-
-      return paperHandler.getMockOperationDelayMs();
-    },
-
-    setMockPaperHandlerOperationDelay(input: { delayMs: number }): void {
-      if (!isMockPaperHandler(paperHandler)) {
-        return;
-      }
-
-      paperHandler.setMockOperationDelayMs(input.delayMs);
-    },
   });
 }

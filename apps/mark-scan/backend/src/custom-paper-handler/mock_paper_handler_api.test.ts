@@ -56,32 +56,3 @@ test('setMockPaperHandlerStatus', () => {
     'paperInserted'
   );
 });
-
-test('getMockPaperHandlerOperationDelayMs', () => {
-  const paperHandler = new MockPaperHandlerDriver();
-  const api = buildMockPaperHandlerApi({ paperHandler });
-
-  expect(api.getMockPaperHandlerOperationDelayMs()).toEqual<number>(0);
-
-  paperHandler.setMockOperationDelayMs(2000);
-  expect(api.getMockPaperHandlerOperationDelayMs()).toEqual<number>(2000);
-
-  // Expect no-op for non-mock paper handler:
-  mockOf(isMockPaperHandler).mockReturnValue(false);
-  expect(api.getMockPaperHandlerOperationDelayMs()).toEqual(0);
-});
-
-test('setMockPaperHandlerOperationDelay', () => {
-  const paperHandler = new MockPaperHandlerDriver();
-  const api = buildMockPaperHandlerApi({ paperHandler });
-
-  expect(paperHandler.getMockOperationDelayMs()).toEqual<number>(0);
-
-  api.setMockPaperHandlerOperationDelay({ delayMs: 2000 });
-  expect(paperHandler.getMockOperationDelayMs()).toEqual<number>(2000);
-
-  // Expect no-op for non-mock paper handler:
-  mockOf(isMockPaperHandler).mockReturnValue(false);
-  api.setMockPaperHandlerOperationDelay({ delayMs: 1000 });
-  expect(paperHandler.getMockOperationDelayMs()).toEqual<number>(2000);
-});

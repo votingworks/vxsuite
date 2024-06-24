@@ -80,9 +80,7 @@ const EMPTY_PAGE_CONTENTS = new ImageData(
 export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
   private statusRef: PaperHandlerStatus = defaultPaperHandlerStatus();
   private mockStatus: MockPaperHandlerStatus = 'noPaper';
-  private operationDelayMs: number = 0;
   private mockPaperContents?: ImageData;
-  private pendingStatusChangeTimerId?: NodeJS.Timeout;
 
   constructor() {
     this.setMockStatus('noPaper');
@@ -185,12 +183,8 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
     return Promise.resolve(true);
   }
 
-  async scan(): Promise<ImageData> {
-    if (this.operationDelayMs) {
-      await sleep(this.operationDelayMs);
-    }
-
-    return this.mockPaperContents || EMPTY_PAGE_CONTENTS;
+  scan(): Promise<ImageData> {
+    return Promise.resolve(this.mockPaperContents || EMPTY_PAGE_CONTENTS);
   }
 
   async scanAndSave(pathOut: string): Promise<void> {
@@ -203,7 +197,7 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
   }
 
   async ejectPaperToFront(): Promise<boolean> {
-    this.setDelayedMockStatus('noPaper');
+    this.setMockStatus('noPaper');
 
     return Promise.resolve(true);
   }
@@ -215,13 +209,13 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
   }
 
   async presentPaper(): Promise<boolean> {
-    this.setDelayedMockStatus('presentingPaper');
+    this.setMockStatus('presentingPaper');
 
     return Promise.resolve(true);
   }
 
   async ejectBallotToRear(): Promise<boolean> {
-    this.setDelayedMockStatus('noPaper');
+    this.setMockStatus('noPaper');
 
     return Promise.resolve(true);
   }
@@ -294,36 +288,17 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
   // Mock Helpers:
   //
 
-  getMockOperationDelayMs(): number {
-    return this.operationDelayMs;
-  }
-
-  setMockOperationDelayMs(delayMs: number): void {
-    this.operationDelayMs = Math.max(delayMs, 0);
-  }
-
   getMockStatus(): MockPaperHandlerStatus {
     return this.mockStatus;
   }
 
   setMockStatus(mockStatus: MockPaperHandlerStatus): void {
-    // Clear any pending status change operation. Allows us to simulate
-    // operations getting interrupted (e.g. by a paper jam).
-    clearTimeout(this.pendingStatusChangeTimerId);
-
     this.mockStatus = mockStatus;
     this.statusRef = MOCK_STATUSES_DEFINITIONS[mockStatus];
   }
 
   setMockPaperContents(contents?: ImageData): void {
     this.mockPaperContents = contents;
-  }
-
-  private setDelayedMockStatus(mockStatus: MockPaperHandlerStatus) {
-    this.pendingStatusChangeTimerId = setTimeout(
-      () => this.setMockStatus(mockStatus),
-      this.operationDelayMs
-    );
   }
 }
 

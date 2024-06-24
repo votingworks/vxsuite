@@ -19,25 +19,11 @@ jest.mock(
   })
 );
 
-function newMockDriver() {
-  const mockDriver = new MockPaperHandlerDriver();
-
-  const operationDelayMs = 1000;
-  mockDriver.setMockOperationDelayMs(operationDelayMs);
-
-  return { mockDriver, operationDelayMs };
-}
-
-async function expectMockStatus(params: {
-  delayMs?: number;
+function expectMockStatus(params: {
   mockDriver: MockPaperHandlerDriver;
   mockStatus: MockPaperHandlerStatus;
 }) {
-  const { delayMs, mockDriver, mockStatus } = params;
-
-  if (delayMs) {
-    await jest.advanceTimersByTimeAsync(delayMs);
-  }
+  const { mockDriver, mockStatus } = params;
 
   expect(mockDriver.getMockStatus()).toEqual(mockStatus);
 }
@@ -93,10 +79,10 @@ describe('setMockPaperHandlerStatus', () => {
     statusAssertions
   ) as MockPaperHandlerStatus[]) {
     test(mockStatus, async () => {
-      const { mockDriver } = newMockDriver();
+      const mockDriver = new MockPaperHandlerDriver();
 
       mockDriver.setMockStatus(mockStatus);
-      await expectMockStatus({ mockDriver, mockStatus });
+      expectMockStatus({ mockDriver, mockStatus });
 
       const paperHandlerStatus = await mockDriver.getPaperHandlerStatus();
       statusAssertions[mockStatus](paperHandlerStatus);
@@ -105,54 +91,50 @@ describe('setMockPaperHandlerStatus', () => {
 });
 
 test('parkPaper()', async () => {
-  const { mockDriver } = newMockDriver();
+  const mockDriver = new MockPaperHandlerDriver();
   mockDriver.setMockStatus('paperInserted');
 
-  await expectMockStatus({ mockDriver, mockStatus: 'paperInserted' });
+  expectMockStatus({ mockDriver, mockStatus: 'paperInserted' });
 
   await mockDriver.parkPaper();
 
-  await expectMockStatus({ mockDriver, mockStatus: 'paperParked' });
+  expectMockStatus({ mockDriver, mockStatus: 'paperParked' });
 });
 
 test('ejectPaperToFront()', async () => {
-  const { mockDriver, operationDelayMs: delayMs } = newMockDriver();
+  const mockDriver = new MockPaperHandlerDriver();
   mockDriver.setMockStatus('paperParked');
 
-  await expectMockStatus({ mockDriver, mockStatus: 'paperParked' });
+  expectMockStatus({ mockDriver, mockStatus: 'paperParked' });
 
   await mockDriver.ejectPaperToFront();
 
-  await expectMockStatus({ mockDriver, mockStatus: 'noPaper', delayMs });
+  expectMockStatus({ mockDriver, mockStatus: 'noPaper' });
 });
 
 test('ejectBallotToRear()', async () => {
-  const { mockDriver, operationDelayMs: delayMs } = newMockDriver();
+  const mockDriver = new MockPaperHandlerDriver();
   mockDriver.setMockStatus('paperParked');
 
-  await expectMockStatus({ mockDriver, mockStatus: 'paperParked' });
+  expectMockStatus({ mockDriver, mockStatus: 'paperParked' });
 
   await mockDriver.ejectBallotToRear();
 
-  await expectMockStatus({ mockDriver, mockStatus: 'noPaper', delayMs });
+  expectMockStatus({ mockDriver, mockStatus: 'noPaper' });
 });
 
 test('presentPaper()', async () => {
-  const { mockDriver, operationDelayMs: delayMs } = newMockDriver();
+  const mockDriver = new MockPaperHandlerDriver();
   mockDriver.setMockStatus('paperParked');
 
-  await expectMockStatus({ mockDriver, mockStatus: 'paperParked' });
+  expectMockStatus({ mockDriver, mockStatus: 'paperParked' });
 
   await mockDriver.presentPaper();
-  await expectMockStatus({
-    delayMs,
-    mockDriver,
-    mockStatus: 'presentingPaper',
-  });
+  expectMockStatus({ mockDriver, mockStatus: 'presentingPaper' });
 });
 
 describe('print and scan', () => {
-  const { mockDriver, operationDelayMs } = newMockDriver();
+  const mockDriver = new MockPaperHandlerDriver();
 
   const mockPageContents = new ImageData(
     new Uint8ClampedArray([1, 2, 3, 4]),
@@ -162,20 +144,15 @@ describe('print and scan', () => {
   test('scan only', async () => {
     mockDriver.setMockPaperContents(mockPageContents);
 
-    const scannedImagePromise = mockDriver.scan();
-    await jest.advanceTimersByTimeAsync(operationDelayMs);
-
-    expect(await scannedImagePromise).toEqual(mockPageContents);
+    expect(await mockDriver.scan()).toEqual(mockPageContents);
   });
 
   test('scan and save', async () => {
     mockDriver.setMockPaperContents(mockPageContents);
 
     const scannedImageFilename = '/tmp/mockPaperHandlerScan.png';
-    const scannedImagePromise = mockDriver.scanAndSave(scannedImageFilename);
-    await jest.advanceTimersByTimeAsync(operationDelayMs);
+    await mockDriver.scanAndSave(scannedImageFilename);
 
-    await scannedImagePromise;
     expect(mockOf(writeImageData)).toHaveBeenCalledWith(
       scannedImageFilename,
       mockPageContents

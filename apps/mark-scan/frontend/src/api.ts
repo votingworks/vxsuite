@@ -557,32 +557,3 @@ export const setMockPaperHandlerStatus = {
     });
   },
 } as const;
-
-// istanbul ignore next
-export const getMockPaperHandlerOperationDelayMs = {
-  queryKey: ['getMockPaperHandlerOperationDelayMs'] as QueryKey,
-
-  useQuery() {
-    const apiClient = useApiClient();
-
-    return useQuery(this.queryKey, () =>
-      apiClient.getMockPaperHandlerOperationDelayMs()
-    );
-  },
-} as const;
-
-// istanbul ignore next
-export const setMockPaperHandlerOperationDelay = {
-  useMutation() {
-    const apiClient = useApiClient();
-    const queryClient = useQueryClient();
-
-    return useMutation(apiClient.setMockPaperHandlerOperationDelay, {
-      async onSuccess() {
-        await queryClient.invalidateQueries(
-          getMockPaperHandlerOperationDelayMs.queryKey
-        );
-      },
-    });
-  },
-} as const;
