@@ -236,8 +236,8 @@
         "triggerfish": "Triggerfish"
       },
       "contestDescription": {
-        "new-zoo-either": "Initiative Measure No. 12, Should Sample City establish a new safari-style zoo costing 2,000,000?\n\nAlternative Measure 12 A, Should Sample City establish a new traditional zoo costing 1,000,000?",
-        "new-zoo-pick": "Initiative Measure No. 12, Should Sample City establish a new safari-style zoo costing 2,000,000?\n\nAlternative Measure 12 A, Should Sample City establish a new traditional zoo costing 1,000,000?",
+        "new-zoo-either": "Initiative Measure No. 12, Should Sample City establish a new safari-style zoo costing 2,000,000?\n\n Alternative Measure 12 A, Should Sample City establish a new traditional zoo costing 1,000,000?",
+        "new-zoo-pick": "Initiative Measure No. 12, Should Sample City establish a new safari-style zoo costing 2,000,000?\n\n Alternative Measure 12 A, Should Sample City establish a new traditional zoo costing 1,000,000?",
         "fishing": "Should fishing be banned in all city owned lakes and rivers?"
       },
       "contestOptionLabel": {
@@ -265,7 +265,7 @@
       },
       "countyName": "Sample County",
       "districtName": { "district-1": "District 1" },
-      "electionDate": "Wed Sep 08 2021 00:00:00 GMT-0700 (Pacific Daylight Time)",
+      "electionDate": "September 8, 2021",
       "electionTitle": "Example Primary Election",
       "partyFullName": { "0": "Mammal Party", "1": "Fish Party" },
       "partyName": { "0": "Mammal", "1": "Fish" },
