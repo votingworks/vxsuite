@@ -1,7 +1,4 @@
-use std::{
-    f32::consts::PI,
-    ops::{Add, AddAssign, Sub},
-};
+use std::ops::{Add, AddAssign, Sub};
 
 use serde::{Deserialize, Serialize};
 
@@ -62,13 +59,13 @@ macro_rules! impl_angle {
                 }
 
                 let mut angle = self % (Self::PI * 2.0);
-                while self < Self(0.0) {
+                while angle < Self(0.0) {
                     angle += Self::PI;
                 }
-                while self >= Self::PI {
+                while angle >= Self::PI {
                     angle -= Self::PI;
                 }
-                self
+                angle
             }
         }
 
@@ -395,29 +392,9 @@ pub enum IntersectionBounds {
 }
 
 /// Returns the angle between two angles in radians.
-#[must_use]
 pub fn angle_diff(a: Radians, b: Radians) -> Radians {
-    let diff = normalize_angle(Radians::new(a.0 - b.0));
-    Radians::new(f32::min(diff.0, PI - diff.0))
-}
-
-/// Normalize angle to [0, PI). This means that two angles that are
-/// equivalent modulo PI will be equal, e.g. 90° and 270°, even though
-/// they are not equal in the mathematical sense.
-#[must_use]
-pub fn normalize_angle(angle: Radians) -> Radians {
-    if angle.0.is_infinite() || angle.0.is_nan() {
-        return angle;
-    }
-
-    let mut angle = angle.0 % (2.0 * PI);
-    while angle < 0.0 {
-        angle += PI;
-    }
-    while angle >= PI {
-        angle -= PI;
-    }
-    Radians::new(angle)
+    let diff = (a - b).normalize();
+    Radians::min(diff, Radians::PI - diff)
 }
 
 /// Finds the largest subset of rectangles such that a line can be drawn through
@@ -436,9 +413,11 @@ pub fn find_largest_subset_intersecting_line(
         .flat_map(|rect| rects.iter().map(move |other_rect| (rect, other_rect)))
         // Map to lists of rectangles in line with each pair.
         .filter_map(|(rect, other_rect)| {
-            let line_angle = (other_rect.center().y - rect.center().y)
-                .atan2(other_rect.center().x - rect.center().x);
-            if angle_diff(Radians::new(line_angle), angle).0 > tolerance.0 {
+            let line_angle = Radians::new(
+                (other_rect.center().y - rect.center().y)
+                    .atan2(other_rect.center().x - rect.center().x),
+            );
+            if angle_diff(line_angle, angle) > tolerance {
                 // The line between the two rectangles is not within the
                 // tolerance of the desired angle, so skip this pair.
                 return None;
@@ -477,7 +456,7 @@ mod normalize_angle_tests {
             #[allow(clippy::suboptimal_flops)]
             {
                 assert!(
-                    ($a.0 - $b.0).abs() < 0.0001,
+                    ($a - $b).abs().0 < 0.0001,
                     "assertion failed: `({} - {}) < 0.0001`",
                     $a,
                     $b
@@ -488,45 +467,36 @@ mod normalize_angle_tests {
 
     #[test]
     fn test_normalize_angle() {
-        assert_nearly_eq!(super::normalize_angle(Radians::new(0.0)), Radians::new(0.0));
-        assert_nearly_eq!(super::normalize_angle(Radians::new(PI)), Radians::new(0.0));
-        assert_nearly_eq!(
-            super::normalize_angle(Radians::new(2.0 * PI)),
-            Radians::new(0.0)
-        );
-        assert_nearly_eq!(
-            super::normalize_angle(Radians::new(1.5 * PI)),
-            Radians::new(0.5 * PI)
-        );
+        assert_nearly_eq!(Radians::new(0.0).normalize(), Radians::new(0.0));
+        assert_nearly_eq!(Radians::new(PI).normalize(), Radians::new(0.0));
+        assert_nearly_eq!(Radians::new(2.0 * PI).normalize(), Radians::new(0.0));
+        assert_nearly_eq!(Radians::new(1.5 * PI).normalize(), Radians::new(0.5 * PI));
     }
 
     #[test]
     fn test_normalize_infinity_eq() {
-        assert_eq!(super::normalize_angle(Radians::INFINITY), Radians::INFINITY);
-        assert_eq!(
-            super::normalize_angle(Radians::NEG_INFINITY),
-            Radians::NEG_INFINITY
-        );
+        assert_eq!(Radians::INFINITY.normalize(), Radians::INFINITY);
+        assert_eq!(Radians::NEG_INFINITY.normalize(), Radians::NEG_INFINITY);
     }
 
     proptest! {
         #[test]
         fn prop_normalize_angle(angle in ANGLE_RANGE) {
-            let normalized = super::normalize_angle(Radians::new(angle));
+            let normalized = Radians::new(angle).normalize();
             assert!((0.0..PI).contains(&normalized.0));
         }
 
         #[test]
         fn prop_normalize_angle_is_idempotent(angle in ANGLE_RANGE) {
-            let normalized = super::normalize_angle(Radians::new(angle));
-            let normalized_again = super::normalize_angle(normalized);
+            let normalized = Radians::new(angle).normalize();
+            let normalized_again = (normalized).normalize();
             assert_nearly_eq!(normalized, normalized_again);
         }
 
         #[test]
         fn prop_normalize_angle_is_equivalent(angle in ANGLE_RANGE) {
-            let normalized = super::normalize_angle(Radians::new(angle));
-            let equivalent = super::normalize_angle(Radians::new(angle + PI));
+            let normalized = Radians::new(angle).normalize();
+            let equivalent = Radians::new(angle + PI).normalize();
             assert_nearly_eq!(normalized, equivalent);
         }
     }

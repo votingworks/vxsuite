@@ -1,7 +1,7 @@
 /// Creates a newtype for `f32` that can act like it, but is distinct from it.
 macro_rules! f32_newtype {
     ($name:ident) => {
-        #[derive(Copy, Clone, Debug, PartialEq, Serialize, Deserialize)]
+        #[derive(Copy, Clone, Debug, PartialEq, ::serde::Serialize, ::serde::Deserialize)]
         #[must_use]
         pub struct $name(f32);
 
@@ -31,6 +31,14 @@ macro_rules! f32_newtype {
 
             pub fn abs(&self) -> Self {
                 Self(self.0.abs())
+            }
+
+            pub fn min(self, other: Self) -> Self {
+                Self(self.0.min(other.0))
+            }
+
+            pub fn max(self, other: Self) -> Self {
+                Self(self.0.max(other.0))
             }
         }
 
@@ -135,3 +143,68 @@ macro_rules! f32_newtype {
 }
 
 pub(crate) use f32_newtype;
+
+#[cfg(test)]
+mod tests {
+    use proptest::proptest;
+
+    use super::*;
+
+    f32_newtype!(MyF32);
+
+    #[test]
+    fn test_my_f32() {
+        let a = MyF32::new(1.0);
+        let b = MyF32::new(2.0);
+        assert_eq!(a + b, MyF32::new(3.0));
+        assert_eq!(a - b, MyF32::new(-1.0));
+        assert_eq!(a * 2.0, MyF32::new(2.0));
+        assert_eq!(2.0 * a, MyF32::new(2.0));
+        assert_eq!(a / 2.0, MyF32::new(0.5));
+        assert_eq!(a % b, MyF32::new(1.0));
+        assert_eq!(a.abs(), MyF32::new(1.0));
+        assert_eq!(a.min(b), a);
+        assert_eq!(a.max(b), b);
+        assert!(a < b);
+        assert!(a <= b);
+        assert!(b > a);
+        assert!(b >= a);
+        assert!(b != a);
+    }
+
+    #[test]
+    fn test_nan() {
+        let a = MyF32::new(f32::NAN);
+        let b = MyF32::new(1.0);
+        assert!(a.is_nan());
+        assert!(!b.is_nan());
+        assert!((a + b).is_nan());
+        assert!((a - b).is_nan());
+        assert!((a * 2.0).is_nan());
+        assert!((2.0 * a).is_nan());
+        assert!((a / 2.0).is_nan());
+        assert!((a % b).is_nan());
+    }
+
+    proptest! {
+        #[test]
+        fn test_my_f32_arithmetic(af32: f32, bf32: f32) {
+            if af32.is_nan() || bf32.is_nan() {
+                return Ok(());
+            }
+
+            let a = MyF32::new(af32);
+            let b = MyF32::new(bf32);
+            assert_eq!(a + b, MyF32::new(a.get() + b.get()));
+            assert_eq!(a - b, MyF32::new(a.get() - b.get()));
+            assert_eq!(a * 2.0, MyF32::new(a.get() * 2.0));
+            assert_eq!(2.0 * a, MyF32::new(2.0 * a.get()));
+            assert_eq!(a / 2.0, MyF32::new(a.get() / 2.0));
+            assert_eq!(a.abs(), MyF32::new(a.get().abs()));
+            assert_eq!(a.min(b), MyF32::new(a.get().min(b.get())));
+            assert_eq!(a.max(b), MyF32::new(a.get().max(b.get())));
+            assert_eq!(Some(a.cmp(&b)), af32.partial_cmp(&bf32));
+            assert_eq!(a.partial_cmp(&b), af32.partial_cmp(&bf32));
+        }
+    }
+}
