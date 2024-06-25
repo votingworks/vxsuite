@@ -5,7 +5,7 @@ import {
   MockChildProcess,
   mockOf,
 } from '@votingworks/test-utils';
-import { err, ok, range, sleep } from '@votingworks/basics';
+import { err, iter, ok, sleep } from '@votingworks/basics';
 import { fromGrayScale } from '@votingworks/image-utils';
 import { Buffer } from 'buffer';
 import {
@@ -273,7 +273,10 @@ test('converts image data from scanComplete event', async () => {
   client.addListener(listener);
   const imageHeight = 10;
   const rawImageGrayscalePixels = Buffer.from(
-    range(0, SCAN_IMAGE_WIDTH * imageHeight).map((i) => i % 2)
+    iter([0, 1])
+      .cycle()
+      .take(SCAN_IMAGE_WIDTH * imageHeight)
+      .toArray()
   );
   const scanCompleteEvent: PdictlEvent = {
     event: 'scanComplete',

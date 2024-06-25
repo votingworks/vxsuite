@@ -107,6 +107,27 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
     return count;
   }
 
+  cycle(): AsyncIteratorPlus<T> {
+    const iterable = this.intoInner();
+    return new AsyncIteratorPlusImpl(
+      (async function* gen(): AsyncIterableIterator<T> {
+        const array = Array.of<T>();
+        for await (const value of iterable) {
+          array.push(value);
+          yield value;
+        }
+
+        if (array.length === 0) {
+          return;
+        }
+
+        while (true) {
+          yield* array;
+        }
+      })()
+    );
+  }
+
   enumerate(): AsyncIteratorPlus<[number, T]> {
     const iterable = this.intoInner();
     return new AsyncIteratorPlusImpl(

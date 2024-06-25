@@ -115,6 +115,28 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     return count;
   }
 
+  cycle(): IteratorPlus<T> {
+    const iterable = this.intoInner();
+    return new IteratorPlusImpl(
+      (function* gen(): IterableIterator<T> {
+        const array = Array.of<T>();
+
+        for (const value of iterable) {
+          array.push(value);
+          yield value;
+        }
+
+        if (array.length === 0) {
+          return;
+        }
+
+        while (true) {
+          yield* array;
+        }
+      })()
+    );
+  }
+
   enumerate(): IteratorPlus<[number, T]> {
     const iterable = this.intoInner();
     return new IteratorPlusImpl(

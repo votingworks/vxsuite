@@ -1,4 +1,4 @@
-import { assert, assertDefined, iter, range } from '@votingworks/basics';
+import { assert, assertDefined, iter } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import {
   electionGeneral,
@@ -61,8 +61,11 @@ export const famousNamesFixtures = (() => {
   const votes: VotesDict = Object.fromEntries(
     contests.map((contest, i) => {
       assert(contest.type === 'candidate');
-      const candidates = range(0, contest.seats)
-        .map((j) => contest.candidates[(i + j) % contest.candidates.length])
+      const candidates = iter(contest.candidates)
+        .cycle()
+        .skip(i)
+        .take(contest.seats)
+        .toArray()
         // list candidates in the order they appear on the ballot
         .sort(
           (a, b) =>
@@ -149,9 +152,11 @@ export const generalElectionFixtures = (() => {
     const votes: VotesDict = Object.fromEntries(
       contests.map((contest, i) => {
         if (contest.type === 'candidate') {
-          const candidates = range(0, contest.seats - (i % 2)).map(
-            (j) => contest.candidates[(i + j) % contest.candidates.length]
-          );
+          const candidates = iter(contest.candidates)
+            .cycle()
+            .skip(i)
+            .take(contest.seats - (i % 2))
+            .toArray();
           if (contest.allowWriteIns && i % 2 === 0) {
             const writeInIndex = i % contest.seats;
             candidates.push({
@@ -326,9 +331,11 @@ export const primaryElectionFixtures = (() => {
     const votes: VotesDict = Object.fromEntries(
       contests.map((contest, i) => {
         if (contest.type === 'candidate') {
-          const candidates = range(0, contest.seats).map(
-            (j) => contest.candidates[(i + j) % contest.candidates.length]
-          );
+          const candidates = iter(contest.candidates)
+            .cycle()
+            .skip(i)
+            .take(contest.seats)
+            .toArray();
           return [contest.id, candidates];
         }
         return [
