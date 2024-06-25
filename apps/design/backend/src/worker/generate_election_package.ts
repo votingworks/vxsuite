@@ -11,7 +11,6 @@ import {
   Id,
   mergeUiStrings,
   Election,
-  filterUiStrings,
 } from '@votingworks/types';
 
 import {
@@ -26,6 +25,7 @@ import {
   translateAppStrings,
 } from '../language_and_audio';
 import { WorkerContext } from './context';
+import { translateHmpbStrings } from '../language_and_audio/ballot_strings';
 
 export async function generateElectionPackage(
   { speechSynthesizer, translator, workspace }: WorkerContext,
@@ -59,16 +59,14 @@ export async function generateElectionPackage(
     JSON.stringify(appStrings, null, 2)
   );
 
+  const hmpbStrings = await translateHmpbStrings(
+    translator,
+    ballotLanguageConfigs
+  );
   const electionStrings = await extractAndTranslateElectionStrings(
     translator,
     election,
     ballotLanguageConfigs
-  );
-
-  // Temporary hack: Only pass the HMPB app strings to the renderer.
-  // TODO: construct and translate these as a separate package
-  const hmpbStrings = filterUiStrings(appStrings, (stringKey) =>
-    stringKey.startsWith('hmpb')
   );
   const ballotStrings = mergeUiStrings(electionStrings, hmpbStrings);
 

@@ -1,14 +1,39 @@
 import {
   Election,
-  MachineVersion,
+  LanguageCode,
   UiStringsPackage,
-  filterUiStrings,
   mergeUiStrings,
 } from '@votingworks/types';
-import { BallotLanguageConfigs } from '../types';
-import { translateAppStrings } from './app_strings';
+import { hmpbStringsCatalog } from '@votingworks/hmpb';
+import { BallotLanguageConfigs, getAllBallotLanguages } from '../types';
 import { extractAndTranslateElectionStrings } from './election_strings';
 import { GoogleCloudTranslator } from './translator';
+import { setUiString } from './utils';
+
+export async function translateHmpbStrings(
+  translator: GoogleCloudTranslator,
+  ballotLanguageConfigs: BallotLanguageConfigs
+): Promise<UiStringsPackage> {
+  const languages = getAllBallotLanguages(ballotLanguageConfigs);
+
+  const hmpbStringKeys = Object.keys(hmpbStringsCatalog).sort();
+  const hmpbStringsInEnglish = hmpbStringKeys.map(
+    (key) => hmpbStringsCatalog[key as keyof typeof hmpbStringsCatalog]
+  );
+
+  const hmpbStrings: UiStringsPackage = {};
+  for (const languageCode of languages) {
+    const hmpbStringsInLanguage =
+      languageCode === LanguageCode.ENGLISH
+        ? hmpbStringsInEnglish
+        : await translator.translateText(hmpbStringsInEnglish, languageCode);
+    for (const [i, key] of hmpbStringKeys.entries()) {
+      setUiString(hmpbStrings, languageCode, key, hmpbStringsInLanguage[i]);
+    }
+  }
+
+  return hmpbStrings;
+}
 
 /**
  * Translates (or loads from the translation cache) a UI strings package for
@@ -17,23 +42,16 @@ import { GoogleCloudTranslator } from './translator';
 export async function translateBallotStrings(
   translator: GoogleCloudTranslator,
   election: Election,
-  ballotLanguageConfigs: BallotLanguageConfigs,
-  machineVersion: MachineVersion
+  ballotLanguageConfigs: BallotLanguageConfigs
 ): Promise<UiStringsPackage> {
   const electionStrings = await extractAndTranslateElectionStrings(
     translator,
     election,
     ballotLanguageConfigs
   );
-  const appStrings = await translateAppStrings(
+  const hmpbStrings = await translateHmpbStrings(
     translator,
-    machineVersion,
     ballotLanguageConfigs
-  );
-  // Temporary hack: Only pass the HMPB app strings to the renderer.
-  // TODO: construct and translate these as a separate package
-  const hmpbStrings = filterUiStrings(appStrings, (stringKey) =>
-    stringKey.startsWith('hmpb')
   );
   return mergeUiStrings(electionStrings, hmpbStrings);
 }

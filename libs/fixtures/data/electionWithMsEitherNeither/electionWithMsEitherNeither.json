@@ -526,7 +526,7 @@
       },
       "countyName": "Sample County",
       "districtName": { "district-1": "District 1" },
-      "electionDate": "Wed Sep 08 2021 00:00:00 GMT-0700 (Pacific Daylight Time)",
+      "electionDate": "September 8, 2021",
       "electionTitle": "Example Primary Election",
       "partyFullName": { "0": "Mammal Party", "1": "Fish Party" },
       "partyName": { "0": "Mammal", "1": "Fish" },

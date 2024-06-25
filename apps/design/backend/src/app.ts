@@ -172,8 +172,7 @@ function buildApi({ workspace, translator }: AppContext) {
       const ballotStrings = await translateBallotStrings(
         translator,
         election,
-        ballotLanguageConfigs,
-        'latest'
+        ballotLanguageConfigs
       );
       const electionWithBallotStrings: Election = {
         ...election,
@@ -251,8 +250,7 @@ function buildApi({ workspace, translator }: AppContext) {
       const ballotStrings = await translateBallotStrings(
         translator,
         election,
-        ballotLanguageConfigs,
-        'latest'
+        ballotLanguageConfigs
       );
       const electionWithBallotStrings: Election = {
         ...election,
@@ -296,8 +294,7 @@ function buildApi({ workspace, translator }: AppContext) {
       const ballotStrings = await translateBallotStrings(
         translator,
         election,
-        ballotLanguageConfigs,
-        'latest'
+        ballotLanguageConfigs
       );
       const electionWithBallotStrings: Election = {
         ...election,

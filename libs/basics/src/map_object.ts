@@ -4,12 +4,12 @@
  */
 export function mapObject<T, U>(
   object: Record<string, T>,
-  fn: (from: T) => U
+  fn: (from: T, key: string) => U
 ): Record<string, U> {
   const newObject: Record<string, U> = {};
 
   for (const [key, value] of Object.entries(object)) {
-    newObject[key] = fn(value);
+    newObject[key] = fn(value, key);
   }
 
   return newObject;
