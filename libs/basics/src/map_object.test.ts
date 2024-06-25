@@ -14,3 +14,18 @@ test('mapObject', () => {
     yesTally: 20,
   });
 });
+
+test('mapObject with key in transformer', () => {
+  expect(
+    mapObject(
+      {
+        noTally: 3,
+        yesTally: 10,
+      },
+      (num, key) => key + num
+    )
+  ).toEqual({
+    noTally: 'noTally3',
+    yesTally: 'yesTally10',
+  });
+});
