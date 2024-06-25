@@ -112,7 +112,7 @@ test('happy path - mock election flow', async () => {
   // insert a USB drive
   const testExportDirectoryName = 'TEST__machine_0000__2022-09-24_18-00-00';
   // The timestamp that the CVR fixtures were generated at
-  const testExportTimestamp = '2024-02-27T23:35:37.911Z';
+  const testExportTimestamp = '2024-06-25T16:13:05.800Z';
   insertUsbDrive(
     mockCastVoteRecordFileTree(electionDefinition, {
       [testExportDirectoryName]: castVoteRecordExport.asDirectoryPath(),
