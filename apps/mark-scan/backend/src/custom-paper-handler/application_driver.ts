@@ -10,6 +10,7 @@ import {
   imageDataToBinaryBitmap,
   isPaperAnywhere,
   isMockPaperHandler,
+  ScanDirection,
 } from '@votingworks/custom-paper-handler';
 import { pdfToImages } from '@votingworks/image-utils';
 import { tmpNameSync } from 'tmp';
@@ -36,6 +37,10 @@ export async function setDefaults(
   debug('set line spacing to 0');
   await driver.setPrintingSpeed('slow');
   debug('set printing speed to slow');
+
+  const scanDirection: ScanDirection = 'backward';
+  await driver.setScanDirection(scanDirection);
+  debug('set scan direction to', scanDirection);
 }
 
 export async function printBallotChunks(

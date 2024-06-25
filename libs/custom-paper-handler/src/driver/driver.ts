@@ -537,8 +537,6 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   }
 
   async scanAndSave(pathOut: string): Promise<void> {
-    debug('setting scan direction');
-    await this.setScanDirection('backward');
     const grayscaleResult = await this.scan();
     debug(
       `Received imageData with specs:\nHeight=${grayscaleResult.height}, Width=${grayscaleResult.width}, data byte length=${grayscaleResult.data.byteLength}`
