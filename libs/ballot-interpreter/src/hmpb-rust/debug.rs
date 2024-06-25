@@ -123,7 +123,7 @@ pub fn draw_timing_mark_debug_image_mut(
 ) {
     draw_legend(
         canvas,
-        &vec![
+        &[
             (
                 GREEN,
                 format!("Top ({})", partial_timing_marks.top_rects.len()).as_str(),
@@ -443,7 +443,7 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
 
     draw_legend(
         canvas,
-        &vec![
+        &[
             (original_bubble_color, "Expected Bubble Bounds"),
             (matched_bubble_color, "Matched Bubble Bounds"),
             (
@@ -569,7 +569,7 @@ pub fn draw_scored_write_in_areas(
 
     draw_legend(
         canvas,
-        &vec![
+        &[
             (DARK_GREEN, "Write-In Area Bounds"),
             (ORANGE, "Write-In Area Score (100% = completely filled)"),
         ],
@@ -673,7 +673,7 @@ fn draw_text_with_background_mut(
     draw_text_mut(canvas, text_color, x, y, scale, font, text);
 }
 
-fn draw_legend(canvas: &mut RgbImage, colored_labels: &Vec<(Rgb<u8>, &str)>) {
+fn draw_legend(canvas: &mut RgbImage, colored_labels: &[(Rgb<u8>, &str)]) {
     let font = &monospace_font();
     let font_scale = 12.0;
     let scale = PxScale::from(font_scale);
