@@ -266,6 +266,12 @@ impl Segment {
         let dy = self.end.y - self.start.y;
         Point::new(dx, dy)
     }
+    /// Computes the angle of the segment in radians.
+    pub fn angle(&self) -> Radians {
+        let dx = self.end.x - self.start.x;
+        let dy = self.end.y - self.start.y;
+        dy.atan2(dx)
+    }
 }
 
 #[derive(Debug, Clone, Copy)]

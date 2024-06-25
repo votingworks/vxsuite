@@ -126,21 +126,55 @@ pub fn draw_timing_mark_debug_image_mut(
         &[
             (
                 GREEN,
-                format!("Top ({})", partial_timing_marks.top_rects.len()).as_str(),
+                format!(
+                    "Top ({}/{} found, rotation {})",
+                    partial_timing_marks.top_rects.len(),
+                    geometry.grid_size.width,
+                    partial_timing_marks.top_side_rotation().to_degrees(),
+                )
+                .as_str(),
             ),
             (
                 BLUE,
-                format!("Bottom ({})", partial_timing_marks.bottom_rects.len()).as_str(),
+                format!(
+                    "Bottom ({}/{} found, rotation {})",
+                    partial_timing_marks.bottom_rects.len(),
+                    geometry.grid_size.width,
+                    partial_timing_marks.bottom_side_rotation().to_degrees(),
+                )
+                .as_str(),
             ),
             (
                 RED,
-                format!("Left ({})", partial_timing_marks.left_rects.len()).as_str(),
+                format!(
+                    "Left ({}/{} found, rotation {})",
+                    partial_timing_marks.left_rects.len(),
+                    geometry.grid_size.height,
+                    partial_timing_marks.left_side_rotation().to_degrees(),
+                )
+                .as_str(),
             ),
             (
                 CYAN,
-                format!("Right ({})", partial_timing_marks.right_rects.len()).as_str(),
+                format!(
+                    "Right ({}/{} found, rotation {})",
+                    partial_timing_marks.right_rects.len(),
+                    geometry.grid_size.height,
+                    partial_timing_marks.right_side_rotation().to_degrees(),
+                )
+                .as_str(),
             ),
-            (PINK, format!("Corners ({})", 4).as_str()),
+            (
+                PINK,
+                format!(
+                    "Corners ({}/4)",
+                    u32::from(partial_timing_marks.top_left_rect.is_some())
+                        + u32::from(partial_timing_marks.top_right_rect.is_some())
+                        + u32::from(partial_timing_marks.bottom_left_rect.is_some())
+                        + u32::from(partial_timing_marks.bottom_right_rect.is_some()),
+                )
+                .as_str(),
+            ),
         ],
     );
 

@@ -1,3 +1,5 @@
+use std::f32::consts::PI;
+
 use image::{imageops::rotate180, GenericImageView, GrayImage};
 use imageproc::{
     contours::{find_contours_with_threshold, BorderType, Contour},
@@ -9,7 +11,7 @@ use rayon::prelude::IntoParallelRefIterator;
 use serde::Serialize;
 use types_rs::geometry::{
     find_largest_subset_intersecting_line, intersection_of_lines, GridUnit, PixelPosition,
-    PixelUnit, Point, Rect, Segment, Size, SubGridUnit, SubPixelUnit,
+    PixelUnit, Point, Radians, Rect, Segment, Size, SubGridUnit, SubPixelUnit,
 };
 use types_rs::{election::UnitIntervalValue, geometry::IntersectionBounds};
 
@@ -39,6 +41,36 @@ pub struct Partial {
     pub top_right_rect: Option<Rect>,
     pub bottom_left_rect: Option<Rect>,
     pub bottom_right_rect: Option<Rect>,
+}
+
+impl Partial {
+    pub fn left_side_rotation(&self) -> Radians {
+        let left_angle = Segment::new(self.top_left_corner, self.bottom_left_corner).angle();
+        // expected angle is 90 degrees and not 270 degrees because the Y axis
+        // is inverted in the image coordinate system
+        let expected_angle = PI / 2.0;
+        (left_angle - expected_angle).abs()
+    }
+
+    pub fn right_side_rotation(&self) -> Radians {
+        let right_angle = Segment::new(self.top_right_corner, self.bottom_right_corner).angle();
+        // expected angle is 90 degrees and not 270 degrees because the Y axis
+        // is inverted in the image coordinate system
+        let expected_angle = PI / 2.0;
+        (right_angle - expected_angle).abs()
+    }
+
+    pub fn top_side_rotation(&self) -> Radians {
+        let top_angle = Segment::new(self.top_left_corner, self.top_right_corner).angle();
+        let expected_angle = 0.0;
+        (top_angle - expected_angle).abs()
+    }
+
+    pub fn bottom_side_rotation(&self) -> Radians {
+        let bottom_angle = Segment::new(self.bottom_left_corner, self.bottom_right_corner).angle();
+        let expected_angle = 0.0;
+        (bottom_angle - expected_angle).abs()
+    }
 }
 
 impl From<Complete> for Partial {
