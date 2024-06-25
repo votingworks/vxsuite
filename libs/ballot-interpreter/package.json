@@ -68,7 +68,7 @@
     "@votingworks/bmd-ballot-fixtures": "workspace:*",
     "@votingworks/fs": "workspace:*",
     "@votingworks/hmpb": "workspace:*",
-    "cargo-cp-artifact": "^0.1",
+    "cargo-cp-artifact": "^0.1.9",
     "esbuild": "0.21.2",
     "esbuild-runner": "2.2.2",
     "eslint-plugin-vx": "workspace:*",
