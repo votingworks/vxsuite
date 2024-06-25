@@ -31,7 +31,7 @@ export interface PrecinctScannerTallyReportsProps {
 }
 
 /**
- * A tally report for each party. Additionally, the VxQR code page if applicable.
+ * A tally report for each party.
  */
 export function PrecinctScannerTallyReports({
   electionDefinition,

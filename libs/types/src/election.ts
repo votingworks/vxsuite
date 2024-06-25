@@ -22,6 +22,10 @@ import {
   SizeSchema,
 } from './geometry';
 import { LanguageCode } from './language_code';
+import {
+  UiStringsPackage,
+  UiStringsPackageSchema,
+} from './ui_string_translations';
 
 // Generic
 function* findDuplicateIds<T extends { id: unknown }>(
@@ -451,6 +455,7 @@ const ElectionTypeSchema: z.ZodSchema<ElectionType> = z.enum(ELECTION_TYPES);
 
 export interface Election {
   readonly ballotLayout: BallotLayout;
+  readonly ballotStrings: UiStringsPackage;
   readonly ballotStyles: readonly BallotStyle[];
   readonly contests: Contests;
   readonly gridLayouts?: readonly GridLayout[];
@@ -459,7 +464,6 @@ export interface Election {
   readonly districts: readonly District[];
   readonly parties: Parties;
   readonly precincts: readonly Precinct[];
-  readonly quickResultsReportingUrl?: string; // a server where results are posted, enables VxQR if present
   readonly seal: string;
   readonly state: string;
   readonly title: string;
@@ -468,6 +472,7 @@ export interface Election {
 export const ElectionSchema: z.ZodSchema<Election> = z
   .object({
     ballotLayout: BallotLayoutSchema,
+    ballotStrings: UiStringsPackageSchema,
     ballotStyles: BallotStylesSchema,
     contests: ContestsSchema,
     gridLayouts: z.array(GridLayoutSchema).optional(),
@@ -476,12 +481,6 @@ export const ElectionSchema: z.ZodSchema<Election> = z
     districts: DistrictsSchema,
     parties: PartiesSchema,
     precincts: PrecinctsSchema,
-    quickResultsReportingUrl: z
-      .string()
-      .url()
-      .nonempty()
-      .refine((val) => !val.endsWith('/'), 'URL cannot end with a slash')
-      .optional(),
     seal: z.string(),
     state: z.string().nonempty(),
     title: z.string().nonempty(),

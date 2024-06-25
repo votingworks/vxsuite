@@ -863,5 +863,6 @@
   "seal": "",
   "state": "NH",
   "title": "General Election",
-  "type": "general"
+  "type": "general",
+  "ballotStrings": {}
 }

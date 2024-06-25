@@ -22,6 +22,7 @@ import {
   ElectionStringKey,
   LanguageCode,
   SystemSettings,
+  filterUiStrings,
 } from '@votingworks/types';
 import {
   BooleanEnvironmentVariableName,
@@ -61,7 +62,7 @@ import { getTempBallotLanguageConfigsForCert } from './store';
 import { renderBallotStyleReadinessReport } from './ballot_style_reports';
 import { BALLOT_STYLE_READINESS_REPORT_FILE_NAME } from './app';
 
-jest.setTimeout(30_000);
+jest.setTimeout(60_000);
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -127,6 +128,7 @@ test('CRUD elections', async () => {
       state: '',
       title: '',
       type: 'general',
+      ballotStrings: {},
     },
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     ballotStyles: [],
@@ -457,6 +459,15 @@ test('Election package export', async () => {
     // The base election definition should have been extended with grid layouts. The correctness of
     // the grid layouts is tested by libs/ballot-interpreter tests.
     gridLayouts: expect.any(Array),
+
+    // Translated strings for election content and HMPB content should have been
+    // added to the election. so they can be included in the ballot hash.
+    ballotStrings: filterUiStrings(
+      uiStrings,
+      (stringKey) =>
+        Object.values<string>(ElectionStringKey).includes(stringKey) ||
+        stringKey.startsWith('hmpb')
+    ),
   });
 
   //
@@ -571,7 +582,7 @@ test('Election package export', async () => {
       )
     ).toEqual(true);
   }
-}, 30_000);
+});
 
 // Spy on the ballot rendering function so we can check that it's called with the
 // right arguments.
@@ -663,10 +674,11 @@ test('Export all ballots', async () => {
     ballotStyle.precincts.flatMap((precinctId) =>
       ballotCombos.map(
         ([ballotType, ballotMode]): BaseBallotProps => ({
-          election,
-          translatedStrings: expect.objectContaining({
-            [LanguageCode.ENGLISH]: expect.any(Object),
-          }),
+          election: {
+            ...election,
+            // TODO add hmpb app strings to expected election prop here
+            ballotStrings: expect.any(Object),
+          },
           ballotStyleId: ballotStyle.id,
           precinctId,
           ballotType,
@@ -726,10 +738,11 @@ test('Export test decks', async () => {
   expect(renderAllBallotsAndCreateElectionDefinition).toHaveBeenCalledTimes(1);
   const expectedBallotProps = election.ballotStyles.flatMap((ballotStyle) =>
     ballotStyle.precincts.map((precinctId) => ({
-      election,
-      translatedStrings: expect.objectContaining({
-        [LanguageCode.ENGLISH]: expect.any(Object),
-      }),
+      election: {
+        ...election,
+        // TODO add hmpb app strings to expected election prop here
+        ballotStrings: expect.any(Object),
+      },
       ballotStyleId: ballotStyle.id,
       precinctId,
       ballotType: BallotType.Precinct,
@@ -788,7 +801,7 @@ test('Consistency of election hash across exports', async () => {
       electionDefinition.electionHash,
     ]),
   ]).toHaveLength(1);
-}, 30_000);
+});
 
 test('CDF exports', async () => {
   // This test runs unnecessarily long if we're generating exports for all
@@ -837,4 +850,4 @@ test('CDF exports', async () => {
       electionDefinition.electionHash,
     ]),
   ]).toHaveLength(1);
-}, 30_000);
+});

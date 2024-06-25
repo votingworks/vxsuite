@@ -13,7 +13,6 @@ import {
   ELECTION_PACKAGE_FOLDER,
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
-  extractCdfUiStrings,
   getEntries,
   getEntryStream,
   getFileByName,
@@ -34,13 +33,13 @@ import {
   UiStringAudioClipSchema,
   UiStringAudioIdsPackageSchema,
   UiStringsPackageSchema,
-  safeParseElectionDefinitionExtended,
   safeParseJson,
   safeParseSystemSettings,
   ElectionPackageMetadata,
   ElectionPackageMetadataSchema,
   mergeUiStrings,
   UiStringAudioIdsPackage,
+  safeParseElectionDefinition,
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { UsbDrive } from '@votingworks/usb-drive';
@@ -115,14 +114,14 @@ async function readElectionPackageFromBuffer(
     // Election Definition:
 
     const electionData = await readTextEntry(electionEntry);
-    const electionResult = safeParseElectionDefinitionExtended(electionData);
+    const electionResult = safeParseElectionDefinition(electionData);
     if (electionResult.isErr()) {
       return err({
         type: 'invalid-election',
         message: electionResult.err().message,
       });
     }
-    const { cdfElection, electionDefinition } = electionResult.ok();
+    const electionDefinition = electionResult.ok();
 
     // UI Strings:
 
@@ -137,27 +136,9 @@ async function readElectionPackageFromBuffer(
         UiStringsPackageSchema
       ).unsafeUnwrap();
 
-    // Extract non-CDF election strings:
-    const electionStringsEntry = maybeGetFileByName(
-      entries,
-      ElectionPackageFileName.ELECTION_STRINGS
-    );
-    const electionStrings =
-      electionStringsEntry &&
-      safeParseJson(
-        await readTextEntry(electionStringsEntry),
-        UiStringsPackageSchema
-      ).unsafeUnwrap();
-
-    // In the case that the election is formatted using CDF, extract translated
-    // strings from the CDF election and prioritize those over translations from
-    // the election strings file.
-    const cdfElectionStrings = cdfElection && extractCdfUiStrings(cdfElection);
-
     const uiStrings = mergeUiStrings(
       appStrings ?? {},
-      electionStrings ?? {},
-      cdfElectionStrings ?? {}
+      electionDefinition.election.ballotStrings
     );
 
     // UI String Audio IDs:

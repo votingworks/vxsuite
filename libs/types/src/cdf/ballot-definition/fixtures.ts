@@ -289,6 +289,56 @@ export const testVxfElection: Election = {
       ],
     },
   ],
+  ballotStrings: {
+    en: {
+      ballotLanguage: 'English',
+      ballotStyleId: {
+        '1_en': '1_en',
+        '2_en': '2_en',
+        '3_en_es-US': '3_en_es-US',
+      },
+      candidateName: {
+        'candidate-1': 'Sherlock Holmes',
+        'candidate-2': 'Thomas Edison',
+        'candidate-3': 'Winston Churchill',
+      },
+      contestDescription: {
+        'contest-2': 'Should we do this thing?',
+      },
+      contestOptionLabel: {
+        'contest-2-option-no': 'No',
+        'contest-2-option-yes': 'Yes',
+      },
+      contestTerm: {
+        'contest-1': '1 year',
+      },
+      contestTitle: {
+        'contest-1': 'Mayor',
+        'contest-2': 'Proposition 1',
+        'contest-3': 'Controller',
+      },
+      countyName: 'Franklin County',
+      districtName: {
+        'district-1': 'City of Lincoln',
+        'district-2': 'City of Washington',
+      },
+      electionDate: 'June 6, 2021',
+      electionTitle: 'Lincoln Municipal General Election',
+      partyFullName: {
+        'party-1': 'Democratic Party',
+        'party-2': 'Republican Party',
+      },
+      partyName: {
+        'party-1': 'Democrat',
+        'party-2': 'Republican',
+      },
+      precinctName: {
+        'precinct-1': 'North Lincoln',
+        'precinct-2': 'South Lincoln',
+      },
+      stateName: 'State of Hamilton',
+    },
+  },
 };
 
 export const testCdfBallotDefinition: BallotDefinition = {

@@ -440,22 +440,6 @@ test('election schema', () => {
   }
 });
 
-test('election scheme results reporting URL', () => {
-  expect(() => {
-    safeParseElection({
-      ...election,
-      quickResultsReportingUrl: 'https://results.voting.works/',
-    }).unsafeUnwrap();
-  }).toThrowError();
-
-  expect(() => {
-    safeParseElection({
-      ...election,
-      quickResultsReportingUrl: 'https://results.voting.works',
-    }).unsafeUnwrap();
-  }).not.toThrowError();
-});
-
 test('getCandidateParties', () => {
   expect(
     getCandidateParties(election.parties, {

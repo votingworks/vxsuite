@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { mergeObjects } from '@votingworks/basics';
+import { mapObject, mergeObjects } from '@votingworks/basics';
 import { Dictionary } from './generic';
 import { LanguageCode } from './language_code';
 
@@ -66,4 +66,19 @@ export function mergeUiStrings(
   ...otherStrings: UiStringsPackage[]
 ): UiStringsPackage {
   return otherStrings.reduce((acc, other) => mergeObjects(acc, other), strings);
+}
+
+/**
+ * Filters a UI strings package, returning a new package with only the keys that
+ * pass the condition function.
+ */
+export function filterUiStrings(
+  uiStrings: UiStringsPackage,
+  condition: (key: string) => boolean
+): UiStringsPackage {
+  return mapObject(uiStrings, (languageStrings) =>
+    Object.fromEntries(
+      Object.entries(languageStrings).filter(([key]) => condition(key))
+    )
+  );
 }

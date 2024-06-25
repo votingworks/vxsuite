@@ -45,6 +45,7 @@ function getMockElectionDefinition(): ElectionDefinition {
         paperSize: BallotPaperSize.Letter,
         metadataEncoding: 'qr-code',
       },
+      ballotStrings: {},
     },
   };
 }

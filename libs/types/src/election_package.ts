@@ -17,7 +17,6 @@ export enum ElectionPackageFileName {
   ELECTION = 'election.json',
   METADATA = 'metadata.json',
   SYSTEM_SETTINGS = 'systemSettings.json',
-  ELECTION_STRINGS = 'electionStrings.json',
 }
 
 export interface ElectionPackage {

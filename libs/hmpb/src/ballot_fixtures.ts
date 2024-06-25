@@ -4,7 +4,6 @@ import {
   electionGeneral,
   electionFamousNames2021Fixtures,
   electionPrimaryPrecinctSplitsFixtures,
-  electionGeneralFixtures,
 } from '@votingworks/fixtures';
 import {
   BallotPaperSize,
@@ -14,7 +13,6 @@ import {
   getBallotStyle,
   getContests,
   LanguageCode,
-  UiStringsPackage,
   VotesDict,
 } from '@votingworks/types';
 import { join } from 'path';
@@ -29,9 +27,6 @@ import { Renderer } from './renderer';
 
 const debug = makeDebug('hmpb:ballot_fixtures');
 
-// For now, don't include any translated strings in the fixtures
-const translatedStrings: UiStringsPackage = {};
-
 export const fixturesDir = join(__dirname, '../fixtures');
 
 export const famousNamesFixtures = (() => {
@@ -45,7 +40,6 @@ export const famousNamesFixtures = (() => {
     ballotStyle.precincts.map(
       (precinctId): BaseBallotProps => ({
         election,
-        translatedStrings,
         ballotStyleId: ballotStyle.id,
         precinctId,
         ballotType: BallotType.Precinct,
@@ -133,7 +127,6 @@ export const generalElectionFixtures = (() => {
       ballotStyle.precincts.map(
         (precinctId): BaseBallotProps => ({
           election,
-          translatedStrings: electionGeneralFixtures.uiStrings,
           ballotStyleId: ballotStyle.id,
           precinctId,
           ballotType: BallotType.Absentee,
@@ -307,7 +300,6 @@ export const primaryElectionFixtures = (() => {
     ballotStyle.precincts.map(
       (precinctId): BaseBallotProps => ({
         election,
-        translatedStrings,
         ballotStyleId: ballotStyle.id,
         precinctId,
         ballotType: BallotType.Precinct,

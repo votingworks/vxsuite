@@ -10,6 +10,8 @@ import {
   getDisplayElectionHash,
   Id,
   mergeUiStrings,
+  Election,
+  filterUiStrings,
 } from '@votingworks/types';
 
 import {
@@ -62,13 +64,20 @@ export async function generateElectionPackage(
     election,
     ballotLanguageConfigs
   );
-  zip.file(
-    ElectionPackageFileName.ELECTION_STRINGS,
-    JSON.stringify(electionStrings, null, 2)
+
+  // Temporary hack: Only pass the HMPB app strings to the renderer.
+  // TODO: construct and translate these as a separate package
+  const hmpbStrings = filterUiStrings(appStrings, (stringKey) =>
+    stringKey.startsWith('hmpb')
   );
+  const ballotStrings = mergeUiStrings(electionStrings, hmpbStrings);
+
+  const electionWithBallotStrings: Election = {
+    ...election,
+    ballotStrings,
+  };
 
   const renderer = await createPlaywrightRenderer();
-  const translatedStrings = mergeUiStrings(electionStrings, appStrings);
   const { electionDefinition } =
     await renderAllBallotsAndCreateElectionDefinition(
       renderer,
@@ -76,8 +85,7 @@ export async function generateElectionPackage(
       // Each ballot style will have exactly one grid layout regardless of precinct, ballot type, or ballot mode
       // So we just need to render a single ballot per ballot style to create the election definition
       election.ballotStyles.map((ballotStyle) => ({
-        election,
-        translatedStrings,
+        election: electionWithBallotStrings,
         ballotStyleId: ballotStyle.id,
         precinctId: ballotStyle.precincts[0],
         ballotType: BallotType.Precinct,

@@ -497,6 +497,8 @@ export function convertElectionDefinitionHeader(
       },
     ],
     seal: NH_SEAL,
+    // Actual translated strings will be created by VxDesign
+    ballotStrings: {},
   };
 
   const parseElectionResult = safeParseElection(election);

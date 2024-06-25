@@ -29,6 +29,8 @@ import {
   PrecinctId,
   YesNoContest,
   YesNoOption,
+  UiStringsPackage,
+  LanguageCode,
 } from '@votingworks/types';
 import { sha256 } from 'js-sha256';
 import { DateWithoutTime, assertDefined } from '@votingworks/basics';
@@ -366,6 +368,17 @@ export function arbitraryBallotLayout(): fc.Arbitrary<BallotLayout> {
   });
 }
 
+export function arbitraryUiStrings(): fc.Arbitrary<UiStringsPackage> {
+  return fc.record(
+    Object.fromEntries(
+      Object.values(LanguageCode).map((languageCode) => [
+        languageCode,
+        fc.dictionary(fc.string(), fc.string()),
+      ])
+    )
+  );
+}
+
 export function arbitraryElection(): fc.Arbitrary<Election> {
   return (
     fc
@@ -415,6 +428,7 @@ export function arbitraryElection(): fc.Arbitrary<Election> {
           districts: fc.constant(districts),
           precincts: fc.constant(precincts),
           ballotLayout: arbitraryBallotLayout(),
+          ballotStrings: arbitraryUiStrings(),
         })
       )
       // performing a shrink on this data structure takes forever

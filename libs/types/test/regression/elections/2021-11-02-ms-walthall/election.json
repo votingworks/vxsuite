@@ -210,5 +210,6 @@
   "markThresholds": {
     "definite": 0.15,
     "marginal": 0.15
-  }
+  },
+  "ballotStrings": {}
 }

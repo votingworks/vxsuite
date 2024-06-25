@@ -3,6 +3,84 @@
     "paperSize": "letter",
     "metadataEncoding": "qr-code"
   },
+  "ballotStrings": {
+    "en": {
+      "ballotLanguage": "English",
+      "ballotStyleId": {
+        "1": "1"
+      },
+      "candidateName": {
+        "sherlock-holmes": "Sherlock Holmes",
+        "thomas-edison": "Thomas Edison",
+        "winston-churchill": "Winston Churchill",
+        "oprah-winfrey": "Oprah Winfrey",
+        "louis-armstrong": "Louis Armstrong",
+        "john-snow": "John Snow",
+        "mark-twain": "Mark Twain",
+        "benjamin-franklin": "Benjamin Franklin",
+        "robert-downey-jr": "Robert Downey Jr.",
+        "bill-nye": "Bill Nye",
+        "natalie-portman": "Natalie Portman",
+        "frank-sinatra": "Frank Sinatra",
+        "andy-warhol": "Andy Warhol",
+        "alfred-hitchcock": "Alfred Hitchcock",
+        "charles-darwin": "Charles Darwin",
+        "stephen-hawking": "Stephen Hawking",
+        "johan-sebastian-bach": "Johann Sebastian Bach",
+        "alexander-graham-bell": "Alexander Graham Bell",
+        "helen-keller": "Helen Keller",
+        "steve-jobs": "Steve Jobs",
+        "nikola-tesla": "Nikola Tesla",
+        "vincent-van-gogh": "Vincent Van Gogh",
+        "pablo-picasso": "Pablo Picasso",
+        "wolfgang-amadeus-mozart": "Wolfgang Amadeus Mozart",
+        "marie-curie": "Marie Curie",
+        "indiana-jones": "Indiana Jones",
+        "mona-lisa": "Mona Lisa",
+        "jackie-chan": "Jackie Chan",
+        "tim-allen": "Tim Allen",
+        "mark-antony": "Mark Antony",
+        "harriet-tubman": "Harriet Tubman",
+        "martin-luther-king": "Dr. Martin Luther King Jr.",
+        "marilyn-monroe": "Marilyn Monroe"
+      },
+      "contestTitle": {
+        "mayor": "Mayor",
+        "controller": "Controller",
+        "attorney": "Attorney",
+        "public-works-director": "Public Works Director",
+        "chief-of-police": "Chief of Police",
+        "parks-and-recreation-director": "Parks and Recreation Director",
+        "board-of-alderman": "Board of Alderman",
+        "city-council": "City Council"
+      },
+      "countyName": "Franklin County",
+      "districtName": {
+        "district-1": "City of Lincoln"
+      },
+      "electionDate": "Sun Jun 06 2021 00:00:00 GMT-0700 (Pacific Daylight Time)",
+      "electionTitle": "Lincoln Municipal General Election",
+      "partyFullName": {
+        "0": "Democratic Party",
+        "1": "Republican Party",
+        "2": "Liberty Party",
+        "3": "Green Party"
+      },
+      "partyName": {
+        "0": "Democrat",
+        "1": "Republican",
+        "2": "Liberty",
+        "3": "Green"
+      },
+      "precinctName": {
+        "20": "West Lincoln",
+        "21": "East Lincoln",
+        "22": "South Lincoln",
+        "23": "North Lincoln"
+      },
+      "stateName": "State of Hamilton"
+    }
+  },
   "ballotStyles": [
     {
       "id": "1",

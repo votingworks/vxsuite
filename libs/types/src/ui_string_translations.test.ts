@@ -3,6 +3,7 @@ import { LanguageCode } from './language_code';
 import {
   UiStringsPackage,
   UiStringsPackageSchema,
+  filterUiStrings,
   mergeUiStrings,
 } from './ui_string_translations';
 
@@ -86,6 +87,27 @@ test('mergeUiStrings', () => {
       appString: 'EN app string translation 2',
       appString2: 'EN app string 2 translation',
       appString3: 'EN app string 3 translation 2',
+    },
+    [LanguageCode.SPANISH]: {
+      appString: 'ES app string translation',
+    },
+  });
+});
+
+test('filterUiStrings', () => {
+  const strings: UiStringsPackage = {
+    [LanguageCode.ENGLISH]: {
+      appString: 'EN app string translation',
+      appString2: 'EN app string 2 translation',
+    },
+    [LanguageCode.SPANISH]: {
+      appString: 'ES app string translation',
+    },
+  };
+
+  expect(filterUiStrings(strings, (key) => key === 'appString')).toEqual({
+    [LanguageCode.ENGLISH]: {
+      appString: 'EN app string translation',
     },
     [LanguageCode.SPANISH]: {
       appString: 'ES app string translation',

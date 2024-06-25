@@ -7,7 +7,7 @@ import {
 } from '@votingworks/backend';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import {
-  safeParseElectionDefinitionExtended,
+  safeParseElectionDefinition,
   testCdfBallotDefinition,
 } from '@votingworks/types';
 import {
@@ -38,7 +38,7 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 const store = Store.memoryStore();
 const workspace = createWorkspace(tmp.dirSync().name, { store });
 const mockAuth = buildMockInsertedSmartCardAuth();
-const electionPackage = safeParseElectionDefinitionExtended(
+const electionDefinition = safeParseElectionDefinition(
   JSON.stringify(testCdfBallotDefinition)
 ).unsafeUnwrap();
 
@@ -79,14 +79,14 @@ describe('configureElectionPackageFromUsb', () => {
     mockAuth.getAuthStatus.mockImplementation(() =>
       Promise.resolve({
         status: 'logged_in',
-        user: mockElectionManagerUser(electionPackage.electionDefinition),
+        user: mockElectionManagerUser(electionDefinition),
         sessionExpiresAt: mockSessionExpiresAt(),
       })
     );
   });
 
   runUiStringMachineConfigurationTests({
-    electionPackage,
+    electionDefinition,
     getMockUsbDrive: () => mockUsbDrive,
     runConfigureMachine: () => api.configureElectionPackageFromUsb(),
     store: store.getUiStringsStore(),
