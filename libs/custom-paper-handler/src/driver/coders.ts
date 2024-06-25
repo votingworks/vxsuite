@@ -207,7 +207,7 @@ export enum ConfigureScannerOptionSensorConfig {
 export enum ConfigureScannerFlags {
   NONE = 0x00,
   SCAN_BACKWARDS = 0x01,
-  SCAN_IN_PARK = 0x02,
+  SCAN_IN_PARK = 0x03,
 }
 export const ConfigureScannerCommand = message({
   command: literal(0x1c, 'SPC'),

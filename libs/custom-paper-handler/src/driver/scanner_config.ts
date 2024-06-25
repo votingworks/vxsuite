@@ -9,7 +9,33 @@ export type PaperMovementAfterScan =
 export type ScanLight = 'red' | 'green' | 'blue' | 'white';
 export type ScanDataFormat = 'BW' | 'grayscale';
 export type Resolution = 100 | 150 | 200 | 250 | 300;
-export type ScanDirection = 'forward' | 'backward' | 'in_park';
+export const scanDirections = ['forward', 'backward', 'in_park'] as const;
+/**
+ * ScanDirection refers to the physical direction in which the page is scanned.
+ * This setting impacts the orientation of the resulting image and in some ways
+ * the placement of the page after the scan is complete.
+ *
+ * The simplified guidance is to use `forward` when scanning a page that is in the
+ * scanner input, such as when paper has just been inserted and loaded via `loadPaper()`,
+ * or `presentPaper()` has been called. Use `backward` when the page is parked.
+ *
+ * `forward` moves the paper from scanner front to scanner rear ie. away from the voter.
+ * When combined with the `hold_ticket` PaperMovementAfterScan option, the page will remain
+ * in the scanner.
+ * `backward` moves the paper from scanner rear to scanner front ie. toward the voter.
+ * When combined with the `hold_ticket` PaperMovementAfterScan option, the page will remain
+ * displayed in front of the scanner. The result is similar to calling `presentPaper()`.
+ * `in_park` sets the direction to `backward` and presumably is intended to optimize
+ * scanning a page from the parked position.
+ *
+ * During testing, scanning a page from parked position with the `in_park` or `forward`
+ * setting results in early truncation of the scanned image.
+ *
+ * Page orientation:
+ * `forward` produces a rightside-up image.
+ * `backward` produces an upside-down image.
+ */
+export type ScanDirection = (typeof scanDirections)[number];
 
 export interface ScannerConfig {
   scanLight: ScanLight;
