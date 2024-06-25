@@ -391,7 +391,7 @@ export type InterpretError =
       front: BallotPageTimingMarkMetadata;
       back: BallotPageTimingMarkMetadata;
     }
-  | { type: 'missingTimingMarks'; rects: Rect[] }
+  | { type: 'missingTimingMarks'; rects: Rect[]; reason: string }
   | { type: 'unexpectedDimensions'; path: string; dimensions: Size<PixelUnit> }
   | { type: 'unknown'; message: string };
 

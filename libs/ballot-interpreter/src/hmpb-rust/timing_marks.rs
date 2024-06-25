@@ -264,17 +264,22 @@ pub fn find_timing_mark_grid(
     else {
         return Err(Error::MissingTimingMarks {
             rects: candidate_timing_marks,
+            reason: "No partial timing marks found".to_owned(),
         });
     };
 
-    let Some(complete_timing_marks) = find_complete_timing_marks_from_partial_timing_marks(
+    let complete_timing_marks = match find_complete_timing_marks_from_partial_timing_marks(
         geometry,
         &partial_timing_marks,
         debug,
-    ) else {
-        return Err(Error::MissingTimingMarks {
-            rects: candidate_timing_marks,
-        });
+    ) {
+        Ok(complete_timing_marks) => complete_timing_marks,
+        Err(find_complete_timing_marks_error) => {
+            return Err(Error::MissingTimingMarks {
+                rects: candidate_timing_marks,
+                reason: find_complete_timing_marks_error.to_string(),
+            });
+        }
     };
 
     let timing_mark_grid = TimingMarkGrid::new(
@@ -674,12 +679,44 @@ pub fn rotate_complete_timing_marks(
     }
 }
 
+#[derive(Debug, thiserror::Error)]
+pub enum FindCompleteTimingMarksError {
+    /// The number of timing marks on the left or right side is too few.
+    #[error("The number of timing marks on the left or right side is too few ({left_side_count} left, {right_side_count} right)")]
+    TooFewVerticalTimingMarks {
+        left_side_count: usize,
+        right_side_count: usize,
+    },
+
+    /// The number of timing marks on the top or bottom side is too few.
+    #[error("The number of timing marks on the top or bottom side is too few ({top_side_count} top, {bottom_side_count} bottom)")]
+    TooFewHorizontalTimingMarks {
+        top_side_count: usize,
+        bottom_side_count: usize,
+    },
+
+    /// The number of inferred timing marks on a side does not match its opposite side.
+    #[error("The number of inferred timing marks on a side does not match its opposite side ({left_side_count} left, {right_side_count} right, {top_side_count} top, {bottom_side_count} bottom)")]
+    MismatchedInferredTimingMarks {
+        left_side_count: usize,
+        right_side_count: usize,
+        top_side_count: usize,
+        bottom_side_count: usize,
+    },
+
+    /// Not enough corners of the ballot card could be found.
+    #[error("Not enough corners of the ballot card could be found")]
+    MissingCorners,
+}
+
+pub type FindCompleteTimingMarksResult = Result<Complete, FindCompleteTimingMarksError>;
+
 #[time]
 pub fn find_complete_timing_marks_from_partial_timing_marks(
     geometry: &Geometry,
     partial_timing_marks: &Partial,
     debug: &ImageDebugWriter,
-) -> Option<Complete> {
+) -> FindCompleteTimingMarksResult {
     let top_line = &partial_timing_marks.top_rects;
     let bottom_line = &partial_timing_marks.bottom_rects;
     let left_line = &partial_timing_marks.left_rects;
@@ -689,7 +726,10 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
     if left_line.len() < min_left_right_timing_marks
         || right_line.len() < min_left_right_timing_marks
     {
-        return None;
+        return Err(FindCompleteTimingMarksError::TooFewVerticalTimingMarks {
+            left_side_count: left_line.len(),
+            right_side_count: right_line.len(),
+        });
     }
 
     let mut horizontal_distances = vec![];
@@ -701,8 +741,18 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
     vertical_distances.append(&mut distances_between_rects(right_line));
     vertical_distances.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
 
-    if horizontal_distances.is_empty() || vertical_distances.is_empty() {
-        return None;
+    if horizontal_distances.is_empty() {
+        return Err(FindCompleteTimingMarksError::TooFewHorizontalTimingMarks {
+            top_side_count: top_line.len(),
+            bottom_side_count: bottom_line.len(),
+        });
+    }
+
+    if vertical_distances.is_empty() {
+        return Err(FindCompleteTimingMarksError::TooFewVerticalTimingMarks {
+            left_side_count: left_line.len(),
+            right_side_count: right_line.len(),
+        });
     }
 
     let median_horizontal_distance = horizontal_distances[horizontal_distances.len() / 2];
@@ -753,7 +803,14 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
     );
 
     if top_line.len() != bottom_line.len() || left_line.len() != right_line.len() {
-        return None;
+        return Err(
+            FindCompleteTimingMarksError::MismatchedInferredTimingMarks {
+                left_side_count: left_line.len(),
+                right_side_count: right_line.len(),
+                top_side_count: top_line.len(),
+                bottom_side_count: bottom_line.len(),
+            },
+        );
     }
 
     let (
@@ -768,7 +825,7 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
         bottom_line.last().copied(),
     )
     else {
-        return None;
+        return Err(FindCompleteTimingMarksError::MissingCorners);
     };
 
     let complete_timing_marks = Complete {
@@ -795,7 +852,7 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
         );
     });
 
-    Some(complete_timing_marks)
+    Ok(complete_timing_marks)
 }
 
 /// Infers missing timing marks along a segment. It's expected that there are
@@ -907,7 +964,7 @@ pub fn distances_between_rects(rects: &[Rect]) -> Vec<f32> {
     let mut distances = rects
         .windows(2)
         .map(|w| Segment::new(w[1].center(), w[0].center()).length())
-        .collect::<Vec<f32>>();
+        .collect::<Vec<_>>();
     distances.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
     distances
 }
