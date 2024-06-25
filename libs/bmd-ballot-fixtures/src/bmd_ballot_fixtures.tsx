@@ -16,7 +16,7 @@ export async function renderBmdBallotFixture(
     electionDefinition: ElectionDefinition;
   }
 ): Promise<Buffer> {
-  // Set some default props that can be overriden by the caller
+  // Set some default props that can be overridden by the caller
   const {
     electionDefinition: { election },
   } = props;
