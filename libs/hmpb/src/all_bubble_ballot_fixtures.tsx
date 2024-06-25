@@ -244,7 +244,6 @@ export const allBubbleBallotFixtures = (() => {
   const election = createElection();
   const ballotProps: BaseBallotProps = {
     election,
-    translatedStrings: {},
     ballotStyleId: election.ballotStyles[0].id,
     precinctId: election.precincts[0].id,
     ballotMode: 'test',

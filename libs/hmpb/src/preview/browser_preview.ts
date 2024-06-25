@@ -7,10 +7,7 @@ import {
   VotesDict,
   getContests,
 } from '@votingworks/types';
-import {
-  electionGeneral,
-  electionGeneralFixtures,
-} from '@votingworks/fixtures';
+import { electionGeneral } from '@votingworks/fixtures';
 import { assertDefined, iter } from '@votingworks/basics';
 import { vxDefaultBallotTemplate } from '../vx_default_ballot_template';
 import {
@@ -41,7 +38,6 @@ const exampleBallotProps: BaseBallotProps = {
   precinctId: ballotStyle.precincts[0],
   ballotType: BallotType.Absentee,
   ballotMode: 'sample',
-  translatedStrings: electionGeneralFixtures.uiStrings,
 };
 
 /**
