@@ -7,12 +7,17 @@ import {
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 import { withApp } from '../test/helpers/setup_app';
 import { generateBmdBallotFixture } from '../test/helpers/ballots';
+import { ScannedSheetInfo } from './fujitsu_scanner';
 
 const jurisdiction = TEST_JURISDICTION;
 
 test('scanBatch with multiple sheets', async () => {
   const { electionDefinition } = electionFamousNames2021Fixtures;
   const ballot = await generateBmdBallotFixture();
+  const scannedBallot: ScannedSheetInfo = {
+    frontPath: ballot[0],
+    backPath: ballot[1],
+  };
   await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
     mockElectionManagerAuth(auth, electionDefinition);
     importer.configure(electionDefinition, jurisdiction);
@@ -21,9 +26,9 @@ test('scanBatch with multiple sheets', async () => {
 
     scanner
       .withNextScannerSession()
-      .sheet(ballot)
-      .sheet(ballot)
-      .sheet(ballot)
+      .sheet(scannedBallot)
+      .sheet(scannedBallot)
+      .sheet(scannedBallot)
       .end();
 
     await apiClient.scanBatch();
@@ -55,10 +60,13 @@ test('continueScanning after invalid ballot', async () => {
 
     scanner
       .withNextScannerSession()
-      .sheet(ballot)
+      .sheet({
+        frontPath: ballot[0],
+        backPath: ballot[1],
+      })
       // Invalid BMD ballot
-      .sheet([ballot[1], ballot[1]])
-      .sheet(ballot)
+      .sheet({ frontPath: ballot[1], backPath: ballot[1] })
+      .sheet({ frontPath: ballot[0], backPath: ballot[1] })
       .end();
 
     await apiClient.scanBatch();
