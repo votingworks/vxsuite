@@ -64,6 +64,7 @@ async function outputSampleBallotPdfWidth() {
 async function scan(driver: PaperHandlerDriverInterface): Promise<void> {
   const dateString = new Date().toISOString();
   const pathOut = join(tmpdir(), `ballot-driver-cli-${dateString}.jpg`);
+  console.log('Writing scan to', pathOut);
   await driver.scanAndSave(pathOut);
 }
 
