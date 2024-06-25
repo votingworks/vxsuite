@@ -512,3 +512,27 @@ test('single ownership', () => {
     'inner iterable has already been taken'
   );
 });
+
+test('cycle', () => {
+  expect(iter([]).cycle().take(5).toArray()).toEqual([]);
+  expect(iter([1]).cycle().take(5).toArray()).toEqual([1, 1, 1, 1, 1]);
+  expect(iter([1, 2, 3]).cycle().take(5).toArray()).toEqual([1, 2, 3, 1, 2]);
+
+  fc.assert(
+    fc.property(fc.array(fc.anything()), (arr) => {
+      expect(iter(arr).cycle().take(0).toArray()).toEqual([]);
+    })
+  );
+
+  fc.assert(
+    fc.property(
+      fc.record({
+        arr: fc.array(fc.anything(), { minLength: 1 }),
+        n: fc.integer({ min: 1, max: 100 }),
+      }),
+      ({ arr, n }) => {
+        expect(iter(arr).cycle().take(n).toArray()).toHaveLength(n);
+      }
+    )
+  );
+});

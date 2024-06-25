@@ -1,6 +1,5 @@
-import { assert } from '@votingworks/basics';
+import { iter } from '@votingworks/basics';
 import {
-  Candidate,
   CandidateContest,
   Election,
   Vote,
@@ -9,16 +8,11 @@ import {
 } from '@votingworks/types';
 
 function generateMockCandidateVote(contest: CandidateContest, seed = 0): Vote {
-  const votes: Candidate[] = [];
-
-  for (let i = 0; i < contest.seats && i < contest.candidates.length; i += 1) {
-    const candidate =
-      contest.candidates[(i + seed) % contest.candidates.length];
-    assert(candidate);
-    votes.push(candidate);
-  }
-
-  return votes;
+  return iter(contest.candidates)
+    .cycle()
+    .skip(seed)
+    .take(Math.min(contest.seats, contest.candidates.length))
+    .toArray();
 }
 
 function generateMockYesNoVote(c: YesNoContest, seed = 0): Vote {

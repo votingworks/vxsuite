@@ -775,3 +775,33 @@ test('single ownership', async () => {
     'inner iterable has already been taken'
   );
 });
+
+test('cycle', async () => {
+  expect(await iter([]).async().cycle().take(3).toArray()).toEqual([]);
+  expect(await iter([1, 2]).async().cycle().take(3).toArray()).toEqual([
+    1, 2, 1,
+  ]);
+  expect(await iter([1, 2]).async().cycle().take(5).toArray()).toEqual([
+    1, 2, 1, 2, 1,
+  ]);
+
+  await fc.assert(
+    fc.asyncProperty(fc.array(fc.anything()), async (arr) => {
+      expect(await iter(arr).async().cycle().take(0).toArray()).toEqual([]);
+    })
+  );
+
+  await fc.assert(
+    fc.asyncProperty(
+      fc.record({
+        arr: fc.array(fc.anything(), { minLength: 1 }),
+        n: fc.integer({ min: 1, max: 100 }),
+      }),
+      async ({ arr, n }) => {
+        expect(await iter(arr).async().cycle().take(n).toArray()).toHaveLength(
+          n
+        );
+      }
+    )
+  );
+});

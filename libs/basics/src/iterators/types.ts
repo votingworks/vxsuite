@@ -99,6 +99,17 @@ export interface IteratorPlus<T> extends Iterable<T> {
   count(): number;
 
   /**
+   * Cycles elements from `this` indefinitely.
+   *
+   * @example
+   *
+   * ```ts
+   * expect(iter([1, 2, 3]).cycle().take(7).toArray()).toEqual([1, 2, 3, 1, 2, 3, 1]);
+   * ```
+   */
+  cycle(): IteratorPlus<T>;
+
+  /**
    * Enumerates elements along with their index.
    *
    * @example
@@ -812,6 +823,20 @@ export interface AsyncIteratorPlus<T> extends AsyncIterable<T> {
    * ```
    */
   count(): Promise<number>;
+
+  /**
+   * Cycles elements from `this` indefinitely.
+   *
+   * @example
+   *
+   * ```ts
+   * const input = fs.createReadStream('file.txt', { encoding: 'utf8' });
+   * for await (const line of lines(input).cycle().take(100)) {
+   *   …
+   * }
+   * ```
+   */
+  cycle(): AsyncIteratorPlus<T>;
 
   /**
    * Enumerates elements along with their index.

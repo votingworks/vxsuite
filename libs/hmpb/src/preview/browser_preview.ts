@@ -11,7 +11,7 @@ import {
   electionGeneral,
   electionGeneralFixtures,
 } from '@votingworks/fixtures';
-import { assertDefined, range } from '@votingworks/basics';
+import { assertDefined, iter } from '@votingworks/basics';
 import { vxDefaultBallotTemplate } from '../vx_default_ballot_template';
 import {
   BaseBallotProps,
@@ -62,9 +62,11 @@ export async function main(): Promise<void> {
   const votes: VotesDict = Object.fromEntries(
     contests.map((contest, i) => {
       if (contest.type === 'candidate') {
-        const candidates = range(0, contest.seats - (i % 2)).map(
-          (j) => contest.candidates[(i + j) % contest.candidates.length]
-        );
+        const candidates = iter(contest.candidates)
+          .cycle()
+          .skip(i)
+          .take(contest.seats - (i % 2))
+          .toArray();
         if (contest.allowWriteIns && i % 2 === 0) {
           const writeInIndex = i % contest.seats;
           candidates.push({
