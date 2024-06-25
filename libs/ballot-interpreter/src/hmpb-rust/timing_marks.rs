@@ -8,8 +8,8 @@ use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
 use serde::Serialize;
 use types_rs::geometry::{
-    find_largest_subset_intersecting_line, intersection_of_lines, GridUnit, PixelPosition,
-    PixelUnit, Point, Rect, Segment, Size, SubGridUnit, SubPixelUnit,
+    find_largest_subset_intersecting_line, Degrees, GridUnit, PixelPosition, PixelUnit, Point,
+    Radians, Rect, Segment, Size, SubGridUnit, SubPixelUnit,
 };
 use types_rs::{election::UnitIntervalValue, geometry::IntersectionBounds};
 
@@ -39,6 +39,36 @@ pub struct Partial {
     pub top_right_rect: Option<Rect>,
     pub bottom_left_rect: Option<Rect>,
     pub bottom_right_rect: Option<Rect>,
+}
+
+impl Partial {
+    pub fn left_side_rotation(&self) -> Radians {
+        let left_angle = Segment::new(self.top_left_corner, self.bottom_left_corner).angle();
+        // expected angle is 90 degrees and not 270 degrees because the Y axis
+        // is inverted in the image coordinate system
+        let expected_angle = Radians::PI / 2.0;
+        (left_angle - expected_angle).abs()
+    }
+
+    pub fn right_side_rotation(&self) -> Radians {
+        let right_angle = Segment::new(self.top_right_corner, self.bottom_right_corner).angle();
+        // expected angle is 90 degrees and not 270 degrees because the Y axis
+        // is inverted in the image coordinate system
+        let expected_angle = Radians::PI / 2.0;
+        (right_angle - expected_angle).abs()
+    }
+
+    pub fn top_side_rotation(&self) -> Radians {
+        let top_angle = Segment::new(self.top_left_corner, self.top_right_corner).angle();
+        let expected_angle = Radians::new(0.0);
+        (top_angle - expected_angle).abs()
+    }
+
+    pub fn bottom_side_rotation(&self) -> Radians {
+        let bottom_angle = Segment::new(self.bottom_left_corner, self.bottom_right_corner).angle();
+        let expected_angle = Radians::new(0.0);
+        (bottom_angle - expected_angle).abs()
+    }
 }
 
 impl From<Complete> for Partial {
@@ -232,17 +262,22 @@ pub fn find_timing_mark_grid(
     else {
         return Err(Error::MissingTimingMarks {
             rects: candidate_timing_marks,
+            reason: "No partial timing marks found".to_owned(),
         });
     };
 
-    let Some(complete_timing_marks) = find_complete_timing_marks_from_partial_timing_marks(
+    let complete_timing_marks = match find_complete_timing_marks_from_partial_timing_marks(
         geometry,
         &partial_timing_marks,
         debug,
-    ) else {
-        return Err(Error::MissingTimingMarks {
-            rects: candidate_timing_marks,
-        });
+    ) {
+        Ok(complete_timing_marks) => complete_timing_marks,
+        Err(find_complete_timing_marks_error) => {
+            return Err(Error::MissingTimingMarks {
+                rects: candidate_timing_marks,
+                reason: find_complete_timing_marks_error.to_string(),
+            });
+        }
     };
 
     let timing_mark_grid = TimingMarkGrid::new(
@@ -394,9 +429,9 @@ pub fn find_timing_mark_shapes(
     candidate_timing_marks
 }
 
-const MAX_BEST_FIT_LINE_ERROR_DEGREES: f32 = 5.0;
-const HORIZONTAL_ANGLE_DEGREES: f32 = 0.0;
-const VERTICAL_ANGLE_DEGREES: f32 = 90.0;
+const MAX_BEST_FIT_LINE_ERROR: Degrees = Degrees::new(5.0);
+const HORIZONTAL_ANGLE: Degrees = Degrees::new(0.0);
+const VERTICAL_ANGLE: Degrees = Degrees::new(90.0);
 
 /// Finds timing marks along the border of the image based on the rectangles
 /// found by some other method. This algorithm focuses on finding timing marks
@@ -432,23 +467,23 @@ pub fn find_partial_timing_marks_from_candidate_rects(
         .collect::<Vec<Rect>>();
     let mut top_line = find_largest_subset_intersecting_line(
         &top_half_rects,
-        HORIZONTAL_ANGLE_DEGREES.to_radians(),
-        MAX_BEST_FIT_LINE_ERROR_DEGREES.to_radians(),
+        HORIZONTAL_ANGLE,
+        MAX_BEST_FIT_LINE_ERROR,
     );
     let mut bottom_line = find_largest_subset_intersecting_line(
         &bottom_half_rects,
-        HORIZONTAL_ANGLE_DEGREES.to_radians(),
-        MAX_BEST_FIT_LINE_ERROR_DEGREES.to_radians(),
+        HORIZONTAL_ANGLE,
+        MAX_BEST_FIT_LINE_ERROR,
     );
     let mut left_line = find_largest_subset_intersecting_line(
         &left_half_rects,
-        VERTICAL_ANGLE_DEGREES.to_radians(),
-        MAX_BEST_FIT_LINE_ERROR_DEGREES.to_radians(),
+        VERTICAL_ANGLE,
+        MAX_BEST_FIT_LINE_ERROR,
     );
     let mut right_line = find_largest_subset_intersecting_line(
         &right_half_rects,
-        VERTICAL_ANGLE_DEGREES.to_radians(),
-        MAX_BEST_FIT_LINE_ERROR_DEGREES.to_radians(),
+        VERTICAL_ANGLE,
+        MAX_BEST_FIT_LINE_ERROR,
     );
 
     top_line.sort_by_key(Rect::left);
@@ -489,29 +524,29 @@ pub fn find_partial_timing_marks_from_candidate_rects(
         None
     };
 
-    let top_left_intersection = intersection_of_lines(
-        &Segment::new(top_start_rect_center, top_last_rect_center),
-        &Segment::new(left_start_rect_center, left_last_rect_center),
-        IntersectionBounds::Unbounded,
-    )?;
+    let top_left_intersection = Segment::new(top_start_rect_center, top_last_rect_center)
+        .intersection_point(
+            &Segment::new(left_start_rect_center, left_last_rect_center),
+            IntersectionBounds::Unbounded,
+        )?;
 
-    let top_right_intersection = intersection_of_lines(
-        &Segment::new(top_start_rect_center, top_last_rect_center),
-        &Segment::new(right_start_rect_center, right_last_rect_center),
-        IntersectionBounds::Unbounded,
-    )?;
+    let top_right_intersection = Segment::new(top_start_rect_center, top_last_rect_center)
+        .intersection_point(
+            &Segment::new(right_start_rect_center, right_last_rect_center),
+            IntersectionBounds::Unbounded,
+        )?;
 
-    let bottom_left_intersection = intersection_of_lines(
-        &Segment::new(bottom_start_rect_center, bottom_last_rect_center),
-        &Segment::new(left_start_rect_center, left_last_rect_center),
-        IntersectionBounds::Unbounded,
-    )?;
+    let bottom_left_intersection = Segment::new(bottom_start_rect_center, bottom_last_rect_center)
+        .intersection_point(
+            &Segment::new(left_start_rect_center, left_last_rect_center),
+            IntersectionBounds::Unbounded,
+        )?;
 
-    let bottom_right_intersection = intersection_of_lines(
-        &Segment::new(bottom_start_rect_center, bottom_last_rect_center),
-        &Segment::new(right_start_rect_center, right_last_rect_center),
-        IntersectionBounds::Unbounded,
-    )?;
+    let bottom_right_intersection = Segment::new(bottom_start_rect_center, bottom_last_rect_center)
+        .intersection_point(
+            &Segment::new(right_start_rect_center, right_last_rect_center),
+            IntersectionBounds::Unbounded,
+        )?;
 
     let partial_timing_marks = Partial {
         geometry: *geometry,
@@ -642,12 +677,44 @@ pub fn rotate_complete_timing_marks(
     }
 }
 
+#[derive(Debug, thiserror::Error)]
+pub enum FindCompleteTimingMarksError {
+    /// The number of timing marks on the left or right side is too few.
+    #[error("The number of timing marks on the left or right side is too few ({left_side_count} left, {right_side_count} right)")]
+    TooFewVerticalTimingMarks {
+        left_side_count: usize,
+        right_side_count: usize,
+    },
+
+    /// The number of timing marks on the top or bottom side is too few.
+    #[error("The number of timing marks on the top or bottom side is too few ({top_side_count} top, {bottom_side_count} bottom)")]
+    TooFewHorizontalTimingMarks {
+        top_side_count: usize,
+        bottom_side_count: usize,
+    },
+
+    /// The number of inferred timing marks on a side does not match its opposite side.
+    #[error("The number of inferred timing marks on a side does not match its opposite side ({left_side_count} left, {right_side_count} right, {top_side_count} top, {bottom_side_count} bottom)")]
+    MismatchedInferredTimingMarks {
+        left_side_count: usize,
+        right_side_count: usize,
+        top_side_count: usize,
+        bottom_side_count: usize,
+    },
+
+    /// Not enough corners of the ballot card could be found.
+    #[error("Not enough corners of the ballot card could be found")]
+    MissingCorners,
+}
+
+pub type FindCompleteTimingMarksResult = Result<Complete, FindCompleteTimingMarksError>;
+
 #[time]
 pub fn find_complete_timing_marks_from_partial_timing_marks(
     geometry: &Geometry,
     partial_timing_marks: &Partial,
     debug: &ImageDebugWriter,
-) -> Option<Complete> {
+) -> FindCompleteTimingMarksResult {
     let top_line = &partial_timing_marks.top_rects;
     let bottom_line = &partial_timing_marks.bottom_rects;
     let left_line = &partial_timing_marks.left_rects;
@@ -657,7 +724,10 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
     if left_line.len() < min_left_right_timing_marks
         || right_line.len() < min_left_right_timing_marks
     {
-        return None;
+        return Err(FindCompleteTimingMarksError::TooFewVerticalTimingMarks {
+            left_side_count: left_line.len(),
+            right_side_count: right_line.len(),
+        });
     }
 
     let mut horizontal_distances = vec![];
@@ -669,8 +739,18 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
     vertical_distances.append(&mut distances_between_rects(right_line));
     vertical_distances.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
 
-    if horizontal_distances.is_empty() || vertical_distances.is_empty() {
-        return None;
+    if horizontal_distances.is_empty() {
+        return Err(FindCompleteTimingMarksError::TooFewHorizontalTimingMarks {
+            top_side_count: top_line.len(),
+            bottom_side_count: bottom_line.len(),
+        });
+    }
+
+    if vertical_distances.is_empty() {
+        return Err(FindCompleteTimingMarksError::TooFewVerticalTimingMarks {
+            left_side_count: left_line.len(),
+            right_side_count: right_line.len(),
+        });
     }
 
     let median_horizontal_distance = horizontal_distances[horizontal_distances.len() / 2];
@@ -721,7 +801,14 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
     );
 
     if top_line.len() != bottom_line.len() || left_line.len() != right_line.len() {
-        return None;
+        return Err(
+            FindCompleteTimingMarksError::MismatchedInferredTimingMarks {
+                left_side_count: left_line.len(),
+                right_side_count: right_line.len(),
+                top_side_count: top_line.len(),
+                bottom_side_count: bottom_line.len(),
+            },
+        );
     }
 
     let (
@@ -736,7 +823,7 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
         bottom_line.last().copied(),
     )
     else {
-        return None;
+        return Err(FindCompleteTimingMarksError::MissingCorners);
     };
 
     let complete_timing_marks = Complete {
@@ -763,7 +850,7 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
         );
     });
 
-    Some(complete_timing_marks)
+    Ok(complete_timing_marks)
 }
 
 /// Infers missing timing marks along a segment. It's expected that there are
@@ -875,7 +962,7 @@ pub fn distances_between_rects(rects: &[Rect]) -> Vec<f32> {
     let mut distances = rects
         .windows(2)
         .map(|w| Segment::new(w[1].center(), w[0].center()).length())
-        .collect::<Vec<f32>>();
+        .collect::<Vec<_>>();
     distances.sort_by(|a, b| a.partial_cmp(b).unwrap_or(std::cmp::Ordering::Equal));
     distances
 }

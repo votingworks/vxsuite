@@ -18,11 +18,11 @@ fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
     imageproc::rect::Rect::at(rect.left(), rect.top()).of_size(rect.width(), rect.height())
 }
 
+use crate::image_utils::rainbow;
 use crate::layout::InterpretedContestLayout;
 use crate::{
     image_utils::{
-        BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GREEN, DARK_RED, GREEN, ORANGE, PINK, RAINBOW, RED,
-        WHITE_RGB,
+        BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GREEN, DARK_RED, GREEN, ORANGE, PINK, RED, WHITE_RGB,
     },
     qr_code::Detected,
     scoring::{ScoredBubbleMark, ScoredPositionAreas},
@@ -95,12 +95,8 @@ pub fn draw_qr_code_debug_image_mut(
 }
 
 pub fn draw_contours_debug_image_mut(canvas: &mut RgbImage, contour_rects: &[Rect]) {
-    for (i, rect) in contour_rects.iter().enumerate() {
-        draw_hollow_rect_mut(
-            canvas,
-            imageproc_rect_from_rect(rect),
-            RAINBOW[i % RAINBOW.len()],
-        );
+    for (rect, color) in contour_rects.iter().zip(rainbow()) {
+        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(rect), color);
     }
 }
 
@@ -110,20 +106,12 @@ pub fn draw_candidate_timing_marks_debug_image_mut(
     contour_rects: &[Rect],
     candidate_timing_marks: &[Rect],
 ) {
-    for (i, rect) in contour_rects.iter().enumerate() {
-        draw_hollow_rect_mut(
-            canvas,
-            imageproc_rect_from_rect(rect),
-            RAINBOW[i % RAINBOW.len()],
-        );
+    for (rect, color) in contour_rects.iter().zip(rainbow()) {
+        draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(rect), color);
     }
 
-    for (i, rect) in candidate_timing_marks.iter().enumerate() {
-        draw_filled_rect_mut(
-            canvas,
-            imageproc_rect_from_rect(rect),
-            RAINBOW[i % RAINBOW.len()],
-        );
+    for (rect, color) in candidate_timing_marks.iter().zip(rainbow()) {
+        draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), color);
     }
 }
 
@@ -135,24 +123,58 @@ pub fn draw_timing_mark_debug_image_mut(
 ) {
     draw_legend(
         canvas,
-        &vec![
+        &[
             (
                 GREEN,
-                format!("Top ({})", partial_timing_marks.top_rects.len()).as_str(),
+                format!(
+                    "Top ({}/{} found, rotation {})",
+                    partial_timing_marks.top_rects.len(),
+                    geometry.grid_size.width,
+                    partial_timing_marks.top_side_rotation().to_degrees(),
+                )
+                .as_str(),
             ),
             (
                 BLUE,
-                format!("Bottom ({})", partial_timing_marks.bottom_rects.len()).as_str(),
+                format!(
+                    "Bottom ({}/{} found, rotation {})",
+                    partial_timing_marks.bottom_rects.len(),
+                    geometry.grid_size.width,
+                    partial_timing_marks.bottom_side_rotation().to_degrees(),
+                )
+                .as_str(),
             ),
             (
                 RED,
-                format!("Left ({})", partial_timing_marks.left_rects.len()).as_str(),
+                format!(
+                    "Left ({}/{} found, rotation {})",
+                    partial_timing_marks.left_rects.len(),
+                    geometry.grid_size.height,
+                    partial_timing_marks.left_side_rotation().to_degrees(),
+                )
+                .as_str(),
             ),
             (
                 CYAN,
-                format!("Right ({})", partial_timing_marks.right_rects.len()).as_str(),
+                format!(
+                    "Right ({}/{} found, rotation {})",
+                    partial_timing_marks.right_rects.len(),
+                    geometry.grid_size.height,
+                    partial_timing_marks.right_side_rotation().to_degrees(),
+                )
+                .as_str(),
             ),
-            (PINK, format!("Corners ({})", 4).as_str()),
+            (
+                PINK,
+                format!(
+                    "Corners ({}/4)",
+                    u32::from(partial_timing_marks.top_left_rect.is_some())
+                        + u32::from(partial_timing_marks.top_right_rect.is_some())
+                        + u32::from(partial_timing_marks.bottom_left_rect.is_some())
+                        + u32::from(partial_timing_marks.bottom_right_rect.is_some()),
+                )
+                .as_str(),
+            ),
         ],
     );
 
@@ -455,7 +477,7 @@ pub fn draw_scored_bubble_marks_debug_image_mut(
 
     draw_legend(
         canvas,
-        &vec![
+        &[
             (original_bubble_color, "Expected Bubble Bounds"),
             (matched_bubble_color, "Matched Bubble Bounds"),
             (
@@ -581,7 +603,7 @@ pub fn draw_scored_write_in_areas(
 
     draw_legend(
         canvas,
-        &vec![
+        &[
             (DARK_GREEN, "Write-In Area Bounds"),
             (ORANGE, "Write-In Area Score (100% = completely filled)"),
         ],
@@ -685,7 +707,7 @@ fn draw_text_with_background_mut(
     draw_text_mut(canvas, text_color, x, y, scale, font, text);
 }
 
-fn draw_legend(canvas: &mut RgbImage, colored_labels: &Vec<(Rgb<u8>, &str)>) {
+fn draw_legend(canvas: &mut RgbImage, colored_labels: &[(Rgb<u8>, &str)]) {
     let font = &monospace_font();
     let font_scale = 12.0;
     let scale = PxScale::from(font_scale);

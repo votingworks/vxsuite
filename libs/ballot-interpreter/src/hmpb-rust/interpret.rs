@@ -144,8 +144,8 @@ pub enum Error {
         front: BallotPageMetadata,
         back: BallotPageMetadata,
     },
-    #[error("missing timing marks: {rects:?}")]
-    MissingTimingMarks { rects: Vec<Rect> },
+    #[error("missing timing marks: {rects:?}, reason: {reason}")]
+    MissingTimingMarks { rects: Vec<Rect>, reason: String },
     #[error("unexpected dimensions for {label}: {dimensions:?}")]
     UnexpectedDimensions {
         label: String,
