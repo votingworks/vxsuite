@@ -1,6 +1,7 @@
 export * from './all_bubble_ballot_fixtures';
 export * from './ballot_fixtures';
 export * from './concatenate_pdfs';
+export * from './hmpb_strings';
 export * from './mark_ballot';
 export * from './playwright_renderer';
 export * from './render_ballot';
