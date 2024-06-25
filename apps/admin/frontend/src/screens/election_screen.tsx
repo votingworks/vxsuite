@@ -55,7 +55,7 @@ export function ElectionScreen(): JSX.Element {
   return (
     <NavigationScreen title="Election">
       <P>
-        Configured with the current election at{' '}
+        Configured with the current election on{' '}
         <Font weight="bold">
           {format.localeLongDateAndTime(new Date(configuredAt))}
         </Font>
