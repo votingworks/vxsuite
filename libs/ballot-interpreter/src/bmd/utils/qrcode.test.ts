@@ -4,7 +4,9 @@ import {
   electionFamousNames2021Fixtures,
   sampleBallotImages,
 } from '@votingworks/fixtures';
+import { renderBmdBallotFixture } from '@votingworks/bmd-ballot-fixtures';
 import { QrCodePageResult, detectInBallot, getSearchAreas } from './qrcode';
+import { pdfToPageImages } from '../../../test/helpers/interpretation';
 
 test('does not find QR codes when there are none to find', async () => {
   const detectResult = await detectInBallot(
@@ -14,9 +16,11 @@ test('does not find QR codes when there are none to find', async () => {
 });
 
 test('can read metadata encoded in a QR code with base64', async () => {
-  const detectResult = await detectInBallot(
-    await electionFamousNames2021Fixtures.machineMarkedBallotPage1.asImageData()
-  );
+  const ballotPdf = await renderBmdBallotFixture({
+    electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+  });
+  const pageImages = await pdfToPageImages(ballotPdf).toArray();
+  const detectResult = await detectInBallot(pageImages[0]!);
   expect(detectResult).toEqual<QrCodePageResult>(
     ok({
       data: expect.any(Buffer),

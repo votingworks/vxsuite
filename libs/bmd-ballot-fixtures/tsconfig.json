@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.shared.json",
+  "compilerOptions": {
+    "module": "node16",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "jsx": "react-jsx",
+    "composite": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noUncheckedIndexedAccess": false
+  },
+  "include": ["src", "test"],
+  "exclude": [],
+  "references": [
+    { "path": "../basics/tsconfig.build.json" },
+    { "path": "../fixtures/tsconfig.build.json" },
+    { "path": "../printing/tsconfig.build.json" },
+    { "path": "../types/tsconfig.build.json" },
+    { "path": "../ui/tsconfig.build.json" }
+  ]
+}

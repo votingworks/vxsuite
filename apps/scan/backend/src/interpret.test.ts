@@ -1,4 +1,4 @@
-import { typedAs } from '@votingworks/basics';
+import { iter, typedAs } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireTestBallotFixtures,
@@ -11,10 +11,13 @@ import {
   InterpretedHmpbPage,
   PageInterpretation,
   SheetInterpretation,
+  asSheet,
 } from '@votingworks/types';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import * as fs from 'fs/promises';
-import { dirSync } from 'tmp';
+import { dirSync, tmpNameSync } from 'tmp';
+import { renderBmdBallotFixture } from '@votingworks/bmd-ballot-fixtures';
+import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 import { combinePageInterpretationsForSheet, interpret } from './interpret';
 
 if (process.env.CI) {
@@ -30,11 +33,6 @@ const ballotImages = {
     electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asFilePath(),
     electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asFilePath(),
   ],
-  bmdBallot: [
-    electionFamousNames2021Fixtures.machineMarkedBallotPage1.asFilePath(),
-    // 2nd page is blank
-    electionFamousNames2021Fixtures.machineMarkedBallotPage2.asFilePath(),
-  ],
 } as const;
 
 let ballotImagesPath!: string;
@@ -48,7 +46,19 @@ afterEach(async () => {
 });
 
 test('treats BMD ballot with one blank side as valid', async () => {
-  const result = await interpret('foo-sheet-id', ballotImages.bmdBallot, {
+  const ballotPdf = await renderBmdBallotFixture({
+    electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
+  });
+  const pageImagePaths = asSheet(
+    await iter(pdfToImages(ballotPdf, { scale: 200 / 72 }))
+      .map(async ({ page }) => {
+        const path = tmpNameSync({ postfix: '.png' });
+        await writeImageData(path, page);
+        return path;
+      })
+      .toArray()
+  );
+  const result = await interpret('foo-sheet-id', pageImagePaths, {
     electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
     precinctSelection: ALL_PRECINCTS_SELECTION,
     ballotImagesPath,

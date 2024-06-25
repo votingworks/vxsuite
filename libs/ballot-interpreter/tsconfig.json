@@ -18,6 +18,7 @@
   "references": [
     { "path": "../ballot-encoder/tsconfig.build.json" },
     { "path": "../basics/tsconfig.build.json" },
+    { "path": "../bmd-ballot-fixtures/tsconfig.build.json" },
     { "path": "../eslint-plugin-vx/tsconfig.build.json" },
     { "path": "../fixtures/tsconfig.build.json" },
     { "path": "../fs/tsconfig.build.json" },

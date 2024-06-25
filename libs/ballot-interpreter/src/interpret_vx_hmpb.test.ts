@@ -21,8 +21,8 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { createCanvas } from 'canvas';
-import { ballotFixture } from '../test/helpers/ballots';
 import {
+  pdfToPageImagePaths,
   sortUnmarkedWriteIns,
   sortVotesDict,
   unmarkedWriteInsForSheet,
@@ -41,8 +41,6 @@ beforeEach(() => {
 describe('HMPB - Famous Names', () => {
   const { electionPath, precinctId, votes, blankBallotPath, markedBallotPath } =
     famousNamesFixtures;
-  const blankBallot = ballotFixture(blankBallotPath);
-  const markedBallot = ballotFixture(markedBallotPath);
   let electionDefinition: ElectionDefinition;
   beforeAll(async () => {
     electionDefinition = (await readElection(electionPath)).unsafeUnwrap();
@@ -50,7 +48,7 @@ describe('HMPB - Famous Names', () => {
 
   test('Blank ballot interpretation', async () => {
     const { election } = electionDefinition;
-    const ballotImagePaths = await blankBallot.asHmpbPaths().toArray();
+    const ballotImagePaths = await pdfToPageImagePaths(blankBallotPath);
     expect(ballotImagePaths).toHaveLength(2);
 
     const [frontResult, backResult] = await interpretSheet(
@@ -102,7 +100,7 @@ describe('HMPB - Famous Names', () => {
   });
 
   test('Marked ballot interpretation', async () => {
-    const ballotImagePaths = await markedBallot.asHmpbPaths().toArray();
+    const ballotImagePaths = await pdfToPageImagePaths(markedBallotPath);
     expect(ballotImagePaths).toHaveLength(2);
 
     const [frontResult, backResult] = await interpretSheet(
@@ -129,7 +127,7 @@ describe('HMPB - Famous Names', () => {
   });
 
   test('Wrong election', async () => {
-    const ballotImagePaths = await blankBallot.asHmpbPaths().toArray();
+    const ballotImagePaths = await pdfToPageImagePaths(blankBallotPath);
     expect(ballotImagePaths).toHaveLength(2);
 
     const [frontResult, backResult] = await interpretSheet(
@@ -154,7 +152,7 @@ describe('HMPB - Famous Names', () => {
 
   test('Wrong precinct', async () => {
     const { election } = electionDefinition;
-    const ballotImagePaths = await blankBallot.asHmpbPaths().toArray();
+    const ballotImagePaths = await pdfToPageImagePaths(blankBallotPath);
     expect(ballotImagePaths).toHaveLength(2);
     assert(precinctId !== election.precincts[1]!.id);
 
@@ -176,7 +174,7 @@ describe('HMPB - Famous Names', () => {
   });
 
   test('Wrong test mode', async () => {
-    const ballotImagePaths = await blankBallot.asHmpbPaths().toArray();
+    const ballotImagePaths = await pdfToPageImagePaths(blankBallotPath);
     expect(ballotImagePaths).toHaveLength(2);
 
     const [frontResult, backResult] = await interpretSheet(
@@ -197,7 +195,7 @@ describe('HMPB - Famous Names', () => {
   });
 
   test('normalizes ballot mode', async () => {
-    const ballotImagePaths = await blankBallot.asHmpbPaths().toArray();
+    const ballotImagePaths = await pdfToPageImagePaths(blankBallotPath);
     expect(ballotImagePaths).toHaveLength(2);
 
     const options: InterpreterOptions = {
@@ -240,15 +238,14 @@ for (const spec of generalElectionFixtures.fixtureSpecs) {
       votes,
       unmarkedWriteIns,
     } = spec;
-    const markedBallot = ballotFixture(markedBallotPath);
 
     test(`Marked ballot interpretation`, async () => {
       const electionDefinition = (
         await readElection(electionPath)
       ).unsafeUnwrap();
 
-      for await (const [sheetIndex, sheetImagePaths] of markedBallot
-        .asHmpbPaths()
+      const ballotImagePaths = await pdfToPageImagePaths(markedBallotPath);
+      for (const [sheetIndex, sheetImagePaths] of iter(ballotImagePaths)
         .chunks(2)
         .enumerate()) {
         assert(sheetImagePaths.length === 2);
@@ -366,11 +363,6 @@ for (const spec of generalElectionFixtures.fixtureSpecs) {
 
 describe('HMPB - primary election', () => {
   const { electionPath, mammalParty, fishParty } = primaryElectionFixtures;
-  const mammalPartyBlankBallot = ballotFixture(mammalParty.blankBallotPath);
-  const fishPartyBlankBallot = ballotFixture(fishParty.blankBallotPath);
-  const mammalPartyOtherPrecinctBlankBallot = ballotFixture(
-    mammalParty.otherPrecinctBlankBallotPath
-  );
   let electionDefinition: ElectionDefinition;
   beforeAll(async () => {
     electionDefinition = (await readElection(electionPath)).unsafeUnwrap();
@@ -387,11 +379,9 @@ describe('HMPB - primary election', () => {
       ballotStyleId,
       votes,
     } = partyFixtures;
-    const blankBallot = ballotFixture(blankBallotPath);
-    const markedBallot = ballotFixture(markedBallotPath);
 
     test(`${partyLabel} - Blank ballot interpretation`, async () => {
-      const ballotImagePaths = await blankBallot.asHmpbPaths().toArray();
+      const ballotImagePaths = await pdfToPageImagePaths(blankBallotPath);
       expect(ballotImagePaths).toHaveLength(2);
 
       const [frontResult, backResult] = await interpretSheet(
@@ -437,7 +427,7 @@ describe('HMPB - primary election', () => {
     });
 
     test(`${partyLabel} - Marked ballot interpretation`, async () => {
-      const ballotImagePaths = await markedBallot.asHmpbPaths().toArray();
+      const ballotImagePaths = await pdfToPageImagePaths(markedBallotPath);
       expect(ballotImagePaths).toHaveLength(2);
 
       const [frontResult, backResult] = await interpretSheet(
@@ -463,10 +453,12 @@ describe('HMPB - primary election', () => {
   }
 
   test('Mismatched precincts on front and back', async () => {
-    const precinct1Paths = await mammalPartyBlankBallot.asHmpbPaths().toArray();
-    const precinct2Paths = await mammalPartyOtherPrecinctBlankBallot
-      .asHmpbPaths()
-      .toArray();
+    const precinct1Paths = await pdfToPageImagePaths(
+      mammalParty.blankBallotPath
+    );
+    const precinct2Paths = await pdfToPageImagePaths(
+      mammalParty.otherPrecinctBlankBallotPath
+    );
     expect(precinct1Paths).toHaveLength(2);
     expect(precinct2Paths).toHaveLength(2);
     const [frontPath] = precinct1Paths;
@@ -494,12 +486,12 @@ describe('HMPB - primary election', () => {
   });
 
   test('Mismatched ballot styles on front and back', async () => {
-    const ballotStyle1Paths = await mammalPartyBlankBallot
-      .asHmpbPaths()
-      .toArray();
-    const ballotStyle2Paths = await fishPartyBlankBallot
-      .asHmpbPaths()
-      .toArray();
+    const ballotStyle1Paths = await pdfToPageImagePaths(
+      mammalParty.blankBallotPath
+    );
+    const ballotStyle2Paths = await pdfToPageImagePaths(
+      fishParty.blankBallotPath
+    );
     expect(ballotStyle1Paths).toHaveLength(2);
     expect(ballotStyle2Paths).toHaveLength(2);
     const [frontPath] = ballotStyle1Paths;
@@ -530,9 +522,8 @@ describe('HMPB - primary election', () => {
 test('Non-consecutive page numbers', async () => {
   const { electionPath, blankBallotPath } =
     generalElectionFixtures.fixtureSpecs[0]!;
-  const blankBallot = ballotFixture(blankBallotPath);
   const electionDefinition = (await readElection(electionPath)).unsafeUnwrap();
-  const ballotImagePaths = await blankBallot.asHmpbPaths().toArray();
+  const ballotImagePaths = await pdfToPageImagePaths(blankBallotPath);
   assert(ballotImagePaths.length > 2);
   const [frontPath, , backPath] = ballotImagePaths;
 
