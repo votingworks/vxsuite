@@ -317,7 +317,8 @@ describe('paper handler diagnostic', () => {
     await waitForStatus('paper_handler_diagnostic.interpret_ballot');
 
     // Simulate a delay between the `ejectBallotToRear` call and the paper
-    // getting ejected to allow us to test for the `eject_to_rear` state
+    // getting ejected, by resolving without actually moving into the `noPaper`
+    // state, to allow us to test for the`eject_to_rear` state
     // transition:
     jest.spyOn(driver, 'ejectBallotToRear').mockResolvedValue(true);
 
