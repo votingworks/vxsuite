@@ -38,9 +38,10 @@ mod port;
 const APP_NAME: &str = "vx-mark-scan-fai-100-controller-daemon";
 const FAI_100_VID: u16 = 0x28cd;
 const FAI_100_PID: u16 = 0x4004;
-const STARTUP_SLEEP_DURATION: Duration = Duration::from_millis(3000);
+const STARTUP_SLEEP_DURATION: Duration = Duration::from_millis(1000);
 const MAX_ECHO_RESPONSE_WAIT: Duration = Duration::from_secs(5);
-const POLL_INTERVAL: Duration = Duration::from_millis(1);
+const POLL_INTERVAL: Duration = Duration::from_millis(100);
+const EVENT_LOOP_LOG_INTERVAL: Duration = Duration::from_secs(5);
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -146,6 +147,11 @@ fn get_port() -> Option<Port> {
 }
 
 fn validate_connection(port: &mut Port) -> Result<(), io::Error> {
+    log!(
+        event_id: EventId::ControllerHandshakeInit,
+        event_type: EventType::SystemAction
+    );
+
     let version_cmd = VersionCommand {};
     let version_cmd: Vec<u8> = version_cmd.into();
     println!("Writing version command: {:x?}", version_cmd);
@@ -160,6 +166,7 @@ fn validate_connection(port: &mut Port) -> Result<(), io::Error> {
 
     let start_time = Instant::now();
     let mut buf: [u8; 256] = [0; 256];
+    println!("Polling for firmware version response...");
     loop {
         match port.read(&mut buf) {
             Ok(size) => match VersionResponse::try_from(&buf[..size]) {
@@ -198,7 +205,6 @@ fn validate_connection(port: &mut Port) -> Result<(), io::Error> {
             break;
         }
 
-        println!("Waiting {:?}", POLL_INTERVAL);
         thread::sleep(POLL_INTERVAL);
     }
 
@@ -218,6 +224,17 @@ fn validate_connection(port: &mut Port) -> Result<(), io::Error> {
 fn run_event_loop(port: &mut Port, running: &Arc<AtomicBool>) {
     let mut buf: [u8; 256] = [0; 256];
 
+    println!("Asking for firmware version");
+    if let Err(err) = validate_connection(port) {
+        println!("Error asking for firmware version: {:?}", err);
+    }
+
+    let pause_duration = Duration::from_secs(3);
+    println!(
+        "Done asking for firmware version. Enabling notifications in {:?}...",
+        pause_duration
+    );
+
     // Enable notifications
     let enable_notifications_command = EnableNotificationsCommand {};
     let enable_notifications_command: Vec<u8> = enable_notifications_command.into();
@@ -234,6 +251,11 @@ fn run_event_loop(port: &mut Port, running: &Arc<AtomicBool>) {
         ),
     }
 
+    println!(
+        "Done enabling notifications. Starting polling loop in {:?}...",
+        pause_duration
+    );
+    let mut last_log_time = Instant::now();
     loop {
         if !running.load(Ordering::SeqCst) {
             log!(
@@ -243,14 +265,16 @@ fn run_event_loop(port: &mut Port, running: &Arc<AtomicBool>) {
             break;
         }
 
+        if last_log_time.elapsed() > EVENT_LOOP_LOG_INTERVAL {
+            log!(EventId::Info, "Polling for status");
+            last_log_time = Instant::now();
+        }
+
         let get_notifications_command = GetNotificationValues {};
         let get_notifications_command: Vec<u8> = get_notifications_command.into();
-        println!(
-            "Writing get_notifications_command: {:x?}",
-            get_notifications_command
-        );
         match port.write_interrupt(&get_notifications_command) {
-            Ok(bytes) => println!("{bytes} bytes written"),
+            // Ok(bytes) => println!("{bytes} bytes written"),
+            Ok(_) => (),
             Err(e) => log!(
                 event_id: EventId::UnknownError,
                 message: format!("Unexpected error when writing get_notifications_command: {e:?}"),
@@ -260,6 +284,7 @@ fn run_event_loop(port: &mut Port, running: &Arc<AtomicBool>) {
 
         match port.read(&mut buf) {
             // Ok(_) => on_port_data_received(&mut keyboard, &serial_buf[..size]),
+            // For now, do nothing with response data. Raw data is logged in port.read()
             Ok(_) => println!("Read ok"),
             // Timeout error just means no event was sent in the current polling period
             Err(ref e) if e.kind() == io::ErrorKind::TimedOut => (),
@@ -271,10 +296,6 @@ fn run_event_loop(port: &mut Port, running: &Arc<AtomicBool>) {
                 );
             }
         }
-    }
-
-    if let Err(err) = validate_connection(port) {
-        panic!("Error validating connection: {:?}", err)
     }
 }
 

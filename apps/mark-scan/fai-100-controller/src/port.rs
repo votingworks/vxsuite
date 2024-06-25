@@ -1,7 +1,10 @@
-use std::{io, time::Duration};
+use std::{io, thread, time::Duration};
 
 use color_eyre::eyre::Result;
 use rusb::{Context, Device, DeviceDescriptor, DeviceHandle, Direction, TransferType, UsbContext};
+
+const WRITE_TIMEOUT: Duration = Duration::from_secs(1);
+const READ_TIMEOUT: Duration = Duration::from_millis(50);
 
 #[derive(Debug)]
 struct Endpoint {
@@ -91,6 +94,7 @@ impl Port {
         };
         println!(" - kernel driver? {}", has_kernel_driver);
 
+        println!("claiming interface {}", endpoint.iface);
         handle.set_active_configuration(endpoint.config)?;
         handle.claim_interface(endpoint.iface)?;
         handle.set_alternate_setting(endpoint.iface, endpoint.setting)?;
@@ -102,12 +106,39 @@ impl Port {
     }
 
     pub fn write_interrupt(&mut self, buf: &[u8]) -> Result<usize, rusb::Error> {
-        println!("Writing to endpoint: {:?}", self.endpoint_out.address);
-
-        let timeout = Duration::from_secs(1);
-
         self.handle
-            .write_interrupt(self.endpoint_out.address, buf, timeout)
+            .write_interrupt(self.endpoint_out.address, buf, WRITE_TIMEOUT)
+    }
+
+    /// Scans endpoints for transfer types and directions; prints whether endpoints are found.
+    fn scan_endpoints<T: UsbContext>(device: &mut Device<T>, device_desc: &DeviceDescriptor) {
+        println!("Scanning endpoints");
+        // These enums don't derive(EnumIter)
+        for transfer_type in [
+            TransferType::Control,
+            TransferType::Isochronous,
+            TransferType::Bulk,
+            TransferType::Interrupt,
+        ] {
+            for direction in [Direction::In, Direction::Out] {
+                // It would be more efficient to add this debugging inside find_endpoint, which already
+                // scans all endpoints. However, this is a debug-only function that will be removed before
+                // production so we'd prefer to keep the behavior separate.
+                match Self::find_endpoint(device, device_desc, transfer_type, direction) {
+                    Some(endpoint) => {
+                        println!(
+                            "Found endpoint for transfer type {:?} and direction {:?}: {:?}",
+                            transfer_type, direction, endpoint
+                        )
+                    }
+                    None => println!(
+                        "No endpoint found for transfer type {:?} and direction {:?}",
+                        transfer_type, direction
+                    ),
+                }
+            }
+        }
+        println!("Done scanning endpoints");
     }
 
     fn get_interrupt_endpoint<T: UsbContext>(
@@ -118,7 +149,7 @@ impl Port {
     ) -> Result<Endpoint> {
         handle.reset()?;
 
-        let timeout = Duration::from_secs(5);
+        let timeout = Duration::from_secs(2);
         let languages = handle.read_languages(timeout)?;
 
         println!("Active configuration: {}", handle.active_configuration()?);
@@ -159,6 +190,13 @@ impl Port {
 
         match Self::open_device(&mut usb_context, vendor_id, product_id) {
             Some((mut device, device_desc, mut handle)) => {
+                Self::scan_endpoints(&mut device, &device_desc);
+
+                let wait_duration = Duration::from_secs(3);
+                println!("Waiting {:?}", wait_duration);
+                thread::sleep(wait_duration);
+
+                println!("Getting interrupt endpoints");
                 let endpoint_in = Self::get_interrupt_endpoint(
                     &mut device,
                     &device_desc,
@@ -189,12 +227,9 @@ impl Port {
 
 impl io::Read for Port {
     fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
-        println!("Reading from endpoint: {:?}", self.endpoint_in.address);
-        let timeout = Duration::from_millis(1);
-
         match self
             .handle
-            .read_interrupt(self.endpoint_in.address, buf, timeout)
+            .read_interrupt(self.endpoint_in.address, buf, READ_TIMEOUT)
         {
             Ok(len) => {
                 println!(" - read from interrupt endpoint: {:?}", &buf[..len]);
