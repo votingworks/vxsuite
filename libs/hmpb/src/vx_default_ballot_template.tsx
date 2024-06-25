@@ -28,7 +28,6 @@ import {
   BackendLanguageContextProvider,
   CandidatePartyList,
   InEnglish,
-  appStrings,
   electionStrings,
   useLanguageContext,
 } from '@votingworks/ui';
@@ -56,6 +55,7 @@ import {
   InstructionsDiagramWriteIn,
 } from './svg_assets';
 import { layOutInColumns } from './layout_in_columns';
+import { hmpbStrings } from './hmpb_strings';
 
 const Colors = {
   BLACK: '#000000',
@@ -147,19 +147,19 @@ function Header({
 }) {
   const ballotTitles: Record<BallotMode, Record<BallotType, JSX.Element>> = {
     official: {
-      [BallotType.Precinct]: appStrings.hmpbOfficialBallot(),
-      [BallotType.Absentee]: appStrings.hmpbOfficialAbsenteeBallot(),
-      [BallotType.Provisional]: appStrings.hmpbOfficialProvisionalBallot(),
+      [BallotType.Precinct]: hmpbStrings.hmpbOfficialBallot,
+      [BallotType.Absentee]: hmpbStrings.hmpbOfficialAbsenteeBallot,
+      [BallotType.Provisional]: hmpbStrings.hmpbOfficialProvisionalBallot,
     },
     sample: {
-      [BallotType.Precinct]: appStrings.hmpbSampleBallot(),
-      [BallotType.Absentee]: appStrings.hmpbSampleAbsenteeBallot(),
-      [BallotType.Provisional]: appStrings.hmpbSampleProvisionalBallot(),
+      [BallotType.Precinct]: hmpbStrings.hmpbSampleBallot,
+      [BallotType.Absentee]: hmpbStrings.hmpbSampleAbsenteeBallot,
+      [BallotType.Provisional]: hmpbStrings.hmpbSampleProvisionalBallot,
     },
     test: {
-      [BallotType.Precinct]: appStrings.hmpbTestBallot(),
-      [BallotType.Absentee]: appStrings.hmpbTestAbsenteeBallot(),
-      [BallotType.Provisional]: appStrings.hmpbTestProvisionalBallot(),
+      [BallotType.Precinct]: hmpbStrings.hmpbTestBallot,
+      [BallotType.Absentee]: hmpbStrings.hmpbTestAbsenteeBallot,
+      [BallotType.Provisional]: hmpbStrings.hmpbTestProvisionalBallot,
     },
   };
   const ballotTitle = ballotTitles[ballotMode][ballotType];
@@ -211,8 +211,8 @@ function Header({
 function WriteInLabel() {
   return (
     <span>
-      {appStrings.hmpbWriteIn()} /{' '}
-      <InEnglish>{appStrings.hmpbWriteIn()}</InEnglish>
+      {hmpbStrings.hmpbWriteIn} /{' '}
+      <InEnglish>{hmpbStrings.hmpbWriteIn}</InEnglish>
     </span>
   );
 }
@@ -232,17 +232,17 @@ function Instructions({ languageCode }: { languageCode?: LanguageCode }) {
         }}
       >
         <div>
-          <h2>{appStrings.hmpbInstructions()}</h2>
-          <h4>{appStrings.hmpbInstructionsToVoteTitle()}</h4>
-          <div>{appStrings.hmpbInstructionsToVoteText()}</div>
+          <h2>{hmpbStrings.hmpbInstructions}</h2>
+          <h4>{hmpbStrings.hmpbInstructionsToVoteTitle}</h4>
+          <div>{hmpbStrings.hmpbInstructionsToVoteText}</div>
         </div>
         <div style={{ alignSelf: 'center' }}>
           <InstructionsDiagramFillBubble />
         </div>
 
         <div>
-          <h4>{appStrings.hmpbInstructionsWriteInTitle()}</h4>
-          <div>{appStrings.hmpbInstructionsWriteInText()}</div>
+          <h4>{hmpbStrings.hmpbInstructionsWriteInTitle}</h4>
+          <div>{hmpbStrings.hmpbInstructionsWriteInText}</div>
         </div>
         <div style={{ alignSelf: 'center' }}>
           <InstructionsDiagramWriteIn writeInLabel={<WriteInLabel />} />
@@ -264,7 +264,7 @@ function Instructions({ languageCode }: { languageCode?: LanguageCode }) {
       {/* Row 1 */}
       <div />
       <DualLanguageText>
-        <h2>{appStrings.hmpbInstructions()}</h2>
+        <h2>{hmpbStrings.hmpbInstructions}</h2>
       </DualLanguageText>
 
       {/* Row 2 */}
@@ -273,8 +273,8 @@ function Instructions({ languageCode }: { languageCode?: LanguageCode }) {
       </div>
       <DualLanguageText>
         <div>
-          <b>{appStrings.hmpbInstructionsToVoteTitle()}</b>
-          <div>{appStrings.hmpbInstructionsToVoteText()}</div>
+          <b>{hmpbStrings.hmpbInstructionsToVoteTitle}</b>
+          <div>{hmpbStrings.hmpbInstructionsToVoteText}</div>
         </div>
       </DualLanguageText>
 
@@ -284,8 +284,8 @@ function Instructions({ languageCode }: { languageCode?: LanguageCode }) {
       </div>
       <DualLanguageText>
         <div>
-          <b>{appStrings.hmpbInstructionsWriteInTitle()}</b>
-          <div>{appStrings.hmpbInstructionsWriteInText()}</div>
+          <b>{hmpbStrings.hmpbInstructionsWriteInTitle}</b>
+          <div>{hmpbStrings.hmpbInstructionsWriteInText}</div>
         </div>
       </DualLanguageText>
     </Box>
@@ -330,8 +330,8 @@ export function Footer({
         <DualLanguageText>
           <h3>
             {pageNumber % 2 === 1
-              ? appStrings.hmpbContinueVotingOnBack()
-              : appStrings.hmpbContinueVotingOnNextSheet()}
+              ? hmpbStrings.hmpbContinueVotingOnBack
+              : hmpbStrings.hmpbContinueVotingOnNextSheet}
           </h3>
         </DualLanguageText>
       </div>
@@ -341,7 +341,7 @@ export function Footer({
   const ballotComplete = (
     <div style={{ textAlign: 'right' }}>
       <DualLanguageText>
-        <h3>{appStrings.hmpbVotingComplete()}</h3>
+        <h3>{hmpbStrings.hmpbVotingComplete}</h3>
       </DualLanguageText>
     </div>
   );
@@ -365,7 +365,7 @@ export function Footer({
           <div>
             <div style={{ fontSize: '0.85rem' }}>
               <DualLanguageText delimiter="/">
-                {appStrings.hmpbPage()}
+                {hmpbStrings.hmpbPage}
               </DualLanguageText>
             </div>
             <h1>
@@ -500,16 +500,16 @@ function CandidateContest({
   contest: CandidateContestStruct;
 }) {
   const voteForText = {
-    1: appStrings.hmpbVoteFor1(),
-    2: appStrings.hmpbVoteFor2(),
-    3: appStrings.hmpbVoteFor3(),
-    4: appStrings.hmpbVoteFor4(),
-    5: appStrings.hmpbVoteFor5(),
-    6: appStrings.hmpbVoteFor6(),
-    7: appStrings.hmpbVoteFor7(),
-    8: appStrings.hmpbVoteFor8(),
-    9: appStrings.hmpbVoteFor9(),
-    10: appStrings.hmpbVoteFor10(),
+    1: hmpbStrings.hmpbVoteFor1,
+    2: hmpbStrings.hmpbVoteFor2,
+    3: hmpbStrings.hmpbVoteFor3,
+    4: hmpbStrings.hmpbVoteFor4,
+    5: hmpbStrings.hmpbVoteFor5,
+    6: hmpbStrings.hmpbVoteFor6,
+    7: hmpbStrings.hmpbVoteFor7,
+    8: hmpbStrings.hmpbVoteFor8,
+    9: hmpbStrings.hmpbVoteFor9,
+    10: hmpbStrings.hmpbVoteFor10,
   }[contest.seats];
   if (!voteForText) {
     throw new Error(
@@ -741,7 +741,7 @@ function BlankPageMessage() {
     >
       <div style={{ textAlign: 'center' }}>
         <DualLanguageText>
-          <h1>{appStrings.hmpbPageIntentionallyBlank()}</h1>
+          <h1>{hmpbStrings.hmpbPageIntentionallyBlank}</h1>
         </DualLanguageText>
       </div>
     </div>
