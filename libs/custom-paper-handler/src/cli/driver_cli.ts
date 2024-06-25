@@ -134,6 +134,7 @@ async function setScanDirection(
         scanDirections
       )}`
     );
+    return;
   }
 
   const direction = assertDefined(args[0]) as ScanDirection;
