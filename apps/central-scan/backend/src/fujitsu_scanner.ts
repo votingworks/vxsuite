@@ -136,7 +136,7 @@ export class FujitsuScanner implements BatchScanner {
     if (imprintIdPrefix !== undefined) {
       args.push('--endorser=yes');
       // Imprint the prefix followed by a sequential index for each page in the batch
-      args.push('--endorser-string', `${imprintIdPrefix}_%04d`);
+      args.push('--endorser-string', `${imprintIdPrefix}_%04ud`);
     }
 
     const MM_PER_INCH = 25.3967;
@@ -201,9 +201,15 @@ export class FujitsuScanner implements BatchScanner {
             frontPath,
             backPath,
             ballotAuditId:
+              // Because we pass `${imprintIdPrefix}_%04ud` to --endorser-string the scanner
+              // will imprint the prefix followed by a sequential index for each page in the batch,
+              // starting with 0000 for the first page, then 0001 and so on.
               imprintIdPrefix !== undefined
-                ? `${imprintIdPrefix}_${zeroPad(scannedFiles.length / 2)}`
-                : undefined, // TODO(CARO) figure out what this should actually be
+                ? `${imprintIdPrefix}_${zeroPad(
+                    scannedFiles.length / 2 - 1,
+                    4
+                  )}`
+                : undefined,
           })
         );
       }
