@@ -33,11 +33,16 @@ import {
 import { LogEventId, Logger } from '@votingworks/logging';
 import { useDevDockRouter } from '@votingworks/dev-dock-backend';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
+import {
+  MockPaperHandlerStatus,
+  PaperHandlerDriverInterface,
+} from '@votingworks/custom-paper-handler';
 import { getMachineConfig } from './machine_config';
 import { Workspace, constructAuthMachineState } from './util/workspace';
 import {
   PaperHandlerStateMachine,
   SimpleServerStatus,
+  buildMockPaperHandlerApi,
 } from './custom-paper-handler';
 import { ElectionState, PrintBallotProps } from './types';
 import { isAccessibleControllerDaemonRunning } from './util/controllerd';
@@ -64,7 +69,8 @@ export function buildApi(
   usbDrive: UsbDrive,
   logger: Logger,
   workspace: Workspace,
-  stateMachine?: PaperHandlerStateMachine
+  stateMachine?: PaperHandlerStateMachine,
+  paperHandler?: PaperHandlerDriverInterface
 ) {
   const { store } = workspace;
 
@@ -214,7 +220,7 @@ export function buildApi(
         store,
         ...input,
       });
-      void stateMachine.printBallot(pdfData);
+      stateMachine.printBallot(pdfData);
     },
 
     getInterpretation(): InterpretedBmdPage | null {
@@ -411,20 +417,32 @@ export function buildApi(
 
       stateMachine.startPaperHandlerDiagnostic();
     },
+
+    ...buildMockPaperHandlerApi({ paperHandler }),
   });
 }
 
 export type Api = ReturnType<typeof buildApi>;
+
+export type { MockPaperHandlerStatus };
 
 export function buildApp(
   auth: InsertedSmartCardAuthApi,
   logger: Logger,
   workspace: Workspace,
   usbDrive: UsbDrive,
-  stateMachine?: PaperHandlerStateMachine
+  stateMachine?: PaperHandlerStateMachine,
+  paperHandler?: PaperHandlerDriverInterface
 ): Application {
   const app: Application = express();
-  const api = buildApi(auth, usbDrive, logger, workspace, stateMachine);
+  const api = buildApi(
+    auth,
+    usbDrive,
+    logger,
+    workspace,
+    stateMachine,
+    paperHandler
+  );
   app.use('/api', grout.buildRouter(api, express));
   useDevDockRouter(app, express, 'mark-scan');
   return app;

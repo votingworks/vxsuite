@@ -53,9 +53,9 @@ import {
   setPollsState,
   setTestMode,
 } from '../api';
-import { PaperHandlerHardwareCheckDisabledScreen } from './paper_handler_hardware_check_disabled_screen';
 import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
 import { LiveCheckButton } from '../components/live_check_button';
+import * as api from '../api';
 
 const VotingSession = styled.div`
   margin: 30px 0 60px;
@@ -205,6 +205,22 @@ export function PollWorkerScreen({
     setIsConfirmingEnableLiveMode(false);
   }
 
+  // TODO(kofi): Remove once we've added mock paper handler functionality to the
+  // dev dock:
+  const setMockPaperHandlerStatus =
+    api.setMockPaperHandlerStatus.useMutation().mutate;
+  React.useEffect(() => {
+    // istanbul ignore next
+    if (
+      stateMachineState === 'accepting_paper' &&
+      isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
+      )
+    ) {
+      setMockPaperHandlerStatus({ mockStatus: 'paperInserted' });
+    }
+  }, [setMockPaperHandlerStatus, stateMachineState]);
+
   if (
     stateMachineState === 'accepting_paper' ||
     stateMachineState === 'loading_paper'
@@ -248,14 +264,6 @@ export function PollWorkerScreen({
   }
 
   if (pollWorkerAuth.cardlessVoterUser) {
-    if (
-      isFeatureFlagEnabled(
-        BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
-      )
-    ) {
-      return <PaperHandlerHardwareCheckDisabledScreen />;
-    }
-
     const { precinctId, ballotStyleId } = pollWorkerAuth.cardlessVoterUser;
     const precinct = find(election.precincts, (p) => p.id === precinctId);
 

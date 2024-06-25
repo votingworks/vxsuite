@@ -4,6 +4,13 @@ import HID from 'node-hid';
 import {
   PaperHandlerStatus,
   PaperHandlerDriverInterface,
+  isPaperInScanner,
+  isPaperReadyToLoad,
+  isPaperInOutput,
+  isPaperAnywhere,
+  isPaperJammed,
+  isPaperInInput,
+  isPaperParked,
 } from '@votingworks/custom-paper-handler';
 import {
   assign as xassign,
@@ -21,7 +28,7 @@ import {
 } from 'xstate';
 import { Buffer } from 'buffer';
 import { switchMap, throwError, timeout, timer } from 'rxjs';
-import { Optional, assert, assertDefined, iter } from '@votingworks/basics';
+import { Optional, assert, assertDefined } from '@votingworks/basics';
 import {
   ElectionDefinition,
   MarkThresholds,
@@ -34,15 +41,11 @@ import {
 import { LogEventId, LogLine, BaseLogger } from '@votingworks/logging';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
-  BooleanEnvironmentVariableName,
   isCardlessVoterAuth,
-  isFeatureFlagEnabled,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { tmpNameSync } from 'tmp';
-import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 import { readElection } from '@votingworks/fs';
 import { Workspace, constructAuthMachineState } from '../util/workspace';
 import { SimpleServerStatus } from './types';
@@ -55,14 +58,6 @@ import {
   MAX_BALLOT_BOX_CAPACITY,
   NOTIFICATION_DURATION_MS,
 } from './constants';
-import {
-  isPaperInScanner,
-  isPaperReadyToLoad,
-  isPaperInOutput,
-  isPaperAnywhere,
-  isPaperJammed,
-  isPaperInInput,
-} from './scanner_status';
 import {
   scanAndSave,
   setDefaults,
@@ -128,7 +123,6 @@ export type PaperHandlerStatusEvent =
   | { type: 'PAPER_IN_INPUT' }
   | { type: 'POLL_WORKER_CONFIRMED_INVALIDATED_BALLOT' }
   | { type: 'SCANNING' }
-  | { type: 'SET_INTERPRETATION_FIXTURE'; jpgPath: string }
   | { type: 'VOTER_VALIDATED_BALLOT' }
   | { type: 'VOTER_INVALIDATED_BALLOT' }
   | { type: 'AUTH_STATUS_SYSTEM_ADMIN' }
@@ -153,7 +147,7 @@ export interface PaperHandlerStateMachine {
   getRawDeviceStatus(): Promise<PaperHandlerStatus>;
   getSimpleStatus(): SimpleServerStatus;
   setAcceptingPaper(): void;
-  printBallot(pdfData: Buffer): Promise<void>;
+  printBallot(pdfData: Buffer): void;
   getInterpretation(): Optional<SheetOf<InterpretFileResult>>;
   confirmSessionEnd(): void;
   validateBallot(): void;
@@ -187,11 +181,11 @@ export function paperHandlerStatusToEvent(
     return { type: 'PAPER_IN_OUTPUT' };
   }
 
-  if (isPaperInScanner(paperHandlerStatus)) {
-    if (paperHandlerStatus.parkSensor) {
-      return { type: 'PAPER_PARKED' };
-    }
+  if (isPaperParked(paperHandlerStatus)) {
+    return { type: 'PAPER_PARKED' };
+  }
 
+  if (isPaperInScanner(paperHandlerStatus)) {
     return { type: 'PAPER_INSIDE_NO_JAM' };
   }
 
@@ -476,12 +470,6 @@ export function buildMachine(
           }),
           target: 'pat_device_disconnected',
         },
-        SET_INTERPRETATION_FIXTURE: {
-          actions: assign({
-            scannedBallotImagePath: (_context, event) => event.jpgPath,
-          }),
-          target: 'voting_flow.interpreting',
-        },
         SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC:
           'paper_handler_diagnostic',
       },
@@ -710,15 +698,6 @@ export function buildMachine(
             eject_to_rear: {
               invoke: pollPaperStatus(),
               entry: async (context) => {
-                /* istanbul ignore next */
-                if (
-                  isFeatureFlagEnabled(
-                    BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
-                  )
-                ) {
-                  return;
-                }
-
                 await context.driver.parkPaper();
                 await context.driver.ejectBallotToRear();
               },
@@ -1286,29 +1265,11 @@ export async function getPaperHandlerStateMachine({
       });
     },
 
-    async printBallot(pdfData: Buffer): Promise<void> {
-      if (
-        isFeatureFlagEnabled(
-          BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
-        )
-      ) {
-        const pdfPages = iter(pdfToImages(pdfData));
-        const pdfPage = await pdfPages.first();
-        assert(pdfPage);
-
-        const jpgPath = tmpNameSync({ postfix: '.jpg' });
-        await writeImageData(jpgPath, pdfPage.page);
-
-        machineService.send({
-          type: 'SET_INTERPRETATION_FIXTURE',
-          jpgPath,
-        });
-      } else {
-        machineService.send({
-          type: 'VOTER_INITIATED_PRINT',
-          pdfData,
-        });
-      }
+    printBallot(pdfData: Buffer): void {
+      machineService.send({
+        type: 'VOTER_INITIATED_PRINT',
+        pdfData,
+      });
     },
 
     getInterpretation(): Optional<SheetOf<InterpretFileResult>> {

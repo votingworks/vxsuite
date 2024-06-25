@@ -3,16 +3,17 @@ import makeDebug from 'debug';
 import { Buffer } from 'buffer';
 import {
   ImageConversionOptions,
-  PaperHandlerDriver,
+  PaperHandlerDriverInterface,
   VERTICAL_DOTS_IN_CHUNK,
   chunkBinaryBitmap,
   getPaperHandlerDriver,
   imageDataToBinaryBitmap,
+  isPaperAnywhere,
+  isMockPaperHandler,
 } from '@votingworks/custom-paper-handler';
 import { pdfToImages } from '@votingworks/image-utils';
 import { tmpNameSync } from 'tmp';
 import { PRINT_DPI, RESET_DELAY_MS, SCAN_DPI } from './constants';
-import { isPaperAnywhere } from './scanner_status';
 
 const debug = makeDebug('mark-scan:custom-paper-handler:application-driver');
 
@@ -26,7 +27,9 @@ const debug = makeDebug('mark-scan:custom-paper-handler:application-driver');
  * ./state_machine.ts
  */
 
-export async function setDefaults(driver: PaperHandlerDriver): Promise<void> {
+export async function setDefaults(
+  driver: PaperHandlerDriverInterface
+): Promise<void> {
   await driver.initializePrinter();
   debug('initialized printer (0x1B 0x40)');
   await driver.setLineSpacing(0);
@@ -36,7 +39,7 @@ export async function setDefaults(driver: PaperHandlerDriver): Promise<void> {
 }
 
 export async function printBallotChunks(
-  driver: PaperHandlerDriver,
+  driver: PaperHandlerDriverInterface,
   pdfData: Buffer,
   options: Partial<ImageConversionOptions> = {}
 ): Promise<void> {
@@ -53,6 +56,15 @@ export async function printBallotChunks(
     `Unexpected page count ${pageInfo.pageCount}`
   );
   const { page } = pageInfo;
+
+  // TODO: Might be cleaner to move the image chunking below into the
+  // libs/custom-paper-handler layer, so we can hae a common
+  // `printPage(ImageData)` for both the real and mock paper handlers. Branching
+  // here in the interest of time.
+  if (isMockPaperHandler(driver)) {
+    driver.setMockPaperContents(page);
+    return;
+  }
 
   const ballotBinaryBitmap = imageDataToBinaryBitmap(page, options);
   const customChunkedBitmaps = chunkBinaryBitmap(ballotBinaryBitmap);
@@ -76,7 +88,9 @@ export async function printBallotChunks(
   );
 }
 
-export async function scanAndSave(driver: PaperHandlerDriver): Promise<string> {
+export async function scanAndSave(
+  driver: PaperHandlerDriverInterface
+): Promise<string> {
   const pathOutFront = tmpNameSync({ postfix: '.jpeg' });
   const status = await driver.getPaperHandlerStatus();
   // Scan can happen from loaded or parked state. If the paper is not loaded or parked
@@ -93,17 +107,21 @@ export async function scanAndSave(driver: PaperHandlerDriver): Promise<string> {
 }
 
 export async function loadAndParkPaper(
-  driver: PaperHandlerDriver
+  driver: PaperHandlerDriverInterface
 ): Promise<void> {
   await driver.loadPaper();
   await driver.parkPaper();
 }
 
 export async function resetAndReconnect(
-  oldDriver: PaperHandlerDriver,
+  oldDriver: PaperHandlerDriverInterface,
   /* istanbul ignore next - override is provided so tests don't need to wait the full delay duration. Tests will never exercise the default value */
   resetDelay: number = RESET_DELAY_MS
-): Promise<PaperHandlerDriver> {
+): Promise<PaperHandlerDriverInterface> {
+  if (isMockPaperHandler(oldDriver)) {
+    return oldDriver;
+  }
+
   await oldDriver.resetScan();
   // resetScan() command resolves with success as soon as the command is received, not when the command completes.
   // It actually takes ~7 seconds to complete, so we force the state machine to stay in this state until it's done.

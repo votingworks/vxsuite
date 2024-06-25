@@ -1,29 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable vx/gts-no-public-class-fields */
-import { Result } from '@votingworks/basics';
-import { ImageFromScanner } from '@votingworks/custom-scanner';
-import { Coder, CoderError } from '@votingworks/message-coder';
+import { Result, sleep } from '@votingworks/basics';
+import { CoderError } from '@votingworks/message-coder';
 import makeDebug from 'debug';
-import { MinimalWebUsbDevice } from './minimal_web_usb_device';
-import { PaperHandlerBitmap, PaperHandlerStatus } from './coders';
-import { Lock } from './lock';
+import { ImageData, writeImageData } from '@votingworks/image-utils';
+import {
+  PaperHandlerStatus,
+  PrinterStatusRealTimeExchangeResponse,
+  SensorStatusRealTimeExchangeResponse,
+} from './coders';
 import { ScannerCapability } from './scanner_capability';
-import {
-  ScannerConfig,
-  ScanLight,
-  ScanDataFormat,
-  Resolution,
-  PaperMovementAfterScan,
-  ScanDirection,
-  getDefaultConfig,
-} from './scanner_config';
 import { PaperHandlerDriverInterface } from './driver_interface';
-import {
-  PrintingDensity,
-  PrintingSpeed,
-  RealTimeRequestIds,
-} from './constants';
-import { mockMinimalWebUsbDevice } from './mock_minimal_web_usb_device';
+import { PrintingSpeed } from './constants';
 import { defaultPaperHandlerStatus } from './test_utils';
 
 const debug = makeDebug('custom-paper-handler:mock-driver');
@@ -39,302 +25,285 @@ function makeUsbOutTransferResult(
   };
 }
 
-export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
-  readonly genericLock = new Lock();
-  readonly realTimeLock = new Lock();
-  readonly scannerConfig: ScannerConfig = getDefaultConfig();
-  readonly webDevice: MinimalWebUsbDevice = mockMinimalWebUsbDevice();
+const MOCK_STATUSES_DEFINITIONS = {
+  noPaper: defaultPaperHandlerStatus(),
+  paperInserted: {
+    ...defaultPaperHandlerStatus(),
+    paperInputLeftInnerSensor: true,
+    paperInputLeftOuterSensor: true,
+    paperInputRightInnerSensor: true,
+    paperInputRightOuterSensor: true,
+  },
+  paperPartiallyInserted: {
+    ...defaultPaperHandlerStatus(),
+    paperInputLeftOuterSensor: true,
+  },
+  paperInScannerNotParked: {
+    ...defaultPaperHandlerStatus(),
+    paperInputLeftInnerSensor: true,
+    paperInputLeftOuterSensor: true,
+    paperInputRightInnerSensor: true,
+    paperInputRightOuterSensor: true,
+    paperPreCisSensor: true,
+  },
+  paperJammed: {
+    ...defaultPaperHandlerStatus(),
+    paperJam: true,
+    paperPreCisSensor: true,
+  },
+  paperJammedNoPaper: {
+    ...defaultPaperHandlerStatus(),
+    paperJam: true,
+  },
+  paperParked: {
+    ...defaultPaperHandlerStatus(),
+    paperPreCisSensor: true,
+    parkSensor: true,
+  },
+  presentingPaper: {
+    ...defaultPaperHandlerStatus(),
+    paperInputLeftInnerSensor: true,
+    paperInputLeftOuterSensor: true,
+    paperInputRightInnerSensor: true,
+    paperInputRightOuterSensor: true,
+    preHeadSensor: true,
+  },
+} as const satisfies Readonly<Record<string, PaperHandlerStatus>>;
 
-  statusRef: PaperHandlerStatus = defaultPaperHandlerStatus();
+export type MockPaperHandlerStatus = keyof typeof MOCK_STATUSES_DEFINITIONS;
+
+const EMPTY_PAGE_CONTENTS = new ImageData(
+  new Uint8ClampedArray([1, 2, 3, 4]),
+  2
+);
+
+export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
+  private statusRef: PaperHandlerStatus = defaultPaperHandlerStatus();
+  private mockStatus: MockPaperHandlerStatus = 'noPaper';
+  private mockPaperContents?: ImageData;
+
+  constructor() {
+    this.setMockStatus('noPaper');
+  }
 
   connect(): Promise<void> {
     return Promise.resolve();
   }
-  async disconnect(): Promise<void> {
-    await this.genericLock.acquire();
-    this.genericLock.release();
-    await this.realTimeLock.acquire();
-    this.realTimeLock.release();
+
+  disconnect(): Promise<void> {
     return Promise.resolve();
   }
-  getWebDevice(): MinimalWebUsbDevice {
-    throw new Error('Method not implemented.');
-  }
+
   transferInGeneric(): Promise<USBInTransferResult> {
     throw new Error('Method not implemented.');
   }
+
   transferInAcknowledgement(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
+
   clearGenericInBuffer(): Promise<void> {
     throw new Error('Method not implemented.');
   }
-  transferOutRealTime(_requestId: number): Promise<USBOutTransferResult> {
+
+  transferOutRealTime(): Promise<USBOutTransferResult> {
     throw new Error('Method not implemented.');
   }
+
   transferInRealTime(): Promise<USBInTransferResult> {
     throw new Error('Method not implemented.');
   }
-  handleRealTimeExchange<T>(
-    _requestId: RealTimeRequestIds,
-    _coder: Coder<T>
-  ): Promise<Result<T, CoderError>> {
+
+  handleRealTimeExchange(): Promise<Result<never, CoderError>> {
     throw new Error('Method not implemented.');
   }
-  transferOutGeneric<T>(
-    _coder: Coder<T>,
-    _value: T
-  ): Promise<USBOutTransferResult> {
+
+  transferOutGeneric(): Promise<USBOutTransferResult> {
     throw new Error('Method not implemented.');
   }
+
   initializePrinter(): Promise<void> {
     debug('initializePrinter called');
     return Promise.resolve();
   }
-  validateRealTimeExchangeResponse(
-    _expectedRequestId: RealTimeRequestIds,
-    _response:
-      | {
-          requestId: number;
-          returnCode: number;
-          parkSensor: boolean;
-          paperOutSensor: boolean;
-          paperPostCisSensor: boolean;
-          paperPreCisSensor: boolean;
-          paperInputLeftInnerSensor: boolean;
-          paperInputRightInnerSensor: boolean;
-          paperInputLeftOuterSensor: boolean;
-          paperInputRightOuterSensor: boolean;
-          printHeadInPosition: boolean;
-          scanTimeout: boolean;
-          motorMove: boolean;
-          scanInProgress: boolean;
-          jamEncoder: boolean;
-          paperJam: boolean;
-          coverOpen: boolean;
-          optoSensor: boolean;
-          ballotBoxDoorSensor: boolean;
-          ballotBoxAttachSensor: boolean;
-          preHeadSensor: boolean;
-          startOfPacket?: unknown;
-          token?: unknown;
-          optionalDataLength?: unknown;
-        }
-      | {
-          requestId: number;
-          returnCode: number;
-          coverOpen: boolean;
-          ticketPresentInOutput: boolean;
-          paperNotPresent: boolean;
-          dragPaperMotorOn: boolean;
-          spooling: boolean;
-          printingHeadUpError: boolean;
-          notAcknowledgeCommandError: boolean;
-          powerSupplyVoltageError: boolean;
-          headNotConnected: boolean;
-          comError: boolean;
-          headTemperatureError: boolean;
-          diverterError: boolean;
-          headErrorLocked: boolean;
-          printingHeadReadyToPrint: boolean;
-          eepromError: boolean;
-          ramError: boolean;
-          startOfPacket?: unknown;
-          token?: unknown;
-          optionalDataLength?: unknown;
-          dle?: unknown;
-          eot?: unknown;
-        }
-      | {
-          requestId: number;
-          returnCode: number;
-          startOfPacket?: unknown;
-          token?: unknown;
-        }
-  ): void {
+
+  validateRealTimeExchangeResponse(): void {
     throw new Error('Method not implemented.');
   }
-  getScannerStatus(): Promise<{
-    requestId: number;
-    returnCode: number;
-    parkSensor: boolean;
-    paperOutSensor: boolean;
-    paperPostCisSensor: boolean;
-    paperPreCisSensor: boolean;
-    paperInputLeftInnerSensor: boolean;
-    paperInputRightInnerSensor: boolean;
-    paperInputLeftOuterSensor: boolean;
-    paperInputRightOuterSensor: boolean;
-    printHeadInPosition: boolean;
-    scanTimeout: boolean;
-    motorMove: boolean;
-    scanInProgress: boolean;
-    jamEncoder: boolean;
-    paperJam: boolean;
-    coverOpen: boolean;
-    optoSensor: boolean;
-    ballotBoxDoorSensor: boolean;
-    ballotBoxAttachSensor: boolean;
-    preHeadSensor: boolean;
-    startOfPacket?: unknown;
-    token?: unknown;
-    optionalDataLength?: unknown;
-  }> {
+
+  getScannerStatus(): Promise<SensorStatusRealTimeExchangeResponse> {
     throw new Error('Method not implemented.');
   }
-  getPrinterStatus(): Promise<{
-    requestId: number;
-    returnCode: number;
-    coverOpen: boolean;
-    ticketPresentInOutput: boolean;
-    paperNotPresent: boolean;
-    dragPaperMotorOn: boolean;
-    spooling: boolean;
-    printingHeadUpError: boolean;
-    notAcknowledgeCommandError: boolean;
-    powerSupplyVoltageError: boolean;
-    headNotConnected: boolean;
-    comError: boolean;
-    headTemperatureError: boolean;
-    diverterError: boolean;
-    headErrorLocked: boolean;
-    printingHeadReadyToPrint: boolean;
-    eepromError: boolean;
-    ramError: boolean;
-    startOfPacket?: unknown;
-    token?: unknown;
-    optionalDataLength?: unknown;
-    dle?: unknown;
-    eot?: unknown;
-  }> {
+
+  getPrinterStatus(): Promise<PrinterStatusRealTimeExchangeResponse> {
     throw new Error('Method not implemented.');
   }
-  abortScan(): Promise<void> {
-    throw new Error('Method not implemented.');
+
+  async abortScan(): Promise<void> {
+    await sleep(500);
   }
-  resetScan(): Promise<void> {
-    throw new Error('Method not implemented.');
+
+  async resetScan(): Promise<void> {
+    await sleep(500);
   }
 
   getPaperHandlerStatus(): Promise<PaperHandlerStatus> {
     return Promise.resolve(this.statusRef);
   }
 
-  setPaperHandlerStatus(newStatus: Partial<PaperHandlerStatus>): void {
-    this.statusRef = { ...this.statusRef, ...newStatus };
-  }
-
-  handleGenericCommandWithAcknowledgement<T>(
-    _coder: Coder<T>,
-    _value: T
-  ): Promise<boolean> {
+  handleGenericCommandWithAcknowledgement(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
+
   getScannerCapability(): Promise<ScannerCapability> {
     throw new Error('Method not implemented.');
   }
+
   syncScannerConfig(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
-  setScanLight(_scanLight: ScanLight): Promise<boolean> {
+
+  setScanLight(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
-  setScanDataFormat(_scanDataFormat: ScanDataFormat): Promise<boolean> {
+
+  setScanDataFormat(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
-  setScanResolution(_resolution: {
-    horizontalResolution: Resolution;
-    verticalResolution: Resolution;
-  }): Promise<boolean> {
+
+  setScanResolution(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
-  setPaperMovementAfterScan(
-    _paperMovementAfterScan: PaperMovementAfterScan
-  ): Promise<boolean> {
+
+  setPaperMovementAfterScan(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
-  setScanDirection(_scanDirection: ScanDirection): Promise<boolean> {
-    throw new Error('Method not implemented.');
+
+  setScanDirection(): Promise<boolean> {
+    return Promise.resolve(true);
   }
+
   scan(): Promise<ImageData> {
-    throw new Error('Method not implemented.');
+    return Promise.resolve(this.mockPaperContents || EMPTY_PAGE_CONTENTS);
   }
-  scanAndSave(_pathOut: string): Promise<ImageFromScanner> {
-    throw new Error('Method not implemented.');
+
+  async scanAndSave(pathOut: string): Promise<void> {
+    const scannedImage = await this.scan();
+    await writeImageData(pathOut, scannedImage);
   }
+
   loadPaper(): Promise<boolean> {
     return Promise.resolve(true);
   }
-  ejectPaperToFront(): Promise<boolean> {
-    throw new Error('Method not implemented.');
-  }
-  parkPaper(): Promise<boolean> {
+
+  async ejectPaperToFront(): Promise<boolean> {
+    this.setMockStatus('noPaper');
+
     return Promise.resolve(true);
   }
-  presentPaper(): Promise<boolean> {
-    debug('No-op presentPaper called');
+
+  async parkPaper(): Promise<boolean> {
+    this.setMockStatus('paperParked');
+
     return Promise.resolve(true);
   }
-  ejectBallotToRear(): Promise<boolean> {
-    throw new Error('Method not implemented.');
+
+  async presentPaper(): Promise<boolean> {
+    this.setMockStatus('presentingPaper');
+
+    return Promise.resolve(true);
   }
+
+  async ejectBallotToRear(): Promise<boolean> {
+    this.setMockStatus('noPaper');
+
+    return Promise.resolve(true);
+  }
+
   calibrate(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
+
   enablePrint(): Promise<boolean> {
     return Promise.resolve(true);
   }
+
   disablePrint(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }
-  setMotionUnits(_x: number, _y: number): Promise<USBOutTransferResult> {
+
+  setMotionUnits(): Promise<USBOutTransferResult> {
     throw new Error('Method not implemented.');
   }
-  setLeftMargin(_numMotionUnits: number): Promise<USBOutTransferResult> {
+
+  setLeftMargin(): Promise<USBOutTransferResult> {
     throw new Error('Method not implemented.');
   }
-  setPrintingAreaWidth(_numMotionUnits: number): Promise<USBOutTransferResult> {
+
+  setPrintingAreaWidth(): Promise<USBOutTransferResult> {
     throw new Error('Method not implemented.');
   }
+
   setLineSpacing(numMotionUnits: number): Promise<USBOutTransferResult> {
     debug('setLineSpacing called with numMotionUnits: %d', numMotionUnits);
     return Promise.resolve(makeUsbOutTransferResult('ok', 0));
   }
+
   setPrintingSpeed(
     printingSpeed: PrintingSpeed
   ): Promise<USBOutTransferResult> {
     debug('setPrintingSpeed called with printingSpeed: %s', printingSpeed);
     return Promise.resolve(makeUsbOutTransferResult('ok', 0));
   }
-  setPrintingDensity(
-    _printingDensity: PrintingDensity
-  ): Promise<USBOutTransferResult> {
+
+  setPrintingDensity(): Promise<USBOutTransferResult> {
     throw new Error('Method not implemented.');
   }
-  setAbsolutePrintPosition(
-    _numMotionUnits: number
-  ): Promise<USBOutTransferResult> {
+
+  setAbsolutePrintPosition(): Promise<USBOutTransferResult> {
     throw new Error('Method not implemented.');
   }
-  setRelativePrintPosition(
-    _numMotionUnits: number
-  ): Promise<USBOutTransferResult> {
+
+  setRelativePrintPosition(): Promise<USBOutTransferResult> {
     throw new Error('Method not implemented.');
   }
-  setRelativeVerticalPrintPosition(
-    _numMotionUnits: number
-  ): Promise<USBOutTransferResult> {
+
+  setRelativeVerticalPrintPosition(): Promise<USBOutTransferResult> {
     return Promise.resolve(makeUsbOutTransferResult('ok', 1));
   }
-  bufferChunk(
-    _chunkedCustomBitmap: PaperHandlerBitmap
-  ): Promise<USBOutTransferResult> {
+
+  bufferChunk(): Promise<USBOutTransferResult> {
     throw new Error('Method not implemented.');
   }
-  printChunk(_chunkedCustomBitmap: PaperHandlerBitmap): Promise<void> {
+
+  printChunk(): Promise<void> {
     return Promise.resolve();
   }
-  print(_numMotionUnitsToFeedPaper?: number): Promise<void> {
+
+  print(): Promise<void> {
     throw new Error('Method not implemented.');
   }
+
+  //
+  // Mock Helpers:
+  //
+
+  getMockStatus(): MockPaperHandlerStatus {
+    return this.mockStatus;
+  }
+
+  setMockStatus(mockStatus: MockPaperHandlerStatus): void {
+    this.mockStatus = mockStatus;
+    this.statusRef = MOCK_STATUSES_DEFINITIONS[mockStatus];
+  }
+
+  setMockPaperContents(contents?: ImageData): void {
+    this.mockPaperContents = contents;
+  }
+}
+
+export function isMockPaperHandler(
+  driver?: PaperHandlerDriverInterface
+): driver is MockPaperHandlerDriver {
+  return driver instanceof MockPaperHandlerDriver;
 }

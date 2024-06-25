@@ -105,7 +105,14 @@ export async function start({
 
   await initializeSystemAudio();
 
-  const app = buildApp(resolvedAuth, logger, workspace, usbDrive, stateMachine);
+  const app = buildApp(
+    resolvedAuth,
+    logger,
+    workspace,
+    usbDrive,
+    stateMachine,
+    driver
+  );
 
   return app.listen(
     port,

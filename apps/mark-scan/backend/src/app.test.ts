@@ -1,4 +1,4 @@
-import { assert, mapObject } from '@votingworks/basics';
+import { assert, deferred, mapObject } from '@votingworks/basics';
 import tmp from 'tmp';
 import {
   electionFamousNames2021Fixtures,
@@ -48,15 +48,9 @@ import {
 } from '../test/auth_helpers';
 import { PatConnectionStatusReader } from './pat-input/connection_status_reader';
 import { createWorkspace } from './util/workspace';
-import {
-  getDefaultPaperHandlerStatus,
-  getPaperInFrontStatus,
-  getPaperParkedStatus,
-} from './custom-paper-handler/test_utils';
 
 const TEST_POLLING_INTERVAL_MS = 5;
 
-jest.mock('@votingworks/custom-paper-handler');
 jest.mock('./pat-input/connection_status_reader');
 
 const featureFlagMock = getFeatureFlagMock();
@@ -410,13 +404,7 @@ async function mockLoadFlow(
   testDriver: MockPaperHandlerDriver
 ) {
   await testApiClient.setAcceptingPaperState();
-  mockOf(testDriver.getPaperHandlerStatus).mockResolvedValue(
-    getPaperInFrontStatus()
-  );
-  await waitForStatus('loading_paper');
-  mockOf(testDriver.getPaperHandlerStatus).mockResolvedValue(
-    getPaperParkedStatus()
-  );
+  testDriver.setMockStatus('paperInserted');
   await waitForStatus('waiting_for_ballot_data');
 }
 
@@ -442,9 +430,7 @@ test('ballot invalidation flow', async () => {
     'waiting_for_invalidated_ballot_confirmation.paper_present'
   );
 
-  mockOf(driver.getPaperHandlerStatus).mockResolvedValue(
-    getDefaultPaperHandlerStatus()
-  );
+  driver.setMockStatus('noPaper');
   await waitForStatus(
     'waiting_for_invalidated_ballot_confirmation.paper_absent'
   );
@@ -453,18 +439,22 @@ test('ballot invalidation flow', async () => {
 });
 
 test('ballot validation flow', async () => {
+  const deferredEjection = deferred<boolean>();
+  const mockEject = jest.spyOn(driver, 'ejectBallotToRear');
+  mockEject.mockReturnValue(deferredEjection.promise);
+
   await configureForTestElection(electionGeneralDefinition);
   await mockLoadAndPrint(apiClient, driver);
   await apiClient.validateBallot();
   await waitForStatus('ejecting_to_rear');
+
+  deferredEjection.resolve(true);
 });
 
 test('removing ballot during presentation', async () => {
   await configureForTestElection(electionGeneralDefinition);
   await mockLoadAndPrint(apiClient, driver);
-  mockOf(driver.getPaperHandlerStatus).mockResolvedValue(
-    getDefaultPaperHandlerStatus()
-  );
+  driver.setMockStatus('noPaper');
   await waitForStatus('ballot_removed_during_presentation');
   await apiClient.confirmSessionEnd();
   await waitForStatus('not_accepting_paper');
@@ -502,6 +492,10 @@ function expectVotesEqual(expected: VotesDict, actual: VotesDict) {
 test('printing ballots', async () => {
   const printBallotSpy = jest.spyOn(stateMachine, 'printBallot');
 
+  const deferredEjection = deferred<boolean>();
+  const mockEject = jest.spyOn(driver, 'ejectBallotToRear');
+  mockEject.mockReturnValue(deferredEjection.promise);
+
   const electionDefinition = getMockMultiLanguageElectionDefinition(
     electionGeneralDefinition,
     [LanguageCode.ENGLISH, LanguageCode.CHINESE_SIMPLIFIED]
@@ -537,9 +531,9 @@ test('printing ballots', async () => {
 
   await apiClient.validateBallot();
   await waitForStatus('ejecting_to_rear');
-  mockOf(driver.getPaperHandlerStatus).mockResolvedValue(
-    getDefaultPaperHandlerStatus()
-  );
+
+  deferredEjection.resolve(true);
+  driver.setMockStatus('noPaper');
   await waitForStatus('not_accepting_paper');
 
   // vote a ballot in Chinese

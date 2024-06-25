@@ -4,7 +4,7 @@ import * as server from './server';
 import { MARK_SCAN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
 
-export type { Api } from './app';
+export type { Api, MockPaperHandlerStatus } from './app';
 export * from './types';
 export * from './custom-paper-handler';
 

@@ -9,7 +9,6 @@ import {
 } from '@votingworks/types';
 
 import {
-  BooleanEnvironmentVariableName,
   extractBallotStyleGroupId,
   generateBallotStyleId,
   getFeatureFlagMock,
@@ -175,25 +174,6 @@ test('returns null if status is unhandled', () => {
 
   expect(screen.queryByText('Paper has been loaded.')).toBeNull();
   expect(screen.queryByText('Poll Worker Actions')).toBeNull();
-});
-
-test('renders a warning screen when hardware check is off', async () => {
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
-  );
-
-  const electionDefinition = electionGeneralDefinition;
-  const pollWorkerAuth = mockCardlessVoterAuth(electionDefinition);
-  apiMock.setPaperHandlerState('no_hardware');
-
-  renderScreen({
-    pollsState: 'polls_open',
-    pollWorkerAuth,
-    machineConfig: mockMachineConfig(),
-    electionDefinition,
-  });
-
-  await screen.findByText('Hardware Check Disabled');
 });
 
 test('displays only default English ballot styles', async () => {

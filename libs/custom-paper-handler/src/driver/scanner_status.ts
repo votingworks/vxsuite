@@ -1,4 +1,4 @@
-import { PaperHandlerStatus } from '@votingworks/custom-paper-handler';
+import { PaperHandlerStatus } from './coders';
 
 export function isPaperReadyToLoad(
   paperHandlerStatus: PaperHandlerStatus
@@ -57,4 +57,8 @@ export function isPaperAnywhere(
     isPaperInOutput(paperHandlerStatus) ||
     isPaperInScanner(paperHandlerStatus)
   );
+}
+
+export function isPaperParked(paperHandlerStatus: PaperHandlerStatus): boolean {
+  return paperHandlerStatus.parkSensor;
 }

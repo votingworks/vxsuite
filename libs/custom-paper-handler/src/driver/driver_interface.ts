@@ -1,9 +1,6 @@
 import { Coder, CoderError, Uint16, Uint8 } from '@votingworks/message-coder';
 import { Result } from '@votingworks/basics';
-import { ImageFromScanner } from '@votingworks/custom-scanner';
 import { ImageData } from '@votingworks/image-utils';
-import { MinimalWebUsbDevice } from './minimal_web_usb_device';
-import { Lock } from './lock';
 import {
   PrintingDensity,
   PrintingSpeed,
@@ -22,18 +19,12 @@ import {
   ScanDataFormat,
   ScanDirection,
   ScanLight,
-  ScannerConfig,
 } from './scanner_config';
 import { ScannerCapability } from './scanner_capability';
 
 export interface PaperHandlerDriverInterface {
-  readonly genericLock: Lock;
-  readonly realTimeLock: Lock;
-  readonly scannerConfig: ScannerConfig;
-  webDevice: MinimalWebUsbDevice;
   connect(): Promise<void>;
   disconnect(): Promise<void>;
-  getWebDevice(): MinimalWebUsbDevice;
   transferInGeneric(): Promise<USBInTransferResult>;
   transferInAcknowledgement(): Promise<boolean>;
   clearGenericInBuffer(): Promise<void>;
@@ -80,7 +71,7 @@ export interface PaperHandlerDriverInterface {
   ): Promise<boolean>;
   setScanDirection(scanDirection: ScanDirection): Promise<boolean>;
   scan(): Promise<ImageData>;
-  scanAndSave(pathOut: string): Promise<ImageFromScanner>;
+  scanAndSave(pathOut: string): Promise<void>;
   loadPaper(): Promise<boolean>;
   ejectPaperToFront(): Promise<boolean>;
   parkPaper(): Promise<boolean>;
