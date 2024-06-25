@@ -3,7 +3,7 @@
 import { createInterface } from 'readline';
 import { ImageData, pdfToImages } from '@votingworks/image-utils';
 import { Buffer } from 'buffer';
-import { assert, iter, sleep } from '@votingworks/basics';
+import { assert, assertDefined, iter, sleep } from '@votingworks/basics';
 import { exit } from 'process';
 import { join } from 'path';
 import { tmpdir } from 'os';
@@ -12,6 +12,7 @@ import { ballotFixture } from '../test/fixtures';
 import { chunkBinaryBitmap, imageDataToBinaryBitmap } from '../printing';
 import { DEVICE_MAX_WIDTH_DOTS } from '../driver/constants';
 import { PaperHandlerDriverInterface } from '../driver';
+import { ScanDirection, scanDirections } from '../driver/scanner_config';
 
 /**
  * Command line interface for interacting with the paper handler driver.
@@ -32,6 +33,7 @@ enum Command {
   ResetScan = 'reset-scan',
   Help = 'help',
   Scan = 'scan',
+  SetScanDirection = 'set-scan-dir',
   FlushTransferInGeneric = 'flush-in',
 }
 const commandList = Object.values(Command);
@@ -121,9 +123,35 @@ async function setDefaults(driver: PaperHandlerDriverInterface) {
   console.log('set printing speed to slow');
 }
 
+async function setScanDirection(
+  driver: PaperHandlerDriverInterface,
+  args: string[]
+) {
+  if (args.length === 0) {
+    console.log(
+      `Missing required argument. Provide one of ${JSON.stringify(
+        scanDirections
+      )}`
+    );
+  }
+
+  const direction = assertDefined(args[0]) as ScanDirection;
+  switch (direction) {
+    case 'forward':
+    case 'backward':
+    case 'in_park':
+      await driver.setScanDirection(direction);
+      console.log('Scan direction set to', direction);
+      break;
+    default:
+      console.log('Unsupported scan direction', direction);
+  }
+}
+
 async function handleCommand(
   driver: PaperHandlerDriverInterface,
-  command: Command
+  command: Command,
+  args: string[] = []
 ) {
   if (command === Command.InitPrinter) {
     console.log('Initializing printer');
@@ -167,6 +195,8 @@ async function handleCommand(
     await setDefaults(driver);
   } else if (command === Command.Help) {
     printUsage();
+  } else if (command === Command.SetScanDirection) {
+    await setScanDirection(driver, args);
   } else if (command === Command.Scan) {
     await scan(driver);
   } else if (command === Command.FlushTransferInGeneric) {
@@ -208,7 +238,8 @@ export async function main(): Promise<number> {
 
   for await (const line of lines) {
     const parts = line.split(' ');
-    const [commandString] = parts;
+    const commandString = parts[0];
+    const args = parts.slice(1);
 
     if (!commandString) {
       console.log('No command provided');
@@ -224,9 +255,7 @@ export async function main(): Promise<number> {
       continue;
     }
 
-    console.log(`Received valid command '${commandString}'`);
-
-    await handleCommand(driver, commandString as Command);
+    await handleCommand(driver, commandString as Command, args);
   }
 
   return 0;

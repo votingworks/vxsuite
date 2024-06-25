@@ -9,7 +9,8 @@ export type PaperMovementAfterScan =
 export type ScanLight = 'red' | 'green' | 'blue' | 'white';
 export type ScanDataFormat = 'BW' | 'grayscale';
 export type Resolution = 100 | 150 | 200 | 250 | 300;
-export type ScanDirection = 'forward' | 'backward' | 'in_park';
+export const scanDirections = ['forward', 'backward', 'in_park'] as const;
+export type ScanDirection = (typeof scanDirections)[number];
 
 export interface ScannerConfig {
   scanLight: ScanLight;
