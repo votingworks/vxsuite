@@ -1,5 +1,3 @@
-use std::f32::consts::PI;
-
 use image::{imageops::rotate180, GenericImageView, GrayImage};
 use imageproc::{
     contours::{find_contours_with_threshold, BorderType, Contour},
@@ -10,8 +8,8 @@ use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
 use serde::Serialize;
 use types_rs::geometry::{
-    find_largest_subset_intersecting_line, intersection_of_lines, GridUnit, PixelPosition,
-    PixelUnit, Point, Radians, Rect, Segment, Size, SubGridUnit, SubPixelUnit,
+    find_largest_subset_intersecting_line, Degrees, GridUnit, PixelPosition, PixelUnit, Point,
+    Radians, Rect, Segment, Size, SubGridUnit, SubPixelUnit,
 };
 use types_rs::{election::UnitIntervalValue, geometry::IntersectionBounds};
 
@@ -48,7 +46,7 @@ impl Partial {
         let left_angle = Segment::new(self.top_left_corner, self.bottom_left_corner).angle();
         // expected angle is 90 degrees and not 270 degrees because the Y axis
         // is inverted in the image coordinate system
-        let expected_angle = PI / 2.0;
+        let expected_angle = Radians::PI / 2.0;
         (left_angle - expected_angle).abs()
     }
 
@@ -56,19 +54,19 @@ impl Partial {
         let right_angle = Segment::new(self.top_right_corner, self.bottom_right_corner).angle();
         // expected angle is 90 degrees and not 270 degrees because the Y axis
         // is inverted in the image coordinate system
-        let expected_angle = PI / 2.0;
+        let expected_angle = Radians::PI / 2.0;
         (right_angle - expected_angle).abs()
     }
 
     pub fn top_side_rotation(&self) -> Radians {
         let top_angle = Segment::new(self.top_left_corner, self.top_right_corner).angle();
-        let expected_angle = 0.0;
+        let expected_angle = Radians::new(0.0);
         (top_angle - expected_angle).abs()
     }
 
     pub fn bottom_side_rotation(&self) -> Radians {
         let bottom_angle = Segment::new(self.bottom_left_corner, self.bottom_right_corner).angle();
-        let expected_angle = 0.0;
+        let expected_angle = Radians::new(0.0);
         (bottom_angle - expected_angle).abs()
     }
 }
@@ -431,9 +429,9 @@ pub fn find_timing_mark_shapes(
     candidate_timing_marks
 }
 
-const MAX_BEST_FIT_LINE_ERROR_DEGREES: f32 = 5.0;
-const HORIZONTAL_ANGLE_DEGREES: f32 = 0.0;
-const VERTICAL_ANGLE_DEGREES: f32 = 90.0;
+const MAX_BEST_FIT_LINE_ERROR: Degrees = Degrees::new(5.0);
+const HORIZONTAL_ANGLE: Degrees = Degrees::new(0.0);
+const VERTICAL_ANGLE: Degrees = Degrees::new(90.0);
 
 /// Finds timing marks along the border of the image based on the rectangles
 /// found by some other method. This algorithm focuses on finding timing marks
@@ -469,23 +467,23 @@ pub fn find_partial_timing_marks_from_candidate_rects(
         .collect::<Vec<Rect>>();
     let mut top_line = find_largest_subset_intersecting_line(
         &top_half_rects,
-        HORIZONTAL_ANGLE_DEGREES.to_radians(),
-        MAX_BEST_FIT_LINE_ERROR_DEGREES.to_radians(),
+        HORIZONTAL_ANGLE,
+        MAX_BEST_FIT_LINE_ERROR,
     );
     let mut bottom_line = find_largest_subset_intersecting_line(
         &bottom_half_rects,
-        HORIZONTAL_ANGLE_DEGREES.to_radians(),
-        MAX_BEST_FIT_LINE_ERROR_DEGREES.to_radians(),
+        HORIZONTAL_ANGLE,
+        MAX_BEST_FIT_LINE_ERROR,
     );
     let mut left_line = find_largest_subset_intersecting_line(
         &left_half_rects,
-        VERTICAL_ANGLE_DEGREES.to_radians(),
-        MAX_BEST_FIT_LINE_ERROR_DEGREES.to_radians(),
+        VERTICAL_ANGLE,
+        MAX_BEST_FIT_LINE_ERROR,
     );
     let mut right_line = find_largest_subset_intersecting_line(
         &right_half_rects,
-        VERTICAL_ANGLE_DEGREES.to_radians(),
-        MAX_BEST_FIT_LINE_ERROR_DEGREES.to_radians(),
+        VERTICAL_ANGLE,
+        MAX_BEST_FIT_LINE_ERROR,
     );
 
     top_line.sort_by_key(Rect::left);
@@ -526,29 +524,29 @@ pub fn find_partial_timing_marks_from_candidate_rects(
         None
     };
 
-    let top_left_intersection = intersection_of_lines(
-        &Segment::new(top_start_rect_center, top_last_rect_center),
-        &Segment::new(left_start_rect_center, left_last_rect_center),
-        IntersectionBounds::Unbounded,
-    )?;
+    let top_left_intersection = Segment::new(top_start_rect_center, top_last_rect_center)
+        .intersection_point(
+            &Segment::new(left_start_rect_center, left_last_rect_center),
+            IntersectionBounds::Unbounded,
+        )?;
 
-    let top_right_intersection = intersection_of_lines(
-        &Segment::new(top_start_rect_center, top_last_rect_center),
-        &Segment::new(right_start_rect_center, right_last_rect_center),
-        IntersectionBounds::Unbounded,
-    )?;
+    let top_right_intersection = Segment::new(top_start_rect_center, top_last_rect_center)
+        .intersection_point(
+            &Segment::new(right_start_rect_center, right_last_rect_center),
+            IntersectionBounds::Unbounded,
+        )?;
 
-    let bottom_left_intersection = intersection_of_lines(
-        &Segment::new(bottom_start_rect_center, bottom_last_rect_center),
-        &Segment::new(left_start_rect_center, left_last_rect_center),
-        IntersectionBounds::Unbounded,
-    )?;
+    let bottom_left_intersection = Segment::new(bottom_start_rect_center, bottom_last_rect_center)
+        .intersection_point(
+            &Segment::new(left_start_rect_center, left_last_rect_center),
+            IntersectionBounds::Unbounded,
+        )?;
 
-    let bottom_right_intersection = intersection_of_lines(
-        &Segment::new(bottom_start_rect_center, bottom_last_rect_center),
-        &Segment::new(right_start_rect_center, right_last_rect_center),
-        IntersectionBounds::Unbounded,
-    )?;
+    let bottom_right_intersection = Segment::new(bottom_start_rect_center, bottom_last_rect_center)
+        .intersection_point(
+            &Segment::new(right_start_rect_center, right_last_rect_center),
+            IntersectionBounds::Unbounded,
+        )?;
 
     let partial_timing_marks = Partial {
         geometry: *geometry,

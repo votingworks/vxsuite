@@ -5,5 +5,6 @@
 
 pub mod ballot_card;
 pub mod election;
+mod f32_newtype;
 pub mod geometry;
 pub mod idtype;
