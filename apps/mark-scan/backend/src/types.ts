@@ -26,3 +26,5 @@ export interface PrintBallotProps {
   ballotStyleId: string;
   votes: VotesDict;
 }
+
+export type BmdModelNumber = 'bmd-150' | 'bmd-155';

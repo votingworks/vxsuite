@@ -74,6 +74,10 @@ export enum BooleanEnvironmentVariableName {
    */
   USE_MOCK_PAPER_HANDLER = 'REACT_APP_VX_USE_MOCK_PAPER_HANDLER',
   /**
+   * Run VxMarkScan expecting BMD-150 hardware
+   */
+  MARK_SCAN_USE_BMD_150 = 'REACT_APP_VX_MARK_SCAN_USE_BMD_150',
+  /**
    * Enables cloud translation and speech synthesis when exporting election packages from VxDesign
    */
   ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS = 'REACT_APP_VX_ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS',
@@ -173,6 +177,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_DISABLE_BALLOT_BOX_CHECK;
     case BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER:
       return process.env.REACT_APP_VX_USE_MOCK_PAPER_HANDLER;
+    case BooleanEnvironmentVariableName.MARK_SCAN_USE_BMD_150:
+      return process.env.REACT_APP_VX_MARK_SCAN_USE_BMD_150;
     case BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS:
       return process.env
         .REACT_APP_VX_ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS;
@@ -294,6 +300,12 @@ export function getBooleanEnvVarConfig(
       return {
         name,
         allowInProduction: false,
+        autoEnableInDevelopment: false,
+      };
+    case BooleanEnvironmentVariableName.MARK_SCAN_USE_BMD_150:
+      return {
+        name,
+        allowInProduction: true,
         autoEnableInDevelopment: false,
       };
     case BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS:

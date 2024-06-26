@@ -10,8 +10,7 @@ import { tmpdir } from 'os';
 import { getPaperHandlerDriver } from '../driver/helpers';
 import { ballotFixture } from '../test/fixtures';
 import { chunkBinaryBitmap, imageDataToBinaryBitmap } from '../printing';
-import { DEVICE_MAX_WIDTH_DOTS } from '../driver/constants';
-import { PaperHandlerDriverInterface } from '../driver';
+import { MaxPrintWidthDots, PaperHandlerDriverInterface } from '../driver';
 import { ScanDirection, scanDirections } from '../driver/scanner_config';
 
 /**
@@ -77,12 +76,6 @@ async function printBallot(driver: PaperHandlerDriverInterface): Promise<void> {
   const page = await getOnlyPageFromPdf(Buffer.from(ballotFixture));
   console.timeEnd('pdf to image');
   console.time('image to binary');
-  // For prototype we expect image to have the same number of dots as the printer width.
-  // This is likely a requirement long term but we should have guarantees upstream.
-  assert(
-    page.width <= DEVICE_MAX_WIDTH_DOTS,
-    `Expected max width ${DEVICE_MAX_WIDTH_DOTS} but got ${page.width}`
-  );
 
   const ballotBinaryBitmap = imageDataToBinaryBitmap(page, {});
   console.log(`bitmap width: ${ballotBinaryBitmap.width}`);
@@ -220,7 +213,14 @@ export async function main(): Promise<number> {
     exit(0);
   }
 
-  const driver = await getPaperHandlerDriver();
+  let maxPrintWidth = MaxPrintWidthDots.BMD_155;
+  if (initialArgs.includes('--bmd150')) {
+    maxPrintWidth = MaxPrintWidthDots.BMD_150;
+  }
+
+  const driver = await getPaperHandlerDriver({
+    maxPrintWidth,
+  });
   assert(
     driver,
     'Could not get paper handler driver. Is a paper handler device connected?'

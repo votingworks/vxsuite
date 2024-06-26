@@ -169,6 +169,7 @@ const initialArgs: BmdPaperBallotProps = {
       c.type === 'yesno' ? generateYesNoVote(c) : generateCandidateVotes(c),
     ])
   ),
+  sheetSize: 'letter',
 };
 
 const queryClient = new QueryClient({

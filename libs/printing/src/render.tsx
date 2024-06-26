@@ -20,6 +20,7 @@ export interface PaperDimensions {
 }
 
 export const PAPER_DIMENSIONS = {
+  Bmd150: { width: 7.975, height: 11 },
   Letter: { width: 8.5, height: 11 },
   LetterRoll: { width: 8.5, height: Infinity },
 } satisfies Record<string, PaperDimensions>;
