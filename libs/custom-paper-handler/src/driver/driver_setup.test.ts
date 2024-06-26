@@ -1,7 +1,12 @@
 import { Device, findByIds, WebUSBDevice } from 'usb';
 import { assert } from '@votingworks/basics';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { getPaperHandlerWebDevice, PaperHandlerDriver } from './driver';
 import { setUpMockWebUsbDevice } from './test_utils';
+import { MaxPrintWidthDots } from './constants';
 
 jest.mock('usb');
 const findByIdsMock = findByIds as jest.MockedFunction<typeof findByIds>;
@@ -42,7 +47,17 @@ test('connect calls WebUSBDevice.open', async () => {
   setUpMockWebUsbDevice(findByIdsMock, createInstanceMock);
   const paperHandlerWebDevice = await getPaperHandlerWebDevice();
   assert(paperHandlerWebDevice);
-  const paperHandlerDriver = new PaperHandlerDriver(paperHandlerWebDevice);
+
+  const maxWidth = isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.MARK_SCAN_USE_BMD_150
+  )
+    ? MaxPrintWidthDots.BMD_150
+    : MaxPrintWidthDots.BMD_155;
+
+  const paperHandlerDriver = new PaperHandlerDriver(
+    paperHandlerWebDevice,
+    maxWidth
+  );
 
   const openSpy = jest.spyOn(paperHandlerWebDevice, 'open');
 

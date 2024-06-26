@@ -70,6 +70,10 @@ export interface PaperHandlerDriverInterface {
     paperMovementAfterScan: PaperMovementAfterScan
   ): Promise<boolean>;
   setScanDirection(scanDirection: ScanDirection): Promise<boolean>;
+  setScanDimensions(scanDimensions: {
+    horizontalDimensionInDots?: number;
+    maxVerticalDimensionInDots?: number;
+  }): Promise<boolean>;
   scan(): Promise<ImageData>;
   scanAndSave(pathOut: string): Promise<void>;
   loadPaper(): Promise<boolean>;

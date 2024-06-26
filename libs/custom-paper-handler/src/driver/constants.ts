@@ -123,7 +123,10 @@ export const VERTICAL_DOTS_IN_CHUNK = 24;
 /**
  * Maximum width the device can print, in dots
  */
-export const DEVICE_MAX_WIDTH_DOTS = 1700;
+export enum MaxPrintWidthDots {
+  BMD_155 = 1700,
+  BMD_150 = 1600,
+}
 
 export const SCAN_HEADER_LENGTH_BYTES = 16;
 

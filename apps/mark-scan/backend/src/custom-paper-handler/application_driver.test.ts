@@ -9,6 +9,7 @@ import {
   isPaperAnywhere,
   MockPaperHandlerDriver,
   isMockPaperHandler,
+  MaxPrintWidthDots,
 } from '@votingworks/custom-paper-handler';
 import { Buffer } from 'buffer';
 import { join } from 'path';
@@ -40,7 +41,7 @@ beforeEach(() => {
     claimInterface: jest.fn(),
     selectConfiguration: jest.fn(),
   };
-  driver = new PaperHandlerDriver(webDevice);
+  driver = new PaperHandlerDriver(webDevice, MaxPrintWidthDots.BMD_155);
 });
 
 test('print ballot', async () => {
@@ -129,7 +130,10 @@ test('scanAndSave errors when no paper', async () => {
 
 test('resetAndReconnect', async () => {
   const delay = 1;
-  const newMockDriver = new PaperHandlerDriver(webDevice);
+  const newMockDriver = new PaperHandlerDriver(
+    webDevice,
+    MaxPrintWidthDots.BMD_155
+  );
   mockOf(getPaperHandlerDriver).mockResolvedValue(newMockDriver);
 
   await resetAndReconnect(driver, delay);

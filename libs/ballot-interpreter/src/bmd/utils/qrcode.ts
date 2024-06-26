@@ -30,10 +30,12 @@ function decodeBase64FromUtf8(utf8StringData: Buffer): Buffer {
 export function* getSearchAreas(
   size: Size
 ): Generator<{ position: 'top' | 'bottom'; bounds: Rect }> {
+  debug('getSearchAreas in dimensions: %dw x %dh', size.width, size.height);
   const widthToHeightRatio = size.width / size.height;
   const isLetter =
     Math.abs(widthToHeightRatio - LETTER_WIDTH_TO_HEIGHT_RATIO) <
     Math.abs(widthToHeightRatio - LEGAL_WIDTH_TO_HEIGHT_RATIO);
+  debug('isLetter:', isLetter);
 
   // If we're not letter size then the size of the scanned image may be too
   // large compared to the actual paper size. Instead of looking at the top
@@ -46,6 +48,15 @@ export function* getSearchAreas(
     // QR code for BMD is top right, so appears top right or bottom left
     const bmdWidth = Math.round((size.width * 2) / 5);
     const bmdHeight = Math.round((expectedLetterHeight * 2) / 5);
+    debug(`nonletter bmdWidth ${bmdWidth}, bmdHeight ${bmdHeight}`);
+
+    const lowerLeftBounds: Rect = {
+      x: 0,
+      y: size.height - bmdHeight,
+      width: bmdWidth,
+      height: bmdHeight,
+    };
+    debug('nonletter bottom left bounds: %o', lowerLeftBounds);
     // We look at the bottom first because we're assuming people will mostly
     // scan sheets so they appear right-side up to them, but bottom-side first
     // to the scanner.
@@ -57,12 +68,7 @@ export function* getSearchAreas(
     // └─┴─┘
     yield {
       position: 'bottom',
-      bounds: {
-        x: 0,
-        y: size.height - bmdHeight,
-        width: bmdWidth,
-        height: bmdHeight,
-      },
+      bounds: lowerLeftBounds,
     };
 
     // ┌───┐
@@ -114,22 +120,26 @@ export function* getSearchAreas(
   // QR code for BMD is top right, so appears top right or bottom left
   const bmdWidth = Math.round((size.width * 2) / 5);
   const bmdHeight = Math.round((size.height * 2) / 5);
+  debug('letter bmdWidth %d, bmdHeight %d', bmdWidth, bmdHeight);
   // We look at the bottom first because we're assuming people will mostly scan
   // sheets so they appear right-side up to them, but bottom-side first to the
   // scanner.
 
+  const bottomLeftBounds: Rect = {
+    x: 0,
+    y: size.height - bmdHeight,
+    width: bmdWidth,
+    height: bmdHeight,
+  };
+
+  debug('letter bottom left bounds: %o', bottomLeftBounds);
   // ┌───┐
   // │   │
   // ├─┐ │
   // └─┴─┘
   yield {
     position: 'bottom',
-    bounds: {
-      x: 0,
-      y: size.height - bmdHeight,
-      width: bmdWidth,
-      height: bmdHeight,
-    },
+    bounds: bottomLeftBounds,
   };
 
   // ┌─┬─┐

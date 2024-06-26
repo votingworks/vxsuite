@@ -1,4 +1,8 @@
-import { renderToPdf } from '@votingworks/printing';
+import {
+  PAPER_DIMENSIONS,
+  PaperDimensions,
+  renderToPdf,
+} from '@votingworks/printing';
 import {
   ElectionDefinition,
   LanguageCode,
@@ -10,9 +14,11 @@ import { assertDefined } from '@votingworks/basics';
 import {
   BmdPaperBallot,
   BackendLanguageContextProvider,
+  BmdBallotSheetSize,
 } from '@votingworks/ui';
 import { randomBallotId } from '@votingworks/utils';
 import { Store } from '../store';
+import { MARK_SCAN_BMD_MODEL } from '../globals';
 
 export interface RenderBallotProps {
   store: Store;
@@ -20,6 +26,18 @@ export interface RenderBallotProps {
   ballotStyleId: string;
   votes: VotesDict;
   languageCode: LanguageCode;
+}
+
+function getPaperDimensions(): PaperDimensions {
+  /* istanbul ignore next - hardware support in flux */
+  return MARK_SCAN_BMD_MODEL === 'bmd-150'
+    ? PAPER_DIMENSIONS['Bmd150']
+    : PAPER_DIMENSIONS['Letter'];
+}
+
+function getSheetSize(): BmdBallotSheetSize {
+  /* istanbul ignore next - hardware support in flux */
+  return MARK_SCAN_BMD_MODEL === 'bmd-150' ? 'bmd150' : 'letter';
 }
 
 export async function renderTestModeBallotWithoutLanguageContext(
@@ -37,11 +55,13 @@ export async function renderTestModeBallotWithoutLanguageContext(
       isLiveMode={false}
       generateBallotId={randomBallotId}
       machineType="markScan"
+      sheetSize={getSheetSize()}
     />
   );
 
   return renderToPdf({
     document: ballot,
+    paperDimensions: getPaperDimensions(),
   });
 }
 
@@ -68,11 +88,13 @@ export async function renderBallot({
         isLiveMode={isLiveMode}
         generateBallotId={randomBallotId}
         machineType="markScan"
+        sheetSize={getSheetSize()}
       />
     </BackendLanguageContextProvider>
   );
 
   return renderToPdf({
     document: ballot,
+    paperDimensions: getPaperDimensions(),
   });
 }

@@ -153,7 +153,13 @@ export const ORDERED_BMD_BALLOT_LAYOUTS: Readonly<
   ],
 };
 
-const Ballot = styled.div`
+export type BmdBallotSheetSize = 'letter' | 'bmd150';
+
+interface BallotProps {
+  sheetSize?: BmdBallotSheetSize;
+}
+
+const Ballot = styled.div<BallotProps>`
   background: #fff;
   color: #000;
   line-height: 1;
@@ -163,7 +169,15 @@ const Ballot = styled.div`
 
   @page {
     margin: 0.375in;
-    size: letter portrait;
+    size: ${(props) => {
+      switch (props.sheetSize) {
+        case 'bmd150':
+          return '7.5in 11in';
+        case 'letter':
+        default:
+          return 'letter portrait';
+      }
+    }};
   }
 `;
 
@@ -438,6 +452,7 @@ export interface BmdPaperBallotProps {
   votes: VotesDict;
   onRendered?: () => void;
   machineType: MachineType;
+  sheetSize?: BmdBallotSheetSize;
 }
 
 /**
@@ -463,6 +478,7 @@ export function BmdPaperBallot({
   precinctId,
   votes,
   machineType,
+  sheetSize = 'letter',
 }: BmdPaperBallotProps): JSX.Element {
   const ballotId = generateBallotId();
   const {
@@ -495,7 +511,7 @@ export function BmdPaperBallot({
 
   return withPrintTheme(
     <LanguageOverride languageCode={primaryBallotLanguage}>
-      <Ballot aria-hidden>
+      <Ballot sheetSize={sheetSize} aria-hidden>
         <Header layout={layout} data-testid="header">
           <Seal seal={seal} maxWidth="1in" style={{ margin: '0.25em 0' }} />
           <div className="ballot-header-content">
