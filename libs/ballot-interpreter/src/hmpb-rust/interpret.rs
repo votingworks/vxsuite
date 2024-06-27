@@ -32,7 +32,9 @@ use crate::timing_marks::detect_metadata_and_normalize_orientation;
 use crate::timing_marks::find_timing_mark_grid;
 use crate::timing_marks::normalize_orientation;
 use crate::timing_marks::BallotPageMetadata;
+use crate::timing_marks::FindTimingMarkGridOptions;
 use crate::timing_marks::TimingMarkGrid;
+use crate::timing_marks::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH;
 
 #[derive(Debug, Clone)]
 pub struct Options {
@@ -335,7 +337,17 @@ pub fn interpret_ballot_card(
     let (side_a_grid_result, side_b_grid_result) = par_map_pair(
         (&side_a.image, &mut side_a_debug),
         (&side_b.image, &mut side_b_debug),
-        |(image, debug)| find_timing_mark_grid(&geometry, image, debug),
+        |(image, debug)| {
+            find_timing_mark_grid(
+                &geometry,
+                image,
+                FindTimingMarkGridOptions {
+                    allowed_timing_mark_inset_percentage_of_width:
+                        ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
+                    debug,
+                },
+            )
+        },
     );
 
     let side_a_grid = side_a_grid_result?;

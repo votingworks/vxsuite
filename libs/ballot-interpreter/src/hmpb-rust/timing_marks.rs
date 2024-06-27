@@ -258,14 +258,21 @@ impl TimingMarkGrid {
     }
 }
 
+#[derive(Debug)]
+pub struct FindTimingMarkGridOptions<'a> {
+    pub allowed_timing_mark_inset_percentage_of_width: UnitIntervalValue,
+    pub debug: &'a mut ImageDebugWriter,
+}
+
 /// Finds the timing marks in the given image and computes the grid of timing
 /// marks, i.e. the locations of all the possible bubbles.
 #[time]
 pub fn find_timing_mark_grid(
     geometry: &Geometry,
     img: &GrayImage,
-    debug: &mut ImageDebugWriter,
+    options: FindTimingMarkGridOptions,
 ) -> Result<TimingMarkGrid, Error> {
+    let debug = options.debug;
     let threshold = otsu_level(img);
     // Find shapes that look like timing marks but may not be.
     let candidate_timing_marks = find_timing_mark_shapes(geometry, img, threshold, debug);
@@ -285,7 +292,11 @@ pub fn find_timing_mark_grid(
     let complete_timing_marks = match find_complete_timing_marks_from_partial_timing_marks(
         geometry,
         &partial_timing_marks,
-        debug,
+        &FindCompleteTimingMarksFromPartialTimingMarksOptions {
+            allowed_timing_mark_inset_percentage_of_width: options
+                .allowed_timing_mark_inset_percentage_of_width,
+            debug,
+        },
     ) {
         Ok(complete_timing_marks) => complete_timing_marks,
         Err(find_complete_timing_marks_error) => {
@@ -841,14 +852,20 @@ pub type FindCompleteTimingMarksResult = Result<Complete, FindCompleteTimingMark
 
 pub const ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH: UnitIntervalValue = 0.1;
 
+pub struct FindCompleteTimingMarksFromPartialTimingMarksOptions<'a> {
+    pub allowed_timing_mark_inset_percentage_of_width: UnitIntervalValue,
+    pub debug: &'a ImageDebugWriter,
+}
+
 #[time]
 pub fn find_complete_timing_marks_from_partial_timing_marks(
     geometry: &Geometry,
     partial_timing_marks: &Partial,
-    debug: &ImageDebugWriter,
+    options: &FindCompleteTimingMarksFromPartialTimingMarksOptions,
 ) -> FindCompleteTimingMarksResult {
+    let debug = options.debug;
     let allowed_inset =
-        geometry.canvas_size.width as f32 * ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH;
+        geometry.canvas_size.width as f32 * options.allowed_timing_mark_inset_percentage_of_width;
 
     let is_top_line_invalid = {
         let top_line_segment = partial_timing_marks.top_line_segment_from_corners();
