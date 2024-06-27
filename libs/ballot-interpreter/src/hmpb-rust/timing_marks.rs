@@ -70,19 +70,19 @@ impl Partial {
         (bottom_angle - expected_angle).abs()
     }
 
-    pub fn top_line_segment_from_corners(&self) -> Segment {
+    pub const fn top_line_segment_from_corners(&self) -> Segment {
         Segment::new(self.top_left_corner, self.top_right_corner)
     }
 
-    pub fn bottom_line_segment_from_corners(&self) -> Segment {
+    pub const fn bottom_line_segment_from_corners(&self) -> Segment {
         Segment::new(self.bottom_left_corner, self.bottom_right_corner)
     }
 
-    pub fn left_line_segment_from_corners(&self) -> Segment {
+    pub const fn left_line_segment_from_corners(&self) -> Segment {
         Segment::new(self.top_left_corner, self.bottom_left_corner)
     }
 
-    pub fn right_line_segment_from_corners(&self) -> Segment {
+    pub const fn right_line_segment_from_corners(&self) -> Segment {
         Segment::new(self.top_right_corner, self.bottom_right_corner)
     }
 }
@@ -459,6 +459,20 @@ pub fn find_partial_timing_marks_from_candidate_rects(
     rects: &[Rect],
     debug: &ImageDebugWriter,
 ) -> Option<Partial> {
+    fn average<T: IntoIterator<Item = PixelPosition>>(values: T) -> PixelPosition {
+        let mut sum = 0;
+        let mut count = 0;
+        for value in values {
+            sum += value;
+            count += 1;
+        }
+        if count == 0 {
+            0
+        } else {
+            sum / count
+        }
+    }
+
     let half_height = (geometry.canvas_size.height / 2) as PixelPosition;
     let half_width = (geometry.canvas_size.width / 2) as PixelPosition;
     let top_half_rects = rects
@@ -481,20 +495,6 @@ pub fn find_partial_timing_marks_from_candidate_rects(
         .filter(|r| r.left() >= half_width)
         .copied()
         .collect::<Vec<_>>();
-
-    fn average<T: IntoIterator<Item = PixelPosition>>(values: T) -> PixelPosition {
-        let mut sum = 0;
-        let mut count = 0;
-        for value in values {
-            sum += value;
-            count += 1;
-        }
-        if count == 0 {
-            0
-        } else {
-            sum / count
-        }
-    }
 
     let cmp_top_line_candidates = |a: &Vec<&Rect>, b: &Vec<&Rect>| -> std::cmp::Ordering {
         match a.len().cmp(&b.len()) {
@@ -555,7 +555,7 @@ pub fn find_partial_timing_marks_from_candidate_rects(
             .max_by(cmp_top_line_candidates)
             .unwrap_or_default()
             .into_iter()
-            .map(|r| *r)
+            .copied()
             .collect::<Vec<_>>();
 
     let mut bottom_line = find_inline_subsets(
@@ -565,7 +565,7 @@ pub fn find_partial_timing_marks_from_candidate_rects(
     )
     .max_by(cmp_bottom_line_candidates)?
     .into_iter()
-    .map(|r| *r)
+    .copied()
     .collect::<Vec<_>>();
 
     let mut left_line =
@@ -573,7 +573,7 @@ pub fn find_partial_timing_marks_from_candidate_rects(
             .max_by(cmp_left_line_candidates)
             .unwrap_or_default()
             .into_iter()
-            .map(|r| *r)
+            .copied()
             .collect::<Vec<_>>();
 
     let mut right_line =
@@ -581,7 +581,7 @@ pub fn find_partial_timing_marks_from_candidate_rects(
             .max_by(cmp_right_line_candidates)
             .unwrap_or_default()
             .into_iter()
-            .map(|r| *r)
+            .copied()
             .collect::<Vec<_>>();
 
     top_line.sort_by_key(Rect::left);

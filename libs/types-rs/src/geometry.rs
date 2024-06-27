@@ -400,7 +400,6 @@ pub fn angle_diff(a: Radians, b: Radians) -> Radians {
 /// Finds all subsets of rectangles such that a line can be drawn through every
 /// rectangle in the subset. The line must have an angle equal to `angle` within
 /// the given `tolerance`.
-#[must_use]
 pub fn find_inline_subsets(
     rects: &[Rect],
     angle: impl Into<Radians>,
