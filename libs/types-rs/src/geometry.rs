@@ -434,6 +434,67 @@ pub fn find_inline_subsets(
 }
 
 #[cfg(test)]
+mod normalize_angle_tests {
+    use std::{f32::consts::PI, ops::Range};
+
+    use proptest::prelude::*;
+
+    use super::Radians;
+
+    const ANGLE_RANGE: Range<f32> = -(10.0 * PI)..(10.0 * PI);
+
+    macro_rules! assert_nearly_eq {
+        ($a:expr, $b:expr) => {
+            #[allow(clippy::suboptimal_flops)]
+            {
+                assert!(
+                    ($a - $b).abs().0 < 0.0001,
+                    "assertion failed: `({} - {}) < 0.0001`",
+                    $a,
+                    $b
+                );
+            }
+        };
+    }
+
+    #[test]
+    fn test_normalize_angle() {
+        assert_nearly_eq!(Radians::new(0.0).normalize(), Radians::new(0.0));
+        assert_nearly_eq!(Radians::new(PI).normalize(), Radians::new(0.0));
+        assert_nearly_eq!(Radians::new(2.0 * PI).normalize(), Radians::new(0.0));
+        assert_nearly_eq!(Radians::new(1.5 * PI).normalize(), Radians::new(0.5 * PI));
+    }
+
+    #[test]
+    fn test_normalize_infinity_eq() {
+        assert_eq!(Radians::INFINITY.normalize(), Radians::INFINITY);
+        assert_eq!(Radians::NEG_INFINITY.normalize(), Radians::NEG_INFINITY);
+    }
+
+    proptest! {
+        #[test]
+        fn prop_normalize_angle(angle in ANGLE_RANGE) {
+            let normalized = Radians::new(angle).normalize();
+            assert!((0.0..PI).contains(&normalized.0));
+        }
+
+        #[test]
+        fn prop_normalize_angle_is_idempotent(angle in ANGLE_RANGE) {
+            let normalized = Radians::new(angle).normalize();
+            let normalized_again = (normalized).normalize();
+            assert_nearly_eq!(normalized, normalized_again);
+        }
+
+        #[test]
+        fn prop_normalize_angle_is_equivalent(angle in ANGLE_RANGE) {
+            let normalized = Radians::new(angle).normalize();
+            let equivalent = Radians::new(angle + PI).normalize();
+            assert_nearly_eq!(normalized, equivalent);
+        }
+    }
+}
+
+#[cfg(test)]
 mod normalize_center_of_rect {
     use super::*;
     use proptest::prelude::*;
