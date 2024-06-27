@@ -61,6 +61,10 @@
       "path": "apps/mark-scan/daemon-utils"
     },
     {
+      "name": "apps/mark-scan/fai-100-controller",
+      "path": "apps/mark-scan/fai-100-controller"
+    },
+    {
       "name": "apps/mark-scan/accessible-controller",
       "path": "apps/mark-scan/accessible-controller"
     },
