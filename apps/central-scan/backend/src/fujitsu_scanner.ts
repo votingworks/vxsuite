@@ -96,7 +96,7 @@ export class FujitsuScanner implements BatchScanner {
         'fujitsu',
         '--endorser=yes',
         '--format=jpeg',
-        '-n',
+        '--dont-scan',
       ]);
 
       assert(process.stderr);
