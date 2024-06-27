@@ -845,7 +845,7 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
     partial_timing_marks: &Partial,
     debug: &ImageDebugWriter,
 ) -> FindCompleteTimingMarksResult {
-    const ALLOWED_TIMING_MARK_INSET_PERCENTAGE: UnitIntervalValue = 0.25;
+    const ALLOWED_TIMING_MARK_INSET_PERCENTAGE: UnitIntervalValue = 0.15;
 
     let is_top_line_invalid = {
         let top_line_segment = partial_timing_marks.top_line_segment_from_corners();
