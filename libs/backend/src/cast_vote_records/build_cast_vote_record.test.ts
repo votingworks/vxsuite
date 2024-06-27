@@ -432,6 +432,7 @@ const electionId = '0000000000'; // fixed for resiliency to hash change
 const scannerId = 'SC-00-000';
 const batchId = 'batch-1';
 const indexInBatch = 19;
+const ballotAuditId = `${batchId}_0023`;
 const castVoteRecordId = unsafeParse(BallotIdSchema, '1234');
 const definiteMarkThreshold = 0.15;
 
@@ -442,6 +443,7 @@ test('buildCastVoteRecord - BMD ballot', () => {
     castVoteRecordId,
     scannerId,
     batchId,
+    ballotAuditId,
     ballotMarkingMode: 'machine',
     interpretation: interpretedBmdPage,
   });
@@ -454,6 +456,7 @@ test('buildCastVoteRecord - BMD ballot', () => {
     CreatingDeviceId: scannerId,
     ElectionId: electionId,
     BatchId: batchId,
+    BallotAuditId: ballotAuditId,
     BatchSequenceId: undefined,
     UniqueId: castVoteRecordId,
   });
@@ -500,6 +503,7 @@ test('buildCastVoteRecord - BMD ballot images', () => {
       },
     ],
   });
+  expect(castVoteRecordWithImageReferences.BallotAuditId).toBeUndefined();
   expect(castVoteRecordWithImageReferences.BallotImage).toEqual([
     {
       '@type': 'CVR.ImageData',
@@ -529,6 +533,7 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
     castVoteRecordId,
     scannerId,
     batchId,
+    ballotAuditId,
     indexInBatch,
     ballotMarkingMode: 'hand',
     interpretations: [interpretedHmpbPage1, interpretedHmpbPage2],
@@ -546,6 +551,7 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
       BatchSequenceId: indexInBatch,
       UniqueId: castVoteRecordId,
       BallotSheetId: '1',
+      BallotAuditId: ballotAuditId,
     });
     expect(getCastVoteRecordBallotType(castVoteRecord)).toEqual(
       BallotType.Precinct

@@ -71,10 +71,13 @@ test('going through the whole process works - HMPB', async () => {
         const nextSession = scanner.withNextScannerSession();
 
         // scan some sample ballots
-        nextSession.sheet([
-          electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asFilePath(),
-          electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asFilePath(),
-        ]);
+        nextSession.sheet({
+          frontPath:
+            electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asFilePath(),
+          backPath:
+            electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asFilePath(),
+          ballotAuditId: 'fake-ballot-audit-id',
+        });
 
         nextSession.end();
 
@@ -119,6 +122,7 @@ test('going through the whole process works - HMPB', async () => {
         expect(cvr.BallotStyleUnitId).toEqual('town-id-00701-precinct-id-');
         expect(cvr.CreatingDeviceId).toEqual('000');
         expect(cvr.BallotSheetId).toEqual('1');
+        expect(cvr.BallotAuditId).toEqual('fake-ballot-audit-id');
         expect(getCastVoteRecordBallotType(cvr)).toEqual(BallotType.Precinct);
         expect(convertCastVoteRecordVotesToTabulationVotes(cvr.CVRSnapshot[0]))
           .toMatchInlineSnapshot(`

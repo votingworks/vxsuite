@@ -4,6 +4,7 @@ import { ChildProcess } from 'child_process';
 import { mockOf } from '@votingworks/test-utils';
 import { Device, isDeviceAttached } from '@votingworks/backend';
 import {
+  EXPECTED_IMPRINTER_UNATTACHED_ERROR,
   FUJITSU_VENDOR_ID,
   FujitsuScanner,
   ScannerMode,
@@ -52,10 +53,43 @@ test('fujitsu scanner calls scanimage with fujitsu device type', async () => {
   );
 
   scanimage.emit('exit', 0, null);
-  await expect(sheets.scanSheet()).resolves.toEqual([
-    '/tmp/image-0001.png',
-    '/tmp/image-0002.png',
-  ]);
+  await expect(sheets.scanSheet()).resolves.toEqual({
+    frontPath: '/tmp/image-0001.png',
+    backPath: '/tmp/image-0002.png',
+  });
+  await expect(sheets.scanSheet()).resolves.toBeUndefined();
+});
+
+test('fujitsu scanner returns ballot audit id on scans when imprinting', async () => {
+  const scanimage = makeMockChildProcess();
+  const scanner = new FujitsuScanner({
+    logger: new BaseLogger(LogSource.VxScanService),
+  });
+
+  exec.mockReturnValueOnce(scanimage);
+  const sheets = scanner.scanSheets({ imprintIdPrefix: 'test-batch' });
+
+  scanimage.stderr.append(
+    [
+      'Scanning infinity pages, incrementing by 1, numbering from 1\n',
+      'Place document no. 1 on the scanner.\n',
+      'Press <RETURN> to continue.\n',
+      'Press Ctrl + D to terminate.\n',
+    ].join('')
+  );
+  scanimage.stdout.append('/tmp/image-0001.png\n');
+  scanimage.stdout.append('/tmp/image-0002.png\n');
+  expect(exec).toHaveBeenCalledWith(
+    'scanimage',
+    expect.arrayContaining(['-d', 'fujitsu'])
+  );
+
+  scanimage.emit('exit', 0, null);
+  await expect(sheets.scanSheet()).resolves.toEqual({
+    frontPath: '/tmp/image-0001.png',
+    backPath: '/tmp/image-0002.png',
+    ballotAuditId: 'test-batch_0000',
+  });
   await expect(sheets.scanSheet()).resolves.toBeUndefined();
 });
 
@@ -135,6 +169,63 @@ test('fujitsu scanner does not specify a mode by default', () => {
   expect(exec).not.toHaveBeenCalledWith(
     'scanimage',
     expect.arrayContaining(['--mode'])
+  );
+});
+
+test('fujitsu scanner does not imprint by default', () => {
+  const scanimage = makeMockChildProcess();
+  const scanner = new FujitsuScanner({
+    logger: new BaseLogger(LogSource.VxScanService),
+  });
+
+  exec.mockReturnValueOnce(scanimage);
+  scanner.scanSheets();
+
+  scanimage.stderr.append(
+    [
+      'Scanning infinity pages, incrementing by 1, numbering from 1\n',
+      'Place document no. 1 on the scanner.\n',
+      'Press <RETURN> to continue.\n',
+      'Press Ctrl + D to terminate.\n',
+    ].join('')
+  );
+  expect(exec).not.toHaveBeenCalledWith(
+    'scanimage',
+    expect.arrayContaining(['--endorser=yes'])
+  );
+  expect(exec).not.toHaveBeenCalledWith(
+    'scanimage',
+    expect.arrayContaining(['--endorser-string'])
+  );
+});
+
+test('fujitsu scanner does imprint as expected when given an imprint ID prefix', () => {
+  const scanimage = makeMockChildProcess();
+  const scanner = new FujitsuScanner({
+    logger: new BaseLogger(LogSource.VxScanService),
+  });
+
+  exec.mockReturnValueOnce(scanimage);
+  scanner.scanSheets({
+    imprintIdPrefix: 'TEST-BATCH-ID',
+  });
+
+  scanimage.stderr.append(
+    [
+      'Scanning infinity pages, incrementing by 1, numbering from 1\n',
+      'Place document no. 1 on the scanner.\n',
+      'Press <RETURN> to continue.\n',
+      'Press Ctrl + D to terminate.\n',
+    ].join('')
+  );
+  expect(exec).toHaveBeenCalledWith(
+    'scanimage',
+    expect.arrayContaining(['--endorser=yes'])
+  );
+
+  expect(exec).toHaveBeenCalledWith(
+    'scanimage',
+    expect.arrayContaining(['--endorser-string', 'TEST-BATCH-ID_%04ud'])
   );
 });
 
@@ -240,10 +331,10 @@ test('fujitsu scanner requests two images at a time from scanimage', async () =>
 
   scanimage.stdout.append('/tmp/front.png\n');
   scanimage.stdout.append('/tmp/back.png\n');
-  await expect(sheetPromise).resolves.toEqual([
-    '/tmp/front.png',
-    '/tmp/back.png',
-  ]);
+  await expect(sheetPromise).resolves.toEqual({
+    frontPath: '/tmp/front.png',
+    backPath: '/tmp/back.png',
+  });
 });
 
 test('fujitsu scanner ends the scanimage process on generator return', async () => {
@@ -306,4 +397,31 @@ test('attached based on detected USB devices', () => {
       },
     } as unknown as Device)
   ).toEqual(false);
+});
+
+test('fujitsu scanner calls scanimage to determine if imprinter is attached', async () => {
+  const scanimage = makeMockChildProcess();
+  const scanner = new FujitsuScanner({
+    logger: new BaseLogger(LogSource.VxScanService),
+  });
+
+  exec.mockReturnValueOnce(scanimage);
+  const isImprinterAttached = scanner.isImprinterAttached();
+  scanimage.emit('close', 0, null);
+  await expect(isImprinterAttached).resolves.toEqual(true);
+});
+
+test('fujitsu scanner calls scanimage to determine if imprinter is attached handles unattached state as expected', async () => {
+  const scanimage = makeMockChildProcess();
+  const scanner = new FujitsuScanner({
+    logger: new BaseLogger(LogSource.VxScanService),
+  });
+
+  exec.mockReturnValueOnce(scanimage);
+  const isImprinterAttached = scanner.isImprinterAttached();
+  scanimage.stderr.append(
+    `some text ${EXPECTED_IMPRINTER_UNATTACHED_ERROR} more text`
+  );
+  scanimage.emit('close', 0, null);
+  await expect(isImprinterAttached).resolves.toEqual(false);
 });

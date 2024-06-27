@@ -14,6 +14,7 @@ import { ok, sleep } from '@votingworks/basics';
 import { withApp } from '../test/helpers/setup_app';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 import { generateBmdBallotFixture } from '../test/helpers/ballots';
+import { ScannedSheetInfo } from './fujitsu_scanner';
 
 // we need more time for ballot interpretation
 jest.setTimeout(20000);
@@ -51,9 +52,13 @@ test('going through the whole process works - BMD', async () => {
       await apiClient.setTestMode({ testMode: true });
 
       const ballot = await generateBmdBallotFixture();
+      const scannedBallot: ScannedSheetInfo = {
+        frontPath: ballot[0],
+        backPath: ballot[1],
+      };
       {
         // define the next scanner session & scan some sample ballots
-        scanner.withNextScannerSession().sheet(ballot).end();
+        scanner.withNextScannerSession().sheet(scannedBallot).end();
         await apiClient.scanBatch();
 
         await importer.waitForEndOfBatchOrScanningPause();

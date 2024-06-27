@@ -2,11 +2,7 @@ import { assert, deferredQueue } from '@votingworks/basics';
 import makeDebug from 'debug';
 import { join } from 'path';
 import { dirSync } from 'tmp';
-import {
-  BallotPaperSize,
-  SheetOf,
-  ballotPaperDimensions,
-} from '@votingworks/types';
+import { BallotPaperSize, ballotPaperDimensions } from '@votingworks/types';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { isDeviceAttached } from '@votingworks/backend';
 import { streamExecFile } from './exec';
@@ -18,18 +14,29 @@ export const FUJITSU_VENDOR_ID = 0x4c5;
 export const FUJITSU_FI_7160_PRODUCT_ID = 0x132e;
 export const FUJITSU_FI_8170_PRODUCT_ID = 0x15ff;
 
+export const EXPECTED_IMPRINTER_UNATTACHED_ERROR =
+  'attempted to set readonly option endorser';
+
+export interface ScannedSheetInfo {
+  frontPath: string;
+  backPath: string;
+  ballotAuditId?: string;
+}
+
 export interface BatchControl {
-  scanSheet(): Promise<SheetOf<string> | undefined>;
+  scanSheet(): Promise<ScannedSheetInfo | undefined>;
   endBatch(): Promise<void>;
 }
 
 export interface ScanOptions {
   directory?: string;
   pageSize?: BallotPaperSize;
+  imprintIdPrefix?: string; // Prefix for the audit ID to imprint on the ballot, an undefined value means no imprinting
 }
 
 export interface BatchScanner {
   isAttached(): boolean;
+  isImprinterAttached(): Promise<boolean>;
   scanSheets(options?: ScanOptions): BatchControl;
 }
 
@@ -82,9 +89,35 @@ export class FujitsuScanner implements BatchScanner {
     );
   }
 
+  async isImprinterAttached(): Promise<boolean> {
+    return new Promise((resolve) => {
+      const process = streamExecFile('scanimage', [
+        '-d',
+        'fujitsu',
+        '--endorser=yes',
+        '--format=jpeg',
+        '--dont-scan',
+      ]);
+
+      assert(process.stderr);
+      process.stderr.on('data', (data: string) => {
+        // If there is no imprinter attached a message will be sent to stderr
+        // that the endorser parameter is readonly.
+        if (data.includes(EXPECTED_IMPRINTER_UNATTACHED_ERROR)) {
+          resolve(false);
+        }
+      });
+
+      process.on('close', () => {
+        resolve(true);
+      });
+    });
+  }
+
   scanSheets({
     directory = dirSync().name,
     pageSize = BallotPaperSize.Letter,
+    imprintIdPrefix,
   }: ScanOptions = {}): BatchControl {
     const args: string[] = [
       '-d',
@@ -99,6 +132,12 @@ export class FujitsuScanner implements BatchScanner {
       `--batch-print`,
       `--batch-prompt`,
     ];
+
+    if (imprintIdPrefix !== undefined) {
+      args.push('--endorser=yes');
+      // Imprint the prefix followed by a sequential index for each page in the batch
+      args.push('--endorser-string', `${imprintIdPrefix}_%04ud`);
+    }
 
     const MM_PER_INCH = 25.3967;
     function toMillimeters(inches: number): string {
@@ -128,7 +167,7 @@ export class FujitsuScanner implements BatchScanner {
     );
 
     const scannedFiles: string[] = [];
-    const results = deferredQueue<Promise<SheetOf<string> | undefined>>();
+    const results = deferredQueue<Promise<ScannedSheetInfo | undefined>>();
     let done = false;
     const scanimage = streamExecFile('scanimage', args);
 
@@ -157,7 +196,22 @@ export class FujitsuScanner implements BatchScanner {
       scannedFiles.push(path);
       if (scannedFiles.length % 2 === 0) {
         const [frontPath, backPath] = scannedFiles.slice(-2);
-        results.resolve(Promise.resolve([frontPath, backPath]));
+        results.resolve(
+          Promise.resolve({
+            frontPath,
+            backPath,
+            ballotAuditId:
+              // Because we pass `${imprintIdPrefix}_%04ud` to --endorser-string the scanner
+              // will imprint the prefix followed by a sequential index for each page in the batch,
+              // starting with 0000 for the first page, then 0001 and so on.
+              imprintIdPrefix !== undefined
+                ? `${imprintIdPrefix}_${zeroPad(
+                    scannedFiles.length / 2 - 1,
+                    4
+                  )}`
+                : undefined,
+          })
+        );
       }
     });
 
@@ -201,7 +255,7 @@ export class FujitsuScanner implements BatchScanner {
     });
 
     return {
-      scanSheet: async (): Promise<SheetOf<string> | undefined> => {
+      scanSheet: async (): Promise<ScannedSheetInfo | undefined> => {
         if (results.isEmpty() && !done) {
           debug(
             'scanimage [pid=%d] sending RETURN twice to scan another sheet',

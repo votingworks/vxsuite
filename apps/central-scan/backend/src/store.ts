@@ -59,6 +59,7 @@ const getSheetsBaseQuery = `
   select
     sheets.id as id,
     batches.id as batchId,
+    sheets.ballot_audit_id as ballotAuditId,
     front_interpretation_json as frontInterpretationJson,
     back_interpretation_json as backInterpretationJson,
     front_image_path as frontImagePath,
@@ -74,6 +75,7 @@ const getSheetsBaseQuery = `
 interface SheetRow {
   id: string;
   batchId: string;
+  ballotAuditId: string;
   frontInterpretationJson: string;
   backInterpretationJson: string;
   frontImagePath: string;
@@ -90,6 +92,7 @@ function sheetRowToAcceptedSheet(row: SheetRow): AcceptedSheet {
     type: 'accepted',
     id: row.id,
     batchId: row.batchId,
+    ballotAuditId: row.ballotAuditId || undefined,
     interpretation: mapSheet(
       [row.frontInterpretationJson, row.backInterpretationJson],
       (json) => safeParseJson(json, PageInterpretationSchema).unsafeUnwrap()
@@ -107,6 +110,7 @@ function sheetRowToRejectedSheet(row: SheetRow): RejectedSheet {
     id: row.id,
     frontImagePath: row.frontImagePath,
     backImagePath: row.backImagePath,
+    ballotAuditId: row.ballotAuditId,
   };
 }
 
@@ -600,7 +604,8 @@ export class Store {
   addSheet(
     sheetId: string,
     batchId: string,
-    [front, back]: SheetOf<PageInterpretationWithFiles>
+    [front, back]: SheetOf<PageInterpretationWithFiles>,
+    ballotAuditId?: string
   ): string {
     try {
       const requiresAdjudication = sheetRequiresAdjudication([
@@ -612,6 +617,7 @@ export class Store {
         `insert into sheets (
             id,
             batch_id,
+            ballot_audit_id,
             front_image_path,
             front_interpretation_json,
             back_image_path,
@@ -619,10 +625,11 @@ export class Store {
             requires_adjudication,
             finished_adjudication_at
           ) values (
-            ?, ?, ?, ?, ?, ?, ?, ?
+            ?, ?, ?, ?, ?, ?, ?, ?, ?
           )`,
         sheetId,
         batchId,
+        ballotAuditId || null,
         front.imagePath,
         JSON.stringify(front.interpretation),
         back.imagePath,

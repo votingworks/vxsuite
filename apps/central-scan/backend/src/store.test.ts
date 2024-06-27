@@ -560,6 +560,7 @@ test('iterating over sheets', () => {
     type: 'accepted',
     id: sheet1Id,
     batchId,
+    ballotAuditId: undefined,
     interpretation: mapSheet(sheetWithFiles, (page) => page.interpretation),
     frontImagePath: '1-front.jpg',
     backImagePath: '1-back.jpg',
@@ -570,14 +571,20 @@ test('iterating over sheets', () => {
 
   // Add and retrieve a rejected sheet
   const sheet2Id = uuid();
-  store.addSheet(sheet2Id, batchId, [
-    { ...sheetWithFiles[0], imagePath: '2-front.jpg' },
-    { ...sheetWithFiles[1], imagePath: '2-back.jpg' },
-  ]);
+  store.addSheet(
+    sheet2Id,
+    batchId,
+    [
+      { ...sheetWithFiles[0], imagePath: '2-front.jpg' },
+      { ...sheetWithFiles[1], imagePath: '2-back.jpg' },
+    ],
+    `${batchId}_0002`
+  );
   store.deleteSheet(sheet2Id);
   const expectedSheet2: RejectedSheet = {
     type: 'rejected',
     id: sheet2Id,
+    ballotAuditId: `${batchId}_0002`,
     frontImagePath: '2-front.jpg',
     backImagePath: '2-back.jpg',
   };
