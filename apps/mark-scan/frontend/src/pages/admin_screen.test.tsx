@@ -130,3 +130,13 @@ test('USB button calls eject', async () => {
   apiMock.expectEjectUsbDrive();
   userEvent.click(ejectButton);
 });
+
+test('Unconfigure will eject usb', async () => {
+  renderScreen({
+    usbDriveStatus: mockUsbDriveStatus('mounted'),
+  });
+  const unconfigureButton = await screen.findByText('Unconfigure Machine');
+  apiMock.expectEjectUsbDrive();
+  userEvent.click(unconfigureButton);
+  userEvent.click(screen.getButton('Yes, Delete Election Data'));
+});
