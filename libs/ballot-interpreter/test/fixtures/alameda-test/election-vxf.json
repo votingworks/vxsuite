@@ -113,7 +113,7 @@
         },
         {
           "id": "2candidate-3",
-          "name": ""
+          "name": "003"
         }
       ]
     },
@@ -135,7 +135,7 @@
         },
         {
           "id": "3candidate-3",
-          "name": ""
+          "name": "Three"
         }
       ]
     },
@@ -159,7 +159,7 @@
         },
         {
           "id": "4candidate-3",
-          "name": ""
+          "name": "Three"
         }
       ]
     },
@@ -240,6 +240,7 @@
     "paperSize": "letter",
     "metadataEncoding": "qr-code"
   },
+  "ballotStrings": {},
   "gridLayouts": [
     {
       "ballotStyleId": "ballot-style-1-p1",

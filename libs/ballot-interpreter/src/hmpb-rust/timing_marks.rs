@@ -839,18 +839,21 @@ pub enum SideMarks {
 
 pub type FindCompleteTimingMarksResult = Result<Complete, FindCompleteTimingMarksError>;
 
+pub const ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH: UnitIntervalValue = 0.15;
+
 #[time]
 pub fn find_complete_timing_marks_from_partial_timing_marks(
     geometry: &Geometry,
     partial_timing_marks: &Partial,
     debug: &ImageDebugWriter,
 ) -> FindCompleteTimingMarksResult {
-    const ALLOWED_TIMING_MARK_INSET_PERCENTAGE: UnitIntervalValue = 0.15;
+    let allowed_inset =
+        geometry.canvas_size.width as f32 * ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH;
 
     let is_top_line_invalid = {
         let top_line_segment = partial_timing_marks.top_line_segment_from_corners();
         let min_y = top_line_segment.start.y.min(top_line_segment.end.y);
-        min_y > geometry.canvas_size.height as f32 * ALLOWED_TIMING_MARK_INSET_PERCENTAGE
+        min_y > allowed_inset
     };
 
     if is_top_line_invalid {
@@ -866,7 +869,7 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
     let is_bottom_line_invalid = {
         let bottom_line_segment = partial_timing_marks.bottom_line_segment_from_corners();
         let max_y = bottom_line_segment.start.y.max(bottom_line_segment.end.y);
-        max_y < geometry.canvas_size.height as f32 * (1.0 - ALLOWED_TIMING_MARK_INSET_PERCENTAGE)
+        max_y < geometry.canvas_size.height as f32 - allowed_inset
     };
 
     if is_bottom_line_invalid {
@@ -882,7 +885,7 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
     let is_left_line_invalid = {
         let left_line_segment = partial_timing_marks.left_line_segment_from_corners();
         let min_x = left_line_segment.start.x.min(left_line_segment.end.x);
-        min_x > geometry.canvas_size.width as f32 * ALLOWED_TIMING_MARK_INSET_PERCENTAGE
+        min_x > allowed_inset
     };
 
     if is_left_line_invalid {
@@ -898,7 +901,7 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
     let is_right_line_invalid = {
         let right_line_segment = partial_timing_marks.right_line_segment_from_corners();
         let max_x = right_line_segment.start.x.max(right_line_segment.end.x);
-        max_x < geometry.canvas_size.width as f32 * (1.0 - ALLOWED_TIMING_MARK_INSET_PERCENTAGE)
+        max_x < geometry.canvas_size.width as f32 - allowed_inset
     };
 
     if is_right_line_invalid {
