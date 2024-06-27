@@ -4,6 +4,7 @@
     "targetMarkPosition": "right",
     "metadataEncoding": "timing-marks"
   },
+  "ballotStrings": {},
   "ballotStyles": [
     {
       "id": "card-number-5",

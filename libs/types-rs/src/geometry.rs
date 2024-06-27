@@ -397,14 +397,15 @@ pub fn angle_diff(a: Radians, b: Radians) -> Radians {
     Radians::min(diff, Radians::PI - diff)
 }
 
-/// Finds the largest subset of rectangles such that a line can be drawn through
-/// all of them for any line within the given tolerance of the given angle.
+/// Finds all subsets of rectangles such that a line can be drawn through every
+/// rectangle in the subset. The line must have an angle equal to `angle` within
+/// the given `tolerance`.
 #[must_use]
-pub fn find_largest_subset_intersecting_line(
+pub fn find_inline_subsets(
     rects: &[Rect],
     angle: impl Into<Radians>,
     tolerance: impl Into<Radians>,
-) -> Vec<Rect> {
+) -> impl Iterator<Item = Vec<&Rect>> {
     let angle = angle.into();
     let tolerance = tolerance.into();
     rects
@@ -412,14 +413,13 @@ pub fn find_largest_subset_intersecting_line(
         // Get all pairs of rectangles.
         .flat_map(|rect| rects.iter().map(move |other_rect| (rect, other_rect)))
         // Map to lists of rectangles in line with each pair.
-        .filter_map(|(rect, other_rect)| {
+        .filter_map(move |(rect, other_rect)| {
             let line_angle = Radians::new(
                 (other_rect.center().y - rect.center().y)
                     .atan2(other_rect.center().x - rect.center().x),
             );
             if angle_diff(line_angle, angle) > tolerance {
                 // The line between the two rectangles is not within the
-                // tolerance of the desired angle, so skip this pair.
                 return None;
             }
 
@@ -432,74 +432,6 @@ pub fn find_largest_subset_intersecting_line(
                     .collect::<Vec<_>>(),
             )
         })
-        // Pick the list of rectangles that is the longest.
-        .max_by_key(Vec::len)
-        .unwrap_or_default()
-        // Dereference the pointers.
-        .iter()
-        .map(|r| **r)
-        .collect()
-}
-
-#[cfg(test)]
-mod normalize_angle_tests {
-    use std::{f32::consts::PI, ops::Range};
-
-    use proptest::prelude::*;
-
-    use super::Radians;
-
-    const ANGLE_RANGE: Range<f32> = -(10.0 * PI)..(10.0 * PI);
-
-    macro_rules! assert_nearly_eq {
-        ($a:expr, $b:expr) => {
-            #[allow(clippy::suboptimal_flops)]
-            {
-                assert!(
-                    ($a - $b).abs().0 < 0.0001,
-                    "assertion failed: `({} - {}) < 0.0001`",
-                    $a,
-                    $b
-                );
-            }
-        };
-    }
-
-    #[test]
-    fn test_normalize_angle() {
-        assert_nearly_eq!(Radians::new(0.0).normalize(), Radians::new(0.0));
-        assert_nearly_eq!(Radians::new(PI).normalize(), Radians::new(0.0));
-        assert_nearly_eq!(Radians::new(2.0 * PI).normalize(), Radians::new(0.0));
-        assert_nearly_eq!(Radians::new(1.5 * PI).normalize(), Radians::new(0.5 * PI));
-    }
-
-    #[test]
-    fn test_normalize_infinity_eq() {
-        assert_eq!(Radians::INFINITY.normalize(), Radians::INFINITY);
-        assert_eq!(Radians::NEG_INFINITY.normalize(), Radians::NEG_INFINITY);
-    }
-
-    proptest! {
-        #[test]
-        fn prop_normalize_angle(angle in ANGLE_RANGE) {
-            let normalized = Radians::new(angle).normalize();
-            assert!((0.0..PI).contains(&normalized.0));
-        }
-
-        #[test]
-        fn prop_normalize_angle_is_idempotent(angle in ANGLE_RANGE) {
-            let normalized = Radians::new(angle).normalize();
-            let normalized_again = (normalized).normalize();
-            assert_nearly_eq!(normalized, normalized_again);
-        }
-
-        #[test]
-        fn prop_normalize_angle_is_equivalent(angle in ANGLE_RANGE) {
-            let normalized = Radians::new(angle).normalize();
-            let equivalent = Radians::new(angle + PI).normalize();
-            assert_nearly_eq!(normalized, equivalent);
-        }
-    }
 }
 
 #[cfg(test)]

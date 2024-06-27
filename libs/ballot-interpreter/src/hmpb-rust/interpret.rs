@@ -711,4 +711,54 @@ mod test {
         )
         .unwrap();
     }
+
+    #[test]
+    fn test_missing_bottom_row_timing_marks() {
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("test/fixtures/missing-bottom-timing-marks");
+        let election_path = fixture_path.join("election.json");
+        let election: Election =
+            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let bubble_template = load_ballot_scan_bubble_image().unwrap();
+        let side_a_path = fixture_path.join("standard-front.jpeg");
+        let side_b_path = fixture_path.join("standard-back.jpeg");
+        let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
+        interpret_ballot_card(
+            side_a_image,
+            side_b_image,
+            &Options {
+                debug_side_a_base: None,
+                debug_side_b_base: None,
+                bubble_template,
+                election,
+                score_write_ins: true,
+            },
+        )
+        .unwrap();
+    }
+
+    #[test]
+    fn test_missing_bottom_row_timing_marks_rotated() {
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("test/fixtures/missing-bottom-timing-marks");
+        let election_path = fixture_path.join("election.json");
+        let election: Election =
+            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let bubble_template = load_ballot_scan_bubble_image().unwrap();
+        let side_a_path = fixture_path.join("rotated-front.jpeg");
+        let side_b_path = fixture_path.join("rotated-back.jpeg");
+        let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
+        interpret_ballot_card(
+            side_a_image,
+            side_b_image,
+            &Options {
+                debug_side_a_base: None,
+                debug_side_b_base: None,
+                bubble_template,
+                election,
+                score_write_ins: true,
+            },
+        )
+        .unwrap();
+    }
 }
