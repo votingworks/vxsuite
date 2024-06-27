@@ -839,7 +839,7 @@ pub enum SideMarks {
 
 pub type FindCompleteTimingMarksResult = Result<Complete, FindCompleteTimingMarksError>;
 
-pub const ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH: UnitIntervalValue = 0.15;
+pub const ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH: UnitIntervalValue = 0.1;
 
 #[time]
 pub fn find_complete_timing_marks_from_partial_timing_marks(
