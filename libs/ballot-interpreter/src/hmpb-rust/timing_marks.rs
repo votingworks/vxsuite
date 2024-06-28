@@ -3,6 +3,7 @@ use imageproc::{
     contours::{find_contours_with_threshold, BorderType, Contour},
     contrast::otsu_level,
 };
+use itertools::Itertools;
 use logging_timer::time;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
@@ -600,6 +601,24 @@ pub fn find_partial_timing_marks_from_candidate_rects(
     left_line.sort_by_key(Rect::top);
     right_line.sort_by_key(Rect::top);
 
+    const TIMING_MARK_AREA_COMPARISON_ERROR_TOLERANCE: f32 = 0.1;
+    let top_line = filter_rects_not_following_size_progression_of_neighbors(
+        &top_line,
+        TIMING_MARK_AREA_COMPARISON_ERROR_TOLERANCE,
+    );
+    let bottom_line = filter_rects_not_following_size_progression_of_neighbors(
+        &bottom_line,
+        TIMING_MARK_AREA_COMPARISON_ERROR_TOLERANCE,
+    );
+    let left_line = filter_rects_not_following_size_progression_of_neighbors(
+        &left_line,
+        TIMING_MARK_AREA_COMPARISON_ERROR_TOLERANCE,
+    );
+    let right_line = filter_rects_not_following_size_progression_of_neighbors(
+        &right_line,
+        TIMING_MARK_AREA_COMPARISON_ERROR_TOLERANCE,
+    );
+
     let top_start_rect_center = (top_line.first()?).center();
     let top_last_rect_center = (top_line.last()?).center();
 
@@ -678,6 +697,38 @@ pub fn find_partial_timing_marks_from_candidate_rects(
     });
 
     Some(partial_timing_marks)
+}
+
+/// Filters rectangles where they are not within the sizes of their immediately
+/// surrounding neighbors, within a certain error tolerance. This is useful for
+/// filtering out rectangles that are not part of the timing marks.
+fn filter_rects_not_following_size_progression_of_neighbors(
+    rects: &[Rect],
+    error_tolerance: f32,
+) -> Vec<Rect> {
+    let (Some(first_rect), Some(last_rect)) = (rects.first(), rects.last()) else {
+        return rects.to_vec();
+    };
+
+    let mut filtered_rects = vec![first_rect.clone()];
+
+    for (left, rect, right) in rects.into_iter().tuple_windows() {
+        let left_area = left.width() * left.height();
+        let rect_area = rect.width() * rect.height();
+        let right_area = right.width() * right.height();
+
+        let smaller_area = left_area.min(right_area) as f32;
+        let larger_area = left_area.max(right_area) as f32;
+
+        if rect_area >= (smaller_area * (1.0 - error_tolerance)).ceil() as u32
+            && rect_area <= (larger_area * (1.0 + error_tolerance)).floor() as u32
+        {
+            filtered_rects.push(rect.clone());
+        }
+    }
+
+    filtered_rects.push(last_rect.clone());
+    filtered_rects
 }
 
 struct Rotator180 {
@@ -1316,4 +1367,104 @@ pub fn detect_metadata_and_normalize_orientation(
         error,
     })?;
     Ok((normalized_grid, normalized_image, metadata))
+}
+
+#[cfg(test)]
+mod tests {
+    use std::path::{Path, PathBuf};
+
+    use image::GrayImage;
+
+    use crate::{
+        ballot_card::PaperInfo,
+        debug::ImageDebugWriter,
+        interpret::{par_map_pair, prepare_ballot_card_images, BallotCard, ResizeStrategy},
+    };
+
+    use super::*;
+
+    /// Loads a ballot page image from disk as grayscale.
+    pub fn load_ballot_page_image(image_path: &Path) -> GrayImage {
+        image::open(image_path).unwrap().into_luma8()
+    }
+
+    /// Loads images for both sides of a ballot card and returns them.
+    pub fn load_ballot_card_images(
+        side_a_path: &Path,
+        side_b_path: &Path,
+    ) -> (GrayImage, GrayImage) {
+        par_map_pair(side_a_path, side_b_path, load_ballot_page_image)
+    }
+
+    #[test]
+    fn test_ignore_smudged_timing_mark() {
+        let fixture_path =
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/nh-test-ballot");
+        let side_a_path = fixture_path.join("timing-mark-smudge-front.jpeg");
+        let side_b_path = fixture_path.join("timing-mark-smudge-back.jpeg");
+        let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
+
+        let BallotCard {
+            side_a: _,
+            side_b,
+            geometry,
+        } = prepare_ballot_card_images(
+            side_a_image,
+            side_b_image,
+            &PaperInfo::scanned(),
+            ResizeStrategy::Fit,
+        )
+        .unwrap();
+
+        let rects = find_timing_mark_shapes(
+            &geometry,
+            &side_b.image,
+            side_b.threshold,
+            &ImageDebugWriter::disabled(),
+        );
+        let partial_timing_marks = find_partial_timing_marks_from_candidate_rects(
+            &geometry,
+            &rects,
+            &ImageDebugWriter::disabled(),
+        )
+        .unwrap();
+
+        // we're working with letter sized paper, so the grid size should be 34x41
+        assert_eq!(
+            geometry.grid_size,
+            Size {
+                width: 34,
+                height: 41
+            }
+        );
+
+        // verify that the smudged timing mark is not detected. this isn't
+        // required if we someday find a way to correct it, but for now we're
+        // operating under the assumption that it's better to ignore the smudged
+        // mark and infer its real position from the other timing marks.
+        assert_eq!(partial_timing_marks.right_rects.len(), 40);
+
+        // also verify the other sides are detected correctly. notably, the
+        // bottom only has 20 because it's encoding metadata.
+        assert_eq!(partial_timing_marks.left_rects.len(), 41);
+        assert_eq!(partial_timing_marks.top_rects.len(), 34);
+        assert_eq!(partial_timing_marks.bottom_rects.len(), 20);
+
+        let complete_timing_marks = find_complete_timing_marks_from_partial_timing_marks(
+            &geometry,
+            &partial_timing_marks,
+            &FindCompleteTimingMarksFromPartialTimingMarksOptions {
+                allowed_timing_mark_inset_percentage_of_width: 0.1,
+                debug: &ImageDebugWriter::disabled(),
+            },
+        )
+        .unwrap();
+
+        // once we've inferred the missing timing marks, we should have the
+        // correct number of timing marks on each side.
+        assert_eq!(complete_timing_marks.top_rects.len(), 34);
+        assert_eq!(complete_timing_marks.bottom_rects.len(), 34);
+        assert_eq!(complete_timing_marks.left_rects.len(), 41);
+        assert_eq!(complete_timing_marks.right_rects.len(), 41);
+    }
 }

@@ -647,7 +647,7 @@ mod test {
         path::{Path, PathBuf},
     };
 
-    use crate::ballot_card::load_ballot_scan_bubble_image;
+    use crate::{ballot_card::load_ballot_scan_bubble_image, scoring::UnitIntervalScore};
 
     use super::*;
 
@@ -772,5 +772,37 @@ mod test {
             },
         )
         .unwrap();
+    }
+
+    #[test]
+    fn test_smudged_timing_mark() {
+        let fixture_path =
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/nh-test-ballot");
+        let election_path = fixture_path.join("election.json");
+        let election: Election =
+            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let bubble_template = load_ballot_scan_bubble_image().unwrap();
+        let side_a_path = fixture_path.join("timing-mark-smudge-front.jpeg");
+        let side_b_path = fixture_path.join("timing-mark-smudge-back.jpeg");
+        let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
+        let interpretation = interpret_ballot_card(
+            side_a_image,
+            side_b_image,
+            &Options {
+                debug_side_a_base: None,
+                debug_side_b_base: None,
+                bubble_template,
+                election,
+                score_write_ins: true,
+            },
+        )
+        .unwrap();
+
+        for side in &[interpretation.front, interpretation.back] {
+            for (_, ref scored_mark) in &side.marks {
+                // the ballot is not filled out, so the scores should be very low
+                assert!(scored_mark.clone().unwrap().fill_score < UnitIntervalScore(0.01));
+            }
+        }
     }
 }
