@@ -70,6 +70,7 @@ export function createMockFujitsuPrinterHandler(): MemoryFujitsuPrinterHandler {
       for (const path of mockPrinterState.printPathHistory) {
         rmSync(path);
       }
+      mockPrinterState.printPathHistory = [];
     },
   };
 }
