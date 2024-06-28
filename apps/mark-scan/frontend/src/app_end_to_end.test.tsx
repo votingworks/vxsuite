@@ -332,6 +332,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
   apiMock.expectGetElectionState();
+  apiMock.expectEjectUsbDrive();
   userEvent.click(screen.getByText('Unconfigure Machine'));
   userEvent.click(screen.getButton('Yes, Delete Election Data'));
 

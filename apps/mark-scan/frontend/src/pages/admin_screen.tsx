@@ -63,6 +63,16 @@ export function AdminScreen({
   const setPrecinctSelectionMutation = setPrecinctSelection.useMutation();
   const setTestModeMutation = setTestMode.useMutation();
 
+  async function unconfigureMachineAndEjectUsb() {
+    try {
+      // If there is a mounted usb, eject it so that it doesn't auto reconfigure the machine.
+      await ejectUsbDriveMutation.mutateAsync();
+      await unconfigure();
+    } catch (error) {
+      // Handled by default query client error handling
+    }
+  }
+
   return (
     <Screen>
       {election && isTestMode && <TestMode />}
@@ -153,7 +163,7 @@ export function AdminScreen({
         <P>
           <UnconfigureMachineButton
             isMachineConfigured
-            unconfigureMachine={unconfigure}
+            unconfigureMachine={unconfigureMachineAndEjectUsb}
           />
         </P>
         <H6 as="h2">USB</H6>
