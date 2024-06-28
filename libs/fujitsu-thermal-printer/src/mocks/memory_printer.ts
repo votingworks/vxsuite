@@ -2,8 +2,8 @@ import { tmpName } from 'tmp-promise';
 import { writeFile } from 'fs/promises';
 import { rmSync } from 'fs';
 import { ok } from '@votingworks/basics';
-import { PrinterStatus } from './status';
-import { FujitsuThermalPrinterInterface, PrintResult } from './printer';
+import { PrinterStatus } from '../status';
+import { FujitsuThermalPrinterInterface, PrintResult } from '../printer';
 
 /**
  * A mock of the  interface. See for details.
