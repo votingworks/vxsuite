@@ -11,8 +11,11 @@ import {
 } from 'fs';
 import { Optional, assert, err, iter, ok, sleep } from '@votingworks/basics';
 import { writeFile } from 'fs/promises';
-import { PrinterStatus } from '../status';
-import { FujitsuThermalPrinterInterface, PrintResult } from '../printer';
+import {
+  FujitsuThermalPrinterInterface,
+  PrintResult,
+  PrinterStatus,
+} from '../types';
 
 export const MOCK_FUJITSU_PRINTER_STATE_FILENAME = 'state.json';
 export const MOCK_FUJITSU_PRINTER_OUTPUT_DIRNAME = 'prints';

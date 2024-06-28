@@ -8,23 +8,13 @@ import {
 } from './driver';
 import { rootDebug } from './debug';
 import { IDLE_REPLY_PARAMETER, LINE_FEED_REPLY_PARAMETER } from './globals';
-import {
-  PrinterStatus,
-  summarizeRawStatus,
-  waitForPrintReadyStatus,
-} from './status';
+import { summarizeRawStatus, waitForPrintReadyStatus } from './status';
+import { FujitsuThermalPrinterInterface, PrinterStatus } from './types';
 
 const debug = rootDebug.extend('printer');
 
 // the mechanism by default runs at 8cm/s, so this is a generous, 2x estimate
 const WAIT_FOR_ADVANCE_APPEAR_PER_CM_MS = 250;
-
-export type PrintResult = Result<void, PrinterStatus>;
-
-export interface FujitsuThermalPrinterInterface {
-  getStatus(): Promise<PrinterStatus>;
-  print(data: Uint8Array): Promise<PrintResult>;
-}
 
 export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
   private driver?: FujitsuThermalPrinterDriverInterface;

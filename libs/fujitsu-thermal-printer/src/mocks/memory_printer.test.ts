@@ -1,8 +1,8 @@
 import { Buffer } from 'buffer';
 import { ok } from '@votingworks/basics';
 import { existsSync, readFileSync } from 'fs';
-import { PrinterStatus } from '../status';
 import { createMockFujitsuPrinterHandler } from './memory_printer';
+import { PrinterStatus } from '../types';
 
 test('status management', async () => {
   const printerHandler = createMockFujitsuPrinterHandler();
