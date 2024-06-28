@@ -24,7 +24,6 @@ export type PrintResult = Result<void, PrinterStatus>;
 export interface FujitsuThermalPrinterInterface {
   getStatus(): Promise<PrinterStatus>;
   print(data: Uint8Array): Promise<PrintResult>;
-  advancePaper(lineFeedCount: number): Promise<PrintResult>;
 }
 
 export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
