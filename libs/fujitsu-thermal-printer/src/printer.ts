@@ -1,4 +1,8 @@
 import { Optional, Result, assert, err, ok } from '@votingworks/basics';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { print } from './printing';
 import {
@@ -10,6 +14,7 @@ import { rootDebug } from './debug';
 import { IDLE_REPLY_PARAMETER, LINE_FEED_REPLY_PARAMETER } from './globals';
 import { summarizeRawStatus, waitForPrintReadyStatus } from './status';
 import { FujitsuThermalPrinterInterface, PrinterStatus } from './types';
+import { MockFileFujitsuPrinter } from './mocks/file_printer';
 
 const debug = rootDebug.extend('printer');
 
@@ -105,4 +110,13 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
     debug(`finished printing document of ${data.length} bytes`);
     return ok();
   }
+}
+
+export function getFujitsuThermalPrinter(): FujitsuThermalPrinterInterface {
+  // mock printer for development and integration tests
+  if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_PRINTER)) {
+    return new MockFileFujitsuPrinter();
+  }
+
+  return new FujitsuThermalPrinter();
 }

@@ -20,7 +20,7 @@ interface PrinterDevice {
 }
 
 export function detectPrinter(logger: BaseLogger): Printer {
-  // Mock USB drives for development and integration tests
+  // mock printer for development and integration tests
   if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_PRINTER)) {
     return new MockFilePrinter();
   }
