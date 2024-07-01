@@ -137,6 +137,7 @@ export type PaperHandlerStatusEvent =
   | { type: 'PAT_DEVICE_NO_STATUS_CHANGE' }
   | { type: 'PAT_DEVICE_STATUS_UNHANDLED' }
   | { type: 'POLL_WORKER_CONFIRMED_BALLOT_BOX_EMPTIED' }
+  | { type: 'RESET' }
   | { type: 'SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC' };
 
 const debug = makeDebug('mark-scan:state-machine');
@@ -162,6 +163,7 @@ export interface PaperHandlerStateMachine {
     ) => void
   ): void;
   startPaperHandlerDiagnostic(): void;
+  reset(): void;
 }
 
 export function paperHandlerStatusToEvent(
@@ -472,6 +474,10 @@ export function buildMachine(
         },
         SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC:
           'paper_handler_diagnostic',
+        RESET: {
+          actions: ['resetContext'],
+          target: 'voting_flow.not_accepting_paper',
+        },
       },
       invoke: [pollPatDeviceConnectionStatus()],
       states: {
@@ -1005,13 +1011,11 @@ export function buildMachine(
         ejectPaperToFront: async (context) => {
           await context.driver.ejectPaperToFront();
         },
-        resetContext: () => {
-          assign({
-            interpretation: undefined,
-            scannedBallotImagePath: undefined,
-            isPatDeviceConnected: false,
-          });
-        },
+        resetContext: assign({
+          interpretation: undefined,
+          scannedBallotImagePath: undefined,
+          isPatDeviceConnected: false,
+        }),
         clearInterpretation: () => {
           assign({
             interpretation: undefined,
@@ -1336,6 +1340,10 @@ export async function getPaperHandlerStateMachine({
       machineService.send({
         type: 'SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC',
       });
+    },
+
+    reset() {
+      machineService.send({ type: 'RESET' });
     },
   };
 }

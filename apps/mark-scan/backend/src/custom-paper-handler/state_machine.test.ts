@@ -686,3 +686,22 @@ describe('paper handler diagnostic', () => {
     await expectStatusTransitionTo('accepting_paper');
   });
 });
+
+test('reset() API', async () => {
+  const ballotPdfData = await readBallotFixture();
+  const scannedBallotFixtureFilepaths = getSampleBallotFilepath();
+
+  await executePrintBallotAndAssert(
+    ballotPdfData,
+    scannedBallotFixtureFilepaths,
+    SUCCESSFUL_INTERPRETATION_MOCK
+  );
+
+  await expectStatusTransitionTo('presenting_ballot');
+  expect(machine.getInterpretation()).toEqual(SUCCESSFUL_INTERPRETATION_MOCK);
+
+  machine.reset();
+
+  expectCurrentStatus('not_accepting_paper');
+  expect(machine.getInterpretation()).toBeUndefined();
+});

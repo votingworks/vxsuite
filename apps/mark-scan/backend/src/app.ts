@@ -125,6 +125,7 @@ export function buildApi(
     },
 
     endCardlessVoterSession() {
+      stateMachine?.reset();
       return auth.endCardlessVoterSession(constructAuthMachineState(workspace));
     },
 

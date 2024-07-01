@@ -138,6 +138,8 @@ test('startCardlessVoterSession', async () => {
 });
 
 test('endCardlessVoterSession', async () => {
+  jest.spyOn(stateMachine, 'reset');
+
   await configureApp(apiClient, mockAuth, mockUsbDrive, systemSettings);
 
   await apiClient.endCardlessVoterSession();
@@ -147,6 +149,7 @@ test('endCardlessVoterSession', async () => {
     electionHash,
     jurisdiction,
   });
+  expect(stateMachine.reset).toHaveBeenCalled();
 });
 
 test('getAuthStatus before election definition has been configured', async () => {
