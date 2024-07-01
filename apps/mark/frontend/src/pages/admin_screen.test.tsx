@@ -118,6 +118,20 @@ test('precinct selection disabled if single precinct election', async () => {
   );
 });
 
+test('renders a save logs button with no usb ', async () => {
+  renderScreen({ usbDriveStatus: mockUsbDriveStatus('no_drive') });
+  const saveLogsButton = await screen.findByText('Save Log File');
+  userEvent.click(saveLogsButton);
+  await screen.findByText('No USB Drive Detected');
+});
+
+test('renders a save logs button with usb mounted', async () => {
+  renderScreen({ usbDriveStatus: mockUsbDriveStatus('mounted') });
+  const saveLogsButton = await screen.findByText('Save Log File');
+  userEvent.click(saveLogsButton);
+  await screen.findByText('Save logs on the inserted USB drive?');
+});
+
 test('renders a USB controller button', async () => {
   renderScreen({ usbDriveStatus: mockUsbDriveStatus('no_drive') });
   await screen.findByText('No USB');

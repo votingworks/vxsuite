@@ -2,6 +2,7 @@ import React from 'react';
 import { isVxDev } from '@votingworks/utils';
 
 import styled from 'styled-components';
+import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Button } from './button';
 import { RebootToBiosButton } from './reboot_to_bios_button';
 import { UnconfigureMachineButton } from './unconfigure_machine_button';
@@ -9,6 +10,7 @@ import { ResetPollsToPausedButton } from './reset_polls_to_paused_button';
 import { P } from './typography';
 import { PowerDownButton } from './power_down_button';
 import { SetClockButton } from './set_clock';
+import { ExportLogsButton } from './export_logs_modal';
 
 interface Props {
   displayRemoveCardToLeavePrompt?: boolean;
@@ -18,6 +20,7 @@ interface Props {
   resetPollsToPaused?: () => Promise<void>;
   isMachineConfigured: boolean;
   logOut: () => void;
+  usbDriveStatus: UsbDriveStatus;
   additionalButtons?: React.ReactNode;
 }
 
@@ -50,6 +53,7 @@ export function SystemAdministratorScreenContents({
   isMachineConfigured,
   logOut,
   additionalButtons,
+  usbDriveStatus,
 }: Props): JSX.Element {
   return (
     <React.Fragment>
@@ -71,6 +75,7 @@ export function SystemAdministratorScreenContents({
           unconfigureMachine={unconfigureMachine}
           isMachineConfigured={isMachineConfigured}
         />
+        <ExportLogsButton usbDriveStatus={usbDriveStatus} />
         {additionalButtons}
         {isVxDev() && (
           <Button onPress={() => window.kiosk?.quit()}>Quit</Button>

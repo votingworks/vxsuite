@@ -1,8 +1,5 @@
 import React from 'react';
-import {
-  ExportLogsButton,
-  SystemAdministratorScreenContents,
-} from '@votingworks/ui';
+import { SystemAdministratorScreenContents } from '@votingworks/ui';
 import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
@@ -34,7 +31,6 @@ export function SystemAdministratorScreen({
       {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) ? (
         <LiveCheckButton />
       ) : undefined}
-      <ExportLogsButton usbDriveStatus={usbDrive} />
     </React.Fragment>
   );
 
@@ -57,6 +53,7 @@ export function SystemAdministratorScreen({
         }
         isMachineConfigured={Boolean(electionDefinition)}
         logOut={() => logOutMutation.mutate()}
+        usbDriveStatus={usbDrive}
         additionalButtons={additionalButtons}
       />
     </Screen>
