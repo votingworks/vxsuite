@@ -32,7 +32,9 @@ use crate::timing_marks::detect_metadata_and_normalize_orientation;
 use crate::timing_marks::find_timing_mark_grid;
 use crate::timing_marks::normalize_orientation;
 use crate::timing_marks::BallotPageMetadata;
+use crate::timing_marks::FindTimingMarkGridOptions;
 use crate::timing_marks::TimingMarkGrid;
+use crate::timing_marks::ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH;
 
 #[derive(Debug, Clone)]
 pub struct Options {
@@ -335,7 +337,17 @@ pub fn interpret_ballot_card(
     let (side_a_grid_result, side_b_grid_result) = par_map_pair(
         (&side_a.image, &mut side_a_debug),
         (&side_b.image, &mut side_b_debug),
-        |(image, debug)| find_timing_mark_grid(&geometry, image, debug),
+        |(image, debug)| {
+            find_timing_mark_grid(
+                &geometry,
+                image,
+                FindTimingMarkGridOptions {
+                    allowed_timing_mark_inset_percentage_of_width:
+                        ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
+                    debug,
+                },
+            )
+        },
     );
 
     let side_a_grid = side_a_grid_result?;
@@ -697,6 +709,56 @@ mod test {
         let bubble_template = load_ballot_scan_bubble_image().unwrap();
         let side_a_path = fixture_path.join("scan-skewed-side-a.jpeg");
         let side_b_path = fixture_path.join("scan-skewed-side-b.jpeg");
+        let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
+        interpret_ballot_card(
+            side_a_image,
+            side_b_image,
+            &Options {
+                debug_side_a_base: None,
+                debug_side_b_base: None,
+                bubble_template,
+                election,
+                score_write_ins: true,
+            },
+        )
+        .unwrap();
+    }
+
+    #[test]
+    fn test_missing_bottom_row_timing_marks() {
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("test/fixtures/missing-bottom-timing-marks");
+        let election_path = fixture_path.join("election.json");
+        let election: Election =
+            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let bubble_template = load_ballot_scan_bubble_image().unwrap();
+        let side_a_path = fixture_path.join("standard-front.jpeg");
+        let side_b_path = fixture_path.join("standard-back.jpeg");
+        let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
+        interpret_ballot_card(
+            side_a_image,
+            side_b_image,
+            &Options {
+                debug_side_a_base: None,
+                debug_side_b_base: None,
+                bubble_template,
+                election,
+                score_write_ins: true,
+            },
+        )
+        .unwrap();
+    }
+
+    #[test]
+    fn test_missing_bottom_row_timing_marks_rotated() {
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("test/fixtures/missing-bottom-timing-marks");
+        let election_path = fixture_path.join("election.json");
+        let election: Election =
+            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let bubble_template = load_ballot_scan_bubble_image().unwrap();
+        let side_a_path = fixture_path.join("rotated-front.jpeg");
+        let side_b_path = fixture_path.join("rotated-back.jpeg");
         let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
         interpret_ballot_card(
             side_a_image,

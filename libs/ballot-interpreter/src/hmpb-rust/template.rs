@@ -10,7 +10,7 @@ use crate::interpret::{prepare_ballot_card_images, BallotCard, ResizeStrategy};
 use crate::timing_mark_metadata::BallotPageTimingMarkMetadata;
 use crate::timing_marks::{
     detect_metadata_and_normalize_orientation, find_empty_bubbles_matching_template,
-    find_timing_mark_grid, TimingMarkGrid,
+    find_timing_mark_grid, FindTimingMarkGridOptions, TimingMarkGrid,
 };
 
 #[derive(Debug, Serialize)]
@@ -33,6 +33,11 @@ const BUBBLE_MATCH_THRESHOLD: f32 = 0.95;
 
 /// How many pixels should we look around the expected bubble location for a match?
 const BUBBLE_MATCH_ERROR_PIXELS: u32 = 2;
+
+/// How far in from the edge of the ballot card should we allow the timing mark
+/// grid to be? This is different for a template than for a scan because the
+/// template is expected to have a 1" margin around the edge.
+const ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH_FOR_TEMPLATE: f32 = 0.25;
 
 /// Find the timing mark grid and bubbles for a ballot card template.
 #[allow(clippy::similar_names)]
@@ -58,7 +63,15 @@ pub fn find_template_grid_and_bubbles(
     let (side_a_result, side_b_result) = rayon::join(
         || {
             let mut debug = ImageDebugWriter::disabled();
-            let grid = find_timing_mark_grid(&geometry, &side_a.image, &mut debug)?;
+            let grid = find_timing_mark_grid(
+                &geometry,
+                &side_a.image,
+                FindTimingMarkGridOptions {
+                    allowed_timing_mark_inset_percentage_of_width:
+                        ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH_FOR_TEMPLATE,
+                    debug: &mut debug,
+                },
+            )?;
             detect_metadata_and_normalize_orientation(
                 side_a_label,
                 &geometry,
@@ -69,7 +82,15 @@ pub fn find_template_grid_and_bubbles(
         },
         || {
             let mut debug = ImageDebugWriter::disabled();
-            let grid = find_timing_mark_grid(&geometry, &side_b.image, &mut debug)?;
+            let grid = find_timing_mark_grid(
+                &geometry,
+                &side_b.image,
+                FindTimingMarkGridOptions {
+                    allowed_timing_mark_inset_percentage_of_width:
+                        ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH_FOR_TEMPLATE,
+                    debug: &mut debug,
+                },
+            )?;
             detect_metadata_and_normalize_orientation(
                 side_b_label,
                 &geometry,

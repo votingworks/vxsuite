@@ -397,14 +397,14 @@ pub fn angle_diff(a: Radians, b: Radians) -> Radians {
     Radians::min(diff, Radians::PI - diff)
 }
 
-/// Finds the largest subset of rectangles such that a line can be drawn through
-/// all of them for any line within the given tolerance of the given angle.
-#[must_use]
-pub fn find_largest_subset_intersecting_line(
+/// Finds all subsets of rectangles such that a line can be drawn through every
+/// rectangle in the subset. The line must have an angle equal to `angle` within
+/// the given `tolerance`.
+pub fn find_inline_subsets(
     rects: &[Rect],
     angle: impl Into<Radians>,
     tolerance: impl Into<Radians>,
-) -> Vec<Rect> {
+) -> impl Iterator<Item = Vec<&Rect>> {
     let angle = angle.into();
     let tolerance = tolerance.into();
     rects
@@ -412,14 +412,13 @@ pub fn find_largest_subset_intersecting_line(
         // Get all pairs of rectangles.
         .flat_map(|rect| rects.iter().map(move |other_rect| (rect, other_rect)))
         // Map to lists of rectangles in line with each pair.
-        .filter_map(|(rect, other_rect)| {
+        .filter_map(move |(rect, other_rect)| {
             let line_angle = Radians::new(
                 (other_rect.center().y - rect.center().y)
                     .atan2(other_rect.center().x - rect.center().x),
             );
             if angle_diff(line_angle, angle) > tolerance {
                 // The line between the two rectangles is not within the
-                // tolerance of the desired angle, so skip this pair.
                 return None;
             }
 
@@ -432,13 +431,6 @@ pub fn find_largest_subset_intersecting_line(
                     .collect::<Vec<_>>(),
             )
         })
-        // Pick the list of rectangles that is the longest.
-        .max_by_key(Vec::len)
-        .unwrap_or_default()
-        // Dereference the pointers.
-        .iter()
-        .map(|r| **r)
-        .collect()
 }
 
 #[cfg(test)]
