@@ -2,7 +2,12 @@ import { electionTwoPartyPrimary } from '@votingworks/fixtures';
 import { YesNoContest as YesNoContestInterface } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { advanceTimers } from '@votingworks/test-utils';
-import { screen, within, render } from '../../test/react_testing_library';
+import {
+  screen,
+  within,
+  render,
+  waitFor,
+} from '../../test/react_testing_library';
 import { YesNoContest } from './yes_no_contest';
 
 const contest = electionTwoPartyPrimary.contests.find(
@@ -33,6 +38,42 @@ test('voting for both yes and no', () => {
 
   userEvent.click(within(contestChoices).getByText('NO').closest('button')!);
   expect(updateVote).toHaveBeenCalledTimes(2);
+});
+
+test('create an overvote', async () => {
+  const updateVote = jest.fn();
+  const { rerender } = render(
+    <YesNoContest
+      election={electionTwoPartyPrimary}
+      contest={contest}
+      updateVote={updateVote}
+    />
+  );
+  screen.getByRole('heading', { name: contest.title });
+  // Using `getAll*` because the description appears both in the contest header
+  // as an < AudioOnly > element and in the contest body as a visible element.
+  screen.getAllByText(contest.description);
+
+  const contestChoices = screen.getByTestId('contest-choices');
+  userEvent.click(within(contestChoices).getByText('YES').closest('button')!);
+
+  // manually handle updating the vote
+  rerender(
+    <YesNoContest
+      election={electionTwoPartyPrimary}
+      contest={contest}
+      vote={[contest.yesOption.id]}
+      updateVote={updateVote}
+    />
+  );
+
+  userEvent.click(within(contestChoices).getByText('NO').closest('button')!);
+
+  const modal = within(screen.getByRole('alertdialog'));
+  modal.getByText(/first deselect your previous vote/i);
+  await waitFor(() => expect(modal.getButton(/Okay/i)).toHaveFocus());
+  userEvent.click(modal.getByText('Okay'));
+  expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
 });
 
 test('changing votes', () => {

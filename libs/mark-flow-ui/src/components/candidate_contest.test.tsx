@@ -13,7 +13,12 @@ import {
   mockOf,
 } from '@votingworks/test-utils';
 import { VirtualKeyboard, VirtualKeyboardProps } from '@votingworks/ui';
-import { screen, within, render } from '../../test/react_testing_library';
+import {
+  screen,
+  within,
+  render,
+  waitFor,
+} from '../../test/react_testing_library';
 import { CandidateContest } from './candidate_contest';
 
 jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
@@ -388,7 +393,7 @@ describe('supports write-in candidates', () => {
     });
   });
 
-  test('displays a warning when attempting to add more write-in candidates than seats', () => {
+  test('displays a warning when attempting to add more write-in candidates than seats', async () => {
     const updateVote = jest.fn();
     render(
       <CandidateContest
@@ -410,6 +415,7 @@ describe('supports write-in candidates', () => {
 
     const modal = within(screen.getByRole('alertdialog'));
     modal.getByText(/you must first deselect/i);
+    await waitFor(() => expect(modal.getButton(/Okay/i)).toHaveFocus());
     userEvent.click(modal.getByText('Okay'));
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
