@@ -8,6 +8,7 @@ import {
 
 import { SystemAdministratorScreenContents } from './system_administrator_screen_contents';
 import { newTestContext } from '../test/test_context';
+import { mockUsbDriveStatus } from './test-utils/mock_usb_drive';
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   return {
@@ -76,6 +77,7 @@ test.each(renderTestCases)(
         unconfigureMachine={unconfigureMachine}
         isMachineConfigured
         logOut={jest.fn()}
+        usbDriveStatus={mockUsbDriveStatus('mounted')}
       />
     );
 
@@ -97,6 +99,7 @@ test.each(renderTestCases)(
     // These buttons are all tested further in their respective test files
     screen.getByRole('button', { name: 'Reboot to BIOS' });
     screen.getByRole('button', { name: 'Unconfigure Machine' });
+    screen.getByRole('button', { name: 'Save Log File' });
 
     if (shouldQuitButtonBeDisplayed) {
       screen.getByRole('button', { name: 'Quit' });
@@ -118,6 +121,7 @@ test('Quit button makes expected call', () => {
       unconfigureMachine={unconfigureMachine}
       isMachineConfigured
       logOut={jest.fn()}
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
     />
   );
 
@@ -135,6 +139,7 @@ test('Quit button does nothing when kiosk is undefined', () => {
       unconfigureMachine={unconfigureMachine}
       isMachineConfigured
       logOut={jest.fn()}
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
     />
   );
 
@@ -148,6 +153,7 @@ test('Reset Polls to Paused button not rendered if not specified', () => {
       unconfigureMachine={jest.fn()}
       isMachineConfigured
       logOut={jest.fn()}
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
     />
   );
 
@@ -165,6 +171,7 @@ test('Reset Polls to Paused rendered if callback and flag specified', () => {
       resetPollsToPausedText="Reset Polls to Paused Text"
       resetPollsToPaused={jest.fn()}
       logOut={jest.fn()}
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
     />
   );
 
@@ -180,6 +187,7 @@ test('Set Date and Time button', async () => {
       unconfigureMachine={jest.fn()}
       isMachineConfigured
       logOut={logOut}
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
     />
   );
 

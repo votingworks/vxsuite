@@ -1,4 +1,5 @@
 import userEvent from '@testing-library/user-event';
+import { mockUsbDriveStatus } from '@votingworks/ui';
 import { screen, waitFor } from '../../test/react_testing_library';
 
 import { render } from '../../test/test_utils';
@@ -26,12 +27,14 @@ test('SystemAdministratorScreen renders expected contents', () => {
     <SystemAdministratorScreen
       unconfigureMachine={unconfigureMachine}
       isMachineConfigured
+      usbDriveStatus={mockUsbDriveStatus('mounted')}
     />
   );
 
   // These buttons are further tested in libs/ui
   screen.getByRole('button', { name: 'Reboot to BIOS' });
   screen.getByRole('button', { name: 'Unconfigure Machine' });
+  screen.getByRole('button', { name: 'Save Log File' });
 });
 
 test('Can set date and time', async () => {
@@ -41,6 +44,7 @@ test('Can set date and time', async () => {
       <SystemAdministratorScreen
         unconfigureMachine={jest.fn()}
         isMachineConfigured
+        usbDriveStatus={mockUsbDriveStatus('mounted')}
       />
     )
   );
@@ -67,6 +71,7 @@ test('navigates to System Diagnostics screen', async () => {
       <SystemAdministratorScreen
         unconfigureMachine={jest.fn()}
         isMachineConfigured
+        usbDriveStatus={mockUsbDriveStatus('mounted')}
       />
     )
   );

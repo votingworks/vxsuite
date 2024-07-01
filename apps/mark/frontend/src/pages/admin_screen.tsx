@@ -16,6 +16,7 @@ import {
   H3,
   H6,
   UnconfigureMachineButton,
+  ExportLogsButton,
 } from '@votingworks/ui';
 import {
   ElectionDefinition,
@@ -149,6 +150,8 @@ export function AdminScreen({
           isMachineConfigured
           unconfigureMachine={unconfigure}
         />
+        <H6 as="h2">Logs</H6>
+        <ExportLogsButton usbDriveStatus={usbDriveStatus} />
         <H6 as="h2">USB</H6>
         <UsbControllerButton
           primary

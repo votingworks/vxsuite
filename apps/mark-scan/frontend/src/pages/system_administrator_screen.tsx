@@ -7,6 +7,7 @@ import {
   Screen,
   SystemAdministratorScreenContents,
 } from '@votingworks/ui';
+import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { logOut } from '../api';
 import { DiagnosticsScreen } from './diagnostics/diagnostics_screen';
 
@@ -17,6 +18,7 @@ interface Props {
   unconfigureMachine: () => Promise<void>;
   isMachineConfigured: boolean;
   resetPollsToPaused?: () => Promise<void>;
+  usbDriveStatus: UsbDriveStatus;
 }
 
 /**
@@ -26,6 +28,7 @@ export function SystemAdministratorScreen({
   unconfigureMachine,
   isMachineConfigured,
   resetPollsToPaused,
+  usbDriveStatus,
 }: Props): JSX.Element {
   const logOutMutation = logOut.useMutation();
   const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] = useState(false);
@@ -56,6 +59,7 @@ export function SystemAdministratorScreen({
           unconfigureMachine={unconfigureMachine}
           isMachineConfigured={isMachineConfigured}
           logOut={() => logOutMutation.mutate()}
+          usbDriveStatus={usbDriveStatus}
           additionalButtons={
             <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
               System Diagnostics

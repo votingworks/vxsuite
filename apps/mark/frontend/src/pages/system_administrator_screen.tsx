@@ -6,6 +6,7 @@ import {
   Screen,
   SystemAdministratorScreenContents,
 } from '@votingworks/ui';
+import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { logOut } from '../api';
 
 const resetPollsToPausedText =
@@ -15,6 +16,7 @@ interface Props {
   unconfigureMachine: () => Promise<void>;
   isMachineConfigured: boolean;
   resetPollsToPaused?: () => Promise<void>;
+  usbDriveStatus: UsbDriveStatus;
 }
 
 /**
@@ -24,6 +26,7 @@ export function SystemAdministratorScreen({
   unconfigureMachine,
   isMachineConfigured,
   resetPollsToPaused,
+  usbDriveStatus,
 }: Props): JSX.Element {
   const logOutMutation = logOut.useMutation();
   return (
@@ -43,6 +46,7 @@ export function SystemAdministratorScreen({
           }
           unconfigureMachine={unconfigureMachine}
           isMachineConfigured={isMachineConfigured}
+          usbDriveStatus={usbDriveStatus}
           logOut={() => logOutMutation.mutate()}
         />
       </Main>

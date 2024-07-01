@@ -375,6 +375,7 @@ export function AppRoot(): JSX.Element | null {
         resetPollsToPaused={
           pollsState === 'polls_closed_final' ? resetPollsToPaused : undefined
         }
+        usbDriveStatus={usbDriveStatus}
       />
     );
   }
