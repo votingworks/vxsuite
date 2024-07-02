@@ -1,9 +1,10 @@
+use std::{iter::once, ops::Range};
+
 use image::{imageops::rotate180, GenericImageView, GrayImage};
 use imageproc::{
     contours::{find_contours_with_threshold, BorderType, Contour},
     contrast::otsu_level,
 };
-use itertools::Itertools;
 use logging_timer::time;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
@@ -460,6 +461,7 @@ pub fn find_timing_mark_shapes(
 const MAX_BEST_FIT_LINE_ERROR: Degrees = Degrees::new(5.0);
 const HORIZONTAL_ANGLE: Degrees = Degrees::new(0.0);
 const VERTICAL_ANGLE: Degrees = Degrees::new(90.0);
+const TIMING_MARK_SIZE_COMPARISON_ERROR_TOLERANCE: f32 = 4.0;
 
 /// Finds timing marks along the border of the image based on the rectangles
 /// found by some other method. This algorithm focuses on finding timing marks
@@ -601,35 +603,89 @@ pub fn find_partial_timing_marks_from_candidate_rects(
     left_line.sort_by_key(Rect::top);
     right_line.sort_by_key(Rect::top);
 
-    const TIMING_MARK_AREA_COMPARISON_ERROR_TOLERANCE: f32 = 0.1;
-    let top_line = filter_rects_not_following_size_progression_of_neighbors(
-        &top_line,
-        TIMING_MARK_AREA_COMPARISON_ERROR_TOLERANCE,
-    );
-    let bottom_line = filter_rects_not_following_size_progression_of_neighbors(
-        &bottom_line,
-        TIMING_MARK_AREA_COMPARISON_ERROR_TOLERANCE,
-    );
-    let left_line = filter_rects_not_following_size_progression_of_neighbors(
-        &left_line,
-        TIMING_MARK_AREA_COMPARISON_ERROR_TOLERANCE,
-    );
-    let right_line = filter_rects_not_following_size_progression_of_neighbors(
-        &right_line,
-        TIMING_MARK_AREA_COMPARISON_ERROR_TOLERANCE,
-    );
+    // Filter rects that are outliers in terms of their size.  Note that we do
+    // not include the corners in this filtering when processing the top and
+    // bottom lines because the corners might be somewhat cropped when any image
+    // rotation is present, making them appear smaller than the other timing
+    // marks. We do include the corners when processing the left and right lines
+    // because the corners are not cropped more than the others when the image
+    // is rotated.
 
-    let top_start_rect_center = (top_line.first()?).center();
-    let top_last_rect_center = (top_line.last()?).center();
+    let leftmost_top_rect = top_line.first().copied();
+    let rightmost_top_rect = top_line.last().copied();
+    let top_line_inner_count = top_line.len() - 2;
+    let top_line_inner = top_line
+        .into_iter()
+        .skip(1)
+        .take(top_line_inner_count)
+        .collect::<Vec<_>>();
 
-    let bottom_start_rect_center = (bottom_line.first()?).center();
-    let bottom_last_rect_center = (bottom_line.last()?).center();
+    let leftmost_bottom_rect = bottom_line.first().copied();
+    let rightmost_bottom_rect = bottom_line.last().copied();
+    let bottom_line_inner_count = bottom_line.len() - 2;
+    let bottom_line_inner = bottom_line
+        .into_iter()
+        .skip(1)
+        .take(bottom_line_inner_count)
+        .collect::<Vec<_>>();
 
-    let left_start_rect_center = (left_line.first()?).center();
-    let left_last_rect_center = (left_line.last()?).center();
+    let top_line_filtered =
+        filter_size_outlier_rects(&top_line_inner, TIMING_MARK_SIZE_COMPARISON_ERROR_TOLERANCE);
+    let bottom_line_filtered = filter_size_outlier_rects(
+        &bottom_line_inner,
+        TIMING_MARK_SIZE_COMPARISON_ERROR_TOLERANCE,
+    );
+    let left_line_filtered =
+        filter_size_outlier_rects(&left_line, TIMING_MARK_SIZE_COMPARISON_ERROR_TOLERANCE);
+    let right_line_filtered =
+        filter_size_outlier_rects(&right_line, TIMING_MARK_SIZE_COMPARISON_ERROR_TOLERANCE);
 
-    let right_start_rect_center = (right_line.first()?).center();
-    let right_last_rect_center = (right_line.last()?).center();
+    if !debug.is_disabled()
+        && (!top_line_filtered.removed_rects.is_empty()
+            || !bottom_line_filtered.removed_rects.is_empty()
+            || !left_line_filtered.removed_rects.is_empty()
+            || !right_line_filtered.removed_rects.is_empty())
+    {
+        debug.write("filtered_timing_marks", |canvas| {
+            debug::draw_filtered_timing_marks_debug_image_mut(
+                canvas,
+                &top_line_filtered,
+                &bottom_line_filtered,
+                &left_line_filtered,
+                &right_line_filtered,
+            );
+        });
+    }
+
+    // Add the corners back to the filtered top/bottom lines. See above for why
+    // we do not filter the corners.
+
+    let top_line = once(leftmost_top_rect)
+        .chain(top_line_filtered.rects.into_iter().map(Some))
+        .chain(once(rightmost_top_rect))
+        .flatten()
+        .collect::<Vec<_>>();
+
+    let bottom_line = once(leftmost_bottom_rect)
+        .chain(bottom_line_filtered.rects.into_iter().map(Some))
+        .chain(once(rightmost_bottom_rect))
+        .flatten()
+        .collect::<Vec<_>>();
+
+    let left_line = left_line_filtered.rects;
+    let right_line = right_line_filtered.rects;
+
+    let top_start_rect_center = top_line.first()?.center();
+    let top_last_rect_center = top_line.last()?.center();
+
+    let bottom_start_rect_center = bottom_line.first()?.center();
+    let bottom_last_rect_center = bottom_line.last()?.center();
+
+    let left_start_rect_center = left_line.first()?.center();
+    let left_last_rect_center = left_line.last()?.center();
+
+    let right_start_rect_center = right_line.first()?.center();
+    let right_last_rect_center = right_line.last()?.center();
 
     let top_left_corner = if top_line.first() == left_line.first() {
         top_line.first()
@@ -699,36 +755,66 @@ pub fn find_partial_timing_marks_from_candidate_rects(
     Some(partial_timing_marks)
 }
 
-/// Filters rectangles where they are not within the sizes of their immediately
-/// surrounding neighbors, within a certain error tolerance. This is useful for
-/// filtering out rectangles that are not part of the timing marks.
-fn filter_rects_not_following_size_progression_of_neighbors(
-    rects: &[Rect],
-    error_tolerance: f32,
-) -> Vec<Rect> {
-    let (Some(first_rect), Some(last_rect)) = (rects.first(), rects.last()) else {
-        return rects.to_vec();
-    };
+fn mean(values: &[u32]) -> f32 {
+    values.iter().sum::<u32>() as f32 / values.len() as f32
+}
 
-    let mut filtered_rects = vec![first_rect.clone()];
+fn standard_deviation(values: &[u32]) -> f32 {
+    let m = mean(values);
+    let variance =
+        values.iter().map(|v| (*v as f32 - m).powi(2)).sum::<f32>() / values.len() as f32;
+    variance.sqrt()
+}
 
-    for (left, rect, right) in rects.into_iter().tuple_windows() {
-        let left_area = left.width() * left.height();
-        let rect_area = rect.width() * rect.height();
-        let right_area = right.width() * right.height();
+#[derive(Debug, PartialEq)]
+pub struct FilteredRects {
+    pub rects: Vec<Rect>,
+    pub removed_rects: Vec<Rect>,
+    pub mean_width: f32,
+    pub mean_height: f32,
+    pub stddev_width: f32,
+    pub stddev_height: f32,
+    pub stddev_threshold: f32,
+    pub width_range: Range<u32>,
+    pub height_range: Range<u32>,
+}
 
-        let smaller_area = left_area.min(right_area) as f32;
-        let larger_area = left_area.max(right_area) as f32;
+/// Filters rectangles that are outliers in terms of their size, according to
+/// the given standard deviation threshold.
+fn filter_size_outlier_rects(rects: &[Rect], stddev_threshold: f32) -> FilteredRects {
+    let widths = rects.iter().map(Rect::width).collect::<Vec<_>>();
+    let heights = rects.iter().map(Rect::height).collect::<Vec<_>>();
+    let mean_width = mean(&widths);
+    let mean_height = mean(&heights);
+    let stddev_width = standard_deviation(&widths);
+    let stddev_height = standard_deviation(&heights);
+    let lower_bound_width = stddev_threshold.mul_add(-stddev_width, mean_width).floor() as u32;
+    let upper_bound_width = stddev_threshold.mul_add(stddev_width, mean_width).ceil() as u32;
+    let lower_bound_height = stddev_threshold
+        .mul_add(-stddev_height, mean_height)
+        .floor() as u32;
+    let upper_bound_height = stddev_threshold.mul_add(stddev_height, mean_height).ceil() as u32;
 
-        if rect_area >= (smaller_area * (1.0 - error_tolerance)).ceil() as u32
-            && rect_area <= (larger_area * (1.0 + error_tolerance)).floor() as u32
-        {
-            filtered_rects.push(rect.clone());
-        }
+    let (rects, removed_rects): (Vec<_>, Vec<_>) = rects.iter().partition(|r| {
+        let width = r.width();
+        let height = r.height();
+        width >= lower_bound_width
+            && width <= upper_bound_width
+            && height >= lower_bound_height
+            && height <= upper_bound_height
+    });
+
+    FilteredRects {
+        rects,
+        removed_rects,
+        mean_width,
+        mean_height,
+        stddev_width,
+        stddev_height,
+        stddev_threshold,
+        width_range: lower_bound_width..upper_bound_width,
+        height_range: lower_bound_height..upper_bound_height,
     }
-
-    filtered_rects.push(last_rect.clone());
-    filtered_rects
 }
 
 struct Rotator180 {
@@ -1466,5 +1552,48 @@ mod tests {
         assert_eq!(complete_timing_marks.bottom_rects.len(), 34);
         assert_eq!(complete_timing_marks.left_rects.len(), 41);
         assert_eq!(complete_timing_marks.right_rects.len(), 41);
+    }
+
+    #[test]
+    fn test_filter_size_outlier_rects() {
+        let rects = [
+            Rect::new(0, 0, 9, 10),
+            Rect::new(0, 0, 10, 10),
+            Rect::new(0, 0, 13, 13),
+            Rect::new(0, 0, 11, 10),
+            Rect::new(0, 0, 10, 9),
+        ];
+
+        let filtered_rects = filter_size_outlier_rects(&rects, 1.0);
+        assert_eq!(
+            filtered_rects,
+            FilteredRects {
+                rects: vec![rects[0], rects[1], rects[3], rects[4]],
+                removed_rects: vec![rects[2]],
+                mean_width: 10.6,
+                mean_height: 10.4,
+                stddev_width: 1.356466,
+                stddev_height: 1.3564659,
+                stddev_threshold: 1.0,
+                width_range: 9..12,
+                height_range: 9..12,
+            }
+        );
+
+        let filtered_rects = filter_size_outlier_rects(&rects, 5.0);
+        assert_eq!(
+            filtered_rects,
+            FilteredRects {
+                rects: rects.to_vec(),
+                removed_rects: vec![],
+                mean_width: 10.6,
+                mean_height: 10.4,
+                stddev_width: 1.356466,
+                stddev_height: 1.3564659,
+                stddev_threshold: 5.0,
+                width_range: 3..18,
+                height_range: 3..18,
+            }
+        );
     }
 }
