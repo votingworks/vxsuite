@@ -108,6 +108,7 @@ export function getScannerConfigCoderValues(
     ],
     dpiX: scannerConfig.horizontalResolution,
     dpiY: scannerConfig.verticalResolution,
+    // sizeX appears to be ignored by the scanner. Use libs/image-utils/crop
     sizeX: scannerConfig.scanHorizontalDimensionInDots,
     sizeY: scannerConfig.scanMaxVerticalDimensionInDots,
   };

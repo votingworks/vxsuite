@@ -175,6 +175,10 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
     throw new Error('Method not implemented.');
   }
 
+  setScanDimensions(): Promise<boolean> {
+    throw new Error('Method not implemented.');
+  }
+
   setPaperMovementAfterScan(): Promise<boolean> {
     throw new Error('Method not implemented.');
   }

@@ -174,7 +174,7 @@ test('false for PaperHandlerDriver', () => {
     selectConfiguration: jest.fn(),
   };
 
-  expect(isMockPaperHandler(new PaperHandlerDriver(mockWebDevice))).toEqual(
-    false
-  );
+  expect(
+    isMockPaperHandler(new PaperHandlerDriver(mockWebDevice, 1700))
+  ).toEqual(false);
 });

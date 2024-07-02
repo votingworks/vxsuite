@@ -18,6 +18,7 @@ import {
   NULL_CODE,
   OK_NO_MORE_DATA,
   RealTimeRequestIds,
+  MaxPrintWidthDots,
 } from './constants';
 import { setUpMockWebUsbDevice } from './test_utils';
 import {
@@ -48,7 +49,10 @@ export async function setUpMocksAndDriver(): Promise<void> {
   paperHandlerWebDevice = (await getPaperHandlerWebDevice()) as WebUSBDevice;
   assert(paperHandlerWebDevice);
 
-  paperHandlerDriver = new PaperHandlerDriver(paperHandlerWebDevice);
+  paperHandlerDriver = new PaperHandlerDriver(
+    paperHandlerWebDevice,
+    MaxPrintWidthDots.BMD_155
+  );
   await paperHandlerDriver.connect();
 }
 

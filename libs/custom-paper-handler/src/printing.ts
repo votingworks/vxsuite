@@ -2,7 +2,6 @@ import { assert, iter } from '@votingworks/basics';
 import { BITS_PER_BYTE } from '@votingworks/message-coder';
 import { ImageData } from '@votingworks/image-utils';
 import { BitArray, bitArrayToByte, Uint8Max } from './bits';
-import { DEVICE_MAX_WIDTH_DOTS } from './driver/constants';
 import { PaperHandlerBitmap } from './driver/coders';
 
 export interface BinaryBitmap {
@@ -150,10 +149,6 @@ export function imageDataToBinaryBitmap(
 export function chunkBinaryBitmap(
   binaryBitmap: BinaryBitmap
 ): PaperHandlerBitmapExt[] {
-  if (binaryBitmap.width > DEVICE_MAX_WIDTH_DOTS) {
-    throw new Error("binaryBitmap width exceeds printer's allowed size");
-  }
-
   const paperHandlerBitmaps: PaperHandlerBitmapExt[] = [];
 
   // Each chunk will be 24 dots high. Since for this prototype, we're likely
