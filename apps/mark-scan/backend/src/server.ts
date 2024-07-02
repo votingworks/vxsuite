@@ -1,7 +1,6 @@
 import { Server } from 'http';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { LogEventId, BaseLogger, Logger } from '@votingworks/logging';
-
 import {
   getPaperHandlerDriver,
   MaxPrintWidthDots,
@@ -28,7 +27,7 @@ import {
   PatConnectionStatusReaderInterface,
 } from './pat-input/connection_status_reader';
 import { MockPatConnectionStatusReader } from './pat-input/mock_connection_status_reader';
-import { MARK_SCAN_BMD_MODEL } from './globals';
+import { getMarkScanBmdModel } from './util/hardware';
 
 export interface StartOptions {
   auth?: InsertedSmartCardAuthApi;
@@ -51,7 +50,7 @@ export async function resolveDriver(
 
   const maxPrintWidth =
     /* istanbul ignore next - hardware support in flux */
-    MARK_SCAN_BMD_MODEL === 'bmd-150'
+    getMarkScanBmdModel() === 'bmd-150'
       ? /* istanbul ignore next - hardware support in flux */
         MaxPrintWidthDots.BMD_150
       : MaxPrintWidthDots.BMD_155;

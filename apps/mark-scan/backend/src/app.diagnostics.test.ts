@@ -36,7 +36,7 @@ import {
   waitForStatus as waitForStatusHelper,
 } from '../test/app_helpers';
 import { PaperHandlerStateMachine } from './custom-paper-handler/state_machine';
-import { isAccessibleControllerDaemonRunning } from './util/controllerd';
+import { isAccessibleControllerDaemonRunning } from './util/hardware';
 import { mockSystemAdminAuth } from '../test/auth_helpers';
 import {
   DIAGNOSTIC_ELECTION_PATH,
@@ -75,7 +75,7 @@ jest.mock(
 );
 
 jest.mock('./pat-input/connection_status_reader');
-jest.mock('./util/controllerd');
+jest.mock('./util/hardware');
 jest.mock('./custom-paper-handler/application_driver');
 jest.mock('@votingworks/ballot-interpreter');
 

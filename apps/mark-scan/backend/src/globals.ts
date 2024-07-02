@@ -2,7 +2,6 @@
 import { unsafeParse } from '@votingworks/types';
 import { join } from 'path';
 import { z } from 'zod';
-import { BmdModelNumber } from './types';
 
 /**
  * Default port for the VxMarkScan API.
@@ -32,11 +31,3 @@ export const MARK_SCAN_WORKSPACE =
   (NODE_ENV === 'development'
     ? join(__dirname, '../dev-workspace')
     : undefined);
-
-/**
- * What kind of hardware is the app running on?
- */
-export const MARK_SCAN_BMD_MODEL: BmdModelNumber = process.env
-  .REACT_APP_VX_MARK_SCAN_USE_BMD_150
-  ? 'bmd-150'
-  : 'bmd-155';

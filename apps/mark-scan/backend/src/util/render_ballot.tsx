@@ -18,7 +18,7 @@ import {
 } from '@votingworks/ui';
 import { randomBallotId } from '@votingworks/utils';
 import { Store } from '../store';
-import { MARK_SCAN_BMD_MODEL } from '../globals';
+import { getMarkScanBmdModel } from './hardware';
 
 export interface RenderBallotProps {
   store: Store;
@@ -30,14 +30,14 @@ export interface RenderBallotProps {
 
 function getPaperDimensions(): PaperDimensions {
   /* istanbul ignore next - hardware support in flux */
-  return MARK_SCAN_BMD_MODEL === 'bmd-150'
+  return getMarkScanBmdModel() === 'bmd-150'
     ? PAPER_DIMENSIONS['Bmd150']
     : PAPER_DIMENSIONS['Letter'];
 }
 
 function getSheetSize(): BmdBallotSheetSize {
   /* istanbul ignore next - hardware support in flux */
-  return MARK_SCAN_BMD_MODEL === 'bmd-150' ? 'bmd150' : 'letter';
+  return getMarkScanBmdModel() === 'bmd-150' ? 'bmd150' : 'letter';
 }
 
 export async function renderTestModeBallotWithoutLanguageContext(
