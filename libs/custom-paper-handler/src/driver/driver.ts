@@ -574,7 +574,8 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
         // 'forward' scan direction results in rightside-up image -> crop out right side
         this.scannerConfig.scanDirection === 'forward'
           ? 0
-          : colorResult.width - this.maxPrintWidthDots,
+          : // 'backward' scan direction results in upside-down image -> crop out left side
+            colorResult.width - this.maxPrintWidthDots,
       y: 0,
       width: this.maxPrintWidthDots,
       height: colorResult.height,
