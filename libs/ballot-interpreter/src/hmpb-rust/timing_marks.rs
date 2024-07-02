@@ -10,8 +10,8 @@ use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
 use serde::Serialize;
 use types_rs::geometry::{
-    find_inline_subsets, Degrees, GridUnit, PixelPosition, PixelUnit, Point, Radians, Rect,
-    Segment, Size, SubGridUnit, SubPixelUnit,
+    angle_diff, find_inline_subsets, Degrees, GridUnit, PixelPosition, PixelUnit, Point, Radians,
+    Rect, Segment, Size, SubGridUnit, SubPixelUnit,
 };
 use types_rs::{election::UnitIntervalValue, geometry::IntersectionBounds};
 
@@ -70,6 +70,46 @@ impl Partial {
         let bottom_angle = Segment::new(self.bottom_left_corner, self.bottom_right_corner).angle();
         let expected_angle = Radians::new(0.0);
         (bottom_angle - expected_angle).abs()
+    }
+
+    /// Calculates the skew angle at the top left corner, which is the absolute
+    /// difference in expected angle at that corner.
+    pub fn top_left_corner_skew(&self) -> Radians {
+        let top_angle = Segment::new(self.top_left_corner, self.top_right_corner).angle();
+        let left_angle = Segment::new(self.top_left_corner, self.bottom_left_corner).angle();
+        let expected_angle = Radians::PI / 2.0;
+        let diff = angle_diff(top_angle, left_angle);
+        angle_diff(diff, expected_angle).abs()
+    }
+
+    /// Calculates the skew angle at the top-right corner, which is the absolute
+    /// difference in expected angle at that corner.
+    pub fn top_right_corner_skew(&self) -> Radians {
+        let top_angle = Segment::new(self.top_left_corner, self.top_right_corner).angle();
+        let right_angle = Segment::new(self.top_right_corner, self.bottom_right_corner).angle();
+        let expected_angle = Radians::PI / 2.0;
+        let diff = angle_diff(top_angle, right_angle);
+        angle_diff(diff, expected_angle).abs()
+    }
+
+    /// Calculates the skew angle at the bottom-left corner, which is the
+    /// absolute difference in expected angle at that corner.
+    pub fn bottom_left_corner_skew(&self) -> Radians {
+        let bottom_angle = Segment::new(self.bottom_left_corner, self.bottom_right_corner).angle();
+        let left_angle = Segment::new(self.top_left_corner, self.bottom_left_corner).angle();
+        let expected_angle = Radians::PI / 2.0;
+        let diff = angle_diff(bottom_angle, left_angle);
+        angle_diff(diff, expected_angle).abs()
+    }
+
+    /// Calculates the skew angle at the bottom-right corner, which is the
+    /// absolute difference in expected angle at that corner.
+    pub fn bottom_right_corner_skew(&self) -> Radians {
+        let bottom_angle = Segment::new(self.bottom_left_corner, self.bottom_right_corner).angle();
+        let right_angle = Segment::new(self.top_right_corner, self.bottom_right_corner).angle();
+        let expected_angle = Radians::PI / 2.0;
+        let diff = angle_diff(bottom_angle, right_angle);
+        angle_diff(diff, expected_angle).abs()
     }
 
     pub const fn top_line_segment_from_corners(&self) -> Segment {
@@ -955,6 +995,26 @@ pub enum FindCompleteTimingMarksError {
     /// One of the timing mark border sides is invalid.
     #[error("Invalid timing mark side: {side_marks:?}")]
     InvalidTimingMarkSide { side_marks: SideMarks },
+
+    /// At least one ballot edge is too rotated to be confident in the timing
+    /// marks.
+    #[error("Unusually high rotation detected: top={top_rotation}, bottom={bottom_rotation}, left={left_rotation}, right={right_rotation}")]
+    HighRotation {
+        top_rotation: Degrees,
+        bottom_rotation: Degrees,
+        left_rotation: Degrees,
+        right_rotation: Degrees,
+    },
+
+    /// One or more of the corner angles is too skewed to be confident in the
+    /// timing marks.
+    #[error("Unusually high skew detected: top-left={top_left_skew}, top-right={top_right_skew}, bottom-left={bottom_left_skew}, bottom-right={bottom_right_skew}")]
+    HighSkew {
+        top_left_skew: Degrees,
+        top_right_skew: Degrees,
+        bottom_left_skew: Degrees,
+        bottom_right_skew: Degrees,
+    },
 }
 
 #[derive(Debug)]
@@ -988,6 +1048,14 @@ pub enum SideMarks {
 pub type FindCompleteTimingMarksResult = Result<Complete, FindCompleteTimingMarksError>;
 
 pub const ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH: UnitIntervalValue = 0.1;
+
+/// How far can any of the edges be rotated from the expected angle before we
+/// reject the ballot.
+pub const MAXIMUM_ALLOWED_BALLOT_ROTATION: Degrees = Degrees::new(2.0);
+
+/// How far can any of the edges be skewed relative to the other edges before we
+/// reject the ballot.
+pub const MAXIMUM_ALLOWED_BALLOT_SKEW: Degrees = Degrees::new(1.0);
 
 pub struct FindCompleteTimingMarksFromPartialTimingMarksOptions<'a> {
     pub allowed_timing_mark_inset_percentage_of_width: UnitIntervalValue,
@@ -1197,11 +1265,65 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
         bottom_right_rect,
     };
 
+    let partial_timing_marks_from_complete_timing_marks: Partial =
+        complete_timing_marks.clone().into();
+    let top_rotation = partial_timing_marks_from_complete_timing_marks
+        .top_side_rotation()
+        .to_degrees();
+    let bottom_rotation = partial_timing_marks_from_complete_timing_marks
+        .bottom_side_rotation()
+        .to_degrees();
+    let left_rotation = partial_timing_marks_from_complete_timing_marks
+        .left_side_rotation()
+        .to_degrees();
+    let right_rotation = partial_timing_marks_from_complete_timing_marks
+        .right_side_rotation()
+        .to_degrees();
+
+    if top_rotation > MAXIMUM_ALLOWED_BALLOT_ROTATION
+        || bottom_rotation > MAXIMUM_ALLOWED_BALLOT_ROTATION
+        || left_rotation > MAXIMUM_ALLOWED_BALLOT_ROTATION
+        || right_rotation > MAXIMUM_ALLOWED_BALLOT_ROTATION
+    {
+        return Err(FindCompleteTimingMarksError::HighRotation {
+            top_rotation,
+            bottom_rotation,
+            left_rotation,
+            right_rotation,
+        });
+    }
+
+    let top_left_skew = partial_timing_marks_from_complete_timing_marks
+        .top_left_corner_skew()
+        .to_degrees();
+    let top_right_skew = partial_timing_marks_from_complete_timing_marks
+        .top_right_corner_skew()
+        .to_degrees();
+    let bottom_left_skew = partial_timing_marks_from_complete_timing_marks
+        .bottom_left_corner_skew()
+        .to_degrees();
+    let bottom_right_skew = partial_timing_marks_from_complete_timing_marks
+        .bottom_right_corner_skew()
+        .to_degrees();
+
+    if top_left_skew > MAXIMUM_ALLOWED_BALLOT_SKEW
+        || top_right_skew > MAXIMUM_ALLOWED_BALLOT_SKEW
+        || bottom_left_skew > MAXIMUM_ALLOWED_BALLOT_SKEW
+        || bottom_right_skew > MAXIMUM_ALLOWED_BALLOT_SKEW
+    {
+        return Err(FindCompleteTimingMarksError::HighSkew {
+            top_left_skew,
+            top_right_skew,
+            bottom_left_skew,
+            bottom_right_skew,
+        });
+    }
+
     debug.write("complete_timing_marks", |canvas| {
         debug::draw_timing_mark_debug_image_mut(
             canvas,
             geometry,
-            &complete_timing_marks.clone().into(),
+            &partial_timing_marks_from_complete_timing_marks,
         );
     });
 

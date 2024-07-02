@@ -791,4 +791,40 @@ mod test {
             assert!(write_in.score > UnitIntervalScore(0.01));
         }
     }
+
+    #[test]
+    fn test_horrible_absolute_skew_is_rejected() {
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "2021-06-06-lincoln-test-ballot",
+            ("high-rotation-front.png", "high-rotation-back.png"),
+        );
+        let Error::MissingTimingMarks { reason, .. } =
+            interpret_ballot_card(side_a_image, side_b_image, &options).unwrap_err()
+        else {
+            panic!("wrong error type");
+        };
+
+        assert_eq!(
+            reason,
+            "Unusually high rotation detected: top=3.73°, bottom=1.32°, left=1.33°, right=0.64°"
+        );
+    }
+
+    #[test]
+    fn test_horrible_relative_skew_is_rejected() {
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "nh-test-ballot",
+            ("high-top-skew-front.png", "high-top-skew-back.png"),
+        );
+        let Error::MissingTimingMarks { reason, .. } =
+            interpret_ballot_card(side_a_image, side_b_image, &options).unwrap_err()
+        else {
+            panic!("wrong error type");
+        };
+
+        assert_eq!(
+            reason,
+            "Unusually high skew detected: top-left=1.02°, top-right=1.12°, bottom-left=0.01°, bottom-right=0.11°"
+        );
+    }
 }
