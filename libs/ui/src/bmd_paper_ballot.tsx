@@ -171,7 +171,9 @@ const Ballot = styled.div<BallotProps>`
     margin: 0.375in;
     size: ${(props) => {
       switch (props.sheetSize) {
+        /* istanbul ignore next - hardware specs still in flux */
         case 'bmd150':
+          /* istanbul ignore next - hardware specs still in flux */
           return '7.5in 11in';
         case 'letter':
         default:
