@@ -494,6 +494,13 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsBmdMoveToSelectToContinuePatDevice: () => (
+    <UiString uiStringKey="instructionsBmdMoveToSelectToContinuePatDevice">
+      Use the move input to select the Okay button and then use the select input
+      to continue.
+    </UiString>
+  ),
+
   instructionsBmdWriteInFormNavigation: () => (
     <UiString uiStringKey="instructionsBmdWriteInFormNavigation">
       Use the up and down buttons to navigate between the letters of a standard
