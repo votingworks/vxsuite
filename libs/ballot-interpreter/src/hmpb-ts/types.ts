@@ -127,7 +127,7 @@ export type ScoredBubbleMarks = Array<
 /** A region of a ballot position that has a computed score. */
 export interface ScoredPositionArea {
   gridPosition: GridPosition;
-  bounds: Rect;
+  shape: Quadrilateral;
   score: UnitIntervalScore;
 }
 
@@ -361,6 +361,27 @@ export interface Rect {
   top: PixelPosition;
   width: PixelUnit;
   height: PixelUnit;
+}
+
+/** A quadrilateral defined by four points, i.e. a four-sided polygon. */
+export interface Quadrilateral {
+  topLeft: Point<SubPixelUnit>;
+  topRight: Point<SubPixelUnit>;
+  bottomLeft: Point<SubPixelUnit>;
+  bottomRight: Point<SubPixelUnit>;
+}
+
+export function getQuadrilateralBounds(q: Quadrilateral): Rect {
+  const left = Math.floor(Math.min(q.topLeft.x, q.bottomLeft.x));
+  const top = Math.floor(Math.min(q.topLeft.y, q.topRight.y));
+  const right = Math.ceil(Math.max(q.topRight.x, q.bottomRight.x));
+  const bottom = Math.ceil(Math.max(q.bottomLeft.y, q.bottomRight.y));
+  return {
+    left,
+    top,
+    width: right - left,
+    height: bottom - top,
+  };
 }
 
 /** A size in a grid. Units are typically either pixels or timing marks. */

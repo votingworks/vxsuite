@@ -125,14 +125,16 @@ export function interpret(
   // which transfers the pixel data as a fast memory copy. As a result, we need
   // to add them back in here.
   const { frontNormalizedImage, backNormalizedImage } = result;
-  interpretedBallotCard.front.normalizedImage = {
-    ...frontNormalizedImage,
-    data: new Uint8ClampedArray(frontNormalizedImage.data),
-  };
-  interpretedBallotCard.back.normalizedImage = {
-    ...backNormalizedImage,
-    data: new Uint8ClampedArray(backNormalizedImage.data),
-  };
+  interpretedBallotCard.front.normalizedImage = new ImageData(
+    new Uint8ClampedArray(frontNormalizedImage.data),
+    frontNormalizedImage.width,
+    frontNormalizedImage.height
+  );
+  interpretedBallotCard.back.normalizedImage = new ImageData(
+    new Uint8ClampedArray(backNormalizedImage.data),
+    backNormalizedImage.width,
+    backNormalizedImage.height
+  );
 
   return ok(interpretedBallotCard);
 }

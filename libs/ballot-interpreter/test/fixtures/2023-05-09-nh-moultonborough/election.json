@@ -1,0 +1,616 @@
+{
+  "ballotLayout": {
+    "paperSize": "letter",
+    "targetMarkPosition": "right",
+    "metadataEncoding": "qr-code"
+  },
+  "ballotStrings": {},
+  "ballotStyles": [
+    {
+      "id": "card-number-1",
+      "precincts": ["moultonborough-academy"],
+      "districts": ["town-moultonborough"]
+    },
+    {
+      "id": "card-number-2",
+      "precincts": ["moultonborough-academy"],
+      "districts": ["school-district-45"]
+    }
+  ],
+  "parties": [],
+  "contests": [
+    {
+      "type": "candidate",
+      "id": "Selectmen-fyK5GIuMJsI",
+      "districtId": "town-moultonborough",
+      "title": "Selectmen",
+      "description": "Selectmen",
+      "candidates": [
+        {
+          "id": "Mark-Borrin-ULHrzmyS5Q4",
+          "name": "Mark Borrin"
+        },
+        {
+          "id": "Abigail-Horne-zd408FQ6R4A",
+          "name": "Abigail Horne"
+        },
+        {
+          "id": "Charles-M-McGee-G-slhNKGt0Y",
+          "name": "Charles M. McGee"
+        },
+        {
+          "id": "George-Mottram-VQUg-4WE8co",
+          "name": "George Mottram"
+        },
+        {
+          "id": "Kevin-Quinlan-5VbfOVsQlGk",
+          "name": "Kevin Quinlan"
+        },
+        {
+          "id": "Jonathan-W-Tolman-xhy8YFrGa5c",
+          "name": "Jonathan W. Tolman"
+        }
+      ],
+      "seats": 2,
+      "allowWriteIns": true
+    },
+    {
+      "type": "candidate",
+      "id": "Town-Clerk-GJmwn-n-9ZI",
+      "districtId": "town-moultonborough",
+      "title": "Town Clerk",
+      "description": "Town Clerk",
+      "candidates": [
+        {
+          "id": "Julia-Marchand-HZXvL4bQQqg",
+          "name": "Julia Marchand"
+        }
+      ],
+      "seats": 1,
+      "allowWriteIns": true
+    },
+    {
+      "type": "candidate",
+      "id": "Tax-Collector-1cpttbra6OA",
+      "districtId": "town-moultonborough",
+      "title": "Tax Collector",
+      "description": "Tax Collector",
+      "candidates": [
+        {
+          "id": "Ashley-E-Pouliot-uyRdk4Mdpog",
+          "name": "Ashley E. Pouliot"
+        }
+      ],
+      "seats": 1,
+      "allowWriteIns": true
+    },
+    {
+      "type": "candidate",
+      "id": "Supervisor-of-the-Checklist-zhXJpDdnvXc",
+      "districtId": "town-moultonborough",
+      "title": "Supervisor of the Checklist",
+      "description": "Supervisor of the Checklist",
+      "candidates": [
+        {
+          "id": "Nancy-McCue-YVrh-Vm5ifE",
+          "name": "Nancy McCue"
+        }
+      ],
+      "seats": 1,
+      "allowWriteIns": true
+    },
+    {
+      "type": "candidate",
+      "id": "Trustee-of-the-Trust-Funds-DyDVuyQmFp0",
+      "districtId": "town-moultonborough",
+      "title": "Trustee of the Trust Funds",
+      "description": "Trustee of the Trust Funds",
+      "candidates": [
+        {
+          "id": "Richard-E-Merkle-tR-DfjTQVPc",
+          "name": "Richard E. Merkle"
+        }
+      ],
+      "seats": 1,
+      "allowWriteIns": true
+    },
+    {
+      "type": "candidate",
+      "id": "Library-Trustees-bd5sqCkehc8",
+      "districtId": "town-moultonborough",
+      "title": "Library Trustees",
+      "description": "Library Trustees",
+      "candidates": [
+        {
+          "id": "Jack-Weekes-b5pxIqnxvso",
+          "name": "Jack Weekes"
+        },
+        {
+          "id": "John-F-Buckley-zWm9352uhmU",
+          "name": "John F. Buckley"
+        }
+      ],
+      "seats": 2,
+      "allowWriteIns": true
+    },
+    {
+      "type": "candidate",
+      "id": "Planning-Board-Members-3UwyDja4JhQ",
+      "districtId": "town-moultonborough",
+      "title": "Planning Board Members",
+      "description": "Planning Board Members",
+      "candidates": [
+        {
+          "id": "Peter-Claypoole-I4bE5wJQMS8",
+          "name": "Peter Claypoole"
+        },
+        {
+          "id": "Travis-Colby-TEcB1JgnAM4",
+          "name": "Travis Colby"
+        },
+        {
+          "id": "George-Mottram-T7oX1lg7dbQ",
+          "name": "George Mottram"
+        },
+        {
+          "id": "Scott-Bartlett-yXZTq1Qk9LA",
+          "name": "Scott Bartlett"
+        }
+      ],
+      "seats": 2,
+      "allowWriteIns": true
+    },
+    {
+      "type": "candidate",
+      "id": "Zoning-Board-of-Adjustment-Members-nVRU8IGgTDQ",
+      "districtId": "town-moultonborough",
+      "title": "Zoning Board of Adjustment Members",
+      "description": "Zoning Board of Adjustment Members",
+      "candidates": [
+        {
+          "id": "Anni-Jakobsen-o0dkWphB6OQ",
+          "name": "Anni Jakobsen"
+        },
+        {
+          "id": "George-Mottram-v62JXee7UtM",
+          "name": "George Mottram"
+        },
+        {
+          "id": "Robert-H-Stephens-0QaJqMD93Gs",
+          "name": "Robert H. Stephens"
+        },
+        {
+          "id": "Nicholas-Demeo-g7xvsunL9t0",
+          "name": "Nicholas Demeo"
+        }
+      ],
+      "seats": 2,
+      "allowWriteIns": true
+    },
+    {
+      "type": "candidate",
+      "id": "School-Board-Members-dM3P0_JjVOs",
+      "districtId": "school-district-45",
+      "title": "School Board Members",
+      "description": "School Board Members",
+      "candidates": [
+        {
+          "id": "Lauren-Lavoie-Sturgeon-mgdeZfvtcPk",
+          "name": "Lauren Lavoie Sturgeon"
+        },
+        {
+          "id": "Heidi-Ritter-Kremser-P3tF5Mg7D3A",
+          "name": "Heidi Ritter Kremser"
+        }
+      ],
+      "seats": 2,
+      "allowWriteIns": true
+    }
+  ],
+  "gridLayouts": [
+    {
+      "precinctId": "moultonborough-academy",
+      "ballotStyleId": "card-number-1",
+      "columns": 34,
+      "rows": 41,
+      "gridPositions": [
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 11,
+          "row": 12,
+          "contestId": "Selectmen-fyK5GIuMJsI",
+          "optionId": "Mark-Borrin-ULHrzmyS5Q4"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 11,
+          "row": 13,
+          "contestId": "Selectmen-fyK5GIuMJsI",
+          "optionId": "Abigail-Horne-zd408FQ6R4A"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 11,
+          "row": 14,
+          "contestId": "Selectmen-fyK5GIuMJsI",
+          "optionId": "Charles-M-McGee-G-slhNKGt0Y"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 11,
+          "row": 15,
+          "contestId": "Selectmen-fyK5GIuMJsI",
+          "optionId": "George-Mottram-VQUg-4WE8co"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 11,
+          "row": 16,
+          "contestId": "Selectmen-fyK5GIuMJsI",
+          "optionId": "Kevin-Quinlan-5VbfOVsQlGk"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 11,
+          "row": 17,
+          "contestId": "Selectmen-fyK5GIuMJsI",
+          "optionId": "Jonathan-W-Tolman-xhy8YFrGa5c"
+        },
+        {
+          "type": "write-in",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 11,
+          "row": 18,
+          "contestId": "Selectmen-fyK5GIuMJsI",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 1.5,
+            "y": 17.25,
+            "width": 9.0,
+            "height": 1.0
+          }
+        },
+        {
+          "type": "write-in",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 11,
+          "row": 20,
+          "contestId": "Selectmen-fyK5GIuMJsI",
+          "writeInIndex": 1,
+          "writeInArea": {
+            "x": 1.5,
+            "y": 19.25,
+            "width": 9.0,
+            "height": 1.0
+          }
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 11,
+          "row": 26,
+          "contestId": "Town-Clerk-GJmwn-n-9ZI",
+          "optionId": "Julia-Marchand-HZXvL4bQQqg"
+        },
+        {
+          "type": "write-in",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 11,
+          "row": 27,
+          "contestId": "Town-Clerk-GJmwn-n-9ZI",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 1.5,
+            "y": 26.25,
+            "width": 9.0,
+            "height": 1.0
+          }
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 11,
+          "row": 33,
+          "contestId": "Tax-Collector-1cpttbra6OA",
+          "optionId": "Ashley-E-Pouliot-uyRdk4Mdpog"
+        },
+        {
+          "type": "write-in",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 11,
+          "row": 34,
+          "contestId": "Tax-Collector-1cpttbra6OA",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 1.5,
+            "y": 33.25,
+            "width": 9.0,
+            "height": 1.0
+          }
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 21,
+          "row": 12,
+          "contestId": "Supervisor-of-the-Checklist-zhXJpDdnvXc",
+          "optionId": "Nancy-McCue-YVrh-Vm5ifE"
+        },
+        {
+          "type": "write-in",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 21,
+          "row": 13,
+          "contestId": "Supervisor-of-the-Checklist-zhXJpDdnvXc",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.0,
+            "y": 12.25,
+            "width": 7.5,
+            "height": 1.0
+          }
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 21,
+          "row": 19,
+          "contestId": "Trustee-of-the-Trust-Funds-DyDVuyQmFp0",
+          "optionId": "Richard-E-Merkle-tR-DfjTQVPc"
+        },
+        {
+          "type": "write-in",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 21,
+          "row": 20,
+          "contestId": "Trustee-of-the-Trust-Funds-DyDVuyQmFp0",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.0,
+            "y": 19.25,
+            "width": 7.5,
+            "height": 1.0
+          }
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 21,
+          "row": 26,
+          "contestId": "Library-Trustees-bd5sqCkehc8",
+          "optionId": "Jack-Weekes-b5pxIqnxvso"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 21,
+          "row": 27,
+          "contestId": "Library-Trustees-bd5sqCkehc8",
+          "optionId": "John-F-Buckley-zWm9352uhmU"
+        },
+        {
+          "type": "write-in",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 21,
+          "row": 28,
+          "contestId": "Library-Trustees-bd5sqCkehc8",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 13.0,
+            "y": 27.25,
+            "width": 7.5,
+            "height": 1.0
+          }
+        },
+        {
+          "type": "write-in",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 21,
+          "row": 30,
+          "contestId": "Library-Trustees-bd5sqCkehc8",
+          "writeInIndex": 1,
+          "writeInArea": {
+            "x": 13.0,
+            "y": 29.25,
+            "width": 7.5,
+            "height": 1.0
+          }
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 31,
+          "row": 12,
+          "contestId": "Planning-Board-Members-3UwyDja4JhQ",
+          "optionId": "Peter-Claypoole-I4bE5wJQMS8"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 31,
+          "row": 13,
+          "contestId": "Planning-Board-Members-3UwyDja4JhQ",
+          "optionId": "Travis-Colby-TEcB1JgnAM4"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 31,
+          "row": 14,
+          "contestId": "Planning-Board-Members-3UwyDja4JhQ",
+          "optionId": "George-Mottram-T7oX1lg7dbQ"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 31,
+          "row": 15,
+          "contestId": "Planning-Board-Members-3UwyDja4JhQ",
+          "optionId": "Scott-Bartlett-yXZTq1Qk9LA"
+        },
+        {
+          "type": "write-in",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 31,
+          "row": 16,
+          "contestId": "Planning-Board-Members-3UwyDja4JhQ",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 23.0,
+            "y": 15.25,
+            "width": 7.5,
+            "height": 1.0
+          }
+        },
+        {
+          "type": "write-in",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 31,
+          "row": 18,
+          "contestId": "Planning-Board-Members-3UwyDja4JhQ",
+          "writeInIndex": 1,
+          "writeInArea": {
+            "x": 23.0,
+            "y": 17.25,
+            "width": 7.5,
+            "height": 1.0
+          }
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 31,
+          "row": 24,
+          "contestId": "Zoning-Board-of-Adjustment-Members-nVRU8IGgTDQ",
+          "optionId": "Anni-Jakobsen-o0dkWphB6OQ"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 31,
+          "row": 25,
+          "contestId": "Zoning-Board-of-Adjustment-Members-nVRU8IGgTDQ",
+          "optionId": "George-Mottram-v62JXee7UtM"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 31,
+          "row": 26,
+          "contestId": "Zoning-Board-of-Adjustment-Members-nVRU8IGgTDQ",
+          "optionId": "Robert-H-Stephens-0QaJqMD93Gs"
+        },
+        {
+          "type": "option",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 31,
+          "row": 27,
+          "contestId": "Zoning-Board-of-Adjustment-Members-nVRU8IGgTDQ",
+          "optionId": "Nicholas-Demeo-g7xvsunL9t0"
+        },
+        {
+          "type": "write-in",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 31,
+          "row": 28,
+          "contestId": "Zoning-Board-of-Adjustment-Members-nVRU8IGgTDQ",
+          "writeInIndex": 0,
+          "writeInArea": {
+            "x": 23.0,
+            "y": 27.25,
+            "width": 7.5,
+            "height": 1.0
+          }
+        },
+        {
+          "type": "write-in",
+          "sheetNumber": 1,
+          "side": "front",
+          "column": 31,
+          "row": 30,
+          "contestId": "Zoning-Board-of-Adjustment-Members-nVRU8IGgTDQ",
+          "writeInIndex": 1,
+          "writeInArea": {
+            "x": 23.0,
+            "y": 29.25,
+            "width": 7.5,
+            "height": 1.0
+          }
+        }
+      ],
+      "optionBoundsFromTargetMark": {
+        "top": 2,
+        "bottom": 1,
+        "left": 1,
+        "right": 9
+      }
+    }
+  ],
+  "county": {
+    "id": "moultonborough",
+    "name": "Moultonborough"
+  },
+  "districts": [
+    {
+      "id": "town-moultonborough",
+      "name": "Town of Moultonborough"
+    },
+    {
+      "id": "school-district-45",
+      "name": "SAU #45"
+    }
+  ],
+  "markThresholds": {
+    "marginal": 0.05,
+    "definite": 0.07
+  },
+  "centralScanAdjudicationReasons": ["UninterpretableBallot", "Overvote"],
+  "precinctScanAdjudicationReasons": ["UninterpretableBallot", "Overvote"],
+  "precincts": [
+    {
+      "id": "moultonborough-academy",
+      "name": "Moultonborough Academy"
+    }
+  ],
+  "sealUrl": "/seals/New_Hampshire_Moultonborough.svg",
+  "date": "2023-05-09",
+  "state": "NH",
+  "title": "Annual Town Election"
+}
