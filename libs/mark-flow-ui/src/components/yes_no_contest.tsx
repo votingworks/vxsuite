@@ -1,4 +1,4 @@
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import {
   YesNoVote,
   YesNoContest as YesNoContestInterface,
@@ -73,6 +73,7 @@ export function YesNoContest({
     setOvervoteSelection(undefined);
   }
 
+  const closeModalRef = useRef<Button<never>>(null);
   return (
     <React.Fragment>
       <Main flexColumn>
@@ -134,6 +135,12 @@ export function YesNoContest({
       {overvoteSelection && (
         <Modal
           centerContent
+          isOpen={!!overvoteSelection}
+          onAfterOpen={() => {
+            // Focus the 'Okay' button to dismiss the modal automatically
+            /* istanbul ignore next */
+            closeModalRef?.current?.focus();
+          }}
           content={
             <P>
               {appStrings.warningOvervoteYesNoContest()}
@@ -146,7 +153,11 @@ export function YesNoContest({
             </P>
           }
           actions={
-            <Button variant="primary" autoFocus onPress={closeOvervoteAlert}>
+            <Button
+              variant="primary"
+              onPress={closeOvervoteAlert}
+              ref={closeModalRef}
+            >
               {appStrings.buttonOkay()}
               <AudioOnly>
                 <AssistiveTechInstructions

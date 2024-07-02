@@ -179,6 +179,10 @@ export interface ModalProps {
   modalWidth?: ModalWidth;
   themeDeprecated?: Theme;
   title?: ReactNode;
+  // Not necessary to pass this prop in most cases as you will control the visibility of the Modal at a higher level
+  // i.e. {showModal && <Modal ... />}. However, if you are using onAfterOpen you will want to pass this parameter through
+  // so React see the Modal as "open" at the proper moment.
+  isOpen?: boolean;
 }
 
 export function Modal({
@@ -195,6 +199,7 @@ export function Modal({
   modalWidth,
   themeDeprecated,
   title,
+  isOpen = true,
 }: ModalProps): JSX.Element {
   const isInVoterAudioContext = !!useAudioContext();
   const shouldPlayAudioOnOpen = isInVoterAudioContext && !disableAutoplayAudio;
@@ -220,7 +225,7 @@ export function Modal({
       ariaHideApp={ariaHideApp}
       aria-modal
       role="alertdialog"
-      isOpen
+      isOpen={isOpen}
       contentLabel={ariaLabel}
       onAfterOpen={onAfterOpen}
       onAfterClose={onAfterClose}

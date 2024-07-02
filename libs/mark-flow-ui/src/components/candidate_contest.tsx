@@ -1,5 +1,5 @@
 import camelCase from 'lodash.camelcase';
-import React, { ReactNode, useEffect, useState } from 'react';
+import React, { ReactNode, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import {
@@ -246,6 +246,7 @@ export function CandidateContest({
       </Button>
     </React.Fragment>
   );
+  const closeModalRef = useRef<Button<never>>(null);
 
   return (
     <React.Fragment>
@@ -376,6 +377,13 @@ export function CandidateContest({
       {attemptedOvervoteCandidate && (
         <Modal
           centerContent
+          // Passed through so that onAfterOpen fires at the proper time
+          isOpen={!!attemptedOvervoteCandidate}
+          onAfterOpen={() => {
+            // Focus the 'Okay' button to dismiss the modal automatically
+            /* istanbul ignore next */
+            closeModalRef?.current?.focus();
+          }}
           content={
             <P>
               {appStrings.warningOvervoteCandidateContest()}
@@ -390,7 +398,7 @@ export function CandidateContest({
           actions={
             <Button
               variant="primary"
-              autoFocus
+              ref={closeModalRef}
               onPress={closeAttemptedVoteAlert}
             >
               {appStrings.buttonOkay()}
