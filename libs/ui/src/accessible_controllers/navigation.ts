@@ -57,11 +57,16 @@ export function advanceElementFocus(direction: 1 | -1): void {
  * to advance
  */
 export function triggerPageNavigationButton(id: PageNavigationButtonId): void {
-  const button = document.getElementById(id);
+  const possibleNextElements = document.querySelectorAll(`#${id}`);
+  const hiddenElements = getTabEnabledElementsInHiddenBlocks();
+  // create an array of elements in both possibleButtons and hiddenElements
+  const visibleButtons = Array.from(possibleNextElements).filter(
+    (e) => !hiddenElements.has(e) && e instanceof HTMLElement
+  );
 
-  if (!button || getTabEnabledElementsInHiddenBlocks().has(button)) {
+  if (visibleButtons.length !== 1) {
     return;
   }
 
-  button.click();
+  (visibleButtons[0] as HTMLElement).click();
 }

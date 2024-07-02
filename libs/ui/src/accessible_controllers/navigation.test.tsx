@@ -111,3 +111,43 @@ test('triggerPageNavigationButton - is no-op for missing nav buttons', () => {
     triggerPageNavigationButton(PageNavigationButtonId.PREVIOUS)
   ).not.toThrow();
 });
+
+test('triggerPageNavigationButton - click visible button where there are both visible and hidden options', () => {
+  const onClickNextHidden = jest.fn();
+  const onClickNextVisible = jest.fn();
+
+  render(
+    <div>
+      <div aria-hidden>
+        <TestButton
+          id={PageNavigationButtonId.NEXT}
+          onClick={onClickNextHidden}
+        />
+      </div>
+      <div>
+        <TestButton
+          id={PageNavigationButtonId.NEXT}
+          onClick={onClickNextVisible}
+        />
+      </div>
+    </div>
+  );
+
+  act(() => triggerPageNavigationButton(PageNavigationButtonId.NEXT));
+  expect(onClickNextHidden).not.toHaveBeenCalled();
+  expect(onClickNextVisible).toHaveBeenCalled();
+});
+
+test('triggerPageNavigationButton - is a no op when there are multiple visible buttons', () => {
+  const onClickNext = jest.fn();
+
+  render(
+    <div>
+      <TestButton id={PageNavigationButtonId.NEXT} onClick={onClickNext} />
+      <TestButton id={PageNavigationButtonId.NEXT} onClick={onClickNext} />
+    </div>
+  );
+
+  act(() => triggerPageNavigationButton(PageNavigationButtonId.NEXT));
+  expect(onClickNext).not.toHaveBeenCalled();
+});

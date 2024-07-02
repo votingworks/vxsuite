@@ -482,6 +482,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsBmdNextToContinue: () => (
+    <UiString uiStringKey="instructionsBmdNextToContinue">
+      Press the right button to continue.
+    </UiString>
+  ),
+
   instructionsBmdSelectToContinuePatDevice: () => (
     <UiString uiStringKey="instructionsBmdSelectToContinuePatDevice">
       Use the select input to continue.
