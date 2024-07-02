@@ -23,8 +23,5 @@ export async function getPaperHandlerDriver(
   );
   await paperHandlerDriver.connect();
 
-  await paperHandlerDriver.setScanDimensions({
-    horizontalDimensionInDots: maxPrintWidth,
-  });
   return paperHandlerDriver;
 }
