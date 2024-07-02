@@ -426,6 +426,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsBmdPrintScreenNoBallotRemoval: () => (
+    <UiString uiStringKey="instructionsBmdPrintScreenNoBallotRemoval">
+      Do not remove the ballot once it's printed.
+    </UiString>
+  ),
+
   instructionsBmdReviewPageNavigation: () => (
     <UiString uiStringKey="instructionsBmdReviewPageNavigation">
       To review your votes, advance through the ballot contests using the up and
@@ -906,6 +912,13 @@ export const appStrings = {
   noteBmdBallotBoxIsFull: () => (
     <UiString uiStringKey="noteBmdBallotBoxIsFull">
       A poll worker must empty the full ballot box.
+    </UiString>
+  ),
+
+  noteBmdPrintScreenNextSteps: () => (
+    <UiString uiStringKey="noteBmdPrintScreenNextSteps">
+      You will have a chance to review and verify the votes on your printed
+      ballot before it is cast.
     </UiString>
   ),
 
