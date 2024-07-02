@@ -12,9 +12,11 @@ import {
 } from '@votingworks/message-coder';
 import {
   createImageData,
+  crop,
   ImageData,
   writeImageData,
 } from '@votingworks/image-utils';
+import { Rect } from '@votingworks/types';
 import {
   assertNumberIsInRangeInclusive,
   assertUint16,
@@ -39,10 +41,10 @@ import {
   ScannerConfig,
 } from './scanner_config';
 import {
-  DEVICE_MAX_WIDTH_DOTS,
   getBitsPerPixelForScanType,
   INT_16_MAX,
   INT_16_MIN,
+  MaxPrintWidthDots,
   OK_CONTINUE,
   OK_NO_MORE_DATA,
   PRINTING_DENSITY_CODES,
@@ -144,9 +146,14 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   private readonly realTimeLock = new Lock();
   private readonly scannerConfig: ScannerConfig = getDefaultConfig();
   private readonly webDevice: MinimalWebUsbDevice;
+  private readonly maxPrintWidthDots: MaxPrintWidthDots;
 
-  constructor(_webDevice: MinimalWebUsbDevice) {
+  constructor(
+    _webDevice: MinimalWebUsbDevice,
+    _maxPrintWidthDots: MaxPrintWidthDots
+  ) {
     this.webDevice = _webDevice;
+    this.maxPrintWidthDots = _maxPrintWidthDots;
   }
 
   async connect(): Promise<void> {
@@ -546,6 +553,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
       grayscaleResult.width,
       grayscaleResult.height
     );
+
     const colorData = new Uint32Array(
       colorResult.data.buffer,
       colorResult.data.byteOffset,
@@ -559,7 +567,23 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
       colorData[i] =
         (luminance << 24) | (luminance << 16) | (luminance << 8) | 255;
     }
-    await writeImageData(pathOut, colorResult);
+
+    // Scanner ignores `scannerConfig.sizeX` so we crop in post
+    const croppedBounds: Rect = {
+      x:
+        // 'forward' scan direction results in rightside-up image -> crop out right side
+        this.scannerConfig.scanDirection === 'forward'
+          ? 0
+          : // 'backward' scan direction results in upside-down image -> crop out left side
+            colorResult.width - this.maxPrintWidthDots,
+      y: 0,
+      width: this.maxPrintWidthDots,
+      height: colorResult.height,
+    };
+
+    const croppedResult = crop(colorResult, croppedBounds);
+
+    await writeImageData(pathOut, croppedResult);
   }
 
   /**
@@ -678,7 +702,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   async setPrintingAreaWidth(
     numMotionUnits: Uint16 = 0
   ): Promise<USBOutTransferResult> {
-    assertNumberIsInRangeInclusive(numMotionUnits, 0, DEVICE_MAX_WIDTH_DOTS);
+    assertNumberIsInRangeInclusive(numMotionUnits, 0, this.maxPrintWidthDots);
     const [nH, nL] = Uint16toUint8(numMotionUnits);
     return this.transferOutGeneric(SetPrintingAreaWidthCommand, { nL, nH });
   }
@@ -766,8 +790,8 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
       `Expected data of length ${width * 3}, got ${data.length}`
     );
     assert(
-      width <= DEVICE_MAX_WIDTH_DOTS,
-      `Width must be <= ${DEVICE_MAX_WIDTH_DOTS}; got ${width}`
+      width <= this.maxPrintWidthDots,
+      `Width must be <= ${this.maxPrintWidthDots}; got ${width}`
     ); // max width
 
     // In this case, we can send all data at once
@@ -780,7 +804,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
     debug(`whole chunk width: ${chunkedCustomBitmap.width}`);
 
     // If chunk is 1024 dots wide or longer, have to buffer as two images
-    const halfPageChunkWidth = DEVICE_MAX_WIDTH_DOTS / 2;
+    const halfPageChunkWidth = this.maxPrintWidthDots / 2;
     const leftChunk: PaperHandlerBitmap = {
       width: halfPageChunkWidth,
       data: data.slice(0, halfPageChunkWidth * 3),

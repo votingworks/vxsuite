@@ -12,7 +12,7 @@ import { renderToPdf } from '@votingworks/printing';
 import { generateReadinessReportFilename } from '@votingworks/utils';
 import { Workspace } from './util/workspace';
 import { getCurrentTime } from './util/get_current_time';
-import { isAccessibleControllerDaemonRunning } from './util/controllerd';
+import { isAccessibleControllerDaemonRunning } from './util/hardware';
 import { PaperHandlerStateMachine } from './custom-paper-handler';
 
 /**

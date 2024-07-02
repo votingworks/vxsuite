@@ -25,6 +25,7 @@ import {
   MachineType,
   BmdPaperBallot,
   MAX_MARK_SCAN_TOP_MARGIN,
+  BmdBallotSheetSize,
 } from './bmd_paper_ballot';
 import * as QrCodeModule from './qrcode';
 
@@ -65,6 +66,7 @@ function renderBmdPaperBallot({
   isLiveMode = false,
   onRendered,
   machineType = 'mark',
+  sheetSize,
 }: {
   electionDefinition: ElectionDefinition;
   ballotStyleId: BallotStyleId;
@@ -73,6 +75,7 @@ function renderBmdPaperBallot({
   isLiveMode?: boolean;
   onRendered?: () => void;
   machineType?: MachineType;
+  sheetSize?: BmdBallotSheetSize;
 }) {
   return render(
     <BmdPaperBallot
@@ -92,6 +95,7 @@ function renderBmdPaperBallot({
       )}
       onRendered={onRendered}
       machineType={machineType}
+      sheetSize={sheetSize}
     />
   );
 }

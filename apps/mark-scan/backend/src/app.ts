@@ -45,7 +45,7 @@ import {
   buildMockPaperHandlerApi,
 } from './custom-paper-handler';
 import { ElectionState, PrintBallotProps } from './types';
-import { isAccessibleControllerDaemonRunning } from './util/controllerd';
+import { isAccessibleControllerDaemonRunning } from './util/hardware';
 import { saveReadinessReport } from './readiness_report';
 import { renderBallot } from './util/render_ballot';
 import { Store } from './store';

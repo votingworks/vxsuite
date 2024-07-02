@@ -20,6 +20,7 @@ export interface PaperDimensions {
 }
 
 export const PAPER_DIMENSIONS = {
+  Bmd150: { width: 7.975, height: 11 },
   Letter: { width: 8.5, height: 11 },
   LetterRoll: { width: 8.5, height: Infinity },
 } satisfies Record<string, PaperDimensions>;
@@ -109,10 +110,14 @@ export async function renderToPdf(
     // the page to the content. viewport height here is irrelevant, but we have to
     // set something.
     await page.setViewportSize({
-      width: (width - horizontalMargin) * PLAYWRIGHT_PIXELS_PER_INCH,
-      height:
+      // Nonintenger values are not supported
+      width: Math.floor(
+        (width - horizontalMargin) * PLAYWRIGHT_PIXELS_PER_INCH
+      ),
+      height: Math.floor(
         (PAPER_DIMENSIONS.Letter.height - verticalMargin) *
-        PLAYWRIGHT_PIXELS_PER_INCH,
+          PLAYWRIGHT_PIXELS_PER_INCH
+      ),
     });
 
     const documentWithGlobalStyles = (
