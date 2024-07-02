@@ -1787,12 +1787,6 @@ exports[`interpret images from paths 2`] = `
 exports[`score write in areas 1`] = `
 [
   {
-    "bounds": {
-      "height": 45,
-      "left": 1372,
-      "top": 472,
-      "width": 226,
-    },
     "gridPosition": {
       "column": 32,
       "contestId": "Governor-061a401b",
@@ -1809,14 +1803,26 @@ exports[`score write in areas 1`] = `
       "writeInIndex": 0,
     },
     "score": 0,
+    "shape": {
+      "bottomLeft": {
+        "x": 1371.8636,
+        "y": 515.5,
+      },
+      "bottomRight": {
+        "x": 1596.591,
+        "y": 515.5,
+      },
+      "topLeft": {
+        "x": 1371.6818,
+        "y": 472,
+      },
+      "topRight": {
+        "x": 1596.5454,
+        "y": 472,
+      },
+    },
   },
   {
-    "bounds": {
-      "height": 44,
-      "left": 1372,
-      "top": 623,
-      "width": 226,
-    },
     "gridPosition": {
       "column": 32,
       "contestId": "United-States-Senator-d3f1c75b",
@@ -1833,14 +1839,26 @@ exports[`score write in areas 1`] = `
       "writeInIndex": 0,
     },
     "score": 0,
+    "shape": {
+      "bottomLeft": {
+        "x": 1371.8635,
+        "y": 666.1818,
+      },
+      "bottomRight": {
+        "x": 1596.5908,
+        "y": 666.0455,
+      },
+      "topLeft": {
+        "x": 1371.8636,
+        "y": 623.0909,
+      },
+      "topRight": {
+        "x": 1596.5908,
+        "y": 623.0227,
+      },
+    },
   },
   {
-    "bounds": {
-      "height": 44,
-      "left": 1372,
-      "top": 774,
-      "width": 226,
-    },
     "gridPosition": {
       "column": 32,
       "contestId": "Representative-in-Congress-24683b44",
@@ -1857,14 +1875,26 @@ exports[`score write in areas 1`] = `
       "writeInIndex": 0,
     },
     "score": 0,
+    "shape": {
+      "bottomLeft": {
+        "x": 1371.8636,
+        "y": 817.2727,
+      },
+      "bottomRight": {
+        "x": 1596.591,
+        "y": 817.0682,
+      },
+      "topLeft": {
+        "x": 1371.8635,
+        "y": 773.6818,
+      },
+      "topRight": {
+        "x": 1596.5908,
+        "y": 773.5455,
+      },
+    },
   },
   {
-    "bounds": {
-      "height": 43,
-      "left": 1373,
-      "top": 925,
-      "width": 227,
-    },
     "gridPosition": {
       "column": 32,
       "contestId": "Executive-Councilor-bb22557f",
@@ -1880,15 +1910,27 @@ exports[`score write in areas 1`] = `
       },
       "writeInIndex": 0,
     },
-    "score": 0.12693371,
+    "score": 0.12888889,
+    "shape": {
+      "bottomLeft": {
+        "x": 1373.5,
+        "y": 967.36365,
+      },
+      "bottomRight": {
+        "x": 1598.5,
+        "y": 967.0909,
+      },
+      "topLeft": {
+        "x": 1372.6818,
+        "y": 925.1818,
+      },
+      "topRight": {
+        "x": 1597.5454,
+        "y": 925.0455,
+      },
+    },
   },
   {
-    "bounds": {
-      "height": 45,
-      "left": 1373,
-      "top": 1075,
-      "width": 226,
-    },
     "gridPosition": {
       "column": 32,
       "contestId": "State-Senator-391381f8",
@@ -1905,14 +1947,26 @@ exports[`score write in areas 1`] = `
       "writeInIndex": 0,
     },
     "score": 0,
+    "shape": {
+      "bottomLeft": {
+        "x": 1372.6818,
+        "y": 1119.1818,
+      },
+      "bottomRight": {
+        "x": 1597.5454,
+        "y": 1119.0454,
+      },
+      "topLeft": {
+        "x": 1372.6819,
+        "y": 1075.3636,
+      },
+      "topRight": {
+        "x": 1597.5455,
+        "y": 1075.091,
+      },
+    },
   },
   {
-    "bounds": {
-      "height": 45,
-      "left": 1373,
-      "top": 1226,
-      "width": 226,
-    },
     "gridPosition": {
       "column": 32,
       "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
@@ -1929,14 +1983,26 @@ exports[`score write in areas 1`] = `
       "writeInIndex": 0,
     },
     "score": 0,
+    "shape": {
+      "bottomLeft": {
+        "x": 1372.8636,
+        "y": 1269.9546,
+      },
+      "bottomRight": {
+        "x": 1597.591,
+        "y": 1269.6136,
+      },
+      "topLeft": {
+        "x": 1372.8636,
+        "y": 1226.4546,
+      },
+      "topRight": {
+        "x": 1597.591,
+        "y": 1226.1136,
+      },
+    },
   },
   {
-    "bounds": {
-      "height": 44,
-      "left": 1374,
-      "top": 1327,
-      "width": 226,
-    },
     "gridPosition": {
       "column": 32,
       "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
@@ -1953,14 +2019,26 @@ exports[`score write in areas 1`] = `
       "writeInIndex": 1,
     },
     "score": 0,
+    "shape": {
+      "bottomLeft": {
+        "x": 1373.6818,
+        "y": 1370.4546,
+      },
+      "bottomRight": {
+        "x": 1598.5454,
+        "y": 1370.1136,
+      },
+      "topLeft": {
+        "x": 1373.6818,
+        "y": 1326.9546,
+      },
+      "topRight": {
+        "x": 1598.5454,
+        "y": 1326.6136,
+      },
+    },
   },
   {
-    "bounds": {
-      "height": 44,
-      "left": 1374,
-      "top": 1427,
-      "width": 226,
-    },
     "gridPosition": {
       "column": 32,
       "contestId": "State-Representatives-Hillsborough-District-34-b1012d38",
@@ -1977,14 +2055,26 @@ exports[`score write in areas 1`] = `
       "writeInIndex": 2,
     },
     "score": 0,
+    "shape": {
+      "bottomLeft": {
+        "x": 1373.6818,
+        "y": 1470.5454,
+      },
+      "bottomRight": {
+        "x": 1598.5453,
+        "y": 1470.1364,
+      },
+      "topLeft": {
+        "x": 1373.6818,
+        "y": 1427.4546,
+      },
+      "topRight": {
+        "x": 1598.5454,
+        "y": 1427.1136,
+      },
+    },
   },
   {
-    "bounds": {
-      "height": 43,
-      "left": 1374,
-      "top": 1678,
-      "width": 227,
-    },
     "gridPosition": {
       "column": 32,
       "contestId": "State-Representative-Hillsborough-District-37-f3bde894",
@@ -2001,6 +2091,24 @@ exports[`score write in areas 1`] = `
       "writeInIndex": 0,
     },
     "score": 0,
+    "shape": {
+      "bottomLeft": {
+        "x": 1374.6819,
+        "y": 1720.7273,
+      },
+      "bottomRight": {
+        "x": 1599.5454,
+        "y": 1720.1818,
+      },
+      "topLeft": {
+        "x": 1373.8636,
+        "y": 1678.3182,
+      },
+      "topRight": {
+        "x": 1598.5908,
+        "y": 1677.7046,
+      },
+    },
   },
 ]
 `;
@@ -2008,12 +2116,6 @@ exports[`score write in areas 1`] = `
 exports[`score write in areas 2`] = `
 [
   {
-    "bounds": {
-      "height": 44,
-      "left": 1382,
-      "top": 270,
-      "width": 226,
-    },
     "gridPosition": {
       "column": 32,
       "contestId": "Sheriff-4243fe0b",
@@ -2029,15 +2131,27 @@ exports[`score write in areas 2`] = `
       },
       "writeInIndex": 0,
     },
-    "score": 0.0053298473,
+    "score": 0.0040310076,
+    "shape": {
+      "bottomLeft": {
+        "x": 1381.8636,
+        "y": 313,
+      },
+      "bottomRight": {
+        "x": 1606.591,
+        "y": 313,
+      },
+      "topLeft": {
+        "x": 1381.6818,
+        "y": 270.0909,
+      },
+      "topRight": {
+        "x": 1606.5454,
+        "y": 270.02274,
+      },
+    },
   },
   {
-    "bounds": {
-      "height": 43,
-      "left": 1382,
-      "top": 422,
-      "width": 226,
-    },
     "gridPosition": {
       "column": 32,
       "contestId": "County-Attorney-133f910f",
@@ -2054,14 +2168,26 @@ exports[`score write in areas 2`] = `
       "writeInIndex": 0,
     },
     "score": 0,
+    "shape": {
+      "bottomLeft": {
+        "x": 1381.6818,
+        "y": 464,
+      },
+      "bottomRight": {
+        "x": 1606.5454,
+        "y": 464,
+      },
+      "topLeft": {
+        "x": 1381.6818,
+        "y": 421.5909,
+      },
+      "topRight": {
+        "x": 1606.5454,
+        "y": 421.52274,
+      },
+    },
   },
   {
-    "bounds": {
-      "height": 44,
-      "left": 1382,
-      "top": 573,
-      "width": 227,
-    },
     "gridPosition": {
       "column": 32,
       "contestId": "County-Treasurer-87d25a31",
@@ -2077,15 +2203,27 @@ exports[`score write in areas 2`] = `
       },
       "writeInIndex": 0,
     },
-    "score": 0.11613937,
+    "score": 0.119586565,
+    "shape": {
+      "bottomLeft": {
+        "x": 1383.3181,
+        "y": 615.9091,
+      },
+      "bottomRight": {
+        "x": 1608.4545,
+        "y": 615.9773,
+      },
+      "topLeft": {
+        "x": 1381.6818,
+        "y": 572.8182,
+      },
+      "topRight": {
+        "x": 1606.5454,
+        "y": 572.9545,
+      },
+    },
   },
   {
-    "bounds": {
-      "height": 44,
-      "left": 1382,
-      "top": 724,
-      "width": 226,
-    },
     "gridPosition": {
       "column": 32,
       "contestId": "Register-of-Deeds-a1278df2",
@@ -2102,14 +2240,26 @@ exports[`score write in areas 2`] = `
       "writeInIndex": 0,
     },
     "score": 0,
+    "shape": {
+      "bottomLeft": {
+        "x": 1381.6818,
+        "y": 767.4091,
+      },
+      "bottomRight": {
+        "x": 1606.5454,
+        "y": 767.4773,
+      },
+      "topLeft": {
+        "x": 1381.6818,
+        "y": 723.9091,
+      },
+      "topRight": {
+        "x": 1606.5454,
+        "y": 723.9773,
+      },
+    },
   },
   {
-    "bounds": {
-      "height": 44,
-      "left": 1382,
-      "top": 875,
-      "width": 225,
-    },
     "gridPosition": {
       "column": 32,
       "contestId": "Register-of-Probate-a4117da8",
@@ -2125,15 +2275,27 @@ exports[`score write in areas 2`] = `
       },
       "writeInIndex": 0,
     },
-    "score": 0.026565656,
+    "score": 0.017376913,
+    "shape": {
+      "bottomLeft": {
+        "x": 1380.8635,
+        "y": 917.8182,
+      },
+      "bottomRight": {
+        "x": 1605.5908,
+        "y": 917.9545,
+      },
+      "topLeft": {
+        "x": 1381.6818,
+        "y": 874.8182,
+      },
+      "topRight": {
+        "x": 1606.5454,
+        "y": 874.9545,
+      },
+    },
   },
   {
-    "bounds": {
-      "height": 45,
-      "left": 1381,
-      "top": 1026,
-      "width": 226,
-    },
     "gridPosition": {
       "column": 32,
       "contestId": "County-Commissioner-d6feed25",
@@ -2149,7 +2311,25 @@ exports[`score write in areas 2`] = `
       },
       "writeInIndex": 0,
     },
-    "score": 0.091740415,
+    "score": 0.093838386,
+    "shape": {
+      "bottomLeft": {
+        "x": 1380.8636,
+        "y": 1069.6364,
+      },
+      "bottomRight": {
+        "x": 1605.591,
+        "y": 1069.909,
+      },
+      "topLeft": {
+        "x": 1380.8635,
+        "y": 1025.8182,
+      },
+      "topRight": {
+        "x": 1605.5908,
+        "y": 1025.9546,
+      },
+    },
   },
 ]
 `;
