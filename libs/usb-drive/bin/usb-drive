@@ -2,7 +2,9 @@
 
 // @ts-check
 
-require('esbuild-runner/register');
+require('esbuild-runner').install({
+  type: 'transform',
+});
 
 require('../src/cli')
   .main(process.argv)
