@@ -793,7 +793,7 @@ mod test {
     }
 
     #[test]
-    fn test_horrible_absolute_skew_is_rejected() {
+    fn test_high_rotation_is_rejected() {
         let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
             "2021-06-06-lincoln-test-ballot",
             ("high-rotation-front.png", "high-rotation-back.png"),
@@ -811,7 +811,7 @@ mod test {
     }
 
     #[test]
-    fn test_horrible_relative_skew_is_rejected() {
+    fn test_high_skew_is_rejected() {
         let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
             "nh-test-ballot",
             ("high-top-skew-front.png", "high-top-skew-back.png"),

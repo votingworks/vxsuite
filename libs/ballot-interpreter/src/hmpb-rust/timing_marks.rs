@@ -1267,56 +1267,73 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
 
     let partial_timing_marks_from_complete_timing_marks: Partial =
         complete_timing_marks.clone().into();
-    let top_rotation = partial_timing_marks_from_complete_timing_marks
-        .top_side_rotation()
-        .to_degrees();
-    let bottom_rotation = partial_timing_marks_from_complete_timing_marks
-        .bottom_side_rotation()
-        .to_degrees();
-    let left_rotation = partial_timing_marks_from_complete_timing_marks
-        .left_side_rotation()
-        .to_degrees();
-    let right_rotation = partial_timing_marks_from_complete_timing_marks
-        .right_side_rotation()
-        .to_degrees();
 
-    if top_rotation > MAXIMUM_ALLOWED_BALLOT_ROTATION
-        || bottom_rotation > MAXIMUM_ALLOWED_BALLOT_ROTATION
-        || left_rotation > MAXIMUM_ALLOWED_BALLOT_ROTATION
-        || right_rotation > MAXIMUM_ALLOWED_BALLOT_ROTATION
+    let inferred_any_top_timing_marks =
+        complete_timing_marks.top_rects != partial_timing_marks.top_rects;
+    let inferred_any_bottom_timing_marks =
+        complete_timing_marks.bottom_rects != partial_timing_marks.bottom_rects;
+    let inferred_any_left_timing_marks =
+        complete_timing_marks.left_rects != partial_timing_marks.left_rects;
+    let inferred_any_right_timing_marks =
+        complete_timing_marks.right_rects != partial_timing_marks.right_rects;
+
+    // be more careful about the rotation and skew of the ballot if we inferred
+    // any timing marks outside the metadata timing marks
+    if (inferred_any_top_timing_marks && inferred_any_bottom_timing_marks)
+        || inferred_any_left_timing_marks
+        || inferred_any_right_timing_marks
     {
-        return Err(FindCompleteTimingMarksError::HighRotation {
-            top_rotation,
-            bottom_rotation,
-            left_rotation,
-            right_rotation,
-        });
-    }
+        let top_rotation = partial_timing_marks_from_complete_timing_marks
+            .top_side_rotation()
+            .to_degrees();
+        let bottom_rotation = partial_timing_marks_from_complete_timing_marks
+            .bottom_side_rotation()
+            .to_degrees();
+        let left_rotation = partial_timing_marks_from_complete_timing_marks
+            .left_side_rotation()
+            .to_degrees();
+        let right_rotation = partial_timing_marks_from_complete_timing_marks
+            .right_side_rotation()
+            .to_degrees();
 
-    let top_left_skew = partial_timing_marks_from_complete_timing_marks
-        .top_left_corner_skew()
-        .to_degrees();
-    let top_right_skew = partial_timing_marks_from_complete_timing_marks
-        .top_right_corner_skew()
-        .to_degrees();
-    let bottom_left_skew = partial_timing_marks_from_complete_timing_marks
-        .bottom_left_corner_skew()
-        .to_degrees();
-    let bottom_right_skew = partial_timing_marks_from_complete_timing_marks
-        .bottom_right_corner_skew()
-        .to_degrees();
+        if top_rotation > MAXIMUM_ALLOWED_BALLOT_ROTATION
+            || bottom_rotation > MAXIMUM_ALLOWED_BALLOT_ROTATION
+            || left_rotation > MAXIMUM_ALLOWED_BALLOT_ROTATION
+            || right_rotation > MAXIMUM_ALLOWED_BALLOT_ROTATION
+        {
+            return Err(FindCompleteTimingMarksError::HighRotation {
+                top_rotation,
+                bottom_rotation,
+                left_rotation,
+                right_rotation,
+            });
+        }
 
-    if top_left_skew > MAXIMUM_ALLOWED_BALLOT_SKEW
-        || top_right_skew > MAXIMUM_ALLOWED_BALLOT_SKEW
-        || bottom_left_skew > MAXIMUM_ALLOWED_BALLOT_SKEW
-        || bottom_right_skew > MAXIMUM_ALLOWED_BALLOT_SKEW
-    {
-        return Err(FindCompleteTimingMarksError::HighSkew {
-            top_left_skew,
-            top_right_skew,
-            bottom_left_skew,
-            bottom_right_skew,
-        });
+        let top_left_skew = partial_timing_marks_from_complete_timing_marks
+            .top_left_corner_skew()
+            .to_degrees();
+        let top_right_skew = partial_timing_marks_from_complete_timing_marks
+            .top_right_corner_skew()
+            .to_degrees();
+        let bottom_left_skew = partial_timing_marks_from_complete_timing_marks
+            .bottom_left_corner_skew()
+            .to_degrees();
+        let bottom_right_skew = partial_timing_marks_from_complete_timing_marks
+            .bottom_right_corner_skew()
+            .to_degrees();
+
+        if top_left_skew > MAXIMUM_ALLOWED_BALLOT_SKEW
+            || top_right_skew > MAXIMUM_ALLOWED_BALLOT_SKEW
+            || bottom_left_skew > MAXIMUM_ALLOWED_BALLOT_SKEW
+            || bottom_right_skew > MAXIMUM_ALLOWED_BALLOT_SKEW
+        {
+            return Err(FindCompleteTimingMarksError::HighSkew {
+                top_left_skew,
+                top_right_skew,
+                bottom_left_skew,
+                bottom_right_skew,
+            });
+        }
     }
 
     debug.write("complete_timing_marks", |canvas| {
