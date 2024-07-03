@@ -1,5 +1,6 @@
 export enum PageNavigationButtonId {
   NEXT = 'next',
+  NEXT_AFTER_CONFIRM = 'next_after_confirm',
   PREVIOUS = 'previous',
 }
 
@@ -53,20 +54,29 @@ export function advanceElementFocus(direction: 1 | -1): void {
 }
 
 /**
- * Simulates a click on the page navigation button with the specified {@link id}
- * to advance
+ * Looks for all page navigation elements with the specified {@link navigationId} or
+ * {@link nagivationOnConfirmId} (if provided). If a visible {@link navigationId} is found, the first element is clicked.
+ * Otherwise if a visible {@link navigationOnConfirmId} is found, the first element is focused.
  */
-export function triggerPageNavigationButton(id: PageNavigationButtonId): void {
-  const possibleNextElements = document.querySelectorAll(`#${id}`);
+export function triggerPageNavigationButton(
+  navigationId: PageNavigationButtonId,
+  navigationOnConfirmId?: PageNavigationButtonId
+): void {
   const hiddenElements = getTabEnabledElementsInHiddenBlocks();
-  // create an array of elements in both possibleButtons and hiddenElements
-  const visibleButtons = Array.from(possibleNextElements).filter(
-    (e) => !hiddenElements.has(e) && e instanceof HTMLElement
-  );
+  const navigationButtons = Array.from(
+    document.querySelectorAll(`#${navigationId}`)
+  ).filter((e) => !hiddenElements.has(e) && e instanceof HTMLElement);
 
-  if (visibleButtons.length !== 1) {
+  if (navigationButtons.length >= 1) {
+    (navigationButtons[0] as HTMLElement).click();
     return;
   }
+  const navigationOnConfirmButtons = Array.from(
+    document.querySelectorAll(`#${navigationOnConfirmId}`)
+  ).filter((e) => !hiddenElements.has(e) && e instanceof HTMLElement);
 
-  (visibleButtons[0] as HTMLElement).click();
+  if (navigationOnConfirmButtons.length >= 1) {
+    console.log('we are focusing');
+    (navigationOnConfirmButtons[0] as HTMLElement).focus();
+  }
 }

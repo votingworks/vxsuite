@@ -464,6 +464,18 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsBmdConfirmPrintingBallot: () => (
+    <UiString uiStringKey="instructionsBmdConfirmPrintingBallot">
+      Press the select button to confirm your selections and print your ballot.
+    </UiString>
+  ),
+
+  instructionsBmdConfirmPrintingBallotPatDevice: () => (
+    <UiString uiStringKey="instructionsBmdConfirmPrintingBallotPatDevice">
+      Use the select input to confirm your selections and print your ballot.
+    </UiString>
+  ),
+
   instructionsBmdScanReviewConfirmation: () => (
     <UiString uiStringKey="instructionsBmdScanReviewConfirmation">
       If your selections are correct, press the Right button to confirm your
