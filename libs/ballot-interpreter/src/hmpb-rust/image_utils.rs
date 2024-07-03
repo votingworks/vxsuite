@@ -4,8 +4,8 @@ use image::{
 };
 use logging_timer::time;
 use serde::Serialize;
-use types_rs::election::UnitIntervalValue;
 use types_rs::geometry::{PixelUnit, Size, SubPixelUnit};
+use types_rs::{election::UnitIntervalValue, geometry::Quadrilateral};
 
 pub const WHITE: Luma<u8> = Luma([255]);
 pub const BLACK: Luma<u8> = Luma([0]);
@@ -106,15 +106,61 @@ pub fn diff(base: &GrayImage, compare: &GrayImage) -> GrayImage {
     out
 }
 
-/// Determines the number of pixels in an image that match the given luma.
-pub fn count_pixels(img: &GrayImage, luma: Luma<u8>) -> usize {
-    img.pixels().filter(|p| **p == luma).count()
+/// Contains the result of examining an image for pixels that match a given
+/// criterion.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct CountedPixels {
+    /// The number of pixels examined, e.g. the number of pixels in the shape or
+    /// region of interest.
+    pub examined: usize,
+
+    /// The number of pixels that matched the criterion.
+    pub matched: usize,
 }
 
-/// Determines the ratio of pixels in an image that match the given luma.
-pub fn ratio(img: &GrayImage, luma: Luma<u8>) -> f32 {
-    let total = img.width() * img.height();
-    count_pixels(img, luma) as f32 / total as f32
+impl CountedPixels {
+    /// Returns the ratio of matched pixels to examined pixels.
+    pub fn ratio(&self) -> f32 {
+        self.matched as f32 / self.examined as f32
+    }
+}
+
+/// Determines the number of pixels in an image that match the given luma.
+pub fn count_pixels(img: &GrayImage, luma: Luma<u8>) -> CountedPixels {
+    CountedPixels {
+        examined: img.width() as usize * img.height() as usize,
+        matched: img.pixels().filter(|p| **p == luma).count(),
+    }
+}
+
+/// Count the number of pixels in an image that are within the given shape and
+/// at or below the given threshold.
+pub fn count_pixels_in_shape(
+    img: &GrayImage,
+    shape: &Quadrilateral,
+    threshold: u8,
+) -> CountedPixels {
+    let mut counted = CountedPixels::default();
+    let bounds = shape.bounds();
+    for x in bounds.left()..bounds.right() {
+        if x < 0 || x >= img.width() as i32 {
+            continue;
+        }
+
+        for y in bounds.top()..bounds.bottom() {
+            if y < 0 || y >= img.height() as i32 {
+                continue;
+            }
+
+            if shape.contains_subpixel(x as f32 + 0.5, y as f32 + 0.5) {
+                counted.examined += 1;
+                if img.get_pixel(x as u32, y as u32).0[0] <= threshold {
+                    counted.matched += 1;
+                }
+            }
+        }
+    }
+    counted
 }
 
 /// Resizes an image to fit within the given dimensions while maintaining the

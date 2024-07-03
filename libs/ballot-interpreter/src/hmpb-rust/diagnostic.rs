@@ -9,7 +9,7 @@ use types_rs::geometry::Rect;
 use crate::{
     ballot_card::load_ballot_scan_bubble_image,
     debug::{draw_diagnostic_cells, ImageDebugWriter},
-    image_utils::{ratio, BLACK},
+    image_utils::{count_pixels, BLACK},
 };
 
 const FAIL_SCORE: f32 = 0.05;
@@ -66,7 +66,7 @@ fn inspect_cells(
             .to_image();
         let cropped_and_thresholded =
             imageproc::contrast::threshold(&cropped, foreground_threshold);
-        let match_score = ratio(&cropped_and_thresholded, BLACK);
+        let match_score = count_pixels(&cropped_and_thresholded, BLACK).ratio();
         match_score > FAIL_SCORE
     });
 

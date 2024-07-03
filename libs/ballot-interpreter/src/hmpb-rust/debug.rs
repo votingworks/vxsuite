@@ -10,7 +10,9 @@ use imageproc::drawing::{
 };
 use log::debug;
 use types_rs::election::GridPosition;
-use types_rs::geometry::{PixelPosition, PixelUnit, Rect, Segment, SubGridUnit, SubPixelUnit};
+use types_rs::geometry::{
+    PixelPosition, PixelUnit, Quadrilateral, Rect, Segment, SubGridUnit, SubPixelUnit,
+};
 
 use crate::ballot_card::Geometry;
 
@@ -836,15 +838,15 @@ pub fn draw_scored_write_in_areas(
 
         let score_text = scored_write_in_area.score.to_string();
         let (score_text_width, score_text_height) = text_size(scale, font, score_text.as_str());
+        let bounds = scored_write_in_area.shape.bounds();
 
         draw_text_with_background_mut(
             canvas,
             &option_text,
-            scored_write_in_area.bounds.left()
+            bounds.left()
                 - i32::try_from(option_text_width).expect("option_text_width fits within i32")
                 - 5,
-            (scored_write_in_area.bounds.top() + scored_write_in_area.bounds.bottom()) / 2
-                - i32ify!(option_text_height / 2),
+            (bounds.top() + bounds.bottom()) / 2 - i32ify!(option_text_height / 2),
             scale,
             font,
             DARK_GREEN,
@@ -854,21 +856,55 @@ pub fn draw_scored_write_in_areas(
         draw_text_with_background_mut(
             canvas,
             &score_text,
-            (scored_write_in_area.bounds.left() + scored_write_in_area.bounds.right()) / 2
-                - i32ify!(score_text_width / 2),
-            scored_write_in_area.bounds.top() - 5 - i32ify!(score_text_height),
+            (bounds.left() + bounds.right()) / 2 - i32ify!(score_text_width / 2),
+            bounds.top() - 5 - i32ify!(score_text_height),
             scale,
             font,
             ORANGE,
             WHITE_RGB,
         );
 
-        draw_hollow_rect_mut(
-            canvas,
-            imageproc_rect_from_rect(&scored_write_in_area.bounds),
-            DARK_GREEN,
-        );
+        draw_quadrilateral_mut(canvas, &scored_write_in_area.shape, DARK_GREEN);
     }
+}
+
+pub fn draw_quadrilateral_mut(
+    canvas: &mut RgbImage,
+    Quadrilateral {
+        top_left,
+        top_right,
+        bottom_left,
+        bottom_right,
+    }: &Quadrilateral,
+    color: Rgb<u8>,
+) {
+    draw_line_segment_mut(
+        canvas,
+        (top_left.x, top_left.y),
+        (top_right.x, top_right.y),
+        color,
+    );
+
+    draw_line_segment_mut(
+        canvas,
+        (top_right.x, top_right.y),
+        (bottom_right.x, bottom_right.y),
+        color,
+    );
+
+    draw_line_segment_mut(
+        canvas,
+        (bottom_right.x, bottom_right.y),
+        (bottom_left.x, bottom_left.y),
+        color,
+    );
+
+    draw_line_segment_mut(
+        canvas,
+        (bottom_left.x, bottom_left.y),
+        (top_left.x, top_left.y),
+        color,
+    );
 }
 
 pub fn draw_contest_layouts_debug_image_mut(

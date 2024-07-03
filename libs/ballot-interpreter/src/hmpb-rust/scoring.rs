@@ -6,12 +6,15 @@ use logging_timer::time;
 use rayon::prelude::{IntoParallelRefIterator, ParallelIterator};
 use serde::Serialize;
 use types_rs::election::{GridLayout, GridLocation, GridPosition, UnitIntervalValue};
-use types_rs::geometry::{PixelPosition, PixelUnit, Point, Rect, SubGridUnit, SubPixelUnit};
+use types_rs::geometry::{
+    PixelPosition, PixelUnit, Point, Quadrilateral, Rect, SubGridUnit, SubPixelUnit,
+};
 
+use crate::image_utils::{count_pixels, count_pixels_in_shape};
 use crate::{
     ballot_card::BallotSide,
     debug::{self, ImageDebugWriter},
-    image_utils::{diff, ratio, BLACK, WHITE},
+    image_utils::{diff, BLACK, WHITE},
     timing_marks::TimingMarkGrid,
 };
 
@@ -187,7 +190,7 @@ pub fn score_bubble_mark(
             let cropped_and_thresholded = imageproc::contrast::threshold(&cropped, threshold);
 
             let match_diff = diff(&cropped_and_thresholded, bubble_template);
-            let match_score = UnitIntervalScore(ratio(&match_diff, WHITE));
+            let match_score = UnitIntervalScore(count_pixels(&match_diff, WHITE).ratio());
 
             match best_match {
                 None => {
@@ -219,7 +222,7 @@ pub fn score_bubble_mark(
         .to_image();
     let binarized_source_image = imageproc::contrast::threshold(&source_image, threshold);
     let diff_image = diff(bubble_template, &binarized_source_image);
-    let fill_score = UnitIntervalScore(ratio(&diff_image, BLACK));
+    let fill_score = UnitIntervalScore(count_pixels(&diff_image, BLACK).ratio());
 
     Some(ScoredBubbleMark {
         location: *location,
@@ -234,7 +237,7 @@ pub fn score_bubble_mark(
 #[serde(rename_all = "camelCase")]
 pub struct ScoredPositionArea {
     pub grid_position: GridPosition,
-    pub bounds: Rect,
+    pub shape: Quadrilateral,
     pub score: UnitIntervalScore,
 }
 
@@ -280,25 +283,26 @@ fn score_write_in_area(
     };
 
     let top_left_corner = grid.point_for_location(write_in_area.x, write_in_area.y)?;
+    let top_right_corner =
+        grid.point_for_location(write_in_area.x + write_in_area.width, write_in_area.y)?;
+    let bottom_left_corner =
+        grid.point_for_location(write_in_area.x, write_in_area.y + write_in_area.height)?;
     let bottom_right_corner = grid.point_for_location(
         write_in_area.x + write_in_area.width,
         write_in_area.y + write_in_area.height,
     )?;
-    let bounds = Rect::from_points(top_left_corner.round(), bottom_right_corner.round());
-    let cropped = img
-        .view(
-            bounds.left() as PixelUnit,
-            bounds.top() as PixelUnit,
-            bounds.width(),
-            bounds.height(),
-        )
-        .to_image();
-    let cropped_and_thresholded = imageproc::contrast::threshold(&cropped, threshold);
-    let score = UnitIntervalScore(ratio(&cropped_and_thresholded, BLACK));
+    let shape = Quadrilateral {
+        top_left: top_left_corner,
+        top_right: top_right_corner,
+        bottom_left: bottom_left_corner,
+        bottom_right: bottom_right_corner,
+    };
+    let counted = count_pixels_in_shape(img, &shape, threshold);
+    let score = UnitIntervalScore(counted.ratio());
 
     Some(ScoredPositionArea {
         grid_position: grid_position.clone(),
-        bounds,
+        shape,
         score,
     })
 }

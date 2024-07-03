@@ -805,4 +805,78 @@ mod test {
             }
         }
     }
+
+    #[test]
+    fn test_skewed_ballot_scoring_write_in_areas_no_write_ins() {
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("test/fixtures/2023-05-09-nh-moultonborough");
+        let election_path = fixture_path.join("election.json");
+        let election: Election =
+            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let bubble_template = load_ballot_scan_bubble_image().unwrap();
+        let side_a_path = fixture_path.join("no-write-ins-front.jpeg");
+        let side_b_path = fixture_path.join("no-write-ins-back.jpeg");
+        let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
+        let interpretation = interpret_ballot_card(
+            side_a_image,
+            side_b_image,
+            &Options {
+                debug_side_a_base: None,
+                debug_side_b_base: None,
+                bubble_template,
+                election,
+                score_write_ins: true,
+            },
+        )
+        .unwrap();
+
+        let front = interpretation.front;
+        let back = interpretation.back;
+
+        // front has write-ins, back doesn't
+        assert!(!front.write_ins.is_empty());
+        assert!(back.write_ins.is_empty());
+
+        for write_in in front.write_ins {
+            // no write-ins are written in, so the scores should be low
+            assert!(write_in.score < UnitIntervalScore(0.01));
+        }
+    }
+
+    #[test]
+    fn test_skewed_ballot_scoring_write_in_areas_with_write_ins() {
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("test/fixtures/2023-05-09-nh-moultonborough");
+        let election_path = fixture_path.join("election.json");
+        let election: Election =
+            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let bubble_template = load_ballot_scan_bubble_image().unwrap();
+        let side_a_path = fixture_path.join("write-ins-front.jpeg");
+        let side_b_path = fixture_path.join("write-ins-back.jpeg");
+        let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
+        let interpretation = interpret_ballot_card(
+            side_a_image,
+            side_b_image,
+            &Options {
+                debug_side_a_base: None,
+                debug_side_b_base: None,
+                bubble_template,
+                election,
+                score_write_ins: true,
+            },
+        )
+        .unwrap();
+
+        let front = interpretation.front;
+        let back = interpretation.back;
+
+        // front has write-ins, back doesn't
+        assert!(!front.write_ins.is_empty());
+        assert!(back.write_ins.is_empty());
+
+        for write_in in front.write_ins {
+            // all write-ins are written in, so the scores should be non-zero
+            assert!(write_in.score > UnitIntervalScore(0.01));
+        }
+    }
 }

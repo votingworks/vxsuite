@@ -433,6 +433,54 @@ pub fn find_inline_subsets(
         })
 }
 
+/// A quadrilateral defined by four points, i.e. a four-sided polygon.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Quadrilateral {
+    pub top_left: Point<SubPixelUnit>,
+    pub top_right: Point<SubPixelUnit>,
+    pub bottom_left: Point<SubPixelUnit>,
+    pub bottom_right: Point<SubPixelUnit>,
+}
+
+impl Quadrilateral {
+    pub fn bounds(&self) -> Rect {
+        let top_left = Point::new(
+            f32::min(self.top_left.x, self.bottom_left.x).floor() as PixelPosition,
+            f32::min(self.top_left.y, self.top_right.y).floor() as PixelPosition,
+        );
+        let bottom_right = Point::new(
+            f32::max(self.top_right.x, self.bottom_right.x).ceil() as PixelPosition,
+            f32::max(self.bottom_left.y, self.bottom_right.y).ceil() as PixelPosition,
+        );
+
+        Rect::from_points(top_left, bottom_right)
+    }
+
+    #[must_use]
+    pub fn contains_subpixel(&self, x: f32, y: f32) -> bool {
+        let ab = (self.top_right.x - self.top_left.x).mul_add(
+            y - self.top_left.y,
+            -((self.top_right.y - self.top_left.y) * (x - self.top_left.x)),
+        );
+        let bc = (self.bottom_right.x - self.top_right.x).mul_add(
+            y - self.top_right.y,
+            -((self.bottom_right.y - self.top_right.y) * (x - self.top_right.x)),
+        );
+        let cd = (self.bottom_left.x - self.bottom_right.x).mul_add(
+            y - self.bottom_right.y,
+            -((self.bottom_left.y - self.bottom_right.y) * (x - self.bottom_right.x)),
+        );
+        let da = (self.top_left.x - self.bottom_left.x).mul_add(
+            y - self.bottom_left.y,
+            -((self.top_left.y - self.bottom_left.y) * (x - self.bottom_left.x)),
+        );
+
+        ab >= 0.0 && bc >= 0.0 && cd >= 0.0 && da >= 0.0
+            || ab <= 0.0 && bc <= 0.0 && cd <= 0.0 && da <= 0.0
+    }
+}
+
 #[cfg(test)]
 mod normalize_angle_tests {
     use std::{f32::consts::PI, ops::Range};
@@ -525,5 +573,40 @@ mod normalize_center_of_rect {
             prop_assert!((rect.top() as SubPixelUnit) <= center.y);
             prop_assert!(center.y <= (rect.bottom() as SubPixelUnit));
         }
+    }
+}
+
+#[cfg(test)]
+mod test_quadrilateral {
+    use super::*;
+
+    #[test]
+    fn test_quadrilateral_bounds() {
+        let quad = Quadrilateral {
+            top_left: Point::new(0.0, 0.0),
+            top_right: Point::new(10.0, 0.0),
+            bottom_left: Point::new(0.0, 10.0),
+            bottom_right: Point::new(10.0, 10.0),
+        };
+        let bounds = quad.bounds();
+        assert_eq!(bounds.left(), 0);
+        assert_eq!(bounds.top(), 0);
+        assert_eq!(bounds.right(), 10);
+        assert_eq!(bounds.bottom(), 10);
+    }
+
+    #[test]
+    fn test_quadrilateral_contains_subpixel() {
+        let quad = Quadrilateral {
+            top_left: Point::new(0.0, 0.0),
+            top_right: Point::new(10.0, 0.0),
+            bottom_left: Point::new(0.0, 10.0),
+            bottom_right: Point::new(10.0, 10.0),
+        };
+        assert!(quad.contains_subpixel(5.0, 5.0));
+        assert!(!quad.contains_subpixel(15.0, 5.0));
+        assert!(!quad.contains_subpixel(5.0, 15.0));
+        assert!(!quad.contains_subpixel(-5.0, 5.0));
+        assert!(!quad.contains_subpixel(5.0, -5.0));
     }
 }

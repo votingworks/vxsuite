@@ -10,7 +10,7 @@ import { ImageData, writeImageData } from '@votingworks/image-utils';
 import { basename, join } from 'path';
 import { CanvasRenderingContext2D, createCanvas } from 'canvas';
 import { interpret } from './interpret';
-import { InterpretedBallotPage } from './types';
+import { InterpretedBallotPage, getQuadrilateralBounds } from './types';
 
 interface ImagePathSheet {
   sheetName: string;
@@ -127,15 +127,25 @@ function annotateBallotImageScores(
   if (scoreType === 'write-ins') {
     const writeInColor = 'darkgreen';
     for (const writeIn of interpretation.writeIns) {
-      const { bounds, score } = writeIn;
+      const { shape, score } = writeIn;
+      const bounds = getQuadrilateralBounds(shape);
       context.strokeStyle = writeInColor;
       context.lineWidth = lineWidth;
-      context.strokeRect(
-        bounds.left + boxPadding,
-        bounds.top + boxPadding,
-        bounds.width + boxPadding,
-        bounds.height + boxPadding
+      context.moveTo(Math.round(shape.topLeft.x), Math.round(shape.topLeft.y));
+      context.lineTo(
+        Math.round(shape.topRight.x),
+        Math.round(shape.topRight.y)
       );
+      context.lineTo(
+        Math.round(shape.bottomRight.x),
+        Math.round(shape.bottomRight.y)
+      );
+      context.lineTo(
+        Math.round(shape.bottomLeft.x),
+        Math.round(shape.bottomLeft.y)
+      );
+      context.lineTo(Math.round(shape.topLeft.x), Math.round(shape.topLeft.y));
+      context.stroke();
 
       const scoreText = formatScore(score);
       fillTextWithBackground({
