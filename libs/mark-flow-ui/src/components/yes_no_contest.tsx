@@ -19,6 +19,7 @@ import {
   appStrings,
   AssistiveTechInstructions,
   Pre,
+  PageNavigationButtonId,
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
@@ -139,14 +140,19 @@ export function YesNoContest({
               {appStrings.warningOvervoteYesNoContest()}
               <AudioOnly>
                 <AssistiveTechInstructions
-                  controllerString={appStrings.instructionsBmdSelectToContinue()}
-                  patDeviceString={appStrings.instructionsBmdSelectToContinuePatDevice()}
+                  controllerString={appStrings.instructionsBmdNextToContinue()}
+                  patDeviceString={appStrings.instructionsBmdMoveToSelectToContinuePatDevice()}
                 />
               </AudioOnly>
             </P>
           }
           actions={
-            <Button variant="primary" autoFocus onPress={closeOvervoteAlert}>
+            <Button
+              variant="primary"
+              autoFocus
+              onPress={closeOvervoteAlert}
+              id={PageNavigationButtonId.NEXT}
+            >
               {appStrings.buttonOkay()}
               <AudioOnly>
                 <AssistiveTechInstructions

@@ -29,6 +29,7 @@ import {
   electionStrings,
   ReadOnLoad,
   AssistiveTechInstructions,
+  PageNavigationButtonId,
 } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 
@@ -381,8 +382,8 @@ export function CandidateContest({
               {appStrings.warningOvervoteCandidateContest()}
               <AudioOnly>
                 <AssistiveTechInstructions
-                  controllerString={appStrings.instructionsBmdSelectToContinue()}
-                  patDeviceString={appStrings.instructionsBmdSelectToContinuePatDevice()}
+                  controllerString={appStrings.instructionsBmdNextToContinue()}
+                  patDeviceString={appStrings.instructionsBmdMoveToSelectToContinuePatDevice()}
                 />
               </AudioOnly>
             </P>
@@ -392,6 +393,7 @@ export function CandidateContest({
               variant="primary"
               autoFocus
               onPress={closeAttemptedVoteAlert}
+              id={PageNavigationButtonId.NEXT}
             >
               {appStrings.buttonOkay()}
               <AudioOnly>
