@@ -101,7 +101,7 @@ function buildElection({
   electionScopeId: string;
 }): CVR.Election {
   const allCandidates = election.contests
-    .filter((c): c is CandidateContest => c.type === 'candidate')
+    .filter((c) => c.type === 'candidate')
     .flatMap((c) => c.candidates);
 
   // The VotingWorks election format nests candidate definitions under
