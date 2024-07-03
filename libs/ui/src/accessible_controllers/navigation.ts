@@ -71,6 +71,9 @@ export function triggerPageNavigationButton(
     (navigationButtons[0] as HTMLElement).click();
     return;
   }
+  if (!navigationOnConfirmId) {
+    return;
+  }
   const navigationOnConfirmButtons = Array.from(
     document.querySelectorAll(`#${navigationOnConfirmId}`)
   ).filter((e) => !hiddenElements.has(e) && e instanceof HTMLElement);
