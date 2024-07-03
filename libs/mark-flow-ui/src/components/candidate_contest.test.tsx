@@ -54,7 +54,7 @@ const electionDefinition = electionGeneralDefinition;
 
 const candidateContest = electionDefinition.election.contests.find(
   (c) => c.type === 'candidate'
-)! as CandidateContestInterface;
+)!;
 
 const candidateContestWithMultipleSeats: CandidateContestInterface = {
   ...electionDefinition.election.contests.find(
