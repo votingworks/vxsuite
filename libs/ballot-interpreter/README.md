@@ -188,7 +188,7 @@ bubble at `(x, y)` first locates the `y`th timing mark on the left and right
 sides of the ballot. Given a line segment between the centers of these two
 timing marks, the center of the bubble is presumed to be on this line `x / N`
 percent of the way from the left timing mark to the right timing mark, where `N`
-is the number of columns of bubbles on the ballot. The bubble is then scored by
+is the number of columns of timing marks on the ballot. The bubble is then scored by
 comparing a template bubble image to the actual contents of the scan at the
 bubble location. A score is computed by computing the number of new dark pixels
 compared to the template bubble image. The score is later compared to a
