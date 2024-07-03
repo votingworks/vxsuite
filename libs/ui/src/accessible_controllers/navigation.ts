@@ -76,7 +76,6 @@ export function triggerPageNavigationButton(
   ).filter((e) => !hiddenElements.has(e) && e instanceof HTMLElement);
 
   if (navigationOnConfirmButtons.length >= 1) {
-    console.log('we are focusing');
     (navigationOnConfirmButtons[0] as HTMLElement).focus();
   }
 }
