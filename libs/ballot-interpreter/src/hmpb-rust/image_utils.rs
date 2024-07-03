@@ -106,13 +106,20 @@ pub fn diff(base: &GrayImage, compare: &GrayImage) -> GrayImage {
     out
 }
 
+/// Contains the result of examining an image for pixels that match a given
+/// criterion.
 #[derive(Debug, Clone, Copy, Default)]
 pub struct CountedPixels {
+    /// The number of pixels examined, e.g. the number of pixels in the shape or
+    /// region of interest.
     pub examined: usize,
+
+    /// The number of pixels that matched the criterion.
     pub matched: usize,
 }
 
 impl CountedPixels {
+    /// Returns the ratio of matched pixels to examined pixels.
     pub fn ratio(&self) -> f32 {
         self.matched as f32 / self.examined as f32
     }
