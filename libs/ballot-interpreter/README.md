@@ -159,7 +159,7 @@ handling errors:
 2. **Require small rotation and/or skew if we've inferred any timing marks.** If
    we didn't infer any timing marks we can be more lenient, but if we did we
    need to be more strict about rotation and skew because they can cause the
-   inferred timing marks to be incorrect. Note that this projects uses
+   inferred timing marks to be incorrect. Note that this project uses
    "rotation" to refer to an angle by which the entire ballot is rotated,
    preserving the equal distance of points in the grid from each other. "Skew"
    refers to a distortion of the grid, where the distance between points in the
