@@ -277,7 +277,7 @@ test('undervote by 1', async () => {
 test('multiple undervotes', async () => {
   apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
   const contests = electionGeneralDefinition.election.contests
-    .filter((c): c is CandidateContest => c.type === 'candidate')
+    .filter((c) => c.type === 'candidate')
     .slice(0, 2);
 
   renderScreen({

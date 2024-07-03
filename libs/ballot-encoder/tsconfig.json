@@ -4,6 +4,7 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "lib": ["dom", "dom.iterable", "esnext"],
+    "skipLibCheck": true,
     "module": "node16",
     "moduleResolution": "node16",
     "noUnusedParameters": true,

@@ -115,10 +115,12 @@ describe('Modal', () => {
 
   it('handles after open', () => {
     // Work around a react-modal bug: https://github.com/reactjs/react-modal/issues/903
-    jest.spyOn(window, 'requestAnimationFrame').mockImplementation((cb) => {
-      cb(1);
-      return 1;
-    });
+    jest
+      .spyOn(window, 'requestAnimationFrame')
+      .mockImplementation((cb: FrameRequestCallback) => {
+        cb(1);
+        return 1;
+      });
     const onAfterOpen = jest.fn();
     render(<Modal content="Content" onAfterOpen={onAfterOpen} />);
     expect(onAfterOpen).toHaveBeenCalledTimes(1);
