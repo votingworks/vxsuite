@@ -53,11 +53,17 @@ export function ReviewPage(props: ReviewPageProps): JSX.Element {
   const printMyBallotButton = (
     <LinkButton
       to={printScreenUrl}
-      id={PageNavigationButtonId.NEXT}
+      id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
       variant="primary"
       icon="Done"
     >
       {appStrings.buttonPrintBallot()}
+      <AudioOnly>
+        <AssistiveTechInstructions
+          controllerString={appStrings.instructionsBmdConfirmPrintingBallot()}
+          patDeviceString={appStrings.instructionsBmdConfirmPrintingBallotPatDevice()}
+        />
+      </AudioOnly>
     </LinkButton>
   );
 

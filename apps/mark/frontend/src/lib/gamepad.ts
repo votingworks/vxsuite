@@ -25,7 +25,10 @@ export function handleGamepadButtonDown(buttonName: Button): void {
       triggerPageNavigationButton(PageNavigationButtonId.PREVIOUS);
       break;
     case 'DPadRight':
-      triggerPageNavigationButton(PageNavigationButtonId.NEXT);
+      triggerPageNavigationButton(
+        PageNavigationButtonId.NEXT,
+        PageNavigationButtonId.NEXT_AFTER_CONFIRM
+      );
       break;
     case 'A':
       handleClick();
@@ -48,7 +51,10 @@ export function handleGamepadKeyboardEvent(event: KeyboardEvent): void {
       triggerPageNavigationButton(PageNavigationButtonId.PREVIOUS);
       break;
     case Keybinding.PAGE_NEXT:
-      triggerPageNavigationButton(PageNavigationButtonId.NEXT);
+      triggerPageNavigationButton(
+        PageNavigationButtonId.NEXT,
+        PageNavigationButtonId.NEXT_AFTER_CONFIRM
+      );
       break;
     case Keybinding.SELECT:
       // Enter already acts like a click

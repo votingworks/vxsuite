@@ -18,7 +18,10 @@ export function handleKeyboardEvent(event: KeyboardEvent): void {
       triggerPageNavigationButton(PageNavigationButtonId.PREVIOUS);
       break;
     case Keybinding.PAGE_NEXT:
-      triggerPageNavigationButton(PageNavigationButtonId.NEXT);
+      triggerPageNavigationButton(
+        PageNavigationButtonId.NEXT,
+        PageNavigationButtonId.NEXT_AFTER_CONFIRM
+      );
       break;
     case Keybinding.FOCUS_PREVIOUS:
       advanceElementFocus(-1);

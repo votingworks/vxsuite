@@ -81,10 +81,16 @@ export function ValidateBallotPage(): JSX.Element | null {
             {appStrings.buttonBallotIsIncorrect()}
           </Button>
           <Button
-            id={PageNavigationButtonId.NEXT}
+            id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
             onPress={validateBallotCallback}
           >
             {appStrings.buttonBallotIsCorrect()}
+            <AudioOnly>
+              <AssistiveTechInstructions
+                controllerString={appStrings.instructionsBmdConfirmCastingBallot()}
+                patDeviceString={appStrings.instructionsBmdConfirmCastingBallotPatDevice()}
+              />
+            </AudioOnly>
           </Button>
         </React.Fragment>
       }

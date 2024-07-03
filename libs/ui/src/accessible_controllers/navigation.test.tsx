@@ -108,6 +108,13 @@ test('triggerPageNavigationButton - is no-op for missing nav buttons', () => {
   ).not.toThrow();
 
   expect(() =>
+    triggerPageNavigationButton(
+      PageNavigationButtonId.NEXT,
+      PageNavigationButtonId.NEXT_AFTER_CONFIRM
+    )
+  ).not.toThrow();
+
+  expect(() =>
     triggerPageNavigationButton(PageNavigationButtonId.PREVIOUS)
   ).not.toThrow();
 });
@@ -138,16 +145,88 @@ test('triggerPageNavigationButton - click visible button where there are both vi
   expect(onClickNextVisible).toHaveBeenCalled();
 });
 
-test('triggerPageNavigationButton - is a no op when there are multiple visible buttons', () => {
-  const onClickNext = jest.fn();
+test('triggerPageNavigationButton - selects the first when there are multiple visible buttons', () => {
+  const onClickNext1 = jest.fn();
+  const onClickNext2 = jest.fn();
 
   render(
     <div>
-      <TestButton id={PageNavigationButtonId.NEXT} onClick={onClickNext} />
-      <TestButton id={PageNavigationButtonId.NEXT} onClick={onClickNext} />
+      <TestButton id={PageNavigationButtonId.NEXT} onClick={onClickNext1} />
+      <TestButton id={PageNavigationButtonId.NEXT} onClick={onClickNext2} />
     </div>
   );
 
   act(() => triggerPageNavigationButton(PageNavigationButtonId.NEXT));
+  expect(onClickNext1).toHaveBeenCalled();
+  expect(onClickNext2).not.toHaveBeenCalled();
+});
+
+test('triggerPageNavigationButton - focuses on navigationOnConfirm element when no visible nav buttons', () => {
+  const onClickNext = jest.fn();
+
+  render(
+    <div>
+      <TestButton
+        data-testid="button"
+        id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
+        onClick={onClickNext}
+      />
+    </div>
+  );
+
+  act(() =>
+    triggerPageNavigationButton(
+      PageNavigationButtonId.NEXT,
+      PageNavigationButtonId.NEXT_AFTER_CONFIRM
+    )
+  );
+  // Check that we have focused but not clicked the button
   expect(onClickNext).not.toHaveBeenCalled();
+  expect(screen.getByTestId('button')).toHaveFocus();
+});
+
+test('triggerPageNavigationButton - does not focus on navigationOnConfirm element id not provided', () => {
+  const onClickNext = jest.fn();
+
+  render(
+    <div>
+      <TestButton
+        data-testid="button"
+        id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
+        onClick={onClickNext}
+      />
+    </div>
+  );
+
+  act(() => triggerPageNavigationButton(PageNavigationButtonId.NEXT));
+  // Check that we have focused but not clicked the button
+  expect(onClickNext).not.toHaveBeenCalled();
+  expect(screen.getByTestId('button')).not.toHaveFocus();
+});
+
+test('triggerPageNavigationButton - clicking on a button takes precendence over focus when there are buttons matching both options', () => {
+  const onClickNext1 = jest.fn();
+  const onClickNext2 = jest.fn();
+
+  render(
+    <div>
+      <TestButton
+        data-testid="button"
+        id={PageNavigationButtonId.NEXT_AFTER_CONFIRM}
+        onClick={onClickNext1}
+      />
+      <TestButton id={PageNavigationButtonId.NEXT} onClick={onClickNext2} />
+    </div>
+  );
+
+  act(() =>
+    triggerPageNavigationButton(
+      PageNavigationButtonId.NEXT,
+      PageNavigationButtonId.NEXT_AFTER_CONFIRM
+    )
+  );
+  // Check that we have focused but not clicked the button
+  expect(onClickNext1).not.toHaveBeenCalled();
+  expect(screen.getByTestId('button')).not.toHaveFocus();
+  expect(onClickNext2).toHaveBeenCalled();
 });
