@@ -665,6 +665,28 @@ mod test {
         par_map_pair(side_a_path, side_b_path, load_ballot_page_image)
     }
 
+    pub fn load_ballot_card_fixture(
+        fixture_name: &str,
+        (side_a_name, side_b_name): (&str, &str),
+    ) -> (GrayImage, GrayImage, Options) {
+        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures");
+        let election_path = fixture_path.join(fixture_name).join("election.json");
+        let election: Election =
+            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        let bubble_template = load_ballot_scan_bubble_image().unwrap();
+        let side_a_path = fixture_path.join(fixture_name).join(side_a_name);
+        let side_b_path = fixture_path.join(fixture_name).join(side_b_name);
+        let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
+        let options = Options {
+            debug_side_a_base: None,
+            debug_side_b_base: None,
+            bubble_template,
+            election,
+            score_write_ins: true,
+        };
+        (side_a_image, side_b_image, options)
+    }
+
     #[test]
     fn test_par_map_pair() {
         assert_eq!(par_map_pair(1, 2, |n| n * 2), (2, 4));
@@ -672,131 +694,54 @@ mod test {
 
     #[test]
     fn test_interpret_ballot_card() {
-        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/ashland");
-        let election_path = fixture_path.join("election.json");
-        let election: Election =
-            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
-        let bubble_template = load_ballot_scan_bubble_image().unwrap();
-        for (side_a_name, side_b_name) in [
-            ("scan-side-a.jpeg", "scan-side-b.jpeg"),
-            ("scan-rotated-side-b.jpeg", "scan-rotated-side-a.jpeg"),
-        ] {
-            let side_a_path = fixture_path.join(side_a_name);
-            let side_b_path = fixture_path.join(side_b_name);
-            let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
-            interpret_ballot_card(
-                side_a_image,
-                side_b_image,
-                &Options {
-                    debug_side_a_base: None,
-                    debug_side_b_base: None,
-                    bubble_template: bubble_template.clone(),
-                    election: election.clone(),
-                    score_write_ins: true,
-                },
-            )
-            .unwrap();
-        }
+        let (side_a_image, side_b_image, options) =
+            load_ballot_card_fixture("ashland", ("scan-side-a.jpeg", "scan-side-b.jpeg"));
+        interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
+
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "ashland",
+            ("scan-rotated-side-a.jpeg", "scan-rotated-side-b.jpeg"),
+        );
+        interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
     }
 
     #[test]
     fn test_inferred_missing_metadata_from_one_side() {
-        let fixture_path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/alameda-test");
-        let election_path = fixture_path.join("election-vxf.json");
-        let election: Election =
-            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
-        let bubble_template = load_ballot_scan_bubble_image().unwrap();
-        let side_a_path = fixture_path.join("scan-skewed-side-a.jpeg");
-        let side_b_path = fixture_path.join("scan-skewed-side-b.jpeg");
-        let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
-        interpret_ballot_card(
-            side_a_image,
-            side_b_image,
-            &Options {
-                debug_side_a_base: None,
-                debug_side_b_base: None,
-                bubble_template,
-                election,
-                score_write_ins: true,
-            },
-        )
-        .unwrap();
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "alameda-test",
+            ("scan-skewed-side-a.jpeg", "scan-skewed-side-b.jpeg"),
+        );
+        interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
     }
 
     #[test]
     fn test_missing_bottom_row_timing_marks() {
-        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("test/fixtures/missing-bottom-timing-marks");
-        let election_path = fixture_path.join("election.json");
-        let election: Election =
-            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
-        let bubble_template = load_ballot_scan_bubble_image().unwrap();
-        let side_a_path = fixture_path.join("standard-front.jpeg");
-        let side_b_path = fixture_path.join("standard-back.jpeg");
-        let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
-        interpret_ballot_card(
-            side_a_image,
-            side_b_image,
-            &Options {
-                debug_side_a_base: None,
-                debug_side_b_base: None,
-                bubble_template,
-                election,
-                score_write_ins: true,
-            },
-        )
-        .unwrap();
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "missing-bottom-timing-marks",
+            ("standard-front.jpeg", "standard-back.jpeg"),
+        );
+        interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
     }
 
     #[test]
     fn test_missing_bottom_row_timing_marks_rotated() {
-        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("test/fixtures/missing-bottom-timing-marks");
-        let election_path = fixture_path.join("election.json");
-        let election: Election =
-            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
-        let bubble_template = load_ballot_scan_bubble_image().unwrap();
-        let side_a_path = fixture_path.join("rotated-front.jpeg");
-        let side_b_path = fixture_path.join("rotated-back.jpeg");
-        let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
-        interpret_ballot_card(
-            side_a_image,
-            side_b_image,
-            &Options {
-                debug_side_a_base: None,
-                debug_side_b_base: None,
-                bubble_template,
-                election,
-                score_write_ins: true,
-            },
-        )
-        .unwrap();
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "missing-bottom-timing-marks",
+            ("rotated-front.jpeg", "rotated-back.jpeg"),
+        );
+        interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
     }
 
     #[test]
     fn test_smudged_timing_mark() {
-        let fixture_path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("test/fixtures/nh-test-ballot");
-        let election_path = fixture_path.join("election.json");
-        let election: Election =
-            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
-        let bubble_template = load_ballot_scan_bubble_image().unwrap();
-        let side_a_path = fixture_path.join("timing-mark-smudge-front.jpeg");
-        let side_b_path = fixture_path.join("timing-mark-smudge-back.jpeg");
-        let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
-        let interpretation = interpret_ballot_card(
-            side_a_image,
-            side_b_image,
-            &Options {
-                debug_side_a_base: None,
-                debug_side_b_base: None,
-                bubble_template,
-                election,
-                score_write_ins: true,
-            },
-        )
-        .unwrap();
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "nh-test-ballot",
+            (
+                "timing-mark-smudge-front.jpeg",
+                "timing-mark-smudge-back.jpeg",
+            ),
+        );
+        let interpretation = interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
 
         for side in &[interpretation.front, interpretation.back] {
             for (_, ref scored_mark) in &side.marks {
@@ -808,27 +753,11 @@ mod test {
 
     #[test]
     fn test_skewed_ballot_scoring_write_in_areas_no_write_ins() {
-        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("test/fixtures/2023-05-09-nh-moultonborough");
-        let election_path = fixture_path.join("election.json");
-        let election: Election =
-            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
-        let bubble_template = load_ballot_scan_bubble_image().unwrap();
-        let side_a_path = fixture_path.join("no-write-ins-front.jpeg");
-        let side_b_path = fixture_path.join("no-write-ins-back.jpeg");
-        let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
-        let interpretation = interpret_ballot_card(
-            side_a_image,
-            side_b_image,
-            &Options {
-                debug_side_a_base: None,
-                debug_side_b_base: None,
-                bubble_template,
-                election,
-                score_write_ins: true,
-            },
-        )
-        .unwrap();
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "2023-05-09-nh-moultonborough",
+            ("no-write-ins-front.jpeg", "no-write-ins-back.jpeg"),
+        );
+        let interpretation = interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
 
         let front = interpretation.front;
         let back = interpretation.back;
@@ -845,28 +774,11 @@ mod test {
 
     #[test]
     fn test_skewed_ballot_scoring_write_in_areas_with_write_ins() {
-        let fixture_path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-            .join("test/fixtures/2023-05-09-nh-moultonborough");
-        let election_path = fixture_path.join("election.json");
-        let election: Election =
-            serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
-        let bubble_template = load_ballot_scan_bubble_image().unwrap();
-        let side_a_path = fixture_path.join("write-ins-front.jpeg");
-        let side_b_path = fixture_path.join("write-ins-back.jpeg");
-        let (side_a_image, side_b_image) = load_ballot_card_images(&side_a_path, &side_b_path);
-        let interpretation = interpret_ballot_card(
-            side_a_image,
-            side_b_image,
-            &Options {
-                debug_side_a_base: None,
-                debug_side_b_base: None,
-                bubble_template,
-                election,
-                score_write_ins: true,
-            },
-        )
-        .unwrap();
-
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "2023-05-09-nh-moultonborough",
+            ("write-ins-front.jpeg", "write-ins-back.jpeg"),
+        );
+        let interpretation = interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
         let front = interpretation.front;
         let back = interpretation.back;
 
@@ -878,5 +790,41 @@ mod test {
             // all write-ins are written in, so the scores should be non-zero
             assert!(write_in.score > UnitIntervalScore(0.01));
         }
+    }
+
+    #[test]
+    fn test_high_rotation_is_rejected() {
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "2021-06-06-lincoln-test-ballot",
+            ("high-rotation-front.png", "high-rotation-back.png"),
+        );
+        let Error::MissingTimingMarks { reason, .. } =
+            interpret_ballot_card(side_a_image, side_b_image, &options).unwrap_err()
+        else {
+            panic!("wrong error type");
+        };
+
+        assert_eq!(
+            reason,
+            "Unusually high rotation detected: top=3.73°, bottom=1.32°, left=1.33°, right=0.64°"
+        );
+    }
+
+    #[test]
+    fn test_high_skew_is_rejected() {
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "nh-test-ballot",
+            ("high-top-skew-front.png", "high-top-skew-back.png"),
+        );
+        let Error::MissingTimingMarks { reason, .. } =
+            interpret_ballot_card(side_a_image, side_b_image, &options).unwrap_err()
+        else {
+            panic!("wrong error type");
+        };
+
+        assert_eq!(
+            reason,
+            "Unusually high skew detected: top-left=1.02°, top-right=1.12°, bottom-left=0.01°, bottom-right=0.11°"
+        );
     }
 }

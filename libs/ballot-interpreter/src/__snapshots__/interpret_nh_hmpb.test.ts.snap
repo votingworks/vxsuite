@@ -3009,79 +3009,6 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 30`] = `
 
 exports[`HMPB - m17 backup Interprets all ballots correctly 31`] = `
 {
-  "6162d02a-cf37-4997-aae8-241ea7d7594f": [
-    {
-      "metadata": {
-        "ballotStyleId": "card-number-3",
-        "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
-        "isTestMode": false,
-        "pageNumber": 1,
-        "precinctId": "town-id-00701-precinct-id-",
-      },
-      "type": "InterpretedHmpbPage",
-      "unmarkedWriteIns": [],
-      "votes": {
-        "Executive-Councilor-bb22557f": [
-          {
-            "id": "Daniel-Webster-13f77b2d",
-            "name": "Daniel Webster",
-            "partyIds": [
-              "Republican-f0167ce7",
-            ],
-          },
-        ],
-        "Governor-061a401b": [],
-        "Representative-in-Congress-24683b44": [
-          {
-            "id": "Jeremiah-Smith-469560c9",
-            "name": "Jeremiah Smith",
-            "partyIds": [
-              "Democratic-aea20adb",
-            ],
-          },
-        ],
-        "State-Representative-Hillsborough-District-37-f3bde894": [
-          {
-            "id": "Charles-H-Hersey-096286a4",
-            "name": "Charles H. Hersey",
-            "partyIds": [
-              "Republican-f0167ce7",
-            ],
-          },
-        ],
-        "State-Representatives-Hillsborough-District-34-b1012d38": [],
-        "State-Senator-391381f8": [],
-        "United-States-Senator-d3f1c75b": [],
-      },
-    },
-    {
-      "metadata": {
-        "ballotStyleId": "card-number-3",
-        "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
-        "isTestMode": false,
-        "pageNumber": 2,
-        "precinctId": "town-id-00701-precinct-id-",
-      },
-      "type": "InterpretedHmpbPage",
-      "unmarkedWriteIns": [],
-      "votes": {
-        "County-Attorney-133f910f": [],
-        "County-Commissioner-d6feed25": [],
-        "County-Treasurer-87d25a31": [],
-        "Register-of-Deeds-a1278df2": [],
-        "Register-of-Probate-a4117da8": [],
-        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
-        "Sheriff-4243fe0b": [],
-      },
-    },
-  ],
-}
-`;
-
-exports[`HMPB - m17 backup Interprets all ballots correctly 32`] = `
-{
   "62385dba-db90-442a-b089-fb41d1f42eea": [
     {
       "metadata": {
@@ -3234,7 +3161,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 32`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 33`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 32`] = `
 {
   "672353df-27cb-4e5a-8b6a-de0b90f8a28d": [
     {
@@ -3323,7 +3250,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 33`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 34`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 33`] = `
 {
   "6e229f1d-676e-4ced-bb8f-523793391001": [
     {
@@ -3412,7 +3339,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 34`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 35`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 34`] = `
 {
   "72547548-e08e-48fa-a8f9-d36560c43125": [
     {
@@ -3579,7 +3506,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 35`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 36`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 35`] = `
 {
   "7527d2a4-1cde-4f8f-ae08-7f95de165192": [
     {
@@ -3749,7 +3676,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 36`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 37`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 36`] = `
 {
   "759fee43-9f63-4550-ba2d-eec22fa6fb0d": [
     {
@@ -3822,7 +3749,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 37`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 38`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 37`] = `
 {
   "786f4868-0d0a-45cd-b193-42a9c3553d30": [
     {
@@ -3892,7 +3819,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 38`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 39`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 38`] = `
 {
   "7a5f1429-a94b-44a8-80fc-c290b217e632": [
     {
@@ -4052,7 +3979,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 39`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 40`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 39`] = `
 {
   "7c29afa2-8b91-49c6-8292-db47d2d8a34c": [
     {
@@ -4176,7 +4103,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 40`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 41`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 40`] = `
 {
   "7cd12878-7c65-4d81-8cc6-45a4238df0a8": [
     {
@@ -4265,7 +4192,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 41`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 42`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 41`] = `
 {
   "7cd316f5-9775-49a2-a8ac-3da46c30add3": [
     {
@@ -4336,7 +4263,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 42`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 43`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 42`] = `
 {
   "7dfff758-2f99-467e-b1d9-b590d871ae0b": [
     {
@@ -4431,7 +4358,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 43`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 44`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 43`] = `
 {
   "85cde9ce-edc4-41eb-b1cd-280c63a46474": [
     {
@@ -4502,7 +4429,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 44`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 45`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 44`] = `
 {
   "8978016e-2585-49bc-9bfb-2852a473a11d": [
     {
@@ -4559,7 +4486,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 45`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 46`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 45`] = `
 {
   "8a7625a3-950f-4346-aad2-e904b1a9cba2": [
     {
@@ -4678,7 +4605,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 46`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 47`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 46`] = `
 {
   "8c5ea5a3-9d17-4895-96b4-ab803d39bd3f": [
     {
@@ -4802,7 +4729,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 47`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 48`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 47`] = `
 {
   "8d50bac9-d511-48b3-9e1f-af9c7d85b7a8": [
     {
@@ -4875,7 +4802,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 48`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 49`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 48`] = `
 {
   "8e6a152e-7986-4ff1-b52d-a89d52d240f6": [
     {
@@ -5045,7 +4972,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 49`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 50`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 49`] = `
 {
   "913c814b-f170-4427-8049-76d322b3eee3": [
     {
@@ -5213,7 +5140,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 50`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 51`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 50`] = `
 {
   "97af3ccb-dd18-406f-aea2-e0a7af30c11c": [
     {
@@ -5321,7 +5248,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 51`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 52`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 51`] = `
 {
   "97c8dd4a-52ec-4d16-a843-5a5bdf22d6f3": [
     {
@@ -5377,7 +5304,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 52`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 53`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 52`] = `
 {
   "99b486dd-9507-4c82-87c8-67bba43b4e1b": [
     {
@@ -5517,7 +5444,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 53`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 54`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 53`] = `
 {
   "9f5ee84a-5da0-4a80-bc1e-5ea0e2cf4e34": [
     {
@@ -5691,7 +5618,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 54`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 55`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 54`] = `
 {
   "a7cbd4bb-9ca8-4001-ab5e-f0f5eb30d360": [
     {
@@ -5851,7 +5778,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 55`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 56`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 55`] = `
 {
   "adb431f9-4fd9-41f2-8f13-14d198a92dfe": [
     {
@@ -5945,7 +5872,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 56`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 57`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 56`] = `
 {
   "af6d30a5-958c-4c08-884a-30c1d1a52416": [
     {
@@ -6112,7 +6039,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 57`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 58`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 57`] = `
 {
   "b2e14c74-c514-4c3a-bd92-22d29210648b": [
     {
@@ -6161,7 +6088,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 58`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 59`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 58`] = `
 {
   "b36f2116-5290-4509-b53c-015895333e1a": [
     {
@@ -6225,7 +6152,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 59`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 60`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 59`] = `
 {
   "b57e8748-f761-46c6-9da5-acd4cafd654e": [
     {
@@ -6392,7 +6319,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 60`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 61`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 60`] = `
 {
   "bc1c384d-23ec-4358-b5ba-83ed457feabe": [
     {
@@ -6470,7 +6397,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 61`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 62`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 61`] = `
 {
   "bf365d83-4e7a-4708-92c8-e3b092a4f26a": [
     {
@@ -6534,7 +6461,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 62`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 63`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 62`] = `
 {
   "c336275b-921b-4d25-9463-ddaf6b1f2210": [
     {
@@ -6615,7 +6542,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 63`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 64`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 63`] = `
 {
   "c59ef524-893f-4cf8-8678-14103f1286de": [
     {
@@ -6777,7 +6704,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 64`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 65`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 64`] = `
 {
   "c8b3565d-d8e2-4b13-9ada-10aba6e25327": [
     {
@@ -6882,7 +6809,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 65`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 66`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 65`] = `
 {
   "ccdad2d3-ef7c-402d-8b9a-593988722583": [
     {
@@ -6945,7 +6872,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 66`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 67`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 66`] = `
 {
   "cd113cfc-2393-4cf1-889d-7bfca2b17cad": [
     {
@@ -7057,7 +6984,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 67`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 68`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 67`] = `
 {
   "d24bf705-40ef-4da3-a9b0-4d2f21924db6": [
     {
@@ -7182,7 +7109,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 68`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 69`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 68`] = `
 {
   "d5be8dd6-46d1-4ce4-b906-3bfc61bcfad6": [
     {
@@ -7263,7 +7190,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 69`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 70`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 69`] = `
 {
   "d9c7eaae-79f8-4c8a-b2d2-f47b5768fd3a": [
     {
@@ -7312,7 +7239,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 70`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 71`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 70`] = `
 {
   "e61e3d7a-a060-41a2-b14e-c7bffd0a6960": [
     {
@@ -7430,7 +7357,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 71`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 72`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 71`] = `
 {
   "ed1dd8cb-257e-48de-b4bf-95e293fbf57f": [
     {
@@ -7523,7 +7450,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 72`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 73`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 72`] = `
 {
   "edd42fb9-83b6-4df0-96d5-7b193f11e970": [
     {
@@ -7587,7 +7514,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 73`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 74`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 73`] = `
 {
   "ee64f4eb-9ea3-48a3-a50d-6ef5f91251da": [
     {
@@ -7636,7 +7563,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 74`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 75`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 74`] = `
 {
   "f1a1a561-52ee-4750-82f7-88cef012b451": [
     {
@@ -7693,7 +7620,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 75`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 76`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 75`] = `
 {
   "f55cca96-7b2f-47b2-8457-092db1e17e20": [
     {
@@ -7862,7 +7789,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 76`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 77`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 76`] = `
 {
   "fa5d9338-fd91-4936-88e7-a16b294caa12": [
     {
@@ -7978,7 +7905,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 77`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 78`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 77`] = `
 {
   "fc7db095-ce91-4d6c-8a05-53b2930ec583": [
     {
@@ -8055,7 +7982,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 78`] = `
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly 79`] = `
+exports[`HMPB - m17 backup Interprets all ballots correctly 78`] = `
 {
   "fda1aa08-52b4-4364-b537-990666219558": [
     {
