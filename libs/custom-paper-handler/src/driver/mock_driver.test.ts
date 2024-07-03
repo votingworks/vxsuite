@@ -90,6 +90,17 @@ describe('setMockPaperHandlerStatus', () => {
   }
 });
 
+test('loadPaper()', async () => {
+  const mockDriver = new MockPaperHandlerDriver();
+  mockDriver.setMockStatus('paperInserted');
+
+  expectMockStatus({ mockDriver, mockStatus: 'paperInserted' });
+
+  await mockDriver.loadPaper();
+
+  expectMockStatus({ mockDriver, mockStatus: 'paperInScannerNotParked' });
+});
+
 test('parkPaper()', async () => {
   const mockDriver = new MockPaperHandlerDriver();
   mockDriver.setMockStatus('paperInserted');

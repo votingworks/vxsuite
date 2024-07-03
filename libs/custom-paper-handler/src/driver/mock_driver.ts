@@ -193,6 +193,8 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
   }
 
   loadPaper(): Promise<boolean> {
+    this.setMockStatus('paperInScannerNotParked');
+
     return Promise.resolve(true);
   }
 

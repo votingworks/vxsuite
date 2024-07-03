@@ -41,7 +41,9 @@ import {
 import { LogEventId, LogLine, BaseLogger } from '@votingworks/logging';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
+  BooleanEnvironmentVariableName,
   isCardlessVoterAuth,
+  isFeatureFlagEnabled,
   isPollWorkerAuth,
   isSystemAdministratorAuth,
   singlePrecinctSelectionFor,
@@ -74,6 +76,12 @@ import {
   DIAGNOSTIC_ELECTION_PATH,
   renderDiagnosticMockBallot,
 } from './diagnostic';
+
+function isBallotReinsertionEnabled() {
+  return isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.MARK_SCAN_ENABLE_BALLOT_REINSERTION
+  );
+}
 
 interface Context {
   auth: InsertedSmartCardAuthApi;
@@ -138,6 +146,8 @@ export type PaperHandlerStatusEvent =
   | { type: 'PAT_DEVICE_STATUS_UNHANDLED' }
   | { type: 'POLL_WORKER_CONFIRMED_BALLOT_BOX_EMPTIED' }
   | { type: 'RESET' }
+  | { type: 'START_SESSION_WITH_PREPRINTED_BALLOT' }
+  | { type: 'RETURN_PREPRINTED_BALLOT' }
   | { type: 'SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC' };
 
 const debug = makeDebug('mark-scan:state-machine');
@@ -162,6 +172,8 @@ export interface PaperHandlerStateMachine {
       state: State<Context, PaperHandlerStatusEvent, any, any, any>
     ) => void
   ): void;
+  startSessionWithPreprintedBallot(): void;
+  returnPreprintedBallot(): void;
   startPaperHandlerDiagnostic(): void;
   reset(): void;
 }
@@ -396,9 +408,10 @@ function pollPatDeviceConnectionStatus(): InvokeConfig<
   };
 }
 
-function loadMetadataAndInterpretBallot(
-  context: Context
-): Promise<SheetOf<InterpretFileResult>> {
+function loadMetadataAndInterpretBallot(context: {
+  scannedBallotImagePath?: string;
+  workspace: Workspace;
+}): Promise<SheetOf<InterpretFileResult>> {
   const { scannedBallotImagePath, workspace } = context;
   assert(
     typeof scannedBallotImagePath === 'string',
@@ -429,6 +442,23 @@ function loadMetadataAndInterpretBallot(
     markThresholds,
     adjudicationReasons: precinctScanAdjudicationReasons,
   });
+}
+
+async function scanAndInterpretInsertedSheet(
+  context: Context
+): Promise<SheetOf<InterpretFileResult>> {
+  const scannedBallotImagePath = await scanAndSave(context.driver, 'forward');
+
+  const result = await loadMetadataAndInterpretBallot({
+    scannedBallotImagePath,
+    workspace: context.workspace,
+  });
+
+  return result;
+}
+
+function getInterpretationType(context: Context) {
+  return context.interpretation?.[0].interpretation.type;
 }
 
 export function buildMachine(
@@ -502,8 +532,20 @@ export function buildMachine(
             accepting_paper: {
               invoke: [pollPaperStatus(), pollAuthStatus()],
               on: {
-                PAPER_READY_TO_LOAD: 'loading_paper',
-                PAPER_PARKED: 'waiting_for_ballot_data',
+                PAPER_READY_TO_LOAD: [
+                  {
+                    target: 'loading_new_sheet',
+                    cond: isBallotReinsertionEnabled,
+                  },
+                  'loading_paper',
+                ],
+                PAPER_PARKED: [
+                  {
+                    target: 'not_accepting_paper',
+                    cond: isBallotReinsertionEnabled,
+                  },
+                  'waiting_for_ballot_data',
+                ],
                 AUTH_STATUS_CARDLESS_VOTER: 'resetting_state_machine_no_delay',
               },
             },
@@ -524,6 +566,76 @@ export function buildMachine(
                   'poll_worker_auth_ended_unexpectedly',
               },
             },
+
+            loading_new_sheet: {
+              invoke: [pollPaperStatus(), pollAuthStatus()],
+              entry: (context) => context.driver.loadPaper(),
+              on: {
+                PAPER_INSIDE_NO_JAM: 'validating_new_sheet',
+                NO_PAPER_ANYWHERE: 'accepting_paper',
+                // The poll worker pulled their card too early
+                AUTH_STATUS_CARDLESS_VOTER:
+                  'poll_worker_auth_ended_unexpectedly',
+              },
+            },
+            validating_new_sheet: {
+              initial: 'scan_and_interpret',
+              states: {
+                scan_and_interpret: {
+                  invoke: [
+                    pollPaperStatus(),
+                    {
+                      id: 'scanAndInterpretInsertedSheet',
+                      src: scanAndInterpretInsertedSheet,
+                      onDone: {
+                        actions: assign({
+                          interpretation: (_, event) => event.data,
+                        }),
+                        target: 'done',
+                      },
+                    },
+                  ],
+                },
+                done: { type: 'final' },
+              },
+              onDone: [
+                {
+                  target: 'waiting_for_ballot_data',
+                  actions: (context) => context.driver.parkPaper(),
+                  cond: (context) =>
+                    getInterpretationType(context) === 'BlankPage',
+                },
+                {
+                  target: 'inserted_preprinted_ballot',
+                  cond: (context) =>
+                    getInterpretationType(context) === 'InterpretedBmdPage',
+                },
+                { target: 'inserted_invalid_new_sheet' },
+              ],
+            },
+            inserted_preprinted_ballot: {
+              invoke: pollPaperStatus(),
+              entry: (context) => context.driver.parkPaper(),
+              on: {
+                START_SESSION_WITH_PREPRINTED_BALLOT: 'presenting_ballot',
+                RETURN_PREPRINTED_BALLOT: {
+                  actions: [
+                    'ejectPaperToFront',
+                    'resetContext',
+                    'endCardlessVoterAuth',
+                  ],
+                  target: 'accepting_paper',
+                },
+              },
+            },
+            inserted_invalid_new_sheet: {
+              invoke: pollPaperStatus(),
+              entry: async (context) => context.driver.presentPaper(),
+              on: {
+                NO_PAPER_ANYWHERE: 'accepting_paper',
+              },
+            },
+
             waiting_for_ballot_data: {
               on: {
                 VOTER_INITIATED_PRINT: 'printing_ballot',
@@ -547,7 +659,7 @@ export function buildMachine(
                 {
                   id: 'scanAndSave',
                   src: (context) => {
-                    return scanAndSave(context.driver);
+                    return scanAndSave(context.driver, 'backward');
                   },
                   onDone: {
                     target: 'interpreting',
@@ -577,8 +689,8 @@ export function buildMachine(
             transition_interpretation: {
               entry: (context) => {
                 const interpretationType = assertDefined(
-                  context.interpretation
-                )[0].interpretation.type;
+                  getInterpretationType(context)
+                );
                 assert(
                   interpretationType === 'InterpretedBmdPage' ||
                     interpretationType === 'BlankPage',
@@ -589,15 +701,12 @@ export function buildMachine(
                 {
                   target: 'presenting_ballot',
                   cond: (context) =>
-                    // context.interpretation is already asserted in the entry function but Typescript is unaware
-                    assertDefined(context.interpretation)[0].interpretation
-                      .type === 'InterpretedBmdPage',
+                    getInterpretationType(context) === 'InterpretedBmdPage',
                 },
                 {
                   target: 'blank_page_interpretation',
                   cond: (context) =>
-                    assertDefined(context.interpretation)[0].interpretation
-                      .type === 'BlankPage',
+                    getInterpretationType(context) === 'BlankPage',
                 },
               ],
             },
@@ -668,13 +777,73 @@ export function buildMachine(
                 VOTER_VALIDATED_BALLOT: 'eject_to_rear',
                 VOTER_INVALIDATED_BALLOT:
                   'waiting_for_invalidated_ballot_confirmation',
-                NO_PAPER_ANYWHERE: 'ballot_removed_during_presentation',
+                NO_PAPER_ANYWHERE: [
+                  {
+                    target: 'waiting_for_ballot_reinsertion',
+                    cond: isBallotReinsertionEnabled,
+                  },
+                  'ballot_removed_during_presentation',
+                ],
               },
             },
+
+            waiting_for_ballot_reinsertion: {
+              invoke: pollPaperStatus(),
+              on: {
+                PAPER_READY_TO_LOAD: 'loading_reinserted_ballot',
+              },
+            },
+            loading_reinserted_ballot: {
+              invoke: [pollPaperStatus()],
+              entry: (context) => context.driver.loadPaper(),
+              on: {
+                NO_PAPER_ANYWHERE: 'waiting_for_ballot_reinsertion',
+                PAPER_INSIDE_NO_JAM: 'validating_reinserted_ballot',
+              },
+            },
+            validating_reinserted_ballot: {
+              initial: 'scan_and_interpret',
+              states: {
+                scan_and_interpret: {
+                  invoke: [
+                    pollPaperStatus(),
+                    {
+                      id: 'scanAndInterpretReinsertedBallot',
+                      src: scanAndInterpretInsertedSheet,
+                      onDone: {
+                        actions: assign({
+                          interpretation: (_, event) => event.data,
+                        }),
+                        target: 'done',
+                      },
+                    },
+                  ],
+                },
+                done: { type: 'final' },
+              },
+              onDone: [
+                {
+                  target: 'presenting_ballot',
+                  cond: (context) =>
+                    getInterpretationType(context) === 'InterpretedBmdPage',
+                },
+                { target: 'reinserted_invalid_ballot' },
+              ],
+            },
+            reinserted_invalid_ballot: {
+              invoke: pollPaperStatus(),
+              entry: async (context) => context.driver.presentPaper(),
+              on: {
+                NO_PAPER_ANYWHERE: 'waiting_for_ballot_reinsertion',
+              },
+            },
+
             ballot_removed_during_presentation: {
               on: {
-                VOTER_CONFIRMED_SESSION_END:
-                  'resetting_state_machine_after_success',
+                VOTER_CONFIRMED_SESSION_END: {
+                  actions: ['resetContext', 'endCardlessVoterAuth'],
+                  target: 'not_accepting_paper',
+                },
               },
             },
             waiting_for_invalidated_ballot_confirmation: {
@@ -729,14 +898,18 @@ export function buildMachine(
             },
             eject_to_front: {
               invoke: pollPaperStatus(),
-              entry: ['ejectPaperToFront'],
+              entry: [
+                'resetContext',
+                'endCardlessVoterAuth',
+                'ejectPaperToFront',
+              ],
               on: {
-                NO_PAPER_ANYWHERE: 'resetting_state_machine_after_success',
+                NO_PAPER_ANYWHERE: 'not_accepting_paper',
                 // Sometimes paper ejected to front is not held by the motors but
                 // will still trigger input sensors.
                 // In this case we still want to allow the machine to progress.
-                PAPER_READY_TO_LOAD: 'resetting_state_machine_after_success',
-                PAPER_IN_INPUT: 'resetting_state_machine_after_success',
+                PAPER_READY_TO_LOAD: 'not_accepting_paper',
+                PAPER_IN_INPUT: 'not_accepting_paper',
               },
             },
             jammed: {
@@ -878,7 +1051,7 @@ export function buildMachine(
             scan_ballot: {
               invoke: {
                 id: 'diagnostic.scanAndSave',
-                src: (context) => scanAndSave(context.driver),
+                src: (context) => scanAndSave(context.driver, 'backward'),
                 onDone: {
                   target: 'interpret_ballot',
                   actions: assign({
@@ -1195,10 +1368,26 @@ export async function getPaperHandlerStateMachine({
           return 'not_accepting_paper';
         case state.matches('voting_flow.accepting_paper'):
           return 'accepting_paper';
+        case state.matches('voting_flow.validating_new_sheet'):
+          return 'validating_new_sheet';
+        case state.matches('voting_flow.inserted_preprinted_ballot'):
+          return 'inserted_preprinted_ballot';
+        case state.matches('voting_flow.inserted_invalid_new_sheet'):
+          return 'inserted_invalid_new_sheet';
         case state.matches('voting_flow.ballot_removed_during_presentation'):
           return 'ballot_removed_during_presentation';
+        case state.matches('voting_flow.waiting_for_ballot_reinsertion'):
+          return 'waiting_for_ballot_reinsertion';
+        case state.matches('voting_flow.loading_reinserted_ballot'):
+          return 'loading_reinserted_ballot';
+        case state.matches('voting_flow.validating_reinserted_ballot'):
+          return 'validating_reinserted_ballot';
+        case state.matches('voting_flow.reinserted_invalid_ballot'):
+          return 'reinserted_invalid_ballot';
         case state.matches('voting_flow.loading_paper'):
           return 'loading_paper';
+        case state.matches('voting_flow.loading_new_sheet'):
+          return 'loading_new_sheet';
         case state.matches('voting_flow.waiting_for_ballot_data'):
           return 'waiting_for_ballot_data';
         case state.matches('voting_flow.printing_ballot'):
@@ -1334,6 +1523,14 @@ export async function getPaperHandlerStateMachine({
 
     addTransitionListener(listener) {
       machineService.onTransition(listener);
+    },
+
+    startSessionWithPreprintedBallot() {
+      machineService.send({ type: 'START_SESSION_WITH_PREPRINTED_BALLOT' });
+    },
+
+    returnPreprintedBallot() {
+      machineService.send({ type: 'RETURN_PREPRINTED_BALLOT' });
     },
 
     startPaperHandlerDiagnostic(): void {
