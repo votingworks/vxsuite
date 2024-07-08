@@ -211,8 +211,7 @@ function Header({
 function WriteInLabel() {
   return (
     <span>
-      {hmpbStrings.hmpbWriteIn} /{' '}
-      <InEnglish>{hmpbStrings.hmpbWriteIn}</InEnglish>
+      <DualLanguageText>{hmpbStrings.hmpbWriteIn}</DualLanguageText>
     </span>
   );
 }
@@ -529,10 +528,12 @@ function CandidateContest({
         <DualLanguageText delimiter="/">
           <h3>{electionStrings.contestTitle(contest)}</h3>
         </DualLanguageText>
-        <DualLanguageText delimiter="/">{voteForText}</DualLanguageText>
+        <DualLanguageText delimiter="/">
+          <div>{voteForText}</div>
+        </DualLanguageText>
         {contest.termDescription && (
           <DualLanguageText delimiter="/">
-            {electionStrings.contestTerm(contest)}
+            <div>{electionStrings.contestTerm(contest)}</div>
           </DualLanguageText>
         )}
       </ContestHeader>
