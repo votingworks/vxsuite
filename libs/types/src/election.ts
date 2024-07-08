@@ -281,6 +281,10 @@ export const ContestsSchema = z
   });
 
 // Election
+export type ElectionId = NewType<string, 'ElectionId'>;
+export const ElectionIdSchema: z.ZodSchema<ElectionId> =
+  IdSchema as unknown as z.ZodSchema<ElectionId>;
+
 export type PrecinctId = Id;
 export const PrecinctIdSchema: z.ZodSchema<PrecinctId> = IdSchema;
 export interface Precinct {
@@ -462,6 +466,7 @@ export interface Election {
   readonly county: County;
   readonly date: DateWithoutTime;
   readonly districts: readonly District[];
+  readonly id: ElectionId;
   readonly parties: Parties;
   readonly precincts: readonly Precinct[];
   readonly seal: string;
@@ -479,6 +484,7 @@ export const ElectionSchema: z.ZodSchema<Election> = z
     county: CountySchema,
     date: DateWithoutTimeSchema,
     districts: DistrictsSchema,
+    id: ElectionIdSchema,
     parties: PartiesSchema,
     precincts: PrecinctsSchema,
     seal: z.string(),
