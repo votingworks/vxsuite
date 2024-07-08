@@ -1,5 +1,5 @@
 import { Result } from '@votingworks/basics';
-import { Id } from '@votingworks/types';
+import { ElectionId, Id } from '@votingworks/types';
 import {
   H1,
   P,
@@ -14,9 +14,10 @@ import { FormEvent } from 'react';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 import { format } from '@votingworks/utils';
-import { listElections, createElection } from './api';
+import { listElections, createElection, loadElection } from './api';
 import { Column, Row } from './layout';
 import { NavScreen } from './nav_screen';
+import { generateId } from './utils';
 
 const ButtonRow = styled.tr`
   cursor: pointer;
@@ -33,6 +34,7 @@ const ButtonRow = styled.tr`
 export function ElectionsScreen(): JSX.Element | null {
   const listElectionsQuery = listElections.useQuery();
   const createElectionMutation = createElection.useMutation();
+  const loadElectionMutation = loadElection.useMutation();
   const history = useHistory();
 
   function onCreateElectionSuccess(result: Result<Id, Error>) {
@@ -50,7 +52,7 @@ export function ElectionsScreen(): JSX.Element | null {
     const files = Array.from(input.files || []);
     const file = files[0];
     const electionData = await file.text();
-    createElectionMutation.mutate(
+    loadElectionMutation.mutate(
       { electionData },
       { onSuccess: onCreateElectionSuccess }
     );
@@ -58,7 +60,7 @@ export function ElectionsScreen(): JSX.Element | null {
 
   function onCreateElectionPress() {
     createElectionMutation.mutate(
-      { electionData: undefined },
+      { id: generateId() as ElectionId },
       { onSuccess: onCreateElectionSuccess }
     );
   }
