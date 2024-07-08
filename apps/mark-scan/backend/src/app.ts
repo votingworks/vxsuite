@@ -1,6 +1,12 @@
 import express, { Application } from 'express';
 import { InsertedSmartCardAuthApi, LiveCheck } from '@votingworks/auth';
-import { assert, ok, Result, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  ok,
+  Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
   ElectionPackageConfigurationError,
@@ -391,7 +397,7 @@ export function buildApi(
         workspace,
         usbDrive,
         logger,
-        stateMachine,
+        stateMachine: assertDefined(stateMachine),
       });
     },
 
