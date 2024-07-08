@@ -37,7 +37,6 @@ export function getTempBallotLanguageConfigsForCert(): BallotLanguageConfigs {
 }
 
 export interface ElectionRecord {
-  id: Id;
   election: Election;
   precincts: Precinct[];
   ballotStyles: BallotStyle[];
@@ -141,7 +140,6 @@ function hydrateElection(row: {
   ).unsafeUnwrap();
 
   return {
-    id: String(row.id),
     election,
     precincts,
     ballotStyles,
@@ -229,24 +227,22 @@ export class Store {
     });
   }
 
-  createElection(election: Election, precincts: Precinct[]): Id {
-    const row = this.client.one(
+  createElection(election: Election, precincts: Precinct[]): void {
+    this.client.run(
       `
       insert into elections (
+        id,
         election_data,
         system_settings_data,
         precinct_data
       )
-      values (?, ?, ?)
-      returning (id)
+      values (?, ?, ?, ?)
       `,
+      election.id,
       JSON.stringify(election),
       JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
       JSON.stringify(precincts)
-    ) as {
-      id: string;
-    };
-    return String(row.id);
+    );
   }
 
   updateElection(electionId: Id, election: Election): void {

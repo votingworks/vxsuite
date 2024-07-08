@@ -1,5 +1,5 @@
 create table elections (
-  id integer primary key,
+  id text primary key,
   election_data text not null,
   system_settings_data text not null,
   precinct_data text not null,

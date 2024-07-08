@@ -116,7 +116,7 @@ function buildApi({ workspace, translator }: AppContext) {
       return store.getElection(input.electionId);
     },
 
-    loadElection(input: { electionData: string }): Result<Id, Error> {
+    loadElection(input: { electionData: string }): Result<ElectionId, Error> {
       const parseResult = safeParseElection(input.electionData);
       if (parseResult.isErr()) return parseResult;
       let election = parseResult.ok();
@@ -130,12 +130,14 @@ function buildApi({ workspace, translator }: AppContext) {
         // Fill in a blank seal if none is provided
         seal: election.seal ?? '',
       };
-      return ok(store.createElection(election, precincts));
+      store.createElection(election, precincts);
+      return ok(election.id);
     },
 
-    createElection(input: { id: ElectionId }): Result<Id, Error> {
+    createElection(input: { id: ElectionId }): Result<ElectionId, Error> {
       const election = createBlankElection(input.id);
-      return ok(store.createElection(election, []));
+      store.createElection(election, []);
+      return ok(election.id);
     },
 
     updateElection(input: { electionId: Id; election: Election }): void {

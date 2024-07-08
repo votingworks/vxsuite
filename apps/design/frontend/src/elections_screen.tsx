@@ -92,10 +92,10 @@ export function ElectionsScreen(): JSX.Element | null {
                 </tr>
               </thead>
               <tbody>
-                {elections.map(({ id, election }) => (
+                {elections.map(({ election }) => (
                   <ButtonRow
-                    key={id}
-                    onClick={() => history.push(`/elections/${id}`)}
+                    key={election.id}
+                    onClick={() => history.push(`/elections/${election.id}`)}
                   >
                     <td>{election.title || 'Untitled Election'}</td>
                     <td>
