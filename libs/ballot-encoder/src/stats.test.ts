@@ -4,13 +4,16 @@ import {
   BallotType,
   DistrictIdSchema,
   Election,
+  ElectionIdSchema,
   unsafeParse,
 } from '@votingworks/types';
 import { DateWithoutTime } from '@votingworks/basics';
 import { encodeBallot } from '.';
 
 const district1Id = unsafeParse(DistrictIdSchema, 'district1');
+const electionId = unsafeParse(ElectionIdSchema, 'election-1');
 const election: Election = {
+  id: electionId,
   type: 'general',
   title: 'Election',
   county: { id: 'nowhere', name: 'Nowhere' },
