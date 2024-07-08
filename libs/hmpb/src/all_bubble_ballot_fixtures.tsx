@@ -5,6 +5,7 @@ import {
   CandidateContest,
   DistrictId,
   Election,
+  ElectionId,
   GridPositionOption,
   VotesDict,
   ballotPaperDimensions,
@@ -89,6 +90,7 @@ function createElection(): Election {
   });
 
   return {
+    id: 'all-bubble-ballot-election' as ElectionId,
     ballotLayout: {
       paperSize: ballotPaperSize,
       metadataEncoding: 'qr-code',
