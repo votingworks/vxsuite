@@ -98,6 +98,7 @@ export interface GridEntry {
  */
 export enum ConvertIssueKind {
   ElectionValidationFailed = 'ElectionValidationFailed',
+  InvalidElectionId = 'InvalidElectionId',
   InvalidBallotSize = 'InvalidBallotSize',
   InvalidDistrictId = 'InvalidDistrictId',
   InvalidElectionDate = 'InvalidElectionDate',
@@ -134,6 +135,10 @@ export type ConvertIssue =
       kind: ConvertIssueKind.ElectionValidationFailed;
       message: string;
       validationError: Error;
+    }
+  | {
+      kind: ConvertIssueKind.InvalidElectionId;
+      message: string;
     }
   | {
       kind: ConvertIssueKind.InvalidBallotSize;

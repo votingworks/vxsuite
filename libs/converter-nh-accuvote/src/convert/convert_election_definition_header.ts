@@ -5,6 +5,7 @@ import {
   CandidateContest,
   DistrictIdSchema,
   Election,
+  ElectionIdSchema,
   GridPositionOption,
   GridPositionWriteIn,
   Party,
@@ -48,19 +49,21 @@ export function convertElectionDefinitionHeader(
 ): ConvertResult {
   const root = definition;
   const accuvoteHeaderInfo = root.getElementsByTagName('AccuvoteHeaderInfo')[0];
-  const electionId =
-    accuvoteHeaderInfo?.getElementsByTagName('ElectionID')[0]?.textContent;
-  if (typeof electionId !== 'string') {
+  const electionIdResult = safeParse(
+    ElectionIdSchema,
+    accuvoteHeaderInfo?.getElementsByTagName('ElectionID')[0]?.textContent
+  );
+  if (electionIdResult.isErr()) {
     return err({
       issues: [
         {
-          kind: ConvertIssueKind.MissingDefinitionProperty,
-          message: 'ElectionID is missing',
-          property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
+          kind: ConvertIssueKind.InvalidElectionId,
+          message: 'ElectionID is missing or invalid',
         },
       ],
     });
   }
+  const electionId = electionIdResult.ok();
 
   const title =
     accuvoteHeaderInfo?.getElementsByTagName('ElectionName')[0]?.textContent;
@@ -420,6 +423,7 @@ export function convertElectionDefinitionHeader(
   const definitionGrid = readGridFromElectionDefinition(root);
 
   const election: Election = {
+    id: electionId,
     type: 'general',
     title,
     date: new DateWithoutTime(parsedDate.toISODate()),

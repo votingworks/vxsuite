@@ -51,9 +51,8 @@ test('missing ElectionID', () => {
     ).unsafeUnwrapErr().issues
   ).toEqual([
     typedAs<ConvertIssue>({
-      kind: ConvertIssueKind.MissingDefinitionProperty,
-      message: 'ElectionID is missing',
-      property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
+      kind: ConvertIssueKind.InvalidElectionId,
+      message: 'ElectionID is missing or invalid',
     }),
   ]);
 });
