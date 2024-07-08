@@ -325,13 +325,9 @@ export async function importCastVoteRecords(
         addCastVoteRecordResult.ok();
 
       if (isCastVoteRecordNew) {
-        const hmpbCastVoteRecordWriteIns = castVoteRecordWriteIns.filter(
-          (castVoteRecordWriteIn) => castVoteRecordWriteIn.side
-        );
-        if (hmpbCastVoteRecordWriteIns.length > 0) {
+        if (castVoteRecordWriteIns.length > 0) {
           // Guaranteed to be defined given validation in readCastVoteRecordExport
           assert(referencedFiles !== undefined);
-          assert(referencedFiles.layoutFiles !== undefined);
 
           for (const i of [0, 1] as const) {
             const imageFileReadResult =
@@ -342,30 +338,40 @@ export async function importCastVoteRecords(
                 index: castVoteRecordIndex,
               });
             }
-            const layoutFileReadResult =
-              await referencedFiles.layoutFiles[i].read();
-            if (layoutFileReadResult.isErr()) {
-              return err({
-                ...layoutFileReadResult.err(),
-                index: castVoteRecordIndex,
+            if (referencedFiles.layoutFiles !== undefined) {
+              const layoutFileReadResult =
+                await referencedFiles.layoutFiles[i].read();
+              if (layoutFileReadResult.isErr()) {
+                return err({
+                  ...layoutFileReadResult.err(),
+                  index: castVoteRecordIndex,
+                });
+              }
+              store.addBallotImage({
+                cvrId: castVoteRecordId,
+                imageData: imageFileReadResult.ok(),
+                pageLayout: layoutFileReadResult.ok(),
+                side: (['front', 'back'] as const)[i],
+              });
+            } else {
+              // bmd ballots do not have pageLayout information.
+              store.addBallotImage({
+                cvrId: castVoteRecordId,
+                imageData: imageFileReadResult.ok(),
+                side: (['front', 'back'] as const)[i],
               });
             }
-            store.addBallotImage({
-              cvrId: castVoteRecordId,
-              imageData: imageFileReadResult.ok(),
-              pageLayout: layoutFileReadResult.ok(),
-              side: (['front', 'back'] as const)[i],
-            });
           }
 
-          for (const hmpbCastVoteRecordWriteIn of hmpbCastVoteRecordWriteIns) {
+          for (const castVoteRecordWriteIn of castVoteRecordWriteIns) {
             store.addWriteIn({
               castVoteRecordId,
-              contestId: hmpbCastVoteRecordWriteIn.contestId,
+              contestId: castVoteRecordWriteIn.contestId,
               electionId,
-              optionId: hmpbCastVoteRecordWriteIn.optionId,
-              side: assertDefined(hmpbCastVoteRecordWriteIn.side),
-              isUnmarked: hmpbCastVoteRecordWriteIn.isUnmarked,
+              optionId: castVoteRecordWriteIn.optionId,
+              side: castVoteRecordWriteIn.side || 'front', // BMD ballots are always on the front.
+              isUnmarked: castVoteRecordWriteIn.isUnmarked,
+              machineMarkedText: castVoteRecordWriteIn.text,
             });
           }
         }

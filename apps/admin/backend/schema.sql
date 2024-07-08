@@ -96,6 +96,7 @@ create table write_ins (
   is_invalid boolean not null default false,
   adjudicated_at timestamp,
   created_at timestamp not null default current_timestamp,
+  machine_marked_text text,
   foreign key (election_id) references elections(id),
   foreign key (cvr_id) references cvrs(id)
     on delete cascade,
@@ -187,7 +188,7 @@ create table ballot_images (
   cvr_id varchar(36) not null,
   side text not null check (side = 'front' or side = 'back'),
   image blob not null,
-  layout text not null,
+  layout text, -- Machine-marked ballots do not have a layout
   primary key (cvr_id, side),
   foreign key (cvr_id) references cvrs(id)
     on delete cascade

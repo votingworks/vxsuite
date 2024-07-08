@@ -966,7 +966,7 @@ export class Store {
   }: {
     cvrId: Id;
     imageData: Buffer;
-    pageLayout: BallotPageLayout;
+    pageLayout?: BallotPageLayout;
     side: Side;
   }): void {
     this.client.run(
@@ -983,7 +983,7 @@ export class Store {
       cvrId,
       side,
       imageData,
-      JSON.stringify(pageLayout)
+      pageLayout ? JSON.stringify(pageLayout) : null
     );
   }
 
@@ -1067,6 +1067,7 @@ export class Store {
     contestId,
     optionId,
     isUnmarked = false,
+    machineMarkedText = undefined,
   }: {
     electionId: Id;
     castVoteRecordId: Id;
@@ -1074,6 +1075,7 @@ export class Store {
     contestId: Id;
     optionId: Id;
     isUnmarked?: boolean;
+    machineMarkedText?: string;
   }): Id {
     const id = uuid();
 
@@ -1086,9 +1088,10 @@ export class Store {
           side,
           contest_id,
           option_id,
-          is_unmarked
+          is_unmarked,
+          machine_marked_text
         ) values (
-          ?, ?, ?, ?, ?, ?, ?
+          ?, ?, ?, ?, ?, ?, ?, ?
         )
       `,
       id,
@@ -1097,7 +1100,8 @@ export class Store {
       side,
       contestId,
       optionId,
-      asSqliteBool(isUnmarked)
+      asSqliteBool(isUnmarked),
+      machineMarkedText || null
     );
 
     return id;
@@ -1112,7 +1116,8 @@ export class Store {
     optionId: ContestOptionId;
     cvrId: Id;
     image: Buffer;
-    layout: BallotPageLayout;
+    layout?: BallotPageLayout;
+    machineMarkedText?: string;
   } {
     const row = this.client.one(
       `
@@ -1122,7 +1127,8 @@ export class Store {
             write_ins.option_id as optionId,
             write_ins.cvr_id as cvrId,
             ballot_images.image as image,
-            ballot_images.layout as layout
+            ballot_images.layout as layout,
+            write_ins.machine_marked_text as machineMarkedText
           from write_ins
           inner join
             ballot_images on
@@ -1137,12 +1143,15 @@ export class Store {
       optionId: ContestOptionId;
       cvrId: string;
       image: Buffer;
-      layout: string;
+      layout?: string;
+      machineMarkedText?: string;
     };
 
     return {
       ...row,
-      layout: safeParseJson(row.layout, BallotPageLayoutSchema).unsafeUnwrap(),
+      layout: row.layout
+        ? safeParseJson(row.layout, BallotPageLayoutSchema).unsafeUnwrap()
+        : undefined,
     };
   }
 

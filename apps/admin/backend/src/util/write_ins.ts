@@ -19,7 +19,23 @@ export async function getWriteInImageView({
 }): Promise<WriteInImageView> {
   debug('creating write-in image view for %s...', writeInId);
   const writeInDetails = store.getWriteInImageAndLayout(writeInId);
-  const { layout, image, contestId, optionId, cvrId } = writeInDetails;
+  const { layout, image, contestId, optionId, cvrId, machineMarkedText } =
+    writeInDetails;
+
+  // BMD ballots do not have layouts, we do not support zoom during WIA on these ballots.
+  if (layout === undefined) {
+    return {
+      writeInId,
+      cvrId,
+      imageUrl: toDataUrl(await loadImageData(image), 'image/jpeg'),
+      ballotCoordinates: {
+        ...layout.pageSize,
+        x: 0,
+        y: 0,
+      },
+      machineMarkedText: machineMarkedText || '',
+    };
+  }
 
   // identify the contest layout
   const contestLayout = layout.contests.find(

@@ -332,13 +332,30 @@ export type WriteInAdjudicationAction =
 /**
  * Information necessary to display a write-in on the frontend.
  */
-export interface WriteInImageView {
+export type WriteInImageView = HmpbWriteInImageView | BmdWriteInImageView;
+
+/**
+ * Information necessary to display a hmpb write-in on the frontend.
+ */
+
+export interface HmpbWriteInImageView {
   readonly writeInId: Id;
   readonly cvrId: Id;
   readonly imageUrl: string;
   readonly ballotCoordinates: Rect;
   readonly contestCoordinates: Rect;
   readonly writeInCoordinates: Rect;
+}
+
+/**
+ * Information necessary to display a bmd write-in on the frontend.
+ */
+export interface BmdWriteInImageView {
+  readonly writeInId: Id;
+  readonly cvrId: Id;
+  readonly imageUrl: string;
+  readonly ballotCoordinates: Rect;
+  readonly machineMarkedText: string;
 }
 
 /**
