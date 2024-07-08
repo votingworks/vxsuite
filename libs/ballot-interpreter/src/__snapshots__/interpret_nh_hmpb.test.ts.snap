@@ -7,7 +7,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 1`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -41,7 +41,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 1`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -69,7 +69,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 2`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -151,7 +151,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 2`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -179,7 +179,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 3`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -232,7 +232,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 3`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -260,7 +260,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 4`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -327,7 +327,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 4`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -355,7 +355,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 5`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -427,7 +427,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 5`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -506,7 +506,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 6`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -543,7 +543,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 6`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -571,7 +571,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 7`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -592,7 +592,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 7`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -620,7 +620,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 8`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -704,7 +704,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 8`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -732,7 +732,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 9`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -783,7 +783,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 9`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -811,7 +811,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 10`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -883,7 +883,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 10`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -962,7 +962,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 11`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -1012,7 +1012,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 11`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -1040,7 +1040,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 12`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -1085,7 +1085,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 12`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -1113,7 +1113,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 13`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -1157,7 +1157,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 13`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -1200,7 +1200,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 14`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -1277,7 +1277,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 14`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -1356,7 +1356,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 15`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -1406,7 +1406,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 15`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -1452,7 +1452,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 16`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -1497,7 +1497,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 16`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -1525,7 +1525,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 17`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -1568,7 +1568,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 17`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -1596,7 +1596,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 18`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -1665,7 +1665,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 18`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -1693,7 +1693,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 19`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -1784,7 +1784,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 19`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -1861,7 +1861,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 20`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -1909,7 +1909,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 20`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -1937,7 +1937,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 21`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -2017,7 +2017,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 21`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -2080,7 +2080,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 22`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -2161,7 +2161,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 22`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -2189,7 +2189,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 23`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -2264,7 +2264,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 23`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -2334,7 +2334,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 24`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -2371,7 +2371,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 24`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -2399,7 +2399,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 25`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -2466,7 +2466,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 25`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -2502,7 +2502,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 26`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -2538,7 +2538,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 26`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -2566,7 +2566,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 27`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -2603,7 +2603,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 27`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -2631,7 +2631,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 28`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -2700,7 +2700,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 28`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -2755,7 +2755,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 29`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -2816,7 +2816,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 29`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -2844,7 +2844,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 30`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -2935,7 +2935,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 30`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -3014,7 +3014,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 31`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -3097,7 +3097,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 31`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -3168,7 +3168,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 32`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -3229,7 +3229,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 32`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -3257,7 +3257,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 33`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -3318,7 +3318,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 33`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -3346,7 +3346,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 34`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -3436,7 +3436,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 34`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -3513,7 +3513,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 35`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -3604,7 +3604,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 35`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -3683,7 +3683,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 36`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -3728,7 +3728,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 36`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -3756,7 +3756,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 37`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -3798,7 +3798,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 37`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -3826,7 +3826,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 38`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -3916,7 +3916,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 38`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -3986,7 +3986,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 39`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -4055,7 +4055,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 39`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -4110,7 +4110,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 40`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -4171,7 +4171,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 40`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -4199,7 +4199,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 41`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -4242,7 +4242,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 41`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -4270,7 +4270,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 42`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -4337,7 +4337,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 42`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -4365,7 +4365,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 43`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -4408,7 +4408,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 43`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -4436,7 +4436,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 44`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -4465,7 +4465,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 44`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -4493,7 +4493,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 45`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -4584,7 +4584,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 45`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -4612,7 +4612,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 46`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -4681,7 +4681,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 46`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -4736,7 +4736,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 47`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -4781,7 +4781,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 47`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -4809,7 +4809,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 48`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -4900,7 +4900,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 48`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -4979,7 +4979,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 49`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -5070,7 +5070,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 49`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -5147,7 +5147,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 50`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -5227,7 +5227,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 50`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -5255,7 +5255,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 51`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -5283,7 +5283,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 51`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -5311,7 +5311,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 52`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -5372,7 +5372,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 52`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -5451,7 +5451,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 53`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -5556,7 +5556,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 53`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -5625,7 +5625,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 54`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -5708,7 +5708,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 54`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -5785,7 +5785,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 55`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -5843,7 +5843,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 55`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -5879,7 +5879,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 56`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -5968,7 +5968,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 56`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -6046,7 +6046,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 57`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -6067,7 +6067,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 57`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -6095,7 +6095,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 58`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -6131,7 +6131,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 58`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -6159,7 +6159,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 59`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -6248,7 +6248,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 59`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -6326,7 +6326,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 60`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -6376,7 +6376,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 60`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -6404,7 +6404,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 61`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -6440,7 +6440,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 61`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -6468,7 +6468,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 62`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -6521,7 +6521,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 62`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -6549,7 +6549,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 63`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -6640,7 +6640,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 63`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -6711,7 +6711,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 64`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -6788,7 +6788,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 64`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -6816,7 +6816,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 65`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -6851,7 +6851,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 65`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -6879,7 +6879,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 66`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -6956,7 +6956,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 66`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -6991,7 +6991,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 67`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -7058,7 +7058,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 67`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -7116,7 +7116,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 68`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -7160,7 +7160,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 68`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -7197,7 +7197,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 69`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -7218,7 +7218,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 69`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -7246,7 +7246,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 70`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -7336,7 +7336,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 70`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -7364,7 +7364,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 71`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -7429,7 +7429,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 71`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -7457,7 +7457,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 72`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -7493,7 +7493,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 72`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -7521,7 +7521,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 73`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -7542,7 +7542,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 73`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -7570,7 +7570,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 74`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -7599,7 +7599,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 74`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -7627,7 +7627,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 75`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -7717,7 +7717,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 75`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -7796,7 +7796,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 76`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -7857,7 +7857,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 76`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -7912,7 +7912,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 77`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -7961,7 +7961,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 77`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",
@@ -7989,7 +7989,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 78`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 1,
         "precinctId": "town-id-00701-precinct-id-",
@@ -8054,7 +8054,7 @@ exports[`HMPB - m17 backup Interprets all ballots correctly 78`] = `
       "metadata": {
         "ballotStyleId": "card-number-3",
         "ballotType": "precinct",
-        "electionHash": "1d813c520d31df25b3bbfa1dade4ec863399484fd43b4e65ec23622d0c19fcd7",
+        "electionHash": "713953308ff13f63fcab539bf86c6042b6f109dbe91af4eba676bfe1ce8214a3",
         "isTestMode": false,
         "pageNumber": 2,
         "precinctId": "town-id-00701-precinct-id-",

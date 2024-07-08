@@ -864,5 +864,6 @@
   "state": "NH",
   "title": "General Election",
   "type": "general",
-  "ballotStrings": {}
+  "ballotStrings": {},
+  "id": "test-m17-election"
 }
