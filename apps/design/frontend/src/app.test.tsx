@@ -1,5 +1,6 @@
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
+import { ElectionId } from '@votingworks/types';
 import { MockApiClient, createMockApiClient } from '../test/api_helpers';
 import { render, screen } from '../test/react_testing_library';
 import { App } from './app';
@@ -22,7 +23,7 @@ test('API errors show an error screen', async () => {
     await screen.findByRole('heading', { name: 'Elections' });
 
     apiMock.createElection
-      .expectCallWith({ electionData: undefined })
+      .expectCallWith({ id: 'test-random-id-1' as ElectionId })
       .throws(new Error('API error'));
     userEvent.click(screen.getByRole('button', { name: 'Create Election' }));
 

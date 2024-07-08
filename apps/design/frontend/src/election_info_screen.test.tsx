@@ -1,5 +1,5 @@
 import userEvent from '@testing-library/user-event';
-import { Election } from '@votingworks/types';
+import { Election, ElectionId } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import { createMemoryHistory } from 'history';
 import { DateWithoutTime } from '@votingworks/basics';
@@ -8,11 +8,7 @@ import {
   createMockApiClient,
   provideApi,
 } from '../test/api_helpers';
-import {
-  blankElectionRecord,
-  electionId,
-  generalElectionRecord,
-} from '../test/fixtures';
+import { blankElectionRecord, generalElectionRecord } from '../test/fixtures';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { ElectionInfoScreen } from './election_info_screen';
@@ -28,7 +24,7 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-function renderScreen() {
+function renderScreen(electionId: ElectionId) {
   const { path } = routes.election(electionId).electionInfo;
   const history = createMemoryHistory({ initialEntries: [path] });
   render(
@@ -45,9 +41,9 @@ function renderScreen() {
 
 test('newly created election starts in edit mode', async () => {
   apiMock.getElection
-    .expectCallWith({ electionId })
+    .expectCallWith({ electionId: blankElectionRecord.election.id })
     .resolves(blankElectionRecord);
-  renderScreen();
+  renderScreen(blankElectionRecord.election.id);
   await screen.findByRole('heading', { name: 'Election Info' });
 
   const titleInput = screen.getByLabelText('Title');
@@ -87,10 +83,11 @@ test('newly created election starts in edit mode', async () => {
 
 test('edit and save election', async () => {
   const { election } = generalElectionRecord;
+  const electionId = election.id;
   apiMock.getElection
     .expectCallWith({ electionId })
     .resolves(generalElectionRecord);
-  renderScreen();
+  renderScreen(electionId);
   await screen.findByRole('heading', { name: 'Election Info' });
 
   const titleInput = screen.getByLabelText('Title');
@@ -182,10 +179,11 @@ test('edit and save election', async () => {
 });
 
 test('delete election', async () => {
+  const electionId = generalElectionRecord.election.id;
   apiMock.getElection
     .expectCallWith({ electionId })
     .resolves(generalElectionRecord);
-  const history = renderScreen();
+  const history = renderScreen(electionId);
   await screen.findByRole('heading', { name: 'Election Info' });
 
   apiMock.deleteElection.expectCallWith({ electionId }).resolves();

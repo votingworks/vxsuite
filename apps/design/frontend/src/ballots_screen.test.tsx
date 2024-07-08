@@ -1,15 +1,11 @@
 import userEvent from '@testing-library/user-event';
-import { BallotPaperSize, Election } from '@votingworks/types';
+import { BallotPaperSize, Election, ElectionId } from '@votingworks/types';
 import {
   provideApi,
   createMockApiClient,
   MockApiClient,
 } from '../test/api_helpers';
-import {
-  electionId,
-  generalElectionRecord,
-  primaryElectionRecord,
-} from '../test/fixtures';
+import { generalElectionRecord, primaryElectionRecord } from '../test/fixtures';
 import { render, screen, within } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { BallotsScreen } from './ballots_screen';
@@ -27,7 +23,7 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-function renderScreen() {
+function renderScreen(electionId: ElectionId) {
   render(
     provideApi(
       apiMock,
@@ -41,10 +37,11 @@ function renderScreen() {
 
 describe('Ballot styles tab', () => {
   test('General election with splits', async () => {
+    const electionId = generalElectionRecord.election.id;
     apiMock.getElection
       .expectCallWith({ electionId })
       .resolves(generalElectionRecord);
-    renderScreen();
+    renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Ballots' });
 
     screen.getByRole('tab', { name: 'Ballot Styles', selected: true });
@@ -74,10 +71,11 @@ describe('Ballot styles tab', () => {
   });
 
   test('Primary election with splits', async () => {
+    const electionId = primaryElectionRecord.election.id;
     apiMock.getElection
       .expectCallWith({ electionId })
       .resolves(primaryElectionRecord);
-    renderScreen();
+    renderScreen(electionId);
     await screen.findByRole('heading', { name: 'Ballots' });
 
     screen.getByRole('tab', { name: 'Ballot Styles', selected: true });
@@ -117,11 +115,12 @@ describe('Ballot styles tab', () => {
 
 test('Ballot layout tab', async () => {
   const { election } = generalElectionRecord;
+  const electionId = election.id;
 
   apiMock.getElection
     .expectCallWith({ electionId })
     .resolves(generalElectionRecord);
-  renderScreen();
+  renderScreen(electionId);
   await screen.findByRole('heading', { name: 'Ballots' });
 
   userEvent.click(screen.getByRole('tab', { name: 'Ballot Layout' }));

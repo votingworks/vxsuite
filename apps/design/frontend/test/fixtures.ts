@@ -12,10 +12,10 @@ import {
 import {
   DEFAULT_SYSTEM_SETTINGS,
   Election,
+  ElectionId,
   LanguageCode,
 } from '@votingworks/types';
-
-export const electionId = 'election-id-1';
+import { generateId } from '../src/utils';
 
 export function makeElectionRecord(baseElection: Election): ElectionRecord {
   const ballotLanguageConfigs: BallotLanguageConfigs = [
@@ -39,7 +39,6 @@ export function makeElectionRecord(baseElection: Election): ElectionRecord {
     })),
   };
   return {
-    id: electionId,
     election,
     systemSettings: DEFAULT_SYSTEM_SETTINGS,
     precincts,
@@ -49,7 +48,9 @@ export function makeElectionRecord(baseElection: Election): ElectionRecord {
   };
 }
 
-export const blankElectionRecord = makeElectionRecord(createBlankElection());
+export const blankElectionRecord = makeElectionRecord(
+  createBlankElection(generateId() as ElectionId)
+);
 export const generalElectionRecord = makeElectionRecord(electionGeneral);
 export const primaryElectionRecord = makeElectionRecord(
   electionPrimaryPrecinctSplitsFixtures.election

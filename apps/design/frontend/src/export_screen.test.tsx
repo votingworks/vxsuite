@@ -7,12 +7,14 @@ import {
   createMockApiClient,
   MockApiClient,
 } from '../test/api_helpers';
-import { electionId } from '../test/fixtures';
 import { render, screen, waitFor } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { ExportScreen } from './export_screen';
 import { routes } from './routes';
 import { downloadFile } from './utils';
+import { generalElectionRecord } from '../test/fixtures';
+
+const electionId = generalElectionRecord.election.id;
 
 jest.mock('js-file-download');
 const fileDownloadMock = jest.mocked(fileDownload);

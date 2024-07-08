@@ -13,7 +13,10 @@ import {
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
 import { TabulationScreen } from './tabulation_screen';
-import { electionId, generalElectionRecord } from '../test/fixtures';
+import { generalElectionRecord } from '../test/fixtures';
+
+const electionRecord = generalElectionRecord;
+const electionId = electionRecord.election.id;
 
 let apiMock: MockApiClient;
 
@@ -38,9 +41,7 @@ function renderScreen() {
 }
 
 test('mark thresholds', async () => {
-  apiMock.getElection
-    .expectCallWith({ electionId })
-    .resolves(generalElectionRecord);
+  apiMock.getElection.expectCallWith({ electionId }).resolves(electionRecord);
   renderScreen();
   await screen.findByRole('heading', { name: 'Tabulation' });
 
@@ -51,7 +52,7 @@ test('mark thresholds', async () => {
   });
   expect(definiteInput).toBeDisabled();
   expect(definiteInput).toHaveValue(
-    generalElectionRecord.systemSettings.markThresholds.definite
+    electionRecord.systemSettings.markThresholds.definite
   );
 
   const marginalInput = screen.getByRole('spinbutton', {
@@ -59,7 +60,7 @@ test('mark thresholds', async () => {
   });
   expect(marginalInput).toBeDisabled();
   expect(marginalInput).toHaveValue(
-    generalElectionRecord.systemSettings.markThresholds.marginal
+    electionRecord.systemSettings.markThresholds.marginal
   );
 
   userEvent.click(screen.getByRole('button', { name: 'Edit' }));
@@ -81,7 +82,7 @@ test('mark thresholds', async () => {
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
     .resolves();
   apiMock.getElection.expectCallWith({ electionId }).resolves({
-    ...generalElectionRecord,
+    ...electionRecord,
     systemSettings: updatedSystemSettings,
   });
 
@@ -100,9 +101,7 @@ test('mark thresholds', async () => {
 });
 
 test('adjudication reasons', async () => {
-  apiMock.getElection
-    .expectCallWith({ electionId })
-    .resolves(generalElectionRecord);
+  apiMock.getElection.expectCallWith({ electionId }).resolves(electionRecord);
   renderScreen();
   await screen.findByRole('heading', { name: 'Tabulation' });
 
@@ -139,7 +138,7 @@ test('adjudication reasons', async () => {
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
     .resolves();
   apiMock.getElection.expectCallWith({ electionId }).resolves({
-    ...generalElectionRecord,
+    ...electionRecord,
     systemSettings: updatedSystemSettings,
   });
 
@@ -158,9 +157,7 @@ test('adjudication reasons', async () => {
 });
 
 test('setting write-in text area threshold', async () => {
-  apiMock.getElection
-    .expectCallWith({ electionId })
-    .resolves(generalElectionRecord);
+  apiMock.getElection.expectCallWith({ electionId }).resolves(electionRecord);
   renderScreen();
   await screen.findByRole('heading', { name: 'Tabulation' });
 
@@ -198,7 +195,7 @@ test('setting write-in text area threshold', async () => {
     name: 'Write-In Area Threshold',
   });
   expect(thresholdInput).toHaveValue(
-    generalElectionRecord.systemSettings.markThresholds.writeInTextArea
+    electionRecord.systemSettings.markThresholds.writeInTextArea
   );
 
   // Due to some weirdness with the tests, we can't clear the input before
@@ -216,7 +213,7 @@ test('setting write-in text area threshold', async () => {
     .expectCallWith({ electionId, systemSettings: updatedSystemSettings })
     .resolves();
   apiMock.getElection.expectCallWith({ electionId }).resolves({
-    ...generalElectionRecord,
+    ...electionRecord,
     systemSettings: updatedSystemSettings,
   });
 
