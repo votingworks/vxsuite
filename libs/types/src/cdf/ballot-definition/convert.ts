@@ -617,6 +617,13 @@ export function convertVxfElectionToCdfBallotDefinition(
         ElectionScopeId: stateId,
         StartDate: vxfElection.date.toISOString(),
         EndDate: vxfElection.date.toISOString(),
+        ExternalIdentifier: [
+          {
+            '@type': 'BallotDefinition.ExternalIdentifier',
+            Type: Cdf.IdentifierType.Other,
+            Value: vxfElection.id,
+          },
+        ],
         Type: vxfElection.type as Cdf.ElectionType,
         Name: text(vxfElection.title, ElectionStringKey.ELECTION_TITLE),
 
@@ -932,6 +939,7 @@ export function convertCdfBallotDefinitionToVxfElection(
   }
 
   return {
+    id: assertDefined(election.ExternalIdentifier[0]).Value as Vxf.ElectionId,
     type: election.Type,
     title: englishText(election.Name),
     state: englishText(state.Name),

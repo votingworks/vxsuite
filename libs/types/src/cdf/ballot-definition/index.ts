@@ -830,6 +830,11 @@ export interface Election {
   readonly EndDate: Date;
 
   /**
+   * For associating IDs with the election.
+   */
+  readonly ExternalIdentifier: readonly ExternalIdentifier[];
+
+  /**
    * For including a name for the election; the name could be the same name as appears on the ballot.
    */
   readonly Name: InternationalizedText;
@@ -855,6 +860,7 @@ export const ElectionSchema: z.ZodSchema<Election> = z.object({
   Contest: z.array(z.union([z.lazy(/* istanbul ignore next */ () => BallotMeasureContestSchema), z.lazy(/* istanbul ignore next */ () => CandidateContestSchema)])).min(1),
   ElectionScopeId: z.string(),
   EndDate: DateSchema,
+  ExternalIdentifier: z.array(z.lazy(/* istanbul ignore next */ () => ExternalIdentifierSchema)).min(1),
   Name: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
   StartDate: DateSchema,
   Type: z.lazy(/* istanbul ignore next */ () => ElectionTypeSchema),

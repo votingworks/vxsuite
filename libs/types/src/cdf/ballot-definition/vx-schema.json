@@ -440,6 +440,7 @@
         "Contest",
         "ElectionScopeId",
         "EndDate",
+        "ExternalIdentifier",
         "Name",
         "StartDate",
         "Type"
@@ -485,6 +486,13 @@
         "EndDate": {
           "type": "string",
           "format": "date"
+        },
+        "ExternalIdentifier": {
+          "items": {
+            "$ref": "#/definitions/BallotDefinition.ExternalIdentifier"
+          },
+          "minItems": 1,
+          "type": "array"
         },
         "Name": {
           "$ref": "#/definitions/BallotDefinition.InternationalizedText"

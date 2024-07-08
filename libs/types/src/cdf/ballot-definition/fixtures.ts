@@ -11,9 +11,16 @@ import {
   BallotSideType,
 } from '.';
 import { LanguageCode } from '../../language_code';
-import { BallotPaperSize, DistrictId, Election, PartyId } from '../../election';
+import {
+  BallotPaperSize,
+  DistrictId,
+  Election,
+  ElectionId,
+  PartyId,
+} from '../../election';
 
 export const testVxfElection: Election = {
+  id: 'election-1' as ElectionId,
   type: 'general',
   title: 'Lincoln Municipal General Election',
   state: 'State of Hamilton',
@@ -371,6 +378,13 @@ export const testCdfBallotDefinition: BallotDefinition = {
       ElectionScopeId: 'state-of-hamilton',
       StartDate: '2021-06-06',
       EndDate: '2021-06-06',
+      ExternalIdentifier: [
+        {
+          '@type': 'BallotDefinition.ExternalIdentifier',
+          Type: IdentifierType.Other,
+          Value: 'election-1',
+        },
+      ],
       Type: ElectionType.General,
       Name: {
         '@type': 'BallotDefinition.InternationalizedText',
