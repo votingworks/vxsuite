@@ -1,4 +1,5 @@
 {
+  "id": "test-election-id",
   "title": "Spring Primary",
   "state": "State of Wisconsin",
   "county": {

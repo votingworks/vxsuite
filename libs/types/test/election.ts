@@ -5,6 +5,7 @@ import { unsafeParse } from '../src/generic';
 
 export const electionData = `
 {
+  "id": "election-1",
   "type": "general",
   "title": "ELECTION",
   "ballotStyles": [
@@ -185,6 +186,7 @@ export const primaryElection: Election = {
 
 const electionTwoPartyPrimaryData = `
 {
+  "id": "election-2",
   "type": "primary",
   "title": "Example Primary Election - Minimal Exhaustive",
   "state": "State of Sample",
