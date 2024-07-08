@@ -488,7 +488,7 @@ export function AppRoot(): JSX.Element | null {
 
     if (isPollWorkerAuth(authStatus)) {
       if (stateMachineState === 'paper_reloaded') {
-        return <PaperReloadedPage />;
+        return <PaperReloadedPage votesSelected={!!votes} />;
       }
 
       return (

@@ -3,14 +3,20 @@ import { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
 
-export function PaperReloadedPage(): JSX.Element {
+export interface PaperReloadedPageProps {
+  votesSelected: boolean;
+}
+
+export function PaperReloadedPage(props: PaperReloadedPageProps): JSX.Element {
+  const { votesSelected } = props;
+
   // Messy, but this flow eventually ends up in BallotContext. By setting path now
   // we ensure we render the correct page once poll worker auth is ended. If we don't
   // set the path now, we'll incorrectly render PrintPage (the last ballot screen rendered).
-  const history = useHistory();
+  const goToUrl = useHistory().push;
   useEffect(() => {
-    history.push('/ready-to-review');
-  });
+    goToUrl(votesSelected ? '/ready-to-review' : '/');
+  }, [goToUrl, votesSelected]);
 
   return (
     <CenteredCardPageLayout
