@@ -509,7 +509,7 @@ export function buildMachine(
           target: 'voting_flow.not_accepting_paper',
         },
       },
-      invoke: [pollPatDeviceConnectionStatus()],
+      invoke: pollPatDeviceConnectionStatus(),
       states: {
         voting_flow: {
           initial: 'not_accepting_paper',
@@ -794,7 +794,7 @@ export function buildMachine(
               },
             },
             loading_reinserted_ballot: {
-              invoke: [pollPaperStatus()],
+              invoke: pollPaperStatus(),
               entry: (context) => context.driver.loadPaper(),
               on: {
                 NO_PAPER_ANYWHERE: 'waiting_for_ballot_reinsertion',
