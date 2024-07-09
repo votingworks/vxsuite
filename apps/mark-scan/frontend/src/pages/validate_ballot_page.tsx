@@ -11,6 +11,7 @@ import {
   ReadOnLoad,
   PageNavigationButtonId,
   AssistiveTechInstructions,
+  P,
 } from '@votingworks/ui';
 
 import { assert } from '@votingworks/basics';
@@ -67,6 +68,8 @@ export function ValidateBallotPage(): JSX.Element | null {
   if (!interpretation) {
     return null;
   }
+
+  assert(interpretation.type === 'InterpretedBmdPage');
   const { votes } = interpretation;
 
   return (
@@ -97,6 +100,7 @@ export function ValidateBallotPage(): JSX.Element | null {
     >
       <ContentHeader>
         <H1>{appStrings.titleBmdReviewScreen()}</H1>
+        <P>{appStrings.instructionsBmdReviewAndValidatePrintedBallot()}</P>
         <AudioOnly>
           <AssistiveTechInstructions
             controllerString={appStrings.instructionsBmdReviewPageNavigation()}

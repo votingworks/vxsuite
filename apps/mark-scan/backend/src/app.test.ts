@@ -526,7 +526,7 @@ test('printing ballots', async () => {
   await waitForStatus('presenting_ballot');
   const interpretation = await apiClient.getInterpretation();
   assert(interpretation);
-  expect(interpretation.type).toEqual('InterpretedBmdPage');
+  assert(interpretation.type === 'InterpretedBmdPage');
   expectVotesEqual(interpretation.votes, mockVotes);
 
   await apiClient.validateBallot();
@@ -554,7 +554,7 @@ test('printing ballots', async () => {
   await waitForStatus('presenting_ballot');
   const interpretationChinese = await apiClient.getInterpretation();
   assert(interpretationChinese);
-  expect(interpretationChinese.type).toEqual('InterpretedBmdPage');
+  assert(interpretationChinese.type === 'InterpretedBmdPage');
   expectVotesEqual(interpretationChinese.votes, mockVotes);
 });
 
