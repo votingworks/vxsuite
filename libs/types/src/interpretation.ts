@@ -148,6 +148,8 @@ export const PageInterpretationSchema: z.ZodSchema<PageInterpretation> =
     UnreadablePageSchema,
   ]);
 
+export type PageInterpretationType = PageInterpretation['type'];
+
 export interface PageInterpretationWithFiles {
   imagePath: string;
   interpretation: PageInterpretation;

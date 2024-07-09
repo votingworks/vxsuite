@@ -37,10 +37,6 @@ export async function setDefaults(
   debug('set line spacing to 0');
   await driver.setPrintingSpeed('slow');
   debug('set printing speed to slow');
-
-  const scanDirection: ScanDirection = 'backward';
-  await driver.setScanDirection(scanDirection);
-  debug('set scan direction to', scanDirection);
 }
 
 export async function printBallotChunks(
@@ -94,7 +90,8 @@ export async function printBallotChunks(
 }
 
 export async function scanAndSave(
-  driver: PaperHandlerDriverInterface
+  driver: PaperHandlerDriverInterface,
+  direction: ScanDirection
 ): Promise<string> {
   const pathOutFront = tmpNameSync({ postfix: '.jpeg' });
   const status = await driver.getPaperHandlerStatus();
@@ -104,6 +101,8 @@ export async function scanAndSave(
     throw new Error('Paper has been removed');
   }
 
+  debug(`scanning sheet [direction: ${direction}]`);
+  await driver.setScanDirection(direction);
   await driver.scanAndSave(pathOutFront);
 
   // We can only print to one side from the thermal printer, but the interpret flow expects

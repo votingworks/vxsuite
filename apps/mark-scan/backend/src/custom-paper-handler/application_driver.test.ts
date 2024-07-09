@@ -112,9 +112,10 @@ test('scanAndSave success', async () => {
   mockOf(driver.getPaperHandlerStatus).mockResolvedValue(status);
   mockOf(isPaperAnywhere).mockReturnValue(true);
 
-  await scanAndSave(driver);
+  await scanAndSave(driver, 'backward');
 
   expect(driver.getPaperHandlerStatus).toHaveBeenCalledTimes(1);
+  expect(driver.setScanDirection).toHaveBeenCalledWith('backward');
   expect(driver.scanAndSave).toHaveBeenCalledTimes(1);
   expect(driver.scanAndSave).toHaveBeenCalledWith(
     expect.stringContaining('.jpeg')
@@ -125,7 +126,9 @@ test('scanAndSave errors when no paper', async () => {
   const status: PaperHandlerStatus = getDefaultPaperHandlerStatus();
   mockOf(driver.getPaperHandlerStatus).mockResolvedValue(status);
 
-  await expect(scanAndSave(driver)).rejects.toThrow('Paper has been removed');
+  await expect(scanAndSave(driver, 'backward')).rejects.toThrow(
+    'Paper has been removed'
+  );
 });
 
 test('resetAndReconnect', async () => {

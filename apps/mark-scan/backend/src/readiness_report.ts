@@ -27,7 +27,7 @@ export async function saveReadinessReport({
   workspace: Workspace;
   usbDrive: UsbDrive;
   logger: Logger;
-  stateMachine?: PaperHandlerStateMachine;
+  stateMachine: PaperHandlerStateMachine;
 }): Promise<ExportDataResult> {
   const { store } = workspace;
   const generatedAtTime = new Date(getCurrentTime());
@@ -44,15 +44,13 @@ export async function saveReadinessReport({
       ),
     },
     paperHandlerProps: {
-      isDeviceConnected: !!(
-        stateMachine && stateMachine.getSimpleStatus() !== 'no_hardware'
-      ),
+      isDeviceConnected: !!(stateMachine.getSimpleStatus() !== 'no_hardware'),
       mostRecentDiagnosticRecord: store.getMostRecentDiagnosticRecord(
         'mark-scan-paper-handler'
       ),
     },
     patInputProps: {
-      isDeviceConnected: !!stateMachine?.isPatDeviceConnected(),
+      isDeviceConnected: !!stateMachine.isPatDeviceConnected(),
       mostRecentDiagnosticRecord: store.getMostRecentDiagnosticRecord(
         'mark-scan-pat-input'
       ),

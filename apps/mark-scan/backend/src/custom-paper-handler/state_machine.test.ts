@@ -21,6 +21,7 @@ import {
 import {
   BallotId,
   BallotType,
+  PageInterpretationType,
   SheetOf,
   TEST_JURISDICTION,
   safeParseSystemSettings,
@@ -53,6 +54,7 @@ import {
 } from './test_utils';
 import { SimpleServerStatus } from '.';
 import {
+  loadAndParkPaper,
   printBallotChunks,
   resetAndReconnect,
   scanAndSave,
@@ -163,6 +165,11 @@ function expectMockPaperHandlerStatus(
 beforeEach(async () => {
   jest.useFakeTimers();
 
+  featureFlagMock.resetFeatureFlags();
+  featureFlagMock.disableFeatureFlag(
+    BooleanEnvironmentVariableName.MARK_SCAN_ENABLE_BALLOT_REINSERTION
+  );
+
   logger = mockBaseLogger();
   auth = buildMockInsertedSmartCardAuth();
   workspace = createWorkspace(dirSync().name);
@@ -197,7 +204,6 @@ beforeEach(async () => {
 });
 
 afterEach(async () => {
-  featureFlagMock.resetFeatureFlags();
   await machine.cleanUp();
   jest.resetAllMocks();
 });
@@ -253,14 +259,6 @@ describe('accepting_paper', () => {
     driver.setMockStatus('paperInserted');
     await expectStatusTransitionTo('loading_paper');
   });
-
-  it('transitions to waiting_for_ballot_data state when paper is already parked', async () => {
-    machine.setAcceptingPaper();
-    expect(machine.getSimpleStatus()).toEqual('accepting_paper');
-
-    driver.setMockStatus('paperParked');
-    await expectStatusTransitionTo('waiting_for_ballot_data');
-  });
 });
 
 describe('loading_paper', () => {
@@ -268,15 +266,14 @@ describe('loading_paper', () => {
     machine.setAcceptingPaper();
     expect(machine.getSimpleStatus()).toEqual('accepting_paper');
 
+    // Restore the original `loadAndParkPaper`, so it calls the underlying
+    // mock paper handler.
+    mockOf(loadAndParkPaper).mockImplementation(
+      jest.requireActual('./application_driver').loadAndParkPaper
+    );
+
     driver.setMockStatus('paperInserted');
     await expectStatusTransitionTo('loading_paper');
-  });
-
-  it('transitions to waiting_for_ballot_data state when paper is already parked', async () => {
-    machine.setAcceptingPaper();
-    expect(machine.getSimpleStatus()).toEqual('accepting_paper');
-
-    driver.setMockStatus('paperParked');
     await expectStatusTransitionTo('waiting_for_ballot_data');
   });
 });
@@ -385,8 +382,15 @@ async function executePrintBallotAndAssert(
     mockInterpretResult.promise
   );
 
+  // Restore the original `loadAndParkPaper`, so it calls the underlying
+  // mock paper handler.
+  mockOf(loadAndParkPaper).mockImplementation(
+    jest.requireActual('./application_driver').loadAndParkPaper
+  );
+
   machine.setAcceptingPaper();
-  driver.setMockStatus('paperParked');
+  driver.setMockStatus('paperInserted');
+  await expectStatusTransitionTo('loading_paper');
   await expectStatusTransitionTo('waiting_for_ballot_data');
 
   void machine.printBallot(ballotPdfData);
@@ -704,4 +708,251 @@ test('reset() API', async () => {
 
   expectCurrentStatus('not_accepting_paper');
   expect(machine.getInterpretation()).toBeUndefined();
+});
+
+test('insert and validate new blank sheet', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.MARK_SCAN_ENABLE_BALLOT_REINSERTION
+  );
+
+  machine.setAcceptingPaper();
+  expect(machine.getSimpleStatus()).toEqual('accepting_paper');
+
+  const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+  mockOf(interpretSimplexBmdBallotFromFilepath).mockReturnValue(
+    mockInterpretResult.promise
+  );
+  mockOf(scanAndSave).mockResolvedValue('mock-scan.jpg');
+
+  driver.setMockStatus('paperInserted');
+  await expectStatusTransitionTo('loading_new_sheet');
+  await expectStatusTransitionTo('validating_new_sheet');
+
+  mockInterpretResult.resolve(BLANK_PAGE_INTERPRETATION_MOCK);
+  await expectStatusTransitionTo('waiting_for_ballot_data');
+  expect(
+    mockOf(interpretSimplexBmdBallotFromFilepath)
+  ).toHaveBeenLastCalledWith('mock-scan.jpg', expect.anything());
+});
+
+describe('insert pre-printed ballot', () => {
+  beforeEach(() => {
+    featureFlagMock.enableFeatureFlag(
+      BooleanEnvironmentVariableName.MARK_SCAN_ENABLE_BALLOT_REINSERTION
+    );
+  });
+
+  test('start session with valid pre-printed ballot', async () => {
+    machine.setAcceptingPaper();
+
+    mockOf(scanAndSave).mockResolvedValue('mock-scan.jpg');
+    mockOf(interpretSimplexBmdBallotFromFilepath).mockResolvedValue(
+      SUCCESSFUL_INTERPRETATION_MOCK
+    );
+
+    driver.setMockStatus('paperInserted');
+    await expectStatusTransitionTo('loading_new_sheet');
+    await expectStatusTransitionTo('inserted_preprinted_ballot');
+
+    machine.startSessionWithPreprintedBallot();
+    await expectStatusTransitionTo('presenting_ballot');
+  });
+
+  test('return valid pre-printed ballot', async () => {
+    machine.setAcceptingPaper();
+
+    mockOf(scanAndSave).mockResolvedValue('mock-scan.jpg');
+    mockOf(interpretSimplexBmdBallotFromFilepath).mockResolvedValue(
+      SUCCESSFUL_INTERPRETATION_MOCK
+    );
+
+    driver.setMockStatus('paperInserted');
+    await expectStatusTransitionTo('loading_new_sheet');
+    await expectStatusTransitionTo('inserted_preprinted_ballot');
+
+    const ejectSpy = jest.spyOn(driver, 'ejectPaperToFront');
+
+    machine.returnPreprintedBallot();
+
+    await expectStatusTransitionTo('accepting_paper');
+    expect(ejectSpy).toHaveBeenCalled();
+  });
+
+  const invalidInterpretationTypes: Record<PageInterpretationType, boolean> = {
+    BlankPage: false,
+    InterpretedBmdPage: false,
+
+    InterpretedHmpbPage: true,
+    InvalidElectionHashPage: true,
+    InvalidTestModePage: true,
+    InvalidPrecinctPage: true,
+    UnreadablePage: true,
+  };
+
+  for (const interpretationType of Object.keys(
+    invalidInterpretationTypes
+  ) as PageInterpretationType[]) {
+    if (!invalidInterpretationTypes[interpretationType]) {
+      continue;
+    }
+
+    test(`insert invalid sheet: ${interpretationType}`, async () => {
+      machine.setAcceptingPaper();
+      expect(machine.getSimpleStatus()).toEqual('accepting_paper');
+
+      mockOf(scanAndSave).mockResolvedValue('mock-scan.jpg');
+
+      const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+      mockOf(interpretSimplexBmdBallotFromFilepath).mockReturnValue(
+        mockInterpretResult.promise
+      );
+
+      driver.setMockStatus('paperInserted');
+      await expectStatusTransitionTo('loading_new_sheet');
+      await expectStatusTransitionTo('validating_new_sheet');
+
+      mockInterpretResult.resolve([
+        {
+          interpretation: { type: interpretationType },
+        } as unknown as InterpretFileResult,
+        BLANK_PAGE_MOCK,
+      ]);
+      await expectStatusTransitionTo('inserted_invalid_new_sheet');
+      expectMockPaperHandlerStatus(driver, 'presentingPaper');
+
+      // Simulate removing the rejected sheet:
+      driver.setMockStatus('noPaper');
+      await expectStatusTransitionTo('accepting_paper');
+    });
+  }
+});
+
+describe('re-insert removed ballot', () => {
+  beforeEach(() => {
+    featureFlagMock.enableFeatureFlag(
+      BooleanEnvironmentVariableName.MARK_SCAN_ENABLE_BALLOT_REINSERTION
+    );
+  });
+
+  test('re-insert valid ballot', async () => {
+    //
+    // 1. [Setup] Seed voting session with pre-printed ballot:
+    //
+
+    machine.setAcceptingPaper();
+
+    mockOf(scanAndSave).mockResolvedValue('mock-scan.jpg');
+    mockOf(interpretSimplexBmdBallotFromFilepath).mockResolvedValue(
+      SUCCESSFUL_INTERPRETATION_MOCK
+    );
+
+    driver.setMockStatus('paperInserted');
+    await expectStatusTransitionTo('loading_new_sheet');
+    await expectStatusTransitionTo('inserted_preprinted_ballot');
+
+    machine.startSessionWithPreprintedBallot();
+    await expectStatusTransitionTo('presenting_ballot');
+
+    //
+    // 2. Remove ballot during presentation/review:
+    //
+
+    driver.setMockStatus('noPaper');
+    await expectStatusTransitionTo('waiting_for_ballot_reinsertion');
+
+    //
+    // 3. Re-insert valid ballot:
+    //
+
+    const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+    mockOf(interpretSimplexBmdBallotFromFilepath).mockReturnValue(
+      mockInterpretResult.promise
+    );
+    mockOf(scanAndSave).mockResolvedValue('mock-reinsertion-scan.jpg');
+
+    driver.setMockStatus('paperInserted');
+    await expectStatusTransitionTo('loading_reinserted_ballot');
+    await expectStatusTransitionTo('validating_reinserted_ballot');
+
+    mockInterpretResult.resolve(SUCCESSFUL_INTERPRETATION_MOCK);
+    await expectStatusTransitionTo('presenting_ballot');
+    expect(
+      mockOf(interpretSimplexBmdBallotFromFilepath)
+    ).toHaveBeenLastCalledWith('mock-reinsertion-scan.jpg', expect.anything());
+  });
+
+  const invalidInterpretationTypes: Record<PageInterpretationType, boolean> = {
+    InterpretedBmdPage: false,
+
+    BlankPage: true,
+    InterpretedHmpbPage: true,
+    InvalidElectionHashPage: true,
+    InvalidTestModePage: true,
+    InvalidPrecinctPage: true,
+    UnreadablePage: true,
+  };
+
+  for (const interpretationType of Object.keys(
+    invalidInterpretationTypes
+  ) as PageInterpretationType[]) {
+    if (!invalidInterpretationTypes[interpretationType]) {
+      continue;
+    }
+
+    test(`reinsert invalid ballot: ${interpretationType}`, async () => {
+      //
+      // 1. [Setup] Seed voting session with pre-printed ballot:
+      //
+
+      machine.setAcceptingPaper();
+
+      mockOf(scanAndSave).mockResolvedValue('mock-scan.jpg');
+      mockOf(interpretSimplexBmdBallotFromFilepath).mockResolvedValue(
+        SUCCESSFUL_INTERPRETATION_MOCK
+      );
+
+      driver.setMockStatus('paperInserted');
+      await expectStatusTransitionTo('loading_new_sheet');
+      await expectStatusTransitionTo('inserted_preprinted_ballot');
+
+      machine.startSessionWithPreprintedBallot();
+      await expectStatusTransitionTo('presenting_ballot');
+
+      //
+      // 2. Remove ballot during presentation/review:
+      //
+
+      driver.setMockStatus('noPaper');
+      await expectStatusTransitionTo('waiting_for_ballot_reinsertion');
+
+      //
+      // 3. Re-insert invalid ballot:
+      //
+
+      const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+      mockOf(interpretSimplexBmdBallotFromFilepath).mockReturnValue(
+        mockInterpretResult.promise
+      );
+
+      driver.setMockStatus('paperInserted');
+      await expectStatusTransitionTo('loading_reinserted_ballot');
+      await expectStatusTransitionTo('validating_reinserted_ballot');
+
+      mockInterpretResult.resolve([
+        {
+          interpretation: { type: interpretationType },
+        } as unknown as InterpretFileResult,
+        BLANK_PAGE_MOCK,
+      ]);
+      await expectStatusTransitionTo('reinserted_invalid_ballot');
+      expectMockPaperHandlerStatus(driver, 'presentingPaper');
+
+      //
+      // 4. Remove invalid ballot:
+      //
+
+      driver.setMockStatus('noPaper');
+      await expectStatusTransitionTo('waiting_for_ballot_reinsertion');
+    });
+  }
 });
