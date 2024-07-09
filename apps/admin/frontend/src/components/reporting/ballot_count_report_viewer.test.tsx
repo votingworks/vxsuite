@@ -243,7 +243,7 @@ test('exporting PDF', async () => {
 
   const { resolve } = apiMock.expectExportBallotCountReportPdf({
     expectCallWith: {
-      path: 'test-mount-point/franklin-county_lincoln-municipal-general-election_20b609abd8/reports/unofficial-ballot-count-report-by-voting-method__2023-09-06_21-45-08.pdf',
+      path: 'test-mount-point/franklin-county_lincoln-municipal-general-election_5f5a501541/reports/unofficial-ballot-count-report-by-voting-method__2023-09-06_21-45-08.pdf',
       ...reportSpec,
     },
     returnValue: ok([]),
@@ -298,7 +298,7 @@ test('exporting CSV', async () => {
 
   const { resolve } = apiMock.expectExportBallotCountReportCsv({
     expectCallWith: {
-      path: 'test-mount-point/franklin-county_lincoln-municipal-general-election_20b609abd8/reports/unofficial-ballot-count-report-by-voting-method__2023-09-06_21-45-08.csv',
+      path: 'test-mount-point/franklin-county_lincoln-municipal-general-election_5f5a501541/reports/unofficial-ballot-count-report-by-voting-method__2023-09-06_21-45-08.csv',
       ...reportSpec,
     },
     returnValue: ok([]),
