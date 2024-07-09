@@ -117,6 +117,7 @@ const BallotViews = styled.div`
 const AdjudicationControls = styled.div`
   display: flex;
   flex-direction: column;
+  width: 575px;
 `;
 
 const AdjudicationMetadata = styled(Caption)`
@@ -158,6 +159,7 @@ const CandidateStyledButton = styled(Button)`
   padding-left: 0.5rem;
   text-align: left;
   width: 100%;
+  word-break: break-word;
 
   /* Increase contrast between selected/unselected options when disabled by
    * removing the darkening filter for unselected options. */
