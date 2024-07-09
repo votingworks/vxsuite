@@ -54,6 +54,7 @@ import {
 } from './test_utils';
 import { SimpleServerStatus } from '.';
 import {
+  loadAndParkPaper,
   printBallotChunks,
   resetAndReconnect,
   scanAndSave,
@@ -258,14 +259,6 @@ describe('accepting_paper', () => {
     driver.setMockStatus('paperInserted');
     await expectStatusTransitionTo('loading_paper');
   });
-
-  it('transitions to waiting_for_ballot_data state when paper is already parked', async () => {
-    machine.setAcceptingPaper();
-    expect(machine.getSimpleStatus()).toEqual('accepting_paper');
-
-    driver.setMockStatus('paperParked');
-    await expectStatusTransitionTo('waiting_for_ballot_data');
-  });
 });
 
 describe('loading_paper', () => {
@@ -273,15 +266,14 @@ describe('loading_paper', () => {
     machine.setAcceptingPaper();
     expect(machine.getSimpleStatus()).toEqual('accepting_paper');
 
+    // Restore the original `loadAndParkPaper`, so it calls the underlying
+    // mock paper handler.
+    mockOf(loadAndParkPaper).mockImplementation(
+      jest.requireActual('./application_driver').loadAndParkPaper
+    );
+
     driver.setMockStatus('paperInserted');
     await expectStatusTransitionTo('loading_paper');
-  });
-
-  it('transitions to waiting_for_ballot_data state when paper is already parked', async () => {
-    machine.setAcceptingPaper();
-    expect(machine.getSimpleStatus()).toEqual('accepting_paper');
-
-    driver.setMockStatus('paperParked');
     await expectStatusTransitionTo('waiting_for_ballot_data');
   });
 });
@@ -390,8 +382,15 @@ async function executePrintBallotAndAssert(
     mockInterpretResult.promise
   );
 
+  // Restore the original `loadAndParkPaper`, so it calls the underlying
+  // mock paper handler.
+  mockOf(loadAndParkPaper).mockImplementation(
+    jest.requireActual('./application_driver').loadAndParkPaper
+  );
+
   machine.setAcceptingPaper();
-  driver.setMockStatus('paperParked');
+  driver.setMockStatus('paperInserted');
+  await expectStatusTransitionTo('loading_paper');
   await expectStatusTransitionTo('waiting_for_ballot_data');
 
   void machine.printBallot(ballotPdfData);

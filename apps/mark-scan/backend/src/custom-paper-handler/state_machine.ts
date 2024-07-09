@@ -539,13 +539,6 @@ export function buildMachine(
                   },
                   'loading_paper',
                 ],
-                PAPER_PARKED: [
-                  {
-                    target: 'not_accepting_paper',
-                    cond: isBallotReinsertionEnabled,
-                  },
-                  'waiting_for_ballot_data',
-                ],
                 AUTH_STATUS_CARDLESS_VOTER: 'resetting_state_machine_no_delay',
               },
             },
