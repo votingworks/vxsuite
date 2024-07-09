@@ -28,11 +28,6 @@ export async function getWriteInImageView({
       writeInId,
       cvrId,
       imageUrl: toDataUrl(await loadImageData(image), 'image/jpeg'),
-      ballotCoordinates: {
-        ...layout.pageSize,
-        x: 0,
-        y: 0,
-      },
       machineMarkedText: machineMarkedText || '',
     };
   }

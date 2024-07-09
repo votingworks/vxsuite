@@ -25,6 +25,8 @@ import { format } from '@votingworks/utils';
 import { assert, find } from '@votingworks/basics';
 import { useQueryClient } from '@tanstack/react-query';
 import type {
+  BmdWriteInImageView,
+  HmpbWriteInImageView,
   WriteInCandidateRecord,
   WriteInRecordAdjudicatedOfficialCandidate,
 } from '@votingworks/admin-backend';
@@ -44,7 +46,10 @@ import { normalizeWriteInName } from '../utils/write_ins';
 import { AppContext } from '../contexts/app_context';
 import { WriteInsAdjudicationScreenProps } from '../config/types';
 import { routerPaths } from '../router_paths';
-import { BallotImageViewer } from '../components/adjudication_ballot_image_viewer';
+import {
+  BallotStaticImageViewer,
+  BallotZoomImageViewer,
+} from '../components/adjudication_ballot_image_viewer';
 import {
   DoubleVoteAlert,
   DoubleVoteAlertModal,
@@ -85,6 +90,11 @@ const ContestTitle = styled(H2)`
    * last/only child in its container.
    */
   margin: 0 !important;
+`;
+
+const ContestSubTitle = styled.div`
+  padding-top: 0.5rem;
+  word-break: break-word;
 `;
 
 const AdjudicationNav = styled.div`
@@ -306,6 +316,17 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
   const nextButton = useRef<Button>(null);
   const firstAdjudicationControl = useRef<HTMLFieldSetElement>(null);
 
+  const writeInAdjudicationContext = writeInAdjudicationContextQuery.data;
+  const currentWriteIn = writeInAdjudicationContext?.writeIn;
+  const currentWriteInMarkedInvalid =
+    currentWriteIn &&
+    currentWriteIn.status === 'adjudicated' &&
+    currentWriteIn.adjudicationType === 'invalid';
+
+  const writeInImageView = writeInImageViewQuery.data;
+  const hmpbWriteInImageView = writeInImageView as HmpbWriteInImageView;
+  const bmdWriteInImageView = writeInImageView as BmdWriteInImageView;
+
   if (
     !writeInQueueMetadataQuery.isSuccess ||
     !writeInQueueQuery.isSuccess ||
@@ -341,14 +362,6 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
     ...officialCandidates.map((c) => normalizeWriteInName(c.name)),
     ...writeInCandidates.map((c) => normalizeWriteInName(c.name)),
   ];
-
-  const writeInImageView = writeInImageViewQuery.data;
-  const writeInAdjudicationContext = writeInAdjudicationContextQuery.data;
-  const currentWriteIn = writeInAdjudicationContext?.writeIn;
-  const currentWriteInMarkedInvalid =
-    currentWriteIn &&
-    currentWriteIn.status === 'adjudicated' &&
-    currentWriteIn.adjudicationType === 'invalid';
 
   // these IDs cannot be selected because the voter filled in a bubble for the candidate
   const markedOfficialCandidateIds = writeInAdjudicationContext
@@ -488,12 +501,17 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
     <Screen>
       <Main flexRow data-testid={`transcribe:${currentWriteInId}`}>
         <BallotViews>
-          {writeInImageView ? (
-            <BallotImageViewer
+          {hmpbWriteInImageView?.ballotCoordinates !== undefined ? (
+            <BallotZoomImageViewer
               key={currentWriteInId} // Reset zoom state for each write-in
-              imageUrl={writeInImageView.imageUrl}
-              ballotBounds={writeInImageView.ballotCoordinates}
-              writeInBounds={writeInImageView.writeInCoordinates}
+              imageUrl={hmpbWriteInImageView.imageUrl}
+              ballotBounds={hmpbWriteInImageView.ballotCoordinates}
+              writeInBounds={hmpbWriteInImageView.writeInCoordinates}
+            />
+          ) : bmdWriteInImageView?.machineMarkedText !== undefined ? (
+            <BallotStaticImageViewer
+              key={currentWriteInId} // Reset zoom state for each write-in
+              imageUrl={bmdWriteInImageView.imageUrl}
             />
           ) : null}
         </BallotViews>
@@ -535,6 +553,14 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                   })})`}
               </span>
             </ContestTitle>
+            {bmdWriteInImageView?.machineMarkedText !== undefined && (
+              <ContestSubTitle>
+                Write-In Text:{' '}
+                <Font weight="bold">
+                  {bmdWriteInImageView.machineMarkedText}
+                </Font>
+              </ContestSubTitle>
+            )}
           </ContestTitleContainer>
           <AdjudicationForm>
             <SectionLabel>Official Candidates</SectionLabel>
@@ -622,7 +648,14 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
               ) : (
                 <WriteInActionButton
                   icon="Add"
-                  onPress={() => setShowNewWriteInCandidateForm(true)}
+                  onPress={() => {
+                    if (bmdWriteInImageView?.machineMarkedText) {
+                      setNewWriteInCandidateName(
+                        bmdWriteInImageView.machineMarkedText
+                      );
+                    }
+                    setShowNewWriteInCandidateForm(true);
+                  }}
                 >
                   Add new write-in candidate
                 </WriteInActionButton>

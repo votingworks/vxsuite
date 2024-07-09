@@ -354,7 +354,6 @@ export interface BmdWriteInImageView {
   readonly writeInId: Id;
   readonly cvrId: Id;
   readonly imageUrl: string;
-  readonly ballotCoordinates: Rect;
   readonly machineMarkedText: string;
 }
 
