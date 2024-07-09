@@ -2,10 +2,11 @@ import { findTemplateGridAndBubbles } from '@votingworks/ballot-interpreter';
 import {
   assert,
   assertDefined,
+  asyncResultBlock,
   deepEqual,
   err,
+  iter,
   ok,
-  resultBlock,
   throwIllegalValue,
   typedAs,
   uniqueDeep,
@@ -13,10 +14,12 @@ import {
 import {
   Election,
   GridPosition,
+  asSheet,
   getContests,
   getPartyForBallotStyle,
   safeParseElection,
 } from '@votingworks/types';
+import { pdfToImages } from '@votingworks/image-utils';
 import { convertElectionDefinitionHeader } from './convert_election_definition_header';
 import { matchContestOptionsOnGrid } from './match_contest_options_on_grid';
 import {
@@ -28,11 +31,11 @@ import {
   ConvertIssue,
 } from './types';
 
-function convertCardDefinition(
+async function convertCardDefinition(
   cardDefinition: NewHampshireBallotCardDefinition,
   metadataEncoding: Election['ballotLayout']['metadataEncoding']
-): ConvertResult {
-  return resultBlock((fail) => {
+): Promise<ConvertResult> {
+  return asyncResultBlock(async (fail) => {
     const convertHeader = convertElectionDefinitionHeader(
       cardDefinition.definition,
       metadataEncoding
@@ -42,11 +45,26 @@ function convertCardDefinition(
     let success = true;
     const issues = [...headerIssues];
 
-    const findTemplateGridAndBubblesResult = findTemplateGridAndBubbles([
-      cardDefinition.front,
-      cardDefinition.back,
-    ]);
+    const pageImages = await iter(
+      pdfToImages(cardDefinition.ballotPdf, { scale: 200 / 72 })
+    )
+      .map(({ page }) => page)
+      .toArray();
+    if (pageImages.length !== 2) {
+      return err({
+        issues: [
+          ...issues,
+          typedAs<ConvertIssue>({
+            kind: ConvertIssueKind.InvalidBallotTemplateNumPages,
+            message: `Expected exactly two pages in the ballot PDF, but found ${pageImages.length}`,
+          }),
+        ],
+      });
+    }
+    const pages = asSheet(pageImages);
+    const [frontPage, backPage] = pages;
 
+    const findTemplateGridAndBubblesResult = findTemplateGridAndBubbles(pages);
     if (findTemplateGridAndBubblesResult.isErr()) {
       return err({
         issues: [
@@ -92,12 +110,12 @@ function convertCardDefinition(
         message: `Template images do not match expected sizes. The XML definition says the template images should be "${paperSize}", but the template images are front="${frontExpectedPaperSize}" and back="${backExpectedPaperSize}".`,
         paperSize,
         frontTemplateSize: {
-          width: cardDefinition.front.width,
-          height: cardDefinition.front.height,
+          width: frontPage.width,
+          height: frontPage.height,
         },
         backTemplateSize: {
-          width: cardDefinition.back.width,
-          height: cardDefinition.back.height,
+          width: backPage.width,
+          height: backPage.height,
         },
       });
       paperSize = frontExpectedPaperSize;
@@ -340,10 +358,12 @@ ${JSON.stringify(differingElection?.[key as keyof Election], null, 2)}`,
 export function convertElectionDefinition(
   cardDefinitions: NewHampshireBallotCardDefinition[],
   metadataEncoding: Election['ballotLayout']['metadataEncoding']
-): ConvertResult {
-  return resultBlock((fail) => {
-    const cardResults = cardDefinitions.map((definition) =>
-      convertCardDefinition(definition, metadataEncoding)
+): Promise<ConvertResult> {
+  return asyncResultBlock(async (fail) => {
+    const cardResults = await Promise.all(
+      cardDefinitions.map((definition) =>
+        convertCardDefinition(definition, metadataEncoding)
+      )
     );
     cardResults.find((result) => result.isErr())?.okOrElse(fail);
     const cardElections = cardResults.map(

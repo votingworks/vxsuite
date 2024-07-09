@@ -1,4 +1,4 @@
-import { Result, iter, typedAs } from '@votingworks/basics';
+import { Result, typedAs } from '@votingworks/basics';
 import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   electionGridLayoutNewHampshireHudsonFixtures,
@@ -10,7 +10,6 @@ import {
   unsafeParse,
 } from '@votingworks/types';
 import { readFile } from 'fs/promises';
-import { pdfToImages } from '@votingworks/image-utils';
 import { join } from 'path';
 import { readFixtureBallotCardDefinition } from '../../test/fixtures';
 import { convertElectionDefinition } from './convert_election_definition';
@@ -19,12 +18,13 @@ import { ConvertIssue, ConvertIssueKind, ConvertResult } from './types';
 test('converting the Hudson ballot', async () => {
   const hudsonBallotCardDefinition = readFixtureBallotCardDefinition(
     electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText(),
-    await electionGridLayoutNewHampshireHudsonFixtures.templateFront.asImageData(),
-    await electionGridLayoutNewHampshireHudsonFixtures.templateBack.asImageData()
+    electionGridLayoutNewHampshireHudsonFixtures.templatePdf.asBuffer()
   );
-  const converted = convertElectionDefinition(
-    [hudsonBallotCardDefinition],
-    'timing-marks'
+  const converted = (
+    await convertElectionDefinition(
+      [hudsonBallotCardDefinition],
+      'timing-marks'
+    )
   ).unsafeUnwrap();
 
   // uncomment this to update the fixture
@@ -48,8 +48,7 @@ test('converting the Hudson ballot', async () => {
 test('mismatched ballot image size', async () => {
   const hudsonBallotCardDefinition = readFixtureBallotCardDefinition(
     electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText(),
-    await electionGridLayoutNewHampshireHudsonFixtures.templateFront.asImageData(),
-    await electionGridLayoutNewHampshireHudsonFixtures.templateBack.asImageData()
+    electionGridLayoutNewHampshireHudsonFixtures.templatePdf.asBuffer()
   );
 
   hudsonBallotCardDefinition.definition.getElementsByTagName(
@@ -57,9 +56,11 @@ test('mismatched ballot image size', async () => {
   )[0]!.textContent = '8.5X11';
 
   expect(
-    convertElectionDefinition(
-      [hudsonBallotCardDefinition],
-      'timing-marks'
+    (
+      await convertElectionDefinition(
+        [hudsonBallotCardDefinition],
+        'timing-marks'
+      )
     ).unsafeUnwrap().issues
   ).toEqual(
     expect.arrayContaining([
@@ -79,12 +80,13 @@ test('mismatched ballot image size', async () => {
 test('constitutional question ovals get placed on the grid correctly', async () => {
   const nhTestBallotCardDefinition = readFixtureBallotCardDefinition(
     electionGridLayoutNewHampshireTestBallotFixtures.definitionXml.asText(),
-    await electionGridLayoutNewHampshireTestBallotFixtures.templateFront.asImageData(),
-    await electionGridLayoutNewHampshireTestBallotFixtures.templateBack.asImageData()
+    electionGridLayoutNewHampshireTestBallotFixtures.templatePdf.asBuffer()
   );
-  const converted = convertElectionDefinition(
-    [nhTestBallotCardDefinition],
-    'timing-marks'
+  const converted = (
+    await convertElectionDefinition(
+      [nhTestBallotCardDefinition],
+      'timing-marks'
+    )
   ).unsafeUnwrap();
 
   // uncomment this to update the fixture
@@ -166,35 +168,21 @@ test('constitutional question ovals get placed on the grid correctly', async () 
 
 test('converting two party primary ballots into one election (Conway)', async () => {
   const conwayDir = join(__dirname, '../../test/fixtures/conway-primary');
-  const [demFront, demBack] = await iter(
-    pdfToImages(await readFile(join(conwayDir, 'dem-ballot-template.pdf')), {
-      scale: 200 / 72,
-    })
-  )
-    .map(({ page }) => page)
-    .toArray();
   const demBallotCardDefinition = readFixtureBallotCardDefinition(
     await readFile(join(conwayDir, 'dem-definition.xml'), 'utf-8'),
-    demFront!,
-    demBack!
+    await readFile(join(conwayDir, 'dem-ballot-template.pdf'))
   );
 
-  const [repFront, repBack] = await iter(
-    pdfToImages(await readFile(join(conwayDir, 'rep-ballot-template.pdf')), {
-      scale: 200 / 72,
-    })
-  )
-    .map(({ page }) => page)
-    .toArray();
   const repBallotCardDefinition = readFixtureBallotCardDefinition(
     await readFile(join(conwayDir, 'rep-definition.xml'), 'utf-8'),
-    repFront!,
-    repBack!
+    await readFile(join(conwayDir, 'rep-ballot-template.pdf'))
   );
 
-  const converted = convertElectionDefinition(
-    [demBallotCardDefinition, repBallotCardDefinition],
-    'qr-code'
+  const converted = (
+    await convertElectionDefinition(
+      [demBallotCardDefinition, repBallotCardDefinition],
+      'qr-code'
+    )
   ).unsafeUnwrap();
 
   expect(converted).toMatchSnapshot();

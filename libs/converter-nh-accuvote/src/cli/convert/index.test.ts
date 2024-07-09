@@ -32,12 +32,12 @@ test('--help', async () => {
   expect(io.stdout.toString()).toMatchInlineSnapshot(`
 "Usage:
   General Election:
-    convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg>
+    convert <definition.xml> <ballot.pdf>
       -e qr-code|timing-marks
       [-o <output.json>] [--debug]
   Primary Election:
-    convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
-      <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+    convert <party1-definition.xml> <party1-ballot.pdf>
+      <party2-definition.xml> <party2-ballot.pdf> [... more parties ...]
       -e qr-code|timing-marks
       [-o <output.json>] [--debug]
 "
@@ -56,12 +56,12 @@ test('-h', async () => {
   expect(io.stdout.toString()).toMatchInlineSnapshot(`
 "Usage:
   General Election:
-    convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg>
+    convert <definition.xml> <ballot.pdf>
       -e qr-code|timing-marks
       [-o <output.json>] [--debug]
   Primary Election:
-    convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
-      <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+    convert <party1-definition.xml> <party1-ballot.pdf>
+      <party2-definition.xml> <party2-ballot.pdf> [... more parties ...]
       -e qr-code|timing-marks
       [-o <output.json>] [--debug]
 "
@@ -78,8 +78,7 @@ test('missing output after --output', async () => {
   const exitCode = await main(
     [
       electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asFilePath(),
-      'front.jpeg',
-      'back.jpeg',
+      'ballot.pdf',
       '--output',
     ],
     io
@@ -89,12 +88,12 @@ test('missing output after --output', async () => {
 "Error: missing output path after --output
 Usage:
   General Election:
-    convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg>
+    convert <definition.xml> <ballot.pdf>
       -e qr-code|timing-marks
       [-o <output.json>] [--debug]
   Primary Election:
-    convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
-      <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+    convert <party1-definition.xml> <party1-ballot.pdf>
+      <party2-definition.xml> <party2-ballot.pdf> [... more parties ...]
       -e qr-code|timing-marks
       [-o <output.json>] [--debug]
 "
@@ -115,12 +114,12 @@ test('unexpected option', async () => {
 "Error: unknown option: --nope
 Usage:
   General Election:
-    convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg>
+    convert <definition.xml> <ballot.pdf>
       -e qr-code|timing-marks
       [-o <output.json>] [--debug]
   Primary Election:
-    convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
-      <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+    convert <party1-definition.xml> <party1-ballot.pdf>
+      <party2-definition.xml> <party2-ballot.pdf> [... more parties ...]
       -e qr-code|timing-marks
       [-o <output.json>] [--debug]
 "
@@ -136,7 +135,7 @@ test('unexpected argument', async () => {
   };
 
   const exitCode = await main(
-    ['definition.xml', 'front.jpeg', 'back.jpeg', 'what-is-this.json'],
+    ['definition.xml', 'ballot.pdf', 'what-is-this.json'],
     io
   );
 
@@ -144,12 +143,12 @@ test('unexpected argument', async () => {
 "Error: unexpected argument: what-is-this.json
 Usage:
   General Election:
-    convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg>
+    convert <definition.xml> <ballot.pdf>
       -e qr-code|timing-marks
       [-o <output.json>] [--debug]
   Primary Election:
-    convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
-      <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+    convert <party1-definition.xml> <party1-ballot.pdf>
+      <party2-definition.xml> <party2-ballot.pdf> [... more parties ...]
       -e qr-code|timing-marks
       [-o <output.json>] [--debug]
 "
@@ -164,18 +163,18 @@ test('missing definition path', async () => {
     stderr: fakeWritable(),
   };
 
-  const exitCode = await main(['front.jpeg', 'back.jpeg'], io);
+  const exitCode = await main(['ballot.pdf'], io);
 
   expect(io.stderr.toString()).toMatchInlineSnapshot(`
 "Error: missing definition path
 Usage:
   General Election:
-    convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg>
+    convert <definition.xml> <ballot.pdf>
       -e qr-code|timing-marks
       [-o <output.json>] [--debug]
   Primary Election:
-    convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
-      <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+    convert <party1-definition.xml> <party1-ballot.pdf>
+      <party2-definition.xml> <party2-ballot.pdf> [... more parties ...]
       -e qr-code|timing-marks
       [-o <output.json>] [--debug]
 "
@@ -183,7 +182,7 @@ Usage:
   expect(exitCode).toEqual(1);
 });
 
-test('missing front ballot path', async () => {
+test('missing ballot path', async () => {
   const io: Stdio = {
     stdin: fakeReadable(),
     stdout: fakeWritable(),
@@ -193,41 +192,15 @@ test('missing front ballot path', async () => {
   const exitCode = await main(['definition.xml'], io);
 
   expect(io.stderr.toString()).toMatchInlineSnapshot(`
-"Error: missing ballot image paths
+"Error: missing ballot pdf paths
 Usage:
   General Election:
-    convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg>
+    convert <definition.xml> <ballot.pdf>
       -e qr-code|timing-marks
       [-o <output.json>] [--debug]
   Primary Election:
-    convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
-      <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
-      -e qr-code|timing-marks
-      [-o <output.json>] [--debug]
-"
-`);
-  expect(exitCode).toEqual(1);
-});
-
-test('missing back ballot path', async () => {
-  const io: Stdio = {
-    stdin: fakeReadable(),
-    stdout: fakeWritable(),
-    stderr: fakeWritable(),
-  };
-
-  const exitCode = await main(['definition.xml', 'front.jpeg'], io);
-
-  expect(io.stderr.toString()).toMatchInlineSnapshot(`
-"Error: missing ballot image paths
-Usage:
-  General Election:
-    convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg>
-      -e qr-code|timing-marks
-      [-o <output.json>] [--debug]
-  Primary Election:
-    convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
-      <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
+    convert <party1-definition.xml> <party1-ballot.pdf>
+      <party2-definition.xml> <party2-ballot.pdf> [... more parties ...]
       -e qr-code|timing-marks
       [-o <output.json>] [--debug]
 "
@@ -244,15 +217,14 @@ test('convert to stdout', async () => {
 
   const { election } = electionGridLayoutNewHampshireHudsonFixtures;
 
-  mockOf(convertElectionDefinition).mockReturnValue(
+  mockOf(convertElectionDefinition).mockResolvedValue(
     ok({ election, issues: [] })
   );
 
   const exitCode = await main(
     [
       electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asFilePath(),
-      'front.jpeg',
-      'back.jpeg',
+      electionGridLayoutNewHampshireHudsonFixtures.templatePdf.asFilePath(),
       '-e',
       'timing-marks',
       '-o',
@@ -281,7 +253,7 @@ test('convert to file', async () => {
 
   const { election } = electionGridLayoutNewHampshireHudsonFixtures;
 
-  mockOf(convertElectionDefinition).mockReturnValue(
+  mockOf(convertElectionDefinition).mockResolvedValue(
     ok({ election, issues: [] })
   );
 
@@ -289,8 +261,7 @@ test('convert to file', async () => {
   const exitCode = await main(
     [
       electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asFilePath(),
-      'front.jpeg',
-      'back.jpeg',
+      electionGridLayoutNewHampshireHudsonFixtures.templatePdf.asFilePath(),
       '-e',
       'timing-marks',
       '-o',
@@ -321,7 +292,7 @@ test('convert fails', async () => {
     stderr: fakeWritable(),
   };
 
-  mockOf(convertElectionDefinition).mockReturnValue(
+  mockOf(convertElectionDefinition).mockResolvedValue(
     err({
       issues: [
         {
@@ -336,8 +307,7 @@ test('convert fails', async () => {
   const exitCode = await main(
     [
       electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asFilePath(),
-      'front.jpeg',
-      'back.jpeg',
+      electionGridLayoutNewHampshireHudsonFixtures.templatePdf.asFilePath(),
       '-e',
       'timing-marks',
       '-o',

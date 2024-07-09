@@ -223,11 +223,10 @@ test('missing Party on multi-party endorsement', () => {
   ]);
 });
 
-test('constitutional questions become yesno contests', async () => {
+test('constitutional questions become yesno contests', () => {
   const nhTestBallotCardDefinition = readFixtureBallotCardDefinition(
     electionGridLayoutNewHampshireTestBallotFixtures.definitionXml.asText(),
-    await electionGridLayoutNewHampshireTestBallotFixtures.templateFront.asImageData(),
-    await electionGridLayoutNewHampshireTestBallotFixtures.templateBack.asImageData()
+    electionGridLayoutNewHampshireTestBallotFixtures.templatePdf.asBuffer()
   );
   const converted = convertElectionDefinitionHeader(
     nhTestBallotCardDefinition.definition,
