@@ -4,7 +4,7 @@ import path from 'path';
 import yargs from 'yargs/yargs';
 import { extractErrorMessage } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { TEST_JURISDICTION } from '@votingworks/types';
+import { ElectionKey, TEST_JURISDICTION } from '@votingworks/types';
 
 import { CardDetails } from '../../src/card';
 import {
@@ -175,7 +175,11 @@ async function generateDevKeysAndCerts({
       await certPemToDer(vxAdminCertAuthorityCert)
     );
 
-    const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
+    const { election } = electionFamousNames2021Fixtures.electionDefinition;
+    const electionKey: ElectionKey = {
+      id: election.id,
+      date: election.date,
+    };
     const cardConfigs: Array<{ cardType: CardType; cardDetails: CardDetails }> =
       [
         {
@@ -193,20 +197,20 @@ async function generateDevKeysAndCerts({
         {
           cardType: 'election-manager',
           cardDetails: {
-            user: { role: 'election_manager', jurisdiction, electionHash },
+            user: { role: 'election_manager', jurisdiction, electionKey },
           },
         },
         {
           cardType: 'poll-worker',
           cardDetails: {
-            user: { role: 'poll_worker', jurisdiction, electionHash },
+            user: { role: 'poll_worker', jurisdiction, electionKey },
             hasPin: false,
           },
         },
         {
           cardType: 'poll-worker-with-pin',
           cardDetails: {
-            user: { role: 'poll_worker', jurisdiction, electionHash },
+            user: { role: 'poll_worker', jurisdiction, electionKey },
             hasPin: true,
           },
         },
