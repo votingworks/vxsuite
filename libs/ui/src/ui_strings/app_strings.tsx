@@ -383,6 +383,18 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsBmdInsertBallotFaceUp: () => (
+    <UiString uiStringKey="instructionsBmdInsertBallotFaceUp">
+      Be sure to insert the sheet with the printed side facing upwards.
+    </UiString>
+  ),
+
+  instructionsBmdInsertPreviouslyPrintedBallot: () => (
+    <UiString uiStringKey="instructionsBmdInsertPreviouslyPrintedBallot">
+      Please remove the sheet and insert the previously printed ballot.
+    </UiString>
+  ),
+
   instructionsBmdInvalidatedBallot: () => (
     <UiString uiStringKey="instructionsBmdInvalidatedBallot">
       You have indicated your ballot needs changes. Please alert a poll worker
@@ -429,6 +441,14 @@ export const appStrings = {
   instructionsBmdPrintScreenNoBallotRemoval: () => (
     <UiString uiStringKey="instructionsBmdPrintScreenNoBallotRemoval">
       Do not remove the ballot once it's printed.
+    </UiString>
+  ),
+
+  instructionsBmdReviewAndValidatePrintedBallot: () => (
+    <UiString uiStringKey="instructionsBmdReviewAndValidatePrintedBallot">
+      The following votes were scanned from your printed official ballot. Please
+      review the selections in each contest and verify that they are correct to
+      cast your ballot.
     </UiString>
   ),
 
@@ -1083,6 +1103,30 @@ export const appStrings = {
     <UiString uiStringKey="titleBmdIdleScreen">Are you still voting?</UiString>
   ),
 
+  titleBmdInvalidBallotNoBallotDetected: () => (
+    <UiString uiStringKey="titleBmdInvalidBallotNoBallotDetected">
+      No Ballot Detected
+    </UiString>
+  ),
+
+  titleBmdInvalidBallotWrongElection: () => (
+    <UiString uiStringKey="titleBmdInvalidBallotWrongElection">
+      Wrong Election
+    </UiString>
+  ),
+
+  titleBmdInvalidBallotWrongPrecinct: () => (
+    <UiString uiStringKey="titleBmdInvalidBallotWrongPrecinct">
+      Wrong Precinct
+    </UiString>
+  ),
+
+  titleBmdInvalidBallotWrongTestMode: () => (
+    <UiString uiStringKey="titleBmdInvalidBallotWrongTestMode">
+      Wrong Ballot Mode
+    </UiString>
+  ),
+
   titleBmdJamClearedScreen: () => (
     <UiString uiStringKey="titleBmdJamClearedScreen">Jam Cleared</UiString>
   ),
@@ -1293,6 +1337,36 @@ export const appStrings = {
     <UiString uiStringKey="warningBmdInactiveTimeRemaining">
       To protect your privacy, this ballot will be cleared when the timer runs
       out.
+    </UiString>
+  ),
+
+  warningBmdInvalidBallotNoBallotDetected: () => (
+    <UiString uiStringKey="warningBmdInvalidBallotNoBallotDetected">
+      There was no ballot information detected on the inserted sheet.
+    </UiString>
+  ),
+
+  warningBmdInvalidBallotTestBallotInLiveMode: () => (
+    <UiString uiStringKey="warningBmdInvalidBallotTestBallotInLiveMode">
+      The inserted sheet contains a <Font weight="bold">test</Font> ballot.
+    </UiString>
+  ),
+
+  warningBmdInvalidBallotLiveBallotInTestMode: () => (
+    <UiString uiStringKey="warningBmdInvalidBallotLiveBallotInTestMode">
+      The inserted sheet contains an <Font weight="bold">official</Font> ballot.
+    </UiString>
+  ),
+
+  warningBmdInvalidBallotWrongElection: () => (
+    <UiString uiStringKey="warningBmdInvalidBallotWrongElection">
+      The inserted sheet contains a ballot from a different election.
+    </UiString>
+  ),
+
+  warningBmdInvalidBallotWrongPrecinct: () => (
+    <UiString uiStringKey="warningBmdInvalidBallotWrongPrecinct">
+      The inserted sheet contains a ballot for a different precinct.
     </UiString>
   ),
 

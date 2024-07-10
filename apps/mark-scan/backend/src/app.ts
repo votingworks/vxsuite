@@ -16,10 +16,10 @@ import {
   SystemSettings,
   DEFAULT_SYSTEM_SETTINGS,
   PrecinctSelection,
-  InterpretedBmdPage,
   PollsState,
   DiagnosticRecord,
   DiagnosticType,
+  PageInterpretation,
 } from '@votingworks/types';
 import {
   getPrecinctSelectionName,
@@ -230,7 +230,7 @@ export function buildApi(
       stateMachine.printBallot(pdfData);
     },
 
-    getInterpretation(): InterpretedBmdPage | null {
+    getInterpretation(): PageInterpretation | null {
       assert(stateMachine);
 
       // Storing the interpretation in the db requires a somewhat complicated schema
@@ -243,12 +243,6 @@ export function buildApi(
       if (!sheetInterpretation) {
         return null;
       }
-
-      assert(
-        sheetInterpretation[0].interpretation.type === 'InterpretedBmdPage'
-      );
-      // It's impossible to print to the back page from the thermal printer
-      assert(sheetInterpretation[1].interpretation.type === 'BlankPage');
 
       // Omit image data before sending to client. It's long, gets logged, and we don't need it.
       return sheetInterpretation[0].interpretation;
