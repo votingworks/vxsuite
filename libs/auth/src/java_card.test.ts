@@ -11,7 +11,7 @@ import {
   mockOf,
   mockVendorUser,
 } from '@votingworks/test-utils';
-import { Byte, TEST_JURISDICTION } from '@votingworks/types';
+import { Byte, ElectionKey, TEST_JURISDICTION } from '@votingworks/types';
 
 import {
   getTestFilePath,
@@ -85,11 +85,15 @@ afterEach(() => {
   mockCardReader.transmit.assertComplete();
 });
 
-const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
+const { election } = electionFamousNames2021Fixtures.electionDefinition;
+const electionKey: ElectionKey = {
+  id: election.id,
+  date: election.date,
+};
 const vendorUser = mockVendorUser();
 const systemAdministratorUser = mockSystemAdministratorUser();
-const electionManagerUser = mockElectionManagerUser({ electionHash });
-const pollWorkerUser = mockPollWorkerUser({ electionHash });
+const electionManagerUser = mockElectionManagerUser({ electionKey });
+const pollWorkerUser = mockPollWorkerUser({ electionKey });
 
 const mockChallenge = 'VotingWorks';
 function generateChallengeOverride(): string {
@@ -843,7 +847,8 @@ test.each<{
       '/1.3.6.1.4.1.59817.1=card' +
       `/1.3.6.1.4.1.59817.2=${TEST_JURISDICTION}` +
       '/1.3.6.1.4.1.59817.3=election-manager' +
-      `/1.3.6.1.4.1.59817.4=${electionHash}/`,
+      `/1.3.6.1.4.1.59817.4=${electionKey.id}` +
+      `/1.3.6.1.4.1.59817.5=${electionKey.date.toISOString()}/`,
     expectedExpiryInDays: Math.round(365 * 0.5),
     expectedSigningCertAuthorityCertPath: getTestFilePath({
       fileType: 'vx-admin-cert-authority-cert.pem',
@@ -868,7 +873,8 @@ test.each<{
       '/1.3.6.1.4.1.59817.1=card' +
       `/1.3.6.1.4.1.59817.2=${TEST_JURISDICTION}` +
       '/1.3.6.1.4.1.59817.3=poll-worker' +
-      `/1.3.6.1.4.1.59817.4=${electionHash}/`,
+      `/1.3.6.1.4.1.59817.4=${electionKey.id}` +
+      `/1.3.6.1.4.1.59817.5=${electionKey.date.toISOString()}/`,
     expectedExpiryInDays: Math.round(365 * 0.5),
     expectedSigningCertAuthorityCertPath: getTestFilePath({
       fileType: 'vx-admin-cert-authority-cert.pem',
@@ -895,7 +901,8 @@ test.each<{
       '/1.3.6.1.4.1.59817.1=card' +
       `/1.3.6.1.4.1.59817.2=${TEST_JURISDICTION}` +
       '/1.3.6.1.4.1.59817.3=poll-worker-with-pin' +
-      `/1.3.6.1.4.1.59817.4=${electionHash}/`,
+      `/1.3.6.1.4.1.59817.4=${electionKey.id}` +
+      `/1.3.6.1.4.1.59817.5=${electionKey.date.toISOString()}/`,
     expectedExpiryInDays: Math.round(365 * 0.5),
     expectedSigningCertAuthorityCertPath: getTestFilePath({
       fileType: 'vx-admin-cert-authority-cert.pem',

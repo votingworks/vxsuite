@@ -8,6 +8,7 @@ import {
   mockVendorUser,
 } from '@votingworks/test-utils';
 
+import { ElectionKey } from '@votingworks/types';
 import {
   deserializeMockFileContents,
   MOCK_FILE_PATH,
@@ -17,14 +18,18 @@ import {
   serializeMockFileContents,
 } from './mock_file_card';
 
-const { electionHash } = electionGeneralDefinition;
+const { election } = electionGeneralDefinition;
+const electionKey: ElectionKey = {
+  id: election.id,
+  date: election.date,
+};
 const pin = '123456';
 const wrongPin = '234567';
 
 const vendorUser = mockVendorUser();
 const systemAdministratorUser = mockSystemAdministratorUser();
-const electionManagerUser = mockElectionManagerUser({ electionHash });
-const pollWorkerUser = mockPollWorkerUser({ electionHash });
+const electionManagerUser = mockElectionManagerUser({ electionKey });
+const pollWorkerUser = mockPollWorkerUser({ electionKey });
 
 test.each<MockFileContents>([
   {

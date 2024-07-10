@@ -3,7 +3,7 @@ import { DateTime } from 'luxon';
 import { assert, err, ok } from '@votingworks/basics';
 import {
   electionGeneralDefinition,
-  electionTwoPartyPrimaryDefinition,
+  electionTwoPartyPrimary,
 } from '@votingworks/fixtures';
 import {
   mockBaseLogger,
@@ -23,6 +23,7 @@ import {
   DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
   DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
   DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
+  ElectionKey,
   InsertedSmartCardAuth as InsertedSmartCardAuthTypes,
   TEST_JURISDICTION,
 } from '@votingworks/types';
@@ -74,11 +75,19 @@ afterEach(() => {
 
 const jurisdiction = TEST_JURISDICTION;
 const otherJurisdiction = `${TEST_JURISDICTION}-2`;
-const { election, electionData, electionHash } = electionGeneralDefinition;
-const otherElectionHash = electionTwoPartyPrimaryDefinition.electionHash;
+const { election, electionData } = electionGeneralDefinition;
+const otherElection = electionTwoPartyPrimary;
+const electionKey: ElectionKey = {
+  id: election.id,
+  date: election.date,
+};
+const otherElectionKey: ElectionKey = {
+  id: otherElection.id,
+  date: otherElection.date,
+};
 const defaultConfig: InsertedSmartCardAuthConfig = {};
 const defaultMachineState: InsertedSmartCardAuthMachineState = {
-  electionHash,
+  electionKey,
   jurisdiction,
   arePollWorkerCardPinsEnabled: false,
   numIncorrectPinAttemptsAllowedBeforeCardLockout:
@@ -91,9 +100,9 @@ const vendorUser = mockVendorUser({ jurisdiction });
 const systemAdministratorUser = mockSystemAdministratorUser({ jurisdiction });
 const electionManagerUser = mockElectionManagerUser({
   jurisdiction,
-  electionHash,
+  electionKey,
 });
-const pollWorkerUser = mockPollWorkerUser({ jurisdiction, electionHash });
+const pollWorkerUser = mockPollWorkerUser({ jurisdiction, electionKey });
 const cardlessVoterUser = mockCardlessVoterUser();
 
 function mockCardStatus(cardStatus: CardStatus) {
@@ -680,7 +689,7 @@ test.each<{
   {
     description: 'election manager can access unconfigured machine',
     config: defaultConfig,
-    machineState: { ...defaultMachineState, electionHash: undefined },
+    machineState: { ...defaultMachineState, electionKey: undefined },
     cardDetails: {
       user: electionManagerUser,
     },
@@ -692,7 +701,7 @@ test.each<{
   {
     description: 'poll worker cannot access unconfigured machine',
     config: defaultConfig,
-    machineState: { ...defaultMachineState, electionHash: undefined },
+    machineState: { ...defaultMachineState, electionKey: undefined },
     cardDetails: {
       user: pollWorkerUser,
       hasPin: false,
@@ -715,11 +724,11 @@ test.each<{
     ],
   },
   {
-    description: 'election manager card with mismatched election hash',
+    description: 'election manager card with mismatched election key',
     config: defaultConfig,
     machineState: defaultMachineState,
     cardDetails: {
-      user: { ...electionManagerUser, electionHash: otherElectionHash },
+      user: { ...electionManagerUser, electionKey: otherElectionKey },
     },
     expectedAuthStatus: {
       status: 'logged_out',
@@ -739,11 +748,11 @@ test.each<{
     ],
   },
   {
-    description: 'poll worker card with mismatched election hash',
+    description: 'poll worker card with mismatched election key',
     config: defaultConfig,
     machineState: defaultMachineState,
     cardDetails: {
-      user: { ...pollWorkerUser, electionHash: otherElectionHash },
+      user: { ...pollWorkerUser, electionKey: otherElectionKey },
       hasPin: false,
     },
     expectedAuthStatus: {

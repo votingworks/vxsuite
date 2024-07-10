@@ -1,8 +1,8 @@
 import { DateTime } from 'luxon';
 import { err, ok } from '@votingworks/basics';
 import {
-  electionGeneralDefinition,
-  electionTwoPartyPrimaryDefinition,
+  electionGeneral,
+  electionTwoPartyPrimary,
 } from '@votingworks/fixtures';
 import {
   mockBaseLogger,
@@ -22,6 +22,7 @@ import {
   DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
   DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
   DippedSmartCardAuth as DippedSmartCardAuthTypes,
+  ElectionKey,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import {
@@ -71,11 +72,19 @@ afterEach(() => {
 
 const jurisdiction = TEST_JURISDICTION;
 const otherJurisdiction = `${TEST_JURISDICTION}-2`;
-const { electionHash } = electionGeneralDefinition;
-const otherElectionHash = electionTwoPartyPrimaryDefinition.electionHash;
+const election = electionGeneral;
+const otherElection = electionTwoPartyPrimary;
+const electionKey: ElectionKey = {
+  id: election.id,
+  date: election.date,
+};
+const otherElectionKey: ElectionKey = {
+  id: otherElection.id,
+  date: otherElection.date,
+};
 const defaultConfig: DippedSmartCardAuthConfig = {};
 const defaultMachineState: DippedSmartCardAuthMachineState = {
-  electionHash,
+  electionKey,
   jurisdiction,
   arePollWorkerCardPinsEnabled: false,
   numIncorrectPinAttemptsAllowedBeforeCardLockout:
@@ -88,9 +97,9 @@ const vendorUser = mockVendorUser({ jurisdiction });
 const systemAdministratorUser = mockSystemAdministratorUser({ jurisdiction });
 const electionManagerUser = mockElectionManagerUser({
   jurisdiction,
-  electionHash,
+  electionKey,
 });
-const pollWorkerUser = mockPollWorkerUser({ jurisdiction, electionHash });
+const pollWorkerUser = mockPollWorkerUser({ jurisdiction, electionKey });
 
 function mockCardStatus(cardStatus: CardStatus) {
   mockCard.getCardStatus.expectRepeatedCallsWith().resolves(cardStatus);
@@ -660,7 +669,7 @@ test.each<{
   {
     description: 'unconfigured machine',
     config: defaultConfig,
-    machineState: { ...defaultMachineState, electionHash: undefined },
+    machineState: { ...defaultMachineState, electionKey: undefined },
     cardDetails: {
       user: electionManagerUser,
     },
@@ -688,7 +697,7 @@ test.each<{
       ...defaultConfig,
       allowElectionManagersToAccessUnconfiguredMachines: true,
     },
-    machineState: { ...defaultMachineState, electionHash: undefined },
+    machineState: { ...defaultMachineState, electionKey: undefined },
     cardDetails: {
       user: electionManagerUser,
     },
@@ -698,11 +707,11 @@ test.each<{
     },
   },
   {
-    description: 'mismatched election hash',
+    description: 'mismatched election key',
     config: defaultConfig,
     machineState: defaultMachineState,
     cardDetails: {
-      user: { ...electionManagerUser, electionHash: otherElectionHash },
+      user: { ...electionManagerUser, electionKey: otherElectionKey },
     },
     expectedAuthStatus: {
       status: 'logged_out',
@@ -773,12 +782,12 @@ test.each<{
     machineState: defaultMachineState,
     input: { userRole: 'election_manager' },
     expectedCardProgramInput: {
-      user: { role: 'election_manager', jurisdiction, electionHash },
+      user: { role: 'election_manager', jurisdiction, electionKey },
       pin,
     },
     expectedProgramResult: ok({ pin }),
     cardDetailsAfterProgramming: {
-      user: { role: 'election_manager', jurisdiction, electionHash },
+      user: { role: 'election_manager', jurisdiction, electionKey },
     },
   },
   {
@@ -786,11 +795,11 @@ test.each<{
     machineState: defaultMachineState,
     input: { userRole: 'poll_worker' },
     expectedCardProgramInput: {
-      user: { role: 'poll_worker', jurisdiction, electionHash },
+      user: { role: 'poll_worker', jurisdiction, electionKey },
     },
     expectedProgramResult: ok({ pin: undefined }),
     cardDetailsAfterProgramming: {
-      user: { role: 'poll_worker', jurisdiction, electionHash },
+      user: { role: 'poll_worker', jurisdiction, electionKey },
       hasPin: false,
     },
   },
@@ -802,12 +811,12 @@ test.each<{
     },
     input: { userRole: 'poll_worker' },
     expectedCardProgramInput: {
-      user: { role: 'poll_worker', jurisdiction, electionHash },
+      user: { role: 'poll_worker', jurisdiction, electionKey },
       pin,
     },
     expectedProgramResult: ok({ pin }),
     cardDetailsAfterProgramming: {
-      user: { role: 'poll_worker', jurisdiction, electionHash },
+      user: { role: 'poll_worker', jurisdiction, electionKey },
       hasPin: true,
     },
   },
@@ -1133,7 +1142,7 @@ test('Card programming error handling', async () => {
 
   mockCard.program
     .expectCallWith({
-      user: { role: 'poll_worker', jurisdiction, electionHash },
+      user: { role: 'poll_worker', jurisdiction, electionKey },
     })
     .throws(new Error('Whoa!'));
   expect(
