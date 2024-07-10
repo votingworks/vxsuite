@@ -522,6 +522,17 @@ export const startPaperHandlerDiagnostic = {
 
 export const systemCallApi = createSystemCallApi(useApiClient);
 
+// istanbul ignore next - will be tested via consumers later
+export const startSessionWithPreprintedBallot = {
+  useMutation: () =>
+    useMutation(useApiClient().startSessionWithPreprintedBallot),
+} as const;
+
+// istanbul ignore next - will be tested via consumers later
+export const returnPreprintedBallot = {
+  useMutation: () => useMutation(useApiClient().returnPreprintedBallot),
+} as const;
+
 // istanbul ignore next
 export const getMockPaperHandlerStatus = {
   queryKey: ['getMockPaperHandlerStatus'] as QueryKey,
