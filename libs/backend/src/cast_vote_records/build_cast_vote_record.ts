@@ -207,6 +207,7 @@ export type BallotMarkingMode = 'hand' | 'machine';
 type CVRContestRequiredBallotPageOptions =
   | {
       ballotMarkingMode: 'machine';
+      image?: CvrImageDataInput;
     }
   | {
       ballotMarkingMode: 'hand';
