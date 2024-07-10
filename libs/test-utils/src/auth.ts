@@ -2,12 +2,14 @@ import { DateTime } from 'luxon';
 import {
   CardlessVoterUser,
   DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
+  ElectionId,
   ElectionManagerUser,
   PollWorkerUser,
   SystemAdministratorUser,
   TEST_JURISDICTION,
   VendorUser,
 } from '@votingworks/types';
+import { DateWithoutTime } from '@votingworks/basics';
 
 export function mockVendorUser(props: Partial<VendorUser> = {}): VendorUser {
   return {
@@ -33,7 +35,10 @@ export function mockElectionManagerUser(
   return {
     role: 'election_manager',
     jurisdiction: TEST_JURISDICTION,
-    electionHash: 'election-hash',
+    electionKey: {
+      id: 'election-id' as ElectionId,
+      date: new DateWithoutTime('2024-07-10'),
+    },
     ...props,
   };
 }
@@ -44,7 +49,10 @@ export function mockPollWorkerUser(
   return {
     role: 'poll_worker',
     jurisdiction: TEST_JURISDICTION,
-    electionHash: 'election-hash',
+    electionKey: {
+      id: 'election-id' as ElectionId,
+      date: new DateWithoutTime('2024-07-10'),
+    },
     ...props,
   };
 }
