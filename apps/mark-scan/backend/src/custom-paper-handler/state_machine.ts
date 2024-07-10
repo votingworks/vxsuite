@@ -49,7 +49,7 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { readElection } from '@votingworks/fs';
-import { Workspace, constructAuthMachineState } from '../util/workspace';
+import { Workspace } from '../util/workspace';
 import { SimpleServerStatus } from './types';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
@@ -76,6 +76,7 @@ import {
   DIAGNOSTIC_ELECTION_PATH,
   renderDiagnosticMockBallot,
 } from './diagnostic';
+import { constructAuthMachineState } from '../util/auth';
 
 function isBallotReinsertionEnabled() {
   return isFeatureFlagEnabled(

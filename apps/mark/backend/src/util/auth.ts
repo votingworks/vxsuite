@@ -2,21 +2,21 @@ import {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS, electionAuthKey } from '@votingworks/types';
 import { LoggingUserRole } from '@votingworks/logging';
 import { Workspace } from './workspace';
 
-function constructAuthMachineState(
+export function constructAuthMachineState(
   workspace: Workspace
 ): InsertedSmartCardAuthMachineState {
   const electionDefinition = workspace.store.getElectionDefinition();
   const jurisdiction = workspace.store.getJurisdiction();
   const systemSettings =
-    workspace.store.getSystemSettings() ??
-    /* istanbul ignore next */ DEFAULT_SYSTEM_SETTINGS;
+    workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
   return {
     ...systemSettings.auth,
-    electionHash: /* istanbul ignore next */ electionDefinition?.electionHash,
+    electionKey:
+      electionDefinition && electionAuthKey(electionDefinition.election),
     jurisdiction,
   };
 }

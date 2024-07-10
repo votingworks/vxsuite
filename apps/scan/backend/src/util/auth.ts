@@ -2,7 +2,7 @@ import {
   InsertedSmartCardAuthApi,
   InsertedSmartCardAuthMachineState,
 } from '@votingworks/auth';
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS, electionAuthKey } from '@votingworks/types';
 import { LoggingUserRole } from '@votingworks/logging';
 import { Store } from '../store';
 import { Workspace } from './workspace';
@@ -15,7 +15,8 @@ export function constructAuthMachineState(
   const systemSettings = store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
   return {
     ...systemSettings.auth,
-    electionHash: electionDefinition?.electionHash,
+    electionKey:
+      electionDefinition && electionAuthKey(electionDefinition.election),
     jurisdiction,
   };
 }
