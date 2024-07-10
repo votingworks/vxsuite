@@ -1123,7 +1123,7 @@ export const appStrings = {
 
   titleBmdInvalidBallotWrongTestMode: () => (
     <UiString uiStringKey="titleBmdInvalidBallotWrongTestMode">
-      Wrong Test Mode
+      Wrong Ballot Mode
     </UiString>
   ),
 

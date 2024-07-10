@@ -355,7 +355,7 @@
   "titleBmdInvalidBallotNoBallotDetected": "No Ballot Detected",
   "titleBmdInvalidBallotWrongElection": "Wrong Election",
   "titleBmdInvalidBallotWrongPrecinct": "Wrong Precinct",
-  "titleBmdInvalidBallotWrongTestMode": "Wrong Test Mode",
+  "titleBmdInvalidBallotWrongTestMode": "Wrong Ballot Mode",
   "titleBmdJamClearedScreen": "Jam Cleared",
   "titleBmdJammedScreen": "Paper is Jammed",
   "titleBmdPatCalibrationConfirmExitScreen": "Device Inputs Identified",
