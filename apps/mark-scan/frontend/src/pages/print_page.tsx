@@ -32,7 +32,7 @@ export function PrintPage(): JSX.Element | null {
       voterFacing
     >
       <P>{appStrings.instructionsBmdPrintScreenNoBallotRemoval()}</P>
-      <P>{appStrings.noteBmdPrintScreenNextSteps()}</P>
+      <P>{appStrings.noteBmdPrintedBallotReviewNextSteps()}</P>
     </CenteredCardPageLayout>
   );
 }
