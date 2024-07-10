@@ -338,7 +338,6 @@ test('generating as BMD ballots (non-gridlayouts election)', async () => {
     outputDirectory.name
   );
   for (const castVoteRecord of castVoteRecords) {
-    expect(castVoteRecord.BallotImage).toBeUndefined();
     expect(castVoteRecord.UniqueId).toEqual(expect.stringMatching(/[0-9]+/));
     expect(
       getWriteInsFromCastVoteRecord(castVoteRecord).every(
@@ -354,6 +353,11 @@ test('generating as BMD ballots (non-gridlayouts election)', async () => {
         (cvrWriteIn): cvrWriteIn is CVR.CVRWriteIn => cvrWriteIn !== undefined
       );
     expect(writeIns.every((writeIn) => isBmdWriteIn(writeIn))).toEqual(true);
+    if (writeIns.length > 0) {
+      expect(castVoteRecord.BallotImage).toBeDefined();
+    } else {
+      expect(castVoteRecord.BallotImage).toBeUndefined();
+    }
   }
 });
 
