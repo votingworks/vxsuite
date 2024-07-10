@@ -291,8 +291,8 @@ test('adding a file with BMD cast vote records', async () => {
   expect(await apiClient.getCastVoteRecordFileMode()).toEqual('test');
   expect(await apiClient.getTotalBallotCount()).toEqual(112);
 
-  // check that no write-in records were created
-  expect(await apiClient.getWriteInAdjudicationQueue()).toHaveLength(0);
+  // check that write-in records were added
+  expect(await apiClient.getWriteInAdjudicationQueue()).toHaveLength(40);
 });
 
 test('handles duplicate exports', async () => {
