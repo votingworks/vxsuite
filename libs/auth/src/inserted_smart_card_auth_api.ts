@@ -1,6 +1,7 @@
 import { Optional, Result } from '@votingworks/basics';
 import {
   BallotStyleId,
+  ElectionKey,
   InsertedSmartCardAuth,
   NumIncorrectPinAttemptsAllowedBeforeCardLockout,
   OverallSessionTimeLimitHours,
@@ -63,7 +64,7 @@ export interface InsertedSmartCardAuthConfig {
  * Machine state that the consumer is responsible for providing
  */
 export interface InsertedSmartCardAuthMachineState {
-  electionHash?: string;
+  electionKey?: ElectionKey;
   jurisdiction?: string;
   arePollWorkerCardPinsEnabled: boolean;
   numIncorrectPinAttemptsAllowedBeforeCardLockout: NumIncorrectPinAttemptsAllowedBeforeCardLockout;
