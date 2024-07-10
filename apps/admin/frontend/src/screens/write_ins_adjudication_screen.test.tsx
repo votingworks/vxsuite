@@ -68,7 +68,7 @@ function expectGetQueueMetadata({
   );
 }
 
-test('zoomable ballot image', async () => {
+test('hmp ballot is a zoomable ballot image', async () => {
   const contestId = 'best-animal-mammal';
   function mockWriteInImage(id: string): Partial<WriteInImageView> {
     return {
@@ -176,6 +176,71 @@ test('zoomable ballot image', async () => {
     name: /ballot with write-in/i,
   });
   expect(ballotImage).toHaveStyle({ width: `${expectedZoomedInWidth}px` });
+});
+
+test('bmd ballot is not a zoomable ballot image', async () => {
+  const contestId = 'best-animal-mammal';
+  function mockWriteInImage(id: string): Partial<WriteInImageView> {
+    return {
+      imageUrl: `mock-image-data-${id}`,
+      machineMarkedText: `MOCK NAME ${id}`,
+      ballotCoordinates: undefined,
+      writeInCoordinates: undefined,
+      contestCoordinates: undefined,
+    };
+  }
+
+  apiMock.expectGetWriteInAdjudicationQueue(['id-174', 'id-175'], contestId);
+  apiMock.expectGetFirstPendingWriteInId(contestId, 'id-174');
+  expectGetQueueMetadata({ total: 2, pending: 2, contestId });
+  apiMock.expectGetWriteInCandidates([], contestId);
+  apiMock.expectGetWriteInImageView('id-174', mockWriteInImage('174'));
+  apiMock.expectGetWriteInAdjudicationContext('id-174');
+  apiMock.expectGetWriteInImageView('id-175', mockWriteInImage('175'));
+  apiMock.expectGetWriteInAdjudicationContext('id-175');
+
+  renderScreen(contestId, {
+    electionDefinition,
+    apiMock,
+  });
+
+  await screen.findByTestId('transcribe:id-174');
+  let ballotImage = await screen.findByRole('img', {
+    name: /Full ballot/i,
+  });
+  expect(ballotImage).toHaveAttribute('src', 'mock-image-data-174');
+
+  // Fully zoomed out
+  expect(ballotImage).toHaveStyle({ width: `100%` });
+
+  // There should be no zoom buttons
+  // Check that there is not a button with the text "Zoom In" on it in the screen
+
+  expect(screen.queryByText(/Zoom In/)).toBeNull();
+  expect(screen.queryByText(/Zoom Out/)).toBeNull();
+
+  // We should show the machine marked text on screen
+  screen.getByText(/Write-In Text:/);
+  screen.getByText(/MOCK NAME 174/);
+  userEvent.click(screen.getButton('Add new write-in candidate'));
+  const inputA = await screen.findByTestId('write-in-candidate-name-input');
+  expect(inputA).toHaveValue('MOCK NAME 174');
+
+  // When switching to next adjudication, text changes
+  userEvent.click(screen.getButton(/Next/));
+  await screen.findByTestId('transcribe:id-175');
+
+  ballotImage = await screen.findByRole('img', {
+    name: /Full ballot/i,
+  });
+  expect(ballotImage).toHaveAttribute('src', 'mock-image-data-175');
+  expect(ballotImage).toHaveStyle({ width: `100%` });
+  screen.getByText(/Write-In Text:/);
+  screen.getByText(/MOCK NAME 175/);
+
+  userEvent.click(screen.getButton('Add new write-in candidate'));
+  const inputB = await screen.findByTestId('write-in-candidate-name-input');
+  expect(inputB).toHaveValue('MOCK NAME 175');
 });
 
 describe('preventing double votes', () => {

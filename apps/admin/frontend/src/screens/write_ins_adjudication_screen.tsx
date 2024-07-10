@@ -616,6 +616,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                     key={currentWriteInId}
                     value={newWriteInCandidateName ?? ''}
                     onChange={(e) => setNewWriteInCandidateName(e.target.value)}
+                    data-testid="write-in-candidate-name-input"
                     aria-label="Candidate Name"
                     placeholder="Candidate Name"
                     // eslint-disable-next-line jsx-a11y/no-autofocus
