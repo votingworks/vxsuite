@@ -44,7 +44,7 @@ const expectedScreenContents: Readonly<
   InterpretedHmpbPage: /no ballot detected/i,
   InvalidElectionHashPage: /wrong election/i,
   InvalidPrecinctPage: /wrong precinct/i,
-  InvalidTestModePage: /wrong test mode/i,
+  InvalidTestModePage: /wrong ballot mode/i,
   UnreadablePage: /no ballot detected/i,
 };
 
