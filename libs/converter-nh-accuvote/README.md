@@ -36,10 +36,9 @@ if (convertResult.isErr()) {
 ## CLI Usage
 
 ```sh
-# use the default mark thresholds
 $ ./bin/convert \
-  ../fixtures/data/electionGridLayoutNewHampshireTestBallot/{definition.xml,template-front.jpeg,template-back.jpeg} \
-  -o ../fixtures/data/electionGridLayoutNewHampshireTestBallot/election.json
+  ../fixtures/data/electionGridLayoutNewHampshireTestBallot/{definition.xml,template.pdf} \
+  -o ../fixtures/data/electionGridLayoutNewHampshireTestBallot/
 warning: conversion completed with issues:
 - Template images do not match expected sizes. The XML definition says the template images should be "legal", but the template images are front="letter" and back="letter".
 ```

@@ -1,6 +1,6 @@
 import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
 import { BallotPageMetadata, BallotType, Election } from '@votingworks/types';
-import { toImageBuffer } from '@votingworks/image-utils';
+import { loadImageData } from '@votingworks/image-utils';
 import {
   decodeBallotConfigFromReader,
   BitReader,
@@ -39,7 +39,7 @@ function decodeMetadata(
   };
 }
 
-test('encodeMetadata', () => {
+test('encodeMetadata', async () => {
   const { electionDefinition } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election, electionHash } = electionDefinition;
@@ -53,19 +53,15 @@ test('encodeMetadata', () => {
     electionHash,
     pageNumber: 1,
   };
-  const [frontQrCode, backQrCode] = encodeMetadata(
-    election,
-    metadata,
-    'qr-code'
-  );
-  expect(toImageBuffer(frontQrCode)).toMatchImageSnapshot();
-  expect(toImageBuffer(backQrCode)).toMatchImageSnapshot();
+  const [frontQrCode, backQrCode] = await encodeMetadata(election, metadata);
+  expect(frontQrCode).toMatchImageSnapshot();
+  expect(backQrCode).toMatchImageSnapshot();
 
-  expect(decodeMetadata(election, frontQrCode)).toEqual({
+  expect(decodeMetadata(election, await loadImageData(frontQrCode))).toEqual({
     ...metadata,
     electionHash: sliceElectionHash(electionHash),
   });
-  expect(decodeMetadata(election, backQrCode)).toEqual({
+  expect(decodeMetadata(election, await loadImageData(backQrCode))).toEqual({
     ...metadata,
     electionHash: sliceElectionHash(electionHash),
     pageNumber: 2,

@@ -2,8 +2,9 @@ import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtu
 import { fakeReadable, fakeWritable, mockOf } from '@votingworks/test-utils';
 import { createImageData } from 'canvas';
 import { readFileSync } from 'fs';
-import { fileSync } from 'tmp';
+import { dirSync } from 'tmp';
 import { err, ok } from '@votingworks/basics';
+import { join } from 'path';
 import { main } from '.';
 import { Stdio } from '..';
 import { convertElectionDefinition } from '../../convert/convert_election_definition';
@@ -33,13 +34,11 @@ test('--help', async () => {
 "Usage:
   General Election:
     convert <definition.xml> <ballot.pdf>
-      -e qr-code|timing-marks
-      [-o <output.json>] [--debug]
+      -o <output-dir> [--debug]
   Primary Election:
     convert <party1-definition.xml> <party1-ballot.pdf>
       <party2-definition.xml> <party2-ballot.pdf> [... more parties ...]
-      -e qr-code|timing-marks
-      [-o <output.json>] [--debug]
+      -o <output-dir> [--debug]
 "
 `);
 });
@@ -57,13 +56,11 @@ test('-h', async () => {
 "Usage:
   General Election:
     convert <definition.xml> <ballot.pdf>
-      -e qr-code|timing-marks
-      [-o <output.json>] [--debug]
+      -o <output-dir> [--debug]
   Primary Election:
     convert <party1-definition.xml> <party1-ballot.pdf>
       <party2-definition.xml> <party2-ballot.pdf> [... more parties ...]
-      -e qr-code|timing-marks
-      [-o <output.json>] [--debug]
+      -o <output-dir> [--debug]
 "
 `);
 });
@@ -89,13 +86,11 @@ test('missing output after --output', async () => {
 Usage:
   General Election:
     convert <definition.xml> <ballot.pdf>
-      -e qr-code|timing-marks
-      [-o <output.json>] [--debug]
+      -o <output-dir> [--debug]
   Primary Election:
     convert <party1-definition.xml> <party1-ballot.pdf>
       <party2-definition.xml> <party2-ballot.pdf> [... more parties ...]
-      -e qr-code|timing-marks
-      [-o <output.json>] [--debug]
+      -o <output-dir> [--debug]
 "
 `);
   expect(exitCode).toEqual(1);
@@ -115,13 +110,11 @@ test('unexpected option', async () => {
 Usage:
   General Election:
     convert <definition.xml> <ballot.pdf>
-      -e qr-code|timing-marks
-      [-o <output.json>] [--debug]
+      -o <output-dir> [--debug]
   Primary Election:
     convert <party1-definition.xml> <party1-ballot.pdf>
       <party2-definition.xml> <party2-ballot.pdf> [... more parties ...]
-      -e qr-code|timing-marks
-      [-o <output.json>] [--debug]
+      -o <output-dir> [--debug]
 "
 `);
   expect(exitCode).toEqual(1);
@@ -144,13 +137,11 @@ test('unexpected argument', async () => {
 Usage:
   General Election:
     convert <definition.xml> <ballot.pdf>
-      -e qr-code|timing-marks
-      [-o <output.json>] [--debug]
+      -o <output-dir> [--debug]
   Primary Election:
     convert <party1-definition.xml> <party1-ballot.pdf>
       <party2-definition.xml> <party2-ballot.pdf> [... more parties ...]
-      -e qr-code|timing-marks
-      [-o <output.json>] [--debug]
+      -o <output-dir> [--debug]
 "
 `);
   expect(exitCode).toEqual(1);
@@ -170,13 +161,11 @@ test('missing definition path', async () => {
 Usage:
   General Election:
     convert <definition.xml> <ballot.pdf>
-      -e qr-code|timing-marks
-      [-o <output.json>] [--debug]
+      -o <output-dir> [--debug]
   Primary Election:
     convert <party1-definition.xml> <party1-ballot.pdf>
       <party2-definition.xml> <party2-ballot.pdf> [... more parties ...]
-      -e qr-code|timing-marks
-      [-o <output.json>] [--debug]
+      -o <output-dir> [--debug]
 "
 `);
   expect(exitCode).toEqual(1);
@@ -196,52 +185,14 @@ test('missing ballot path', async () => {
 Usage:
   General Election:
     convert <definition.xml> <ballot.pdf>
-      -e qr-code|timing-marks
-      [-o <output.json>] [--debug]
+      -o <output-dir> [--debug]
   Primary Election:
     convert <party1-definition.xml> <party1-ballot.pdf>
       <party2-definition.xml> <party2-ballot.pdf> [... more parties ...]
-      -e qr-code|timing-marks
-      [-o <output.json>] [--debug]
+      -o <output-dir> [--debug]
 "
 `);
   expect(exitCode).toEqual(1);
-});
-
-test('convert to stdout', async () => {
-  const io: Stdio = {
-    stdin: fakeReadable(),
-    stdout: fakeWritable(),
-    stderr: fakeWritable(),
-  };
-
-  const { election } = electionGridLayoutNewHampshireHudsonFixtures;
-
-  mockOf(convertElectionDefinition).mockResolvedValue(
-    ok({ election, issues: [] })
-  );
-
-  const exitCode = await main(
-    [
-      electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asFilePath(),
-      electionGridLayoutNewHampshireHudsonFixtures.templatePdf.asFilePath(),
-      '-e',
-      'timing-marks',
-      '-o',
-      '-',
-    ],
-    io
-  );
-
-  expect({
-    exitCode,
-    stdout: io.stdout.toString(),
-    stderr: io.stderr.toString(),
-  }).toEqual({
-    exitCode: 0,
-    stdout: JSON.stringify(election, null, 2),
-    stderr: '',
-  });
 });
 
 test('convert to file', async () => {
@@ -251,21 +202,22 @@ test('convert to file', async () => {
     stderr: fakeWritable(),
   };
 
-  const { election } = electionGridLayoutNewHampshireHudsonFixtures;
+  const { electionDefinition } = electionGridLayoutNewHampshireHudsonFixtures;
 
   mockOf(convertElectionDefinition).mockResolvedValue(
-    ok({ election, issues: [] })
+    ok({
+      result: { electionDefinition, ballotPdfsWithMetadata: new Map() },
+      issues: [],
+    })
   );
 
-  const outputFile = fileSync();
+  const outputDir = dirSync();
   const exitCode = await main(
     [
       electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asFilePath(),
       electionGridLayoutNewHampshireHudsonFixtures.templatePdf.asFilePath(),
-      '-e',
-      'timing-marks',
       '-o',
-      outputFile.name,
+      outputDir.name,
     ],
     io
   );
@@ -277,11 +229,11 @@ test('convert to file', async () => {
   }).toEqual({
     exitCode: 0,
     stdout: '',
-    stderr: '',
+    stderr: expect.stringMatching(/Writing:/),
   });
 
-  expect(readFileSync(outputFile.name, 'utf-8')).toEqual(
-    JSON.stringify(election, null, 2)
+  expect(readFileSync(join(outputDir.name, 'election.json'), 'utf-8')).toEqual(
+    electionDefinition.electionData
   );
 });
 
@@ -308,8 +260,6 @@ test('convert fails', async () => {
     [
       electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asFilePath(),
       electionGridLayoutNewHampshireHudsonFixtures.templatePdf.asFilePath(),
-      '-e',
-      'timing-marks',
       '-o',
       '-',
     ],
