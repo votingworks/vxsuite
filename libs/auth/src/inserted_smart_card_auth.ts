@@ -1,6 +1,7 @@
 import { Buffer } from 'buffer';
 import {
   assert,
+  deepEqual,
   err,
   extractErrorMessage,
   ok,
@@ -540,19 +541,19 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
     }
 
     if (user.role === 'election_manager') {
-      if (!machineState.electionHash) {
+      if (!machineState.electionKey) {
         return ok();
       }
-      if (user.electionHash !== machineState.electionHash) {
+      if (!deepEqual(user.electionKey, machineState.electionKey)) {
         return err('wrong_election');
       }
     }
 
     if (user.role === 'poll_worker') {
-      if (!machineState.electionHash) {
+      if (!machineState.electionKey) {
         return err('machine_not_configured');
       }
-      if (user.electionHash !== machineState.electionHash) {
+      if (!deepEqual(user.electionKey, machineState.electionKey)) {
         return err('wrong_election');
       }
       // If a poll worker card doesn't have a PIN but poll worker card PINs are enabled, treat the
