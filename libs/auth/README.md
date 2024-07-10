@@ -161,7 +161,7 @@ can be run. This script will remind you if you haven't done so.
 ### Java Card Detail Reading Script
 
 This script reads Java Card details, namely environment, jurisdiction, user
-role, and election hash.
+role, and election key (election ID and date).
 
 ```
 # With a card reader connected and a Java Card in the card reader
