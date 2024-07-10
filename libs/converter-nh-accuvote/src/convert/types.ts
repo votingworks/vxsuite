@@ -1,10 +1,5 @@
 import { Result } from '@votingworks/basics';
-import {
-  BallotPaperSize,
-  Election,
-  GridPosition,
-  Size,
-} from '@votingworks/types';
+import { BallotPaperSize, GridPosition, Size } from '@votingworks/types';
 import { ZodError } from 'zod';
 import { PartialTimingMarks } from '@votingworks/ballot-interpreter';
 import { Buffer } from 'buffer';
@@ -201,15 +196,14 @@ export type ConvertIssue =
     };
 
 /**
- * Contains the result of converting a ballot card definition.
+ * A result that reports any issues in either the ok or err case.
  */
-export type ConvertResult = Result<
+export type ResultWithIssues<T> = Result<
   {
-    readonly election: Election;
+    readonly result: T;
     readonly issues: readonly ConvertIssue[];
   },
   {
-    readonly election?: Election;
     readonly issues: readonly ConvertIssue[];
   }
 >;

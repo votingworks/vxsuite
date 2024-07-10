@@ -23,8 +23,8 @@ import { parseConstitutionalQuestions } from './parse_constitutional_questions';
 import {
   ConvertIssue,
   ConvertIssueKind,
-  ConvertResult,
   NewHampshireBallotCardDefinition,
+  ResultWithIssues,
 } from './types';
 import { readGridFromElectionDefinition } from './read_grid_from_election_definition';
 import { NH_SEAL } from './seal';
@@ -44,9 +44,8 @@ function makeId(text: string): string {
  * ballot images.
  */
 export function convertElectionDefinitionHeader(
-  definition: NewHampshireBallotCardDefinition['definition'],
-  metadataEncoding: Election['ballotLayout']['metadataEncoding']
-): ConvertResult {
+  definition: NewHampshireBallotCardDefinition['definition']
+): ResultWithIssues<Election> {
   const root = definition;
   const accuvoteHeaderInfo = root.getElementsByTagName('AccuvoteHeaderInfo')[0];
   const electionId =
@@ -467,7 +466,7 @@ export function convertElectionDefinitionHeader(
     contests,
     ballotLayout: {
       paperSize,
-      metadataEncoding,
+      metadataEncoding: 'qr-code',
     },
     gridLayouts: [
       {
@@ -530,7 +529,7 @@ export function convertElectionDefinitionHeader(
   }
 
   return ok({
-    election: parseElectionResult.ok(),
+    result: parseElectionResult.ok(),
     issues,
   });
 }
