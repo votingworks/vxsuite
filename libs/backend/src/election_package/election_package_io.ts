@@ -5,6 +5,7 @@ import {
   Result,
   assert,
   assertDefined,
+  deepEqual,
   err,
   iter,
   ok,
@@ -40,6 +41,7 @@ import {
   mergeUiStrings,
   UiStringAudioIdsPackage,
   safeParseElectionDefinition,
+  electionAuthKey,
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { UsbDrive } from '@votingworks/usb-drive';
@@ -336,15 +338,17 @@ export async function readSignedElectionPackageFromUsb(
   const electionPackage = (
     await readElectionPackageFromFile(filepathResult.ok())
   ).unsafeUnwrap();
-  const { electionDefinition } = electionPackage;
+  const electionKey = electionAuthKey(
+    electionPackage.electionDefinition.election
+  );
 
-  if (authStatus.user.electionHash !== electionDefinition.electionHash) {
+  if (!deepEqual(authStatus.user.electionKey, electionKey)) {
     await logger.log(LogEventId.ElectionPackageLoadedFromUsb, 'system', {
       disposition: 'failure',
       message:
-        'The election hash for the authorized user and most recent election package on the USB drive did not match.',
+        'The election key for the authorized user and most recent election package on the USB drive did not match.',
     });
-    return err('election_hash_mismatch');
+    return err('election_key_mismatch');
   }
 
   return ok(electionPackage);

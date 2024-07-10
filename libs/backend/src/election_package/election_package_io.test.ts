@@ -9,6 +9,7 @@ import {
   UiStringAudioClips,
   UiStringAudioIdsPackage,
   UiStringsPackage,
+  electionAuthKey,
   safeParseElection,
   safeParseElectionDefinition,
   safeParseSystemSettings,
@@ -373,12 +374,11 @@ test('readElectionPackageFromFile errors when given invalid metadata', async () 
 });
 
 test('readElectionPackageFromUsb can read an election package from usb', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const { electionDefinition, election } = electionTwoPartyPrimaryFixtures;
+  const electionKey = electionAuthKey(election);
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
-    user: mockElectionManagerUser({
-      electionHash: electionDefinition.electionHash,
-    }),
+    user: mockElectionManagerUser({ electionKey }),
     sessionExpiresAt: mockSessionExpiresAt(),
   };
 
@@ -413,12 +413,10 @@ test('readElectionPackageFromUsb can read an election package from usb', async (
 });
 
 test("readElectionPackageFromUsb uses default system settings when system settings don't exist in the zip file", async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const { electionDefinition, election } = electionTwoPartyPrimaryFixtures;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
-    user: mockElectionManagerUser({
-      electionHash: electionDefinition.electionHash,
-    }),
+    user: mockElectionManagerUser({ electionKey: electionAuthKey(election) }),
     sessionExpiresAt: mockSessionExpiresAt(),
   };
 
@@ -465,15 +463,13 @@ test('errors if logged-out auth is passed', async () => {
   );
 });
 
-test('errors if election hash on provided auth is different than election package election hash', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+test('errors if election key on provided auth is different than election package election key', async () => {
+  const { election } = electionTwoPartyPrimaryFixtures;
   const { electionDefinition: otherElectionDefinition } =
     electionFamousNames2021Fixtures;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
-    user: mockElectionManagerUser({
-      electionHash: electionDefinition.electionHash,
-    }),
+    user: mockElectionManagerUser({ electionKey: electionAuthKey(election) }),
     sessionExpiresAt: mockSessionExpiresAt(),
   };
 
@@ -490,16 +486,14 @@ test('errors if election hash on provided auth is different than election packag
     mockBaseLogger()
   );
   assert(electionPackageResult.isErr());
-  expect(electionPackageResult.err()).toEqual('election_hash_mismatch');
+  expect(electionPackageResult.err()).toEqual('election_key_mismatch');
 });
 
 test('errors if there is no election package on usb drive', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const { election } = electionTwoPartyPrimaryFixtures;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
-    user: mockElectionManagerUser({
-      electionHash: electionDefinition.electionHash,
-    }),
+    user: mockElectionManagerUser({ electionKey: electionAuthKey(election) }),
     sessionExpiresAt: mockSessionExpiresAt(),
   };
 
@@ -518,12 +512,10 @@ test('errors if there is no election package on usb drive', async () => {
 });
 
 test('errors if a user is authenticated but is not an election manager', async () => {
-  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const { electionDefinition, election } = electionTwoPartyPrimaryFixtures;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
-    user: mockPollWorkerUser({
-      electionHash: electionDefinition.electionHash,
-    }),
+    user: mockPollWorkerUser({ electionKey: electionAuthKey(election) }),
     sessionExpiresAt: mockSessionExpiresAt(),
   };
 
@@ -548,9 +540,7 @@ test('configures using the most recently created election package for an electio
   const { election, electionHash } = electionDefinition;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
-    user: mockElectionManagerUser({
-      electionHash: electionDefinition.electionHash,
-    }),
+    user: mockElectionManagerUser({ electionKey: electionAuthKey(election) }),
     sessionExpiresAt: mockSessionExpiresAt(),
   };
 
@@ -610,9 +600,7 @@ test('configures using the most recently created election package across electio
 
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
-    user: mockElectionManagerUser({
-      electionHash: electionDefinition.electionHash,
-    }),
+    user: mockElectionManagerUser({ electionKey: electionAuthKey(election) }),
     sessionExpiresAt: mockSessionExpiresAt(),
   };
 
@@ -669,9 +657,7 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
   const { election, electionHash } = electionDefinition;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
-    user: mockElectionManagerUser({
-      electionHash: electionDefinition.electionHash,
-    }),
+    user: mockElectionManagerUser({ electionKey: electionAuthKey(election) }),
     sessionExpiresAt: mockSessionExpiresAt(),
   };
 
@@ -722,10 +708,10 @@ test('readElectionPackageFromUsb returns error result if election package authen
     err(new Error('Whoa!'))
   );
 
-  const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
+  const electionKey = electionAuthKey(electionFamousNames2021Fixtures.election);
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
-    user: mockElectionManagerUser({ electionHash }),
+    user: mockElectionManagerUser({ electionKey }),
     sessionExpiresAt: mockSessionExpiresAt(),
   };
 
@@ -754,10 +740,10 @@ test('readElectionPackageFromUsb ignores election package authentication errors 
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
 
-  const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
+  const electionKey = electionAuthKey(electionFamousNames2021Fixtures.election);
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
-    user: mockElectionManagerUser({ electionHash }),
+    user: mockElectionManagerUser({ electionKey }),
     sessionExpiresAt: mockSessionExpiresAt(),
   };
 
