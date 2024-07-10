@@ -14,7 +14,10 @@ import { assert } from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import { encodeMetadata } from './encode_metadata';
 
-function decodeMetadata(
+/**
+ * Detect a QR code in the given image and decode the metadata.
+ */
+export function decodeMetadata(
   election: Election,
   qrCode: ImageData
 ): BallotPageMetadata {

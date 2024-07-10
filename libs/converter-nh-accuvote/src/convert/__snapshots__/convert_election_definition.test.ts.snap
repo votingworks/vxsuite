@@ -2982,3 +2982,23 @@ exports[`converting two party primary ballots into one election (Conway) 2`] = `
   "type": "primary",
 }
 `;
+
+exports[`converting two party primary ballots into one election (Conway) 3`] = `
+{
+  "ballotStyleId": "Democratic-card-number-1",
+  "ballotType": "precinct",
+  "electionHash": "eb381df7af104b2259b114bff26f8f07cfa8f069e2e86bbb7c2ea3f92f2eda90",
+  "isTestMode": false,
+  "precinctId": "town-id-undefined-precinct",
+}
+`;
+
+exports[`converting two party primary ballots into one election (Conway) 6`] = `
+{
+  "ballotStyleId": "Republican-card-number-1",
+  "ballotType": "precinct",
+  "electionHash": "eb381df7af104b2259b114bff26f8f07cfa8f069e2e86bbb7c2ea3f92f2eda90",
+  "isTestMode": false,
+  "precinctId": "town-id-undefined-precinct",
+}
+`;

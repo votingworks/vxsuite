@@ -12,9 +12,13 @@ import {
 } from '@votingworks/types';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
+import { pdfToImages, toImageBuffer } from '@votingworks/image-utils';
+import { Buffer } from 'buffer';
+import { sliceElectionHash } from '@votingworks/ballot-encoder';
 import { readFixtureBallotCardDefinition } from '../../test/fixtures';
 import { convertElectionDefinition } from './convert_election_definition';
 import { ConvertIssue, ConvertIssueKind } from './types';
+import { decodeMetadata } from '../encode_metadata.test';
 
 test('converting the Hudson ballot', async () => {
   const hudsonBallotCardDefinition = readFixtureBallotCardDefinition(
@@ -187,4 +191,21 @@ test('converting two party primary ballots into one election (Conway)', async ()
 
   expect(converted.issues).toMatchSnapshot();
   expect(converted.result.electionDefinition.election).toMatchSnapshot();
+  expect(converted.result.ballotPdfsWithMetadata.size).toEqual(2);
+  for (const [metadata, pdf] of converted.result.ballotPdfsWithMetadata) {
+    expect(metadata).toMatchSnapshot();
+    for await (const page of pdfToImages(Buffer.from(pdf), {
+      scale: 200 / 72,
+    })) {
+      expect(page.pageCount).toEqual(2);
+      expect(toImageBuffer(page.page)).toMatchImageSnapshot();
+      expect(
+        decodeMetadata(converted.result.electionDefinition.election, page.page)
+      ).toEqual({
+        ...metadata,
+        electionHash: sliceElectionHash(metadata.electionHash),
+        pageNumber: page.pageNumber,
+      });
+    }
+  }
 });
