@@ -1,4 +1,5 @@
 {
+  "id": "election-two-party-primary",
   "type": "primary",
   "title": "Example Primary Election",
   "state": "State of Sample",

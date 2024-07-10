@@ -19,6 +19,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   DistrictId,
   Election,
+  ElectionId,
   ElectionStringKey,
   LanguageCode,
   SystemSettings,
@@ -113,16 +114,17 @@ test('CRUD elections', async () => {
   const { apiClient } = setupApp();
   expect(await apiClient.listElections()).toEqual([]);
 
+  const expectedElectionId = 'election-1' as ElectionId;
   const electionId = (
-    await apiClient.createElection({ electionData: undefined })
+    await apiClient.createElection({ id: expectedElectionId })
   ).unsafeUnwrap();
-  expect(electionId).toEqual('1');
+  expect(electionId).toEqual(expectedElectionId);
 
   const election = await apiClient.getElection({ electionId });
   // New elections should be blank
   expect(election).toEqual({
-    id: '1',
     election: {
+      id: expectedElectionId,
       ballotLayout: {
         metadataEncoding: 'qr-code',
         paperSize: 'letter',
@@ -155,11 +157,11 @@ test('CRUD elections', async () => {
   const election2Definition =
     electionFamousNames2021Fixtures.electionDefinition;
   const electionId2 = (
-    await apiClient.createElection({
+    await apiClient.loadElection({
       electionData: election2Definition.electionData,
     })
   ).unsafeUnwrap();
-  expect(electionId2).toEqual('2');
+  expect(electionId2).toEqual(election2Definition.election.id);
 
   const election2 = await apiClient.getElection({ electionId: electionId2 });
 
@@ -178,7 +180,6 @@ test('CRUD elections', async () => {
   });
 
   expect(election2).toEqual<ElectionRecord>({
-    id: '2',
     election: {
       ...election2Definition.election,
       ballotStyles: expectedBallotStyles.map(convertToVxfBallotStyle),
@@ -217,7 +218,7 @@ test('CRUD elections', async () => {
 test('Updating contests with candidate rotation', async () => {
   const { apiClient } = setupApp();
   const electionId = (
-    await apiClient.createElection({
+    await apiClient.loadElection({
       electionData:
         electionFamousNames2021Fixtures.electionDefinition.electionData,
     })
@@ -264,9 +265,8 @@ test('Updating contests with candidate rotation', async () => {
 
 test('Update system settings', async () => {
   const { apiClient } = setupApp();
-  const electionId = (
-    await apiClient.createElection({ electionData: undefined })
-  ).unsafeUnwrap();
+  const electionId = 'election-1' as ElectionId;
+  (await apiClient.createElection({ id: electionId })).unsafeUnwrap();
   const electionRecord = await apiClient.getElection({ electionId });
 
   expect(electionRecord.systemSettings).toEqual(DEFAULT_SYSTEM_SETTINGS);
@@ -302,7 +302,7 @@ test('Election package management', async () => {
   const { apiClient, workspace } = setupApp();
 
   const electionId = (
-    await apiClient.createElection({
+    await apiClient.loadElection({
       electionData: baseElectionDefinition.electionData,
     })
   ).unsafeUnwrap();
@@ -417,7 +417,7 @@ test('Election package export', async () => {
   const { apiClient, workspace } = setupApp();
 
   const electionId = (
-    await apiClient.createElection({
+    await apiClient.loadElection({
       electionData: JSON.stringify(electionWithLegalPaper),
     })
   ).unsafeUnwrap();
@@ -623,7 +623,7 @@ test('Export all ballots', async () => {
   const { apiClient } = setupApp();
 
   const electionId = (
-    await apiClient.createElection({
+    await apiClient.loadElection({
       electionData: baseElectionDefinition.electionData,
     })
   ).unsafeUnwrap();
@@ -720,7 +720,7 @@ test('Export test decks', async () => {
   const { apiClient } = setupApp();
 
   const electionId = (
-    await apiClient.createElection({
+    await apiClient.loadElection({
       electionData: electionDefinition.electionData,
     })
   ).unsafeUnwrap();
@@ -782,7 +782,7 @@ test('Consistency of election hash across exports', async () => {
   const { apiClient, workspace } = setupApp();
 
   const electionId = (
-    await apiClient.createElection({
+    await apiClient.loadElection({
       electionData: baseElectionDefinition.electionData,
     })
   ).unsafeUnwrap();
@@ -828,7 +828,7 @@ test('CDF exports', async () => {
   const { apiClient, workspace } = setupApp();
 
   const electionId = (
-    await apiClient.createElection({
+    await apiClient.loadElection({
       electionData: baseElectionDefinition.electionData,
     })
   ).unsafeUnwrap();

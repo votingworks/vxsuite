@@ -14,17 +14,15 @@ import {
   createMockApiClient,
   provideApi,
 } from '../test/api_helpers';
-import {
-  electionId,
-  generalElectionRecord,
-  makeElectionRecord,
-} from '../test/fixtures';
+import { generalElectionRecord, makeElectionRecord } from '../test/fixtures';
 import { makeIdFactory } from '../test/id_helpers';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
 import { render, screen, within } from '../test/react_testing_library';
 import { GeographyScreen } from './geography_screen';
 import { hasSplits } from './utils';
+
+const electionId = generalElectionRecord.election.id;
 
 let apiMock: MockApiClient;
 

@@ -5,7 +5,7 @@ exports[`happy path: back, front 1`] = `
   "ballotId": undefined,
   "ballotStyleId": "1",
   "ballotType": "precinct",
-  "electionHash": "20b609abd80468a3386b",
+  "electionHash": "5f5a50154163157159ee",
   "isTestMode": true,
   "precinctId": "23",
   "votes": {
@@ -132,7 +132,7 @@ exports[`happy path: front, back 1`] = `
   "ballotId": undefined,
   "ballotStyleId": "1",
   "ballotType": "precinct",
-  "electionHash": "20b609abd80468a3386b",
+  "electionHash": "5f5a50154163157159ee",
   "isTestMode": true,
   "precinctId": "23",
   "votes": {

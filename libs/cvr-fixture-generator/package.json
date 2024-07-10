@@ -13,6 +13,7 @@
     "type-check": "tsc --build",
     "build": "tsc --build tsconfig.build.json",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
+    "generate-fixtures": "./bin/generate-fixtures",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "test": "is-ci test:ci test:watch",

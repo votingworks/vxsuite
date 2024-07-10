@@ -31,6 +31,7 @@ import {
   YesNoOption,
   UiStringsPackage,
   LanguageCode,
+  ElectionId,
 } from '@votingworks/types';
 import { sha256 } from 'js-sha256';
 import { DateWithoutTime, assertDefined } from '@votingworks/basics';
@@ -144,6 +145,13 @@ export function arbitraryCountyId(): fc.Arbitrary<CountyId> {
  */
 export function arbitraryDistrictId(): fc.Arbitrary<DistrictId> {
   return arbitraryId() as fc.Arbitrary<DistrictId>;
+}
+
+/**
+ * Builds values suitable for election IDs.
+ */
+export function arbitraryElectionId(): fc.Arbitrary<ElectionId> {
+  return arbitraryId() as fc.Arbitrary<ElectionId>;
 }
 
 /**
@@ -393,6 +401,7 @@ export function arbitraryElection(): fc.Arbitrary<Election> {
       })
       .chain(({ districts, precincts, parties }) =>
         fc.record<Election>({
+          id: arbitraryElectionId(),
           type: fc.constantFrom(...ELECTION_TYPES),
           title: fc.string({ minLength: 1 }),
           county: arbitraryCounty(),

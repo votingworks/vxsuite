@@ -1,18 +1,14 @@
 import { createMemoryHistory } from 'history';
 import userEvent from '@testing-library/user-event';
 import type { ElectionRecord } from '@votingworks/design-backend';
-import { CandidateContest, YesNoContest } from '@votingworks/types';
+import { CandidateContest, ElectionId, YesNoContest } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
 import {
   MockApiClient,
   createMockApiClient,
   provideApi,
 } from '../test/api_helpers';
-import {
-  electionId,
-  generalElectionRecord,
-  primaryElectionRecord,
-} from '../test/fixtures';
+import { generalElectionRecord, primaryElectionRecord } from '../test/fixtures';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { ContestsScreen } from './contests_screen';
@@ -32,7 +28,7 @@ afterEach(() => {
   apiMock.assertComplete();
 });
 
-function renderScreen() {
+function renderScreen(electionId: ElectionId) {
   const { path } = routes.election(electionId).contests.root;
   const history = createMemoryHistory({ initialEntries: [path] });
   render(
@@ -58,6 +54,7 @@ const electionWithNoContestsRecord: ElectionRecord = {
 describe('Contests tab', () => {
   test('adding a candidate contest (general election)', async () => {
     const { election } = electionWithNoContestsRecord;
+    const electionId = election.id;
     const newContest: CandidateContest = {
       id: idFactory.next(),
       type: 'candidate',
@@ -87,7 +84,7 @@ describe('Contests tab', () => {
     apiMock.getElection
       .expectCallWith({ electionId })
       .resolves(electionWithNoContestsRecord);
-    renderScreen();
+    renderScreen(electionId);
 
     await screen.findByRole('heading', { name: 'Contests' });
     screen.getByRole('tab', { name: 'Contests', selected: true });
@@ -197,6 +194,7 @@ describe('Contests tab', () => {
 
   test('editing a candidate contest (primary election)', async () => {
     const { election } = primaryElectionRecord;
+    const electionId = election.id;
     const savedContest = election.contests.find(
       (contest): contest is CandidateContest => contest.type === 'candidate'
     )!;
@@ -235,7 +233,7 @@ describe('Contests tab', () => {
     apiMock.getElection
       .expectCallWith({ electionId })
       .resolves(primaryElectionRecord);
-    renderScreen();
+    renderScreen(electionId);
 
     await screen.findByRole('heading', { name: 'Contests' });
     screen.getByRole('tab', { name: 'Contests', selected: true });
@@ -369,6 +367,7 @@ describe('Contests tab', () => {
 
   test('adding a ballot measure', async () => {
     const { election } = generalElectionRecord;
+    const electionId = election.id;
     const id = idFactory.next();
     idFactory.next(); // Skip over the extra ballot measure ID created when switching to ballot measure type
     const newContest: YesNoContest = {
@@ -390,7 +389,7 @@ describe('Contests tab', () => {
     apiMock.getElection
       .expectCallWith({ electionId })
       .resolves(generalElectionRecord);
-    renderScreen();
+    renderScreen(electionId);
 
     await screen.findByRole('heading', { name: 'Contests' });
     userEvent.click(screen.getByRole('button', { name: 'Add Contest' }));
@@ -451,6 +450,7 @@ describe('Contests tab', () => {
 
   test('editing a ballot measure', async () => {
     const { election } = generalElectionRecord;
+    const electionId = election.id;
     const savedContest = election.contests.find(
       (contest): contest is YesNoContest => contest.type === 'yesno'
     )!;
@@ -478,7 +478,7 @@ describe('Contests tab', () => {
     apiMock.getElection
       .expectCallWith({ electionId })
       .resolves(generalElectionRecord);
-    renderScreen();
+    renderScreen(electionId);
 
     await screen.findByRole('heading', { name: 'Contests' });
     const savedContestRow = screen.getByText(savedContest.title).closest('tr')!;
@@ -538,6 +538,7 @@ describe('Contests tab', () => {
 
   test('reordering contests', async () => {
     const { election } = generalElectionRecord;
+    const electionId = election.id;
     // Mock needed for react-flip-toolkit
     window.matchMedia = jest.fn().mockImplementation(() => ({
       matches: false,
@@ -546,7 +547,7 @@ describe('Contests tab', () => {
     apiMock.getElection
       .expectCallWith({ electionId })
       .resolves(generalElectionRecord);
-    renderScreen();
+    renderScreen(electionId);
 
     await screen.findByRole('heading', { name: 'Contests' });
 

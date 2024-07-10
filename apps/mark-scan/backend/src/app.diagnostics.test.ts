@@ -22,7 +22,7 @@ import {
 import { MockUsbDrive } from '@votingworks/usb-drive';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
-import { assertDefined, deferred } from '@votingworks/basics';
+import { assertDefined, deferred, ok } from '@votingworks/basics';
 import {
   InterpretFileResult,
   interpretSimplexBmdBallotFromFilepath,
@@ -213,7 +213,7 @@ test('saving the readiness report', async () => {
     precinctSelection: ALL_PRECINCTS_SELECTION,
   });
   const exportResult = await apiClient.saveReadinessReport();
-  exportResult.assertOk('Failed to save readiness report');
+  expect(exportResult).toEqual(ok(expect.anything()));
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(
     LogEventId.ReadinessReportSaved,
     {

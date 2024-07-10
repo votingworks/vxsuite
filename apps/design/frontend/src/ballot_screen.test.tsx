@@ -10,12 +10,13 @@ import {
   createMockApiClient,
   provideApi,
 } from '../test/api_helpers';
-import { electionId, generalElectionRecord } from '../test/fixtures';
+import { generalElectionRecord } from '../test/fixtures';
 import { render, screen } from '../test/react_testing_library';
 import { withRoute } from '../test/routing_helpers';
 import { routes } from './routes';
 import { BallotScreen } from './ballot_screen';
 
+const electionId = generalElectionRecord.election.id;
 const ballotStyle = generalElectionRecord.ballotStyles[0];
 const precinct = generalElectionRecord.precincts[0];
 

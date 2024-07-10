@@ -1,6 +1,7 @@
 import {
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireTestBallotFixtures,
+  electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { mockReadable, mockWritable } from '@votingworks/test-utils';
 import {
@@ -16,7 +17,7 @@ import {
   isBmdWriteIn,
 } from '@votingworks/utils';
 import { readCastVoteRecordExport } from '@votingworks/backend';
-import { assert } from '@votingworks/basics';
+import { ok } from '@votingworks/basics';
 import { main } from './main';
 import { IMAGE_URI_REGEX } from '../../utils';
 
@@ -52,12 +53,14 @@ async function readAndValidateCastVoteRecordExport(
   batchManifest: CastVoteRecordBatchMetadata[];
 }> {
   const readResult = await readCastVoteRecordExport(exportDirectoryPath);
-  assert(readResult.isOk());
+  expect(readResult).toEqual(ok(expect.anything()));
   const { castVoteRecordExportMetadata, castVoteRecordIterator } =
-    readResult.ok();
-  const castVoteRecords = await castVoteRecordIterator
-    .map((cvrResult) => cvrResult.unsafeUnwrap().castVoteRecord)
-    .toArray();
+    readResult.ok()!;
+  const castVoteRecords = [];
+  for await (const castVoteRecordResult of castVoteRecordIterator) {
+    expect(castVoteRecordResult).toEqual(ok(expect.anything()));
+    castVoteRecords.push(castVoteRecordResult.ok()!.castVoteRecord);
+  }
   return {
     castVoteRecordReportMetadata:
       castVoteRecordExportMetadata.castVoteRecordReportMetadata,
@@ -351,5 +354,33 @@ test('generating as BMD ballots (non-gridlayouts election)', async () => {
         (cvrWriteIn): cvrWriteIn is CVR.CVRWriteIn => cvrWriteIn !== undefined
       );
     expect(writeIns.every((writeIn) => isBmdWriteIn(writeIn))).toEqual(true);
+  }
+});
+
+test('libs/fixtures are up to date - if this test fails run `pnpm generate-fixtures`', async () => {
+  for (const fixtures of [
+    electionGridLayoutNewHampshireTestBallotFixtures,
+    electionTwoPartyPrimaryFixtures,
+  ]) {
+    const outputDirectory = dirSync();
+
+    expect(
+      await run([
+        '--electionDefinition',
+        fixtures.electionJson.asFilePath(),
+        '--outputPath',
+        outputDirectory.name,
+      ])
+    ).toMatchObject({
+      exitCode: 0,
+      stderr: '',
+    });
+
+    const { castVoteRecords } = await readAndValidateCastVoteRecordExport(
+      fixtures.castVoteRecordExport.asDirectoryPath()
+    );
+    expect(castVoteRecords[0]?.ElectionId).toEqual(
+      fixtures.electionDefinition.electionHash
+    );
   }
 });

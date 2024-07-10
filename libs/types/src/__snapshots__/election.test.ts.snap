@@ -59,6 +59,15 @@ VXF error: [
   },
   {
     "code": "invalid_type",
+    "expected": "string",
+    "received": "undefined",
+    "path": [
+      "id"
+    ],
+    "message": "Required"
+  },
+  {
+    "code": "invalid_type",
     "expected": "array",
     "received": "undefined",
     "path": [

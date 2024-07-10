@@ -51,8 +51,8 @@ test('with no elections, creating a new election', async () => {
   screen.getByText("You haven't created any elections yet.");
 
   apiMock.createElection
-    .expectCallWith({ electionData: undefined })
-    .resolves(ok(blankElectionRecord.id));
+    .expectCallWith({ id: blankElectionRecord.election.id })
+    .resolves(ok(blankElectionRecord.election.id));
   apiMock.listElections.expectCallWith().resolves([blankElectionRecord]);
   const createElectionButton = screen.getByRole('button', {
     name: 'Create Election',
@@ -60,7 +60,31 @@ test('with no elections, creating a new election', async () => {
   userEvent.click(createElectionButton);
   await waitFor(() => {
     expect(history.location.pathname).toEqual(
-      `/elections/${blankElectionRecord.id}`
+      `/elections/${blankElectionRecord.election.id}`
+    );
+  });
+});
+
+test('with no elections, loading an election', async () => {
+  apiMock.listElections.expectCallWith().resolves([]);
+  const { history } = renderScreen();
+  await screen.findByRole('heading', { name: 'Elections' });
+
+  const electionData = JSON.stringify(primaryElectionRecord.election);
+  apiMock.loadElection
+    .expectCallWith({ electionData })
+    .resolves(ok(primaryElectionRecord.election.id));
+  apiMock.listElections.expectCallWith().resolves([primaryElectionRecord]);
+  const loadElectionInput = screen.getByLabelText('Load Election');
+  const file = new File([electionData], 'election.json', {
+    type: 'application/json',
+  });
+  // JSDOM's File doesn't implement File.text
+  file.text = () => Promise.resolve(electionData);
+  userEvent.upload(loadElectionInput, file);
+  await waitFor(() => {
+    expect(history.location.pathname).toEqual(
+      `/elections/${primaryElectionRecord.election.id}`
     );
   });
 });
@@ -68,10 +92,7 @@ test('with no elections, creating a new election', async () => {
 test('with elections', async () => {
   apiMock.listElections
     .expectCallWith()
-    .resolves([
-      generalElectionRecord,
-      { ...primaryElectionRecord, id: 'election-id-2' },
-    ]);
+    .resolves([generalElectionRecord, primaryElectionRecord]);
   const { history } = renderScreen();
   await screen.findByRole('heading', { name: 'Elections' });
 
@@ -108,7 +129,7 @@ test('with elections', async () => {
   userEvent.click(rows[0]);
   await waitFor(() => {
     expect(history.location.pathname).toEqual(
-      `/elections/${generalElectionRecord.id}`
+      `/elections/${generalElectionRecord.election.id}`
     );
   });
 });

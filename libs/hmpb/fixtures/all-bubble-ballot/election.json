@@ -1,4 +1,5 @@
 {
+  "id": "all-bubble-ballot-election",
   "ballotLayout": {
     "paperSize": "letter",
     "metadataEncoding": "qr-code"

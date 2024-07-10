@@ -26,6 +26,14 @@ Optional flags:
   the CDF). Since ballot ids are incrementing numbers starting from 1, they will
   have id collisions in VxAdmin if they are not distinguished by a prefix.
 
+## Saved Fixtures
+
+To regenerate the saved fixtures in [libs/fixtures](../libs/fixtures), run:
+
+```bash
+pnpm generate-fixtures
+```
+
 ## Vote Variations
 
 The export may include the following vote variations for candidate contests:

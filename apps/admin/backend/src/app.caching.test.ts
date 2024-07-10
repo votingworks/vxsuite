@@ -2,7 +2,7 @@ import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/f
 import { Client } from '@votingworks/grout';
 import { tmpNameSync } from 'tmp';
 import { readFileSync } from 'fs';
-import { assert } from '@votingworks/basics';
+import { assert, ok } from '@votingworks/basics';
 import { modifyCastVoteRecordExport } from '@votingworks/backend';
 import {
   BooleanEnvironmentVariableName,
@@ -71,7 +71,7 @@ it('uses and clears CVR tabulation cache appropriately', async () => {
   const loadFileResult = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordExport.asDirectoryPath(),
   });
-  loadFileResult.assertOk('load file failed');
+  expect(loadFileResult).toEqual(ok(expect.anything()));
   const resultsExport = await getParsedExport({
     apiClient,
   });

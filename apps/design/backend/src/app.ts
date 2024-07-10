@@ -9,6 +9,7 @@ import {
   SystemSettings,
   BallotType,
   ElectionSerializationFormat,
+  ElectionId,
 } from '@votingworks/types';
 import express, { Application } from 'express';
 import {
@@ -44,8 +45,9 @@ import { translateBallotStrings } from './language_and_audio/ballot_strings';
 export const BALLOT_STYLE_READINESS_REPORT_FILE_NAME =
   'ballot-style-readiness-report.pdf';
 
-export function createBlankElection(): Election {
+export function createBlankElection(id: ElectionId): Election {
   return {
+    id,
     type: 'general',
     title: '',
     date: DateWithoutTime.today(),
@@ -114,27 +116,28 @@ function buildApi({ workspace, translator }: AppContext) {
       return store.getElection(input.electionId);
     },
 
-    createElection(input: { electionData?: string }): Result<Id, Error> {
-      let election: Election;
-      if (input.electionData) {
-        const parseResult = safeParseElection(input.electionData);
-        if (parseResult.isErr()) return parseResult;
-        election = parseResult.ok();
-        const precincts = convertVxfPrecincts(election);
-        election = {
-          ...election,
-          // Remove any existing ballot styles/grid layouts so we can generate our own
-          ballotStyles: [],
-          precincts,
-          gridLayouts: undefined,
-          // Fill in a blank seal if none is provided
-          seal: election.seal ?? '',
-        };
-        return ok(store.createElection(election, precincts));
-      }
+    loadElection(input: { electionData: string }): Result<ElectionId, Error> {
+      const parseResult = safeParseElection(input.electionData);
+      if (parseResult.isErr()) return parseResult;
+      let election = parseResult.ok();
+      const precincts = convertVxfPrecincts(election);
+      election = {
+        ...election,
+        // Remove any existing ballot styles/grid layouts so we can generate our own
+        ballotStyles: [],
+        precincts,
+        gridLayouts: undefined,
+        // Fill in a blank seal if none is provided
+        seal: election.seal ?? '',
+      };
+      store.createElection(election, precincts);
+      return ok(election.id);
+    },
 
-      election = createBlankElection();
-      return ok(store.createElection(election, []));
+    createElection(input: { id: ElectionId }): Result<ElectionId, Error> {
+      const election = createBlankElection(input.id);
+      store.createElection(election, []);
+      return ok(election.id);
     },
 
     updateElection(input: { electionId: Id; election: Election }): void {

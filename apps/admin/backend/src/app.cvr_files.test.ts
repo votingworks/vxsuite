@@ -28,6 +28,7 @@ import {
   getImageHash,
   getLayoutHash,
   modifyCastVoteRecordExport,
+  readCastVoteRecordExportMetadata,
 } from '@votingworks/backend';
 import { MockFileTree } from '@votingworks/usb-drive';
 import {
@@ -112,7 +113,11 @@ test('happy path - mock election flow', async () => {
   // insert a USB drive
   const testExportDirectoryName = 'TEST__machine_0000__2022-09-24_18-00-00';
   // The timestamp that the CVR fixtures were generated at
-  const testExportTimestamp = '2024-06-25T16:13:05.800Z';
+  const expectedExportTimestamp = (
+    await readCastVoteRecordExportMetadata(
+      castVoteRecordExport.asDirectoryPath()
+    )
+  ).unsafeUnwrap().castVoteRecordReportMetadata.GeneratedDate;
   insertUsbDrive(
     mockCastVoteRecordFileTree(electionDefinition, {
       [testExportDirectoryName]: castVoteRecordExport.asDirectoryPath(),
@@ -124,7 +129,7 @@ test('happy path - mock election flow', async () => {
     expect.objectContaining({
       name: testExportDirectoryName,
       cvrCount: 184,
-      exportTimestamp: new Date(testExportTimestamp),
+      exportTimestamp: new Date(expectedExportTimestamp),
       isTestModeResults: true,
       scannerIds: ['0000'],
     }),
@@ -146,7 +151,7 @@ test('happy path - mock election flow', async () => {
   assert(addTestFileResult.isOk());
   expect(addTestFileResult.ok()).toMatchObject({
     wasExistingFile: false,
-    exportedTimestamp: testExportTimestamp,
+    exportedTimestamp: expectedExportTimestamp,
     alreadyPresent: 0,
     newlyAdded: 184,
     fileMode: 'test',
@@ -167,7 +172,7 @@ test('happy path - mock election flow', async () => {
   // file and cast vote records should now be present
   expect(await apiClient.getCastVoteRecordFiles()).toEqual([
     expect.objectContaining({
-      exportTimestamp: testExportTimestamp,
+      exportTimestamp: expectedExportTimestamp,
       filename: testExportDirectoryName,
       numCvrsImported: 184,
       precinctIds: ['town-id-00701-precinct-id-'],
@@ -202,7 +207,7 @@ test('happy path - mock election flow', async () => {
 
   // now try loading official CVR files, as if after L&A
   const officialExportDirectoryName = 'machine_0000__2022-09-24_18-00-00';
-  const officialExportTimestamp = testExportTimestamp;
+  const officialExportTimestamp = expectedExportTimestamp;
   const officialReportDirectoryPath = await modifyCastVoteRecordExport(
     castVoteRecordExport.asDirectoryPath(),
     {
