@@ -444,6 +444,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsBmdReinsertBallot: () => (
+    <UiString uiStringKey="instructionsBmdReinsertBallot">
+      Please re-insert the printed sheet to cast your ballot and finish voting.
+    </UiString>
+  ),
+
   instructionsBmdReviewAndValidatePrintedBallot: () => (
     <UiString uiStringKey="instructionsBmdReviewAndValidatePrintedBallot">
       The following votes were scanned from your printed official ballot. Please
@@ -974,10 +980,16 @@ export const appStrings = {
     </UiString>
   ),
 
-  noteBmdPrintScreenNextSteps: () => (
-    <UiString uiStringKey="noteBmdPrintScreenNextSteps">
+  noteBmdPrintedBallotReviewNextSteps: () => (
+    <UiString uiStringKey="noteBmdPrintedBallotReviewNextSteps">
       You will have a chance to review and verify the votes on your printed
       ballot before it is cast.
+    </UiString>
+  ),
+
+  noteBmdScanningReinsertedBallot: () => (
+    <UiString uiStringKey="noteBmdScanningReinsertedBallot">
+      Please wait while the votes on your ballot are scanned.
     </UiString>
   ),
 
@@ -1093,6 +1105,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  titleBmdBallotRemovedScreen: () => (
+    <UiString uiStringKey="titleBmdBallotRemovedScreen">
+      Ballot Removed
+    </UiString>
+  ),
+
   titleBmdCastBallotScreen: () => (
     <UiString uiStringKey="titleBmdCastBallotScreen">
       You’re Almost Done
@@ -1133,6 +1151,12 @@ export const appStrings = {
 
   titleBmdJammedScreen: () => (
     <UiString uiStringKey="titleBmdJammedScreen">Paper is Jammed</UiString>
+  ),
+
+  titleBmdLoadingReinsertedBallotScreen: () => (
+    <UiString uiStringKey="titleBmdLoadingReinsertedBallotScreen">
+      Loading your ballot...
+    </UiString>
   ),
 
   titleBmdPatCalibrationConfirmExitScreen: () => (
@@ -1324,6 +1348,12 @@ export const appStrings = {
   warningCvrsNeedSync: () => (
     <UiString uiStringKey="warningCvrsNeedSync">
       A poll worker must sync cast vote records (CVRs) to the USB drive.
+    </UiString>
+  ),
+
+  warningBmdBallotRemoved: () => (
+    <UiString uiStringKey="warningBmdBallotRemoved">
+      Your official ballot has been removed from the printer.
     </UiString>
   ),
 

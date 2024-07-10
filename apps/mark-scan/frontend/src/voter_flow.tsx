@@ -23,6 +23,9 @@ import { ValidateBallotPage } from './pages/validate_ballot_page';
 import { BallotContext } from './contexts/ballot_context';
 import * as api from './api';
 import { PatDeviceCalibrationPage } from './pages/pat_device_identification/pat_device_calibration_page';
+import { ReinsertedInvalidBallotScreen } from './pages/reinserted_invalid_ballot_screen';
+import { WaitingForBallotReinsertionBallotScreen } from './pages/waiting_for_ballot_reinsertion_screen';
+import { LoadingReinsertedBallotScreen } from './pages/loading_reinserted_ballot_screen';
 
 export interface VoterFlowProps {
   contests: ContestsWithMsEitherNeither;
@@ -74,6 +77,21 @@ export function VoterFlow(props: VoterFlowProps): React.ReactNode {
         printingCompleted
       />
     );
+  }
+
+  if (stateMachineState === 'waiting_for_ballot_reinsertion') {
+    return <WaitingForBallotReinsertionBallotScreen />;
+  }
+
+  if (
+    stateMachineState === 'loading_reinserted_ballot' ||
+    stateMachineState === 'validating_reinserted_ballot'
+  ) {
+    return <LoadingReinsertedBallotScreen />;
+  }
+
+  if (stateMachineState === 'reinserted_invalid_ballot') {
+    return <ReinsertedInvalidBallotScreen />;
   }
 
   return (

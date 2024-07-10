@@ -5,8 +5,9 @@ import {
 } from '@votingworks/ui';
 import React from 'react';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
+import type { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import { act, render, screen } from '../test/react_testing_library';
-import { VoterFlow } from './voter_flow';
+import { VoterFlow, VoterFlowProps } from './voter_flow';
 import { mockMachineConfig } from '../test/helpers/mock_machine_config';
 import { Ballot } from './components/ballot';
 import { PatDeviceCalibrationPage } from './pages/pat_device_identification/pat_device_calibration_page';
@@ -43,6 +44,17 @@ jest.mock('./api', (): typeof import('./api') => ({
   confirmSessionEnd: { useMutation: jest.fn() },
 }));
 
+const MOCK_INVALID_BALLOT_SCREEN_CONTENTS = 'MockInvalidBallotScreen';
+jest.mock(
+  './pages/reinserted_invalid_ballot_screen',
+  (): typeof import('./pages/reinserted_invalid_ballot_screen') => ({
+    ...jest.requireActual('./pages/reinserted_invalid_ballot_screen'),
+    ReinsertedInvalidBallotScreen: () => (
+      <div>{MOCK_INVALID_BALLOT_SCREEN_CONTENTS}</div>
+    ),
+  })
+);
+
 const mockApi = createApiMock();
 
 function TestContext(props: React.PropsWithChildren) {
@@ -52,6 +64,21 @@ function TestContext(props: React.PropsWithChildren) {
     <ApiProvider apiClient={mockApi.mockApiClient}>{children}</ApiProvider>
   );
 }
+
+const electionDefinition = electionGeneralDefinition;
+const { contests } = electionDefinition.election;
+
+const TEST_VOTER_FLOW_PROPS: VoterFlowProps = {
+  contests,
+  electionDefinition,
+  endVoterSession: jest.fn(),
+  isLiveMode: true,
+  machineConfig: mockMachineConfig(),
+  resetBallot: jest.fn(),
+  stateMachineState: 'waiting_for_ballot_data',
+  updateVote: jest.fn(),
+  votes: {},
+};
 
 beforeEach(() => {
   mockApi.mockApiClient.getIsPatDeviceConnected.mockReturnValue(false);
@@ -63,24 +90,9 @@ test('replaces screen with accessible controller sandbox when triggered', () => 
     <div data-testid="mockControllerSandbox" />
   );
 
-  const electionDefinition = electionGeneralDefinition;
-  const { contests } = electionDefinition.election;
-
   render(
     <TestContext>
-      <VoterFlow
-        {...{
-          contests,
-          electionDefinition,
-          endVoterSession: jest.fn(),
-          isLiveMode: true,
-          machineConfig: mockMachineConfig(),
-          resetBallot: jest.fn(),
-          stateMachineState: 'waiting_for_ballot_data',
-          updateVote: jest.fn(),
-          votes: {},
-        }}
-      />
+      <VoterFlow {...TEST_VOTER_FLOW_PROPS} />
     </TestContext>
   );
 
@@ -98,24 +110,9 @@ test('replaces screen with PAT device calibration when connected', () => {
     <div data-testid="mockPatCalibrationScreen" />
   );
 
-  const electionDefinition = electionGeneralDefinition;
-  const { contests } = electionDefinition.election;
-
   const { rerender } = render(
     <TestContext>
-      <VoterFlow
-        {...{
-          contests,
-          electionDefinition,
-          endVoterSession: jest.fn(),
-          isLiveMode: true,
-          machineConfig: mockMachineConfig(),
-          resetBallot: jest.fn(),
-          stateMachineState: 'waiting_for_ballot_data',
-          updateVote: jest.fn(),
-          votes: {},
-        }}
-      />
+      <VoterFlow {...TEST_VOTER_FLOW_PROPS} />
     </TestContext>
   );
 
@@ -129,15 +126,8 @@ test('replaces screen with PAT device calibration when connected', () => {
     <TestContext>
       <VoterFlow
         {...{
-          contests,
-          electionDefinition,
-          endVoterSession: jest.fn(),
-          isLiveMode: true,
-          machineConfig: mockMachineConfig(),
-          resetBallot: jest.fn(),
+          ...TEST_VOTER_FLOW_PROPS,
           stateMachineState: 'pat_device_connected', //
-          updateVote: jest.fn(),
-          votes: {},
         }}
       />
     </TestContext>
@@ -155,26 +145,41 @@ test('sets up the PatDeviceContextProvider', async () => {
     return <div>PAT Device Connected: {isPatDeviceConnected.toString()}</div>;
   });
 
-  const electionDefinition = electionGeneralDefinition;
-  const { contests } = electionDefinition.election;
-
   render(
     <TestContext>
-      <VoterFlow
-        {...{
-          contests,
-          electionDefinition,
-          endVoterSession: jest.fn(),
-          isLiveMode: true,
-          machineConfig: mockMachineConfig(),
-          resetBallot: jest.fn(),
-          stateMachineState: 'waiting_for_ballot_data',
-          updateVote: jest.fn(),
-          votes: {},
-        }}
-      />
+      <VoterFlow {...TEST_VOTER_FLOW_PROPS} />
     </TestContext>
   );
 
   await screen.findByText('PAT Device Connected: true');
+});
+
+describe('ballot removal/re-insertion', () => {
+  const ballotReinsertionStateScreenContents: Partial<
+    Record<SimpleServerStatus, string | RegExp>
+  > = {
+    waiting_for_ballot_reinsertion: /ballot removed/i,
+    loading_reinserted_ballot: /loading your ballot/i,
+    validating_reinserted_ballot: /loading your ballot/i,
+    reinserted_invalid_ballot: MOCK_INVALID_BALLOT_SCREEN_CONTENTS,
+  };
+
+  for (const [stateMachineState, expectedString] of Object.entries(
+    ballotReinsertionStateScreenContents
+  ) as Array<[SimpleServerStatus, string | RegExp]>) {
+    test(`ballot re-insertion state: ${stateMachineState}`, async () => {
+      render(
+        <TestContext>
+          <VoterFlow
+            {...{
+              ...TEST_VOTER_FLOW_PROPS,
+              stateMachineState,
+            }}
+          />
+        </TestContext>
+      );
+
+      await screen.findByText(expectedString);
+    });
+  }
 });
