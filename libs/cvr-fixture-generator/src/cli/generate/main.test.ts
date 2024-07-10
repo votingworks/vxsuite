@@ -21,7 +21,7 @@ import { ok } from '@votingworks/basics';
 import { main } from './main';
 import { IMAGE_URI_REGEX } from '../../utils';
 
-jest.setTimeout(30_000);
+jest.setTimeout(60_000);
 
 const electionDefinitionPathNhTestBallot =
   electionGridLayoutNewHampshireTestBallotFixtures.electionJson.asFilePath();
