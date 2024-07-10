@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 import fs from 'fs';
-import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { electionGeneral } from '@votingworks/fixtures';
 import {
   mockElectionManagerUser,
   mockPollWorkerUser,
@@ -8,7 +8,7 @@ import {
   mockVendorUser,
 } from '@votingworks/test-utils';
 
-import { ElectionKey } from '@votingworks/types';
+import { electionAuthKey } from '@votingworks/types';
 import {
   deserializeMockFileContents,
   MOCK_FILE_PATH,
@@ -18,11 +18,7 @@ import {
   serializeMockFileContents,
 } from './mock_file_card';
 
-const { election } = electionGeneralDefinition;
-const electionKey: ElectionKey = {
-  id: election.id,
-  date: election.date,
-};
+const electionKey = electionAuthKey(electionGeneral);
 const pin = '123456';
 const wrongPin = '234567';
 

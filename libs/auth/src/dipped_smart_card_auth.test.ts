@@ -22,7 +22,7 @@ import {
   DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
   DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
   DippedSmartCardAuth as DippedSmartCardAuthTypes,
-  ElectionKey,
+  electionAuthKey,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import {
@@ -72,16 +72,8 @@ afterEach(() => {
 
 const jurisdiction = TEST_JURISDICTION;
 const otherJurisdiction = `${TEST_JURISDICTION}-2`;
-const election = electionGeneral;
-const otherElection = electionTwoPartyPrimary;
-const electionKey: ElectionKey = {
-  id: election.id,
-  date: election.date,
-};
-const otherElectionKey: ElectionKey = {
-  id: otherElection.id,
-  date: otherElection.date,
-};
+const electionKey = electionAuthKey(electionGeneral);
+const otherElectionKey = electionAuthKey(electionTwoPartyPrimary);
 const defaultConfig: DippedSmartCardAuthConfig = {};
 const defaultMachineState: DippedSmartCardAuthMachineState = {
   electionKey,

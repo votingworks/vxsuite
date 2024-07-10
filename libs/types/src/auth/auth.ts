@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 import { DateWithoutTime } from '@votingworks/basics';
-import { BallotStyleId, ElectionId, PrecinctId } from '../election';
+import { BallotStyleId, Election, ElectionId, PrecinctId } from '../election';
 
 /**
  * An election key identifies an election. It can be encoded in a smart card and
@@ -15,6 +15,16 @@ import { BallotStyleId, ElectionId, PrecinctId } from '../election';
 export interface ElectionKey {
   id: ElectionId;
   date: DateWithoutTime;
+}
+
+/**
+ * Create an {@link ElectionKey} from an {@link Election}.
+ */
+export function electionAuthKey(election: Election): ElectionKey {
+  return {
+    id: election.id,
+    date: election.date,
+  };
 }
 
 export interface VendorUser {
