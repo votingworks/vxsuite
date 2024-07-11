@@ -2,6 +2,7 @@ import { DateTime } from 'luxon';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   DEFAULT_SYSTEM_SETTINGS,
+  electionAuthKey,
   SystemSettings,
   TEST_JURISDICTION,
 } from '@votingworks/types';
@@ -14,7 +15,7 @@ beforeEach(() => {
 
 const jurisdiction = TEST_JURISDICTION;
 const { electionDefinition } = electionFamousNames2021Fixtures;
-const { electionHash } = electionDefinition;
+const electionKey = electionAuthKey(electionDefinition.election);
 const systemSettings: SystemSettings = {
   ...DEFAULT_SYSTEM_SETTINGS,
   auth: {
@@ -38,7 +39,7 @@ test('getAuthStatus', async () => {
   await apiClient.getAuthStatus();
   expect(auth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(auth.getAuthStatus).toHaveBeenNthCalledWith(1, {
-    electionHash,
+    electionKey,
     jurisdiction,
     ...systemSettings.auth,
   });
@@ -52,7 +53,7 @@ test('checkPin', async () => {
   expect(auth.checkPin).toHaveBeenCalledTimes(1);
   expect(auth.checkPin).toHaveBeenNthCalledWith(
     1,
-    { electionHash, jurisdiction, ...systemSettings.auth },
+    { electionKey, jurisdiction, ...systemSettings.auth },
     { pin: '123456' }
   );
 });
@@ -64,7 +65,7 @@ test('logOut', async () => {
   await apiClient.logOut();
   expect(auth.logOut).toHaveBeenCalledTimes(1);
   expect(auth.logOut).toHaveBeenNthCalledWith(1, {
-    electionHash,
+    electionKey,
     jurisdiction,
     ...systemSettings.auth,
   });
@@ -80,7 +81,7 @@ test('updateSessionExpiry', async () => {
   expect(auth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(auth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
-    { electionHash, jurisdiction, ...systemSettings.auth },
+    { electionKey, jurisdiction, ...systemSettings.auth },
     { sessionExpiresAt: expect.any(Date) }
   );
 });
@@ -93,7 +94,7 @@ test('programCard', async () => {
   expect(auth.programCard).toHaveBeenCalledTimes(1);
   expect(auth.programCard).toHaveBeenNthCalledWith(
     1,
-    { electionHash, jurisdiction, ...systemSettings.auth },
+    { electionKey, jurisdiction, ...systemSettings.auth },
     { userRole: 'system_administrator' }
   );
 
@@ -101,7 +102,7 @@ test('programCard', async () => {
   expect(auth.programCard).toHaveBeenCalledTimes(2);
   expect(auth.programCard).toHaveBeenNthCalledWith(
     2,
-    { electionHash, jurisdiction, ...systemSettings.auth },
+    { electionKey, jurisdiction, ...systemSettings.auth },
     { userRole: 'election_manager' }
   );
 
@@ -109,7 +110,7 @@ test('programCard', async () => {
   expect(auth.programCard).toHaveBeenCalledTimes(3);
   expect(auth.programCard).toHaveBeenNthCalledWith(
     3,
-    { electionHash, jurisdiction, ...systemSettings.auth },
+    { electionKey, jurisdiction, ...systemSettings.auth },
     { userRole: 'poll_worker' }
   );
 });
@@ -121,7 +122,7 @@ test('unprogramCard', async () => {
   void (await apiClient.unprogramCard());
   expect(auth.unprogramCard).toHaveBeenCalledTimes(1);
   expect(auth.unprogramCard).toHaveBeenNthCalledWith(1, {
-    electionHash,
+    electionKey,
     jurisdiction,
     ...systemSettings.auth,
   });
