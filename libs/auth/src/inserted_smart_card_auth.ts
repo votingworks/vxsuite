@@ -543,11 +543,7 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
       if (!machineState.electionHash) {
         return ok();
       }
-      if (
-        user.electionHash !== machineState.electionHash &&
-        !this.config
-          .allowElectionManagersToAccessMachinesConfiguredForOtherElections
-      ) {
+      if (user.electionHash !== machineState.electionHash) {
         return err('wrong_election');
       }
     }

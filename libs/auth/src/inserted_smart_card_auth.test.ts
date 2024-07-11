@@ -739,23 +739,6 @@ test.each<{
     ],
   },
   {
-    description:
-      'election manager card with mismatched election hash, ' +
-      'allowElectionManagersToAccessMachinesConfiguredForOtherElections = true',
-    config: {
-      ...defaultConfig,
-      allowElectionManagersToAccessMachinesConfiguredForOtherElections: true,
-    },
-    machineState: defaultMachineState,
-    cardDetails: {
-      user: { ...electionManagerUser, electionHash: otherElectionHash },
-    },
-    expectedAuthStatus: {
-      status: 'checking_pin',
-      user: { ...electionManagerUser, electionHash: otherElectionHash },
-    },
-  },
-  {
     description: 'poll worker card with mismatched election hash',
     config: defaultConfig,
     machineState: defaultMachineState,

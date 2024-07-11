@@ -57,7 +57,6 @@ export interface InsertedSmartCardAuthApi {
  */
 export interface InsertedSmartCardAuthConfig {
   allowCardlessVoterSessions?: boolean;
-  allowElectionManagersToAccessMachinesConfiguredForOtherElections?: boolean;
 }
 
 /**
