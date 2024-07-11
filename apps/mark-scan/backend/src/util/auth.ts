@@ -21,10 +21,7 @@ export function getDefaultAuth(logger: BaseLogger): InsertedSmartCardAuth {
       isIntegrationTest()
         ? new MockFileCard()
         : new JavaCard(),
-    config: {
-      allowCardlessVoterSessions: true,
-      allowElectionManagersToAccessMachinesConfiguredForOtherElections: true,
-    },
+    config: { allowCardlessVoterSessions: true },
     logger,
   });
 }

@@ -43,10 +43,7 @@ export async function start({
         isIntegrationTest()
           ? new MockFileCard()
           : new JavaCard(),
-      config: {
-        allowCardlessVoterSessions: true,
-        allowElectionManagersToAccessMachinesConfiguredForOtherElections: true,
-      },
+      config: { allowCardlessVoterSessions: true },
       logger: baseLogger,
     });
 

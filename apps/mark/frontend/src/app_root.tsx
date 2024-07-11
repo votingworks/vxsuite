@@ -71,7 +71,6 @@ import { PollWorkerScreen } from './pages/poll_worker_screen';
 import { SetupPrinterPage } from './pages/setup_printer_page';
 import { SetupPowerPage } from './pages/setup_power_page';
 import { UnconfiguredScreen } from './pages/unconfigured_screen';
-import { ReplaceElectionScreen } from './pages/replace_election_screen';
 import { SystemAdministratorScreen } from './pages/system_administrator_screen';
 import { UnconfiguredElectionScreenWrapper } from './pages/unconfigured_election_screen_wrapper';
 
@@ -435,25 +434,6 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
   if (isElectionManagerAuth(authStatus)) {
     if (!optionalElectionDefinition) {
       return <UnconfiguredElectionScreenWrapper />;
-    }
-
-    // We prevent mismatch in {election package, auth} election hash at configuration time,
-    // but mismatch may still occur if the user removes the matching card and inserts another
-    // card with a mismatched election hash
-    if (
-      authStatus.user.electionHash !== optionalElectionDefinition.electionHash
-    ) {
-      return (
-        <ReplaceElectionScreen
-          appPrecinct={appPrecinct}
-          ballotsPrintedCount={ballotsPrintedCount}
-          authElectionHash={authStatus.user.electionHash}
-          electionDefinition={optionalElectionDefinition}
-          machineConfig={machineConfig}
-          isLoading={unconfigureMachineMutation.isLoading}
-          isError={unconfigureMachineMutation.isError}
-        />
-      );
     }
 
     return (
