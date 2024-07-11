@@ -2,6 +2,7 @@ import { DateTime } from 'luxon';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   DEFAULT_SYSTEM_SETTINGS,
+  electionAuthKey,
   SystemSettings,
   TEST_JURISDICTION,
 } from '@votingworks/types';
@@ -15,7 +16,7 @@ import { withApp } from '../test/helpers/pdi_helpers';
 import { configureApp } from '../test/helpers/shared_helpers';
 
 const jurisdiction = TEST_JURISDICTION;
-const { electionHash } = electionFamousNames2021Fixtures.electionDefinition;
+const electionKey = electionAuthKey(electionFamousNames2021Fixtures.election);
 const systemSettings: SystemSettings = {
   ...DEFAULT_SYSTEM_SETTINGS,
   auth: {
@@ -59,7 +60,7 @@ test('getAuthStatus', async () => {
     expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
     expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
       ...systemSettings.auth,
-      electionHash,
+      electionKey,
       jurisdiction,
     });
   });
@@ -73,7 +74,7 @@ test('checkPin', async () => {
     expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
     expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
       1,
-      { ...systemSettings.auth, electionHash, jurisdiction },
+      { ...systemSettings.auth, electionKey, jurisdiction },
       { pin: '123456' }
     );
   });
@@ -87,7 +88,7 @@ test('logOut', async () => {
     expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
     expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, {
       ...systemSettings.auth,
-      electionHash,
+      electionKey,
       jurisdiction,
     });
   });
@@ -103,7 +104,7 @@ test('updateSessionExpiry', async () => {
     expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
     expect(mockAuth.updateSessionExpiry).toHaveBeenNthCalledWith(
       1,
-      { ...systemSettings.auth, electionHash, jurisdiction },
+      { ...systemSettings.auth, electionKey, jurisdiction },
       { sessionExpiresAt: expect.any(Date) }
     );
   });

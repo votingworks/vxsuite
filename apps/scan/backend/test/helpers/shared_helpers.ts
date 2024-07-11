@@ -14,6 +14,7 @@ import {
   PrecinctScannerState,
   SheetOf,
   asSheet,
+  electionAuthKey,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -85,7 +86,11 @@ export async function configureApp(
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
-      user: mockElectionManagerUser(electionPackage.electionDefinition),
+      user: mockElectionManagerUser({
+        electionKey: electionAuthKey(
+          electionPackage.electionDefinition.election
+        ),
+      }),
       sessionExpiresAt: mockSessionExpiresAt(),
     })
   );
