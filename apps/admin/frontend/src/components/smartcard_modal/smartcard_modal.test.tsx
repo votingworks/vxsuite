@@ -1,8 +1,8 @@
 import userEvent from '@testing-library/user-event';
 import { err, throwIllegalValue } from '@votingworks/basics';
 import {
-  electionTwoPartyPrimaryDefinition,
   electionGeneralDefinition,
+  electionTwoPartyPrimary,
 } from '@votingworks/fixtures';
 import {
   mockElectionManagerUser,
@@ -13,6 +13,7 @@ import {
 } from '@votingworks/test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
+  electionAuthKey,
   ElectionManagerUser,
   PollWorkerUser,
   SystemAdministratorUser,
@@ -24,8 +25,8 @@ import { buildApp } from '../../../test/helpers/build_app';
 import { screen, waitFor, within } from '../../../test/react_testing_library';
 
 const electionDefinition = electionGeneralDefinition;
-const { electionHash } = electionDefinition;
-const otherElectionHash = electionTwoPartyPrimaryDefinition.electionHash;
+const electionKey = electionAuthKey(electionDefinition.election);
+const otherElectionKey = electionAuthKey(electionTwoPartyPrimary);
 
 let apiMock: ApiMock;
 
@@ -76,7 +77,7 @@ test('Smartcard modal displays card details', async () => {
       expectedFooter: 'Remove card to cancel.',
     },
     {
-      programmedUser: mockElectionManagerUser({ electionHash }),
+      programmedUser: mockElectionManagerUser({ electionKey }),
       expectedHeading: 'Election Manager Card',
       expectedElectionString: 'General Election — Tuesday, November 3, 2020',
       shouldResetCardPinButtonBeDisplayed: true,
@@ -84,7 +85,7 @@ test('Smartcard modal displays card details', async () => {
       expectedFooter: 'Remove card to cancel.',
     },
     {
-      programmedUser: mockPollWorkerUser({ electionHash }),
+      programmedUser: mockPollWorkerUser({ electionKey }),
       expectedHeading: 'Poll Worker Card',
       expectedElectionString: 'General Election — Tuesday, November 3, 2020',
       shouldResetCardPinButtonBeDisplayed: false,
@@ -93,7 +94,7 @@ test('Smartcard modal displays card details', async () => {
     },
     {
       programmedUser: mockElectionManagerUser({
-        electionHash: otherElectionHash,
+        electionKey: otherElectionKey,
       }),
       expectedHeading: 'Election Manager Card',
       expectedElectionString: 'Unknown Election',
@@ -102,7 +103,7 @@ test('Smartcard modal displays card details', async () => {
       expectedFooter: 'Remove card to cancel.',
     },
     {
-      programmedUser: mockPollWorkerUser({ electionHash: otherElectionHash }),
+      programmedUser: mockPollWorkerUser({ electionKey: otherElectionKey }),
       expectedHeading: 'Poll Worker Card',
       expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
@@ -197,7 +198,7 @@ test('Smartcard modal displays card details when no election definition on machi
       expectedFooter: 'Remove card to cancel.',
     },
     {
-      programmedUser: mockElectionManagerUser({ electionHash }),
+      programmedUser: mockElectionManagerUser({ electionKey }),
       expectedHeading: 'Election Manager Card',
       expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
@@ -205,7 +206,7 @@ test('Smartcard modal displays card details when no election definition on machi
       expectedFooter: 'Remove card to leave this screen.',
     },
     {
-      programmedUser: mockPollWorkerUser({ electionHash }),
+      programmedUser: mockPollWorkerUser({ electionKey }),
       expectedHeading: 'Poll Worker Card',
       expectedElectionString: 'Unknown Election',
       shouldResetCardPinButtonBeDisplayed: false,
@@ -289,21 +290,21 @@ test('Programming election manager and poll worker smartcards', async () => {
   }> = [
     {
       role: 'election_manager',
-      programmedUser: mockElectionManagerUser({ electionHash }),
+      programmedUser: mockElectionManagerUser({ electionKey }),
       newPin: '123456',
       expectedHeadingAfterProgramming: 'Election Manager Card',
       expectedSuccessText: [/New card PIN is /, '123-456'],
     },
     {
       role: 'poll_worker',
-      programmedUser: mockPollWorkerUser({ electionHash }),
+      programmedUser: mockPollWorkerUser({ electionKey }),
       newPin: undefined, // Poll worker card PINs are not enabled
       expectedHeadingAfterProgramming: 'Poll Worker Card',
       expectedSuccessText: ['New card created.'],
     },
     {
       role: 'poll_worker',
-      programmedUser: mockPollWorkerUser({ electionHash }),
+      programmedUser: mockPollWorkerUser({ electionKey }),
       newPin: '123456', // Poll worker card PINs are enabled
       expectedHeadingAfterProgramming: 'Poll Worker Card',
       expectedSuccessText: [/New card PIN is /, '123-456'],
@@ -508,11 +509,11 @@ test('Resetting smartcard PINs', async () => {
       expectedHeading: 'System Administrator Card',
     },
     {
-      programmedUser: mockElectionManagerUser({ electionHash }),
+      programmedUser: mockElectionManagerUser({ electionKey }),
       expectedHeading: 'Election Manager Card',
     },
     {
-      programmedUser: mockPollWorkerUser({ electionHash }),
+      programmedUser: mockPollWorkerUser({ electionKey }),
       expectedHeading: 'Poll Worker Card',
     },
   ];
@@ -611,12 +612,12 @@ test('Unprogramming smartcards', async () => {
     expectedSuccessText: string;
   }> = [
     {
-      programmedUser: mockElectionManagerUser({ electionHash }),
+      programmedUser: mockElectionManagerUser({ electionKey }),
       expectedHeadingBeforeUnprogramming: 'Election Manager Card',
       expectedSuccessText: 'Election Manager card has been unprogrammed.',
     },
     {
-      programmedUser: mockPollWorkerUser({ electionHash }),
+      programmedUser: mockPollWorkerUser({ electionKey }),
       expectedHeadingBeforeUnprogramming: 'Poll Worker Card',
       expectedSuccessText: 'Poll Worker card has been unprogrammed.',
     },
@@ -704,21 +705,21 @@ test('Error handling', async () => {
         'Error creating System Administrator card. Please try again.',
     },
     {
-      programmedUser: mockElectionManagerUser({ electionHash }),
+      programmedUser: mockElectionManagerUser({ electionKey }),
       buttonToPress: 'Reset Card PIN',
       expectedProgressText: 'Resetting card PIN',
       expectedErrorText:
         'Error resetting Election Manager card PIN. Please try again.',
     },
     {
-      programmedUser: mockElectionManagerUser({ electionHash }),
+      programmedUser: mockElectionManagerUser({ electionKey }),
       buttonToPress: 'Unprogram Card',
       expectedProgressText: 'Unprogramming card',
       expectedErrorText:
         'Error unprogramming Election Manager card. Please try again.',
     },
     {
-      programmedUser: mockPollWorkerUser({ electionHash }),
+      programmedUser: mockPollWorkerUser({ electionKey }),
       buttonToPress: 'Unprogram Card',
       expectedProgressText: 'Unprogramming card',
       expectedErrorText:

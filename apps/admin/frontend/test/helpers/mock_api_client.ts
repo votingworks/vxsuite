@@ -35,6 +35,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   DiagnosticRecord,
   DippedSmartCardAuth,
+  electionAuthKey,
   ElectionDefinition,
   Id,
   PrinterConfig,
@@ -170,7 +171,7 @@ export function createApiMock(
       this.setAuthStatus({
         status: 'logged_in',
         user: mockElectionManagerUser({
-          electionHash: electionDefinition.electionHash,
+          electionKey: electionAuthKey(electionDefinition.election),
         }),
         sessionExpiresAt: mockSessionExpiresAt(),
       });

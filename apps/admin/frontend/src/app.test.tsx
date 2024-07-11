@@ -10,6 +10,7 @@ import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
+import { electionAuthKey } from '@votingworks/types';
 import {
   fireEvent,
   screen,
@@ -110,6 +111,7 @@ test('configuring with an election definition', async () => {
 
 test('authentication works', async () => {
   const electionDefinition = eitherNeitherElectionDefinition;
+  const electionKey = electionAuthKey(electionDefinition.election);
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   renderApp();
@@ -131,9 +133,7 @@ test('authentication works', async () => {
   // Insert an election manager card and enter the wrong PIN.
   apiMock.setAuthStatus({
     status: 'checking_pin',
-    user: mockElectionManagerUser({
-      electionHash: eitherNeitherElectionDefinition.electionHash,
-    }),
+    user: mockElectionManagerUser({ electionKey }),
   });
   await screen.findByText('Enter the card PIN');
   apiMock.expectCheckPin('111111');
@@ -145,9 +145,7 @@ test('authentication works', async () => {
   fireEvent.click(screen.getByText('1'));
   apiMock.setAuthStatus({
     status: 'checking_pin',
-    user: mockElectionManagerUser({
-      electionHash: eitherNeitherElectionDefinition.electionHash,
-    }),
+    user: mockElectionManagerUser({ electionKey }),
     wrongPinEnteredAt: new Date(),
   });
   await screen.findByText('Incorrect PIN. Please try again.');
@@ -164,9 +162,7 @@ test('authentication works', async () => {
   // Insert election manager card and enter correct PIN.
   apiMock.setAuthStatus({
     status: 'checking_pin',
-    user: mockElectionManagerUser({
-      electionHash: eitherNeitherElectionDefinition.electionHash,
-    }),
+    user: mockElectionManagerUser({ electionKey }),
   });
   await screen.findByText('Enter the card PIN');
   apiMock.expectCheckPin('123456');
@@ -180,9 +176,7 @@ test('authentication works', async () => {
   // 'Remove Card' screen is shown after successful authentication.
   apiMock.setAuthStatus({
     status: 'remove_card',
-    user: mockElectionManagerUser({
-      electionHash: eitherNeitherElectionDefinition.electionHash,
-    }),
+    user: mockElectionManagerUser({ electionKey }),
     sessionExpiresAt: mockSessionExpiresAt(),
   });
   await screen.findByText('Remove card to unlock VxAdmin');
@@ -190,9 +184,7 @@ test('authentication works', async () => {
   // Machine is unlocked when card removed
   apiMock.setAuthStatus({
     status: 'logged_in',
-    user: mockElectionManagerUser({
-      electionHash: eitherNeitherElectionDefinition.electionHash,
-    }),
+    user: mockElectionManagerUser({ electionKey }),
     sessionExpiresAt: mockSessionExpiresAt(),
   });
   await screen.findByText('Lock Machine');

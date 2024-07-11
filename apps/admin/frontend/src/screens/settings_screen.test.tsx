@@ -4,10 +4,7 @@ import {
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import {
-  ElectionManagerLoggedIn,
-  SystemAdministratorLoggedIn,
-} from '@votingworks/types/src/auth/dipped_smart_card_auth';
+import { DippedSmartCardAuth, electionAuthKey } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { ok } from '@votingworks/basics';
 import {
@@ -37,7 +34,7 @@ afterEach(() => {
 });
 
 describe('as System Admin', () => {
-  const auth: SystemAdministratorLoggedIn = {
+  const auth: DippedSmartCardAuth.SystemAdministratorLoggedIn = {
     status: 'logged_in',
     user: mockSystemAdministratorUser(),
     sessionExpiresAt: mockSessionExpiresAt(),
@@ -95,10 +92,10 @@ describe('as System Admin', () => {
 });
 
 describe('as Election Manager', () => {
-  const auth: ElectionManagerLoggedIn = {
+  const auth: DippedSmartCardAuth.ElectionManagerLoggedIn = {
     status: 'logged_in',
     user: mockElectionManagerUser({
-      electionHash: eitherNeitherElectionDefinition.electionHash,
+      electionKey: electionAuthKey(eitherNeitherElectionDefinition.election),
     }),
     sessionExpiresAt: mockSessionExpiresAt(),
   };
