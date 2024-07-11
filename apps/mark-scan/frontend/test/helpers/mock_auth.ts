@@ -3,14 +3,20 @@ import {
   mockPollWorkerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
-import { ElectionDefinition, InsertedSmartCardAuth } from '@votingworks/types';
+import {
+  electionAuthKey,
+  ElectionDefinition,
+  InsertedSmartCardAuth,
+} from '@votingworks/types';
 
 export function mockPollWorkerAuth(
   electionDefinition: ElectionDefinition
 ): InsertedSmartCardAuth.PollWorkerLoggedIn {
   return {
     status: 'logged_in',
-    user: mockPollWorkerUser({ electionHash: electionDefinition.electionHash }),
+    user: mockPollWorkerUser({
+      electionKey: electionAuthKey(electionDefinition.election),
+    }),
     sessionExpiresAt: mockSessionExpiresAt(),
   };
 }
