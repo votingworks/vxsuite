@@ -78,7 +78,7 @@ test('Cardless Voting Flow', async () => {
   });
   screen.getByText(/(12)/);
 
-  await screen.findByText('Load Blank Ballot Sheet');
+  await screen.findByText('Load Ballot Sheet');
   mockLoadPaper();
 
   // Poll Worker deactivates ballot style
@@ -243,5 +243,5 @@ test('in "All Precincts" mode, poll worker must select a precinct first', async 
   });
   screen.getByText(/(12)/);
 
-  await screen.findByText('Load Blank Ballot Sheet');
+  await screen.findByText('Load Ballot Sheet');
 });
