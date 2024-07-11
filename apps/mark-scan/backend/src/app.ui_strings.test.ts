@@ -14,16 +14,12 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
-
-import {
-  mockElectionManagerUser,
-  mockSessionExpiresAt,
-} from '@votingworks/test-utils';
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { Store } from './store';
 import { createWorkspace } from './util/workspace';
 import { Api, buildApi } from './app';
 import { buildMockLogger } from '../test/app_helpers';
+import { mockElectionManagerAuth } from '../test/auth_helpers';
 
 const mockFeatureFlagger = getFeatureFlagMock();
 
@@ -74,13 +70,7 @@ describe('configureElectionPackageFromUsb', () => {
       undefined
     );
 
-    mockAuth.getAuthStatus.mockImplementation(() =>
-      Promise.resolve({
-        status: 'logged_in',
-        user: mockElectionManagerUser(electionDefinition),
-        sessionExpiresAt: mockSessionExpiresAt(),
-      })
-    );
+    mockElectionManagerAuth(mockAuth, electionDefinition);
   });
 
   runUiStringMachineConfigurationTests({

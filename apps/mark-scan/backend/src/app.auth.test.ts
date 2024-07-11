@@ -2,6 +2,7 @@ import { DateTime } from 'luxon';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   DEFAULT_SYSTEM_SETTINGS,
+  electionAuthKey,
   SystemSettings,
   TEST_JURISDICTION,
 } from '@votingworks/types';
@@ -21,8 +22,8 @@ import { Api } from './app';
 import { PaperHandlerStateMachine } from './custom-paper-handler';
 
 const jurisdiction = TEST_JURISDICTION;
-const { electionDefinition } = electionFamousNames2021Fixtures;
-const { electionHash } = electionDefinition;
+const { election } = electionFamousNames2021Fixtures;
+const electionKey = electionAuthKey(election);
 const systemSettings: SystemSettings = {
   ...DEFAULT_SYSTEM_SETTINGS,
   auth: {
@@ -79,7 +80,7 @@ test('getAuthStatus', async () => {
   expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(1, {
     ...systemSettings.auth,
-    electionHash,
+    electionKey,
     jurisdiction,
   });
 });
@@ -91,7 +92,7 @@ test('checkPin', async () => {
   expect(mockAuth.checkPin).toHaveBeenCalledTimes(1);
   expect(mockAuth.checkPin).toHaveBeenNthCalledWith(
     1,
-    { ...systemSettings.auth, electionHash, jurisdiction },
+    { ...systemSettings.auth, electionKey, jurisdiction },
     { pin: '123456' }
   );
 });
@@ -103,7 +104,7 @@ test('logOut', async () => {
   expect(mockAuth.logOut).toHaveBeenCalledTimes(1);
   expect(mockAuth.logOut).toHaveBeenNthCalledWith(1, {
     ...systemSettings.auth,
-    electionHash,
+    electionKey,
     jurisdiction,
   });
 });
@@ -117,7 +118,7 @@ test('updateSessionExpiry', async () => {
   expect(mockAuth.updateSessionExpiry).toHaveBeenCalledTimes(1);
   expect(mockAuth.updateSessionExpiry).toHaveBeenNthCalledWith(
     1,
-    { ...systemSettings.auth, electionHash, jurisdiction },
+    { ...systemSettings.auth, electionKey, jurisdiction },
     { sessionExpiresAt: expect.any(Date) }
   );
 });
@@ -132,7 +133,7 @@ test('startCardlessVoterSession', async () => {
   expect(mockAuth.startCardlessVoterSession).toHaveBeenCalledTimes(1);
   expect(mockAuth.startCardlessVoterSession).toHaveBeenNthCalledWith(
     1,
-    { ...systemSettings.auth, electionHash, jurisdiction },
+    { ...systemSettings.auth, electionKey, jurisdiction },
     { ballotStyleId: 'b1', precinctId: 'p1' }
   );
 });
@@ -146,7 +147,7 @@ test('endCardlessVoterSession', async () => {
   expect(mockAuth.endCardlessVoterSession).toHaveBeenCalledTimes(1);
   expect(mockAuth.endCardlessVoterSession).toHaveBeenNthCalledWith(1, {
     ...systemSettings.auth,
-    electionHash,
+    electionKey,
     jurisdiction,
   });
   expect(stateMachine.reset).toHaveBeenCalled();

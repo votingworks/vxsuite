@@ -7,7 +7,11 @@ import {
   mockSystemAdministratorUser,
   mockOf,
 } from '@votingworks/test-utils';
-import { CardlessVoterUser, ElectionDefinition } from '@votingworks/types';
+import {
+  CardlessVoterUser,
+  electionAuthKey,
+  ElectionDefinition,
+} from '@votingworks/types';
 
 export function mockLoggedOutAuth(auth: InsertedSmartCardAuthApi): void {
   mockOf(auth.getAuthStatus).mockImplementation(() =>
@@ -35,7 +39,9 @@ export function mockElectionManagerAuth(
   mockOf(auth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
-      user: mockElectionManagerUser(electionDefinition),
+      user: mockElectionManagerUser({
+        electionKey: electionAuthKey(electionDefinition.election),
+      }),
       sessionExpiresAt: mockSessionExpiresAt(),
     })
   );
@@ -48,7 +54,9 @@ export function mockPollWorkerAuth(
   mockOf(auth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
-      user: mockPollWorkerUser(electionDefinition),
+      user: mockPollWorkerUser({
+        electionKey: electionAuthKey(electionDefinition.election),
+      }),
       sessionExpiresAt: mockSessionExpiresAt(),
     })
   );
