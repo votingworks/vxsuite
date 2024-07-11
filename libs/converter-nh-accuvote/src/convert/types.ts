@@ -1,12 +1,8 @@
 import { Result } from '@votingworks/basics';
-import {
-  BallotPaperSize,
-  Election,
-  GridPosition,
-  Size,
-} from '@votingworks/types';
+import { BallotPaperSize, GridPosition, Size } from '@votingworks/types';
 import { ZodError } from 'zod';
 import { PartialTimingMarks } from '@votingworks/ballot-interpreter';
+import { Buffer } from 'buffer';
 import { ParseConstitutionalQuestionError } from './parse_constitutional_questions';
 
 /**
@@ -54,7 +50,7 @@ export type PairColumnEntriesResult<
 >;
 
 /**
- * Contains the metadata and ballot images for a ballot card.
+ * Contains the metadata and ballot template for a ballot card.
  */
 export interface NewHampshireBallotCardDefinition {
   /**
@@ -64,14 +60,9 @@ export interface NewHampshireBallotCardDefinition {
   readonly definition: Element;
 
   /**
-   * An image of the ballot card's front as rendered from a PDF.
+   * PDF file contents containing the ballot card.
    */
-  readonly front: ImageData;
-
-  /**
-   * An image of the ballot card's back as rendered from a PDF.
-   */
-  readonly back: ImageData;
+  readonly ballotPdf: Buffer;
 }
 
 /**
@@ -100,6 +91,7 @@ export enum ConvertIssueKind {
   InvalidBallotSize = 'InvalidBallotSize',
   InvalidDistrictId = 'InvalidDistrictId',
   InvalidElectionDate = 'InvalidElectionDate',
+  InvalidBallotTemplateNumPages = 'InvalidBallotTemplateNumPages',
   InvalidTemplateSize = 'InvalidTemplateSize',
   InvalidTimingMarkMetadata = 'InvalidTimingMarkMetadata',
   MismatchedBallotImageSize = 'MismatchedBallotImageSize',
@@ -139,6 +131,10 @@ export type ConvertIssue =
       kind: ConvertIssueKind.InvalidBallotSize;
       message: string;
       invalidBallotSize: string;
+    }
+  | {
+      kind: ConvertIssueKind.InvalidBallotTemplateNumPages;
+      message: string;
     }
   | {
       kind: ConvertIssueKind.InvalidTemplateSize;
@@ -200,15 +196,14 @@ export type ConvertIssue =
     };
 
 /**
- * Contains the result of converting a ballot card definition.
+ * A result that reports any issues in either the ok or err case.
  */
-export type ConvertResult = Result<
+export type ResultWithIssues<T> = Result<
   {
-    readonly election: Election;
+    readonly result: T;
     readonly issues: readonly ConvertIssue[];
   },
   {
-    readonly election?: Election;
     readonly issues: readonly ConvertIssue[];
   }
 >;

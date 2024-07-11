@@ -1,9 +1,12 @@
-import { loadImageData } from '@votingworks/image-utils';
 import { assertDefined, err, iter, ok, Result } from '@votingworks/basics';
 import { DOMParser } from '@xmldom/xmldom';
 import { enable as enableDebug } from 'debug';
 import { promises as fs } from 'fs';
-import { Election } from '@votingworks/types';
+import { join } from 'path';
+import { getPrecinctById } from '@votingworks/types';
+import { tmpNameSync } from 'tmp';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 import { RealIo, Stdio } from '..';
 import { convertElectionDefinition } from '../../convert/convert_election_definition';
 import { NewHampshireBallotCardDefinition } from '../../convert/types';
@@ -12,11 +15,9 @@ interface ConvertOptions {
   readonly type: 'convert';
   readonly cardDefinitionPaths: Array<{
     readonly definitionPath: string;
-    readonly frontBallotPath: string;
-    readonly backBallotPath: string;
+    readonly ballotPath: string;
   }>;
-  readonly outputPath?: string;
-  readonly metadataEncoding: Election['ballotLayout']['metadataEncoding'];
+  readonly outputPath: string;
   readonly debug: boolean;
 }
 
@@ -38,9 +39,6 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
   const definitionPaths: string[] = [];
   const ballotPaths: string[] = [];
   let outputPath: string | undefined;
-  let metadataEncoding:
-    | Election['ballotLayout']['metadataEncoding']
-    | undefined;
   let debug = false;
 
   for (let i = 0; i < args.length; i += 1) {
@@ -53,10 +51,7 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
         if (nextArg === undefined) {
           return err(new Error(`missing output path after ${arg}`));
         }
-        // '-' is a special case for stdout, which is the default
-        if (nextArg !== '-') {
-          outputPath = nextArg;
-        }
+        outputPath = nextArg;
         i += 1;
         break;
       }
@@ -70,20 +65,6 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
       case '--help':
         return ok({ type: 'help' });
 
-      case '-e':
-      case '--encoding': {
-        const nextArg = args[i + 1];
-        if (nextArg === undefined) {
-          return err(new Error(`missing encoding after ${arg}`));
-        }
-        i += 1;
-        if (!(nextArg === 'qr-code' || nextArg === 'timing-marks')) {
-          return err(new Error(`unknown encoding: ${nextArg}`));
-        }
-        metadataEncoding = nextArg;
-        break;
-      }
-
       default: {
         if (arg?.startsWith('-')) {
           return err(new Error(`unknown option: ${arg}`));
@@ -91,7 +72,7 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
 
         if (arg?.endsWith('.xml')) {
           definitionPaths.push(arg);
-        } else if (arg?.endsWith('.jpeg') || arg?.endsWith('.jpg')) {
+        } else if (arg?.endsWith('.pdf')) {
           ballotPaths.push(arg);
         } else {
           return err(new Error(`unexpected argument: ${arg}`));
@@ -104,33 +85,30 @@ function parseOptions(args: readonly string[]): Result<Options, Error> {
     return err(new Error('missing definition path'));
   }
 
-  if (ballotPaths.length < 2) {
-    return err(new Error('missing ballot image paths'));
+  if (ballotPaths.length === 0) {
+    return err(new Error('missing ballot pdf paths'));
   }
 
-  if (ballotPaths.length / definitionPaths.length !== 2) {
+  if (ballotPaths.length !== definitionPaths.length) {
     return err(
-      new Error('there must be two ballot images for each XML definition')
+      new Error('there must be one ballot pdf for each XML definition')
     );
   }
 
-  if (!metadataEncoding) {
-    return err(new Error('missing metadata encoding (-e)'));
+  if (!outputPath) {
+    return err(new Error('missing output directory path'));
   }
 
   return ok({
     type: 'convert',
     cardDefinitionPaths: iter(ballotPaths)
-      .chunks(2)
       .zip(definitionPaths)
-      .map(([[frontBallotPath, backBallotPath], definitionPath]) => ({
+      .map(([ballotPath, definitionPath]) => ({
         definitionPath,
-        frontBallotPath,
-        backBallotPath: assertDefined(backBallotPath),
+        ballotPath,
       }))
       .toArray(),
     outputPath,
-    metadataEncoding,
     debug,
   });
 }
@@ -139,15 +117,29 @@ function usage(out: NodeJS.WritableStream): void {
   out.write(
     `Usage:
   General Election:
-    convert <definition.xml> <front-ballot.jpg> <back-ballot.jpg>
-      -e qr-code|timing-marks
-      [-o <output.json>] [--debug]
+    convert <definition.xml> <ballot.pdf>
+      -o <output-dir> [--debug]
   Primary Election:
-    convert <party1-definition.xml> <party1-front-ballot.jpg> <party1-back-ballot.jpg>
-      <party2-definition.xml> <party2-front-ballot.jpg> <party2-back-ballot.jpg> [... more parties ...]
-      -e qr-code|timing-marks
-      [-o <output.json>] [--debug]\n`
+    convert <party1-definition.xml> <party1-ballot.pdf>
+      <party2-definition.xml> <party2-ballot.pdf> [... more parties ...]
+      -o <output-dir> [--debug]\n`
   );
+}
+
+async function writeGrayscalePdf(outputPath: string, pdfData: Uint8Array) {
+  const tmpSourcePath = tmpNameSync();
+  await fs.writeFile(tmpSourcePath, pdfData);
+  await promisify(exec)(`
+    gs \
+      -sOutputFile=${outputPath} \
+      -sDEVICE=pdfwrite \
+      -sColorConversionStrategy=Gray \
+      -dProcessColorModel=/DeviceGray \
+      -dAutoRotatePages=/None \
+      -dNOPAUSE \
+      -dBATCH \
+      ${tmpSourcePath}
+  `);
 }
 
 /**
@@ -176,7 +168,7 @@ export async function main(
     enableDebug('converter-nh-accuvote:*');
   }
 
-  const { cardDefinitionPaths, outputPath, metadataEncoding } = options;
+  const { cardDefinitionPaths, outputPath } = options;
 
   const cardDefinitions = await Promise.all(
     cardDefinitionPaths.map(
@@ -185,25 +177,16 @@ export async function main(
           cardDefinitionPath.definitionPath,
           'utf8'
         );
-        const frontBallotImage = await loadImageData(
-          cardDefinitionPath.frontBallotPath
-        );
-        const backBallotImage = await loadImageData(
-          cardDefinitionPath.backBallotPath
-        );
+        const ballotPdf = await fs.readFile(cardDefinitionPath.ballotPath);
         return {
           definition: parseXml(definitionContent),
-          front: frontBallotImage,
-          back: backBallotImage,
+          ballotPdf,
         };
       }
     )
   );
 
-  const convertResult = convertElectionDefinition(
-    cardDefinitions,
-    metadataEncoding
-  );
+  const convertResult = await convertElectionDefinition(cardDefinitions);
 
   const { issues = [] } = convertResult.isOk()
     ? convertResult.ok()
@@ -218,14 +201,25 @@ export async function main(
   }
 
   if (convertResult.isOk()) {
-    const { election } = convertResult.ok();
-    if (election) {
-      const output = JSON.stringify(election, null, 2);
-      if (!outputPath) {
-        io.stdout.write(output);
-      } else {
-        await fs.writeFile(outputPath, output);
-      }
+    const { electionDefinition, ballotPdfsWithMetadata } =
+      convertResult.ok().result;
+    await fs.rm(outputPath, { recursive: true, force: true });
+    await fs.mkdir(outputPath, { recursive: true });
+    const electionPath = join(outputPath, 'election.json');
+    io.stderr.write(`Writing: ${electionPath}\n`);
+    await fs.writeFile(electionPath, electionDefinition.electionData);
+    for (const [metadata, pdf] of ballotPdfsWithMetadata) {
+      const { precinctId, ballotStyleId, ballotType } = metadata;
+      const precinct = assertDefined(
+        getPrecinctById({ election: electionDefinition.election, precinctId })
+      );
+      const fileName = `${ballotType}-ballot-${precinct.name.replaceAll(
+        ' ',
+        '_'
+      )}-${ballotStyleId}.pdf`;
+      const filePath = join(outputPath, fileName);
+      io.stderr.write(`Writing: ${filePath}\n`);
+      await writeGrayscalePdf(filePath, pdf);
     }
   }
 

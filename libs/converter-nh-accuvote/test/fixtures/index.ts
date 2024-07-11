@@ -1,4 +1,5 @@
 import { DOMParser } from '@xmldom/xmldom';
+import { Buffer } from 'buffer';
 import { NewHampshireBallotCardDefinition } from '../../src/convert/types';
 
 /**
@@ -13,12 +14,10 @@ export function readFixtureDefinition(xml: string): Element {
  */
 export function readFixtureBallotCardDefinition(
   xml: string,
-  frontImage: ImageData,
-  backImage: ImageData
+  ballotPdf: Buffer
 ): NewHampshireBallotCardDefinition {
   return {
     definition: readFixtureDefinition(xml),
-    front: frontImage,
-    back: backImage,
+    ballotPdf,
   };
 }

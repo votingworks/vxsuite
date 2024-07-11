@@ -2,51 +2,73 @@ import { findTemplateGridAndBubbles } from '@votingworks/ballot-interpreter';
 import {
   assert,
   assertDefined,
+  asyncResultBlock,
   deepEqual,
   err,
+  iter,
   ok,
-  resultBlock,
   throwIllegalValue,
   typedAs,
   uniqueDeep,
 } from '@votingworks/basics';
 import {
+  BallotMetadata,
+  BallotStyle,
+  BallotType,
   Election,
+  ElectionDefinition,
   GridPosition,
+  asSheet,
   getContests,
   getPartyForBallotStyle,
-  safeParseElection,
+  safeParseElectionDefinition,
 } from '@votingworks/types';
+import { pdfToImages } from '@votingworks/image-utils';
+import { Buffer } from 'buffer';
 import { convertElectionDefinitionHeader } from './convert_election_definition_header';
 import { matchContestOptionsOnGrid } from './match_contest_options_on_grid';
 import {
   ConvertIssueKind,
-  ConvertResult,
   NewHampshireBallotCardDefinition,
   PairColumnEntriesIssueKind,
   TemplateBubbleGridEntry,
   ConvertIssue,
+  ResultWithIssues,
 } from './types';
+import { addQrCodeMetadataToBallotPdf } from '../encode_metadata';
 
-function convertCardDefinition(
-  cardDefinition: NewHampshireBallotCardDefinition,
-  metadataEncoding: Election['ballotLayout']['metadataEncoding']
-): ConvertResult {
-  return resultBlock((fail) => {
+async function convertCardDefinition(
+  cardDefinition: NewHampshireBallotCardDefinition
+): Promise<ResultWithIssues<Election>> {
+  return asyncResultBlock(async (fail) => {
     const convertHeader = convertElectionDefinitionHeader(
-      cardDefinition.definition,
-      metadataEncoding
+      cardDefinition.definition
     ).okOrElse(fail);
 
-    const { election, issues: headerIssues } = convertHeader;
+    const { result: election, issues: headerIssues } = convertHeader;
     let success = true;
     const issues = [...headerIssues];
 
-    const findTemplateGridAndBubblesResult = findTemplateGridAndBubbles([
-      cardDefinition.front,
-      cardDefinition.back,
-    ]);
+    const pageImages = await iter(
+      pdfToImages(cardDefinition.ballotPdf, { scale: 200 / 72 })
+    )
+      .map(({ page }) => page)
+      .toArray();
+    if (pageImages.length !== 2) {
+      return err({
+        issues: [
+          ...issues,
+          typedAs<ConvertIssue>({
+            kind: ConvertIssueKind.InvalidBallotTemplateNumPages,
+            message: `Expected exactly two pages in the ballot PDF, but found ${pageImages.length}`,
+          }),
+        ],
+      });
+    }
+    const pages = asSheet(pageImages);
+    const [frontPage, backPage] = pages;
 
+    const findTemplateGridAndBubblesResult = findTemplateGridAndBubbles(pages);
     if (findTemplateGridAndBubblesResult.isErr()) {
       return err({
         issues: [
@@ -92,12 +114,12 @@ function convertCardDefinition(
         message: `Template images do not match expected sizes. The XML definition says the template images should be "${paperSize}", but the template images are front="${frontExpectedPaperSize}" and back="${backExpectedPaperSize}".`,
         paperSize,
         frontTemplateSize: {
-          width: cardDefinition.front.width,
-          height: cardDefinition.front.height,
+          width: frontPage.width,
+          height: frontPage.height,
         },
         backTemplateSize: {
-          width: cardDefinition.back.width,
-          height: cardDefinition.back.height,
+          width: backPage.width,
+          height: backPage.height,
         },
       });
       paperSize = frontExpectedPaperSize;
@@ -250,7 +272,7 @@ function convertCardDefinition(
       ],
     };
 
-    return ok({ issues, election: result });
+    return ok({ issues, result });
   });
 }
 
@@ -261,12 +283,17 @@ function convertCardDefinition(
  */
 function combineConvertedElectionsIntoPrimaryElection(
   elections: readonly Election[]
-): ConvertResult {
+): ResultWithIssues<ElectionDefinition> {
   assert(elections.length > 0);
   const [firstElection, ...restElections] = elections;
   assert(firstElection !== undefined);
   if (restElections.length === 0) {
-    return ok({ election: firstElection, issues: [] });
+    return ok({
+      result: safeParseElectionDefinition(
+        JSON.stringify(firstElection, null, 2)
+      ).unsafeUnwrap(),
+      issues: [],
+    });
   }
 
   const { title, type, date, state, county, seal, ballotLayout } =
@@ -315,7 +342,9 @@ ${JSON.stringify(differingElection?.[key as keyof Election], null, 2)}`,
     ),
   };
 
-  const parseElectionResult = safeParseElection(combinedElection);
+  const parseElectionResult = safeParseElectionDefinition(
+    JSON.stringify(combinedElection, null, 2)
+  );
 
   if (parseElectionResult.isErr()) {
     return err({
@@ -329,8 +358,41 @@ ${JSON.stringify(differingElection?.[key as keyof Election], null, 2)}`,
     });
   }
 
-  return ok({ election: parseElectionResult.ok(), issues: [] });
+  return ok({ result: parseElectionResult.ok(), issues: [] });
 }
+
+async function addQrCodeMetadataToBallots(
+  electionDefinition: ElectionDefinition,
+  ballotPdfsByBallotStyle: Map<BallotStyle, Buffer>
+): Promise<Map<BallotMetadata, Uint8Array>> {
+  const ballotPdfsWithMetadata = new Map<BallotMetadata, Uint8Array>();
+  for (const [ballotStyle, ballotPdf] of ballotPdfsByBallotStyle.entries()) {
+    for (const precinctId of ballotStyle.precincts) {
+      const metadata: BallotMetadata = {
+        ballotStyleId: ballotStyle.id,
+        precinctId,
+        ballotType: BallotType.Precinct,
+        isTestMode: false,
+        electionHash: electionDefinition.electionHash,
+      };
+      const ballotPdfWithMetadata = await addQrCodeMetadataToBallotPdf(
+        electionDefinition.election,
+        metadata,
+        ballotPdf
+      );
+      ballotPdfsWithMetadata.set(metadata, ballotPdfWithMetadata);
+    }
+  }
+  return ballotPdfsWithMetadata;
+}
+
+/**
+ * A converted election definition and the resulting ballot PDFs with metadata.
+ */
+export type ConvertResult = ResultWithIssues<{
+  electionDefinition: ElectionDefinition;
+  ballotPdfsWithMetadata: Map<BallotMetadata, Uint8Array>;
+}>;
 
 /**
  * Convert New Hampshire XML files to a single {@link Election} object. If given
@@ -338,23 +400,44 @@ ${JSON.stringify(differingElection?.[key as keyof Election], null, 2)}`,
  * separate ballot style.
  */
 export function convertElectionDefinition(
-  cardDefinitions: NewHampshireBallotCardDefinition[],
-  metadataEncoding: Election['ballotLayout']['metadataEncoding']
-): ConvertResult {
-  return resultBlock((fail) => {
-    const cardResults = cardDefinitions.map((definition) =>
-      convertCardDefinition(definition, metadataEncoding)
+  cardDefinitions: NewHampshireBallotCardDefinition[]
+): Promise<ConvertResult> {
+  return asyncResultBlock(async (fail) => {
+    const cardResults = await Promise.all(
+      cardDefinitions.map(convertCardDefinition)
     );
     cardResults.find((result) => result.isErr())?.okOrElse(fail);
     const cardElections = cardResults.map(
-      (result) => assertDefined(result.ok()).election
+      (result) => assertDefined(result.ok()).result
     );
-    const { election, issues } =
+    const { result: electionDefinition, issues } =
       combineConvertedElectionsIntoPrimaryElection(cardElections).okOrElse(
         fail
       );
+    const cardBallotStyles = cardElections.map((election) => {
+      assert(election.ballotStyles.length === 1);
+      return assertDefined(election.ballotStyles[0]);
+    });
+    assert(
+      deepEqual(
+        cardBallotStyles.map((style) => style.id),
+        electionDefinition.election.ballotStyles.map((style) => style.id)
+      )
+    );
+    const ballotPdfsByBallotStyle = new Map(
+      iter(cardBallotStyles)
+        .zip(cardDefinitions.map((definition) => definition.ballotPdf))
+        .toArray()
+    );
+    const ballotPdfsWithMetadata = await addQrCodeMetadataToBallots(
+      electionDefinition,
+      ballotPdfsByBallotStyle
+    );
     return ok({
-      election,
+      result: {
+        electionDefinition,
+        ballotPdfsWithMetadata,
+      },
       issues: cardResults
         .flatMap((result) => assertDefined(result.ok()).issues)
         .concat(issues),

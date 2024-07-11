@@ -1,13 +1,11 @@
-import {
-  BallotLayout,
-  Election,
-  HmpbBallotPageMetadata,
-} from '@votingworks/types';
+import { BallotMetadata, Election, SheetOf } from '@votingworks/types';
 import { QrCodeData, encodeMetadataInQrCode } from '@votingworks/hmpb-layout';
 import { createCanvas } from 'canvas';
-import { assertDefined } from '@votingworks/basics';
+import { assertDefined, iter } from '@votingworks/basics';
+import { PDFDocument } from 'pdf-lib';
+import { Buffer } from 'buffer';
 
-function qrCodeDataToPng(data: QrCodeData): ImageData {
+async function qrCodeDataToPng(data: QrCodeData): Promise<Buffer> {
   // QR codes are supposed to be surrounded by 4 modules of white space
   const marginModules = 4;
   const ppi = 200;
@@ -33,7 +31,9 @@ function qrCodeDataToPng(data: QrCodeData): ImageData {
       }
     }
   }
-  return ctx.getImageData(0, 0, sizePixels, sizePixels);
+  return new Promise((resolve, reject) => {
+    canvas.toBuffer((err, result) => (err ? reject(err) : resolve(result)));
+  });
 }
 
 /**
@@ -41,19 +41,38 @@ function qrCodeDataToPng(data: QrCodeData): ImageData {
  */
 export function encodeMetadata(
   election: Election,
-  metadata: HmpbBallotPageMetadata,
-  encoding: BallotLayout['metadataEncoding']
-): [ImageData, ImageData] {
-  if (encoding === 'qr-code') {
-    return [
-      qrCodeDataToPng(
-        encodeMetadataInQrCode(election, { ...metadata, pageNumber: 1 })
-      ),
-      qrCodeDataToPng(
-        encodeMetadataInQrCode(election, { ...metadata, pageNumber: 2 })
-      ),
-    ];
+  metadata: BallotMetadata
+): Promise<SheetOf<Buffer>> {
+  return Promise.all([
+    qrCodeDataToPng(
+      encodeMetadataInQrCode(election, { ...metadata, pageNumber: 1 })
+    ),
+    qrCodeDataToPng(
+      encodeMetadataInQrCode(election, { ...metadata, pageNumber: 2 })
+    ),
+  ]);
+}
+
+/**
+ * Encodes the metadata into a QR code for the front and back pages of the
+ * ballot PDF and embeds the QR code image on each page.
+ */
+export async function addQrCodeMetadataToBallotPdf(
+  election: Election,
+  metadata: BallotMetadata,
+  pdfData: Buffer
+): Promise<Uint8Array> {
+  const qrCodes = await encodeMetadata(election, metadata);
+  const pdf = await PDFDocument.load(pdfData);
+  const pages = pdf.getPages();
+  for (const [page, qrCode] of iter(pages).zip(qrCodes).toArray()) {
+    const qrCodeEmbed = await pdf.embedPng(qrCode);
+    const qrCodeDimensions = qrCodeEmbed.scale(0.22);
+    page.drawImage(qrCodeEmbed, {
+      ...qrCodeDimensions,
+      x: 16,
+      y: 0,
+    });
   }
-  /* istanbul ignore next */
-  throw new Error('Timing mark encoding not yet implemented');
+  return await pdf.save();
 }
