@@ -60,7 +60,7 @@ test('viewing and exporting reports', async ({ page }) => {
   ).toBeVisible();
   await logOut(page);
 
-  await logInAsElectionManager(page, electionHash);
+  await logInAsElectionManager(page, election);
   await page.getByText('Tally').click();
   await expect(page.getByText('Cast Vote Records (CVRs)')).toBeVisible();
 

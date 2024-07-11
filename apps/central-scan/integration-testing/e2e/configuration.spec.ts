@@ -16,7 +16,7 @@ test('configure + scan', async ({ page }) => {
   const { electionDefinition } =
     electionGridLayoutNewHampshireTestBallotFixtures;
 
-  await logInAsElectionManager(page, electionDefinition.electionHash);
+  await logInAsElectionManager(page, electionDefinition.election);
 
   usbHandler.insert(
     await mockElectionPackageFileTree(
