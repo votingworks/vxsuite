@@ -25,8 +25,6 @@ import { format } from '@votingworks/utils';
 import { assert, find } from '@votingworks/basics';
 import { useQueryClient } from '@tanstack/react-query';
 import type {
-  BmdWriteInImageView,
-  HmpbWriteInImageView,
   WriteInCandidateRecord,
   WriteInRecordAdjudicatedOfficialCandidate,
 } from '@votingworks/admin-backend';
@@ -97,6 +95,11 @@ const ContestSubTitle = styled.div`
   word-break: break-word;
 `;
 
+const WriteInText = styled.span`
+  font-weight: bold;
+  color: ${(p) => p.theme.colors.primary};
+`;
+
 const AdjudicationNav = styled.div`
   align-items: center;
   background: ${(p) => p.theme.colors.containerLow};
@@ -127,7 +130,7 @@ const BallotViews = styled.div`
 const AdjudicationControls = styled.div`
   display: flex;
   flex-direction: column;
-  width: 575px;
+  width: 20rem;
 `;
 
 const AdjudicationMetadata = styled(Caption)`
@@ -324,8 +327,10 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
     currentWriteIn.adjudicationType === 'invalid';
 
   const writeInImageView = writeInImageViewQuery.data;
-  const hmpbWriteInImageView = writeInImageView as HmpbWriteInImageView;
-  const bmdWriteInImageView = writeInImageView as BmdWriteInImageView;
+  const isHmpbWriteIn =
+    writeInImageView && 'ballotCoordinates' in writeInImageView;
+  const isBmdWriteIn =
+    writeInImageView && 'machineMarkedText' in writeInImageView;
 
   if (
     !writeInQueueMetadataQuery.isSuccess ||
@@ -501,17 +506,17 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
     <Screen>
       <Main flexRow data-testid={`transcribe:${currentWriteInId}`}>
         <BallotViews>
-          {hmpbWriteInImageView?.ballotCoordinates !== undefined ? (
+          {isHmpbWriteIn ? (
             <BallotZoomImageViewer
               key={currentWriteInId} // Reset zoom state for each write-in
-              imageUrl={hmpbWriteInImageView.imageUrl}
-              ballotBounds={hmpbWriteInImageView.ballotCoordinates}
-              writeInBounds={hmpbWriteInImageView.writeInCoordinates}
+              imageUrl={writeInImageView.imageUrl}
+              ballotBounds={writeInImageView.ballotCoordinates}
+              writeInBounds={writeInImageView.writeInCoordinates}
             />
-          ) : bmdWriteInImageView?.machineMarkedText !== undefined ? (
+          ) : isBmdWriteIn ? (
             <BallotStaticImageViewer
               key={currentWriteInId} // Reset zoom state for each write-in
-              imageUrl={bmdWriteInImageView.imageUrl}
+              imageUrl={writeInImageView.imageUrl}
             />
           ) : null}
         </BallotViews>
@@ -553,12 +558,10 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                   })})`}
               </span>
             </ContestTitle>
-            {bmdWriteInImageView?.machineMarkedText !== undefined && (
+            {isBmdWriteIn && (
               <ContestSubTitle>
                 Write-In Text:{' '}
-                <Font weight="bold">
-                  {bmdWriteInImageView.machineMarkedText}
-                </Font>
+                <WriteInText>{writeInImageView.machineMarkedText}</WriteInText>
               </ContestSubTitle>
             )}
           </ContestTitleContainer>
@@ -650,9 +653,9 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                 <WriteInActionButton
                   icon="Add"
                   onPress={() => {
-                    if (bmdWriteInImageView?.machineMarkedText) {
+                    if (isBmdWriteIn) {
                       setNewWriteInCandidateName(
-                        bmdWriteInImageView.machineMarkedText
+                        writeInImageView.machineMarkedText
                       );
                     }
                     setShowNewWriteInCandidateForm(true);

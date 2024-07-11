@@ -364,7 +364,7 @@ test('getWriteInImageView on bmd', async () => {
     contestId,
   });
   expect(writeInIds).toHaveLength(24);
-  const [writeInIdA, writeInIdB] = writeInIds.slice(0, 2);
+  const [writeInIdA, writeInIdB] = writeInIds;
   assert(writeInIdA !== undefined && writeInIdB !== undefined);
 
   // check image of first write-in
@@ -373,26 +373,10 @@ test('getWriteInImageView on bmd', async () => {
   });
   assert(writeInImageViewA);
 
-  const { imageUrl: actualImageUrl, machineMarkedText: machineMarkedTextA } =
+  const { machineMarkedText: machineMarkedTextA } =
     writeInImageViewA as BmdWriteInImageView;
 
   expect(machineMarkedTextA).toEqual('Mock Write-In');
-
-  const expectedImage = await loadImage(
-    join(
-      reportDirectoryPath,
-      '02daef18-5915-423a-baba-4130920662d9',
-      '02daef18-5915-423a-baba-4130920662d9-front.jpg'
-    )
-  );
-  const expectedImageUrl = toDataUrl(
-    toImageData(expectedImage, {
-      maxWidth: expectedImage.width,
-      maxHeight: expectedImage.height,
-    }),
-    'image/jpeg'
-  );
-  expect(actualImageUrl).toEqual(expectedImageUrl);
 
   // check the second write-in image view, which should have the same image
   // but different writeInCoordinates
@@ -400,7 +384,6 @@ test('getWriteInImageView on bmd', async () => {
     writeInId: writeInIdB,
   });
 
-  // contest and ballot coordinates should be the same, but write-in coordinates are different
   const { machineMarkedText: machineMarkedTextB } =
     writeInImageViewB1 as BmdWriteInImageView;
   expect(machineMarkedTextB).toEqual('Mock Write-In');

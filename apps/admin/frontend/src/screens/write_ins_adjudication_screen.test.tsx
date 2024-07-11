@@ -184,9 +184,6 @@ test('bmd ballot is not a zoomable ballot image', async () => {
     return {
       imageUrl: `mock-image-data-${id}`,
       machineMarkedText: `MOCK NAME ${id}`,
-      ballotCoordinates: undefined,
-      writeInCoordinates: undefined,
-      contestCoordinates: undefined,
     };
   }
 

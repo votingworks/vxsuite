@@ -337,7 +337,6 @@ export type WriteInImageView = HmpbWriteInImageView | BmdWriteInImageView;
 /**
  * Information necessary to display a hmpb write-in on the frontend.
  */
-
 export interface HmpbWriteInImageView {
   readonly writeInId: Id;
   readonly cvrId: Id;
