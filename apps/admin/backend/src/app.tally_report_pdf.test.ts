@@ -98,7 +98,7 @@ test('general election tally report PDF - Part 1', async () => {
 
   const { apiClient, auth, mockPrinterHandler } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
@@ -145,7 +145,7 @@ test('general election tally report PDF - Part 2', async () => {
 
   const { apiClient, auth, mockPrinterHandler } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
@@ -251,7 +251,7 @@ test('tally report PDF - primary', async () => {
 
   const { apiClient, auth, mockPrinterHandler } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
@@ -301,7 +301,7 @@ test('tally report warning', async () => {
 
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   const { warning: noWarning } = await apiClient.getTallyReportPreview({
     filter: {},
@@ -330,7 +330,7 @@ test('tally report logging', async () => {
   const { apiClient, auth, logger, mockPrinterHandler } =
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
   const MOCK_REPORT_SPEC: TallyReportSpec = {

@@ -92,7 +92,7 @@ test('happy path - mock election flow', async () => {
   const { apiClient, auth, mockUsbDrive, logger } = buildTestEnvironment();
   const { usbDrive, insertUsbDrive, removeUsbDrive } = mockUsbDrive;
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   // initially, no files or cast vote records
   expect(await apiClient.getCastVoteRecordFiles()).toHaveLength(0);
@@ -267,7 +267,7 @@ test('happy path - mock election flow', async () => {
 test('adding a file with BMD cast vote records', async () => {
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionTwoPartyPrimaryDefinition);
-  mockElectionManagerAuth(auth, electionTwoPartyPrimaryDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionTwoPartyPrimaryDefinition.election);
 
   const addTestFileResult = await apiClient.addCastVoteRecordFile({
     path: electionTwoPartyPrimaryFixtures.castVoteRecordExport.asDirectoryPath(),
@@ -298,7 +298,7 @@ test('adding a file with BMD cast vote records', async () => {
 test('handles duplicate exports', async () => {
   const { apiClient, auth, logger } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   // initially, no files
   expect(await apiClient.getCastVoteRecordFiles()).toEqual([]);
@@ -341,7 +341,7 @@ test('handles duplicate exports', async () => {
 test('handles file with previously added entries by adding only the new entries', async () => {
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   const initialReportDirectoryPath = await modifyCastVoteRecordExport(
     castVoteRecordExport.asDirectoryPath(),
@@ -382,7 +382,7 @@ test(
   async () => {
     const { apiClient, auth } = buildTestEnvironment();
     await configureMachine(apiClient, auth, electionDefinition);
-    mockElectionManagerAuth(auth, electionDefinition.electionHash);
+    mockElectionManagerAuth(auth, electionDefinition.election);
 
     const export1DirectoryPath = await modifyCastVoteRecordExport(
       castVoteRecordExport.asDirectoryPath(),
@@ -447,7 +447,7 @@ test('error if path to report is not valid', async () => {
   const { apiClient, auth, logger } = buildTestEnvironment();
 
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   const addNonExistentFileResult = await apiClient.addCastVoteRecordFile({
     path: '/tmp/does-not-exist',
@@ -473,7 +473,7 @@ test('error if path to report is not valid', async () => {
 test('cast vote records authentication error', async () => {
   const { apiClient, auth, logger } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockOf(authenticateArtifactUsingSignatureFile).mockResolvedValue(
     err(new Error('Whoa!'))
@@ -505,7 +505,7 @@ test('cast vote records authentication error', async () => {
 test('cast vote records authentication error ignored if SKIP_CAST_VOTE_RECORDS_AUTHENTICATION is enabled', async () => {
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   mockOf(authenticateArtifactUsingSignatureFile).mockResolvedValue(
     err(new Error('Whoa!'))
@@ -524,7 +524,7 @@ test('error if report metadata is not parseable', async () => {
   const { apiClient, auth } = buildTestEnvironment();
 
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   const reportDirectoryPath = await modifyCastVoteRecordExport(
     castVoteRecordExport.asDirectoryPath(),
@@ -552,7 +552,7 @@ test('error if adding test report while in official mode', async () => {
   const { apiClient, auth } = buildTestEnvironment();
 
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   (
     await apiClient.addCastVoteRecordFile({
@@ -573,7 +573,7 @@ test('error if adding test report while in official mode', async () => {
 test('error if adding official report while in test mode', async () => {
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   (
     await apiClient.addCastVoteRecordFile({
@@ -595,7 +595,7 @@ test('error if a cast vote record not parseable', async () => {
   const { apiClient, auth } = buildTestEnvironment();
 
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   const reportDirectoryPath = await modifyCastVoteRecordExport(
     castVoteRecordExport.asDirectoryPath(),
@@ -625,7 +625,7 @@ test('error if a cast vote record is somehow invalid', async () => {
   const { apiClient, auth } = buildTestEnvironment();
 
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   const reportDirectoryPath = await modifyCastVoteRecordExport(
     castVoteRecordExport.asDirectoryPath(),
@@ -655,7 +655,7 @@ test('error if cast vote records from different files share same ballot id but h
   const { apiClient, auth } = buildTestEnvironment();
 
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   (
     await apiClient.addCastVoteRecordFile({
@@ -692,7 +692,7 @@ test('error if cast vote records from different files share same ballot id but h
 test('specifying path to metadata file instead of path to export directory (for manual file selection)', async () => {
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   const importResult = await apiClient.addCastVoteRecordFile({
     path: path.join(
@@ -801,7 +801,7 @@ test.each<{
   async ({ setupFn, modifications, expectedErrorSubType }) => {
     const { apiClient, auth } = buildTestEnvironment();
     await configureMachine(apiClient, auth, electionDefinition);
-    mockElectionManagerAuth(auth, electionDefinition.electionHash);
+    mockElectionManagerAuth(auth, electionDefinition.election);
 
     setupFn?.();
     const exportDirectoryPath = await modifyCastVoteRecordExport(
@@ -882,7 +882,7 @@ test.each<{
   async ({ usbDriveContentGenerator, expectedResult }) => {
     const { apiClient, auth, mockUsbDrive } = buildTestEnvironment();
     await configureMachine(apiClient, auth, electionDefinition);
-    mockElectionManagerAuth(auth, electionDefinition.electionHash);
+    mockElectionManagerAuth(auth, electionDefinition.election);
 
     mockUsbDrive.insertUsbDrive(usbDriveContentGenerator());
     expect(

@@ -12,6 +12,8 @@ import {
 import {
   DEFAULT_SYSTEM_SETTINGS,
   DippedSmartCardAuth,
+  Election,
+  electionAuthKey,
   ElectionDefinition,
   ElectionPackageFileName,
   SystemSettings,
@@ -81,11 +83,11 @@ export function mockSystemAdministratorAuth(
 
 export function mockElectionManagerAuth(
   auth: DippedSmartCardAuthApi,
-  electionHash: string
+  election: Election
 ): void {
   mockAuthStatus(auth, {
     status: 'logged_in',
-    user: mockElectionManagerUser({ electionHash }),
+    user: mockElectionManagerUser({ electionKey: electionAuthKey(election) }),
     sessionExpiresAt: mockSessionExpiresAt(),
   });
 }

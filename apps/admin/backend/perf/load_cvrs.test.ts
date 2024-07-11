@@ -22,7 +22,7 @@ test('loading CVR file performance', async () => {
   const timer = getPerformanceTimer();
   const { apiClient, workspace, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
   timer.checkpoint(`test setup complete`);
 
   for (let i = 0; i < NUM_REPORTS; i += 1) {

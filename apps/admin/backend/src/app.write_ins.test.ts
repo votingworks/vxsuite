@@ -445,7 +445,7 @@ test('handling unmarked write-ins', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
   const { election } = electionDefinition;
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   // modify the write-ins for a contest to be unmarked write-ins
   const WRITE_IN_CONTEST_ID = 'Governor-061a401b';
