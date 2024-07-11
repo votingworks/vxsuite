@@ -1713,9 +1713,6 @@ importers:
       path:
         specifier: ^0.12.7
         version: 0.12.7
-      pluralize:
-        specifier: 8.0.0
-        version: 8.0.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1780,9 +1777,6 @@ importers:
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
-      '@types/pluralize':
-        specifier: ^0.0.29
-        version: 0.0.29
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
@@ -2121,9 +2115,6 @@ importers:
       path:
         specifier: ^0.12.7
         version: 0.12.7
-      pluralize:
-        specifier: 8.0.0
-        version: 8.0.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -2191,9 +2182,6 @@ importers:
       '@types/luxon':
         specifier: ^3.0.0
         version: 3.2.0
-      '@types/pluralize':
-        specifier: ^0.0.29
-        version: 0.0.29
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
