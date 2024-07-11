@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import { mocks } from '@votingworks/custom-scanner';
 import { findByIds, WebUSBDevice } from 'usb';
 import { Uint16 } from '@votingworks/message-coder';
@@ -22,6 +22,7 @@ import {
 } from './constants';
 import { setUpMockWebUsbDevice } from './test_utils';
 import {
+  INVALID_ARGUMENT_RESPONSE_CODE,
   LoadPaperCommand,
   PaperHandlerBitmap,
   PrinterStatusRealTimeExchangeResponse,
@@ -653,6 +654,48 @@ function getMockTransferInResponse(data: Buffer): Promise<USBInTransferResult> {
   });
 }
 
+describe('transferInGeneric', () => {
+  test('retries on 0x12 response', async () => {
+    await mockWebUsbDevice.mockAddTransferInData(
+      GENERIC_ENDPOINT_IN,
+      Buffer.of(INVALID_ARGUMENT_RESPONSE_CODE)
+    );
+
+    await mockWebUsbDevice.mockLimitNextTransferInSize(GENERIC_ENDPOINT_IN, 1);
+
+    await mockWebUsbDevice.mockAddTransferInData(
+      GENERIC_ENDPOINT_IN,
+      Buffer.of(ReturnCodes.POSITIVE_ACKNOWLEDGEMENT)
+    );
+
+    const result = await paperHandlerDriver.transferInGeneric();
+    const data = assertDefined(result.data);
+    expect(data.getUint8(data.byteOffset)).toEqual(
+      ReturnCodes.POSITIVE_ACKNOWLEDGEMENT
+    );
+  });
+
+  test('retries on real-time status transmission response', async () => {
+    await mockWebUsbDevice.mockAddTransferInData(
+      GENERIC_ENDPOINT_IN,
+      Buffer.of(0x10, 0x0f, 0x00, 0x00, 0x00, 0x20)
+    );
+
+    await mockWebUsbDevice.mockLimitNextTransferInSize(GENERIC_ENDPOINT_IN, 6);
+
+    await mockWebUsbDevice.mockAddTransferInData(
+      GENERIC_ENDPOINT_IN,
+      Buffer.from([ReturnCodes.POSITIVE_ACKNOWLEDGEMENT])
+    );
+
+    const result = await paperHandlerDriver.transferInGeneric();
+    const data = assertDefined(result.data);
+    expect(data.getUint8(data.byteOffset)).toEqual(
+      ReturnCodes.POSITIVE_ACKNOWLEDGEMENT
+    );
+  });
+});
+
 describe('handleGenericCommandWithAcknowledgement', () => {
   test.each([
     {
@@ -677,50 +720,5 @@ describe('handleGenericCommandWithAcknowledgement', () => {
         undefined
       )
     ).toEqual(expectedValue);
-  });
-  test('retries on 0x12 response', async () => {
-    const transferInSpy = jest.spyOn(paperHandlerDriver, 'transferInGeneric');
-
-    transferInSpy
-      .mockReturnValueOnce(
-        getMockTransferInResponse(
-          Buffer.of(ReturnCodes.INVALID_STATUS_TRANSMISSION_ARGUMENT)
-        )
-      )
-      .mockReturnValueOnce(
-        getMockTransferInResponse(
-          Buffer.of(ReturnCodes.POSITIVE_ACKNOWLEDGEMENT)
-        )
-      );
-
-    expect(
-      await paperHandlerDriver.handleGenericCommandWithAcknowledgement(
-        // Use any valid coder for this test
-        LoadPaperCommand,
-        undefined
-      )
-    ).toEqual(true);
-  });
-
-  test('retries on real-time status transmission response', async () => {
-    const transferInSpy = jest.spyOn(paperHandlerDriver, 'transferInGeneric');
-
-    transferInSpy
-      .mockReturnValueOnce(
-        getMockTransferInResponse(Buffer.of(0x10, 0x0f, 0x00, 0x00, 0x00, 0x20))
-      )
-      .mockReturnValueOnce(
-        getMockTransferInResponse(
-          Buffer.of(ReturnCodes.POSITIVE_ACKNOWLEDGEMENT)
-        )
-      );
-
-    expect(
-      await paperHandlerDriver.handleGenericCommandWithAcknowledgement(
-        // Use any valid coder for this test
-        LoadPaperCommand,
-        undefined
-      )
-    ).toEqual(true);
   });
 });
