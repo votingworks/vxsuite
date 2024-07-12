@@ -593,7 +593,9 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                 );
               })}
             </CandidateButtonList>
-            <SectionLabel>Write-In Candidates</SectionLabel>
+            {showNewWriteInCandidateForm || writeInCandidates.length > 0 ? (
+              <SectionLabel>Write-In Candidates</SectionLabel>
+            ) : null}
             {writeInCandidates.length > 0 && (
               <CandidateButtonList>
                 {writeInCandidates.map((candidate) => {
