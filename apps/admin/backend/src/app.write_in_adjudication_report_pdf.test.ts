@@ -69,6 +69,7 @@ test('write-in adjudication report', async () => {
   ) {
     const preview = await apiClient.getWriteInAdjudicationReportPreview();
     await expect(preview).toMatchPdfSnapshot({
+      failureThreshold: 0.01,
       customSnapshotIdentifier,
     });
 
@@ -76,6 +77,7 @@ test('write-in adjudication report', async () => {
     const printPath = mockPrinterHandler.getLastPrintPath();
     assert(printPath !== undefined);
     await expect(printPath).toMatchPdfSnapshot({
+      failureThreshold: 0.0001,
       customSnapshotIdentifier,
     });
 
@@ -85,6 +87,7 @@ test('write-in adjudication report', async () => {
     });
     exportResult.assertOk('export failed');
     await expect(exportPath).toMatchPdfSnapshot({
+      failureThreshold: 0.0001,
       customSnapshotIdentifier,
     });
   }

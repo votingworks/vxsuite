@@ -93,7 +93,7 @@ const BallotImageViewerControls = styled.div<{ isZoomedIn: boolean }>`
   gap: 0.5rem;
 `;
 
-export function BallotImageViewer({
+export function BallotZoomImageViewer({
   imageUrl,
   ballotBounds,
   writeInBounds,
@@ -149,6 +149,20 @@ export function BallotImageViewer({
           <img src={imageUrl} alt="Full ballot" />
         </ZoomedOutBallotImageContainer>
       )}
+    </BallotImageViewerContainer>
+  );
+}
+
+export function BallotStaticImageViewer({
+  imageUrl,
+}: {
+  imageUrl: string;
+}): JSX.Element {
+  return (
+    <BallotImageViewerContainer>
+      <ZoomedOutBallotImageContainer>
+        <img src={imageUrl} alt="Full ballot" />
+      </ZoomedOutBallotImageContainer>
     </BallotImageViewerContainer>
   );
 }

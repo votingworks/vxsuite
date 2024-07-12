@@ -44,7 +44,10 @@ import { normalizeWriteInName } from '../utils/write_ins';
 import { AppContext } from '../contexts/app_context';
 import { WriteInsAdjudicationScreenProps } from '../config/types';
 import { routerPaths } from '../router_paths';
-import { BallotImageViewer } from '../components/adjudication_ballot_image_viewer';
+import {
+  BallotStaticImageViewer,
+  BallotZoomImageViewer,
+} from '../components/adjudication_ballot_image_viewer';
 import {
   DoubleVoteAlert,
   DoubleVoteAlertModal,
@@ -87,6 +90,16 @@ const ContestTitle = styled(H2)`
   margin: 0 !important;
 `;
 
+const ContestSubTitle = styled.div`
+  padding-top: 0.5rem;
+  word-break: break-word;
+`;
+
+const WriteInText = styled.span`
+  font-weight: bold;
+  color: ${(p) => p.theme.colors.primary};
+`;
+
 const AdjudicationNav = styled.div`
   align-items: center;
   background: ${(p) => p.theme.colors.containerLow};
@@ -117,6 +130,7 @@ const BallotViews = styled.div`
 const AdjudicationControls = styled.div`
   display: flex;
   flex-direction: column;
+  width: 20rem;
 `;
 
 const AdjudicationMetadata = styled(Caption)`
@@ -158,6 +172,7 @@ const CandidateStyledButton = styled(Button)`
   padding-left: 0.5rem;
   text-align: left;
   width: 100%;
+  word-break: break-word;
 
   /* Increase contrast between selected/unselected options when disabled by
    * removing the darkening filter for unselected options. */
@@ -304,6 +319,19 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
   const nextButton = useRef<Button>(null);
   const firstAdjudicationControl = useRef<HTMLFieldSetElement>(null);
 
+  const writeInAdjudicationContext = writeInAdjudicationContextQuery.data;
+  const currentWriteIn = writeInAdjudicationContext?.writeIn;
+  const currentWriteInMarkedInvalid =
+    currentWriteIn &&
+    currentWriteIn.status === 'adjudicated' &&
+    currentWriteIn.adjudicationType === 'invalid';
+
+  const writeInImageView = writeInImageViewQuery.data;
+  const isHmpbWriteIn =
+    writeInImageView && 'ballotCoordinates' in writeInImageView;
+  const isBmdWriteIn =
+    writeInImageView && 'machineMarkedText' in writeInImageView;
+
   if (
     !writeInQueueMetadataQuery.isSuccess ||
     !writeInQueueQuery.isSuccess ||
@@ -339,14 +367,6 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
     ...officialCandidates.map((c) => normalizeWriteInName(c.name)),
     ...writeInCandidates.map((c) => normalizeWriteInName(c.name)),
   ];
-
-  const writeInImageView = writeInImageViewQuery.data;
-  const writeInAdjudicationContext = writeInAdjudicationContextQuery.data;
-  const currentWriteIn = writeInAdjudicationContext?.writeIn;
-  const currentWriteInMarkedInvalid =
-    currentWriteIn &&
-    currentWriteIn.status === 'adjudicated' &&
-    currentWriteIn.adjudicationType === 'invalid';
 
   // these IDs cannot be selected because the voter filled in a bubble for the candidate
   const markedOfficialCandidateIds = writeInAdjudicationContext
@@ -486,12 +506,17 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
     <Screen>
       <Main flexRow data-testid={`transcribe:${currentWriteInId}`}>
         <BallotViews>
-          {writeInImageView ? (
-            <BallotImageViewer
+          {isHmpbWriteIn ? (
+            <BallotZoomImageViewer
               key={currentWriteInId} // Reset zoom state for each write-in
               imageUrl={writeInImageView.imageUrl}
               ballotBounds={writeInImageView.ballotCoordinates}
               writeInBounds={writeInImageView.writeInCoordinates}
+            />
+          ) : isBmdWriteIn ? (
+            <BallotStaticImageViewer
+              key={currentWriteInId} // Reset zoom state for each write-in
+              imageUrl={writeInImageView.imageUrl}
             />
           ) : null}
         </BallotViews>
@@ -533,6 +558,12 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                   })})`}
               </span>
             </ContestTitle>
+            {isBmdWriteIn && (
+              <ContestSubTitle>
+                Write-In Text:{' '}
+                <WriteInText>{writeInImageView.machineMarkedText}</WriteInText>
+              </ContestSubTitle>
+            )}
           </ContestTitleContainer>
           <AdjudicationForm>
             <SectionLabel>Official Candidates</SectionLabel>
@@ -588,6 +619,7 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                     key={currentWriteInId}
                     value={newWriteInCandidateName ?? ''}
                     onChange={(e) => setNewWriteInCandidateName(e.target.value)}
+                    data-testid="write-in-candidate-name-input"
                     aria-label="Candidate Name"
                     placeholder="Candidate Name"
                     // eslint-disable-next-line jsx-a11y/no-autofocus
@@ -620,7 +652,14 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
               ) : (
                 <WriteInActionButton
                   icon="Add"
-                  onPress={() => setShowNewWriteInCandidateForm(true)}
+                  onPress={() => {
+                    if (isBmdWriteIn) {
+                      setNewWriteInCandidateName(
+                        writeInImageView.machineMarkedText
+                      );
+                    }
+                    setShowNewWriteInCandidateForm(true);
+                  }}
                 >
                   Add new write-in candidate
                 </WriteInActionButton>

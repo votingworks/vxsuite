@@ -22,7 +22,7 @@ Zebra 32
 Lion 28
 Kangaroo 24
 Elephant 24
-Write-In 24
+Unadjudicated Write-In 24
 Test Unofficial Fish Party Example Primary Election
 Tally Report
 Wednesday, September 8, 2021, Sample County, State of Sample
@@ -46,7 +46,7 @@ Manta Ray 20
 Pufferfish 16
 Rockfish 16
 Triggerfish 16
-Write-In 16
+Unadjudicated Write-In 16
 Test Unofficial Example Primary Election Nonpartisan
 Contests Tally Report
 Wednesday, September 8, 2021, Sample County, State of Sample

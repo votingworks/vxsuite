@@ -1,4 +1,7 @@
-import { electionGridLayoutNewHampshireTestBallotFixtures } from '@votingworks/fixtures';
+import {
+  electionGridLayoutNewHampshireTestBallotFixtures,
+  electionTwoPartyPrimaryFixtures,
+} from '@votingworks/fixtures';
 import { assert, find, typedAs } from '@votingworks/basics';
 import { toDataUrl, loadImage, toImageData } from '@votingworks/image-utils';
 import { join } from 'path';
@@ -17,7 +20,12 @@ import {
   configureMachine,
   mockElectionManagerAuth,
 } from '../test/app';
-import { WriteInAdjudicationContext, WriteInRecord } from './types';
+import {
+  BmdWriteInImageView,
+  HmpbWriteInImageView,
+  WriteInAdjudicationContext,
+  WriteInRecord,
+} from './types';
 
 jest.setTimeout(30_000);
 
@@ -238,7 +246,7 @@ test('getWriteInAdjudicationContext', async () => {
   );
 });
 
-test('getWriteInImageView', async () => {
+test('getWriteInImageView on hmpb', async () => {
   const { auth, apiClient } = buildTestEnvironment();
   const { electionDefinition, manualCastVoteRecordExport } =
     electionGridLayoutNewHampshireTestBallotFixtures;
@@ -272,7 +280,7 @@ test('getWriteInImageView', async () => {
     ballotCoordinates: ballotCoordinatesA,
     contestCoordinates: contestCoordinatesA,
     writeInCoordinates: writeInCoordinatesA,
-  } = writeInImageViewA;
+  } = writeInImageViewA as HmpbWriteInImageView;
 
   const expectedBallotCoordinates: Rect = {
     height: 2200,
@@ -324,7 +332,7 @@ test('getWriteInImageView', async () => {
     ballotCoordinates: ballotCoordinatesB,
     contestCoordinates: contestCoordinatesB,
     writeInCoordinates: writeInCoordinatesB,
-  } = writeInImageViewB1;
+  } = writeInImageViewB1 as HmpbWriteInImageView;
   expect(ballotCoordinatesB).toEqual(expectedBallotCoordinates);
   expect(contestCoordinatesB).toEqual(expectedContestCoordinates);
   expect(writeInCoordinatesB).toMatchInlineSnapshot(`
@@ -335,6 +343,50 @@ test('getWriteInImageView', async () => {
       "y": 1366,
     }
   `);
+});
+
+test('getWriteInImageView on bmd', async () => {
+  const { auth, apiClient } = buildTestEnvironment();
+  const { electionDefinition, castVoteRecordExport } =
+    electionTwoPartyPrimaryFixtures;
+  await configureMachine(apiClient, auth, electionDefinition);
+
+  const reportDirectoryPath = castVoteRecordExport.asDirectoryPath();
+  (
+    await apiClient.addCastVoteRecordFile({
+      path: reportDirectoryPath,
+    })
+  ).unsafeUnwrap();
+
+  // look at a contest that can have multiple write-ins per ballot
+  const contestId = 'zoo-council-mammal';
+  const writeInIds = await apiClient.getWriteInAdjudicationQueue({
+    contestId,
+  });
+  expect(writeInIds).toHaveLength(24);
+  const [writeInIdA, writeInIdB] = writeInIds;
+  assert(writeInIdA !== undefined && writeInIdB !== undefined);
+
+  // check image of first write-in
+  const writeInImageViewA = await apiClient.getWriteInImageView({
+    writeInId: writeInIdA,
+  });
+  assert(writeInImageViewA);
+
+  const { machineMarkedText: machineMarkedTextA } =
+    writeInImageViewA as BmdWriteInImageView;
+
+  expect(machineMarkedTextA).toEqual('Mock Write-In');
+
+  // check the second write-in image view, which should have the same image
+  // but different writeInCoordinates
+  const writeInImageViewB1 = await apiClient.getWriteInImageView({
+    writeInId: writeInIdB,
+  });
+
+  const { machineMarkedText: machineMarkedTextB } =
+    writeInImageViewB1 as BmdWriteInImageView;
+  expect(machineMarkedTextB).toEqual('Mock Write-In');
 });
 
 test('getFirstPendingWriteInId', async () => {

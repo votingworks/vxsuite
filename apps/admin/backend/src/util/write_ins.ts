@@ -1,4 +1,4 @@
-import { assertDefined, find } from '@votingworks/basics';
+import { assertDefined, find, assert } from '@votingworks/basics';
 import { Id, safeParseNumber } from '@votingworks/types';
 import { loadImageData, toDataUrl } from '@votingworks/image-utils';
 import { Store } from '../store';
@@ -19,7 +19,22 @@ export async function getWriteInImageView({
 }): Promise<WriteInImageView> {
   debug('creating write-in image view for %s...', writeInId);
   const writeInDetails = store.getWriteInImageAndLayout(writeInId);
-  const { layout, image, contestId, optionId, cvrId } = writeInDetails;
+  const { layout, image, contestId, optionId, cvrId, machineMarkedText } =
+    writeInDetails;
+
+  // BMD ballots do not have layouts, we do not support zoom during WIA on these ballots.
+  if (layout === undefined) {
+    assert(
+      machineMarkedText !== undefined,
+      'cvr validation on import guarantees machineMarkedText or layout is defined'
+    );
+    return {
+      writeInId,
+      cvrId,
+      imageUrl: toDataUrl(await loadImageData(image), 'image/jpeg'),
+      machineMarkedText,
+    };
+  }
 
   // identify the contest layout
   const contestLayout = layout.contests.find(

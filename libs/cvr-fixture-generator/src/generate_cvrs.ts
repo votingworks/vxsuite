@@ -265,6 +265,17 @@ export function* generateCvrs({
           for (const votes of voteConfigurations) {
             const castVoteRecordId = uuid();
             if (bmdBallots) {
+              const sheetHasWriteIns = hasWriteIns(votes);
+              const frontImageRelativePath = generateBallotAssetPath({
+                castVoteRecordId: castVoteRecordId.toString(),
+                assetType: 'image',
+                frontOrBack: 'front',
+              });
+              const backImageRelativePath = generateBallotAssetPath({
+                castVoteRecordId: castVoteRecordId.toString(),
+                assetType: 'image',
+                frontOrBack: 'back',
+              });
               yield {
                 '@type': 'CVR.CVR',
                 BallotStyleId: ballotStyleId,
@@ -288,10 +299,31 @@ export function* generateCvrs({
                       votes,
                       options: {
                         ballotMarkingMode: 'machine',
+                        image: sheetHasWriteIns
+                          ? {
+                              imageHash: '',
+                              imageRelativePath: frontImageRelativePath,
+                              layoutFileHash: '',
+                            }
+                          : undefined,
                       },
                     }),
                   },
                 ],
+                BallotImage: sheetHasWriteIns
+                  ? [
+                      buildCvrImageData({
+                        imageHash: '',
+                        imageRelativePath: frontImageRelativePath,
+                        layoutFileHash: '',
+                      }),
+                      buildCvrImageData({
+                        imageHash: '',
+                        imageRelativePath: backImageRelativePath,
+                        layoutFileHash: '',
+                      }),
+                    ]
+                  : undefined,
               };
             } else {
               // Since this is HMPB, we generate a CVR for each sheet (not fully supported yet)

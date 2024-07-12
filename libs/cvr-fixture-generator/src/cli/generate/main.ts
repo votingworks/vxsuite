@@ -256,12 +256,15 @@ export async function main(
           )
         );
 
-        const layout = assertDefined(layouts[i]);
-        const layoutFileContents = JSON.stringify(layout);
-        fs.writeFileSync(layoutFilePath, layoutFileContents);
+        const layout = layouts[i];
+        let layoutFileHash = sha256('bmd-ballot');
+        if (layout) {
+          const layoutFileContents = JSON.stringify(layout);
+          fs.writeFileSync(layoutFilePath, layoutFileContents);
+          layoutFileHash = sha256(layoutFileContents);
+        }
 
         const imageHash = sha256(fs.readFileSync(imageFilePath));
-        const layoutFileHash = sha256(layoutFileContents);
         populateImageAndLayoutFileHashes(
           assertDefined(castVoteRecord.BallotImage[i]),
           { imageHash, layoutFileHash }
