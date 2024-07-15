@@ -719,7 +719,7 @@ test.each<{
     modifications: {
       castVoteRecordModifier: (castVoteRecord) => ({
         ...castVoteRecord,
-        ElectionId: 'mismatched-election-hash',
+        ElectionId: 'mismatched-ballot-hash',
       }),
       numCastVoteRecordsToKeep: 1,
     },
