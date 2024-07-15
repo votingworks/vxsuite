@@ -309,7 +309,7 @@ function encodeBallotVotesInto(
 export function encodeBallotInto(
   election: Election,
   {
-    electionHash,
+    ballotHash,
     ballotStyleId,
     precinctId,
     votes,
@@ -331,7 +331,7 @@ export function encodeBallotInto(
 
   return bits
     .writeUint8(...BmdPrelude)
-    .writeString(sliceElectionHash(electionHash), {
+    .writeString(sliceElectionHash(ballotHash), {
       encoding: HexEncoding,
       includeLength: false,
       length: ELECTION_HASH_LENGTH,
@@ -459,7 +459,7 @@ export function decodeBallotFromReader(
     );
   }
 
-  const electionHash = bits.readString({
+  const ballotHash = bits.readString({
     encoding: HexEncoding,
     length: ELECTION_HASH_LENGTH,
   });
@@ -478,7 +478,7 @@ export function decodeBallotFromReader(
   readPaddingToEnd(bits);
 
   return {
-    electionHash,
+    ballotHash,
     ballotId,
     ballotStyleId,
     precinctId,

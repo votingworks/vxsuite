@@ -657,7 +657,7 @@ async function interpretBmdBallot(
       type: 'InterpretedBmdPage',
       ballotId: ballot.ballotId,
       metadata: {
-        ballotHash: ballot.electionHash,
+        ballotHash: ballot.ballotHash,
         ballotType: BallotType.Precinct,
         ballotStyleId: ballot.ballotStyleId,
         precinctId: ballot.precinctId,

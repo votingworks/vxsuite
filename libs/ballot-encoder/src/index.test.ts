@@ -62,7 +62,7 @@ test('encodes & decodes with Uint8Array as the standard encoding interface', () 
   const votes = vote(contests, {});
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const ballot: CompletedBallot = {
-    electionHash: ballotHash,
+    ballotHash,
     ballotId,
     ballotStyleId,
     precinctId,
@@ -87,7 +87,7 @@ test('encodes & decodes empty votes correctly', () => {
   const votes = vote(contests, {});
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const ballot: CompletedBallot = {
-    electionHash: ballotHash,
+    ballotHash,
     ballotId,
     ballotStyleId,
     precinctId,
@@ -143,7 +143,7 @@ test('encodes & decodes without a ballot id', () => {
   const contests = getContests({ ballotStyle, election });
   const votes = vote(contests, {});
   const ballot: CompletedBallot = {
-    electionHash: ballotHash,
+    ballotHash,
     ballotStyleId,
     precinctId,
     votes,
@@ -197,7 +197,7 @@ test('encodes & decodes whether it is a test ballot', () => {
   const votes = vote(contests, {});
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const ballot: CompletedBallot = {
-    electionHash: ballotHash,
+    ballotHash,
     ballotId,
     ballotStyleId,
     precinctId,
@@ -257,7 +257,7 @@ test('encodes & decodes the ballot type', () => {
     BallotType.Absentee
   );
   const ballot: CompletedBallot = {
-    electionHash: ballotHash,
+    ballotHash,
     ballotId,
     ballotStyleId,
     precinctId,
@@ -323,7 +323,7 @@ test('encodes & decodes yesno votes correctly', () => {
     '102': ['measure-102-option-yes'],
   });
   const ballot: CompletedBallot = {
-    electionHash: ballotHash,
+    ballotHash,
     ballotId,
     ballotStyleId,
     precinctId,
@@ -388,7 +388,7 @@ test('throws on invalid precinct', () => {
   const contests = getContests({ ballotStyle, election });
   const votes = vote(contests, {});
   const ballot: CompletedBallot = {
-    electionHash: ballotHash,
+    ballotHash,
     ballotId,
     ballotStyleId,
     precinctId,
@@ -436,7 +436,7 @@ test('throws on trying to encode a bad yes/no vote', () => {
   votes['judicial-robert-demergue'] =
     'judicial-robert-demergue-option-yes' as unknown as string[];
   const ballot: CompletedBallot = {
-    electionHash: ballotHash,
+    ballotHash,
     ballotId,
     ballotStyleId,
     precinctId,
@@ -468,7 +468,7 @@ test('throws on trying to encode a ballot style', () => {
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const votes: VotesDict = {};
   const ballot: CompletedBallot = {
-    electionHash: ballotHash,
+    ballotHash,
     ballotId,
     ballotStyleId,
     precinctId,
@@ -628,7 +628,7 @@ test('encodes & decodes candidate choice votes correctly', () => {
     'city-council': 'eagle',
   });
   const ballot: CompletedBallot = {
-    electionHash: ballotHash,
+    ballotHash,
     ballotId,
     ballotStyleId,
     precinctId,
@@ -720,7 +720,7 @@ test('encodes & decodes write-in votes correctly', () => {
   });
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const ballot: CompletedBallot = {
-    electionHash: ballotHash,
+    ballotHash,
     ballotId,
     ballotStyleId,
     precinctId,
@@ -849,7 +849,7 @@ test('cannot decode a ballot that includes extra data at the end', () => {
   const votes = vote(contests, {});
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const ballot: CompletedBallot = {
-    electionHash: ballotHash,
+    ballotHash,
     ballotId,
     ballotStyleId,
     precinctId,
@@ -879,7 +879,7 @@ test('cannot decode a ballot that includes too much padding at the end', () => {
   const votes = vote(contests, {});
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const ballot: CompletedBallot = {
-    electionHash: ballotHash,
+    ballotHash,
     ballotId,
     ballotStyleId,
     precinctId,
@@ -909,7 +909,7 @@ test('decode election hash from BMD metadata', () => {
   const votes = vote(contests, {});
   const ballotId = unsafeParse(BallotIdSchema, 'abcde');
   const ballot: CompletedBallot = {
-    electionHash: ballotHash,
+    ballotHash,
     ballotId,
     ballotStyleId,
     precinctId,

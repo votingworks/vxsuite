@@ -48,7 +48,7 @@ const { ballotHash } = asElectionDefinition(election);
 test('smallest possible encoded ballot', () => {
   expect(
     encodeBallot(election, {
-      electionHash: ballotHash,
+      ballotHash,
       ballotStyleId: election.ballotStyles[0]!.id,
       precinctId: election.precincts[0]!.id,
       ballotType: BallotType.Precinct,
