@@ -64,7 +64,7 @@ function validateCastVoteRecordAgainstElectionDefinition(
   if (
     castVoteRecord.ElectionId !== ballotHash &&
     !isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.SKIP_CVR_ELECTION_HASH_CHECK
+      BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
     )
   ) {
     return wrapError({ subType: 'election-mismatch' });
