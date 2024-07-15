@@ -23,7 +23,7 @@ test('manual results flow (official candidates only)', async () => {
 
   await configureMachine(apiClient, auth, electionDefinition);
 
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   // define some manual tallies... manually
   const resultsPrecinct1MammalBallotStyle = buildManualResultsFixture({
@@ -209,7 +209,7 @@ test('ignores write-ins with zero votes', async () => {
 
   await configureMachine(apiClient, auth, electionDefinition);
 
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   const manualResultsWithZeroCountWriteIns = buildManualResultsFixture({
     election,
@@ -282,7 +282,7 @@ test('adds temp write-in candidates', async () => {
 
   await configureMachine(apiClient, auth, electionDefinition);
 
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   // initially no write-in candidates
   expect(await apiClient.getWriteInCandidates()).toHaveLength(0);
@@ -362,7 +362,7 @@ test('removes write-in candidates not referenced anymore', async () => {
 
   await configureMachine(apiClient, auth, electionDefinition);
 
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   expect(await apiClient.getWriteInCandidates()).toHaveLength(0);
 

@@ -1,5 +1,6 @@
 import {
   assert,
+  deepEqual,
   err,
   extractErrorMessage,
   ok,
@@ -346,7 +347,7 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
       throw new Error('User is not a system administrator');
     }
 
-    const { arePollWorkerCardPinsEnabled, electionHash, jurisdiction } =
+    const { arePollWorkerCardPinsEnabled, electionKey, jurisdiction } =
       machineState;
     assert(jurisdiction !== undefined);
     const pin = generatePin();
@@ -359,24 +360,24 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
         return pin;
       }
       case 'election_manager': {
-        assert(electionHash !== undefined);
+        assert(electionKey !== undefined);
         await this.card.program({
-          user: { role: 'election_manager', jurisdiction, electionHash },
+          user: { role: 'election_manager', jurisdiction, electionKey },
           pin,
         });
         return pin;
       }
       case 'poll_worker': {
-        assert(electionHash !== undefined);
+        assert(electionKey !== undefined);
         if (arePollWorkerCardPinsEnabled) {
           await this.card.program({
-            user: { role: 'poll_worker', jurisdiction, electionHash },
+            user: { role: 'poll_worker', jurisdiction, electionKey },
             pin,
           });
           return pin;
         }
         await this.card.program({
-          user: { role: 'poll_worker', jurisdiction, electionHash },
+          user: { role: 'poll_worker', jurisdiction, electionKey },
         });
         return undefined;
       }
@@ -645,12 +646,12 @@ export class DippedSmartCardAuth implements DippedSmartCardAuthApi {
     }
 
     if (user.role === 'election_manager') {
-      if (!machineState.electionHash) {
+      if (!machineState.electionKey) {
         return this.config.allowElectionManagersToAccessUnconfiguredMachines
           ? ok()
           : err('machine_not_configured');
       }
-      if (user.electionHash !== machineState.electionHash) {
+      if (!deepEqual(user.electionKey, machineState.electionKey)) {
         return err('wrong_election');
       }
     }

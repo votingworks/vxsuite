@@ -52,7 +52,7 @@ test('write-in adjudication report', async () => {
 
   const { apiClient, auth, mockPrinterHandler } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordExport.asDirectoryPath(),
@@ -175,7 +175,7 @@ test('write-in adjudication report logging', async () => {
   const { apiClient, auth, logger, mockPrinterHandler } =
     buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
   mockPrinterHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
   // successful file export

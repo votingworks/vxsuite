@@ -1,6 +1,7 @@
 import { Result } from '@votingworks/basics';
 import {
   DippedSmartCardAuth,
+  ElectionKey,
   ElectionManagerUser,
   NumIncorrectPinAttemptsAllowedBeforeCardLockout,
   OverallSessionTimeLimitHours,
@@ -53,7 +54,7 @@ export interface DippedSmartCardAuthConfig {
  * Machine state that the consumer is responsible for providing
  */
 export interface DippedSmartCardAuthMachineState {
-  electionHash?: string;
+  electionKey?: ElectionKey;
   jurisdiction?: string;
   arePollWorkerCardPinsEnabled: boolean;
   numIncorrectPinAttemptsAllowedBeforeCardLockout: NumIncorrectPinAttemptsAllowedBeforeCardLockout;

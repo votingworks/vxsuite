@@ -7,6 +7,7 @@ import {
 } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
 
+import { ElectionKey } from '@votingworks/types';
 import { DEV_JURISDICTION } from '../../src/jurisdictions';
 import { mockCard } from '../../src/mock_file_card';
 
@@ -23,7 +24,7 @@ type CardType = (typeof CARD_TYPES)[number];
 
 interface MockCardInput {
   cardType: CardType;
-  electionHash?: string;
+  electionKey?: ElectionKey;
 }
 
 async function parseCommandLineArgs(
@@ -86,7 +87,7 @@ async function parseCommandLineArgs(
     throw new Error(`Must specify card-type\n\n${helpMessage}`);
   }
 
-  let electionHash: Optional<string>;
+  let electionKey: Optional<ElectionKey>;
   if (['election-manager', 'poll-worker'].includes(parsedArgs.cardType)) {
     if (!parsedArgs.electionDefinition) {
       throw new Error(
@@ -101,16 +102,20 @@ async function parseCommandLineArgs(
         `${parsedArgs.electionDefinition} isn't a valid election definition`
       );
     }
-    electionHash = readElectionResult.ok().electionHash;
+    const { election } = readElectionResult.ok();
+    electionKey = {
+      id: election.id,
+      date: election.date,
+    };
   }
 
   return {
     cardType: parsedArgs.cardType,
-    electionHash,
+    electionKey,
   };
 }
 
-function mockCardWrapper({ cardType, electionHash }: MockCardInput) {
+function mockCardWrapper({ cardType, electionKey }: MockCardInput) {
   switch (cardType) {
     case 'vendor': {
       mockCard({
@@ -143,7 +148,7 @@ function mockCardWrapper({ cardType, electionHash }: MockCardInput) {
       break;
     }
     case 'election-manager': {
-      assert(electionHash !== undefined);
+      assert(electionKey !== undefined);
       mockCard({
         cardStatus: {
           status: 'ready',
@@ -151,7 +156,7 @@ function mockCardWrapper({ cardType, electionHash }: MockCardInput) {
             user: {
               role: 'election_manager',
               jurisdiction: DEV_JURISDICTION,
-              electionHash,
+              electionKey,
             },
           },
         },
@@ -160,7 +165,7 @@ function mockCardWrapper({ cardType, electionHash }: MockCardInput) {
       break;
     }
     case 'poll-worker': {
-      assert(electionHash !== undefined);
+      assert(electionKey !== undefined);
       mockCard({
         cardStatus: {
           status: 'ready',
@@ -168,7 +173,7 @@ function mockCardWrapper({ cardType, electionHash }: MockCardInput) {
             user: {
               role: 'poll_worker',
               jurisdiction: DEV_JURISDICTION,
-              electionHash,
+              electionKey,
             },
             hasPin: false,
           },
@@ -177,7 +182,7 @@ function mockCardWrapper({ cardType, electionHash }: MockCardInput) {
       break;
     }
     case 'poll-worker-with-pin': {
-      assert(electionHash !== undefined);
+      assert(electionKey !== undefined);
       mockCard({
         cardStatus: {
           status: 'ready',
@@ -185,7 +190,7 @@ function mockCardWrapper({ cardType, electionHash }: MockCardInput) {
             user: {
               role: 'poll_worker',
               jurisdiction: DEV_JURISDICTION,
-              electionHash,
+              electionKey,
             },
             hasPin: true,
           },

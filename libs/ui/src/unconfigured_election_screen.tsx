@@ -45,7 +45,7 @@ export function UnconfiguredElectionScreen({
         return 'Please insert an election manager card before configuring.';
       case 'election_package_authentication_error':
         return 'Error authenticating election package. Try exporting it from VxAdmin again.';
-      case 'election_hash_mismatch':
+      case 'election_key_mismatch':
         return 'The most recent election package found is for a different election.';
       /* istanbul ignore next - compile time check for completeness */
       default:

@@ -55,16 +55,17 @@ async function readJavaCardDetails(): Promise<ExtendedCardDetails | undefined> {
 function printCardDetails(extendedCardDetails?: ExtendedCardDetails): void {
   const { cardDetails, env } = extendedCardDetails ?? {};
   const { jurisdiction, role } = cardDetails?.user ?? {};
-  const electionHash =
+  const electionKey =
     cardDetails?.user.role !== 'vendor' &&
     cardDetails?.user.role !== 'system_administrator'
-      ? cardDetails?.user.electionHash
+      ? cardDetails?.user.electionKey
       : undefined;
   const formattedCardDetails = `
 Env:           ${env ?? '-'}
 Jurisdiction:  ${jurisdiction ?? '-'}
 User role:     ${role ?? '-'}
-Election hash: ${electionHash ?? '-'}
+Election ID:   ${electionKey?.id ?? '-'}
+Election date: ${electionKey?.date.toISOString() ?? '-'}
 `;
   console.log(formattedCardDetails);
 }

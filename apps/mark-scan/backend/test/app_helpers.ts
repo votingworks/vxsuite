@@ -23,6 +23,7 @@ import {
 } from '@votingworks/test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
+  constructElectionKey,
   SystemSettings,
   TEST_JURISDICTION,
 } from '@votingworks/types';
@@ -151,12 +152,14 @@ export async function configureApp(
   systemSettings: SystemSettings = DEFAULT_SYSTEM_SETTINGS
 ): Promise<void> {
   const jurisdiction = TEST_JURISDICTION;
-  const { electionJson, electionDefinition } = electionFamousNames2021Fixtures;
-  const { electionHash } = electionDefinition;
+  const { electionJson, election } = electionFamousNames2021Fixtures;
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
-      user: mockElectionManagerUser({ electionHash, jurisdiction }),
+      user: mockElectionManagerUser({
+        electionKey: constructElectionKey(election),
+        jurisdiction,
+      }),
       sessionExpiresAt: mockSessionExpiresAt(),
     })
   );

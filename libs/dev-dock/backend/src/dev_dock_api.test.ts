@@ -13,13 +13,12 @@ import {
 } from '@votingworks/test-utils';
 import { DEV_JURISDICTION } from '@votingworks/auth';
 import {
-  electionGeneralDefinition,
   electionFamousNames2021Fixtures,
   electionGeneral,
 } from '@votingworks/fixtures';
 import { Server } from 'http';
 import { typedAs } from '@votingworks/basics';
-import { PrinterStatus } from '@votingworks/types';
+import { constructElectionKey, PrinterStatus } from '@votingworks/types';
 import {
   getMockConnectedPrinterStatus,
   getMockFilePrinterHandler,
@@ -104,7 +103,7 @@ test('card mock endpoints', async () => {
     status: 'ready',
     cardDetails: {
       user: mockElectionManagerUser({
-        electionHash: electionGeneralDefinition.electionHash,
+        electionKey: constructElectionKey(electionGeneral),
         jurisdiction: DEV_JURISDICTION,
       }),
     },
@@ -117,7 +116,7 @@ test('card mock endpoints', async () => {
     status: 'ready',
     cardDetails: {
       user: mockPollWorkerUser({
-        electionHash: electionGeneralDefinition.electionHash,
+        electionKey: constructElectionKey(electionGeneral),
         jurisdiction: DEV_JURISDICTION,
       }),
       hasPin: false,
@@ -148,8 +147,9 @@ test('election setting', async () => {
     status: 'ready',
     cardDetails: {
       user: mockElectionManagerUser({
-        electionHash:
-          electionFamousNames2021Fixtures.electionDefinition.electionHash,
+        electionKey: constructElectionKey(
+          electionFamousNames2021Fixtures.election
+        ),
         jurisdiction: DEV_JURISDICTION,
       }),
     },

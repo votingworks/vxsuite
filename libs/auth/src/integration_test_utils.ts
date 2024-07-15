@@ -1,4 +1,4 @@
-import { TEST_JURISDICTION } from '@votingworks/types';
+import { Election, TEST_JURISDICTION } from '@votingworks/types';
 
 import { mockCard } from './mock_file_card';
 
@@ -29,9 +29,9 @@ export function mockSystemAdministratorCardInsertion(): void {
  * Mocks election manager card insertion
  */
 export function mockElectionManagerCardInsertion({
-  electionHash,
+  election,
 }: {
-  electionHash: string;
+  election: Election;
 }): void {
   mockCard({
     cardStatus: {
@@ -40,7 +40,10 @@ export function mockElectionManagerCardInsertion({
         user: {
           role: 'election_manager',
           jurisdiction: TEST_JURISDICTION,
-          electionHash,
+          electionKey: {
+            id: election.id,
+            date: election.date,
+          },
         },
       },
     },
@@ -52,9 +55,9 @@ export function mockElectionManagerCardInsertion({
  * Mocks poll worker card insertion
  */
 export function mockPollWorkerCardInsertion({
-  electionHash,
+  election,
 }: {
-  electionHash: string;
+  election: Election;
 }): void {
   mockCard({
     cardStatus: {
@@ -63,7 +66,10 @@ export function mockPollWorkerCardInsertion({
         user: {
           role: 'poll_worker',
           jurisdiction: TEST_JURISDICTION,
-          electionHash,
+          electionKey: {
+            id: election.id,
+            date: election.date,
+          },
         },
         hasPin: false,
       },

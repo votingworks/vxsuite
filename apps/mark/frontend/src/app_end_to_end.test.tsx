@@ -5,7 +5,10 @@ import {
 } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { mockBaseLogger } from '@votingworks/logging';
-import { getContestDistrictName } from '@votingworks/types';
+import {
+  constructElectionKey,
+  getContestDistrictName,
+} from '@votingworks/types';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
 import * as GLOBALS from './config/globals';
@@ -41,7 +44,7 @@ jest.setTimeout(60_000);
 test('MarkAndPrint end-to-end flow', async () => {
   const logger = mockBaseLogger();
   const electionDefinition = electionGeneralDefinition;
-  const { electionHash } = electionDefinition;
+  const electionKey = constructElectionKey(electionDefinition.election);
   apiMock.expectGetMachineConfig({
     screenOrientation: 'portrait',
   });
@@ -66,7 +69,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Insert election manager card and enter incorrect PIN
   apiMock.setAuthStatus({
     status: 'checking_pin',
-    user: mockElectionManagerUser(electionDefinition),
+    user: mockElectionManagerUser({ electionKey }),
   });
   await screen.findByText('Enter the card PIN');
   apiMock.mockApiClient.checkPin.expectCallWith({ pin: '111111' }).resolves();
@@ -78,7 +81,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   userEvent.click(screen.getByText('1'));
   apiMock.setAuthStatus({
     status: 'checking_pin',
-    user: mockElectionManagerUser({ electionHash }),
+    user: mockElectionManagerUser({ electionKey }),
     wrongPinEnteredAt: new Date(),
   });
   await screen.findByText('Incorrect PIN. Please try again.');

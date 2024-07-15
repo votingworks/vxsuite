@@ -1,6 +1,11 @@
 import React, { useContext } from 'react';
-import { assert } from '@votingworks/basics';
-import { ElectionDefinition, User, UserWithCard } from '@votingworks/types';
+import { assert, deepEqual } from '@votingworks/basics';
+import {
+  constructElectionKey,
+  ElectionDefinition,
+  User,
+  UserWithCard,
+} from '@votingworks/types';
 import { Button, Font, H1, P } from '@votingworks/ui';
 
 import {
@@ -17,14 +22,17 @@ import {
 } from './status_message';
 import { userRoleToReadableString } from './user_roles';
 
-function checkDoesCardElectionHashMatchMachineElectionHash(
+function checkDoesCardElectionMatchMachineElection(
   programmedUser: User,
   electionDefinition: ElectionDefinition
 ): boolean {
-  if (!('electionHash' in programmedUser)) {
+  if (!('electionKey' in programmedUser)) {
     return false;
   }
-  return programmedUser.electionHash === electionDefinition.electionHash;
+  return deepEqual(
+    programmedUser.electionKey,
+    constructElectionKey(electionDefinition.election)
+  );
 }
 
 interface Props {
@@ -46,9 +54,9 @@ export function CardDetailsView({
   const { role } = programmedUser;
   const arePollWorkerCardPinsEnabled =
     systemSettingsQuery.data?.auth.arePollWorkerCardPinsEnabled;
-  const doesCardElectionHashMatchMachineElectionHash =
+  const doesCardElectionMatchMachineElection =
     electionDefinition &&
-    checkDoesCardElectionHashMatchMachineElectionHash(
+    checkDoesCardElectionMatchMachineElection(
       programmedUser,
       electionDefinition
     );
@@ -93,7 +101,7 @@ export function CardDetailsView({
     });
   }
 
-  const electionDisplayString = doesCardElectionHashMatchMachineElectionHash
+  const electionDisplayString = doesCardElectionMatchMachineElection
     ? electionToDisplayString(electionDefinition.election)
     : 'Unknown Election';
 
@@ -104,7 +112,7 @@ export function CardDetailsView({
     // relevant election definition to be loaded for election manager and poll worker cards, so
     // that we can write the proper election hash (and for election manager cards, full election
     // definition)
-    (doesCardElectionHashMatchMachineElectionHash &&
+    (doesCardElectionMatchMachineElection &&
       (role === 'election_manager' ||
         (arePollWorkerCardPinsEnabled && role === 'poll_worker')))
   ) {
@@ -138,9 +146,7 @@ export function CardDetailsView({
           {possibleActions.has('Unprogram') && (
             <Button
               variant={
-                doesCardElectionHashMatchMachineElectionHash
-                  ? 'danger'
-                  : 'primary'
+                doesCardElectionMatchMachineElection ? 'danger' : 'primary'
               }
               onPress={unprogramCard}
             >

@@ -52,7 +52,7 @@ it('logs success if export succeeds', async () => {
 
   const { apiClient, auth, logger } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordExport.asDirectoryPath(),
@@ -84,7 +84,7 @@ it('logs failure if export fails', async () => {
 
   const { apiClient, auth, logger } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordExport.asDirectoryPath(),
@@ -137,7 +137,7 @@ it('creates accurate ballot count reports', async () => {
 
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   // add CVR data
   const loadFileResult = await apiClient.addCastVoteRecordFile({

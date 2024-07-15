@@ -1,7 +1,8 @@
 import { Buffer } from 'buffer';
 import { mockOf } from '@votingworks/test-utils';
-import { TEST_JURISDICTION } from '@votingworks/types';
+import { ElectionId, ElectionKey, TEST_JURISDICTION } from '@votingworks/types';
 
+import { DateWithoutTime } from '@votingworks/basics';
 import { CardDetails } from './card';
 import {
   constructCardCertSubject,
@@ -17,8 +18,12 @@ import { openssl } from './cryptography';
 jest.mock('./cryptography');
 
 const cert = Buffer.of();
-const electionHash =
-  '43939f8d6b94dd85827c1d151d0b75f4617e934979d53b6d5ce2abf4535a93d4';
+const electionId = 'rhr6fw5qb077';
+const electionDate = '2024-07-10';
+const electionKey: ElectionKey = {
+  id: electionId as ElectionId,
+  date: new DateWithoutTime(electionDate),
+};
 const jurisdiction = TEST_JURISDICTION;
 
 test.each<{ subject: string; expectedCustomCertFields: CustomCertFields }>([
@@ -50,12 +55,14 @@ test.each<{ subject: string; expectedCustomCertFields: CustomCertFields }>([
       '1.3.6.1.4.1.59817.1 = card, ' +
       `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
       '1.3.6.1.4.1.59817.3 = election-manager, ' +
-      `1.3.6.1.4.1.59817.4 = ${electionHash}`,
+      `1.3.6.1.4.1.59817.4 = ${electionId}, ` +
+      `1.3.6.1.4.1.59817.5 = ${electionDate}`,
     expectedCustomCertFields: {
       component: 'card',
       jurisdiction,
       cardType: 'election-manager',
-      electionHash,
+      electionId,
+      electionDate,
     },
   },
 ])('parseCert', async ({ subject, expectedCustomCertFields }) => {
@@ -107,12 +114,30 @@ test.each<{ description: string; subject: string }>([
       `1.3.6.1.4.1.59817.2 = ${jurisdiction}`,
   },
   {
-    description: 'missing election hash on election card cert',
+    description: 'missing election id and date on election card cert',
     subject:
       'subject=C = US, ST = CA, O = VotingWorks, ' +
       '1.3.6.1.4.1.59817.1 = card, ' +
       `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
       '1.3.6.1.4.1.59817.3 = election-manager',
+  },
+  {
+    description: 'missing election date on election card cert',
+    subject:
+      'subject=C = US, ST = CA, O = VotingWorks, ' +
+      '1.3.6.1.4.1.59817.1 = card, ' +
+      `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
+      '1.3.6.1.4.1.59817.3 = election-manager, ' +
+      `1.3.6.1.4.1.59817.4 = ${electionId}`,
+  },
+  {
+    description: 'missing election id on election card cert',
+    subject:
+      'subject=C = US, ST = CA, O = VotingWorks, ' +
+      '1.3.6.1.4.1.59817.1 = card, ' +
+      `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
+      '1.3.6.1.4.1.59817.3 = election-manager, ' +
+      `1.3.6.1.4.1.59817.5 = ${electionDate}`,
   },
 ])('parseCert validation - $description', async ({ subject }) => {
   mockOf(openssl).mockImplementationOnce(() =>
@@ -151,9 +176,10 @@ test.each<{
       '1.3.6.1.4.1.59817.1 = card, ' +
       `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
       '1.3.6.1.4.1.59817.3 = election-manager, ' +
-      `1.3.6.1.4.1.59817.4 = ${electionHash}`,
+      `1.3.6.1.4.1.59817.4 = ${electionId}, ` +
+      `1.3.6.1.4.1.59817.5 = ${electionDate}`,
     expectedCardDetails: {
-      user: { role: 'election_manager', jurisdiction, electionHash },
+      user: { role: 'election_manager', jurisdiction, electionKey },
     },
   },
   {
@@ -162,9 +188,10 @@ test.each<{
       '1.3.6.1.4.1.59817.1 = card, ' +
       `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
       '1.3.6.1.4.1.59817.3 = poll-worker, ' +
-      `1.3.6.1.4.1.59817.4 = ${electionHash}`,
+      `1.3.6.1.4.1.59817.4 = ${electionId}, ` +
+      `1.3.6.1.4.1.59817.5 = ${electionDate}`,
     expectedCardDetails: {
-      user: { role: 'poll_worker', jurisdiction, electionHash },
+      user: { role: 'poll_worker', jurisdiction, electionKey },
       hasPin: false,
     },
   },
@@ -174,9 +201,10 @@ test.each<{
       '1.3.6.1.4.1.59817.1 = card, ' +
       `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
       '1.3.6.1.4.1.59817.3 = poll-worker-with-pin, ' +
-      `1.3.6.1.4.1.59817.4 = ${electionHash}`,
+      `1.3.6.1.4.1.59817.4 = ${electionId}, ` +
+      `1.3.6.1.4.1.59817.5 = ${electionDate}`,
     expectedCardDetails: {
-      user: { role: 'poll_worker', jurisdiction, electionHash },
+      user: { role: 'poll_worker', jurisdiction, electionKey },
       hasPin: true,
     },
   },
@@ -203,12 +231,30 @@ test.each<{ description: string; subject: string }>([
       `1.3.6.1.4.1.59817.2 = ${jurisdiction}`,
   },
   {
-    description: 'missing election hash for election card',
+    description: 'missing election id and date for election card',
     subject:
       'subject=C = US, ST = CA, O = VotingWorks, ' +
       '1.3.6.1.4.1.59817.1 = card, ' +
       `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
       '1.3.6.1.4.1.59817.3 = election-manager',
+  },
+  {
+    description: 'missing election date on election card cert',
+    subject:
+      'subject=C = US, ST = CA, O = VotingWorks, ' +
+      '1.3.6.1.4.1.59817.1 = card, ' +
+      `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
+      '1.3.6.1.4.1.59817.3 = election-manager, ' +
+      `1.3.6.1.4.1.59817.4 = ${electionId}`,
+  },
+  {
+    description: 'missing election id on election card cert',
+    subject:
+      'subject=C = US, ST = CA, O = VotingWorks, ' +
+      '1.3.6.1.4.1.59817.1 = card, ' +
+      `1.3.6.1.4.1.59817.2 = ${jurisdiction}, ` +
+      '1.3.6.1.4.1.59817.3 = election-manager, ' +
+      `1.3.6.1.4.1.59817.5 = ${electionDate}`,
   },
 ])('parseUserDataFromCert validation - $description', async ({ subject }) => {
   mockOf(openssl).mockImplementationOnce(() =>
@@ -243,18 +289,19 @@ test.each<{
   },
   {
     cardDetails: {
-      user: { role: 'election_manager', jurisdiction, electionHash },
+      user: { role: 'election_manager', jurisdiction, electionKey },
     },
     expectedSubject:
       '/C=US/ST=CA/O=VotingWorks' +
       '/1.3.6.1.4.1.59817.1=card' +
       `/1.3.6.1.4.1.59817.2=${jurisdiction}` +
       '/1.3.6.1.4.1.59817.3=election-manager' +
-      `/1.3.6.1.4.1.59817.4=${electionHash}/`,
+      `/1.3.6.1.4.1.59817.4=${electionId}` +
+      `/1.3.6.1.4.1.59817.5=${electionDate}/`,
   },
   {
     cardDetails: {
-      user: { role: 'poll_worker', jurisdiction, electionHash },
+      user: { role: 'poll_worker', jurisdiction, electionKey },
       hasPin: false,
     },
     expectedSubject:
@@ -262,11 +309,12 @@ test.each<{
       '/1.3.6.1.4.1.59817.1=card' +
       `/1.3.6.1.4.1.59817.2=${jurisdiction}` +
       '/1.3.6.1.4.1.59817.3=poll-worker' +
-      `/1.3.6.1.4.1.59817.4=${electionHash}/`,
+      `/1.3.6.1.4.1.59817.4=${electionId}` +
+      `/1.3.6.1.4.1.59817.5=${electionDate}/`,
   },
   {
     cardDetails: {
-      user: { role: 'poll_worker', jurisdiction, electionHash },
+      user: { role: 'poll_worker', jurisdiction, electionKey },
       hasPin: true,
     },
     expectedSubject:
@@ -274,7 +322,8 @@ test.each<{
       '/1.3.6.1.4.1.59817.1=card' +
       `/1.3.6.1.4.1.59817.2=${jurisdiction}` +
       '/1.3.6.1.4.1.59817.3=poll-worker-with-pin' +
-      `/1.3.6.1.4.1.59817.4=${electionHash}/`,
+      `/1.3.6.1.4.1.59817.4=${electionId}` +
+      `/1.3.6.1.4.1.59817.5=${electionDate}/`,
   },
 ])('constructCardCertSubject', ({ cardDetails, expectedSubject }) => {
   expect(constructCardCertSubject(cardDetails)).toEqual(expectedSubject);

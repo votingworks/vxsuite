@@ -1,7 +1,5 @@
 import { ensureDirSync } from 'fs-extra';
 import { join, resolve } from 'path';
-import { InsertedSmartCardAuthMachineState } from '@votingworks/auth';
-import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import {
   DiskSpaceSummary,
   initializeGetWorkspaceDiskSpaceSummary,
@@ -29,20 +27,6 @@ export interface Workspace {
    * Get the disk space summary for the workspace.
    */
   getDiskSpaceSummary: () => Promise<DiskSpaceSummary>;
-}
-
-export function constructAuthMachineState(
-  workspace: Workspace
-): InsertedSmartCardAuthMachineState {
-  const electionDefinition = workspace.store.getElectionDefinition();
-  const jurisdiction = workspace.store.getJurisdiction();
-  const systemSettings =
-    workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
-  return {
-    ...systemSettings.auth,
-    electionHash: electionDefinition?.electionHash,
-    jurisdiction,
-  };
 }
 
 export function createWorkspace(

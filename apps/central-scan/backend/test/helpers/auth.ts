@@ -1,6 +1,10 @@
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
 import { mockSessionExpiresAt } from '@votingworks/test-utils';
-import { ElectionDefinition, TEST_JURISDICTION } from '@votingworks/types';
+import {
+  constructElectionKey,
+  ElectionDefinition,
+  TEST_JURISDICTION,
+} from '@votingworks/types';
 
 export function mockElectionManagerAuth(
   auth: jest.Mocked<DippedSmartCardAuthApi>,
@@ -12,7 +16,7 @@ export function mockElectionManagerAuth(
     user: {
       role: 'election_manager',
       jurisdiction,
-      electionHash: electionDefinition.electionHash,
+      electionKey: constructElectionKey(electionDefinition.election),
     },
     sessionExpiresAt: mockSessionExpiresAt(),
   });

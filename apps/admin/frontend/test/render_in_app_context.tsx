@@ -3,7 +3,11 @@ import React from 'react';
 import { Router } from 'react-router-dom';
 
 import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
-import { ElectionDefinition, DippedSmartCardAuth } from '@votingworks/types';
+import {
+  ElectionDefinition,
+  DippedSmartCardAuth,
+  constructElectionKey,
+} from '@votingworks/types';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
@@ -93,7 +97,7 @@ export function renderInAppContext(
       : {
           status: 'logged_in',
           user: mockElectionManagerUser({
-            electionHash: electionDefinition.electionHash,
+            electionKey: constructElectionKey(electionDefinition.election),
           }),
           sessionExpiresAt: mockSessionExpiresAt(),
         },

@@ -43,7 +43,7 @@ test('card counts', async () => {
 
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordExport.asDirectoryPath(),

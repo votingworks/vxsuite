@@ -1,6 +1,31 @@
 import { z } from 'zod';
 
-import { BallotStyleId, PrecinctId } from '../election';
+import { DateWithoutTime } from '@votingworks/basics';
+import { BallotStyleId, Election, ElectionId, PrecinctId } from '../election';
+
+/**
+ * An election key identifies an election. It can be encoded in a smart card and
+ * later validated to make sure a smart card is only used for the election it
+ * was programmed for.
+ *
+ * It contains both the election ID (which should be unique) and the election
+ * date (as defense in depth in case, for example, someone manually copies an
+ * election definition and forgets to change the ID).
+ */
+export interface ElectionKey {
+  id: ElectionId;
+  date: DateWithoutTime;
+}
+
+/**
+ * Create an {@link ElectionKey} from an {@link Election}.
+ */
+export function constructElectionKey(election: Election): ElectionKey {
+  return {
+    id: election.id,
+    date: election.date,
+  };
+}
 
 export interface VendorUser {
   readonly role: 'vendor';
@@ -15,13 +40,13 @@ export interface SystemAdministratorUser {
 export interface ElectionManagerUser {
   readonly role: 'election_manager';
   readonly jurisdiction: string;
-  readonly electionHash: string;
+  readonly electionKey: ElectionKey;
 }
 
 export interface PollWorkerUser {
   readonly role: 'poll_worker';
   readonly jurisdiction: string;
-  readonly electionHash: string;
+  readonly electionKey: ElectionKey;
 }
 
 export interface CardlessVoterUser {

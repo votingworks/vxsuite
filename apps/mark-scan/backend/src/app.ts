@@ -44,7 +44,7 @@ import {
   PaperHandlerDriverInterface,
 } from '@votingworks/custom-paper-handler';
 import { getMachineConfig } from './machine_config';
-import { Workspace, constructAuthMachineState } from './util/workspace';
+import { Workspace } from './util/workspace';
 import {
   PaperHandlerStateMachine,
   SimpleServerStatus,
@@ -55,6 +55,7 @@ import { isAccessibleControllerDaemonRunning } from './util/hardware';
 import { saveReadinessReport } from './readiness_report';
 import { renderBallot } from './util/render_ballot';
 import { Store } from './store';
+import { constructAuthMachineState } from './util/auth';
 
 function addDiagnosticRecordAndLog(
   store: Store,

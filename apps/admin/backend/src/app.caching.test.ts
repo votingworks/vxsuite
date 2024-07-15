@@ -57,7 +57,7 @@ it('uses and clears CVR tabulation cache appropriately', async () => {
   const tabulationSpy = jest.spyOn(store, 'getCastVoteRecords');
 
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   const zeroExport = await getParsedExport({
     apiClient,

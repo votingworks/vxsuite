@@ -5,7 +5,11 @@ import {
   DippedSmartCardAuthMachineState,
 } from '@votingworks/auth';
 import { isIntegrationTest } from '@votingworks/utils';
-import { DEFAULT_SYSTEM_SETTINGS, TEST_JURISDICTION } from '@votingworks/types';
+import {
+  DEFAULT_SYSTEM_SETTINGS,
+  constructElectionKey,
+  TEST_JURISDICTION,
+} from '@votingworks/types';
 import { LoggingUserRole } from '@votingworks/logging';
 import { Workspace } from './workspace';
 
@@ -40,7 +44,9 @@ export function constructAuthMachineState(
   const systemSettings = workspace.store.getSystemSettings(electionRecord.id);
   return {
     ...systemSettings.auth,
-    electionHash: electionRecord.electionDefinition.electionHash,
+    electionKey: constructElectionKey(
+      electionRecord.electionDefinition.election
+    ),
     jurisdiction,
   };
 }

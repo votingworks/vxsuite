@@ -1,6 +1,10 @@
 import { electionGeneralDefinition as testElectionDefinition } from '@votingworks/fixtures';
 import { LogSource, BaseLogger } from '@votingworks/logging';
-import { DippedSmartCardAuth, ElectionDefinition } from '@votingworks/types';
+import {
+  DippedSmartCardAuth,
+  constructElectionKey,
+  ElectionDefinition,
+} from '@votingworks/types';
 import { SystemCallContextProvider, TestErrorBoundary } from '@votingworks/ui';
 import { createMemoryHistory, MemoryHistory } from 'history';
 import React from 'react';
@@ -40,7 +44,7 @@ export function makeAppContext({
   auth = {
     status: 'logged_in',
     user: mockElectionManagerUser({
-      electionHash: electionDefinition.electionHash,
+      electionKey: constructElectionKey(electionDefinition.election),
     }),
     sessionExpiresAt: mockSessionExpiresAt(),
   },

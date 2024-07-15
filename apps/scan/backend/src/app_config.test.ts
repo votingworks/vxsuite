@@ -17,7 +17,7 @@ import {
 } from '@votingworks/test-utils';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { ElectionDefinition } from '@votingworks/types';
+import { constructElectionKey, ElectionDefinition } from '@votingworks/types';
 import { configureApp } from '../test/helpers/shared_helpers';
 import { withApp } from '../test/helpers/pdi_helpers';
 import { PrecinctScannerPollsInfo } from '.';
@@ -40,7 +40,9 @@ function mockElectionManager(
   mockOf(mockAuth.getAuthStatus).mockImplementation(() =>
     Promise.resolve({
       status: 'logged_in',
-      user: mockElectionManagerUser(electionDefinition),
+      user: mockElectionManagerUser({
+        electionKey: constructElectionKey(electionDefinition.election),
+      }),
       sessionExpiresAt: mockSessionExpiresAt(),
     })
   );
@@ -122,7 +124,7 @@ test('fails to configure election package if election definition on card does no
       })
     );
     expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
-      err('election_hash_mismatch')
+      err('election_key_mismatch')
     );
   });
 });

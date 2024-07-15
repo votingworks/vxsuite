@@ -71,7 +71,7 @@ it('exports expected results for full election', async () => {
 
   const { apiClient, auth, logger } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordExport.asDirectoryPath(),
@@ -141,7 +141,7 @@ it('logs failure if export fails for some reason', async () => {
 
   const { apiClient, auth, logger } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordExport.asDirectoryPath(),
@@ -173,7 +173,7 @@ it('incorporates wia and manual data (grouping by voting method)', async () => {
 
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   const loadFileResult = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordExport.asDirectoryPath(),

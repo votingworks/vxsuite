@@ -59,7 +59,7 @@ it('logs success if export succeeds', async () => {
 
   const { apiClient, auth, logger } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   const offLimitsPath = '/root/hidden';
   const failedExportResult = await apiClient.exportCdfElectionResultsReport({
@@ -82,7 +82,7 @@ it('logs failure if export fails', async () => {
 
   const { apiClient, auth, logger } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   const path = tmpNameSync();
   const exportResult = await apiClient.exportCdfElectionResultsReport({
@@ -123,7 +123,7 @@ it('exports results and metadata accurately', async () => {
 
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   // add CVR data
   const loadFileResult = await apiClient.addCastVoteRecordFile({
@@ -379,7 +379,7 @@ it('marks report as certified when official, as primary when primary, and as non
 
   const { apiClient, auth } = buildTestEnvironment();
   await configureMachine(apiClient, auth, electionDefinition);
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
 
   // add CVR data, as non-test file
   const loadFileResult = await apiClient.addCastVoteRecordFile({

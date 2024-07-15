@@ -1,6 +1,11 @@
 import { Buffer } from 'buffer';
 import fs from 'fs';
-import { assert, Optional, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  DateWithoutTime,
+  Optional,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import {
   ElectionManagerUser,
   PollWorkerUser,
@@ -45,7 +50,11 @@ export function serializeMockFileContents(
  * Converts a Buffer created by serializeMockFileContents back into a MockFileContents object
  */
 export function deserializeMockFileContents(file: Buffer): MockFileContents {
-  const { cardStatus, data, pin } = JSON.parse(file.toString('utf-8'));
+  const { cardStatus, data, pin } = JSON.parse(
+    file.toString('utf-8'),
+    // Hydrate election date
+    (key, value) => (key === 'date' ? new DateWithoutTime(value) : value)
+  );
   return {
     cardStatus,
     data: data ? Buffer.from(data, 'hex') : undefined,

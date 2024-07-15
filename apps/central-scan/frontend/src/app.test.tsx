@@ -9,6 +9,7 @@ import {
 } from '@votingworks/test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
+  constructElectionKey,
   ElectionDefinition,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
@@ -17,6 +18,9 @@ import { render, waitFor, within, screen } from '../test/react_testing_library';
 import { App } from './app';
 import { ApiMock, createApiMock } from '../test/api';
 import { mockBatch, mockStatus } from '../test/fixtures';
+
+const electionDefinition = electionGeneralDefinition;
+const electionKey = constructElectionKey(electionDefinition.election);
 
 let apiMock: ApiMock;
 
@@ -54,9 +58,9 @@ afterEach(() => {
 });
 
 function expectConfigureFromElectionPackageOnUsbDrive() {
-  apiMock.expectConfigure(electionGeneralDefinition);
+  apiMock.expectConfigure(electionDefinition);
   apiMock.expectGetSystemSettings(DEFAULT_SYSTEM_SETTINGS);
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionDefinition(electionDefinition);
 }
 
 export async function authenticateAsSystemAdministrator(
@@ -75,6 +79,7 @@ export async function authenticateAsSystemAdministrator(
 }
 
 export async function authenticateAsElectionManager(
+  // eslint-disable-next-line @typescript-eslint/no-shadow
   electionDefinition: ElectionDefinition,
   lockScreenText = 'VxCentralScan is Locked',
   postAuthText = 'Lock Machine'
@@ -85,7 +90,7 @@ export async function authenticateAsElectionManager(
   apiMock.setAuthStatus({
     status: 'logged_in',
     user: mockElectionManagerUser({
-      electionHash: electionDefinition.electionHash,
+      electionKey: constructElectionKey(electionDefinition.election),
     }),
     sessionExpiresAt: mockSessionExpiresAt(),
   });
@@ -94,7 +99,7 @@ export async function authenticateAsElectionManager(
 
 test('renders without crashing', async () => {
   apiMock.expectGetTestMode(true);
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionDefinition(electionDefinition);
 
   render(<App apiClient={apiMock.apiClient} />);
   await waitFor(() => fetchMock.called());
@@ -102,10 +107,10 @@ test('renders without crashing', async () => {
 
 test('shows a "test ballot mode" button if the app is in Official Ballot Mode', async () => {
   apiMock.expectGetTestMode(false);
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionDefinition(electionDefinition);
 
   render(<App apiClient={apiMock.apiClient} />);
-  await authenticateAsElectionManager(electionGeneralDefinition);
+  await authenticateAsElectionManager(electionDefinition);
 
   userEvent.click(screen.getButton('Settings'));
 
@@ -118,10 +123,10 @@ test('shows a "test ballot mode" button if the app is in Official Ballot Mode', 
 
 test('shows an "official ballot mode" button if the app is in Test Mode', async () => {
   apiMock.expectGetTestMode(true);
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionDefinition(electionDefinition);
 
   render(<App apiClient={apiMock.apiClient} />);
-  await authenticateAsElectionManager(electionGeneralDefinition);
+  await authenticateAsElectionManager(electionDefinition);
 
   screen.getByText('Test Ballot Mode');
   userEvent.click(screen.getButton('Settings'));
@@ -136,10 +141,10 @@ test('shows an "official ballot mode" button if the app is in Test Mode', async 
 
 test('clicking Scan Batch will scan a batch', async () => {
   apiMock.expectGetTestMode(true);
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionDefinition(electionDefinition);
 
   render(<App apiClient={apiMock.apiClient} />);
-  await authenticateAsElectionManager(electionGeneralDefinition);
+  await authenticateAsElectionManager(electionDefinition);
 
   apiMock.expectScanBatch();
   userEvent.click(screen.getButton('Scan New Batch'));
@@ -148,7 +153,7 @@ test('clicking Scan Batch will scan a batch', async () => {
 
 test('clicking "Save CVRs" shows modal and makes a request to export', async () => {
   apiMock.expectGetTestMode(true);
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionDefinition(electionDefinition);
   apiMock.setStatus(
     mockStatus({
       batches: [mockBatch()],
@@ -156,7 +161,7 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
   );
 
   render(<App apiClient={apiMock.apiClient} />);
-  await authenticateAsElectionManager(electionGeneralDefinition);
+  await authenticateAsElectionManager(electionDefinition);
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
 
   // wait for the config to load
@@ -178,7 +183,7 @@ test('configuring election from usb election package works end to end', async ()
 
   render(<App apiClient={apiMock.apiClient} />);
   await authenticateAsElectionManager(
-    electionGeneralDefinition,
+    electionDefinition,
     'Insert an Election Manager card to configure VxCentralScan',
     'Insert a USB drive containing an election package'
   );
@@ -216,7 +221,7 @@ test('configuring election from usb election package works end to end', async ()
 
 test('authentication works', async () => {
   apiMock.expectGetTestMode(true);
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionDefinition(electionDefinition);
 
   render(<App apiClient={apiMock.apiClient} />);
 
@@ -237,7 +242,7 @@ test('authentication works', async () => {
   // Insert an election manager card and enter the wrong PIN.
   apiMock.setAuthStatus({
     status: 'checking_pin',
-    user: mockElectionManagerUser(electionGeneralDefinition),
+    user: mockElectionManagerUser({ electionKey }),
   });
   await screen.findByText('Enter the card PIN');
   apiMock.expectCheckPin('111111');
@@ -249,7 +254,7 @@ test('authentication works', async () => {
   userEvent.click(screen.getByText('1'));
   apiMock.setAuthStatus({
     status: 'checking_pin',
-    user: mockElectionManagerUser(electionGeneralDefinition),
+    user: mockElectionManagerUser({ electionKey }),
     wrongPinEnteredAt: new Date(),
   });
   await screen.findByText('Incorrect PIN. Please try again.');
@@ -273,7 +278,7 @@ test('authentication works', async () => {
   // Insert election manager card and enter correct PIN.
   apiMock.setAuthStatus({
     status: 'checking_pin',
-    user: mockElectionManagerUser(electionGeneralDefinition),
+    user: mockElectionManagerUser({ electionKey }),
   });
   await screen.findByText('Enter the card PIN');
   apiMock.expectCheckPin('123456');
@@ -287,7 +292,7 @@ test('authentication works', async () => {
   // 'Remove Card' screen is shown after successful authentication.
   apiMock.setAuthStatus({
     status: 'remove_card',
-    user: mockElectionManagerUser(electionGeneralDefinition),
+    user: mockElectionManagerUser({ electionKey }),
     sessionExpiresAt: mockSessionExpiresAt(),
   });
   await screen.findByText('Remove card to unlock VxCentralScan');
@@ -295,7 +300,7 @@ test('authentication works', async () => {
   // Machine is unlocked when card removed
   apiMock.setAuthStatus({
     status: 'logged_in',
-    user: mockElectionManagerUser(electionGeneralDefinition),
+    user: mockElectionManagerUser({ electionKey }),
     sessionExpiresAt: mockSessionExpiresAt(),
   });
   await screen.findByRole('heading', { name: 'Scan Ballots' });
@@ -312,7 +317,7 @@ test('authentication works', async () => {
 
 test('system administrator can log in and unconfigure machine', async () => {
   apiMock.expectGetTestMode(true);
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionDefinition(electionDefinition);
 
   render(<App apiClient={apiMock.apiClient} />);
 
@@ -335,7 +340,7 @@ test('system administrator can log in and unconfigure machine', async () => {
 
 test('election manager cannot auth onto machine with different election hash', async () => {
   apiMock.expectGetTestMode(true);
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionDefinition(electionDefinition);
 
   render(<App apiClient={apiMock.apiClient} />);
 
@@ -353,12 +358,12 @@ test('election manager cannot auth onto machine with different election hash', a
 
 test('error boundary', async () => {
   apiMock.expectGetTestMode(true);
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionDefinition(electionDefinition);
 
   await suppressingConsoleOutput(async () => {
     render(<App apiClient={apiMock.apiClient} />);
 
-    await authenticateAsElectionManager(electionGeneralDefinition);
+    await authenticateAsElectionManager(electionDefinition);
 
     apiMock.apiClient.logOut.expectCallWith().throws(new Error('Whoa!'));
     userEvent.click(screen.getByText('Lock Machine'));
@@ -368,7 +373,7 @@ test('error boundary', async () => {
 
 test('battery display and alert', async () => {
   apiMock.expectGetTestMode(true);
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionDefinition(electionDefinition);
 
   render(<App apiClient={apiMock.apiClient} />);
   await authenticateAsSystemAdministrator();

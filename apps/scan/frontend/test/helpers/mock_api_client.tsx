@@ -3,6 +3,7 @@ import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
+  constructElectionKey,
   ElectionDefinition,
   InsertedSmartCardAuth,
   PollsState,
@@ -115,7 +116,7 @@ export function createApiMock() {
       setAuthStatus({
         status: 'logged_in',
         user: mockElectionManagerUser({
-          electionHash: electionDefinition.electionHash,
+          electionKey: constructElectionKey(electionDefinition.election),
         }),
         sessionExpiresAt: mockSessionExpiresAt(),
       });
@@ -125,7 +126,7 @@ export function createApiMock() {
       setAuthStatus({
         status: 'logged_in',
         user: mockPollWorkerUser({
-          electionHash: electionDefinition.electionHash,
+          electionKey: constructElectionKey(electionDefinition.election),
         }),
         sessionExpiresAt: mockSessionExpiresAt(),
       });

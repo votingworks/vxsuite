@@ -12,7 +12,7 @@ test.skip('tally performance', async () => {
   const { apiClient, auth } = buildTestEnvironment(
     getBackupPath('performance')
   );
-  mockElectionManagerAuth(auth, electionDefinition.electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
   timer.checkpoint(`test setup complete`);
   await apiClient.getResultsForTallyReports();
   timer.end();

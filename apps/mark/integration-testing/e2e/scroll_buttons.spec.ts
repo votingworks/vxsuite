@@ -29,7 +29,7 @@ test('configure, open polls, and test contest scroll buttons', async ({
   page,
 }) => {
   const electionDefinition = electionGeneralDefinition;
-  const { electionHash } = electionDefinition;
+  const { election } = electionDefinition;
   printerHandler.connectPrinter(HP_LASER_PRINTER_CONFIG);
 
   await page.goto('/');
@@ -38,9 +38,7 @@ test('configure, open polls, and test contest scroll buttons', async ({
   await page
     .getByText('Insert an Election Manager card to configure VxMark')
     .waitFor();
-  mockElectionManagerCardInsertion({
-    electionHash,
-  });
+  mockElectionManagerCardInsertion({ election });
   await enterPin(page);
   await page
     .getByText('Insert a USB drive containing an election package')
@@ -62,9 +60,7 @@ test('configure, open polls, and test contest scroll buttons', async ({
 
   // Poll Worker: open polls
   await page.getByText('Insert Poll Worker card to open').waitFor();
-  mockPollWorkerCardInsertion({
-    electionHash,
-  });
+  mockPollWorkerCardInsertion({ election });
   await page.getByText('Open Polls').click();
   const confirmDialog = page.getByRole('alertdialog');
   assert(confirmDialog);

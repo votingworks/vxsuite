@@ -49,8 +49,8 @@ test.each([
   },
   {
     description:
-      'election hash on authorized card does not match that on the most recent election package',
-    errorString: 'election_hash_mismatch',
+      'election on authorized card does not match that on the most recent election package',
+    errorString: 'election_key_mismatch',
     expectedErrorMessage:
       'The most recent election package found is for a different election.',
   },

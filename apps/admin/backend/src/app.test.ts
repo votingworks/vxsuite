@@ -136,7 +136,7 @@ test('managing the current election', async () => {
   });
 
   // mark results as official as election manager
-  mockElectionManagerAuth(auth, electionHash);
+  mockElectionManagerAuth(auth, electionDefinition.election);
   await apiClient.markResultsOfficial();
   expect(logger.log).toHaveBeenNthCalledWith(
     2,

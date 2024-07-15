@@ -1,8 +1,5 @@
 import express, { Application } from 'express';
-import {
-  InsertedSmartCardAuthApi,
-  InsertedSmartCardAuthMachineState,
-} from '@votingworks/auth';
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { assert, ok, Result, throwIllegalValue } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
@@ -37,20 +34,7 @@ import { Workspace } from './util/workspace';
 import { ElectionState, PrintBallotProps } from './types';
 import { printBallot } from './util/print_ballot';
 import { isAccessibleControllerAttached } from './util/accessible_controller';
-
-function constructAuthMachineState(
-  workspace: Workspace
-): InsertedSmartCardAuthMachineState {
-  const electionDefinition = workspace.store.getElectionDefinition();
-  const jurisdiction = workspace.store.getJurisdiction();
-  const systemSettings =
-    workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
-  return {
-    ...systemSettings.auth,
-    electionHash: electionDefinition?.electionHash,
-    jurisdiction,
-  };
-}
+import { constructAuthMachineState } from './util/auth';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi(

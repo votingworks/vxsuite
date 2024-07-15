@@ -6,6 +6,7 @@ import {
   mockSystemAdministratorCardInsertion,
 } from '@votingworks/auth';
 import { methodUrl } from '@votingworks/grout';
+import { Election } from '@votingworks/types';
 
 /**
  * Enters the PIN into the PIN pad.
@@ -33,11 +34,9 @@ export async function logInAsSystemAdministrator(page: Page): Promise<void> {
  */
 export async function logInAsElectionManager(
   page: Page,
-  electionHash: string
+  election: Election
 ): Promise<void> {
-  mockElectionManagerCardInsertion({
-    electionHash,
-  });
+  mockElectionManagerCardInsertion({ election });
   await enterPin(page);
   mockCardRemoval();
   await page.getByText('Lock Machine').waitFor();
