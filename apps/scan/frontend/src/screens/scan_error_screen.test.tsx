@@ -76,7 +76,7 @@ test('render correct invalid election hash screen', async () => {
     provideApi(
       apiMock,
       <ScanErrorScreen
-        error="invalid_election_hash"
+        error="invalid_ballot_hash"
         isTestMode={false}
         scannedBallotCount={42}
       />

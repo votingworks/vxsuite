@@ -84,7 +84,7 @@ export function combinePageInterpretationsForSheet(
   ) {
     return {
       type: 'InvalidSheet',
-      reason: 'invalid_election_hash',
+      reason: 'invalid_ballot_hash',
     };
   }
 

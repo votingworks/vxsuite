@@ -472,7 +472,7 @@ test('voter tries to cast ballot that is rejected', async () => {
       state: 'rejected',
       interpretation: {
         type: 'InvalidSheet',
-        reason: 'invalid_election_hash',
+        reason: 'invalid_ballot_hash',
       },
     })
   );

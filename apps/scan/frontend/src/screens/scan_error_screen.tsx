@@ -34,7 +34,7 @@ export function ScanErrorScreen({
         return isTestMode
           ? appStrings.warningScannerLiveBallotInTestMode()
           : appStrings.warningScannerTestBallotInLiveMode();
-      case 'invalid_election_hash':
+      case 'invalid_ballot_hash':
         return appStrings.warningScannerMismatchedElection();
       case 'invalid_precinct':
         return appStrings.warningScannerMismatchedPrecinct();
@@ -105,7 +105,7 @@ export function InvalidBallotHashPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}
-      error="invalid_election_hash"
+      error="invalid_ballot_hash"
       scannedBallotCount={42}
     />
   );

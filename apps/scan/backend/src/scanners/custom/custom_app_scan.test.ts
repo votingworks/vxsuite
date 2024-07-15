@@ -293,7 +293,7 @@ test('invalid ballot rejected', async () => {
 
       const interpretation: SheetInterpretation = {
         type: 'InvalidSheet',
-        reason: 'invalid_election_hash',
+        reason: 'invalid_ballot_hash',
       };
 
       simulateScan(mockScanner, await ballotImages.wrongElection(), clock);

@@ -146,7 +146,7 @@ test('jam on return', async () => {
 test('jam on reject', async () => {
   const interpretation: SheetInterpretation = {
     type: 'InvalidSheet',
-    reason: 'invalid_election_hash',
+    reason: 'invalid_ballot_hash',
   };
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {

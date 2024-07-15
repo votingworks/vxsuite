@@ -186,7 +186,7 @@ export const BallotSheetInfoSchema: z.ZodSchema<BallotSheetInfo> = z.object({
 
 export type InvalidInterpretationReason =
   | 'invalid_test_mode'
-  | 'invalid_election_hash'
+  | 'invalid_ballot_hash'
   | 'invalid_precinct'
   | 'unreadable'
   | 'unknown';
