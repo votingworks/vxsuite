@@ -19,7 +19,7 @@ import {
   Outset,
   PrecinctId,
   convertVxfElectionToCdfBallotDefinition,
-  getDisplayElectionHash,
+  getDisplayBallotHash,
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
@@ -373,7 +373,7 @@ async function addQrCodesAndElectionHashes(
     if (pageNumber % 2 === 1) {
       await document.setContent(
         `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${ELECTION_HASH_SLOT_CLASS}`,
-        <>{getDisplayElectionHash(metadata)}</>
+        <>{getDisplayBallotHash(metadata)}</>
       );
     }
   }

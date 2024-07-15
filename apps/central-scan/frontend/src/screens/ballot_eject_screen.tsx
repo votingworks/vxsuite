@@ -4,7 +4,7 @@ import {
   Contest,
   PageInterpretation,
   Side,
-  getDisplayElectionHash,
+  getDisplayBallotHash,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { assert } from '@votingworks/basics';
@@ -321,14 +321,14 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
               </P>
               <P>
                 <LabelledText label="Ballot Election ID">
-                  {getDisplayElectionHash({
+                  {getDisplayBallotHash({
                     ballotHash: actualElectionHash ?? '',
                   })}
                 </LabelledText>
               </P>
               <P>
                 <LabelledText label="Scanner Election ID">
-                  {getDisplayElectionHash(electionDefinition)}
+                  {getDisplayBallotHash(electionDefinition)}
                 </LabelledText>
               </P>
             </React.Fragment>

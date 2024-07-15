@@ -2,7 +2,7 @@ import {
   Election,
   ElectionDefinition,
   PrecinctSelection,
-  getDisplayElectionHash,
+  getDisplayBallotHash,
   getPrecinctById,
 } from '@votingworks/types';
 import { assert } from '@votingworks/basics';
@@ -65,7 +65,7 @@ export function ConfigurationSection({
       <H2>Configuration</H2>
       <P>
         <SuccessIcon /> Election: {election.title},{' '}
-        {getDisplayElectionHash(electionDefinition)}
+        {getDisplayBallotHash(electionDefinition)}
       </P>
       {expectPrecinctSelection &&
         (precinctSelection ? (

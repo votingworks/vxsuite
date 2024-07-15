@@ -4,7 +4,7 @@ import {
   ElectionDefinition,
   LanguageCode,
   getContests,
-  getDisplayElectionHash,
+  getDisplayBallotHash,
 } from '@votingworks/types';
 import { format } from '@votingworks/utils';
 import React from 'react';
@@ -110,7 +110,7 @@ export function BallotStyleReadinessReport(
         additionalMetadata={[
           {
             label: 'Election',
-            value: `${election.title}, ${getDisplayElectionHash(
+            value: `${election.title}, ${getDisplayBallotHash(
               electionDefinition
             )}`,
           },

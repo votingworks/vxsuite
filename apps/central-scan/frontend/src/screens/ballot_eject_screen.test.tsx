@@ -4,7 +4,7 @@ import {
   BallotMetadata,
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
-  getDisplayElectionHash,
+  getDisplayBallotHash,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { typedAs } from '@votingworks/basics';
@@ -583,7 +583,7 @@ test('shows invalid election screen when appropriate', async () => {
   getByText(hasTextAcrossElements('Ballot Election IDthis-is-a-'));
   getByText(
     hasTextAcrossElements(
-      `Scanner Election ID${getDisplayElectionHash(electionGeneralDefinition)}`
+      `Scanner Election ID${getDisplayBallotHash(electionGeneralDefinition)}`
     )
   );
   expect(queryAllByText('Tabulate as is').length).toEqual(0);

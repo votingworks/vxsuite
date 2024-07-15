@@ -9,7 +9,7 @@ import {
   getContestDistrictName,
   getContests,
   getContestsFromIds,
-  getDisplayElectionHash,
+  getDisplayBallotHash,
   getDistrictIdsForPartyId,
   getPartyAbbreviationByPartyId,
   getPartyFullNameFromBallotStyle,
@@ -525,12 +525,12 @@ test('BallotStyleSchema with ballot style languages', () => {
   ).toEqual(ballotStyle);
 });
 
-test('getDisplayElectionHash', () => {
+test('getDisplayBallotHash', () => {
   const electionDefinition = safeParseElectionDefinition(
     JSON.stringify(election)
   ).unsafeUnwrap();
   expect(electionDefinition.ballotHash).toContain(
-    getDisplayElectionHash(electionDefinition)
+    getDisplayBallotHash(electionDefinition)
   );
 });
 
