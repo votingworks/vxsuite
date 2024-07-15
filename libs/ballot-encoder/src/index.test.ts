@@ -15,7 +15,7 @@ import '../test/expect';
 import { BitReader, BitWriter, toUint8 } from './bits';
 import {
   decodeBallot,
-  decodeElectionHash,
+  decodeBallotHash,
   isVxBallot,
   BALLOT_HASH_ENCODING_LENGTH,
   encodeBallot,
@@ -27,7 +27,7 @@ import {
   sliceBallotHashForEncoding,
   encodeBallotConfigInto,
   encodeHmpbBallotPageMetadata,
-  decodeElectionHashFromReader,
+  decodeBallotHashFromReader,
   decodeBallotConfigFromReader,
 } from './index';
 
@@ -918,13 +918,13 @@ test('decode election hash from BMD metadata', () => {
     ballotType: BallotType.Precinct,
   };
 
-  expect(decodeElectionHash(encodeBallot(election, ballot))).toEqual(
+  expect(decodeBallotHash(encodeBallot(election, ballot))).toEqual(
     ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH)
   );
 });
 
 test('fails to find the election hash with garbage data', () => {
-  expect(decodeElectionHash(Uint8Array.of(1, 2, 3))).toBeUndefined();
+  expect(decodeBallotHash(Uint8Array.of(1, 2, 3))).toBeUndefined();
 });
 
 test('encode HMPB ballot page metadata', () => {
@@ -942,7 +942,7 @@ test('encode HMPB ballot page metadata', () => {
 
   const { ballotHash, ...ballotConfig } = ballotMetadata;
   const reader = new BitReader(encoded);
-  expect(decodeElectionHashFromReader(reader)).toEqual(
+  expect(decodeBallotHashFromReader(reader)).toEqual(
     sliceBallotHashForEncoding(ballotHash)
   );
   expect(

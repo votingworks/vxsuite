@@ -9,7 +9,7 @@ import {
 import {
   BALLOT_HASH_ENCODING_LENGTH,
   decodeBallot,
-  decodeElectionHash,
+  decodeBallotHash,
 } from '@votingworks/ballot-encoder';
 import { DetectQrCodeError, detectInBallot } from './utils/qrcode';
 import { DetectedQrCode } from './types';
@@ -61,7 +61,7 @@ export async function interpret(
   }
 
   const foundQrCode = (frontResult.ok() ?? backResult.ok()) as DetectedQrCode;
-  const actualBallotHash = decodeElectionHash(foundQrCode.data);
+  const actualBallotHash = decodeBallotHash(foundQrCode.data);
   const expectedBallotHash = electionDefinition.ballotHash.slice(
     0,
     BALLOT_HASH_ENCODING_LENGTH

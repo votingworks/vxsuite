@@ -499,9 +499,9 @@ export function decodeBallot(
 }
 
 /**
- * Reads the election hash from an encoded BMD ballot metadata.
+ * Reads the ballot hash from an encoded BMD ballot metadata.
  */
-export function decodeElectionHashFromReader(
+export function decodeBallotHashFromReader(
   bits: BitReader
 ): string | undefined {
   if (bits.skipUint8(...BmdPrelude) || bits.skipUint8(...HmpbPrelude)) {
@@ -513,10 +513,10 @@ export function decodeElectionHashFromReader(
 }
 
 /**
- * Reads the election hash from an encoded ballot metadata.
+ * Reads the ballot hash from an encoded ballot metadata.
  */
-export function decodeElectionHash(data: Uint8Array): string | undefined {
-  return decodeElectionHashFromReader(new BitReader(data));
+export function decodeBallotHash(data: Uint8Array): string | undefined {
+  return decodeBallotHashFromReader(new BitReader(data));
 }
 
 /**
