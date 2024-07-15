@@ -8,7 +8,6 @@ export interface AppContextInterface {
   usbDriveStatus: UsbDriveStatus;
   machineConfig: MachineConfig;
   electionDefinition?: ElectionDefinition;
-  electionHash?: string;
   isTestMode: boolean;
   auth: DippedSmartCardAuth.AuthStatus;
   logger: BaseLogger;
@@ -21,7 +20,6 @@ const appContext: AppContextInterface = {
     codeVersion: '',
   },
   electionDefinition: undefined,
-  electionHash: undefined,
   logger: new BaseLogger(LogSource.VxCentralScanFrontend),
   isTestMode: false,
   auth: {
