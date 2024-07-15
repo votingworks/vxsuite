@@ -42,11 +42,6 @@ export enum BooleanEnvironmentVariableName {
    */
   SKIP_CVR_BALLOT_HASH_CHECK = 'REACT_APP_VX_SKIP_CVR_BALLOT_HASH_CHECK',
   /**
-   * Skips election hash checks when scanning to allow using old fixtures in
-   * development even as their respective election definitions change.
-   */
-  SKIP_SCAN_ELECTION_HASH_CHECK = 'REACT_APP_VX_SKIP_SCAN_ELECTION_HASH_CHECK',
-  /**
    * Skips authentication (i.e. signature verification) of election packages on import
    */
   SKIP_ELECTION_PACKAGE_AUTHENTICATION = 'REACT_APP_VX_SKIP_ELECTION_PACKAGE_AUTHENTICATION',
@@ -159,8 +154,6 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_USE_MOCK_PRINTER;
     case BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK:
       return process.env.REACT_APP_VX_SKIP_CVR_BALLOT_HASH_CHECK;
-    case BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK:
-      return process.env.REACT_APP_VX_SKIP_SCAN_ELECTION_HASH_CHECK;
     case BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION:
       return process.env.REACT_APP_VX_SKIP_ELECTION_PACKAGE_AUTHENTICATION;
     case BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION:
@@ -255,12 +248,6 @@ export function getBooleanEnvVarConfig(
         autoEnableInDevelopment: false,
       };
     case BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK:
-      return {
-        name,
-        allowInProduction: false,
-        autoEnableInDevelopment: false,
-      };
-    case BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK:
       return {
         name,
         allowInProduction: false,

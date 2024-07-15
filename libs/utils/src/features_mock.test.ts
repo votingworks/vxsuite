@@ -11,7 +11,7 @@ test('getFeatureFlagMock allows mocking a flag', () => {
     expect(isFeatureFlagEnabled(flag)).toEqual(isFeatureFlagEnabledMock(flag));
   }
 
-  const testFlag = BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK;
+  const testFlag = BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK;
   expect(isFeatureFlagEnabled(testFlag)).toEqual(false);
 
   // enable
@@ -35,7 +35,7 @@ test('resetFeatureFlags can reset all flags at once', () => {
   const isFeatureFlagEnabledMock = featureFlagMock.isEnabled;
 
   const testFlag1 =
-    BooleanEnvironmentVariableName.SKIP_SCAN_ELECTION_HASH_CHECK;
+    BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION;
   const testFlag2 = BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK;
   expect(isFeatureFlagEnabledMock(testFlag1)).toEqual(false);
   expect(isFeatureFlagEnabledMock(testFlag2)).toEqual(false);
