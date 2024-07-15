@@ -18,7 +18,7 @@ export enum ValidationErrorType {
   InvalidFrontBackPageTypes = 'InvalidFrontBackPageTypes',
   MismatchedBallotStyle = 'MismatchedBallotStyle',
   MismatchedBallotType = 'MismatchedBallotType',
-  MismatchedElectionHash = 'MismatchedElectionHash',
+  MismatchedBallotHash = 'MismatchedBallotHash',
   MismatchedPrecinct = 'MismatchedPrecinct',
   NonConsecutivePages = 'NonConsecutivePages',
 }
@@ -41,7 +41,7 @@ export type ValidationError =
       ballotTypes: SheetOf<BallotType>;
     }
   | {
-      type: ValidationErrorType.MismatchedElectionHash;
+      type: ValidationErrorType.MismatchedBallotHash;
       ballotHashes: SheetOf<ElectionDefinition['ballotHash']>;
     }
   | {
@@ -114,7 +114,7 @@ export function validateSheetInterpretation([
 
     if (front.metadata.ballotHash !== back.metadata.ballotHash) {
       return err({
-        type: ValidationErrorType.MismatchedElectionHash,
+        type: ValidationErrorType.MismatchedBallotHash,
         ballotHashes: [front.metadata.ballotHash, back.metadata.ballotHash],
       });
     }
@@ -150,7 +150,7 @@ export function describeValidationError(
       return `expected a sheet to have the same ballot type, but got front=${front} back=${back}`;
     }
 
-    case ValidationErrorType.MismatchedElectionHash: {
+    case ValidationErrorType.MismatchedBallotHash: {
       const [front, back] = validationError.ballotHashes;
       return `expected a sheet to have the same election hash, but got front=${front} back=${back}`;
     }

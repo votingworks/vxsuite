@@ -161,7 +161,7 @@ test('HMPB ballot with mismatched election', () => {
   ]).unsafeUnwrapErr();
 
   expect(error).toEqual<ValidationError>({
-    type: ValidationErrorType.MismatchedElectionHash,
+    type: ValidationErrorType.MismatchedBallotHash,
     ballotHashes: ['abc', 'def'],
   });
   expect(describeValidationError(error)).toEqual(
