@@ -1,4 +1,4 @@
-import { sliceElectionHash } from '@votingworks/ballot-encoder';
+import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import {
   electionFamousNames2021Fixtures,
   electionGeneralDefinition,
@@ -149,7 +149,9 @@ describe('VX BMD interpretation', () => {
       interpretationResult[0].interpretation
     ).toEqual<InvalidBallotHashPage>({
       type: 'InvalidBallotHashPage',
-      actualBallotHash: sliceElectionHash(electionDefinition.ballotHash),
+      actualBallotHash: sliceBallotHashForEncoding(
+        electionDefinition.ballotHash
+      ),
       expectedBallotHash: 'd34db33f',
     });
   });

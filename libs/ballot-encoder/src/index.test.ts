@@ -17,14 +17,14 @@ import {
   decodeBallot,
   decodeElectionHash,
   isVxBallot,
-  ELECTION_HASH_LENGTH,
+  BALLOT_HASH_ENCODING_LENGTH,
   encodeBallot,
   encodeBallotInto,
   HexEncoding,
   MAXIMUM_WRITE_IN_LENGTH,
   BmdPrelude,
   WriteInEncoding,
-  sliceElectionHash,
+  sliceBallotHashForEncoding,
   encodeBallotConfigInto,
   encodeHmpbBallotPageMetadata,
   decodeElectionHashFromReader,
@@ -39,8 +39,8 @@ function falses(count: number): boolean[] {
   return Array.from({ length: count }, () => false);
 }
 
-test('sliceElectionHash', () => {
-  expect(sliceElectionHash('0000000000000000000000000')).toEqual(
+test('sliceBallotHashForEncoding', () => {
+  expect(sliceBallotHashForEncoding('0000000000000000000000000')).toEqual(
     '00000000000000000000'
   );
 });
@@ -73,7 +73,7 @@ test('encodes & decodes with Uint8Array as the standard encoding interface', () 
 
   expect(decodeBallot(election, encodeBallot(election, ballot))).toEqual({
     ...ballot,
-    electionHash: ballotHash.slice(0, ELECTION_HASH_LENGTH),
+    electionHash: ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH),
   });
 });
 
@@ -100,10 +100,10 @@ test('encodes & decodes empty votes correctly', () => {
     .writeString('VX', { includeLength: false, length: 2 })
     .writeUint8(2)
     // election hash
-    .writeString(ballotHash.slice(0, ELECTION_HASH_LENGTH), {
+    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       encoding: HexEncoding,
       includeLength: false,
-      length: ELECTION_HASH_LENGTH,
+      length: BALLOT_HASH_ENCODING_LENGTH,
     })
     // check data
     .writeUint8(
@@ -130,7 +130,7 @@ test('encodes & decodes empty votes correctly', () => {
   expect(encodeBallot(election, ballot)).toEqualBits(encodedBallot);
   expect(decodeBallot(election, encodedBallot)).toEqual({
     ...ballot,
-    electionHash: ballotHash.slice(0, ELECTION_HASH_LENGTH),
+    electionHash: ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH),
   });
 });
 
@@ -155,10 +155,10 @@ test('encodes & decodes without a ballot id', () => {
     .writeString('VX', { includeLength: false, length: 2 })
     .writeUint8(2)
     // election hash
-    .writeString(ballotHash.slice(0, ELECTION_HASH_LENGTH), {
+    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       encoding: HexEncoding,
       includeLength: false,
-      length: ELECTION_HASH_LENGTH,
+      length: BALLOT_HASH_ENCODING_LENGTH,
     })
     // check data
     .writeUint8(
@@ -183,7 +183,7 @@ test('encodes & decodes without a ballot id', () => {
   expect(encodeBallot(election, ballot)).toEqualBits(encodedBallot);
   expect(decodeBallot(election, encodedBallot)).toEqual({
     ...ballot,
-    electionHash: ballotHash.slice(0, ELECTION_HASH_LENGTH),
+    electionHash: ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH),
   });
 });
 
@@ -210,10 +210,10 @@ test('encodes & decodes whether it is a test ballot', () => {
     .writeString('VX', { includeLength: false, length: 2 })
     .writeUint8(2)
     // election hash
-    .writeString(ballotHash.slice(0, ELECTION_HASH_LENGTH), {
+    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       encoding: HexEncoding,
       includeLength: false,
-      length: ELECTION_HASH_LENGTH,
+      length: BALLOT_HASH_ENCODING_LENGTH,
     })
     // check data
     .writeUint8(
@@ -240,7 +240,7 @@ test('encodes & decodes whether it is a test ballot', () => {
   expect(encodeBallot(election, ballot)).toEqualBits(encodedBallot);
   expect(decodeBallot(election, encodedBallot)).toEqual({
     ...ballot,
-    electionHash: ballotHash.slice(0, ELECTION_HASH_LENGTH),
+    electionHash: ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH),
   });
 });
 
@@ -270,10 +270,10 @@ test('encodes & decodes the ballot type', () => {
     .writeString('VX', { includeLength: false, length: 2 })
     .writeUint8(2)
     // election hash
-    .writeString(ballotHash.slice(0, ELECTION_HASH_LENGTH), {
+    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       encoding: HexEncoding,
       includeLength: false,
-      length: ELECTION_HASH_LENGTH,
+      length: BALLOT_HASH_ENCODING_LENGTH,
     })
     // check data
     .writeUint8(
@@ -300,7 +300,7 @@ test('encodes & decodes the ballot type', () => {
   expect(encodeBallot(election, ballot)).toEqualBits(encodedBallot);
   expect(decodeBallot(election, encodedBallot)).toEqual({
     ...ballot,
-    electionHash: ballotHash.slice(0, ELECTION_HASH_LENGTH),
+    electionHash: ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH),
   });
 });
 
@@ -336,10 +336,10 @@ test('encodes & decodes yesno votes correctly', () => {
     .writeString('VX', { includeLength: false, length: 2 })
     .writeUint8(2)
     // election hash
-    .writeString(ballotHash.slice(0, ELECTION_HASH_LENGTH), {
+    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       encoding: HexEncoding,
       includeLength: false,
-      length: ELECTION_HASH_LENGTH,
+      length: BALLOT_HASH_ENCODING_LENGTH,
     })
     // check data
     .writeUint8(
@@ -491,10 +491,10 @@ test('throws on decoding an incorrect number of precincts', () => {
     .writeString('VX', { includeLength: false, length: 2 })
     .writeUint8(2)
     // election hash
-    .writeString(ballotHash.slice(0, ELECTION_HASH_LENGTH), {
+    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       encoding: HexEncoding,
       includeLength: false,
-      length: ELECTION_HASH_LENGTH,
+      length: BALLOT_HASH_ENCODING_LENGTH,
     })
     // check data
     .writeUint8(
@@ -532,10 +532,10 @@ test('throws on decoding an incorrect number of ballot styles', () => {
     .writeString('VX', { includeLength: false, length: 2 })
     .writeUint8(2)
     // election hash
-    .writeString(ballotHash.slice(0, ELECTION_HASH_LENGTH), {
+    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       encoding: HexEncoding,
       includeLength: false,
-      length: ELECTION_HASH_LENGTH,
+      length: BALLOT_HASH_ENCODING_LENGTH,
     })
     // check data
     .writeUint8(
@@ -573,10 +573,10 @@ test('throws on decoding an incorrect number of contests', () => {
     .writeString('VX', { includeLength: false, length: 2 })
     .writeUint8(2)
     // election hash
-    .writeString(ballotHash.slice(0, ELECTION_HASH_LENGTH), {
+    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       encoding: HexEncoding,
       includeLength: false,
-      length: ELECTION_HASH_LENGTH,
+      length: BALLOT_HASH_ENCODING_LENGTH,
     })
     // check data
     .writeUint8(
@@ -641,10 +641,10 @@ test('encodes & decodes candidate choice votes correctly', () => {
     .writeString('VX', { includeLength: false, length: 2 })
     .writeUint8(2)
     // election hash
-    .writeString(ballotHash.slice(0, ELECTION_HASH_LENGTH), {
+    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       encoding: HexEncoding,
       includeLength: false,
-      length: ELECTION_HASH_LENGTH,
+      length: BALLOT_HASH_ENCODING_LENGTH,
     })
     // check data
     .writeUint8(
@@ -702,7 +702,7 @@ test('encodes & decodes candidate choice votes correctly', () => {
   expect(encodeBallot(election, ballot)).toEqualBits(encodedBallot);
   expect(decodeBallot(election, encodedBallot)).toEqual({
     ...ballot,
-    electionHash: ballotHash.slice(0, ELECTION_HASH_LENGTH),
+    electionHash: ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH),
   });
 });
 
@@ -733,10 +733,10 @@ test('encodes & decodes write-in votes correctly', () => {
     .writeString('VX', { includeLength: false, length: 2 })
     .writeUint8(2)
     // election hash
-    .writeString(ballotHash.slice(0, ELECTION_HASH_LENGTH), {
+    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       encoding: HexEncoding,
       includeLength: false,
-      length: ELECTION_HASH_LENGTH,
+      length: BALLOT_HASH_ENCODING_LENGTH,
     })
     // check data
     .writeUint8(
@@ -774,7 +774,7 @@ test('encodes & decodes write-in votes correctly', () => {
   expect(encodeBallot(election, ballot)).toEqualBits(encodedBallot);
   expect(decodeBallot(election, encodedBallot)).toEqual({
     ...ballot,
-    electionHash: ballotHash.slice(0, ELECTION_HASH_LENGTH),
+    electionHash: ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH),
   });
 });
 
@@ -919,7 +919,7 @@ test('decode election hash from BMD metadata', () => {
   };
 
   expect(decodeElectionHash(encodeBallot(election, ballot))).toEqual(
-    ballotHash.slice(0, ELECTION_HASH_LENGTH)
+    ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH)
   );
 });
 
@@ -943,7 +943,7 @@ test('encode HMPB ballot page metadata', () => {
   const { ballotHash, ...ballotConfig } = ballotMetadata;
   const reader = new BitReader(encoded);
   expect(decodeElectionHashFromReader(reader)).toEqual(
-    sliceElectionHash(ballotHash)
+    sliceBallotHashForEncoding(ballotHash)
   );
   expect(
     decodeBallotConfigFromReader(election, reader, { readPageNumber: true })

@@ -1,4 +1,4 @@
-import { sliceElectionHash } from '@votingworks/ballot-encoder';
+import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import {
   Result,
   throwIllegalValue,
@@ -536,13 +536,14 @@ function validateInterpretResults(
     // metadata.ballotHash may be a sliced hash or a full hash, so we need to
     // slice both hashes before comparing them.
     if (
-      sliceElectionHash(metadata.ballotHash) !== sliceElectionHash(ballotHash)
+      sliceBallotHashForEncoding(metadata.ballotHash) !==
+      sliceBallotHashForEncoding(ballotHash)
     ) {
       return {
         interpretation: typedAs<InvalidBallotHashPage>({
           type: 'InvalidBallotHashPage',
-          expectedBallotHash: sliceElectionHash(ballotHash),
-          actualBallotHash: sliceElectionHash(metadata.ballotHash),
+          expectedBallotHash: sliceBallotHashForEncoding(ballotHash),
+          actualBallotHash: sliceBallotHashForEncoding(metadata.ballotHash),
         }),
         normalizedImage,
       };

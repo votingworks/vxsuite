@@ -1,4 +1,4 @@
-import { sliceElectionHash } from '@votingworks/ballot-encoder';
+import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import { assert, err } from '@votingworks/basics';
 import {
   electionFamousNames2021Fixtures,
@@ -102,11 +102,11 @@ test('mismatched election', async () => {
   expect(result).toEqual<InterpretResult>(
     err({
       type: 'mismatched-election',
-      expectedBallotHash: sliceElectionHash(
+      expectedBallotHash: sliceBallotHashForEncoding(
         electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
           .ballotHash
       ),
-      actualBallotHash: sliceElectionHash(
+      actualBallotHash: sliceBallotHashForEncoding(
         electionFamousNames2021Fixtures.electionDefinition.ballotHash
       ),
     })

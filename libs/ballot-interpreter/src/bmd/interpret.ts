@@ -7,7 +7,7 @@ import {
   mapSheet,
 } from '@votingworks/types';
 import {
-  ELECTION_HASH_LENGTH,
+  BALLOT_HASH_ENCODING_LENGTH,
   decodeBallot,
   decodeElectionHash,
 } from '@votingworks/ballot-encoder';
@@ -64,7 +64,7 @@ export async function interpret(
   const actualBallotHash = decodeElectionHash(foundQrCode.data);
   const expectedBallotHash = electionDefinition.ballotHash.slice(
     0,
-    ELECTION_HASH_LENGTH
+    BALLOT_HASH_ENCODING_LENGTH
   );
 
   if (actualBallotHash !== expectedBallotHash) {
