@@ -168,7 +168,7 @@ function buildApi({ workspace, translator }: AppContext) {
     async exportAllBallots(input: {
       electionId: Id;
       electionSerializationFormat: ElectionSerializationFormat;
-    }): Promise<{ zipContents: Buffer; electionHash: string }> {
+    }): Promise<{ zipContents: Buffer; ballotHash: string }> {
       const { election, ballotLanguageConfigs } = store.getElection(
         input.electionId
       );
@@ -236,7 +236,7 @@ function buildApi({ workspace, translator }: AppContext) {
 
       return {
         zipContents: await zip.generateAsync({ type: 'nodebuffer' }),
-        electionHash: assertDefined(electionDefinition.ballotHash),
+        ballotHash: assertDefined(electionDefinition.ballotHash),
       };
     },
 
@@ -290,7 +290,7 @@ function buildApi({ workspace, translator }: AppContext) {
     async exportTestDecks(input: {
       electionId: Id;
       electionSerializationFormat: ElectionSerializationFormat;
-    }): Promise<{ zipContents: Buffer; electionHash: string }> {
+    }): Promise<{ zipContents: Buffer; ballotHash: string }> {
       const { election, ballotLanguageConfigs } = store.getElection(
         input.electionId
       );
@@ -354,7 +354,7 @@ function buildApi({ workspace, translator }: AppContext) {
 
       return {
         zipContents: await zip.generateAsync({ type: 'nodebuffer' }),
-        electionHash: electionDefinition.ballotHash,
+        ballotHash: electionDefinition.ballotHash,
       };
     },
   });

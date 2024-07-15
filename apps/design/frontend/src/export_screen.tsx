@@ -62,11 +62,11 @@ export function ExportScreen(): JSX.Element | null {
     exportAllBallotsMutation.mutate(
       { electionId, electionSerializationFormat },
       {
-        onSuccess: ({ zipContents, electionHash }) => {
+        onSuccess: ({ zipContents, ballotHash }) => {
           fileDownload(
             zipContents,
             `ballots-${getDisplayBallotHash({
-              ballotHash: electionHash,
+              ballotHash,
             })}.zip`
           );
         },
@@ -79,11 +79,11 @@ export function ExportScreen(): JSX.Element | null {
     exportTestDecksMutation.mutate(
       { electionId, electionSerializationFormat },
       {
-        onSuccess: ({ zipContents, electionHash }) => {
+        onSuccess: ({ zipContents, ballotHash }) => {
           fileDownload(
             zipContents,
             `test-decks-${getDisplayBallotHash({
-              ballotHash: electionHash,
+              ballotHash,
             })}.zip`
           );
         },
