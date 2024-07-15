@@ -13,7 +13,7 @@ import {
 } from '@votingworks/test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  electionAuthKey,
+  constructElectionKey,
   ElectionManagerUser,
   PollWorkerUser,
   SystemAdministratorUser,
@@ -25,8 +25,8 @@ import { buildApp } from '../../../test/helpers/build_app';
 import { screen, waitFor, within } from '../../../test/react_testing_library';
 
 const electionDefinition = electionGeneralDefinition;
-const electionKey = electionAuthKey(electionDefinition.election);
-const otherElectionKey = electionAuthKey(electionTwoPartyPrimary);
+const electionKey = constructElectionKey(electionDefinition.election);
+const otherElectionKey = constructElectionKey(electionTwoPartyPrimary);
 
 let apiMock: ApiMock;
 

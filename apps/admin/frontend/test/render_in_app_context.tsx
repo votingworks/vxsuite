@@ -6,7 +6,7 @@ import { electionWithMsEitherNeitherDefinition } from '@votingworks/fixtures';
 import {
   ElectionDefinition,
   DippedSmartCardAuth,
-  electionAuthKey,
+  constructElectionKey,
 } from '@votingworks/types';
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -97,7 +97,7 @@ export function renderInAppContext(
       : {
           status: 'logged_in',
           user: mockElectionManagerUser({
-            electionKey: electionAuthKey(electionDefinition.election),
+            electionKey: constructElectionKey(electionDefinition.election),
           }),
           sessionExpiresAt: mockSessionExpiresAt(),
         },

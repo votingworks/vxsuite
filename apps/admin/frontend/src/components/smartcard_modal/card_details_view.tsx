@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { assert, deepEqual } from '@votingworks/basics';
 import {
-  electionAuthKey,
+  constructElectionKey,
   ElectionDefinition,
   User,
   UserWithCard,
@@ -31,7 +31,7 @@ function checkDoesCardElectionMatchMachineElection(
   }
   return deepEqual(
     programmedUser.electionKey,
-    electionAuthKey(electionDefinition.election)
+    constructElectionKey(electionDefinition.election)
   );
 }
 

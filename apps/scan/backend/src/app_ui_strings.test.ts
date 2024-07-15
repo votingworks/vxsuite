@@ -17,7 +17,7 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import {
-  electionAuthKey,
+  constructElectionKey,
   safeParseElectionDefinition,
   testCdfBallotDefinition,
 } from '@votingworks/types';
@@ -76,7 +76,7 @@ describe('configureFromElectionPackageOnUsbDrive', () => {
       Promise.resolve({
         status: 'logged_in',
         user: mockElectionManagerUser({
-          electionKey: electionAuthKey(electionDefinition.election),
+          electionKey: constructElectionKey(electionDefinition.election),
         }),
         sessionExpiresAt: mockSessionExpiresAt(),
       })

@@ -2,7 +2,7 @@ import { DateTime } from 'luxon';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  electionAuthKey,
+  constructElectionKey,
   SystemSettings,
   TEST_JURISDICTION,
 } from '@votingworks/types';
@@ -23,7 +23,7 @@ import { PaperHandlerStateMachine } from './custom-paper-handler';
 
 const jurisdiction = TEST_JURISDICTION;
 const { election } = electionFamousNames2021Fixtures;
-const electionKey = electionAuthKey(election);
+const electionKey = constructElectionKey(election);
 const systemSettings: SystemSettings = {
   ...DEFAULT_SYSTEM_SETTINGS,
   auth: {

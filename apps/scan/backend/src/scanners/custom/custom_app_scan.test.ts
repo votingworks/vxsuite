@@ -3,7 +3,7 @@ import {
   AdjudicationReason,
   AdjudicationReasonInfo,
   DEFAULT_SYSTEM_SETTINGS,
-  electionAuthKey,
+  constructElectionKey,
   SheetInterpretation,
 } from '@votingworks/types';
 import waitForExpect from 'wait-for-expect';
@@ -560,7 +560,7 @@ test('scanning paused when election manager card is inserted', async () => {
         Promise.resolve({
           status: 'logged_in',
           user: mockElectionManagerUser({
-            electionKey: electionAuthKey(
+            electionKey: constructElectionKey(
               electionPackage.electionDefinition.election
             ),
           }),
@@ -609,7 +609,7 @@ test('scanning paused when poll worker card is inserted', async () => {
         Promise.resolve({
           status: 'logged_in',
           user: mockPollWorkerUser({
-            electionKey: electionAuthKey(
+            electionKey: constructElectionKey(
               electionPackage.electionDefinition.election
             ),
           }),

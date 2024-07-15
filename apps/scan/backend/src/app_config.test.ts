@@ -17,7 +17,7 @@ import {
 } from '@votingworks/test-utils';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { electionAuthKey, ElectionDefinition } from '@votingworks/types';
+import { constructElectionKey, ElectionDefinition } from '@votingworks/types';
 import { configureApp } from '../test/helpers/shared_helpers';
 import { withApp } from '../test/helpers/pdi_helpers';
 import { PrecinctScannerPollsInfo } from '.';
@@ -41,7 +41,7 @@ function mockElectionManager(
     Promise.resolve({
       status: 'logged_in',
       user: mockElectionManagerUser({
-        electionKey: electionAuthKey(electionDefinition.election),
+        electionKey: constructElectionKey(electionDefinition.election),
       }),
       sessionExpiresAt: mockSessionExpiresAt(),
     })

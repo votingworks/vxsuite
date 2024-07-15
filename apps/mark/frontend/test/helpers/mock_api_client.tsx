@@ -20,7 +20,7 @@ import {
   LanguageCode,
   PrinterStatus,
   PrinterConfig,
-  electionAuthKey,
+  constructElectionKey,
 } from '@votingworks/types';
 import {
   mockCardlessVoterUser,
@@ -164,7 +164,7 @@ export function createApiMock() {
       setAuthStatus({
         status: 'logged_in',
         user: mockElectionManagerUser({
-          electionKey: electionAuthKey(electionDefinition.election),
+          electionKey: constructElectionKey(electionDefinition.election),
         }),
         sessionExpiresAt: mockSessionExpiresAt(),
       });
@@ -181,7 +181,7 @@ export function createApiMock() {
       setAuthStatus({
         status: 'logged_in',
         user: mockPollWorkerUser({
-          electionKey: electionAuthKey(electionDefinition.election),
+          electionKey: constructElectionKey(electionDefinition.election),
         }),
         sessionExpiresAt: mockSessionExpiresAt(),
         cardlessVoterUser: cardlessVoterUserParams

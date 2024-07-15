@@ -23,7 +23,7 @@ import {
   DEFAULT_NUM_INCORRECT_PIN_ATTEMPTS_ALLOWED_BEFORE_CARD_LOCKOUT,
   DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS,
   DEFAULT_STARTING_CARD_LOCKOUT_DURATION_SECONDS,
-  electionAuthKey,
+  constructElectionKey,
   InsertedSmartCardAuth as InsertedSmartCardAuthTypes,
   TEST_JURISDICTION,
 } from '@votingworks/types';
@@ -76,8 +76,8 @@ afterEach(() => {
 const jurisdiction = TEST_JURISDICTION;
 const otherJurisdiction = `${TEST_JURISDICTION}-2`;
 const { election, electionData } = electionGeneralDefinition;
-const electionKey = electionAuthKey(election);
-const otherElectionKey = electionAuthKey(electionTwoPartyPrimary);
+const electionKey = constructElectionKey(election);
+const otherElectionKey = constructElectionKey(electionTwoPartyPrimary);
 const defaultConfig: InsertedSmartCardAuthConfig = {};
 const defaultMachineState: InsertedSmartCardAuthMachineState = {
   electionKey,

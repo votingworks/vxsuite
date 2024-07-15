@@ -10,7 +10,7 @@ import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
-import { electionAuthKey } from '@votingworks/types';
+import { constructElectionKey } from '@votingworks/types';
 import {
   fireEvent,
   screen,
@@ -111,7 +111,7 @@ test('configuring with an election definition', async () => {
 
 test('authentication works', async () => {
   const electionDefinition = eitherNeitherElectionDefinition;
-  const electionKey = electionAuthKey(electionDefinition.election);
+  const electionKey = constructElectionKey(electionDefinition.election);
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });
   renderApp();

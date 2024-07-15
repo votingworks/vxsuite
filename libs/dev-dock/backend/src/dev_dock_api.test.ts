@@ -18,7 +18,7 @@ import {
 } from '@votingworks/fixtures';
 import { Server } from 'http';
 import { typedAs } from '@votingworks/basics';
-import { electionAuthKey, PrinterStatus } from '@votingworks/types';
+import { constructElectionKey, PrinterStatus } from '@votingworks/types';
 import {
   getMockConnectedPrinterStatus,
   getMockFilePrinterHandler,
@@ -103,7 +103,7 @@ test('card mock endpoints', async () => {
     status: 'ready',
     cardDetails: {
       user: mockElectionManagerUser({
-        electionKey: electionAuthKey(electionGeneral),
+        electionKey: constructElectionKey(electionGeneral),
         jurisdiction: DEV_JURISDICTION,
       }),
     },
@@ -116,7 +116,7 @@ test('card mock endpoints', async () => {
     status: 'ready',
     cardDetails: {
       user: mockPollWorkerUser({
-        electionKey: electionAuthKey(electionGeneral),
+        electionKey: constructElectionKey(electionGeneral),
         jurisdiction: DEV_JURISDICTION,
       }),
       hasPin: false,
@@ -147,7 +147,9 @@ test('election setting', async () => {
     status: 'ready',
     cardDetails: {
       user: mockElectionManagerUser({
-        electionKey: electionAuthKey(electionFamousNames2021Fixtures.election),
+        electionKey: constructElectionKey(
+          electionFamousNames2021Fixtures.election
+        ),
         jurisdiction: DEV_JURISDICTION,
       }),
     },

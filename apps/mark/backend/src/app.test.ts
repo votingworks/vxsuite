@@ -23,7 +23,7 @@ import {
   PrinterStatus,
   UiStringsPackage,
   LanguageCode,
-  electionAuthKey,
+  constructElectionKey,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -74,7 +74,7 @@ function mockElectionManagerAuth(electionDefinition: ElectionDefinition) {
     Promise.resolve({
       status: 'logged_in',
       user: mockElectionManagerUser({
-        electionKey: electionAuthKey(electionDefinition.election),
+        electionKey: constructElectionKey(electionDefinition.election),
       }),
       sessionExpiresAt: mockSessionExpiresAt(),
     })
@@ -86,7 +86,7 @@ function mockPollWorkerAuth(electionDefinition: ElectionDefinition) {
     Promise.resolve({
       status: 'logged_in',
       user: mockPollWorkerUser({
-        electionKey: electionAuthKey(electionDefinition.election),
+        electionKey: constructElectionKey(electionDefinition.election),
       }),
       sessionExpiresAt: mockSessionExpiresAt(),
     })

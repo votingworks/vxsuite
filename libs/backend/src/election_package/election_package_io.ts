@@ -41,7 +41,7 @@ import {
   mergeUiStrings,
   UiStringAudioIdsPackage,
   safeParseElectionDefinition,
-  electionAuthKey,
+  constructElectionKey,
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { UsbDrive } from '@votingworks/usb-drive';
@@ -338,7 +338,7 @@ export async function readSignedElectionPackageFromUsb(
   const electionPackage = (
     await readElectionPackageFromFile(filepathResult.ok())
   ).unsafeUnwrap();
-  const electionKey = electionAuthKey(
+  const electionKey = constructElectionKey(
     electionPackage.electionDefinition.election
   );
 

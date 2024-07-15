@@ -9,7 +9,7 @@ import {
 } from '@votingworks/test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  electionAuthKey,
+  constructElectionKey,
   ElectionDefinition,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
@@ -20,7 +20,7 @@ import { ApiMock, createApiMock } from '../test/api';
 import { mockBatch, mockStatus } from '../test/fixtures';
 
 const electionDefinition = electionGeneralDefinition;
-const electionKey = electionAuthKey(electionDefinition.election);
+const electionKey = constructElectionKey(electionDefinition.election);
 
 let apiMock: ApiMock;
 
@@ -90,7 +90,7 @@ export async function authenticateAsElectionManager(
   apiMock.setAuthStatus({
     status: 'logged_in',
     user: mockElectionManagerUser({
-      electionKey: electionAuthKey(electionDefinition.election),
+      electionKey: constructElectionKey(electionDefinition.election),
     }),
     sessionExpiresAt: mockSessionExpiresAt(),
   });

@@ -4,7 +4,7 @@ import {
   mockSessionExpiresAt,
   mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
-import { DippedSmartCardAuth, electionAuthKey } from '@votingworks/types';
+import { DippedSmartCardAuth, constructElectionKey } from '@votingworks/types';
 import { mockUsbDriveStatus } from '@votingworks/ui';
 import { ok } from '@votingworks/basics';
 import {
@@ -95,7 +95,9 @@ describe('as Election Manager', () => {
   const auth: DippedSmartCardAuth.ElectionManagerLoggedIn = {
     status: 'logged_in',
     user: mockElectionManagerUser({
-      electionKey: electionAuthKey(eitherNeitherElectionDefinition.election),
+      electionKey: constructElectionKey(
+        eitherNeitherElectionDefinition.election
+      ),
     }),
     sessionExpiresAt: mockSessionExpiresAt(),
   };

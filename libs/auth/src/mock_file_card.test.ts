@@ -8,7 +8,7 @@ import {
   mockVendorUser,
 } from '@votingworks/test-utils';
 
-import { electionAuthKey } from '@votingworks/types';
+import { constructElectionKey } from '@votingworks/types';
 import {
   deserializeMockFileContents,
   MOCK_FILE_PATH,
@@ -18,7 +18,7 @@ import {
   serializeMockFileContents,
 } from './mock_file_card';
 
-const electionKey = electionAuthKey(electionGeneral);
+const electionKey = constructElectionKey(electionGeneral);
 const pin = '123456';
 const wrongPin = '234567';
 

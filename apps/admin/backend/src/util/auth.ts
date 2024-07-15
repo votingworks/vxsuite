@@ -7,7 +7,7 @@ import {
 import { isIntegrationTest } from '@votingworks/utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  electionAuthKey,
+  constructElectionKey,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import { LoggingUserRole } from '@votingworks/logging';
@@ -44,7 +44,9 @@ export function constructAuthMachineState(
   const systemSettings = workspace.store.getSystemSettings(electionRecord.id);
   return {
     ...systemSettings.auth,
-    electionKey: electionAuthKey(electionRecord.electionDefinition.election),
+    electionKey: constructElectionKey(
+      electionRecord.electionDefinition.election
+    ),
     jurisdiction,
   };
 }

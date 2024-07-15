@@ -9,7 +9,7 @@ import {
 } from '@votingworks/test-utils';
 import {
   CardlessVoterUser,
-  electionAuthKey,
+  constructElectionKey,
   ElectionDefinition,
 } from '@votingworks/types';
 
@@ -40,7 +40,7 @@ export function mockElectionManagerAuth(
     Promise.resolve({
       status: 'logged_in',
       user: mockElectionManagerUser({
-        electionKey: electionAuthKey(electionDefinition.election),
+        electionKey: constructElectionKey(electionDefinition.election),
       }),
       sessionExpiresAt: mockSessionExpiresAt(),
     })
@@ -55,7 +55,7 @@ export function mockPollWorkerAuth(
     Promise.resolve({
       status: 'logged_in',
       user: mockPollWorkerUser({
-        electionKey: electionAuthKey(electionDefinition.election),
+        electionKey: constructElectionKey(electionDefinition.election),
       }),
       sessionExpiresAt: mockSessionExpiresAt(),
     })

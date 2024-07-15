@@ -14,7 +14,7 @@ import {
   PrecinctScannerState,
   SheetOf,
   asSheet,
-  electionAuthKey,
+  constructElectionKey,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
@@ -87,7 +87,7 @@ export async function configureApp(
     Promise.resolve({
       status: 'logged_in',
       user: mockElectionManagerUser({
-        electionKey: electionAuthKey(
+        electionKey: constructElectionKey(
           electionPackage.electionDefinition.election
         ),
       }),

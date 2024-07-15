@@ -9,14 +9,14 @@ import {
 } from '@votingworks/test-utils';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
-import { electionAuthKey, TEST_JURISDICTION } from '@votingworks/types';
+import { constructElectionKey, TEST_JURISDICTION } from '@votingworks/types';
 import { doesUsbDriveRequireCastVoteRecordSync } from '@votingworks/backend';
 import { isReadyToScan } from './app_flow';
 import { Store } from './store';
 import { BALLOT_BAG_CAPACITY } from './globals';
 
 const electionDefinition = electionGeneralDefinition;
-const electionKey = electionAuthKey(electionDefinition.election);
+const electionKey = constructElectionKey(electionDefinition.election);
 
 jest.mock('@votingworks/backend', () => ({
   ...jest.requireActual('@votingworks/backend'),

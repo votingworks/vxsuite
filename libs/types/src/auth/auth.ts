@@ -20,7 +20,7 @@ export interface ElectionKey {
 /**
  * Create an {@link ElectionKey} from an {@link Election}.
  */
-export function electionAuthKey(election: Election): ElectionKey {
+export function constructElectionKey(election: Election): ElectionKey {
   return {
     id: election.id,
     date: election.date,

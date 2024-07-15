@@ -3,7 +3,7 @@ import {
   electionGeneralDefinition,
 } from '@votingworks/fixtures';
 import {
-  electionAuthKey,
+  constructElectionKey,
   ElectionDefinition,
   InsertedSmartCardAuth,
   LanguageCode,
@@ -52,7 +52,7 @@ function mockPollWorkerAuth(
   return {
     status: 'logged_in',
     user: mockPollWorkerUser({
-      electionKey: electionAuthKey(electionDefinition.election),
+      electionKey: constructElectionKey(electionDefinition.election),
     }),
     sessionExpiresAt: mockSessionExpiresAt(),
   };

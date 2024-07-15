@@ -4,7 +4,7 @@ import path from 'path';
 import yargs from 'yargs/yargs';
 import { extractErrorMessage } from '@votingworks/basics';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
-import { electionAuthKey, TEST_JURISDICTION } from '@votingworks/types';
+import { constructElectionKey, TEST_JURISDICTION } from '@votingworks/types';
 
 import { CardDetails } from '../../src/card';
 import {
@@ -176,7 +176,7 @@ async function generateDevKeysAndCerts({
     );
 
     const { election } = electionFamousNames2021Fixtures.electionDefinition;
-    const electionKey = electionAuthKey(election);
+    const electionKey = constructElectionKey(election);
     const cardConfigs: Array<{ cardType: CardType; cardDetails: CardDetails }> =
       [
         {

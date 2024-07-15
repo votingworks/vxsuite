@@ -1,7 +1,7 @@
 import { DippedSmartCardAuthApi } from '@votingworks/auth';
 import { mockSessionExpiresAt } from '@votingworks/test-utils';
 import {
-  electionAuthKey,
+  constructElectionKey,
   ElectionDefinition,
   TEST_JURISDICTION,
 } from '@votingworks/types';
@@ -16,7 +16,7 @@ export function mockElectionManagerAuth(
     user: {
       role: 'election_manager',
       jurisdiction,
-      electionKey: electionAuthKey(electionDefinition.election),
+      electionKey: constructElectionKey(electionDefinition.election),
     },
     sessionExpiresAt: mockSessionExpiresAt(),
   });

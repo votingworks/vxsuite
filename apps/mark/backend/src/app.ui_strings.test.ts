@@ -7,7 +7,7 @@ import {
 } from '@votingworks/backend';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import {
-  electionAuthKey,
+  constructElectionKey,
   safeParseElectionDefinition,
   testCdfBallotDefinition,
 } from '@votingworks/types';
@@ -81,7 +81,7 @@ describe('configureElectionPackageFromUsb', () => {
       Promise.resolve({
         status: 'logged_in',
         user: mockElectionManagerUser({
-          electionKey: electionAuthKey(electionDefinition.election),
+          electionKey: constructElectionKey(electionDefinition.election),
         }),
         sessionExpiresAt: mockSessionExpiresAt(),
       })

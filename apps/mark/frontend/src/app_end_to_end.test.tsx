@@ -5,7 +5,10 @@ import {
 } from '@votingworks/test-utils';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { mockBaseLogger } from '@votingworks/logging';
-import { electionAuthKey, getContestDistrictName } from '@votingworks/types';
+import {
+  constructElectionKey,
+  getContestDistrictName,
+} from '@votingworks/types';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 import { render, screen, waitFor, within } from '../test/react_testing_library';
 import * as GLOBALS from './config/globals';
@@ -41,7 +44,7 @@ jest.setTimeout(60_000);
 test('MarkAndPrint end-to-end flow', async () => {
   const logger = mockBaseLogger();
   const electionDefinition = electionGeneralDefinition;
-  const electionKey = electionAuthKey(electionDefinition.election);
+  const electionKey = constructElectionKey(electionDefinition.election);
   apiMock.expectGetMachineConfig({
     screenOrientation: 'portrait',
   });

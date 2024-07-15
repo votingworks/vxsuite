@@ -10,7 +10,7 @@ import * as grout from '@votingworks/grout';
 import { Logger } from '@votingworks/logging';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  electionAuthKey,
+  constructElectionKey,
   SystemSettings,
   TEST_JURISDICTION,
 } from '@votingworks/types';
@@ -62,7 +62,7 @@ afterEach(() => {
 const jurisdiction = TEST_JURISDICTION;
 const { electionDefinition } = electionGridLayoutNewHampshireTestBallotFixtures;
 const { electionData, election } = electionDefinition;
-const electionKey = electionAuthKey(election);
+const electionKey = constructElectionKey(election);
 const systemSettings: SystemSettings = {
   ...DEFAULT_SYSTEM_SETTINGS,
   auth: {

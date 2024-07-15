@@ -11,7 +11,11 @@ import {
   mockOf,
   mockVendorUser,
 } from '@votingworks/test-utils';
-import { Byte, electionAuthKey, TEST_JURISDICTION } from '@votingworks/types';
+import {
+  Byte,
+  constructElectionKey,
+  TEST_JURISDICTION,
+} from '@votingworks/types';
 
 import {
   getTestFilePath,
@@ -85,7 +89,9 @@ afterEach(() => {
   mockCardReader.transmit.assertComplete();
 });
 
-const electionKey = electionAuthKey(electionFamousNames2021Fixtures.election);
+const electionKey = constructElectionKey(
+  electionFamousNames2021Fixtures.election
+);
 const vendorUser = mockVendorUser();
 const systemAdministratorUser = mockSystemAdministratorUser();
 const electionManagerUser = mockElectionManagerUser({ electionKey });

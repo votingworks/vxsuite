@@ -23,7 +23,7 @@ import {
 } from '@votingworks/test-utils';
 import {
   DEFAULT_SYSTEM_SETTINGS,
-  electionAuthKey,
+  constructElectionKey,
   SystemSettings,
   TEST_JURISDICTION,
 } from '@votingworks/types';
@@ -157,7 +157,7 @@ export async function configureApp(
     Promise.resolve({
       status: 'logged_in',
       user: mockElectionManagerUser({
-        electionKey: electionAuthKey(election),
+        electionKey: constructElectionKey(election),
         jurisdiction,
       }),
       sessionExpiresAt: mockSessionExpiresAt(),

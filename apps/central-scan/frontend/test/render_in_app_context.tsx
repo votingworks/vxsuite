@@ -2,7 +2,7 @@ import { electionGeneralDefinition as testElectionDefinition } from '@votingwork
 import { LogSource, BaseLogger } from '@votingworks/logging';
 import {
   DippedSmartCardAuth,
-  electionAuthKey,
+  constructElectionKey,
   ElectionDefinition,
 } from '@votingworks/types';
 import { SystemCallContextProvider, TestErrorBoundary } from '@votingworks/ui';
@@ -44,7 +44,7 @@ export function makeAppContext({
   auth = {
     status: 'logged_in',
     user: mockElectionManagerUser({
-      electionKey: electionAuthKey(electionDefinition.election),
+      electionKey: constructElectionKey(electionDefinition.election),
     }),
     sessionExpiresAt: mockSessionExpiresAt(),
   },
