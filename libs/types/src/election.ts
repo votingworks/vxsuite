@@ -583,22 +583,32 @@ export const OptionalElectionSchema: z.ZodSchema<OptionalElection> =
 export interface ElectionDefinition {
   election: Election;
   electionData: string;
-  electionHash: string;
+  /**
+   * A sha256 hash of {@link electionData}. This hash is encoded on ballots and
+   * verified by tabulators to ensure that the ballots and the tabulators have
+   * the same configuration, therefore preventing any tabulation errors due to
+   * mismatched configurations.
+   *
+   * Note that the raw {@link electionData} string is hashed instead of the
+   * parsed {@link election} object since canonicalizing the JSON in order to
+   * hash it would be potentially insecure.
+   */
+  ballotHash: string;
 }
 export const ElectionDefinitionSchema: z.ZodSchema<ElectionDefinition> = z
   .object({
     election: ElectionSchema,
     electionData: z.string().nonempty(),
-    electionHash: ElectionHash,
+    ballotHash: ElectionHash,
   })
   .superRefine((electionDefinition, ctx) => {
-    const { electionData, electionHash } = electionDefinition;
+    const { electionData, ballotHash } = electionDefinition;
     const electionDataHash = sha256(electionData);
-    if (electionDataHash !== electionHash) {
+    if (electionDataHash !== ballotHash) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        path: ['electionHash'],
-        message: `Election data hash '${electionDataHash}' does not match election hash '${electionHash}'.`,
+        path: ['ballotHash'],
+        message: `Election data hash '${electionDataHash}' does not match ballot hash '${ballotHash}'.`,
       });
     }
   });
