@@ -528,7 +528,7 @@ export function encodeHmpbBallotPageMetadataInto(
     ballotId,
     ballotStyleId,
     ballotType,
-    electionHash,
+    ballotHash,
     isTestMode,
     pageNumber,
     precinctId,
@@ -537,7 +537,7 @@ export function encodeHmpbBallotPageMetadataInto(
 ): BitWriter {
   return bits
     .writeUint8(...HmpbPrelude)
-    .writeString(sliceElectionHash(electionHash), {
+    .writeString(sliceElectionHash(ballotHash), {
       encoding: HexEncoding,
       includeLength: false,
       length: ELECTION_HASH_LENGTH,

@@ -21,7 +21,7 @@ const mockPageLayout: BallotPageLayout = {
     height: 0,
   },
   metadata: {
-    electionHash: '',
+    ballotHash: '',
     ballotStyleId: '',
     precinctId: '',
     pageNumber: 1,

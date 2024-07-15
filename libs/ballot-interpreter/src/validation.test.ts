@@ -18,7 +18,7 @@ function createMockInterpretation(spec: {
     type: 'InterpretedBmdPage',
     ballotId: 'abc' as BallotId,
     metadata: {
-      electionHash: 'hash',
+      ballotHash: 'hash',
       ballotType: BallotType.Precinct,
       ballotStyleId: '5',
       precinctId: '21',

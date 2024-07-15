@@ -318,7 +318,7 @@ function buildInterpretedHmpbPageMetadata(
     ballotStyleId: ballotStyle.id,
     precinctId,
     ballotType: BallotType.Precinct,
-    electionHash: electionDefinition.ballotHash,
+    ballotHash: electionDefinition.ballotHash,
     isTestMode: options.testMode,
     pageNumber: side === 'front' ? 1 : 2,
   };
@@ -533,16 +533,16 @@ function validateInterpretResults(
       };
     }
 
-    // metadata.electionHash may be a sliced hash or a full hash, so we need to
+    // metadata.ballotHash may be a sliced hash or a full hash, so we need to
     // slice both hashes before comparing them.
     if (
-      sliceElectionHash(metadata.electionHash) !== sliceElectionHash(ballotHash)
+      sliceElectionHash(metadata.ballotHash) !== sliceElectionHash(ballotHash)
     ) {
       return {
         interpretation: typedAs<InvalidElectionHashPage>({
           type: 'InvalidElectionHashPage',
           expectedElectionHash: sliceElectionHash(ballotHash),
-          actualElectionHash: sliceElectionHash(metadata.electionHash),
+          actualElectionHash: sliceElectionHash(metadata.ballotHash),
         }),
         normalizedImage,
       };
@@ -657,7 +657,7 @@ async function interpretBmdBallot(
       type: 'InterpretedBmdPage',
       ballotId: ballot.ballotId,
       metadata: {
-        electionHash: ballot.electionHash,
+        ballotHash: ballot.electionHash,
         ballotType: BallotType.Precinct,
         ballotStyleId: ballot.ballotStyleId,
         precinctId: ballot.precinctId,

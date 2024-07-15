@@ -108,11 +108,11 @@ export function canonicalizeSheet(
     });
   }
 
-  if (front.metadata.electionHash !== back.metadata.electionHash) {
+  if (front.metadata.ballotHash !== back.metadata.ballotHash) {
     return err({
       type: 'invalid-sheet',
       subType: 'mismatched-election-hashes',
-      electionHashes: [front.metadata.electionHash, back.metadata.electionHash],
+      electionHashes: [front.metadata.ballotHash, back.metadata.ballotHash],
     });
   }
 

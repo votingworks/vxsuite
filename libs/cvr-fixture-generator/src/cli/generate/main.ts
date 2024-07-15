@@ -229,7 +229,7 @@ export async function main(
       const layouts = generateBallotPageLayouts(election, {
         ballotStyleId: castVoteRecord.BallotStyleId,
         ballotType: BallotType.Precinct,
-        electionHash: ballotHash,
+        ballotHash,
         isTestMode: testMode,
         precinctId: castVoteRecord.BallotStyleUnitId,
       });

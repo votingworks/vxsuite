@@ -223,7 +223,7 @@ export function* generateCvrs({
           : generateBallotPageLayouts(election, {
               ballotStyleId,
               precinctId,
-              electionHash: electionDefinition.ballotHash,
+              ballotHash: electionDefinition.ballotHash,
               ballotType,
               isTestMode: testMode,
             });

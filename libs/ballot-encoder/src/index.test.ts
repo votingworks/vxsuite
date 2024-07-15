@@ -930,7 +930,7 @@ test('fails to find the election hash with garbage data', () => {
 test('encode HMPB ballot page metadata', () => {
   const { election } = electionDefinition;
   const ballotMetadata: HmpbBallotPageMetadata = {
-    electionHash: electionDefinition.ballotHash,
+    ballotHash: electionDefinition.ballotHash,
     precinctId: election.ballotStyles[0]!.precincts[0]!,
     ballotStyleId: election.ballotStyles[0]!.id,
     pageNumber: 3,
@@ -940,10 +940,10 @@ test('encode HMPB ballot page metadata', () => {
 
   const encoded = encodeHmpbBallotPageMetadata(election, ballotMetadata);
 
-  const { electionHash, ...ballotConfig } = ballotMetadata;
+  const { ballotHash, ...ballotConfig } = ballotMetadata;
   const reader = new BitReader(encoded);
   expect(decodeElectionHashFromReader(reader)).toEqual(
-    sliceElectionHash(electionHash)
+    sliceElectionHash(ballotHash)
   );
   expect(
     decodeBallotConfigFromReader(election, reader, { readPageNumber: true })
@@ -953,7 +953,7 @@ test('encode HMPB ballot page metadata', () => {
 test('encode HMPB ballot page metadata with bad precinct fails', () => {
   const { election, ballotHash } = electionDefinition;
   const ballotMetadata: HmpbBallotPageMetadata = {
-    electionHash: ballotHash,
+    ballotHash,
     precinctId: 'SanDimas', // not an actual precinct ID
     ballotStyleId: election.ballotStyles[0]!.id,
     pageNumber: 3,
@@ -969,7 +969,7 @@ test('encode HMPB ballot page metadata with bad precinct fails', () => {
 test('encode HMPB ballot page metadata with bad ballot style fails', () => {
   const { election, ballotHash } = electionDefinition;
   const ballotMetadata: HmpbBallotPageMetadata = {
-    electionHash: ballotHash,
+    ballotHash,
     precinctId: election.ballotStyles[0]!.precincts[0]!,
     ballotStyleId: '42', // not a good ballot style
     pageNumber: 3,

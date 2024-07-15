@@ -364,7 +364,7 @@ test('adjudication', () => {
   store.setElectionAndJurisdiction({ electionData, jurisdiction });
   function mockPage(i: 0 | 1): PageInterpretationWithFiles {
     const metadata: BallotMetadata = {
-      electionHash: ballotHash,
+      ballotHash,
       ballotStyleId: '12',
       precinctId: '23',
       isTestMode: false,
@@ -457,7 +457,7 @@ test('adjudication', () => {
 });
 
 const metadata: BallotMetadata = {
-  electionHash: ballotHash,
+  ballotHash,
   ballotStyleId: '12',
   precinctId: '23',
   isTestMode: false,

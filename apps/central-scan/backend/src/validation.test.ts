@@ -18,7 +18,7 @@ const BmdPage: InterpretedBmdPage = {
     ballotStyleId: '12',
     precinctId: '23',
     ballotType: BallotType.Absentee,
-    electionHash: 'abc',
+    ballotHash: 'abc',
     isTestMode: false,
   },
   votes: {},
@@ -32,7 +32,7 @@ const metadata: BallotMetadata = {
   ballotStyleId: '12',
   precinctId: '23',
   ballotType: BallotType.Absentee,
-  electionHash: 'abc',
+  ballotHash: 'abc',
   isTestMode: false,
 };
 const HmpbPage1: InterpretedHmpbPage = {
@@ -156,7 +156,7 @@ test('HMPB ballot with mismatched election', () => {
     HmpbPage1,
     {
       ...HmpbPage2,
-      metadata: { ...HmpbPage2.metadata, electionHash: 'def' },
+      metadata: { ...HmpbPage2.metadata, ballotHash: 'def' },
     },
   ]).unsafeUnwrapErr();
 

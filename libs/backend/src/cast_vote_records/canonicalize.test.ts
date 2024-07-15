@@ -133,11 +133,11 @@ test('HMPB ballot with mismatched election', () => {
     [
       {
         ...interpretedHmpbPage1,
-        metadata: { ...interpretedHmpbPage1.metadata, electionHash: 'abc' },
+        metadata: { ...interpretedHmpbPage1.metadata, ballotHash: 'abc' },
       },
       {
         ...interpretedHmpbPage2,
-        metadata: { ...interpretedHmpbPage2.metadata, electionHash: 'def' },
+        metadata: { ...interpretedHmpbPage2.metadata, ballotHash: 'def' },
       },
     ],
     filenames

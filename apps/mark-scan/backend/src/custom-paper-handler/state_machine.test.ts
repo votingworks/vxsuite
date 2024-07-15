@@ -110,7 +110,7 @@ const SUCCESSFUL_INTERPRETATION_MOCK: SheetOf<InterpretFileResult> = [
       type: 'InterpretedBmdPage',
       ballotId: '1_en' as BallotId,
       metadata: {
-        electionHash: 'hash',
+        ballotHash: 'hash',
         ballotType: BallotType.Precinct,
         ballotStyleId: '5',
         precinctId: '21',

@@ -32,7 +32,7 @@ export const bestFishContest = find(
 ) as CandidateContest;
 
 export const mockBallotMetadata: BallotMetadata = {
-  electionHash: ballotHash,
+  ballotHash,
   precinctId: 'precinct-1',
   ballotStyleId: '2F',
   isTestMode: true,

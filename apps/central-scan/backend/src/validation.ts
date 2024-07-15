@@ -112,13 +112,10 @@ export function validateSheetInterpretation([
       });
     }
 
-    if (front.metadata.electionHash !== back.metadata.electionHash) {
+    if (front.metadata.ballotHash !== back.metadata.ballotHash) {
       return err({
         type: ValidationErrorType.MismatchedElectionHash,
-        electionHashes: [
-          front.metadata.electionHash,
-          back.metadata.electionHash,
-        ],
+        electionHashes: [front.metadata.ballotHash, back.metadata.ballotHash],
       });
     }
   }

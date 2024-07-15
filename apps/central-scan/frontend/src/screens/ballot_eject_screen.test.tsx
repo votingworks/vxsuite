@@ -78,7 +78,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
     ballotStyleId: '1',
     precinctId: '1',
     ballotType: BallotType.Precinct,
-    electionHash: 'abcde',
+    ballotHash: 'abcde',
     isTestMode: false,
   };
   fetchMock.getOnce(
@@ -190,7 +190,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
     ballotStyleId: '1',
     precinctId: '1',
     ballotType: BallotType.Precinct,
-    electionHash: 'abcde',
+    ballotHash: 'abcde',
     isTestMode: false,
   };
   fetchMock.getOnce(
@@ -303,7 +303,7 @@ test('says the ballot sheet is blank if it is', async () => {
     ballotStyleId: '1',
     precinctId: '1',
     ballotType: BallotType.Precinct,
-    electionHash: 'abcde',
+    ballotHash: 'abcde',
     isTestMode: false,
   };
   fetchMock.getOnce(
@@ -431,7 +431,7 @@ test('calls out official ballot sheets in test mode', async () => {
               ballotStyleId: '1',
               precinctId: '1',
               ballotType: BallotType.Precinct,
-              electionHash: 'abcde',
+              ballotHash: 'abcde',
               isTestMode: false,
               pageNumber: 1,
             },
@@ -445,7 +445,7 @@ test('calls out official ballot sheets in test mode', async () => {
               ballotStyleId: '1',
               precinctId: '1',
               ballotType: BallotType.Precinct,
-              electionHash: 'abcde',
+              ballotHash: 'abcde',
               isTestMode: false,
               pageNumber: 2,
             },
@@ -495,7 +495,7 @@ test('calls out test ballot sheets in live mode', async () => {
               ballotStyleId: '1',
               precinctId: '1',
               ballotType: BallotType.Precinct,
-              electionHash: 'abcde',
+              ballotHash: 'abcde',
               isTestMode: false,
               pageNumber: 1,
             },
@@ -509,7 +509,7 @@ test('calls out test ballot sheets in live mode', async () => {
               ballotStyleId: '1',
               precinctId: '1',
               ballotType: BallotType.Precinct,
-              electionHash: 'abcde',
+              ballotHash: 'abcde',
               isTestMode: false,
               pageNumber: 2,
             },
@@ -610,7 +610,7 @@ test('does not allow tabulating the overvote if precinctScanDisallowCastingOverv
     ballotStyleId: '1',
     precinctId: '1',
     ballotType: BallotType.Precinct,
-    electionHash: 'abcde',
+    ballotHash: 'abcde',
     isTestMode: false,
   };
   fetchMock.getOnce(

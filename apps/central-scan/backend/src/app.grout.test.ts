@@ -22,7 +22,7 @@ const backImagePath =
   electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asFilePath();
 const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
   const metadata: BallotMetadata = {
-    electionHash:
+    ballotHash:
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .ballotHash,
     ballotType: BallotType.Precinct,

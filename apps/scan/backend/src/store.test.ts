@@ -50,7 +50,7 @@ const jurisdiction = TEST_JURISDICTION;
 const testMetadata: BallotMetadata = {
   ballotStyleId: '12',
   ballotType: BallotType.Precinct,
-  electionHash:
+  ballotHash:
     electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
       .ballotHash,
   isTestMode: false,
@@ -407,7 +407,7 @@ test('adjudication', () => {
   });
   function mockPage(i: 0 | 1): PageInterpretationWithFiles {
     const metadata: BallotMetadata = {
-      electionHash:
+      ballotHash:
         electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
           .ballotHash,
       ballotStyleId: 'card-number-3',
