@@ -71,7 +71,7 @@ type EjectState = 'removeBallot' | 'acceptBallot';
 
 const SHEET_ADJUDICATION_ERRORS: ReadonlyArray<PageInterpretation['type']> = [
   'InvalidTestModePage',
-  'InvalidElectionHashPage',
+  'InvalidBallotHashPage',
   'UnreadablePage',
   'BlankPage',
 ];
@@ -174,7 +174,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
   let isInvalidTestModeSheet = false;
   let isInvalidElectionHashSheet = false;
 
-  let actualElectionHash: string | undefined;
+  let actualBallotHash: string | undefined;
 
   for (const reviewPageInfo of [
     {
@@ -198,11 +198,9 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
   ]) {
     if (reviewPageInfo.interpretation.type === 'InvalidTestModePage') {
       isInvalidTestModeSheet = true;
-    } else if (
-      reviewPageInfo.interpretation.type === 'InvalidElectionHashPage'
-    ) {
+    } else if (reviewPageInfo.interpretation.type === 'InvalidBallotHashPage') {
       isInvalidElectionHashSheet = true;
-      actualElectionHash = reviewPageInfo.interpretation.actualElectionHash;
+      actualBallotHash = reviewPageInfo.interpretation.actualBallotHash;
     } else if (reviewPageInfo.interpretation.type === 'InterpretedHmpbPage') {
       if (reviewPageInfo.interpretation.adjudicationInfo.requiresAdjudication) {
         for (const adjudicationReason of reviewPageInfo.interpretation
@@ -322,7 +320,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
               <P>
                 <LabelledText label="Ballot Election ID">
                   {getDisplayBallotHash({
-                    ballotHash: actualElectionHash ?? '',
+                    ballotHash: actualBallotHash ?? '',
                   })}
                 </LabelledText>
               </P>

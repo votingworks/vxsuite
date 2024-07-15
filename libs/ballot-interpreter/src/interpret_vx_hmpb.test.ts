@@ -146,8 +146,8 @@ describe('HMPB - Famous Names', () => {
       ballotImagePaths as [string, string]
     );
 
-    expect(frontResult.interpretation.type).toEqual('InvalidElectionHashPage');
-    expect(backResult.interpretation.type).toEqual('InvalidElectionHashPage');
+    expect(frontResult.interpretation.type).toEqual('InvalidBallotHashPage');
+    expect(backResult.interpretation.type).toEqual('InvalidBallotHashPage');
   });
 
   test('Wrong precinct', async () => {

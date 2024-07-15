@@ -557,9 +557,9 @@ test('shows invalid election screen when appropriate', async () => {
         front: {
           image: { url: '/front/url' },
           interpretation: {
-            type: 'InvalidElectionHashPage',
-            actualElectionHash: 'this-is-a-hash-hooray',
-            expectedElectionHash: 'something',
+            type: 'InvalidBallotHashPage',
+            actualBallotHash: 'this-is-a-hash-hooray',
+            expectedBallotHash: 'something',
           },
         },
         back: {
@@ -592,7 +592,7 @@ test('shows invalid election screen when appropriate', async () => {
     LogEventId.ScanAdjudicationInfo,
     'election_manager',
     expect.objectContaining({
-      adjudicationTypes: 'InvalidElectionHashPage, BlankPage',
+      adjudicationTypes: 'InvalidBallotHashPage, BlankPage',
     })
   );
 

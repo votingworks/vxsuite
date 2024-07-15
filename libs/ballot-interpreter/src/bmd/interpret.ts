@@ -31,8 +31,8 @@ export type InterpretError =
     }
   | {
       type: 'mismatched-election';
-      expectedElectionHash: string;
-      actualElectionHash: string;
+      expectedBallotHash: string;
+      actualBallotHash: string;
     };
 
 export type InterpretResult = Result<Interpretation, InterpretError>;
@@ -61,18 +61,18 @@ export async function interpret(
   }
 
   const foundQrCode = (frontResult.ok() ?? backResult.ok()) as DetectedQrCode;
-  const actualElectionHash = decodeElectionHash(foundQrCode.data);
-  const expectedElectionHash = electionDefinition.ballotHash.slice(
+  const actualBallotHash = decodeElectionHash(foundQrCode.data);
+  const expectedBallotHash = electionDefinition.ballotHash.slice(
     0,
     ELECTION_HASH_LENGTH
   );
 
-  if (actualElectionHash !== expectedElectionHash) {
+  if (actualBallotHash !== expectedBallotHash) {
     return err({
       type: 'mismatched-election',
-      expectedElectionHash,
-      actualElectionHash:
-        actualElectionHash ??
+      expectedBallotHash,
+      actualBallotHash:
+        actualBallotHash ??
         /* istanbul ignore next */
         '',
     });

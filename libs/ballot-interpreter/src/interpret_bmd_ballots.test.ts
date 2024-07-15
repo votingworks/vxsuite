@@ -7,7 +7,7 @@ import { mockOf } from '@votingworks/test-utils';
 import {
   BallotStyleId,
   DEFAULT_MARK_THRESHOLDS,
-  InvalidElectionHashPage,
+  InvalidBallotHashPage,
   PageInterpretation,
   PrecinctId,
   SheetOf,
@@ -147,10 +147,10 @@ describe('VX BMD interpretation', () => {
 
     expect(
       interpretationResult[0].interpretation
-    ).toEqual<InvalidElectionHashPage>({
-      type: 'InvalidElectionHashPage',
-      actualElectionHash: sliceElectionHash(electionDefinition.ballotHash),
-      expectedElectionHash: 'd34db33f',
+    ).toEqual<InvalidBallotHashPage>({
+      type: 'InvalidBallotHashPage',
+      actualBallotHash: sliceElectionHash(electionDefinition.ballotHash),
+      expectedBallotHash: 'd34db33f',
     });
   });
 

@@ -79,8 +79,8 @@ export function combinePageInterpretationsForSheet(
   }
 
   if (
-    frontType === 'InvalidElectionHashPage' ||
-    backType === 'InvalidElectionHashPage'
+    frontType === 'InvalidBallotHashPage' ||
+    backType === 'InvalidBallotHashPage'
   ) {
     return {
       type: 'InvalidSheet',

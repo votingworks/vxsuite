@@ -23,7 +23,7 @@ export function sheetRequiresAdjudication([
       (pi) =>
         pi.type === 'UnreadablePage' ||
         pi.type === 'InvalidTestModePage' ||
-        pi.type === 'InvalidElectionHashPage' ||
+        pi.type === 'InvalidBallotHashPage' ||
         pi.type === 'InvalidPrecinctPage' ||
         (pi.type === 'InterpretedHmpbPage' &&
           pi.adjudicationInfo.requiresAdjudication &&

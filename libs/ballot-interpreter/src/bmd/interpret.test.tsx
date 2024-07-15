@@ -102,11 +102,11 @@ test('mismatched election', async () => {
   expect(result).toEqual<InterpretResult>(
     err({
       type: 'mismatched-election',
-      expectedElectionHash: sliceElectionHash(
+      expectedBallotHash: sliceElectionHash(
         electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
           .ballotHash
       ),
-      actualElectionHash: sliceElectionHash(
+      actualBallotHash: sliceElectionHash(
         electionFamousNames2021Fixtures.electionDefinition.ballotHash
       ),
     })

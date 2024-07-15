@@ -15,7 +15,7 @@ import {
   BallotMetadata,
   BallotType,
   ElectionDefinition,
-  InvalidElectionHashPage,
+  InvalidBallotHashPage,
   InvalidPrecinctPage,
   InvalidTestModePage,
   mapSheet,
@@ -539,10 +539,10 @@ function validateInterpretResults(
       sliceElectionHash(metadata.ballotHash) !== sliceElectionHash(ballotHash)
     ) {
       return {
-        interpretation: typedAs<InvalidElectionHashPage>({
-          type: 'InvalidElectionHashPage',
-          expectedElectionHash: sliceElectionHash(ballotHash),
-          actualElectionHash: sliceElectionHash(metadata.ballotHash),
+        interpretation: typedAs<InvalidBallotHashPage>({
+          type: 'InvalidBallotHashPage',
+          expectedBallotHash: sliceElectionHash(ballotHash),
+          actualBallotHash: sliceElectionHash(metadata.ballotHash),
         }),
         normalizedImage,
       };
@@ -591,17 +591,17 @@ async function interpretBmdBallot(
       return [
         {
           interpretation: {
-            type: 'InvalidElectionHashPage',
-            expectedElectionHash: error.expectedElectionHash,
-            actualElectionHash: error.actualElectionHash,
+            type: 'InvalidBallotHashPage',
+            expectedBallotHash: error.expectedBallotHash,
+            actualBallotHash: error.actualBallotHash,
           },
           normalizedImage: ballotImages[0],
         },
         {
           interpretation: {
-            type: 'InvalidElectionHashPage',
-            expectedElectionHash: error.expectedElectionHash,
-            actualElectionHash: error.actualElectionHash,
+            type: 'InvalidBallotHashPage',
+            expectedBallotHash: error.expectedBallotHash,
+            actualBallotHash: error.actualBallotHash,
           },
           normalizedImage: ballotImages[1],
         },
@@ -755,8 +755,8 @@ function scoreInterpretFileResult(
   }
 
   if (
-    frontType === 'InvalidElectionHashPage' ||
-    backType === 'InvalidElectionHashPage'
+    frontType === 'InvalidBallotHashPage' ||
+    backType === 'InvalidBallotHashPage'
   ) {
     return -60;
   }

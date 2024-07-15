@@ -17,7 +17,7 @@ const SCREENS: Readonly<
   // in VxMarkScan:
   InterpretedHmpbPage: <InsertedUnreadableBallotScreen />,
 
-  InvalidElectionHashPage: <InsertedWrongElectionBallotScreen />,
+  InvalidBallotHashPage: <InsertedWrongElectionBallotScreen />,
   InvalidTestModePage: <InsertedWrongTestModeBallotScreen />,
   InvalidPrecinctPage: <InsertedWrongPrecinctBallotScreen />,
   UnreadablePage: <InsertedUnreadableBallotScreen />,
