@@ -165,7 +165,7 @@ test('HMPB ballot with mismatched election', () => {
     ballotHashes: ['abc', 'def'],
   });
   expect(describeValidationError(error)).toEqual(
-    `expected a sheet to have the same election hash, but got front=abc back=def`
+    `expected a sheet to have the same ballot hash, but got front=abc back=def`
   );
 });
 

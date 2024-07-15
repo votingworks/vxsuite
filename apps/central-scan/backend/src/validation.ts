@@ -152,7 +152,7 @@ export function describeValidationError(
 
     case ValidationErrorType.MismatchedBallotHash: {
       const [front, back] = validationError.ballotHashes;
-      return `expected a sheet to have the same election hash, but got front=${front} back=${back}`;
+      return `expected a sheet to have the same ballot hash, but got front=${front} back=${back}`;
     }
 
     case ValidationErrorType.MismatchedPrecinct: {

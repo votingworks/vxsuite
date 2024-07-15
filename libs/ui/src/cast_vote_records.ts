@@ -43,7 +43,7 @@ export function userReadableMessageFromExportError(
             )}.`;
           }
           case 'mismatched-ballot-hashes': {
-            return `Encountered an invalid sheet with mismatched election hashes: ${sheetValuesToString(
+            return `Encountered an invalid sheet with mismatched ballot hashes: ${sheetValuesToString(
               error.ballotHashes
             )}.`;
           }
