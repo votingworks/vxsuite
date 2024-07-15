@@ -225,7 +225,7 @@ export function createApiMock() {
         signatureInputs: {
           machineId: 'machineId',
           date: new Date(),
-          electionHashPrefix: 'electionHashPrefix',
+          ballotHashPrefix: 'ballotHashPrefix',
         },
       });
     },

@@ -12,7 +12,7 @@ const LIVE_CHECK_QR_CODE_VALUE_SEPARATOR = ';';
 
 interface LiveCheckMachineState {
   machineId: string;
-  electionHash?: string;
+  ballotHash?: string;
 }
 
 /**
@@ -33,21 +33,21 @@ export class LiveCheck {
 
   async generateQrCodeValue({
     machineId,
-    electionHash,
+    ballotHash,
   }: LiveCheckMachineState): Promise<{
     qrCodeValue: string;
     signatureInputs: {
       machineId: string;
       date: Date;
-      electionHashPrefix?: string;
+      ballotHashPrefix?: string;
     };
   }> {
     const date = new Date();
-    const electionHashPrefix = electionHash?.slice(0, 10) ?? '';
+    const ballotHashPrefix = ballotHash?.slice(0, 10) ?? '';
     const messagePayload = [
       machineId,
       date.toISOString(),
-      electionHashPrefix,
+      ballotHashPrefix,
     ].join(LIVE_CHECK_MESSAGE_PAYLOAD_SEPARATOR);
     const message = constructPrefixedMessage(
       'lc', // Live Check
@@ -81,7 +81,11 @@ export class LiveCheck {
 
     return {
       qrCodeValue,
-      signatureInputs: { machineId, date, electionHashPrefix },
+      signatureInputs: {
+        machineId,
+        date,
+        ballotHashPrefix,
+      },
     };
   }
 }

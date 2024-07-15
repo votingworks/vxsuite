@@ -250,7 +250,7 @@ function buildApi({
       const electionRecord = getCurrentElectionRecord(workspace);
       return new LiveCheck().generateQrCodeValue({
         machineId,
-        electionHash: electionRecord?.electionDefinition?.ballotHash,
+        ballotHash: electionRecord?.electionDefinition?.ballotHash,
       });
     },
     /* c8 ignore stop */

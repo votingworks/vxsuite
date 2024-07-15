@@ -62,7 +62,7 @@ test.each<{
     const liveCheck = new LiveCheck(config);
     const { qrCodeValue } = await liveCheck.generateQrCodeValue({
       machineId,
-      electionHash: isMachineConfiguredForAnElection ? ballotHash : undefined,
+      ballotHash: isMachineConfiguredForAnElection ? ballotHash : undefined,
     });
     expect([
       expectedQrCodeValueLength,

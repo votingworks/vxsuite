@@ -9,7 +9,7 @@ test('LiveCheckModal renders', () => {
       signatureInputs={{
         machineId: 'machineId',
         date: new Date(),
-        electionHashPrefix: 'electionHashPrefix',
+        ballotHashPrefix: 'ballotHashPrefix',
       }}
     />
   );
