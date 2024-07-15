@@ -29,7 +29,7 @@ import {
   BUBBLE_CLASS,
   CONTENT_SLOT_CLASS,
   ContentSlot,
-  ELECTION_HASH_SLOT_CLASS,
+  BALLOT_HASH_SLOT_CLASS,
   OptionInfo,
   PAGE_CLASS,
   QR_CODE_SIZE,
@@ -341,7 +341,7 @@ async function extractGridLayout(
   };
 }
 
-async function addQrCodesAndElectionHashes(
+async function addQrCodesAndBallotHashes(
   document: RenderDocument,
   election: Election,
   metadata: Omit<HmpbBallotPageMetadata, 'pageNumber'>
@@ -372,7 +372,7 @@ async function addQrCodesAndElectionHashes(
     );
     if (pageNumber % 2 === 1) {
       await document.setContent(
-        `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${ELECTION_HASH_SLOT_CLASS}`,
+        `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${BALLOT_HASH_SLOT_CLASS}`,
         <>{getDisplayBallotHash(metadata)}</>
       );
     }
@@ -494,7 +494,7 @@ export async function renderAllBallotsAndCreateElectionDefinition<
 
   for (const { document, props } of ballotsWithLayouts) {
     if (props.ballotMode !== 'sample') {
-      await addQrCodesAndElectionHashes(document, electionDefinition.election, {
+      await addQrCodesAndBallotHashes(document, electionDefinition.election, {
         ballotHash: electionDefinition.ballotHash,
         ballotStyleId: props.ballotStyleId,
         precinctId: props.precinctId,
