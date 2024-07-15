@@ -40,7 +40,7 @@ test('viewing and exporting reports', async ({ page }) => {
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
   const electionDefinition = electionTwoPartyPrimaryDefinition;
-  const { election, electionHash, electionData } = electionDefinition;
+  const { election, ballotHash, electionData } = electionDefinition;
   const electionPackage = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionData,
   });
@@ -66,7 +66,7 @@ test('viewing and exporting reports', async ({ page }) => {
 
   const electionDirectory = generateElectionBasedSubfolderName(
     election,
-    electionHash
+    ballotHash
   );
   const testReportDirectoryName =
     'TEST__machine_VX-00-000__2023-08-16_17-02-24';

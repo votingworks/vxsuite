@@ -81,7 +81,7 @@ describe('HMPB - Famous Names', () => {
 
     expect(frontResult.interpretation.metadata).toEqual({
       source: 'qr-code',
-      electionHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
+      ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
       precinctId,
       ballotStyleId: election.ballotStyles[0]!.id,
       pageNumber: 1,
@@ -90,7 +90,7 @@ describe('HMPB - Famous Names', () => {
     });
     expect(backResult.interpretation.metadata).toEqual({
       source: 'qr-code',
-      electionHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
+      ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
       precinctId,
       ballotStyleId: election.ballotStyles[0]!.id,
       pageNumber: 2,
@@ -292,9 +292,7 @@ for (const spec of generalElectionFixtures.fixtureSpecs) {
 
         expect(frontResult.interpretation.metadata).toEqual({
           source: 'qr-code',
-          electionHash: sliceBallotHashForEncoding(
-            electionDefinition.ballotHash
-          ),
+          ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
           precinctId,
           ballotStyleId,
           pageNumber: sheetIndex * 2 + 1,
@@ -303,9 +301,7 @@ for (const spec of generalElectionFixtures.fixtureSpecs) {
         });
         expect(backResult.interpretation.metadata).toEqual({
           source: 'qr-code',
-          electionHash: sliceBallotHashForEncoding(
-            electionDefinition.ballotHash
-          ),
+          ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
           precinctId,
           ballotStyleId,
           pageNumber: sheetIndex * 2 + 2,
@@ -412,7 +408,7 @@ describe('HMPB - primary election', () => {
 
       expect(frontResult.interpretation.metadata).toEqual({
         source: 'qr-code',
-        electionHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
+        ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
         precinctId,
         ballotStyleId,
         pageNumber: 1,
@@ -421,7 +417,7 @@ describe('HMPB - primary election', () => {
       });
       expect(backResult.interpretation.metadata).toEqual({
         source: 'qr-code',
-        electionHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
+        ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
         precinctId,
         ballotStyleId,
         pageNumber: 2,

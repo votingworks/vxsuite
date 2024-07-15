@@ -166,7 +166,7 @@ function buildApi({
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
         message: `Machine configured for election with hash: ${electionDefinition.ballotHash}`,
         disposition: 'success',
-        electionHash: electionDefinition.ballotHash,
+        ballotHash: electionDefinition.ballotHash,
       });
 
       return ok(electionDefinition);
