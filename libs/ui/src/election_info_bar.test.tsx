@@ -12,7 +12,7 @@ import { makeTheme } from './themes/make_theme';
 jest.mock('@votingworks/types', () => {
   return {
     ...jest.requireActual('@votingworks/types'),
-    // mock election hash so snapshots don't change with every change to the election definition
+    // mock ballot hash so snapshots don't change with every change to the election definition
     getDisplayBallotHash: () => '0000000000',
   };
 });

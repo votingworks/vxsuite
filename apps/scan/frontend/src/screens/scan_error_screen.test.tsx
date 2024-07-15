@@ -71,7 +71,7 @@ test('render correct invalid precinct screen', async () => {
   );
 });
 
-test('render correct invalid election hash screen', async () => {
+test('render correct invalid ballot hash screen', async () => {
   render(
     provideApi(
       apiMock,

@@ -35,7 +35,7 @@ describe('generateElectionBasedSubfolderName', () => {
     ).toEqual('k-ing-coun-ty_general-election_testHash12');
   });
 
-  test('generates election subfolder name as expected when election hash length varies', () => {
+  test('generates election subfolder name as expected when ballot hash length varies', () => {
     const mockElection: Election = {
       ...electionGeneralDefinition.election,
       county: { name: 'King County', id: '' },

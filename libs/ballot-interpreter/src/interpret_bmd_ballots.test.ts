@@ -130,7 +130,7 @@ describe('VX BMD interpretation', () => {
     );
   });
 
-  test('properly detects a ballot with incorrect election hash', async () => {
+  test('properly detects a ballot with incorrect ballot hash', async () => {
     const interpretationResult = await interpretSheet(
       {
         electionDefinition: {

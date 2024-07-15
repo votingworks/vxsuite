@@ -468,7 +468,7 @@ test('election manager cannot auth onto unconfigured machine', async () => {
   );
 });
 
-test('election manager cannot auth onto machine with different election hash', async () => {
+test('election manager cannot auth onto machine with different election', async () => {
   const electionDefinition = eitherNeitherElectionDefinition;
   const { renderApp } = buildApp(apiMock);
   apiMock.expectGetCurrentElectionMetadata({ electionDefinition });

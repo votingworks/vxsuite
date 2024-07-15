@@ -303,7 +303,7 @@ export class Store {
   }
 
   /**
-   * Sets whether to check the election hash.
+   * Sets whether sound is muted.
    */
   setIsSoundMuted(isSoundMuted: boolean): void {
     if (!this.hasElection()) {
@@ -333,7 +333,7 @@ export class Store {
   }
 
   /**
-   * Sets whether to check the election hash.
+   * Sets the number of ballots at which the ballot bag was last replaced.
    */
   setBallotCountWhenBallotBagLastReplaced(
     ballotCountWhenBallotBagLastReplaced: number

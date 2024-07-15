@@ -100,7 +100,7 @@ export const CARD_VX_CERT = {
 /**
  * This cert is issued during card programming, by VotingWorks directly for vendor cards and by
  * VxAdmin for all other cards. The cert indicates the card's identity, i.e, user role,
- * jurisdiction, election hash, etc.
+ * jurisdiction, election key, etc.
  */
 export const CARD_IDENTITY_CERT = {
   OBJECT_ID: pivDataObjectId(0xf1),

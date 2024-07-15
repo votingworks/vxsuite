@@ -426,7 +426,7 @@ export interface BaseBallotProps {
  * Given a {@link BallotPageTemplate} and a list of ballot props, renders
  * ballot for each set of props. Then, extracts the grid layout from the
  * rendered ballots and creates an election definition. Lastly, inserts QR codes
- * into the ballots with the resulting election hash.
+ * into the ballots with the resulting ballot hash.
  */
 export async function renderAllBallotsAndCreateElectionDefinition<
   P extends BaseBallotProps,

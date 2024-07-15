@@ -806,7 +806,7 @@ test('system administrator can set date and time', async () => {
   await screen.findByRole('button', { name: 'Set Date and Time' });
 });
 
-test('election manager cannot auth onto machine with different election hash', async () => {
+test('election manager cannot auth onto machine with different election', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo();
   apiMock.expectGetUsbDriveStatus('mounted');

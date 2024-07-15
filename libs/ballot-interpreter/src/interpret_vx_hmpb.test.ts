@@ -134,7 +134,7 @@ describe('HMPB - Famous Names', () => {
       {
         electionDefinition: {
           ...electionDefinition,
-          ballotHash: 'wrong election hash',
+          ballotHash: 'wrong ballot hash',
         },
         precinctSelection: singlePrecinctSelectionFor(
           assertDefined(precinctId)

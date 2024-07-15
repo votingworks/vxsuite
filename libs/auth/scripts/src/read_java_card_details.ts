@@ -72,7 +72,7 @@ Election date: ${electionKey?.date.toISOString() ?? '-'}
 
 /**
  * A script for reading Java Card details, namely environment, jurisdiction, user role, and
- * election hash
+ * election key (ID + date).
  */
 export async function main(): Promise<void> {
   try {

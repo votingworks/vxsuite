@@ -53,7 +53,7 @@ export const MarkThresholdsSchema: z.ZodSchema<MarkThresholds> = z
 
 /**
  * Settings for various parts of the system that are not part of the election
- * definition. These settings can be changed without changing the election hash
+ * definition. These settings can be changed without changing the ballot hash
  * (and therefore not needing to reprint ballots, for example).
  */
 export interface SystemSettings {

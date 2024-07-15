@@ -99,7 +99,7 @@ test('encodes & decodes empty votes correctly', () => {
     // prelude + version number
     .writeString('VX', { includeLength: false, length: 2 })
     .writeUint8(2)
-    // election hash
+    // ballot hash
     .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       encoding: HexEncoding,
       includeLength: false,
@@ -154,7 +154,7 @@ test('encodes & decodes without a ballot id', () => {
     // prelude + version number
     .writeString('VX', { includeLength: false, length: 2 })
     .writeUint8(2)
-    // election hash
+    // ballot hash
     .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       encoding: HexEncoding,
       includeLength: false,
@@ -209,7 +209,7 @@ test('encodes & decodes whether it is a test ballot', () => {
     // prelude + version number
     .writeString('VX', { includeLength: false, length: 2 })
     .writeUint8(2)
-    // election hash
+    // ballot hash
     .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       encoding: HexEncoding,
       includeLength: false,
@@ -269,7 +269,7 @@ test('encodes & decodes the ballot type', () => {
     // prelude + version number
     .writeString('VX', { includeLength: false, length: 2 })
     .writeUint8(2)
-    // election hash
+    // ballot hash
     .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       encoding: HexEncoding,
       includeLength: false,
@@ -335,7 +335,7 @@ test('encodes & decodes yesno votes correctly', () => {
     // prelude + version number
     .writeString('VX', { includeLength: false, length: 2 })
     .writeUint8(2)
-    // election hash
+    // ballot hash
     .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       encoding: HexEncoding,
       includeLength: false,
@@ -490,7 +490,7 @@ test('throws on decoding an incorrect number of precincts', () => {
     // prelude + version number
     .writeString('VX', { includeLength: false, length: 2 })
     .writeUint8(2)
-    // election hash
+    // ballot hash
     .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       encoding: HexEncoding,
       includeLength: false,
@@ -531,7 +531,7 @@ test('throws on decoding an incorrect number of ballot styles', () => {
     // prelude + version number
     .writeString('VX', { includeLength: false, length: 2 })
     .writeUint8(2)
-    // election hash
+    // ballot hash
     .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       encoding: HexEncoding,
       includeLength: false,
@@ -572,7 +572,7 @@ test('throws on decoding an incorrect number of contests', () => {
     // prelude + version number
     .writeString('VX', { includeLength: false, length: 2 })
     .writeUint8(2)
-    // election hash
+    // ballot hash
     .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       encoding: HexEncoding,
       includeLength: false,
@@ -640,7 +640,7 @@ test('encodes & decodes candidate choice votes correctly', () => {
     // prelude + version number
     .writeString('VX', { includeLength: false, length: 2 })
     .writeUint8(2)
-    // election hash
+    // ballot hash
     .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       encoding: HexEncoding,
       includeLength: false,
@@ -732,7 +732,7 @@ test('encodes & decodes write-in votes correctly', () => {
     // prelude + version number
     .writeString('VX', { includeLength: false, length: 2 })
     .writeUint8(2)
-    // election hash
+    // ballot hash
     .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
       encoding: HexEncoding,
       includeLength: false,
@@ -899,7 +899,7 @@ test('cannot decode a ballot that includes too much padding at the end', () => {
   );
 });
 
-test('decode election hash from BMD metadata', () => {
+test('decode ballot hash from BMD metadata', () => {
   const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
   const precinct = election.precincts[0]!;
@@ -923,7 +923,7 @@ test('decode election hash from BMD metadata', () => {
   );
 });
 
-test('fails to find the election hash with garbage data', () => {
+test('fails to find the ballot hash with garbage data', () => {
   expect(decodeBallotHash(Uint8Array.of(1, 2, 3))).toBeUndefined();
 });
 

@@ -19,7 +19,7 @@ const testCases: Array<{
   },
   {
     description:
-      'election manager card election hash does not match machine election hash',
+      'election manager card election key does not match machine election',
     reasonAndContext: {
       reason: 'wrong_election',
       cardUserRole: 'election_manager',
@@ -31,7 +31,7 @@ const testCases: Array<{
   },
   {
     description:
-      'poll worker card election hash does not match machine election hash',
+      'poll worker card election key does not match machine election',
     reasonAndContext: {
       reason: 'wrong_election',
       cardUserRole: 'poll_worker',

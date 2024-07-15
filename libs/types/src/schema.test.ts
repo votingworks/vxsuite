@@ -255,7 +255,7 @@ test('validates uniqueness of candidate ids within a contest', () => {
   ).toMatchSnapshot();
 });
 
-test('safeParseVxfElectionDefinition computes the election hash', () => {
+test('safeParseVxfElectionDefinition computes the ballot hash', () => {
   expect(
     t.safeParseElectionDefinition(electionData).unsafeUnwrap().ballotHash
   ).toMatchInlineSnapshot(

@@ -298,7 +298,7 @@ interface ExtendedElectionDefinition {
 }
 
 /**
- * Parses `value` as a JSON `Election`, computing the election hash if the
+ * Parses `value` as a JSON `Election`, computing the ballot hash if the
  * result is `Ok`.
  */
 function safeParseElectionDefinitionExtended(
@@ -318,7 +318,7 @@ function safeParseElectionDefinitionExtended(
 }
 
 /**
- * Parses `value` as a JSON `Election`, computing the election hash if the
+ * Parses `value` as a JSON `Election`, computing the ballot hash if the
  * result is `Ok`.
  */
 export function safeParseElectionDefinition(
