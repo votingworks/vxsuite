@@ -785,7 +785,7 @@ export const BallotIdSchema = z
   ) as unknown as z.ZodSchema<BallotId>;
 
 export interface HmpbBallotPageMetadata {
-  electionHash: string; // a hexadecimal string
+  ballotHash: string; // a hexadecimal string
   precinctId: PrecinctId;
   ballotStyleId: BallotStyleId;
   pageNumber: number;
@@ -795,7 +795,7 @@ export interface HmpbBallotPageMetadata {
 }
 export const HmpbBallotPageMetadataSchema: z.ZodSchema<HmpbBallotPageMetadata> =
   z.object({
-    electionHash: ElectionHash,
+    ballotHash: ElectionHash,
     precinctId: PrecinctIdSchema,
     ballotStyleId: BallotStyleIdSchema,
     pageNumber: z.number(),
@@ -809,7 +809,7 @@ export type BallotMetadata = Omit<
   'pageNumber' | 'ballotId'
 >;
 export const BallotMetadataSchema: z.ZodSchema<BallotMetadata> = z.object({
-  electionHash: ElectionHash,
+  ballotHash: ElectionHash,
   precinctId: PrecinctIdSchema,
   ballotStyleId: BallotStyleIdSchema,
   isTestMode: z.boolean(),
