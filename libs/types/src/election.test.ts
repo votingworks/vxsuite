@@ -495,7 +495,7 @@ test('ElectionDefinitionSchema', () => {
 
   expect(() => {
     unsafeParse(ElectionDefinitionSchema, {
-      electionHash: 'abc',
+      ballotHash: 'abc',
       electionData,
       election: electionTwoPartyPrimary,
     });
@@ -503,7 +503,7 @@ test('ElectionDefinitionSchema', () => {
 
   expect(
     unsafeParse(ElectionDefinitionSchema, {
-      electionHash: sha256(electionData),
+      ballotHash: sha256(electionData),
       electionData,
       election,
     }).election
@@ -529,7 +529,7 @@ test('getDisplayElectionHash', () => {
   const electionDefinition = safeParseElectionDefinition(
     JSON.stringify(election)
   ).unsafeUnwrap();
-  expect(electionDefinition.electionHash).toContain(
+  expect(electionDefinition.ballotHash).toContain(
     getDisplayElectionHash(electionDefinition)
   );
 });

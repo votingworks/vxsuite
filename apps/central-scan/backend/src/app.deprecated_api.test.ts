@@ -83,7 +83,7 @@ const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
   const metadata: BallotMetadata = {
     electionHash:
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
-        .electionHash,
+        .ballotHash,
     ballotType: BallotType.Precinct,
     ballotStyleId: '12',
     precinctId: '23',
@@ -214,7 +214,7 @@ test('get next sheet layouts', async () => {
   const metadata: BallotMetadata = {
     electionHash:
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
-        .electionHash,
+        .ballotHash,
     ballotType: BallotType.Precinct,
     ballotStyleId: 'card-number-3',
     precinctId: 'town-id-00701-precinct-id-',

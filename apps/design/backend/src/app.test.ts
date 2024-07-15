@@ -811,7 +811,7 @@ test('Consistency of election hash across exports', async () => {
     ...new Set([
       allBallotsOutput.electionHash,
       testDecksOutput.electionHash,
-      electionDefinition.electionHash,
+      electionDefinition.ballotHash,
     ]),
   ]).toHaveLength(1);
 });
@@ -860,7 +860,7 @@ test('CDF exports', async () => {
     ...new Set([
       allBallotsOutput.electionHash,
       testDecksOutput.electionHash,
-      electionDefinition.electionHash,
+      electionDefinition.ballotHash,
     ]),
   ]).toHaveLength(1);
 });

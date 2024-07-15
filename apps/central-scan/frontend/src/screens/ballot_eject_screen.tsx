@@ -322,7 +322,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
               <P>
                 <LabelledText label="Ballot Election ID">
                   {getDisplayElectionHash({
-                    electionHash: actualElectionHash ?? '',
+                    ballotHash: actualElectionHash ?? '',
                   })}
                 </LabelledText>
               </P>

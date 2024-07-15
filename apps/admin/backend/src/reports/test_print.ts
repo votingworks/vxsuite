@@ -20,7 +20,7 @@ const REPORT_ROW_RANGE = range(0, REPORT_NUM_ROWS);
 
 function getMockElectionDefinition(): ElectionDefinition {
   return {
-    electionHash: 'mock-election-hash',
+    ballotHash: 'mock-election-hash',
     electionData: 'mock-election-data',
     election: {
       id: 'mock-election-id' as ElectionId,

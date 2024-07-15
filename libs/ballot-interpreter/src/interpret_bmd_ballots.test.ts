@@ -135,7 +135,7 @@ describe('VX BMD interpretation', () => {
       {
         electionDefinition: {
           ...electionGeneralDefinition,
-          electionHash: 'd34db33f',
+          ballotHash: 'd34db33f',
         },
         testMode: true,
         precinctSelection: singlePrecinctSelectionFor(precinctId),
@@ -149,7 +149,7 @@ describe('VX BMD interpretation', () => {
       interpretationResult[0].interpretation
     ).toEqual<InvalidElectionHashPage>({
       type: 'InvalidElectionHashPage',
-      actualElectionHash: sliceElectionHash(electionDefinition.electionHash),
+      actualElectionHash: sliceElectionHash(electionDefinition.ballotHash),
       expectedElectionHash: 'd34db33f',
     });
   });

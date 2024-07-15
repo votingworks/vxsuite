@@ -32,7 +32,7 @@ export function getMockInterpretation(
     type: 'InterpretedBmdPage',
     metadata: {
       ballotStyleId: electionDefinition.election.ballotStyles[0].id,
-      electionHash: electionDefinition.electionHash,
+      electionHash: electionDefinition.ballotHash,
       isTestMode: true,
       precinctId: electionDefinition.election.precincts[0].id,
       ballotType: BallotType.Precinct,

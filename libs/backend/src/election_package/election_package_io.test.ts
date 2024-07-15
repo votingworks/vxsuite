@@ -543,7 +543,7 @@ test('errors if a user is authenticated but is not an election manager', async (
 
 test('configures using the most recently created election package for an election', async () => {
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
-  const { election, electionHash } = electionDefinition;
+  const { election, ballotHash } = electionDefinition;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
     user: mockElectionManagerUser({
@@ -555,7 +555,7 @@ test('configures using the most recently created election package for an electio
   const mockUsbDrive = createMockUsbDrive();
   const electionDirectory = generateElectionBasedSubfolderName(
     election,
-    electionHash
+    ballotHash
   );
   const specificSystemSettings: SystemSettings = {
     ...DEFAULT_SYSTEM_SETTINGS,
@@ -599,11 +599,11 @@ test('configures using the most recently created election package for an electio
 
 test('configures using the most recently created election package across elections', async () => {
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
-  const { election, electionHash } = electionDefinition;
+  const { election, ballotHash } = electionDefinition;
 
   const { electionDefinition: otherElectionDefinition } =
     electionFamousNames2021Fixtures;
-  const { election: otherElection, electionHash: otherElectionHash } =
+  const { election: otherElection, ballotHash: otherElectionHash } =
     otherElectionDefinition;
 
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
@@ -617,7 +617,7 @@ test('configures using the most recently created election package across electio
   const mockUsbDrive = createMockUsbDrive();
   const electionDirectory = generateElectionBasedSubfolderName(
     election,
-    electionHash
+    ballotHash
   );
   const otherElectionDirectory = generateElectionBasedSubfolderName(
     otherElection,
@@ -664,7 +664,7 @@ test('configures using the most recently created election package across electio
 
 test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
-  const { election, electionHash } = electionDefinition;
+  const { election, ballotHash } = electionDefinition;
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
     status: 'logged_in',
     user: mockElectionManagerUser({
@@ -676,7 +676,7 @@ test('ignores hidden `.`-prefixed files, even if they are newer', async () => {
   const mockUsbDrive = createMockUsbDrive();
   const electionDirectory = generateElectionBasedSubfolderName(
     election,
-    electionHash
+    ballotHash
   );
   mockUsbDrive.insertUsbDrive({
     [electionDirectory]: {

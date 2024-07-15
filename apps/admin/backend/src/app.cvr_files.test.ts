@@ -836,7 +836,7 @@ test.each<{
     usbDriveContentGenerator: () => {
       const electionSubDirectoryName = generateElectionBasedSubfolderName(
         electionDefinition.election,
-        electionDefinition.electionHash
+        electionDefinition.ballotHash
       );
       return {
         [electionSubDirectoryName]: {
@@ -852,7 +852,7 @@ test.each<{
     usbDriveContentGenerator: () => {
       const electionSubDirectoryName = generateElectionBasedSubfolderName(
         electionDefinition.election,
-        electionDefinition.electionHash
+        electionDefinition.ballotHash
       );
       const emptyExportDirectoryName =
         generateCastVoteRecordExportDirectoryName({

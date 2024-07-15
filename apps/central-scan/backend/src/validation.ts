@@ -42,7 +42,7 @@ export type ValidationError =
     }
   | {
       type: ValidationErrorType.MismatchedElectionHash;
-      electionHashes: SheetOf<ElectionDefinition['electionHash']>;
+      electionHashes: SheetOf<ElectionDefinition['ballotHash']>;
     }
   | {
       type: ValidationErrorType.MismatchedPrecinct;

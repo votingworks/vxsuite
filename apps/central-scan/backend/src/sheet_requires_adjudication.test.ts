@@ -19,7 +19,7 @@ const metadata: BallotMetadata = {
   ballotType: BallotType.Precinct,
   electionHash:
     electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
-      .electionHash,
+      .ballotHash,
   isTestMode: false,
   precinctId: '23',
 };

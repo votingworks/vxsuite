@@ -109,7 +109,7 @@ export async function* buildCdfLog(
   const eventElectionLog: JsonStreamInput<EventLogging.ElectionEventLog> = {
     '@type': 'EventLogging.ElectionEventLog',
     Device: [currentDevice],
-    ElectionId: electionDefinition.electionHash,
+    ElectionId: electionDefinition.ballotHash,
     GeneratedTime: new Date().toISOString(),
   };
 

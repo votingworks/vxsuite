@@ -62,7 +62,7 @@ export async function interpret(
 
   const foundQrCode = (frontResult.ok() ?? backResult.ok()) as DetectedQrCode;
   const actualElectionHash = decodeElectionHash(foundQrCode.data);
-  const expectedElectionHash = electionDefinition.electionHash.slice(
+  const expectedElectionHash = electionDefinition.ballotHash.slice(
     0,
     ELECTION_HASH_LENGTH
   );

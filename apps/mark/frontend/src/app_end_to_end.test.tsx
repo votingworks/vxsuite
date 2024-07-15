@@ -48,7 +48,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectGetMachineConfig({
     screenOrientation: 'portrait',
   });
-  const expectedElectionHash = electionDefinition.electionHash.substring(0, 10);
+  const expectedElectionHash = electionDefinition.ballotHash.substring(0, 10);
   const reload = jest.fn();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);

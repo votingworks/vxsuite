@@ -373,7 +373,7 @@ async function addQrCodesAndElectionHashes(
     if (pageNumber % 2 === 1) {
       await document.setContent(
         `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${ELECTION_HASH_SLOT_CLASS}`,
-        <>{getDisplayElectionHash(metadata)}</>
+        <>{getDisplayElectionHash({ ballotHash: metadata.electionHash })}</>
       );
     }
   }
@@ -495,7 +495,7 @@ export async function renderAllBallotsAndCreateElectionDefinition<
   for (const { document, props } of ballotsWithLayouts) {
     if (props.ballotMode !== 'sample') {
       await addQrCodesAndElectionHashes(document, electionDefinition.election, {
-        electionHash: electionDefinition.electionHash,
+        electionHash: electionDefinition.ballotHash,
         ballotStyleId: props.ballotStyleId,
         precinctId: props.precinctId,
         ballotType: props.ballotType,

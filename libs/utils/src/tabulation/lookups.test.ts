@@ -25,7 +25,7 @@ test('getPrecinctById', () => {
   // confirm that different elections are maintained separately
   const modifiedElectionDefinition: ElectionDefinition = {
     ...electionDefinition,
-    electionHash: 'modified-election-hash',
+    ballotHash: 'modified-election-hash',
     election: {
       ...electionDefinition.election,
       precincts: [

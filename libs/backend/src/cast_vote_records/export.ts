@@ -237,7 +237,7 @@ async function getExportDirectoryPathRelativeToUsbMountPoint(
   const { exportOptions, scannerState, scannerStore, usbMountPoint } =
     exportContext;
   const { electionDefinition, inTestMode } = scannerState;
-  const { election, electionHash } = electionDefinition;
+  const { election, ballotHash } = electionDefinition;
 
   let exportDirectoryName: string | undefined;
   switch (exportOptions.scannerType) {
@@ -267,7 +267,7 @@ async function getExportDirectoryPathRelativeToUsbMountPoint(
   }
 
   const exportDirectoryPathRelativeToUsbMountPoint = path.join(
-    generateElectionBasedSubfolderName(election, electionHash),
+    generateElectionBasedSubfolderName(election, ballotHash),
     SCANNER_RESULTS_FOLDER,
     exportDirectoryName
   );
@@ -284,7 +284,7 @@ function buildCastVoteRecordReportMetadata(
 ): CVR.CastVoteRecordReport {
   const { scannerState } = exportContext;
   const { batches, electionDefinition, inTestMode } = scannerState;
-  const { election, electionHash: electionId } = electionDefinition;
+  const { election, ballotHash: electionId } = electionDefinition;
   const scannerId = VX_MACHINE_ID;
 
   return baseBuildCastVoteRecordReportMetadata({
@@ -312,7 +312,7 @@ async function buildCastVoteRecord(
 ): Promise<CVR.CVR> {
   const { scannerState } = exportContext;
   const { electionDefinition, markThresholds } = scannerState;
-  const { election, electionHash: electionId } = electionDefinition;
+  const { election, ballotHash: electionId } = electionDefinition;
   const electionOptionPositionMap = buildElectionOptionPositionMap(election);
   const scannerId = VX_MACHINE_ID;
 
@@ -869,14 +869,14 @@ export async function doesUsbDriveRequireCastVoteRecordSync(
       return true;
     }
 
-    const { election, electionHash } = electionDefinition;
+    const { election, ballotHash } = electionDefinition;
     const exportDirectoryName = scannerStore.getExportDirectoryName();
     if (!exportDirectoryName) {
       return true;
     }
     const exportDirectoryPath = path.join(
       usbMountPoint,
-      generateElectionBasedSubfolderName(election, electionHash),
+      generateElectionBasedSubfolderName(election, ballotHash),
       SCANNER_RESULTS_FOLDER,
       exportDirectoryName
     );

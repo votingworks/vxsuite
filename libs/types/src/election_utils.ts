@@ -387,9 +387,9 @@ export function isVotePresent(v?: Vote): boolean {
 export const ELECTION_HASH_DISPLAY_LENGTH = 10;
 
 export function getDisplayElectionHash(
-  electionDefinition: Pick<ElectionDefinition, 'electionHash'>
+  electionDefinition: Pick<ElectionDefinition, 'ballotHash'>
 ): string {
-  return electionDefinition.electionHash.slice(0, ELECTION_HASH_DISPLAY_LENGTH);
+  return electionDefinition.ballotHash.slice(0, ELECTION_HASH_DISPLAY_LENGTH);
 }
 
 // In inches

@@ -191,13 +191,13 @@ export function PreviewDashboard({
               </PreviewColumns>
               <ConfigBox>
                 <Select
-                  value={electionDefinition.electionHash}
+                  value={electionDefinition.ballotHash}
                   onChange={onElectionDefinitionSelected}
                 >
                   <optgroup label="Presets">
                     {initialElectionDefinitions.map(
-                      ({ election, electionHash }) => (
-                        <option key={electionHash} value={electionHash}>
+                      ({ election, ballotHash }) => (
+                        <option key={ballotHash} value={ballotHash}>
                           {election.title}
                         </option>
                       )
@@ -206,8 +206,8 @@ export function PreviewDashboard({
                   <optgroup label="Custom">
                     {electionDefinitions
                       .slice(initialElectionDefinitions.length)
-                      .map(({ election, electionHash }) => (
-                        <option key={electionHash} value={electionHash}>
+                      .map(({ election, ballotHash }) => (
+                        <option key={ballotHash} value={ballotHash}>
                           {election.title}
                         </option>
                       ))}

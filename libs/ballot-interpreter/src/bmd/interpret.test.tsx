@@ -104,10 +104,10 @@ test('mismatched election', async () => {
       type: 'mismatched-election',
       expectedElectionHash: sliceElectionHash(
         electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
-          .electionHash
+          .ballotHash
       ),
       actualElectionHash: sliceElectionHash(
-        electionFamousNames2021Fixtures.electionDefinition.electionHash
+        electionFamousNames2021Fixtures.electionDefinition.ballotHash
       ),
     })
   );

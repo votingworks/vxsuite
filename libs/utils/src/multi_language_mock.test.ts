@@ -27,7 +27,7 @@ test('getMockMultiLanguageElectionDefinition', () => {
     { id: '2_es-US', languages: [LanguageCode.SPANISH] },
   ]);
 
-  expect(modifiedElectionDefinition.electionHash).not.toEqual(
-    electionDefinition.electionHash
+  expect(modifiedElectionDefinition.ballotHash).not.toEqual(
+    electionDefinition.ballotHash
   );
 });

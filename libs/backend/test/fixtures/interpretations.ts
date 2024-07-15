@@ -16,7 +16,7 @@ import {
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 
 const electionDefinition = electionTwoPartyPrimaryDefinition;
-const { election, electionHash } = electionDefinition;
+const { election, ballotHash } = electionDefinition;
 
 export const fishingContest = find(
   election.contests,
@@ -32,7 +32,7 @@ export const bestFishContest = find(
 ) as CandidateContest;
 
 export const mockBallotMetadata: BallotMetadata = {
-  electionHash,
+  electionHash: ballotHash,
   precinctId: 'precinct-1',
   ballotStyleId: '2F',
   isTestMode: true,

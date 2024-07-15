@@ -402,7 +402,7 @@ export function buildApi(
       const electionDefinition = workspace.store.getElectionDefinition();
       return new LiveCheck().generateQrCodeValue({
         machineId,
-        electionHash: electionDefinition?.electionHash,
+        electionHash: electionDefinition?.ballotHash,
       });
     },
 

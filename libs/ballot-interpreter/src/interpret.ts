@@ -318,7 +318,7 @@ function buildInterpretedHmpbPageMetadata(
     ballotStyleId: ballotStyle.id,
     precinctId,
     ballotType: BallotType.Precinct,
-    electionHash: electionDefinition.electionHash,
+    electionHash: electionDefinition.ballotHash,
     isTestMode: options.testMode,
     pageNumber: side === 'front' ? 1 : 2,
   };
@@ -495,7 +495,7 @@ function validateInterpretResults(
   options: InterpreterOptions
 ): SheetOf<InterpretFileResult> {
   const {
-    electionDefinition: { electionHash },
+    electionDefinition: { ballotHash },
     precinctSelection,
     testMode,
   } = options;
@@ -536,13 +536,12 @@ function validateInterpretResults(
     // metadata.electionHash may be a sliced hash or a full hash, so we need to
     // slice both hashes before comparing them.
     if (
-      sliceElectionHash(metadata.electionHash) !==
-      sliceElectionHash(electionHash)
+      sliceElectionHash(metadata.electionHash) !== sliceElectionHash(ballotHash)
     ) {
       return {
         interpretation: typedAs<InvalidElectionHashPage>({
           type: 'InvalidElectionHashPage',
-          expectedElectionHash: sliceElectionHash(electionHash),
+          expectedElectionHash: sliceElectionHash(ballotHash),
           actualElectionHash: sliceElectionHash(metadata.electionHash),
         }),
         normalizedImage,

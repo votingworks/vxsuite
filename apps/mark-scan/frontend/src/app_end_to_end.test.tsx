@@ -48,7 +48,7 @@ test('MarkAndPrint end-to-end flow', async () => {
     screenOrientation: 'portrait',
   });
   apiMock.setPaperHandlerState('not_accepting_paper');
-  const expectedElectionHash = electionDefinition.electionHash.substring(0, 10);
+  const expectedElectionHash = electionDefinition.ballotHash.substring(0, 10);
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
   apiMock.expectGetElectionState();

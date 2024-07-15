@@ -65,7 +65,9 @@ export function ExportScreen(): JSX.Element | null {
         onSuccess: ({ zipContents, electionHash }) => {
           fileDownload(
             zipContents,
-            `ballots-${getDisplayElectionHash({ electionHash })}.zip`
+            `ballots-${getDisplayElectionHash({
+              ballotHash: electionHash,
+            })}.zip`
           );
         },
       }
@@ -80,7 +82,9 @@ export function ExportScreen(): JSX.Element | null {
         onSuccess: ({ zipContents, electionHash }) => {
           fileDownload(
             zipContents,
-            `test-decks-${getDisplayElectionHash({ electionHash })}.zip`
+            `test-decks-${getDisplayElectionHash({
+              ballotHash: electionHash,
+            })}.zip`
           );
         },
       }

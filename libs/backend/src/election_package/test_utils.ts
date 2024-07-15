@@ -54,9 +54,9 @@ export function createElectionPackageZipArchive(
 export async function mockElectionPackageFileTree(
   electionPackage: ElectionPackage
 ): Promise<MockFileTree> {
-  const { election, electionHash } = electionPackage.electionDefinition;
+  const { election, ballotHash } = electionPackage.electionDefinition;
   return {
-    [generateElectionBasedSubfolderName(election, electionHash)]: {
+    [generateElectionBasedSubfolderName(election, ballotHash)]: {
       [ELECTION_PACKAGE_FOLDER]: {
         'test-election-package.zip':
           await createElectionPackageZipArchive(electionPackage),

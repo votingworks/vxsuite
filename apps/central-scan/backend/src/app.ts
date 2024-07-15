@@ -164,9 +164,9 @@ function buildApi({
       store.setSystemSettings(systemSettings);
 
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
-        message: `Machine configured for election with hash: ${electionDefinition.electionHash}`,
+        message: `Machine configured for election with hash: ${electionDefinition.ballotHash}`,
         disposition: 'success',
-        electionHash: electionDefinition.electionHash,
+        electionHash: electionDefinition.ballotHash,
       });
 
       return ok(electionDefinition);

@@ -118,7 +118,7 @@ export type SheetValidationError = {
     }
   | {
       subType: 'mismatched-election-hashes';
-      electionHashes: SheetOf<ElectionDefinition['electionHash']>;
+      electionHashes: SheetOf<ElectionDefinition['ballotHash']>;
     }
   | {
       subType: 'mismatched-precinct-ids';

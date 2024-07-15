@@ -52,7 +52,7 @@ const testMetadata: BallotMetadata = {
   ballotType: BallotType.Precinct,
   electionHash:
     electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
-      .electionHash,
+      .ballotHash,
   isTestMode: false,
   precinctId: '23',
 };
@@ -409,7 +409,7 @@ test('adjudication', () => {
     const metadata: BallotMetadata = {
       electionHash:
         electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
-          .electionHash,
+          .ballotHash,
       ballotStyleId: 'card-number-3',
       precinctId: 'town-id-00701-precinct-id-',
       isTestMode: false,

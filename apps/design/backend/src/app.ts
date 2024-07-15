@@ -236,7 +236,7 @@ function buildApi({ workspace, translator }: AppContext) {
 
       return {
         zipContents: await zip.generateAsync({ type: 'nodebuffer' }),
-        electionHash: assertDefined(electionDefinition.electionHash),
+        electionHash: assertDefined(electionDefinition.ballotHash),
       };
     },
 
@@ -354,7 +354,7 @@ function buildApi({ workspace, translator }: AppContext) {
 
       return {
         zipContents: await zip.generateAsync({ type: 'nodebuffer' }),
-        electionHash: electionDefinition.electionHash,
+        electionHash: electionDefinition.ballotHash,
       };
     },
   });

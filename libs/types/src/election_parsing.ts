@@ -312,7 +312,7 @@ function safeParseElectionDefinitionExtended(
         electionDefinition: {
           election: result.ok().vxfElection,
           electionData: value,
-          electionHash: sha256(value),
+          ballotHash: sha256(value),
         },
       });
 }
