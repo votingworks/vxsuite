@@ -3,7 +3,7 @@ import { sha256 } from 'js-sha256';
 import * as z from 'zod';
 import {
   Dictionary,
-  ElectionHash,
+  Sha256Hash,
   Id,
   IdSchema,
   Iso8601Timestamp,
@@ -599,7 +599,7 @@ export const ElectionDefinitionSchema: z.ZodSchema<ElectionDefinition> = z
   .object({
     election: ElectionSchema,
     electionData: z.string().nonempty(),
-    ballotHash: ElectionHash,
+    ballotHash: Sha256Hash,
   })
   .superRefine((electionDefinition, ctx) => {
     const { electionData, ballotHash } = electionDefinition;
@@ -795,7 +795,7 @@ export interface HmpbBallotPageMetadata {
 }
 export const HmpbBallotPageMetadataSchema: z.ZodSchema<HmpbBallotPageMetadata> =
   z.object({
-    ballotHash: ElectionHash,
+    ballotHash: Sha256Hash,
     precinctId: PrecinctIdSchema,
     ballotStyleId: BallotStyleIdSchema,
     pageNumber: z.number(),
@@ -809,7 +809,7 @@ export type BallotMetadata = Omit<
   'pageNumber' | 'ballotId'
 >;
 export const BallotMetadataSchema: z.ZodSchema<BallotMetadata> = z.object({
-  ballotHash: ElectionHash,
+  ballotHash: Sha256Hash,
   precinctId: PrecinctIdSchema,
   ballotStyleId: BallotStyleIdSchema,
   isTestMode: z.boolean(),
