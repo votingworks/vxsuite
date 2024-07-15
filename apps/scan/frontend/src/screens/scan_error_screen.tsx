@@ -101,7 +101,7 @@ export function UnreadablePreview(): JSX.Element {
 }
 
 /* istanbul ignore next */
-export function InvalidElectionHashPreview(): JSX.Element {
+export function InvalidBallotHashPreview(): JSX.Element {
   return (
     <ScanErrorScreen
       isTestMode={false}

@@ -603,7 +603,7 @@ test('configures using the most recently created election package across electio
 
   const { electionDefinition: otherElectionDefinition } =
     electionFamousNames2021Fixtures;
-  const { election: otherElection, ballotHash: otherElectionHash } =
+  const { election: otherElection, ballotHash: otherBallotHash } =
     otherElectionDefinition;
 
   const authStatus: InsertedSmartCardAuth.AuthStatus = {
@@ -621,7 +621,7 @@ test('configures using the most recently created election package across electio
   );
   const otherElectionDirectory = generateElectionBasedSubfolderName(
     otherElection,
-    otherElectionHash
+    otherBallotHash
   );
   mockUsbDrive.insertUsbDrive({
     [otherElectionDirectory]: {

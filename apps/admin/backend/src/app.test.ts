@@ -125,7 +125,7 @@ test('managing the current election', async () => {
     'system_administrator',
     {
       disposition: 'success',
-      newElectionHash: ballotHash,
+      newBallotHash: ballotHash,
     }
   );
 
@@ -214,7 +214,7 @@ test('configuring with a CDF election', async () => {
     'system_administrator',
     {
       disposition: 'success',
-      newElectionHash: ballotHash,
+      newBallotHash: ballotHash,
     }
   );
 

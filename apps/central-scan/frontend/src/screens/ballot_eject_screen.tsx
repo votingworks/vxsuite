@@ -172,7 +172,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
   let isBackBlank = false;
   let isUnreadableSheet = false;
   let isInvalidTestModeSheet = false;
-  let isInvalidElectionHashSheet = false;
+  let isInvalidBallotHashSheet = false;
 
   let actualBallotHash: string | undefined;
 
@@ -199,7 +199,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
     if (reviewPageInfo.interpretation.type === 'InvalidTestModePage') {
       isInvalidTestModeSheet = true;
     } else if (reviewPageInfo.interpretation.type === 'InvalidBallotHashPage') {
-      isInvalidElectionHashSheet = true;
+      isInvalidBallotHashSheet = true;
       actualBallotHash = reviewPageInfo.interpretation.actualBallotHash;
     } else if (reviewPageInfo.interpretation.type === 'InterpretedHmpbPage') {
       if (reviewPageInfo.interpretation.adjudicationInfo.requiresAdjudication) {
@@ -229,7 +229,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
 
   const allowBallotDuplication =
     !isInvalidTestModeSheet &&
-    !isInvalidElectionHashSheet &&
+    !isInvalidBallotHashSheet &&
     !isUnreadableSheet &&
     !(isOvervotedSheet && precinctScanDisallowCastingOvervotes);
 
@@ -244,7 +244,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
     ? isTestMode
       ? 'Official Ballot'
       : 'Test Ballot'
-    : isInvalidElectionHashSheet
+    : isInvalidBallotHashSheet
     ? 'Wrong Election'
     : isUnreadableSheet
     ? 'Unreadable'
@@ -311,7 +311,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
             ) : (
               <P>Remove the test ballot before continuing.</P>
             )
-          ) : isInvalidElectionHashSheet ? (
+          ) : isInvalidBallotHashSheet ? (
             <React.Fragment>
               <P>
                 The scanned ballot does not match the election this scanner is

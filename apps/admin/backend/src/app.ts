@@ -450,7 +450,7 @@ function buildApi({
       store.setCurrentElectionId(electionId);
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
         disposition: 'success',
-        newElectionHash: electionDefinition.ballotHash,
+        newBallotHash: electionDefinition.ballotHash,
       });
       return ok({ electionId });
     },

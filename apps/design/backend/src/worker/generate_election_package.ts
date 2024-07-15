@@ -111,8 +111,8 @@ export async function generateElectionPackage(
   );
   zip.file(ElectionPackageFileName.AUDIO_CLIPS, uiStringAudioClips);
 
-  const displayElectionHash = getDisplayBallotHash(electionDefinition);
-  const fileName = `election-package-${displayElectionHash}.zip`;
+  const displayBallotHash = getDisplayBallotHash(electionDefinition);
+  const fileName = `election-package-${displayBallotHash}.zip`;
   const filePath = path.join(assetDirectoryPath, fileName);
   await pipeline(
     zip.generateNodeStream({ streamFiles: true }),
