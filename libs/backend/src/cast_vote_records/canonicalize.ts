@@ -111,8 +111,8 @@ export function canonicalizeSheet(
   if (front.metadata.ballotHash !== back.metadata.ballotHash) {
     return err({
       type: 'invalid-sheet',
-      subType: 'mismatched-election-hashes',
-      electionHashes: [front.metadata.ballotHash, back.metadata.ballotHash],
+      subType: 'mismatched-ballot-hashes',
+      ballotHashes: [front.metadata.ballotHash, back.metadata.ballotHash],
     });
   }
 

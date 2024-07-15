@@ -162,7 +162,7 @@ test('HMPB ballot with mismatched election', () => {
 
   expect(error).toEqual<ValidationError>({
     type: ValidationErrorType.MismatchedElectionHash,
-    electionHashes: ['abc', 'def'],
+    ballotHashes: ['abc', 'def'],
   });
   expect(describeValidationError(error)).toEqual(
     `expected a sheet to have the same election hash, but got front=abc back=def`

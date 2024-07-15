@@ -63,8 +63,8 @@ test.each<{
   {
     error: {
       type: 'invalid-sheet',
-      subType: 'mismatched-election-hashes',
-      electionHashes: ['1', '2'],
+      subType: 'mismatched-ballot-hashes',
+      ballotHashes: ['1', '2'],
     },
     expectedMessage:
       'Encountered an invalid sheet with mismatched election hashes: front = 1, back = 2.',

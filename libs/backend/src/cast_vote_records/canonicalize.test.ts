@@ -145,8 +145,8 @@ test('HMPB ballot with mismatched election', () => {
 
   expect(error).toEqual<SheetValidationError>({
     type: 'invalid-sheet',
-    subType: 'mismatched-election-hashes',
-    electionHashes: ['abc', 'def'],
+    subType: 'mismatched-ballot-hashes',
+    ballotHashes: ['abc', 'def'],
   });
 });
 

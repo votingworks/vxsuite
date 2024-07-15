@@ -42,7 +42,7 @@ export type ValidationError =
     }
   | {
       type: ValidationErrorType.MismatchedElectionHash;
-      electionHashes: SheetOf<ElectionDefinition['ballotHash']>;
+      ballotHashes: SheetOf<ElectionDefinition['ballotHash']>;
     }
   | {
       type: ValidationErrorType.MismatchedPrecinct;
@@ -115,7 +115,7 @@ export function validateSheetInterpretation([
     if (front.metadata.ballotHash !== back.metadata.ballotHash) {
       return err({
         type: ValidationErrorType.MismatchedElectionHash,
-        electionHashes: [front.metadata.ballotHash, back.metadata.ballotHash],
+        ballotHashes: [front.metadata.ballotHash, back.metadata.ballotHash],
       });
     }
   }
@@ -151,7 +151,7 @@ export function describeValidationError(
     }
 
     case ValidationErrorType.MismatchedElectionHash: {
-      const [front, back] = validationError.electionHashes;
+      const [front, back] = validationError.ballotHashes;
       return `expected a sheet to have the same election hash, but got front=${front} back=${back}`;
     }
 
