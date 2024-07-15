@@ -943,7 +943,7 @@ export const BatchInfoSchema: z.ZodSchema<BatchInfo> = z.object({
 });
 
 export interface CompletedBallot {
-  readonly electionHash: string;
+  readonly ballotHash: string;
   readonly ballotStyleId: BallotStyleId;
   readonly precinctId: PrecinctId;
   readonly ballotId?: BallotId;
