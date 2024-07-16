@@ -1,4 +1,4 @@
-import { sliceElectionHash } from '@votingworks/ballot-encoder';
+import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import {
   Result,
   throwIllegalValue,
@@ -15,7 +15,7 @@ import {
   BallotMetadata,
   BallotType,
   ElectionDefinition,
-  InvalidElectionHashPage,
+  InvalidBallotHashPage,
   InvalidPrecinctPage,
   InvalidTestModePage,
   mapSheet,
@@ -318,7 +318,7 @@ function buildInterpretedHmpbPageMetadata(
     ballotStyleId: ballotStyle.id,
     precinctId,
     ballotType: BallotType.Precinct,
-    electionHash: electionDefinition.electionHash,
+    ballotHash: electionDefinition.ballotHash,
     isTestMode: options.testMode,
     pageNumber: side === 'front' ? 1 : 2,
   };
@@ -495,7 +495,7 @@ function validateInterpretResults(
   options: InterpreterOptions
 ): SheetOf<InterpretFileResult> {
   const {
-    electionDefinition: { electionHash },
+    electionDefinition: { ballotHash },
     precinctSelection,
     testMode,
   } = options;
@@ -533,17 +533,17 @@ function validateInterpretResults(
       };
     }
 
-    // metadata.electionHash may be a sliced hash or a full hash, so we need to
+    // metadata.ballotHash may be a sliced hash or a full hash, so we need to
     // slice both hashes before comparing them.
     if (
-      sliceElectionHash(metadata.electionHash) !==
-      sliceElectionHash(electionHash)
+      sliceBallotHashForEncoding(metadata.ballotHash) !==
+      sliceBallotHashForEncoding(ballotHash)
     ) {
       return {
-        interpretation: typedAs<InvalidElectionHashPage>({
-          type: 'InvalidElectionHashPage',
-          expectedElectionHash: sliceElectionHash(electionHash),
-          actualElectionHash: sliceElectionHash(metadata.electionHash),
+        interpretation: typedAs<InvalidBallotHashPage>({
+          type: 'InvalidBallotHashPage',
+          expectedBallotHash: sliceBallotHashForEncoding(ballotHash),
+          actualBallotHash: sliceBallotHashForEncoding(metadata.ballotHash),
         }),
         normalizedImage,
       };
@@ -592,17 +592,17 @@ async function interpretBmdBallot(
       return [
         {
           interpretation: {
-            type: 'InvalidElectionHashPage',
-            expectedElectionHash: error.expectedElectionHash,
-            actualElectionHash: error.actualElectionHash,
+            type: 'InvalidBallotHashPage',
+            expectedBallotHash: error.expectedBallotHash,
+            actualBallotHash: error.actualBallotHash,
           },
           normalizedImage: ballotImages[0],
         },
         {
           interpretation: {
-            type: 'InvalidElectionHashPage',
-            expectedElectionHash: error.expectedElectionHash,
-            actualElectionHash: error.actualElectionHash,
+            type: 'InvalidBallotHashPage',
+            expectedBallotHash: error.expectedBallotHash,
+            actualBallotHash: error.actualBallotHash,
           },
           normalizedImage: ballotImages[1],
         },
@@ -658,7 +658,7 @@ async function interpretBmdBallot(
       type: 'InterpretedBmdPage',
       ballotId: ballot.ballotId,
       metadata: {
-        electionHash: ballot.electionHash,
+        ballotHash: ballot.ballotHash,
         ballotType: BallotType.Precinct,
         ballotStyleId: ballot.ballotStyleId,
         precinctId: ballot.precinctId,
@@ -756,8 +756,8 @@ function scoreInterpretFileResult(
   }
 
   if (
-    frontType === 'InvalidElectionHashPage' ||
-    backType === 'InvalidElectionHashPage'
+    frontType === 'InvalidBallotHashPage' ||
+    backType === 'InvalidBallotHashPage'
   ) {
     return -60;
   }

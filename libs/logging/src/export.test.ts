@@ -28,7 +28,7 @@ describe('buildCdfLog', () => {
     assert(cdfLog);
     expect(cdfLog.Device).toHaveLength(1);
     expect(cdfLog.ElectionId).toEqual(
-      electionTwoPartyPrimaryDefinition.electionHash
+      electionTwoPartyPrimaryDefinition.ballotHash
     );
     expect(cdfLog.GeneratedTime).toMatchInlineSnapshot(
       `"2020-07-24T00:00:00.000Z"`
@@ -267,7 +267,7 @@ describe('buildCdfLog', () => {
     assert(cdfLog);
     expect(cdfLog.Device).toHaveLength(1);
     expect(cdfLog.ElectionId).toEqual(
-      electionTwoPartyPrimaryDefinition.electionHash
+      electionTwoPartyPrimaryDefinition.ballotHash
     );
     expect(cdfLog.GeneratedTime).toMatchInlineSnapshot(
       `"2020-07-24T00:00:00.000Z"`

@@ -19,7 +19,7 @@ import {
   Outset,
   PrecinctId,
   convertVxfElectionToCdfBallotDefinition,
-  getDisplayElectionHash,
+  getDisplayBallotHash,
   safeParseElectionDefinition,
 } from '@votingworks/types';
 import { QrCode } from '@votingworks/ui';
@@ -29,7 +29,7 @@ import {
   BUBBLE_CLASS,
   CONTENT_SLOT_CLASS,
   ContentSlot,
-  ELECTION_HASH_SLOT_CLASS,
+  BALLOT_HASH_SLOT_CLASS,
   OptionInfo,
   PAGE_CLASS,
   QR_CODE_SIZE,
@@ -341,7 +341,7 @@ async function extractGridLayout(
   };
 }
 
-async function addQrCodesAndElectionHashes(
+async function addQrCodesAndBallotHashes(
   document: RenderDocument,
   election: Election,
   metadata: Omit<HmpbBallotPageMetadata, 'pageNumber'>
@@ -372,8 +372,8 @@ async function addQrCodesAndElectionHashes(
     );
     if (pageNumber % 2 === 1) {
       await document.setContent(
-        `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${ELECTION_HASH_SLOT_CLASS}`,
-        <>{getDisplayElectionHash(metadata)}</>
+        `.${PAGE_CLASS}[data-page-number="${pageNumber}"] .${BALLOT_HASH_SLOT_CLASS}`,
+        <>{getDisplayBallotHash(metadata)}</>
       );
     }
   }
@@ -426,7 +426,7 @@ export interface BaseBallotProps {
  * Given a {@link BallotPageTemplate} and a list of ballot props, renders
  * ballot for each set of props. Then, extracts the grid layout from the
  * rendered ballots and creates an election definition. Lastly, inserts QR codes
- * into the ballots with the resulting election hash.
+ * into the ballots with the resulting ballot hash.
  */
 export async function renderAllBallotsAndCreateElectionDefinition<
   P extends BaseBallotProps,
@@ -494,8 +494,8 @@ export async function renderAllBallotsAndCreateElectionDefinition<
 
   for (const { document, props } of ballotsWithLayouts) {
     if (props.ballotMode !== 'sample') {
-      await addQrCodesAndElectionHashes(document, electionDefinition.election, {
-        electionHash: electionDefinition.electionHash,
+      await addQrCodesAndBallotHashes(document, electionDefinition.election, {
+        ballotHash: electionDefinition.ballotHash,
         ballotStyleId: props.ballotStyleId,
         precinctId: props.precinctId,
         ballotType: props.ballotType,

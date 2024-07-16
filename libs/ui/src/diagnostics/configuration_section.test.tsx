@@ -1,5 +1,5 @@
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
-import { getDisplayElectionHash } from '@votingworks/types';
+import { getDisplayBallotHash } from '@votingworks/types';
 import { render, screen } from '../../test/react_testing_library';
 import { ConfigurationSection } from './configuration_section';
 import { expectTextWithIcon } from '../../test/expect_text_with_icon';
@@ -20,7 +20,7 @@ test('election, no precinct expected', () => {
 
   screen.getByRole('heading', { name: 'Configuration' });
   screen.getByText(
-    `Election: Example Primary Election, ${getDisplayElectionHash(
+    `Election: Example Primary Election, ${getDisplayBallotHash(
       electionDefinition
     )}`
   );
@@ -41,7 +41,7 @@ test('election, precinct expected but not selected', async () => {
 
   screen.getByRole('heading', { name: 'Configuration' });
   screen.getByText(
-    `Election: Example Primary Election, ${getDisplayElectionHash(
+    `Election: Example Primary Election, ${getDisplayBallotHash(
       electionDefinition
     )}`
   );
@@ -62,7 +62,7 @@ test('election, all precincts selected', () => {
 
   screen.getByRole('heading', { name: 'Configuration' });
   screen.getByText(
-    `Election: Example Primary Election, ${getDisplayElectionHash(
+    `Election: Example Primary Election, ${getDisplayBallotHash(
       electionDefinition
     )}`
   );

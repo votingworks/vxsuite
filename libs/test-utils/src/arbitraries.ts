@@ -475,6 +475,6 @@ export function arbitraryElectionDefinition(): fc.Arbitrary<ElectionDefinition> 
     .map(({ election, electionData }) => ({
       election,
       electionData,
-      electionHash: sha256(electionData),
+      ballotHash: sha256(electionData),
     }));
 }

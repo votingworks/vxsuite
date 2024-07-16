@@ -110,8 +110,7 @@ export function CardDetailsView({
     role === 'system_administrator' ||
     // Because PIN resetting completely reprograms the card under the hood, we also need the
     // relevant election definition to be loaded for election manager and poll worker cards, so
-    // that we can write the proper election hash (and for election manager cards, full election
-    // definition)
+    // that we can write the proper election key
     (doesCardElectionMatchMachineElection &&
       (role === 'election_manager' ||
         (arePollWorkerCardPinsEnabled && role === 'poll_worker')))

@@ -37,9 +37,9 @@ import {
 export const MAXIMUM_WRITE_IN_LENGTH = 40;
 
 /**
- * Exact length of the SHA256 hash of the election definition.
+ * Exact length of the ballot hash used in the ballot encoding.
  */
-export const ELECTION_HASH_LENGTH = 20;
+export const BALLOT_HASH_ENCODING_LENGTH = 20;
 
 /**
  * Maximum number of pages in a hand-marked paper ballot.
@@ -47,11 +47,11 @@ export const ELECTION_HASH_LENGTH = 20;
 export const MAXIMUM_PAGE_NUMBERS = 30;
 
 /**
- * Slices an election hash down to the length used in ballot encoding. Useful
+ * Slices a ballot hash down to the length used in ballot encoding. Useful
  * to have this as a utility function so it can be mocked in other modules' tests.
  */
-export function sliceElectionHash(electionHash: string): string {
-  return electionHash.slice(0, ELECTION_HASH_LENGTH);
+export function sliceBallotHashForEncoding(ballotHash: string): string {
+  return ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH);
 }
 
 // TODO: include "magic number" and encoding version
@@ -65,7 +65,7 @@ export const WriteInEncoding = new CustomEncoding(
 );
 
 /**
- * Encoding for hexadecimal string values, e.g. the election hash.
+ * Encoding for hexadecimal string values, e.g. the ballot hash.
  */
 export const HexEncoding = new CustomEncoding('0123456789abcdef');
 
@@ -309,7 +309,7 @@ function encodeBallotVotesInto(
 export function encodeBallotInto(
   election: Election,
   {
-    electionHash,
+    ballotHash,
     ballotStyleId,
     precinctId,
     votes,
@@ -331,10 +331,10 @@ export function encodeBallotInto(
 
   return bits
     .writeUint8(...BmdPrelude)
-    .writeString(sliceElectionHash(electionHash), {
+    .writeString(sliceBallotHashForEncoding(ballotHash), {
       encoding: HexEncoding,
       includeLength: false,
-      length: ELECTION_HASH_LENGTH,
+      length: BALLOT_HASH_ENCODING_LENGTH,
     })
     .with(() =>
       encodeBallotConfigInto(
@@ -459,9 +459,9 @@ export function decodeBallotFromReader(
     );
   }
 
-  const electionHash = bits.readString({
+  const ballotHash = bits.readString({
     encoding: HexEncoding,
-    length: ELECTION_HASH_LENGTH,
+    length: BALLOT_HASH_ENCODING_LENGTH,
   });
 
   const { ballotId, ballotStyleId, ballotType, isTestMode, precinctId } =
@@ -478,7 +478,7 @@ export function decodeBallotFromReader(
   readPaddingToEnd(bits);
 
   return {
-    electionHash,
+    ballotHash,
     ballotId,
     ballotStyleId,
     precinctId,
@@ -499,24 +499,24 @@ export function decodeBallot(
 }
 
 /**
- * Reads the election hash from an encoded BMD ballot metadata.
+ * Reads the ballot hash from an encoded BMD ballot metadata.
  */
-export function decodeElectionHashFromReader(
+export function decodeBallotHashFromReader(
   bits: BitReader
 ): string | undefined {
   if (bits.skipUint8(...BmdPrelude) || bits.skipUint8(...HmpbPrelude)) {
     return bits.readString({
       encoding: HexEncoding,
-      length: ELECTION_HASH_LENGTH,
+      length: BALLOT_HASH_ENCODING_LENGTH,
     });
   }
 }
 
 /**
- * Reads the election hash from an encoded ballot metadata.
+ * Reads the ballot hash from an encoded ballot metadata.
  */
-export function decodeElectionHash(data: Uint8Array): string | undefined {
-  return decodeElectionHashFromReader(new BitReader(data));
+export function decodeBallotHash(data: Uint8Array): string | undefined {
+  return decodeBallotHashFromReader(new BitReader(data));
 }
 
 /**
@@ -528,7 +528,7 @@ export function encodeHmpbBallotPageMetadataInto(
     ballotId,
     ballotStyleId,
     ballotType,
-    electionHash,
+    ballotHash,
     isTestMode,
     pageNumber,
     precinctId,
@@ -537,10 +537,10 @@ export function encodeHmpbBallotPageMetadataInto(
 ): BitWriter {
   return bits
     .writeUint8(...HmpbPrelude)
-    .writeString(sliceElectionHash(electionHash), {
+    .writeString(sliceBallotHashForEncoding(ballotHash), {
       encoding: HexEncoding,
       includeLength: false,
-      length: ELECTION_HASH_LENGTH,
+      length: BALLOT_HASH_ENCODING_LENGTH,
     })
     .with(() =>
       encodeBallotConfigInto(

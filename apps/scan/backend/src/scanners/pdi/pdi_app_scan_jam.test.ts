@@ -183,7 +183,7 @@ test('jam while rejecting', async () => {
 
       const interpretation: SheetInterpretation = {
         type: 'InvalidSheet',
-        reason: 'invalid_election_hash',
+        reason: 'invalid_ballot_hash',
       };
       const deferredEject = deferred<Result<void, ScannerError>>();
       mockScanner.client.ejectDocument.mockReturnValueOnce(

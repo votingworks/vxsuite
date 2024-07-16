@@ -50,9 +50,9 @@ const jurisdiction = TEST_JURISDICTION;
 const testMetadata: BallotMetadata = {
   ballotStyleId: '12',
   ballotType: BallotType.Precinct,
-  electionHash:
+  ballotHash:
     electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
-      .electionHash,
+      .ballotHash,
   isTestMode: false,
   precinctId: '23',
 };
@@ -407,9 +407,9 @@ test('adjudication', () => {
   });
   function mockPage(i: 0 | 1): PageInterpretationWithFiles {
     const metadata: BallotMetadata = {
-      electionHash:
+      ballotHash:
         electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
-          .electionHash,
+          .ballotHash,
       ballotStyleId: 'card-number-3',
       precinctId: 'town-id-00701-precinct-id-',
       isTestMode: false,

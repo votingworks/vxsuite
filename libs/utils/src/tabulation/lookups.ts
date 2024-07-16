@@ -23,13 +23,13 @@ export function createElectionMetadataLookupFunction<T>(
   const cachedLookups: Record<string, Record<string, T>> = {};
 
   return (electionDefinition: ElectionDefinition, key: string): T => {
-    const cachedLookup = cachedLookups[electionDefinition.electionHash];
+    const cachedLookup = cachedLookups[electionDefinition.ballotHash];
     if (cachedLookup) {
       return assertDefined(cachedLookup[key]);
     }
 
     const lookup = buildLookupFn(electionDefinition.election);
-    cachedLookups[electionDefinition.electionHash] = lookup;
+    cachedLookups[electionDefinition.ballotHash] = lookup;
     return assertDefined(lookup[key]);
   };
 }

@@ -20,7 +20,7 @@ pub enum BallotType {
 // Metadata encoded in a QR code. Matches the TS type HmpbBallotPageMetadata.
 #[allow(clippy::module_name_repetitions)]
 pub struct BallotPageQrCodeMetadata {
-    pub election_hash: String, // Hex string, first 20 characters of the hash
+    pub ballot_hash: String, // Hex string, first 20 characters of the hash
     pub precinct_id: PrecinctId,
     pub ballot_style_id: BallotStyleId,
     pub page_number: u8,
@@ -37,7 +37,7 @@ pub enum BallotPageQrCodeMetadataError {
     InvalidMetadata { bytes: Vec<u8> },
 }
 
-const ELECTION_HASH_LENGTH: u32 = 20;
+const BALLOT_HASH_LENGTH: u32 = 20;
 const HEX_BYTES_PER_CHAR: u32 = 2;
 const MAXIMUM_PAGE_NUMBERS: u32 = 30;
 const BALLOT_TYPE_MAXIMUM_VALUE: u32 = 2_u32.pow(4) - 1;
@@ -52,9 +52,9 @@ pub fn decode_metadata_bits(election: &Election, bytes: &[u8]) -> Option<BallotP
         return None;
     }
 
-    let mut election_hash_bytes = [0; (ELECTION_HASH_LENGTH / HEX_BYTES_PER_CHAR) as usize];
-    bits.read_bytes(&mut election_hash_bytes);
-    let election_hash = hex::encode(election_hash_bytes);
+    let mut ballot_hash_bytes = [0; (BALLOT_HASH_LENGTH / HEX_BYTES_PER_CHAR) as usize];
+    bits.read_bytes(&mut ballot_hash_bytes);
+    let ballot_hash = hex::encode(ballot_hash_bytes);
 
     let precinct_count = bits.read_u8()?;
     let ballot_style_count = bits.read_u8()?;
@@ -74,7 +74,7 @@ pub fn decode_metadata_bits(election: &Election, bytes: &[u8]) -> Option<BallotP
     let ballot_style = election.ballot_styles.get(ballot_style_index as usize)?;
 
     Some(BallotPageQrCodeMetadata {
-        election_hash,
+        ballot_hash,
         precinct_id: precinct.id.clone(),
         ballot_style_id: ballot_style.id.clone(),
         page_number,
@@ -93,7 +93,7 @@ pub fn infer_missing_page_metadata(
     };
 
     BallotPageQrCodeMetadata {
-        election_hash: detected_ballot_metadata.election_hash.clone(),
+        ballot_hash: detected_ballot_metadata.ballot_hash.clone(),
         ballot_style_id: detected_ballot_metadata.ballot_style_id.clone(),
         precinct_id: detected_ballot_metadata.precinct_id.clone(),
         ballot_type: detected_ballot_metadata.ballot_type,
@@ -135,7 +135,7 @@ mod test {
         assert_eq!(
             decode_metadata_bits(&election, &bytes),
             Some(BallotPageQrCodeMetadata {
-                election_hash: "d27ab6588b1869544cde".to_string(),
+                ballot_hash: "d27ab6588b1869544cde".to_string(),
                 precinct_id: PrecinctId::from("town-id-01001-precinct-id-".to_string()),
                 ballot_style_id: BallotStyleId::from("card-number-5".to_string()),
                 page_number: 1,
@@ -157,14 +157,14 @@ mod test {
         #[test]
         fn test_infer_missing_page_metadata(
             page_number in 1u8..100,
-            election_hash in "[0-9a-f]{20}",
+            ballot_hash in "[0-9a-f]{20}",
             precinct_id in "[0-9a-z-]{1,100}",
             ballot_style_id in "[0-9a-z-]{1,100}",
             is_test_mode in proptest::bool::ANY,
             ballot_type in arbitrary_ballot_type()
         ) {
             let detected_metadata = BallotPageQrCodeMetadata {
-                election_hash,
+                ballot_hash,
                 precinct_id: PrecinctId::from(precinct_id),
                 ballot_style_id: BallotStyleId::from(ballot_style_id),
                 page_number,
@@ -176,7 +176,7 @@ mod test {
             let inferred_metadata = infer_missing_page_metadata(&detected_metadata);
             assert_eq!(u8::abs_diff(inferred_metadata.page_number, detected_metadata.page_number), 1);
 
-            assert_eq!(inferred_metadata.election_hash, detected_metadata.election_hash);
+            assert_eq!(inferred_metadata.ballot_hash, detected_metadata.ballot_hash);
             assert_eq!(inferred_metadata.precinct_id, detected_metadata.precinct_id);
             assert_eq!(inferred_metadata.ballot_style_id, detected_metadata.ballot_style_id);
             assert_eq!(inferred_metadata.is_test_mode, detected_metadata.is_test_mode);

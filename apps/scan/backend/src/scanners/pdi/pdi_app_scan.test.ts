@@ -312,7 +312,7 @@ test('ballot with wrong election rejected', async () => {
 
       const interpretation: SheetInterpretation = {
         type: 'InvalidSheet',
-        reason: 'invalid_election_hash',
+        reason: 'invalid_ballot_hash',
       };
       await waitForStatus(apiClient, { state: 'rejecting', interpretation });
       expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith(

@@ -70,7 +70,7 @@ export function ExportFileButton<T extends { [key: string]: unknown }>({
   const defaultFilePath = join(
     generateElectionBasedSubfolderName(
       electionDefinition.election,
-      electionDefinition.electionHash
+      electionDefinition.ballotHash
     ),
     REPORT_FOLDER,
     defaultFilename

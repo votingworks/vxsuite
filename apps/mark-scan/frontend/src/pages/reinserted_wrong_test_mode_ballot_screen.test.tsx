@@ -34,7 +34,7 @@ function setMockInterpretation(options: { isTestMode: boolean }) {
 
 function setUnsupportedMockInterpretation() {
   setMockInterpretationQuery({
-    data: { type: 'InvalidElectionHashPage' },
+    data: { type: 'InvalidBallotHashPage' },
     isSuccess: true,
   });
 }

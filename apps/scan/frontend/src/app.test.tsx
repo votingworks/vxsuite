@@ -13,7 +13,7 @@ import {
   AdjudicationReason,
   ElectionPackageConfigurationError,
   SheetInterpretation,
-  getDisplayElectionHash,
+  getDisplayBallotHash,
 } from '@votingworks/types';
 import { Result, deferred, err, ok } from '@votingworks/basics';
 
@@ -344,7 +344,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   screen.getByText(/State of Sample/);
   screen.getByText('Election ID');
   within(screen.getByText('Election ID').parentElement!).getByText(
-    getDisplayElectionHash(electionDefinition)
+    getDisplayBallotHash(electionDefinition)
   );
 
   await scanBallot();
@@ -472,7 +472,7 @@ test('voter tries to cast ballot that is rejected', async () => {
       state: 'rejected',
       interpretation: {
         type: 'InvalidSheet',
-        reason: 'invalid_election_hash',
+        reason: 'invalid_ballot_hash',
       },
     })
   );
@@ -806,7 +806,7 @@ test('system administrator can set date and time', async () => {
   await screen.findByRole('button', { name: 'Set Date and Time' });
 });
 
-test('election manager cannot auth onto machine with different election hash', async () => {
+test('election manager cannot auth onto machine with different election', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo();
   apiMock.expectGetUsbDriveStatus('mounted');

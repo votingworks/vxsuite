@@ -770,7 +770,7 @@ test('Export test decks', async () => {
   );
 }, 30_000);
 
-test('Consistency of election hash across exports', async () => {
+test('Consistency of ballot hash across exports', async () => {
   // This test runs unnecessarily long if we're generating exports for all
   // languages, so disabling multi-language support for this case:
   mockFeatureFlagger.disableFeatureFlag(
@@ -809,9 +809,9 @@ test('Consistency of election hash across exports', async () => {
 
   expect([
     ...new Set([
-      allBallotsOutput.electionHash,
-      testDecksOutput.electionHash,
-      electionDefinition.electionHash,
+      allBallotsOutput.ballotHash,
+      testDecksOutput.ballotHash,
+      electionDefinition.ballotHash,
     ]),
   ]).toHaveLength(1);
 });
@@ -858,9 +858,9 @@ test('CDF exports', async () => {
 
   expect([
     ...new Set([
-      allBallotsOutput.electionHash,
-      testDecksOutput.electionHash,
-      electionDefinition.electionHash,
+      allBallotsOutput.ballotHash,
+      testDecksOutput.ballotHash,
+      electionDefinition.ballotHash,
     ]),
   ]).toHaveLength(1);
 });

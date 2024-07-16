@@ -197,7 +197,7 @@ export async function main(
     ballotId += 1;
   }
 
-  const { election, electionHash } = electionDefinition;
+  const { election, ballotHash } = electionDefinition;
   const batchInfo: Array<BatchInfo & { scannerId: string }> = scannerIds.map(
     (scannerId) => ({
       id: getBatchIdForScannerId(scannerId),
@@ -210,7 +210,7 @@ export async function main(
   );
   const reportMetadata = buildCastVoteRecordReportMetadata({
     election,
-    electionId: electionHash,
+    electionId: ballotHash,
     generatingDeviceId: assertDefined(scannerIds[0]),
     scannerIds,
     reportTypes: [CVR.ReportType.OriginatingDeviceExport],
@@ -229,7 +229,7 @@ export async function main(
       const layouts = generateBallotPageLayouts(election, {
         ballotStyleId: castVoteRecord.BallotStyleId,
         ballotType: BallotType.Precinct,
-        electionHash,
+        ballotHash,
         isTestMode: testMode,
         precinctId: castVoteRecord.BallotStyleUnitId,
       });

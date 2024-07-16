@@ -27,7 +27,7 @@ interface Props {
   signatureInputs: {
     machineId: string;
     date: Date;
-    electionHashPrefix?: string;
+    ballotHashPrefix?: string;
   };
 }
 
@@ -50,10 +50,10 @@ export function LiveCheckModal({
               <Caption>
                 <strong>Machine ID:</strong> {signatureInputs.machineId}
               </Caption>
-              {signatureInputs.electionHashPrefix && (
+              {signatureInputs.ballotHashPrefix && (
                 <Caption>
                   <strong>Election ID:</strong>{' '}
-                  {signatureInputs.electionHashPrefix}
+                  {signatureInputs.ballotHashPrefix}
                 </Caption>
               )}
               <Caption>

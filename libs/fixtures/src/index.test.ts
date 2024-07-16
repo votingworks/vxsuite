@@ -14,7 +14,7 @@ test('asElectionDefinition', () => {
     expect.objectContaining({
       election: fixtures.electionGeneral,
       electionData: expect.any(String),
-      electionHash: expect.any(String),
+      ballotHash: expect.any(String),
     })
   );
 });

@@ -4,7 +4,7 @@ import {
   BallotMetadata,
   BallotType,
   DEFAULT_SYSTEM_SETTINGS,
-  getDisplayElectionHash,
+  getDisplayBallotHash,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { typedAs } from '@votingworks/basics';
@@ -78,7 +78,7 @@ test('says the ballot sheet is overvoted if it is', async () => {
     ballotStyleId: '1',
     precinctId: '1',
     ballotType: BallotType.Precinct,
-    electionHash: 'abcde',
+    ballotHash: 'abcde',
     isTestMode: false,
   };
   fetchMock.getOnce(
@@ -190,7 +190,7 @@ test('says the ballot sheet is undervoted if it is', async () => {
     ballotStyleId: '1',
     precinctId: '1',
     ballotType: BallotType.Precinct,
-    electionHash: 'abcde',
+    ballotHash: 'abcde',
     isTestMode: false,
   };
   fetchMock.getOnce(
@@ -303,7 +303,7 @@ test('says the ballot sheet is blank if it is', async () => {
     ballotStyleId: '1',
     precinctId: '1',
     ballotType: BallotType.Precinct,
-    electionHash: 'abcde',
+    ballotHash: 'abcde',
     isTestMode: false,
   };
   fetchMock.getOnce(
@@ -431,7 +431,7 @@ test('calls out official ballot sheets in test mode', async () => {
               ballotStyleId: '1',
               precinctId: '1',
               ballotType: BallotType.Precinct,
-              electionHash: 'abcde',
+              ballotHash: 'abcde',
               isTestMode: false,
               pageNumber: 1,
             },
@@ -445,7 +445,7 @@ test('calls out official ballot sheets in test mode', async () => {
               ballotStyleId: '1',
               precinctId: '1',
               ballotType: BallotType.Precinct,
-              electionHash: 'abcde',
+              ballotHash: 'abcde',
               isTestMode: false,
               pageNumber: 2,
             },
@@ -495,7 +495,7 @@ test('calls out test ballot sheets in live mode', async () => {
               ballotStyleId: '1',
               precinctId: '1',
               ballotType: BallotType.Precinct,
-              electionHash: 'abcde',
+              ballotHash: 'abcde',
               isTestMode: false,
               pageNumber: 1,
             },
@@ -509,7 +509,7 @@ test('calls out test ballot sheets in live mode', async () => {
               ballotStyleId: '1',
               precinctId: '1',
               ballotType: BallotType.Precinct,
-              electionHash: 'abcde',
+              ballotHash: 'abcde',
               isTestMode: false,
               pageNumber: 2,
             },
@@ -557,9 +557,9 @@ test('shows invalid election screen when appropriate', async () => {
         front: {
           image: { url: '/front/url' },
           interpretation: {
-            type: 'InvalidElectionHashPage',
-            actualElectionHash: 'this-is-a-hash-hooray',
-            expectedElectionHash: 'something',
+            type: 'InvalidBallotHashPage',
+            actualBallotHash: 'this-is-a-hash-hooray',
+            expectedBallotHash: 'something',
           },
         },
         back: {
@@ -583,7 +583,7 @@ test('shows invalid election screen when appropriate', async () => {
   getByText(hasTextAcrossElements('Ballot Election IDthis-is-a-'));
   getByText(
     hasTextAcrossElements(
-      `Scanner Election ID${getDisplayElectionHash(electionGeneralDefinition)}`
+      `Scanner Election ID${getDisplayBallotHash(electionGeneralDefinition)}`
     )
   );
   expect(queryAllByText('Tabulate as is').length).toEqual(0);
@@ -592,7 +592,7 @@ test('shows invalid election screen when appropriate', async () => {
     LogEventId.ScanAdjudicationInfo,
     'election_manager',
     expect.objectContaining({
-      adjudicationTypes: 'InvalidElectionHashPage, BlankPage',
+      adjudicationTypes: 'InvalidBallotHashPage, BlankPage',
     })
   );
 
@@ -610,7 +610,7 @@ test('does not allow tabulating the overvote if precinctScanDisallowCastingOverv
     ballotStyleId: '1',
     precinctId: '1',
     ballotType: BallotType.Precinct,
-    electionHash: 'abcde',
+    ballotHash: 'abcde',
     isTestMode: false,
   };
   fetchMock.getOnce(

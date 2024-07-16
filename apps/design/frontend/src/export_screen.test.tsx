@@ -55,7 +55,7 @@ test('export all ballots', async () => {
     .expectCallWith({ electionId, electionSerializationFormat: 'vxf' })
     .resolves({
       zipContents: Buffer.from('mock-zip-contents'),
-      electionHash: '1234567890abcdef',
+      ballotHash: '1234567890abcdef',
     });
 
   userEvent.click(screen.getButton('Export All Ballots'));
@@ -76,7 +76,7 @@ test('export test decks', async () => {
     .expectCallWith({ electionId, electionSerializationFormat: 'vxf' })
     .resolves({
       zipContents: Buffer.from('mock-zip-contents'),
-      electionHash: '1234567890abcdef',
+      ballotHash: '1234567890abcdef',
     });
 
   userEvent.click(screen.getButton('Export Test Decks'));
@@ -199,7 +199,7 @@ test('using CDF', async () => {
     .expectCallWith({ electionId, electionSerializationFormat: 'cdf' })
     .resolves({
       zipContents: Buffer.from('mock-zip-contents'),
-      electionHash: '1234567890abcdef',
+      ballotHash: '1234567890abcdef',
     });
   userEvent.click(screen.getButton('Export All Ballots'));
   await waitFor(() => {
@@ -213,7 +213,7 @@ test('using CDF', async () => {
     .expectCallWith({ electionId, electionSerializationFormat: 'cdf' })
     .resolves({
       zipContents: Buffer.from('mock-zip-contents'),
-      electionHash: '1234567890abcdef',
+      ballotHash: '1234567890abcdef',
     });
   userEvent.click(screen.getButton('Export Test Decks'));
   await waitFor(() => {

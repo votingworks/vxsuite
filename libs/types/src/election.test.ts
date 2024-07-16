@@ -9,7 +9,7 @@ import {
   getContestDistrictName,
   getContests,
   getContestsFromIds,
-  getDisplayElectionHash,
+  getDisplayBallotHash,
   getDistrictIdsForPartyId,
   getPartyAbbreviationByPartyId,
   getPartyFullNameFromBallotStyle,
@@ -495,7 +495,7 @@ test('ElectionDefinitionSchema', () => {
 
   expect(() => {
     unsafeParse(ElectionDefinitionSchema, {
-      electionHash: 'abc',
+      ballotHash: 'abc',
       electionData,
       election: electionTwoPartyPrimary,
     });
@@ -503,7 +503,7 @@ test('ElectionDefinitionSchema', () => {
 
   expect(
     unsafeParse(ElectionDefinitionSchema, {
-      electionHash: sha256(electionData),
+      ballotHash: sha256(electionData),
       electionData,
       election,
     }).election
@@ -525,12 +525,12 @@ test('BallotStyleSchema with ballot style languages', () => {
   ).toEqual(ballotStyle);
 });
 
-test('getDisplayElectionHash', () => {
+test('getDisplayBallotHash', () => {
   const electionDefinition = safeParseElectionDefinition(
     JSON.stringify(election)
   ).unsafeUnwrap();
-  expect(electionDefinition.electionHash).toContain(
-    getDisplayElectionHash(electionDefinition)
+  expect(electionDefinition.ballotHash).toContain(
+    getDisplayBallotHash(electionDefinition)
   );
 });
 

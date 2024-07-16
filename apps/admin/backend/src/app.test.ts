@@ -92,7 +92,7 @@ test('managing the current election', async () => {
   expect(badElectionConfigureResult.err().type).toEqual('invalid-election');
 
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
-  const { electionHash } = electionDefinition;
+  const { ballotHash } = electionDefinition;
 
   const badSystemSettingsPackage = await zipFile({
     [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
@@ -125,7 +125,7 @@ test('managing the current election', async () => {
     'system_administrator',
     {
       disposition: 'success',
-      newElectionHash: electionHash,
+      newBallotHash: ballotHash,
     }
   );
 
@@ -195,7 +195,7 @@ test('configuring with a CDF election', async () => {
 
   mockSystemAdministratorAuth(auth);
 
-  const { electionData, electionHash } = safeParseElectionDefinition(
+  const { electionData, ballotHash } = safeParseElectionDefinition(
     JSON.stringify(convertVxfElectionToCdfBallotDefinition(electionGeneral))
   ).unsafeUnwrap();
   const electionPackage = await zipFile({
@@ -214,7 +214,7 @@ test('configuring with a CDF election', async () => {
     'system_administrator',
     {
       disposition: 'success',
-      newElectionHash: electionHash,
+      newBallotHash: ballotHash,
     }
   );
 
@@ -222,8 +222,8 @@ test('configuring with a CDF election', async () => {
   expect(currentElectionMetadata?.electionDefinition.electionData).toEqual(
     electionData
   );
-  expect(currentElectionMetadata?.electionDefinition.electionHash).toEqual(
-    electionHash
+  expect(currentElectionMetadata?.electionDefinition.ballotHash).toEqual(
+    ballotHash
   );
 });
 

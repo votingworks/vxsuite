@@ -47,9 +47,9 @@ export function mockCastVoteRecordFileTree(
   electionDefinition: ElectionDefinition,
   mockDirectory: MockDirectory
 ): MockFileTree {
-  const { election, electionHash } = electionDefinition;
+  const { election, ballotHash } = electionDefinition;
   return {
-    [generateElectionBasedSubfolderName(election, electionHash)]: {
+    [generateElectionBasedSubfolderName(election, ballotHash)]: {
       [SCANNER_RESULTS_FOLDER]: mockDirectory,
     },
   };

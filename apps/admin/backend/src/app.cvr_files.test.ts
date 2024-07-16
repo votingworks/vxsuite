@@ -49,7 +49,7 @@ jest.mock('@votingworks/auth', (): typeof import('@votingworks/auth') => ({
   authenticateArtifactUsingSignatureFile: jest.fn(),
 }));
 
-// mock SKIP_CVR_ELECTION_HASH_CHECK to allow us to use old cvr fixtures
+// mock SKIP_CVR_BALLOT_HASH_CHECK to allow us to use old cvr fixtures
 const featureFlagMock = getFeatureFlagMock();
 jest.mock('@votingworks/utils', () => {
   return {
@@ -63,7 +63,7 @@ beforeEach(() => {
   jest.restoreAllMocks();
   mockOf(authenticateArtifactUsingSignatureFile).mockResolvedValue(ok());
   featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_CVR_ELECTION_HASH_CHECK
+    BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
   );
 });
 
@@ -620,7 +620,7 @@ test('error if a cast vote record not parseable', async () => {
 
 test('error if a cast vote record is somehow invalid', async () => {
   featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_CVR_ELECTION_HASH_CHECK
+    BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
   );
   const { apiClient, auth } = buildTestEnvironment();
 
@@ -713,13 +713,13 @@ test.each<{
     description: 'mismatched election',
     setupFn: () => {
       featureFlagMock.disableFeatureFlag(
-        BooleanEnvironmentVariableName.SKIP_CVR_ELECTION_HASH_CHECK
+        BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
       );
     },
     modifications: {
       castVoteRecordModifier: (castVoteRecord) => ({
         ...castVoteRecord,
-        ElectionId: 'mismatched-election-hash',
+        ElectionId: 'mismatched-ballot-hash',
       }),
       numCastVoteRecordsToKeep: 1,
     },
@@ -836,7 +836,7 @@ test.each<{
     usbDriveContentGenerator: () => {
       const electionSubDirectoryName = generateElectionBasedSubfolderName(
         electionDefinition.election,
-        electionDefinition.electionHash
+        electionDefinition.ballotHash
       );
       return {
         [electionSubDirectoryName]: {
@@ -852,7 +852,7 @@ test.each<{
     usbDriveContentGenerator: () => {
       const electionSubDirectoryName = generateElectionBasedSubfolderName(
         electionDefinition.election,
-        electionDefinition.electionHash
+        electionDefinition.ballotHash
       );
       const emptyExportDirectoryName =
         generateCastVoteRecordExportDirectoryName({

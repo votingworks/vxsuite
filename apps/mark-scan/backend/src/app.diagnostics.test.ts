@@ -283,7 +283,7 @@ describe('paper handler diagnostic', () => {
           type: 'InterpretedBmdPage',
           ballotId: '1_en' as BallotId,
           metadata: {
-            electionHash: 'hash',
+            ballotHash: 'hash',
             ballotType: BallotType.Precinct,
             ballotStyleId: electionDefinition.election.ballotStyles[0].id,
             precinctId: electionDefinition.election.precincts[0].id,

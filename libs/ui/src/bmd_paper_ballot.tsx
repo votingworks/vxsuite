@@ -486,7 +486,7 @@ export function BmdPaperBallot({
   const {
     election,
     election: { county, seal },
-    electionHash,
+    ballotHash,
   } = electionDefinition;
   const ballotStyle = getBallotStyle({ ballotStyleId, election });
   assert(ballotStyle);
@@ -496,7 +496,7 @@ export function BmdPaperBallot({
   const precinct = getPrecinctById({ election, precinctId });
   assert(precinct);
   const encodedBallot = encodeBallot(election, {
-    electionHash,
+    ballotHash,
     precinctId,
     ballotStyleId,
     votes,

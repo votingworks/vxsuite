@@ -110,7 +110,7 @@ const SUCCESSFUL_INTERPRETATION_MOCK: SheetOf<InterpretFileResult> = [
       type: 'InterpretedBmdPage',
       ballotId: '1_en' as BallotId,
       metadata: {
-        electionHash: 'hash',
+        ballotHash: 'hash',
         ballotType: BallotType.Precinct,
         ballotStyleId: '5',
         precinctId: '21',
@@ -783,7 +783,7 @@ describe('insert pre-printed ballot', () => {
     InterpretedBmdPage: false,
 
     InterpretedHmpbPage: true,
-    InvalidElectionHashPage: true,
+    InvalidBallotHashPage: true,
     InvalidTestModePage: true,
     InvalidPrecinctPage: true,
     UnreadablePage: true,
@@ -886,7 +886,7 @@ describe('re-insert removed ballot', () => {
 
     BlankPage: true,
     InterpretedHmpbPage: true,
-    InvalidElectionHashPage: true,
+    InvalidBallotHashPage: true,
     InvalidTestModePage: true,
     InvalidPrecinctPage: true,
     UnreadablePage: true,

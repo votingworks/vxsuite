@@ -40,7 +40,7 @@ import {
 import { RenderScratchpad } from './renderer';
 import {
   Bubble,
-  ElectionHashSlot,
+  BallotHashSlot,
   OptionInfo,
   Page,
   QrCodeSlot,
@@ -393,7 +393,7 @@ export function Footer({
           <span>
             Election:{' '}
             <b>
-              <ElectionHashSlot />
+              <BallotHashSlot />
             </b>
           </span>
           <span>

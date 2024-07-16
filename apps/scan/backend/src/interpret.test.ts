@@ -78,8 +78,7 @@ test('treats either page being an invalid test mode as an invalid sheet', () => 
       precinctId:
         electionFamousNames2021Fixtures.election.ballotStyles[0].precincts[0],
       ballotType: BallotType.Precinct,
-      electionHash:
-        electionFamousNames2021Fixtures.electionDefinition.electionHash,
+      ballotHash: electionFamousNames2021Fixtures.electionDefinition.ballotHash,
       isTestMode: false,
       pageNumber: 1,
     },

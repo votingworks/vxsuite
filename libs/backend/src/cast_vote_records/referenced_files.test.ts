@@ -21,7 +21,7 @@ const layout: BallotPageLayout = {
   metadata: {
     ballotStyleId: '1',
     ballotType: BallotType.Precinct,
-    electionHash: '1',
+    ballotHash: '1',
     isTestMode: false,
     pageNumber: 1,
     precinctId: '1',

@@ -29,7 +29,7 @@ jest.setTimeout(20000);
 
 const jurisdiction = TEST_JURISDICTION;
 const { electionDefinition } = electionGridLayoutNewHampshireTestBallotFixtures;
-const { election, electionData, electionHash } = electionDefinition;
+const { election, electionData, ballotHash } = electionDefinition;
 
 test('get/set election', () => {
   const store = Store.memoryStore();
@@ -364,7 +364,7 @@ test('adjudication', () => {
   store.setElectionAndJurisdiction({ electionData, jurisdiction });
   function mockPage(i: 0 | 1): PageInterpretationWithFiles {
     const metadata: BallotMetadata = {
-      electionHash,
+      ballotHash,
       ballotStyleId: '12',
       precinctId: '23',
       isTestMode: false,
@@ -457,7 +457,7 @@ test('adjudication', () => {
 });
 
 const metadata: BallotMetadata = {
-  electionHash,
+  ballotHash,
   ballotStyleId: '12',
   precinctId: '23',
   isTestMode: false,

@@ -7,9 +7,9 @@ import {
   mapSheet,
 } from '@votingworks/types';
 import {
-  ELECTION_HASH_LENGTH,
+  BALLOT_HASH_ENCODING_LENGTH,
   decodeBallot,
-  decodeElectionHash,
+  decodeBallotHash,
 } from '@votingworks/ballot-encoder';
 import { DetectQrCodeError, detectInBallot } from './utils/qrcode';
 import { DetectedQrCode } from './types';
@@ -31,8 +31,8 @@ export type InterpretError =
     }
   | {
       type: 'mismatched-election';
-      expectedElectionHash: string;
-      actualElectionHash: string;
+      expectedBallotHash: string;
+      actualBallotHash: string;
     };
 
 export type InterpretResult = Result<Interpretation, InterpretError>;
@@ -61,18 +61,18 @@ export async function interpret(
   }
 
   const foundQrCode = (frontResult.ok() ?? backResult.ok()) as DetectedQrCode;
-  const actualElectionHash = decodeElectionHash(foundQrCode.data);
-  const expectedElectionHash = electionDefinition.electionHash.slice(
+  const actualBallotHash = decodeBallotHash(foundQrCode.data);
+  const expectedBallotHash = electionDefinition.ballotHash.slice(
     0,
-    ELECTION_HASH_LENGTH
+    BALLOT_HASH_ENCODING_LENGTH
   );
 
-  if (actualElectionHash !== expectedElectionHash) {
+  if (actualBallotHash !== expectedBallotHash) {
     return err({
       type: 'mismatched-election',
-      expectedElectionHash,
-      actualElectionHash:
-        actualElectionHash ??
+      expectedBallotHash,
+      actualBallotHash:
+        actualBallotHash ??
         /* istanbul ignore next */
         '',
     });

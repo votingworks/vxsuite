@@ -157,7 +157,7 @@ test('scanner powered off after accepting', async () => {
 test('scanner powered off while rejecting', async () => {
   const interpretation: SheetInterpretation = {
     type: 'InvalidSheet',
-    reason: 'invalid_election_hash',
+    reason: 'invalid_ballot_hash',
   };
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {

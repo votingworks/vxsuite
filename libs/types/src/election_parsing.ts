@@ -298,7 +298,7 @@ interface ExtendedElectionDefinition {
 }
 
 /**
- * Parses `value` as a JSON `Election`, computing the election hash if the
+ * Parses `value` as a JSON `Election`, computing the ballot hash if the
  * result is `Ok`.
  */
 function safeParseElectionDefinitionExtended(
@@ -312,13 +312,13 @@ function safeParseElectionDefinitionExtended(
         electionDefinition: {
           election: result.ok().vxfElection,
           electionData: value,
-          electionHash: sha256(value),
+          ballotHash: sha256(value),
         },
       });
 }
 
 /**
- * Parses `value` as a JSON `Election`, computing the election hash if the
+ * Parses `value` as a JSON `Election`, computing the ballot hash if the
  * result is `Ok`.
  */
 export function safeParseElectionDefinition(

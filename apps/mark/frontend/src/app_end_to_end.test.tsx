@@ -48,7 +48,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.expectGetMachineConfig({
     screenOrientation: 'portrait',
   });
-  const expectedElectionHash = electionDefinition.electionHash.substring(0, 10);
+  const expectedBallotHash = electionDefinition.ballotHash.substring(0, 10);
   const reload = jest.fn();
   apiMock.expectGetSystemSettings();
   apiMock.expectGetElectionDefinition(null);
@@ -111,7 +111,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Configure election with Election Manager Card
   apiMock.setAuthStatusElectionManagerLoggedIn(electionDefinition);
   await screen.findByLabelText('Precinct');
-  screen.queryByText(`Election ID: ${expectedElectionHash}`);
+  screen.queryByText(`Election ID: ${expectedBallotHash}`);
   screen.queryByText('Machine ID: 000');
 
   // Select precinct

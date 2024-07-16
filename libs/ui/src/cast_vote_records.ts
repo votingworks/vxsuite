@@ -42,9 +42,9 @@ export function userReadableMessageFromExportError(
               error.ballotTypes
             )}.`;
           }
-          case 'mismatched-election-hashes': {
-            return `Encountered an invalid sheet with mismatched election hashes: ${sheetValuesToString(
-              error.electionHashes
+          case 'mismatched-ballot-hashes': {
+            return `Encountered an invalid sheet with mismatched ballot hashes: ${sheetValuesToString(
+              error.ballotHashes
             )}.`;
           }
           case 'mismatched-precinct-ids': {

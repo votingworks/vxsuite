@@ -1,4 +1,4 @@
-import { sliceElectionHash } from '@votingworks/ballot-encoder';
+import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import {
   electionFamousNames2021Fixtures,
   electionGeneralDefinition,
@@ -7,7 +7,7 @@ import { mockOf } from '@votingworks/test-utils';
 import {
   BallotStyleId,
   DEFAULT_MARK_THRESHOLDS,
-  InvalidElectionHashPage,
+  InvalidBallotHashPage,
   PageInterpretation,
   PrecinctId,
   SheetOf,
@@ -130,12 +130,12 @@ describe('VX BMD interpretation', () => {
     );
   });
 
-  test('properly detects a ballot with incorrect election hash', async () => {
+  test('properly detects a ballot with incorrect ballot hash', async () => {
     const interpretationResult = await interpretSheet(
       {
         electionDefinition: {
           ...electionGeneralDefinition,
-          electionHash: 'd34db33f',
+          ballotHash: 'd34db33f',
         },
         testMode: true,
         precinctSelection: singlePrecinctSelectionFor(precinctId),
@@ -147,10 +147,12 @@ describe('VX BMD interpretation', () => {
 
     expect(
       interpretationResult[0].interpretation
-    ).toEqual<InvalidElectionHashPage>({
-      type: 'InvalidElectionHashPage',
-      actualElectionHash: sliceElectionHash(electionDefinition.electionHash),
-      expectedElectionHash: 'd34db33f',
+    ).toEqual<InvalidBallotHashPage>({
+      type: 'InvalidBallotHashPage',
+      actualBallotHash: sliceBallotHashForEncoding(
+        electionDefinition.ballotHash
+      ),
+      expectedBallotHash: 'd34db33f',
     });
   });
 

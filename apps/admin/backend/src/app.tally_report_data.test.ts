@@ -17,7 +17,7 @@ import {
 
 jest.setTimeout(60_000);
 
-// mock SKIP_CVR_ELECTION_HASH_CHECK to allow us to use old cvr fixtures
+// mock SKIP_CVR_BALLOT_HASH_CHECK to allow us to use old cvr fixtures
 const featureFlagMock = getFeatureFlagMock();
 jest.mock('@votingworks/utils', () => {
   return {
@@ -30,7 +30,7 @@ jest.mock('@votingworks/utils', () => {
 beforeEach(() => {
   jest.restoreAllMocks();
   featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SKIP_CVR_ELECTION_HASH_CHECK
+    BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
   );
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION

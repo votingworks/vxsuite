@@ -1,4 +1,4 @@
-import { sliceElectionHash } from '@votingworks/ballot-encoder';
+import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import { assert, assertDefined, iter } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
 import {
@@ -81,7 +81,7 @@ describe('HMPB - Famous Names', () => {
 
     expect(frontResult.interpretation.metadata).toEqual({
       source: 'qr-code',
-      electionHash: sliceElectionHash(electionDefinition.electionHash),
+      ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
       precinctId,
       ballotStyleId: election.ballotStyles[0]!.id,
       pageNumber: 1,
@@ -90,7 +90,7 @@ describe('HMPB - Famous Names', () => {
     });
     expect(backResult.interpretation.metadata).toEqual({
       source: 'qr-code',
-      electionHash: sliceElectionHash(electionDefinition.electionHash),
+      ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
       precinctId,
       ballotStyleId: election.ballotStyles[0]!.id,
       pageNumber: 2,
@@ -134,7 +134,7 @@ describe('HMPB - Famous Names', () => {
       {
         electionDefinition: {
           ...electionDefinition,
-          electionHash: 'wrong election hash',
+          ballotHash: 'wrong ballot hash',
         },
         precinctSelection: singlePrecinctSelectionFor(
           assertDefined(precinctId)
@@ -146,8 +146,8 @@ describe('HMPB - Famous Names', () => {
       ballotImagePaths as [string, string]
     );
 
-    expect(frontResult.interpretation.type).toEqual('InvalidElectionHashPage');
-    expect(backResult.interpretation.type).toEqual('InvalidElectionHashPage');
+    expect(frontResult.interpretation.type).toEqual('InvalidBallotHashPage');
+    expect(backResult.interpretation.type).toEqual('InvalidBallotHashPage');
   });
 
   test('Wrong precinct', async () => {
@@ -292,7 +292,7 @@ for (const spec of generalElectionFixtures.fixtureSpecs) {
 
         expect(frontResult.interpretation.metadata).toEqual({
           source: 'qr-code',
-          electionHash: sliceElectionHash(electionDefinition.electionHash),
+          ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
           precinctId,
           ballotStyleId,
           pageNumber: sheetIndex * 2 + 1,
@@ -301,7 +301,7 @@ for (const spec of generalElectionFixtures.fixtureSpecs) {
         });
         expect(backResult.interpretation.metadata).toEqual({
           source: 'qr-code',
-          electionHash: sliceElectionHash(electionDefinition.electionHash),
+          ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
           precinctId,
           ballotStyleId,
           pageNumber: sheetIndex * 2 + 2,
@@ -408,7 +408,7 @@ describe('HMPB - primary election', () => {
 
       expect(frontResult.interpretation.metadata).toEqual({
         source: 'qr-code',
-        electionHash: sliceElectionHash(electionDefinition.electionHash),
+        ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
         precinctId,
         ballotStyleId,
         pageNumber: 1,
@@ -417,7 +417,7 @@ describe('HMPB - primary election', () => {
       });
       expect(backResult.interpretation.metadata).toEqual({
         source: 'qr-code',
-        electionHash: sliceElectionHash(electionDefinition.electionHash),
+        ballotHash: sliceBallotHashForEncoding(electionDefinition.ballotHash),
         precinctId,
         ballotStyleId,
         pageNumber: 2,

@@ -59,12 +59,12 @@ function validateCastVoteRecordAgainstElectionDefinition(
     return err({ ...error, type: 'invalid-cast-vote-record' });
   }
 
-  const { election, electionHash } = electionDefinition;
+  const { election, ballotHash } = electionDefinition;
 
   if (
-    castVoteRecord.ElectionId !== electionHash &&
+    castVoteRecord.ElectionId !== ballotHash &&
     !isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.SKIP_CVR_ELECTION_HASH_CHECK
+      BooleanEnvironmentVariableName.SKIP_CVR_BALLOT_HASH_CHECK
     )
   ) {
     return wrapError({ subType: 'election-mismatch' });
@@ -112,12 +112,12 @@ export async function listCastVoteRecordExportsOnUsbDrive(
   usbDrive: UsbDrive,
   electionDefinition: ElectionDefinition
 ): Promise<ListCastVoteRecordExportsOnUsbDriveResult> {
-  const { election, electionHash } = electionDefinition;
+  const { election, ballotHash } = electionDefinition;
 
   const listResults = listDirectoryOnUsbDrive(
     usbDrive,
     path.join(
-      generateElectionBasedSubfolderName(election, electionHash),
+      generateElectionBasedSubfolderName(election, ballotHash),
       SCANNER_RESULTS_FOLDER
     )
   );

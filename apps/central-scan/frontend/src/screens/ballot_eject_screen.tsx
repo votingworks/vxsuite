@@ -4,7 +4,7 @@ import {
   Contest,
   PageInterpretation,
   Side,
-  getDisplayElectionHash,
+  getDisplayBallotHash,
 } from '@votingworks/types';
 import { Scan } from '@votingworks/api';
 import { assert } from '@votingworks/basics';
@@ -71,7 +71,7 @@ type EjectState = 'removeBallot' | 'acceptBallot';
 
 const SHEET_ADJUDICATION_ERRORS: ReadonlyArray<PageInterpretation['type']> = [
   'InvalidTestModePage',
-  'InvalidElectionHashPage',
+  'InvalidBallotHashPage',
   'UnreadablePage',
   'BlankPage',
 ];
@@ -172,9 +172,9 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
   let isBackBlank = false;
   let isUnreadableSheet = false;
   let isInvalidTestModeSheet = false;
-  let isInvalidElectionHashSheet = false;
+  let isInvalidBallotHashSheet = false;
 
-  let actualElectionHash: string | undefined;
+  let actualBallotHash: string | undefined;
 
   for (const reviewPageInfo of [
     {
@@ -198,11 +198,9 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
   ]) {
     if (reviewPageInfo.interpretation.type === 'InvalidTestModePage') {
       isInvalidTestModeSheet = true;
-    } else if (
-      reviewPageInfo.interpretation.type === 'InvalidElectionHashPage'
-    ) {
-      isInvalidElectionHashSheet = true;
-      actualElectionHash = reviewPageInfo.interpretation.actualElectionHash;
+    } else if (reviewPageInfo.interpretation.type === 'InvalidBallotHashPage') {
+      isInvalidBallotHashSheet = true;
+      actualBallotHash = reviewPageInfo.interpretation.actualBallotHash;
     } else if (reviewPageInfo.interpretation.type === 'InterpretedHmpbPage') {
       if (reviewPageInfo.interpretation.adjudicationInfo.requiresAdjudication) {
         for (const adjudicationReason of reviewPageInfo.interpretation
@@ -231,7 +229,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
 
   const allowBallotDuplication =
     !isInvalidTestModeSheet &&
-    !isInvalidElectionHashSheet &&
+    !isInvalidBallotHashSheet &&
     !isUnreadableSheet &&
     !(isOvervotedSheet && precinctScanDisallowCastingOvervotes);
 
@@ -246,7 +244,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
     ? isTestMode
       ? 'Official Ballot'
       : 'Test Ballot'
-    : isInvalidElectionHashSheet
+    : isInvalidBallotHashSheet
     ? 'Wrong Election'
     : isUnreadableSheet
     ? 'Unreadable'
@@ -313,7 +311,7 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
             ) : (
               <P>Remove the test ballot before continuing.</P>
             )
-          ) : isInvalidElectionHashSheet ? (
+          ) : isInvalidBallotHashSheet ? (
             <React.Fragment>
               <P>
                 The scanned ballot does not match the election this scanner is
@@ -321,14 +319,14 @@ export function BallotEjectScreen({ isTestMode }: Props): JSX.Element | null {
               </P>
               <P>
                 <LabelledText label="Ballot Election ID">
-                  {getDisplayElectionHash({
-                    electionHash: actualElectionHash ?? '',
+                  {getDisplayBallotHash({
+                    ballotHash: actualBallotHash ?? '',
                   })}
                 </LabelledText>
               </P>
               <P>
                 <LabelledText label="Scanner Election ID">
-                  {getDisplayElectionHash(electionDefinition)}
+                  {getDisplayBallotHash(electionDefinition)}
                 </LabelledText>
               </P>
             </React.Fragment>

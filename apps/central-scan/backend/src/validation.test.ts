@@ -18,7 +18,7 @@ const BmdPage: InterpretedBmdPage = {
     ballotStyleId: '12',
     precinctId: '23',
     ballotType: BallotType.Absentee,
-    electionHash: 'abc',
+    ballotHash: 'abc',
     isTestMode: false,
   },
   votes: {},
@@ -32,7 +32,7 @@ const metadata: BallotMetadata = {
   ballotStyleId: '12',
   precinctId: '23',
   ballotType: BallotType.Absentee,
-  electionHash: 'abc',
+  ballotHash: 'abc',
   isTestMode: false,
 };
 const HmpbPage1: InterpretedHmpbPage = {
@@ -156,16 +156,16 @@ test('HMPB ballot with mismatched election', () => {
     HmpbPage1,
     {
       ...HmpbPage2,
-      metadata: { ...HmpbPage2.metadata, electionHash: 'def' },
+      metadata: { ...HmpbPage2.metadata, ballotHash: 'def' },
     },
   ]).unsafeUnwrapErr();
 
   expect(error).toEqual<ValidationError>({
-    type: ValidationErrorType.MismatchedElectionHash,
-    electionHashes: ['abc', 'def'],
+    type: ValidationErrorType.MismatchedBallotHash,
+    ballotHashes: ['abc', 'def'],
   });
   expect(describeValidationError(error)).toEqual(
-    `expected a sheet to have the same election hash, but got front=abc back=def`
+    `expected a sheet to have the same ballot hash, but got front=abc back=def`
   );
 });
 

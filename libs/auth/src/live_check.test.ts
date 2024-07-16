@@ -5,7 +5,7 @@ import { LiveCheckConfig } from './config';
 import { LiveCheck } from './live_check';
 
 const machineId = '0000';
-const { electionHash } = electionGeneralDefinition;
+const { ballotHash } = electionGeneralDefinition;
 
 const vxAdminTestConfig: LiveCheckConfig = {
   machineCertPath: getTestFilePath({
@@ -62,7 +62,7 @@ test.each<{
     const liveCheck = new LiveCheck(config);
     const { qrCodeValue } = await liveCheck.generateQrCodeValue({
       machineId,
-      electionHash: isMachineConfiguredForAnElection ? electionHash : undefined,
+      ballotHash: isMachineConfiguredForAnElection ? ballotHash : undefined,
     });
     expect([
       expectedQrCodeValueLength,

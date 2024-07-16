@@ -250,7 +250,7 @@ function buildApi({
       const electionRecord = getCurrentElectionRecord(workspace);
       return new LiveCheck().generateQrCodeValue({
         machineId,
-        electionHash: electionRecord?.electionDefinition?.electionHash,
+        ballotHash: electionRecord?.electionDefinition?.ballotHash,
       });
     },
     /* c8 ignore stop */
@@ -279,7 +279,7 @@ function buildApi({
       const electionRecord = getCurrentElectionRecord(workspace);
       assert(electionRecord);
       const { electionDefinition, id: electionId } = electionRecord;
-      const { election, electionHash } = electionDefinition;
+      const { election, ballotHash } = electionDefinition;
 
       const tempDirectory = dirSync().name;
       try {
@@ -298,7 +298,7 @@ function buildApi({
         );
 
         const usbDriveElectionPackageDirectoryRelativePath = join(
-          generateElectionBasedSubfolderName(election, electionHash),
+          generateElectionBasedSubfolderName(election, ballotHash),
           ELECTION_PACKAGE_FOLDER
         );
         const exportElectionPackageResult = await exporter.exportDataToUsbDrive(
@@ -450,7 +450,7 @@ function buildApi({
       store.setCurrentElectionId(electionId);
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
         disposition: 'success',
-        newElectionHash: electionDefinition.electionHash,
+        newBallotHash: electionDefinition.ballotHash,
       });
       return ok({ electionId });
     },

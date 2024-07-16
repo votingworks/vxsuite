@@ -223,7 +223,7 @@ export function* generateCvrs({
           : generateBallotPageLayouts(election, {
               ballotStyleId,
               precinctId,
-              electionHash: electionDefinition.electionHash,
+              ballotHash: electionDefinition.ballotHash,
               ballotType,
               isTestMode: testMode,
             });
@@ -282,7 +282,7 @@ export function* generateCvrs({
                 BallotStyleUnitId: precinctId,
                 PartyIds: partyId ? [partyId] : undefined,
                 CreatingDeviceId: scannerId,
-                ElectionId: electionDefinition.electionHash,
+                ElectionId: electionDefinition.ballotHash,
                 BatchId: batchId,
                 CurrentSnapshotId: `${castVoteRecordId}-modified`,
                 UniqueId: ballotIdPrefix
@@ -363,7 +363,7 @@ export function* generateCvrs({
                   BallotStyleUnitId: precinctId,
                   PartyIds: partyId ? [partyId] : undefined,
                   CreatingDeviceId: scannerId,
-                  ElectionId: electionDefinition.electionHash,
+                  ElectionId: electionDefinition.ballotHash,
                   BatchId: batchId,
                   CurrentSnapshotId: `${castVoteRecordId}-modified`,
                   UniqueId: ballotIdPrefix

@@ -17,9 +17,9 @@ import { sheetRequiresAdjudication } from './sheet_requires_adjudication';
 const metadata: BallotMetadata = {
   ballotStyleId: '12',
   ballotType: BallotType.Precinct,
-  electionHash:
+  ballotHash:
     electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
-      .electionHash,
+      .ballotHash,
   isTestMode: false,
   precinctId: '23',
 };
@@ -88,7 +88,7 @@ function withPageNumber(
   switch (page.type) {
     case 'BlankPage':
     case 'InterpretedBmdPage':
-    case 'InvalidElectionHashPage':
+    case 'InvalidBallotHashPage':
     case 'UnreadablePage':
       return page;
 
@@ -213,7 +213,7 @@ test('sheetRequiresAdjudication is happy with a BMD ballot', () => {
     type: 'InterpretedBmdPage',
     ballotId: unsafeParse(BallotIdSchema, '42'),
     metadata: {
-      electionHash: '41',
+      ballotHash: '41',
       precinctId: '12',
       ballotStyleId: '1',
       isTestMode: true,
