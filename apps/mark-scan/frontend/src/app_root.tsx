@@ -93,6 +93,7 @@ const initialVotingState: Readonly<VotingState> = {
 // Sets State. All side effects done outside: storage, fetching, etc
 type VotingAction =
   | { type: 'unconfigure' }
+  | { type: 'setVotes'; votes: VotesDict }
   | { type: 'updateVote'; contestId: ContestId; vote: OptionalVote }
   | { type: 'resetBallot' };
 
@@ -106,6 +107,12 @@ function votingStateReducer(
         ...state,
         ...initialVotingState,
       };
+    case 'setVotes': {
+      return {
+        ...state,
+        votes: { ...action.votes },
+      };
+    }
     case 'updateVote': {
       return {
         ...state,
@@ -223,6 +230,10 @@ export function AppRoot(): JSX.Element | null {
     history.push('/');
   }, [history, unconfigureMachineMutateAsync]);
 
+  const setVotes = useCallback((v: VotesDict) => {
+    dispatchVotingState({ type: 'setVotes', votes: v });
+  }, []);
+
   const updateVote = useCallback((contestId: ContestId, vote: OptionalVote) => {
     dispatchVotingState({ type: 'updateVote', contestId, vote });
   }, []);
@@ -240,17 +251,13 @@ export function AppRoot(): JSX.Element | null {
   const activateCardlessBallot = useCallback(
     (sessionPrecinctId: PrecinctId, sessionBallotStyleId: BallotStyleId) => {
       assert(isPollWorkerAuth(authStatus));
-      startCardlessVoterSessionMutate(
-        {
-          ballotStyleId: sessionBallotStyleId,
-          precinctId: sessionPrecinctId,
-        },
-        {
-          onSuccess() {
-            resetBallot();
-          },
-        }
-      );
+
+      resetBallot();
+
+      startCardlessVoterSessionMutate({
+        ballotStyleId: sessionBallotStyleId,
+        precinctId: sessionPrecinctId,
+      });
     },
     [authStatus, resetBallot, startCardlessVoterSessionMutate]
   );
@@ -483,6 +490,7 @@ export function AppRoot(): JSX.Element | null {
           machineConfig={machineConfig}
           hasVotes={!!votes}
           precinctSelection={precinctSelection}
+          setVotes={setVotes}
         />
       );
     }

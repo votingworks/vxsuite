@@ -8,6 +8,7 @@ import {
   PollsTransitionType,
   InsertedSmartCardAuth,
   PrecinctSelection,
+  VotesDict,
 } from '@votingworks/types';
 import {
   Button,
@@ -56,6 +57,16 @@ import {
 import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
 import { LiveCheckButton } from '../components/live_check_button';
 import * as api from '../api';
+import { InsertedInvalidNewSheetScreen } from './inserted_invalid_new_sheet_screen';
+import { InsertedPreprintedBallotScreen } from './inserted_preprinted_ballot_screen';
+import { LoadingNewSheetScreen } from './loading_new_sheet_screen';
+import { BallotReadyForReviewScreen } from './ballot_ready_for_review_screen';
+
+function isBallotReinsertionEnabled() {
+  return isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.MARK_SCAN_ENABLE_BALLOT_REINSERTION
+  );
+}
 
 const VotingSession = styled.div`
   margin: 30px 0 60px;
@@ -150,6 +161,7 @@ export interface PollworkerScreenProps {
   ballotsPrintedCount: number;
   machineConfig: MachineConfig;
   precinctSelection: PrecinctSelection;
+  setVotes: (votes: VotesDict) => void;
 }
 
 export function PollWorkerScreen({
@@ -163,6 +175,7 @@ export function PollWorkerScreen({
   machineConfig,
   hasVotes,
   precinctSelection,
+  setVotes,
 }: PollworkerScreenProps): JSX.Element | null {
   const { election } = electionDefinition;
   const isElectionDay = election.date.isEqual(DateWithoutTime.today());
@@ -226,6 +239,31 @@ export function PollWorkerScreen({
     stateMachineState === 'loading_paper'
   ) {
     return <LoadPaperPage />;
+  }
+
+  if (stateMachineState === 'validating_new_sheet') {
+    return <LoadingNewSheetScreen />;
+  }
+
+  if (stateMachineState === 'inserted_invalid_new_sheet') {
+    return <InsertedInvalidNewSheetScreen />;
+  }
+
+  if (stateMachineState === 'inserted_preprinted_ballot') {
+    return (
+      <InsertedPreprintedBallotScreen
+        activateCardlessVoterSession={activateCardlessVoterSession}
+        setVotes={setVotes}
+      />
+    );
+  }
+
+  if (stateMachineState === 'presenting_ballot') {
+    return (
+      <BallotReadyForReviewScreen
+        resetCardlessVoterSession={resetCardlessVoterSession}
+      />
+    );
   }
 
   if (
@@ -392,6 +430,20 @@ export function PollWorkerScreen({
                   </Caption>
                 )}
               </VotingSession>
+              {isBallotReinsertionEnabled() && (
+                <VotingSession>
+                  <H4 as="h2">Cast a Previously Printed Ballot</H4>
+                  <P>
+                    <Icons.Info /> The voter will have a chance to review and
+                    verify votes from the printed ballot before it is cast.
+                  </P>
+                  <P>
+                    <Button onPress={setAcceptingPaperStateMutation.mutate}>
+                      Insert Printed Ballot
+                    </Button>
+                  </P>
+                </VotingSession>
+              )}
               <Button onPress={() => setIsHidingSelectBallotStyle(true)}>
                 View More Actions
               </Button>

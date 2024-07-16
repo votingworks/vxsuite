@@ -1,14 +1,17 @@
 import { Icons, P } from '@votingworks/ui';
+
 import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
 
-export function LoadPaperPage(): JSX.Element {
+export function LoadingNewSheetScreen(): JSX.Element {
   return (
     <CenteredCardPageLayout
       icon={<Icons.Info />}
-      title="Load Ballot Sheet"
+      title="Loading Sheet"
       voterFacing={false}
     >
-      <P>Please feed one sheet of paper into the front input tray.</P>
+      <P>
+        <Icons.Loading /> Please wait while the sheet is loaded...
+      </P>
     </CenteredCardPageLayout>
   );
 }

@@ -9,15 +9,17 @@ import {
 } from '@votingworks/types';
 
 import {
+  BooleanEnvironmentVariableName,
   extractBallotStyleGroupId,
   generateBallotStyleId,
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { hasTextAcrossElements } from '@votingworks/test-utils';
+import { hasTextAcrossElements, mockOf } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
 import { DateWithoutTime } from '@votingworks/basics';
+import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import { fireEvent, screen } from '../../test/react_testing_library';
 
 import { render } from '../../test/test_utils';
@@ -30,6 +32,9 @@ import {
   mockPollWorkerAuth,
 } from '../../test/helpers/mock_auth';
 import { ApiProvider } from '../api_provider';
+import { InsertedInvalidNewSheetScreen } from './inserted_invalid_new_sheet_screen';
+import { InsertedPreprintedBallotScreen } from './inserted_preprinted_ballot_screen';
+import { BallotReadyForReviewScreen } from './ballot_ready_for_review_screen';
 
 const { election } = electionGeneralDefinition;
 
@@ -43,9 +48,18 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   };
 });
 
+jest.mock('./inserted_invalid_new_sheet_screen');
+jest.mock('./inserted_preprinted_ballot_screen');
+jest.mock('./ballot_ready_for_review_screen');
+
 beforeEach(() => {
   jest.useFakeTimers();
   apiMock = createApiMock();
+
+  mockFeatureFlagger.resetFeatureFlags();
+  mockFeatureFlagger.disableFeatureFlag(
+    BooleanEnvironmentVariableName.MARK_SCAN_ENABLE_BALLOT_REINSERTION
+  );
 });
 
 afterEach(() => {
@@ -74,6 +88,7 @@ function renderScreen(
         precinctSelection={singlePrecinctSelectionFor(
           electionDefinition.election.precincts[0].id
         )}
+        setVotes={jest.fn()}
         {...props}
       />
     </ApiProvider>
@@ -206,4 +221,62 @@ test('displays only default English ballot styles', async () => {
   expect(
     screen.queryByRole('button', { name: ballotStyleSpanish.id })
   ).not.toBeInTheDocument();
+});
+
+describe('pre-printed ballots', () => {
+  test('can insert pre-printed ballots without ballot style selection', () => {
+    mockFeatureFlagger.enableFeatureFlag(
+      BooleanEnvironmentVariableName.MARK_SCAN_ENABLE_BALLOT_REINSERTION
+    );
+
+    renderScreen();
+
+    apiMock.expectSetAcceptingPaperState();
+    userEvent.click(screen.getButton(/insert printed ballot/i));
+  });
+
+  test('new section not rendered when feature flag is disabled', () => {
+    mockFeatureFlagger.disableFeatureFlag(
+      BooleanEnvironmentVariableName.MARK_SCAN_ENABLE_BALLOT_REINSERTION
+    );
+
+    renderScreen();
+
+    expect(
+      screen.queryButton(/insert printed ballot/i)
+    ).not.toBeInTheDocument();
+  });
+
+  const preprintedBallotInsertionStateContents: Partial<
+    Record<SimpleServerStatus, string | RegExp>
+  > = {
+    accepting_paper: /feed one sheet of paper/i,
+    loading_paper: /feed one sheet of paper/i,
+    validating_new_sheet: /loading sheet/i,
+    inserted_invalid_new_sheet: 'MockInvalidNewSheetScreen',
+    inserted_preprinted_ballot: 'MockValidPreprintedBallotScreen',
+    presenting_ballot: 'MockReadyForReviewScreen',
+  };
+
+  for (const [stateMachineState, expectedContents] of Object.entries(
+    preprintedBallotInsertionStateContents
+  ) as Array<[SimpleServerStatus, string | RegExp]>) {
+    test(`state machine state: ${stateMachineState}`, async () => {
+      mockOf(InsertedInvalidNewSheetScreen).mockReturnValue(
+        <p>MockInvalidNewSheetScreen</p>
+      );
+      mockOf(InsertedPreprintedBallotScreen).mockReturnValue(
+        <p>MockValidPreprintedBallotScreen</p>
+      );
+      mockOf(BallotReadyForReviewScreen).mockReturnValue(
+        <p>MockReadyForReviewScreen</p>
+      );
+
+      apiMock.setPaperHandlerState(stateMachineState);
+
+      renderScreen();
+
+      await screen.findByText(expectedContents);
+    });
+  }
 });

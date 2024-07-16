@@ -303,6 +303,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   userEvent.click(screen.getByText('My Ballot is Correct'));
 
   apiMock.setAuthStatusLoggedOut();
+  apiMock.setPaperHandlerState('not_accepting_paper');
 
   // ---------------
 
