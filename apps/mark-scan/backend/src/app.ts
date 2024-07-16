@@ -267,6 +267,14 @@ export function buildApi(
       stateMachine.invalidateBallot();
     },
 
+    startSessionWithPreprintedBallot(): void {
+      assertDefined(stateMachine).startSessionWithPreprintedBallot();
+    },
+
+    returnPreprintedBallot(): void {
+      assertDefined(stateMachine).returnPreprintedBallot();
+    },
+
     async confirmInvalidateBallot(): Promise<void> {
       assert(stateMachine);
 
