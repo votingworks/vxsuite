@@ -419,6 +419,7 @@ pub fn find_inline_subsets(
             );
             if angle_diff(line_angle, angle) > tolerance {
                 // The line between the two rectangles is not within the
+                // tolerance of the desired angle, so skip this pair.
                 return None;
             }
 
