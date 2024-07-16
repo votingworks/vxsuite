@@ -12,7 +12,8 @@ export async function getAudioInfo(logger: Logger): Promise<AudioInfo> {
   let commandOutput: string;
 
   try {
-    ({ stderr: errorOutput, stdout: commandOutput } = await execFile('pactl', [
+    ({ stderr: errorOutput, stdout: commandOutput } = await execFile('sudo', [
+      '/vx/code/app-scripts/pactl.sh',
       'list',
       'sinks',
     ]));
