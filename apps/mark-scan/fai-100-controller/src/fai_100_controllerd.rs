@@ -13,10 +13,9 @@ use commands::{
 };
 use daemon_utils::run_no_op_event_loop;
 use std::{
-    env,
     fs::OpenOptions,
     io::{self, Read},
-    path::Path,
+    path::PathBuf,
     process::exit,
     sync::{
         atomic::{AtomicBool, Ordering},
@@ -49,28 +48,27 @@ struct Args {
     /// Allow the daemon to run if no hardware is found.
     #[arg(short, long)]
     skip_hardware_check: bool,
+
+    /// Path to the directory where MarkScan's working files are stored.
+    #[arg(long, env = "MARK_SCAN_WORKSPACE")]
+    mark_scan_workspace: PathBuf,
 }
 
-fn write_pat_connection_status(is_connected: bool) -> Result<(), io::Error> {
-    match env::var("MARK_SCAN_WORKSPACE") {
-        Ok(workspace_path) => {
+fn write_pat_connection_status(
+    status: SipAndPuffDeviceStatus,
+    workspace_path: &PathBuf,
+) -> Result<(), io::Error> {
             let mut file = OpenOptions::new()
                 .write(true)
                 .create(true)
                 .truncate(true)
-                .open(Path::new(&workspace_path).join(PAT_CONNECTION_STATUS_FILENAME))?;
+        .open(workspace_path.join(PAT_CONNECTION_STATUS_FILENAME))?;
             // For consistency with the BMD 155 integration, "0" means a PAT device is connected and "1" means no device is connected
-            let value: &str = if is_connected { "0" } else { "1" };
+    let value: &str = match status {
+        SipAndPuffDeviceStatus::Connected => "0",
+        SipAndPuffDeviceStatus::Disconnected => "1",
+    };
             file.write_all(value.as_bytes())?;
-        }
-        Err(e) => {
-            log!(
-            event_id: EventId::UnknownError,
-            message: format!("Unable to read workspace path from environment variable: {e:?}"),
-            event_type: EventType::SystemStatus
-            );
-        }
-    }
 
     Ok(())
 }
@@ -136,7 +134,12 @@ fn main() -> color_eyre::Result<()> {
             exit(1);
         }
 
-        run_event_loop(&mut port, &running, &mut keyboard);
+        run_event_loop(
+            &mut port,
+            &running,
+            &mut keyboard,
+            &args.mark_scan_workspace,
+        );
         exit(0);
     }
 
@@ -318,6 +321,7 @@ fn handle_status_response(
     new_status: NotificationStatusResponse,
     current_status: &mut CurrentStatus,
     keyboard: &mut impl VirtualKeyboard,
+    workspace_path: &PathBuf,
 ) -> Result<(), CommandError> {
     let new_button = new_status.button_pressed;
     let new_sip_status = new_status.sip_status;
@@ -338,7 +342,7 @@ fn handle_status_response(
 
     // Write device connection status to system file so mark-scan app is aware
     if new_connection_status != current_status.sip_puff_device_connected {
-        write_pat_connection_status(new_connection_status == SipAndPuffDeviceStatus::Connected)?;
+        write_pat_connection_status(new_connection_status, workspace_path)?;
 
         // Explicitly reset sip and puff signals if device was just disconnected because signals are
         // ignored once device is disconnected. See comment below.
@@ -394,6 +398,7 @@ fn run_event_loop(
     port: &mut UsbDevice,
     running: &Arc<AtomicBool>,
     keyboard: &mut impl VirtualKeyboard,
+    workspace_path: &PathBuf,
 ) {
     let mut buf: [u8; BUFFER_MAX_BYTES] = [0; BUFFER_MAX_BYTES];
 
@@ -441,9 +446,12 @@ fn run_event_loop(
                 let data = &buf[..NOTIFICATION_STATUS_RESPONSE_BYTE_LENGTH];
                 match NotificationStatusResponse::try_from(data) {
                     Ok(response) => {
-                        if let Err(e) =
-                            handle_status_response(response, &mut current_status, keyboard)
-                        {
+                        if let Err(e) = handle_status_response(
+                            response,
+                            &mut current_status,
+                            keyboard,
+                            workspace_path,
+                        ) {
                             log!(
                                 event_id: EventId::UnknownError,
                                 message: format!("Unexpected error when handling status response: {e:?}"),
@@ -476,6 +484,8 @@ fn run_event_loop(
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
+    use std::env::temp_dir;
+
     use super::*;
 
     struct MockKeyboard {
@@ -519,7 +529,8 @@ mod tests {
             sip_puff_device_connection_status: SipAndPuffDeviceStatus::Disconnected,
         };
 
-        handle_status_response(new_status, current_status, &mut mock_keyboard).unwrap();
+        handle_status_response(new_status, current_status, &mut mock_keyboard, &temp_dir())
+            .unwrap();
 
         assert_eq!(
             mock_keyboard.keystrokes,
@@ -545,7 +556,8 @@ mod tests {
             sip_puff_device_connection_status: SipAndPuffDeviceStatus::Disconnected,
         };
 
-        handle_status_response(new_status, current_status, &mut mock_keyboard).unwrap();
+        handle_status_response(new_status, current_status, &mut mock_keyboard, &temp_dir())
+            .unwrap();
 
         assert_eq!(
             mock_keyboard.keystrokes,
