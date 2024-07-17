@@ -113,7 +113,9 @@ test('going through the whole process works - HMPB', async () => {
           )
         ).toBeFalsy();
         expect(cvr.BallotStyleId).toEqual('card-number-3');
-        expect(cvr.BallotStyleUnitId).toEqual('town-id-00701-precinct-id-');
+        expect(cvr.BallotStyleUnitId).toEqual(
+          'town-id-00701-precinct-id-default'
+        );
         expect(cvr.CreatingDeviceId).toEqual('000');
         expect(cvr.BallotSheetId).toEqual('1');
         expect(cvr.BallotAuditId).toEqual('fake-ballot-audit-id');

@@ -175,7 +175,7 @@ test('happy path - mock election flow', async () => {
       exportTimestamp: expectedExportTimestamp,
       filename: testExportDirectoryName,
       numCvrsImported: 184,
-      precinctIds: ['town-id-00701-precinct-id-'],
+      precinctIds: ['town-id-00701-precinct-id-default'],
       scannerIds: ['VX-00-000'],
     }),
   ]);
