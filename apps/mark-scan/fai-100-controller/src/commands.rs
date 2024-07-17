@@ -111,7 +111,7 @@ pub enum ButtonSignal {
 #[repr(u8)]
 pub enum SipAndPuffSignalStatus {
     // Documented as Active = 0x01, Idle = 0x00, but based on experimentation the signals are flipped
-    // when a PAT device is plugged in. TODO handle this in event loop
+    // when a PAT device is plugged in.
     Active = 0x00,
     Idle = 0x01,
 }

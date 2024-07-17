@@ -93,7 +93,6 @@ impl UsbDevice {
                     handle,
                 })
             }
-            // TODO real error handling
             None => panic!("could not find device {vendor_id:04x}:{product_id:04x}"),
         }
     }
