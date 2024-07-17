@@ -1,5 +1,6 @@
 import { LogEventId, Logger } from '@votingworks/logging';
 import { execFile } from '../exec';
+import { intermediateScript } from '../intermediate_scripts';
 
 /**
  * Reboots the machine.
@@ -10,5 +11,5 @@ export async function powerDown(logger: Logger): Promise<void> {
   });
 
   // -i prevents blocking the reboot on other logged in users
-  void execFile('systemctl', ['poweroff', '-i']);
+  void execFile('sudo', [intermediateScript('power-down')]);
 }
