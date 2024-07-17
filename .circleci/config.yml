@@ -1340,6 +1340,24 @@ jobs:
           command: |
             cargo test -p daemon-utils
 
+  test-crate-fai100-controllerd:
+    executor: 'nodejs'
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            cargo build -p fai100-controllerd
+      - run:
+          name: Lint
+          command: |
+            cargo clippy -p fai100-controllerd
+      - run:
+          name: Test
+          command: |
+            cargo test -p fai100-controllerd
+
   test-crate-patinputd:
     executor: 'nodejs'
     resource_class: xlarge
@@ -1485,6 +1503,7 @@ workflows:
       - test-crate-ballot-interpreter
       - test-crate-controllerd
       - test-crate-daemon-utils
+      - test-crate-fai100-controllerd
       - test-crate-patinputd
       - test-crate-pdi-scanner
       - test-crate-types-rs
