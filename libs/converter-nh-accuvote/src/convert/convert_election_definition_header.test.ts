@@ -17,6 +17,7 @@ import {
 } from '../../test/fixtures';
 import { convertElectionDefinitionHeader } from './convert_election_definition_header';
 import { ConvertIssue, ConvertIssueKind } from './types';
+import { parseAccuvoteConfig } from './accuvote_parser';
 
 test('letter-size card definition', () => {
   const hudsonBallotCardDefinition = readFixtureDefinition(
@@ -27,154 +28,22 @@ test('letter-size card definition', () => {
     'BallotSize'
   )[0]!.textContent = '8.5X11';
 
-  const header = convertElectionDefinitionHeader(
-    hudsonBallotCardDefinition
-  ).unsafeUnwrap();
+  const config = parseAccuvoteConfig(hudsonBallotCardDefinition).unsafeUnwrap();
+  const header = convertElectionDefinitionHeader(config).unsafeUnwrap();
 
   expect(header.election.ballotLayout.paperSize).toEqual(
     BallotPaperSize.Letter
   );
 });
 
-test('missing ElectionID', () => {
-  const hudsonBallotCardDefinition = readFixtureDefinition(
-    electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
-  );
-
-  const electionIdElement =
-    hudsonBallotCardDefinition.getElementsByTagName('ElectionID')[0]!;
-  electionIdElement.parentNode?.removeChild(electionIdElement);
-
-  expect(
-    convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
-    ).unsafeUnwrapErr().issues
-  ).toEqual([
-    typedAs<ConvertIssue>({
-      kind: ConvertIssueKind.InvalidElectionId,
-      message: 'ElectionID is missing or invalid',
-    }),
-  ]);
-});
-
-test('missing ElectionName', () => {
-  const hudsonBallotCardDefinition = readFixtureDefinition(
-    electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
-  );
-
-  const electionNameElement =
-    hudsonBallotCardDefinition.getElementsByTagName('ElectionName')[0]!;
-  electionNameElement.parentNode?.removeChild(electionNameElement);
-
-  expect(
-    convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
-    ).unsafeUnwrapErr().issues
-  ).toEqual([
-    typedAs<ConvertIssue>({
-      kind: ConvertIssueKind.MissingDefinitionProperty,
-      message: 'ElectionName is missing',
-      property: 'AVSInterface > AccuvoteHeaderInfo > ElectionName',
-    }),
-  ]);
-});
-
-test('missing TownName', () => {
-  const hudsonBallotCardDefinition = readFixtureDefinition(
-    electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
-  );
-
-  const townNameElement =
-    hudsonBallotCardDefinition.getElementsByTagName('TownName')[0]!;
-  townNameElement.parentNode?.removeChild(townNameElement);
-
-  expect(
-    convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
-    ).unsafeUnwrapErr().issues
-  ).toEqual([
-    typedAs<ConvertIssue>({
-      kind: ConvertIssueKind.MissingDefinitionProperty,
-      message: 'TownName is missing',
-      property: 'AVSInterface > AccuvoteHeaderInfo > TownName',
-    }),
-  ]);
-});
-
-test('missing TownID', () => {
-  const hudsonBallotCardDefinition = readFixtureDefinition(
-    electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
-  );
-
-  const townIdElement =
-    hudsonBallotCardDefinition.getElementsByTagName('TownID')[0]!;
-  townIdElement.parentNode?.removeChild(townIdElement);
-
-  expect(
-    convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
-    ).unsafeUnwrapErr().issues
-  ).toEqual([
-    typedAs<ConvertIssue>({
-      kind: ConvertIssueKind.MissingDefinitionProperty,
-      message: 'TownID is missing',
-      property: 'AVSInterface > AccuvoteHeaderInfo > TownID',
-    }),
-  ]);
-});
-
-test('missing ElectionDate', () => {
-  const hudsonBallotCardDefinition = readFixtureDefinition(
-    electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
-  );
-
-  const electionDateElement =
-    hudsonBallotCardDefinition.getElementsByTagName('ElectionDate')[0]!;
-  electionDateElement.parentNode?.removeChild(electionDateElement);
-
-  expect(
-    convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
-    ).unsafeUnwrapErr().issues
-  ).toEqual([
-    typedAs<ConvertIssue>({
-      kind: ConvertIssueKind.MissingDefinitionProperty,
-      message: 'ElectionDate is missing',
-      property: 'AVSInterface > AccuvoteHeaderInfo > ElectionDate',
-    }),
-  ]);
-});
-
-test('missing PrecinctID', () => {
-  const hudsonBallotCardDefinition = readFixtureDefinition(
-    electionGridLayoutNewHampshireHudsonFixtures.definitionXml.asText()
-  );
-
-  const precinctIdElement =
-    hudsonBallotCardDefinition.getElementsByTagName('PrecinctID')[0]!;
-  precinctIdElement.parentNode?.removeChild(precinctIdElement);
-
-  expect(
-    convertElectionDefinitionHeader(
-      hudsonBallotCardDefinition
-    ).unsafeUnwrapErr().issues
-  ).toEqual([
-    typedAs<ConvertIssue>({
-      kind: ConvertIssueKind.MissingDefinitionProperty,
-      message: 'PrecinctID is missing',
-      property: 'AVSInterface > AccuvoteHeaderInfo > PrecinctID',
-    }),
-  ]);
-});
-
 test('multi-party endorsement', () => {
   const nhTestBallotCardDefinition = readFixtureDefinition(
     electionGridLayoutNewHampshireTestBallotFixtures.definitionXml.asText()
   );
+  const config = parseAccuvoteConfig(nhTestBallotCardDefinition).unsafeUnwrap();
 
   expect(
-    convertElectionDefinitionHeader(nhTestBallotCardDefinition).unsafeUnwrap()
-      .election.contests
+    convertElectionDefinitionHeader(config).unsafeUnwrap().election.contests
   ).toEqual(
     expect.arrayContaining([
       expect.objectContaining(
@@ -221,10 +90,10 @@ test('missing Party on multi-party endorsement', () => {
     sheriffCandidateSecondPartyElement
   );
 
+  const config = parseAccuvoteConfig(nhTestBallotCardDefinition).unsafeUnwrap();
+
   expect(
-    convertElectionDefinitionHeader(
-      nhTestBallotCardDefinition
-    ).unsafeUnwrapErr().issues
+    convertElectionDefinitionHeader(config).unsafeUnwrapErr().issues
   ).toEqual([
     typedAs<ConvertIssue>({
       kind: ConvertIssueKind.MissingDefinitionProperty,
@@ -241,9 +110,10 @@ test('constitutional questions become yesno contests', async () => {
     await electionGridLayoutNewHampshireTestBallotFixtures.templateFront.asImageData(),
     await electionGridLayoutNewHampshireTestBallotFixtures.templateBack.asImageData()
   );
-  const converted = convertElectionDefinitionHeader(
+  const config = parseAccuvoteConfig(
     nhTestBallotCardDefinition.definition
   ).unsafeUnwrap();
+  const converted = convertElectionDefinitionHeader(config).unsafeUnwrap();
 
   expect(converted.election.contests.filter((c) => c.type === 'yesno')).toEqual<
     YesNoContest[]
@@ -254,7 +124,10 @@ test('constitutional questions become yesno contests', async () => {
       title: 'Constitutional Amendment Question #1',
       description:
         'Shall there be a convention to amend or revise the constitution?',
-      districtId: unsafeParse(DistrictIdSchema, 'town-id-00701-precinct-id-'),
+      districtId: unsafeParse(
+        DistrictIdSchema,
+        'town-id-00701-precinct-id-default'
+      ),
       yesOption: {
         id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',
         label: 'Yes',

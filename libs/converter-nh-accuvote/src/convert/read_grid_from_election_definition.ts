@@ -1,5 +1,5 @@
-import { safeParseNumber } from '@votingworks/types';
-import { CandidateGridElement } from './types';
+import { CandidateGridInfo } from './types';
+import { BallotCardConfiguration, Candidate } from './accuvote_parser';
 
 const ElectionDefinitionVerticalTimingMarkDistance = 9;
 const ElectionDefinitionHorizontalTimingMarkDistance = 108 / 7;
@@ -27,19 +27,16 @@ function timingMarkCoordinatesFromOxOy(
 /**
  * Finds all candidates and arranges them in a LCM grid.
  */
-export function readGridFromElectionDefinition(
-  root: Element
-): CandidateGridElement[] {
-  return Array.from(root.getElementsByTagName('CandidateName')).map(
-    (candidateElement) => {
-      const ox = safeParseNumber(
-        candidateElement.getElementsByTagName('OX')[0]?.textContent
-      ).unsafeUnwrap();
-      const oy = safeParseNumber(
-        candidateElement.getElementsByTagName('OY')[0]?.textContent
-      ).unsafeUnwrap();
-      const { column, row } = timingMarkCoordinatesFromOxOy(ox, oy);
-      return { element: candidateElement, column, row };
-    }
+export function readGridFromBallotConfig(
+  config: BallotCardConfiguration
+): Array<CandidateGridInfo<Candidate>> {
+  return config.candidateContests.flatMap((contest) =>
+    contest.candidates.map((candidate) => {
+      const { column, row } = timingMarkCoordinatesFromOxOy(
+        candidate.ovalX,
+        candidate.ovalY
+      );
+      return { info: candidate, column, row };
+    })
   );
 }
