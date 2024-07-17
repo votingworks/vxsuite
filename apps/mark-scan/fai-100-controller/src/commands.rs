@@ -116,7 +116,7 @@ pub enum SipAndPuffSignalStatus {
     Idle = 0x01,
 }
 
-#[derive(Debug, num_enum::TryFromPrimitive, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, num_enum::TryFromPrimitive, PartialEq, Eq)]
 #[repr(u8)]
 pub enum SipAndPuffDeviceStatus {
     Connected = 0x01,
