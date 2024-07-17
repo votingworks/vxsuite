@@ -10,7 +10,6 @@ path = "src/fai_100_controllerd.rs"
 [dependencies]
 clap = { workspace = true, features = ["derive"] }
 color-eyre = { workspace = true }
-crc16 = { workspace = true }
 ctrlc = { workspace = true }
 daemon-utils = { workspace = true }
 hex = { workspace = true }

@@ -726,7 +726,6 @@ version = "0.1.0"
 dependencies = [
  "clap",
  "color-eyre",
- "crc16",
  "ctrlc",
  "daemon-utils",
  "hex",
