@@ -21,6 +21,7 @@ import {
   TemplateBubbleGridEntry,
   ConvertIssue,
 } from './types';
+import { parseAccuvoteConfig } from './accuvote_parser';
 
 /**
  * Convert New Hampshire XML files to a single {@link Election} object.
@@ -29,8 +30,16 @@ export function convertElectionDefinition(
   cardDefinition: NewHampshireBallotCardDefinition
 ): ConvertResult {
   return resultBlock((fail) => {
+    const parseConfigResult = parseAccuvoteConfig(cardDefinition.definition);
+
+    if (parseConfigResult.isErr()) {
+      return err({
+        issues: parseConfigResult.err(),
+      });
+    }
+
     const convertHeader = convertElectionDefinitionHeader(
-      cardDefinition.definition
+      parseConfigResult.ok()
     ).okOrElse(fail);
 
     const { election, issues: headerIssues } = convertHeader;

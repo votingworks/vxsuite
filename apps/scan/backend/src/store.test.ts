@@ -411,7 +411,7 @@ test('adjudication', () => {
         electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
           .ballotHash,
       ballotStyleId: 'card-number-3',
-      precinctId: 'town-id-00701-precinct-id-',
+      precinctId: 'town-id-00701-precinct-id-default',
       isTestMode: false,
       ballotType: BallotType.Precinct,
     };

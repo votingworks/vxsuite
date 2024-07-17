@@ -217,7 +217,7 @@ test('get next sheet layouts', async () => {
         .ballotHash,
     ballotType: BallotType.Precinct,
     ballotStyleId: 'card-number-3',
-    precinctId: 'town-id-00701-precinct-id-',
+    precinctId: 'town-id-00701-precinct-id-default',
     isTestMode: false,
   };
   const frontInterpretation: InterpretedHmpbPage = {

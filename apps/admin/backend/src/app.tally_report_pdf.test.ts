@@ -194,7 +194,7 @@ test('general election tally report PDF - Part 2', async () => {
     spec: {
       filter: {
         votingMethods: ['absentee'],
-        precinctIds: ['town-id-00701-precinct-id-'],
+        precinctIds: ['town-id-00701-precinct-id-default'],
         ballotStyleIds: ['card-number-3'],
       },
       groupBy: {},
@@ -214,7 +214,7 @@ test('general election tally report PDF - Part 2', async () => {
   });
 
   await apiClient.setManualResults({
-    precinctId: 'town-id-00701-precinct-id-',
+    precinctId: 'town-id-00701-precinct-id-default',
     ballotStyleId: 'card-number-3',
     votingMethod: 'absentee',
     manualResults: buildManualResultsFixture({

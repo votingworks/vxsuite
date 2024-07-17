@@ -16,21 +16,12 @@ import {
   safeParseNumber,
   unsafeParse,
 } from '@votingworks/types';
-import makeDebug from 'debug';
-import { decode as decodeHtmlEntities } from 'he';
 import { DateTime } from 'luxon';
 import { sha256 } from 'js-sha256';
-import { parseConstitutionalQuestions } from './parse_constitutional_questions';
-import {
-  ConvertIssue,
-  ConvertIssueKind,
-  ConvertResult,
-  NewHampshireBallotCardDefinition,
-} from './types';
-import { readGridFromElectionDefinition } from './read_grid_from_election_definition';
+import { ConvertIssueKind, ConvertResult } from './types';
+import { readGridFromBallotConfig } from './read_grid_from_election_definition';
 import { NH_SEAL } from './seal';
-
-const debug = makeDebug('converter-nh-accuvote:convert');
+import * as accuvote from './accuvote_parser';
 
 function makeId(text: string): string {
   const hash = sha256(text);
@@ -45,112 +36,53 @@ function makeId(text: string): string {
  * ballot images.
  */
 export function convertElectionDefinitionHeader(
-  definition: NewHampshireBallotCardDefinition['definition']
+  config: accuvote.BallotCardConfiguration
 ): ConvertResult {
-  const root = definition;
-  const accuvoteHeaderInfo = root.getElementsByTagName('AccuvoteHeaderInfo')[0];
+  const title = config.header.electionName;
+  const { electionDate, townName, townId } = config.header;
+
   const electionIdResult = safeParse(
     ElectionIdSchema,
-    accuvoteHeaderInfo?.getElementsByTagName('ElectionID')[0]?.textContent
+    config.header.electionId
   );
   if (electionIdResult.isErr()) {
     return err({
       issues: [
         {
           kind: ConvertIssueKind.InvalidElectionId,
-          message: 'ElectionID is missing or invalid',
+          message: `Invalid election ID "${config.header.electionId}": ${
+            electionIdResult.err().message
+          }`,
+          invalidElectionId: config.header.electionId,
         },
       ],
     });
   }
   const electionId = electionIdResult.ok();
 
-  const title =
-    accuvoteHeaderInfo?.getElementsByTagName('ElectionName')[0]?.textContent;
-  if (typeof title !== 'string') {
-    return err({
-      issues: [
-        {
-          kind: ConvertIssueKind.MissingDefinitionProperty,
-          message: 'ElectionName is missing',
-          property: 'AVSInterface > AccuvoteHeaderInfo > ElectionName',
-        },
-      ],
-    });
-  }
-
-  const townName =
-    accuvoteHeaderInfo?.getElementsByTagName('TownName')[0]?.textContent;
-  if (typeof townName !== 'string') {
-    return err({
-      issues: [
-        {
-          kind: ConvertIssueKind.MissingDefinitionProperty,
-          message: 'TownName is missing',
-          property: 'AVSInterface > AccuvoteHeaderInfo > TownName',
-        },
-      ],
-    });
-  }
-
-  const townId =
-    accuvoteHeaderInfo?.getElementsByTagName('TownID')[0]?.textContent;
-  if (typeof townId !== 'string') {
-    return err({
-      issues: [
-        {
-          kind: ConvertIssueKind.MissingDefinitionProperty,
-          message: 'TownID is missing',
-          property: 'AVSInterface > AccuvoteHeaderInfo > TownID',
-        },
-      ],
-    });
-  }
-
-  const rawDate =
-    accuvoteHeaderInfo?.getElementsByTagName('ElectionDate')[0]?.textContent;
-  if (typeof rawDate !== 'string') {
-    return err({
-      issues: [
-        {
-          kind: ConvertIssueKind.MissingDefinitionProperty,
-          message: 'ElectionDate is missing',
-          property: 'AVSInterface > AccuvoteHeaderInfo > ElectionDate',
-        },
-      ],
-    });
-  }
-
-  const parsedDate = DateTime.fromFormat(rawDate.trim(), 'M/d/yyyy HH:mm:ss', {
-    locale: 'en-US',
-    zone: 'America/New_York',
-  });
+  const parsedDate = DateTime.fromFormat(
+    electionDate.trim(),
+    'M/d/yyyy HH:mm:ss',
+    {
+      locale: 'en-US',
+      zone: 'America/New_York',
+    }
+  );
   if (parsedDate.invalidReason) {
     return err({
       issues: [
         {
           kind: ConvertIssueKind.InvalidElectionDate,
-          message: `invalid date: ${parsedDate.invalidReason}`,
-          invalidDate: rawDate,
+          message: 'invalid date',
+          invalidDate: electionDate,
           invalidReason: parsedDate.invalidReason,
         },
       ],
     });
   }
 
-  const rawPrecinctId = root.getElementsByTagName('PrecinctID')[0]?.textContent;
-  if (typeof rawPrecinctId !== 'string') {
-    return err({
-      issues: [
-        {
-          kind: ConvertIssueKind.MissingDefinitionProperty,
-          message: 'PrecinctID is missing',
-          property: 'AVSInterface > AccuvoteHeaderInfo > PrecinctID',
-        },
-      ],
-    });
-  }
-  const cleanedPrecinctId = rawPrecinctId.replace(/[^-_\w]/g, '');
+  const rawPrecinctId = config.header.precinctId;
+  const cleanedPrecinctId = rawPrecinctId?.replace(/[^-_\w]/g, '') ?? 'default';
   const precinctId = `town-id-${townId}-precinct-id-${cleanedPrecinctId}`;
 
   const rawDistrictId = `town-id-${townId}-precinct-id-${cleanedPrecinctId}`;
@@ -170,18 +102,7 @@ export function convertElectionDefinitionHeader(
   }
   const districtId = districtIdResult.ok();
 
-  const ballotSize = root.getElementsByTagName('BallotSize')[0]?.textContent;
-  if (typeof ballotSize !== 'string') {
-    return err({
-      issues: [
-        {
-          kind: ConvertIssueKind.MissingDefinitionProperty,
-          message: 'BallotSize is missing',
-          property: 'AVSInterface > AccuvoteHeaderInfo > BallotSize',
-        },
-      ],
-    });
-  }
+  const { ballotSize } = config.header;
   let paperSize: BallotPaperSize;
   switch (ballotSize) {
     case '8.5X11':
@@ -204,10 +125,12 @@ export function convertElectionDefinitionHeader(
       });
   }
 
+  const electionPartyName = config.header.partyName;
+
   const parties = new Map<string, Party>();
   const contests: Array<CandidateContest | YesNoContest> = [];
-  const optionMetadataByCandidateElement = new Map<
-    Element,
+  const optionMetadataByCandidateInfo = new Map<
+    accuvote.Candidate,
     | Omit<GridPositionOption, 'row' | 'column' | 'sheetNumber' | 'side'>
     | Omit<
         GridPositionWriteIn,
@@ -215,60 +138,28 @@ export function convertElectionDefinitionHeader(
       >
   >();
 
-  for (const contestElement of Array.from(
-    root.getElementsByTagName('Candidates')
-  )) {
-    const officeNameElement =
-      contestElement.getElementsByTagName('OfficeName')[0];
-    const officeName =
-      officeNameElement?.getElementsByTagName('Name')[0]?.textContent;
-    if (typeof officeName !== 'string') {
-      return err({
-        issues: [
-          {
-            kind: ConvertIssueKind.MissingDefinitionProperty,
-            message: 'OfficeName is missing',
-            property: 'AVSInterface > Candidates > OfficeName > Name',
-          },
-        ],
-      });
-    }
-    const contestId = makeId(officeName);
+  for (const contestInfo of config.candidateContests) {
+    const officeName = contestInfo.office.name;
+    const contestId = makeId(
+      `${officeName}${electionPartyName ? `-${electionPartyName}` : ''}`
+    );
 
-    const winnerNote =
-      officeNameElement?.getElementsByTagName('WinnerNote')[0]?.textContent;
+    const { winnerNote } = contestInfo.office;
     const seats =
       safeParseNumber(
         winnerNote?.match(/Vote for not more than (\d+)/)?.[1]
       ).ok() ?? 1;
 
-    const [writeInElements, candidateElements] = iter(
-      Array.from(contestElement.getElementsByTagName('CandidateName'))
-    ).partition(
-      (candidateElement) =>
-        candidateElement.getElementsByTagName('WriteIn')[0]?.textContent ===
-        'True'
-    );
+    const [writeInInfos, candidateInfos] = iter(
+      contestInfo.candidates
+    ).partition((candidate) => candidate.isWriteIn);
 
     const candidates: Candidate[] = [];
-    for (const [i, candidateElement] of candidateElements.entries()) {
-      const candidateName =
-        candidateElement.getElementsByTagName('Name')[0]?.textContent;
-      if (typeof candidateName !== 'string') {
-        return err({
-          issues: [
-            {
-              kind: ConvertIssueKind.MissingDefinitionProperty,
-              message: `Name is missing in candidate ${i + 1} of ${officeName}`,
-              property: 'AVSInterface > Candidates > CandidateName > Name',
-            },
-          ],
-        });
-      }
+    for (const candidateInfo of candidateInfos) {
+      const candidateName = candidateInfo.name;
 
       let party: Party | undefined;
-      const partyName =
-        candidateElement?.getElementsByTagName('Party')[0]?.textContent;
+      const { partyName } = candidateInfo;
       if (partyName) {
         party = parties.get(partyName);
         if (!party) {
@@ -316,7 +207,7 @@ export function convertElectionDefinitionHeader(
         candidates.push(candidate);
       }
 
-      optionMetadataByCandidateElement.set(candidateElement, {
+      optionMetadataByCandidateInfo.set(candidateInfo, {
         type: 'option',
         contestId,
         optionId: candidateId,
@@ -325,24 +216,19 @@ export function convertElectionDefinitionHeader(
 
     // From the XML we've seen, write-ins are listed in reverse of the order
     // they appear on the ballot. Let's make sure.
-    // eslint-disable-next-line vx/gts-identifiers
-    const writeInYCoordinates = writeInElements.map((writeInElement) =>
-      safeParseNumber(
-        writeInElement.getElementsByTagName('OY')[0]?.textContent
-      ).assertOk('Write-in element has unparseable OY')
-    );
     assert(
-      iter(writeInYCoordinates)
+      iter(writeInInfos)
         .windows(2)
-        .every(([earlier, later]) => earlier > later),
-      `Write-in OY coordinates are not in reverse ballot order: ${writeInYCoordinates.join(
-        ', '
-      )}`
+        .every(([earlier, later]) => earlier.ovalY > later.ovalY),
+      `Write-in OY coordinates are not in reverse ballot order: ${writeInInfos
+        .map(({ ovalY }) => ovalY)
+        .join(', ')}`
     );
     // In order to make sure the write-in options we create have grid layout
     // coordinates in ballot order, we reverse the write-ins here.
-    for (const [i, writeInElement] of writeInElements.reverse().entries()) {
-      optionMetadataByCandidateElement.set(writeInElement, {
+    writeInInfos.reverse();
+    for (const [i, writeInInfo] of writeInInfos.entries()) {
+      optionMetadataByCandidateInfo.set(writeInInfo, {
         type: 'write-in',
         contestId,
         writeInIndex: i,
@@ -355,72 +241,35 @@ export function convertElectionDefinitionHeader(
       title: officeName,
       districtId,
       seats,
-      allowWriteIns: writeInElements.length > 0,
+      allowWriteIns: writeInInfos.length > 0,
       candidates,
       // TODO: party ID?
     });
   }
 
-  const issues: ConvertIssue[] = [];
-  const ballotPaperInfoElement =
-    root.getElementsByTagName('BallotPaperInfo')[0];
+  const { questions } = config;
 
-  if (ballotPaperInfoElement) {
-    const questionsElement =
-      ballotPaperInfoElement.getElementsByTagName('Questions')[0];
-
-    if (questionsElement) {
-      const questionsTextContent = questionsElement.textContent;
-
-      if (typeof questionsTextContent !== 'string') {
-        issues.push({
-          kind: ConvertIssueKind.MissingDefinitionProperty,
-          message: 'Questions data is invalid',
-          property: 'AVSInterface > BallotPaperInfo > Questions',
-        });
-      } else {
-        const questionsDecoded = decodeHtmlEntities(questionsTextContent);
-        const parseConstitutionalQuestionsResult =
-          parseConstitutionalQuestions(questionsDecoded);
-        debug('questions decoded: %o', parseConstitutionalQuestionsResult);
-
-        if (parseConstitutionalQuestionsResult.isErr()) {
-          issues.push({
-            kind: ConvertIssueKind.ConstitutionalQuestionError,
-            message: parseConstitutionalQuestionsResult.err().message,
-            error: parseConstitutionalQuestionsResult.err(),
-          });
-        } else {
-          const parsedConstitutionalQuestions =
-            parseConstitutionalQuestionsResult.ok();
-          for (const [
-            i,
-            question,
-          ] of parsedConstitutionalQuestions.questions.entries()) {
-            const contestTitle = `Constitutional Amendment Question #${i + 1}`;
-            const contestId = makeId(question.title);
-            contests.push({
-              type: 'yesno',
-              id: contestId,
-              title: contestTitle,
-              description: question.title,
-              districtId,
-              yesOption: {
-                id: `${contestId}-option-yes`,
-                label: 'Yes',
-              },
-              noOption: {
-                id: `${contestId}-option-no`,
-                label: 'No',
-              },
-            });
-          }
-        }
-      }
-    }
+  for (const [i, question] of questions.entries()) {
+    const contestTitle = `Constitutional Amendment Question #${i + 1}`;
+    const contestId = makeId(question.title);
+    contests.push({
+      type: 'yesno',
+      id: contestId,
+      title: contestTitle,
+      description: question.title,
+      districtId,
+      yesOption: {
+        id: `${contestId}-option-yes`,
+        label: 'Yes',
+      },
+      noOption: {
+        id: `${contestId}-option-no`,
+        label: 'No',
+      },
+    });
   }
 
-  const definitionGrid = readGridFromElectionDefinition(root);
+  const definitionGrid = readGridFromBallotConfig(config);
 
   const election: Election = {
     id: electionId,
@@ -467,8 +316,8 @@ export function convertElectionDefinitionHeader(
           right: 1,
           bottom: 1,
         },
-        gridPositions: definitionGrid.map(({ element, column, row }) => {
-          const metadata = optionMetadataByCandidateElement.get(element);
+        gridPositions: definitionGrid.map(({ info, column, row }) => {
+          const metadata = optionMetadataByCandidateInfo.get(info);
           assert(metadata, `metadata missing for column=${column} row=${row}`);
           return metadata.type === 'option'
             ? {
@@ -521,6 +370,6 @@ export function convertElectionDefinitionHeader(
 
   return ok({
     election: parseElectionResult.ok(),
-    issues,
+    issues: [],
   });
 }

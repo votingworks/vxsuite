@@ -7,8 +7,8 @@
   "ballotStyles": [
     {
       "id": "card-number-3",
-      "precincts": ["town-id-00701-precinct-id-"],
-      "districts": ["town-id-00701-precinct-id-"]
+      "precincts": ["town-id-00701-precinct-id-default"],
+      "districts": ["town-id-00701-precinct-id-default"]
     }
   ],
   "ballotStrings": {},
@@ -16,7 +16,7 @@
   "contests": [
     {
       "id": "Governor-061a401b",
-      "districtId": "town-id-00701-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-default",
       "title": "Governor",
       "type": "candidate",
       "seats": 1,
@@ -41,7 +41,7 @@
     },
     {
       "id": "United-States-Senator-d3f1c75b",
-      "districtId": "town-id-00701-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-default",
       "title": "United States Senator",
       "type": "candidate",
       "seats": 1,
@@ -61,7 +61,7 @@
     },
     {
       "id": "Representative-in-Congress-24683b44",
-      "districtId": "town-id-00701-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-default",
       "title": "Representative in Congress",
       "type": "candidate",
       "seats": 1,
@@ -86,7 +86,7 @@
     },
     {
       "id": "Executive-Councilor-bb22557f",
-      "districtId": "town-id-00701-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-default",
       "title": "Executive Councilor",
       "type": "candidate",
       "seats": 1,
@@ -106,7 +106,7 @@
     },
     {
       "id": "State-Senator-391381f8",
-      "districtId": "town-id-00701-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-default",
       "title": "State Senator",
       "type": "candidate",
       "seats": 1,
@@ -126,7 +126,7 @@
     },
     {
       "id": "State-Representatives-Hillsborough-District-34-b1012d38",
-      "districtId": "town-id-00701-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-default",
       "title": "State Representatives  Hillsborough District 34",
       "type": "candidate",
       "seats": 3,
@@ -176,7 +176,7 @@
     },
     {
       "id": "State-Representative-Hillsborough-District-37-f3bde894",
-      "districtId": "town-id-00701-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-default",
       "title": "State Representative  Hillsborough District 37",
       "type": "candidate",
       "seats": 1,
@@ -201,7 +201,7 @@
     },
     {
       "id": "Sheriff-4243fe0b",
-      "districtId": "town-id-00701-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-default",
       "title": "Sheriff",
       "type": "candidate",
       "seats": 1,
@@ -216,7 +216,7 @@
     },
     {
       "id": "County-Attorney-133f910f",
-      "districtId": "town-id-00701-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-default",
       "title": "County Attorney",
       "type": "candidate",
       "seats": 1,
@@ -236,7 +236,7 @@
     },
     {
       "id": "County-Treasurer-87d25a31",
-      "districtId": "town-id-00701-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-default",
       "title": "County Treasurer",
       "type": "candidate",
       "seats": 1,
@@ -256,7 +256,7 @@
     },
     {
       "id": "Register-of-Deeds-a1278df2",
-      "districtId": "town-id-00701-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-default",
       "title": "Register of Deeds",
       "type": "candidate",
       "seats": 1,
@@ -276,7 +276,7 @@
     },
     {
       "id": "Register-of-Probate-a4117da8",
-      "districtId": "town-id-00701-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-default",
       "title": "Register of Probate",
       "type": "candidate",
       "seats": 1,
@@ -296,7 +296,7 @@
     },
     {
       "id": "County-Commissioner-d6feed25",
-      "districtId": "town-id-00701-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-default",
       "title": "County Commissioner",
       "type": "candidate",
       "seats": 1,
@@ -316,7 +316,7 @@
     },
     {
       "id": "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc",
-      "districtId": "town-id-00701-precinct-id-",
+      "districtId": "town-id-00701-precinct-id-default",
       "title": "Constitutional Amendment Question #1",
       "type": "yesno",
       "description": "Shall there be a convention to amend or revise the constitution?"
@@ -324,7 +324,7 @@
   ],
   "gridLayouts": [
     {
-      "precinctId": "town-id-00701-precinct-id-",
+      "precinctId": "town-id-00701-precinct-id-default",
       "ballotStyleId": "card-number-3",
       "columns": 34,
       "rows": 41,
@@ -918,7 +918,7 @@
   "date": "2022-07-12",
   "districts": [
     {
-      "id": "town-id-00701-precinct-id-",
+      "id": "town-id-00701-precinct-id-default",
       "name": "Test Ballot"
     }
   ],
@@ -950,7 +950,7 @@
   "precinctScanAdjudicationReasons": ["Overvote"],
   "precincts": [
     {
-      "id": "town-id-00701-precinct-id-",
+      "id": "town-id-00701-precinct-id-default",
       "name": "Test Ballot"
     }
   ],

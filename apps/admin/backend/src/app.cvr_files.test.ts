@@ -41,6 +41,7 @@ import {
   ListCastVoteRecordExportsOnUsbDriveResult,
   listCastVoteRecordExportsOnUsbDrive,
 } from './cast_vote_records';
+import { CvrFileImportInfo } from './types';
 
 jest.setTimeout(60_000);
 
@@ -148,8 +149,8 @@ test('happy path - mock election flow', async () => {
   const addTestFileResult = await apiClient.addCastVoteRecordFile({
     path: exportDirectoryPath,
   });
-  assert(addTestFileResult.isOk());
-  expect(addTestFileResult.ok()).toMatchObject({
+  addTestFileResult.unsafeUnwrap();
+  expect(addTestFileResult.ok()).toMatchObject<Omit<CvrFileImportInfo, 'id'>>({
     wasExistingFile: false,
     exportedTimestamp: expectedExportTimestamp,
     alreadyPresent: 0,
@@ -175,7 +176,7 @@ test('happy path - mock election flow', async () => {
       exportTimestamp: expectedExportTimestamp,
       filename: testExportDirectoryName,
       numCvrsImported: 184,
-      precinctIds: ['town-id-00701-precinct-id-'],
+      precinctIds: ['town-id-00701-precinct-id-default'],
       scannerIds: ['VX-00-000'],
     }),
   ]);

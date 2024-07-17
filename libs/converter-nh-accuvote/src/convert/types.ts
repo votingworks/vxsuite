@@ -76,10 +76,10 @@ export interface NewHampshireBallotCardDefinition {
 }
 
 /**
- * Contains candidate elements and their LCM column/row coordinates.
+ * Contains candidate info and their LCM column/row coordinates.
  */
-export interface CandidateGridElement {
-  readonly element: Element;
+export interface CandidateGridInfo<T> {
+  readonly info: T;
   readonly column: number;
   readonly row: number;
 }

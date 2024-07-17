@@ -135,7 +135,7 @@ test('write-in adjudication report', async () => {
   await apiClient.setManualResults({
     ballotStyleId: 'card-number-3',
     votingMethod: 'precinct',
-    precinctId: 'town-id-00701-precinct-id-',
+    precinctId: 'town-id-00701-precinct-id-default',
     manualResults: buildManualResultsFixture({
       election,
       ballotCount: 25,

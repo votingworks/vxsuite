@@ -103,7 +103,7 @@ test('constitutional question ovals get placed on the grid correctly', async () 
             'Shall there be a convention to amend or revise the constitution?',
           districtId: unsafeParse(
             DistrictIdSchema,
-            'town-id-00701-precinct-id-'
+            'town-id-00701-precinct-id-default'
           ),
           yesOption: {
             id: 'Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc-option-yes',

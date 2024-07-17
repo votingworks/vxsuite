@@ -7,14 +7,14 @@
   "ballotStyles": [
     {
       "id": "card-number-54",
-      "precincts": ["town-id-12101-precinct-id-"],
-      "districts": ["town-id-12101-precinct-id-"]
+      "precincts": ["town-id-12101-precinct-id-default"],
+      "districts": ["town-id-12101-precinct-id-default"]
     }
   ],
   "contests": [
     {
       "id": "President-and-Vice-President-of-the-United-States-18d1a55a",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-12101-precinct-id-default",
       "title": "President and Vice-President of the United States",
       "type": "candidate",
       "seats": 1,
@@ -39,7 +39,7 @@
     },
     {
       "id": "Governor-061a401b",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-12101-precinct-id-default",
       "title": "Governor",
       "type": "candidate",
       "seats": 1,
@@ -64,7 +64,7 @@
     },
     {
       "id": "United-States-Senator-d3f1c75b",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-12101-precinct-id-default",
       "title": "United States Senator",
       "type": "candidate",
       "seats": 1,
@@ -89,7 +89,7 @@
     },
     {
       "id": "Representative-in-Congress-24683b44",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-12101-precinct-id-default",
       "title": "Representative in Congress",
       "type": "candidate",
       "seats": 1,
@@ -114,7 +114,7 @@
     },
     {
       "id": "Executive-Councilor-bb22557f",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-12101-precinct-id-default",
       "title": "Executive Councilor",
       "type": "candidate",
       "seats": 1,
@@ -134,7 +134,7 @@
     },
     {
       "id": "State-Senator-391381f8",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-12101-precinct-id-default",
       "title": "State Senator",
       "type": "candidate",
       "seats": 1,
@@ -154,7 +154,7 @@
     },
     {
       "id": "State-Representatives-7d3a8821",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-12101-precinct-id-default",
       "title": "State Representatives",
       "type": "candidate",
       "seats": 11,
@@ -274,7 +274,7 @@
     },
     {
       "id": "Sheriff-4243fe0b",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-12101-precinct-id-default",
       "title": "Sheriff",
       "type": "candidate",
       "seats": 1,
@@ -294,7 +294,7 @@
     },
     {
       "id": "County-Attorney-133f910f",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-12101-precinct-id-default",
       "title": "County Attorney",
       "type": "candidate",
       "seats": 1,
@@ -319,7 +319,7 @@
     },
     {
       "id": "County-Treasurer-87d25a31",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-12101-precinct-id-default",
       "title": "County Treasurer",
       "type": "candidate",
       "seats": 1,
@@ -344,7 +344,7 @@
     },
     {
       "id": "Register-of-Deeds-a1278df2",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-12101-precinct-id-default",
       "title": "Register of Deeds",
       "type": "candidate",
       "seats": 1,
@@ -364,7 +364,7 @@
     },
     {
       "id": "Register-of-Probate-a4117da8",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-12101-precinct-id-default",
       "title": "Register of Probate",
       "type": "candidate",
       "seats": 1,
@@ -384,7 +384,7 @@
     },
     {
       "id": "County-Commissioner-d6feed25",
-      "districtId": "town-id-12101-precinct-id-",
+      "districtId": "town-id-12101-precinct-id-default",
       "title": "County Commissioner",
       "type": "candidate",
       "seats": 1,
@@ -1236,7 +1236,7 @@
   "date": "2020-11-03",
   "districts": [
     {
-      "id": "town-id-12101-precinct-id-",
+      "id": "town-id-12101-precinct-id-default",
       "name": "Hudson"
     }
   ],
@@ -1263,7 +1263,7 @@
   ],
   "precincts": [
     {
-      "id": "town-id-12101-precinct-id-",
+      "id": "town-id-12101-precinct-id-default",
       "name": "Hudson"
     }
   ],
