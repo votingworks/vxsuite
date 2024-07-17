@@ -585,7 +585,7 @@
     "GpUnit": [
       {
         "@type": "CVR.GpUnit",
-        "@id": "town-id-00701-precinct-id-",
+        "@id": "town-id-00701-precinct-id-default",
         "Type": "precinct",
         "Name": "Test Ballot"
       },

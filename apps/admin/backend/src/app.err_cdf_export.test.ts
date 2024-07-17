@@ -129,7 +129,7 @@ it('exports results and metadata accurately', async () => {
   const loadFileResult = await apiClient.addCastVoteRecordFile({
     path: castVoteRecordExport.asDirectoryPath(),
   });
-  loadFileResult.assertOk('load file failed');
+  loadFileResult.unsafeUnwrap();
 
   // adjudicate a write-in
   const candidateContestId =
@@ -396,7 +396,7 @@ it('marks report as certified when official, as primary when primary, and as non
       }
     ),
   });
-  loadFileResult.assertOk('load file failed');
+  loadFileResult.unsafeUnwrap();
 
   await apiClient.markResultsOfficial();
 
