@@ -408,7 +408,7 @@ IDs are logged with each log to identify the log being written.
 **Machines:** vx-mark-scan-backend
 ### pat-device-error
 **Type:** [system-status](#system-status)  
-**Description:** VxMarkScan encountered an error with the built-in PAT device port or the device itself  
+**Description:** VxMark encountered an error with the built-in PAT device port or the device itself  
 **Machines:** vx-mark-scan-backend
 ### paper-handler-state-machine-transition
 **Type:** [application-status](#application-status)  

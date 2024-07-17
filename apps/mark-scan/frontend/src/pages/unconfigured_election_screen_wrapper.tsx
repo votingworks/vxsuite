@@ -35,7 +35,7 @@ export function UnconfiguredElectionScreenWrapper(): JSX.Element {
           usbDriveStatus={usbDriveStatusQuery.data}
           isElectionManagerAuth
           backendConfigError={backendError}
-          machineName="VxMarkScan"
+          machineName="VxMark"
         />
       </Main>
     </Screen>

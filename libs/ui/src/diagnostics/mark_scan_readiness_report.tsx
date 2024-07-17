@@ -87,7 +87,7 @@ export function MarkScanReadinessReport({
     >
       <PrintedReport>
         <ReadinessReportHeader
-          reportType="VxMarkScan"
+          reportType="VxMark"
           generatedAtTime={generatedAtTime}
           machineId={machineId}
         />

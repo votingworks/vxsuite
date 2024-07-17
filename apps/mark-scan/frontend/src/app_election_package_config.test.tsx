@@ -32,7 +32,7 @@ test('renders an error if election package config endpoint returns an error', as
   apiMock.expectGetElectionDefinition(null);
   apiMock.expectGetElectionState();
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
-  await screen.findByText('Configuring VxMarkScan from USB drive…');
+  await screen.findByText('Configuring VxMark from USB drive…');
   await screen.findByText(
     'The most recent election package found is for a different election.'
   );
