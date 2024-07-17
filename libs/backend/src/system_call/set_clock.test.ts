@@ -1,3 +1,5 @@
+/* eslint-disable prefer-regex-literals */
+
 import { mockOf } from '@votingworks/test-utils';
 import { setClock } from './set_clock';
 import { execFile } from '../exec';
@@ -16,16 +18,10 @@ test('setClock works in daylights savings', async () => {
   });
 
   expect(execMock).toHaveBeenNthCalledWith(1, 'sudo', [
-    '-n',
-    'timedatectl',
-    'set-timezone',
+    expect.stringMatching(
+      new RegExp('^/.*/libs/backend/src/intermediate-scripts/set-clock$')
+    ),
     'America/Chicago',
-  ]);
-
-  expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
-    '-n',
-    'timedatectl',
-    'set-time',
     '2020-10-03 10:00:00',
   ]);
 });
@@ -37,16 +33,10 @@ test('setClock works in non-daylights savings', async () => {
   });
 
   expect(execMock).toHaveBeenNthCalledWith(1, 'sudo', [
-    '-n',
-    'timedatectl',
-    'set-timezone',
+    expect.stringMatching(
+      new RegExp('^/.*/libs/backend/src/intermediate-scripts/set-clock$')
+    ),
     'America/Chicago',
-  ]);
-
-  expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
-    '-n',
-    'timedatectl',
-    'set-time',
     '2020-11-03 09:00:00',
   ]);
 });
