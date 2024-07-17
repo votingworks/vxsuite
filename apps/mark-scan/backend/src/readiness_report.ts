@@ -16,7 +16,7 @@ import { isAccessibleControllerDaemonRunning } from './util/hardware';
 import { PaperHandlerStateMachine } from './custom-paper-handler';
 
 /**
- * Saves the VxMarkScan hardware readiness report to the USB drive.
+ * Saves the VxMark hardware readiness report to the USB drive.
  */
 export async function saveReadinessReport({
   workspace,

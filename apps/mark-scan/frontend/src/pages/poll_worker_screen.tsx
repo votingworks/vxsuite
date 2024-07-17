@@ -357,7 +357,7 @@ export function PollWorkerScreen({
       <Main padded>
         <Prose maxWidth={false}>
           <H2 as="h1">
-            VxMarkScan{' '}
+            VxMark{' '}
             <Font weight="light" noWrap>
               Poll Worker Actions
             </Font>
