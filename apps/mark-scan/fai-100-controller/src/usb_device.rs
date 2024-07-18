@@ -52,7 +52,7 @@ impl UsbDevice {
     fn claim_interface<T: UsbContext>(handle: &mut DeviceHandle<T>) -> Result<()> {
         let has_kernel_driver = match handle.kernel_driver_active(INTERFACE_NUMBER) {
             Ok(true) => {
-                let _ = handle.detach_kernel_driver(INTERFACE_NUMBER)?;
+                handle.detach_kernel_driver(INTERFACE_NUMBER)?;
                 true
             }
             _ => false,
@@ -63,7 +63,7 @@ impl UsbDevice {
         handle.set_alternate_setting(INTERFACE_NUMBER, SETTING_NUMBER)?;
 
         if has_kernel_driver {
-            let _ = handle.attach_kernel_driver(INTERFACE_NUMBER)?;
+            handle.attach_kernel_driver(INTERFACE_NUMBER)?;
         }
         Ok(())
     }

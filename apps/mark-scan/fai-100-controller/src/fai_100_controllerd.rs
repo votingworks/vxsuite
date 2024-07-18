@@ -15,7 +15,7 @@ use daemon_utils::run_no_op_event_loop;
 use std::{
     fs::OpenOptions,
     io::{self, Read},
-    path::PathBuf,
+    path::{Path, PathBuf},
     process::exit,
     sync::{
         atomic::{AtomicBool, Ordering},
@@ -56,7 +56,7 @@ struct Args {
 
 fn write_pat_connection_status(
     status: SipAndPuffDeviceStatus,
-    workspace_path: &PathBuf,
+    workspace_path: &Path,
 ) -> Result<(), io::Error> {
     let mut file = OpenOptions::new()
         .write(true)
@@ -322,7 +322,7 @@ fn handle_status_response(
     new_status: NotificationStatusResponse,
     current_status: &mut CurrentStatus,
     keyboard: &mut impl VirtualKeyboard,
-    workspace_path: &PathBuf,
+    workspace_path: &Path,
 ) -> Result<(), CommandError> {
     let new_button = new_status.button_pressed;
     let new_sip_status = new_status.sip_status;
@@ -406,7 +406,7 @@ fn run_event_loop(
     usb_device: &mut UsbDevice,
     running: &Arc<AtomicBool>,
     keyboard: &mut impl VirtualKeyboard,
-    workspace_path: &PathBuf,
+    workspace_path: &Path,
 ) {
     let mut buf: [u8; BUFFER_MAX_BYTES] = [0; BUFFER_MAX_BYTES];
 
