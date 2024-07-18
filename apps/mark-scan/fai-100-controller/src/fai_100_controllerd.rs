@@ -21,7 +21,7 @@ use std::{
         atomic::{AtomicBool, Ordering},
         Arc,
     },
-    thread,
+    thread::sleep,
     time::{Duration, Instant},
 };
 use uinput::event::keyboard;
@@ -58,17 +58,17 @@ fn write_pat_connection_status(
     status: SipAndPuffDeviceStatus,
     workspace_path: &PathBuf,
 ) -> Result<(), io::Error> {
-            let mut file = OpenOptions::new()
-                .write(true)
-                .create(true)
-                .truncate(true)
+    let mut file = OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
         .open(workspace_path.join(PAT_CONNECTION_STATUS_FILENAME))?;
-            // For consistency with the BMD 155 integration, "0" means a PAT device is connected and "1" means no device is connected
+    // For consistency with the BMD 155 integration, "0" means a PAT device is connected and "1" means no device is connected
     let value: &str = match status {
         SipAndPuffDeviceStatus::Connected => "0",
         SipAndPuffDeviceStatus::Disconnected => "1",
     };
-            file.write_all(value.as_bytes())?;
+    file.write_all(value.as_bytes())?;
 
     Ok(())
 }
@@ -328,6 +328,30 @@ fn handle_status_response(
     let new_puff_status = new_status.puff_status;
     let new_connection_status = new_status.sip_puff_device_connection_status;
 
+    // When no sip & puff device is connected, the sip/puff values contradict docs.
+    // +-------------------------+-------------------+-------------+
+    // | Device Status           | Sip Status        | Value (Hex) |
+    // +-------------------------+-------------------+-------------+
+    // | Device Connected        | No Sip            | 0x00        |
+    // | Device Connected        | Sip               | 0x01        |
+    // | Device Not Connected    | No Sip            | 0x01        |
+    // | Device Not Connected    | Sip               | 0x00        |
+    // +-------------------------+-------------------+-------------+
+    // To avoid processing erroneous signals, we throw out sip/puff data for a short time
+    // after device connection status changes
+    if new_connection_status != current_status.sip_puff_device_connected {
+        current_status.sip_puff_device_connected = new_connection_status;
+        current_status.sip = SipAndPuffSignalStatus::Idle;
+        current_status.puff = SipAndPuffSignalStatus::Idle;
+        current_status.button_pressed = ButtonSignal::NoButton;
+
+        // Write device connection status to system file so mark-scan app is aware
+        write_pat_connection_status(new_connection_status, workspace_path)?;
+
+        sleep(2 * POLL_INTERVAL);
+        return Ok(());
+    }
+
     // If the new button isn't currently being pressed (ie. this is a keydown event), send a keypress
     if new_button != current_status.button_pressed {
         // Only sends keypress when a new button is pressed.
@@ -340,27 +364,10 @@ fn handle_status_response(
     // Update the currently pressed button so subsequent identical status reports won't trigger a second keypress
     current_status.button_pressed = new_button;
 
-    // Write device connection status to system file so mark-scan app is aware
-    if new_connection_status != current_status.sip_puff_device_connected {
-        write_pat_connection_status(new_connection_status, workspace_path)?;
-
-        // Explicitly reset sip and puff signals if device was just disconnected because signals are
-        // ignored once device is disconnected. See comment below.
-        let just_disconnected = new_connection_status == SipAndPuffDeviceStatus::Disconnected
-            && current_status.sip_puff_device_connected == SipAndPuffDeviceStatus::Connected;
-        if just_disconnected {
-            current_status.sip = SipAndPuffSignalStatus::Idle;
-            current_status.puff = SipAndPuffSignalStatus::Idle;
-        }
-    }
-    current_status.sip_puff_device_connected = new_connection_status;
-
-    // Only check for sip & puff actions when the device is connected. When the device is not connected
-    // the values switch meaning.
-    // ie. When a sip & puff is connected, 0x01 is sent to host when a sip
-    // is happening and 0x00 is sent when no sip is happening.
-    // When no sip & puff is connected, 0x00 is sent when no sip is happening.
-    // Therefore we must ignore all sip & puff signals unless we know the sip & puff is connected.
+    // Only check for sip & puff actions when the device is connected because
+    // sip/puff values are inverted when no device is connected, per comment above.
+    // Even if values were consistent, logically no sip/puff signal can be sent without a
+    // connected device.
     if current_status.sip_puff_device_connected == SipAndPuffDeviceStatus::Connected {
         // Send keypress for new sip event
         if new_sip_status == SipAndPuffSignalStatus::Active
@@ -477,7 +484,7 @@ fn run_event_loop(
             }
         }
 
-        thread::sleep(POLL_INTERVAL);
+        sleep(POLL_INTERVAL);
     }
 }
 

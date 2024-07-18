@@ -156,7 +156,7 @@ impl TryFrom<&[u8]> for NotificationStatusResponse {
         let sender_id: u32 = u32::from_le_bytes(
             bytes[..4]
                 .try_into()
-                .map_err(|_| CommandError::FailedSliceConversion())?,
+                .map_err(|_| CommandError::FailedSliceConversion)?,
         );
 
         if sender_id != SENDER_ID {
@@ -200,7 +200,7 @@ impl TryFrom<&[u8]> for VersionResponse {
         let sender_id = u32::from_le_bytes(
             bytes[..4]
                 .try_into()
-                .map_err(|_| CommandError::FailedSliceConversion())?,
+                .map_err(|_| CommandError::FailedSliceConversion)?,
         );
         if sender_id != SENDER_ID {
             return Err(CommandError::UnknownSenderId(sender_id));
@@ -209,7 +209,7 @@ impl TryFrom<&[u8]> for VersionResponse {
         let data_length = u32::from_le_bytes(
             bytes[20..24]
                 .try_into()
-                .map_err(|_| CommandError::FailedSliceConversion())?,
+                .map_err(|_| CommandError::FailedSliceConversion)?,
         );
 
         // Length including 2 bytes of noise we don't need to read
@@ -231,7 +231,7 @@ impl TryFrom<&[u8]> for VersionResponse {
         let version = u32::from_be_bytes(
             response[1..]
                 .try_into()
-                .map_err(|_| CommandError::FailedSliceConversion())?,
+                .map_err(|_| CommandError::FailedSliceConversion)?,
         );
         Ok(Self { version })
     }
