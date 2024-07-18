@@ -349,7 +349,7 @@ fn handle_status_response(
         // Write device connection status to system file so mark-scan app is aware
         write_pat_connection_status(new_connection_status, workspace_path)?;
 
-        sleep(2 * POLL_INTERVAL);
+        sleep(3 * POLL_INTERVAL);
         return Ok(());
     }
 
