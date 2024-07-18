@@ -79,8 +79,8 @@ import {
 import { constructAuthMachineState } from '../util/auth';
 
 function isBallotReinsertionEnabled() {
-  return isFeatureFlagEnabled(
-    BooleanEnvironmentVariableName.MARK_SCAN_ENABLE_BALLOT_REINSERTION
+  return !isFeatureFlagEnabled(
+    BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
   );
 }
 

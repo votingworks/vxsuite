@@ -166,8 +166,8 @@ beforeEach(async () => {
   jest.useFakeTimers();
 
   featureFlagMock.resetFeatureFlags();
-  featureFlagMock.disableFeatureFlag(
-    BooleanEnvironmentVariableName.MARK_SCAN_ENABLE_BALLOT_REINSERTION
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
   );
 
   logger = mockBaseLogger();
@@ -711,8 +711,8 @@ test('reset() API', async () => {
 });
 
 test('insert and validate new blank sheet', async () => {
-  featureFlagMock.enableFeatureFlag(
-    BooleanEnvironmentVariableName.MARK_SCAN_ENABLE_BALLOT_REINSERTION
+  featureFlagMock.disableFeatureFlag(
+    BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
   );
 
   machine.setAcceptingPaper();
@@ -737,8 +737,8 @@ test('insert and validate new blank sheet', async () => {
 
 describe('insert pre-printed ballot', () => {
   beforeEach(() => {
-    featureFlagMock.enableFeatureFlag(
-      BooleanEnvironmentVariableName.MARK_SCAN_ENABLE_BALLOT_REINSERTION
+    featureFlagMock.disableFeatureFlag(
+      BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
     );
   });
 
@@ -829,8 +829,8 @@ describe('insert pre-printed ballot', () => {
 
 describe('re-insert removed ballot', () => {
   beforeEach(() => {
-    featureFlagMock.enableFeatureFlag(
-      BooleanEnvironmentVariableName.MARK_SCAN_ENABLE_BALLOT_REINSERTION
+    featureFlagMock.disableFeatureFlag(
+      BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
     );
   });
 

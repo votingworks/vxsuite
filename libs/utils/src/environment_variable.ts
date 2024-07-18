@@ -94,7 +94,7 @@ export enum BooleanEnvironmentVariableName {
    *
    * TODO: Remove flag once fully tested.
    */
-  MARK_SCAN_ENABLE_BALLOT_REINSERTION = 'REACT_APP_VX_MARK_SCAN_ENABLE_BALLOT_REINSERTION',
+  MARK_SCAN_DISABLE_BALLOT_REINSERTION = 'REACT_APP_VX_MARK_SCAN_DISABLE_BALLOT_REINSERTION',
 }
 
 // This is not fully generic since string variables may want the getter to return a custom type.
@@ -181,8 +181,8 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_USE_CUSTOM_SCANNER;
     case BooleanEnvironmentVariableName.ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES:
       return process.env.REACT_APP_VX_ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES;
-    case BooleanEnvironmentVariableName.MARK_SCAN_ENABLE_BALLOT_REINSERTION:
-      return process.env.REACT_APP_VX_MARK_SCAN_ENABLE_BALLOT_REINSERTION;
+    case BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION:
+      return process.env.REACT_APP_VX_MARK_SCAN_DISABLE_BALLOT_REINSERTION;
     /* c8 ignore next 2 */
     default:
       throwIllegalValue(name);
@@ -320,7 +320,7 @@ export function getBooleanEnvVarConfig(
         autoEnableInDevelopment: false,
         autoEnableInVxDev: true,
       };
-    case BooleanEnvironmentVariableName.MARK_SCAN_ENABLE_BALLOT_REINSERTION:
+    case BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION:
       return {
         name,
         allowInProduction: true,

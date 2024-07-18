@@ -57,8 +57,8 @@ beforeEach(() => {
   apiMock = createApiMock();
 
   mockFeatureFlagger.resetFeatureFlags();
-  mockFeatureFlagger.disableFeatureFlag(
-    BooleanEnvironmentVariableName.MARK_SCAN_ENABLE_BALLOT_REINSERTION
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
   );
 });
 
@@ -225,8 +225,8 @@ test('displays only default English ballot styles', async () => {
 
 describe('pre-printed ballots', () => {
   test('can insert pre-printed ballots without ballot style selection', () => {
-    mockFeatureFlagger.enableFeatureFlag(
-      BooleanEnvironmentVariableName.MARK_SCAN_ENABLE_BALLOT_REINSERTION
+    mockFeatureFlagger.disableFeatureFlag(
+      BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
     );
 
     renderScreen();
@@ -235,9 +235,9 @@ describe('pre-printed ballots', () => {
     userEvent.click(screen.getButton(/insert printed ballot/i));
   });
 
-  test('new section not rendered when feature flag is disabled', () => {
-    mockFeatureFlagger.disableFeatureFlag(
-      BooleanEnvironmentVariableName.MARK_SCAN_ENABLE_BALLOT_REINSERTION
+  test('new section not rendered when re-insertion is disabled', () => {
+    mockFeatureFlagger.enableFeatureFlag(
+      BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
     );
 
     renderScreen();

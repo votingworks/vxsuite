@@ -79,6 +79,9 @@ beforeEach(async () => {
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.USE_MOCK_PAPER_HANDLER
   );
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
+  );
 
   patConnectionStatusReader = new PatConnectionStatusReader(logger);
   mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
