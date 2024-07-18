@@ -9,7 +9,7 @@
 use clap::Parser;
 use commands::{
     ButtonSignal, CommandError, NotificationStatusResponse, SipAndPuffDeviceStatus,
-    SipAndPuffSignalStatus, VersionResponse, NOTIFICATION_STATUS_RESPONSE_BYTE_LENGTH,
+    SipAndPuffSignalStatus, VersionResponse, RESPONSE_BYTE_LENGTH,
 };
 use daemon_utils::run_no_op_event_loop;
 use std::{
@@ -452,7 +452,7 @@ fn run_event_loop(
 
         match usb_device.read(&mut buf) {
             Ok(_) => {
-                let data = &buf[..NOTIFICATION_STATUS_RESPONSE_BYTE_LENGTH];
+                let data = &buf[..RESPONSE_BYTE_LENGTH];
                 match NotificationStatusResponse::try_from(data) {
                     Ok(response) => {
                         if let Err(e) = handle_status_response(

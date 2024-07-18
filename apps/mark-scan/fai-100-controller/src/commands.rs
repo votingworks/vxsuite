@@ -128,7 +128,8 @@ pub struct NotificationStatusResponse {
     pub sip_puff_device_connection_status: SipAndPuffDeviceStatus,
 }
 
-pub const NOTIFICATION_STATUS_RESPONSE_BYTE_LENGTH: usize = 31;
+// Not all possibleresponses are 31 bytes, but all the ones we use are
+pub const RESPONSE_BYTE_LENGTH: usize = 31;
 
 impl TryFrom<&[u8]> for NotificationStatusResponse {
     type Error = CommandError;
@@ -149,7 +150,7 @@ impl TryFrom<&[u8]> for NotificationStatusResponse {
     // Command ID 0xC1
     // Button status 0x34000000 = "Left" button is pressed
     fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
-        if bytes.len() != NOTIFICATION_STATUS_RESPONSE_BYTE_LENGTH {
+        if bytes.len() != RESPONSE_BYTE_LENGTH {
             return Err(CommandError::UnexpectedPacketSize(bytes.len()));
         }
 
@@ -192,8 +193,7 @@ impl TryFrom<&[u8]> for VersionResponse {
     type Error = CommandError;
 
     fn try_from(bytes: &[u8]) -> Result<Self, Self::Error> {
-        const EXPECTED_LENGTH: usize = 31;
-        if bytes.len() != EXPECTED_LENGTH {
+        if bytes.len() != RESPONSE_BYTE_LENGTH {
             return Err(CommandError::UnexpectedPacketSize(bytes.len()));
         }
 
