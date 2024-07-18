@@ -1,4 +1,5 @@
 /* istanbul ignore file - test util */
+/* eslint-disable prefer-regex-literals */
 
 import { MockUsbDrive, createMockUsbDrive } from '@votingworks/usb-drive';
 import { mockOf } from '@votingworks/test-utils';
@@ -41,7 +42,11 @@ test('exportLogsToUsb', async () => {
 
 test('reboot', () => {
   api.reboot();
-  expect(execMock).toHaveBeenCalledWith('systemctl', ['reboot', '-i']);
+  expect(execMock).toHaveBeenCalledWith('sudo', [
+    expect.stringMatching(
+      new RegExp('^/.*/libs/backend/src/intermediate-scripts/reboot$')
+    ),
+  ]);
 });
 
 test('rebootToBios', async () => {
@@ -52,10 +57,10 @@ test('rebootToBios', async () => {
       message: 'User trigged a reboot of the machine to BIOS screen…',
     }
   );
-  expect(execMock).toHaveBeenCalledWith('systemctl', [
-    'reboot',
-    '--firmware-setup',
-    '-i',
+  expect(execMock).toHaveBeenCalledWith('sudo', [
+    expect.stringMatching(
+      new RegExp('^/.*/libs/backend/src/intermediate-scripts/reboot-to-bios$')
+    ),
   ]);
 });
 
@@ -64,7 +69,11 @@ test('powerDown', async () => {
   expect(logger.logAsCurrentRole).toHaveBeenCalledWith(LogEventId.PowerDown, {
     message: 'User triggered the machine to power down.',
   });
-  expect(execMock).toHaveBeenCalledWith('systemctl', ['poweroff', '-i']);
+  expect(execMock).toHaveBeenCalledWith('sudo', [
+    expect.stringMatching(
+      new RegExp('^/.*/libs/backend/src/intermediate-scripts/power-down$')
+    ),
+  ]);
 });
 
 test('setClock', async () => {
@@ -74,16 +83,10 @@ test('setClock', async () => {
   });
 
   expect(execMock).toHaveBeenNthCalledWith(1, 'sudo', [
-    '-n',
-    'timedatectl',
-    'set-timezone',
+    expect.stringMatching(
+      new RegExp('^/.*/libs/backend/src/intermediate-scripts/set-clock$')
+    ),
     'America/Chicago',
-  ]);
-
-  expect(execMock).toHaveBeenNthCalledWith(2, 'sudo', [
-    '-n',
-    'timedatectl',
-    'set-time',
     '2020-11-03 09:00:00',
   ]);
 });

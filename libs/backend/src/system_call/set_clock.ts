@@ -1,5 +1,6 @@
 import { DateTime } from 'luxon';
 import { execFile } from '../exec';
+import { intermediateScript } from '../intermediate_scripts';
 
 /**
  * Parameters for the `setClock` function.
@@ -20,8 +21,11 @@ export async function setClock({
     const datetimeString = DateTime.fromISO(isoDatetime, {
       zone: ianaZone,
     }).toFormat('yyyy-LL-dd TT');
-    await execFile('sudo', ['-n', 'timedatectl', 'set-timezone', ianaZone]);
-    await execFile('sudo', ['-n', 'timedatectl', 'set-time', datetimeString]);
+    await execFile('sudo', [
+      intermediateScript('set-clock'),
+      ianaZone,
+      datetimeString,
+    ]);
   } catch (err) {
     const error = err as Error;
     if ('stderr' in error) {

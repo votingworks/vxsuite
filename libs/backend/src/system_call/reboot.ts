@@ -1,9 +1,9 @@
 import { execFile } from '../exec';
+import { intermediateScript } from '../intermediate_scripts';
 
 /**
  * Reboots the machine.
  */
 export function reboot(): void {
-  // -i prevents blocking the reboot on other logged in users
-  void execFile('systemctl', ['reboot', '-i']);
+  void execFile('sudo', [intermediateScript('reboot')]);
 }
