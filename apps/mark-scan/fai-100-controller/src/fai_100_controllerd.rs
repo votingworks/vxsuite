@@ -157,7 +157,7 @@ fn main() -> color_eyre::Result<()> {
 }
 
 fn get_usb_device() -> Option<UsbDevice> {
-    match UsbDevice::open_by_ids(FAI_100_VID, FAI_100_PID) {
+    match UsbDevice::open_and_claim(FAI_100_VID, FAI_100_PID) {
         Ok(port) => {
             log!(
                 event_id: EventId::ControllerConnectionComplete,
@@ -189,7 +189,7 @@ fn validate_connection(usb_device: &mut UsbDevice) -> Result<(), io::Error> {
     let version_cmd = create_command!(GetFirmwareVersion);
     let version_cmd: Vec<u8> = version_cmd.into();
 
-    match usb_device.write_bulk(&version_cmd) {
+    match usb_device.write(&version_cmd) {
         Ok(num_bytes) => log!(
             event_id: EventId::Info,
             message: format!("validate_connection: {num_bytes} bytes written"),
@@ -201,6 +201,7 @@ fn validate_connection(usb_device: &mut UsbDevice) -> Result<(), io::Error> {
             event_type: EventType::SystemStatus
         ),
     }
+    let _ = usb_device.flush();
 
     let mut buf = [0; BUFFER_MAX_BYTES];
     match usb_device.read(&mut buf) {
@@ -402,7 +403,7 @@ fn handle_status_response(
 }
 
 fn run_event_loop(
-    port: &mut UsbDevice,
+    usb_device: &mut UsbDevice,
     running: &Arc<AtomicBool>,
     keyboard: &mut impl VirtualKeyboard,
     workspace_path: &PathBuf,
@@ -439,7 +440,7 @@ fn run_event_loop(
 
         let get_notifications_command = create_command!(GetNotificationValues);
         let get_notifications_command: Vec<u8> = get_notifications_command.into();
-        match port.write_bulk(&get_notifications_command) {
+        match usb_device.write(&get_notifications_command) {
             Ok(_) => (),
             Err(e) => log!(
                 event_id: EventId::UnknownError,
@@ -447,8 +448,9 @@ fn run_event_loop(
                 event_type: EventType::SystemStatus
             ),
         }
+        let _ = usb_device.flush();
 
-        match port.read(&mut buf) {
+        match usb_device.read(&mut buf) {
             Ok(_) => {
                 let data = &buf[..NOTIFICATION_STATUS_RESPONSE_BYTE_LENGTH];
                 match NotificationStatusResponse::try_from(data) {

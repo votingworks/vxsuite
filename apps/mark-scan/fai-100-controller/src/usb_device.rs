@@ -1,6 +1,6 @@
 use std::{io, time::Duration};
 
-use color_eyre::eyre::Result;
+use color_eyre::eyre::{bail, ErrReport, Result};
 use rusb::{Context, DeviceHandle, UsbContext};
 
 const INTERFACE_NUMBER: u8 = 0x00;
@@ -17,6 +17,7 @@ struct Endpoint {
 }
 
 pub struct UsbDevice {
+    buffer: Vec<u8>,
     endpoint_in: Endpoint,
     endpoint_out: Endpoint,
     handle: DeviceHandle<Context>,
@@ -27,9 +28,9 @@ impl UsbDevice {
         context: &T,
         vendor_id: u16,
         product_id: u16,
-    ) -> Option<DeviceHandle<T>> {
+    ) -> Result<DeviceHandle<T>, ErrReport> {
         let Ok(devices) = context.devices() else {
-            return None;
+            bail!("Could not list device");
         };
 
         for device in devices.iter() {
@@ -39,19 +40,19 @@ impl UsbDevice {
 
             if device_desc.vendor_id() == vendor_id && device_desc.product_id() == product_id {
                 match device.open() {
-                    Ok(handle) => return Some(handle),
-                    Err(e) => panic!("Device found but failed to open: {e}"),
+                    Ok(handle) => return Ok(handle),
+                    Err(e) => bail!("Device found but failed to open: {e}"),
                 }
             }
         }
 
-        None
+        bail!("could not find device {vendor_id:04x}:{product_id:04x}");
     }
 
     fn claim_interface<T: UsbContext>(handle: &mut DeviceHandle<T>) -> Result<()> {
         let has_kernel_driver = match handle.kernel_driver_active(INTERFACE_NUMBER) {
             Ok(true) => {
-                handle.detach_kernel_driver(INTERFACE_NUMBER).ok();
+                let _ = handle.detach_kernel_driver(INTERFACE_NUMBER)?;
                 true
             }
             _ => false,
@@ -62,39 +63,45 @@ impl UsbDevice {
         handle.set_alternate_setting(INTERFACE_NUMBER, SETTING_NUMBER)?;
 
         if has_kernel_driver {
-            handle.attach_kernel_driver(INTERFACE_NUMBER).ok();
+            let _ = handle.attach_kernel_driver(INTERFACE_NUMBER)?;
         }
         Ok(())
     }
 
-    pub fn write_bulk(&mut self, buf: &[u8]) -> Result<usize, rusb::Error> {
-        self.handle
-            .write_bulk(self.endpoint_out.address, buf, WRITE_TIMEOUT)
-    }
-
-    pub fn open_by_ids(vendor_id: u16, product_id: u16) -> Result<Self> {
+    pub fn open_and_claim(vendor_id: u16, product_id: u16) -> Result<Self, ErrReport> {
         let usb_context = Context::new().expect("Failed to create new USB context");
 
-        match Self::open_device(&usb_context, vendor_id, product_id) {
-            Some(mut handle) => {
-                Self::claim_interface(&mut handle)?;
+        let mut handle = Self::open_device(&usb_context, vendor_id, product_id)?;
+        Self::claim_interface(&mut handle)?;
 
-                let endpoint_in = Endpoint {
-                    address: ENDPOINT_ADDRESS_IN,
-                };
+        let endpoint_in = Endpoint {
+            address: ENDPOINT_ADDRESS_IN,
+        };
 
-                let endpoint_out = Endpoint {
-                    address: ENDPOINT_ADDRESS_OUT,
-                };
+        let endpoint_out = Endpoint {
+            address: ENDPOINT_ADDRESS_OUT,
+        };
 
-                Ok(Self {
-                    endpoint_in,
-                    endpoint_out,
-                    handle,
-                })
-            }
-            None => panic!("could not find device {vendor_id:04x}:{product_id:04x}"),
-        }
+        Ok(Self {
+            endpoint_in,
+            endpoint_out,
+            handle,
+            buffer: Vec::new(),
+        })
+    }
+}
+
+impl io::Write for UsbDevice {
+    fn write(&mut self, buf: &[u8]) -> Result<usize, std::io::Error> {
+        self.buffer.extend_from_slice(buf);
+        Ok(buf.len())
+    }
+
+    fn flush(&mut self) -> io::Result<()> {
+        let _ = self
+            .handle
+            .write_bulk(self.endpoint_out.address, &self.buffer, WRITE_TIMEOUT);
+        Ok(())
     }
 }
 
