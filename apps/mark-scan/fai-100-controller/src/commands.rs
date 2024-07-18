@@ -8,7 +8,7 @@ pub enum CommandError {
     #[error("Unknown sender ID: {0}")]
     UnknownSenderId(u32),
     #[error("Failed to convert slice to unsigned int type")]
-    FailedSliceConversion(),
+    FailedSliceConversion,
     #[error("Unexpected data length: {0}")]
     UnexpectedDataLength(usize),
     #[error("Unexpected command ID received: {0}")]
@@ -72,18 +72,15 @@ macro_rules! create_command {
 impl From<Command> for Vec<u8> {
     fn from(command: Command) -> Self {
         const EXPECTED_LENGTH: usize = 27;
-        let mut bytes = Self::with_capacity(EXPECTED_LENGTH);
+        let mut bytes = vec![0; EXPECTED_LENGTH];
         // All commands start with device sender ID
-        bytes.extend_from_slice(&u32::to_le_bytes(SENDER_ID));
-        // Unused padding
-        bytes.append(&mut vec![0; 16]);
+        bytes[..4].copy_from_slice(&u32::to_le_bytes(SENDER_ID));
         // LE u32 size of upcoming noise + data = 3 bytes
-        bytes.push(0x03);
-        bytes.append(&mut vec![0; 3]);
+        bytes[20..24].copy_from_slice(&u32::to_le_bytes(3));
         // 2 bytes of noise
-        bytes.append(&mut vec![0xff; 2]);
+        bytes[24..26].copy_from_slice(&[0xff; 2]);
         // 1 byte of data (just the command ID)
-        bytes.push(command.command_id as u8);
+        bytes[26] = command.command_id as u8;
 
         bytes
     }
@@ -166,10 +163,9 @@ impl TryFrom<&[u8]> for NotificationStatusResponse {
             return Err(CommandError::UnknownSenderId(sender_id));
         }
 
-        match CommandId::try_from(bytes[26]) {
-            Ok(CommandId::GetNotificationValues) => (),
-            _ => return Err(CommandError::UnexpectedCommandId(bytes[26])),
-        }
+        let Ok(CommandId::GetNotificationValues) = CommandId::try_from(bytes[26]) else {
+            return Err(CommandError::UnexpectedCommandId(bytes[26]));
+        };
 
         let payload: &[u8] = &bytes[27..];
 
@@ -201,7 +197,7 @@ impl TryFrom<&[u8]> for VersionResponse {
             return Err(CommandError::UnexpectedPacketSize(bytes.len()));
         }
 
-        let sender_id: u32 = u32::from_le_bytes(
+        let sender_id = u32::from_le_bytes(
             bytes[..4]
                 .try_into()
                 .map_err(|_| CommandError::FailedSliceConversion())?,
@@ -210,19 +206,19 @@ impl TryFrom<&[u8]> for VersionResponse {
             return Err(CommandError::UnknownSenderId(sender_id));
         }
 
-        let data_length: u32 = u32::from_le_bytes(
+        let data_length = u32::from_le_bytes(
             bytes[20..24]
                 .try_into()
                 .map_err(|_| CommandError::FailedSliceConversion())?,
         );
 
         // Length including 2 bytes of noise we don't need to read
-        let response_length: usize =
+        let response_length =
             usize::try_from(data_length - 2).expect("Failed to parse data length");
         if response_length != 5 {
             return Err(CommandError::UnexpectedDataLength(response_length));
         }
-        let response: &[u8] = &bytes[26..26 + response_length];
+        let response = &bytes[26..][..response_length];
 
         // Validate correct command ID was returned
         if response[0] != CommandId::GetFirmwareVersion as u8 {
@@ -232,7 +228,7 @@ impl TryFrom<&[u8]> for VersionResponse {
         // Version is the only chunk of data that is big endian according to docs.
         // However, version reported by device does not match that of docs, regardless
         // of endianness so we can't confirm.
-        let version: u32 = u32::from_be_bytes(
+        let version = u32::from_be_bytes(
             response[1..]
                 .try_into()
                 .map_err(|_| CommandError::FailedSliceConversion())?,
@@ -257,8 +253,7 @@ mod tests {
         expected.extend(vec![0x00; 16]); // Padding
         expected.extend(vec![0x03, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xC1]);
 
-        let cmd = create_command!(GetNotificationValues);
-        let cmd: Vec<u8> = cmd.into();
+        let cmd: Vec<u8> = create_command!(GetNotificationValues).into();
 
         assert_eq!(cmd, expected);
     }
@@ -275,11 +270,11 @@ mod tests {
 
     #[test]
     fn test_notification_status_response_button_signal() {
-        let button_byte_values = vec![
+        let button_byte_values = [
             0x30, 0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39, 0x3a, 0x3b, 0xff,
         ];
 
-        for &value in &button_byte_values {
+        for value in button_byte_values {
             let mut data = create_notification_status_test_data();
             data[BUTTON_SIGNAL_INDEX] = value;
 

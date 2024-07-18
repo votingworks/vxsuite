@@ -202,7 +202,7 @@ fn validate_connection(usb_device: &mut UsbDevice) -> Result<(), io::Error> {
         ),
     }
 
-    let mut buf: [u8; BUFFER_MAX_BYTES] = [0; BUFFER_MAX_BYTES];
+    let mut buf = [0; BUFFER_MAX_BYTES];
     match usb_device.read(&mut buf) {
         Ok(size) => match VersionResponse::try_from(&buf[..size]) {
             Ok(response) => {

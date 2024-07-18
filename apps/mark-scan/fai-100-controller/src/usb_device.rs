@@ -72,7 +72,7 @@ impl UsbDevice {
             .write_bulk(self.endpoint_out.address, buf, WRITE_TIMEOUT)
     }
 
-    pub fn open_by_ids(vendor_id: u16, product_id: u16) -> color_eyre::Result<Self> {
+    pub fn open_by_ids(vendor_id: u16, product_id: u16) -> Result<Self> {
         let usb_context = Context::new().expect("Failed to create new USB context");
 
         match Self::open_device(&usb_context, vendor_id, product_id) {
