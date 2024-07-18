@@ -2,7 +2,9 @@
 
 // @ts-check
 
-require('esbuild-runner/register');
+require('esbuild-runner').install({
+  type: 'transform',
+});
 
 const { rmSync } = require('fs');
 const { join } = require('path');
@@ -24,7 +26,7 @@ function pruneUnusedPackages({ dryRun = false } = {}) {
     for (const pkg of findUnusedPackages(pkgs)) {
       console.log(`${dryRun ? '[skip] ' : ''}Removing ${pkg.name}…`);
       if (!dryRun) {
-      rmSync(pkg.path, { recursive: true });
+        rmSync(pkg.path, { recursive: true });
       }
       count++;
     }
@@ -37,9 +39,9 @@ function pruneUnusedPackages({ dryRun = false } = {}) {
   doPrunePass();
 
   if (dryRun) {
-    console.log(`Would remove ${count} packages.`)
+    console.log(`Would remove ${count} packages.`);
   } else {
-    console.log(`Removed ${count} packages.`)
+    console.log(`Removed ${count} packages.`);
   }
 }
 
