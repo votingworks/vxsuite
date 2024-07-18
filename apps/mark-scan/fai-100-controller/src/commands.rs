@@ -11,10 +11,8 @@ pub enum CommandError {
     FailedSliceConversion,
     #[error("Unexpected data length: {0}")]
     UnexpectedDataLength(usize),
-    #[error("Unexpected command ID received: {0}")]
+    #[error("Unexpected command ID received: {0:x}")]
     UnexpectedCommandId(u8),
-    #[error("Unknown command received: {0}")]
-    UnknownCommand(u8),
     #[error("Error occurred when sending keypress event")]
     KeypressError(#[from] uinput::Error),
     #[error("Error occurred when converting button value from raw response")]
@@ -222,7 +220,7 @@ impl TryFrom<&[u8]> for VersionResponse {
 
         // Validate correct command ID was returned
         if response[0] != CommandId::GetFirmwareVersion as u8 {
-            return Err(CommandError::UnknownCommand(bytes[25]));
+            return Err(CommandError::UnexpectedCommandId(response[0]));
         }
 
         // Version is the only chunk of data that is big endian according to docs.
