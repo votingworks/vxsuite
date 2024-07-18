@@ -101,6 +101,7 @@ impl io::Write for UsbDevice {
         let _ = self
             .handle
             .write_bulk(self.endpoint_out.address, &self.buffer, WRITE_TIMEOUT);
+        self.buffer.clear();
         Ok(())
     }
 }
