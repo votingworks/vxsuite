@@ -61,6 +61,10 @@ import { InsertedInvalidNewSheetScreen } from './inserted_invalid_new_sheet_scre
 import { InsertedPreprintedBallotScreen } from './inserted_preprinted_ballot_screen';
 import { LoadingNewSheetScreen } from './loading_new_sheet_screen';
 import { BallotReadyForReviewScreen } from './ballot_ready_for_review_screen';
+import {
+  BallotReinsertionFlow,
+  isBallotReinsertionState,
+} from '../ballot_reinsertion_flow';
 
 function isBallotReinsertionEnabled() {
   return !isFeatureFlagEnabled(
@@ -234,6 +238,10 @@ export function PollWorkerScreen({
     }
   }, [setMockPaperHandlerStatus, stateMachineState]);
 
+  if (isBallotReinsertionState(stateMachineState)) {
+    return <BallotReinsertionFlow stateMachineState={stateMachineState} />;
+  }
+
   if (
     stateMachineState === 'accepting_paper' ||
     stateMachineState === 'loading_paper'
@@ -241,7 +249,10 @@ export function PollWorkerScreen({
     return <LoadPaperPage />;
   }
 
-  if (stateMachineState === 'validating_new_sheet') {
+  if (
+    stateMachineState === 'validating_new_sheet' ||
+    stateMachineState === 'loading_new_sheet'
+  ) {
     return <LoadingNewSheetScreen />;
   }
 

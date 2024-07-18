@@ -665,16 +665,111 @@ test('ending poll worker auth in accepting_paper returns to initial state', asyn
   await expectStatusTransitionTo('not_accepting_paper');
 });
 
-test('poll_worker_auth_ended_unexpectedly', async () => {
-  machine.setAcceptingPaper();
-  const ballotStyle = electionGeneralDefinition.election.ballotStyles[1];
-  driver.setMockStatus('paperInserted');
-  await expectStatusTransitionTo('loading_paper');
-  mockCardlessVoterAuth(auth, {
-    ballotStyleId: ballotStyle.id,
-    precinctId,
+describe('poll_worker_auth_ended_unexpectedly', () => {
+  test('loading_paper state', async () => {
+    machine.setAcceptingPaper();
+    const ballotStyle = electionGeneralDefinition.election.ballotStyles[1];
+    driver.setMockStatus('paperInserted');
+    await expectStatusTransitionTo('loading_paper');
+    mockCardlessVoterAuth(auth, {
+      ballotStyleId: ballotStyle.id,
+      precinctId,
+    });
+    await expectStatusTransitionTo('poll_worker_auth_ended_unexpectedly');
   });
-  await expectStatusTransitionTo('poll_worker_auth_ended_unexpectedly');
+
+  test('loading_new_sheet state', async () => {
+    featureFlagMock.disableFeatureFlag(
+      BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
+    );
+
+    machine.setAcceptingPaper();
+    await expectStatusTransitionTo('accepting_paper');
+
+    jest.spyOn(driver, 'loadPaper').mockImplementation(() => {
+      mockCardlessVoterAuth(auth, {
+        ballotStyleId: '1_en',
+        precinctId,
+      });
+
+      return Promise.resolve(true);
+    });
+
+    driver.setMockStatus('paperInserted');
+    await expectStatusTransitionTo('loading_new_sheet');
+    await expectStatusTransitionTo('poll_worker_auth_ended_unexpectedly');
+  });
+
+  test('validating_new_sheet state', async () => {
+    featureFlagMock.disableFeatureFlag(
+      BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
+    );
+
+    machine.setAcceptingPaper();
+    await expectStatusTransitionTo('accepting_paper');
+
+    const deferredScan = deferred<string>();
+    mockOf(scanAndSave).mockImplementation(() => {
+      mockCardlessVoterAuth(auth, { ballotStyleId: '1_en', precinctId });
+
+      return deferredScan.promise;
+    });
+
+    driver.setMockStatus('paperInserted');
+    await expectStatusTransitionTo('loading_new_sheet');
+    await expectStatusTransitionTo('validating_new_sheet');
+    await expectStatusTransitionTo('poll_worker_auth_ended_unexpectedly');
+
+    // Clean up hanging promise:
+    deferredScan.resolve('mock-scan.jpg');
+  });
+
+  test('inserted_invalid_new_sheet state', async () => {
+    featureFlagMock.disableFeatureFlag(
+      BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
+    );
+
+    machine.setAcceptingPaper();
+    await expectStatusTransitionTo('accepting_paper');
+
+    mockOf(scanAndSave).mockResolvedValue('mock-scan.jpg');
+
+    const interpretationType: PageInterpretationType = 'InvalidBallotHashPage';
+    mockOf(interpretSimplexBmdBallotFromFilepath).mockResolvedValue([
+      {
+        interpretation: { type: interpretationType },
+      } as unknown as InterpretFileResult,
+      BLANK_PAGE_MOCK,
+    ]);
+
+    driver.setMockStatus('paperInserted');
+    await expectStatusTransitionTo('loading_new_sheet');
+    await expectStatusTransitionTo('inserted_invalid_new_sheet');
+
+    mockCardlessVoterAuth(auth, { ballotStyleId: '1_en', precinctId });
+    await expectStatusTransitionTo('poll_worker_auth_ended_unexpectedly');
+  });
+
+  test('inserted_preprinted_ballot state', async () => {
+    featureFlagMock.disableFeatureFlag(
+      BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
+    );
+
+    machine.setAcceptingPaper();
+    await expectStatusTransitionTo('accepting_paper');
+
+    mockOf(scanAndSave).mockResolvedValue('mock-scan.jpg');
+    mockOf(interpretSimplexBmdBallotFromFilepath).mockResolvedValue(
+      SUCCESSFUL_INTERPRETATION_MOCK
+    );
+
+    driver.setMockStatus('paperInserted');
+    await expectStatusTransitionTo('loading_new_sheet');
+    await expectStatusTransitionTo('inserted_preprinted_ballot');
+
+    mockCardlessVoterAuth(auth, { ballotStyleId: '1_en', precinctId });
+    await expectStatusTransitionTo('poll_worker_auth_ended_unexpectedly');
+  });
 });
 
 describe('paper handler diagnostic', () => {

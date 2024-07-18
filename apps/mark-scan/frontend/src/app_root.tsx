@@ -34,7 +34,10 @@ import {
   useBallotStyleManager,
   useSessionSettingsManager,
 } from '@votingworks/mark-flow-ui';
-import type { ElectionState } from '@votingworks/mark-scan-backend';
+import type {
+  ElectionState,
+  SimpleServerStatus,
+} from '@votingworks/mark-scan-backend';
 import {
   checkPin,
   endCardlessVoterSession,
@@ -72,6 +75,27 @@ import { PollWorkerAuthEndedUnexpectedlyPage } from './pages/poll_worker_auth_en
 import { LOW_BATTERY_THRESHOLD } from './constants';
 import { VoterFlow } from './voter_flow';
 import { NoPaperHandlerPage } from './pages/no_paper_handler_page';
+
+/**
+ * These states require the Poll Worker to stay logged in until the voter
+ * session is fully started.
+ *
+ * If the card is removed at any point while in these states, we reset the
+ * session.
+ *
+ * These are technically handled in the backend state machine, but need to be
+ * handled client-side as well for when the auth change is detected before the
+ * next state machine state poll request reflects it.
+ */
+export const POLL_WORKER_AUTH_REQUIRED_STATES: Readonly<
+  Set<SimpleServerStatus>
+> = new Set<SimpleServerStatus>([
+  'inserted_invalid_new_sheet',
+  'inserted_preprinted_ballot',
+  'loading_new_sheet',
+  'loading_paper',
+  'validating_new_sheet',
+]);
 
 interface VotingState {
   votes?: VotesDict;
@@ -425,7 +449,7 @@ export function AppRoot(): JSX.Element | null {
   if (
     stateMachineState === 'poll_worker_auth_ended_unexpectedly' ||
     // Handle when the frontend auth state is up to date but the state machine state is not
-    (stateMachineState === 'loading_paper' &&
+    (POLL_WORKER_AUTH_REQUIRED_STATES.has(stateMachineState) &&
       (isCardlessVoterAuth(authStatus) || authStatus.status === 'logged_out'))
   ) {
     return <PollWorkerAuthEndedUnexpectedlyPage />;
