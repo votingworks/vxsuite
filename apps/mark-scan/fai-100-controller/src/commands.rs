@@ -226,8 +226,8 @@ impl TryFrom<&[u8]> for VersionResponse {
         }
 
         // Version is the only chunk of data that is big endian according to docs.
-        // However, version reported by device does not match that of docs, regardless
-        // of endianness so we can't confirm.
+        // However, we can't confirm because version reported by device does not
+        // match that of docs regardless of endianness.
         let version = u32::from_be_bytes(
             response[1..]
                 .try_into()
