@@ -2,8 +2,9 @@ import { Result } from '@votingworks/basics';
 import { BallotPaperSize, GridPosition, Size } from '@votingworks/types';
 import { ZodError } from 'zod';
 import { PartialTimingMarks } from '@votingworks/ballot-interpreter';
-import { Buffer } from 'buffer';
+import { PDFDocument } from 'pdf-lib';
 import { ParseConstitutionalQuestionError } from './parse_constitutional_questions';
+import { PdfReader } from '../pdf_reader';
 
 /**
  * The kinds of errors that can occur during `pairColumnEntries`.
@@ -60,9 +61,21 @@ export interface NewHampshireBallotCardDefinition {
   readonly definition: Element;
 
   /**
-   * PDF file contents containing the ballot card.
+   * PDF reader containing the ballot card.
    */
-  readonly ballotPdf: Buffer;
+  readonly ballotPdf: PdfReader;
+
+  /**
+   * The pages of the ballot PDF to use for this card. The first page is 1. If
+   * this is not specified, the PDF must contain only one ballot card (i.e.
+   * exactly two pages).
+   */
+  readonly pages?: [number, number];
+
+  /**
+   * If provided, the PDF document to write to for debugging.
+   */
+  readonly debugPdf?: PDFDocument;
 }
 
 /**

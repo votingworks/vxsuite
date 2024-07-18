@@ -18,7 +18,6 @@ import {
 import makeDebug from 'debug';
 import { decode as decodeHtmlEntities } from 'he';
 import { DateTime } from 'luxon';
-import { sha256 } from 'js-sha256';
 import { parseConstitutionalQuestions } from './parse_constitutional_questions';
 import {
   ConvertIssue,
@@ -28,16 +27,9 @@ import {
 } from './types';
 import { readGridFromElectionDefinition } from './read_grid_from_election_definition';
 import { NH_SEAL } from './seal';
+import { makeId } from './make_id';
 
 const debug = makeDebug('converter-nh-accuvote:convert');
-
-function makeId(text: string): string {
-  const hash = sha256(text);
-  return `${text.replace(/[^-_a-z\d+]+/gi, '-').slice(0, 64)}-${hash.slice(
-    0,
-    8
-  )}`;
-}
 
 /**
  * Creates an election definition only from the ballot metadata, ignoring the

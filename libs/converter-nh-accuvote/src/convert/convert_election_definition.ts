@@ -1,4 +1,10 @@
-import { findTemplateGridAndBubbles } from '@votingworks/ballot-interpreter';
+import {
+  findTemplateGridAndBubbles,
+  Geometry,
+  Point,
+  Rect,
+  u32,
+} from '@votingworks/ballot-interpreter';
 import {
   assert,
   assertDefined,
@@ -17,14 +23,14 @@ import {
   BallotType,
   Election,
   ElectionDefinition,
+  GridLayout,
   GridPosition,
   asSheet,
   getContests,
   getPartyForBallotStyle,
   safeParseElectionDefinition,
 } from '@votingworks/types';
-import { pdfToImages } from '@votingworks/image-utils';
-import { Buffer } from 'buffer';
+import { PDFPage, rgb } from 'pdf-lib';
 import { convertElectionDefinitionHeader } from './convert_election_definition_header';
 import { matchContestOptionsOnGrid } from './match_contest_options_on_grid';
 import {
@@ -36,6 +42,8 @@ import {
   ResultWithIssues,
 } from './types';
 import { addQrCodeMetadataToBallotPdf } from '../encode_metadata';
+import { PdfReader } from '../pdf_reader';
+import { makeId } from './make_id';
 
 async function convertCardDefinition(
   cardDefinition: NewHampshireBallotCardDefinition
@@ -49,26 +57,38 @@ async function convertCardDefinition(
     let success = true;
     const issues = [...headerIssues];
 
-    const pageImages = await iter(
-      pdfToImages(cardDefinition.ballotPdf, { scale: 200 / 72 })
-    )
-      .map(({ page }) => page)
-      .toArray();
-    if (pageImages.length !== 2) {
-      return err({
-        issues: [
-          ...issues,
-          typedAs<ConvertIssue>({
-            kind: ConvertIssueKind.InvalidBallotTemplateNumPages,
-            message: `Expected exactly two pages in the ballot PDF, but found ${pageImages.length}`,
-          }),
-        ],
-      });
+    if (!cardDefinition.pages) {
+      const pageCount = await cardDefinition.ballotPdf.getPageCount();
+      if (pageCount !== 2) {
+        return err({
+          issues: [
+            ...issues,
+            typedAs<ConvertIssue>({
+              kind: ConvertIssueKind.InvalidBallotTemplateNumPages,
+              message: `Expected exactly two pages in the ballot PDF, but found ${pageCount}`,
+            }),
+          ],
+        });
+      }
     }
+
+    const pageImages = await iter(cardDefinition.pages ?? [1, 2])
+      .async()
+      .map(
+        async (pageNumber) =>
+          (await cardDefinition.ballotPdf.getPage(pageNumber))?.page
+      )
+      .toArray();
+
     const pages = asSheet(pageImages);
     const [frontPage, backPage] = pages;
+    assert(frontPage);
+    assert(backPage);
 
-    const findTemplateGridAndBubblesResult = findTemplateGridAndBubbles(pages);
+    const findTemplateGridAndBubblesResult = findTemplateGridAndBubbles([
+      frontPage,
+      backPage,
+    ]);
     if (findTemplateGridAndBubblesResult.isErr()) {
       return err({
         issues: [
@@ -170,7 +190,11 @@ async function convertCardDefinition(
     const partyPrefix = ballotStyleParty ? `${ballotStyleParty.abbrev}-` : '';
     const cardNumber =
       frontMetadata?.side === 'front' ? frontMetadata.cardNumber : 1;
-    const ballotStyleId = `${partyPrefix}card-number-${cardNumber}`;
+    const contests = getContests({ ballotStyle, election });
+    const ballotStyleId = makeId(
+      `${partyPrefix}card-number-${cardNumber}`,
+      contests.map((contest) => contest.id).join(',')
+    );
 
     const frontTemplateBubbles = frontGridAndBubbles.bubbles;
     const backTemplateBubbles = backGridAndBubbles.bubbles;
@@ -226,6 +250,36 @@ async function convertCardDefinition(
     const mergedGrids = pairColumnEntriesResult.isOk()
       ? pairColumnEntriesResult.ok().pairs
       : pairColumnEntriesResult.err().pairs;
+    const populatedGridLayout: GridLayout = {
+      ...gridLayout,
+      ballotStyleId,
+      gridPositions: mergedGrids.map(([definition, bubble]) =>
+        definition.type === 'option'
+          ? {
+              ...definition,
+              side: bubble.side,
+              column: bubble.column,
+              row: bubble.row,
+            }
+          : {
+              ...definition,
+              side: bubble.side,
+              column: bubble.column,
+              row: bubble.row,
+              // This area is based on the largest rectangle that fits in
+              // the write-in box without intersecting with any of the contest
+              // labels (there may be more than one in a multi-seat
+              // contest). Some examples of the ballots this was based on
+              // can be found in the NH elections in libs/fixtures.
+              writeInArea: {
+                x: bubble.column - 5,
+                y: bubble.row - 0.65,
+                width: 4.5,
+                height: 0.85,
+              },
+            }
+      ),
+    };
     const result: Election = {
       ...election,
       ballotLayout: {
@@ -238,39 +292,126 @@ async function convertCardDefinition(
           id: ballotStyleId,
         },
       ],
-      gridLayouts: [
-        {
-          ...gridLayout,
-          ballotStyleId,
-          gridPositions: mergedGrids.map(([definition, bubble]) =>
-            definition.type === 'option'
-              ? {
-                  ...definition,
-                  side: bubble.side,
-                  column: bubble.column,
-                  row: bubble.row,
-                }
-              : {
-                  ...definition,
-                  side: bubble.side,
-                  column: bubble.column,
-                  row: bubble.row,
-                  // This area is based on the largest rectangle that fits in
-                  // the write-in box without intersecting with any of the contest
-                  // labels (there may be more than one in a multi-seat
-                  // contest). Some examples of the ballots this was based on
-                  // can be found in the NH elections in libs/fixtures.
-                  writeInArea: {
-                    x: bubble.column - 5,
-                    y: bubble.row - 0.65,
-                    width: 4.5,
-                    height: 0.85,
-                  },
-                }
-          ),
-        },
-      ],
+      gridLayouts: [populatedGridLayout],
     };
+
+    function bubbleCenter(
+      topTimingMark: Rect,
+      leftTimingMark: Rect
+    ): Point<u32> {
+      return {
+        x: topTimingMark.left + topTimingMark.width / 2,
+        y: leftTimingMark.top + leftTimingMark.height / 2,
+      };
+    }
+
+    function gridPixelValueDimensionToPdfPageCoordinateValue(
+      geometry: Geometry,
+      pixelValue: number
+    ): number {
+      const scale = 72 / geometry.pixelsPerInch;
+      return pixelValue * scale;
+    }
+
+    function gridPixelPointToPdfPagePoint(
+      pdfPage: PDFPage,
+      geometry: Geometry,
+      gridPixelPoint: Point<number>
+    ): Point<number> {
+      const x = gridPixelValueDimensionToPdfPageCoordinateValue(
+        geometry,
+        gridPixelPoint.x
+      );
+      const y = gridPixelValueDimensionToPdfPageCoordinateValue(
+        geometry,
+        gridPixelPoint.y
+      );
+      return { x, y: pdfPage.getHeight() - y };
+    }
+
+    if (cardDefinition.debugPdf) {
+      const { geometry } = frontGridAndBubbles.grid;
+      const frontDebugPdf = cardDefinition.debugPdf.getPage(0);
+      const backDebugPdf = cardDefinition.debugPdf.getPage(1);
+      const circleRadius =
+        ((geometry.timingMarkSize.height / 2) * 72) / geometry.pixelsPerInch;
+
+      for (const [bubbles, debugPage] of [
+        [frontGridAndBubbles.bubbles, frontDebugPdf],
+        [backGridAndBubbles.bubbles, backDebugPdf],
+      ] as const) {
+        for (const bubble of bubbles) {
+          const { completeTimingMarks } = frontGridAndBubbles.grid;
+
+          const topTimingMark = assertDefined(
+            completeTimingMarks.topRects[bubble.x]
+          );
+          const leftTimingMark = assertDefined(
+            completeTimingMarks.leftRects[bubble.y]
+          );
+
+          const bubbleCenterInGridPixels = bubbleCenter(
+            topTimingMark,
+            leftTimingMark
+          );
+          const bubbleCenterInPdfPage = gridPixelPointToPdfPagePoint(
+            debugPage,
+            geometry,
+            bubbleCenterInGridPixels
+          );
+
+          debugPage.drawCircle({
+            x: bubbleCenterInPdfPage.x,
+            y: bubbleCenterInPdfPage.y,
+            size: circleRadius,
+            color: rgb(1, 0, 0),
+          });
+        }
+      }
+
+      for (const position of populatedGridLayout.gridPositions) {
+        const debugPage =
+          position.side === 'front' ? frontDebugPdf : backDebugPdf;
+        const { column, row } = position;
+
+        const topTimingMark = assertDefined(
+          frontGridAndBubbles.grid.completeTimingMarks.topRects[column]
+        );
+        const leftTimingMark = assertDefined(
+          frontGridAndBubbles.grid.completeTimingMarks.leftRects[row]
+        );
+
+        const bubbleCenterInGridPixels = bubbleCenter(
+          topTimingMark,
+          leftTimingMark
+        );
+        const bubbleCenterInPdfPage = gridPixelPointToPdfPagePoint(
+          debugPage,
+          geometry,
+          bubbleCenterInGridPixels
+        );
+
+        const textSize = 6;
+        debugPage.drawText(
+          position.type === 'option'
+            ? position.optionId
+            : `Write-In #${position.writeInIndex + 1}`,
+          {
+            x: bubbleCenterInPdfPage.x - 80,
+            y: bubbleCenterInPdfPage.y - textSize / 2,
+            size: textSize,
+            color: rgb(0, 0.4, 0),
+          }
+        );
+
+        debugPage.drawCircle({
+          x: bubbleCenterInPdfPage.x,
+          y: bubbleCenterInPdfPage.y,
+          size: circleRadius,
+          color: rgb(0, 1, 0),
+        });
+      }
+    }
 
     return ok({ issues, result });
   });
@@ -324,6 +465,9 @@ ${JSON.stringify(differingElection?.[key as keyof Election], null, 2)}`,
     }
   }
 
+  const allContests = elections.flatMap((election) => election.contests);
+  const allContestIds = new Set(allContests.flatMap((contest) => contest.id));
+
   const combinedElection: Election = {
     title,
     type,
@@ -334,8 +478,12 @@ ${JSON.stringify(differingElection?.[key as keyof Election], null, 2)}`,
     ballotLayout,
     districts: uniqueDeep(elections.flatMap((election) => election.districts)),
     precincts: uniqueDeep(elections.flatMap((election) => election.precincts)),
-    contests: elections.flatMap((election) => election.contests),
-    parties: elections.flatMap((election) => election.parties),
+    contests: iter(allContestIds)
+      .map((id) =>
+        assertDefined(allContests.find((contest) => contest.id === id))
+      )
+      .toArray(),
+    parties: uniqueDeep(elections.flatMap((election) => election.parties)),
     ballotStyles: elections.flatMap((election) => election.ballotStyles),
     gridLayouts: elections.flatMap((election) =>
       assertDefined(election.gridLayouts)
@@ -363,10 +511,16 @@ ${JSON.stringify(differingElection?.[key as keyof Election], null, 2)}`,
 
 async function addQrCodeMetadataToBallots(
   electionDefinition: ElectionDefinition,
-  ballotPdfsByBallotStyle: Map<BallotStyle, Buffer>
+  ballotPdfInfoByBallotStyle: Map<
+    BallotStyle,
+    { ballotPdf: PdfReader; pages?: [number, number] }
+  >
 ): Promise<Map<BallotMetadata, Uint8Array>> {
   const ballotPdfsWithMetadata = new Map<BallotMetadata, Uint8Array>();
-  for (const [ballotStyle, ballotPdf] of ballotPdfsByBallotStyle.entries()) {
+  for (const [
+    ballotStyle,
+    { ballotPdf, pages },
+  ] of ballotPdfInfoByBallotStyle.entries()) {
     for (const precinctId of ballotStyle.precincts) {
       const metadata: BallotMetadata = {
         ballotStyleId: ballotStyle.id,
@@ -378,7 +532,8 @@ async function addQrCodeMetadataToBallots(
       const ballotPdfWithMetadata = await addQrCodeMetadataToBallotPdf(
         electionDefinition.election,
         metadata,
-        ballotPdf
+        ballotPdf,
+        pages ?? [1, 2]
       );
       ballotPdfsWithMetadata.set(metadata, ballotPdfWithMetadata);
     }
@@ -397,19 +552,35 @@ export type ConvertResult = ResultWithIssues<{
 /**
  * Convert New Hampshire XML files to a single {@link Election} object. If given
  * multiple XML files (e.g. for a primary election), treats each one as a
- * separate ballot style.
+ * separate ballot style or precinct.
  */
 export function convertElectionDefinition(
-  cardDefinitions: NewHampshireBallotCardDefinition[]
+  cardDefinitions: NewHampshireBallotCardDefinition[],
+  { jurisdictionOverride }: { jurisdictionOverride?: string } = {}
 ): Promise<ConvertResult> {
   return asyncResultBlock(async (fail) => {
     const cardResults = await Promise.all(
       cardDefinitions.map(convertCardDefinition)
     );
     cardResults.find((result) => result.isErr())?.okOrElse(fail);
-    const cardElections = cardResults.map(
-      (result) => assertDefined(result.ok()).result
-    );
+    const cardElections = cardResults
+      .map((result) => result.unsafeUnwrap().result)
+      .map(
+        (election): Election =>
+          !jurisdictionOverride
+            ? election
+            : {
+                ...election,
+                county: {
+                  id: election.county.id,
+                  name: jurisdictionOverride,
+                },
+                districts: election.districts.map((district) => ({
+                  ...district,
+                  name: jurisdictionOverride,
+                })),
+              }
+      );
     const { result: electionDefinition, issues } =
       combineConvertedElectionsIntoPrimaryElection(cardElections).okOrElse(
         fail
@@ -424,15 +595,21 @@ export function convertElectionDefinition(
         electionDefinition.election.ballotStyles.map((style) => style.id)
       )
     );
-    const ballotPdfsByBallotStyle = new Map(
+    const ballotPdfInfoByBallotStyle = new Map(
       iter(cardBallotStyles)
-        .zip(cardDefinitions.map((definition) => definition.ballotPdf))
+        .zip(
+          cardDefinitions.map((definition) => ({
+            ballotPdf: definition.ballotPdf,
+            pages: definition.pages,
+          }))
+        )
         .toArray()
     );
     const ballotPdfsWithMetadata = await addQrCodeMetadataToBallots(
       electionDefinition,
-      ballotPdfsByBallotStyle
+      ballotPdfInfoByBallotStyle
     );
+
     return ok({
       result: {
         electionDefinition,

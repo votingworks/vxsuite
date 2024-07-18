@@ -4,6 +4,7 @@ import { createCanvas } from 'canvas';
 import { assertDefined, iter } from '@votingworks/basics';
 import { PDFDocument } from 'pdf-lib';
 import { Buffer } from 'buffer';
+import { PdfReader } from './pdf_reader';
 
 async function qrCodeDataToPng(data: QrCodeData): Promise<Buffer> {
   // QR codes are supposed to be surrounded by 4 modules of white space
@@ -60,12 +61,22 @@ export function encodeMetadata(
 export async function addQrCodeMetadataToBallotPdf(
   election: Election,
   metadata: BallotMetadata,
-  pdfData: Buffer
+  pdfReader: PdfReader,
+  pages: [number, number]
 ): Promise<Uint8Array> {
   const qrCodes = await encodeMetadata(election, metadata);
-  const pdf = await PDFDocument.load(pdfData);
-  const pages = pdf.getPages();
-  for (const [page, qrCode] of iter(pages).zip(qrCodes).toArray()) {
+  const pdfOriginal = await PDFDocument.load(pdfReader.getOriginalData());
+  const pdf = await PDFDocument.create();
+
+  const [frontPage, backPage] = await pdf.copyPages(pdfOriginal, [
+    pages[0] - 1,
+    pages[1] - 1,
+  ]);
+
+  pdf.addPage(frontPage);
+  pdf.addPage(backPage);
+
+  for (const [page, qrCode] of iter(pdf.getPages()).zip(qrCodes)) {
     const qrCodeEmbed = await pdf.embedPng(qrCode);
     const qrCodeDimensions = qrCodeEmbed.scale(0.22);
     page.drawImage(qrCodeEmbed, {
