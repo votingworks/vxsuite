@@ -1,4 +1,6 @@
 #!/usr/bin/env node
 
-require('esbuild-runner/register');
+require('esbuild-runner').install({
+  type: 'transform',
+});
 require('./create_production_machine_cert_signing_request').main();
