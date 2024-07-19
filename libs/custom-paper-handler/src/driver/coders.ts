@@ -10,6 +10,8 @@ import {
 } from '@votingworks/message-coder';
 import { START_OF_PACKET, TOKEN } from './constants';
 
+export const INVALID_ARGUMENT_RESPONSE_CODE = 0x12;
+
 export interface PaperHandlerBitmap {
   data: Uint8Array;
   width: number;
@@ -139,6 +141,11 @@ export const RealTimeExchangeResponseWithoutData = message({
 });
 export type RealTimeExchangeResponseWithoutData = CoderType<
   typeof RealTimeExchangeResponseWithoutData
+>;
+
+export const InvalidArgumentErrorCode = literal(INVALID_ARGUMENT_RESPONSE_CODE);
+export type InvalidArgumentErrorCode = CoderType<
+  typeof InvalidArgumentErrorCode
 >;
 
 export const RealTimeStatusTransmission = message(printerStatusMessage);

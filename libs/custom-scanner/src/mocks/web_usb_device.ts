@@ -241,11 +241,15 @@ export class MockWebUsbDevice implements USBDevice {
     }
 
     const buffer = this.mockTransferInBuffer.get(endpointNumber);
+    const transferInLimit = this.mockNextTransferLimit
+      .get(endpointNumber)
+      ?.shift();
+    const numBytesToRead = transferInLimit ?? length;
     this.mockTransferInBuffer.set(
       endpointNumber,
-      buffer?.subarray(length) ?? Buffer.alloc(0)
+      buffer?.subarray(numBytesToRead) ?? Buffer.alloc(0)
     );
-    const readBuffer = buffer?.subarray(0, length) ?? Buffer.alloc(0);
+    const readBuffer = buffer?.subarray(0, numBytesToRead) ?? Buffer.alloc(0);
     const uint8Array = new Uint8Array(readBuffer);
     readBuffer.copy(uint8Array, 0, 0, readBuffer.byteLength);
     const data = new DataView(uint8Array.buffer, 0, uint8Array.byteLength);

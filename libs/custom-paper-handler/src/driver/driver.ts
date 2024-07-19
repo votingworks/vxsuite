@@ -1,6 +1,12 @@
 import { findByIds, WebUSBDevice } from 'usb';
 import makeDebug from 'debug';
-import { assert, Optional, Result, sleep } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  Optional,
+  Result,
+  sleep,
+} from '@votingworks/basics';
 import { Buffer } from 'buffer';
 import {
   byteArray,
@@ -65,6 +71,7 @@ import {
   EnablePrintCommand,
   GetScannerCapabilityCommand,
   InitializeRequestCommand,
+  InvalidArgumentErrorCode,
   LoadPaperCommand,
   PaperHandlerBitmap,
   PaperHandlerStatus,
@@ -99,6 +106,12 @@ function debug(msg: string, prefix?: string) {
   serverDebug(fullMsg);
 }
 
+function bufferFromDataView(dv: DataView): Buffer {
+  return Buffer.from(
+    dv.buffer.slice(dv.byteOffset, dv.byteOffset + dv.byteLength)
+  );
+}
+
 // USB Interface Information
 const VENDOR_ID = 0x0dd4;
 const PRODUCT_ID = 0x4105;
@@ -110,13 +123,12 @@ export const REAL_TIME_ENDPOINT_IN = 3;
 export const REAL_TIME_ENDPOINT_OUT = 4;
 export const PACKET_SIZE = 65536;
 
+// The number of times transferInGeneric will retry after receiving unexpected data.
+const MAX_TRANSFER_IN_ATTEMPTS = 20;
+
 export enum ReturnCodes {
   POSITIVE_ACKNOWLEDGEMENT = 0x06,
   NEGATIVE_ACKNOWLEDGEMENT = 0x15,
-  // Return code when the `Real-time status transmission` command is invoked
-  // when buffered data coincidentally contains a byte sequence matching
-  // that command's hex code
-  INVALID_STATUS_TRANSMISSION_ARGUMENT = 0x12,
 }
 
 export async function getPaperHandlerWebDevice(): Promise<
@@ -181,8 +193,51 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
   /**
    * Receive data or command responses on the generic bulk in endpoint.
    */
-  transferInGeneric(): Promise<USBInTransferResult> {
-    return this.webDevice.transferIn(GENERIC_ENDPOINT_IN, PACKET_SIZE);
+  async transferInGeneric(): Promise<USBInTransferResult> {
+    for (let i = 0; i < MAX_TRANSFER_IN_ATTEMPTS; i += 1) {
+      const result = await this.webDevice.transferIn(
+        GENERIC_ENDPOINT_IN,
+        PACKET_SIZE
+      );
+      const data = assertDefined(result.data);
+
+      // If data buffered to the Generic Transfer IN buffer contains the command code
+      // for `Real-time status transmission` (0x10 0x04 n), that command will be executed.
+      // It is executed regardless of whether the buffered data is sent as part of a
+      // different command and ignores convention that `Real-time status transmission` is
+      // expected to use the real-time channels.
+      //
+      // eg. `bufferChunk()` uses `Select image print mode` to buffer PDF data to the
+      // generic out buffer. If the PDF data contains the byte sequence `0x10 0x04 0x14`,
+      // where 0x14 is the valid 3rd byte of the command, the device will execute
+      // `Real-time status transmission` and return a 6 byte response
+      // on the generic transfer-in buffer.
+      //
+      // If the PDF data contains byte sequence `0x10 0x04 0x03`, where 0x03 is an invalid
+      // argument for `Real-time status transmission`, the printer will return 1 byte 0x12
+      // on the generic transfer-in buffer. 0x12 is an undocumented response code but
+      // presumably means "Invalid argument" or similar.
+      const IgnorableResponseCoder = oneOf(
+        RealTimeStatusTransmission,
+        InvalidArgumentErrorCode
+      );
+
+      const decodeResult = IgnorableResponseCoder.decode(
+        bufferFromDataView(data)
+      );
+      if (decodeResult.isOk()) {
+        debug(
+          'Ignored unrestricted execution of "Real-time status transmission" command. Retrying transferInGeneric.'
+        );
+        continue;
+      }
+
+      return result;
+    }
+
+    // Status choices are limited but 'babble' approximately fits the context. If this point is reached,
+    // the host has received an unexpectedly large number of junk responses.
+    return new USBInTransferResult('babble');
   }
 
   async clearGenericInBuffer(): Promise<void> {
@@ -236,7 +291,7 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
 
     const { data } = transferInResult;
     assert(data);
-    return coder.decode(Buffer.from(data.buffer));
+    return coder.decode(bufferFromDataView(data));
   }
 
   /**
@@ -376,31 +431,15 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
 
   async transferInAcknowledgement(): Promise<boolean> {
     const transferInResult = await this.transferInGeneric();
-    assert(transferInResult.status === 'ok'); // TODO: Handling
+    if (transferInResult.status !== 'ok') {
+      throw new Error(
+        `Unexpected transferIn status: ${transferInResult.status}`
+      );
+    }
     const { data } = transferInResult;
     assert(data);
 
-    // If data buffered to the `generic transfer-out buffer` contains the command code
-    // for `Real-time status transmission` (0x10 0x04 n), that command will be executed.
-    // It is executed regardless of whether the buffered data is received as part of a
-    // different command and ignores convention that `Real-time status transmission` is
-    // expected to use the real-time channels.
-    //
-    // eg. `bufferChunk()` uses `Select image print mode` to buffer PDF data to the
-    // generic out buffer. If the PDF data contains the byte sequence `0x10 0x04 0x12`,
-    // the device will execute `Real-time status transmission` and return a 6 byte response
-    // on the generic transfer-in buffer.
-    //
-    // If the PDF data contains byte sequence `0x10 0x04 0x03`, where 0x03 is an invalid
-    // argument for `Real-time status transmission`, the printer will return 1 byte 0x12
-    // on the generic transfer-in buffer. 0x12 is an undocumented response code but
-    // presumably means "Invalid argument" or similar.
-
-    const TransferInData = oneOf(
-      RealTimeStatusTransmission,
-      AcknowledgementResponse
-    );
-    const result = TransferInData.decode(Buffer.from(data.buffer));
+    const result = AcknowledgementResponse.decode(bufferFromDataView(data));
     if (result.isErr()) {
       debug(`Error decoding transferInGeneric response: ${result.err()}`);
       return false;
@@ -415,20 +454,12 @@ export class PaperHandlerDriver implements PaperHandlerDriverInterface {
         case ReturnCodes.NEGATIVE_ACKNOWLEDGEMENT:
           debug('negative acknowledgement');
           return false;
-        case ReturnCodes.INVALID_STATUS_TRANSMISSION_ARGUMENT:
-          debug(
-            'Handled unrestricted malformed execution of "Real-time status transmission" command. Retrying transferInAcknowledgement.'
-          );
-          return this.transferInAcknowledgement();
         default:
           throw new Error(`Uninterpretable acknowledgement code: ${code}`);
       }
     }
 
-    debug(
-      'Handled unrestricted execution of "Real-time status transmission" command. Retrying transferInAcknowledgement.'
-    );
-    return this.transferInAcknowledgement();
+    throw new Error(`Unhandled return code: ${code}`);
   }
 
   async getScannerCapability(): Promise<ScannerCapability> {
