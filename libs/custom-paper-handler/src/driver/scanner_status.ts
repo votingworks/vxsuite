@@ -6,8 +6,8 @@ export function isPaperReadyToLoad(
   return (
     paperHandlerStatus.paperInputLeftInnerSensor &&
     paperHandlerStatus.paperInputLeftOuterSensor &&
-    paperHandlerStatus.paperInputRightInnerSensor &&
-    paperHandlerStatus.paperInputRightOuterSensor
+    paperHandlerStatus.paperInputRightInnerSensor
+    // Ignore the right outer sensor to allow notched paper
   );
 }
 
