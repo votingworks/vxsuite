@@ -574,6 +574,7 @@ export function buildMachine(
             },
             validating_new_sheet: {
               initial: 'scan_and_interpret',
+              invoke: pollAuthStatus(),
               states: {
                 scan_and_interpret: {
                   invoke: [
@@ -592,6 +593,11 @@ export function buildMachine(
                 },
                 done: { type: 'final' },
               },
+              on: {
+                // The poll worker pulled their card too early
+                AUTH_STATUS_CARDLESS_VOTER:
+                  'poll_worker_auth_ended_unexpectedly',
+              },
               onDone: [
                 {
                   target: 'waiting_for_ballot_data',
@@ -608,9 +614,12 @@ export function buildMachine(
               ],
             },
             inserted_preprinted_ballot: {
-              invoke: pollPaperStatus(),
+              invoke: [pollPaperStatus(), pollAuthStatus()],
               entry: (context) => context.driver.parkPaper(),
               on: {
+                // The poll worker pulled their card too early
+                AUTH_STATUS_CARDLESS_VOTER:
+                  'poll_worker_auth_ended_unexpectedly',
                 START_SESSION_WITH_PREPRINTED_BALLOT: 'presenting_ballot',
                 RETURN_PREPRINTED_BALLOT: {
                   actions: [
@@ -623,10 +632,13 @@ export function buildMachine(
               },
             },
             inserted_invalid_new_sheet: {
-              invoke: pollPaperStatus(),
+              invoke: [pollPaperStatus(), pollAuthStatus()],
               entry: async (context) => context.driver.presentPaper(),
               on: {
                 NO_PAPER_ANYWHERE: 'accepting_paper',
+                // The poll worker pulled their card too early
+                AUTH_STATUS_CARDLESS_VOTER:
+                  'poll_worker_auth_ended_unexpectedly',
               },
             },
 

@@ -15,7 +15,11 @@ import {
   getFeatureFlagMock,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { hasTextAcrossElements, mockOf } from '@votingworks/test-utils';
+import {
+  advancePromises,
+  hasTextAcrossElements,
+  mockOf,
+} from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
 import { DateWithoutTime } from '@votingworks/basics';
@@ -35,6 +39,7 @@ import { ApiProvider } from '../api_provider';
 import { InsertedInvalidNewSheetScreen } from './inserted_invalid_new_sheet_screen';
 import { InsertedPreprintedBallotScreen } from './inserted_preprinted_ballot_screen';
 import { BallotReadyForReviewScreen } from './ballot_ready_for_review_screen';
+import { BALLOT_REINSERTION_SCREENS } from '../ballot_reinsertion_flow';
 
 const { election } = electionGeneralDefinition;
 
@@ -51,6 +56,15 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 jest.mock('./inserted_invalid_new_sheet_screen');
 jest.mock('./inserted_preprinted_ballot_screen');
 jest.mock('./ballot_ready_for_review_screen');
+
+const MOCK_BALLOT_REINSERTION_FLOW_CONTENT = 'MockBallotReinsertionFlow';
+jest.mock(
+  '../ballot_reinsertion_flow',
+  (): typeof import('../ballot_reinsertion_flow') => ({
+    ...jest.requireActual('../ballot_reinsertion_flow'),
+    BallotReinsertionFlow: () => <div>MockBallotReinsertionFlow</div>,
+  })
+);
 
 beforeEach(() => {
   jest.useFakeTimers();
@@ -252,6 +266,7 @@ describe('pre-printed ballots', () => {
   > = {
     accepting_paper: /feed one sheet of paper/i,
     loading_paper: /feed one sheet of paper/i,
+    loading_new_sheet: /loading sheet/i,
     validating_new_sheet: /loading sheet/i,
     inserted_invalid_new_sheet: 'MockInvalidNewSheetScreen',
     inserted_preprinted_ballot: 'MockValidPreprintedBallotScreen',
@@ -277,6 +292,19 @@ describe('pre-printed ballots', () => {
       renderScreen();
 
       await screen.findByText(expectedContents);
+    });
+  }
+});
+
+describe('shows BallotReinsertionFlow for relevant states:', () => {
+  for (const state of Object.keys(BALLOT_REINSERTION_SCREENS)) {
+    test(state, async () => {
+      apiMock.setPaperHandlerState(state as SimpleServerStatus);
+
+      const { container } = renderScreen();
+      await advancePromises();
+
+      expect(container).toHaveTextContent(MOCK_BALLOT_REINSERTION_FLOW_CONTENT);
     });
   }
 });
