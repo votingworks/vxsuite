@@ -465,7 +465,7 @@ export function convertElectionDefinitionHeader(
         ballotStyleId: 'default',
         // hardcoded for NH state elections
         optionBoundsFromTargetMark: {
-          left: 5,
+          left: 9,
           top: 1,
           right: 1,
           bottom: 1,

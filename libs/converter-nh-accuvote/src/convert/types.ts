@@ -60,6 +60,8 @@ export interface NewHampshireBallotCardDefinition {
    */
   readonly definition: Element;
 
+  readonly definitionPath: string;
+
   /**
    * PDF reader containing the ballot card.
    */

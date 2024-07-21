@@ -43,3 +43,23 @@ export function readGridFromElectionDefinition(
     }
   );
 }
+
+/**
+ *
+ */
+export function oxOyFromTimingMarkCoordinates({
+  column,
+  row,
+}: {
+  column: number;
+  row: number;
+}): { ox: number; oy: number } {
+  return {
+    ox:
+      column * ElectionDefinitionHorizontalTimingMarkDistance +
+      ElectionDefinitionOriginX,
+    oy:
+      row * ElectionDefinitionVerticalTimingMarkDistance +
+      ElectionDefinitionOriginY,
+  };
+}

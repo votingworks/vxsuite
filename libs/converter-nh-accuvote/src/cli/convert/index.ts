@@ -201,18 +201,18 @@ function usage(out: NodeJS.WritableStream): void {
 }
 
 async function writeGrayscalePdf(outputPath: string, pdfData: Uint8Array) {
-  const tmpSourcePath = tmpNameSync();
-  await fs.writeFile(tmpSourcePath, pdfData);
-  await promisify(execFile)('gs', [
-    `-sOutputFile=${outputPath}`,
-    '-sDEVICE=pdfwrite',
-    '-sColorConversionStrategy=Gray',
-    '-dProcessColorModel=/DeviceGray',
-    '-dAutoRotatePages=/None',
-    '-dNOPAUSE',
-    '-dBATCH',
-    tmpSourcePath,
-  ]);
+  // const tmpSourcePath = tmpNameSync();
+  await fs.writeFile(outputPath, pdfData);
+  // await promisify(execFile)('gs', [
+  //   `-sOutputFile=${outputPath}`,
+  //   '-sDEVICE=pdfwrite',
+  //   '-sColorConversionStrategy=Gray',
+  //   '-dProcessColorModel=/DeviceGray',
+  //   '-dAutoRotatePages=/None',
+  //   '-dNOPAUSE',
+  //   '-dBATCH',
+  //   tmpSourcePath,
+  // ]);
 }
 
 /**
@@ -276,6 +276,7 @@ export async function main(
 
           return {
             definition: parseXml(await fs.readFile(definition, 'utf8')),
+            definitionPath: definition,
             ballotPdf: new PdfReader(ballotData, {
               scale: 200 / 72,
             }),

@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import {
   findTemplateGridAndBubbles,
   Geometry,
@@ -29,6 +30,7 @@ import {
   getContests,
   getPartyForBallotStyle,
   safeParseElectionDefinition,
+  safeParseNumber,
 } from '@votingworks/types';
 import { PDFPage, rgb } from 'pdf-lib';
 import { convertElectionDefinitionHeader } from './convert_election_definition_header';
@@ -44,6 +46,7 @@ import {
 import { addQrCodeMetadataToBallotPdf } from '../encode_metadata';
 import { PdfReader } from '../pdf_reader';
 import { makeId } from './make_id';
+import { oxOyFromTimingMarkCoordinates } from './read_grid_from_election_definition';
 
 async function convertCardDefinition(
   cardDefinition: NewHampshireBallotCardDefinition
@@ -199,6 +202,44 @@ async function convertCardDefinition(
     const frontTemplateBubbles = frontGridAndBubbles.bubbles;
     const backTemplateBubbles = backGridAndBubbles.bubbles;
 
+    const xmlBubbleCoordinates = Array.from(
+      cardDefinition.definition.getElementsByTagName('CandidateName')
+    ).map((candidateElement) => {
+      const ox = safeParseNumber(
+        candidateElement.getElementsByTagName('OX')[0]?.textContent
+      ).unsafeUnwrap();
+      const oy = safeParseNumber(
+        candidateElement.getElementsByTagName('OY')[0]?.textContent
+      ).unsafeUnwrap();
+      return `      <OX>${ox}</OX>\r\n      <OY>${oy}</OY>`;
+    });
+
+    const pdfBubbleCoordinates = frontTemplateBubbles
+      .map((value) =>
+        oxOyFromTimingMarkCoordinates({ column: value.x, row: value.y })
+      )
+      .map(
+        ({ ox, oy }) =>
+          `      <OX>${Math.round(ox)}</OX>\r\n      <OY>${Math.round(oy)}</OY>`
+      );
+
+    if (xmlBubbleCoordinates.length !== pdfBubbleCoordinates.length) {
+      throw new Error(
+        `XML and PDF have different numbers of bubbles: ` +
+          `${xmlBubbleCoordinates.length} != ${pdfBubbleCoordinates.length}`
+      );
+    }
+
+    let editedFile = fs.readFileSync(cardDefinition.definitionPath, 'utf-8');
+    for (const [i, find] of xmlBubbleCoordinates.entries()) {
+      const replace = assertDefined(pdfBubbleCoordinates[i]);
+      editedFile = editedFile.replace(find, replace);
+    }
+    // fs.writeFileSync(
+    //   cardDefinition.definitionPath.replace('.xml', '-edited.xml'),
+    //   editedFile
+    // );
+
     const bubbleGrid = [
       ...frontTemplateBubbles.map<TemplateBubbleGridEntry>((bubble) => ({
         side: 'front',
@@ -272,10 +313,10 @@ async function convertCardDefinition(
               // contest). Some examples of the ballots this was based on
               // can be found in the NH elections in libs/fixtures.
               writeInArea: {
-                x: bubble.column - 5,
-                y: bubble.row - 0.65,
-                width: 4.5,
-                height: 0.85,
+                x: bubble.column - (bubble.column === 20 ? 8.1 : 8.9),
+                y: bubble.row - 0.25,
+                width: bubble.column === 20 ? 6 : 6.8,
+                height: 0.55,
               },
             }
       ),
