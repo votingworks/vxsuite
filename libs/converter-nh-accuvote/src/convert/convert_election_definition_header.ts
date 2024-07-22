@@ -139,7 +139,7 @@ export function convertElectionDefinitionHeader(
     ? `town-id-${townId}-precinct-id-${cleanedPrecinctId}`
     : `town-id-${townId}-precinct`;
 
-  const rawDistrictId = `town-id-${townId}-district`;
+  const rawDistrictId = `${precinctId}-district`;
   const districtIdResult = safeParse(DistrictIdSchema, rawDistrictId);
   if (districtIdResult.isErr()) {
     return err({
