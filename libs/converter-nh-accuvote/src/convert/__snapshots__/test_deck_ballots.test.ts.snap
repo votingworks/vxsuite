@@ -1,0 +1,63 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`generateTestDeckBallots 1`] = `
+Map {
+  "mayor" => Map {
+    "sherlock-holmes" => 1,
+    "thomas-edison" => 1,
+    "write-in" => 1,
+  },
+  "controller" => Map {
+    "winston-churchill" => 1,
+    "oprah-winfrey" => 1,
+    "louis-armstrong" => 1,
+    "write-in" => 1,
+  },
+  "attorney" => Map {
+    "john-snow" => 1,
+    "mark-twain" => 1,
+    "write-in" => 1,
+  },
+  "public-works-director" => Map {
+    "benjamin-franklin" => 1,
+    "robert-downey-jr" => 1,
+    "bill-nye" => 1,
+    "write-in" => 1,
+  },
+  "chief-of-police" => Map {
+    "natalie-portman" => 1,
+    "frank-sinatra" => 1,
+    "andy-warhol" => 1,
+    "alfred-hitchcock" => 1,
+    "write-in" => 1,
+  },
+  "parks-and-recreation-director" => Map {
+    "charles-darwin" => 1,
+    "stephen-hawking" => 1,
+    "johan-sebastian-bach" => 1,
+    "alexander-graham-bell" => 1,
+    "write-in" => 1,
+  },
+  "board-of-alderman" => Map {
+    "helen-keller" => 1,
+    "steve-jobs" => 1,
+    "nikola-tesla" => 1,
+    "vincent-van-gogh" => 1,
+    "pablo-picasso" => 1,
+    "wolfgang-amadeus-mozart" => 1,
+    "write-in" => 4,
+  },
+  "city-council" => Map {
+    "marie-curie" => 1,
+    "indiana-jones" => 1,
+    "mona-lisa" => 1,
+    "jackie-chan" => 1,
+    "tim-allen" => 1,
+    "mark-antony" => 1,
+    "harriet-tubman" => 1,
+    "martin-luther-king" => 1,
+    "marilyn-monroe" => 1,
+    "write-in" => 4,
+  },
+}
+`;

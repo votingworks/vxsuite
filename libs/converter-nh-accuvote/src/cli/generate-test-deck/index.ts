@@ -6,12 +6,12 @@ import {
   safeParseElectionDefinition,
   safeParseJson,
 } from '@votingworks/types';
-import { generateTestDeckBallots } from '@votingworks/utils';
 import { promises as fs } from 'fs';
 import { join, parse as parsePath } from 'path';
 import { cmyk, PDFDocument } from 'pdf-lib';
 import { RealIo, Stdio } from '..';
 import { getPdfPagePointForGridPoint } from '../../convert/debug';
+import { generateTestDeckBallots } from '../../convert/test_deck_ballots';
 import {
   ConvertOutputManifestSchema,
   GenerateTestDeckConfigSchema,
