@@ -6,19 +6,20 @@ import {
   Optional,
   Result,
 } from '@votingworks/basics';
+import { getPrecinctById, safeParseJson } from '@votingworks/types';
 import { DOMParser } from '@xmldom/xmldom';
 import { enable as enableDebug } from 'debug';
 import { promises as fs } from 'fs';
-import { join, isAbsolute, parse as parsePath } from 'path';
-import { getPrecinctById, safeParseJson } from '@votingworks/types';
-import { tmpNameSync } from 'tmp';
-import { execFile } from 'child_process';
-import { promisify } from 'util';
-import { z } from 'zod';
+import { isAbsolute, join, parse as parsePath, relative } from 'path';
 import { PDFDocument } from 'pdf-lib';
 import { RealIo, Stdio } from '..';
 import { convertElectionDefinition } from '../../convert/convert_election_definition';
-import { NewHampshireBallotCardDefinition } from '../../convert/types';
+import {
+  ConvertConfig,
+  ConvertConfigSchema,
+  ConvertOutputManifest,
+  NewHampshireBallotCardDefinition,
+} from '../../convert/types';
 import { PdfReader } from '../../pdf_reader';
 
 interface ConvertOptions {
@@ -39,79 +40,6 @@ function parseXml(xml: string): Element {
   return new DOMParser().parseFromString(xml, 'application/xml')
     .documentElement;
 }
-
-interface ConvertConfig {
-  /**
-   * The type of election being converted.
-   */
-  electionType: 'general' | 'primary';
-
-  /**
-   * Configuration for the election jurisdictions. Each one will become its own
-   * election.
-   */
-  readonly jurisdictions: ConvertConfigJurisdiction[];
-
-  /**
-   * Whether to enable debug logging.
-   */
-  readonly debug?: boolean;
-}
-
-interface ConvertConfigJurisdiction {
-  /**
-   * The name of the jurisdiction, e.g. "Hillsborough County".
-   */
-  readonly name: string;
-
-  /**
-   * Configuration for the ballot cards.
-   */
-  readonly cards: ConvertConfigCard[];
-
-  /**
-   * Path to the output directory.
-   */
-  readonly output: string;
-}
-
-interface ConvertConfigCard {
-  /**
-   * Path to the XML definition file.
-   */
-  readonly definition: string;
-
-  /**
-   * Path to the PDF ballot file.
-   */
-  readonly ballot: string;
-
-  /**
-   * The pages of the ballot PDF to use for this card. The first page is 1. If
-   * this is not specified, the PDF must contain only one ballot card (i.e.
-   * exactly two pages).
-   */
-  readonly pages?: [number, number];
-}
-
-const ConvertConfigCardSchema: z.ZodSchema<ConvertConfigCard> = z.object({
-  definition: z.string(),
-  ballot: z.string(),
-  pages: z.tuple([z.number(), z.number()]).optional(),
-});
-
-const ConvertConfigJurisdictionSchema: z.ZodSchema<ConvertConfigJurisdiction> =
-  z.object({
-    name: z.string().nonempty(),
-    cards: z.array(ConvertConfigCardSchema),
-    output: z.string(),
-  });
-
-const ConvertConfigSchema: z.ZodSchema<ConvertConfig> = z.object({
-  electionType: z.union([z.literal('general'), z.literal('primary')]),
-  jurisdictions: z.array(ConvertConfigJurisdictionSchema),
-  debug: z.boolean().optional(),
-});
 
 async function parseOptions(
   args: readonly string[]
@@ -249,11 +177,28 @@ export async function main(
 
   for (const [
     jurisdictionIndex,
-    { name, cards, output },
+    jurisdictionConfig,
   ] of jurisdictions.entries()) {
+    const { name, cards, output } = jurisdictionConfig;
+
     io.stderr.write(
       `📍 ${name} (${jurisdictionIndex + 1}/${jurisdictions.length})\n`
     );
+
+    const electionPath = join(output, 'election.json');
+    const manifest: ConvertOutputManifest = {
+      config: {
+        name,
+        cards: cards.map((card) => ({
+          ...card,
+          definition: relative(output, card.definition),
+          ballot: relative(output, card.ballot),
+        })),
+        output: '.',
+      },
+      cards: [],
+      electionPath: relative(output, electionPath),
+    };
 
     const convertibleCards: NewHampshireBallotCardDefinition[] =
       await Promise.all(
@@ -323,7 +268,6 @@ export async function main(
         }
       }
 
-      const electionPath = join(output, 'election.json');
       io.stderr.write(`📝 ${electionPath}\n`);
       await fs.writeFile(electionPath, electionDefinition.electionData);
 
@@ -332,15 +276,26 @@ export async function main(
         const precinct = assertDefined(
           getPrecinctById({ election: electionDefinition.election, precinctId })
         );
-        const fileName = `${ballotType}-ballot-${precinct.name.replaceAll(
+        const ballotName = `${ballotType}-ballot-${precinct.name.replaceAll(
           ' ',
           '_'
         )}-${ballotStyleId}.pdf`;
-        const filePath = join(output, fileName);
-        io.stderr.write(`📝 ${filePath}\n`);
-        await writeGrayscalePdf(filePath, pdf);
+        const ballotPath = join(output, ballotName);
+        io.stderr.write(`📝 ${ballotPath}\n`);
+        await writeGrayscalePdf(ballotPath, pdf);
+
+        manifest.cards.push({
+          ballotPath: relative(output, ballotPath),
+          precinctId,
+          ballotStyleId,
+          ballotType,
+        });
       }
     }
+
+    const manifestPath = join(output, 'manifest.json');
+    io.stderr.write(`📝 ${manifestPath}\n`);
+    await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2));
   }
 
   return errors ? 1 : 0;

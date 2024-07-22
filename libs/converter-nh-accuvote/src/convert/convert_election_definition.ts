@@ -1,11 +1,4 @@
-import fs from 'node:fs';
-import {
-  findTemplateGridAndBubbles,
-  Geometry,
-  Point,
-  Rect,
-  u32,
-} from '@votingworks/ballot-interpreter';
+import { findTemplateGridAndBubbles } from '@votingworks/ballot-interpreter';
 import {
   assert,
   assertDefined,
@@ -32,21 +25,23 @@ import {
   safeParseElectionDefinition,
   safeParseNumber,
 } from '@votingworks/types';
-import { PDFPage, rgb } from 'pdf-lib';
+import fs from 'node:fs';
+import { rgb } from 'pdf-lib';
+import { addQrCodeMetadataToBallotPdf } from '../encode_metadata';
+import { PdfReader } from '../pdf_reader';
 import { convertElectionDefinitionHeader } from './convert_election_definition_header';
+import { getPdfPagePointForGridPoint } from './debug';
+import { makeId } from './make_id';
 import { matchContestOptionsOnGrid } from './match_contest_options_on_grid';
+import { oxOyFromTimingMarkCoordinates } from './read_grid_from_election_definition';
 import {
+  ConvertIssue,
   ConvertIssueKind,
   NewHampshireBallotCardDefinition,
   PairColumnEntriesIssueKind,
-  TemplateBubbleGridEntry,
-  ConvertIssue,
   ResultWithIssues,
+  TemplateBubbleGridEntry,
 } from './types';
-import { addQrCodeMetadataToBallotPdf } from '../encode_metadata';
-import { PdfReader } from '../pdf_reader';
-import { makeId } from './make_id';
-import { oxOyFromTimingMarkCoordinates } from './read_grid_from_election_definition';
 
 async function convertCardDefinition(
   cardDefinition: NewHampshireBallotCardDefinition
@@ -336,40 +331,6 @@ async function convertCardDefinition(
       gridLayouts: [populatedGridLayout],
     };
 
-    function bubbleCenter(
-      topTimingMark: Rect,
-      leftTimingMark: Rect
-    ): Point<u32> {
-      return {
-        x: topTimingMark.left + topTimingMark.width / 2,
-        y: leftTimingMark.top + leftTimingMark.height / 2,
-      };
-    }
-
-    function gridPixelValueDimensionToPdfPageCoordinateValue(
-      geometry: Geometry,
-      pixelValue: number
-    ): number {
-      const scale = 72 / geometry.pixelsPerInch;
-      return pixelValue * scale;
-    }
-
-    function gridPixelPointToPdfPagePoint(
-      pdfPage: PDFPage,
-      geometry: Geometry,
-      gridPixelPoint: Point<number>
-    ): Point<number> {
-      const x = gridPixelValueDimensionToPdfPageCoordinateValue(
-        geometry,
-        gridPixelPoint.x
-      );
-      const y = gridPixelValueDimensionToPdfPageCoordinateValue(
-        geometry,
-        gridPixelPoint.y
-      );
-      return { x, y: pdfPage.getHeight() - y };
-    }
-
     if (cardDefinition.debugPdf) {
       const { geometry } = frontGridAndBubbles.grid;
       const frontDebugPdf = cardDefinition.debugPdf.getPage(0);
@@ -382,23 +343,10 @@ async function convertCardDefinition(
         [backGridAndBubbles.bubbles, backDebugPdf],
       ] as const) {
         for (const bubble of bubbles) {
-          const { completeTimingMarks } = frontGridAndBubbles.grid;
-
-          const topTimingMark = assertDefined(
-            completeTimingMarks.topRects[bubble.x]
-          );
-          const leftTimingMark = assertDefined(
-            completeTimingMarks.leftRects[bubble.y]
-          );
-
-          const bubbleCenterInGridPixels = bubbleCenter(
-            topTimingMark,
-            leftTimingMark
-          );
-          const bubbleCenterInPdfPage = gridPixelPointToPdfPagePoint(
+          const bubbleCenterInPdfPage = getPdfPagePointForGridPoint(
             debugPage,
-            geometry,
-            bubbleCenterInGridPixels
+            frontGridAndBubbles.grid,
+            bubble
           );
 
           debugPage.drawCircle({
@@ -415,21 +363,10 @@ async function convertCardDefinition(
           position.side === 'front' ? frontDebugPdf : backDebugPdf;
         const { column, row } = position;
 
-        const topTimingMark = assertDefined(
-          frontGridAndBubbles.grid.completeTimingMarks.topRects[column]
-        );
-        const leftTimingMark = assertDefined(
-          frontGridAndBubbles.grid.completeTimingMarks.leftRects[row]
-        );
-
-        const bubbleCenterInGridPixels = bubbleCenter(
-          topTimingMark,
-          leftTimingMark
-        );
-        const bubbleCenterInPdfPage = gridPixelPointToPdfPagePoint(
+        const bubbleCenterInPdfPage = getPdfPagePointForGridPoint(
           debugPage,
-          geometry,
-          bubbleCenterInGridPixels
+          frontGridAndBubbles.grid,
+          { x: column, y: row }
         );
 
         const textSize = 6;

@@ -1,6 +1,16 @@
 import { Result } from '@votingworks/basics';
-import { BallotPaperSize, GridPosition, Size } from '@votingworks/types';
-import { ZodError } from 'zod';
+import {
+  BallotPaperSize,
+  BallotStyleId,
+  BallotStyleIdSchema,
+  BallotType,
+  BallotTypeSchema,
+  GridPosition,
+  PrecinctId,
+  PrecinctIdSchema,
+  Size,
+} from '@votingworks/types';
+import { z, ZodError } from 'zod';
 import { PartialTimingMarks } from '@votingworks/ballot-interpreter';
 import { PDFDocument } from 'pdf-lib';
 import { ParseConstitutionalQuestionError } from './parse_constitutional_questions';
@@ -222,3 +232,185 @@ export type ResultWithIssues<T> = Result<
     readonly issues: readonly ConvertIssue[];
   }
 >;
+
+/**
+ * Root of the configuration for the conversion process.
+ */
+export interface ConvertConfig {
+  /**
+   * The type of election being converted.
+   */
+  electionType: 'general' | 'primary';
+
+  /**
+   * Configuration for the election jurisdictions. Each one will become its own
+   * election.
+   */
+  readonly jurisdictions: ConvertConfigJurisdiction[];
+
+  /**
+   * Whether to enable debug logging.
+   */
+  readonly debug?: boolean;
+}
+
+/**
+ * Configuration for a single jurisdiction.
+ */
+export interface ConvertConfigJurisdiction {
+  /**
+   * The name of the jurisdiction, e.g. "Hillsborough County".
+   */
+  readonly name: string;
+
+  /**
+   * Configuration for the ballot cards.
+   */
+  readonly cards: ConvertConfigCard[];
+
+  /**
+   * Path to the output directory.
+   */
+  readonly output: string;
+}
+
+/**
+ * Configuration for a single ballot card within a jurisdiction.
+ */
+export interface ConvertConfigCard {
+  /**
+   * Path to the XML definition file.
+   */
+  readonly definition: string;
+
+  /**
+   * Path to the PDF ballot file.
+   */
+  readonly ballot: string;
+
+  /**
+   * The pages of the ballot PDF to use for this card. The first page is 1. If
+   * this is not specified, the PDF must contain only one ballot card (i.e.
+   * exactly two pages).
+   */
+  readonly pages?: [number, number];
+}
+
+/**
+ * Schema for {@link ConvertConfigCard}.
+ */
+export const ConvertConfigCardSchema: z.ZodSchema<ConvertConfigCard> = z.object(
+  {
+    definition: z.string(),
+    ballot: z.string(),
+    pages: z.tuple([z.number(), z.number()]).optional(),
+  }
+);
+
+/**
+ * Schema for {@link ConvertConfigJurisdiction}.
+ */
+export const ConvertConfigJurisdictionSchema: z.ZodSchema<ConvertConfigJurisdiction> =
+  z.object({
+    name: z.string().nonempty(),
+    cards: z.array(ConvertConfigCardSchema),
+    output: z.string(),
+  });
+
+/**
+ * Schema for {@link ConvertConfig}.
+ */
+export const ConvertConfigSchema: z.ZodSchema<ConvertConfig> = z.object({
+  electionType: z.union([z.literal('general'), z.literal('primary')]),
+  jurisdictions: z.array(ConvertConfigJurisdictionSchema),
+  debug: z.boolean().optional(),
+});
+
+/**
+ * Root of the configuration to generate test decks.
+ */
+export interface GenerateTestDeckConfig {
+  electionType: 'general' | 'primary';
+  jurisdictions: GenerateTestDeckJurisdiction[];
+}
+
+/**
+ * Configuration for a single jurisdiction to generate a test deck.
+ */
+export interface GenerateTestDeckJurisdiction {
+  /**
+   * The name of the jurisdiction, e.g. "Hillsborough County".
+   */
+  name: string;
+
+  /**
+   * Path to the `manifest.json` output from conversion.
+   */
+  input: string;
+
+  /**
+   * Path to the directory to write the generated test decks.
+   */
+  output: string;
+}
+
+/**
+ * Root of the `manifest.json` file containing information about the output of
+ * the conversion process.
+ */
+export interface ConvertOutputManifest {
+  config: ConvertConfigJurisdiction;
+  electionPath: string;
+  cards: ConvertOutputCard[];
+}
+
+/**
+ * Conversion output information for a single ballot card within a jurisdiction.
+ */
+export interface ConvertOutputCard {
+  ballotPath: string;
+  precinctId: PrecinctId;
+  ballotStyleId: BallotStyleId;
+  ballotType: BallotType;
+}
+
+/**
+ * Schema for {@link ConvertOutputCard}.
+ */
+export const ConvertOutputCardSchema: z.ZodSchema<ConvertOutputCard> = z.object(
+  {
+    ballotPath: z.string().nonempty(),
+    precinctId: PrecinctIdSchema,
+    ballotStyleId: BallotStyleIdSchema,
+    ballotType: BallotTypeSchema,
+  }
+);
+
+/**
+ * Schema for {@link ConvertOutputManifest}.
+ */
+export const ConvertOutputManifestSchema: z.ZodSchema<ConvertOutputManifest> =
+  z.object({
+    config: ConvertConfigJurisdictionSchema,
+    electionPath: z.string().nonempty(),
+    cards: z.array(ConvertOutputCardSchema),
+  });
+
+/**
+ * Schema for {@link GenerateTestDeckJurisdiction}.
+ */
+export const GenerateTestDeckJurisdictionSchema: z.ZodSchema<GenerateTestDeckJurisdiction> =
+  z.object({
+    name: z.string().nonempty(),
+    input: z.string().nonempty(),
+    output: z.string().nonempty(),
+  });
+
+/**
+ * Schema for {@link GenerateTestDeckConfig}.
+ */
+export const GenerateTestDeckConfigSchema: z.ZodSchema<GenerateTestDeckConfig> =
+  z.object({
+    electionType: z.union([z.literal('general'), z.literal('primary')]),
+    jurisdictions: z.array(GenerateTestDeckJurisdictionSchema),
+  });
