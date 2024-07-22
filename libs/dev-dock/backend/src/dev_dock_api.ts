@@ -19,6 +19,10 @@ import {
 } from '@votingworks/utils';
 import { getMockFileUsbDriveHandler } from '@votingworks/usb-drive';
 import {
+  getMockFileFujitsuPrinterHandler,
+  PrinterStatus as FujitsuPrinterStatus,
+} from '@votingworks/fujitsu-thermal-printer';
+import {
   BROTHER_THERMAL_PRINTER_CONFIG,
   HP_LASER_PRINTER_CONFIG,
   getMockFilePrinterHandler,
@@ -81,6 +85,7 @@ function readDevDockFileContents(devDockFilePath: string): DevDockFileContents {
 function buildApi(devDockFilePath: string, machineType: MachineType) {
   const usbHandler = getMockFileUsbDriveHandler();
   const printerHandler = getMockFilePrinterHandler();
+  const fujitsuPrinterHandler = getMockFileFujitsuPrinterHandler();
 
   return grout.createApi({
     setElection(input: { path: string }): void {
@@ -152,6 +157,14 @@ function buildApi(devDockFilePath: string, machineType: MachineType) {
 
     disconnectPrinter(): void {
       printerHandler.disconnectPrinter();
+    },
+
+    getFujitsuPrinterStatus(): FujitsuPrinterStatus {
+      return fujitsuPrinterHandler.getPrinterStatus();
+    },
+
+    setFujitsuPrinterStatus(status: FujitsuPrinterStatus): void {
+      fujitsuPrinterHandler.setStatus(status);
     },
 
     getMachineType(): MachineType {

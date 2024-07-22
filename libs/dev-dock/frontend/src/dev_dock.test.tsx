@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import { Buffer } from 'buffer';
 import userEvent from '@testing-library/user-event';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
@@ -355,4 +355,59 @@ test('printer mock when disabled', async () => {
   expect(printerButton).toBeDisabled();
   screen.getByText('Printer mock disabled');
   userEvent.click(printerButton);
+});
+
+describe('fujitsu printer mock', () => {
+  test('when disabled', async () => {
+    featureFlagMock.disableFeatureFlag(
+      BooleanEnvironmentVariableName.USE_MOCK_PRINTER
+    );
+    featureFlagMock.enableFeatureFlag(
+      BooleanEnvironmentVariableName.SCAN_USE_FUJITSU_PRINTER
+    );
+
+    mockApiClient.getMachineType.reset();
+    mockApiClient.getMachineType.expectCallWith().resolves('scan');
+    mockApiClient.getFujitsuPrinterStatus.expectCallWith().resolves({
+      state: 'idle',
+    });
+
+    render(<DevDock apiClient={mockApiClient} />);
+    const dropdown = await screen.findByLabelText('Thermal Printer:');
+
+    expect(dropdown).toBeDisabled();
+    within(dropdown).getByText('Disabled');
+  });
+
+  test('updating mock printer status', async () => {
+    featureFlagMock.enableFeatureFlag(
+      BooleanEnvironmentVariableName.USE_MOCK_PRINTER
+    );
+    featureFlagMock.enableFeatureFlag(
+      BooleanEnvironmentVariableName.SCAN_USE_FUJITSU_PRINTER
+    );
+
+    mockApiClient.getMachineType.reset();
+    mockApiClient.getMachineType.expectCallWith().resolves('scan');
+    mockApiClient.getFujitsuPrinterStatus.expectCallWith().resolves({
+      state: 'idle',
+    });
+
+    render(<DevDock apiClient={mockApiClient} />);
+    const dropdown = await screen.findByLabelText('Thermal Printer:');
+    await waitFor(() => {
+      expect(dropdown).toHaveValue('idle');
+    });
+
+    mockApiClient.setFujitsuPrinterStatus
+      .expectCallWith({ state: 'no-paper' })
+      .resolves();
+    mockApiClient.getFujitsuPrinterStatus.expectCallWith().resolves({
+      state: 'no-paper',
+    });
+    userEvent.selectOptions(dropdown, screen.getByText('no-paper'));
+    await waitFor(() => {
+      expect(dropdown).toHaveValue('no-paper');
+    });
+  });
 });

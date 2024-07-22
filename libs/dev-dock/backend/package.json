@@ -34,6 +34,7 @@
     "@votingworks/auth": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/fs": "workspace:*",
+    "@votingworks/fujitsu-thermal-printer": "workspace:*",
     "@votingworks/grout": "workspace:*",
     "@votingworks/printing": "workspace:*",
     "@votingworks/types": "workspace:*",
