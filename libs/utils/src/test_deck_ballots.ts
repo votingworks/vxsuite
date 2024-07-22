@@ -94,7 +94,7 @@ export function generateTestDeckBallots({
                 : [contest.noOption.id];
           } else if (
             contest.type === 'candidate' &&
-            contest.candidates.length > 0 // safety check
+            numBallotPositions(contest) > 0 // safety check
           ) {
             const choiceIndex = ballotNum % numBallotPositions(contest);
             votes[contest.id] = [
