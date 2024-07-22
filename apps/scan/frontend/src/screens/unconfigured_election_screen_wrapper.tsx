@@ -1,9 +1,5 @@
-import {
-  UnconfiguredElectionScreen,
-  useQueryChangeListener,
-  Screen,
-  Main,
-} from '@votingworks/ui';
+import { UnconfiguredElectionScreen, Screen, Main } from '@votingworks/ui';
+import { useEffect } from 'react';
 import {
   configureFromElectionPackageOnUsbDrive,
   getUsbDriveStatus,
@@ -26,13 +22,20 @@ export function UnconfiguredElectionScreenWrapper(
   const configureMutation =
     configureFromElectionPackageOnUsbDrive.useMutation();
   // TODO move watching for USB drive to configure to the backend
-  useQueryChangeListener(usbDriveStatusQuery, {
-    onChange: (newUsbDriveStatus) => {
-      if (newUsbDriveStatus.status === 'mounted') {
-        configureMutation.mutate();
-      }
-    },
-  });
+  useEffect(() => {
+    if (
+      usbDriveStatusQuery.isSuccess &&
+      usbDriveStatusQuery.data.status === 'mounted'
+    ) {
+      configureMutation.mutate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    configureMutation.mutate,
+    usbDriveStatusQuery.isSuccess,
+    usbDriveStatusQuery.data?.status,
+  ]);
+
   const error = configureMutation.data?.err();
 
   if (!usbDriveStatusQuery.isSuccess) return null;
