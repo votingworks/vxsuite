@@ -351,6 +351,8 @@ function findUsbPatDevice(): Promise<HID.HID | void> {
 
 function buildPatDeviceConnectionStatusObservable() {
   return ({
+    auth,
+    workspace,
     devicePollingIntervalMs,
     patConnectionStatusReader,
     isPatDeviceConnected: oldConnectionStatus,
@@ -360,6 +362,14 @@ function buildPatDeviceConnectionStatusObservable() {
     return timer(0, devicePollingIntervalMs).pipe(
       switchMap(async () => {
         try {
+          // We only try to connect a PAT device if we are currently in a voter session.
+          const authStatus = await auth.getAuthStatus(
+            constructAuthMachineState(workspace)
+          );
+
+          if (!isCardlessVoterAuth(authStatus)) {
+            return { type: 'PAT_DEVICE_NO_STATUS_CHANGE' };
+          }
           // Checks for a PAT device connected to the built-in PAT jack first. If no device found,
           // checks for a device connected through the Origin Swifty USB switch. We support the Swifty
           // for development only and should be open to deprecating support if the cost of maintaining

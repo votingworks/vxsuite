@@ -45,6 +45,7 @@ import { ElectionState } from './types';
 import {
   mockElectionManagerAuth,
   mockPollWorkerAuth,
+  mockCardlessVoterAuth,
 } from '../test/auth_helpers';
 import { PatConnectionStatusReader } from './pat-input/connection_status_reader';
 import { createWorkspace } from './util/workspace';
@@ -464,6 +465,7 @@ test('removing ballot during presentation', async () => {
 });
 
 test('setPatDeviceIsCalibrated', async () => {
+  mockCardlessVoterAuth(mockAuth);
   expect(await apiClient.getPaperHandlerState()).toEqual('not_accepting_paper');
   mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
     true
