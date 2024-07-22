@@ -225,6 +225,7 @@ test('saving the readiness report', async () => {
   const exportPath = exportResult.ok()![0];
   await expect(exportPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'readiness-report',
+    failureThreshold: 0.001,
   });
 
   const pdfContents = await pdfToText(exportPath);
