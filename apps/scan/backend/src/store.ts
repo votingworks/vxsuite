@@ -38,6 +38,8 @@ import {
   UiStringsStore,
   clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult,
   createUiStringStore,
+  getMaximumUsableDiskSpace,
+  updateMaximumUsableDiskSpace,
 } from '@votingworks/backend';
 import {
   clearCastVoteRecordHashes,
@@ -992,5 +994,13 @@ export class Store {
 
   getUiStringsStore(): UiStringsStore {
     return this.uiStringsStore;
+  }
+
+  getMaximumUsableDiskSpace(): number {
+    return getMaximumUsableDiskSpace(this.client);
+  }
+
+  updateMaximumUsableDiskSpace(space: number): void {
+    updateMaximumUsableDiskSpace(this.client, space);
   }
 }
