@@ -572,7 +572,9 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
             )}
           </ContestTitleContainer>
           <AdjudicationForm>
-            <SectionLabel>Official Candidates</SectionLabel>
+            {officialCandidates.length > 0 ? (
+              <SectionLabel>Official Candidates</SectionLabel>
+            ) : null}
             <CandidateButtonList>
               {officialCandidates.map((candidate) => {
                 return (
