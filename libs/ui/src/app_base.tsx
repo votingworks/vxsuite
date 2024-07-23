@@ -69,7 +69,8 @@ export function AppBase(props: AppBaseProps): JSX.Element {
   const resetThemes = useCallback(() => {
     setColorMode(defaultColorMode);
     setSizeMode(defaultSizeMode);
-  }, [defaultColorMode, defaultSizeMode]);
+    setIsVisualModeDisabled(defaultIsVisualModeDisabled);
+  }, [defaultColorMode, defaultSizeMode, defaultIsVisualModeDisabled]);
 
   if (!fontsLoaded) {
     // To avoid the possibility of font flicker before the fonts are loaded,

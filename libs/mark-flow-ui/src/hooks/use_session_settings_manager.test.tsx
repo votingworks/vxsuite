@@ -42,6 +42,7 @@ const mockUseCurrentLanguage = mockOf(useCurrentLanguage);
 const DEFAULT_THEME: Partial<DefaultTheme> = {
   colorMode: 'contrastMedium',
   sizeMode: 'touchMedium',
+  isVisualModeDisabled: false,
 };
 const ACTIVE_VOTING_SESSION_VOTES: VotesDict = {};
 const NEW_VOTING_SESSION_VOTES = undefined;
@@ -104,11 +105,13 @@ test('Resets settings when election official logs in', () => {
   act(() => {
     voterSettingsManager.setColorMode('contrastLow');
     voterSettingsManager.setSizeMode('touchExtraLarge');
+    voterSettingsManager.setIsVisualModeDisabled(true);
   });
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<DefaultTheme>>({
       colorMode: 'contrastLow',
       sizeMode: 'touchExtraLarge',
+      isVisualModeDisabled: true,
     })
   );
   mockUseCurrentLanguage.mockReturnValue(SPANISH);
@@ -161,6 +164,7 @@ test('Resets settings when election official logs in', () => {
     expect.objectContaining<Partial<DefaultTheme>>({
       colorMode: 'contrastLow',
       sizeMode: 'touchExtraLarge',
+      isVisualModeDisabled: true,
     })
   );
   expect(mockLanguageControls.setLanguage).toHaveBeenCalledWith(SPANISH);
@@ -185,6 +189,7 @@ test('Resets theme to default if returning to a new voter session', () => {
   act(() => {
     voterSettingsManager.setColorMode('contrastLow');
     voterSettingsManager.setSizeMode('touchExtraLarge');
+    voterSettingsManager.setIsVisualModeDisabled(true);
   });
   mockUseCurrentLanguage.mockReturnValue(SPANISH);
   mockUseAudioEnabled.mockReturnValue(false);
@@ -193,6 +198,7 @@ test('Resets theme to default if returning to a new voter session', () => {
     expect.objectContaining<Partial<DefaultTheme>>({
       colorMode: 'contrastLow',
       sizeMode: 'touchExtraLarge',
+      isVisualModeDisabled: true,
     })
   );
 
@@ -216,6 +222,7 @@ test('Resets theme to default if returning to a new voter session', () => {
     expect.objectContaining<Partial<DefaultTheme>>({
       colorMode: 'contrastHighDark',
       sizeMode: 'touchSmall',
+      isVisualModeDisabled: false,
     })
   );
 
