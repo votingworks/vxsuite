@@ -78,11 +78,11 @@ export async function addQrCodeMetadataToBallotPdf(
 
   for (const [page, qrCode] of iter(pdf.getPages()).zip(qrCodes)) {
     const qrCodeEmbed = await pdf.embedPng(qrCode);
-    const qrCodeDimensions = qrCodeEmbed.scale(0.2);
+    const qrCodeDimensions = qrCodeEmbed.scale(0.3);
     page.drawImage(qrCodeEmbed, {
       ...qrCodeDimensions,
-      x: 16.25,
-      y: 3.25,
+      x: 16,
+      y: 4,
     });
   }
   return await pdf.save();
