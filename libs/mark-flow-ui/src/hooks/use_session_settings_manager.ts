@@ -76,6 +76,9 @@ export function useSessionSettingsManager(
         // when election official logs out:
         voterSettingsManager.setColorMode(voterSettings.theme.colorMode);
         voterSettingsManager.setSizeMode(voterSettings.theme.sizeMode);
+        voterSettingsManager.setIsVisualModeDisabled(
+          voterSettings.theme.isVisualModeDisabled
+        );
         setLanguage(voterSettings.language);
         setAudioEnabled(voterSettings.isAudioEnabled);
       } else {
