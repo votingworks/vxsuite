@@ -462,15 +462,19 @@ ${JSON.stringify(differingElection?.[key as keyof Election], null, 2)}`,
           district: undefined,
           candidates:
             contest.type === 'candidate'
-              ? [...contest.candidates].sort()
+              ? [...contest.candidates].sort((c1, c2) =>
+                  c1.name.localeCompare(c2.name)
+                )
               : undefined,
         },
         {
           ...firstContest,
           district: undefined,
           candidates:
-            contest.type === 'candidate'
-              ? [...contest.candidates].sort()
+            firstContest.type === 'candidate'
+              ? [...firstContest.candidates].sort((c1, c2) =>
+                  c1.name.localeCompare(c2.name)
+                )
               : undefined,
         }
       )
