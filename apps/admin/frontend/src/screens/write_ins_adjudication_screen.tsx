@@ -100,16 +100,22 @@ const WriteInText = styled.span`
   color: ${(p) => p.theme.colors.primary};
 `;
 
-const AdjudicationNav = styled.div`
-  align-items: center;
-  background: ${(p) => p.theme.colors.containerLow};
-  border-top: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
-    ${(p) => p.theme.colors.outline};
+const AdjudicationStickyFooter = styled.div`
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   gap: 0.5rem;
   margin-top: auto;
   padding: 0.5rem;
+  background: ${(p) => p.theme.colors.containerLow};
+  border-top: ${(p) => p.theme.sizes.bordersRem.hairline}rem solid
+    ${(p) => p.theme.colors.outline};
+`;
+
+const AdjudicationNav = styled.div`
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  flex-direction: row;
 
   button {
     flex: 1;
@@ -566,7 +572,9 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
             )}
           </ContestTitleContainer>
           <AdjudicationForm>
-            <SectionLabel>Official Candidates</SectionLabel>
+            {officialCandidates.length > 0 ? (
+              <SectionLabel>Official Candidates</SectionLabel>
+            ) : null}
             <CandidateButtonList>
               {officialCandidates.map((candidate) => {
                 return (
@@ -587,7 +595,9 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                 );
               })}
             </CandidateButtonList>
-            <SectionLabel>Write-In Candidates</SectionLabel>
+            {showNewWriteInCandidateForm || writeInCandidates.length > 0 ? (
+              <SectionLabel>Write-In Candidates</SectionLabel>
+            ) : null}
             {writeInCandidates.length > 0 && (
               <CandidateButtonList>
                 {writeInCandidates.map((candidate) => {
@@ -649,78 +659,79 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                     Add
                   </Button>
                 </div>
-              ) : (
-                <WriteInActionButton
-                  icon="Add"
-                  onPress={() => {
-                    if (isBmdWriteIn) {
-                      setNewWriteInCandidateName(
-                        writeInImageView.machineMarkedText
-                      );
-                    }
-                    setShowNewWriteInCandidateForm(true);
-                  }}
-                >
-                  Add new write-in candidate
-                </WriteInActionButton>
-              )}
-            </div>
-            <div style={{ marginTop: '1rem' }}>
-              <WriteInActionButton
-                onPress={() => {
-                  if (!isWriteInAdjudicationContextFresh) return;
-
-                  if (!currentWriteInMarkedInvalid) {
-                    adjudicateAsInvalid();
-                  } else {
-                    resetAdjudication();
-                  }
-                }}
-                variant={currentWriteInMarkedInvalid ? 'secondary' : 'neutral'}
-                icon="Disabled"
-              >
-                Mark write-in invalid
-              </WriteInActionButton>
+              ) : null}
             </div>
           </AdjudicationForm>
-          <AdjudicationNav>
-            <Button
-              disabled={offset === 0}
-              onPress={goPrevious}
-              icon="Previous"
+          <AdjudicationStickyFooter>
+            <WriteInActionButton
+              icon="Add"
+              onPress={() => {
+                if (isBmdWriteIn) {
+                  setNewWriteInCandidateName(
+                    writeInImageView.machineMarkedText
+                  );
+                }
+                setShowNewWriteInCandidateForm(true);
+              }}
             >
-              Previous
-            </Button>
-            <Caption weight="semiBold" style={{ whiteSpace: 'nowrap' }}>
-              {format.count(offset + 1)} of {format.count(totalWriteIns)}
-            </Caption>
-            {isLastAdjudication ? (
-              <LinkButton
-                variant={
-                  currentWriteIn?.status === 'adjudicated'
-                    ? 'primary'
-                    : 'neutral'
+              Add new write-in candidate
+            </WriteInActionButton>
+
+            <WriteInActionButton
+              onPress={() => {
+                if (!isWriteInAdjudicationContextFresh) return;
+
+                if (!currentWriteInMarkedInvalid) {
+                  adjudicateAsInvalid();
+                } else {
+                  resetAdjudication();
                 }
-                to={routerPaths.writeIns}
-                icon="Done"
-              >
-                Finish
-              </LinkButton>
-            ) : (
+              }}
+              variant={currentWriteInMarkedInvalid ? 'secondary' : 'neutral'}
+              icon="Disabled"
+            >
+              Mark write-in as undervote
+            </WriteInActionButton>
+
+            <AdjudicationNav>
               <Button
-                ref={nextButton}
-                variant={
-                  currentWriteIn?.status === 'adjudicated'
-                    ? 'primary'
-                    : 'neutral'
-                }
-                rightIcon="Next"
-                onPress={goNext}
+                disabled={offset === 0}
+                onPress={goPrevious}
+                icon="Previous"
               >
-                Next
+                Previous
               </Button>
-            )}
-          </AdjudicationNav>
+              <Caption weight="semiBold" style={{ whiteSpace: 'nowrap' }}>
+                {format.count(offset + 1)} of {format.count(totalWriteIns)}
+              </Caption>
+              {isLastAdjudication ? (
+                <LinkButton
+                  variant={
+                    currentWriteIn?.status === 'adjudicated'
+                      ? 'primary'
+                      : 'neutral'
+                  }
+                  to={routerPaths.writeIns}
+                  icon="Done"
+                >
+                  Finish
+                </LinkButton>
+              ) : (
+                <Button
+                  ref={nextButton}
+                  variant={
+                    currentWriteIn?.status === 'adjudicated'
+                      ? 'primary'
+                      : 'neutral'
+                  }
+                  rightIcon="Next"
+                  onPress={goNext}
+                >
+                  Next
+                </Button>
+              )}
+            </AdjudicationNav>
+          </AdjudicationStickyFooter>
         </AdjudicationControls>
         {doubleVoteAlert && (
           <DoubleVoteAlertModal

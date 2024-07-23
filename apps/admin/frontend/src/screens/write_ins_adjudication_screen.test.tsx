@@ -600,7 +600,7 @@ describe('making adjudications', () => {
     apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
     expectGetQueueMetadata({ total: 2, pending: 1, contestId });
 
-    userEvent.click(screen.getButton('Mark write-in invalid'));
+    userEvent.click(screen.getButton('Mark write-in as undervote'));
     await waitFor(async () =>
       expect(await screen.findButton('Next')).toHaveFocus()
     );
@@ -622,7 +622,7 @@ describe('making adjudications', () => {
     apiMock.expectGetWriteInCandidates([mockWriteInCandidate], contestId);
     expectGetQueueMetadata({ total: 2, pending: 2, contestId });
 
-    userEvent.click(screen.getButton('Mark write-in invalid'));
+    userEvent.click(screen.getButton('Mark write-in as undervote'));
   });
 });
 
