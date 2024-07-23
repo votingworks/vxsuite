@@ -397,16 +397,15 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
 
   take(count: number): IteratorPlus<T> {
     const iterable = this.intoInner();
+    const iterator = iterable[Symbol.iterator]();
     return new IteratorPlusImpl(
       (function* gen(): IterableIterator<T> {
-        let remaining = count;
-        for (const value of iterable) {
-          if (remaining <= 0) {
+        for (let remaining = count; remaining > 0; remaining -= 1) {
+          const next = iterator.next();
+          if (next.done) {
             break;
-          } else {
-            yield value;
-            remaining -= 1;
           }
+          yield next.value;
         }
       })()
     );

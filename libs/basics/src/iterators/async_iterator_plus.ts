@@ -401,16 +401,15 @@ export class AsyncIteratorPlusImpl<T> implements AsyncIteratorPlus<T> {
 
   take(count: number): AsyncIteratorPlus<T> {
     const iterable = this.intoInner();
+    const iterator = iterable[Symbol.asyncIterator]();
     return new AsyncIteratorPlusImpl(
       (async function* gen(): AsyncIterableIterator<T> {
-        let remaining = count;
-        for await (const value of iterable) {
-          if (remaining <= 0) {
+        for (let remaining = count; remaining > 0; remaining -= 1) {
+          const next = await iterator.next();
+          if (next.done) {
             break;
-          } else {
-            yield value;
-            remaining -= 1;
           }
+          yield next.value;
         }
       })()
     );
