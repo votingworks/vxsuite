@@ -74,7 +74,8 @@ export type MockPaperHandlerStatus = keyof typeof MOCK_STATUSES_DEFINITIONS;
 
 const EMPTY_PAGE_CONTENTS = new ImageData(
   new Uint8ClampedArray([1, 2, 3, 4]),
-  2
+  1,
+  1
 );
 
 export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
