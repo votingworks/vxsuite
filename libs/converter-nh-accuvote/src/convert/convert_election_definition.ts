@@ -5,6 +5,7 @@ import {
   asyncResultBlock,
   deepEqual,
   err,
+  groupBy,
   iter,
   ok,
   throwIllegalValue,
@@ -447,6 +448,41 @@ ${JSON.stringify(differingElection?.[key as keyof Election], null, 2)}`,
   }
 
   const allContests = elections.flatMap((election) => election.contests);
+  const allContestsById = groupBy(allContests, (c) => c.id);
+  for (const [, sameContests] of allContestsById) {
+    if (sameContests.length < 2) {
+      continue;
+    }
+    const firstContest = assertDefined(sameContests[0]);
+    const allIdentical = sameContests.every((contest) =>
+      // Don't include district in comparison since that will intentionally be modified later
+      deepEqual(
+        {
+          ...contest,
+          district: undefined,
+          candidates:
+            contest.type === 'candidate'
+              ? [...contest.candidates].sort()
+              : undefined,
+        },
+        {
+          ...firstContest,
+          district: undefined,
+          candidates:
+            contest.type === 'candidate'
+              ? [...contest.candidates].sort()
+              : undefined,
+        }
+      )
+    );
+    if (!allIdentical) {
+      throw new Error(
+        `Contests with the same ID but different contents, ignoring district and candidate order: ${JSON.stringify(
+          sameContests
+        )}`
+      );
+    }
+  }
   const allContestIds = new Set(allContests.flatMap((contest) => contest.id));
 
   let combinedDistricts: District[];
