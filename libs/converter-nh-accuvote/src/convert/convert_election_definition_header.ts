@@ -18,6 +18,7 @@ import {
 import makeDebug from 'debug';
 import { decode as decodeHtmlEntities } from 'he';
 import { DateTime } from 'luxon';
+import { sha256 } from 'js-sha256';
 import { parseConstitutionalQuestions } from './parse_constitutional_questions';
 import {
   ConvertIssue,
@@ -235,9 +236,6 @@ export function convertElectionDefinitionHeader(
         ],
       });
     }
-    const contestId = makeId(
-      `${officeName}${electionPartyName ? `-${electionPartyName}` : ''}`
-    );
 
     const winnerNote =
       officeNameElement?.getElementsByTagName('WinnerNote')[0]?.textContent;
@@ -257,6 +255,25 @@ export function convertElectionDefinitionHeader(
         candidateElement.getElementsByTagName('Name')[0]?.textContent ===
           'Write-In'
     );
+
+    const contestIdComponents: string[] = [officeName];
+    if (electionPartyName) {
+      contestIdComponents.push(electionPartyName);
+    }
+    if (townName.startsWith('Rochester')) {
+      const contestCandidateHash = sha256(
+        Array.from(contestElement.getElementsByTagName('CandidateName'))
+          .map((candidateElement) =>
+            assertDefined(
+              candidateElement.getElementsByTagName('Name')[0]?.textContent
+            )
+          )
+          .sort()
+          .join(';')
+      );
+      contestIdComponents.push(contestCandidateHash);
+    }
+    const contestId = makeId(contestIdComponents.join('-'));
 
     const candidates: Candidate[] = [];
     for (const [i, candidateElement] of candidateElements.entries()) {

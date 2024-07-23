@@ -553,13 +553,38 @@ ${JSON.stringify(differingElection?.[key as keyof Election], null, 2)}`,
           precinctIds,
           contestIds,
         });
-      } else if (
-        precinctIds.length === 1 &&
-        precinctIds[0]?.includes('20205')
-      ) {
+      } else if (precinctIdSetStr === 'town-id-20201-precinct-id-20205') {
         districts.push({
           id: 'ward-5',
           name: 'Ward 5',
+          precinctIds,
+          contestIds,
+        });
+      } else if (
+        precinctIdSetStr ===
+        [
+          'town-id-20201-precinct-id-20201',
+          'town-id-20201-precinct-id-20205',
+          'town-id-20201-precinct-id-20206',
+        ].join('+')
+      ) {
+        districts.push({
+          id: 'ward-1-5-6',
+          name: 'Wards 1, 5, 6',
+          precinctIds,
+          contestIds,
+        });
+      } else if (
+        precinctIdSetStr ===
+        [
+          'town-id-20201-precinct-id-20202',
+          'town-id-20201-precinct-id-20203',
+          'town-id-20201-precinct-id-20204',
+        ].join('+')
+      ) {
+        districts.push({
+          id: 'wards-2-3-4',
+          name: 'Wards 2, 3, 4',
           precinctIds,
           contestIds,
         });
