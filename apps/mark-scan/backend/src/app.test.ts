@@ -50,7 +50,7 @@ import {
 import { PatConnectionStatusReader } from './pat-input/connection_status_reader';
 import { createWorkspace } from './util/workspace';
 
-const TEST_POLLING_INTERVAL_MS = 5;
+const TEST_POLLING_INTERVAL_MS = 15;
 
 jest.mock('./pat-input/connection_status_reader');
 
