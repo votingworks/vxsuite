@@ -174,7 +174,7 @@ const Ballot = styled.div<BallotProps>`
         /* istanbul ignore next - hardware specs still in flux */
         case 'bmd150':
           /* istanbul ignore next - hardware specs still in flux */
-          return '7.975in 11in';
+          return '7.975in 13.25in';
         case 'letter':
         default:
           return 'letter portrait';

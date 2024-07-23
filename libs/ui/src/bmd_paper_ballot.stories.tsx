@@ -192,8 +192,8 @@ const Container = styled.div`
       /* Force print-only content to display. */
       display: block !important;
       padding: 0.4in;
-      min-height: 11in;
-      width: 8.5in;
+      min-height: 13.25in;
+      width: 8in;
     }
   }
 `;

@@ -20,7 +20,7 @@ export interface PaperDimensions {
 }
 
 export const PAPER_DIMENSIONS = {
-  Bmd150: { width: 7.975, height: 11 },
+  Bmd150: { width: 7.975, height: 13.25 },
   Letter: { width: 8.5, height: 11 },
   LetterRoll: { width: 8.5, height: Infinity },
 } satisfies Record<string, PaperDimensions>;
@@ -115,8 +115,7 @@ export async function renderToPdf(
         (width - horizontalMargin) * PLAYWRIGHT_PIXELS_PER_INCH
       ),
       height: Math.floor(
-        (PAPER_DIMENSIONS.Letter.height - verticalMargin) *
-          PLAYWRIGHT_PIXELS_PER_INCH
+        (height - verticalMargin) * PLAYWRIGHT_PIXELS_PER_INCH
       ),
     });
 
@@ -178,9 +177,7 @@ export async function renderToPdf(
         path: outputPath,
         width: inchesToText(width),
         height: inchesToText(
-          height === Infinity
-            ? Math.max(PAPER_DIMENSIONS.Letter.height, contentHeight)
-            : PAPER_DIMENSIONS.Letter.height
+          height === Infinity ? Math.max(height, contentHeight) : height
         ),
         margin: {
           top: inchesToText(marginDimensions.top),
