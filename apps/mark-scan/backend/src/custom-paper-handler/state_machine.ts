@@ -367,6 +367,8 @@ function buildPatDeviceConnectionStatusObservable() {
             constructAuthMachineState(workspace)
           );
 
+          // We only present the option to calibrate the PAT device when a cardless voter is authenticated.
+          // Otherwise, we don't care about the PAT device status.
           if (!isCardlessVoterAuth(authStatus)) {
             return { type: 'PAT_DEVICE_NO_STATUS_CHANGE' };
           }
@@ -1187,10 +1189,12 @@ export function buildMachine(
           always: 'voting_flow.history',
         },
         pat_device_connected: {
+          invoke: pollAuthStatus(),
           on: {
             VOTER_CONFIRMED_PAT_DEVICE_CALIBRATION: 'voting_flow.history',
             PAT_DEVICE_DISCONNECTED: 'pat_device_disconnected',
             PAT_DEVICE_CONNECTED: undefined,
+            AUTH_STATUS_POLL_WORKER: 'voting_flow.history',
           },
         },
       },
