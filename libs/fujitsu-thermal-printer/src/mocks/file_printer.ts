@@ -9,34 +9,39 @@ import {
   rmSync,
   writeFileSync,
 } from 'fs';
-import { Optional, assert, iter } from '@votingworks/basics';
+import { Optional, assert, err, iter, ok, sleep } from '@votingworks/basics';
 import { writeFile } from 'fs/promises';
-import { PrinterConfig, PrinterStatus } from '@votingworks/types';
-import { PrintProps, Printer } from '../types';
-import { getMockConnectedPrinterStatus } from './fixtures';
+import {
+  FujitsuThermalPrinterInterface,
+  PrintResult,
+  PrinterStatus,
+} from '../types';
 
-export const MOCK_PRINTER_STATE_FILENAME = 'state.json';
-export const MOCK_PRINTER_OUTPUT_DIRNAME = 'prints';
-export const DEFAULT_MOCK_PRINTER_DIR = '/tmp/mock-printer';
-export const DEV_MOCK_PRINTER_DIR = join(__dirname, '../../../dev-workspace');
+export const MOCK_FUJITSU_PRINTER_STATE_FILENAME = 'state.json';
+export const MOCK_FUJITSU_PRINTER_OUTPUT_DIRNAME = 'prints';
+export const DEFAULT_MOCK_FUJITSU_PRINTER_DIR = '/tmp/mock-fujitsu-printer';
+export const DEV_MOCK_FUJITSU_PRINTER_DIR = join(
+  __dirname,
+  '../../dev-workspace'
+);
 
 function getMockPrinterPath(): string {
   // istanbul ignore next
   if (process.env.NODE_ENV === 'development') {
-    return DEV_MOCK_PRINTER_DIR;
+    return DEV_MOCK_FUJITSU_PRINTER_DIR;
   }
 
-  return DEFAULT_MOCK_PRINTER_DIR;
+  return DEFAULT_MOCK_FUJITSU_PRINTER_DIR;
 }
 
 type MockStateFileContents = PrinterStatus;
 
 function getMockPrinterStateFilePath(): string {
-  return join(getMockPrinterPath(), MOCK_PRINTER_STATE_FILENAME);
+  return join(getMockPrinterPath(), MOCK_FUJITSU_PRINTER_STATE_FILENAME);
 }
 
 function getMockPrinterOutputPath(): string {
-  return join(getMockPrinterPath(), MOCK_PRINTER_OUTPUT_DIRNAME);
+  return join(getMockPrinterPath(), MOCK_FUJITSU_PRINTER_OUTPUT_DIRNAME);
 }
 
 /**
@@ -68,7 +73,7 @@ function writeToMockFile(mockStateFileContents: MockStateFileContents): void {
 
 export function initializeMockFile(): void {
   writeToMockFile({
-    connected: false,
+    state: 'idle',
   });
 }
 
@@ -91,7 +96,7 @@ function readFromMockFileHelper(): Optional<MockStateFileContents> {
 }
 
 /**
- * Reads and parses the contents of the file underlying a MockFilePrinter
+ * Reads and parses the contents of the file underlying a MockFileUsbDrive
  */
 function readFromMockFile(): MockStateFileContents {
   let mockFileContents = readFromMockFileHelper();
@@ -103,45 +108,71 @@ function readFromMockFile(): MockStateFileContents {
   return mockFileContents;
 }
 
-export class MockFilePrinter implements Printer {
-  status(): Promise<PrinterStatus> {
+interface MockFileFujitsuPrinterPollingConfig {
+  interval: number;
+  timeout: number;
+}
+
+const DEFAULT_FILE_FUJITSU_PRINT_POLLING_CONFIG: MockFileFujitsuPrinterPollingConfig =
+  {
+    interval: 1000,
+    timeout: 5000,
+  };
+
+export class MockFileFujitsuPrinter implements FujitsuThermalPrinterInterface {
+  private readonly printPollingConfig: MockFileFujitsuPrinterPollingConfig;
+
+  constructor(printPollingConfig = DEFAULT_FILE_FUJITSU_PRINT_POLLING_CONFIG) {
+    this.printPollingConfig = printPollingConfig;
+  }
+
+  getStatus(): Promise<PrinterStatus> {
     return Promise.resolve(readFromMockFile());
   }
 
-  async print(props: PrintProps): Promise<void> {
-    const status = readFromMockFile();
-    if (!status.connected) {
-      throw new Error('cannot print without printer connected');
+  async print(data: Uint8Array): Promise<PrintResult> {
+    const initialStatus = readFromMockFile();
+    if (initialStatus.state !== 'idle') {
+      throw new Error('can only print when printer is idle');
     }
 
-    const { data } = props;
+    // To allow mocking failed prints, if the printer status changes during
+    // the print, fail the print just as the real printer would.
+    if (this.printPollingConfig.timeout > 0) {
+      let elapsedTime = 0;
+      while (elapsedTime < this.printPollingConfig.timeout) {
+        await sleep(this.printPollingConfig.interval);
+        elapsedTime += this.printPollingConfig.interval;
+
+        const currentStatus = readFromMockFile();
+        if (currentStatus.state !== 'idle') {
+          return err(currentStatus);
+        }
+      }
+    }
+
     const filename = join(
       getMockPrinterOutputPath(),
       `print-job-${new Date().toISOString()}.pdf`
     );
-
     await writeFile(filename, data);
+
+    return ok();
   }
 }
 
-interface MockFilePrinterHandler {
-  connectPrinter: (config: PrinterConfig) => void;
-  disconnectPrinter: () => void;
+interface MockFileFujitsuPrinterHandler {
+  setStatus: (status: PrinterStatus) => void;
   getPrinterStatus(): PrinterStatus;
   getDataPath: () => string;
   getLastPrintPath: () => Optional<string>;
   cleanup: () => void;
 }
 
-export function getMockFilePrinterHandler(): MockFilePrinterHandler {
+export function getMockFileFujitsuPrinterHandler(): MockFileFujitsuPrinterHandler {
   return {
-    connectPrinter: (config: PrinterConfig) => {
-      writeToMockFile(getMockConnectedPrinterStatus(config));
-    },
-    disconnectPrinter: () => {
-      writeToMockFile({
-        connected: false,
-      });
+    setStatus: (status: PrinterStatus) => {
+      writeToMockFile(status);
     },
     getPrinterStatus: () => readFromMockFile(),
     getDataPath: getMockPrinterOutputPath,

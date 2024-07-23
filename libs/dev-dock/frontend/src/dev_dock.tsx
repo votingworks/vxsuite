@@ -9,7 +9,12 @@ import {
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools';
 import styled from 'styled-components';
 import * as grout from '@votingworks/grout';
-import { assert, assertDefined, uniqueBy } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  throwIllegalValue,
+  uniqueBy,
+} from '@votingworks/basics';
 import type {
   Api,
   DevDockUserRole,
@@ -29,20 +34,8 @@ import {
 } from '@votingworks/utils';
 import { UsbDriveIcon } from './usb_drive_icon';
 import { Colors } from './colors';
-
-export type ApiClient = grout.Client<Api>;
-
-export const ApiClientContext = React.createContext<ApiClient | undefined>(
-  undefined
-);
-
-export function useApiClient(): ApiClient {
-  const apiClient = React.useContext(ApiClientContext);
-  if (!apiClient) {
-    throw new Error('ApiClientContext.Provider not found');
-  }
-  return apiClient;
-}
+import { FujitsuPrinterMockControl } from './fujitsu_printer_mock';
+import { ApiClient, ApiClientContext, useApiClient } from './api_client';
 
 const Row = styled.div`
   display: flex;
@@ -482,8 +475,6 @@ const PrinterButton = styled.button<{ isConnected: boolean }>`
   }
 `;
 
-const APPS_WITH_PRINTER: MachineType[] = ['admin', 'scan', 'mark'];
-
 function PrinterMockControl() {
   const queryClient = useQueryClient();
   const apiClient = useApiClient();
@@ -533,6 +524,28 @@ function PrinterMockControl() {
   );
 }
 
+function getPrinterType(
+  machineType: MachineType
+): 'standard' | 'fujitsu' | 'none' {
+  switch (machineType) {
+    case 'central-scan':
+    case 'mark-scan': // not implemented
+      return 'none';
+    case 'admin':
+    case 'mark':
+      return 'standard';
+    case 'scan':
+      return isFeatureFlagEnabled(
+        BooleanEnvironmentVariableName.SCAN_USE_FUJITSU_PRINTER
+      )
+        ? 'fujitsu'
+        : 'standard';
+    // istanbul ignore next
+    default:
+      throwIllegalValue(machineType);
+  }
+}
+
 const Container = styled.div`
   position: fixed;
   top: 0;
@@ -557,16 +570,16 @@ const Container = styled.div`
   /* Slide the dock up when closed */
   &.closed {
     /* Slide up enough to hide the shadow */
-    top: -300px;
-    transition: top 0.15s ease-out;
+    transform: translateY(-100%);
+    transition: all 0.15s ease-out;
     /* Move the handle down a bit to compensate for sliding up extra to hide the
      * shadow */
     #handle {
-      top: 20px;
+      top: 60px;
     }
   }
   /* Slide the dock down when open */
-  transition: top 0.15s ease-out;
+  transition: all 0.15s ease-out;
   aria-hidden: true;
 `;
 
@@ -642,6 +655,7 @@ function DevDock() {
 
   if (!getMachineTypeQuery.isSuccess) return null;
   const machineType = getMachineTypeQuery.data;
+  const printerType = getPrinterType(machineType);
 
   return (
     <Container ref={containerRef} className={isOpen ? '' : 'closed'}>
@@ -660,9 +674,14 @@ function DevDock() {
           </Column>
           <Column>
             <ScreenshotControls containerRef={containerRef} />
-            {APPS_WITH_PRINTER.includes(machineType) && <PrinterMockControl />}
+            {printerType === 'standard' && <PrinterMockControl />}
           </Column>
         </Row>
+        {printerType === 'fujitsu' && (
+          <Row>
+            <FujitsuPrinterMockControl />
+          </Row>
+        )}
       </Content>
       <Handle id="handle" onClick={() => setIsOpen(!isOpen)}>
         <FontAwesomeIcon icon={isOpen ? faCaretUp : faCaretDown} size="lg" />

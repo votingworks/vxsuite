@@ -5,7 +5,7 @@ import {
   PrinterState as FujitsuPrinterState,
   PrintResult as FujitsuPrintResult,
   FujitsuThermalPrinterInterface,
-  FujitsuThermalPrinter,
+  getFujitsuThermalPrinter,
 } from '@votingworks/fujitsu-thermal-printer';
 import {
   BooleanEnvironmentVariableName,
@@ -89,7 +89,7 @@ export function getPrinter(logger: BaseLogger): Printer {
       BooleanEnvironmentVariableName.SCAN_USE_FUJITSU_PRINTER
     )
   ) {
-    const printer = new FujitsuThermalPrinter();
+    const printer = getFujitsuThermalPrinter();
     assert(printer); // TODO: build mock and/or reconnection instead of asserting
     return wrapFujitsuThermalPrinter(printer);
   }

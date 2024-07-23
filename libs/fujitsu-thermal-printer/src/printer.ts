@@ -1,4 +1,8 @@
 import { Optional, Result, assert, err, ok } from '@votingworks/basics';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import { print } from './printing';
 import {
@@ -8,24 +12,14 @@ import {
 } from './driver';
 import { rootDebug } from './debug';
 import { IDLE_REPLY_PARAMETER, LINE_FEED_REPLY_PARAMETER } from './globals';
-import {
-  PrinterStatus,
-  summarizeRawStatus,
-  waitForPrintReadyStatus,
-} from './status';
+import { summarizeRawStatus, waitForPrintReadyStatus } from './status';
+import { FujitsuThermalPrinterInterface, PrinterStatus } from './types';
+import { MockFileFujitsuPrinter } from './mocks/file_printer';
 
 const debug = rootDebug.extend('printer');
 
 // the mechanism by default runs at 8cm/s, so this is a generous, 2x estimate
 const WAIT_FOR_ADVANCE_APPEAR_PER_CM_MS = 250;
-
-export type PrintResult = Result<void, PrinterStatus>;
-
-export interface FujitsuThermalPrinterInterface {
-  getStatus(): Promise<PrinterStatus>;
-  print(data: Uint8Array): Promise<PrintResult>;
-  advancePaper(lineFeedCount: number): Promise<PrintResult>;
-}
 
 export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
   private driver?: FujitsuThermalPrinterDriverInterface;
@@ -116,4 +110,13 @@ export class FujitsuThermalPrinter implements FujitsuThermalPrinterInterface {
     debug(`finished printing document of ${data.length} bytes`);
     return ok();
   }
+}
+
+export function getFujitsuThermalPrinter(): FujitsuThermalPrinterInterface {
+  // mock printer for development and integration tests
+  if (isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_PRINTER)) {
+    return new MockFileFujitsuPrinter();
+  }
+
+  return new FujitsuThermalPrinter();
 }

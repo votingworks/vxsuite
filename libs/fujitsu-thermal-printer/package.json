@@ -23,6 +23,7 @@
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/message-coder": "workspace:*",
     "@votingworks/types": "workspace:*",
+    "@votingworks/utils": "workspace:*",
     "buffer": "^6.0.3",
     "debug": "4.3.4",
     "tmp-promise": "^3.0.3",

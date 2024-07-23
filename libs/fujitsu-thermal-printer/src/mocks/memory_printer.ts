@@ -2,8 +2,11 @@ import { tmpName } from 'tmp-promise';
 import { writeFile } from 'fs/promises';
 import { rmSync } from 'fs';
 import { ok } from '@votingworks/basics';
-import { PrinterStatus } from './status';
-import { FujitsuThermalPrinterInterface, PrintResult } from './printer';
+import {
+  FujitsuThermalPrinterInterface,
+  PrintResult,
+  PrinterStatus,
+} from '../types';
 
 /**
  * A mock of the  interface. See for details.
@@ -49,7 +52,6 @@ export function createMockFujitsuPrinterHandler(): MemoryFujitsuPrinterHandler {
   const printer: FujitsuThermalPrinterInterface = {
     getStatus: () => Promise.resolve(mockPrinterState.status),
     print: mockPrint,
-    advancePaper: () => Promise.resolve(ok()),
   };
 
   return {
@@ -71,6 +73,7 @@ export function createMockFujitsuPrinterHandler(): MemoryFujitsuPrinterHandler {
       for (const path of mockPrinterState.printPathHistory) {
         rmSync(path);
       }
+      mockPrinterState.printPathHistory = [];
     },
   };
 }

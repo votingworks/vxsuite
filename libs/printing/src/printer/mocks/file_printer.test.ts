@@ -3,7 +3,7 @@ import { existsSync, readFileSync, readdirSync } from 'fs';
 import { sleep } from '@votingworks/basics';
 import { PrinterStatus } from '@votingworks/types';
 import {
-  DEFAULT_MOCK_USB_DRIVE_DIR,
+  DEFAULT_MOCK_PRINTER_DIR,
   MockFilePrinter,
   getMockFilePrinterHandler,
 } from './file_printer';
@@ -72,5 +72,5 @@ test('mock file printer', async () => {
   );
 
   filePrinterHandler.cleanup();
-  expect(existsSync(DEFAULT_MOCK_USB_DRIVE_DIR)).toEqual(false);
+  expect(existsSync(DEFAULT_MOCK_PRINTER_DIR)).toEqual(false);
 });

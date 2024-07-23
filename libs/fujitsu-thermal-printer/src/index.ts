@@ -1,4 +1,5 @@
 /* istanbul ignore file */
-export type { PrinterStatus, PrinterState } from './status';
+export * from './types';
 export * from './printer';
-export * from './mock_printer';
+export * from './mocks/memory_printer';
+export * from './mocks/file_printer';

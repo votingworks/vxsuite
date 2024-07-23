@@ -6,15 +6,9 @@ import {
 import { isErrorStatus, isPrinterStopped } from './driver/status';
 import { rootDebug } from './debug';
 import { Uint8 } from './bits';
+import { ErrorType, PrinterStatus } from './types';
 
 const debug = rootDebug.extend('wait_for_status');
-
-export type ErrorType =
-  | 'hardware'
-  | 'supply-voltage'
-  | 'receive-data'
-  | 'temperature'
-  | 'disconnected';
 
 export function getErrorType(status: RawPrinterStatus): ErrorType {
   if (status.temperatureError) {
@@ -32,23 +26,6 @@ export function getErrorType(status: RawPrinterStatus): ErrorType {
 
   throw new Error('cannot get ErrorType of a non-error status');
 }
-
-export type PrinterStatus =
-  | {
-      state: 'cover-open';
-    }
-  | {
-      state: 'no-paper';
-    }
-  | {
-      state: 'idle';
-    }
-  | {
-      state: 'error';
-      type: ErrorType;
-    };
-
-export type PrinterState = PrinterStatus['state'];
 
 export function summarizeRawStatus(status: RawPrinterStatus): PrinterStatus {
   if (isErrorStatus(status)) {
