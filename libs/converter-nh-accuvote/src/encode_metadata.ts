@@ -1,8 +1,41 @@
-import { assertDefined, iter } from '@votingworks/basics';
-import { encodeMetadataInQrCode, QrCodeData } from '@votingworks/hmpb-layout';
 import { BallotMetadata, Election, SheetOf } from '@votingworks/types';
-import { cmyk, PDFDocument, PDFPage } from 'pdf-lib';
+import { QrCodeData, encodeMetadataInQrCode } from '@votingworks/hmpb-layout';
+import { createCanvas } from 'canvas';
+import { assertDefined, iter } from '@votingworks/basics';
+import { PDFDocument } from 'pdf-lib';
+import { Buffer } from 'buffer';
 import { PdfReader } from './pdf_reader';
+
+async function qrCodeDataToPng(data: QrCodeData): Promise<Buffer> {
+  // QR codes are supposed to be surrounded by 4 modules of white space
+  const marginModules = 4;
+  const ppi = 200;
+  const maxSizeInches = 1;
+  const maxSizePixels = ppi * maxSizeInches;
+  const totalModules = data.length + marginModules * 2;
+  const moduleSize = Math.floor(maxSizePixels / totalModules);
+  const sizePixels = totalModules * moduleSize;
+  const canvas = createCanvas(sizePixels, sizePixels);
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = 'white';
+  ctx.fillRect(0, 0, sizePixels, sizePixels);
+  ctx.fillStyle = 'black';
+  for (let x = 0; x < data.length; x += 1) {
+    for (let y = 0; y < data.length; y += 1) {
+      if (assertDefined(data[x])[y] === 1) {
+        ctx.fillRect(
+          (x + marginModules) * moduleSize,
+          (y + marginModules) * moduleSize,
+          moduleSize,
+          moduleSize
+        );
+      }
+    }
+  }
+  return new Promise((resolve, reject) => {
+    canvas.toBuffer((err, result) => (err ? reject(err) : resolve(result)));
+  });
+}
 
 /**
  * Encode ballot page metadata into either a QR code or a series of timing marks.
@@ -10,32 +43,15 @@ import { PdfReader } from './pdf_reader';
 export function encodeMetadata(
   election: Election,
   metadata: BallotMetadata
-): Promise<SheetOf<QrCodeData>> {
+): Promise<SheetOf<Buffer>> {
   return Promise.all([
-    encodeMetadataInQrCode(election, { ...metadata, pageNumber: 1 }),
-    encodeMetadataInQrCode(election, { ...metadata, pageNumber: 2 }),
+    qrCodeDataToPng(
+      encodeMetadataInQrCode(election, { ...metadata, pageNumber: 1 })
+    ),
+    qrCodeDataToPng(
+      encodeMetadataInQrCode(election, { ...metadata, pageNumber: 2 })
+    ),
   ]);
-}
-
-function qrCodeToSvgPath(qrCode: QrCodeData): string {
-  const path = [];
-  for (let x = 0; x < qrCode.length; x += 1) {
-    for (let y = 0; y < qrCode.length; y += 1) {
-      if (assertDefined(qrCode[x])[y] === 1) {
-        path.push(`M${x},${y}h1v1h-1z`);
-      }
-    }
-  }
-  return path.join('');
-}
-
-function drawQrCodeOnPage(page: PDFPage, qrCode: QrCodeData): void {
-  const svgPath = qrCodeToSvgPath(qrCode);
-  page.drawSvgPath(svgPath, {
-    x: 22.5,
-    y: 38.5,
-    color: cmyk(0, 0, 0, 1),
-  });
 }
 
 /**
@@ -61,7 +77,13 @@ export async function addQrCodeMetadataToBallotPdf(
   pdf.addPage(backPage);
 
   for (const [page, qrCode] of iter(pdf.getPages()).zip(qrCodes)) {
-    drawQrCodeOnPage(page, qrCode);
+    const qrCodeEmbed = await pdf.embedPng(qrCode);
+    const qrCodeDimensions = qrCodeEmbed.scale(0.2);
+    page.drawImage(qrCodeEmbed, {
+      ...qrCodeDimensions,
+      x: 16.25,
+      y: 3.25,
+    });
   }
   return await pdf.save();
 }
