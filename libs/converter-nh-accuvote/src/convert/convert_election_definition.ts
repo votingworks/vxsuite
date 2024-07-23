@@ -15,6 +15,9 @@ import {
   BallotMetadata,
   BallotStyle,
   BallotType,
+  Contest,
+  Contests,
+  District,
   Election,
   ElectionDefinition,
   GridLayout,
@@ -443,6 +446,133 @@ ${JSON.stringify(differingElection?.[key as keyof Election], null, 2)}`,
     }
   }
 
+  const contestIdToPrecinctIds: { [contestId: string]: Set<string> } = {};
+  for (const { precincts, contests } of elections) {
+    assert(precincts[0] !== undefined);
+    assert(precincts.length === 1);
+    const [precinct] = precincts;
+    for (const contest of contests) {
+      if (!contestIdToPrecinctIds[contest.id]) {
+        contestIdToPrecinctIds[contest.id] = new Set();
+      }
+      assertDefined(contestIdToPrecinctIds[contest.id]).add(precinct.id);
+    }
+  }
+
+  const precinctIdSetsToContestIds: { [precinctIdSetStr: string]: string[] } =
+    {};
+  for (const [contestId, precinctIds] of Object.entries(
+    contestIdToPrecinctIds
+  )) {
+    const precinctIdSetStr = Array.from(precinctIds).sort().join('+');
+    if (!precinctIdSetsToContestIds[precinctIdSetStr]) {
+      precinctIdSetsToContestIds[precinctIdSetStr] = [];
+    }
+    assertDefined(precinctIdSetsToContestIds[precinctIdSetStr]).push(contestId);
+  }
+
+  const districts: Array<{
+    id: string;
+    name: string;
+    precinctIds: string[];
+    contestIds: string[];
+  }> = [];
+  for (const [precinctIdSetStr, contestIds] of Object.entries(
+    precinctIdSetsToContestIds
+  )) {
+    const precinctIds = precinctIdSetStr.split('+');
+    // All Rochester Wards
+    if (precinctIds.length === 6) {
+      districts.push({
+        id: 'all-wards',
+        name: 'All Wards',
+        precinctIds,
+        contestIds,
+      });
+    } else if (
+      contestIds.every((contestId) => contestId.includes('District-5'))
+    ) {
+      districts.push({
+        id: 'district-5',
+        name: 'District 5',
+        precinctIds,
+        contestIds,
+      });
+    } else if (
+      contestIds.every((contestId) => contestId.includes('District-19'))
+    ) {
+      districts.push({
+        id: 'district-19',
+        name: 'District 19',
+        precinctIds,
+        contestIds,
+      });
+    } else if (
+      contestIds.every((contestId) => contestId.includes('District-6'))
+    ) {
+      districts.push({
+        id: 'district-6',
+        name: 'District 6',
+        precinctIds,
+        contestIds,
+      });
+    } else if (
+      contestIds.every((contestId) => contestId.includes('District-7'))
+    ) {
+      districts.push({
+        id: 'district-7',
+        name: 'District 7',
+        precinctIds,
+        contestIds,
+      });
+    } else if (
+      contestIds.every((contestId) => contestId.includes('District-8'))
+    ) {
+      districts.push({
+        id: 'district-8',
+        name: 'District 8',
+        precinctIds,
+        contestIds,
+      });
+    } else if (
+      contestIds.every((contestId) => contestId.includes('District-9'))
+    ) {
+      districts.push({
+        id: 'district-9',
+        name: 'District 9',
+        precinctIds,
+        contestIds,
+      });
+    } else if (precinctIds.length === 1 && precinctIds[0]?.includes('20205')) {
+      districts.push({
+        id: 'ward-5',
+        name: 'Ward 5',
+        precinctIds,
+        contestIds,
+      });
+    } else {
+      throw new Error('Unaccounted for district');
+    }
+  }
+
+  const contestIdToDistrictId: { [contestId: string]: string } = {};
+  for (const district of districts) {
+    for (const contestId of district.contestIds) {
+      assert(contestIdToDistrictId[contestId] === undefined);
+      contestIdToDistrictId[contestId] = district.id;
+    }
+  }
+
+  const precinctIdToDistrictIds: { [precinctId: string]: string[] } = {};
+  for (const district of districts) {
+    for (const precinctId of district.precinctIds) {
+      if (!precinctIdToDistrictIds[precinctId]) {
+        precinctIdToDistrictIds[precinctId] = [];
+      }
+      assertDefined(precinctIdToDistrictIds[precinctId]).push(district.id);
+    }
+  }
+
   const allContests = elections.flatMap((election) => election.contests);
   const allContestIds = new Set(allContests.flatMap((contest) => contest.id));
 
@@ -454,15 +584,35 @@ ${JSON.stringify(differingElection?.[key as keyof Election], null, 2)}`,
     county,
     seal,
     ballotLayout,
-    districts: uniqueDeep(elections.flatMap((election) => election.districts)),
+    districts: districts.map(
+      (d) => ({ id: d.id, name: d.name }) as unknown as District
+    ),
     precincts: uniqueDeep(elections.flatMap((election) => election.precincts)),
     contests: iter(allContestIds)
       .map((id) =>
         assertDefined(allContests.find((contest) => contest.id === id))
       )
-      .toArray(),
+      .map((contest) => {
+        const contestWithCorrectedDistrict = {
+          ...contest,
+          districtId: assertDefined(contestIdToDistrictId[contest.id]),
+        } as unknown as Contest;
+        return contestWithCorrectedDistrict;
+      })
+      .toArray() as unknown as Contests,
     parties: uniqueDeep(elections.flatMap((election) => election.parties)),
-    ballotStyles: elections.flatMap((election) => election.ballotStyles),
+    ballotStyles: elections
+      .flatMap((election) => election.ballotStyles)
+      .map((ballotStyle) => {
+        assert(ballotStyle.precincts[0] !== undefined);
+        assert(ballotStyle.precincts.length === 1);
+        return {
+          ...ballotStyle,
+          districts: assertDefined(
+            precinctIdToDistrictIds[ballotStyle.precincts[0]]
+          ),
+        };
+      }) as unknown as BallotStyle[],
     gridLayouts: elections.flatMap((election) =>
       assertDefined(election.gridLayouts)
     ),
