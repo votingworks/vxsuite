@@ -53,6 +53,7 @@ export interface CardlessVoterUser {
   readonly role: 'cardless_voter';
   readonly ballotStyleId: BallotStyleId;
   readonly precinctId: PrecinctId;
+  readonly sessionId: string;
 }
 
 export type User =

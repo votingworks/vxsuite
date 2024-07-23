@@ -353,7 +353,7 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
     };
   }, []);
 
-  useSessionSettingsManager({ authStatus, votes });
+  useSessionSettingsManager({ authStatus });
 
   useBallotStyleManager({
     currentBallotStyleId: ballotStyleId,

@@ -10,15 +10,10 @@ import {
   useCurrentTheme,
   useLanguageControls,
 } from '@votingworks/ui';
-import {
-  InsertedSmartCardAuth,
-  LanguageCode,
-  VotesDict,
-} from '@votingworks/types';
+import { InsertedSmartCardAuth, LanguageCode } from '@votingworks/types';
 
 export interface UseSessionSettingsManagerParams {
   authStatus: InsertedSmartCardAuth.AuthStatus;
-  votes?: VotesDict;
 }
 
 interface VoterSettings {
@@ -30,9 +25,11 @@ interface VoterSettings {
 export function useSessionSettingsManager(
   params: UseSessionSettingsManagerParams
 ): void {
-  const { authStatus, votes } = params;
+  const { authStatus } = params;
 
   const previousAuthStatusRef =
+    React.useRef<InsertedSmartCardAuth.AuthStatus>();
+  const previousVoterAuthStatusRef =
     React.useRef<InsertedSmartCardAuth.AuthStatus>();
   const voterSettingsRef = React.useRef<VoterSettings>();
 
@@ -49,7 +46,13 @@ export function useSessionSettingsManager(
     previousAuthStatusRef.current &&
     isCardlessVoterAuth(previousAuthStatusRef.current);
   const isLoggedInAsVoter = isCardlessVoterAuth(authStatus);
-  const isVotingSessionActive = !!votes;
+  // If the pollworker deactivated the voter session and initiated a new one, the session expires at timestamp will have changed.
+  const isNewVoterSession =
+    isLoggedInAsVoter &&
+    previousVoterAuthStatusRef.current &&
+    isCardlessVoterAuth(previousVoterAuthStatusRef.current) &&
+    previousVoterAuthStatusRef.current.user.sessionId !==
+      authStatus.user.sessionId;
 
   React.useEffect(() => {
     // Reset to default settings and disable audio when election official logs
@@ -63,6 +66,7 @@ export function useSessionSettingsManager(
       voterSettingsManager.resetThemes();
       resetLanguage();
       setAudioEnabled(false);
+      previousVoterAuthStatusRef.current = previousAuthStatusRef.current;
     }
 
     if (
@@ -71,7 +75,7 @@ export function useSessionSettingsManager(
       voterSettingsRef.current
     ) {
       const voterSettings = voterSettingsRef.current;
-      if (isVotingSessionActive) {
+      if (!isNewVoterSession) {
         // Reset to previous voter settings for the active voter session when
         // when election official logs out:
         voterSettingsManager.setColorMode(voterSettings.theme.colorMode);
@@ -81,12 +85,12 @@ export function useSessionSettingsManager(
         );
         setLanguage(voterSettings.language);
         setAudioEnabled(voterSettings.isAudioEnabled);
+        previousVoterAuthStatusRef.current = undefined;
       } else {
-        // [VVSG 2.0 7.1-A] Reset themes to default if this is a new voting
-        // session:
+        // Reset to default settings for a new voter's session
         voterSettingsManager.resetThemes();
-        resetAudioSettings();
         resetLanguage();
+        resetAudioSettings();
       }
       voterSettingsRef.current = undefined;
     }
@@ -98,12 +102,12 @@ export function useSessionSettingsManager(
     currentTheme,
     isAudioEnabled,
     isLoggedInAsVoter,
-    isVotingSessionActive,
     resetAudioSettings,
     resetLanguage,
     setAudioEnabled,
     setLanguage,
     voterSettingsManager,
     wasPreviouslyLoggedInAsVoter,
+    isNewVoterSession,
   ]);
 }

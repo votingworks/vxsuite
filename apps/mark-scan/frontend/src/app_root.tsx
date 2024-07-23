@@ -330,7 +330,7 @@ export function AppRoot(): JSX.Element | null {
     };
   }, []);
 
-  useSessionSettingsManager({ authStatus, votes });
+  useSessionSettingsManager({ authStatus });
 
   useBallotStyleManager({
     currentBallotStyleId: ballotStyleId,
