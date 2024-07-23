@@ -18,7 +18,6 @@ import {
 import makeDebug from 'debug';
 import { decode as decodeHtmlEntities } from 'he';
 import { DateTime } from 'luxon';
-import { sha256 } from 'js-sha256';
 import { parseConstitutionalQuestions } from './parse_constitutional_questions';
 import {
   ConvertIssue,
@@ -256,24 +255,22 @@ export function convertElectionDefinitionHeader(
           'Write-In'
     );
 
-    const contestIdComponents: string[] = [officeName];
-    if (electionPartyName) {
-      contestIdComponents.push(electionPartyName);
-    }
-    if (townName.startsWith('Rochester')) {
-      const contestCandidateHash = sha256(
-        Array.from(contestElement.getElementsByTagName('CandidateName'))
-          .map((candidateElement) =>
-            assertDefined(
-              candidateElement.getElementsByTagName('Name')[0]?.textContent
+    const contestIdPrintable = `${officeName}${
+      electionPartyName ? `-${electionPartyName}` : ''
+    }`;
+    const contestId = !townName.startsWith('Rochester')
+      ? makeId(contestIdPrintable)
+      : makeId(
+          contestIdPrintable,
+          Array.from(contestElement.getElementsByTagName('CandidateName'))
+            .map((candidateElement) =>
+              assertDefined(
+                candidateElement.getElementsByTagName('Name')[0]?.textContent
+              )
             )
-          )
-          .sort()
-          .join(';')
-      );
-      contestIdComponents.push(contestCandidateHash);
-    }
-    const contestId = makeId(contestIdComponents.join('-'));
+            .sort()
+            .join(';')
+        );
 
     const candidates: Candidate[] = [];
     for (const [i, candidateElement] of candidateElements.entries()) {
