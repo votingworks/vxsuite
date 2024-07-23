@@ -1,8 +1,7 @@
 import { findTemplateGridAndBubbles } from '@votingworks/ballot-interpreter';
-import { assert, iter } from '@votingworks/basics';
+import { iter } from '@votingworks/basics';
 import {
   asSheet,
-  Candidate,
   safeParseElectionDefinition,
   safeParseJson,
 } from '@votingworks/types';
@@ -11,7 +10,7 @@ import { join, parse as parsePath } from 'path';
 import { cmyk, PDFDocument } from 'pdf-lib';
 import { RealIo, Stdio } from '..';
 import { getPdfPagePointForGridPoint } from '../../convert/debug';
-import { generateTestDeckBallots } from '../../convert/test_deck_ballots';
+import { generateHandMarkedTestDeckBallots } from '../../convert/test_deck_ballots';
 import {
   ConvertOutputManifestSchema,
   GenerateTestDeckConfigSchema,
@@ -101,11 +100,6 @@ export async function main(
     const { election } = parseElectionResult.ok();
     const outputPath = join(configPath, '..', jurisdictionConfig.output);
 
-    const testDeckBallots = generateTestDeckBallots({
-      election,
-      markingMethod: 'hand',
-    });
-
     await fs.rm(outputPath, { recursive: true, force: true });
     await fs.mkdir(outputPath, { recursive: true });
 
@@ -149,107 +143,50 @@ export async function main(
       const originalPdf = await PDFDocument.load(pdfData);
       const testDeckPdf = await PDFDocument.create();
 
-      const filteredTestDeckBallots = testDeckBallots.filter(
-        (b) =>
-          b.precinctId === card.precinctId &&
-          b.ballotStyleId === card.ballotStyleId
-      );
+      const testDeckBallots = generateHandMarkedTestDeckBallots({
+        election,
+        ballotStyleId: card.ballotStyleId,
+        includeOvervotedBallots: true,
+        includeBlankBallots: true,
+      });
 
       for (const [
         testDeckBallotIndex,
         testDeckBallot,
-      ] of filteredTestDeckBallots.entries()) {
+      ] of testDeckBallots.entries()) {
         io.stderr.write(
-          `📄 Test Deck #${testDeckBallotIndex + 1}/${
-            filteredTestDeckBallots.length
-          }\n`
+          `📄 Test Deck #${testDeckBallotIndex + 1}/${testDeckBallots.length}\n`
         );
-
-        if (
-          testDeckBallot.ballotStyleId !== card.ballotStyleId ||
-          testDeckBallot.precinctId !== card.precinctId
-        ) {
-          continue;
-        }
 
         const [outputFrontPage, outputBackPage] = asSheet(
           await testDeckPdf.copyPages(originalPdf, [0, 1])
         );
 
-        for (const [contestId, vote] of Object.entries(testDeckBallot.votes)) {
-          const contest = election.contests.find((c) => c.id === contestId);
-
-          if (!contest) {
-            io.stderr.write(
-              `Error: Contest not found: ${contestId} (from ${electionPath} in precinct '${card.precinctId}')\n`
-            );
-            return 1;
-          }
-
-          if (contest.type !== 'candidate') {
-            io.stderr.write(
-              `Error: Contest type not supported: ${contest.type} (from ${electionPath} in precinct '${card.precinctId}')\n`
-            );
-            return 1;
-          }
-
-          const gridLayout = election.gridLayouts?.find(
-            (layout) => layout.ballotStyleId === card.ballotStyleId
+        for (const gridPosition of testDeckBallot.gridPositions) {
+          // Mark the ballot
+          const page =
+            gridPosition.side === 'front' ? outputFrontPage : outputBackPage;
+          const gridAndBubbles =
+            gridPosition.side === 'front'
+              ? frontGridAndBubbles
+              : backGridAndBubbles;
+          const bubbleCenterInPdfPage = getPdfPagePointForGridPoint(
+            page,
+            gridAndBubbles.grid,
+            { x: gridPosition.column, y: gridPosition.row }
           );
 
-          if (!gridLayout) {
-            io.stderr.write(
-              `Error: Grid layout not found for ballot style '${card.ballotStyleId}' in precinct '${card.precinctId}'\n`
-            );
-            return 1;
-          }
-          // console.log('gridLayout', gridLayout);
+          const width = 7;
+          const height = 4.5;
 
-          const candidates = vote as unknown as Candidate[];
-          assert(Array.isArray(candidates));
-
-          for (const candidate of candidates) {
-            // console.log('candidate', candidate);
-            const gridPosition = gridLayout.gridPositions.find(
-              (gp) =>
-                gp.contestId === contestId &&
-                ((gp.type === 'option' && gp.optionId === candidate.id) ||
-                  (gp.type === 'write-in' &&
-                    gp.writeInIndex === candidate.writeInIndex))
-            );
-
-            if (!gridPosition) {
-              io.stderr.write(
-                `Error: Grid position not found for candidate '${candidate.id}' in contest '${contestId}' in precinct '${card.precinctId}' with ballot style '${card.ballotStyleId}'\n`
-              );
-              return 1;
-            }
-
-            // Mark the ballot
-            const page =
-              gridPosition.side === 'front' ? outputFrontPage : outputBackPage;
-            const gridAndBubbles =
-              gridPosition.side === 'front'
-                ? frontGridAndBubbles
-                : backGridAndBubbles;
-            const bubbleCenterInPdfPage = getPdfPagePointForGridPoint(
-              page,
-              gridAndBubbles.grid,
-              { x: gridPosition.column, y: gridPosition.row }
-            );
-
-            const width = 7;
-            const height = 4.5;
-
-            // TODO: make this be a filled bubble (i.e. rounded rectangle)
-            page.drawEllipse({
-              x: bubbleCenterInPdfPage.x,
-              y: bubbleCenterInPdfPage.y,
-              xScale: width,
-              yScale: height,
-              color: cmyk(0, 0, 0, 1), // black
-            });
-          }
+          // TODO: make this be a filled bubble (i.e. rounded rectangle)
+          page.drawEllipse({
+            x: bubbleCenterInPdfPage.x,
+            y: bubbleCenterInPdfPage.y,
+            xScale: width,
+            yScale: height,
+            color: cmyk(0, 0, 0, 1), // black
+          });
         }
 
         testDeckPdf.addPage(outputFrontPage);

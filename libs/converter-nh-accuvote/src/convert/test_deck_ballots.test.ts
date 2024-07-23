@@ -1,50 +1,56 @@
-import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { readFileSync } from 'fs';
+import { join } from 'path';
 import {
-  Candidate,
   CandidateId,
   ContestId,
-  VotesDict,
+  GridPosition,
+  safeParseElection,
 } from '@votingworks/types';
-import { assert } from '@votingworks/basics';
-import { generateTestDeckBallots } from './test_deck_ballots';
+import { generateHandMarkedTestDeckBallots } from './test_deck_ballots';
 
 function hackyTallyVotesDoNotUseThis(
-  votesDicts: VotesDict[]
+  gridPositions: GridPosition[]
 ): Map<ContestId, Map<CandidateId, number>> {
   const tally = new Map<ContestId, Map<CandidateId, number>>();
 
-  for (const votesDict of votesDicts) {
-    for (const [contestId, candidates] of Object.entries(votesDict)) {
-      assert(Array.isArray(candidates));
+  for (const gridPosition of gridPositions) {
+    const { contestId } = gridPosition;
 
-      if (!tally.has(contestId)) {
-        tally.set(contestId, new Map());
-      }
-
-      const contestTally = tally.get(contestId)!;
-
-      for (const candidate of candidates as Candidate[]) {
-        contestTally.set(
-          candidate.id,
-          (contestTally.get(candidate.id) || 0) + 1
-        );
-      }
+    if (!tally.has(contestId)) {
+      tally.set(contestId, new Map());
     }
+
+    const contestTally = tally.get(contestId)!;
+    const optionId =
+      gridPosition.type === 'option'
+        ? gridPosition.optionId
+        : `write-in-${gridPosition.writeInIndex}`;
+
+    contestTally.set(optionId, (contestTally.get(optionId) || 0) + 1);
   }
 
   return tally;
 }
 
 test('generateTestDeckBallots', () => {
-  const { election } = electionFamousNames2021Fixtures;
+  const election = safeParseElection(
+    readFileSync(
+      join(__dirname, '../../test/fixtures/rochester-primary/election.json'),
+      'utf8'
+    )
+  ).unsafeUnwrap();
 
-  const testBallots = generateTestDeckBallots({
-    election,
-    markingMethod: 'hand',
-    includeOvervotedBallots: false,
-  });
+  for (const ballotStyle of election.ballotStyles) {
+    const testBallots = generateHandMarkedTestDeckBallots({
+      election,
+      ballotStyleId: ballotStyle.id,
+      includeOvervotedBallots: false,
+    });
 
-  expect(
-    hackyTallyVotesDoNotUseThis(testBallots.map(({ votes }) => votes))
-  ).toMatchSnapshot();
+    expect(
+      hackyTallyVotesDoNotUseThis(
+        testBallots.flatMap(({ gridPositions }) => gridPositions)
+      )
+    ).toMatchSnapshot();
+  }
 });

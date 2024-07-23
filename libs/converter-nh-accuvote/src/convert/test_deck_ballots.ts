@@ -1,15 +1,20 @@
-import { assert, assertDefined, find, iter } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  find,
+  integers,
+  iter,
+} from '@votingworks/basics';
 import {
   AnyContest,
-  WriteInCandidate,
-  CandidateContest,
-  Candidate,
-  Election,
-  PrecinctId,
-  getContests,
-  VotesDict,
   BallotStyleId,
-  ContestId,
+  Candidate,
+  CandidateContest,
+  Election,
+  getBallotStyle,
+  getContests,
+  GridPosition,
+  WriteInCandidate,
 } from '@votingworks/types';
 
 /**
@@ -17,9 +22,7 @@ import {
  */
 export interface TestDeckBallot {
   ballotStyleId: BallotStyleId;
-  precinctId: PrecinctId;
-  markingMethod: 'hand' | 'machine';
-  votes: VotesDict;
+  gridPositions: GridPosition[];
 }
 
 /**
@@ -62,130 +65,90 @@ export function getTestDeckCandidateAtIndex(
 
 interface GenerateTestDeckParams {
   election: Election;
-  ballotStyleId?: BallotStyleId;
-  precinctId?: PrecinctId;
-  markingMethod: TestDeckBallot['markingMethod'];
+  ballotStyleId: BallotStyleId;
   includeOvervotedBallots?: boolean;
   includeBlankBallots?: boolean;
 }
 
 /**
- * Generates a set of test deck ballots for a given election, ballot style, and
- * precinct.
+ * Generates a set of test deck ballots for a ballot style.
  */
-export function generateTestDeckBallots({
+export function generateHandMarkedTestDeckBallots({
   election,
   ballotStyleId,
-  precinctId,
-  markingMethod,
   includeOvervotedBallots = true,
   includeBlankBallots = true,
 }: GenerateTestDeckParams): TestDeckBallot[] {
-  const usedOptionsByContest = new Map<ContestId, Set<string>>();
+  const ballotStyle = getBallotStyle({ election, ballotStyleId });
 
-  const ballotStyles = ballotStyleId
-    ? [ballotStyleId]
-    : election.ballotStyles.map((bs) => bs.id);
-  const precincts: string[] = precinctId
-    ? [precinctId]
-    : election.precincts.map((p) => p.id);
+  if (!ballotStyle) {
+    throw new Error(`Ballot style not found: ${ballotStyleId}`);
+  }
 
-  const ballots: TestDeckBallot[] = [];
+  const gridLayout = election.gridLayouts?.find(
+    (layout) => layout.ballotStyleId === ballotStyleId
+  );
 
-  for (const currentPrecinctId of precincts) {
-    const precinct = find(
-      election.precincts,
-      (p) => p.id === currentPrecinctId
+  if (!gridLayout) {
+    throw new Error(
+      `Grid layout not found for ballot style '${ballotStyleId}'`
     );
-    const precinctBallotStyles = election.ballotStyles.filter(
-      (bs) => bs.precincts.includes(precinct.id) && ballotStyles.includes(bs.id)
+  }
+
+  const contests = getContests({ election, ballotStyle });
+  const gridPositionsByContest = iter(gridLayout.gridPositions)
+    .groupBy((a, b) => a.contestId === b.contestId)
+    .toArray();
+  const numBallots =
+    iter(gridPositionsByContest)
+      .map((group) => group.length)
+      .max() ?? 0;
+
+  const ballots: TestDeckBallot[] = integers({
+    from: 0,
+    through: numBallots - 1,
+  })
+    .map((ballotNum) => ({
+      gridPositions: iter(gridPositionsByContest)
+        .filterMap((group) => group[ballotNum])
+        .toArray(),
+      ballotStyleId,
+    }))
+    .toArray();
+
+  if (includeOvervotedBallots) {
+    // Generates a minimally overvoted ballot - a single overvote in the
+    // first contest where an overvote is possible. Does not overvote
+    // candidate contests where you must select a write-in to overvote. See
+    // discussion: https://github.com/votingworks/vxsuite/issues/1711.
+    const overvoteContest = contests.find(
+      (contest) =>
+        contest.type === 'yesno' || contest.candidates.length > contest.seats
+    );
+    const gridPositionsForContest = find(
+      gridPositionsByContest,
+      (group) => group[0]?.contestId === overvoteContest?.id
     );
 
-    for (const ballotStyle of precinctBallotStyles) {
-      const contests = getContests({ election, ballotStyle });
+    if (overvoteContest) {
+      ballots.push({
+        ballotStyleId,
+        gridPositions: gridPositionsForContest.slice(
+          0,
+          overvoteContest.type === 'yesno' ? 2 : overvoteContest.seats + 1
+        ),
+      });
+    }
 
-      const numBallots = Math.max(
-        ...contests.map((c) => numBallotPositions(c))
-      );
-
-      for (let ballotNum = 0; ballotNum < numBallots; ballotNum += 1) {
-        const votes: VotesDict = {};
-        for (const contest of contests) {
-          const usedOptions = usedOptionsByContest.get(contest.id) ?? new Set();
-          usedOptionsByContest.set(contest.id, usedOptions);
-
-          if (contest.type === 'yesno') {
-            const optionId =
-              ballotNum % 2 === 0 ? contest.yesOption.id : contest.noOption.id;
-            if (!usedOptions.has(optionId)) {
-              votes[contest.id] = [optionId];
-              usedOptions.add(optionId);
-            }
-          } else if (
-            contest.type === 'candidate' &&
-            numBallotPositions(contest) > 0 // safety check
-          ) {
-            const choiceIndex = ballotNum % numBallotPositions(contest);
-            const candidate = getTestDeckCandidateAtIndex(contest, choiceIndex);
-            const key = candidate.isWriteIn
-              ? `write-in-${candidate.writeInIndex}`
-              : candidate.id;
-
-            if (!usedOptions.has(key)) {
-              votes[contest.id] = [candidate];
-              usedOptions.add(key);
-            }
-          }
-        }
-        ballots.push({
-          ballotStyleId: ballotStyle.id,
-          precinctId: currentPrecinctId,
-          markingMethod,
-          votes,
-        });
-      }
-
-      if (includeOvervotedBallots && markingMethod === 'hand') {
-        // Generates a minimally overvoted ballot - a single overvote in the
-        // first contest where an overvote is possible. Does not overvote
-        // candidate contests where you must select a write-in to overvote. See
-        // discussion: https://github.com/votingworks/vxsuite/issues/1711.
-        const overvoteContest = contests.find(
-          (contest) =>
-            contest.type === 'yesno' ||
-            contest.candidates.length > contest.seats
-        );
-        if (overvoteContest) {
-          ballots.push({
-            ballotStyleId: ballotStyle.id,
-            precinctId: currentPrecinctId,
-            markingMethod,
-            votes: {
-              [overvoteContest.id]:
-                overvoteContest.type === 'yesno'
-                  ? [overvoteContest.yesOption.id, overvoteContest.noOption.id]
-                  : iter(overvoteContest.candidates)
-                      .take(overvoteContest.seats + 1)
-                      .toArray(),
-            },
-          });
-        }
-
-        if (includeBlankBallots) {
-          ballots.push({
-            ballotStyleId: ballotStyle.id,
-            precinctId: currentPrecinctId,
-            markingMethod,
-            votes: {},
-          });
-          ballots.push({
-            ballotStyleId: ballotStyle.id,
-            precinctId: currentPrecinctId,
-            markingMethod,
-            votes: {},
-          });
-        }
-      }
+    if (includeBlankBallots) {
+      ballots.push({
+        ballotStyleId,
+        gridPositions: [],
+      });
+      ballots.push({
+        ballotStyleId,
+        gridPositions: [],
+      });
     }
   }
 

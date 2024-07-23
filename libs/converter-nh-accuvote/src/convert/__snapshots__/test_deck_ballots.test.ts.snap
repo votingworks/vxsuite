@@ -2,62 +2,815 @@
 
 exports[`generateTestDeckBallots 1`] = `
 Map {
-  "mayor" => Map {
-    "sherlock-holmes" => 1,
-    "thomas-edison" => 1,
-    "write-in" => 1,
+  "For-Governor-Democratic-2b21dc3c02546ebbcd55b36c877da13b82813b7b-6c1bd722" => Map {
+    "Joyce-Craig-9cb0a7cb" => 1,
+    "Jon-Kiper-b7e2ecdf" => 1,
+    "Cinde-Warmington-2b89ceee" => 1,
+    "write-in-0" => 1,
   },
-  "controller" => Map {
-    "winston-churchill" => 1,
-    "oprah-winfrey" => 1,
-    "louis-armstrong" => 1,
-    "write-in" => 1,
+  "For-Representative-in-Congress-Democratic-f62d0ba4dea61d73c0cdd7-265d4601" => Map {
+    "Chris-Pappas-6e1c90d1" => 1,
+    "Kevin-Rondeau-f12e37a0" => 1,
+    "write-in-0" => 1,
   },
-  "attorney" => Map {
-    "john-snow" => 1,
-    "mark-twain" => 1,
-    "write-in" => 1,
+  "For-Executive-Councilor-Democratic-066afb882ee7fa31cbe2392fec5ce-321e7739" => Map {
+    "Emmett-Soldati-6cb173e2" => 1,
+    "write-in-0" => 1,
   },
-  "public-works-director" => Map {
-    "benjamin-franklin" => 1,
-    "robert-downey-jr" => 1,
-    "bill-nye" => 1,
-    "write-in" => 1,
+  "For-State-Senator-Democratic-297ea2d2a0757d5862ece4a5506e3a7508b-03d8016b" => Map {
+    "John-Ceskavich-2859ffec" => 1,
+    "write-in-0" => 1,
   },
-  "chief-of-police" => Map {
-    "natalie-portman" => 1,
-    "frank-sinatra" => 1,
-    "andy-warhol" => 1,
-    "alfred-hitchcock" => 1,
-    "write-in" => 1,
+  "For-State-Representative-Strafford-District-5-Democratic-9479f77-fcc363e7" => Map {
+    "Patricia-Turner-2157b4cc" => 1,
+    "write-in-0" => 1,
   },
-  "parks-and-recreation-director" => Map {
-    "charles-darwin" => 1,
-    "stephen-hawking" => 1,
-    "johan-sebastian-bach" => 1,
-    "alexander-graham-bell" => 1,
-    "write-in" => 1,
+  "For-State-Representatives-Strafford-District-19-Democratic-beb09-12ae92b7" => Map {
+    "Seph-Warren-1d7b5f7b" => 1,
+    "Daniel-Fitzpatrick-49170283" => 1,
+    "John-Larochelle-8f02e44c" => 1,
+    "Melena-Lugo-e6a032b2" => 1,
+    "write-in-0" => 1,
+    "write-in-1" => 1,
+    "write-in-2" => 1,
   },
-  "board-of-alderman" => Map {
-    "helen-keller" => 1,
-    "steve-jobs" => 1,
-    "nikola-tesla" => 1,
-    "vincent-van-gogh" => 1,
-    "pablo-picasso" => 1,
-    "wolfgang-amadeus-mozart" => 1,
-    "write-in" => 4,
+  "For-Sheriff-Democratic-a65ef590d31e45933108226fb747c5342eb3d13d8-3491d723" => Map {
+    "Steven-M-Bourque-9ca1118b" => 1,
+    "Tracy-Hayes-ff5b3a21" => 1,
+    "Kathryn-Mone-b65b73b0" => 1,
+    "write-in-0" => 1,
   },
-  "city-council" => Map {
-    "marie-curie" => 1,
-    "indiana-jones" => 1,
-    "mona-lisa" => 1,
-    "jackie-chan" => 1,
-    "tim-allen" => 1,
-    "mark-antony" => 1,
-    "harriet-tubman" => 1,
-    "martin-luther-king" => 1,
-    "marilyn-monroe" => 1,
-    "write-in" => 4,
+  "For-County-Attorney-Democratic-046b1abbb9a5b9a6e25e2478f08a71a52-4dca5a44" => Map {
+    "Emily-C-Garod-e90f7dd6" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Treasurer-Democratic-22ecd28d70642fb89b2f1ffcf008d1f8-57bec176" => Map {
+    "Pamela-J-Arnold-0e6b0f85" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Deeds-Democratic-10d52937ea79d9a1dd3f61bddbb2628-3af529e6" => Map {
+    "Catherine-A-Berube-84196447" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Probate-Democratic-82a0df20390096333b09c27055f57-9d051745" => Map {
+    "Jan-Nedelka-a5d03fb1" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Commissioner-Democratic-e31c7d0fc53f06f0219149baa43df-5596c506" => Map {
+    "Tim-Fontneau-5de9b5d7" => 1,
+    "write-in-0" => 1,
+  },
+}
+`;
+
+exports[`generateTestDeckBallots 2`] = `
+Map {
+  "For-Governor-Democratic-2b21dc3c02546ebbcd55b36c877da13b82813b7b-6c1bd722" => Map {
+    "Joyce-Craig-9cb0a7cb" => 1,
+    "Jon-Kiper-b7e2ecdf" => 1,
+    "Cinde-Warmington-2b89ceee" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Representative-in-Congress-Democratic-f62d0ba4dea61d73c0cdd7-265d4601" => Map {
+    "Kevin-Rondeau-f12e37a0" => 1,
+    "Chris-Pappas-6e1c90d1" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Executive-Councilor-Democratic-066afb882ee7fa31cbe2392fec5ce-321e7739" => Map {
+    "Emmett-Soldati-6cb173e2" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Senator-Democratic-297ea2d2a0757d5862ece4a5506e3a7508b-03d8016b" => Map {
+    "John-Ceskavich-2859ffec" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Representative-Strafford-District-6-Democratic-06d73a7-6cfb013d" => Map {
+    "Kathleen-M-MacLeod-0ef13f83" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Representatives-Strafford-District-19-Democratic-beb09-12ae92b7" => Map {
+    "Seph-Warren-1d7b5f7b" => 1,
+    "Daniel-Fitzpatrick-49170283" => 1,
+    "John-Larochelle-8f02e44c" => 1,
+    "Melena-Lugo-e6a032b2" => 1,
+    "write-in-0" => 1,
+    "write-in-1" => 1,
+    "write-in-2" => 1,
+  },
+  "For-Sheriff-Democratic-a65ef590d31e45933108226fb747c5342eb3d13d8-3491d723" => Map {
+    "Kathryn-Mone-b65b73b0" => 1,
+    "Steven-M-Bourque-9ca1118b" => 1,
+    "Tracy-Hayes-ff5b3a21" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Attorney-Democratic-046b1abbb9a5b9a6e25e2478f08a71a52-4dca5a44" => Map {
+    "Emily-C-Garod-e90f7dd6" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Treasurer-Democratic-22ecd28d70642fb89b2f1ffcf008d1f8-57bec176" => Map {
+    "Pamela-J-Arnold-0e6b0f85" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Deeds-Democratic-10d52937ea79d9a1dd3f61bddbb2628-3af529e6" => Map {
+    "Catherine-A-Berube-84196447" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Probate-Democratic-82a0df20390096333b09c27055f57-9d051745" => Map {
+    "Jan-Nedelka-a5d03fb1" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Commissioner-Democratic-b6b3c8b9288ee48fd3806524892aa-a850882e" => Map {
+    "Deanna-Rollo-d5141a2f" => 1,
+    "write-in-0" => 1,
+  },
+}
+`;
+
+exports[`generateTestDeckBallots 3`] = `
+Map {
+  "For-Governor-Democratic-2b21dc3c02546ebbcd55b36c877da13b82813b7b-6c1bd722" => Map {
+    "Jon-Kiper-b7e2ecdf" => 1,
+    "Cinde-Warmington-2b89ceee" => 1,
+    "Joyce-Craig-9cb0a7cb" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Representative-in-Congress-Democratic-f62d0ba4dea61d73c0cdd7-265d4601" => Map {
+    "Kevin-Rondeau-f12e37a0" => 1,
+    "Chris-Pappas-6e1c90d1" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Executive-Councilor-Democratic-066afb882ee7fa31cbe2392fec5ce-321e7739" => Map {
+    "Emmett-Soldati-6cb173e2" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Senator-Democratic-297ea2d2a0757d5862ece4a5506e3a7508b-03d8016b" => Map {
+    "John-Ceskavich-2859ffec" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Representative-Strafford-District-7-Democratic-f1a31b1-fd40680e" => Map {
+    "David-Herman-0cc37cf1" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Representatives-Strafford-District-19-Democratic-beb09-12ae92b7" => Map {
+    "Seph-Warren-1d7b5f7b" => 1,
+    "Daniel-Fitzpatrick-49170283" => 1,
+    "John-Larochelle-8f02e44c" => 1,
+    "Melena-Lugo-e6a032b2" => 1,
+    "write-in-0" => 1,
+    "write-in-1" => 1,
+    "write-in-2" => 1,
+  },
+  "For-Sheriff-Democratic-a65ef590d31e45933108226fb747c5342eb3d13d8-3491d723" => Map {
+    "Kathryn-Mone-b65b73b0" => 1,
+    "Steven-M-Bourque-9ca1118b" => 1,
+    "Tracy-Hayes-ff5b3a21" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Attorney-Democratic-046b1abbb9a5b9a6e25e2478f08a71a52-4dca5a44" => Map {
+    "Emily-C-Garod-e90f7dd6" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Treasurer-Democratic-22ecd28d70642fb89b2f1ffcf008d1f8-57bec176" => Map {
+    "Pamela-J-Arnold-0e6b0f85" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Deeds-Democratic-10d52937ea79d9a1dd3f61bddbb2628-3af529e6" => Map {
+    "Catherine-A-Berube-84196447" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Probate-Democratic-82a0df20390096333b09c27055f57-9d051745" => Map {
+    "Jan-Nedelka-a5d03fb1" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Commissioner-Democratic-b6b3c8b9288ee48fd3806524892aa-a850882e" => Map {
+    "Deanna-Rollo-d5141a2f" => 1,
+    "write-in-0" => 1,
+  },
+}
+`;
+
+exports[`generateTestDeckBallots 4`] = `
+Map {
+  "For-Governor-Democratic-2b21dc3c02546ebbcd55b36c877da13b82813b7b-6c1bd722" => Map {
+    "Cinde-Warmington-2b89ceee" => 1,
+    "Joyce-Craig-9cb0a7cb" => 1,
+    "Jon-Kiper-b7e2ecdf" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Representative-in-Congress-Democratic-f62d0ba4dea61d73c0cdd7-265d4601" => Map {
+    "Chris-Pappas-6e1c90d1" => 1,
+    "Kevin-Rondeau-f12e37a0" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Executive-Councilor-Democratic-066afb882ee7fa31cbe2392fec5ce-321e7739" => Map {
+    "Emmett-Soldati-6cb173e2" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Senator-Democratic-297ea2d2a0757d5862ece4a5506e3a7508b-03d8016b" => Map {
+    "John-Ceskavich-2859ffec" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Representative-Strafford-District-8-Democratic-3f6b284-979257d9" => Map {
+    "Chuck-Grassie-4aa827cf" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Representatives-Strafford-District-19-Democratic-beb09-12ae92b7" => Map {
+    "Seph-Warren-1d7b5f7b" => 1,
+    "Daniel-Fitzpatrick-49170283" => 1,
+    "John-Larochelle-8f02e44c" => 1,
+    "Melena-Lugo-e6a032b2" => 1,
+    "write-in-0" => 1,
+    "write-in-1" => 1,
+    "write-in-2" => 1,
+  },
+  "For-Sheriff-Democratic-a65ef590d31e45933108226fb747c5342eb3d13d8-3491d723" => Map {
+    "Tracy-Hayes-ff5b3a21" => 1,
+    "Kathryn-Mone-b65b73b0" => 1,
+    "Steven-M-Bourque-9ca1118b" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Attorney-Democratic-046b1abbb9a5b9a6e25e2478f08a71a52-4dca5a44" => Map {
+    "Emily-C-Garod-e90f7dd6" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Treasurer-Democratic-22ecd28d70642fb89b2f1ffcf008d1f8-57bec176" => Map {
+    "Pamela-J-Arnold-0e6b0f85" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Deeds-Democratic-10d52937ea79d9a1dd3f61bddbb2628-3af529e6" => Map {
+    "Catherine-A-Berube-84196447" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Probate-Democratic-82a0df20390096333b09c27055f57-9d051745" => Map {
+    "Jan-Nedelka-a5d03fb1" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Commissioner-Democratic-b6b3c8b9288ee48fd3806524892aa-a850882e" => Map {
+    "Deanna-Rollo-d5141a2f" => 1,
+    "write-in-0" => 1,
+  },
+}
+`;
+
+exports[`generateTestDeckBallots 5`] = `
+Map {
+  "For-Governor-Democratic-2b21dc3c02546ebbcd55b36c877da13b82813b7b-6c1bd722" => Map {
+    "Jon-Kiper-b7e2ecdf" => 1,
+    "Cinde-Warmington-2b89ceee" => 1,
+    "Joyce-Craig-9cb0a7cb" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Representative-in-Congress-Democratic-f62d0ba4dea61d73c0cdd7-265d4601" => Map {
+    "Chris-Pappas-6e1c90d1" => 1,
+    "Kevin-Rondeau-f12e37a0" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Executive-Councilor-Democratic-066afb882ee7fa31cbe2392fec5ce-321e7739" => Map {
+    "Emmett-Soldati-6cb173e2" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Senator-Democratic-297ea2d2a0757d5862ece4a5506e3a7508b-03d8016b" => Map {
+    "John-Ceskavich-2859ffec" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Representatives-Democratic-f26962dc29d967d7abaee6e4f62-6084a6a8" => Map {
+    "Larry-Brown-2e9d9f7f" => 1,
+    "Pamela-J-Hubbard-b5a67e85" => 1,
+    "Marilyn-Johnson-Foster-4d128988" => 1,
+    "write-in-0" => 1,
+    "write-in-1" => 1,
+    "write-in-2" => 1,
+  },
+  "For-Sheriff-Democratic-a65ef590d31e45933108226fb747c5342eb3d13d8-3491d723" => Map {
+    "Tracy-Hayes-ff5b3a21" => 1,
+    "Kathryn-Mone-b65b73b0" => 1,
+    "Steven-M-Bourque-9ca1118b" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Attorney-Democratic-046b1abbb9a5b9a6e25e2478f08a71a52-4dca5a44" => Map {
+    "Emily-C-Garod-e90f7dd6" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Treasurer-Democratic-22ecd28d70642fb89b2f1ffcf008d1f8-57bec176" => Map {
+    "Pamela-J-Arnold-0e6b0f85" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Deeds-Democratic-10d52937ea79d9a1dd3f61bddbb2628-3af529e6" => Map {
+    "Catherine-A-Berube-84196447" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Probate-Democratic-82a0df20390096333b09c27055f57-9d051745" => Map {
+    "Jan-Nedelka-a5d03fb1" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Commissioner-Democratic-e31c7d0fc53f06f0219149baa43df-5596c506" => Map {
+    "Tim-Fontneau-5de9b5d7" => 1,
+    "write-in-0" => 1,
+  },
+}
+`;
+
+exports[`generateTestDeckBallots 6`] = `
+Map {
+  "For-Governor-Democratic-2b21dc3c02546ebbcd55b36c877da13b82813b7b-6c1bd722" => Map {
+    "Joyce-Craig-9cb0a7cb" => 1,
+    "Jon-Kiper-b7e2ecdf" => 1,
+    "Cinde-Warmington-2b89ceee" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Representative-in-Congress-Democratic-f62d0ba4dea61d73c0cdd7-265d4601" => Map {
+    "Kevin-Rondeau-f12e37a0" => 1,
+    "Chris-Pappas-6e1c90d1" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Executive-Councilor-Democratic-066afb882ee7fa31cbe2392fec5ce-321e7739" => Map {
+    "Emmett-Soldati-6cb173e2" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Senator-Democratic-297ea2d2a0757d5862ece4a5506e3a7508b-03d8016b" => Map {
+    "John-Ceskavich-2859ffec" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Representative-Strafford-District-9-Democratic-5093cb3-3a231645" => Map {
+    "Amy-Malone-167133ed" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Representatives-Strafford-District-19-Democratic-beb09-12ae92b7" => Map {
+    "Seph-Warren-1d7b5f7b" => 1,
+    "Daniel-Fitzpatrick-49170283" => 1,
+    "John-Larochelle-8f02e44c" => 1,
+    "Melena-Lugo-e6a032b2" => 1,
+    "write-in-0" => 1,
+    "write-in-1" => 1,
+    "write-in-2" => 1,
+  },
+  "For-Sheriff-Democratic-a65ef590d31e45933108226fb747c5342eb3d13d8-3491d723" => Map {
+    "Steven-M-Bourque-9ca1118b" => 1,
+    "Tracy-Hayes-ff5b3a21" => 1,
+    "Kathryn-Mone-b65b73b0" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Attorney-Democratic-046b1abbb9a5b9a6e25e2478f08a71a52-4dca5a44" => Map {
+    "Emily-C-Garod-e90f7dd6" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Treasurer-Democratic-22ecd28d70642fb89b2f1ffcf008d1f8-57bec176" => Map {
+    "Pamela-J-Arnold-0e6b0f85" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Deeds-Democratic-10d52937ea79d9a1dd3f61bddbb2628-3af529e6" => Map {
+    "Catherine-A-Berube-84196447" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Probate-Democratic-82a0df20390096333b09c27055f57-9d051745" => Map {
+    "Jan-Nedelka-a5d03fb1" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Commissioner-Democratic-e31c7d0fc53f06f0219149baa43df-5596c506" => Map {
+    "Tim-Fontneau-5de9b5d7" => 1,
+    "write-in-0" => 1,
+  },
+}
+`;
+
+exports[`generateTestDeckBallots 7`] = `
+Map {
+  "For-Governor-Republican-37f4e6fe8a2c8222fa75a0e8ca6efeab38ecac0b-abcf7543" => Map {
+    "Richard-A-McMenamon-II-4e1a7e52" => 1,
+    "Chuck-Morse-2a1fc58f" => 1,
+    "Frank-Negus-Staples-441c81b0" => 1,
+    "Kelly-Ayotte-36197365" => 1,
+    "Shaun-Fife-af57e9b3" => 1,
+    "Robert-Wayne-McClory-01b91e37" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Representative-in-Congress-Republican-4c99c1bad15ea273dbed0c-9de239c0" => Map {
+    "Russell-Prescott-7678c756" => 1,
+    "Max-Abramson-77f37c04" => 1,
+    "Chris-Bright-6b289d3a" => 1,
+    "Joseph-Kelly-Levasseur-72afcea5" => 1,
+    "Andy-Martin-b5e59335" => 1,
+    "Walter-J-McFarlane-III-3c0b54aa" => 1,
+    "Hollie-Noveletsky-240e674f" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Executive-Councilor-Republican-4d346a074bf7143649af998ce9269-3de1ddc6" => Map {
+    "Joseph-D-Kenney-36920c13" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Senator-Republican-1024aa23ec8d345e2036fe9077611716b2a-388c632e" => Map {
+    "James-P-Gray-4b8cbd89" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Representative-Strafford-District-5-Republican-fcb0af2-82f00eb3" => Map {
+    "Thomas-L-Kaczynski-Jr--038d37da" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Representatives-Strafford-District-19-Republican-213ee-5f2afc9d" => Map {
+    "Kelley-Potenza-875ef3c4" => 1,
+    "David-Walker-d28aa62f" => 1,
+    "Jenny-O-Wilson-f448f61f" => 1,
+    "write-in-0" => 1,
+    "write-in-1" => 1,
+    "write-in-2" => 1,
+  },
+  "For-Sheriff-Republican-7616ac2db9d656f1e904eed7a3e0870218a2a869c-be2e44cf" => Map {
+    "Scott-Tingle-a1458648" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Attorney-Republican-62ac49688972efe1f3e35c4d154229666-b006e212" => Map {
+    "write-in-0" => 1,
+  },
+  "For-County-Treasurer-Republican-62ac49688972efe1f3e35c4d15422966-6b829e63" => Map {
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Deeds-Republican-62ac49688972efe1f3e35c4d1542296-78b04e88" => Map {
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Probate-Republican-cbb752eb31f1173639fe374bbd0d2-d37b3dad" => Map {
+    "Nancy-Sirois-1485a1a0" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Commissioner-Republican-ed58d664c1c691ebb44ec51f3bda4-4a3f7784" => Map {
+    "Joe-Pitre-ae13ae07" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Delegate-to-the-State-Convention-Strafford-District-5-Republ-d6da3a0d" => Map {
+    "write-in-0" => 1,
+  },
+  "For-Delegates-to-the-State-Convention-Strafford-District-19-Repu-6a804d77" => Map {
+    "Paul-Callaghan-fe725d1d" => 1,
+    "write-in-0" => 1,
+    "write-in-1" => 1,
+    "write-in-2" => 1,
+  },
+}
+`;
+
+exports[`generateTestDeckBallots 8`] = `
+Map {
+  "For-Governor-Republican-37f4e6fe8a2c8222fa75a0e8ca6efeab38ecac0b-abcf7543" => Map {
+    "Shaun-Fife-af57e9b3" => 1,
+    "Robert-Wayne-McClory-01b91e37" => 1,
+    "Richard-A-McMenamon-II-4e1a7e52" => 1,
+    "Chuck-Morse-2a1fc58f" => 1,
+    "Frank-Negus-Staples-441c81b0" => 1,
+    "Kelly-Ayotte-36197365" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Representative-in-Congress-Republican-4c99c1bad15ea273dbed0c-9de239c0" => Map {
+    "Chris-Bright-6b289d3a" => 1,
+    "Joseph-Kelly-Levasseur-72afcea5" => 1,
+    "Andy-Martin-b5e59335" => 1,
+    "Walter-J-McFarlane-III-3c0b54aa" => 1,
+    "Hollie-Noveletsky-240e674f" => 1,
+    "Russell-Prescott-7678c756" => 1,
+    "Max-Abramson-77f37c04" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Executive-Councilor-Republican-4d346a074bf7143649af998ce9269-3de1ddc6" => Map {
+    "Joseph-D-Kenney-36920c13" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Senator-Republican-1024aa23ec8d345e2036fe9077611716b2a-388c632e" => Map {
+    "James-P-Gray-4b8cbd89" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Representative-Strafford-District-6-Republican-b38b305-81cad351" => Map {
+    "Denise-DeDe-Poulin-b3e98fcd" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Representatives-Strafford-District-19-Republican-213ee-5f2afc9d" => Map {
+    "Kelley-Potenza-875ef3c4" => 1,
+    "David-Walker-d28aa62f" => 1,
+    "Jenny-O-Wilson-f448f61f" => 1,
+    "write-in-0" => 1,
+    "write-in-1" => 1,
+    "write-in-2" => 1,
+  },
+  "For-Sheriff-Republican-7616ac2db9d656f1e904eed7a3e0870218a2a869c-be2e44cf" => Map {
+    "Scott-Tingle-a1458648" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Attorney-Republican-62ac49688972efe1f3e35c4d154229666-b006e212" => Map {
+    "write-in-0" => 1,
+  },
+  "For-County-Treasurer-Republican-62ac49688972efe1f3e35c4d15422966-6b829e63" => Map {
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Deeds-Republican-62ac49688972efe1f3e35c4d1542296-78b04e88" => Map {
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Probate-Republican-cbb752eb31f1173639fe374bbd0d2-d37b3dad" => Map {
+    "Nancy-Sirois-1485a1a0" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Commissioner-Republican-b226f914bb31565f0a60801fcfc24-67e378fe" => Map {
+    "Sean-M-Leavitt-4aa5ffc8" => 1,
+    "Clifford-Newton-2c5e5186" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Delegate-to-the-State-Convention-Strafford-District-6-Republ-ff978c14" => Map {
+    "Carlton-Cooper-b4853b74" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Delegates-to-the-State-Convention-Strafford-District-19-Repu-6a804d77" => Map {
+    "Paul-Callaghan-fe725d1d" => 1,
+    "write-in-0" => 1,
+    "write-in-1" => 1,
+    "write-in-2" => 1,
+  },
+}
+`;
+
+exports[`generateTestDeckBallots 9`] = `
+Map {
+  "For-Governor-Republican-37f4e6fe8a2c8222fa75a0e8ca6efeab38ecac0b-abcf7543" => Map {
+    "Frank-Negus-Staples-441c81b0" => 1,
+    "Kelly-Ayotte-36197365" => 1,
+    "Shaun-Fife-af57e9b3" => 1,
+    "Robert-Wayne-McClory-01b91e37" => 1,
+    "Richard-A-McMenamon-II-4e1a7e52" => 1,
+    "Chuck-Morse-2a1fc58f" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Representative-in-Congress-Republican-4c99c1bad15ea273dbed0c-9de239c0" => Map {
+    "Hollie-Noveletsky-240e674f" => 1,
+    "Russell-Prescott-7678c756" => 1,
+    "Max-Abramson-77f37c04" => 1,
+    "Chris-Bright-6b289d3a" => 1,
+    "Joseph-Kelly-Levasseur-72afcea5" => 1,
+    "Andy-Martin-b5e59335" => 1,
+    "Walter-J-McFarlane-III-3c0b54aa" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Executive-Councilor-Republican-4d346a074bf7143649af998ce9269-3de1ddc6" => Map {
+    "Joseph-D-Kenney-36920c13" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Senator-Republican-1024aa23ec8d345e2036fe9077611716b2a-388c632e" => Map {
+    "James-P-Gray-4b8cbd89" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Representative-Strafford-District-7-Republican-1da4081-c44195df" => Map {
+    "Aidan-Ankarberg-a3274b4d" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Representatives-Strafford-District-19-Republican-213ee-5f2afc9d" => Map {
+    "Kelley-Potenza-875ef3c4" => 1,
+    "David-Walker-d28aa62f" => 1,
+    "Jenny-O-Wilson-f448f61f" => 1,
+    "write-in-0" => 1,
+    "write-in-1" => 1,
+    "write-in-2" => 1,
+  },
+  "For-Sheriff-Republican-7616ac2db9d656f1e904eed7a3e0870218a2a869c-be2e44cf" => Map {
+    "Scott-Tingle-a1458648" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Attorney-Republican-62ac49688972efe1f3e35c4d154229666-b006e212" => Map {
+    "write-in-0" => 1,
+  },
+  "For-County-Treasurer-Republican-62ac49688972efe1f3e35c4d15422966-6b829e63" => Map {
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Deeds-Republican-62ac49688972efe1f3e35c4d1542296-78b04e88" => Map {
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Probate-Republican-cbb752eb31f1173639fe374bbd0d2-d37b3dad" => Map {
+    "Nancy-Sirois-1485a1a0" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Commissioner-Republican-b226f914bb31565f0a60801fcfc24-67e378fe" => Map {
+    "Sean-M-Leavitt-4aa5ffc8" => 1,
+    "Clifford-Newton-2c5e5186" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Delegate-to-the-State-Convention-Strafford-District-7-Republ-5a978a5f" => Map {
+    "write-in-0" => 1,
+  },
+  "For-Delegates-to-the-State-Convention-Strafford-District-19-Repu-6a804d77" => Map {
+    "Paul-Callaghan-fe725d1d" => 1,
+    "write-in-0" => 1,
+    "write-in-1" => 1,
+    "write-in-2" => 1,
+  },
+}
+`;
+
+exports[`generateTestDeckBallots 10`] = `
+Map {
+  "For-Governor-Republican-37f4e6fe8a2c8222fa75a0e8ca6efeab38ecac0b-abcf7543" => Map {
+    "Kelly-Ayotte-36197365" => 1,
+    "Shaun-Fife-af57e9b3" => 1,
+    "Robert-Wayne-McClory-01b91e37" => 1,
+    "Richard-A-McMenamon-II-4e1a7e52" => 1,
+    "Chuck-Morse-2a1fc58f" => 1,
+    "Frank-Negus-Staples-441c81b0" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Representative-in-Congress-Republican-4c99c1bad15ea273dbed0c-9de239c0" => Map {
+    "Joseph-Kelly-Levasseur-72afcea5" => 1,
+    "Andy-Martin-b5e59335" => 1,
+    "Walter-J-McFarlane-III-3c0b54aa" => 1,
+    "Hollie-Noveletsky-240e674f" => 1,
+    "Russell-Prescott-7678c756" => 1,
+    "Max-Abramson-77f37c04" => 1,
+    "Chris-Bright-6b289d3a" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Executive-Councilor-Republican-4d346a074bf7143649af998ce9269-3de1ddc6" => Map {
+    "Joseph-D-Kenney-36920c13" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Senator-Republican-1024aa23ec8d345e2036fe9077611716b2a-388c632e" => Map {
+    "James-P-Gray-4b8cbd89" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Representative-Strafford-District-8-Republican-55fa5f8-a69e239a" => Map {
+    "Samuel-Farrington-6868bb14" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Representatives-Strafford-District-19-Republican-213ee-5f2afc9d" => Map {
+    "Kelley-Potenza-875ef3c4" => 1,
+    "David-Walker-d28aa62f" => 1,
+    "Jenny-O-Wilson-f448f61f" => 1,
+    "write-in-0" => 1,
+    "write-in-1" => 1,
+    "write-in-2" => 1,
+  },
+  "For-Sheriff-Republican-7616ac2db9d656f1e904eed7a3e0870218a2a869c-be2e44cf" => Map {
+    "Scott-Tingle-a1458648" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Attorney-Republican-62ac49688972efe1f3e35c4d154229666-b006e212" => Map {
+    "write-in-0" => 1,
+  },
+  "For-County-Treasurer-Republican-62ac49688972efe1f3e35c4d15422966-6b829e63" => Map {
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Deeds-Republican-62ac49688972efe1f3e35c4d1542296-78b04e88" => Map {
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Probate-Republican-cbb752eb31f1173639fe374bbd0d2-d37b3dad" => Map {
+    "Nancy-Sirois-1485a1a0" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Commissioner-Republican-b226f914bb31565f0a60801fcfc24-67e378fe" => Map {
+    "Clifford-Newton-2c5e5186" => 1,
+    "Sean-M-Leavitt-4aa5ffc8" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Delegate-to-the-State-Convention-Strafford-District-8-Republ-ecb2fbff" => Map {
+    "write-in-0" => 1,
+  },
+  "For-Delegates-to-the-State-Convention-Strafford-District-19-Repu-6a804d77" => Map {
+    "Paul-Callaghan-fe725d1d" => 1,
+    "write-in-0" => 1,
+    "write-in-1" => 1,
+    "write-in-2" => 1,
+  },
+}
+`;
+
+exports[`generateTestDeckBallots 11`] = `
+Map {
+  "For-Governor-Republican-37f4e6fe8a2c8222fa75a0e8ca6efeab38ecac0b-abcf7543" => Map {
+    "Richard-A-McMenamon-II-4e1a7e52" => 1,
+    "Chuck-Morse-2a1fc58f" => 1,
+    "Frank-Negus-Staples-441c81b0" => 1,
+    "Kelly-Ayotte-36197365" => 1,
+    "Shaun-Fife-af57e9b3" => 1,
+    "Robert-Wayne-McClory-01b91e37" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Representative-in-Congress-Republican-4c99c1bad15ea273dbed0c-9de239c0" => Map {
+    "Walter-J-McFarlane-III-3c0b54aa" => 1,
+    "Hollie-Noveletsky-240e674f" => 1,
+    "Russell-Prescott-7678c756" => 1,
+    "Max-Abramson-77f37c04" => 1,
+    "Chris-Bright-6b289d3a" => 1,
+    "Joseph-Kelly-Levasseur-72afcea5" => 1,
+    "Andy-Martin-b5e59335" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Executive-Councilor-Republican-4d346a074bf7143649af998ce9269-3de1ddc6" => Map {
+    "Joseph-D-Kenney-36920c13" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Senator-Republican-1024aa23ec8d345e2036fe9077611716b2a-388c632e" => Map {
+    "James-P-Gray-4b8cbd89" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Representatives-Republican-1a671da434e945f8494da24aedd-07732d36" => Map {
+    "Glenn-Bailey-70e364f3" => 1,
+    "Claudine-R-Burnham-6c2745c0" => 1,
+    "Michael-Granger-73ba250a" => 1,
+    "write-in-0" => 1,
+    "write-in-1" => 1,
+    "write-in-2" => 1,
+  },
+  "For-Sheriff-Republican-7616ac2db9d656f1e904eed7a3e0870218a2a869c-be2e44cf" => Map {
+    "Scott-Tingle-a1458648" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Attorney-Republican-62ac49688972efe1f3e35c4d154229666-b006e212" => Map {
+    "write-in-0" => 1,
+  },
+  "For-County-Treasurer-Republican-62ac49688972efe1f3e35c4d15422966-6b829e63" => Map {
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Deeds-Republican-62ac49688972efe1f3e35c4d1542296-78b04e88" => Map {
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Probate-Republican-cbb752eb31f1173639fe374bbd0d2-d37b3dad" => Map {
+    "Nancy-Sirois-1485a1a0" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Commissioner-Republican-ed58d664c1c691ebb44ec51f3bda4-4a3f7784" => Map {
+    "Joe-Pitre-ae13ae07" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Delegates-to-the-State-Convention-Republican-90e630e013066ce-adb48b8a" => Map {
+    "Joseph-Abasciano-e74db795" => 1,
+    "Erik-S-White-461b15ae" => 1,
+    "write-in-0" => 1,
+    "write-in-1" => 1,
+    "write-in-2" => 1,
+  },
+}
+`;
+
+exports[`generateTestDeckBallots 12`] = `
+Map {
+  "For-Governor-Republican-37f4e6fe8a2c8222fa75a0e8ca6efeab38ecac0b-abcf7543" => Map {
+    "Chuck-Morse-2a1fc58f" => 1,
+    "Frank-Negus-Staples-441c81b0" => 1,
+    "Kelly-Ayotte-36197365" => 1,
+    "Shaun-Fife-af57e9b3" => 1,
+    "Robert-Wayne-McClory-01b91e37" => 1,
+    "Richard-A-McMenamon-II-4e1a7e52" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Representative-in-Congress-Republican-4c99c1bad15ea273dbed0c-9de239c0" => Map {
+    "Max-Abramson-77f37c04" => 1,
+    "Chris-Bright-6b289d3a" => 1,
+    "Joseph-Kelly-Levasseur-72afcea5" => 1,
+    "Andy-Martin-b5e59335" => 1,
+    "Walter-J-McFarlane-III-3c0b54aa" => 1,
+    "Hollie-Noveletsky-240e674f" => 1,
+    "Russell-Prescott-7678c756" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Executive-Councilor-Republican-4d346a074bf7143649af998ce9269-3de1ddc6" => Map {
+    "Joseph-D-Kenney-36920c13" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Senator-Republican-1024aa23ec8d345e2036fe9077611716b2a-388c632e" => Map {
+    "James-P-Gray-4b8cbd89" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Representative-Strafford-District-9-Republican-bf62cbd-3adce7e9" => Map {
+    "Brandon-Phinney-372ca25a" => 1,
+    "write-in-0" => 1,
+  },
+  "For-State-Representatives-Strafford-District-19-Republican-213ee-5f2afc9d" => Map {
+    "Kelley-Potenza-875ef3c4" => 1,
+    "David-Walker-d28aa62f" => 1,
+    "Jenny-O-Wilson-f448f61f" => 1,
+    "write-in-0" => 1,
+    "write-in-1" => 1,
+    "write-in-2" => 1,
+  },
+  "For-Sheriff-Republican-7616ac2db9d656f1e904eed7a3e0870218a2a869c-be2e44cf" => Map {
+    "Scott-Tingle-a1458648" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Attorney-Republican-62ac49688972efe1f3e35c4d154229666-b006e212" => Map {
+    "write-in-0" => 1,
+  },
+  "For-County-Treasurer-Republican-62ac49688972efe1f3e35c4d15422966-6b829e63" => Map {
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Deeds-Republican-62ac49688972efe1f3e35c4d1542296-78b04e88" => Map {
+    "write-in-0" => 1,
+  },
+  "For-Register-of-Probate-Republican-cbb752eb31f1173639fe374bbd0d2-d37b3dad" => Map {
+    "Nancy-Sirois-1485a1a0" => 1,
+    "write-in-0" => 1,
+  },
+  "For-County-Commissioner-Republican-ed58d664c1c691ebb44ec51f3bda4-4a3f7784" => Map {
+    "Joe-Pitre-ae13ae07" => 1,
+    "write-in-0" => 1,
+  },
+  "For-Delegate-to-the-State-Convention-Strafford-District-9-Republ-7a17d90a" => Map {
+    "write-in-0" => 1,
+  },
+  "For-Delegates-to-the-State-Convention-Strafford-District-19-Repu-6a804d77" => Map {
+    "Paul-Callaghan-fe725d1d" => 1,
+    "write-in-0" => 1,
+    "write-in-1" => 1,
+    "write-in-2" => 1,
   },
 }
 `;
