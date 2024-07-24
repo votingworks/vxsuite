@@ -72,7 +72,17 @@ impl Scanner {
         /// receive image data.
         const ENDPOINT_IN_IMAGE_DATA: u8 = 0x86;
 
-        const BUFFER_SIZE: usize = 16_384;
+        /// Make this big enough that we can receive just about any packet in one go.
+        ///
+        /// For letter size, we have ~1700 × 2200 pixels, which is ~3.7 million
+        /// pixels. Each pixel is a single bit with bitonal scanning (which is
+        /// what we use), so we need 3.7 million bits or ~470 KB. For duplex, we
+        /// need double that, so 940 KB. For a 22" ballot, we double that again,
+        /// so let's say 2 MB to be safe. In the event the rollers roll for a
+        /// bit trying to catch the paper, we might need a bit more. So for any
+        /// reasonable paper size, 4 MB should be plenty and doesn't really put
+        /// a dent in available memory.
+        const BUFFER_SIZE: usize = 4_194_304;
 
         let (host_to_scanner_tx, host_to_scanner_rx) =
             mpsc::channel::<(usize, packets::Outgoing)>();
