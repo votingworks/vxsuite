@@ -20,6 +20,7 @@
   },
   "packageManager": "pnpm@8.1.0",
   "dependencies": {
+    "@pdf-lib/fontkit": "^1.1.1",
     "@votingworks/ballot-interpreter": "workspace:*",
     "@votingworks/basics": "workspace:*",
     "@votingworks/hmpb-layout": "workspace:*",
