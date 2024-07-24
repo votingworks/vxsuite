@@ -46,7 +46,7 @@ export function useSessionSettingsManager(
     previousAuthStatusRef.current &&
     isCardlessVoterAuth(previousAuthStatusRef.current);
   const isLoggedInAsVoter = isCardlessVoterAuth(authStatus);
-  // If the pollworker deactivated the voter session and initiated a new one, the session expires at timestamp will have changed.
+  // If the pollworker deactivated the voter session and initiated a new one, the sessionId have changed.
   const isNewVoterSession =
     isLoggedInAsVoter &&
     previousVoterAuthStatusRef.current &&
