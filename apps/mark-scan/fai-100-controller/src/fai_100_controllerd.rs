@@ -331,17 +331,23 @@ fn handle_status_response(
     let new_puff_status = new_status.puff_status;
     let new_connection_status = new_status.sip_puff_device_connection_status;
 
-    // When no sip & puff device is connected, the sip/puff values contradict docs.
+    // When sip & puff device is connected the sip/puff "EXECUTED" and "IDLE" values contradict docs.
     // +-------------------------+-------------------+-------------+
     // | Device Status           | Sip Status        | Value (Hex) |
     // +-------------------------+-------------------+-------------+
-    // | Device Connected        | No Sip            | 0x00        |
-    // | Device Connected        | Sip               | 0x01        |
-    // | Device Not Connected    | No Sip            | 0x01        |
-    // | Device Not Connected    | Sip               | 0x00        |
+    // | Device Connected        | No Sip            | 0x01        |
+    // | Device Connected        | Sip               | 0x00        |
+    // | Device Not Connected    | No Sip            | 0x00        |
     // +-------------------------+-------------------+-------------+
-    // To avoid processing erroneous signals, we throw out sip/puff data for a short time
-    // after device connection status changes
+    // The switchover between 0x00 meaning "IDLE" and "EXECUTED" doesn't happen at exactly
+    // the same instant of reported sip & puff device (dis)connection. This means there's a period
+    // of 2-3 poll intervals where 0x00 could indicate "EXECUTED" _OR_ "IDLE". Signal during this
+    // time is useless.
+    // To avoid processing erroneous signals, when sip & puff device connection status changes,
+    // 2 things must happen.
+    // 1. This function throws out the latest report
+    // 2. This function returns a bool to indicate whether polling should be paused. The caller is
+    //    responsible for pausing polling until the status report is reliable again.
     if new_connection_status != current_status.sip_puff_device_connected {
         current_status.sip_puff_device_connected = new_connection_status;
         current_status.sip = SipAndPuffSignalStatus::Idle;
