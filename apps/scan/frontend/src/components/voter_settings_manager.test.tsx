@@ -1,12 +1,14 @@
 import { DefaultTheme, ThemeContext } from 'styled-components';
 import React from 'react';
 import {
+  LanguageControls,
   VoterSettingsManagerContext,
   VoterSettingsManagerContextInterface,
+  useCurrentLanguage,
 } from '@votingworks/ui';
 import { electionGeneralDefinition } from '@votingworks/fixtures';
-import { advanceTimersAndPromises } from '@votingworks/test-utils';
-import { PRECINCT_SCANNER_STATES } from '@votingworks/types';
+import { advanceTimersAndPromises, mockOf } from '@votingworks/test-utils';
+import { LanguageCode, PRECINCT_SCANNER_STATES } from '@votingworks/types';
 import { act, render, waitFor } from '../../test/react_testing_library';
 import { VoterSettingsManager } from './voter_settings_manager';
 import {
@@ -22,21 +24,37 @@ let apiMock: ApiMock;
 let currentTheme: DefaultTheme;
 let voterSettingsManager: VoterSettingsManagerContextInterface;
 let scannerStatusQuery: ReturnType<typeof getScannerStatus.useQuery>;
+let currentLanguage: LanguageCode;
 
 function TestThemeInspector(): null {
   currentTheme = React.useContext(ThemeContext);
   voterSettingsManager = React.useContext(VoterSettingsManagerContext);
+  currentLanguage = useCurrentLanguage();
 
   scannerStatusQuery = getScannerStatus.useQuery();
 
   return null;
 }
 
+const mockLanguageControls: jest.Mocked<LanguageControls> = {
+  reset: jest.fn(),
+  setLanguage: jest.fn(),
+};
+
+jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
+  ...jest.requireActual('@votingworks/ui'),
+  useCurrentLanguage: jest.fn(),
+  useLanguageControls: () => mockLanguageControls,
+}));
+
+const mockUseCurrentLanguage = mockOf(useCurrentLanguage);
+
 beforeEach(() => {
   jest.useFakeTimers();
   apiMock = createApiMock();
   apiMock.removeCard();
   apiMock.expectGetScannerStatus(statusNoPaper);
+  mockUseCurrentLanguage.mockReturnValue(LanguageCode.ENGLISH);
 
   render(
     provideApi(
@@ -53,13 +71,13 @@ beforeEach(() => {
       },
     }
   );
-
   expect(currentTheme).toEqual(
     expect.objectContaining<Partial<DefaultTheme>>({
       colorMode: 'contrastMedium',
       sizeMode: 'touchMedium',
     })
   );
+  expect(currentLanguage).toEqual('en');
 });
 
 afterEach(() => {
@@ -69,6 +87,7 @@ afterEach(() => {
 test('Resets theme when election official logs in', async () => {
   // Simulate changing voter settings as voter:
   act(() => {
+    mockUseCurrentLanguage.mockReturnValue(LanguageCode.SPANISH);
     voterSettingsManager.setColorMode('contrastLow');
     voterSettingsManager.setSizeMode('touchExtraLarge');
   });
@@ -79,6 +98,7 @@ test('Resets theme when election official logs in', async () => {
       sizeMode: 'touchExtraLarge',
     })
   );
+  expect(currentLanguage).toEqual(LanguageCode.SPANISH);
 
   // Should reset voter settings on Election Manager login:
   act(() => apiMock.authenticateAsElectionManager(electionGeneralDefinition));
@@ -90,11 +110,13 @@ test('Resets theme when election official logs in', async () => {
       })
     )
   );
+  expect(mockLanguageControls.reset).toHaveBeenCalled();
 
   // Simulate changing voter settings as Election Manager:
   act(() => {
     voterSettingsManager.setColorMode('contrastHighDark');
     voterSettingsManager.setSizeMode('touchSmall');
+    mockUseCurrentLanguage.mockReturnValue(LanguageCode.CHINESE_SIMPLIFIED);
   });
   await waitFor(() =>
     expect(currentTheme).toEqual(
@@ -104,6 +126,7 @@ test('Resets theme when election official logs in', async () => {
       })
     )
   );
+  expect(currentLanguage).toEqual(LanguageCode.CHINESE_SIMPLIFIED);
 
   // Should return to voter settings on logout:
   act(() => apiMock.removeCard());
@@ -114,6 +137,9 @@ test('Resets theme when election official logs in', async () => {
         sizeMode: 'touchExtraLarge',
       })
     )
+  );
+  expect(mockLanguageControls.setLanguage).toHaveBeenCalledWith(
+    LanguageCode.SPANISH
   );
 });
 
@@ -142,7 +168,11 @@ test('Resets theme after successful scan', async () => {
       await scannerStatusQuery.refetch();
       await advanceTimersAndPromises();
 
-      if (oldState !== 'no_paper' && newState === 'no_paper') {
+      if (
+        oldState !== 'no_paper' &&
+        oldState !== 'paused' &&
+        newState === 'no_paper'
+      ) {
         // Should reset theme when sheet leaves the scanner:
         await waitFor(() =>
           expect(currentTheme).toEqual(
