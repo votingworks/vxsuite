@@ -53,6 +53,9 @@ export function useSessionSettingsManager(
     isCardlessVoterAuth(previousVoterAuthStatusRef.current) &&
     previousVoterAuthStatusRef.current.user.sessionId !==
       authStatus.user.sessionId;
+  console.log('isNewVoterSession', isNewVoterSession);
+  console.log(previousAuthStatusRef);
+  console.log(authStatus);
 
   React.useEffect(() => {
     // Reset to default settings and disable audio when election official logs
