@@ -228,7 +228,7 @@ export class Client {
    *
    * client.run('insert into muppets (name) values (?)', 'Kermit')
    */
-  run(sql: string, ...params: unknown[]): void;
+  run(sql: string, ...params: Bindable[]): void;
 
   /**
    * Runs `statement` with interpolated data.
@@ -278,7 +278,7 @@ export class Client {
    *
    * client.all('select * from muppets')
    */
-  all(sql: string, ...params: unknown[]): unknown[];
+  all(sql: string, ...params: Bindable[]): unknown[];
 
   /**
    * Runs `sql` to fetch a list of rows.
@@ -302,7 +302,7 @@ export class Client {
   /**
    * Runs `sql` to iterate over rows.
    */
-  each(sql: string, ...params: unknown[]): IterableIterator<unknown>;
+  each(sql: string, ...params: Bindable[]): IterableIterator<unknown>;
 
   /**
    * Runs `statement` to iterate over rows.
@@ -334,7 +334,7 @@ export class Client {
    *
    * client.one('select count(*) as count from muppets')
    */
-  one(sql: string, ...params: unknown[]): unknown;
+  one(sql: string, ...params: Bindable[]): unknown;
 
   /**
    * Runs `statement` to fetch a single row.
