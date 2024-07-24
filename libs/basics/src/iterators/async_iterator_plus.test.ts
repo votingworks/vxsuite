@@ -251,6 +251,19 @@ test('take', async () => {
     0, 1, 2, 3, 4,
   ]);
   expect(await iter([]).async().take(-1).toArray()).toEqual([]);
+
+  let count = 0;
+  await iter({
+    [Symbol.asyncIterator]: () => ({
+      next: () => {
+        count += 1;
+        return Promise.resolve({ value: count, done: false });
+      },
+    }),
+  })
+    .take(2)
+    .toArray();
+  expect(count).toEqual(2);
 });
 
 test('skip', async () => {

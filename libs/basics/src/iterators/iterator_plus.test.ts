@@ -188,6 +188,19 @@ test('take', () => {
   expect(iter(integers()).take(1).toArray()).toEqual([0]);
   expect(iter(integers()).take(5).toArray()).toEqual([0, 1, 2, 3, 4]);
   expect(iter([]).take(-1).toArray()).toEqual([]);
+
+  let count = 0;
+  iter({
+    [Symbol.iterator]: () => ({
+      next: () => {
+        count += 1;
+        return { value: count, done: false };
+      },
+    }),
+  })
+    .take(2)
+    .toArray();
+  expect(count).toEqual(2);
 });
 
 test('skip', () => {
