@@ -1,0 +1,25 @@
+[package]
+name = "fai100-controllerd"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "fai100-controllerd"
+path = "src/fai_100_controllerd.rs"
+
+[dependencies]
+clap = { workspace = true, features = ["derive"] }
+color-eyre = { workspace = true }
+ctrlc = { workspace = true }
+daemon-utils = { workspace = true }
+hex = { workspace = true }
+num_enum = { workspace = true }
+rusb = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+vx-logging = { workspace = true }
+uinput = { workspace = true }
+
+[lints]
+workspace = true
