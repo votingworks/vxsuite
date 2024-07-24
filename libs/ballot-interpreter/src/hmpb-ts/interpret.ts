@@ -133,5 +133,42 @@ export function interpret(
     data: new Uint8ClampedArray(backNormalizedImage.data),
   };
 
+  assert(interpretedBallotCard.front.metadata.source === 'qr-code');
+  assert(interpretedBallotCard.back.metadata.source === 'qr-code');
+  assert(
+    electionDefinition.electionHash.slice(0, 20) ===
+      interpretedBallotCard.front.metadata.electionHash,
+    `Hash mismatch: ${electionDefinition.electionHash.slice(0, 20)} != ${
+      interpretedBallotCard.front.metadata.electionHash
+    }`
+  );
+  assert(
+    electionDefinition.electionHash.slice(0, 20) ===
+      interpretedBallotCard.back.metadata.electionHash,
+    `Hash mismatch: ${electionDefinition.electionHash.slice(0, 20)} != ${
+      interpretedBallotCard.back.metadata.electionHash
+    }`
+  );
+  assert(
+    electionDefinition.election.precincts
+      .map((p) => p.id)
+      .includes(interpretedBallotCard.front.metadata.precinctId)
+  );
+  assert(
+    electionDefinition.election.precincts
+      .map((p) => p.id)
+      .includes(interpretedBallotCard.back.metadata.precinctId)
+  );
+  assert(
+    electionDefinition.election.ballotStyles
+      .map((b) => b.id)
+      .includes(interpretedBallotCard.front.metadata.ballotStyleId)
+  );
+  assert(
+    electionDefinition.election.ballotStyles
+      .map((b) => b.id)
+      .includes(interpretedBallotCard.back.metadata.ballotStyleId)
+  );
+
   return ok(interpretedBallotCard);
 }
