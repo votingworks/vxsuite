@@ -211,7 +211,9 @@ function Header({
 function WriteInLabel() {
   return (
     <span>
-      <DualLanguageText>{hmpbStrings.hmpbWriteIn}</DualLanguageText>
+      <DualLanguageText delimiter="/">
+        {hmpbStrings.hmpbWriteIn}
+      </DualLanguageText>
     </span>
   );
 }
