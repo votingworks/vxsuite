@@ -24,6 +24,7 @@ export function UnconfiguredElectionScreenWrapper(
   // TODO move watching for USB drive to configure to the backend
   useEffect(() => {
     if (
+      isElectionManagerAuth &&
       usbDriveStatusQuery.isSuccess &&
       usbDriveStatusQuery.data.status === 'mounted'
     ) {
@@ -34,6 +35,7 @@ export function UnconfiguredElectionScreenWrapper(
     configureMutation.mutate,
     usbDriveStatusQuery.isSuccess,
     usbDriveStatusQuery.data?.status,
+    isElectionManagerAuth,
   ]);
 
   const error = configureMutation.data?.err();
