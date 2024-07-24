@@ -55,14 +55,6 @@ function referencedFile(input: {
       }
 
       if (sha256(fileContents) !== input.expectedFileHash) {
-        console.log(
-          'filePath',
-          input.filePath,
-          'sha256(fileContents)',
-          sha256(fileContents),
-          'input.expectedFileHash',
-          input.expectedFileHash
-        );
         return err({
           type: 'invalid-cast-vote-record',
           subType: `incorrect-${input.fileType}-hash`,
