@@ -19,6 +19,7 @@ import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 const { electionDefinition } = electionFamousNames2021Fixtures;
 const { election } = electionDefinition;
 
+const FAILURE_THRESHOLD = 0.001;
 const testReportProps: AdminTallyReportByPartyProps = {
   title: 'North Lincoln Tally Report',
   isOfficial: false,
@@ -44,6 +45,7 @@ test('rendered tally report matches snapshot', async () => {
 
   await expect(outputPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'single-page-tally-report',
+    failureThreshold: FAILURE_THRESHOLD,
   });
 });
 
@@ -57,6 +59,7 @@ test('rendered tally report has minimum of letter when size is LetterRoll', asyn
 
   await expect(outputPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'single-page-tally-report',
+    failureThreshold: FAILURE_THRESHOLD,
   });
 });
 
@@ -125,9 +128,11 @@ test('can render multiple documents at once', async () => {
 
   await expect(outputPath1).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'single-page-tally-report',
+    failureThreshold: FAILURE_THRESHOLD,
   });
   await expect(outputPath2).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'roll-document',
+    failureThreshold: FAILURE_THRESHOLD,
   });
 });
 

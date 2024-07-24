@@ -109,13 +109,16 @@ export async function renderToPdf(
     // be in the PDF, which allows us to determine the necessary height to fit
     // the page to the content. viewport height here is irrelevant, but we have to
     // set something.
+    const viewportHeight =
+      // Viewport height can't be infinity
+      height === Infinity ? PAPER_DIMENSIONS.Letter.height : height;
     await page.setViewportSize({
       // Nonintenger values are not supported
       width: Math.floor(
         (width - horizontalMargin) * PLAYWRIGHT_PIXELS_PER_INCH
       ),
       height: Math.floor(
-        (height - verticalMargin) * PLAYWRIGHT_PIXELS_PER_INCH
+        (viewportHeight - verticalMargin) * PLAYWRIGHT_PIXELS_PER_INCH
       ),
     });
 
@@ -177,7 +180,9 @@ export async function renderToPdf(
         path: outputPath,
         width: inchesToText(width),
         height: inchesToText(
-          height === Infinity ? Math.max(height, contentHeight) : height
+          height === Infinity
+            ? Math.max(PAPER_DIMENSIONS.Letter.height, contentHeight)
+            : height
         ),
         margin: {
           top: inchesToText(marginDimensions.top),
