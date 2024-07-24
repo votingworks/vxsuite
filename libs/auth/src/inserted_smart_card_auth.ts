@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer';
+import { v4 as uuid } from 'uuid';
 import {
   assert,
   deepEqual,
@@ -252,7 +253,11 @@ export class InsertedSmartCardAuth implements InsertedSmartCardAuthApi {
       return;
     }
 
-    this.cardlessVoterUser = { ...input, role: 'cardless_voter' };
+    this.cardlessVoterUser = {
+      ...input,
+      sessionId: uuid(),
+      role: 'cardless_voter',
+    };
 
     await this.logger.log(LogEventId.AuthLogin, 'cardless_voter', {
       disposition: LogDispositionStandardTypes.Success,

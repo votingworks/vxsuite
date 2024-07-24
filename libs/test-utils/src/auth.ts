@@ -64,6 +64,7 @@ export function mockCardlessVoterUser(
     role: 'cardless_voter',
     ballotStyleId: 'ballot-style-id',
     precinctId: 'precinct-id',
+    sessionId: 'session-id',
     ...props,
   };
 }

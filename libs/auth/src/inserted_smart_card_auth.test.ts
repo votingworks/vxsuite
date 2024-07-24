@@ -862,7 +862,10 @@ test('Cardless voter sessions - ending preemptively', async () => {
     status: 'logged_in',
     user: pollWorkerUser,
     sessionExpiresAt: expect.any(Date),
-    cardlessVoterUser,
+    cardlessVoterUser: {
+      ...cardlessVoterUser,
+      sessionId: expect.any(String),
+    },
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(1);
   expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -912,7 +915,10 @@ test('Cardless voter sessions - end-to-end', async () => {
     status: 'logged_in',
     user: pollWorkerUser,
     sessionExpiresAt: expect.any(Date),
-    cardlessVoterUser,
+    cardlessVoterUser: {
+      ...cardlessVoterUser,
+      sessionId: expect.any(String),
+    },
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(1);
   expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -929,7 +935,10 @@ test('Cardless voter sessions - end-to-end', async () => {
   mockCardStatus({ status: 'no_card' });
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
-    user: cardlessVoterUser,
+    user: {
+      ...cardlessVoterUser,
+      sessionId: expect.any(String),
+    },
     sessionExpiresAt: expect.any(Date),
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(2);
@@ -955,7 +964,10 @@ test('Cardless voter sessions - end-to-end', async () => {
     status: 'logged_in',
     user: pollWorkerUser,
     sessionExpiresAt: expect.any(Date),
-    cardlessVoterUser,
+    cardlessVoterUser: {
+      ...cardlessVoterUser,
+      sessionId: expect.any(String),
+    },
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(3);
   expect(mockLogger.log).toHaveBeenNthCalledWith(
@@ -972,7 +984,10 @@ test('Cardless voter sessions - end-to-end', async () => {
   mockCardStatus({ status: 'no_card' });
   expect(await auth.getAuthStatus(defaultMachineState)).toEqual({
     status: 'logged_in',
-    user: cardlessVoterUser,
+    user: {
+      ...cardlessVoterUser,
+      sessionId: expect.any(String),
+    },
     sessionExpiresAt: expect.any(Date),
   });
   expect(mockLogger.log).toHaveBeenCalledTimes(4);

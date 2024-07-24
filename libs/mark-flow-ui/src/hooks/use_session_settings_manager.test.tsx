@@ -14,7 +14,7 @@ import {
   mockUseAudioControls,
   mockOf,
 } from '@votingworks/test-utils';
-import { AudioControls, LanguageCode, VotesDict } from '@votingworks/types';
+import { AudioControls, LanguageCode } from '@votingworks/types';
 import { act, render } from '../../test/react_testing_library';
 import {
   UseSessionSettingsManagerParams,
@@ -44,8 +44,6 @@ const DEFAULT_THEME: Partial<DefaultTheme> = {
   sizeMode: 'touchMedium',
   isVisualModeDisabled: false,
 };
-const ACTIVE_VOTING_SESSION_VOTES: VotesDict = {};
-const NEW_VOTING_SESSION_VOTES = undefined;
 const { CHINESE_SIMPLIFIED, SPANISH } = LanguageCode;
 
 let currentTheme: DefaultTheme;
@@ -85,7 +83,6 @@ test('Resets settings when election official logs in', () => {
         user: mockCardlessVoterUser(),
         sessionExpiresAt: mockSessionExpiresAt(),
       }}
-      votes={ACTIVE_VOTING_SESSION_VOTES}
     />,
     { vxTheme: DEFAULT_THEME }
   );
@@ -125,7 +122,6 @@ test('Resets settings when election official logs in', () => {
         user: mockElectionManagerUser(),
         sessionExpiresAt: mockSessionExpiresAt(),
       }}
-      votes={ACTIVE_VOTING_SESSION_VOTES}
     />
   );
   expect(currentTheme).toEqual(
@@ -157,7 +153,6 @@ test('Resets settings when election official logs in', () => {
         user: mockCardlessVoterUser(),
         sessionExpiresAt: mockSessionExpiresAt(),
       }}
-      votes={ACTIVE_VOTING_SESSION_VOTES}
     />
   );
   expect(currentTheme).toEqual(
@@ -180,7 +175,6 @@ test('Resets theme to default if returning to a new voter session', () => {
         user: mockCardlessVoterUser(),
         sessionExpiresAt: mockSessionExpiresAt(),
       }}
-      votes={ACTIVE_VOTING_SESSION_VOTES}
     />,
     { vxTheme: DEFAULT_THEME }
   );
@@ -210,7 +204,6 @@ test('Resets theme to default if returning to a new voter session', () => {
         user: mockElectionManagerUser(),
         sessionExpiresAt: mockSessionExpiresAt(),
       }}
-      votes={ACTIVE_VOTING_SESSION_VOTES}
     />
   );
   mockUseCurrentLanguage.mockReturnValue(CHINESE_SIMPLIFIED);
@@ -236,10 +229,12 @@ test('Resets theme to default if returning to a new voter session', () => {
     <TestHookWrapper
       authStatus={{
         status: 'logged_in',
-        user: mockCardlessVoterUser(),
+        user: {
+          ...mockCardlessVoterUser(),
+          sessionId: 'new_session',
+        },
         sessionExpiresAt: mockSessionExpiresAt(),
       }}
-      votes={NEW_VOTING_SESSION_VOTES}
     />
   );
   expect(currentTheme).toEqual(
