@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import { join } from 'path';
 import * as tmp from 'tmp';
-import { Client } from './client';
+import { Client, Statement } from './client';
 
 test('file database client', () => {
   const dbFile = tmp.fileSync();
@@ -206,6 +206,29 @@ test('transactions', async () => {
   expect(client.one('select count(*) as count from muppets')).toEqual({
     count: 3,
   });
+});
+
+test('prepared statements', () => {
+  const client = Client.memoryClient();
+
+  client.exec(
+    'create table if not exists muppets (name varchar(255) unique not null)'
+  );
+  const insertMuppet: Statement<[string]> = client.prepare(
+    'insert into muppets (name) values (?)'
+  );
+  client.run(insertMuppet, 'Kermit');
+  client.run(insertMuppet, 'Fozzie');
+
+  const selectMuppet: Statement<[string]> = client.prepare(
+    'select * from muppets where name = ?'
+  );
+  expect(client.one(selectMuppet, 'Kermit')).toEqual({ name: 'Kermit' });
+  expect(client.all(selectMuppet, 'Fozzie')).toEqual([{ name: 'Fozzie' }]);
+  expect([...client.each(selectMuppet, 'Fozzie')]).toEqual([
+    { name: 'Fozzie' },
+  ]);
+  expect(client.one(selectMuppet, 'Fozzie')).toEqual({ name: 'Fozzie' });
 });
 
 test('schema loading', () => {
