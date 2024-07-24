@@ -1,6 +1,6 @@
 use std::{io, time::Duration};
 
-use color_eyre::eyre::{bail, ErrReport, Result};
+use color_eyre::eyre::{bail, eyre, ErrReport, Result};
 use rusb::{Context, DeviceHandle, UsbContext};
 
 const INTERFACE_NUMBER: u8 = 0x00;
@@ -39,10 +39,9 @@ impl UsbDevice {
             };
 
             if device_desc.vendor_id() == vendor_id && device_desc.product_id() == product_id {
-                match device.open() {
-                    Ok(handle) => return Ok(handle),
-                    Err(e) => bail!("Device found but failed to open: {e}"),
-                }
+                return device
+                    .open()
+                    .map_err(|e| eyre!("Device found but failed to open: {e}"));
             }
         }
 

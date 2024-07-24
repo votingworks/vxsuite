@@ -318,12 +318,14 @@ fn send_keystroke(keypress: &KeypressSpec, keyboard: &mut impl VirtualKeyboard) 
 /// Checks new status for changed statuses in button press, sip, puff, and sip & puff device connection.
 /// If changing from inactive to active, sends the appropriate event (keypress or system file update).
 /// If changing from active to inactive or no status change, does nothing.
+/// Returns a bool describing whether the polling loop should pause, true if the caller should pause
+/// the polling loop.
 fn handle_status_response(
     new_status: NotificationStatusResponse,
     current_status: &mut CurrentStatus,
     keyboard: &mut impl VirtualKeyboard,
     workspace_path: &Path,
-) -> Result<(), CommandError> {
+) -> Result<bool, CommandError> {
     let new_button = new_status.button_pressed;
     let new_sip_status = new_status.sip_status;
     let new_puff_status = new_status.puff_status;
@@ -349,8 +351,7 @@ fn handle_status_response(
         // Write device connection status to system file so mark-scan app is aware
         write_pat_connection_status(new_connection_status, workspace_path)?;
 
-        sleep(3 * POLL_INTERVAL);
-        return Ok(());
+        return Ok(true);
     }
 
     // If the new button isn't currently being pressed (ie. this is a keydown event), send a keypress
@@ -399,7 +400,7 @@ fn handle_status_response(
         current_status.puff = new_puff_status;
     }
 
-    Ok(())
+    Ok(false)
 }
 
 fn run_event_loop(
@@ -455,17 +456,19 @@ fn run_event_loop(
                 let data = &buf[..RESPONSE_BYTE_LENGTH];
                 match NotificationStatusResponse::try_from(data) {
                     Ok(response) => {
-                        if let Err(e) = handle_status_response(
+                        match handle_status_response(
                             response,
                             &mut current_status,
                             keyboard,
                             workspace_path,
                         ) {
-                            log!(
+                            Ok(true) => sleep(3 * POLL_INTERVAL),
+                            Ok(false) => (),
+                            Err(e) => log!(
                                 event_id: EventId::UnknownError,
                                 message: format!("Unexpected error when handling status response: {e:?}"),
                                 event_type: EventType::SystemStatus
-                            );
+                            ),
                         }
                     }
                     Err(e) => log!(

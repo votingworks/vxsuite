@@ -126,7 +126,7 @@ pub struct NotificationStatusResponse {
     pub sip_puff_device_connection_status: SipAndPuffDeviceStatus,
 }
 
-// Not all possibleresponses are 31 bytes, but all the ones we use are
+// Not all possible responses are 31 bytes, but all the ones we use are
 pub const RESPONSE_BYTE_LENGTH: usize = 31;
 
 impl TryFrom<&[u8]> for NotificationStatusResponse {
