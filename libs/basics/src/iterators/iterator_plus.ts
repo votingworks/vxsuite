@@ -273,7 +273,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     );
   }
 
-  max(): T | undefined;
+  max(this: IteratorPlus<number>): T;
   max(compareFn: (a: T, b: T) => number): T | undefined;
   max(
     compareFn: (a: T, b: T) => number = (a, b) => (a < b ? -1 : a > b ? 1 : 0)
@@ -285,7 +285,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     return this.minBy((item) => -fn(item));
   }
 
-  min(): T extends number ? T | undefined : unknown;
+  min(this: IteratorPlus<number>): T;
   min(compareFn?: (a: T, b: T) => number): T | undefined;
   min(
     compareFn: (a: T, b: T) => number = (a, b) => (a < b ? -1 : a > b ? 1 : 0)
@@ -385,7 +385,7 @@ export class IteratorPlusImpl<T> implements IteratorPlus<T>, AsyncIterable<T> {
     return false;
   }
 
-  sum(): T extends number ? number : unknown;
+  sum(this: IteratorPlus<number>): T;
   sum(fn: (item: T) => number): number;
   sum(fn?: (item: T) => number): number | unknown {
     let sum = 0;

@@ -568,6 +568,9 @@ test('min', async () => {
       expect(await iter(arr).async().min()).toEqual(Math.min(...arr));
     })
   );
+
+  // @ts-expect-error - should be an array of numbers
+  await iter(['a']).async().min();
 });
 
 test('minBy', async () => {
@@ -634,6 +637,9 @@ test('max', async () => {
       expect(await iter(arr).async().max()).toEqual(Math.max(...arr));
     })
   );
+
+  // @ts-expect-error - should be an array of numbers
+  await iter(['a']).async().max();
 });
 
 test('maxBy', async () => {
@@ -682,6 +688,9 @@ test('sum', async () => {
       );
     })
   );
+
+  // @ts-expect-error - should be an array of numbers
+  await iter(['a']).async().sum();
 });
 
 test('partition', async () => {

@@ -1,5 +1,4 @@
 import * as fc from 'fast-check';
-import { typedAs } from '../typed_as';
 import { integers } from './integers';
 import { iter } from './iter';
 import { naturals } from './naturals';
@@ -403,9 +402,8 @@ test('min', () => {
     })
   );
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
-  typedAs<number | undefined>(iter(['a']).min());
+  // @ts-expect-error - should be an array of numbers
+  iter(['a']).min();
 });
 
 test('minBy', () => {
@@ -430,6 +428,9 @@ test('max', () => {
       expect(iter(arr).max()).toEqual(Math.max(...arr));
     })
   );
+
+  // @ts-expect-error - should be an array of numbers
+  iter(['a']).max();
 });
 
 test('maxBy', () => {
@@ -452,6 +453,9 @@ test('sum', () => {
       expect(iter(arr).sum()).toEqual(arr.reduce((a, b) => a + b));
     })
   );
+
+  // @ts-expect-error - should be an array of numbers
+  iter(['a']).sum();
 });
 
 test('partition', () => {
