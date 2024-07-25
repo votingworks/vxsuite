@@ -43,6 +43,7 @@ import { Api, buildApp } from './app';
 import { PaperHandlerStateMachine } from './custom-paper-handler';
 import { ElectionState } from './types';
 import {
+  mockCardlessVoterAuth,
   mockElectionManagerAuth,
   mockPollWorkerAuth,
 } from '../test/auth_helpers';
@@ -408,6 +409,7 @@ async function mockLoadFlow(
 ) {
   await testApiClient.setAcceptingPaperState();
   testDriver.setMockStatus('paperInserted');
+  mockCardlessVoterAuth(mockAuth);
   await waitForStatus('waiting_for_ballot_data');
 }
 
@@ -429,6 +431,7 @@ test('ballot invalidation flow', async () => {
   await configureForTestElection(electionGeneralDefinition);
   await mockLoadAndPrint(apiClient, driver);
   await apiClient.invalidateBallot();
+  mockPollWorkerAuth(mockAuth, electionGeneralDefinition);
   await waitForStatus(
     'waiting_for_invalidated_ballot_confirmation.paper_present'
   );
@@ -542,6 +545,7 @@ test('printing ballots', async () => {
   deferredEjection.resolve(true);
   driver.setMockStatus('noPaper');
   await waitForStatus('not_accepting_paper');
+  mockPollWorkerAuth(mockAuth, electionDefinition);
 
   // vote a ballot in Chinese
   await mockLoadFlow(apiClient, driver);

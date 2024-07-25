@@ -274,6 +274,8 @@ describe('loading_paper', () => {
 
     driver.setMockStatus('paperInserted');
     await expectStatusTransitionTo('loading_paper');
+    await expectStatusTransitionTo('waiting_for_voter_auth');
+    mockCardlessVoterAuth(auth);
     await expectStatusTransitionTo('waiting_for_ballot_data');
   });
 });
@@ -391,6 +393,8 @@ async function executePrintBallotAndAssert(
   machine.setAcceptingPaper();
   driver.setMockStatus('paperInserted');
   await expectStatusTransitionTo('loading_paper');
+  await expectStatusTransitionTo('waiting_for_voter_auth');
+  mockCardlessVoterAuth(auth);
   await expectStatusTransitionTo('waiting_for_ballot_data');
 
   void machine.printBallot(ballotPdfData);
@@ -597,8 +601,9 @@ describe('PAT device', () => {
     );
 
     await expectStatusTransitionTo('loading_paper');
-    await expectStatusTransitionTo('waiting_for_ballot_data');
+    await expectStatusTransitionTo('waiting_for_voter_auth');
     mockCardlessVoterAuth(auth);
+    await expectStatusTransitionTo('waiting_for_ballot_data');
   }
   // Get into the state at the start of a voter session.
   test('HID adapter support', async () => {
@@ -661,10 +666,11 @@ describe('PAT device', () => {
       jest.requireActual('./application_driver').loadAndParkPaper
     );
     await expectStatusTransitionTo('loading_paper');
-    await expectStatusTransitionTo('waiting_for_ballot_data');
+    await expectStatusTransitionTo('waiting_for_voter_auth');
 
     // Change to voter auth to see state change to pat_device_connected
     mockCardlessVoterAuth(auth);
+    await expectStatusTransitionTo('waiting_for_ballot_data');
     await expectStatusTransitionTo('pat_device_connected');
     expect(machine.isPatDeviceConnected()).toEqual(true);
   });
@@ -870,6 +876,9 @@ test('insert and validate new blank sheet', async () => {
   await expectStatusTransitionTo('validating_new_sheet');
 
   mockInterpretResult.resolve(BLANK_PAGE_INTERPRETATION_MOCK);
+
+  await expectStatusTransitionTo('waiting_for_voter_auth');
+  mockCardlessVoterAuth(auth);
   await expectStatusTransitionTo('waiting_for_ballot_data');
   expect(
     mockOf(interpretSimplexBmdBallotFromFilepath)

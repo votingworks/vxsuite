@@ -783,7 +783,7 @@ export function buildMachine(
             paper_reloaded: {
               invoke: pollAuthStatus(),
               on: {
-                AUTH_STATUS_CARDLESS_VOTER: 'waiting_for_voter_auth',
+                AUTH_STATUS_CARDLESS_VOTER: 'waiting_for_ballot_data',
                 AUTH_STATUS_LOGGED_OUT: 'not_accepting_paper',
                 AUTH_STATUS_UNHANDLED: 'not_accepting_paper',
               },
@@ -1413,6 +1413,7 @@ export async function getPaperHandlerStateMachine({
         case state.matches('voting_flow.loading_new_sheet'):
           return 'loading_new_sheet';
         case state.matches('voting_flow.waiting_for_voter_auth'):
+          return 'waiting_for_voter_auth';
         case state.matches('voting_flow.waiting_for_ballot_data'):
           return 'waiting_for_ballot_data';
         case state.matches('voting_flow.printing_ballot'):
