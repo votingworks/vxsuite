@@ -47,7 +47,7 @@ afterEach(() => {
 it('gamepad controls work', async () => {
   apiMock.expectGetMachineConfig();
 
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',

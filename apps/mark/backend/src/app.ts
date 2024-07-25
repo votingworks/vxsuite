@@ -1,6 +1,12 @@
 import express, { Application } from 'express';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { assert, ok, Result, throwIllegalValue } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  ok,
+  Result,
+  throwIllegalValue,
+} from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
   ElectionPackageConfigurationError,
@@ -108,8 +114,11 @@ export function buildApi(
       return auth.endCardlessVoterSession(constructAuthMachineState(workspace));
     },
 
-    getElectionDefinition(): ElectionDefinition | null {
-      return workspace.store.getElectionDefinition() ?? null;
+    getElectionRecord(): {
+      electionDefinition: ElectionDefinition;
+      electionPackageHash: string;
+    } | null {
+      return workspace.store.getElectionRecord() ?? null;
     },
 
     getSystemSettings(): SystemSettings {
@@ -136,7 +145,8 @@ export function buildApi(
         return electionPackageResult;
       }
       assert(isElectionManagerAuth(authStatus));
-      const electionPackage = electionPackageResult.ok();
+      const { electionPackage, electionPackageHash } =
+        electionPackageResult.ok();
       const { electionDefinition, systemSettings } = electionPackage;
       assert(systemSettings);
 
@@ -144,6 +154,7 @@ export function buildApi(
         workspace.store.setElectionAndJurisdiction({
           electionData: electionDefinition.electionData,
           jurisdiction: authStatus.user.jurisdiction,
+          electionPackageHash,
         });
         workspace.store.setSystemSettings(systemSettings);
 
@@ -229,8 +240,7 @@ export function buildApi(
     async setPrecinctSelection(input: {
       precinctSelection: PrecinctSelection;
     }): Promise<void> {
-      const electionDefinition = store.getElectionDefinition();
-      assert(electionDefinition);
+      const { electionDefinition } = assertDefined(store.getElectionRecord());
       store.setPrecinctSelection(input.precinctSelection);
       store.setBallotsPrintedCount(0);
       await logger.logAsCurrentRole(LogEventId.PrecinctConfigurationChanged, {

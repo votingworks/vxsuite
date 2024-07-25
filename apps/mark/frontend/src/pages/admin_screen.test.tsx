@@ -41,6 +41,7 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
         appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
         ballotsPrintedCount={0}
         electionDefinition={asElectionDefinition(election)}
+        electionPackageHash="test-election-package-hash"
         isTestMode
         unconfigure={jest.fn()}
         machineConfig={mockMachineConfig({

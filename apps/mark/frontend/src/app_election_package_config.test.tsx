@@ -21,7 +21,7 @@ test('renders an error if election package config endpoint returns an error', as
     screenOrientation: 'portrait',
   });
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
   apiMock.setAuthStatusElectionManagerLoggedIn(electionGeneralDefinition);
 
@@ -35,7 +35,7 @@ test('renders an error if election package config endpoint returns an error', as
 
   apiMock.expectConfigureElectionPackageFromUsbError('election_key_mismatch');
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
   await screen.findByText('Configuring VxMark from USB drive…');

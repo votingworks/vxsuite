@@ -209,10 +209,13 @@ export function createApiMock() {
       });
     },
 
-    expectGetElectionDefinition(electionDefinition: ElectionDefinition | null) {
-      mockApiClient.getElectionDefinition
-        .expectCallWith()
-        .resolves(electionDefinition);
+    expectGetElectionRecord(electionDefinition: ElectionDefinition | null) {
+      mockApiClient.getElectionRecord.expectCallWith().resolves(
+        electionDefinition && {
+          electionDefinition,
+          electionPackageHash: 'test-election-package-hash',
+        }
+      );
     },
 
     expectGetSystemSettings(

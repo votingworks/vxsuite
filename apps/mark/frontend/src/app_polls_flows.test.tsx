@@ -25,7 +25,7 @@ test('full polls flow', async () => {
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_closed_initial',
@@ -98,7 +98,7 @@ test('full polls flow', async () => {
 
 test('can close polls from paused', async () => {
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_paused',
@@ -126,7 +126,7 @@ test('can close polls from paused', async () => {
 
 test('no buttons to change polls from closed final', async () => {
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_closed_final',
@@ -151,7 +151,7 @@ test('no buttons to change polls from closed final', async () => {
 
 test('can reset polls to paused with system administrator card', async () => {
   const { renderApp } = buildApp(apiMock);
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_closed_final',

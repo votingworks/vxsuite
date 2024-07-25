@@ -73,6 +73,7 @@ function renderScreen(
         resetCardlessVoterSession={jest.fn()}
         appPrecinct={singlePrecinctSelectionFor(defaultPrecinctId)}
         electionDefinition={electionDefinition}
+        electionPackageHash="test-election-package-hash"
         hasVotes={false}
         isLiveMode={false}
         pollsState="polls_open"

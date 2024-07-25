@@ -26,7 +26,7 @@ export async function printBallot({
   votes,
   languageCode,
 }: PrintBallotProps): Promise<void> {
-  const electionDefinition = assertDefined(store.getElectionDefinition());
+  const { electionDefinition } = assertDefined(store.getElectionRecord());
   const isLiveMode = !store.getTestMode();
 
   const ballot = (
