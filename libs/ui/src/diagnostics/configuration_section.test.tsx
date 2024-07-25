@@ -1,5 +1,5 @@
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
-import { getDisplayBallotHash } from '@votingworks/types';
+import { formatBallotHash } from '@votingworks/types';
 import { render, screen } from '../../test/react_testing_library';
 import { ConfigurationSection } from './configuration_section';
 import { expectTextWithIcon } from '../../test/expect_text_with_icon';
@@ -20,8 +20,8 @@ test('election, no precinct expected', () => {
 
   screen.getByRole('heading', { name: 'Configuration' });
   screen.getByText(
-    `Election: Example Primary Election, ${getDisplayBallotHash(
-      electionDefinition
+    `Election: Example Primary Election, ${formatBallotHash(
+      electionDefinition.ballotHash
     )}`
   );
   expect(screen.queryByText('Precinct:')).not.toBeInTheDocument();
@@ -41,8 +41,8 @@ test('election, precinct expected but not selected', async () => {
 
   screen.getByRole('heading', { name: 'Configuration' });
   screen.getByText(
-    `Election: Example Primary Election, ${getDisplayBallotHash(
-      electionDefinition
+    `Election: Example Primary Election, ${formatBallotHash(
+      electionDefinition.ballotHash
     )}`
   );
   await expectTextWithIcon('No precinct selected.', 'triangle-exclamation');
@@ -62,8 +62,8 @@ test('election, all precincts selected', () => {
 
   screen.getByRole('heading', { name: 'Configuration' });
   screen.getByText(
-    `Election: Example Primary Election, ${getDisplayBallotHash(
-      electionDefinition
+    `Election: Example Primary Election, ${formatBallotHash(
+      electionDefinition.ballotHash
     )}`
   );
   screen.getByText(`Precinct: All Precincts`);

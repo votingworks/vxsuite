@@ -2,7 +2,7 @@ import React from 'react';
 
 import {
   ElectionDefinition,
-  getDisplayBallotHash,
+  formatBallotHash,
   PrecinctSelection,
 } from '@votingworks/types';
 import styled from 'styled-components';
@@ -112,7 +112,9 @@ export function ElectionInfoBar({
   const electionIdInfo = (
     <Caption noWrap>
       <LabelledText label="Election ID">
-        <Font weight="bold">{getDisplayBallotHash(electionDefinition)}</Font>
+        <Font weight="bold">
+          {formatBallotHash(electionDefinition.ballotHash)}
+        </Font>
       </LabelledText>
     </Caption>
   );
@@ -192,7 +194,7 @@ export function VerticalElectionInfoBar({
         <div>
           Election ID:{' '}
           <Font weight="semiBold">
-            {getDisplayBallotHash(electionDefinition)}
+            {formatBallotHash(electionDefinition.ballotHash)}
           </Font>
         </div>
       </Caption>

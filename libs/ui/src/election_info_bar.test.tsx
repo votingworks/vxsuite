@@ -3,7 +3,7 @@ import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { getDisplayBallotHash } from '@votingworks/types';
+import { formatBallotHash } from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen, within } from '../test/react_testing_library';
 import { ElectionInfoBar, VerticalElectionInfoBar } from './election_info_bar';
@@ -13,7 +13,7 @@ jest.mock('@votingworks/types', () => {
   return {
     ...jest.requireActual('@votingworks/types'),
     // mock ballot hash so snapshots don't change with every change to the election definition
-    getDisplayBallotHash: () => '0000000000',
+    formatBallotHash: () => '0000000000',
   };
 });
 
@@ -40,7 +40,7 @@ describe('ElectionInfoBar', () => {
 
     const electionIdLabel = screen.getByText('Election ID');
     expect(electionIdLabel.parentElement?.lastChild).toHaveTextContent(
-      getDisplayBallotHash(electionGeneralDefinition)
+      formatBallotHash(electionGeneralDefinition.ballotHash)
     );
   });
 
@@ -124,7 +124,7 @@ describe('VerticalElectionInfoBar', () => {
     screen.getByText(hasTextAcrossElements('Machine ID: 0000'));
     screen.getByText(/Election ID/);
     within(screen.getByText(/Election ID/).parentElement!).getByText(
-      getDisplayBallotHash(electionGeneralDefinition)
+      formatBallotHash(electionGeneralDefinition.ballotHash)
     );
   });
 

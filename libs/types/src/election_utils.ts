@@ -12,7 +12,6 @@ import {
   District,
   DistrictId,
   Election,
-  ElectionDefinition,
   Parties,
   Party,
   PartyId,
@@ -386,10 +385,8 @@ export function isVotePresent(v?: Vote): boolean {
 
 export const BALLOT_HASH_DISPLAY_LENGTH = 10;
 
-export function getDisplayBallotHash(
-  electionDefinition: Pick<ElectionDefinition, 'ballotHash'>
-): string {
-  return electionDefinition.ballotHash.slice(0, BALLOT_HASH_DISPLAY_LENGTH);
+export function formatBallotHash(ballotHash: string): string {
+  return ballotHash.slice(0, BALLOT_HASH_DISPLAY_LENGTH);
 }
 
 // In inches

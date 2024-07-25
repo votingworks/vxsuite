@@ -7,7 +7,7 @@ import {
   ElectionSerializationFormat,
   ElectionPackageFileName,
   ElectionPackageMetadata,
-  getDisplayBallotHash,
+  formatBallotHash,
   Id,
   mergeUiStrings,
   Election,
@@ -111,7 +111,7 @@ export async function generateElectionPackage(
   );
   zip.file(ElectionPackageFileName.AUDIO_CLIPS, uiStringAudioClips);
 
-  const displayBallotHash = getDisplayBallotHash(electionDefinition);
+  const displayBallotHash = formatBallotHash(electionDefinition.ballotHash);
   const fileName = `election-package-${displayBallotHash}.zip`;
   const filePath = path.join(assetDirectoryPath, fileName);
   await pipeline(

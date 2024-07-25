@@ -13,7 +13,7 @@ import {
   AdjudicationReason,
   ElectionPackageConfigurationError,
   SheetInterpretation,
-  getDisplayBallotHash,
+  formatBallotHash,
 } from '@votingworks/types';
 import { Result, deferred, err, ok } from '@votingworks/basics';
 
@@ -344,7 +344,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   screen.getByText(/State of Sample/);
   screen.getByText('Election ID');
   within(screen.getByText('Election ID').parentElement!).getByText(
-    getDisplayBallotHash(electionDefinition)
+    formatBallotHash(electionDefinition.ballotHash)
   );
 
   await scanBallot();
