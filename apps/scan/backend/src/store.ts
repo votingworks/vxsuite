@@ -618,7 +618,7 @@ export class Store {
         back.imagePath
       );
 
-      const row = this.client.one<[string]>(
+      const row = this.client.one(
         'select id from sheets where front_image_path = ?',
         front.imagePath
       ) as { id: string } | undefined;

@@ -11,7 +11,7 @@ import {
   isResult,
   assert,
 } from '@votingworks/basics';
-import { Bindable, Client as DbClient } from '@votingworks/db';
+import { Bindable, Client as DbClient, Statement } from '@votingworks/db';
 import {
   AnyContest,
   BallotId,
@@ -2347,23 +2347,18 @@ export class Store {
     }
 
     if (writeInCandidateIds.length > 0) {
-      const params: Bindable[] = [];
-      const questionMarks: string[] = [];
-      for (const writeInCandidateId of writeInCandidateIds) {
-        params.push(manualResultsRecordId, writeInCandidateId);
-        questionMarks.push('(?, ?)');
-      }
-
       // insert new write-in candidate references
-      this.client.run(
-        `
-          insert into manual_result_write_in_candidate_references (
-            manual_result_id,
-            write_in_candidate_id
-          ) values ${questionMarks.join(', ')}
-        `,
-        ...params
-      );
+      const statement: Statement<
+        [typeof manualResultsRecordId, (typeof writeInCandidateIds)[number]]
+      > = this.client.prepare(`
+        insert into manual_result_write_in_candidate_references (
+          manual_result_id,
+          write_in_candidate_id
+        ) values (?, ?)`);
+
+      for (const writeInCandidateId of writeInCandidateIds) {
+        this.client.run(statement, manualResultsRecordId, writeInCandidateId);
+      }
     }
 
     // delete write-in candidates that may have only been included on the

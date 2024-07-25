@@ -18,6 +18,20 @@ const MEMORY_DB_PATH = ':memory:';
 export type Bindable = string | number | bigint | Buffer | null;
 
 /**
+ * A symbol used to store the inner statement in a `Statement`. This is used to
+ * prevent users from accessing the inner statement directly, so that database
+ * interactions always go through the client.
+ */
+const privateInnerStatementSymbol = Symbol('privateInnerStatement');
+
+/**
+ * A prepared statement that can be run with parameters.
+ */
+export interface Statement<P extends Bindable[] = []> {
+  [privateInnerStatementSymbol]: Database.Statement<P>;
+}
+
+/**
  * Manages a connection for a SQLite database.
  */
 export class Client {
@@ -175,15 +189,55 @@ export class Client {
   }
 
   /**
-   * Runs `sql` with interpolated data.
+   * Prepares a statement for later use. You should use this method when you
+   * intend to run the same query multiple times with different parameters.
+   * This method is more efficient than using `run` or `exec` with a string.
+   *
+   * @example
+   *
+   * const statement: Statement<[string]> = client.prepare(
+   *  'insert into muppets (name) values (?)'
+   * );
+   * client.run(statement, 'Kermit')
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  prepare(sql: string): Statement<any[]> {
+    const db = this.getDatabase();
+    return {
+      [privateInnerStatementSymbol]: db.prepare(sql),
+    };
+  }
+
+  /**
+   * Runs `statement` with interpolated data.
+   *
+   * @example
+   *
+   * const statement = client.prepare<[string]>(
+   *   'insert into muppets (name) values (?)'
+   * );
+   * client.run(statement, 'Kermit')
+   */
+  run<P extends Bindable[]>(statement: Statement<P>, ...params: P): void;
+
+  /**
+   * Runs `sql` with interpolated data. Consider using `prepare` for better
+   * performance when running the same query multiple times.
    *
    * @example
    *
    * client.run('insert into muppets (name) values (?)', 'Kermit')
    */
-  run<P extends Bindable[]>(sql: string, ...params: P): void {
-    const db = this.getDatabase();
-    const stmt = db.prepare<P>(sql);
+  run(sql: string, ...params: Bindable[]): void;
+
+  /**
+   * Runs `statement` with interpolated data.
+   */
+  run<P extends Bindable[]>(
+    statement: Statement<P> | string,
+    ...params: P
+  ): void {
+    const stmt = this.asStatement<P>(statement);
     stmt.run(...params);
   }
 
@@ -205,29 +259,73 @@ export class Client {
   }
 
   /**
+   * Runs `statement` to fetch a list of rows.
+   *
+   * @example
+   *
+   * const statement: Statement<[string]> = client.prepare('select * from muppets where name like ?');
+   * client.all(statement, 'K*')
+   */
+  all<P extends Bindable[] = []>(
+    statement: Statement<P>,
+    ...params: P
+  ): unknown[];
+
+  /**
    * Runs `sql` to fetch a list of rows.
    *
    * @example
    *
    * client.all('select * from muppets')
    */
-  all<P extends Bindable[] = []>(sql: string, ...params: P): unknown[] {
-    const db = this.getDatabase();
-    const stmt = db.prepare<P>(sql);
+  all(sql: string, ...params: Bindable[]): unknown[];
+
+  /**
+   * Runs `sql` to fetch a list of rows.
+   */
+  all<P extends Bindable[] = []>(
+    statement: Statement<P> | string,
+    ...params: P
+  ): unknown[] {
+    const stmt = this.asStatement(statement);
     return stmt.all(...params);
   }
 
   /**
-   * Runs `sql` to iterate over rows.
+   * Runs `statement` to iterate over rows.
    */
   each<P extends Bindable[] = []>(
-    sql: string,
+    statement: Statement<P>,
+    ...params: P
+  ): IterableIterator<unknown>;
+
+  /**
+   * Runs `sql` to iterate over rows.
+   */
+  each(sql: string, ...params: Bindable[]): IterableIterator<unknown>;
+
+  /**
+   * Runs `statement` to iterate over rows.
+   */
+  each<P extends Bindable[] = []>(
+    statement: Statement<P> | string,
     ...params: P
   ): IterableIterator<unknown> {
-    const db = this.getDatabase();
-    const stmt = db.prepare<P>(sql);
+    const stmt = this.asStatement(statement);
     return stmt.iterate(...params);
   }
+
+  /**
+   * Runs `statement` to fetch a single row.
+   *
+   * @example
+   *
+   * const statement: Statement<[string]> = client.prepare(
+   *   'select count(*) as count from muppets where name like ?'
+   * );
+   * client.one(statement, 'K*')
+   */
+  one<P extends Bindable[] = []>(sql: Statement<P>, ...params: P): unknown;
 
   /**
    * Runs `sql` to fetch a single row.
@@ -236,10 +334,25 @@ export class Client {
    *
    * client.one('select count(*) as count from muppets')
    */
-  one<P extends Bindable[] = []>(sql: string, ...params: P): unknown {
-    const db = this.getDatabase();
-    const stmt = db.prepare<P>(sql);
+  one(sql: string, ...params: Bindable[]): unknown;
+
+  /**
+   * Runs `statement` to fetch a single row.
+   */
+  one<P extends Bindable[] = []>(
+    statement: Statement<P> | string,
+    ...params: P
+  ): unknown {
+    const stmt = this.asStatement(statement);
     return stmt.get(...params);
+  }
+
+  private asStatement<P extends Bindable[]>(
+    statement: Statement<P> | string
+  ): Database.Statement<P> {
+    return typeof statement === 'string'
+      ? this.getDatabase().prepare<P>(statement)
+      : statement[privateInnerStatementSymbol];
   }
 
   /**
