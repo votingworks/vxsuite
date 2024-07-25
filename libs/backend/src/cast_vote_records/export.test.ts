@@ -19,6 +19,7 @@ import {
 
 import {
   interpretedBmdBallot,
+  interpretedBmdBallotWithWriteIn,
   interpretedBmdPage,
   interpretedHmpb,
   interpretedHmpbPage1,
@@ -368,6 +369,31 @@ test.each<{
     ],
   },
   {
+    description:
+      'accepted BMD ballot with write in on central scanner, non-minimal export',
+    sheetGenerator: () =>
+      newAcceptedSheet(interpretedBmdBallotWithWriteIn, sheet1Id),
+    exportOptions: { scannerType: 'central', isMinimalExport: false },
+    expectedDirectoryContents: [
+      CastVoteRecordExportFileName.METADATA,
+      `${sheet1Id}/${CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT}`,
+      `${sheet1Id}/${sheet1Id}-front.jpg`,
+      `${sheet1Id}/${sheet1Id}-back.jpg`,
+    ],
+    expectedBallotImageField: [
+      {
+        '@type': 'CVR.ImageData',
+        Hash: anyCastVoteRecordHash,
+        Location: `file:${sheet1Id}-front.jpg`,
+      },
+      {
+        '@type': 'CVR.ImageData',
+        Hash: anyCastVoteRecordHash,
+        Location: `file:${sheet1Id}-back.jpg`,
+      },
+    ],
+  },
+  {
     description: 'accepted BMD ballot on central scanner, minimal export',
     sheetGenerator: () => newAcceptedSheet(interpretedBmdBallot, sheet1Id),
     exportOptions: { scannerType: 'central', isMinimalExport: true },
@@ -376,6 +402,31 @@ test.each<{
       `${sheet1Id}/${CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT}`,
     ],
     expectedBallotImageField: undefined,
+  },
+  {
+    description:
+      'accepted BMD ballot with write in on central scanner, minimal export',
+    sheetGenerator: () =>
+      newAcceptedSheet(interpretedBmdBallotWithWriteIn, sheet1Id),
+    exportOptions: { scannerType: 'central', isMinimalExport: true },
+    expectedDirectoryContents: [
+      CastVoteRecordExportFileName.METADATA,
+      `${sheet1Id}/${CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT}`,
+      `${sheet1Id}/${sheet1Id}-front.jpg`,
+      `${sheet1Id}/${sheet1Id}-back.jpg`,
+    ],
+    expectedBallotImageField: [
+      {
+        '@type': 'CVR.ImageData',
+        Hash: anyCastVoteRecordHash,
+        Location: `file:${sheet1Id}-front.jpg`,
+      },
+      {
+        '@type': 'CVR.ImageData',
+        Hash: anyCastVoteRecordHash,
+        Location: `file:${sheet1Id}-back.jpg`,
+      },
+    ],
   },
   {
     description: 'rejected sheet on precinct scanner',
