@@ -2,7 +2,7 @@ import React from 'react';
 
 import {
   ElectionDefinition,
-  formatBallotHash,
+  formatElectionHashes,
   PrecinctSelection,
 } from '@votingworks/types';
 import styled from 'styled-components';
@@ -33,12 +33,11 @@ const ElectionInfoContainer = styled.div`
 
 const SystemInfoContainer = styled.div`
   align-content: flex-end;
+  flex: 1;
   display: flex;
-  flex-flow: row wrap;
-  flex-grow: 1;
-  gap: 0.5rem;
-  justify-content: end;
-  text-align: right;
+  flex-wrap: nowrap;
+  gap: 0.75rem;
+  justify-content: flex-end;
 `;
 
 export type InfoBarMode = 'voter' | 'pollworker' | 'admin';
@@ -46,6 +45,7 @@ export type InfoBarMode = 'voter' | 'pollworker' | 'admin';
 export interface ElectionInfoBarProps {
   mode?: InfoBarMode;
   electionDefinition: ElectionDefinition;
+  electionPackageHash: string;
   codeVersion?: string;
   machineId?: string;
   precinctSelection?: PrecinctSelection;
@@ -54,6 +54,7 @@ export interface ElectionInfoBarProps {
 export function ElectionInfoBar({
   mode = 'voter',
   electionDefinition,
+  electionPackageHash,
   codeVersion,
   machineId,
   precinctSelection,
@@ -93,8 +94,8 @@ export function ElectionInfoBar({
 
   const codeVersionInfo =
     mode !== 'voter' && codeVersion ? (
-      <Caption noWrap weight="bold">
-        <LabelledText label="Software Version">
+      <Caption noWrap>
+        <LabelledText label="Version">
           <Font weight="bold">{codeVersion}</Font>
         </LabelledText>
       </Caption>
@@ -113,7 +114,10 @@ export function ElectionInfoBar({
     <Caption noWrap>
       <LabelledText label="Election ID">
         <Font weight="bold">
-          {formatBallotHash(electionDefinition.ballotHash)}
+          {formatElectionHashes(
+            electionDefinition.ballotHash,
+            electionPackageHash
+          )}
         </Font>
       </LabelledText>
     </Caption>
@@ -145,6 +149,7 @@ const VerticalBar = styled.div<{ inverse?: boolean }>`
 export function VerticalElectionInfoBar({
   mode = 'voter',
   electionDefinition,
+  electionPackageHash,
   codeVersion,
   machineId,
   precinctSelection,
@@ -181,7 +186,7 @@ export function VerticalElectionInfoBar({
       <Caption>
         {mode !== 'voter' && codeVersion && (
           <div>
-            Software Version: <Font weight="semiBold">{codeVersion}</Font>
+            Version: <Font weight="semiBold">{codeVersion}</Font>
           </div>
         )}
 
@@ -194,7 +199,10 @@ export function VerticalElectionInfoBar({
         <div>
           Election ID:{' '}
           <Font weight="semiBold">
-            {formatBallotHash(electionDefinition.ballotHash)}
+            {formatElectionHashes(
+              electionDefinition.ballotHash,
+              electionPackageHash
+            )}
           </Font>
         </div>
       </Caption>
