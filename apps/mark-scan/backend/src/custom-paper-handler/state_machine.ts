@@ -556,7 +556,7 @@ export function buildMachine(
                 },
               ],
               on: {
-                PAPER_PARKED: 'waiting_for_ballot_data',
+                PAPER_PARKED: 'waiting_for_voter_auth',
                 NO_PAPER_ANYWHERE: 'accepting_paper',
                 // The poll worker pulled their card too early
                 AUTH_STATUS_CARDLESS_VOTER:
@@ -603,7 +603,7 @@ export function buildMachine(
               },
               onDone: [
                 {
-                  target: 'waiting_for_ballot_data',
+                  target: 'waiting_for_voter_auth',
                   actions: (context) => context.driver.parkPaper(),
                   cond: (context) =>
                     getInterpretationType(context) === 'BlankPage',
@@ -645,6 +645,13 @@ export function buildMachine(
               },
             },
 
+            waiting_for_voter_auth: {
+              invoke: pollAuthStatus(),
+              on: {
+                AUTH_STATUS_CARDLESS_VOTER: 'waiting_for_ballot_data',
+              },
+            },
+
             waiting_for_ballot_data: {
               entry: assign({
                 isInVoterSession: true,
@@ -653,6 +660,7 @@ export function buildMachine(
                 VOTER_INITIATED_PRINT: 'printing_ballot',
               },
             },
+
             printing_ballot: {
               invoke: [
                 {
@@ -775,7 +783,7 @@ export function buildMachine(
             paper_reloaded: {
               invoke: pollAuthStatus(),
               on: {
-                AUTH_STATUS_CARDLESS_VOTER: 'waiting_for_ballot_data',
+                AUTH_STATUS_CARDLESS_VOTER: 'waiting_for_voter_auth',
                 AUTH_STATUS_LOGGED_OUT: 'not_accepting_paper',
                 AUTH_STATUS_UNHANDLED: 'not_accepting_paper',
               },
@@ -1404,6 +1412,7 @@ export async function getPaperHandlerStateMachine({
           return 'loading_paper';
         case state.matches('voting_flow.loading_new_sheet'):
           return 'loading_new_sheet';
+        case state.matches('voting_flow.waiting_for_voter_auth'):
         case state.matches('voting_flow.waiting_for_ballot_data'):
           return 'waiting_for_ballot_data';
         case state.matches('voting_flow.printing_ballot'):
