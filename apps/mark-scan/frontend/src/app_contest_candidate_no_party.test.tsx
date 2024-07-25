@@ -39,7 +39,7 @@ beforeEach(() => {
   window.location.href = '/';
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(
+  apiMock.expectGetElectionRecord(
     asElectionDefinition(electionWithNoPartyCandidateContests)
   );
   apiMock.setPaperHandlerState('waiting_for_ballot_data');

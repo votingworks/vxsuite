@@ -28,7 +28,7 @@ import {
   useLanguageControls,
 } from '@votingworks/ui';
 
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import {
   mergeMsEitherNeitherContests,
   useBallotStyleManager,
@@ -42,7 +42,7 @@ import {
   checkPin,
   endCardlessVoterSession,
   getAuthStatus,
-  getElectionDefinition,
+  getElectionRecord,
   getElectionState,
   getMachineConfig,
   getStateMachineState,
@@ -198,8 +198,9 @@ export function AppRoot(): JSX.Element | null {
   const setPollsStateMutation = setPollsState.useMutation();
   const setPollsStateMutateAsync = setPollsStateMutation.mutateAsync;
 
-  const getElectionDefinitionQuery = getElectionDefinition.useQuery();
-  const optionalElectionDefinition = getElectionDefinitionQuery.data;
+  const getElectionRecordQuery = getElectionRecord.useQuery();
+  const { electionDefinition, electionPackageHash } =
+    getElectionRecordQuery.data ?? {};
 
   const electionStateQuery = getElectionState.useQuery();
   const { precinctSelection, ballotsPrintedCount, isTestMode, pollsState } =
@@ -214,17 +215,17 @@ export function AppRoot(): JSX.Element | null {
     ? authStatus.user.ballotStyleId
     : undefined;
   const ballotStyle =
-    optionalElectionDefinition?.election && ballotStyleId
+    electionDefinition?.election && ballotStyleId
       ? getBallotStyle({
           ballotStyleId,
-          election: optionalElectionDefinition.election,
+          election: electionDefinition.election,
         })
       : undefined;
   const contests =
-    optionalElectionDefinition?.election && ballotStyle
+    electionDefinition?.election && ballotStyle
       ? mergeMsEitherNeitherContests(
           getContests({
-            election: optionalElectionDefinition.election,
+            election: electionDefinition.election,
             ballotStyle,
           })
         )
@@ -334,7 +335,7 @@ export function AppRoot(): JSX.Element | null {
 
   useBallotStyleManager({
     currentBallotStyleId: ballotStyleId,
-    electionDefinition: optionalElectionDefinition,
+    electionDefinition,
     updateCardlessVoterBallotStyle:
       updateCardlessVoterBallotStyle.useMutation().mutate,
   });
@@ -401,7 +402,7 @@ export function AppRoot(): JSX.Element | null {
     return (
       <SystemAdministratorScreen
         unconfigureMachine={unconfigure}
-        isMachineConfigured={Boolean(optionalElectionDefinition)}
+        isMachineConfigured={Boolean(electionDefinition)}
         resetPollsToPaused={
           pollsState === 'polls_closed_final' ? resetPollsToPaused : undefined
         }
@@ -411,7 +412,7 @@ export function AppRoot(): JSX.Element | null {
   }
 
   if (isElectionManagerAuth(authStatus)) {
-    if (!optionalElectionDefinition) {
+    if (!electionDefinition) {
       return <UnconfiguredElectionScreenWrapper />;
     }
 
@@ -419,7 +420,8 @@ export function AppRoot(): JSX.Element | null {
       <AdminScreen
         appPrecinct={precinctSelection}
         ballotsPrintedCount={ballotsPrintedCount}
-        electionDefinition={optionalElectionDefinition}
+        electionDefinition={electionDefinition}
+        electionPackageHash={assertDefined(electionPackageHash)}
         isTestMode={isTestMode}
         unconfigure={unconfigure}
         machineConfig={machineConfig}
@@ -455,7 +457,7 @@ export function AppRoot(): JSX.Element | null {
     return <PollWorkerAuthEndedUnexpectedlyPage />;
   }
 
-  if (optionalElectionDefinition && precinctSelection) {
+  if (electionDefinition && precinctSelection) {
     if (stateMachineState === 'empty_ballot_box') {
       return <EmptyBallotBoxPage authStatus={authStatus} />;
     }
@@ -507,7 +509,8 @@ export function AppRoot(): JSX.Element | null {
           pollWorkerAuth={authStatus}
           activateCardlessVoterSession={activateCardlessBallot}
           resetCardlessVoterSession={resetCardlessBallot}
-          electionDefinition={optionalElectionDefinition}
+          electionDefinition={electionDefinition}
+          electionPackageHash={assertDefined(electionPackageHash)}
           isLiveMode={!isTestMode}
           pollsState={pollsState}
           ballotsPrintedCount={ballotsPrintedCount}
@@ -535,7 +538,7 @@ export function AppRoot(): JSX.Element | null {
           <VoterFlow
             ballotStyleId={ballotStyleId}
             contests={contests}
-            electionDefinition={optionalElectionDefinition}
+            electionDefinition={electionDefinition}
             endVoterSession={endVoterSession}
             isLiveMode={!isTestMode}
             machineConfig={machineConfig}
@@ -556,7 +559,8 @@ export function AppRoot(): JSX.Element | null {
       >
         <InsertCardScreen
           appPrecinct={precinctSelection}
-          electionDefinition={optionalElectionDefinition}
+          electionDefinition={electionDefinition}
+          electionPackageHash={assertDefined(electionPackageHash)}
           showNoChargerAttachedWarning={!!battery && battery.discharging}
           isLiveMode={!isTestMode}
           pollsState={pollsState}

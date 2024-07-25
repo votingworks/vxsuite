@@ -30,7 +30,7 @@ beforeEach(() => {
 
 test('setVotes action', async () => {
   const electionDefinition = electionGeneralDefinition;
-  apiMock.expectGetElectionDefinition(electionDefinition);
+  apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.setAuthStatus(mockPollWorkerAuth(electionDefinition));
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings(DEFAULT_SYSTEM_SETTINGS);
@@ -72,7 +72,7 @@ describe('renders PollWorkerAuthEndedUnexpectedlyPage for relevant states:', () 
   const electionDefinition = electionGeneralDefinition;
 
   beforeEach(() => {
-    apiMock.expectGetElectionDefinition(electionDefinition);
+    apiMock.expectGetElectionRecord(electionDefinition);
     apiMock.expectGetMachineConfig();
     apiMock.expectGetSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     apiMock.expectGetElectionState({

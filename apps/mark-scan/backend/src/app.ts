@@ -136,8 +136,11 @@ export function buildApi(
       return auth.endCardlessVoterSession(constructAuthMachineState(workspace));
     },
 
-    getElectionDefinition(): ElectionDefinition | null {
-      return workspace.store.getElectionDefinition() ?? null;
+    getElectionRecord(): {
+      electionDefinition: ElectionDefinition;
+      electionPackageHash: string;
+    } | null {
+      return workspace.store.getElectionRecord() ?? null;
     },
 
     getSystemSettings(): SystemSettings {
@@ -164,7 +167,8 @@ export function buildApi(
         return electionPackageResult;
       }
       assert(isElectionManagerAuth(authStatus));
-      const electionPackage = electionPackageResult.ok();
+      const { electionPackage, electionPackageHash } =
+        electionPackageResult.ok();
       const { electionDefinition, systemSettings } = electionPackage;
       assert(systemSettings);
 
@@ -172,6 +176,7 @@ export function buildApi(
         workspace.store.setElectionAndJurisdiction({
           electionData: electionDefinition.electionData,
           jurisdiction: authStatus.user.jurisdiction,
+          electionPackageHash,
         });
         workspace.store.setSystemSettings(systemSettings);
 
@@ -347,8 +352,7 @@ export function buildApi(
     async setPrecinctSelection(input: {
       precinctSelection: PrecinctSelection;
     }): Promise<void> {
-      const electionDefinition = store.getElectionDefinition();
-      assert(electionDefinition);
+      const { electionDefinition } = assertDefined(store.getElectionRecord());
       store.setPrecinctSelection(input.precinctSelection);
       store.setBallotsPrintedCount(0);
       await logger.logAsCurrentRole(LogEventId.PrecinctConfigurationChanged, {
@@ -407,10 +411,10 @@ export function buildApi(
     /* istanbul ignore next */
     generateLiveCheckQrCodeValue() {
       const { machineId } = getMachineConfig();
-      const electionDefinition = workspace.store.getElectionDefinition();
+      const electionRecord = workspace.store.getElectionRecord();
       return new LiveCheck().generateQrCodeValue({
         machineId,
-        ballotHash: electionDefinition?.ballotHash,
+        ballotHash: electionRecord?.electionDefinition.ballotHash,
       });
     },
 

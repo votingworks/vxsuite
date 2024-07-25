@@ -37,7 +37,7 @@ const noPowerDetectedWarningText = 'No Power Detected.';
 describe('Displays setup warning messages and errors screens', () => {
   it('Displays error screen if Card Reader connection is lost', async () => {
     apiMock.expectGetMachineConfig();
-    apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+    apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
       precinctSelection: ALL_PRECINCTS_SELECTION,
       pollsState: 'polls_open',
@@ -61,7 +61,7 @@ describe('Displays setup warning messages and errors screens', () => {
 
   it('Displays error screen if Power connection is lost', async () => {
     apiMock.expectGetMachineConfig();
-    apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+    apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
       precinctSelection: ALL_PRECINCTS_SELECTION,
       pollsState: 'polls_open',
@@ -88,7 +88,7 @@ describe('Displays setup warning messages and errors screens', () => {
 
   it('Displays "discharging battery" warning message and "discharging battery + low battery" error screen', async () => {
     apiMock.expectGetMachineConfig();
-    apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+    apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
       precinctSelection: ALL_PRECINCTS_SELECTION,
       pollsState: 'polls_open',
@@ -147,7 +147,7 @@ describe('Displays setup warning messages and errors screens', () => {
   it('displays paper handler connection error if no paper handler', async () => {
     apiMock.setPaperHandlerState('no_hardware');
     apiMock.expectGetMachineConfig();
-    apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+    apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
       precinctSelection: ALL_PRECINCTS_SELECTION,
       pollsState: 'polls_open',

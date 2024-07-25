@@ -76,7 +76,7 @@ test('navigates to System Diagnostics screen', async () => {
     )
   );
 
-  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
   apiMock.setBatteryInfo();
   apiMock.expectGetIsAccessibleControllerInputDetected();

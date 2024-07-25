@@ -51,7 +51,7 @@ test('Can vote on a Mississippi Either Neither Contest', async () => {
   // ====================== BEGIN CONTEST SETUP ====================== //
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(electionDefinition);
+  apiMock.expectGetElectionRecord(electionDefinition);
 
   apiMock.expectGetElectionState({
     precinctSelection: singlePrecinctSelectionFor(precinctId),

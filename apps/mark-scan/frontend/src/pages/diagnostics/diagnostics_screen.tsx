@@ -13,7 +13,7 @@ import { useHistory, Switch, Route } from 'react-router-dom';
 import { AccessibleControllerDiagnosticScreen } from './accessible_controller_diagnostic_screen';
 import {
   getApplicationDiskSpaceSummary,
-  getElectionDefinition,
+  getElectionRecord,
   getElectionState,
   getIsAccessibleControllerInputDetected,
   getStateMachineState,
@@ -36,7 +36,7 @@ export interface DiagnosticsScreenProps {
 export function DiagnosticsScreen({
   onBackButtonPress,
 }: DiagnosticsScreenProps): JSX.Element {
-  const electionDefinitionQuery = getElectionDefinition.useQuery();
+  const electionRecordQuery = getElectionRecord.useQuery();
   const electionStateQuery = getElectionState.useQuery();
   const batteryQuery = systemCallApi.getBatteryInfo.useQuery();
   const diskSpaceQuery = getApplicationDiskSpaceSummary.useQuery();
@@ -66,7 +66,7 @@ export function DiagnosticsScreen({
   const history = useHistory();
 
   if (
-    !electionDefinitionQuery.isSuccess ||
+    !electionRecordQuery.isSuccess ||
     !electionStateQuery.isSuccess ||
     !batteryQuery.isSuccess ||
     !diskSpaceQuery.isSuccess ||
@@ -89,7 +89,7 @@ export function DiagnosticsScreen({
     );
   }
 
-  const electionDefinition = electionDefinitionQuery.data ?? undefined;
+  const { electionDefinition } = electionRecordQuery.data ?? {};
   const { precinctSelection } = electionStateQuery.data;
   const battery = batteryQuery.data ?? undefined;
   const diskSpaceSummary = diskSpaceQuery.data;

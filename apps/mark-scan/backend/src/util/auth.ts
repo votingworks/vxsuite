@@ -32,14 +32,15 @@ export function getDefaultAuth(logger: BaseLogger): InsertedSmartCardAuth {
 export function constructAuthMachineState(
   workspace: Workspace
 ): InsertedSmartCardAuthMachineState {
-  const electionDefinition = workspace.store.getElectionDefinition();
+  const electionRecord = workspace.store.getElectionRecord();
   const jurisdiction = workspace.store.getJurisdiction();
   const systemSettings =
     workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
   return {
     ...systemSettings.auth,
     electionKey:
-      electionDefinition && constructElectionKey(electionDefinition.election),
+      electionRecord &&
+      constructElectionKey(electionRecord.electionDefinition.election),
     jurisdiction,
   };
 }

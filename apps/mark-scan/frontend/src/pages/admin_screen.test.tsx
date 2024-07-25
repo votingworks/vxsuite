@@ -1,13 +1,11 @@
-import {
-  asElectionDefinition,
-  electionTwoPartyPrimaryFixtures,
-} from '@votingworks/fixtures';
+import { electionTwoPartyPrimaryFixtures } from '@votingworks/fixtures';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
+import { formatElectionHashes } from '@votingworks/types';
 import { act, screen, within } from '../../test/react_testing_library';
 import { render } from '../../test/test_utils';
-import { election } from '../../test/helpers/election';
+import { electionDefinition, election } from '../../test/helpers/election';
 
 import { advanceTimers } from '../../test/helpers/timers';
 
@@ -37,7 +35,8 @@ function renderScreen(props: Partial<AdminScreenProps> = {}) {
       apiMock,
       <AdminScreen
         ballotsPrintedCount={0}
-        electionDefinition={asElectionDefinition(election)}
+        electionDefinition={electionDefinition}
+        electionPackageHash="test-election-package-hash"
         isTestMode
         unconfigure={jest.fn()}
         machineConfig={mockMachineConfig({
@@ -153,4 +152,15 @@ test('Unconfigure will eject usb', async () => {
   apiMock.expectEjectUsbDrive();
   userEvent.click(unconfigureButton);
   userEvent.click(screen.getButton('Yes, Delete Election Data'));
+});
+
+test('Shows election info', () => {
+  renderScreen();
+  screen.getByText(election.title);
+  screen.getByText(
+    formatElectionHashes(
+      electionDefinition.ballotHash,
+      'test-election-package-hash'
+    )
+  );
 });

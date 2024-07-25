@@ -22,7 +22,7 @@ afterEach(() => {
 test('Shows card backwards screen when card connection error occurs', async () => {
   apiMock.expectGetMachineConfig();
 
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',
@@ -44,7 +44,7 @@ test('Shows card backwards screen when card connection error occurs', async () =
 
 test('Shows wrong election screen when election on card does not match that of machine config', async () => {
   apiMock.expectGetMachineConfig();
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',

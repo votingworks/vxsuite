@@ -49,7 +49,7 @@ test('Cardless Voting Flow', async () => {
   const electionDefinition = electionGeneralDefinition;
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: CENTER_SPRINGFIELD_PRECINCT_SELECTION,
     pollsState: 'polls_open',
@@ -210,7 +210,7 @@ test('in "All Precincts" mode, poll worker must select a precinct first', async 
   const electionDefinition = electionGeneralDefinition;
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',

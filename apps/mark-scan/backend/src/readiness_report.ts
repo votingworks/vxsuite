@@ -31,7 +31,7 @@ export async function saveReadinessReport({
 }): Promise<ExportDataResult> {
   const { store } = workspace;
   const generatedAtTime = new Date(getCurrentTime());
-  const electionDefinition = store.getElectionDefinition();
+  const electionDefinition = store.getElectionRecord()?.electionDefinition;
   const precinctSelection = store.getPrecinctSelection();
   const report = MarkScanReadinessReport({
     batteryInfo:

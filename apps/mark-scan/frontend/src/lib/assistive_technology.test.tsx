@@ -37,7 +37,7 @@ afterEach(() => {
 
 it('accessible controller handling works', async () => {
   apiMock.expectGetMachineConfig();
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',
@@ -113,7 +113,7 @@ it('accessible controller handling works', async () => {
 
 it('auto-focuses "next" button on contest screen after voting', async () => {
   apiMock.expectGetMachineConfig();
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',

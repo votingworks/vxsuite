@@ -14,10 +14,10 @@ import {
   P,
 } from '@votingworks/ui';
 
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import { VoterScreen, Review } from '@votingworks/mark-flow-ui';
 import {
-  getElectionDefinition,
+  getElectionRecord,
   getInterpretation,
   invalidateBallot,
   validateBallot,
@@ -31,7 +31,7 @@ const ContentHeader = styled(ReadOnLoad)`
 
 export function ValidateBallotPage(): JSX.Element | null {
   const getInterpretationQuery = getInterpretation.useQuery();
-  const getElectionDefinitionQuery = getElectionDefinition.useQuery();
+  const getElectionDefinitionQuery = getElectionRecord.useQuery();
   // We use the contest data stored in BallotContext but vote data from the interpreted ballot
   const { contests, precinctId, resetBallot } = React.useContext(BallotContext);
 
@@ -59,9 +59,7 @@ export function ValidateBallotPage(): JSX.Element | null {
   ) {
     return null;
   }
-  const electionDefinition = getElectionDefinitionQuery.data;
-  // Election definition should always be defined
-  assert(electionDefinition, 'Expected election definition');
+  const { electionDefinition } = assertDefined(getElectionDefinitionQuery.data);
 
   // Interpretation may be null on first redirect to this page
   const interpretation = getInterpretationQuery.data;

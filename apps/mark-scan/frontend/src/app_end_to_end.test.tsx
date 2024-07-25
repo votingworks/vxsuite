@@ -50,7 +50,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   apiMock.setPaperHandlerState('not_accepting_paper');
   const expectedBallotHash = electionDefinition.ballotHash.substring(0, 10);
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
   render(<App apiClient={apiMock.mockApiClient} />);
   const getByTextWithMarkup = withMarkup(screen.getByText);
@@ -335,7 +335,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Unconfigure the machine
   apiMock.expectUnconfigureMachine();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
   apiMock.expectEjectUsbDrive();
   userEvent.click(screen.getByText('Unconfigure Machine'));
@@ -370,7 +370,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   const modal = await screen.findByRole('alertdialog');
   apiMock.expectUnconfigureMachine();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
   userEvent.click(
     within(modal).getByRole('button', {

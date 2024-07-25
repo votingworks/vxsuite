@@ -45,7 +45,7 @@ beforeEach(() => {
   jest.useFakeTimers().setSystemTime(new Date('2022-03-23T11:23:00.000'));
   apiMock = createApiMock();
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
-  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
   apiMock.setBatteryInfo({ level: 0.5, discharging: true });
   apiMock.expectGetApplicationDiskSpaceSummary();
@@ -176,8 +176,8 @@ test('accessible controller diagnostic - fail', async () => {
 });
 
 test('election information', async () => {
-  apiMock.mockApiClient.getElectionDefinition.reset();
-  apiMock.expectGetElectionDefinition(electionTwoPartyPrimaryDefinition);
+  apiMock.mockApiClient.getElectionRecord.reset();
+  apiMock.expectGetElectionRecord(electionTwoPartyPrimaryDefinition);
   apiMock.mockApiClient.getElectionState.reset();
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,

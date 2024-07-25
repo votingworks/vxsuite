@@ -35,7 +35,7 @@ it('Single Seat Contest', async () => {
 
   apiMock.expectGetMachineConfig();
 
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',

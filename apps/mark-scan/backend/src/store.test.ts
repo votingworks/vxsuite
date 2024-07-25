@@ -13,21 +13,25 @@ test('getDbPath', () => {
 });
 
 test('get/set/has election', () => {
-  const { election, electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const store = Store.memoryStore();
 
-  expect(store.getElectionDefinition()).toBeUndefined();
+  expect(store.getElectionRecord()).toBeUndefined();
   expect(store.hasElection()).toBeFalsy();
 
   store.setElectionAndJurisdiction({
     electionData: electionDefinition.electionData,
     jurisdiction,
+    electionPackageHash: 'test-election-package-hash',
   });
-  expect(store.getElectionDefinition()?.election).toEqual(election);
+  expect(store.getElectionRecord()).toEqual({
+    electionDefinition,
+    electionPackageHash: 'test-election-package-hash',
+  });
   expect(store.hasElection()).toBeTruthy();
 
   store.setElectionAndJurisdiction(undefined);
-  expect(store.getElectionDefinition()).toBeUndefined();
+  expect(store.getElectionRecord()).toBeUndefined();
 });
 
 test('get/set/delete system settings', () => {
@@ -55,6 +59,7 @@ test('get/set ballots cast since last box change', () => {
   store.setElectionAndJurisdiction({
     electionData: electionDefinition.electionData,
     jurisdiction,
+    electionPackageHash: 'test-election-package-hash',
   });
 
   // Initialized to 0 when election is defined
@@ -69,9 +74,10 @@ test('errors when election definition cannot be parsed', () => {
   store.setElectionAndJurisdiction({
     electionData: '{malformed json',
     jurisdiction,
+    electionPackageHash: 'test-election-package-hash',
   });
-  expect(() => store.getElectionDefinition()).toThrow(
-    'Unable to parse stored election data.'
+  expect(() => store.getElectionRecord()).toThrow(
+    'Unexpected token m in JSON at position 1'
   );
 });
 
@@ -82,6 +88,7 @@ test('reset clears the database', () => {
   store.setElectionAndJurisdiction({
     electionData: electionDefinition.electionData,
     jurisdiction,
+    electionPackageHash: 'test-election-package-hash',
   });
   expect(store.hasElection()).toBeTruthy();
   store.reset();

@@ -23,7 +23,7 @@ test('machineConfig is fetched from api client by default', async () => {
     codeVersion: 'mock-code-version',
   });
   const { electionDefinition } = electionFamousNames2021Fixtures;
-  apiMock.expectGetElectionDefinition(electionDefinition);
+  apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
   });

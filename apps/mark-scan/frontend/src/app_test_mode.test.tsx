@@ -29,7 +29,7 @@ it('Prompts to change from test mode to live mode on election day', async () => 
     date: DateWithoutTime.today(),
   });
   apiMock.expectGetMachineConfig();
-  apiMock.expectGetElectionDefinition(electionDefinition);
+  apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
     isTestMode: true,
     precinctSelection: ALL_PRECINCTS_SELECTION,
