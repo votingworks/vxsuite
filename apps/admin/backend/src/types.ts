@@ -15,6 +15,7 @@ import {
   ReadCastVoteRecordExportError,
   ReadCastVoteRecordError,
   Admin,
+  Sha256Hash,
 } from '@votingworks/types';
 import * as z from 'zod';
 
@@ -62,6 +63,7 @@ export interface ElectionRecord {
   readonly electionDefinition: ElectionDefinition;
   readonly createdAt: Iso8601Timestamp;
   readonly isOfficialResults: boolean;
+  readonly electionPackageHash: string;
 }
 
 /**
@@ -72,6 +74,7 @@ export const ElectionRecordSchema: z.ZodSchema<ElectionRecord> = z.object({
   electionDefinition: ElectionDefinitionSchema,
   createdAt: Iso8601TimestampSchema,
   isOfficialResults: z.boolean(),
+  electionPackageHash: Sha256Hash,
 });
 
 /**
