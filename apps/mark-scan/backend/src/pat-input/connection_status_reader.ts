@@ -8,10 +8,12 @@ import { Buffer } from 'buffer';
 import { LogEventId, BaseLogger } from '@votingworks/logging';
 import { join } from 'path';
 import {
+  FAI_100_STATUS_FILENAME,
   GPIO_PATH_PREFIX,
   PAT_CONNECTION_STATUS_PIN,
   PAT_GPIO_OFFSET,
 } from './constants';
+import { BmdModelNumber } from '../types';
 
 export interface PatConnectionStatusReaderInterface {
   readonly logger: BaseLogger;
@@ -28,10 +30,12 @@ export class PatConnectionStatusReader
 
   constructor(
     readonly logger: BaseLogger,
+    readonly bmdModelNumber: BmdModelNumber,
+    readonly workspacePath: string,
     readonly gpioPathPrefix: string = GPIO_PATH_PREFIX
   ) {}
 
-  async open(): Promise<boolean> {
+  async openBmd155(): Promise<boolean> {
     await this.logger.log(LogEventId.ConnectToPatInputInit, 'system');
 
     const possiblePinAddresses = [
@@ -74,6 +78,42 @@ export class PatConnectionStatusReader
     });
     this.file = pinFileHandle;
     return true;
+  }
+
+  async openBmd150(): Promise<boolean> {
+    await this.logger.log(LogEventId.ConnectToPatInputInit, 'system');
+    await this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {
+      disposition: 'success',
+    });
+    const path = join(this.workspacePath, FAI_100_STATUS_FILENAME);
+    const openResult = await fsOpen(path);
+    if (openResult.isErr()) {
+      await this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {
+        message: `Unexpected error trying to open ${path}. Is fai_100_controllerd running?`,
+        disposition: 'failure',
+      });
+
+      return false;
+    }
+
+    this.file = openResult.ok();
+    await this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {
+      disposition: 'success',
+    });
+    return true;
+  }
+
+  async open(): Promise<boolean> {
+    switch (this.bmdModelNumber) {
+      case 'bmd-150':
+        return this.openBmd150();
+      case 'bmd-155':
+        return this.openBmd155();
+      // istanbul ignore next - unreachable because BmdModelNumber coverage is exhaustive
+      default:
+        // istanbul ignore next
+        throw new Error(`Unhandled BMD model ${this.bmdModelNumber}`);
+    }
   }
 
   async close(): Promise<void> {

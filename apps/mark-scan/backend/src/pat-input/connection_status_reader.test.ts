@@ -3,22 +3,35 @@ import tmp from 'tmp';
 import * as fs from 'fs/promises';
 import { Buffer } from 'buffer';
 import { PatConnectionStatusReader } from './connection_status_reader';
+import { FAI_100_STATUS_FILENAME } from './constants';
 
 const ASCII_ZERO = 48;
 const ASCII_ONE = 49;
 
 let logger: BaseLogger;
+let mockWorkspaceDir: tmp.DirResult;
 // Replaces /sys/class/gpio
 let mockGpioDir: tmp.DirResult;
 tmp.setGracefulCleanup();
 
+function expectedStatusToAsciiChar(expectedStatus: boolean) {
+  // Value file contains '0' when device is connected and '1' when not connected
+  return expectedStatus ? ASCII_ZERO : ASCII_ONE;
+}
+
 beforeEach(() => {
+  mockWorkspaceDir = tmp.dirSync();
   mockGpioDir = tmp.dirSync();
   logger = mockBaseLogger();
 });
 
 test('logs when it cannot access the gpio pin sysfs file', async () => {
-  const reader = new PatConnectionStatusReader(logger, mockGpioDir.name);
+  const reader = new PatConnectionStatusReader(
+    logger,
+    'bmd-155',
+    mockWorkspaceDir.name,
+    mockGpioDir.name
+  );
 
   const result = await reader.open();
   expect(logger.log).toHaveBeenCalledWith(
@@ -43,11 +56,6 @@ const pinAddresses = [
   { address: 990, expectedConnectionStatus: false },
 ];
 
-function expectedStatusToAsciiChar(expectedStatus: boolean) {
-  // Value file contains '0' when device is connected and '1' when not connected
-  return expectedStatus ? ASCII_ZERO : ASCII_ONE;
-}
-
 test.each(pinAddresses)(
   'isPatDeviceConnected can read "$expectedConnectionStatus" from pin $address value file',
   async ({ address, expectedConnectionStatus }) => {
@@ -67,7 +75,12 @@ test.each(pinAddresses)(
     const buf = Buffer.of(expectedStatusToAsciiChar(expectedConnectionStatus));
     await fs.appendFile(valueFile.name, buf);
 
-    const reader = new PatConnectionStatusReader(logger, mockGpioDir.name);
+    const reader = new PatConnectionStatusReader(
+      logger,
+      'bmd-155',
+      mockWorkspaceDir.name,
+      mockGpioDir.name
+    );
     const result = await reader.open();
     expect(result).toEqual(true);
     const isConnected = await reader.isPatDeviceConnected();
@@ -75,3 +88,43 @@ test.each(pinAddresses)(
     await reader.close();
   }
 );
+
+test('bmd-150 implementation happy path', async () => {
+  const statusFile = tmp.fileSync({
+    tmpdir: mockWorkspaceDir.name,
+    name: FAI_100_STATUS_FILENAME,
+  });
+
+  const expectedConnectionStatus = true;
+  const buf = Buffer.of(expectedStatusToAsciiChar(expectedConnectionStatus));
+  await fs.appendFile(statusFile.name, buf);
+
+  const reader = new PatConnectionStatusReader(
+    logger,
+    'bmd-150',
+    mockWorkspaceDir.name
+  );
+  const result = await reader.open();
+  expect(result).toEqual(true);
+  const isConnected = await reader.isPatDeviceConnected();
+  expect(isConnected).toEqual(expectedConnectionStatus);
+  await reader.close();
+});
+
+test('bmd-150 implementation cannot find workspace', async () => {
+  const reader = new PatConnectionStatusReader(
+    logger,
+    'bmd-150',
+    '/tmp/notarealdirectory/notarealfile.status'
+  );
+  const result = await reader.open();
+  expect(result).toEqual(false);
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.ConnectToPatInputComplete,
+    'system',
+    {
+      disposition: 'failure',
+      message: expect.stringMatching(/Unexpected error trying to open/),
+    }
+  );
+});

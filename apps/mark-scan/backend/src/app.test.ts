@@ -84,7 +84,12 @@ beforeEach(async () => {
     BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
   );
 
-  patConnectionStatusReader = new PatConnectionStatusReader(logger);
+  const mockWorkspaceDir = tmp.dirSync();
+  patConnectionStatusReader = new PatConnectionStatusReader(
+    logger,
+    'bmd-150',
+    mockWorkspaceDir.name
+  );
   mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
     false
   );

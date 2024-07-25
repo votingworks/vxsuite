@@ -24,7 +24,7 @@ export const NODE_ENV = unsafeParse(
 );
 
 /**
- * Where should the database and audio files go?
+ * Where should the database, audio, and hardware status files go?
  */
 export const MARK_SCAN_WORKSPACE =
   process.env.MARK_SCAN_WORKSPACE ??
