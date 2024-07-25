@@ -13,7 +13,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import {
   mockElectionManagerUser,
   mockSessionExpiresAt,
-  mockSystemAdministratorUser,
 } from '@votingworks/test-utils';
 import type { MachineConfig } from '@votingworks/admin-backend';
 import {
@@ -39,7 +38,7 @@ export const eitherNeitherElectionDefinition =
 export interface RenderInAppContextParams {
   route?: string;
   history?: MemoryHistory;
-  electionDefinition?: ElectionDefinition | 'NONE';
+  electionDefinition?: ElectionDefinition;
   configuredAt?: Iso8601Timestamp;
   isOfficialResults?: boolean;
   usbDriveStatus?: UsbDriveStatus;
@@ -87,20 +86,13 @@ export function renderInAppContext(
     configuredAt = new Date().toISOString(),
     isOfficialResults = false,
     usbDriveStatus = mockUsbDriveStatus('no_drive'),
-    auth = electionDefinition === 'NONE'
-      ? {
-          status: 'logged_in',
-          user: mockSystemAdministratorUser(),
-          sessionExpiresAt: mockSessionExpiresAt(),
-          programmableCard: { status: 'no_card' },
-        }
-      : {
-          status: 'logged_in',
-          user: mockElectionManagerUser({
-            electionKey: constructElectionKey(electionDefinition.election),
-          }),
-          sessionExpiresAt: mockSessionExpiresAt(),
-        },
+    auth = {
+      status: 'logged_in',
+      user: mockElectionManagerUser({
+        electionKey: constructElectionKey(electionDefinition.election),
+      }),
+      sessionExpiresAt: mockSessionExpiresAt(),
+    },
     machineConfig = {
       machineId: '0000',
       codeVersion: 'dev',
@@ -112,13 +104,13 @@ export function renderInAppContext(
   return renderRootElement(
     <AppContext.Provider
       value={{
-        electionDefinition:
-          electionDefinition === 'NONE' ? undefined : electionDefinition,
+        electionDefinition,
         configuredAt,
         isOfficialResults,
         usbDriveStatus,
         auth,
         machineConfig,
+        electionPackageHash: 'test-election-package-hash',
       }}
     >
       <Router history={history}>{component}</Router>

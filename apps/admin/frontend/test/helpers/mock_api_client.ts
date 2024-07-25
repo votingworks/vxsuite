@@ -244,6 +244,7 @@ export function createApiMock(
         isOfficialResults?: boolean;
         id?: string;
         createdAt?: string;
+        electionPackageHash?: string;
       } | null
     ) {
       apiClient.getCurrentElectionMetadata.expectCallWith().resolves(
@@ -252,6 +253,7 @@ export function createApiMock(
               id: 'election-id',
               createdAt: new Date().toISOString(),
               isOfficialResults: false,
+              electionPackageHash: 'test-election-package-hash',
               ...metadata,
             }
           : null
