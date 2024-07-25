@@ -103,40 +103,40 @@ export const ORDERED_BMD_BALLOT_LAYOUTS: Readonly<
   Record<MachineType, readonly Layout[]>
 > = {
   markScan: [
-    { minContests: 0, maxRows: 8, hideParties: false, topMargin: '1.75in' },
-    { minContests: 25, maxRows: 9, hideParties: true, topMargin: '0.5625in' },
+    { minContests: 0, maxRows: 9, hideParties: false, topMargin: '1.75in' },
+    { minContests: 25, maxRows: 10, hideParties: true, topMargin: '0.5625in' },
     {
       minContests: 31,
       fontSizePt: 9,
-      maxRows: 11,
+      maxRows: 12,
       hideParties: true,
       topMargin: '0.5625in',
     },
     {
       minContests: 46,
       fontSizePt: 8,
-      maxRows: 12,
+      maxRows: 13,
       hideParties: true,
       topMargin: '0.5625in',
     },
     {
       minContests: 51,
       fontSizePt: 7,
-      maxRows: 13,
+      maxRows: 14,
       hideParties: true,
       topMargin: '0.5625in',
     },
     {
       minContests: 66,
       fontSizePt: 6,
-      maxRows: 17,
+      maxRows: 18,
       hideParties: true,
       topMargin: '0.5625in',
     },
     {
       minContests: 86,
       fontSizePt: 5,
-      maxRows: 20,
+      maxRows: 21,
       hideParties: true,
       topMargin: '0.5625in',
     },
@@ -174,7 +174,7 @@ const Ballot = styled.div<BallotProps>`
         /* istanbul ignore next - hardware specs still in flux */
         case 'bmd150':
           /* istanbul ignore next - hardware specs still in flux */
-          return '7.975in 11in';
+          return '7.975in 13.25in';
         case 'letter':
         default:
           return 'letter portrait';

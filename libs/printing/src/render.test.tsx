@@ -19,6 +19,7 @@ import { OPTIONAL_EXECUTABLE_PATH_OVERRIDE } from './chromium';
 const { electionDefinition } = electionFamousNames2021Fixtures;
 const { election } = electionDefinition;
 
+const FAILURE_THRESHOLD = 0.001;
 const testReportProps: AdminTallyReportByPartyProps = {
   title: 'North Lincoln Tally Report',
   isOfficial: false,
@@ -44,6 +45,7 @@ test('rendered tally report matches snapshot', async () => {
 
   await expect(outputPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'single-page-tally-report',
+    failureThreshold: FAILURE_THRESHOLD,
   });
 });
 
@@ -57,6 +59,7 @@ test('rendered tally report has minimum of letter when size is LetterRoll', asyn
 
   await expect(outputPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'single-page-tally-report',
+    failureThreshold: FAILURE_THRESHOLD,
   });
 });
 
@@ -108,6 +111,28 @@ test('page can be longer than letter when using LetterRoll', async () => {
   });
 });
 
+test('bmd 150 page is 13.25"', async () => {
+  const outputPath = tmpNameSync();
+  const pdfData = await renderToPdf({
+    document: <ManyHeadings count={15} />,
+    outputPath,
+    paperDimensions: PAPER_DIMENSIONS.Bmd150,
+  });
+
+  const pdf = await parsePdf(pdfData);
+  expect(pdf.numPages).toEqual(1);
+  const { height, width } = (await pdf.getPage(1)).getViewport({ scale: 1 });
+  // Setting with to exactly 1600 overflows the line and causes a blank line
+  // to be printed after each actual line.
+  expect(width * PDF_SCALING).toBeLessThan(1600);
+  expect(width * PDF_SCALING).toBeGreaterThan(1595);
+
+  expect(height * PDF_SCALING).toEqual(2650); // (13.25in / 11in) * 2200
+  await expect(outputPath).toMatchPdfSnapshot({
+    customSnapshotIdentifier: 'bmd-150-document',
+  });
+});
+
 test('can render multiple documents at once', async () => {
   const outputPath1 = tmpNameSync();
   const outputPath2 = tmpNameSync();
@@ -125,9 +150,11 @@ test('can render multiple documents at once', async () => {
 
   await expect(outputPath1).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'single-page-tally-report',
+    failureThreshold: FAILURE_THRESHOLD,
   });
   await expect(outputPath2).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'roll-document',
+    failureThreshold: FAILURE_THRESHOLD,
   });
 });
 
