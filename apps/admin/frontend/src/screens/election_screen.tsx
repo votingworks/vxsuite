@@ -1,24 +1,14 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
-
 import {
   format,
   isElectionManagerAuth,
   isSystemAdministratorAuth,
 } from '@votingworks/utils';
 import { assert } from '@votingworks/basics';
-
-import {
-  Card,
-  Font,
-  H2,
-  P,
-  Seal,
-  UnconfigureMachineButton,
-} from '@votingworks/ui';
+import { Card, H2, P, Seal, UnconfigureMachineButton } from '@votingworks/ui';
 import { useHistory } from 'react-router-dom';
 import { AppContext } from '../contexts/app_context';
-
 import { NavigationScreen } from '../components/navigation_screen';
 import { ExportElectionPackageModalButton } from '../components/export_election_package_modal_button';
 import { unconfigure } from '../api';
@@ -56,10 +46,7 @@ export function ElectionScreen(): JSX.Element {
     <NavigationScreen title="Election">
       <P>
         Configured with the current election at{' '}
-        <Font weight="bold">
-          {format.localeLongDateAndTime(new Date(configuredAt))}
-        </Font>
-        .
+        {format.localeLongDateAndTime(new Date(configuredAt))}.
       </P>
       <ElectionCard>
         <Seal seal={election.seal} maxWidth="7rem" />
@@ -68,7 +55,7 @@ export function ElectionScreen(): JSX.Element {
           <P>
             {election.county.name}, {election.state}
             <br />
-            {format.localeDate(
+            {format.localeLongDate(
               election.date.toMidnightDatetimeWithSystemTimezone()
             )}
           </P>
