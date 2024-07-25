@@ -338,7 +338,7 @@ test('system administrator can log in and unconfigure machine', async () => {
   await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
 });
 
-test('election manager cannot auth onto machine with different election hash', async () => {
+test('election manager cannot auth onto machine with different election', async () => {
   apiMock.expectGetTestMode(true);
   apiMock.expectGetElectionDefinition(electionDefinition);
 
