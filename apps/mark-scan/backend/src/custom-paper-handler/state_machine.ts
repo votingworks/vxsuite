@@ -86,6 +86,7 @@ function isBallotReinsertionEnabled() {
 
 interface Context {
   auth: InsertedSmartCardAuthApi;
+  isInVoterSession: boolean;
   workspace: Workspace;
   driver: PaperHandlerDriverInterface;
   patConnectionStatusReader: PatConnectionStatusReaderInterface;
@@ -494,6 +495,7 @@ export function buildMachine(
             isPatDeviceConnected: true,
           }),
           target: 'pat_device_connected',
+          cond: (context) => context.isInVoterSession,
         },
         PAT_DEVICE_DISCONNECTED: {
           // Performing the assign here ensures the PAT device observable will
@@ -502,6 +504,7 @@ export function buildMachine(
             isPatDeviceConnected: false,
           }),
           target: 'pat_device_disconnected',
+          cond: (context) => context.isInVoterSession,
         },
         SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC:
           'paper_handler_diagnostic',
@@ -510,7 +513,7 @@ export function buildMachine(
           target: 'voting_flow.not_accepting_paper',
         },
       },
-      invoke: pollPatDeviceConnectionStatus(),
+      invoke: [pollPatDeviceConnectionStatus()],
       states: {
         voting_flow: {
           initial: 'not_accepting_paper',
@@ -553,7 +556,7 @@ export function buildMachine(
                 },
               ],
               on: {
-                PAPER_PARKED: 'waiting_for_ballot_data',
+                PAPER_PARKED: 'waiting_for_voter_auth',
                 NO_PAPER_ANYWHERE: 'accepting_paper',
                 // The poll worker pulled their card too early
                 AUTH_STATUS_CARDLESS_VOTER:
@@ -600,7 +603,7 @@ export function buildMachine(
               },
               onDone: [
                 {
-                  target: 'waiting_for_ballot_data',
+                  target: 'waiting_for_voter_auth',
                   actions: (context) => context.driver.parkPaper(),
                   cond: (context) =>
                     getInterpretationType(context) === 'BlankPage',
@@ -642,11 +645,22 @@ export function buildMachine(
               },
             },
 
+            waiting_for_voter_auth: {
+              invoke: pollAuthStatus(),
+              on: {
+                AUTH_STATUS_CARDLESS_VOTER: 'waiting_for_ballot_data',
+              },
+            },
+
             waiting_for_ballot_data: {
+              entry: assign({
+                isInVoterSession: true,
+              }),
               on: {
                 VOTER_INITIATED_PRINT: 'printing_ballot',
               },
             },
+
             printing_ballot: {
               invoke: [
                 {
@@ -1177,10 +1191,12 @@ export function buildMachine(
           always: 'voting_flow.history',
         },
         pat_device_connected: {
+          invoke: pollAuthStatus(),
           on: {
             VOTER_CONFIRMED_PAT_DEVICE_CALIBRATION: 'voting_flow.history',
             PAT_DEVICE_DISCONNECTED: 'pat_device_disconnected',
             PAT_DEVICE_CONNECTED: undefined,
+            AUTH_STATUS_POLL_WORKER: 'voting_flow.history',
           },
         },
       },
@@ -1194,6 +1210,7 @@ export function buildMachine(
           interpretation: undefined,
           scannedBallotImagePath: undefined,
           isPatDeviceConnected: false,
+          isInVoterSession: false,
         }),
         clearInterpretation: () => {
           assign({
@@ -1314,6 +1331,7 @@ export async function getPaperHandlerStateMachine({
     workspace,
     driver,
     isPatDeviceConnected: false,
+    isInVoterSession: false,
     patConnectionStatusReader,
     deviceTimeoutMs,
     devicePollingIntervalMs,
@@ -1394,6 +1412,8 @@ export async function getPaperHandlerStateMachine({
           return 'loading_paper';
         case state.matches('voting_flow.loading_new_sheet'):
           return 'loading_new_sheet';
+        case state.matches('voting_flow.waiting_for_voter_auth'):
+          return 'waiting_for_voter_auth';
         case state.matches('voting_flow.waiting_for_ballot_data'):
           return 'waiting_for_ballot_data';
         case state.matches('voting_flow.printing_ballot'):

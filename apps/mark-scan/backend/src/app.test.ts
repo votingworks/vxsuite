@@ -43,13 +43,14 @@ import { Api, buildApp } from './app';
 import { PaperHandlerStateMachine } from './custom-paper-handler';
 import { ElectionState } from './types';
 import {
+  mockCardlessVoterAuth,
   mockElectionManagerAuth,
   mockPollWorkerAuth,
 } from '../test/auth_helpers';
 import { PatConnectionStatusReader } from './pat-input/connection_status_reader';
 import { createWorkspace } from './util/workspace';
 
-const TEST_POLLING_INTERVAL_MS = 5;
+const TEST_POLLING_INTERVAL_MS = 15;
 
 jest.mock('./pat-input/connection_status_reader');
 
@@ -408,6 +409,7 @@ async function mockLoadFlow(
 ) {
   await testApiClient.setAcceptingPaperState();
   testDriver.setMockStatus('paperInserted');
+  mockCardlessVoterAuth(mockAuth);
   await waitForStatus('waiting_for_ballot_data');
 }
 
@@ -429,6 +431,7 @@ test('ballot invalidation flow', async () => {
   await configureForTestElection(electionGeneralDefinition);
   await mockLoadAndPrint(apiClient, driver);
   await apiClient.invalidateBallot();
+  mockPollWorkerAuth(mockAuth, electionGeneralDefinition);
   await waitForStatus(
     'waiting_for_invalidated_ballot_confirmation.paper_present'
   );
@@ -464,14 +467,18 @@ test('removing ballot during presentation', async () => {
 });
 
 test('setPatDeviceIsCalibrated', async () => {
-  expect(await apiClient.getPaperHandlerState()).toEqual('not_accepting_paper');
+  await configureForTestElection(electionGeneralDefinition);
+  await mockLoadFlow(apiClient, driver);
+  expect(await apiClient.getPaperHandlerState()).toEqual(
+    'waiting_for_ballot_data'
+  );
   mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
     true
   );
   await waitForStatus('pat_device_connected');
 
   await apiClient.setPatDeviceIsCalibrated();
-  await waitForStatus('not_accepting_paper');
+  await waitForStatus('waiting_for_ballot_data');
 });
 
 function sortVotes(votes: VotesDict): VotesDict {
@@ -538,6 +545,7 @@ test('printing ballots', async () => {
   deferredEjection.resolve(true);
   driver.setMockStatus('noPaper');
   await waitForStatus('not_accepting_paper');
+  mockPollWorkerAuth(mockAuth, electionDefinition);
 
   // vote a ballot in Chinese
   await mockLoadFlow(apiClient, driver);

@@ -316,7 +316,10 @@ export function PollWorkerScreen({
     const { precinctId, ballotStyleId } = pollWorkerAuth.cardlessVoterUser;
     const precinct = find(election.precincts, (p) => p.id === precinctId);
 
-    if (stateMachineState === 'waiting_for_ballot_data') {
+    if (
+      stateMachineState === 'waiting_for_ballot_data' ||
+      stateMachineState === 'waiting_for_voter_auth'
+    ) {
       return (
         <CenteredCardPageLayout
           buttons={
