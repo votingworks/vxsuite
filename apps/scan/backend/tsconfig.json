@@ -23,7 +23,6 @@
     { "path": "../../../libs/basics/tsconfig.build.json" },
     { "path": "../../../libs/backend/tsconfig.build.json" },
     { "path": "../../../libs/bmd-ballot-fixtures/tsconfig.build.json" },
-    { "path": "../../../libs/converter-nh-accuvote/tsconfig.build.json" },
     { "path": "../../../libs/custom-scanner/tsconfig.build.json" },
     { "path": "../../../libs/db/tsconfig.build.json" },
     { "path": "../../../libs/dev-dock/backend/tsconfig.build.json" },

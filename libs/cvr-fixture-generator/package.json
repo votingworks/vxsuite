@@ -26,7 +26,6 @@
     "@votingworks/auth": "workspace:*",
     "@votingworks/backend": "workspace:*",
     "@votingworks/basics": "workspace:*",
-    "@votingworks/converter-nh-accuvote": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
     "@votingworks/fs": "workspace:*",
     "@votingworks/image-utils": "workspace:*",

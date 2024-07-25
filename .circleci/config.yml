@@ -640,29 +640,6 @@ jobs:
       - store_test_results:
           path: libs/cdf-schema-builder/reports/
 
-  # @votingworks/converter-nh-accuvote
-  test-libs-converter-nh-accuvote:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/converter-nh-accuvote build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/converter-nh-accuvote lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/converter-nh-accuvote test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/converter-nh-accuvote/reports/
-
   # @votingworks/custom-paper-handler
   test-libs-custom-paper-handler:
     executor: nodejs
@@ -1472,7 +1449,6 @@ workflows:
       - test-libs-basics
       - test-libs-bmd-ballot-fixtures
       - test-libs-cdf-schema-builder
-      - test-libs-converter-nh-accuvote
       - test-libs-custom-paper-handler
       - test-libs-custom-scanner
       - test-libs-cvr-fixture-generator
