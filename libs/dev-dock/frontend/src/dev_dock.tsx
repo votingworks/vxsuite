@@ -12,6 +12,7 @@ import * as grout from '@votingworks/grout';
 import {
   assert,
   assertDefined,
+  sleep,
   throwIllegalValue,
   uniqueBy,
 } from '@votingworks/basics';
@@ -426,6 +427,7 @@ function ScreenshotControls({
     assert(containerRef.current);
     // eslint-disable-next-line no-param-reassign
     containerRef.current.style.visibility = 'hidden';
+    await sleep(500);
 
     assert(window.kiosk);
     const screenshotData = await window.kiosk.captureScreenshot();
