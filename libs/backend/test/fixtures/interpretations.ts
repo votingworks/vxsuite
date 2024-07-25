@@ -184,6 +184,17 @@ export const interpretedBmdPage: InterpretedBmdPage = {
   },
 };
 
+export const interpretedBmdPageWithWriteIn: InterpretedBmdPage = {
+  type: 'InterpretedBmdPage',
+  metadata: mockBallotMetadata,
+  votes: {
+    [fishingContest.id]: [fishingContest.noOption.id],
+    [fishCouncilContest.id]: [
+      { id: 'write-in-1', name: 'Write In #1', isWriteIn: true },
+    ],
+  },
+};
+
 export const interpretedHmpbPage1WithWriteIn: InterpretedHmpbPage = {
   ...interpretedHmpbPage1,
   votes: {
@@ -217,6 +228,11 @@ export const interpretedHmpb: SheetOf<PageInterpretation> = [
 
 export const interpretedBmdBallot: SheetOf<PageInterpretation> = [
   interpretedBmdPage,
+  blankPage,
+];
+
+export const interpretedBmdBallotWithWriteIn: SheetOf<PageInterpretation> = [
+  interpretedBmdPageWithWriteIn,
   blankPage,
 ];
 

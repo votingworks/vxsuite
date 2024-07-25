@@ -215,11 +215,14 @@ function shouldIncludeImagesInMinimalExport(
   canonicalizedSheet: CanonicalizedSheet
 ): boolean {
   return (
-    canonicalizedSheet.type === 'hmpb' &&
-    canonicalizedSheet.interpretation.some(
-      ({ votes, unmarkedWriteIns }) =>
-        hasWriteIns(votes) || (unmarkedWriteIns && unmarkedWriteIns.length > 0)
-    )
+    (canonicalizedSheet.type === 'hmpb' &&
+      canonicalizedSheet.interpretation.some(
+        ({ votes, unmarkedWriteIns }) =>
+          hasWriteIns(votes) ||
+          (unmarkedWriteIns && unmarkedWriteIns.length > 0)
+      )) ||
+    (canonicalizedSheet.type === 'bmd' &&
+      hasWriteIns(canonicalizedSheet.interpretation.votes))
   );
 }
 
