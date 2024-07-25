@@ -53,6 +53,7 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
         electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
       systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
       electionPackageFileContents: Buffer.of(),
+      electionPackageHash: 'test-election-package-hash',
     });
     store.setCurrentElectionId(electionId);
 
@@ -80,6 +81,7 @@ describe('tabulateManualResults & tabulateManualBallotCounts', () => {
       electionData,
       systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
       electionPackageFileContents: Buffer.of(),
+      electionPackageHash: 'test-election-package-hash',
     });
     store.setCurrentElectionId(electionId);
 

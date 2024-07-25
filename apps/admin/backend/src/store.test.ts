@@ -14,6 +14,7 @@ import { promises as fs } from 'fs';
 import { join } from 'path';
 import { tmpNameSync } from 'tmp';
 import { zipFile } from '@votingworks/test-utils';
+import { sha256 } from 'js-sha256';
 import { Store } from './store';
 import {
   ElectionRecord,
@@ -44,12 +45,14 @@ test('add an election', async () => {
     [ElectionPackageFileName.ELECTION]: electionDefinition.electionData,
     [ElectionPackageFileName.SYSTEM_SETTINGS]: JSON.stringify(systemSettings),
   });
+  const electionPackageHash = sha256(electionPackageFileContents);
 
   const store = Store.memoryStore();
   const electionId = store.addElection({
     electionData: electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents,
+    electionPackageHash,
   });
 
   store.assertElectionExists(electionId);
@@ -60,6 +63,7 @@ test('add an election', async () => {
     electionDefinition,
     id: electionId,
     isOfficialResults: false,
+    electionPackageHash,
   });
   expect(store.getElectionPackageFileContents(electionId)).toEqual(
     electionPackageFileContents
@@ -85,6 +89,7 @@ test('setElectionResultsOfficial', () => {
       electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
 
   expect(store.getElection(electionId)).toEqual(
@@ -123,6 +128,7 @@ test('current election id', () => {
       electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
 
   expect(store.getCurrentElectionId()).toBeUndefined();
@@ -141,6 +147,7 @@ test('saveSystemSettings and getSystemSettings write and read system settings', 
       electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
   const retrievedSystemSettings = store.getSystemSettings(electionId);
   expect(retrievedSystemSettings).toEqual(DEFAULT_SYSTEM_SETTINGS);
@@ -153,6 +160,7 @@ test('scanner batches', () => {
       electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
   expect(store.getScannerBatches(electionId)).toEqual([]);
 
@@ -178,6 +186,7 @@ test('manual results', () => {
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
   const contestId = 'zoo-council-mammal';
   const writeInCandidate = store.addWriteInCandidate({
@@ -307,6 +316,7 @@ describe('getTabulationGroups', () => {
     electionData: electionPrimaryPrecinctSplitsFixtures.asText(),
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
   const { election } = electionPrimaryPrecinctSplitsFixtures;
 
@@ -487,6 +497,7 @@ describe('getFilteredContests', () => {
     electionData: electionPrimaryPrecinctSplitsFixtures.asText(),
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
   const { election } = electionPrimaryPrecinctSplitsFixtures;
 
@@ -596,6 +607,7 @@ test('deleteElection reclaims disk space (vacuums the database)', async () => {
       electionTwoPartyPrimaryFixtures.electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
 
   const beforeSize = (await fs.stat(tmpDbPath)).size;

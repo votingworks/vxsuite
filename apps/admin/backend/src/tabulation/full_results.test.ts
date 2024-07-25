@@ -57,6 +57,7 @@ test('tabulateCastVoteRecords', async () => {
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
 
@@ -268,6 +269,7 @@ test('tabulateElectionResults - includes empty groups', async () => {
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
 
@@ -298,6 +300,7 @@ test('tabulateElectionResults - write-in handling', async () => {
     electionData: electionDefinition.electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
 
@@ -705,6 +708,7 @@ test('tabulateElectionResults - group and filter by voting method', async () => 
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
   const importResult = await importCastVoteRecords(
