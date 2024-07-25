@@ -9,3 +9,4 @@ export const PAT_CONNECTION_STATUS_PIN = 478;
 export const PAT_GPIO_OFFSET = 512;
 
 export const GPIO_PATH_PREFIX = '/sys/class/gpio';
+export const FAI_100_STATUS_FILENAME = '_pat_connection.status';

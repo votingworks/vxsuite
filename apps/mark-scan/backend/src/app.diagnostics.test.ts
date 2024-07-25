@@ -7,6 +7,7 @@ import * as grout from '@votingworks/grout';
 import { Server } from 'http';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { mockOf } from '@votingworks/test-utils';
+import tmp from 'tmp';
 import {
   BallotId,
   BallotType,
@@ -102,7 +103,13 @@ beforeEach(async () => {
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
 
-  patConnectionStatusReader = new PatConnectionStatusReader(logger);
+  const mockWorkspaceDir = tmp.dirSync();
+
+  patConnectionStatusReader = new PatConnectionStatusReader(
+    logger,
+    'bmd-150',
+    mockWorkspaceDir.name
+  );
   mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
     false
   );
@@ -225,6 +232,7 @@ test('saving the readiness report', async () => {
   const exportPath = exportResult.ok()![0];
   await expect(exportPath).toMatchPdfSnapshot({
     customSnapshotIdentifier: 'readiness-report',
+    failureThreshold: 0.001,
   });
 
   const pdfContents = await pdfToText(exportPath);

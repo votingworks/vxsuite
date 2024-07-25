@@ -85,7 +85,11 @@ export async function start({
   );
   const driver = await resolveDriver(logger);
   let patConnectionStatusReader: PatConnectionStatusReaderInterface =
-    new PatConnectionStatusReader(logger);
+    new PatConnectionStatusReader(
+      logger,
+      getMarkScanBmdModel(),
+      workspace.path
+    );
   const canReadPatConnectionStatus = await patConnectionStatusReader.open();
 
   if (!canReadPatConnectionStatus) {

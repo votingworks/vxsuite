@@ -183,7 +183,11 @@ beforeEach(async () => {
   );
   driver = new MockPaperHandlerDriver();
 
-  patConnectionStatusReader = new PatConnectionStatusReader(logger);
+  patConnectionStatusReader = new PatConnectionStatusReader(
+    logger,
+    'bmd-150',
+    workspace.path
+  );
   mockOf(patConnectionStatusReader.open).mockResolvedValue(true);
   mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
     false
