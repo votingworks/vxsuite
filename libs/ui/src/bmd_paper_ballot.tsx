@@ -173,6 +173,8 @@ const Ballot = styled.div<BallotProps>`
       switch (props.sheetSize) {
         /* istanbul ignore next - hardware specs still in flux */
         case 'bmd150':
+          // Width of exactly 8in results in 1-3 dots of overflow. The overflowing dots print on a line of
+          // their own, followed by a mostly blank line. This causes stripes in the printed page.
           /* istanbul ignore next - hardware specs still in flux */
           return '7.975in 13.25in';
         case 'letter':
