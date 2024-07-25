@@ -585,8 +585,24 @@ describe('paper handler status observable', () => {
 });
 
 describe('PAT device', () => {
-  test('HID adapter support', async () => {
+  async function setupForVoterSession() {
+    machine.setAcceptingPaper();
+    expect(machine.getSimpleStatus()).toEqual('accepting_paper');
+    driver.setMockStatus('paperInserted');
+
+    // Restore the original `loadAndParkPaper`, so it calls the underlying
+    // mock paper handler.
+    mockOf(loadAndParkPaper).mockImplementation(
+      jest.requireActual('./application_driver').loadAndParkPaper
+    );
+
+    await expectStatusTransitionTo('loading_paper');
+    await expectStatusTransitionTo('waiting_for_ballot_data');
     mockCardlessVoterAuth(auth);
+  }
+  // Get into the state at the start of a voter session.
+  test('HID adapter support', async () => {
+    await setupForVoterSession();
     mockOf(HID.devices).mockReturnValue([
       {
         productId: ORIGIN_SWIFTY_PRODUCT_ID,
@@ -602,19 +618,7 @@ describe('PAT device', () => {
   });
 
   test('successful connection flow', async () => {
-    machine.setAcceptingPaper();
-    expect(machine.getSimpleStatus()).toEqual('accepting_paper');
-
-    // Restore the original `loadAndParkPaper`, so it calls the underlying
-    // mock paper handler.
-    mockOf(loadAndParkPaper).mockImplementation(
-      jest.requireActual('./application_driver').loadAndParkPaper
-    );
-
-    driver.setMockStatus('paperInserted');
-    await expectStatusTransitionTo('loading_paper');
-    await expectStatusTransitionTo('waiting_for_ballot_data');
-    mockCardlessVoterAuth(auth);
+    await setupForVoterSession();
     machine.setAcceptingPaper();
 
     mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
@@ -628,7 +632,7 @@ describe('PAT device', () => {
   });
 
   test('isPatDeviceConnected', async () => {
-    mockCardlessVoterAuth(auth);
+    await setupForVoterSession();
     expect(machine.isPatDeviceConnected()).toEqual(false);
     mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
       true
@@ -649,6 +653,16 @@ describe('PAT device', () => {
     await advanceMockTimersAndPromises();
     expectCurrentStatus('accepting_paper');
 
+    // Finish loading paper flow
+    driver.setMockStatus('paperInserted');
+    // Restore the original `loadAndParkPaper`, so it calls the underlying
+    // mock paper handler.
+    mockOf(loadAndParkPaper).mockImplementation(
+      jest.requireActual('./application_driver').loadAndParkPaper
+    );
+    await expectStatusTransitionTo('loading_paper');
+    await expectStatusTransitionTo('waiting_for_ballot_data');
+
     // Change to voter auth to see state change to pat_device_connected
     mockCardlessVoterAuth(auth);
     await expectStatusTransitionTo('pat_device_connected');
@@ -656,19 +670,7 @@ describe('PAT device', () => {
   });
 
   test('disconnecting PAT device during calibration', async () => {
-    machine.setAcceptingPaper();
-    expect(machine.getSimpleStatus()).toEqual('accepting_paper');
-
-    // Restore the original `loadAndParkPaper`, so it calls the underlying
-    // mock paper handler.
-    mockOf(loadAndParkPaper).mockImplementation(
-      jest.requireActual('./application_driver').loadAndParkPaper
-    );
-
-    driver.setMockStatus('paperInserted');
-    await expectStatusTransitionTo('loading_paper');
-    await expectStatusTransitionTo('waiting_for_ballot_data');
-    mockCardlessVoterAuth(auth);
+    await setupForVoterSession();
 
     mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
       true
@@ -683,7 +685,7 @@ describe('PAT device', () => {
   });
 
   test('logs if an error is thrown when trying to read device connection status', async () => {
-    mockCardlessVoterAuth(auth);
+    await setupForVoterSession();
     const errorMessage = 'Test error in PAT';
     mockOf(patConnectionStatusReader.isPatDeviceConnected).mockRejectedValue(
       new Error(errorMessage)

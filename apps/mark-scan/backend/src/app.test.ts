@@ -45,7 +45,6 @@ import { ElectionState } from './types';
 import {
   mockElectionManagerAuth,
   mockPollWorkerAuth,
-  mockCardlessVoterAuth,
 } from '../test/auth_helpers';
 import { PatConnectionStatusReader } from './pat-input/connection_status_reader';
 import { createWorkspace } from './util/workspace';
@@ -465,15 +464,18 @@ test('removing ballot during presentation', async () => {
 });
 
 test('setPatDeviceIsCalibrated', async () => {
-  mockCardlessVoterAuth(mockAuth);
-  expect(await apiClient.getPaperHandlerState()).toEqual('not_accepting_paper');
+  await configureForTestElection(electionGeneralDefinition);
+  await mockLoadFlow(apiClient, driver);
+  expect(await apiClient.getPaperHandlerState()).toEqual(
+    'waiting_for_ballot_data'
+  );
   mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
     true
   );
   await waitForStatus('pat_device_connected');
 
   await apiClient.setPatDeviceIsCalibrated();
-  await waitForStatus('not_accepting_paper');
+  await waitForStatus('waiting_for_ballot_data');
 });
 
 function sortVotes(votes: VotesDict): VotesDict {

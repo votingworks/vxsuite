@@ -86,6 +86,7 @@ function isBallotReinsertionEnabled() {
 
 interface Context {
   auth: InsertedSmartCardAuthApi;
+  isInVoterSession: boolean;
   workspace: Workspace;
   driver: PaperHandlerDriverInterface;
   patConnectionStatusReader: PatConnectionStatusReaderInterface;
@@ -351,8 +352,6 @@ function findUsbPatDevice(): Promise<HID.HID | void> {
 
 function buildPatDeviceConnectionStatusObservable() {
   return ({
-    auth,
-    workspace,
     devicePollingIntervalMs,
     patConnectionStatusReader,
     isPatDeviceConnected: oldConnectionStatus,
@@ -362,16 +361,6 @@ function buildPatDeviceConnectionStatusObservable() {
     return timer(0, devicePollingIntervalMs).pipe(
       switchMap(async () => {
         try {
-          // We only try to connect a PAT device if we are currently in a voter session.
-          const authStatus = await auth.getAuthStatus(
-            constructAuthMachineState(workspace)
-          );
-
-          // We only present the option to calibrate the PAT device when a cardless voter is authenticated.
-          // Otherwise, we don't care about the PAT device status.
-          if (!isCardlessVoterAuth(authStatus)) {
-            return { type: 'PAT_DEVICE_NO_STATUS_CHANGE' };
-          }
           // Checks for a PAT device connected to the built-in PAT jack first. If no device found,
           // checks for a device connected through the Origin Swifty USB switch. We support the Swifty
           // for development only and should be open to deprecating support if the cost of maintaining
@@ -506,6 +495,7 @@ export function buildMachine(
             isPatDeviceConnected: true,
           }),
           target: 'pat_device_connected',
+          cond: (context) => context.isInVoterSession,
         },
         PAT_DEVICE_DISCONNECTED: {
           // Performing the assign here ensures the PAT device observable will
@@ -514,6 +504,7 @@ export function buildMachine(
             isPatDeviceConnected: false,
           }),
           target: 'pat_device_disconnected',
+          cond: (context) => context.isInVoterSession,
         },
         SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC:
           'paper_handler_diagnostic',
@@ -522,7 +513,7 @@ export function buildMachine(
           target: 'voting_flow.not_accepting_paper',
         },
       },
-      invoke: pollPatDeviceConnectionStatus(),
+      invoke: [pollPatDeviceConnectionStatus()],
       states: {
         voting_flow: {
           initial: 'not_accepting_paper',
@@ -655,6 +646,9 @@ export function buildMachine(
             },
 
             waiting_for_ballot_data: {
+              entry: assign({
+                isInVoterSession: true,
+              }),
               on: {
                 VOTER_INITIATED_PRINT: 'printing_ballot',
               },
@@ -1208,6 +1202,7 @@ export function buildMachine(
           interpretation: undefined,
           scannedBallotImagePath: undefined,
           isPatDeviceConnected: false,
+          isInVoterSession: false,
         }),
         clearInterpretation: () => {
           assign({
@@ -1328,6 +1323,7 @@ export async function getPaperHandlerStateMachine({
     workspace,
     driver,
     isPatDeviceConnected: false,
+    isInVoterSession: false,
     patConnectionStatusReader,
     deviceTimeoutMs,
     devicePollingIntervalMs,

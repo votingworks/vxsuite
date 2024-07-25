@@ -155,7 +155,7 @@ test('endCardlessVoterSession', async () => {
 
 test('getAuthStatus before election definition has been configured', async () => {
   await apiClient.getAuthStatus();
-  expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(2);
+  expect(mockAuth.getAuthStatus).toHaveBeenCalledTimes(1);
   expect(mockAuth.getAuthStatus).toHaveBeenNthCalledWith(
     1,
     DEFAULT_SYSTEM_SETTINGS.auth
