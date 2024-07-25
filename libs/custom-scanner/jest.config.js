@@ -12,5 +12,5 @@ module.exports = {
     '!src/mocks/**/*.ts',
     '!src/types/**/*.ts',
   ],
-  coverageProvider: 'v8',
+  coverageProvider: 'babel',
 };

@@ -21,7 +21,7 @@ export function exportFile({
   const exporter = new Exporter({
     allowedExportPatterns: ADMIN_ALLOWED_EXPORT_PATTERNS,
     /* We're not using `exportDataToUsbDrive` here, so a mock `usbDrive` is OK */
-    /* c8 ignore start */
+    /* istanbul ignore next */
     usbDrive: {
       status: () =>
         Promise.resolve({
@@ -30,7 +30,6 @@ export function exportFile({
       eject: () => Promise.resolve(),
       format: () => Promise.resolve(),
     },
-    /* c8 ignore stop */
   });
 
   debug('exporting data to file %s', path);

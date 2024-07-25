@@ -33,7 +33,7 @@ function addCardTallyToCardCounts({
   } else {
     // eslint-disable-next-line no-param-reassign
     cardCounts.hmpb[card.sheetNumber - 1] =
-      /* c8 ignore next - trivial fallback case */
+      /* istanbul ignore next - trivial fallback case */
       (cardCounts.hmpb[card.sheetNumber - 1] ?? 0) + tally;
   }
 

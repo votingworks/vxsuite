@@ -31,9 +31,8 @@ export async function saveReadinessReport({
   const generatedAtTime = new Date(getCurrentTime());
   const electionDefinition = store.getElectionDefinition();
   const report = CentralScanReadinessReport({
-    /* c8 ignore start */
+    /* istanbul ignore next */
     batteryInfo: (await getBatteryInfo()) ?? undefined,
-    /* c8 ignore stop */
     diskSpaceSummary: await workspace.getDiskSpaceSummary(),
     isScannerAttached,
     mostRecentScannerDiagnostic:

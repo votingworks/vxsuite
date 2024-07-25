@@ -32,9 +32,8 @@ async function getReadinessReport({
     : undefined;
 
   return AdminReadinessReport({
-    /* c8 ignore start */
+    /* istanbul ignore next */
     batteryInfo: (await getBatteryInfo()) ?? undefined,
-    /* c8 ignore stop */
     diskSpaceSummary: await workspace.getDiskSpaceSummary(),
     printerStatus: await printer.status(),
     mostRecentPrinterDiagnostic:

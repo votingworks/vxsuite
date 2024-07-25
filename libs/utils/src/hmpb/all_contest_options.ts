@@ -69,7 +69,7 @@ export function* allContestOptions(
       break;
     }
 
-    /* c8 ignore next 2 */
+    /* istanbul ignore next */
     default:
       throwIllegalValue(contest, 'type');
   }

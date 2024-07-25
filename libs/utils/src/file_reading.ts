@@ -19,11 +19,10 @@ export function readFile(file: File): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
 
-    /* c8 ignore start */
+    /* istanbul ignore next */
     reader.onerror = () => {
       reject(reader.error);
     };
-    /* c8 ignore stop */
 
     reader.onload = () => {
       if (!reader.result) {

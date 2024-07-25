@@ -148,7 +148,7 @@ export function generateTitleForReport({
           return ok(`Undervoted ${reportType} Report`);
         case 'hasWriteIn':
           return ok(`Write-In ${reportType} Report`);
-        /* c8 ignore next 2 */
+        /* istanbul ignore next */
         default:
           throwIllegalValue(adjudicationFlag);
       }

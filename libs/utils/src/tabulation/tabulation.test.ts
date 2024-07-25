@@ -41,6 +41,7 @@ import {
   getHmpbBallotCount,
   combineCandidateContestResults,
   buildContestResultsFixture,
+  yieldToEventLoop,
 } from './tabulation';
 import {
   convertCastVoteRecordVotesToTabulationVotes,
@@ -1325,4 +1326,12 @@ test('combinedCandidateContestResults - does not alter original tallies', () => 
 
   expect(JSON.stringify(contestResultsA)).toEqual(aString);
   expect(JSON.stringify(contestResultsB)).toEqual(bString);
+});
+
+test('yieldToEventLoop', async () => {
+  const fn = jest.fn();
+  setImmediate(fn);
+  expect(fn).not.toHaveBeenCalled();
+  await yieldToEventLoop();
+  expect(fn).toHaveBeenCalled();
 });

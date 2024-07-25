@@ -45,7 +45,7 @@ export async function start({
 }: Partial<StartOptions> = {}): Promise<Server> {
   detectDevices({ logger: baseLogger });
   let resolvedWorkspace = workspace;
-  /* c8 ignore start */
+  /* istanbul ignore next */
   if (!resolvedWorkspace) {
     const workspacePath = SCAN_WORKSPACE;
     if (!workspacePath) {
@@ -64,14 +64,13 @@ export async function start({
     }
     resolvedWorkspace = createWorkspace(workspacePath);
   }
-  /* c8 ignore stop */
 
   // Clear any cached data
   resolvedWorkspace.clearUploads();
   resolvedWorkspace.store.cleanupIncompleteBatches();
 
   let resolvedApp = app;
-  /* c8 ignore start */
+  /* istanbul ignore next */
   if (!resolvedApp) {
     const auth = new DippedSmartCardAuth({
       card:
@@ -111,7 +110,6 @@ export async function start({
       workspace: resolvedWorkspace,
     });
   }
-  /* c8 ignore stop */
 
   return resolvedApp.listen(port, async () => {
     await baseLogger.log(LogEventId.ApplicationStartup, 'system', {

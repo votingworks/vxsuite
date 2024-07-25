@@ -8,7 +8,7 @@ import {
 } from '@votingworks/types';
 import {
   combineElectionResults,
-  getContestsForPrecinct,
+  getContestsForPrecinctSelection,
   getEmptyElectionResults,
 } from '@votingworks/utils';
 import { PrecinctScannerTallyReport } from './precinct_scanner_tally_report';
@@ -50,11 +50,9 @@ export function PrecinctScannerTallyReports({
   });
   const partyIds =
     getPartyIdsForPrecinctScannerTallyReports(electionDefinition);
-  const allContests = getContestsForPrecinct(
+  const allContests = getContestsForPrecinctSelection(
     electionDefinition,
-    precinctSelection.kind === 'SinglePrecinct'
-      ? precinctSelection.precinctId
-      : undefined
+    precinctSelection
   );
 
   return partyIds.map((partyId) => {

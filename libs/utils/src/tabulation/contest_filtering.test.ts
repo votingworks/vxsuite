@@ -8,7 +8,7 @@ import {
   doesContestAppearOnPartyBallot,
   getContestIdsForBallotStyle,
   getContestIdsForPrecinct,
-  getContestsForPrecinct,
+  getContestsForPrecinctSelection,
 } from './contest_filtering';
 
 describe('doesContestAppearOnPartyBallot', () => {
@@ -85,17 +85,33 @@ test('getContestIdsForPrecinct', () => {
   ]);
 });
 
-test('getContestsForPrecinct', () => {
+test('getContestsForPrecinctSelection', () => {
   const { electionDefinition } = electionPrimaryPrecinctSplitsFixtures;
   expect(
-    getContestsForPrecinct(electionDefinition, 'precinct-c1-w2').map(
-      (c) => c.id
-    )
+    getContestsForPrecinctSelection(electionDefinition, {
+      kind: 'SinglePrecinct',
+      precinctId: 'precinct-c1-w2',
+    }).map((c) => c.id)
   ).toEqual([
     'county-leader-mammal',
     'congressional-1-mammal',
     'water-2-fishing',
     'county-leader-fish',
     'congressional-1-fish',
+  ]);
+
+  expect(
+    getContestsForPrecinctSelection(electionDefinition, {
+      kind: 'AllPrecincts',
+    }).map((c) => c.id)
+  ).toEqual([
+    'county-leader-mammal',
+    'county-leader-fish',
+    'congressional-1-mammal',
+    'congressional-1-fish',
+    'congressional-2-mammal',
+    'congressional-2-fish',
+    'water-1-fishing',
+    'water-2-fishing',
   ]);
 });

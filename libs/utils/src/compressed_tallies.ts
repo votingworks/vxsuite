@@ -48,7 +48,7 @@ export function compressTally(
         ]);
       }
 
-      /* c8 ignore next 2 */
+      /* istanbul ignore next */
       default:
         throwIllegalValue(contest, 'type');
     }
@@ -118,7 +118,7 @@ function getContestTalliesForCompressedContest(
         tallies: candidateTallies,
       };
     }
-    /* c8 ignore next 2 */
+    /* istanbul ignore next */
     default:
       throwIllegalValue(contest, 'type');
   }

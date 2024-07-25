@@ -153,7 +153,7 @@ export function convertMarksToVotesDict(
         ? markToCandidateVotes(contest, markThresholds, mark)
         : contest.type === 'yesno'
         ? markToYesNoVotes(markThresholds, mark)
-        : /* c8 ignore next */
+        : /* istanbul ignore next */
           throwIllegalValue(contest, 'type');
 
     votesDict[mark.contestId] = [...existingVotes, ...newVotes] as Vote;

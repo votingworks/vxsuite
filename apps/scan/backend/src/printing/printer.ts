@@ -83,7 +83,7 @@ export function wrapFujitsuThermalPrinter(
 }
 
 export function getPrinter(logger: BaseLogger): Printer {
-  /* c8 ignore start */
+  /* istanbul ignore next */
   if (
     isFeatureFlagEnabled(
       BooleanEnvironmentVariableName.SCAN_USE_FUJITSU_PRINTER
@@ -93,7 +93,6 @@ export function getPrinter(logger: BaseLogger): Printer {
     assert(printer); // TODO: build mock and/or reconnection instead of asserting
     return wrapFujitsuThermalPrinter(printer);
   }
-  /* c8 ignore stop */
 
   const legacyPrinter = detectPrinter(logger);
   return wrapLegacyPrinter(legacyPrinter);

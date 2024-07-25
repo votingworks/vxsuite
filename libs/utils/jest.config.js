@@ -7,11 +7,11 @@ module.exports = {
   ...shared,
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
-  coverageProvider: 'v8',
+  coverageProvider: 'babel',
   coverageThreshold: {
     global: {
-      branches: -30,
-      lines: -123,
+      branches: -35,
+      lines: -124,
     },
   },
   collectCoverageFrom: [

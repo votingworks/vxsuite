@@ -111,7 +111,7 @@ export function usbChannelWithMockProtocol({
   function setNextReadBuffer(buffer: Buffer | Result<Buffer, unknown>): void {
     const newBuffer = Buffer.isBuffer(buffer) ? buffer : buffer.unsafeUnwrap();
 
-    /* c8 ignore start */
+    /* istanbul ignore start */
     if (readBuffer) {
       throw new Error(
         `read buffer already set: ${inspect(
@@ -119,7 +119,7 @@ export function usbChannelWithMockProtocol({
         )}, cannot use new buffer: ${inspect(newBuffer.toString())}`
       );
     }
-    /* c8 ignore stop */
+    /* istanbul ignore stop */
 
     readBuffer = Buffer.isBuffer(buffer) ? buffer : buffer.unsafeUnwrap();
   }

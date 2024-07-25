@@ -7,6 +7,7 @@ import {
 import {
   BallotTargetMark,
   CandidateContest,
+  MarkStatus,
   Tabulation,
   WriteInCandidate,
   YesNoContest,
@@ -16,6 +17,7 @@ import {
   convertMarksToVotesDict,
   getContestVoteOptionsForCandidateContest,
   getContestVoteOptionsForYesNoContest,
+  getMarkStatus,
   getSingleYesNoVote,
   hasWriteIns,
   normalizeWriteInId,
@@ -251,4 +253,18 @@ test('hasWriteIns', () => {
       ],
     })
   ).toEqual(true);
+});
+
+test('getMarkStatus', () => {
+  expect(getMarkStatus(0.5, { marginal: 0.04, definite: 0.1 })).toEqual(
+    MarkStatus.Marked
+  );
+
+  expect(getMarkStatus(0.08, { marginal: 0.04, definite: 0.1 })).toEqual(
+    MarkStatus.Marginal
+  );
+
+  expect(getMarkStatus(0.07, { marginal: 0.08, definite: 0.1 })).toEqual(
+    MarkStatus.Unmarked
+  );
 });

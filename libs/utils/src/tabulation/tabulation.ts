@@ -354,7 +354,7 @@ export function getGroupSpecifierFromGroupKey(
           value
         ) as Tabulation.VotingMethod;
         break;
-      /* c8 ignore next 2 */
+      /* istanbul ignore next */
       default:
         throwIllegalValue(key);
     }

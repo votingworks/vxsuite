@@ -6,8 +6,9 @@ import {
   PrecinctId,
   AnyContest,
   Contests,
+  PrecinctSelection,
 } from '@votingworks/types';
-import { assert } from '@votingworks/basics';
+import { assert, throwIllegalValue } from '@votingworks/basics';
 import {
   createElectionMetadataLookupFunction,
   getContestById,
@@ -91,15 +92,24 @@ export function mapContestIdsToContests(
   );
 }
 
-export function getContestsForPrecinct(
+export function getContestsForPrecinctSelection(
   electionDefinition: ElectionDefinition,
-  precinctId?: PrecinctId
+  precinctSelection: PrecinctSelection
 ): Contests {
   const { election } = electionDefinition;
-  if (!precinctId) {
-    return election.contests;
-  }
+  switch (precinctSelection.kind) {
+    case 'AllPrecincts':
+      return election.contests;
 
-  const contestIds = getContestIdsForPrecinct(electionDefinition, precinctId);
-  return mapContestIdsToContests(electionDefinition, contestIds);
+    case 'SinglePrecinct': {
+      const contestIds = getContestIdsForPrecinct(
+        electionDefinition,
+        precinctSelection.precinctId
+      );
+      return mapContestIdsToContests(electionDefinition, contestIds);
+    }
+
+    default:
+      throwIllegalValue(precinctSelection, 'kind');
+  }
 }

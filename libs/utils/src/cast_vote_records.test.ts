@@ -4,7 +4,13 @@ import { dirSync } from 'tmp';
 import { BallotType, CVR } from '@votingworks/types';
 
 import {
+  electionFamousNames2021Fixtures,
+  electionWithMsEitherNeither,
+} from '@votingworks/fixtures';
+import { err, ok } from '@votingworks/basics';
+import {
   buildCVRSnapshotBallotTypeMetadata,
+  castVoteRecordHasValidContestReferences,
   convertCastVoteRecordVotesToTabulationVotes,
   getCastVoteRecordBallotType,
   getCurrentSnapshot,
@@ -570,4 +576,135 @@ test('getCastVoteRecordBallotType', () => {
       })
     )
   ).toEqual(BallotType.Precinct);
+});
+
+test('castVoteRecordHasValidContestReferences no contests', () => {
+  expect(
+    castVoteRecordHasValidContestReferences(
+      {
+        ...mockCastVoteRecord,
+        CVRSnapshot: [
+          {
+            '@id': 'test',
+            '@type': 'CVR.CVRSnapshot',
+            Type: CVR.CVRType.Modified,
+            CVRContest: [],
+          },
+        ],
+      },
+      electionFamousNames2021Fixtures.election.contests
+    )
+  ).toEqual(ok());
+});
+
+test('castVoteRecordHasValidContestReferences no selections', () => {
+  expect(
+    castVoteRecordHasValidContestReferences(
+      {
+        ...mockCastVoteRecord,
+        CVRSnapshot: [
+          {
+            '@id': 'test',
+            '@type': 'CVR.CVRSnapshot',
+            Type: CVR.CVRType.Modified,
+            CVRContest: [
+              {
+                '@type': 'CVR.CVRContest',
+                ContestId: 'mayor',
+                CVRContestSelection: [],
+              },
+            ],
+          },
+        ],
+      },
+      electionFamousNames2021Fixtures.election.contests
+    )
+  ).toEqual(ok());
+});
+
+test('castVoteRecordHasValidContestReferences invalid contest reference', () => {
+  expect(
+    castVoteRecordHasValidContestReferences(
+      {
+        ...mockCastVoteRecord,
+        CVRSnapshot: [
+          {
+            '@id': 'test',
+            '@type': 'CVR.CVRSnapshot',
+            Type: CVR.CVRType.Modified,
+            CVRContest: [
+              {
+                '@type': 'CVR.CVRContest',
+                ContestId: 'not-a-contest',
+                CVRContestSelection: [],
+              },
+            ],
+          },
+        ],
+      },
+      electionFamousNames2021Fixtures.election.contests
+    )
+  ).toEqual(err('contest-not-found'));
+});
+
+test('castVoteRecordHasValidContestReferences invalid contest option reference', () => {
+  expect(
+    castVoteRecordHasValidContestReferences(
+      {
+        ...mockCastVoteRecord,
+        CVRSnapshot: [
+          {
+            '@id': 'test',
+            '@type': 'CVR.CVRSnapshot',
+            Type: CVR.CVRType.Modified,
+            CVRContest: [
+              {
+                '@type': 'CVR.CVRContest',
+                ContestId: 'mayor',
+                CVRContestSelection: [
+                  {
+                    '@type': 'CVR.CVRContestSelection',
+                    ContestSelectionId: 'not-an-option',
+                    SelectionPosition: [],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      electionFamousNames2021Fixtures.election.contests
+    )
+  ).toEqual(err('contest-option-not-found'));
+});
+
+test('castVoteRecordHasValidContestReferences invalid yesno contest option reference', () => {
+  expect(
+    castVoteRecordHasValidContestReferences(
+      {
+        ...mockCastVoteRecord,
+        CVRSnapshot: [
+          {
+            '@id': 'test',
+            '@type': 'CVR.CVRSnapshot',
+            Type: CVR.CVRType.Modified,
+            CVRContest: [
+              {
+                '@type': 'CVR.CVRContest',
+                ContestId: '750000017',
+                CVRContestSelection: [
+                  {
+                    '@type': 'CVR.CVRContestSelection',
+                    ContestSelectionId: 'not-an-option',
+                    SelectionPosition: [],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      electionWithMsEitherNeither.contests
+    )
+  ).toEqual(err('contest-option-not-found'));
 });

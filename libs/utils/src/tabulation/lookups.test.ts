@@ -1,4 +1,9 @@
-import { ElectionDefinition, Tabulation } from '@votingworks/types';
+import {
+  DistrictIdSchema,
+  ElectionDefinition,
+  Tabulation,
+  unsafeParse,
+} from '@votingworks/types';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
 import {
   getContestById,
@@ -8,6 +13,7 @@ import {
   getBallotStylesByPartyId,
   getBallotStylesByPrecinctId,
   determinePartyId,
+  getDistrictById,
 } from './lookups';
 
 test('getPrecinctById', () => {
@@ -118,5 +124,37 @@ test('determinePartyId', () => {
   );
   expect(determinePartyId(electionDefinition, precinctCardCounts)).toEqual(
     undefined
+  );
+});
+
+test('getDistrictById', () => {
+  const electionDefinition = electionTwoPartyPrimaryDefinition;
+  expect(getDistrictById(electionDefinition, 'district-1').name).toEqual(
+    'District 1'
+  );
+  expect(
+    () => getDistrictById(electionDefinition, 'district-2').name
+  ).toThrowError();
+
+  // confirm that different elections are maintained separately
+  const modifiedElectionDefinition: ElectionDefinition = {
+    ...electionDefinition,
+    ballotHash: 'modified-ballot-hash',
+    election: {
+      ...electionDefinition.election,
+      districts: [
+        {
+          id: unsafeParse(DistrictIdSchema, 'district-1'),
+          name: 'First District',
+        },
+      ],
+    },
+  };
+
+  expect(
+    getDistrictById(modifiedElectionDefinition, 'district-1').name
+  ).toEqual('First District');
+  expect(getDistrictById(electionDefinition, 'district-1').name).toEqual(
+    'District 1'
   );
 });

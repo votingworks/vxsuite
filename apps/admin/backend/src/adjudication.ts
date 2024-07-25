@@ -29,7 +29,7 @@ export function adjudicateVote(
 
   const scannedIsVote = contestVotes
     ? contestVotes.includes(voteAdjudication.optionId)
-    : /* c8 ignore next 1 */
+    : /* istanbul ignore next */
       false;
 
   // if the vote is already the target status, do nothing
@@ -63,10 +63,9 @@ async function logWriteInAdjudication({
         return `a vote for an official candidate (${initialWriteInRecord.candidateId})`;
       case 'write-in-candidate':
         return `a vote for a write-in candidate (${initialWriteInRecord.candidateId})`;
-      /* c8 ignore start */
+      /* istanbul ignore next */
       default:
         throwIllegalValue(initialWriteInRecord, 'adjudicationType');
-      /* c8 ignore stop */
     }
   })();
 
@@ -80,10 +79,9 @@ async function logWriteInAdjudication({
         return `a vote for a write-in candidate (${adjudicationAction.candidateId})`;
       case 'reset':
         return `unadjudicated`;
-      /* c8 ignore start */
+      /* istanbul ignore next */
       default:
         throwIllegalValue(adjudicationAction, 'type');
-      /* c8 ignore stop */
     }
   })();
 
@@ -169,10 +167,9 @@ export async function adjudicateWriteIn(
       // ensure the vote appears as it originally was in tallies
       store.deleteVoteAdjudication(initialWriteInRecord);
       break;
-    /* c8 ignore start */
+    /* istanbul ignore next */
     default:
       throwIllegalValue(adjudicationAction, 'type');
-    /* c8 ignore stop */
   }
 
   // if we are switching away from a write-in candidate, we may have to clean
