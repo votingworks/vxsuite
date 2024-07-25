@@ -49,28 +49,6 @@ test('logs when it cannot access the gpio pin sysfs file', async () => {
   await reader.close();
 });
 
-test('bmd-150 implementation', async () => {
-  const statusFile = tmp.fileSync({
-    tmpdir: mockWorkspaceDir.name,
-    name: FAI_100_STATUS_FILENAME,
-  });
-
-  const expectedConnectionStatus = true;
-  const buf = Buffer.of(expectedStatusToAsciiChar(expectedConnectionStatus));
-  await fs.appendFile(statusFile.name, buf);
-
-  const reader = new PatConnectionStatusReader(
-    logger,
-    'bmd-150',
-    mockWorkspaceDir.name
-  );
-  const result = await reader.open();
-  expect(result).toEqual(true);
-  const isConnected = await reader.isPatDeviceConnected();
-  expect(isConnected).toEqual(expectedConnectionStatus);
-  await reader.close();
-});
-
 const pinAddresses = [
   { address: 478, expectedConnectionStatus: true },
   { address: 478, expectedConnectionStatus: false },
@@ -110,3 +88,43 @@ test.each(pinAddresses)(
     await reader.close();
   }
 );
+
+test('bmd-150 implementation happy path', async () => {
+  const statusFile = tmp.fileSync({
+    tmpdir: mockWorkspaceDir.name,
+    name: FAI_100_STATUS_FILENAME,
+  });
+
+  const expectedConnectionStatus = true;
+  const buf = Buffer.of(expectedStatusToAsciiChar(expectedConnectionStatus));
+  await fs.appendFile(statusFile.name, buf);
+
+  const reader = new PatConnectionStatusReader(
+    logger,
+    'bmd-150',
+    mockWorkspaceDir.name
+  );
+  const result = await reader.open();
+  expect(result).toEqual(true);
+  const isConnected = await reader.isPatDeviceConnected();
+  expect(isConnected).toEqual(expectedConnectionStatus);
+  await reader.close();
+});
+
+test('bmd-150 implementation cannot find workspace', async () => {
+  const reader = new PatConnectionStatusReader(
+    logger,
+    'bmd-150',
+    '/tmp/notarealdirectory/notarealfile.status'
+  );
+  const result = await reader.open();
+  expect(result).toEqual(false);
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.ConnectToPatInputComplete,
+    'system',
+    {
+      disposition: 'failure',
+      message: expect.stringMatching(/Unexpected error trying to open/),
+    }
+  );
+});

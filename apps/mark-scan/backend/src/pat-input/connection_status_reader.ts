@@ -88,7 +88,7 @@ export class PatConnectionStatusReader
     const path = join(this.workspacePath, FAI_100_STATUS_FILENAME);
     const openResult = await fsOpen(path);
     if (openResult.isErr()) {
-      await this.logger.log(LogEventId.ConnectToGpioPinComplete, 'system', {
+      await this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {
         message: `Unexpected error trying to open ${path}. Is fai_100_controllerd running?`,
         disposition: 'failure',
       });
@@ -109,7 +109,9 @@ export class PatConnectionStatusReader
         return this.openBmd150();
       case 'bmd-155':
         return this.openBmd155();
+      // istanbul ignore next - unreachable because BmdModelNumber coverage is exhaustive
       default:
+        // istanbul ignore next
         throw new Error(`Unhandled BMD model ${this.bmdModelNumber}`);
     }
   }
