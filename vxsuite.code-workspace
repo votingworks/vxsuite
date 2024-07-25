@@ -113,10 +113,6 @@
       "path": "libs/cdf-schema-builder"
     },
     {
-      "name": "libs/converter-nh-accuvote",
-      "path": "libs/converter-nh-accuvote"
-    },
-    {
       "name": "libs/cvr-fixture-generator",
       "path": "libs/cvr-fixture-generator"
     },
