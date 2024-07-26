@@ -1,5 +1,5 @@
 import { renderToPdf } from '@votingworks/printing';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import { isPollsSuspensionTransition } from '@votingworks/utils';
 import {
   PrecinctScannerBallotCountReport,
@@ -26,12 +26,11 @@ export async function printFullReport({
   store: Store;
   printer: Printer;
 }): Promise<number> {
-  const electionDefinition = store.getElectionDefinition();
+  const { electionDefinition } = assertDefined(store.getElectionRecord());
   const precinctSelection = store.getPrecinctSelection();
   const pollsTransition = store.getLastPollsTransition();
   const isLiveMode = !store.getTestMode();
   const { machineId } = getMachineConfig();
-  assert(electionDefinition);
   assert(precinctSelection);
   assert(pollsTransition);
   assert(pollsTransition.ballotCount === store.getBallotsCounted());

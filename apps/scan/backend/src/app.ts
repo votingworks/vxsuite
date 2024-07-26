@@ -96,10 +96,10 @@ export function buildApi({
 
     generateLiveCheckQrCodeValue() {
       const { machineId } = getMachineConfig();
-      const electionDefinition = workspace.store.getElectionDefinition();
+      const electionRecord = workspace.store.getElectionRecord();
       return new LiveCheck().generateQrCodeValue({
         machineId,
-        ballotHash: electionDefinition?.ballotHash,
+        ballotHash: electionRecord?.electionDefinition.ballotHash,
       });
     },
 
@@ -124,7 +124,7 @@ export function buildApi({
     async configureFromElectionPackageOnUsbDrive(): Promise<
       Result<void, ElectionPackageConfigurationError>
     > {
-      assert(!store.getElectionDefinition(), 'Already configured');
+      assert(!store.getElectionRecord(), 'Already configured');
 
       const authStatus = await auth.getAuthStatus(
         constructAuthMachineState(workspace.store)
@@ -138,7 +138,8 @@ export function buildApi({
         return electionPackageResult;
       }
       assert(isElectionManagerAuth(authStatus));
-      const electionPackage = electionPackageResult.ok();
+      const { electionPackage, electionPackageHash } =
+        electionPackageResult.ok();
       const { electionDefinition, systemSettings } = electionPackage;
       assert(systemSettings);
       let precinctSelection: SinglePrecinctSelection | undefined;
@@ -152,6 +153,7 @@ export function buildApi({
         store.setElectionAndJurisdiction({
           electionData: electionDefinition.electionData,
           jurisdiction: authStatus.user.jurisdiction,
+          electionPackageHash,
         });
         if (precinctSelection) {
           store.setPrecinctSelection(precinctSelection);
@@ -170,8 +172,10 @@ export function buildApi({
     },
 
     getConfig(): PrecinctScannerConfig {
+      const electionRecord = store.getElectionRecord();
       return {
-        electionDefinition: store.getElectionDefinition(),
+        electionDefinition: electionRecord?.electionDefinition,
+        electionPackageHash: electionRecord?.electionPackageHash,
         systemSettings: store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS,
         precinctSelection: store.getPrecinctSelection(),
         isSoundMuted: store.getIsSoundMuted(),
@@ -203,8 +207,7 @@ export function buildApi({
     async setPrecinctSelection(input: {
       precinctSelection: PrecinctSelection;
     }): Promise<void> {
-      const electionDefinition = store.getElectionDefinition();
-      assert(electionDefinition);
+      const { electionDefinition } = assertDefined(store.getElectionRecord());
       assert(
         store.getBallotsCounted() === 0,
         'Attempt to change precinct selection after ballots have been cast'

@@ -47,6 +47,7 @@ const defaultConfig: PrecinctScannerConfig = {
   isTestMode: true,
   ballotCountWhenBallotBagLastReplaced: 0,
   electionDefinition: electionGeneralDefinition,
+  electionPackageHash: 'test-election-package-hash',
   precinctSelection: ALL_PRECINCTS_SELECTION,
   systemSettings: DEFAULT_SYSTEM_SETTINGS,
 };

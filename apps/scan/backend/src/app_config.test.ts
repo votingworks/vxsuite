@@ -147,6 +147,8 @@ test("if there's only one precinct in the election, it's selected automatically 
       kind: 'SinglePrecinct',
       precinctId: 'precinct-1',
     });
+    expect(config.electionDefinition).toEqual(electionDefinition);
+    expect(config.electionPackageHash).toEqual(expect.any(String));
   });
 });
 

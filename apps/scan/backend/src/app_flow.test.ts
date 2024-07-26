@@ -17,6 +17,7 @@ import { BALLOT_BAG_CAPACITY } from './globals';
 
 const electionDefinition = electionGeneralDefinition;
 const electionKey = constructElectionKey(electionDefinition.election);
+const electionPackageHash = 'test-election-package-hash';
 
 jest.mock('@votingworks/backend', () => ({
   ...jest.requireActual('@votingworks/backend'),
@@ -128,6 +129,7 @@ test('unlock_machine (election_manager)', async () => {
   store.setElectionAndJurisdiction({
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
+    electionPackageHash,
   });
 
   auth.getAuthStatus.mockResolvedValue({
@@ -154,6 +156,7 @@ test('unlock_machine (poll_worker)', async () => {
   store.setElectionAndJurisdiction({
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
+    electionPackageHash,
   });
 
   auth.getAuthStatus.mockResolvedValue({
@@ -223,6 +226,7 @@ test('logged_in:election_manager', async () => {
   store.setElectionAndJurisdiction({
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
+    electionPackageHash,
   });
 
   auth.getAuthStatus.mockResolvedValue({
@@ -249,6 +253,7 @@ test('unconfigured:precinct', async () => {
   store.setElectionAndJurisdiction({
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
+    electionPackageHash,
   });
 
   auth.getAuthStatus.mockResolvedValue({
@@ -275,6 +280,7 @@ test('insert_usb_drive', async () => {
   store.setElectionAndJurisdiction({
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
+    electionPackageHash,
   });
 
   auth.getAuthStatus.mockResolvedValue({
@@ -304,6 +310,7 @@ test('replace_ballot_bag', async () => {
   store.setElectionAndJurisdiction({
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
+    electionPackageHash,
   });
 
   auth.getAuthStatus.mockResolvedValue({
@@ -335,6 +342,7 @@ test('logged_in:poll_worker', async () => {
   store.setElectionAndJurisdiction({
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
+    electionPackageHash,
   });
 
   auth.getAuthStatus.mockResolvedValue({
@@ -363,6 +371,7 @@ test('polls_not_open', async () => {
   store.setElectionAndJurisdiction({
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
+    electionPackageHash,
   });
 
   store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
@@ -385,6 +394,7 @@ test('cast_vote_record_sync_required', async () => {
   store.setElectionAndJurisdiction({
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
+    electionPackageHash,
   });
 
   store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
@@ -410,6 +420,7 @@ test('ballot:waiting_to_scan', async () => {
   store.setElectionAndJurisdiction({
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
+    electionPackageHash,
   });
 
   store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);

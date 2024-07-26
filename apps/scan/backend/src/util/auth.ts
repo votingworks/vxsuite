@@ -13,13 +13,14 @@ import { Workspace } from './workspace';
 export function constructAuthMachineState(
   store: Store
 ): InsertedSmartCardAuthMachineState {
-  const electionDefinition = store.getElectionDefinition();
+  const electionRecord = store.getElectionRecord();
   const jurisdiction = store.getJurisdiction();
   const systemSettings = store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
   return {
     ...systemSettings.auth,
     electionKey:
-      electionDefinition && constructElectionKey(electionDefinition.election),
+      electionRecord &&
+      constructElectionKey(electionRecord.electionDefinition.election),
     jurisdiction,
   };
 }

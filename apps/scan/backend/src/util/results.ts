@@ -11,7 +11,7 @@ import {
   groupMapToGroupList,
   tabulateCastVoteRecords,
 } from '@votingworks/utils';
-import { assert, iter, typedAs } from '@votingworks/basics';
+import { assert, assertDefined, iter, typedAs } from '@votingworks/basics';
 import { VX_MACHINE_ID } from '@votingworks/backend';
 import { Store } from '../store';
 
@@ -41,8 +41,7 @@ export async function getScannerResults({
 }: {
   store: Store;
 }): Promise<Tabulation.GroupList<Tabulation.ElectionResults>> {
-  const electionDefinition = store.getElectionDefinition();
-  assert(electionDefinition);
+  const { electionDefinition } = assertDefined(store.getElectionRecord());
   const { election } = electionDefinition;
   const ballotStyleIdPartyIdLookup = getBallotStyleIdPartyIdLookup(election);
 

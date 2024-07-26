@@ -191,18 +191,28 @@ export class Store {
   }
 
   /**
-   * Gets the current election definition.
+   * Gets the current election definition and election package hash.
    */
-  getElectionDefinition(): ElectionDefinition | undefined {
+  getElectionRecord():
+    | { electionDefinition: ElectionDefinition; electionPackageHash: string }
+    | undefined {
     const electionRow = this.client.one(
-      'select election_data as electionData from election'
-    ) as { electionData: string } | undefined;
+      `
+      select
+        election_data as electionData,
+        election_package_hash as electionPackageHash
+      from election
+      `
+    ) as { electionData: string; electionPackageHash: string } | undefined;
 
-    if (!electionRow?.electionData) {
-      return undefined;
-    }
-
-    return safeParseElectionDefinition(electionRow.electionData).unsafeUnwrap();
+    return (
+      electionRow && {
+        electionDefinition: safeParseElectionDefinition(
+          electionRow.electionData
+        ).unsafeUnwrap(),
+        electionPackageHash: electionRow.electionPackageHash,
+      }
+    );
   }
 
   /**
@@ -221,13 +231,21 @@ export class Store {
   setElectionAndJurisdiction(input?: {
     electionData: string;
     jurisdiction: string;
+    electionPackageHash: string;
   }): void {
     this.client.run('delete from election');
     if (input) {
       this.client.run(
-        'insert into election (election_data, jurisdiction) values (?, ?)',
+        `
+        insert into election (
+          election_data,
+          jurisdiction,
+          election_package_hash
+        ) values (?, ?, ?)
+        `,
         input.electionData,
-        input.jurisdiction
+        input.jurisdiction,
+        input.electionPackageHash
       );
     }
   }
@@ -358,9 +376,9 @@ export class Store {
   }
 
   getBallotPaperSizeForElection(): BallotPaperSize {
-    const electionDefinition = this.getElectionDefinition();
+    const electionRecord = this.getElectionRecord();
     return (
-      electionDefinition?.election.ballotLayout.paperSize ??
+      electionRecord?.electionDefinition.election.ballotLayout.paperSize ??
       BallotPaperSize.Letter
     );
   }

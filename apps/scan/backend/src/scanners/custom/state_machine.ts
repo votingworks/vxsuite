@@ -309,7 +309,8 @@ async function interpretSheet(
   const { store } = workspace;
   const interpretation = (
     await interpret(sheetId, scannedSheet, {
-      electionDefinition: assertDefined(store.getElectionDefinition()),
+      electionDefinition: assertDefined(store.getElectionRecord())
+        .electionDefinition,
       precinctSelection: assertDefined(store.getPrecinctSelection()),
       testMode: store.getTestMode(),
       ballotImagesPath: workspace.ballotImagesPath,
