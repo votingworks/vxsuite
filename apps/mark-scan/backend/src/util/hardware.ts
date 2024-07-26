@@ -1,8 +1,8 @@
-import { execFile } from '@votingworks/backend';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
 } from '@votingworks/utils';
+import { exec } from '@votingworks/backend';
 import { BmdModelNumber } from '../types';
 
 export function getMarkScanBmdModel(): BmdModelNumber {
@@ -15,7 +15,8 @@ export function getMarkScanBmdModel(): BmdModelNumber {
 
 export async function isAccessibleControllerDaemonRunning(): Promise<boolean> {
   try {
-    await execFile('exec ps aux | grep controller[d]');
+    // Use exec instead of execFile because the latter doesn't support pipes
+    await exec('exec ps aux | grep controller[d]');
     return true;
   } catch {
     return false;

@@ -11,3 +11,8 @@ import { promisify } from 'util';
  * See `child_process.execFile` for details.
  */
 export const execFile = promisify(cp.execFile);
+
+/**
+ * See `child_process.exec` for details.
+ */
+export const exec = promisify(cp.exec);
