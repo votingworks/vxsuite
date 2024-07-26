@@ -66,7 +66,9 @@ export interface ScannerStoreBase {
   clearCastVoteRecordHashes(): void;
   getBatches(): BatchInfo[];
   getCastVoteRecordRootHash(): string;
-  getElectionDefinition(): ElectionDefinition | undefined;
+  getElectionRecord():
+    | { electionDefinition: ElectionDefinition; electionPackageHash: string }
+    | undefined;
   getSystemSettings(): SystemSettings | undefined;
   getMarkThresholds(): MarkThresholds;
   getTestMode(): boolean;
@@ -677,8 +679,13 @@ export async function exportCastVoteRecordsToUsbDrive(
     exportOptions,
     scannerState: {
       batches: scannerStore.getBatches(),
+<<<<<<< HEAD
       electionDefinition: assertDefined(scannerStore.getElectionDefinition()),
       systemSettings: assertDefined(scannerStore.getSystemSettings()),
+=======
+      electionDefinition: assertDefined(scannerStore.getElectionRecord())
+        .electionDefinition,
+>>>>>>> 287eb70fa (libs/backend: Add election package hash to ScannerStore interface)
       inTestMode: scannerStore.getTestMode(),
       markThresholds: scannerStore.getMarkThresholds(),
       pollsState:
@@ -851,10 +858,11 @@ export async function doesUsbDriveRequireCastVoteRecordSync(
     }
     const usbMountPoint = usbDriveStatus.mountPoint;
 
-    const electionDefinition = scannerStore.getElectionDefinition();
-    if (!electionDefinition) {
+    const electionRecord = scannerStore.getElectionRecord();
+    if (!electionRecord) {
       return false;
     }
+    const { electionDefinition } = electionRecord;
     const pollsState = scannerStore.getPollsState();
     if (
       pollsState === 'polls_closed_initial' ||

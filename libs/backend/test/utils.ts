@@ -49,8 +49,15 @@ class MockScannerStoreBase implements ScannerStoreBase {
     return getCastVoteRecordRootHash(this.client);
   }
 
-  getElectionDefinition(): ElectionDefinition | undefined {
-    return this.electionDefinition;
+  getElectionRecord():
+    | { electionDefinition: ElectionDefinition; electionPackageHash: string }
+    | undefined {
+    return (
+      this.electionDefinition && {
+        electionDefinition: this.electionDefinition,
+        electionPackageHash: 'test-election-package-hash',
+      }
+    );
   }
 
   getSystemSettings(): SystemSettings | undefined {
