@@ -37,7 +37,7 @@ const APP_NAME: &str = "vx-mark-scan-fai-100-controller-daemon";
 const FAI_100_VID: u16 = 0x28cd;
 const FAI_100_PID: u16 = 0x4002;
 const POLL_INTERVAL: Duration = Duration::from_millis(100);
-const EVENT_LOOP_LOG_INTERVAL: Duration = Duration::from_secs(1);
+const EVENT_LOOP_LOG_INTERVAL: Duration = Duration::from_secs(5 * 60); // 5 mins; from_mins is a nightly build feature
 const BUFFER_MAX_BYTES: usize = 64;
 const PAT_CONNECTION_STATUS_FILENAME: &str = "_pat_connection.status";
 use std::io::Write;
