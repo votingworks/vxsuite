@@ -20,7 +20,11 @@ test('scanBatch with multiple sheets', async () => {
   };
   await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
     mockElectionManagerAuth(auth, electionDefinition);
-    importer.configure(electionDefinition, jurisdiction);
+    importer.configure(
+      electionDefinition,
+      jurisdiction,
+      'test-election-package-hash'
+    );
     workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     await apiClient.setTestMode({ testMode: true });
 
@@ -54,7 +58,11 @@ test('continueScanning after invalid ballot', async () => {
   const ballot = await generateBmdBallotFixture();
   await withApp(async ({ auth, apiClient, scanner, importer, workspace }) => {
     mockElectionManagerAuth(auth, electionDefinition);
-    importer.configure(electionDefinition, jurisdiction);
+    importer.configure(
+      electionDefinition,
+      jurisdiction,
+      'test-election-package-hash'
+    );
     workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
     await apiClient.setTestMode({ testMode: true });
 

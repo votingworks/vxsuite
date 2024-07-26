@@ -129,13 +129,13 @@ export const getMachineConfig = {
   },
 } as const;
 
-export const getElectionDefinition = {
+export const getElectionRecord = {
   queryKey(): QueryKey {
-    return ['getElectionDefinition'];
+    return ['getElectionRecord'];
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getElectionDefinition());
+    return useQuery(this.queryKey(), () => apiClient.getElectionRecord());
   },
 } as const;
 
@@ -255,7 +255,7 @@ export const configureFromElectionPackageOnUsbDrive = {
     return useMutation(apiClient.configureFromElectionPackageOnUsbDrive, {
       async onSuccess() {
         await queryClient.invalidateQueries(getSystemSettings.queryKey());
-        await queryClient.invalidateQueries(getElectionDefinition.queryKey());
+        await queryClient.invalidateQueries(getElectionRecord.queryKey());
       },
     });
   },
@@ -269,7 +269,7 @@ export const unconfigure = {
       async onSuccess() {
         await queryClient.invalidateQueries(getTestMode.queryKey());
         await queryClient.invalidateQueries(getSystemSettings.queryKey());
-        await queryClient.invalidateQueries(getElectionDefinition.queryKey());
+        await queryClient.invalidateQueries(getElectionRecord.queryKey());
       },
     });
   },

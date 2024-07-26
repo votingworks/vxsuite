@@ -30,19 +30,27 @@ jest.setTimeout(20000);
 const jurisdiction = TEST_JURISDICTION;
 const { electionDefinition } = electionGridLayoutNewHampshireTestBallotFixtures;
 const { election, electionData, ballotHash } = electionDefinition;
+const electionPackageHash = 'test-election-package-hash';
 
 test('get/set election', () => {
   const store = Store.memoryStore();
 
-  expect(store.getElectionDefinition()).toBeUndefined();
+  expect(store.getElectionRecord()).toBeUndefined();
   expect(store.hasElection()).toBeFalsy();
 
-  store.setElectionAndJurisdiction({ electionData, jurisdiction });
-  expect(store.getElectionDefinition()?.election).toEqual(election);
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
+  expect(store.getElectionRecord()).toEqual({
+    electionDefinition,
+    electionPackageHash,
+  });
   expect(store.hasElection()).toBeTruthy();
 
   store.setElectionAndJurisdiction(undefined);
-  expect(store.getElectionDefinition()).toBeUndefined();
+  expect(store.getElectionRecord()).toBeUndefined();
 });
 
 test('get/set test mode', () => {
@@ -52,7 +60,11 @@ test('get/set test mode', () => {
   expect(store.getTestMode()).toEqual(true);
   expect(() => store.setTestMode(false)).toThrowError();
 
-  store.setElectionAndJurisdiction({ electionData, jurisdiction });
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
 
   // After setting an election
   expect(store.getTestMode()).toEqual(true);
@@ -71,7 +83,11 @@ test('get/set is sounds muted mode', () => {
   expect(store.getIsSoundMuted()).toEqual(false);
   expect(() => store.setIsSoundMuted(true)).toThrowError();
 
-  store.setElectionAndJurisdiction({ electionData, jurisdiction });
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
 
   // After setting an election
   expect(store.getIsSoundMuted()).toEqual(false);
@@ -92,7 +108,11 @@ test('get/set ballot count when ballot bag last replaced', () => {
     store.setBallotCountWhenBallotBagLastReplaced(1500)
   ).toThrowError();
 
-  store.setElectionAndJurisdiction({ electionData, jurisdiction });
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
 
   // After setting an election
   expect(store.getBallotCountWhenBallotBagLastReplaced()).toEqual(0);
@@ -110,7 +130,11 @@ test('get/set precinct selection', () => {
     store.setPrecinctSelection(ALL_PRECINCTS_SELECTION)
   ).toThrowError();
 
-  store.setElectionAndJurisdiction({ electionData, jurisdiction });
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
 
   // After setting an election
   expect(store.getPrecinctSelection()).toEqual(undefined);
@@ -130,7 +154,11 @@ test('get/set polls state', () => {
   expect(store.getPollsState()).toEqual('polls_closed_initial');
   expect(() => store.setPollsState('polls_open')).toThrowError();
 
-  store.setElectionAndJurisdiction({ electionData, jurisdiction });
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
 
   // After setting an election
   store.setPollsState('polls_open');
@@ -139,7 +167,11 @@ test('get/set polls state', () => {
 
 test('get/set scanner as backed up', () => {
   const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({ electionData, jurisdiction });
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
   expect(store.getScannerBackupTimestamp()).toBeFalsy();
   store.setScannerBackedUp();
   expect(store.getScannerBackupTimestamp()).toBeTruthy();
@@ -244,7 +276,11 @@ test('getBatches', () => {
 
 test('canUnconfigure in test mode', () => {
   const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({ electionData, jurisdiction });
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
   store.setTestMode(true);
 
   // With an unexported batch, we should be able to unconfigure the machine in test mode
@@ -254,7 +290,11 @@ test('canUnconfigure in test mode', () => {
 
 test('canUnconfigure not in test mode', async () => {
   const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({ electionData, jurisdiction });
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
   store.setTestMode(false);
 
   // Can unconfigure if no batches added
@@ -361,7 +401,11 @@ test('adjudication', () => {
   );
 
   const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({ electionData, jurisdiction });
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
   function mockPage(i: 0 | 1): PageInterpretationWithFiles {
     const metadata: BallotMetadata = {
       ballotHash,
@@ -544,6 +588,7 @@ test('iterating over sheets', () => {
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .electionData,
     jurisdiction,
+    electionPackageHash,
   });
 
   expect(Array.from(store.forEachAcceptedSheet())).toEqual([]);
@@ -644,7 +689,11 @@ test('iterating over sheets', () => {
 
 test('iterating over each accepted sheet includes correct batch sequence id', () => {
   const store = Store.memoryStore();
-  store.setElectionAndJurisdiction({ electionData, jurisdiction });
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
 
   // the filenames must be unique in the database so, to insert multiple sheets
   // for this test we must include random filenames with the fixture
@@ -704,7 +753,11 @@ test('iterating over each accepted sheet includes correct batch sequence id', ()
 test('resetElectionSession', () => {
   const dbFile = tmp.fileSync();
   const store = Store.fileStore(dbFile.name);
-  store.setElectionAndJurisdiction({ electionData, jurisdiction });
+  store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash,
+  });
 
   store.setPollsState('polls_open');
   store.setBallotCountWhenBallotBagLastReplaced(1500);

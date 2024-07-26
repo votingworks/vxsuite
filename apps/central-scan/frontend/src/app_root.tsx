@@ -26,7 +26,7 @@ import { MachineLockedScreen } from './screens/machine_locked_screen';
 import {
   checkPin,
   getAuthStatus,
-  getElectionDefinition,
+  getElectionRecord,
   getMachineConfig,
   getStatus,
   getTestMode,
@@ -50,13 +50,13 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
   const getTestModeQuery = getTestMode.useQuery();
   const isTestMode = getTestModeQuery.data ?? false;
 
-  const electionDefinitionQuery = getElectionDefinition.useQuery();
+  const electionRecordQuery = getElectionRecord.useQuery();
 
   if (
     !machineConfigQuery.isSuccess ||
     !authStatusQuery.isSuccess ||
     !usbDriveStatusQuery.isSuccess ||
-    !electionDefinitionQuery.isSuccess ||
+    !electionRecordQuery.isSuccess ||
     !getTestModeQuery.isSuccess ||
     !statusQuery.isSuccess
   ) {
@@ -71,12 +71,14 @@ export function AppRoot({ logger }: AppRootProps): JSX.Element | null {
   const authStatus = authStatusQuery.data;
   const machineConfig = machineConfigQuery.data;
   const usbDriveStatus = usbDriveStatusQuery.data;
-  const electionDefinition = electionDefinitionQuery.data ?? undefined;
+  const { electionDefinition, electionPackageHash } =
+    electionRecordQuery.data ?? {};
   const status = statusQuery.data;
 
   const currentContext: AppContextInterface = {
     usbDriveStatus,
     electionDefinition,
+    electionPackageHash,
     isTestMode,
     machineConfig,
     logger,

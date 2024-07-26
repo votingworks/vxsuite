@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import { NavigationScreen } from '../navigation_screen';
 import {
   getApplicationDiskSpaceSummary,
-  getElectionDefinition,
+  getElectionRecord,
   getMostRecentScannerDiagnostic,
   getStatus,
   getUsbDriveStatus,
@@ -25,7 +25,7 @@ const PageLayout = styled.div`
 
 export function DiagnosticsScreen(): JSX.Element {
   const statusQuery = getStatus.useQuery();
-  const electionDefinitionQuery = getElectionDefinition.useQuery();
+  const electionRecordQuery = getElectionRecord.useQuery();
   const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
   const diskSpaceQuery = getApplicationDiskSpaceSummary.useQuery();
   const scannerDiagnosticRecordQuery =
@@ -35,7 +35,7 @@ export function DiagnosticsScreen(): JSX.Element {
 
   if (
     !statusQuery.isSuccess ||
-    !electionDefinitionQuery.isSuccess ||
+    !electionRecordQuery.isSuccess ||
     !batteryInfoQuery.isSuccess ||
     !diskSpaceQuery.isSuccess ||
     !scannerDiagnosticRecordQuery.isSuccess ||
@@ -45,7 +45,7 @@ export function DiagnosticsScreen(): JSX.Element {
   }
 
   const { isScannerAttached } = statusQuery.data;
-  const electionDefinition = electionDefinitionQuery.data ?? undefined;
+  const electionDefinition = electionRecordQuery.data?.electionDefinition;
   const batteryInfo = batteryInfoQuery.data;
   const diskSpaceSummary = diskSpaceQuery.data;
   const scannerDiagnosticRecord =

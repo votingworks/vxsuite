@@ -59,7 +59,11 @@ test('save readiness report', async () => {
   await withApp(
     async ({ apiClient, mockUsbDrive, scanner, auth, logger, importer }) => {
       mockSystemAdministratorAuth(auth);
-      importer.configure(electionDefinition, jurisdiction);
+      importer.configure(
+        electionDefinition,
+        jurisdiction,
+        'test-election-package-hash'
+      );
 
       // mock a successful scan diagnostic
       jest.useFakeTimers();

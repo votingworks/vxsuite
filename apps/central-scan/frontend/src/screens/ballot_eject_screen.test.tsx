@@ -580,7 +580,7 @@ test('shows invalid election screen when appropriate', async () => {
   );
 
   await screen.findByText('Wrong Election');
-  getByText(hasTextAcrossElements('Ballot Election IDthis-is-a-'));
+  getByText(hasTextAcrossElements('Ballot Election IDthis-is'));
   getByText(
     hasTextAcrossElements(
       `Scanner Election ID${formatBallotHash(

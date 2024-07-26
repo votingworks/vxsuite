@@ -27,7 +27,7 @@ afterEach(() => {
 
 test('diagnostics screen', async () => {
   apiMock.setStatus();
-  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionRecord(null);
   apiMock.expectGetMostRecentScannerDiagnostic();
 
   renderInAppContext(<DiagnosticsScreen />, {
@@ -43,7 +43,7 @@ test('diagnostics screen', async () => {
 
 test('shows most recent diagnostic', async () => {
   apiMock.setStatus();
-  apiMock.expectGetElectionDefinition(electionTwoPartyPrimaryDefinition);
+  apiMock.expectGetElectionRecord(electionTwoPartyPrimaryDefinition);
   apiMock.expectGetMostRecentScannerDiagnostic({
     type: 'blank-sheet-scan',
     outcome: 'pass',
