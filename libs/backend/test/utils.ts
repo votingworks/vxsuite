@@ -12,6 +12,7 @@ import {
   ElectionDefinition,
   MarkThresholds,
   PollsState,
+  SystemSettings,
 } from '@votingworks/types';
 import { FileSystemEntryType, listDirectoryRecursive } from '@votingworks/fs';
 import {
@@ -24,6 +25,7 @@ class MockScannerStoreBase implements ScannerStoreBase {
   private batches: BatchInfo[];
   private readonly client: Client;
   private electionDefinition?: ElectionDefinition;
+  private systemSettings?: SystemSettings;
   private testMode: boolean;
 
   constructor() {
@@ -49,6 +51,10 @@ class MockScannerStoreBase implements ScannerStoreBase {
 
   getElectionDefinition(): ElectionDefinition | undefined {
     return this.electionDefinition;
+  }
+
+  getSystemSettings(): SystemSettings | undefined {
+    return this.systemSettings;
   }
 
   getMarkThresholds(): MarkThresholds {
@@ -80,6 +86,10 @@ class MockScannerStoreBase implements ScannerStoreBase {
 
   setElectionDefinition(electionDefinition?: ElectionDefinition): void {
     this.electionDefinition = electionDefinition;
+  }
+
+  setSystemSettings(systemSettings?: SystemSettings): void {
+    this.systemSettings = systemSettings;
   }
 
   setTestMode(testMode: boolean): void {

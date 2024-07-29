@@ -64,6 +64,16 @@ export interface SystemSettings {
   readonly precinctScanAdjudicationReasons: readonly AdjudicationReason[];
   readonly precinctScanDisallowCastingOvervotes: boolean;
   readonly precinctScanEnableShoeshineMode?: boolean;
+  /**
+   * Excludes original snapshots in cast vote record reports, decreasing export size and
+   * import/export time
+   */
+  readonly castVoteRecordOptimizationExcludeOriginalSnapshots?: boolean;
+  /**
+   * Excludes redundant metadata in cast vote record reports, decreasing export size and
+   * import/export time
+   */
+  readonly castVoteRecordOptimizationExcludeRedundantMetadata?: boolean;
 }
 
 export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
@@ -78,6 +88,8 @@ export const SystemSettingsSchema: z.ZodType<SystemSettings> = z.object({
   ),
   precinctScanDisallowCastingOvervotes: z.boolean(),
   precinctScanEnableShoeshineMode: z.boolean().optional(),
+  castVoteRecordOptimizationExcludeOriginalSnapshots: z.boolean().optional(),
+  castVoteRecordOptimizationExcludeRedundantMetadata: z.boolean().optional(),
 });
 
 /**
@@ -110,4 +122,6 @@ export const DEFAULT_SYSTEM_SETTINGS: SystemSettings = {
   precinctScanAdjudicationReasons: [],
   precinctScanDisallowCastingOvervotes: false,
   centralScanAdjudicationReasons: [],
+  castVoteRecordOptimizationExcludeOriginalSnapshots: true,
+  castVoteRecordOptimizationExcludeRedundantMetadata: true,
 };

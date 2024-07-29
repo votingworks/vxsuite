@@ -8,14 +8,11 @@ import {
   BatchInfo,
   CastVoteRecordExportFileName,
   CVR,
+  DEFAULT_SYSTEM_SETTINGS,
   PageInterpretation,
   SheetOf,
 } from '@votingworks/types';
 import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
-import {
-  BooleanEnvironmentVariableName,
-  getFeatureFlagMock,
-} from '@votingworks/utils';
 
 import {
   interpretedBmdBallot,
@@ -51,15 +48,6 @@ import {
 
 jest.setTimeout(30_000);
 
-const mockFeatureFlagger = getFeatureFlagMock();
-
-jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
-  return {
-    ...jest.requireActual('@votingworks/utils'),
-    isFeatureFlagEnabled: (flag) => mockFeatureFlagger.isEnabled(flag),
-  };
-});
-
 const { electionDefinition } = electionTwoPartyPrimaryFixtures;
 
 const batch1Id = uuid();
@@ -80,7 +68,6 @@ beforeEach(() => {
   // While this should technically be set to "central-scan" for tests emulating VxCentralScan
   // behavior, always using "scan" is fine for the purposes of these tests.
   process.env['VX_MACHINE_TYPE'] = 'scan';
-  mockFeatureFlagger.resetFeatureFlags();
 
   mockUsbDrive = createMockUsbDrive();
   mockCentralScannerStore = new MockCentralScannerStore();
@@ -89,8 +76,10 @@ beforeEach(() => {
 
   mockUsbDrive.insertUsbDrive({});
   mockCentralScannerStore.setElectionDefinition(electionDefinition);
+  mockCentralScannerStore.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   mockCentralScannerStore.setBatches([batch1]);
   mockPrecinctScannerStore.setElectionDefinition(electionDefinition);
+  mockPrecinctScannerStore.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);
   mockPrecinctScannerStore.setPollsState('polls_open');
   mockPrecinctScannerStore.setBatches([batch1]);
 });
@@ -756,22 +745,17 @@ test('exporting when no USB drive', async () => {
   ).toEqual(err({ type: 'missing-usb-drive' }));
 });
 
-test('CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_REDUNDANT_METADATA feature flag', async () => {
+test('castVoteRecordOptimizationExcludeRedundantMetadata system setting', async () => {
   const sheet = newAcceptedSheet(interpretedHmpb, sheet1Id);
   const castVoteRecords: CVR.CVR[] = [];
   for (const isOptimizationEnabled of [true, false] as const) {
     mockUsbDrive.removeUsbDrive();
     mockUsbDrive.insertUsbDrive({});
 
-    if (isOptimizationEnabled) {
-      mockFeatureFlagger.enableFeatureFlag(
-        BooleanEnvironmentVariableName.CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_REDUNDANT_METADATA
-      );
-    } else {
-      mockFeatureFlagger.disableFeatureFlag(
-        BooleanEnvironmentVariableName.CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_REDUNDANT_METADATA
-      );
-    }
+    mockPrecinctScannerStore.setSystemSettings({
+      ...assertDefined(mockPrecinctScannerStore.getSystemSettings()),
+      castVoteRecordOptimizationExcludeRedundantMetadata: isOptimizationEnabled,
+    });
 
     expect(
       await exportCastVoteRecordsToUsbDrive(
@@ -807,6 +791,52 @@ test('CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_REDUNDANT_METADATA feature flag', as
   expect(castVoteRecords[0]).toBeDefined();
   expect(castVoteRecords[1]).toBeDefined();
   expect(castVoteRecords[0]).toEqual(castVoteRecords[1]);
+});
+
+test('castVoteRecordOptimizationExcludeOriginalSnapshots system setting', async () => {
+  const sheet = newAcceptedSheet(interpretedHmpb, sheet1Id);
+  const castVoteRecords: CVR.CVR[] = [];
+  for (const isOptimizationEnabled of [true, false] as const) {
+    mockUsbDrive.removeUsbDrive();
+    mockUsbDrive.insertUsbDrive({});
+
+    mockPrecinctScannerStore.setSystemSettings({
+      ...assertDefined(mockPrecinctScannerStore.getSystemSettings()),
+      castVoteRecordOptimizationExcludeOriginalSnapshots: isOptimizationEnabled,
+    });
+
+    expect(
+      await exportCastVoteRecordsToUsbDrive(
+        mockPrecinctScannerStore,
+        mockUsbDrive.usbDrive,
+        [sheet],
+        { scannerType: 'precinct' }
+      )
+    ).toEqual(ok());
+
+    const exportDirectoryPaths = await getCastVoteRecordExportDirectoryPaths(
+      mockUsbDrive.usbDrive
+    );
+    expect(exportDirectoryPaths).toHaveLength(1);
+    const exportDirectoryPath = assertDefined(exportDirectoryPaths[0]);
+    const { castVoteRecord } = readCastVoteRecord(
+      path.join(exportDirectoryPath, sheet1Id)
+    );
+
+    castVoteRecords.push(castVoteRecord);
+    const modifiedSnapshot = castVoteRecord.CVRSnapshot.find(
+      (snapshot) => snapshot.Type === CVR.CVRType.Modified
+    );
+    expect(modifiedSnapshot).toBeDefined();
+    const originalSnapshot = castVoteRecord.CVRSnapshot.find(
+      (snapshot) => snapshot.Type === CVR.CVRType.Original
+    );
+    if (isOptimizationEnabled) {
+      expect(originalSnapshot).toBeUndefined();
+    } else {
+      expect(originalSnapshot).toBeDefined();
+    }
+  }
 });
 
 test.each<{
