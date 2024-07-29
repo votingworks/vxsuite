@@ -63,7 +63,7 @@ test('export all ballots', async () => {
   await waitFor(() => {
     expect(fileDownloadMock).toHaveBeenCalledWith(
       Buffer.from('mock-zip-contents'),
-      'ballots-1234567890.zip'
+      'ballots-1234567.zip'
     );
   });
 });
@@ -84,7 +84,7 @@ test('export test decks', async () => {
   await waitFor(() => {
     expect(fileDownloadMock).toHaveBeenCalledWith(
       Buffer.from('mock-zip-contents'),
-      'test-decks-1234567890.zip'
+      'test-decks-1234567.zip'
     );
   });
 });
@@ -205,7 +205,7 @@ test('using CDF', async () => {
   await waitFor(() => {
     expect(fileDownloadMock).toHaveBeenCalledWith(
       Buffer.from('mock-zip-contents'),
-      'ballots-1234567890.zip'
+      'ballots-1234567.zip'
     );
   });
 
@@ -219,7 +219,7 @@ test('using CDF', async () => {
   await waitFor(() => {
     expect(fileDownloadMock).toHaveBeenCalledWith(
       Buffer.from('mock-zip-contents'),
-      'test-decks-1234567890.zip'
+      'test-decks-1234567.zip'
     );
   });
 
