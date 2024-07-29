@@ -13,5 +13,7 @@
   },
   "centralScanAdjudicationReasons": [],
   "precinctScanAdjudicationReasons": [],
-  "precinctScanDisallowCastingOvervotes": false
+  "precinctScanDisallowCastingOvervotes": false,
+  "castVoteRecordOptimizationExcludeOriginalSnapshots": true,
+  "castVoteRecordOptimizationExcludeRedundantMetadata": true
 }
