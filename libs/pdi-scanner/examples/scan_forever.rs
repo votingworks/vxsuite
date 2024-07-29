@@ -113,6 +113,9 @@ fn main() -> color_eyre::Result<()> {
                                     {
                                         if status.rear_sensors_covered() {
                                             client.eject_document(EjectMotion::ToFront)?;
+                                            // ejecting the document will disable the feeder,
+                                            // so we need to re-enable it
+                                            client.set_feeder_mode(FeederMode::AutoScanSheets)?;
                                         }
                                     }
                                 }
