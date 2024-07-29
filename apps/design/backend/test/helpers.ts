@@ -152,6 +152,9 @@ export async function processNextBackgroundTaskIfAny(
   );
 }
 
+export const ELECTION_PACKAGE_FILE_NAME_REGEX =
+  /election-package-([0-9a-z]{7})-([0-9a-z]{7})\.zip$/;
+
 export async function exportElectionPackage({
   apiClient,
   electionId,
@@ -173,9 +176,7 @@ export async function exportElectionPackage({
     electionId,
   });
   const electionPackageFileName = assertDefined(
-    assertDefined(electionPackage.url).match(
-      /election-package-[0-9a-z]{10}\.zip$/
-    )
+    assertDefined(electionPackage.url).match(ELECTION_PACKAGE_FILE_NAME_REGEX)
   )[0];
   const electionPackageFilePath = path.join(
     workspace.assetDirectoryPath,

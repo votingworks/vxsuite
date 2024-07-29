@@ -1,16 +1,14 @@
-import { createWriteStream } from 'fs';
 import JsZip from 'jszip';
 import path from 'path';
-import { pipeline } from 'stream/promises';
 import {
   BallotType,
   ElectionSerializationFormat,
   ElectionPackageFileName,
   ElectionPackageMetadata,
-  formatBallotHash,
   Id,
   mergeUiStrings,
   Election,
+  formatElectionHashes,
 } from '@votingworks/types';
 
 import {
@@ -18,6 +16,8 @@ import {
   renderAllBallotsAndCreateElectionDefinition,
   vxDefaultBallotTemplate,
 } from '@votingworks/hmpb';
+import { sha256 } from 'js-sha256';
+import { writeFile } from 'fs/promises';
 import { PORT } from '../globals';
 import {
   extractAndTranslateElectionStrings,
@@ -111,13 +111,18 @@ export async function generateElectionPackage(
   );
   zip.file(ElectionPackageFileName.AUDIO_CLIPS, uiStringAudioClips);
 
-  const displayBallotHash = formatBallotHash(electionDefinition.ballotHash);
-  const fileName = `election-package-${displayBallotHash}.zip`;
-  const filePath = path.join(assetDirectoryPath, fileName);
-  await pipeline(
-    zip.generateNodeStream({ streamFiles: true }),
-    createWriteStream(filePath)
+  const zipContents = await zip.generateAsync({
+    type: 'nodebuffer',
+    streamFiles: true,
+  });
+  const electionPackageHash = sha256(zipContents);
+  const combinedHash = formatElectionHashes(
+    electionDefinition.ballotHash,
+    electionPackageHash
   );
+  const fileName = `election-package-${combinedHash}.zip`;
+  const filePath = path.join(assetDirectoryPath, fileName);
+  await writeFile(filePath, zipContents);
   store.setElectionPackageUrl({
     electionId,
     electionPackageUrl: `http://localhost:${PORT}/${fileName}`,
