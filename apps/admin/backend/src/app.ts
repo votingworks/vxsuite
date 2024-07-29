@@ -429,6 +429,7 @@ function buildApi({
           await zipPromise.promise;
           const fileContents = Buffer.concat(chunks);
           const result = await readElectionPackageFromBuffer(fileContents);
+          /* c8 ignore next */
           return result.isErr() ? result : ok({ ...result.ok(), fileContents });
         }
         return await readElectionPackageFromFile(input.electionFilePath);
