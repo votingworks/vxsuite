@@ -1,43 +1,17 @@
 import { Buffer } from 'buffer';
-import ZipStream from 'zip-stream';
-
-export async function addFile(
-  zipStream: ZipStream,
-  name: string,
-  data: Buffer | string
-): Promise<void> {
-  return new Promise((resolve, reject) => {
-    zipStream.entry(data, { name }, (error) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve();
-      }
-    });
-  });
-}
+import JsZip from 'jszip';
 
 export async function zipFile(files: {
   [key: string]: Buffer | string;
 }): Promise<Buffer> {
-  return new Promise((resolve, reject) => {
-    const chunks: Buffer[] = [];
-    const zip = new ZipStream();
-    zip.on('data', (chunk) => {
-      if (Buffer.isBuffer(chunk)) {
-        chunks.push(chunk);
-      }
-    });
-    zip.on('end', () => resolve(Buffer.concat(chunks)));
-    zip.on('error', reject);
-
-    void Object.entries(files)
-      .reduce(
-        (last, [name, data]) => last.then(() => addFile(zip, name, data)),
-        Promise.resolve()
-      )
-      .then(() => {
-        zip.finalize();
-      });
-  });
+  const zip = new JsZip();
+  for (const [name, data] of Object.entries(files)) {
+    zip.file(
+      name,
+      data,
+      // Use a specific date to make the zip deterministic
+      { date: new Date('2024-01-29T00:00:00Z') }
+    );
+  }
+  return zip.generateAsync({ type: 'nodebuffer', streamFiles: true });
 }
