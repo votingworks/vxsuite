@@ -2,15 +2,16 @@ import {
   Election,
   ElectionDefinition,
   PrecinctSelection,
-  formatBallotHash,
+  formatElectionHashes,
   getPrecinctById,
 } from '@votingworks/types';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import { H2, P } from '../typography';
 import { InfoIcon, SuccessIcon, WarningIcon } from './icons';
 
 export interface ConfigurationSectionProps {
   electionDefinition?: ElectionDefinition;
+  electionPackageHash?: string;
   expectPrecinctSelection?: boolean;
   precinctSelection?: PrecinctSelection;
 }
@@ -45,6 +46,7 @@ function getBallotStyleIds(
 
 export function ConfigurationSection({
   electionDefinition,
+  electionPackageHash,
   expectPrecinctSelection,
   precinctSelection,
 }: ConfigurationSectionProps): JSX.Element {
@@ -65,7 +67,10 @@ export function ConfigurationSection({
       <H2>Configuration</H2>
       <P>
         <SuccessIcon /> Election: {election.title},{' '}
-        {formatBallotHash(electionDefinition.ballotHash)}
+        {formatElectionHashes(
+          electionDefinition.ballotHash,
+          assertDefined(electionPackageHash)
+        )}
       </P>
       {expectPrecinctSelection &&
         (precinctSelection ? (

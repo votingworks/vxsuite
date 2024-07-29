@@ -45,7 +45,8 @@ export function DiagnosticsScreen(): JSX.Element {
   }
 
   const { isScannerAttached } = statusQuery.data;
-  const electionDefinition = electionRecordQuery.data?.electionDefinition;
+  const { electionDefinition, electionPackageHash } =
+    electionRecordQuery.data ?? {};
   const batteryInfo = batteryInfoQuery.data;
   const diskSpaceSummary = diskSpaceQuery.data;
   const scannerDiagnosticRecord =
@@ -61,6 +62,7 @@ export function DiagnosticsScreen(): JSX.Element {
             isScannerAttached={isScannerAttached}
             mostRecentScannerDiagnostic={scannerDiagnosticRecord}
             electionDefinition={electionDefinition}
+            electionPackageHash={electionPackageHash}
           />
           <TestScanButton />
         </div>

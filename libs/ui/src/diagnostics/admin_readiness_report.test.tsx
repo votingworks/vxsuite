@@ -51,6 +51,7 @@ test('AdminReadinessReport', () => {
         timestamp: generatedAtTime.getTime(),
       }}
       electionDefinition={electionTwoPartyPrimaryDefinition}
+      electionPackageHash="test-election-package-hash"
       generatedAtTime={generatedAtTime}
       machineId={machineId}
     />

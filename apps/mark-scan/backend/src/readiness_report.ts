@@ -31,7 +31,8 @@ export async function saveReadinessReport({
 }): Promise<ExportDataResult> {
   const { store } = workspace;
   const generatedAtTime = new Date(getCurrentTime());
-  const electionDefinition = store.getElectionRecord()?.electionDefinition;
+  const { electionDefinition, electionPackageHash } =
+    store.getElectionRecord() ?? {};
   const precinctSelection = store.getPrecinctSelection();
   const report = MarkScanReadinessReport({
     batteryInfo:
@@ -63,6 +64,7 @@ export async function saveReadinessReport({
     machineId: VX_MACHINE_ID,
     generatedAtTime,
     electionDefinition,
+    electionPackageHash,
     expectPrecinctSelection: true,
     precinctSelection,
   });

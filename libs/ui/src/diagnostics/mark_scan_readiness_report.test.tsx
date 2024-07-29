@@ -58,6 +58,7 @@ test('MarkScanReadinessReport', () => {
       generatedAtTime={generatedAtTime}
       machineId={machineId}
       electionDefinition={electionTwoPartyPrimaryDefinition}
+      electionPackageHash="test-election-package-hash"
       precinctSelection={ALL_PRECINCTS_SELECTION}
     />
   );

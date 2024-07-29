@@ -24,12 +24,9 @@ async function getReadinessReport({
 }): Promise<JSX.Element> {
   const { store } = workspace;
   const currentElectionId = store.getCurrentElectionId();
-  const electionRecord = currentElectionId
-    ? store.getElection(currentElectionId)
-    : undefined;
-  const electionDefinition = electionRecord
-    ? electionRecord.electionDefinition
-    : undefined;
+  const { electionDefinition, electionPackageHash } =
+    (currentElectionId ? store.getElection(currentElectionId) : undefined) ??
+    {};
 
   return AdminReadinessReport({
     /* c8 ignore start */
@@ -42,6 +39,7 @@ async function getReadinessReport({
     machineId: VX_MACHINE_ID,
     generatedAtTime,
     electionDefinition,
+    electionPackageHash,
   });
 }
 

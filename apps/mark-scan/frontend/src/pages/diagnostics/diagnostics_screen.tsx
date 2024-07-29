@@ -89,7 +89,8 @@ export function DiagnosticsScreen({
     );
   }
 
-  const { electionDefinition } = electionRecordQuery.data ?? {};
+  const { electionDefinition, electionPackageHash } =
+    electionRecordQuery.data ?? {};
   const { precinctSelection } = electionStateQuery.data;
   const battery = batteryQuery.data ?? undefined;
   const diskSpaceSummary = diskSpaceQuery.data;
@@ -128,6 +129,7 @@ export function DiagnosticsScreen({
             </P>
             <MarkScanReadinessReportContents
               electionDefinition={electionDefinition}
+              electionPackageHash={electionPackageHash}
               precinctSelection={precinctSelection}
               batteryInfo={battery}
               diskSpaceSummary={diskSpaceSummary}
