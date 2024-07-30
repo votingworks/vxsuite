@@ -746,17 +746,6 @@
       "enum": ["landscape", "portrait"],
       "type": "string"
     },
-    "BallotDefinition.vxOutset": {
-      "type": "object",
-      "properties": {
-        "top": { "type": "number" },
-        "bottom": { "type": "number" },
-        "left": { "type": "number" },
-        "right": { "type": "number" }
-      },
-      "required": ["top", "bottom", "left", "right"],
-      "additionalProperties": false
-    },
     "BallotDefinition.Party": {
       "required": ["@id", "@type", "Abbreviation", "Name"],
       "additionalProperties": false,
@@ -778,12 +767,7 @@
       "type": "object"
     },
     "BallotDefinition.PhysicalContest": {
-      "required": [
-        "@type",
-        "BallotFormatId",
-        "PhysicalContestOption",
-        "vxOptionBoundsFromTargetMark"
-      ],
+      "required": ["@type", "BallotFormatId", "PhysicalContestOption"],
       "additionalProperties": false,
       "properties": {
         "@type": {
@@ -830,9 +814,6 @@
           },
           "minItems": 1,
           "type": "array"
-        },
-        "vxOptionBoundsFromTargetMark": {
-          "$ref": "#/definitions/BallotDefinition.vxOutset"
         }
       },
       "type": "object"

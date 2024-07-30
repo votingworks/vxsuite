@@ -1199,26 +1199,6 @@ export const OrderedContestSchema: z.ZodSchema<OrderedContest> = z.object({
   Physical: z.array(z.lazy(/* istanbul ignore next */ () => PhysicalContestSchema)).min(1),
 });
 
-export interface vxOutset {
-  readonly top: number;
-
-  readonly bottom: number;
-
-  readonly left: number;
-
-  readonly right: number;
-}
-
-/**
- * Schema for {@link vxOutset}.
- */
-export const vxOutsetSchema: z.ZodSchema<vxOutset> = z.object({
-  top: z.number(),
-  bottom: z.number(),
-  left: z.number(),
-  right: z.number(),
-});
-
 /**
  * Used to describe a political party that can then be referenced in other elements. BallotDefinition includes Party. Candidate, PartyRegistration, and Person reference Party.
  * 
@@ -1277,8 +1257,6 @@ export interface PhysicalContest {
    * The contest options associated with the contest, including physical details.
    */
   readonly PhysicalContestOption: readonly PhysicalContestOption[];
-
-  readonly vxOptionBoundsFromTargetMark: vxOutset;
 }
 
 /**
@@ -1290,7 +1268,6 @@ export const PhysicalContestSchema: z.ZodSchema<PhysicalContest> = z.object({
   Extent: z.optional(z.array(z.union([z.lazy(/* istanbul ignore next */ () => BoundedObjectSchema), z.lazy(/* istanbul ignore next */ () => FiducialMarkSchema), z.lazy(/* istanbul ignore next */ () => OptionPositionSchema), z.lazy(/* istanbul ignore next */ () => WriteInPositionSchema), z.lazy(/* istanbul ignore next */ () => mCDFAreaSchema)]))),
   FiducialMark: z.optional(z.array(z.lazy(/* istanbul ignore next */ () => FiducialMarkSchema))),
   PhysicalContestOption: z.array(z.lazy(/* istanbul ignore next */ () => PhysicalContestOptionSchema)).min(1),
-  vxOptionBoundsFromTargetMark: z.lazy(/* istanbul ignore next */ () => vxOutsetSchema),
 });
 
 /**

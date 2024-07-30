@@ -536,7 +536,6 @@ export function convertVxfElectionToCdfBallotDefinition(
           {
             '@type': 'BallotDefinition.PhysicalContest',
             BallotFormatId: 'ballot-format',
-            vxOptionBoundsFromTargetMark: gridLayout.optionBoundsFromTargetMark,
             PhysicalContestOption: gridLayout.gridPositions
               .filter((position) => position.contestId === contest.id)
               .map(
@@ -1097,11 +1096,16 @@ export function convertCdfBallotDefinitionToVxfElection(
         (ballotStyle) => ballotStyle.OrderedContent !== undefined
       ).map((ballotStyle): Vxf.GridLayout => {
         const orderedContests = assertDefined(ballotStyle.OrderedContent);
-        const optionBoundsFromTargetMark =
-          orderedContests[0].Physical[0].vxOptionBoundsFromTargetMark;
         return {
           ballotStyleId: ballotStyle.ExternalIdentifier[0].Value,
-          optionBoundsFromTargetMark,
+          // Since there's no CDF field for this, we set a default based on what
+          // generally works well for our HMPBs.
+          optionBoundsFromTargetMark: {
+            top: 1,
+            left: 1,
+            right: 9,
+            bottom: 1,
+          },
           gridPositions: orderedContests.flatMap(
             (orderedContest): Vxf.GridPosition[] =>
               orderedContest.Physical[0].PhysicalContestOption.map(

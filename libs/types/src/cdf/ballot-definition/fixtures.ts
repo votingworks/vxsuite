@@ -575,12 +575,6 @@ export const testCdfBallotDefinition: BallotDefinition = {
                 {
                   '@type': 'BallotDefinition.PhysicalContest',
                   BallotFormatId: 'ballot-format',
-                  vxOptionBoundsFromTargetMark: {
-                    bottom: 1,
-                    left: 1,
-                    right: 9,
-                    top: 1,
-                  },
                   PhysicalContestOption: [
                     {
                       '@type': 'BallotDefinition.PhysicalContestOption',
@@ -652,12 +646,6 @@ export const testCdfBallotDefinition: BallotDefinition = {
                 {
                   '@type': 'BallotDefinition.PhysicalContest',
                   BallotFormatId: 'ballot-format',
-                  vxOptionBoundsFromTargetMark: {
-                    bottom: 1,
-                    left: 1,
-                    right: 9,
-                    top: 1,
-                  },
                   PhysicalContestOption: [
                     {
                       '@type': 'BallotDefinition.PhysicalContestOption',
@@ -716,12 +704,6 @@ export const testCdfBallotDefinition: BallotDefinition = {
                 {
                   '@type': 'BallotDefinition.PhysicalContest',
                   BallotFormatId: 'ballot-format',
-                  vxOptionBoundsFromTargetMark: {
-                    bottom: 1,
-                    left: 1,
-                    right: 9,
-                    top: 1,
-                  },
                   PhysicalContestOption: [
                     {
                       '@type': 'BallotDefinition.PhysicalContestOption',
@@ -764,12 +746,6 @@ export const testCdfBallotDefinition: BallotDefinition = {
                 {
                   '@type': 'BallotDefinition.PhysicalContest',
                   BallotFormatId: 'ballot-format',
-                  vxOptionBoundsFromTargetMark: {
-                    bottom: 1,
-                    left: 1,
-                    right: 9,
-                    top: 1,
-                  },
                   PhysicalContestOption: [
                     {
                       '@type': 'BallotDefinition.PhysicalContestOption',
@@ -841,12 +817,6 @@ export const testCdfBallotDefinition: BallotDefinition = {
                 {
                   '@type': 'BallotDefinition.PhysicalContest',
                   BallotFormatId: 'ballot-format',
-                  vxOptionBoundsFromTargetMark: {
-                    bottom: 1,
-                    left: 1,
-                    right: 9,
-                    top: 1,
-                  },
                   PhysicalContestOption: [
                     {
                       '@type': 'BallotDefinition.PhysicalContestOption',
@@ -891,12 +861,6 @@ export const testCdfBallotDefinition: BallotDefinition = {
                 {
                   '@type': 'BallotDefinition.PhysicalContest',
                   BallotFormatId: 'ballot-format',
-                  vxOptionBoundsFromTargetMark: {
-                    bottom: 1,
-                    left: 1,
-                    right: 9,
-                    top: 1,
-                  },
                   PhysicalContestOption: [
                     {
                       '@type': 'BallotDefinition.PhysicalContestOption',
