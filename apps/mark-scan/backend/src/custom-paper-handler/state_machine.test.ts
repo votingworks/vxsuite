@@ -33,7 +33,7 @@ import {
 } from '@votingworks/utils';
 import {
   InterpretFileResult,
-  interpretSimplexBmdBallotFromFilepath,
+  interpretSimplexBmdBallot,
 } from '@votingworks/ballot-interpreter';
 import { fromGrayScale, writeImageData } from '@votingworks/image-utils';
 import { join } from 'path';
@@ -385,7 +385,7 @@ async function executePrintBallotAndAssert(
   mockOf(scanAndSave).mockResolvedValue(mockScanResult.promise);
 
   const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
-  mockOf(interpretSimplexBmdBallotFromFilepath).mockResolvedValue(
+  mockOf(interpretSimplexBmdBallot).mockResolvedValue(
     mockInterpretResult.promise
   );
 
@@ -413,7 +413,7 @@ async function executePrintBallotAndAssert(
   await expectStatusTransitionTo('interpreting');
 
   mockInterpretResult.resolve(interpretationResult);
-  expect(mockOf(interpretSimplexBmdBallotFromFilepath)).toHaveBeenCalledWith(
+  expect(mockOf(interpretSimplexBmdBallot)).toHaveBeenCalledWith(
     scanFixtureFilepath,
     expect.objectContaining({})
   );
@@ -793,7 +793,7 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
     mockOf(scanAndSave).mockResolvedValue('mock-scan.jpg');
 
     const interpretationType: PageInterpretationType = 'InvalidBallotHashPage';
-    mockOf(interpretSimplexBmdBallotFromFilepath).mockResolvedValue([
+    mockOf(interpretSimplexBmdBallot).mockResolvedValue([
       {
         interpretation: { type: interpretationType },
       } as unknown as InterpretFileResult,
@@ -817,7 +817,7 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
     await expectStatusTransitionTo('accepting_paper');
 
     mockOf(scanAndSave).mockResolvedValue('mock-scan.jpg');
-    mockOf(interpretSimplexBmdBallotFromFilepath).mockResolvedValue(
+    mockOf(interpretSimplexBmdBallot).mockResolvedValue(
       SUCCESSFUL_INTERPRETATION_MOCK
     );
 
@@ -872,7 +872,7 @@ test('insert and validate new blank sheet', async () => {
   expect(machine.getSimpleStatus()).toEqual('accepting_paper');
 
   const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
-  mockOf(interpretSimplexBmdBallotFromFilepath).mockReturnValue(
+  mockOf(interpretSimplexBmdBallot).mockReturnValue(
     mockInterpretResult.promise
   );
   mockOf(scanAndSave).mockResolvedValue('mock-scan.jpg');
@@ -886,9 +886,10 @@ test('insert and validate new blank sheet', async () => {
   await expectStatusTransitionTo('waiting_for_voter_auth');
   mockCardlessVoterAuth(auth);
   await expectStatusTransitionTo('waiting_for_ballot_data');
-  expect(
-    mockOf(interpretSimplexBmdBallotFromFilepath)
-  ).toHaveBeenLastCalledWith('mock-scan.jpg', expect.anything());
+  expect(mockOf(interpretSimplexBmdBallot)).toHaveBeenLastCalledWith(
+    'mock-scan.jpg',
+    expect.anything()
+  );
 });
 
 describe('insert pre-printed ballot', () => {
@@ -902,7 +903,7 @@ describe('insert pre-printed ballot', () => {
     machine.setAcceptingPaper();
 
     mockOf(scanAndSave).mockResolvedValue('mock-scan.jpg');
-    mockOf(interpretSimplexBmdBallotFromFilepath).mockResolvedValue(
+    mockOf(interpretSimplexBmdBallot).mockResolvedValue(
       SUCCESSFUL_INTERPRETATION_MOCK
     );
 
@@ -918,7 +919,7 @@ describe('insert pre-printed ballot', () => {
     machine.setAcceptingPaper();
 
     mockOf(scanAndSave).mockResolvedValue('mock-scan.jpg');
-    mockOf(interpretSimplexBmdBallotFromFilepath).mockResolvedValue(
+    mockOf(interpretSimplexBmdBallot).mockResolvedValue(
       SUCCESSFUL_INTERPRETATION_MOCK
     );
 
@@ -959,7 +960,7 @@ describe('insert pre-printed ballot', () => {
       mockOf(scanAndSave).mockResolvedValue('mock-scan.jpg');
 
       const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
-      mockOf(interpretSimplexBmdBallotFromFilepath).mockReturnValue(
+      mockOf(interpretSimplexBmdBallot).mockReturnValue(
         mockInterpretResult.promise
       );
 
@@ -998,7 +999,7 @@ describe('re-insert removed ballot', () => {
     machine.setAcceptingPaper();
 
     mockOf(scanAndSave).mockResolvedValue('mock-scan.jpg');
-    mockOf(interpretSimplexBmdBallotFromFilepath).mockResolvedValue(
+    mockOf(interpretSimplexBmdBallot).mockResolvedValue(
       SUCCESSFUL_INTERPRETATION_MOCK
     );
 
@@ -1021,7 +1022,7 @@ describe('re-insert removed ballot', () => {
     //
 
     const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
-    mockOf(interpretSimplexBmdBallotFromFilepath).mockReturnValue(
+    mockOf(interpretSimplexBmdBallot).mockReturnValue(
       mockInterpretResult.promise
     );
     mockOf(scanAndSave).mockResolvedValue('mock-reinsertion-scan.jpg');
@@ -1032,9 +1033,10 @@ describe('re-insert removed ballot', () => {
 
     mockInterpretResult.resolve(SUCCESSFUL_INTERPRETATION_MOCK);
     await expectStatusTransitionTo('presenting_ballot');
-    expect(
-      mockOf(interpretSimplexBmdBallotFromFilepath)
-    ).toHaveBeenLastCalledWith('mock-reinsertion-scan.jpg', expect.anything());
+    expect(mockOf(interpretSimplexBmdBallot)).toHaveBeenLastCalledWith(
+      'mock-reinsertion-scan.jpg',
+      expect.anything()
+    );
   });
 
   const invalidInterpretationTypes: Record<PageInterpretationType, boolean> = {
@@ -1063,7 +1065,7 @@ describe('re-insert removed ballot', () => {
       machine.setAcceptingPaper();
 
       mockOf(scanAndSave).mockResolvedValue('mock-scan.jpg');
-      mockOf(interpretSimplexBmdBallotFromFilepath).mockResolvedValue(
+      mockOf(interpretSimplexBmdBallot).mockResolvedValue(
         SUCCESSFUL_INTERPRETATION_MOCK
       );
 
@@ -1086,7 +1088,7 @@ describe('re-insert removed ballot', () => {
       //
 
       const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
-      mockOf(interpretSimplexBmdBallotFromFilepath).mockReturnValue(
+      mockOf(interpretSimplexBmdBallot).mockReturnValue(
         mockInterpretResult.promise
       );
 

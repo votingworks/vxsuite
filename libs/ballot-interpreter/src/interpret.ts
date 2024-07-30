@@ -1,70 +1,71 @@
 import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import {
-  Result,
-  throwIllegalValue,
-  typedAs,
   assert,
   find,
   iter,
   ok,
   Ok,
+  Result,
+  throwIllegalValue,
+  typedAs,
 } from '@votingworks/basics';
-import { ImageData } from 'canvas';
-import { fromGrayScale, loadImageData } from '@votingworks/image-utils';
+import { fromGrayScale } from '@votingworks/image-utils';
 import {
+  AdjudicationInfo,
+  AdjudicationReason,
+  AnyContest,
+  asSheet,
   BallotMetadata,
+  BallotPageContestLayout,
+  BallotPageContestOptionLayout,
+  BallotTargetMark,
   BallotType,
+  ContestOption,
+  Contests,
+  Corners,
   ElectionDefinition,
+  getBallotStyle,
+  GridPosition,
+  HmpbBallotPageMetadata,
+  Id,
+  InterpretedHmpbPage,
   InvalidBallotHashPage,
   InvalidPrecinctPage,
   InvalidTestModePage,
   mapSheet,
-  PageInterpretation,
-  SheetOf,
-  AdjudicationInfo,
-  AnyContest,
-  BallotPageContestLayout,
-  BallotPageContestOptionLayout,
-  BallotTargetMark,
-  ContestOption,
-  Contests,
-  Corners,
-  getBallotStyle,
-  GridPosition,
-  HmpbBallotPageMetadata,
-  InterpretedHmpbPage,
   MarkInfo,
   MarkStatus,
+  PageInterpretation,
+  PageInterpretationWithFiles,
   Rect,
+  SheetOf,
   WriteInAreaStatus,
   WriteInId,
-  AdjudicationReason,
-  PageInterpretationWithFiles,
-  Id,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
-  time,
   allContestOptions,
   convertMarksToVotesDict,
+  time,
 } from '@votingworks/utils';
+import { ImageData } from 'canvas';
 import makeDebug from 'debug';
+import { getAllPossibleAdjudicationReasons } from './adjudication_reasons';
+import { interpret as interpretVxBmdBallotSheet } from './bmd';
 import {
-  interpret as interpretHmpbBallotSheetRust,
   BallotConfig,
   Geometry,
   InterpretedBallotCard,
-  HmpbInterpretResult as NextInterpretResult,
-  Rect as NextRect,
   InterpretedContestLayout,
   InterpretedContestOptionLayout,
-  ScoredPositionArea,
-  ScoredBubbleMarks,
+  interpret as interpretHmpbBallotSheetRust,
+  HmpbInterpretResult as NextInterpretResult,
+  Rect as NextRect,
   ScoredBubbleMark,
+  ScoredBubbleMarks,
+  ScoredPositionArea,
 } from './hmpb-ts';
-import { interpret as interpretVxBmdBallotSheet } from './bmd';
-import { getAllPossibleAdjudicationReasons } from './adjudication_reasons';
-import { saveSheetImage } from './save_images';
+import { saveSheetImages } from './save_images';
 import { InterpreterOptions } from './types';
 import { normalizeBallotMode } from './validation';
 
@@ -448,21 +449,25 @@ function convertInterpretedBallotPage(
  * Converts the result of the Rust interpreter to the result format used by the
  * rest of VxSuite.
  */
-export async function convertRustInterpretResult(
+export function convertRustInterpretResult(
   options: InterpreterOptions,
   nextResult: NextInterpretResult,
-  sheet: SheetOf<string>
-): Promise<InterpretResult> {
+  sheet: SheetOf<ImageData>
+): InterpretResult {
   /* istanbul ignore next */
   if (nextResult.isErr()) {
     return ok(
-      await mapSheet(sheet, async (page) => ({
-        interpretation: {
-          type: 'UnreadablePage',
-          reason: nextResult.err().type,
-        },
-        normalizedImage: await loadImageData(page),
-      }))
+      mapSheet(
+        sheet,
+        (imageData) =>
+          ({
+            interpretation: {
+              type: 'UnreadablePage',
+              reason: nextResult.err().type,
+            },
+            normalizedImage: imageData,
+          }) as const
+      )
     );
   }
 
@@ -557,17 +562,17 @@ function validateInterpretResults(
  * Interpret a HMPB sheet and convert the result from the Rust
  * interpreter's result format to the result format used by the rest of VxSuite.
  */
-async function interpretHmpb(
-  sheet: SheetOf<string>,
+function interpretHmpb(
+  sheet: SheetOf<ImageData>,
   options: InterpreterOptions
-): Promise<SheetOf<InterpretFileResult>> {
+): SheetOf<InterpretFileResult> {
   const { electionDefinition } = options;
   const result = interpretHmpbBallotSheetRust(electionDefinition, sheet, {
     scoreWriteIns: shouldScoreWriteIns(options),
   });
 
   return validateInterpretResults(
-    (await convertRustInterpretResult(options, result, sheet)).unsafeUnwrap(),
+    convertRustInterpretResult(options, result, sheet).unsafeUnwrap(),
     options
   );
 }
@@ -682,29 +687,14 @@ async function interpretBmdBallot(
  * Interpret a single-sided BMD ballot sheet and convert the result into
  * the result format used by the rest of VxSuite.
  */
-export async function interpretSimplexBmdBallotFromFilepath(
-  frontFilepath: string,
+export async function interpretSimplexBmdBallot(
+  frontImage: ImageData,
   options: InterpreterOptions
 ): Promise<SheetOf<InterpretFileResult>> {
   const ballotImages: SheetOf<ImageData> = [
-    await loadImageData(frontFilepath),
+    frontImage,
     fromGrayScale(new Uint8ClampedArray([0]), 1, 1),
   ];
-  return interpretBmdBallot(ballotImages, options);
-}
-
-/**
- * Interpret a BMD ballot sheet and convert the result into the result format
- * used by the rest of VxSuite.
- */
-async function interpretBmdBallotFromFilepaths(
-  sheet: SheetOf<string>,
-  options: InterpreterOptions
-): Promise<SheetOf<InterpretFileResult>> {
-  const ballotImages = await mapSheet(sheet, (ballotImagePath) =>
-    loadImageData(ballotImagePath)
-  );
-
   return interpretBmdBallot(ballotImages, options);
 }
 
@@ -787,13 +777,13 @@ function chooseInterpretationToUse(
  */
 export async function interpretSheet(
   options: InterpreterOptions,
-  sheet: SheetOf<string>
+  sheet: SheetOf<ImageData>
 ): Promise<SheetOf<InterpretFileResult>> {
-  const timer = time(debug, `interpretSheet: ${sheet.join(', ')}`);
+  const timer = time(debug, 'interpretSheet');
 
   try {
     const hmpbInterpretation = options.electionDefinition.election.gridLayouts
-      ? await interpretHmpb(sheet, options)
+      ? interpretHmpb(sheet, options)
       : undefined;
 
     if (
@@ -803,10 +793,7 @@ export async function interpretSheet(
       return hmpbInterpretation;
     }
 
-    const bmdInterpretation = await interpretBmdBallotFromFilepaths(
-      sheet,
-      options
-    );
+    const bmdInterpretation = await interpretBmdBallot(sheet, options);
 
     return chooseInterpretationToUse(bmdInterpretation, hmpbInterpretation);
   } finally {
@@ -819,25 +806,33 @@ export async function interpretSheet(
  */
 export async function interpretSheetAndSaveImages(
   interpreterOptions: InterpreterOptions,
-  sheet: SheetOf<string>,
+  sheet: SheetOf<ImageData>,
   sheetId: Id,
   ballotImagesPath: string
 ): Promise<SheetOf<PageInterpretationWithFiles>> {
-  return mapSheet(
-    await interpretSheet(interpreterOptions, sheet),
-    async (result, side) => {
-      const ballotImagePath = sheet[side === 'front' ? 0 : 1];
-      const imagePath = await saveSheetImage({
-        sheetId,
-        side,
-        ballotImagesPath,
-        sourceImagePath: ballotImagePath,
-        normalizedImage: result.normalizedImage,
-      });
-      return {
-        interpretation: result.interpretation,
-        imagePath,
-      };
-    }
-  );
+  const timer = time(debug, `interpretSheetAndSaveImages`);
+  try {
+    const interpreted = await interpretSheet(interpreterOptions, sheet);
+    timer.checkpoint('interpretSheet');
+    const imagePaths = await saveSheetImages({
+      sheetId,
+      ballotImagesPath,
+      images: sheet,
+    });
+
+    return asSheet(
+      iter(interpreted)
+        .zip(imagePaths)
+        .map(([{ interpretation }, imagePath]) => {
+          return {
+            interpretation,
+            imagePath,
+          };
+        })
+        .toArray()
+    );
+  } finally {
+    timer.checkpoint('save images');
+    timer.end();
+  }
 }

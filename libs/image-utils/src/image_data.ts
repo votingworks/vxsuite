@@ -1,3 +1,5 @@
+import { assert } from '@votingworks/basics';
+import { time } from '@votingworks/utils';
 import { Buffer } from 'buffer';
 import {
   loadImage as canvasLoadImage,
@@ -5,12 +7,15 @@ import {
   createImageData,
   Image,
   ImageData,
+  JpegConfig,
+  PngConfig,
 } from 'canvas';
-import { createWriteStream } from 'fs';
-import { promises as stream } from 'stream';
-import { assert } from '@votingworks/basics';
+import makeDebug from 'debug';
+import { writeFile } from 'fs/promises';
 import { assertInteger } from './numeric';
 import { int, u8, usize } from './types';
+
+const debug = makeDebug('image-utils');
 
 /**
  * The number of channels an RGBA color image has (4).
@@ -96,6 +101,13 @@ export function fromGrayScale(
   return createImageData(imageDataBuffer, width, height);
 }
 
+function createCanvasWithImageData(imageData: ImageData) {
+  const canvas = createCanvas(imageData.width, imageData.height);
+  const context = canvas.getContext('2d');
+  context.putImageData(ensureImageData(imageData), 0, 0);
+  return canvas;
+}
+
 /**
  * Creates a data URL from image data.
  */
@@ -103,10 +115,7 @@ export function toDataUrl(
   image: ImageData,
   mimeType: 'image/png' | 'image/jpeg'
 ): string {
-  const { width, height } = image;
-  const canvas = createCanvas(width, height);
-  const context = canvas.getContext('2d');
-  context.putImageData(image, 0, 0);
+  const canvas = createCanvasWithImageData(image);
   return mimeType === 'image/jpeg'
     ? canvas.toDataURL(mimeType)
     : canvas.toDataURL(mimeType);
@@ -114,20 +123,81 @@ export function toDataUrl(
 
 /**
  * Writes an image to a file.
+ *
+ * @param buffer - Whether to buffer the image before writing it to disk.
  */
 export async function writeImageData(
   path: string,
   imageData: ImageData
 ): Promise<void> {
-  const canvas = createCanvas(imageData.width, imageData.height);
-  const context = canvas.getContext('2d');
-  context.putImageData(ensureImageData(imageData), 0, 0);
+  const timer = time(
+    debug,
+    `writeImageData: ${path} (${imageData.width}×${imageData.height})`
+  );
+  const canvas = createCanvasWithImageData(imageData);
+  const encoded = /\.png$/i.test(path)
+    ? canvas.toBuffer('image/png')
+    : canvas.toBuffer('image/jpeg');
+  await writeFile(path, encoded);
+  timer.end();
+}
 
-  const fileWriter = createWriteStream(path);
-  const imageStream = /\.png$/i.test(path)
-    ? canvas.createPNGStream()
-    : canvas.createJPEGStream();
-  await stream.pipeline(imageStream, fileWriter);
+/**
+ * Encodes raw image data as a PNG buffer.
+ *
+ * This function is async because the underlying canvas API can execute some
+ * tasks in parallel, such as encoding the image data.
+ */
+export async function encodeImageData(
+  imageData: ImageData,
+  mimeType: 'image/png',
+  pngConfig?: PngConfig
+): Promise<Buffer>;
+
+/**
+ * Encodes raw image data as a JPEG buffer.
+ *
+ * This function is async because the underlying canvas API can execute some
+ * tasks in parallel, such as encoding the image data.
+ */
+export async function encodeImageData(
+  imageData: ImageData,
+  mimeType: 'image/jpeg',
+  pngConfig?: JpegConfig
+): Promise<Buffer>;
+
+/**
+ * Encodes raw image data as a PNG or JPEG buffer.
+ *
+ * This function is async because the underlying canvas API can execute some
+ * tasks in parallel, such as encoding the image data.
+ */
+export async function encodeImageData(
+  imageData: ImageData,
+  mimeType: 'image/png' | 'image/jpeg',
+  config?: PngConfig | JpegConfig
+): Promise<Buffer> {
+  const timer = time(debug, `writeImageDataToBuffer: ${mimeType}`);
+  const canvas = createCanvasWithImageData(imageData);
+  const encoded = await new Promise<Buffer>((resolve, reject) => {
+    if (mimeType === 'image/png') {
+      canvas.toBuffer(
+        /* istanbul ignore next */
+        (err, buffer) => (err ? reject(err) : resolve(buffer)),
+        mimeType,
+        config as PngConfig
+      );
+    } else {
+      canvas.toBuffer(
+        /* istanbul ignore next */
+        (err, buffer) => (err ? reject(err) : resolve(buffer)),
+        mimeType,
+        config as JpegConfig
+      );
+    }
+  });
+  timer.end();
+  return encoded;
 }
 
 /**

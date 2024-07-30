@@ -1,12 +1,22 @@
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { assertDefined, throwIllegalValue } from '@votingworks/basics';
-import { ImageData } from 'canvas';
+import { BaseLogger, LogEventId, LogLine } from '@votingworks/logging';
 import {
   ScannerClient,
   ScannerError,
   ScannerEvent,
   ScannerStatus,
 } from '@votingworks/pdi-scanner';
+import {
+  SheetInterpretation,
+  SheetOf,
+  ballotPaperDimensions,
+} from '@votingworks/types';
+import { UsbDrive } from '@votingworks/usb-drive';
+import { time, Timer } from '@votingworks/utils';
 import assert from 'assert';
+import { ImageData } from 'canvas';
+import { v4 as uuid } from 'uuid';
 import {
   ActorRef,
   BaseActionObject,
@@ -19,32 +29,22 @@ import {
   sendParent,
   spawn,
 } from 'xstate';
-import { v4 as uuid } from 'uuid';
-import {
-  SheetInterpretation,
-  SheetOf,
-  ballotPaperDimensions,
-  mapSheet,
-} from '@votingworks/types';
-import { join } from 'path';
-import { writeImageData } from '@votingworks/image-utils';
-import { BaseLogger, LogEventId, LogLine } from '@votingworks/logging';
-import { UsbDrive } from '@votingworks/usb-drive';
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { Clock } from 'xstate/lib/interpreter';
+import { isReadyToScan } from '../../app_flow';
 import { interpret } from '../../interpret';
-import { Workspace } from '../../util/workspace';
-import { rootDebug } from '../../util/debug';
 import {
   InterpretationResult,
   PrecinctScannerError,
   PrecinctScannerMachineStatus,
   PrecinctScannerStateMachine,
 } from '../../types';
+import { rootDebug } from '../../util/debug';
+import { Workspace } from '../../util/workspace';
 import { recordAcceptedSheet, recordRejectedSheet } from '../shared';
-import { isReadyToScan } from '../../app_flow';
 
 const debug = rootDebug.extend('state-machine');
+
+let scanAndInterpretTimer: Timer | undefined;
 
 async function interpretSheet(
   workspace: Workspace,
@@ -53,18 +53,9 @@ async function interpretSheet(
   const sheetId = uuid();
   const { store } = workspace;
 
-  // FIXME: we should be able to use the image format directly, but the
-  // rest of the system expects file paths instead of image buffers.
-  const sheetPrefix = uuid();
-  const scanImagePaths = await mapSheet(scanImages, async (image, side) => {
-    const { scannedImagesPath } = workspace;
-    const path = join(scannedImagesPath, `${sheetPrefix}-${side}.png`);
-    await writeImageData(path, image);
-    return path;
-  });
-
+  const interpretTimer = time(debug, 'interpret');
   const interpretation = (
-    await interpret(sheetId, scanImagePaths, {
+    await interpret(sheetId, scanImages, {
       electionDefinition: assertDefined(store.getElectionRecord())
         .electionDefinition,
       precinctSelection: assertDefined(store.getPrecinctSelection()),
@@ -76,6 +67,7 @@ async function interpretSheet(
         store.getSystemSettings()?.allowOfficialBallotsInTestMode,
     })
   ).unsafeUnwrap();
+  interpretTimer.end();
   return {
     ...interpretation,
     sheetId,
@@ -235,7 +227,9 @@ function buildMachine({
     src: createPollingChildMachine(
       'pollScannerStatus',
       async ({ client }) => {
+        const timer = time(debug, 'getScannerStatus');
         const statusResult = await client.getScannerStatus();
+        timer.end();
         return statusResult.isOk()
           ? { type: 'SCANNER_STATUS', status: statusResult.ok() }
           : { type: 'SCANNER_ERROR', error: statusResult.err() };
@@ -252,6 +246,16 @@ function buildMachine({
     rootListenerRef: ({ client }) =>
       spawn((callback) => {
         const listener = client.addListener((event) => {
+          switch (event.event) {
+            case 'scanStart': {
+              scanAndInterpretTimer = time(debug, 'scanAndInterpret');
+              break;
+            }
+
+            default:
+              scanAndInterpretTimer?.checkpoint(event.event);
+              break;
+          }
           callback(
             event.event === 'error'
               ? { type: 'SCANNER_ERROR', error: event }
@@ -328,7 +332,9 @@ function buildMachine({
         invoke: [
           {
             src: async ({ client }) => {
+              scanAndInterpretTimer?.checkpoint('accepting');
               (await client.ejectDocument('toRear')).unsafeUnwrap();
+              scanAndInterpretTimer?.checkpoint('eject command sent');
             },
             onDone: 'checkingComplete',
             onError: {
@@ -651,8 +657,15 @@ function buildMachine({
         interpreting: {
           id: 'interpreting',
           invoke: {
-            src: ({ scanImages }) =>
-              interpretSheet(workspace, assertDefined(scanImages)),
+            src: async ({ scanImages }) => {
+              scanAndInterpretTimer?.checkpoint('interpreting');
+              const result = await interpretSheet(
+                workspace,
+                assertDefined(scanImages)
+              );
+              scanAndInterpretTimer?.checkpoint('interpretComplete');
+              return result;
+            },
             onDone: [
               {
                 cond: (_, { data }) => data.type === 'ValidSheet',
@@ -690,12 +703,17 @@ function buildMachine({
 
         accepted: {
           id: 'accepted',
-          entry: (context) =>
-            recordAcceptedSheet(
+          entry: async (context) => {
+            scanAndInterpretTimer?.checkpoint('accepted');
+            await recordAcceptedSheet(
               workspace,
               usbDrive,
               assertDefined(context.interpretation)
-            ),
+            );
+            scanAndInterpretTimer?.checkpoint('recordAcceptedSheet complete');
+            scanAndInterpretTimer?.end();
+            scanAndInterpretTimer = undefined;
+          },
           after: {
             // We wait a bit in the accepted state in order to make sure the
             // voter has time to view the success message. In addition, it's
@@ -1181,10 +1199,12 @@ export function createPrecinctScannerStateMachine({
     },
 
     accept: () => {
+      scanAndInterpretTimer?.checkpoint('ACCEPT');
       machineService.send('ACCEPT');
     },
 
     return: () => {
+      scanAndInterpretTimer?.checkpoint('RETURN');
       machineService.send('RETURN');
     },
 

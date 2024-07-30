@@ -1,4 +1,9 @@
 import {
+  InterpreterOptions,
+  interpretSheetAndSaveImages,
+} from '@votingworks/ballot-interpreter';
+import { ok, Result } from '@votingworks/basics';
+import {
   AdjudicationReason,
   AdjudicationReasonInfo,
   PageInterpretationWithFiles,
@@ -7,11 +12,7 @@ import {
   SheetOf,
 } from '@votingworks/types';
 import { time } from '@votingworks/utils';
-import { ok, Result } from '@votingworks/basics';
-import {
-  interpretSheetAndSaveImages,
-  InterpreterOptions,
-} from '@votingworks/ballot-interpreter';
+import { ImageData } from 'canvas';
 import { rootDebug } from './util/debug';
 
 export function combinePageInterpretationsForSheet(
@@ -123,7 +124,7 @@ export function combinePageInterpretationsForSheet(
 
 export async function interpret(
   sheetId: string,
-  sheet: SheetOf<string>,
+  sheet: SheetOf<ImageData>,
   options: InterpreterOptions & { ballotImagesPath: string }
 ): Promise<Result<SheetInterpretationWithPages, Error>> {
   const timer = time(rootDebug, `vxInterpret: ${sheetId}`);

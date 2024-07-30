@@ -3,24 +3,26 @@ import {
   electionGridLayoutNewHampshireTestBallotFixtures,
   sampleBallotImages,
 } from '@votingworks/fixtures';
+import { loadImageData } from '@votingworks/image-utils';
+import { mockOf } from '@votingworks/test-utils';
 import {
-  SheetOf,
-  mapSheet,
   AdjudicationReason,
-  safeParseElectionDefinition,
   DEFAULT_MARK_THRESHOLDS,
+  mapSheet,
   PageInterpretation,
+  safeParseElectionDefinition,
+  SheetOf,
 } from '@votingworks/types';
 import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
+import { ImageData } from 'canvas';
 import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
-import { mockOf } from '@votingworks/test-utils';
 import { interpretSheet } from './interpret';
-import { normalizeBallotMode } from './validation';
 import { InterpreterOptions } from './types';
+import { normalizeBallotMode } from './validation';
 
 jest.mock('./validation');
 
@@ -31,27 +33,22 @@ beforeEach(() => {
 describe('NH HMPB interpretation', () => {
   const fixtures = electionGridLayoutNewHampshireTestBallotFixtures;
   const { electionDefinition } = fixtures;
-  const hmpbFront = fixtures.scanMarkedFront.asFilePath();
-  const hmpbBack = fixtures.scanMarkedBack.asFilePath();
+  const hmpbFront = fixtures.scanMarkedFront.asImageData();
+  const hmpbBack = fixtures.scanMarkedBack.asImageData();
   const hmpbFrontUnmarkedWriteIns =
-    fixtures.scanMarkedFrontUnmarkedWriteIns.asFilePath();
+    fixtures.scanMarkedFrontUnmarkedWriteIns.asImageData();
   const hmpbBackUnmarkedWriteIns =
-    fixtures.scanMarkedBackUnmarkedWriteIns.asFilePath();
+    fixtures.scanMarkedBackUnmarkedWriteIns.asImageData();
   const hmpbFrontUnmarkedWriteInsOvervote =
-    fixtures.scanMarkedFrontUnmarkedWriteInsOvervote.asFilePath();
+    fixtures.scanMarkedFrontUnmarkedWriteInsOvervote.asImageData();
   const hmpbBackUnmarkedWriteInsOvervote =
-    fixtures.scanMarkedBackUnmarkedWriteInsOvervote.asFilePath();
-  const validHmpbSheet: SheetOf<string> = [hmpbFront, hmpbBack];
-  const validHmpbUnmarkedWriteInsSheet: SheetOf<string> = [
-    hmpbFrontUnmarkedWriteIns,
-    hmpbBackUnmarkedWriteIns,
-  ];
-  const validHmpbUnmarkedWriteInsOvervoteSheet: SheetOf<string> = [
-    hmpbFrontUnmarkedWriteInsOvervote,
-    hmpbBackUnmarkedWriteInsOvervote,
-  ];
+    fixtures.scanMarkedBackUnmarkedWriteInsOvervote.asImageData();
 
   test('properly interprets a valid HMPB', async () => {
+    const validHmpbSheet: SheetOf<ImageData> = [
+      await hmpbFront,
+      await hmpbBack,
+    ];
     const interpretationResult = await interpretSheet(
       {
         electionDefinition,
@@ -72,6 +69,10 @@ describe('NH HMPB interpretation', () => {
   });
 
   test('interprets an unmarked write-in with enough of its write-in area filled as a vote', async () => {
+    const validHmpbUnmarkedWriteInsSheet: SheetOf<ImageData> = [
+      await hmpbFrontUnmarkedWriteIns,
+      await hmpbBackUnmarkedWriteIns,
+    ];
     const interpretationResult = await interpretSheet(
       {
         electionDefinition,
@@ -136,6 +137,10 @@ describe('NH HMPB interpretation', () => {
   });
 
   test('considers an unmarked write-in combined with a marked option as an overvote', async () => {
+    const validHmpbUnmarkedWriteInsOvervoteSheet: SheetOf<ImageData> = [
+      await hmpbFrontUnmarkedWriteInsOvervote,
+      await hmpbBackUnmarkedWriteInsOvervote,
+    ];
     const interpretationResult = await interpretSheet(
       {
         electionDefinition,
@@ -196,6 +201,10 @@ describe('NH HMPB interpretation', () => {
   });
 
   test('fails to interpret a HMPB with wrong precinct', async () => {
+    const validHmpbSheet: SheetOf<ImageData> = [
+      await hmpbFront,
+      await hmpbBack,
+    ];
     const interpretationResult = await interpretSheet(
       {
         electionDefinition,
@@ -216,6 +225,10 @@ describe('NH HMPB interpretation', () => {
   });
 
   test('normalizes ballot modes', async () => {
+    const validHmpbSheet: SheetOf<ImageData> = [
+      await hmpbFront,
+      await hmpbBack,
+    ];
     const options: InterpreterOptions = {
       adjudicationReasons: [],
       allowOfficialBallotsInTestMode: true,
@@ -255,11 +268,12 @@ describe('HMPB - m17 backup', () => {
       .map((f) => f.replace(/(-front|-back)\.jpg$/, ''))
   );
 
-  test('Interprets all ballots correctly', async () => {
-    for (const ballotId of ballotIds) {
-      const sheet: SheetOf<string> = [
-        join(fixtureDir, `${ballotId}-front.jpg`),
-        join(fixtureDir, `${ballotId}-back.jpg`),
+  test.each(ballotIds)(
+    'Interprets all ballots correctly: ballotId=%s',
+    async (ballotId) => {
+      const sheet: SheetOf<ImageData> = [
+        await loadImageData(join(fixtureDir, `${ballotId}-front.jpg`)),
+        await loadImageData(join(fixtureDir, `${ballotId}-back.jpg`)),
       ];
 
       const interpretationWithImages = await interpretSheet(
@@ -291,13 +305,13 @@ describe('HMPB - m17 backup', () => {
       });
       expect({ [ballotId]: interpretation }).toMatchSnapshot();
     }
-  });
+  );
 });
 
 test('blank sheet of paper', async () => {
-  const sheet: SheetOf<string> = [
-    sampleBallotImages.blankPage.asFilePath(),
-    sampleBallotImages.blankPage.asFilePath(),
+  const sheet: SheetOf<ImageData> = [
+    await sampleBallotImages.blankPage.asImageData(),
+    await sampleBallotImages.blankPage.asImageData(),
   ];
 
   const interpretationWithImages = await interpretSheet(

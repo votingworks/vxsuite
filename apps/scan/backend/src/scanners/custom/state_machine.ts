@@ -17,10 +17,9 @@ import {
   ScanSide,
   SensorStatus,
 } from '@votingworks/custom-scanner';
-import { fromGrayScale, writeImageData } from '@votingworks/image-utils';
+import { fromGrayScale, ImageData } from '@votingworks/image-utils';
 import { LogEventId, BaseLogger, LogLine } from '@votingworks/logging';
 import { mapSheet, SheetInterpretation, SheetOf } from '@votingworks/types';
-import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import {
   assign as xassign,
@@ -70,7 +69,7 @@ interface Context {
   auth: InsertedSmartCardAuthApi;
   workspace: Workspace;
   usbDrive: UsbDrive;
-  scannedSheet?: SheetOf<string>;
+  scannedSheet?: SheetOf<ImageData>;
   interpretation?: InterpretationResult;
   error?: Error | ErrorCode;
   failedScanAttempts?: number;
@@ -267,7 +266,10 @@ async function reset({ client }: Context): Promise<void> {
   result.unsafeUnwrap();
 }
 
-async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
+async function scan({
+  client,
+  workspace,
+}: Context): Promise<SheetOf<ImageData>> {
   assert(client);
   debug('Scanning');
   const isDoubleSheetDetectionDisabled =
@@ -284,20 +286,9 @@ async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
   debug('Scan result: %o', scanResult);
   const images = scanResult.unsafeUnwrap();
 
-  // FIXME: we should be able to use the image format directly, but the
-  // rest of the system expects file paths instead of image buffers.
-  const sheetPrefix = uuid();
-  return await mapSheet(images, async (image, side) => {
-    const { scannedImagesPath } = workspace;
-    const path = join(scannedImagesPath, `${sheetPrefix}-${side}.jpeg`);
-    const imageData = fromGrayScale(
-      image.imageBuffer,
-      image.imageWidth,
-      image.imageHeight
-    );
-    await writeImageData(path, imageData);
-    return path;
-  });
+  return mapSheet(images, (image) =>
+    fromGrayScale(image.imageBuffer, image.imageWidth, image.imageHeight)
+  );
 }
 
 async function interpretSheet(
@@ -636,16 +627,12 @@ function buildMachine({
         '*': {
           target: 'error',
           actions: assign({
-            error: (
-              { error, failedScanAttempts, interpretation, scannedSheet },
-              event
-            ) => {
+            error: ({ error, failedScanAttempts, interpretation }, event) => {
               // eslint-disable-next-line no-console
               console.error(event, {
                 error,
                 failedScanAttempts,
                 interpretation,
-                scannedSheet,
               });
               return new PrecinctScannerError(
                 'unexpected_event',

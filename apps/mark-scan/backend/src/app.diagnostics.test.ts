@@ -26,7 +26,7 @@ import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { assertDefined, deferred, ok } from '@votingworks/basics';
 import {
   InterpretFileResult,
-  interpretSimplexBmdBallotFromFilepath,
+  interpretSimplexBmdBallot,
 } from '@votingworks/ballot-interpreter';
 import { readElection } from '@votingworks/fs';
 import { Api } from './app';
@@ -304,7 +304,7 @@ describe('paper handler diagnostic', () => {
       BLANK_PAGE_MOCK,
     ];
     const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
-    mockOf(interpretSimplexBmdBallotFromFilepath).mockResolvedValue(
+    mockOf(interpretSimplexBmdBallot).mockResolvedValue(
       mockInterpretResult.promise
     );
 

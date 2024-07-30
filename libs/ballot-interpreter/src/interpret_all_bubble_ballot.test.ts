@@ -1,18 +1,16 @@
-import { assert, iter, Optional } from '@votingworks/basics';
+import { assert, Optional } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
 import { allBubbleBallotFixtures } from '@votingworks/hmpb';
 import {
   AdjudicationReason,
+  asSheet,
   Candidate,
   CandidateVote,
   DEFAULT_MARK_THRESHOLDS,
   ElectionDefinition,
 } from '@votingworks/types';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
-import {
-  pdfToPageImagePaths,
-  sortVotesDict,
-} from '../test/helpers/interpretation';
+import { pdfToPageImages, sortVotesDict } from '../test/helpers/interpretation';
 import { interpretSheet } from './interpret';
 
 describe('Interpret - HMPB - All bubble ballot', () => {
@@ -29,8 +27,7 @@ describe('Interpret - HMPB - All bubble ballot', () => {
 
   test('Blank ballot interpretation', async () => {
     const precinctId = electionDefinition.election.precincts[0]!.id;
-    const ballotImagePaths = await pdfToPageImagePaths(blankBallotPath);
-    expect(ballotImagePaths.length).toEqual(2);
+    const images = asSheet(await pdfToPageImages(blankBallotPath).toArray());
     const [frontResult, backResult] = await interpretSheet(
       {
         electionDefinition,
@@ -39,7 +36,7 @@ describe('Interpret - HMPB - All bubble ballot', () => {
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [AdjudicationReason.Overvote],
       },
-      ballotImagePaths as [string, string]
+      images
     );
 
     assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
@@ -58,8 +55,7 @@ describe('Interpret - HMPB - All bubble ballot', () => {
     const [frontContest, backContest] = electionDefinition.election.contests;
     assert(frontContest?.type === 'candidate');
     assert(backContest?.type === 'candidate');
-    const ballotImagePaths = await pdfToPageImagePaths(filledBallotPath);
-    expect(ballotImagePaths.length).toEqual(2);
+    const images = asSheet(await pdfToPageImages(filledBallotPath).toArray());
     const [frontResult, backResult] = await interpretSheet(
       {
         electionDefinition,
@@ -68,7 +64,7 @@ describe('Interpret - HMPB - All bubble ballot', () => {
         markThresholds: DEFAULT_MARK_THRESHOLDS,
         adjudicationReasons: [AdjudicationReason.Overvote],
       },
-      ballotImagePaths as [string, string]
+      images
     );
 
     assert(frontResult.interpretation.type === 'InterpretedHmpbPage');
@@ -92,9 +88,8 @@ describe('Interpret - HMPB - All bubble ballot', () => {
       [backContest.id]: [] as Candidate[],
     } as const;
 
-    const ballotImagePaths = await pdfToPageImagePaths(cyclingTestDeckPath);
-    for await (const sheetImagePaths of iter(ballotImagePaths).chunks(2)) {
-      expect(sheetImagePaths.length).toEqual(2);
+    const ballotImagePaths = pdfToPageImages(cyclingTestDeckPath);
+    for await (const sheetImages of ballotImagePaths.chunks(2)) {
       const [frontResult, backResult] = await interpretSheet(
         {
           electionDefinition,
@@ -103,7 +98,7 @@ describe('Interpret - HMPB - All bubble ballot', () => {
           markThresholds: DEFAULT_MARK_THRESHOLDS,
           adjudicationReasons: [AdjudicationReason.Overvote],
         },
-        sheetImagePaths as [string, string]
+        asSheet(sheetImages)
       );
 
       assert(frontResult.interpretation.type === 'InterpretedHmpbPage');

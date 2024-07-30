@@ -1,31 +1,25 @@
-import { createImageData, writeImageData } from '@votingworks/image-utils';
+import { createImageData, ImageData } from '@votingworks/image-utils';
+import { SheetOf } from '@votingworks/types';
 import { join } from 'path';
 import { tmpDir } from '../test/helpers/tmp';
-import { saveSheetImage } from './save_images';
+import { saveSheetImages } from './save_images';
 
-test.each([
-  ['.jpg', 'front'],
-  ['.jpg', 'back'],
-  ['.png', 'front'],
-  ['.png', 'back'],
-] as const)('saveSheetImages: %s extension', async (ext, side) => {
+test('saveSheetImages', async () => {
   const sheetId = 'sheetId';
-  const scannedImagesPath = tmpDir();
   const ballotImagesPath = tmpDir();
-  const sourceImagePath = join(scannedImagesPath, `ballot-image${ext}`);
-  const normalizedImage = createImageData(1, 1);
+  const images: SheetOf<ImageData> = [
+    createImageData(1, 1),
+    createImageData(1, 1),
+  ];
 
-  await writeImageData(sourceImagePath, normalizedImage);
-
-  const destinationImagePath = await saveSheetImage({
+  const destinationImagePaths = await saveSheetImages({
     sheetId,
-    side,
     ballotImagesPath,
-    sourceImagePath,
-    normalizedImage,
+    images,
   });
 
-  expect(destinationImagePath).toEqual(
-    join(ballotImagesPath, `sheetId-${side}${ext}`)
-  );
+  expect(destinationImagePaths).toEqual([
+    join(ballotImagesPath, `sheetId-front.png`),
+    join(ballotImagesPath, `sheetId-back.png`),
+  ]);
 });
