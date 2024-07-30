@@ -2,7 +2,6 @@ import { Button, Loading, Modal, P } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import React from 'react';
 import { printTestPage } from '../../api';
-import { PRINTER_FLOW_STRINGS } from '../../utils/printer';
 
 export interface PrintTestPageModalProps {
   printTestPageMutation: ReturnType<typeof printTestPage.useMutation>;
@@ -32,8 +31,14 @@ export function PrintTestPageModal({
     if (errorStatus.state === 'no-paper') {
       return (
         <Modal
-          title={PRINTER_FLOW_STRINGS.testPrintNoPaperFailureTitle}
-          content={<P>{PRINTER_FLOW_STRINGS.testPrintNoPaperFailureContent}</P>}
+          title="Print Failed"
+          content={
+            <P>
+              The print stopped because paper is no longer detected in the
+              printer. The paper may be misaligned. Try reloading the paper
+              roll.
+            </P>
+          }
           actions={
             <React.Fragment>
               {onRetry && (
@@ -50,8 +55,10 @@ export function PrintTestPageModal({
 
     return (
       <Modal
-        title={PRINTER_FLOW_STRINGS.testPrintHardFailureTitle}
-        content={<P>{PRINTER_FLOW_STRINGS.testPrintHardFailureContent}</P>}
+        title="Printer Error"
+        content={
+          <P>The printer has encountered an unexpected error while printing.</P>
+        }
         actions={<Button onPress={onClose}>Close</Button>}
       />
     );
@@ -59,8 +66,13 @@ export function PrintTestPageModal({
 
   return (
     <Modal
-      title={PRINTER_FLOW_STRINGS.testPrintSuccessTitle}
-      content={<P>{PRINTER_FLOW_STRINGS.testPrintSuccessContent}</P>}
+      title="Test Page Printed"
+      content={
+        <P>
+          Remove and inspect the test page to confirm it printed legibly. If it
+          did not, try reloading the paper roll.
+        </P>
+      }
       actions={
         <React.Fragment>
           <Button variant="primary" onPress={onClose}>

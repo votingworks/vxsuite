@@ -2,7 +2,6 @@ import { assert, throwIllegalValue } from '@votingworks/basics';
 import React, { useState } from 'react';
 import { Button, Modal, P, useQueryChangeListener } from '@votingworks/ui';
 import { getPrinterStatus } from '../../api';
-import { PRINTER_FLOW_STRINGS } from '../../utils/printer';
 
 export interface LoadPaperModalProps {
   postLoadPaperInstructions: string;
@@ -40,8 +39,13 @@ export function LoadPaperModal({
     // modal shouldn't be open-able if the printer is in an error state
     return (
       <Modal
-        title={PRINTER_FLOW_STRINGS.removePaperRollHolderTitle}
-        content={<P>{PRINTER_FLOW_STRINGS.removePaperRollHolderContent}</P>}
+        title="Remove Paper Roll Holder"
+        content={
+          <P>
+            Open the access door to reveal the printer. Press the green lever on
+            the paper roll holder to separate it from the printer.
+          </P>
+        }
         actions={<Button onPress={onClose}>Cancel</Button>}
       />
     );
@@ -52,34 +56,43 @@ export function LoadPaperModal({
     case 'error':
       return (
         <Modal
-          title={PRINTER_FLOW_STRINGS.prePrintErrorTitle}
-          content={<P>{PRINTER_FLOW_STRINGS.prePrintErrorContent}</P>}
+          title="Printer Error"
+          content={<P>The printer has encountered an unexpected error.</P>}
           actions={<Button onPress={onClose}>Close</Button>}
         />
       );
     case 'cover-open':
       return (
         <Modal
-          title={PRINTER_FLOW_STRINGS.loadNewPaperRollTitle}
-          content={<P>{PRINTER_FLOW_STRINGS.loadNewPaperRollContent}</P>}
+          title="Load New Paper Roll"
+          content={
+            <P>
+              Slide a new roll of paper onto the roll holder. Unroll enough
+              paper to pull it over the tear bar and toward you. Holding the end
+              of the paper past the tear bar with your thumbs, push the roll
+              holder back onto the printer so it clicks into place.
+            </P>
+          }
           actions={<Button onPress={onClose}>Cancel</Button>}
         />
       );
     case 'no-paper':
       return (
         <Modal
-          title={PRINTER_FLOW_STRINGS.noPaperDetectedAfterReloadTitle}
+          title="No Paper Detected"
           content={
-            <P>{PRINTER_FLOW_STRINGS.noPaperDetectedAfterReloadContent}</P>
+            <P>
+              The paper roll holder was reattached but no paper is detected. It
+              may not be loaded correctly. Try reloading the paper roll.
+            </P>
           }
           actions={<Button onPress={onClose}>Cancel</Button>}
         />
       );
-
     case 'idle':
       return (
         <Modal
-          title={PRINTER_FLOW_STRINGS.paperLoadedTitle}
+          title="Paper Loaded"
           content={<P>{postLoadPaperInstructions}</P>}
           actions={postLoadPaperActions}
         />

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Button } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import { getPrinterStatus } from '../../api';
-import { PRINTER_FLOW_STRINGS } from '../../utils/printer';
 import { LoadPaperModal } from './load_paper_modal';
 
 export interface PollWorkerLoadAndReprintButtonProps {
@@ -57,9 +56,7 @@ export function PollWorkerLoadAndReprintButton({
       )}
       {isLoadPaperModalOpen && (
         <LoadPaperModal
-          postLoadPaperInstructions={
-            PRINTER_FLOW_STRINGS.paperLoadedContentPollWorker
-          }
+          postLoadPaperInstructions="Paper is now loaded. You may continue printing reports."
           postLoadPaperActions={
             <Button
               variant="primary"

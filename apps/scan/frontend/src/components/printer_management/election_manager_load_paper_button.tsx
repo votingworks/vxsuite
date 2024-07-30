@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@votingworks/ui';
 import { getPrinterStatus, printTestPage } from '../../api';
-import { PRINTER_FLOW_STRINGS } from '../../utils/printer';
 import { PrintTestPageModal } from './print_test_page_modal';
 import { LoadPaperModal } from './load_paper_modal';
 
@@ -20,9 +19,7 @@ function ElectionManagerLoadPaperModal({
   if (printTestPageMutation.status === 'idle') {
     return (
       <LoadPaperModal
-        postLoadPaperInstructions={
-          PRINTER_FLOW_STRINGS.paperLoadedContentElectionManager
-        }
+        postLoadPaperInstructions="Paper is now loaded. To ensure the paper is correctly loaded, the printer will print a test page."
         postLoadPaperActions={
           <React.Fragment>
             <Button
