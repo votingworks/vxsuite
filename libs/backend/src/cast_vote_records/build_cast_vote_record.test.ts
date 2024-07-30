@@ -538,6 +538,7 @@ describe('buildCastVoteRecord - HMPB Ballot', () => {
     ballotMarkingMode: 'hand',
     interpretations: [interpretedHmpbPage1, interpretedHmpbPage2],
     definiteMarkThreshold,
+    includeOriginalSnapshots: true,
   });
 
   test('includes correct metadata, including sheet number as BallotSheetId', () => {
@@ -640,6 +641,7 @@ test('buildCastVoteRecord - HMPB ballot with write-in', () => {
       },
     ],
     definiteMarkThreshold,
+    includeOriginalSnapshots: true,
   });
 
   expect(castVoteRecord.BallotImage).toEqual([
@@ -689,6 +691,7 @@ test('buildCastVoteRecord - HMPB ballot with unmarked write-in', () => {
       },
     ],
     definiteMarkThreshold,
+    includeOriginalSnapshots: true,
   });
 
   const expectedFrontImageData: CVR.ImageData = {

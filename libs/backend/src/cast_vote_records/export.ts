@@ -365,8 +365,8 @@ async function buildCastVoteRecord(
     electionDefinition,
     electionId,
     electionOptionPositionMap,
-    excludeOriginalSnapshots:
-      systemSettings.castVoteRecordOptimizationExcludeOriginalSnapshots,
+    includeOriginalSnapshots:
+      systemSettings.castVoteRecordsIncludeOriginalSnapshots,
     images,
     indexInBatch,
     interpretations: [frontInterpretation, backInterpretation],
@@ -437,14 +437,14 @@ async function exportCastVoteRecordFilesToUsbDrive(
   }
 
   const castVoteRecordReportMetadata = exportContext.scannerState.systemSettings
-    .castVoteRecordOptimizationExcludeRedundantMetadata
-    ? undefined
-    : buildCastVoteRecordReportMetadata(
+    .castVoteRecordsIncludeRedundantMetadata
+    ? buildCastVoteRecordReportMetadata(
         exportContext,
         // Hide the time in the metadata for individual cast vote records so that we don't reveal the
         // order in which ballots were cast
         { hideTime: true }
-      );
+      )
+    : undefined;
   const castVoteRecord = await buildCastVoteRecord(
     exportContext,
     sheet,

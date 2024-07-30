@@ -745,16 +745,16 @@ test('exporting when no USB drive', async () => {
   ).toEqual(err({ type: 'missing-usb-drive' }));
 });
 
-test('castVoteRecordOptimizationExcludeRedundantMetadata system setting', async () => {
+test('castVoteRecordsIncludeRedundantMetadata system setting', async () => {
   const sheet = newAcceptedSheet(interpretedHmpb, sheet1Id);
   const castVoteRecords: CVR.CVR[] = [];
-  for (const isOptimizationEnabled of [true, false] as const) {
+  for (const includeRedundantMetadata of [true, false] as const) {
     mockUsbDrive.removeUsbDrive();
     mockUsbDrive.insertUsbDrive({});
 
     mockPrecinctScannerStore.setSystemSettings({
       ...assertDefined(mockPrecinctScannerStore.getSystemSettings()),
-      castVoteRecordOptimizationExcludeRedundantMetadata: isOptimizationEnabled,
+      castVoteRecordsIncludeRedundantMetadata: includeRedundantMetadata,
     });
 
     expect(
@@ -779,10 +779,10 @@ test('castVoteRecordOptimizationExcludeRedundantMetadata system setting', async 
     const numberOfKeysInCastVoteRecordReport = Object.keys(
       JSON.parse(castVoteRecordReportContents)
     ).length;
-    if (isOptimizationEnabled) {
-      expect(numberOfKeysInCastVoteRecordReport).toEqual(1);
-    } else {
+    if (includeRedundantMetadata) {
       expect(numberOfKeysInCastVoteRecordReport).toBeGreaterThan(1);
+    } else {
+      expect(numberOfKeysInCastVoteRecordReport).toEqual(1);
     }
   }
 
@@ -793,16 +793,16 @@ test('castVoteRecordOptimizationExcludeRedundantMetadata system setting', async 
   expect(castVoteRecords[0]).toEqual(castVoteRecords[1]);
 });
 
-test('castVoteRecordOptimizationExcludeOriginalSnapshots system setting', async () => {
+test('castVoteRecordsIncludeOriginalSnapshots system setting', async () => {
   const sheet = newAcceptedSheet(interpretedHmpb, sheet1Id);
   const castVoteRecords: CVR.CVR[] = [];
-  for (const isOptimizationEnabled of [true, false] as const) {
+  for (const includeOriginalSnapshots of [true, false] as const) {
     mockUsbDrive.removeUsbDrive();
     mockUsbDrive.insertUsbDrive({});
 
     mockPrecinctScannerStore.setSystemSettings({
       ...assertDefined(mockPrecinctScannerStore.getSystemSettings()),
-      castVoteRecordOptimizationExcludeOriginalSnapshots: isOptimizationEnabled,
+      castVoteRecordsIncludeOriginalSnapshots: includeOriginalSnapshots,
     });
 
     expect(
@@ -831,10 +831,10 @@ test('castVoteRecordOptimizationExcludeOriginalSnapshots system setting', async 
     const originalSnapshot = castVoteRecord.CVRSnapshot.find(
       (snapshot) => snapshot.Type === CVR.CVRType.Original
     );
-    if (isOptimizationEnabled) {
-      expect(originalSnapshot).toBeUndefined();
-    } else {
+    if (includeOriginalSnapshots) {
       expect(originalSnapshot).toBeDefined();
+    } else {
+      expect(originalSnapshot).toBeUndefined();
     }
   }
 });
