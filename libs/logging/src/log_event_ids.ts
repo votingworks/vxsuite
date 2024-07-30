@@ -136,6 +136,9 @@ export enum LogEventId {
   ReadinessReportSaved = 'readiness-report-saved',
   HeadphonesDetectionError = 'headphones-detection-errors',
   UnknownError = 'unknown-error',
+  PermissionDenied = 'permission-denied',
+  NoPid = 'no-pid',
+  ParseError = 'parse-error',
 }
 
 const ElectionConfigured: LogDetails = {
@@ -1148,6 +1151,25 @@ const UnknownError: LogDetails = {
   ],
 };
 
+const PermissionDenied: LogDetails = {
+  eventId: LogEventId.PermissionDenied,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage: 'Permission denied when performing a system action.',
+};
+
+const NoPid: LogDetails = {
+  eventId: LogEventId.NoPid,
+  eventType: LogEventType.SystemStatus,
+  documentationMessage:
+    'No PID was readable from PID file, or PID file did not exist.',
+};
+
+const ParseError: LogDetails = {
+  eventId: LogEventId.ParseError,
+  eventType: LogEventType.SystemAction,
+  documentationMessage: 'A system action failed to parse data.',
+};
+
 export function getDetailsForEventId(eventId: LogEventId): LogDetails {
   switch (eventId) {
     case LogEventId.ElectionConfigured:
@@ -1398,6 +1420,12 @@ export function getDetailsForEventId(eventId: LogEventId): LogDetails {
       return HeadphonesDetectionError;
     case LogEventId.UnknownError:
       return UnknownError;
+    case LogEventId.PermissionDenied:
+      return PermissionDenied;
+    case LogEventId.NoPid:
+      return NoPid;
+    case LogEventId.ParseError:
+      return ParseError;
     /* istanbul ignore next - compile time check for completeness */
     default:
       throwIllegalValue(eventId);

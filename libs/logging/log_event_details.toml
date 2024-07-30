@@ -755,3 +755,19 @@ restrictInDocumentationToApps = [
   "vx-mark-scan-controller-daemon",
   "vx-scan-frontend",
 ]
+
+[PermissionDenied]
+eventId = "permission-denied"
+eventType = "system-status"
+documentationMessage = "Permission denied when performing a system action."
+
+[NoPid]
+eventId = "no-pid"
+eventType = "system-status"
+documentationMessage = "No PID was readable from PID file, or PID file did not exist."
+
+[ParseError]
+eventId = "parse-error"
+eventType = "system-action"
+documentationMessage = "A system action failed to parse data."
+

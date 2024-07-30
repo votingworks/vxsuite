@@ -7,9 +7,10 @@
 //! a keypress event for consumption by the mark-scan application.
 
 use clap::Parser;
-use daemon_utils::run_no_op_event_loop;
+use daemon_utils::{run_no_op_event_loop, write_pid_file};
 use std::{
     io::{self, Read},
+    path::PathBuf,
     process::exit,
     sync::{
         atomic::{AtomicBool, Ordering},
@@ -35,6 +36,7 @@ const APP_NAME: &str = "vx-mark-scan-controller-daemon";
 const KPB_200_FW_VID: u16 = 0x28cd;
 const KPB_200_FW_PID: u16 = 0x4008;
 const STARTUP_SLEEP_DURATION: Duration = Duration::from_millis(3000);
+const PID_FILENAME: &str = "vx_accessible_controller_daemon.pid";
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -42,6 +44,10 @@ struct Args {
     /// Allow the daemon to run if no hardware is found.
     #[arg(short, long)]
     skip_hardware_check: bool,
+
+    /// Path to the directory where MarkScan's working files are stored.
+    #[arg(long, env = "MARK_SCAN_WORKSPACE")]
+    mark_scan_workspace: PathBuf,
 }
 
 fn main() -> color_eyre::Result<()> {
@@ -88,6 +94,12 @@ fn main() -> color_eyre::Result<()> {
         EventId::ControllerConnectionInit;
         EventType::SystemAction
     );
+
+    if let Err(err) = write_pid_file(&args.mark_scan_workspace, PID_FILENAME) {
+        // Graceful fallback; if PID file writing fails controller and PAT
+        // input may still work.
+        log!(EventId::Info, "Failed to write PID file: {}", err);
+    }
 
     if let Some(port) = get_port() {
         run_event_loop(keyboard, port, &running);

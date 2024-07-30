@@ -393,7 +393,7 @@ export function buildApi(
     },
 
     getIsAccessibleControllerInputDetected(): Promise<boolean> {
-      return isAccessibleControllerDaemonRunning();
+      return isAccessibleControllerDaemonRunning(workspace.path, logger);
     },
 
     saveReadinessReport(): Promise<ExportDataResult> {

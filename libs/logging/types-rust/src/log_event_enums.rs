@@ -257,4 +257,10 @@ pub enum EventId {
     HeadphonesDetectionError,
     #[serde(rename = "unknown-error")]
     UnknownError,
+    #[serde(rename = "permission-denied")]
+    PermissionDenied,
+    #[serde(rename = "no-pid")]
+    NoPid,
+    #[serde(rename = "parse-error")]
+    ParseError,
 }

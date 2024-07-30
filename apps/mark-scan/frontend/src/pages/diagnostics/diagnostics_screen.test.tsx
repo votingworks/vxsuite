@@ -2,7 +2,7 @@ import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import {
   MARK_SCAN_CONTROLLER_ILLUSTRATION_HIGHLIGHT_CLASS_NAME,
-  expectDetected,
+  expectConnected,
   expectDiagnosticResult,
   mockUsbDriveStatus,
   DiagnosticSectionTitle,
@@ -98,9 +98,9 @@ test('data from API is passed to screen contents', async () => {
   screen.getByText('Power Source: Battery');
   screen.getByText('Free Disk Space: 50% (1 GB / 2 GB)');
 
-  expectDetected(screen, DiagnosticSectionTitle.PaperHandler, true);
-  expectDetected(screen, DiagnosticSectionTitle.AccessibleController, true);
-  expectDetected(screen, DiagnosticSectionTitle.PatInput, true);
+  expectConnected(screen, DiagnosticSectionTitle.PaperHandler, true);
+  expectConnected(screen, DiagnosticSectionTitle.AccessibleController, true);
+  expectConnected(screen, DiagnosticSectionTitle.PatInput, true);
   screen.getByText('Test passed, 3/23/2022, 11:15:00 AM');
   screen.getByText('Test passed, 3/23/2022, 11:10:00 AM');
   screen.getByText('Test passed, 3/23/2022, 11:05:00 AM');
