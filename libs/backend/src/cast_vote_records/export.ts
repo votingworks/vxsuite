@@ -32,16 +32,15 @@ import {
   PageInterpretation,
   PollsState,
   SheetOf,
+  SystemSettings,
   unsafeParse,
 } from '@votingworks/types';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import {
-  BooleanEnvironmentVariableName,
   generateCastVoteRecordExportDirectoryName,
   generateElectionBasedSubfolderName,
   getCastVoteRecordExportSubDirectoryNames,
   hasWriteIns,
-  isFeatureFlagEnabled,
   SCANNER_RESULTS_FOLDER,
 } from '@votingworks/utils';
 
@@ -68,6 +67,7 @@ export interface ScannerStoreBase {
   getBatches(): BatchInfo[];
   getCastVoteRecordRootHash(): string;
   getElectionDefinition(): ElectionDefinition | undefined;
+  getSystemSettings(): SystemSettings | undefined;
   getMarkThresholds(): MarkThresholds;
   getTestMode(): boolean;
   updateCastVoteRecordHashes(
@@ -110,6 +110,7 @@ export type ScannerStore = CentralScannerStore | PrecinctScannerStore;
 interface ScannerStateUnchangedByExport {
   batches: BatchInfo[];
   electionDefinition: ElectionDefinition;
+  systemSettings: SystemSettings;
   inTestMode: boolean;
   markThresholds: MarkThresholds;
   pollsState?: PollsState;
@@ -314,7 +315,7 @@ async function buildCastVoteRecord(
   }
 ): Promise<CVR.CVR> {
   const { scannerState } = exportContext;
-  const { electionDefinition, markThresholds } = scannerState;
+  const { electionDefinition, systemSettings, markThresholds } = scannerState;
   const { election, ballotHash: electionId } = electionDefinition;
   const electionOptionPositionMap = buildElectionOptionPositionMap(election);
   const scannerId = VX_MACHINE_ID;
@@ -364,9 +365,8 @@ async function buildCastVoteRecord(
     electionDefinition,
     electionId,
     electionOptionPositionMap,
-    excludeOriginalSnapshots: isFeatureFlagEnabled(
-      BooleanEnvironmentVariableName.CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_ORIGINAL_SNAPSHOTS
-    ),
+    includeOriginalSnapshots:
+      systemSettings.castVoteRecordsIncludeOriginalSnapshots,
     images,
     indexInBatch,
     interpretations: [frontInterpretation, backInterpretation],
@@ -436,16 +436,15 @@ async function exportCastVoteRecordFilesToUsbDrive(
     }
   }
 
-  const castVoteRecordReportMetadata = isFeatureFlagEnabled(
-    BooleanEnvironmentVariableName.CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_REDUNDANT_METADATA
-  )
-    ? undefined
-    : buildCastVoteRecordReportMetadata(
+  const castVoteRecordReportMetadata = exportContext.scannerState.systemSettings
+    .castVoteRecordsIncludeRedundantMetadata
+    ? buildCastVoteRecordReportMetadata(
         exportContext,
         // Hide the time in the metadata for individual cast vote records so that we don't reveal the
         // order in which ballots were cast
         { hideTime: true }
-      );
+      )
+    : undefined;
   const castVoteRecord = await buildCastVoteRecord(
     exportContext,
     sheet,
@@ -679,6 +678,7 @@ export async function exportCastVoteRecordsToUsbDrive(
     scannerState: {
       batches: scannerStore.getBatches(),
       electionDefinition: assertDefined(scannerStore.getElectionDefinition()),
+      systemSettings: assertDefined(scannerStore.getSystemSettings()),
       inTestMode: scannerStore.getTestMode(),
       markThresholds: scannerStore.getMarkThresholds(),
       pollsState:

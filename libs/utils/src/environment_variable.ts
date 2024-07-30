@@ -50,16 +50,6 @@ export enum BooleanEnvironmentVariableName {
    */
   SKIP_CAST_VOTE_RECORDS_AUTHENTICATION = 'REACT_APP_VX_SKIP_CAST_VOTE_RECORDS_AUTHENTICATION',
   /**
-   * Excludes original snapshots in cast vote record reports, decreasing export size and
-   * import/export time
-   */
-  CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_ORIGINAL_SNAPSHOTS = 'REACT_APP_VX_CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_ORIGINAL_SNAPSHOTS',
-  /**
-   * Excludes redundant metadata in cast vote record reports, decreasing export size and
-   * import/export time
-   */
-  CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_REDUNDANT_METADATA = 'REACT_APP_VX_CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_REDUNDANT_METADATA',
-  /**
    * Disables the ballot box check on VxMarkScan. If false, the app will block until the ballot
    * box is attached
    */
@@ -158,12 +148,6 @@ export function getEnvironmentVariable(
       return process.env.REACT_APP_VX_SKIP_ELECTION_PACKAGE_AUTHENTICATION;
     case BooleanEnvironmentVariableName.SKIP_CAST_VOTE_RECORDS_AUTHENTICATION:
       return process.env.REACT_APP_VX_SKIP_CAST_VOTE_RECORDS_AUTHENTICATION;
-    case BooleanEnvironmentVariableName.CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_ORIGINAL_SNAPSHOTS:
-      return process.env
-        .REACT_APP_VX_CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_ORIGINAL_SNAPSHOTS;
-    case BooleanEnvironmentVariableName.CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_REDUNDANT_METADATA:
-      return process.env
-        .REACT_APP_VX_CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_REDUNDANT_METADATA;
     case StringEnvironmentVariableName.CONVERTER:
       return process.env.REACT_APP_VX_CONVERTER;
     case BooleanEnvironmentVariableName.DISABLE_BALLOT_BOX_CHECK:
@@ -264,18 +248,6 @@ export function getBooleanEnvVarConfig(
         name,
         allowInProduction: false,
         autoEnableInDevelopment: false,
-      };
-    case BooleanEnvironmentVariableName.CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_ORIGINAL_SNAPSHOTS:
-      return {
-        name,
-        allowInProduction: true,
-        autoEnableInDevelopment: true,
-      };
-    case BooleanEnvironmentVariableName.CAST_VOTE_RECORD_OPTIMIZATION_EXCLUDE_REDUNDANT_METADATA:
-      return {
-        name,
-        allowInProduction: true,
-        autoEnableInDevelopment: true,
       };
     case BooleanEnvironmentVariableName.DISABLE_BALLOT_BOX_CHECK:
       return {
