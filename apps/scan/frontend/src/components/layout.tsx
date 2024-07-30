@@ -11,6 +11,7 @@ import {
 } from '@votingworks/ui';
 import styled, { DefaultTheme, ThemeContext } from 'styled-components';
 import { SizeMode } from '@votingworks/types';
+import { assertDefined } from '@votingworks/basics';
 import { getConfig, getMachineConfig, getScannerStatus } from '../api';
 import { ScannedBallotCount } from './scanned_ballot_count';
 import { VoterSettingsButton } from './voter_settings_button';
@@ -110,7 +111,8 @@ export function Screen(props: ScreenProps): JSX.Element | null {
   }
 
   const { codeVersion, machineId } = machineConfigQuery.data;
-  const { electionDefinition, precinctSelection } = configQuery.data;
+  const { electionDefinition, electionPackageHash, precinctSelection } =
+    configQuery.data;
   const ballotCount =
     ballotCountOverride ?? scannerStatusQuery.data?.ballotsCounted;
 
@@ -144,6 +146,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
           mode={infoBarMode}
           precinctSelection={precinctSelection}
           electionDefinition={electionDefinition}
+          electionPackageHash={assertDefined(electionPackageHash)}
           codeVersion={codeVersion}
           machineId={machineId}
         />

@@ -5167,15 +5167,15 @@ importers:
       js-sha256:
         specifier: ^0.9.0
         version: 0.9.0
+      jszip:
+        specifier: ^3.9.1
+        version: 3.9.1
       luxon:
         specifier: ^3.0.0
         version: 3.3.0
       react:
         specifier: 18.3.1
         version: 18.3.1
-      zip-stream:
-        specifier: ^4.1.0
-        version: 4.1.0
     devDependencies:
       '@types/jest':
         specifier: ^29.5.3

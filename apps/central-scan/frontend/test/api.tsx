@@ -97,10 +97,13 @@ export function createApiMock(
         .resolves(systemSettings ?? DEFAULT_SYSTEM_SETTINGS);
     },
 
-    expectGetElectionDefinition(electionDefinition: ElectionDefinition | null) {
-      apiClient.getElectionDefinition
-        .expectRepeatedCallsWith()
-        .resolves(electionDefinition);
+    expectGetElectionRecord(electionDefinition: ElectionDefinition | null) {
+      apiClient.getElectionRecord.expectRepeatedCallsWith().resolves(
+        electionDefinition && {
+          electionDefinition,
+          electionPackageHash: 'test-election-package-hash',
+        }
+      );
     },
 
     expectGetTestMode(testMode: boolean) {

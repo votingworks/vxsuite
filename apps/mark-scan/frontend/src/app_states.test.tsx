@@ -25,7 +25,7 @@ beforeEach(() => {
   apiMock = createApiMock();
 
   apiMock.expectGetMachineConfig();
-  apiMock.expectGetElectionDefinition(electionDefinition);
+  apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
   });

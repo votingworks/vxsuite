@@ -6,6 +6,7 @@ import {
   DiskSpaceSummary,
   readSignedElectionPackageFromUsb,
   exportCastVoteRecordsToUsbDrive,
+  ElectionRecord,
 } from '@votingworks/backend';
 import {
   ElectionPackageConfigurationError,
@@ -156,11 +157,16 @@ function buildApi({
         return electionPackageResult;
       }
       assert(isElectionManagerAuth(authStatus));
-      const electionPackage = electionPackageResult.ok();
+      const { electionPackage, electionPackageHash } =
+        electionPackageResult.ok();
       const { electionDefinition, systemSettings } = electionPackage;
       assert(systemSettings);
 
-      importer.configure(electionDefinition, authStatus.user.jurisdiction);
+      importer.configure(
+        electionDefinition,
+        authStatus.user.jurisdiction,
+        electionPackageHash
+      );
       store.setSystemSettings(systemSettings);
 
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {
@@ -176,8 +182,8 @@ function buildApi({
       return workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
     },
 
-    getElectionDefinition(): ElectionDefinition | null {
-      return store.getElectionDefinition() || null;
+    getElectionRecord(): ElectionRecord | null {
+      return store.getElectionRecord() || null;
     },
 
     getStatus(): ScanStatus {

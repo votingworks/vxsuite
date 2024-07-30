@@ -48,6 +48,7 @@ import {
   ElectionPackageWithFileContents,
   ExportDataError,
   createSystemCallApi,
+  readElectionPackageFromBuffer,
   readElectionPackageFromFile,
 } from '@votingworks/backend';
 import {
@@ -390,62 +391,62 @@ function buildApi({
         'Can only import election packages from removable media in production'
       );
 
-      let electionPackage: ElectionPackageWithFileContents;
-      if (input.electionFilePath.endsWith('.json')) {
-        const electionDefinitionResult = await readElection(
-          input.electionFilePath
-        );
-        if (electionDefinitionResult.isErr()) {
-          return err({
-            type: 'invalid-election',
-            message: electionDefinitionResult.err().toString(),
+      const electionPackageResult: Result<
+        ElectionPackageWithFileContents,
+        ElectionPackageError
+      > = await (async () => {
+        if (input.electionFilePath.endsWith('.json')) {
+          const electionDefinitionResult = await readElection(
+            input.electionFilePath
+          );
+          if (electionDefinitionResult.isErr()) {
+            return err({
+              type: 'invalid-election',
+              message: electionDefinitionResult.err().toString(),
+            });
+          }
+          const electionDefinition = electionDefinitionResult.ok();
+          const systemSettings = DEFAULT_SYSTEM_SETTINGS;
+
+          const zipStream = new ZipStream();
+          const zipPromise = deferred<void>();
+          const chunks: Buffer[] = [];
+          zipStream.on('error', zipPromise.reject);
+          zipStream.on('end', zipPromise.resolve);
+          zipStream.on('data', (chunk) => {
+            assert(Buffer.isBuffer(chunk));
+            chunks.push(chunk);
           });
+          await addFileToZipStream(zipStream, {
+            path: ElectionPackageFileName.ELECTION,
+            contents: electionDefinition.electionData,
+          });
+          await addFileToZipStream(zipStream, {
+            path: ElectionPackageFileName.SYSTEM_SETTINGS,
+            contents: JSON.stringify(systemSettings, null, 2),
+          });
+          zipStream.finish();
+          await zipPromise.promise;
+          const fileContents = Buffer.concat(chunks);
+          const result = await readElectionPackageFromBuffer(fileContents);
+          /* c8 ignore next */
+          return result.isErr() ? result : ok({ ...result.ok(), fileContents });
         }
-        const electionDefinition = electionDefinitionResult.ok();
-        const systemSettings = DEFAULT_SYSTEM_SETTINGS;
+        return await readElectionPackageFromFile(input.electionFilePath);
+      })();
 
-        const zipStream = new ZipStream();
-        const zipPromise = deferred<void>();
-        const chunks: Buffer[] = [];
-        zipStream.on('error', zipPromise.reject);
-        zipStream.on('end', zipPromise.resolve);
-        zipStream.on('data', (chunk) => {
-          assert(Buffer.isBuffer(chunk));
-          chunks.push(chunk);
-        });
-        await addFileToZipStream(zipStream, {
-          path: ElectionPackageFileName.ELECTION,
-          contents: electionDefinition.electionData,
-        });
-        await addFileToZipStream(zipStream, {
-          path: ElectionPackageFileName.SYSTEM_SETTINGS,
-          contents: JSON.stringify(systemSettings, null, 2),
-        });
-        zipStream.finish();
-        await zipPromise.promise;
-        const fileContents = Buffer.concat(chunks);
-
-        electionPackage = {
-          electionDefinition,
-          systemSettings,
-          fileContents,
-        };
-      } else {
-        const electionPackageResult = await readElectionPackageFromFile(
-          input.electionFilePath
-        );
-        if (electionPackageResult.isErr()) {
-          return electionPackageResult;
-        }
-        electionPackage = electionPackageResult.ok();
+      if (electionPackageResult.isErr()) {
+        return electionPackageResult;
       }
+      const { electionPackage, electionPackageHash, fileContents } =
+        electionPackageResult.ok();
 
-      const { electionDefinition, systemSettings, fileContents } =
-        electionPackage;
+      const { electionDefinition, systemSettings } = electionPackage;
       const electionId = store.addElection({
         electionData: electionDefinition.electionData,
         systemSettingsData: JSON.stringify(systemSettings),
         electionPackageFileContents: fileContents,
+        electionPackageHash,
       });
       store.setCurrentElectionId(electionId);
       await logger.logAsCurrentRole(LogEventId.ElectionConfigured, {

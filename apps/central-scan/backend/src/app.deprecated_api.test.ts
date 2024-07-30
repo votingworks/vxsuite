@@ -49,6 +49,7 @@ beforeEach(() => {
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .electionData,
     jurisdiction,
+    electionPackageHash: 'test-election-package-hash',
   });
   workspace.store.setTestMode(false);
   workspace.store.setSystemSettings(DEFAULT_SYSTEM_SETTINGS);

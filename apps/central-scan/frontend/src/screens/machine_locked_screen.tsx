@@ -10,6 +10,7 @@ import {
 import { useContext } from 'react';
 import styled from 'styled-components';
 
+import { assertDefined } from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context';
 
 const LockedImage = styled.img`
@@ -20,7 +21,8 @@ const LockedImage = styled.img`
 `;
 
 export function MachineLockedScreen(): JSX.Element {
-  const { electionDefinition, machineConfig } = useContext(AppContext);
+  const { electionDefinition, electionPackageHash, machineConfig } =
+    useContext(AppContext);
   return (
     <Screen>
       <Main padded centerChild>
@@ -45,6 +47,7 @@ export function MachineLockedScreen(): JSX.Element {
         <ElectionInfoBar
           mode="admin"
           electionDefinition={electionDefinition}
+          electionPackageHash={assertDefined(electionPackageHash)}
           codeVersion={machineConfig.codeVersion}
           machineId={machineConfig.machineId}
         />

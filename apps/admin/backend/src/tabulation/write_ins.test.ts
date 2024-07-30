@@ -153,6 +153,7 @@ test('tabulateWriteInTallies', () => {
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
 

@@ -38,7 +38,7 @@ test('Insert Card screen idle timeout to quit app', async () => {
     machineId: '0000',
   });
 
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',
@@ -60,7 +60,7 @@ test('Insert Card screen idle timeout to quit app', async () => {
 
 test('Voter idle timeout', async () => {
   apiMock.expectGetMachineConfig();
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
     pollsState: 'polls_open',

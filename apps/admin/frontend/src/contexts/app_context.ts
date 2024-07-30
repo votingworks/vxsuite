@@ -7,6 +7,7 @@ import { Iso8601Timestamp } from '../config/types';
 
 export interface AppContextInterface {
   electionDefinition?: ElectionDefinition;
+  electionPackageHash?: string;
   configuredAt?: Iso8601Timestamp;
   isOfficialResults: boolean;
   usbDriveStatus: UsbDriveStatus;
@@ -16,6 +17,7 @@ export interface AppContextInterface {
 
 const appContext: AppContextInterface = {
   electionDefinition: undefined,
+  electionPackageHash: undefined,
   configuredAt: undefined,
   isOfficialResults: false,
   usbDriveStatus: mockUsbDriveStatus('no_drive'),

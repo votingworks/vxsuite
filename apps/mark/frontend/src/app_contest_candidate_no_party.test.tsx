@@ -38,7 +38,7 @@ beforeEach(() => {
   jest.useFakeTimers();
   apiMock = createApiMock();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(
+  apiMock.expectGetElectionRecord(
     asElectionDefinition(electionWithNoPartyCandidateContests)
   );
 });

@@ -46,6 +46,7 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 });
 
 const jurisdiction = TEST_JURISDICTION;
+const electionPackageHash = 'test-election-package-hash';
 
 const testMetadata: BallotMetadata = {
   ballotStyleId: '12',
@@ -113,7 +114,7 @@ function sortSheets(sheets: Sheet[]): Sheet[] {
 test('get/set election', () => {
   const store = Store.memoryStore();
 
-  expect(store.getElectionDefinition()).toBeUndefined();
+  expect(store.getElectionRecord()).toBeUndefined();
   expect(store.hasElection()).toBeFalsy();
 
   store.setElectionAndJurisdiction({
@@ -121,14 +122,17 @@ test('get/set election', () => {
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .electionData,
     jurisdiction,
+    electionPackageHash,
   });
-  expect(store.getElectionDefinition()?.election).toEqual(
-    electionGridLayoutNewHampshireTestBallotFixtures.election
-  );
+  expect(store.getElectionRecord()).toEqual({
+    electionDefinition:
+      electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition,
+    electionPackageHash,
+  });
   expect(store.hasElection()).toBeTruthy();
 
   store.setElectionAndJurisdiction(undefined);
-  expect(store.getElectionDefinition()).toBeUndefined();
+  expect(store.getElectionRecord()).toBeUndefined();
 });
 
 test('get/set system settings', () => {
@@ -155,6 +159,7 @@ test('get/set test mode', () => {
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .electionData,
     jurisdiction,
+    electionPackageHash,
   });
 
   // After setting an election
@@ -179,6 +184,7 @@ test('get/set is sounds muted mode', () => {
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .electionData,
     jurisdiction,
+    electionPackageHash,
   });
 
   // After setting an election
@@ -203,6 +209,7 @@ test('get/set is double feed detection disabled mode', () => {
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .electionData,
     jurisdiction,
+    electionPackageHash,
   });
 
   // After setting an election
@@ -229,6 +236,7 @@ test('get/set ballot count when ballot bag last replaced', () => {
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .electionData,
     jurisdiction,
+    electionPackageHash,
   });
 
   // After setting an election
@@ -252,6 +260,7 @@ test('get/set precinct selection', () => {
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .electionData,
     jurisdiction,
+    electionPackageHash,
   });
 
   // After setting an election
@@ -280,6 +289,7 @@ test('get/set polls state', () => {
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .electionData,
     jurisdiction,
+    electionPackageHash,
   });
 
   // After setting an election
@@ -404,6 +414,7 @@ test('adjudication', () => {
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .electionData,
     jurisdiction,
+    electionPackageHash,
   });
   function mockPage(i: 0 | 1): PageInterpretationWithFiles {
     const metadata: BallotMetadata = {
@@ -508,6 +519,7 @@ test('iterating over sheets', () => {
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .electionData,
     jurisdiction,
+    electionPackageHash,
   });
 
   expect(Array.from(store.forEachAcceptedSheet())).toEqual([]);
@@ -627,6 +639,7 @@ test('resetElectionSession', async () => {
       electionGridLayoutNewHampshireTestBallotFixtures.electionDefinition
         .electionData,
     jurisdiction,
+    electionPackageHash,
   });
   const mockUsbDrive = createMockUsbDrive();
   mockUsbDrive.insertUsbDrive({});

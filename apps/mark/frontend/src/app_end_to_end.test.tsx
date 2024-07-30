@@ -51,7 +51,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   const expectedBallotHash = electionDefinition.ballotHash.substring(0, 10);
   const reload = jest.fn();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
   render(
     <App reload={reload} logger={logger} apiClient={apiMock.mockApiClient} />
@@ -324,7 +324,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   // Unconfigure the machine
   apiMock.expectUnconfigureMachine();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
   userEvent.click(screen.getByText('Unconfigure Machine'));
   userEvent.click(screen.getButton('Yes, Delete Election Data'));
@@ -358,7 +358,7 @@ test('MarkAndPrint end-to-end flow', async () => {
   const modal = await screen.findByRole('alertdialog');
   apiMock.expectUnconfigureMachine();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
   userEvent.click(
     within(modal).getByRole('button', {

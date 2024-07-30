@@ -24,6 +24,7 @@ test('tabulateScannedCardCounts - grouping', () => {
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
 
@@ -175,6 +176,7 @@ test('tabulateScannedCardCounts - merging card tallies', () => {
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
 
@@ -243,6 +245,7 @@ test('tabulateFullCardCounts - manual results', () => {
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
 
@@ -381,6 +384,7 @@ test('tabulateFullCardCounts - blankBallots', () => {
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
 

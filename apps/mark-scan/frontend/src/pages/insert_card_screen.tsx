@@ -23,6 +23,7 @@ import { throwIllegalValue } from '@votingworks/basics';
 interface Props {
   appPrecinct: PrecinctSelection;
   electionDefinition: ElectionDefinition;
+  electionPackageHash: string;
   showNoChargerAttachedWarning: boolean;
   isLiveMode: boolean;
   pollsState: PollsState;
@@ -31,6 +32,7 @@ interface Props {
 export function InsertCardScreen({
   appPrecinct,
   electionDefinition,
+  electionPackageHash,
   showNoChargerAttachedWarning,
   isLiveMode,
   pollsState,
@@ -86,6 +88,7 @@ export function InsertCardScreen({
       </Main>
       <ElectionInfoBar
         electionDefinition={electionDefinition}
+        electionPackageHash={electionPackageHash}
         precinctSelection={appPrecinct}
       />
     </Screen>

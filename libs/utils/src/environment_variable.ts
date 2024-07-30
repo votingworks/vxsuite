@@ -37,7 +37,7 @@ export enum BooleanEnvironmentVariableName {
    */
   USE_MOCK_PRINTER = 'REACT_APP_VX_USE_MOCK_PRINTER',
   /**
-   * Skips election hash checks when importing CVRs to allow using old fixtures
+   * Skips ballot hash checks when importing CVRs to allow using old fixtures
    * in development even as their respective election definitions change.
    */
   SKIP_CVR_BALLOT_HASH_CHECK = 'REACT_APP_VX_SKIP_CVR_BALLOT_HASH_CHECK',

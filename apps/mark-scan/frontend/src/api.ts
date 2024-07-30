@@ -87,13 +87,13 @@ export const getMachineConfig = {
   },
 } as const;
 
-export const getElectionDefinition = {
+export const getElectionRecord = {
   queryKey(): QueryKey {
-    return ['getElectionDefinition'];
+    return ['getElectionRecord'];
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getElectionDefinition());
+    return useQuery(this.queryKey(), () => apiClient.getElectionRecord());
   },
 } as const;
 
@@ -310,7 +310,7 @@ export const configureElectionPackageFromUsb = {
     const queryClient = useQueryClient();
     return useMutation(() => apiClient.configureElectionPackageFromUsb(), {
       async onSuccess() {
-        await queryClient.invalidateQueries(getElectionDefinition.queryKey());
+        await queryClient.invalidateQueries(getElectionRecord.queryKey());
         await queryClient.invalidateQueries(getSystemSettings.queryKey());
         await queryClient.invalidateQueries(getElectionState.queryKey());
         await uiStringsApi.onMachineConfigurationChange(queryClient);
@@ -325,7 +325,7 @@ export const unconfigureMachine = {
     const queryClient = useQueryClient();
     return useMutation(() => apiClient.unconfigureMachine(), {
       async onSuccess() {
-        await queryClient.invalidateQueries(getElectionDefinition.queryKey());
+        await queryClient.invalidateQueries(getElectionRecord.queryKey());
         await queryClient.invalidateQueries(getSystemSettings.queryKey());
         await queryClient.invalidateQueries(getElectionState.queryKey());
         await uiStringsApi.onMachineConfigurationChange(queryClient);

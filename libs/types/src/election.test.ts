@@ -9,7 +9,7 @@ import {
   getContestDistrictName,
   getContests,
   getContestsFromIds,
-  getDisplayBallotHash,
+  formatBallotHash,
   getDistrictIdsForPartyId,
   getPartyAbbreviationByPartyId,
   getPartyFullNameFromBallotStyle,
@@ -22,6 +22,8 @@ import {
   isVotePresent,
   validateVotes,
   vote,
+  formatElectionPackageHash,
+  formatElectionHashes,
 } from './election_utils';
 import {
   election,
@@ -525,13 +527,24 @@ test('BallotStyleSchema with ballot style languages', () => {
   ).toEqual(ballotStyle);
 });
 
-test('getDisplayBallotHash', () => {
+test('formatBallotHash', () => {
   const electionDefinition = safeParseElectionDefinition(
     JSON.stringify(election)
   ).unsafeUnwrap();
   expect(electionDefinition.ballotHash).toContain(
-    getDisplayBallotHash(electionDefinition)
+    formatBallotHash(electionDefinition.ballotHash)
   );
+  expect(formatBallotHash('1234567890abcdef')).toEqual('1234567');
+});
+
+test('formatElectionPackageHash', () => {
+  expect(formatElectionPackageHash('1234567890abcdef')).toEqual('1234567');
+});
+
+test('formatElectionHashes', () => {
+  expect(
+    formatElectionHashes('00000000000000000000', '11111111111111111111')
+  ).toEqual('0000000-1111111');
 });
 
 test('safeParseElection converts CDF to VXF', () => {

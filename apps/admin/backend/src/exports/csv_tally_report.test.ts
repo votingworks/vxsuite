@@ -19,6 +19,7 @@ test('uses appropriate headers', async () => {
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
 
@@ -234,6 +235,7 @@ test('includes rows for empty but known result groups', async () => {
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
 
@@ -258,6 +260,7 @@ test('included contests are specific to each results group', async () => {
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
 
@@ -295,6 +298,7 @@ test('included contests are restricted by the overall export filter', async () =
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
 
@@ -323,6 +327,7 @@ test('does not include results groups when they are excluded by the filter', asy
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
 
@@ -366,6 +371,7 @@ test('incorporates manual data', async () => {
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
 
@@ -466,6 +472,7 @@ test('separate rows for manual data when grouping by an incompatible dimension',
     electionData,
     systemSettingsData: JSON.stringify(DEFAULT_SYSTEM_SETTINGS),
     electionPackageFileContents: Buffer.of(),
+    electionPackageHash: 'test-election-package-hash',
   });
   store.setCurrentElectionId(electionId);
 

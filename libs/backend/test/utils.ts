@@ -17,6 +17,7 @@ import {
 import { FileSystemEntryType, listDirectoryRecursive } from '@votingworks/fs';
 import {
   CentralScannerStore,
+  ElectionRecord,
   PrecinctScannerStore,
   ScannerStoreBase,
 } from '../src/cast_vote_records/export';
@@ -49,8 +50,13 @@ class MockScannerStoreBase implements ScannerStoreBase {
     return getCastVoteRecordRootHash(this.client);
   }
 
-  getElectionDefinition(): ElectionDefinition | undefined {
-    return this.electionDefinition;
+  getElectionRecord(): ElectionRecord | undefined {
+    return (
+      this.electionDefinition && {
+        electionDefinition: this.electionDefinition,
+        electionPackageHash: 'test-election-package-hash',
+      }
+    );
   }
 
   getSystemSettings(): SystemSettings | undefined {

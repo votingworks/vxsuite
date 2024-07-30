@@ -24,6 +24,8 @@ import {
   LanguageCode,
   SystemSettings,
   UiStringsPackage,
+  formatBallotHash,
+  formatElectionPackageHash,
   mergeUiStrings,
 } from '@votingworks/types';
 import {
@@ -45,6 +47,7 @@ import {
   vxDefaultBallotTemplate,
 } from '@votingworks/hmpb';
 import {
+  ELECTION_PACKAGE_FILE_NAME_REGEX,
   exportElectionPackage,
   isMockCloudSynthesizedSpeech,
   mockCloudTranslatedText,
@@ -370,7 +373,7 @@ test('Election package management', async () => {
       startedAt: expect.any(Date),
       taskName: 'generate_election_package',
     },
-    url: expect.stringMatching(/.*\/election-package-[0-9a-z]{10}\.zip$/),
+    url: expect.stringMatching(ELECTION_PACKAGE_FILE_NAME_REGEX),
   });
 
   // Check that initiating an export after a prior has completed does trigger a new background task
@@ -387,7 +390,7 @@ test('Election package management', async () => {
       payload: expectedPayload,
       taskName: 'generate_election_package',
     },
-    url: expect.stringMatching(/.*\/election-package-[0-9a-z]{10}\.zip$/),
+    url: expect.stringMatching(ELECTION_PACKAGE_FILE_NAME_REGEX),
   });
   const secondTaskId = assertDefined(
     electionPackageAfterInitiatingSecondExport.task
@@ -436,6 +439,9 @@ test('Election package export', async () => {
     electionSerializationFormat: 'vxf',
   });
 
+  const { electionPackage, electionPackageHash } = (
+    await readElectionPackageFromFile(electionPackageFilePath)
+  ).unsafeUnwrap();
   const {
     electionDefinition,
     metadata,
@@ -443,14 +449,21 @@ test('Election package export', async () => {
     uiStringAudioClips,
     uiStringAudioIds,
     uiStrings,
-  } = (
-    await readElectionPackageFromFile(electionPackageFilePath)
-  ).unsafeUnwrap();
+  } = electionPackage;
   assert(metadata !== undefined);
   assert(systemSettings !== undefined);
   assert(uiStringAudioClips !== undefined);
   assert(uiStringAudioIds !== undefined);
   assert(uiStrings !== undefined);
+
+  const [, ballotHashFromFileName, electionPackageHashFromFileName] =
+    electionPackageFilePath.match(ELECTION_PACKAGE_FILE_NAME_REGEX)!;
+  expect(electionPackageHashFromFileName).toEqual(
+    formatElectionPackageHash(electionPackageHash)
+  );
+  expect(ballotHashFromFileName).toEqual(
+    formatBallotHash(electionDefinition.ballotHash)
+  );
 
   //
   // Check metadata
@@ -768,7 +781,7 @@ test('Export test decks', async () => {
     expectedBallotProps,
     'vxf'
   );
-}, 30_000);
+});
 
 test('Consistency of ballot hash across exports', async () => {
   // This test runs unnecessarily long if we're generating exports for all
@@ -805,7 +818,7 @@ test('Consistency of ballot hash across exports', async () => {
   });
   const { electionDefinition } = (
     await readElectionPackageFromFile(electionPackageFilePath)
-  ).unsafeUnwrap();
+  ).unsafeUnwrap().electionPackage;
 
   expect([
     ...new Set([
@@ -851,7 +864,7 @@ test('CDF exports', async () => {
   });
   const { electionDefinition } = (
     await readElectionPackageFromFile(electionPackageFilePath)
-  ).unsafeUnwrap();
+  ).unsafeUnwrap().electionPackage;
   expect(electionDefinition.electionData).toMatch(
     /"@type": "BallotDefinition.BallotDefinition"/
   );

@@ -27,7 +27,7 @@ const PageLayout = styled.div`
 `;
 
 export function DiagnosticsScreen(): JSX.Element {
-  const { electionDefinition } = useContext(AppContext);
+  const { electionDefinition, electionPackageHash } = useContext(AppContext);
   const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
   const printerStatusQuery = getPrinterStatus.useQuery();
   const diskSpaceQuery = getApplicationDiskSpaceSummary.useQuery();
@@ -64,6 +64,7 @@ export function DiagnosticsScreen(): JSX.Element {
             printerStatus={printerStatus}
             mostRecentPrinterDiagnostic={mostRecentPrinterDiagnostic}
             electionDefinition={electionDefinition}
+            electionPackageHash={electionPackageHash}
           />
           <PrintTestPageButton />
         </div>

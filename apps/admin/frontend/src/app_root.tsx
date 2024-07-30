@@ -13,9 +13,6 @@ export function AppRoot(): JSX.Element | null {
   const getMachineConfigQuery = getMachineConfig.useQuery();
   const currentElectionMetadataQuery = getCurrentElectionMetadata.useQuery();
 
-  const electionDefinition =
-    currentElectionMetadataQuery.data?.electionDefinition;
-
   if (
     !authStatusQuery.isSuccess ||
     !usbDriveStatusQuery.isSuccess ||
@@ -26,17 +23,25 @@ export function AppRoot(): JSX.Element | null {
   }
 
   const usbDriveStatus = usbDriveStatusQuery.data;
+  const machineConfig = getMachineConfigQuery.data;
+  const auth = authStatusQuery.data;
+  const {
+    electionDefinition,
+    electionPackageHash,
+    isOfficialResults = false,
+    createdAt: configuredAt,
+  } = currentElectionMetadataQuery.data ?? {};
 
   return (
     <AppContext.Provider
       value={{
         electionDefinition,
-        configuredAt: currentElectionMetadataQuery.data?.createdAt,
-        isOfficialResults:
-          currentElectionMetadataQuery.data?.isOfficialResults ?? false,
+        electionPackageHash,
+        configuredAt,
+        isOfficialResults,
         usbDriveStatus,
-        auth: authStatusQuery.data,
-        machineConfig: getMachineConfigQuery.data,
+        auth,
+        machineConfig,
       }}
     >
       <AppRoutes />

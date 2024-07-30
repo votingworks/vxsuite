@@ -9,6 +9,7 @@ import {
   VerticalElectionInfoBar,
 } from '@votingworks/ui';
 
+import { assertDefined } from '@votingworks/basics';
 import { AppContext } from '../contexts/app_context';
 
 export interface SidebarProps {
@@ -24,7 +25,8 @@ export function Sidebar(props: SidebarProps): JSX.Element {
   const { navItems } = props;
   const currentRoute = useRouteMatch();
 
-  const { electionDefinition, machineConfig } = React.useContext(AppContext);
+  const { electionDefinition, electionPackageHash, machineConfig } =
+    React.useContext(AppContext);
 
   function isActivePath(path: string): boolean {
     return currentRoute.path.startsWith(path);
@@ -49,6 +51,7 @@ export function Sidebar(props: SidebarProps): JSX.Element {
           <VerticalElectionInfoBar
             mode="admin"
             electionDefinition={electionDefinition}
+            electionPackageHash={assertDefined(electionPackageHash)}
             codeVersion={machineConfig.codeVersion}
             machineId={machineConfig.machineId}
             inverse

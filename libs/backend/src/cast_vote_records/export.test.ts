@@ -997,9 +997,9 @@ test.each<{
 );
 
 test('doesUsbDriveRequireCastVoteRecordSync caching works', async () => {
-  const getElectionDefinitionSpy = jest.spyOn(
+  const getElectionRecordSpy = jest.spyOn(
     mockPrecinctScannerStore,
-    'getElectionDefinition'
+    'getElectionRecord'
   );
 
   mockUsbDrive.insertUsbDrive({});
@@ -1011,8 +1011,8 @@ test('doesUsbDriveRequireCastVoteRecordSync caching works', async () => {
       usbDriveStatus
     )
   ).toEqual(false);
-  expect(getElectionDefinitionSpy).toHaveBeenCalledTimes(1);
-  getElectionDefinitionSpy.mockClear();
+  expect(getElectionRecordSpy).toHaveBeenCalledTimes(1);
+  getElectionRecordSpy.mockClear();
 
   expect(
     await doesUsbDriveRequireCastVoteRecordSync(
@@ -1020,13 +1020,13 @@ test('doesUsbDriveRequireCastVoteRecordSync caching works', async () => {
       usbDriveStatus
     )
   ).toEqual(false);
-  expect(getElectionDefinitionSpy).not.toHaveBeenCalled();
+  expect(getElectionRecordSpy).not.toHaveBeenCalled();
 });
 
 test('change in USB drive status clears doesUsbDriveRequireCastVoteRecordSync cache', async () => {
-  const getElectionDefinitionSpy = jest.spyOn(
+  const getElectionRecordSpy = jest.spyOn(
     mockPrecinctScannerStore,
-    'getElectionDefinition'
+    'getElectionRecord'
   );
 
   mockUsbDrive.insertUsbDrive({});
@@ -1038,8 +1038,8 @@ test('change in USB drive status clears doesUsbDriveRequireCastVoteRecordSync ca
       usbDriveStatus
     )
   ).toEqual(false);
-  expect(getElectionDefinitionSpy).toHaveBeenCalledTimes(1);
-  getElectionDefinitionSpy.mockClear();
+  expect(getElectionRecordSpy).toHaveBeenCalledTimes(1);
+  getElectionRecordSpy.mockClear();
 
   mockUsbDrive.removeUsbDrive();
   usbDriveStatus = await mockUsbDrive.usbDrive.status();
@@ -1050,7 +1050,7 @@ test('change in USB drive status clears doesUsbDriveRequireCastVoteRecordSync ca
       usbDriveStatus
     )
   ).toEqual(false);
-  expect(getElectionDefinitionSpy).not.toHaveBeenCalled();
+  expect(getElectionRecordSpy).not.toHaveBeenCalled();
 
   mockUsbDrive.insertUsbDrive({});
   usbDriveStatus = await mockUsbDrive.usbDrive.status();
@@ -1061,7 +1061,7 @@ test('change in USB drive status clears doesUsbDriveRequireCastVoteRecordSync ca
       usbDriveStatus
     )
   ).toEqual(false);
-  expect(getElectionDefinitionSpy).toHaveBeenCalledTimes(1);
+  expect(getElectionRecordSpy).toHaveBeenCalledTimes(1);
 });
 
 test('full cast vote record export on precinct scanner clears doesUsbDriveRequireCastVoteRecordSync cache', async () => {

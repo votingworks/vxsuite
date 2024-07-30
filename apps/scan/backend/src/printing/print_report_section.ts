@@ -1,6 +1,6 @@
 import memoizeOne from 'memoize-one';
 import { PollsTransitionType } from '@votingworks/types';
-import { assert } from '@votingworks/basics';
+import { assert, assertDefined } from '@votingworks/basics';
 import { isPollsSuspensionTransition } from '@votingworks/utils';
 import {
   PrecinctScannerBallotCountReport,
@@ -29,11 +29,10 @@ async function getReportSections(
   pollsTransitionTime: number
 ): Promise<JSX.Element[]> {
   debug('generating all report sections...');
-  const electionDefinition = store.getElectionDefinition();
+  const { electionDefinition } = assertDefined(store.getElectionRecord());
   const precinctSelection = store.getPrecinctSelection();
   const isLiveMode = !store.getTestMode();
   const { machineId } = getMachineConfig();
-  assert(electionDefinition);
   assert(precinctSelection);
 
   const scannerResultsByParty = await getScannerResults({ store });

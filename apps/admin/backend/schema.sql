@@ -3,6 +3,7 @@ create table elections (
   election_data text not null,
   system_settings_data text not null,
   election_package_file_contents blob not null,
+  election_package_hash text not null,
   is_official_results boolean not null default false,
   created_at timestamp not null default current_timestamp
 );

@@ -94,15 +94,19 @@ const sheet: SheetOf<PageInterpretationWithFiles> = (() => {
 
 test('getElectionDefinition', async () => {
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
+  const electionPackageHash = 'test-election-package-hash';
   await withApp(async ({ apiClient, importer }) => {
-    expect(await apiClient.getElectionDefinition()).toEqual(null);
+    expect(await apiClient.getElectionRecord()).toEqual(null);
 
-    importer.configure(electionDefinition, jurisdiction);
+    importer.configure(electionDefinition, jurisdiction, electionPackageHash);
 
-    expect(await apiClient.getElectionDefinition()).toEqual(electionDefinition);
+    expect(await apiClient.getElectionRecord()).toEqual({
+      electionDefinition,
+      electionPackageHash,
+    });
 
     importer.unconfigure();
-    expect(await apiClient.getElectionDefinition()).toEqual(null);
+    expect(await apiClient.getElectionRecord()).toEqual(null);
   });
 });
 
@@ -111,7 +115,11 @@ test('unconfigure', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
 
   await withApp(async ({ apiClient, importer, store, logger }) => {
-    importer.configure(electionDefinition, jurisdiction);
+    importer.configure(
+      electionDefinition,
+      jurisdiction,
+      'test-election-package-hash'
+    );
     await apiClient.setTestMode({ testMode: false });
 
     const batchId = store.addBatch();
@@ -145,7 +153,11 @@ test('unconfigure w/ ignoreBackupRequirement', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
 
   await withApp(async ({ apiClient, importer, store }) => {
-    importer.configure(electionDefinition, jurisdiction);
+    importer.configure(
+      electionDefinition,
+      jurisdiction,
+      'test-election-package-hash'
+    );
     await apiClient.setTestMode({ testMode: false });
 
     const batchId = store.addBatch();
@@ -165,7 +177,11 @@ test('clearing scanning data', async () => {
     electionGridLayoutNewHampshireTestBallotFixtures;
 
   await withApp(async ({ apiClient, importer, store, logger }) => {
-    importer.configure(electionDefinition, jurisdiction);
+    importer.configure(
+      electionDefinition,
+      jurisdiction,
+      'test-election-package-hash'
+    );
     await apiClient.setTestMode({ testMode: false });
 
     const batchId = store.addBatch();
@@ -207,7 +223,11 @@ test('getting / setting test mode', async () => {
   const { electionDefinition } =
     electionGridLayoutNewHampshireTestBallotFixtures;
   await withApp(async ({ apiClient, importer, store }) => {
-    importer.configure(electionDefinition, jurisdiction);
+    importer.configure(
+      electionDefinition,
+      jurisdiction,
+      'test-election-package-hash'
+    );
 
     expect(await apiClient.getTestMode()).toEqual(true);
 

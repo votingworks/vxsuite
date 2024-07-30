@@ -24,6 +24,7 @@ import {
   isElectionManagerAuth,
 } from '@votingworks/utils';
 import { Link, useRouteMatch } from 'react-router-dom';
+import { assertDefined } from '@votingworks/basics';
 import { AppContext } from './contexts/app_context';
 import { ejectUsbDrive, logOut } from './api';
 
@@ -71,6 +72,7 @@ const CentralScanAppLogo = styled(AppLogo)`
 export function NavigationScreen({ children, title }: Props): JSX.Element {
   const {
     electionDefinition,
+    electionPackageHash,
     isTestMode,
     machineConfig,
     usbDriveStatus,
@@ -129,6 +131,7 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
             <VerticalElectionInfoBar
               mode="admin"
               electionDefinition={electionDefinition}
+              electionPackageHash={assertDefined(electionPackageHash)}
               codeVersion={machineConfig.codeVersion}
               machineId={machineConfig.machineId}
               inverse

@@ -53,7 +53,7 @@ it('will throw an error when using default api', async () => {
 
 it('Displays error boundary if the api returns an unexpected error', async () => {
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
   apiMock.expectGetMachineConfigToError();
   apiMock.mockApiClient.reboot.expectCallWith().resolves();
@@ -68,7 +68,7 @@ it('Displays error boundary if the api returns an unexpected error', async () =>
 it('prevents context menus from appearing', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
   render(<App apiClient={apiMock.mockApiClient} reload={jest.fn()} />);
 
@@ -89,7 +89,7 @@ it('prevents context menus from appearing', async () => {
 it('uses voter settings management hook', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState();
 
   const { renderApp } = buildApp(apiMock);
@@ -103,7 +103,7 @@ it('uses voter settings management hook', async () => {
 it('uses ballot style management hook', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState();
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '1_G_es-US',
@@ -148,7 +148,7 @@ it('uses window.location.reload by default', async () => {
 
   // Set up in an already-configured state.
   const electionDefinition = electionGeneralDefinition;
-  apiMock.expectGetElectionDefinition(electionDefinition);
+  apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.expectGetElectionState({
     precinctSelection: ALL_PRECINCTS_SELECTION,
   });

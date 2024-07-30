@@ -14,7 +14,7 @@ import fileDownload from 'js-file-download';
 import { useParams } from 'react-router-dom';
 import {
   ElectionSerializationFormat,
-  getDisplayBallotHash,
+  formatBallotHash,
 } from '@votingworks/types';
 import { assertDefined } from '@votingworks/basics';
 import {
@@ -65,9 +65,7 @@ export function ExportScreen(): JSX.Element | null {
         onSuccess: ({ zipContents, ballotHash }) => {
           fileDownload(
             zipContents,
-            `ballots-${getDisplayBallotHash({
-              ballotHash,
-            })}.zip`
+            `ballots-${formatBallotHash(ballotHash)}.zip`
           );
         },
       }
@@ -82,9 +80,7 @@ export function ExportScreen(): JSX.Element | null {
         onSuccess: ({ zipContents, ballotHash }) => {
           fileDownload(
             zipContents,
-            `test-decks-${getDisplayBallotHash({
-              ballotHash,
-            })}.zip`
+            `test-decks-${formatBallotHash(ballotHash)}.zip`
           );
         },
       }

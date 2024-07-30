@@ -12,7 +12,6 @@ import {
   District,
   DistrictId,
   Election,
-  ElectionDefinition,
   Parties,
   Party,
   PartyId,
@@ -384,12 +383,28 @@ export function isVotePresent(v?: Vote): boolean {
   return !!v && v.length > 0;
 }
 
-export const BALLOT_HASH_DISPLAY_LENGTH = 10;
+export const BALLOT_HASH_DISPLAY_LENGTH = 7;
+export const ELECTION_PACKAGE_HASH_DISPLAY_LENGTH = 7;
 
-export function getDisplayBallotHash(
-  electionDefinition: Pick<ElectionDefinition, 'ballotHash'>
+export function formatBallotHash(ballotHash: string): string {
+  return ballotHash.slice(0, BALLOT_HASH_DISPLAY_LENGTH);
+}
+
+export function formatElectionPackageHash(electionPackageHash: string): string {
+  return electionPackageHash.slice(0, ELECTION_PACKAGE_HASH_DISPLAY_LENGTH);
+}
+
+/**
+ * Formats the election package hash and the ballot hash for display to users by
+ * shortening and concatenating them (with a hyphen separator).
+ */
+export function formatElectionHashes(
+  ballotHash: string,
+  electionPackageHash: string
 ): string {
-  return electionDefinition.ballotHash.slice(0, BALLOT_HASH_DISPLAY_LENGTH);
+  return `${formatBallotHash(ballotHash)}-${formatElectionPackageHash(
+    electionPackageHash
+  )}`;
 }
 
 // In inches

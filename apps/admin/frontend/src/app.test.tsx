@@ -7,10 +7,11 @@ import {
 } from '@votingworks/fixtures';
 import { err } from '@votingworks/basics';
 import {
+  hasTextAcrossElements,
   mockElectionManagerUser,
   mockSessionExpiresAt,
 } from '@votingworks/test-utils';
-import { constructElectionKey } from '@votingworks/types';
+import { constructElectionKey, formatElectionHashes } from '@votingworks/types';
 import {
   fireEvent,
   screen,
@@ -69,6 +70,7 @@ test('configuring with an election definition', async () => {
   await apiMock.authenticateAsSystemAdministrator();
 
   await screen.findByRole('heading', { name: 'Election' });
+  screen.getByText('Select an election package to configure VxAdmin');
 
   // expecting configure and resulting refetch
   apiMock.expectConfigure(electionPackage.path);
@@ -77,6 +79,14 @@ test('configuring with an election definition', async () => {
 
   userEvent.click(screen.getByText(electionPackage.name));
   await screen.findAllByText(electionDefinition.election.title);
+  screen.getByText(
+    hasTextAcrossElements(
+      `Election ID: ${formatElectionHashes(
+        electionDefinition.ballotHash,
+        'test-election-package-hash'
+      )}`
+    )
+  );
 
   // You can view the Settings screen and save log files
   fireEvent.click(screen.getByText('Settings'));

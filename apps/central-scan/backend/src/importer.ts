@@ -54,11 +54,13 @@ export class Importer {
    */
   configure(
     electionDefinition: ElectionDefinition,
-    jurisdiction: string
+    jurisdiction: string,
+    electionPackageHash: string
   ): void {
     this.workspace.store.setElectionAndJurisdiction({
       electionData: electionDefinition.electionData,
       jurisdiction,
+      electionPackageHash,
     });
     // Central scanner only uses all precinct mode, set on every configure
     this.workspace.store.setPrecinctSelection(ALL_PRECINCTS_SELECTION);
@@ -394,12 +396,12 @@ export class Importer {
   }
 
   private getElectionDefinition(): ElectionDefinition {
-    const electionDefinition = this.workspace.store.getElectionDefinition();
+    const electionRecord = this.workspace.store.getElectionRecord();
 
-    if (!electionDefinition) {
+    if (!electionRecord) {
       throw new Error('no election configuration');
     }
 
-    return electionDefinition;
+    return electionRecord.electionDefinition;
   }
 }

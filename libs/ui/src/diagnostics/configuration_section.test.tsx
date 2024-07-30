@@ -1,5 +1,5 @@
 import { electionPrimaryPrecinctSplitsFixtures } from '@votingworks/fixtures';
-import { getDisplayBallotHash } from '@votingworks/types';
+import { formatElectionHashes } from '@votingworks/types';
 import { render, screen } from '../../test/react_testing_library';
 import { ConfigurationSection } from './configuration_section';
 import { expectTextWithIcon } from '../../test/expect_text_with_icon';
@@ -16,12 +16,18 @@ test('no election', async () => {
 
 test('election, no precinct expected', () => {
   const { electionDefinition } = electionPrimaryPrecinctSplitsFixtures;
-  render(<ConfigurationSection electionDefinition={electionDefinition} />);
+  render(
+    <ConfigurationSection
+      electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
+    />
+  );
 
   screen.getByRole('heading', { name: 'Configuration' });
   screen.getByText(
-    `Election: Example Primary Election, ${getDisplayBallotHash(
-      electionDefinition
+    `Election: Example Primary Election, ${formatElectionHashes(
+      electionDefinition.ballotHash,
+      'test-election-package-hash'
     )}`
   );
   expect(screen.queryByText('Precinct:')).not.toBeInTheDocument();
@@ -35,14 +41,16 @@ test('election, precinct expected but not selected', async () => {
   render(
     <ConfigurationSection
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       expectPrecinctSelection
     />
   );
 
   screen.getByRole('heading', { name: 'Configuration' });
   screen.getByText(
-    `Election: Example Primary Election, ${getDisplayBallotHash(
-      electionDefinition
+    `Election: Example Primary Election, ${formatElectionHashes(
+      electionDefinition.ballotHash,
+      'test-election-package-hash'
     )}`
   );
   await expectTextWithIcon('No precinct selected.', 'triangle-exclamation');
@@ -53,6 +61,7 @@ test('election, all precincts selected', () => {
   render(
     <ConfigurationSection
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       expectPrecinctSelection
       precinctSelection={{
         kind: 'AllPrecincts',
@@ -62,8 +71,9 @@ test('election, all precincts selected', () => {
 
   screen.getByRole('heading', { name: 'Configuration' });
   screen.getByText(
-    `Election: Example Primary Election, ${getDisplayBallotHash(
-      electionDefinition
+    `Election: Example Primary Election, ${formatElectionHashes(
+      electionDefinition.ballotHash,
+      'test-election-package-hash'
     )}`
   );
   screen.getByText(`Precinct: All Precincts`);
@@ -77,6 +87,7 @@ test('election, single precinct selected', () => {
   render(
     <ConfigurationSection
       electionDefinition={electionDefinition}
+      electionPackageHash="test-election-package-hash"
       expectPrecinctSelection
       precinctSelection={{
         kind: 'SinglePrecinct',

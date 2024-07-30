@@ -11,6 +11,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   constructElectionKey,
   ElectionDefinition,
+  formatElectionHashes,
 } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { mockUsbDriveStatus } from '@votingworks/ui';
@@ -60,7 +61,7 @@ afterEach(() => {
 function expectConfigureFromElectionPackageOnUsbDrive() {
   apiMock.expectConfigure(electionDefinition);
   apiMock.expectGetSystemSettings(DEFAULT_SYSTEM_SETTINGS);
-  apiMock.expectGetElectionDefinition(electionDefinition);
+  apiMock.expectGetElectionRecord(electionDefinition);
 }
 
 export async function authenticateAsSystemAdministrator(
@@ -99,7 +100,7 @@ export async function authenticateAsElectionManager(
 
 test('renders without crashing', async () => {
   apiMock.expectGetTestMode(true);
-  apiMock.expectGetElectionDefinition(electionDefinition);
+  apiMock.expectGetElectionRecord(electionDefinition);
 
   render(<App apiClient={apiMock.apiClient} />);
   await waitFor(() => fetchMock.called());
@@ -107,7 +108,7 @@ test('renders without crashing', async () => {
 
 test('shows a "test ballot mode" button if the app is in Official Ballot Mode', async () => {
   apiMock.expectGetTestMode(false);
-  apiMock.expectGetElectionDefinition(electionDefinition);
+  apiMock.expectGetElectionRecord(electionDefinition);
 
   render(<App apiClient={apiMock.apiClient} />);
   await authenticateAsElectionManager(electionDefinition);
@@ -123,7 +124,7 @@ test('shows a "test ballot mode" button if the app is in Official Ballot Mode', 
 
 test('shows an "official ballot mode" button if the app is in Test Mode', async () => {
   apiMock.expectGetTestMode(true);
-  apiMock.expectGetElectionDefinition(electionDefinition);
+  apiMock.expectGetElectionRecord(electionDefinition);
 
   render(<App apiClient={apiMock.apiClient} />);
   await authenticateAsElectionManager(electionDefinition);
@@ -141,7 +142,7 @@ test('shows an "official ballot mode" button if the app is in Test Mode', async 
 
 test('clicking Scan Batch will scan a batch', async () => {
   apiMock.expectGetTestMode(true);
-  apiMock.expectGetElectionDefinition(electionDefinition);
+  apiMock.expectGetElectionRecord(electionDefinition);
 
   render(<App apiClient={apiMock.apiClient} />);
   await authenticateAsElectionManager(electionDefinition);
@@ -153,7 +154,7 @@ test('clicking Scan Batch will scan a batch', async () => {
 
 test('clicking "Save CVRs" shows modal and makes a request to export', async () => {
   apiMock.expectGetTestMode(true);
-  apiMock.expectGetElectionDefinition(electionDefinition);
+  apiMock.expectGetElectionRecord(electionDefinition);
   apiMock.setStatus(
     mockStatus({
       batches: [mockBatch()],
@@ -179,7 +180,7 @@ test('clicking "Save CVRs" shows modal and makes a request to export', async () 
 
 test('configuring election from usb election package works end to end', async () => {
   apiMock.expectGetTestMode(true);
-  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionRecord(null);
 
   render(<App apiClient={apiMock.apiClient} />);
   await authenticateAsElectionManager(
@@ -199,6 +200,14 @@ test('configuring election from usb election package works end to end', async ()
   screen.getByText(/Franklin County/);
   screen.getByText(/State of Hamilton/);
   screen.getByText(hasTextAcrossElements('Machine ID: 0001'));
+  screen.getByText(
+    hasTextAcrossElements(
+      `Election ID: ${formatElectionHashes(
+        electionDefinition.ballotHash,
+        'test-election-package-hash'
+      )}`
+    )
+  );
 
   // Remove USB drive
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('no_drive'));
@@ -209,7 +218,7 @@ test('configuring election from usb election package works end to end', async ()
   await screen.findByText('Delete all election data?');
 
   apiMock.expectUnconfigure({ ignoreBackupRequirement: false });
-  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionRecord(null);
   apiMock.expectGetSystemSettings();
   apiMock.expectGetTestMode(true);
   apiMock.expectEjectUsbDrive();
@@ -221,7 +230,7 @@ test('configuring election from usb election package works end to end', async ()
 
 test('authentication works', async () => {
   apiMock.expectGetTestMode(true);
-  apiMock.expectGetElectionDefinition(electionDefinition);
+  apiMock.expectGetElectionRecord(electionDefinition);
 
   render(<App apiClient={apiMock.apiClient} />);
 
@@ -317,7 +326,7 @@ test('authentication works', async () => {
 
 test('system administrator can log in and unconfigure machine', async () => {
   apiMock.expectGetTestMode(true);
-  apiMock.expectGetElectionDefinition(electionDefinition);
+  apiMock.expectGetElectionRecord(electionDefinition);
 
   render(<App apiClient={apiMock.apiClient} />);
 
@@ -331,16 +340,16 @@ test('system administrator can log in and unconfigure machine', async () => {
   const modal = await screen.findByRole('alertdialog');
 
   apiMock.expectUnconfigure({ ignoreBackupRequirement: true });
-  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionRecord(null);
   apiMock.expectGetSystemSettings();
   apiMock.expectGetTestMode(true);
   userEvent.click(within(modal).getButton('Yes, Delete Election Data'));
   await waitFor(() => expect(screen.queryByRole('alertdialog')).toBeNull());
 });
 
-test('election manager cannot auth onto machine with different election hash', async () => {
+test('election manager cannot auth onto machine with different election', async () => {
   apiMock.expectGetTestMode(true);
-  apiMock.expectGetElectionDefinition(electionDefinition);
+  apiMock.expectGetElectionRecord(electionDefinition);
 
   render(<App apiClient={apiMock.apiClient} />);
 
@@ -358,7 +367,7 @@ test('election manager cannot auth onto machine with different election hash', a
 
 test('error boundary', async () => {
   apiMock.expectGetTestMode(true);
-  apiMock.expectGetElectionDefinition(electionDefinition);
+  apiMock.expectGetElectionRecord(electionDefinition);
 
   await suppressingConsoleOutput(async () => {
     render(<App apiClient={apiMock.apiClient} />);
@@ -373,7 +382,7 @@ test('error boundary', async () => {
 
 test('battery display and alert', async () => {
   apiMock.expectGetTestMode(true);
-  apiMock.expectGetElectionDefinition(electionDefinition);
+  apiMock.expectGetElectionRecord(electionDefinition);
 
   render(<App apiClient={apiMock.apiClient} />);
   await authenticateAsSystemAdministrator();

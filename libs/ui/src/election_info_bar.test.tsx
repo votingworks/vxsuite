@@ -3,25 +3,20 @@ import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import { getDisplayBallotHash } from '@votingworks/types';
+import { formatElectionHashes } from '@votingworks/types';
 import { hasTextAcrossElements } from '@votingworks/test-utils';
 import { render, screen, within } from '../test/react_testing_library';
 import { ElectionInfoBar, VerticalElectionInfoBar } from './election_info_bar';
 import { makeTheme } from './themes/make_theme';
 
-jest.mock('@votingworks/types', () => {
-  return {
-    ...jest.requireActual('@votingworks/types'),
-    // mock ballot hash so snapshots don't change with every change to the election definition
-    getDisplayBallotHash: () => '0000000000',
-  };
-});
+const mockElectionPackageHash = '1111111111111111111111111';
 
 describe('ElectionInfoBar', () => {
   test('Renders with appropriate information', () => {
     render(
       <ElectionInfoBar
         electionDefinition={electionGeneralDefinition}
+        electionPackageHash={mockElectionPackageHash}
         machineId="0000"
         codeVersion="DEV"
         mode="admin"
@@ -32,7 +27,7 @@ describe('ElectionInfoBar', () => {
     screen.getByText('Franklin County');
     screen.getByText('State of Hamilton');
 
-    const versionLabel = screen.getByText('Software Version');
+    const versionLabel = screen.getByText('Version');
     expect(versionLabel.parentElement?.lastChild).toHaveTextContent('DEV');
 
     const machineIdLabel = screen.getByText('Machine ID');
@@ -40,7 +35,10 @@ describe('ElectionInfoBar', () => {
 
     const electionIdLabel = screen.getByText('Election ID');
     expect(electionIdLabel.parentElement?.lastChild).toHaveTextContent(
-      getDisplayBallotHash(electionGeneralDefinition)
+      formatElectionHashes(
+        electionGeneralDefinition.ballotHash,
+        mockElectionPackageHash
+      )
     );
   });
 
@@ -48,6 +46,7 @@ describe('ElectionInfoBar', () => {
     render(
       <ElectionInfoBar
         electionDefinition={electionGeneralDefinition}
+        electionPackageHash={mockElectionPackageHash}
         machineId="0000"
         codeVersion="DEV"
         mode="admin"
@@ -61,6 +60,7 @@ describe('ElectionInfoBar', () => {
     render(
       <ElectionInfoBar
         electionDefinition={electionGeneralDefinition}
+        electionPackageHash={mockElectionPackageHash}
         machineId="0002"
         codeVersion="DEV"
         mode="admin"
@@ -74,17 +74,23 @@ describe('ElectionInfoBar', () => {
     render(
       <ElectionInfoBar
         electionDefinition={electionGeneralDefinition}
+        electionPackageHash={mockElectionPackageHash}
         machineId="0002"
         codeVersion="DEV"
         precinctSelection={singlePrecinctSelectionFor('23')}
       />
     );
-    expect(screen.queryByText(/Software Version/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Version/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Machined ID/)).not.toBeInTheDocument();
   });
 
   test('Renders seal', () => {
-    render(<ElectionInfoBar electionDefinition={electionGeneralDefinition} />);
+    render(
+      <ElectionInfoBar
+        electionDefinition={electionGeneralDefinition}
+        electionPackageHash={mockElectionPackageHash}
+      />
+    );
     screen.getByTestId('seal');
   });
 
@@ -93,6 +99,7 @@ describe('ElectionInfoBar', () => {
     const { container } = render(
       <ElectionInfoBar
         electionDefinition={electionGeneralDefinition}
+        electionPackageHash={mockElectionPackageHash}
         inverse
       />,
       { vxTheme: theme }
@@ -110,6 +117,7 @@ describe('VerticalElectionInfoBar', () => {
     render(
       <VerticalElectionInfoBar
         electionDefinition={electionGeneralDefinition}
+        electionPackageHash={mockElectionPackageHash}
         machineId="0000"
         codeVersion="DEV"
         mode="admin"
@@ -120,11 +128,14 @@ describe('VerticalElectionInfoBar', () => {
     screen.getByText('Franklin County');
     screen.getByText('State of Hamilton');
 
-    screen.getByText(hasTextAcrossElements('Software Version: DEV'));
+    screen.getByText(hasTextAcrossElements('Version: DEV'));
     screen.getByText(hasTextAcrossElements('Machine ID: 0000'));
     screen.getByText(/Election ID/);
     within(screen.getByText(/Election ID/).parentElement!).getByText(
-      getDisplayBallotHash(electionGeneralDefinition)
+      formatElectionHashes(
+        electionGeneralDefinition.ballotHash,
+        mockElectionPackageHash
+      )
     );
   });
 
@@ -132,6 +143,7 @@ describe('VerticalElectionInfoBar', () => {
     render(
       <VerticalElectionInfoBar
         electionDefinition={electionGeneralDefinition}
+        electionPackageHash={mockElectionPackageHash}
         machineId="0000"
         codeVersion="DEV"
         mode="admin"
@@ -145,6 +157,7 @@ describe('VerticalElectionInfoBar', () => {
     render(
       <VerticalElectionInfoBar
         electionDefinition={electionGeneralDefinition}
+        electionPackageHash={mockElectionPackageHash}
         machineId="0002"
         codeVersion="DEV"
         mode="admin"
@@ -158,18 +171,22 @@ describe('VerticalElectionInfoBar', () => {
     render(
       <VerticalElectionInfoBar
         electionDefinition={electionGeneralDefinition}
+        electionPackageHash={mockElectionPackageHash}
         machineId="0002"
         codeVersion="DEV"
         precinctSelection={singlePrecinctSelectionFor('23')}
       />
     );
-    expect(screen.queryByText(/Software Version/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Version/)).not.toBeInTheDocument();
     expect(screen.queryByText(/Machined ID/)).not.toBeInTheDocument();
   });
 
   test('Renders seal', () => {
     render(
-      <VerticalElectionInfoBar electionDefinition={electionGeneralDefinition} />
+      <VerticalElectionInfoBar
+        electionDefinition={electionGeneralDefinition}
+        electionPackageHash={mockElectionPackageHash}
+      />
     );
     screen.getByTestId('seal');
   });
@@ -179,6 +196,7 @@ describe('VerticalElectionInfoBar', () => {
     const { container } = render(
       <VerticalElectionInfoBar
         electionDefinition={electionGeneralDefinition}
+        electionPackageHash={mockElectionPackageHash}
         inverse
       />,
       { vxTheme: theme }

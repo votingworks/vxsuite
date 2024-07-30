@@ -159,6 +159,7 @@ export interface PollworkerScreenProps {
   ) => void;
   resetCardlessVoterSession: () => void;
   electionDefinition: ElectionDefinition;
+  electionPackageHash: string;
   hasVotes: boolean;
   isLiveMode: boolean;
   pollsState: PollsState;
@@ -173,6 +174,7 @@ export function PollWorkerScreen({
   activateCardlessVoterSession,
   resetCardlessVoterSession,
   electionDefinition,
+  electionPackageHash,
   isLiveMode,
   pollsState,
   ballotsPrintedCount,
@@ -544,6 +546,7 @@ export function PollWorkerScreen({
       <ElectionInfoBar
         mode="admin"
         electionDefinition={electionDefinition}
+        electionPackageHash={electionPackageHash}
         codeVersion={machineConfig.codeVersion}
         machineId={machineConfig.machineId}
         precinctSelection={precinctSelection}

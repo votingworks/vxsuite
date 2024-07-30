@@ -65,7 +65,8 @@ async function interpretSheet(
 
   const interpretation = (
     await interpret(sheetId, scanImagePaths, {
-      electionDefinition: assertDefined(store.getElectionDefinition()),
+      electionDefinition: assertDefined(store.getElectionRecord())
+        .electionDefinition,
       precinctSelection: assertDefined(store.getPrecinctSelection()),
       testMode: store.getTestMode(),
       ballotImagesPath: workspace.ballotImagesPath,
@@ -513,10 +514,11 @@ function buildMachine({
                 pollScanningEnabled,
                 {
                   src: async ({ client }) => {
-                    const electionDefinition = store.getElectionDefinition();
-                    if (!electionDefinition) return;
+                    const electionRecord = store.getElectionRecord();
+                    if (!electionRecord) return;
                     const paperLengthInches = ballotPaperDimensions(
-                      electionDefinition.election.ballotLayout.paperSize
+                      electionRecord.electionDefinition.election.ballotLayout
+                        .paperSize
                     ).height;
                     const doubleFeedDetectionEnabled =
                       !store.getIsDoubleFeedDetectionDisabled();

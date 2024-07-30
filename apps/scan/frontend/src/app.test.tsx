@@ -6,6 +6,7 @@ import {
   mockOf,
 } from '@votingworks/test-utils';
 import {
+  electionGeneral,
   electionGeneralDefinition,
   electionTwoPartyPrimaryDefinition,
 } from '@votingworks/fixtures';
@@ -13,7 +14,7 @@ import {
   AdjudicationReason,
   ElectionPackageConfigurationError,
   SheetInterpretation,
-  getDisplayBallotHash,
+  formatElectionHashes,
 } from '@votingworks/types';
 import { Result, deferred, err, ok } from '@votingworks/basics';
 
@@ -128,9 +129,17 @@ test('app can load and configure from a usb stick', async () => {
   await screen.findByText('Configuring VxScan from USB drive…');
   configureResolve(ok());
 
-  // Select precinct
   apiMock.setPrinterStatusV3({ connected: true });
   await screen.findByText('Election Manager Settings');
+  screen.getByText(electionGeneral.title);
+  screen.getByText(
+    formatElectionHashes(
+      electionGeneralDefinition.ballotHash,
+      'test-election-package-hash'
+    )
+  );
+
+  // Select precinct
   screen.getByText(SELECT_PRECINCT_TEXT);
   apiMock.expectSetPrecinct(singlePrecinctSelectionFor('23'));
   apiMock.expectGetConfig({
@@ -344,7 +353,10 @@ test('voter can cast a ballot that scans successfully ', async () => {
   screen.getByText(/State of Sample/);
   screen.getByText('Election ID');
   within(screen.getByText('Election ID').parentElement!).getByText(
-    getDisplayBallotHash(electionDefinition)
+    formatElectionHashes(
+      electionDefinition.ballotHash,
+      'test-election-package-hash'
+    )
   );
 
   await scanBallot();

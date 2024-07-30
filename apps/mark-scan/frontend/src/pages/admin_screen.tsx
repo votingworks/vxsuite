@@ -41,6 +41,7 @@ export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;
   ballotsPrintedCount: number;
   electionDefinition: ElectionDefinition;
+  electionPackageHash: string;
   isTestMode: boolean;
   unconfigure: () => Promise<void>;
   machineConfig: MachineConfig;
@@ -52,6 +53,7 @@ export function AdminScreen({
   appPrecinct,
   ballotsPrintedCount,
   electionDefinition,
+  electionPackageHash,
   isTestMode,
   unconfigure,
   machineConfig,
@@ -193,6 +195,7 @@ export function AdminScreen({
         <ElectionInfoBar
           mode="admin"
           electionDefinition={electionDefinition}
+          electionPackageHash={electionPackageHash}
           codeVersion={machineConfig.codeVersion}
           machineId={machineConfig.machineId}
           precinctSelection={appPrecinct}

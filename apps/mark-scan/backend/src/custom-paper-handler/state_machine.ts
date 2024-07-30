@@ -421,11 +421,7 @@ function loadMetadataAndInterpretBallot(context: {
   );
 
   const { store } = workspace;
-  const electionDefinition = store.getElectionDefinition();
-  assert(
-    electionDefinition,
-    'Expected electionDefinition to be defined in store'
-  );
+  const { electionDefinition } = assertDefined(store.getElectionRecord());
 
   const precinctSelection = store.getPrecinctSelection();
   assert(

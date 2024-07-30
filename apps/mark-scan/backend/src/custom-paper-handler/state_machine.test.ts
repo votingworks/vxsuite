@@ -176,6 +176,7 @@ beforeEach(async () => {
   workspace.store.setElectionAndJurisdiction({
     electionData: electionGeneralDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
+    electionPackageHash: 'test-election-package-hash',
   });
   workspace.store.setPrecinctSelection(singlePrecinctSelectionFor(precinctId));
   workspace.store.setSystemSettings(
@@ -498,6 +499,7 @@ test('elections with grid layouts still try to interpret BMD ballots', async () 
   workspace.store.setElectionAndJurisdiction({
     electionData: electionDefinition.electionData,
     jurisdiction: TEST_JURISDICTION,
+    electionPackageHash: 'test-election-package-hash',
   });
   workspace.store.setPrecinctSelection(
     singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)

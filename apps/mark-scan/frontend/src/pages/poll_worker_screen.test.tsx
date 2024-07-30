@@ -4,6 +4,7 @@ import {
 } from '@votingworks/fixtures';
 import {
   ElectionDefinition,
+  formatElectionHashes,
   InsertedSmartCardAuth,
   LanguageCode,
 } from '@votingworks/types';
@@ -94,6 +95,7 @@ function renderScreen(
         activateCardlessVoterSession={jest.fn()}
         resetCardlessVoterSession={jest.fn()}
         electionDefinition={electionDefinition}
+        electionPackageHash="test-election-package-hash"
         hasVotes={false}
         isLiveMode={false}
         pollsState="polls_open"
@@ -307,4 +309,15 @@ describe('shows BallotReinsertionFlow for relevant states:', () => {
       expect(container).toHaveTextContent(MOCK_BALLOT_REINSERTION_FLOW_CONTENT);
     });
   }
+});
+
+test('Shows election info', () => {
+  renderScreen();
+  screen.getByText(election.title);
+  screen.getByText(
+    formatElectionHashes(
+      electionGeneralDefinition.ballotHash,
+      'test-election-package-hash'
+    )
+  );
 });

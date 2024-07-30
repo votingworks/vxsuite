@@ -33,7 +33,7 @@ import {
   useQueryChangeListener,
 } from '@votingworks/ui';
 
-import { assert, throwIllegalValue } from '@votingworks/basics';
+import { assert, assertDefined, throwIllegalValue } from '@votingworks/basics';
 import {
   mergeMsEitherNeitherContests,
   CastBallotPage,
@@ -45,7 +45,7 @@ import {
   checkPin,
   endCardlessVoterSession,
   getAuthStatus,
-  getElectionDefinition,
+  getElectionRecord,
   getMachineConfig,
   getUsbDriveStatus,
   getElectionState,
@@ -182,8 +182,9 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
   const setPollsStateMutation = setPollsState.useMutation();
   const setPollsStateMutateAsync = setPollsStateMutation.mutateAsync;
 
-  const getElectionDefinitionQuery = getElectionDefinition.useQuery();
-  const optionalElectionDefinition = getElectionDefinitionQuery.data;
+  const getElectionRecordQuery = getElectionRecord.useQuery();
+  const { electionDefinition, electionPackageHash } =
+    getElectionRecordQuery.data ?? {};
 
   const electionStateQuery = getElectionState.useQuery();
   const {
@@ -202,17 +203,17 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
     ? authStatus.user.ballotStyleId
     : undefined;
   const ballotStyle =
-    optionalElectionDefinition?.election && ballotStyleId
+    electionDefinition?.election && ballotStyleId
       ? getBallotStyle({
           ballotStyleId,
-          election: optionalElectionDefinition.election,
+          election: electionDefinition.election,
         })
       : undefined;
   const contests =
-    optionalElectionDefinition?.election && ballotStyle
+    electionDefinition?.election && ballotStyle
       ? mergeMsEitherNeitherContests(
           getContests({
-            election: optionalElectionDefinition.election,
+            election: electionDefinition.election,
             ballotStyle,
           })
         )
@@ -357,7 +358,7 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
 
   useBallotStyleManager({
     currentBallotStyleId: ballotStyleId,
-    electionDefinition: optionalElectionDefinition,
+    electionDefinition,
     updateCardlessVoterBallotStyle:
       updateCardlessVoterBallotStyle.useMutation().mutate,
   });
@@ -423,7 +424,7 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
     return (
       <SystemAdministratorScreen
         unconfigureMachine={unconfigure}
-        isMachineConfigured={Boolean(optionalElectionDefinition)}
+        isMachineConfigured={Boolean(electionDefinition)}
         resetPollsToPaused={
           pollsState === 'polls_closed_final' ? resetPollsToPaused : undefined
         }
@@ -432,7 +433,7 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
     );
   }
   if (isElectionManagerAuth(authStatus)) {
-    if (!optionalElectionDefinition) {
+    if (!electionDefinition) {
       return <UnconfiguredElectionScreenWrapper />;
     }
 
@@ -440,7 +441,8 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
       <AdminScreen
         appPrecinct={appPrecinct}
         ballotsPrintedCount={ballotsPrintedCount}
-        electionDefinition={optionalElectionDefinition}
+        electionDefinition={electionDefinition}
+        electionPackageHash={assertDefined(electionPackageHash)}
         isTestMode={isTestMode}
         unconfigure={unconfigure}
         machineConfig={machineConfig}
@@ -449,7 +451,7 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
       />
     );
   }
-  if (optionalElectionDefinition && appPrecinct) {
+  if (electionDefinition && appPrecinct) {
     if (!hasPrinterAttached) {
       return <SetupPrinterPage />;
     }
@@ -461,7 +463,8 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
           activateCardlessVoterSession={activateCardlessBallot}
           resetCardlessVoterSession={resetCardlessBallot}
           appPrecinct={appPrecinct}
-          electionDefinition={optionalElectionDefinition}
+          electionDefinition={electionDefinition}
+          electionPackageHash={assertDefined(electionPackageHash)}
           isLiveMode={!isTestMode}
           pollsState={pollsState}
           ballotsPrintedCount={ballotsPrintedCount}
@@ -488,7 +491,7 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
                 precinctId,
                 ballotStyleId,
                 contests,
-                electionDefinition: optionalElectionDefinition,
+                electionDefinition,
                 generateBallotId: randomBallotId,
                 isCardlessVoter: isCardlessVoterAuth(authStatus),
                 isLiveMode: !isTestMode,
@@ -512,7 +515,8 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
       >
         <InsertCardScreen
           appPrecinct={appPrecinct}
-          electionDefinition={optionalElectionDefinition}
+          electionDefinition={electionDefinition}
+          electionPackageHash={assertDefined(electionPackageHash)}
           showNoAccessibleControllerWarning={!accessibleControllerConnected}
           showNoChargerAttachedWarning={batteryIsDischarging}
           isLiveMode={!isTestMode}

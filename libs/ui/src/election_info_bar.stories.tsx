@@ -7,6 +7,7 @@ import { ElectionInfoBar, ElectionInfoBarProps } from './election_info_bar';
 const initialArgs: ElectionInfoBarProps = {
   codeVersion: '00986543',
   electionDefinition: electionTwoPartyPrimaryDefinition,
+  electionPackageHash: '11111111111111111111',
   machineId: '00123456',
   mode: 'admin',
   precinctSelection: {

@@ -181,10 +181,12 @@ export class Store {
     electionData,
     systemSettingsData,
     electionPackageFileContents,
+    electionPackageHash,
   }: {
     electionData: string;
     systemSettingsData: string;
     electionPackageFileContents: Buffer;
+    electionPackageHash: string;
   }): Id {
     const id = uuid();
     this.withTransaction(() => {
@@ -194,13 +196,15 @@ export class Store {
           id,
           election_data,
           system_settings_data,
-          election_package_file_contents
-        ) values (?, ?, ?, ?)
+          election_package_file_contents,
+          election_package_hash
+        ) values (?, ?, ?, ?, ?)
         `,
         id,
         electionData,
         systemSettingsData,
-        electionPackageFileContents
+        electionPackageFileContents,
+        electionPackageHash
       );
       this.createElectionMetadataRecords(id);
     });
@@ -218,13 +222,15 @@ export class Store {
         id,
         election_data as electionData,
         datetime(created_at, 'localtime') as createdAt,
-        is_official_results as isOfficialResults
+        is_official_results as isOfficialResults,
+        election_package_hash as electionPackageHash
       from elections
     `) as Array<{
         id: Id;
         electionData: string;
         createdAt: string;
         isOfficialResults: SqliteBool;
+        electionPackageHash: string;
       }>
     ).map((r) => ({
       id: r.id,
@@ -233,6 +239,7 @@ export class Store {
       ).unsafeUnwrap(),
       createdAt: convertSqliteTimestampToIso8601(r.createdAt),
       isOfficialResults: r.isOfficialResults === 1,
+      electionPackageHash: r.electionPackageHash,
     }));
   }
 
@@ -246,7 +253,8 @@ export class Store {
         id,
         election_data as electionData,
         datetime(created_at, 'localtime') as createdAt,
-        is_official_results as isOfficialResults
+        is_official_results as isOfficialResults,
+        election_package_hash as electionPackageHash
       from elections
       where id = ?
     `,
@@ -257,6 +265,7 @@ export class Store {
           electionData: string;
           createdAt: string;
           isOfficialResults: SqliteBool;
+          electionPackageHash: string;
         }
       | undefined;
     if (!result) {
@@ -269,6 +278,7 @@ export class Store {
       ).unsafeUnwrap(),
       createdAt: convertSqliteTimestampToIso8601(result.createdAt),
       isOfficialResults: result.isOfficialResults === 1,
+      electionPackageHash: result.electionPackageHash,
     };
   }
 

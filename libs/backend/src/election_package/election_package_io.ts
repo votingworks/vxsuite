@@ -42,9 +42,11 @@ import {
   UiStringAudioIdsPackage,
   safeParseElectionDefinition,
   constructElectionKey,
+  ElectionPackageWithHash,
 } from '@votingworks/types';
 import { authenticateArtifactUsingSignatureFile } from '@votingworks/auth';
 import { UsbDrive } from '@votingworks/usb-drive';
+import { sha256 } from 'js-sha256';
 
 /**
  * An error from parsing an election package.
@@ -58,9 +60,12 @@ export interface ElectionPackageError {
   message: string;
 }
 
-async function readElectionPackageFromBuffer(
+/**
+ * Parses an package from the given buffer and hashes the raw contents.
+ */
+export async function readElectionPackageFromBuffer(
   fileContents: Buffer
-): Promise<Result<ElectionPackage, ElectionPackageError>> {
+): Promise<Result<ElectionPackageWithHash, ElectionPackageError>> {
   try {
     const zipFile = await openZip(fileContents);
     const zipName = 'election package';
@@ -178,13 +183,18 @@ async function readElectionPackageFromBuffer(
 
     // TODO(kofi): Verify package version matches machine build version.
 
-    return ok({
+    const electionPackage: ElectionPackage = {
       electionDefinition,
       metadata,
       systemSettings,
       uiStrings,
       uiStringAudioIds,
       uiStringAudioClips,
+    };
+
+    return ok({
+      electionPackage,
+      electionPackageHash: sha256(fileContents),
     });
   } catch (error) {
     return err({
@@ -195,9 +205,9 @@ async function readElectionPackageFromBuffer(
 }
 
 /**
- * An {@link ElectionPackage} object, with the raw contents of the zip file included
+ * An {@link ElectionPackageWithHash} object, with the raw contents of the zip file included
  */
-export type ElectionPackageWithFileContents = ElectionPackage & {
+export type ElectionPackageWithFileContents = ElectionPackageWithHash & {
   fileContents: Buffer;
 };
 
@@ -295,7 +305,7 @@ export async function readSignedElectionPackageFromUsb(
   authStatus: DippedSmartCardAuth.AuthStatus | InsertedSmartCardAuth.AuthStatus,
   usbDrive: UsbDrive,
   logger: BaseLogger
-): Promise<Result<ElectionPackage, ElectionPackageConfigurationError>> {
+): Promise<Result<ElectionPackageWithHash, ElectionPackageConfigurationError>> {
   // The frontend tries to prevent election package configuration attempts until an election
   // manager has authed. But we may reach this state if a user removes their card immediately
   // after inserting it, but after the election package configuration attempt has started
@@ -335,11 +345,11 @@ export async function readSignedElectionPackageFromUsb(
     return err('election_package_authentication_error');
   }
 
-  const electionPackage = (
+  const electionPackageWithHash = (
     await readElectionPackageFromFile(filepathResult.ok())
   ).unsafeUnwrap();
   const electionKey = constructElectionKey(
-    electionPackage.electionDefinition.election
+    electionPackageWithHash.electionPackage.electionDefinition.election
   );
 
   if (!deepEqual(authStatus.user.electionKey, electionKey)) {
@@ -351,5 +361,5 @@ export async function readSignedElectionPackageFromUsb(
     return err('election_key_mismatch');
   }
 
-  return ok(electionPackage);
+  return ok(electionPackageWithHash);
 }

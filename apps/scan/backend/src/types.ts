@@ -65,6 +65,7 @@ export interface PrecinctScannerStatus extends PrecinctScannerMachineStatus {
 export interface PrecinctScannerConfig {
   // Config that persists across switching modes
   electionDefinition?: ElectionDefinition;
+  electionPackageHash?: string;
   systemSettings: SystemSettings;
   precinctSelection?: PrecinctSelection;
   isSoundMuted: boolean;

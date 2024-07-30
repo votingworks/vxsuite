@@ -163,8 +163,11 @@ test('configureElectionPackageFromUsb reads to and writes from store', async () 
   expect(readResult).toEqual(
     safeParseSystemSettings(systemSettings.asText()).unsafeUnwrap()
   );
-  const electionDefinitionResult = await apiClient.getElectionDefinition();
-  expect(electionDefinitionResult).toEqual(electionDefinition);
+  const electionRecord = await apiClient.getElectionRecord();
+  expect(electionRecord).toEqual({
+    electionDefinition,
+    electionPackageHash: expect.any(String),
+  });
 });
 
 test('unconfigureMachine deletes system settings and election definition', async () => {
@@ -188,8 +191,8 @@ test('unconfigureMachine deletes system settings and election definition', async
 
   const readResult = await apiClient.getSystemSettings();
   expect(readResult).toEqual(DEFAULT_SYSTEM_SETTINGS);
-  const electionDefinitionResult = await apiClient.getElectionDefinition();
-  expect(electionDefinitionResult).toBeNull();
+  const electionRecord = await apiClient.getElectionRecord();
+  expect(electionRecord).toBeNull();
 });
 
 test('configureElectionPackageFromUsb throws when no USB drive mounted', async () => {

@@ -36,7 +36,7 @@ const noPowerDetectedWarningText = 'No Power Detected.';
 describe('Displays setup warning messages and errors screens', () => {
   it('Displays warning if Accessible Controller connection is lost', async () => {
     apiMock.expectGetMachineConfig();
-    apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+    apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
       precinctSelection: ALL_PRECINCTS_SELECTION,
       pollsState: 'polls_open',
@@ -73,7 +73,7 @@ describe('Displays setup warning messages and errors screens', () => {
 
   it('Displays error screen if Card Reader connection is lost', async () => {
     apiMock.expectGetMachineConfig();
-    apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+    apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
       precinctSelection: ALL_PRECINCTS_SELECTION,
       pollsState: 'polls_open',
@@ -97,7 +97,7 @@ describe('Displays setup warning messages and errors screens', () => {
 
   it('Displays error screen if Power connection is lost', async () => {
     apiMock.expectGetMachineConfig();
-    apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+    apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
       precinctSelection: ALL_PRECINCTS_SELECTION,
       pollsState: 'polls_open',
@@ -124,7 +124,7 @@ describe('Displays setup warning messages and errors screens', () => {
 
   it('Admin screen trumps "No Printer Detected" error', async () => {
     apiMock.expectGetMachineConfig();
-    apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+    apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
       precinctSelection: ALL_PRECINCTS_SELECTION,
       pollsState: 'polls_open',
@@ -150,7 +150,7 @@ describe('Displays setup warning messages and errors screens', () => {
 
   it('Displays "discharging battery" warning message and "discharging battery + low battery" error screen', async () => {
     apiMock.expectGetMachineConfig();
-    apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+    apiMock.expectGetElectionRecord(electionGeneralDefinition);
     apiMock.expectGetElectionState({
       precinctSelection: ALL_PRECINCTS_SELECTION,
       pollsState: 'polls_open',

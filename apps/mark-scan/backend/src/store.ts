@@ -30,6 +30,11 @@ import { join } from 'path';
 
 const SchemaPath = join(__dirname, '../schema.sql');
 
+export interface ElectionRecord {
+  electionDefinition: ElectionDefinition;
+  electionPackageHash: string;
+}
+
 /**
  * Manages a data store for imported election definition and system settings
  */
@@ -88,33 +93,26 @@ export class Store {
   }
 
   /**
-   * Gets the current election definition.
+   * Gets the current election definition and election package hash.
    */
-  getElectionDefinition(): ElectionDefinition | undefined {
+  getElectionRecord(): ElectionRecord | undefined {
     const electionRow = this.client.one(
-      'select election_data as electionData from election'
-    ) as { electionData: string } | undefined;
+      `
+      select
+        election_data as electionData,
+        election_package_hash as electionPackageHash
+      from election
+      `
+    ) as { electionData: string; electionPackageHash: string } | undefined;
 
-    if (!electionRow?.electionData) {
-      return undefined;
-    }
-
-    const electionDefinitionParseResult = safeParseElectionDefinition(
-      electionRow.electionData
+    return (
+      electionRow && {
+        electionDefinition: safeParseElectionDefinition(
+          electionRow.electionData
+        ).unsafeUnwrap(),
+        electionPackageHash: electionRow.electionPackageHash,
+      }
     );
-
-    if (electionDefinitionParseResult.isErr()) {
-      throw new Error('Unable to parse stored election data.');
-    }
-
-    const electionDefinition = electionDefinitionParseResult.ok();
-
-    return {
-      ...electionDefinition,
-      election: {
-        ...electionDefinition.election,
-      },
-    };
   }
 
   /**
@@ -133,13 +131,21 @@ export class Store {
   setElectionAndJurisdiction(input?: {
     electionData: string;
     jurisdiction: string;
+    electionPackageHash: string;
   }): void {
     this.client.run('delete from election');
     if (input) {
       this.client.run(
-        'insert into election (election_data, jurisdiction) values (?, ?)',
+        `
+        insert into election (
+          election_data,
+          jurisdiction,
+          election_package_hash
+        ) values (?, ?, ?)
+        `,
         input.electionData,
-        input.jurisdiction
+        input.jurisdiction,
+        input.electionPackageHash
       );
     }
   }

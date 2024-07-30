@@ -20,7 +20,7 @@ test('machineConfig is fetched from api client by default', async () => {
   apiMock.expectGetMachineConfig({
     codeVersion: 'mock-code-version',
   });
-  apiMock.expectGetElectionDefinition(
+  apiMock.expectGetElectionRecord(
     electionFamousNames2021Fixtures.electionDefinition
   );
   apiMock.expectGetElectionState({

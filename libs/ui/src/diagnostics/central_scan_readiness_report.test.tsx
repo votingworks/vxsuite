@@ -26,6 +26,7 @@ test('CentralScanReadinessReport', () => {
         timestamp: generatedAtTime.getTime(),
       }}
       electionDefinition={electionTwoPartyPrimaryDefinition}
+      electionPackageHash="test-election-package-hash"
     />
   );
 

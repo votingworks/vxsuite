@@ -52,7 +52,7 @@ it('will throw an error when using default api', async () => {
 
 it('Displays error boundary if the api returns an unexpected error', async () => {
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
   apiMock.expectGetMachineConfigToError();
   apiMock.mockApiClient.reboot.expectRepeatedCallsWith().resolves();
@@ -67,7 +67,7 @@ it('Displays error boundary if the api returns an unexpected error', async () =>
 it('prevents context menus from appearing', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
   render(<App apiClient={apiMock.mockApiClient} />);
 
@@ -88,7 +88,7 @@ it('prevents context menus from appearing', async () => {
 it('uses voter settings management hook', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(null);
+  apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
 
   const { renderApp } = buildApp(apiMock);
@@ -102,7 +102,7 @@ it('uses voter settings management hook', async () => {
 it('uses ballot style management hook', async () => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetSystemSettings();
-  apiMock.expectGetElectionDefinition(electionGeneralDefinition);
+  apiMock.expectGetElectionRecord(electionGeneralDefinition);
   apiMock.expectGetElectionState();
   apiMock.setAuthStatusCardlessVoterLoggedIn({
     ballotStyleId: '1_en',

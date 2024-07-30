@@ -80,7 +80,11 @@ beforeAll(() => {
 
 // eslint-disable-next-line @typescript-eslint/no-shadow
 function configureMachine(systemSettings: SystemSettings): void {
-  workspace.store.setElectionAndJurisdiction({ electionData, jurisdiction });
+  workspace.store.setElectionAndJurisdiction({
+    electionData,
+    jurisdiction,
+    electionPackageHash: 'test-election-package-hash',
+  });
   workspace.store.setSystemSettings(systemSettings);
 }
 
