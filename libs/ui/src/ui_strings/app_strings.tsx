@@ -573,6 +573,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  instructionsLanguageSettingsButton: () => (
+    <UiString uiStringKey="instructionsLanguageSettingsButton">
+      Press the Select button to change your ballot language.
+    </UiString>
+  ),
+
   instructionsLanguageSettingsScreen: () => (
     <UiString uiStringKey="instructionsLanguageSettingsScreen">
       Use the up and down buttons to navigate through the available ballot
@@ -683,6 +689,10 @@ export const appStrings = {
     <UiString uiStringKey="labelContestsWithVotesRemaining">
       Contests with one or more votes remaining:
     </UiString>
+  ),
+
+  labelCurrentLanguage: () => (
+    <UiString uiStringKey="labelCurrentLanguage">Current Language:</UiString>
   ),
 
   labelDeselected: () => (
