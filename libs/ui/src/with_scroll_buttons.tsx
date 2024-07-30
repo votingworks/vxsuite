@@ -60,6 +60,13 @@ const Content = styled.div<ContentProps>`
   overflow: scroll;
   padding: 0 ${(p) => (p.noPadding ? 0 : getSpacingValueRem(p))}rem;
 
+  /*
+   * TODO: We should consider making this configurable via voter settings, since
+   * Some voters may prefer a reduced-motion mode without these smoothed-out
+  * transitions.
+  */
+  scroll-behavior: smooth;
+
   /* Always pad bottom when scroll enabled, to account for bottom shadow: */
   padding-bottom: ${(p) => (p.scrollEnabled ? getSpacingValueRem(p) : 0)}rem;
 `;
@@ -156,7 +163,6 @@ export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
         Math.round(offsetHeight * SCROLL_DISTANCE_TO_CONTENT_HEIGHT_RATIO);
 
       contentRef.current.scrollTo({
-        behavior: 'smooth',
         top: Math.max(targetScrollTop, 0),
       });
     }
@@ -172,7 +178,6 @@ export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
         Math.round(offsetHeight * SCROLL_DISTANCE_TO_CONTENT_HEIGHT_RATIO);
 
       contentRef.current.scrollTo({
-        behavior: 'smooth',
         top: Math.min(targetScrollTop, maxScrollTop),
       });
     }
