@@ -30,6 +30,11 @@ import { join } from 'path';
 
 const SchemaPath = join(__dirname, '../schema.sql');
 
+export interface ElectionRecord {
+  electionDefinition: ElectionDefinition;
+  electionPackageHash: string;
+}
+
 /**
  * Manages a data store for imported election definition and system settings
  */
@@ -90,9 +95,7 @@ export class Store {
   /**
    * Gets the current election definition and election package hash.
    */
-  getElectionRecord():
-    | { electionDefinition: ElectionDefinition; electionPackageHash: string }
-    | undefined {
+  getElectionRecord(): ElectionRecord | undefined {
     const electionRow = this.client.one(
       `
       select

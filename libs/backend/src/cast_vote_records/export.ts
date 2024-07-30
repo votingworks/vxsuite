@@ -60,15 +60,21 @@ import { readCastVoteRecordExportMetadata } from './import';
 import { buildElectionOptionPositionMap } from './option_map';
 
 /**
+ * An election definition and the election package hash.
+ */
+export interface ElectionRecord {
+  electionDefinition: ElectionDefinition;
+  electionPackageHash: string;
+}
+
+/**
  * Methods shared by both {@link CentralScannerStore} and {@link PrecinctScannerStore}
  */
 export interface ScannerStoreBase {
   clearCastVoteRecordHashes(): void;
   getBatches(): BatchInfo[];
   getCastVoteRecordRootHash(): string;
-  getElectionRecord():
-    | { electionDefinition: ElectionDefinition; electionPackageHash: string }
-    | undefined;
+  getElectionRecord(): ElectionRecord | undefined;
   getSystemSettings(): SystemSettings | undefined;
   getMarkThresholds(): MarkThresholds;
   getTestMode(): boolean;
@@ -679,13 +685,9 @@ export async function exportCastVoteRecordsToUsbDrive(
     exportOptions,
     scannerState: {
       batches: scannerStore.getBatches(),
-<<<<<<< HEAD
-      electionDefinition: assertDefined(scannerStore.getElectionDefinition()),
-      systemSettings: assertDefined(scannerStore.getSystemSettings()),
-=======
       electionDefinition: assertDefined(scannerStore.getElectionRecord())
         .electionDefinition,
->>>>>>> 287eb70fa (libs/backend: Add election package hash to ScannerStore interface)
+      systemSettings: assertDefined(scannerStore.getSystemSettings()),
       inTestMode: scannerStore.getTestMode(),
       markThresholds: scannerStore.getMarkThresholds(),
       pollsState:

@@ -6,6 +6,7 @@ import {
   DiskSpaceSummary,
   readSignedElectionPackageFromUsb,
   exportCastVoteRecordsToUsbDrive,
+  ElectionRecord,
 } from '@votingworks/backend';
 import {
   ElectionPackageConfigurationError,
@@ -181,10 +182,7 @@ function buildApi({
       return workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
     },
 
-    getElectionRecord(): {
-      electionDefinition: ElectionDefinition;
-      electionPackageHash: string;
-    } | null {
+    getElectionRecord(): ElectionRecord | null {
       return store.getElectionRecord() || null;
     },
 

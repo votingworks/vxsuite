@@ -54,7 +54,7 @@ import { ElectionState, PrintBallotProps } from './types';
 import { isAccessibleControllerDaemonRunning } from './util/hardware';
 import { saveReadinessReport } from './readiness_report';
 import { renderBallot } from './util/render_ballot';
-import { Store } from './store';
+import { ElectionRecord, Store } from './store';
 import { constructAuthMachineState } from './util/auth';
 
 function addDiagnosticRecordAndLog(
@@ -136,10 +136,7 @@ export function buildApi(
       return auth.endCardlessVoterSession(constructAuthMachineState(workspace));
     },
 
-    getElectionRecord(): {
-      electionDefinition: ElectionDefinition;
-      electionPackageHash: string;
-    } | null {
+    getElectionRecord(): ElectionRecord | null {
       return workspace.store.getElectionRecord() ?? null;
     },
 

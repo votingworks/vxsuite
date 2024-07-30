@@ -191,8 +191,8 @@ test('unconfigureMachine deletes system settings and election definition', async
 
   const readResult = await apiClient.getSystemSettings();
   expect(readResult).toEqual(DEFAULT_SYSTEM_SETTINGS);
-  const electionDefinitionResult = await apiClient.getElectionRecord();
-  expect(electionDefinitionResult).toBeNull();
+  const electionRecord = await apiClient.getElectionRecord();
+  expect(electionRecord).toBeNull();
 });
 
 test('configureElectionPackageFromUsb throws when no USB drive mounted', async () => {

@@ -31,7 +31,7 @@ const ContentHeader = styled(ReadOnLoad)`
 
 export function ValidateBallotPage(): JSX.Element | null {
   const getInterpretationQuery = getInterpretation.useQuery();
-  const getElectionDefinitionQuery = getElectionRecord.useQuery();
+  const getElectionRecordQuery = getElectionRecord.useQuery();
   // We use the contest data stored in BallotContext but vote data from the interpreted ballot
   const { contests, precinctId, resetBallot } = React.useContext(BallotContext);
 
@@ -53,13 +53,10 @@ export function ValidateBallotPage(): JSX.Element | null {
     });
   }
 
-  if (
-    !getInterpretationQuery.isSuccess ||
-    !getElectionDefinitionQuery.isSuccess
-  ) {
+  if (!getInterpretationQuery.isSuccess || !getElectionRecordQuery.isSuccess) {
     return null;
   }
-  const { electionDefinition } = assertDefined(getElectionDefinitionQuery.data);
+  const { electionDefinition } = assertDefined(getElectionRecordQuery.data);
 
   // Interpretation may be null on first redirect to this page
   const interpretation = getInterpretationQuery.data;

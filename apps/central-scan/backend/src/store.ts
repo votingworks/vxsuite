@@ -8,7 +8,6 @@ import {
   BallotPaperSize,
   BallotSheetInfo,
   BatchInfo,
-  ElectionDefinition,
   Iso8601Timestamp,
   mapSheet,
   MarkThresholds,
@@ -36,6 +35,7 @@ import { dirname, join } from 'path';
 import { v4 as uuid } from 'uuid';
 import {
   AcceptedSheet,
+  ElectionRecord,
   RejectedSheet,
   Sheet,
   addDiagnosticRecord,
@@ -188,9 +188,7 @@ export class Store {
   /**
    * Gets the current election definition and election package hash.
    */
-  getElectionRecord():
-    | { electionDefinition: ElectionDefinition; electionPackageHash: string }
-    | undefined {
+  getElectionRecord(): ElectionRecord | undefined {
     const electionRow = this.client.one(
       `
       select
