@@ -47,6 +47,7 @@ import {
   faVolumeHigh,
   faEyeSlash,
   faPlay,
+  faEarthAmericas,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faXmarkCircle,
@@ -242,6 +243,10 @@ export const Icons = {
 
   EyeSlash(props) {
     return <FaIcon {...props} type={faEyeSlash} />;
+  },
+
+  Globe(props) {
+    return <FaIcon {...props} type={faEarthAmericas} />;
   },
 
   Info(props) {
