@@ -65,7 +65,7 @@ export interface SystemSettings {
   readonly precinctScanDisallowCastingOvervotes: boolean;
   readonly precinctScanEnableShoeshineMode?: boolean;
   /**
-   * Includes original snapshots in cast vote record reports, decreasing export size and
+   * Includes original snapshots in cast vote record reports, increasing export size and
    * import/export time (required for CDF).
    */
   readonly castVoteRecordsIncludeOriginalSnapshots?: boolean;
