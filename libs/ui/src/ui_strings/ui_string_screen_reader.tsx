@@ -126,6 +126,19 @@ export function UiStringScreenReader(
   );
   const audioIdQueries = api.getAudioIds.useQueries([...activeLanguages]);
 
+  // Wrap `isEnabled` and `setIsPaused` in refs, so we can use it in the event
+  // listener effect without needing to unload and re-load the effect when the
+  // values change:
+  const isEnabledRef = React.useRef(isEnabled);
+  React.useEffect(() => {
+    isEnabledRef.current = isEnabled;
+  }, [isEnabled]);
+
+  const setIsPausedRef = React.useRef(setIsPaused);
+  React.useEffect(() => {
+    setIsPausedRef.current = setIsPaused;
+  }, [setIsPaused]);
+
   //
   // Register click/focus handlers:
   //
@@ -140,8 +153,8 @@ export function UiStringScreenReader(
 
         // In case playback was paused for a previous event, unpause to ensure
         // that the user receives audio feedback for this next event.
-        if (isEnabled) {
-          setIsPaused(false);
+        if (isEnabledRef.current) {
+          setIsPausedRef.current(false);
         }
       });
     }
@@ -159,7 +172,7 @@ export function UiStringScreenReader(
       document.removeEventListener('focus', onFocusOrClick, { capture: true });
       document.removeEventListener('blur', onBlur, { capture: true });
     };
-  }, [isEnabled, setIsPaused]);
+  }, []);
 
   //
   // Extract and queue up i18n keys within the event target:
