@@ -33,13 +33,13 @@ export const testVxfElection: Election = {
   parties: [
     {
       id: 'party-1' as PartyId,
-      name: 'Democrat',
+      name: 'Democratic Party',
       fullName: 'Democratic Party',
       abbrev: 'D',
     },
     {
       id: 'party-2' as PartyId,
-      name: 'Republican',
+      name: 'Republican Party',
       fullName: 'Republican Party',
       abbrev: 'R',
     },
@@ -336,8 +336,8 @@ export const testVxfElection: Election = {
         'party-2': 'Republican Party',
       },
       partyName: {
-        'party-1': 'Democrat',
-        'party-2': 'Republican',
+        'party-1': 'Democratic Party',
+        'party-2': 'Republican Party',
       },
       precinctName: {
         'precinct-1': 'North Lincoln',
@@ -956,16 +956,6 @@ export const testCdfBallotDefinition: BallotDefinition = {
           },
         ],
       },
-      vxBallotLabel: {
-        '@type': 'BallotDefinition.InternationalizedText',
-        Text: [
-          {
-            '@type': 'BallotDefinition.LanguageString',
-            Language: 'en',
-            Content: 'Democrat',
-          },
-        ],
-      },
     },
     {
       '@type': 'BallotDefinition.Party',
@@ -987,16 +977,6 @@ export const testCdfBallotDefinition: BallotDefinition = {
             '@type': 'BallotDefinition.LanguageString',
             Language: 'en',
             Content: 'R',
-          },
-        ],
-      },
-      vxBallotLabel: {
-        '@type': 'BallotDefinition.InternationalizedText',
-        Text: [
-          {
-            '@type': 'BallotDefinition.LanguageString',
-            Language: 'en',
-            Content: 'Republican',
           },
         ],
       },

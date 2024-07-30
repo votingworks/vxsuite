@@ -306,7 +306,7 @@ const extractorFns: Record<
       setInternationalizedUiStrings({
         stringKey: [ElectionStringKey.PARTY_NAME, party['@id']],
         uiStrings,
-        values: party.vxBallotLabel.Text,
+        values: party.Name.Text,
       });
     }
   },
@@ -761,7 +761,6 @@ export function convertVxfElectionToCdfBallotDefinition(
       '@id': party.id,
       Name: text(party.fullName, [ElectionStringKey.PARTY_FULL_NAME, party.id]),
       Abbreviation: text(party.abbrev, 'other'),
-      vxBallotLabel: text(party.name, [ElectionStringKey.PARTY_NAME, party.id]),
     })),
 
     GpUnit: [
@@ -953,7 +952,7 @@ export function convertCdfBallotDefinitionToVxfElection(
     parties: cdfBallotDefinition.Party.map((party) => {
       return {
         id: party['@id'] as Vxf.PartyId,
-        name: englishText(party.vxBallotLabel),
+        name: englishText(party.Name),
         fullName: englishText(party.Name),
         abbrev: englishText(party.Abbreviation),
       };

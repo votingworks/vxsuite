@@ -489,7 +489,7 @@ const tests: Record<ElectionStringKey, () => void> = {
         {
           ...assertDefined(testCdfBallotDefinition.Party[0]),
           '@id': 'party1',
-          vxBallotLabel: buildInternationalizedText({
+          Name: buildInternationalizedText({
             [LanguageCode.ENGLISH]: 'Block Party',
             [LanguageCode.SPANISH]: 'Fiesta En La Calle',
             unsupported_lang: '🥳',
@@ -498,7 +498,7 @@ const tests: Record<ElectionStringKey, () => void> = {
         {
           ...assertDefined(testCdfBallotDefinition.Party[1]),
           '@id': 'party2',
-          vxBallotLabel: buildInternationalizedText({
+          Name: buildInternationalizedText({
             [LanguageCode.ENGLISH]: 'Pool Party',
             [LanguageCode.SPANISH]: 'Fiesta De Piscina',
             unsupported_lang: '🏖',

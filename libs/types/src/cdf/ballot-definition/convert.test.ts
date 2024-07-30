@@ -1,6 +1,6 @@
 import cloneDeep from 'lodash.clonedeep';
 import set from 'lodash.set';
-import { ok } from '@votingworks/basics';
+import { mapObject, ok } from '@votingworks/basics';
 import {
   election,
   electionTwoPartyPrimary,
@@ -14,6 +14,7 @@ import {
 } from './convert';
 import { testCdfBallotDefinition, testVxfElection } from './fixtures';
 import {
+  Election,
   ElectionStringKey,
   LanguageCode,
   UiStringsPackage,
@@ -239,24 +240,6 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
     ]
   );
 
-  // Party names
-  set(
-    expectedCdfBallotDefinition,
-    ['Party', 0, 'vxBallotLabel', 'Text'],
-    [
-      languageString('Democrat', LanguageCode.ENGLISH),
-      languageString('Demócrata', LanguageCode.SPANISH),
-    ]
-  );
-  set(
-    expectedCdfBallotDefinition,
-    ['Party', 1, 'vxBallotLabel', 'Text'],
-    [
-      languageString('Republican', LanguageCode.ENGLISH),
-      languageString('Republicano', LanguageCode.SPANISH),
-    ]
-  );
-
   // Precinct names
   set(
     expectedCdfBallotDefinition,
@@ -304,10 +287,28 @@ test('convertCdfBallotDefinitionToVxfElection', () => {
 
 const elections = [election, primaryElection, electionTwoPartyPrimary];
 
+function normalizeVxfAfterCdfConversion(vxfElection: Election): Election {
+  return {
+    ...vxfElection,
+    // CDF only has one field for party name, so we lose `party.name`
+    parties: vxfElection.parties.map((party) => ({
+      ...party,
+      name: party.fullName,
+    })),
+    ballotStrings: mapObject(vxfElection.ballotStrings, (strings) => ({
+      ...strings,
+      [ElectionStringKey.PARTY_NAME]:
+        strings[ElectionStringKey.PARTY_FULL_NAME],
+    })),
+  };
+}
+
 for (const vxf of elections) {
   test(`round trip conversion for election fixture: ${vxf.title}`, () => {
     const cdf = convertVxfElectionToCdfBallotDefinition(vxf);
-    expect(convertCdfBallotDefinitionToVxfElection(cdf)).toEqual(vxf);
+    expect(convertCdfBallotDefinitionToVxfElection(cdf)).toEqual(
+      normalizeVxfAfterCdfConversion(vxf)
+    );
   });
 }
 

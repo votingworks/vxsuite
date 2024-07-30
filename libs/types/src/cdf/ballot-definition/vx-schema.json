@@ -758,7 +758,7 @@
       "additionalProperties": false
     },
     "BallotDefinition.Party": {
-      "required": ["@id", "@type", "Abbreviation", "Name", "vxBallotLabel"],
+      "required": ["@id", "@type", "Abbreviation", "Name"],
       "additionalProperties": false,
       "properties": {
         "@id": {
@@ -772,10 +772,6 @@
           "$ref": "#/definitions/BallotDefinition.InternationalizedText"
         },
         "Name": {
-          "$ref": "#/definitions/BallotDefinition.InternationalizedText"
-        },
-        "vxBallotLabel": {
-          "description": "The label to describe candidates from this party on a ballot.",
           "$ref": "#/definitions/BallotDefinition.InternationalizedText"
         }
       },

@@ -1240,11 +1240,6 @@ export interface Party {
    * Official full name of the party, e.g., “Republican”; can appear on the ballot.
    */
   readonly Name: InternationalizedText;
-
-  /**
-   * The label to describe candidates from this party on a ballot.
-   */
-  readonly vxBallotLabel: InternationalizedText;
 }
 
 /**
@@ -1255,7 +1250,6 @@ export const PartySchema: z.ZodSchema<Party> = z.object({
   '@type': z.literal('BallotDefinition.Party'),
   Abbreviation: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
   Name: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
-  vxBallotLabel: z.lazy(/* istanbul ignore next */ () => InternationalizedTextSchema),
 });
 
 /**
