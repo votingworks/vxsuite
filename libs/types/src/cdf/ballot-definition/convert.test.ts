@@ -1,6 +1,6 @@
 import cloneDeep from 'lodash.clonedeep';
 import set from 'lodash.set';
-import { mapObject, ok } from '@votingworks/basics';
+import { ok } from '@votingworks/basics';
 import {
   election,
   electionTwoPartyPrimary,
@@ -14,13 +14,13 @@ import {
 } from './convert';
 import { testCdfBallotDefinition, testVxfElection } from './fixtures';
 import {
-  Election,
   ElectionStringKey,
   LanguageCode,
   UiStringsPackage,
   mergeUiStrings,
 } from '../..';
 import * as Cdf from '.';
+import { normalizeVxfAfterCdfConversion } from '../../../test/cdf_conversion_helpers';
 
 function languageString(
   content: string,
@@ -282,26 +282,10 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
 test('convertCdfBallotDefinitionToVxfElection', () => {
   expect(
     convertCdfBallotDefinitionToVxfElection(testCdfBallotDefinition)
-  ).toEqual(testVxfElection);
+  ).toEqual(normalizeVxfAfterCdfConversion(testVxfElection));
 });
 
 const elections = [election, primaryElection, electionTwoPartyPrimary];
-
-function normalizeVxfAfterCdfConversion(vxfElection: Election): Election {
-  return {
-    ...vxfElection,
-    // CDF only has one field for party name, so we lose `party.name`
-    parties: vxfElection.parties.map((party) => ({
-      ...party,
-      name: party.fullName,
-    })),
-    ballotStrings: mapObject(vxfElection.ballotStrings, (strings) => ({
-      ...strings,
-      [ElectionStringKey.PARTY_NAME]:
-        strings[ElectionStringKey.PARTY_FULL_NAME],
-    })),
-  };
-}
 
 for (const vxf of elections) {
   test(`round trip conversion for election fixture: ${vxf.title}`, () => {
@@ -341,7 +325,7 @@ test('safeParseCdfBallotDefinition', () => {
 
   expect(safeParseCdfBallotDefinition(testCdfBallotDefinition)).toEqual(
     ok({
-      vxfElection: testVxfElection,
+      vxfElection: normalizeVxfAfterCdfConversion(testVxfElection),
       cdfElection: testCdfBallotDefinition,
     })
   );

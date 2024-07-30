@@ -50,6 +50,7 @@ import {
   safeParseElectionDefinition,
 } from './election_parsing';
 import { LanguageCode } from '.';
+import { normalizeVxfAfterCdfConversion } from '../test/cdf_conversion_helpers';
 
 test('can build votes from a candidate ID', () => {
   const contests = election.contests.filter((c) => c.id === 'CC');
@@ -536,11 +537,11 @@ test('getDisplayBallotHash', () => {
 
 test('safeParseElection converts CDF to VXF', () => {
   expect(safeParseElection(testCdfBallotDefinition).unsafeUnwrap()).toEqual(
-    testVxfElection
+    normalizeVxfAfterCdfConversion(testVxfElection)
   );
   expect(
     safeParseElection(JSON.stringify(testCdfBallotDefinition)).unsafeUnwrap()
-  ).toEqual(testVxfElection);
+  ).toEqual(normalizeVxfAfterCdfConversion(testVxfElection));
 });
 
 test('safeParseElection shows VXF and CDF parsing errors', () => {

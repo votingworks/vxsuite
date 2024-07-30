@@ -12,7 +12,6 @@
         "Issuer",
         "IssuerAbbreviation",
         "Party",
-        "vxSeal",
         "SequenceEnd",
         "SequenceStart",
         "VendorApplicationId",
@@ -80,10 +79,6 @@
           },
           "minItems": 0,
           "type": "array"
-        },
-        "vxSeal": {
-          "description": "SVG image content for the jurisdiction's seal in UTF8 text format",
-          "type": "string"
         },
         "SequenceEnd": {
           "type": "integer"

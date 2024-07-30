@@ -843,8 +843,6 @@ export function convertVxfElectionToCdfBallotDefinition(
       },
     ],
 
-    vxSeal: vxfElection.seal,
-
     // Since we don't have a generated date in VXF, we use the election date. If
     // we were to use the current date, it would cause changes every time we
     // hash the object. We want hashes to be based on the content of the
@@ -946,7 +944,12 @@ export function convertCdfBallotDefinitionToVxfElection(
       name: englishText(county.Name),
     },
     date: new DateWithoutTime(election.StartDate),
-    seal: cdfBallotDefinition.vxSeal,
+    // CDF doesn't have a seal field, but VXF requires a seal, so we pass in an
+    // empty string (a hacky form of "no seal"). While we could change VXF to
+    // have an optional seal field, we actually want to require a seal for all
+    // elections - this is an edge case due to CDF limitations. This case is
+    // handled in the Seal ui component.
+    seal: '',
 
     parties: cdfBallotDefinition.Party.map((party) => {
       return {
