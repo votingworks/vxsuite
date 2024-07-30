@@ -3,7 +3,7 @@ import React, { PureComponent } from 'react';
 import styled, { css, CSSObject, DefaultTheme } from 'styled-components';
 import { SizeMode, SizeTheme, UiTheme } from '@votingworks/types';
 
-import { throwIllegalValue } from '@votingworks/basics';
+import { assertDefined, throwIllegalValue } from '@votingworks/basics';
 import { rgba } from 'polished';
 import { IconName, Icons } from './icons';
 
@@ -429,8 +429,10 @@ export class Button<T = undefined> extends PureComponent<
       Math.abs(startCoordinates[0] - clientX) < maxMove &&
       Math.abs(startCoordinates[1] - clientY) < maxMove
     ) {
-      this.onPress();
       event.preventDefault();
+      event.stopPropagation();
+
+      assertDefined(this.buttonRef.current).click();
     }
   };
 
