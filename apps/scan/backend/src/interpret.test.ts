@@ -1,8 +1,10 @@
 import { iter, typedAs } from '@votingworks/basics';
+import { renderBmdBallotFixture } from '@votingworks/bmd-ballot-fixtures';
 import {
   electionFamousNames2021Fixtures,
   electionGridLayoutNewHampshireTestBallotFixtures,
 } from '@votingworks/fixtures';
+import { ImageData, pdfToImages } from '@votingworks/image-utils';
 import {
   AdjudicationReason,
   BallotType,
@@ -11,31 +13,36 @@ import {
   InterpretedHmpbPage,
   PageInterpretation,
   SheetInterpretation,
+  SheetOf,
   asSheet,
 } from '@votingworks/types';
 import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import * as fs from 'fs/promises';
-import { dirSync, tmpNameSync } from 'tmp';
-import { renderBmdBallotFixture } from '@votingworks/bmd-ballot-fixtures';
-import { pdfToImages, writeImageData } from '@votingworks/image-utils';
+import { dirSync } from 'tmp';
 import { combinePageInterpretationsForSheet, interpret } from './interpret';
 
 if (process.env.CI) {
   jest.setTimeout(20_000);
 }
 
-const ballotImages = {
-  overvoteBallot: [
-    electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedOvervoteFront.asFilePath(),
-    electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedOvervoteBack.asFilePath(),
-  ],
-  normalBallot: [
-    electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asFilePath(),
-    electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asFilePath(),
-  ],
-} as const;
-
+let ballotImages: {
+  overvoteBallot: SheetOf<ImageData>;
+  normalBallot: SheetOf<ImageData>;
+};
 let ballotImagesPath!: string;
+
+beforeAll(async () => {
+  ballotImages = {
+    overvoteBallot: [
+      await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedOvervoteFront.asImageData(),
+      await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedOvervoteBack.asImageData(),
+    ],
+    normalBallot: [
+      await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedFront.asImageData(),
+      await electionGridLayoutNewHampshireTestBallotFixtures.scanMarkedBack.asImageData(),
+    ],
+  };
+});
 
 beforeEach(() => {
   ballotImagesPath = dirSync().name;
@@ -49,16 +56,12 @@ test('treats BMD ballot with one blank side as valid', async () => {
   const ballotPdf = await renderBmdBallotFixture({
     electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
   });
-  const pageImagePaths = asSheet(
+  const pageImages = asSheet(
     await iter(pdfToImages(ballotPdf, { scale: 200 / 72 }))
-      .map(async ({ page }) => {
-        const path = tmpNameSync({ postfix: '.png' });
-        await writeImageData(path, page);
-        return path;
-      })
+      .map(({ page }) => page)
       .toArray()
   );
-  const result = await interpret('foo-sheet-id', pageImagePaths, {
+  const result = await interpret('foo-sheet-id', pageImages, {
     electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
     precinctSelection: ALL_PRECINCTS_SELECTION,
     ballotImagesPath,

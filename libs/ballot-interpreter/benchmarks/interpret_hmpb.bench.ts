@@ -1,14 +1,15 @@
-import { assert, assertDefined } from '@votingworks/basics';
+import { assertDefined } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
 import { famousNamesFixtures } from '@votingworks/hmpb';
 import {
+  asSheet,
   DEFAULT_MARK_THRESHOLDS,
   ElectionDefinition,
 } from '@votingworks/types';
 import { singlePrecinctSelectionFor } from '@votingworks/utils';
 import { interpretSheet } from '../src';
+import { pdfToPageImages } from '../test/helpers/interpretation';
 import { benchmarkRegressionTest } from './benchmarking';
-import { pdfToPageImagePaths } from '../test/helpers/interpretation';
 
 jest.setTimeout(60_000);
 
@@ -21,8 +22,9 @@ describe('Interpretation benchmark', () => {
   });
 
   test('Blank HMPB', async () => {
-    const ballotImagePaths = await pdfToPageImagePaths(blankBallotPath);
-    assert(ballotImagePaths.length === 2);
+    const ballotImages = asSheet(
+      await pdfToPageImages(blankBallotPath).toArray()
+    );
 
     await benchmarkRegressionTest({
       label: 'Blank HMPB interpretation',
@@ -37,7 +39,7 @@ describe('Interpretation benchmark', () => {
             markThresholds: DEFAULT_MARK_THRESHOLDS,
             adjudicationReasons: [],
           },
-          ballotImagePaths as [string, string]
+          ballotImages
         );
       },
       runs: 50,
@@ -45,8 +47,9 @@ describe('Interpretation benchmark', () => {
   });
 
   test('Marked HMPB', async () => {
-    const ballotImagePaths = await pdfToPageImagePaths(markedBallotPath);
-    assert(ballotImagePaths.length === 2);
+    const ballotImages = asSheet(
+      await pdfToPageImages(markedBallotPath).toArray()
+    );
 
     await benchmarkRegressionTest({
       label: 'Marked HMPB interpretation',
@@ -61,7 +64,7 @@ describe('Interpretation benchmark', () => {
             markThresholds: DEFAULT_MARK_THRESHOLDS,
             adjudicationReasons: [],
           },
-          ballotImagePaths as [string, string]
+          ballotImages
         );
       },
       runs: 50,
