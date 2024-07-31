@@ -14,11 +14,13 @@ import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
 export async function renderBmdBallotFixture(
   props: Partial<BmdPaperBallotProps> & {
     electionDefinition: ElectionDefinition;
+    rotateImage?: boolean;
   }
 ): Promise<Buffer> {
   // Set some default props that can be overridden by the caller
   const {
     electionDefinition: { election },
+    rotateImage = false,
   } = props;
   const ballotStyle = election.ballotStyles[0];
   const precinctId = ballotStyle.precincts[0];
@@ -37,6 +39,11 @@ export async function renderBmdBallotFixture(
       <div style={{ pageBreakAfter: 'always' }} />
     </React.Fragment>
   );
+  if (rotateImage) {
+    return renderToPdf({
+      document: <div style={{ transform: 'rotate(180deg)' }}>{ballot}</div>,
+    });
+  }
 
   return renderToPdf({ document: ballot });
 }

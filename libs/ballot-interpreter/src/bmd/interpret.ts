@@ -13,6 +13,7 @@ import {
 } from '@votingworks/ballot-encoder';
 import { DetectQrCodeError, detectInBallot } from './utils/qrcode';
 import { DetectedQrCode } from './types';
+import { rotateImageData180 } from './utils/rotate';
 
 export interface Interpretation {
   ballot: CompletedBallot;
@@ -78,9 +79,15 @@ export async function interpret(
     });
   }
 
+  let summaryBallotImage = frontResult.isOk() ? card[0] : card[1];
+  // Orient the ballot image right side up
+  if (foundQrCode.position === 'bottom') {
+    summaryBallotImage = rotateImageData180(summaryBallotImage);
+  }
+
   return ok({
     ballot: decodeBallot(electionDefinition.election, foundQrCode.data),
-    summaryBallotImage: frontResult.isOk() ? card[0] : card[1],
+    summaryBallotImage,
     blankPageImage: frontResult.isOk() ? card[1] : card[0],
   });
 }
