@@ -752,6 +752,7 @@ function scoreInterpretFileResult(
     return -60;
   }
 
+  /* istanbul ignore next - should be unreachable */
   throw new Error(`Unexpected result types: ${frontType}, ${backType}`);
 }
 
