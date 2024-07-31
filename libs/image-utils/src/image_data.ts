@@ -123,8 +123,6 @@ export function toDataUrl(
 
 /**
  * Writes an image to a file.
- *
- * @param buffer - Whether to buffer the image before writing it to disk.
  */
 export async function writeImageData(
   path: string,
