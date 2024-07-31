@@ -298,6 +298,10 @@ export function createApiMock() {
         },
       };
     },
+
+    expectLogTestPrintOutcome(outcome: 'pass' | 'fail') {
+      mockApiClient.logTestPrintOutcome.expectCallWith({ outcome }).resolves();
+    },
   };
 }
 

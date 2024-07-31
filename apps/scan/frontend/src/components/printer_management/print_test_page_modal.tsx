@@ -1,7 +1,7 @@
 import { Button, Loading, Modal, P } from '@votingworks/ui';
 import { assert } from '@votingworks/basics';
 import React from 'react';
-import { printTestPage } from '../../api';
+import { logTestPrintOutcome, printTestPage } from '../../api';
 
 export interface PrintTestPageModalProps {
   printTestPageMutation: ReturnType<typeof printTestPage.useMutation>;
@@ -11,9 +11,32 @@ export interface PrintTestPageModalProps {
 
 export function PrintTestPageModal({
   printTestPageMutation,
-  onClose,
-  onRetry,
+  onClose: onCloseFromProps,
+  onRetry: onRetryFromProps,
 }: PrintTestPageModalProps): JSX.Element | null {
+  const logTestPrintOutcomeMutation = logTestPrintOutcome.useMutation();
+
+  function onClose() {
+    logTestPrintOutcomeMutation.reset();
+    onCloseFromProps();
+  }
+
+  const onRetry = onRetryFromProps
+    ? () => {
+        logTestPrintOutcomeMutation.reset();
+        onRetryFromProps();
+      }
+    : undefined;
+
+  function logPass() {
+    logTestPrintOutcomeMutation.mutate({ outcome: 'pass' });
+    onClose();
+  }
+
+  function logFail() {
+    logTestPrintOutcomeMutation.mutate({ outcome: 'fail' });
+  }
+
   if (printTestPageMutation.status === 'idle') {
     return null;
   }
@@ -64,13 +87,34 @@ export function PrintTestPageModal({
     );
   }
 
+  if (
+    logTestPrintOutcomeMutation.status === 'idle' ||
+    logTestPrintOutcomeMutation.status === 'loading'
+  ) {
+    return (
+      <Modal
+        title="Test Page Printed"
+        content={<P>Remove and inspect the test page. Did it print legibly?</P>}
+        actions={
+          <React.Fragment>
+            <Button variant="primary" onPress={logPass}>
+              Yes
+            </Button>
+            <Button onPress={logFail}>No</Button>
+          </React.Fragment>
+        }
+      />
+    );
+  }
+
   return (
     <Modal
       title="Test Page Printed"
       content={
         <P>
-          Remove and inspect the test page to confirm it printed legibly. If it
-          did not, try reloading the paper roll.
+          You indicated the test print was not successful. The paper may not be
+          loaded correctly. Please try reloading the paper and attempt the test
+          print again.
         </P>
       }
       actions={

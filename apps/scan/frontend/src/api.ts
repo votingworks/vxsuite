@@ -163,6 +163,18 @@ export const getPrinterStatus = {
   },
 } as const;
 
+export const getMostRecentPrinterDiagnostic = {
+  queryKey(): QueryKey {
+    return ['getMostRecentPrinterDiagnostic'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () =>
+      apiClient.getMostRecentPrinterDiagnostic()
+    );
+  },
+} as const;
+
 export const ejectUsbDrive = {
   useMutation() {
     const apiClient = useApiClient();
@@ -407,7 +419,28 @@ export const printReportSection = {
 export const printTestPage = {
   useMutation() {
     const apiClient = useApiClient();
-    return useMutation(apiClient.printTestPage);
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.printTestPage, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getMostRecentPrinterDiagnostic.queryKey()
+        );
+      },
+    });
+  },
+} as const;
+
+export const logTestPrintOutcome = {
+  useMutation() {
+    const apiClient = useApiClient();
+    const queryClient = useQueryClient();
+    return useMutation(apiClient.logTestPrintOutcome, {
+      async onSuccess() {
+        await queryClient.invalidateQueries(
+          getMostRecentPrinterDiagnostic.queryKey()
+        );
+      },
+    });
   },
 } as const;
 
