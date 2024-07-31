@@ -20,6 +20,7 @@ import {
   readSignedElectionPackageFromUsb,
   doesUsbDriveRequireCastVoteRecordSync as doesUsbDriveRequireCastVoteRecordSyncFn,
   configureUiStrings,
+  DiskSpaceSummary,
 } from '@votingworks/backend';
 import { assert, assertDefined, ok, Result } from '@votingworks/basics';
 import { InsertedSmartCardAuthApi, LiveCheck } from '@votingworks/auth';
@@ -414,6 +415,10 @@ export function buildApi({
 
     getMostRecentPrinterDiagnostic(): DiagnosticRecord | null {
       return store.getMostRecentDiagnosticRecord('test-print') ?? null;
+    },
+
+    async getDiskSpaceSummary(): Promise<DiskSpaceSummary> {
+      return workspace.getDiskSpaceSummary();
     },
 
     ...createUiStringsApi({

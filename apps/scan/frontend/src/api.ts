@@ -163,6 +163,20 @@ export const getPrinterStatus = {
   },
 } as const;
 
+export const getDiskSpaceSummary = {
+  queryKey(): QueryKey {
+    return ['getDiskSpaceSummary'];
+  },
+  useQuery() {
+    const apiClient = useApiClient();
+    return useQuery(this.queryKey(), () => apiClient.getDiskSpaceSummary(), {
+      // disk space availability could change between queries for a variety
+      // reasons, so always treat it as stale
+      staleTime: 0,
+    });
+  },
+} as const;
+
 export const getMostRecentPrinterDiagnostic = {
   queryKey(): QueryKey {
     return ['getMostRecentPrinterDiagnostic'];
