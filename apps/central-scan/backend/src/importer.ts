@@ -12,6 +12,8 @@ import { join } from 'path';
 import { v4 as uuid } from 'uuid';
 import { interpretSheetAndSaveImages } from '@votingworks/ballot-interpreter';
 import { Logger } from '@votingworks/logging';
+import { ImageData } from 'canvas';
+import { loadImageData } from '@votingworks/image-utils';
 import {
   BatchControl,
   BatchScanner,
@@ -84,10 +86,14 @@ export class Importer {
         sheetInfo.backPath,
         batchId
       );
+      const [frontImageData, backImageData] = await Promise.all([
+        loadImageData(sheetInfo.frontPath),
+        loadImageData(sheetInfo.backPath),
+      ]);
       return await this.importSheet(
         batchId,
-        sheetInfo.frontPath,
-        sheetInfo.backPath,
+        frontImageData,
+        backImageData,
         sheetInfo.ballotAuditId
       );
     } finally {
@@ -104,14 +110,14 @@ export class Importer {
 
   async importSheet(
     batchId: string,
-    frontInputImagePath: string,
-    backInputImagePath: string,
+    frontInputImageData: ImageData,
+    backInputImageData: ImageData,
     ballotAuditId?: string
   ): Promise<string> {
     let sheetId = uuid();
     const interpretResult = await this.interpretSheet(sheetId, [
-      frontInputImagePath,
-      backInputImagePath,
+      frontInputImageData,
+      backInputImageData,
     ]);
 
     if (interpretResult.isErr()) {
@@ -178,7 +184,7 @@ export class Importer {
 
   private async interpretSheet(
     sheetId: string,
-    [frontImagePath, backImagePath]: SheetOf<string>
+    [frontImageData, backImageData]: SheetOf<ImageData>
   ): Promise<Result<SheetOf<PageInterpretationWithFiles>, Error>> {
     const electionDefinition = this.getElectionDefinition();
     const { store } = this.workspace;
@@ -192,7 +198,7 @@ export class Importer {
           adjudicationReasons: store.getAdjudicationReasons(),
           markThresholds: store.getMarkThresholds(),
         },
-        [frontImagePath, backImagePath],
+        [frontImageData, backImageData],
         sheetId,
         this.workspace.ballotImagesPath
       )
