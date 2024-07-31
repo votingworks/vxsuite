@@ -306,7 +306,7 @@ const extractorFns: Record<
       setInternationalizedUiStrings({
         stringKey: [ElectionStringKey.PARTY_NAME, party['@id']],
         uiStrings,
-        values: party.vxBallotLabel.Text,
+        values: party.Name.Text,
       });
     }
   },
@@ -536,7 +536,6 @@ export function convertVxfElectionToCdfBallotDefinition(
           {
             '@type': 'BallotDefinition.PhysicalContest',
             BallotFormatId: 'ballot-format',
-            vxOptionBoundsFromTargetMark: gridLayout.optionBoundsFromTargetMark,
             PhysicalContestOption: gridLayout.gridPositions
               .filter((position) => position.contestId === contest.id)
               .map(
@@ -761,7 +760,6 @@ export function convertVxfElectionToCdfBallotDefinition(
       '@id': party.id,
       Name: text(party.fullName, [ElectionStringKey.PARTY_FULL_NAME, party.id]),
       Abbreviation: text(party.abbrev, 'other'),
-      vxBallotLabel: text(party.name, [ElectionStringKey.PARTY_NAME, party.id]),
     })),
 
     GpUnit: [
@@ -844,8 +842,6 @@ export function convertVxfElectionToCdfBallotDefinition(
         SelectionCaptureMethod: Cdf.SelectionCaptureMethod.Omr,
       },
     ],
-
-    vxSeal: vxfElection.seal,
 
     // Since we don't have a generated date in VXF, we use the election date. If
     // we were to use the current date, it would cause changes every time we
@@ -948,12 +944,17 @@ export function convertCdfBallotDefinitionToVxfElection(
       name: englishText(county.Name),
     },
     date: new DateWithoutTime(election.StartDate),
-    seal: cdfBallotDefinition.vxSeal,
+    // CDF doesn't have a seal field, but VXF requires a seal, so we pass in an
+    // empty string (a hacky form of "no seal"). While we could change VXF to
+    // have an optional seal field, we actually want to require a seal for all
+    // elections - this is an edge case due to CDF limitations. This case is
+    // handled in the Seal ui component.
+    seal: '',
 
     parties: cdfBallotDefinition.Party.map((party) => {
       return {
         id: party['@id'] as Vxf.PartyId,
-        name: englishText(party.vxBallotLabel),
+        name: englishText(party.Name),
         fullName: englishText(party.Name),
         abbrev: englishText(party.Abbreviation),
       };
@@ -1098,11 +1099,16 @@ export function convertCdfBallotDefinitionToVxfElection(
         (ballotStyle) => ballotStyle.OrderedContent !== undefined
       ).map((ballotStyle): Vxf.GridLayout => {
         const orderedContests = assertDefined(ballotStyle.OrderedContent);
-        const optionBoundsFromTargetMark =
-          orderedContests[0].Physical[0].vxOptionBoundsFromTargetMark;
         return {
           ballotStyleId: ballotStyle.ExternalIdentifier[0].Value,
-          optionBoundsFromTargetMark,
+          // Since there's no CDF field for this, we set a default based on what
+          // generally works well for our HMPBs.
+          optionBoundsFromTargetMark: {
+            top: 1,
+            left: 1,
+            right: 9,
+            bottom: 1,
+          },
           gridPositions: orderedContests.flatMap(
             (orderedContest): Vxf.GridPosition[] =>
               orderedContest.Physical[0].PhysicalContestOption.map(

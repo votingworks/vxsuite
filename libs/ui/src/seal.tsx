@@ -38,7 +38,9 @@ export function Seal({
   maxWidth,
   style,
   inverse,
-}: SealProps): JSX.Element {
+}: SealProps): JSX.Element | null {
+  // Handle empty string case for CDF ballot definition, which has no seal field
+  if (!seal) return null;
   return (
     <SealImage
       aria-hidden

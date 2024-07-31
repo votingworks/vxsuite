@@ -178,15 +178,6 @@ CDF error: [
   },
   {
     "code": "invalid_type",
-    "expected": "string",
-    "received": "undefined",
-    "path": [
-      "vxSeal"
-    ],
-    "message": "Required"
-  },
-  {
-    "code": "invalid_type",
     "expected": "number",
     "received": "undefined",
     "path": [

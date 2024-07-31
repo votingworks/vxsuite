@@ -20,6 +20,7 @@ import {
   mergeUiStrings,
 } from '../..';
 import * as Cdf from '.';
+import { normalizeVxfAfterCdfConversion } from '../../../test/cdf_conversion_helpers';
 
 function languageString(
   content: string,
@@ -239,24 +240,6 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
     ]
   );
 
-  // Party names
-  set(
-    expectedCdfBallotDefinition,
-    ['Party', 0, 'vxBallotLabel', 'Text'],
-    [
-      languageString('Democrat', LanguageCode.ENGLISH),
-      languageString('Demócrata', LanguageCode.SPANISH),
-    ]
-  );
-  set(
-    expectedCdfBallotDefinition,
-    ['Party', 1, 'vxBallotLabel', 'Text'],
-    [
-      languageString('Republican', LanguageCode.ENGLISH),
-      languageString('Republicano', LanguageCode.SPANISH),
-    ]
-  );
-
   // Precinct names
   set(
     expectedCdfBallotDefinition,
@@ -299,7 +282,7 @@ test('convertVxfElectionToCdfBallotDefinition with translated election strings',
 test('convertCdfBallotDefinitionToVxfElection', () => {
   expect(
     convertCdfBallotDefinitionToVxfElection(testCdfBallotDefinition)
-  ).toEqual(testVxfElection);
+  ).toEqual(normalizeVxfAfterCdfConversion(testVxfElection));
 });
 
 const elections = [election, primaryElection, electionTwoPartyPrimary];
@@ -307,7 +290,9 @@ const elections = [election, primaryElection, electionTwoPartyPrimary];
 for (const vxf of elections) {
   test(`round trip conversion for election fixture: ${vxf.title}`, () => {
     const cdf = convertVxfElectionToCdfBallotDefinition(vxf);
-    expect(convertCdfBallotDefinitionToVxfElection(cdf)).toEqual(vxf);
+    expect(convertCdfBallotDefinitionToVxfElection(cdf)).toEqual(
+      normalizeVxfAfterCdfConversion(vxf)
+    );
   });
 }
 
@@ -340,7 +325,7 @@ test('safeParseCdfBallotDefinition', () => {
 
   expect(safeParseCdfBallotDefinition(testCdfBallotDefinition)).toEqual(
     ok({
-      vxfElection: testVxfElection,
+      vxfElection: normalizeVxfAfterCdfConversion(testVxfElection),
       cdfElection: testCdfBallotDefinition,
     })
   );

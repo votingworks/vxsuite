@@ -34,3 +34,8 @@ test('varies container styling based on UI theme', () => {
     window.getComputedStyle(darkThemeSeal.container.children[0])
   ).not.toEqual(window.getComputedStyle(lightThemeSeal.container.children[0]));
 });
+
+test('renders nothing if seal is empty string (special case for CDF)', () => {
+  render(<Seal seal="" maxWidth="7rem" />);
+  expect(screen.queryByAltText('Seal')).not.toBeInTheDocument();
+});
