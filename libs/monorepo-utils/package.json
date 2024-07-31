@@ -10,7 +10,6 @@
   "scripts": {
     "type-check": "tsc --build",
     "build": "tsc --build tsconfig.build.json",
-    "build:resources": "bash build_resources.sh",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
