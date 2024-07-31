@@ -1,5 +1,5 @@
 import React from 'react';
-import { SystemAdministratorScreenContents } from '@votingworks/ui';
+import { Button, SystemAdministratorScreenContents } from '@votingworks/ui';
 import {
   isFeatureFlagEnabled,
   BooleanEnvironmentVariableName,
@@ -8,8 +8,14 @@ import { ElectionDefinition, PollsState } from '@votingworks/types';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Screen } from '../components/layout';
 import { LiveCheckButton } from '../components/live_check_button';
-import { unconfigureElection, logOut, resetPollsToPaused } from '../api';
+import {
+  unconfigureElection,
+  logOut,
+  resetPollsToPaused,
+  getPrinterStatus,
+} from '../api';
 import { usePreviewContext } from '../preview_dashboard';
+import { DiagnosticsScreen } from './diagnostics_screen';
 
 interface SystemAdministratorScreenProps {
   electionDefinition?: ElectionDefinition;
@@ -22,15 +28,29 @@ export function SystemAdministratorScreen({
   pollsState,
   usbDrive,
 }: SystemAdministratorScreenProps): JSX.Element {
+  const [isDiagnosticsScreenOpen, setIsDiagnosticsScreenOpen] =
+    React.useState(false);
   const resetPollsToPausedMutation = resetPollsToPaused.useMutation();
   const unconfigureMutation = unconfigureElection.useMutation();
   const logOutMutation = logOut.useMutation();
+  const printerStatusQuery = getPrinterStatus.useQuery();
+
+  if (isDiagnosticsScreenOpen) {
+    return (
+      <DiagnosticsScreen onClose={() => setIsDiagnosticsScreenOpen(false)} />
+    );
+  }
 
   const additionalButtons = (
     <React.Fragment>
       {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) ? (
         <LiveCheckButton />
       ) : undefined}
+      {printerStatusQuery.data?.scheme === 'hardware-v4' && (
+        <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
+          System Diagnostics
+        </Button>
+      )}
     </React.Fragment>
   );
 

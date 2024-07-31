@@ -9,6 +9,7 @@ import {
   PollsState,
   PrecinctSelection,
   PrinterStatus,
+  DiagnosticRecord,
 } from '@votingworks/types';
 import { createMockClient } from '@votingworks/grout-test-utils';
 import type {
@@ -32,7 +33,7 @@ import {
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { TestErrorBoundary, mockUsbDriveStatus } from '@votingworks/ui';
 import { BROTHER_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
-import type { BatteryInfo } from '@votingworks/backend';
+import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
 import { mockPollsInfo } from './mock_polls_info';
 import { ApiProvider } from '../../src/api_provider';
 
@@ -301,6 +302,24 @@ export function createApiMock() {
 
     expectLogTestPrintOutcome(outcome: 'pass' | 'fail') {
       mockApiClient.logTestPrintOutcome.expectCallWith({ outcome }).resolves();
+    },
+
+    expectGetDiskSpaceSummary(summary?: DiskSpaceSummary) {
+      mockApiClient.getDiskSpaceSummary.expectCallWith().resolves(
+        summary ?? {
+          available: 1,
+          used: 1,
+          total: 2,
+        }
+      );
+    },
+
+    expectGetMostRecentPrinterDiagnostic(
+      result: DiagnosticRecord | null = null
+    ) {
+      mockApiClient.getMostRecentPrinterDiagnostic
+        .expectCallWith()
+        .resolves(result);
     },
   };
 }
