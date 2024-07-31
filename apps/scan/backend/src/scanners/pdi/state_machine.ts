@@ -40,7 +40,11 @@ import {
 } from '../../types';
 import { rootDebug } from '../../util/debug';
 import { Workspace } from '../../util/workspace';
-import { recordAcceptedSheet, recordRejectedSheet } from '../shared';
+import {
+  cleanLogData,
+  recordAcceptedSheet,
+  recordRejectedSheet,
+} from '../shared';
 
 const debug = rootDebug.extend('state-machine');
 
@@ -978,39 +982,6 @@ function setupLogging(
   machineService: Interpreter<Context, any, Event, any, any>,
   logger: BaseLogger
 ) {
-  function cleanLogData(key: string, value: unknown): unknown {
-    if (value === undefined) {
-      return 'undefined';
-    }
-    if (value instanceof ImageData) {
-      return {
-        width: value.width,
-        height: value.height,
-        data: value.data.length,
-      };
-    }
-    if (value instanceof Error) {
-      return { ...value, message: value.message, stack: value.stack };
-    }
-    if (
-      [
-        // Protect voter privacy
-        'markInfo',
-        'votes',
-        'unmarkedWriteIns',
-        'adjudicationInfo',
-        'reasons',
-        // Hide large values
-        'layout',
-        'client',
-        'rootListenerRef',
-      ].includes(key)
-    ) {
-      return '[hidden]';
-    }
-    return value;
-  }
-
   machineService
     .onEvent(async (event) => {
       const eventString = JSON.stringify(event, cleanLogData);

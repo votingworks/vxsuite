@@ -1,3 +1,4 @@
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   assert,
   assertDefined,
@@ -18,26 +19,26 @@ import {
   SensorStatus,
 } from '@votingworks/custom-scanner';
 import { fromGrayScale, ImageData } from '@votingworks/image-utils';
-import { LogEventId, BaseLogger, LogLine } from '@votingworks/logging';
+import { BaseLogger, LogEventId, LogLine } from '@votingworks/logging';
 import { mapSheet, SheetInterpretation, SheetOf } from '@votingworks/types';
+import { UsbDrive } from '@votingworks/usb-drive';
 import { v4 as uuid } from 'uuid';
 import {
-  assign as xassign,
   Assigner,
   BaseActionObject,
   createMachine,
-  interpret as interpretStateMachine,
   Interpreter,
+  interpret as interpretStateMachine,
   InvokeConfig,
   PropertyAssigner,
+  sendParent,
   StateNodeConfig,
   TransitionConfig,
-  sendParent,
+  assign as xassign,
 } from 'xstate';
-import { UsbDrive } from '@votingworks/usb-drive';
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { escalate } from 'xstate/lib/actions';
 import { Clock } from 'xstate/lib/interpreter';
+import { isReadyToScan } from '../../app_flow';
 import { interpret as defaultInterpret, InterpretFn } from '../../interpret';
 import {
   InterpretationResult,
@@ -47,8 +48,11 @@ import {
 } from '../../types';
 import { rootDebug } from '../../util/debug';
 import { Workspace } from '../../util/workspace';
-import { isReadyToScan } from '../../app_flow';
-import { recordAcceptedSheet, recordRejectedSheet } from '../shared';
+import {
+  cleanLogData,
+  recordAcceptedSheet,
+  recordRejectedSheet,
+} from '../shared';
 
 const debug = rootDebug.extend('state-machine');
 const debugPaperStatus = debug.extend('paper-status');
@@ -1180,7 +1184,10 @@ function setupLogging(
         'system',
         {
           message: `Context updated`,
-          changedFields: JSON.stringify(Object.fromEntries(changed)),
+          changedFields: JSON.stringify(
+            Object.fromEntries(changed),
+            cleanLogData
+          ),
         },
         () => debug('Context updated: %o', Object.fromEntries(changed))
       );
@@ -1190,7 +1197,12 @@ function setupLogging(
       await logger.log(
         LogEventId.ScannerStateChanged,
         'system',
-        { message: `Transitioned to: ${JSON.stringify(state.value)}` },
+        {
+          message: `Transitioned to: ${JSON.stringify(
+            state.value,
+            cleanLogData
+          )}`,
+        },
         (logLine: LogLine) => debug(logLine.message)
       );
     });
