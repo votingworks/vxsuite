@@ -12,6 +12,7 @@ import { useScreenInfo } from '../hooks/use_screen_info';
 import { appStrings } from '../ui_strings';
 import { Header } from './header';
 import { AudioSettings } from './audio_settings';
+import { useAudioControls } from '../hooks/use_audio_controls';
 
 export interface VoterSettingsProps {
   /** @default ['contrastLow', 'contrastMedium', 'contrastHighLight', 'contrastHighDark'] */
@@ -55,6 +56,12 @@ export function VoterSettings(props: VoterSettingsProps): JSX.Element {
     React.useState<SettingsPaneId>('voterSettingsColor');
 
   const { resetThemes } = React.useContext(VoterSettingsManagerContext);
+  const { reset: resetAudioSettings } = useAudioControls();
+
+  const resetVoterSettings = React.useCallback(() => {
+    resetThemes();
+    resetAudioSettings();
+  }, [resetAudioSettings, resetThemes]);
 
   return (
     <Container>
@@ -79,7 +86,7 @@ export function VoterSettings(props: VoterSettingsProps): JSX.Element {
         )}
       </ActivePaneContainer>
       <Footer>
-        <Button onPress={resetThemes}>{appStrings.buttonReset()}</Button>
+        <Button onPress={resetVoterSettings}>{appStrings.buttonReset()}</Button>
         <Button onPress={onClose} variant="primary" icon="Done">
           {appStrings.buttonDone()}
         </Button>
