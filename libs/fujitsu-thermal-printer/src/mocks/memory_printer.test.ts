@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer';
-import { ok } from '@votingworks/basics';
+import { err, ok } from '@votingworks/basics';
 import { existsSync, readFileSync } from 'fs';
 import { createMockFujitsuPrinterHandler } from './memory_printer';
 import { PrinterStatus } from '../types';
@@ -47,4 +47,19 @@ test('printing', async () => {
   expect(printerHandler.getLastPrintPath()).toBeUndefined();
   expect(existsSync(printPaths[0]!)).toEqual(false);
   expect(existsSync(printPaths[1]!)).toEqual(false);
+});
+
+test('print fails if printer is not idle', async () => {
+  const printerHandler = createMockFujitsuPrinterHandler();
+  const { printer } = printerHandler;
+
+  printerHandler.setStatus({
+    state: 'cover-open',
+  });
+
+  expect(await printer.print(Buffer.from('Print Content'))).toEqual(
+    err({
+      state: 'cover-open',
+    })
+  );
 });

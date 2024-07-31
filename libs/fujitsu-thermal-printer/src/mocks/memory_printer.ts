@@ -1,7 +1,7 @@
 import { tmpName } from 'tmp-promise';
 import { writeFile } from 'fs/promises';
 import { rmSync } from 'fs';
-import { ok } from '@votingworks/basics';
+import { err, ok } from '@votingworks/basics';
 import {
   FujitsuThermalPrinterInterface,
   PrintResult,
@@ -37,6 +37,10 @@ export function createMockFujitsuPrinterHandler(): MemoryFujitsuPrinterHandler {
   };
 
   async function mockPrint(data: Uint8Array): Promise<PrintResult> {
+    if (mockPrinterState.status.state !== 'idle') {
+      return err(mockPrinterState.status);
+    }
+
     const filename = await tmpName({
       prefix: 'mock-print-job',
       postfix: '.pdf',
