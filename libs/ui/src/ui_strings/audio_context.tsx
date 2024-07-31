@@ -104,7 +104,7 @@ export function UiStringsAudioContextProvider(
 
   React.useEffect(() => {
     if (isEnabled) {
-      resetPlaybackSettings();
+      setIsPaused(false);
     } else {
       // Pausing here isn't strictly necessary, since we're disconnecting the
       // context destination node from any inputs, but this makes sure any

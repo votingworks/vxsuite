@@ -158,7 +158,7 @@ test('setIsEnabled', () => {
   expect(result.current?.isEnabled).toEqual(DEFAULT_AUDIO_ENABLED_STATE);
   expect(result.current?.isPaused).toEqual(!result.current?.isEnabled);
 
-  // Re-enabling should reset all playback settings:
+  // Re-enabling should persist all playback settings:
 
   act(() => result.current?.setIsEnabled(false));
   act(() => result.current?.increasePlaybackRate());
@@ -170,8 +170,8 @@ test('setIsEnabled', () => {
 
   expect(result.current?.isEnabled).toEqual(true);
   expect(result.current?.isPaused).toEqual(false);
-  expect(result.current?.volume).toEqual(DEFAULT_AUDIO_VOLUME);
-  expect(result.current?.playbackRate).toEqual(DEFAULT_PLAYBACK_RATE);
+  expect(result.current?.volume).toEqual(AudioVolume.MINIMUM);
+  expect(result.current?.playbackRate).not.toEqual(DEFAULT_PLAYBACK_RATE);
 });
 
 test('toggleEnabled', () => {
