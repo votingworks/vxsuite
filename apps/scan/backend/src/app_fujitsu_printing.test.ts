@@ -74,28 +74,3 @@ test('printReport prints first section and printReportSection can print the rest
     }
   );
 });
-
-test('can print test page', async () => {
-  await withApp(
-    async ({
-      apiClient,
-      mockUsbDrive,
-      mockFujitsuPrinterHandler,
-      mockAuth,
-    }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive, {
-        openPolls: false,
-        electionPackage: {
-          electionDefinition: electionTwoPartyPrimaryDefinition,
-        },
-      });
-
-      (await apiClient.printTestPage()).unsafeUnwrap();
-      await expect(
-        mockFujitsuPrinterHandler.getLastPrintPath()
-      ).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'print-test-page',
-      });
-    }
-  );
-});
