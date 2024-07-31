@@ -818,7 +818,7 @@ export async function interpretSheetAndSaveImages(
     const imagePaths = await saveSheetImages({
       sheetId,
       ballotImagesPath,
-      images: sheet,
+      images: mapSheet(interpreted, ({ normalizedImage }) => normalizedImage),
     });
 
     return asSheet(
