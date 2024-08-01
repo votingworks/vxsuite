@@ -37,7 +37,6 @@ import {
 } from '@votingworks/ballot-interpreter';
 import {
   fromGrayScale,
-  ImageData,
   loadImageData,
   writeImageData,
 } from '@votingworks/image-utils';
@@ -378,23 +377,6 @@ describe('paper jam', () => {
   });
 });
 
-function assertImageDatasEqual(
-  imageData1: ImageData,
-  imageData2: ImageData
-): void {
-  expect({
-    width: imageData1.width,
-    height: imageData1.height,
-  }).toEqual({
-    width: imageData2.width,
-    height: imageData2.height,
-  });
-  assert(
-    Buffer.from(imageData1.data).equals(Buffer.from(imageData2.data)),
-    'Image data does not match'
-  );
-}
-
 // Sets up print and scan mocks. Executes the state machine from 'not_accepting_paper' to 'presenting_ballot'.
 async function executePrintBallotAndAssert(
   ballotPdfData: Buffer,
@@ -443,7 +425,7 @@ async function executePrintBallotAndAssert(
   } = mockOf(interpretSimplexBmdBallot).mock;
 
   assert(frontImage, 'No front image was passed to interpretSimplexBmdBallot');
-  assertImageDatasEqual(frontImage, scanFixtureImageData);
+  await expect(frontImage).toMatchImage(scanFixtureImageData);
 }
 
 test('voting flow happy path', async () => {
@@ -920,7 +902,7 @@ test('insert and validate new blank sheet', async () => {
   } = mockOf(interpretSimplexBmdBallot).mock;
   assert(frontImage, 'No front image was passed to interpretSimplexBmdBallot');
 
-  assertImageDatasEqual(frontImage, BLANK_IMAGE);
+  await expect(frontImage).toMatchImage(BLANK_IMAGE);
 });
 
 describe('insert pre-printed ballot', () => {
@@ -1065,7 +1047,7 @@ describe('re-insert removed ballot', () => {
       calls: [[frontImage]],
     } = mockOf(interpretSimplexBmdBallot).mock;
 
-    assertImageDatasEqual(frontImage, BLANK_IMAGE);
+    await expect(frontImage).toMatchImage(BLANK_IMAGE);
   });
 
   const invalidInterpretationTypes: Record<PageInterpretationType, boolean> = {

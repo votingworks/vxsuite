@@ -1,5 +1,8 @@
 import {
+  ImageData,
+  ToMatchImageOptions,
   ToMatchPdfSnapshotOptions,
+  toMatchImage,
   toMatchPdfSnapshot,
 } from '@votingworks/image-utils';
 import { toMatchImageSnapshot } from 'jest-image-snapshot';
@@ -13,8 +16,12 @@ declare global {
   namespace jest {
     interface Matchers<R> {
       toMatchPdfSnapshot(options?: ToMatchPdfSnapshotOptions): Promise<R>;
+      toMatchImage(
+        expected: ImageData,
+        options?: ToMatchImageOptions
+      ): Promise<R>;
     }
   }
 }
 
-expect.extend({ toMatchImageSnapshot, toMatchPdfSnapshot });
+expect.extend({ toMatchImageSnapshot, toMatchPdfSnapshot, toMatchImage });
