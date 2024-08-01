@@ -1,28 +1,30 @@
 import { ImageData } from 'canvas';
 /**
- * Rotates an ImageData object 180 degrees.
+ * Rotate an image 180 degrees in place.
  */
-export function rotateImageData180(imageData: ImageData): ImageData {
-  const { width, height } = imageData;
-  const output = new ImageData(width, height);
-  const totalPixels = width * height;
+export function rotateImageData180(imageData: ImageData): void {
+  const { data } = imageData;
+  const channels = 4;
 
-  for (let i = 0; i < totalPixels; i += 1) {
-    // Calculate the x and y position of the current pixel
-    const x = i % width;
-    const y = Math.floor(i / width);
+  for (
+    let head = 0, tail = data.length - channels;
+    head < tail;
+    head += channels, tail -= channels
+  ) {
+    const r = data[head] as number;
+    data[head] = data[tail] as number;
+    data[tail] = r;
 
-    // Calculate the new position for the current pixel
-    const newX = width - 1 - x;
-    const newY = height - 1 - y;
-    const newIndex = newY * width + newX;
+    const g = data[head + 1] as number;
+    data[head + 1] = data[tail + 1] as number;
+    data[tail + 1] = g;
 
-    // Copy the pixel data from the original image to the new position in the output image
-    output.data[newIndex * 4] = imageData.data[i * 4] || 0; // R
-    output.data[newIndex * 4 + 1] = imageData.data[i * 4 + 1] || 0; // G
-    output.data[newIndex * 4 + 2] = imageData.data[i * 4 + 2] || 0; // B
-    output.data[newIndex * 4 + 3] = imageData.data[i * 4 + 3] || 0; // A
+    const b = data[head + 2] as number;
+    data[head + 2] = data[tail + 2] as number;
+    data[tail + 2] = b;
+
+    const a = data[head + 3] as number;
+    data[head + 3] = data[tail + 3] as number;
+    data[tail + 3] = a;
   }
-
-  return output;
 }
