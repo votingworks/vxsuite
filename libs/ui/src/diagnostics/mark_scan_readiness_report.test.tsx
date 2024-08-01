@@ -11,10 +11,6 @@ test('MarkScanReadinessReport', () => {
   const machineId = 'MOCK';
   render(
     <MarkScanReadinessReport
-      batteryInfo={{
-        level: 0.5,
-        discharging: true,
-      }}
       diskSpaceSummary={{
         total: 1000000000,
         available: 500000000,
@@ -70,8 +66,6 @@ test('MarkScanReadinessReport', () => {
   );
   screen.getByText(/Example Primary Election/);
   screen.getByText(/All Precincts/);
-  screen.getByText('Battery Level: 50%');
-  screen.getByText('Power Source: Battery');
   expectDetected(screen, DiagnosticSectionTitle.PaperHandler, true);
   expectDetected(screen, DiagnosticSectionTitle.AccessibleController, true);
   expectDetected(screen, DiagnosticSectionTitle.PatInput, true);

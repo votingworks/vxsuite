@@ -44,7 +44,7 @@ export function MarkScanReadinessReportContents(
   return (
     <ReportContents>
       <ConfigurationSection {...props} expectPrecinctSelection />
-      <ComputerSection {...props} />
+      <ComputerSection {...props} hidePowerSection />
       <MarkScanDeviceDiagnosticSection
         {...accessibleControllerProps}
         diagnosticType="mark-scan-accessible-controller"

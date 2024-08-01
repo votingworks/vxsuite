@@ -47,7 +47,6 @@ beforeEach(() => {
   apiMock.setUsbDriveStatus(mockUsbDriveStatus('mounted'));
   apiMock.expectGetElectionRecord(null);
   apiMock.expectGetElectionState();
-  apiMock.setBatteryInfo({ level: 0.5, discharging: true });
   apiMock.expectGetApplicationDiskSpaceSummary();
   apiMock.expectGetIsAccessibleControllerInputDetected();
   apiMock.setIsPatDeviceConnected(true);
@@ -93,10 +92,7 @@ test('data from API is passed to screen contents', async () => {
 
   renderScreen();
 
-  await screen.findByText('Battery Level: 50%');
-
-  screen.getByText('Power Source: Battery');
-  screen.getByText('Free Disk Space: 50% (1 GB / 2 GB)');
+  await screen.findByText('Free Disk Space: 50% (1 GB / 2 GB)');
 
   expectDetected(screen, DiagnosticSectionTitle.PaperHandler, true);
   expectDetected(screen, DiagnosticSectionTitle.AccessibleController, true);

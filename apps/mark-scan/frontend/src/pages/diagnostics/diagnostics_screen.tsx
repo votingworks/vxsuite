@@ -21,7 +21,6 @@ import {
   getIsPatDeviceConnected,
   saveReadinessReport,
   startPaperHandlerDiagnostic,
-  systemCallApi,
   getMostRecentDiagnostic,
   addDiagnosticRecord,
 } from '../../api';
@@ -38,7 +37,6 @@ export function DiagnosticsScreen({
 }: DiagnosticsScreenProps): JSX.Element {
   const electionRecordQuery = getElectionRecord.useQuery();
   const electionStateQuery = getElectionState.useQuery();
-  const batteryQuery = systemCallApi.getBatteryInfo.useQuery();
   const diskSpaceQuery = getApplicationDiskSpaceSummary.useQuery();
   const isAccessibleControllerInputDetectedQuery =
     getIsAccessibleControllerInputDetected.useQuery();
@@ -68,7 +66,6 @@ export function DiagnosticsScreen({
   if (
     !electionRecordQuery.isSuccess ||
     !electionStateQuery.isSuccess ||
-    !batteryQuery.isSuccess ||
     !diskSpaceQuery.isSuccess ||
     !isAccessibleControllerInputDetectedQuery.isSuccess ||
     !isPatDeviceConnectedQuery.isSuccess ||
@@ -92,7 +89,6 @@ export function DiagnosticsScreen({
   const { electionDefinition, electionPackageHash } =
     electionRecordQuery.data ?? {};
   const { precinctSelection } = electionStateQuery.data;
-  const battery = batteryQuery.data ?? undefined;
   const diskSpaceSummary = diskSpaceQuery.data;
   const isAccessibleControllerInputDetected =
     isAccessibleControllerInputDetectedQuery.data;
@@ -131,7 +127,6 @@ export function DiagnosticsScreen({
               electionDefinition={electionDefinition}
               electionPackageHash={electionPackageHash}
               precinctSelection={precinctSelection}
-              batteryInfo={battery}
               diskSpaceSummary={diskSpaceSummary}
               accessibleControllerProps={{
                 isDeviceConnected: isAccessibleControllerInputDetected,

@@ -81,16 +81,18 @@ function StorageSection({
 export interface ComputerSectionProps {
   batteryInfo?: BatteryInfo;
   diskSpaceSummary: DiskSpaceSummary;
+  hidePowerSection?: boolean;
 }
 
 export function ComputerSection({
   batteryInfo,
   diskSpaceSummary,
+  hidePowerSection,
 }: ComputerSectionProps): JSX.Element {
   return (
     <section>
       <H2>Computer</H2>
-      <PowerSection batteryInfo={batteryInfo} />
+      {!hidePowerSection && <PowerSection batteryInfo={batteryInfo} />}
       <StorageSection diskSpaceSummary={diskSpaceSummary} />
     </section>
   );
