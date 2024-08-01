@@ -13,11 +13,9 @@ import {
   fromGrayScale,
   getImageChannelCount,
   isRgba,
-  loadImage,
   loadImageData,
   toDataUrl,
   toImageBuffer,
-  toImageData,
   writeImageData,
 } from './image_data';
 
@@ -106,7 +104,7 @@ test('loadImage/writeImageData', async () => {
       async (imageData, format) => {
         const filePath = fileSync({ template: `tmp-XXXXXX.${format}` }).name;
         await writeImageData(filePath, imageData);
-        const loadedImageData = toImageData(await loadImage(filePath));
+        const loadedImageData = await loadImageData(filePath);
         expect({
           width: loadedImageData.width,
           height: loadedImageData.height,
@@ -151,9 +149,8 @@ test('toDataUrl image/png', async () => {
       async (imageData) => {
         const dataUrl = toDataUrl(imageData, 'image/png');
         expect(dataUrl).toMatch(/^data:image\/png;base64,/);
-        const { width: decodedWidth, height: decodedHeight } = toImageData(
-          await loadImage(dataUrl)
-        );
+        const { width: decodedWidth, height: decodedHeight } =
+          await loadImageData(dataUrl);
         expect({ width: decodedWidth, height: decodedHeight }).toStrictEqual({
           width: imageData.width,
           height: imageData.height,
@@ -170,9 +167,8 @@ test('toDataUrl image/jpeg', async () => {
       async (imageData) => {
         const dataUrl = toDataUrl(imageData, 'image/jpeg');
         expect(dataUrl).toMatch(/^data:image\/jpeg;base64,/);
-        const { width: decodedWidth, height: decodedHeight } = toImageData(
-          await loadImage(dataUrl)
-        );
+        const { width: decodedWidth, height: decodedHeight } =
+          await loadImageData(dataUrl);
         expect({ width: decodedWidth, height: decodedHeight }).toStrictEqual({
           width: imageData.width,
           height: imageData.height,
@@ -205,9 +201,8 @@ test('toImageBuffer', async () => {
         const buffer = toImageBuffer(imageData, format && `image/${format}`);
         const filePath = fileSync({ template: `tmp-XXXXXX.${format}` }).name;
         await writeFile(filePath, buffer);
-        const { width: decodedWidth, height: decodedHeight } = toImageData(
-          await loadImage(filePath)
-        );
+        const { width: decodedWidth, height: decodedHeight } =
+          await loadImageData(filePath);
         expect({ width: decodedWidth, height: decodedHeight }).toStrictEqual({
           width: imageData.width,
           height: imageData.height,
@@ -231,9 +226,8 @@ test('encodeImageData', async () => {
           template: `tmp-XXXXXX.${mimeType === 'image/png' ? 'png' : 'jpeg'}`,
         }).name;
         await writeFile(filePath, buffer);
-        const { width: decodedWidth, height: decodedHeight } = toImageData(
-          await loadImage(filePath)
-        );
+        const { width: decodedWidth, height: decodedHeight } =
+          await loadImageData(filePath);
         expect({ width: decodedWidth, height: decodedHeight }).toStrictEqual({
           width: imageData.width,
           height: imageData.height,

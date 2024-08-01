@@ -5,7 +5,6 @@ import {
   loadImage as canvasLoadImage,
   createCanvas,
   createImageData,
-  Image,
   ImageData,
   JpegConfig,
   PngConfig,
@@ -46,13 +45,6 @@ export function getImageChannelCount(image: ImageData): int {
  */
 export function isRgba(image: ImageData): boolean {
   return getImageChannelCount(image) === RGBA_CHANNEL_COUNT;
-}
-
-/**
- * Loads an image from a file path or data URL.
- */
-export async function loadImage(pathOrDataUrl: string): Promise<Image> {
-  return await canvasLoadImage(pathOrDataUrl);
 }
 
 /**
@@ -212,29 +204,4 @@ export function toImageBuffer(
   return mimeType === 'image/png'
     ? canvas.toBuffer(mimeType)
     : canvas.toBuffer(mimeType);
-}
-
-/**
- * Extracts image data from an image.
- */
-export function toImageData(
-  image: Image,
-  {
-    maxWidth = image.width,
-    maxHeight = image.height,
-  }: {
-    maxWidth?: usize;
-    maxHeight?: usize;
-  } = {}
-): ImageData {
-  const xScale = maxWidth / image.width;
-  const yScale = maxHeight / image.height;
-  const scale = Math.min(xScale, yScale);
-  const width = Math.round(image.width * scale);
-  const height = Math.round(image.height * scale);
-  const canvas = createCanvas(width, height);
-  const context = canvas.getContext('2d');
-
-  context.drawImage(image, 0, 0, width, height);
-  return context.getImageData(0, 0, width, height);
 }

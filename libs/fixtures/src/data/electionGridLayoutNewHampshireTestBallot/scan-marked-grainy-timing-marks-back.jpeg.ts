@@ -52,21 +52,12 @@ export function asBuffer(): Buffer {
 }
 
 /**
- * Converts data/electionGridLayoutNewHampshireTestBallot/scan-marked-grainy-timing-marks-back.jpeg to an `Image`.
- *
- * SHA-256 hash of file data: 9f2ff090b3a3c4bb1d06472406ada573738d5042683a152694e26c29c3d6df8c
- */
-export async function asImage(): Promise<Image> {
-  return await loadImage(asDataUrl());
-}
-
-/**
  * Converts data/electionGridLayoutNewHampshireTestBallot/scan-marked-grainy-timing-marks-back.jpeg to an `ImageData`.
  *
  * SHA-256 hash of file data: 9f2ff090b3a3c4bb1d06472406ada573738d5042683a152694e26c29c3d6df8c
  */
 export async function asImageData(): Promise<ImageData> {
-  const image = await asImage();
+  const image = await loadImage(asBuffer());
   const canvas = createCanvas(image.width, image.height);
   const context = canvas.getContext('2d');
   context.drawImage(image, 0, 0);
