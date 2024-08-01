@@ -25,8 +25,4 @@ module.exports = {
     'jest-watch-typeahead/testname',
   ],
   cacheDirectory: '.jestcache',
-  // pixelmatch contains ESM modules ending in .js, so we need to have
-  // ts-jest transform them. We use this ignore pattern to not transform any
-  // other node_modules except pixelmatch.
-  transformIgnorePatterns: ['node_modules/(?!(.pnpm|pixelmatch))'],
 };
