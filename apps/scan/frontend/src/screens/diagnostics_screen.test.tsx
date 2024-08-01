@@ -25,6 +25,7 @@ beforeEach(() => {
   apiMock.expectGetMachineConfig();
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.setPrinterStatusV4({ state: 'idle' });
+  apiMock.expectGetUsbDriveStatus('mounted');
 });
 
 afterEach(() => {
@@ -91,4 +92,26 @@ test('can enter load paper flow and print test page flow', async () => {
   apiMock.expectPrintTestPage().resolve();
   userEvent.click(await screen.findButton('Print Test Page'));
   await screen.findByText('Test Page Printed');
+});
+
+test('can save readiness report', async () => {
+  apiMock.expectGetDiskSpaceSummary();
+  apiMock.expectGetMostRecentPrinterDiagnostic();
+  apiMock.expectGetConfig();
+  apiMock.expectSaveReadinessReport();
+
+  renderScreen();
+
+  userEvent.click(await screen.findButton('Save Readiness Report'));
+  await screen.findByText(
+    'The readiness report will be saved to the mounted USB drive.'
+  );
+  userEvent.click(screen.getButton('Save'));
+  await screen.findByText('Readiness Report Saved');
+  screen.getByText(/report.pdf/);
+  userEvent.click(await screen.findButton('Close'));
+
+  // confirm modal resets after exiting
+  userEvent.click(await screen.findButton('Save Readiness Report'));
+  await screen.findByRole('heading', { name: 'Save Readiness Report' });
 });

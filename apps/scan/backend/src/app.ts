@@ -59,6 +59,7 @@ import {
   TEST_PRINT_USER_FAIL_REASON,
   testPrintFailureDiagnosticMessage,
 } from './util/diagnostics';
+import { saveReadinessReport } from './printing/readiness_report';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi({
@@ -419,6 +420,15 @@ export function buildApi({
 
     async getDiskSpaceSummary(): Promise<DiskSpaceSummary> {
       return workspace.getDiskSpaceSummary();
+    },
+
+    saveReadinessReport() {
+      return saveReadinessReport({
+        workspace,
+        usbDrive,
+        logger,
+        printer,
+      });
     },
 
     ...createUiStringsApi({

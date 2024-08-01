@@ -5,8 +5,14 @@ import {
 import { err } from '@votingworks/basics';
 import { LogEventId } from '@votingworks/logging';
 import { DiagnosticRecord } from '@votingworks/types';
+import { mockOf } from '@votingworks/test-utils';
+import {
+  DiskSpaceSummary,
+  initializeGetWorkspaceDiskSpaceSummary,
+} from '@votingworks/backend';
 import { withApp } from '../test/helpers/pdi_helpers';
 import { TEST_PRINT_USER_FAIL_REASON } from './util/diagnostics';
+import { configureApp } from '../test/helpers/shared_helpers';
 
 jest.setTimeout(60_000);
 
@@ -39,6 +45,26 @@ async function wrapWithFakeSystemTime<T>(fn: () => Promise<T>): Promise<T> {
   jest.useRealTimers();
   return result;
 }
+
+jest.mock(
+  '@votingworks/backend',
+  (): typeof import('@votingworks/backend') => ({
+    ...jest.requireActual('@votingworks/backend'),
+    initializeGetWorkspaceDiskSpaceSummary: jest.fn(),
+  })
+);
+
+const MOCK_DISK_SPACE_SUMMARY: DiskSpaceSummary = {
+  total: 10 * 1_000_000,
+  used: 1 * 1_000_000,
+  available: 9 * 1_000_000,
+};
+
+beforeEach(() => {
+  mockOf(initializeGetWorkspaceDiskSpaceSummary).mockReturnValue(() =>
+    Promise.resolve(MOCK_DISK_SPACE_SUMMARY)
+  );
+});
 
 test('can print test page', async () => {
   await withApp(async ({ apiClient, mockFujitsuPrinterHandler, logger }) => {
@@ -142,5 +168,34 @@ test('user logged "fail" after a test print completes', async () => {
         message: `Test print failed. ${TEST_PRINT_USER_FAIL_REASON}`,
       }
     );
+  });
+});
+
+test('printing a readiness report ', async () => {
+  await withApp(async ({ apiClient, mockUsbDrive, mockAuth, logger }) => {
+    await configureApp(apiClient, mockAuth, mockUsbDrive, {
+      testMode: true,
+      openPolls: false,
+    });
+    mockUsbDrive.insertUsbDrive({});
+    await wrapWithFakeSystemTime(() =>
+      apiClient.logTestPrintOutcome({ outcome: 'pass' })
+    );
+
+    const exportResult = await apiClient.saveReadinessReport();
+    exportResult.assertOk('Failed to save readiness report');
+    expect(logger.log).toHaveBeenCalledWith(
+      LogEventId.ReadinessReportSaved,
+      expect.anything(),
+      {
+        disposition: 'success',
+        message: 'User saved the equipment readiness report to a USB drive.',
+      }
+    );
+
+    const exportPath = exportResult.ok()![0];
+    await expect(exportPath).toMatchPdfSnapshot({
+      customSnapshotIdentifier: 'readiness-report',
+    });
   });
 });

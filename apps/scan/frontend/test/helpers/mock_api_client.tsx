@@ -33,7 +33,11 @@ import {
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { TestErrorBoundary, mockUsbDriveStatus } from '@votingworks/ui';
 import { BROTHER_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
-import type { BatteryInfo, DiskSpaceSummary } from '@votingworks/backend';
+import type {
+  BatteryInfo,
+  DiskSpaceSummary,
+  ExportDataResult,
+} from '@votingworks/backend';
 import { mockPollsInfo } from './mock_polls_info';
 import { ApiProvider } from '../../src/api_provider';
 
@@ -320,6 +324,12 @@ export function createApiMock() {
       mockApiClient.getMostRecentPrinterDiagnostic
         .expectCallWith()
         .resolves(result);
+    },
+
+    expectSaveReadinessReport(
+      result: ExportDataResult = ok(['/media/vx/usb-drive/report.pdf'])
+    ) {
+      mockApiClient.saveReadinessReport.expectCallWith().resolves(result);
     },
   };
 }
