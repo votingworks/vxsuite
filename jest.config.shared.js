@@ -2,7 +2,7 @@
  * @type {import('@jest/types').Config.InitialOptions}
  */
 module.exports = {
-  preset: 'ts-jest/presets/js-with-ts',
+  preset: 'ts-jest',
   clearMocks: true,
   testEnvironment: 'node',
   testMatch: ['<rootDir>/{src,test}/**/*.test.{ts,tsx}'],
