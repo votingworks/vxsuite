@@ -192,7 +192,7 @@ test('convert image adjacent', async () => {
   const content = await fs.readFile(tsPath, 'utf8');
   expect(content).toContain(`const resourceDataBase64 = 'Y29udGVudA=='`);
   expect(content).toContain(`const mimeType = 'image/png'`);
-  expect(content).toContain(`export async function asImage()`);
+  expect(content).toContain(`export async function asImageData()`);
 });
 
 test('convert w/outDir', async () => {
@@ -236,7 +236,7 @@ test('convert w/outDir', async () => {
   const content = await fs.readFile(tsPath, 'utf8');
   expect(content).toContain(`const resourceDataBase64 = 'Y29udGVudA=='`);
   expect(content).toContain(`const mimeType = 'image/png'`);
-  expect(content).toContain(`export async function asImage()`);
+  expect(content).toContain(`export async function asImageData()`);
 });
 
 test('convert w/implicit rootDir', async () => {
@@ -275,7 +275,7 @@ test('convert w/implicit rootDir', async () => {
     const content = await fs.readFile(tsPath, 'utf8');
     expect(content).toContain(`const resourceDataBase64 = 'Y29udGVudA=='`);
     expect(content).toContain(`const mimeType = 'image/png'`);
-    expect(content).toContain(`export async function asImage()`);
+    expect(content).toContain(`export async function asImageData()`);
   } finally {
     process.chdir(oldPwd);
   }
@@ -334,7 +334,7 @@ test('convert text adjacent', async () => {
   expect(content).toContain(`const resourceDataBase64 = 'Y29udGVudA=='`);
   expect(content).toContain(`const mimeType = 'text/plain'`);
   expect(content).toContain(`export function asText()`);
-  expect(content).not.toContain(`export async function asImage()`);
+  expect(content).not.toContain(`export async function asImageData()`);
 });
 
 test('convert Election JSON adjacent', async () => {
@@ -367,7 +367,7 @@ test('convert Election JSON adjacent', async () => {
   expect(content).toContain(`const mimeType = 'application/json'`);
   expect(content).toContain(`export function asText()`);
   expect(content).toContain(`export const electionDefinition =`);
-  expect(content).not.toContain(`export async function asImage()`);
+  expect(content).not.toContain(`export async function asImageData()`);
 });
 
 test('convert directory', async () => {
@@ -431,7 +431,7 @@ test('convert unknown type adjacent', async () => {
   const content = await fs.readFile(tsPath, 'utf8');
   expect(content).toContain(`const resourceDataBase64 = 'Y29udGVudA=='`);
   expect(content).toContain(`const mimeType = 'application/octet-stream'`);
-  expect(content).not.toContain(`export async function asImage()`);
+  expect(content).not.toContain(`export async function asImageData()`);
 });
 
 test('check success adjacent', async () => {

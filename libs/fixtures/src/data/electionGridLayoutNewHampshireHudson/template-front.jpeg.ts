@@ -52,21 +52,12 @@ export function asBuffer(): Buffer {
 }
 
 /**
- * Converts data/electionGridLayoutNewHampshireHudson/template-front.jpeg to an `Image`.
- *
- * SHA-256 hash of file data: 494deabb3d171cbfe9c97deac31db5b7a6b70b3d028f1ef9ae075c173c60204e
- */
-export async function asImage(): Promise<Image> {
-  return await loadImage(asDataUrl());
-}
-
-/**
  * Converts data/electionGridLayoutNewHampshireHudson/template-front.jpeg to an `ImageData`.
  *
  * SHA-256 hash of file data: 494deabb3d171cbfe9c97deac31db5b7a6b70b3d028f1ef9ae075c173c60204e
  */
 export async function asImageData(): Promise<ImageData> {
-  const image = await asImage();
+  const image = await loadImage(asBuffer());
   const canvas = createCanvas(image.width, image.height);
   const context = canvas.getContext('2d');
   context.drawImage(image, 0, 0);

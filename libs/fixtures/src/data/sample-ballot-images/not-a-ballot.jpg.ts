@@ -52,21 +52,12 @@ export function asBuffer(): Buffer {
 }
 
 /**
- * Converts data/sample-ballot-images/not-a-ballot.jpg to an `Image`.
- *
- * SHA-256 hash of file data: 0d76731ba56cea5ae7759bb51620247b2106a4cdae9702970abd73c1e6e2127a
- */
-export async function asImage(): Promise<Image> {
-  return await loadImage(asDataUrl());
-}
-
-/**
  * Converts data/sample-ballot-images/not-a-ballot.jpg to an `ImageData`.
  *
  * SHA-256 hash of file data: 0d76731ba56cea5ae7759bb51620247b2106a4cdae9702970abd73c1e6e2127a
  */
 export async function asImageData(): Promise<ImageData> {
-  const image = await asImage();
+  const image = await loadImage(asBuffer());
   const canvas = createCanvas(image.width, image.height);
   const context = canvas.getContext('2d');
   context.drawImage(image, 0, 0);

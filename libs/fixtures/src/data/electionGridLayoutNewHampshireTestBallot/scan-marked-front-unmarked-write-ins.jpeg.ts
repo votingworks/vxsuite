@@ -52,21 +52,12 @@ export function asBuffer(): Buffer {
 }
 
 /**
- * Converts data/electionGridLayoutNewHampshireTestBallot/scan-marked-front-unmarked-write-ins.jpeg to an `Image`.
- *
- * SHA-256 hash of file data: 7ac936068672c2b74b393e31c1bd9e21ba68861531c3fd873351bb512e939f93
- */
-export async function asImage(): Promise<Image> {
-  return await loadImage(asDataUrl());
-}
-
-/**
  * Converts data/electionGridLayoutNewHampshireTestBallot/scan-marked-front-unmarked-write-ins.jpeg to an `ImageData`.
  *
  * SHA-256 hash of file data: 7ac936068672c2b74b393e31c1bd9e21ba68861531c3fd873351bb512e939f93
  */
 export async function asImageData(): Promise<ImageData> {
-  const image = await asImage();
+  const image = await loadImage(asBuffer());
   const canvas = createCanvas(image.width, image.height);
   const context = canvas.getContext('2d');
   context.drawImage(image, 0, 0);

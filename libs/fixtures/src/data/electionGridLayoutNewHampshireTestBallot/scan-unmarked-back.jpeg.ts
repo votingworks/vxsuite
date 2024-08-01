@@ -52,21 +52,12 @@ export function asBuffer(): Buffer {
 }
 
 /**
- * Converts data/electionGridLayoutNewHampshireTestBallot/scan-unmarked-back.jpeg to an `Image`.
- *
- * SHA-256 hash of file data: 161fc5b83da2bc43886f31f6a5e54023ab7a628b387e17f1e56ae98527650789
- */
-export async function asImage(): Promise<Image> {
-  return await loadImage(asDataUrl());
-}
-
-/**
  * Converts data/electionGridLayoutNewHampshireTestBallot/scan-unmarked-back.jpeg to an `ImageData`.
  *
  * SHA-256 hash of file data: 161fc5b83da2bc43886f31f6a5e54023ab7a628b387e17f1e56ae98527650789
  */
 export async function asImageData(): Promise<ImageData> {
-  const image = await asImage();
+  const image = await loadImage(asBuffer());
   const canvas = createCanvas(image.width, image.height);
   const context = canvas.getContext('2d');
   context.drawImage(image, 0, 0);

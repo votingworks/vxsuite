@@ -52,21 +52,12 @@ export function asBuffer(): Buffer {
 }
 
 /**
- * Converts data/electionGridLayoutNewHampshireTestBallot/scan-marked-timing-mark-hole-back.jpeg to an `Image`.
- *
- * SHA-256 hash of file data: bdc47e491280fcd7ec65d97bef3c14617f05173506fae5f2ae0c9da3aa610a46
- */
-export async function asImage(): Promise<Image> {
-  return await loadImage(asDataUrl());
-}
-
-/**
  * Converts data/electionGridLayoutNewHampshireTestBallot/scan-marked-timing-mark-hole-back.jpeg to an `ImageData`.
  *
  * SHA-256 hash of file data: bdc47e491280fcd7ec65d97bef3c14617f05173506fae5f2ae0c9da3aa610a46
  */
 export async function asImageData(): Promise<ImageData> {
-  const image = await asImage();
+  const image = await loadImage(asBuffer());
   const canvas = createCanvas(image.width, image.height);
   const context = canvas.getContext('2d');
   context.drawImage(image, 0, 0);

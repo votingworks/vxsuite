@@ -52,21 +52,12 @@ export function asBuffer(): Buffer {
 }
 
 /**
- * Converts data/electionGridLayoutNewHampshireTestBallot/scan-marked-stretch-back.jpeg to an `Image`.
- *
- * SHA-256 hash of file data: 6b6b1415324bd0e3c999c51b4ce942eceb01f6c14579cd7864b25a76d05305a4
- */
-export async function asImage(): Promise<Image> {
-  return await loadImage(asDataUrl());
-}
-
-/**
  * Converts data/electionGridLayoutNewHampshireTestBallot/scan-marked-stretch-back.jpeg to an `ImageData`.
  *
  * SHA-256 hash of file data: 6b6b1415324bd0e3c999c51b4ce942eceb01f6c14579cd7864b25a76d05305a4
  */
 export async function asImageData(): Promise<ImageData> {
-  const image = await asImage();
+  const image = await loadImage(asBuffer());
   const canvas = createCanvas(image.width, image.height);
   const context = canvas.getContext('2d');
   context.drawImage(image, 0, 0);

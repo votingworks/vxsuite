@@ -5,7 +5,6 @@ import {
   loadImage as canvasLoadImage,
   createCanvas,
   createImageData,
-  Image,
   ImageData,
   JpegConfig,
   PngConfig,
@@ -46,13 +45,6 @@ export function getImageChannelCount(image: ImageData): int {
  */
 export function isRgba(image: ImageData): boolean {
   return getImageChannelCount(image) === RGBA_CHANNEL_COUNT;
-}
-
-/**
- * Loads an image from a file path or data URL.
- */
-export async function loadImage(pathOrDataUrl: string): Promise<Image> {
-  return await canvasLoadImage(pathOrDataUrl);
 }
 
 /**
