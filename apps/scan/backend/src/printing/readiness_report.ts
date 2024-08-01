@@ -30,11 +30,12 @@ export async function saveReadinessReport({
 }): Promise<ExportDataResult> {
   const { store } = workspace;
   const generatedAtTime = new Date(getCurrentTime());
-  const electionDefinition = store.getElectionDefinition();
+  const electionRecord = store.getElectionRecord();
   const printerStatus = await printer.getStatus();
   assert(printerStatus.scheme === 'hardware-v4');
   const report = ScanReadinessReport({
-    electionDefinition,
+    electionDefinition: electionRecord?.electionDefinition,
+    electionPackageHash: electionRecord?.electionPackageHash,
     expectPrecinctSelection: true,
     precinctSelection: store.getPrecinctSelection(),
     diskSpaceSummary: await workspace.getDiskSpaceSummary(),

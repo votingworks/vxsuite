@@ -50,7 +50,8 @@ export function DiagnosticsScreen({
 
   const usbDriveStatus = usbDriveStatusQuery.data;
 
-  const { electionDefinition, precinctSelection } = configQuery.data;
+  const { electionDefinition, precinctSelection, electionPackageHash } =
+    configQuery.data;
   return (
     <Screen title="System Diagnostics" voterFacing={false} padded>
       <P>
@@ -64,6 +65,7 @@ export function DiagnosticsScreen({
       </P>
       <ScanReadinessReportContents
         electionDefinition={electionDefinition}
+        electionPackageHash={electionPackageHash}
         expectPrecinctSelection
         precinctSelection={precinctSelection}
         diskSpaceSummary={diskSpaceQuery.data}

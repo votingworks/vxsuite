@@ -24,6 +24,7 @@ test('ScanReadinessReport', () => {
         timestamp: generatedAtTime.getTime(),
       }}
       electionDefinition={electionTwoPartyPrimaryDefinition}
+      electionPackageHash="mock-election-package-hash"
     />
   );
 
