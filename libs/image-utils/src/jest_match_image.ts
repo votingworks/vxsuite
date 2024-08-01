@@ -85,16 +85,11 @@ export async function toMatchImage(
   bitblt(diffImg, compositeImg, received.width, 0);
   bitblt(expected, compositeImg, 2 * received.width, 0);
 
-  if (options.diffPath) {
-    await writeImageData(options.diffPath, compositeImg);
-  }
+  await writeImageData(options.diffPath, compositeImg);
 
   return {
     message: () =>
-      `Expected the images to be equal, but they differ by ${diff} pixels.${
-        /* istanbul ignore next */
-        options.diffPath ? ` Diff image saved to ${options.diffPath}.` : ''
-      }`,
+      `Expected the images to be equal, but they differ by ${diff} pixels. Diff image saved to ${options.diffPath}.`,
     pass,
   };
 }
