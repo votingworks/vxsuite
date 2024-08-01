@@ -211,12 +211,12 @@ const QrCodeContainer = styled.div`
   max-width: 50%;
   padding: 0.25em;
 
-  & > div:first-child {
-    margin-right: 0.25em;
+  & > div:last-child {
+    margin-left: 0.25em;
     width: 1.1in;
   }
 
-  & > div:last-child {
+  & > div:first-child {
     display: flex;
     flex: 1;
 
@@ -554,7 +554,6 @@ export function BmdPaperBallot({
             </P>
           </div>
           <QrCodeContainer>
-            <QrCode value={fromByteArray(encodedBallot)} />
             <div>
               <div>
                 <div>
@@ -581,6 +580,7 @@ export function BmdPaperBallot({
                 </div>
               </div>
             </div>
+            <QrCode value={fromByteArray(encodedBallot)} />
           </QrCodeContainer>
         </Header>
         <Content layout={layout}>
