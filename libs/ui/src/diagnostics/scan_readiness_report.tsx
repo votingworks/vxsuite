@@ -1,5 +1,4 @@
 import { ThemeProvider } from 'styled-components';
-import { ComputerSection, ComputerSectionProps } from './computer_section';
 import { makeTheme } from '../themes/make_theme';
 import { PrintedReport } from '../reports/layout';
 import { ReadinessReportHeader } from './report_header';
@@ -12,10 +11,11 @@ import {
   ThermalPrinterSection,
   ThermalPrinterSectionProps,
 } from './thermal_printer_section';
+import { StorageSection, StorageSectionProps } from './storage_section';
 
-type ReportContentsProps = ComputerSectionProps &
-  ThermalPrinterSectionProps &
-  ConfigurationSectionProps;
+type ReportContentsProps = ConfigurationSectionProps &
+  StorageSectionProps &
+  ThermalPrinterSectionProps;
 
 export function ScanReadinessReportContents(
   props: ReportContentsProps
@@ -23,7 +23,7 @@ export function ScanReadinessReportContents(
   return (
     <ReportContents>
       <ConfigurationSection {...props} />
-      <ComputerSection {...props} />
+      <StorageSection {...props} />
       <ThermalPrinterSection {...props} />
     </ReportContents>
   );

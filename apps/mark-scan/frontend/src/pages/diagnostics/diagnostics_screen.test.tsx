@@ -93,10 +93,7 @@ test('data from API is passed to screen contents', async () => {
 
   renderScreen();
 
-  await screen.findByText('Battery Level: 50%');
-
-  screen.getByText('Power Source: Battery');
-  screen.getByText('Free Disk Space: 50% (1 GB / 2 GB)');
+  await screen.findByText('Free Disk Space: 50% (1 GB / 2 GB)');
 
   expectConnected(screen, DiagnosticSectionTitle.PaperHandler, true);
   expectConnected(screen, DiagnosticSectionTitle.AccessibleController, true);

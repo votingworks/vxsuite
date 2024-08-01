@@ -1,5 +1,4 @@
 import { ThemeProvider } from 'styled-components';
-import { ComputerSection, ComputerSectionProps } from './computer_section';
 import { PrinterSection, PrinterSectionProps } from './printer_section';
 import { PrintedReport } from '../reports/layout';
 import { makeTheme } from '../themes/make_theme';
@@ -9,10 +8,13 @@ import {
   ConfigurationSection,
 } from './configuration_section';
 import { ReportContents } from './components';
+import { BatterySection, BatterySectionProps } from './battery_section';
+import { StorageSection, StorageSectionProps } from './storage_section';
 
-type ReportContentsProps = ComputerSectionProps &
-  PrinterSectionProps &
-  ConfigurationSectionProps;
+type ReportContentsProps = ConfigurationSectionProps &
+  BatterySectionProps &
+  StorageSectionProps &
+  PrinterSectionProps;
 
 export function AdminReadinessReportContents(
   props: ReportContentsProps
@@ -20,7 +22,8 @@ export function AdminReadinessReportContents(
   return (
     <ReportContents>
       <ConfigurationSection {...props} />
-      <ComputerSection {...props} />
+      <BatterySection {...props} />
+      <StorageSection {...props} />
       <PrinterSection {...props} />
     </ReportContents>
   );
