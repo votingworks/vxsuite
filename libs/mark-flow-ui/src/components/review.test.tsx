@@ -167,6 +167,17 @@ describe('yesno contest', () => {
     within(screen.getByTestId(`contest-wrapper-${contest.id}`)).getByText(
       /no selection/i
     );
+    // Make sure there are not elements with the text 'Yes' or 'No' to represent those votes.
+    expect(
+      within(screen.getByTestId(`contest-wrapper-${contest.id}`)).queryByText(
+        'Yes'
+      )
+    ).toBeNull();
+    expect(
+      within(screen.getByTestId(`contest-wrapper-${contest.id}`)).queryByText(
+        'No'
+      )
+    ).toBeNull();
   });
 });
 
