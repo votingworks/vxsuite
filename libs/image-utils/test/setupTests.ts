@@ -1,5 +1,5 @@
-import { toMatchImage } from 'jest-image-matcher';
-import { Buffer } from 'buffer';
+import { ImageData } from 'canvas';
+import { toMatchImage, ToMatchImageOptions } from '../src';
 
 declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
@@ -7,10 +7,11 @@ declare global {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     interface Matchers<R> {
       toMatchImage(
-        expected: Buffer,
-        options?: { dumpDiffToConsole: boolean }
-      ): CustomMatcherResult;
+        expected: ImageData,
+        options?: ToMatchImageOptions
+      ): Promise<CustomMatcherResult>;
     }
   }
 }
+
 expect.extend({ toMatchImage });

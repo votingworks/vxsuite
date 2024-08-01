@@ -2,13 +2,13 @@
  * @type {import('@jest/types').Config.InitialOptions}
  */
 module.exports = {
-  preset: 'ts-jest',
+  preset: 'ts-jest/presets/js-with-ts',
   clearMocks: true,
   testEnvironment: 'node',
   testMatch: ['<rootDir>/{src,test}/**/*.test.{ts,tsx}'],
   watchPathIgnorePatterns: ['<rootDir>/node_modules', '<rootDir>/build'],
   modulePathIgnorePatterns: [
-    '<rootDir>[/\\\\](build|docs|node_modules|deploy|scripts)[/\\\\]'
+    '<rootDir>[/\\\\](build|docs|node_modules|deploy|scripts)[/\\\\]',
   ],
   collectCoverageFrom: ['{src,test}/**/*.{ts,tsx}', '!src/**/*.d.ts'],
   coverageThreshold: {
@@ -24,5 +24,9 @@ module.exports = {
     'jest-watch-typeahead/filename',
     'jest-watch-typeahead/testname',
   ],
-  cacheDirectory: '.jestcache'
-}
+  cacheDirectory: '.jestcache',
+  // pixelmatch contains ESM modules ending in .js, so we need to have
+  // ts-jest transform them. We use this ignore pattern to not transform any
+  // other node_modules except pixelmatch.
+  transformIgnorePatterns: ['node_modules/(?!(.pnpm|pixelmatch))'],
+};

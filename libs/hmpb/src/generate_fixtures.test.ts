@@ -1,7 +1,7 @@
 import { Buffer } from 'buffer';
 import * as fs from 'fs';
 import { BallotPaperSize } from '@votingworks/types';
-import { pdfToImages, toImageBuffer } from '@votingworks/image-utils';
+import { pdfToImages } from '@votingworks/image-utils';
 import { iter } from '@votingworks/basics';
 import { readElection } from '@votingworks/fs';
 import { allBubbleBallotFixtures } from './all_bubble_ballot_fixtures';
@@ -24,13 +24,12 @@ async function expectToMatchSavedPdf(
   const expectedPdfPages = pdfToImages(expectedPdf);
   const pdfPagePairs = iter(actualPdfPages).zip(expectedPdfPages);
   for await (const [
-    { page: actualPage },
+    { page: actualPage, pageNumber },
     { page: expectedPage },
   ] of pdfPagePairs) {
-    expect(toImageBuffer(actualPage)).toMatchImage(
-      toImageBuffer(expectedPage),
-      { dumpDiffToConsole: true }
-    );
+    await expect(actualPage).toMatchImage(expectedPage, {
+      diffPath: `${expectedPdfPath}-p${pageNumber}-diff.png`,
+    });
   }
 }
 
