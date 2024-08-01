@@ -219,6 +219,8 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
         )
       : [];
 
+  const { onSessionEnd } = useSessionSettingsManager({ authStatus });
+
   const resetBallot = useCallback(
     (newShowPostVotingInstructions?: boolean) => {
       dispatchVotingState({
@@ -234,8 +236,16 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
         resetAudioSettings();
         resetLanguage();
       }
+
+      onSessionEnd();
     },
-    [history, voterSettingsManager, resetAudioSettings, resetLanguage]
+    [
+      history,
+      voterSettingsManager,
+      resetAudioSettings,
+      resetLanguage,
+      onSessionEnd,
+    ]
   );
 
   const hidePostVotingInstructions = useCallback(() => {
@@ -353,8 +363,6 @@ export function AppRoot({ reload }: Props): JSX.Element | null {
       document.removeEventListener('keydown', handleGamepadKeyboardEvent);
     };
   }, []);
-
-  useSessionSettingsManager({ authStatus });
 
   useBallotStyleManager({
     currentBallotStyleId: ballotStyleId,

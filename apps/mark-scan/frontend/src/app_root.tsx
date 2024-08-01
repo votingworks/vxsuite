@@ -231,6 +231,8 @@ export function AppRoot(): JSX.Element | null {
         )
       : [];
 
+  const { onSessionEnd } = useSessionSettingsManager({ authStatus });
+
   const resetBallot = useCallback(
     (newShowPostVotingInstructions?: boolean) => {
       dispatchVotingState({
@@ -245,8 +247,16 @@ export function AppRoot(): JSX.Element | null {
         resetAudioSettings();
         resetLanguage();
       }
+
+      onSessionEnd();
     },
-    [history, voterSettingsManager, resetAudioSettings, resetLanguage]
+    [
+      history,
+      voterSettingsManager,
+      resetAudioSettings,
+      resetLanguage,
+      onSessionEnd,
+    ]
   );
 
   const unconfigure = useCallback(async () => {
@@ -330,8 +340,6 @@ export function AppRoot(): JSX.Element | null {
       document.removeEventListener('keydown', handleKeyboardEvent);
     };
   }, []);
-
-  useSessionSettingsManager({ authStatus });
 
   useBallotStyleManager({
     currentBallotStyleId: ballotStyleId,
