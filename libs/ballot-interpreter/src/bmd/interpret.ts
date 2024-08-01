@@ -79,10 +79,10 @@ export async function interpret(
     });
   }
 
-  let summaryBallotImage = frontResult.isOk() ? card[0] : card[1];
+  const summaryBallotImage = frontResult.isOk() ? card[0] : card[1];
   // Orient the ballot image right side up
   if (foundQrCode.position === 'bottom') {
-    summaryBallotImage = rotateImageData180(summaryBallotImage);
+    rotateImageData180(summaryBallotImage);
   }
 
   return ok({

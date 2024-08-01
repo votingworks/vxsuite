@@ -4,8 +4,9 @@ import { ImageData } from 'canvas';
 import { rotateImageData180 } from './rotate';
 
 test('can rotate real life ImageData as expected', async () => {
+  const rotatedImageData = await sampleBallotImages.notBallot.asImageData();
   const sampleImageData = await sampleBallotImages.notBallot.asImageData();
-  const rotatedImageData = rotateImageData180(sampleImageData);
+  rotateImageData180(rotatedImageData);
   // Rotated ImageData should be different then the original
   assert(
     !rotatedImageData.data.every(
@@ -13,9 +14,9 @@ test('can rotate real life ImageData as expected', async () => {
     )
   );
   // Rotating the image again should return to the original
-  const secondRotation = rotateImageData180(rotatedImageData);
+  rotateImageData180(rotatedImageData);
   assert(
-    secondRotation.data.every(
+    rotatedImageData.data.every(
       (value, idx) => value === sampleImageData.data[idx]
     )
   );
@@ -36,8 +37,10 @@ test('can rotate simple ImageData as expected', () => {
   expectedRotatedImageData.data[13] = 0;
   expectedRotatedImageData.data[14] = 0;
   expectedRotatedImageData.data[15] = 255;
+
+  rotateImageData180(sampleImageData);
   assert(
-    rotateImageData180(sampleImageData).data.every(
+    sampleImageData.data.every(
       (value, idx) => value === expectedRotatedImageData.data[idx]
     )
   );

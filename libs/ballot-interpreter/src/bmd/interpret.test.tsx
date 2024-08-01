@@ -19,6 +19,13 @@ import { pdfToPageImages } from '../../test/helpers/interpretation';
 let famousNamesBmdBallot: SheetOf<ImageData>;
 let famousNamesBmdBallotUpsideDown: SheetOf<ImageData>;
 
+function copyImageData(imageData: ImageData): ImageData {
+  // Create a new canvas element
+  const newImageData = new ImageData(imageData.width, imageData.height);
+  newImageData.data.set(imageData.data.slice());
+  return newImageData;
+}
+
 beforeAll(async () => {
   famousNamesBmdBallot = asSheet(
     await pdfToPageImages(
@@ -79,7 +86,7 @@ test('happy path: front upside down, back', async () => {
   const cardOriginal = famousNamesBmdBallot;
   const resultFlipped = await interpret(
     electionFamousNames2021Fixtures.electionDefinition,
-    cardFlipped
+    [cardFlipped[0], copyImageData(cardFlipped[1])]
   );
   const resultOriginal = await interpret(
     electionFamousNames2021Fixtures.electionDefinition,
@@ -96,10 +103,11 @@ test('happy path: front upside down, back', async () => {
 
   // don't use Jest `toEqual` matcher because it tries to pretty print the
   // ImageData objects, which is slow and causes the test to time out
-  // Assert that every item in blankPageImageOriginal is 255
-  assert(blankPageImageFlipped === cardFlipped[1]);
-  // These should not be equal as summaryBallotImageFlipped should be rotated back right-side up.
-  assert(summaryBallotImageFlipped !== cardFlipped[0]);
+  assert(
+    blankPageImageFlipped.data.every(
+      (value, idx) => value === cardFlipped[1].data[idx]
+    )
+  );
 
   // Visually ensure that the snapshot represents a properly oriented ballot
   const canvas = createCanvas(
@@ -118,7 +126,7 @@ test('happy path: back, front upside down', async () => {
   const cardOriginal = famousNamesBmdBallot;
   const resultFlipped = await interpret(
     electionFamousNames2021Fixtures.electionDefinition,
-    [cardFlipped[1], cardFlipped[0]]
+    [cardFlipped[1], copyImageData(cardFlipped[0])]
   );
   const resultOriginal = await interpret(
     electionFamousNames2021Fixtures.electionDefinition,
@@ -135,10 +143,11 @@ test('happy path: back, front upside down', async () => {
 
   // don't use Jest `toEqual` matcher because it tries to pretty print the
   // ImageData objects, which is slow and causes the test to time out
-  // Assert that every item in blankPageImageOriginal is 255
-  assert(blankPageImageFlipped === cardFlipped[1]);
-  // These should not be equal as summaryBallotImageFlipped should be rotated back right-side up.
-  assert(summaryBallotImageFlipped !== cardFlipped[0]);
+  assert(
+    blankPageImageFlipped.data.every(
+      (value, idx) => value === cardFlipped[1].data[idx]
+    )
+  );
 
   const canvas = createCanvas(
     summaryBallotImageFlipped.width,
