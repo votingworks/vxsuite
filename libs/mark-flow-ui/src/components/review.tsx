@@ -107,7 +107,11 @@ function YesNoContestResult({
   const district = getContestDistrict(election, contest);
   const yesNo = getSingleYesNoVote(vote);
   const selectedOption =
-    yesNo === contest.yesOption.id ? contest.yesOption : contest.noOption;
+    yesNo === contest.yesOption.id
+      ? contest.yesOption
+      : yesNo === contest.noOption.id
+      ? contest.noOption
+      : null;
 
   const votes: ContestVote[] = selectedOption
     ? [
