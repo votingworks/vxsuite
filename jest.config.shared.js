@@ -8,7 +8,7 @@ module.exports = {
   testMatch: ['<rootDir>/{src,test}/**/*.test.{ts,tsx}'],
   watchPathIgnorePatterns: ['<rootDir>/node_modules', '<rootDir>/build'],
   modulePathIgnorePatterns: [
-    '<rootDir>[/\\\\](build|docs|node_modules|deploy|scripts)[/\\\\]'
+    '<rootDir>[/\\\\](build|docs|node_modules|deploy|scripts)[/\\\\]',
   ],
   collectCoverageFrom: ['{src,test}/**/*.{ts,tsx}', '!src/**/*.d.ts'],
   coverageThreshold: {
@@ -24,5 +24,5 @@ module.exports = {
     'jest-watch-typeahead/filename',
     'jest-watch-typeahead/testname',
   ],
-  cacheDirectory: '.jestcache'
-}
+  cacheDirectory: '.jestcache',
+};

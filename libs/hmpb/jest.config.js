@@ -5,7 +5,6 @@ const shared = require('../../jest.config.shared');
  */
 module.exports = {
   ...shared,
-  preset: 'ts-jest/presets/js-with-ts',
   coverageThreshold: {
     global: {
       branches: -16,
@@ -20,9 +19,5 @@ module.exports = {
     'src/concatenate_pdfs.ts',
     'src/preview/*',
   ],
-  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
-  // jest-image-matcher contains ESM modules ending in .js, so we need to have
-  // ts-jest transform them. We use this ignore pattern to not transform any
-  // other node_modules except jest-image-matcher.
-  transformIgnorePatterns: ['node_modules/(?!(.pnpm|jest-image-matcher))'],
+  setupFilesAfterEnv: ['<rootDir>/test/setupTests.ts'],
 };
