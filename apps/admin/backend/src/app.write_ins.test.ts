@@ -3,7 +3,7 @@ import {
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import { assert, find, typedAs } from '@votingworks/basics';
-import { toDataUrl, loadImage, toImageData } from '@votingworks/image-utils';
+import { toDataUrl, loadImageData } from '@votingworks/image-utils';
 import { join } from 'path';
 import {
   BooleanEnvironmentVariableName,
@@ -305,20 +305,14 @@ test('getWriteInImageView on hmpb', async () => {
     }
   `);
 
-  const expectedImage = await loadImage(
+  const expectedImage = await loadImageData(
     join(
       reportDirectoryPath,
       '864a2854-ee26-4223-8097-9633b7bed096',
       '864a2854-ee26-4223-8097-9633b7bed096-front.jpg'
     )
   );
-  const expectedImageUrl = toDataUrl(
-    toImageData(expectedImage, {
-      maxWidth: expectedImage.width,
-      maxHeight: expectedImage.height,
-    }),
-    'image/jpeg'
-  );
+  const expectedImageUrl = toDataUrl(expectedImage, 'image/jpeg');
   expect(actualImageUrl).toEqual(expectedImageUrl);
 
   // check the second write-in image view, which should have the same image

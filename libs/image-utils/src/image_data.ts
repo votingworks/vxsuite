@@ -213,28 +213,3 @@ export function toImageBuffer(
     ? canvas.toBuffer(mimeType)
     : canvas.toBuffer(mimeType);
 }
-
-/**
- * Extracts image data from an image.
- */
-export function toImageData(
-  image: Image,
-  {
-    maxWidth = image.width,
-    maxHeight = image.height,
-  }: {
-    maxWidth?: usize;
-    maxHeight?: usize;
-  } = {}
-): ImageData {
-  const xScale = maxWidth / image.width;
-  const yScale = maxHeight / image.height;
-  const scale = Math.min(xScale, yScale);
-  const width = Math.round(image.width * scale);
-  const height = Math.round(image.height * scale);
-  const canvas = createCanvas(width, height);
-  const context = canvas.getContext('2d');
-
-  context.drawImage(image, 0, 0, width, height);
-  return context.getImageData(0, 0, width, height);
-}
