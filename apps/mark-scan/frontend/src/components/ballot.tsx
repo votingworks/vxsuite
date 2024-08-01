@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Redirect, Route, Switch } from 'react-router-dom';
 import {
   DEFAULT_EVENTS,
   EventsType,
@@ -9,7 +9,6 @@ import {
 import { IDLE_TIMEOUT_SECONDS } from '@votingworks/mark-flow-ui';
 import { ContestScreen } from '../pages/contest_screen';
 import { IdlePage } from '../pages/idle_page';
-import { NotFoundPage } from '../pages/not_found_page';
 import { PrintPage } from '../pages/print_page';
 import { ReviewScreen } from '../pages/review_screen';
 import { StartScreen } from '../pages/start_screen';
@@ -70,9 +69,9 @@ export function Ballot(): JSX.Element {
           <Route path="/print">
             <PrintPage />
           </Route>
-          <Route path="/:path">
-            <NotFoundPage />
-          </Route>
+          {/* Redirect to / if we navigated here from another flow
+          that uses react-router with different paths */}
+          <Redirect to="/" />
         </Switch>
       )}
     </IdleTimerProvider>

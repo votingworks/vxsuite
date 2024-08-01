@@ -9,7 +9,7 @@ import {
   SaveReadinessReportButton,
   appStrings,
 } from '@votingworks/ui';
-import { useHistory, Switch, Route } from 'react-router-dom';
+import { useHistory, Switch, Route, Redirect } from 'react-router-dom';
 import { AccessibleControllerDiagnosticScreen } from './accessible_controller_diagnostic_screen';
 import {
   getApplicationDiskSpaceSummary,
@@ -236,6 +236,9 @@ export function DiagnosticsScreen({
           }}
         />
       </Route>
+      {/* Redirect to / if we navigated here from another flow
+      that uses react-router with different paths */}
+      <Redirect to="/" />
     </Switch>
   );
 }
