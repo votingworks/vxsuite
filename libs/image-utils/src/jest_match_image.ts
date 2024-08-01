@@ -98,5 +98,3 @@ export async function toMatchImage(
     pass,
   };
 }
-
-expect.extend({ toMatchImage });
