@@ -29,6 +29,10 @@ let apiMock: ApiMock;
 beforeEach(() => {
   jest.useFakeTimers();
   apiMock = createApiMock();
+
+  mockOf(useSessionSettingsManager).mockReturnValue({
+    onSessionEnd: jest.fn(),
+  });
 });
 
 afterEach(() => {
