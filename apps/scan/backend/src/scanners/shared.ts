@@ -2,6 +2,7 @@ import { assert, assertDefined } from '@votingworks/basics';
 import { Id, SheetInterpretationWithPages } from '@votingworks/types';
 import { UsbDrive } from '@votingworks/usb-drive';
 import { exportCastVoteRecordsToUsbDrive } from '@votingworks/backend';
+import { ImageData } from 'canvas';
 import { Store } from '../store';
 import { rootDebug } from '../util/debug';
 import { Workspace } from '../util/workspace';
@@ -86,4 +87,37 @@ export async function recordRejectedSheet(
   exportResult.unsafeUnwrap();
 
   debug('Stored rejected sheet: %s', sheetId);
+}
+
+export function cleanLogData(key: string, value: unknown): unknown {
+  if (value === undefined) {
+    return 'undefined';
+  }
+  if (value instanceof ImageData) {
+    return {
+      width: value.width,
+      height: value.height,
+      data: value.data.length,
+    };
+  }
+  if (value instanceof Error) {
+    return { ...value, message: value.message, stack: value.stack };
+  }
+  if (
+    [
+      // Protect voter privacy
+      'markInfo',
+      'votes',
+      'unmarkedWriteIns',
+      'adjudicationInfo',
+      'reasons',
+      // Hide large values
+      'layout',
+      'client',
+      'rootListenerRef',
+    ].includes(key)
+  ) {
+    return '[hidden]';
+  }
+  return value;
 }

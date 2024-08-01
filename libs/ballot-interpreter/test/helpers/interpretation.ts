@@ -5,11 +5,7 @@ import {
   unique,
 } from '@votingworks/basics';
 import { voteToOptionId } from '@votingworks/hmpb';
-import {
-  pdfToImages,
-  writeImageData,
-  ImageData,
-} from '@votingworks/image-utils';
+import { ImageData, pdfToImages } from '@votingworks/image-utils';
 import {
   ContestId,
   GridLayout,
@@ -17,7 +13,6 @@ import {
   Vote,
   VotesDict,
 } from '@votingworks/types';
-import { tmpNameSync } from 'tmp';
 import { Buffer } from 'buffer';
 import { readFileSync } from 'fs';
 
@@ -28,16 +23,6 @@ export function pdfToPageImages(
   return iter(pdfToImages(pdfData, { scale: 200 / 72 })).map(
     ({ page }) => page
   );
-}
-
-export function pdfToPageImagePaths(pdf: Buffer | string): Promise<string[]> {
-  return pdfToPageImages(pdf)
-    .map(async (page) => {
-      const path = tmpNameSync({ postfix: '.png' });
-      await writeImageData(path, page);
-      return path;
-    })
-    .toArray();
 }
 
 function isContestOnSheet(

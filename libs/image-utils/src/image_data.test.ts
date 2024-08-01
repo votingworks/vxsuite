@@ -3,9 +3,12 @@ import { ImageData, createImageData } from 'canvas';
 import fc from 'fast-check';
 import { writeFile } from 'fs/promises';
 import { fileSync } from 'tmp';
+import { randomFillSync } from 'crypto';
+import { MaybePromise } from '@votingworks/basics';
 import { arbitraryImageData } from '../test/arbitraries';
 import {
   RGBA_CHANNEL_COUNT,
+  encodeImageData,
   ensureImageData,
   fromGrayScale,
   getImageChannelCount,
@@ -212,4 +215,91 @@ test('toImageBuffer', async () => {
       }
     )
   );
+});
+
+test('encodeImageData', async () => {
+  await fc.assert(
+    fc.asyncProperty(
+      arbitraryImageData({ width: 5, height: 5 }),
+      fc.constantFrom<'image/png' | 'image/jpeg'>('image/png', 'image/jpeg'),
+      async (imageData, mimeType) => {
+        const buffer =
+          mimeType === 'image/png'
+            ? await encodeImageData(imageData, mimeType)
+            : await encodeImageData(imageData, mimeType);
+        const filePath = fileSync({
+          template: `tmp-XXXXXX.${mimeType === 'image/png' ? 'png' : 'jpeg'}`,
+        }).name;
+        await writeFile(filePath, buffer);
+        const { width: decodedWidth, height: decodedHeight } = toImageData(
+          await loadImage(filePath)
+        );
+        expect({ width: decodedWidth, height: decodedHeight }).toStrictEqual({
+          width: imageData.width,
+          height: imageData.height,
+        });
+      }
+    )
+  );
+});
+
+/**
+ * Measure `fn` repeatedly until `timeLimitSeconds` has elapsed.
+ */
+async function measureRepeatedly(
+  fn: () => MaybePromise<unknown>,
+  { timeLimitSeconds }: { timeLimitSeconds: number }
+): Promise<{
+  count: number;
+  elapsed: bigint;
+  elapsedSeconds: number;
+  rate: number;
+}> {
+  const NANOS_PER_SECOND = BigInt(1e9);
+  const start = process.hrtime.bigint();
+  const timeLimitNanos = BigInt(
+    // eslint-disable-next-line vx/gts-safe-number-parse
+    Math.floor(Number(NANOS_PER_SECOND) * timeLimitSeconds)
+  );
+
+  for (let count = 0; ; count += 1) {
+    await fn();
+    const elapsed = process.hrtime.bigint() - start;
+
+    if (elapsed >= timeLimitNanos) {
+      // eslint-disable-next-line vx/gts-safe-number-parse
+      const elapsedSeconds = Number(elapsed) / Number(NANOS_PER_SECOND);
+      const rate = count / elapsedSeconds;
+      return { count, elapsed, elapsedSeconds, rate };
+    }
+  }
+}
+
+test('encodeImageData performance', async () => {
+  const imageData = createImageData(1000, 1000);
+  randomFillSync(imageData.data);
+
+  const serial1x = await measureRepeatedly(
+    () => encodeImageData(imageData, 'image/png'),
+    { timeLimitSeconds: 0.5 }
+  );
+
+  const parallel2x = await measureRepeatedly(
+    () =>
+      // we want to ensure that these are running in parallel
+      Promise.all([
+        encodeImageData(imageData, 'image/png'),
+        encodeImageData(imageData, 'image/png'),
+      ]),
+    { timeLimitSeconds: 0.5 }
+  );
+
+  const serial1xCount = serial1x.count;
+  const parallel2xCount = parallel2x.count * 2;
+
+  // Ideally we'd get a 2x speedup, but we'll settle for 1.5x given the overhead
+  // of running in parallel and the uncertainty of the test environment. This
+  // should at least ensure that running in parallel is faster in practice than
+  // the serial one.
+  expect(parallel2xCount / serial1xCount).toBeGreaterThan(1.5);
 });

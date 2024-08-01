@@ -1,3 +1,4 @@
+import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import {
   assert,
   assertDefined,
@@ -17,28 +18,27 @@ import {
   ScanSide,
   SensorStatus,
 } from '@votingworks/custom-scanner';
-import { fromGrayScale, writeImageData } from '@votingworks/image-utils';
-import { LogEventId, BaseLogger, LogLine } from '@votingworks/logging';
+import { fromGrayScale, ImageData } from '@votingworks/image-utils';
+import { BaseLogger, LogEventId, LogLine } from '@votingworks/logging';
 import { mapSheet, SheetInterpretation, SheetOf } from '@votingworks/types';
-import { join } from 'path';
+import { UsbDrive } from '@votingworks/usb-drive';
 import { v4 as uuid } from 'uuid';
 import {
-  assign as xassign,
   Assigner,
   BaseActionObject,
   createMachine,
-  interpret as interpretStateMachine,
   Interpreter,
+  interpret as interpretStateMachine,
   InvokeConfig,
   PropertyAssigner,
+  sendParent,
   StateNodeConfig,
   TransitionConfig,
-  sendParent,
+  assign as xassign,
 } from 'xstate';
-import { UsbDrive } from '@votingworks/usb-drive';
-import { InsertedSmartCardAuthApi } from '@votingworks/auth';
 import { escalate } from 'xstate/lib/actions';
 import { Clock } from 'xstate/lib/interpreter';
+import { isReadyToScan } from '../../app_flow';
 import { interpret as defaultInterpret, InterpretFn } from '../../interpret';
 import {
   InterpretationResult,
@@ -48,8 +48,11 @@ import {
 } from '../../types';
 import { rootDebug } from '../../util/debug';
 import { Workspace } from '../../util/workspace';
-import { isReadyToScan } from '../../app_flow';
-import { recordAcceptedSheet, recordRejectedSheet } from '../shared';
+import {
+  cleanLogData,
+  recordAcceptedSheet,
+  recordRejectedSheet,
+} from '../shared';
 
 const debug = rootDebug.extend('state-machine');
 const debugPaperStatus = debug.extend('paper-status');
@@ -70,7 +73,7 @@ interface Context {
   auth: InsertedSmartCardAuthApi;
   workspace: Workspace;
   usbDrive: UsbDrive;
-  scannedSheet?: SheetOf<string>;
+  scannedSheet?: SheetOf<ImageData>;
   interpretation?: InterpretationResult;
   error?: Error | ErrorCode;
   failedScanAttempts?: number;
@@ -267,7 +270,10 @@ async function reset({ client }: Context): Promise<void> {
   result.unsafeUnwrap();
 }
 
-async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
+async function scan({
+  client,
+  workspace,
+}: Context): Promise<SheetOf<ImageData>> {
   assert(client);
   debug('Scanning');
   const isDoubleSheetDetectionDisabled =
@@ -284,20 +290,9 @@ async function scan({ client, workspace }: Context): Promise<SheetOf<string>> {
   debug('Scan result: %o', scanResult);
   const images = scanResult.unsafeUnwrap();
 
-  // FIXME: we should be able to use the image format directly, but the
-  // rest of the system expects file paths instead of image buffers.
-  const sheetPrefix = uuid();
-  return await mapSheet(images, async (image, side) => {
-    const { scannedImagesPath } = workspace;
-    const path = join(scannedImagesPath, `${sheetPrefix}-${side}.jpeg`);
-    const imageData = fromGrayScale(
-      image.imageBuffer,
-      image.imageWidth,
-      image.imageHeight
-    );
-    await writeImageData(path, imageData);
-    return path;
-  });
+  return mapSheet(images, (image) =>
+    fromGrayScale(image.imageBuffer, image.imageWidth, image.imageHeight)
+  );
 }
 
 async function interpretSheet(
@@ -636,16 +631,12 @@ function buildMachine({
         '*': {
           target: 'error',
           actions: assign({
-            error: (
-              { error, failedScanAttempts, interpretation, scannedSheet },
-              event
-            ) => {
+            error: ({ error, failedScanAttempts, interpretation }, event) => {
               // eslint-disable-next-line no-console
               console.error(event, {
                 error,
                 failedScanAttempts,
                 interpretation,
-                scannedSheet,
               });
               return new PrecinctScannerError(
                 'unexpected_event',
@@ -1193,7 +1184,10 @@ function setupLogging(
         'system',
         {
           message: `Context updated`,
-          changedFields: JSON.stringify(Object.fromEntries(changed)),
+          changedFields: JSON.stringify(
+            Object.fromEntries(changed),
+            cleanLogData
+          ),
         },
         () => debug('Context updated: %o', Object.fromEntries(changed))
       );
@@ -1203,7 +1197,12 @@ function setupLogging(
       await logger.log(
         LogEventId.ScannerStateChanged,
         'system',
-        { message: `Transitioned to: ${JSON.stringify(state.value)}` },
+        {
+          message: `Transitioned to: ${JSON.stringify(
+            state.value,
+            cleanLogData
+          )}`,
+        },
         (logLine: LogLine) => debug(logLine.message)
       );
     });

@@ -1,5 +1,11 @@
 import { sliceBallotHashForEncoding } from '@votingworks/ballot-encoder';
 import {
+  DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
+  DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
+  DEFAULT_FAMOUS_NAMES_VOTES,
+  renderBmdBallotFixture,
+} from '@votingworks/bmd-ballot-fixtures';
+import {
   electionFamousNames2021Fixtures,
   electionGeneralDefinition,
 } from '@votingworks/fixtures';
@@ -18,17 +24,9 @@ import {
   ALL_PRECINCTS_SELECTION,
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
-import {
-  DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID,
-  DEFAULT_FAMOUS_NAMES_PRECINCT_ID,
-  DEFAULT_FAMOUS_NAMES_VOTES,
-  renderBmdBallotFixture,
-} from '@votingworks/bmd-ballot-fixtures';
-import { pdfToPageImagePaths } from '../test/helpers/interpretation';
-import {
-  interpretSheet,
-  interpretSimplexBmdBallotFromFilepath,
-} from './interpret';
+import { ImageData } from 'canvas';
+import { pdfToPageImages } from '../test/helpers/interpretation';
+import { interpretSheet, interpretSimplexBmdBallot } from './interpret';
 import { InterpreterOptions } from './types';
 import { normalizeBallotMode } from './validation';
 
@@ -44,13 +42,13 @@ describe('VX BMD interpretation', () => {
   const ballotStyleId: BallotStyleId = DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID;
   const precinctId: PrecinctId = DEFAULT_FAMOUS_NAMES_PRECINCT_ID;
 
-  let bmdSummaryBallotPage: string;
-  let bmdBlankPage: string;
-  let validBmdSheet: SheetOf<string>;
+  let bmdSummaryBallotPage: ImageData;
+  let bmdBlankPage: ImageData;
+  let validBmdSheet: SheetOf<ImageData>;
 
   beforeAll(async () => {
     validBmdSheet = asSheet(
-      await pdfToPageImagePaths(
+      await pdfToPageImages(
         await renderBmdBallotFixture({
           electionDefinition:
             electionFamousNames2021Fixtures.electionDefinition,
@@ -58,7 +56,7 @@ describe('VX BMD interpretation', () => {
           ballotStyleId,
           votes: DEFAULT_FAMOUS_NAMES_VOTES,
         })
-      )
+      ).toArray()
     );
     [bmdSummaryBallotPage, bmdBlankPage] = validBmdSheet;
   });
@@ -192,17 +190,14 @@ describe('VX BMD interpretation', () => {
     );
   });
 
-  test('interpretSimplexBmdBallotFromFilepath', async () => {
-    const result = await interpretSimplexBmdBallotFromFilepath(
-      bmdSummaryBallotPage,
-      {
-        electionDefinition,
-        precinctSelection: ALL_PRECINCTS_SELECTION,
-        testMode: true,
-        markThresholds: DEFAULT_MARK_THRESHOLDS,
-        adjudicationReasons: [],
-      }
-    );
+  test('interpretSimplexBmdBallot', async () => {
+    const result = await interpretSimplexBmdBallot(bmdSummaryBallotPage, {
+      electionDefinition,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      testMode: true,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      adjudicationReasons: [],
+    });
     expect(
       mapSheet(result, ({ interpretation }) => interpretation)
     ).toMatchSnapshot();

@@ -135,7 +135,7 @@ exports[`VX BMD interpretation extracts votes encoded in a QR code 1`] = `
 ]
 `;
 
-exports[`VX BMD interpretation interpretSimplexBmdBallotFromFilepath 1`] = `
+exports[`VX BMD interpretation interpretSimplexBmdBallot 1`] = `
 [
   {
     "ballotId": undefined,

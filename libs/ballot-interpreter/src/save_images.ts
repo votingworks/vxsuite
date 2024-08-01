@@ -1,29 +1,40 @@
-import { ImageData, writeImageData } from '@votingworks/image-utils';
-import { Side } from '@votingworks/types';
-import { join, parse } from 'path';
+import { encodeImageData, ImageData } from '@votingworks/image-utils';
+import { mapSheet, SheetOf } from '@votingworks/types';
+import { time } from '@votingworks/utils';
+import makeDebug from 'debug';
+import { writeFile } from 'fs/promises';
+import { join } from 'path';
+
+const debug = makeDebug('ballot-interpreter:save-images');
 
 /**
- * Stores the image for a ballot in the ballot images directory.
+ * Stores the images for a ballot in the ballot images directory.
  */
-export async function saveSheetImage({
+export async function saveSheetImages({
   sheetId,
-  side,
   ballotImagesPath,
-  sourceImagePath,
-  normalizedImage,
+  images,
 }: {
   sheetId: string;
-  side: Side;
   ballotImagesPath: string;
-  sourceImagePath: string;
-  normalizedImage: ImageData;
-}): Promise<string> {
-  const parts = parse(sourceImagePath);
-  const ext = parts.ext === '.png' ? '.png' : '.jpg';
-  const destinationImagePath = join(
-    ballotImagesPath,
-    `${sheetId}-${side}${ext}`
-  );
-  await writeImageData(destinationImagePath, normalizedImage);
-  return destinationImagePath;
+  images: SheetOf<ImageData>;
+}): Promise<SheetOf<string>> {
+  const timer = time(debug, `saveSheetImages: sheetId=${sheetId}`);
+  const destinationImagePaths = await mapSheet(images, async (image, side) => {
+    const sideTimer = time(
+      debug,
+      `saveSheetImages: sheetId=${sheetId}, side=${side}`
+    );
+    const destinationImagePath = join(
+      ballotImagesPath,
+      `${sheetId}-${side}.png`
+    );
+    const buffer = await encodeImageData(image, 'image/png');
+    sideTimer.checkpoint('writeImageDataToBuffer');
+    await writeFile(destinationImagePath, buffer);
+    sideTimer.checkpoint('writeFile');
+    return destinationImagePath;
+  });
+  timer.end();
+  return destinationImagePaths;
 }

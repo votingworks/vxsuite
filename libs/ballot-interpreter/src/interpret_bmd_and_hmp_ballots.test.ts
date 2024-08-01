@@ -1,29 +1,29 @@
+import { renderBmdBallotFixture } from '@votingworks/bmd-ballot-fixtures';
+import { readElection } from '@votingworks/fs';
 import { famousNamesFixtures } from '@votingworks/hmpb';
-import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
 import {
   DEFAULT_MARK_THRESHOLDS,
   InterpretedHmpbPage,
   PageInterpretation,
   asSheet,
 } from '@votingworks/types';
-import { readElection } from '@votingworks/fs';
-import { renderBmdBallotFixture } from '@votingworks/bmd-ballot-fixtures';
+import { ALL_PRECINCTS_SELECTION } from '@votingworks/utils';
+import { pdfToPageImages } from '../test/helpers/interpretation';
 import { interpretSheet } from './interpret';
-import { pdfToPageImagePaths } from '../test/helpers/interpretation';
 
 test('interpret BMD ballot for an election supporting hand-marked paper ballots', async () => {
   const electionDefinition = (
     await readElection(famousNamesFixtures.electionPath)
   ).unsafeUnwrap();
   const bmdBallot = asSheet(
-    await pdfToPageImagePaths(
+    await pdfToPageImages(
       await renderBmdBallotFixture({
         electionDefinition,
         precinctId: famousNamesFixtures.precinctId,
         ballotStyleId: famousNamesFixtures.ballotStyleId,
         votes: famousNamesFixtures.votes,
       })
-    )
+    ).toArray()
   );
 
   const [bmdPage1Result, bmdPage2Result] = await interpretSheet(
@@ -48,7 +48,7 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
   });
 
   const hmpbBallot = asSheet(
-    await pdfToPageImagePaths(famousNamesFixtures.markedBallotPath)
+    await pdfToPageImages(famousNamesFixtures.markedBallotPath).toArray()
   );
 
   const [hmpbPage1Result, hmpbPage2Result] = await interpretSheet(

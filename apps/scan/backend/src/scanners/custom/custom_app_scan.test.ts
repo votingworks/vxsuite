@@ -5,6 +5,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   constructElectionKey,
   SheetInterpretation,
+  SheetOf,
 } from '@votingworks/types';
 import waitForExpect from 'wait-for-expect';
 import {
@@ -21,6 +22,7 @@ import { BaseLogger } from '@votingworks/logging';
 import {
   ErrorCode,
   FormMovement,
+  ImageFromScanner,
   ScannerStatus,
   mocks,
 } from '@votingworks/custom-scanner';
@@ -234,8 +236,6 @@ test('ballot needs review - return', async () => {
           ),
       });
 
-      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
-
       const interpretation: SheetInterpretation = {
         type: 'NeedsReviewSheet',
         reasons: [
@@ -247,7 +247,17 @@ test('ballot needs review - return', async () => {
         ],
       };
 
-      simulateScan(mockScanner, await ballotImages.overvoteHmpb(), clock);
+      const scanDeferred =
+        deferred<Result<SheetOf<ImageFromScanner>, ErrorCode>>();
+      mockScanner.scan.mockResolvedValueOnce(scanDeferred.promise);
+      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
+      clock.increment(delays.DELAY_PAPER_STATUS_POLLING_INTERVAL);
+
+      await waitForStatus(apiClient, { state: 'scanning' });
+      mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
+      scanDeferred.resolve(ok(await ballotImages.overvoteHmpb()));
+      clock.increment(delays.DELAY_PAPER_STATUS_POLLING_INTERVAL);
+
       await waitForStatus(apiClient, { state: 'needs_review', interpretation });
 
       await apiClient.returnBallot();

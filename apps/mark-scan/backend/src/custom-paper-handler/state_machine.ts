@@ -36,7 +36,7 @@ import {
 } from '@votingworks/types';
 import {
   InterpretFileResult,
-  interpretSimplexBmdBallotFromFilepath,
+  interpretSimplexBmdBallot,
 } from '@votingworks/ballot-interpreter';
 import { LogEventId, LogLine, BaseLogger } from '@votingworks/logging';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
@@ -49,6 +49,7 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import { readElection } from '@votingworks/fs';
+import { loadImageData } from '@votingworks/image-utils';
 import { Workspace } from '../util/workspace';
 import { SimpleServerStatus } from './types';
 import {
@@ -410,7 +411,7 @@ function pollPatDeviceConnectionStatus(): InvokeConfig<
   };
 }
 
-function loadMetadataAndInterpretBallot(context: {
+async function loadMetadataAndInterpretBallot(context: {
   scannedBallotImagePath?: string;
   workspace: Workspace;
 }): Promise<SheetOf<InterpretFileResult>> {
@@ -433,13 +434,16 @@ function loadMetadataAndInterpretBallot(context: {
     store.getSystemSettings()
   );
 
-  return interpretSimplexBmdBallotFromFilepath(scannedBallotImagePath, {
-    electionDefinition,
-    precinctSelection,
-    testMode: store.getTestMode(),
-    markThresholds,
-    adjudicationReasons: precinctScanAdjudicationReasons,
-  });
+  return interpretSimplexBmdBallot(
+    await loadImageData(scannedBallotImagePath),
+    {
+      electionDefinition,
+      precinctSelection,
+      testMode: store.getTestMode(),
+      markThresholds,
+      adjudicationReasons: precinctScanAdjudicationReasons,
+    }
+  );
 }
 
 async function scanAndInterpretInsertedSheet(
@@ -632,7 +636,7 @@ export function buildMachine(
             },
             inserted_invalid_new_sheet: {
               invoke: [pollPaperStatus(), pollAuthStatus()],
-              entry: async (context) => context.driver.presentPaper(),
+              entry: (context) => context.driver.presentPaper(),
               on: {
                 NO_PAPER_ANYWHERE: 'accepting_paper',
                 // The poll worker pulled their card too early
@@ -848,7 +852,7 @@ export function buildMachine(
             },
             reinserted_invalid_ballot: {
               invoke: pollPaperStatus(),
-              entry: async (context) => context.driver.presentPaper(),
+              entry: (context) => context.driver.presentPaper(),
               on: {
                 NO_PAPER_ANYWHERE: 'waiting_for_ballot_reinsertion',
               },
@@ -1080,7 +1084,7 @@ export function buildMachine(
             interpret_ballot: {
               invoke: {
                 id: 'diagnostic.interpretScannedBallot',
-                src: (context) => {
+                src: async (context) => {
                   const { scannedBallotImagePath } = context;
                   const electionDefinition = assertDefined(
                     context.paperHandlerDiagnosticElection
@@ -1095,10 +1099,12 @@ export function buildMachine(
                     writeInTextArea: 0.05,
                   };
 
-                  return interpretSimplexBmdBallotFromFilepath(
-                    assertDefined(
-                      scannedBallotImagePath,
-                      'Expected scannedImagePaths in context'
+                  return interpretSimplexBmdBallot(
+                    await loadImageData(
+                      assertDefined(
+                        scannedBallotImagePath,
+                        'Expected scannedImagePaths in context'
+                      )
                     ),
                     {
                       electionDefinition,
