@@ -53,7 +53,13 @@ export function DiagnosticsScreen({
   const { electionDefinition, precinctSelection, electionPackageHash } =
     configQuery.data;
   return (
-    <Screen title="System Diagnostics" voterFacing={false} padded>
+    <Screen
+      title="System Diagnostics"
+      voterFacing={false}
+      padded
+      hideBallotCount
+      hideInfoBar
+    >
       <P>
         <Button icon="Previous" variant="primary" onPress={onClose}>
           Back

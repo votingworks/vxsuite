@@ -28,10 +28,12 @@ const ELECTION_BAR_HIDDEN_SIZE_MODES: ReadonlySet<SizeMode> = new Set([
 export interface ScreenProps {
   actionButtons?: React.ReactNode;
   ballotCountOverride?: number;
+  hideBallotCount?: boolean;
   centerContent?: boolean;
   children: React.ReactNode;
   isLiveMode?: boolean;
   infoBarMode?: InfoBarMode;
+  hideInfoBar?: boolean;
   padded?: boolean;
   title?: React.ReactNode;
   voterFacing: boolean;
@@ -80,9 +82,11 @@ export function Screen(props: ScreenProps): JSX.Element | null {
   const {
     actionButtons,
     children,
+    hideBallotCount: hideBallotCountFromProps,
     ballotCountOverride,
     centerContent,
     infoBarMode,
+    hideInfoBar: hideInfoBarFromProps,
     isLiveMode = true,
     padded,
     title,
@@ -113,10 +117,12 @@ export function Screen(props: ScreenProps): JSX.Element | null {
   const { codeVersion, machineId } = machineConfigQuery.data;
   const { electionDefinition, electionPackageHash, precinctSelection } =
     configQuery.data;
+
   const ballotCount =
     ballotCountOverride ?? scannerStatusQuery.data?.ballotsCounted;
 
   const hideInfoBar =
+    hideInfoBarFromProps ||
     !electionDefinition ||
     ELECTION_BAR_HIDDEN_SIZE_MODES.has(currentTheme.sizeMode);
 
@@ -133,7 +139,7 @@ export function Screen(props: ScreenProps): JSX.Element | null {
       )}
       <Header>
         <TitleContainer>{title && <H1>{title}</H1>}</TitleContainer>
-        {ballotCount !== undefined && (
+        {!hideBallotCountFromProps && ballotCount !== undefined && (
           <ScannedBallotCount count={ballotCount} />
         )}
       </Header>

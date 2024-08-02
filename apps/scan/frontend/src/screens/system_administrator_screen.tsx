@@ -55,7 +55,12 @@ export function SystemAdministratorScreen({
   );
 
   return (
-    <Screen title="System Administrator" voterFacing={false} padded>
+    <Screen
+      title="System Administrator"
+      voterFacing={false}
+      padded
+      hideBallotCount
+    >
       <SystemAdministratorScreenContents
         displayRemoveCardToLeavePrompt
         primaryText={
