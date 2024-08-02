@@ -39,7 +39,10 @@ export async function saveReadinessReport({
       /* istanbul ignore next */ (await getBatteryInfo()) ?? undefined,
     diskSpaceSummary: await workspace.getDiskSpaceSummary(),
     accessibleControllerProps: {
-      isDeviceConnected: await isAccessibleControllerDaemonRunning(),
+      isDeviceConnected: await isAccessibleControllerDaemonRunning(
+        workspace.path,
+        logger
+      ),
       mostRecentDiagnosticRecord: store.getMostRecentDiagnosticRecord(
         'mark-scan-accessible-controller'
       ),

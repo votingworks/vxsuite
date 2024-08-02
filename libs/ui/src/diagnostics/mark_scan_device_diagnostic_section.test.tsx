@@ -32,12 +32,12 @@ function renderComponent(
 describe('input detection', () => {
   test('when detected', async () => {
     renderComponent();
-    await expectTextWithIcon('Detected', 'square-check');
+    await expectTextWithIcon('Connected', 'square-check');
   });
 
   test('when not detected', async () => {
     renderComponent({ isDeviceConnected: false });
-    await expectTextWithIcon('Not detected', 'triangle-exclamation');
+    await expectTextWithIcon('Not connected', 'triangle-exclamation');
   });
 });
 

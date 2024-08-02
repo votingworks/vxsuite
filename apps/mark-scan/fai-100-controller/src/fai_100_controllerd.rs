@@ -11,10 +11,10 @@ use commands::{
     ButtonSignal, CommandError, NotificationStatusResponse, SipAndPuffDeviceStatus,
     SipAndPuffSignalStatus, VersionResponse, RESPONSE_BYTE_LENGTH,
 };
-use daemon_utils::run_no_op_event_loop;
+use daemon_utils::{run_no_op_event_loop, write_pid_file};
 use std::{
     fs::OpenOptions,
-    io::{self, Read},
+    io::{self, Read, Write},
     path::{Path, PathBuf},
     process::exit,
     sync::{
@@ -37,10 +37,10 @@ const APP_NAME: &str = "vx-mark-scan-fai-100-controller-daemon";
 const FAI_100_VID: u16 = 0x28cd;
 const FAI_100_PID: u16 = 0x4002;
 const POLL_INTERVAL: Duration = Duration::from_millis(100);
-const EVENT_LOOP_LOG_INTERVAL: Duration = Duration::from_secs(1);
+const EVENT_LOOP_LOG_INTERVAL: Duration = Duration::from_secs(5 * 60); // 5 mins; from_mins is a nightly build feature
 const BUFFER_MAX_BYTES: usize = 64;
 const PAT_CONNECTION_STATUS_FILENAME: &str = "_pat_connection.status";
-use std::io::Write;
+const PID_FILENAME: &str = "vx_accessible_controller_daemon.pid";
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
@@ -115,6 +115,13 @@ fn main() -> color_eyre::Result<()> {
         EventType::SystemAction
     );
 
+    let workspace_path = &args.mark_scan_workspace;
+    if let Err(err) = write_pid_file(workspace_path, PID_FILENAME) {
+        // Graceful fallback; if PID file writing fails controller and PAT
+        // input may still work.
+        log!(EventId::Info, "Failed to write PID file: {}", err);
+    }
+
     if let Some(mut port) = get_usb_device() {
         log!(
             event_id: EventId::Info,
@@ -134,12 +141,8 @@ fn main() -> color_eyre::Result<()> {
             exit(1);
         }
 
-        run_event_loop(
-            &mut port,
-            &running,
-            &mut keyboard,
-            &args.mark_scan_workspace,
-        );
+        run_event_loop(&mut port, &running, &mut keyboard, workspace_path);
+
         exit(0);
     }
 

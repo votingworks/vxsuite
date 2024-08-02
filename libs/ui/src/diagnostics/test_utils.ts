@@ -19,15 +19,15 @@ function expectTextInSection(
   ).toBeDefined();
 }
 
-export function expectDetected(
+export function expectConnected(
   screen: VxScreen,
   headerText: DiagnosticSectionTitle,
-  detectedExpected: boolean
+  connectedExpected: boolean
 ): void {
   expectTextInSection(
     screen,
     headerText,
-    detectedExpected ? 'Detected' : 'Not detected'
+    connectedExpected ? 'Connected' : 'Not connected'
   );
 }
 

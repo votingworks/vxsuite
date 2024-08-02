@@ -510,3 +510,15 @@ IDs are logged with each log to identify the log being written.
 **Type:** [application-status](#application-status)  
 **Description:** Machine encountered an unknown error.  
 **Machines:** vx-admin-frontend, vx-central-scan-frontend, vx-mark-frontend, vx-mark-scan-frontend, vx-mark-scan-pat-daemon, vx-mark-scan-controller-daemon, vx-scan-frontend
+### permission-denied
+**Type:** [system-status](#system-status)  
+**Description:** Permission denied when performing a system action.  
+**Machines:** All
+### no-pid
+**Type:** [system-status](#system-status)  
+**Description:** No PID was readable from PID file, or PID file did not exist.  
+**Machines:** All
+### parse-error
+**Type:** [system-action](#system-action)  
+**Description:** A system action failed to parse data.  
+**Machines:** All

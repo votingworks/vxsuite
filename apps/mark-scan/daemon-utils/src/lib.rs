@@ -1,4 +1,8 @@
 use std::{
+    fs::OpenOptions,
+    io::{self, Write},
+    path::Path,
+    process,
     sync::{
         atomic::{AtomicBool, Ordering},
         Arc,
@@ -40,4 +44,19 @@ pub fn run_no_op_event_loop(running: &Arc<AtomicBool>) {
         // without spamming heartbeat logs
         sleep(NOOP_LOOP_INTERVAL);
     }
+}
+
+/// Writes a PID file containing the daemon's process ID to be checked by the mark-scan app.
+/// # Errors
+/// Bubbles up any `io::Error` resulting from opening or writing PID file.
+pub fn write_pid_file(workspace_path: &Path, pid_filename: &str) -> Result<(), io::Error> {
+    let pid = process::id();
+
+    let mut file = OpenOptions::new()
+        .write(true)
+        .create(true)
+        .truncate(true)
+        .open(workspace_path.join(pid_filename))?;
+
+    file.write_all(pid.to_string().as_bytes())
 }

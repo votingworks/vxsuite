@@ -1,12 +1,16 @@
-import { mockOf } from '@votingworks/test-utils';
-import { execFile } from '@votingworks/backend';
 import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
+import tmp from 'tmp';
+import fs from 'fs';
+import { Buffer } from 'buffer';
+import { LogEventId, Logger, mockLogger } from '@votingworks/logging';
+import { join } from 'path';
 import {
   getMarkScanBmdModel,
   isAccessibleControllerDaemonRunning,
+  PID_FILENAME,
 } from './hardware';
 
 jest.mock('@votingworks/backend');
@@ -19,10 +23,32 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
   };
 });
 
-const execFileMock = mockOf(execFile);
+let workspaceDir: tmp.DirResult;
+const MOCK_PID = 12345;
+let processKillSpy: jest.SpyInstance;
+let logger: Logger;
+let tmpFile: tmp.FileResult;
+
+beforeEach(() => {
+  workspaceDir = tmp.dirSync();
+  tmpFile = tmp.fileSync({ name: PID_FILENAME, dir: workspaceDir.name });
+  logger = mockLogger();
+
+  processKillSpy = jest.spyOn(process, 'kill').mockImplementation((pid) => {
+    if (pid === MOCK_PID) {
+      return true;
+    }
+
+    const err = new Error('No such process') as NodeJS.ErrnoException;
+    err.code = 'ESRCH';
+    throw err;
+  });
+});
 
 afterEach(() => {
   featureFlagMock.resetFeatureFlags();
+  processKillSpy.mockClear();
+  tmpFile.removeCallback();
 });
 
 test('when bmd-150 flag is on', () => {
@@ -37,20 +63,84 @@ test('when bmd-150 flag is off', () => {
   expect(getMarkScanBmdModel()).toEqual('bmd-155');
 });
 
-test('when virtual device detected', async () => {
-  execFileMock.mockResolvedValueOnce({
-    stdout: 'does not matter',
-    stderr: '',
-  });
-
-  expect(await isAccessibleControllerDaemonRunning()).toEqual(true);
+test('when daemon PID is running', async () => {
+  const pidStr = MOCK_PID.toString();
+  fs.writeSync(tmpFile.fd, Buffer.from(pidStr), 0, pidStr.length, 0);
+  expect(
+    await isAccessibleControllerDaemonRunning(workspaceDir.name, logger)
+  ).toEqual(true);
+  expect(logger.log).not.toHaveBeenCalled();
 });
 
-test('when virtual device not detected', async () => {
-  execFileMock.mockRejectedValueOnce({
-    stdout: 'does not matter',
-    stderr: '',
+test('when daemon PID is not running', async () => {
+  const wrongPidStr = '98765';
+  fs.writeSync(tmpFile.fd, Buffer.from(wrongPidStr), 0, wrongPidStr.length, 0);
+  expect(
+    await isAccessibleControllerDaemonRunning(workspaceDir.name, logger)
+  ).toEqual(false);
+  expect(logger.log).toHaveBeenCalledWith(LogEventId.NoPid, 'system', {
+    message: `Process with PID ${wrongPidStr} is not running`,
+  });
+});
+
+test('permission denied', async () => {
+  processKillSpy.mockClear();
+  processKillSpy = jest.spyOn(process, 'kill').mockImplementation(() => {
+    const err = new Error('Permission denied') as NodeJS.ErrnoException;
+    err.code = 'EPERM';
+    throw err;
   });
 
-  expect(await isAccessibleControllerDaemonRunning()).toEqual(false);
+  expect(
+    await isAccessibleControllerDaemonRunning(workspaceDir.name, logger)
+  ).toEqual(false);
+  expect(logger.log).toHaveBeenCalledWith(
+    LogEventId.PermissionDenied,
+    'system',
+    {
+      message: 'Permission denied to check PID',
+    }
+  );
+});
+
+test('unknown error', async () => {
+  processKillSpy.mockClear();
+  processKillSpy = jest.spyOn(process, 'kill').mockImplementation(() => {
+    const err = new Error('Other error') as NodeJS.ErrnoException;
+    err.code = 'something else';
+    throw err;
+  });
+
+  expect(
+    await isAccessibleControllerDaemonRunning(workspaceDir.name, logger)
+  ).toEqual(false);
+  expect(logger.log).toHaveBeenCalledWith(LogEventId.UnknownError, 'system', {
+    message: 'Unknown error when checking PID',
+    error: expect.anything(),
+  });
+});
+
+test('when PID file does not exist', async () => {
+  expect(
+    await isAccessibleControllerDaemonRunning(
+      join(__dirname, 'not-a-real-dir'),
+      logger
+    )
+  ).toEqual(false);
+  expect(logger.log).toHaveBeenCalledWith(LogEventId.NoPid, 'system', {
+    message: 'Unable to read accessible controller daemon PID file',
+    error: expect.anything(),
+  });
+});
+
+test('when reported PID is not a number', async () => {
+  const wrongPidStr = 'not a number';
+  fs.writeSync(tmpFile.fd, Buffer.from(wrongPidStr), 0, wrongPidStr.length, 0);
+
+  expect(
+    await isAccessibleControllerDaemonRunning(workspaceDir.name, logger)
+  ).toEqual(false);
+  expect(logger.log).toHaveBeenCalledWith(LogEventId.ParseError, 'system', {
+    message: `Unable to parse accessible controller daemon PID: ${wrongPidStr}`,
+  });
 });

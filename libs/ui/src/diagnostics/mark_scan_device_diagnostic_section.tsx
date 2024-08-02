@@ -29,13 +29,13 @@ export function MarkScanDeviceDiagnosticSection({
     if (isDeviceConnected === true) {
       detectedText = (
         <P>
-          <SuccessIcon /> Detected
+          <SuccessIcon /> Connected
         </P>
       );
     } else {
       detectedText = (
         <P>
-          <WarningIcon /> Not detected
+          <WarningIcon /> Not connected
         </P>
       );
     }
