@@ -1226,6 +1226,8 @@ export function buildMachine(
             PAT_DEVICE_DISCONNECTED: 'pat_device_disconnected',
             PAT_DEVICE_CONNECTED: undefined,
             AUTH_STATUS_POLL_WORKER: 'voting_flow.history',
+            AUTH_STATUS_SYSTEM_ADMIN: 'voting_flow.history',
+            AUTH_STATUS_LOGGED_OUT: 'voting_flow.history',
           },
         },
       },
