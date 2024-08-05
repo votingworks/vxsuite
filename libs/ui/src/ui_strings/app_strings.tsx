@@ -78,7 +78,7 @@ export const appStrings = {
   buttonBack: () => <UiString uiStringKey="buttonBack">Back</UiString>,
 
   buttonBallotIsCorrect: () => (
-    <UiString uiStringKey="buttonBallotIsCorrect">Cast my Ballot</UiString>
+    <UiString uiStringKey="buttonBallotIsCorrect">Cast My Ballot</UiString>
   ),
 
   buttonBallotIsIncorrect: () => (
