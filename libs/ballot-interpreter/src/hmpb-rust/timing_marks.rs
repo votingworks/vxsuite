@@ -222,12 +222,12 @@ impl TimingMarkGrid {
     ///
     /// The point location is determined by:
     /// 1. Finding the left and right timing marks for the given row (if given a
-    /// fractional row index, then interpolating vertically between the closest
-    /// two rows).
+    ///    fractional row index, then interpolating vertically between the closest
+    ///    two rows).
     /// 2. Correcting the left/right timing mark position to account for
-    /// the marks being cropped during scanning or border removal
+    ///    the marks being cropped during scanning or border removal
     /// 3. Interpolating horizontally between the left/right timing mark
-    /// positions based on the given column index.
+    ///    positions based on the given column index.
     pub fn point_for_location(
         &self,
         column: SubGridUnit,
