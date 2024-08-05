@@ -1,10 +1,7 @@
 use std::{iter::once, ops::Range};
 
 use image::{imageops::rotate180, GenericImageView, GrayImage};
-use imageproc::{
-    contours::{find_contours_with_threshold, BorderType, Contour},
-    contrast::otsu_level,
-};
+use imageproc::contours::{find_contours_with_threshold, BorderType, Contour};
 use logging_timer::time;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::IntoParallelRefIterator;
@@ -18,11 +15,27 @@ use types_rs::{election::UnitIntervalValue, geometry::IntersectionBounds};
 use crate::{
     ballot_card::{Geometry, Orientation},
     debug::{self, draw_timing_mark_debug_image_mut, ImageDebugWriter},
-    image_utils::{expand_image, match_template, WHITE},
+    image_utils::{expand_image, match_template, Inset, WHITE},
     interpret::{self, Error},
     qr_code_metadata::BallotPageQrCodeMetadata,
     timing_mark_metadata::BallotPageTimingMarkMetadata,
 };
+
+pub struct BallotImage {
+    pub image: GrayImage,
+    pub threshold: u8,
+    pub border_inset: Inset,
+}
+pub struct BallotPage {
+    pub ballot_image: BallotImage,
+    pub geometry: Geometry,
+}
+
+pub struct BallotCard {
+    pub side_a: BallotImage,
+    pub side_b: BallotImage,
+    pub geometry: Geometry,
+}
 
 /// Represents partial timing marks found in a ballot card.
 #[derive(Debug, Clone, Serialize)]
@@ -44,6 +57,23 @@ pub struct Partial {
 }
 
 impl Partial {
+    pub fn missing_corners(&self) -> Vec<Corner> {
+        let mut missing_corners = vec![];
+        if self.top_left_rect.is_none() {
+            missing_corners.push(Corner::TopLeft);
+        }
+        if self.top_right_rect.is_none() {
+            missing_corners.push(Corner::TopRight);
+        }
+        if self.bottom_left_rect.is_none() {
+            missing_corners.push(Corner::BottomLeft);
+        }
+        if self.bottom_right_rect.is_none() {
+            missing_corners.push(Corner::BottomRight);
+        }
+        missing_corners
+    }
+
     pub fn left_side_rotation(&self) -> Radians {
         let left_angle = Segment::new(self.top_left_corner, self.bottom_left_corner).angle();
         // expected angle is 90 degrees and not 270 degrees because the Y axis
@@ -311,13 +341,12 @@ pub struct FindTimingMarkGridOptions<'a> {
 #[time]
 pub fn find_timing_mark_grid(
     geometry: &Geometry,
-    img: &GrayImage,
+    ballot_image: &BallotImage,
     options: FindTimingMarkGridOptions,
 ) -> Result<TimingMarkGrid, Error> {
     let debug = options.debug;
-    let threshold = otsu_level(img);
     // Find shapes that look like timing marks but may not be.
-    let candidate_timing_marks = find_timing_mark_shapes(geometry, img, threshold, debug);
+    let candidate_timing_marks = find_timing_mark_shapes(geometry, ballot_image, debug);
 
     // Find timing marks along the border of the image from the candidate
     // shapes. This step may not find all the timing marks, but it should find
@@ -332,6 +361,7 @@ pub fn find_timing_mark_grid(
     };
 
     let complete_timing_marks = match find_complete_timing_marks_from_partial_timing_marks(
+        ballot_image,
         geometry,
         &partial_timing_marks,
         &FindCompleteTimingMarksFromPartialTimingMarksOptions {
@@ -363,34 +393,148 @@ pub fn find_timing_mark_grid(
     Ok(timing_mark_grid)
 }
 
+/// Scores a potential timing mark in the image by examining the image to
+/// determine how many of the pixels in and around the rectangle are the
+/// expected luminosity.
+fn score_timing_mark_at_rect(ballot_image: &BallotImage, rect: &Rect) -> Option<f32> {
+    let image = &ballot_image.image;
+    let threshold = ballot_image.threshold;
+    let rect_height = rect.height() as i32;
+    let image_rect = Rect::new(0, 0, image.width(), image.height());
+    let rect_area = rect.width() * rect.height();
+
+    // look for black pixels in the rectangle
+    let rect_within_image = rect.intersect(&image_rect)?;
+    let rect_sub_image = GenericImageView::view(
+        image,
+        rect_within_image.left() as u32,
+        rect_within_image.top() as u32,
+        rect_within_image.width(),
+        rect_within_image.height(),
+    );
+    let black_pixel_count = rect_sub_image
+        .pixels()
+        .filter(|(_, _, luma)| luma.0[0] <= threshold)
+        .count();
+    let black_pixel_score = black_pixel_count as f32 / rect_area as f32;
+
+    let mut white_pixel_count = 0;
+    let mut possible_white_pixel_count = 0;
+
+    // crop the area to the left of the timing mark whose width is the same as
+    // the timing mark's height, then look for white pixels in the rectangle
+    if let Some(left_rect_within_image) = Rect::new(
+        rect_within_image.left() - rect_height,
+        rect_within_image.top(),
+        rect.height(),
+        rect.height(),
+    )
+    .intersect(&image_rect)
+    {
+        let left_rect_sub_image = GenericImageView::view(
+            image,
+            left_rect_within_image.left() as u32,
+            left_rect_within_image.top() as u32,
+            left_rect_within_image.width(),
+            left_rect_within_image.height(),
+        );
+        white_pixel_count += left_rect_sub_image
+            .pixels()
+            .filter(|(_, _, luma)| luma.0[0] > threshold)
+            .count();
+        possible_white_pixel_count +=
+            left_rect_within_image.width() * left_rect_within_image.height();
+    }
+
+    // crop the area to the right of the timing mark whose width is the same as
+    // the timing mark's height, then look for white pixels in the rectangle
+    if let Some(right_rect_within_image) = Rect::new(
+        rect_within_image.right() + 1,
+        rect_within_image.top(),
+        rect.height(),
+        rect.height(),
+    )
+    .intersect(&image_rect)
+    {
+        let right_rect_sub_image = GenericImageView::view(
+            image,
+            right_rect_within_image.left() as u32,
+            right_rect_within_image.top() as u32,
+            right_rect_within_image.width(),
+            right_rect_within_image.height(),
+        );
+        white_pixel_count += right_rect_sub_image
+            .pixels()
+            .filter(|(_, _, luma)| luma.0[0] > threshold)
+            .count();
+        possible_white_pixel_count +=
+            right_rect_within_image.width() * right_rect_within_image.height();
+    }
+
+    // shift the rect area up by the height of the timing mark, then look for
+    // white pixels in the rectangle
+    if let Some(above_rect_within_image) = rect_within_image
+        .offset(0, -rect_height)
+        .intersect(&image_rect)
+    {
+        let above_rect_sub_image = GenericImageView::view(
+            image,
+            above_rect_within_image.left() as u32,
+            above_rect_within_image.top() as u32,
+            above_rect_within_image.width(),
+            above_rect_within_image.height(),
+        );
+        white_pixel_count += above_rect_sub_image
+            .pixels()
+            .filter(|(_, _, luma)| luma.0[0] > threshold)
+            .count();
+        possible_white_pixel_count +=
+            above_rect_within_image.width() * above_rect_within_image.height();
+    }
+
+    // shift the rect area down by the height of the timing mark, then look for
+    // white pixels in the rectangle
+    if let Some(below_rect_within_image) = rect_within_image
+        .offset(0, rect_height)
+        .intersect(&image_rect)
+    {
+        let below_rect_sub_image = GenericImageView::view(
+            image,
+            below_rect_within_image.left() as u32,
+            below_rect_within_image.top() as u32,
+            below_rect_within_image.width(),
+            below_rect_within_image.height(),
+        );
+        white_pixel_count += below_rect_sub_image
+            .pixels()
+            .filter(|(_, _, luma)| luma.0[0] > threshold)
+            .count();
+        possible_white_pixel_count +=
+            below_rect_within_image.width() * below_rect_within_image.height();
+    }
+
+    let white_pixel_score = if possible_white_pixel_count == 0 {
+        0.0
+    } else {
+        white_pixel_count as f32 / possible_white_pixel_count as f32
+    };
+
+    Some(black_pixel_score * white_pixel_score)
+}
+
 /// Filters the bottom timing marks by examining the image to determine if the
 /// timing marks are actually present.
 pub fn find_actual_bottom_marks(
     complete_timing_marks: &Complete,
-    image: &GrayImage,
-    threshold: u8,
+    ballot_image: &BallotImage,
 ) -> Vec<Option<Rect>> {
+    const MIN_REQUIRED_MARK_SCORE: f32 = 0.5;
     complete_timing_marks
         .bottom_rects
         .par_iter()
         .map(|rect| {
-            let rect_within_image =
-                rect.intersect(&Rect::new(0, 0, image.width(), image.height()))?;
-
-            let rect_sub_image = GenericImageView::view(
-                image,
-                rect_within_image.left() as u32,
-                rect_within_image.top() as u32,
-                rect_within_image.width(),
-                rect_within_image.height(),
-            );
-            let rect_area = rect.width() * rect.height();
-            if rect_sub_image
-                .pixels()
-                .filter(|(_, _, luma)| luma.0[0] <= threshold)
-                .count()
-                > (rect_area / 2) as usize
-            {
+            let score = score_timing_mark_at_rect(ballot_image, rect)?;
+            if score > MIN_REQUIRED_MARK_SCORE {
                 Some(*rect)
             } else {
                 None
@@ -440,18 +584,17 @@ const BORDER_SIZE: u8 = 1;
 #[time]
 pub fn find_timing_mark_shapes(
     geometry: &Geometry,
-    img: &GrayImage,
-    threshold: u8,
+    ballot_image: &BallotImage,
     debug: &ImageDebugWriter,
 ) -> Vec<Rect> {
     // `find_contours_with_threshold` does not consider timing marks on the edge
     // of the image to be contours, so we expand the image and add whitespace
     // around the edges to ensure no timing marks are on the edge of the image
-    let Ok(img) = expand_image(img, BORDER_SIZE.into(), WHITE) else {
+    let Ok(img) = expand_image(&ballot_image.image, BORDER_SIZE.into(), WHITE) else {
         return vec![];
     };
 
-    let contours = find_contours_with_threshold(&img, threshold);
+    let contours = find_contours_with_threshold(&img, ballot_image.threshold);
     debug.write("contours", |canvas| {
         debug::draw_contours_debug_image_mut(
             canvas,
@@ -988,9 +1131,11 @@ pub enum FindCompleteTimingMarksError {
         bottom_side_count: usize,
     },
 
-    /// Not enough corners of the ballot card could be found.
-    #[error("Not enough corners of the ballot card could be found")]
-    MissingCorners,
+    /// One or more of the corners of the ballot card could not be found.
+    #[error(
+        "One or more of the corners of the ballot card could not be found: {missing_corners:?}"
+    )]
+    MissingCorners { missing_corners: Vec<Corner> },
 
     /// One of the timing mark border sides is invalid.
     #[error("Invalid timing mark side: {side_marks:?}")]
@@ -1045,6 +1190,14 @@ pub enum SideMarks {
     },
 }
 
+#[derive(Debug)]
+pub enum Corner {
+    TopLeft,
+    TopRight,
+    BottomLeft,
+    BottomRight,
+}
+
 pub type FindCompleteTimingMarksResult = Result<Complete, FindCompleteTimingMarksError>;
 
 pub const ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH: UnitIntervalValue = 0.1;
@@ -1064,6 +1217,7 @@ pub struct FindCompleteTimingMarksFromPartialTimingMarksOptions<'a> {
 
 #[time]
 pub fn find_complete_timing_marks_from_partial_timing_marks(
+    ballot_image: &BallotImage,
     geometry: &Geometry,
     partial_timing_marks: &Partial,
     options: &FindCompleteTimingMarksFromPartialTimingMarksOptions,
@@ -1234,6 +1388,69 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
         );
     }
 
+    const MIN_REQUIRED_CORNER_MARK_SCORE: f32 = 0.5;
+    let mut missing_corners = vec![];
+
+    if partial_timing_marks.top_left_rect.is_none() {
+        let match_score = complete_top_line_rects
+            .first()
+            .map(|potential_top_left_corner_rect| {
+                score_timing_mark_at_rect(ballot_image, potential_top_left_corner_rect)
+            })
+            .flatten()
+            .unwrap_or(0.0);
+
+        if match_score < MIN_REQUIRED_CORNER_MARK_SCORE {
+            missing_corners.push(Corner::TopLeft);
+        }
+    }
+
+    if partial_timing_marks.top_right_rect.is_none() {
+        let match_score = complete_top_line_rects
+            .last()
+            .map(|potential_top_right_corner_rect| {
+                score_timing_mark_at_rect(ballot_image, potential_top_right_corner_rect)
+            })
+            .flatten()
+            .unwrap_or(0.0);
+
+        if match_score < MIN_REQUIRED_CORNER_MARK_SCORE {
+            missing_corners.push(Corner::TopRight);
+        }
+    }
+
+    if partial_timing_marks.bottom_left_rect.is_none() {
+        let match_score = complete_bottom_line_rects
+            .first()
+            .map(|potential_bottom_left_corner_rect| {
+                score_timing_mark_at_rect(ballot_image, potential_bottom_left_corner_rect)
+            })
+            .flatten()
+            .unwrap_or(0.0);
+
+        if match_score < MIN_REQUIRED_CORNER_MARK_SCORE {
+            missing_corners.push(Corner::BottomLeft);
+        }
+    }
+
+    if partial_timing_marks.bottom_right_rect.is_none() {
+        let match_score = complete_bottom_line_rects
+            .last()
+            .map(|potential_bottom_right_corner_rect| {
+                score_timing_mark_at_rect(ballot_image, potential_bottom_right_corner_rect)
+            })
+            .flatten()
+            .unwrap_or(0.0);
+
+        if match_score < MIN_REQUIRED_CORNER_MARK_SCORE {
+            missing_corners.push(Corner::BottomRight);
+        }
+    }
+
+    if !missing_corners.is_empty() {
+        return Err(FindCompleteTimingMarksError::MissingCorners { missing_corners });
+    }
+
     let (
         Some(top_left_rect),
         Some(top_right_rect),
@@ -1246,7 +1463,20 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
         complete_bottom_line_rects.last().copied(),
     )
     else {
-        return Err(FindCompleteTimingMarksError::MissingCorners);
+        let mut missing_corners = vec![];
+        if complete_top_line_rects.first().is_none() {
+            missing_corners.push(Corner::TopLeft);
+        }
+        if complete_top_line_rects.last().is_none() {
+            missing_corners.push(Corner::TopRight);
+        }
+        if complete_bottom_line_rects.first().is_none() {
+            missing_corners.push(Corner::BottomLeft);
+        }
+        if complete_bottom_line_rects.last().is_none() {
+            missing_corners.push(Corner::BottomRight);
+        }
+        return Err(FindCompleteTimingMarksError::MissingCorners { missing_corners });
     };
 
     let complete_timing_marks = Complete {
@@ -1573,25 +1803,29 @@ pub fn detect_metadata_and_normalize_orientation(
     label: &str,
     geometry: &Geometry,
     grid: TimingMarkGrid,
-    image: &GrayImage,
+    ballot_image: &BallotImage,
     debug: &mut ImageDebugWriter,
-) -> interpret::Result<(TimingMarkGrid, GrayImage, BallotPageTimingMarkMetadata)> {
+) -> interpret::Result<(TimingMarkGrid, BallotImage, BallotPageTimingMarkMetadata)> {
     let orientation = detect_orientation_from_grid(&grid);
     let (normalized_grid, normalized_image) =
-        normalize_orientation(geometry, grid, image, orientation, debug);
+        normalize_orientation(geometry, grid, &ballot_image.image, orientation, debug);
+    let normalized_ballot_image = BallotImage {
+        image: normalized_image,
+        threshold: ballot_image.threshold,
+        border_inset: ballot_image.border_inset,
+    };
     let metadata = BallotPageTimingMarkMetadata::decode_from_timing_marks(
         geometry,
         &find_actual_bottom_marks(
             &normalized_grid.complete_timing_marks,
-            &normalized_image,
-            otsu_level(&normalized_image),
+            &normalized_ballot_image,
         ),
     )
     .map_err(|error| Error::InvalidTimingMarkMetadata {
         label: label.to_string(),
         error,
     })?;
-    Ok((normalized_grid, normalized_image, metadata))
+    Ok((normalized_grid, normalized_ballot_image, metadata))
 }
 
 #[cfg(test)]
@@ -1603,7 +1837,7 @@ mod tests {
     use crate::{
         ballot_card::PaperInfo,
         debug::ImageDebugWriter,
-        interpret::{par_map_pair, prepare_ballot_card_images, BallotCard, ResizeStrategy},
+        interpret::{par_map_pair, prepare_ballot_card_images, ResizeStrategy},
     };
 
     use super::*;
@@ -1641,12 +1875,7 @@ mod tests {
         )
         .unwrap();
 
-        let rects = find_timing_mark_shapes(
-            &geometry,
-            &side_b.image,
-            side_b.threshold,
-            &ImageDebugWriter::disabled(),
-        );
+        let rects = find_timing_mark_shapes(&geometry, &side_b, &ImageDebugWriter::disabled());
         let partial_timing_marks = find_partial_timing_marks_from_candidate_rects(
             &geometry,
             &rects,
@@ -1676,6 +1905,7 @@ mod tests {
         assert_eq!(partial_timing_marks.bottom_rects.len(), 20);
 
         let complete_timing_marks = find_complete_timing_marks_from_partial_timing_marks(
+            &side_b,
             &geometry,
             &partial_timing_marks,
             &FindCompleteTimingMarksFromPartialTimingMarksOptions {

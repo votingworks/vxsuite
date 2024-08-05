@@ -31,6 +31,9 @@ use crate::timing_mark_metadata::BallotPageTimingMarkMetadataError;
 use crate::timing_marks::detect_metadata_and_normalize_orientation;
 use crate::timing_marks::find_timing_mark_grid;
 use crate::timing_marks::normalize_orientation;
+use crate::timing_marks::BallotCard;
+use crate::timing_marks::BallotImage;
+use crate::timing_marks::BallotPage;
 use crate::timing_marks::BallotPageMetadata;
 use crate::timing_marks::FindTimingMarkGridOptions;
 use crate::timing_marks::TimingMarkGrid;
@@ -43,22 +46,6 @@ pub struct Options {
     pub debug_side_a_base: Option<PathBuf>,
     pub debug_side_b_base: Option<PathBuf>,
     pub score_write_ins: bool,
-}
-
-pub struct BallotImage {
-    pub image: GrayImage,
-    pub threshold: u8,
-    pub border_inset: Inset,
-}
-pub struct BallotPage {
-    ballot_image: BallotImage,
-    geometry: Geometry,
-}
-
-pub struct BallotCard {
-    pub side_a: BallotImage,
-    pub side_b: BallotImage,
-    pub geometry: Geometry,
 }
 
 #[derive(Debug, Serialize)]
@@ -327,12 +314,12 @@ pub fn interpret_ballot_card(
     };
 
     let (side_a_grid_result, side_b_grid_result) = par_map_pair(
-        (&side_a.image, &mut side_a_debug),
-        (&side_b.image, &mut side_b_debug),
-        |(image, debug)| {
+        (&side_a, &mut side_a_debug),
+        (&side_b, &mut side_b_debug),
+        |(ballot_image, debug)| {
             find_timing_mark_grid(
                 &geometry,
-                image,
+                ballot_image,
                 FindTimingMarkGridOptions {
                     allowed_timing_mark_inset_percentage_of_width:
                         ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH,
@@ -483,10 +470,16 @@ pub fn interpret_ballot_card(
 
         MetadataEncoding::TimingMarks => {
             let (side_a_result, side_b_result) = par_map_pair(
-                (SIDE_A_LABEL, side_a_grid, &side_a.image, &mut side_a_debug),
-                (SIDE_B_LABEL, side_b_grid, &side_b.image, &mut side_b_debug),
-                |(label, grid, image, debug)| {
-                    detect_metadata_and_normalize_orientation(label, &geometry, grid, image, debug)
+                (SIDE_A_LABEL, side_a_grid, &side_a, &mut side_a_debug),
+                (SIDE_B_LABEL, side_b_grid, &side_b, &mut side_b_debug),
+                |(label, grid, ballot_image, debug)| {
+                    detect_metadata_and_normalize_orientation(
+                        label,
+                        &geometry,
+                        grid,
+                        ballot_image,
+                        debug,
+                    )
                 },
             );
 
@@ -513,16 +506,16 @@ pub fn interpret_ballot_card(
                     BallotPageTimingMarkMetadata::Front(front_metadata),
                     BallotPageTimingMarkMetadata::Back(_),
                 ) => (
-                    side_a,
-                    side_b,
+                    (side_a.0, side_a.1.image, side_a.2, side_a.3),
+                    (side_b.0, side_b.1.image, side_b.2, side_b.3),
                     BallotStyleId::from(format!("card-number-{}", front_metadata.card)),
                 ),
                 (
                     BallotPageTimingMarkMetadata::Back(_),
                     BallotPageTimingMarkMetadata::Front(front_metadata),
                 ) => (
-                    side_b,
-                    side_a,
+                    (side_b.0, side_b.1.image, side_b.2, side_b.3),
+                    (side_a.0, side_a.1.image, side_a.2, side_a.3),
                     BallotStyleId::from(format!("card-number-{}", front_metadata.card)),
                 ),
                 _ => {
@@ -699,10 +692,21 @@ mod test {
 
     #[test]
     fn test_inferred_missing_metadata_from_one_side() {
-        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
-            "alameda-test",
-            ("scan-skewed-side-a.jpeg", "scan-skewed-side-b.jpeg"),
+        let (mut side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "2023-05-09-nh-moultonborough",
+            ("write-ins-front.jpeg", "write-ins-back.jpeg"),
         );
+
+        let detected = qr_code::detect(&side_a_image, &ImageDebugWriter::disabled()).unwrap();
+        let qr_code_bounds = detected.bounds();
+
+        // white out the QR code on side A
+        for y in qr_code_bounds.top()..qr_code_bounds.bottom() {
+            for x in qr_code_bounds.left()..qr_code_bounds.right() {
+                side_a_image.put_pixel(x as u32, y as u32, image::Luma([255]));
+            }
+        }
+
         interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
     }
 
@@ -741,6 +745,34 @@ mod test {
                 assert!(scored_mark.clone().unwrap().fill_score < UnitIntervalScore(0.01));
             }
         }
+    }
+
+    #[test]
+    fn test_inferred_missing_corner_timing_mark() {
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "nh-test-ballot",
+            ("missing-corner-front.png", "missing-corner-back.png"),
+        );
+        interpret_ballot_card(side_a_image, side_b_image, &options).unwrap();
+    }
+
+    #[test]
+    fn test_folded_corner() {
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "nh-test-ballot",
+            ("folded-corner-front.png", "folded-corner-back.png"),
+        );
+
+        let Error::MissingTimingMarks { reason, .. } =
+            interpret_ballot_card(side_a_image, side_b_image, &options).unwrap_err()
+        else {
+            panic!("wrong error type");
+        };
+
+        assert_eq!(
+            reason,
+            "One or more of the corners of the ballot card could not be found: [TopRight]"
+        );
     }
 
     #[test]
@@ -787,8 +819,11 @@ mod test {
     #[test]
     fn test_high_rotation_is_rejected() {
         let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
-            "2021-06-06-lincoln-test-ballot",
-            ("high-rotation-front.png", "high-rotation-back.png"),
+            "nh-test-ballot",
+            (
+                "template-rotated-3deg-front.jpeg",
+                "template-rotated-3deg-back.jpeg",
+            ),
         );
         let Error::MissingTimingMarks { reason, .. } =
             interpret_ballot_card(side_a_image, side_b_image, &options).unwrap_err()
@@ -798,7 +833,7 @@ mod test {
 
         assert_eq!(
             reason,
-            "Unusually high rotation detected: top=3.73°, bottom=1.32°, left=1.33°, right=0.64°"
+            "Unusually high rotation detected: top=3.02°, bottom=3.00°, left=3.01°, right=3.01°"
         );
     }
 
