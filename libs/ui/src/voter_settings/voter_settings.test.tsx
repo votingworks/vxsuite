@@ -1,8 +1,19 @@
 import userEvent from '@testing-library/user-event';
 import { ThemeConsumer } from 'styled-components';
 import { UiTheme } from '@votingworks/types';
+import { mockUseAudioControls } from '@votingworks/test-utils';
 import { render, screen } from '../../test/react_testing_library';
 import { VoterSettings } from '.';
+
+const mockAudioControls = mockUseAudioControls();
+
+jest.mock(
+  '../hooks/use_audio_controls',
+  (): typeof import('../hooks/use_audio_controls') => ({
+    ...jest.requireActual('../hooks/use_audio_controls'),
+    useAudioControls: () => mockAudioControls,
+  })
+);
 
 test('renders expected subcomponents', () => {
   render(<VoterSettings onClose={jest.fn()} />);
@@ -38,7 +49,7 @@ test('does not render "Audio" tab when not enabled', () => {
   expect(screen.queryByText('Audio')).toBeNull();
 });
 
-test('resets button resets global theme', () => {
+test('resets button resets all voter settings', () => {
   let currentTheme: UiTheme | null = null;
 
   function TestComponent(): JSX.Element {
@@ -76,6 +87,8 @@ test('resets button resets global theme', () => {
     })
   );
 
+  expect(mockAudioControls.reset).not.toHaveBeenCalled();
+
   userEvent.click(screen.getButton('Reset'));
 
   expect(currentTheme).toEqual(
@@ -84,6 +97,8 @@ test('resets button resets global theme', () => {
       sizeMode: 'touchLarge',
     })
   );
+
+  expect(mockAudioControls.reset).toHaveBeenCalledTimes(1);
 });
 
 test('done button fires onClose event', () => {
