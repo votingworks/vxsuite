@@ -1317,6 +1317,12 @@ export const appStrings = {
     </UiString>
   ),
 
+  titleScannerOutfeedBlocked: () => (
+    <UiString uiStringKey="titleScannerOutfeedBlocked">
+      Ballot Box Opening is Blocked
+    </UiString>
+  ),
+
   titleScannerOvervoteWarning: () => (
     <UiString uiStringKey="titleScannerOvervoteWarning">
       Too many votes marked:

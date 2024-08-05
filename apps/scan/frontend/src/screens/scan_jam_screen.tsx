@@ -5,25 +5,35 @@ import {
   P,
   appStrings,
 } from '@votingworks/ui';
+import type { PrecinctScannerErrorType } from '@votingworks/scan-backend';
 import { Screen } from '../components/layout';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 
 interface Props {
+  error?: PrecinctScannerErrorType;
   scannedBallotCount: number;
 }
 
-export function ScanJamScreen({ scannedBallotCount }: Props): JSX.Element {
+export function ScanJamScreen({
+  error,
+  scannedBallotCount,
+}: Props): JSX.Element {
+  const isOutfeedBlocked = error === 'outfeed_blocked';
   return (
     <Screen centerContent ballotCountOverride={scannedBallotCount} voterFacing>
       <FullScreenPromptLayout
-        title={appStrings.titleScannerBallotNotCounted()}
+        title={
+          isOutfeedBlocked
+            ? appStrings.titleScannerOutfeedBlocked()
+            : appStrings.titleScannerBallotNotCounted()
+        }
         image={
           <FullScreenIconWrapper>
             <Icons.Delete color="danger" />
           </FullScreenIconWrapper>
         }
       >
-        <P>{appStrings.warningScannerJammed()}</P>
+        {!isOutfeedBlocked && <P>{appStrings.warningScannerJammed()}</P>}
         <Caption>{appStrings.instructionsAskForHelp()}</Caption>
       </FullScreenPromptLayout>
     </Screen>

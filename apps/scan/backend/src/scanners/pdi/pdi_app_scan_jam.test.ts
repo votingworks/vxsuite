@@ -63,7 +63,10 @@ test('jam while scanning', async () => {
         error: 'scanning_failed',
       });
       deferredEject.resolve(ok());
-      await waitForStatus(apiClient, { state: 'jammed' });
+      await waitForStatus(apiClient, {
+        state: 'jammed',
+        error: 'scanning_failed',
+      });
 
       mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
@@ -102,20 +105,24 @@ test('jam while accepting', async () => {
       await apiClient.acceptBallot();
       await expectStatus(apiClient, { state: 'accepting', interpretation });
 
-      const deferredEject = deferred<Result<void, ScannerError>>();
-      mockScanner.client.ejectDocument.mockReturnValueOnce(
-        deferredEject.promise
-      );
       mockScanner.setScannerStatus(mockStatus.jammed);
       deferredAccept.resolve(ok());
 
-      await waitForStatus(apiClient, { state: 'rejecting', interpretation });
-      deferredEject.resolve(ok());
-      await waitForStatus(apiClient, { state: 'jammed', interpretation });
+      await waitForStatus(apiClient, {
+        state: 'accepted',
+        interpretation,
+        ballotsCounted: 1,
+      });
+      clock.increment(delays.DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT);
+      await waitForStatus(apiClient, {
+        state: 'jammed',
+        error: 'outfeed_blocked',
+        ballotsCounted: 1,
+      });
 
       mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      await waitForStatus(apiClient, { state: 'no_paper', ballotsCounted: 1 });
     }
   );
 });
@@ -148,21 +155,23 @@ test('timeout while accepting', async () => {
       await apiClient.acceptBallot();
       await expectStatus(apiClient, { state: 'accepting', interpretation });
 
-      const deferredEject = deferred<Result<void, ScannerError>>();
-      mockScanner.client.ejectDocument.mockReturnValueOnce(
-        deferredEject.promise
-      );
-
       clock.increment(delays.DELAY_ACCEPTING_TIMEOUT);
       await waitForStatus(apiClient, {
-        state: 'rejecting',
+        state: 'accepted',
         interpretation,
-        error: 'paper_in_back_after_accept',
+        ballotsCounted: 1,
+      });
+
+      clock.increment(delays.DELAY_ACCEPTED_READY_FOR_NEXT_BALLOT);
+      await waitForStatus(apiClient, {
+        state: 'jammed',
+        error: 'outfeed_blocked',
+        ballotsCounted: 1,
       });
 
       mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
-      deferredEject.resolve(ok());
-      await waitForStatus(apiClient, { state: 'no_paper' });
+      clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'no_paper', ballotsCounted: 1 });
     }
   );
 });
@@ -256,29 +265,6 @@ test('jam while returning', async () => {
       mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'no_paper' });
-    }
-  );
-});
-
-// We haven't seen this exact pattern happen in practice - the PDI scanner seems
-// to be good at clearing the jam flag when jams are cleared, but it's a good
-// way to test the sanity check to catch a document in the scanner at the
-// beginning of the #waitingForBallot state.
-test('jam cleared but ballot still in rear of scanner', async () => {
-  await withApp(
-    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
-      await configureApp(apiClient, mockAuth, mockUsbDrive);
-
-      mockScanner.setScannerStatus(mockStatus.jammed);
-      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
-      await waitForStatus(apiClient, { state: 'jammed' });
-
-      mockScanner.setScannerStatus(mockStatus.documentInRear);
-      clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
-      await waitForStatus(apiClient, {
-        state: 'rejecting',
-        error: 'paper_in_back_after_reconnect',
-      });
     }
   );
 });

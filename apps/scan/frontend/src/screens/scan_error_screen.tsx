@@ -59,6 +59,9 @@ export function ScanErrorScreen({
         // These cases require restart, so we don't need to show an error
         // message, since that's handled below.
         return undefined;
+      case 'outfeed_blocked':
+        // Should only be shown in ScanJamScreen
+        throw new Error('Unexpected outfeed_blocked error');
       default:
         throwIllegalValue(error);
     }
