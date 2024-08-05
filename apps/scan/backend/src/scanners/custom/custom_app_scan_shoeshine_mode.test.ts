@@ -12,7 +12,6 @@ import {
 import {
   configureApp,
   waitForStatus,
-  expectStatus,
 } from '../../../test/helpers/shared_helpers';
 import {
   ballotImages,
@@ -60,14 +59,8 @@ test('shoeshine mode scans the same ballot repeatedly', async () => {
       };
 
       simulateScan(mockScanner, await ballotImages.completeHmpb(), clock);
-      await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
-        interpretation,
-      });
-
-      await apiClient.acceptBallot();
       const ballotsCounted = 1;
-      await expectStatus(apiClient, {
+      await waitForStatus(apiClient, {
         state: 'accepted',
         interpretation,
         ballotsCounted,
@@ -81,13 +74,6 @@ test('shoeshine mode scans the same ballot repeatedly', async () => {
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_SCAN));
       simulateScan(mockScanner, await ballotImages.completeHmpb(), clock);
       await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
-        interpretation,
-        ballotsCounted,
-      });
-
-      await apiClient.acceptBallot();
-      await expectStatus(apiClient, {
         state: 'accepted',
         interpretation,
         ballotsCounted: 2,

@@ -86,7 +86,7 @@ test('bmd ballot is accepted if precinct is set for the right precinct', async (
       simulateScan(mockScanner, await ballotImages.completeBmd(), clock);
 
       await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
+        state: 'accepting',
         interpretation: validInterpretation,
       });
     }

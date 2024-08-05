@@ -14,7 +14,6 @@ import {
 } from '../../../test/helpers/pdi_helpers';
 import {
   configureApp,
-  expectStatus,
   waitForStatus,
 } from '../../../test/helpers/shared_helpers';
 import { delays } from './state_machine';
@@ -62,14 +61,8 @@ test('shoeshine mode scans the same ballot repeatedly', async () => {
       );
 
       const interpretation: SheetInterpretation = { type: 'ValidSheet' };
-      await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
-        interpretation,
-      });
-
-      await apiClient.acceptBallot();
       let ballotsCounted = 1;
-      await expectStatus(apiClient, {
+      await waitForStatus(apiClient, {
         state: 'accepted',
         interpretation,
         ballotsCounted,
@@ -91,15 +84,8 @@ test('shoeshine mode scans the same ballot repeatedly', async () => {
         await ballotImages.completeHmpb(),
         ballotsCounted
       );
-      await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
-        interpretation,
-        ballotsCounted,
-      });
-
-      await apiClient.acceptBallot();
       ballotsCounted = 2;
-      await expectStatus(apiClient, {
+      await waitForStatus(apiClient, {
         state: 'accepted',
         interpretation,
         ballotsCounted,
@@ -126,14 +112,8 @@ test('handles error on eject for rescan', async () => {
       );
 
       const interpretation: SheetInterpretation = { type: 'ValidSheet' };
-      await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
-        interpretation,
-      });
-
-      await apiClient.acceptBallot();
       const ballotsCounted = 1;
-      await expectStatus(apiClient, {
+      await waitForStatus(apiClient, {
         state: 'accepted',
         interpretation,
         ballotsCounted,

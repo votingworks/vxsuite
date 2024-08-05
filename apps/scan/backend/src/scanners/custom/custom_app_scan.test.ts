@@ -103,7 +103,7 @@ function checkLogs(logger: BaseLogger): void {
     {
       message: 'Context updated',
       changedFields: expect.stringMatching(
-        /{"interpretation":"(ValidSheet|InvalidSheet|NeedsReviewSheet)"}/
+        /{"interpretation":"(ValidSheet|InvalidSheet|NeedsReviewSheet)"/
       ),
     },
     expect.any(Function)
@@ -143,15 +143,10 @@ test('configure and scan hmpb', async () => {
       simulateScan(mockScanner, await ballotImages.completeHmpb(), clock);
       await waitForStatus(apiClient, { state: 'scanning' });
       await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
-        interpretation,
-      });
-
-      await apiClient.acceptBallot();
-      await expectStatus(apiClient, {
         state: 'accepting',
         interpretation,
       });
+
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_NO_PAPER));
       clock.increment(delays.DELAY_PAPER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, {
@@ -189,13 +184,8 @@ test('configure and scan bmd ballot', async () => {
 
       simulateScan(mockScanner, await ballotImages.completeBmd(), clock);
       await waitForStatus(apiClient, { state: 'scanning' });
+      clock.increment(delays.DELAY_PAPER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
-        interpretation,
-      });
-
-      await apiClient.acceptBallot();
-      await expectStatus(apiClient, {
         state: 'accepting',
         interpretation,
       });
@@ -597,7 +587,7 @@ test('scanning paused when election manager card is inserted', async () => {
       // now we can scan
       clock.increment(delays.DELAY_APP_READY_TO_SCAN_POLLING_INTERVAL);
       await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
+        state: 'accepting',
         interpretation: {
           type: 'ValidSheet',
         },
@@ -646,7 +636,7 @@ test('scanning paused when poll worker card is inserted', async () => {
       // now we can scan
       clock.increment(delays.DELAY_APP_READY_TO_SCAN_POLLING_INTERVAL);
       await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
+        state: 'accepting',
         interpretation: {
           type: 'ValidSheet',
         },
@@ -697,7 +687,7 @@ test('scanning paused when ballot bag needs replacement', async () => {
       // now we can scan
       clock.increment(delays.DELAY_APP_READY_TO_SCAN_POLLING_INTERVAL);
       await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
+        state: 'accepting',
         interpretation: {
           type: 'ValidSheet',
         },
