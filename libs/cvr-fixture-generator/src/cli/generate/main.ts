@@ -1,4 +1,5 @@
 import {
+  BallotPaperSize,
   BallotType,
   BatchInfo,
   CVR,
@@ -12,7 +13,7 @@ import {
   buildBatchManifest,
 } from '@votingworks/backend';
 import { readElection } from '@votingworks/fs';
-import * as fs from 'fs';
+import * as fs from 'fs/promises';
 import yargs from 'yargs/yargs';
 import { writeImageData, createImageData } from '@votingworks/image-utils';
 import { basename, join, parse } from 'path';
@@ -219,72 +220,84 @@ export async function main(
   });
 
   // make the parent folder if it does not exist
-  fs.mkdirSync(outputPath, { recursive: true });
+  await fs.mkdir(outputPath, { recursive: true });
 
-  for (const castVoteRecord of castVoteRecords) {
-    const castVoteRecordDirectory = join(outputPath, castVoteRecord.UniqueId);
-    fs.mkdirSync(castVoteRecordDirectory);
+  const imagePathsByPaperSize = new Map<BallotPaperSize, string>();
+  await Promise.all(
+    castVoteRecords.map(async (castVoteRecord) => {
+      const castVoteRecordDirectory = join(outputPath, castVoteRecord.UniqueId);
+      await fs.mkdir(castVoteRecordDirectory);
 
-    if (castVoteRecord.BallotImage) {
-      const layouts = generateBallotPageLayouts(election, {
-        ballotStyleId: castVoteRecord.BallotStyleId,
-        ballotType: BallotType.Precinct,
-        ballotHash,
-        isTestMode: testMode,
-        precinctId: castVoteRecord.BallotStyleUnitId,
-      });
-      for (const i of [0, 1] as const) {
-        const imageFilePath = join(
-          castVoteRecordDirectory,
-          assertDefined(castVoteRecord.BallotImage[i]?.Location).replace(
-            'file:',
-            ''
-          )
-        );
-        const layoutFilePath = imageFilePath.replace('.jpg', '.layout.json');
+      if (castVoteRecord.BallotImage) {
+        const layouts = generateBallotPageLayouts(election, {
+          ballotStyleId: castVoteRecord.BallotStyleId,
+          ballotType: BallotType.Precinct,
+          ballotHash,
+          isTestMode: testMode,
+          precinctId: castVoteRecord.BallotStyleUnitId,
+        });
+        for (const i of [0, 1] as const) {
+          const imageFilePath = join(
+            castVoteRecordDirectory,
+            assertDefined(castVoteRecord.BallotImage[i]?.Location).replace(
+              'file:',
+              ''
+            )
+          );
+          const layoutFilePath = imageFilePath.replace('.jpg', '.layout.json');
+          const existingImagePath = imagePathsByPaperSize.get(
+            election.ballotLayout.paperSize
+          );
 
-        const { width, height } = ballotPaperDimensions(
-          election.ballotLayout.paperSize
-        );
-        const pageDpi = 200;
-        await writeImageData(
-          imageFilePath,
-          createImageData(
-            new Uint8ClampedArray(width * pageDpi * height * pageDpi * 4),
-            width * pageDpi,
-            height * pageDpi
-          )
-        );
+          if (existingImagePath) {
+            await fs.copyFile(existingImagePath, imageFilePath);
+          } else {
+            const { width, height } = ballotPaperDimensions(
+              election.ballotLayout.paperSize
+            );
+            const pageDpi = 200;
 
-        const layout = layouts[i];
-        let layoutFileHash = sha256('bmd-ballot');
-        if (layout) {
-          const layoutFileContents = JSON.stringify(layout);
-          fs.writeFileSync(layoutFilePath, layoutFileContents);
-          layoutFileHash = sha256(layoutFileContents);
+            const imageData = createImageData(
+              new Uint8ClampedArray(width * pageDpi * height * pageDpi * 4),
+              width * pageDpi,
+              height * pageDpi
+            );
+            await writeImageData(imageFilePath, imageData);
+            imagePathsByPaperSize.set(
+              election.ballotLayout.paperSize,
+              imageFilePath
+            );
+          }
+
+          const layout = layouts[i];
+          let layoutFileHash = sha256('bmd-ballot');
+          if (layout) {
+            const layoutFileContents = JSON.stringify(layout);
+            await fs.writeFile(layoutFilePath, layoutFileContents);
+            layoutFileHash = sha256(layoutFileContents);
+          }
+
+          const imageHash = sha256(await fs.readFile(imageFilePath));
+          populateImageAndLayoutFileHashes(
+            assertDefined(castVoteRecord.BallotImage[i]),
+            { imageHash, layoutFileHash }
+          );
         }
-
-        const imageHash = sha256(fs.readFileSync(imageFilePath));
-        populateImageAndLayoutFileHashes(
-          assertDefined(castVoteRecord.BallotImage[i]),
-          { imageHash, layoutFileHash }
-        );
       }
-    }
 
-    const castVoteRecordReport: CVR.CastVoteRecordReport = {
-      ...reportMetadata,
-      CVR: [castVoteRecord],
-    };
-    fs.writeFileSync(
-      join(
-        castVoteRecordDirectory,
-        CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
-      ),
-      JSON.stringify(castVoteRecordReport)
-    );
-  }
-
+      const castVoteRecordReport: CVR.CastVoteRecordReport = {
+        ...reportMetadata,
+        CVR: [castVoteRecord],
+      };
+      await fs.writeFile(
+        join(
+          castVoteRecordDirectory,
+          CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
+        ),
+        JSON.stringify(castVoteRecordReport)
+      );
+    })
+  );
   const castVoteRecordExportMetadata: CastVoteRecordExportMetadata = {
     arePollsClosed: true,
     castVoteRecordReportMetadata: reportMetadata,
@@ -293,11 +306,10 @@ export async function main(
     batchManifest: buildBatchManifest({ batchInfo }),
   };
   const metadataFileContents = JSON.stringify(castVoteRecordExportMetadata);
-  fs.writeFileSync(
+  await fs.writeFile(
     join(outputPath, CastVoteRecordExportFileName.METADATA),
     metadataFileContents
   );
-
   process.env['VX_MACHINE_TYPE'] = 'scan'; // Required by prepareSignatureFile
   const signatureFile = await prepareSignatureFile({
     type: 'cast_vote_records',
@@ -305,11 +317,10 @@ export async function main(
     directoryName: basename(outputPath),
     metadataFileContents,
   });
-  fs.writeFileSync(
+  await fs.writeFile(
     join(parse(outputPath).dir, signatureFile.fileName),
     signatureFile.fileContents
   );
-
   stdout.write(
     `Wrote ${castVoteRecords.length} cast vote records to ${outputPath}\n`
   );
