@@ -1,7 +1,7 @@
 import { ElectionDefinition, SystemSettings } from '@votingworks/types';
 import { useQueryChangeListener } from '@votingworks/ui';
 import { assert, throwIllegalValue } from '@votingworks/basics';
-import { acceptBallot, getScannerStatus } from '../api';
+import { getScannerStatus } from '../api';
 import { POLLING_INTERVAL_FOR_SCANNER_STATUS_MS } from '../config/globals';
 import { useSound } from '../utils/use_sound';
 import { InsertBallotScreen } from './insert_ballot_screen';
@@ -31,18 +31,6 @@ export function VoterScreen({
 }: VoterScreenProps): JSX.Element | null {
   const scannerStatusQuery = getScannerStatus.useQuery({
     refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
-  });
-
-  // The backend waits to receive a command accept a ballot. The frontend
-  // controls when this happens for now. In the future, we should move this to
-  // the backend.
-  const acceptBallotMutation = acceptBallot.useMutation();
-  useQueryChangeListener(scannerStatusQuery, {
-    onChange: (newScannerStatus) => {
-      if (newScannerStatus.state === 'ready_to_accept') {
-        acceptBallotMutation.mutate();
-      }
-    },
   });
 
   // Play sounds for scan result events
@@ -82,7 +70,6 @@ export function VoterScreen({
         case 'paused':
         case 'scanning':
         case 'returning_to_rescan':
-        case 'ready_to_accept':
         case 'accepting':
         case 'accepting_after_review':
         case 'returning':
@@ -140,7 +127,6 @@ export function VoterScreen({
       );
     case 'hardware_ready_to_scan':
     case 'scanning':
-    case 'ready_to_accept':
     case 'accepting':
     case 'returning_to_rescan':
       return <ScanProcessingScreen />;

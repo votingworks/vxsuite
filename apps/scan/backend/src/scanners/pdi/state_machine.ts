@@ -695,12 +695,10 @@ function buildMachine({
         },
 
         readyToAccept: {
-          on: {
-            ACCEPT: [
-              { cond: isShoeshineModeEnabled, target: 'accepted' },
-              { target: 'accepting' },
-            ],
-          },
+          always: [
+            { cond: isShoeshineModeEnabled, target: 'accepted' },
+            { target: 'accepting' },
+          ],
         },
 
         accepting: acceptingState,
@@ -1087,7 +1085,7 @@ export function createPrecinctScannerStateMachine({
           case state.matches('interpreting'):
             return 'scanning';
           case state.matches('readyToAccept'):
-            return 'ready_to_accept';
+            return 'accepting';
           case state.matches('accepting.paperInFront'):
           case state.matches('acceptingAfterReview.paperInFront'):
             return 'both_sides_have_paper';

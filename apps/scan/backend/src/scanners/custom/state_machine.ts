@@ -908,14 +908,10 @@ function buildMachine({
         },
         ready_to_accept: {
           id: 'ready_to_accept',
-          invoke: pollPaperStatus(),
-          on: {
-            ACCEPT: [
-              { cond: isShoeshineModeEnabled, target: 'accepted' },
-              { target: 'accepting' },
-            ],
-            SCANNER_READY_TO_EJECT: doNothing,
-          },
+          always: [
+            { cond: isShoeshineModeEnabled, target: 'accepted' },
+            { target: 'accepting' },
+          ],
         },
         accepting: acceptingState,
         accepted: {
@@ -1281,7 +1277,6 @@ export function createPrecinctScannerStateMachine({
           case state.matches('interpreting'):
             return 'scanning';
           case state.matches('ready_to_accept'):
-            return 'ready_to_accept';
           case state.matches('accepting'):
             return 'accepting';
           case state.matches('accepted'):

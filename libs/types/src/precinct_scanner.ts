@@ -5,7 +5,6 @@ export const PRECINCT_SCANNER_STATES = [
   'hardware_ready_to_scan',
   'scanning',
   'returning_to_rescan',
-  'ready_to_accept',
   'accepting',
   'accepted',
   'needs_review',
