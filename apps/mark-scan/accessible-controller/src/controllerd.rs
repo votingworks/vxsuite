@@ -45,7 +45,7 @@ struct Args {
     #[arg(short, long)]
     skip_hardware_check: bool,
 
-    /// Path to the directory where MarkScan's working files are stored.
+    /// Path to the directory where `MarkScan`'s working files are stored.
     #[arg(long, env = "MARK_SCAN_WORKSPACE")]
     mark_scan_workspace: PathBuf,
 }

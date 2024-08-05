@@ -231,11 +231,11 @@ pub enum Outgoing {
     /// - `<ESC> ‘+’ = (1BH) (2BH)`: Command to increase the Top CIS threshold by a single step.
     /// - `<ESC> ‘-’ = (1BH) (2DH)`: Command to decrease the Top CIS threshold by a single step.
     /// - `<ESC> ‘>’ = (1BH) (3EH)`: Command to increase the threshold of Top
-    /// CIS (simplex units) by five steps, or increase the Bottom CIS threshold
-    /// (duplex units) by one step.
+    ///   CIS (simplex units) by five steps, or increase the Bottom CIS threshold
+    ///   (duplex units) by one step.
     /// - `<ESC> ‘<’ = (1BH) (3CH)`: Command to decrease the threshold of Top
-    /// CIS (simplex units) by five steps, or decrease the Bottom CIS threshold
-    /// (duplex units) by one step.
+    ///   CIS (simplex units) by five steps, or decrease the Bottom CIS threshold
+    ///   (duplex units) by one step.
     ///
     /// After execution of any (above) threshold adjustment command, the new
     /// threshold value is ‘echoed-back’ to the user - using the ’X’ (58H)
@@ -964,11 +964,11 @@ pub enum Incoming {
     /// - `<ESC> ‘+’ = (1BH) (2BH)`: Command to increase the Top CIS threshold by a single step.
     /// - `<ESC> ‘-’ = (1BH) (2DH)`: Command to decrease the Top CIS threshold by a single step.
     /// - `<ESC> ‘>’ = (1BH) (3EH)`: Command to increase the threshold of Top
-    /// CIS (simplex units) by five steps, or increase the Bottom CIS threshold
-    /// (duplex units) by one step.
+    ///   CIS (simplex units) by five steps, or increase the Bottom CIS threshold
+    ///   (duplex units) by one step.
     /// - `<ESC> ‘<’ = (1BH) (3CH)`: Command to decrease the threshold of Top
-    /// CIS (simplex units) by five steps, or decrease the Bottom CIS threshold
-    /// (duplex units) by one step.
+    ///   CIS (simplex units) by five steps, or decrease the Bottom CIS threshold
+    ///   (duplex units) by one step.
     ///
     /// After execution of any (above) threshold adjustment command, the new
     /// threshold value is ‘echoed-back’ to the user - using the ’X’ (58H)
