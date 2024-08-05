@@ -63,14 +63,6 @@ pub struct BallotCard {
 
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct NormalizedImageBuffer {
-    width: u32,
-    height: u32,
-    data: Vec<u8>,
-}
-
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
 pub struct InterpretedBallotPage {
     pub grid: TimingMarkGrid,
     pub metadata: BallotPageMetadata,
