@@ -29,6 +29,7 @@ import {
   interpretSimplexBmdBallot,
 } from '@votingworks/ballot-interpreter';
 import { readElection } from '@votingworks/fs';
+import { BLANK_PAGE_IMAGE_DATA } from '@votingworks/image-utils';
 import { Api } from './app';
 import { PatConnectionStatusReader } from './pat-input/connection_status_reader';
 import {
@@ -47,7 +48,7 @@ import {
   loadAndParkPaper,
   scanAndSave,
 } from './custom-paper-handler/application_driver';
-import { BLANK_PAGE_MOCK, MOCK_IMAGE } from '../test/ballot_helpers';
+import { BLANK_PAGE_MOCK } from '../test/ballot_helpers';
 
 const TEST_POLLING_INTERVAL_MS = 5;
 
@@ -299,7 +300,7 @@ describe('paper handler diagnostic', () => {
           },
           votes: {},
         },
-        normalizedImage: MOCK_IMAGE,
+        normalizedImage: BLANK_PAGE_IMAGE_DATA,
       },
       BLANK_PAGE_MOCK,
     ];

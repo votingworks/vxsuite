@@ -38,6 +38,7 @@
     "@votingworks/backend": "workspace:*",
     "@votingworks/ballot-interpreter": "workspace:*",
     "@votingworks/basics": "workspace:*",
+    "@votingworks/bmd-ballot-fixtures": "workspace:*",
     "@votingworks/custom-paper-handler": "workspace:*",
     "@votingworks/custom-scanner": "workspace:*",
     "@votingworks/db": "workspace:*",

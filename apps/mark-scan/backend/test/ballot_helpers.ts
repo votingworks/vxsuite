@@ -1,12 +1,10 @@
 import { InterpretFileResult } from '@votingworks/ballot-interpreter';
+import { BLANK_PAGE_IMAGE_DATA } from '@votingworks/image-utils';
 import { SheetOf } from '@votingworks/types';
-import { createImageData } from 'canvas';
-
-export const MOCK_IMAGE = createImageData(1, 1);
 
 export const BLANK_PAGE_MOCK: InterpretFileResult = {
   interpretation: { type: 'BlankPage' },
-  normalizedImage: MOCK_IMAGE,
+  normalizedImage: BLANK_PAGE_IMAGE_DATA,
 };
 
 export const BLANK_PAGE_INTERPRETATION_MOCK: SheetOf<InterpretFileResult> = [
