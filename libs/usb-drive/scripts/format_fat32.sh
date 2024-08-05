@@ -26,6 +26,9 @@ if [[ ${#LABEL} -gt 11 ]]; then
     exit 1
 fi
 
+# set the partition table type to dos before using a type=c partition
+echo 'label: dos' | sfdisk "${DEVICE}"
+
 # partition the device with a single FAT32 (type=c) partition
 echo 'type=c' | sfdisk --wipe always --wipe-partitions always "${DEVICE}"
 
