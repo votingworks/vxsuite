@@ -167,7 +167,8 @@ handling errors:
    scanned at different speeds.
 3. **Require that the number of inferred timing marks on a side matches the
    expected number.** And that the left/right and top/bottom marks have the same
-   count.
+   count. The exception to this for the top/bottom marks is when encoding
+   metadata using presence/absence of timing marks.
 
 ### Decode Metadata
 
