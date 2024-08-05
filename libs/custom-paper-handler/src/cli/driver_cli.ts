@@ -1,15 +1,10 @@
 /* eslint-disable no-console */
 
 import { createInterface } from 'readline';
-import { ImageData, pdfToImages } from '@votingworks/image-utils';
-import { Buffer } from 'buffer';
-import { assert, assertDefined, iter, sleep } from '@votingworks/basics';
-import { exit } from 'process';
+import { assert, assertDefined, sleep } from '@votingworks/basics';
 import { join } from 'path';
 import { tmpdir } from 'os';
 import { getPaperHandlerDriver } from '../driver/helpers';
-import { ballotFixture } from '../test/fixtures';
-import { chunkBinaryBitmap, imageDataToBinaryBitmap } from '../printing';
 import { MaxPrintWidthDots, PaperHandlerDriverInterface } from '../driver';
 import { ScanDirection, scanDirections } from '../driver/scanner_config';
 
@@ -49,63 +44,11 @@ async function flushTransferInGeneric(driver: PaperHandlerDriverInterface) {
   await driver.clearGenericInBuffer();
 }
 
-async function getOnlyPageFromPdf(pdf: Buffer): Promise<ImageData> {
-  const first = await iter(pdfToImages(pdf, { scale: 200 / 72 })).first();
-  assert(first?.pageCount === 1);
-  return first.page;
-}
-
-async function outputSampleBallotPdfWidth() {
-  const page = await getOnlyPageFromPdf(Buffer.from(ballotFixture));
-  console.log(`First page of sample ballot is ${page.width} dots`);
-}
-
 async function scan(driver: PaperHandlerDriverInterface): Promise<void> {
   const dateString = new Date().toISOString();
   const pathOut = join(tmpdir(), `ballot-driver-cli-${dateString}.jpg`);
   console.log('Writing scan to', pathOut);
   await driver.scanAndSave(pathOut);
-}
-
-/**
- * Unsafely prints a ballot from ballot fixtures. Adapted from paper_handler_machine.
- * Precondition: enable-print command has succeeded
- */
-async function printBallot(driver: PaperHandlerDriverInterface): Promise<void> {
-  console.time('pdf to image');
-  const page = await getOnlyPageFromPdf(Buffer.from(ballotFixture));
-  console.timeEnd('pdf to image');
-  console.time('image to binary');
-
-  const ballotBinaryBitmap = imageDataToBinaryBitmap(page, {});
-  console.log(`bitmap width: ${ballotBinaryBitmap.width}`);
-  console.log(`bitmap height: ${ballotBinaryBitmap.height}`);
-  console.timeEnd('image to binary');
-  console.time('binary to chunks');
-
-  const customChunkedBitmaps = chunkBinaryBitmap(ballotBinaryBitmap);
-  console.log(`num chunk rows: ${customChunkedBitmaps.length}`);
-  console.timeEnd('binary to chunks');
-
-  let dotsSkipped = 0;
-  console.log(`begin printing ${customChunkedBitmaps.length} chunks`);
-  let i = 0;
-  for (const customChunkedBitmap of customChunkedBitmaps) {
-    if (customChunkedBitmap.empty) {
-      dotsSkipped += 24;
-    } else {
-      if (dotsSkipped) {
-        console.log('setting relative vertical print position');
-        await driver.setRelativeVerticalPrintPosition(dotsSkipped * 2); // assuming default vertical units, 1 / 408 units
-        dotsSkipped = 0;
-      }
-      console.time(`printing chunk ${i}`);
-      await driver.printChunk(customChunkedBitmap);
-      console.timeEnd(`printing chunk ${i}`);
-    }
-    i += 1;
-  }
-  console.log(`Done printing ballot. ${i} chunks printed.`);
 }
 
 async function setDefaults(driver: PaperHandlerDriverInterface) {
@@ -170,12 +113,6 @@ async function handleCommand(
   } else if (command === Command.EnablePrint) {
     console.log('Enabling print');
     await driver.enablePrint();
-  } else if (
-    command === Command.PrintSampleBallot ||
-    command === Command.PrintSampleBallotShorthand
-  ) {
-    console.log('Printing sample ballot');
-    await printBallot(driver);
   } else if (command === Command.ResetScan) {
     console.log('Resetting scan');
     await driver.resetScan();
@@ -207,11 +144,6 @@ export async function main(): Promise<number> {
   printUsage();
 
   const initialArgs = process.argv;
-  if (initialArgs.length === 3 && initialArgs[2] === '--pdf-check') {
-    // Don't need the driver for this command, so special case it and exit after
-    await outputSampleBallotPdfWidth();
-    exit(0);
-  }
 
   let maxPrintWidth = MaxPrintWidthDots.BMD_155;
   if (initialArgs.includes('--bmd150')) {
