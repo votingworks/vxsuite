@@ -78,9 +78,7 @@ export const appStrings = {
   buttonBack: () => <UiString uiStringKey="buttonBack">Back</UiString>,
 
   buttonBallotIsCorrect: () => (
-    <UiString uiStringKey="buttonBallotIsCorrect">
-      My Ballot is Correct
-    </UiString>
+    <UiString uiStringKey="buttonBallotIsCorrect">Cast My Ballot</UiString>
   ),
 
   buttonBallotIsIncorrect: () => (
@@ -527,10 +525,10 @@ export const appStrings = {
   instructionsBmdScanReviewConfirmationPatDevice: () => (
     <UiString uiStringKey="instructionsBmdScanReviewConfirmationPatDevice">
       If your selections are correct, use the move input to navigate to the
-      control labelled "my ballot is correct" and then use the select input to
-      confirm your choices and cast your ballot. If there is an error, select
-      the option labelled "my ballot is incorrect" to mark this ballot as
-      incorrect and alert a poll worker.
+      control labelled "cast my ballot" and then use the select input to confirm
+      your choices and cast your ballot. If there is an error, select the option
+      labelled "my ballot is incorrect" to mark this ballot as incorrect and
+      alert a poll worker.
     </UiString>
   ),
 

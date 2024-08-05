@@ -196,7 +196,7 @@ test('Cardless Voting Flow', async () => {
   await screen.findByText('Review Your Votes');
   apiMock.expectValidateBallot();
   apiMock.expectGetInterpretation(mockInterpretation);
-  userEvent.click(screen.getByText('My Ballot is Correct'));
+  userEvent.click(screen.getByText('Cast My Ballot'));
 
   apiMock.setPaperHandlerState('ejecting_to_rear');
   await screen.findByText('Casting Ballot...');

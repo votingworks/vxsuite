@@ -31,7 +31,6 @@ export const GLOBAL_TRANSLATION_OVERRIDES: TranslationOverrides = {
     'Mute Audio': 'Silenciar audio',
     'Unmute Audio': 'Activar audio',
     Back: 'Atrás',
-    'My Ballot is Correct': 'Mi boleta es correcta',
     'My Ballot is Incorrect': 'Mi boleta es incorrecta',
     'Press the select button to change your votes for this contest.':
       'Presione el botón de selección para cambiar sus votos para este concurso.',
