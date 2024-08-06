@@ -368,7 +368,7 @@ pub fn find_timing_mark_grid(
 /// This function assumes that timing marks are wider than they are tall and
 /// that the timing mark is surrounded by white pixels. It also assumes that the
 /// gap between one timing mark and the next is the same as the height of the
-/// timing mark. This is the case for AccuVote timing marks, which are the
+/// timing mark. This is the case for `AccuVote` timing marks, which are the
 /// timing marks expected by `ballot-interpreter`.
 ///
 /// Because of this, the function looks for black pixels in the timing mark area
@@ -422,10 +422,8 @@ fn score_timing_mark_at_rect(ballot_image: &BallotImage, rect: &Rect) -> Option<
                 if luma.0[0] <= threshold {
                     black_pixel_count += 1;
                 }
-            } else {
-                if luma.0[0] > threshold {
-                    white_pixel_count += 1;
-                }
+            } else if luma.0[0] > threshold {
+                white_pixel_count += 1;
             }
         }
     }
@@ -1308,8 +1306,11 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
     let mut corner_match_info = vec![];
     let mut missing_corners = vec![];
 
-    if partial_timing_marks.top_left_rect.is_none() {
-        match complete_top_line_rects.first() {
+    match partial_timing_marks.top_left_rect {
+        Some(top_left_rect) => {
+            corner_match_info.push((top_left_rect, None, Corner::TopLeft));
+        }
+        None => match complete_top_line_rects.first() {
             Some(top_left_rect) => {
                 let match_score = score_timing_mark_at_rect(ballot_image, top_left_rect)
                     .unwrap_or(UnitIntervalScore(0.0));
@@ -1318,22 +1319,19 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
                     missing_corners.push(Corner::TopLeft);
                 }
 
-                corner_match_info.push((top_left_rect.clone(), Some(match_score), Corner::TopLeft));
+                corner_match_info.push((*top_left_rect, Some(match_score), Corner::TopLeft));
             }
             None => {
                 missing_corners.push(Corner::TopLeft);
             }
-        }
-    } else {
-        corner_match_info.push((
-            partial_timing_marks.top_left_rect.unwrap(),
-            None,
-            Corner::TopLeft,
-        ));
+        },
     }
 
-    if partial_timing_marks.top_right_rect.is_none() {
-        match complete_top_line_rects.last() {
+    match partial_timing_marks.top_right_rect {
+        Some(top_right_rect) => {
+            corner_match_info.push((top_right_rect, None, Corner::TopRight));
+        }
+        None => match complete_top_line_rects.last() {
             Some(top_right_rect) => {
                 let match_score = score_timing_mark_at_rect(ballot_image, top_right_rect)
                     .unwrap_or(UnitIntervalScore(0.0));
@@ -1342,26 +1340,19 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
                     missing_corners.push(Corner::TopRight);
                 }
 
-                corner_match_info.push((
-                    top_right_rect.clone(),
-                    Some(match_score),
-                    Corner::TopRight,
-                ));
+                corner_match_info.push((*top_right_rect, Some(match_score), Corner::TopRight));
             }
             None => {
                 missing_corners.push(Corner::TopRight);
             }
-        }
-    } else {
-        corner_match_info.push((
-            partial_timing_marks.top_right_rect.unwrap(),
-            None,
-            Corner::TopRight,
-        ));
+        },
     }
 
-    if partial_timing_marks.bottom_left_rect.is_none() {
-        match complete_bottom_line_rects.first() {
+    match partial_timing_marks.bottom_left_rect {
+        Some(bottom_left_rect) => {
+            corner_match_info.push((bottom_left_rect, None, Corner::BottomLeft));
+        }
+        None => match complete_bottom_line_rects.first() {
             Some(bottom_left_rect) => {
                 let match_score = score_timing_mark_at_rect(ballot_image, bottom_left_rect)
                     .unwrap_or(UnitIntervalScore(0.0));
@@ -1370,26 +1361,19 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
                     missing_corners.push(Corner::BottomLeft);
                 }
 
-                corner_match_info.push((
-                    bottom_left_rect.clone(),
-                    Some(match_score),
-                    Corner::BottomLeft,
-                ));
+                corner_match_info.push((*bottom_left_rect, Some(match_score), Corner::BottomLeft));
             }
             None => {
                 missing_corners.push(Corner::BottomLeft);
             }
-        }
-    } else {
-        corner_match_info.push((
-            partial_timing_marks.bottom_left_rect.unwrap(),
-            None,
-            Corner::BottomLeft,
-        ));
+        },
     }
 
-    if partial_timing_marks.bottom_right_rect.is_none() {
-        match complete_bottom_line_rects.last() {
+    match partial_timing_marks.bottom_right_rect {
+        Some(bottom_right_rect) => {
+            corner_match_info.push((bottom_right_rect, None, Corner::BottomRight));
+        }
+        None => match complete_bottom_line_rects.last() {
             Some(bottom_right_corner_rect) => {
                 let match_score = score_timing_mark_at_rect(ballot_image, bottom_right_corner_rect)
                     .unwrap_or(UnitIntervalScore(0.0));
@@ -1399,7 +1383,7 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
                 }
 
                 corner_match_info.push((
-                    bottom_right_corner_rect.clone(),
+                    *bottom_right_corner_rect,
                     Some(match_score),
                     Corner::BottomRight,
                 ));
@@ -1407,13 +1391,7 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
             None => {
                 missing_corners.push(Corner::BottomRight);
             }
-        }
-    } else {
-        corner_match_info.push((
-            partial_timing_marks.bottom_right_rect.unwrap(),
-            None,
-            Corner::BottomRight,
-        ));
+        },
     }
 
     debug.write("corner_match_info", |canvas| {

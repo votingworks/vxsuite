@@ -238,7 +238,8 @@ impl Rect {
         )
     }
 
-    pub fn contains(&self, point: Point<PixelPosition>) -> bool {
+    #[must_use]
+    pub const fn contains(&self, point: Point<PixelPosition>) -> bool {
         point.x >= self.left
             && point.x <= self.right()
             && point.y >= self.top

@@ -672,7 +672,7 @@ pub fn draw_timing_mark_grid_debug_image_mut(
     }
 }
 
-pub(crate) fn draw_corner_match_info_debug_image_mut(
+pub fn draw_corner_match_info_debug_image_mut(
     canvas: &mut RgbImage,
     corner_match_info: &[(Rect, Option<UnitIntervalScore>, Corner)],
 ) {
