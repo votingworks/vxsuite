@@ -776,6 +776,25 @@ mod test {
     }
 
     #[test]
+    fn test_torn_corner() {
+        let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
+            "nh-test-ballot",
+            ("torn-corner-front.jpg", "torn-corner-back.jpg"),
+        );
+
+        let Error::MissingTimingMarks { reason, .. } =
+            interpret_ballot_card(side_a_image, side_b_image, &options).unwrap_err()
+        else {
+            panic!("wrong error type");
+        };
+
+        assert_eq!(
+            reason,
+            "One or more of the corners of the ballot card could not be found: [TopRight]"
+        );
+    }
+
+    #[test]
     fn test_skewed_ballot_scoring_write_in_areas_no_write_ins() {
         let (side_a_image, side_b_image, options) = load_ballot_card_fixture(
             "2023-05-09-nh-moultonborough",

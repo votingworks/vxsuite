@@ -6039,55 +6039,6 @@ exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=af6d30a5-9
 }
 `;
 
-exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=b2e14c74-c514-4c3a-bd92-22d29210648b 1`] = `
-{
-  "b2e14c74-c514-4c3a-bd92-22d29210648b": [
-    {
-      "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
-        "ballotStyleId": "card-number-3",
-        "ballotType": "precinct",
-        "isTestMode": false,
-        "pageNumber": 1,
-        "precinctId": "town-id-00701-precinct-id-default",
-      },
-      "type": "InterpretedHmpbPage",
-      "unmarkedWriteIns": [],
-      "votes": {
-        "Executive-Councilor-bb22557f": [],
-        "Governor-061a401b": [],
-        "Representative-in-Congress-24683b44": [],
-        "State-Representative-Hillsborough-District-37-f3bde894": [],
-        "State-Representatives-Hillsborough-District-34-b1012d38": [],
-        "State-Senator-391381f8": [],
-        "United-States-Senator-d3f1c75b": [],
-      },
-    },
-    {
-      "metadata": {
-        "ballotHash": "13cfe19cc2452f18ac565ef188b5df1673227546e28c7e1b4f8be3548e12f373",
-        "ballotStyleId": "card-number-3",
-        "ballotType": "precinct",
-        "isTestMode": false,
-        "pageNumber": 2,
-        "precinctId": "town-id-00701-precinct-id-default",
-      },
-      "type": "InterpretedHmpbPage",
-      "unmarkedWriteIns": [],
-      "votes": {
-        "County-Attorney-133f910f": [],
-        "County-Commissioner-d6feed25": [],
-        "County-Treasurer-87d25a31": [],
-        "Register-of-Deeds-a1278df2": [],
-        "Register-of-Probate-a4117da8": [],
-        "Shall-there-be-a-convention-to-amend-or-revise-the-constitution--15e8b5bc": [],
-        "Sheriff-4243fe0b": [],
-      },
-    },
-  ],
-}
-`;
-
 exports[`HMPB - m17 backup Interprets all ballots correctly: ballotId=b36f2116-5290-4509-b53c-015895333e1a 1`] = `
 {
   "b36f2116-5290-4509-b53c-015895333e1a": [
