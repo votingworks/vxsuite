@@ -3,8 +3,9 @@ import {
   getFeatureFlagMock,
 } from '@votingworks/utils';
 import { electionTwoPartyPrimaryDefinition } from '@votingworks/fixtures';
+import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import { configureApp } from '../test/helpers/shared_helpers';
-import { withApp } from '../test/helpers/pdi_helpers';
+import { scanBallot, withApp } from '../test/helpers/pdi_helpers';
 
 jest.setTimeout(60_000);
 
@@ -20,9 +21,6 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
 beforeEach(() => {
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
-  );
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SCAN_USE_FUJITSU_PRINTER
   );
 });
 
@@ -45,8 +43,9 @@ test('printReport prints first section and printReportSection can print the rest
           electionDefinition: electionTwoPartyPrimaryDefinition,
         },
       });
-
       (await apiClient.openPolls()).unsafeUnwrap();
+
+      // print first section
       await apiClient.printReport();
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
@@ -54,6 +53,7 @@ test('printReport prints first section and printReportSection can print the rest
         customSnapshotIdentifier: 'fujitsu-mammal-report',
       });
 
+      // print second section
       (await apiClient.printReportSection({ index: 1 })).unsafeUnwrap();
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
@@ -61,6 +61,15 @@ test('printReport prints first section and printReportSection can print the rest
         customSnapshotIdentifier: 'fujitsu-fish-report',
       });
 
+      // can reprint a section
+      (await apiClient.printReportSection({ index: 1 })).unsafeUnwrap();
+      await expect(
+        mockFujitsuPrinterHandler.getLastPrintPath()
+      ).toMatchPdfSnapshot({
+        customSnapshotIdentifier: 'fujitsu-fish-report',
+      });
+
+      // print third section
       (await apiClient.printReportSection({ index: 2 })).unsafeUnwrap();
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
@@ -68,9 +77,116 @@ test('printReport prints first section and printReportSection can print the rest
         customSnapshotIdentifier: 'fujitsu-nonpartisan-report',
       });
 
-      expect(mockFujitsuPrinterHandler.getPrintPathHistory()).toHaveLength(3);
+      expect(mockFujitsuPrinterHandler.getPrintPathHistory()).toHaveLength(4);
 
       mockFujitsuPrinterHandler.cleanup();
+    }
+  );
+});
+
+test('printing report before polls opened should fail', async () => {
+  await withApp(async ({ apiClient, mockUsbDrive, mockAuth }) => {
+    await configureApp(apiClient, mockAuth, mockUsbDrive, {
+      testMode: true,
+      openPolls: false,
+    });
+
+    // printing report before polls opened should fail
+    await suppressingConsoleOutput(async () => {
+      await expect(apiClient.printReport()).rejects.toThrow();
+    });
+  });
+});
+
+test('re-printing report after scanning a ballot should fail', async () => {
+  await withApp(
+    async ({
+      apiClient,
+      mockUsbDrive,
+      mockAuth,
+      mockScanner,
+      clock,
+      workspace,
+    }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        testMode: true,
+        openPolls: false,
+      });
+      (await apiClient.openPolls()).unsafeUnwrap();
+
+      await scanBallot(mockScanner, clock, apiClient, workspace.store, 0);
+      await suppressingConsoleOutput(async () => {
+        await expect(apiClient.printReport()).rejects.toThrow();
+      });
+    }
+  );
+});
+
+test('can print voting paused and voting resumed reports', async () => {
+  await withApp(
+    async ({
+      apiClient,
+      mockScanner,
+      mockUsbDrive,
+      mockFujitsuPrinterHandler,
+      mockAuth,
+      workspace,
+      clock,
+    }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        testMode: true,
+      });
+
+      await scanBallot(mockScanner, clock, apiClient, workspace.store, 0);
+
+      // pause voting
+      await apiClient.pauseVoting();
+      await apiClient.printReport();
+      await expect(
+        mockFujitsuPrinterHandler.getLastPrintPath()
+      ).toMatchPdfSnapshot({
+        customSnapshotIdentifier: 'fujitsu-voting-paused-report',
+      });
+
+      // resume voting
+      await apiClient.resumeVoting();
+      await apiClient.printReport();
+      await expect(
+        mockFujitsuPrinterHandler.getLastPrintPath()
+      ).toMatchPdfSnapshot({
+        customSnapshotIdentifier: 'fujitsu-voting-resumed-report',
+      });
+    }
+  );
+});
+
+test('can tabulate results and print polls closed report', async () => {
+  await withApp(
+    async ({
+      apiClient,
+      mockScanner,
+      mockUsbDrive,
+      mockFujitsuPrinterHandler,
+      mockAuth,
+      workspace,
+      clock,
+    }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive, {
+        testMode: true,
+      });
+
+      await scanBallot(mockScanner, clock, apiClient, workspace.store, 0);
+      await scanBallot(mockScanner, clock, apiClient, workspace.store, 1);
+      await scanBallot(mockScanner, clock, apiClient, workspace.store, 2);
+
+      // close polls
+      await apiClient.closePolls();
+      await apiClient.printReport();
+      await expect(
+        mockFujitsuPrinterHandler.getLastPrintPath()
+      ).toMatchPdfSnapshot({
+        customSnapshotIdentifier: 'fujitsu-polls-closed-report',
+      });
     }
   );
 });

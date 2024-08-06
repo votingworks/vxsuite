@@ -23,6 +23,9 @@ beforeEach(() => {
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
+  mockFeatureFlagger.enableFeatureFlag(
+    BooleanEnvironmentVariableName.USE_BROTHER_PRINTER
+  );
 });
 
 const reportPrintedTime = new Date('2021-01-01T00:00:00.000');

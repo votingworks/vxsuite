@@ -29,9 +29,6 @@ beforeEach(() => {
   mockFeatureFlagger.enableFeatureFlag(
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
-  mockFeatureFlagger.enableFeatureFlag(
-    BooleanEnvironmentVariableName.SCAN_USE_FUJITSU_PRINTER
-  );
 });
 
 const mockTime = new Date('2021-01-01T00:00:00.000');

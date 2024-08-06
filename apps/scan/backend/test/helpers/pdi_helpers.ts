@@ -226,10 +226,10 @@ export async function withApp(
   const mockPrinterHandler = createMockPrinterHandler();
   const mockFujitsuPrinterHandler = createMockFujitsuPrinterHandler();
   const printer = isFeatureFlagEnabled(
-    BooleanEnvironmentVariableName.SCAN_USE_FUJITSU_PRINTER
+    BooleanEnvironmentVariableName.USE_BROTHER_PRINTER
   )
-    ? wrapFujitsuThermalPrinter(mockFujitsuPrinterHandler.printer)
-    : wrapLegacyPrinter(mockPrinterHandler.printer);
+    ? wrapLegacyPrinter(mockPrinterHandler.printer)
+    : wrapFujitsuThermalPrinter(mockFujitsuPrinterHandler.printer);
 
   const mockScanner = createMockPdiScannerClient();
   const deferredConnect = deferred<Result<void, ScannerError>>();
