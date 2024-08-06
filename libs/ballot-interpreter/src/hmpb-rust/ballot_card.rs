@@ -7,7 +7,7 @@ use types_rs::geometry::PixelUnit;
 
 pub use types_rs::ballot_card::*;
 
-use crate::interpret::ResizeStrategy;
+use crate::{image_utils::Inset, interpret::ResizeStrategy};
 
 use types_rs::geometry::{GridUnit, Inch, PixelPosition, Rect, Size, SubPixelUnit};
 
@@ -25,6 +25,22 @@ pub enum BallotPaperSize {
     Custom21,
     #[serde(rename = "custom-8.5x22")]
     Custom22,
+}
+
+pub struct BallotImage {
+    pub image: GrayImage,
+    pub threshold: u8,
+    pub border_inset: Inset,
+}
+pub struct BallotPage {
+    pub ballot_image: BallotImage,
+    pub geometry: Geometry,
+}
+
+pub struct BallotCard {
+    pub side_a: BallotImage,
+    pub side_b: BallotImage,
+    pub geometry: Geometry,
 }
 
 /// Ballot card orientation.

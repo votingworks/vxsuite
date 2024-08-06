@@ -4,9 +4,9 @@ use image::GrayImage;
 use serde::Serialize;
 use types_rs::geometry::{GridUnit, Point};
 
-use crate::ballot_card::{load_ballot_template_bubble_image, PaperInfo};
+use crate::ballot_card::{load_ballot_template_bubble_image, BallotCard, PaperInfo};
 use crate::debug::ImageDebugWriter;
-use crate::interpret::{prepare_ballot_card_images, BallotCard, ResizeStrategy};
+use crate::interpret::{prepare_ballot_card_images, ResizeStrategy};
 use crate::timing_mark_metadata::BallotPageTimingMarkMetadata;
 use crate::timing_marks::{
     detect_metadata_and_normalize_orientation, find_empty_bubbles_matching_template,
@@ -65,7 +65,7 @@ pub fn find_template_grid_and_bubbles(
             let mut debug = ImageDebugWriter::disabled();
             let grid = find_timing_mark_grid(
                 &geometry,
-                &side_a.image,
+                &side_a,
                 FindTimingMarkGridOptions {
                     allowed_timing_mark_inset_percentage_of_width:
                         ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH_FOR_TEMPLATE,
@@ -76,7 +76,7 @@ pub fn find_template_grid_and_bubbles(
                 side_a_label,
                 &geometry,
                 grid,
-                &side_a.image,
+                &side_a,
                 &mut debug,
             )
         },
@@ -84,7 +84,7 @@ pub fn find_template_grid_and_bubbles(
             let mut debug = ImageDebugWriter::disabled();
             let grid = find_timing_mark_grid(
                 &geometry,
-                &side_b.image,
+                &side_b,
                 FindTimingMarkGridOptions {
                     allowed_timing_mark_inset_percentage_of_width:
                         ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH_FOR_TEMPLATE,
@@ -95,7 +95,7 @@ pub fn find_template_grid_and_bubbles(
                 side_b_label,
                 &geometry,
                 grid,
-                &side_b.image,
+                &side_b,
                 &mut debug,
             )
         },
@@ -119,7 +119,7 @@ pub fn find_template_grid_and_bubbles(
     let (side_a_bubbles, side_b_bubbles) = rayon::join(
         || {
             find_empty_bubbles_matching_template(
-                &side_a_image,
+                &side_a_image.image,
                 &bubble_template,
                 &side_a_grid,
                 BUBBLE_MATCH_THRESHOLD,
@@ -128,7 +128,7 @@ pub fn find_template_grid_and_bubbles(
         },
         || {
             find_empty_bubbles_matching_template(
-                &side_b_image,
+                &side_b_image.image,
                 &bubble_template,
                 &side_b_grid,
                 BUBBLE_MATCH_THRESHOLD,

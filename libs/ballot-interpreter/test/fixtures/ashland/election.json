@@ -1,4 +1,5 @@
 {
+  "id": "test-fixtures-ashland-election-json",
   "ballotLayout": {
     "paperSize": "letter",
     "targetMarkPosition": "right",
