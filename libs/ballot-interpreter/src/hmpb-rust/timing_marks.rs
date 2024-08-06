@@ -57,23 +57,6 @@ pub struct Partial {
 }
 
 impl Partial {
-    pub fn missing_corners(&self) -> Vec<Corner> {
-        let mut missing_corners = vec![];
-        if self.top_left_rect.is_none() {
-            missing_corners.push(Corner::TopLeft);
-        }
-        if self.top_right_rect.is_none() {
-            missing_corners.push(Corner::TopRight);
-        }
-        if self.bottom_left_rect.is_none() {
-            missing_corners.push(Corner::BottomLeft);
-        }
-        if self.bottom_right_rect.is_none() {
-            missing_corners.push(Corner::BottomRight);
-        }
-        missing_corners
-    }
-
     pub fn left_side_rotation(&self) -> Radians {
         let left_angle = Segment::new(self.top_left_corner, self.bottom_left_corner).angle();
         // expected angle is 90 degrees and not 270 degrees because the Y axis
