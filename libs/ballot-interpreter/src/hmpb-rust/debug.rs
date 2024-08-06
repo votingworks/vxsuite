@@ -22,7 +22,8 @@ fn imageproc_rect_from_rect(rect: &Rect) -> imageproc::rect::Rect {
 
 use crate::image_utils::rainbow;
 use crate::layout::InterpretedContestLayout;
-use crate::timing_marks::{FilteredRects, ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH};
+use crate::scoring::UnitIntervalScore;
+use crate::timing_marks::{Corner, FilteredRects, ALLOWED_TIMING_MARK_INSET_PERCENTAGE_OF_WIDTH};
 use crate::{
     image_utils::{
         BLUE, CYAN, DARK_BLUE, DARK_CYAN, DARK_GREEN, DARK_RED, GREEN, ORANGE, PINK, RED, WHITE_RGB,
@@ -667,6 +668,34 @@ pub fn draw_timing_mark_grid_debug_image_mut(
                 point.x.round() as PixelPosition,
                 point.y.round() as PixelPosition,
             );
+        }
+    }
+}
+
+pub(crate) fn draw_corner_match_info_debug_image_mut(
+    canvas: &mut RgbImage,
+    corner_match_info: &[(Rect, Option<UnitIntervalScore>, Corner)],
+) {
+    for (rect, match_score, corner) in corner_match_info {
+        let color = match corner {
+            Corner::TopLeft => TOP_COLOR,
+            Corner::TopRight => RIGHT_COLOR,
+            Corner::BottomLeft => LEFT_COLOR,
+            Corner::BottomRight => BOTTOM_COLOR,
+        };
+        if let Some(match_score) = match_score {
+            draw_hollow_rect_mut(canvas, imageproc_rect_from_rect(rect), color);
+            draw_text_mut(
+                canvas,
+                color,
+                rect.left(),
+                rect.bottom(),
+                PxScale::from(20.0),
+                &monospace_font(),
+                &format!("{match_score:.2}"),
+            );
+        } else {
+            draw_filled_rect_mut(canvas, imageproc_rect_from_rect(rect), color);
         }
     }
 }

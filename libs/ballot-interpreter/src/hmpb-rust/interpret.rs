@@ -9,6 +9,9 @@ use types_rs::election::{BallotStyleId, Election, MetadataEncoding, PrecinctId};
 use types_rs::geometry::{PixelUnit, Rect, Size};
 
 use crate::ballot_card::get_matching_paper_info_for_image_size;
+use crate::ballot_card::BallotCard;
+use crate::ballot_card::BallotImage;
+use crate::ballot_card::BallotPage;
 use crate::ballot_card::BallotSide;
 use crate::ballot_card::Geometry;
 use crate::ballot_card::PaperInfo;
@@ -31,9 +34,6 @@ use crate::timing_mark_metadata::BallotPageTimingMarkMetadataError;
 use crate::timing_marks::detect_metadata_and_normalize_orientation;
 use crate::timing_marks::find_timing_mark_grid;
 use crate::timing_marks::normalize_orientation;
-use crate::timing_marks::BallotCard;
-use crate::timing_marks::BallotImage;
-use crate::timing_marks::BallotPage;
 use crate::timing_marks::BallotPageMetadata;
 use crate::timing_marks::FindTimingMarkGridOptions;
 use crate::timing_marks::TimingMarkGrid;
@@ -489,13 +489,13 @@ pub fn interpret_ballot_card(
             let (side_a, side_b) = (
                 (
                     side_a_normalized_grid,
-                    side_a_normalized_image,
+                    side_a_normalized_image.image,
                     BallotPageMetadata::TimingMarks(side_a_metadata.clone()),
                     side_a_debug,
                 ),
                 (
                     side_b_normalized_grid,
-                    side_b_normalized_image,
+                    side_b_normalized_image.image,
                     BallotPageMetadata::TimingMarks(side_b_metadata.clone()),
                     side_b_debug,
                 ),
@@ -506,16 +506,16 @@ pub fn interpret_ballot_card(
                     BallotPageTimingMarkMetadata::Front(front_metadata),
                     BallotPageTimingMarkMetadata::Back(_),
                 ) => (
-                    (side_a.0, side_a.1.image, side_a.2, side_a.3),
-                    (side_b.0, side_b.1.image, side_b.2, side_b.3),
+                    side_a,
+                    side_b,
                     BallotStyleId::from(format!("card-number-{}", front_metadata.card)),
                 ),
                 (
                     BallotPageTimingMarkMetadata::Back(_),
                     BallotPageTimingMarkMetadata::Front(front_metadata),
                 ) => (
-                    (side_b.0, side_b.1.image, side_b.2, side_b.3),
-                    (side_a.0, side_a.1.image, side_a.2, side_a.3),
+                    side_b,
+                    side_a,
                     BallotStyleId::from(format!("card-number-{}", front_metadata.card)),
                 ),
                 _ => {

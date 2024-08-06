@@ -4,13 +4,13 @@ use image::GrayImage;
 use serde::Serialize;
 use types_rs::geometry::{GridUnit, Point};
 
-use crate::ballot_card::{load_ballot_template_bubble_image, PaperInfo};
+use crate::ballot_card::{load_ballot_template_bubble_image, BallotCard, PaperInfo};
 use crate::debug::ImageDebugWriter;
 use crate::interpret::{prepare_ballot_card_images, ResizeStrategy};
 use crate::timing_mark_metadata::BallotPageTimingMarkMetadata;
 use crate::timing_marks::{
     detect_metadata_and_normalize_orientation, find_empty_bubbles_matching_template,
-    find_timing_mark_grid, BallotCard, FindTimingMarkGridOptions, TimingMarkGrid,
+    find_timing_mark_grid, FindTimingMarkGridOptions, TimingMarkGrid,
 };
 
 #[derive(Debug, Serialize)]

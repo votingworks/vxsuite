@@ -238,6 +238,13 @@ impl Rect {
         )
     }
 
+    pub fn contains(&self, point: Point<PixelPosition>) -> bool {
+        point.x >= self.left
+            && point.x <= self.right()
+            && point.y >= self.top
+            && point.y <= self.bottom()
+    }
+
     #[must_use]
     pub fn intersect(&self, other: &Self) -> Option<Self> {
         let left = self.left.max(other.left);
