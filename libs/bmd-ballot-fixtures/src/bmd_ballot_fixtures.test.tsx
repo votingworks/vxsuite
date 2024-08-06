@@ -35,7 +35,7 @@ test('renderBmdBallotFixture rotated', async () => {
   expect(pages[1]).toMatchImageSnapshot();
 });
 
-test('writePdfToImageFile', async () => {
+test('writeFirstBallotPageToImageFile', async () => {
   const pdf = await renderBmdBallotFixture({
     electionDefinition: electionFamousNames2021Fixtures.electionDefinition,
   });
