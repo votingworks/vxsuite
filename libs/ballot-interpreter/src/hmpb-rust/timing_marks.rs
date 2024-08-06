@@ -379,6 +379,7 @@ pub fn find_timing_mark_grid(
 /// Scores a potential timing mark in the image by examining the image to
 /// determine how many of the pixels in and around the rectangle are the
 /// expected luminosity.
+#[allow(clippy::too_many_lines)]
 fn score_timing_mark_at_rect(ballot_image: &BallotImage, rect: &Rect) -> Option<f32> {
     let image = &ballot_image.image;
     let threshold = ballot_image.threshold;
@@ -1193,6 +1194,9 @@ pub const MAXIMUM_ALLOWED_BALLOT_ROTATION: Degrees = Degrees::new(2.0);
 /// reject the ballot.
 pub const MAXIMUM_ALLOWED_BALLOT_SKEW: Degrees = Degrees::new(1.0);
 
+/// The minimum required score for a corner mark to be considered valid.
+pub const MIN_REQUIRED_CORNER_MARK_SCORE: UnitIntervalValue = 0.5;
+
 pub struct FindCompleteTimingMarksFromPartialTimingMarksOptions<'a> {
     pub allowed_timing_mark_inset_percentage_of_width: UnitIntervalValue,
     pub debug: &'a ImageDebugWriter,
@@ -1371,16 +1375,14 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
         );
     }
 
-    const MIN_REQUIRED_CORNER_MARK_SCORE: f32 = 0.5;
     let mut missing_corners = vec![];
 
     if partial_timing_marks.top_left_rect.is_none() {
         let match_score = complete_top_line_rects
             .first()
-            .map(|potential_top_left_corner_rect| {
+            .and_then(|potential_top_left_corner_rect| {
                 score_timing_mark_at_rect(ballot_image, potential_top_left_corner_rect)
             })
-            .flatten()
             .unwrap_or(0.0);
 
         if match_score < MIN_REQUIRED_CORNER_MARK_SCORE {
@@ -1391,10 +1393,9 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
     if partial_timing_marks.top_right_rect.is_none() {
         let match_score = complete_top_line_rects
             .last()
-            .map(|potential_top_right_corner_rect| {
+            .and_then(|potential_top_right_corner_rect| {
                 score_timing_mark_at_rect(ballot_image, potential_top_right_corner_rect)
             })
-            .flatten()
             .unwrap_or(0.0);
 
         if match_score < MIN_REQUIRED_CORNER_MARK_SCORE {
@@ -1405,10 +1406,9 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
     if partial_timing_marks.bottom_left_rect.is_none() {
         let match_score = complete_bottom_line_rects
             .first()
-            .map(|potential_bottom_left_corner_rect| {
+            .and_then(|potential_bottom_left_corner_rect| {
                 score_timing_mark_at_rect(ballot_image, potential_bottom_left_corner_rect)
             })
-            .flatten()
             .unwrap_or(0.0);
 
         if match_score < MIN_REQUIRED_CORNER_MARK_SCORE {
@@ -1419,10 +1419,9 @@ pub fn find_complete_timing_marks_from_partial_timing_marks(
     if partial_timing_marks.bottom_right_rect.is_none() {
         let match_score = complete_bottom_line_rects
             .last()
-            .map(|potential_bottom_right_corner_rect| {
+            .and_then(|potential_bottom_right_corner_rect| {
                 score_timing_mark_at_rect(ballot_image, potential_bottom_right_corner_rect)
             })
-            .flatten()
             .unwrap_or(0.0);
 
         if match_score < MIN_REQUIRED_CORNER_MARK_SCORE {
