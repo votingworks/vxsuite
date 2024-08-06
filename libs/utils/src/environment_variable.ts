@@ -66,10 +66,8 @@ export enum BooleanEnvironmentVariableName {
    * Enables cloud translation and speech synthesis when exporting election packages from VxDesign
    */
   ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS = 'REACT_APP_VX_ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS',
-  /**
-   * Use legacy CUPS-enabled printing in VxScan, as opposed to the thermal printer with our own driver
-   */
-  SCAN_USE_FUJITSU_PRINTER = 'REACT_APP_VX_SCAN_USE_FUJITSU_PRINTER',
+  /** Use the Brother printer in VxScan (as opposed to the Fujitsu thermal printer) */
+  USE_BROTHER_PRINTER = 'REACT_APP_VX_USE_BROTHER_PRINTER',
   /** Use the Custom scanner in VxScan (as opposed to the PDI scanner) */
   USE_CUSTOM_SCANNER = 'REACT_APP_VX_USE_CUSTOM_SCANNER',
   /**
@@ -159,8 +157,8 @@ export function getEnvironmentVariable(
     case BooleanEnvironmentVariableName.ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS:
       return process.env
         .REACT_APP_VX_ENABLE_CLOUD_TRANSLATION_AND_SPEECH_SYNTHESIS;
-    case BooleanEnvironmentVariableName.SCAN_USE_FUJITSU_PRINTER:
-      return process.env.REACT_APP_VX_SCAN_USE_FUJITSU_PRINTER;
+    case BooleanEnvironmentVariableName.USE_BROTHER_PRINTER:
+      return process.env.REACT_APP_VX_USE_BROTHER_PRINTER;
     case BooleanEnvironmentVariableName.USE_CUSTOM_SCANNER:
       return process.env.REACT_APP_VX_USE_CUSTOM_SCANNER;
     case BooleanEnvironmentVariableName.ONLY_ENABLE_SCREEN_READER_FOR_HEADPHONES:
@@ -273,7 +271,7 @@ export function getBooleanEnvVarConfig(
         allowInProduction: true,
         autoEnableInDevelopment: false,
       };
-    case BooleanEnvironmentVariableName.SCAN_USE_FUJITSU_PRINTER:
+    case BooleanEnvironmentVariableName.USE_BROTHER_PRINTER:
       return {
         name,
         allowInProduction: true,

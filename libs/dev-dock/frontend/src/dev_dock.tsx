@@ -538,10 +538,10 @@ function getPrinterType(
       return 'standard';
     case 'scan':
       return isFeatureFlagEnabled(
-        BooleanEnvironmentVariableName.SCAN_USE_FUJITSU_PRINTER
+        BooleanEnvironmentVariableName.USE_BROTHER_PRINTER
       )
-        ? 'fujitsu'
-        : 'standard';
+        ? 'standard'
+        : 'fujitsu';
     // istanbul ignore next
     default:
       throwIllegalValue(machineType);
