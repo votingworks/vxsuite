@@ -79,6 +79,7 @@ test('Cardless Voting Flow', async () => {
   screen.getByText(/(12)/);
 
   await screen.findByText('Load Ballot Sheet');
+  screen.getButton('Start a New Voting Session');
   mockLoadPaper();
 
   // Poll Worker deactivates ballot style

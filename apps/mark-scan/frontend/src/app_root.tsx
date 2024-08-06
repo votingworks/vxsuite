@@ -190,7 +190,6 @@ export function AppRoot(): JSX.Element | null {
   const startCardlessVoterSessionMutate =
     startCardlessVoterSessionMutation.mutate;
   const endCardlessVoterSessionMutation = endCardlessVoterSession.useMutation();
-  const endCardlessVoterSessionMutate = endCardlessVoterSessionMutation.mutate;
   const endCardlessVoterSessionMutateAsync =
     endCardlessVoterSessionMutation.mutateAsync;
   const unconfigureMachineMutation = unconfigureMachine.useMutation();
@@ -296,15 +295,6 @@ export function AppRoot(): JSX.Element | null {
     },
     [authStatus, resetBallot, startCardlessVoterSessionMutate]
   );
-
-  const resetCardlessBallot = useCallback(() => {
-    assert(isPollWorkerAuth(authStatus));
-    endCardlessVoterSessionMutate(undefined, {
-      onSuccess() {
-        history.push('/');
-      },
-    });
-  }, [authStatus, endCardlessVoterSessionMutate, history]);
 
   useEffect(() => {
     function resetBallotOnLogout() {
@@ -516,7 +506,6 @@ export function AppRoot(): JSX.Element | null {
         <PollWorkerScreen
           pollWorkerAuth={authStatus}
           activateCardlessVoterSession={activateCardlessBallot}
-          resetCardlessVoterSession={resetCardlessBallot}
           electionDefinition={electionDefinition}
           electionPackageHash={assertDefined(electionPackageHash)}
           isLiveMode={!isTestMode}

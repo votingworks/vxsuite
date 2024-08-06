@@ -80,6 +80,8 @@ import {
   MOCK_IMAGE,
 } from '../../test/ballot_helpers';
 
+jest.setTimeout(500);
+
 // Use shorter polling interval in tests to reduce run times
 const TEST_POLL_INTERVAL_MS = 50;
 // Must be longer than backendWaitForInterval or tests can't
@@ -734,6 +736,10 @@ test('ending poll worker auth in accepting_paper returns to initial state', asyn
 });
 
 describe('poll_worker_auth_ended_unexpectedly', () => {
+  beforeEach(() => {
+    mockPollWorkerAuth(auth, electionGeneralDefinition);
+  });
+
   test('loading_paper state', async () => {
     machine.setAcceptingPaper();
     const ballotStyle = electionGeneralDefinition.election.ballotStyles[1];
@@ -874,6 +880,8 @@ test('reset() API', async () => {
 });
 
 test('insert and validate new blank sheet', async () => {
+  mockPollWorkerAuth(auth, electionGeneralDefinition);
+
   featureFlagMock.disableFeatureFlag(
     BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
   );
@@ -910,6 +918,8 @@ describe('insert pre-printed ballot', () => {
     featureFlagMock.disableFeatureFlag(
       BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
     );
+
+    mockPollWorkerAuth(auth, electionGeneralDefinition);
   });
 
   test('start session with valid pre-printed ballot', async () => {

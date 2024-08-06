@@ -93,7 +93,6 @@ function renderScreen(
       <PollWorkerScreen
         pollWorkerAuth={pollWorkerAuth}
         activateCardlessVoterSession={jest.fn()}
-        resetCardlessVoterSession={jest.fn()}
         electionDefinition={electionDefinition}
         electionPackageHash="test-election-package-hash"
         hasVotes={false}
