@@ -82,9 +82,6 @@ export class PatConnectionStatusReader
 
   async openBmd150(): Promise<boolean> {
     await this.logger.log(LogEventId.ConnectToPatInputInit, 'system');
-    await this.logger.log(LogEventId.ConnectToPatInputComplete, 'system', {
-      disposition: 'success',
-    });
     const path = join(this.workspacePath, FAI_100_STATUS_FILENAME);
     const openResult = await fsOpen(path);
     if (openResult.isErr()) {
