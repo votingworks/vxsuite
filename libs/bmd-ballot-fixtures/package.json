@@ -40,7 +40,7 @@
     "@types/tmp": "0.2.4",
     "@votingworks/basics": "workspace:*",
     "@votingworks/fixtures": "workspace:*",
-    "@votingworks/fs": "workspace:^",
+    "@votingworks/fs": "workspace:*",
     "@votingworks/image-utils": "workspace:*",
     "@votingworks/printing": "workspace:*",
     "@votingworks/types": "workspace:*",
