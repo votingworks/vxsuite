@@ -3357,7 +3357,7 @@ importers:
         specifier: workspace:*
         version: link:../fixtures
       '@votingworks/fs':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:../fs
       '@votingworks/image-utils':
         specifier: workspace:*
