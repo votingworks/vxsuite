@@ -222,7 +222,10 @@ export async function main(
   // make the parent folder if it does not exist
   await fs.mkdir(outputPath, { recursive: true });
 
-  const imagePathsByPaperSize = new Map<BallotPaperSize, string>();
+  const imagesByPaperSize = new Map<
+    BallotPaperSize,
+    { path: string; sha256: string }
+  >();
   await Promise.all(
     castVoteRecords.map(async (castVoteRecord) => {
       const castVoteRecordDirectory = join(outputPath, castVoteRecord.UniqueId);
@@ -245,12 +248,14 @@ export async function main(
             )
           );
           const layoutFilePath = imageFilePath.replace('.jpg', '.layout.json');
-          const existingImagePath = imagePathsByPaperSize.get(
+          const existingImageInfo = imagesByPaperSize.get(
             election.ballotLayout.paperSize
           );
+          let imageHash: string;
 
-          if (existingImagePath) {
-            await fs.copyFile(existingImagePath, imageFilePath);
+          if (existingImageInfo) {
+            await fs.copyFile(existingImageInfo.path, imageFilePath);
+            imageHash = existingImageInfo.sha256;
           } else {
             const { width, height } = ballotPaperDimensions(
               election.ballotLayout.paperSize
@@ -263,10 +268,11 @@ export async function main(
               height * pageDpi
             );
             await writeImageData(imageFilePath, imageData);
-            imagePathsByPaperSize.set(
-              election.ballotLayout.paperSize,
-              imageFilePath
-            );
+            imageHash = sha256(await fs.readFile(imageFilePath));
+            imagesByPaperSize.set(election.ballotLayout.paperSize, {
+              path: imageFilePath,
+              sha256: imageHash,
+            });
           }
 
           const layout = layouts[i];
@@ -277,7 +283,6 @@ export async function main(
             layoutFileHash = sha256(layoutFileContents);
           }
 
-          const imageHash = sha256(await fs.readFile(imageFilePath));
           populateImageAndLayoutFileHashes(
             assertDefined(castVoteRecord.BallotImage[i]),
             { imageHash, layoutFileHash }
