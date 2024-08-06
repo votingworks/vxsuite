@@ -29,6 +29,7 @@ export type PrecinctScannerErrorType =
   | 'scanning_failed'
   | 'both_sides_have_paper'
   | 'double_feed_detected'
+  | 'outfeed_blocked'
   | 'paper_in_back_after_accept'
   | 'paper_in_front_after_reconnect'
   | 'paper_in_back_after_reconnect'

@@ -360,9 +360,18 @@ function buildMachine({
         invoke: pollScannerStatus,
         on: {
           SCANNER_STATUS: [
+            /**
+             * If the ballot jams during accept, it probably means the ballot box is
+             * full or something is blocking the opening. Since the ballot is already
+             * in the rear of the scanner when we start accepting, we declare it
+             * accepted even during a jam. Though it may still be covering the rear
+             * sensors, the rollers will have released it, so it can fall into the
+             * box. This jam will be identified and displayed to the user as an
+             * outfeed_blocked jam before any more ballots can be scanned.
+             */
             {
               cond: (_, { status }) => status.documentJam,
-              target: '#rejecting',
+              target: '#accepted',
             },
             {
               cond: (_, { status }) => !anyRearSensorCovered(status),
@@ -374,12 +383,7 @@ function buildMachine({
         // status, so we need to catch it with a timeout instead.
         after: {
           DELAY_ACCEPTING_TIMEOUT: {
-            target: '#rejecting',
-            actions: assign({
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-              error: (_context) =>
-                new PrecinctScannerError('paper_in_back_after_accept'),
-            }),
+            target: '#accepted',
           },
         },
       },
@@ -504,16 +508,12 @@ function buildMachine({
                 SCANNER_STATUS: [
                   {
                     cond: (_, { status }) => anyRearSensorCovered(status),
-                    target: '#rejecting',
-                    actions: [
-                      assign({
-                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                        error: (_context) =>
-                          new PrecinctScannerError(
-                            'paper_in_back_after_reconnect'
-                          ),
-                      }),
-                    ],
+                    target: '#jammed',
+                    actions: assign({
+                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                      error: (_context) =>
+                        new PrecinctScannerError('outfeed_blocked'),
+                    }),
                   },
                   { target: 'waiting' },
                 ],
@@ -850,7 +850,10 @@ function buildMachine({
           on: {
             SCANNER_STATUS: [
               {
-                cond: (_, { status }) => !status.documentJam,
+                cond: (_, { status }) =>
+                  !status.documentJam &&
+                  !anyRearSensorCovered(status) &&
+                  !anyFrontSensorCovered(status),
                 target: 'waitingForBallot',
               },
             ],
@@ -1153,6 +1156,7 @@ export function createPrecinctScannerStateMachine({
       const stateNeedsErrorDetails = [
         'rejecting',
         'rejected',
+        'jammed',
         'recovering_from_error',
         'calibrating_double_feed_detection.done',
       ].includes(scannerState);

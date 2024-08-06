@@ -74,7 +74,10 @@ test('cover open while jammed', async () => {
         error: 'scanning_failed',
       });
       deferredEject.resolve(ok());
-      await waitForStatus(apiClient, { state: 'jammed' });
+      await waitForStatus(apiClient, {
+        state: 'jammed',
+        error: 'scanning_failed',
+      });
 
       mockScanner.setScannerStatus(mockStatus.jammedCoverOpen);
       mockScanner.emitEvent({ event: 'coverOpen' });

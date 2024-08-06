@@ -176,7 +176,10 @@ export function VoterScreen({
       );
     case 'jammed':
       return (
-        <ScanJamScreen scannedBallotCount={scannerStatus.ballotsCounted} />
+        <ScanJamScreen
+          error={scannerStatus.error}
+          scannedBallotCount={scannerStatus.ballotsCounted}
+        />
       );
     case 'double_sheet_jammed':
       return (

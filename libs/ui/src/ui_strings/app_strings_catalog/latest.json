@@ -385,6 +385,7 @@
   "titleScannerCvrSyncRequired": "CVR Sync Required",
   "titleScannerInsertBallotScreen": "Insert Your Ballot",
   "titleScannerNoVotesWarning": "No votes marked:",
+  "titleScannerOutfeedBlocked": "Ballot Box Opening is Blocked",
   "titleScannerOvervoteWarning": "Too many votes marked:",
   "titleScannerProcessingScreen": "Please wait…",
   "titleScannerSuccessScreen": "Your ballot was counted!",
