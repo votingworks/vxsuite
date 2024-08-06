@@ -339,12 +339,10 @@ export async function scanBallot(
     initialBallotsCounted
   );
   await waitForStatus(apiClient, {
-    state: 'ready_to_accept',
+    state: 'accepting',
     ballotsCounted: initialBallotsCounted,
     interpretation: { type: 'ValidSheet' },
   });
-
-  await apiClient.acceptBallot();
   expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith('toRear');
   mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
   clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);

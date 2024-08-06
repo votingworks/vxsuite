@@ -66,11 +66,10 @@ test('insert second ballot after scan', async () => {
 
       const interpretation: SheetInterpretation = { type: 'ValidSheet' };
       await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
+        state: 'accepting',
         interpretation,
       });
 
-      await apiClient.acceptBallot();
       mockScanner.emitEvent({ event: 'ejectPaused' });
       await waitForStatus(apiClient, {
         state: 'both_sides_have_paper',
@@ -114,12 +113,11 @@ test('insert second ballot before accept', async () => {
       );
       const interpretation: SheetInterpretation = { type: 'ValidSheet' };
       await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
+        state: 'accepting',
         interpretation,
       });
 
       mockScanner.setScannerStatus(mockStatus.documentInFrontAndRear);
-      await apiClient.acceptBallot();
       mockScanner.emitEvent({ event: 'ejectPaused' });
       await waitForStatus(apiClient, {
         state: 'both_sides_have_paper',
@@ -155,12 +153,10 @@ test('insert second ballot during accept', async () => {
       );
       const interpretation: SheetInterpretation = { type: 'ValidSheet' };
       await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
+        state: 'accepting',
         interpretation,
       });
 
-      await apiClient.acceptBallot();
-      await waitForStatus(apiClient, { state: 'accepting', interpretation });
       // Simulate that the first ballot was already ejected when the second
       // ballot is inserted
       mockScanner.setScannerStatus(mockStatus.documentInFront);
@@ -253,12 +249,11 @@ test('insert second ballot after accept, should be scanned', async () => {
       );
       const interpretation: SheetInterpretation = { type: 'ValidSheet' };
       await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
+        state: 'accepting',
         interpretation,
       });
 
       mockScanner.client.enableScanning.mockClear();
-      await apiClient.acceptBallot();
       mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
       const ballotsCounted = 1;
@@ -287,7 +282,7 @@ test('insert second ballot after accept, should be scanned', async () => {
         ballotsCounted
       );
       await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
+        state: 'accepting',
         interpretation,
         ballotsCounted,
       });

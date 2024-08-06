@@ -270,7 +270,7 @@ export async function scanBallot(
     return ok(await ballotImages.completeBmd());
   });
   await waitForStatus(apiClient, {
-    state: 'ready_to_accept',
+    state: 'accepting',
     ballotsCounted: initialBallotsCounted,
     interpretation: { type: 'ValidSheet' },
   });

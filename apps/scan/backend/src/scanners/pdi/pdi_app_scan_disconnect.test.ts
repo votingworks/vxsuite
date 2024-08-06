@@ -168,12 +168,9 @@ test('scanner disconnected while accepting', async () => {
 
       const interpretation: SheetInterpretation = { type: 'ValidSheet' };
       await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
+        state: 'accepting',
         interpretation,
       });
-
-      await apiClient.acceptBallot();
-      await expectStatus(apiClient, { state: 'accepting', interpretation });
 
       simulateDisconnect(mockScanner);
       await waitForStatus(apiClient, { state: 'disconnected' });
@@ -208,15 +205,16 @@ test('scanner disconnected while accepting - ejectDocument fails', async () => {
       );
 
       const interpretation: SheetInterpretation = { type: 'ValidSheet' };
+      const deferredEject = deferred<Result<void, ScannerError>>();
+      mockScanner.client.ejectDocument.mockResolvedValueOnce(
+        deferredEject.promise
+      );
       await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
+        state: 'accepting',
         interpretation,
       });
 
-      mockScanner.client.ejectDocument.mockResolvedValueOnce(
-        err({ code: 'disconnected' })
-      );
-      await apiClient.acceptBallot();
+      deferredEject.resolve(err({ code: 'disconnected' }));
       await expectStatus(apiClient, { state: 'disconnected' });
     }
   );
@@ -241,15 +239,10 @@ test('scanner disconnected after accepting', async () => {
 
       const interpretation: SheetInterpretation = { type: 'ValidSheet' };
       await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
-        interpretation,
-      });
-
-      await apiClient.acceptBallot();
-      await expectStatus(apiClient, {
         state: 'accepting',
         interpretation,
       });
+
       expect(mockScanner.client.ejectDocument).toHaveBeenCalledWith('toRear');
       mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
       clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);

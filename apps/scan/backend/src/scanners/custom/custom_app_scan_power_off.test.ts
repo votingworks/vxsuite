@@ -88,11 +88,11 @@ test('scanner powered off while accepting', async () => {
 
       simulateScan(mockScanner, await ballotImages.completeBmd(), clock);
       await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
+        state: 'accepting',
         interpretation,
       });
       mockScanner.getStatus.mockResolvedValue(err(ErrorCode.ScannerOffline));
-      await apiClient.acceptBallot();
+      clock.increment(delays.DELAY_PAPER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, { state: 'disconnected' });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
@@ -120,11 +120,6 @@ test('scanner powered off after accepting', async () => {
       await configureApp(apiClient, mockAuth, mockUsbDrive, { testMode: true });
 
       simulateScan(mockScanner, await ballotImages.completeBmd(), clock);
-      await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
-        interpretation,
-      });
-      await apiClient.acceptBallot();
       await waitForStatus(apiClient, {
         state: 'accepting',
         interpretation,

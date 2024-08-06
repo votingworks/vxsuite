@@ -322,8 +322,7 @@ async function scanBallot() {
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'scanning' }));
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
 
-  apiMock.expectGetScannerStatus(scannerStatus({ state: 'ready_to_accept' }));
-  apiMock.mockApiClient.acceptBallot.expectCallWith().resolves();
+  apiMock.expectGetScannerStatus(scannerStatus({ state: 'accepting' }));
   jest.advanceTimersByTime(POLLING_INTERVAL_FOR_SCANNER_STATUS_MS);
 
   apiMock.expectGetScannerStatus(scannerStatus({ state: 'accepted' }));

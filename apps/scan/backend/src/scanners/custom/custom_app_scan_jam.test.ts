@@ -82,12 +82,9 @@ test('jam on accept', async () => {
 
       simulateScan(mockScanner, await ballotImages.completeBmd(), clock);
       await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
+        state: 'accepting',
         interpretation,
       });
-
-      await apiClient.acceptBallot();
-      await waitForStatus(apiClient, { state: 'accepting', interpretation });
       clock.increment(delays.DELAY_ACCEPTING_TIMEOUT);
       // The paper can't get permanently jammed on accept - it just stays held in
       // the back and we can reject at that point

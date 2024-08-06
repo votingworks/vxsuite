@@ -73,12 +73,9 @@ test('insert second ballot before first ballot accept', async () => {
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_READY_TO_EJECT));
       clock.increment(delays.DELAY_PAPER_STATUS_POLLING_INTERVAL);
       await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
+        state: 'accepting',
         interpretation,
       });
-
-      await apiClient.acceptBallot();
-      await waitForStatus(apiClient, { state: 'accepting', interpretation });
 
       mockScanner.getStatus.mockResolvedValue(ok(mocks.MOCK_NO_PAPER));
       clock.increment(delays.DELAY_PAPER_STATUS_POLLING_INTERVAL_DURING_ACCEPT);
@@ -109,11 +106,9 @@ test('insert second ballot while first ballot is accepting', async () => {
       simulateScan(mockScanner, await ballotImages.completeBmd(), clock);
 
       await waitForStatus(apiClient, {
-        state: 'ready_to_accept',
+        state: 'accepting',
         interpretation,
       });
-      await apiClient.acceptBallot();
-      await waitForStatus(apiClient, { state: 'accepting', interpretation });
 
       mockScanner.getStatus.mockResolvedValue(
         ok(mocks.MOCK_BOTH_SIDES_HAVE_PAPER)
