@@ -416,6 +416,28 @@ test('if scan fails, ballot rejected', async () => {
   );
 });
 
+test('if ballot removed during scan, returns to waiting for ballots', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'no_paper' });
+
+      mockScanner.emitEvent({ event: 'scanStart' });
+      await expectStatus(apiClient, { state: 'scanning' });
+      mockScanner.setScannerStatus(mockStatus.idleScanningEnabled);
+      mockScanner.emitEvent({
+        event: 'scanComplete',
+        images: await ballotImages.blankSheet(), // Shouldn't matter
+      });
+
+      clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'no_paper' });
+    }
+  );
+});
+
 test('if interpretation throws an exception, ballot rejected', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {

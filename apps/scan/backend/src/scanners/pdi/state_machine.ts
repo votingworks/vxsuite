@@ -642,21 +642,12 @@ function buildMachine({
                     cond: (_, { status }) => status.documentJam,
                     target: '#rejecting',
                   },
-                  // This guard was put in during initial development to prevent
-                  // against cases where the scanner fails to grab the ballot.
-                  // Currently, those cases seem to be yielding a `scanFailed`
-                  // event, so we aren't hitting this guard. Nevertheless, it
-                  // seems like a good backup, so leaving it here.
+                  // If you pull the ballot out before it can be fully scanned,
+                  // we either get a scanFailed event (handled above) or a
+                  // scanComplete event but documentInScanner=false.
                   {
                     cond: (_, { status }) => !status.documentInScanner,
-                    target: '#error',
-                    /* c8 ignore start */
-                    actions: assign({
-                      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                      error: (_context) =>
-                        new PrecinctScannerError('scanning_failed'),
-                    }),
-                    /* c8 ignore stop */
+                    target: '#waitingForBallot',
                   },
                   { target: '#interpreting' },
                 ],
