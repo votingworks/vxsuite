@@ -17,7 +17,7 @@ function StatusText({ printerStatus }: { printerStatus: PrinterStatus }) {
     case 'error':
       return (
         <P>
-          <Icons.X color="danger" />{' '}
+          <Icons.Danger color="danger" />{' '}
           {printerStatus.type === 'disconnected'
             ? 'The printer is disconnected'
             : 'The printer encountered an error'}

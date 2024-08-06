@@ -6,7 +6,6 @@ import {
   Exporter,
   SCAN_ALLOWED_EXPORT_PATTERNS,
   VX_MACHINE_ID,
-  getBatteryInfo,
 } from '@votingworks/backend';
 import { renderToPdf } from '@votingworks/printing';
 import { generateReadinessReportFilename } from '@votingworks/utils';
@@ -35,8 +34,6 @@ export async function saveReadinessReport({
     store.getElectionRecord() ?? {};
   const precinctSelection = store.getPrecinctSelection();
   const report = MarkScanReadinessReport({
-    batteryInfo:
-      /* istanbul ignore next */ (await getBatteryInfo()) ?? undefined,
     diskSpaceSummary: await workspace.getDiskSpaceSummary(),
     accessibleControllerProps: {
       isDeviceConnected: await isAccessibleControllerDaemonRunning(

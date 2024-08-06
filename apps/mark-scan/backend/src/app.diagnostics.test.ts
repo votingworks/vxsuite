@@ -239,8 +239,6 @@ test('saving the readiness report', async () => {
   expect(pdfContents).toContain('VxMark Readiness Report');
   expect(pdfContents).toContain('Lincoln Municipal General Election');
   expect(pdfContents).toContain('All Precincts');
-  expect(pdfContents).toContain('Battery Level: 50%');
-  expect(pdfContents).toContain('Power Source: External Power Supply');
   expect(pdfContents).toContain('Free Disk Space: 90% (9 GB / 10 GB)');
   expect(pdfContents).toContain('Connected');
 

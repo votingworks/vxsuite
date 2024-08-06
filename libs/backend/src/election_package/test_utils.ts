@@ -1,4 +1,3 @@
-import JsZip from 'jszip';
 import { ElectionPackage, ElectionPackageFileName } from '@votingworks/types';
 import { Buffer } from 'buffer';
 import {
@@ -6,6 +5,7 @@ import {
   generateElectionBasedSubfolderName,
 } from '@votingworks/utils';
 import { MockFileTree } from '@votingworks/usb-drive';
+import { zipFile } from '@votingworks/test-utils';
 
 /**
  * Builds an election package zip archive from a ElectionPackage object.
@@ -13,38 +13,43 @@ import { MockFileTree } from '@votingworks/usb-drive';
 export function createElectionPackageZipArchive(
   electionPackage: ElectionPackage
 ): Promise<Buffer> {
-  const jsZip = new JsZip();
-  jsZip.file(
-    ElectionPackageFileName.ELECTION,
-    electionPackage.electionDefinition.electionData
-  );
+  const zipContents: Record<string, Buffer | string> = {
+    [ElectionPackageFileName.ELECTION]:
+      electionPackage.electionDefinition.electionData,
+  };
+
   if (electionPackage.systemSettings) {
-    jsZip.file(
-      ElectionPackageFileName.SYSTEM_SETTINGS,
-      JSON.stringify(electionPackage.systemSettings, null, 2)
+    zipContents[ElectionPackageFileName.SYSTEM_SETTINGS] = JSON.stringify(
+      electionPackage.systemSettings,
+      null,
+      2
     );
   }
+
   if (electionPackage.uiStrings) {
-    jsZip.file(
-      ElectionPackageFileName.APP_STRINGS,
-      JSON.stringify(electionPackage.uiStrings, null, 2)
+    zipContents[ElectionPackageFileName.APP_STRINGS] = JSON.stringify(
+      electionPackage.uiStrings,
+      null,
+      2
     );
   }
+
   if (electionPackage.uiStringAudioIds) {
-    jsZip.file(
-      ElectionPackageFileName.AUDIO_IDS,
-      JSON.stringify(electionPackage.uiStringAudioIds, null, 2)
+    zipContents[ElectionPackageFileName.AUDIO_IDS] = JSON.stringify(
+      electionPackage.uiStringAudioIds,
+      null,
+      2
     );
   }
+
   if (electionPackage.uiStringAudioClips) {
-    jsZip.file(
-      ElectionPackageFileName.AUDIO_CLIPS,
+    zipContents[ElectionPackageFileName.AUDIO_CLIPS] =
       electionPackage.uiStringAudioClips
         .map((clip) => JSON.stringify(clip))
-        .join('\n')
-    );
+        .join('\n');
   }
-  return jsZip.generateAsync({ type: 'nodebuffer' });
+
+  return zipFile(zipContents);
 }
 
 /**

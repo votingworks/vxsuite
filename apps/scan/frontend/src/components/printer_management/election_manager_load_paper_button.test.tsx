@@ -64,7 +64,8 @@ test('happy path', async () => {
   testPrint.resolve();
   await screen.findByText('Test Page Printed');
 
-  userEvent.click(screen.getButton('Close'));
+  apiMock.expectLogTestPrintOutcome('pass');
+  userEvent.click(screen.getButton('Yes'));
   await waitFor(() => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
@@ -150,4 +151,7 @@ test('out of paper on test print', async () => {
 
   testPrint.resolve();
   await screen.findByText('Print Failed');
+
+  userEvent.click(screen.getButton('Retry'));
+  await screen.findByText('Remove Paper Roll Holder');
 });

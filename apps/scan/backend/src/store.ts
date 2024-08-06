@@ -25,6 +25,8 @@ import {
   safeParseSystemSettings,
   AdjudicationReason,
   PollsTransitionType,
+  DiagnosticRecord,
+  DiagnosticType,
 } from '@votingworks/types';
 import { assert, assertDefined, Optional, typedAs } from '@votingworks/basics';
 import { DateTime } from 'luxon';
@@ -36,8 +38,12 @@ import {
   RejectedSheet,
   Sheet,
   UiStringsStore,
+  addDiagnosticRecord,
   clearDoesUsbDriveRequireCastVoteRecordSyncCachedResult,
   createUiStringStore,
+  getMaximumUsableDiskSpace,
+  getMostRecentDiagnosticRecord,
+  updateMaximumUsableDiskSpace,
 } from '@votingworks/backend';
 import {
   clearCastVoteRecordHashes,
@@ -992,5 +998,23 @@ export class Store {
 
   getUiStringsStore(): UiStringsStore {
     return this.uiStringsStore;
+  }
+
+  getMaximumUsableDiskSpace(): number {
+    return getMaximumUsableDiskSpace(this.client);
+  }
+
+  updateMaximumUsableDiskSpace(space: number): void {
+    updateMaximumUsableDiskSpace(this.client, space);
+  }
+
+  addDiagnosticRecord(record: Omit<DiagnosticRecord, 'timestamp'>): void {
+    addDiagnosticRecord(this.client, record);
+  }
+
+  getMostRecentDiagnosticRecord(
+    type: DiagnosticType
+  ): DiagnosticRecord | undefined {
+    return getMostRecentDiagnosticRecord(this.client, type);
   }
 }

@@ -113,4 +113,20 @@ test('error or user error during loading flow', async () => {
 
   apiMock.setPrinterStatusV4({ state: 'error', type: 'disconnected' });
   await screen.findByText('Printer Error');
+
+  userEvent.click(screen.getButton('Close'));
+});
+
+test('cancel loading flow', async () => {
+  apiMock.setPrinterStatusV4({ state: 'no-paper' });
+  renderButton();
+
+  userEvent.click(await screen.findButton('Load Paper'));
+  await screen.findByRole('alertdialog');
+  screen.getByText('Remove Paper Roll Holder');
+
+  userEvent.click(screen.getButton('Cancel'));
+  await waitFor(() => {
+    expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
+  });
 });

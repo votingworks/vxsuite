@@ -6,6 +6,7 @@ import {
   DEFAULT_SYSTEM_SETTINGS,
   PrecinctSelection,
   SinglePrecinctSelection,
+  DiagnosticRecord,
 } from '@votingworks/types';
 import {
   getPrecinctSelectionName,
@@ -19,6 +20,7 @@ import {
   readSignedElectionPackageFromUsb,
   doesUsbDriveRequireCastVoteRecordSync as doesUsbDriveRequireCastVoteRecordSyncFn,
   configureUiStrings,
+  DiskSpaceSummary,
 } from '@votingworks/backend';
 import { assert, assertDefined, ok, Result } from '@votingworks/basics';
 import { InsertedSmartCardAuthApi, LiveCheck } from '@votingworks/auth';
@@ -53,6 +55,11 @@ import {
 import { printTestPage } from './printing/test_print';
 import { printFullReport } from './printing/print_full_report';
 import { printReportSection } from './printing/print_report_section';
+import {
+  TEST_PRINT_USER_FAIL_REASON,
+  testPrintFailureDiagnosticMessage,
+} from './util/diagnostics';
+import { saveReadinessReport } from './printing/readiness_report';
 
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export function buildApi({
@@ -364,8 +371,64 @@ export function buildApi({
       machine.endDoubleFeedCalibration();
     },
 
-    printTestPage(): Promise<FujitsuPrintResult> {
-      return printTestPage({ printer });
+    async printTestPage(): Promise<FujitsuPrintResult> {
+      void logger.logAsCurrentRole(LogEventId.DiagnosticInit, {
+        message: `User initiated a test page print.`,
+        disposition: 'success',
+      });
+      const printResult = await printTestPage({ printer });
+
+      // If the print failed before it completed, we log that proactively
+      // rather than expecting the frontend to make a separate request.
+      if (printResult.isErr()) {
+        const diagnosticMessage = testPrintFailureDiagnosticMessage(
+          printResult.err()
+        );
+        store.addDiagnosticRecord({
+          type: 'test-print',
+          outcome: 'fail',
+          message: testPrintFailureDiagnosticMessage(printResult.err()),
+        });
+        void logger.logAsCurrentRole(LogEventId.DiagnosticComplete, {
+          disposition: 'failure',
+          message: `Test print failed. ${diagnosticMessage}`,
+        });
+      }
+
+      return printResult;
+    },
+
+    logTestPrintOutcome(input: { outcome: 'pass' | 'fail' }): void {
+      store.addDiagnosticRecord({
+        type: 'test-print',
+        outcome: input.outcome,
+        message:
+          input.outcome === 'pass' ? undefined : TEST_PRINT_USER_FAIL_REASON,
+      });
+      void logger.logAsCurrentRole(LogEventId.DiagnosticComplete, {
+        disposition: input.outcome === 'pass' ? 'success' : 'failure',
+        message:
+          input.outcome === 'pass'
+            ? 'Test print successful.'
+            : `Test print failed. ${TEST_PRINT_USER_FAIL_REASON}`,
+      });
+    },
+
+    getMostRecentPrinterDiagnostic(): DiagnosticRecord | null {
+      return store.getMostRecentDiagnosticRecord('test-print') ?? null;
+    },
+
+    async getDiskSpaceSummary(): Promise<DiskSpaceSummary> {
+      return workspace.getDiskSpaceSummary();
+    },
+
+    saveReadinessReport() {
+      return saveReadinessReport({
+        workspace,
+        usbDrive,
+        logger,
+        printer,
+      });
     },
 
     ...createUiStringsApi({

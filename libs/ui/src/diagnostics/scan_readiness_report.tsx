@@ -1,35 +1,35 @@
 import { ThemeProvider } from 'styled-components';
-import { PrinterSection, PrinterSectionProps } from './printer_section';
-import { PrintedReport } from '../reports/layout';
 import { makeTheme } from '../themes/make_theme';
+import { PrintedReport } from '../reports/layout';
 import { ReadinessReportHeader } from './report_header';
 import {
   ConfigurationSectionProps,
   ConfigurationSection,
 } from './configuration_section';
 import { ReportContents } from './components';
-import { BatterySection, BatterySectionProps } from './battery_section';
+import {
+  ThermalPrinterSection,
+  ThermalPrinterSectionProps,
+} from './thermal_printer_section';
 import { StorageSection, StorageSectionProps } from './storage_section';
 
 type ReportContentsProps = ConfigurationSectionProps &
-  BatterySectionProps &
   StorageSectionProps &
-  PrinterSectionProps;
+  ThermalPrinterSectionProps;
 
-export function AdminReadinessReportContents(
+export function ScanReadinessReportContents(
   props: ReportContentsProps
 ): JSX.Element {
   return (
     <ReportContents>
       <ConfigurationSection {...props} />
-      <BatterySection {...props} />
       <StorageSection {...props} />
-      <PrinterSection {...props} />
+      <ThermalPrinterSection {...props} />
     </ReportContents>
   );
 }
 
-export function AdminReadinessReport({
+export function ScanReadinessReport({
   generatedAtTime,
   machineId,
   ...contentProps
@@ -47,11 +47,11 @@ export function AdminReadinessReport({
     >
       <PrintedReport>
         <ReadinessReportHeader
-          reportType="VxAdmin"
+          reportType="VxScan"
           generatedAtTime={generatedAtTime}
           machineId={machineId}
         />
-        <AdminReadinessReportContents {...contentProps} />
+        <ScanReadinessReportContents {...contentProps} />
       </PrintedReport>
     </ThemeProvider>
   );

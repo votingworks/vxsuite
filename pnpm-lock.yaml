@@ -5502,6 +5502,9 @@ importers:
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
+      '@votingworks/fujitsu-thermal-printer':
+        specifier: workspace:*
+        version: link:../fujitsu-thermal-printer
       '@votingworks/monorepo-utils':
         specifier: workspace:*
         version: link:../monorepo-utils

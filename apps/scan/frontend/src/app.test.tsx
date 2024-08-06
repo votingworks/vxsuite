@@ -719,6 +719,7 @@ test('system administrator can log in and unconfigure machine', async () => {
   apiMock.expectGetPollsInfo();
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV4({ state: 'idle' });
   renderApp();
 
   apiMock.authenticateAsSystemAdministrator();
@@ -763,6 +764,7 @@ test('system administrator sees system administrator screen after logging in to 
   apiMock.expectGetPollsInfo();
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV4({ state: 'idle' });
   apiMock.authenticateAsSystemAdministrator();
   renderApp();
 
@@ -774,6 +776,7 @@ test('system administrator sees log export button', async () => {
   apiMock.expectGetPollsInfo();
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV4({ state: 'idle' });
   apiMock.authenticateAsSystemAdministrator();
   renderApp();
 
@@ -785,6 +788,7 @@ test('system administrator can reset polls to paused', async () => {
   apiMock.expectGetPollsInfo('polls_closed_final');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV4({ state: 'idle' });
   renderApp();
   await screen.findByText('Polls Closed');
 
@@ -812,9 +816,27 @@ test('system administrator can set date and time', async () => {
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.authenticateAsSystemAdministrator();
+  apiMock.setPrinterStatusV4({ state: 'idle' });
   renderApp();
 
   await screen.findByRole('button', { name: 'Set Date and Time' });
+});
+
+test('system administrator open diagnostics screen', async () => {
+  apiMock.expectGetConfig({ electionDefinition: undefined });
+  apiMock.expectGetPollsInfo();
+  apiMock.expectGetUsbDriveStatus('mounted');
+  apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.authenticateAsSystemAdministrator();
+
+  apiMock.expectGetDiskSpaceSummary();
+  apiMock.setPrinterStatusV4({ state: 'idle' });
+  apiMock.expectGetMostRecentPrinterDiagnostic();
+  renderApp();
+
+  apiMock.authenticateAsSystemAdministrator();
+
+  userEvent.click(await screen.findButton('System Diagnostics'));
 });
 
 test('election manager cannot auth onto machine with different election', async () => {

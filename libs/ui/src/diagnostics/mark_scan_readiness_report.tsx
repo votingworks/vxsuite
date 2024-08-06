@@ -1,5 +1,4 @@
 import { ThemeProvider } from 'styled-components';
-import { ComputerSection, ComputerSectionProps } from './computer_section';
 import {
   ConfigurationSection,
   ConfigurationSectionProps,
@@ -13,6 +12,7 @@ import {
 } from './mark_scan_device_diagnostic_section';
 import { ReportContents } from './components';
 import { DiagnosticSectionTitle } from './types';
+import { StorageSection, StorageSectionProps } from './storage_section';
 
 type NonpresentationalSectionProps = Omit<
   MarkScanDeviceDiagnosticSectionProps,
@@ -25,7 +25,7 @@ type HeadphoneInputSectionProps = Omit<
 >;
 
 type ReportContentsProps = ConfigurationSectionProps &
-  ComputerSectionProps & {
+  StorageSectionProps & {
     accessibleControllerProps: NonpresentationalSectionProps;
     paperHandlerProps: NonpresentationalSectionProps;
     patInputProps: NonpresentationalSectionProps;
@@ -44,7 +44,7 @@ export function MarkScanReadinessReportContents(
   return (
     <ReportContents>
       <ConfigurationSection {...props} expectPrecinctSelection />
-      <ComputerSection {...props} />
+      <StorageSection {...props} />
       <MarkScanDeviceDiagnosticSection
         {...accessibleControllerProps}
         diagnosticType="mark-scan-accessible-controller"

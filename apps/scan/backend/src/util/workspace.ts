@@ -1,6 +1,10 @@
 import { emptyDirSync, ensureDirSync } from 'fs-extra';
 import { join, resolve } from 'path';
 import { Mutex } from '@votingworks/utils';
+import {
+  DiskSpaceSummary,
+  initializeGetWorkspaceDiskSpaceSummary,
+} from '@votingworks/backend';
 import { Store } from '../store';
 
 export interface Workspace {
@@ -49,6 +53,11 @@ export interface Workspace {
    * Clears the uploads directory.
    */
   clearUploads(): void;
+
+  /**
+   * Returns a summary of disk space usage for use in diagnostics.
+   */
+  getDiskSpaceSummary: () => Promise<DiskSpaceSummary>;
 }
 
 export function createWorkspace(
@@ -64,6 +73,12 @@ export function createWorkspace(
 
   const dbPath = join(resolvedRoot, 'ballots.db');
   const store = options.store || Store.fileStore(dbPath);
+
+  // check disk space on startup to detect a new maximum available disk space
+  const getWorkspaceDiskSpaceSummary = initializeGetWorkspaceDiskSpaceSummary(
+    store,
+    [resolvedRoot]
+  );
 
   return {
     path: resolvedRoot,
@@ -89,5 +104,6 @@ export function createWorkspace(
     clearUploads() {
       emptyDirSync(uploadsPath);
     },
+    getDiskSpaceSummary: getWorkspaceDiskSpaceSummary,
   };
 }

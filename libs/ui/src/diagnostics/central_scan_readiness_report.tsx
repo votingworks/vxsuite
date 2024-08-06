@@ -1,5 +1,4 @@
 import { ThemeProvider } from 'styled-components';
-import { ComputerSection, ComputerSectionProps } from './computer_section';
 import {
   CentralScannerSection,
   CentralScannerSectionProps,
@@ -12,10 +11,13 @@ import {
   ConfigurationSection,
 } from './configuration_section';
 import { ReportContents } from './components';
+import { BatterySection, BatterySectionProps } from './battery_section';
+import { StorageSection, StorageSectionProps } from './storage_section';
 
-type ReportContentsProps = ComputerSectionProps &
-  CentralScannerSectionProps &
-  ConfigurationSectionProps;
+type ReportContentsProps = ConfigurationSectionProps &
+  BatterySectionProps &
+  StorageSectionProps &
+  CentralScannerSectionProps;
 
 export function CentralScanReadinessReportContents(
   props: ReportContentsProps
@@ -23,7 +25,8 @@ export function CentralScanReadinessReportContents(
   return (
     <ReportContents>
       <ConfigurationSection {...props} />
-      <ComputerSection {...props} />
+      <BatterySection {...props} />
+      <StorageSection {...props} />
       <CentralScannerSection {...props} />
     </ReportContents>
   );
