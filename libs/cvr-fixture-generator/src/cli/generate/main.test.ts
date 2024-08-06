@@ -56,7 +56,7 @@ async function readAndValidateCastVoteRecordExport(
   expect(readResult).toEqual(ok(expect.anything()));
   const { castVoteRecordExportMetadata, castVoteRecordIterator } =
     readResult.ok()!;
-  const castVoteRecords = [];
+  const castVoteRecords: CVR.CVR[] = [];
   for await (const castVoteRecordResult of castVoteRecordIterator) {
     expect(castVoteRecordResult).toEqual(ok(expect.anything()));
     castVoteRecords.push(castVoteRecordResult.ok()!.castVoteRecord);
