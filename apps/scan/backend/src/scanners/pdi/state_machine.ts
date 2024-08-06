@@ -300,12 +300,12 @@ function buildMachine({
         on: {
           SCANNER_STATUS: [
             {
-              cond: (_, { status }) => status.documentJam,
-              target: '#jammed',
-            },
-            {
               cond: (_, { status }) => !anyRearSensorCovered(status),
               target: 'ejected',
+            },
+            {
+              cond: (_, { status }) => status.documentJam,
+              target: '#jammed',
             },
           ],
         },
