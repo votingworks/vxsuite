@@ -316,7 +316,7 @@ test('insert two sheets back-to-back as if they were one long sheet', async () =
   );
 });
 
-test('insert two sheets at once', async () => {
+test('insert two sheets at once - scanFailed event', async () => {
   await withApp(
     async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
       await configureApp(apiClient, mockAuth, mockUsbDrive);
@@ -331,6 +331,39 @@ test('insert two sheets at once', async () => {
       mockScanner.setScannerStatus(mockStatus.documentInFront);
       mockScanner.emitEvent({ event: 'error', code: 'doubleFeedDetected' });
       mockScanner.emitEvent({ event: 'error', code: 'scanFailed' });
+
+      await waitForStatus(apiClient, {
+        state: 'rejected',
+        error: 'double_feed_detected',
+      });
+
+      mockScanner.setScannerStatus(mockStatus.idleScanningDisabled);
+      clock.increment(delays.DELAY_SCANNER_STATUS_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'no_paper' });
+    }
+  );
+});
+
+test('insert two sheets at once - scanComplete event', async () => {
+  await withApp(
+    async ({ apiClient, mockScanner, mockUsbDrive, mockAuth, clock }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
+
+      clock.increment(delays.DELAY_SCANNING_ENABLED_POLLING_INTERVAL);
+      await waitForStatus(apiClient, { state: 'no_paper' });
+
+      mockScanner.emitEvent({ event: 'scanStart' });
+      await expectStatus(apiClient, { state: 'scanning' });
+      // In this case, the scanner seems to set the documentJam flag as well
+      mockScanner.setScannerStatus({
+        ...mockStatus.documentInFront,
+        documentJam: true,
+      });
+      mockScanner.emitEvent({ event: 'error', code: 'doubleFeedDetected' });
+      mockScanner.emitEvent({
+        event: 'scanComplete',
+        images: await ballotImages.completeHmpb(),
+      });
 
       await waitForStatus(apiClient, {
         state: 'rejected',

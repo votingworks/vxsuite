@@ -300,12 +300,12 @@ function buildMachine({
         on: {
           SCANNER_STATUS: [
             {
-              cond: (_, { status }) => status.documentJam,
-              target: '#jammed',
-            },
-            {
               cond: (_, { status }) => !anyRearSensorCovered(status),
               target: 'ejected',
+            },
+            {
+              cond: (_, { status }) => status.documentJam,
+              target: '#jammed',
             },
           ],
         },
@@ -577,6 +577,12 @@ function buildMachine({
               on: {
                 SCANNER_EVENT: [
                   {
+                    cond: (context, { event }) =>
+                      event.event === 'scanComplete' &&
+                      context.error !== undefined,
+                    target: '#rejecting',
+                  },
+                  {
                     cond: (_, { event }) => event.event === 'scanComplete',
                     actions: assign({
                       scanImages: (_, { event }) => {
@@ -588,11 +594,12 @@ function buildMachine({
                   },
                 ],
                 SCANNER_ERROR: [
-                  // A doubleFeedDetected event will always be followed by a
-                  // scanFailed event (which indicates that the scan actually
-                  // stopped), so we don't transition states yet, just record
-                  // that it happened. Otherwise, we'd have a scanFailed event
-                  // come in later and be unhandled.
+                  // A doubleFeedDetected event will either be followed by a
+                  // scanFailed event or a scanComplete event (which both
+                  // indicate that the scan actually stopped), so we don't
+                  // transition states yet, just record that it happened.
+                  // Otherwise, we'd have a scanFailed/scanComplete event come
+                  // in later and be unhandled.
                   {
                     cond: (_, { error }) => error.code === 'doubleFeedDetected',
                     actions: assign({
