@@ -80,8 +80,6 @@ import {
   MOCK_IMAGE,
 } from '../../test/ballot_helpers';
 
-jest.setTimeout(500);
-
 // Use shorter polling interval in tests to reduce run times
 const TEST_POLL_INTERVAL_MS = 50;
 // Must be longer than backendWaitForInterval or tests can't
