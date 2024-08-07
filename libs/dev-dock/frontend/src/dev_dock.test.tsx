@@ -362,9 +362,6 @@ describe('fujitsu printer mock', () => {
     featureFlagMock.disableFeatureFlag(
       BooleanEnvironmentVariableName.USE_MOCK_PRINTER
     );
-    featureFlagMock.enableFeatureFlag(
-      BooleanEnvironmentVariableName.SCAN_USE_FUJITSU_PRINTER
-    );
 
     mockApiClient.getMachineType.reset();
     mockApiClient.getMachineType.expectCallWith().resolves('scan');
@@ -382,9 +379,6 @@ describe('fujitsu printer mock', () => {
   test('updating mock printer status', async () => {
     featureFlagMock.enableFeatureFlag(
       BooleanEnvironmentVariableName.USE_MOCK_PRINTER
-    );
-    featureFlagMock.enableFeatureFlag(
-      BooleanEnvironmentVariableName.SCAN_USE_FUJITSU_PRINTER
     );
 
     mockApiClient.getMachineType.reset();
