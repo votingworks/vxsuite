@@ -23,6 +23,7 @@ export * from './perf';
 export * from './polls';
 export * from './precinct_selection';
 export * from './random';
+export * from './structural_sharing';
 export * from './sqlite';
 export * from './tabulation';
 export * from './test_deck_ballots';
