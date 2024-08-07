@@ -7,6 +7,7 @@ import {
 } from '@votingworks/utils';
 
 import { assert } from '@votingworks/basics';
+import { useState } from 'react';
 import { LoadingConfigurationScreen } from './screens/loading_configuration_screen';
 import { ElectionManagerScreen } from './screens/election_manager_screen';
 import { InvalidCardScreen } from './screens/invalid_card_screen';
@@ -33,12 +34,17 @@ import {
 } from './api';
 import { VoterScreen } from './screens/voter_screen';
 import { LoginPromptScreen } from './screens/login_prompt_screen';
-import { CastVoteRecordSyncRequiredVoterScreen } from './screens/cast_vote_record_sync_required_screen';
+import { CastVoteRecordSyncRequiredScreen } from './screens/cast_vote_record_sync_required_screen';
 import { SystemAdministratorScreen } from './screens/system_administrator_screen';
 import { ScannerCoverOpenScreen } from './screens/scanner_cover_open_screen';
 import { ScannerDoubleFeedCalibrationScreen } from './screens/scanner_double_feed_calibration_screen';
 
 export function AppRoot(): JSX.Element | null {
+  const [
+    shouldStayOnCastVoteRecordSyncRequiredScreen,
+    setShouldStayOnCastVoteRecordSyncRequiredScreen,
+  ] = useState(false);
+
   const authStatusQuery = getAuthStatus.useQuery();
   const configQuery = getConfig.useQuery();
   const pollsInfoQuery = getPollsInfo.useQuery();
@@ -125,6 +131,20 @@ export function AppRoot(): JSX.Element | null {
         electionDefinition={electionDefinition}
         pollsState={pollsState}
         usbDrive={usbDrive}
+      />
+    );
+  }
+
+  if (
+    usbDrive.doesUsbDriveRequireCastVoteRecordSync ||
+    shouldStayOnCastVoteRecordSyncRequiredScreen
+  ) {
+    return (
+      <CastVoteRecordSyncRequiredScreen
+        pollWorkerAuthenticated={isPollWorkerAuth(authStatus)}
+        setShouldStayOnCastVoteRecordSyncRequiredScreen={
+          setShouldStayOnCastVoteRecordSyncRequiredScreen
+        }
       />
     );
   }
@@ -232,10 +252,6 @@ export function AppRoot(): JSX.Element | null {
 
   if (scannerStatus.state === 'cover_open') {
     return <ScannerCoverOpenScreen />;
-  }
-
-  if (usbDrive.doesUsbDriveRequireCastVoteRecordSync) {
-    return <CastVoteRecordSyncRequiredVoterScreen />;
   }
 
   return (

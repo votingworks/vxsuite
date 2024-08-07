@@ -24,6 +24,7 @@ interface Props {
   setShouldStayOnCastVoteRecordSyncRequiredScreen: (
     shouldStayOnCastVoteRecordSyncRequiredScreen: boolean
   ) => void;
+  pollWorkerAuthenticated: boolean;
 }
 
 export function CastVoteRecordSyncRequiredVoterScreen(): JSX.Element {
@@ -47,6 +48,7 @@ export function CastVoteRecordSyncRequiredVoterScreen(): JSX.Element {
 
 export function CastVoteRecordSyncRequiredScreen({
   setShouldStayOnCastVoteRecordSyncRequiredScreen,
+  pollWorkerAuthenticated,
 }: Props): JSX.Element {
   const exportCastVoteRecordsToUsbDriveMutation =
     exportCastVoteRecordsToUsbDrive.useMutation();
@@ -106,6 +108,10 @@ export function CastVoteRecordSyncRequiredScreen({
       }
     }
   })();
+
+  if (!pollWorkerAuthenticated) {
+    return <CastVoteRecordSyncRequiredVoterScreen />;
+  }
 
   return (
     <ScreenMainCenterChild voterFacing={false}>

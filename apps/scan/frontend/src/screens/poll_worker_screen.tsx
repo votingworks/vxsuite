@@ -32,7 +32,6 @@ import {
 } from '../api';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
 import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
-import { CastVoteRecordSyncRequiredScreen } from './cast_vote_record_sync_required_screen';
 import {
   PollsFlowPrinterSummary,
   getPollsFlowPrinterSummary,
@@ -267,10 +266,6 @@ function PollWorkerScreenContents({
     isShowingBallotsAlreadyScannedScreen,
     setIsShowingBallotsAlreadyScannedScreen,
   ] = useState(false);
-  const [
-    shouldStayOnCastVoteRecordSyncRequiredScreen,
-    setShouldStayOnCastVoteRecordSyncRequiredScreen,
-  ] = useState(false);
 
   function initialPollWorkerFlowState(): Optional<PollWorkerFlowState> {
     switch (pollsInfo.pollsState) {
@@ -405,22 +400,6 @@ function PollWorkerScreenContents({
 
   if (isShowingBallotsAlreadyScannedScreen) {
     return BallotsAlreadyScannedScreen;
-  }
-
-  if (
-    usbDriveStatus.doesUsbDriveRequireCastVoteRecordSync ||
-    // This ensures that we don't immediately transition away from the CVR sync success message.
-    // We can't rely on doesUsbDriveRequireCastVoteRecordSync because it becomes false as soon as
-    // the sync completes.
-    shouldStayOnCastVoteRecordSyncRequiredScreen
-  ) {
-    return (
-      <CastVoteRecordSyncRequiredScreen
-        setShouldStayOnCastVoteRecordSyncRequiredScreen={
-          setShouldStayOnCastVoteRecordSyncRequiredScreen
-        }
-      />
-    );
   }
 
   if (pollWorkerFlowState) {
