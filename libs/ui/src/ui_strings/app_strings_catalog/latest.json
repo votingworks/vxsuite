@@ -414,10 +414,10 @@
   "warningScannerAnotherScanInProgress": "Another ballot is being scanned.",
   "warningScannerBlankBallotSubmission": "No votes will be counted from this ballot.",
   "warningScannerJammed": "The ballot is jammed in the scanner.",
-  "warningScannerLiveBallotInTestMode": "The scanner is in test mode and a live ballot was detected.",
   "warningScannerMismatchedElection": "The ballot does not match the election this scanner is configured for.",
   "warningScannerMismatchedPrecinct": "The ballot does not match the precinct this scanner is configured for.",
   "warningScannerMultipleSheetsDetected": "Multiple sheets detected.",
   "warningScannerNoVotesFound": "No votes were found when scanning this ballot.",
-  "warningScannerTestBallotInLiveMode": "The scanner is in live mode and a test ballot was detected."
+  "warningScannerOfficialBallotInTestMode": "The scanner is in test ballot mode. Official ballots may not be scanned.",
+  "warningScannerTestBallotInOfficialMode": "The scanner is in official ballot mode. Test ballots may not be scanned."
 }

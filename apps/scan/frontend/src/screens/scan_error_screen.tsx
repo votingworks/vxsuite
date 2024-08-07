@@ -32,8 +32,8 @@ export function ScanErrorScreen({
       // Invalid ballot interpretations
       case 'invalid_test_mode':
         return isTestMode
-          ? appStrings.warningScannerLiveBallotInTestMode()
-          : appStrings.warningScannerTestBallotInLiveMode();
+          ? appStrings.warningScannerOfficialBallotInTestMode()
+          : appStrings.warningScannerTestBallotInOfficialMode();
       case 'invalid_ballot_hash':
         return appStrings.warningScannerMismatchedElection();
       case 'invalid_precinct':

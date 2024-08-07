@@ -289,8 +289,6 @@ export const GLOBAL_TRANSLATION_OVERRIDES: TranslationOverrides = {
       'No se contarán votos de esta votación.',
     'The ballot is jammed in the scanner.':
       'La boleta está atascada en el escáner.',
-    'The scanner is in test mode and a live ballot was detected.':
-      'El escáner está en modo de prueba y en vivo. se detectó la boleta.',
     'The ballot does not match the election this scanner is configured for.':
       'La boleta no coincide con la elección de este está configurado el escáner.',
     'The ballot does not match the precinct this scanner is configured for.':
@@ -298,8 +296,6 @@ export const GLOBAL_TRANSLATION_OVERRIDES: TranslationOverrides = {
     'Multiple sheets detected.': 'Se detectaron varias hojas.',
     'No votes were found when scanning this ballot.':
       'No se encontraron votos al escanear esto votación.',
-    'The scanner is in live mode and a test ballot was detected.':
-      'El escáner está en modo en vivo y se detectó una boleta.',
     'Sample Absentee Ballot': 'Modelo de boleta de voto ausente',
   },
 };
