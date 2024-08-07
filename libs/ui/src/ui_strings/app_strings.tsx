@@ -1470,9 +1470,9 @@ export const appStrings = {
     </UiString>
   ),
 
-  warningScannerLiveBallotInTestMode: () => (
-    <UiString uiStringKey="warningScannerLiveBallotInTestMode">
-      The scanner is in test mode and a live ballot was detected.
+  warningScannerOfficialBallotInTestMode: () => (
+    <UiString uiStringKey="warningScannerOfficialBallotInTestMode">
+      The scanner is in test ballot mode. Official ballots may not be scanned.
     </UiString>
   ),
 
@@ -1500,9 +1500,9 @@ export const appStrings = {
     </UiString>
   ),
 
-  warningScannerTestBallotInLiveMode: () => (
-    <UiString uiStringKey="warningScannerTestBallotInLiveMode">
-      The scanner is in live mode and a test ballot was detected.
+  warningScannerTestBallotInOfficialMode: () => (
+    <UiString uiStringKey="warningScannerTestBallotInOfficialMode">
+      The scanner is in official ballot mode. Test ballots may not be scanned.
     </UiString>
   ),
 } as const;

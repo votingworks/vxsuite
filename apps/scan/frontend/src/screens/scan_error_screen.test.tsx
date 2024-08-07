@@ -33,7 +33,7 @@ test('render correct test ballot error screen when we are in test mode', async (
   );
   await screen.findByText('Ballot Not Counted');
   await screen.findByText(
-    'The scanner is in test mode and a live ballot was detected.'
+    'The scanner is in test ballot mode. Official ballots may not be scanned.'
   );
 });
 
@@ -50,7 +50,7 @@ test('render correct test ballot error screen when we are in live mode', async (
   );
   await screen.findByText('Ballot Not Counted');
   await screen.findByText(
-    'The scanner is in live mode and a test ballot was detected.'
+    'The scanner is in official ballot mode. Test ballots may not be scanned.'
   );
 });
 
