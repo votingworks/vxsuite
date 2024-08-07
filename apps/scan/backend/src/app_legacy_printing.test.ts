@@ -61,7 +61,7 @@ test('can print and re-print polls opened report', async () => {
       const initialReportPath = mockPrinterHandler.getLastPrintPath();
       assert(initialReportPath !== undefined);
       await expect(initialReportPath).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'polls-opened-report',
+        customSnapshotIdentifier: 'legacy-polls-opened-report',
       });
 
       // allows re-printing identical polls opened report
@@ -69,7 +69,7 @@ test('can print and re-print polls opened report', async () => {
       const reprintedReportPath = mockPrinterHandler.getLastPrintPath();
       assert(reprintedReportPath !== undefined);
       await expect(reprintedReportPath).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'polls-opened-report',
+        customSnapshotIdentifier: 'legacy-polls-opened-report',
       });
 
       // scan a ballot
@@ -105,14 +105,14 @@ test('can print voting paused and voting resumed reports', async () => {
       await apiClient.pauseVoting();
       await apiClient.printReport();
       await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'voting-paused-report',
+        customSnapshotIdentifier: 'legacy-voting-paused-report',
       });
 
       // resume voting
       await apiClient.resumeVoting();
       await apiClient.printReport();
       await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'voting-resumed-report',
+        customSnapshotIdentifier: 'legacy-voting-resumed-report',
       });
     }
   );
@@ -142,7 +142,7 @@ test('can tabulate results and print polls closed report', async () => {
       await apiClient.closePolls();
       await apiClient.printReport();
       await expect(mockPrinterHandler.getLastPrintPath()).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'polls-closed-report',
+        customSnapshotIdentifier: 'legacy-polls-closed-report',
       });
     }
   );

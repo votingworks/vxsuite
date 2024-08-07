@@ -50,7 +50,7 @@ test('printReport prints first section and printReportSection can print the rest
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'fujitsu-mammal-report',
+        customSnapshotIdentifier: 'polls-opened-report-section-mammal',
       });
 
       // print second section
@@ -58,7 +58,7 @@ test('printReport prints first section and printReportSection can print the rest
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'fujitsu-fish-report',
+        customSnapshotIdentifier: 'polls-opened-report-section-fish',
       });
 
       // can reprint a section
@@ -66,7 +66,7 @@ test('printReport prints first section and printReportSection can print the rest
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'fujitsu-fish-report',
+        customSnapshotIdentifier: 'polls-opened-report-section-fish',
       });
 
       // print third section
@@ -74,7 +74,7 @@ test('printReport prints first section and printReportSection can print the rest
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'fujitsu-nonpartisan-report',
+        customSnapshotIdentifier: 'polls-opened-report-section-nonpartisan',
       });
 
       expect(mockFujitsuPrinterHandler.getPrintPathHistory()).toHaveLength(4);
@@ -145,7 +145,7 @@ test('can print voting paused and voting resumed reports', async () => {
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'fujitsu-voting-paused-report',
+        customSnapshotIdentifier: 'voting-paused-report',
       });
 
       // resume voting
@@ -154,7 +154,7 @@ test('can print voting paused and voting resumed reports', async () => {
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'fujitsu-voting-resumed-report',
+        customSnapshotIdentifier: 'voting-resumed-report',
       });
     }
   );
@@ -185,7 +185,7 @@ test('can tabulate results and print polls closed report', async () => {
       await expect(
         mockFujitsuPrinterHandler.getLastPrintPath()
       ).toMatchPdfSnapshot({
-        customSnapshotIdentifier: 'fujitsu-polls-closed-report',
+        customSnapshotIdentifier: 'polls-closed-report',
       });
     }
   );
