@@ -190,3 +190,10 @@ test('can tabulate results and print polls closed report', async () => {
     }
   );
 });
+
+/**
+ * TODO: Add test coverage for results in a primary election. This will require
+ * more robust mocking of ballots for scanning that creates or copies marked
+ * ballot images from the HMPB rendering library. Currently we are only testing
+ * with ballot images that were individually created and added as fixtures.
+ * */
