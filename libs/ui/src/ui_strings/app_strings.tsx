@@ -1020,6 +1020,42 @@ export const appStrings = {
     </UiString>
   ),
 
+  noteScannerDisconnected: () => (
+    <UiString uiStringKey="noteScannerDisconnected">
+      Scanner is disconnected.
+    </UiString>
+  ),
+
+  notePrinterDisconnected: () => (
+    <UiString uiStringKey="noteScannerDisconnected">
+      Printer is disconnected.
+    </UiString>
+  ),
+
+  notePrinterHardwareError: () => (
+    <UiString uiStringKey="noteScannerDisconnected">
+      The printer has experienced an unknown error.
+    </UiString>
+  ),
+
+  notePrinterSupplyVoltageError: () => (
+    <UiString uiStringKey="noteScannerDisconnected">
+      The printer is not receiving the appropriate power supply voltage.
+    </UiString>
+  ),
+
+  notePrinterTemperatureError: () => (
+    <UiString uiStringKey="noteScannerDisconnected">
+      The printer is overheated. Please wait for it to cool down.
+    </UiString>
+  ),
+
+  notePrinterReceiveDataError: () => (
+    <UiString uiStringKey="noteScannerDisconnected">
+      The printer has experienced a data error. Restart the machine.
+    </UiString>
+  ),
+
   noteScannerOvervoteContestsCardPlural: () => (
     <UiString uiStringKey="noteScannerOvervoteContestsCardPlural">
       Your votes in these contests will not be counted.

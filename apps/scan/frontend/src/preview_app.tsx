@@ -24,7 +24,7 @@ import * as ScanWarningScreen from './screens/scan_warning_screen';
 import * as ScanReturnedBallotScreen from './screens/scan_returned_ballot_screen';
 import * as ScanJamScreen from './screens/scan_jam_screen';
 import * as ScanBusyScreen from './screens/scan_busy_screen';
-import * as SetupScannerScreen from './screens/setup_scanner_screen';
+import * as SetupScannerScreen from './screens/internal_connection_problem_screen';
 import * as UnconfiguredElectionScreenWrapper from './screens/unconfigured_election_screen_wrapper';
 import * as UnconfiguredPrecinctScreen from './screens/unconfigured_precinct_screen';
 import * as ReplaceBallotBagScreen from './components/replace_ballot_bag_screen';

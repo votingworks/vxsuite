@@ -14,7 +14,7 @@ import { InvalidCardScreen } from './screens/invalid_card_screen';
 import { PollsNotOpenScreen } from './screens/polls_not_open_screen';
 import { PollWorkerScreen } from './screens/poll_worker_screen';
 import { CardErrorScreen } from './screens/card_error_screen';
-import { SetupScannerScreen } from './screens/setup_scanner_screen';
+import { InternalConnectionProblemScreen } from './screens/internal_connection_problem_screen';
 import { InsertUsbScreen } from './screens/insert_usb_screen';
 import { ReplaceBallotBagScreen } from './components/replace_ballot_bag_screen';
 import {
@@ -156,7 +156,11 @@ export function AppRoot(): JSX.Element | null {
     (printerStatus.scheme === 'hardware-v4' && printerStatus.state === 'error')
   ) {
     return (
-      <SetupScannerScreen scannedBallotCount={scannerStatus.ballotsCounted} />
+      <InternalConnectionProblemScreen
+        scannedBallotCount={scannerStatus.ballotsCounted}
+        isScannerConnected={scannerStatus.state !== 'disconnected'}
+        printerStatus={printerStatus}
+      />
     );
   }
 
