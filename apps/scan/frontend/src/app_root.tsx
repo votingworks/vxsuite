@@ -27,6 +27,7 @@ import {
   getAuthStatus,
   getConfig,
   getPollsInfo,
+  getPrinterStatus,
   getScannerStatus,
   getUsbDriveStatus,
 } from './api';
@@ -47,6 +48,7 @@ export function AppRoot(): JSX.Element | null {
   const scannerStatusQuery = getScannerStatus.useQuery({
     refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   });
+  const printerStatusQuery = getPrinterStatus.useQuery();
 
   if (
     !(
@@ -54,7 +56,8 @@ export function AppRoot(): JSX.Element | null {
       configQuery.isSuccess &&
       scannerStatusQuery.isSuccess &&
       usbDriveStatusQuery.isSuccess &&
-      pollsInfoQuery.isSuccess
+      pollsInfoQuery.isSuccess &&
+      printerStatusQuery.isSuccess
     )
   ) {
     return <LoadingConfigurationScreen />;
@@ -72,6 +75,7 @@ export function AppRoot(): JSX.Element | null {
   const scannerStatus = scannerStatusQuery.data;
   const usbDrive = usbDriveStatusQuery.data;
   const pollsInfo = pollsInfoQuery.data;
+  const printerStatus = printerStatusQuery.data;
   const { pollsState } = pollsInfo;
 
   if (
@@ -79,15 +83,6 @@ export function AppRoot(): JSX.Element | null {
     authStatus.reason === 'no_card_reader'
   ) {
     return <SetupCardReaderPage />;
-  }
-
-  // Unconfigured machine, user has not yet attempted auth
-  if (
-    !electionDefinition &&
-    authStatus.status === 'logged_out' &&
-    authStatus.reason === 'no_card'
-  ) {
-    return <LoginPromptScreen />;
   }
 
   if (
@@ -134,14 +129,24 @@ export function AppRoot(): JSX.Element | null {
     );
   }
 
-  if (scannerStatus.state === 'disconnected') {
+  // TODO (CARO): Either Rename this screen or make a different one for the printer
+  console.log(scannerStatus.state);
+  if (
+    scannerStatus.state === 'disconnected' ||
+    (printerStatus.scheme === 'hardware-v4' && printerStatus.state === 'error')
+  ) {
     return (
       <SetupScannerScreen scannedBallotCount={scannerStatus.ballotsCounted} />
     );
   }
 
-  if (scannerStatus.state === 'cover_open') {
-    return <ScannerCoverOpenScreen />;
+  // Unconfigured machine, user has not yet attempted auth
+  if (
+    !electionDefinition &&
+    authStatus.status === 'logged_out' &&
+    authStatus.reason === 'no_card'
+  ) {
+    return <LoginPromptScreen />;
   }
 
   if (
@@ -187,10 +192,6 @@ export function AppRoot(): JSX.Element | null {
 
   if (!precinctSelection) return <UnconfiguredPrecinctScreen />;
 
-  if (usbDrive.status !== 'mounted' && pollsState !== 'polls_closed_final') {
-    return <InsertUsbScreen />;
-  }
-
   const needsToReplaceBallotBag =
     scannerStatus.ballotsCounted >=
     ballotCountWhenBallotBagLastReplaced + BALLOT_BAG_CAPACITY;
@@ -212,6 +213,10 @@ export function AppRoot(): JSX.Element | null {
     );
   }
 
+  if (usbDrive.status !== 'mounted' && pollsState !== 'polls_closed_final') {
+    return <InsertUsbScreen />;
+  }
+
   // When no card is inserted, we're in "voter" mode
   assert(authStatus.status === 'logged_out' && authStatus.reason === 'no_card');
 
@@ -223,6 +228,10 @@ export function AppRoot(): JSX.Element | null {
         scannedBallotCount={scannerStatus.ballotsCounted}
       />
     );
+  }
+
+  if (scannerStatus.state === 'cover_open') {
+    return <ScannerCoverOpenScreen />;
   }
 
   if (usbDrive.doesUsbDriveRequireCastVoteRecordSync) {

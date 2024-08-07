@@ -13,12 +13,13 @@ import {
 } from '@votingworks/ui';
 import { getPollsReportTitle } from '@votingworks/utils';
 import { ElectionDefinition, PollsTransitionType } from '@votingworks/types';
-import { Optional, throwIllegalValue } from '@votingworks/basics';
+import { Optional, assert, throwIllegalValue } from '@votingworks/basics';
 import styled from 'styled-components';
 import type {
   PrecinctScannerPollsInfo,
   PrintResult,
 } from '@votingworks/scan-backend';
+import { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   getUsbDriveStatus,
   printReport,
@@ -100,14 +101,32 @@ function PrinterAlertText({
   );
 }
 
+function UsbDriveAlertText({
+  usbDriveStatus,
+}: {
+  usbDriveStatus: UsbDriveStatus;
+}): JSX.Element | null {
+  if (usbDriveStatus.status === 'mounted') {
+    return null;
+  }
+
+  return (
+    <P>
+      <Icons.Warning /> Insert USB drive to continue
+    </P>
+  );
+}
+
 function OpenPollsPromptScreen({
   onConfirm,
   onClose,
   printerSummary,
+  usbDriveStatus,
 }: {
   onConfirm: () => void;
   onClose: () => void;
   printerSummary: PollsFlowPrinterSummary;
+  usbDriveStatus: UsbDriveStatus;
 }): JSX.Element {
   return (
     <Screen>
@@ -117,13 +136,16 @@ function OpenPollsPromptScreen({
           <Button
             variant="primary"
             onPress={onConfirm}
-            disabled={!printerSummary.ready}
+            disabled={
+              !printerSummary.ready || usbDriveStatus.status !== 'mounted'
+            }
           >
             Yes, Open the Polls
           </Button>{' '}
           <Button onPress={onClose}>No</Button>
         </P>
         <PrinterAlertText printerSummary={printerSummary} />
+        <UsbDriveAlertText usbDriveStatus={usbDriveStatus} />
       </CenteredLargeProse>
     </Screen>
   );
@@ -133,10 +155,12 @@ function ResumeVotingPromptScreen({
   onConfirm,
   onClose,
   printerSummary,
+  usbDriveStatus,
 }: {
   onConfirm: () => void;
   onClose: () => void;
   printerSummary: PollsFlowPrinterSummary;
+  usbDriveStatus: UsbDriveStatus;
 }): JSX.Element {
   return (
     <Screen>
@@ -146,13 +170,16 @@ function ResumeVotingPromptScreen({
           <Button
             variant="primary"
             onPress={onConfirm}
-            disabled={!printerSummary.ready}
+            disabled={
+              !printerSummary.ready || usbDriveStatus.status !== 'mounted'
+            }
           >
             Yes, Resume Voting
           </Button>{' '}
           <Button onPress={onClose}>No</Button>
         </P>
         <PrinterAlertText printerSummary={printerSummary} />
+        <UsbDriveAlertText usbDriveStatus={usbDriveStatus} />
       </CenteredLargeProse>
     </Screen>
   );
@@ -162,10 +189,12 @@ function ClosePollsPromptScreen({
   onConfirm,
   onClose,
   printerSummary,
+  usbDriveStatus,
 }: {
   onConfirm: () => void;
   onClose: () => void;
   printerSummary: PollsFlowPrinterSummary;
+  usbDriveStatus: UsbDriveStatus;
 }): JSX.Element {
   return (
     <Screen>
@@ -175,13 +204,16 @@ function ClosePollsPromptScreen({
           <Button
             variant="primary"
             onPress={onConfirm}
-            disabled={!printerSummary.ready}
+            disabled={
+              !printerSummary.ready || usbDriveStatus.status !== 'mounted'
+            }
           >
             Yes, Close the Polls
           </Button>{' '}
           <Button onPress={onClose}>No</Button>
         </P>
         <PrinterAlertText printerSummary={printerSummary} />
+        <UsbDriveAlertText usbDriveStatus={usbDriveStatus} />
       </CenteredLargeProse>
     </Screen>
   );
@@ -303,6 +335,7 @@ function PollWorkerScreenContents({
   }
 
   async function closePolls() {
+    assert(usbDriveStatus.status === 'mounted');
     setPollWorkerFlowState({
       type: 'polls-transitioning',
       transitionType: 'close_polls',
@@ -398,6 +431,7 @@ function PollWorkerScreenContents({
             onConfirm={openPolls}
             onClose={showAllPollWorkerActions}
             printerSummary={printerSummary}
+            usbDriveStatus={usbDriveStatus}
           />
         );
       case 'resume-voting-prompt':
@@ -406,6 +440,7 @@ function PollWorkerScreenContents({
             onConfirm={resumeVoting}
             onClose={showAllPollWorkerActions}
             printerSummary={printerSummary}
+            usbDriveStatus={usbDriveStatus}
           />
         );
       case 'close-polls-prompt':
@@ -414,6 +449,7 @@ function PollWorkerScreenContents({
             onConfirm={closePolls}
             onClose={showAllPollWorkerActions}
             printerSummary={printerSummary}
+            usbDriveStatus={usbDriveStatus}
           />
         );
       case 'polls-transitioning':
@@ -514,7 +550,11 @@ function PollWorkerScreenContents({
           <React.Fragment>
             <P>The polls are currently open.</P>
             <ButtonGrid>
-              <Button variant="primary" onPress={closePolls}>
+              <Button
+                variant="primary"
+                onPress={closePolls}
+                disabled={usbDriveStatus.status !== 'mounted'}
+              >
                 Close Polls
               </Button>
               <Button onPress={pauseVoting}>Pause Voting</Button>
