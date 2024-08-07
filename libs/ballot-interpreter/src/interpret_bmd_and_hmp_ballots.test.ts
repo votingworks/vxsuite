@@ -78,3 +78,41 @@ test('interpret BMD ballot for an election supporting hand-marked paper ballots'
     ...(hmpbPage2Result.interpretation as InterpretedHmpbPage).votes,
   }).toEqual(famousNamesFixtures.votes);
 });
+
+// Regression test for a bug where the HMPB interpretation was taking precedence
+// over the BMD interpretation in this specific case
+test('interpret BMD ballot with test/official ballot mode mismatch error', async () => {
+  const electionDefinition = (
+    await readElection(famousNamesFixtures.electionPath)
+  ).unsafeUnwrap();
+  const bmdBallot = asSheet(
+    await pdfToPageImages(
+      // Test mode ballot
+      await renderBmdBallotFixture({
+        electionDefinition,
+        precinctId: famousNamesFixtures.precinctId,
+        ballotStyleId: famousNamesFixtures.ballotStyleId,
+        votes: famousNamesFixtures.votes,
+      })
+    ).toArray()
+  );
+
+  const [bmdPage1Result, bmdPage2Result] = await interpretSheet(
+    {
+      electionDefinition,
+      precinctSelection: ALL_PRECINCTS_SELECTION,
+      // Mode mismatch
+      testMode: false,
+      markThresholds: DEFAULT_MARK_THRESHOLDS,
+      adjudicationReasons: [],
+    },
+    bmdBallot
+  );
+
+  expect(bmdPage1Result.interpretation).toMatchObject<
+    Partial<PageInterpretation>
+  >({ type: 'InvalidTestModePage' });
+  expect(bmdPage2Result.interpretation).toEqual<PageInterpretation>({
+    type: 'BlankPage',
+  });
+});

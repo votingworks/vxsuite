@@ -723,7 +723,7 @@ function scoreInterpretFileResult(
     return 0;
   }
 
-  if (frontType === 'BlankPage' || backType === 'BlankPage') {
+  if (frontType === 'BlankPage' && backType === 'BlankPage') {
     return -100;
   }
 
