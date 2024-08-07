@@ -87,12 +87,16 @@ function copySheets({ targetSheetCount }: CopySheetsInput): void {
     500 // A cap to limit how much data the script loads
   );
 
-  const newSheetIds = iter(store.forEachAcceptedSheet())
+  const sheets = iter(store.forEachAcceptedSheet())
     .take(maxNumSheetsToReadForCopying)
-    .cycle()
-    .take(numSheetsToCreate)
-    .map((sheet) => copySheet(store, sheet))
     .toArray();
+
+  const newSheetIds: string[] = [];
+  for (let i = 0; i < numSheetsToCreate; i += 1) {
+    const sheet = sheets[i % sheets.length];
+    const newSheetId = copySheet(store, sheet);
+    newSheetIds.push(newSheetId);
+  }
 
   const sheetOrSheets = numSheetsToCreate === 1 ? 'sheet' : 'sheets';
   console.log(
