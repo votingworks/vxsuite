@@ -187,7 +187,7 @@ export function AppRoot(): JSX.Element | null {
 
   if (!precinctSelection) return <UnconfiguredPrecinctScreen />;
 
-  if (usbDrive.status !== 'mounted') {
+  if (usbDrive.status !== 'mounted' && pollsState !== 'polls_closed_final') {
     return <InsertUsbScreen />;
   }
 
