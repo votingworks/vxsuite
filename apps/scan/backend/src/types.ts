@@ -10,7 +10,6 @@ import {
   SystemSettings,
 } from '@votingworks/types';
 import { PrecinctScannerState } from '@votingworks/types/src/precinct_scanner';
-import { UsbDriveStatus as BaseUsbDriveStatus } from '@votingworks/usb-drive';
 
 export interface MachineConfig {
   machineId: string;
@@ -111,7 +110,3 @@ export type PrecinctScannerPollsInfo =
       pollsState: Exclude<PollsState, 'polls_closed_initial'>;
       lastPollsTransition: PollsTransition;
     };
-
-export type UsbDriveStatus = BaseUsbDriveStatus & {
-  doesUsbDriveRequireCastVoteRecordSync?: true;
-};

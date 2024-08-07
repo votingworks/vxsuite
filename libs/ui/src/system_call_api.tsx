@@ -2,12 +2,7 @@ import React from 'react';
 
 import { Optional } from '@votingworks/basics';
 import { QueryKey, useMutation, useQuery } from '@tanstack/react-query';
-import type {
-  BatteryInfo,
-  SystemCallApi as SystemCallApiClient,
-  AudioInfo,
-} from '@votingworks/backend';
-import { persistDataReferenceIfDeepEqual } from '@votingworks/utils';
+import type { SystemCallApi as SystemCallApiClient } from '@votingworks/backend';
 
 export const BATTERY_POLLING_INTERVAL_GROUT = 3000;
 export const AUDIO_INFO_POLLING_INTERVAL_MS = 1000;
@@ -61,8 +56,6 @@ function createReactQueryApi(getApiClient: () => SystemCallApiClient) {
         const apiClient = getApiClient();
         return useQuery(this.queryKey(), () => apiClient.getBatteryInfo(), {
           refetchInterval: BATTERY_POLLING_INTERVAL_GROUT,
-          structuralSharing:
-            persistDataReferenceIfDeepEqual<BatteryInfo | null>,
         });
       },
     },
@@ -74,7 +67,6 @@ function createReactQueryApi(getApiClient: () => SystemCallApiClient) {
         const apiClient = getApiClient();
         return useQuery(this.queryKey(), () => apiClient.getAudioInfo(), {
           refetchInterval: AUDIO_INFO_POLLING_INTERVAL_MS,
-          structuralSharing: persistDataReferenceIfDeepEqual<AudioInfo>,
         });
       },
     },

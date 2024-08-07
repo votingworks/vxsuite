@@ -1,5 +1,6 @@
 import React from 'react';
-import type { ScanStatus, Api } from '@votingworks/central-scan-backend';
+import { deepEqual } from '@votingworks/basics';
+import type { Api } from '@votingworks/central-scan-backend';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
   QUERY_CLIENT_DEFAULT_OPTIONS,
@@ -14,9 +15,6 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 import * as grout from '@votingworks/grout';
-import { persistDataReferenceIfDeepEqual } from '@votingworks/utils';
-import type { UsbDriveStatus } from '@votingworks/usb-drive';
-import { DippedSmartCardAuth } from '@votingworks/types';
 
 export type ApiClient = grout.Client<Api>;
 
@@ -48,14 +46,18 @@ export const getUsbDriveStatus = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery<UsbDriveStatus>(
-      this.queryKey(),
-      () => apiClient.getUsbDriveStatus(),
-      {
-        refetchInterval: USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
-        structuralSharing: persistDataReferenceIfDeepEqual,
-      }
-    );
+    return useQuery(this.queryKey(), () => apiClient.getUsbDriveStatus(), {
+      refetchInterval: USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
+      structuralSharing(oldData, newData) {
+        if (!oldData) {
+          return newData;
+        }
+
+        // Prevent unnecessary re-renders of dependent components
+        const isUnchanged = deepEqual(oldData, newData);
+        return isUnchanged ? oldData : newData;
+      },
+    });
   },
 } as const;
 
@@ -79,14 +81,9 @@ export const getAuthStatus = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery<DippedSmartCardAuth.AuthStatus>(
-      this.queryKey(),
-      () => apiClient.getAuthStatus(),
-      {
-        refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
-        structuralSharing: persistDataReferenceIfDeepEqual,
-      }
-    );
+    return useQuery(this.queryKey(), () => apiClient.getAuthStatus(), {
+      refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
+    });
   },
 } as const;
 
@@ -148,9 +145,8 @@ export const getStatus = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery<ScanStatus>(this.queryKey(), () => apiClient.getStatus(), {
+    return useQuery(this.queryKey(), () => apiClient.getStatus(), {
       refetchInterval: 100,
-      structuralSharing: persistDataReferenceIfDeepEqual,
     });
   },
 } as const;
