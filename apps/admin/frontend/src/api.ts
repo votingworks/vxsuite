@@ -1,5 +1,4 @@
 import React from 'react';
-import { deepEqual } from '@votingworks/basics';
 import type { Api } from '@votingworks/admin-backend';
 import {
   AUTH_STATUS_POLLING_INTERVAL_MS,
@@ -16,6 +15,8 @@ import {
 } from '@tanstack/react-query';
 import * as grout from '@votingworks/grout';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
+import { persistDataReferenceIfDeepEqual } from '@votingworks/utils';
+import { DippedSmartCardAuth, PrinterStatus } from '@votingworks/types';
 
 const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
 
@@ -61,18 +62,14 @@ export const getAuthStatus = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getAuthStatus(), {
-      refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
-      structuralSharing(oldData, newData) {
-        if (!oldData) {
-          return newData;
-        }
-
-        // Prevent infinite re-renders of the app tree:
-        const isUnchanged = deepEqual(oldData, newData);
-        return isUnchanged ? oldData : newData;
-      },
-    });
+    return useQuery<DippedSmartCardAuth.AuthStatus>(
+      this.queryKey(),
+      () => apiClient.getAuthStatus(),
+      {
+        refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
+        structuralSharing: persistDataReferenceIfDeepEqual,
+      }
+    );
   },
 } as const;
 
@@ -152,9 +149,14 @@ export const getPrinterStatus = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getPrinterStatus(), {
-      refetchInterval: PRINTER_STATUS_POLLING_INTERVAL_MS,
-    });
+    return useQuery<PrinterStatus>(
+      this.queryKey(),
+      () => apiClient.getPrinterStatus(),
+      {
+        refetchInterval: PRINTER_STATUS_POLLING_INTERVAL_MS,
+        structuralSharing: persistDataReferenceIfDeepEqual,
+      }
+    );
   },
 } as const;
 
@@ -166,18 +168,14 @@ export const getUsbDriveStatus = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getUsbDriveStatus(), {
-      refetchInterval: USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
-      structuralSharing(oldData, newData) {
-        if (!oldData) {
-          return newData;
-        }
-
-        // Prevent unnecessary re-renders of dependent components
-        const isUnchanged = deepEqual(oldData, newData);
-        return isUnchanged ? oldData : newData;
-      },
-    });
+    return useQuery<UsbDriveStatus>(
+      this.queryKey(),
+      () => apiClient.getUsbDriveStatus(),
+      {
+        refetchInterval: USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
+        structuralSharing: persistDataReferenceIfDeepEqual,
+      }
+    );
   },
 } as const;
 

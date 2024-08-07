@@ -1,6 +1,5 @@
 import type { Api } from '@votingworks/mark-backend';
 import React from 'react';
-import { deepEqual } from '@votingworks/basics';
 import * as grout from '@votingworks/grout';
 import {
   QueryClient,
@@ -16,6 +15,9 @@ import {
   createSystemCallApi,
   createUiStringsApi,
 } from '@votingworks/ui';
+import { persistDataReferenceIfDeepEqual } from '@votingworks/utils';
+import { InsertedSmartCardAuth, PrinterStatus } from '@votingworks/types';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 
 const PRINTER_STATUS_POLLING_INTERVAL_MS = 100;
 export const ACCESSIBLE_CONTROLLER_POLLING_INTERVAL_MS = 3000;
@@ -48,18 +50,14 @@ export const getUsbDriveStatus = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getUsbDriveStatus(), {
-      refetchInterval: USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
-      structuralSharing(oldData, newData) {
-        if (!oldData) {
-          return newData;
-        }
-
-        // Prevent unnecessary re-renders of dependent components
-        const isUnchanged = deepEqual(oldData, newData);
-        return isUnchanged ? oldData : newData;
-      },
-    });
+    return useQuery<UsbDriveStatus>(
+      this.queryKey(),
+      () => apiClient.getUsbDriveStatus(),
+      {
+        refetchInterval: USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
+        structuralSharing: persistDataReferenceIfDeepEqual,
+      }
+    );
   },
 } as const;
 
@@ -81,18 +79,14 @@ export const getPrinterStatus = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getPrinterStatus(), {
-      refetchInterval: PRINTER_STATUS_POLLING_INTERVAL_MS,
-      structuralSharing(oldData, newData) {
-        if (!oldData) {
-          return newData;
-        }
-
-        // Prevent unnecessary re-renders of dependent components
-        const isUnchanged = deepEqual(oldData, newData);
-        return isUnchanged ? oldData : newData;
-      },
-    });
+    return useQuery<PrinterStatus>(
+      this.queryKey(),
+      () => apiClient.getPrinterStatus(),
+      {
+        refetchInterval: PRINTER_STATUS_POLLING_INTERVAL_MS,
+        structuralSharing: persistDataReferenceIfDeepEqual,
+      }
+    );
   },
 } as const;
 
@@ -159,9 +153,14 @@ export const getAuthStatus = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getAuthStatus(), {
-      refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
-    });
+    return useQuery<InsertedSmartCardAuth.AuthStatus>(
+      this.queryKey(),
+      () => apiClient.getAuthStatus(),
+      {
+        refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS,
+        structuralSharing: persistDataReferenceIfDeepEqual,
+      }
+    );
   },
 } as const;
 

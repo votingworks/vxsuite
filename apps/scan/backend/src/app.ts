@@ -24,7 +24,7 @@ import {
 } from '@votingworks/backend';
 import { assert, assertDefined, ok, Result } from '@votingworks/basics';
 import { InsertedSmartCardAuthApi, LiveCheck } from '@votingworks/auth';
-import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
+import { UsbDrive } from '@votingworks/usb-drive';
 import {
   FujitsuPrintResult,
   Printer,
@@ -36,6 +36,7 @@ import {
   PrecinctScannerConfig,
   PrecinctScannerStatus,
   PrecinctScannerPollsInfo,
+  UsbDriveStatus,
 } from './types';
 import { constructAuthMachineState } from './util/auth';
 import { Workspace } from './util/workspace';
@@ -110,9 +111,7 @@ export function buildApi({
       });
     },
 
-    async getUsbDriveStatus(): Promise<
-      UsbDriveStatus & { doesUsbDriveRequireCastVoteRecordSync?: true }
-    > {
+    async getUsbDriveStatus(): Promise<UsbDriveStatus> {
       const usbDriveStatus = await usbDrive.status();
       return {
         ...usbDriveStatus,

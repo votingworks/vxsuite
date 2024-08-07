@@ -1,4 +1,4 @@
-import type { Api } from '@votingworks/mark-scan-backend';
+import type { SimpleServerStatus, Api } from '@votingworks/mark-scan-backend';
 import React from 'react';
 import * as grout from '@votingworks/grout';
 import {
@@ -14,8 +14,9 @@ import {
   createSystemCallApi,
   createUiStringsApi,
 } from '@votingworks/ui';
-import { deepEqual } from '@votingworks/basics';
-import { DiagnosticType } from '@votingworks/types';
+import { DiagnosticType, InsertedSmartCardAuth } from '@votingworks/types';
+import { persistDataReferenceIfDeepEqual } from '@votingworks/utils';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   ACCESSIBLE_CONTROLLER_DIAGNOSTIC_POLLING_INTERVAL_MS,
   AUTH_STATUS_POLLING_INTERVAL_MS_OVERRIDE,
@@ -50,18 +51,14 @@ export const getUsbDriveStatus = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getUsbDriveStatus(), {
-      refetchInterval: USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
-      structuralSharing(oldData, newData) {
-        if (!oldData) {
-          return newData;
-        }
-
-        // Prevent unnecessary re-renders of dependent components
-        const isUnchanged = deepEqual(oldData, newData);
-        return isUnchanged ? oldData : newData;
-      },
-    });
+    return useQuery<UsbDriveStatus>(
+      this.queryKey(),
+      () => apiClient.getUsbDriveStatus(),
+      {
+        refetchInterval: USB_DRIVE_STATUS_POLLING_INTERVAL_MS,
+        structuralSharing: persistDataReferenceIfDeepEqual,
+      }
+    );
   },
 } as const;
 
@@ -138,9 +135,14 @@ export const getAuthStatus = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getAuthStatus(), {
-      refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS_OVERRIDE,
-    });
+    return useQuery<InsertedSmartCardAuth.AuthStatus>(
+      this.queryKey(),
+      () => apiClient.getAuthStatus(),
+      {
+        refetchInterval: AUTH_STATUS_POLLING_INTERVAL_MS_OVERRIDE,
+        structuralSharing: persistDataReferenceIfDeepEqual,
+      }
+    );
   },
 } as const;
 
@@ -150,9 +152,14 @@ export const getStateMachineState = {
   },
   useQuery() {
     const apiClient = useApiClient();
-    return useQuery(this.queryKey(), () => apiClient.getPaperHandlerState(), {
-      refetchInterval: STATE_MACHINE_POLLING_INTERVAL_MS,
-    });
+    return useQuery<SimpleServerStatus>(
+      this.queryKey(),
+      () => apiClient.getPaperHandlerState(),
+      {
+        refetchInterval: STATE_MACHINE_POLLING_INTERVAL_MS,
+        structuralSharing: persistDataReferenceIfDeepEqual,
+      }
+    );
   },
 } as const;
 
