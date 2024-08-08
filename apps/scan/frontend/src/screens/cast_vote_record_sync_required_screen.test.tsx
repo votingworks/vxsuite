@@ -15,10 +15,12 @@ let apiMock: ApiMock;
 
 function renderComponent({
   setShouldStayOnCastVoteRecordSyncRequiredScreen = jest.fn(),
+  pollWorkerAuthenticated = false,
 }: {
   setShouldStayOnCastVoteRecordSyncRequiredScreen?: (
     shouldStayOnCastVoteRecordSyncRequiredScreen: boolean
   ) => void;
+  pollWorkerAuthenticated?: boolean;
 } = {}) {
   render(
     provideApi(
@@ -27,6 +29,7 @@ function renderComponent({
         setShouldStayOnCastVoteRecordSyncRequiredScreen={
           setShouldStayOnCastVoteRecordSyncRequiredScreen
         }
+        pollWorkerAuthenticated={pollWorkerAuthenticated}
       />
     )
   );

@@ -70,6 +70,7 @@ test('shows setup card reader screen when there is no card reader', async () => 
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV4();
   apiMock.setAuthStatus({
     status: 'logged_out',
     reason: 'no_card_reader',
@@ -83,6 +84,7 @@ test('shows insert USB Drive screen when there is no USB drive', async () => {
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetUsbDriveStatus('no_drive');
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV4();
   renderApp();
   await screen.findByText('No USB Drive Detected');
 });
@@ -95,6 +97,7 @@ test('app can load and configure from a usb stick', async () => {
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetUsbDriveStatus('no_drive');
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV4();
   renderApp();
   await screen.findByText(
     'Insert an Election Manager card to configure VxScan'
@@ -158,6 +161,7 @@ test('election manager must set precinct', async () => {
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV4();
   apiMock.setPrinterStatusV3({ connected: true });
   renderApp();
   await screen.findByText('No Precinct Selected');
@@ -342,6 +346,7 @@ test('voter can cast a ballot that scans successfully ', async () => {
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV4();
   apiMock.setPrinterStatusV3({ connected: true });
   renderApp();
   await screen.findByText(/Insert Your Ballot/i);
@@ -419,6 +424,7 @@ test('voter can cast a ballot that needs review and adjudicate as desired', asyn
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV4();
   renderApp();
   await screen.findByText(/Insert Your Ballot/i);
 
@@ -467,6 +473,7 @@ test('voter tries to cast ballot that is rejected', async () => {
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV4();
   renderApp();
   await screen.findByText(/Insert Your Ballot/i);
 
@@ -504,6 +511,7 @@ test('voter can cast another ballot while the success screen is showing', async 
   apiMock.expectGetScannerStatus(
     scannerStatus({ state: 'accepted', ballotsCounted: 1 })
   );
+  apiMock.setPrinterStatusV4();
   renderApp();
   await screen.findByText('Your ballot was counted!');
   expect(screen.getByTestId('ballot-count').textContent).toEqual('1');
@@ -749,6 +757,7 @@ test('system administrator allowed to log in on unconfigured machine', async () 
   apiMock.expectGetPollsInfo();
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV4();
   renderApp();
 
   apiMock.setAuthStatus({
@@ -826,10 +835,9 @@ test('system administrator open diagnostics screen', async () => {
   apiMock.expectGetPollsInfo();
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
-  apiMock.authenticateAsSystemAdministrator();
+  apiMock.setPrinterStatusV4({ state: 'idle' });
 
   apiMock.expectGetDiskSpaceSummary();
-  apiMock.setPrinterStatusV4({ state: 'idle' });
   apiMock.expectGetMostRecentPrinterDiagnostic();
   renderApp();
 
@@ -843,6 +851,7 @@ test('election manager cannot auth onto machine with different election', async 
   apiMock.expectGetPollsInfo();
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV4();
   renderApp();
 
   apiMock.setAuthStatus({
@@ -858,6 +867,7 @@ test('replace ballot bag flow', async () => {
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV4();
   renderApp();
   await screen.findByText(/Insert Your Ballot/i);
 
@@ -928,6 +938,7 @@ test('renders VoterSettingsManager', async () => {
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV4();
 
   renderApp();
   await screen.findByText(/insert your ballot/i);
@@ -976,6 +987,7 @@ test('clears CVR sync required screen if no longer required', async () => {
   apiMock.expectGetUsbDriveStatus('mounted', {
     doesUsbDriveRequireCastVoteRecordSync: true,
   });
+  apiMock.setPrinterStatusV4();
   renderApp();
 
   await screen.findByText(

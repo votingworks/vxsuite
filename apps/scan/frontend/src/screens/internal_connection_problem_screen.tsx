@@ -6,7 +6,6 @@ import {
   appStrings,
 } from '@votingworks/ui';
 import { PrinterStatus } from '@votingworks/scan-backend';
-import { throwIllegalValue } from '@votingworks/basics';
 import {
   BooleanEnvironmentVariableName,
   isFeatureFlagEnabled,
@@ -25,20 +24,9 @@ function PrinterErrorMessage({
   if (printerStatus.state !== 'error') {
     return null;
   }
-  switch (printerStatus.type) {
-    case 'disconnected':
-      return appStrings.notePrinterDisconnected();
-    case 'hardware':
-      return appStrings.notePrinterHardwareError();
-    case 'supply-voltage':
-      return appStrings.notePrinterSupplyVoltageError();
-    case 'temperature':
-      return appStrings.notePrinterTemperatureError();
-    case 'receive-data':
-      return appStrings.notePrinterReceiveDataError();
-    default:
-      throwIllegalValue(printerStatus.type);
-  }
+  return printerStatus.type === 'disconnected'
+    ? appStrings.notePrinterDisconnected()
+    : appStrings.notePrinterHardwareError();
 }
 interface Props {
   scannedBallotCount?: number;
@@ -69,12 +57,12 @@ export function InternalConnectionProblemScreen({
     <ScreenMainCenterChild ballotCountOverride={scannedBallotCount} voterFacing>
       <CenteredLargeProse>
         <H1>{appStrings.titleInternalConnectionProblem()}</H1>
-        <P>
-          {!isScannerConnected && appStrings.noteScannerDisconnected()}
-          {!isPrinterConnected && (
+        {!isScannerConnected && <P>{appStrings.noteScannerDisconnected()}</P>}
+        {!isPrinterConnected && (
+          <P>
             <PrinterErrorMessage printerStatus={printerStatus} />
-          )}
-        </P>
+          </P>
+        )}
         <P>
           {isPollWorkerAuth
             ? pollWorkerActions
@@ -86,14 +74,72 @@ export function InternalConnectionProblemScreen({
 }
 
 /* istanbul ignore next */
-/* export function PowerDisconnectedPreview(): JSX.Element {
+export function PrinterDisconnectedPreview(): JSX.Element {
   return (
-    <SetupScannerScreen batteryIsCharging={false} scannedBallotCount={42} />
+    <InternalConnectionProblemScreen
+      isPollWorkerAuth={false}
+      isScannerConnected
+      printerStatus={{
+        scheme: 'hardware-v4',
+        state: 'error',
+        type: 'disconnected',
+      }}
+      scannedBallotCount={42}
+    />
   );
 }
-*/
-/* istanbul ignore next */
-/* export function ScannerDisconnectedPreview(): JSX.Element {
-  return <SetupScannerScreen batteryIsCharging scannedBallotCount={42} />;
+
+export function PrinterHardwareErrorPreview(): JSX.Element {
+  return (
+    <InternalConnectionProblemScreen
+      isPollWorkerAuth={false}
+      isScannerConnected
+      printerStatus={{
+        scheme: 'hardware-v4',
+        state: 'error',
+        type: 'receive-data',
+      }}
+      scannedBallotCount={42}
+    />
+  );
 }
-*/
+
+/* istanbul ignore next */
+export function ScannerDisconnectedPreview(): JSX.Element {
+  return (
+    <InternalConnectionProblemScreen
+      isPollWorkerAuth={false}
+      isScannerConnected={false}
+      printerStatus={{ scheme: 'hardware-v4', state: 'idle' }}
+      scannedBallotCount={42}
+    />
+  );
+}
+
+/* istanbul ignore next */
+export function ScannerDisconnectedPollWorkerPreview(): JSX.Element {
+  return (
+    <InternalConnectionProblemScreen
+      isPollWorkerAuth
+      isScannerConnected={false}
+      printerStatus={{ scheme: 'hardware-v4', state: 'idle' }}
+      scannedBallotCount={42}
+    />
+  );
+}
+
+/* istanbul ignore next */
+export function PrinterScannerDisconnectedPreview(): JSX.Element {
+  return (
+    <InternalConnectionProblemScreen
+      isPollWorkerAuth={false}
+      isScannerConnected={false}
+      printerStatus={{
+        scheme: 'hardware-v4',
+        state: 'error',
+        type: 'disconnected',
+      }}
+      scannedBallotCount={42}
+    />
+  );
+}
