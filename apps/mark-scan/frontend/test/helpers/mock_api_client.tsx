@@ -1,11 +1,13 @@
 import React from 'react';
 import { createMockClient, MockClient } from '@votingworks/grout-test-utils';
-import type {
-  Api,
-  ElectionState,
-  MachineConfig,
-  PrintBallotProps,
-  SimpleServerStatus,
+import {
+  ACCEPTED_PAPER_TYPES,
+  type AcceptedPaperType,
+  type Api,
+  type ElectionState,
+  type MachineConfig,
+  type PrintBallotProps,
+  type SimpleServerStatus,
 } from '@votingworks/mark-scan-backend';
 import {
   ElectionPackageConfigurationError,
@@ -253,14 +255,22 @@ export function createApiMock() {
 
     // Some e2e tests repeatedly reset voter session. Each time a voter session is activated
     // setAcceptingPaperState is called.
-    expectRepeatedSetAcceptingPaperState(): void {
-      mockApiClient.setAcceptingPaperState.expectRepeatedCallsWith().resolves();
+    expectRepeatedSetAcceptingPaperState(
+      paperTypes: AcceptedPaperType[] = ACCEPTED_PAPER_TYPES
+    ): void {
+      mockApiClient.setAcceptingPaperState
+        .expectRepeatedCallsWith({ paperTypes })
+        .resolves();
       setPaperHandlerState('accepting_paper');
     },
 
     // Mocked version of a real method on the API client
-    expectSetAcceptingPaperState(): void {
-      mockApiClient.setAcceptingPaperState.expectCallWith().resolves();
+    expectSetAcceptingPaperState(
+      paperTypes: AcceptedPaperType[] = ACCEPTED_PAPER_TYPES
+    ): void {
+      mockApiClient.setAcceptingPaperState
+        .expectCallWith({ paperTypes })
+        .resolves();
     },
 
     // Helper on the mock API client; does not exist on real API client

@@ -23,7 +23,7 @@ import {
 } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
-import { DateWithoutTime } from '@votingworks/basics';
+import { assertDefined, DateWithoutTime } from '@votingworks/basics';
 import { SimpleServerStatus } from '@votingworks/mark-scan-backend';
 import { fireEvent, screen } from '../../test/react_testing_library';
 
@@ -237,8 +237,24 @@ test('displays only default English ballot styles', async () => {
     screen.queryByRole('button', { name: ballotStyleSpanish.id })
   ).not.toBeInTheDocument();
 });
-
 describe('pre-printed ballots', () => {
+  test('start new session with blank sheet', () => {
+    mockFeatureFlagger.disableFeatureFlag(
+      BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
+    );
+
+    renderScreen({ electionDefinition: electionGeneralDefinition });
+
+    const ballotStyle = assertDefined(
+      electionGeneralDefinition.election.ballotStyles[0]
+    );
+    apiMock.expectSetAcceptingPaperState(['BlankPage', 'InterpretedBmdPage']);
+
+    userEvent.click(
+      screen.getButton(extractBallotStyleGroupId(ballotStyle.id))
+    );
+  });
+
   test('can insert pre-printed ballots without ballot style selection', () => {
     mockFeatureFlagger.disableFeatureFlag(
       BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
@@ -246,7 +262,7 @@ describe('pre-printed ballots', () => {
 
     renderScreen();
 
-    apiMock.expectSetAcceptingPaperState();
+    apiMock.expectSetAcceptingPaperState(['InterpretedBmdPage']);
     userEvent.click(screen.getButton(/insert printed ballot/i));
   });
 

@@ -32,6 +32,7 @@ import { Optional, assert, assertDefined } from '@votingworks/basics';
 import {
   ElectionDefinition,
   MarkThresholds,
+  PageInterpretationType,
   SheetOf,
 } from '@votingworks/types';
 import {
@@ -101,6 +102,7 @@ interface Context {
   logger: BaseLogger;
   paperHandlerDiagnosticElection?: ElectionDefinition;
   diagnosticError?: Error;
+  acceptedPaperTypes?: AcceptedPaperType[];
 }
 
 function assign(arg: Assigner<Context, any> | PropertyAssigner<Context, any>) {
@@ -118,13 +120,20 @@ function createOnDiagnosticErrorHandler() {
   };
 }
 
+export const ACCEPTED_PAPER_TYPES = [
+  'BlankPage',
+  'InterpretedBmdPage',
+] as const satisfies PageInterpretationType[];
+
+export type AcceptedPaperType = (typeof ACCEPTED_PAPER_TYPES)[number];
+
 export type PaperHandlerStatusEvent =
   | { type: 'UNHANDLED_EVENT' }
   | { type: 'NO_PAPER_ANYWHERE' }
   | { type: 'PAPER_JAM' }
   | { type: 'JAMMED_STATUS_NO_PAPER' }
   // Frontend has indicated hardware should try to look for and load paper
-  | { type: 'BEGIN_ACCEPTING_PAPER' }
+  | { type: 'BEGIN_ACCEPTING_PAPER'; paperTypes: AcceptedPaperType[] }
   // Hardware sensors detected paper in front input
   | { type: 'PAPER_READY_TO_LOAD' }
   | { type: 'PAPER_PARKED' }
@@ -160,7 +169,7 @@ export interface PaperHandlerStateMachine {
   cleanUp(): Promise<void>;
   getRawDeviceStatus(): Promise<PaperHandlerStatus>;
   getSimpleStatus(): SimpleServerStatus;
-  setAcceptingPaper(): void;
+  setAcceptingPaper(paperTypes: AcceptedPaperType[]): void;
   printBallot(pdfData: Buffer): void;
   getInterpretation(): Optional<SheetOf<InterpretFileResult>>;
   confirmSessionEnd(): void;
@@ -535,6 +544,12 @@ export function buildMachine(
             },
             accepting_paper: {
               invoke: [pollPaperStatus(), pollAuthStatus()],
+              entry: assign({
+                acceptedPaperTypes: (context, event) =>
+                  event.type === 'BEGIN_ACCEPTING_PAPER'
+                    ? event.paperTypes
+                    : context.acceptedPaperTypes,
+              }),
               on: {
                 PAPER_READY_TO_LOAD: [
                   {
@@ -607,6 +622,18 @@ export function buildMachine(
               },
               onDone: [
                 {
+                  target: 'inserted_invalid_new_sheet',
+                  cond: (context) => {
+                    const pageType = assertDefined(
+                      getInterpretationType(context)
+                    );
+
+                    return !context.acceptedPaperTypes?.includes(
+                      pageType as AcceptedPaperType
+                    );
+                  },
+                },
+                {
                   target: 'waiting_for_voter_auth',
                   actions: (context) => context.driver.parkPaper(),
                   cond: (context) =>
@@ -617,7 +644,6 @@ export function buildMachine(
                   cond: (context) =>
                     getInterpretationType(context) === 'InterpretedBmdPage',
                 },
-                { target: 'inserted_invalid_new_sheet' },
               ],
             },
             inserted_preprinted_ballot: {
@@ -1220,6 +1246,7 @@ export function buildMachine(
           scannedBallotImagePath: undefined,
           isPatDeviceConnected: false,
           isInVoterSession: false,
+          acceptedPaperTypes: undefined,
         }),
         clearInterpretation: () => {
           assign({
@@ -1487,9 +1514,10 @@ export async function getPaperHandlerStateMachine({
       }
     },
 
-    setAcceptingPaper(): void {
+    setAcceptingPaper(paperTypes: AcceptedPaperType[]): void {
       machineService.send({
         type: 'BEGIN_ACCEPTING_PAPER',
+        paperTypes,
       });
     },
 

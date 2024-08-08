@@ -42,6 +42,7 @@ import {
 } from '@votingworks/image-utils';
 import { join } from 'path';
 import {
+  ACCEPTED_PAPER_TYPES,
   PaperHandlerStateMachine,
   getPaperHandlerStateMachine,
   paperHandlerStatusToEvent,
@@ -220,7 +221,7 @@ afterEach(async () => {
 describe('not_accepting_paper', () => {
   it('transitions to accepting_paper state on BEGIN_ACCEPTING_PAPER event', () => {
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
-    machine.setAcceptingPaper();
+    machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     expect(machine.getSimpleStatus()).toEqual('accepting_paper');
   });
 
@@ -262,7 +263,7 @@ describe('eject_to_front', () => {
 
 describe('accepting_paper', () => {
   it('transitions to loading_paper state when front sensors are triggered', async () => {
-    machine.setAcceptingPaper();
+    machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     expect(machine.getSimpleStatus()).toEqual('accepting_paper');
 
     driver.setMockStatus('paperInserted');
@@ -272,7 +273,7 @@ describe('accepting_paper', () => {
 
 describe('loading_paper', () => {
   it('calls load and park functions on driver', async () => {
-    machine.setAcceptingPaper();
+    machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     expect(machine.getSimpleStatus()).toEqual('accepting_paper');
 
     // Restore the original `loadAndParkPaper`, so it calls the underlying
@@ -399,7 +400,7 @@ async function executePrintBallotAndAssert(
     jest.requireActual('./application_driver').loadAndParkPaper
   );
 
-  machine.setAcceptingPaper();
+  machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
   driver.setMockStatus('paperInserted');
   await expectStatusTransitionTo('loading_paper');
   await expectStatusTransitionTo('waiting_for_voter_auth');
@@ -606,7 +607,7 @@ describe('paper handler status observable', () => {
 
 describe('PAT device', () => {
   async function setupForVoterSession() {
-    machine.setAcceptingPaper();
+    machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     expect(machine.getSimpleStatus()).toEqual('accepting_paper');
     driver.setMockStatus('paperInserted');
 
@@ -640,7 +641,7 @@ describe('PAT device', () => {
 
   test('successful connection flow', async () => {
     await setupForVoterSession();
-    machine.setAcceptingPaper();
+    machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
 
     mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
       true
@@ -664,7 +665,7 @@ describe('PAT device', () => {
 
   test('connecting PAT device while on pollworker screen', async () => {
     mockPollWorkerAuth(auth, electionGeneralDefinition);
-    machine.setAcceptingPaper();
+    machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     await expectStatusTransitionTo('accepting_paper');
     expect(machine.isPatDeviceConnected()).toEqual(false);
     mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
@@ -724,7 +725,7 @@ describe('PAT device', () => {
 });
 
 test('ending poll worker auth in accepting_paper returns to initial state', async () => {
-  machine.setAcceptingPaper();
+  machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
   const ballotStyle = electionGeneralDefinition.election.ballotStyles[1];
   mockCardlessVoterAuth(auth, {
     ballotStyleId: ballotStyle.id,
@@ -739,7 +740,7 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
   });
 
   test('loading_paper state', async () => {
-    machine.setAcceptingPaper();
+    machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     const ballotStyle = electionGeneralDefinition.election.ballotStyles[1];
     driver.setMockStatus('paperInserted');
     await expectStatusTransitionTo('loading_paper');
@@ -755,7 +756,7 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
       BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
     );
 
-    machine.setAcceptingPaper();
+    machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     await expectStatusTransitionTo('accepting_paper');
 
     jest.spyOn(driver, 'loadPaper').mockImplementation(() => {
@@ -777,7 +778,7 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
       BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
     );
 
-    machine.setAcceptingPaper();
+    machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     await expectStatusTransitionTo('accepting_paper');
 
     const deferredScan = deferred<string>();
@@ -801,7 +802,7 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
       BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
     );
 
-    machine.setAcceptingPaper();
+    machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     await expectStatusTransitionTo('accepting_paper');
 
     mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
@@ -827,7 +828,7 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
       BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
     );
 
-    machine.setAcceptingPaper();
+    machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     await expectStatusTransitionTo('accepting_paper');
 
     mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
@@ -846,7 +847,7 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
 
 describe('paper handler diagnostic', () => {
   test('system admin log out', async () => {
-    machine.setAcceptingPaper();
+    machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     expect(machine.getSimpleStatus()).toEqual('accepting_paper');
 
     mockSystemAdminAuth(auth);
@@ -884,7 +885,7 @@ test('insert and validate new blank sheet', async () => {
     BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
   );
 
-  machine.setAcceptingPaper();
+  machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
   expect(machine.getSimpleStatus()).toEqual('accepting_paper');
 
   const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
@@ -921,7 +922,7 @@ describe('insert pre-printed ballot', () => {
   });
 
   test('start session with valid pre-printed ballot', async () => {
-    machine.setAcceptingPaper();
+    machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
 
     mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
     mockOf(interpretSimplexBmdBallot).mockResolvedValue(
@@ -937,7 +938,7 @@ describe('insert pre-printed ballot', () => {
   });
 
   test('return valid pre-printed ballot', async () => {
-    machine.setAcceptingPaper();
+    machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
 
     mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
     mockOf(interpretSimplexBmdBallot).mockResolvedValue(
@@ -972,7 +973,7 @@ describe('insert pre-printed ballot', () => {
       .filterMap(([type, enabled]) => (enabled ? type : undefined))
       .toArray()
   )('insert invalid sheet: %s', async (interpretationType) => {
-    machine.setAcceptingPaper();
+    machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     expect(machine.getSimpleStatus()).toEqual('accepting_paper');
 
     mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
@@ -999,6 +1000,22 @@ describe('insert pre-printed ballot', () => {
     driver.setMockStatus('noPaper');
     await expectStatusTransitionTo('accepting_paper');
   });
+
+  test('insert blank sheet when accepting only pre-printed ballots', async () => {
+    machine.setAcceptingPaper(['InterpretedBmdPage']);
+    expect(machine.getSimpleStatus()).toEqual('accepting_paper');
+
+    mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
+
+    mockOf(interpretSimplexBmdBallot).mockResolvedValue(
+      BLANK_PAGE_INTERPRETATION_MOCK
+    );
+
+    driver.setMockStatus('paperInserted');
+    await expectStatusTransitionTo('loading_new_sheet');
+    await expectStatusTransitionTo('validating_new_sheet');
+    await expectStatusTransitionTo('inserted_invalid_new_sheet');
+  });
 });
 
 describe('re-insert removed ballot', () => {
@@ -1013,7 +1030,7 @@ describe('re-insert removed ballot', () => {
     // 1. [Setup] Seed voting session with pre-printed ballot:
     //
 
-    machine.setAcceptingPaper();
+    machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
 
     mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
     mockOf(interpretSimplexBmdBallot).mockResolvedValue(
@@ -1078,7 +1095,7 @@ describe('re-insert removed ballot', () => {
     // 1. [Setup] Seed voting session with pre-printed ballot:
     //
 
-    machine.setAcceptingPaper();
+    machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
 
     mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
     mockOf(interpretSimplexBmdBallot).mockResolvedValue(

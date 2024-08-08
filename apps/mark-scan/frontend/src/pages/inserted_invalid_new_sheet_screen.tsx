@@ -6,17 +6,18 @@ import { InsertedWrongElectionBallotScreen } from './inserted_wrong_election_bal
 import { InsertedWrongPrecinctBallotScreen } from './inserted_wrong_precinct_ballot_screen';
 import { InsertedWrongTestModeBallotScreen } from './inserted_wrong_test_mode_ballot_screen';
 import { InsertedUnreadableBallotScreen } from './inserted_unreadable_ballot_screen';
+import { InsertedBlankSheetInsteadOfBallotScreen } from './inserted_blank_sheet_instead_of_ballot_screen';
 
 const SCREENS: Readonly<
   Record<PageInterpretationType, JSX.Element | undefined>
 > = {
   InterpretedBmdPage: undefined, // This page should be unreachable for this result.
-  BlankPage: undefined, // This page should be unreachable for this result.
 
   // Not currently reachable in practice - HMPBs are interpreted as `BlankPage`s
   // in VxMarkScan:
   InterpretedHmpbPage: <InsertedUnreadableBallotScreen />,
 
+  BlankPage: <InsertedBlankSheetInsteadOfBallotScreen />,
   InvalidBallotHashPage: <InsertedWrongElectionBallotScreen />,
   InvalidTestModePage: <InsertedWrongTestModeBallotScreen />,
   InvalidPrecinctPage: <InsertedWrongPrecinctBallotScreen />,
