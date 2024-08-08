@@ -192,6 +192,7 @@ export function AppRoot(): JSX.Element | null {
         scannedBallotCount={scannerStatus.ballotsCounted}
         isScannerConnected={scannerStatus.state !== 'disconnected'}
         printerStatus={printerStatus}
+        isPollWorkerAuth={isPollWorkerAuth(authStatus)}
       />
     );
   }

@@ -1,7 +1,18 @@
-import { CenteredLargeProse, H1, P, appStrings } from '@votingworks/ui';
+import {
+  CenteredLargeProse,
+  H1,
+  P,
+  PowerDownButton,
+  appStrings,
+} from '@votingworks/ui';
 import { PrinterStatus } from '@votingworks/scan-backend';
 import { throwIllegalValue } from '@votingworks/basics';
+import {
+  BooleanEnvironmentVariableName,
+  isFeatureFlagEnabled,
+} from '@votingworks/utils';
 import { ScreenMainCenterChild } from '../components/layout';
+import { LiveCheckButton } from '../components/live_check_button';
 
 function PrinterErrorMessage({
   printerStatus,
@@ -33,16 +44,26 @@ interface Props {
   scannedBallotCount?: number;
   printerStatus: PrinterStatus;
   isScannerConnected: boolean;
+  isPollWorkerAuth: boolean;
 }
 
 export function InternalConnectionProblemScreen({
   scannedBallotCount,
   printerStatus,
   isScannerConnected,
+  isPollWorkerAuth,
 }: Props): JSX.Element {
   // Only support v4 hardware for showing connection status errors.
   const isPrinterConnected = !(
     printerStatus.scheme === 'hardware-v4' && printerStatus.state === 'error'
+  );
+  const pollWorkerActions = (
+    <P>
+      <PowerDownButton variant="primary" />{' '}
+      {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (
+        <LiveCheckButton />
+      )}
+    </P>
   );
   return (
     <ScreenMainCenterChild ballotCountOverride={scannedBallotCount} voterFacing>
@@ -54,7 +75,11 @@ export function InternalConnectionProblemScreen({
             <PrinterErrorMessage printerStatus={printerStatus} />
           )}
         </P>
-        <P>{appStrings.instructionsAskForHelp()}</P>
+        <P>
+          {isPollWorkerAuth
+            ? pollWorkerActions
+            : appStrings.instructionsAskForHelp()}
+        </P>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
   );
