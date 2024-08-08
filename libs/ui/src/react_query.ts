@@ -1,4 +1,5 @@
 import type { DefaultOptions } from '@tanstack/react-query';
+import { persistDataReferenceIfDeepEqual } from '@votingworks/utils';
 
 /**
  * A custom retry function
@@ -45,6 +46,12 @@ export const QUERY_CLIENT_DEFAULT_OPTIONS: DefaultOptions = {
     // phase so it will propagate up to the nearest error boundary. Consumers
     // are responsible for defining a global error boundary.
     useErrorBoundary: true,
+
+    // react-query's default method here, `replaceEqualDeep`, does not consider
+    // two objects equal unless they both have the same plain object prototype.
+    // This means that two identical Dates, for example, would not be considered
+    // equal, so we use our own helper leveraging lodash's `deepEqual`.
+    structuralSharing: persistDataReferenceIfDeepEqual,
   },
   mutations: {
     networkMode: 'always',
