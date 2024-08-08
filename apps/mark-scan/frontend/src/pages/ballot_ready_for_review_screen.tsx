@@ -1,23 +1,12 @@
-import { Button, Icons, P } from '@votingworks/ui';
+import { Icons, P } from '@votingworks/ui';
 
 import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
+import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button';
 
-export interface BallotReadyForReviewScreenProps {
-  resetCardlessVoterSession: () => void;
-}
-
-export function BallotReadyForReviewScreen(
-  props: BallotReadyForReviewScreenProps
-): JSX.Element {
-  const { resetCardlessVoterSession } = props;
-
+export function BallotReadyForReviewScreen(): JSX.Element {
   return (
     <CenteredCardPageLayout
-      buttons={
-        <Button onPress={resetCardlessVoterSession} variant="danger">
-          Deactivate Voting Session
-        </Button>
-      }
+      buttons={<ResetVoterSessionButton />}
       icon={<Icons.Done color="success" />}
       title="Remove Poll Worker Card"
       voterFacing={false}

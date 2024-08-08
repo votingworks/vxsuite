@@ -65,6 +65,7 @@ import {
   BallotReinsertionFlow,
   isBallotReinsertionState,
 } from '../ballot_reinsertion_flow';
+import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button';
 
 function isBallotReinsertionEnabled() {
   return !isFeatureFlagEnabled(
@@ -157,7 +158,6 @@ export interface PollworkerScreenProps {
     precinctId: PrecinctId,
     ballotStyleId: BallotStyleId
   ) => void;
-  resetCardlessVoterSession: () => void;
   electionDefinition: ElectionDefinition;
   electionPackageHash: string;
   hasVotes: boolean;
@@ -172,7 +172,6 @@ export interface PollworkerScreenProps {
 export function PollWorkerScreen({
   pollWorkerAuth,
   activateCardlessVoterSession,
-  resetCardlessVoterSession,
   electionDefinition,
   electionPackageHash,
   isLiveMode,
@@ -272,11 +271,7 @@ export function PollWorkerScreen({
   }
 
   if (stateMachineState === 'presenting_ballot') {
-    return (
-      <BallotReadyForReviewScreen
-        resetCardlessVoterSession={resetCardlessVoterSession}
-      />
-    );
+    return <BallotReadyForReviewScreen />;
   }
 
   if (
@@ -300,13 +295,7 @@ export function PollWorkerScreen({
               Remove card to allow voter to continue voting, or reset ballot.
             </P>
             <P>
-              <Button
-                variant="danger"
-                icon="Delete"
-                onPress={resetCardlessVoterSession}
-              >
-                Reset Ballot
-              </Button>
+              <ResetVoterSessionButton>Reset Ballot</ResetVoterSessionButton>
             </P>
           </Text>
         </Main>
@@ -324,11 +313,7 @@ export function PollWorkerScreen({
     ) {
       return (
         <CenteredCardPageLayout
-          buttons={
-            <Button onPress={resetCardlessVoterSession}>
-              Deactivate Voting Session
-            </Button>
-          }
+          buttons={<ResetVoterSessionButton />}
           icon={<Icons.Done color="success" />}
           title="Voting Session Active:"
           voterFacing={false}

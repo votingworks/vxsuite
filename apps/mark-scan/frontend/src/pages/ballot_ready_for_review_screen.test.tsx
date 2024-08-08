@@ -1,19 +1,20 @@
-import userEvent from '@testing-library/user-event';
 import { render, screen } from '../../test/react_testing_library';
 import { BallotReadyForReviewScreen } from './ballot_ready_for_review_screen';
+import { ResetVoterSessionButton } from '../components/deactivate_voter_session_button';
+
+jest.mock('../components/deactivate_voter_session_button');
 
 test('renders instructions', () => {
-  render(<BallotReadyForReviewScreen resetCardlessVoterSession={jest.fn()} />);
+  render(<BallotReadyForReviewScreen />);
   screen.getByText(/remove the poll worker card/i);
 });
 
 test('allows voter session deactivation', () => {
-  const mockReset = jest.fn();
+  jest
+    .mocked(ResetVoterSessionButton)
+    .mockImplementation(() => <div data-testid="MockResetSessionButton" />);
 
-  render(<BallotReadyForReviewScreen resetCardlessVoterSession={mockReset} />);
+  render(<BallotReadyForReviewScreen />);
 
-  expect(mockReset).not.toHaveBeenCalled();
-
-  userEvent.click(screen.getButton(/deactivate/i));
-  expect(mockReset).toHaveBeenCalled();
+  screen.getByTestId('MockResetSessionButton');
 });

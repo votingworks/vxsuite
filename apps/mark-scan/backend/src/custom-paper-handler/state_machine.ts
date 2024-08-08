@@ -544,6 +544,7 @@ export function buildMachine(
                   'loading_paper',
                 ],
                 AUTH_STATUS_CARDLESS_VOTER: 'resetting_state_machine_no_delay',
+                AUTH_STATUS_LOGGED_OUT: 'resetting_state_machine_no_delay',
               },
             },
             loading_paper: {
@@ -561,6 +562,7 @@ export function buildMachine(
                 // The poll worker pulled their card too early
                 AUTH_STATUS_CARDLESS_VOTER:
                   'poll_worker_auth_ended_unexpectedly',
+                AUTH_STATUS_LOGGED_OUT: 'resetting_state_machine_no_delay',
               },
             },
 
@@ -573,6 +575,7 @@ export function buildMachine(
                 // The poll worker pulled their card too early
                 AUTH_STATUS_CARDLESS_VOTER:
                   'poll_worker_auth_ended_unexpectedly',
+                AUTH_STATUS_LOGGED_OUT: 'resetting_state_machine_no_delay',
               },
             },
             validating_new_sheet: {
@@ -600,6 +603,7 @@ export function buildMachine(
                 // The poll worker pulled their card too early
                 AUTH_STATUS_CARDLESS_VOTER:
                   'poll_worker_auth_ended_unexpectedly',
+                AUTH_STATUS_LOGGED_OUT: 'resetting_state_machine_no_delay',
               },
               onDone: [
                 {
@@ -623,6 +627,7 @@ export function buildMachine(
                 // The poll worker pulled their card too early
                 AUTH_STATUS_CARDLESS_VOTER:
                   'poll_worker_auth_ended_unexpectedly',
+                AUTH_STATUS_LOGGED_OUT: 'resetting_state_machine_no_delay',
                 START_SESSION_WITH_PREPRINTED_BALLOT: 'presenting_ballot',
                 RETURN_PREPRINTED_BALLOT: {
                   actions: [
@@ -642,6 +647,7 @@ export function buildMachine(
                 // The poll worker pulled their card too early
                 AUTH_STATUS_CARDLESS_VOTER:
                   'poll_worker_auth_ended_unexpectedly',
+                AUTH_STATUS_LOGGED_OUT: 'resetting_state_machine_no_delay',
               },
             },
 
@@ -649,6 +655,7 @@ export function buildMachine(
               invoke: pollAuthStatus(),
               on: {
                 AUTH_STATUS_CARDLESS_VOTER: 'waiting_for_ballot_data',
+                AUTH_STATUS_LOGGED_OUT: 'resetting_state_machine_no_delay',
               },
             },
 

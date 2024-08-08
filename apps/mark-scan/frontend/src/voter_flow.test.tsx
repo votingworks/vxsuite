@@ -55,6 +55,18 @@ jest.mock(
   })
 );
 
+const MOCK_WAITING_FOR_REINSERTION_SCREEN_CONTENTS =
+  'MockWaitingForReinsertionScreen';
+jest.mock(
+  './pages/waiting_for_ballot_reinsertion_screen',
+  (): typeof import('./pages/waiting_for_ballot_reinsertion_screen') => ({
+    ...jest.requireActual('./pages/waiting_for_ballot_reinsertion_screen'),
+    WaitingForBallotReinsertionBallotScreen: () => (
+      <div>{MOCK_WAITING_FOR_REINSERTION_SCREEN_CONTENTS}</div>
+    ),
+  })
+);
+
 const mockApi = createApiMock();
 
 function TestContext(props: React.PropsWithChildren) {
@@ -158,7 +170,8 @@ describe('ballot removal/re-insertion', () => {
   const ballotReinsertionStateScreenContents: Partial<
     Record<SimpleServerStatus, string | RegExp>
   > = {
-    waiting_for_ballot_reinsertion: /ballot removed/i,
+    waiting_for_ballot_reinsertion:
+      MOCK_WAITING_FOR_REINSERTION_SCREEN_CONTENTS,
     loading_reinserted_ballot: /loading your ballot/i,
     validating_reinserted_ballot: /loading your ballot/i,
     reinserted_invalid_ballot: MOCK_INVALID_BALLOT_SCREEN_CONTENTS,
