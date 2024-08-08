@@ -211,15 +211,15 @@ type QueryInput<Method extends keyof ApiClient> = Parameters<
   ApiClient[Method]
 >[0];
 
-export const generateLiveCheckQrCodeValue = {
+export const generateSignedHashValidationQrCodeValue = {
   queryKey(): QueryKey {
-    return ['generateLiveCheckQrCodeValue'];
+    return ['generateSignedHashValidationQrCodeValue'];
   },
   useQuery() {
     const apiClient = useApiClient();
     return useQuery(
       this.queryKey(),
-      () => apiClient.generateLiveCheckQrCodeValue(),
+      () => apiClient.generateSignedHashValidationQrCodeValue(),
       { cacheTime: 0 } // Always generate a fresh QR code value
     );
   },

@@ -4,6 +4,5 @@ declare namespace NodeJS {
     readonly REACT_APP_VX_CODE_VERSION?: string;
     readonly REACT_APP_VX_MACHINE_ID?: string;
     readonly REACT_APP_VX_DEV?: string;
-    readonly REACT_APP_VX_ENABLE_LIVECHECK?: string;
   }
 }

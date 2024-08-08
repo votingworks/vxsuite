@@ -55,7 +55,7 @@ import {
   setTestMode,
 } from '../api';
 import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
-import { LiveCheckButton } from '../components/live_check_button';
+import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
 import * as api from '../api';
 import { InsertedInvalidNewSheetScreen } from './inserted_invalid_new_sheet_screen';
 import { InsertedPreprintedBallotScreen } from './inserted_preprinted_ballot_screen';
@@ -500,13 +500,9 @@ export function PollWorkerScreen({
                   }
                 )}
               </P>
-              {isFeatureFlagEnabled(
-                BooleanEnvironmentVariableName.LIVECHECK
-              ) && (
-                /* istanbul ignore next */ <P>
-                  <LiveCheckButton />
-                </P>
-              )}
+              <P>
+                <SignedHashValidationButton />
+              </P>
             </React.Fragment>
           )}
         </Prose>

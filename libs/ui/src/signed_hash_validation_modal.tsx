@@ -31,7 +31,7 @@ interface Props {
   };
 }
 
-export function LiveCheckModal({
+export function SignedHashValidationModal({
   onClose,
   qrCodeValue,
   signatureInputs,

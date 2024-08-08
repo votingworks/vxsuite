@@ -1,13 +1,9 @@
 import React from 'react';
 import { Button, SystemAdministratorScreenContents } from '@votingworks/ui';
-import {
-  isFeatureFlagEnabled,
-  BooleanEnvironmentVariableName,
-} from '@votingworks/utils';
 import { ElectionDefinition, PollsState } from '@votingworks/types';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Screen } from '../components/layout';
-import { LiveCheckButton } from '../components/live_check_button';
+import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
 import {
   unconfigureElection,
   logOut,
@@ -43,9 +39,7 @@ export function SystemAdministratorScreen({
 
   const additionalButtons = (
     <React.Fragment>
-      {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) ? (
-        <LiveCheckButton />
-      ) : undefined}
+      <SignedHashValidationButton />
       {printerStatusQuery.data?.scheme === 'hardware-v4' && (
         <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
           System Diagnostics

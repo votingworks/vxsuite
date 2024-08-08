@@ -65,38 +65,6 @@ function renderScreen(
   );
 }
 
-describe('shows Livecheck button only when enabled', () => {
-  test('enable livecheck', async () => {
-    featureFlagMock.enableFeatureFlag(BooleanEnvironmentVariableName.LIVECHECK);
-
-    apiMock.expectGetPollsInfo('polls_open');
-    renderScreen({
-      scannedBallotCount: 5,
-    });
-
-    userEvent.click(await screen.findByText('No'));
-    expect(screen.queryByText('Hash Validation')).toBeTruthy();
-
-    apiMock.expectGenerateLiveCheckQrCodeValue();
-    userEvent.click(screen.getByText('Hash Validation'));
-    await screen.findByText('Done');
-  });
-
-  test('disable livecheck', async () => {
-    featureFlagMock.disableFeatureFlag(
-      BooleanEnvironmentVariableName.LIVECHECK
-    );
-
-    apiMock.expectGetPollsInfo('polls_open');
-    renderScreen({
-      scannedBallotCount: 5,
-    });
-
-    userEvent.click(await screen.findByText('No'));
-    expect(screen.queryByText('Hash Validation')).toBeFalsy();
-  });
-});
-
 describe('transitions from polls closed initial', () => {
   beforeEach(async () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
@@ -214,7 +182,7 @@ test('no transitions from polls closed final', async () => {
   );
 
   // There should only be the power down and print previous report button
-  expect(screen.queryAllByRole('button')).toHaveLength(2);
+  expect(screen.queryAllByRole('button')).toHaveLength(3);
   screen.getButton('Power Down');
   screen.getButton('Print Polls Closed Report');
 });
@@ -275,6 +243,7 @@ describe('reprinting previous report', () => {
     expect(screen.getAllByRole('button').map((b) => b.textContent)).toEqual([
       'Open Polls',
       'Power Down',
+      'Hash Validation',
     ]);
   });
 
@@ -592,4 +561,16 @@ describe('hardware V4 report printing', () => {
     resolve();
     await screen.findButton('Reprint Polls Opened Report');
   });
+});
+
+test('Signed hash validation', async () => {
+  apiMock.expectGetPollsInfo('polls_open');
+  renderScreen({});
+
+  userEvent.click(await screen.findByText('No'));
+  expect(screen.queryByText('Hash Validation')).toBeTruthy();
+
+  apiMock.expectGenerateSignedHashValidationQrCodeValue();
+  userEvent.click(screen.getByText('Hash Validation'));
+  await screen.findByText('Done');
 });

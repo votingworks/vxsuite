@@ -1,9 +1,9 @@
 import { render } from '../test/react_testing_library';
-import { LiveCheckModal } from './live_check_modal';
+import { SignedHashValidationModal } from './signed_hash_validation_modal';
 
-test('LiveCheckModal renders', () => {
+test('SignedHashValidationModal renders', () => {
   render(
-    <LiveCheckModal
+    <SignedHashValidationModal
       onClose={jest.fn()}
       qrCodeValue="qrCodeValue"
       signatureInputs={{

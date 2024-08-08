@@ -1,5 +1,8 @@
 import express, { Application } from 'express';
-import { InsertedSmartCardAuthApi, LiveCheck } from '@votingworks/auth';
+import {
+  InsertedSmartCardAuthApi,
+  SignedHashValidation,
+} from '@votingworks/auth';
 import {
   assert,
   assertDefined,
@@ -406,10 +409,10 @@ export function buildApi(
     },
 
     /* istanbul ignore next */
-    generateLiveCheckQrCodeValue() {
+    generateSignedHashValidationQrCodeValue() {
       const { machineId } = getMachineConfig();
       const electionRecord = workspace.store.getElectionRecord();
-      return new LiveCheck().generateQrCodeValue({
+      return new SignedHashValidation().generateQrCodeValue({
         machineId,
         ballotHash: electionRecord?.electionDefinition.ballotHash,
       });
