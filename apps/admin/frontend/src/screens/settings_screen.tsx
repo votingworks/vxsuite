@@ -6,14 +6,14 @@ import {
   P,
   RebootToBiosButton,
   SetClockButton,
+  SignedHashValidationButton,
 } from '@votingworks/ui';
 import { isSystemAdministratorAuth } from '@votingworks/utils';
 
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
 import { FormatUsbButton } from '../components/format_usb_modal';
-import { logOut } from '../api';
-import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
+import { generateSignedHashValidationQrCodeValue, logOut } from '../api';
 
 export function SettingsScreen(): JSX.Element {
   const { auth, usbDriveStatus } = useContext(AppContext);
@@ -42,7 +42,11 @@ export function SettingsScreen(): JSX.Element {
       )}
       <H2>Hash Validation</H2>
       <P>
-        <SignedHashValidationButton />
+        <SignedHashValidationButton
+          generateSignedHashValidationQrCodeValue={
+            generateSignedHashValidationQrCodeValue
+          }
+        />
       </P>
     </NavigationScreen>
   );

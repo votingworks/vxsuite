@@ -17,6 +17,7 @@ import {
   H6,
   UnconfigureMachineButton,
   ExportLogsButton,
+  SignedHashValidationButton,
 } from '@votingworks/ui';
 import {
   ElectionDefinition,
@@ -27,11 +28,11 @@ import type { MachineConfig } from '@votingworks/mark-scan-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   ejectUsbDrive,
+  generateSignedHashValidationQrCodeValue,
   logOut,
   setPrecinctSelection,
   setTestMode,
 } from '../api';
-import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
 
 export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;
@@ -180,7 +181,11 @@ export function AdminScreen({
         </P>
         <H6 as="h2">Security</H6>
         <P>
-          <SignedHashValidationButton />
+          <SignedHashValidationButton
+            generateSignedHashValidationQrCodeValue={
+              generateSignedHashValidationQrCodeValue
+            }
+          />
         </P>
       </Main>
       {election && (

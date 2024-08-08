@@ -1,5 +1,8 @@
 import { Scan } from '@votingworks/api';
-import { DippedSmartCardAuthApi } from '@votingworks/auth';
+import {
+  DippedSmartCardAuthApi,
+  generateSignedHashValidationQrCodeValue,
+} from '@votingworks/auth';
 import { Result, assert, ok } from '@votingworks/basics';
 import {
   createSystemCallApi,
@@ -303,6 +306,17 @@ function buildApi({
     async getApplicationDiskSpaceSummary(): Promise<DiskSpaceSummary> {
       return workspace.getDiskSpaceSummary();
     },
+
+    /* c8 ignore start */
+    generateSignedHashValidationQrCodeValue() {
+      const { machineId } = getMachineConfig();
+      const electionRecord = store.getElectionRecord();
+      return generateSignedHashValidationQrCodeValue({
+        ballotHash: electionRecord?.electionDefinition.ballotHash,
+        machineId,
+      });
+    },
+    /* c8 ignore stop */
 
     ...createSystemCallApi({
       usbDrive,

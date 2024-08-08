@@ -10,6 +10,7 @@ import {
   PowerDownButton,
   FullScreenIconWrapper,
   Icons,
+  SignedHashValidationButton,
 } from '@votingworks/ui';
 import { getPollsReportTitle } from '@votingworks/utils';
 import { ElectionDefinition, PollsTransitionType } from '@votingworks/types';
@@ -28,9 +29,9 @@ import {
   pauseVoting as pauseVotingApi,
   resumeVoting as resumeVotingApi,
   getPollsInfo,
+  generateSignedHashValidationQrCodeValue,
 } from '../api';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
-import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
 import { CastVoteRecordSyncRequiredScreen } from './cast_vote_record_sync_required_screen';
 import {
   PollsFlowPrinterSummary,
@@ -491,7 +492,11 @@ function PollWorkerScreenContents({
           </Button>
         ))}
       <PowerDownButton />
-      <SignedHashValidationButton />
+      <SignedHashValidationButton
+        generateSignedHashValidationQrCodeValue={
+          generateSignedHashValidationQrCodeValue
+        }
+      />
     </React.Fragment>
   );
 

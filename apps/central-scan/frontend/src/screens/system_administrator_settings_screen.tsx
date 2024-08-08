@@ -8,11 +8,16 @@ import {
   CurrentDateAndTime,
   SetClockButton,
   ExportLogsButton,
+  SignedHashValidationButton,
 } from '@votingworks/ui';
 import { useContext } from 'react';
 import { NavigationScreen } from '../navigation_screen';
 import { AppContext } from '../contexts/app_context';
-import { logOut, unconfigure } from '../api';
+import {
+  generateSignedHashValidationQrCodeValue,
+  logOut,
+  unconfigure,
+} from '../api';
 
 export function SystemAdministratorSettingsScreen(): JSX.Element {
   const { electionDefinition, usbDriveStatus } = useContext(AppContext);
@@ -47,6 +52,12 @@ export function SystemAdministratorSettingsScreen(): JSX.Element {
       <SetClockButton logOut={() => logOutMutation.mutate()}>
         Set Date and Time
       </SetClockButton>
+      <H2>Security</H2>
+      <SignedHashValidationButton
+        generateSignedHashValidationQrCodeValue={
+          generateSignedHashValidationQrCodeValue
+        }
+      />
       <H2>Software Update</H2>
       <RebootToBiosButton /> <PowerDownButton />
     </NavigationScreen>

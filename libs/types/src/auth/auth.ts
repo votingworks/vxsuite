@@ -160,6 +160,18 @@ export const OverallSessionTimeLimitHoursSchema: z.ZodSchema<OverallSessionTimeL
 export const DEFAULT_OVERALL_SESSION_TIME_LIMIT_HOURS: OverallSessionTimeLimitHours = 12;
 
 /**
+ * The output of the signed hash validation QR code generation function
+ */
+export interface SignedHashValidationQrCodeValue {
+  qrCodeValue: string;
+  signatureInputs: {
+    ballotHashPrefix: string;
+    date: Date;
+    machineId: string;
+  };
+}
+
+/**
  * The jurisdiction used across tests.
  *
  * We define this here instead of in @votingworks/auth so that it can be imported by

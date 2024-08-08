@@ -30,6 +30,7 @@ import {
   H3,
   H6,
   Text,
+  SignedHashValidationButton,
 } from '@votingworks/ui';
 
 import {
@@ -55,7 +56,6 @@ import {
   setTestMode,
 } from '../api';
 import { CenteredCardPageLayout } from '../components/centered_card_page_layout';
-import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
 import * as api from '../api';
 import { InsertedInvalidNewSheetScreen } from './inserted_invalid_new_sheet_screen';
 import { InsertedPreprintedBallotScreen } from './inserted_preprinted_ballot_screen';
@@ -501,7 +501,11 @@ export function PollWorkerScreen({
                 )}
               </P>
               <P>
-                <SignedHashValidationButton />
+                <SignedHashValidationButton
+                  generateSignedHashValidationQrCodeValue={
+                    api.generateSignedHashValidationQrCodeValue
+                  }
+                />
               </P>
             </React.Fragment>
           )}

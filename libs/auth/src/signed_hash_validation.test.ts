@@ -2,7 +2,7 @@ import { electionGeneralDefinition } from '@votingworks/fixtures';
 
 import { getTestFilePath } from '../test/utils';
 import { SignedHashValidationConfig } from './config';
-import { SignedHashValidation } from './signed_hash_validation';
+import { generateSignedHashValidationQrCodeValue } from './signed_hash_validation';
 
 const machineId = '0000';
 const { ballotHash } = electionGeneralDefinition;
@@ -59,11 +59,14 @@ test.each<{
     isMachineConfiguredForAnElection,
     expectedQrCodeValueLength,
   }) => {
-    const signedHashValidation = new SignedHashValidation(config);
-    const { qrCodeValue } = await signedHashValidation.generateQrCodeValue({
+    const machineState = {
       machineId,
       ballotHash: isMachineConfiguredForAnElection ? ballotHash : undefined,
-    });
+    } as const;
+    const { qrCodeValue } = await generateSignedHashValidationQrCodeValue(
+      machineState,
+      config
+    );
     expect([
       expectedQrCodeValueLength,
       // There's a slight chance that the base64-encoded signature within the QR code value is 92

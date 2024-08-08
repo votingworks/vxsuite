@@ -11,6 +11,7 @@ import {
   UnconfigureMachineButton,
   Icons,
   TabConfig,
+  SignedHashValidationButton,
 } from '@votingworks/ui';
 import React, { useState } from 'react';
 import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
@@ -19,6 +20,7 @@ import { ExportResultsModal } from '../components/export_results_modal';
 import { Screen } from '../components/layout';
 import {
   ejectUsbDrive,
+  generateSignedHashValidationQrCodeValue,
   getAuthStatus,
   getConfig,
   getMachineConfig,
@@ -34,7 +36,6 @@ import {
   beginDoubleFeedCalibration,
 } from '../api';
 import { usePreviewContext } from '../preview_dashboard';
-import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
 import { ElectionManagerPrinterTabContent } from '../components/printer_management/election_manager_printer_tab_content';
 
 export const SELECT_PRECINCT_TEXT = 'Select a precinct for this device…';
@@ -285,7 +286,11 @@ export function ElectionManagerScreen({
           {calibrateDoubleSheetDetectionButton}
           {dateTimeButton}
           {audioMuteToggle}
-          <SignedHashValidationButton />
+          <SignedHashValidationButton
+            generateSignedHashValidationQrCodeValue={
+              generateSignedHashValidationQrCodeValue
+            }
+          />
         </React.Fragment>
       ),
     }

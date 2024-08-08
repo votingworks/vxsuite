@@ -3,12 +3,12 @@ import { Button, SystemAdministratorScreenContents } from '@votingworks/ui';
 import { ElectionDefinition, PollsState } from '@votingworks/types';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import { Screen } from '../components/layout';
-import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
 import {
   unconfigureElection,
   logOut,
   resetPollsToPaused,
   getPrinterStatus,
+  generateSignedHashValidationQrCodeValue,
 } from '../api';
 import { usePreviewContext } from '../preview_dashboard';
 import { DiagnosticsScreen } from './diagnostics_screen';
@@ -39,7 +39,6 @@ export function SystemAdministratorScreen({
 
   const additionalButtons = (
     <React.Fragment>
-      <SignedHashValidationButton />
       {printerStatusQuery.data?.scheme === 'hardware-v4' && (
         <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
           System Diagnostics
@@ -73,6 +72,9 @@ export function SystemAdministratorScreen({
         isMachineConfigured={Boolean(electionDefinition)}
         logOut={() => logOutMutation.mutate()}
         usbDriveStatus={usbDrive}
+        generateSignedHashValidationQrCodeValue={
+          generateSignedHashValidationQrCodeValue
+        }
         additionalButtons={additionalButtons}
       />
     </Screen>

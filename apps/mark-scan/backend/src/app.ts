@@ -1,7 +1,7 @@
 import express, { Application } from 'express';
 import {
   InsertedSmartCardAuthApi,
-  SignedHashValidation,
+  generateSignedHashValidationQrCodeValue,
 } from '@votingworks/auth';
 import {
   assert,
@@ -411,10 +411,10 @@ export function buildApi(
     /* istanbul ignore next */
     generateSignedHashValidationQrCodeValue() {
       const { machineId } = getMachineConfig();
-      const electionRecord = workspace.store.getElectionRecord();
-      return new SignedHashValidation().generateQrCodeValue({
-        machineId,
+      const electionRecord = store.getElectionRecord();
+      return generateSignedHashValidationQrCodeValue({
         ballotHash: electionRecord?.electionDefinition.ballotHash,
+        machineId,
       });
     },
 

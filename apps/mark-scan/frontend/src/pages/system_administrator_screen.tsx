@@ -8,7 +8,7 @@ import {
   SystemAdministratorScreenContents,
 } from '@votingworks/ui';
 import { UsbDriveStatus } from '@votingworks/usb-drive';
-import { logOut } from '../api';
+import { logOut, generateSignedHashValidationQrCodeValue } from '../api';
 import { DiagnosticsScreen } from './diagnostics/diagnostics_screen';
 
 const resetPollsToPausedText =
@@ -60,6 +60,9 @@ export function SystemAdministratorScreen({
           isMachineConfigured={isMachineConfigured}
           logOut={() => logOutMutation.mutate()}
           usbDriveStatus={usbDriveStatus}
+          generateSignedHashValidationQrCodeValue={
+            generateSignedHashValidationQrCodeValue
+          }
           additionalButtons={
             <Button onPress={() => setIsDiagnosticsScreenOpen(true)}>
               System Diagnostics

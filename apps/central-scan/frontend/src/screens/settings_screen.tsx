@@ -10,6 +10,7 @@ import {
   Modal,
   P,
   SetClockButton,
+  SignedHashValidationButton,
   UnconfigureMachineButton,
   userReadableMessageFromExportError,
 } from '@votingworks/ui';
@@ -23,6 +24,7 @@ import {
   unconfigure,
   exportCastVoteRecordsToUsbDrive,
   ejectUsbDrive,
+  generateSignedHashValidationQrCodeValue,
 } from '../api';
 import { NavigationScreen } from '../navigation_screen';
 
@@ -127,6 +129,16 @@ export function SettingsScreen({
           Set Date and Time
         </SetClockButton>
       </ButtonRow>
+
+      <H2>Security</H2>
+      <ButtonRow>
+        <SignedHashValidationButton
+          generateSignedHashValidationQrCodeValue={
+            generateSignedHashValidationQrCodeValue
+          }
+        />
+      </ButtonRow>
+
       {isBackingUp && (
         <Modal centerContent content={<Loading>Saving backup</Loading>} />
       )}

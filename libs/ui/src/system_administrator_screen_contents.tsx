@@ -11,6 +11,10 @@ import { P } from './typography';
 import { PowerDownButton } from './power_down_button';
 import { SetClockButton } from './set_clock';
 import { ExportLogsButton } from './export_logs_modal';
+import {
+  GenerateSignedHashValidationQrCodeValue,
+  SignedHashValidationButton,
+} from './signed_hash_validation_button';
 
 interface Props {
   displayRemoveCardToLeavePrompt?: boolean;
@@ -21,6 +25,7 @@ interface Props {
   isMachineConfigured: boolean;
   logOut: () => void;
   usbDriveStatus: UsbDriveStatus;
+  generateSignedHashValidationQrCodeValue?: GenerateSignedHashValidationQrCodeValue;
   additionalButtons?: React.ReactNode;
 }
 
@@ -54,6 +59,7 @@ export function SystemAdministratorScreenContents({
   logOut,
   additionalButtons,
   usbDriveStatus,
+  generateSignedHashValidationQrCodeValue,
 }: Props): JSX.Element {
   return (
     <React.Fragment>
@@ -76,6 +82,13 @@ export function SystemAdministratorScreenContents({
           isMachineConfigured={isMachineConfigured}
         />
         <ExportLogsButton usbDriveStatus={usbDriveStatus} />
+        {generateSignedHashValidationQrCodeValue && (
+          <SignedHashValidationButton
+            generateSignedHashValidationQrCodeValue={
+              generateSignedHashValidationQrCodeValue
+            }
+          />
+        )}
         {additionalButtons}
         {isVxDev() && (
           <Button onPress={() => window.kiosk?.quit()}>Quit</Button>

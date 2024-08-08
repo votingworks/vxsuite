@@ -25,7 +25,7 @@ import {
 import express, { Application } from 'express';
 import {
   DippedSmartCardAuthApi,
-  SignedHashValidation,
+  generateSignedHashValidationQrCodeValue,
   prepareSignatureFile,
 } from '@votingworks/auth';
 import * as grout from '@votingworks/grout';
@@ -249,9 +249,9 @@ function buildApi({
     generateSignedHashValidationQrCodeValue() {
       const { machineId } = getMachineConfig();
       const electionRecord = getCurrentElectionRecord(workspace);
-      return new SignedHashValidation().generateQrCodeValue({
+      return generateSignedHashValidationQrCodeValue({
+        ballotHash: electionRecord?.electionDefinition.ballotHash,
         machineId,
-        ballotHash: electionRecord?.electionDefinition?.ballotHash,
       });
     },
     /* c8 ignore stop */
