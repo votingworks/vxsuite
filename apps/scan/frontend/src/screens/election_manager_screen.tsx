@@ -96,6 +96,10 @@ export function ElectionManagerScreen({
   const { pollsState } = pollsInfoQuery.data;
   const printerStatus = printerStatusQuery.data;
 
+  const disableConfiguration =
+    scannerStatus.state === 'disconnected' ||
+    (printerStatus.scheme === 'hardware-v4' && printerStatus.state === 'error');
+
   const isCvrSyncRequired =
     Boolean(usbDriveStatusQuery.data.doesUsbDriveRequireCastVoteRecordSync) &&
     !isTestMode;
@@ -151,7 +155,11 @@ export function ElectionManagerScreen({
   const ballotMode = (
     <P>
       <SegmentedButton
-        disabled={setTestModeMutation.isLoading || isCvrSyncRequired}
+        disabled={
+          setTestModeMutation.isLoading ||
+          isCvrSyncRequired ||
+          disableConfiguration
+        }
         label="Ballot Mode:"
         hideLabel
         onChange={() => {
@@ -207,7 +215,10 @@ export function ElectionManagerScreen({
 
   const calibrateDoubleSheetDetectionButton = (
     <P>
-      <Button onPress={() => beginDoubleFeedCalibrationMutation.mutate()}>
+      <Button
+        disabled={scannerStatus.state === 'disconnected'}
+        onPress={() => beginDoubleFeedCalibrationMutation.mutate()}
+      >
         Calibrate Double Sheet Detection
       </Button>
     </P>

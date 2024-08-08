@@ -149,30 +149,6 @@ export function AppRoot(): JSX.Element | null {
     );
   }
 
-  // TODO (CARO): Either Rename this screen or make a different one for the printer
-  console.log(scannerStatus.state);
-  if (
-    scannerStatus.state === 'disconnected' ||
-    (printerStatus.scheme === 'hardware-v4' && printerStatus.state === 'error')
-  ) {
-    return (
-      <InternalConnectionProblemScreen
-        scannedBallotCount={scannerStatus.ballotsCounted}
-        isScannerConnected={scannerStatus.state !== 'disconnected'}
-        printerStatus={printerStatus}
-      />
-    );
-  }
-
-  // Unconfigured machine, user has not yet attempted auth
-  if (
-    !electionDefinition &&
-    authStatus.status === 'logged_out' &&
-    authStatus.reason === 'no_card'
-  ) {
-    return <LoginPromptScreen />;
-  }
-
   if (
     scannerStatus.state === 'calibrating_double_feed_detection.double_sheet' ||
     scannerStatus.state === 'calibrating_double_feed_detection.single_sheet' ||
@@ -196,20 +172,43 @@ export function AppRoot(): JSX.Element | null {
     );
   }
 
-  if (!electionDefinition) {
-    return (
-      <UnconfiguredElectionScreenWrapper
-        isElectionManagerAuth={isElectionManagerAuth(authStatus)}
-      />
-    );
-  }
-
-  if (isElectionManagerAuth(authStatus)) {
+  if (isElectionManagerAuth(authStatus) && electionDefinition) {
+    // TODO (CARO): Either Rename this screen or make a different one for the printer
     return (
       <ElectionManagerScreen
         electionDefinition={electionDefinition}
         scannerStatus={scannerStatus}
         usbDrive={usbDrive}
+      />
+    );
+  }
+
+  const isInternalConnectionProblem =
+    scannerStatus.state === 'disconnected' ||
+    (printerStatus.scheme === 'hardware-v4' && printerStatus.state === 'error');
+  if (isInternalConnectionProblem) {
+    return (
+      <InternalConnectionProblemScreen
+        scannedBallotCount={scannerStatus.ballotsCounted}
+        isScannerConnected={scannerStatus.state !== 'disconnected'}
+        printerStatus={printerStatus}
+      />
+    );
+  }
+
+  // Unconfigured machine, user has not yet attempted auth
+  if (
+    !electionDefinition &&
+    authStatus.status === 'logged_out' &&
+    authStatus.reason === 'no_card'
+  ) {
+    return <LoginPromptScreen />;
+  }
+
+  if (!electionDefinition) {
+    return (
+      <UnconfiguredElectionScreenWrapper
+        isElectionManagerAuth={isElectionManagerAuth(authStatus)}
       />
     );
   }
