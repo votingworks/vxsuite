@@ -40,7 +40,10 @@ import {
   waitForStatus as waitForStatusHelper,
 } from '../test/app_helpers';
 import { Api, buildApp } from './app';
-import { PaperHandlerStateMachine } from './custom-paper-handler';
+import {
+  ACCEPTED_PAPER_TYPES,
+  PaperHandlerStateMachine,
+} from './custom-paper-handler';
 import { ElectionState } from './types';
 import {
   mockCardlessVoterAuth,
@@ -403,7 +406,7 @@ test('empty ballot box', async () => {
 
 test('getPaperHandlerState returns state machine state', async () => {
   await configureForTestElection(electionGeneralDefinition);
-  await apiClient.setAcceptingPaperState();
+  await apiClient.setAcceptingPaperState({ paperTypes: ACCEPTED_PAPER_TYPES });
   expect(await apiClient.getPaperHandlerState()).toEqual('accepting_paper');
 });
 
@@ -415,7 +418,9 @@ async function mockLoadFlow(
   testApiClient: grout.Client<Api>,
   testDriver: MockPaperHandlerDriver
 ) {
-  await testApiClient.setAcceptingPaperState();
+  await testApiClient.setAcceptingPaperState({
+    paperTypes: ACCEPTED_PAPER_TYPES,
+  });
   testDriver.setMockStatus('paperInserted');
   mockCardlessVoterAuth(mockAuth);
   await waitForStatus('waiting_for_ballot_data');

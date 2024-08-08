@@ -39,7 +39,7 @@ function setMockInterpretation(type: PageInterpretationType) {
 const expectedScreenContents: Readonly<
   Record<PageInterpretationType, string | RegExp>
 > = {
-  BlankPage: 'Test Error Boundary',
+  BlankPage: /no ballot detected/i,
   InterpretedBmdPage: 'Test Error Boundary',
   InterpretedHmpbPage: /unable to read ballot/i,
   InvalidBallotHashPage: /wrong election/i,

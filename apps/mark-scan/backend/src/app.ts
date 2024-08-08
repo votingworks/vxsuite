@@ -47,6 +47,7 @@ import { getMachineConfig } from './machine_config';
 import { Workspace } from './util/workspace';
 import {
   PaperHandlerStateMachine,
+  AcceptedPaperType,
   SimpleServerStatus,
   buildMockPaperHandlerApi,
 } from './custom-paper-handler';
@@ -208,9 +209,9 @@ export function buildApi(
       return stateMachine.getSimpleStatus();
     },
 
-    setAcceptingPaperState(): void {
+    setAcceptingPaperState(input: { paperTypes: AcceptedPaperType[] }): void {
       assert(stateMachine);
-      stateMachine.setAcceptingPaper();
+      stateMachine.setAcceptingPaper(input.paperTypes);
     },
 
     /**
@@ -435,7 +436,7 @@ export function buildApi(
 
 export type Api = ReturnType<typeof buildApi>;
 
-export type { MockPaperHandlerStatus };
+export type { MockPaperHandlerStatus, AcceptedPaperType };
 
 export function buildApp(
   auth: InsertedSmartCardAuthApi,

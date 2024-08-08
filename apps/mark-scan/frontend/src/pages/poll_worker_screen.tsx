@@ -43,9 +43,17 @@ import {
   extractBallotStyleGroupId,
 } from '@votingworks/utils';
 
-import type { MachineConfig } from '@votingworks/mark-scan-backend';
+import type {
+  AcceptedPaperType,
+  MachineConfig,
+} from '@votingworks/mark-scan-backend';
 import styled from 'styled-components';
-import { DateWithoutTime, find, throwIllegalValue } from '@votingworks/basics';
+import {
+  assertDefined,
+  DateWithoutTime,
+  find,
+  throwIllegalValue,
+} from '@votingworks/basics';
 
 import { LoadPaperPage } from './load_paper_page';
 import {
@@ -72,6 +80,14 @@ function isBallotReinsertionEnabled() {
     BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
   );
 }
+
+const ACCEPTING_ALL_PAPER_TYPES_PARAMS = {
+  paperTypes: ['BlankPage', 'InterpretedBmdPage'] as AcceptedPaperType[],
+} as const;
+
+const ACCEPTING_PREPRINTED_BALLOT_PARAMS = {
+  paperTypes: ['InterpretedBmdPage'] as AcceptedPaperType[],
+} as const;
 
 const VotingSession = styled.div`
   margin: 30px 0 60px;
@@ -222,6 +238,23 @@ export function PollWorkerScreen({
     setTestModeMutation.mutate({ isTestMode: false });
     setIsConfirmingEnableLiveMode(false);
   }
+
+  const mutateAcceptingPaperState = setAcceptingPaperStateMutation.mutate;
+  const onChooseBallotStyle = React.useCallback(
+    (ballotStyleId: string) =>
+      mutateAcceptingPaperState(ACCEPTING_ALL_PAPER_TYPES_PARAMS, {
+        onSuccess: () =>
+          activateCardlessVoterSession(
+            assertDefined(selectedCardlessVoterPrecinctId),
+            ballotStyleId
+          ),
+      }),
+    [
+      activateCardlessVoterSession,
+      selectedCardlessVoterPrecinctId,
+      mutateAcceptingPaperState,
+    ]
+  );
 
   // TODO(kofi): Remove once we've added mock paper handler functionality to the
   // dev dock:
@@ -409,16 +442,8 @@ export function PollWorkerScreen({
                     {precinctBallotStyles.map((ballotStyle) => (
                       <Button
                         key={ballotStyle.id}
-                        onPress={() => {
-                          setAcceptingPaperStateMutation.mutate(undefined, {
-                            onSuccess() {
-                              activateCardlessVoterSession(
-                                selectedCardlessVoterPrecinctId,
-                                ballotStyle.id
-                              );
-                            },
-                          });
-                        }}
+                        onPress={onChooseBallotStyle}
+                        value={ballotStyle.id}
                       >
                         {extractBallotStyleGroupId(ballotStyle.id)}
                       </Button>
@@ -439,7 +464,10 @@ export function PollWorkerScreen({
                     verify votes from the printed ballot before it is cast.
                   </P>
                   <P>
-                    <Button onPress={setAcceptingPaperStateMutation.mutate}>
+                    <Button
+                      onPress={setAcceptingPaperStateMutation.mutate}
+                      value={ACCEPTING_PREPRINTED_BALLOT_PARAMS}
+                    >
                       Insert Printed Ballot
                     </Button>
                   </P>
