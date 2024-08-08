@@ -32,11 +32,15 @@ import {
   singlePrecinctSelectionFor,
 } from '@votingworks/utils';
 import {
+  renderBmdBallotFixture,
+  writeFirstBallotPageToImageFile,
+} from '@votingworks/bmd-ballot-fixtures';
+import {
   InterpretFileResult,
   interpretSimplexBmdBallot,
 } from '@votingworks/ballot-interpreter';
 import {
-  fromGrayScale,
+  BLANK_PAGE_IMAGE_DATA,
   loadImageData,
   writeImageData,
 } from '@votingworks/image-utils';
@@ -52,11 +56,7 @@ import {
   PatConnectionStatusReader,
   PatConnectionStatusReaderInterface,
 } from '../pat-input/connection_status_reader';
-import {
-  getPaperInRearStatus,
-  readBallotFixture,
-  getSampleBallotFilepath,
-} from './test_utils';
+import { getPaperInRearStatus } from './test_utils';
 import { SimpleServerStatus } from '.';
 import {
   loadAndParkPaper,
@@ -78,7 +78,6 @@ import {
 import {
   BLANK_PAGE_INTERPRETATION_MOCK,
   BLANK_PAGE_MOCK,
-  MOCK_IMAGE,
 } from '../../test/ballot_helpers';
 
 // Use shorter polling interval in tests to reduce run times
@@ -98,6 +97,8 @@ let machine: PaperHandlerStateMachine;
 let logger: BaseLogger;
 let patConnectionStatusReader: PatConnectionStatusReaderInterface;
 let auth: InsertedSmartCardAuthApi;
+let ballotPdfData: Buffer;
+let scannedBallotFixtureFilepaths: string;
 
 const precinctId = electionGeneralDefinition.election.precincts[1].id;
 const featureFlagMock = getFeatureFlagMock();
@@ -123,7 +124,7 @@ const SUCCESSFUL_INTERPRETATION_MOCK: SheetOf<InterpretFileResult> = [
       },
       votes: {},
     },
-    normalizedImage: MOCK_IMAGE,
+    normalizedImage: BLANK_PAGE_IMAGE_DATA,
   },
   BLANK_PAGE_MOCK,
 ];
@@ -166,6 +167,15 @@ function expectMockPaperHandlerStatus(
 ) {
   expect(mockDriver.getMockStatus()).toEqual(mockStatus);
 }
+
+beforeAll(async () => {
+  ballotPdfData = await renderBmdBallotFixture({
+    electionDefinition: electionGeneralDefinition,
+    frontPageOnly: true,
+  });
+  scannedBallotFixtureFilepaths =
+    await writeFirstBallotPageToImageFile(ballotPdfData);
+});
 
 beforeEach(async () => {
   jest.useFakeTimers();
@@ -380,7 +390,7 @@ describe('paper jam', () => {
 
 // Sets up print and scan mocks. Executes the state machine from 'not_accepting_paper' to 'presenting_ballot'.
 async function executePrintBallotAndAssert(
-  ballotPdfData: Buffer,
+  printData: Buffer,
   scanFixtureFilepath: string,
   interpretationResult: SheetOf<InterpretFileResult> = SUCCESSFUL_INTERPRETATION_MOCK
 ): Promise<void> {
@@ -407,7 +417,7 @@ async function executePrintBallotAndAssert(
   mockCardlessVoterAuth(auth);
   await expectStatusTransitionTo('waiting_for_ballot_data');
 
-  void machine.printBallot(ballotPdfData);
+  void machine.printBallot(printData);
   expectCurrentStatus('printing_ballot');
   expect(printBallotChunks).toHaveBeenCalledTimes(1);
 
@@ -432,8 +442,6 @@ async function executePrintBallotAndAssert(
 test('voting flow happy path', async () => {
   // This test asserts on blocking states only. Non-blocking
   // states are hard to reliably assert on
-  const ballotPdfData = await readBallotFixture();
-  const scannedBallotFixtureFilepaths = getSampleBallotFilepath();
 
   await executePrintBallotAndAssert(
     ballotPdfData,
@@ -456,9 +464,6 @@ test('voting flow happy path', async () => {
 
 describe('removing ballot during presentation state', () => {
   test('goes to ballot_removed_during_presentation state', async () => {
-    const ballotPdfData = await readBallotFixture();
-    const scannedBallotFixtureFilepaths = getSampleBallotFilepath();
-
     await executePrintBallotAndAssert(
       ballotPdfData,
       scannedBallotFixtureFilepaths
@@ -476,9 +481,6 @@ describe('removing ballot during presentation state', () => {
 
 test('ballot box empty flow', async () => {
   workspace.store.setBallotsCastSinceLastBoxChange(MAX_BALLOT_BOX_CAPACITY - 1);
-
-  const ballotPdfData = await readBallotFixture();
-  const scannedBallotFixtureFilepaths = getSampleBallotFilepath();
 
   await executePrintBallotAndAssert(
     ballotPdfData,
@@ -515,24 +517,19 @@ test('elections with grid layouts still try to interpret BMD ballots', async () 
     singlePrecinctSelectionFor(electionDefinition.election.precincts[0].id)
   );
 
-  const ballotPdfData = await readBallotFixture();
-  const scannedBallotFixtureFilepaths = getSampleBallotFilepath();
   await executePrintBallotAndAssert(
     ballotPdfData,
     scannedBallotFixtureFilepaths
   );
 });
 
-const BLANK_IMAGE = fromGrayScale(new Uint8ClampedArray([0]), 1, 1);
-
 async function writeTmpBlankImage(): Promise<string> {
   const path = join(dirSync().name, 'blank-image.jpg');
-  await writeImageData(path, BLANK_IMAGE);
+  await writeImageData(path, BLANK_PAGE_IMAGE_DATA);
   return path;
 }
 
 test('blank page interpretation', async () => {
-  const ballotPdfData = await readBallotFixture();
   const mockScannedBallotImagePath = await writeTmpBlankImage();
 
   await executePrintBallotAndAssert(
@@ -860,9 +857,6 @@ describe('paper handler diagnostic', () => {
 });
 
 test('reset() API', async () => {
-  const ballotPdfData = await readBallotFixture();
-  const scannedBallotFixtureFilepaths = getSampleBallotFilepath();
-
   await executePrintBallotAndAssert(
     ballotPdfData,
     scannedBallotFixtureFilepaths,
@@ -909,7 +903,7 @@ test('insert and validate new blank sheet', async () => {
   } = mockOf(interpretSimplexBmdBallot).mock;
   assert(frontImage, 'No front image was passed to interpretSimplexBmdBallot');
 
-  await expect(frontImage).toMatchImage(BLANK_IMAGE);
+  await expect(frontImage).toMatchImage(BLANK_PAGE_IMAGE_DATA);
 });
 
 describe('insert pre-printed ballot', () => {
@@ -1072,7 +1066,7 @@ describe('re-insert removed ballot', () => {
       calls: [[frontImage]],
     } = mockOf(interpretSimplexBmdBallot).mock;
 
-    await expect(frontImage).toMatchImage(BLANK_IMAGE);
+    await expect(frontImage).toMatchImage(BLANK_PAGE_IMAGE_DATA);
   });
 
   const invalidInterpretationTypes: Record<PageInterpretationType, boolean> = {

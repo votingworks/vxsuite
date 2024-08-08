@@ -1481,6 +1481,9 @@ importers:
       '@votingworks/basics':
         specifier: workspace:*
         version: link:../../../libs/basics
+      '@votingworks/bmd-ballot-fixtures':
+        specifier: workspace:*
+        version: link:../../../libs/bmd-ballot-fixtures
       '@votingworks/custom-paper-handler':
         specifier: workspace:*
         version: link:../../../libs/custom-paper-handler
@@ -3344,9 +3347,21 @@ importers:
 
   libs/bmd-ballot-fixtures:
     dependencies:
+      '@types/tmp':
+        specifier: 0.2.4
+        version: 0.2.4
+      '@votingworks/basics':
+        specifier: workspace:*
+        version: link:../basics
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
+      '@votingworks/fs':
+        specifier: workspace:*
+        version: link:../fs
+      '@votingworks/image-utils':
+        specifier: workspace:*
+        version: link:../image-utils
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../printing
@@ -3356,6 +3371,9 @@ importers:
       '@votingworks/ui':
         specifier: workspace:*
         version: link:../ui
+      tmp:
+        specifier: ^0.2.1
+        version: 0.2.1
     devDependencies:
       '@types/jest':
         specifier: ^29.5.3
@@ -3366,12 +3384,6 @@ importers:
       '@types/react':
         specifier: 18.3.3
         version: 18.3.3
-      '@votingworks/basics':
-        specifier: workspace:*
-        version: link:../basics
-      '@votingworks/image-utils':
-        specifier: workspace:*
-        version: link:../image-utils
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../eslint-plugin-vx
@@ -10865,7 +10877,6 @@ packages:
 
   /@types/tmp@0.2.4:
     resolution: {integrity: sha512-Vq3rwM+2KgiLacq68EjTJD9cuJ/ne5pXntWn8B8Rxj25SLkGAhCgooCZ1lhcIcV5OFveJ+s5Cqpi+XKfFM/xZA==}
-    dev: true
 
   /@types/tough-cookie@4.0.2:
     resolution: {integrity: sha512-Q5vtl1W5ue16D+nIaW8JWebSSraJVlK+EthKn7e7UcD4KWsaSJ8BqGPXNaPghgtcn/fhvrN17Tv8ksUsQpiplw==}
@@ -19919,6 +19930,7 @@ packages:
 
   /rimraf@3.0.2:
     resolution: {integrity: sha512-JZkJMZkAGFFPP2YqXZXPbMlMBgsxzE8ILs4lMIX/2o0L9UBw9O/Y3o6wFw/i9YLapcUJWwqbi3kdxIPdC62TIA==}
+    deprecated: Rimraf versions prior to v4 are no longer supported
     hasBin: true
     dependencies:
       glob: 7.2.3

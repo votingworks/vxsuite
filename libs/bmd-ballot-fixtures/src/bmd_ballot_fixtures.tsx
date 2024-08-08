@@ -1,5 +1,6 @@
 import React from 'react';
 import { renderToPdf } from '@votingworks/printing';
+import tmp from 'tmp';
 import {
   ElectionDefinition,
   VotesDict,
@@ -10,17 +11,21 @@ import {
 import { BmdPaperBallot, BmdPaperBallotProps } from '@votingworks/ui';
 import { Buffer } from 'buffer';
 import { electionFamousNames2021Fixtures } from '@votingworks/fixtures';
+import { assertDefined, iter } from '@votingworks/basics';
+import { pdfToImages, writeImageData } from '@votingworks/image-utils';
 
 export async function renderBmdBallotFixture(
   props: Partial<BmdPaperBallotProps> & {
     electionDefinition: ElectionDefinition;
     rotateImage?: boolean;
+    frontPageOnly?: boolean;
   }
 ): Promise<Buffer> {
   // Set some default props that can be overridden by the caller
   const {
     electionDefinition: { election },
     rotateImage = false,
+    frontPageOnly = false,
   } = props;
   const ballotStyle = election.ballotStyles[0];
   const precinctId = ballotStyle.precincts[0];
@@ -36,7 +41,7 @@ export async function renderBmdBallotFixture(
         votes={votes}
         {...props}
       />
-      <div style={{ pageBreakAfter: 'always' }} />
+      {!frontPageOnly && <div style={{ pageBreakAfter: 'always' }} />}
     </React.Fragment>
   );
   if (rotateImage) {
@@ -46,6 +51,20 @@ export async function renderBmdBallotFixture(
   }
 
   return renderToPdf({ document: ballot });
+}
+
+// Writes the first page of `pdfData` to an image file and returns the filepath.
+// BMD ballots print on one side only. Consider libs/image-utils' `BLANK_PAGE_IMAGE_DATA`
+// for mocking the blank back in testing.
+export async function writeFirstBallotPageToImageFile(
+  pdfData: Buffer
+): Promise<string> {
+  const first = assertDefined(
+    await iter(pdfToImages(pdfData, { scale: 200 / 72 })).first()
+  );
+  const file = tmp.fileSync({ postfix: '.png' });
+  await writeImageData(file.name, first.page);
+  return file.name;
 }
 
 export const DEFAULT_FAMOUS_NAMES_BALLOT_STYLE_ID: BallotStyleId = '1';

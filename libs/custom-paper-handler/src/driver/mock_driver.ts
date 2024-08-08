@@ -1,7 +1,11 @@
 import { Result, sleep } from '@votingworks/basics';
 import { CoderError } from '@votingworks/message-coder';
 import makeDebug from 'debug';
-import { ImageData, writeImageData } from '@votingworks/image-utils';
+import {
+  BLANK_PAGE_IMAGE_DATA,
+  ImageData,
+  writeImageData,
+} from '@votingworks/image-utils';
 import {
   PaperHandlerStatus,
   PrinterStatusRealTimeExchangeResponse,
@@ -71,12 +75,6 @@ const MOCK_STATUSES_DEFINITIONS = {
 } as const satisfies Readonly<Record<string, PaperHandlerStatus>>;
 
 export type MockPaperHandlerStatus = keyof typeof MOCK_STATUSES_DEFINITIONS;
-
-const EMPTY_PAGE_CONTENTS = new ImageData(
-  new Uint8ClampedArray([1, 2, 3, 4]),
-  1,
-  1
-);
 
 export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
   private statusRef: PaperHandlerStatus = defaultPaperHandlerStatus();
@@ -185,7 +183,7 @@ export class MockPaperHandlerDriver implements PaperHandlerDriverInterface {
   }
 
   scan(): Promise<ImageData> {
-    return Promise.resolve(this.mockPaperContents || EMPTY_PAGE_CONTENTS);
+    return Promise.resolve(this.mockPaperContents || BLANK_PAGE_IMAGE_DATA);
   }
 
   async scanAndSave(pathOut: string): Promise<void> {

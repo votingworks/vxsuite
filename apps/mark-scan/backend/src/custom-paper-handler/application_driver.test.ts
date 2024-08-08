@@ -12,20 +12,16 @@ import {
   MaxPrintWidthDots,
 } from '@votingworks/custom-paper-handler';
 import { Buffer } from 'buffer';
-import { join } from 'path';
-import { readFile } from '@votingworks/fs';
 import { mockOf } from '@votingworks/test-utils';
+import { electionGeneralDefinition } from '@votingworks/fixtures';
+import { renderBmdBallotFixture } from '@votingworks/bmd-ballot-fixtures';
 import {
   loadAndParkPaper,
   printBallotChunks,
   resetAndReconnect,
   scanAndSave,
 } from './application_driver';
-import {
-  MAX_FIXTURE_FILE_SIZE_BYTES,
-  getDefaultPaperHandlerStatus,
-  readBallotFixture,
-} from './test_utils';
+import { getDefaultPaperHandlerStatus } from './test_utils';
 
 jest.mock('@votingworks/custom-paper-handler');
 
@@ -47,8 +43,11 @@ beforeEach(() => {
 test('print ballot', async () => {
   // Valid test ballot in pdf format. We need to supply real data so
   // printBallot won't error when calling pdfToImages, but this data
-  // doesn't impact assertions in this test
-  const pdfData = await readBallotFixture();
+  // doesn't impact assertions in this test.
+  const pdfData = await renderBmdBallotFixture({
+    electionDefinition: electionGeneralDefinition,
+    frontPageOnly: true,
+  });
 
   // Nonsensical test data but it's enough to make the assertions we need.
   // This data shouldn't be treated as a realistic representation
@@ -91,13 +90,9 @@ test('print ballot', async () => {
 });
 
 test('printBallotChunks errors when too many pages of data', async () => {
-  const pdfDataResult = await readFile(
-    join(__dirname, 'test_utils', 'fixtures', '2-page-pdf.pdf'),
-    {
-      maxSize: MAX_FIXTURE_FILE_SIZE_BYTES,
-    }
-  );
-  const pdfData = pdfDataResult.unsafeUnwrap();
+  const pdfData = await renderBmdBallotFixture({
+    electionDefinition: electionGeneralDefinition,
+  });
 
   await expect(printBallotChunks(driver, pdfData)).rejects.toThrow(
     'Unexpected page count 2'
