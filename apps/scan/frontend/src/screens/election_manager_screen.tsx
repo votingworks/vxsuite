@@ -11,6 +11,7 @@ import {
   UnconfigureMachineButton,
   Icons,
   TabConfig,
+  PowerDownButton,
 } from '@votingworks/ui';
 import React, { useState } from 'react';
 import type { PrecinctScannerStatus } from '@votingworks/scan-backend';
@@ -236,6 +237,12 @@ export function ElectionManagerScreen({
     </P>
   );
 
+  const powerDownButton = (
+    <P>
+      <PowerDownButton />
+    </P>
+  );
+
   const cvrSyncRequiredWarning = isCvrSyncRequired ? (
     <P>
       <Icons.Warning color="warning" /> Cast vote records (CVRs) need to be
@@ -281,11 +288,12 @@ export function ElectionManagerScreen({
       label: 'System Settings',
       content: (
         <React.Fragment>
-          {doubleSheetDetectionToggle}
           {calibrateDoubleSheetDetectionButton}
+          {doubleSheetDetectionToggle}
           {dateTimeButton}
           {audioMuteToggle}
           <SignedHashValidationButton />
+          {powerDownButton}
         </React.Fragment>
       ),
     }
