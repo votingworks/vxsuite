@@ -88,7 +88,6 @@ function isBallotReinsertionEnabled() {
 
 interface Context {
   auth: InsertedSmartCardAuthApi;
-  isInVoterSession: boolean;
   workspace: Workspace;
   driver: PaperHandlerDriverInterface;
   patConnectionStatusReader: PatConnectionStatusReaderInterface;
@@ -504,7 +503,6 @@ export function buildMachine(
             isPatDeviceConnected: true,
           }),
           target: 'pat_device_connected',
-          cond: (context) => context.isInVoterSession,
         },
         PAT_DEVICE_DISCONNECTED: {
           // Performing the assign here ensures the PAT device observable will
@@ -513,7 +511,6 @@ export function buildMachine(
             isPatDeviceConnected: false,
           }),
           target: 'pat_device_disconnected',
-          cond: (context) => context.isInVoterSession,
         },
         SYSTEM_ADMIN_STARTED_PAPER_HANDLER_DIAGNOSTIC:
           'paper_handler_diagnostic',
@@ -522,7 +519,6 @@ export function buildMachine(
           target: 'voting_flow.not_accepting_paper',
         },
       },
-      invoke: [pollPatDeviceConnectionStatus()],
       states: {
         voting_flow: {
           initial: 'not_accepting_paper',
@@ -686,9 +682,7 @@ export function buildMachine(
             },
 
             waiting_for_ballot_data: {
-              entry: assign({
-                isInVoterSession: true,
-              }),
+              invoke: pollPatDeviceConnectionStatus(),
               on: {
                 VOTER_INITIATED_PRINT: 'printing_ballot',
               },
@@ -822,7 +816,7 @@ export function buildMachine(
               },
             },
             presenting_ballot: {
-              invoke: pollPaperStatus(),
+              invoke: [pollPaperStatus(), pollPatDeviceConnectionStatus()],
               entry: async (context) => {
                 await context.driver.presentPaper();
               },
@@ -841,7 +835,7 @@ export function buildMachine(
             },
 
             waiting_for_ballot_reinsertion: {
-              invoke: pollPaperStatus(),
+              invoke: [pollPaperStatus(), pollPatDeviceConnectionStatus()],
               on: {
                 PAPER_READY_TO_LOAD: 'loading_reinserted_ballot',
               },
@@ -903,7 +897,7 @@ export function buildMachine(
               initial: 'paper_present',
               states: {
                 paper_present: {
-                  invoke: pollPaperStatus(),
+                  invoke: [pollPaperStatus(), pollPatDeviceConnectionStatus()],
                   on: {
                     NO_PAPER_ANYWHERE: 'paper_absent',
                   },
@@ -1226,7 +1220,7 @@ export function buildMachine(
           always: 'voting_flow.history',
         },
         pat_device_connected: {
-          invoke: pollAuthStatus(),
+          invoke: [pollAuthStatus(), pollPatDeviceConnectionStatus()],
           on: {
             VOTER_CONFIRMED_PAT_DEVICE_CALIBRATION: 'voting_flow.history',
             PAT_DEVICE_DISCONNECTED: 'pat_device_disconnected',
@@ -1245,7 +1239,6 @@ export function buildMachine(
           interpretation: undefined,
           scannedBallotImagePath: undefined,
           isPatDeviceConnected: false,
-          isInVoterSession: false,
           acceptedPaperTypes: undefined,
         }),
         clearInterpretation: () => {
@@ -1367,7 +1360,6 @@ export async function getPaperHandlerStateMachine({
     workspace,
     driver,
     isPatDeviceConnected: false,
-    isInVoterSession: false,
     patConnectionStatusReader,
     deviceTimeoutMs,
     devicePollingIntervalMs,
