@@ -11,11 +11,7 @@ import {
   FullScreenIconWrapper,
   Icons,
 } from '@votingworks/ui';
-import {
-  BooleanEnvironmentVariableName,
-  getPollsReportTitle,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
+import { getPollsReportTitle } from '@votingworks/utils';
 import { ElectionDefinition, PollsTransitionType } from '@votingworks/types';
 import { Optional, throwIllegalValue } from '@votingworks/basics';
 import styled from 'styled-components';
@@ -34,7 +30,7 @@ import {
   getPollsInfo,
 } from '../api';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
-import { LiveCheckButton } from '../components/live_check_button';
+import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
 import { CastVoteRecordSyncRequiredScreen } from './cast_vote_record_sync_required_screen';
 import {
   PollsFlowPrinterSummary,
@@ -495,9 +491,7 @@ function PollWorkerScreenContents({
           </Button>
         ))}
       <PowerDownButton />
-      {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (
-        <LiveCheckButton />
-      )}
+      <SignedHashValidationButton />
     </React.Fragment>
   );
 

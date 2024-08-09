@@ -2,30 +2,34 @@ import fs from 'fs/promises';
 import { Readable } from 'stream';
 import { assert } from '@votingworks/basics';
 
-import { constructLiveCheckConfig, LiveCheckConfig } from './config';
+import {
+  constructSignedHashValidationConfig,
+  SignedHashValidationConfig,
+} from './config';
 import { signMessage } from './cryptography';
 import { FileKey, TpmKey } from './keys';
 import { constructPrefixedMessage } from './signatures';
 
-const LIVE_CHECK_MESSAGE_PAYLOAD_SEPARATOR = '/';
-const LIVE_CHECK_QR_CODE_VALUE_SEPARATOR = ';';
+const SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR = '/';
+const SIGNED_HASH_VALIDATION_QR_CODE_VALUE_SEPARATOR = ';';
 
-interface LiveCheckMachineState {
+interface SignedHashValidationMachineState {
   machineId: string;
   ballotHash?: string;
 }
 
 /**
- * Live Check allows election officials to check that a VxSuite machine hasn't been tampered with.
+ * Signed hash validation allows election officials to check that a VxSuite machine hasn't been
+ * tampered with.
  */
-export class LiveCheck {
+export class SignedHashValidation {
   private readonly machineCertPath: string;
   private readonly machinePrivateKey: FileKey | TpmKey;
 
   constructor(
     // Support specifying a custom config for tests
     /* istanbul ignore next */
-    input: LiveCheckConfig = constructLiveCheckConfig()
+    input: SignedHashValidationConfig = constructSignedHashValidationConfig()
   ) {
     this.machineCertPath = input.machineCertPath;
     this.machinePrivateKey = input.machinePrivateKey;
@@ -34,7 +38,7 @@ export class LiveCheck {
   async generateQrCodeValue({
     machineId,
     ballotHash,
-  }: LiveCheckMachineState): Promise<{
+  }: SignedHashValidationMachineState): Promise<{
     qrCodeValue: string;
     signatureInputs: {
       machineId: string;
@@ -48,9 +52,9 @@ export class LiveCheck {
       machineId,
       date.toISOString(),
       ballotHashPrefix,
-    ].join(LIVE_CHECK_MESSAGE_PAYLOAD_SEPARATOR);
+    ].join(SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR);
     const message = constructPrefixedMessage(
-      'lc', // Live Check
+      'lc', // Live Check (legacy feature name)
       messagePayload
     );
 
@@ -71,12 +75,12 @@ export class LiveCheck {
     ];
     assert(
       qrCodeValueParts.every(
-        (part) => !part.includes(LIVE_CHECK_QR_CODE_VALUE_SEPARATOR)
+        (part) => !part.includes(SIGNED_HASH_VALIDATION_QR_CODE_VALUE_SEPARATOR)
       ),
-      `Found ${LIVE_CHECK_QR_CODE_VALUE_SEPARATOR} separator within part of QR code value`
+      `Found ${SIGNED_HASH_VALIDATION_QR_CODE_VALUE_SEPARATOR} separator within part of QR code value`
     );
     const qrCodeValue = qrCodeValueParts.join(
-      LIVE_CHECK_QR_CODE_VALUE_SEPARATOR
+      SIGNED_HASH_VALIDATION_QR_CODE_VALUE_SEPARATOR
     );
 
     return {

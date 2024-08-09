@@ -7,17 +7,13 @@ import {
   RebootToBiosButton,
   SetClockButton,
 } from '@votingworks/ui';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-  isSystemAdministratorAuth,
-} from '@votingworks/utils';
+import { isSystemAdministratorAuth } from '@votingworks/utils';
 
 import { AppContext } from '../contexts/app_context';
 import { NavigationScreen } from '../components/navigation_screen';
 import { FormatUsbButton } from '../components/format_usb_modal';
 import { logOut } from '../api';
-import { LiveCheckButton } from '../components/live_check_button';
+import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
 
 export function SettingsScreen(): JSX.Element {
   const { auth, usbDriveStatus } = useContext(AppContext);
@@ -44,14 +40,10 @@ export function SettingsScreen(): JSX.Element {
           <RebootToBiosButton />
         </React.Fragment>
       )}
-      {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (
-        <React.Fragment>
-          <H2>Hash Validation</H2>
-          <P>
-            <LiveCheckButton />
-          </P>
-        </React.Fragment>
-      )}
+      <H2>Hash Validation</H2>
+      <P>
+        <SignedHashValidationButton />
+      </P>
     </NavigationScreen>
   );
 }

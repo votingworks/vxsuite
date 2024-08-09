@@ -1,13 +1,13 @@
 import { electionGeneralDefinition } from '@votingworks/fixtures';
 
 import { getTestFilePath } from '../test/utils';
-import { LiveCheckConfig } from './config';
-import { LiveCheck } from './live_check';
+import { SignedHashValidationConfig } from './config';
+import { SignedHashValidation } from './signed_hash_validation';
 
 const machineId = '0000';
 const { ballotHash } = electionGeneralDefinition;
 
-const vxAdminTestConfig: LiveCheckConfig = {
+const vxAdminTestConfig: SignedHashValidationConfig = {
   machineCertPath: getTestFilePath({
     fileType: 'vx-admin-cert-authority-cert.pem',
   }),
@@ -17,7 +17,7 @@ const vxAdminTestConfig: LiveCheckConfig = {
   },
 };
 
-const vxScanTestConfig: LiveCheckConfig = {
+const vxScanTestConfig: SignedHashValidationConfig = {
   machineCertPath: getTestFilePath({
     fileType: 'vx-scan-cert.pem',
   }),
@@ -28,7 +28,7 @@ const vxScanTestConfig: LiveCheckConfig = {
 };
 
 test.each<{
-  config: LiveCheckConfig;
+  config: SignedHashValidationConfig;
   isMachineConfiguredForAnElection: boolean;
   expectedQrCodeValueLength: number;
 }>([
@@ -59,8 +59,8 @@ test.each<{
     isMachineConfiguredForAnElection,
     expectedQrCodeValueLength,
   }) => {
-    const liveCheck = new LiveCheck(config);
-    const { qrCodeValue } = await liveCheck.generateQrCodeValue({
+    const signedHashValidation = new SignedHashValidation(config);
+    const { qrCodeValue } = await signedHashValidation.generateQrCodeValue({
       machineId,
       ballotHash: isMachineConfiguredForAnElection ? ballotHash : undefined,
     });

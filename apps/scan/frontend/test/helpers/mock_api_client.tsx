@@ -225,15 +225,17 @@ export function createApiMock() {
       mockApiClient.logOut.expectCallWith().resolves();
     },
 
-    expectGenerateLiveCheckQrCodeValue() {
-      mockApiClient.generateLiveCheckQrCodeValue.expectCallWith().resolves({
-        qrCodeValue: 'qrCodeValue',
-        signatureInputs: {
-          machineId: 'machineId',
-          date: new Date(),
-          ballotHashPrefix: 'ballotHashPrefix',
-        },
-      });
+    expectGenerateSignedHashValidationQrCodeValue() {
+      mockApiClient.generateSignedHashValidationQrCodeValue
+        .expectCallWith()
+        .resolves({
+          qrCodeValue: 'qrCodeValue',
+          signatureInputs: {
+            machineId: 'machineId',
+            date: new Date(),
+            ballotHashPrefix: 'ballotHashPrefix',
+          },
+        });
     },
 
     expectPrintReportV3(pageCount = 1) {

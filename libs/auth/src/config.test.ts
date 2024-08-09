@@ -6,9 +6,9 @@ import {
   constructArtifactAuthenticationConfig,
   constructJavaCardConfig,
   constructJavaCardConfigForVxProgramming,
-  constructLiveCheckConfig,
+  constructSignedHashValidationConfig,
   JavaCardConfig,
-  LiveCheckConfig,
+  SignedHashValidationConfig,
 } from './config';
 
 jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => ({
@@ -363,7 +363,7 @@ test.each<{
   isVxDev?: true;
   isIntegrationTest?: true;
   machineType: NonNullable<NodeJS.ProcessEnv['VX_MACHINE_TYPE']>;
-  expectedOutput: LiveCheckConfig;
+  expectedOutput: SignedHashValidationConfig;
 }>([
   {
     nodeEnv: 'development',
@@ -458,7 +458,7 @@ test.each<{
     },
   },
 ])(
-  'constructLiveCheckConfig - nodeEnv = $nodeEnv, isVxDev = $isVxDev, isIntegrationTest = $isIntegrationTest, machineType = $machineType',
+  'constructSignedHashValidationConfig - nodeEnv = $nodeEnv, isVxDev = $isVxDev, isIntegrationTest = $isIntegrationTest, machineType = $machineType',
   ({
     nodeEnv,
     isVxDev: isVxDevResult,
@@ -473,6 +473,6 @@ test.each<{
       () => isIntegrationTestResult ?? false
     );
 
-    expect(constructLiveCheckConfig()).toEqual(expectedOutput);
+    expect(constructSignedHashValidationConfig()).toEqual(expectedOutput);
   }
 );
