@@ -168,6 +168,8 @@ export interface SignedHashValidationQrCodeValue {
     ballotHashPrefix: string;
     date: Date;
     machineId: string;
+    softwareVersion: string;
+    systemHashPrefix: string;
   };
 }
 

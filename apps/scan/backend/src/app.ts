@@ -105,11 +105,12 @@ export function buildApi({
     },
 
     generateSignedHashValidationQrCodeValue() {
-      const { machineId } = getMachineConfig();
+      const { codeVersion, machineId } = getMachineConfig();
       const electionRecord = store.getElectionRecord();
       return generateSignedHashValidationQrCodeValue({
         ballotHash: electionRecord?.electionDefinition.ballotHash,
         machineId,
+        softwareVersion: codeVersion,
       });
     },
 

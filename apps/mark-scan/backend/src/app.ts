@@ -410,11 +410,12 @@ export function buildApi(
 
     /* istanbul ignore next */
     generateSignedHashValidationQrCodeValue() {
-      const { machineId } = getMachineConfig();
+      const { codeVersion, machineId } = getMachineConfig();
       const electionRecord = store.getElectionRecord();
       return generateSignedHashValidationQrCodeValue({
         ballotHash: electionRecord?.electionDefinition.ballotHash,
         machineId,
+        softwareVersion: codeVersion,
       });
     },
 

@@ -1,21 +1,46 @@
 import fs from 'fs/promises';
+import { sha256 } from 'js-sha256';
 import { Readable } from 'stream';
-import { assert } from '@votingworks/basics';
-import { SignedHashValidationQrCodeValue } from '@votingworks/types';
+import { assert, sleep } from '@votingworks/basics';
+import {
+  BALLOT_HASH_DISPLAY_LENGTH,
+  formatBallotHash,
+  SignedHashValidationQrCodeValue,
+} from '@votingworks/types';
+import { isVxDev } from '@votingworks/utils';
 
 import {
   constructSignedHashValidationConfig,
   SignedHashValidationConfig,
 } from './config';
 import { signMessage } from './cryptography';
+import { isNodeEnvProduction } from './env_vars';
+import { runCommand } from './shell';
 import { constructPrefixedMessage } from './signatures';
 
-const SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR = '/';
 const SIGNED_HASH_VALIDATION_QR_CODE_VALUE_SEPARATOR = ';';
+const SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR = '/';
+const SYSTEM_HASH_DISPLAY_LENGTH = BALLOT_HASH_DISPLAY_LENGTH;
+
+async function computeSystemHash(): Promise<string> {
+  if (isNodeEnvProduction() && !isVxDev()) {
+    const stdout = await runCommand([
+      'sudo',
+      '/vx/admin/admin-functions/hash-signature.sh',
+      'noninteractive',
+    ]);
+    return stdout.toString('utf-8');
+  }
+
+  // Mock system hash computation in dev
+  await sleep(3000);
+  return sha256('');
+}
 
 interface SignedHashValidationMachineState {
   ballotHash?: string;
   machineId: string;
+  softwareVersion: string;
 }
 
 /**
@@ -23,16 +48,25 @@ interface SignedHashValidationMachineState {
  * tampered with.
  */
 export async function generateSignedHashValidationQrCodeValue(
-  { ballotHash, machineId }: SignedHashValidationMachineState,
+  { ballotHash, machineId, softwareVersion }: SignedHashValidationMachineState,
   config: SignedHashValidationConfig = constructSignedHashValidationConfig()
 ): Promise<SignedHashValidationQrCodeValue> {
-  const date = new Date();
-  const ballotHashPrefix = ballotHash?.slice(0, 10) ?? '';
-  const messagePayload = [machineId, date.toISOString(), ballotHashPrefix].join(
-    SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR
+  const systemHashPrefix = (await computeSystemHash()).slice(
+    0,
+    SYSTEM_HASH_DISPLAY_LENGTH
   );
+  const ballotHashPrefix = ballotHash ? formatBallotHash(ballotHash) : '';
+  const date = new Date();
+
+  const messagePayload = [
+    softwareVersion,
+    systemHashPrefix,
+    machineId,
+    ballotHashPrefix,
+    date.toISOString(),
+  ].join(SIGNED_HASH_VALIDATION_MESSAGE_PAYLOAD_SEPARATOR);
   const message = constructPrefixedMessage(
-    'lc', // Live Check (legacy feature name)
+    'shv1', // Signed hash validation, version 1
     messagePayload
   );
 
@@ -67,6 +101,8 @@ export async function generateSignedHashValidationQrCodeValue(
       ballotHashPrefix,
       date,
       machineId,
+      softwareVersion,
+      systemHashPrefix,
     },
   };
 }

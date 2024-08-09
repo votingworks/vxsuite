@@ -4,7 +4,8 @@ import { getTestFilePath } from '../test/utils';
 import { SignedHashValidationConfig } from './config';
 import { generateSignedHashValidationQrCodeValue } from './signed_hash_validation';
 
-const machineId = '0000';
+const softwareVersion = 'software-version';
+const machineId = 'machine-id';
 const { ballotHash } = electionGeneralDefinition;
 
 const vxAdminTestConfig: SignedHashValidationConfig = {
@@ -60,8 +61,9 @@ test.each<{
     expectedQrCodeValueLength,
   }) => {
     const machineState = {
-      machineId,
       ballotHash: isMachineConfiguredForAnElection ? ballotHash : undefined,
+      machineId,
+      softwareVersion,
     } as const;
     const { qrCodeValue } = await generateSignedHashValidationQrCodeValue(
       machineState,

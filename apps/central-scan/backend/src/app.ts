@@ -309,11 +309,12 @@ function buildApi({
 
     /* c8 ignore start */
     generateSignedHashValidationQrCodeValue() {
-      const { machineId } = getMachineConfig();
+      const { codeVersion, machineId } = getMachineConfig();
       const electionRecord = store.getElectionRecord();
       return generateSignedHashValidationQrCodeValue({
         ballotHash: electionRecord?.electionDefinition.ballotHash,
         machineId,
+        softwareVersion: codeVersion,
       });
     },
     /* c8 ignore stop */

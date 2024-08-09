@@ -247,11 +247,12 @@ function buildApi({
 
     /* c8 ignore start */
     generateSignedHashValidationQrCodeValue() {
-      const { machineId } = getMachineConfig();
+      const { codeVersion, machineId } = getMachineConfig();
       const electionRecord = getCurrentElectionRecord(workspace);
       return generateSignedHashValidationQrCodeValue({
         ballotHash: electionRecord?.electionDefinition.ballotHash,
         machineId,
+        softwareVersion: codeVersion,
       });
     },
     /* c8 ignore stop */
