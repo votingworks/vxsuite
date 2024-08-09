@@ -150,17 +150,17 @@ export function constructArtifactAuthenticationConfig(): ArtifactAuthenticationC
 }
 
 /**
- * Config params for a Live Check instance
+ * Config params for a signed hash validation instance
  */
-export interface LiveCheckConfig {
+export interface SignedHashValidationConfig {
   machineCertPath: string;
   machinePrivateKey: FileKey | TpmKey;
 }
 
 /**
- * Constructs a Live Check config given relevant env vars
+ * Constructs a signed hash validation config given relevant env vars
  */
-export function constructLiveCheckConfig(): LiveCheckConfig {
+export function constructSignedHashValidationConfig(): SignedHashValidationConfig {
   const { certPath, privateKey } = getMachineCertPathAndPrivateKey();
   return {
     machineCertPath: certPath,

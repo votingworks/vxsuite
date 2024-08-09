@@ -26,16 +26,12 @@ import {
 import type { MachineConfig } from '@votingworks/mark-scan-backend';
 import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
-import {
   ejectUsbDrive,
   logOut,
   setPrecinctSelection,
   setTestMode,
 } from '../api';
-import { LiveCheckButton } from '../components/live_check_button';
+import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
 
 export interface AdminScreenProps {
   appPrecinct?: PrecinctSelection;
@@ -182,14 +178,10 @@ export function AdminScreen({
             usbDriveIsEjecting={ejectUsbDriveMutation.isLoading}
           />
         </P>
-        {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (
-          /* istanbul ignore next */ <React.Fragment>
-            <H6 as="h2">Security</H6>
-            <P>
-              <LiveCheckButton />
-            </P>
-          </React.Fragment>
-        )}
+        <H6 as="h2">Security</H6>
+        <P>
+          <SignedHashValidationButton />
+        </P>
       </Main>
       {election && (
         <ElectionInfoBar

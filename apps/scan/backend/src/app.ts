@@ -23,7 +23,10 @@ import {
   DiskSpaceSummary,
 } from '@votingworks/backend';
 import { assert, assertDefined, ok, Result } from '@votingworks/basics';
-import { InsertedSmartCardAuthApi, LiveCheck } from '@votingworks/auth';
+import {
+  InsertedSmartCardAuthApi,
+  SignedHashValidation,
+} from '@votingworks/auth';
 import { UsbDrive, UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   FujitsuPrintResult,
@@ -101,10 +104,10 @@ export function buildApi({
       );
     },
 
-    generateLiveCheckQrCodeValue() {
+    generateSignedHashValidationQrCodeValue() {
       const { machineId } = getMachineConfig();
       const electionRecord = workspace.store.getElectionRecord();
-      return new LiveCheck().generateQrCodeValue({
+      return new SignedHashValidation().generateQrCodeValue({
         machineId,
         ballotHash: electionRecord?.electionDefinition.ballotHash,
       });
