@@ -1143,25 +1143,39 @@ export function buildMachine(
                   );
                 },
                 onDone: {
-                  target: 'eject_to_rear',
+                  target: 'handle_interpretation',
                   actions: assign({
-                    interpretation: (_, event) => {
-                      const interpretation = event.data;
-                      const interpretationType =
-                        interpretation[0].interpretation.type;
-                      /* istanbul ignore next */
-                      if (interpretationType !== 'InterpretedBmdPage') {
-                        throw new Error(
-                          `Unexpected interpretation type: ${interpretationType}`
-                        );
-                      }
-
-                      return interpretation;
-                    },
+                    interpretation: (_, event) => event.data,
                   }),
                 },
                 onError: createOnDiagnosticErrorHandler(),
               },
+            },
+            handle_interpretation: {
+              always: [
+                {
+                  target: 'eject_to_rear',
+                  cond: (context) =>
+                    !!(
+                      context.interpretation &&
+                      context.interpretation[0].interpretation.type ===
+                        'InterpretedBmdPage'
+                    ),
+                },
+                {
+                  target: 'failure',
+                  actions: assign({
+                    diagnosticError: (context) => {
+                      const interpretationType = context.interpretation
+                        ? context.interpretation[0].interpretation.type
+                        : 'Unknown';
+                      return new Error(
+                        `Invalid interpretation type: ${interpretationType}`
+                      );
+                    },
+                  }),
+                },
+              ],
             },
             eject_to_rear: {
               invoke: pollPaperStatus(),
