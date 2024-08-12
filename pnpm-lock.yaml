@@ -2544,12 +2544,18 @@ importers:
       '@votingworks/logging':
         specifier: workspace:*
         version: link:../../../libs/logging
+      '@votingworks/scan-backend':
+        specifier: workspace:*
+        version: link:../backend
       '@votingworks/types':
         specifier: workspace:*
         version: link:../../../libs/types
       '@votingworks/ui':
         specifier: workspace:*
         version: link:../../../libs/ui
+      '@votingworks/usb-drive':
+        specifier: workspace:*
+        version: link:../../../libs/usb-drive
       '@votingworks/utils':
         specifier: workspace:*
         version: link:../../../libs/utils
@@ -2674,15 +2680,9 @@ importers:
       '@votingworks/printing':
         specifier: workspace:*
         version: link:../../../libs/printing
-      '@votingworks/scan-backend':
-        specifier: workspace:*
-        version: link:../backend
       '@votingworks/test-utils':
         specifier: workspace:*
         version: link:../../../libs/test-utils
-      '@votingworks/usb-drive':
-        specifier: workspace:*
-        version: link:../../../libs/usb-drive
       eslint-plugin-vx:
         specifier: workspace:*
         version: link:../../../libs/eslint-plugin-vx
