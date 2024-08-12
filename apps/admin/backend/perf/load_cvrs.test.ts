@@ -14,7 +14,7 @@ jest.setTimeout(3000000);
 
 const electionDefinition = electionTwoPartyPrimaryDefinition;
 
-// reports can be generated from "libs/cvr-fixture-generator"
+// reports can be generated from "libs/fixture-generators"
 const NUM_REPORTS = 100;
 const RECORDS_PER_REPORT = 10000;
 

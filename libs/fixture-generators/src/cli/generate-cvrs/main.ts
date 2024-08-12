@@ -26,14 +26,15 @@ import {
   generateBallotPageLayouts,
   generateCvrs,
   populateImageAndLayoutFileHashes,
-} from '../../generate_cvrs';
-import { replaceUniqueId, getBatchIdForScannerId } from '../../utils';
+  replaceUniqueId,
+  getBatchIdForScannerId,
+} from '../../generate-cvrs';
 
 /**
  * Script to generate a cast vote record file for a given election.
  * Run from the command-line with:
  *
- * ./bin/generate -h
+ * ./bin/generate-cvrs -h
  *
  * To see more information and all possible arguments.
  */

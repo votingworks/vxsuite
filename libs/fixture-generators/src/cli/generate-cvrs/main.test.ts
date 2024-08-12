@@ -19,7 +19,7 @@ import {
 import { readCastVoteRecordExport } from '@votingworks/backend';
 import { ok } from '@votingworks/basics';
 import { main } from './main';
-import { IMAGE_URI_REGEX } from '../../utils';
+import { IMAGE_URI_REGEX } from '../../generate-cvrs/utils';
 
 jest.setTimeout(60_000);
 

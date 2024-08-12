@@ -1,19 +1,19 @@
 {
-  "name": "@votingworks/cvr-fixture-generator",
+  "name": "@votingworks/fixture-generators",
   "version": "1.0.0",
-  "description": "Generator for CVRs for use as test fixtures.",
+  "description": "Generators for election data test fixtures",
   "keywords": [],
   "license": "GPL-3.0",
   "author": "VotingWorks Eng <eng@voting.works>",
   "main": "build/index.js",
   "bin": {
-    "cvr-fixture-generator": "bin/generate"
+    "cvr-fixture-generator": "bin/generate-cvrs"
   },
   "scripts": {
     "type-check": "tsc --build",
     "build": "tsc --build tsconfig.build.json",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
-    "generate-fixtures": "./bin/generate-fixtures",
+    "generate-cvr-fixtures": "./bin/generate-cvr-fixtures",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "test": "is-ci test:ci test:watch",
