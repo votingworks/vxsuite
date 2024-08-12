@@ -161,7 +161,6 @@ test('election manager must set precinct', async () => {
   apiMock.expectGetPollsInfo('polls_closed_initial');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
-  apiMock.setPrinterStatusV4();
   apiMock.setPrinterStatusV3({ connected: true });
   renderApp();
   await screen.findByText('No Precinct Selected');
@@ -346,7 +345,6 @@ test('voter can cast a ballot that scans successfully ', async () => {
   apiMock.expectGetPollsInfo('polls_open');
   apiMock.expectGetUsbDriveStatus('mounted');
   apiMock.expectGetScannerStatus(statusNoPaper);
-  apiMock.setPrinterStatusV4();
   apiMock.setPrinterStatusV3({ connected: true });
   renderApp();
   await screen.findByText(/Insert Your Ballot/i);
