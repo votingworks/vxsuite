@@ -61,3 +61,19 @@ included.
   For example, the number of undervotes and overvotes for ballot measure
   contests is extremely high.
 - Ballot images do not have any real marks on them, they are only blank pages.
+
+## Election Fixture Generator
+
+A command-line tool for generating an election definition based on a set of
+configurable parameters. Originally created to support scale testing by creating
+large election definitions.
+
+### Usage
+
+Takes a JSON config file as input. See
+[config.ts](./src/generate-election/config.ts) for a list of fields. All fields
+are optional and have default values.
+
+```bash
+./bin/generate-election config.json > election.json
+```
