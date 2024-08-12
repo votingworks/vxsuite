@@ -226,83 +226,81 @@ export async function main(
     BallotPaperSize,
     { path: string; sha256: string }
   >();
-  await Promise.all(
-    castVoteRecords.map(async (castVoteRecord) => {
-      const castVoteRecordDirectory = join(outputPath, castVoteRecord.UniqueId);
-      await fs.mkdir(castVoteRecordDirectory);
+  for await (const castVoteRecord of castVoteRecords) {
+    const castVoteRecordDirectory = join(outputPath, castVoteRecord.UniqueId);
+    await fs.mkdir(castVoteRecordDirectory);
 
-      if (castVoteRecord.BallotImage) {
-        const layouts = generateBallotPageLayouts(election, {
-          ballotStyleId: castVoteRecord.BallotStyleId,
-          ballotType: BallotType.Precinct,
-          ballotHash,
-          isTestMode: testMode,
-          precinctId: castVoteRecord.BallotStyleUnitId,
-        });
-        for (const i of [0, 1] as const) {
-          const imageFilePath = join(
-            castVoteRecordDirectory,
-            assertDefined(castVoteRecord.BallotImage[i]?.Location).replace(
-              'file:',
-              ''
-            )
-          );
-          const layoutFilePath = imageFilePath.replace('.jpg', '.layout.json');
-          const existingImageInfo = imagesByPaperSize.get(
+    if (castVoteRecord.BallotImage) {
+      const layouts = generateBallotPageLayouts(election, {
+        ballotStyleId: castVoteRecord.BallotStyleId,
+        ballotType: BallotType.Precinct,
+        ballotHash,
+        isTestMode: testMode,
+        precinctId: castVoteRecord.BallotStyleUnitId,
+      });
+      for (const i of [0, 1] as const) {
+        const imageFilePath = join(
+          castVoteRecordDirectory,
+          assertDefined(castVoteRecord.BallotImage[i]?.Location).replace(
+            'file:',
+            ''
+          )
+        );
+        const layoutFilePath = imageFilePath.replace('.jpg', '.layout.json');
+        const existingImageInfo = imagesByPaperSize.get(
+          election.ballotLayout.paperSize
+        );
+        let imageHash: string;
+
+        if (existingImageInfo) {
+          await fs.copyFile(existingImageInfo.path, imageFilePath);
+          imageHash = existingImageInfo.sha256;
+        } else {
+          const { width, height } = ballotPaperDimensions(
             election.ballotLayout.paperSize
           );
-          let imageHash: string;
+          const pageDpi = 200;
 
-          if (existingImageInfo) {
-            await fs.copyFile(existingImageInfo.path, imageFilePath);
-            imageHash = existingImageInfo.sha256;
-          } else {
-            const { width, height } = ballotPaperDimensions(
-              election.ballotLayout.paperSize
-            );
-            const pageDpi = 200;
-
-            const imageData = createImageData(
-              new Uint8ClampedArray(width * pageDpi * height * pageDpi * 4),
-              width * pageDpi,
-              height * pageDpi
-            );
-            await writeImageData(imageFilePath, imageData);
-            imageHash = sha256(await fs.readFile(imageFilePath));
-            imagesByPaperSize.set(election.ballotLayout.paperSize, {
-              path: imageFilePath,
-              sha256: imageHash,
-            });
-          }
-
-          const layout = layouts[i];
-          let layoutFileHash = sha256('bmd-ballot');
-          if (layout) {
-            const layoutFileContents = JSON.stringify(layout);
-            await fs.writeFile(layoutFilePath, layoutFileContents);
-            layoutFileHash = sha256(layoutFileContents);
-          }
-
-          populateImageAndLayoutFileHashes(
-            assertDefined(castVoteRecord.BallotImage[i]),
-            { imageHash, layoutFileHash }
+          const imageData = createImageData(
+            new Uint8ClampedArray(width * pageDpi * height * pageDpi * 4),
+            width * pageDpi,
+            height * pageDpi
           );
+          await writeImageData(imageFilePath, imageData);
+          imageHash = sha256(await fs.readFile(imageFilePath));
+          imagesByPaperSize.set(election.ballotLayout.paperSize, {
+            path: imageFilePath,
+            sha256: imageHash,
+          });
         }
-      }
 
-      const castVoteRecordReport: CVR.CastVoteRecordReport = {
-        ...reportMetadata,
-        CVR: [castVoteRecord],
-      };
-      await fs.writeFile(
-        join(
-          castVoteRecordDirectory,
-          CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
-        ),
-        JSON.stringify(castVoteRecordReport)
-      );
-    })
-  );
+        const layout = layouts[i];
+        let layoutFileHash = sha256('bmd-ballot');
+        if (layout) {
+          const layoutFileContents = JSON.stringify(layout);
+          await fs.writeFile(layoutFilePath, layoutFileContents);
+          layoutFileHash = sha256(layoutFileContents);
+        }
+
+        populateImageAndLayoutFileHashes(
+          assertDefined(castVoteRecord.BallotImage[i]),
+          { imageHash, layoutFileHash }
+        );
+      }
+    }
+
+    const castVoteRecordReport: CVR.CastVoteRecordReport = {
+      ...reportMetadata,
+      CVR: [castVoteRecord],
+    };
+    await fs.writeFile(
+      join(
+        castVoteRecordDirectory,
+        CastVoteRecordExportFileName.CAST_VOTE_RECORD_REPORT
+      ),
+      JSON.stringify(castVoteRecordReport)
+    );
+  }
   const castVoteRecordExportMetadata: CastVoteRecordExportMetadata = {
     arePollsClosed: true,
     castVoteRecordReportMetadata: reportMetadata,
