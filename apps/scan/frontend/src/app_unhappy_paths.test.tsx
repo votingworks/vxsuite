@@ -38,6 +38,7 @@ test('when backend does not respond shows error screen', async () => {
     .throws(new ServerError('not responding'));
   apiMock.expectGetPollsInfo();
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV4();
   apiMock.mockApiClient.reboot.expectCallWith().resolves();
   await suppressingConsoleOutput(async () => {
     renderApp();
@@ -95,6 +96,7 @@ test.each<{
     apiMock.expectGetConfig(defaultConfigOverrides);
     apiMock.expectGetPollsInfo();
     apiMock.expectGetScannerStatus(statusNoPaper);
+    apiMock.setPrinterStatusV4();
     renderApp();
 
     await screen.findByText(expectedHeadingWhenNoCard);
@@ -131,6 +133,7 @@ test('show card backwards screen when card connection error occurs', async () =>
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo();
   apiMock.expectGetScannerStatus(statusNoPaper);
+  apiMock.setPrinterStatusV4();
   renderApp();
 
   await screen.findByText('Polls Closed');
@@ -152,6 +155,7 @@ test('shows internal wiring message when there is no scanner, but tablet is plug
     ...statusNoPaper,
     state: 'disconnected',
   });
+  apiMock.setPrinterStatusV4();
   renderApp();
   await screen.findByRole('heading', { name: 'Internal Connection Problem' });
   screen.getByText('Please ask a poll worker for help.');
@@ -164,7 +168,23 @@ test('shows message when scanner cover is open', async () => {
     ...statusNoPaper,
     state: 'cover_open',
   });
+  apiMock.setPrinterStatusV3({ connected: true });
   renderApp();
+  // This error does not show up when polls are closed
+  await screen.findByRole('heading', { name: 'Polls Closed' });
+
+  // Open Polls
+  apiMock.authenticateAsPollWorker(electionGeneralDefinition);
+  await screen.findByText('Yes, Open the Polls');
+  apiMock.expectOpenPolls();
+  apiMock.expectPrintReportV3();
+  apiMock.expectGetPollsInfo('polls_open');
+  userEvent.click(await screen.findByText('Yes, Open the Polls'));
+  await screen.findByText('Polls are open.');
+
+  // Remove pollworker card
+  apiMock.removeCard();
+
   await screen.findByRole('heading', { name: 'Scanner Cover is Open' });
   screen.getByText('Please ask a poll worker for help.');
 });
@@ -176,6 +196,7 @@ test('shows instructions to restart when the scanner client crashed', async () =
     ...statusNoPaper,
     state: 'unrecoverable_error',
   });
+  apiMock.setPrinterStatusV4();
   renderApp();
   await screen.findByRole('heading', { name: 'Ballot Not Counted' });
   screen.getByText('Ask a poll worker to restart the scanner.');
