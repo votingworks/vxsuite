@@ -23,7 +23,6 @@ export function PowerDownButton(props: PowerDownButtonProps): JSX.Element {
   }
   return (
     <Button {...props} onPress={reboot}>
-      {' '}
       Power Down
     </Button>
   );

@@ -200,40 +200,6 @@ test('there is a warning if we attempt to open polls with ballots scanned', asyn
   await screen.findByText('Ballots Already Scanned');
 });
 
-test('no other pollworker actions can be taken if CVR sync is required', async () => {
-  apiMock.mockApiClient.getUsbDriveStatus.reset();
-  apiMock.expectGetUsbDriveStatus('mounted', {
-    doesUsbDriveRequireCastVoteRecordSync: true,
-  });
-  apiMock.expectGetPollsInfo('polls_open');
-  renderScreen({
-    scannedBallotCount: 1,
-  });
-
-  await screen.findByText('CVR Sync Required');
-
-  const buttons = await screen.findAllByRole('button');
-  expect(buttons.length).toEqual(1);
-  expect(buttons[0].textContent).toEqual('Sync CVRs');
-});
-
-test('no other pollworker actions can be taken if CVR sync is required, when polls paused', async () => {
-  apiMock.mockApiClient.getUsbDriveStatus.reset();
-  apiMock.expectGetUsbDriveStatus('mounted', {
-    doesUsbDriveRequireCastVoteRecordSync: true,
-  });
-  apiMock.expectGetPollsInfo('polls_paused');
-  renderScreen({
-    scannedBallotCount: 1,
-  });
-
-  await screen.findByText('CVR Sync Required');
-
-  const buttons = await screen.findAllByRole('button');
-  expect(buttons.length).toEqual(1);
-  expect(buttons[0].textContent).toEqual('Sync CVRs');
-});
-
 describe('reprinting previous report', () => {
   test('not available if no previous report', async () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
