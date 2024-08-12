@@ -1027,13 +1027,13 @@ export const appStrings = {
   ),
 
   notePrinterDisconnected: () => (
-    <UiString uiStringKey="noteScannerDisconnected">
+    <UiString uiStringKey="notePrinterDisconnected">
       Printer is disconnected.
     </UiString>
   ),
 
   notePrinterHardwareError: () => (
-    <UiString uiStringKey="noteScannerDisconnected">
+    <UiString uiStringKey="notePrinterHardwareError">
       The printer has experienced an unknown error.
     </UiString>
   ),
