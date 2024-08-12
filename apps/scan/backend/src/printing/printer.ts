@@ -4,6 +4,7 @@ import {
   PrinterStatus as FujitsuPrinterStatus,
   PrinterState as FujitsuPrinterState,
   PrintResult as FujitsuPrintResult,
+  ErrorType as FujitsuErrorType,
   FujitsuThermalPrinterInterface,
   getFujitsuThermalPrinter,
 } from '@votingworks/fujitsu-thermal-printer';
@@ -23,7 +24,12 @@ export type PrinterStatus =
       scheme: 'hardware-v4';
     } & FujitsuPrinterStatus);
 
-export type { FujitsuPrinterState, FujitsuPrinterStatus, FujitsuPrintResult };
+export type {
+  FujitsuErrorType,
+  FujitsuPrinterState,
+  FujitsuPrinterStatus,
+  FujitsuPrintResult,
+};
 
 /**
  * An abstraction that wraps old CUPS-based printing and V4 hardware custom driver printing.

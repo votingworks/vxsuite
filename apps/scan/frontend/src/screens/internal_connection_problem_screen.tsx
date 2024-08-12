@@ -18,9 +18,11 @@ function PrinterErrorMessage({
 }: {
   printerStatus: PrinterStatus;
 }): JSX.Element | null {
+  /* istanbul ignore next - unreachable safety check */
   if (printerStatus.scheme === 'hardware-v3') {
     return null;
   }
+  /* istanbul ignore next - unreachable safety check */
   if (printerStatus.state !== 'error') {
     return null;
   }
