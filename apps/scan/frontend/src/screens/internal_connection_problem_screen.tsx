@@ -6,12 +6,8 @@ import {
   appStrings,
 } from '@votingworks/ui';
 import { PrinterStatus } from '@votingworks/scan-backend';
-import {
-  BooleanEnvironmentVariableName,
-  isFeatureFlagEnabled,
-} from '@votingworks/utils';
 import { ScreenMainCenterChild } from '../components/layout';
-import { LiveCheckButton } from '../components/live_check_button';
+import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
 
 function PrinterErrorMessage({
   printerStatus,
@@ -49,10 +45,7 @@ export function InternalConnectionProblemScreen({
   );
   const pollWorkerActions = (
     <P>
-      <PowerDownButton variant="primary" />{' '}
-      {isFeatureFlagEnabled(BooleanEnvironmentVariableName.LIVECHECK) && (
-        <LiveCheckButton />
-      )}
+      <PowerDownButton variant="primary" /> <SignedHashValidationButton />
     </P>
   );
   return (
