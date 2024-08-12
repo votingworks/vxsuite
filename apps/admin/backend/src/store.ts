@@ -10,6 +10,7 @@ import {
   typedAs,
   isResult,
   assert,
+  DateWithoutTime,
 } from '@votingworks/basics';
 import { Bindable, Client as DbClient, Statement } from '@votingworks/db';
 import {
@@ -38,6 +39,8 @@ import {
   Admin,
   BallotType,
   DiagnosticType,
+  ElectionKey,
+  ElectionId,
 } from '@votingworks/types';
 import { join } from 'path';
 import { Buffer } from 'buffer';
@@ -352,6 +355,28 @@ export class Store {
     ) as { currentElectionId: Id | null };
 
     return currentElectionId ?? undefined;
+  }
+
+  /**
+   * Retrieves the election key (used for auth) for the current election. This
+   * method is faster than than {@link getElection} and thus more appropriate
+   * for use during auth polling.
+   */
+  getElectionKey(electionId: Id): ElectionKey {
+    const result = this.client.one(
+      `
+      select
+        election_data ->> 'id' as id,
+        election_data ->> 'date' as date
+      from elections
+      where id = ?
+      `,
+      electionId
+    ) as { id: string; date: string };
+    return {
+      id: result.id as ElectionId,
+      date: new DateWithoutTime(result.date),
+    };
   }
 
   /**
