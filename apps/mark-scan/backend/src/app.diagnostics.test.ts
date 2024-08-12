@@ -361,4 +361,56 @@ describe('paper handler diagnostic', () => {
     });
     expect(assertDefined(record).outcome).toEqual('fail');
   });
+
+  test('failure due to bad interpretation', async () => {
+    mockSystemAdminAuth(auth);
+
+    const mockScanResult = deferred<string>();
+    const scannedPath = await getDiagnosticMockBallotImagePath();
+    mockOf(scanAndSave).mockResolvedValue(mockScanResult.promise);
+
+    const interpretationMock: SheetOf<InterpretFileResult> = [
+      {
+        interpretation: {
+          type: 'BlankPage',
+        },
+        normalizedImage: BLANK_PAGE_IMAGE_DATA,
+      },
+      BLANK_PAGE_MOCK,
+    ];
+    const mockInterpretResult = deferred<SheetOf<InterpretFileResult>>();
+    mockOf(interpretSimplexBmdBallot).mockResolvedValue(
+      mockInterpretResult.promise
+    );
+
+    driver.setMockStatus('noPaper');
+
+    await apiClient.startPaperHandlerDiagnostic();
+    await waitForStatus('paper_handler_diagnostic.prompt_for_paper');
+
+    driver.setMockStatus('paperInserted');
+    await waitForStatus('paper_handler_diagnostic.load_paper');
+
+    driver.setMockStatus('paperParked');
+    await waitForStatus('paper_handler_diagnostic.print_ballot_fixture');
+    // Chromium, used by print_ballot_fixture, needs some time to spin up
+    await waitForStatus('paper_handler_diagnostic.scan_ballot', 300);
+
+    mockScanResult.resolve(scannedPath);
+    await waitForStatus('paper_handler_diagnostic.interpret_ballot');
+
+    // Simulate a delay between the `ejectBallotToRear` call and the paper
+    // getting ejected, by resolving without actually moving into the `noPaper`
+    // state, to allow us to test for the`eject_to_rear` state
+    // transition:
+    jest.spyOn(driver, 'ejectBallotToRear').mockResolvedValue(true);
+
+    mockInterpretResult.resolve(interpretationMock);
+
+    await waitForStatus('not_accepting_paper');
+    const record = await apiClient.getMostRecentDiagnostic({
+      diagnosticType: 'mark-scan-paper-handler',
+    });
+    expect(assertDefined(record).outcome).toEqual('fail');
+  });
 });

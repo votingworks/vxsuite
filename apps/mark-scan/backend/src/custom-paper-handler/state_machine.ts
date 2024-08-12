@@ -1166,9 +1166,10 @@ export function buildMachine(
                   target: 'failure',
                   actions: assign({
                     diagnosticError: (context) => {
-                      const interpretationType = context.interpretation
-                        ? context.interpretation[0].interpretation.type
-                        : 'Unknown';
+                      const interpretationType = assertDefined(
+                        context.interpretation
+                      )[0].interpretation.type;
+
                       return new Error(
                         `Invalid interpretation type: ${interpretationType}`
                       );
