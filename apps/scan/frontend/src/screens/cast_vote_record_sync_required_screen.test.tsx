@@ -46,9 +46,24 @@ afterEach(() => {
   apiMock.mockApiClient.assertComplete();
 });
 
+test('CVR sync shows voter screen when not authenticated', async () => {
+  const setShouldStayOnCastVoteRecordSyncRequiredScreen = jest.fn();
+  renderComponent({
+    setShouldStayOnCastVoteRecordSyncRequiredScreen,
+    pollWorkerAuthenticated: false,
+  });
+
+  await screen.findByText(
+    'A poll worker must sync cast vote records (CVRs) to the USB drive.'
+  );
+});
+
 test('CVR sync modal success case', async () => {
   const setShouldStayOnCastVoteRecordSyncRequiredScreen = jest.fn();
-  renderComponent({ setShouldStayOnCastVoteRecordSyncRequiredScreen });
+  renderComponent({
+    setShouldStayOnCastVoteRecordSyncRequiredScreen,
+    pollWorkerAuthenticated: true,
+  });
 
   await screen.findByText(
     'The inserted USB drive does not contain up-to-date records of the votes cast at this scanner. ' +
@@ -78,7 +93,10 @@ test('CVR sync modal success case', async () => {
 
 test('CVR sync modal error case', async () => {
   const setShouldStayOnCastVoteRecordSyncRequiredScreen = jest.fn();
-  renderComponent({ setShouldStayOnCastVoteRecordSyncRequiredScreen });
+  renderComponent({
+    setShouldStayOnCastVoteRecordSyncRequiredScreen,
+    pollWorkerAuthenticated: true,
+  });
 
   await screen.findByText(
     'The inserted USB drive does not contain up-to-date records of the votes cast at this scanner. ' +
