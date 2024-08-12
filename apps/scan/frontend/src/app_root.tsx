@@ -173,7 +173,6 @@ export function AppRoot(): JSX.Element | null {
   }
 
   if (isElectionManagerAuth(authStatus) && electionDefinition) {
-    // TODO (CARO): Either Rename this screen or make a different one for the printer
     return (
       <ElectionManagerScreen
         electionDefinition={electionDefinition}
