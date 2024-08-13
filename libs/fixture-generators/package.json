@@ -1,19 +1,19 @@
 {
-  "name": "@votingworks/cvr-fixture-generator",
+  "name": "@votingworks/fixture-generators",
   "version": "1.0.0",
-  "description": "Generator for CVRs for use as test fixtures.",
+  "description": "Generators for election data test fixtures",
   "keywords": [],
   "license": "GPL-3.0",
   "author": "VotingWorks Eng <eng@voting.works>",
   "main": "build/index.js",
   "bin": {
-    "cvr-fixture-generator": "bin/generate"
+    "cvr-fixture-generator": "bin/generate-cvrs"
   },
   "scripts": {
     "type-check": "tsc --build",
     "build": "tsc --build tsconfig.build.json",
     "clean": "rm -rf build tsconfig.tsbuildinfo tsconfig.build.tsbuildinfo",
-    "generate-fixtures": "./bin/generate-fixtures",
+    "generate-cvr-fixtures": "./bin/generate-cvr-fixtures",
     "lint": "pnpm type-check && eslint .",
     "lint:fix": "pnpm type-check && eslint . --fix",
     "test": "is-ci test:ci test:watch",
@@ -34,8 +34,10 @@
     "esbuild": "0.21.2",
     "esbuild-runner": "2.2.2",
     "js-sha256": "^0.9.0",
+    "nanoid": "^3.3.7",
     "uuid": "9.0.1",
-    "yargs": "17.7.1"
+    "yargs": "17.7.1",
+    "zod": "3.23.5"
   },
   "devDependencies": {
     "@types/jest": "^29.5.3",
@@ -50,8 +52,7 @@
     "jest-junit": "^16.0.0",
     "jest-watch-typeahead": "^2.2.2",
     "tmp": "^0.2.1",
-    "ts-jest": "29.1.1",
-    "zod": "3.23.5"
+    "ts-jest": "29.1.1"
   },
   "packageManager": "pnpm@8.3.1"
 }

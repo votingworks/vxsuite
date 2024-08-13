@@ -686,29 +686,6 @@ jobs:
       - store_test_results:
           path: libs/custom-scanner/reports/
 
-  # @votingworks/cvr-fixture-generator
-  test-libs-cvr-fixture-generator:
-    executor: nodejs
-    resource_class: xlarge
-    steps:
-      - checkout-and-install
-      - run:
-          name: Build
-          command: |
-            pnpm --dir libs/cvr-fixture-generator build
-      - run:
-          name: Lint
-          command: |
-            pnpm --dir libs/cvr-fixture-generator lint
-      - run:
-          name: Test
-          command: |
-            pnpm --dir libs/cvr-fixture-generator test
-          environment:
-            JEST_JUNIT_OUTPUT_DIR: ./reports/
-      - store_test_results:
-          path: libs/cvr-fixture-generator/reports/
-
   # @votingworks/db
   test-libs-db:
     executor: nodejs
@@ -800,6 +777,29 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: ./reports/
       - store_test_results:
           path: libs/eslint-plugin-vx/reports/
+
+  # @votingworks/fixture-generators
+  test-libs-fixture-generators:
+    executor: nodejs
+    resource_class: xlarge
+    steps:
+      - checkout-and-install
+      - run:
+          name: Build
+          command: |
+            pnpm --dir libs/fixture-generators build
+      - run:
+          name: Lint
+          command: |
+            pnpm --dir libs/fixture-generators lint
+      - run:
+          name: Test
+          command: |
+            pnpm --dir libs/fixture-generators test
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/
+      - store_test_results:
+          path: libs/fixture-generators/reports/
 
   # @votingworks/fixtures
   test-libs-fixtures:
@@ -1451,11 +1451,11 @@ workflows:
       - test-libs-cdf-schema-builder
       - test-libs-custom-paper-handler
       - test-libs-custom-scanner
-      - test-libs-cvr-fixture-generator
       - test-libs-db
       - test-libs-dev-dock-backend
       - test-libs-dev-dock-frontend
       - test-libs-eslint-plugin-vx
+      - test-libs-fixture-generators
       - test-libs-fixtures
       - test-libs-fs
       - test-libs-fujitsu-thermal-printer

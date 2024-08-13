@@ -1,14 +1,17 @@
-# Cast Vote Record Fixture Generator
+# Fixture Generators
+
+Tools for generating election data fixtures for testing.
+
+## Cast Vote Record Fixture Generator
 
 A command-line tool for generating cast vote record fixtures from ballot
 packages. Generates BMD ballot CVRs for VotingWorks election definitions and
 HMPB ballot CVRs for NH (`gridLayouts`) election definitions
 
-## Usage
+### Usage
 
 ```bash
-# from libs/cvr-fixture-generator
-./bin/generate --electionDefinition ./election.json --outputPath ./standard-cvr-fixture
+./bin/generate-cvrs --electionDefinition ./election.json --outputPath ./standard-cvr-fixture
 ```
 
 Optional flags:
@@ -26,15 +29,15 @@ Optional flags:
   the CDF). Since ballot ids are incrementing numbers starting from 1, they will
   have id collisions in VxAdmin if they are not distinguished by a prefix.
 
-## Saved Fixtures
+### Saved Fixtures
 
 To regenerate the saved fixtures in [libs/fixtures](../libs/fixtures), run:
 
 ```bash
-pnpm generate-fixtures
+pnpm generate-cvr-fixtures
 ```
 
-## Vote Variations
+### Vote Variations
 
 The export may include the following vote variations for candidate contests:
 
@@ -47,7 +50,7 @@ The export may include the following vote variations for candidate contests:
 For ballot measure contests, each of the four possible vote variations are
 included.
 
-## Limitations
+### Limitations
 
 - Multi-sheet ballots are not supported. There is no underlying technical
   limitation, we just do not have the fixtures or the requirement yet to test
@@ -58,3 +61,19 @@ included.
   For example, the number of undervotes and overvotes for ballot measure
   contests is extremely high.
 - Ballot images do not have any real marks on them, they are only blank pages.
+
+## Election Fixture Generator
+
+A command-line tool for generating an election definition based on a set of
+configurable parameters. Originally created to support scale testing by creating
+large election definitions.
+
+### Usage
+
+Takes a JSON config file as input. See
+[config.ts](./src/generate-election/config.ts) for a list of fields. All fields
+are optional and have default values.
+
+```bash
+./bin/generate-election config.json > election.json
+```

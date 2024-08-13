@@ -4,7 +4,7 @@ require('esbuild-runner').install({
   type: 'transform',
 });
 
-require('../src/cli/generate')
+require('../src/cli/generate-cvrs')
   .main(process.argv, {
     stdin: process.stdin,
     stdout: process.stdout,

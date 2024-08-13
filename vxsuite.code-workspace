@@ -113,8 +113,8 @@
       "path": "libs/cdf-schema-builder"
     },
     {
-      "name": "libs/cvr-fixture-generator",
-      "path": "libs/cvr-fixture-generator"
+      "name": "libs/fixture-generators",
+      "path": "libs/fixture-generators"
     },
     {
       "name": "libs/db",
