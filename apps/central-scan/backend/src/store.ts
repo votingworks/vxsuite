@@ -29,6 +29,7 @@ import {
   DiagnosticType,
   ElectionId,
   ElectionKey,
+  constructElectionKey,
 } from '@votingworks/types';
 import {
   assert,
@@ -229,13 +230,23 @@ export class Store {
         election_data ->> 'date' as date
       from election
       `
-    ) as { id: string; date: string } | undefined;
-    return (
-      result && {
-        id: result.id as ElectionId,
-        date: new DateWithoutTime(result.date),
-      }
-    );
+    ) as { id?: string; date?: string } | undefined;
+
+    if (!result) return undefined;
+
+    // The election might be in CDF, in which case, we won't get `id` and `date`
+    // fields, so just load and parse it to construct the key. We don't need to
+    // optimize speed for CDF.
+    if (!(result.id && result.date)) {
+      return constructElectionKey(
+        assertDefined(this.getElectionRecord()).electionDefinition.election
+      );
+    }
+
+    return {
+      id: result.id as ElectionId,
+      date: new DateWithoutTime(result.date),
+    };
   }
 
   /**

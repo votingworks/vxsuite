@@ -225,6 +225,12 @@ test('configuring with a CDF election', async () => {
   expect(currentElectionMetadata?.electionDefinition.ballotHash).toEqual(
     ballotHash
   );
+
+  // Ensure loading auth election key from db works
+  mockElectionManagerAuth(auth, electionGeneral);
+  expect(await apiClient.getAuthStatus()).toMatchObject({
+    status: 'logged_in',
+  });
 });
 
 test('configuring with an election not from removable media in prod errs', async () => {

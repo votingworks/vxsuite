@@ -1,18 +1,36 @@
 import {
+  electionGeneral,
   electionGridLayoutNewHampshireTestBallotFixtures,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
   BallotMetadata,
   BallotType,
+  convertVxfElectionToCdfBallotDefinition,
   PageInterpretationWithFiles,
+  safeParseElectionDefinition,
   SheetOf,
   TEST_JURISDICTION,
 } from '@votingworks/types';
 import { v4 as uuid } from 'uuid';
 import { LogEventId } from '@votingworks/logging';
 import { suppressingConsoleOutput } from '@votingworks/test-utils';
+import { mockElectionPackageFileTree } from '@votingworks/backend';
+import {
+  BooleanEnvironmentVariableName,
+  getFeatureFlagMock,
+} from '@votingworks/utils';
 import { withApp } from '../test/helpers/setup_app';
+import { mockElectionManagerAuth } from '../test/helpers/auth';
+
+const featureFlagMock = getFeatureFlagMock();
+jest.mock('@votingworks/utils', () => {
+  return {
+    ...jest.requireActual('@votingworks/utils'),
+    isFeatureFlagEnabled: (flag: BooleanEnvironmentVariableName) =>
+      featureFlagMock.isEnabled(flag),
+  };
+});
 
 const jurisdiction = TEST_JURISDICTION;
 
@@ -283,6 +301,38 @@ test('uses default machine config if not set', async () => {
     expect(await apiClient.getMachineConfig()).toEqual({
       machineId: '0000',
       codeVersion: 'dev',
+    });
+  });
+});
+
+test('configure with CDF election', async () => {
+  featureFlagMock.enableFeatureFlag(
+    BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
+  );
+
+  await withApp(async ({ apiClient, auth, mockUsbDrive }) => {
+    const cdfElection =
+      convertVxfElectionToCdfBallotDefinition(electionGeneral);
+    const cdfElectionDefinition = safeParseElectionDefinition(
+      JSON.stringify(cdfElection)
+    ).unsafeUnwrap();
+    mockElectionManagerAuth(auth, cdfElectionDefinition);
+    mockUsbDrive.insertUsbDrive(
+      await mockElectionPackageFileTree({
+        electionDefinition: cdfElectionDefinition,
+      })
+    );
+
+    (await apiClient.configureFromElectionPackageOnUsbDrive()).unsafeUnwrap();
+
+    const electionRecord = await apiClient.getElectionRecord();
+    expect(electionRecord?.electionDefinition.election.id).toEqual(
+      electionGeneral.id
+    );
+
+    // Ensure loading auth election key from db works
+    expect(await apiClient.getAuthStatus()).toMatchObject({
+      status: 'logged_in',
     });
   });
 });
