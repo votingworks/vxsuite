@@ -18,11 +18,6 @@ import { Workspace } from './util/workspace';
 import { getPaperHandlerStateMachine } from './custom-paper-handler/state_machine';
 import { getDefaultAuth, getUserRole } from './util/auth';
 import {
-  DEV_AUTH_STATUS_POLLING_INTERVAL_MS,
-  DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
-  NOTIFICATION_DURATION_MS,
-} from './custom-paper-handler/constants';
-import {
   PatConnectionStatusReader,
   PatConnectionStatusReaderInterface,
 } from './pat-input/connection_status_reader';
@@ -106,9 +101,6 @@ export async function start({
       logger,
       driver,
       patConnectionStatusReader,
-      devicePollingIntervalMs: DEV_DEVICE_STATUS_POLLING_INTERVAL_MS,
-      authPollingIntervalMs: DEV_AUTH_STATUS_POLLING_INTERVAL_MS,
-      notificationDurationMs: NOTIFICATION_DURATION_MS,
     });
   }
 
