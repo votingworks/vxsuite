@@ -18,7 +18,7 @@ import {
   createMachine,
   InvokeConfig,
   StateMachine,
-  interpret,
+  interpret as interpretStateMachine,
   Interpreter,
   Assigner,
   PropertyAssigner,
@@ -51,6 +51,7 @@ import {
 } from '@votingworks/utils';
 import { readElection } from '@votingworks/fs';
 import { loadImageData } from '@votingworks/image-utils';
+import { Clock } from 'xstate/lib/interpreter';
 import { Workspace } from '../util/workspace';
 import { SimpleServerStatus } from './types';
 import { MAX_BALLOT_BOX_CAPACITY } from './constants';
@@ -1349,12 +1350,14 @@ export async function getPaperHandlerStateMachine({
   logger,
   driver,
   patConnectionStatusReader,
+  clock,
 }: {
   workspace: Workspace;
   auth: InsertedSmartCardAuthApi;
   logger: BaseLogger;
   driver: PaperHandlerDriverInterface;
   patConnectionStatusReader: PatConnectionStatusReaderInterface;
+  clock?: Clock;
 }): Promise<Optional<PaperHandlerStateMachine>> {
   const diagnosticElectionDefinitionResult = await readElection(
     DIAGNOSTIC_ELECTION_PATH
@@ -1373,7 +1376,10 @@ export async function getPaperHandlerStateMachine({
   };
 
   const machine = buildMachine(initialContext, auth);
-  const machineService = interpret(machine).start();
+  const machineService = interpretStateMachine(
+    machine,
+    clock && { clock }
+  ).start();
   setUpLogging(machineService, logger);
   await setDefaults(driver);
 
