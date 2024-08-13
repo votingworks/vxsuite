@@ -1072,7 +1072,7 @@ importers:
         version: 1.53.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
       type-fest:
         specifier: ^0.18.0
         version: 0.18.1
@@ -1462,7 +1462,7 @@ importers:
         version: 0.2.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
       vite:
         specifier: 4.5.0
         version: 4.5.0(@types/node@16.18.23)
@@ -1553,9 +1553,6 @@ importers:
       react:
         specifier: 18.3.1
         version: 18.3.1
-      rxjs:
-        specifier: 7.8.1
-        version: 7.8.1
       tmp:
         specifier: ^0.2.1
         version: 0.2.1
@@ -1860,7 +1857,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
       vite:
         specifier: 4.5.0
         version: 4.5.0(@types/node@16.18.23)
@@ -2268,7 +2265,7 @@ importers:
         version: 1.53.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
       vite:
         specifier: 4.5.0
         version: 4.5.0(@types/node@16.18.23)
@@ -2724,7 +2721,7 @@ importers:
         version: 1.53.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
       vite:
         specifier: 4.5.0
         version: 4.5.0(@types/node@16.18.23)
@@ -2775,7 +2772,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/@types/compress-commons:
     dependencies:
@@ -2849,7 +2846,7 @@ importers:
         version: 1.53.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/auth:
     dependencies:
@@ -2964,7 +2961,7 @@ importers:
         version: 1.53.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
       wait-for-expect:
         specifier: ^3.0.2
         version: 3.0.2
@@ -3124,7 +3121,7 @@ importers:
         version: 1.53.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/ballot-encoder:
     dependencies:
@@ -3176,7 +3173,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/ballot-interpreter:
     dependencies:
@@ -3297,7 +3294,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/basics:
     dependencies:
@@ -3343,7 +3340,7 @@ importers:
         version: 1.53.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/bmd-ballot-fixtures:
     dependencies:
@@ -3416,7 +3413,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
       util:
         specifier: ^0.12.4
         version: 0.12.4
@@ -3471,7 +3468,7 @@ importers:
         version: 1.53.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/custom-paper-handler:
     dependencies:
@@ -3550,7 +3547,7 @@ importers:
         version: 2.2.2(jest@29.6.2)
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/custom-scanner:
     dependencies:
@@ -3623,7 +3620,7 @@ importers:
         version: 2.2.2(jest@29.6.2)
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
       vite:
         specifier: 4.5.0
         version: 4.5.0(@types/node@16.18.23)
@@ -3708,7 +3705,7 @@ importers:
         version: 0.2.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
       zod:
         specifier: 3.23.5
         version: 3.23.5
@@ -3839,7 +3836,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/dev-dock/frontend:
     dependencies:
@@ -3948,7 +3945,7 @@ importers:
         version: 5.3.11(react-dom@18.3.1)(react-is@18.2.0)(react@18.3.1)
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/eslint-plugin-vx:
     dependencies:
@@ -4027,7 +4024,7 @@ importers:
         version: 18.3.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/fixtures:
     dependencies:
@@ -4079,7 +4076,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/fs:
     dependencies:
@@ -4158,7 +4155,7 @@ importers:
         version: 0.2.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/fujitsu-thermal-printer:
     dependencies:
@@ -4222,7 +4219,7 @@ importers:
         version: 2.2.2(jest@29.6.2)
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/grout:
     dependencies:
@@ -4283,7 +4280,7 @@ importers:
         version: 1.53.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/grout/test-utils:
     dependencies:
@@ -4323,7 +4320,7 @@ importers:
         version: 1.53.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/hmpb:
     dependencies:
@@ -4608,7 +4605,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/mark-flow-ui:
     dependencies:
@@ -4822,7 +4819,7 @@ importers:
         version: 5.3.11(react-dom@18.3.1)(react-is@18.2.0)(react@18.3.1)
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
       util:
         specifier: ^0.12.4
         version: 0.12.4
@@ -4862,7 +4859,7 @@ importers:
         version: 2.2.2(jest@29.6.2)
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/monorepo-utils:
     dependencies:
@@ -4932,7 +4929,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
       typescript:
         specifier: 5.5.3
         version: 5.5.3
@@ -4987,7 +4984,7 @@ importers:
         version: 2.2.2(jest@29.6.2)
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/printing:
     dependencies:
@@ -5099,7 +5096,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/res-to-ts:
     dependencies:
@@ -5154,7 +5151,7 @@ importers:
         version: 2.2.2(jest@29.6.2)
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/test-utils:
     dependencies:
@@ -5236,7 +5233,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/types:
     dependencies:
@@ -5327,7 +5324,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/types-rs: {}
 
@@ -5606,7 +5603,7 @@ importers:
         version: 0.2.1
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
       util:
         specifier: ^0.12.4
         version: 0.12.4
@@ -5679,7 +5676,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   libs/utils:
     dependencies:
@@ -5794,7 +5791,7 @@ importers:
         version: 1.50.0
       ts-jest:
         specifier: 29.1.1
-        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.18.17)(jest@29.6.2)(typescript@5.5.3)
+        version: 29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3)
 
   script:
     dependencies:
@@ -21232,6 +21229,7 @@ packages:
       semver: 7.5.4
       typescript: 5.5.3
       yargs-parser: 21.1.1
+    dev: true
 
   /ts-jest@29.1.1(@babel/core@7.22.9)(@jest/types@29.6.1)(esbuild@0.21.2)(jest@29.6.2)(typescript@5.5.3):
     resolution: {integrity: sha512-D6xjnnbP17cC85nliwGiL+tpoKN0StpgE0TeOjXQTU6MVCfsB4v7aW05CgQ/1OywGb0x/oy9hHFnN+sczTiRaA==}
@@ -21267,7 +21265,6 @@ packages:
       semver: 7.5.4
       typescript: 5.5.3
       yargs-parser: 21.1.1
-    dev: true
 
   /tsconfig-paths@3.14.1:
     resolution: {integrity: sha512-fxDhWnFSLt3VuTwtvJt5fpwxBHg5AdKWMsgcPOOIilyjymcYVZoCQF8fvFRezCNfblEXmi+PcM1eYHeOAgXCOQ==}
