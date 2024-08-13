@@ -36,11 +36,6 @@ import {
   getPaperHandlerStateMachine,
   PaperHandlerStateMachine,
 } from '../src/custom-paper-handler';
-import {
-  AUTH_STATUS_POLLING_INTERVAL_MS,
-  DEVICE_STATUS_POLLING_INTERVAL_MS,
-  NOTIFICATION_DURATION_MS,
-} from '../src/custom-paper-handler/constants';
 import { PatConnectionStatusReaderInterface } from '../src/pat-input/connection_status_reader';
 import { getUserRole } from '../src/util/auth';
 import { MockPatConnectionStatusReader } from '../src/pat-input/mock_connection_status_reader';
@@ -59,7 +54,6 @@ export async function getMockStateMachine(
   patConnectionStatusReader: PatConnectionStatusReaderInterface,
   driver: MockPaperHandlerDriver,
   logger: BaseLogger,
-  pollingIntervalMs?: number,
   authOverride?: InsertedSmartCardAuthApi
 ): Promise<PaperHandlerStateMachine> {
   // State machine setup
@@ -70,10 +64,6 @@ export async function getMockStateMachine(
     logger,
     driver,
     patConnectionStatusReader,
-    devicePollingIntervalMs:
-      pollingIntervalMs ?? DEVICE_STATUS_POLLING_INTERVAL_MS,
-    authPollingIntervalMs: pollingIntervalMs ?? AUTH_STATUS_POLLING_INTERVAL_MS,
-    notificationDurationMs: pollingIntervalMs ?? NOTIFICATION_DURATION_MS,
   });
   assert(stateMachine);
 
@@ -114,7 +104,6 @@ export async function createApp(
     patConnectionStatusReader,
     driver,
     logger,
-    options?.pollingIntervalMs,
     mockAuth
   );
 
