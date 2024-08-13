@@ -53,14 +53,7 @@ import { readElection } from '@votingworks/fs';
 import { loadImageData } from '@votingworks/image-utils';
 import { Workspace } from '../util/workspace';
 import { SimpleServerStatus } from './types';
-import {
-  AUTH_STATUS_POLLING_INTERVAL_MS,
-  DELAY_BEFORE_DECLARING_REAR_JAM_MS,
-  DEVICE_STATUS_POLLING_INTERVAL_MS,
-  DEVICE_STATUS_POLLING_TIMEOUT_MS,
-  MAX_BALLOT_BOX_CAPACITY,
-  NOTIFICATION_DURATION_MS,
-} from './constants';
+import { MAX_BALLOT_BOX_CAPACITY } from './constants';
 import {
   scanAndSave,
   setDefaults,
@@ -90,10 +83,6 @@ interface Context {
   workspace: Workspace;
   driver: PaperHandlerDriverInterface;
   patConnectionStatusReader: PatConnectionStatusReaderInterface;
-  deviceTimeoutMs: number;
-  devicePollingIntervalMs: number;
-  authPollingIntervalMs: number;
-  notificationDurationMs: number;
   scannedBallotImagePath?: string;
   isPatDeviceConnected: boolean;
   interpretation?: SheetOf<InterpretFileResult>;
@@ -245,12 +234,39 @@ export interface Delays {
    * How often to query for auth status
    */
   DELAY_AUTH_STATUS_POLLING_INTERVAL_MS: number;
+
+  /**
+   * How long to query for a device (paper handler, PAT) before declaring
+   * a timeout
+   */
+  DELAY_DEVICE_STATUS_POLLING_TIMEOUT_MS: number;
+
+  /**
+   * How long to query for auth status before declaring a timeout
+   */
+  DELAY_AUTH_STATUS_POLLING_TIMEOUT_MS: number;
+
+  /**
+   * The delay the state machine will wait for paper to eject before
+   * declaring a jam state during rear ejection. Expected time for a successful
+   * ballot cast is is about 3.5 seconds.
+   */
+  DELAY_BEFORE_DECLARING_REAR_JAM_MS: number;
+
+  /**
+   * The amount of time to remain in notification states before automatically transitioning.
+   */
+  DELAY_NOTIFICATION_DURATION_MS: number;
 }
 
 export const delays = {
   DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS: 200,
   DELAY_PAT_CONNECTION_STATUS_POLLING_INTERVAL_MS: 500,
   DELAY_AUTH_STATUS_POLLING_INTERVAL_MS: 200,
+  DELAY_DEVICE_STATUS_POLLING_TIMEOUT_MS: 30_000,
+  DELAY_AUTH_STATUS_POLLING_TIMEOUT_MS: 30_000,
+  DELAY_BEFORE_DECLARING_REAR_JAM_MS: 7_000,
+  DELAY_NOTIFICATION_DURATION_MS: 5_000,
 } satisfies Delays;
 
 function createPollingChildMachine(
@@ -907,7 +923,7 @@ export function buildMachine(
                 PAPER_JAM: 'jammed',
               },
               after: {
-                [DELAY_BEFORE_DECLARING_REAR_JAM_MS]: 'jammed',
+                [delays.DELAY_BEFORE_DECLARING_REAR_JAM_MS]: 'jammed',
               },
             },
             ballot_accepted: {
@@ -918,7 +934,7 @@ export function buildMachine(
                 );
               },
               after: {
-                [initialContext.notificationDurationMs]:
+                [delays.DELAY_NOTIFICATION_DURATION_MS]:
                   'resetting_state_machine_after_success',
               },
             },
@@ -1019,7 +1035,7 @@ export function buildMachine(
               ],
               after: {
                 // The frontend needs time to idle in this state so the user can read the status message
-                [NOTIFICATION_DURATION_MS]: 'not_accepting_paper',
+                [delays.DELAY_NOTIFICATION_DURATION_MS]: 'not_accepting_paper',
               },
             },
             // The flow to empty a full ballot box. Can only occur at the end of a voting session.
@@ -1149,7 +1165,7 @@ export function buildMachine(
                 NO_PAPER_ANYWHERE: 'success',
               },
               after: {
-                [DELAY_BEFORE_DECLARING_REAR_JAM_MS]: 'failure',
+                [delays.DELAY_BEFORE_DECLARING_REAR_JAM_MS]: 'failure',
               },
             },
             success: {
@@ -1318,20 +1334,12 @@ export async function getPaperHandlerStateMachine({
   logger,
   driver,
   patConnectionStatusReader,
-  deviceTimeoutMs = DEVICE_STATUS_POLLING_TIMEOUT_MS,
-  devicePollingIntervalMs = DEVICE_STATUS_POLLING_INTERVAL_MS,
-  authPollingIntervalMs = AUTH_STATUS_POLLING_INTERVAL_MS,
-  notificationDurationMs = NOTIFICATION_DURATION_MS,
 }: {
   workspace: Workspace;
   auth: InsertedSmartCardAuthApi;
   logger: BaseLogger;
   driver: PaperHandlerDriverInterface;
   patConnectionStatusReader: PatConnectionStatusReaderInterface;
-  deviceTimeoutMs?: number;
-  devicePollingIntervalMs: number;
-  authPollingIntervalMs: number;
-  notificationDurationMs: number;
 }): Promise<Optional<PaperHandlerStateMachine>> {
   const diagnosticElectionDefinitionResult = await readElection(
     DIAGNOSTIC_ELECTION_PATH
@@ -1342,10 +1350,6 @@ export async function getPaperHandlerStateMachine({
     driver,
     isPatDeviceConnected: false,
     patConnectionStatusReader,
-    deviceTimeoutMs,
-    devicePollingIntervalMs,
-    authPollingIntervalMs,
-    notificationDurationMs,
     logger,
     paperHandlerDiagnosticElection: diagnosticElectionDefinitionResult.isOk()
       ? diagnosticElectionDefinitionResult.ok()
