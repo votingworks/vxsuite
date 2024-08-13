@@ -30,6 +30,7 @@ import {
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { assert } from '@votingworks/basics';
 import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
+import { Browser, launchChromium } from '@votingworks/printing';
 import { Api, buildApp } from '../src/app';
 import { createWorkspace, Workspace } from '../src/util/workspace';
 import {
@@ -90,6 +91,7 @@ interface MockAppContents {
   stateMachine: PaperHandlerStateMachine;
   patConnectionStatusReader: PatConnectionStatusReaderInterface;
   driver: MockPaperHandlerDriver;
+  chromium: Browser;
 }
 
 export interface CreateAppOptions {
@@ -104,6 +106,7 @@ export async function createApp(
   const workspace = createWorkspace(tmp.dirSync().name);
   const logger = buildMockLogger(mockAuth, workspace);
   const mockUsbDrive = createMockUsbDrive();
+  const chromium = await launchChromium();
   const patConnectionStatusReader =
     options?.patConnectionStatusReader ??
     new MockPatConnectionStatusReader(logger);
@@ -123,6 +126,7 @@ export async function createApp(
     logger,
     workspace,
     mockUsbDrive.usbDrive,
+    chromium,
     stateMachine
   );
 
@@ -142,6 +146,7 @@ export async function createApp(
     stateMachine,
     patConnectionStatusReader,
     driver,
+    chromium,
   };
 }
 
