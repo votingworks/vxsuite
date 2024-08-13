@@ -3,7 +3,7 @@
 //
 
 import { UiStringsStore, createUiStringStore } from '@votingworks/backend';
-import { Optional } from '@votingworks/basics';
+import { DateWithoutTime, Optional } from '@votingworks/basics';
 import { Client as DbClient } from '@votingworks/db';
 import {
   ElectionDefinition,
@@ -16,6 +16,8 @@ import {
   PollsState,
   safeParse,
   PollsStateSchema,
+  ElectionId,
+  ElectionKey,
 } from '@votingworks/types';
 import { join } from 'path';
 
@@ -102,6 +104,28 @@ export class Store {
           electionRow.electionData
         ).unsafeUnwrap(),
         electionPackageHash: electionRow.electionPackageHash,
+      }
+    );
+  }
+
+  /**
+   * Retrieves the election key (used for auth) for the current election. This
+   * method is faster than than {@link getElectionRecord} and thus more appropriate
+   * for use during auth polling.
+   */
+  getElectionKey(): ElectionKey | undefined {
+    const result = this.client.one(
+      `
+      select
+        election_data ->> 'id' as id,
+        election_data ->> 'date' as date
+      from election
+      `
+    ) as { id: string; date: string } | undefined;
+    return (
+      result && {
+        id: result.id as ElectionId,
+        date: new DateWithoutTime(result.date),
       }
     );
   }
