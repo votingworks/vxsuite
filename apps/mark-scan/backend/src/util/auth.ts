@@ -11,10 +11,7 @@ import {
   isFeatureFlagEnabled,
   isIntegrationTest,
 } from '@votingworks/utils';
-import {
-  DEFAULT_SYSTEM_SETTINGS,
-  constructElectionKey,
-} from '@votingworks/types';
+import { DEFAULT_SYSTEM_SETTINGS } from '@votingworks/types';
 import { Workspace } from './workspace';
 
 export function getDefaultAuth(logger: BaseLogger): InsertedSmartCardAuth {
@@ -32,15 +29,13 @@ export function getDefaultAuth(logger: BaseLogger): InsertedSmartCardAuth {
 export function constructAuthMachineState(
   workspace: Workspace
 ): InsertedSmartCardAuthMachineState {
-  const electionRecord = workspace.store.getElectionRecord();
+  const electionKey = workspace.store.getElectionKey();
   const jurisdiction = workspace.store.getJurisdiction();
   const systemSettings =
     workspace.store.getSystemSettings() ?? DEFAULT_SYSTEM_SETTINGS;
   return {
     ...systemSettings.auth,
-    electionKey:
-      electionRecord &&
-      constructElectionKey(electionRecord.electionDefinition.election),
+    electionKey,
     jurisdiction,
   };
 }
