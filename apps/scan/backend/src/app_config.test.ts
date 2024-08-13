@@ -1,5 +1,6 @@
 import {
   electionFamousNames2021Fixtures,
+  electionGeneral,
   electionGeneralDefinition,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
@@ -17,7 +18,12 @@ import {
 } from '@votingworks/test-utils';
 import { mockElectionPackageFileTree } from '@votingworks/backend';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
-import { constructElectionKey, ElectionDefinition } from '@votingworks/types';
+import {
+  constructElectionKey,
+  convertVxfElectionToCdfBallotDefinition,
+  ElectionDefinition,
+  safeParseElectionDefinition,
+} from '@votingworks/types';
 import { configureApp } from '../test/helpers/shared_helpers';
 import { withApp } from '../test/helpers/pdi_helpers';
 import { PrecinctScannerPollsInfo } from '.';
@@ -190,5 +196,29 @@ test('unconfiguring machine', async () => {
     await apiClient.unconfigureElection();
 
     expect(workspace.reset).toHaveBeenCalledTimes(1);
+  });
+});
+
+test('configure with CDF election', async () => {
+  await withApp(async ({ apiClient, mockUsbDrive, mockAuth }) => {
+    const cdfElection =
+      convertVxfElectionToCdfBallotDefinition(electionGeneral);
+    const cdfElectionDefinition = safeParseElectionDefinition(
+      JSON.stringify(cdfElection)
+    ).unsafeUnwrap();
+    await configureApp(apiClient, mockAuth, mockUsbDrive, {
+      electionPackage: {
+        electionDefinition: cdfElectionDefinition,
+      },
+    });
+
+    const config = await apiClient.getConfig();
+    expect(config.electionDefinition!.election.id).toEqual(electionGeneral.id);
+
+    // Ensure loading auth election key from db works
+    mockElectionManager(mockAuth, cdfElectionDefinition);
+    expect(await apiClient.getAuthStatus()).toMatchObject({
+      status: 'logged_in',
+    });
   });
 });

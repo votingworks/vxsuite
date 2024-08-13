@@ -6,6 +6,7 @@ import {
   electionTwoPartyPrimaryFixtures,
   electionGeneralDefinition,
   electionGeneralFixtures,
+  electionGeneral,
 } from '@votingworks/fixtures';
 import { mockOf, suppressingConsoleOutput } from '@votingworks/test-utils';
 import { InsertedSmartCardAuthApi } from '@votingworks/auth';
@@ -29,6 +30,8 @@ import {
   LanguageCode,
   UiStringsPackage,
   VotesDict,
+  convertVxfElectionToCdfBallotDefinition,
+  safeParseElectionDefinition,
   safeParseSystemSettings,
 } from '@votingworks/types';
 import { MockUsbDrive } from '@votingworks/usb-drive';
@@ -250,6 +253,25 @@ test('configureElectionPackageFromUsb returns an error if election package parsi
   const result = await apiClient.configureElectionPackageFromUsb();
   assert(result.isErr());
   expect(result.err()).toEqual('auth_required_before_election_package_load');
+});
+
+test('configure with CDF election', async () => {
+  const cdfElection = convertVxfElectionToCdfBallotDefinition(electionGeneral);
+  const cdfElectionDefinition = safeParseElectionDefinition(
+    JSON.stringify(cdfElection)
+  ).unsafeUnwrap();
+  mockElectionManagerAuth(mockAuth, cdfElectionDefinition);
+  await setUpUsbAndConfigureElection(cdfElectionDefinition);
+
+  const electionRecord = await apiClient.getElectionRecord();
+  expect(electionRecord?.electionDefinition.election.id).toEqual(
+    electionGeneral.id
+  );
+
+  // Ensure loading auth election key from db works
+  expect(await apiClient.getAuthStatus()).toMatchObject({
+    status: 'logged_in',
+  });
 });
 
 test('usbDrive', async () => {

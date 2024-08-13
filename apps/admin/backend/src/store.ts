@@ -10,6 +10,8 @@ import {
   typedAs,
   isResult,
   assert,
+  DateWithoutTime,
+  assertDefined,
 } from '@votingworks/basics';
 import { Bindable, Client as DbClient, Statement } from '@votingworks/db';
 import {
@@ -38,6 +40,9 @@ import {
   Admin,
   BallotType,
   DiagnosticType,
+  ElectionKey,
+  ElectionId,
+  constructElectionKey,
 } from '@votingworks/types';
 import { join } from 'path';
 import { Buffer } from 'buffer';
@@ -352,6 +357,38 @@ export class Store {
     ) as { currentElectionId: Id | null };
 
     return currentElectionId ?? undefined;
+  }
+
+  /**
+   * Retrieves the election key (used for auth) for the current election. This
+   * method is faster than than {@link getElection} and thus more appropriate
+   * for use during auth polling.
+   */
+  getElectionKey(electionId: Id): ElectionKey {
+    const result = this.client.one(
+      `
+      select
+        election_data ->> 'id' as id,
+        election_data ->> 'date' as date
+      from elections
+      where id = ?
+      `,
+      electionId
+    ) as { id?: string; date?: string };
+
+    // The election might be in CDF, in which case, we won't get `id` and `date`
+    // fields, so just load and parse it to construct the key. We don't need to
+    // optimize speed for CDF.
+    if (!(result.id && result.date)) {
+      return constructElectionKey(
+        assertDefined(this.getElection(electionId)).electionDefinition.election
+      );
+    }
+
+    return {
+      id: result.id as ElectionId,
+      date: new DateWithoutTime(result.date),
+    };
   }
 
   /**

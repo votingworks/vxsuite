@@ -27,8 +27,17 @@ import {
   AdjudicationReason,
   DiagnosticRecord,
   DiagnosticType,
+  ElectionId,
+  ElectionKey,
+  constructElectionKey,
 } from '@votingworks/types';
-import { assert, assertDefined, find, Optional } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  DateWithoutTime,
+  find,
+  Optional,
+} from '@votingworks/basics';
 import makeDebug from 'debug';
 import { DateTime } from 'luxon';
 import { dirname, join } from 'path';
@@ -206,6 +215,38 @@ export class Store {
         electionPackageHash: electionRow.electionPackageHash,
       }
     );
+  }
+
+  /**
+   * Retrieves the election key (used for auth) for the current election. This
+   * method is faster than than {@link getElectionRecord} and thus more appropriate
+   * for use during auth polling.
+   */
+  getElectionKey(): ElectionKey | undefined {
+    const result = this.client.one(
+      `
+      select
+        election_data ->> 'id' as id,
+        election_data ->> 'date' as date
+      from election
+      `
+    ) as { id?: string; date?: string } | undefined;
+
+    if (!result) return undefined;
+
+    // The election might be in CDF, in which case, we won't get `id` and `date`
+    // fields, so just load and parse it to construct the key. We don't need to
+    // optimize speed for CDF.
+    if (!(result.id && result.date)) {
+      return constructElectionKey(
+        assertDefined(this.getElectionRecord()).electionDefinition.election
+      );
+    }
+
+    return {
+      id: result.id as ElectionId,
+      date: new DateWithoutTime(result.date),
+    };
   }
 
   /**
