@@ -73,23 +73,6 @@ export interface BallotPaperInfo {
   questions: string;
 }
 
-function getOptionalChildText(
-  element: Element,
-  tagName: string
-): Optional<string> {
-  for (const child of Array.from(element.childNodes)) {
-    if (child.nodeType === 1 && child.nodeName === tagName) {
-      const textContent = child.textContent?.trim();
-
-      if (!textContent || textContent === '') {
-        return undefined;
-      }
-
-      return textContent;
-    }
-  }
-}
-
 function getOptionalChild(
   element: Element,
   tagName: string
@@ -99,6 +82,13 @@ function getOptionalChild(
       return child as Element;
     }
   }
+}
+
+function getOptionalChildText(
+  element: Element,
+  tagName: string
+): Optional<string> {
+  return getOptionalChild(element, tagName)?.textContent?.trim();
 }
 
 function getRequiredChild(
