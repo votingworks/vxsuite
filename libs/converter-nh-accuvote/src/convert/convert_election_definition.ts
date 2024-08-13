@@ -25,6 +25,7 @@ import {
 } from '@votingworks/types';
 import { pdfToImages } from '@votingworks/image-utils';
 import { Buffer } from 'buffer';
+import * as accuvote from './accuvote';
 import { convertElectionDefinitionHeader } from './convert_election_definition_header';
 import { matchContestOptionsOnGrid } from './match_contest_options_on_grid';
 import {
@@ -41,9 +42,15 @@ async function convertCardDefinition(
   cardDefinition: NewHampshireBallotCardDefinition
 ): Promise<ResultWithIssues<Election>> {
   return asyncResultBlock(async (fail) => {
-    const convertHeader = convertElectionDefinitionHeader(
-      cardDefinition.definition
-    ).okOrElse(fail);
+    const accuvoteParseResult = accuvote.parseXml(cardDefinition.definition);
+
+    if (accuvoteParseResult.isErr()) {
+      return err({ issues: accuvoteParseResult.err() });
+    }
+
+    const avsInterface = accuvoteParseResult.ok();
+    const convertHeader =
+      convertElectionDefinitionHeader(avsInterface).okOrElse(fail);
 
     const { result: election, issues: headerIssues } = convertHeader;
     let success = true;
