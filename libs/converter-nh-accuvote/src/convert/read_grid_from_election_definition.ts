@@ -1,5 +1,4 @@
-import { safeParseNumber } from '@votingworks/types';
-import { CandidateGridElement } from './types';
+import * as accuvote from './accuvote';
 
 const ElectionDefinitionVerticalTimingMarkDistance = 9;
 const ElectionDefinitionHorizontalTimingMarkDistance = 108 / 7;
@@ -25,21 +24,27 @@ function timingMarkCoordinatesFromOxOy(
 }
 
 /**
+ * Contains candidate elements and their LCM column/row coordinates.
+ */
+export interface CandidateGridEntry {
+  readonly candidate: accuvote.CandidateName;
+  readonly column: number;
+  readonly row: number;
+}
+
+/**
  * Finds all candidates and arranges them in a LCM grid.
  */
 export function readGridFromElectionDefinition(
-  root: Element
-): CandidateGridElement[] {
-  return Array.from(root.getElementsByTagName('CandidateName')).map(
-    (candidateElement) => {
-      const ox = safeParseNumber(
-        candidateElement.getElementsByTagName('OX')[0]?.textContent
-      ).unsafeUnwrap();
-      const oy = safeParseNumber(
-        candidateElement.getElementsByTagName('OY')[0]?.textContent
-      ).unsafeUnwrap();
-      const { column, row } = timingMarkCoordinatesFromOxOy(ox, oy);
-      return { element: candidateElement, column, row };
-    }
+  avsInterface: accuvote.AvsInterface
+): CandidateGridEntry[] {
+  return avsInterface.candidates.flatMap((candidateContest) =>
+    candidateContest.candidateNames.map((candidate) => {
+      const { column, row } = timingMarkCoordinatesFromOxOy(
+        candidate.ox,
+        candidate.oy
+      );
+      return { candidate, column, row };
+    })
   );
 }

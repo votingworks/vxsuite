@@ -1,4 +1,11 @@
-import { assert, assertDefined, err, iter, ok } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  err,
+  iter,
+  ok,
+  Optional,
+} from '@votingworks/basics';
 import {
   BallotPaperSize,
   Candidate,
@@ -9,25 +16,20 @@ import {
   GridPositionWriteIn,
   Party,
   PartyIdSchema,
-  YesNoContest,
   safeParse,
   safeParseElection,
   safeParseNumber,
   unsafeParse,
+  YesNoContest,
 } from '@votingworks/types';
 import makeDebug from 'debug';
-import { decode as decodeHtmlEntities } from 'he';
-import { DateTime } from 'luxon';
 import { sha256 } from 'js-sha256';
+import { DateTime } from 'luxon';
+import * as accuvote from './accuvote';
 import { parseConstitutionalQuestions } from './parse_constitutional_questions';
-import {
-  ConvertIssue,
-  ConvertIssueKind,
-  NewHampshireBallotCardDefinition,
-  ResultWithIssues,
-} from './types';
 import { readGridFromElectionDefinition } from './read_grid_from_election_definition';
 import { NH_SEAL } from './seal';
+import { ConvertIssue, ConvertIssueKind, ResultWithIssues } from './types';
 
 const debug = makeDebug('converter-nh-accuvote:convert');
 
@@ -39,87 +41,9 @@ function makeId(text: string): string {
   )}`;
 }
 
-/**
- * Creates an election definition only from the ballot metadata, ignoring the
- * ballot images.
- */
-export function convertElectionDefinitionHeader(
-  definition: NewHampshireBallotCardDefinition['definition']
-): ResultWithIssues<Election> {
-  const root = definition;
-  const accuvoteHeaderInfo = root.getElementsByTagName('AccuvoteHeaderInfo')[0];
-  const electionId =
-    accuvoteHeaderInfo?.getElementsByTagName('ElectionID')[0]?.textContent;
-  if (typeof electionId !== 'string') {
-    return err({
-      issues: [
-        {
-          kind: ConvertIssueKind.MissingDefinitionProperty,
-          message: 'ElectionID is missing',
-          property: 'AVSInterface > AccuvoteHeaderInfo > ElectionID',
-        },
-      ],
-    });
-  }
-
-  const title =
-    accuvoteHeaderInfo?.getElementsByTagName('ElectionName')[0]?.textContent;
-  if (typeof title !== 'string') {
-    return err({
-      issues: [
-        {
-          kind: ConvertIssueKind.MissingDefinitionProperty,
-          message: 'ElectionName is missing',
-          property: 'AVSInterface > AccuvoteHeaderInfo > ElectionName',
-        },
-      ],
-    });
-  }
-
-  const townName =
-    accuvoteHeaderInfo?.getElementsByTagName('TownName')[0]?.textContent;
-  if (typeof townName !== 'string') {
-    return err({
-      issues: [
-        {
-          kind: ConvertIssueKind.MissingDefinitionProperty,
-          message: 'TownName is missing',
-          property: 'AVSInterface > AccuvoteHeaderInfo > TownName',
-        },
-      ],
-    });
-  }
-
-  const townId =
-    accuvoteHeaderInfo?.getElementsByTagName('TownID')[0]?.textContent;
-  if (typeof townId !== 'string') {
-    return err({
-      issues: [
-        {
-          kind: ConvertIssueKind.MissingDefinitionProperty,
-          message: 'TownID is missing',
-          property: 'AVSInterface > AccuvoteHeaderInfo > TownID',
-        },
-      ],
-    });
-  }
-
-  const rawDate =
-    accuvoteHeaderInfo?.getElementsByTagName('ElectionDate')[0]?.textContent;
-  if (typeof rawDate !== 'string') {
-    return err({
-      issues: [
-        {
-          kind: ConvertIssueKind.MissingDefinitionProperty,
-          message: 'ElectionDate is missing',
-          property: 'AVSInterface > AccuvoteHeaderInfo > ElectionDate',
-        },
-      ],
-    });
-  }
-
+function parseDate(rawDate: string): Optional<DateTime> {
   const dateFormats = ['M/d/yyyy HH:mm:ss', 'M/dd/yyyy'];
-  const parsedDate = dateFormats
+  return dateFormats
     .map((format) =>
       DateTime.fromFormat(rawDate.trim(), format, {
         locale: 'en-US',
@@ -127,6 +51,26 @@ export function convertElectionDefinitionHeader(
       })
     )
     .find((date) => date.isValid);
+}
+
+/**
+ * Creates an election definition only from the ballot metadata, ignoring the
+ * ballot images.
+ */
+export function convertElectionDefinitionHeader(
+  avsInterface: accuvote.AvsInterface
+): ResultWithIssues<Election> {
+  const {
+    ballotSize,
+    electionDate: rawDate,
+    electionName: title,
+    partyName: electionPartyName,
+    precinctId: rawPrecinctId,
+    townName,
+    townId,
+  } = avsInterface.accuvoteHeaderInfo;
+
+  const parsedDate = parseDate(rawDate);
   if (!parsedDate) {
     return err({
       issues: [
@@ -139,9 +83,6 @@ export function convertElectionDefinitionHeader(
     });
   }
 
-  const rawPrecinctId =
-    root.getElementsByTagName('PrecinctID')[0]?.textContent?.trim() ||
-    undefined;
   const cleanedPrecinctId = rawPrecinctId?.replace(/[^-_\w]/g, '');
   const precinctId = cleanedPrecinctId
     ? `town-id-${townId}-precinct-id-${cleanedPrecinctId}`
@@ -164,18 +105,6 @@ export function convertElectionDefinitionHeader(
   }
   const districtId = districtIdResult.ok();
 
-  const ballotSize = root.getElementsByTagName('BallotSize')[0]?.textContent;
-  if (typeof ballotSize !== 'string') {
-    return err({
-      issues: [
-        {
-          kind: ConvertIssueKind.MissingDefinitionProperty,
-          message: 'BallotSize is missing',
-          property: 'AVSInterface > AccuvoteHeaderInfo > BallotSize',
-        },
-      ],
-    });
-  }
   let paperSize: BallotPaperSize;
   switch (ballotSize) {
     case '8.5X11':
@@ -198,9 +127,6 @@ export function convertElectionDefinitionHeader(
       });
   }
 
-  const electionPartyName = root
-    .getElementsByTagName('PartyName')[0]
-    ?.textContent?.trim();
   const electionParty: Party | undefined = electionPartyName
     ? {
         id: unsafeParse(PartyIdSchema, makeId(electionPartyName)),
@@ -216,8 +142,8 @@ export function convertElectionDefinitionHeader(
   }
 
   const contests: Array<CandidateContest | YesNoContest> = [];
-  const optionMetadataByCandidateElement = new Map<
-    Element,
+  const optionMetadataByCandidate = new Map<
+    accuvote.CandidateName,
     | Omit<GridPositionOption, 'row' | 'column' | 'sheetNumber' | 'side'>
     | Omit<
         GridPositionWriteIn,
@@ -225,30 +151,13 @@ export function convertElectionDefinitionHeader(
       >
   >();
 
-  for (const contestElement of Array.from(
-    root.getElementsByTagName('Candidates')
-  )) {
-    const officeNameElement =
-      contestElement.getElementsByTagName('OfficeName')[0];
-    const officeName =
-      officeNameElement?.getElementsByTagName('Name')[0]?.textContent;
-    if (typeof officeName !== 'string') {
-      return err({
-        issues: [
-          {
-            kind: ConvertIssueKind.MissingDefinitionProperty,
-            message: 'OfficeName is missing',
-            property: 'AVSInterface > Candidates > OfficeName > Name',
-          },
-        ],
-      });
-    }
+  for (const candidateContest of avsInterface.candidates) {
+    const officeName = candidateContest.officeName.name;
     const contestId = makeId(
       `${officeName}${electionPartyName ? `-${electionPartyName}` : ''}`
     );
 
-    const winnerNote =
-      officeNameElement?.getElementsByTagName('WinnerNote')[0]?.textContent;
+    const { winnerNote } = candidateContest.officeName;
     const seats =
       safeParseNumber(
         winnerNote?.match(/Vote for not more than (\d+)/)?.[1]
@@ -256,35 +165,16 @@ export function convertElectionDefinitionHeader(
       safeParseNumber(winnerNote?.match(/Vote for up to (\d+)/)?.[1]).ok() ??
       1;
 
-    const [writeInElements, candidateElements] = iter(
-      Array.from(contestElement.getElementsByTagName('CandidateName'))
-    ).partition(
-      (candidateElement) =>
-        candidateElement.getElementsByTagName('WriteIn')[0]?.textContent ===
-          'True' ||
-        candidateElement.getElementsByTagName('Name')[0]?.textContent ===
-          'Write-In'
-    );
+    const [writeInCandidates, nonWriteInCandidates] = iter(
+      candidateContest.candidateNames
+    ).partition((candidate) => candidate.writeIn);
 
     const candidates: Candidate[] = [];
-    for (const [i, candidateElement] of candidateElements.entries()) {
-      const candidateName =
-        candidateElement.getElementsByTagName('Name')[0]?.textContent;
-      if (typeof candidateName !== 'string') {
-        return err({
-          issues: [
-            {
-              kind: ConvertIssueKind.MissingDefinitionProperty,
-              message: `Name is missing in candidate ${i + 1} of ${officeName}`,
-              property: 'AVSInterface > Candidates > CandidateName > Name',
-            },
-          ],
-        });
-      }
+    for (const nonWriteInCandidate of nonWriteInCandidates) {
+      const candidateName = nonWriteInCandidate.name;
 
       let party: Party | undefined;
-      const partyName =
-        candidateElement?.getElementsByTagName('Party')[0]?.textContent;
+      const partyName = nonWriteInCandidate.party;
       if (partyName) {
         party = parties.get(partyName);
         if (!party) {
@@ -332,7 +222,7 @@ export function convertElectionDefinitionHeader(
         candidates.push(candidate);
       }
 
-      optionMetadataByCandidateElement.set(candidateElement, {
+      optionMetadataByCandidate.set(nonWriteInCandidate, {
         type: 'option',
         contestId,
         optionId: candidateId,
@@ -343,17 +233,14 @@ export function convertElectionDefinitionHeader(
     // order they appear on the ballot. In order to make sure the write-in
     // options we create have grid layout coordinates in ballot order, we sort
     // the write-ins here.
-    const writeInElementsInBallotOrder = [...writeInElements].sort(
-      (writeInA, writeInB) =>
-        safeParseNumber(
-          writeInA.getElementsByTagName('OY')[0]?.textContent
-        ).assertOk('Write-in element has unparseable OY') -
-        safeParseNumber(
-          writeInB.getElementsByTagName('OY')[0]?.textContent
-        ).assertOk('Write-in element has unparseable OY')
+    const writeInCandidatesInBallotOrder = [...writeInCandidates].sort(
+      (writeInA, writeInB) => writeInA.oy - writeInB.oy
     );
-    for (const [i, writeInElement] of writeInElementsInBallotOrder.entries()) {
-      optionMetadataByCandidateElement.set(writeInElement, {
+    for (const [
+      i,
+      writeInCandidate,
+    ] of writeInCandidatesInBallotOrder.entries()) {
+      optionMetadataByCandidate.set(writeInCandidate, {
         type: 'write-in',
         contestId,
         writeInIndex: i,
@@ -366,72 +253,55 @@ export function convertElectionDefinitionHeader(
       title: officeName,
       districtId,
       seats,
-      allowWriteIns: writeInElements.length > 0,
+      allowWriteIns: writeInCandidates.length > 0,
       candidates,
       partyId: electionParty?.id,
     });
   }
 
   const issues: ConvertIssue[] = [];
-  const ballotPaperInfoElement =
-    root.getElementsByTagName('BallotPaperInfo')[0];
+  const questions = avsInterface.ballotPaperInfo?.questions;
 
-  if (ballotPaperInfoElement) {
-    const questionsElement =
-      ballotPaperInfoElement.getElementsByTagName('Questions')[0];
+  if (questions) {
+    const parseConstitutionalQuestionsResult =
+      parseConstitutionalQuestions(questions);
+    debug('questions decoded: %o', parseConstitutionalQuestionsResult);
 
-    if (questionsElement) {
-      const questionsTextContent = questionsElement.textContent;
-
-      if (typeof questionsTextContent !== 'string') {
-        issues.push({
-          kind: ConvertIssueKind.MissingDefinitionProperty,
-          message: 'Questions data is invalid',
-          property: 'AVSInterface > BallotPaperInfo > Questions',
+    if (parseConstitutionalQuestionsResult.isErr()) {
+      issues.push({
+        kind: ConvertIssueKind.ConstitutionalQuestionError,
+        message: parseConstitutionalQuestionsResult.err().message,
+        error: parseConstitutionalQuestionsResult.err(),
+      });
+    } else {
+      const parsedConstitutionalQuestions =
+        parseConstitutionalQuestionsResult.ok();
+      for (const [
+        i,
+        question,
+      ] of parsedConstitutionalQuestions.questions.entries()) {
+        const contestTitle = `Constitutional Amendment Question #${i + 1}`;
+        const contestId = makeId(question.title);
+        contests.push({
+          type: 'yesno',
+          id: contestId,
+          title: contestTitle,
+          description: question.title,
+          districtId,
+          yesOption: {
+            id: `${contestId}-option-yes`,
+            label: 'Yes',
+          },
+          noOption: {
+            id: `${contestId}-option-no`,
+            label: 'No',
+          },
         });
-      } else {
-        const questionsDecoded = decodeHtmlEntities(questionsTextContent);
-        const parseConstitutionalQuestionsResult =
-          parseConstitutionalQuestions(questionsDecoded);
-        debug('questions decoded: %o', parseConstitutionalQuestionsResult);
-
-        if (parseConstitutionalQuestionsResult.isErr()) {
-          issues.push({
-            kind: ConvertIssueKind.ConstitutionalQuestionError,
-            message: parseConstitutionalQuestionsResult.err().message,
-            error: parseConstitutionalQuestionsResult.err(),
-          });
-        } else {
-          const parsedConstitutionalQuestions =
-            parseConstitutionalQuestionsResult.ok();
-          for (const [
-            i,
-            question,
-          ] of parsedConstitutionalQuestions.questions.entries()) {
-            const contestTitle = `Constitutional Amendment Question #${i + 1}`;
-            const contestId = makeId(question.title);
-            contests.push({
-              type: 'yesno',
-              id: contestId,
-              title: contestTitle,
-              description: question.title,
-              districtId,
-              yesOption: {
-                id: `${contestId}-option-yes`,
-                label: 'Yes',
-              },
-              noOption: {
-                id: `${contestId}-option-no`,
-                label: 'No',
-              },
-            });
-          }
-        }
       }
     }
   }
 
-  const definitionGrid = readGridFromElectionDefinition(root);
+  const definitionGrid = readGridFromElectionDefinition(avsInterface);
 
   const election: Election = {
     type: electionParty ? 'primary' : 'general',
@@ -478,8 +348,8 @@ export function convertElectionDefinitionHeader(
           right: 1,
           bottom: 1,
         },
-        gridPositions: definitionGrid.map(({ element, column, row }) => {
-          const metadata = optionMetadataByCandidateElement.get(element);
+        gridPositions: definitionGrid.map(({ candidate, column, row }) => {
+          const metadata = optionMetadataByCandidate.get(candidate);
           assert(metadata, `metadata missing for column=${column} row=${row}`);
           return metadata.type === 'option'
             ? {
