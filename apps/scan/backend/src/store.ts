@@ -27,8 +27,16 @@ import {
   PollsTransitionType,
   DiagnosticRecord,
   DiagnosticType,
+  ElectionKey,
+  ElectionId,
 } from '@votingworks/types';
-import { assert, assertDefined, Optional, typedAs } from '@votingworks/basics';
+import {
+  assert,
+  assertDefined,
+  DateWithoutTime,
+  Optional,
+  typedAs,
+} from '@votingworks/basics';
 import { DateTime } from 'luxon';
 import { join } from 'path';
 import { v4 as uuid } from 'uuid';
@@ -215,6 +223,28 @@ export class Store {
           electionRow.electionData
         ).unsafeUnwrap(),
         electionPackageHash: electionRow.electionPackageHash,
+      }
+    );
+  }
+
+  /**
+   * Retrieves the election key (used for auth) for the current election. This
+   * method is faster than than {@link getElectionRecord} and thus more appropriate
+   * for use during auth polling.
+   */
+  getElectionKey(): ElectionKey | undefined {
+    const result = this.client.one(
+      `
+      select
+        election_data ->> 'id' as id,
+        election_data ->> 'date' as date
+      from election
+      `
+    ) as { id: string; date: string } | undefined;
+    return (
+      result && {
+        id: result.id as ElectionId,
+        date: new DateWithoutTime(result.date),
       }
     );
   }
