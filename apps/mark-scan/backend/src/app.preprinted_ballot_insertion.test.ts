@@ -3,6 +3,7 @@ import tmp from 'tmp';
 import { buildMockInsertedSmartCardAuth } from '@votingworks/auth';
 import { createMockUsbDrive } from '@votingworks/usb-drive';
 import { typedAs } from '@votingworks/basics';
+import { Browser, launchBrowser } from '@votingworks/printing';
 
 import { Store } from './store';
 import { createWorkspace } from './util/workspace';
@@ -17,6 +18,16 @@ function getMockStateMachine() {
   }) as unknown as jest.Mocked<PaperHandlerStateMachine>;
 }
 
+let browser: Browser;
+
+beforeEach(async () => {
+  browser = await launchBrowser();
+});
+
+afterEach(async () => {
+  await browser.close();
+});
+
 function buildTestApi() {
   const store = Store.memoryStore();
   const workspace = createWorkspace(tmp.dirSync().name, { store });
@@ -28,6 +39,7 @@ function buildTestApi() {
     createMockUsbDrive().usbDrive,
     buildMockLogger(mockAuth, workspace),
     workspace,
+    browser,
     mockStateMachine
   );
 
