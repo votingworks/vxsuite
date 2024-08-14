@@ -173,7 +173,7 @@ export function generateElection(
     seal,
     ballotLayout: {
       metadataEncoding: 'qr-code',
-      paperSize: BallotPaperSize.Custom22,
+      paperSize: BallotPaperSize.Letter,
     },
     ballotStrings: {},
     districts,

@@ -42,8 +42,8 @@ export const defaultConfig: GenerateElectionConfig = {
   numBallotStyles: 1000,
   numParties: 10,
   numContests: 100,
-  numCandidatesPerContest: 100,
-  maxContestVoteFor: 50,
+  numCandidatesPerContest: 5,
+  maxContestVoteFor: 2,
   maxStringLengths: {
     title: 100,
     countyName: 100,
@@ -56,7 +56,7 @@ export const defaultConfig: GenerateElectionConfig = {
     contestTitle: 100,
     contestTermDescription: 100,
     candidateName: 100,
-    contestBallotMeasureText: 1000,
+    contestBallotMeasureText: 1200,
     contestBallotMeasureOptionLabel: 100,
   },
 };

@@ -88,7 +88,8 @@ export function convertVxfPrecincts(election: Election): Precinct[] {
       ([, ballotStyleGroup]) => ballotStyleGroup[0]
     );
 
-    if (ballotStyles.length <= 1) {
+    if (true) {
+      // ballotStyles.length <= 1) {
       return {
         ...precinct,
         districtIds: ballotStyles[0]?.districts ?? [],
@@ -210,7 +211,9 @@ function buildApi({ workspace, translator }: AppContext) {
 
       const zip = new JsZip();
 
-      for (const [props, document] of iter(ballotProps).zip(ballotDocuments)) {
+      for (const [props, document] of iter(ballotProps).zipMin(
+        ballotDocuments
+      )) {
         const pdf = await document.renderToPdf();
         const { precinctId, ballotStyleId, ballotType, ballotMode } = props;
         const precinct = assertDefined(
