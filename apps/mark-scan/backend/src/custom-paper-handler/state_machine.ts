@@ -382,7 +382,6 @@ export function buildMachine(
   BaseActionObject,
   ServiceMap
 > {
-  // TODO narrow Event types
   const pollPaperHandlerStatus: InvokeConfig<Context, PaperHandlerStatusEvent> =
     {
       src: createPollingChildMachine(
@@ -441,7 +440,7 @@ export function buildMachine(
   const pollAuthStatus: InvokeConfig<Context, PaperHandlerStatusEvent> = {
     src: createPollingChildMachine(
       'pollAuthStatus',
-      async ({ auth: contextAuth, workspace }) => {
+      async ({ auth: contextAuth, workspace, logger }) => {
         try {
           const authStatus = await contextAuth.getAuthStatus(
             constructAuthMachineState(workspace)
@@ -466,13 +465,19 @@ export function buildMachine(
           /* istanbul ignore next - unreachable if exhaustive */
           return { type: 'AUTH_STATUS_UNHANDLED' };
         } catch (err) {
-          debug('Error in auth observable: %O', err);
+          await logger.log(LogEventId.UnknownError, 'system', {
+            error: (err as Error).message,
+          });
           return { type: 'AUTH_STATUS_UNHANDLED' };
         }
       },
       'DELAY_AUTH_STATUS_POLLING_INTERVAL_MS'
     ),
-    data: (context) => ({ auth: context.auth, workspace: context.workspace }),
+    data: (context) => ({
+      auth: context.auth,
+      workspace: context.workspace,
+      logger: context.logger,
+    }),
   };
 
   return createMachine(
@@ -528,17 +533,18 @@ export function buildMachine(
                 // the paper (not to ballot bin) because we don't know whether the page has been printed.
                 PAPER_INSIDE_NO_JAM: 'eject_to_front',
                 PAPER_PARKED: 'eject_to_front',
-                BEGIN_ACCEPTING_PAPER: 'accepting_paper',
+                BEGIN_ACCEPTING_PAPER: {
+                  target: 'accepting_paper',
+                  actions: assign({
+                    acceptedPaperTypes: (_, event) => {
+                      return event.paperTypes;
+                    },
+                  }),
+                },
               },
             },
             accepting_paper: {
               invoke: [pollPaperHandlerStatus, pollAuthStatus],
-              entry: assign({
-                acceptedPaperTypes: (context, event) =>
-                  event.type === 'BEGIN_ACCEPTING_PAPER'
-                    ? event.paperTypes
-                    : context.acceptedPaperTypes,
-              }),
               on: {
                 PAPER_READY_TO_LOAD: [
                   {
@@ -572,7 +578,9 @@ export function buildMachine(
 
             loading_new_sheet: {
               invoke: [pollPaperHandlerStatus, pollAuthStatus],
-              entry: (context) => context.driver.loadPaper(),
+              entry: async (context) => {
+                await context.driver.loadPaper();
+              },
               on: {
                 PAPER_INSIDE_NO_JAM: 'validating_new_sheet',
                 NO_PAPER_ANYWHERE: 'accepting_paper',
@@ -616,7 +624,6 @@ export function buildMachine(
                     const pageType = assertDefined(
                       getInterpretationType(context)
                     );
-
                     return !context.acceptedPaperTypes?.includes(
                       pageType as AcceptedPaperType
                     );
@@ -958,6 +965,7 @@ export function buildMachine(
             jammed: {
               invoke: pollPaperHandlerStatus,
               on: {
+                PAPER_JAM: undefined,
                 NO_PAPER_ANYWHERE: 'jam_physically_cleared',
               },
             },

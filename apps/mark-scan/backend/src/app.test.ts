@@ -35,6 +35,7 @@ import { MockUsbDrive } from '@votingworks/usb-drive';
 import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { LogEventId, Logger } from '@votingworks/logging';
 import { AddressInfo } from 'net';
+import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import {
   createApp,
   waitForStatus as waitForStatusHelper,
@@ -42,6 +43,7 @@ import {
 import { Api, buildApp } from './app';
 import {
   ACCEPTED_PAPER_TYPES,
+  delays,
   PaperHandlerStateMachine,
 } from './custom-paper-handler';
 import { ElectionState } from './types';
@@ -75,6 +77,7 @@ let stateMachine: PaperHandlerStateMachine;
 let driver: MockPaperHandlerDriver;
 let patConnectionStatusReader: PatConnectionStatusReader;
 let logger: Logger;
+let clock: SimulatedClock;
 
 beforeEach(async () => {
   featureFlagMock.enableFeatureFlag(
@@ -108,6 +111,7 @@ beforeEach(async () => {
   server = result.server;
   stateMachine = result.stateMachine;
   driver = result.driver;
+  clock = result.clock;
 });
 
 afterEach(async () => {
@@ -421,8 +425,14 @@ async function mockLoadFlow(
   await testApiClient.setAcceptingPaperState({
     paperTypes: ACCEPTED_PAPER_TYPES,
   });
+  await waitForStatus('accepting_paper');
+
   testDriver.setMockStatus('paperInserted');
+  clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+  await waitForStatus('loading_paper');
+
   mockCardlessVoterAuth(mockAuth);
+  clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
   await waitForStatus('waiting_for_ballot_data');
 }
 
@@ -450,6 +460,7 @@ test('ballot invalidation flow', async () => {
   );
 
   driver.setMockStatus('noPaper');
+  clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
   await waitForStatus(
     'waiting_for_invalidated_ballot_confirmation.paper_absent'
   );
@@ -473,9 +484,13 @@ test('ballot validation flow', async () => {
 test('removing ballot during presentation', async () => {
   await configureForTestElection(electionGeneralDefinition);
   await mockLoadAndPrint(apiClient, driver);
+
   driver.setMockStatus('noPaper');
+  clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
   await waitForStatus('ballot_removed_during_presentation');
+
   await apiClient.confirmSessionEnd();
+  clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
   await waitForStatus('not_accepting_paper');
 });
 
@@ -488,6 +503,7 @@ test('setPatDeviceIsCalibrated', async () => {
   mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
     true
   );
+  clock.increment(delays.DELAY_PAT_CONNECTION_STATUS_POLLING_INTERVAL_MS);
   await waitForStatus('pat_device_connected');
 
   await apiClient.setPatDeviceIsCalibrated();
@@ -554,9 +570,12 @@ test('printing ballots', async () => {
 
   await apiClient.validateBallot();
   await waitForStatus('ejecting_to_rear');
-
   deferredEjection.resolve(true);
   driver.setMockStatus('noPaper');
+  clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+  await waitForStatus('ballot_accepted');
+
+  clock.increment(delays.DELAY_NOTIFICATION_DURATION_MS);
   await waitForStatus('not_accepting_paper');
   mockPollWorkerAuth(mockAuth, electionDefinition);
 
