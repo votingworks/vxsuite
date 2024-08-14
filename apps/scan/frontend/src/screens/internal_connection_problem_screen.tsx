@@ -5,7 +5,7 @@ import {
   PowerDownButton,
   appStrings,
 } from '@votingworks/ui';
-import { PrinterStatus } from '@votingworks/scan-backend';
+import type { PrinterStatus } from '@votingworks/scan-backend';
 import { ScreenMainCenterChild } from '../components/layout';
 import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
 

@@ -19,7 +19,7 @@ import type {
   PrecinctScannerPollsInfo,
   PrintResult,
 } from '@votingworks/scan-backend';
-import { UsbDriveStatus } from '@votingworks/usb-drive';
+import type { UsbDriveStatus } from '@votingworks/usb-drive';
 import {
   getUsbDriveStatus,
   printReport,
