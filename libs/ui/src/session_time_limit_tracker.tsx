@@ -9,12 +9,14 @@ import {
   SystemSettings,
 } from '@votingworks/types';
 
+import styled from 'styled-components';
 import { Button } from './button';
 import { useNow } from './hooks/use_now';
 import { Modal } from './modal';
 import { Prose } from './prose';
 import { Timer } from './timer';
-import { Caption, H1, P } from './typography';
+import { H1, P } from './typography';
+import { Card } from './card';
 
 const SECONDS_TO_WRAP_UP_AFTER_INACTIVE_SESSION_TIME_LIMIT = 60;
 const SECONDS_AHEAD_OF_OVERALL_SESSION_TIME_LIMIT_TO_WARN = 15 * 60;
@@ -189,6 +191,16 @@ interface SessionTimeLimitTimerProps {
     | InsertedSmartCardAuth.AuthStatus;
 }
 
+const TimerCallout = styled(Card).attrs({ color: 'warning' })`
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+
+  > div {
+    padding: 0.5rem;
+  }
+`;
+
 /**
  * Displays a count down timer to session expiry. Appears at the same time as the prompts surfaced
  * by SessionTimeLimitTracker.
@@ -203,10 +215,10 @@ export function SessionTimeLimitTimer({
   }
   if (shouldDisplayTimeLimitPrompt(authStatus, now)) {
     return (
-      <span>
-        <Caption>Machine will automatically lock in</Caption>{' '}
+      <TimerCallout>
+        Machine will automatically lock in{' '}
         <Timer countDownTo={new Date(authStatus.sessionExpiresAt)} />
-      </span>
+      </TimerCallout>
     );
   }
   return null;

@@ -116,6 +116,7 @@ export function NavigationScreen({
     <Screen flexDirection="row">
       <Sidebar navItems={getNavItems(auth, election)} />
       <Main flexColumn>
+        <SessionTimeLimitTimer authStatus={auth} />
         <Header>
           <div>
             {title && (
@@ -131,7 +132,6 @@ export function NavigationScreen({
             )}
           </div>
           <HeaderActions>
-            <SessionTimeLimitTimer authStatus={auth} />
             {(isSystemAdministratorAuth(auth) ||
               isElectionManagerAuth(auth)) && (
               <React.Fragment>
