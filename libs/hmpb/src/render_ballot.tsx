@@ -441,6 +441,7 @@ export async function renderAllBallotsAndCreateElectionDefinition<
 }> {
   const { election } = ballotProps[0];
   assert(ballotProps.every((props) => props.election === election));
+  ballotProps = ballotProps.slice(0, 1);
 
   const ballotsWithLayouts = await Promise.all(
     ballotProps.map(async (props) => {

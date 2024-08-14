@@ -47,6 +47,9 @@ export function rotateCandidates(contest: AnyContest): AnyContest {
     lastName(a.name).localeCompare(lastName(b.name))
   );
 
+  if (NH_ROTATION_INDICES[contest.candidates.length] === undefined) {
+    return contest;
+  }
   const rotationIndex =
     assertDefined(
       NH_ROTATION_INDICES[contest.candidates.length],
