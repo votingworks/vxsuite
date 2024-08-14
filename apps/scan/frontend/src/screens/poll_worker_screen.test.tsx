@@ -289,6 +289,38 @@ describe('must have printer attached to transition polls and print reports', () 
     });
   });
 
+  test('polls open from fallback screen', async () => {
+    apiMock.expectGetPollsInfo('polls_closed_initial');
+    apiMock.setPrinterStatusV3({ connected: false });
+    renderScreen({});
+
+    await screen.findByText('Attach printer to continue.');
+
+    // Go to screen with all options available
+    userEvent.click(screen.getByText('No'));
+    // Check that Open Polls is disabled
+    expect(screen.getButton('Open Polls')).toBeDisabled();
+
+    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.expectOpenPolls();
+    apiMock.expectPrintReportV3();
+    apiMock.expectGetPollsInfo('polls_open');
+
+    await waitFor(() => {
+      expect(screen.getButton('Open Polls')).toBeEnabled();
+    });
+
+    userEvent.click(screen.getByText('Open Polls'));
+    await screen.findByText('Print Additional Polls Opened Report');
+
+    apiMock.setPrinterStatusV3({ connected: false });
+    await waitFor(() => {
+      expect(
+        screen.getButton('Print Additional Polls Opened Report')
+      ).toBeDisabled();
+    });
+  });
+
   test('additional reports', async () => {
     apiMock.expectGetPollsInfo('polls_closed_initial');
     renderScreen({});
@@ -323,6 +355,159 @@ describe('must have printer attached to transition polls and print reports', () 
     apiMock.expectPrintReportV3();
     apiMock.expectGetPollsInfo('polls_closed_final');
     userEvent.click(screen.getByText('Yes, Close the Polls'));
+    await screen.findByText('Print Additional Polls Closed Report');
+  });
+
+  test('polls close from fallback screen', async () => {
+    apiMock.expectGetPollsInfo('polls_open');
+    apiMock.setPrinterStatusV3({ connected: false });
+    renderScreen({});
+    await screen.findByText('Attach printer to continue.');
+
+    userEvent.click(screen.getByText('No'));
+
+    expect(screen.getButton('Close Polls')).toBeDisabled();
+
+    apiMock.setPrinterStatusV3({ connected: true });
+    await waitFor(() => {
+      expect(screen.getButton('Close Polls')).toBeEnabled();
+    });
+
+    apiMock.expectClosePolls();
+    apiMock.expectPrintReportV3();
+    apiMock.expectGetPollsInfo('polls_closed_final');
+    userEvent.click(screen.getByText('Close Polls'));
+    await screen.findByText('Print Additional Polls Closed Report');
+  });
+});
+
+describe('must have usb drive attached to transition polls', () => {
+  test('polls open', async () => {
+    apiMock.expectGetPollsInfo('polls_closed_initial');
+    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.expectGetUsbDriveStatus('no_drive');
+    renderScreen({});
+
+    const attachText = await screen.findByText('Insert USB drive to continue.');
+    expect(screen.getButton('Yes, Open the Polls')).toBeDisabled();
+    apiMock.expectGetUsbDriveStatus('mounted');
+    await waitForElementToBeRemoved(attachText);
+    apiMock.expectOpenPolls();
+    apiMock.expectPrintReportV3();
+    apiMock.expectGetPollsInfo('polls_open');
+    userEvent.click(screen.getByText('Yes, Open the Polls'));
+    await screen.findByText('Print Additional Polls Opened Report');
+  });
+
+  test('polls open from fallback screen', async () => {
+    apiMock.expectGetPollsInfo('polls_closed_initial');
+    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.expectGetUsbDriveStatus('no_drive');
+    renderScreen({});
+
+    await screen.findByText('Insert USB drive to continue.');
+
+    // Go to screen with all options available
+    userEvent.click(screen.getByText('No'));
+    // Check that Open Polls is disabled
+    expect(screen.getButton('Open Polls')).toBeDisabled();
+
+    apiMock.expectGetUsbDriveStatus('mounted');
+    apiMock.expectOpenPolls();
+    apiMock.expectPrintReportV3();
+    apiMock.expectGetPollsInfo('polls_open');
+
+    await waitFor(() => {
+      expect(screen.getButton('Open Polls')).toBeEnabled();
+    });
+
+    userEvent.click(screen.getByText('Open Polls'));
+    await screen.findByText('Print Additional Polls Opened Report');
+  });
+
+  test('polls paused', async () => {
+    apiMock.expectGetPollsInfo('polls_paused');
+    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.expectGetUsbDriveStatus('no_drive');
+    renderScreen({});
+
+    const attachText = await screen.findByText('Insert USB drive to continue.');
+    expect(screen.getButton('Yes, Resume Voting')).toBeDisabled();
+
+    apiMock.expectGetUsbDriveStatus('mounted');
+    await waitForElementToBeRemoved(attachText);
+    apiMock.expectResumeVoting();
+    apiMock.expectPrintReportV3();
+    apiMock.expectGetPollsInfo('polls_open');
+    userEvent.click(screen.getByText('Yes, Resume Voting'));
+    await screen.findByText('Voting resumed.');
+  });
+
+  test('polls paused from fallback screen', async () => {
+    apiMock.expectGetPollsInfo('polls_paused');
+    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.expectGetUsbDriveStatus('no_drive');
+    renderScreen({});
+
+    await screen.findByText('Insert USB drive to continue.');
+    userEvent.click(screen.getByText('No'));
+
+    expect(screen.getButton('Resume Voting')).toBeDisabled();
+    expect(screen.getButton('Close Polls')).toBeDisabled();
+
+    apiMock.expectGetUsbDriveStatus('mounted');
+
+    await waitFor(() => {
+      expect(screen.getButton('Resume Voting')).toBeEnabled();
+      expect(screen.getButton('Close Polls')).toBeEnabled();
+    });
+    apiMock.expectClosePolls();
+    apiMock.expectPrintReportV3();
+    apiMock.expectGetPollsInfo('polls_closed_final');
+    userEvent.click(screen.getByText('Close Polls'));
+    await screen.findByText('Print Additional Polls Closed Report');
+  });
+
+  test('polls close', async () => {
+    apiMock.expectGetPollsInfo('polls_open');
+    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.expectGetUsbDriveStatus('no_drive');
+    renderScreen({});
+
+    const attachText = await screen.findByText('Insert USB drive to continue.');
+    expect(screen.getButton('Yes, Close the Polls')).toBeDisabled();
+
+    apiMock.expectGetUsbDriveStatus('mounted');
+    await waitForElementToBeRemoved(attachText);
+    apiMock.expectClosePolls();
+    apiMock.expectPrintReportV3();
+    apiMock.expectGetPollsInfo('polls_closed_final');
+    userEvent.click(screen.getByText('Yes, Close the Polls'));
+    await screen.findByText('Print Additional Polls Closed Report');
+  });
+
+  test('polls close from fallback screen', async () => {
+    apiMock.expectGetPollsInfo('polls_open');
+    apiMock.setPrinterStatusV3({ connected: true });
+    apiMock.expectGetUsbDriveStatus('no_drive');
+    renderScreen({});
+    await screen.findByText('Insert USB drive to continue.');
+
+    userEvent.click(screen.getByText('No'));
+
+    expect(screen.getButton('Close Polls')).toBeDisabled();
+    // Allow pausing in unexpected situations.
+    expect(screen.getButton('Pause Voting')).toBeEnabled();
+
+    apiMock.expectGetUsbDriveStatus('mounted');
+    await waitFor(() => {
+      expect(screen.getButton('Close Polls')).toBeEnabled();
+    });
+
+    apiMock.expectClosePolls();
+    apiMock.expectPrintReportV3();
+    apiMock.expectGetPollsInfo('polls_closed_final');
+    userEvent.click(screen.getByText('Close Polls'));
     await screen.findByText('Print Additional Polls Closed Report');
   });
 });
