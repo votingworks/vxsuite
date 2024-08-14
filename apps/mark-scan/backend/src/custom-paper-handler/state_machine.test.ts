@@ -11,8 +11,8 @@ import {
   InsertedSmartCardAuthApi,
   buildMockInsertedSmartCardAuth,
 } from '@votingworks/auth';
-import { advanceTimers, mockOf } from '@votingworks/test-utils';
-import { assert, deferred, iter } from '@votingworks/basics';
+import { backendWaitFor, mockOf } from '@votingworks/test-utils';
+import { assert, deferred, iter, sleep } from '@votingworks/basics';
 import {
   electionGeneralDefinition,
   electionGridLayoutNewHampshireHudsonFixtures,
@@ -45,9 +45,11 @@ import {
   writeImageData,
 } from '@votingworks/image-utils';
 import { join } from 'path';
+import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import {
   ACCEPTED_PAPER_TYPES,
   PaperHandlerStateMachine,
+  delays,
   getPaperHandlerStateMachine,
   paperHandlerStatusToEvent,
 } from './state_machine';
@@ -80,12 +82,6 @@ import {
   BLANK_PAGE_MOCK,
 } from '../../test/ballot_helpers';
 
-// Use shorter polling interval in tests to reduce run times
-const TEST_POLL_INTERVAL_MS = 50;
-// Must be longer than backendWaitForInterval or tests can't
-// detect `ballot_accepted` state
-const TEST_NOTIFICATION_DURATION_MS = 150;
-
 jest.mock('@votingworks/ballot-interpreter');
 jest.mock('./application_driver');
 jest.mock('../pat-input/connection_status_reader');
@@ -99,6 +95,7 @@ let patConnectionStatusReader: PatConnectionStatusReaderInterface;
 let auth: InsertedSmartCardAuthApi;
 let ballotPdfData: Buffer;
 let scannedBallotFixtureFilepaths: string;
+let clock: SimulatedClock;
 
 const precinctId = electionGeneralDefinition.election.precincts[1].id;
 const featureFlagMock = getFeatureFlagMock();
@@ -109,6 +106,7 @@ jest.mock('@votingworks/utils', (): typeof import('@votingworks/utils') => {
       featureFlagMock.isEnabled(flag),
   };
 });
+jest.setTimeout(2000);
 
 const SUCCESSFUL_INTERPRETATION_MOCK: SheetOf<InterpretFileResult> = [
   {
@@ -129,36 +127,10 @@ const SUCCESSFUL_INTERPRETATION_MOCK: SheetOf<InterpretFileResult> = [
   BLANK_PAGE_MOCK,
 ];
 
-async function advanceMockTimersAndPromises(milliseconds = 1000) {
-  advanceTimers(milliseconds / 1000);
-  await Promise.resolve();
-}
-
-async function waitForTransition(status: SimpleServerStatus) {
-  const { promise, resolve } = deferred<void>();
-
-  // onTransition may be called when state value doesn't change
-  machine.addTransitionListener(() => {
-    if (machine.getSimpleStatus() === status) {
-      resolve();
-    }
+async function waitForStatus(status: SimpleServerStatus) {
+  await backendWaitFor(() => {
+    expect(machine.getSimpleStatus()).toEqual(status);
   });
-
-  return promise;
-}
-
-function expectCurrentStatus(status: SimpleServerStatus) {
-  expect(machine.getSimpleStatus()).toEqual(status);
-}
-
-async function expectStatusTransitionTo(
-  status: SimpleServerStatus,
-  waitTimeMs?: number
-) {
-  await advanceMockTimersAndPromises(waitTimeMs);
-  await waitForTransition(status);
-
-  expectCurrentStatus(status);
 }
 
 function expectMockPaperHandlerStatus(
@@ -178,8 +150,6 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-  jest.useFakeTimers();
-
   featureFlagMock.resetFeatureFlags();
   featureFlagMock.enableFeatureFlag(
     BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
@@ -198,6 +168,7 @@ beforeEach(async () => {
     safeParseSystemSettings(systemSettings.asText()).unsafeUnwrap()
   );
   driver = new MockPaperHandlerDriver();
+  clock = new SimulatedClock();
 
   patConnectionStatusReader = new PatConnectionStatusReader(
     logger,
@@ -217,9 +188,7 @@ beforeEach(async () => {
     logger,
     driver,
     patConnectionStatusReader,
-    devicePollingIntervalMs: TEST_POLL_INTERVAL_MS,
-    authPollingIntervalMs: TEST_POLL_INTERVAL_MS,
-    notificationDurationMs: TEST_NOTIFICATION_DURATION_MS,
+    clock,
   })) as PaperHandlerStateMachine;
 });
 
@@ -227,6 +196,12 @@ afterEach(async () => {
   await machine.cleanUp();
   jest.resetAllMocks();
 });
+
+async function setMockStatusAndIncrementClock(status: MockPaperHandlerStatus) {
+  await sleep(0);
+  driver.setMockStatus(status);
+  clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+}
 
 describe('not_accepting_paper', () => {
   it('transitions to accepting_paper state on BEGIN_ACCEPTING_PAPER event', () => {
@@ -237,14 +212,14 @@ describe('not_accepting_paper', () => {
 
   it('ejects paper to front when paper is parked', async () => {
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
-    driver.setMockStatus('paperParked');
-    await expectStatusTransitionTo('ejecting_to_front');
+    await setMockStatusAndIncrementClock('paperParked');
+    await waitForStatus('ejecting_to_front');
   });
 
   it('ejects paper to front when paper is inside but not parked', async () => {
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
-    driver.setMockStatus('paperInScannerNotParked');
-    await expectStatusTransitionTo('ejecting_to_front');
+    await setMockStatusAndIncrementClock('paperInScannerNotParked');
+    await waitForStatus('ejecting_to_front');
   });
 });
 
@@ -264,25 +239,31 @@ describe('eject_to_front', () => {
     },
   ])('transitions when $description', async ({ mockStatus }) => {
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
-    driver.setMockStatus('paperParked');
-    await expectStatusTransitionTo('ejecting_to_front');
-    driver.setMockStatus(mockStatus);
-    await expectStatusTransitionTo('not_accepting_paper');
+    await setMockStatusAndIncrementClock('paperParked');
+    await waitForStatus('ejecting_to_front');
+    await setMockStatusAndIncrementClock(mockStatus);
+    await waitForStatus('not_accepting_paper');
   });
 });
 
 describe('accepting_paper', () => {
   it('transitions to loading_paper state when front sensors are triggered', async () => {
+    mockPollWorkerAuth(auth, electionGeneralDefinition);
+
+    expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     expect(machine.getSimpleStatus()).toEqual('accepting_paper');
 
-    driver.setMockStatus('paperInserted');
-    await expectStatusTransitionTo('loading_paper');
+    // await sleep(0);
+
+    await setMockStatusAndIncrementClock('paperInserted');
+    await waitForStatus('loading_paper');
   });
 });
 
 describe('loading_paper', () => {
   it('calls load and park functions on driver', async () => {
+    mockPollWorkerAuth(auth, electionGeneralDefinition);
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     expect(machine.getSimpleStatus()).toEqual('accepting_paper');
 
@@ -292,11 +273,31 @@ describe('loading_paper', () => {
       jest.requireActual('./application_driver').loadAndParkPaper
     );
 
-    driver.setMockStatus('paperInserted');
-    await expectStatusTransitionTo('loading_paper');
-    await expectStatusTransitionTo('waiting_for_voter_auth');
+    await setMockStatusAndIncrementClock('paperInserted');
+    await waitForStatus('loading_paper');
+
+    clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('waiting_for_voter_auth');
+
     mockCardlessVoterAuth(auth);
-    await expectStatusTransitionTo('waiting_for_ballot_data');
+    clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('waiting_for_ballot_data');
+  });
+});
+
+it('logs when an auth error happens', async () => {
+  // Transition to a state that polls auth
+  mockOf(auth.getAuthStatus).mockRejectedValue(new Error('mock auth error'));
+  machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
+
+  // mockOf(auth.getAuthStatus).mockRejectedValue(new Error('mock auth error'));
+  clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+
+  // Allow event loop to resolve `logger.log` promise before making assertions
+  await Promise.resolve();
+
+  expect(logger.log).toHaveBeenCalledWith(LogEventId.UnknownError, 'system', {
+    error: 'mock auth error',
   });
 });
 
@@ -314,17 +315,14 @@ describe('paper jam', () => {
 
     expect(machine.getSimpleStatus()).toEqual('not_accepting_paper');
 
-    driver.setMockStatus('paperJammed');
-    await expectStatusTransitionTo('jammed');
+    await setMockStatusAndIncrementClock('paperJammed');
+    await waitForStatus('jammed');
 
-    driver.setMockStatus('noPaper');
-    await expectStatusTransitionTo('jam_cleared');
+    await setMockStatusAndIncrementClock('noPaper');
+    await waitForStatus('jam_cleared');
 
     resetDriverResult.resolve(driver);
-    await expectStatusTransitionTo('resetting_state_machine_after_jam');
-
-    await expectStatusTransitionTo('paper_reloaded');
-    await expectStatusTransitionTo('not_accepting_paper');
+    await waitForStatus('not_accepting_paper');
   });
 
   it('during voter session - with poll worker auth', async () => {
@@ -334,23 +332,26 @@ describe('paper jam', () => {
     });
 
     mockCardlessVoterAuth(auth);
+    clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
 
-    driver.setMockStatus('paperJammed');
-    await expectStatusTransitionTo('jammed');
+    await setMockStatusAndIncrementClock('paperJammed');
+    await waitForStatus('jammed');
 
     mockPollWorkerAuth(auth, electionGeneralDefinition);
+    clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
 
-    driver.setMockStatus('noPaper');
-    await expectStatusTransitionTo('jam_cleared');
+    await setMockStatusAndIncrementClock('noPaper');
+    await waitForStatus('jam_cleared');
 
     resetDriverResult.resolve(driver);
-    await expectStatusTransitionTo('resetting_state_machine_after_jam');
+    await waitForStatus('accepting_paper_after_jam');
 
-    await expectStatusTransitionTo('accepting_paper_after_jam');
-
-    driver.setMockStatus('paperInserted');
-    await expectStatusTransitionTo('loading_paper_after_jam');
-    await expectStatusTransitionTo('paper_reloaded');
+    await setMockStatusAndIncrementClock('paperInserted');
+    await waitForStatus('loading_paper_after_jam');
+    // The mock driver will update the mock state automatically. Advance
+    // the clock so the state machine can read the updated value.
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('paper_reloaded');
     expectMockPaperHandlerStatus(driver, 'paperParked');
   });
 
@@ -361,30 +362,32 @@ describe('paper jam', () => {
     });
 
     mockCardlessVoterAuth(auth);
+    clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
 
-    driver.setMockStatus('paperJammed');
-    await expectStatusTransitionTo('jammed');
+    await setMockStatusAndIncrementClock('paperJammed');
+    await waitForStatus('jammed');
 
-    driver.setMockStatus('noPaper');
-    await expectStatusTransitionTo('jam_cleared');
+    await setMockStatusAndIncrementClock('noPaper');
+    await waitForStatus('jam_cleared');
 
     resetDriverResult.resolve(driver);
-    await expectStatusTransitionTo('resetting_state_machine_after_jam');
+    await waitForStatus('accepting_paper_after_jam');
 
-    await expectStatusTransitionTo('accepting_paper_after_jam');
-
-    driver.setMockStatus('paperInserted');
-    await expectStatusTransitionTo('loading_paper_after_jam');
-    await expectStatusTransitionTo('paper_reloaded');
+    await setMockStatusAndIncrementClock('paperInserted');
+    await waitForStatus('loading_paper_after_jam');
+    // The mock driver will update the mock state automatically. Advance
+    // the clock so the state machine can read the updated value.
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
     expectMockPaperHandlerStatus(driver, 'paperParked');
+    await waitForStatus('waiting_for_ballot_data');
   });
 
   it('jam_cleared triggered for JAMMED_STATUS_NO_PAPER event', async () => {
-    driver.setMockStatus('paperJammed');
-    await expectStatusTransitionTo('jammed');
+    await setMockStatusAndIncrementClock('paperJammed');
+    await waitForStatus('jammed');
 
-    driver.setMockStatus('paperJammedNoPaper');
-    await expectStatusTransitionTo('jam_cleared');
+    await setMockStatusAndIncrementClock('paperJammedNoPaper');
+    await waitForStatus('jam_cleared');
   });
 });
 
@@ -410,22 +413,27 @@ async function executePrintBallotAndAssert(
     jest.requireActual('./application_driver').loadAndParkPaper
   );
 
+  mockPollWorkerAuth(auth, electionGeneralDefinition);
+  clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
   machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
-  driver.setMockStatus('paperInserted');
-  await expectStatusTransitionTo('loading_paper');
-  await expectStatusTransitionTo('waiting_for_voter_auth');
+  await waitForStatus('accepting_paper');
+  await setMockStatusAndIncrementClock('paperInserted');
+  await waitForStatus('loading_paper');
+  clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+  await waitForStatus('waiting_for_voter_auth');
   mockCardlessVoterAuth(auth);
-  await expectStatusTransitionTo('waiting_for_ballot_data');
+  clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
+  await waitForStatus('waiting_for_ballot_data');
 
   void machine.printBallot(printData);
-  expectCurrentStatus('printing_ballot');
+  await waitForStatus('printing_ballot');
   expect(printBallotChunks).toHaveBeenCalledTimes(1);
 
-  await expectStatusTransitionTo('scanning');
+  await waitForStatus('scanning');
   expect(scanAndSave).toBeCalledTimes(1);
 
   mockScanResult.resolve(scanFixtureFilepath);
-  await expectStatusTransitionTo('interpreting');
+  await waitForStatus('interpreting');
 
   mockInterpretResult.resolve(interpretationResult);
 
@@ -440,26 +448,25 @@ async function executePrintBallotAndAssert(
 }
 
 test('voting flow happy path', async () => {
-  // This test asserts on blocking states only. Non-blocking
-  // states are hard to reliably assert on
-
   await executePrintBallotAndAssert(
     ballotPdfData,
     scannedBallotFixtureFilepaths
   );
 
-  await expectStatusTransitionTo('presenting_ballot');
+  await waitForStatus('presenting_ballot');
   expectMockPaperHandlerStatus(driver, 'presentingPaper');
 
   machine.validateBallot();
-  await expectStatusTransitionTo('ejecting_to_rear');
+  await waitForStatus('ejecting_to_rear');
 
   expect(workspace.store.getBallotsCastSinceLastBoxChange()).toEqual(0);
-  driver.setMockStatus('noPaper');
-  await expectStatusTransitionTo('ballot_accepted');
+  await setMockStatusAndIncrementClock('noPaper');
+  await waitForStatus('ballot_accepted');
   expect(workspace.store.getBallotsCastSinceLastBoxChange()).toEqual(1);
 
-  await expectStatusTransitionTo('not_accepting_paper');
+  await waitForStatus('ballot_accepted');
+  clock.increment(delays.DELAY_NOTIFICATION_DURATION_MS);
+  await waitForStatus('not_accepting_paper');
 });
 
 describe('removing ballot during presentation state', () => {
@@ -469,13 +476,14 @@ describe('removing ballot during presentation state', () => {
       scannedBallotFixtureFilepaths
     );
 
-    await expectStatusTransitionTo('presenting_ballot');
+    await waitForStatus('presenting_ballot');
 
-    driver.setMockStatus('noPaper');
-    await expectStatusTransitionTo('ballot_removed_during_presentation');
+    await setMockStatusAndIncrementClock('noPaper');
+    await waitForStatus('ballot_removed_during_presentation');
 
     machine.confirmSessionEnd();
-    await expectStatusTransitionTo('not_accepting_paper');
+    clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('not_accepting_paper');
   });
 });
 
@@ -487,22 +495,23 @@ test('ballot box empty flow', async () => {
     scannedBallotFixtureFilepaths
   );
 
-  await expectStatusTransitionTo('presenting_ballot');
+  await waitForStatus('presenting_ballot');
   expectMockPaperHandlerStatus(driver, 'presentingPaper');
 
   machine.validateBallot();
-  await expectStatusTransitionTo('ejecting_to_rear');
+  await waitForStatus('ejecting_to_rear');
 
-  driver.setMockStatus('noPaper');
-  await expectStatusTransitionTo('ballot_accepted');
+  await setMockStatusAndIncrementClock('noPaper');
+  await waitForStatus('ballot_accepted');
   expect(workspace.store.getBallotsCastSinceLastBoxChange()).toEqual(
     MAX_BALLOT_BOX_CAPACITY
   );
 
-  await expectStatusTransitionTo('empty_ballot_box');
+  clock.increment(delays.DELAY_NOTIFICATION_DURATION_MS);
+  await waitForStatus('empty_ballot_box');
 
   machine.confirmBallotBoxEmptied();
-  await expectStatusTransitionTo('not_accepting_paper');
+  await waitForStatus('not_accepting_paper');
 });
 
 test('elections with grid layouts still try to interpret BMD ballots', async () => {
@@ -538,7 +547,7 @@ test('blank page interpretation', async () => {
     BLANK_PAGE_INTERPRETATION_MOCK
   );
 
-  await expectStatusTransitionTo('blank_page_interpretation');
+  await waitForStatus('blank_page_interpretation');
   expect(logger.log).toHaveBeenCalledWith(
     LogEventId.BlankInterpretation,
     'system'
@@ -547,16 +556,17 @@ test('blank page interpretation', async () => {
   // Remove blank ballot
   mockPollWorkerAuth(auth, electionGeneralDefinition);
   expectMockPaperHandlerStatus(driver, 'presentingPaper');
-  driver.setMockStatus('noPaper');
-  await expectStatusTransitionTo('blank_page_interpretation');
+  await setMockStatusAndIncrementClock('noPaper');
+  await waitForStatus('blank_page_interpretation');
 
   // Prepare to insert new sheet
-  driver.setMockStatus('paperInserted');
-  await expectStatusTransitionTo('blank_page_interpretation');
+  await setMockStatusAndIncrementClock('paperInserted');
+  await waitForStatus('blank_page_interpretation');
 
   expectMockPaperHandlerStatus(driver, 'paperParked');
+  clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
 
-  await expectStatusTransitionTo('paper_reloaded');
+  await waitForStatus('paper_reloaded');
 
   const ballotStyle = electionGeneralDefinition.election.ballotStyles[1];
   // The fixture expects ballot style id 5
@@ -566,7 +576,8 @@ test('blank page interpretation', async () => {
     ballotStyleId: ballotStyle.id,
     precinctId,
   });
-  await expectStatusTransitionTo('waiting_for_ballot_data');
+  clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
+  await waitForStatus('waiting_for_ballot_data');
 });
 
 test('cleanUp', async () => {
@@ -589,24 +600,13 @@ describe('paperHandlerStatusToEvent', () => {
   });
 });
 
-describe('paper handler status observable', () => {
-  test('logs if an error is thrown', async () => {
-    jest.spyOn(driver, 'getPaperHandlerStatus');
-    mockOf(driver.getPaperHandlerStatus).mockRejectedValue(
-      new Error('Test error')
-    );
-    await advanceMockTimersAndPromises();
-    expect(logger.log).toHaveBeenCalledWith(LogEventId.UnknownError, 'system', {
-      error: 'Test error',
-    });
-  });
-});
-
 describe('PAT device', () => {
   async function setupForVoterSession() {
+    mockPollWorkerAuth(auth, electionGeneralDefinition);
+    clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     expect(machine.getSimpleStatus()).toEqual('accepting_paper');
-    driver.setMockStatus('paperInserted');
+    await setMockStatusAndIncrementClock('paperInserted');
 
     // Restore the original `loadAndParkPaper`, so it calls the underlying
     // mock paper handler.
@@ -614,10 +614,15 @@ describe('PAT device', () => {
       jest.requireActual('./application_driver').loadAndParkPaper
     );
 
-    await expectStatusTransitionTo('loading_paper');
-    await expectStatusTransitionTo('waiting_for_voter_auth');
+    await waitForStatus('loading_paper');
+
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('waiting_for_voter_auth');
+
     mockCardlessVoterAuth(auth);
-    await expectStatusTransitionTo('waiting_for_ballot_data');
+    clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
+
+    await waitForStatus('waiting_for_ballot_data');
   }
   // Get into the state at the start of a voter session.
   test('HID adapter support', async () => {
@@ -632,7 +637,8 @@ describe('PAT device', () => {
       },
     ]);
 
-    await expectStatusTransitionTo('pat_device_connected');
+    clock.increment(delays.DELAY_PAT_CONNECTION_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('pat_device_connected');
     mockOf(HID.devices).mockClear();
   });
 
@@ -643,11 +649,12 @@ describe('PAT device', () => {
     mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
       true
     );
-    await expectStatusTransitionTo('pat_device_connected');
+    clock.increment(delays.DELAY_PAT_CONNECTION_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('pat_device_connected');
 
     machine.setPatDeviceIsCalibrated();
     // Should return to last state in history, not initial state
-    await expectStatusTransitionTo('waiting_for_ballot_data');
+    await waitForStatus('waiting_for_ballot_data');
   });
 
   test('isPatDeviceConnected', async () => {
@@ -656,36 +663,47 @@ describe('PAT device', () => {
     mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
       true
     );
-    await expectStatusTransitionTo('pat_device_connected');
+    clock.increment(delays.DELAY_PAT_CONNECTION_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('pat_device_connected');
     expect(machine.isPatDeviceConnected()).toEqual(true);
   });
 
   test('connecting PAT device while on pollworker screen', async () => {
     mockPollWorkerAuth(auth, electionGeneralDefinition);
+    clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
+
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
-    await expectStatusTransitionTo('accepting_paper');
+    await waitForStatus('accepting_paper');
+
     expect(machine.isPatDeviceConnected()).toEqual(false);
     mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
       true
     );
-    // PAT event should be ignored while we are in the pollworker auth
-    await advanceMockTimersAndPromises();
-    expectCurrentStatus('accepting_paper');
+    // PAT event should be ignored for non-voter states
+    clock.increment(delays.DELAY_PAT_CONNECTION_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('accepting_paper');
 
     // Finish loading paper flow
-    driver.setMockStatus('paperInserted');
+    await setMockStatusAndIncrementClock('paperInserted');
     // Restore the original `loadAndParkPaper`, so it calls the underlying
     // mock paper handler.
     mockOf(loadAndParkPaper).mockImplementation(
       jest.requireActual('./application_driver').loadAndParkPaper
     );
-    await expectStatusTransitionTo('loading_paper');
-    await expectStatusTransitionTo('waiting_for_voter_auth');
+    await waitForStatus('loading_paper');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('waiting_for_voter_auth');
 
     // Change to voter auth to see state change to pat_device_connected
     mockCardlessVoterAuth(auth);
-    await expectStatusTransitionTo('waiting_for_ballot_data');
-    await expectStatusTransitionTo('pat_device_connected');
+    clock.increment(
+      // Both auth and PAT connection status need to be updated
+      Math.max(
+        delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS,
+        delays.DELAY_PAT_CONNECTION_STATUS_POLLING_INTERVAL_MS
+      )
+    );
+    await waitForStatus('pat_device_connected');
     expect(machine.isPatDeviceConnected()).toEqual(true);
   });
 
@@ -695,29 +713,15 @@ describe('PAT device', () => {
     mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
       true
     );
-    await expectStatusTransitionTo('pat_device_connected');
+    clock.increment(delays.DELAY_PAT_CONNECTION_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('pat_device_connected');
+
     mockOf(patConnectionStatusReader.isPatDeviceConnected).mockResolvedValue(
       false
     );
-
+    clock.increment(delays.DELAY_PAT_CONNECTION_STATUS_POLLING_INTERVAL_MS);
     // Should return to last state in history, not initial state
-    await expectStatusTransitionTo('waiting_for_ballot_data');
-  });
-
-  test('logs if an error is thrown when trying to read device connection status', async () => {
-    await setupForVoterSession();
-    const errorMessage = 'Test error in PAT';
-    mockOf(patConnectionStatusReader.isPatDeviceConnected).mockRejectedValue(
-      new Error(errorMessage)
-    );
-    await advanceMockTimersAndPromises();
-    expect(logger.log).toHaveBeenCalledWith(
-      LogEventId.PatDeviceError,
-      'system',
-      {
-        error: errorMessage,
-      }
-    );
+    await waitForStatus('waiting_for_ballot_data');
   });
 });
 
@@ -728,24 +732,27 @@ test('ending poll worker auth in accepting_paper returns to initial state', asyn
     ballotStyleId: ballotStyle.id,
     precinctId,
   });
-  await expectStatusTransitionTo('not_accepting_paper');
+  clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
+  await waitForStatus('not_accepting_paper');
 });
 
 describe('poll_worker_auth_ended_unexpectedly', () => {
   beforeEach(() => {
     mockPollWorkerAuth(auth, electionGeneralDefinition);
+    clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
   });
 
   test('loading_paper state', async () => {
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
     const ballotStyle = electionGeneralDefinition.election.ballotStyles[1];
-    driver.setMockStatus('paperInserted');
-    await expectStatusTransitionTo('loading_paper');
+    await setMockStatusAndIncrementClock('paperInserted');
+    await waitForStatus('loading_paper');
     mockCardlessVoterAuth(auth, {
       ballotStyleId: ballotStyle.id,
       precinctId,
     });
-    await expectStatusTransitionTo('poll_worker_auth_ended_unexpectedly');
+    clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('poll_worker_auth_ended_unexpectedly');
   });
 
   test('loading_new_sheet state', async () => {
@@ -754,7 +761,7 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
     );
 
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
-    await expectStatusTransitionTo('accepting_paper');
+    await waitForStatus('accepting_paper');
 
     jest.spyOn(driver, 'loadPaper').mockImplementation(() => {
       mockCardlessVoterAuth(auth, {
@@ -765,9 +772,10 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
       return Promise.resolve(true);
     });
 
-    driver.setMockStatus('paperInserted');
-    await expectStatusTransitionTo('loading_new_sheet');
-    await expectStatusTransitionTo('poll_worker_auth_ended_unexpectedly');
+    await setMockStatusAndIncrementClock('paperInserted');
+    await waitForStatus('loading_new_sheet');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('poll_worker_auth_ended_unexpectedly');
   });
 
   test('validating_new_sheet state', async () => {
@@ -776,7 +784,7 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
     );
 
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
-    await expectStatusTransitionTo('accepting_paper');
+    await waitForStatus('accepting_paper');
 
     const deferredScan = deferred<string>();
     mockOf(scanAndSave).mockImplementation(() => {
@@ -785,10 +793,13 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
       return deferredScan.promise;
     });
 
-    driver.setMockStatus('paperInserted');
-    await expectStatusTransitionTo('loading_new_sheet');
-    await expectStatusTransitionTo('validating_new_sheet');
-    await expectStatusTransitionTo('poll_worker_auth_ended_unexpectedly');
+    await setMockStatusAndIncrementClock('paperInserted');
+    await waitForStatus('loading_new_sheet');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('validating_new_sheet');
+    // Give the state machine time to poll and see the mock cardless voter auth
+    clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('poll_worker_auth_ended_unexpectedly');
 
     // Clean up hanging promise:
     deferredScan.resolve(await writeTmpBlankImage());
@@ -800,7 +811,7 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
     );
 
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
-    await expectStatusTransitionTo('accepting_paper');
+    await waitForStatus('accepting_paper');
 
     mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
 
@@ -812,12 +823,14 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
       BLANK_PAGE_MOCK,
     ]);
 
-    driver.setMockStatus('paperInserted');
-    await expectStatusTransitionTo('loading_new_sheet');
-    await expectStatusTransitionTo('inserted_invalid_new_sheet');
+    await setMockStatusAndIncrementClock('paperInserted');
+    await waitForStatus('loading_new_sheet');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('inserted_invalid_new_sheet');
 
     mockCardlessVoterAuth(auth, { ballotStyleId: '1_en', precinctId });
-    await expectStatusTransitionTo('poll_worker_auth_ended_unexpectedly');
+    clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('poll_worker_auth_ended_unexpectedly');
   });
 
   test('inserted_preprinted_ballot state', async () => {
@@ -826,19 +839,21 @@ describe('poll_worker_auth_ended_unexpectedly', () => {
     );
 
     machine.setAcceptingPaper(ACCEPTED_PAPER_TYPES);
-    await expectStatusTransitionTo('accepting_paper');
+    await waitForStatus('accepting_paper');
 
     mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
     mockOf(interpretSimplexBmdBallot).mockResolvedValue(
       SUCCESSFUL_INTERPRETATION_MOCK
     );
 
-    driver.setMockStatus('paperInserted');
-    await expectStatusTransitionTo('loading_new_sheet');
-    await expectStatusTransitionTo('inserted_preprinted_ballot');
+    await setMockStatusAndIncrementClock('paperInserted');
+    await waitForStatus('loading_new_sheet');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('inserted_preprinted_ballot');
 
     mockCardlessVoterAuth(auth, { ballotStyleId: '1_en', precinctId });
-    await expectStatusTransitionTo('poll_worker_auth_ended_unexpectedly');
+    clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('poll_worker_auth_ended_unexpectedly');
   });
 });
 
@@ -848,11 +863,15 @@ describe('paper handler diagnostic', () => {
     expect(machine.getSimpleStatus()).toEqual('accepting_paper');
 
     mockSystemAdminAuth(auth);
+    clock.increment(delays.DELAY_AUTH_STATUS_POLLING_TIMEOUT_MS);
     machine.startPaperHandlerDiagnostic();
-    await expectStatusTransitionTo('paper_handler_diagnostic.prompt_for_paper');
+    await waitForStatus('paper_handler_diagnostic.prompt_for_paper');
 
     mockLoggedOutAuth(auth);
-    await expectStatusTransitionTo('accepting_paper');
+    clock.increment(delays.DELAY_AUTH_STATUS_POLLING_TIMEOUT_MS);
+    // Eventual blocking end state. Non-blocking intermediate states are difficult to
+    // listen for.
+    await waitForStatus('not_accepting_paper');
   });
 });
 
@@ -863,17 +882,18 @@ test('reset() API', async () => {
     SUCCESSFUL_INTERPRETATION_MOCK
   );
 
-  await expectStatusTransitionTo('presenting_ballot');
+  await waitForStatus('presenting_ballot');
   expect(machine.getInterpretation()).toEqual(SUCCESSFUL_INTERPRETATION_MOCK);
 
   machine.reset();
 
-  expectCurrentStatus('not_accepting_paper');
+  await waitForStatus('not_accepting_paper');
   expect(machine.getInterpretation()).toBeUndefined();
 });
 
 test('insert and validate new blank sheet', async () => {
   mockPollWorkerAuth(auth, electionGeneralDefinition);
+  clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
 
   featureFlagMock.disableFeatureFlag(
     BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
@@ -888,15 +908,17 @@ test('insert and validate new blank sheet', async () => {
   );
   mockOf(scanAndSave).mockResolvedValue(await writeTmpBlankImage());
 
-  driver.setMockStatus('paperInserted');
-  await expectStatusTransitionTo('loading_new_sheet');
-  await expectStatusTransitionTo('validating_new_sheet');
+  await setMockStatusAndIncrementClock('paperInserted');
+  await waitForStatus('loading_new_sheet');
+  clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+  await waitForStatus('validating_new_sheet');
 
   mockInterpretResult.resolve(BLANK_PAGE_INTERPRETATION_MOCK);
 
-  await expectStatusTransitionTo('waiting_for_voter_auth');
+  await waitForStatus('waiting_for_voter_auth');
   mockCardlessVoterAuth(auth);
-  await expectStatusTransitionTo('waiting_for_ballot_data');
+  clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
+  await waitForStatus('waiting_for_ballot_data');
 
   const {
     calls: [[frontImage]],
@@ -913,6 +935,7 @@ describe('insert pre-printed ballot', () => {
     );
 
     mockPollWorkerAuth(auth, electionGeneralDefinition);
+    clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
   });
 
   test('start session with valid pre-printed ballot', async () => {
@@ -923,12 +946,13 @@ describe('insert pre-printed ballot', () => {
       SUCCESSFUL_INTERPRETATION_MOCK
     );
 
-    driver.setMockStatus('paperInserted');
-    await expectStatusTransitionTo('loading_new_sheet');
-    await expectStatusTransitionTo('inserted_preprinted_ballot');
+    await setMockStatusAndIncrementClock('paperInserted');
+    await waitForStatus('loading_new_sheet');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('inserted_preprinted_ballot');
 
     machine.startSessionWithPreprintedBallot();
-    await expectStatusTransitionTo('presenting_ballot');
+    await waitForStatus('presenting_ballot');
   });
 
   test('return valid pre-printed ballot', async () => {
@@ -939,15 +963,16 @@ describe('insert pre-printed ballot', () => {
       SUCCESSFUL_INTERPRETATION_MOCK
     );
 
-    driver.setMockStatus('paperInserted');
-    await expectStatusTransitionTo('loading_new_sheet');
-    await expectStatusTransitionTo('inserted_preprinted_ballot');
+    await setMockStatusAndIncrementClock('paperInserted');
+    await waitForStatus('loading_new_sheet');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('inserted_preprinted_ballot');
 
     const ejectSpy = jest.spyOn(driver, 'ejectPaperToFront');
 
     machine.returnPreprintedBallot();
 
-    await expectStatusTransitionTo('accepting_paper');
+    await waitForStatus('accepting_paper');
     expect(ejectSpy).toHaveBeenCalled();
   });
 
@@ -977,9 +1002,10 @@ describe('insert pre-printed ballot', () => {
       mockInterpretResult.promise
     );
 
-    driver.setMockStatus('paperInserted');
-    await expectStatusTransitionTo('loading_new_sheet');
-    await expectStatusTransitionTo('validating_new_sheet');
+    await setMockStatusAndIncrementClock('paperInserted');
+    await waitForStatus('loading_new_sheet');
+    clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('validating_new_sheet');
 
     mockInterpretResult.resolve([
       {
@@ -987,12 +1013,12 @@ describe('insert pre-printed ballot', () => {
       } as unknown as InterpretFileResult,
       BLANK_PAGE_MOCK,
     ]);
-    await expectStatusTransitionTo('inserted_invalid_new_sheet');
+    await waitForStatus('inserted_invalid_new_sheet');
     expectMockPaperHandlerStatus(driver, 'presentingPaper');
 
     // Simulate removing the rejected sheet:
-    driver.setMockStatus('noPaper');
-    await expectStatusTransitionTo('accepting_paper');
+    await setMockStatusAndIncrementClock('noPaper');
+    await waitForStatus('accepting_paper');
   });
 
   test('insert blank sheet when accepting only pre-printed ballots', async () => {
@@ -1005,10 +1031,10 @@ describe('insert pre-printed ballot', () => {
       BLANK_PAGE_INTERPRETATION_MOCK
     );
 
-    driver.setMockStatus('paperInserted');
-    await expectStatusTransitionTo('loading_new_sheet');
-    await expectStatusTransitionTo('validating_new_sheet');
-    await expectStatusTransitionTo('inserted_invalid_new_sheet');
+    await setMockStatusAndIncrementClock('paperInserted');
+    await waitForStatus('loading_new_sheet');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('inserted_invalid_new_sheet');
   });
 });
 
@@ -1017,6 +1043,8 @@ describe('re-insert removed ballot', () => {
     featureFlagMock.disableFeatureFlag(
       BooleanEnvironmentVariableName.MARK_SCAN_DISABLE_BALLOT_REINSERTION
     );
+    mockPollWorkerAuth(auth, electionGeneralDefinition);
+    clock.increment(delays.DELAY_AUTH_STATUS_POLLING_INTERVAL_MS);
   });
 
   test('re-insert valid ballot', async () => {
@@ -1031,19 +1059,20 @@ describe('re-insert removed ballot', () => {
       SUCCESSFUL_INTERPRETATION_MOCK
     );
 
-    driver.setMockStatus('paperInserted');
-    await expectStatusTransitionTo('loading_new_sheet');
-    await expectStatusTransitionTo('inserted_preprinted_ballot');
+    await setMockStatusAndIncrementClock('paperInserted');
+    await waitForStatus('loading_new_sheet');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('inserted_preprinted_ballot');
 
     machine.startSessionWithPreprintedBallot();
-    await expectStatusTransitionTo('presenting_ballot');
+    await waitForStatus('presenting_ballot');
 
     //
     // 2. Remove ballot during presentation/review:
     //
 
-    driver.setMockStatus('noPaper');
-    await expectStatusTransitionTo('waiting_for_ballot_reinsertion');
+    await setMockStatusAndIncrementClock('noPaper');
+    await waitForStatus('waiting_for_ballot_reinsertion');
 
     //
     // 3. Re-insert valid ballot:
@@ -1056,12 +1085,13 @@ describe('re-insert removed ballot', () => {
     const ballotImagePath = await writeTmpBlankImage();
     mockOf(scanAndSave).mockResolvedValue(ballotImagePath);
 
-    driver.setMockStatus('paperInserted');
-    await expectStatusTransitionTo('loading_reinserted_ballot');
-    await expectStatusTransitionTo('validating_reinserted_ballot');
+    await setMockStatusAndIncrementClock('paperInserted');
+    await waitForStatus('loading_reinserted_ballot');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('validating_reinserted_ballot');
 
     mockInterpretResult.resolve(SUCCESSFUL_INTERPRETATION_MOCK);
-    await expectStatusTransitionTo('presenting_ballot');
+    await waitForStatus('presenting_ballot');
     const {
       calls: [[frontImage]],
     } = mockOf(interpretSimplexBmdBallot).mock;
@@ -1096,19 +1126,20 @@ describe('re-insert removed ballot', () => {
       SUCCESSFUL_INTERPRETATION_MOCK
     );
 
-    driver.setMockStatus('paperInserted');
-    await expectStatusTransitionTo('loading_new_sheet');
-    await expectStatusTransitionTo('inserted_preprinted_ballot');
+    await setMockStatusAndIncrementClock('paperInserted');
+    await waitForStatus('loading_new_sheet');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('inserted_preprinted_ballot');
 
     machine.startSessionWithPreprintedBallot();
-    await expectStatusTransitionTo('presenting_ballot');
+    await waitForStatus('presenting_ballot');
 
     //
     // 2. Remove ballot during presentation/review:
     //
 
-    driver.setMockStatus('noPaper');
-    await expectStatusTransitionTo('waiting_for_ballot_reinsertion');
+    await setMockStatusAndIncrementClock('noPaper');
+    await waitForStatus('waiting_for_ballot_reinsertion');
 
     //
     // 3. Re-insert invalid ballot:
@@ -1119,9 +1150,10 @@ describe('re-insert removed ballot', () => {
       mockInterpretResult.promise
     );
 
-    driver.setMockStatus('paperInserted');
-    await expectStatusTransitionTo('loading_reinserted_ballot');
-    await expectStatusTransitionTo('validating_reinserted_ballot');
+    await setMockStatusAndIncrementClock('paperInserted');
+    await waitForStatus('loading_reinserted_ballot');
+    clock.increment(delays.DELAY_PAPER_HANDLER_STATUS_POLLING_INTERVAL_MS);
+    await waitForStatus('validating_reinserted_ballot');
 
     mockInterpretResult.resolve([
       {
@@ -1129,14 +1161,14 @@ describe('re-insert removed ballot', () => {
       } as unknown as InterpretFileResult,
       BLANK_PAGE_MOCK,
     ]);
-    await expectStatusTransitionTo('reinserted_invalid_ballot');
+    await waitForStatus('reinserted_invalid_ballot');
     expectMockPaperHandlerStatus(driver, 'presentingPaper');
 
     //
     // 4. Remove invalid ballot:
     //
 
-    driver.setMockStatus('noPaper');
-    await expectStatusTransitionTo('waiting_for_ballot_reinsertion');
+    await setMockStatusAndIncrementClock('noPaper');
+    await waitForStatus('waiting_for_ballot_reinsertion');
   });
 });

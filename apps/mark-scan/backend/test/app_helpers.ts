@@ -31,6 +31,7 @@ import { MockPaperHandlerDriver } from '@votingworks/custom-paper-handler';
 import { assert } from '@votingworks/basics';
 import { createMockUsbDrive, MockUsbDrive } from '@votingworks/usb-drive';
 import { Browser, launchBrowser } from '@votingworks/printing';
+import { SimulatedClock } from 'xstate/lib/SimulatedClock';
 import { Api, buildApp } from '../src/app';
 import { createWorkspace, Workspace } from '../src/util/workspace';
 import {
@@ -55,6 +56,7 @@ export async function getMockStateMachine(
   patConnectionStatusReader: PatConnectionStatusReaderInterface,
   driver: MockPaperHandlerDriver,
   logger: BaseLogger,
+  clock: SimulatedClock,
   authOverride?: InsertedSmartCardAuthApi
 ): Promise<PaperHandlerStateMachine> {
   // State machine setup
@@ -65,6 +67,7 @@ export async function getMockStateMachine(
     logger,
     driver,
     patConnectionStatusReader,
+    clock,
   });
   assert(stateMachine);
 
@@ -82,6 +85,7 @@ interface MockAppContents {
   patConnectionStatusReader: PatConnectionStatusReaderInterface;
   driver: MockPaperHandlerDriver;
   browser: Browser;
+  clock: SimulatedClock;
 }
 
 export interface CreateAppOptions {
@@ -101,12 +105,14 @@ export async function createApp(
     options?.patConnectionStatusReader ??
     new MockPatConnectionStatusReader(logger);
   const driver = new MockPaperHandlerDriver();
+  const clock = new SimulatedClock();
 
   const stateMachine = await getMockStateMachine(
     workspace,
     patConnectionStatusReader,
     driver,
     logger,
+    clock,
     mockAuth
   );
 
@@ -135,7 +141,11 @@ export async function createApp(
     stateMachine,
     patConnectionStatusReader,
     driver,
+<<<<<<< HEAD
     browser,
+=======
+    clock,
+>>>>>>> 29d1b6a41 (update state machine tests to use SimulatedClock)
   };
 }
 
