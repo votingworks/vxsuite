@@ -111,9 +111,16 @@ function UsbDriveAlertText({
 
   return (
     <P>
-      <Icons.Warning /> Insert USB drive to continue
+      <Icons.Warning /> Insert USB drive to continue.
     </P>
   );
+}
+
+function shouldAllowTogglingPolls(
+  printerSummary: PollsFlowPrinterSummary,
+  usbDriveStatus: UsbDriveStatus
+): boolean {
+  return printerSummary.ready && usbDriveStatus.status === 'mounted';
 }
 
 function OpenPollsPromptScreen({
@@ -135,9 +142,7 @@ function OpenPollsPromptScreen({
           <Button
             variant="primary"
             onPress={onConfirm}
-            disabled={
-              !printerSummary.ready || usbDriveStatus.status !== 'mounted'
-            }
+            disabled={!shouldAllowTogglingPolls(printerSummary, usbDriveStatus)}
           >
             Yes, Open the Polls
           </Button>{' '}
@@ -169,9 +174,7 @@ function ResumeVotingPromptScreen({
           <Button
             variant="primary"
             onPress={onConfirm}
-            disabled={
-              !printerSummary.ready || usbDriveStatus.status !== 'mounted'
-            }
+            disabled={!shouldAllowTogglingPolls(printerSummary, usbDriveStatus)}
           >
             Yes, Resume Voting
           </Button>{' '}
@@ -203,9 +206,7 @@ function ClosePollsPromptScreen({
           <Button
             variant="primary"
             onPress={onConfirm}
-            disabled={
-              !printerSummary.ready || usbDriveStatus.status !== 'mounted'
-            }
+            disabled={!shouldAllowTogglingPolls(printerSummary, usbDriveStatus)}
           >
             Yes, Close the Polls
           </Button>{' '}
@@ -517,7 +518,13 @@ function PollWorkerScreenContents({
           <React.Fragment>
             <P>The polls have not been opened.</P>
             <ButtonGrid>
-              <Button variant="primary" onPress={openPolls}>
+              <Button
+                variant="primary"
+                onPress={openPolls}
+                disabled={
+                  !shouldAllowTogglingPolls(printerSummary, usbDriveStatus)
+                }
+              >
                 Open Polls
               </Button>
               {commonActions}
@@ -525,6 +532,8 @@ function PollWorkerScreenContents({
           </React.Fragment>
         );
       case 'polls_open':
+        // Do not disable Pausing Voting if shouldAllowTogglingPolls is false as in the unlikely event of an internal connection failure
+        // officials may want to pause voting on the machine.
         return (
           <React.Fragment>
             <P>The polls are currently open.</P>
@@ -532,7 +541,9 @@ function PollWorkerScreenContents({
               <Button
                 variant="primary"
                 onPress={closePolls}
-                disabled={usbDriveStatus.status !== 'mounted'}
+                disabled={
+                  !shouldAllowTogglingPolls(printerSummary, usbDriveStatus)
+                }
               >
                 Close Polls
               </Button>
@@ -546,10 +557,23 @@ function PollWorkerScreenContents({
           <React.Fragment>
             <P>Voting is currently paused.</P>
             <ButtonGrid>
-              <Button variant="primary" onPress={resumeVoting}>
+              <Button
+                variant="primary"
+                onPress={resumeVoting}
+                disabled={
+                  !shouldAllowTogglingPolls(printerSummary, usbDriveStatus)
+                }
+              >
                 Resume Voting
               </Button>
-              <Button onPress={closePolls}>Close Polls</Button>
+              <Button
+                onPress={closePolls}
+                disabled={
+                  !shouldAllowTogglingPolls(printerSummary, usbDriveStatus)
+                }
+              >
+                Close Polls
+              </Button>
               {commonActions}
             </ButtonGrid>
           </React.Fragment>

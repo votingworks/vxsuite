@@ -7,7 +7,6 @@ import {
 } from '@votingworks/ui';
 import type { PrinterStatus } from '@votingworks/scan-backend';
 import { ScreenMainCenterChild } from '../components/layout';
-import { SignedHashValidationButton } from '../components/signed_hash_validation_button';
 
 function PrinterErrorMessage({
   printerStatus,
@@ -40,28 +39,27 @@ export function InternalConnectionProblemScreen({
   isPollWorkerAuth,
 }: Props): JSX.Element {
   // Only support v4 hardware for showing connection status errors.
-  const isPrinterConnected = !(
+  const isPrinterConnectedSuccessfully = !(
     printerStatus.scheme === 'hardware-v4' && printerStatus.state === 'error'
-  );
-  const pollWorkerActions = (
-    <P>
-      <PowerDownButton variant="primary" /> <SignedHashValidationButton />
-    </P>
   );
   return (
     <ScreenMainCenterChild ballotCountOverride={scannedBallotCount} voterFacing>
       <CenteredLargeProse>
         <H1>{appStrings.titleInternalConnectionProblem()}</H1>
         {!isScannerConnected && <P>{appStrings.noteScannerDisconnected()}</P>}
-        {!isPrinterConnected && (
+        {!isPrinterConnectedSuccessfully && (
           <P>
             <PrinterErrorMessage printerStatus={printerStatus} />
           </P>
         )}
         <P>
-          {isPollWorkerAuth
-            ? pollWorkerActions
-            : appStrings.instructionsAskForHelp()}
+          {isPollWorkerAuth ? (
+            <P>
+              <PowerDownButton variant="primary" />
+            </P>
+          ) : (
+            appStrings.instructionsAskForHelp()
+          )}
         </P>
       </CenteredLargeProse>
     </ScreenMainCenterChild>
