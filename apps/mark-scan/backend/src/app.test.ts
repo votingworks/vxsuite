@@ -79,7 +79,7 @@ let stateMachine: PaperHandlerStateMachine;
 let driver: MockPaperHandlerDriver;
 let patConnectionStatusReader: PatConnectionStatusReader;
 let logger: Logger;
-let chromium: Browser;
+let browser: Browser;
 
 beforeEach(async () => {
   featureFlagMock.enableFeatureFlag(
@@ -113,13 +113,13 @@ beforeEach(async () => {
   server = result.server;
   stateMachine = result.stateMachine;
   driver = result.driver;
-  chromium = result.chromium;
+  browser = result.browser;
 });
 
 afterEach(async () => {
   featureFlagMock.resetFeatureFlags();
   await stateMachine.cleanUp();
-  await chromium.close();
+  await browser.close();
   server.close();
 });
 
@@ -630,7 +630,7 @@ test('startPaperHandlerDiagnostic fails test if no state machine', async () => {
     logger,
     workspace,
     mockUsbDrive.usbDrive,
-    chromium
+    browser
   );
   const serverNoStateMachine = app.listen();
   const { port } = serverNoStateMachine.address() as AddressInfo;

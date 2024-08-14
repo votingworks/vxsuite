@@ -38,9 +38,9 @@ const electionDefinition = safeParseElectionDefinition(
   JSON.stringify(testCdfBallotDefinition)
 ).unsafeUnwrap();
 
-// Chromium isn't needed for these tests, and we can't easily launch a real instance in this test
-// file using an async beforeEach and afterEach given how runUiStringApiTests is called
-const mockChromium = {} as unknown as Browser;
+// A headless browser isn't needed for these tests, and we can't easily launch a real instance in
+// this test file using an async beforeEach and afterEach given how runUiStringApiTests is called
+const mockBrowser = {} as unknown as Browser;
 
 afterEach(() => {
   workspace.reset();
@@ -52,7 +52,7 @@ runUiStringApiTests({
     createMockUsbDrive().usbDrive,
     buildMockLogger(mockAuth, workspace),
     workspace,
-    mockChromium
+    mockBrowser
   ),
   store: store.getUiStringsStore(),
 });
@@ -73,7 +73,7 @@ describe('configureElectionPackageFromUsb', () => {
       mockUsbDrive.usbDrive,
       buildMockLogger(mockAuth, workspace),
       workspace,
-      mockChromium
+      mockBrowser
     );
 
     mockElectionManagerAuth(mockAuth, electionDefinition);
@@ -93,7 +93,7 @@ describe('unconfigureMachine', () => {
     createMockUsbDrive().usbDrive,
     buildMockLogger(mockAuth, workspace),
     workspace,
-    mockChromium
+    mockBrowser
   );
 
   runUiStringMachineDeconfigurationTests({

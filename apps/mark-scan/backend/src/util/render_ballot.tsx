@@ -23,7 +23,7 @@ import { getMarkScanBmdModel } from './hardware';
 
 export interface RenderBallotProps {
   store: Store;
-  chromium: Browser;
+  browser: Browser;
   precinctId: string;
   ballotStyleId: string;
   votes: VotesDict;
@@ -69,7 +69,7 @@ export async function renderTestModeBallotWithoutLanguageContext(
 
 export async function renderBallot({
   store,
-  chromium,
+  browser,
   precinctId,
   ballotStyleId,
   votes,
@@ -101,6 +101,6 @@ export async function renderBallot({
       document: ballot,
       paperDimensions: getPaperDimensions(),
     },
-    chromium
+    browser
   );
 }

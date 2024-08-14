@@ -61,7 +61,7 @@ function getContentHeight(page: Page): Promise<number> {
   });
 }
 
-export async function launchChromium(): Promise<Browser> {
+export async function launchBrowser(): Promise<Browser> {
   return await chromium.launch({
     // Font hinting (https://fonts.google.com/knowledge/glossary/hinting) is on by default, but
     // causes fonts to render awkwardly at higher resolutions, so we disable it
@@ -92,7 +92,7 @@ export async function renderToPdf(
 ): Promise<Buffer | Buffer[]> {
   const specs = Array.isArray(spec) ? spec : [spec];
 
-  const browser = browserOverride ?? (await launchChromium());
+  const browser = browserOverride ?? (await launchBrowser());
   const context = await browser.newContext();
   const page = await context.newPage();
 

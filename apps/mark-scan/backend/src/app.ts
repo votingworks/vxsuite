@@ -81,7 +81,7 @@ export function buildApi(
   usbDrive: UsbDrive,
   logger: Logger,
   workspace: Workspace,
-  chromium: Browser,
+  browser: Browser,
   stateMachine?: PaperHandlerStateMachine,
   paperHandler?: PaperHandlerDriverInterface
 ) {
@@ -234,7 +234,7 @@ export function buildApi(
 
       const pdfData = await renderBallot({
         store,
-        chromium,
+        browser,
         ...input,
       });
       stateMachine.printBallot(pdfData);
@@ -449,7 +449,7 @@ export function buildApp(
   logger: Logger,
   workspace: Workspace,
   usbDrive: UsbDrive,
-  chromium: Browser,
+  browser: Browser,
   stateMachine?: PaperHandlerStateMachine,
   paperHandler?: PaperHandlerDriverInterface
 ): Application {
@@ -459,7 +459,7 @@ export function buildApp(
     usbDrive,
     logger,
     workspace,
-    chromium,
+    browser,
     stateMachine,
     paperHandler
   );
