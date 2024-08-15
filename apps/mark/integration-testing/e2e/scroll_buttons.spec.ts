@@ -25,6 +25,10 @@ test.beforeEach(async ({ page }) => {
   await forceReset(page);
 });
 
+// TODO(https://github.com/votingworks/vxsuite/issues/4900): Add a mock PAT
+// device to the backend, so we can test PAT scrolling on long yes/no contests.
+// We'd probably need to port this test over to `mark-scan` to do that.
+
 test('configure, open polls, and test contest scroll buttons', async ({
   page,
 }) => {
