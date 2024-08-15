@@ -19,7 +19,6 @@ interface VoterScreenProps {
   systemSettings: SystemSettings;
   isTestMode: boolean;
   isSoundMuted: boolean;
-  batteryIsCharging: boolean;
 }
 
 export function VoterScreen({
@@ -27,7 +26,6 @@ export function VoterScreen({
   systemSettings,
   isTestMode,
   isSoundMuted,
-  batteryIsCharging,
 }: VoterScreenProps): JSX.Element | null {
   const scannerStatusQuery = getScannerStatus.useQuery({
     refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
@@ -122,7 +120,6 @@ export function VoterScreen({
         <InsertBallotScreen
           isLiveMode={!isTestMode}
           scannedBallotCount={scannerStatus.ballotsCounted}
-          showNoChargerWarning={!batteryIsCharging}
         />
       );
     case 'hardware_ready_to_scan':
