@@ -147,7 +147,7 @@ const AdjudicationMetadata = styled(Caption)`
 `;
 
 const AdjudicationForm = styled.div`
-  overflow: scroll;
+  overflow-y: scroll;
   padding: 0.5rem;
 `;
 
@@ -572,29 +572,6 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
             )}
           </ContestTitleContainer>
           <AdjudicationForm>
-            {officialCandidates.length > 0 ? (
-              <SectionLabel>Official Candidates</SectionLabel>
-            ) : null}
-            <CandidateButtonList>
-              {officialCandidates.map((candidate) => {
-                return (
-                  <CandidateButton
-                    key={candidate.id}
-                    candidate={candidate}
-                    isSelected={
-                      currentWriteIn &&
-                      currentWriteIn.status === 'adjudicated' &&
-                      currentWriteIn.adjudicationType ===
-                        'official-candidate' &&
-                      currentWriteIn.candidateId === candidate.id
-                    }
-                    isSelectedStatusUpToDate={isWriteInAdjudicationContextFresh}
-                    onSelect={() => adjudicateAsOfficialCandidate(candidate)}
-                    onDeselect={resetAdjudication}
-                  />
-                );
-              })}
-            </CandidateButtonList>
             {showNewWriteInCandidateForm || writeInCandidates.length > 0 ? (
               <SectionLabel>Write-In Candidates</SectionLabel>
             ) : null}
@@ -622,8 +599,8 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                 })}
               </CandidateButtonList>
             )}
-            <div style={{ margin: '0.5rem 0' }}>
-              {showNewWriteInCandidateForm ? (
+            {showNewWriteInCandidateForm ? (
+              <div style={{ margin: '0.5rem 0' }}>
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                   <input
                     key={currentWriteInId}
@@ -659,8 +636,31 @@ export function WriteInsAdjudicationScreen(): JSX.Element {
                     Add
                   </Button>
                 </div>
-              ) : null}
-            </div>
+              </div>
+            ) : null}
+            {officialCandidates.length > 0 ? (
+              <SectionLabel>Official Candidates</SectionLabel>
+            ) : null}
+            <CandidateButtonList>
+              {officialCandidates.map((candidate) => {
+                return (
+                  <CandidateButton
+                    key={candidate.id}
+                    candidate={candidate}
+                    isSelected={
+                      currentWriteIn &&
+                      currentWriteIn.status === 'adjudicated' &&
+                      currentWriteIn.adjudicationType ===
+                        'official-candidate' &&
+                      currentWriteIn.candidateId === candidate.id
+                    }
+                    isSelectedStatusUpToDate={isWriteInAdjudicationContextFresh}
+                    onSelect={() => adjudicateAsOfficialCandidate(candidate)}
+                    onDeselect={resetAdjudication}
+                  />
+                );
+              })}
+            </CandidateButtonList>
           </AdjudicationForm>
           <AdjudicationStickyFooter>
             <WriteInActionButton
