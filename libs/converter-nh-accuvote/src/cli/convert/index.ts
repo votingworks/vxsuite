@@ -201,14 +201,13 @@ export async function main(
   }
 
   if (convertResult.isOk()) {
-    const { electionDefinition, ballotPdfsWithMetadata } =
-      convertResult.ok().result;
+    const { electionDefinition, ballotPdfs } = convertResult.ok().result;
     await fs.rm(outputPath, { recursive: true, force: true });
     await fs.mkdir(outputPath, { recursive: true });
     const electionPath = join(outputPath, 'election.json');
     io.stderr.write(`Writing: ${electionPath}\n`);
     await fs.writeFile(electionPath, electionDefinition.electionData);
-    for (const [metadata, pdf] of ballotPdfsWithMetadata) {
+    for (const [metadata, pdfs] of ballotPdfs) {
       const { precinctId, ballotStyleId, ballotType } = metadata;
       const precinct = assertDefined(
         getPrecinctById({ election: electionDefinition.election, precinctId })
@@ -217,9 +216,14 @@ export async function main(
         ' ',
         '_'
       )}-${ballotStyleId}.pdf`;
-      const filePath = join(outputPath, fileName);
-      io.stderr.write(`Writing: ${filePath}\n`);
-      await writeGrayscalePdf(filePath, pdf);
+      const printingFilePath = join(outputPath, `PRINT-${fileName}`);
+      const proofingFilePath = join(outputPath, `PROOF-${fileName}`);
+      io.stderr.write(`Writing: ${printingFilePath}\n`);
+      io.stderr.write(`Writing: ${proofingFilePath}\n`);
+      await Promise.all([
+        writeGrayscalePdf(printingFilePath, pdfs.printing),
+        fs.writeFile(proofingFilePath, pdfs.proofing),
+      ]);
     }
   }
 

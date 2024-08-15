@@ -206,7 +206,7 @@ test('convert to file', async () => {
 
   mockOf(convertElectionDefinition).mockResolvedValue(
     ok({
-      result: { electionDefinition, ballotPdfsWithMetadata: new Map() },
+      result: { electionDefinition, ballotPdfs: new Map() },
       issues: [],
     })
   );

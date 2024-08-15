@@ -1,4 +1,7 @@
-import { findTemplateGridAndBubbles } from '@votingworks/ballot-interpreter';
+import {
+  TemplateGridAndBubbles,
+  findTemplateGridAndBubbles,
+} from '@votingworks/ballot-interpreter';
 import {
   assert,
   assertDefined,
@@ -25,22 +28,32 @@ import {
 } from '@votingworks/types';
 import { pdfToImages } from '@votingworks/image-utils';
 import { Buffer } from 'buffer';
+import { PDFDocument } from 'pdf-lib';
+import { addQrCodeMetadataToBallotPdf } from '../encode_metadata';
+import { addBallotProofingAnnotationsToPdf } from '../proofing';
 import * as accuvote from './accuvote';
 import { convertElectionDefinitionHeader } from './convert_election_definition_header';
 import { matchContestOptionsOnGrid } from './match_contest_options_on_grid';
 import {
+  ConvertIssue,
   ConvertIssueKind,
   NewHampshireBallotCardDefinition,
   PairColumnEntriesIssueKind,
-  TemplateBubbleGridEntry,
-  ConvertIssue,
   ResultWithIssues,
+  TemplateBubbleGridEntry,
 } from './types';
-import { addQrCodeMetadataToBallotPdf } from '../encode_metadata';
+
+/**
+ * A successfully converted card definition along with some additional data.
+ */
+export interface ConvertedCard {
+  election: Election;
+  templateGrid: TemplateGridAndBubbles;
+}
 
 async function convertCardDefinition(
   cardDefinition: NewHampshireBallotCardDefinition
-): Promise<ResultWithIssues<Election>> {
+): Promise<ResultWithIssues<ConvertedCard>> {
   return asyncResultBlock(async (fail) => {
     const accuvoteParseResult = accuvote.parseXml(cardDefinition.definition);
 
@@ -72,10 +85,11 @@ async function convertCardDefinition(
         ],
       });
     }
-    const pages = asSheet(pageImages);
-    const [frontPage, backPage] = pages;
+    let [frontPage, backPage] = asSheet(pageImages);
 
-    const findTemplateGridAndBubblesResult = findTemplateGridAndBubbles(pages);
+    const findTemplateGridAndBubblesResult = findTemplateGridAndBubbles(
+      asSheet(pageImages)
+    );
     if (findTemplateGridAndBubblesResult.isErr()) {
       return err({
         issues: [
@@ -100,6 +114,7 @@ async function convertCardDefinition(
         backGridAndBubbles,
         frontGridAndBubbles,
       ];
+      [frontPage, backPage] = [backPage, frontPage];
     }
 
     let { paperSize } = election.ballotLayout;
@@ -233,50 +248,53 @@ async function convertCardDefinition(
     const mergedGrids = pairColumnEntriesResult.isOk()
       ? pairColumnEntriesResult.ok().pairs
       : pairColumnEntriesResult.err().pairs;
-    const result: Election = {
-      ...election,
-      ballotLayout: {
-        ...election.ballotLayout,
-        paperSize,
+    const result: ConvertedCard = {
+      election: {
+        ...election,
+        ballotLayout: {
+          ...election.ballotLayout,
+          paperSize,
+        },
+        ballotStyles: [
+          {
+            ...ballotStyle,
+            id: ballotStyleId,
+          },
+        ],
+        gridLayouts: [
+          {
+            ...gridLayout,
+            ballotStyleId,
+            gridPositions: mergedGrids.map(([definition, bubble]) =>
+              definition.type === 'option'
+                ? {
+                    ...definition,
+                    side: bubble.side,
+                    column: bubble.column,
+                    row: bubble.row,
+                  }
+                : {
+                    ...definition,
+                    side: bubble.side,
+                    column: bubble.column,
+                    row: bubble.row,
+                    // This area is based on the largest rectangle that fits in
+                    // the write-in box without intersecting with any of the contest
+                    // labels (there may be more than one in a multi-seat
+                    // contest). Some examples of the ballots this was based on
+                    // can be found in the NH elections in libs/fixtures.
+                    writeInArea: {
+                      x: bubble.column - 5,
+                      y: bubble.row - 0.65,
+                      width: 4.5,
+                      height: 0.85,
+                    },
+                  }
+            ),
+          },
+        ],
       },
-      ballotStyles: [
-        {
-          ...ballotStyle,
-          id: ballotStyleId,
-        },
-      ],
-      gridLayouts: [
-        {
-          ...gridLayout,
-          ballotStyleId,
-          gridPositions: mergedGrids.map(([definition, bubble]) =>
-            definition.type === 'option'
-              ? {
-                  ...definition,
-                  side: bubble.side,
-                  column: bubble.column,
-                  row: bubble.row,
-                }
-              : {
-                  ...definition,
-                  side: bubble.side,
-                  column: bubble.column,
-                  row: bubble.row,
-                  // This area is based on the largest rectangle that fits in
-                  // the write-in box without intersecting with any of the contest
-                  // labels (there may be more than one in a multi-seat
-                  // contest). Some examples of the ballots this was based on
-                  // can be found in the NH elections in libs/fixtures.
-                  writeInArea: {
-                    x: bubble.column - 5,
-                    y: bubble.row - 0.65,
-                    width: 4.5,
-                    height: 0.85,
-                  },
-                }
-          ),
-        },
-      ],
+      templateGrid: findTemplateGridAndBubblesResult.ok(),
     };
 
     return ok({ issues, result });
@@ -382,15 +400,51 @@ async function addQrCodeMetadataToBallots(
         isTestMode: false,
         electionHash: electionDefinition.electionHash,
       };
-      const ballotPdfWithMetadata = await addQrCodeMetadataToBallotPdf(
+      const document = await PDFDocument.load(ballotPdf);
+      await addQrCodeMetadataToBallotPdf(
+        document,
         electionDefinition.election,
-        metadata,
-        ballotPdf
+        metadata
       );
-      ballotPdfsWithMetadata.set(metadata, ballotPdfWithMetadata);
+      ballotPdfsWithMetadata.set(metadata, await document.save());
     }
   }
   return ballotPdfsWithMetadata;
+}
+
+async function addBallotProofingAnnotationsToBallots(
+  electionDefinition: ElectionDefinition,
+  ballotPdfsByBallotStyle: Map<BallotStyle, Buffer>,
+  templateGridsByBallotStyle: Map<BallotStyle, TemplateGridAndBubbles>
+): Promise<Map<BallotMetadata, Uint8Array>> {
+  const ballotPdfsForProofing = new Map<BallotMetadata, Uint8Array>();
+  for (const [ballotStyle, ballotPdf] of ballotPdfsByBallotStyle.entries()) {
+    const originalDocument = await PDFDocument.load(ballotPdf);
+    const templateGrid = assertDefined(
+      templateGridsByBallotStyle.get(ballotStyle)
+    );
+    for (const precinctId of ballotStyle.precincts) {
+      const metadata: BallotMetadata = {
+        ballotStyleId: ballotStyle.id,
+        precinctId,
+        ballotType: BallotType.Precinct,
+        isTestMode: false,
+        electionHash: electionDefinition.electionHash,
+      };
+      const document = await originalDocument.copy();
+      await addBallotProofingAnnotationsToPdf(
+        document,
+        assertDefined(
+          electionDefinition.election.gridLayouts?.find(
+            (layout) => layout.ballotStyleId === ballotStyle.id
+          )
+        ),
+        templateGrid
+      );
+      ballotPdfsForProofing.set(metadata, await document.save());
+    }
+  }
+  return ballotPdfsForProofing;
 }
 
 /**
@@ -398,7 +452,13 @@ async function addQrCodeMetadataToBallots(
  */
 export type ConvertResult = ResultWithIssues<{
   electionDefinition: ElectionDefinition;
-  ballotPdfsWithMetadata: Map<BallotMetadata, Uint8Array>;
+  ballotPdfs: Map<
+    BallotMetadata,
+    {
+      printing: Uint8Array;
+      proofing: Uint8Array;
+    }
+  >;
 }>;
 
 /**
@@ -414,9 +474,10 @@ export function convertElectionDefinition(
       cardDefinitions.map(convertCardDefinition)
     );
     cardResults.find((result) => result.isErr())?.okOrElse(fail);
-    const cardElections = cardResults.map(
+    const convertedCards = cardResults.map(
       (result) => assertDefined(result.ok()).result
     );
+    const cardElections = convertedCards.map((card) => card.election);
     const { result: electionDefinition, issues } =
       combineConvertedElectionsIntoPrimaryElection(cardElections).okOrElse(
         fail
@@ -432,18 +493,48 @@ export function convertElectionDefinition(
       )
     );
     const ballotPdfsByBallotStyle = new Map(
-      iter(cardBallotStyles)
-        .zip(cardDefinitions.map((definition) => definition.ballotPdf))
-        .toArray()
+      iter(cardBallotStyles).zip(
+        cardDefinitions.map((definition) => definition.ballotPdf)
+      )
+    );
+    const templateGridsByBallotStyle = new Map(
+      iter(convertedCards)
+        .zip(cardBallotStyles)
+        .map(([card, ballotStyle]) => [ballotStyle, card.templateGrid])
     );
     const ballotPdfsWithMetadata = await addQrCodeMetadataToBallots(
       electionDefinition,
       ballotPdfsByBallotStyle
     );
+    const ballotProofingPdfs = await addBallotProofingAnnotationsToBallots(
+      electionDefinition,
+      ballotPdfsByBallotStyle,
+      templateGridsByBallotStyle
+    );
     return ok({
       result: {
         electionDefinition,
-        ballotPdfsWithMetadata,
+        ballotPdfs: new Map(
+          cardBallotStyles.flatMap((ballotStyle) => {
+            const printing = assertDefined(
+              iter(ballotPdfsWithMetadata)
+                .filter(
+                  ([metadata]) => metadata.ballotStyleId === ballotStyle.id
+                )
+                .first()
+            );
+            const proofing = assertDefined(
+              iter(ballotProofingPdfs)
+                .filter(
+                  ([metadata]) => metadata.ballotStyleId === ballotStyle.id
+                )
+                .first()
+            );
+            return [
+              [printing[0], { printing: printing[1], proofing: proofing[1] }],
+            ];
+          })
+        ),
       },
       issues: cardResults
         .flatMap((result) => assertDefined(result.ok()).issues)

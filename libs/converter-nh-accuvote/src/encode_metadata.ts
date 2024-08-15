@@ -1,9 +1,9 @@
-import { BallotMetadata, Election, SheetOf } from '@votingworks/types';
-import { QrCodeData, encodeMetadataInQrCode } from '@votingworks/hmpb-layout';
-import { createCanvas } from 'canvas';
 import { assertDefined, iter } from '@votingworks/basics';
-import { PDFDocument } from 'pdf-lib';
+import { QrCodeData, encodeMetadataInQrCode } from '@votingworks/hmpb-layout';
+import { BallotMetadata, Election, SheetOf } from '@votingworks/types';
 import { Buffer } from 'buffer';
+import { createCanvas } from 'canvas';
+import { PDFDocument } from 'pdf-lib';
 
 async function qrCodeDataToPng(data: QrCodeData): Promise<Buffer> {
   // QR codes are supposed to be surrounded by 4 modules of white space
@@ -58,15 +58,14 @@ export function encodeMetadata(
  * ballot PDF and embeds the QR code image on each page.
  */
 export async function addQrCodeMetadataToBallotPdf(
+  document: PDFDocument,
   election: Election,
-  metadata: BallotMetadata,
-  pdfData: Buffer
-): Promise<Uint8Array> {
+  metadata: BallotMetadata
+): Promise<void> {
   const qrCodes = await encodeMetadata(election, metadata);
-  const pdf = await PDFDocument.load(pdfData);
-  const pages = pdf.getPages();
+  const pages = document.getPages();
   for (const [page, qrCode] of iter(pages).zip(qrCodes).toArray()) {
-    const qrCodeEmbed = await pdf.embedPng(qrCode);
+    const qrCodeEmbed = await document.embedPng(qrCode);
     const qrCodeDimensions = qrCodeEmbed.scale(0.22);
     page.drawImage(qrCodeEmbed, {
       ...qrCodeDimensions,
@@ -74,5 +73,4 @@ export async function addQrCodeMetadataToBallotPdf(
       y: 0,
     });
   }
-  return await pdf.save();
 }

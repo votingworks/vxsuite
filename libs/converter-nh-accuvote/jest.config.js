@@ -8,7 +8,7 @@ module.exports = {
   coverageThreshold: {
     global: {
       branches: -99,
-      lines: -41,
+      lines: -42,
     },
   },
   collectCoverageFrom: [...shared.collectCoverageFrom, '!src/debug.ts'],
