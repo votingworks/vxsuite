@@ -384,11 +384,11 @@ export interface Point<T> {
 }
 
 /** A rectangle in a grid. Units are typically either pixels or timing marks. */
-export interface Rect {
-  left: PixelPosition;
-  top: PixelPosition;
-  width: PixelUnit;
-  height: PixelUnit;
+export interface Rect<T = PixelUnit> {
+  left: T;
+  top: T;
+  width: T;
+  height: T;
 }
 
 /** A size in a grid. Units are typically either pixels or timing marks. */

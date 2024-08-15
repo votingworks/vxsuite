@@ -191,10 +191,11 @@ test('converting two party primary ballots into one election (Conway)', async ()
 
   expect(converted.issues).toMatchSnapshot();
   expect(converted.result.electionDefinition.election).toMatchSnapshot();
-  expect(converted.result.ballotPdfsWithMetadata.size).toEqual(2);
-  for (const [metadata, pdf] of converted.result.ballotPdfsWithMetadata) {
+  expect(converted.result.ballotPdfs.size).toEqual(2);
+  for (const [metadata, pdfs] of converted.result.ballotPdfs) {
     expect(metadata).toMatchSnapshot();
-    for await (const page of pdfToImages(Buffer.from(pdf), {
+
+    for await (const page of pdfToImages(Buffer.from(pdfs.printing), {
       scale: 200 / 72,
     })) {
       expect(page.pageCount).toEqual(2);
