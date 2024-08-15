@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { routerPaths } from '../../router_paths';
 
 export const ExportActions = styled.div`
-  margin-bottom: 1rem;
   display: flex;
   justify-content: start;
   gap: 0.5rem;
@@ -24,7 +23,7 @@ export const GenerateButtonWrapper = styled.div`
 
 export const ReportBuilderControls = styled(Card)`
   background: ${(p) => p.theme.colors.containerLow};
-  margin-bottom: 1rem;
+  margin: 1rem 1rem 0;
   overflow: visible;
 `;
 
@@ -33,7 +32,7 @@ export const ControlLabel = styled(H3)`
 `;
 
 export const WarningContainer = styled.div`
-  margin: 1rem 0;
+  margin-top: 1rem;
 `;
 
 export function ReportWarning({ text }: { text: string }): JSX.Element | null {
@@ -50,3 +49,15 @@ export function ReportWarning({ text }: { text: string }): JSX.Element | null {
 export const reportParentRoutes = [
   { title: 'Reports', path: routerPaths.reports },
 ];
+
+/**
+ * Goes around all of the content in a report screen. The flex column
+ * ensures that the report PDF viewer is able to fill the entirety of the
+ * container.
+ */
+export const ReportScreenContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+`;

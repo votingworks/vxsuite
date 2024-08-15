@@ -205,6 +205,7 @@ export function SearchSelect<T extends string = string>({
         menuList: (baseStyles) => ({
           ...baseStyles,
           borderRadius,
+          '::-webkit-scrollbar': { display: 'none' },
         }),
         option: (baseStyles, state) => ({
           ...baseStyles,
