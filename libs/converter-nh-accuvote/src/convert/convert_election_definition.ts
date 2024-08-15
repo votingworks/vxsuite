@@ -250,49 +250,49 @@ async function convertCardDefinition(
       : pairColumnEntriesResult.err().pairs;
     const result: ConvertedCard = {
       election: {
-      ...election,
-      ballotLayout: {
-        ...election.ballotLayout,
-        paperSize,
-      },
-      ballotStyles: [
-        {
-          ...ballotStyle,
-          id: ballotStyleId,
+        ...election,
+        ballotLayout: {
+          ...election.ballotLayout,
+          paperSize,
         },
-      ],
-      gridLayouts: [
-        {
-          ...gridLayout,
-          ballotStyleId,
-          gridPositions: mergedGrids.map(([definition, bubble]) =>
-            definition.type === 'option'
-              ? {
-                  ...definition,
-                  side: bubble.side,
-                  column: bubble.column,
-                  row: bubble.row,
-                }
-              : {
-                  ...definition,
-                  side: bubble.side,
-                  column: bubble.column,
-                  row: bubble.row,
-                  // This area is based on the largest rectangle that fits in
-                  // the write-in box without intersecting with any of the contest
-                  // labels (there may be more than one in a multi-seat
-                  // contest). Some examples of the ballots this was based on
-                  // can be found in the NH elections in libs/fixtures.
-                  writeInArea: {
-                    x: bubble.column - 5,
-                    y: bubble.row - 0.65,
-                    width: 4.5,
-                    height: 0.85,
-                  },
-                }
-          ),
-        },
-      ],
+        ballotStyles: [
+          {
+            ...ballotStyle,
+            id: ballotStyleId,
+          },
+        ],
+        gridLayouts: [
+          {
+            ...gridLayout,
+            ballotStyleId,
+            gridPositions: mergedGrids.map(([definition, bubble]) =>
+              definition.type === 'option'
+                ? {
+                    ...definition,
+                    side: bubble.side,
+                    column: bubble.column,
+                    row: bubble.row,
+                  }
+                : {
+                    ...definition,
+                    side: bubble.side,
+                    column: bubble.column,
+                    row: bubble.row,
+                    // This area is based on the largest rectangle that fits in
+                    // the write-in box without intersecting with any of the contest
+                    // labels (there may be more than one in a multi-seat
+                    // contest). Some examples of the ballots this was based on
+                    // can be found in the NH elections in libs/fixtures.
+                    writeInArea: {
+                      x: bubble.column - 5,
+                      y: bubble.row - 0.65,
+                      width: 4.5,
+                      height: 0.85,
+                    },
+                  }
+            ),
+          },
+        ],
       },
       templateGrid: findTemplateGridAndBubblesResult.ok(),
     };

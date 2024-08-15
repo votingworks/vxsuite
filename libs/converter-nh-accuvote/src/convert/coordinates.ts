@@ -119,24 +119,6 @@ export function newPdfSize(width: number, height: number): PdfSize {
 }
 
 /**
- * Gets the top-left corner of a rect in an image coordinate system.
- */
-export function imageRectTopLeftCorner(
-  rect: Rect<ImageGridValue>
-): Point<ImageGridValue> {
-  return { x: rect.left, y: rect.top };
-}
-
-/**
- * Gets the top-left corner of a rect in a PDF coordinate system.
- */
-export function pdfRectTopLeftCorner(
-  rect: Rect<PdfGridValue>
-): Point<PdfGridValue> {
-  return { x: rect.left, y: (rect.top + rect.height - 1) as PdfGridValue };
-}
-
-/**
  * Gets the center of a rect.
  */
 export function rectCenter<T extends number>(rect: Rect<T>): Point<T> {
