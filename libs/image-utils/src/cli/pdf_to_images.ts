@@ -10,7 +10,6 @@ import { pdfToImages } from '..';
  * will be named `ballot-p1.jpg`, `ballot-p2.jpg`, etc. The images are 200 DPI
  * JPGs.
  */
-/* istanbul ignore next */
 export async function main(
   argv: string[],
   { stderr }: { stderr: NodeJS.WritableStream }
