@@ -256,7 +256,7 @@ export function ContestResultsTable({
         <ContestOptionRow
           key={yesKey}
           testId={yesKey}
-          optionLabel="Yes"
+          optionLabel={contest.yesOption.label}
           scannedTally={scannedContestResults.yesTally}
           manualTally={manualContestResults?.yesTally ?? 0}
           showManualTally={hasManualResults}
@@ -267,7 +267,7 @@ export function ContestResultsTable({
         <ContestOptionRow
           key={noKey}
           testId={noKey}
-          optionLabel="No"
+          optionLabel={contest.noOption.label}
           scannedTally={scannedContestResults.noTally}
           manualTally={manualContestResults?.noTally ?? 0}
           showManualTally={hasManualResults}

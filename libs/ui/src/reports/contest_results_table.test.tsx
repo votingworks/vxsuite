@@ -134,8 +134,8 @@ test('yes/no contests with scanned results only', () => {
   within(fishing).getByText(/30 ballots cast/);
   within(fishing).getByText(/17 overvotes/);
   within(fishing).getByText(/1 undervote/);
-  within(fishing).getByText(hasTextAcrossElements('Yes4'));
-  within(fishing).getByText(hasTextAcrossElements('No8'));
+  within(fishing).getByText(hasTextAcrossElements('YES4'));
+  within(fishing).getByText(hasTextAcrossElements('NO8'));
 });
 
 test('yes/no contests with manual results', () => {
@@ -152,8 +152,8 @@ test('yes/no contests with manual results', () => {
   within(fishing).getByText(hasTextAcrossElements('Ballots Cast302050'));
   within(fishing).getByText(hasTextAcrossElements('Overvotes17118'));
   within(fishing).getByText(hasTextAcrossElements('Undervotes101'));
-  within(fishing).getByText(hasTextAcrossElements('Yes41923'));
-  within(fishing).getByText(hasTextAcrossElements('No808'));
+  within(fishing).getByText(hasTextAcrossElements('YES41923'));
+  within(fishing).getByText(hasTextAcrossElements('NO808'));
 });
 
 test('candidates contests show number of seats and/or write-in candidate if relevant', () => {
@@ -200,8 +200,8 @@ test('numbers are formatted with commas when necessary', () => {
   within(fishing).getByText(hasTextAcrossElements(/6,000 ballots cast/));
   within(fishing).getByText(hasTextAcrossElements(/1,000 overvotes/));
   within(fishing).getByText(hasTextAcrossElements(/1,500 undervotes/));
-  within(fishing).getByText(hasTextAcrossElements('Yes3,000'));
-  within(fishing).getByText(hasTextAcrossElements('No500'));
+  within(fishing).getByText(hasTextAcrossElements('YES3,000'));
+  within(fishing).getByText(hasTextAcrossElements('NO500'));
 });
 
 test('uses write-in adjudication aggregation', () => {
