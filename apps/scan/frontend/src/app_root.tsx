@@ -29,7 +29,6 @@ import {
   getPollsInfo,
   getScannerStatus,
   getUsbDriveStatus,
-  systemCallApi,
 } from './api';
 import { VoterScreen } from './screens/voter_screen';
 import { LoginPromptScreen } from './screens/login_prompt_screen';
@@ -45,8 +44,6 @@ export function AppRoot(): JSX.Element | null {
   const usbDriveStatusQuery = getUsbDriveStatus.useQuery();
   const checkPinMutation = checkPin.useMutation();
 
-  const batteryInfoQuery = systemCallApi.getBatteryInfo.useQuery();
-
   const scannerStatusQuery = getScannerStatus.useQuery({
     refetchInterval: POLLING_INTERVAL_FOR_SCANNER_STATUS_MS,
   });
@@ -57,8 +54,7 @@ export function AppRoot(): JSX.Element | null {
       configQuery.isSuccess &&
       scannerStatusQuery.isSuccess &&
       usbDriveStatusQuery.isSuccess &&
-      pollsInfoQuery.isSuccess &&
-      batteryInfoQuery.isSuccess
+      pollsInfoQuery.isSuccess
     )
   ) {
     return <LoadingConfigurationScreen />;
@@ -75,8 +71,6 @@ export function AppRoot(): JSX.Element | null {
   } = configQuery.data;
   const scannerStatus = scannerStatusQuery.data;
   const usbDrive = usbDriveStatusQuery.data;
-  const batteryInfo = batteryInfoQuery.data;
-  const batteryIsCharging = batteryInfo ? !batteryInfo.discharging : true;
   const pollsInfo = pollsInfoQuery.data;
   const { pollsState } = pollsInfo;
 
@@ -142,10 +136,7 @@ export function AppRoot(): JSX.Element | null {
 
   if (scannerStatus.state === 'disconnected') {
     return (
-      <SetupScannerScreen
-        batteryIsCharging={batteryIsCharging}
-        scannedBallotCount={scannerStatus.ballotsCounted}
-      />
+      <SetupScannerScreen scannedBallotCount={scannerStatus.ballotsCounted} />
     );
   }
 
@@ -229,7 +220,6 @@ export function AppRoot(): JSX.Element | null {
       <PollsNotOpenScreen
         isLiveMode={!isTestMode}
         pollsState={pollsState}
-        showNoChargerWarning={!batteryIsCharging}
         scannedBallotCount={scannerStatus.ballotsCounted}
       />
     );
@@ -245,7 +235,6 @@ export function AppRoot(): JSX.Element | null {
       systemSettings={systemSettings}
       isTestMode={isTestMode}
       isSoundMuted={isSoundMuted}
-      batteryIsCharging={batteryIsCharging}
     />
   );
 }

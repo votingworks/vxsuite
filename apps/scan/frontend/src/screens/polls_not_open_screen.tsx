@@ -1,4 +1,4 @@
-import { Caption, FullScreenIconWrapper, Icons, P } from '@votingworks/ui';
+import { FullScreenIconWrapper, Icons, P } from '@votingworks/ui';
 import { PollsState } from '@votingworks/types';
 import { Screen } from '../components/layout';
 import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout';
@@ -6,14 +6,12 @@ import { FullScreenPromptLayout } from '../components/full_screen_prompt_layout'
 export interface PollsNotOpenScreenProps {
   isLiveMode: boolean;
   pollsState: Omit<PollsState, 'polls_open'>;
-  showNoChargerWarning: boolean;
   scannedBallotCount: number;
 }
 
 export function PollsNotOpenScreen({
   isLiveMode,
   pollsState,
-  showNoChargerWarning,
   scannedBallotCount,
 }: PollsNotOpenScreenProps): JSX.Element {
   return (
@@ -41,13 +39,6 @@ export function PollsNotOpenScreen({
         ) : (
           <P>Insert a poll worker card to open polls.</P>
         )}
-        {showNoChargerWarning && (
-          <Caption>
-            <Icons.Warning color="warning" />{' '}
-            <strong>No Power Detected.</strong> Please ask a poll worker to plug
-            in the power cord.
-          </Caption>
-        )}
       </FullScreenPromptLayout>
     </Screen>
   );
@@ -59,7 +50,6 @@ export function DefaultPreview(): JSX.Element {
     <PollsNotOpenScreen
       isLiveMode
       pollsState="polls_closed_initial"
-      showNoChargerWarning={false}
       scannedBallotCount={42}
     />
   );
@@ -71,7 +61,6 @@ export function DefaultTestModePreview(): JSX.Element {
     <PollsNotOpenScreen
       isLiveMode={false}
       pollsState="polls_closed_initial"
-      showNoChargerWarning={false}
       scannedBallotCount={42}
     />
   );
@@ -83,7 +72,6 @@ export function NoPowerConnectedPreview(): JSX.Element {
     <PollsNotOpenScreen
       isLiveMode
       pollsState="polls_closed_initial"
-      showNoChargerWarning
       scannedBallotCount={42}
     />
   );
@@ -95,7 +83,6 @@ export function PollsPausedPreview(): JSX.Element {
     <PollsNotOpenScreen
       isLiveMode
       pollsState="polls_paused"
-      showNoChargerWarning={false}
       scannedBallotCount={42}
     />
   );
@@ -107,7 +94,6 @@ export function PollsClosedFinalPreview(): JSX.Element {
     <PollsNotOpenScreen
       isLiveMode
       pollsState="polls_closed_final"
-      showNoChargerWarning={false}
       scannedBallotCount={42}
     />
   );

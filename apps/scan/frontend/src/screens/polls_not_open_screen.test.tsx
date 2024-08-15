@@ -34,7 +34,6 @@ function renderScreen(props: Partial<PollsNotOpenScreenProps> = {}) {
     provideApi(
       apiMock,
       <PollsNotOpenScreen
-        showNoChargerWarning={false}
         isLiveMode
         pollsState="polls_closed_initial"
         scannedBallotCount={TEST_BALLOT_COUNT}
@@ -64,11 +63,6 @@ describe('PollsNotOpenScreen', () => {
     expect(
       screen.queryByText('Insert a poll worker card to open polls.')
     ).not.toBeInTheDocument();
-  });
-
-  test('shows "No Power Detected" when called for', async () => {
-    renderScreen({ showNoChargerWarning: true });
-    await screen.findByText('No Power Detected.');
   });
 
   test('does not show "No Power Detected" when not called for', async () => {

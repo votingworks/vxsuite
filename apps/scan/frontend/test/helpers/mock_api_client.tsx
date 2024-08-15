@@ -33,11 +33,7 @@ import {
 import { UsbDriveStatus } from '@votingworks/usb-drive';
 import { TestErrorBoundary, mockUsbDriveStatus } from '@votingworks/ui';
 import { BROTHER_THERMAL_PRINTER_CONFIG } from '@votingworks/printing';
-import type {
-  BatteryInfo,
-  DiskSpaceSummary,
-  ExportDataResult,
-} from '@votingworks/backend';
+import type { DiskSpaceSummary, ExportDataResult } from '@votingworks/backend';
 import { mockPollsInfo } from './mock_polls_info';
 import { ApiProvider } from '../../src/api_provider';
 
@@ -92,14 +88,6 @@ export function createApiMock() {
     });
   }
 
-  function setBatteryInfo(batteryInfo?: Partial<BatteryInfo>): void {
-    mockApiClient.getBatteryInfo.expectRepeatedCallsWith().resolves({
-      level: 1,
-      discharging: false,
-      ...(batteryInfo ?? {}),
-    });
-  }
-
   return {
     mockApiClient,
 
@@ -107,8 +95,6 @@ export function createApiMock() {
 
     setPrinterStatusV3,
     setPrinterStatusV4,
-
-    setBatteryInfo,
 
     authenticateAsSystemAdministrator() {
       setAuthStatus({

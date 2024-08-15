@@ -54,7 +54,6 @@ beforeEach(() => {
 
   apiMock = createApiMock();
   apiMock.expectGetMachineConfig();
-  apiMock.setBatteryInfo();
   apiMock.removeCard(); // Set a default auth state of no card inserted.
 
   mockOf(VoterSettingsManager).mockReturnValue(null);
