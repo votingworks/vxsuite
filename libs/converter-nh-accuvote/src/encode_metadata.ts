@@ -1,9 +1,9 @@
-import { BallotMetadata, Election, SheetOf } from '@votingworks/types';
-import { QrCodeData, encodeMetadataInQrCode } from '@votingworks/hmpb-layout';
-import { createCanvas } from 'canvas';
 import { assertDefined, iter } from '@votingworks/basics';
-import { PDFDocument } from 'pdf-lib';
+import { QrCodeData, encodeMetadataInQrCode } from '@votingworks/hmpb-layout';
+import { BallotMetadata, Election, SheetOf } from '@votingworks/types';
 import { Buffer } from 'buffer';
+import { createCanvas } from 'canvas';
+import { PDFDocument } from 'pdf-lib';
 
 async function qrCodeDataToPng(data: QrCodeData): Promise<Buffer> {
   // QR codes are supposed to be surrounded by 4 modules of white space
@@ -74,5 +74,6 @@ export async function addQrCodeMetadataToBallotPdf(
       y: 0,
     });
   }
+
   return await pdf.save();
 }
