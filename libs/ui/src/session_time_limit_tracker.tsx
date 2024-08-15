@@ -9,12 +9,13 @@ import {
   SystemSettings,
 } from '@votingworks/types';
 
+import styled from 'styled-components';
 import { Button } from './button';
 import { useNow } from './hooks/use_now';
 import { Modal } from './modal';
-import { Prose } from './prose';
 import { Timer } from './timer';
-import { Caption, H1, P } from './typography';
+import { H1, P } from './typography';
+import { Card } from './card';
 
 const SECONDS_TO_WRAP_UP_AFTER_INACTIVE_SESSION_TIME_LIMIT = 60;
 const SECONDS_AHEAD_OF_OVERALL_SESSION_TIME_LIMIT_TO_WARN = 15 * 60;
@@ -107,14 +108,13 @@ function SessionTimeLimitTrackerHelper({
           </React.Fragment>
         }
         content={
-          <Prose textCenter>
+          <React.Fragment>
             <H1>Session Time Limit</H1>
             {hasInactiveSessionTimeLimitBeenHit ? (
               // Inactive session time limit
               <P>
                 Your session has been inactive for{' '}
                 {pluralize('minutes', inactiveSessionTimeLimitMinutes, true)}.
-                <br />
                 The machine will automatically lock in{' '}
                 <Timer countDownTo={new Date(authStatus.sessionExpiresAt)} />.
               </P>
@@ -122,18 +122,16 @@ function SessionTimeLimitTrackerHelper({
               // Overall session time limit
               <P>
                 You are approaching the session time limit of{' '}
-                {pluralize('hours', overallSessionTimeLimitHours, true)}.
-                <br />
-                The machine will automatically lock in{' '}
+                {pluralize('hours', overallSessionTimeLimitHours, true)}. The
+                machine will automatically lock in{' '}
                 <Timer countDownTo={new Date(authStatus.sessionExpiresAt)} />.
               </P>
             )}
             <P>
-              Lock the machine now and reauthenticate
-              <br />
-              with your smart card to continue working.
+              Lock the machine now and reauthenticate with your smart card to
+              continue working.
             </P>
-          </Prose>
+          </React.Fragment>
         }
       />
     );
@@ -189,6 +187,16 @@ interface SessionTimeLimitTimerProps {
     | InsertedSmartCardAuth.AuthStatus;
 }
 
+const TimerCallout = styled(Card).attrs({ color: 'warning' })`
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+
+  > div {
+    padding: 0.5rem;
+  }
+`;
+
 /**
  * Displays a count down timer to session expiry. Appears at the same time as the prompts surfaced
  * by SessionTimeLimitTracker.
@@ -203,10 +211,10 @@ export function SessionTimeLimitTimer({
   }
   if (shouldDisplayTimeLimitPrompt(authStatus, now)) {
     return (
-      <span>
-        <Caption>Machine will automatically lock in</Caption>{' '}
+      <TimerCallout>
+        Machine will automatically lock in{' '}
         <Timer countDownTo={new Date(authStatus.sessionExpiresAt)} />
-      </span>
+      </TimerCallout>
     );
   }
   return null;

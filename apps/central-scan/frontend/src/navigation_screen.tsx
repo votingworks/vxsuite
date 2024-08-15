@@ -140,6 +140,7 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
         )}
       </LeftNav>
       <Main flexColumn>
+        <SessionTimeLimitTimer authStatus={auth} />
         <Header>
           <H1>{title}</H1>
           {isTestMode && isElectionManagerAuth(auth) && electionDefinition && (
@@ -148,7 +149,6 @@ export function NavigationScreen({ children, title }: Props): JSX.Element {
             </TestModeCallout>
           )}
           <HeaderActions>
-            <SessionTimeLimitTimer authStatus={auth} />
             {(isSystemAdministratorAuth(auth) ||
               isElectionManagerAuth(auth)) && (
               <React.Fragment>
