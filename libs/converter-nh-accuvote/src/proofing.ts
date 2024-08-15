@@ -235,7 +235,7 @@ function addContestOptionAnnotationsToPdfPage({
     );
 
     const textColor = rgb(1.0, 1.0, 1.0);
-    const textBackgroundColor = rgb(0.5, 0.8, 0.5);
+    const textBackgroundColor = rgb(0.3, 0.6, 0.3);
     const textBackgroundOpacity = 0.8;
     const textBackgroundPadding = 2;
 
@@ -385,7 +385,7 @@ function addWriteInAnnotationsToPdfPage({
 
     const textColor = rgb(1.0, 1.0, 1.0);
     const textBackgroundColor = rgb(0.5, 0.45, 0.2);
-    const textBackgroundOpacity = 0.5;
+    const textBackgroundOpacity = 0.8;
 
     page.drawRectangle({
       x: writeInAreaPdfBottomLeft.x,
