@@ -15,7 +15,7 @@ export function ScanButton({
   return (
     <Button
       icon={isScannerAttached ? 'Add' : 'Closed'}
-      disabled={disabled || !isScannerAttached}
+      disabled={disabled || !isScannerAttached || scanBatchMutation.isLoading}
       variant="primary"
       onPress={() => scanBatchMutation.mutate()}
     >
