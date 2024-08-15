@@ -12,6 +12,7 @@ import { appStrings } from './ui_strings';
 
 export interface WithScrollButtonsProps {
   children: React.ReactNode;
+  focusable?: boolean;
   noPadding?: boolean;
 }
 
@@ -134,7 +135,7 @@ const BottomShadow = styled.div`
  * which has an explicit height/max height set.
  */
 export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
-  const { children, noPadding } = props;
+  const { children, focusable, noPadding } = props;
 
   const [canScrollUp, setCanScrollUp] = React.useState(false);
   const [canScrollDown, setCanScrollDown] = React.useState(false);
@@ -204,7 +205,7 @@ export function WithScrollButtons(props: WithScrollButtonsProps): JSX.Element {
             });
           }}
         >
-          <Controls aria-hidden>
+          <Controls aria-hidden={!focusable}>
             <Control
               disabled={!canScrollUp}
               onPress={onScrollUp}

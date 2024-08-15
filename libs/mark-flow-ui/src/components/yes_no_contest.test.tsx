@@ -2,8 +2,26 @@ import { electionTwoPartyPrimary } from '@votingworks/fixtures';
 import { YesNoContest as YesNoContestInterface } from '@votingworks/types';
 import userEvent from '@testing-library/user-event';
 import { advanceTimers } from '@votingworks/test-utils';
+import {
+  useIsPatDeviceConnected,
+  WithScrollButtons,
+  WithScrollButtonsProps,
+} from '@votingworks/ui';
 import { screen, within, render } from '../../test/react_testing_library';
 import { YesNoContest } from './yes_no_contest';
+
+const MOCK_WITH_SCROLL_BUTTONS_TEST_ID = 'MockWithScrollButtons';
+
+jest.mock('@votingworks/ui', (): typeof import('@votingworks/ui') => ({
+  ...jest.requireActual('@votingworks/ui'),
+  useIsPatDeviceConnected: jest.fn(),
+  WithScrollButtons: jest.fn(({ children }) => (
+    <div data-testid={MOCK_WITH_SCROLL_BUTTONS_TEST_ID}>{children}</div>
+  )),
+}));
+
+const mockUseIsPatDeviceConnected = jest.mocked(useIsPatDeviceConnected);
+const MockWithScrollButtons = jest.mocked(WithScrollButtons);
 
 const contest = electionTwoPartyPrimary.contests.find(
   (c) => c.id === 'fishing' && c.type === 'yesno'
@@ -12,6 +30,10 @@ const contest = electionTwoPartyPrimary.contests.find(
 function getOption(accessibleName: string | RegExp) {
   return screen.getByRole('option', { name: accessibleName });
 }
+
+beforeEach(() => {
+  mockUseIsPatDeviceConnected.mockReturnValue(false);
+});
 
 test('voting for both yes and no', () => {
   const updateVote = jest.fn();
@@ -22,10 +44,12 @@ test('voting for both yes and no', () => {
       updateVote={updateVote}
     />
   );
+
   screen.getByRole('heading', { name: contest.title });
-  // Using `getAll*` because the description appears both in the contest header
-  // as an < AudioOnly > element and in the contest body as a visible element.
-  screen.getAllByText(contest.description);
+
+  within(screen.getByTestId(MOCK_WITH_SCROLL_BUTTONS_TEST_ID)).getByText(
+    contest.description
+  );
 
   const contestChoices = screen.getByTestId('contest-choices');
   userEvent.click(within(contestChoices).getByText('YES').closest('button')!);
@@ -101,4 +125,44 @@ test('audio cue for vote', () => {
   // after a second, the choice is no longer selected or deselected
   advanceTimers(1);
   getOption(/Ballot Measure 3.+yes/i);
+});
+
+test('can focus and click scroll buttons with PAT device', () => {
+  mockUseIsPatDeviceConnected.mockReturnValue(true);
+
+  render(
+    <YesNoContest
+      election={electionTwoPartyPrimary}
+      contest={contest}
+      vote={[contest.yesOption.id]}
+      updateVote={jest.fn()}
+    />
+  );
+
+  expect(MockWithScrollButtons).toHaveBeenCalledWith(
+    expect.objectContaining<Partial<WithScrollButtonsProps>>({
+      focusable: true,
+    }),
+    expect.anything()
+  );
+});
+
+test('scroll button focus is disabled when no PAT device is connected', () => {
+  mockUseIsPatDeviceConnected.mockReturnValue(false);
+
+  render(
+    <YesNoContest
+      election={electionTwoPartyPrimary}
+      contest={contest}
+      vote={[contest.yesOption.id]}
+      updateVote={jest.fn()}
+    />
+  );
+
+  expect(MockWithScrollButtons).toHaveBeenCalledWith(
+    expect.objectContaining<Partial<WithScrollButtonsProps>>({
+      focusable: false,
+    }),
+    expect.anything()
+  );
 });

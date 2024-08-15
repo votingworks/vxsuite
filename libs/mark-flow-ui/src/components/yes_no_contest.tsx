@@ -20,6 +20,7 @@ import {
   AssistiveTechInstructions,
   Pre,
   PageNavigationButtonId,
+  useIsPatDeviceConnected,
 } from '@votingworks/ui';
 
 import { getSingleYesNoVote } from '@votingworks/utils';
@@ -49,6 +50,8 @@ export function YesNoContest({
   const [overvoteSelection, setOvervoteSelection] =
     useState<Optional<YesNoContestOptionId>>();
   const [deselectedVote, setDeselectedVote] = useState('');
+
+  const isPatDeviceConnected = useIsPatDeviceConnected();
 
   useEffect(() => {
     if (deselectedVote !== '') {
@@ -92,7 +95,7 @@ export function YesNoContest({
             </AudioOnly>
           </Caption>
         </ContestHeader>
-        <WithScrollButtons>
+        <WithScrollButtons focusable={isPatDeviceConnected}>
           <Caption>{electionStrings.contestDescription(contest, Pre)}</Caption>
         </WithScrollButtons>
         <ContestFooter>
