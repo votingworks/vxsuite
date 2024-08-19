@@ -12,7 +12,7 @@ import {
   VotesDict,
 } from '@votingworks/types';
 import '../test/expect';
-import { BitReader, BitWriter, toUint8 } from './bits';
+import { BitReader, BitWriter } from './bits';
 import {
   decodeBallot,
   decodeBallotHash,
@@ -29,6 +29,8 @@ import {
   encodeHmpbBallotPageMetadata,
   decodeBallotHashFromReader,
   decodeBallotConfigFromReader,
+  MAXIMUM_PRECINCTS,
+  MAXIMUM_BALLOT_STYLES,
 } from './index';
 
 const precinctBallotTypeIndex = Object.values(BallotType).indexOf(
@@ -105,15 +107,10 @@ test('encodes & decodes empty votes correctly', () => {
       includeLength: false,
       length: BALLOT_HASH_ENCODING_LENGTH,
     })
-    // check data
-    .writeUint8(
-      toUint8(election.precincts.length),
-      toUint8(election.ballotStyles.length)
-    )
     // precinct index
-    .writeUint(0, { max: election.precincts.length - 1 })
+    .writeUint(0, { max: MAXIMUM_PRECINCTS })
     // ballot style index
-    .writeUint(0, { max: election.ballotStyles.length - 1 })
+    .writeUint(0, { max: MAXIMUM_BALLOT_STYLES })
     // test ballot?
     .writeBoolean(false)
     // ballot type
@@ -159,15 +156,10 @@ test('encodes & decodes without a ballot id', () => {
       includeLength: false,
       length: BALLOT_HASH_ENCODING_LENGTH,
     })
-    // check data
-    .writeUint8(
-      toUint8(election.precincts.length),
-      toUint8(election.ballotStyles.length)
-    )
     // precinct index
-    .writeUint(0, { max: election.precincts.length - 1 })
+    .writeUint(0, { max: MAXIMUM_PRECINCTS })
     // ballot style index
-    .writeUint(0, { max: election.ballotStyles.length - 1 })
+    .writeUint(0, { max: MAXIMUM_BALLOT_STYLES })
     // test ballot?
     .writeBoolean(false)
     // ballot type
@@ -213,15 +205,10 @@ test('encodes & decodes whether it is a test ballot', () => {
       includeLength: false,
       length: BALLOT_HASH_ENCODING_LENGTH,
     })
-    // check data
-    .writeUint8(
-      toUint8(election.precincts.length),
-      toUint8(election.ballotStyles.length)
-    )
     // precinct index
-    .writeUint(0, { max: election.precincts.length - 1 })
+    .writeUint(0, { max: MAXIMUM_PRECINCTS })
     // ballot style index
-    .writeUint(0, { max: election.ballotStyles.length - 1 })
+    .writeUint(0, { max: MAXIMUM_BALLOT_STYLES })
     // test ballot?
     .writeBoolean(true)
     // ballot type
@@ -272,15 +259,10 @@ test('encodes & decodes the ballot type', () => {
       includeLength: false,
       length: BALLOT_HASH_ENCODING_LENGTH,
     })
-    // check data
-    .writeUint8(
-      toUint8(election.precincts.length),
-      toUint8(election.ballotStyles.length)
-    )
     // precinct index
-    .writeUint(0, { max: election.precincts.length - 1 })
+    .writeUint(0, { max: MAXIMUM_PRECINCTS })
     // ballot style index
-    .writeUint(0, { max: election.ballotStyles.length - 1 })
+    .writeUint(0, { max: MAXIMUM_BALLOT_STYLES })
     // test ballot?
     .writeBoolean(true)
     // ballot type
@@ -337,15 +319,10 @@ test('encodes & decodes yesno votes correctly', () => {
       includeLength: false,
       length: BALLOT_HASH_ENCODING_LENGTH,
     })
-    // check data
-    .writeUint8(
-      toUint8(election.precincts.length),
-      toUint8(election.ballotStyles.length)
-    )
     // precinct index
-    .writeUint(0, { max: election.precincts.length - 1 })
+    .writeUint(0, { max: MAXIMUM_PRECINCTS })
     // ballot style index
-    .writeUint(0, { max: election.ballotStyles.length - 1 })
+    .writeUint(0, { max: MAXIMUM_BALLOT_STYLES })
     // test ballot?
     .writeBoolean(false)
     // ballot type
@@ -477,86 +454,6 @@ test('throws on trying to encode a ballot style', () => {
   );
 });
 
-test('throws on decoding an incorrect number of precincts', () => {
-  const { election, ballotHash } = electionDefinition;
-  const ballotStyle = election.ballotStyles[0]!;
-  const contests = getContests({ ballotStyle, election });
-  const encodedBallot = new BitWriter()
-    // prelude + version number
-    .writeString('VX', { includeLength: false, length: 2 })
-    .writeUint8(2)
-    // ballot hash
-    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
-      encoding: HexEncoding,
-      includeLength: false,
-      length: BALLOT_HASH_ENCODING_LENGTH,
-    })
-    // check data
-    .writeUint8(
-      toUint8(election.precincts.length - 1), // INTENTIONALLY WRONG
-      toUint8(election.ballotStyles.length)
-    )
-    // precinct index
-    .writeUint(0, { max: election.precincts.length - 1 })
-    // ballot style index
-    .writeUint(0, { max: election.ballotStyles.length - 1 })
-    // test ballot?
-    .writeBoolean(false)
-    // ballot type
-    .writeUint(precinctBallotTypeIndex, { max: BallotTypeMaximumValue })
-    // ballot id?
-    .writeBoolean(true)
-    // ballot id
-    .writeString('abcde')
-    // vote roll call only, no vote data
-    .writeBoolean(...contests.map(() => false))
-    .toUint8Array();
-
-  expect(() => decodeBallot(election, encodedBallot)).toThrowError(
-    'expected 3 precinct(s), but read 2 from encoded config'
-  );
-});
-
-test('throws on decoding an incorrect number of ballot styles', () => {
-  const { election, ballotHash } = electionDefinition;
-  const ballotStyle = election.ballotStyles[0]!;
-  const contests = getContests({ ballotStyle, election });
-  const encodedBallot = new BitWriter()
-    // prelude + version number
-    .writeString('VX', { includeLength: false, length: 2 })
-    .writeUint8(2)
-    // ballot hash
-    .writeString(ballotHash.slice(0, BALLOT_HASH_ENCODING_LENGTH), {
-      encoding: HexEncoding,
-      includeLength: false,
-      length: BALLOT_HASH_ENCODING_LENGTH,
-    })
-    // check data
-    .writeUint8(
-      toUint8(election.precincts.length),
-      toUint8(election.ballotStyles.length - 1) // INTENTIONALLY WRONG
-    )
-    // precinct index
-    .writeUint(0, { max: election.precincts.length - 1 })
-    // ballot style index
-    .writeUint(0, { max: election.ballotStyles.length - 1 })
-    // test ballot?
-    .writeBoolean(false)
-    // ballot type
-    .writeUint(precinctBallotTypeIndex, { max: BallotTypeMaximumValue })
-    // ballot id?
-    .writeBoolean(true)
-    // ballot id
-    .writeString('abcde')
-    // vote roll call only, no vote data
-    .writeBoolean(...contests.map(() => false))
-    .toUint8Array();
-
-  expect(() => decodeBallot(election, encodedBallot)).toThrowError(
-    'expected 2 ballot style(s), but read 1 from encoded config'
-  );
-});
-
 test('encodes & decodes candidate choice votes correctly', () => {
   const { election, ballotHash } = electionDefinition;
   const ballotStyle = election.ballotStyles[0]!;
@@ -598,15 +495,10 @@ test('encodes & decodes candidate choice votes correctly', () => {
       includeLength: false,
       length: BALLOT_HASH_ENCODING_LENGTH,
     })
-    // check data
-    .writeUint8(
-      toUint8(election.precincts.length),
-      toUint8(election.ballotStyles.length)
-    )
     // precinct index
-    .writeUint(0, { max: election.precincts.length - 1 })
+    .writeUint(0, { max: MAXIMUM_PRECINCTS })
     // ballot style index
-    .writeUint(0, { max: election.ballotStyles.length - 1 })
+    .writeUint(0, { max: MAXIMUM_BALLOT_STYLES })
     // test ballot?
     .writeBoolean(false)
     // ballot type
@@ -689,15 +581,10 @@ test('encodes & decodes write-in votes correctly', () => {
       includeLength: false,
       length: BALLOT_HASH_ENCODING_LENGTH,
     })
-    // check data
-    .writeUint8(
-      toUint8(election.precincts.length),
-      toUint8(election.ballotStyles.length)
-    )
     // precinct index
-    .writeUint(0, { max: election.precincts.length - 1 })
+    .writeUint(0, { max: MAXIMUM_PRECINCTS })
     // ballot style index
-    .writeUint(0, { max: election.ballotStyles.length - 1 })
+    .writeUint(0, { max: MAXIMUM_BALLOT_STYLES })
     // test ballot?
     .writeBoolean(false)
     // ballot type
@@ -738,53 +625,6 @@ test('cannot decode a ballot without the prelude', () => {
 
   expect(() => decodeBallot(election, encodedBallot)).toThrowError(
     "expected leading prelude 'V' 'X' 0b00000002 but it was not found"
-  );
-});
-
-test.skip('cannot decode a ballot with a ballot style ID not in the election', () => {
-  const { election } = electionDefinition;
-  const encodedBallot = new BitWriter()
-    // prelude + version number
-    .writeString('VX', { includeLength: false, length: 2 })
-    .writeUint8(2)
-    // ballot style id
-    .writeString('ZZZ')
-    // precinct id
-    .writeString('23')
-    // ballot Id
-    .writeString('abcde')
-    .toUint8Array();
-
-  expect(() => decodeBallot(election, encodedBallot)).toThrowError(
-    'ballot style with id "ZZZ" could not be found, expected one of: 12, 5, 7C'
-  );
-});
-
-test.skip('cannot decode a ballot with a precinct ID not in the election', () => {
-  const { election } = electionDefinition;
-  const encodedBallot = new BitWriter()
-    // prelude + version number
-    .writeString('VX', { includeLength: false, length: 2 })
-    .writeUint8(2)
-    // check data
-    .writeUint8(
-      toUint8(election.precincts.length),
-      toUint8(election.ballotStyles.length)
-    )
-    // ballot style index
-    .writeUint(0, { max: election.ballotStyles.length - 1 })
-    // precinct index (out of bounds)
-    .writeUint(election.precincts.length, {
-      max: election.precincts.length - 1,
-    })
-    // test mode
-    .writeBoolean(true)
-    // ballot Id
-    .writeBoolean(false)
-    .toUint8Array();
-
-  expect(() => decodeBallot(election, encodedBallot)).toThrowError(
-    'precinct with id "ZZZ" could not be found, expected one of: 23, 21, 20'
   );
 });
 
