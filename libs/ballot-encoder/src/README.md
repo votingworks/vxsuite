@@ -51,8 +51,6 @@ is encoded as follows:
 - **Ballot Style Count:** A check value encoded as uint8
   (`E.ballotStyles.length`).
   - Size: 8 bits.
-- **Contest Count:** A check value encoded as uint8 (`E.contests.length`).
-  - Size: 8 bits.
 - **Precinct Index:** A dynamic-width number for the index of the precinct
   (`C.precinctId`).
   - Size: 1-8 bits.

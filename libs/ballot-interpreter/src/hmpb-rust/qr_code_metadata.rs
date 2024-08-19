@@ -58,7 +58,6 @@ pub fn decode_metadata_bits(election: &Election, bytes: &[u8]) -> Option<BallotP
 
     let precinct_count = bits.read_u8()?;
     let ballot_style_count = bits.read_u8()?;
-    let _contest_count = bits.read_u8()?;
     let precinct_index = bits.read_bits(bit_size(u32::from(precinct_count) - 1))?;
     let ballot_style_index = bits.read_bits(bit_size(u32::from(ballot_style_count) - 1))?;
     let page_number = bits.read_bits(bit_size(MAXIMUM_PAGE_NUMBERS))? as u8;
@@ -128,6 +127,7 @@ mod test {
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
+        // TODO update after making all encoding changes
         // Encoded using libs/ballot-encoder
         let bytes = [
             86, 80, 2, 210, 122, 182, 88, 139, 24, 105, 84, 76, 222, 4, 1, 9, 1, 0,

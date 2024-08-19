@@ -121,10 +121,9 @@ export function encodeBallotConfigInto(
   }: BallotConfig,
   bits: BitWriter
 ): BitWriter {
-  const { precincts, ballotStyles, contests } = election;
+  const { precincts, ballotStyles } = election;
   const precinctCount = toUint8(precincts.length);
   const ballotStyleCount = toUint8(ballotStyles.length);
-  const contestCount = toUint8(contests.length);
   const precinctIndex = precincts.findIndex((p) => p.id === precinctId);
   const ballotStyleIndex = ballotStyles.findIndex(
     (bs) => bs.id === ballotStyleId
@@ -139,7 +138,7 @@ export function encodeBallotConfigInto(
   }
 
   bits
-    .writeUint8(precinctCount, ballotStyleCount, contestCount)
+    .writeUint8(precinctCount, ballotStyleCount)
     .writeUint(precinctIndex, { max: precinctCount - 1 })
     .writeUint(ballotStyleIndex, { max: ballotStyleCount - 1 });
 
@@ -169,10 +168,9 @@ export function decodeBallotConfigFromReader(
   bits: BitReader,
   { readPageNumber = false }: { readPageNumber?: boolean } = {}
 ): BallotConfig {
-  const { precincts, ballotStyles, contests } = election;
+  const { precincts, ballotStyles } = election;
   const precinctCount = bits.readUint8();
   const ballotStyleCount = bits.readUint8();
-  const contestCount = bits.readUint8();
 
   if (precinctCount !== precincts.length) {
     throw new Error(
@@ -188,12 +186,6 @@ export function decodeBallotConfigFromReader(
 
   const precinctIndex = bits.readUint({ max: precinctCount - 1 });
   const ballotStyleIndex = bits.readUint({ max: ballotStyleCount - 1 });
-
-  if (contestCount !== contests.length) {
-    throw new Error(
-      `expected ${contests.length} contest(s), but read ${contestCount} from encoded config`
-    );
-  }
 
   const pageNumber = readPageNumber
     ? bits.readUint({ max: MAXIMUM_PAGE_NUMBERS })

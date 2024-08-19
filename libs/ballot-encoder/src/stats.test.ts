@@ -55,5 +55,5 @@ test('smallest possible encoded ballot', () => {
       isTestMode: true,
       votes: {},
     }).byteLength
-  ).toEqual(18);
+  ).toEqual(17);
 });
