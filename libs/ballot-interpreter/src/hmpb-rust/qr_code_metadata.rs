@@ -127,10 +127,20 @@ mod test {
         let election_path = fixture_path.join("election.json");
         let election: Election =
             serde_json::from_reader(BufReader::new(File::open(election_path).unwrap())).unwrap();
-        // TODO update after making all encoding changes
         // Encoded using libs/ballot-encoder
+        /*
+          const election = readFileSync('libs/ballot-interpreter/test/fixtures/ashland/election.json', 'utf-8');
+          console.log(encodeHmpbBallotPageMetadata(election, {
+            ballotHash: 'd27ab6588b1869544cde',
+            precinctId: 'town-id-01001-precinct-id-default',
+            ballotStyleId: 'card-number-5',
+            pageNumber: 1,
+            isTestMode: false,
+            ballotType: BallotType.Precinct,
+          }));
+        */
         let bytes = [
-            86, 80, 2, 210, 122, 182, 88, 139, 24, 105, 84, 76, 222, 4, 1, 9, 1, 0,
+            86, 80, 2, 210, 122, 182, 88, 139, 24, 105, 84, 76, 222, 0, 0, 0, 2, 0,
         ];
         assert_eq!(
             decode_metadata_bits(&election, &bytes),
