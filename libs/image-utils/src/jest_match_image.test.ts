@@ -30,7 +30,7 @@ test('mismatching images', async () => {
   await expect(
     expect(topLeft100x100).toMatchImage(bottomRight100x100)
   ).rejects.toThrowError(
-    /Expected the images to be equal, but they differ by \d+ pixels\./
+    /Expected the images to be equal, but they differ by \d+ pixels \(\d+%\)\./
   );
 });
 
@@ -58,6 +58,33 @@ test('mismatching images with diff path', async () => {
   await expect(
     expect(cropped).toMatchImage(slightlyOffset, { diffPath })
   ).rejects.toThrowError(
-    /Expected the images to be equal, but they differ by \d+ pixels\. Diff image saved to/
+    /Expected the images to be equal, but they differ by \d+ pixels \(\d+%\)\. Diff image saved to/
+  );
+});
+
+test('mismatching images with failure threshold', async () => {
+  const notBallot = await sampleBallotImages.notBallot.asImageData();
+  const topLeft100x100 = crop(notBallot, {
+    x: 0,
+    y: 0,
+    width: 100,
+    height: 100,
+  });
+  const offsetTopLeft100x100 = crop(notBallot, {
+    x: 1,
+    y: 1,
+    width: 100,
+    height: 100,
+  });
+
+  await expect(topLeft100x100).toMatchImage(offsetTopLeft100x100, {
+    failureThreshold: 0.1,
+  });
+  await expect(
+    expect(topLeft100x100).toMatchImage(offsetTopLeft100x100, {
+      failureThreshold: 0.01,
+    })
+  ).rejects.toThrowError(
+    /Expected the images to be equal, but they differ by \d+ pixels \(\d+%\)\./
   );
 });
