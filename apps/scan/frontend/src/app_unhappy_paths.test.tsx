@@ -5,16 +5,11 @@ import { suppressingConsoleOutput } from '@votingworks/test-utils';
 import userEvent from '@testing-library/user-event';
 
 import { ServerError } from '@votingworks/grout';
-<<<<<<< HEAD
-import { PrecinctScannerConfig } from '@votingworks/scan-backend';
-import { render, screen } from '../test/react_testing_library';
-=======
 import {
   PrecinctScannerConfig,
   FujitsuErrorType,
 } from '@votingworks/scan-backend';
-import { render, screen, waitFor } from '../test/react_testing_library';
->>>>>>> 978b6f7f9 (add tests for new internal connection flows)
+import { render, screen } from '../test/react_testing_library';
 import {
   ApiMock,
   createApiMock,
@@ -185,12 +180,9 @@ test('shows internal wiring message when there is no scanner', async () => {
   await screen.findByText('System Administrator');
 });
 
-<<<<<<< HEAD
-=======
 test('shows internal wiring message when there is no printer', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo();
-  apiMock.setBatteryInfo();
   apiMock.expectGetScannerStatus(statusNoPaper);
   apiMock.setPrinterStatusV4({
     state: 'error',
@@ -220,7 +212,6 @@ test('shows internal wiring message when there is no printer', async () => {
 test('shows internal wiring message when there is no printer or scanner', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo();
-  apiMock.setBatteryInfo();
   apiMock.expectGetScannerStatus({
     ...statusNoPaper,
     state: 'disconnected',
@@ -260,7 +251,6 @@ for (const printerError of [
   test(`shows internal wiring message when printer shows hardware error: ${printerError}`, async () => {
     apiMock.expectGetConfig();
     apiMock.expectGetPollsInfo();
-    apiMock.setBatteryInfo();
     apiMock.expectGetScannerStatus(statusNoPaper);
     apiMock.setPrinterStatusV4({
       state: 'error',
@@ -288,7 +278,6 @@ for (const printerError of [
   });
 }
 
->>>>>>> 978b6f7f9 (add tests for new internal connection flows)
 test('shows message when scanner cover is open', async () => {
   apiMock.expectGetConfig();
   apiMock.expectGetPollsInfo();
