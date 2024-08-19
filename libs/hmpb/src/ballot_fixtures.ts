@@ -244,12 +244,7 @@ export const generalElectionFixtures = (() => {
 
     async generate(
       renderer: Renderer,
-      specs: Array<ReturnType<typeof makeElectionFixtureSpec>>,
-      {
-        markedOnly = false,
-      }: {
-        markedOnly?: boolean;
-      } = {}
+      specs: Array<ReturnType<typeof makeElectionFixtureSpec>>
     ) {
       async function generateElectionFixtures(
         spec: ReturnType<typeof makeElectionFixtureSpec>
@@ -271,10 +266,7 @@ export const generalElectionFixtures = (() => {
                 props.precinctId === spec.precinctId
             )
         );
-
-        const blankBallotPdf = markedOnly
-          ? Buffer.from('')
-          : await blankBallot.renderToPdf();
+        const blankBallotPdf = await blankBallot.renderToPdf();
 
         debug(`Generating: ${spec.markedBallotPath}`);
         const markedBallot = await markBallotDocument(
