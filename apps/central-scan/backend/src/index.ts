@@ -1,6 +1,9 @@
 import { BaseLogger, LogSource, LogEventId } from '@votingworks/logging';
 import { iter } from '@votingworks/basics';
-import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
+import {
+  handleUncaughtExceptions,
+  loadEnvVarsFromDotenvFiles,
+} from '@votingworks/backend';
 import { MOCK_SCANNER_FILES } from './globals';
 import { LoopScanner, parseBatchesFromEnv } from './loop_scanner';
 import { BatchScanner } from './fujitsu_scanner';
@@ -26,6 +29,8 @@ function getScanner(): BatchScanner | undefined {
 }
 
 async function main(): Promise<number> {
+  handleUncaughtExceptions(logger);
+
   await server.start({ batchScanner: getScanner(), logger });
   return 0;
 }

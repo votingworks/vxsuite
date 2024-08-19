@@ -1,5 +1,8 @@
 import { BaseLogger, LogSource, LogEventId } from '@votingworks/logging';
-import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
+import {
+  handleUncaughtExceptions,
+  loadEnvVarsFromDotenvFiles,
+} from '@votingworks/backend';
 import * as server from './server';
 import { MARK_SCAN_WORKSPACE, PORT } from './globals';
 import { createWorkspace, Workspace } from './util/workspace';
@@ -28,6 +31,8 @@ async function resolveWorkspace(): Promise<Workspace> {
 }
 
 async function main(): Promise<number> {
+  handleUncaughtExceptions(logger);
+
   const workspace = await resolveWorkspace();
   await server.start({ port: PORT, logger, workspace });
   return 0;
