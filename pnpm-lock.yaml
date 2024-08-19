@@ -4339,6 +4339,9 @@ importers:
       '@votingworks/fixtures':
         specifier: workspace:*
         version: link:../fixtures
+      '@votingworks/image-utils':
+        specifier: workspace:*
+        version: link:../image-utils
       '@votingworks/types':
         specifier: workspace:*
         version: link:../types
@@ -4403,9 +4406,6 @@ importers:
       '@votingworks/fs':
         specifier: workspace:*
         version: link:../fs
-      '@votingworks/image-utils':
-        specifier: workspace:*
-        version: link:../image-utils
       '@votingworks/monorepo-utils':
         specifier: workspace:*
         version: link:../monorepo-utils
