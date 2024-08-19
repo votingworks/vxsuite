@@ -1,6 +1,8 @@
 import {
   electionGeneral,
+  electionGeneralDefinition,
   electionGridLayoutNewHampshireTestBallotFixtures,
+  electionTwoPartyPrimaryDefinition,
   electionTwoPartyPrimaryFixtures,
 } from '@votingworks/fixtures';
 import {
@@ -20,6 +22,7 @@ import {
   BooleanEnvironmentVariableName,
   getFeatureFlagMock,
 } from '@votingworks/utils';
+import { assert } from 'console';
 import { withApp } from '../test/helpers/setup_app';
 import { mockElectionManagerAuth } from '../test/helpers/auth';
 
@@ -310,7 +313,7 @@ test('configure with CDF election', async () => {
     BooleanEnvironmentVariableName.SKIP_ELECTION_PACKAGE_AUTHENTICATION
   );
 
-  await withApp(async ({ apiClient, auth, mockUsbDrive }) => {
+  await withApp(async ({ apiClient, auth, mockUsbDrive, logger }) => {
     const cdfElection =
       convertVxfElectionToCdfBallotDefinition(electionGeneral);
     const cdfElectionDefinition = safeParseElectionDefinition(
@@ -329,10 +332,41 @@ test('configure with CDF election', async () => {
     expect(electionRecord?.electionDefinition.election.id).toEqual(
       electionGeneral.id
     );
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.ElectionConfigured,
+      'election_manager',
+      {
+        disposition: 'success',
+        ballotHash: cdfElectionDefinition.ballotHash,
+        message: expect.any(String),
+      }
+    );
 
     // Ensure loading auth election key from db works
     expect(await apiClient.getAuthStatus()).toMatchObject({
       status: 'logged_in',
     });
+  });
+});
+
+test('configure with invalid file', async () => {
+  await withApp(async ({ apiClient, auth, mockUsbDrive, logger }) => {
+    mockElectionManagerAuth(auth, electionGeneralDefinition);
+    mockUsbDrive.insertUsbDrive(
+      await mockElectionPackageFileTree({
+        electionDefinition: electionTwoPartyPrimaryDefinition,
+      })
+    );
+
+    const badResult = await apiClient.configureFromElectionPackageOnUsbDrive();
+    assert(badResult.isErr());
+    expect(badResult.err()).toEqual('election_key_mismatch');
+    expect(logger.log).toHaveBeenLastCalledWith(
+      LogEventId.ElectionConfigured,
+      'election_manager',
+      expect.objectContaining({
+        disposition: 'failure',
+      })
+    );
   });
 });
