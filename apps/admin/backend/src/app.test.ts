@@ -80,6 +80,14 @@ test('managing the current election', async () => {
   });
   assert(badConfigureResult.isErr());
   expect(badConfigureResult.err().type).toEqual('invalid-zip');
+  expect(logger.log).toHaveBeenNthCalledWith(
+    1,
+    LogEventId.ElectionConfigured,
+    'system_administrator',
+    expect.objectContaining({
+      disposition: 'failure',
+    })
+  );
 
   // try configuring with malformed election data
   const badElectionPackage = await zipFile({
@@ -90,6 +98,15 @@ test('managing the current election', async () => {
   });
   assert(badElectionConfigureResult.isErr());
   expect(badElectionConfigureResult.err().type).toEqual('invalid-election');
+
+  expect(logger.log).toHaveBeenNthCalledWith(
+    2,
+    LogEventId.ElectionConfigured,
+    'system_administrator',
+    expect.objectContaining({
+      disposition: 'failure',
+    })
+  );
 
   const { electionDefinition } = electionTwoPartyPrimaryFixtures;
   const { ballotHash } = electionDefinition;
@@ -106,6 +123,14 @@ test('managing the current election', async () => {
   expect(badSystemSettingsConfigureResult.err().type).toEqual(
     'invalid-system-settings'
   );
+  expect(logger.log).toHaveBeenNthCalledWith(
+    3,
+    LogEventId.ElectionConfigured,
+    'system_administrator',
+    expect.objectContaining({
+      disposition: 'failure',
+    })
+  );
 
   // configure with well-formed data
   const goodPackage = await zipFile({
@@ -120,7 +145,7 @@ test('managing the current election', async () => {
   assert(configureResult.isOk());
   const { electionId } = configureResult.ok();
   expect(logger.log).toHaveBeenNthCalledWith(
-    1,
+    4,
     LogEventId.ElectionConfigured,
     'system_administrator',
     {
@@ -139,7 +164,7 @@ test('managing the current election', async () => {
   mockElectionManagerAuth(auth, electionDefinition.election);
   await apiClient.markResultsOfficial();
   expect(logger.log).toHaveBeenNthCalledWith(
-    2,
+    5,
     LogEventId.MarkedTallyResultsOfficial,
     'election_manager',
     expect.objectContaining({
@@ -156,7 +181,7 @@ test('managing the current election', async () => {
   mockSystemAdministratorAuth(auth);
   await apiClient.unconfigure();
   expect(logger.log).toHaveBeenNthCalledWith(
-    3,
+    6,
     LogEventId.ElectionUnconfigured,
     'system_administrator',
     expect.objectContaining({
