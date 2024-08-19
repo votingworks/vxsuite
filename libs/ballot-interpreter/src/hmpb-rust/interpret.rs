@@ -830,9 +830,9 @@ mod test {
     }
 
     #[test]
-    fn test_skewed_ballot_scoring_write_in_areas_no_write_ins() {
+    fn test_rotated_ballot_scoring_write_in_areas_no_write_ins() {
         let (side_a_image, side_b_image, options) = load_hmpb_fixture("general-election/letter", 3);
-        let (side_a_image_skewed, side_b_image_skewed) = [side_a_image, side_b_image]
+        let (side_a_image_rotated, side_b_image_rotated) = [side_a_image, side_b_image]
             .map(|image| {
                 geometric_transformations::warp(
                     &image,
@@ -844,7 +844,7 @@ mod test {
             .into();
 
         let interpretation =
-            interpret_ballot_card(side_a_image_skewed, side_b_image_skewed, &options).unwrap();
+            interpret_ballot_card(side_a_image_rotated, side_b_image_rotated, &options).unwrap();
 
         let front = interpretation.front;
         let back = interpretation.back;
