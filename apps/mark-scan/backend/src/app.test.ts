@@ -192,6 +192,12 @@ test('configureElectionPackageFromUsb reads to and writes from store', async () 
 
   mockElectionManagerAuth(mockAuth, electionDefinition);
   await setUpUsbAndConfigureElection(electionDefinition);
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionConfigured,
+    expect.objectContaining({
+      disposition: 'success',
+    })
+  );
 
   const readResult = await apiClient.getSystemSettings();
   expect(readResult).toEqual(
@@ -216,6 +222,12 @@ test('unconfigureMachine deletes system settings and election definition', async
 
   await setUpUsbAndConfigureElection(electionDefinition);
   await apiClient.unconfigureMachine();
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionUnconfigured,
+    expect.objectContaining({
+      disposition: 'success',
+    })
+  );
 
   readResult = await apiClient.getSystemSettings();
   expect(readResult).toEqual(DEFAULT_SYSTEM_SETTINGS);
@@ -257,6 +269,12 @@ test('configureElectionPackageFromUsb returns an error if election package parsi
   const result = await apiClient.configureElectionPackageFromUsb();
   assert(result.isErr());
   expect(result.err()).toEqual('auth_required_before_election_package_load');
+  expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+    LogEventId.ElectionConfigured,
+    expect.objectContaining({
+      disposition: 'failure',
+    })
+  );
 });
 
 test('configure with CDF election', async () => {
