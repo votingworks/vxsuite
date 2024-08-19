@@ -5,7 +5,9 @@ FORCE:
 install:
 
 build: FORCE
-	pnpm install && pnpm build
+	pnpm install && \
+		pnpm --dir ../backend build && \
+		pnpm build
 
 bootstrap: install build
 

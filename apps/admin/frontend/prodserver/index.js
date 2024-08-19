@@ -8,11 +8,14 @@
 const express = require('express')
 const path = require('path')
 const { Logger, LogSource, LogEventId } = require('@votingworks/logging')
+const { handleUncaughtExceptions } = require('@votingworks/backend');
 
 const proxy = require('./setupProxy')
 const app = express()
 const port = 3000
-const logger = new Logger(LogSource.VxAdminService)
+const logger = new Logger(LogSource.VxAdminFrontendServer)
+
+handleUncaughtExceptions(logger);
 
 app.use((req, res, next) => {
   res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private')

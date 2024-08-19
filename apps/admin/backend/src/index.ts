@@ -1,6 +1,9 @@
 // Import the rest of our application.
 import { BaseLogger, LogSource, LogEventId } from '@votingworks/logging';
-import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
+import {
+  handleUncaughtExceptions,
+  loadEnvVarsFromDotenvFiles,
+} from '@votingworks/backend';
 import * as server from './server';
 
 export type { Api } from './app';
@@ -17,6 +20,8 @@ loadEnvVarsFromDotenvFiles();
 const logger = new BaseLogger(LogSource.VxAdminService);
 
 async function main(): Promise<number> {
+  handleUncaughtExceptions(logger);
+
   await server.start({});
   return 0;
 }

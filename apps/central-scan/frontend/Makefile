@@ -5,7 +5,10 @@ FORCE:
 install:
 
 build: FORCE
-	pnpm install && pnpm --dir ../../../libs/ballot-interpreter build && pnpm build	
+	pnpm install && \
+		pnpm --dir ../../../libs/ballot-interpreter build && \
+		pnpm --dir ../backend build && \
+		pnpm build
 
 bootstrap: install build
 

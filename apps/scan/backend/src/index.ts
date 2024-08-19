@@ -16,7 +16,10 @@ import {
   isFeatureFlagEnabled,
   isIntegrationTest,
 } from '@votingworks/utils';
-import { loadEnvVarsFromDotenvFiles } from '@votingworks/backend';
+import {
+  handleUncaughtExceptions,
+  loadEnvVarsFromDotenvFiles,
+} from '@votingworks/backend';
 import { createPdiScannerClient } from '@votingworks/pdi-scanner';
 import { SCAN_WORKSPACE } from './globals';
 import * as customStateMachine from './scanners/custom/state_machine';
@@ -57,6 +60,8 @@ async function resolveWorkspace(): Promise<Workspace> {
 }
 
 async function main(): Promise<number> {
+  handleUncaughtExceptions(baseLogger);
+
   const auth = new InsertedSmartCardAuth({
     card:
       isFeatureFlagEnabled(BooleanEnvironmentVariableName.USE_MOCK_CARDS) ||

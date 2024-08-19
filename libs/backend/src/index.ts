@@ -5,6 +5,7 @@ export * from './test_detect_devices';
 export * from './diagnostics';
 export * from './dotenv';
 export * from './election_package';
+export * from './exceptions';
 export * from './exec';
 export * from './exporter';
 export * from './initialize_system_audio';
