@@ -95,11 +95,18 @@ test('uses default machine config if not set', async () => {
 });
 
 test("fails to configure if there's no election package on the usb drive", async () => {
-  await withApp(async ({ apiClient, mockAuth, mockUsbDrive }) => {
+  await withApp(async ({ apiClient, mockAuth, mockUsbDrive, logger }) => {
     mockElectionManager(mockAuth, electionGeneralDefinition);
     mockUsbDrive.insertUsbDrive({});
     expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
       err('no_election_package_on_usb_drive')
+    );
+
+    expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+      LogEventId.ElectionConfigured,
+      expect.objectContaining({
+        disposition: 'failure',
+      })
     );
 
     mockUsbDrive.insertUsbDrive({});
@@ -138,7 +145,7 @@ test('fails to configure election package if election definition on card does no
 test("if there's only one precinct in the election, it's selected automatically on configure", async () => {
   const electionDefinition =
     electionTwoPartyPrimaryFixtures.singlePrecinctElectionDefinition;
-  await withApp(async ({ apiClient, mockUsbDrive, mockAuth }) => {
+  await withApp(async ({ apiClient, mockUsbDrive, mockAuth, logger }) => {
     mockElectionManager(mockAuth, electionDefinition);
     mockUsbDrive.insertUsbDrive(
       await mockElectionPackageFileTree({
@@ -147,6 +154,12 @@ test("if there's only one precinct in the election, it's selected automatically 
     );
     expect(await apiClient.configureFromElectionPackageOnUsbDrive()).toEqual(
       ok()
+    );
+    expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+      LogEventId.ElectionConfigured,
+      expect.objectContaining({
+        disposition: 'success',
+      })
     );
     const config = await apiClient.getConfig();
     expect(config.precinctSelection).toMatchObject({
@@ -188,15 +201,23 @@ test('setPrecinctSelection will reset polls to closed', async () => {
 });
 
 test('unconfiguring machine', async () => {
-  await withApp(async ({ apiClient, mockUsbDrive, workspace, mockAuth }) => {
-    await configureApp(apiClient, mockAuth, mockUsbDrive);
+  await withApp(
+    async ({ apiClient, mockUsbDrive, workspace, mockAuth, logger }) => {
+      await configureApp(apiClient, mockAuth, mockUsbDrive);
 
-    jest.spyOn(workspace, 'reset');
+      jest.spyOn(workspace, 'reset');
 
-    await apiClient.unconfigureElection();
+      await apiClient.unconfigureElection();
 
-    expect(workspace.reset).toHaveBeenCalledTimes(1);
-  });
+      expect(workspace.reset).toHaveBeenCalledTimes(1);
+      expect(logger.logAsCurrentRole).toHaveBeenLastCalledWith(
+        LogEventId.ElectionUnconfigured,
+        expect.objectContaining({
+          disposition: 'success',
+        })
+      );
+    }
+  );
 });
 
 test('configure with CDF election', async () => {
