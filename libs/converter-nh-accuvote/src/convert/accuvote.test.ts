@@ -1,4 +1,5 @@
 import { electionGridLayoutNewHampshireHudsonFixtures } from '@votingworks/fixtures';
+import { DOMParser } from '@xmldom/xmldom';
 import { readFixtureDefinition } from '../../test/fixtures';
 import * as accuvote from './accuvote';
 import { ConvertIssue, ConvertIssueKind } from './types';
@@ -104,4 +105,61 @@ test('missing ElectionDate', () => {
       property: 'ElectionDate',
     },
   ]);
+});
+
+function assertRoundTrips(input: accuvote.AvsInterface) {
+  const xml = accuvote.toXml(input);
+  const parsedXml = new DOMParser().parseFromString(xml, 'text/xml');
+  const roundTripped = accuvote
+    .parseXml(parsedXml.documentElement)
+    .unsafeUnwrap();
+  expect(roundTripped).toEqual(input);
+}
+
+test('toXml', () => {
+  assertRoundTrips({
+    accuvoteHeaderInfo: {
+      ballotSize: '8.5X11',
+      electionDate: '7/12/2022 12:00:00',
+      electionName: 'General Election',
+      townName: 'Test Ballot',
+      townId: '12345',
+      electionId: '67890',
+    },
+    candidates: [
+      {
+        officeName: {
+          name: 'President',
+          x: 11,
+          y: 22,
+          winnerNote: 'Vote for 1',
+        },
+        candidateNames: [
+          {
+            name: 'Alice',
+            cx: 33,
+            cy: 44,
+            ox: 55,
+            oy: 66,
+            party: 'Independent',
+            pronunciation: 'ah-LEECE',
+            writeIn: false,
+          },
+          {
+            name: 'Bob',
+            cx: 77,
+            cy: 88,
+            ox: 99,
+            oy: 111,
+            party: 'Republican',
+            pronunciation: 'bahb',
+            writeIn: false,
+          },
+        ],
+      },
+    ],
+    ballotPaperInfo: {
+      questions: '<![CDATA[<div>CONSTITUTIONAL AMENDMENT QUESTION</div>]]>',
+    },
+  });
 });

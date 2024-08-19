@@ -11,26 +11,34 @@ import {
 } from '@votingworks/types';
 import { readFile } from 'fs/promises';
 import { join } from 'path';
-import { PDFDocument, PDFPage, rgb } from 'pdf-lib';
+import { Color, PDFDocument, PDFFont, PDFPage, rgb } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import {
   BallotGridPoint,
   BallotGridValue,
   ImageSize,
   ballotGridPointToImagePoint,
+  ballotGridPointToPdfPoint,
   distance,
   imagePointToPdfPoint,
   imageSizeToPdfSize,
   newBallotGridPoint,
   newImagePoint,
   newImageSize,
+  newPdfPoint,
   newPdfSize,
 } from './convert/coordinates';
 import { TextAppearanceConfig, fitTextWithinSize } from './drawing';
 
-const PDF_PPI = 72;
+/**
+ * The number of pixels per inch in a PDF.
+ */
+export const PDF_PPI = 72;
 
-function addTimingMarkAnnotationsToPdfPage(
+/**
+ * Draws annotations on a PDF page to indicate the locations of timing marks.
+ */
+export function addTimingMarkAnnotationsToPdfPage(
   page: PDFPage,
   grid: TimingMarkGrid
 ): void {
@@ -139,7 +147,10 @@ function addTimingMarkGridAnnotationsToPdfPage(
   }
 }
 
-function addBubbleAnnotationsToPdfPage(
+/**
+ * Draws annotations on a PDF page to indicate the locations of bubbles.
+ */
+export function addBubbleAnnotationsToPdfPage(
   page: PDFPage,
   grid: TimingMarkGrid,
   bubbles: BallotGridPoint[]
@@ -452,6 +463,84 @@ function readRobotoFont(): Promise<Uint8Array> {
 }
 
 /**
+ * Draws text next to a bubble on a PDF page.
+ */
+export function addBubbleLabelAnnotation({
+  page,
+  grid,
+  bubble,
+  label,
+  font,
+  fontSize,
+  color,
+  backgroundColor,
+  backgroundOpacity,
+}: {
+  page: PDFPage;
+  grid: TimingMarkGrid;
+  bubble: BallotGridPoint;
+  label: string;
+  font: PDFFont;
+  fontSize: number;
+  color: Color;
+  backgroundColor?: Color;
+  backgroundOpacity?: number;
+}): void {
+  const timingMarkTemplateSize = grid.geometry.timingMarkSize as ImageSize;
+  const timingMarkPdfSize = imageSizeToPdfSize(
+    grid.geometry.pixelsPerInch,
+    PDF_PPI,
+    timingMarkTemplateSize
+  );
+  const bubbleCenter = ballotGridPointToPdfPoint(
+    newPdfSize(page.getWidth(), page.getHeight()),
+    grid.geometry.pixelsPerInch,
+    PDF_PPI,
+    grid.completeTimingMarks,
+    bubble
+  );
+
+  const textWidth = font.widthOfTextAtSize(label, fontSize);
+  const textHeight = font.heightAtSize(fontSize);
+
+  const textOrigin = newPdfPoint(
+    bubbleCenter.x - textWidth - timingMarkPdfSize.width,
+    bubbleCenter.y - textHeight / 2
+  );
+
+  if (backgroundColor) {
+    page.drawRectangle({
+      x: textOrigin.x,
+      y: textOrigin.y,
+      width: textWidth,
+      height: textHeight,
+      color: backgroundColor,
+      opacity: backgroundOpacity,
+    });
+  }
+
+  page.drawText(label, {
+    x: textOrigin.x,
+    y: textOrigin.y,
+    size: fontSize,
+    font,
+    color,
+  });
+}
+
+/**
+ * Registers our fonts with a PDF document.
+ */
+export async function registerFonts(
+  document: PDFDocument
+): Promise<{ regular: PDFFont; bold: PDFFont }> {
+  document.registerFontkit(fontkit);
+  const robotoBold = await document.embedFont(await readRobotoBoldFont());
+  const roboto = await document.embedFont(await readRobotoFont());
+  return { regular: roboto, bold: robotoBold };
+}
+
+/**
  * Adds annotations to a PDF to assist with ballot proofing.
  */
 export async function addBallotProofingAnnotationsToPdf(
@@ -460,10 +549,7 @@ export async function addBallotProofingAnnotationsToPdf(
   templateGrid: TemplateGridAndBubbles
 ): Promise<void> {
   const pages = document.getPages();
-
-  document.registerFontkit(fontkit);
-  const robotoBold = await document.embedFont(await readRobotoBoldFont());
-  const roboto = await document.embedFont(await readRobotoFont());
+  const { regular: roboto, bold: robotoBold } = await registerFonts(document);
 
   for (const [pageNumber, [templateGridSide, page]] of iter(templateGrid)
     .zip(pages)

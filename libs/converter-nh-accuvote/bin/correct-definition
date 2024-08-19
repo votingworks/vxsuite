@@ -1,0 +1,15 @@
+#!/usr/bin/env node
+
+require('esbuild-runner').install({
+  type: 'transform',
+});
+
+require('../src/cli/correct-definition')
+  .main(process.argv.slice(2))
+  .then((code) => {
+    process.exitCode = code;
+  })
+  .catch((err) => {
+    console.error(err.stack ?? err);
+    process.exit(1);
+  });

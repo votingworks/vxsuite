@@ -27,6 +27,7 @@ function timingMarkCoordinatesFromOxOy(
  * Contains candidate elements and their LCM column/row coordinates.
  */
 export interface CandidateGridEntry {
+  readonly office: accuvote.OfficeName;
   readonly candidate: accuvote.CandidateName;
   readonly column: number;
   readonly row: number;
@@ -44,7 +45,7 @@ export function readGridFromElectionDefinition(
         candidate.ox,
         candidate.oy
       );
-      return { candidate, column, row };
+      return { office: candidateContest.officeName, candidate, column, row };
     })
   );
 }

@@ -7,33 +7,36 @@ VotingWorks election definition.
 
 Follow the instructions in the [VxSuite README](../../README.md) to get set up.
 
-## API Usage
+## CLI Usage
 
-```ts
-import { convertElectionDefinition } from '@votingworks/converter-nh-accuvote';
-import { loadImageData } from '@votingworks/image-utils';
-import { DOMParser } from '@xmldom/xmldom';
+### Correct an AccuVote XML definition
 
-const front = await loadImageData('./template-front.jpeg');
-const back = await loadImageData('./template-back.jpeg');
-const definition = new DOMParser().parseFromString(
-  await fs.readFile('./election.xml', 'utf8'),
-  'text/xml'
-);
-const convertResult = convertElectionDefinition({
-  front,
-  back,
-  definition,
-});
-
-if (convertResult.isErr()) {
-  console.error(`error: ${JSON.stringify(convertResult.err())}`);
-} else {
-  console.log('Converted election result:', convertResult.ok().election);
+```sh
+# create a config file
+$ cat correct-config.json
+{
+  "cards": [
+    {
+      "definitionPath": "alton.xml",
+      "pdfPath": "alton.pdf",
+      "outputDir": "corrected/alton/"
+    },
+    {
+      "definitionPath": "conway.xml",
+      "pdfPath": "conway.pdf",
+      "outputDir": "corrected/conway/"
+    }
+  ]
 }
+
+# run the correction with the config file
+$ ./bin/correct-definition -c correct-config.json
+
+# see --help for more options
+$ ./bin/correct-definition --help
 ```
 
-## CLI Usage
+### Convert an AccuVote XML definition
 
 ```sh
 $ ./bin/convert \

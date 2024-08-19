@@ -38,6 +38,7 @@
     "luxon": "^3.0.0",
     "pdf-lib": "^1.17.1",
     "tmp": "^0.2.1",
+    "xml-formatter": "^3.6.3",
     "zod": "3.14.4"
   },
   "devDependencies": {
