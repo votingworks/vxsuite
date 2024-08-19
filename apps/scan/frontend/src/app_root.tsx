@@ -136,20 +136,6 @@ export function AppRoot(): JSX.Element | null {
   }
 
   if (
-    usbDrive.doesUsbDriveRequireCastVoteRecordSync ||
-    shouldStayOnCastVoteRecordSyncRequiredScreen
-  ) {
-    return (
-      <CastVoteRecordSyncRequiredScreen
-        pollWorkerAuthenticated={isPollWorkerAuth(authStatus)}
-        setShouldStayOnCastVoteRecordSyncRequiredScreen={
-          setShouldStayOnCastVoteRecordSyncRequiredScreen
-        }
-      />
-    );
-  }
-
-  if (
     scannerStatus.state === 'calibrating_double_feed_detection.double_sheet' ||
     scannerStatus.state === 'calibrating_double_feed_detection.single_sheet' ||
     scannerStatus.state === 'calibrating_double_feed_detection.done'
@@ -168,6 +154,22 @@ export function AppRoot(): JSX.Element | null {
             // Handled by default query client error handling
           }
         }}
+      />
+    );
+  }
+
+  if (
+    usbDrive.doesUsbDriveRequireCastVoteRecordSync ||
+    shouldStayOnCastVoteRecordSyncRequiredScreen
+  ) {
+    return (
+      <CastVoteRecordSyncRequiredScreen
+        isAuthenticated={
+          isPollWorkerAuth(authStatus) || isElectionManagerAuth(authStatus)
+        }
+        setShouldStayOnCastVoteRecordSyncRequiredScreen={
+          setShouldStayOnCastVoteRecordSyncRequiredScreen
+        }
       />
     );
   }
